@@ -2,7 +2,6 @@
 # Format: <repo-relative path> <line count>.
 # This list may only shrink — split a file when it moves out of packages/.
 packages/npc-state-delta/tests/branch.test.js 517
-packages/npc-state-delta/tests/cast-dossier.test.js 1582
 packages/npc-state-delta/tests/core.test.js 3837
 packages/npc-state-delta/tests/dossier-page-perf.test.js 529
 packages/npc-state-delta/tests/history-replay-wiring.test.js 583
@@ -19,7 +18,6 @@ packages/npc-state-delta/tests/storysuite-participant.test.js 863
 packages/npc-state-delta/tests/storysuite-snapshot-timeout.test.js 586
 packages/npc-state-delta/tests/storysuite-v2-meters-ladder.test.js 1298
 packages/npc-state-delta/tests/storysuite-v2-meters-runtime.test.js 618
-packages/npc-state-delta/tests/storysuite-v2-meters.test.js 1342
 packages/npc-state-delta/tests/storysuite-v2.test.js 837
 packages/npc-state-delta/tests/ui-layout.test.js 463
 packages/npc-state-delta/tests/v106-speech-development-ledger.test.js 545
