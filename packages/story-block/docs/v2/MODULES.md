@@ -352,8 +352,8 @@ These settle questions agents raised; the host changes they need are made at int
     first) beats a pack's `currency.coins: [{ name, plural?, value }]` (only while the pack's currency is in
     use), which beats the single name. `inventory.currency` gives `coins: [{ name, plural, value }]` (and
     `display: 'base'`) when there are any. The wallet holds the smallest unit (the coin worth 1). The static
-    part gets one line naming the coins and their worth and saying a money line names one coin
-    (`+ coin 3 silver`) or the smallest unit (`+ coin 35`); it changes only when the coins do. Capture reads
+    part gets one line naming the coins and their worth and saying a coin line names the coins as the story says them
+    (`+ coin 4 silver 5 copper`) or the smallest unit (`+ coin 35`), which code adds up; it changes only when the coins do. Capture reads
     `+ coin`, `+ item <coin> | qty`, and loot money with a known coin name and converts it before the reply's
     budget and caps (rule 1); with coins, an unknown coin word, or two numbers not each named by a known coin, is
     refused (as strict as SB #118); `+ coin 3 silver 6 copper` (also with "," or "and") adds up to 36 (SB 2.16.5). Money words read the same on every path (beta-candidate break): an item or loot named as
