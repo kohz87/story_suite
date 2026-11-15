@@ -31,4 +31,3 @@ export function swipeLoading(message, deleted = null) {
         && !message.swipe_info.some(info => info?.extra?.[KEY]?.sid === record.sid)) return true;
     return message.swipes[swipe] !== message.mes;
 }
-

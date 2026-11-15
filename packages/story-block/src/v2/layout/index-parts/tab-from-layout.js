@@ -34,4 +34,3 @@ export function tabFromLayout(layout, { widgets } = {}) {
         },
     };
 }
-

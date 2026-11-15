@@ -270,4 +270,3 @@ export function renderSkills(parent, { character, session = null, api = {}, onBa
         destroy() { alive = false; clear(); root.remove(); },
     };
 }
-

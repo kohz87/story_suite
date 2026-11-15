@@ -16,4 +16,3 @@ export function lastCarrier(chat, before = chat?.length ?? 0) {
     for (let i = Math.min(before, chat?.length ?? 0) - 1; i >= 0; i--) if (isCarrier(chat[i])) return i;
     return -1;
 }
-

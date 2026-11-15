@@ -176,4 +176,3 @@ export function createStart({ doc, headState = () => null, readerName = () => ''
 
     return { widget, holdWidget, holdScreen: createHoldScreen(), attach, detach, hasYou, session: () => hold };
 }
-

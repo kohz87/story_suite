@@ -2,5 +2,3 @@
 
 export const num = value => (Number.isFinite(value) ? Math.trunc(value) : 0);
 export const statOf = (stats, key) => num(stats?.[key]);
-
-

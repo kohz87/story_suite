@@ -13,4 +13,3 @@ export const WINDOW_TEXT = Object.freeze({
     searchPlaceholder: 'Search settings…',
     content: '{section} settings',
 });
-

@@ -10,4 +10,3 @@ export function rebuildTarget(blocked) {
     if (!module || !REBUILD_PERMANENT_CODES.includes(by.code)) return null;
     return { module, code: by.code };
 }
-

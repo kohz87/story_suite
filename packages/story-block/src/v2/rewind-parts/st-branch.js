@@ -45,4 +45,3 @@ export function stCreateBranch(ctx, { importer = path => import(path), branch = 
         return name;
     };
 }
-
