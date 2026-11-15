@@ -4,6 +4,7 @@ import path from 'node:path';
 import { listCodeFiles } from './code-files.mjs';
 import { countLines } from './count-lines.mjs';
 import { checkLegacyRatchet, decideBase } from './legacy-ratchet.mjs';
+import { nulProblem } from './nul-check.mjs';
 import { LINE_LIMIT, checkSizes, parseLegacyList } from './file-size.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
@@ -56,10 +57,8 @@ if (baseRef) {
 }
 
 const codePaths = listCodeFiles(repoRoot);
-const files = codePaths.map(relPath => ({
-  path: relPath,
-  lines: countLines(fs.readFileSync(path.join(repoRoot, relPath), 'utf8')),
-}));
+const texts = new Map(codePaths.map(relPath => [relPath, fs.readFileSync(path.join(repoRoot, relPath), 'utf8')]));
+const files = codePaths.map(relPath => ({ path: relPath, lines: countLines(texts.get(relPath)) }));
 
 if (writeLegacy) {
   const oversize = files.filter(f => f.lines > LINE_LIMIT);
@@ -85,6 +84,10 @@ if (writeLegacy) {
 const legacyText = fs.existsSync(legacyAbsPath) ? fs.readFileSync(legacyAbsPath, 'utf8') : '';
 const legacy = parseLegacyList(legacyText);
 const { errors } = checkSizes({ files, legacy });
+for (const [relPath, text] of texts) {
+  const problem = nulProblem(relPath, text);
+  if (problem) errors.push(problem);
+}
 if (baseList) errors.push(...checkLegacyRatchet({ current: legacy, base: baseList }).errors);
 else if (!baseRef) console.log('size check: no --base given; the legacy-list ratchet was not applied');
 else console.log(`size check: ${baseRef} is the import commit, which has no list; ratchet skipped`);

@@ -22,7 +22,13 @@ function moduleName(node) {
 }
 
 function exportsOf(node, source) {
-  if (node.type === 'ExportDefaultDeclaration') return [exp('default', 'default')];
+  if (node.type === 'ExportDefaultDeclaration') {
+    // A named function or class declaration keeps its binding, so `default` and the name can be matched;
+    // an expression (even a bare identifier) creates a separate default binding.
+    const decl = node.declaration;
+    const local = /^(?:Function|Class)Declaration$/.test(decl.type) ? decl.id?.name : undefined;
+    return [exp('default', 'default', undefined, undefined, local)];
+  }
   if (node.type === 'ExportAllDeclaration') {
     const from = String(node.source.value);
     if (node.exported) return [exp(moduleName(node.exported), 'reexport', undefined, from, '*')];
