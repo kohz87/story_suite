@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { partsSource } from './helpers/parts-source.js';
 import { BRANCH_SNAPSHOT_BUDGET_BYTES, chatLineage, pruneBranchCheckpoints } from '../branch.js';
 import { prunePortraitAssetsForState } from '../storage.js';
 import { buildQualifiedChatKey } from '../identity.js';
@@ -66,7 +67,7 @@ test('chat cache has bounded eviction and refuses to evict active work', () => {
 
 test('lifecycle lookup prefers known owner state and fails closed on ambiguous suffixes', () => {
     assert.match(index, /resolveOwnedLifecycleKey\(candidates, kind, id, resolvedOwner, ownerWasProvided\)/);
-    const ownershipCore = fs.readFileSync(new URL('../hardening-core.js', import.meta.url), 'utf8');
+    const ownershipCore = partsSource('hardening-core.js');
     assert.match(ownershipCore, /if \(ownerWasProvided\) return direct && unique\.includes\(direct\) \? direct : ''/);
     assert.match(index, /refused ambiguous/);
 });

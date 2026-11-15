@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { partsSource } from './helpers/parts-source.js';
 import {
     BRANCH_LINEAGE_VERSION,
     bestAncestorState,
@@ -142,7 +143,7 @@ test('ambiguous delete proof considers only live ownership and ignores historica
   const index = runtimeSource();
   const wrapper = index.slice(index.indexOf('function lifecycleCandidateKeys'), index.indexOf('async function hostCharacterChatPresence'));
   assert.match(wrapper, /liveLifecycleCandidateKeys\(getSettings\(\), chatStateCache\.keys\(\), kind, id\)/);
-  const core = fs.readFileSync(new URL('../hardening-core.js', import.meta.url), 'utf8');
+  const core = partsSource('hardening-core.js');
   const block = core.slice(core.indexOf('export function liveLifecycleCandidateKeys'), core.indexOf('export function resolveOwnedLifecycleKey'));
   assert.match(block, /settings\?\.dataFiles/);
   assert.doesNotMatch(block, /branchIndex|recoveryFiles/);

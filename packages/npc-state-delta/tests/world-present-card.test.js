@@ -25,6 +25,6 @@ test('the card shows Mood, Condition and Look one clamped line each; the chatter
 });
 
 test('the outfit line is labelled Look on the card, from the dossier or from World State', () => {
-    const present = fs.readFileSync(path.join(root, 'present-scene.js'), 'utf8');
+    const present = fs.readFileSync(path.join(root, 'present-scene-parts/scene-model.js'), 'utf8');
     assert.match(present, /label: part\.key === 'outfit' \? DOSSIER_LOOK_LABEL : part\.label/);
 });
