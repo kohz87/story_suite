@@ -92,6 +92,7 @@ for (const { path: file } of JSON.parse(fs.readFileSync(path.join(sourceRoot, 'r
     fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
     fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
 }
+for (const name of fs.readdirSync(sourceRoot).filter(entry => entry.endsWith('-parts'))) fs.cpSync(path.join(sourceRoot, name), path.join(extRoot, name), { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), 'export const extension_settings = {};\nexport function getContext() { return {}; }\n');
 fs.writeFileSync(path.join(tempRoot, 'public', 'script.js'), 'export function getRequestHeaders() { return {}; }\nexport async function saveSettings() {}\n');
 const { effectiveCustomFieldNames, setRpgProbe } = await import(pathToFileURL(path.join(extRoot, 'runtime-settings.js')).href);

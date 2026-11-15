@@ -134,7 +134,7 @@ test('the modules use the derived lists, not copies of their own', () => {
     assert.match(read('core-prompts.js'), /import \{ PROFILE_EVIDENCE_FIELDS, RETURN_KEYS, RETURN_SHAPES \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-merge-incoming.js'), /import \{ TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-merge-aliases.js'), /import \{ ALIAS_MERGE_TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
-    assert.match(read('core-birthday.js'), /import \{ CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
+    assert.match(read('core-birthday-parts/field-change-stamp.js'), /import \{ CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS \} from '\.\.\/src\/fields\/registry\.js';/);
     assert.match(read('branch-delete-recovery.js'), /import \{ NPC_REVERT_GROUPS, NPC_REVERT_LIST_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('branch-core.js'), /const globallyPreserved = BRANCH_USER_METADATA_FIELDS;/);
     assert.match(read('terminal-lifecycle.js'), /for \(const field of TERMINAL_FROZEN_FIELDS\)/);
