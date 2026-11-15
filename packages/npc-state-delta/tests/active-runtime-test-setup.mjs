@@ -34,6 +34,9 @@ fs.copyFileSync = (source, destination, ...args) => {
             // beneath it too (a root module's parts may sit in `<name>-parts`), while preserving any host/fixture file that already exists.
             for (const suffix of ['', '-parts']) {
             const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, suffix));
+            // The parts of a facade live in `<name>-parts/`; older splits in `<name>/`.
+            for (const suffix of ['', '-parts']) {
+            const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, '') + suffix);
             if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
             const copySplit = (directory, relative = '') => {
                 for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
