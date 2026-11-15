@@ -21,7 +21,7 @@ export const JOURNAL_SHAPE = {
       stepIndex: T.NUMBER,
       stepCount: T.NUMBER,
       steps: [T.STRING],
-      giver: { personId: { $nullable: T.STRING }, name: T.STRING },
+      giver: { personId: { $nullable: T.STRING }, name: T.STRING, portrait: { $optional: { $nullable: T.STRING } } },
       due: { $nullable: DUE },
       place: { $nullable: T.STRING },
       trip: { $optional: { $nullable: T.STRING } },
