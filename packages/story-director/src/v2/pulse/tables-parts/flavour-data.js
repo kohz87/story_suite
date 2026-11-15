@@ -1,0 +1,78 @@
+// The fixed flavour lines by kind, place group and weather.
+
+/** The flavour kinds: one tail line each, from FLAVOUR. Their lines have a place group; ENV_SHIFT lines also a weather. */
+export const FLAVOUR = Object.freeze({
+    BACKGROUND_INCIDENT: Object.freeze([
+        Object.freeze({ group: 'wild', text: 'A branch cracks somewhere off the path near {place}, and birds scatter.' }),
+        Object.freeze({ group: 'town', text: 'A cart wheel splinters in the street near {place}; someone shouts.' }),
+        Object.freeze({ group: 'indoors', text: 'A tray of cups clatters to the floor in {place}; the room goes quiet, then loud again.' }),
+        Object.freeze({ group: 'road', text: 'A rider gallops past {place} without slowing, calling for the way to clear.' }),
+        Object.freeze({ group: 'water', text: 'A rope snaps on the landing at {place}; crates slide and someone curses.' }),
+    ]),
+    MUNDANE_INTERRUPTION: Object.freeze([
+        Object.freeze({ group: 'wild', text: 'A stray dog noses around the packs at {place}.' }),
+        Object.freeze({ group: 'town', text: 'A vendor calls a price right beside you, loud enough to stop the talk.' }),
+        Object.freeze({ group: 'indoors', text: 'Someone asks you to move your bag from the bench, then forgets why.' }),
+        Object.freeze({ group: 'road', text: 'A carter asks the way to a place he has already passed.' }),
+        Object.freeze({ group: 'water', text: 'Gulls take the bread someone dropped on the dock at {place}.' }),
+    ]),
+    MOOD_SWING: Object.freeze([
+        Object.freeze({ group: 'wild', text: '{name} goes quiet and stares at the treeline for a long moment.' }),
+        Object.freeze({ group: 'town', text: '{name} snaps at a passing stranger, then looks embarrassed about it.' }),
+        Object.freeze({ group: 'indoors', text: '{name} pushes a cup away untouched and does not say why.' }),
+        Object.freeze({ group: 'road', text: '{name} walks faster for a while and will not look back at you.' }),
+        Object.freeze({ group: 'water', text: '{name} laughs at nothing, then stops, as if caught out.' }),
+    ]),
+    ENV_SHIFT: Object.freeze([
+        Object.freeze({ group: 'wild', weather: 'rain', text: 'Rain comes through the trees near {place} all at once and soaks the path.' }),
+        Object.freeze({ group: 'wild', weather: 'wind', text: 'A gust bends the grass around {place} flat and carries off a loose cloak.' }),
+        Object.freeze({ group: 'wild', weather: 'fog', text: 'Fog rolls in over {place} and the far trees vanish.' }),
+        Object.freeze({ group: 'wild', weather: 'snow', text: 'Snow starts to fall thick and fast over {place}.' }),
+        Object.freeze({ group: 'town', weather: 'rain', text: 'Rain drives everyone under the eaves near {place}.' }),
+        Object.freeze({ group: 'town', weather: 'wind', text: 'A gust slams a shutter open somewhere near {place}.' }),
+        Object.freeze({ group: 'town', weather: 'heat', text: 'The heat off the stones at {place} lies thick until someone opens a window.' }),
+        Object.freeze({ group: 'indoors', weather: 'rain', text: 'Rain drums on the roof above {place} and drips through somewhere.' }),
+        Object.freeze({ group: 'indoors', weather: 'wind', text: 'A draught finds its way under the door at {place}; the lamps gutter.' }),
+        Object.freeze({ group: 'road', weather: 'rain', text: 'Rain turns the road to mud past {place}.' }),
+        Object.freeze({ group: 'road', weather: 'fog', text: 'Fog thickens on the road by {place}; the next milestone disappears.' }),
+        Object.freeze({ group: 'road', weather: 'heat', text: 'The road shimmers with heat near {place}; a horse stops and will not move.' }),
+        Object.freeze({ group: 'water', weather: 'wind', text: 'The wind rises on the water at {place} and the boats strain at their lines.' }),
+        Object.freeze({ group: 'water', weather: 'fog', text: 'Fog lies on the water at {place}; a bell sounds from somewhere unseen.' }),
+        Object.freeze({ group: 'water', weather: 'rain', text: 'Rain pocks the water at {place} until the surface looks like hammered metal.' }),
+    ]),
+    PHYSICAL_REACTION: Object.freeze([
+        Object.freeze({ group: 'wild', text: 'A tremor runs through the ground near {place}, enough to rattle your teeth.' }),
+        Object.freeze({ group: 'town', text: 'A bell close to {place} rings hard enough that your chest hums.' }),
+        Object.freeze({ group: 'indoors', text: 'The floor creaks loudly under you, as if it shifted beneath the boards.' }),
+        Object.freeze({ group: 'road', text: 'Loose stone shifts under your feet on the road near {place}.' }),
+        Object.freeze({ group: 'water', text: 'A wave slaps the landing at {place} hard enough to splash your boots.' }),
+    ]),
+    OBJECT_DISCOVERY: Object.freeze([
+        Object.freeze({ group: 'wild', text: 'Something pale glints in the leaf litter near {place}, half buried.' }),
+        Object.freeze({ group: 'town', text: 'A folded paper is pushed under a gap in a wall at {place}.' }),
+        Object.freeze({ group: 'indoors', text: 'A loose board in {place} shows a gap with something wrapped inside.' }),
+        Object.freeze({ group: 'road', text: 'A dropped purse lies in the verge near {place}, no one close by.' }),
+        Object.freeze({ group: 'water', text: 'Something catches the light in the shallows by {place}.' }),
+    ]),
+    OUTSIDE_INTRUSION: Object.freeze([
+        Object.freeze({ group: 'wild', text: 'Riders cross the clearing near {place}, far off, heading for the road.' }),
+        Object.freeze({ group: 'town', text: 'Strangers in unfamiliar cloaks walk through {place} asking questions about newcomers.' }),
+        Object.freeze({ group: 'indoors', text: 'Someone knocks at the door of {place} and waits without giving a name.' }),
+        Object.freeze({ group: 'road', text: 'A column of riders comes up the road behind you near {place}.' }),
+        Object.freeze({ group: 'water', text: 'A boat with no lights slides past the landing at {place}.' }),
+    ]),
+    MEMORY_TRIGGER: Object.freeze([
+        Object.freeze({ group: 'wild', text: '{name} stops walking, as if remembering something, then goes on.' }),
+        Object.freeze({ group: 'town', text: '{name} hears a familiar tune from an open window and stops in the street.' }),
+        Object.freeze({ group: 'indoors', text: '{name} sees an old object on a shelf in {place} and looks at it a long moment.' }),
+        Object.freeze({ group: 'road', text: '{name} points at a stone by the road, says nothing, and walks on.' }),
+        Object.freeze({ group: 'water', text: '{name} watches the water at {place} for a long moment, as if waiting for someone.' }),
+    ]),
+    POWER_SHIFT: Object.freeze([
+        Object.freeze({ group: 'wild', text: 'Word passes along the track near {place} that a new order has taken hold somewhere.' }),
+        Object.freeze({ group: 'town', text: 'A notice on a wall near {place} is replaced overnight; the old one lies torn beneath.' }),
+        Object.freeze({ group: 'indoors', text: 'A message is handed to the keeper of {place}, read twice, and put in the lamp.' }),
+        Object.freeze({ group: 'road', text: 'A column of guards crosses the road near {place} and every traveller steps aside.' }),
+        Object.freeze({ group: 'water', text: 'New landing rules are posted at {place}, the paint still wet.' }),
+    ]),
+});
