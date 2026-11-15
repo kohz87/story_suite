@@ -7,12 +7,27 @@ set -euo pipefail
 # Raise the floor when tests are added. A lower "# tests" count means test-level results were not
 # reported or tests were lost.
 MIN_TESTS=5826
-MAX_TODO=1
+# The only TODO tests allowed, by exact test name (like the skip reasons). Any other TODO fails the job.
+ALLOWED_TODOS=(
+  "C4-2 (open): no chat file is made again under the old name by a save already on its way (needs the server to refuse a save of a renamed chat, or the page to delete that copy)"
+)
 # The only skips allowed, by reason. Any other skip fails the job.
 ALLOWED_SKIPS=(
   "SWIPECHK_FILES (the run data folder) is not set"
   "this shard makes no remake; shards 2 to 4 check it"
 )
+# The two browser skips (rendered tests) are allowed only on a machine with no browser installed. In CI
+# (CI=true) a missing browser package or browser fails the job.
+BROWSER_SKIPS=(
+  "Install the optional browser package to run the rendered"
+  "Browser unavailable:"
+)
+browser_installed() {
+  node -e "import('playwright').then(m => process.exit(require('fs').existsSync(m.chromium.executablePath()) ? 0 : 1), () => process.exit(1))" 2>/dev/null
+}
+if [ "${CI:-}" != "true" ] && ! (cd "$(git rev-parse --show-toplevel)" && browser_installed); then
+  ALLOWED_SKIPS+=("${BROWSER_SKIPS[@]}")
+fi
 
 repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
@@ -53,8 +68,25 @@ if [ "${tests:-0}" -lt "$MIN_TESTS" ]; then
   echo "error: only ${tests:-0} tests reported, expected at least $MIN_TESTS (siblings missing, results lost or tests deleted)" >&2
   fail=1
 fi
-if [ "${todo:-0}" -gt "$MAX_TODO" ]; then
-  echo "error: $todo tests are marked todo, at most $MAX_TODO is allowed" >&2
+# TODO lines look like "ok N - <name> # TODO"; the name must equal one on the list exactly.
+set +e
+todo_lines="$(grep -E ' # TODO' "$tap_file")"
+grep_status=$?
+set -e
+if [ "$grep_status" -ge 2 ]; then echo "error: could not read the test results" >&2; exit 1; fi
+todo_count=0
+while IFS= read -r line; do
+  [ -n "$line" ] || continue
+  todo_count=$((todo_count + 1))
+  name="$(printf '%s' "$line" | sed -E 's/^[[:space:]]*(not )?ok [0-9]+ - //; s/ # TODO.*$//')"
+  allowed=0
+  for known in "${ALLOWED_TODOS[@]}"; do
+    [ "$name" = "$known" ] && allowed=1
+  done
+  if [ "$allowed" = 0 ]; then echo "error: a TODO test not on the allowed list: $line" >&2; fail=1; fi
+done <<< "$todo_lines"
+if [ "${todo:-0}" != "$todo_count" ]; then
+  echo "error: ${todo:-unknown} todo tests reported but $todo_count TODO lines listed" >&2
   fail=1
 fi
 # status 1 = no match, 2 or more = error.

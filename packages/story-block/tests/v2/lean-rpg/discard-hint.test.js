@@ -7,7 +7,7 @@ import { boardFailure, restoreHint } from '../../../src/v2/turn/held-board.js';
 
 const WHERE = '(Fight tab, Discard fight)';
 const FILES = ['lean-rpg/precall.js', 'lean-rpg/board/view.js', 'lean-rpg/board/commit.js', 'lean-rpg/board/session.js',
-    'lean-rpg/board/start-controller.js', 'lean-rpg/board/engine.js', 'turn/held-board.js', 'turn/reread.js', 'turn/events.js', 'turn/prompt-build.js'];
+    'lean-rpg/board/start-controller.js', 'lean-rpg/board/engine.js', 'turn/held-board.js', 'turn/held-board-parts/failure.js', 'turn/held-board-parts/held.js', 'turn/held-board-parts/board-state.js', 'turn/reread.js', 'turn/events.js', 'turn/prompt-build.js'];
 
 test('discard advice in held-board helpers names the Fight tab button', () => {
     assert.ok(restoreHint('x').includes(`discard the fight ${WHERE}.`));
