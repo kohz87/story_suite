@@ -117,6 +117,8 @@ test('ONEPASSCAP-1: a change Delta saves while a participant write is in flight 
     for (const { path: file } of JSON.parse(fs.readFileSync(path.join(sourceRoot, 'runtime-modules.json'), 'utf8')).modules) {
         fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
         fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
+        const parts = file.replace(/\.js$/, '-parts');
+        if (fs.existsSync(path.join(sourceRoot, parts))) fs.cpSync(path.join(sourceRoot, parts), path.join(extRoot, parts), { recursive: true });
     }
     fs.cpSync(path.join(sourceRoot, 'src'), path.join(extRoot, 'src'), { recursive: true });
     fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), 'export const extension_settings = {};\nexport function getContext() { return { chat: [] }; }\n');

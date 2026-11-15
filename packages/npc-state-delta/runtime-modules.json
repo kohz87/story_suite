@@ -226,6 +226,9 @@
     { "path": "src/key-people.js", "role": "key-people-rules", "required": true },
     { "path": "src/cast-dossier.js", "role": "cast-dossier-rules", "required": true },
     { "path": "src/portrait-file.js", "role": "cast-portrait-user-files", "required": true },
-    { "path": "src/card-settings.js", "role": "story-block-card-settings", "required": true }
+    { "path": "src/card-settings.js", "role": "story-block-card-settings", "required": true },
+    { "path": "src/card-settings-parts/constants.js", "role": "story-block-card-settings-constants", "required": true },
+    { "path": "src/card-settings-parts/validators.js", "role": "story-block-card-settings-validators", "required": true },
+    { "path": "src/card-settings-parts/definition.js", "role": "story-block-card-settings-definition", "required": true }
   ]
 }
