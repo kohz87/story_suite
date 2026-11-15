@@ -218,5 +218,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      # Story Block's rendered tests import "playwright"; Node finds it in the root node_modules.
+      - name: Install the root packages (the browser package)
+        run: npm ci
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
       - name: Cross-package suite tests (a skip fails the job)
         run: bash scripts/ci/suite-tests.sh
