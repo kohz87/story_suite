@@ -1,7 +1,8 @@
 // Binding expressions: compile text once, fast-read paths/literals/simple helper calls, otherwise pass it to
 // the events condition language. Evaluation can report expression errors as warnings and undefined.
 
-import { parsePath, readPath, resolvePath, skipSpace } from './paths.js';
+import { parsePath, readPath, skipSpace } from './path-syntax.js';
+import { resolvePath } from './path-read.js';
 
 const HELPERS = new Set(['ratio', 'pct', 'changed', 'len', 'contains', 'sum', 'fmt.money', 'fmt.time']);
 

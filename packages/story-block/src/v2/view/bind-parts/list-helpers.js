@@ -1,23 +1,6 @@
-// Binding helpers: ratio, percentage, length, contains, sum and the default money/time formatters. Pure;
-// makeScope puts them on every scope and the condition language receives them as extra calls.
+// List helpers: length, case-blind containment and sums of a bound list, record or text.
 
-import { valueAtKeys } from './paths.js';
-
-function finite(value) {
-    const number = typeof value === 'string' && value.trim() !== '' ? Number(value) : value;
-    return typeof number === 'number' && Number.isFinite(number) ? number : null;
-}
-
-/** a / b clamped to 0…1 (4 decimals); 0 when b is not a positive number. */
-export function ratio(a, b) {
-    const top = finite(a);
-    const bottom = finite(b);
-    if (top === null || bottom === null || bottom <= 0) return 0;
-    return Math.round(Math.min(1, Math.max(0, top / bottom)) * 10000) / 10000;
-}
-
-/** a / b as a whole percentage, 0…100. */
-export const pct = (a, b) => Math.round(ratio(a, b) * 100);
+import { valueAtKeys } from './path-read.js';
 
 /** Items in a list, keys in a record, characters in a string; 0 otherwise. */
 export function len(value) {
@@ -56,15 +39,3 @@ export function sum(list, field) {
     // 0.1 + 0.2 reads as 0.3; whole numbers are already exact.
     return Number.isInteger(total) ? total : Math.round(total * 1e9) / 1e9;
 }
-
-/** Plain fallbacks; the host injects the real ones (the rules' coin names, the Director's calendar). */
-export const defaultFormatters = {
-    money: n => (Number.isInteger(n) ? String(n) : ''),
-    time: minutes => {
-        if (!Number.isInteger(minutes) || minutes < 0) return '';
-        const day = Math.floor(minutes / 1440) + 1;
-        const hour = Math.floor((minutes % 1440) / 60);
-        const minute = minutes % 60;
-        return `Day ${day}, ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-    },
-};
