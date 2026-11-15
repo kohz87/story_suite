@@ -25,7 +25,8 @@ export const withFeature = (fn, from) => {
 // Several parts' functions under one hook name, called in part order. beforeGenerate and afterCapture
 // answers (string[] | { lines, commands }) are joined; canGenerate gives the first refusal; any other
 // hook gives the last answer that is not undefined.
-export function mergeHook(name, entries, shared) {
+export function mergeHook(name, entries, shared, flagOn = () => false) {
+    const isolated = () => { try { return flagOn('suite.isolatedApply') === true; } catch { return false; } };
     const partView_ = (ns, view) => partView(ns, view, shared);
     // A hook that needs longer than the turn's default (the cast's planner answer is waited for) gives its limit (`fn.timeoutMs`); the merged one keeps the longest.
     const limit = Math.max(0, ...entries.map(([, fn]) => (Number.isFinite(fn?.timeoutMs) ? fn.timeoutMs : 0)));
@@ -44,7 +45,15 @@ export function mergeHook(name, entries, shared) {
             const problems = [];
             for (const [ns, fn] of entries) {
                 if (rest[0]?.always === true && fn?.always !== true) continue;
-                const out = await fn(partView_(ns, view), ...rest);
+                let out;
+                try {
+                    out = await fn(partView_(ns, view), ...rest);
+                } catch (error) {
+                    // Flag `suite.isolatedApply`: this part's failure is named in the problems and the other parts still answer. Off: it rejects, as before.
+                    if (!isolated()) throw error;
+                    problems.push({ code: 'FAILED', message: `${name} failed (${ns}): ${error?.message ?? error}` });
+                    continue;
+                }
                 lines.push(...cueLinesOf(Array.isArray(out) ? out : out?.lines));
                 if (Array.isArray(out?.commands)) commands.push(...out.commands);
                 // A part's problems (`{ code, message }`) go on to Story Block's Problems list.

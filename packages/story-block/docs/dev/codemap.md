@@ -314,3 +314,4 @@ Last checked: 2026-11-07.
 - `tests/v2/fixtures/combat-corpus/chats.json`: the ten pinned combat chats and their replay setup.
 - `tests/v2/fixtures/combat-corpus/goldens.json`: the golden state, Problems, cues, battle-log models and Re-read results.
 - `tests/v2/turn/isolation.test.js`: the isolated-apply flag: a failing core part, hook problems and the failed-reply tail, flag off and on.
+- `tests/v2/sdk-flag.test.js`: `sdk.flag`, the read-only internal flag reader for Story Director and Delta (off by default).
