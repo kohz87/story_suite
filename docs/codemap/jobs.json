@@ -2,10 +2,14 @@
   "scripts/checks/code-files.mjs": "Classifies code and test paths and lists repo code files via git.",
   "scripts/checks/count-lines.mjs": "Counts lines in source text without adding a line for a trailing newline.",
   "scripts/checks/file-size.mjs": "Parses the legacy-oversize list and checks file line counts against the 450-line limit.",
+  "scripts/checks/legacy-ratchet.mjs": "Rejects legacy-oversize list entries that were added or raised compared with the base list.",
   "scripts/checks/run-size-check.mjs": "CLI that checks repo file sizes or writes the legacy-oversize allowlist.",
+  "scripts/ci/suite-tests.sh": "Runs Story Block's cross-package suite tests and fails on skips, todos or missing results.",
+  "scripts/codemap/blank-literals.mjs": "Blanks comments, strings, templates and regex literals so text scans see only code.",
   "scripts/codemap/build-map.mjs": "Builds sorted codemap rows and validates jobs and export limits.",
   "scripts/codemap/cli.mjs": "CLI that writes or verifies docs/codemap.md from source files and jobs.json.",
   "scripts/codemap/parse-module.mjs": "Extracts exports and import specifiers from ES module source text.",
   "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
-  "scripts/codemap/split-declarators.mjs": "Splits JS declarator lists and destructuring patterns into the names they bind."
+  "scripts/codemap/split-declarators.mjs": "Splits JS declarator lists and destructuring patterns into the names they bind.",
+  "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes."
 }

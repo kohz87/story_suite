@@ -2,19 +2,24 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { isCodeFile, isTestFile } from '../../scripts/checks/code-files.mjs';
 
-test('code files are js, mjs, cjs and css', () => {
-  for (const p of ['core/a.js', 'x/b.mjs', 'c.cjs', 'ui/s.css']) assert.equal(isCodeFile(p), true, p);
-  for (const p of ['README.md', 'data.json', 'img/a.webp', 'a.js.map', 'x.html', 'script.sh']) assert.equal(isCodeFile(p), false, p);
+test('code files are js, mjs, cjs, ts, css, sh and py', () => {
+  for (const p of ['core/a.js', 'x/b.mjs', 'c.cjs', 'ui/s.css', 'a/b.ts', 'scripts/ci/x.sh', 'tests/probe.py']) assert.equal(isCodeFile(p), true, p);
+  for (const p of ['README.md', 'data.json', 'img/a.webp', 'a.js.map', 'x.html', 'tests/fixtures/data.jsonl']) assert.equal(isCodeFile(p), false, p);
 });
 
-test('vendored copies, fixtures and node_modules are not checked', () => {
+test('vendored copies, node_modules and data files are not checked', () => {
   for (const p of [
     'packages/story-director/tests/vendor/story-block/src/v2/store.js',
     'packages/x/vendor/lib.js',
-    'packages/npc-state-delta/tests/fixtures/big.js',
+    'packages/npc-state-delta/tests/fixtures/big.json',
     'node_modules/a/index.js',
     'packages/a/node_modules/b.js',
   ]) assert.equal(isCodeFile(p), false, p);
+});
+
+test('code under fixtures is checked, data under fixtures is not', () => {
+  assert.equal(isCodeFile('packages/a/tests/fixtures/helper.js'), true);
+  assert.equal(isCodeFile('packages/a/tests/fixtures/data.json'), false);
 });
 
 test('test files: under a tests/ or test/ folder, or named *.test.*', () => {

@@ -1,3 +1,5 @@
+import { blankLiterals } from './blank-literals.mjs';
+
 const OPEN = '([{';
 const CLOSE = ')]}';
 
@@ -62,5 +64,6 @@ function patternNames(pattern) {
 
 /** Names bound by the declarators of a `const`/`let`/`var` statement body (text after the keyword). */
 export function declaredNames(body) {
-  return splitTopLevel(readStatement(body), ',').flatMap(d => patternNames(splitTopLevel(d, '=')[0]));
+  const code = blankLiterals(body);
+  return splitTopLevel(readStatement(code), ',').flatMap(d => patternNames(splitTopLevel(d, '=')[0]));
 }

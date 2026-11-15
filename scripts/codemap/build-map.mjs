@@ -4,6 +4,7 @@ import { countLines } from '../checks/count-lines.mjs';
 import { parseModule } from './parse-module.mjs';
 
 export const MAX_EXPORTS = 4;
+const MODULE_EXT = /\.(?:m?js|cjs|ts)$/;
 
 function resolveInternalImports(filePath, specifiers, fileSet) {
   const dir = path.posix.dirname(filePath);
@@ -33,7 +34,7 @@ export function buildMap({ files, readSource, jobs }) {
 
   for (const filePath of sortedFiles) {
     const source = readSource(filePath);
-    const parsed = parseModule(source);
+    const parsed = MODULE_EXT.test(filePath) ? parseModule(source) : { exports: [], imports: [] };
     const isTest = isTestFile(filePath);
     const imports = resolveInternalImports(filePath, parsed.imports, fileSet);
 

@@ -3,6 +3,10 @@
 # by symlinking them under a temporary directory with their legacy sibling names.
 set -euo pipefail
 
+# Raise this when suite tests are added. A lower "# tests" count means test-level results were not
+# reported (only one result per file) or tests were lost, so the skip counter below cannot be trusted.
+EXPECTED_SUITE_TESTS=32
+
 repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
 # checks-flip.test.js looks only for a sibling folder "../../../../Story_director" (packages/Story_director here) and
@@ -47,11 +51,18 @@ node --test --test-reporter=tap $files | tee "$tap_file"
 status=${PIPESTATUS[0]}
 set -e
 
-skipped="$(sed -n 's/^# skipped //p' "$tap_file" | tail -n 1)"
-echo "skipped suite tests: ${skipped:-unknown}"
-if [ "${skipped:-}" != "0" ]; then
-  echo "error: suite tests skipped instead of running (siblings not found, or a test is skipped)" >&2
-  grep -E '# SKIP' "$tap_file" >&2 || true
+count_of() { sed -n "s/^# $1 //p" "$tap_file" | tail -n 1; }
+tests="$(count_of tests)"
+skipped="$(count_of skipped)"
+todo="$(count_of todo)"
+echo "suite tests: ${tests:-unknown}, skipped: ${skipped:-unknown}, todo: ${todo:-unknown}"
+if [ "${skipped:-}" != "0" ] || [ "${todo:-}" != "0" ]; then
+  echo "error: suite tests skipped or marked todo instead of running (siblings not found, or a test is skipped)" >&2
+  grep -E '# (SKIP|TODO)' "$tap_file" >&2 || true
+  exit 1
+fi
+if [ "${tests:-0}" -lt "$EXPECTED_SUITE_TESTS" ]; then
+  echo "error: only ${tests:-0} suite tests reported, expected at least $EXPECTED_SUITE_TESTS (test-level results missing or tests lost)" >&2
   exit 1
 fi
 

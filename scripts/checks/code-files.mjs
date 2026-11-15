@@ -1,8 +1,8 @@
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-const CODE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.css']);
-const IGNORED_SEGMENTS = new Set(['vendor', 'fixtures', 'node_modules']);
+const CODE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.css', '.sh', '.py']);
+const IGNORED_SEGMENTS = new Set(['vendor', 'node_modules']);
 
 /**
  * Returns true if the repo-relative path is a checked source or style file.
