@@ -72,7 +72,7 @@ const changelog = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
 const development = fs.readFileSync(path.join(root, 'DEVELOPMENT.md'), 'utf8');
 const bootstrap = fs.readFileSync(path.join(root, 'bootstrap.js'), 'utf8');
 const runtime = fs.readFileSync(path.join(root, 'index.js'), 'utf8');
-const scannerRouting = fs.readFileSync(path.join(root, 'scanner-routing.js'), 'utf8');
+const scannerRouting = [path.join(root, 'scanner-routing.js'), ...fs.readdirSync(path.join(root, 'scanner-routing-parts')).map(name => path.join(root, 'scanner-routing-parts', name))].map(file => fs.readFileSync(file, 'utf8')).join('\n');
 
 requireCheck(manifest.display_name === 'NPC State Delta', 'manifest identity');
 requireCheck(manifest.js === 'bootstrap.js' && manifest.css === 'style.css', 'manifest entrypoints');

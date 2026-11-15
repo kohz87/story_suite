@@ -8,7 +8,7 @@ import { runtimeSource } from './helpers/runtime-source.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
 const index = runtimeSource();
-const scannerRouting = fs.readFileSync(path.join(root, 'scanner-routing.js'), 'utf8');
+const scannerRouting = [path.join(root, 'scanner-routing.js'), ...fs.readdirSync(path.join(root, 'scanner-routing-parts')).map(name => path.join(root, 'scanner-routing-parts', name))].map(file => fs.readFileSync(file, 'utf8')).join('\n');
 // (cleanup step 10) The scanner request moved to src/scanner-request.js.
 const request = fs.readFileSync(path.join(root, 'src', 'scanner-request.js'), 'utf8');
 

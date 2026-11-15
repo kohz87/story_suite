@@ -10,7 +10,7 @@ const bootstrap = fs.readFileSync(path.join(root, 'bootstrap.js'), 'utf8');
 const index = runtimeSource();
 const identity = fs.readFileSync(path.join(root, 'identity.js'), 'utf8');
 const hardening = fs.readFileSync(path.join(root, 'hardening.js'), 'utf8');
-const scannerRouting = fs.readFileSync(path.join(root, 'scanner-routing.js'), 'utf8');
+const scannerRouting = [path.join(root, 'scanner-routing.js'), ...fs.readdirSync(path.join(root, 'scanner-routing-parts')).map(name => path.join(root, 'scanner-routing-parts', name))].map(file => fs.readFileSync(file, 'utf8')).join('\n');
 const contextSource = `${index}\n${identity}\n${hardening}\n${scannerRouting}`;
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 const runtimeConfig = JSON.parse(fs.readFileSync(path.join(root, 'runtime-modules.json'), 'utf8'));
