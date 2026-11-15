@@ -29,17 +29,23 @@
 //   at:      the chat's length then (the reply that was about to be written);
 //   skip:    the story had just jumped far ahead (a time skip), so that reply hears the last day.
 // Older days are kept short (their line only) and the oldest dropped: see `capDays`.
+//
+// Public face: re-exports its parts.
 
-export {
-    DIGEST_FEATURE, DIGEST, DAY_MINUTES, DIGEST_DEFAULTS, FULL_MAX, KEEP_MAX,
-    MAX_HAPPENED, MAX_PLACES, MAX_QUESTS, MAX_NPCS, MAX_WORLD, MAX_ITEM, MAX_LINE,
-    MAX_DATE, MAX_NAME, MAX_MET, MAX_WHO, agoText, flat, cut, dayOf, QUEST_LOG_KEPT, QUEST_LOG_TEXT,
-    FOLD_AT, FOLLOW_MAX,
-} from './days/shared.js';
-export {
-    daysOf, followDigest, orderedDays, writtenOf, digestSettings, walkDays,
-    questLogOf, notedOf, entriesByDay, rangeDays,
-} from './days/state.js';
-export { entryOf, eventsOf, sceneOf, foldEntries, factsOf, dayFacts, hasFacts } from './days/facts.js';
-export { moneyText, fightText, dayLine, makeDigest, briefOf, capDays, digestOut } from './days/summary.js';
-export { validateDays } from './days/validate.js';
+export { DIGEST_FEATURE, DIGEST, DAY_MINUTES } from './days-parts/digest-constants.js';
+export { DIGEST_DEFAULTS, FULL_MAX, KEEP_MAX } from './days-parts/digest-limits.js';
+export { FOLD_AT, FOLLOW_MAX } from './days-parts/digest-ceilings.js';
+export { MAX_HAPPENED, MAX_PLACES, MAX_QUESTS, MAX_NPCS } from './days-parts/digest-caps.js';
+export { MAX_WORLD, MAX_ITEM, MAX_LINE, MAX_DATE } from './days-parts/text-caps.js';
+export { MAX_NAME, MAX_MET, MAX_WHO } from './days-parts/entry-caps.js';
+export { QUEST_LOG_KEPT, QUEST_LOG_TEXT } from './days-parts/log-constants.js';
+export { agoText, flat, cut, dayOf } from './days-parts/shared-text.js';
+export { daysOf, followDigest, orderedDays, writtenOf } from './days-parts/digest-read.js';
+export { digestSettings } from './days-parts/digest-settings.js';
+export { walkDays } from './days-parts/walk-days.js';
+export { questLogOf, notedOf, entriesByDay, rangeDays } from './days-parts/day-entries.js';
+export { entryOf, eventsOf, sceneOf } from './days-parts/facts-entry.js';
+export { foldEntries, factsOf, dayFacts, hasFacts } from './days-parts/facts-fold.js';
+export { moneyText, fightText, dayLine } from './days-parts/summary-line.js';
+export { makeDigest, briefOf, capDays, digestOut } from './days-parts/summary-digest.js';
+export { validateDays } from './days-parts/validate.js';
