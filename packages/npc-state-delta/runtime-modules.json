@@ -346,6 +346,12 @@
     { "path": "src/key-people-parts/shared-text.js", "role": "key-people-shared-text-part", "required": true },
     { "path": "src/card-settings-parts/constants.js", "role": "story-block-card-settings-constants", "required": true },
     { "path": "src/card-settings-parts/validators.js", "role": "story-block-card-settings-validators", "required": true },
-    { "path": "src/card-settings-parts/definition.js", "role": "story-block-card-settings-definition", "required": true }
+    { "path": "src/card-settings-parts/definition.js", "role": "story-block-card-settings-definition", "required": true },
+    { "path": "src/portrait-file-parts/data-url.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/hash.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/missing.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/record.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/shared-name.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/view.js", "role": "cast-portrait-user-files-parts", "required": true }
   ]
 }
