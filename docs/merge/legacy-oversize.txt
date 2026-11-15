@@ -31,13 +31,7 @@ packages/npc-state-delta/tests/v120-story-suite.test.js 972
 packages/story-block/tests/v2/bench/load.js 678
 packages/story-block/tests/v2/domains/mounts.test.js 456
 packages/story-block/tests/v2/domains/you.test.js 455
-packages/story-block/tests/v2/extras.test.js 473
-packages/story-block/tests/v2/features.test.js 459
-packages/story-block/tests/v2/layout/render.test.js 474
 packages/story-block/tests/v2/packs/fixtures/old-host/validate.js 1210
-packages/story-block/tests/v2/packs/validate.test.js 459
-packages/story-block/tests/v2/timeline-hardening.test.js 470
-packages/story-block/tests/v2/view/hero-scene.test.js 458
 packages/story-director/tests/note.test.js 695
 packages/story-director/tests/planner.test.js 600
 packages/story-director/tests/routes.test.js 480
