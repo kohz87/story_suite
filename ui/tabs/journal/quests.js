@@ -20,9 +20,12 @@ function questCard(q, state, ctx, rpg) {
     : null;
   const reward = [q.reward, q.xp].filter(Boolean).join(' · ');
   const giver = q.giver?.name
-    ? (q.giver.personId && ctx?.go
-      ? h('button', { type: 'button', class: 'lk', onClick: () => ctx.go('people', { personId: q.giver.personId }) }, q.giver.name)
-      : h('span', null, q.giver.name))
+    ? [
+      q.giver.portrait ? h('span', { class: 'av', dataset: { portrait: q.giver.portrait } }) : null,
+      q.giver.personId && ctx?.go
+        ? h('button', { type: 'button', class: 'lk', onClick: () => ctx.go('people', { personId: q.giver.personId }) }, q.giver.name)
+        : h('span', { class: 'lk-plain' }, q.giver.name),
+    ]
     : null;
   return h(
     'div',
@@ -46,7 +49,7 @@ function questCard(q, state, ctx, rpg) {
     h(
       'dl',
       { class: 'qkv' },
-      giver ? kv('From', giver) : null,
+      giver ? kv('From', ...giver) : null,
       q.due ? kv('Due', q.due.date, ' ', h('span', { class: ['due', q.due.state] }, q.due.rel)) : null,
       q.trip ? kv('Trip', q.trip) : null,
       rpg && reward ? kv('Reward', reward) : null,

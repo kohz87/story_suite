@@ -35,6 +35,10 @@ function row(mark, text, tone) {
   return h('div', { class: 'dl2' }, h('span', { class: ['ic', tone ? `tone-${tone}` : null] }, mark), h('span', null, text), h('small', null));
 }
 
+function name(text) {
+  return h('span', { class: 'nm' }, text);
+}
+
 function section(title, rows) {
   if (!rows.length) return null;
   return h('div', { class: 'dsec', dataset: { sec: title } }, h('div', { class: 'secl' }, title), rows);
@@ -43,10 +47,10 @@ function section(title, rows) {
 function recordSections(r) {
   const q = r.quests ?? {};
   const quests = [
-    ...(q.taken ?? []).map(n => row('+', `Took up ${n}`)),
-    ...(q.done ?? []).map(n => row('✓', `Finished ${n}`)),
-    ...(q.failed ?? []).map(n => row('✕', `Failed ${n}`)),
-    ...(q.dropped ?? []).map(n => row('–', `Gave up ${n}`)),
+    ...(q.taken ?? []).map(n => row('+', ['Took up ', name(n)])),
+    ...(q.done ?? []).map(n => row('✓', ['Finished ', name(n)])),
+    ...(q.failed ?? []).map(n => row('✕', ['Failed ', name(n)])),
+    ...(q.dropped ?? []).map(n => row('–', ['Gave up ', name(n)])),
   ];
   const money = [];
   if (r.money?.in) money.push(row('+', `${r.money.in} in`));
@@ -60,7 +64,7 @@ function recordSections(r) {
     section('Money', money),
     section('Stage moves', (r.stageMoves ?? []).map(s => row('↗', `${s.who} · ${s.meter}: ${s.from} → ${s.to}`))),
     section('Who you met', r.met?.length ? [row('★', r.met.join(', '))] : []),
-    section('News', (r.world ?? []).map(n => row('!', `Heard of ${n}`))),
+    section('News', (r.world ?? []).map(n => row('!', ['Heard of ', name(n)]))),
   ];
 }
 
