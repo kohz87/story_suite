@@ -9,33 +9,8 @@
 // * rulesHash: the `rules` slice of the state carries the frozen ruleset's hash at its root (the same marker
 //   sdk.preflight reads). A guard that names a hash must meet that hash when the state has one. A state with
 //   no rules marker has nothing to compare it with.
+//
+// Public face: re-exports its parts.
 
-import { GENESIS_EPOCH, epochOf } from '../replay.js';
-
-export const HOST_DOMAIN = 'savepoints';
-export const RULES_DOMAIN = 'rules';
-// (the genesis epoch and the epoch of a state are replay.js's: ctx.epoch reads the same function)
-export { GENESIS_EPOCH, epochOf };
-
-const isObject = value => !!value && typeof value === 'object' && !Array.isArray(value);
-
-/** The frozen ruleset's hash the state carries (its `rules` slice), else null. */
-export function rulesHashOf(state) {
-    const slice = state?.domains?.[RULES_DOMAIN];
-    return isObject(slice) && typeof slice.rulesHash === 'string' && slice.rulesHash ? slice.rulesHash : null;
-}
-
-/** '' when `guard` may be asked on `state`, else the sentence that says why it stays off. */
-export function gateProblem(state, guard) {
-    if (!isObject(guard)) return '';
-    const domain = state?.domains?.[HOST_DOMAIN];
-    // (only what the guard names is compared: a guard without an epoch, or without rules, has nothing to meet there)
-    if (isObject(domain) && typeof domain.epoch === 'string' && domain.epoch && guard.epoch !== undefined && guard.epoch !== null && guard.epoch !== domain.epoch) {
-        return `it was recorded in epoch ${guard.epoch}, and this timeline is in epoch ${domain.epoch}`;
-    }
-    const rules = rulesHashOf(state);
-    if (guard.rulesHash !== null && guard.rulesHash !== undefined && rules !== null && guard.rulesHash !== rules) {
-        return 'it was recorded under other rules than the ones this timeline has frozen';
-    }
-    return '';
-}
+export { HOST_DOMAIN, RULES_DOMAIN, GENESIS_EPOCH, epochOf } from './gate-parts/domains.js';
+export { rulesHashOf, gateProblem } from './gate-parts/check.js';
