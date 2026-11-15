@@ -1,94 +1,84 @@
-const COMMENT_OR_STRING_RE =
-  /(['"`])(?:\\.|(?!\1)[\s\S])*?\1|\/\*[\s\S]*?\*\/|^[ \t]*\/\/.*$/gm;
+import { parse } from 'acorn';
+import { simple } from 'acorn-walk';
+import { findCommonJs } from './find-commonjs.mjs';
+import { isFacade } from './is-facade.mjs';
+import { collectNames } from './pattern-names.mjs';
 
-const IMPORT_RE =
-  /\bimport\s*\(\s*(['"])([^'"]+)\1\s*\)|\bimport\s*(['"])([^'"]+)\3|\b(?:import|export)\s+(?:(?!\b(?:import|export)\b)[^;])*?\bfrom\s*(['"])([^'"]+)\5/g;
+const OPTIONS = { ecmaVersion: 'latest', sourceType: 'module' };
 
-function stripComments(source) {
-  return source.replace(COMMENT_OR_STRING_RE, (match, quote) => (quote ? match : ' '));
+const exp = (name, kind, signature = name, from, local) => ({ name, kind, signature, from, local });
+
+function declarationExports(decl, source) {
+  if (decl.type === 'FunctionDeclaration') {
+    const params = source.slice(decl.params[0]?.start ?? 0, decl.params.at(-1)?.end ?? 0);
+    return [exp(decl.id.name, 'function', `${decl.id.name}(${params.replace(/\s+/g, ' ').trim()})`)];
+  }
+  if (decl.type === 'ClassDeclaration') return [exp(decl.id.name, 'class', `class ${decl.id.name}`)];
+  return decl.declarations.flatMap(d => collectNames(d.id)).map(name => exp(name, 'const'));
 }
 
-function readBalancedParens(text, openIdx) {
-  let depth = 0;
-  for (let i = openIdx; i < text.length; i += 1) {
-    if (text[i] === '(') depth += 1;
-    else if (text[i] === ')') {
-      depth -= 1;
-      if (depth === 0) return text.slice(openIdx + 1, i);
+function moduleName(node) {
+  return node.type === 'Literal' ? String(node.value) : node.name;
+}
+
+function exportsOf(node, source) {
+  if (node.type === 'ExportDefaultDeclaration') {
+    // A named function or class declaration keeps its binding, so `default` and the name can be matched;
+    // an expression (even a bare identifier) creates a separate default binding.
+    const decl = node.declaration;
+    const local = /^(?:Function|Class)Declaration$/.test(decl.type) ? decl.id?.name : undefined;
+    return [exp('default', 'default', undefined, undefined, local)];
+  }
+  if (node.type === 'ExportAllDeclaration') {
+    const from = String(node.source.value);
+    if (node.exported) return [exp(moduleName(node.exported), 'reexport', undefined, from, '*')];
+    return [exp('*', 'star', `* from '${from}'`, from)];
+  }
+  if (node.declaration) return declarationExports(node.declaration, source);
+  const kind = node.source ? 'reexport' : 'binding';
+  const from = node.source ? String(node.source.value) : undefined;
+  return node.specifiers.map(s => exp(moduleName(s.exported), kind, undefined, from, moduleName(s.local)));
+}
+
+// Maps each local import binding to the module and name it imports ('*' for a namespace import).
+function importBindings(ast) {
+  const bindings = {};
+  for (const node of ast.body) {
+    if (node.type !== 'ImportDeclaration') continue;
+    for (const s of node.specifiers) {
+      const imported = s.type === 'ImportDefaultSpecifier' ? 'default'
+        : s.type === 'ImportNamespaceSpecifier' ? '*' : moduleName(s.imported);
+      bindings[s.local.name] = { from: String(node.source.value), imported };
     }
   }
-  return '';
-}
-
-function parseNamedList(body, kind) {
-  const results = [];
-  for (const raw of body.split(',')) {
-    const item = raw.trim();
-    if (!item) continue;
-    const asMatch = item.match(/^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/);
-    const name = asMatch ? asMatch[2] : item;
-    results.push({ name, kind, signature: name });
-  }
-  return results;
-}
-
-function parseExportAt(clean, startIdx) {
-  const rest = clean.slice(startIdx);
-
-  if (/^\s+default\b/.test(rest)) {
-    return [{ name: 'default', kind: 'default', signature: 'default' }];
-  }
-
-  const fnMatch = rest.match(/^\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/);
-  if (fnMatch) {
-    const openIdx = startIdx + fnMatch[0].length - 1;
-    const params = readBalancedParens(clean, openIdx).replace(/\s+/g, ' ').trim();
-    const name = fnMatch[1];
-    return [{ name, kind: 'function', signature: `${name}(${params})` }];
-  }
-
-  const classMatch = rest.match(/^\s+class\s+([A-Za-z_$][\w$]*)/);
-  if (classMatch) {
-    const name = classMatch[1];
-    return [{ name, kind: 'class', signature: `class ${name}` }];
-  }
-
-  const varMatch = rest.match(/^\s+(?:const|let|var)\s+([A-Za-z_$][\w$]*)/);
-  if (varMatch) {
-    const name = varMatch[1];
-    return [{ name, kind: 'const', signature: name }];
-  }
-
-  const starMatch = rest.match(/^\s*\*\s*(?:as\s+([A-Za-z_$][\w$]*)\s+)?from\s*(['"])[^'"]+\2/);
-  if (starMatch) {
-    const name = starMatch[1] ?? '*';
-    return [{ name, kind: 'reexport', signature: name }];
-  }
-
-  const listMatch = rest.match(/^\s*\{([^}]*)\}(\s*from\s*(['"])[^'"]+\3)?/);
-  if (listMatch) {
-    return parseNamedList(listMatch[1], listMatch[2] ? 'reexport' : 'binding');
-  }
-
-  return [];
+  return bindings;
 }
 
 /**
- * Extracts exported declarations and imported specifiers from an ES module source.
+ * Extracts exports, import specifiers (source order) and CommonJS use from ES module source text.
+ * A file that cannot be parsed as a module yields one `unparsable` export carrying the error message.
  */
 export function parseModule(source) {
-  const clean = stripComments(source);
-  const exports = [];
-  const exportRe = /^[ \t]*export\b/gm;
-  for (let m; (m = exportRe.exec(clean)) !== null; ) {
-    exports.push(...parseExportAt(clean, m.index + m[0].length));
+  let ast;
+  try {
+    ast = parse(source, OPTIONS);
+  } catch (error) {
+    return { exports: [exp('?', 'unparsable', String(error.message))], imports: [], importBindings: {}, commonJs: false, facade: false };
   }
-
-  const imports = [];
-  IMPORT_RE.lastIndex = 0;
-  for (let m; (m = IMPORT_RE.exec(clean)) !== null; ) {
-    imports.push(m[2] ?? m[4] ?? m[6]);
+  const list = [];
+  const found = [];
+  for (const node of ast.body) {
+    if (node.type.startsWith('Export')) list.push(...exportsOf(node, source));
+    if (node.source) found.push(node);
   }
-
-  return { exports, imports };
+  simple(ast, {
+    ImportExpression(node) {
+      if (node.source.type === 'Literal' && typeof node.source.value === 'string') found.push(node);
+    },
+  });
+  const imports = found
+    .map(node => ({ at: node.start, spec: String(node.source.value) }))
+    .sort((a, b) => a.at - b.at)
+    .map(item => item.spec);
+  return { exports: list, imports, importBindings: importBindings(ast), commonJs: findCommonJs(ast), facade: list.length > 0 && isFacade(ast) };
 }

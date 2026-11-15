@@ -19,22 +19,32 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      # Check the whitespace of what this PR or push introduced; a bare `git diff --check`
-      # on a fresh checkout compares a clean tree and never finds anything.
-      - name: Diff check
+          cache: npm
+      - name: Install root dev dependencies
+        run: npm ci
+      # Check what this PR or push introduced; a bare `git diff --check` on a fresh checkout
+      # compares a clean tree and never finds anything. The same bases feed the legacy-list ratchet;
+      # a merge with no usable event base has several (every parent that has the list), one per line.
+      - name: Choose the base commits
+        id: base
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVENT: ${{ github.event_name }}
+        run: bash scripts/ci/choose-base.sh
+      - name: Diff check and size check (once per base)
+        env:
+          BASES: ${{ steps.base.outputs.bases }}
         run: |
-          # No usable base (a first push, a new branch, a manual run): check only the newest commit, as the old
-          # NPC State Delta CI did; the empty tree would re-check every imported file, which B1 must not edit.
-          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            if git cat-file -e HEAD^ 2>/dev/null; then BASE=HEAD^; else BASE="$(git hash-object -t tree /dev/null)"; fi
-          fi
-          git diff --check "$BASE" HEAD
-      - name: Size check
-        run: node scripts/checks/run-size-check.mjs
+          while read -r base; do
+            [ -n "$base" ] || continue
+            echo "== base $base"
+            git diff --check "$base" HEAD
+            node scripts/checks/run-size-check.mjs --base "$base"
+          done <<< "$BASES"
       - name: Codemap check
         run: node scripts/codemap/cli.mjs --check
+      - name: Every package test file is run by its npm test
+        run: node scripts/checks/package-test-globs.mjs
       - name: Script tests
         run: npm run test:scripts
 
@@ -76,11 +86,15 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
           # Tests outside tests/v2/packs also read the example packs and the pack test helpers.
+          # Both searches are recursive, so a test in a nested pack folder is run (once).
+          packs="$(find tests/v2/packs -name '*.test.js' | sort)"
           others="$(grep -rliE 'examples/packs|packs/helpers|ersveil' tests --include='*.test.js' | grep -v '^tests/v2/packs/' | sort)"
+          echo "Pack tests:"
+          printf '%s\n' "$packs"
           echo "Also running the tests that read the example packs:"
           printf '%s\n' "$others"
           # shellcheck disable=SC2086
-          node --test tests/v2/packs/*.test.js $others
+          node --test $packs $others
       - name: Behavioral tests
         if: steps.scope.outputs.scope != 'packs'
         env:
@@ -204,5 +218,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      # Story Block's rendered tests import "playwright"; Node finds it in the root node_modules.
+      - name: Install the root packages (the browser package)
+        run: npm ci
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
       - name: Cross-package suite tests (a skip fails the job)
         run: bash scripts/ci/suite-tests.sh
