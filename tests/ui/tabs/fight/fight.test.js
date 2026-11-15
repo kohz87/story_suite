@@ -25,7 +25,7 @@ test('offer: header, offer card, foes and party; no actions or log', () => {
   assert.deepEqual(cards(tab), ['fight-head', 'offer', 'foes', 'party']);
   assert.equal(tab.querySelector('.fpill').textContent, 'open');
   assert.equal(tab.querySelector('.fhead b').textContent, 'Fight · Auvoth bridge');
-  assert.equal(tab.querySelector('.fhead small').textContent, 'Grey hounds and Bandit captain');
+  assert.equal(tab.querySelector('.fhead small').textContent, 'Grey hounds and their captain · Combat Rules v1');
 });
 
 test('offer: board, auto and keep-telling send their command or leave for the chat', () => {
@@ -187,5 +187,5 @@ test('a lost or fled fight does not get the green pill; the subtitle lists three
   assert.equal(tab.querySelector('.fpill').textContent, 'lost');
   assert.equal(tab.querySelector('.fpill').classList.contains('won'), false);
   const wide = fightTab(fightFixture('choose', { wide: true }), makeCtx());
-  assert.equal(wide.querySelector('.fhead small').textContent, 'Grey hounds, Men in grey and Bandit captain');
+  assert.equal(wide.querySelector('.fhead small').textContent, 'Men in grey and their hounds · Combat Rules v1');
 });

@@ -85,7 +85,7 @@ export function fightTab(vm, ctx = {}) {
     root.dataset.fold = s === 'choose' ? '1' : '0';
     const all = vm.foeGroups.flatMap(g => g.members);
     const header = h('section', { class: 'glass fhead', dataset: { card: 'fight-head' } },
-      h('span', { class: 't' }, h('b', null, vm.title), h('small', null, joinNames(vm.foeGroups.map(g => g.name)))),
+      h('span', { class: 't' }, h('b', null, vm.title), h('small', null, vm.subtitle ?? joinNames(vm.foeGroups.map(g => g.name)))),
       h('span', { class: ['fpill', vm.end?.outcome === 'won' ? 'won' : null] }, (PILL[vm.state] ?? (v => `exchange ${v.exchange}`))(vm)));
     let body;
     if (s === 'offer') {

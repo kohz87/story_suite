@@ -56,13 +56,26 @@ const LOG = [
   ],
 ];
 
+const INIT = 'Astra d20 14 +9 = 23 · Torka d20 12 +7 = 19 · Rika d20 9 +8 = 17 · Brann d20 10 +5 = 15 · Grey hounds d20 15 +1 = 16 · Captain d20 9 +3 = 12';
+// Rolls and bonuses lines: [label, text]; a null label is plain text.
+const BONUS = [
+  ['Turn order', `, rolled once: ${INIT}`],
+  ['Astra', ': hit +9 · evasion +9 with Shadow Step · tempo +9 · soak 11%'],
+  ['Torka', ': hit +7 · evasion +6 · tempo +7 · soak 13%'],
+  ['Rika', ': hit +8 · evasion +7 with Fade · tempo +8 · soak 8%'],
+  ['Brann', ': hit +5 · evasion +4 · tempo +5 · soak 22% with Shield wall'],
+  ['Grey hounds', ': d20 +7 = 6 base + 2 (Lv 6) − 1 Minion · 2 damage · 5 health'],
+  ['Bandit captain', ': d20 +9 = 6 base + 2 (Lv 8) + 1 Elite · 6 damage · 18 health'],
+  [null, 'Tempo: win by 3 or more after an action lands → one extra action.'],
+];
+
 const act = (id, label, cost, target, damage, odds = null) => ({ id, label, cost, target, damage, odds, enabled: true });
 const ACTOR = () => ({
   id: 'brann',
-  stance: { name: 'Shield wall', on: true, soakOn: 22, soakOff: 17 },
+  stance: { name: 'Shield wall', on: true, soakOn: 22, soakOff: 17, paid: [11, 10] },
   groups: {
-    Attack: [act('normal', 'Normal attack', 'free', 'member', '5 damage · 7 if decisive'), act('heavy', 'Heavy blow', '1 Stamina', 'member', '6 damage · 9 if decisive'), act('cleave', 'Cleave', '2 Stamina · area', 'group', '4 damage each · 6 if decisive')],
-    Magic: [act('magic', 'Normal magic', 'free', 'member', '2 damage · 3 if decisive')],
+    Attack: [act('normal', 'Normal attack', 'STR damage · free', 'member', '5 damage · 7 if decisive'), act('heavy', 'Heavy blow', 'STR damage · 1 Stamina', 'member', '6 damage · 9 if decisive'), act('cleave', 'Cleave', 'area · STR damage · 2 Stamina', 'group', '4 damage each · 6 if decisive · one roll per target')],
+    Magic: [act('magic', 'Normal magic', 'INT damage · free', 'member', '2 damage · 3 if decisive')],
     Item: [act('item', 'Use item', 'Healing draught ×3 · Antidote ×1', 'ally', 'heals 6 · ends poison')],
     Flee: [act('flee', 'Flee', 'AGI +5 against the captain’s +9', 'none', null, 'long shot')],
   },
@@ -108,11 +121,13 @@ export function fightFixture(state = 'choose', { wide = false } = {}) {
   return {
     state,
     title: 'Fight · Auvoth bridge',
+    subtitle: `${wide ? 'Men in grey and their hounds' : 'Grey hounds and their captain'} · Combat Rules v1`,
     exchange,
     foeGroups: foeGroups(snap, wide),
     party: partyStrip(snap, state),
     actor: ['choose', 'target', 'ally'].includes(state) ? ACTOR() : null,
     order: rolled ? [...ORDER] : [],
+    bonuses: rolled ? BONUS.map(([label, text]) => ({ label, text })) : null,
     log: LOG.slice(0, logged).map((rows, i) => ({
       n: i + 1, summary: SUMMARY[i], rows: rows.map(([who, what, outcome, math]) => ({ who, what, outcome, math })),
     })),

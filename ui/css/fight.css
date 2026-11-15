@@ -3,8 +3,8 @@
 .fight-tab button:not(.sw){min-height:48px}
 .fight-tab .fhead{display:flex;align-items:center;gap:10px;padding:12px 14px}
 .fight-tab .fhead .t{flex:1;min-width:0}
-.fight-tab .fhead .t b{display:block;font:800 16px var(--su-font)}
-.fight-tab .fhead .t small{font:700 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .fhead .t b{display:block;font:800 16px/1.25 var(--su-font)}
+.fight-tab .fhead .t small{font:700 12px/1.25 var(--su-font);color:var(--su-muted)}
 .fight-tab .fpill{font:800 12px var(--su-font);border-radius:999px;padding:3px 10px;background:rgba(255,107,107,.14);color:var(--su-bad-t);white-space:nowrap}
 .fight-tab .fpill.won{color:var(--su-ok-t);background:rgba(79,211,154,.14)}
 .fight-tab .fgrid{display:flex;flex-direction:column;gap:12px}
@@ -14,7 +14,8 @@
   .fight-tab .fa{grid-area:a}.fight-tab .fb{grid-area:b}.fight-tab .fc{grid-area:c}
 }
 @container (max-width:619px){.fight-tab .fgrid.chz .fb{order:-1}}
-.fight-tab .card{padding:12px 14px;gap:8px;display:flex;flex-direction:column;min-width:0}
+.fight-tab .card{padding:14px 16px;gap:10px;display:flex;flex-direction:column;min-width:0}
+.fight-tab .foes-card,.fight-tab .party-card{padding:12px 14px;gap:8px}
 .fight-tab .ch{display:flex;align-items:center;gap:10px}
 .fight-tab .ch h3{margin:0;font:700 16px var(--su-font);color:var(--su-text);flex:1}
 .fight-tab .cnt{font:700 12px var(--su-font);color:var(--su-muted)}
@@ -102,6 +103,9 @@
 .fight-tab .at b{font:800 13px var(--su-font)}
 .fight-tab .at small{font:700 12px var(--su-font);color:var(--su-muted)}
 .fight-tab .at .odds{font:800 12px var(--su-font);margin-top:3px;color:var(--su-soft)}
+.fight-tab .at .odds.likely{color:var(--su-ok-t)}
+.fight-tab .at .odds.even{color:var(--su-warn-t)}
+.fight-tab .at .odds.long{color:var(--su-bad-t)}
 .fight-tab .at.area{border-color:rgba(240,184,74,.45)}
 .fight-tab .at.area small{color:var(--su-warn-t)}
 .fight-tab .at.no{opacity:.45;cursor:not-allowed}
@@ -113,7 +117,10 @@
 .fight-tab .order{display:flex;flex-wrap:wrap;gap:4px;font:700 12px var(--su-font);color:var(--su-soft);align-items:center}
 .fight-tab .order span{background:var(--su-line2);border-radius:999px;padding:1px 8px}
 .fight-tab .exb+.exb{border-top:1px solid var(--su-line2);padding-top:4px}
+.fight-tab .fold{font-weight:800}
 .fight-tab .fold-body[hidden]{display:none}
+.fight-tab .bon{display:flex;flex-direction:column;gap:3px;font:500 13px/1.4 var(--su-font);color:var(--su-soft);padding:2px 0 8px}
+.fight-tab .bon b{color:var(--su-text)}
 .fight-tab .lg{display:flex;flex-direction:column}
 .fight-tab .lr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--su-line2);font-size:13px}
 .fight-tab .lr:first-child{border-top:0}

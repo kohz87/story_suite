@@ -17,6 +17,7 @@ const ACTION = {
 export const FIGHT_SHAPE = {
   state: { $enum: ['offer', 'choose', 'target', 'ally', 'after', 'end'] },
   title: T.STRING,
+  subtitle: { $nullable: T.STRING },
   exchange: T.NUMBER,
   foeGroups: [
     {
@@ -37,11 +38,12 @@ export const FIGHT_SHAPE = {
   actor: {
     $nullable: {
       id: T.STRING,
-      stance: { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: T.NUMBER, soakOff: T.NUMBER } },
+      stance: { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: T.NUMBER, soakOff: T.NUMBER, paid: { $nullable: [T.NUMBER] } } },
       groups: { Attack: [ACTION], Magic: [ACTION], Item: [ACTION], Flee: [ACTION] },
     },
   },
   order: [T.STRING],
+  bonuses: { $nullable: [{ label: { $nullable: T.STRING }, text: T.STRING }] },
   log: [
     {
       n: T.NUMBER,
