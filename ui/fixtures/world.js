@@ -21,8 +21,14 @@ const ROUTES = [
 const LEGS = [
   { from: 'Guild Office', to: 'Bluewatch gate', km: null, minutes: 30, note: 'a short walk in town' },
   { from: 'Bluewatch', to: 'Old Weir', km: 3, minutes: 72, note: 'road' },
-  { from: 'Old Weir', to: 'Auvoth', km: 9, minutes: 216, note: 'road' },
+  { from: 'Old Weir', to: 'Auvoth', km: 9, minutes: 216, note: 'road', risk: 'risky' },
 ];
+
+const TERRAIN = {
+  sea: 'M-500 650 C 200 600 400 630 520 560 C 580 520 585 470 625 455 C 690 470 720 545 820 545 C 900 545 960 380 1000 300 L1500 300 L1500 1200 L-500 1200Z',
+  rivers: ['M430 -50 C 450 150 490 300 470 382 S 520 520 540 560'],
+  labels: [{ text: 'AUVOTH VALE', x: 170, y: 250 }, { text: 'THE SALT COAST', x: 640, y: 360 }, { text: 'the Grey Sound', x: 560, y: 660, italic: true }],
+};
 
 const NEWS = [
   ['bandit-tolls', 'Bandit tolls on the Auvoth road', 'looming', 'Men in grey collect a “bridge fee” at the Auvoth bridge.', 'auvoth', 'men-in-grey', [['in Bluewatch', 'this morning', 'a carter at the guild']]],
@@ -50,6 +56,10 @@ function buildTrip(fightOpen) {
     legs: LEGS.map(l => ({ ...l })),
     leave: 'about 10:00 am',
     arrive: 'about 3:18 pm',
+    mode: 'on foot',
+    pace: '20 km a day',
+    leaveNote: 'when the guild business is done',
+    arriveOn: 'Goldwane 13',
   };
 }
 
@@ -68,6 +78,7 @@ export function worldFor(variant = 'default') {
     places,
     routes: ROUTES.map(([kind, a, b]) => ({ kind, a, b })),
     trip: buildTrip(fightOpen),
+    terrain: { ...TERRAIN, rivers: [...TERRAIN.rivers], labels: TERRAIN.labels.map(l => ({ ...l })) },
     news: NEWS.map(([id, title, state, summary, placeId, factionId, heard]) => ({
       id, title, state, summary, placeId, factionId,
       heard: heard.map(([where, when, from]) => ({ where, when, from })),

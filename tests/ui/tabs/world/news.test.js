@@ -34,7 +34,7 @@ test('news card lists all six events with state words, filter counts and the Dir
   assert.deepEqual(card.querySelectorAll('.fil button').map(b => b.dataset.nf), ['all', 'looming', 'ongoing', 'rumour', 'resolved']);
   assert.deepEqual(card.querySelectorAll('.fil button small').map(s => s.textContent), ['6', '3', '1', '1', '1']);
   assert.equal(card.querySelector('.cnt').textContent, 'what you have heard');
-  assert.match(card.querySelector('.fine').textContent, /Story › Director/);
+  assert.equal(card.querySelector('.fine'), null);
 });
 
 test('filter chips narrow the list in place and mark the pressed chip', () => {

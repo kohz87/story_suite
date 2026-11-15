@@ -26,12 +26,13 @@ test('trip card: planned trip lists legs, clock arrivals and 0 of N km', () => {
   assert.equal(card.dataset.card, 'trip');
   assert.equal(card.querySelector('.th b').textContent, 'Trip to Auvoth');
   assert.equal(card.querySelector('.th small').textContent, 'planned · not set out');
-  assert.equal(card.querySelector('.last').textContent, 'Leave about 10:00 am · arrive Auvoth about 3:18 pm');
+  assert.equal(card.querySelector('.last').textContent, 'Leave about 10:00 am, when the guild business is done · on foot, 20 km a day · arrive Auvoth, Goldwane 13, 3:18 pm');
   assert.equal(card.querySelector('.tbar small').textContent, '0 of 12 km');
   const legs = card.querySelectorAll('.leg');
   assert.equal(legs.length, 3);
   assert.deepEqual(legs.map(l => l.querySelector('.eta').textContent), ['10:30 am', '11:42 am', '3:18 pm']);
   assert.equal(legs[1].querySelector('small').textContent, '3 km · 1 hour 12 minutes · road');
+  assert.equal(legs[2].querySelector('small').textContent, '9 km · 3 hours 36 minutes · road, risky');
   assert.equal(legs[0].querySelector('small').textContent, '30 minutes · a short walk in town');
   assert.equal(card.querySelector('.cur'), null);
 });
@@ -58,7 +59,7 @@ test('trip card: arrived trip is all done; an unparseable leave falls back to el
   assert.equal(done.querySelector('.th small').textContent, 'arrived');
   assert.equal(done.querySelector('.last').textContent, 'Arrived about 3:18 pm');
   assert.equal(done.querySelector('.tbar small').textContent, '100% done');
-  const vague = tripCard({ ...worldFor().trip, leave: 'soon', arrive: null });
+  const vague = tripCard({ ...worldFor().trip, leave: 'soon', arrive: null, mode: null, pace: null, leaveNote: null });
   assert.equal(vague.querySelectorAll('.leg .eta')[1].textContent, 'after 1 hour 42 minutes');
   assert.equal(vague.querySelector('.last').textContent, 'Leave soon');
 });
@@ -75,7 +76,7 @@ test('trip summary: one line with state, leg count and arrival', () => {
   installFakeDom();
   const planned = tripSummary(worldFor().trip);
   assert.equal(planned.querySelector('b').textContent, 'Trip to Auvoth · planned');
-  assert.equal(planned.querySelector('span').textContent, '3 legs · arrive 3:18 pm');
+  assert.equal(planned.querySelector('span').textContent, '3 legs · on foot · arrive 3:18 pm');
   assert.equal(tripSummary(worldFor('fightOpen').trip).querySelector('b').textContent, 'Trip to Auvoth · on the road');
   const one = tripSummary({ state: 'arrived', legs: [{ from: 'A', to: 'B', minutes: 5 }] });
   assert.equal(one.querySelector('span').textContent, '1 leg');

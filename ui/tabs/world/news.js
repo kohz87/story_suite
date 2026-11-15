@@ -31,7 +31,7 @@ function eventRow(n, act) {
       n.heard.length > 1 ? h('span', null, `first heard ${n.heard[0].when}`) : null));
 }
 
-/** Builds the News card; state.filter holds the chosen filter; act = { placeName, factionName, gotoPlace, setView, edit }. Null when there is no news. */
+/** Builds the News card (the Director note under it is drawn by the tab); state.filter holds the chosen filter; act = { placeName, factionName, gotoPlace, setView, edit }. Null when there is no news. */
 export function newsCard(news, state, act) {
   const items = Array.isArray(news) ? news : [];
   if (!items.length) return null;
@@ -51,6 +51,5 @@ export function newsCard(news, state, act) {
   return h('section', { class: 'card glass', dataset: { card: 'news' } },
     h('div', { class: 'ch' }, h('h3', null, 'News'), h('span', { class: 'cnt' }, 'what you have heard')),
     bar,
-    list,
-    h('p', { class: 'fine' }, 'News that has not reached you yet lives in Story › Director, behind the plan switch.'));
+    list);
 }

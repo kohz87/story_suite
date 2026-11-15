@@ -21,7 +21,7 @@ test('World opens on the Map with a Map / News / Factions switch', () => {
   const { tab } = setup();
   assert.equal(tab.dataset.tab, 'world');
   assert.equal(view(tab), 'map');
-  assert.deepEqual(tab.querySelectorAll('.wseg button').map(b => b.textContent), ['Map', 'News', 'Factions']);
+  assert.deepEqual(tab.querySelectorAll('.wseg button').map(b => b.textContent), ['Map', 'News 6', 'Factions']);
   assert.deepEqual(pressed(tab), ['Map']);
   assert.ok(tab.querySelector('[data-card="map"]'));
   assert.equal(tab.querySelector('[data-card="news"]'), null);
@@ -34,7 +34,7 @@ test('the switch swaps the body and keeps one card at a time', () => {
   assert.equal(view(tab), 'news');
   assert.ok(tab.querySelector('[data-card="news"]'));
   assert.equal(tab.querySelector('[data-card="map"]'), null);
-  assert.deepEqual(pressed(tab), ['News']);
+  assert.deepEqual(pressed(tab), ['News 6']);
   tab.querySelector('.wseg [data-value="factions"]').click();
   assert.ok(tab.querySelector('[data-card="factions"]'));
   assert.deepEqual(pressed(tab), ['Factions']);
@@ -158,4 +158,11 @@ test('World is built without innerHTML', () => {
   installFakeDom();
   const { tab } = setup();
   assert.equal(tab.innerHTML.includes('<'), false);
+});
+
+test('the News view shows the Director note under the card, outside it', () => {
+  installFakeDom();
+  const tab = worldTab(worldFor(), { view: 'news' });
+  assert.match(tab.querySelector('.wbody .fine').textContent, /Story › Director/);
+  assert.equal(tab.querySelector('[data-card="news"] .fine'), null);
 });
