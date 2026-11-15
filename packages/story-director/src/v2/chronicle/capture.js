@@ -30,8 +30,9 @@
 //
 // The code lives in capture/ (text.js, world.js, faction.js, commands.js); this file re-exports every
 // name it exported before, so the old import path keeps working.
+// Public face: re-exports its parts.
 
-export { lineText, clockOf, readState, readNames } from './capture/text.js';
-export { worldLineText, applyWorldLine, lasting, rumor } from './capture/world.js';
-export { applyFactionLine } from './capture/faction.js';
-export { edit, remove } from './capture/commands.js';
+export { lineText, clockOf, readState, readNames } from './capture-parts/text.js';
+export { worldLineText, applyWorldLine, lasting, rumor } from './capture-parts/world.js';
+export { applyFactionLine } from './capture-parts/faction.js';
+export { edit, remove } from './capture-parts/commands.js';
