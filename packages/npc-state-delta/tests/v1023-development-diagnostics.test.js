@@ -194,11 +194,7 @@ test('v1.0.23 diagnostic store is always bounded, filterable per NPC, and strips
 });
 
 test('secondary profile diagnostics use the actual durable field parser and formatter', () => {
-    const core = fs.readFileSync(new URL('../core-profile-development.js', import.meta.url), 'utf8');
-    const block = core.slice(
-        core.indexOf('function recordSecondaryProfileDiagnostics'),
-        core.indexOf('function recordBirthdayDiagnostic'),
-    );
+    const block = fs.readFileSync(new URL('../core-profile-development-parts/secondary-diagnostics.js', import.meta.url), 'utf8');
     assert.match(block, /parseProfileDevelopmentEvidence\(field, item\)/);
     assert.match(block, /profileDevelopmentText\(field, item, mechanics\.DURABLE_PROFILE_LIMITS\.evidence\)/);
     assert.match(block, /profileDevelopmentText\(field, previousValue, 720\)/);

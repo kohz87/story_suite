@@ -28,8 +28,8 @@ const rootRuntimeFiles = fs.readdirSync(root, { withFileTypes: true })
   .filter(entry => entry.isFile() && entry.name.endsWith('.js'))
   .map(entry => entry.name)
   .sort();
-// A declared module is either a top-level file or a module under src/ (posix path, no `..`).
-const isSrcModulePath = file => /^src\/(?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.js$/.test(file) && !file.split('/').includes('..');
+// A declared module is a top-level file, a module under src/ or one under a root file's <name>-parts/ folder (posix path, no `..`).
+const isSrcModulePath = file => /^(?:src|[a-z0-9-]+-parts)\/(?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.js$/.test(file) && !file.split('/').includes('..');
 const declaredTopLevel = declaredPaths.filter(file => path.dirname(file) === '.').sort();
 const declaredSrcModules = declaredPaths.filter(isSrcModulePath).sort();
 
@@ -37,7 +37,7 @@ requireCheck(runtimeConfig.schemaVersion === 1, 'runtime module inventory schema
 requireCheck(declaredPaths.length === declaredSet.size, 'runtime module inventory contains duplicate paths');
 requireCheck(declaredModules.every(module => typeof module?.role === 'string' && module.role.trim()), 'runtime module inventory requires a role for every module');
 requireCheck(declaredModules.every(module => typeof module?.required === 'boolean'), 'runtime module inventory requires explicit required flags');
-requireCheck(declaredPaths.every(file => file && file.endsWith('.js') && (path.dirname(file) === '.' || isSrcModulePath(file))), 'runtime module inventory may contain only top-level or src/ JS modules');
+requireCheck(declaredPaths.every(file => file && file.endsWith('.js') && (path.dirname(file) === '.' || isSrcModulePath(file))), 'runtime module inventory may contain only top-level, src/ or <name>-parts/ JS modules');
 requireCheck(declaredPaths.every(file => !/(?:^|[-_.])legacy(?:[-_.]|$)/i.test(file) && !/(?:^|[-_.])v\d{3,}(?:[-_.]|$)/i.test(file)), 'active runtime module names must be semantic, not legacy/version labels');
 requireCheck(JSON.stringify(declaredTopLevel) === JSON.stringify(rootRuntimeFiles), 'runtime-modules.json must declare every and only top-level runtime JS module');
 
@@ -72,7 +72,7 @@ const changelog = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
 const development = fs.readFileSync(path.join(root, 'DEVELOPMENT.md'), 'utf8');
 const bootstrap = fs.readFileSync(path.join(root, 'bootstrap.js'), 'utf8');
 const runtime = fs.readFileSync(path.join(root, 'index.js'), 'utf8');
-const scannerRouting = fs.readFileSync(path.join(root, 'scanner-routing.js'), 'utf8');
+const scannerRouting = [path.join(root, 'scanner-routing.js'), ...fs.readdirSync(path.join(root, 'scanner-routing-parts')).map(name => path.join(root, 'scanner-routing-parts', name))].map(file => fs.readFileSync(file, 'utf8')).join('\n');
 
 requireCheck(manifest.display_name === 'NPC State Delta', 'manifest identity');
 requireCheck(manifest.js === 'bootstrap.js' && manifest.css === 'style.css', 'manifest entrypoints');
@@ -105,7 +105,7 @@ requireCheck(!/connectionManager\s*\.\s*selectedProfile\s*=/.test(scannerRouting
 // The runtime controller and its src/ modules (the scanner request lives in src/scanner-request.js).
 const runtimeAndModules = [runtime, ...declaredSrcModules.filter(name => fs.existsSync(path.join(root, name))).map(name => fs.readFileSync(path.join(root, name), 'utf8'))].join('\n');
 requireCheck(runtimeAndModules.includes('dispatchScannerRequest') && runtimeAndModules.includes('dispatchScannerRequest(ctx,'), 'runtime scanner calls are not wired through the shared dispatcher');
-requireCheck(fs.readFileSync(path.join(root, 'runtime-settings.js'), 'utf8').includes("scannerConnectionProfile: ''"), 'scanner connection profile is missing from active Delta settings defaults');
+requireCheck(fs.readFileSync(path.join(root, 'runtime-settings-parts', 'defaults.js'), 'utf8').includes("scannerConnectionProfile: ''"), 'scanner connection profile is missing from active Delta settings defaults');
 
 for (const file of ['AGENTS.md', 'docs/core-contract.md', 'docs/WORKPLAN.md', 'DEVELOPMENT.md', 'docs/seed-provenance.md', 'docs/seed-provenance.json', 'LICENSE']) {
   requireCheck(fs.existsSync(path.join(root, file)), `missing ${file}`);
