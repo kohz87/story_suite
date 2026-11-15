@@ -1,0 +1,58 @@
+/* Inline row and people drawer: SillyTavern theme variables only, never the suite tokens (decision 34). */
+.ssrow{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin:8px 0 2px;padding-top:7px;border-top:1px solid var(--SmartThemeBorderColor);font-size:.84em;color:var(--SmartThemeEmColor)}
+.mes.last_mes .ssrow{padding-inline-end:56px} /* keeps the Suite button clear of SillyTavern's swipe arrow and counter on the last reply */
+.ssl1,.ssl2{display:contents}
+.ssrow .it3{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.ssrow .it3 i{font-style:normal;opacity:.85}
+.ssrow .gap{flex:1}
+.ssrow .ms{display:none}
+.ssbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;font:inherit;font-weight:600;color:var(--SmartThemeBodyColor);background:transparent;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;padding:2px 9px;cursor:pointer;white-space:nowrap}
+.ssbtn:hover{border-color:var(--SmartThemeBodyColor)}
+.ssbtn .n{color:var(--SmartThemeEmColor);font-weight:600}
+.ssbtn .wd{width:8px;height:8px;border-radius:50%;background:var(--SmartThemeUnderlineColor);box-shadow:0 0 0 2px var(--SmartThemeBotMesBlurTintColor)}
+.ssbtn.need,.ssbtn.fight{background:color-mix(in srgb,var(--SmartThemeBodyColor) 14%,transparent);border-color:var(--SmartThemeBodyColor);font-weight:700}
+.ssbtn.need .bang{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:var(--SmartThemeBodyColor);color:var(--SmartThemeChatTintColor);font-size:12px;font-weight:800;line-height:1}
+.ssbtn.need .n{color:var(--SmartThemeBodyColor);font-weight:800}
+.chlist{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:.92em;flex-basis:100%}
+.chlist li{padding:11px 9px;min-height:44px;border:1px solid var(--SmartThemeBorderColor);border-radius:8px;cursor:pointer}
+.chlist li:hover{border-color:var(--SmartThemeBodyColor)}
+.drawer{width:min(100%,700px);margin:0 auto;background:var(--SmartThemeBlurTintColor);border:1px solid var(--SmartThemeBorderColor);border-bottom:0;border-radius:12px 12px 0 0;box-shadow:0 -2px 10px var(--SmartThemeShadowColor)}
+.dhd{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;background:none;border:0;color:var(--SmartThemeBodyColor);font:inherit;font-size:.86em;padding:6px 12px;cursor:pointer}
+.dhd b{font-weight:700}
+.dhd .mini{display:flex}
+.dhd .mf{width:22px;height:22px;border-radius:50%;background:#555 center 18%/cover;border:1.5px solid var(--SmartThemeBlurTintColor);margin-left:-6px;display:grid;place-items:center;font-size:12px;font-weight:700}
+.dhd .mf:first-child{margin-left:0}
+.dhd .chev{margin-left:auto;color:var(--SmartThemeEmColor)}
+.dots2{display:flex;gap:5px;margin-left:auto}
+.dhd .dots2+.chev{margin-left:8px}
+.dots2 i{width:6px;height:6px;border-radius:50%;background:var(--SmartThemeBorderColor)}
+.dots2 i.on{background:var(--SmartThemeBodyColor)}
+.dbody2{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:4px;padding:2px 6px 6px}
+.arr{width:44px;height:44px;border-radius:50%;border:1px solid var(--SmartThemeBorderColor);background:transparent;color:var(--SmartThemeBodyColor);cursor:pointer;font:inherit}
+.arr:disabled{opacity:.3;cursor:default}
+.prow{display:flex;gap:6px;min-width:0}
+.pc2{flex:0 0 calc(50% - 3px);display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 2px 4px;cursor:pointer;min-width:0;text-align:center;border-radius:10px}
+@container (min-width:600px){.pc2{flex-basis:calc(25% - 5px)}}
+.pc2:hover .ph,.pc2:focus-visible .ph{outline:2px solid var(--SmartThemeBodyColor);outline-offset:1px}
+.rg2{position:relative;width:84px;height:84px}
+.rg2 svg{position:absolute;inset:0;width:100%;height:100%}
+.rg2 .ph{position:absolute;inset:8px;border-radius:50%;background:#555 center 18%/cover;display:grid;place-items:center;font-weight:700;font-size:1.3em}
+.md3{font-size:12px;font-weight:600;line-height:16px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;background:var(--SmartThemeBlurTintColor);color:var(--SmartThemeBodyColor);border:1px solid var(--SmartThemeBorderColor);border-radius:999px;padding:0 8px}
+.pc2 b{font-weight:700;font-size:.9em;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc2 .wh3{font-size:12px;color:var(--SmartThemeEmColor);line-height:1.25;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc2 .th4{align-self:stretch;margin-top:3px;border:1px dashed var(--SmartThemeBorderColor);border-radius:9px;padding:3px 7px;text-align:left}
+.pc2 .th4 span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;font-style:italic;color:var(--SmartThemeEmColor);line-height:1.25}
+@container (max-width:599px){
+ .ssrow{display:block}
+ .ssl1{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
+ .ssl1 .it3{display:inline}.ssl1 .it3+.it3::before{content:" · "}.ssl1 .it3 i{margin-right:4px}.ssl1 .dt{display:none}
+ .ssl2{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin-top:4px}
+ .ssl2 .gap{flex:1 1 0;min-width:0}
+ .ssl2 .it3{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+ .ssl2 .mw{display:none}.ssl2 .ms{display:inline}
+ .ssl2 .ssbtn{padding:0 6px;gap:4px;flex:none;font-size:12px}
+ .ssl2 .ssbtn.need .lb,.ssl2 .ssbtn[data-ch] .lb{display:none}
+ .ssrow.fo .ssl2 .it3{display:none}
+ .rg2{width:60px;height:60px}.rg2 .ph{inset:6px;font-size:1.05em}
+ .dbody2{padding:0 4px 2px}
+}

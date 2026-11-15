@@ -48,6 +48,24 @@ jobs:
       - name: Script tests
         run: npm run test:scripts
 
+  ui:
+    runs-on: ubuntu-latest
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install root dev dependencies
+        run: npm ci
+      - name: Install the browser for the rendered checks
+        run: npx playwright install --with-deps chromium
+      # CI=true makes a missing browser a failure, so the rendered sweeps never skip here.
+      - name: UI tests
+        run: npm run test:ui
+
   story-block:
     runs-on: ubuntu-latest
     defaults:
