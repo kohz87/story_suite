@@ -118,6 +118,8 @@ test('ONEPASSCAP-1: a change Delta saves while a participant write is in flight 
     for (const file of shippedModulePaths()) {
         fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
         fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
+        const partsDir = path.join(sourceRoot, file.replace(/\.js$/, '-parts'));
+        if (fs.existsSync(partsDir)) fs.cpSync(partsDir, path.join(extRoot, file.replace(/\.js$/, '-parts')), { recursive: true });
     }
     for (const dir of fs.readdirSync(sourceRoot, { withFileTypes: true })) {
         if (dir.isDirectory() && dir.name.endsWith('-parts')) fs.cpSync(path.join(sourceRoot, dir.name), path.join(extRoot, dir.name), { recursive: true });
