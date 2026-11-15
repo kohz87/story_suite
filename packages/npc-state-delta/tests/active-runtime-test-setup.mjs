@@ -20,7 +20,7 @@ fs.copyFileSync = (source, destination, ...args) => {
                 fs.mkdirSync(path.dirname(target), { recursive: true });
                 copyFileSync(path.join(sourceRoot, module.path), target);
             }
-            // Split modules live in a sibling folder named after their owner. Copy every file
+            // Split modules live in a sibling folder named after their owner (or `<owner>-parts`). Copy every file
             // beneath it too, while preserving any host/fixture file that already exists.
             for (const suffix of ['', '-parts']) {
             const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, '') + suffix);
