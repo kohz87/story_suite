@@ -10,10 +10,10 @@ const dir = fileURLToPath(new URL('../../src/v2/', import.meta.url));
 const files = fs.readdirSync(dir, { recursive: true }).filter(name => String(name).endsWith('.js'));
 const source = name => fs.readFileSync(path.join(dir, name), 'utf8').split('\n').filter(line => !/^\s*(\/\/|\*|\/\*)/.test(line)).join('\n');
 
-test('only evidence.js defines the allocator, and nothing else counts or defaults an occurrence', () => {
+test('only evidence-parts/occurrence.js defines the allocator, and nothing else counts or defaults an occurrence', () => {
     for (const name of files) {
         const text = source(name);
-        if (name !== 'evidence.js') {
+        if (name !== 'evidence-parts/occurrence.js') {
             assert.equal(/export function (allocator|nextOccurrence)\b/.test(text), false, `${name} defines an allocator`);
             assert.equal(/\bnextOccurrence\s*\(/.test(text), false, `${name} asks for the next occurrence by another way than the allocator`);
         }
@@ -26,7 +26,7 @@ test('only evidence.js defines the allocator, and nothing else counts or default
 
 test('a new occurrence is taken from the allocator where it is given', () => {
     const users = files.filter(name => /\ballocator\(|\.take\(|allocateOccurrence\??\.?\(/.test(source(name))).sort();
-    assert.deepEqual(users, ['commands.js', 'evidence.js', 'store/replay-blocks.js', 'store/sources.js', 'store/walk.js', 'store/write/replace.js'], 'the files that take one');
+    assert.deepEqual(users, ['commands.js', 'evidence-parts/occurrence.js', 'evidence-parts/reuse.js', 'store/replay-blocks.js', 'store/sources.js', 'store/walk.js', 'store/write/replace.js'], 'the files that take one');
     assert.match(source('store/sources.js'), /allocateOccurrence\(index, key\)[\s\S]{0,300}allocator\(/, 'the store\'s live allocation is the allocator');
     assert.match(source('commands.js'), /No occurrence could be given/, 'a proof with none is refused');
 });

@@ -281,7 +281,7 @@ test('parse output is plain frozen data; compile caches by text; evaluation is d
 
 test('the events sources use no eval, Function, Math.random or Date.now', () => {
     const dir = new URL('../../../src/v2/events/', import.meta.url);
-    for (const name of readdirSync(dir)) {
+    for (const name of readdirSync(dir, { recursive: true }).filter(entry => String(entry).endsWith('.js'))) {
         const text = readFileSync(new URL(name, dir), 'utf8');
         assert.doesNotMatch(text, /\beval\s*\(|new Function|Function\s*\(|Math\.random|Date\.now/, name);
     }
