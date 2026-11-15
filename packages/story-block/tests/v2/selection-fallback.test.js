@@ -2,7 +2,7 @@
 // the baseline last, one deterministic order, and verify-before-prepare with no installation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { sourceOf } from '../helpers/split-source.js';
 import { boundaryMatches, createSelectionFallback, settledPlan } from '../../src/v2/timeline/selection-fallback.js';
 
 const MODULE = 'tl-native';
@@ -55,7 +55,7 @@ test('fallback chain: the same journal and chat give the same chain, with no clo
     const second = fallback.fallbackChain(MODULE);
     assert.deepEqual(second, first);
     assert.equal(JSON.stringify(second), JSON.stringify(first));
-    const source = await readFile(new URL('../../src/v2/timeline/selection-fallback.js', import.meta.url), 'utf8');
+    const source = sourceOf('src/v2/timeline/selection-fallback.js');
     assert.doesNotMatch(source, /Date\.now\b|Math\.random\b/);
 });
 

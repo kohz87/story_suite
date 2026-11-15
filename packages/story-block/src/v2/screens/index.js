@@ -11,19 +11,13 @@
 //   story-block/inspector     screen, tab   the state inspector, read-only (feature story-block.inspector)
 //
 // The card mount's collapsed header line comes from `changesSummary` (see changes-card.js).
+//
+// Public face: re-exports its parts.
 
-import { inventoryScreen, INVENTORY_SCREEN_ID, KIND_TITLES } from './inventory.js';
-import { sceneScreen, SCENE_SCREEN_ID } from './scene.js';
-import { changesCardScreen, changesDigest, changesSummary, replyCardLines, CHANGES_CARD_SCREEN_ID, REPLY_LINES_MAX } from './changes-card.js';
-import { homeScreen, HOME_SCREEN_ID } from './home.js';
-import { inspectorScreen, INSPECTOR_SCREEN_ID } from './inspector.js';
-import { BASE_CSS, RARITY_THEME } from './style.js';
-
-export {
-    inventoryScreen, sceneScreen, changesCardScreen, homeScreen, inspectorScreen,
-    INVENTORY_SCREEN_ID, SCENE_SCREEN_ID, CHANGES_CARD_SCREEN_ID, HOME_SCREEN_ID, INSPECTOR_SCREEN_ID,
-    changesDigest, changesSummary, replyCardLines, REPLY_LINES_MAX, KIND_TITLES, BASE_CSS, RARITY_THEME,
-};
-
-/** The default screens, in the order the game view should offer them (home first). */
-export const screens = Object.freeze([homeScreen, inventoryScreen, sceneScreen, changesCardScreen, inspectorScreen]);
+export { inventoryScreen, INVENTORY_SCREEN_ID, KIND_TITLES } from './inventory.js';
+export { sceneScreen, SCENE_SCREEN_ID } from './scene.js';
+export { changesCardScreen, changesDigest, changesSummary, replyCardLines, CHANGES_CARD_SCREEN_ID, REPLY_LINES_MAX } from './changes-card.js';
+export { homeScreen, HOME_SCREEN_ID } from './home.js';
+export { inspectorScreen, INSPECTOR_SCREEN_ID } from './inspector.js';
+export { BASE_CSS, RARITY_THEME } from './style.js';
+export { screens } from './index-parts/list.js';
