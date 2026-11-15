@@ -42,8 +42,8 @@ describe('buildSettings', () => {
     assert.deepEqual(Object.keys(modules.newChats), Object.keys(modules.chat));
     assert.equal(modules.chat.rpg.on, true);
     assert.equal(modules.scope, 'chat');
-    assert.equal(modules.preset, 'standard');
-    assert.equal(modules.chat.people.subs.drift, false);
+    assert.equal(modules.preset, 'full');
+    assert.equal(modules.chat.people.subs.feelingsDriftEachStoryDay, false);
   });
 
   it('rpgOff: the RPG module is off for this chat only; sections stay', () => {

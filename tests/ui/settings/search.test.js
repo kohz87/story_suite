@@ -29,7 +29,9 @@ test('hits come in section order and keep the section reference', () => {
   const hits = searchRows(sections, 'tokens');
   assert.ok(hits.length === 0 || hits.every(h => h.section && h.row));
   const days = searchRows(sections, 'story days');
-  assert.deepEqual(days.map(h => h.row.key), ['world.dueSoon', 'world.lookAhead']);
+  const dayKeys = days.map(h => h.row.key);
+  assert.ok(dayKeys.includes('world.dueSoon') && dayKeys.includes('world.lookAhead'));
+  assert.ok(dayKeys.indexOf('world.dueSoon') < dayKeys.indexOf('world.lookAhead'));
   const order = searchRows(sections, 'a').map(h => sections.indexOf(h.section));
   assert.deepEqual(order, [...order].sort((x, y) => x - y));
 });

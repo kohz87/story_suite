@@ -20,7 +20,7 @@ test('mounts hidden with a header, the nav, and the first section on the page', 
   assert.equal(ov.el.querySelector('.shd b').textContent, 'Story Suite · Settings');
   assert.equal(ov.el.querySelector('.shd small').textContent, 'this chat: Ersveil · Astra');
   assert.equal(ov.el.querySelector('.spage h2').textContent, 'Start');
-  assert.equal(ov.el.querySelector('.sfoot'), null);
+  assert.ok(ov.el.querySelector('.sfoot'), 'the footer meter comes from the view-model');
 });
 
 test('open and close show and hide, call onClose once and ignore repeats', () => {
@@ -42,7 +42,7 @@ test('the side nav switches section and marks it current; unknown ids are refuse
   ov.el.querySelector('button.si3[data-sec="look"]').click();
   assert.equal(ov.el.querySelector('.spage h2').textContent, 'Look');
   assert.equal(ov.el.querySelector('button.si3[data-sec="look"]').getAttribute('aria-current'), 'true');
-  assert.equal(ov.el.querySelectorAll('.spage .srow').length, 4);
+  assert.equal(ov.el.querySelectorAll('.spage .srow').length, 5);
   assert.equal(ov.show('nope'), false);
   assert.equal(ov.show('rpg'), true);
   assert.equal(ov.el.querySelector('.spage h2').textContent, 'RPG and fights');
@@ -57,7 +57,7 @@ test('open(id) lands on that section; renderSection can take over the page and f
   assert.equal(ov.el.querySelector('.spage h2').textContent, 'Models');
   assert.equal(ov.el.querySelectorAll('.spage .srow').length, 0);
   ov.show('look');
-  assert.equal(ov.el.querySelectorAll('.spage .srow').length, 4);
+  assert.equal(ov.el.querySelectorAll('.spage .srow').length, 5);
   assert.ok(seen.some(x => x[0] === 'models' && x[2] === 'function'));
 });
 
