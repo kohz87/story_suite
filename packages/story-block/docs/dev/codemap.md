@@ -102,6 +102,13 @@ Last checked: 2026-11-07.
 ## src/v2/turn/
 - `src/v2/turn/rule-marks.js`: per-reply rule marks (`rules` on the record, `ctx.carrier.rules` for a module); the table of rules and their line tests.
 - `src/v2/turn/money-guard.js`: money guard; warns in Problems (never blocks, writes nothing) on a coin line repeating a recent same-source payment or far above the purse.
+- `src/v2/turn/capture-after.js`: the afterCapture steps: each module's hook commands run as system steps after a reply's story lines (stored live, planned by a Re-read).
+- `src/v2/turn/capture-each.js`: the change lines run one by one as story captures, with the reply's practice, foe cap and rule marks, the safety net's marks and the money guard.
+- `src/v2/turn/capture-held.js`: the held-module check of a Re-read: the first held-back module a reply carries lines, receipts or ops of.
+- `src/v2/turn/capture-seeds.js`: a Re-read's seeds and occurrences: a change line's mark, story and step seeds, the occurrence a block takes.
+- `src/v2/turn/events-held.js`: a fight reply held uncaptured: resumed once the reader restores its inputs, found again after a chat opens.
+- `src/v2/turn/events-late.js`: change lines that come after a reply: late lines kept in a hidden block, the safety net's lines now or for the next reply.
+- `src/v2/turn/events-hooks.js`: the afterReply and afterReceive hooks run on a received reply.
 
 ## src/v2/ui/
 - `src/v2/ui/inventory-tab.js`: draws a minimal plain Inventory tab with item stacks and command buttons.
@@ -167,6 +174,12 @@ Last checked: 2026-11-07.
 - `src/v2/ui-host/events.js`: runtime and chat listeners with their teardown callbacks.
 - `src/v2/ui-host/send-pending.js`: the "Send pending" note's state machine (idle, pending, stalled, fightHeld, sent): one re-send when SillyTavern is free, never a changed or empty text, pure logic with injected page and timers.
 - `src/v2/ui-host/send-note.js`: the "Send pending" note above SillyTavern's message box: sees a Send SillyTavern ignored, draws the five states (role=status), re-sends once through #send_but; UI only, never touches the text, prompt or chat.
+- `src/v2/ui-host/inspector-problems.js`: what the Inspector lists as a reply's problems (skipped blocks, what the turn met, head-selection notices, refused lines).
+- `src/v2/ui-host/card-offer-wiring.js`: the card offer's wiring (lorebook read, "not now" memory, data modules, problems to the turn and the card log).
+- `src/v2/ui-host/lean-rpg-sync.js`: loads and mounts the Lean RPG's screens while its feature is on and takes them away when it goes off.
+- `src/v2/ui-host/drawer.js`: the Extensions drawer and the wand menu entry, with the status strip's switch.
+- `src/v2/ui-host/host-api.js`: the api handed to screens (commands, queries, held `committed` handlers, rewinds, dialogs, open screen).
+- `src/v2/ui-host/notes-wiring.js`: the notes under replies, wired to Re-read and the extractor's state.
 - `src/v2/commands/shared.js`: limits, error helpers, reply and ID helpers; `commands.js` re-exports the public names.
 - `src/v2/commands/state.js`: drafts, frozen reads, queries, Source, cursor and proof.
 - `src/v2/commands/guards.js`: replay guards and their mark.
