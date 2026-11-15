@@ -21,7 +21,7 @@ function footerBar(sent, onGo) {
 /**
  * Creates the Settings overlay over a `settings` view-model.
  * Options: `doc`, `host`, `settings`, `backStack`, `subtitle`, `sent` ({used, cap, total?}, optional footer meter),
- * `renderSection(section, ctx)` (returns nodes, or null for the default rows), `onChange(key, value, row)`,
+ * `renderSection(section, ctx)` (returns the body nodes, or null for the default rows; `ctx.body(section)` gives the default body, the page adds heading, note and resets), `onChange(key, value, row)`,
  * `onAction(key, label, row)`, `onClose`. Returns `{ el, open(id?), close(), show(id), setQuery(text), isOpen, destroy }`.
  */
 export function createSettingsOverlay(options = {}) {
@@ -60,6 +60,7 @@ export function createSettingsOverlay(options = {}) {
   }
 
   const pages = createPages(settings, { ...ctx, repaint: () => paint() });
+  ctx.body = section => pages.body(section);
   const sectionPage = section => pages.page(section, renderSection ? renderSection(section, ctx) : null);
 
   function paint() {

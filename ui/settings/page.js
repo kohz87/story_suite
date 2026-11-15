@@ -9,9 +9,10 @@ import { renderSent } from './sent.js';
 /**
  * Creates the page builder over a settings view-model. ctx = { onChange, onAction, go(id), repaint() }.
  * Keeps the local state the pages need (scope, opened module cards, tested connections, the pack-remove confirmation).
- * Returns `{ page(section, custom) }`, where `custom` is the host's own nodes for the section, or null.
+ * Returns `{ page(section, custom), body(section) }`: `custom` is the host's own body nodes for the section (or null for `body`), and the page keeps the heading, note and resets either way.
  */
 export function createPages(settings, ctx) {
+  const chat = /^this chat: (.+?) ·/.exec(settings.subtitle ?? '')?.[1] ?? null;
   const modules = structuredClone(settings.modules ?? { scope: 'chat', chat: {}, newChats: {}, preset: null, presets: [], defs: [] });
   const packs = structuredClone(settings.packs ?? { packs: [], modules: [], trackers: { cap: 0, items: [] } });
   const connections = settings.connections ?? [];
@@ -21,7 +22,7 @@ export function createPages(settings, ctx) {
   const redraw = () => ctx.repaint();
 
   const cardState = () => ({
-    modules, defs: modules.defs, set: modules[modules.scope], scope: modules.scope, openMods, go: ctx.go,
+    modules, chat, defs: modules.defs, set: modules[modules.scope], scope: modules.scope, openMods, go: ctx.go,
     change(id, key, value) {
       const m = modules[modules.scope][id];
       if (key === null) m.on = value; else { m.subs[key] = value; modules.preset = null; }
@@ -50,20 +51,26 @@ export function createPages(settings, ctx) {
 
   const reset = (label, key) => h('button', { type: 'button', class: 'btn2', style: { 'align-self': 'flex-start' }, onClick: () => ctx.onAction?.(key, label) }, label);
 
+  /** The section's own body: its module card, the special area (Start, Models, Packs, Tools) and the setting cards. */
+  function body(section) {
+    const def = modules.defs.find(m => m.section === section.id);
+    return [def && renderModuleCard(def, cardState(), false), ...special(section), ...renderGroups(section.rows, ctx)].filter(Boolean);
+  }
+
   function page(section, custom) {
     const def = modules.defs.find(m => m.section === section.id);
     const isStart = section.id === 'start';
     const applies = isStart ? null : h('p', { class: 'applies' }, def ? 'The switches below are for this chat (set new-chat defaults in Start). ' : '',
       'Settings apply to all chats, except those marked ', h('span', { class: 'tg2 chat' }, 'this chat'), '.');
-    const body = custom ?? [def && renderModuleCard(def, cardState(), false), ...special(section), ...renderGroups(section.rows, ctx)];
+    const content = custom == null ? body(section) : [custom].flat();
     const tail = [];
     if (!isStart && section.rows.length) tail.push(reset(`Reset ${section.name} to defaults`, 'settings.reset'));
     if (isStart) {
       tail.push(reset('Reset to Standard', 'modules.reset'),
         h('div', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Gone (decided)'), h('ul', { class: 'removed' }, (settings.removed ?? []).map(r => h('li', r))), h('div', { style: { height: '8px' } })));
     }
-    return [h('div', h('h2', section.name), h('p', { class: 'sdesc' }, section.desc), applies), ...(Array.isArray(body) ? body : [body]).filter(Boolean), ...tail];
+    return [h('div', h('h2', section.name), h('p', { class: 'sdesc' }, section.desc), applies), ...content.filter(Boolean), ...tail];
   }
 
-  return { page };
+  return { page, body };
 }

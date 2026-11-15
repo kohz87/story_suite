@@ -3,5 +3,5 @@ import { sectionFrame } from './start.js';
 
 /** Returns the Director page nodes for `section`; `ctx` is the overlay context. */
 export function renderDirectorSection(section, ctx) {
-  return sectionFrame(section, ctx, { module: 'director' });
+  return sectionFrame(section, ctx);
 }

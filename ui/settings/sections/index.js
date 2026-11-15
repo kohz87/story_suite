@@ -6,10 +6,6 @@ import { renderRpgSection } from './rpg.js';
 import { renderWorldSection } from './world.js';
 import { renderDirectorSection } from './director.js';
 import { renderMoneySection, renderExtrasSection } from './money-extras.js';
-import { renderModelsSection } from './models.js';
-import { renderPacksSection } from './packs.js';
-import { renderToolsSection } from './tools.js';
-
 const RENDERERS = {
   start: renderStartSection,
   look: renderLookSection,
@@ -19,9 +15,6 @@ const RENDERERS = {
   director: renderDirectorSection,
   money: renderMoneySection,
   extras: renderExtrasSection,
-  models: renderModelsSection,
-  packs: renderPacksSection,
-  tools: renderToolsSection,
 };
 
 /** Returns the page nodes for a section id, or null (the overlay then draws the default rows, as for Add-ons). */

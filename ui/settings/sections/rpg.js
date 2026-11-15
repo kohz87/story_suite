@@ -6,5 +6,5 @@ import { sectionFrame } from './start.js';
 export function renderRpgSection(section, ctx) {
   const custom = (section.rows ?? []).find(r => r.key === 'rpg.difficulty')?.value === 'Custom';
   const after = custom ? [h('p', { class: 'fine custom-note' }, 'Custom difficulty: the checks’ numbers are in Director › Checks.')] : [];
-  return sectionFrame(section, ctx, { module: 'rpg', after });
+  return sectionFrame(section, ctx, { after });
 }

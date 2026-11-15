@@ -16,7 +16,7 @@ function featureRow(def, sub, state) {
   const { set, defs, change } = state;
   const ok = needsOk(sub, defs, set);
   const on = set[def.id].on;
-  const sw = toggle({ checked: set[def.id].subs[sub.key], label: sub.label, disabled: !on, onChange: v => change(def.id, sub.key, v) });
+  const sw = toggle({ checked: set[def.id].subs[sub.key], label: sub.label, disabled: !on, dataset: { sub: `${def.id}:${sub.key}` }, onChange: v => change(def.id, sub.key, v) });
   const needs = sub.needs ? [' · ', h('span', { class: ok ? 'needok' : 'needbad' }, `needs ${sub.needs}${ok ? '' : ' (off)'}`)] : null;
   const row = h('div', { class: ['srow', 'swrow', 'sub', !on && 'dis'] },
     h('span', { class: 'lb' }, h('b', sub.label, tagNodes(sub.tags)), h('small', sub.hint, needs)), h('span', { class: 'ctl' }, sw));
@@ -31,12 +31,12 @@ function moduleCard(def, state, open, withLinks) {
   const head = h('div', { class: 'mh' }, h('span', { class: 'mi', 'aria-hidden': 'true' }, def.icon),
     h('span', { class: 'mt' }, h('b', def.name), h('small', on ? def.desc : def.off)),
     h('span', { class: 'mc' }, on ? `${count} of ${def.subs.length} on · ≈ ${def.tokens} tokens` : 'off'),
-    toggle({ checked: on, label: def.name, onChange: v => change(def.id, null, v) }));
+    toggle({ checked: on, label: def.name, dataset: { mod: def.id }, onChange: v => change(def.id, null, v) }));
   const links = withLinks ? h('div', { class: 'mf' },
     h('button', { type: 'button', class: 'lnk', onClick: () => toggleOpen(def.id) }, `${open ? 'Hide features' : 'Features'} ${open ? '▴' : '▾'}`),
-    h('button', { type: 'button', class: 'lnk', onClick: () => go(def.section) }, 'Settings ›')) : null;
+    h('button', { type: 'button', class: 'lnk', dataset: { sec: def.section }, onClick: () => go(def.section) }, 'Settings ›')) : null;
   const subs = open ? h('div', { class: 'msubs' }, def.subs.map(sub => featureRow(def, sub, state))) : null;
-  return h('div', { class: ['mod', !on && 'off'] }, head, subs, links);
+  return h('div', { class: ['mod', !on && 'off'], dataset: { mod: def.id } }, head, subs, links);
 }
 
 /** Builds one module card (`withLinks` false: no Features / Settings links, features always shown) for a section page. */
@@ -46,15 +46,15 @@ export function renderModuleCard(def, state, withLinks = false) {
 
 /** Builds the Start page body: scope switch, presets, notes and the module cards. state = { modules, scope, setScope, preset(), setPreset, ...card state }. */
 export function renderStart(state) {
-  const { modules, scope, setScope, setPreset, openMods } = state;
+  const { modules, scope, setScope, setPreset, openMods, chat } = state;
   const chatScope = scope === 'chat';
   const preset = modules.preset;
   const scopeCard = h('div', { class: 'scope' }, h('span', 'Modules and features for'),
-    segmented({ items: [['chat', 'This chat · Ersveil'], ['newChats', 'New chats']], value: scope, label: 'Modules and features for', className: 'sseg2', onChange: setScope }),
+    segmented({ items: [['chat', chat ? `This chat · ${chat}` : 'This chat'], ['newChats', 'New chats']], value: scope, label: 'Modules and features for', className: 'sseg2', onChange: setScope }),
     h('small', chatScope
       ? 'Only this chat changes. New chats start from the New chats set; a branched chat keeps its parent’s set.'
       : 'The starting set for every new chat; existing chats keep their own (an existing chat with no set of its own keeps today’s switches).'));
-  const presets = h('div', { class: 'presets' }, modules.presets.map(p => h('button', { type: 'button', class: 'pre', 'aria-pressed': String(preset === p.id), onClick: () => setPreset(p.id) },
+  const presets = h('div', { class: 'presets' }, modules.presets.map(p => h('button', { type: 'button', class: 'pre', dataset: { pre: p.id }, 'aria-pressed': String(preset === p.id), onClick: () => setPreset(p.id) },
     h('b', p.name), h('small', p.desc), h('em', `≈ ${p.tokens.toLocaleString('en-US')} tokens of rules each reply`))));
   return [
     scopeCard,

@@ -8,5 +8,5 @@ export function renderMoneySection(section, ctx) {
 
 /** Returns the Chat extras page nodes for `section`, headed by its module switches. */
 export function renderExtrasSection(section, ctx) {
-  return sectionFrame(section, ctx, { module: 'extras' });
+  return sectionFrame(section, ctx);
 }

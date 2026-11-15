@@ -1,113 +1,76 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../packages/story-block/tests/ui-fake-dom.js';
+import { mountSettings } from './mount.js';
 import { buildSettings } from '../../../../ui/fixtures/settings.js';
-import { renderStartSection, renderModule, moduleState, sectionFrame } from '../../../../ui/settings/sections/start.js';
+import { renderStartSection, sectionFrame } from '../../../../ui/settings/sections/start.js';
 
-const setup = (extra = {}) => {
-  const doc = installFakeDom();
-  const settings = buildSettings(extra);
-  const calls = [];
-  const ctx = { doc, settings, onChange: (k, v) => calls.push(['c', k, v]), onAction: (k, l) => calls.push(['a', k, l]), go: id => calls.push(['go', id]) };
-  const sec = id => settings.sections.find(s => s.id === id);
-  return { doc, settings, calls, ctx, sec };
-};
-
-test('moduleState copies the view-model once per settings object and shares it', () => {
-  const { ctx, settings } = setup();
-  const a = moduleState(ctx);
-  assert.equal(a, moduleState({ ...ctx }));
-  a.chat.rpg.on = false;
-  assert.equal(settings.modules.chat.rpg.on, true);
-  assert.equal(a.scope, 'chat');
-  assert.equal(a.preset, 'standard');
-  assert.equal(moduleState({}).scope, 'chat');
-});
-
-test('Start shows scope, three presets, five collapsed module blocks and the removed list', () => {
-  const { ctx, sec } = setup();
-  const [wrap] = renderStartSection(sec('start'), ctx);
-  assert.equal(wrap.querySelectorAll('.pre').length, 3);
-  assert.equal(wrap.querySelector('.pre[aria-pressed="true"] b').textContent, 'Standard');
-  assert.equal(wrap.querySelector('.custom'), null);
-  assert.equal(wrap.querySelectorAll('.mod').length, 5);
-  assert.equal(wrap.querySelectorAll('.msubs').length, 0);
-  assert.equal(wrap.querySelectorAll('.removed li').length, 10);
-  assert.equal(wrap.querySelector('.mod[data-mod="rpg"] .mc').textContent, '3 of 3 on · ≈ 520 tokens');
+test('Start shows scope, three presets (Full pressed, as in the mock), five collapsed module blocks, the removed list and one Reset', () => {
+  const { page } = mountSettings();
+  const el = page('start');
+  assert.equal(el.querySelectorAll('.pre').length, 3);
+  assert.equal(el.querySelector('.pre[aria-pressed="true"] b').textContent, 'Full');
+  assert.equal(el.querySelector('.custom'), null);
+  assert.equal(el.querySelectorAll('.mod').length, 5);
+  assert.equal(el.querySelectorAll('.msubs').length, 0);
+  assert.equal(el.querySelectorAll('.removed li').length, 10);
+  assert.equal(el.querySelectorAll('.btn2').filter(b => b.textContent === 'Reset to Standard').length, 1);
+  assert.equal(el.querySelectorAll('.applies').length, 0);
+  assert.match(el.querySelector('.mod[data-mod="rpg"] .mc').textContent, /^3 of 3 on · ≈ 520 tokens$/);
 });
 
 test('Features opens the switches, a switch change marks Custom and emits the path', () => {
-  const { ctx, sec, calls } = setup();
-  const [wrap] = renderStartSection(sec('start'), ctx);
-  wrap.querySelector('.mod[data-mod="people"] .lnk').click();
-  const subs = wrap.querySelectorAll('.mod[data-mod="people"] .msubs .srow');
-  assert.equal(subs.length, 5);
-  wrap.querySelector('[data-sub="people:drift"]').click();
-  assert.deepEqual(calls.at(-1), ['c', 'modules.chat.people.subs.drift', true]);
-  assert.ok(wrap.querySelector('.custom'));
-  assert.equal(wrap.querySelector('.pre[aria-pressed="true"]'), null);
-  assert.equal(wrap.querySelector('.mod[data-mod="people"] .mc').textContent, '5 of 5 on · ≈ 820 tokens');
+  const { page, calls } = mountSettings();
+  page('start').querySelector('.mod[data-mod="people"] .lnk').click();
+  const el = page('start');
+  assert.equal(el.querySelectorAll('.mod[data-mod="people"] .msubs .srow').length, 9);
+  el.querySelector('[data-sub="people:feelingsDriftEachStoryDay"]').click();
+  assert.deepEqual(calls.at(-1), ['c', 'modules.chat.people.feelingsDriftEachStoryDay', true]);
+  const after = page('start');
+  assert.ok(after.querySelector('.custom'));
+  assert.equal(after.querySelector('.pre[aria-pressed="true"]'), null);
 });
 
 test('a preset emits modules.preset; the scope switch swaps to the New chats set', () => {
-  const { ctx, sec, calls } = setup({ rpg: false });
-  const [wrap] = renderStartSection(sec('start'), ctx);
-  assert.equal(wrap.querySelector('.mod[data-mod="rpg"]').className, 'mod off');
-  wrap.querySelector('.pre[data-pre="lean"]').click();
-  assert.deepEqual(calls.at(-1), ['c', 'modules.preset', 'lean']);
-  assert.equal(wrap.querySelector('.pre[aria-pressed="true"] b').textContent, 'Lean');
-  wrap.querySelector('.scope .seg button[data-value="newChats"]').click();
-  assert.deepEqual(calls.at(-1), ['c', 'modules.scope', 'newChats']);
-  assert.equal(wrap.querySelector('.mod[data-mod="rpg"]').className, 'mod');
-  wrap.querySelector('.btn2').click();
-  assert.deepEqual(calls.at(-1), ['a', 'reset.start', 'Reset to Standard']);
+  const { page, calls } = mountSettings({ modules: buildSettings({ rpg: false }).modules });
+  assert.equal(page('start').querySelector('.mod[data-mod="rpg"]').className, 'mod off');
+  page('start').querySelector('.pre[data-pre="lean"]').click();
+  assert.deepEqual(calls.at(-1), ['a', 'modules.preset', 'lean']);
+  assert.equal(page('start').querySelector('.pre[aria-pressed="true"] b').textContent, 'Lean');
+  page('start').querySelector('.scope .seg button[data-value="newChats"]').click();
+  assert.equal(page('start').querySelector('.mod[data-mod="rpg"]').className, 'mod');
+  page('start').querySelectorAll('.btn2').find(b => b.textContent === 'Reset to Standard').click();
+  assert.deepEqual(calls.at(-1), ['a', 'modules.reset', 'Reset to Standard']);
 });
 
-test('a module switch greys its features; needs lines show ok or (off)', () => {
-  const { ctx, sec } = setup();
-  const state = moduleState(ctx);
-  state.chat.director.subs.checks = false;
-  const [wrap] = renderStartSection(sec('start'), ctx);
-  wrap.querySelector('.mod[data-mod="people"] .lnk').click();
-  const need = wrap.querySelectorAll('.mod[data-mod="people"] .needbad');
-  assert.equal(need[0].textContent, 'needs Checks (off)');
-  wrap.querySelector('.mod[data-mod="people"] .mh .sw').click();
-  assert.equal(wrap.querySelector('.mod[data-mod="people"]').className, 'mod off');
-  assert.equal(wrap.querySelector('.mod[data-mod="people"] .srow').className.includes('dis'), true);
-  assert.equal(wrap.querySelector('.mod[data-mod="people"] .mc').textContent, 'off');
-  assert.ok(wrap.querySelector('.needok'));
+test('the scope label names the chat from the subtitle', () => {
+  const { page } = mountSettings({ subtitle: 'this chat: Marsh · Ana' });
+  assert.match(page('start').querySelector('.scope .seg button').textContent, /^This chat · Marsh$/);
 });
 
-test('Settings › goes to the module page through ctx.go', () => {
-  const { ctx, sec, calls } = setup();
-  const [wrap] = renderStartSection(sec('start'), ctx);
-  wrap.querySelector('.mod[data-mod="world"] [data-sec="world"]').click();
-  assert.deepEqual(calls.at(-1), ['go', 'world']);
+test('a module switch on Start shows on its own page (one shared module state); needs lines show ok or (off)', () => {
+  const { page } = mountSettings();
+  page('start').querySelector('.mod[data-mod="director"] .lnk').click();
+  page('start').querySelector('[data-sub="director:checks"]').click();
+  page('start').querySelector('.mod[data-mod="people"] .lnk').click();
+  assert.equal(page('start').querySelector('.mod[data-mod="people"] .needbad').textContent, 'needs Checks (Director) (off)');
+  assert.ok(page('start').querySelector('.needok'));
+  page('start').querySelector('.mod[data-mod="people"] .mh .sw').click();
+  const el = page('start');
+  assert.equal(el.querySelector('.mod[data-mod="people"]').className, 'mod off');
+  assert.ok(el.querySelector('.mod[data-mod="people"] .srow').className.includes('dis'));
+  assert.equal(el.querySelector('.mod[data-mod="people"] .mc').textContent, 'off');
+  assert.equal(page('people').querySelector('.mod').className, 'mod off');
 });
 
-test('renderModule in page mode is open with no footer and repaints itself', () => {
-  const { ctx } = setup();
-  const meta = { id: 'extras', name: 'Chat extras', icon: '✦', sec: 'extras', tok: 180, desc: 'd', off: 'o', subs: [{ key: 'choices', name: 'Choices', desc: 'x', tags: ['cost:tokens'], needs: null }] };
-  const el = renderModule(meta, ctx, { page: true });
-  assert.equal(el.querySelectorAll('.msubs .srow').length, 1);
-  assert.equal(el.querySelector('.mf'), null);
-  assert.equal(el.querySelector('.tg2.cost').textContent, 'tokens');
-  el.querySelector('.mh .sw').click();
-  assert.equal(el.className, 'mod off');
+test('Settings › goes to the module page', () => {
+  const { page, ov } = mountSettings();
+  page('start').querySelector('.mod[data-mod="world"] [data-sec="world"]').click();
+  assert.equal(ov.el.querySelector('.spage h2').textContent, 'World and time');
 });
 
-test('sectionFrame orders applies note, module block, before, groups, after and Reset', () => {
-  const { ctx, sec, calls } = setup();
-  const p = globalThis.document.createElement('p');
-  const nodes = sectionFrame(sec('people'), ctx, { module: 'people', before: [p] });
-  assert.equal(nodes[0].className, 'applies');
-  assert.match(nodes[0].textContent, /switches below are for this chat/);
-  assert.equal(nodes[1].className, 'mods');
-  assert.equal(nodes[2], p);
-  assert.equal(nodes.at(-1).textContent, 'Reset People to defaults');
-  nodes.at(-1).click();
-  assert.deepEqual(calls.at(-1), ['a', 'reset.people', 'Reset']);
-  const bare = sectionFrame(sec('packs'), ctx);
-  assert.equal(bare.length, 1);
-  assert.doesNotMatch(bare[0].textContent, /switches below/);
+test('sectionFrame puts the hook notes around the overlay body; no body gives only the notes', () => {
+  const sec = { id: 'x' };
+  assert.deepEqual(sectionFrame(sec, { body: () => ['b'] }, { before: ['a'], after: ['c'] }), ['a', 'b', 'c']);
+  assert.deepEqual(sectionFrame(sec, {}, { after: ['c'] }), ['c']);
+  assert.deepEqual(renderStartSection(sec, { body: () => ['b'] }), ['b']);
 });

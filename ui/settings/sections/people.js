@@ -3,5 +3,5 @@ import { sectionFrame } from './start.js';
 
 /** Returns the People page nodes for `section`; `ctx` is the overlay context. */
 export function renderPeopleSection(section, ctx) {
-  return sectionFrame(section, ctx, { module: 'people' });
+  return sectionFrame(section, ctx);
 }
