@@ -34,8 +34,6 @@ packages/story-block/tests/v2/cast-skills.test.js 545
 packages/story-block/tests/v2/commands.test.js 657
 packages/story-block/tests/v2/ctx-seams.test.js 547
 packages/story-block/tests/v2/data-modules/check.test.js 570
-packages/story-block/tests/v2/domains/mounts.test.js 456
-packages/story-block/tests/v2/domains/you.test.js 455
 packages/story-block/tests/v2/evidence-ids.test.js 536
 packages/story-block/tests/v2/extras.test.js 473
 packages/story-block/tests/v2/features-ui.test.js 478
