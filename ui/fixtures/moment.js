@@ -31,8 +31,8 @@ export const MOMENT = Object.freeze({
     condition: 'Damp from the drizzle and cold to the bone',
   }),
   chips: Object.freeze({
-    soakPct: 12,
-    party: Object.freeze({ n: 2, max: 4 }),
+    soakPct: 11,
+    party: Object.freeze({ n: 4, max: 4 }),
     pace: Object.freeze({
       kmDay: 20,
       by: 'foot',
@@ -119,7 +119,7 @@ export const MOMENT = Object.freeze({
   torn: Object.freeze([
     Object.freeze({
       stack: 'oak-round-shield',
-      name: 'Oak round shield torn',
+      name: 'Oak round shield',
       detail: 'repair 6 silver here · worn by you',
       go: 'bag',
     }),

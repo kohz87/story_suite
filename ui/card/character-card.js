@@ -1,9 +1,9 @@
 // Builds the full character card shown on top of every tab, with a Story-only variant when RPG is off.
 import { h } from '../kit/dom.js';
-import { glyph } from '../kit/glyphs.js';
 import { chip } from '../kit/controls.js';
 import { bars, expBar } from '../kit/bars.js';
 import { cardRow } from './card-row.js';
+import { paceIcon, soakIcon, statusIcon } from './card-icons.js';
 
 function portrait(you) {
   const initial = String(you.name || '?').trim().charAt(0).toUpperCase();
@@ -16,7 +16,7 @@ function chipRow(card, onPace) {
   if (card.rpg) {
     if (you.levelText) out.push(h('span', { class: 'lvl2' }, you.levelText));
     if (Number.isFinite(chips.soakPct)) {
-      out.push(chip({ label: `${chips.soakPct}%`, icon: 'armor', title: 'Soak', className: 'soak' }));
+      out.push(chip({ label: `${chips.soakPct}%`, icon: soakIcon(), title: 'Soak', className: 'soak' }));
     }
     if (chips.party) {
       out.push(chip({ label: `${chips.party.n}/${chips.party.max}`, icon: 'party', title: 'Party', className: 'party' }));
@@ -26,7 +26,7 @@ function chipRow(card, onPace) {
     const p = chips.pace;
     out.push(chip({
       label: `${p.kmDay} km/day`,
-      icon: 'road',
+      icon: paceIcon(),
       title: p.why || null,
       tone: p.slowed ? 'slow' : null,
       className: 'pace',
@@ -44,7 +44,7 @@ function statusChips(statuses) {
     statuses.map(s => h(
       'span',
       { class: `f ${s.tone}`, dataset: { status: s.id } },
-      h('span', { class: 'ic' }, glyph(s.tone === 'buff' ? 'stance' : 'warn')),
+      h('span', { class: 'ic' }, statusIcon(s.id, s.tone)),
       h('span', { class: 'tx' }, h('b', s.label), s.note ? h('small', s.note) : null),
     )),
   );

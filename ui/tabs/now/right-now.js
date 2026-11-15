@@ -3,7 +3,7 @@ import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 
 const GO_LABEL = Object.freeze({ fight: 'Fight ›', party: 'Party ›', world: 'Map ›', bag: 'Bag ›' });
-const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: 'warn', points: 'plus' });
+const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: '!', points: 'plus' });
 
 function asRow(value) {
   if (value === null || value === undefined || value === '') return null;
@@ -21,7 +21,7 @@ function row({ icon, tone, title, detail, go, progressPct }, ctx) {
       ? h('span', { class: 'lp' }, h('b', { style: { width: `${Math.max(0, Math.min(100, progressPct))}%` } }))
       : null,
   );
-  const lead = h('span', { class: 'ti' }, icon ? glyph(icon) : null);
+  const lead = h('span', { class: 'ti' }, icon && icon.length === 1 ? icon : (icon ? glyph(icon) : null));
   if (!go) return h('div', { class: ['rnr', tone] }, lead, body);
   return h(
     'button',
@@ -54,7 +54,7 @@ function needsRows(needsYou, ctx) {
 function todayRows(today, ctx) {
   const rows = [];
   const focus = asRow(today.focus);
-  if (focus) rows.push(row({ icon: 'quest', tone: 'focus', title: focus.title, detail: focus.detail, go: focus.go ?? 'journal' }, ctx));
+  if (focus) rows.push(row({ icon: '◆', tone: 'focus', title: focus.title, detail: focus.detail, go: focus.go ?? 'journal' }, ctx));
   if (today.trip) {
     const t = today.trip;
     rows.push(row({
@@ -68,7 +68,7 @@ function todayRows(today, ctx) {
   }
   const due = Array.isArray(today.dueSoon) ? today.dueSoon : [today.dueSoon];
   for (const item of due.map(asRow).filter(Boolean)) {
-    rows.push(row({ icon: 'clock', tone: 'due', title: item.title, detail: item.detail, go: item.go ?? 'journal' }, ctx));
+    rows.push(row({ icon: '✉', tone: 'due', title: item.title, detail: item.detail, go: item.go ?? 'journal' }, ctx));
   }
   for (const torn of today.torn ?? []) {
     rows.push(row({

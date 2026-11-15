@@ -12,8 +12,8 @@ test('the full card shows row, name, level, soak, party, pace, bars, EXP and sta
   assert.ok(!el.className.includes('story-only'));
   assert.equal(el.querySelector('.nm').textContent, 'Astra');
   assert.equal(el.querySelector('.lvl2').textContent, 'Lv 14 · Shadow Blade · Human');
-  assert.equal(el.querySelector('.soak').textContent, '12%');
-  assert.equal(el.querySelector('.party').textContent, '2/4');
+  assert.equal(el.querySelector('.soak').textContent, '11%');
+  assert.equal(el.querySelector('.party').textContent, '4/4');
   assert.equal(el.querySelector('.pace').textContent, '20 km/day');
   assert.equal(el.querySelectorAll('.bars3 > div').length, 3);
   assert.ok(el.querySelector('.xpbar'));

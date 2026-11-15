@@ -72,8 +72,14 @@
 }
 
 .su-root button.chip2 {
-  min-height: 44px;
-  padding: 3px 12px;
+  position: relative;
+}
+
+/* The chip is drawn small; its 44 px tap area is this invisible inset. */
+.su-root button.chip2::after {
+  content: "";
+  position: absolute;
+  inset: -12px -2px;
 }
 
 .su-root .chip2 svg {

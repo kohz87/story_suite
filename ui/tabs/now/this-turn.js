@@ -1,4 +1,4 @@
-// Builds the This reply card: what the reply changed, exceptions first, five rows then Show all, with Why on held-back lines.
+// Builds the This reply card: what the reply changed, lines not applied first, five rows then Show all, with Why on held-back lines.
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { moreList } from '../../kit/more.js';
@@ -39,9 +39,9 @@ function changeRow(item) {
   );
 }
 
-/** Sorts rows so lines not applied come first, then held-back lines, then the rest in reply order. */
+/** Sorts rows so lines not applied come first; held-back lines are ordinary rows in reply order (decision 38). */
 function ordered(items) {
-  const rank = it => (!it.applied ? 0 : it.heldBack ? 1 : 2);
+  const rank = it => (!it.applied ? 0 : 1);
   return items.map((it, i) => [it, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(([it]) => it);
 }
 

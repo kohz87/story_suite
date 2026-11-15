@@ -3,6 +3,7 @@
 import { h, clear } from '../kit/dom.js';
 import { mountSuite } from '../mount.js';
 import { createFakePort } from '../port/fake-port.js';
+import { usePortraits } from './portraits.js';
 
 const THEMES = ['dark', 'light', 'follow'];
 const VARIANTS = ['default', 'rpgOff', 'fightOpen', 'empty'];
@@ -26,6 +27,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
   };
   let port = null;
   let suite = null;
+  let stopPortraits = null;
 
   function mount() {
     suite?.destroy();
@@ -34,6 +36,8 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     frame.style.width = `${state.width}px`;
     suite = mountSuite({ port, doc, host: frame, theme: state.theme, initial: state.tab, schedule });
     suite.open(state.tab);
+    stopPortraits?.();
+    stopPortraits = typeof globalThis.MutationObserver === 'function' ? usePortraits(frame) : null;
   }
 
   function apply(patch = {}) {

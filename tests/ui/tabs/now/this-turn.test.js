@@ -5,15 +5,16 @@ import { fixture } from '../../../../ui/fixtures/index.js';
 import { thisTurnCard } from '../../../../ui/tabs/now/this-turn.js';
 import { makeCtx } from './helpers.js';
 
-test('exceptions sort first, then five rows, then Show all', () => {
+test('lines not applied sort first, a held-back line keeps its reply order, then five rows, then Show all', () => {
   installFakeDom();
   const vm = fixture().now.thisTurn;
   const card = thisTurnCard(vm, makeCtx());
   assert.equal(card.querySelector('.cnt').textContent, '10 changes');
   const rows = card.querySelectorAll('.cr');
   assert.equal(rows.length, 5);
-  assert.match(rows[0].textContent, /Torka: Affection \+1/);
-  assert.equal(rows[0].classList.contains('held'), true);
+  assert.match(rows[0].textContent, /Sister Temiwa: Trust \+2/);
+  assert.match(rows[1].textContent, /Torka: Affection \+1/);
+  assert.equal(rows[1].classList.contains('held'), true);
   assert.equal(card.querySelector('.more-btn').textContent, 'Show all 10');
   card.querySelector('.more-btn').click();
   assert.equal(card.querySelectorAll('.cr').length, 10);

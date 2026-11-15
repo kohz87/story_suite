@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Story Suite harness</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Noto+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/shell.css">
 <link rel="stylesheet" href="../css/kit.css">
@@ -11,7 +12,13 @@
 <link rel="stylesheet" href="../css/now.css">
 <link rel="stylesheet" href="../css/chat.css">
 <style>
-  body { margin: 0; font-family: system-ui, sans-serif; background: #1b1d26; color: #eee; }
+  /* Offline copies of Nunito (same family as the Google link above) so shots match without network. */
+  @font-face { font-family: "Nunito"; font-weight: 400 500; src: local("Nunito"), url(./fonts/nunito-latin-400.woff2) format("woff2"); }
+  @font-face { font-family: "Nunito"; font-weight: 600; src: local("Nunito SemiBold"), url(./fonts/nunito-latin-600.woff2) format("woff2"); }
+  @font-face { font-family: "Nunito"; font-weight: 700; src: local("Nunito Bold"), url(./fonts/nunito-latin-700.woff2) format("woff2"); }
+  @font-face { font-family: "Nunito"; font-weight: 800 900; src: local("Nunito ExtraBold"), url(./fonts/nunito-latin-800.woff2) format("woff2"); }
+  [data-portrait][style*="img/"] { background-size: cover; background-position: center 20%; color: transparent; }
+  body { margin: 0; font-family: "Nunito", system-ui, sans-serif; background: #1b1d26; color: #eee; }
   .hx-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; position: relative; z-index: 4000; }
   .hx-bar button { min-width: 44px; min-height: 44px; font-size: 14px; }
   .hx-frame { margin: 0 auto; position: relative; height: 80vh; transform: translateZ(0); overflow: hidden; }

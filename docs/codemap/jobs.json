@@ -11,7 +11,7 @@
   "scripts/codemap/pattern-names.mjs": "Lists the names a destructuring or plain binding pattern declares.",
   "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
-  "ui/card/card-row.js": "Builds the card's top row: ‹ Story, time · place · weather (opens the Scene sheet) and ⚙.",
+  "ui/card/card-row.js": "Builds the card's top row: ‹ Chat, time · place · weather with the mock's glyphs (opens the Scene sheet) and ⚙.",
   "ui/card/character-card.js": "Builds the full character card shown on top of every tab, with a Story-only variant when RPG is off.",
   "ui/chat/inline-row.js": "Builds the quiet inline row under the latest reply: time, place, weather, money, Needs you, Fight, Choices and the Suite link.",
   "ui/chat/people-drawer.js": "Builds the people drawer above the message box: a \"Here\" header and one page of feelings-ring cards.",
@@ -54,5 +54,7 @@
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
-  "ui/theme/tokens.js": "Token names and the Glass dark and light values."
+  "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
+  "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
+  "ui/dev/portraits.js": "Dev harness only: puts the mock's portrait photos on data-portrait elements, keeping the letter circle as the fallback."
 }

@@ -4,11 +4,11 @@ import { installFakeDom } from '../../../packages/story-block/tests/ui-fake-dom.
 import { cardRow } from '../../../ui/card/card-row.js';
 import { fixture } from '../../../ui/fixtures/index.js';
 
-test('cardRow shows ‹ Story, time and date, place, weather and the settings gear', () => {
+test('cardRow shows ‹ Chat, time and date, place, weather and the settings gear', () => {
   installFakeDom();
   const row = cardRow(fixture('default').card.scene);
   assert.equal(row.className, 'ctop');
-  assert.equal(row.querySelector('.bk').textContent, '‹ Story');
+  assert.equal(row.querySelector('.bk').textContent, '‹ Chat');
   const text = row.querySelector('.meta').textContent;
   assert.match(text, /9:30 am · Goldwane 13, Fourthday/);
   assert.match(text, /Guild Office, Bluewatch/);
