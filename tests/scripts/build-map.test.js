@@ -71,7 +71,7 @@ test('one job per file: more than MAX_EXPORTS exports is a problem, except a fil
 
 test('CommonJS and unparsable files are problems', () => {
   const run = src => buildMap({ files: ['a.js'], readSource: () => src, jobs: { 'a.js': 'x' } }).problems;
-  const cjs = 'a.js: uses the name module/exports (CommonJS is not allowed here; rename it)';
+  const cjs = 'a.js: uses the name module, exports, require, __filename or __dirname (CommonJS is not allowed here; rename it)';
   assert.deepEqual(run('module.exports = {a:1,b:2,c:3,d:4,e:5};'), [cjs]);
   assert.deepEqual(run('Object.assign(exports, {a:1,b:2,c:3,d:4,e:5});'), [cjs]);
   assert.deepEqual(run('module.exports = {...{a:1,b:2,c:3,d:4,e:5}};'), [cjs]);
@@ -84,4 +84,34 @@ test('test files are not held to the export limit', () => {
   const many = 'export const a=1;\nexport const b=2;\nexport const c=3;\nexport const d=4;\nexport const e=5;\n';
   const { problems } = buildMap({ files: ['tests/helpers/h.mjs'], readSource: () => many, jobs: {} });
   assert.deepEqual(problems, []);
+});
+
+const runFiles = SRC => {
+  const jobs = Object.fromEntries(Object.keys(SRC).filter(p => !p.startsWith('tests/') && /\.(?:m?js|cjs|sh|bash|py)$/.test(p)).map(p => [p, 'A job.']));
+  return buildMap({ files: Object.keys(SRC), readSource: p => SRC[p], jobs }).problems;
+};
+
+test('.cjs files and require/__filename/__dirname are refused outside packages', () => {
+  assert.deepEqual(runFiles({ 'core/a.cjs': 'const x = 1;\n' }), ['core/a.cjs: CommonJS is not allowed here']);
+  assert.match(runFiles({ 'core/cache.js': 'require.cache[__filename].exports = {};\n' })[0], /CommonJS is not allowed here/);
+  assert.match(runFiles({ 'core/d.js': 'export const d = __dirname;\n' })[0], /CommonJS is not allowed here/);
+});
+
+test('a source file in an unused language is a problem; allowed scripts and plain text are not', () => {
+  assert.deepEqual(runFiles({ 'scripts/x.pl': 'print 1;\n', 'scripts/y.rb': 'puts 1\n' }), [
+    'scripts/x.pl: this language is not used in this repo',
+    'scripts/y.rb: this language is not used in this repo',
+  ]);
+  assert.deepEqual(runFiles({ 'scripts/run': '#!/bin/sh\necho\n' }), ['scripts/run: this language is not used in this repo']);
+  const ok = { 'scripts/a.sh': 'echo 1\n', 'scripts/b.bash': 'echo 1\n', 'scripts/c.py': 'print(1)\n', 'LICENSE': 'text\n', '.gitignore': 'x\n' };
+  assert.deepEqual(runFiles(ok), []);
+});
+
+test('test files skip only the export cap: stars, CommonJS names and JSX/TS still fail', () => {
+  assert.deepEqual(runFiles({ 'tests/helpers/probe.mjs': 'export const a=1,b=2,c=3,d=4,e=5;\n' }), []);
+  assert.deepEqual(runFiles({ 'tests/helpers/s.mjs': "export * from 'node:fs';\nexport const extra = 1;\n" }), [
+    'tests/helpers/s.mjs: export * from node:fs cannot be counted; list the names',
+  ]);
+  assert.match(runFiles({ 'tests/x.test.js': 'module.exports = {};\n' })[0], /CommonJS is not allowed here/);
+  assert.equal(runFiles({ 'tests/x.test.tsx': 'export {};\n' })[0], 'tests/x.test.tsx: JSX and TypeScript are not used in this repo');
 });

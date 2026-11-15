@@ -60,7 +60,7 @@ test('an import spread over several lines', () => {
 });
 
 test('no exports and no imports', () => {
-  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [], commonJs: false, facade: false });
+  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [], importBindings: {}, commonJs: false, facade: false });
 });
 
 test('generator functions are functions', () => {

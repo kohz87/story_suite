@@ -75,3 +75,29 @@ test('JSX and TypeScript files are refused', () => {
   const problems = run(Object.fromEntries(files.map(f => [`core/${f}`, 'export const a = 1;\n'])));
   for (const f of files) assert.ok(problems.includes(`core/${f}: JSX and TypeScript are not used in this repo`), f);
 });
+
+const DIAMOND = {
+  'core/base.mjs': 'export const a = 1;\n',
+  'core/left.mjs': "export { a } from './base.mjs';\n",
+  'core/right.mjs': "export { a } from './base.mjs';\n",
+  'core/main.mjs': "export * from './left.mjs';\nexport * from './right.mjs';\nexport const b = 2, c = 3, d = 4, e = 5;\n",
+};
+
+test('stars forwarding the same binding (diamond) are not a conflict', () => {
+  assert.deepEqual(run(DIAMOND), ['core/main.mjs: 5 exports (one job per file allows at most 4)']);
+});
+
+test('aliases and chains resolve to the underlying binding; different bindings stay ambiguous', () => {
+  const chain = {
+    ...DIAMOND,
+    'core/left.mjs': "export { a as z } from './mid.mjs';\n",
+    'core/mid.mjs': "export { a as z } from './base.mjs';\n",
+    'core/right.mjs': "import { a } from './base.mjs';\nexport { a as z };\n",
+    'core/main.mjs': "export * from './left.mjs';\nexport * from './right.mjs';\nexport const b = 2, c = 3, d = 4, e = 5;\n",
+  };
+  assert.deepEqual(run(chain).filter(p => p.startsWith('core/main')), []);
+  const stillSeen = { ...chain, 'core/mid.mjs': "export { a as z } from './base.mjs';\nexport const q = 1;\n" };
+  assert.deepEqual(run(stillSeen).filter(p => p.startsWith('core/main')), []);
+  const other = { ...DIAMOND, 'core/right.mjs': 'export const a = 9;\n' };
+  assert.deepEqual(run(other), []);
+});

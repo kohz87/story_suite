@@ -34,3 +34,11 @@ test('member properties and object keys called module or exports are fine', () =
   assert.equal(cjs('const o = {}; o.module;'), false);
   assert.equal(cjs('class A { module() {} }'), false);
 });
+
+test('require, __filename and __dirname are reserved too', () => {
+  assert.equal(cjs('require.cache[__filename].exports = {};'), true);
+  assert.equal(cjs("const fs = require('node:fs');"), true);
+  assert.equal(cjs('const d = __dirname;'), true);
+  assert.equal(cjs('function f(require) {}'), true);
+  assert.equal(cjs('const o = { require: 1 }; o.require;'), false);
+});

@@ -6,6 +6,8 @@ import { resolveSpecifier } from './resolve-spec.mjs';
 
 export const MAX_EXPORTS = 4;
 const MODULE_EXT = /\.(?:m?js|cjs)$/;
+// Parsed (or refused) languages, plus style and the allowed script types, which are listed but not parsed.
+const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|sh|bash|py)$/;
 const REFUSED_EXT = /\.(?:jsx|tsx|ts|mts|cts)$/;
 const EMPTY = { exports: [], imports: [], commonJs: false, facade: false };
 
@@ -18,9 +20,17 @@ function resolveInternalImports(filePath, specifiers, fileSet) {
  * Builds codemap rows and validation problems for a set of repo files.
  */
 export function buildMap({ files, readSource, jobs }) {
-  const sortedFiles = files.slice().sort();
-  const fileSet = new Set(sortedFiles);
   const problems = [];
+  const sortedFiles = [];
+  for (const filePath of files.slice().sort()) {
+    if (MAPPED_EXT.test(filePath)) { sortedFiles.push(filePath); continue; }
+    // Dotfiles and extensionless text (LICENSE, .gitignore) are not code; a script shebang or any other
+    // extension means a language this repo does not use.
+    const base = filePath.split('/').pop();
+    const plain = !base.replace(/^\.+/, '').includes('.') && !readSource(filePath).startsWith('#!');
+    if (!plain) problems.push(`${filePath}: this language is not used in this repo`);
+  }
+  const fileSet = new Set(sortedFiles);
   const byPath = new Map();
   const parsedByPath = new Map();
 
@@ -35,8 +45,10 @@ export function buildMap({ files, readSource, jobs }) {
       problems.push(`${filePath}: JSX and TypeScript are not used in this repo`);
     } else if (parsed.exports.some(exp => exp.kind === 'unparsable')) {
       problems.push(`${filePath}: cannot be parsed as an ES module`);
+    } else if (filePath.endsWith('.cjs')) {
+      problems.push(`${filePath}: CommonJS is not allowed here`);
     } else if (parsed.commonJs) {
-      problems.push(`${filePath}: uses the name module/exports (CommonJS is not allowed here; rename it)`);
+      problems.push(`${filePath}: uses the name module, exports, require, __filename or __dirname (CommonJS is not allowed here; rename it)`);
     }
 
     if (!isTest) {
@@ -58,11 +70,12 @@ export function buildMap({ files, readSource, jobs }) {
   }
 
   // Star re-exports need every file parsed first, so the export limit is checked in a second pass.
+  // Test files and test helpers under tests/ are exempt from the export cap only; an uncountable
+  // `export * from` is still a problem for them.
   for (const filePath of sortedFiles) {
-    if (isTestFile(filePath)) continue;
     const { names, unresolved } = exportNames(filePath, parsedByPath, fileSet);
     for (const from of new Set(unresolved)) problems.push(`${filePath}: export * from ${from} cannot be counted; list the names`);
-    if (names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade) {
+    if (!isTestFile(filePath) && names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade) {
       problems.push(`${filePath}: ${names.size} exports (one job per file allows at most ${MAX_EXPORTS})`);
     }
   }
