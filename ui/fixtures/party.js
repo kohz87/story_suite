@@ -23,7 +23,7 @@ const CAST = [
     [['area', 'Cleave', 'area', 'STR', 'stamina', 2, 'Apprentice', 2], ['atk', 'Heavy blow', 'attack', 'STR', 'stamina', 1, 'Novice', 1],
       ['stance', 'Shield wall', 'stance', 'VIT', 'stamina', 1, 'Novice', 1]]],
   ['rika', 'Rika', 11, 'Lv 11 · Scout · Elf', [null, null, null], 40, [6, 13, 12, 8, 5, 6, 5], 0,
-    { where: 'At the Bluewatch stables with the horses', lastSeen: '8:00 am' },
+    { where: 'At the Bluewatch stables with the horses', lastSeen: '8:00 am', short: 'at stables' },
     ['', 'Scout leathers', 'Green cloak', 'Soft boots', 'Grey pony', 'Short bow', '', '', '', 'Quiver bag'], [],
     [['atk', 'Aimed shot', 'attack', 'DEX', 'stamina', 1, 'Adept', 3], ['stance', 'Fade', 'stance', 'AGI', 'stamina', 1, 'Novice', 1]]],
   ['torka', 'Torka', 12, 'Lv 12 · Sellsword · Orc', [null, null, null], 72, [13, 8, 9, 11, 5, 5, 5], 0, null,

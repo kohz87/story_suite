@@ -17,7 +17,7 @@ function memberButton(member, active, onPick) {
     { type: 'button', class: ['mb', member.away ? 'away' : null], dataset: { member: member.id }, 'aria-current': String(active), onClick: onPick },
     portraitEl(member, 'a'),
     member.name,
-    member.away ? h('span', { class: 'aw', title: member.away.where }, 'away') : null,
+    member.away ? h('span', { class: 'aw', title: member.away.where }, member.away.short ?? 'away') : null,
     h('span', { class: 'hpl' }, h('b', { style: { width: `${hp && hp.max > 0 ? Math.round((hp.value / hp.max) * 100) : 0}%` } })),
   );
 }

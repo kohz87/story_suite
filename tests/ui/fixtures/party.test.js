@@ -36,7 +36,7 @@ describe('PARTY fixture', () => {
   });
 
   it('puts Rika away at the stables, still in the party', () => {
-    assert.deepEqual(member('rika').away, { where: 'At the Bluewatch stables with the horses', lastSeen: '8:00 am' });
+    assert.deepEqual(member('rika').away, { where: 'At the Bluewatch stables with the horses', lastSeen: '8:00 am', short: 'at stables' });
     assert.equal(member('astra').away, null);
   });
 

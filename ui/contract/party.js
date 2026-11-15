@@ -42,7 +42,7 @@ const MEMBER = {
   level: T.NUMBER,
   xpPct: T.NUMBER,
   points: T.NUMBER,
-  away: { $nullable: { where: T.STRING, lastSeen: T.STRING } },
+  away: { $nullable: { where: T.STRING, lastSeen: T.STRING, short: { $optional: T.STRING } } },
   soakPct: T.NUMBER,
   bars: [{ kind: { $enum: ['hp', 'mp', 'sp'] }, value: T.NUMBER, max: T.NUMBER }],
   effects: [{ id: T.STRING, label: T.STRING, note: T.STRING, tone: { $enum: ['buff', 'debuff'] } }],
