@@ -25,10 +25,19 @@
 // (`changed('state.scene.place')`), or a JSON Pointer (`changed('/domains/scene/place')`). A bare path is
 // passed to `evaluate` quoted, so the condition language only ever sees a string there.
 // Pure: no DOM, no clock, no randomness.
+// Public face: re-exports its parts.
 
-export { changedPointers, touches } from './bind/changes.js';
-export { conditionEvaluator, compileExpr, evalExpr, TEMPLATE_CALLS } from './bind/expressions.js';
-export { contains, defaultFormatters, len, pct, ratio, sum } from './bind/helpers.js';
-export { parsePath, pathKeys, pointerOf, resolvePath, RESERVED, setIn, valueAtKeys } from './bind/paths.js';
-export { isScope, makeScope, stateView, withDraft, withItem } from './bind/scope.js';
-export { interpolate, isLoopName, parseInterpolation, splitPairs, toText } from './bind/text.js';
+export { changedPointers, touches } from './bind-parts/changes.js';
+export { conditionEvaluator, compileExpr, evalExpr, TEMPLATE_CALLS } from './bind-parts/expressions.js';
+export { defaultFormatters } from './bind-parts/formatters.js';
+export { contains, len, sum } from './bind-parts/list-helpers.js';
+export { pct, ratio } from './bind-parts/ratio-pct.js';
+export { pathKeys, pointerOf, resolvePath, valueAtKeys } from './bind-parts/path-read.js';
+export { parsePath } from './bind-parts/path-syntax.js';
+export { RESERVED } from './bind-parts/path-names.js';
+export { setIn } from './bind-parts/path-write.js';
+export { isScope, makeScope, stateView } from './bind-parts/scope-build.js';
+export { withDraft, withItem } from './bind-parts/scope-child.js';
+export { interpolate, parseInterpolation, toText } from './bind-parts/interpolation.js';
+export { splitPairs } from './bind-parts/pair-lists.js';
+export { isLoopName } from './bind-parts/loop-name.js';
