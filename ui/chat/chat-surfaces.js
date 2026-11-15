@@ -9,7 +9,7 @@ function isUser(el) {
 /** Returns the newest message element that is not the user's (the one that carries the row), or null. */
 export function latestReplyOf(messagesEl) {
   if (!messagesEl) return null;
-  const all = messagesEl.querySelectorAll('.mes').filter(el => !isUser(el));
+  const all = [...messagesEl.querySelectorAll('.mes')].filter(el => !isUser(el));
   return all.length ? all[all.length - 1] : null;
 }
 

@@ -47,7 +47,12 @@ export function createSbPort({ sdk, selectors = {}, prefs = null } = {}) {
     reread: index => guarded(sdk, 'reread', index),
     on(event, fn) {
       if (typeof fn !== 'function') throw new TypeError('port.on listener must be a function');
-      const off = sdk?.on?.(event, fn);
+      let off = null;
+      try {
+        off = sdk?.on?.(event, fn);
+      } catch {
+        off = null; // an event this Story Block build does not have (for example `changed`): nothing to listen to
+      }
       return typeof off === 'function' ? off : () => {};
     },
   };

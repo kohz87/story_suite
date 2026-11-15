@@ -53,18 +53,19 @@ export function moneySheet(coins, ctx = {}) {
 
 /** Builds the Purse card from the bag view-model; ctx = { port, openSheet(el, label) }. */
 export function purseCard(bag, ctx = {}) {
-  const { coins, thisTurn, rates } = bag.purse;
-  const edit = button({
+  const { coins, thisTurn = [], rates, words = '' } = bag.purse;
+  // One wallet amount (no gold/silver/copper split) draws as its words; the money editor needs the split, so it is left out.
+  const edit = coins ? button({
     tone: 'icon', label: 'Edit money', className: 'sm', icon: null,
     onClick: () => ctx.openSheet?.(moneySheet(coins, ctx), 'Edit money'),
-  });
-  edit.textContent = '✎';
+  }) : null;
+  if (edit) edit.textContent = '✎';
   return h(
     'section',
     { class: 'card glass bag-purse', dataset: { card: 'purse' } },
     h('div', { class: 'ch' }, h('h3', null, 'Purse'), edit),
-    h('div', { class: 'coins' }, Object.keys(COIN_COLOUR).map(k => h(
-      'span', { class: 'coin', dataset: { coin: k } }, h('i', { style: { background: COIN_COLOUR[k] } }), String(coins[k]), h('small', null, k)))),
+    h('div', { class: 'coins' }, coins ? Object.keys(COIN_COLOUR).map(k => h(
+      'span', { class: 'coin', dataset: { coin: k } }, h('i', { style: { background: COIN_COLOUR[k] } }), String(coins[k]), h('small', null, k))) : h('span', { class: 'coin' }, words)),
     thisTurn.length ? h('div', { class: 'last' }, 'This turn: ', thisTurn.map((t, i) => [i ? ' · ' : null, t.earlier ? 'earlier today ' : null, h('b', { class: t.up ? 'up' : null }, t.delta), ` ${t.line}`])) : null,
     rates ? h('div', { class: 'brow' }, button({ label: 'Prices here ›', onClick: () => ctx.openSheet?.(ratesSheet(rates), 'Prices here') })) : null,
     loadBlock(bag.load),

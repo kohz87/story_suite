@@ -64,11 +64,12 @@ function audit() {
 let ctx = null;
 test.before(async () => {
   try {
-    const { chromium } = require('/home/raven/story_suite/node_modules/playwright');
+    const { chromium } = require('playwright');
     const browser = await chromium.launch();
     const { server, port } = await serve();
     ctx = { browser, server, port };
   } catch (err) {
+    if (process.env.CI === 'true') throw err;
     ctx = { skip: `Playwright browser unavailable: ${String(err.message).split('\n')[0]}` };
   }
 });

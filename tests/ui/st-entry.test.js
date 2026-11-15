@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { installFakeDom } from './helpers/dom.js';
-import { buildSelectors, startPreview } from '../../ui/st-entry.js';
+import { startPreview } from '../../ui/st-entry.js';
+import { buildSelectors } from '../../ui/select/build.js';
+import { readFlag, writeFlag } from '../../ui/entry/flag.js';
 
 const TABS = ['card', 'now', 'chat', 'party', 'bag', 'people', 'dossier', 'world', 'journal', 'story', 'fight', 'settings'];
 
@@ -98,6 +100,20 @@ test('set(true) then set(false) saves the flag and takes everything away again',
   assert.equal(doc.querySelector('#story-suite-ui-menu'), null);
   assert.equal(doc.body.classList.contains('ss-ui-next'), false);
   assert.equal(doc.head.querySelectorAll('link').length, 0);
+});
+
+test('the flag guards a context with no settings: read says off, write does nothing, the switch still toggles the view', async () => {
+  assert.equal(readFlag(null), false);
+  assert.equal(writeFlag(null, true), false);
+  assert.equal(writeFlag({}, true), false);
+  assert.equal(writeFlag({ extensionSettings: 'x' }, true), false);
+  const ctx = { name1: 'Reader', chatMetadata: {} };
+  const doc = page();
+  const api = await startPreview({ doc, getContext: () => ctx, StoryBlock: fakeBlock(), base: 'x/' });
+  assert.doesNotThrow(() => api.set(true));
+  assert.equal(api.isOn(), true);
+  assert.doesNotThrow(() => api.off());
+  assert.equal(api.isOn(), false);
 });
 
 test('startPreview does nothing without Story Block or the context', async () => {

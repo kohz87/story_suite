@@ -101,3 +101,11 @@ test('prefs are served from the device and chat stores when given', () => {
   assert.deepEqual(empty.prefs.getDevice(), {});
   assert.deepEqual(empty.prefs.getChat('c'), {});
 });
+
+test('port.on gives back a no-op when the sdk has no such event (it throws)', () => {
+  const sdk = { ...fakeSdk(), on() { throw new Error('there is no "changed" event'); } };
+  const port = createSbPort({ sdk });
+  const off = port.on('changed', () => {});
+  assert.equal(typeof off, 'function');
+  off();
+});

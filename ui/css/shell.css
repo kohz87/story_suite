@@ -2,7 +2,11 @@
 .su-layer {
   position: fixed;
   inset: 0;
-  z-index: 3000;
+  /* SillyTavern puts a transform on <html>, which shrinks a fixed box to 0 high: size it from the viewport instead. */
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 3100; /* above SillyTavern's top bar (3005), below its dialogs (4000+) */
   display: flex;
   justify-content: center;
   pointer-events: none;

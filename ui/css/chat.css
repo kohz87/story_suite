@@ -1,5 +1,6 @@
 /* Inline row and people drawer: SillyTavern theme variables only, never the suite tokens (decision 34). */
 .ssrow{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;margin:8px 0 2px;padding-top:7px;border-top:1px solid var(--SmartThemeBorderColor);font-size:.84em;color:var(--SmartThemeEmColor)}
+.mes.last_mes .ssrow{padding-inline-end:56px} /* keeps the Suite button clear of SillyTavern's swipe arrow and counter on the last reply */
 .ssl1,.ssl2{display:contents}
 .ssrow .it3{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .ssrow .it3 i{font-style:normal;opacity:.85}

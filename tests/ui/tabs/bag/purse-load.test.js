@@ -77,3 +77,11 @@ test('Prices here opens the rates sheet with one row per price', () => {
   assert.equal(opened[0][1], 'Prices here');
   assert.equal(opened[0][0].querySelectorAll('.rt').length, 7);
 });
+
+test('a single wallet amount (no coin split) shows its words and no money editor', () => {
+  installFakeDom();
+  const bag = bagFixture({ rpg: false });
+  const card = purseCard({ ...bag, purse: { coins: null, words: '40 gold', thisTurn: [], rates: null } }, {});
+  assert.deepEqual(card.querySelectorAll('.coin').map(c => c.textContent), ['40 gold']);
+  assert.equal(card.querySelector('[aria-label="Edit money"]'), null);
+});

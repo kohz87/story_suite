@@ -116,3 +116,9 @@ test('typing folds the drawer on a narrow screen only; toggle and paging work', 
     assert.equal(drawerHost.querySelector('.drawer').dataset.page, '1');
   }
 });
+
+test('latestReplyOf works when querySelectorAll returns a NodeList-like (no filter method)', () => {
+  const els = [{ classList: { contains: () => false }, getAttribute: () => null }, { classList: { contains: c => c === 'user' }, getAttribute: () => null }];
+  const messagesEl = { querySelectorAll: () => ({ length: els.length, 0: els[0], 1: els[1], [Symbol.iterator]: () => els[Symbol.iterator]() }) };
+  assert.equal(latestReplyOf(messagesEl), els[0]);
+});
