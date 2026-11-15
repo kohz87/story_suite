@@ -45,24 +45,24 @@ export function tripSummary(trip) {
     'div',
     { class: 'tripsum', dataset: { trip: 'summary' } },
     h('b', null, `Trip to ${destination(trip)} · ${STATE_WORDS[trip.state] ?? trip.state}`),
-    h('span', null, `${trip.legs.length} ${trip.legs.length === 1 ? 'leg' : 'legs'}${trip.arrive ? ` · arrive ${trip.arrive.replace(/^about /, '')}` : ''}`),
+    h('span', null, [`${trip.legs.length} ${trip.legs.length === 1 ? 'leg' : 'legs'}`, trip.mode, trip.arrive ? `arrive ${trip.arrive.replace(/^about /, '')}` : null].filter(Boolean).join(' · ')),
   );
 }
 
-function legRow(leg, index, status, eta) {
+function legRow(leg, index, status, eta, rpg) {
   return h(
     'div',
     { class: ['leg', status], dataset: { leg: index + 1 } },
     h('span', { class: 'n' }, index + 1),
     h('span', null,
       h('b', null, `${leg.from} → ${leg.to}`),
-      h('small', null, [leg.km ? `${leg.km} km` : null, timeWords(leg.minutes), leg.note].filter(Boolean).join(' · '))),
+      h('small', null, [leg.km ? `${leg.km} km` : null, timeWords(leg.minutes), [leg.note, rpg ? leg.risk : null].filter(Boolean).join(', ')].filter(Boolean).join(' · '))),
     h('span', { class: 'eta' }, eta),
   );
 }
 
 /** Builds the trip card (legs, progress, arrival) from the world's trip; `side` styles it for the wide layout. Null without a trip. */
-export function tripCard(trip, { side = false } = {}) {
+export function tripCard(trip, { side = false, rpg = true } = {}) {
   if (!trip || !Array.isArray(trip.legs) || !trip.legs.length) return null;
   const road = trip.state === 'road';
   const arrived = trip.state === 'arrived';
@@ -77,10 +77,14 @@ export function tripCard(trip, { side = false } = {}) {
     elapsed += Number(leg.minutes) || 0;
     const status = i < doneCount ? 'done' : (road && i === doneCount ? 'cur' : '');
     const eta = status === 'done' ? 'done' : (status === 'cur' ? 'now' : (start === null ? `after ${timeWords(elapsed)}` : clockWords(start + elapsed)));
-    return legRow(leg, i, status, eta);
+    return legRow(leg, i, status, eta, rpg);
   });
-  const when = arrived ? `Arrived ${trip.arrive ?? ''}`.trim()
-    : `${road ? 'Set out' : 'Leave'} ${trip.leave ?? 'soon'}${trip.arrive ? ` · arrive ${destination(trip)} ${trip.arrive}` : ''}`;
+  const pace = [trip.mode, trip.pace].filter(Boolean).join(', ');
+  const target = [destination(trip), trip.arriveOn, trip.arrive?.replace(/^about /, '')].filter(Boolean).join(', ');
+  const when = arrived ? h('span', null, `Arrived ${trip.arrive ?? ''}`.trim())
+    : h('span', null,
+      `${road ? 'Set out' : 'Leave'} ${trip.leave ?? 'soon'}${!road && trip.leaveNote ? `, ${trip.leaveNote}` : ''}${pace ? ` · ${pace}` : ''}`,
+      trip.arrive ? [' · arrive ', h('b', null, target)] : null);
   return h(
     'section',
     { class: ['card', 'glass', 'tripc', side ? 'side' : null], dataset: { card: 'trip' } },

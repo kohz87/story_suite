@@ -47,11 +47,13 @@ function regionLabels(places) {
   }, name.toUpperCase()));
 }
 
-function placeNode(p, u, newsIds, state, act) {
+function placeNode(p, u, newsIds, state, act, vb) {
   const big = p.here || /city|market/i.test(p.kind);
   const r = Math.max(big ? 17 : 13, 15 * u);
   const fs = 13 * u * (big ? 1.1 : 1);
   const nr = Math.max(8, 9 * u);
+  const flip = p.x + r + 6 + p.name.length * fs * 0.6 > vb.x + vb.w;
+  const stroked = /port|harbou?r|ford|bridge|mill/i.test(p.kind);
   const badge = newsIds.has(p.id)
     ? svgEl('g', { class: 'news' },
       svgEl('circle', { cx: p.x + r * 0.8, cy: p.y - r * 0.8, r: nr }),
@@ -68,9 +70,9 @@ function placeNode(p, u, newsIds, state, act) {
   },
   svgEl('circle', { class: 'hit', cx: p.x, cy: p.y, r: Math.max(r, 24 * u), fill: 'transparent' }),
   svgEl('circle', { class: 'b', cx: p.x, cy: p.y, r }),
-  svgEl('svg', { class: 'g', x: p.x - r * 0.6, y: p.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor' },
+  svgEl('svg', { class: 'g', x: p.x - r * 0.6, y: p.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor', ...(stroked ? { stroke: 'currentColor', 'stroke-width': 2 } : {}) },
     ...(glyph(placeGlyph(p.kind))?.childNodes ?? [])),
-  svgEl('text', { x: p.x + r + 6, y: p.y + fs * 0.35, style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` } }, p.name),
+  svgEl('text', { x: flip ? p.x - r - 6 : p.x + r + 6, y: p.y + fs * 0.35, 'text-anchor': flip ? 'end' : 'start', style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` } }, p.name),
   badge);
 }
 
@@ -80,12 +82,15 @@ function drawSvg(world, vb, scale, state, act) {
   const newsIds = new Set(world.news.map(n => n.placeId).filter(Boolean));
   const tripPts = (world.trip?.placeIds ?? []).map(id => byId.get(id)).filter(Boolean);
   const here = world.places.find(p => p.here);
+  const terrain = world.terrain ?? {};
   const grid = [];
   for (let i = 0; i <= 1000; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${i} -500V1200M-500 ${i}H1500` }));
   return svgEl('svg', { class: 'mp', viewBox: viewText(vb), preserveAspectRatio: 'xMidYMid slice', 'aria-label': 'Map' },
     svgEl('rect', { class: 'land', x: -500, y: -500, width: 2000, height: 1700 }),
     grid,
-    regionLabels(world.places),
+    terrain.sea ? svgEl('path', { class: 'sea', d: terrain.sea }) : null,
+    (terrain.rivers ?? []).map(d => svgEl('path', { class: 'river', d })),
+    terrain.labels ? terrain.labels.map(l => svgEl('text', { class: 'rgn', x: l.x, y: l.y, style: l.italic ? { 'font-style': 'italic', 'letter-spacing': '.2em' } : null }, l.text)) : regionLabels(world.places),
     world.routes.map(rt => {
       const a = byId.get(rt.a);
       const b = byId.get(rt.b);
@@ -94,7 +99,7 @@ function drawSvg(world, vb, scale, state, act) {
     tripPts.length > 1
       ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': Math.max(5, 4 * u) } })
       : null,
-    world.places.map(p => placeNode(p, u, newsIds, state, act)),
+    world.places.map(p => placeNode(p, u, newsIds, state, act, vb)),
     here ? svgEl('g', { class: 'you' }, svgEl('circle', { class: 'r', cx: here.x, cy: here.y, r: 14 })) : null);
 }
 
@@ -112,20 +117,24 @@ function tools(world, regions, on) {
     icon('tidy', 'Tidy the labels', on.tidy, { dataset: { tidy: 1 } }));
 }
 
-const LEGEND = [['', 'road'], ['t', 'track'], ['p', 'your trip'], ['f', 'faded: not visited yet']];
+
+const legendItem = (cls, text) => h('span', null, h('i', { class: cls }), text);
 
 /** Builds the map card from a world view-model; state = { selected, center }; act = { openPlace(id) }; ctx.width picks the first fit. */
 export function mapCard(world, state, act, ctx = {}) {
   const places = world.places ?? [];
   if (!places.length) return null;
-  const data = { places, routes: world.routes ?? [], trip: world.trip ?? null, news: world.news ?? [] };
+  const data = { places, routes: world.routes ?? [], trip: world.trip ?? null, news: world.news ?? [], terrain: world.terrain ?? null };
   const regions = [...new Set(places.map(p => p.region).filter(Boolean))];
   const box = h('div', { class: 'mapbox', dataset: { map: 'box' } });
   const ratio = () => (box.clientWidth && box.clientHeight ? box.clientHeight / box.clientWidth : 0.7);
   const scale = vb => (box.clientWidth ? box.clientWidth / vb.w : 0.7);
   const tripPts = (data.trip?.placeIds ?? []).map(id => places.find(p => p.id === id)).filter(Boolean);
-  const narrow = (ctx.width ?? box.clientWidth ?? 0) < 500;
-  let vb = narrow && tripPts.length > 1 ? fitBox(tripPts, 100, ratio()) : fitBox(places, 90, ratio());
+  const firstFit = () => {
+    const w = box.clientWidth || (typeof ctx.width === 'function' ? ctx.width() : ctx.width) || 0;
+    return w < 500 && tripPts.length > 1 ? fitBox(tripPts, 100, ratio()) : fitBox(places, 90, ratio());
+  };
+  let vb = firstFit();
   const centreOn = (p) => {
     const w = Math.min(vb.w, 600);
     vb = { x: p.x - w / 2, y: p.y - (w * ratio()) / 2, w, h: w * ratio() };
@@ -190,11 +199,25 @@ export function mapCard(world, state, act, ctx = {}) {
   box.addEventListener('pointerup', up);
   box.addEventListener('pointercancel', up);
   redraw();
+  let fitted = false;
+  if (typeof globalThis.ResizeObserver === 'function') {
+    new globalThis.ResizeObserver(() => {
+      if (!box.clientWidth) return;
+      if (!fitted && !focus) {
+        fitted = true;
+        vb = firstFit();
+      }
+      redraw();
+    }).observe(box);
+  }
   return h('section', { class: 'card glass map-card', dataset: { card: 'map' } },
     tripSummary(data.trip),
     tools(data, regions, on),
-    h('div', { class: 'mapwrap' }, box, tripCard(data.trip, { side: true })),
+    h('div', { class: 'mapwrap' }, box, tripCard(data.trip, { side: true, rpg: ctx.rpg !== false })),
     h('div', { class: 'legend2' },
-      LEGEND.map(([cls, text]) => h('span', null, h('i', { class: cls }), text)),
-      data.news.some(n => n.placeId) ? h('span', null, h('b', { class: 'newsmark' }, '!'), ' news there') : null));
+      legendItem('', 'road'), legendItem('t', 'track'),
+      data.terrain?.rivers?.length ? legendItem('r', 'river') : null,
+      legendItem('p', 'your trip'),
+      data.news.some(n => n.placeId) ? h('span', null, h('b', { class: 'newsmark' }, '!'), ' news there') : null,
+      legendItem('f', 'faded: not visited yet')));
 }

@@ -7,12 +7,14 @@ import { newsCard } from './news.js';
 import { factionsCard } from './factions.js';
 
 const VIEW_LABELS = Object.freeze({ map: 'Map', news: 'News', factions: 'Factions' });
+const DIRECTOR_NOTE = 'News that has not reached you yet lives in Story › Director, behind the plan switch.';
 const list = value => (Array.isArray(value) ? value : []);
 
 /** Builds the World tab from a `world` view-model; ctx = { rpg, width, go(tab, args), edit(target), back }. Views with nothing to show are left out. */
 export function worldTab(world = {}, ctx = {}) {
   const data = {
     places: list(world.places), routes: list(world.routes), trip: world.trip ?? null,
+    terrain: world.terrain ?? null,
     news: list(world.news).map(n => ({ ...n, heard: list(n.heard) })), factions: list(world.factions),
   };
   const available = [data.places.length && 'map', data.news.length && 'news', data.factions.length && 'factions'].filter(Boolean);
@@ -57,13 +59,14 @@ export function worldTab(world = {}, ctx = {}) {
       news: () => newsCard(data.news, state, act),
       factions: () => factionsCard(data.factions, data.news, act),
     };
-    body.replaceChildren(state.view ? cards[state.view]() : h('p', { class: 'fine' }, 'Nothing is known about the world yet.'));
+    const card = state.view ? cards[state.view]() : h('p', { class: 'fine' }, 'Nothing is known about the world yet.');
+    body.replaceChildren(...[card, state.view === 'news' ? h('p', { class: 'fine' }, DIRECTOR_NOTE) : null].filter(Boolean));
     root.dataset.view = state.view ?? 'none';
     for (const b of root.querySelectorAll('.wseg button')) b.setAttribute('aria-pressed', String(b.dataset.value === state.view));
   }
 
   const seg = available.length > 1
-    ? segmented({ items: available.map(v => [v, VIEW_LABELS[v]]), value: state.view, label: 'World views', className: 'wseg', onChange: v => act.setView(v) })
+    ? segmented({ items: available.map(v => [v, v === 'news' ? ['News ', h('small', null, data.news.length)] : VIEW_LABELS[v]]), value: state.view, label: 'World views', className: 'wseg', onChange: v => act.setView(v) })
     : null;
   root.append(...[seg, body].filter(Boolean));
   render();

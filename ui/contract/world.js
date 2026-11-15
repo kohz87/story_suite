@@ -20,14 +20,19 @@ export const WORLD_SHAPE = {
       quests: { $optional: [T.STRING] },
     },
   ],
+  terrain: { $optional: { sea: NULL_STR, rivers: [T.STRING], labels: [{ text: T.STRING, x: T.NUMBER, y: T.NUMBER, italic: { $optional: T.BOOLEAN } }] } },
   routes: [{ kind: { $enum: ['road', 'track'] }, a: T.STRING, b: T.STRING }],
   trip: {
     $nullable: {
       state: { $enum: ['planned', 'road', 'arrived'] },
       placeIds: [T.STRING],
-      legs: [{ from: T.STRING, to: T.STRING, km: { $nullable: T.NUMBER }, minutes: T.NUMBER, note: NULL_STR }],
+      legs: [{ from: T.STRING, to: T.STRING, km: { $nullable: T.NUMBER }, minutes: T.NUMBER, note: NULL_STR, risk: { $optional: NULL_STR } }],
       leave: NULL_STR,
       arrive: NULL_STR,
+      mode: { $optional: NULL_STR },
+      pace: { $optional: NULL_STR },
+      leaveNote: { $optional: NULL_STR },
+      arriveOn: { $optional: NULL_STR },
     },
   },
   news: [

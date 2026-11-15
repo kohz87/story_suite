@@ -1,5 +1,5 @@
 // Builds the Factions card: each known faction with its stance, summary, area, known members and latest event.
-import { h } from '../../kit/dom.js';
+import { h, svgEl } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 
 const EMBLEMS = Object.freeze({ guild: ['guild', '#3d7be0'], chapel: ['chapel', '#c99a2e'], council: ['sail', '#2fa39a'], 'red-cord': ['cord', '#c0392b'], 'men-in-grey': ['mask', '#6b7280'] });
@@ -12,10 +12,14 @@ export function emblemFor(id, index = 0) {
 
 const isGroup = name => /^the /i.test(name);
 
+/** A head-and-shoulders mark for a group with no portrait, such as "the Harbour Master". */
+const silhouette = () => svgEl('svg', { viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': 'true' },
+  svgEl('circle', { cx: 12, cy: 8, r: 4 }), svgEl('path', { d: 'M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7z' }));
+
 function memberChip(m, act) {
-  const inner = m.personId ? m.name.slice(0, 1) : (isGroup(m.name) ? glyph('people') : m.name.slice(0, 1));
+  const inner = m.personId ? m.name.slice(0, 1) : (isGroup(m.name) ? silhouette() : m.name.slice(0, 1));
   return m.personId
-    ? h('button', { type: 'button', class: 'a', title: m.name, 'aria-label': m.name, dataset: { personId: m.personId }, onClick: () => act.openPerson(m.personId) }, inner)
+    ? h('button', { type: 'button', class: 'a', title: m.name, 'aria-label': m.name, dataset: { personId: m.personId, portrait: m.personId }, onClick: () => act.openPerson(m.personId) }, inner)
     : h('span', { class: 'a', title: m.name }, inner);
 }
 
