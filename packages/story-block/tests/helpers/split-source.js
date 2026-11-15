@@ -37,6 +37,21 @@ export const SPLIT_PARTS = Object.freeze({
     'src/v2/packs/validate.js': [
         'src/v2/packs/validate/core.js', 'src/v2/packs/validate/items.js', 'src/v2/packs/validate/events-economy.js', 'src/v2/packs/validate/world.js', 'src/v2/packs/validate/theme.js',
     ],
+    'src/v2/packs/validate/events-economy.js': [
+        'src/v2/packs/validate/events-economy-parts/events.js', 'src/v2/packs/validate/events-economy-parts/economy.js', 'src/v2/packs/validate/events-economy-parts/weather.js',
+        'src/v2/packs/validate/events-economy-parts/creation.js', 'src/v2/packs/validate/events-economy-parts/skills.js',
+    ],
+    'src/v2/packs/validate/items.js': [
+        'src/v2/packs/validate/items-parts/items.js', 'src/v2/packs/validate/items-parts/trade.js', 'src/v2/packs/validate/items-parts/crafts.js',
+        'src/v2/packs/validate/items-parts/character.js', 'src/v2/packs/validate/items-parts/skill-sets.js',
+    ],
+    'src/v2/packs/validate/world.js': [
+        'src/v2/packs/validate/world-parts/places.js', 'src/v2/packs/validate/world-parts/terms.js',
+        'src/v2/packs/validate/world-parts/markets.js', 'src/v2/packs/validate/world-parts/calendar.js',
+    ],
+    'src/v2/packs/version.js': [
+        'src/v2/packs/version-parts/shared-tag.js', 'src/v2/packs/version-parts/single.js', 'src/v2/packs/version-parts/range.js', 'src/v2/packs/version-parts/satisfy.js',
+    ],
     'src/v2/view/template/render.js': [
         'src/v2/view/template/render/view.js', 'src/v2/view/template/render/blocks.js', 'src/v2/view/template/render/elements.js',
         'src/v2/view/template/render/widgets.js', 'src/v2/view/template/render/dom.js', 'src/v2/view/template/render/page-ids.js',
