@@ -21,7 +21,7 @@ function functionBody(source, signature, nextSignature) {
 }
 
 test('settings migration batches historical changes into one save', () => {
-    const body = functionBody(fs.readFileSync(path.join(root, 'runtime-settings.js'), 'utf8'), 'function getSettings()', '\nconst PRESENT_CAST_DISPLAY_MODES');
+    const body = functionBody(fs.readFileSync(path.join(root, 'runtime-settings-parts', 'get-settings.js'), 'utf8'), 'function getSettings()', '\n}\n');
     assert.equal((body.match(/persistSettings\(\)/g) || []).length, 1);
     assert.match(body, /assign\('schemaVersion', DEFAULTS\.schemaVersion\)/);
     assert.match(body, /if \(dirty\) persistSettings\(\)/);
