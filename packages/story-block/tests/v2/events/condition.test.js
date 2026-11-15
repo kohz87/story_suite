@@ -281,10 +281,14 @@ test('parse output is plain frozen data; compile caches by text; evaluation is d
 
 test('the events sources use no eval, Function, Math.random or Date.now', () => {
     const dir = new URL('../../../src/v2/events/', import.meta.url);
-    for (const name of readdirSync(dir)) {
-        const text = readFileSync(new URL(name, dir), 'utf8');
-        assert.doesNotMatch(text, /\beval\s*\(|new Function|Function\s*\(|Math\.random|Date\.now/, name);
-    }
+    const scan = (folder, prefix) => {
+        for (const entry of readdirSync(folder, { withFileTypes: true })) {
+            if (entry.isDirectory()) { scan(new URL(`${entry.name}/`, folder), `${prefix}${entry.name}/`); continue; }
+            const text = readFileSync(new URL(entry.name, folder), 'utf8');
+            assert.doesNotMatch(text, /\beval\s*\(|new Function|Function\s*\(|Math\.random|Date\.now/, prefix + entry.name);
+        }
+    };
+    scan(dir, '');
 });
 
 test('options for other users of the language (SPEC §13.2): extra calls and bare names, off by default', () => {
