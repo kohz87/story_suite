@@ -1,7 +1,7 @@
 // Builds the Settings overlay frame: header, section nav, the section or search page, the "what's sent" footer, and its back-stack entry.
 import { h, clear } from '../kit/dom.js';
 import { createNav } from './nav.js';
-import { renderGroups } from './fields.js';
+import { createPages } from './page.js';
 import { searchRows, renderSearchResults } from './search.js';
 
 function footerBar(sent, onGo) {
@@ -25,8 +25,10 @@ function footerBar(sent, onGo) {
  * `onAction(key, label, row)`, `onClose`. Returns `{ el, open(id?), close(), show(id), setQuery(text), isOpen, destroy }`.
  */
 export function createSettingsOverlay(options = {}) {
-  const { doc = globalThis.document, host = doc.body, settings = {}, backStack = null, subtitle = '' } = options;
-  const { sent = null, renderSection = null, onChange, onAction, onClose } = options;
+  const { doc = globalThis.document, host = doc.body, settings = {}, backStack = null } = options;
+  const subtitle = settings.subtitle ?? options.subtitle ?? '';
+  const sent = options.sent ?? settings.sent ?? null;
+  const { renderSection = null, onChange, onAction, onClose } = options;
   const sections = settings.sections ?? [];
   const ctx = { doc, settings, onChange, onAction, go: id => show(id) };
 
@@ -57,11 +59,8 @@ export function createSettingsOverlay(options = {}) {
     return h('button', { type: 'button', class: 'btn2 sback', onClick: () => { page = 'list'; query = ''; nav.setQuery(''); paint(); } }, '‹ Settings');
   }
 
-  function sectionPage(section) {
-    const custom = renderSection ? renderSection(section, ctx) : null;
-    const body = custom ?? renderGroups(section.rows, ctx);
-    return [h('div', h('h2', section.name), h('p', { class: 'sdesc' }, section.desc)), ...(Array.isArray(body) ? body : [body])];
-  }
+  const pages = createPages(settings, { ...ctx, repaint: () => paint() });
+  const sectionPage = section => pages.page(section, renderSection ? renderSection(section, ctx) : null);
 
   function paint() {
     clear(main);

@@ -52,7 +52,7 @@ test('a number row shows the unit and emits a number, null for blank, and ignore
 test('a multi row has one input per key and emits the whole object', () => {
   installFakeDom();
   const got = [];
-  const el = renderRow(row({ type: 'multi', value: { Ordinary: 1, Major: 3 } }), { onChange: (k, v) => got.push(v) });
+  const el = renderRow(row({ type: 'multi', wide: true, value: { Ordinary: 1, Major: 3 } }), { onChange: (k, v) => got.push(v) });
   assert.ok(el.classList.contains('wide'));
   const inputs = el.querySelectorAll('.multi input');
   assert.equal(inputs.length, 2);

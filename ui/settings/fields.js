@@ -9,6 +9,19 @@ const TAGS = {
   chat: ['this chat', 'Kept per chat; the rest are your defaults for every chat'],
 };
 
+/** Builds the small marks after a setting's label from tags like `merged:D4`, `cost:model call` or `chat`. */
+export function tagNodes(tags = []) {
+  return tags.map((tag) => {
+    const [kind, detail] = String(tag).split(':');
+    const known = TAGS[kind];
+    if (!known) return null;
+    const text = kind === 'cost' && detail ? detail : known[0];
+    const klass = kind === 'replaced' ? 'merged' : kind;
+    const title = detail && kind !== 'cost' ? `${known[1]} (${detail})` : known[1];
+    return h('span', { class: ['tg2', klass], title }, text);
+  }).filter(Boolean);
+}
+
 function parseNumber(raw) {
   const text = String(raw).trim();
   if (text === '') return null;
@@ -74,7 +87,7 @@ function controlFor(row, emit, labelId) {
 }
 
 function isWide(row) {
-  if (row.type === 'txt' || row.type === 'chips' || row.type === 'multi') return true;
+  if (row.wide || row.type === 'txt' || row.type === 'chips') return true;
   return row.type === 'seg' && Array.isArray(row.options) && row.options.join('').length > 26;
 }
 
@@ -85,8 +98,7 @@ export function renderRow(row, ctx = {}) {
   const emit = row.type === 'btn'
     ? label => ctx.onAction?.(row.key, label, row)
     : value => ctx.onChange?.(row.key, value, row);
-  const tags = (row.tags ?? []).filter(t => TAGS[t])
-    .map(t => h('span', { class: ['tg2', t], title: TAGS[t][1] }, TAGS[t][0]));
+  const tags = tagNodes(row.tags);
   const el = h(
     'div',
     { class: ['srow', isWide(row) && 'wide', isSwitch && 'swrow'], dataset: { key: row.key, type: row.type } },

@@ -1,5 +1,5 @@
 /* Settings overlay styles: frame, section nav, rows and controls, search, footer meter (decision 33; tokens renamed --g-* to --su-*). */
-.sov{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column}
+.sov{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column}
 @container (min-width:601px){.sov{inset:18px}}
 .sov>.glass{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:22px;background:var(--su-panel2)}
 .shd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--su-line2)}
@@ -104,11 +104,11 @@
 .mod.off .mt small{opacity:1}.mod.off .mt b,.mod.off .mi{opacity:.55}
 .swrow{cursor:pointer}
 .extnote{color:var(--su-muted)}
-.glass-light .tg2.chat{color:#1d5fc4}.glass-light .tg2.merged{color:#0b7a4a}.glass-light .tg2.cost{color:#8a5300}
-.glass-light .needbad,.glass-light .custom{color:#8a5300}
-.glass-light .lnk,.glass-light .custom,.glass-light .tier.Elite{color:#5a3cd8}
-.glass-light .oc.S{color:#0b7a4a}.glass-light .oc.C{color:#8a5300}
-.glass-light .cfm b{color:#a3232a}
+[data-scheme="light"] .tg2.chat{color:#1d5fc4}[data-scheme="light"] .tg2.merged{color:#0b7a4a}[data-scheme="light"] .tg2.cost{color:#8a5300}
+[data-scheme="light"] .needbad,[data-scheme="light"] .custom{color:#8a5300}
+[data-scheme="light"] .lnk,[data-scheme="light"] .custom,[data-scheme="light"] .tier.Elite{color:#5a3cd8}
+[data-scheme="light"] .oc.S{color:#0b7a4a}[data-scheme="light"] .oc.C{color:#8a5300}
+[data-scheme="light"] .cfm b{color:#a3232a}
 @container (max-width:900px){
  .conn{grid-template-columns:minmax(0,1fr);grid-template-rows:none}.cn{grid-row:auto;grid-template-rows:none}
  .sseg2 button,.chips3 button{min-height:44px}
@@ -116,7 +116,7 @@
  .num input,.multi input,.txt2,.sel2,.psrch{min-height:44px}
  .multi label{min-height:44px}
  .lnk{min-height:44px;padding:0 6px}
- .srow.swrow{min-height:56px}
+
  .snav button.si3,.slist button{min-height:44px}
 .psrch{width:100%;font:600 14px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 12px;outline:none}
 .secl2{font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted);margin:4px 0 -2px}
@@ -128,3 +128,21 @@
 @container (min-width:601px){.sback{display:none}}
 @container (max-width:600px){.sbody[data-page="list"] .spage{display:none}.sbody[data-page="section"] .phonelist{display:none}}
 .smain{gap:14px}
+/* Overrides so the overlay's controls keep the mock's look over the shared kit rules (same selectors plus .sov). */
+.su-root .sov .sseg2{border:0;border-radius:10px;overflow:visible}
+.su-root .sov .sseg2 button{min-width:0;padding:5px 10px;border-radius:8px;font:700 12.5px var(--su-font);color:var(--su-soft)}
+.su-root .sov .sseg2 button[aria-pressed="true"]{background:var(--su-accent);color:#14102a}
+.su-root .sov .lnk{font:800 12.5px var(--su-font);color:var(--su-accent)}
+[data-scheme="light"] .sov .lnk{color:#5a3cd8}
+.su-root .sov .sw{width:62px}
+.su-root .sov .sw::before{left:4px;top:9px;width:54px;height:26px}
+.su-root .sov .sw::after{left:7px;top:12px;width:20px;height:20px;background:var(--su-soft)}
+.su-root .sov .sw[aria-checked="true"]::after{transform:translateX(28px);background:#fff}
+.su-root .sov .shd .x{background:var(--su-line2);border-color:transparent;font:800 16px var(--su-font);line-height:1;border-radius:10px}
+.su-root .sov .sw{margin:-9px 0}
+.su-root .sov .num input,.su-root .sov .multi input{text-align:right;padding:5px 8px}
+.su-root .sov .sfoot{font:700 12.5px var(--su-font);color:var(--su-soft)}
+.su-root .sov .sfoot b.v{color:var(--su-text)}
+@container (min-width:601px){.su-root .sov .sback{display:none}}
+.su-root .sov input[type="number"]{-moz-appearance:textfield;appearance:textfield}
+.su-root .sov input[type="number"]::-webkit-inner-spin-button,.su-root .sov input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
