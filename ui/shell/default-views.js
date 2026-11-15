@@ -2,6 +2,7 @@
 import { h } from '../kit/dom.js';
 import { characterCard } from '../card/character-card.js';
 import { nowTab } from '../tabs/now/now.js';
+import { openSceneSheet } from '../sheets/scene-sheet.js';
 import { createTabViews } from './tab-views.js';
 
 const TITLES = {
@@ -27,7 +28,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
   return {
     card: vm => (vm ? characterCard(vm, {
       onBack: () => port.command('suite.close', {}),
-      onScene: () => port.command('suite.scene', {}),
+      onScene: () => openSceneSheet({ port, doc, backStack, refresh }, vm.scene, (port.view('now')?.here ?? []).map(p => p.name)),
       onSettings: () => (onSettings ? onSettings() : port.command('suite.settings', {})),
       onPace: () => go('bag'),
     }) : null),
