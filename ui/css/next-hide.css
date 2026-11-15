@@ -1,0 +1,8 @@
+/* The new view hides the old Story Suite furniture in the chat, only while the body carries ss-ui-next; these are suite elements, never SillyTavern's. */
+body.ss-ui-next .story-suite-bar,
+body.ss-ui-next .ss-cards,
+body.ss-ui-next .ss-hud,
+body.ss-ui-next .story-suite-extras,
+body.ss-ui-next .story-suite-reply-note {
+  display: none !important;
+}
