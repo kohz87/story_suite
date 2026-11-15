@@ -1,10 +1,12 @@
 import { parse } from 'acorn';
 import { simple } from 'acorn-walk';
+import { findCommonJs } from './find-commonjs.mjs';
+import { isFacade } from './is-facade.mjs';
 import { collectNames } from './pattern-names.mjs';
 
 const OPTIONS = { ecmaVersion: 'latest', sourceType: 'module' };
 
-const exp = (name, kind, signature = name) => ({ name, kind, signature });
+const exp = (name, kind, signature = name, from, local) => ({ name, kind, signature, from, local });
 
 function declarationExports(decl, source) {
   if (decl.type === 'FunctionDeclaration') {
@@ -20,47 +22,36 @@ function moduleName(node) {
 }
 
 function exportsOf(node, source) {
-  if (node.type === 'ExportDefaultDeclaration') return [exp('default', 'default')];
+  if (node.type === 'ExportDefaultDeclaration') {
+    // A named function or class declaration keeps its binding, so `default` and the name can be matched;
+    // an expression (even a bare identifier) creates a separate default binding.
+    const decl = node.declaration;
+    const local = /^(?:Function|Class)Declaration$/.test(decl.type) ? decl.id?.name : undefined;
+    return [exp('default', 'default', undefined, undefined, local)];
+  }
   if (node.type === 'ExportAllDeclaration') {
-    const name = node.exported ? moduleName(node.exported) : '*';
-    return [exp(name, 'reexport')];
+    const from = String(node.source.value);
+    if (node.exported) return [exp(moduleName(node.exported), 'reexport', undefined, from, '*')];
+    return [exp('*', 'star', `* from '${from}'`, from)];
   }
   if (node.declaration) return declarationExports(node.declaration, source);
   const kind = node.source ? 'reexport' : 'binding';
-  return node.specifiers.map(s => exp(moduleName(s.exported), kind));
+  const from = node.source ? String(node.source.value) : undefined;
+  return node.specifiers.map(s => exp(moduleName(s.exported), kind, undefined, from, moduleName(s.local)));
 }
 
-// Names the file declares itself (variables, parameters); a local `exports` or `module` is not CommonJS.
-function declaredNames(ast) {
-  const names = new Set();
-  const addAll = patterns => patterns.forEach(p => collectNames(p).forEach(n => names.add(n)));
-  const fn = node => addAll(node.params);
-  simple(ast, {
-    VariableDeclarator(node) { addAll([node.id]); },
-    FunctionDeclaration: fn,
-    FunctionExpression: fn,
-    ArrowFunctionExpression: fn,
-    CatchClause(node) { if (node.param) addAll([node.param]); },
-  });
-  return names;
-}
-
-function findCommonJs(ast) {
-  const local = declaredNames(ast);
-  const isRoot = node => {
-    if (node.type === 'Identifier') return node.name === 'exports' && !local.has('exports');
-    if (node.type !== 'MemberExpression') return false;
-    const isModuleExports = node.object.type === 'Identifier' && node.object.name === 'module'
-      && !local.has('module') && !node.computed && node.property.name === 'exports';
-    return isModuleExports || isRoot(node.object);
-  };
-  let found = false;
-  simple(ast, {
-    AssignmentExpression(node) { if (isRoot(node.left)) found = true; },
-    MemberExpression(node) { if (isRoot(node)) found = true; },
-    CallExpression(node) { if (node.arguments.some(isRoot)) found = true; },
-  });
-  return found;
+// Maps each local import binding to the module and name it imports ('*' for a namespace import).
+function importBindings(ast) {
+  const bindings = {};
+  for (const node of ast.body) {
+    if (node.type !== 'ImportDeclaration') continue;
+    for (const s of node.specifiers) {
+      const imported = s.type === 'ImportDefaultSpecifier' ? 'default'
+        : s.type === 'ImportNamespaceSpecifier' ? '*' : moduleName(s.imported);
+      bindings[s.local.name] = { from: String(node.source.value), imported };
+    }
+  }
+  return bindings;
 }
 
 /**
@@ -72,12 +63,12 @@ export function parseModule(source) {
   try {
     ast = parse(source, OPTIONS);
   } catch (error) {
-    return { exports: [exp('?', 'unparsable', String(error.message))], imports: [], commonJs: false };
+    return { exports: [exp('?', 'unparsable', String(error.message))], imports: [], importBindings: {}, commonJs: false, facade: false };
   }
-  const exports = [];
+  const list = [];
   const found = [];
   for (const node of ast.body) {
-    if (node.type.startsWith('Export')) exports.push(...exportsOf(node, source));
+    if (node.type.startsWith('Export')) list.push(...exportsOf(node, source));
     if (node.source) found.push(node);
   }
   simple(ast, {
@@ -89,5 +80,5 @@ export function parseModule(source) {
     .map(node => ({ at: node.start, spec: String(node.source.value) }))
     .sort((a, b) => a.at - b.at)
     .map(item => item.spec);
-  return { exports, imports, commonJs: findCommonJs(ast) };
+  return { exports: list, imports, importBindings: importBindings(ast), commonJs: findCommonJs(ast), facade: list.length > 0 && isFacade(ast) };
 }

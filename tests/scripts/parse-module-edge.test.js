@@ -61,10 +61,10 @@ test('CommonJS programs are flagged, not silently counted', () => {
 });
 
 test('a file that is not a valid module is one unparsable export', () => {
-  const { exports } = parseModule('export const = ;');
-  assert.equal(exports.length, 1);
-  assert.deepEqual([exports[0].name, exports[0].kind], ['?', 'unparsable']);
-  assert.ok(exports[0].signature.length > 0);
+  const { exports: list } = parseModule('export const = ;');
+  assert.equal(list.length, 1);
+  assert.deepEqual([list[0].name, list[0].kind], ['?', 'unparsable']);
+  assert.ok(list[0].signature.length > 0);
   assert.equal(parseModule('const a = 1; with (a) {}').exports[0].kind, 'unparsable');
 });
 
@@ -74,4 +74,12 @@ test('namespace re-exports, default declarations and import() order', () => {
   assert.deepEqual(r.exports.map(e => [e.name, e.kind]), [['ns', 'reexport'], ['default', 'default']]);
   assert.deepEqual(r.imports, ['./n.js', './b.js', './a.js']);
   assert.deepEqual(parseModule("export const a = () => import('./deep.js');").imports, ['./deep.js']);
+});
+
+test('default expressions are distinct bindings; named declarations keep theirs', () => {
+  const loc = src => parseModule(src).exports.map(e => `${e.name}:${e.local}`);
+  assert.deepEqual(loc('let a = 1; export default a; export { a };'), ['default:undefined', 'a:a']);
+  assert.deepEqual(loc('export default function f() {}'), ['default:f']);
+  assert.deepEqual(loc('export default class C {}'), ['default:C']);
+  assert.deepEqual(loc('export default function () {}'), ['default:undefined']);
 });

@@ -4,10 +4,8 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
-const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
 const THEMES = ['dark', 'light', 'follow'];
@@ -77,7 +75,7 @@ let ctx = null;
 test.before(async () => {
   let chromium;
   try {
-    ({ chromium } = require('playwright'));
+    ({ chromium } = await import('playwright'));
     const browser = await chromium.launch();
     const { server, port } = await serve();
     ctx = { browser, server, port };

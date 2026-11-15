@@ -17,7 +17,7 @@ Note: the SHAs above are the **rewritten** commit SHAs in this repository.
 1. Each source repository was rewritten with `git filter-repo --to-subdirectory-filter packages/<name>`.
 2. The rewritten `main` branches were joined into `main` using `git merge --allow-unrelated-histories`, ending at import commit `c340e6533a3eb63abfa0623870dbc8d6f9bf5927`.
 3. `git blame` and `git log --follow` work across the full history of every file.
-4. The legacy `v1` branches from the three repositories are kept as `v1-sb`, `v1-sd`, and `v1-nsd` and pushed alongside `main`.
+4. The legacy `v1` branches from the three repositories are kept as `v1-sb`, `v1-sd`, and `v1-nsd` and are pushed with `main` at publication.
 5. The five historical tags were imported with a prefix per package (`sb-v2.0.0`, `sb-v2.1.0`, `sd-v2.0.0`, `sd-v2.1.0`, `nsd-v1.3.0`), each pointing at its rewritten commit (found through the commit maps). New releases here are version bumps on `main`, not tags.
 
 ## Commit maps and verification
