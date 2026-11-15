@@ -28,7 +28,7 @@ test('actions: tiles come in the order Attack, Magic, then Item and Flee side by
   assert.equal(card.querySelectorAll('.agpair .agrp').length, 2);
   const tiles = card.querySelectorAll('.at');
   assert.deepEqual(tiles.map(t => t.dataset.key), ['1', '2', '3', '4', '5', '6']);
-  assert.match(tiles[0].textContent, /Normal attackfree5 damage · 7 if decisive/);
+  assert.match(tiles[0].textContent, /Normal attackSTR damage · free5 damage · 7 if decisive/);
   assert.equal(tiles[2].classList.contains('area'), true);
   assert.equal(tiles[5].querySelector('.odds').textContent, 'long shot');
   assert.equal(tiles[5].querySelector('.odds').classList.contains('long'), true);

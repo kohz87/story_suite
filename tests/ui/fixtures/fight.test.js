@@ -37,7 +37,7 @@ describe('fightFixture', () => {
     assert.deepEqual(actor.groups.Attack.map(a => a.target), ['member', 'member', 'group']);
     assert.equal(actor.groups.Item[0].target, 'ally');
     assert.equal(actor.groups.Flee[0].odds, 'long shot');
-    assert.deepEqual(actor.stance, { name: 'Shield wall', on: true, soakOn: 22, soakOff: 17 });
+    assert.deepEqual(actor.stance, { name: 'Shield wall', on: true, soakOn: 22, soakOff: 17, paid: [11, 10] });
   });
 
   it('target and ally share the choose board; after and end have no actor', () => {

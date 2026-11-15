@@ -14,7 +14,7 @@ function resource(label, value, max, color) {
 function stanceRow(stance, actorId, onStance) {
   if (!stance) return null;
   const note = stance.on
-    ? `Defence stance: soak ${stance.soakOff}% + ${stance.soakOn - stance.soakOff}% · 1 Stamina each exchange, paid at its start; off when Stamina runs out`
+    ? `Defence stance: soak ${stance.soakOff}% + ${stance.soakOn - stance.soakOff}% · 1 Stamina each exchange, paid at its start${stance.paid ? ` (this one: ${stance.paid[0]} → ${stance.paid[1]})` : ''}; off when Stamina runs out`
     : `Off: soak ${stance.soakOff}%. This exchange is already paid; no cost from the next one.`;
   return h('div', { class: 'stance' },
     h('span', { class: 't' }, stance.name, stance.on ? h('span', { class: 'now' }, `now: soak ${stance.soakOn}%`) : null, h('small', null, note)),

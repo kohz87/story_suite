@@ -44,10 +44,13 @@ export function logCard(vm, ctx = {}) {
   const settled = vm.state === 'after' || vm.state === 'end';
   const told = vm.narratorTold ? folder('What the narrator will be told', '', Boolean(ctx.prefs?.getFold?.('fight.told', false)),
     h('p', { class: 'ntold' }, vm.narratorTold), open => ctx.prefs?.setFold?.('fight.told', open)) : null;
+  const rolls = vm.bonuses?.length ? folder('Rolls and bonuses', '', Boolean(ctx.prefs?.getFold?.('fight.bonus', false)),
+    h('div', { class: 'bon' }, vm.bonuses.map(b => h('span', null, b.label ? h('b', null, b.label) : null, b.text))), open => ctx.prefs?.setFold?.('fight.bonus', open)) : null;
   return h(
     'section',
     { class: 'card glass log-card', 'aria-label': 'Exchange log', dataset: { card: 'log' } },
     vm.order?.length ? h('div', { class: 'order' }, 'Order: ', vm.order.map(name => h('span', null, name))) : null,
+    rolls,
     log.slice().reverse().map(entry => exchange(entry, entry === latest && settled)),
     told,
   );
