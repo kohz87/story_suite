@@ -35,6 +35,8 @@
   "scripts/dryrun/record-chat.mjs": "Replays a loaded chat on the suite host to record per-reply hashes, prompts, queries, and Re-read results.",
   "scripts/dryrun/suite-host.mjs": "Builds the suite host with the page's Delta runtime, a checkpoint vault and stand-in restores for exports without dossier files.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
+  "tests/suite/nsd-static-part.js": "Writes NPC State Delta's own one-pass static prompt key the way its runtime injection does, and switches its adapter on or off for the suite test.",
+  "tests/suite/static-prompt.test.js": "Pins the whole static prompt of the three-module suite per scenario against the golden and checks it is byte-identical reply to reply.",
   "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
   "ui/card/card-row.js": "Builds the card's top row: ‹ Chat, time · place · weather with the mock's glyphs (opens the Scene sheet) and ⚙.",
   "ui/card/character-card.js": "Builds the full character card shown on top of every tab, with a Story-only variant when RPG is off.",

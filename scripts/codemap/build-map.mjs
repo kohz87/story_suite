@@ -96,7 +96,8 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
   for (const row of byPath.values()) {
     const importerIsTest = isTestFile(row.path);
     if (importerIsTest) {
-      row.job = row.imports.length > 0 ? `Tests for ${row.imports.join(', ')}.` : 'Tests.';
+      const own = (jobs[row.path] ?? '').trim();
+      row.job = own || (row.imports.length > 0 ? `Tests for ${row.imports.join(', ')}.` : 'Tests.');
     }
     for (const targetPath of row.imports) {
       const target = byPath.get(targetPath);
