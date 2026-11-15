@@ -118,12 +118,8 @@ test('ONEPASSCAP-1: a change Delta saves while a participant write is in flight 
     for (const file of shippedModulePaths()) {
         fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
         fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
-        const parts = path.join(sourceRoot, file.replace(/\.js$/, '-parts'));
-        if (fs.existsSync(parts)) fs.cpSync(parts, path.join(extRoot, file.replace(/\.js$/, '-parts')), { recursive: true });
     }
-    for (const name of fs.readdirSync(sourceRoot).filter(entry => entry.endsWith('-parts'))) fs.cpSync(path.join(sourceRoot, name), path.join(extRoot, name), { recursive: true });
     fs.cpSync(path.join(sourceRoot, 'src'), path.join(extRoot, 'src'), { recursive: true });
-    for (const entry of fs.readdirSync(sourceRoot, { withFileTypes: true })) if (entry.isDirectory() && entry.name.endsWith('-parts')) fs.cpSync(path.join(sourceRoot, entry.name), path.join(extRoot, entry.name), { recursive: true });
     fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), 'export const extension_settings = {};\nexport function getContext() { return { chat: [] }; }\n');
     fs.writeFileSync(path.join(tempRoot, 'public', 'script.js'), 'export function getRequestHeaders() { return {}; }\nexport async function saveSettings() {}\n');
     t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));

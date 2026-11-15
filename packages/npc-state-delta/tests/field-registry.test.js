@@ -136,7 +136,7 @@ test('the modules use the derived lists, not copies of their own', () => {
     assert.match(read('core-merge-aliases.js'), /import \{ ALIAS_MERGE_TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-birthday-parts/field-change-stamp.js'), /import \{ CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS \} from '\.\.\/src\/fields\/registry\.js';/);
     assert.match(read('branch-delete-recovery.js'), /import \{ NPC_REVERT_GROUPS, NPC_REVERT_LIST_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
-    assert.match(read('branch-core.js'), /const globallyPreserved = BRANCH_USER_METADATA_FIELDS;/);
+    assert.match(read('branch-core-parts/user-metadata.js'), /const globallyPreserved = BRANCH_USER_METADATA_FIELDS;/);
     assert.match(read('terminal-lifecycle.js'), /for \(const field of TERMINAL_FROZEN_FIELDS\)/);
     assert.match(read('runtime-targeted.js'), /return REFRESH_CHANGED_FIELDS\.filter\(/);
     for (const path of ['core-mechanics.js', 'core-text.js', 'core-identity.js', 'core-portrait.js', 'core-relationship.js', 'core-durable.js', 'core-behavior.js', 'core-evidence.js', 'core-keyrel.js', 'core-record.js', 'core-development.js', 'core-merge-incoming.js', 'core-merge.js', 'core-merge-aliases.js', 'core-merge-names.js', 'core-prompts.js', 'core-injection.js', 'core-birthday.js', 'core-profile-development.js', 'core-profile-finalize.js', 'core.js', 'branch.js', 'branch-delete-recovery.js', 'index.js', 'runtime-scan-helpers.js', 'runtime-injection.js', 'runtime-narration.js', 'runtime-scan-ops.js', 'runtime-targeted.js', 'runtime-scan.js', ...adapterFiles().map(name => `src/${name}`), 'src/dossier-edit.js', 'bundle.js']) {

@@ -20,34 +20,9 @@ fs.copyFileSync = (source, destination, ...args) => {
                 fs.mkdirSync(path.dirname(target), { recursive: true });
                 copyFileSync(path.join(sourceRoot, module.path), target);
             }
-            // Split modules live in a sibling folder named after their owner (or `<owner>-parts`). Copy every file
+            // Split modules live in a sibling folder named after their owner. Copy every file
             // beneath it too, while preserving any host/fixture file that already exists.
             for (const suffix of ['', '-parts']) {
-            const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, '') + suffix);
-            const splitName = module.path.replace(/\.js$/, '') + suffix;
-            // A facade's parts live in "<owner>-parts"; both folder names are copied.
-            for (const suffix of ['', '-parts']) {
-            const splitName = `${module.path.replace(/\.js$/, '')}${suffix}`;
-            const splitName = module.path.replace(/\.js$/, suffix);
-            const splitRoot = path.join(sourceRoot, splitName);
-            // Split modules live in a sibling folder named after their owner. Copy every file
-            // beneath it too (a root module's parts may sit in `<name>-parts`), while preserving any host/fixture file that already exists.
-            for (const suffix of ['', '-parts']) {
-            const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, suffix));
-            // The parts of a facade live in `<name>-parts/`; older splits in `<name>/`.
-            for (const suffix of ['', '-parts']) {
-            const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, '') + suffix);
-            const splitName = module.path.replace(/\.js$/, '') + suffix;
-            const splitRoot = path.join(sourceRoot, splitName);
-            // Split modules live in a sibling folder named after their owner. Copy every file
-            // (plain name, or the name with -parts) beneath it too, while preserving any host/fixture file that already exists.
-            for (const suffix of ['', '-parts']) {
-            const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, '') + suffix);
-            // Split modules live in a sibling folder named after their owner (`name/` or `name-parts/`).
-            // Copy every file beneath it too, while preserving any host/fixture file that already exists.
-            for (const folder of [module.path.replace(/\.js$/, ''), `${module.path.replace(/\.js$/, '')}-parts`]) {
-            const splitRoot = path.join(sourceRoot, folder);
-            const splitRoot = path.join(sourceRoot, `${module.path.replace(/\.js$/, '')}${suffix}`);
             const splitName = module.path.replace(/\.js$/, '') + suffix;
             const splitRoot = path.join(sourceRoot, splitName);
             if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
@@ -59,12 +34,6 @@ fs.copyFileSync = (source, destination, ...args) => {
                         copySplit(from, moduleRelative);
                         continue;
                     }
-                    const to = path.join(path.dirname(resolvedDestination), module.path.replace(/\.js$/, '') + suffix, moduleRelative);
-                    const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
-                    const to = path.join(path.dirname(resolvedDestination), module.path.replace(/\.js$/, suffix), moduleRelative);
-                    const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
-                    const to = path.join(path.dirname(resolvedDestination), folder, moduleRelative);
-                    const to = path.join(path.dirname(resolvedDestination), `${module.path.replace(/\.js$/, '')}${suffix}`, moduleRelative);
                     const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
                     if (!entry.isFile() || fs.existsSync(to)) continue;
                     fs.mkdirSync(path.dirname(to), { recursive: true });
@@ -72,65 +41,6 @@ fs.copyFileSync = (source, destination, ...args) => {
                 }
             };
             copySplit(splitRoot);
-            // Split modules live in a sibling folder named after their owner (`<name>/` or `<name>-parts/`).
-            // Copy every file beneath it too, while preserving any host/fixture file that already exists.
-            for (const suffix of ['', '-parts']) {
-                const splitRoot = path.join(sourceRoot, `${module.path.replace(/\.js$/, '')}${suffix}`);
-                if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
-                const copySplit = (directory, relative = '') => {
-                    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-                        const from = path.join(directory, entry.name);
-                        const moduleRelative = path.join(relative, entry.name);
-                        if (entry.isDirectory()) {
-                            copySplit(from, moduleRelative);
-                            continue;
-                        }
-                        const to = path.join(path.dirname(resolvedDestination), `${module.path.replace(/\.js$/, '')}${suffix}`, moduleRelative);
-                        if (!entry.isFile() || fs.existsSync(to)) continue;
-                        fs.mkdirSync(path.dirname(to), { recursive: true });
-                        copyFileSync(from, to);
-                    }
-            // Split modules live in a sibling folder named after their owner (`<name>/` or `<name>-parts/`). Copy every file
-            // beneath it too, while preserving any host/fixture file that already exists.
-            for (const suffix of ['', '-parts']) {
-                const splitName = module.path.replace(/\.js$/, '') + suffix;
-                const splitRoot = path.join(sourceRoot, splitName);
-                if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
-                const copySplit = (directory, relative = '') => {
-                    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-                        const from = path.join(directory, entry.name);
-                        const moduleRelative = path.join(relative, entry.name);
-                        if (entry.isDirectory()) {
-                            copySplit(from, moduleRelative);
-                            continue;
-                        }
-                        const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
-                        if (!entry.isFile() || fs.existsSync(to)) continue;
-                        fs.mkdirSync(path.dirname(to), { recursive: true });
-                        copyFileSync(from, to);
-                    }
-                };
-                copySplit(splitRoot);
-            }
-                const splitName = `${module.path.replace(/\.js$/, '')}${suffix}`;
-                const splitRoot = path.join(sourceRoot, splitName);
-                if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
-                const copySplit = (directory, relative = '') => {
-                    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-                        const from = path.join(directory, entry.name);
-                        const moduleRelative = path.join(relative, entry.name);
-                        if (entry.isDirectory()) {
-                            copySplit(from, moduleRelative);
-                            continue;
-                        }
-                        const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
-                        if (!entry.isFile() || fs.existsSync(to)) continue;
-                        fs.mkdirSync(path.dirname(to), { recursive: true });
-                        copyFileSync(from, to);
-                    }
-                };
-                copySplit(splitRoot);
-                }
             }
         }
     }
