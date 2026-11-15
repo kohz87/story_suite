@@ -1,5 +1,6 @@
 import { isTestFile } from '../checks/code-files.mjs';
 import { countLines } from '../checks/count-lines.mjs';
+import { nulProblem } from '../checks/nul-check.mjs';
 import { exportNames } from './export-names.mjs';
 import { parseModule } from './parse-module.mjs';
 import { resolveSpecifier } from './resolve-spec.mjs';
@@ -7,8 +8,11 @@ import { resolveSpecifier } from './resolve-spec.mjs';
 export const MAX_EXPORTS = 4;
 const MODULE_EXT = /\.(?:m?js|cjs)$/;
 // Parsed (or refused) languages, plus style and the allowed script types, which are listed but not parsed.
-const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|sh|bash|py)$/;
+const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|sh|bash|py|ya?ml)$/;
 const REFUSED_EXT = /\.(?:jsx|tsx|ts|mts|cts)$/;
+// Makefile and Dockerfile hold build commands: they get a job row (no exports parsed). The rest are only size-checked.
+const BUILD_FILES = new Set(['Makefile', 'Dockerfile']);
+const EXTENSIONLESS_OK = new Set(['Makefile', 'Dockerfile', '.gitignore', '.gitattributes', '.nvmrc', '.npmrc', 'CODEOWNERS']);
 const EMPTY = { exports: [], imports: [], commonJs: false, facade: false };
 
 function resolveInternalImports(filePath, specifiers, fileSet) {
@@ -22,13 +26,19 @@ function resolveInternalImports(filePath, specifiers, fileSet) {
 export function buildMap({ files, readSource, jobs }) {
   const problems = [];
   const sortedFiles = [];
+  const jsFiles = new Set();
   for (const filePath of files.slice().sort()) {
+    const nul = nulProblem(filePath, readSource(filePath));
+    if (nul) problems.push(nul);
+    if (MODULE_EXT.test(filePath)) jsFiles.add(filePath);
     if (MAPPED_EXT.test(filePath)) { sortedFiles.push(filePath); continue; }
-    // Dotfiles and extensionless text (LICENSE, .gitignore) are not code; a script shebang or any other
-    // extension means a language this repo does not use.
+    // Outside packages/ every file needs an extension (a script without one hides its language); only
+    // these well-known names are accepted, as text that is size-checked but not parsed.
     const base = filePath.split('/').pop();
-    const plain = !base.replace(/^\.+/, '').includes('.') && !readSource(filePath).startsWith('#!');
-    if (!plain) problems.push(`${filePath}: this language is not used in this repo`);
+    const extensionless = !base.replace(/^\.+/, '').includes('.');
+    if (!extensionless) problems.push(`${filePath}: this language is not used in this repo`);
+    else if (!filePath.startsWith('packages/') && !EXTENSIONLESS_OK.has(base)) problems.push(`${filePath}: files need an extension here`);
+    else if (BUILD_FILES.has(base)) sortedFiles.push(filePath);
   }
   const fileSet = new Set(sortedFiles);
   const byPath = new Map();
@@ -36,7 +46,7 @@ export function buildMap({ files, readSource, jobs }) {
 
   for (const filePath of sortedFiles) {
     const source = readSource(filePath);
-    const parsed = MODULE_EXT.test(filePath) ? parseModule(source) : EMPTY;
+    const parsed = jsFiles.has(filePath) ? parseModule(source) : EMPTY;
     parsedByPath.set(filePath, parsed);
     const isTest = isTestFile(filePath);
     const imports = resolveInternalImports(filePath, parsed.imports, fileSet);

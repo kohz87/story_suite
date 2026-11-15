@@ -23,49 +23,28 @@ jobs:
       - name: Install root dev dependencies
         run: npm ci
       # Check what this PR or push introduced; a bare `git diff --check` on a fresh checkout
-      # compares a clean tree and never finds anything. The same BASE feeds the legacy-list ratchet.
-      - name: Choose the base commit
+      # compares a clean tree and never finds anything. The same bases feed the legacy-list ratchet;
+      # a merge with no usable event base has several (every parent that has the list), one per line.
+      - name: Choose the base commits
         id: base
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           EVENT: ${{ github.event_name }}
+        run: bash scripts/ci/choose-base.sh
+      - name: Diff check and size check (once per base)
+        env:
+          BASES: ${{ steps.base.outputs.bases }}
         run: |
-          # The import-commit fallback (so root files added after the import are checked but the imported
-          # packages are not) applies ONLY to a genuine first push (the event base is all zeros) and to a
-          # manual run without origin/main. A nonzero event base that cannot be read (force push, shallow
-          # history) is an error: it is fetched first, and if still missing the job fails rather than
-          # silently skipping the legacy-list ratchet. The same BASE feeds the diff check.
-          IMPORT=c340e6533a3eb63abfa0623870dbc8d6f9bf5927
-          ZEROS=0000000000000000000000000000000000000000
-          fallback() {
-            if git merge-base --is-ancestor "$IMPORT" HEAD 2>/dev/null; then BASE="$IMPORT"
-            elif git cat-file -e HEAD^ 2>/dev/null; then BASE=HEAD^
-            else BASE="$(git hash-object -t tree /dev/null)"; fi
-          }
-          if [ "$EVENT" = workflow_dispatch ] && [ -z "$BASE" ]; then
-            if git cat-file -e "origin/main^{commit}" 2>/dev/null; then BASE=origin/main; else fallback; fi
-          elif [ "$EVENT" = push ] && [ "$BASE" = "$ZEROS" ]; then
-            fallback
-          elif [ -z "$BASE" ]; then
-            echo "no base commit for a $EVENT event; cannot apply the legacy-list ratchet"; exit 1
-          elif ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            git fetch --no-tags origin "$BASE" || true
-            if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-              echo "the base $BASE is not available; cannot apply the legacy-list ratchet"; exit 1
-            fi
-          fi
-          echo "Base: $BASE"
-          echo "base=$BASE" >> "$GITHUB_OUTPUT"
-      - name: Diff check
-        env:
-          BASE: ${{ steps.base.outputs.base }}
-        run: git diff --check "$BASE" HEAD
-      - name: Size check
-        env:
-          BASE: ${{ steps.base.outputs.base }}
-        run: node scripts/checks/run-size-check.mjs --base "$BASE"
+          while read -r base; do
+            [ -n "$base" ] || continue
+            echo "== base $base"
+            git diff --check "$base" HEAD
+            node scripts/checks/run-size-check.mjs --base "$base"
+          done <<< "$BASES"
       - name: Codemap check
         run: node scripts/codemap/cli.mjs --check
+      - name: Every package test file is run by its npm test
+        run: node scripts/checks/package-test-globs.mjs
       - name: Script tests
         run: npm run test:scripts
 
@@ -107,11 +86,15 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
           # Tests outside tests/v2/packs also read the example packs and the pack test helpers.
+          # Both searches are recursive, so a test in a nested pack folder is run (once).
+          packs="$(find tests/v2/packs -name '*.test.js' | sort)"
           others="$(grep -rliE 'examples/packs|packs/helpers|ersveil' tests --include='*.test.js' | grep -v '^tests/v2/packs/' | sort)"
+          echo "Pack tests:"
+          printf '%s\n' "$packs"
           echo "Also running the tests that read the example packs:"
           printf '%s\n' "$others"
           # shellcheck disable=SC2086
-          node --test tests/v2/packs/*.test.js $others
+          node --test $packs $others
       - name: Behavioral tests
         if: steps.scope.outputs.scope != 'packs'
         env:
