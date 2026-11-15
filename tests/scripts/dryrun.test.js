@@ -40,7 +40,8 @@ test('compareRecords reports equal and unequal records with 20-diff cap and 200-
     messageCount: 2,
     replyCount: 1,
     staticPrompts: { story_suite_static: 'rules' },
-    replies: [{ index: 0, stateHash: 'abc', changes: { source: 'receipts', value: [] }, queries: { values: {} } }],
+    errors: [],
+    replies: [{ index: 0, stateHash: 'abc', changes: { source: 'receipts', value: [] }, queries: { values: {} }, reread: { ok: true } }],
   };
   assert.deepEqual(compareRecords(base, structuredClone(base)), { equal: true, differences: [] });
 
@@ -58,52 +59,104 @@ test('compareRecords reports equal and unequal records with 20-diff cap and 200-
   assert.equal(diff.differences[1].reply, 0);
   assert.equal(diff.differences[1].field, 'stateHash');
 
-  const manyA = { replies: Array.from({ length: 25 }, (_, i) => ({ index: i, stateHash: `a${i}` })) };
-  const manyB = { replies: Array.from({ length: 25 }, (_, i) => ({ index: i, stateHash: `b${i}` })) };
+  const manyA = { errors: [], replies: Array.from({ length: 25 }, (_, i) => ({ index: i, stateHash: `a${i}`, reread: { ok: true } })) };
+  const manyB = { errors: [], replies: Array.from({ length: 25 }, (_, i) => ({ index: i, stateHash: `b${i}`, reread: { ok: true } })) };
   const capped = compareRecords(manyA, manyB);
   assert.equal(capped.equal, false);
   assert.equal(capped.differences.length, 20);
 });
 
-test('recordChat records a 2-reply synthetic chat deterministically', async t => {
-  const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'dryrun-suite-'));
-  const prevSuiteRoot = process.env.STORY_SUITE_ROOT;
-  t.after(() => {
-    if (prevSuiteRoot === undefined) delete process.env.STORY_SUITE_ROOT;
-    else process.env.STORY_SUITE_ROOT = prevSuiteRoot;
-    rmSync(tmpRoot, { recursive: true, force: true });
-  });
-
-  symlinkSync(path.join(REPO_ROOT, 'packages', 'story-block'), path.join(tmpRoot, 'Story_block'));
-  symlinkSync(path.join(REPO_ROOT, 'packages', 'story-director'), path.join(tmpRoot, 'Story_director'));
-  symlinkSync(path.join(REPO_ROOT, 'packages', 'npc-state-delta'), path.join(tmpRoot, 'npc_state_delta'));
-  process.env.STORY_SUITE_ROOT = tmpRoot;
-
-  const suiteUrl = pathToFileURL(path.join(REPO_ROOT, 'packages/story-block/tests/v2/break/helpers/suite.js')).href;
-  const { loadSuite, suiteHost } = await import(suiteUrl);
-  const loaded = await loadSuite();
-  if (loaded.skip) {
-    t.skip(loaded.skip);
-    return;
-  }
-
-  const chat = {
-    header: { user_name: 'Reader', character_name: 'Guide', chat_metadata: {} },
-    messages: [
-      { name: 'Guide', is_user: false, is_system: false, mes: 'The road begins at dawn.', swipe_id: 0, swipes: ['The road begins at dawn.'], swipe_info: [{ send_date: '', extra: {} }], extra: {} },
-      { name: 'Reader', is_user: true, is_system: false, mes: 'I check my pack.', extra: {} },
-      { name: 'Guide', is_user: false, is_system: false, mes: 'A lantern and a coil of rope rest inside.', swipe_id: 0, swipes: ['A lantern and a coil of rope rest inside.'], swipe_info: [{ send_date: '', extra: {} }], extra: {} },
-    ],
+test('compareRecords never calls a failed step equal, even when both sides failed the same way', () => {
+  const failed = {
+    errors: [{ reply: 0, step: 'reread', detail: 'REFUSED' }],
+    replies: [{ index: 0, stateHash: 'abc', reread: { ok: false, code: 'REFUSED' } }],
   };
+  const same = compareRecords(failed, structuredClone(failed));
+  assert.equal(same.equal, false);
+  assert.ok(same.differences.some(d => d.field === 'old ERROR reread'));
+  assert.ok(same.differences.some(d => d.field === 'new ERROR reread'));
 
-  const suite = { ...loaded, suiteHost };
-  const rec1 = await recordChat({ suite, chat });
-  const rec2 = await recordChat({ suite, chat });
+  const noList = { replies: [] };
+  assert.equal(compareRecords(noList, structuredClone(noList)).equal, false);
 
-  assert.equal(rec1.replyCount, 2);
-  assert.equal(rec1.replies.length, 2);
-  assert.ok(rec1.replies[0].stateHash);
-  assert.ok(rec1.replies[1].stateHash);
-  assert.ok('story_suite_static' in rec1.staticPrompts);
+  const unlisted = { errors: [], replies: [{ index: 0, stateHash: 'abc', reread: { ok: false, code: 'THREW' } }] };
+  assert.equal(compareRecords(unlisted, structuredClone(unlisted)).equal, false);
+});
+
+// The suite helper reads its checkout roots once, when first imported: one shared load, the temp folder removed at exit.
+let suiteLoad = null;
+function loadedSuite() {
+  suiteLoad ??= (async () => {
+    const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'dryrun-suite-'));
+    process.on('exit', () => rmSync(tmpRoot, { recursive: true, force: true }));
+    symlinkSync(path.join(REPO_ROOT, 'packages', 'story-block'), path.join(tmpRoot, 'Story_block'));
+    symlinkSync(path.join(REPO_ROOT, 'packages', 'story-director'), path.join(tmpRoot, 'Story_director'));
+    symlinkSync(path.join(REPO_ROOT, 'packages', 'npc-state-delta'), path.join(tmpRoot, 'npc_state_delta'));
+    process.env.STORY_SUITE_ROOT = tmpRoot;
+    const suiteUrl = pathToFileURL(path.join(REPO_ROOT, 'packages/story-block/tests/v2/break/helpers/suite.js')).href;
+    const { loadSuite, suiteHost } = await import(suiteUrl);
+    const loaded = await loadSuite();
+    return loaded.skip ? { skip: loaded.skip } : { suite: { ...loaded, suiteHost } };
+  })();
+  return suiteLoad;
+}
+
+// A chat played on a real host, so its replies carry stored receipts, a person, an item and a place to ask about.
+async function playedChat({ suite }) {
+  const host = await suite.suiteHost(suite, { seed: 3 });
+  try {
+    await host.send('We look around.', host.reply('Dust hangs in the lamplight of the office.', ['~ place Bluewatch Village | kind: settlement', '+ item Bedroll | qty: 1', '+ present Sister Temiwa']));
+    await host.send('I ask for work.', host.reply('Temiwa nods and slides a ledger across.', ['~ npc Temiwa | trust: +3 | via: help', '+ item Knife | qty: 1']));
+    return { header: { user_name: 'Reader', character_name: 'Guide', chat_metadata: structuredClone(host.ctx.chatMetadata) }, messages: structuredClone(host.ctx.chat) };
+  } finally {
+    host.close();
+  }
+}
+
+test('recordChat proves what it claims: prompts built, Re-reads ok, receipts seen, id queries asked, deterministic', async t => {
+  const got = await loadedSuite();
+  if (got.skip) return t.skip(got.skip);
+  const chat = await playedChat(got);
+  const rec1 = await recordChat({ suite: got.suite, chat });
+  const rec2 = await recordChat({ suite: got.suite, chat });
+
+  assert.ok(rec1.replyCount >= 2, 'two or more replies recorded');
+  assert.deepEqual(rec1.errors, []);
+  for (const reply of rec1.replies) {
+    assert.ok(reply.stateHash);
+    assert.equal(reply.reread.ok, true, `Re-read of reply ${reply.index} succeeded`);
+    assert.ok(reply.reread.headHashAfter && reply.reread.replyHashAfter);
+    assert.ok(Object.values(reply.prompt.static).join('').length > 0, 'static prompt text is not empty');
+    assert.ok(reply.prompt.parts.length > 0 || Object.keys(reply.prompt.tail).length > 0, 'the next-reply tail was recorded');
+  }
+  assert.ok(rec1.replies.some(reply => reply.changes.value?.length > 0), 'receipts present on a reply');
+  const asked = Object.keys(rec1.queryCoverage.exercised);
+  assert.ok(asked.includes('npc.dossier') || rec1.queryCoverage.skipped['npc.dossier'], 'npc.dossier asked or skipped with a reason');
+  assert.ok(asked.includes('inventory.find'), 'inventory.find asked with an item name');
+  assert.ok(asked.includes('inventory.condition'), 'inventory.condition asked with a stack id');
+  assert.ok(rec1.replies.some(reply => Object.keys(reply.queries.targeted).length > 0), 'targeted query values recorded');
   assert.deepEqual(compareRecords(rec1, rec2), { equal: true, differences: [] });
+
+  const altered = structuredClone(rec2);
+  altered.replies[0].prompt.static.story_suite_static = 'changed';
+  assert.equal(compareRecords(rec1, altered).equal, false, 'a changed static prompt is detected');
+});
+
+test('a forced Re-read failure, or a throw, makes the comparison fail even when both sides fail alike', async t => {
+  const got = await loadedSuite();
+  if (got.skip) return t.skip(got.skip);
+  const chat = await playedChat(got);
+  for (const breakIt of [
+    async () => ({ ok: false, code: 'REFUSED', message: 'forced' }),
+    async () => { throw new Error('forced throw'); },
+  ]) {
+    const suite = { ...got.suite, suiteHost: async (...args) => { const host = await got.suite.suiteHost(...args); host.turn.reread = breakIt; return host; } };
+    const a = await recordChat({ suite, chat });
+    const b = await recordChat({ suite, chat });
+    assert.ok(a.errors.some(item => item.step === 'reread'), 'the failed Re-read is an error in the record');
+    assert.ok(a.replies.every(reply => reply.reread.ok === false));
+    const verdict = compareRecords(a, b);
+    assert.equal(verdict.equal, false);
+    assert.ok(verdict.differences.some(d => d.field.includes('ERROR reread')));
+  }
 });

@@ -50,14 +50,48 @@ function diffValues(a, b, reply, field, out) {
   }
 }
 
+// A failed step (Re-read, prompt build, state) is an error, never evidence of equality, even when both sides failed alike.
+function errorDifferences(record, side) {
+  if (!record || typeof record !== 'object') return [];
+  if (!Array.isArray(record.errors)) {
+    return [{ reply: null, field: `${side}.errors`, before: 'no error list in the recording', after: 'record it again' }];
+  }
+  const found = record.errors.map(item => ({
+    reply: item?.reply ?? null,
+    field: `${side} ERROR ${item?.step ?? '?'}`,
+    before: cut(item?.detail ?? ''),
+    after: 'a failed step is not a pass',
+  }));
+  for (const reply of Array.isArray(record.replies) ? record.replies : []) {
+    if (reply?.reread?.ok !== true && !record.errors.some(item => item?.step === 'reread' && item?.reply === reply.index)) {
+      found.push({ reply: reply.index, field: `${side} ERROR reread`, before: 'no successful Re-read recorded', after: 'a failed step is not a pass' });
+    }
+  }
+  return found;
+}
+
 /**
- * Compares two chat recordings, returning `{ equal, differences }` capped at 20 entries.
+ * Compares two chat recordings, returning `{ equal, differences }` capped at 20 entries. A recording with any
+ * error (a failed Re-read, an empty static prompt) is never equal, even to an identical recording.
  */
 export function compareRecords(a, b) {
-  const differences = [];
+  const differences = [...errorDifferences(a, 'old'), ...errorDifferences(b, 'new')];
+  const hadErrors = differences.length > 0;
+  differences.splice(MAX_DIFFERENCES);
+  if (hadErrors) {
+    const rest = [];
+    compareBody(a, b, rest);
+    for (const item of rest) if (differences.length < MAX_DIFFERENCES) differences.push(item);
+    return { equal: false, differences };
+  }
+  compareBody(a, b, differences);
+  return { equal: differences.length === 0, differences };
+}
+
+function compareBody(a, b, differences) {
   if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
     diffValues(a, b, null, '', differences);
-    return { equal: differences.length === 0, differences };
+    return;
   }
 
   const topKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
@@ -81,6 +115,4 @@ export function compareRecords(a, b) {
       diffValues(mapA.get(index), mapB.get(index), index, '', differences);
     }
   }
-
-  return { equal: differences.length === 0, differences };
 }
