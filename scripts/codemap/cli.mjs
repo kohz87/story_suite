@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { listCodeFiles } from '../checks/code-files.mjs';
+import { listCodeFiles, listRepoFiles } from '../checks/code-files.mjs';
+import { packageScopeProblems } from '../checks/package-scope.mjs';
 import { buildMap } from './build-map.mjs';
 import { renderMap } from './render-map.mjs';
 
@@ -17,7 +18,9 @@ const jobsPath = path.join(repoRoot, 'docs/codemap/jobs.json');
 const jobs = JSON.parse(fs.readFileSync(jobsPath, 'utf8'));
 const readSource = relPath => fs.readFileSync(path.join(repoRoot, relPath), 'utf8');
 
-const { rows, problems } = buildMap({ files, readSource, jobs });
+const built = buildMap({ files, readSource, jobs });
+const { rows } = built;
+const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource)].sort();
 const rendered = renderMap(rows);
 const mapPath = path.join(repoRoot, 'docs/codemap.md');
 

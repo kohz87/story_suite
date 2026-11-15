@@ -25,6 +25,6 @@ Requires Node 24 (no npm dependencies to install).
 
 ## Code rules
 
-- **File size:** every source and test file is **≤ 450 lines** (aim for 300). Existing oversize files are listed in [docs/merge/legacy-oversize.txt](docs/merge/legacy-oversize.txt), which may only shrink.
-- **One job per file:** each file performs one named job with at most 4 exports serving that job.
+- **File size:** every source and test file is **≤ 450 lines** (aim for 300). Existing oversize files are listed in [docs/merge/legacy-oversize.txt](docs/merge/legacy-oversize.txt), which may only shrink. The import commit has no list, so the push that creates it (stage B1) cannot be ratcheted; every later push and pull request is compared with a base that has the list.
+- **One job per file:** each file performs one named job with at most 4 exports serving that job (a file that only re-exports, such as a folder's `index.js` or a facade kept for existing imports, may list more).
 - **Code map:** [docs/codemap.md](docs/codemap.md) is generated from `docs/codemap/jobs.json` and checked in CI.

@@ -13,15 +13,15 @@ test('exports: functions with signatures, async, classes, consts, default', () =
     'export let counter = 0;',
     'export default function () {}',
   ].join('\n');
-  const { exports } = parseModule(src);
-  assert.deepEqual(exports.map(e => [e.name, e.kind]), [
+  const { exports: list } = parseModule(src);
+  assert.deepEqual(list.map(e => [e.name, e.kind]), [
     ['partyPace', 'function'], ['load', 'function'], ['Store', 'class'],
     ['LIMIT', 'const'], ['counter', 'const'], ['default', 'default'],
   ]);
-  assert.equal(exports[0].signature, 'partyPace({ members = [], transport = [] } = {})');
-  assert.equal(exports[1].signature, 'load(path, opts)');
-  assert.equal(exports[2].signature, 'class Store');
-  assert.equal(exports[3].signature, 'LIMIT');
+  assert.equal(list[0].signature, 'partyPace({ members = [], transport = [] } = {})');
+  assert.equal(list[1].signature, 'load(path, opts)');
+  assert.equal(list[2].signature, 'class Store');
+  assert.equal(list[3].signature, 'LIMIT');
 });
 
 test('export lists, renames and re-exports', () => {
@@ -31,9 +31,9 @@ test('export lists, renames and re-exports', () => {
     "export { kindPace, WALK_PACE } from './kind-pace.js';",
     "export * from './with-party.js';",
   ].join('\n');
-  const { exports, imports } = parseModule(src);
-  assert.deepEqual(exports.map(e => [e.name, e.kind]), [
-    ['a', 'binding'], ['beta', 'binding'], ['kindPace', 'reexport'], ['WALK_PACE', 'reexport'], ['*', 'reexport'],
+  const { exports: list, imports } = parseModule(src);
+  assert.deepEqual(list.map(e => [e.name, e.kind]), [
+    ['a', 'binding'], ['beta', 'binding'], ['kindPace', 'reexport'], ['WALK_PACE', 'reexport'], ['*', 'star'],
   ]);
   assert.deepEqual(imports, ['./kind-pace.js', './with-party.js']);
 });
@@ -60,12 +60,12 @@ test('an import spread over several lines', () => {
 });
 
 test('no exports and no imports', () => {
-  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [] });
+  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [], importBindings: {}, commonJs: false, facade: false });
 });
 
 test('generator functions are functions', () => {
-  const { exports } = parseModule('export function* g(a) {}\nexport async function* h() {}');
-  assert.deepEqual(exports.map(e => [e.name, e.kind, e.signature]), [
+  const { exports: list } = parseModule('export function* g(a) {}\nexport async function* h() {}');
+  assert.deepEqual(list.map(e => [e.name, e.kind, e.signature]), [
     ['g', 'function', 'g(a)'], ['h', 'function', 'h()'],
   ]);
 });
@@ -81,16 +81,6 @@ test('multi-declarator and destructuring consts count every name', () => {
   const names = parseModule(src).exports.map(e => e.name);
   assert.deepEqual(names, ['a', 'b', 'c', 'e', 'f', 'g', 'x', 'y', 'z', 'm', 'deep', 'rest']);
   assert.ok(parseModule(src).exports.every(e => e.kind === 'const'));
-});
-
-test('an unclassifiable export is returned as unknown', () => {
-  const src = 'export   @weird   thing that goes on and on and on and on and on and on and on and on;';
-  const { exports } = parseModule(src);
-  assert.equal(exports.length, 1);
-  assert.equal(exports[0].name, '?');
-  assert.equal(exports[0].kind, 'unknown');
-  assert.equal(exports[0].signature.length, 60);
-  assert.ok(exports[0].signature.startsWith('export @weird thing'));
 });
 
 test('trailing // comments drop imports but string URLs survive', () => {
