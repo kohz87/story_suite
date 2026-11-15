@@ -288,6 +288,8 @@ Last checked: 2026-11-07.
 - `src/v2/domains/core/kinds.js`: the core change-line kinds and the `~ you` grammar line.
 - `src/v2/domains/core/part.js`: the core part's domains, commands, queries, kinds, context and tabs.
 - `src/v2/domains/core/merge.js`: merging module parts, hooks and settings without changing part order.
+- `src/v2/domains/core/isolate-after.js`: the merged afterCapture hook that, flag `suite.isolatedApply` on, keeps the other parts' steps when one part fails.
+- `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `src/v2/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
 - `src/v2/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
 - `testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
@@ -311,3 +313,4 @@ Last checked: 2026-11-07.
 - `tests/v2/fixtures/combat-corpus/make.mjs`: builds the Standard-rules planner, fight-start, board, noroll and practice chats and writes their goldens.
 - `tests/v2/fixtures/combat-corpus/chats.json`: the ten pinned combat chats and their replay setup.
 - `tests/v2/fixtures/combat-corpus/goldens.json`: the golden state, Problems, cues, battle-log models and Re-read results.
+- `tests/v2/turn/isolation.test.js`: the isolated-apply flag: a failing core part, hook problems and the failed-reply tail, flag off and on.

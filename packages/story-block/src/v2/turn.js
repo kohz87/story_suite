@@ -25,6 +25,7 @@ import { PRECHECK } from './assist/classifier.js';
 import { makeView } from './sdk.js';
 import { SLOT_NUMBER } from './skill-slots.js';
 import { rpgLib } from './rpg-lazy.js';
+import { FLAGS, flagOn } from './flags.js';
 
 // A story line that practises a skill (`practice-N`, data-modules/part.js): the lines a reply is marked for (see captureEach).
 const PRACTICE_LINE = new RegExp(`\\|\\s*kind\\s*:\\s*practice-${SLOT_NUMBER}\\b`, 'iu');
@@ -102,6 +103,8 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     const types = () => ctx?.extension_prompt_types ?? ctx?.extensionPromptTypes ?? {};
     const roles = () => ctx?.extension_prompt_roles ?? ctx?.extensionPromptRoles ?? {};
     const position = place => (place === 'static' ? types().IN_PROMPT ?? IN_PROMPT : types().IN_CHAT ?? IN_CHAT);
+    // Flag `suite.isolatedApply` (read at each use): a hook's own problems are kept, and a failed reply still tells the other modules.
+    const isolated = () => flagOn(() => ctx?.extensionSettings, FLAGS.isolatedApply);
     const hostSettings = () => (typeof settings === 'function' ? settings() : settings ?? {});
     // Story Block's readers of earlier messages that this turn owns, each asked for by name from the timeline's active-history filter
     // (timeline/active.js): messages a restore faded are not a module's last reader message nor a source of late lines. (A request is not
@@ -184,7 +187,7 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
         try { notify?.(reason, 'story-block'); } catch { /* the problem remains visible */ }
     };
     // The capture flow (turn/capture-flow.js): wired here, after the session's `problem` it is given and before the Re-read that calls it.
-    const { changeHeads, readBlock, strayProblems, legacyProblem, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW } = createCaptureFlow(s, { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, boardError, PRACTICE_LINE, HOOK_TIMEOUT_MS });
+    const { changeHeads, readBlock, strayProblems, legacyProblem, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW } = createCaptureFlow(s, { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, boardError, PRACTICE_LINE, HOOK_TIMEOUT_MS, isolated });
     const { reread, saveText, redraw } = createReread(s, { ctx, metadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, legacyProblem, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave });
 
     // The prompt side of a turn (turn/prompt-build.js, turn/prompt-hooks.js): wired here, after every const they are given. The interceptor asks for claimQuiet only when it runs.
@@ -192,7 +195,7 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     const { onGenerationStarted, claimQuiet, onPromptReady, onTextPromptReady } = createPromptHooks(s, { ctx, isOwn, battleOn, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType });
 
     // The SillyTavern event handlers (turn/events.js): wired here, after every part they are given. `getApi` is read only when install runs, after the api below exists.
-    const { install, uninstall, onMessageReceived, onChatChanged, seed, onChatRenamed, onTimelineChanged, onGenerationEnded } = createEvents(s, { markIdle, clearPrompts, ctx, metadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi: () => api });
+    const { install, uninstall, onMessageReceived, onChatChanged, seed, onChatRenamed, onTimelineChanged, onGenerationEnded } = createEvents(s, { markIdle, clearPrompts, ctx, metadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi: () => api, isolated });
 
     const api = {
         repairActions,
