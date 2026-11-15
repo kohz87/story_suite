@@ -8,8 +8,11 @@
 .spobar{display:flex;align-items:center;gap:10px;padding:12px 14px}
 .spobar .t{flex:1;font:800 15px var(--su-font)}
 .spobar .t small{display:block;font:600 12px var(--su-font);color:var(--su-muted)}
-.spobtn{min-height:44px;font:800 13px var(--su-font);border-radius:12px;padding:8px 14px;cursor:pointer;border:1.5px solid var(--su-warn);background:var(--su-panel2);color:var(--su-warn-t);white-space:nowrap}
-.spobtn.on{border-color:var(--su-line2);color:var(--su-text)}
+.story-tab .spobtn{min-height:44px;font:800 13px var(--su-font);border-radius:12px;padding:8px 14px;cursor:pointer;border:1.5px solid color-mix(in srgb,var(--su-warn) 55%,transparent);background:color-mix(in srgb,var(--su-warn) 12%,transparent);color:var(--su-warn-t);white-space:nowrap}
+.story-tab .spobtn.on{border-color:var(--su-line2);background:var(--su-panel2);color:var(--su-text)}
+.story-tab .wseg{display:flex;gap:4px;padding:4px}
+.story-tab .wseg button{flex:1;min-height:44px;font:800 13.5px var(--su-font);color:var(--su-soft);background:transparent;border:0;border-radius:12px;padding:8px 10px;cursor:pointer}
+.story-tab .wseg button[aria-pressed="true"]{background:var(--su-panel2);color:var(--su-text);box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .dgrid2{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
 @container (min-width:620px){.dgrid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}.dgrid2 .wide{grid-column:1/-1}}
 .dc{display:flex;flex-direction:column;gap:8px}
@@ -17,8 +20,10 @@
 .hiddenrow i{font-style:normal}
 .pulse{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center}
 .die{width:52px;height:52px;border-radius:14px;background:var(--su-line2);display:grid;place-items:center;font:900 20px var(--su-font)}
-.pulse b,.rrow b{display:block;font:800 14px var(--su-font)}
-.pulse small,.rrow small{font-size:12px;color:var(--su-soft)}
+.pulse b{display:block;font:800 14.5px var(--su-font)}
+.rrow b{display:block;font:800 13.5px var(--su-font)}
+.pulse small{font-size:12.5px;color:var(--su-soft)}
+.rrow small{font-size:12px;color:var(--su-soft)}
 .recent{display:flex;flex-direction:column;gap:6px}
 .secl2{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
 .rrow{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:center}
