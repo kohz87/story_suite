@@ -50,7 +50,7 @@ assert.match(index, /const POPUP_RESULT = ctx\.POPUP_RESULT/);
 assert.doesNotMatch(index, /generateQuietPrompt\(\s*\{/s, 'scanner must not use chat-context generateQuietPrompt');
 assert.match(index, /encodeNpcStateBundle/, 'binary export integration missing');
 assert.match(index, /decodeDeltaNativeBundle/, 'complete native import validation missing');
-assert.match(fs.readFileSync(new URL('../native-transfer.js', import.meta.url), 'utf8'), /decodeNpcStateBundle/, 'canonical binary decoder ownership missing');
+assert.match(fs.readFileSync(new URL('../native-transfer-parts/decode.js', import.meta.url), 'utf8'), /decodeNpcStateBundle/, 'canonical binary decoder ownership missing');
 assert.match(fs.readFileSync(new URL('../dossier-tools.js', import.meta.url), 'utf8'), /\.npcstatedelta/, 'portable bundle file extension missing');
 assert.match(index, /\.mes\[mesid=/, 'inline cards must target SillyTavern message elements by mesid');
 assert.match(index, /npc-state-delta-present-card/, 'present-NPC portrait card UI missing');
