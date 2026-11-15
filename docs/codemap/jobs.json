@@ -7,8 +7,12 @@
   "scripts/ci/suite-tests.sh": "Runs Story Block's cross-package suite tests and fails on skips, todos or missing results.",
   "scripts/codemap/build-map.mjs": "Builds sorted codemap rows and validates jobs and export limits.",
   "scripts/codemap/cli.mjs": "CLI that writes or verifies docs/codemap.md from source files and jobs.json.",
+  "scripts/codemap/export-names.mjs": "Lists the names a file exports, expanding wildcard re-exports through internal files.",
+  "scripts/codemap/find-commonjs.mjs": "Finds free references to CommonJS module or exports, with scope tracking.",
+  "scripts/codemap/is-facade.mjs": "Decides whether a file only forwards other modules exports and so is exempt from the export limit.",
   "scripts/codemap/parse-module.mjs": "Extracts exports, import specifiers and CommonJS use from ES module source with a real parser.",
   "scripts/codemap/pattern-names.mjs": "Lists the names a destructuring or plain binding pattern declares.",
   "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
+  "scripts/codemap/resolve-spec.mjs": "Resolves a relative import specifier to a repo file path.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes."
 }

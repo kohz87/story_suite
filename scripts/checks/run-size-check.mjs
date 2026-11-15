@@ -10,6 +10,8 @@ const repoRoot = path.resolve(import.meta.dirname, '../..');
 const legacyRelPath = 'docs/merge/legacy-oversize.txt';
 const legacyAbsPath = path.join(repoRoot, legacyRelPath);
 
+// Ratchet note: the import commit has no legacy list, so the push that creates the list (stage B1)
+// cannot be ratcheted; every later push and pull request is compared with a base that has the list.
 const writeLegacy = process.argv.includes('--write-legacy');
 const baseFlag = process.argv.indexOf('--base');
 const baseRef = baseFlag >= 0 ? process.argv[baseFlag + 1] : undefined;
@@ -80,7 +82,8 @@ const legacyText = fs.existsSync(legacyAbsPath) ? fs.readFileSync(legacyAbsPath,
 const legacy = parseLegacyList(legacyText);
 const { errors } = checkSizes({ files, legacy });
 if (baseList) errors.push(...checkLegacyRatchet({ current: legacy, base: baseList }).errors);
-else if (baseRef) console.log(`size check: ${baseRef} is the import commit, which has no list; ratchet skipped`);
+else if (!baseRef) console.log('size check: no --base given; the legacy-list ratchet was not applied');
+else console.log(`size check: ${baseRef} is the import commit, which has no list; ratchet skipped`);
 
 if (errors.length > 0) {
   for (const err of errors) console.error(err);

@@ -8,7 +8,7 @@
 
 ## Non-negotiables
 
-1. **≤ 450 lines per file** (aim for 300), including tests; `docs/merge/legacy-oversize.txt` may only shrink.
+1. **≤ 450 lines per file** (aim for 300), including tests; `docs/merge/legacy-oversize.txt` may only shrink (the import commit has no list, so the push that creates it at B1 cannot be ratcheted; every later push and pull request is compared with a base that has the list).
 2. **One job per file** with **≤ 4 exports** serving that job; a file that only re-exports — a folder's `index.js` or a facade kept for existing imports — may list more than 4.
 3. **Code map current:** every new or moved file outside `packages/` gets a `docs/codemap/jobs.json` sentence and `npm run codemap` before finishing.
 4. **Replay == live:** swipes, middle deletes, rewinds, and reloads must reproduce identical state.

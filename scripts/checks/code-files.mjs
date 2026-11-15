@@ -1,7 +1,10 @@
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-const CODE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.css', '.sh', '.py']);
+// Extensionless files are not checked: none exist in this repo, and a script must carry an extension.
+const CODE_EXTENSIONS = new Set([
+  '.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx', '.css', '.sh', '.bash', '.zsh', '.py',
+]);
 const IGNORED_SEGMENTS = new Set(['vendor', 'node_modules']);
 
 /**

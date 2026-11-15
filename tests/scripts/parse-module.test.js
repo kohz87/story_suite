@@ -33,7 +33,7 @@ test('export lists, renames and re-exports', () => {
   ].join('\n');
   const { exports, imports } = parseModule(src);
   assert.deepEqual(exports.map(e => [e.name, e.kind]), [
-    ['a', 'binding'], ['beta', 'binding'], ['kindPace', 'reexport'], ['WALK_PACE', 'reexport'], ['*', 'reexport'],
+    ['a', 'binding'], ['beta', 'binding'], ['kindPace', 'reexport'], ['WALK_PACE', 'reexport'], ['*', 'star'],
   ]);
   assert.deepEqual(imports, ['./kind-pace.js', './with-party.js']);
 });
@@ -60,7 +60,7 @@ test('an import spread over several lines', () => {
 });
 
 test('no exports and no imports', () => {
-  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [], commonJs: false });
+  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [], commonJs: false, facade: false });
 });
 
 test('generator functions are functions', () => {

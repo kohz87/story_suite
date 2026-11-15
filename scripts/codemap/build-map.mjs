@@ -1,25 +1,17 @@
-import path from 'node:path';
 import { isTestFile } from '../checks/code-files.mjs';
 import { countLines } from '../checks/count-lines.mjs';
+import { exportNames } from './export-names.mjs';
 import { parseModule } from './parse-module.mjs';
+import { resolveSpecifier } from './resolve-spec.mjs';
 
 export const MAX_EXPORTS = 4;
-const MODULE_EXT = /\.(?:m?js|cjs|ts)$/;
+const MODULE_EXT = /\.(?:m?js|cjs)$/;
+const TYPESCRIPT_EXT = /\.tsx?$/;
+const EMPTY = { exports: [], imports: [], commonJs: false, facade: false };
 
 function resolveInternalImports(filePath, specifiers, fileSet) {
-  const dir = path.posix.dirname(filePath);
-  const resolved = new Set();
-  for (const spec of specifiers) {
-    if (!spec.startsWith('./') && !spec.startsWith('../')) continue;
-    const target = path.posix.normalize(path.posix.join(dir, spec));
-    if (fileSet.has(target)) resolved.add(target);
-  }
-  return Array.from(resolved).sort();
-}
-
-// A file whose exports are all re-exports (a folder's index.js, or a facade kept for existing imports).
-function isPureReexportFile(parsedExports) {
-  return parsedExports.length > 0 && parsedExports.every(exp => exp.kind === 'reexport');
+  const resolved = specifiers.map(spec => resolveSpecifier(filePath, spec, fileSet)).filter(Boolean);
+  return Array.from(new Set(resolved)).sort();
 }
 
 /**
@@ -30,14 +22,18 @@ export function buildMap({ files, readSource, jobs }) {
   const fileSet = new Set(sortedFiles);
   const problems = [];
   const byPath = new Map();
+  const parsedByPath = new Map();
 
   for (const filePath of sortedFiles) {
     const source = readSource(filePath);
-    const parsed = MODULE_EXT.test(filePath) ? parseModule(source) : { exports: [], imports: [], commonJs: false };
+    const parsed = MODULE_EXT.test(filePath) ? parseModule(source) : EMPTY;
+    parsedByPath.set(filePath, parsed);
     const isTest = isTestFile(filePath);
     const imports = resolveInternalImports(filePath, parsed.imports, fileSet);
 
-    if (parsed.exports.some(exp => exp.kind === 'unparsable')) {
+    if (TYPESCRIPT_EXT.test(filePath)) {
+      problems.push(`${filePath}: TypeScript is not used in this repo`);
+    } else if (parsed.exports.some(exp => exp.kind === 'unparsable')) {
       problems.push(`${filePath}: cannot be parsed as an ES module`);
     } else if (parsed.commonJs) {
       problems.push(`${filePath}: CommonJS exports are not allowed here (use ES modules)`);
@@ -47,11 +43,6 @@ export function buildMap({ files, readSource, jobs }) {
       const rawJob = jobs[filePath];
       if (!rawJob || !rawJob.trim()) {
         problems.push(`${filePath}: no job sentence in docs/codemap/jobs.json`);
-      }
-      if (parsed.exports.length > MAX_EXPORTS && !isPureReexportFile(parsed.exports)) {
-        problems.push(
-          `${filePath}: ${parsed.exports.length} exports (one job per file allows at most ${MAX_EXPORTS})`,
-        );
       }
     }
 
@@ -64,6 +55,15 @@ export function buildMap({ files, readSource, jobs }) {
       lines: countLines(source),
       tests: [],
     });
+  }
+
+  // Star re-exports need every file parsed first, so the export limit is checked in a second pass.
+  for (const filePath of sortedFiles) {
+    if (isTestFile(filePath)) continue;
+    const names = exportNames(filePath, parsedByPath, fileSet);
+    if (names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade) {
+      problems.push(`${filePath}: ${names.size} exports (one job per file allows at most ${MAX_EXPORTS})`);
+    }
   }
 
   for (const row of byPath.values()) {

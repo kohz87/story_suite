@@ -7,6 +7,11 @@ test('code files are js, mjs, cjs, ts, css, sh and py', () => {
   for (const p of ['README.md', 'data.json', 'img/a.webp', 'a.js.map', 'x.html', 'tests/fixtures/data.jsonl']) assert.equal(isCodeFile(p), false, p);
 });
 
+test('jsx, tsx, bash and zsh are checked; extensionless files are not', () => {
+  for (const p of ['ui/a.jsx', 'ui/b.tsx', 'scripts/x.bash', 'scripts/y.zsh']) assert.equal(isCodeFile(p), true, p);
+  for (const p of ['scripts/run', 'bin/tool', 'Makefile']) assert.equal(isCodeFile(p), false, p);
+});
+
 test('vendored copies, node_modules and data files are not checked', () => {
   for (const p of [
     'packages/story-director/tests/vendor/story-block/src/v2/store.js',
