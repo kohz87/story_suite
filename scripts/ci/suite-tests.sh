@@ -16,6 +16,18 @@ ALLOWED_SKIPS=(
   "SWIPECHK_FILES (the run data folder) is not set"
   "this shard makes no remake; shards 2 to 4 check it"
 )
+# The two browser skips (rendered tests) are allowed only on a machine with no browser installed. In CI
+# (CI=true) a missing browser package or browser fails the job.
+BROWSER_SKIPS=(
+  "Install the optional browser package to run the rendered"
+  "Browser unavailable:"
+)
+browser_installed() {
+  node -e "import('playwright').then(m => process.exit(require('fs').existsSync(m.chromium.executablePath()) ? 0 : 1), () => process.exit(1))" 2>/dev/null
+}
+if [ "${CI:-}" != "true" ] && ! (cd "$(git rev-parse --show-toplevel)" && browser_installed); then
+  ALLOWED_SKIPS+=("${BROWSER_SKIPS[@]}")
+fi
 
 repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
