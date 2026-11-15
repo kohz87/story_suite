@@ -38,7 +38,6 @@ packages/story-block/tests/v2/domains/mounts.test.js 456
 packages/story-block/tests/v2/domains/you.test.js 455
 packages/story-block/tests/v2/evidence-ids.test.js 536
 packages/story-block/tests/v2/extras.test.js 473
-packages/story-block/tests/v2/features-ui.test.js 478
 packages/story-block/tests/v2/features.test.js 459
 packages/story-block/tests/v2/gear-inventory.test.js 819
 packages/story-block/tests/v2/gear-start.test.js 512
@@ -47,18 +46,14 @@ packages/story-block/tests/v2/host-ui.test.js 686
 packages/story-block/tests/v2/layout/render.test.js 474
 packages/story-block/tests/v2/lean-rpg/board/commit.test.js 716
 packages/story-block/tests/v2/lean-rpg/board/view.test.js 723
-packages/story-block/tests/v2/lean-rpg/fight-flow.test.js 496
 packages/story-block/tests/v2/lean-rpg/join.test.js 1098
 packages/story-block/tests/v2/lean-rpg/standard.test.js 607
-packages/story-block/tests/v2/lean-rpg/view/battle-log.test.js 479
 packages/story-block/tests/v2/lean-rpg/view/char-export.test.js 947
-packages/story-block/tests/v2/lean-rpg/view/settings.test.js 496
 packages/story-block/tests/v2/lean-rpg/view/wizard.test.js 848
 packages/story-block/tests/v2/lifecycle.test.js 572
 packages/story-block/tests/v2/long-chat.test.js 565
 packages/story-block/tests/v2/loot-undo.test.js 541
 packages/story-block/tests/v2/model-call.test.js 617
-packages/story-block/tests/v2/packs/ersveil-timeline.test.js 494
 packages/story-block/tests/v2/packs/validate.test.js 459
 packages/story-block/tests/v2/public-api.test.js 636
 packages/story-block/tests/v2/replay-review3.test.js 592
@@ -69,7 +64,6 @@ packages/story-block/tests/v2/timeline-principles.test.js 766
 packages/story-block/tests/v2/timeline-restore.test.js 573
 packages/story-block/tests/v2/turn.test.js 672
 packages/story-block/tests/v2/ux/settings-window.test.js 867
-packages/story-block/tests/v2/ux/ux.test.js 494
 packages/story-block/tests/v2/view/form/fields.test.js 511
 packages/story-block/tests/v2/view/form/form.test.js 560
 packages/story-block/tests/v2/view/hero-scene.test.js 458
