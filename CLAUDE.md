@@ -15,6 +15,7 @@
 5. **Never edit vendored copies** (`tests/vendor/`).
 6. **No model names** anywhere in code, commits, or PRs.
 7. **Reviews before merges; serialize changes to the same files.**
+8. **Static prompt golden:** the whole static prompt is pinned by `tests/suite/static-prompt.golden.json`; regenerate it (`WRITE_GOLDEN=1`) only for an intended, reviewed change, and NPC State Delta wording changes need the owner's approval.
 
 ## Commands
 

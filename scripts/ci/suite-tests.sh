@@ -32,6 +32,7 @@ files="
   tests/v2/data-modules/unused.test.js
   tests/v2/data-modules/example-b.test.js
   tests/v2/break/e2e-playthrough.test.js
+  ../../tests/suite/static-prompt.test.js
 "
 
 for f in $files; do
