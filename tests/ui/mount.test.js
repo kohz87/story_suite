@@ -1,0 +1,109 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { installFakeDom } from '../../packages/story-block/tests/ui-fake-dom.js';
+import { mountSuite } from '../../ui/mount.js';
+import { createFakePort } from '../../ui/port/fake-port.js';
+
+const manual = () => { const q = []; return { schedule: fn => q.push(fn), run: () => { while (q.length) q.shift()(); } }; };
+
+test('rejects a port that breaks the contract', () => {
+  const doc = installFakeDom();
+  assert.throws(() => mountSuite({ port: {}, doc }), /working port/);
+  assert.throws(() => mountSuite({ doc }), TypeError);
+});
+
+test('mounts closed; open draws card and Now; close and Escape work', () => {
+  const doc = installFakeDom();
+  const suite = mountSuite({ port: createFakePort(), doc });
+  const layer = doc.body.querySelector('.su-layer');
+  assert.equal(layer.getAttribute('data-state'), 'closed');
+  assert.equal(suite.open(), true);
+  assert.equal(layer.getAttribute('data-state'), 'open');
+  assert.ok(doc.body.querySelector('[data-pending="now"]'));
+  assert.ok(doc.body.querySelector('.su-card-pending'));
+  assert.equal(suite.close(), true);
+  assert.equal(layer.getAttribute('data-state'), 'closed');
+  suite.open();
+  doc.dispatchEvent?.({ type: 'keydown', key: 'Escape' });
+  suite.destroy();
+});
+
+test('open(tab) switches tab and shows the pending card for an unfed tab', () => {
+  const doc = installFakeDom();
+  const suite = mountSuite({ port: createFakePort(), doc });
+  suite.open('world');
+  assert.equal(suite.tabHost.current(), 'world');
+  assert.ok(doc.body.querySelector('[data-pending="world"]'));
+  suite.open('people');
+  assert.ok(doc.body.querySelector('[data-pending="people"]'));
+  assert.equal(doc.body.querySelector('[data-pending="world"]'), null);
+  suite.open('now');
+  assert.ok(doc.body.querySelector('[data-pending="now"]'));
+  suite.destroy();
+});
+
+test('tab and card renderers receive the view-models', () => {
+  const doc = installFakeDom();
+  const seen = [];
+  const suite = mountSuite({
+    port: createFakePort(), doc,
+    tabs: { now: (vm) => { seen.push(Object.keys(vm)[0]); return doc.createElement('i'); } },
+    card: () => doc.createElement('b'),
+  });
+  suite.open();
+  assert.equal(seen.length, 1);
+  assert.ok(doc.body.querySelector('.su-panel i'));
+  assert.ok(doc.body.querySelector('.su-card-slot b'));
+  suite.destroy();
+});
+
+test('flags come from the port: rpg off hides Party, fight open shows Fight', () => {
+  const doc = installFakeDom();
+  const off = mountSuite({ port: createFakePort({ variant: 'rpgOff' }), doc });
+  assert.equal(off.tabHost.tabs().includes('party'), false);
+  off.destroy();
+  const fight = mountSuite({ port: createFakePort({ variant: 'fightOpen' }), doc });
+  assert.equal(fight.tabHost.tabs().includes('fight'), true);
+  fight.destroy();
+  const forced = mountSuite({ port: createFakePort(), doc, flags: { rpg: false, fightOpen: true } });
+  assert.deepEqual([forced.tabHost.tabs().includes('party'), forced.tabHost.tabs().includes('fight')], [false, true]);
+  forced.destroy();
+});
+
+test('a port event updates flags and redraws through one coalesced frame', () => {
+  const doc = installFakeDom();
+  const f = manual();
+  const port = createFakePort();
+  const suite = mountSuite({ port, doc, schedule: f.schedule });
+  suite.open();
+  assert.equal(suite.tabHost.tabs().includes('fight'), false);
+  port.setVariant('fightOpen', { notify: true });
+  assert.equal(suite.tabHost.tabs().includes('fight'), true);
+  port.emit('head'); port.emit('committed');
+  f.run();
+  suite.destroy();
+});
+
+test('themes: light and follow set the scheme; sky is written', () => {
+  const doc = installFakeDom();
+  const light = mountSuite({ port: createFakePort(), doc, theme: 'light' });
+  assert.equal(light.root.getAttribute('data-scheme'), 'light');
+  light.open();
+  assert.ok(light.root.style.getPropertyValue('--su-sky'));
+  light.destroy();
+  const dark = mountSuite({ port: createFakePort(), doc, theme: 'dark' });
+  assert.equal(dark.root.getAttribute('data-scheme'), 'dark');
+  dark.destroy();
+  const follow = mountSuite({ port: createFakePort(), doc, theme: 'follow' });
+  assert.ok(['dark', 'light'].includes(follow.root.getAttribute('data-scheme')));
+  follow.destroy();
+});
+
+test('destroy removes the layer, is repeatable and blocks open', () => {
+  const doc = installFakeDom();
+  const suite = mountSuite({ port: createFakePort(), doc });
+  suite.destroy();
+  suite.destroy();
+  assert.equal(doc.body.querySelector('.su-layer'), null);
+  assert.equal(suite.open(), false);
+});

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story Suite harness</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/shell.css">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #1b1d26; color: #eee; }
+  .hx-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; position: relative; z-index: 4000; }
+  .hx-bar button { min-width: 44px; min-height: 44px; font-size: 14px; }
+  .hx-frame { margin: 0 auto; position: relative; height: 80vh; transform: translateZ(0); overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="hx-controls" class="hx-bar"></div>
+<div id="hx-frame" class="hx-frame"></div>
+<script type="module" src="./harness.js"></script>
+</body>
+</html>
