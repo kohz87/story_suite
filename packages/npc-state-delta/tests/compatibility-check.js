@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { partsSource } from './helpers/parts-source.js';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +9,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
 const bootstrap = fs.readFileSync(path.join(root, 'bootstrap.js'), 'utf8');
 const index = runtimeSource();
-const identity = fs.readFileSync(path.join(root, 'identity.js'), 'utf8');
+const identity = partsSource('identity.js');
 const hardening = fs.readFileSync(path.join(root, 'hardening.js'), 'utf8');
 const scannerRouting = [path.join(root, 'scanner-routing.js'), ...fs.readdirSync(path.join(root, 'scanner-routing-parts')).map(name => path.join(root, 'scanner-routing-parts', name))].map(file => fs.readFileSync(file, 'utf8')).join('\n');
 const contextSource = `${index}\n${identity}\n${hardening}\n${scannerRouting}`;
