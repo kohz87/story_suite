@@ -30,7 +30,7 @@ import { VERSION } from './version.js';
  * profile, system, signal }) → text (the assist helpers' and sdk.callModel's model call), modelTimeoutMs? (sdk.callModel's default limit),
  * live?() (SillyTavern's live getContext(); default: globalThis.SillyTavern's, else ctx), fetch?, page? (for
  * beforeunload; default: globalThis.window), timelineFaults? ({ at(phase) }, a test seam: called at every phase of a save
- * point, a restore and a native change), rpgLoad?() → the RPG's library (default: import('./lean-rpg/index.js'); the code is fetched only when the
+ * point, a restore and a native change), rpgLoad?() → the RPG's library (default: import('../lean-rpg/index.js'); the code is fetched only when the
  * feature is on or the chat holds the RPG's records, rpg-lazy.js) }) → { registry, settings, features, store, bus, events, sdk, turn,
  * markReady, initial, packs, setDialog, ownCalls, timeline }. `timeline` is the host's side of sdk.timeline
  * (src/v2/timeline/, docs/v2/TIMELINE.md): `host` (prepare, activate, abort, recover, nativeEvent, registerParticipant, with the
