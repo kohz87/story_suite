@@ -6,14 +6,10 @@ packages/npc-state-delta/tests/dossier-page-perf.test.js 529
 packages/npc-state-delta/tests/history-replay-wiring.test.js 583
 packages/npc-state-delta/tests/key-people.test.js 693
 packages/npc-state-delta/tests/lean-scan-cadence.test.js 510
-packages/npc-state-delta/tests/profile-evolution-integrity.test.js 727
 packages/npc-state-delta/tests/runtime-smoke.mjs 1659
 packages/npc-state-delta/tests/stage4-appearance.test.js 543
-packages/npc-state-delta/tests/storage.test.js 716
-packages/npc-state-delta/tests/storysuite-participant.test.js 863
 packages/npc-state-delta/tests/storysuite-snapshot-timeout.test.js 586
 packages/npc-state-delta/tests/storysuite-v2-meters-runtime.test.js 618
-packages/npc-state-delta/tests/storysuite-v2.test.js 837
 packages/npc-state-delta/tests/ui-layout.test.js 463
 packages/npc-state-delta/tests/v106-speech-development-ledger.test.js 545
 packages/npc-state-delta/tests/v1091-deep-audit-fixes.test.js 509
