@@ -139,3 +139,13 @@ test('selectPeople splits by filter and search without touching the view-model',
   assert.deepEqual(selectPeople({}, 'all').sections, []);
   assert.deepEqual(data, frozen);
 });
+
+test('peopleStart opens the tab on the map with that person focused, once', () => {
+  installFakeDom();
+  let left = { view: 'map', focus: 'brann' };
+  const take = () => { const s = left; left = null; return s; };
+  const tab = peopleTab(vm(), { peopleStart: take });
+  assert.ok(tab.querySelector('.castmap'));
+  assert.match(tab.querySelector('.fchip').textContent, /Focus: Brann/);
+  assert.equal(peopleTab(vm(), { peopleStart: take }).querySelector('.castmap'), null);
+});

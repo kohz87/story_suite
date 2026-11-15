@@ -34,11 +34,12 @@ export function selectPeople(vm = {}, filter = 'all', query = '') {
 }
 
 /**
- * Builds the People tab from a `people` view-model; ctx = { port, go(tab, args) }. Opening a person calls ctx.go('people', { personId }).
+ * Builds the People tab from a `people` view-model; ctx = { port, go(tab, args), peopleStart() } (peopleStart returns a one-time { view, focus } the dossier's See on map leaves). Opening a person calls ctx.go('people', { personId }).
  * Local state (filter, search, list or map, lens, picked, focus) lives in the tab and redraws only the lists, so the search box keeps focus.
  */
 export function peopleTab(vm = {}, ctx = {}) {
-  const state = { filter: FILTER_IDS.includes(vm.filter) ? vm.filter : 'all', query: '', view: 'list', lens: 'warmth', sel: null, focus: null };
+  const start = ctx.peopleStart?.() ?? null;
+  const state = { filter: FILTER_IDS.includes(vm.filter) ? vm.filter : 'all', query: '', view: start?.view === 'map' ? 'map' : 'list', lens: 'warmth', sel: start?.focus ?? null, focus: start?.focus ?? null };
   const counts = vm.counts ?? {};
   const open = personId => ctx.go?.('people', { personId });
   const filterBar = h('div', { class: 'fil', role: 'group', 'aria-label': 'Filter' });
