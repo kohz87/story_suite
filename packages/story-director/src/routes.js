@@ -11,8 +11,12 @@
 //
 // The code lives in src/routes/ (pack.js, plan.js, leg.js, text.js, util.js); this file re-exports
 // every name it exported before the split, so the old import path keeps working.
+// Public face: re-exports its parts.
 
-export { ROUTE_CODES, MODES, MODERN_MODES, MODERN_CODES, MODERN_RULES, DEFAULT_RULES, loadWorldPack, packSummary, findPlace, placesIn, exitsFrom } from './routes/pack.js';
-export { codeName, paceFor, boardDays, legDays, restDaysFor, overnights, shortestPath, planRoute } from './routes/plan.js';
-export { parseLeg, validateLeg } from './routes/leg.js';
-export { formatRoute, formatLeg, durationText } from './routes/text.js';
+export { ROUTE_CODES, MODES, MODERN_MODES, MODERN_CODES } from './routes-parts/codes.js';
+export { MODERN_RULES, DEFAULT_RULES, loadWorldPack, packSummary } from './routes-parts/rules.js';
+export { findPlace, placesIn, exitsFrom } from './routes-parts/places.js';
+export { codeName, paceFor, boardDays, legDays } from './routes-parts/pacing.js';
+export { restDaysFor, overnights, shortestPath, planRoute } from './routes-parts/routing.js';
+export { parseLeg, validateLeg } from './routes-parts/legs.js';
+export { formatRoute, formatLeg, durationText } from './routes-parts/formatting.js';
