@@ -11,6 +11,7 @@ import { skyFor } from './theme/sky.js';
 import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
+import { renderSettingsSection } from './settings/sections/index.js';
 
 const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];
 
@@ -58,7 +59,7 @@ export function mountSuite(options = {}) {
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings, backStack, subtitle: 'this chat',
+      doc, host: view.root, settings, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
       onChange: (key, value) => port.command('settings.set', { key, value }),
       onAction: (key) => port.command('settings.action', { key }),
     });
