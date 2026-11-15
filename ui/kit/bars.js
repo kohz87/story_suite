@@ -36,6 +36,8 @@ export function expBar(exp) {
   return h(
     'div',
     { class: 'xpbar', role: 'img', 'aria-label': `EXP ${exp.value} of ${exp.max}` },
+    h('span', 'XP'),
     h('i', fill('exp', exp.value, exp.max)),
+    h('span', `${exp.value}/${exp.max}`),
   );
 }

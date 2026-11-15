@@ -54,6 +54,8 @@ jobs:
         run: node scripts/codemap/cli.mjs --check
       - name: Script tests
         run: npm run test:scripts
+      - name: UI tests
+        run: npm run test:ui
 
   story-block:
     runs-on: ubuntu-latest

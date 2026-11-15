@@ -16,7 +16,7 @@
 .por{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font:800 26px var(--su-font);color:var(--su-text);background:var(--su-panel2) center 20%/cover;box-shadow:0 0 0 3px var(--su-panel2),0 6px 16px rgba(0,0,0,.25)}
 .nmw .nm{font:800 26px/1.05 var(--su-font);color:var(--su-text);letter-spacing:.01em}
 
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center}
 .lvl2{font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:3px 10px}
 .chip2{display:inline-flex;align-items:center;gap:4px;font:800 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:3px 9px;border:0}
 .chip2 svg{width:14px;height:14px}
@@ -28,6 +28,7 @@ button.chip2{cursor:pointer;min-height:44px}
 .bars3 span{display:flex;flex-wrap:wrap;justify-content:space-between;gap:0 6px;font:700 12px var(--su-font);color:var(--su-muted)}
 .bars3 span b{color:var(--su-text);white-space:nowrap}
 .bars3 i,.xpbar i{display:block;height:6px;border-radius:3px;background:var(--su-line2);overflow:hidden;margin-top:4px}
+.xpbar{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;font:700 12px var(--su-font);color:var(--su-muted)}
 .xpbar i{height:4px;margin-top:0}
 .fill{display:block;height:100%;border-radius:inherit}
 .fill.hp{background:var(--su-hp)}
@@ -39,8 +40,8 @@ button.chip2{cursor:pointer;min-height:44px}
 .fx2 .f{display:inline-flex;align-items:center;gap:7px;border-radius:12px;padding:4px 10px 4px 4px;background:var(--su-line2)}
 .fx2 .ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center}
 .fx2 .ic svg{width:16px;height:16px}
-.fx2 .buff .ic{background:var(--su-ok);color:var(--su-ok-t)}
-.fx2 .debuff .ic{background:var(--su-bad);color:var(--su-bad-t)}
+.fx2 .buff .ic{background:rgba(240,184,74,.2);color:#f0b84a}
+.fx2 .debuff .ic{background:rgba(229,72,77,.18);color:var(--su-hp)}
 .fx2 .tx{display:flex;flex-direction:column;line-height:1.1}
 .fx2 .tx b{font:800 12px var(--su-font);color:var(--su-text)}
 .fx2 .tx small{font:600 12px var(--su-font);color:var(--su-muted)}

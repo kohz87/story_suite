@@ -7,8 +7,9 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "npm run test:scripts && npm run test:sb && npm run test:sd && npm run test:nsd && npm run test:suite",
+    "test": "npm run test:scripts && npm run test:ui && npm run test:sb && npm run test:sd && npm run test:nsd && npm run test:suite",
     "test:scripts": "node --test \"tests/scripts/*.test.js\"",
+    "test:ui": "node --test \"tests/ui/**/*.test.js\"",
     "test:sb": "npm --prefix packages/story-block test",
     "test:sd": "npm --prefix packages/story-director test",
     "test:nsd": "npm --prefix packages/npc-state-delta test",

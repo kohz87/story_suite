@@ -1,6 +1,5 @@
 // Mounts the suite on a port: builds the shell and tab host, wires back-stack and redraw, and returns open, close and destroy.
 
-import { h } from './kit/dom.js';
 import { checkPort } from './port/contract.js';
 import { createBackStack } from './runtime/back-stack.js';
 import { createRedraw } from './runtime/redraw.js';
@@ -9,11 +8,9 @@ import { createTabHost } from './shell/tab-host.js';
 import { GLASS_DARK, GLASS_LIGHT } from './theme/tokens.js';
 import { followSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
+import { createPrefs } from './runtime/prefs.js';
+import { defaultViews } from './shell/default-views.js';
 
-const TAB_TITLES = {
-  now: 'Now', party: 'Party', bag: 'Bag', people: 'People',
-  world: 'World', journal: 'Journal', story: 'Story', fight: 'Fight',
-};
 const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];
 
 function resolveTheme(theme, doc) {
@@ -32,11 +29,6 @@ function readFlags(port, override) {
     rpg: override?.rpg ?? card?.rpg !== false,
     fightOpen: override?.fightOpen ?? Boolean(chat?.inlineRow?.fightOpen),
   };
-}
-
-function placeholder(tab, vm) {
-  const text = vm ? `${TAB_TITLES[tab] ?? tab}` : `${TAB_TITLES[tab] ?? tab}: nothing to show yet`;
-  return h('div', { class: 'su-pending', 'data-pending': tab }, text);
 }
 
 /**
@@ -58,6 +50,8 @@ export function mountSuite(options = {}) {
   let scheme = 'dark';
   let destroyed = false;
 
+  const prefs = options.prefs ?? createPrefs({ port });
+  const views = defaultViews({ port, prefs, tabHost: () => tabHost });
   const picked = resolveTheme(theme, doc);
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
@@ -81,7 +75,7 @@ export function mountSuite(options = {}) {
       tab,
       read: () => port.view(tab),
       target: tabHost.panel,
-      render: vm => (tabs[tab] ? tabs[tab](vm, { port, backStack, flags }) : placeholder(tab, vm)),
+      render: vm => (tabs[tab] ? tabs[tab](vm, { port, backStack, flags }) : views.tab(tab, vm)),
     });
   }
 
@@ -99,7 +93,7 @@ export function mountSuite(options = {}) {
       return port.view('card');
     },
     target: tabHost.cardSlot,
-    render: vm => (card ? card(vm, { port, backStack }) : (vm ? h('div', { class: 'su-card-pending' }, vm.you?.name ?? '') : null)),
+    render: vm => (card ? card(vm, { port, backStack }) : views.card(vm)),
   });
   register(tabHost.current());
 

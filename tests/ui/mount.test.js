@@ -19,8 +19,8 @@ test('mounts closed; open draws card and Now; close and Escape work', () => {
   assert.equal(layer.getAttribute('data-state'), 'closed');
   assert.equal(suite.open(), true);
   assert.equal(layer.getAttribute('data-state'), 'open');
-  assert.ok(doc.body.querySelector('[data-pending="now"]'));
-  assert.ok(doc.body.querySelector('.su-card-pending'));
+  assert.ok(doc.body.querySelector('[data-tab="now"]'));
+  assert.ok(doc.body.querySelector('[data-card="character"]'));
   assert.equal(suite.close(), true);
   assert.equal(layer.getAttribute('data-state'), 'closed');
   suite.open();
@@ -38,7 +38,8 @@ test('open(tab) switches tab and shows the pending card for an unfed tab', () =>
   assert.ok(doc.body.querySelector('[data-pending="people"]'));
   assert.equal(doc.body.querySelector('[data-pending="world"]'), null);
   suite.open('now');
-  assert.ok(doc.body.querySelector('[data-pending="now"]'));
+  assert.equal(doc.body.querySelector('[data-pending="people"]'), null);
+  assert.ok(doc.body.querySelector('[data-tab="now"]'));
   suite.destroy();
 });
 

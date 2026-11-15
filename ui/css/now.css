@@ -90,3 +90,6 @@ button.rnr{cursor:pointer}
 .fbar{display:block;height:6px;border-radius:3px;background:var(--su-line2);overflow:hidden}
 .fbar b{display:block;height:100%;background:var(--su-accent)}
 .fbar b.bad{background:var(--su-bad)}.fbar b.ok{background:var(--su-ok)}
+.rnr.need-overdue b{color:var(--su-bad)}
+.rnr.need-overdue .ti{background:rgba(229,72,77,.18);color:var(--su-bad)}
+.dossier-link,.more2{background:none;border:0;font:800 12px var(--su-font);color:var(--su-accent);cursor:pointer;min-height:44px;padding:0 4px}
