@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { capturePrompt } from './prompt-capture.mjs';
+import { pageSuiteHost } from './suite-host.mjs';
 import { planTargetedQueries } from './query-args.mjs';
 
 const QUERY_PREFIXES = ['scene.', 'inventory.', 'director.', 'npc.'];
@@ -131,9 +132,9 @@ export async function recordChat({ suite, chat }) {
   Date.now = () => FIXED_NOW;
   let host = null;
   try {
-    const makeHost = suite.suiteHost;
-    if (typeof makeHost !== 'function') {
-      throw new Error('suite.suiteHost is required');
+    const makeHost = suite.pageHost ?? pageSuiteHost;
+    if (typeof suite.createHost !== 'function') {
+      throw new Error('suite.createHost is required');
     }
     host = await makeHost(suite, { seed: 1 });
     const header = chat?.header ?? {};

@@ -12,5 +12,6 @@
   "scripts/dryrun/load-chat.mjs": "Loads a SillyTavern .jsonl or .jsonl.gz chat export into header and messages.",
   "scripts/dryrun/prompt-capture.mjs": "Runs the host's prompt build for the next reply and returns the static text and tail it sets.",
   "scripts/dryrun/query-args.mjs": "Finds real names, ids and owners in the chat state to call the id-taking queries with.",
-  "scripts/dryrun/record-chat.mjs": "Replays a loaded chat on the suite host to record per-reply hashes, prompts, queries, and Re-read results."
+  "scripts/dryrun/record-chat.mjs": "Replays a loaded chat on the suite host to record per-reply hashes, prompts, queries, and Re-read results.",
+  "scripts/dryrun/suite-host.mjs": "Builds the suite host with the page's Delta runtime, a checkpoint vault and stand-in restores for exports without dossier files."
 }

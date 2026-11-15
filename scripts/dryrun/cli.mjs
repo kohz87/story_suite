@@ -110,14 +110,14 @@ function runCompare(args) {
     const b = JSON.parse(readFileSync(path.join(dirB, file), 'utf8'));
     const res = compareRecords(a, b);
     if (res.equal) {
-      console.log(`${file}: identical`);
+      console.log(`${file}: identical${res.expectedRefusals ? ` (${res.expectedRefusals.length} expected refusals)` : ''}`);
     } else {
       anyDiff = true;
       const preview = res.differences
         .slice(0, 3)
         .map(d => `[reply=${d.reply} ${d.field}: ${d.before} -> ${d.after}]`)
         .join('; ');
-      console.log(`${file}: ${res.differences.length} differences (${preview})`);
+      console.log(`${file}: ${res.differences.length} differences (${preview})${res.expectedRefusals ? ` (${res.expectedRefusals.length} expected refusals)` : ''}`);
     }
   }
   if (anyDiff) {

@@ -9,6 +9,7 @@ import { gzipSync } from 'node:zlib';
 import { loadChat } from '../../scripts/dryrun/load-chat.mjs';
 import { compareRecords } from '../../scripts/dryrun/compare-records.mjs';
 import { recordChat } from '../../scripts/dryrun/record-chat.mjs';
+import { pageSuiteHost } from '../../scripts/dryrun/suite-host.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -83,6 +84,33 @@ test('compareRecords never calls a failed step equal, even when both sides faile
   assert.equal(compareRecords(unlisted, structuredClone(unlisted)).equal, false);
 });
 
+const refusal = (code, message) => ({ ok: false, code, result: { ok: false, code, message } });
+const refused = (code, message, extra = {}) => ({ errors: [{ reply: 0, step: 'reread', detail: code }], replies: [{ index: 0, stateHash: 'abc', reread: refusal(code, message) }], ...extra });
+
+test('compareRecords counts the same deliberate Re-read refusal on both sides as agreement', () => {
+  const res = compareRecords(refused('CONFLICT', 'a later change depends'), refused('CONFLICT', 'a later change depends'));
+  assert.equal(res.equal, true);
+  assert.deepEqual(res.differences, []);
+  assert.deepEqual(res.expectedRefusals, [{ reply: 0, code: 'CONFLICT' }]);
+});
+
+test('compareRecords keeps one-sided, different, thrown, empty-prompt and held-back cases as errors', () => {
+  const ok = { errors: [], replies: [{ index: 0, stateHash: 'abc', reread: { ok: true } }] };
+  assert.equal(compareRecords(refused('CONFLICT', 'm'), ok).equal, false);
+  assert.equal(compareRecords(ok, refused('CONFLICT', 'm')).equal, false);
+  assert.equal(compareRecords(refused('CONFLICT', 'm'), refused('CONFLICT', 'other')).equal, false);
+  assert.equal(compareRecords(refused('CONFLICT', 'm'), refused('REFUSED', 'm')).equal, false);
+  const threw = { errors: [{ reply: 0, step: 'reread', detail: 'THREW: x' }], replies: [{ index: 0, stateHash: 'abc', reread: { ok: false, code: 'THREW', result: null, error: 'x' } }] };
+  assert.equal(compareRecords(threw, structuredClone(threw)).equal, false);
+  const emptyStatic = refused('CONFLICT', 'm', { errors: [{ reply: 0, step: 'reread', detail: 'CONFLICT' }, { reply: 0, step: 'prompt', detail: 'empty static prompt' }] });
+  const res = compareRecords(emptyStatic, structuredClone(emptyStatic));
+  assert.equal(res.equal, false);
+  assert.ok(res.differences.some(d => d.field === 'old ERROR prompt'));
+  assert.ok(!res.differences.some(d => d.field.includes('reread')));
+  const held = refused('CONFLICT', 'm', { errors: [{ reply: 0, step: 'prompt', detail: 'held back' }] });
+  assert.equal(compareRecords(held, structuredClone(held)).equal, false);
+});
+
 // The suite helper reads its checkout roots once, when first imported: one shared load, the temp folder removed at exit.
 let suiteLoad = null;
 function loadedSuite() {
@@ -96,14 +124,14 @@ function loadedSuite() {
     const suiteUrl = pathToFileURL(path.join(REPO_ROOT, 'packages/story-block/tests/v2/break/helpers/suite.js')).href;
     const { loadSuite, suiteHost } = await import(suiteUrl);
     const loaded = await loadSuite();
-    return loaded.skip ? { skip: loaded.skip } : { suite: { ...loaded, suiteHost } };
+    return loaded.skip ? { skip: loaded.skip } : { suite: { ...loaded, suiteHost, pageHost: pageSuiteHost } };
   })();
   return suiteLoad;
 }
 
 // A chat played on a real host, so its replies carry stored receipts, a person, an item and a place to ask about.
 async function playedChat({ suite }) {
-  const host = await suite.suiteHost(suite, { seed: 3 });
+  const host = await pageSuiteHost(suite, { seed: 3 });
   try {
     await host.send('We look around.', host.reply('Dust hangs in the lamplight of the office.', ['~ place Bluewatch Village | kind: settlement', '+ item Bedroll | qty: 1', '+ present Sister Temiwa']));
     await host.send('I ask for work.', host.reply('Temiwa nods and slides a ledger across.', ['~ npc Temiwa | trust: +3 | via: help', '+ item Knife | qty: 1']));
@@ -142,7 +170,7 @@ test('recordChat proves what it claims: prompts built, Re-reads ok, receipts see
   assert.equal(compareRecords(rec1, altered).equal, false, 'a changed static prompt is detected');
 });
 
-test('a forced Re-read failure, or a throw, makes the comparison fail even when both sides fail alike', async t => {
+test('a forced Re-read refusal agrees when both sides refuse alike, but a throw makes the comparison fail', async t => {
   const got = await loadedSuite();
   if (got.skip) return t.skip(got.skip);
   const chat = await playedChat(got);
@@ -150,13 +178,18 @@ test('a forced Re-read failure, or a throw, makes the comparison fail even when 
     async () => ({ ok: false, code: 'REFUSED', message: 'forced' }),
     async () => { throw new Error('forced throw'); },
   ]) {
-    const suite = { ...got.suite, suiteHost: async (...args) => { const host = await got.suite.suiteHost(...args); host.turn.reread = breakIt; return host; } };
+    const suite = { ...got.suite, pageHost: async (...args) => { const host = await pageSuiteHost(...args); host.turn.reread = breakIt; return host; } };
     const a = await recordChat({ suite, chat });
     const b = await recordChat({ suite, chat });
     assert.ok(a.errors.some(item => item.step === 'reread'), 'the failed Re-read is an error in the record');
     assert.ok(a.replies.every(reply => reply.reread.ok === false));
     const verdict = compareRecords(a, b);
-    assert.equal(verdict.equal, false);
-    assert.ok(verdict.differences.some(d => d.field.includes('ERROR reread')));
+    if (a.replies.every(reply => reply.reread.code === 'REFUSED')) {
+      assert.equal(verdict.equal, true);
+      assert.equal(verdict.expectedRefusals.length, a.replies.length);
+    } else {
+      assert.equal(verdict.equal, false);
+      assert.ok(verdict.differences.some(d => d.field.includes('ERROR reread')));
+    }
   }
 });
