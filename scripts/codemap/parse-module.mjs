@@ -22,7 +22,12 @@ function moduleName(node) {
 }
 
 function exportsOf(node, source) {
-  if (node.type === 'ExportDefaultDeclaration') return [exp('default', 'default')];
+  if (node.type === 'ExportDefaultDeclaration') {
+    // A named declaration or an identifier keeps its binding, so `default` and the name can be matched.
+    const decl = node.declaration;
+    const local = decl.type === 'Identifier' ? decl.name : decl.id?.name;
+    return [exp('default', 'default', undefined, undefined, local)];
+  }
   if (node.type === 'ExportAllDeclaration') {
     const from = String(node.source.value);
     if (node.exported) return [exp(moduleName(node.exported), 'reexport', undefined, from, '*')];

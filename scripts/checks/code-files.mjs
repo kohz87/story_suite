@@ -4,12 +4,13 @@ import path from 'node:path';
 
 // Every text file is checked except vendored copies, node_modules and data/asset files.
 const DATA_EXTENSIONS = new Set([
-  '.json', '.jsonl', '.md', '.txt', '.csv', '.yml', '.yaml', '.lock', '.svg', '.png', '.jpg', '.jpeg',
+  '.json', '.jsonl', '.md', '.txt', '.csv', '.lock', '.svg', '.png', '.jpg', '.jpeg',
   '.webp', '.gif', '.ico', '.woff', '.woff2', '.ttf', '.gz', '.zip', '.map',
 ]);
 const IGNORED_SEGMENTS = new Set(['vendor', 'node_modules']);
-// Licence texts are legal data, not code.
-const DATA_FILES = [/(^|\/)(LICENSE|COPYING|NOTICE)(\.[A-Za-z]+)?$/, /(^|\/)package-lock\.json$/, /^docs\/history\/commit-map-[^/]*\.txt$/];
+const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
+// Licence texts are legal data, not code; only these exact names count (LICENSE.js is code).
+const DATA_FILES = [/(^|\/)(LICENSE|COPYING|NOTICE)(\.md|\.txt)?$/, /(^|\/)package-lock\.json$/, /^docs\/history\/commit-map-[^/]*\.txt$/];
 
 /**
  * Returns true if the repo-relative path is subject to the 450-line rule: anything that is not
@@ -19,17 +20,10 @@ export function isCodeFile(filePath) {
   const posixPath = filePath.replaceAll('\\', '/');
   if (posixPath.split('/').some(seg => IGNORED_SEGMENTS.has(seg))) return false;
   if (DATA_FILES.some(re => re.test(posixPath))) return false;
-  return !DATA_EXTENSIONS.has(path.posix.extname(posixPath).toLowerCase());
-}
-
-function isBinaryFile(absPath) {
-  const fd = fs.openSync(absPath, 'r');
-  try {
-    const buf = Buffer.alloc(8192);
-    return buf.subarray(0, fs.readSync(fd, buf, 0, buf.length, 0)).includes(0);
-  } finally {
-    fs.closeSync(fd);
-  }
+  const ext = path.posix.extname(posixPath).toLowerCase();
+  // Workflow YAML runs shell commands, so it is checked; other YAML is data.
+  if (YAML_EXTENSIONS.has(ext)) return posixPath.startsWith('.github/workflows/');
+  return !DATA_EXTENSIONS.has(ext);
 }
 
 /**
@@ -43,9 +37,10 @@ export function isTestFile(filePath) {
 }
 
 /**
- * Lists all tracked and untracked (non-ignored) checked text files under root, sorted; skips binary files (NUL in the first 8 KB), symlinks and files missing on disk.
+ * Lists every tracked and untracked (non-ignored) regular file under root, sorted; skips symlinks and
+ * files missing on disk.
  */
-export function listCodeFiles(root) {
+export function listRepoFiles(root) {
   // Include --others so newly created files are checked before the lead commits.
   const raw = execFileSync(
     'git',
@@ -56,11 +51,18 @@ export function listCodeFiles(root) {
   for (const entry of raw.split('\0')) {
     if (!entry) continue;
     const posixPath = entry.replaceAll('\\', '/');
-    if (!isCodeFile(posixPath)) continue;
     const abs = path.join(root, posixPath);
     const info = fs.lstatSync(abs, { throwIfNoEntry: false });
-    if (!info || !info.isFile() || isBinaryFile(abs)) continue;
+    if (!info || !info.isFile()) continue;
     files.add(posixPath);
   }
   return Array.from(files).sort();
+}
+
+/**
+ * Lists the repo files subject to the checks. Known binary/asset extensions are skipped by name; any
+ * other file is read as text, so a NUL byte can not hide source.
+ */
+export function listCodeFiles(root) {
+  return listRepoFiles(root).filter(isCodeFile);
 }

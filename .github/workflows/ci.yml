@@ -29,33 +29,7 @@ jobs:
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           EVENT: ${{ github.event_name }}
-        run: |
-          # The import-commit fallback (so root files added after the import are checked but the imported
-          # packages are not) applies ONLY to a genuine first push (the event base is all zeros) and to a
-          # manual run without origin/main. A nonzero event base that cannot be read (force push, shallow
-          # history) is an error: it is fetched first, and if still missing the job fails rather than
-          # silently skipping the legacy-list ratchet. The same BASE feeds the diff check.
-          IMPORT=c340e6533a3eb63abfa0623870dbc8d6f9bf5927
-          ZEROS=0000000000000000000000000000000000000000
-          fallback() {
-            if git merge-base --is-ancestor "$IMPORT" HEAD 2>/dev/null; then BASE="$IMPORT"
-            elif git cat-file -e HEAD^ 2>/dev/null; then BASE=HEAD^
-            else BASE="$(git hash-object -t tree /dev/null)"; fi
-          }
-          if [ "$EVENT" = workflow_dispatch ] && [ -z "$BASE" ]; then
-            if git cat-file -e "origin/main^{commit}" 2>/dev/null; then BASE=origin/main; else fallback; fi
-          elif [ "$EVENT" = push ] && [ "$BASE" = "$ZEROS" ]; then
-            fallback
-          elif [ -z "$BASE" ]; then
-            echo "no base commit for a $EVENT event; cannot apply the legacy-list ratchet"; exit 1
-          elif ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            git fetch --no-tags origin "$BASE" || true
-            if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-              echo "the base $BASE is not available; cannot apply the legacy-list ratchet"; exit 1
-            fi
-          fi
-          echo "Base: $BASE"
-          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+        run: bash scripts/ci/choose-base.sh
       - name: Diff check
         env:
           BASE: ${{ steps.base.outputs.base }}
