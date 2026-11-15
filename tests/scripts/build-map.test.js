@@ -124,3 +124,12 @@ test('Makefile and Dockerfile outside packages need a job sentence and get a row
   assert.deepEqual(done.problems, []);
   assert.deepEqual(done.rows.map(r => [r.path, r.exports]), [['Makefile', []], ['tools/Dockerfile', []]]);
 });
+
+test('a legacy package lists over-limit files and may use module/exports as words instead of failing', () => {
+  const src = { 'p/a.js': 'export const a = 1, b = 2, c = 3, d = 4, e = 5;\nconst module = 1;\n', 'p/f.js': "export * from './a.js';\n" };
+  const args = { files: Object.keys(src), readSource: q => src[q], jobs: { 'p/a.js': 'A.', 'p/f.js': 'F.' }, jobsFile: 'jobs-p.json' };
+  assert.equal(buildMap(args).problems.length, 2);
+  const legacy = buildMap({ ...args, legacyPackage: true });
+  assert.deepEqual(legacy.problems, []);
+  assert.deepEqual(legacy.overLimit, [{ path: 'p/a.js', count: 5 }]);
+});
