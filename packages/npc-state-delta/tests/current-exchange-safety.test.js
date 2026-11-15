@@ -1,3 +1,4 @@
+import { partsSource } from './helpers/parts-source.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -5,7 +6,7 @@ import { runtimeSource } from './helpers/runtime-source.js';
 
 const source = runtimeSource();
 // (cleanup step 10) The focused relationship pass moved to src/relationship-pass.js.
-const passSource = fs.readFileSync(new URL('../src/relationship-pass.js', import.meta.url), 'utf8');
+const passSource = partsSource(new URL('../src/relationship-pass.js', import.meta.url));
 
 test('v0.2.23 relationship repair targets current-exchange NPCs even when broad scan omits them', () => {
     assert.match(passSource, /currentExchangeRelationshipRelevant/);

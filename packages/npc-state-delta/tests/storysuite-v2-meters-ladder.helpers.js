@@ -186,8 +186,8 @@ export async function hostedForwardParts() {
         fs.cpSync(root, temp, { recursive: true, filter: from => !/[\\/](tests|docs|scripts|\.git|node_modules|dist)([\\/]|$)/.test(path.relative(root, from)) });
         fs.writeFileSync(path.join(temp, 'runtime-scan-helpers.js'), [
             "import { normalizeName, normalizeRelationshipBaseline, npcMatchesLabel } from './core.js'; import { rejectedOverallLook } from './appearance-update.js'; import { physicalTraitSwaps } from './appearance-physical.js'; import { moodNumbers } from './npc-mood.js';",
-            'export const chatContext = () => ({ chat: [] }); export const markStands = () => true; export const replayScope = () => null; export const scopedAdapter = a => a;',
-            fs.readFileSync(path.join(root, 'runtime-scan-helpers.js'), 'utf8').split('// What a committed scan tells the slice')[1],
+            'export const chatContext = () => ({ chat: [] }); export const markStands = () => true; export const replayScope = () => null; export const scopedAdapter = a => a; ' + fs.readFileSync(path.join(root, 'runtime-scan-helpers-parts', 'value-rules.js'), 'utf8').split('\n').find(line => line.startsWith('export const worth')),
+            fs.readFileSync(path.join(root, 'runtime-scan-helpers-parts', 'scan-results.js'), 'utf8').split('// What a committed scan tells the slice')[1],
         ].map((part, index) => (index === 2 ? '//' + part : part)).join('\n'));
         fs.writeFileSync(path.join(temp, 'runtime-settings.js'), 'export const getSettings = () => ({}); export const setRpgProbe = () => {};');
         const { relationshipChanges, refusedLooks } = await import(pathToFileURL(path.join(temp, 'runtime-scan-helpers.js')).href);

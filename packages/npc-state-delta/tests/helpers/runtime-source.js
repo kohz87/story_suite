@@ -9,9 +9,9 @@ import fs from 'node:fs';
 const root = new URL('../../', import.meta.url);
 
 export const RUNTIME_SOURCE_PARTS = [
-    { file: 'runtime-settings.js', before: 'const { getChatKey,' },
+    { files: ['runtime-settings-parts/portrait-preset-constants.js', 'runtime-settings-parts/portrait-preset-library.js', 'runtime-settings-parts/portrait-preset-names.js', 'runtime-settings-parts/defaults.js', 'runtime-settings-parts/save-timing.js', 'runtime-settings-parts/save.js', 'runtime-settings-parts/settings-values.js', 'runtime-settings-parts/custom-fields.js', 'runtime-settings-parts/get-settings.js'], before: 'const { getChatKey,' },
     { file: 'runtime-chat-keys.js', before: 'const { getChatKey,' },
-    { file: 'runtime-scan-helpers.js', before: 'const { getChatKey,' },
+    { files: ['runtime-scan-helpers-parts/replay-state.js', 'runtime-scan-helpers-parts/replay-reads.js', 'runtime-scan-helpers-parts/scoped-adapter.js', 'runtime-scan-helpers-parts/scan-indicators.js', 'runtime-scan-helpers-parts/state-rules.js', 'runtime-scan-helpers-parts/value-rules.js', 'runtime-scan-helpers-parts/chat-positions.js', 'runtime-scan-helpers-parts/scan-results.js'], before: 'const { getChatKey,' },
     { file: 'runtime-hydration-state.js', before: 'const { freshChatState,' },
     { file: 'runtime-hydration-freshness.js', before: 'const { freshChatState,' },
     { file: 'runtime-hydration-load.js', before: 'const { freshChatState,' },
@@ -35,7 +35,7 @@ export const RUNTIME_SOURCE_PARTS = [
     { file: 'runtime-entry-ui-events.js', before: 'const { eventTargetClosest' },
     { file: 'runtime-hosted.js', before: 'const { storyBlockV2Hosted' },
     { file: 'runtime-injection.js', before: 'const { liveInjectionText,' },
-    { file: 'runtime-narration.js', before: 'const { narrationCaptureStats,' },
+    { files: ['runtime-narration-parts/capture-journal.js', 'runtime-narration-parts/capture-text.js', 'runtime-narration-parts/narration-part.js'], before: 'const { narrationCaptureStats,' },
     { files: ['runtime-inline-cards-state.js', 'runtime-inline-cards-present.js', 'runtime-inline-cards-mode.js', 'runtime-inline-cards-megumin.js', 'runtime-inline-cards-mount.js'], before: 'const { recordInlineCardsInState' },
     { file: 'runtime-editor.js', before: 'const { editorIsMounted' },
     { file: 'runtime-editor-save.js', before: '    const { saveNpcEditor } = createEditorSave' },
