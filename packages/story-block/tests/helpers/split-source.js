@@ -32,6 +32,9 @@ export const SPLIT_PARTS = Object.freeze({
     'src/v2/timeline/coordinator.js': ['src/v2/timeline/coordinator-native.js', 'src/v2/timeline/coordinator-prepare.js', 'src/v2/timeline/coordinator-prepare/finish.js', 'src/v2/timeline/coordinator-read.js', 'src/v2/timeline/coordinator-restore.js'],
     'src/v2/domains/inventory.js': [
         'src/v2/domains/inventory/state.js', 'src/v2/domains/inventory/validate.js', 'src/v2/domains/inventory/queries.js', 'src/v2/domains/inventory/prompt.js',
+        'src/v2/domains/inventory/state-parts/carry.js', 'src/v2/domains/inventory/state-parts/checks.js', 'src/v2/domains/inventory/state-parts/cond-read.js', 'src/v2/domains/inventory/state-parts/cond-write.js', 'src/v2/domains/inventory/state-parts/feature-checks.js', 'src/v2/domains/inventory/state-parts/features.js', 'src/v2/domains/inventory/state-parts/kinds.js', 'src/v2/domains/inventory/state-parts/limits.js', 'src/v2/domains/inventory/state-parts/shape.js', 'src/v2/domains/inventory/state-parts/shared-cond.js',
+        'src/v2/domains/inventory/queries-parts/carry.js', 'src/v2/domains/inventory/queries-parts/definitions.js', 'src/v2/domains/inventory/queries-parts/encumbrance.js', 'src/v2/domains/inventory/queries-parts/equipment.js', 'src/v2/domains/inventory/queries-parts/gear-names.js', 'src/v2/domains/inventory/queries-parts/list.js', 'src/v2/domains/inventory/queries-parts/shared-ask.js',
+        'src/v2/domains/inventory/prompt-parts/packing.js', 'src/v2/domains/inventory/prompt-parts/phrases.js', 'src/v2/domains/inventory/prompt-parts/tail.js',
     ],
     'src/v2/host-ui.js': ['src/v2/host-ui/text.js', 'src/v2/host-ui/controls.js', 'src/v2/host-ui/sent.js', 'src/v2/host-ui/tab-host.js'],
     'src/v2/packs/validate.js': [
