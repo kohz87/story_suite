@@ -25,4 +25,3 @@ export const topicsOf = skill => {
     const word = String(skill ?? '').toLowerCase();
     return TOPIC_NAMES.filter(name => TOPICS[name].test(word));
 };
-
