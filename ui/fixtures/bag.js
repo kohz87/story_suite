@@ -40,18 +40,24 @@ const ITEMS = [
 ];
 const ANVIL = ['Smith’s anvil', 'goods', 'goods', '', 1, '', 1, 0, 50, '8 silver', 0, 'A small travelling anvil, far too heavy.', 'Taken from the guild smith · this turn'];
 const FILTERS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
-const MEMBER_LIMITS = [['Astra', 22], ['Brann', 32], ['Rika', 22], ['Torka', 36]];
 const ASSETS = {
   transport: [
-    ['dappled-mare', 'Dappled mare', 'mount', 'Riding animal', ['Astra'], 1, 'At the Bluewatch stables until you set out', true, 'Good, rested', 'Carries +40 load while with the party.'],
-    ['grey-pony', 'Grey pony', 'mount', 'Riding animal', ['Rika'], 1, 'At the Bluewatch stables with Rika', true, 'Good, rested', 'Carries +30 load while with the party.'],
-    ['covered-cart', 'Covered cart', 'cart', 'Cart, pulled by Bramble the ox', [], 2, 'Parked at the Bluewatch stables', false, 'Good', 'Adds nothing to load or pace while parked. Taken along: 15 km/day, Brann and Torka ride in it.'],
-    ['rowboat', 'Rowboat', 'boat', 'Boat', [], 4, 'Moored at the east quay', false, 'Good', 'Water only: counts for nothing on land.'],
+    ['dappled-mare', 'Dappled mare', 'mount', 'Riding animal', ['Astra'], 1, 'At the Bluewatch stables until you set out', true, 'Good, rested', 'Carries +40 load while with the party.', ['horse', 'with the party'], 'equipped'],
+    ['grey-pony', 'Grey pony', 'mount', 'Riding animal', ['Rika'], 1, 'At the Bluewatch stables with Rika', true, 'Good, rested', 'Carries +30 load while with the party.', ['pony', 'with the party'], 'equipped'],
+    ['covered-cart', 'Covered cart', 'cart', 'Cart, pulled by Bramble the ox', [], 2, 'Parked at the Bluewatch stables', false, 'Good', 'Adds nothing to load or pace while parked. Taken along: 15 km/day, Brann and Torka ride in it.', ['pulled by Bramble the ox', '2 seats', 'parked at the stables'], 'not with you'],
+    ['rowboat', 'Rowboat', 'boat', 'Boat', [], 4, 'Moored at the east quay', false, 'Good', 'Water only: counts for nothing on land.', ['4 seats', 'moored at the east quay'], 'water'],
   ],
   property: [
-    ['room-at-the-gull', 'Room at the Gull', 'house', 'Rented room', ['Astra', 'Brann', 'Rika', 'Torka'], null, 'Bluewatch · paid to Goldwane 14', false, null, 'Rented by the night; the bill is due on Goldwane 14.'],
-    ['mothers-cottage', 'Mother’s cottage', 'house', 'Owned house', [], null, 'Hollin’s Reach · shut up for the season', false, null, 'Owned outright; nobody is staying there.'],
+    ['room-at-the-gull', 'Room at the Gull', 'house', 'Rented room', ['Astra', 'Brann', 'Rika', 'Torka'], null, 'Bluewatch · paid to Goldwane 14', false, null, 'Rented by the night; the bill is due on Goldwane 14.', ['rented', 'Bluewatch', 'paid to Goldwane 14'], 'rented'],
+    ['mothers-cottage', 'Mother’s cottage', 'house', 'Owned house', [], null, 'Hollin’s Reach · shut up for the season', false, null, 'Owned outright; nobody is staying there.', ['owned', 'Hollin’s Reach', 'shut up for the season'], 'owned'],
   ],
+};
+
+const RATES = {
+  place: 'Bluewatch · a busy port town',
+  rows: [['Meal at an inn', '3 copper'], ['Room for a night', '8 copper'], ['Day’s labour', '12 copper'], ['Healing draught', '2 silver'],
+    ['Horse hire, per day', '1 silver'], ['Repair of a torn item', '6 silver'], ['Guild contract pay', '5 to 20 silver']].map(([name, price]) => ({ name, price })),
+  note: 'Worked out by the suite from the chat’s coins and economy. The story can haggle; a price it charges shows in the purse with the reason.',
 };
 
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -68,15 +74,20 @@ function makeItem(row, rpg) {
 }
 
 function makeAsset(a, rpg) {
-  const [id, name, glyph, kindLabel, riders, seats, where, withParty, condition, note] = a;
-  return { id, name, glyph, kindLabel, riders: [...riders], seats, where, withParty, condition: rpg ? condition : null, note };
+  const [id, name, glyph, kindLabel, riders, seats, where, withParty, condition, note, meta, tag] = a;
+  return { id, name, glyph, kindLabel, riders: [...riders], seats, where, withParty, condition: rpg ? condition : null, note, meta: [...meta], tag };
 }
 
 function makeLoad(items, limit) {
   const value = items.reduce((sum, it) => sum + it.weight * it.qty, 0);
   const level = value >= limit ? 'over' : value >= Math.ceil(limit * 0.8) ? 'heavy' : 'light';
-  const parts = [...MEMBER_LIMITS.map(([label, v]) => ({ label, value: v })), { label: 'Bags', value: 10 }];
-  return { value, limit, level, breakdown: [...parts, { label: 'Riding animals with the party', value: 70 }] };
+  const part = (label, v, text, dim = false) => ({ label, value: v, text, dim });
+  const breakdown = [
+    part('Members', 112, 'Members 10 + 2×STR each = 112'), part('Bags', 10, 'Bags +10'),
+    part('Dappled mare', 40, 'Dappled mare +40'), part('Grey pony', 30, 'Grey pony +30'),
+    part('Covered cart', 0, 'Covered cart +0 (parked)', true),
+  ];
+  return { value, limit, level, breakdown };
 }
 
 export function bagFixture({ rpg = true, over = false } = {}) {
@@ -93,9 +104,10 @@ export function bagFixture({ rpg = true, over = false } = {}) {
       coins: { gold: 2, silver: 14, copper: 6 },
       words: '2 gold 14 silver 6 copper',
       thisTurn: [
-        { line: 'room at the Gull', delta: '−8 copper', up: false },
-        { line: 'guild advance', delta: '+1 silver', up: true },
+        { line: 'guild advance', delta: '+1 silver', up: true, earlier: false },
+        { line: 'room at the Gull', delta: '−8 copper', up: false, earlier: true },
       ],
+      rates: RATES,
     },
     load,
     pace: {
@@ -103,8 +115,9 @@ export function bagFixture({ rpg = true, over = false } = {}) {
       by: 'foot',
       slowed,
       why: slowed
-        ? 'On foot and over the load limit: 20 km/day less a quarter. Brann and Torka have no mounts, so everyone walks.'
-        : 'On foot: Brann and Torka have no mounts, so everyone walks. Riders lead their animals.',
+        ? 'On foot and over the load limit: 20 km/day less a quarter. Brann and Torka have no mounts, so everyone walks. The rowboat counts for nothing on land.'
+        : 'On foot: Brann and Torka have no mounts, so everyone walks. Riders lead their animals. The rowboat counts for nothing on land.',
+      alt: 'Taking the cart: 15 km/day (the ox sets the pace; Brann and Torka ride in it). Two more horses: 30 km/day (Rika’s pony is the slowest).',
     },
     assets: {
       transport: ASSETS.transport.map(a => makeAsset(a, rpg)),

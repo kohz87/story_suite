@@ -30,6 +30,8 @@ const ASSET = {
   withParty: T.BOOLEAN,
   condition: { $nullable: T.STRING },
   note: T.STRING,
+  meta: [T.STRING],
+  tag: T.STRING,
 };
 
 export const BAG_SHAPE = {
@@ -39,16 +41,17 @@ export const BAG_SHAPE = {
   purse: {
     coins: { gold: T.NUMBER, silver: T.NUMBER, copper: T.NUMBER },
     words: T.STRING,
-    thisTurn: [{ line: T.STRING, delta: T.STRING, up: T.BOOLEAN }],
+    thisTurn: [{ line: T.STRING, delta: T.STRING, up: T.BOOLEAN, earlier: T.BOOLEAN }],
+    rates: { place: T.STRING, rows: [{ name: T.STRING, price: T.STRING }], note: T.STRING },
   },
   load: {
     $nullable: {
       value: T.NUMBER,
       limit: T.NUMBER,
       level: { $enum: ['light', 'heavy', 'over'] },
-      breakdown: [{ label: T.STRING, value: T.NUMBER }],
+      breakdown: [{ label: T.STRING, value: T.NUMBER, text: T.STRING, dim: T.BOOLEAN }],
     },
   },
-  pace: { kmDay: T.NUMBER, by: T.STRING, slowed: T.BOOLEAN, why: T.STRING },
+  pace: { kmDay: T.NUMBER, by: T.STRING, slowed: T.BOOLEAN, why: T.STRING, alt: T.STRING },
   assets: { transport: [ASSET], property: [ASSET] },
 };

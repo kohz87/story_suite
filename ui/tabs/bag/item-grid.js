@@ -75,7 +75,7 @@ export function itemsCard(bag, ctx = {}) {
   return h(
     'section',
     { class: 'card glass bag-items', dataset: { card: 'items' } },
-    h('div', { class: 'ihead' }, h('h3', null, 'Items'), findBtn),
+    h('div', { class: 'ihead' }, h('h3', null, 'Items'), findBtn, button({ label: '+ Add', onClick: () => ctx.onAdd?.() })),
     search, chips, grid,
   );
 }

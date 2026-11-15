@@ -14,13 +14,13 @@ test('Assets starts folded with pace and counts in the summary, and remembers th
   const fold = card.querySelector('.afold');
   assert.equal(fold.getAttribute('aria-expanded'), 'false');
   assert.equal(fold.querySelector('.t').textContent, '20 km/day · 4 transport · 2 property');
-  assert.equal(card.querySelector('.abody').hasAttribute('hidden'), true);
+  assert.equal(card.querySelector('.abody').dataset.open, 'false');
   fold.click();
-  assert.equal(card.querySelector('.abody').hasAttribute('hidden'), false);
+  assert.equal(card.querySelector('.abody').dataset.open, 'true');
   assert.equal(ctx.prefs.getFold('bag.assets', false), true);
   assert.equal(assetsCard(bagFixture(), ctx).querySelector('.afold').getAttribute('aria-expanded'), 'true');
   fold.click();
-  assert.equal(card.querySelector('.abody').hasAttribute('hidden'), true);
+  assert.equal(card.querySelector('.abody').dataset.open, 'false');
 });
 
 test('pace box shows kmDay and why; slowed marks the fold and the box', () => {
@@ -37,8 +37,8 @@ test('Transport rows: riders, kind, seats, where; tags equipped, not with you; P
   const card = assetsCard(bagFixture(), makeCtx());
   const rows = card.querySelectorAll('.tr');
   assert.equal(rows.length, 6);
-  assert.match(rows[0].querySelector('.bmt').textContent, /^ridden by AstraRiding animal1 seatAt the Bluewatch stables until you set out/);
-  assert.deepEqual(rows.map(r => r.querySelector('.tg').textContent), ['equipped', 'equipped', 'not with you', 'not with you', 'rented', 'owned']);
+  assert.match(rows[0].querySelector('.bmt').textContent, /^ ridden by Astrahorsewith the party$/);
+  assert.deepEqual(rows.map(r => r.querySelector('.tg').textContent), ['equipped', 'equipped', 'not with you', 'water', 'rented', 'owned']);
   assert.equal(rows[0].querySelector('.tg').classList.contains('eq'), true);
   assert.match(rows[2].querySelector('.bmt').textContent, /2 seats/);
   assert.deepEqual(card.querySelectorAll('.asub').map(a => a.textContent), ['Transport', 'Property']);
