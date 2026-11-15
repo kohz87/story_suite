@@ -1,3 +1,4 @@
+import { partsSource } from './helpers/parts-source.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,7 +11,7 @@ const root = path.resolve(here, '..');
 const index = runtimeSource();
 const scannerRouting = [path.join(root, 'scanner-routing.js'), ...fs.readdirSync(path.join(root, 'scanner-routing-parts')).map(name => path.join(root, 'scanner-routing-parts', name))].map(file => fs.readFileSync(file, 'utf8')).join('\n');
 // (cleanup step 10) The scanner request moved to src/scanner-request.js.
-const request = fs.readFileSync(path.join(root, 'src', 'scanner-request.js'), 'utf8');
+const request = partsSource(path.join(root, 'src', 'scanner-request.js'));
 
 test('dossier scanner uses the shared isolated dispatcher and default route preserves raw generation', () => {
     assert.match(request, /dispatchScannerRequest\(ctx,\s*\{[\s\S]*?systemPrompt,[\s\S]*?prompt:[\s\S]*?instructOverride:\s*true,[\s\S]*?responseLength:[\s\S]*?trimNames:\s*false/);

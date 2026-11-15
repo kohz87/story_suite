@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from 'node:url'; import { partsSource } from './helpers/parts-source.js';
 
 // Lean scan cadence through the real event handlers of the synthetic SillyTavern host.
 // Each scenario runs in its own process on a fresh host built from the runtime-smoke setup
@@ -410,7 +410,7 @@ test('lean: the relationship evaluator prompt scores a change in the exchange it
 });
 
 test('lean: the relationship evaluator system prompt says exchanges for a window and is unchanged otherwise', () => {
-    const source = fs.readFileSync(new URL('../src/relationship-pass.js', import.meta.url), 'utf8');
+    const source = partsSource(new URL('../src/relationship-pass.js', import.meta.url));
     assert.match(source, /Use only the supplied targets and current exchange\. Return only the requested JSON object\."\.replace\(options\.window === true \? \/current exchange\/ : \/\(\?!\)\/, 'exchanges'\)/);
 });
 
