@@ -5,13 +5,16 @@ import { pathToFileURL } from 'node:url';
 import { loadChat } from './load-chat.mjs';
 import { recordChat } from './record-chat.mjs';
 import { compareRecords } from './compare-records.mjs';
+import { prepareOutDir, writeManifest } from './out-guard.mjs';
 
 function parseFlags(args) {
   const flags = {};
   const positional = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg.startsWith('--')) {
+    if (arg === '--fresh') {
+      flags.fresh = true;
+    } else if (arg.startsWith('--')) {
       flags[arg.slice(2)] = args[++i];
     } else {
       positional.push(arg);
@@ -26,8 +29,9 @@ async function runRecord(args) {
   const chatsDir = path.resolve(flags.chats ?? '');
   const outDir = path.resolve(flags.out ?? '');
   if (!flags.code || !flags.chats || !flags.out) {
-    throw new Error('Usage: record --code <repo root> --chats <folder> --out <folder>');
+    throw new Error('Usage: record --code <repo root> --chats <folder> --out <folder> [--fresh]');
   }
+  prepareOutDir({ outDir, repoRoot, fresh: flags.fresh === true });
 
   mkdirSync(outDir, { recursive: true });
   const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'story-suite-dryrun-'));
@@ -60,11 +64,14 @@ async function runRecord(args) {
       throw new Error(`No .jsonl or .jsonl.gz chats in ${chatsDir}`);
     }
     let failed = 0;
+    const written = [];
     for (const file of files) {
       const start = performance.now();
       const chat = loadChat(path.join(chatsDir, file));
       const record = await recordChat({ suite, chat });
       const ms = Math.round(performance.now() - start);
+      written.push(`${file}.json`);
+      writeManifest(outDir, written);
       writeFileSync(path.join(outDir, `${file}.json`), JSON.stringify(record));
       console.log(`${file}: ${record.replyCount} replies, ${record.errors.length} errors (${ms} ms)`);
       for (const item of record.errors.slice(0, 5)) console.log(`  ERROR reply=${item.reply} ${item.step}: ${String(item.detail).slice(0, 120)}`);
