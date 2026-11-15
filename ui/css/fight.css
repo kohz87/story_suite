@@ -1,0 +1,155 @@
+/* Styles for the Fight tab: header, foes, party, action tiles, log and end card; tokens only, sized from the container. */
+.fight-tab{display:flex;flex-direction:column;gap:12px}
+.fight-tab button:not(.sw){min-height:48px}
+.fight-tab .fhead{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.fight-tab .fhead .t{flex:1;min-width:0}
+.fight-tab .fhead .t b{display:block;font:800 16px/1.25 var(--su-font)}
+.fight-tab .fhead .t small{font:700 12px/1.25 var(--su-font);color:var(--su-muted)}
+.fight-tab .fpill{font:800 12px var(--su-font);border-radius:999px;padding:3px 10px;background:rgba(255,107,107,.14);color:var(--su-bad-t);white-space:nowrap}
+.fight-tab .fpill.won{color:var(--su-ok-t);background:rgba(79,211,154,.14)}
+.fight-tab .fgrid{display:flex;flex-direction:column;gap:12px}
+.fight-tab .fcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+@container (min-width:620px){
+  .fight-tab .fgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);grid-template-areas:'a b' 'c b';grid-template-rows:auto 1fr;align-items:start}
+  .fight-tab .fa{grid-area:a}.fight-tab .fb{grid-area:b}.fight-tab .fc{grid-area:c}
+}
+@container (max-width:619px){.fight-tab .fgrid.chz .fb{order:-1}}
+.fight-tab .card{padding:14px 16px;gap:10px;display:flex;flex-direction:column;min-width:0}
+.fight-tab .foes-card,.fight-tab .party-card{padding:12px 14px;gap:8px}
+.fight-tab .ch{display:flex;align-items:center;gap:10px}
+.fight-tab .ch h3{margin:0;font:700 16px var(--su-font);color:var(--su-text);flex:1}
+.fight-tab .cnt{font:700 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .anote,.fight-tab .fine{margin:0;font:500 13.5px/1.45 var(--su-font);color:var(--su-soft)}
+.fight-tab .fine{font-size:12px;color:var(--su-muted)}
+/* Foes */
+.fight-tab .foes{display:flex;flex-direction:column;gap:8px}
+.fight-tab .fg{display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-radius:14px;background:var(--su-line2);border:1.5px solid transparent}
+.fight-tab .fg.tgt{border-color:var(--su-hp);box-shadow:0 0 0 3px rgba(255,107,107,.15);cursor:pointer}
+.fight-tab .fg .h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fight-tab .fg .h b{font:800 14px var(--su-font);flex:1}
+.fight-tab .tier{font:800 12px var(--su-font);border-radius:999px;padding:1px 8px;background:var(--su-panel2);color:var(--su-soft)}
+.fight-tab .tier.Elite{color:var(--su-warn-t)}
+.fight-tab .tier.Boss,.fight-tab .tier.Apex{color:var(--su-bad-t)}
+.fight-tab .fm2{display:flex;flex-wrap:wrap;gap:5px}
+.fight-tab .mbx{flex:1 1 84px;display:flex;flex-direction:column;gap:3px;padding:5px 7px;border-radius:10px;background:var(--su-panel2);border:1.5px solid transparent;color:var(--su-text);font:inherit;text-align:left;cursor:default}
+.fight-tab .mbx .mn{display:flex;justify-content:space-between;gap:6px;font:800 12px var(--su-font)}
+.fight-tab .mbx .mn small{font:700 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .mbx.tgt{border-color:var(--su-hp);box-shadow:0 0 0 2px rgba(255,107,107,.2);cursor:pointer}
+.fight-tab .mbx.down{opacity:.45;text-decoration:line-through}
+.fight-tab .mbx.down .mn small{display:none}
+.fight-tab .hb{display:block;height:5px;border-radius:3px;background:var(--su-line2);overflow:hidden}
+.fight-tab .hb b{display:block;height:100%;background:var(--su-hp)}
+.fight-tab .todds{font:800 12px var(--su-font);border-radius:999px;padding:0 7px;margin-left:auto}
+.fight-tab .mbx .todds{margin:2px 0 0;align-self:flex-start;padding:0}
+.fight-tab .todds.likely,.fight-tab .odds.likely{color:var(--su-ok-t)}
+.fight-tab .todds.even,.fight-tab .odds.even{color:var(--su-warn-t)}
+.fight-tab .todds.longshot,.fight-tab .odds.long{color:var(--su-bad-t)}
+.fight-tab .card .fold-view{display:none}
+.fight-tab .fline{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--su-line2);font-size:13px}
+.fight-tab .fline:first-child{border-top:0}
+.fight-tab .fline b{font:800 13.5px var(--su-font)}
+.fight-tab .fline .fstand{color:var(--su-muted);font:700 12px var(--su-font)}
+.fight-tab .fline .hb{flex:1;max-width:90px}
+/* Party */
+.fight-tab .prt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.fight-tab .pm{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:2px 7px;align-items:center;padding:7px 8px;border-radius:14px;background:var(--su-line2);border:1.5px solid transparent;color:var(--su-text);font:inherit;text-align:left;min-width:0;width:100%}
+.fight-tab button.pm{cursor:pointer}
+.fight-tab .pm.act{border-color:var(--su-accent);background:rgba(168,151,255,.1)}
+.fight-tab .pm.tgt{border-color:var(--su-ok)}
+.fight-tab .pm .a{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 14px var(--su-font);background:var(--su-panel2) center 18%/cover}
+.fight-tab .pm .pmi{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fight-tab .pm .pmi b{font:800 12px var(--su-font)}
+.fight-tab .pm .hp{font:700 12px var(--su-font);color:var(--su-soft)}
+.fight-tab .pm .heal{color:var(--su-ok-t);font-weight:800}
+.fight-tab .pm .ch2{grid-column:1/-1;font:700 12px/1.25 var(--su-font);color:var(--su-accent);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fight-tab .pm .ch2.done{color:var(--su-soft)}
+.fight-tab .pm .ok{position:absolute;top:-4px;left:-4px;width:16px;height:16px;border-radius:50%;background:var(--su-accent);color:#14102a;display:grid;place-items:center;font:900 12px/1 var(--su-font)}
+.fight-tab .prt.p1{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.fight-tab .prt.p1 .pm{grid-template-columns:24px minmax(0,1fr);gap:0 4px;padding:4px;border-radius:12px}
+.fight-tab .prt.p1 .pm .a{width:24px;height:24px;font-size:12px}
+.fight-tab .prt.p1 .pm .pmi b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The Fold button only matters on a phone */
+.fight-tab .btn2.pfold-btn{display:none}
+/* Phone fold while choosing: foes and party shrink to one line each; the party opens on a tap */
+@container (max-width:619px){
+  .fight-tab .btn2.pfold-btn{display:inline-flex}
+  .fight-tab[data-fold="1"] .foes-card .full-view{display:none}
+  .fight-tab[data-fold="1"] .foes-card .fold-view{display:block}
+  .fight-tab .party-card[data-step="choose"]:not([data-open="true"]) .full-view{display:none}
+  .fight-tab .party-card[data-step="choose"]:not([data-open="true"]) .fold-view{display:grid}
+}
+/* Actions */
+.fight-tab .actp .ah{display:flex;align-items:baseline;gap:8px}
+.fight-tab .actp .ah b{font:800 16px var(--su-font);flex:1}
+.fight-tab .actp .ah small,.fight-tab .chose{font:700 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .res2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fight-tab .res2 div{font:700 12px var(--su-font);color:var(--su-muted);display:flex;flex-direction:column;gap:3px}
+.fight-tab .res2 span{display:flex;justify-content:space-between}
+.fight-tab .res2 span b{color:var(--su-text)}
+.fight-tab .res2 i{display:block;height:5px;border-radius:3px;background:var(--su-line2);overflow:hidden}
+.fight-tab .res2 i b{display:block;height:100%}
+.fight-tab .stance{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1px dashed var(--su-line2)}
+.fight-tab .stance .t{flex:1;font:700 13px var(--su-font)}
+.fight-tab .stance .t small{display:block;font:600 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .stance .now{font:800 12px var(--su-font);color:var(--su-ok-t);background:rgba(79,211,154,.13);border-radius:999px;padding:1px 7px;margin-left:4px}
+.fight-tab .sw{width:48px;height:48px}
+.fight-tab .sw::before{left:6px;top:14px}
+.fight-tab .sw::after{left:9px;top:17px}
+.fight-tab .agrp{font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted);margin:2px 0 4px}
+.fight-tab .atiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.fight-tab .agpair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.fight-tab .agpair .atiles{grid-template-columns:minmax(0,1fr)}
+.fight-tab .at{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:12px;background:var(--su-panel2);border:1.5px solid var(--su-line2);color:var(--su-text);cursor:pointer;text-align:left;font:inherit;min-width:0}
+.fight-tab .at b{font:800 13px var(--su-font)}
+.fight-tab .at small{font:700 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .at .odds{font:800 12px var(--su-font);margin-top:3px;color:var(--su-soft)}
+.fight-tab .at .odds.likely{color:var(--su-ok-t)}
+.fight-tab .at .odds.even{color:var(--su-warn-t)}
+.fight-tab .at .odds.long{color:var(--su-bad-t)}
+.fight-tab .at.area{border-color:rgba(240,184,74,.45)}
+.fight-tab .at.area small{color:var(--su-warn-t)}
+.fight-tab .at.no{opacity:.45;cursor:not-allowed}
+.fight-tab .at.sel{border-color:var(--su-accent);background:rgba(168,151,255,.14)}
+.fight-tab .fbtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fight-tab .banner{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.35);font:700 13px var(--su-font)}
+.fight-tab .banner.ally{background:rgba(79,211,154,.1);border-color:rgba(79,211,154,.35)}
+/* Log */
+.fight-tab .order{display:flex;flex-wrap:wrap;gap:4px;font:700 12px var(--su-font);color:var(--su-soft);align-items:center}
+.fight-tab .order span{background:var(--su-line2);border-radius:999px;padding:1px 8px}
+.fight-tab .exb+.exb{border-top:1px solid var(--su-line2);padding-top:4px}
+.fight-tab .fold{font-weight:800}
+.fight-tab .fold-body[hidden]{display:none}
+.fight-tab .bon{display:flex;flex-direction:column;gap:3px;font:500 13px/1.4 var(--su-font);color:var(--su-soft);padding:2px 0 8px}
+.fight-tab .bon b{color:var(--su-text)}
+.fight-tab .lg{display:flex;flex-direction:column}
+.fight-tab .lr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--su-line2);font-size:13px}
+.fight-tab .lr:first-child{border-top:0}
+.fight-tab .lr .who{font:800 13px var(--su-font)}
+.fight-tab .lr.up .who,.fight-tab .lr.lone .who{color:var(--su-soft)}
+.fight-tab .lr .math{grid-column:1/-1;font:600 12px/1.45 ui-monospace,Menlo,monospace;color:var(--su-muted)}
+.fight-tab .oc{font:800 12px var(--su-font);letter-spacing:.06em;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.fight-tab .oc.kS{color:var(--su-ok-t);background:rgba(79,211,154,.13)}
+.fight-tab .oc.kX{color:var(--su-bad-t);background:rgba(255,122,122,.13)}
+.fight-tab .oc.kC{color:var(--su-warn-t);background:rgba(240,184,74,.14)}
+.fight-tab .oc.kD{color:#c08aff;background:rgba(192,138,255,.15)}
+.fight-tab .oc.kT{color:var(--su-info-t);background:rgba(90,160,255,.13)}
+.fight-tab .oc.kF,.fight-tab .oc.kU{color:var(--su-soft);background:var(--su-line2)}
+.fight-tab .ntold{margin:0;font:500 13px/1.5 var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:12px;padding:10px 12px}
+/* Offer and end */
+.fight-tab .offer .brow3{display:flex;flex-direction:column;gap:8px}
+.fight-tab .endb{align-items:center;text-align:center;padding:18px 14px}
+.fight-tab .endb .big2{font:900 28px var(--su-font);color:var(--su-ok-t)}
+.fight-tab .endb.is-lost .big2{color:var(--su-bad-t)}
+.fight-tab .endb.is-fled .big2{color:var(--su-warn-t)}
+.fight-tab .xpr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.fight-tab .xpr div{padding:8px;border-radius:12px;background:var(--su-line2);display:flex;flex-direction:column;align-items:center;gap:2px;font:700 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .xpr b{font:800 14px var(--su-font);color:var(--su-text)}
+.fight-tab .endp{display:flex;flex-direction:column;width:100%;text-align:left}
+.fight-tab .endr{display:grid;grid-template-columns:34px minmax(0,1fr);gap:2px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--su-line2)}
+.fight-tab .endr:first-child{border-top:0}
+.fight-tab .endr .a{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 14px var(--su-font);background:var(--su-panel2) center 18%/cover;grid-row:1/span 2}
+.fight-tab .endr b{font:800 13.5px var(--su-font)}
+.fight-tab .endr>span{font:600 12px var(--su-font);color:var(--su-soft)}
+.fight-tab .prc{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.fight-tab .prc i{font:800 12px var(--su-font);font-style:normal;color:var(--su-text);background:var(--su-line2);border-radius:999px;padding:1px 8px}
+.fight-tab .endb .fbtns{width:100%}
