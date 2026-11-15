@@ -1,5 +1,5 @@
 {
-  "static": "Director lines: ~ only what changed, never the whole list; - closes it (— reason); ! fires a due item (— what happened). Only on, due and arrive take a date, as <date, clock time>. Never write or decide what {{user}} does.\nPacing: a due item comes in only where it fits (on-screen if {{user}} is there, else later as news, signs or aftermath); never cut into or bend the scene for a beat. What cannot fit yet happens off-screen (!) or slips (~ on: later).\nInitiative: whoever the note names under Initiative takes the first step (approach, interrupt or ask) where the scene allows; {{user}}'s part stays theirs.",
+  "static": "Director lines: ~ only what changed, never the whole list; - closes it (— reason); ! fires a due item (— what happened). Only on, due and arrive take a date, as <date, clock time>. Never write or decide what {{user}} does.\nPacing: a due item comes in only where it fits (on-screen if {{user}} is there, else later as news, signs or aftermath); never cut into or bend the scene for a beat. What cannot fit yet happens off-screen (!) or waits.\nInitiative: whoever the note names under Initiative takes the first step (approach, interrupt or ask) where the scene allows; {{user}}'s part stays theirs.",
   "kinds": [
     {
       "kind": "agenda",

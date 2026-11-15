@@ -37,7 +37,7 @@ test('the static part is byte-identical whatever the tracker holds, and names no
     for (const word of ['Geva', 'Wolf', 'March', 'Bluewatch', '2026']) assert.ok(!empty.includes(word), word);
     // v1's rules, merged (the lean diet, 3 Nov), every one still there: the ops, write only changes, never act for {{user}}, the Pacing rules.
     for (const rule of [/~ only what changed, never the whole list/, /- closes it \(— reason\)/, /! fires a due item \(— what happened\)/, /Never write or decide what \{\{user\}\} does/]) assert.match(empty, rule);
-    for (const rule of [/only where it fits/, /on-screen if \{\{user\}\} is there/, /later as news, signs or aftermath/, /never cut into or bend the scene for a beat/, /off-screen \(!\) or slips \(~ on: later\)/]) assert.match(PACING_TEXT, rule);
+    for (const rule of [/only where it fits/, /on-screen if \{\{user\}\} is there/, /later as news, signs or aftermath/, /never cut into or bend the scene for a beat/, /off-screen \(!\) or waits/]) assert.match(PACING_TEXT, rule);
     assert.ok(STATIC_TEXT.length < CHANGE_INSTRUCTION.length + PACING.length, 'shorter than v1\'s instruction and Pacing');
     assert.doesNotMatch(empty, /offer/);
     // v1's Fields: every field is still named, now in the grammar lines (agenda carries the five thread kinds, hook the hook and quest).

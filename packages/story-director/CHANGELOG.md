@@ -1,6 +1,7 @@
 ## Unreleased
 
 - **Taking on a job is a shorter line.** The hook / quest prompt now teaches `+ quest Missing boatman` with only the hook's name (add `| reward: …` only when something is new), because the hook's summary, giver, goal and labels are already kept when it becomes the quest. This changes the prompt only; code is unchanged, so written replies replay and Re-read exactly as before.
+- **The Pacing line no longer teaches a postponing line.** It ended "or slips (~ on: later)", but no code reads a literal "later" (`on:` is a date). It now ends "or waits". A beat the story never fires is still closed as slipped by code 3 story days after its date and told in the While-away recap. This changes the prompt only (a few words shorter); written replies, including ones that wrote `on: later`, replay as before.
 
 ## 2.16.0
 
