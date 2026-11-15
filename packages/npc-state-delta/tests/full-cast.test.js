@@ -1,0 +1,57 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+import { runtimeSource } from './helpers/runtime-source.js';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(here, '..');
+const modulePath = path.join(root, 'full-cast.js');
+const source = fs.readFileSync(modulePath, 'utf8');
+const bootstrap = fs.readFileSync(path.join(root, 'bootstrap.js'), 'utf8');
+
+test('full-cast owner parses and loads after the canonical runtime', () => {
+  const result = spawnSync(process.execPath, ['--check', modulePath], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(bootstrap, /await import\('\.\/index\.js'\);[\s\S]*await import\('\.\/full-cast\.js'\);/);
+  assert.doesNotMatch(bootstrap, /enhancements\.js/);
+});
+
+test('full cast scan remains opt-in and targets participation plus physical presence', () => {
+  assert.match(source, /fullCastScanEveryTurn/);
+  assert.match(source, /if \(npc\.present\) ids\.add\(npc\.id\)/);
+  assert.match(source, /npcParticipatesInExchange\(npc, npcs, exchangeText\)/);
+  assert.match(source, /before\.get\(npc\.id\) !== fingerprint\(npc\)/);
+  assert.match(source, /await npcApi\.refreshFromChat\(id\)/);
+  assert.match(source, />Full cast scan</);
+});
+
+test('superseded enhancement dossier library is not retained beside Stage 1 UI', () => {
+  assert.doesNotMatch(source, /Dossier Library/);
+  assert.doesNotMatch(source, /npc-state-delta-library/);
+  assert.doesNotMatch(source, /openLibrary|closeLibrary|renderLibrary/);
+});
+
+test('full-cast setting and manual action mount into the settings owner slots', () => {
+  const index = runtimeSource();
+  assert.match(index, /settingsSlot\('full-cast'\)/);
+  assert.match(index, /settingsSlot\('full-cast-action'\)/);
+  assert.match(source, /\[data-delta-settings-slot="full-cast"\]/);
+  assert.match(source, /\[data-delta-settings-slot="full-cast-action"\]/);
+  assert.match(source, /npc-state-delta:settings-mounted/);
+  assert.match(source, /queueMicrotask\(mountControls\)/);
+  assert.doesNotMatch(source, /insertBefore|legacyScan|delta-settings-maintenance-actions/, 'full cast never relocates other settings controls');
+});
+
+test('Diagnostics can request the manual full-cast scan without owning scanner logic', () => {
+  assert.match(source, /npc-state-delta:request-full-cast-scan/);
+  assert.match(source, /runFullCastScan\(latestAssistantId\(\), snapshot\(\), \{ manual: true \}\)/);
+});
+
+test('full-cast owner never patches the host text-model route', () => {
+  assert.doesNotMatch(source, /generateRaw/);
+  assert.doesNotMatch(source, /installBackfillGuard/);
+  assert.match(source, /npcParticipatesInExchange/);
+});

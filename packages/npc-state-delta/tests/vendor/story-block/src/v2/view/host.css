@@ -1,0 +1,25 @@
+/* Story Block v2: the host's own furniture (src/v2/ui-host.js, src/v2/host-ui.js), on SillyTavern's theme
+   colours. This file is the one the manifest loads: it only lists the sheets, in the order they cascade.
+   The mounts' styles come from mounts-*.css, the form controls' from controls.css, Story Suite's
+   building blocks (glass card, tile, bar, status, pill, label, forms, pages) from glass-*.css, the settings
+   window from settings-*.css; the furniture's own rules (host-*.css) come last. Layouts and
+   widgets inject their own sheets. */
+@import url('./mounts-game.css');
+@import url('./mounts-cards-hud.css');
+@import url('./mounts-dialogs.css');
+@import url('./controls.css');
+@import url('./glass-base.css');
+@import url('./glass-hero.css');
+@import url('./glass-scene-lists.css');
+@import url('./glass-screenbar.css');
+@import url('./glass-modal.css');
+@import url('./glass-forms.css');
+@import url('./glass-forms-features.css');
+@import url('./glass-pages.css');
+@import url('./glass-pages-modules.css');
+@import url('./settings-window.css');
+@import url('./settings-folds.css');
+@import url('./fonts.css');
+@import url('./size.css');
+@import url('./host-furniture.css');
+@import url('./host-notes-blocks.css');

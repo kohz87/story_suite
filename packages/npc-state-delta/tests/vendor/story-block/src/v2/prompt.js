@@ -1,0 +1,301 @@
+// Prompt assembly (docs/v2/SPEC.md §5): the two texts Story Block sends for every ordinary reply.
+//
+// - static: the change-line instruction (a fixed header, then each module's kind grammar in
+//   module-id order) and each module's context.static() in module-id order. It never reads the
+//   state, so it is byte-identical reply after reply and a provider's prompt cache keeps it.
+// - tail: `[Happened]` with one code-written line per untold receipt, then each module's
+//   context.tail(view) in the fixed order scene, inventory, party, combat, trade, director, then
+//   other modules by id; sent last (depth 0), where text that changes belongs.
+//
+// Budgets are tokens estimated at four characters each. A module's optional lines go first when
+// it is over its own budget, then its last lines; past the host's total budget the same happens
+// from the last module back. The first [Happened] lines are never dropped: they are what the reply
+// must tell. Past half the total budget (and the first MIN_HAPPENED of them) the rest are told as one
+// counted line, "…and N more things happened." Names (`{{user}}`, `{{char}}`) are filled in before
+// anything is counted, so a long name cannot push a text past its budget. Pure: no DOM, no SillyTavern.
+//
+// The context size (final soak): SillyTavern fits the extension prompts first and drops the conversation
+// when the rest no longer fits, so Story Suite in all (static + tail) is held to a share of the room the
+// prompt has (the context size less the reply's length; `contextShare` percent, default 40). Only the
+// tail is cut for it, never below MIN_TAIL_BUDGET: the static part stays byte-identical reply to reply.
+// When the static part alone is over the share, `fit.tooSmall` says so (turn.js tells the reader).
+// What a module sends on its own (NPC State Delta's dossiers, under its own prompt keys; its
+// `ownPrompt` hook says what, turn.js ownPrompt) counts toward the share too: the tail gets what the
+// static part and that leave, still never below MIN_TAIL_BUDGET. It never cuts the static part.
+
+import { receiptCue } from './lean-rpg/cue.js';
+
+export const TAIL_ORDER = Object.freeze(['scene', 'inventory', 'party', 'combat', 'trade', 'director']);
+export const DEFAULT_TAIL_BUDGET = 1500;
+// A module's own tail lines may be `{ text, keep: true }` (kept whole whatever the budget says): at most KEPT_TAIL_LINES per module, and
+// KEPT_TAIL_TOKENS in all per reply, counted after names are filled in and shared with the kept prelude cues (`keptTokens` of assemble).
+export const KEPT_TAIL_LINES = 4;
+export const KEPT_TAIL_TOKENS = 120;
+// The most of the prompt's room (percent) Story Suite's static and tail may take together, by default.
+export const DEFAULT_CONTEXT_SHARE = 40;
+export const CONTEXT_SHARE_MIN = 10;
+export const CONTEXT_SHARE_MAX = 90;
+// A tail cut for a small context keeps at least this many tokens (the [Happened] lines and the first
+// required lines are what the reply must tell).
+export const MIN_TAIL_BUDGET = 200;
+export const HAPPENED = '[Happened]';
+// [Happened] lines always kept, however long they are; the rest share half the tail budget.
+export const MIN_HAPPENED = 5;
+// The static header's first line; turn.js looks for it to tell whether SillyTavern sent it.
+export const STATIC_MARKER = '[Story Suite: how this story is kept]';
+
+const HEADER = [
+    STATIC_MARKER,
+    `Code keeps this story's facts and numbers; you narrate. A note starting ${HAPPENED} has just happened: tell it in the scene, keep its numbers, do not write it again as a change.`,
+].join('\n');
+
+const CHANGES_HEADER = [
+    'At the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):',
+    '<Changes>',
+    'op kind Name — what happened | label: value',
+    '</Changes>',
+    'op: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change, and the whole block when nothing did.',
+    'This is the only block you write: no state, inventory or party blocks.',
+    'Kinds:',
+].join('\n');
+
+/** Tokens in `text`, estimated at four characters each. */
+export const estimateTokens = text => Math.ceil(String(text ?? '').length / 4);
+
+const linesOf = value => (Array.isArray(value) ? value : [])
+    .filter(line => typeof line === 'string')
+    .map(line => line.trimEnd())
+    .filter(line => line.trim());
+
+// A prelude cue is written as its own [Happened] note. It joins the leading note, so a reply
+// never sees two [Happened] markers when an older receipt is still untold.
+const happenedCue = text => {
+    const match = /^\s*\[Happened\](?:\r?\n([\s\S]*))?$/u.exec(String(text ?? ''));
+    const body = match?.[1]?.trim();
+    return match && body ? body : null;
+};
+
+function attempt(fn, fallback, problems, what) {
+    try { return fn(); } catch (error) {
+        problems.push(`${what} failed: ${error?.message ?? error}`);
+        return fallback;
+    }
+}
+
+// Where a module's tail goes: by the earliest fixed-order domain it owns, else after them.
+function rank(context) {
+    const ranks = context.domains.map(domain => TAIL_ORDER.indexOf(domain)).filter(index => index >= 0);
+    return ranks.length ? Math.min(...ranks) : TAIL_ORDER.length;
+}
+
+/** The modules' contexts in tail order (fixed domains first, then by id). */
+export function tailOrder(contexts) {
+    return [...contexts].sort((a, b) => rank(a) - rank(b) || (a.moduleId < b.moduleId ? -1 : a.moduleId > b.moduleId ? 1 : 0));
+}
+
+/**
+ * The static text alone (header + kind grammar + module statics), built from the registry only.
+ * `problems` collects what failed (a throwing static() is left out, logged there). `hint` (optional): { view, rolled }, what the reply being
+ * prepared tells the parts that write less on a quiet reply (the RPG's combat text, data-modules/part.js); without it every part is in full.
+ */
+export function staticParts(registry, problems = [], hint = undefined) {
+    const contexts = registry.contexts(hint);
+    const kinds = contexts.flatMap(context => context.kinds.map(kind => kind.grammar)).filter(Boolean);
+    const header = kinds.length ? `${HEADER}\n${CHANGES_HEADER}\n${kinds.join('\n')}` : HEADER;
+    const parts = [{ module: 'story-suite', label: 'Story Suite: instructions', place: 'static', text: header }];
+    for (const context of contexts) {
+        if (typeof context.static !== 'function') continue;
+        const text = attempt(() => context.static(hint), '', problems, `${context.name}: instructions`);
+        const clean = typeof text === 'string' ? text.trim() : '';
+        if (clean) parts.push({ module: context.moduleId, label: `${context.name}: instructions`, place: 'static', text: clean });
+    }
+    return parts;
+}
+
+/**
+ * The static text as it would be with other feature switches (`switches`: a Map or object, feature id → true | false; the
+ * rest as they are), built by the registry's own `withFeatures` so nothing is switched, stored or told: what the Features
+ * page counts for each preset. The same text `assemble` sends (names not filled in). null when the registry cannot say
+ * (no `withFeatures`) or a part fails: the caller leaves the number out.
+ */
+export function staticTextWith(registry, switches) {
+    if (typeof registry?.withFeatures !== 'function') return null;
+    try {
+        return registry.withFeatures(switches, () => staticParts(registry).map(part => part.text).join('\n\n'));
+    } catch {
+        return null;
+    }
+}
+
+// Drops lines from `section` until its text fits `budget` tokens: optional ones from the end,
+// then required ones from the end. Returns how many it dropped.
+function fit(section, budget) {
+    let dropped = 0;
+    const cost = () => estimateTokens([...section.lines, ...section.optional].join('\n'));
+    while (cost() > budget && section.optional.length) { section.optional.pop(); dropped += 1; }
+    while (cost() > budget && dropLast(section, section.lines)) dropped += 1;
+    return dropped;
+}
+
+// Drops the last line of `list` that is not pinned (a pinned cue outranks ordinary notes and is never dropped); false when none is left.
+function dropLast(section, list) {
+    for (let i = list.length - 1; i >= 0; i -= 1) {
+        if (section.pinned.has(list[i])) continue;
+        list.splice(i, 1);
+        return true;
+    }
+    return false;
+}
+
+// The [Happened] lines that fit `budget` tokens (at least the first MIN_HAPPENED), the rest told as
+// one counted line.
+function happenedLines(lines, budget) {
+    const out = [HAPPENED];
+    let cost = estimateTokens(HAPPENED);
+    for (let i = 0; i < lines.length; i += 1) {
+        const left = lines.length - i;
+        const next = estimateTokens(lines[i]) + 1;
+        // Room is kept for the closing line whenever lines would be left over.
+        const closing = left > 1 ? estimateTokens(`…and ${left - 1} more things happened.`) + 1 : 0;
+        if (i >= MIN_HAPPENED && cost + next + closing > budget) {
+            out.push(left === 1 ? '…and 1 more thing happened.' : `…and ${left} more things happened.`);
+            return out;
+        }
+        out.push(lines[i]);
+        cost += next;
+    }
+    return out;
+}
+
+/**
+ * How Story Suite fits the context: `context` = { size, reply, room } (the context size the reader set, the
+ * reply's length or null, the tokens the prompt may take; turn.js contextRoom) or null when not known,
+ * `staticTokens` the static part's size, `settings` the host settings ({ tailBudget, contextShare }),
+ * `ownTokens` what modules send on their own (their `ownPrompt` hooks; 0 by default).
+ * → { size, reply, room, percent, share, static, own, budget, tooSmall } or null (no context known: the
+ * tail budget is the setting's).
+ */
+export function contextFit(context, staticTokens, settings = {}, ownTokens = 0) {
+    const tail = Number.isInteger(settings?.tailBudget) && settings.tailBudget > 0 ? settings.tailBudget : DEFAULT_TAIL_BUDGET;
+    const room = Number(context?.room);
+    if (!Number.isFinite(room) || room <= 0) return null;
+    const asked = settings?.contextShare;
+    const percent = Number.isInteger(asked) ? Math.min(CONTEXT_SHARE_MAX, Math.max(CONTEXT_SHARE_MIN, asked)) : DEFAULT_CONTEXT_SHARE;
+    const share = Math.floor(room * percent / 100);
+    const own = Number.isFinite(Number(ownTokens)) && Number(ownTokens) > 0 ? Math.round(Number(ownTokens)) : 0;
+    const budget = Math.min(tail, Math.max(MIN_TAIL_BUDGET, share - staticTokens - own));
+    const size = Number.isFinite(Number(context.size)) && Number(context.size) > 0 ? Math.round(Number(context.size)) : Math.round(room);
+    const reply = Number.isFinite(Number(context.reply)) && Number(context.reply) > 0 ? Math.round(Number(context.reply)) : null;
+    return { size, reply, room: Math.round(room), percent, share, static: staticTokens, own, budget, tooSmall: staticTokens > share };
+}
+
+/** What the reader is told when the static part alone is over the share (`fit` from contextFit). */
+export function contextNotice(fit) {
+    const n = value => Math.round(Number(value) || 0).toLocaleString('en-US');
+    return `Your context size (${n(fit?.size)} tokens) is too small for Story Suite's instructions (about ${n(fit?.static)} tokens). Raise the context size or turn features off.`;
+}
+
+/**
+ * Builds both texts for the next reply.
+ * - `registry`: createRegistry() result; `view`: { state, query, settings, chat } (§6).
+ * - `untold`: receipts to tell (oldest first); only those with narrate !== false and a summary. A receipt whose `data.told` is
+ *   a text has it told after its summary in brackets (what the narrator must not read into the line; the reader's card does not show it).
+ * - `settings`: the host settings ({ tailBudget } in tokens, default 1500; { contextShare } percent, 40).
+ * - `context` (optional): { size, reply, room } of the reader's context (contextFit); the tail is cut so
+ *   static + tail fit the share, the static part never is.
+ * - `cues` (optional): { [moduleId]: string[] } extra required tail lines (beforeGenerate hooks).
+ * - `substitute` (optional): text → text, run on every text before it is counted (turn.js fills in
+ *   `{{user}}` and `{{char}}` with it).
+ * - `ownTokens` (optional): what modules send on their own this reply (contextFit), 0 by default.
+ * - `keptTokens` (optional): the tokens the kept prelude cues already took of KEPT_TAIL_TOKENS; a module's own tail lines given as
+ *   `{ text, keep: true }` are kept while the rest of that cap and KEPT_TAIL_LINES allow, in tail order; any more are ordinary lines.
+ * - `rolled` (optional): the reply has automatic rolls (an old planner record or the fight board rolled some), told to the static parts as `hint.rolled`.
+ * Returns { staticText, tailText, parts: [{ module, label, place, text, tokens, dropped? }],
+ * problems, fit (contextFit, or null) }. `parts` is what the What's-sent preview lists, in prompt order.
+ */
+export function assemble({ registry, view, untold = [], settings = {}, cues = {}, substitute = null, context = null, ownTokens = 0, rolled = false, keptTokens = 0 }) {
+    const problems = [];
+    const fill = typeof substitute === 'function' ? text => String(substitute(text) ?? '') : text => text;
+    const statics = staticParts(registry, problems, { view, rolled: rolled === true }).map(part => ({ ...part, text: fill(part.text) }));
+    const staticText = statics.map(part => part.text).join('\n\n');
+    const fitted = contextFit(context, estimateTokens(staticText), settings, ownTokens);
+    const total = fitted ? fitted.budget
+        : Number.isInteger(settings?.tailBudget) && settings.tailBudget > 0 ? settings.tailBudget : DEFAULT_TAIL_BUDGET;
+
+    const happened = untold
+        .map(receipt => receipt && receipt.narrate !== false && typeof receipt.summary === 'string' ? { receipt, text: receiptCue(receipt) } : null)
+        .filter(entry => entry && entry.text.trim())
+        .map(({ receipt, text }) => fill(`${text}${typeof receipt.data?.told === 'string' && receipt.data.told.trim() ? ` (${receipt.data.told.trim()})` : ''}`)
+            .trim().split(/\n/).map(part => part.trim()).filter(Boolean).join(' '));
+    const cueHappened = [];
+
+    const sections = [];
+    for (const context of tailOrder(registry.contexts())) {
+        // A cue may be `{ text, keep: true }`: kept whole, whatever the budget says (the rolls the narrator must tell). One marked `board: true`
+        // (the fight board's own [Happened] note) also joins the leading note; the RPG's ordinary roll cues stay in their section.
+        const given = Array.isArray(cues?.[context.moduleId]) ? cues[context.moduleId] : [];
+        const ordinary = [];
+        const pinned = new Set();
+        for (const cue of given) {
+            const text = typeof cue?.text === 'string' ? cue.text : typeof cue === 'string' ? cue : '';
+            if (!text.trim()) continue;
+            const body = cue?.keep === true && cue.board === true ? happenedCue(text) : null;
+            if (body !== null) {
+                cueHappened.push(fill(body));
+                continue;
+            }
+            ordinary.push(fill(text));
+            if (cue?.keep === true) pinned.add(fill(text).trimEnd());
+        }
+        const extra = linesOf(ordinary);
+        let tail = null;
+        if (typeof context.tail === 'function') tail = attempt(() => context.tail(view), null, problems, `${context.name}: this reply`);
+        let keptHere = 0;
+        const own = (Array.isArray(tail?.lines) ? tail.lines : []).map(line => {
+            if (typeof line === 'string') return line;
+            if (typeof line?.text !== 'string') return null;
+            const text = fill(line.text).trimEnd();
+            const size = estimateTokens(text);
+            if (line.keep !== true || !text.trim() || keptHere >= KEPT_TAIL_LINES || keptTokens + size > KEPT_TAIL_TOKENS) return line.text;
+            keptHere += 1; keptTokens += size; pinned.add(text);
+            return text;
+        });
+        const section = { context, lines: linesOf([...extra, ...own].map(fill)), optional: linesOf(linesOf(tail?.optional).map(fill)), pinned, dropped: 0 };
+        if (!section.lines.length && !section.optional.length) continue;
+        if (context.budget) section.dropped += fit(section, context.budget);
+        sections.push(section);
+    }
+
+    const told = happened.length ? happenedLines(happened, Math.floor(total / 2)) : cueHappened.length ? [HAPPENED] : [];
+    const head = told.length
+        ? { module: 'story-suite', label: 'Happened', text: [...told, ...cueHappened].join('\n') }
+        : null;
+
+    // The host's total: what the sections may spend after [Happened] (and the line breaks).
+    const tailText = () => [head?.text, ...sections.map(section => [...section.lines, ...section.optional].join('\n'))]
+        .filter(Boolean).join('\n');
+    for (const pass of ['optional', 'lines']) {
+        for (let i = sections.length - 1; i >= 0 && estimateTokens(tailText()) > total; i -= 1) {
+            const list = sections[i][pass];
+            while (list.length && estimateTokens(tailText()) > total) {
+                if (pass === 'optional') list.pop(); else if (!dropLast(sections[i], list)) break;
+                sections[i].dropped += 1;
+            }
+        }
+    }
+
+    const tailParts = [
+        ...(head ? [{ ...head, place: 'tail' }] : []),
+        ...sections
+            .map(section => ({
+                module: section.context.moduleId,
+                label: `${section.context.name}: this reply`,
+                place: 'tail',
+                text: [...section.lines, ...section.optional].join('\n'),
+                dropped: section.dropped,
+            }))
+            .filter(part => part.text || part.dropped),
+    ];
+    const parts = [...statics, ...tailParts].map(part => ({ ...part, tokens: estimateTokens(part.text) }));
+    return { staticText, tailText: tailText(), parts, problems, fit: fitted };
+}

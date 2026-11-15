@@ -1,0 +1,1548 @@
+## Unreleased
+
+- **Fix: a hidden note's story event opens only when it happens as written, and the answer must quote it.** A scan matched the topic instead of the event (a note "Pressed about the threats" opened when the person read the letter aloud on their own). The story-events rule now says the event counts only when it happens as written, by the actor it names; the person raising the topic themselves, a mention, a hint or something about to happen does not. The answer returns `secretEventEvidence` (a short exact quote per key); code drops a key with no quote or whose quote is not in the exchange text read (case, spacing, quotes and punctuation ignored, `...` joins parts) and logs it as refused (debug), so the note stays closed. New scans only (the wording is in the prompt of watched replies); stored notes and a Re-read of an old reply are unchanged.
+- **Fix: Re-read / Rebuild no longer fails and loses a newly created dossier when Delta runs inside Story Block v2.** A history replay (Rebuild, catch-up, Re-read of earlier replies) that admitted a new person while hosted ended `failed` ("dossier scan failed"): the replay's view of Story Block was a Proxy over its frozen adapter, which JavaScript rejects. The replay now reads a plain copy (reads still answer as of the reply, writes are still not sent). Both hosted live/replay parity checks now run for real (no longer todo); a new test replays a scan that admits a person with hosted notes and finishes `done` with the dossier kept. Old replies keep their bytes on Re-read.
+- **Fix: only the reply growing is held for the World tab.** The chat observer marks a render as streamed only when the message being streamed got longer (reply text, or the reasoning block) and what the host removed in that delivery is the start of what it added (it re-sets the text node while appending). Removals, longer replacements with other text, a removal mixed into the same delivery, other messages, and a render that runs after the streaming message changed all go out at once. Tests run the real observer, the real adapter and a page-API subscriber.
+## 1.18.0
+
+- **Fix: the World tab no longer redraws for every streamed token.** The in-chat card render that the chat observer asks for while a reply streams (one per token) told Story Director's World screen to redraw each time (a full cast render, many host queries). That one notification, and only when the render came from the growth of the message being streamed, is now coalesced: the first runs at once, a burst becomes one trailing call 250 ms on, none while the reply streams (at most 200 s). Every other change goes out at once, also during a reply: Delta turned on or off, a manual dossier edit, a portrait change, renders of other messages, non-streaming generations. (Dev note: the chat observer marks any child-list change inside the streaming message, not only text growth, as streamed; a rare non-growth change there is held with the stream. Known minor delay, left as is.)
+- **Fix: a meter line is judged on the story day in effect at that line, so a `~ time` of the same reply counts.** A reply that slept to the next morning (`~ time` to the new day) had its `~ npc` lines read on the day before the reply, so the day's allowance and the repeated-approach gate refused them. NPC meter and note lines now run behind the reply's time line whatever order they are written in, and use the story time at that line; a held line says which story day it used ("today's major is used on Goldwane 14, 07:45 am"). Replies read before this keep their old day on a Re-read (their receipt has no `dayRule` mark). Memory dates: a new memory is stamped with the story date after the reply it is recorded in, so a reply that moves the clock (a `~ time` before or after the memory) stamps its new memories with the new day (a test pins it; stored stamps never move). One visible difference on a Re-read of an old reply written npc-before-time: its receipts list the time line first (numbers, last event and card are unchanged).
+- **Fix: the dossier panel no longer re-checks itself on every edit and streamed token.** Refresh asks (settings-panel mutations, focus, pins) are now coalesced: one check 250 ms after the last ask (at most 1.5 s after the first), and none while a reply is streaming (it catches up once when the stream ends). The check itself (the view token, about 200 ms in a long chat) used to run once per mutation burst microtask and made the page freeze while a reply streamed or a message was edited.
+- **Fix: `~ know` lines with natural `how:` wording are no longer refused.** `how:` is now read by its words: seeing words (seen, shown, verified, read, found, checked...) store as saw, hearing words (told, said, overheard, rumour, gossip, reported...) as heard, both in one value as saw. A value with neither is still refused with the same reason. Only new lines change; a reply whose line was refused before still replays as refused.
+- **Fix: a cast person's first-meeting memory now carries its story date.** The Story Director's meeting time is a number of story minutes; the memory was stamped with it (or with no date). It now carries the first-meeting reply and that reply's own story date, like every other automatic memory. Memories already stored undated stay undated (never guessed); the reader's own memory edits are stamped with the latest reply and its date.
+- **Taste reasons keep more detail.** New reasons keep up to 240 characters; longer reasons and items end at a word with an ellipsis. The bounded storage envelope grows to fit all ten full-length tastes. Existing rows and old Re-reads keep their original bytes.
+- **New dossiers can fill Background from the story.** The scanner and one-pass capture now ask for grounded background facts; the new person's existing follow-up asks once for a missing, unlocked background. Every Refresh (manual or automatic) now also names an unlocked blank Background as a gap to fill from stated role, workplace and circumstances (never invented), and the dossier import rule no longer reads an empty background as "leave it empty". Prompt changes: scanner/full-window +127 characters, compact one-pass +174, Refresh +98; the follow-up adds its gap instruction only for a blank unlocked field. No extra request is made; the existing grounding, lock and 320-character rules still apply.
+- **Fix: a body written into the clothes field now shows and saves as Look.** Build, height, hair and the like move to Look in their own words (display for old records, stored on the next write); body phrases Look already states leave Wearing, so a trait is never shown twice. A Refresh fill keeps the stored apparent age and asks for plain wording and the stored height. Prompt change (flagged): the import and fill prompts say plainly body = Look, clothes = Wearing (import prompt +93 characters; Stage 9 baseline re-recorded).
+- **Deleting, editing or Re-reading a middle reply now restores the NPC dossiers to before that reply.** The dossiers go back to the state saved just before the changed reply, are rebuilt from the replies after it (including any between the saved state's last read reply and the change), and a note tells you what was rebuilt, kept or not read. If no safe earlier state exists, the current dossiers are kept and the note says so. Deleting or swiping the latest reply is unchanged, unless a scan of it was written and not yet published (or the chat has no saved history line): then the dossiers are kept and a note says so. Replies already written replay as before.
+- **Fix: editing only Story Block's hidden block no longer removes a dossier.** Adding change lines inside a reply's hidden `<Changes>` block (or `<Changes-assist>`, the STORY_SUITE_V2 comment) and then Re-reading left the story text untouched, yet the dossier created on that reply disappeared. That edit is now recognised as not changing the story: nothing is rolled back and the saved reply keys follow the new text. A real edit of the story text still rolls back, and the rebuild now re-reads the reply's one-pass block (if its text still holds a complete one) so a dossier it created comes back.
+- **Fix: a hidden-block-only edit no longer loses dossiers after several saves, and a real edit brings the reply's capture back.** The edit check now remembers a few earlier texts of a reply (an edit saved twice, or a block rewritten right after a save, no longer looks like a prose edit) and ignores line-ending and trailing-space differences. When a real edit does roll a reply back and its one-pass block is no longer in its text, the capture Delta kept for that same reply (same place, same earlier replies) is applied again with its accepted fills, so dossiers and first-meeting memories return without a model call; the catch-up scan covers only the rest.
+
+
+## 1.17.0
+
+Update Story Block, Story Director, NPC State Delta (and Story Studio for pack authors) together. Save format 2: a chat saved by 1.17.0 cannot be opened by older NPC State Delta builds (they refuse it safely) — update every device. If an older version shows this chat's dossier as unreadable, update the extension; do not use Detach Broken Sidecar (it would start a fresh empty dossier for the chat). Replies already written replay and Re-read as before; start a new chat to see the new dossier (mood numbers and reasons, Mood section, ties types and fading, drives) behaviour.
+
+**Storage changes (read these first)**
+
+- **Save format 2: saved files are about 5x smaller.** Full checkpoints are kept only for the last 4 replies and every 25th reply; the others are stored as a patch against the previous one. In memory nothing changes; packing happens only when a file is written. Format 1 files always load and convert on their next save. An older build refuses a format 2 file without damaging it, so update every device that opens the chat. (A real run came to about 30 KB per reply instead of 100-125 KB; each save costs about 35-40 ms more CPU.)
+- **Checkpoint files are packed (about 1.8x smaller).** Each per-scan checkpoint file is now written in the packed form, self-contained and readable on its own (one 30-reply chat had reached 97 files / 152 MB; the same capture is now about 86 MB). Nothing is deleted by this change, so Storage clean-up is as safe as before, and unpacked files from earlier builds still read.
+
+**Prompt changes (flagged; static prompt unchanged except where stated)**
+
+- **The scanner/Refresh schema grew.** The background Refresh now also returns likes, dislikes and things the person values, each with its source, so tastes fill in (they came only from the narrator's `~ taste` lines before, which were almost never written). A few schema lines were added to the Refresh prompt; no extra calls.
+- **The scanner and one-pass capture rules ask for mood numbers.** A schema line was added to both the scanner prompt and the one-pass capture rules (which ride in the narrator prompt when one-pass is on): with a new mood also `moodV,moodA,moodD`, whole numbers -3..3. The scanner request grew by 115 characters; no extra calls.
+- **Memories reach the narrator and the Refresh prompt at up to 400 characters.** The narrator injection clipped them at 220 and the Refresh prompt at 260.
+- **The narrator gets only active ties, strongest type first.** Folded Older ties are withheld from the narrator prompt (see Ties below).
+- **Stage 9 prompt fixtures were re-recorded** for the memory and mood-schema changes (request counts unchanged).
+- **The tail cue and the story-line cues changed.** Each of the lie, tie, taste, milestone and secret line kinds now says when to write it, with one generic example, and a short tail cue keeps the Changes block at the end (prompt text only; the static prompt is byte-stable).
+- **The Changes reminder reaches the narrator.** The reminder to end with the Changes block now reaches every main prompt it should, including quiet travel and rest replies, and only after Story Director's and Story Block's kept lines fit under the tail budget. Previously it was dropped first.
+- **Mood and Pull lines reach the narrator.** They were being dropped by a small tail budget (for example 550 tokens); within NPC State Delta's lines the Changes cue still comes first and Pull and Mood take the rest (optional on overflow), never displacing other modules' lines.
+
+**Dossier and play**
+
+- **Dossier polish: reasons, dated mood history, mood words that match the numbers.** A reason is missing only when none was recorded; every Mood history row carries its story date and reply number; the mood words are derived from the numbers shown.
+- **Mood numbers and reasons, a Mood section, the Pull line, admission gaps.** Feeling, Energy and Control move with every mood update (numbers from the scan, with a word-list fallback that understands negation) and are shown on their own coloured meter rows with this reply's change, on the board and in a new Mood section with Recent changes (last 3) and the Pull line (1-3 dots). Lies told moved to With, Knows about others to Secrets; meter changes show their reason. Missed people are admitted, description phrases never become named dossiers, role labels with linking words are kept, and scan people get meters.
+- **Pull signals fire correctly.** Closure now ages threads correctly, and Awe no longer fires on one place written two ways.
+- **Ties: five types, priority and fading.** Ties are Ally, Rival, Owes, Interest or Passing, with the detail in the description. Priority is Ally/Rival/Owes, then Interest, then Passing for eviction (least recently mentioned first, hand-edited never), fading (Passing after 7, Interest after 14, the high types after 30 story days without a mention, by the story clock) and prompt order. Ties with someone who died or left fold into Older ties and are not sent to the narrator; a mention brings a tie back. Cap 8; only whole-name or alias mentions count.
+- **Drives: a word on a centred bar.** The middle of the bar is normal, with the source shown. People who are not from a pack are seeded from two cues, and drives step from story evidence already recorded (levers parsed structurally, prose cues with negation), one step per reply, recorded so replay equals live. No model calls.
+- **Past entries are longer and dated; Ties are stacked.** Past entries may run to 400 characters; each new memory records the story date and reply (old ones stay undated, also when re-worded); Ties show as type, name, description, with spacing.
+- **Profile: section lines, placeholders, one Age, a coloured meter line.** Thin lines between Profile sections; empty sections keep a placeholder when their feature is on; one Age field (no separate Looks); on desktop, section views show the role and then the four meters on their own bold coloured line, with full meter words.
+- **Profile and navigation on phone and tablet.** The profile's right pane is aligned (one label column per block; the #0 mark is hidden for the opening reply); initials are large and centred when there is no portrait; Trust, Affection, Desire and Tension are written in full everywhere; a visible "‹ Dossier" control is on every section and the profile whenever the board is not on screen (phone and tablet only), plus Esc and the browser back gesture (also leaving the map).
+- **A cast member takes the pack birthday.** A birthday in the pack is used as established; without one the deterministic date is simply the birthday (never labelled generated); a birthday the story states later still wins. Pack dates are read in the pack calendar.
+- **People get a dossier only when named in the story prose.** A new person is admitted only when named in prose (the greeting included); World State rosters and hidden notes no longer create dossiers. Existing dossiers are untouched.
+- **Pin key people from the World tab only.** The duplicate "Pin as Key people" button in the dossier's Cast section is gone; pin and unpin in Story Director's World tab. The Key person pill stays.
+- **Calendar age is live, and the last-change card is fixed.** In the hosted path a person's calendar age follows the story clock, and the last-change card is right after you delete an earlier message, with the other small items of the 12 Nov batch.
+- **Overnight sweep.** Backlog fixes, light-mode tones (checked at phone, tablet and desktop widths), and the old v1 tabs removed.
+
+**Reliability**
+
+- **Send no longer waits for the automatic scan.** SillyTavern's send lock is no longer held while NPC State Delta scans, which dropped Sends in real runs. A scan cancelled by an edit re-runs once; scanner call counts are unchanged. A Send during the scan: that reply's dossier update reaches the prompt one reply later.
+- **A warning when a restore lands far behind a swipe.** When a restore installs a state more than max(4, 2 x scan interval + 2) messages behind the divergence point, it is still installed but a visible line appears under Problems. Works with save formats 1 and 2.
+
+## 1.16.1
+
+Update Story Block, Story Director and NPC State Delta together. Replies already written replay and Re-read exactly as before. For the harder foes, start a new chat (or re-add the Foes block).
+
+## 1.16.0
+
+Update Story Block, Story Director and NPC State Delta together. The new features (anti-lever gate, mood and pull, dossier notes) apply to new replies; start a new chat to see them all. Replies already written replay and Re-read exactly as before.
+
+- **Dossier redesign.** The one long page is now screens: a Library of tone-ringed faces (search, key people first), a Board with the meter dial and tiles, a Profile, and five sections (Right now, With you, Ties, Past, Secrets) with arrows, dots and swipe. The header keeps Dossier/Map/Close and adds a ⋯ menu (Edit, Refresh, More). New setting Dossier style: Neutral (default), Fantasy, Modern. The library's All/Active/Archived filters are replaced by search. The Board matches the approved screens: head-and-shoulders crop, toned tiles with faces and a secrets ring, three panes on desktop, a library bar to go back, per-section colours.
+- **Important bonds: up to 8** (was 5), shown with the real relation word and a tone colour (green kin and friends, red rivals and enemies, gold debts and duties). The relationship map's lines take the same tones and Focus shows one person's ties.
+- **Anti-lever gate** (on by default). A story line may name how a move was made (`| via: praise, gift, help, flirt, threat, shared-danger`); the same approach to the same person again soon gives less, then backfires. The receipt and the With section say so ("via praise · 3rd in 2 days · backfired"). Adds one sentence to the static prompt (about 50 tokens).
+- **Mood and pull** (on by default). Each person has a mood (valence, energy, control) that moves with trust drops, betrayal and rest and settles back toward their temperament over story time, and a pull (Belonging, Closure or Awe) from what is happening to them. Mood and Pull tiles on the Board, "what moved it" under Right now.
+- **Dossier notes** (on by default). The story can record lies told, what someone knows about others, tastes and ties (`~ lie`, `~ know`, `~ taste`, `~ tie`); a lie caught by a story line costs about 6 trust (counted in the day's allowance). If the day's allowance already holds that drop, the trust does not move, but the lie is still recorded as caught (the player did catch it). A lie not caught and a secret not told stay hidden in the dossier (only "a lie you have not caught" and a count). Ties show ally, rival and owes tags; Profile shows tastes, drives (instinct strengths that scale the pull) and the locked look; packs may give tastes and drives. The first look is stamped.
+- Old replies replay and Re-read exactly as they were. Request counts and prompt character counts are unchanged, but the Stage 9 prompt hashes were re-recorded (owner-approved): the key-relationship cap went from 5 to 8, so the scanner, Refresh and stored-bond wording says "8x" and "max 8" where it said "5x" and "max 5".
+
+## 1.15.0
+
+- **People are written the way the pack's cast is written.** Speech includes a short line in their own words, personality names the tension under the surface, behaviour says what they actually do, and appearance reads as one description (kind, age, build, hair, eyes, marks; then clothes and their state). Everything still needs evidence from the story. Existing dossiers change when next updated.
+- **Missing looks are filled in.** When someone new is met, or you press Refresh, hair, eyes, build and clothes the story never described are filled in to fit what it did say, and a partial description gets its missing features added without changing what is written. A detail the story states later replaces the filled one; you can edit any of it. Looks only: personality and the rest still need evidence.
+- **A Level custom field for fights.** While Story Block's RPG is on, a Level field appears in every dossier by itself (with the RPG off it is hidden, and stored values are kept). The scanner may fill it only from a stated level or rank ("probably rank C or D" becomes C-D) or a direct comparison with your character's strength, never from dramatic description, and only with a quote from the story.
+- **World, Here shows the cards for everyone the scene lists,** even when Delta's own presence flag disagreed (it could show plain name chips instead).
+- Long appearance texts reach the prompts whole (up to 800 characters; some hints cut them at 500).
+- Requires Story Block 2.25.0 or later (unchanged); Story Block testkit re-synced from Story Block main (the 2.28.0 code, before its version bump).
+
+## 1.14.0
+
+- **Relationships move at a steadier pace.** A relationship now takes a set number of events each story day, for each person.
+  - **Points per event** are 1 for an ordinary moment, 2 meaningful, 3 major and 6 extreme (they were 1, 2, 5 and 10). A saved set equal to the old defaults moves to the new ones once; any other numbers you saved are kept.
+  - **Events per story day**, for each person: 3 ordinary, 1 meaningful, 1 major and 1 extreme. Change them in the relationship settings; leave a field blank for no limit, or 0 for none of that kind.
+  - **Over the allowance,** an event counts as the next kind down that still has room, and with none left it moves nothing. The kind actually used sets the points and the milestone check, so a major turned down to meaningful cannot cross 50.
+  - **One event, one line:** a line that names several meters is one event. The story's change lines and Delta's own scan share the same allowance, so they cannot spend it twice.
+  - **The story day** is the story clock when the reply began (it needs Story Director's clock; with no clock there is no limit). The reply's receipt says in plain words when an event was held. The narrator is told what each kind means and that a person can have only one major a day.
+- **Story Director's World tab can tell when Delta is still reading.** The page API (version 2) has `busy()`: true until Delta has finished reading the newest reply, and listeners are told once when it is done, so the cards stay in place meanwhile.
+- **Hosted, the relationship numbers, part-points and milestones are read from Story Block's copy everywhere** (cast cards, the dossier, the prompt, the narrator's lines, stages, the scan's starting point, Refresh, the editor and diagnostics). Delta's own saved copy is never written from it, and a bundle export is still a backup of Delta's own copy.
+- **Hosted, who is present comes from the story's scene everywhere,** including the dossier's "In chat" label, the relationship map and the full cast, which could show the previous scan's list after a reload.
+- Requires Story Block 2.25.0 or later (unchanged: nothing here needs a newer Story Block); Story Block testkit re-synced to 2.27.0.
+
+## 1.13.2
+
+- **Newly met NPCs get their detailed appearance again.** Since 1.12.0 a newly met NPC was left to the backfill alone and missed the capture catch-up's targeted Refresh, the pass that writes the structured appearance (body, hair, eyes, marks), so new dossiers came out as one short line. A newly met NPC now gets that Refresh on the reply it is admitted and its backfill right after; NPCs already met still get one model call per reply.
+
+## 1.13.1
+
+- **A page reload no longer rolls the dossiers back.** After a reload, an automatic branch check could run before SillyTavern had loaded the chat; it saw an empty chat, took it for a deleted one, and restored the dossiers to the chat's first saved point on disk (NPCs, roles, seen counts, `present`, archive flags lost). Automatic rollbacks, branch inheritance and new-chat setup now wait until the chat's file is loaded and matches; a missing or unreadable file never triggers a rollback. A real delete of the messages still works as before. Found by the new SillyTavern soak test.
+
+## 1.13.0
+
+- Requires Story Block 2.25.0 or later (the catch-up and "Start from the chat" use `restored`, `progress`, `skip` and `asOf`). Story Block testkit re-synced to 2.25.0.
+
+- **After Story Block falls back to an earlier saved point, the dossiers catch up on the replies they missed.** Delta reads them in order, as each reply was when it was new (Story Block's state as of that reply, the reply's own time), on a copy, and installs the result once, with one publication. Nothing is sent to Story Block again: it already holds those changes. At most the last 40 missed replies are read; older ones are marked read. Sending waits until it finishes ("Sending waits until the dossiers catch up (reply N of M)."), with **Skip**. A failure, a chat switch or a reload leaves the dossiers as they were, and it tries again when the chat is opened. While it waits for the model, the dossier panel shows the installed dossiers, and an edit made then is kept (the catch-up runs again on top of it).
+- **"Start this branch's dossiers from the chat"** (Story Block's banner) rebuilds a branch's dossiers with the same replay from an empty start, from the last 40 replies or the whole chat, with progress.
+- Requires the Story Block that offers `restored`, `progress`, `skip` and `query(..., { asOf })` for these; with an older Story Block nothing changes.
+
+## 1.12.0
+
+- **Fewer model calls per reply.** Backfills no longer wait for the Refresh cadence: with a hosted one-pass helper a reply runs at most one backfill, and an NPC gets one model call per reply (the narration catch-up and the backfill skip each other's NPCs; a successful automatic Refresh drops that NPC's queued repair).
+- Requires Story Block 2.24.0 or later (the Storage clean-up asks its `timeline.referenced` query). Story Block testkit re-synced to 2.24.0.
+
+- **Settings → Storage can clean up old dossier files.** It shows how many dossier files exist and their size. **Clean up** removes, after a confirmation, only files that no chat SillyTavern lists uses, that no branch index names, and that are older than 30 days. **Find older files** finds files from before this version; it uses SillyTavern's Data Maid listing only when pressed, and replaces any Data Maid report you have open. Removal is off, with the reason, whenever a listed chat or a branch index can't be read. Chats of deleted characters are not checked.
+
+- **The large root-level runtime files are split into small parts (no behaviour change).** 24 files over 450 lines (among them `branch.js`, `dossier-ui.js`, `social.js` and `index.js`) are now small parts with header comments, named with the original file as a prefix; each original keeps its exports, so every import still works. All parts are in the runtime module list and the codemap. `runtime-scan.js` and `runtime-targeted.js` are still over 450 lines and are split next.
+
+## 1.11.0
+
+- **A stalled timeline snapshot now gives a retryable reason.** Delta's 8-second wait budget covers earlier participant work, dossier inheritance, sidecar saves and checkpoint files instead of leaving those asynchronous waits to the host's timeout. Late work stays serialized and cannot turn an abandoned snapshot into the publication baseline.
+
+- **The scanner's message citations ("[m1, m2]") no longer end up in a dossier.** The scan reads messages labelled "[m12] ..." so evidence can cite them, and the model sometimes appended the citation to ordinary fields too ("Young woman with ... an easily distressed demeanor [m1, m2]"); it was stored, shown to the narrator and read back by the next scan. A citation group (`[m1]`, `[m1, m2]`, `[m3-m5]`, `(m1, m2)`, `[message 12]`, `[messages 3, 4]`) is now removed, with the space and punctuation it leaves, from every stored text field and list item, from named appearance forms and from scan rows before they merge. Other brackets ("[Rank F]") and text are not touched. Evidence keeps its leading "[mN] " tag (message attribution); only citations after it go. No prompt changes.
+  - **Existing dossiers are cleaned the next time they are saved.**
+
+- **A cast person's behaviour, mannerisms and "with you" come from the pack.** A Story Block pack cast entry may now carry `behaviour` (up to 6 levers, "Lever: level - effect", level low, medium or high), `mannerisms` (up to 4) and `withYou` (up to 400 characters). A dossier made from the cast puts them in the behavioral profile, the mannerisms and the relationship summary. The levers and mannerisms are kept in the pack's exact words while unchanged (`castFrom.first.behaviorProfile` / `mannerisms`); after a scan or an edit the normal rules apply. `withYou` is stored like any relationship summary (compacted to 320 and calibrated against the numbers), so it is the same before and after the first scan; a named-but-absent cast person's "toward the player" line passes the same calibration and consistency check as a present one. A lever Delta's rules would drop or merge (an unknown label, a habit, one about the player or a named person, a second lever of the same kind) is skipped when the entry is read, so every kept lever is stored as written. An entry without the fields makes the dossier it made before. No prompt, scanner request, stored field or schema changes.
+  - **Dossiers made from the cast before this change are not changed (no migration).**
+
+- **A cast person's look is their body, and what they wear is their current appearance.** A Story Block pack cast entry may now carry `wears` (what they usually wear and carry) next to `look`. A dossier made from the cast puts `look` in the physical appearance and `wears` in the current appearance, each kept in the pack's exact words while unchanged (`castFrom.first.overallAppearance` / `castFrom.first.appearance`). Before, `look` went to the current appearance, so the first scan merged its own physical text with the pack's mixed body-and-outfit words (the tail described twice, in two ways, in the physical field). An entry without `wears` (an older pack) puts `look` whole in the physical appearance and leaves the current appearance empty for the scanner to fill from the story; the narrator still hears the look. No prompt, scanner request, stored field or schema changes.
+  - **Dossiers made from the cast before this change are not changed (no migration).** Their words stay where they were (the whole look in the current appearance). To fix one by hand, open its Cast editor and move the body words into the physical appearance and the outfit into the current appearance.
+
+- **A chat that is not ready answers in time, and a send into it no longer hangs for 40 seconds.** Fixes on Delta's side of Story Block's save points and restores. Nothing saved changes, and no prompt, request count or retry changes.
+  - The participant's `prepare` waits for Delta to load the chat (up to 8 seconds, inside Story Block's 10 second limit for a participant) instead of failing at once with "has not loaded this chat's dossiers yet"; a chat whose load has failed still fails at once.
+  - A send waits for Story Block's barrier once, not twice: the second of the two handlers of one send only looks, and the wait ends at once when Story Block names a permanent block (`blockedBy` with a code other than FAILED or STALE). A Story Block that does not name one is waited for as before (at most 20 seconds).
+  - A save point waits for Delta's own scan to go idle for at most 8 seconds (it was 20), so the answer reaches Story Block before its 10 second limit: the retryable "still reading the latest reply" instead of a timed-out callback.
+  - Not changed: a swipe that returns to a reply other than the newest is still read again, because the rollback to its parent drops that reply's save point (see the group A report).
+
+- **Settings are saved once per burst, not after every dossier change.** Every dossier change and every sidecar upload asked SillyTavern to save its whole settings file (mostly other extensions' data, about 1.9 MB), so one reply with a catch-up scan wrote it 6 to 7 times. Dossier changes now go to the chat's data file only; the settings file keeps just the pointer to that file, and the pointer is saved once, 8 seconds after the last upload (at most 30 seconds after the first), or handed to SillyTavern at once when the page is hidden or closed, the chat changes, a chat's data is reloaded by hand, or any other settings change is saved. Critical saves still save at once. If the page dies before the pointer is saved, the chat's data file is found again by its fixed name and its newest revision is adopted on load; nothing is lost.
+- **Delta's own scan changes are sent to Story Block as background changes.** The relationship changes and opened notes Delta forwards while it scans now ask Story Block to save them in its late window (`{ background: true }`), so a catch-up costs one chat-file save instead of one per change. Story Block versions that do not know the option ignore it and save as before. The reader's own edits are sent as before.
+- **No file under `src/` is over 450 lines, and every source file is in a codemap (no behaviour change).** (Corrected after release: 26 root-level runtime files were still over 450 lines; they are split in the next version.) `npc-meters.js`, `storysuite-participant/participant.js`, `adapter/cast-ui.js` and `adapter/queries.js` are now small parts with header comments; each original keeps its path and its exports, and the package ships every new file. `docs/dev/codemap.md` names every file the other docs do not.
+- **The vendored Story Block testkit follows Story Block 2.23.0.**
+
+## 1.10.2
+
+- **The dossier page no longer copies its portraits into the page.** A portrait picture reaches the panel by reference: the panel's markup carries a short key and the image's source is set once the image is in the page, so twelve portraits are no longer escaped into about 1.6 MB of HTML, parsed back out of it and copied into every render check. The runtime's read for the panel (`getDossierState`) no longer copies the pictures either (the dossier record is still a copy), and a refresh no longer builds the branch diagnostics just to learn the chat's load state. Nothing saved changes.
+- **A window focus or a settings-panel change redraws the dossier page only when something on it changed.** The panel keeps a cheap token of what it last drew (the chat, its stored revision, the latest reply, the configured fields, the host's meter, key-person and cast views) and skips a focus or a settings-panel mutation that leaves it as it was; the mutations caused by its own draw are dropped. Opening the panel always draws.
+- **A scan is no longer thrown away because of Delta's own queued backfills.** A queued backfill that was getting ready when a scan started (after a swipe, delete or edit, for example) found the scan running and made no request, but it still wrote to the queue (it counted a failed attempt). That write looked like a dossier change, so the scan threw its result away ("The scan was cancelled or its chat/dossier source changed; its result was discarded.") and its request was wasted. Now that backfill writes nothing and stays queued for the next run, and it no longer counts as a failed attempt. The scan still throws its result away on a real change: a chat switch, a swipe, edit or delete, Clear, an import, or any change to the dossiers it read.
+
+## 1.10.1
+
+- **Faster saves of a large chat.** Encoding the chat's data file for upload took hundreds of milliseconds per save on a chat with many dossiers and portraits (it built the text one character at a time); it is now one step per 32 KB block. The uploaded bytes are the same.
+- **The story's date is read once per pass.** Hosted with Story Director, loading or updating a chat's dossiers asked Story Block for the story's clock twice for every person; it is now asked once for all of them. Ages, birthdays and derived birth years are the same.
+- **No re-reading of an unchanged data file.** The checks Delta makes before and after each step still ask SillyTavern for the chat's data file every time (so another tab's or device's save is seen as before), but when SillyTavern says it is the same file (same ETag, or 304) Delta no longer reads and parses the whole file again. After Delta's own save, the read-back that confirms it is compared with the bytes just written instead of being parsed. What is saved is unchanged.
+
+## 1.10.0
+
+- **NPC meters in Story Block's public API.** With Story Block 2.22.0 or later, `StoryBlock.api.get("npc.Mira.trust")`, `api.paths()`, `{{sb::npc.Mira.trust}}` and the `story:changed` lists include every tracked person's shown meters (`npc.<name>.<meter>`, by meter id: trust, affection, desire, tension and your own), plus `npc.<name>.mood` and `npc.<name>.present`. A meter you hide ("Bar: Hide") is never returned, hidden notes are not paths, and an archived person has none. Names are matched whole, never split at dots. An older Story Block has nothing to register with and nothing happens (Requires Story Block 2.22.0 for the public paths; Delta works as before with older versions). A name that holds `|` or `::` cannot be read by the `{{sb::...}}` macro (the macro splits on them; use `StoryBlock.api.get`). Hiding a meter that was shown tells one change of that path to nothing (it was public until then, so nothing leaks). Opening a chat tells no changes: the first values of a chat are the baseline. Reading many paths is cheap: the table is built once per read and dossiers are not copied.
+- **A manual scan, a Refresh or a narration capture no longer skips replies that are still waiting.** They used to move the "last scanned" marker to the latest reply, so replies the local check had skipped before them were never read. Now the marker only passes replies that were all read; otherwise it stays and Delta remembers exactly which replies the scan read (`readAhead`), and the next automatic scan reads the waiting replies and skips those. The replies left unread count toward the safety scan (Scan every). Every reply is still read once by the automatic scans; a manual scan still reads the last few messages as before, but it judges meters for the latest exchange only (as before), so a meter move in an older waiting reply inside that window is still not applied. Request counts, prompts and bytes are unchanged for automatic scans; a chat that used to lose replies this way now reads them, with the scan that follows being larger by those replies. The list is cleared by Clear and by an import, rolled back with a restore, and cut from an edited or deleted message on. When an edit or delete cannot be restored exactly and Delta keeps the current state, the next scan reads the latest reply only (as in 1.9.0), so no read-ahead reply is read a second time.
+
+## 1.9.0
+
+- **Card settings.** A character card can recommend two of Delta's settings: the portrait prompt format and Scan every. With Story Block 2.21.0 they are offered with the card's pack and applied only when the reader ticks them and installs; Delta saves them exactly as its own Save prompt settings button and Scan every box do, so they survive a reload. With an older Story Block nothing changes. (Requires Story Block 2.21.0 for card settings; Delta works as before with older versions.)
+- **Clear every dossier keeps the chat from looking new.** Clear now leaves the scan count at one or more, so a swipe or a fail-closed restore on a short chat afterwards reads the latest reply only, not the older ones again.
+- **Portrait species is read as a whole word.** "elf-hound" is no longer given a human form ("elf-hound woman"), and neither is "troll bridge"; "half-elf", "fox-beastfolk", "wood-elf", "elf ranger" and "high elves" read as before.
+
+## 1.8.0
+
+- **Lighter dossiers and plain-prose portraits.** The dossier scanner runs only when a reply names someone new or a tracked person (plus a safety scan every 5 replies; a saved 'Scan every' of 1 is kept), and every scan reads every reply since the last one, so a reply it skipped is never lost (up to 30 messages at a time, the oldest first, catching up on the next replies; the latest is marked CURRENT, the earlier ones give lasting facts and relationship changes, each reply read once, but never current presence, mood or location); shorter dossier text; hidden-note wording said once; Natural portrait prompts are written as plain prose for natural-language image models (Flux, Krea, SD3-class).
+
+## 1.7.4
+
+- **NPC gear line.** With Story Block 2.18.0, RPG and Gear in fights on, a pack NPC's entry ends with their signature gear until they join.
+
+## 1.7.3
+
+- **The narrator's meter changes follow the impact tiers again.** A narrator line such as `~ npc Sanna | trust: +5`
+  used to move the meter by whatever number it named (up to 15 a reply). It now goes through the same tiers and limits
+  as Delta's own scan: the line may add `| impact: ordinary|meaningful|major|extreme`, the step is held to that tier's
+  cap from Settings (1 / 2 / 5 / 10 by default), with the same pull toward neutral on deep values, and a line with no
+  impact counts as ordinary. `=N` moves toward N within the tier.
+- **No double count.** When the narrator's line and Delta's scan both judged the same meter in one reply, both moves
+  were added; the scan now leaves the meters the narrator already moved.
+
+## 1.7.2
+
+- **A missing cast portrait fills itself in.** If you met someone from a pack's cast before the pack's pictures were
+  imported, their dossier now gets the portrait on the next reply once the picture is there (for example after
+  importing Story Block's `ersveil.zip`), in the same chat. A portrait you set, generated or removed yourself is never
+  replaced.
+
+## 1.7.1
+
+- **A chat no longer gets stuck when the page closes mid-save.** Closing or reloading the page at the instant Delta was
+  saving a change (with a Key person pinned this happens a few times each reply) could leave the chat refusing every
+  reply with no way out. Delta now waits for the chat's dossiers to load before it finishes such a change. With Story
+  Block 2.16.1 a chat already stuck heals when it opens, and swipes, deletes and save points back past that point work.
+- **"Return here" keeps the dossiers.** Going back to a save point often opened the branch with Delta's dossiers empty.
+  A save still running when the chat switches now stops, and a branch waits for its parent's dossiers instead of
+  starting blank.
+- **World → Now shows only who is here:** portrait, name, standing and one line about them; tap to open the dossier.
+  The look, the next stage, custom fields and hidden notes stay in the dossier.
+
+## 1.7.0
+
+- **Cast portraits are kept as their own files.** A portrait of a person met from a pack's cast is saved once in
+  SillyTavern's user files and the dossier keeps only a short reference, so a chat's data stays small (about 300 bytes
+  per person instead of about 200 KB) however many people you meet. Portraits stay when the pack is removed, follow
+  swipes and save points, and travel with an exported dossier. Chats from before keep their portraits as they are.
+- Sharper cast portraits from Story Block 2.16.0 (up to 1200 px) are shown at full quality.
+- A new chat's first save and a new save point no longer log a "not found" request in the browser console.
+
+## 1.6.1
+
+- A secret that opens **at a relationship value or on a story event, whichever comes first** reads "Opens at Trust 90
+  or with the story" while hidden (never the event's words), opens on either, and keeps both in the editor
+  ("trust 90 or when … =>"). Story Block 2.15.1 lets a pack's cast carry such secrets.
+
+## 1.6.0
+
+Needs Story Block 2.12.0 or later to join the suite (alone it works as before). The pack cast needs Story Block 2.15.0
+and Story Director 2.8.0.
+
+- **The cast's dossiers.** When you meet someone from a pack's cast, their dossier appears on that same reply, already
+  written from the pack: portrait, look, voice, personality, background, starting relationship and stages, and the
+  pack's own fields. A badge ("Ersveil cast") and a short block show where you first met and their own path. The pack's
+  words stay exactly as written until play changes them. A "★ Pin as Key people" button appears when Story Director
+  offers it.
+- **Secrets for everyone.** A dossier has its own **Secrets** section, right after Background. An opened secret shows
+  its title and text; a hidden one shows only a blank bar and when it opens ("Opens at Trust 60", "Opens with the
+  story") — never its title or words. Secrets open at a relationship value or when the story shows an event, and the
+  scan watches for those events while the person is present.
+- **The narrator keeps them.** Hidden secrets are told to the narrator while the person is present, as things to never
+  reveal but let shape how they act; opened ones may come out. Within the budget, those nearest to opening go first.
+- **New people get layers.** The scan that writes a new person's first dossier also writes 2 to 5 layered secrets
+  (setting "Hidden notes for new people", on). Once written, a secret is never rewritten.
+- **The editor.** Your own notes stay visible and editable. Notes from a pack or a scan show only as "Hidden note n ·
+  opens at …" while hidden; you can still open or shut any note by hand.
+- **"What's sent each reply"** shows a hidden note as "1 hidden note", never its text.
+- The dossier panel and its row of section buttons are solid on a phone.
+
+## 1.5.0
+
+Needs Story Block 2.12.0 or later to join the suite (alone it works as before). Key people need Story Director 2.7.0.
+
+- **Key people.** A person Story Director has pinned as a key person wears a "★ Key person" badge on the dossier and a
+  "★ Key" tag on the cards and in the dossier library. While they are away the dossier shows a **While away** timeline
+  (where they went and each step), and for a few replies after they come back.
+- **Coming back.** On the reply after a return the narrator is told, once and within the budget, what they did while
+  away; a swipe of that reply tells it again.
+- **Held while away.** While someone is away their meters do not drift and their stage does not slip, and the automatic
+  scan leaves their personality, speech, look, background and your own fields as they were. Your own Refresh and Scan
+  now still write.
+
+## 1.4.0
+
+Needs Story Block 2.12.0 or later to join the suite (alone it works as before).
+
+- **Settings, tidier.** In NPC State Delta's settings the everyday groups stay as they were (Scanning, Roster &
+  continuity, Portrait generation, Data & maintenance). The meter presets (Companion, Rival, Mentor) are in their own
+  closed **Meter presets** fold. Source of truth, Calendar & birthdays, Scanner rules, What's sent and Advanced are in
+  one closed **Expert** fold, last, with a line on which calendar is in use. Every setting is unchanged.
+- **Scan after every reply** (new switch, on by default). Off, the automatic scan runs every 3 replies (or "Scan every"
+  if that is larger); manual scans are unchanged. Story Block's **Lean** preset turns it off, with stage ladders and
+  meter presets.
+- **Dossier on a phone** is full width again (Story Suite's text size had shrunk it to about 310 px): tabs scroll and
+  the whole dossier is reachable.
+- Help and documentation no longer describe RPG Battle, which is no longer part of the suite: the README's install steps
+  and the social checks it names, Source of truth's help in Delta's settings and the Social checks feature's description
+  now name Story Block and Story Director's checks. Prompt text is unchanged.
+
+## 1.3.0 (Story Suite 2.0.0)
+
+Delta keeps its own version scheme: **1.2.21 → 1.3.0**, the next minor. Prompt text is byte-identical.
+
+- Story Block v2 hosts the suite's inventory, purse and scene, with reply cards and a **Game view** for your party, fights and world.
+- Rules packs can be pinned at character creation; the bundled **Ersveil** pack supplies a ready-to-play world and rules.
+- **Story Director owns checks**; RPG Battle uses those results for practice and crafting alongside its party and combat rules.
+- **Save points** let you return to a saved story with the suite's records together.
+- **Native-death recovery** returns an NPC's living dossier when the lethal reply is retracted, keeping combat and dossiers in agreement. It needs Story Block 2.0.0, RPG Battle 2.0.0 and NPC State Delta 1.3.0 together.
+
+### Upgrading from 1.x
+
+Old chats load and rebuild unchanged. Legacy chats stay unpinned; updating does not choose a rules pack for them.
+For a pinned Ersveil adventure, start a fresh chat with **Setup → Pin Ersveil Rules → Create**.
+
+### Known issues
+
+- Fight offers appear in the Game view and Fight tab dot, but are not listed in **Changed this reply**.
+- The creation wizard allows Next without a class and says **Choose a basic class** only at the end.
+- Shop prices and the bestiary can still read the installed pack in pinned chats, so reinstalling a pack can affect them.
+- If an extension stops responding during recovery, the chat can remain on hold until it responds.
+
+## Unreleased
+
+- Licence: AGPL-3.0 (was GPL-3.0). Releases already published keep the licence they shipped with.
+
+## Story Suite v2: 2.0.0-beta.2 (`v2` branch; Delta 1.2.21)
+
+Story Suite v2, second beta. Delta keeps its own version line: this beta build is **Delta 1.2.21**, and the suite release is named only in this heading. It needs Story Block `>=2.0.0-beta.2` (`requires`). Update Story Block first: a Story Block 2.0.0-beta.1 or an alpha refuses Delta's hosted module (no meters, Cast tab or overlay section), and Delta keeps working on its own, with a console warning. What's new across the suite, known issues and every module's version: [Story Block docs/v2/RELEASES.md](https://github.com/kohz87/Story_block/blob/v2/docs/v2/RELEASES.md).
+
+- Prompts are byte-identical to 2.0.0-beta.1: this release changes screens and the version only.
+- Story Block testkit re-synced to Story Block `release-beta2` 87da9fe (Story Block 2.0.0-beta.2).
+
+### UI 4c (Story Block glass screens)
+
+Delta's screens move onto Story Block's glass design (`--ss-*` tokens, the blocks' classes). No prompt, command, id or
+data attribute changes; the Cast page API (`NPCStateDeltaCast`) and the Dossiers screen id stay as they were. The version is Delta 1.2.21.
+
+- **World → Here present card** (`storysuite-v2.js`, `style.css`): no meters on the card (they stay on the Dossiers screen); Mood, Condition and Look sit inside the card, one line each, clamped with an ellipsis; the chatter goes under the card, 10px below it. The launcher hides while Story Block's game view is open (`body:has(.ss-gameview)`). Prompts unchanged.
+
+- **Present cards are one compact row** (World → Here and the Story panel's Cast tab; the in-chat roster uses the same card): a
+  44px portrait on the left; on the first line the name and the relationship stage (for example "Elula · Close", bounded to one
+  line); on the second line the role and mood, two lines at most. The now lines and the chatter bubble sit under the row, two
+  short lines at most. The NPC's own meters sit inside its row as thin `ss.meter` bars; an NPC with meters but no card keeps a
+  METERS block. One column at every width, so a card is full width at 360–412 px.
+- **The Dossiers list is a Story Block listcard**: each dossier is a row with its portrait, name, role and status, the stage as an
+  `ss-pill` and its meters as thin `ss-bar` bars (up to six, the host's `ss.hero` BAR_MAX). The meters come from `npc.cast` when the
+  list is drawn. The search box is a glass field. Rows keep the same button, class and `data-npc-id`.
+- **The dossier panel takes the glass tokens**: its colours, radius and blur read `--ss-*` inside its `ss-cards` root, each with
+  Delta's own value as the fallback (Solid and Follow SillyTavern keep the old look). Its sections are glass cards.
+- **The NPC meters card** (under a reply) is a glass card with the stage as a pill; the bars are the same `ss.meter` widgets. The
+  World meter blocks show the stage as a plain rank line (no pill).
+- **The dossier panel and the settings reveal scroll only their own scroller** (no `scrollIntoView`), so a phone never moves the
+  window behind them.
+- Delta's own warning under Custom fields keeps its own rule (`#npc_state_delta_settings .npc-state-delta-suite-warning`): Story
+  Block now scopes the `story-suite-notice` glass to its bar, and Delta's notice still shows its gold rule in the drawer.
+- The dossier rows, the meter bars and the Cast markup they sit in are built with DOM APIs and textContent, never parsed from a
+  name, a role or a note (a name with markup shows as text).
+- Testkit re-synced to Story Block v2 69c6145 (#170: the game view glass, the phone layers, the `--ss-rule` token).
+- Tests: the card, row and dossier-panel CSS assertions now check the compact row and the token fallbacks; `ui4c-dossier-rows.test.js`
+  (new) checks the listcard row structure, the stage pill, the six-bar cap, the bar fill and the markup in names. `tests/helpers/fake-dom.js`
+  (new) is the small DOM the tests use for DOM-built markup.
+
+## Story Suite v2: 2.0.0-beta.1 (`v2` branch; Delta 1.2.20)
+
+Story Suite v2, first beta. Delta keeps its own version line: this beta build is **Delta 1.2.20**, and the suite release is named only in this heading. It needs Story Block `>=2.0.0-beta.1` (`requires`). Update Story Block first: an alpha Story Block refuses Delta's hosted module (no meters, Cast tab or overlay section), and Delta keeps working on its own, with a console warning. What's new across the suite, known issues and every module's version: [Story Block docs/v2/RELEASES.md](https://github.com/kohz87/Story_block/blob/v2/docs/v2/RELEASES.md).
+
+- In this beta, from Delta: NPC meters kept with each reply, with stage ladders, milestones, ceilings and floors, presets and drift (features); hidden notes and locked-note teasers; the Cast in Story Block's game view; fewer model calls while hosted; the user-approved prompt alignment (cleanup steps 12-13); settings two folds deep and Delta's lines in Story Block's Diagnostics; Story Director's date while hosted, its own prompt in Story Block's prompt size, and quiet fresh chats (no 404, the Cast shows story-set meters at once).
+
+- **Social checks use the dossier** (feature `npc-state-delta.social`, on by default; Story Suite v2 beta). New read-only query `npc.socialModifier({ name, skill })` → `{ mod, name, skill, reasons: [{ text, value }] } | null`: a social check against an NPC (persuade, charm/seduce, intimidate, deceive, or a generic social one; other skills `null`) gets a whole-number modifier from the NPC's meters (25/50/75% of a meter's reach → 1/2/3, each skill reading its own meters and weights), the stage ladder (+1 a rung, at most +2) and the disposition word (±1), times the new setting **Social checks: strength (%)** (`socialScale`, default 100) and held to ± **Social checks: most a check moves** (`socialCap`, default 5); the reasons always add up to the modifier. Names match as the dossier lookup does (name or alias, any case), or a story-only meters entry; an unknown NPC is `null`. It reads the state it is given (the check's reply), writes nothing and never calls the model. A dice module (RPG Battle) reads it through its check-modifier hook; Delta needs no other module for it. Prompts are unchanged byte for byte (C10). Rules: `src/social-check.js`; tests: `tests/storysuite-v2-social.test.js`. Story Block testkit re-synced to Story Block v2 e2dbf19.
+- **Cast is Dossiers; the present cast is on Story Director's World screen** (beta live test: "Cast becomes redundant when present is already present character in world tab"; "Cast should become dossiers and go to the last tab by default"; Story Block MODULES §F119). The tab and the game-view screen are titled **Dossiers** (icon address book) and keep the id `npc-state-delta/cast`, so saved tab orders still find it; Story Block puts it last by default. It is the dossier browser: v1's Dossiers list (every dossier, search, portrait, role and status), each row opening its dossier view; before that list has loaded, a plain list of names. The present-cast cards and meters move to World → Now → Here while Story Director's World view is on, and stay at the top of Dossiers without it. New page API for Story Director, `globalThis.NPCStateDeltaCast` (`available()`, `render(el, { slot })` → the number of present cards drawn, `onChange(fn)` → off), so World draws Delta's own cards (no copy of the markup), puts each person's inner-chatter thought inside their card, and redraws when Delta's cast changes (the World screen's stale dossier link). Prompts are unchanged byte for byte.
+- Story Block testkit re-synced to Story Block 0d98f66 (the folded changes card counts the Assist safety net's lines; no module code changes).
+- Story Block testkit re-synced to Story Block world-people (Dossiers last, `chatter.head`, `scene.moved`).
+
+### All v2 changes so far (2.0.0-alpha.1 to beta.1)
+
+Story Suite v2. NSD stays standalone; with Story Block v2 it registers as a hosted module (queries, Cast tab, settings in the overlay). Integration in progress. Status: https://github.com/kohz87/Story_block/blob/v2/docs/v2/STATUS.md
+
+- **The meter change cap holds after a middle delete** (beta-candidate breaker B-a1-15). A meter moves at most `changeCap` (15) within one reply; that reply window (`turn` on each NPC entry) was keyed by the reply's message index, so after an earlier exchange was deleted a new reply could land on the index the last reply had and be taken for it (trust moved +25 in one reply, or the other way round nothing). The window is now keyed by the reply's record ID (`ctx.carrier.sid`, Story Block's per-reply rule, SPEC §2.2), which a delete never moves; Delta's scan of the latest reply and the reader's own values use the record ID of the reply Story Block stores them on (`ctx.reply`), and a host that gives no record ID is keyed by index as before. The entry keeps the reply's index beside it (`turn.at`) for "moved lately" in the tail; `npc.meters`' `reply` stays an index and `npc.cast`'s `delta` still follows the head reply. Older chats' index windows load as they are. No prompt text changed. Tests: `tests/v2/break/a1-meter-window-after-delete.test.js`; the meters delete fuzz now writes changes past the cap and checks that no reply moves a meter more than the cap, also after middle deletes.
+- Story Block testkit re-synced to Story Block v2 9a6002a.
+- **Scans know who is in the scene** (Story Suite v2 World view). While hosted with Story Block keeping the scene, the scan of the head reply reads who is present now: Story Director's `director.world.here` (`present`), else Story Block's `scene.present` (adapter `presentNow()`, both optional). `buildScannerPrompt({ sceneNames })` then adds one dynamic line after the identity index, `In the scene now (the story's scene list): A, B.`, puts the dossiers those names match (name or alias, not archived) into the relevant live context after the mentioned ones within the same limit (`withScenePresent`), and sends their `present` as the scene's (`scenePresentFocus`) instead of the last scan's flag. What changed in the prompt: only that line and those context entries; the fixed rules part is byte-identical (C10), request counts, routing and allowances are unchanged, the one-pass capture prompt is unchanged, and with no list (Delta alone, Story Block alone before any `+ present`, a scan of an older reply, the scene kept in Delta) the scanner prompt is byte-identical to before. Tests: `tests/v2-world-scene-present.test.js` (prompt identity without a list, the line and context with one, Story Block only, with Story Director, swipes). Testkit re-synced to Story Block v2 8d45185.
+- **Story Director's date while hosted** (back from v1, where birthdays and ages followed the clock through World State and the v1 handshake). Hosted by Story Block 2 with Story Director, Delta reads `director.time` and `director.calendar` through the host's queries (never a hard dependency) and uses that date wherever it used a grounded "today": birthday rollover and calendar age, the scanner prompts' projected ages, and the "Current grounded world date=…" line. Delta keeps its own calendar, so the clock is used only where both agree: Delta with no calendar of its own and Story Director's Gregorian one (numeric dates), or Delta's months equal to Story Director's (names and lengths, in order); a pack calendar on one side only, the reader's Source of truth "calendar: mine", no Story Director or a clock not set yet leave Delta's own dates (World State date, else the manual fallback clock) exactly as before. What changes in prompts: with a numeric calendar nothing (no date line is written there); with Delta's own calendar only the already dynamic date text, the "Current grounded world date=…" line in the one-pass capture's context part and in the birthday rule of scans/Refresh/backfill/import whose text mentions a birthday, plus the ages in the dossier context. The one-pass rules and every other prompt text stay byte-identical. New: calendar.js `setStoryClockSource`, `storyClockDate`, `hostedStoryDate`, `storyCurrentDate`; the adapter's `storyClock()` and `calendarOwn` option.
+- **Delta's own prompt in Story Block's prompt size** (V1 audit #9). Delta's live dossier and one-pass instruction (often 2,000–4,000 tokens) go out under Delta's own prompt keys, so Story Block's prompt size and share of the context left them out. Delta now answers Story Block's `ownPrompt` hook with those texts (the same ones its own What's sent shows): Story Block shows them as a row of their own and counts them toward its share. Nothing Delta sends changes.
+- **Quiet fresh chats** (final breaker B-final-13). A new chat no longer fetches its not-yet-made data file just to get a 404 in the console: where a missing file is expected, Delta asks SillyTavern first (`/api/files/verify`) and reads the file only when it is there, or when the server cannot say (as before). A scan or backfill the model answered with nothing ("No message generated") is one quiet warning per chat instead of a red error with a stack on every reply (`isEmptyScannerAnswer`). The Cast tab shows the meters the story's change lines set right away, from the story state, for people who have no dossier yet and are in Story Block's scene. No prompt text changes.
+- Story Block testkit re-synced to the SB branch with the `ownPrompt` hook (v2 head plus that PR, fad6f03).
+- **Settings one level up, a plain note with no profile, and Delta's lines in Story Block's Diagnostics** (live test #4: "NPC State Delta's settings are a sub of a sub fold"). In Story Block v2's settings Delta's panel is now drawn right in the NPC State Delta fold (Story Block's side), its drawer held open with no header (`style.css` says so too, for a host that does not), so Scanning, Roster and the other groups are the second level and every control is reached in two clicks. Checked live: the **Scanner connection profile** list shows SillyTavern's Connection Manager profiles, the choice is kept (`scannerConnectionProfile`, after a reload too) and scans go through it; it had only been hidden in the collapsed drawer. With no profile to pick it now says so under the list. New `hooks.diagnostics()` (Story Block's Settings → Diagnostics): the scanner's route and profile (name and id, or missing: scans fail, no fallback), Connection Profiles' state, the output limit, the calls this page load, the last call's kind, route, outcome, code and time, and dossier counts; never a prompt, reply, address, key or NPC name (`scannerDiagnosticLines` in `scanner-routing.js`, `NPCStateDelta.scannerReport()`). Story Block testkit re-synced to v2 head.
+- **Cast in Story Block's game view** (live test: Cast was in the Story panel's tabs but not in the full game view's sidebar). The game view lists screens (mount `screen`), not module tabs, so Delta now also gives the screen `npc-state-delta/cast` (title Cast, mount `screen` only so the panel keeps its one Cast tab, order 35: after Scene, before Inventory). Its template is one widget, `npc-state-delta.cast`, that draws exactly what the Cast tab draws (Delta's present-cast cards and the meters) and redraws with `npc.cast` / `npc.present` and with Delta's own page events; it never takes over the tab's pane. UI only: prompts, queries, state and the standalone engine are unchanged. Story Block testkit re-synced to v2 head.
+- Queries `npc.present`, `npc.known`, `npc.dossier({ name })` and `npc.portrait({ name })` (the portrait Delta shows, as a safe `data:` image, `https:` or same-origin URL, or null).
+- With Story Block v2 (`apiVersion: 2`) Delta adds none of v1's Story Block tabs, Story Suite announcement or overlay button; with Story Block 1 or none, nothing changes.
+- The package ships `src/storysuite-v2.js`.
+- **NPC meters in v2's per-reply state** (F81, F90; `src/npc-meters.js`): domain `npc` (`{ npcs: { key: { name, meters, stages, unlocked, disposition? } } }`, up to 80 NPCs), change line `~ npc Name | meter: +N | meter: =N`, commands `npc.adjust` / `npc.set` / `npc.refresh`, queries `npc.meters` and `npc.cast`, `npc.present({ meters: true })`, `npc.dossier` with the slice's meters. Code clamps every meter to its range and to the per-reply change cap; unknown meters and `stage:` labels are problems, not errors; swipes and deletes take the changes back. While hosted the slice is the truth: the dossier view, the editor and the injection read it, and Delta's scans send their relationship changes as `npc.adjust`. Without Story Block 2 nothing changes.
+- **New settings** (Delta's fold in the Story Suite overlay): **Most a meter moves per reply** (default 15), **Custom meters** (up to six: name, lowest, highest, start, bar shown or hidden), **Meter stages** (meter, at, name; code moves stages and notes it on the reply).
+- **Hidden notes** in the dossier editor while hosted (`trust 40: …`, stored as the dossier's `secrets`): never sent while locked; opened by code when the meter reaches the threshold, then given to the story in the tail while the NPC is present.
+- An **NPCs** card under each reply (`npc-state-delta/meters`, Story Block's `ss.meter` bars) and the meters under the Cast tab's cards.
+- Prompt: one fixed static line for the meters (about 77 tokens with the four built-ins, 86 with two custom meters and a stage), and in the tail the present NPCs' meters when they moved in the last two replies (about 48-62 tokens for two NPCs and one note); Delta's own prompts are unchanged (`npm run measure:prompts`).
+- Tests run against Story Block's real registry, store, command bus and change-line parser, vendored in `tests/vendor/story-block/`.
+- **Meters, wave C** (TRS ideas 1-4; features `npc-state-delta.stages`, `npc-state-delta.drift` (off by default) and `npc-state-delta.presets`, declared for Story Block's Features; a host without them uses the defaults):
+  - Stage ladders: rungs that need several meters at once and optionally a story milestone; promotion by code, never during a conflict (`conflictAt`); demotion only after `demoteAfter` replies in a row below the rung. New entry fields `milestones` (by key), `rank`, `low`, `day`.
+  - Change line `+ milestone Name — what happened` (kind `milestone`, once per milestone), command `npc.milestone` (the editor's), Delta's per-reply step `npc.tick` (after each new reply or swipe, from Story Block's `turn` event; it lives on that reply, so swipes and deletes take it back), query `npc.next` (what the next rung still needs).
+  - Per-NPC ceilings and floors (dossier `meterSetup`, or the NPC's preset): growth stops at a ceiling, a fall at a floor, a change back always lands.
+  - Custom meters gain a rule line (static part, presets feature only), band words (tail), a colour and drift per story day (Story Director's clock, `ctx.time()`).
+  - Presets Companion, Rival and Mentor, and packs' `meterPresets` (Story Block #99's shape: `title`, `meters` with `bands: [{ at, word }]` and `drift: { toward, perDay }`, `stages` whose `milestone` is the line told when reached), read through `packs.content` and turned on in the settings section (setting `presets`); `src/npc-meters-presets.js` ships in the package.
+  - Everything but drift works with Story Block alone (tested with no RPG Battle and no Story Director); drift needs Story Director's clock and does nothing without it.
+  - Locked-note teasers (`[title]` in the editor line) on the Cast tab, the NPCs card and the dossier view; the note's text stays off screens and prompts until it opens.
+  - The dossier view shows custom meters, the stage, the next rung's needs and milestones; the editor gains Meter preset, Meter limits, Milestones and the custom meters' values.
+  - NPCs card bars pass `ceiling`, `ticks` and `delta` to `ss.meter`; a host whose `ss.meter` lists its props without them gets the ceiling and the change in the bar's text.
+  - Tests vendor Story Block's whole testkit (cb2d70e, with its Features) and add a delete fuzz with the new lines.
+- **Re-break round 2 fixes:**
+  - The Cast tab no longer draws over another module's tab. Story Block's tabs share one pane; Delta's own redraws (a cast drawn in the chat, Delta turned on or off) now write only while that pane still shows the Cast tab and still holds what Delta drew. Otherwise Delta waits for the host to show the Cast tab again.
+  - A chat whose sidecar cannot be read now says so in the Cast tab, and names Retry Load (and Detach Broken Sidecar, when the chat has one) in Delta's settings section. It used to say "still loading" forever.
+  - A scan that finishes after the reader swiped, or after a reply was added or deleted, no longer sends its `npc.adjust` onto the reply now shown. Delta's sidecar keeps the scan by its own rules, and the new swipe gets its own scan.
+  - `npc.adjust` is refused from a button, screen or pack at the top (cause `ui`, no calling module), as Story Block's own steps are. Delta's own scanner and another module's command (`ctx.call`) may still send it.
+  - `npc.set` (the reader's own values) from the UI ignores a `reply` in the payload: the window starts at the latest reply.
+  - The module asks for Story Block `>=2.0.0-alpha.2` (`requires`); an older host ignores the field.
+
+# NPC State Delta changes
+
+## 1.2.21 - Story Suite 2.0.0-beta.2 (`v2` branch)
+
+- Delta's screens are on Story Block's glass design (present cards as one compact row, the Dossiers list as list cards, the dossier panel and the meters card on the `--ss-*` tokens); see the Story Suite v2: 2.0.0-beta.2 entry at the top for the list. No prompt text, command, id or data attribute changes.
+- While hosted it asks for Story Block `>=2.0.0-beta.2` (`src/storysuite-v2.js` `requires`).
+- Version 1.2.21 (manifest, package, runtime inventory, `NPC_STATE_VERSION`, bootstrap banner, README title).
+
+## 1.2.20 - Story Suite 2.0.0-beta.1 (`v2` branch)
+
+- **Fewer model calls with one-pass capture** (user decision 5 and the b6 soak findings). No prompt text changes; only when Delta's requests run, and when the one-pass rules are sent.
+  - **Hosted by Story Block v2 with the NPC meters**, an ordinary one-pass reply makes no model call of Delta's own. There is no relationship evaluator after a block and none for a new NPC, because the story's `~ npc` lines move the meters and code clamps and caps them; a new NPC starts at the base meter values. The backfill queue (new dossiers, missed participants) runs only with the one-pass catch-up, at most 2 each time, or when the reader presses **Scan**. Measured on the synthetic host, two ordinary replies (a new NPC, then an open relationship) made 1 + 1 extra calls before and 0 + 0 now. Without a host the same replies still make 1 + 1.
+  - **A reply never waits for backfills.** SillyTavern draws a reply and gives back Send only after every MESSAGE_RECEIVED listener has finished, and Delta used to await its whole backfill queue there: one call per new NPC, so a 40-person block held the reply for over a minute in the soak. Backfills now start after the handler returns, at most 2 per reply; the rest wait in the queue for the next replies. One capture block admits at most 4 new people; the rest get a dossier from a later reply that names them again. A 12-person block made 12 calls, all held, before; now it makes 4 dossiers, with 2 backfills after that reply and 2 after the next, none held. With or without a host.
+  - **Swipes keep the cached prompt head.** The one-pass rules, byte-identical from reply to reply, now stay in the system prompt on swipes and regenerates too. Only the reminder and context, which ask for the block, follow the arming, so a swipe is still never asked for a block. Before, the rules were emptied on a swipe and sent again on the next reply: two provider cache misses per swipe. Quiet and impersonate generations still carry no capture text. Contract C10: the rules' text is unchanged; only when they are sent changes. A swipe's prompt now carries the rules (about 2,200 tokens, cached).
+  - **No re-render warning per captured reply.** Removing the block from a reply re-rendered it at MESSAGE_RECEIVED, before SillyTavern had finished drawing it, and its reasoning handler threw (357 warnings in the soak). The redraw now waits for CHARACTER_MESSAGE_RENDERED.
+
+- **Prompt alignment (cleanup steps 12-13).** These change what the model is sent. Contract C10 keeps the prompts as they are by default; the user approved this change as an exception, recorded in C10. Request counts, response lengths and routing are unchanged.
+  - **Refine no longer drops text the model never saw.** The scanner, one-pass, backfill and import prompts used to show shortened copies of Personality, Speech, Mannerisms, Key Relationships and memories (280/240/140/180/180 characters, cut mid-word). A FULL refine built on that copy then removed the rest. They now show the whole stored value (320/280/160/360/220), and a longer locked value is cut between words. The caps the prompts state are the stored limits too, and Refresh shows bonds up to 360. The relationship evaluator, told to copy the summary when it still fits, gets the whole summary, not the first 220 characters.
+  - **One-pass capture: birthdays, transformations and deaths in the reply.** The capture rules are written before the reply exists, so the birthday rule and the detailed Stage 4 form and death rules used to depend on the text before it. Short versions of them are now always in the rules. The current world date, when a calendar is set, goes in the context part.
+  - **Compact one-pass rules keep every gate.** Back in: a visual age cue must give apparentAge when age is unknown, no dangling "(deceased)", no species-aging inference, Inner Chatter for durable facts only, the raw maximum per impact, the identity-firewall sentence, and "speech evidence = voice style". The terminal-death and apparent-age wording is now in the prompts themselves; the two string patches that silently did nothing on compact text are gone (scanner output is byte-identical apart from the caps). Compact rules: about 1,780 tokens (full: 2,175).
+  - **Group chats keep the cached one-pass rules.** In a group chat the speaker changes, so SillyTavern changes the character name, and the rules, which named the player and the speaking character, changed with it, so the provider's prompt cache was missed. The rules now say "the player" and "the character you play", and a line in the context part names them (`Not NPCs: the player is Ari; the character you play is Elke.`). Single chats get the same line.
+  - **Backfill and the Megumin dossier import can update an existing dossier the way the scan does.** Their return shapes now carry the scan's `*State` keys (age, apparent age, appearance, Personality, Speech, Mannerisms, Behavioral Levers, background, Key Relationships, home base, gender and, for backfill, the live fields), and backfill has one rule for them. Before, mannerisms, levers, bonds, age and apparent age of an NPC that already had them could not change there.
+  - **The dossier import asks for the configured custom fields** with the same rule as the scan, Refresh and backfill (it never named them, so an import never set one).
+  - **Shorter, consistent return shapes.** Refresh, backfill and import shapes are written from the field registry (`src/fields/registry.js` `RETURN_KEYS` / `RETURN_SHAPES`) in a compact key notation. Every targeted prompt now uses the scanner's short lever label list and one caps sentence. The shapes leave out the relationship numbers (every targeted pass sets them to 0 in code) and, for Refresh, presence (ignored). Estimated tokens on the measurement fixtures: Refresh −216 (about −8%); backfill −104 even with its new state keys and rule; import +16 for its 11 new state keys (+88 with custom fields set, for the new rule); scanner +9 (caps); one-pass rules +149 (compact +222); one-pass context +19 per reply (the names line), or −172 where it used to carry the detailed Stage 4 rules.
+
+- **A confirmed-dead NPC stays dead.** No scan, Refresh, backfill or import output can make them alive or present again, an explicit "alive" row included, and Story Block's scene can no longer put them on stage while Delta is hosted. Only the reader's own correction (Restore, or the life state in the editor) and rollback of the reply that killed them change it (contract C05).
+- Names in the prompts are written on one line and clipped to 80 characters, so a line break in a persona or character name cannot start a line of the one-pass capture rules or any other prompt. Ordinary names, and so ordinary prompts, are unchanged.
+
+- Cleanup: the focused relationship pass (who needs a relationship decision, the isolated evaluator request, applying its decisions) moves from `index.js` to `src/relationship-pass.js`. Nothing Delta stores, sends or shows changes.
+
+- Cleanup: the scanner request (one dispatch, JSON parsing, the compact retry) moves from `index.js` to `src/scanner-request.js`; validation looks for the shared dispatcher in the runtime's `src/` modules too. Nothing Delta stores, sends or shows changes.
+
+- Cleanup: the chat text helpers (recent windows, the current exchange, the story day) move from `index.js` to `src/transcript.js`, the first part of splitting `index.js`. Nothing Delta stores, sends or shows changes.
+
+- **Refresh, backfill and the Megumin dossier import work the same way.** They are now one targeted pass with three kinds, so they share the same rules:
+  - A Refresh, backfill or import is no longer thrown away because another extension (Story Block, RPG Battle) rewrote the latest reply in place while it ran, as the scan already allowed; an edit or swipe of that reply still discards it.
+  - Backfill and import change no other dossier, as Refresh already did.
+  - Every one leaves a diagnostics receipt (backfill and import left none).
+  - A backfill that keeps the live state now applies it once, the same way before and after the merge, so no false "mood changed" marker is left.
+  - Refresh adds at most three new memories, as its instruction says (it took five).
+- **With Story Block v2, relationship changes start from the shown numbers.** While hosted, the scan reads, scores and forwards relationship changes from Story Block's meters (what the dossier view, the editor and the injection already show) instead of Delta's own copy, which then follows them; Refresh, backfill and import also forward any relationship change.
+
+- **Merging a duplicate dossier keeps the newer facts.** When two dossiers turn out to be the same NPC (an alias links them), the merged one used to take custom field values only from the older record, and the longer mood, location, goal and condition rather than the newer. It now takes the newer custom values and the most recently updated live state, keeps memories you typed as typed, and a hand-locked alias list takes only the other dossier's name.
+- **Locked aliases stay locked on import.** Importing a dossier bundle added the imported aliases even to a dossier whose aliases you had locked.
+- **Custom fields, the same everywhere.** The Megumin dossier import now merges configured custom fields like every other path (it never set them), and the dossier view and the Story Suite v2 `npc.dossier` query show the configured custom fields only, as the roleplay dossier and the suite profile already did; a value stored under a name you removed stays in the editor so you can clear it.
+
+- **Advanced → NPCs in the dossier.** How many present NPCs the live dossier carries at most each reply (1-12, the most relevant first). The default stays 3, so nothing changes unless you change it; before, the setting existed but had no control.
+- Cleanup, nothing Delta stores, sends or shows changes: one HTML-escaping helper (`src/util/html.js`) instead of seven copies; one pair of "is this row/record that NPC" helpers in `core-mechanics.js` instead of copies in `core.js` and `continuity-core.js`; a no-op presence line and a one-line pass-through removed. The settings whose controls live in other modules (full-cast scanning, the scanner's maximum output, the relationship map, the calendar) are declared and normalized by the one settings owner, `getSettings`.
+
+- **"Changed at reply #N" follows every change.** The per-field change markers were set only inside the scan's merge, so a relationship change made by the relationship evaluator (the usual writer on an ordinary reply), and your own edits in the dossier editor, the appearance forms and the life state, left them at an older reply. They now record those changes too, and Refresh no longer treats a field you just rewrote by hand as stale.
+
+- **Background is no longer cut down by an ordinary scan.** A scan's background replaced the stored one outright, so a shorter restatement ("Raised in the river quarter.") erased every other clause. An established background now changes the way the home base does: with `backgroundState: "update"`, a reason and support in the story. No prompt asks for that state yet, so a restatement that keeps every stored point and adds something the story says is accepted too. A first background still needs support in the story.
+- **Player Dynamic, Mood, Location, Goal, Condition and Important memories can be protected.** The editor's protect checkbox now locks these too when you change them, and every scan, Refresh and relationship pass keeps a locked one (memories included: before, a scan merged new memories into a protected list and pushed the oldest out).
+- **Memories you type are never pushed out.** A memory you enter in the editor stays when later scans add new ones, protected or not; new memories fill only the slots yours leave free (with five of your own, none are added until you remove one).
+
+- **Durable facts sent as a profile update are kept.** The scanner and capture are told to send an existing NPC's durable facts in `profileUpdates`, but that part of the merge only read personality, speech, appearance, mannerisms, Behavioral Levers and memories, so a new background, home base, role, species, gender, age, custom field value or key relationship sent there was dropped without a word (on every path: scan, capture, Refresh, backfill, import). They are now applied by exactly the same rules as in the NPC's own entry: a home base still needs `update` with a reason and grounding, an age still needs `advance` or `correct`, a custom field change still needs a reason, a locked field is still kept, and so on. Live state (mood, location, goal, status) stays with the NPC's own entry.
+
+- **One table of the dossier's fields.** `src/fields/registry.js` describes every stored NPC field that a hand-kept list used to name, and the lists the modules use (the text fields a scan replaces, the change-tracked fields, the editor's lockable fields and the keys a lock keeps, the branch revert groups, the fields a death freezes, the alias-merge fields, the Refresh change list, the inline snapshot, the v2 `npc.dossier` fields) are now derived from it, each exactly as it was, order included. The v2 hidden notes (`secrets`) are in it, marked never to reach a model-facing text until unlocked. Nothing Delta stores, sends or shows changes.
+
+- **Tests: golden outputs for every dossier write path.** `tests/field-paths-golden.test.js` freezes what the merge produces on each path (scan, full scan, one-pass capture, Refresh, backfill, dossier import, bundle import, branch restore, editor normalisation) for one rich dossier and the same reply sent in `npcs[]` and in `profileUpdates[]`. Later cleanup steps must leave it unchanged except where they fix something on purpose. Nothing Delta does changes.
+
+- **Saving the dossier editor no longer cuts what you did not touch.** Save cut Role and Mood to 240 characters and Condition / Activity to 300, although the dossier keeps 300, 300 and 500, so any Save shortened them even when you had changed something else. The editor now keeps what the dossier keeps, its fields say so (`maxlength`), and a field you did not change is saved exactly as it was stored: not re-cut, not compacted, its identity kind not reset from the name.
+- **A Save that has to shorten something says so.** An edit longer than an unprotected field keeps (Personality 320, Speech 280, Background 420 characters, four Mannerisms), or a long text whose protection you removed, is still shortened, but a warning now names the fields and points to "Protect edited stable profile fields".
+- **A reply's Story Block changes are no longer lost behind an unfinished Delta block.** When the model left Delta's one-pass block unclosed and wrote Story Block's `<Changes>` after it, Delta removed everything up to the end of the reply, `<Changes>` included, before Story Block read it: that reply's items, coins, quests and checks were gone. Delta's block now ends at the next `<Changes>`, the next comment envelope (`<!-- STORY_SUITE_V2`) or a blank line followed by a tag; nothing outside Delta's own block is removed.
+- **With Story Block v2, the Cast tab stays filled.** Story Block empties the tab's pane before each redraw; Delta skipped the redraw because its markup had not changed, so after the first tab switch or reply the Cast tab was blank.
+- **A refused registration leaves Delta on its own.** Delta marked itself as hosted before Story Block v2 had accepted it, so a refused registration hid Delta's own panel and launcher with no Cast tab or settings section to replace them. Delta now waits for the answer and stays standalone on a refusal.
+- **One cast while hosted.** With Story Block v2, Story Block's scene (`scene.present`) decides who is present, as "scene: theirs" (or the default "auto") says: Delta's dossier injection, its Cast tab and its `npc.present` query follow it, so the prompt no longer carries two different casts. "scene: mine" keeps Delta's own presence. Delta's stored presence is unchanged, and without a v2 host nothing changes.
+- Removing a one-pass block no longer logs "could not re-render a reply" on every armed reply: a reply that is not drawn yet is drawn from the stripped text, so only a drawn one is re-rendered.
+
+- **A field you protect in the editor stays protected.** The "Protect edited stable profile fields" checkbox never showed as ticked, even on a protected dossier, so the next Save (of anything) cleared every lock, the appearance lock included, and the next scan could rewrite the protected fields. It now shows ticked with the list of protected fields, and saving keeps them.
+- **Your edits survive a swipe, a regenerate and a branch restore.** A lock set in the editor was not marked as the reader's own, so swiping or deleting the reply it was made after brought back the older values. Editor saves now mark their locks explicit, as bundle imports already did, and a restore keeps everything a lock covers (an appearance lock keeps the forms and overall appearance too, as an import does).
+- **Runtime modules can live under `src/`.** `runtime-modules.json` may declare `src/...` modules beside the top-level ones. Validation gives them the same checks (syntax, local imports, namespace, scanner routing) and packaging ships them once; any other nested path is still refused. Nothing Delta stores, sends or shows changes.
+
+## 1.2.19 - 20 October 2026
+
+- **New memories for NPCs already in the dossier are kept.** An NPC met for the first time got their memories, but later ones for the same NPC were often lost. The capture is told to send an existing NPC's durable facts in `profileUpdates`, and its reminder lists memories among them, so a model filing a new memory there was doing what it was asked; that part of the merge only read personality, speech, appearance, mannerisms and Behavioral Levers, and dropped the memory without a word. Memories in a profile update are now merged the same way as those in the NPC's own entry: added to the stored ones, a repeat or reworded copy not added twice, at most three new per reply and five kept (the most consequential when crowded), never replacing the earlier ones.
+- **The instruction says where memories go and that they are additions.** The full and compact capture rules, the scanner and the reminder now say: an existing NPC's new memories go in their `npcs[]` entry, only the new ones from this exchange, added to the stored ones, never resent. Measured (estimated tokens): the full rules +10, the compact rules +25, the reminder +11, the scanner +10.
+
+## 1.2.18 - 20 October 2026
+
+Cleanup: nothing Delta stores, sends, shows or decides changes.
+
+- **One copy of two small helpers.** The continuity editor and the dossier experience each carried their own copy of the HTML-escaping and text-trimming helpers, byte for byte the same as the shared dossier-tools ones they already load. They now use the shared ones. The other copies stay where they are: they differ in what they do (a `plain` that also collapses spaces, an escape that writes `&#39;`), or they sit in modules that do not load the dossier tools and should not start to for a four-line helper.
+
+## 1.2.17 - 20 October 2026
+
+One-pass capture, smaller per reply. Nothing Delta stores or decides changes.
+
+- **Present NPCs' fields are not sent twice.** With one-pass capture, the reply's prompt carries the live dossier and, after it, the capture's own NPC context, which repeated much of the same text (personality, speech, mannerisms, mood). A value the NPC's own dossier line already gives word for word is now left out of the capture context, which says so (`"inDossier": true`, and one line explaining it). Only exact repeats go, and only from that NPC's own line; ids, presence, the relationship numbers, evidence and locked fields always stay, and a value the dossier shortened or left out stays. It is used only when it is shorter, explanation included, so a short repeat is still sent. Measured (estimated tokens): about 45-125 fewer per present NPC with a full dossier, nothing for a short one. The separate scanner's prompt is unchanged.
+- **An opt-in compact instruction.** **Scanning → Compact one-pass instruction** (off by default) sends the capture's rules in fewer words: every field, state word, gate and cap is kept, the explanations are shorter. About 1,530 tokens instead of about 2,015 (24% fewer), and still word for word the same each reply, early in the prompt. It is opt-in because its effect on the blocks the model writes has not been compared on a real model yet; the full instruction stays the default. The separate scanner never uses it.
+- **`npm run measure:prompts`** also reports the capture's static rules, the compact rules and the context with and without the repeats.
+
+## 1.2.16 - 20 October 2026
+
+- **Cache-friendly prompt layout.** Providers that cache the start of a prompt (OpenAI, DeepSeek and Gemini on their own; Claude with SillyTavern's caching option) reuse everything up to the first part that changed. Delta's text is now arranged for that, following the Story Suite convention:
+  - **The one-pass capture rules go early and never change.** The capture instruction's rules (about 7,000 characters, roughly 2,000 tokens) are the same every reply, so they now ride in the system prompt, word for word identical each time. Before, the whole instruction sat at the end of the prompt, after the chat, where nothing could be reused.
+  - **What changes goes last.** The capture's dossier context and its reminder, and the live dossier, go at the very end, after your latest message (depth 0), the reminder last.
+  - **The live dossier moves from one message from the end to the end.** An install on the old default (1) is moved once; a depth you set yourself is kept, and 0 can now be set (it used to be read as 1).
+  - **Nothing in the text changes**: the instruction is split where its dossier context starts. Swipes, regenerates and background generations carry neither part, as before. The prompt keys are new (`story_suite_static_npc_state_delta`, `story_suite_tail_4_npc_state_delta`, `story_suite_tail_5_npc_state_delta_capture`); the old ones are emptied on load.
+  - **Never lost to a preset without a Main Prompt.** SillyTavern drops system-prompt extension text when a chat-completion preset's prompt order has no Main Prompt; the capture rules are then put back right after the leading system messages, once, only for the reply being written (never a token count, another extension's call or Delta's own scans).
+
+## 1.2.15 - 20 October 2026
+
+Small UI release: nothing Delta stores, sends or decides changes.
+
+- **What moved, beside each meter.** The Player relationship meters show the change the latest reply made: ▲3 / ▼2 beside the value, green when it is better for the relationship and red when worse (tension rising counts as worse), with a tooltip naming the reply. An older change stays in Last relationship change below the meters, as before.
+- **An Advanced fold in settings.** Scan context, Maximum output tokens, Injection budget, Rewind dossiers on middle deletion and Rescan changed branches move into their own **Advanced** group, so the everyday settings stay short. Every setting, key and default is unchanged.
+- **Present NPCs has its own icon.** 🎭 instead of 👥, which RPG Battle's Party tab also uses, so the tabs stay distinct when Story Block shows icons only. The tab's short label is Present.
+- **Switched off, its tabs leave at once.** Turning NPC State Delta off used to leave its Present NPCs and Dossiers tabs in Story Block until a reload; they now go straight away, as other extensions' tabs do, and come back when it is switched on.
+- **A flaky test fixed.** The runtime smoke test read the in-chat cast before its debounced mount had settled; it now waits for it. The full suite passed five runs in a row.
+
+## 1.2.14 - 20 October 2026
+
+Cleanup: nothing Delta stores, sends or decides changes.
+
+- **Shorter settings.** Every setting carried a full paragraph of help, so the panel read as one long wall of text. A long hint now shows its first sentence; **more** shows the rest in place (and the whole text is the hint's tooltip). Every setting, its place and its wording are unchanged, and the help for settings that other parts of Delta add later is shortened the same way.
+- **Less repeated work per reply.** Building what the next reply gets read the recent story, and worked out which off-screen NPCs your message names, twice. It now does each once and passes them along. The text sent is identical.
+- **One unused helper removed** from the appearance editor.
+
+## 1.2.13 - 20 October 2026
+
+- **The one-pass reminder is read last.** It shared the dossier's place, one message from the end (before your latest message). It now has its own system message at the very end of the prompt, where the model reads it last and is likeliest to follow it. The dossier stays at the depth you set. It is still replaced on every generation and emptied when not asked for, so a spent reminder is never sent again.
+- **What's sent.** A new **What's sent** fold in Delta's panel shows the exact text your next reply gets from Delta, each part with its size in tokens: the live dossier and, with one-pass capture on, the capture reminder. It is filled when opened and on **Refresh**. Story Suite can show the same through `api.manage.preview()` → `{ label, text, parts: [{ label, text, tokens }] }`.
+- **Empty tabs say why.** Story Block's **Present NPCs** tab said "No NPC is present" even when the World State listed Lyra: she had no dossier yet, because nothing had been scanned. It now says which it is: no dossier in this chat yet, the latest reply not scanned yet, or the latest scan found no one. It offers **Scan now**. The **Dossiers** tab said "No dossier matches." with no search typed; with no dossiers at all it now says "No dossiers yet" and offers **Add NPC** and **Scan now**, and a search that finds nothing names what was searched.
+
+## 1.2.12 - 20 October 2026
+
+- **Far fewer relationship evaluator requests.** After each scan or one-pass block, NSD checks every existing NPC who appears in the exchange, and any without a complete relationship decision got a separate evaluator request carrying the whole exchange: often 2–3 requests and 6–16k tokens a reply. Most of those NPCs only appeared in the World State, for example in the Off-Screen list Story Director fills with every active agenda, so the answer was always "no change".
+  - **Only NPCs named in the story count.** A name that only appears in the World State's lists no longer makes anyone a target. This applies to automatic scans as well as one-pass.
+  - **The evaluator reads the story alone.** Its request carries the exchange's narration and dialogue, not the World State or other blocks, so each request is much smaller. The evidence it returns is still checked against the whole exchange.
+  - **One-pass blocks settle relationships themselves.** The instruction asks for a full relationship row (impact and all four values, 0 for no change) for each existing NPC the story names. The model can add `"relationshipsCovered": true` when its rows hold everyone whose feelings could have changed, and `"relationshipReview": ["Name"]` for anyone it wants checked. Covered NPCs need no request; a reviewed one always gets one, and a block that says neither is checked as before. About 60 tokens on the instruction.
+
+## 1.2.11 - 20 October 2026
+
+- **One-pass capture fills the slow fields too.** With one-pass capture on, Refresh found mannerisms, Behavioral Levers and important memories that the replies' own blocks had left out. Three changes close that gap:
+  - **The instruction names them last.** The model now checks each NPC who acted in its reply for a habit (Mannerisms), how they decide or treat people (a Behavioral Lever) and a consequential event (memories), and writes the evidence even when the field must wait for more scenes. This adds about 100 tokens to the capture instruction.
+  - **A habit seen again counts.** A habit is the same act in much the same words, and a second sighting worded like the first was dropped as a duplicate, so an empty Mannerisms never filled from automatic scans. Each reply's evidence is now tagged with that reply, and a sighting from another reply counts however alike the words; a re-read of the same reply still does not. This helps ordinary automatic scans too.
+  - **One-pass catch-up.** Every 8 captured replies (**Scanning → One-pass catch-up**, 0 for never), the two NPCs most in them get a quiet Refresh, one scanner request each, to fill anything the blocks missed. It speaks up only when it changed a dossier, never touches a dossier open in the editor, and waits for any scan in progress.
+
+## 1.2.10 - 19 October 2026
+
+- **The World State decides who is still in the scene.** A reply that starts where the last scene ended ("Brecht lay sprawled in the mud") and then moves on (to the herbalist, then the Guild) often left that NPC on the Present cards and in the roleplay injection, because the scan saw them in the reply. Now, when the reply's World State (read through Story Block) lists people under *NPCs Present* or *Off-Screen*, those lists win: an NPC listed under NPCs Present is present, one listed Off-Screen is not, and "(None)" means nobody is. Someone on neither list keeps what the scan said, since a World State often leaves people out. The dead and archived are never made present.
+
+## 1.2.9 - 19 October 2026
+
+- **One-pass capture survives other extensions writing into the reply.** With Story Block, RPG Battle or Story Director installed, a reply is often rewritten just after it arrives: blocks tidied, a Party sheet written, a quest line closed. NPC State Delta took the rewritten reply for a different one, so its capture block was stored but never merged (the status read *used 0 · waiting 1*), and the NPCs' states did not update that turn. A reply rewritten in place (same position, same history before it) is now the same reply for the receipt and the scan. Any other change to the chat while a scan runs still discards it.
+
+## 1.2.8 - 18 October 2026
+
+- **Look, not Outfit, from the dossier.** A present NPC's third line, when it comes from the dossier rather than Story Block's World State, is the NPC's current appearance or form ("Broad, grey at the temples, a soldier's stoop"), so it is labelled *Look*. From World State it is still *Outfit*. Display only; prompts, scans and saved data are unchanged.
+- **Screenshots** in the README, from a demo session with Story Block, Story Director and RPG Battle.
+
+## 1.2.7 - 18 October 2026
+
+- **Everyone who speaks gets a card.** Inner Chatter from someone without a present card (the registration clerk before the scan marks her present, a nameless sentry) was a plain line under *Others*. Now each named speaker gets a card in the Present NPCs grid, after the present NPCs, with their bubble beside it exactly like a present NPC's: someone Delta already tracks shows their portrait and opens their dossier; a name the dossiers do not know shows its initial and *Not in the dossiers yet*. Only lines with no speaker stay under *Others*. Display only; prompts, scans and saved data are unchanged.
+
+## 1.2.6 - 17 October 2026
+
+- **Mood and condition in the middle too.** In narrow panes the right half of a present NPC's row (Mood / Condition / Outfit, or the role and *No changes this turn*) is vertically centred beside the card, like the chatter bubble. Display only; prompts, scans and saved data are unchanged.
+
+## 1.2.5 - 17 October 2026
+
+- **Speech bubbles in the middle.** In narrow panes (Story Block's sidebar and the phone sheet) the Inner Chatter bubble beside a present NPC's card sits in the middle of the row, its pointer (or the thought bubble's circles) aimed at the card's middle, instead of at the top. Display only; prompts, scans and saved data are unchanged.
+- **No floating button beside Story Block.** While Story Block carries Delta's Present NPCs and Dossiers tabs, the floating *npc state* button is hidden, since the sidebar already opens the same views. **Present NPCs → Floating button with Story Block** keeps it (off by default). Without Story Block, the button is unchanged.
+
+## 1.2.4 - 17 October 2026
+
+- **Present NPCs in narrow places, redesigned.** In Story Block's sidebar or sheet and on phones, each NPC is now one row in two halves. On the left, a card that is the NPC's portrait, with the name (and role) over the bottom of the image. On the right, the NPC's Inner Chatter bubble for this reply, pointing at the card; with no chatter, their **Mood**, **Condition** and **Outfit** lines in full; with neither, their role and *No changes this turn*. Others still follow as bubbles. In a very narrow pane the card becomes a short banner with the right half under it. Tapping the card or the right half opens the dossier. The wider card grid (the cards under a message on a desktop) is unchanged. Display only: prompts, scans and saved data are unchanged.
+
+## 1.2.3 - 17 October 2026
+
+- **The dossiers show the chat's reply number.** The dossier header now reads **Reply #N**, the number of the latest reply in the chat, counted the way Story Block counts it (the greeting is reply #0). It used to show *Turn N*, which counted how many replies Delta had processed, so swipes, regenerates and rescans made it drift away from the chat. Changes recorded from now on carry their reply number too: the changed-field marks (• #14), the *Updated at reply #14* line (or *Updated this reply*), the Player relationship card's last change and earlier changes, and the relationship map. Changes recorded before 1.2.3 keep their old number, still labelled *turn* (hover it for a note). Swipes, deletes and rollback restore the numbers with the rest of the dossier; a dossier imported from another chat keeps its events but not that chat's reply numbers. Delta's internal turn count is unchanged and still drives its timing, and prompts, scans and requests are unchanged.
+- **Readable Present NPCs.** What each NPC is like now shows as labelled lines (**Mood**, **Condition**, **Outfit**, only those known) instead of one cut-off line, and the name wraps to two lines. In narrow places (Story Block's sidebar or sheet, a phone) each NPC gets a compact card across the whole row, a portrait strip beside the name, role and those lines in full; when the NPC has chatter this turn, the card takes half the row (a small portrait beside the name, the lines under it) and the bubble the other half, pointing at the card (under the card when the pane is very narrow). Others follow as bubbles with the speaker's name. Wider places keep the cards, with the lines under the portrait (two lines each, hover for the full text) and the chatter under its card. Tapping a row, card or bubble opens the dossier. The compact strip is unchanged. Display only.
+- Fixed: a chatter line from an NPC with a long name ("The Astral-Bound Spirit of the Northern Vale: …") was dropped. The names and aliases of the NPCs Delta tracks are now always recognised as speakers, other names may have up to ten words (and start with "The" or "A" before a capitalised word), and a first line without a recognisable speaker is shown under Others instead of being lost.
+- The README has a Credits section.
+
+## 1.2.2 - 17 October 2026
+
+- **NPC profiles for the Story Suite.** Delta now also shares a short profile of each tracked NPC in the current chat with the other Story Suite extensions: name, aliases, whether they are present, a short role (the dossier's Role, or a Class/Occupation-style custom field when Role is empty) and a summary of up to 200 characters built from the dossier's role, species, ability-style custom fields (Abilities, Skills, Powers…), personality and background. RPG Battle uses it to offer the story's NPCs as companions. Archived NPCs and NPCs the dossier marks as dead (archived or not) are left out. It is read-only and built from what the dossiers already hold: no model call, no extra scan, and prompts and saved data are unchanged. Alone, nothing changes.
+- **What each NPC is like right now.** Every present NPC card shows a *now* line: mood · condition · outfit. While Story Block keeps the scene it comes from Story Block's World State for the latest reply, otherwise from the dossier.
+- **Inner Chatter beside the cards.** With Story Block's NPC Inner Chatter block on, each line appears as a bubble next to the NPC who said it, in order: speech bubbles when two or more NPCs whisper, a thought bubble when only one has a line. Beside the card on wide screens, under it on phones; lines from someone without a card go to an *Others* line. Delta tells Story Block it shows the chatter, so Story Block hides its separate Chatter tab while Delta is on.
+- **Tokens per reply in Story Suite.** Story Block's overlay can show what Delta adds to the next ordinary reply (an estimate at about four characters a token), broken down by section of the dossier injection and, with one-pass capture on, the capture instruction and block.
+- **One look for the settings panels.** Delta's settings panel is now the shared Story Suite look: its parts also carry the shared `story-suite-*` classes and the shared `suite.css` is loaded once for all four extensions. Delta's panel looks the same as before.
+- **Open a dossier from another extension.** The other Story Suite extensions can open Delta's dossier view on one NPC (by its id, or by an exact name or alias), the same view the launcher and the present-cast cards open; RPG Battle's companion cards use it for their **Dossier** button. Archived and unknown NPCs open nothing. Opening changes nothing and sends nothing to the model.
+- All of this is display or read-only: no model call, no extra scan, and prompts, request counts and saved data are unchanged.
+
+## 1.2.1 - 17 October 2026
+
+- **Story Suite overlay.** With two or more Story Suite extensions installed, **Manage all in Story Suite** at the top of Delta's settings opens Story Block's overlay, where one Source of truth table and each extension's on/off switch manage them all and Delta's settings panel appears in its own tab ([how it works](docs/STORY_SUITE.md)). Choices made there update Delta's own settings, and the reverse. Switched off, Delta now stays listed in the overlay (as off) so it can be switched back on there; it still sends nothing and leads no area while off. Alone, nothing changes; prompts, scans and saved data are unchanged.
+- **Launcher stays out of the way.** While the overlay is open, the floating *npc state* launcher hides, since it would sit over the overlay's close button on phones.
+
+## 1.2.0 - 17 October 2026
+
+- **Story Suite.** Delta now finds Story Block, Story Director and RPG Battle when they are installed, and they agree on one source of truth per area so the model is not told the same thing twice ([how it works](docs/STORY_SUITE.md)). With Story Block's World State block on, the present NPCs' cards leave out the live mood and current outfit that World State already gives (personality, voice, goals, bonds, custom fields and enduring features still go). With Story Director, birthdays and ages use its months and era (Delta's own calendar returns if Story Director's is missing). With RPG Battle, **Custom fields** warns when a field name looks like a game stat (Level, HP, Class…). A new **Source of truth** settings group lets you pick, per area, Automatic, This extension or The other one. Alone, Delta works exactly as before.
+- Fixed: Delta could not see the World State that Story Block keeps in its hidden block (`<!-- STORY_BLOCKS_V1 … -->`), so its scans missed who was present, how they looked and the date. It is now read the same way as Megumin Suite's World State.
+
+## 1.1.12 - 17 October 2026
+
+- With Story Block installed, the present cast no longer shows twice by default: until you pick a choice under **Present NPCs in chat**, the cards appear only in Story Block's tab. Picking Full cards or Compact strip keeps them in the chat too, and Delta remembers that choice. (Compact and Off were already kept. Full cards had always been saved as the default, so if you want it alongside Story Block, pick it once.)
+- The Present NPCs and Dossiers tabs now have proper margins inside Story Block's sheet and sidebar, the "shown" count is no longer cut off, and the cards are sized for the narrower pane (three across on a phone).
+
+## 1.1.11 - 17 October 2026
+
+- With Story Block installed, Delta adds **Present NPCs** and **Dossiers** tabs to Story Block's sidebar and card, so the cast and every dossier sit beside your inventory and World State. The Dossiers tab has a search box (the dead appear only when searched for) and opens a dossier on tap. A new **Only in Story Block** choice under Present NPCs in chat keeps the chat clear and shows full cards when Story Block isn't installed. Display only: prompts, scans and saved data are unchanged, and nothing changes without Story Block.
+
+## 1.1.10 - 17 October 2026
+
+- One-pass narration capture no longer deletes other extensions' hidden blocks. When the model wrote Delta's block before a Story Block envelope (`<!-- STORY_BLOCKS_V1 … -->`, which carries the inventory), Delta's block ran on to the envelope's closing `-->` and removed it with the inventory. Delta's block now ends at the next HTML comment at the latest, whichever order the model writes them in.
+
+## 1.1.9 - 17 October 2026
+
+- One-pass narration capture now works alongside extensions that rewrite a reply when it arrives (for example by wrapping their own blocks in a comment). Delta parsed the block but bound it to the exact reply text, so the rewrite made the scan miss it and fall back to a normal request. The block is now bound to the reply's position and the messages before it; editing, deleting or swiping still drops it. The diagnostics export now includes the capture counters, and Diagnostics shows how many blocks are waiting for their scan.
+
+## 1.1.8 - 17 October 2026
+
+- New experimental **One-pass narration capture** setting under Scanning, off by default. With Auto scan on (and Full scan every turn off), new replies and continues ask the roleplay model to end with a hidden NPC update block, which Delta removes from the message and merges through the same evidence checks instead of sending the separate scan request. Swipes and regenerates use the normal scan. It adds about 2,000-2,700 estimated tokens to each asked-for prompt, plus the block in the reply. A missing, broken, cut-off or outdated block (the dossiers changed while the reply was written), an edit to the reply or an earlier message, or a reload falls back to the normal scan; focused relationship passes, Refresh and backfills still run as before. The block is kept only in memory and never saved or exported. Diagnostics shows the instruction size and how many replies were asked, used, missing, invalid, cut off or outdated. Not yet checked live: streaming display, the saved message after the host saves, and the effect on narration. With the setting off, prompts, requests and injection are unchanged, and the story's own JSON blocks and tags are never touched.
+
+## 1.1.7 - 17 October 2026
+
+- When the story mentions an NPC who isn't in the scene (off-screen, or archived after a long absence), the roleplay model now gets one short line of their established facts: role, home base, custom fields and how they feel about you. A returning NPC arrives as they left instead of being reinvented. Mention lines and the deceased lines share a cap of four per reply, living NPCs first, and never displace the NPCs in the scene.
+- NPCs are recognised by any distinctive part of their name ("Hask" or "Orrin" for "Capt. Orrin Hask"), not only their first name. Surnames, one-word nicknames and names that are everyday words ("Will") must be capitalised, so "I will go" no longer brings in Will Turner. Abbreviated titles ("Capt.", "Dr.") and role descriptions ("the innkeeper") no longer recall anyone.
+- Fixed: a new NPC sharing only a job title with a known NPC (a different innkeeper in another town) was merged into the known NPC's dossier, overwriting their role and location. Such a match now needs the scan to say it is the same person, the NPC to have been present, or the places to match.
+- Aliases and nicknames can be edited and locked under **Edit dossier**, and are shown on the dossier page.
+- Diagnostics lists NPCs that are only mentioned separately from those sent in full.
+
+## 1.1.6 - 17 October 2026
+
+- When someone talks about a confirmed-dead NPC, the roleplay model now gets one short line about them (gender, role, a bond and how they died), so it no longer forgets they are dead or invents their death. Up to three per reply, sent even when nobody is present, and never at the cost of the present NPCs.
+- New **Custom fields** setting under Roster & continuity: name up to six fields (for example Level, Class) and every dossier tracks them. The scanner fills a value only when the story states it, keeps it while it is not mentioned, and changes it only when the story says so, so a returning NPC no longer comes back at a different level. Values are sent with present NPCs, shown on the dossier page, editable and lockable. With no fields named, nothing changes.
+
+## 1.1.5 - 9 October 2026
+
+- New **Map** view in the dossier panel: you sit at the centre and each NPC's distance shows how they feel about you (Warmth, Trust, Affection, Desire or Tension), with Important Bonds drawn between NPCs and this turn's change marked. Choosing an NPC on the map selects their dossier, and **See on map** on the Player relationship card opens it. In-chat and active NPCs always appear, plus the strongest of the rest (24, or 16 on a phone); archived NPCs appear dimmed, and the dead and stale removals are left out. Two settings under Roster & continuity: Relationship map (on/off) and Default distance. The map is read-only.
+
+## 1.1.4 - 9 October 2026
+
+- The dossier list no longer shows the dead. Its filters are **All · Active · Archived**, and their counts leave the dead out. Search by name or alias still finds a dead NPC, and a dead dossier you open stays listed while it is selected. Nothing is deleted or changed in the saved dossiers.
+
+## 1.1.3 - 8 October 2026
+
+Clean-up from an internal audit of 1.1.2; the extension's behaviour is unchanged:
+
+- Removed a broken, never-called copy of two branch-history helpers, three constants nothing used, and two unused style rules.
+- The README describes named forms in one place, and the core contract's release requirements cover every release after 1.0.29.
+
+## 1.1.2 - 8 October 2026
+
+Test-only release from an internal audit of 1.1.1; the extension's behaviour is unchanged:
+
+- The synthetic host used by the runtime tests now cancels the extension's still-scheduled timers before removing itself, so test runs no longer print stray "reading 'context'" errors from timers that fired after teardown.
+
+## 1.1.1 - 8 October 2026
+
+Fixes from an internal audit of 1.1.0:
+
+- A passing look at the start of an appearance ("A tired smile") is no longer kept as if it were what the NPC is; it no longer sticks through later outfit changes.
+- A scan that opens with a look or a sentence about part of the body ("A weary look, dusted with ash", "The scales are dusted with ash") no longer erases a form such as "A silver dragon".
+- "Now a towering ogre", "She has become …" and "turned into …" now replace the old description of what the NPC is instead of being added beside it.
+
+## 1.1.0 - 8 October 2026
+
+Delta moves to 1.1.0. Fixes from an internal audit of 1.0.100:
+
+- A form or NPC described by what it is ("A silver dragon", "Spirit form", "A wiry old man") keeps that description when a scan only reports an outfit or condition change; before, "Dusted with ash" could replace the whole dragon form. A new description of what she is ("A great black wolf") still replaces it.
+- A creature form with an accessory ("A silver dragon wearing a golden collar", "A black wolf with a red ribbon") is no longer mistaken for an outfit and given the human body.
+- "Her hair catches the light" or "a dark tangle" no longer erases the stored hair colour and length; "dark brown hair" or "dyed black" still replaces it.
+
+## 1.0.100 - 8 October 2026
+
+Fixes from an internal audit of 1.0.99:
+
+- A dragon, wolf, spirit or other non-human form named without body details (for example "A silver dragon") no longer gets the human body written into it (a 1.0.99 regression). Only a form described entirely by clothing, gear or condition receives the Physical features a scan sends.
+- Removed unused code: an old NPC-deletion routine that stale archiving replaced, two unused helpers and ten unused imports. A test now fails if unused code is left behind.
+- README: troubleshooting explains that a multi-form NPC keeps its body in each form.
+
+## 1.0.99 - 8 October 2026
+
+Fixes from an internal audit of 1.0.98:
+
+- A new NPC whose scan describes the body under Physical features and only the outfit for a form (for example "Human: wearing a grey cloak") no longer loses the hair and eyes: the body is written into that form. A form that describes its own body, such as a dragon, is left alone.
+- The scanner instructions no longer contradict themselves: Physical features are described as applying only when an NPC has no named forms.
+- An unknown transformed form (one that is not a named form) no longer gets the human body in front of it.
+- The dossier no longer shows Physical features above a selected form they do not apply to.
+- Deleting a message from before 1.0.98 that introduced an NPC removes that NPC again.
+- A portrait being generated for a form is no longer rejected because the unused Physical features changed.
+- Other forms are shown in shortened form in the scanner's context, so NPCs with many long forms do not bloat every scan.
+- Removed unused code and corrected two outdated rules in the core contract.
+- Known limitation: a dragon or beast form converted by 1.0.98 may still contain human traits it showed before; Refresh that NPC or edit the form once.
+
+## 1.0.98 - 8 October 2026
+
+- Each named appearance form (human, dragon, …) is now its own complete description, body and outfit together. Physical features are no longer combined into forms, so a dragon form can no longer pick up the human body and nothing is repeated. Existing forms are converted once to exactly what they showed before, and portraits are not marked outdated by the conversion.
+- The `[full]` form marker from 1.0.95 is retired: every form is complete now.
+- Scans describe each form completely and keep Physical features for NPCs without forms (one short sentence in the appearance-form instructions changed).
+- A hairstyle mention ("tied up in a bun", "pinned back") no longer erases the stored hair colour and length; a real change ("cropped short and dyed black") still replaces it.
+
+## 1.0.97 - 8 October 2026
+
+Fixes from an internal audit of 1.0.94–1.0.96:
+
+- Apparent age no longer ratchets up when the story date jumps around (a 1.0.94 regression): a mistyped year, or a flashback followed by a return to the present, now restores the earlier apparent age exactly instead of adding the gap.
+- An automatic birthday no longer marks the portrait as outdated; a real apparent-age change still does.
+- Importing an older copy of an NPC no longer splits a twin family into two groups.
+- Deleting the message that named a relative (for example a daughter) brings back the unnamed relative it replaced.
+- A form's own trait now replaces a shared one even when the shared text joins them with "and" ("silver hair and violet eyes"), and "short", "small" or "huge" on their own count as height.
+- Every roleplay generation now checks the server for a newer dossier first, including an empty Send, impersonate and group member turns; an ordinary send still makes only one check.
+- Detach after another device already detached the broken file registers that device's backup copy instead of the empty marker.
+
+## 1.0.96 - 5 October 2026
+
+- The Present NPCs cards and chips now show the current form's own portrait when that form has one, like the dossier does, and the main portrait otherwise.
+
+## 1.0.95 - 5 October 2026
+
+- NPCs with several forms no longer repeat their physical features: a form that restates hair, eyes or skin already in Physical features shows them once.
+- A form's own description of a trait (for example different eyes in another form) now replaces the shared one instead of being listed beside it.
+- Mark a form that replaces the whole body (a beast or dragon form) with `[full]` after its name in the Forms editor (`Dragon [full] | …`). Physical features are then not added to it, and the dossier shows a Full form badge. Rescans keep the marker.
+- Scans now keep one form's body (hair, build, size, skin) out of Physical features when an NPC has several forms, so a new dragon form is not given the human body. This adds one short sentence to the appearance-form instructions; nothing else in the prompts changed.
+- Portraits of multi-form NPCs whose combined appearance text changed show the "appearance changed" marker once.
+
+## 1.0.94 - 4 October 2026
+
+Fixes from an external deep audit of 1.0.93 (fifteen reproduced findings):
+
+- Keep the verified copies of an interrupted character rename when its retry hits a read error (a 1.0.93 regression), so a later retry can still finish it.
+- Never save unsaved local work over a dossier file that another session retired, whether through Save/flush or a character rename; the work is kept for recovery only.
+- Regenerate, swipe and continue now check the server for a newer dossier before building the prompt, like an ordinary send (an unchanged file costs a short 304 request).
+- Scan dossier's structured import changes only its target, including profile and bond updates.
+- Scan dossier and Refresh reject a profile row or bond whose id and name point at different people.
+- Detach keeps its exact backup of the broken file registered even if the server's reply is lost, and a retry does not replace it with an empty marker.
+- Deleting a middle message also removes unnamed relatives (for example twin daughters) that only that message added.
+- Deleting an NPC's introduction no longer removes them when a later message gave them a bond that is hidden behind the five shown bonds.
+- An import that skips a duplicate dossier no longer gives that dossier's bonds and relatives to another NPC.
+- A bond stored in both directions no longer takes a second slot at the 240-bond limit.
+- Importing with swapped ids keeps both NPCs' unnamed relatives.
+- Numeric dates count Dec 31 to Jan 1 and Feb 28 to Mar 1 (common year) as one day; stored days are converted.
+- An unchanged Speech row no longer stops Personality development from the same scan.
+- A scan after a skipped birthday keeps the apparent-age offset.
+- A portrait generated before an apparent-age change is rejected, and the dossier marks such a portrait as outdated.
+
+## 1.0.93 - 3 October 2026
+
+Fixes from an external deep audit of 1.0.92 (twenty-three reproduced findings):
+
+- Check the server again before generating after you send a message (a 1.0.92 regression): a newer dossier from another device is adopted first, and a chat missing part of it is marked stale. The 1.0.92 "unchanged file returns 304" saving stays, so the check is a short request rather than a full download.
+- Keep a chat whose dossier file was retired by another session blocked on retry until the chat is reopened, instead of reviving the retired dossier.
+- Stop Refresh, Scan dossier and backfill applying a row that belongs to another NPC through a shared id, a name prefix ("Mira" vs "Mira Vale") or a role that mentions the target.
+- Discard a Refresh result when the chat is edited while it is doing its final server check.
+- Let an interrupted rename of a character you are not using finish on retry.
+- Make "Detach broken sidecar" produce a fresh dossier that can be saved, keeping an exact copy of the broken file.
+- Undo a deleted middle message's own changes (mood, memories) on an NPC who died independently later; the death and its relationship record stay.
+- Stop a saved portrait seed or prompt keeping an NPC whose only introduction was deleted.
+- Speech: accept "Mira, who speaks warmly …" again (a 1.0.91 regression) and reject "neither … nor", "denies …", "her mother speaks …" and "if she spoke …".
+- Birthdays: reject birth facts about someone else ("Noela was born …, according to Mira"), denials, questions and forgeries; roll a yearless age only on the NPC's own, current birthday (not "tomorrow", "five years earlier" or someone else's).
+- Presence: a denied or future return ("does not return", "will return tomorrow") no longer counts as arriving, and another person's absence no longer removes a present NPC.
+- Refresh no longer saves a relationship summary that the safety check rejected.
+- Scan dossier's backfill changes only its target, including profile and bond updates.
+- Naming "Lady Mira Valen" no longer also brings Mira Deep into the prompt.
+- "Not angry, but believes she must repay him" no longer escapes the low-score check.
+- Importing with swapped ids keeps hidden bonds and no longer invents friendships.
+- A 61st manual sibling-bond removal now holds (the limit is now 240, keeping the newest).
+- A portrait preview generated before an appearance change is rejected instead of being saved as current.
+- Escape during a portrait-seed Save, and Cancel during Refresh's automatic editor save, now stop the save.
+- Full Cast scans an unscanned first greeting at message 0.
+
+## 1.0.92 - 1 October 2026
+
+- Cut network load on slow remote/mobile connections. Dossier checks (several per turn) now revalidate with the server instead of forcing a full download each time, so an unchanged dossier file comes back as "304 Not Modified" with no body; a changed file is still fetched in full. Sending a message no longer waits for a server read before generation starts when the chat's dossier is already loaded; the scan after the reply still checks the server copy before writing.
+
+## 1.0.91 - 30 September 2026
+
+Fixes from an external deep audit of 1.0.87 (eighteen reproduced findings):
+
+- Keep a dossier recoverable when the server's reply to retiring the old file is lost or unreadable during a character rename or deletion; only an explicit rejection now counts as "not retired".
+- Keep and register the recovery copy when a chat deletion cannot confirm its retirement, instead of deleting it.
+- Keep a chat that is behind a newer dossier from another session blocked after you send a message in it; only reopening the chat (or the chat catching up) clears it, and the send no longer overwrites the dossier's history.
+- Stop Refresh, Scan dossier and backfill applying a returned row that names a different NPC (for example another character's death) to the requested dossier.
+- Stop a gradual "evolve" from flipping an NPC's moral identity (kind to cruel) on its label alone; reworded, non-moral development still applies as before.
+- Stop Speech taking in another person's voice ("Noela speaks warmly") or a negated trait ("does not speak warmly"); ordinary attributed dialogue still counts.
+- Require an affirmative statement of the NPC's own birth for a birthday correction (not a contract date or someone else's birth), and accept one split across two sentences.
+- Age an NPC on a yearless birthday only when today is affirmatively their own birthday (not a denial, question, past birthday or someone else's).
+- Stop another person's absence, or an absence the story then resolves, from keeping an arriving NPC off-screen.
+- Keep a manually removed sibling bond removed across an unrelated import or rollback.
+- Treat in-law ties as their own relationships: a father-in-law no longer creates child bonds or fake siblings.
+- Keep a manually saved portrait seed (including 0) when the latest message is deleted.
+- Include a separately named "Mira" in the roleplay injection when "Lady Mira Valen" is also named.
+- Stop a later mention of "Tomas Hale" keeping a deleted "Tomas Reed" who shares the alias "Tomas".
+- Accept a refused obligation ("does not feel she must repay him") in the player dynamic at low scores.
+- Abandon a Save that was cancelled while it was still checking the server.
+- Stop an export from downloading a different chat when you switch chats while it is starting.
+- Report full cast scan failures truthfully instead of claiming success.
+
+## 1.0.90 - 30 September 2026
+
+- Stop opening the dossier from raising the phone/tablet keyboard. Opening the panel now focuses the panel itself instead of the search box; search is focused only when you tap it.
+
+## 1.0.89 - 30 September 2026
+
+- Open the dossier library collapsed. It now starts collapsed every time the dossier panel opens; tap the "DOSSIER LIBRARY" bar to expand it, and it collapses again when the panel closes. The collapsed bar spans the full width with a 40px touch target on touch screens, including tablets. The choice is no longer stored in the browser.
+
+## 1.0.88 - 30 September 2026
+
+- Make the dossier library collapsible. Tap the "DOSSIER LIBRARY" heading to hide the search, filters and cast rail so the open dossier gets the space (about 200px more on a phone); tap it again to bring them back. The choice is remembered in this browser only.
+
+## 1.0.87 - 30 September 2026
+
+- Fix Scan, Scan dossier, Refresh and backfill being refused after a page reload with "this chat has not loaded the newest messages another session added". Opening a chat reads it from the server, so the opened history is current: if the saved dossier history is longer, those messages were deleted, and the chat-open reconciliation now rolls the dossier back to the chat instead of marking it stale. A dossier adopted from another session mid-session still blocks scans until the chat is reopened, and reopening now clears that mark. Previously every page reload counted as "another session", so the mark could stay until the next new message.
+
+## 1.0.86 - 30 September 2026
+
+Fixes from an external deep audit of 1.0.84 (twelve reproduced findings):
+
+- Keep a renamed or deleted character's dossier recoverable when retiring the old file is uncertain. If the retirement upload was sent but its verification read failed, rename and deletion now keep the new and recovery copies and register the recovery instead of deleting every copy they made.
+- Keep a chat that is behind a newer adopted dossier from rolling it back. The "local chat is an older prefix of the dossier" state is now its own per-chat mark, set on adoption and cleared only when the local chat catches up or diverges. A local metadata save (such as a portrait seed) no longer removes it, and while it holds, scans are refused with a notice and checkpoints do not truncate the dossier's lineage.
+- Stop a message hide during delete settlement from rolling back too far. Settlement now fingerprints messages without the hidden flag, like branch lineage, and a delete/edit event index can no longer move recovery before the first message whose content changed.
+- Reject a stale appearance draft. Apply appearance in an editor opened before a newer server copy was adopted is refused, like the editor's main Save.
+- Stop a read that started before a chat was deleted from bringing it back. A freshness read that completes after a deletion, rename or retirement no longer restores the pointer, clears the tombstone or reinstalls the dossier.
+- Require birthday evidence about the NPC for every date part. A scanned birth date is applied only when one sentence naming that NPC (or continuing it with a pronoun) states the month and day, or says it is their birthday on today's date, and states a new year when one is supplied, none of it negated. Unrelated people's births, a name inside another word, a date without the year, and "CR801, not CR790" no longer change age.
+- Only an NPC's own birthday rolls over a yearless birthday. Another NPC's birthday narration on the same date no longer ages them.
+- Do not repair an explicitly absent NPC into presence. A missed-participant repair restores presence only when the NPC's own sentences in the current exchange do not place them elsewhere ("is not here", "remains at her distant home").
+- Stop a shared alias from injecting unrelated NPCs. An alias another dossier also carries names nobody on its own, and a label found only inside another dossier's longer name belongs to that dossier.
+- Keep a manually removed sibling bond removed. Removing an inferred sibling pair records the shared parents it was inferred from; inference does not recreate the pair until that parent evidence changes.
+- Match later references to a deleted-block NPC by whole name or alias. "Wayfarer" now keeps the NPC it names, and "dangerous" no longer keeps a ghost called Dan.
+- Report Archive, Restore and Delete only once the server has them. They still apply immediately, but success is announced after the durable write; a failed write shows a warning that the change is applied locally and pending.
+
+## 1.0.85 - 30 September 2026
+
+- Stop NPCs treating the player as uniquely important at low relationship scores ("it must be him", "I must do this for him" at trust 15). The score was not the cause: below 30 its injected wording is neutral. The fixation came from text fields. A relationship summary with obligation, fixation or role claims ("her chosen partner, protector and provider", "must repay him", "only he can", "will follow him anywhere", "devotedly") now needs an unlocked +50 trust or affection milestone, like the existing depth claims; otherwise it is not stored and the neutral score-based wording is injected instead. Stance words in the mood ("devoted", "adoring", "obedient", "infatuated"…) are left out of the roleplay injection while trust and affection are both below 50; the dossier keeps the scanner's text. When an injected NPC has low trust and affection, the injection header adds one line: the player is not uniquely important, with no obligation, fixation or "only them" thinking. Scanner, Refresh, backfill and relationship-pass requests are unchanged; the Stage 9 injection fixture grows by that 100-character line.
+
+## 1.0.84 - 30 September 2026
+
+Fixes from an external 1.0.83 bug audit (nine reproduced findings):
+
+- Stop deleting a middle message from undoing facts set by earlier retained messages. Reverting the deleted block's own changes now requires the exact state just before it (journal or a checkpoint at the preceding message); an older checkpoint no longer stands in for it, and without the exact boundary the dossiers are left as they are.
+- Remove an NPC that was introduced and killed only in the deleted block. The exact before-state proves it did not exist earlier, so its recorded death no longer keeps a dead ghost; it stays when a later message changed it or another dossier started naming it afterwards.
+- Stop a shared title or first name from injecting unrelated NPCs. "I ask Lady Mira" no longer selects Lady Noela and Lady Vera: a first name alone counts only when no other dossier shares it, and titles (Lady, Captain, Master…) never count on their own.
+- Do not treat an unreadable sidecar as a missing one. When a chat has no remembered data-file pointer and its data file exists but cannot be read (server error, authentication, malformed content), hydration now retries and then blocks with an error instead of starting an empty dossier as ready. Only a confirmed missing file starts fresh.
+- Report editor saves only once they reach the server. The dossier editor now waits for the write; if it fails, the editor stays open with the draft, the edit remains applied in this browser, and a warning replaces the premature "saved" notice.
+- Let the repair of a participant the broad scan missed restore their presence. The broad scan's omission set them absent and the repair forced that back even when it returned present=true; a missed-participant repair (queued only for someone taking part in the current exchange) now keeps a grounded present=true, while other repairs still keep the live presence.
+- Require story support for scanned birthday changes. A scanned birth date is applied only when the scanned text names the NPC and states that month and day or speaks of a birthday or birth; an ungrounded model "correction" no longer rewrites an NPC's age. Manual edits and generated dates are unchanged.
+- Do not let a stale chat roll back a newer dossier from another session. After adopting a dossier written by another session, a local chat that is only a shorter prefix of it (with no delete event) is treated as not yet loaded rather than as a deletion, so nothing is rolled back or written; the deferral is recorded in the rollback diagnostics. Explicit delete events are unchanged.
+- Always report a same-revision overwrite. When a later check shows another session replaced the revision this session saved, the local copy was already preserved for recovery; the warning is now shown even from background checks. Preventing the race itself needs server-side compare-and-swap, which SillyTavern's file upload does not offer.
+
+## 1.0.83 - 30 September 2026
+
+- Stop a wrong parent entry from forcing "sibling" back onto Important Bonds. Two NPCs listed as children of one parent were always inferred to be siblings, so when Greta wrongly listed her brother Marek as a parent, "Greta — sibling" kept returning on Talia (Marek's daughter) after every edit. The shared-parent inference now skips, and removes its earlier inferred link for, any pair where either dossier or a non-inferred edge names a different blood tie. A manual bond edit also corrects the other NPC's entry when that entry only mirrored the old relation (editing Greta's "Marek — parent" to "brother" turns Marek's "Greta — child" into "Greta — sibling"); a locked dossier, or a new relation with no inverse, is left alone.
+
+## 1.0.82 - 30 September 2026
+
+- Fix a 1.0.81 regression in Important Bonds: two conflicting blood ties ("Greta — niece / sibling") were settled by keeping the later word, which picked the wrong one and, depending on NPC list order, overwrote the other NPC's correct entry ("Talia — niece" became "sibling"). Such an entry is now settled by what the other NPC's own dossier says (Greta's "Talia — niece" makes Greta the aunt), and without that statement it is left as it is and not mirrored. When deciding which of two dossiers holds a mirrored copy, the side with extra parts ("Niece / sibling" against a plain "niece") is the copy. A blood tie mirrored from the other side no longer overrides an NPC's own entry, so a wrong entry cannot spread.
+
+## 1.0.81 - 30 September 2026
+
+- Stop Important Bonds copying one NPC's words onto the other. Each bond is mirrored onto the counterpart's dossier, and for symmetric ties (cousin, friend, rival) the mirror copied the whole phrase, so a bond describing Talia on Hanna's dossier ("Talia — disinherited half-elf cousin") appeared on Talia's as "Hanna — disinherited half-elf cousin". Relations Delta cannot invert ("servant", "employer") were copied unchanged. A mirrored symmetric bond now keeps only the words both sides share (childhood, best, second, sworn, estranged…), and a relation with no known inverse is not mirrored. Stored copies are repaired on the next social reconciliation: when both dossiers hold the same non-mutual text for each other, a species word decides which NPC the text describes, otherwise the side that established the graph edge keeps it; the other side gets the proper inverse, and the persisted edge is corrected too.
+- Keep the later of two conflicting blood ties instead of joining them. "Niece / sibling" for the same person became one bond; two different kinship relations that are not each other's inverse now resolve to the newer one, both when merging and in stored text. Other combinations ("cousin / business partner") still join.
+- Say which way a bond reads. Routine, full-window and retry scanner prompts define `aToB` as b's role to a; Refresh, backfill and import show the entry format as "Name — their role to this NPC | durable dynamic". Delta-owned request characters grow by 8 (scanner, full-window, retry, import), 10 (backfill) and 32 (Refresh); the focused relationship pass, request counts, response allowances, routing and roleplay injection are unchanged, and the Stage 9 fixture was updated from a recorded before/after comparison.
+
+## 1.0.80 - 30 September 2026
+
+- Repair history saved across several progressive hides. Memory extensions hide messages a few at a time, so state saved by earlier versions holds checkpoint and rollback-journal keys from several eras, each chained through the old flag-sensitive hash of whichever messages were hidden by then. The 1.0.79 migration only rewrote the keys matching the latest stored lineage, leaving the older eras unreachable: a deletion that needed history from before the latest hide still failed closed and kept every dossier. Migration now also tries each prefix of the currently hidden messages (older messages are hidden first) as the set that carried the old hash and rewrites any stored checkpoint, journal, journal-head and inline-card key that matches, once per chat state.
+- Add rollback diagnostics to the exported diagnostics file: the last 20 branch reconciliations of the session (operation, relation, action, divergence, whether it failed closed, reverted/removed counts) without chat identity or story text, the branch history counts, and the chat's message count, hidden/system message count, stored-lineage divergence and turn. Reconciliation records live in memory for the session; export soon after the rollback.
+
+## 1.0.79 - 30 September 2026
+
+- Stop hiding messages from breaking rollback. SillyTavern marks a hidden message `is_system`, and memory extensions such as MemoryBooks hide summarised messages as the chat grows. The branch lineage hashed that flag, so hiding (or unhiding) any earlier message changed its hash and, because checkpoint and rollback-journal keys chain through every earlier message, changed the key of every later message too. A later deletion of the last messages then looked like a divergence at the hidden message instead of a tail truncation, the journal and checkpoints no longer matched, and Delta failed closed and kept everything (a 13-message deletion did not revert). The flag is now fixed in the hash, which keeps the value earlier versions stored for ordinary messages. State saved while messages were hidden is migrated once (`migrateLegacyLineage`): where the stored lineage differs from the chat only in the old flag-sensitive hash, the hash is adopted and every stored checkpoint, journal, journal-head and inline-card key is rewritten to match; real content changes are left to normal reconciliation. Checkpoints saved before an earlier hide can still be unreachable in chats already affected, but new history and rollbacks work.
+
+## 1.0.78 - 30 September 2026
+
+- Undo what a message deleted from the middle of the chat changed. Deleting a message with two or more later assistant replies keeps the dossiers (the later scans cannot be replayed), so everything that message had changed stayed: the Trust/Affection/Desire/Tension change and Last relationship change card, mood, appearance, memories, a newly met NPC. Reconciliation now compares the live state with the state just before the deleted block and just after its last scan (both from the rollback journal, else retained checkpoints, so it reaches as far back as ordinary rollback). Each field the block changed and nothing later touched returns to its earlier value; related fields (relationship values/progress/milestones/history/last change, the appearance fields, age/birthday, life state, Personality or Speech with its development ledger) revert together or not at all; list fields (memories, mannerisms, levers, bonds, aliases, pending evidence) drop the items the block added while keeping later ones; an NPC who first appeared in the block and was not otherwise used later is removed with its bonds, graph edges, candidate and pending backfill; social-graph edges the block added or changed are undone; protected (locked) fields are never touched, and a confirmed death stays unless the deleted block itself caused it. It needs no extra requests and no recorded deltas, so it works for existing chats. It applies only to one contiguous deleted block, and only where nothing later changed the same field; tail deletions, swipes and regenerations are unchanged.
+- Add **Rewind dossiers on middle deletion** (Roster & continuity, off by default). When on, deleting a message from the middle of the chat rewinds every dossier, relationship state and social graph to the exact state just before it (the same exact journal/checkpoint boundary a tail deletion uses), discarding whatever the later messages changed, including NPCs they introduced. It makes no model requests and does not rescan. If that boundary is unreachable it falls back to the default: keep the dossiers and undo only the deleted message's own changes. Swipes, edits and tail deletions are unaffected.
+- Say so when a middle deletion keeps the dossiers. A notice names the NPCs whose changes from the deleted message were reverted or removed, or, when nothing could be reverted, says the dossiers were kept as they are and can be edited by hand. Branch reconciliation diagnostics record `revertedNpcCount` and `removedNpcCount`.
+- Scanner prompts, request counts and persisted formats are unchanged.
+
+## 1.0.77 - 29 September 2026
+
+- Measure Personality and Speech development in story time. When the scanned message's World State block carries a date in the configured calendar (for example Megumin Suite's World State; a message without one inherits the nearest earlier dated message), each development observation records its story day. A trend started by one grounded observation and confirmed by a second at least 7 story days later now meets the gradual gate (two observations instead of three), however few messages lay between; two observations on nearby story days still need a third, however many messages passed. Chats without dates keep the previous fallback (Personality: 20+ messages or 10+ turns apart). Targeted Refresh dates each tagged `[mN]` observation from its own message.
+- Break a development trend on contrary evidence. A later observation of the opposite tendency (for example "timid" after "confident", or the same claim negated) removes the pending trend, so it has to start again instead of being confirmed across the reversal.
+- Measure trait staleness in story days. Stable-field changes record the story day (`fieldChangeDays`, only when the chat is dated), and Refresh names Personality, Speech or Behavioral Levers unchanged for 30+ story days; undated chats keep the 30-turn rule, and the circumstance-change rule is unchanged. Cross-chat imports drop the source chat's story-day stamps with its other chronology.
+- Scanner prompts, request counts and persisted formats are unchanged (the new ledger `days` and dossier `fieldChangeDays` fields are optional and absent in undated chats); the Stage 9 baseline is unchanged.
+
+## 1.0.76 - 29 September 2026
+
+- Re-check stable traits when an NPC's circumstances change, not only after 30 turns. NPCs first met at a low point (an abused servant) got Personality and levers such as "deeply submissive under constant mistreatment" and "Disposition: docile - endures … orders in submissive silence" from that first scene; when the story moved them on quickly (servant to inn owner within 20 turns) those traits kept telling the roleplay model to obey, while the 30-turn stale check had not yet started. Refresh now also names Personality, Speech or Behavioral Levers written before the NPC's background or home base last changed (a trait with no recorded change dates from the dossier's creation), with the same "check each clause, rewrite what belongs to an ended situation, keep the rest" instruction. The rewrite still passes the ordinary evidence gates, and protected fields are never named.
+- Ask for Behavioral Lever evidence in lever form. Scans recorded behaviour evidence as free text ("Pragmatically trades lodging for larder goods"), which carries no lever category, so it could never count as a second sighting of any lever. The scanner and Refresh prompts now ask for evidence items in the same `Label: level - effect` form as the levers.
+- Request budget: the routine scan request is 8 characters smaller (a redundant "Secondary to identity." was dropped from the relationship rule; identity-first behaviour is still stated in the firewall rule and the roleplay injection) and the Refresh request is 21 characters larger, plus the stale-trait line only when it applies. Request counts, retries, output allowances and routing are unchanged; the Stage 9 baseline was regenerated. Persisted formats are unchanged.
+
+## 1.0.75 - 29 September 2026
+
+- Stop a lone "deceased" line appearing in Important Bonds. The dossier editor shows one bond per line but split saved lines on semicolons too, and a dead counterpart's bond is written "…; deceased", so saving the editor (even for an unrelated field) split "deceased" off into its own bond, which was then kept because one-word bond text was preserved. Editor lists (bonds, memories, mannerisms, Behavioral Levers) now split only on line breaks, and a bare life-state word ("deceased", "dead", "late") is dropped wherever bonds are normalised, including protected bonds, so existing orphan lines disappear on the next load or scan.
+- Name the relation that fits a known gender. A bond derived without gender ("Vena — aunt / uncle", "Elena — niece / nephew") now reads "aunt"/"niece" or "uncle"/"nephew" once the counterpart's gender is on their dossier; without a known gender the neutral form stays.
+
+## 1.0.74 - 28 September 2026
+
+- Stop Important Bonds repeating their description ("Clara — cousin | endures her harsh scolding… | endures her harsh scolding…"). Scanners sometimes fold the bond dynamic into the relation (`aToB: "cousin | endures…"`) while also returning it as the dynamic. The social graph kept the pipe inside the relation, and every reconciliation merged the stored "cousin" into the longer "cousin | endures…" relation and then appended the dynamic again. Edge normalisation and scanner-edge parsing now split anything after a pipe out of the relation into the dynamic, and bond formatting does the same, so existing affected graphs are repaired on load without losing the description.
+- Keep a specific relation when it meets its own gender-neutral inverse. A stored "Vena — aunt" merged with the inverse derived from the other dossier ("aunt / uncle") and widened to "aunt / uncle" (and "niece" to "niece / nephew"); the specific relation now wins.
+
+## 1.0.73 - 28 September 2026
+
+- Record Speech evidence as a style, not a bare quote. Scans stored quoted lines ("The ground gives more than it takes.") as Speech evidence. Every quote is unique and shares no words with a description like "speaks in formal aphorisms", so even three scenes of the same voice could never support a Speech change. The scanner and Refresh prompts now ask for the named style with an optional quote (`formal aphorisms: "…"`), and a label followed only by a quote keeps the label as part of the evidence (`formal aphorisms ("…")`), so repeated scenes accumulate under one concept and ground the new description. Bare quotes still cannot ground a Speech change.
+- Keep pending Behavioral Lever evidence per category. Lever evidence shared four slots across all categories, so varied behaviour rotated a first Honesty sighting out before the second arrived and the lever never swung. Each category now keeps its two newest observations (four uncategorised, twelve in all). Scanner prompts still carry only the newest four, so request size is unchanged. A `[mN]` source tag no longer hides an evidence item's category, so a tagged first sighting is recognised as the same category as the next one.
+- Let Personality change after two observations when they are far apart. A slow change seen in two scenes at least 20 messages (or 10 scan turns) apart now meets the gradual gate; closer together it still needs three. Candidate grounding, identity/morality safety and the explicit/batch paths are unchanged, and Speech and Mannerisms thresholds are unchanged.
+- Re-check long-unchanged traits at Refresh. When Personality, Speech or Behavioral Levers have not changed for 30+ turns, Refresh names them and asks for each clause to be checked against the window: a clause tied to an ended situation, a former role or a dead person is rewritten from current evidence (levers keep their label with a new level/effect); anything still true is kept. Locked fields are never named. The rewrite still passes the ordinary evidence gates.
+- Request budget: the routine scan request is 5 characters smaller (the Speech clause was reworded and two overlapping "refine returns the full field" clauses were merged), and the Refresh request is 63 characters larger (the Speech clause), plus the stale-trait line only when a trait is 30+ turns old. Request counts, retries, output allowances and routing are unchanged; the Stage 9 baseline was regenerated. Persisted formats are unchanged.
+
+## 1.0.72 - 28 September 2026
+
+- Send an off-screen NPC's dossier when your message calls her in. Presence came only from scanning AI replies, so if Linnea was absent in message 4 and your message 5 called her over, reply 6 was written without her dossier (her appearance, voice and levers) and could contradict it; she was only included from reply 8. Now, when you send a message, or regenerate/swipe a reply whose scan has not yet run, any off-screen NPC with a dossier whose name, alias or distinctive first name appears in that player message is added to that generation's injection, marked `(named by player)` with a one-line note that she is not yet confirmed on-screen. It is a local name match with no extra model requests. It does not change who is present: the scan of the reply still decides that, and once that reply is scanned she is included or dropped as usual. Archived and confirmed-dead NPCs are never called in. The Diagnostics **Roleplay injection** section lists them as "Named in your latest message". An NPC the model brings in without being named in your message still gets her dossier from the following reply on.
+- Scanner prompts, request counts and persisted formats are unchanged; the injection is byte-identical when no off-screen NPC is named.
+
+## 1.0.71 - 28 September 2026
+
+- Show what the roleplay model receives. **Diagnostics** now opens with a **Roleplay injection** section: whether the dossier block is being sent, which NPCs it contains, its size against the budget, where it is placed (in chat as a system message, N messages from the end) and the exact text. When nothing is sent it says why: this chat's dossiers are not loaded yet, the extension or **Inject present NPC state** is off, or no NPC is marked present in the latest scanned scene. Previously an empty injection was silent, so a missing dossier could only be found by capturing the provider request. The preview is runtime-only and is not included in the exported diagnostic bundle. `NPCStateDelta.injectionPreview()` returns the same information.
+
+## 1.0.70 - 28 September 2026
+
+- Keep physical features in the roleplay injection when the budget is tight. The current appearance was optional continuity added whole or not at all, so with several present NPCs or a lowered **Injection budget** it silently disappeared and the roleplay model invented anatomy (a dossier's "generous bust" narrated as "small chest"). If the whole current appearance does not fit, an NPC without a selected form now gets its **enduring physical features** (`ENDURING PHYSICAL FEATURES (authoritative anatomy): ...`), and failing that a clause-bounded cut; every present NPC gets its compact anatomy before any NPC's full outfit is added. Essential identity/agency still come first.
+- Stop cutting injected Behavioral Levers to fragments. The injection kept each lever's first three words, so "Independence/Agency: high - refuses help she has not asked for" reached the roleplay model as "high - refuses". Levers now keep the category (first part of a combined label) and as much of the effect as their share of the identity room allows, cut at a word boundary; the lever text is sized to the room the identity section really gives it; and when room is short every category still appears as "Category: level".
+- Make a larger **Injection budget** actually carry more. The budget was a ceiling, but each NPC's identity, agency, current-state and relationship sections had fixed caps (620/300/180/160 characters), so a detailed dossier was cut ("…" in personality, speech and mannerisms; levers reduced to "Category: level"; only three bonds) at any budget, and a 6000-token budget sent exactly what 1800 did. The section caps now grow with the budget (up to 2200/900/400/320 characters) and all five bonds are sent once the agency section has room; the default 1800 budget keeps the previous caps, so default cost is unchanged. Only what the present NPCs need is sent: three fully detailed dossiers arrive whole at 4000 tokens using about 2200. Background is now sent as the lowest-priority optional field. The setting's hint explains it is a ceiling.
+- Raise the default **Injection budget** from 1800 to 4000 tokens. Only what the present NPCs need is sent, so a quiet scene costs about the same; three detailed dossiers arrive whole using about 2200 tokens. An install still on the old 1800 default moves to 4000 once (`injectBudgetDefaultUpgraded`); any other value, and a later deliberate 1800, is kept. Section caps still scale from the 1800-token base.
+- Request sizes are unchanged; the roleplay injection for the synthetic Stage 9 fixture changes from 2210 to 2209 characters, and the Stage 9 baseline was regenerated.
+
+## 1.0.69 - 27 September 2026
+
+- Capture enduring physical features in automatic and first-creation scans. The scanner, Refresh, backfill and import prompts defined Appearance as one field ("hair/body, outfit/gear, condition"), so height, build, hair, eyes and ears were stored with the clothes in the current-outfit slot and **Physical features (enduring)** stayed empty. Prompts now ask for `overallAppearance` = enduring body (height/build/hair/eyes/ears/skin/marks) and `appearance` = current outfit/gear/condition, and backfill/import return shapes include the physical field.
+- Seed empty physical features from the whole scene or from the NPC's own stored appearance. 1.0.68 scoped appearance grounding to sentences naming the NPC, so an NPC introduced as "she" or "the half-elf woman" could not get physical features at all; and existing NPCs could not move traits out of their outfit slot unless the scene re-described the body. Filling an empty Physical features slot now accepts support from the scene or from the NPC's stored appearance; changing established physical features stays grounded in story text about the NPC.
+- Stop the current outfit repeating physical features. Once Physical features change, pieces of the current presentation whose words are all already in Physical features are removed; pieces that add detail, or carry negated or changeable wording ("hair wet from the rain"), are kept. The resolved appearance no longer joins the two parts as "ears.; threadbare".
+- Request sizes (characters, synthetic fixtures): scanner 8474→8536, full-window 8602→8664, targeted Refresh 10207→10225 (common prefix 9341→9386), backfill 7953→7960, import 5877→5918, compact retry 9298→9360; the roleplay injection is 1 character shorter from the join fix. Focused-relationship, request counts, output allowances and options are unchanged; the Stage 9 baseline was regenerated.
+
+## 1.0.68 - 27 September 2026
+
+- Close the evidence leak between NPCs. When narration was supplied but none of it was about the NPC being updated, the shared durable-profile check treated the empty NPC-scoped text as "no narration" and accepted the claim, so another NPC's scene could refine this NPC's Personality, Speech, Appearance or Behavioral Levers. Such narration now supports nothing; only a caller with no narration at all (structured import/API) keeps direct refinement, and evidence quotes attributed to the NPC still count. Paths that did not scope the story to the NPC now do: Behavioral Profile refine from the scan's NPC row, first-profile lever seeding on both update paths, and the appearance model (overall appearance and named forms) in ordinary scans, which now reads the NPC's own sentences plus the 1.0.62 presentation follow-up sentences. Targeted Refresh and backfill keep their whole window for appearance. Prompts, request counts and persisted formats are unchanged.
+- Rewrite the README for players: a short introduction, install and first steps, a settings map, plain-language explanations of how dossiers, levers, relationships, appearance, rollback and backups work, and a troubleshooting table. The per-release history now lives only in the changelog; developer commands and governing documents move to a closing section.
+
+## 1.0.67 - 27 September 2026
+
+- Let automatic scans swing a Behavioral Lever. The automatic-scan prompt listed `evolve` only for Personality, Speech and Mannerisms, so ordinary play almost never proposed a lever change (Refresh already allowed it); it now names Behavioral Profile too. A lever still cannot flip from one scene: the first sighting is kept as pending evidence, and an `evolve` with a reason is accepted when the behaviour is seen again in a later scan, or at once for an explicit event or time skip as before. Refine still only sharpens a lever and cannot reverse it, and the kind/cruel and agency safety checks are unchanged.
+- Count a second sighting of lever behaviour even when it is worded like the first. Pending evidence counted as a new observation only when it was less than 0.56 similar to earlier evidence yet at least 0.48 similar to be related, so two scenes of the same behaviour described in similar words were treated as one and the swing never became ready. For Behavioral Levers only, evidence now counts as a duplicate when it is a near-copy (0.85 similar or more), such as a re-scan of the same message; Personality, Speech and Mannerisms keep the existing rule.
+- The automatic-scan prompt drops its opening sentence ("NEW dossier-worthy NPCs get a grounded first-pass profile"), which rule 3 already states more strongly ("Dossier-worthy NEW: populate every grounded field now"). Request sizes (characters, synthetic fixtures): scanner 8517→8474, full-window 8645→8602, compact retry 9341→9298. Refresh, backfill, import, focused-relationship, request counts, output allowances, options and the roleplay injection are unchanged; the Stage 9 baseline was regenerated.
+
+## 1.0.66 - 27 September 2026
+
+- Behavioral Levers now need a recognised category. A lever is "Category: level - effect", and the category must be one of Disposition, Care/Warmth, Expressiveness, Independence/Agency, Conflict/Assertiveness, Threat Sensitivity, Analytical Style, Social Presentation, Cruelty/Mercy, Loyalty, Drive/Ambition or Honesty/Candor, or a close synonym ("Warmth", "Composure", "Trust", "Candor", and so on). Before, any label, or any sentence containing words such as "usually", "when" or "prefers", counted as a lever, so routines such as "Household: strictly enforces curfews" or "Opens the shop when the bell rings" got through. One category map in `core-mechanics.js` now serves the lever check, refine matching, ordering and the identity/morality safety gates; "Care/Warmth" and other combined labels now resolve to their category, and Loyalty, Drive and Honesty are new categories. Existing dossiers and manual edits are not filtered: entries outside the categories are listed for restatement at the next Refresh (as 1.0.65 does for habits), and an entry the model copies back unchanged is kept rather than retired. Entries rejected at intake still count in the agency/morality safety check, so an unrecognised label cannot hide a reversal, and a proposal that lost entries at intake keeps the established levers it omitted.
+- Stop "rather than" and "instead of" from rejecting whole Behavioral Profile updates. For levers only, change-over-time wording ("no longer", "used to", "became", "has grown") still marks an attempted evolution, but a stated preference ("helps through actions rather than words") no longer does. Personality and Speech keep the stricter check.
+- Prompts list the exact categories. Refresh, backfill and import name all twelve; the automatic scan names them in one compact line and states the home-base rule once instead of twice. Request sizes (characters, synthetic fixtures): scanner 8504→8517, full-window 8632→8645, targeted Refresh 10181→10207 (common prefix 9341→9367), backfill 7927→7953, import 5851→5877, compact retry 9328→9341. Focused-relationship, request counts, output allowances, options and the roleplay injection are unchanged; the Stage 9 baseline was regenerated.
+
+## 1.0.65 - 26 September 2026
+
+- Make Refresh clean up stored habit entries in the Behavioral Profile. After 1.0.64 a Refresh still left them when the model omitted the field, which it usually did because it saw nothing new to add. When the stored list holds entries that are not levers and the field is unlocked, the Refresh request now names those entries after the dossier and asks for a full `refine` lever list. The line is target-specific and placed after the shared prefix, so other NPCs' requests and the common prefix are unchanged; for such an NPC the Refresh request grows by the named entries plus about 150 characters (the synthetic Stage 9 fixture, which stores "Keeps firm boundaries.", went 9968 to 10181; common prefix unchanged at 9341). A lever that restates a stored entry is grounded by that entry, so the replacement is accepted even when the scene that established the habit is outside the Refresh window; unrelated new levers still need story support. Diagnostics now record a Behavioral Profile row when stored non-lever entries survive because the model omitted the field (`not-provided`) or proposed only non-lever entries (`non-lever-only`).
+- Let scans and Refresh add new Behavioral Levers to an NPC that already has some. Seeding an empty list judged each proposed lever on its own and accepted one supported by the story, the evidence quotes or the NPC's accepted Personality. Once one lever existed, a `refine` adding a new lever category needed near word-for-word overlap between the abstract lever and the story, and one miss rejected the whole list, so the field rarely changed after the first scan. A new lever category now uses the same per-entry check as seeding (story text is still limited to sentences about the target NPC), and an unsupported addition is dropped on its own. When an addition is dropped, established levers the proposal omitted are kept rather than retired; stored non-lever entries still retire. Replacing an existing lever, and the identity/morality and evolution-wording checks, still reject the whole proposal as before. Prompts are unchanged.
+
+## 1.0.64 - 26 September 2026
+
+- Let a Behavioral Profile refine replace stored habit entries with new levers. When a scan or Refresh proposed a lever whose label the dossier did not already have (for example "Threat Sensitivity: high - slow to trust strangers"), the grounding check required the label words themselves to appear in the story. They never do, so the whole proposal was rejected and every stored entry, habits included, stayed. Refine grounding now checks the claim after the label, as first-profile grounding already did. The claim must still be supported by the story or evidence, one ungrounded entry still rejects the whole proposal, and entries omitted from an accepted refine are retired as before. Prompts are unchanged.
+
+## 1.0.63 - 26 September 2026
+
+- Keep Behavioral Levers to levers. A lever describes how an NPC generally responds or decides ("Label: level - effect", or tendency phrasing such as "slow to trust strangers"). Scans could fill the field with routines and habits ("Keeps a quiet household and strictly enforces advance payment and dusk curfews."), which then crowded out real levers. Scanned, refreshed, backfilled and imported Behavioral Profile entries must now be lever-shaped (`isBehaviorLever`); entries that are not are dropped from the Behavioral Profile proposal and kept as pending Mannerisms evidence instead. A proposal made only of habits no longer replaces the existing levers. Existing dossiers and manual edits are not rewritten or filtered.
+- Tighten and shorten the scanner prompts. Refresh, backfill and import now use one lever definition that says routines, duties, house rules and habits are not levers and that habits belong in Mannerisms; the scanner says the same in its durable-profile rule. Duplicated instructions were removed without dropping any rule: scanner and refresh no longer repeat the flat Appearance sentence that their own rules already state, refresh/backfill/import drop the one-line Stage 4 summary that the full Appearance and death rules follow, and the death rule keeps its model-facing part (explicit death is terminal; later output cannot revive, restore presence or world activity) without the text about player correction and rollback, which the model cannot act on. Request sizes (characters, synthetic fixtures): scanner 8853→8504, full-window 8981→8632, targeted Refresh 10402→9968 (common prefix 9775→9341), backfill 8119→7927, import 6059→5851, compact retry 9677→9328, minimal one-NPC scan 7218→7235 (+17 for the lever wording). The focused-relationship prompt, request counts, output allowances, options, retry budgets and the roleplay injection are unchanged; the Stage 9 prompt baseline was regenerated for the new prompt text.
+
+## 1.0.62 - 26 September 2026
+
+- Capture outfit changes in automatic scans. A routine scan grounds an Appearance change only in story text scoped to the NPC, which keeps sentences that name the NPC and pronoun-led follow-ups. Outfit changes are usually narrated in the next sentence ("A moment later she returns in a white sundress"), and the `npcs` row carries no evidence quote, so those changes were dropped until a targeted Refresh (which reads the whole window) picked them up. An Appearance change in either the `npcs` row or `profileUpdates` may now also be grounded by up to two story sentences that directly follow a sentence naming only that NPC, stopping at any sentence that names another NPC. Ungrounded changes and changes narrated for another NPC are still rejected. The shared Personality/Speech evidence scoping and all scanner prompts are unchanged.
+
+## 1.0.61 - 26 September 2026
+
+- Fix outfit changes still erasing physical appearance. The scanner reports a clothing change as a full `appearanceState: "change"` presentation, and the core merge applied it before the appearance model's 1.0.56 trait protection ran, so hair, eyes, build and scars were already gone when that protection compared old and new text. Omitted physical traits are now carried forward from the pre-scan record at that hand-off, named-form and shared-appearance updates get the same protection, a trait inside a mixed clause ("long silver hair tied back with a ribbon") survives, and a passing changeable mention ("her hair is wet") no longer counts as re-describing the trait. An explicit re-description (dyed, cut) still replaces it. Scanner prompts are unchanged.
+- Restore the appearance controls in Edit dossier. Since the editor's Scan/Refresh row was removed, nothing in the editor carried the NPC id, so the Appearance section, the Life state control and the sectioned editor layout never mounted. The editor content now carries the id itself, and Gender sits inside Identity & profile.
+- Split appearance into **Physical features (enduring)** and **Current outfit & presentation** in the editor and dossier. Physical features use the existing shared-appearance slot, which scans change only when the story explicitly changes them; the outfit field edits the NPC's own current appearance. For an NPC without a named form the resolved appearance (dossier, portrait prompts, roleplay injection) is now physical features plus current outfit, with exact restated pieces not repeated. Applying the editor on an NPC without named forms no longer blanks its current appearance.
+
+## 1.0.60 - 26 September 2026
+
+- One dossier page. Tapping an NPC in the in-chat Present NPCs block now opens the launcher dossier on that NPC instead of a separate quick-viewer page, so the chat and the launcher show the same dossier with the same form portraits, change markers and actions. The quick viewer, its duplicate Edit/Refresh/portrait buttons and its styles are removed; the public `openViewer`/`closeViewer` API becomes `openDossier(nameOrId)`, and `uiStatus()` reports `presentCastDisplay` instead of the viewer fields. Opening from a card no longer focuses the search box, so phones do not raise the keyboard over the portrait.
+- Add a "Present NPCs in chat" setting (Roster & continuity): Full cards (default, unchanged), Compact strip (a one-line row of small portraits and names) or Off (nothing is added to the chat, and the chat watcher and repair timer stop). Presence tracking, generation injection and the recorded inline history are unaffected by the setting.
+- Rename the block's Megumin dossier-block tab from "NPC State Delta" to "Present NPCs".
+
+## 1.0.59 - 26 September 2026
+
+- Fix squeezed settings-panel buttons in SillyTavern. The host `.menu_button` rule is `width: min-content`, so the quick-bar actions (Open dossiers, Scan dossier now, Full scan current cast, Add NPC) and the calendar buttons wrapped one word per line inside wide cells. Grid buttons in the panel now fill their cell, and inline buttons size to their label.
+
+## 1.0.58 - 26 September 2026
+
+- Consolidate the Extensions-tab settings panel. `index.js` now builds the final grouped panel once instead of emitting a flat list that four other modules then moved around at runtime; full cast, scanner output limit and calendar controls mount into named slots, and all panel styling lives in `style.css` (the injected settings CSS in `dossier-experience.js`, `scanner-output-ui.js` and `calendar-settings.js` and the relocation code in `continuity-ui.js` are removed). Nine groups become an always-visible quick bar (Enable, Auto scan, Open dossiers, Scan dossier now, Full scan current cast, Add NPC) plus six groups: Scanning, Roster & continuity, Calendar & birthdays, Portrait generation, Scanner rules and Data & maintenance, with Clear chat dossier separated as a danger action. Hints are shorter, number fields keep their units beside the input, the custom-preset and relationship-tuning controls use compact grids, breakpoints follow the panel width rather than the viewport, and the open/closed state of each group is remembered per browser. Setting IDs, stored settings, handlers, scanner prompts and rubric defaults are unchanged.
+
+## 1.0.57 - 26 September 2026
+
+- Add per-form portraits. Each named appearance form can hold its own image beside the main portrait: the Appearance section shows a thumbnail and an Add/Change portrait button per form, and the Portrait tool gains a "Portrait for" target (Main portrait or a form) that its Upload, Generate prompts from dossier, Use as Portrait and Remove actions apply to. The dossier and library show the current form's own image when it has one and fall back to the main portrait otherwise; the "changed since portrait" badge compares against the image being shown. Form images are user-owned assets in `formPortraitAssets`, bounded to one per form (at most 8 per NPC), stored in the sidecar but never copied into checkpoints or the rollback journal, kept by the same retention rule as main portraits, removed with their dossier, carried by native bundles as an additive manifest section (older bundles decode unchanged) and remapped to the accepted target on import. Chat inline cards and the quick viewer still show the main portrait.
+- Show what the latest update changed. Every scan, Refresh, backfill and dossier import stamps each changed dossier field (mood, location, goal, condition, home base, age, life state, profile fields, appearance, relationship, Player Dynamic, background, bonds, memories, birthday) with the turn it changed. The dossier header reads "Updated this turn · N fields changed: …" and those fields carry a "• T71" marker. The markers are bounded presentation metadata on the canonical record: they roll back with it, never enter scanner prompts or RP injection, and foreign-chat imports never carry source-turn markers.
+- Flag portraits that no longer match. Attaching or generating a portrait records a fingerprint of the resolved appearance and the current form; when the dossier appearance later moves on, the portrait shows "Appearance changed since portrait" (or "Portrait shows the <form> form" after a form switch). Portraits attached before this release never show a guessed badge.
+- Dossier layout keeps the portrait as the focal element and surfaces the player relationship: a Player relationship card now leads the dossier with the four axis bars plus the last relationship change (impact, signed per-axis deltas, turn and the recorded reason), and Player Dynamic lists earlier changes instead of repeating the bars. Section jump tabs stay pinned at the top of the dossier, the hero portrait opens a full-size view (expand button or click, Escape/Close to dismiss), phones give the portrait up to about 60% of the screen height, and deceased cast members follow the living as compact dimmed tiles after a divider. Presentation only: no canonical state, persistence, scanner or prompt change.
+
+## 1.0.56 - 26 September 2026
+
+- Keep enduring physical appearance traits through outfit/presentation updates. When an accepted current-appearance update omits hair, eyes, skin, build, height, facial features, scars, tattoos or anatomy (ears, horns, tail, wings, fur, scales and similar), those traits carry forward from the previous presentation; a trait changes only when the incoming presentation itself describes it (a "hood hides her hair" style mention does not count). Clothing, gear and transient condition still follow the full-current-presentation replacement rule, admission/grounding gates are unchanged, and named forms keep their own traits without duplicating Shared appearance.
+- Capture narrated birthdays returned in a `profileUpdates` row. The scanner is told to put grounded durable facts there, but birthdays were read only from the `npcs` delta, so an existing NPC's narrated birthday was dropped and the generated fallback stayed. Both channels are now accepted (the `npcs` delta wins when both carry one) under the same establish/correct gate.
+- When a scanner reply contains no JSON object at all (a provider/host message or model refusal such as "The prompt ..."), the failure toast and console warning now show a bounded 200-character excerpt of what was returned and name the usual causes (provider block/refusal, context overflow, or a profile not using a chat model that follows JSON instructions), instead of only a ten-character JSON parse error. The existing single JSON retry, request counts, prompt bytes and diagnostics retention are unchanged.
+
+## 1.0.55 - 25 September 2026
+
+- Fix a cross-session data-loss path in the 1.0.54 server-authority model: a session that hydrated a chat before another session created its sidecar had no pointer, skipped freshness checks and wrote revision 1 blindly over the other session's canonical file. Unpointered guarded writes and freshness checks now probe the deterministic sidecar path; a live file is adopted (dirty local work is preserved as recovery-only) and a write without a revision token is refused. Replacing a retired tombstone for a reused chat name remains allowed.
+- Fix a false cross-session conflict after a lost acknowledgement: when an upload became durable but its response or post-upload verification failed, the retry saw its own revision and moved newer local work into recovery-only state. Guarded writes now stamp each upload with a revision/writer/timestamp nonce and adopt exactly that durable revision on retry; any other writer, revision or payload still conflicts.
+- Fix the dossier editor refusing its main Save ("opened on an older server revision") after the editor's own Appearance-form, Life-state or portrait commits advanced the durable revision. The guard now follows a working-copy adoption epoch that changes only when a loaded/server copy replaces the working copy, so another session's installed revision is still refused.
+- Correct DEVELOPMENT.md after the 1.0.53 migration removal: `npm test` runs three programs and no longer references the removed migration smoke.
+- Add storage and synthetic-runtime regressions for unpointered adoption, retired-tombstone replacement, lost-acknowledgement adoption versus a genuinely competing writer, and in-editor commits versus another session's revision. Persisted storage/bundle/branch formats, settings schema v30, model-facing prompt bytes, request topology, relationship scoring and RP injection are unchanged.
+
+## 1.0.54 - 25 September 2026
+
+- Make the SillyTavern server-side NPC State sidecar the sole durable authority across desktop, mobile, tabs, and browser sessions that use the same backend. Hydrated browser state is an ephemeral working copy rather than proof of freshness.
+- Add event/boundary-driven freshness checks for chat load/change, app resume, dossier-open, manual mutation, scanner/provider, portrait, import/export, and destructive lifecycle paths without background polling.
+- Rehydrate clean stale caches directly from the newest server sidecar. When local work is dirty, preserve it as recovery-only state and activate the newer server copy instead of overwriting, silently merging, or discarding the local work.
+- Strengthen `NPC_STATE_WRITE_CONFLICT` with revision + writer-token checks and post-upload ownership verification, including same-revision writer forks that plain revision numbers cannot distinguish.
+- Bind scanner/provider and portrait completions to the durable revision they started from, and reject stale completion after another session advances the canonical sidecar. Manual editor saves also refuse stale snapshots while leaving the draft available for review.
+- Keep durability retries, recovery files, branch reconciliation, rename/delete/retire protections, prompt injection, and bounded diagnostics intact. Separate SillyTavern servers remain independent; no localStorage/IndexedDB/cloud/P2P/device-specific dossier store becomes canonical.
+- Add multi-session regressions for same-revision no-op checks, multi-revision handoff, chat re-entry, stale provider rejection, writer forks, recovery-only conflicts, browser-resume boundaries, and no-polling behavior. Persisted storage/bundle/branch formats remain unchanged.
+
+## 1.0.53 - 24 September 2026
+
+- Consolidate active legacy unqualified-sidecar ownership migration onto one hardened transaction owner. Migration now requires the full stored-lineage proof, refuses an already-resident canonical destination, verifies canonical and recovery writes, persists the ownership mapping synchronously, and only then physically deletes the retired predecessor.
+- Remove the competing weaker four-message-prefix migration path and duplicate `CHAT_CHANGED` migration listener, eliminating both ambiguous legacy claims and two-writer migration races.
+- Harden alias-linked dossier deduplication so the canonical proper-name record retains established Gender/Home Base, manual Name and stable-profile locks remain authoritative, and an Appearance lock preserves the complete Stage 4 form/current/shared presentation state.
+- Harden matched native-bundle imports so target-side manual locks survive imported replacements while portable source locks and unlocked current-state fields still reconcile; stable-id collisions and rejected imports cannot misattach social-graph edges.
+- Correct profile diagnostics: structured/form-only Appearance updates report their resolved applied presentation, Mannerism/Behavioral Profile diagnostics use their own field parser/limits, and unknown numeric provenance remains null without erasing a real message id 0.
+- Expand regression coverage for strong migration ownership, locked alias dedupe, matched-import lock preservation, structured Appearance diagnostics, and diagnostic provenance. Settings schema remains v30; scanner/model-facing prompt bytes, request topology, relationship scoring, and RP injection are unchanged.
+
+
+## 1.0.51 - 24 September 2026
+
+- Deep-pass harden Custom Preset Library Add/Duplicate/Rename/Delete with immediate SillyTavern host settings persistence, rollback on save failure, and success feedback only after durable save.
+- Preserve pending portrait edits across Rename/Delete management flows; Add/Duplicate preserve unsaved global generation/gallery toggles while materializing the new custom preset.
+- Reject duplicate custom preset names after Unicode/whitespace normalization and generate collision-safe duplicate suggestions.
+- After deleting a preset, select the adjacent surviving preset instead of always jumping to the first entry.
+- Add exact legacy-Custom migration coverage and synthetic-runtime coverage for multiple named presets feeding the live portrait prompt builder.
+- Refresh portrait-generator copy to refer to the selected theme/preset rather than the old single global theme. Settings schema remains v30; scanner/model-facing prompt bytes are unchanged.
+
+
+## 1.0.50 - 24 September 2026
+
+- Replace the single portrait Custom slot with a persistent named Custom Preset Library, bounded to 24 entries.
+- Migrate the exact legacy Custom positive/negative/composition/format/mood/location values into `Custom 1` on settings schema v30.
+- Add Add, Duplicate, Rename, Delete, and selector controls; the last custom preset cannot be deleted.
+- Store positive style, negative prompt, composition, prompt format, mood inclusion, and location inclusion per custom preset; keep portrait-generation enablement and SillyTavern gallery saving global.
+- Preserve per-NPC temporary portrait prompt drafts and built-in theme presets. Dirty preset switching asks before discarding unsaved edits.
+- No scanner/provider prompt, relationship, dossier-state, request-topology, or RP-injection changes.
+
+
+## 1.0.49 - 24 September 2026
+
+- Render scanner-compatible flat current Appearance as a read-only dossier `Current presentation` fallback when no named/unclassified current presentation exists, instead of hiding valid captured detail behind an empty forms panel.
+- Keep form identity unchanged while displaying the fallback, preserving species-aware portrait behavior and existing named/unclassified form semantics.
+- Add regressions for existing scalar-only records, future flat scanner Appearance updates on form-less NPCs, and portrait species preservation.
+- No model-facing prompt bytes or request topology change from 1.0.48.
+
+
+## 1.0.48 - 24 September 2026
+
+- Require existing NPCs with explicit new/corrected/current visual evidence to emit `appearance` and `evidence.appearance` in the same `profileUpdates` row, even when other durable profile fields are returned.
+- Add a dedicated Appearance diagnostic row that distinguishes `not-provided`, `candidate-missing`, `locked`, `unchanged`, `unchanged-or-gated`, and applied outcomes.
+- Make Appearance diagnostics search both ordinary `npcs` and `profileUpdates` channels so a profile row cannot hide an Appearance update carried by the ordinary delta.
+- Preserve Appearance as immediate current-visible continuity rather than adding it to the Personality/Speech three-observation development ledger.
+- Record the reviewed model-facing footprint versus 1.0.47: routine scanner/full-window +2 characters and scanner-shaped retry captures +2; targeted Refresh, backfill, dossier import, focused relationship, and RP injection remain unchanged.
+
+
+## 1.0.47 - 24 September 2026
+
+- Fix Appearance extraction so grounded current visual presentation includes directly described hair/body traits, current outfit/gear, and relevant visible condition instead of being suppressed by the durable-identity firewall.
+- Treat explicit visual reveal/correction wording, such as an obscured hair color being shown to be different, as a source-grounded Appearance refinement that can replace the mistaken prior impression without requiring high lexical overlap.
+- Allow grounded `appearanceState:"change"` updates for clothing/current-presentation changes without routing them through Personality/Speech development-scale readiness; existing evidence grounding, form ownership, locks, and unsupported-rewrite rejection remain in force.
+- Add regressions for corrective hair-color narration, changed clothing/boots, scanner prompt guidance, and bounded roster overhead. Record the reviewed model-facing footprint versus 1.0.46: routine scanner/full-window +102 characters, targeted Refresh +221, backfill +71, dossier import +34, and scanner-shaped retry captures +102; focused relationship and RP injection remain unchanged.
+
+## 1.0.46 - 23 September 2026
+
+- Add canonical NPC gender as optional stable identity metadata with only `male`, `female`, or blank for unknown/not yet established. Scanner, Refresh, backfill, and structured dossier import may establish it only from explicit wording or an unambiguous gendered identity/reference; names, occupations, clothing, body type, species, and generated portraits cannot infer it.
+- Preserve established gender by default and require explicit correction state/reason before an automatic scan can flip it. Carry the field through candidates, rollback/native bundle state, manual editing, search, and roleplay injection without changing persisted format versions.
+- Show identity as `Species · Gender · Role · Age/Looks` and add gender to the cast rail. Portrait prompts now place gender immediately after species and before apparent age/appearance/role so image generation no longer receives an under-specified subject when gender is known.
+- Add end-to-end regressions and advance synchronized application/package/display metadata to 1.0.46.
+- Record the intentional model-facing footprint: routine scanner/full-window +59 characters, targeted Refresh +188, backfill +161, dossier import +149, and scanner-shaped retry captures +59; focused relationship and RP injection remain unchanged, as do request counts, response allowances, route options, and reasoning ownership.
+
+## 1.0.45 - 22 September 2026
+
+- Restyle the Portrait seed control as a compact dark-theme panel so the browser-default white number input no longer breaks the Portrait dialog's visual hierarchy.
+- When the seed field is blank, choose a fresh safe-integer generation seed inside Delta before calling SillyTavern Image Generation, display that exact generation seed beside the preview, and offer **Save as NPC seed** for one-click reuse. Existing saved seeds remain fixed and continue to pass through `/imagine seed=<n>`.
+- Keep generated seed provenance preview-scoped and outside scanner/roleplay state until explicitly saved; add focused UI/seed regressions and advance synchronized application/package/display metadata to 1.0.45 with persisted format versions unchanged.
+
+## 1.0.44 - 22 September 2026
+
+- Add an optional persisted per-NPC Portrait seed in the maintained Portrait tool. Blank keeps SillyTavern default/random behavior; a saved non-negative safe integer is passed through the native `/imagine seed=<n>` argument, including ComfyUI workflows that consume `%seed%`.
+- Keep seed state outside roleplay/scanner prompts and preserve host ownership of checkpoint, workflow, sampler, resolution and other image settings; fixed seeds improve repeatability but do not guarantee identity if those inputs change.
+- Stabilize the Data & maintenance action order as `Scan dossier now` → `Full scan current cast` → `Clear chat dossier`, add seed/order regressions, and advance synchronized application/package/display metadata to 1.0.44 with persisted format versions unchanged.
+
+## 1.0.43 - 22 September 2026
+
+- Fix the remaining full-cast settings race by re-homing an already-rendered `Full scan current cast` button into Data & maintenance after cohesive settings normalization, instead of only choosing the correct container at first creation.
+- Listen to the existing `npc-state-delta:settings-mounted` lifecycle event and add a regression covering the re-home path.
+- Advance synchronized application/package/display metadata to 1.0.43 with persisted format versions unchanged.
+
+## 1.0.42 - 22 September 2026
+
+- Move the settings-level manual `Full scan current cast` action into Data & maintenance beside `Scan dossier now`, instead of mounting it as a standalone row outside the section.
+- Keep automatic full-cast configuration under Scanning and the delegated Diagnostics shortcut intact; add focused ownership regression coverage.
+- Advance synchronized application/package/display metadata to 1.0.42 with persisted format versions unchanged.
+
+## 1.0.41 - 22 September 2026
+
+- Restore the manual `Full scan current cast` follow-up action to the Diagnostics modal. Diagnostics emits a small internal request event; `full-cast.js` remains the only owner of full-cast scan execution.
+- Preserve the existing automatic full-cast toggle under Scanning and `Scan dossier now` under Data & maintenance, and add focused regression coverage for the diagnostics/full-cast bridge.
+- Advance synchronized application/package/display metadata to 1.0.41 with persisted format versions unchanged.
+
+## 1.0.40 - 22 September 2026
+
+- Restore the manual `Scan dossier now` action to Data & maintenance for follow-up/recovery use, while keeping the optional `Full scan current cast` action in Scanning and Portrait generation free of unrelated controls.
+- Add focused settings-group ownership regression coverage and advance synchronized application/package/display metadata to 1.0.40 with persisted format versions unchanged.
+
+## 1.0.39 - 22 September 2026
+
+- Make Comma tags genuinely tag-oriented: omit appearance prose fragments already represented by extracted visual anchors while retaining unparsed appearance fragments, and add `loose hair` / `hair ribbons` coverage for common hair-state wording.
+- Fix optional `Full scan current cast` UI ownership so it mounts into the Scanning action group instead of the first generic settings action container, preventing it from appearing under Portrait generation.
+- Add focused regressions for pure tag output, retained unparsed fragments and full-cast Scanning ownership; advance synchronized application/package/display metadata to 1.0.39 with persisted format versions unchanged.
+
+## 1.0.38 - 22 September 2026
+
+- Strengthen Comma tags portrait prompts by promoting explicit visual anchors from accepted appearance prose into standalone subject-first tags before the prose fallback. Hair color/form, eye color, pointed/human ears and bounded direct body/build traits are extracted conservatively without replacing the accepted appearance source.
+- Preserve explicit multicolor hair as one combined standalone anchor when the dossier states it that way, and keep contradiction negatives evidence-bound so an explicitly present color component is never negated.
+- Add regression coverage for the live auburn half-elf clerk prompt and golden-blue multicolor hair, then advance synchronized application/package/display metadata to 1.0.38 with persisted format versions unchanged.
+
+## 1.0.37 - 22 September 2026
+
+- Clean up Settings action grouping: move Scan dossier now into Scanning, Add NPC into Roster & cleanup, and Clear chat dossier into Data & maintenance so unrelated controls no longer appear visually attached to Portrait generation.
+- Advance synchronized application/package/display metadata to 1.0.37 while leaving persisted format versions unchanged.
+
+## 1.0.36 - 22 September 2026
+
+- Make portrait prompt assembly deterministic and subject-first: accepted identity/current appearance lead role, clothing, mood, location and composition, with global positive style last; strip tag-format metadata labels, deduplicate repeated strong-boundary clauses, and derive only explicit safe contradiction negatives for stated hair colors or explicit absent anatomy.
+- Add native portrait generation to the maintained Portrait tool through SillyTavern Image Generation. The edited dossier-derived positive/negative prompts are handed to the existing host `/imagine` bridge, so ComfyUI/A1111/other configured backends remain owned by SillyTavern rather than Delta. Re-expose the existing generation enable and gallery controls in the cohesive settings surface. Force `extend=false edit=false` for Delta portrait requests so SillyTavern cannot LLM-rewrite grounded appearance traits before backend generation; host-global Prompt Prefix / Negative Prompt and backend settings still apply.
+- Keep generated images preview-only until explicit **Use as Portrait**. Closing/switching chats or superseding an in-flight action invalidates late results; accepted previews reuse the canonical portrait validation/compression/persistence path and retain the existing 16 MB input boundary.
+- Retire the obsolete dossier `importance` field and generic per-NPC `manual` boolean. Historical values are accepted as input only long enough to normalize them away; current story salience, scoped profile locks, and typed manual provenance remain authoritative.
+- Add durable Home Base / Usual Location as ongoing-life geography distinct from live Location. An established Home Base is keep-by-default and requires a grounded explicit update/reason to relocate.
+- Consolidate appearance ownership: the flat `appearance` scalar remains a compatibility/resolved projection for historical records and scanner interoperability, while new manual editing and dossier presentation use Shared Appearance, named forms, Current Form, and unclassified current presentation without a duplicate flat editor/display.
+- Clarify dossier presentation labels to Behavioral Levers, Player Dynamic, Condition / Activity, and Hide present-NPC card; group Birthday and Home Base with identity continuity.
+- Keep Important Memories as the bounded five-event episodic continuity channel and preserve relationship event history / last relationship change unchanged.
+- Advance synchronized application/package/display metadata to 1.0.36 while keeping persisted storage, bundle, branch, rollback-journal and diagnostic schema versions unchanged. Deterministic Stage 9 measurement retains the reviewed Home Base prompt delta: routine/full-window +193 characters, targeted Refresh +272, backfill +315, dossier import +218; focused relationship and RP injection are unchanged, as are request counts and response allowances.
+
+## 1.0.35 - 19 September 2026
+
+- Recover a narrowly safe Behavioral Profile refinement when the provider returns a changed full candidate but leaves `behaviorProfileState` at `keep`: every established rule must still be present verbatim, only additive target-general rules may be admitted, every new rule must be grounded by that field's evidence, and existing agency/morality conflict guards remain authoritative.
+- Preserve rejected/unsupported Behavioral Profile evidence for later scans rather than treating `keep` as replacement authority. Diagnostics label accepted recovery as `applied-recovered-refine`.
+- Clarify routine scanner and targeted Refresh prompts that one story observation may independently support multiple durable fields, so a scene can emit both Speech evidence and Behavioral Profile evidence when cadence/wording and a target-general behavioral strategy are both grounded.
+- Record the intentional prompt-budget change: routine/full-window requests are +30 Delta-owned characters, targeted Refresh is +120, request counts/output allowances/routes are unchanged, and reviewed Stage 9 hashes are updated accordingly.
+- Advance synchronized application/package/display metadata to 1.0.35; persisted storage, bundle, branch, rollback-journal and diagnostic schema versions remain unchanged.
+
+## 1.0.34 - 18 September 2026
+
+- Fix automatic per-NPC backfill storms resurfacing after update/reload because pre-1.0.34 unscoped `pendingBackfills` could remain persisted and were drained after later assistant receipts even when no new scan was due.
+- Version and reason-scope automatic backfill work as `missed-participant` or `new-admission`; discard legacy/unversioned pending backfill entries during hydration instead of replaying obsolete cast-wide work.
+- Revalidate automatic missed-participant retries against the exact owning exchange before dispatch. Manual Scan dossier/history repair remains explicitly available and is not subject to automatic-queue provenance rules.
+- Bound omitted-established-participant automatic continuity repair to at most one target per broad scan. If multiple apparent omissions are detected, suppress that per-NPC fallback rather than allowing an implicit Full Cast fan-out; newly admitted dossiers retain their own targeted enrichment.
+- Advance synchronized application/package/display metadata to 1.0.34; scanner prompt bytes and persisted dossier/bundle/branch/rollback-journal/diagnostic schema versions remain unchanged.
+
+## 1.0.33 - 18 September 2026
+
+- Fix portrait prompts being silently truncated at several independent layers: 2,400-character global style settings, 1,800-character builder/override limits, 800/1,200-character composition limits, and final 6,000-positive / 4,000-negative assembly caps.
+- Raise global positive/negative style and per-NPC portrait override safety limits to 12,000 characters and composition to 6,000 characters, with the same limits used by settings persistence, dossier normalization, portable native settings, and UI inputs.
+- Remove the redundant final assembled-prompt truncation so all bounded prompt components reach the portrait editor, clipboard workflow, and native `/imagine` handoff intact; provider/backend limits remain owned by SillyTavern Image Generation.
+- Add regressions proving positive prompts beyond 6,000 characters, negative prompts beyond 4,000 characters, long per-NPC overrides, and portable prompt settings preserve their tail content.
+- Advance synchronized application/package/display metadata to 1.0.33; persisted storage, bundle, branch, rollback-journal and diagnostic schema versions remain unchanged.
+
+## 1.0.32 - 18 September 2026
+
+- Fix automatic established-NPC continuity repair treating names inside World State, NPC Inner Chatter, roster/status blocks, and other structured evidence listings as narrative participation.
+- Keep structured evidence fully available to the broad scanner and targeted backfill prompts, but require real narrative participation before an omitted established dossier can be auto-backfilled.
+- Add regression coverage for raw `<World_State>` blocks, World State `<details>` blocks, and mixed narrative-plus-structured exchanges; retain targeted new-dossier enrichment and explicit current-participant repair.
+- Advance synchronized application/package/display metadata to 1.0.32; persisted storage, bundle, branch, rollback-journal and diagnostic schema versions remain unchanged.
+
+## 1.0.31 - 18 September 2026
+
+- Narrow automatic new-NPC enrichment to the newly created/promoted dossiers instead of treating admission as a cast-wide deep-reconciliation checkpoint. Established NPCs are no longer individually backfilled merely because another NPC was admitted.
+- Preserve silent targeted continuity repair for established NPCs that the broad current-exchange scan actually omitted, plus manual Refresh/Scan and the separately opt-in current-cast workflow.
+- Remove the retired `deepSweep` queue flag and add regression/contract coverage so new admission cannot reintroduce per-NPC fan-out across the established cast.
+- Advance synchronized application/package/display metadata to 1.0.31; persisted storage, bundle, branch, rollback-journal and diagnostic schema versions remain unchanged.
+
+## 1.0.30 - 16 September 2026
+
+- Fix destructive message rollback when SillyTavern emits `MESSAGE_DELETED` or `MESSAGE_EDITED` before its in-memory chat lineage has finished changing. Delta now keeps the destructive event pending until the host exposes the committed narrative mutation instead of consuming the event against the stale latest lineage.
+- Derive the rollback boundary from the observed post-mutation narrative lineage before invoking the existing branch reconciler. Tail/middle deletion and edit therefore reach the established exact journal/checkpoint recovery path without relying on fixed 70/110 ms delays or callback message-index timing.
+- Preserve fail-closed recovery semantics: if the host never exposes a matching destructive lineage mutation within the bounded settlement window, keep canonical dossier state rather than rolling back against stale or ambiguous chat data. Chat switches cancel pending settlement.
+- Add runtime regression coverage for the real event order: deletion event first, unchanged host chat for 120 ms, then host truncation. The test proves no premature rollback before mutation and exact state restoration afterward; focused settlement tests cover both host event orders, edits, rapid destructive events, timeouts and chat switches.
+- Keep the 1.0.29 dossier-evolution fixes, 1.0.27 prompt arrangement, request counts, response allowances, provider routing, relationship scoring, and persisted storage/bundle/diagnostic/rollback/branch schemas unchanged.
+
+## 1.0.29 - 16 September 2026
+
+- Close the six remaining dossier-evolution defects found after the 1.0.28 review while preserving the existing scanner/Refresh request architecture and prompt bytes.
+- Route accepted flat Appearance updates through the same durable grounding/admission protections as the canonical mechanics owner, so a rejected unsupported candidate cannot be revived by facade reconciliation while valid form selection remains supported.
+- Make durable refinement grounding claim-complete and target-NPC-specific: unsupported clauses cannot piggyback on a supported clause, and another NPC's evidence cannot authorize the target through shared wording or stripped labels.
+- Make evidence coverage directional and clause-polarity aware, so a shorter accepted summary cannot erase a longer novel observation and unrelated negation cannot poison or falsely satisfy a separate predicate. Copied Personality/Speech candidates keep unresolved evidence until it is genuinely represented.
+- Require explicit per-member proof before already-resolved Important Bonds inherit collective semantics such as twins; preserve edge direction repair, partial/ambiguous groups, unrelated bonds and idempotent graph projection.
+- Preserve Shared appearance grammar when removing duplicated prefixes, including visibility, copular and negation predicates such as `are not visible`, rather than emitting detached fragments.
+- Add regression coverage for the repaired appearance, refinement-scoping, evidence-directionality, polarity, collective-bond and Shared-prefix cases. Persisted storage, bundle, diagnostics, rollback, branch schemas, relationship scoring and provider request budgets remain unchanged.
+- Advance synchronized application/package/display metadata and current-version assertions to 1.0.29; retain all 1.0.28 review/provenance material as historical evidence.
+
+## 1.0.28 - 16 September 2026
+
+- Harden durable `refine` so preserving established wording no longer authorizes unsupported new Personality, Speech, Appearance, or Behavioral Profile meaning. Newly introduced claims must be grounded in supplied story/evidence; directly supported clarification still applies immediately without forcing gradual-development thresholds, and morality/agency protections remain authoritative.
+- Reconcile accepted flat current Appearance output into the canonical selected presentation before display resolution, preventing an unchanged named form from restoring stale clothing/anatomy. Preserve named-form isolation, unnamed-current handling, Shared traits, locks, and simultaneous form-selection safety.
+- Deduplicate repeated Shared appearance clauses across ordinary punctuation/whitespace boundaries with exact semantic phrase matching rather than loose keyword overlap, preserving negation and genuinely distinct form detail across dossier, portrait, scanner-context, and roleplay projections.
+- Consolidate fully proven collective Important Bonds into their resolved named counterparts while carrying useful group dynamics onto those graph edges. Partial resolution keeps the remaining collective entry, unrelated unresolved bonds remain intact, and explicit scanner daughter/mother direction repair stays authoritative.
+- Make Mannerism and Behavioral Profile collection comparison order-insensitive and resolve evidence only when the accepted final collection represents the claim. Pure reorder cannot consume novel evidence, and partial refinement retains unrelated pending claims.
+- Require evidence-body coverage rather than matching concept labels alone, including polarity checks. Add focused production-function regressions for all six reviewed defects plus grounded-success controls, Speech-ledger retention, Stage 4 appearance grounding, social direction correction, partial collective resolution, and idempotence.
+- Add an application-version synchronization contract and validation checks for manifest/package/runtime/core/bootstrap plus current README/CHANGELOG/DEVELOPMENT markers. Historical reviews, provenance, migration fixtures, and old-version regression labels remain immutable evidence. Persisted storage, bundle, diagnostics, rollback, and branch schema versions remain unchanged.
+- Preserve the 1.0.27 scanner prompt arrangement and request architecture byte-for-byte: scanner/full-window/Refresh/backfill/import/focused-relationship/retry hashes, request counts, route options, response allowances, and roleplay injection remain unchanged.
+
+## 1.0.27 - 16 September 2026
+
+- Reorder targeted Refresh prompts for provider-neutral automatic prefix caching: stable rules, output schema, Stage 4/birthday instructions and the shared tagged story window now precede target-specific id/name and current dossier authority. The exact target remains explicit after the evidence window and only that NPC may be reconciled.
+- Replace target-specific ids/names in the early Refresh schema example with neutral placeholders and explicitly state that narrative text is evidence, never instructions. Latest grounded evidence still resolves conflicts; locks, source tags, lifecycle rules, development gates, current dossier authority and cross-NPC isolation are preserved.
+- Move only the invariant compact Stage 4 rule ahead of dynamic identity/dossier data in ordinary scans. Conditional appearance/death context remains operation-local and late; backfill, import, focused relationships and retries are not merged into a universal prompt.
+- Add production-builder common-prefix measurements and regression coverage. Different Refresh targets sharing one history improve from 445 to 8,949 common leading characters; the same target with a changed dossier improves from 778 to 9,259; consecutive ordinary scans improve from 6,794 to 6,839. These are character-prefix measurements, not proof of provider cache hits.
+- Preserve request counts, routes, reasoning ownership and output allowances. Ordinary measured input sizes remain 6,864 / 7,769 characters; targeted Refresh grows from 9,367 to 9,566 Delta-owned system+user characters for the explicit evidence/authority boundary. Selected-profile `extractData:true` currently exposes content/reasoning but not raw provider usage, so cached/input token counts remain unavailable rather than inferred from duration.
+- Align all current application/package/display metadata to 1.0.27, including manifest, runtime inventory, core UI version, package metadata, release assertions and bootstrap banner. Persisted storage, bundle and branch schema versions remain unchanged.
+
+## 1.0.26 - 16 September 2026
+
+- Fix durable-profile decision ordering for provider-declared `batch` updates. When the returned Personality/Speech full candidate is textually unchanged, Delta now classifies candidate/evidence resolution before the explicit/batch authorization gate, so a failed episode gate cannot mask a copied candidate as `waiting-for-explicit-gate`.
+- Preserve novel copied-candidate evidence as `waiting-for-revised-candidate` and resolve only genuinely redundant evidence as `evidence-already-reflected`. Candidate equality, evidence coverage and resolution flags are populated consistently even when later development gates fail.
+- Add a targeted Refresh episode resolver that uses validated `[mN]` provenance. The nearest prior tagged elapsed-time anchor may bridge through the target's cited source messages even when a long montage exceeds the generic 12-segment episode cap; each evidence claim must still ground in its own cited message and the development reason must ground in the tagged episode.
+- Keep ordinary/multi-NPC scanning on the existing strict bounded episode path. The targeted source-tag bridge does not enlarge the generic episode window, does not let another NPC's evidence authorize the target, and makes no extra model request.
+- Add regressions for the live Sora copied-candidate gate-order shape, redundant-evidence resolution, and a targeted `[m202]` to `[m204]` development episode containing more than twenty intervening sentence segments. No scanner/Refresh prompt text, output allowance, persistence schema, native bundle, branch lineage or relationship formula changes are introduced.
+
+## 1.0.25 - 16 September 2026
+
+- Fix the copied-candidate false resolution exposed by live Sora diagnostics. An unchanged Personality/Speech candidate can no longer consume a ready batch/aggregate evidence epoch merely because the provider labelled it `refine`/`batch`; Delta now proves that every bounded evidence claim is already represented by the accepted current field before reporting `evidence-already-reflected`.
+- When an unchanged candidate still omits supported development, preserve its Personality/Speech ledger and profile evidence and report `waiting-for-revised-candidate`. Mannerism/Behavioral Profile refinement likewise retains novel field evidence when the returned full list is unchanged, instead of discarding that evidence during refinement cleanup.
+- Tighten the scanner/Refresh provider contract without another request: `refine`/`evolve` must return a changed full candidate when durable development is genuinely new, while evidence that only reinforces the current profile should be omitted/kept. Batch chronology does not force cosmetic wording churn.
+- Advance compact diagnostic export to version 3 with `evidenceAlreadyRepresented`, keeping `candidateAlreadyRepresented` separate from evidence coverage so copied stale candidates are directly distinguishable from genuinely redundant evidence.
+- Add live-shape regressions for copied Sora Personality/Speech batch candidates, collection evidence retention, genuinely redundant evidence, and the provider consistency rule. The reviewed Stage 9 scanner fixture is one character smaller than 1.0.24 and targeted Refresh is 17 characters smaller; request counts, output allowances and roleplay injection are unchanged. No persistence schema, native bundle, branch lineage or relationship formula changes are introduced.
+
+
+
+## 1.0.24 - 16 September 2026
+
+- Fix the remaining time-compressed `refine` gap exposed by live Sora diagnostics. Refresh/routine prompts now require `developmentReason` when a refine/evolve/change relies on elapsed sustained development, while the backend can deterministically recover an effective reason from field-specific evidence when the provider still omits it.
+- Keep that recovery candidate-specific. Mannerisms and Behavioral Profile must ground each newly proposed entry from their own evidence before inferred-batch semantics can authorize it; unrelated evidence in the same field or shared episode cannot license a different new habit/rule.
+- Resolve fragmented aggregate Personality/Speech evidence that is already represented by the accepted current candidate. Only the aggregate-fallback case is consumed/reset; ordinary concept-ledger readiness keeps the existing `waiting-for-candidate` behavior until a materially changed candidate arrives.
+- Expand profile diagnostics with candidate-changed/already-represented state, provider/effective reason source, resolved-evidence state, and candidate/reason grounding. Secondary Mannerism/Behavior diagnostics use the same effective-reason and candidate-specific checks as application.
+- Reduce birthday diagnostic noise by omitting unrelated NPCs that merely share a transcript containing birthday language. Relevant rows now include previous/current birth date, birth-year source, calendar age, reference date, age/birth-date state and supplied-date flags for easier chronology debugging.
+- Add regressions for the reported Sora missing-reason Mannerism case, unrelated-evidence rejection, aggregate already-reflected cleanup, Refresh contract wording and birthday diagnostic filtering/details. No extra model request, storage-schema bump, native-bundle change, branch-lineage change or relationship-formula change is introduced.
+
+## 1.0.23 - 16 September 2026
+
+- Replace sentence-pair-only time-skip grounding with a bounded development episode. Natural elapsed spans may now carry a contiguous montage across later sentences/paragraphs, while a later explicit elapsed anchor, present-scene transition, segment cap or character cap ends the episode. Bare time passage remains non-destructive.
+- Make shared elapsed chronology NPC-aware. Each evaluated NPC must ground its own development from name/alias ownership, bounded source-tagged evidence and at most one conservative pronoun continuation; another NPC's evidence cannot authorize the target. Targeted Refresh remains one-NPC and normal multi-NPC scans may independently evolve several NPCs inside the same episode.
+- Complete ordinary gradual Personality/Speech development with an aggregate field-level fallback. Three independent provenance-bearing observations across the existing minimum span may collectively ground the changed candidate even when the provider uses different concept labels; concept buckets remain separate, replayed sources do not count twice and unrelated observations remain blocked.
+- Extend deterministic inferred time-compressed development to the existing Mannerism and Behavioral Profile gates as well as Personality/Speech, without moving Appearance, relationships or current-state fields onto that lifecycle.
+- Add always-on bounded operation diagnostics outside canonical dossier/story state. Per-NPC dossier Show/Hide is presentation-only; Data & Maintenance Diagnostics can display, clear and export a versioned compact JSON bundle containing bounded profile/birthday gate decisions while excluding full story text, prompts, credentials and provider payloads.
+- Add birthday/aging decision receipts for deterministic advance/hold, including same-day idempotence and the first-establishment guard, without changing v1.0.22 calendar mechanics. Add generalized multi-NPC, cross-NPC isolation, episode-boundary, aggregate-gradual, Mannerism/Behavior, diagnostic privacy/export and birthday-diagnostic regressions. No extra model request, prompt change, storage-schema bump, native-bundle change or branch-lineage change is introduced.
+
+## 1.0.22 - 15 September 2026
+
+- Fix deterministic birthday rollover for an existing dossier when the grounded calendar reaches its stored birthday. Full-year calendar arithmetic now advances chronological age and a compact numeric apparent-age estimate by the same confirmed delta, while manual age/apparent-age locks, provider-explicit chronological corrections, terminal death and provider-explicit apparent-age evolution remain authoritative.
+- Recover existing yearless month/day birthdays on their exact narrated birthday or nameday once: advance the accepted chronological age, reanchor the derived birth year, and make repeated same-day scans idempotent. Do not assume a rollover when the birthday is first established in that same scan. Recognize `nameday` / `name day` as birthday evidence for the existing conditional scanner rule.
+- Advance Personality/Speech development ledgers to internal version 2 with up to four bounded evidence samples per concept. Three independent observations and the existing provenance span remain required, while candidate grounding can aggregate support across retained samples instead of depending only on `latestEvidence`.
+- Prevent replayed source messages from manufacturing historical sample support; v1 ledgers seed one sample from their old `latestEvidence`, cross-chat import clears pending samples with chronology, and accepted evolution still resets the ledger epoch.
+- Add regressions for Ryu-style age `13` / apparent `~12` to `14` / `~13` nameday rollover, same-day idempotence, manual/explicit apparent-age authority, new-birthday ambiguity, nameday prompt activation, accumulated Speech and Personality gradual grounding, bounded sample retention, replay protection and cross-chat scrubbing. No extra model request, relationship change, persistence schema, bundle format, or branch-lineage change is introduced.
+
+## 1.0.21 - 15 September 2026
+
+- Fix the live time-skip false negative where Gemini correctly returned `developmentScale: "batch"` and `speechState: "evolve"`, but deterministic validation still rejected natural elapsed phrasing such as `in two months`, `over the past month`, `the past seventy days`, `for two months`, or `one season under ...` as `waiting-for-explicit-gate`.
+- Generalize elapsed-duration parsing across day/week/month/year/decade/season units, larger spelled-out quantities, past/previous/last windows, qualified spans and contextual residence/training spans. Keep age statements and bare passage non-authoritative.
+- Strengthen batch grounding so the elapsed-time clause or an explicit temporal continuation must carry sustained-development evidence and sufficiently ground the supplied development reason. Weak generic transitions such as unrelated weather `changed` cannot lend their duration to a later one-off behavior.
+- Add scoped deterministic development aliases for conservative paraphrases such as schooling/study and training/practice without changing global durable-profile similarity or adding any model request. Verify the same grounded time-compressed Refresh can carry safe Personality, Mannerisms and Behavioral Profile refinements alongside Speech under their existing field gates.
+- Add production `mergeScanResult` reproduction of the reported Ryu payload shape plus unit guards for months, years, seasons, past-day spans, comma-separated `in two months` phrasing, age statements, unrelated elapsed events and semantic development wording. Scanner prompt bytes, request counts/retries, output allowances, relationship mechanics, persistence schemas, branch lineage and native bundle format remain unchanged.
+
+## 1.0.20 - 15 September 2026
+
+- Make time-compressed durable development deterministic instead of depending on the provider to emit the exact `batch` + `evolve` combination. When a Personality or Speech candidate is returned as `gradual`/`refine` or `gradual`/`keep`, Delta may infer the existing batch path only when the supplied story context itself proves an elapsed span, sustained development during that span, and a grounded development reason.
+- Generalize elapsed-span recognition to named seasons and seasonal ranges such as spring through summer, plus ordinary day/week/month/year/season spans expressed with `during`, `throughout`, or `across`. Expand sustained-development cues around learning, practice, training, study, apprenticeship, progression and mastery without treating bare time passage as development.
+- Require an inferred/declared batch recovery candidate to be materially changed and grounded against the supplied field evidence and development context before replacement. Manual locks, Personality morality safety, existing provider-authorized explicit/batch evolution, gradual three-observation ledgers, rollback ownership and native transfer remain authoritative. No extra model request is added and scanner prompts remain byte-stable.
+- Add regressions from the reported seasonal Speech transition, prove that seasonal passage alone cannot bypass gradual evidence, and verify the same grounded elapsed-development recovery for Personality so the behavior is field-general rather than character- or Speech-specific.
+
+## 1.0.19 - 15 September 2026
+
+- Replace the Speech-only exact-label development gate with bounded deterministic Personality/Speech ledgers. Unlabeled evidence and conservative semantic concept variants can accumulate without depending on Gemini to repeat one exact label spelling; three independent related observations across the existing minimum provenance span remain required for gradual promotion.
+- Make targeted Refresh source-aware inside its configured recent-story window. Refresh lines carry raw `[mN]` message IDs, Gemini may return up to four tagged gradual Personality/Speech observations, and Delta counts a tag only when that raw message actually belonged to the supplied window. Multiple qualifying messages inside one Refresh can therefore contribute independently without pretending they all occurred on the Refresh boundary.
+- Let deterministic gradual readiness own the final lifecycle decision: once a ledger is ready, a changed full current Personality/Speech candidate may be promoted even when the provider labels it `refine`/`keep`, but only when the new concepts are grounded in the accumulated evidence. Delta never invents replacement prose when the provider copies the stale current summary; diagnostics report `waiting-for-candidate` instead.
+- Preserve accepted v1.0.6 model-authorized `evolve` behavior, explicit/batch gates, manual locks, full-summary safety, rollback and native-bundle cloning. Cross-chat native transfer now rebases pending Personality chronology alongside Speech and cannot carry source-chat message/turn evidence into the target.
+- Expose `profileUpdates`, `profileApplied`, `profileEvidenceAdded` and bounded per-field development outcomes in Compact Diagnostics. Add regression coverage for the reported Ryu stale-Speech shape, unlabeled evidence, semantic label variants, multi-message Refresh accumulation, forged source tags and cross-chat Personality/Speech rebasing.
+- Deliberately clarify only the targeted Refresh prompt so it asks for tagged independent gradual observations and the best full current candidate instead of blindly copying a stale summary. The measured Refresh request grows by 322 characters; scanner/full-window/backfill/import/relationship/retry request counts, output allowances and roleplay injection remain unchanged. Persisted schemas, branch lineage, numerical relationship scoring and native bundle version remain unchanged.
+
+## 1.0.18 - 15 September 2026
+
+- Make Important Bonds / Key Relationships boundary-safe end to end. Canonical stored bonds now use one 360-character budget and social dynamics use 260 characters, with subject/relation/dynamic parsed before limiting instead of raw slicing a preformatted line.
+- Compact dynamics by whole deduplicated fragments. If another fragment will not fit, drop that whole fragment; if a single unavoidable fragment itself exceeds the available space, shorten it at a sentence, clause, or word boundary and mark word-boundary truncation with an ellipsis. Never persist a severed word or dangling `|`, `/`, or `;`.
+- Route scanner-edge normalization, hidden social-graph storage, graph projection, ordinary dossier merging, legacy normalization, and manually locked bonds through the same canonical representation so repeated reconciliation cannot progressively shorten a bond. Preserve the existing smaller scanner/injection projections, request counts, prompt bytes and output allowances.
+- Add regressions for the reported `telepathic bon` / `authority she resp` failure shape, canonical storage beyond the former 220-character ceiling, over-budget fragment dropping, graph projection and manual-lock idempotence. Persisted schemas, bundle format, branch recovery, relationship scoring and model routing remain unchanged.
+
+## 1.0.17 - 15 September 2026
+
+- Rebase foreign-import activity chronology at the canonical bundle merge boundary. New foreign dossiers begin their inactivity clock at the target chat's current turn, while matching target dossiers preserve their existing target-owned `lastSeenTurn` / `lastWorldActiveTurn`; low or high source-chat counters can therefore neither trigger immediate stale deletion nor grant excessive retention. Prepared/UI imports retain their original source-chat identity until the canonical importer applies this rebasing, without inventing source-message provenance.
+- Make missing/`keep` Personality, Speech and Appearance recovery satisfy the same field-specific safety gates as explicit refinement in addition to preserving all established durable concepts. Morality reversals and Speech evolution language such as `no longer` cannot pass merely because old words remain lexically present; legitimate additive keep recovery and explicit accepted full-current `refine` remain supported.
+- Preserve mixed protected Behavioral Profile directions instead of collapsing them to neutral. Full-profile refinement now rejects agency or morality reversals atomically across renamed categories, including the bounded `not independent` negation case, while ordinary cooperation with authority is not treated as obedience by itself.
+- Clear stale inferred status when a social edge gains explicit/manual authority, keep duplicate/reversed-edge normalization consistent with that promotion, and rank capacity by canonical confidence. At the 240-edge limit, weaker/equal arrivals cannot evict equal- or higher-authority established bonds.
+- Promote the deep-scan reproductions into tracked regression coverage, including direct and prepared foreign imports, low/high source clocks, matching/new dossiers, both ordinary and `profileUpdates` profile paths, mixed/negated Behavioral Profile cases, explicit/manual social promotion, mirrored projections, repeated normalization and later capacity pressure. Scanner prompts, request/retry/output budgets, routing, numerical relationship scoring, persisted schemas, branch recovery and native bundle format remain unchanged.
+
+## 1.0.16 - 15 September 2026
+
+- Keep the 1.0.15 full-current `refine` contract explicit: missing/`keep` lifecycle markers use non-destructive compatibility recovery that may add grounded detail but preserves omitted established Personality, Speech or Appearance clauses instead of treating omission as deletion authority.
+- Apply the same keep-vs-refine distinction to form-independent overall appearance and named appearance forms. Explicit accepted `refine` still replaces that exact current slot and retires omitted superseded visual clauses.
+- Make Behavioral Profile refinement atomic across protected identity directions, not only matching category labels. Agency/autonomy versus obedience/compliance and kindness versus cruelty reversals cannot bypass refinement safety by renaming the category.
+- Rebase pending Speech-development chronology on cross-chat native import: preserve accepted Speech/epoch/baseline text, clear source-chat message/turn provenance and pending concepts, and keep same-chat ownership unchanged.
+- Make social-graph capacity authority-aware. New edges may evict only strictly weaker continuity and can never displace equal- or higher-confidence explicit/manual relationships merely because the 240-edge cap is full.
+- Add focused regressions for ordinary/profile-update unmarked summaries, keep-state appearance forms, renamed Behavioral Profile reversals, cross-chat Speech provenance and full-cap social graphs. Scanner prompts/request budgets, numerical relationship scoring, persistence/storage formats, branch recovery and native bundle schema remain unchanged.
+
+## 1.0.15 - 15 September 2026
+
+- Make accepted durable-profile `refine` results authoritative full CURRENT summaries instead of additive history. Personality, Speech and flat/current Appearance now retire omitted superseded clauses after the existing safety gates accept the incoming full field.
+- Treat Mannerisms and Behavioral Profile `refine` payloads as full current bounded lists: omitted old habits/rules retire instead of accumulating forever. Unsafe Behavioral Profile refinements reject atomically and preserve the established profile.
+- Apply the same current-summary rule inside named appearance forms and form-independent overall appearance while preserving unrelated named forms. Updating Human Form no longer carries an older Human Form outfit forward into the new presentation.
+- Keep evidence/history in `profileEvidence`, memories and their existing histories rather than copying history back into current dossier summaries. Existing evolution/development gates, manual locks and identity/morality firewalls remain authoritative.
+- Add regressions for the reported blue-gold-hair school-outfit -> flax-smock/vest/skirt stacking case plus Personality, Speech, Mannerisms, Behavioral Profile and named-form replacement. Scanner prompts/request budgets, relationship scoring, persistence formats, branch recovery and bundle schema remain unchanged.
+
+## 1.0.14 - 15 September 2026
+
+- Make Important Bond normalization idempotent when older data already contains repeated structural pipes or spaced slash fragments. Canonical dynamics split legacy `;`, extra `|`, and spaced ` / ` separators, discard tiny truncation debris, deduplicate semantically repeated fragments, and render one structural `|` only.
+- Deduplicate repeated relation fragments such as `Host / Caretaker / Host / Caretaker` without collapsing legitimate distinct relation labels.
+- Make manual Important Bond deletion authoritative over the shared social edge: remove the hidden pair and the counterpart's mirrored structured bond in the same transaction so reconciliation cannot immediately recreate the deleted entry from the reverse dossier.
+- Recover counterpart identity from the structured subject prefix even when the rest of an old bond is malformed/truncated, so corrupted entries can still be deleted cleanly.
+- Add the reported Mistress Hilde corruption as a repeated-reconciliation regression plus delete -> reconcile -> still-deleted coverage. Scanner prompts, request budgets, relationship scoring, persistence formats, branch recovery and bundle schema remain unchanged.
+
+## 1.0.13 - 15 September 2026
+
+- Make destructive linear recovery exact-boundary only. Delete/edit may restore the requested surviving parent from the rollback journal or an exact checkpoint, but an older checkpoint can never substitute for a missing parent and generic root fallback is forbidden.
+- Extend journal recovery to near-tail replacement divergence, so an edited/regenerated latest assistant can reconstruct its exact parent even after that full checkpoint was pruned; keep the rollback head owned by the restored parent until the replacement is rescanned.
+- Fail closed for deep edits with multiple retained assistant descendants instead of rewinding and discarding later accepted continuity. Preserve the current canonical dossiers, rebase unsafe recovery ownership, and rescan without replacing the retained suffix.
+- Preserve swipe semantics: an exact known sibling restores without another scan; an unseen sibling may restore only its exact parent/root anchor and must then be scanned. No arbitrary ancestor checkpoint is accepted.
+- Expand bounded reconciliation diagnostics with requested recovery boundary, affected assistant count, journal/checkpoint availability, rejected older checkpoint/distance, retained-descendant blocking, and rescan requirement. Add the observed 123-message regression where edit divergence 99 previously restored message 3 and collapsed 26 NPCs to one.
+- Keep the 8 MB / 2 MB full-checkpoint limits, 256-message journal horizon, scanner prompts/request budgets, relationship scoring, storage schema and native bundle format unchanged.
+
+## 1.0.12 - 14 September 2026
+
+- Run a one-time legacy branch-history compaction on existing sidecars after lineage is proven safe. Retain the current active lineage plus SillyTavern-retained swipe alternatives, and remove unreachable pre-1.0.11 sibling checkpoints, inline-card branch residue and rollback-journal chains that are no longer owned by the live head or a retained checkpoint.
+- Defer compaction while a destructive lineage divergence is unresolved, then retry after reconciliation, so cleanup never races delete/edit/swipe recovery. Persist a versioned compaction marker and bounded before/after accounting so each sidecar is compacted at most once per compaction version.
+- Harden v4-to-v5 branch migration by mapping legacy checkpoint keys only when they match the active host branch or a swipe SillyTavern still retains, preventing old delete/regenerate siblings from collapsing onto the current v5 key while preserving provable swipe alternatives.
+- Raise the aggregate full-checkpoint budget from 2 MB to 8 MB and the single full-checkpoint ceiling from 750 KB to 2 MB. The separate 256-raw-message rollback-journal contract and 12 MB diagnostic target are unchanged.
+- Expand Compact Diagnostics with current narrative snapshot size, largest checkpoint size, aggregate/max checkpoint limits and the most recent compaction summary. Scanner prompts, request counts/retries/output allowances, relationship scoring, sidecar format and bundle format remain unchanged.
+
+## 1.0.11 - 14 September 2026
+
+- Treat ordinary message deletion/regeneration and edits as linear history replacement: restore the surviving parent boundary, discard descendant recovery artifacts, and do not retain deleted generations as sibling branches. Preserve sibling checkpoints only for explicit SillyTavern swipe events.
+- Advance destructive branch lineage to v5 using narrative role/content only. Mutable host `send_date`, generation ids and swipe indexes can no longer manufacture a destructive divergence; v4 sidecars and explicit v4 parent branches retain guarded compatibility during upgrade.
+- Fail closed when a divergence has no proven recovery target: keep the accepted canonical dossier and rebase ownership instead of walking backward to an older checkpoint or branch root. First-message explicit swipes retain their intentional root-anchor behavior.
+- Add bounded branch-reconciliation diagnostics with operation/relation/action, recovery source, fail-closed state, NPC counts, checkpoint bytes and rollback-journal pressure, without retaining story text.
+- Self-clean malformed Important Bonds: reject sentence-like orphan prose, normalize inverse owner/counterpart relation collisions, deduplicate near-identical dynamics, align incoming social-edge direction to established bonds, and preserve manually locked relationships.
+- Add stress coverage for scattered delete/regenerate cycles across 20 live messages under full-checkpoint byte pressure, explicit swipe siblings, v4-to-v5 migration/ancestry, passive unexplained divergence and edit replacement. Scanner prompts, request counts, output allowances and relationship scoring remain unchanged.
+
+## 1.0.10 - 14 September 2026
+
+- Retain the newest accepted unsaved state across transient-to-permanent persistence failure, cache eviction and rehydration until a successful durable flush; preserve cancellation, retirement, ownership and revision guards.
+- Keep referenced journal versions immutable during same-message consolidation, including net-zero revisits, and retain required predecessors for branch checkpoints and sibling chains.
+- Checkpoint deterministic assistant receipt changes at their own message boundary before scanning, so failed/skipped/busy scans cannot move turn ownership to a later user message.
+- Protect explicitly confirmed-dead dossiers from stale archive/deletion even when automatic death archiving is disabled; preserve ordinary living 30/50-turn cleanup.
+- Add production-function and synthetic-host regressions, clarify the governing contract, and preserve scanner prompts/budgets, scoring, the 256 raw-message horizon, Speech behavior and persisted formats.
+
+## 1.0.9 - 14 September 2026
+
+- Preserve undurable persistence ownership through bounded chat-cache eviction and rehydration. A snapshot recovered after a permanent sidecar rejection now remains locally pending until a later successful flush instead of being incorrectly promoted to durable.
+- Add a production-runtime regression for permanent HTTP 413 rejection -> cache eviction through eight other chats -> same-session rehydration -> pending durability -> successful later flush.
+- Preserve all 1.0.8 recovery behavior, scanner prompts, request/retry/output budgets, relationship formulas, bundle schema, sidecar format version and branch-lineage version.
+
+## 1.0.8 - 14 September 2026
+
+- Separate recovery lineage classification from strict asynchronous equality checks. A persisted lineage that is an exact prefix of the live SillyTavern chat is now a non-destructive forward extension and cannot restore an older checkpoint/root dossier.
+- Change the active journal contract to a contiguous 256 raw-message horizon from a trustworthy baseline, including unchanged user/system boundaries. Add normal alternating-chat regressions for exact 100-message deletion, repeated 50+50 deletion, the 256-message boundary, and failed-scan deletion across a preceding user turn.
+- Coalesce repeated canonical checkpoints owned by the same message and replace whole-social-graph journal copies with changed edge/slot undo records while preserving a reader for v1.0.7 full-graph entries. Stress coverage with 40 NPCs/240 edges keeps journal growth bounded by changed data rather than graph size.
+- Preserve the newest locally dirty state after a permanent durable-write rejection in the persistence owner, so bounded chat-cache eviction and later same-session hydration cannot silently replace it with an older sidecar; successful later persistence or explicit cancellation clears that recovery shadow.
+- Complete stale-removal cleanup by purging owned structured relationship references and delaying portrait-asset garbage collection until checkpoints/journal history can no longer restore the removed NPC.
+- Compact active sidecar JSON and build base64 input from chunks instead of repeated giant-string concatenation. Persisted data-file format version, bundle schema and branch-lineage version remain unchanged.
+- Preserve scanner prompts, request/retry/output budgets, connection-profile routing, numerical relationship formulas, Speech-development semantics and RP injection. No additional model request or background worker is introduced.
+
+## 1.0.7 - 13 September 2026
+
+- Add a bounded reversible rollback journal beside the existing byte-bounded full branch checkpoints. Journal entries store compact canonical-state undo deltas plus exact lineage/sequence ownership, not transcript text or portrait binaries.
+- Make large tail deletion independent of whether the exact surviving full checkpoint remains inside the 2 MB snapshot budget. The active journal can walk backward deterministically through recent mutations and marks the restore exact without another scanner/model request.
+- Cover structural rollback as well as scalar fields: NPCs first introduced only in deleted history disappear, downstream social edges/key-relationship references, candidates and pending backfills are cleaned up, while surviving NPC memories, relationship state, appearance/lifecycle and Speech-development evidence return to their earlier values.
+- Preserve existing user-owned metadata overlay rules during rollback. A manual portrait/profile override on a surviving NPC remains, but user metadata cannot resurrect an NPC whose narrative existence was rolled away.
+- If a scanner fails before its normal checkpoint, immediate tail deletion restores from the prior journal head and the next assistant parent-anchor settles the surviving uncheckpointed turn before advancing. Keep full checkpoints for swipe/sibling/recovery safety and record each checkpoint's journal sequence for branch rebasing.
+- Bound the journal to 1,024 recent mutation entries with a contiguous active-history priority and a 12 MB soft budget while retaining at least 384 active entries. Add regressions for an exact 100-message tail deletion after the full-checkpoint target is pruned, plus two successive 50-message deletion batches. Scanner prompts, request counts/retries, relationship formulas, bundle schema and branch-lineage version are unchanged.
+- Existing pre-1.0.7 histories establish their journal baseline when loaded; the new journal cannot reconstruct full snapshots that an older build had already discarded before upgrade.
+
+## 1.0.6 - 13 September 2026
+
+- Add a bounded deterministic Speech development ledger inside each canonical NPC record, tracking up to four pending speech concepts with recent turn/source-message provenance rather than retaining transcript history.
+- Let three independent observations of the same stable speech concept across a minimum turn span authorize gradual Speech evolution, while replay of the same source message cannot advance the counter and unrelated concepts cannot combine.
+- Preserve existing grounded `explicit` and `batch` Speech evolution. When a full Speech replacement is accepted, clear old speech profile evidence and begin a new speech epoch so pre-change observations cannot resurrect obsolete habits.
+- Keep a bare time skip non-destructive: without grounded speech development, current Speech and pending evidence remain unchanged. A manual/unlocked Speech baseline change also clears stale pending concepts before later scans.
+- Preserve manual Speech locks, native bundle/checkpoint ownership, scanner prompt bytes, request/retry counts, output allowances, numerical relationship formulas and persisted format versions. Add regressions for replay rejection, concept isolation, gradual thresholding, batch reset, bare-time-skip preservation, manual baseline reset and bundle round-trip.
+
+## 1.0.5 - 13 September 2026
+
+- Make manual Key Relationships / Important Bond edits authoritative over the edited NPC's hidden social-graph direction instead of enriching a stale graph edge and projecting old prose back into the dossier.
+- Preserve a compatible reverse-side relationship/dynamic for the counterpart while replacing the manually edited owner-side relation and dynamic exactly.
+- Normalize `Name — relation; dynamic` into the canonical `Name — relation | dynamic` shape when the relation prefix is a recognized social relation.
+- Remove an unstructured orphan line when its full text is already contained in a structured bond entry, preventing duplicated dynamic-only lines from surviving canonicalization.
+- Add focused regressions for the demonstrated Ryu/Sora duplicate-line case, same-counterpart manual rewrite, and reverse-side preservation. Scanner prompts, request counts, relationship scoring formulas, persistence formats and bundle schemas are unchanged.
+
+## 1.0.4 - 13 September 2026
+
+- Give direct per-NPC Refresh the same Stage 4 appearance-form output contract already used by the accepted appearance model, including `overallAppearance`, `appearanceForms`, `currentForm` and `currentFormState`.
+- Carry the selected NPC's established appearance-form context into Refresh reconciliation and explicitly treat natural anatomical transitions as current-presentation/form evidence even when narration never says `form` or `transform`.
+- Preserve alternate anatomy when Refresh observes a visibly different presentation without a stable form name by routing it through the existing unclassified-current presentation instead of overwriting the prior form.
+- Keep Refresh strictly one-NPC and one-request: no extra scanner call, completeness pass, relationship scoring change, retry-budget change, persistence owner, or bundle-schema change.
+- Add focused regressions for the demonstrated horn/wing/tail disappearance path and preservation of the prior chimeric presentation.
+
+## 1.0.3 - 13 September 2026
+
+- Make Stage 4 appearance-form fields part of the detailed routine scanner return contract instead of relying only on an appended side instruction.
+- Recognize grounded implicit anatomical transformations such as horns, wings, tails, plumage, scales, talons or ears visibly dissolving, retracting, appearing, growing or otherwise changing even when narration never says `form` or `transform`.
+- Preserve established alternate forms and route visibly different but unnamed presentations through the existing unclassified-current-form path instead of overwriting unrelated anatomy or inventing a stable form name.
+- Keep ordinary scans compact: the expanded form schema is added only when existing form/lifecycle state or an explicit/implicit transformation signal requires detailed Stage 4 handling.
+- Prevent large audit-only source history from blocking native backup. Full audit history is attempted first; if it exceeds the existing 2 MB manifest or 32 MB total envelope budget, Delta writes a compact truncation summary and, only if necessary, omits audit history while preserving canonical dossiers, portraits and portable settings.
+- Add focused regressions for natural-language anatomical transitions and oversized-history native export without changing relationship formulas, scanner request counts, retries, persistence ownership or bundle schema version.
+
+## 1.0.2 - 12 September 2026
+
+- Add a Birthday field to Edit Dossier so generated or story-established dates can be corrected manually without editing extension JSON.
+- Validate manual birthday changes against the active calendar and route accepted corrections through the canonical birthday continuity engine without an extra model request; manual corrections clear story-message provenance.
+- Keep scanner prompt semantics, automatic scan routing, request counts, retry budgets and relationship behavior unchanged.
+
+## 1.0.1 - 12 September 2026
+
+- Require a grounded apparent-age result for new dossier-worthy NPCs whenever the scan has an explicit visual-age cue, while preserving chronological age as a separate field.
+- Recover a missing apparent age deterministically from grounded appearance wording such as `young`, `middle-aged`, `elderly`, `24-year-old`, or `early thirties`; never infer it from species or lifespan.
+- Keep the routine scanner prompt at the same character count and preserve request counts, output allowances, reasoning ownership, injection size, and all non-age scanner semantics.
+
+## 1.0.0 - 12 September 2026
+
+- Consolidate portrait upload/removal into scoped canonical operations; remove the duplicate supporting-tools portrait manager and superseded controls module, including whole-state completion polling.
+- Correct locked appearance-form switching and explicitly empty unknown presentation without overwriting alternate anatomy, colors or unrelated dossier fields.
+- Apply appearance edits directly through the canonical owner, retaining editor/chat ownership and distinguishing local changes from durable saves.
+- Preserve birthday/aging integration after UI-noise stripping, correct mixed structured-date ordering and leap-year birthday comparison, and retain manual age and terminal-death protections.
+- Validate native dossier shapes before import and remove source-message ownership when the target chat is unproven, including birthday and death-correction provenance.
+- Replace repeated UI history copies with selected-record/lightweight projection reads and owner notifications; simplify history audit copying.
+- Keep diagnostic records bounded and free of exception payloads; report actual current-chat pending writes instead of a placeholder metric.
+- Surface permanent persistence rejection without endless retries while retaining dirty data, transient retry behavior, writer locking and later recovery.
+- Keep retained host-image generation preview-only until explicit application; reject canceled, superseded and stale decode/generation results, and leave newer dialogs untouched.
+- Apply manual life-state changes through the canonical owner without closing the editor, replaying a bundle, or overwriting newer input.
+- Preserve unchanged dossier sections, disclosure state, focus and scroll during portrait and live-state refreshes; fix clipped cast cards, capped editor footers, hidden fields and top-dialog Escape handling.
+- Validate the complete native envelope in the public importer as well as the UI, bound nesting and unsafe object metadata, and report actual added/updated/skipped counts.
+- Prepare coherent Delta 1.0.0 application metadata and the existing deterministic installable ZIP without changing storage, bundle or branch schemas.
+- Remove three uncalled internal evidence/display helpers, a shadowed source-era version export and a no-op editor branch after tracing runtime/test callers.
+- Preserve the working scanner prompt and all measured request bytes, output allowances, reasoning ownership and automatic request counts.
+
+## Stage 8 supporting tools - 12 September 2026
+
+- Add the primary dossier Portrait workflow with device upload/replacement, removal, editable/copyable positive/negative prompts, explicit dossier rebuild, host Image Generation preview, and explicit preview application through the retained portrait upload/compression path.
+- Bind asynchronous portrait work to chat/NPC/session/action ownership; reject stale generation, preserve the prior portrait on cancellation/failed decoding/generation, and report local mutation separately from durable flush success.
+- Extend the existing versioned Delta native bundle with declared portable portrait settings and source-history audit metadata while retaining `bundle.js` as the canonical codec/import merge. Cross-chat import clears source message ownership and keeps target lineage/checkpoints as the safe baseline; no Alpha/Beta/legacy converter is added.
+- Add compact diagnostics for actual dispatcher aggregates/routes/failures, latest retry/focused-pass state, labelled prompt estimates, relationship signed fractions/gate audit, and bounded Stage 8 persistence/workflow events without credentials or full private prompts/responses.
+- Add safe-area/dynamic-viewport responsive dialogs with touch targets and bounded scrolling, and refresh only affected dossier/cast projections through the existing Stage 1 controller.
+- Add focused synthetic Stage 8 regressions and `docs/stage8-supporting-tools.md`; exact-candidate CI is the deterministic acceptance gate because the continuation environment cannot resolve GitHub for a conventional local checkout. Real SillyTavern/file-picker/Image Generation/desktop-tablet-mobile visual acceptance remains unrun.
+
+## Stages 5-7 relationship, evidence and recovery review - 12 September 2026
+
+- Preserve the pinned numerical scorer, including signed diminishing returns, fractions, gates, configured-cap minima and tied-axis rejection. Add a hash-verified upstream result oracle covering 41,070 cases and end-to-end repeat/persistence/rollback tests.
+- Block focused relationship evaluation/application for confirmed-dead NPCs even when death archiving is disabled. Let a valid zero focused decision initialize an empty relationship description without inventing an event or rewriting an established description.
+- Move resolved appearance into the existing optional injection budget after essential identity and agency; remove duplicate relevance selection and post-assembly slicing from the Stage 4 adapter.
+- Remove the OOC text-command parser, stripper, dispatcher/API, edit hooks, command-only prompt mode/help/bookkeeping and obsolete parser tests. Retain production manual controls, structured add/remove helpers, ordinary backfills and lineage maintenance.
+- Protect terminal state after Refresh/backfill live-field restoration and before checkpoint creation. Enable explicit manual erroneous-death correction for unarchived dead records and clarify the editor/confirmation label.
+- Retain storage, locks, revisions, dirty retries, owner isolation, tombstones, recovery readers and branch algorithms. No cross-generation import/export change or real database operation.
+- Verification: 495 unit tests plus compatibility/runtime/migration smoke checks, validation, prompt measurements, packaging and diff check passed locally. Exact-commit CI remains the publication gate; live browser/provider checks are unrun. See `docs/stages5-7-review.md`.
+
+## Stage 4 appearance and terminal lifecycle - 12 September 2026
+
+- Add bounded named appearance forms and current-form selection while preserving earlier flat appearance as a safe `Base` compatibility form.
+- Add one resolved-current-appearance path for dossier presentation, portrait prompts and roleplay injection, including protection against cross-form anatomy leakage and unidentified transformations.
+- Extend scanner/Refresh/backfill/import prompts and profile locks to understand form-independent overall appearance, named forms and current form without erasing omitted forms; normalize the resolved current view back into canonical `appearance` so the existing dossier stays consistent without a second editor/state authority.
+- Make explicit confirmed death terminal to automatic scanner, Refresh, retained backfill and structured-source updates; dead NPCs cannot regain presence/world activity from narrative resurrection.
+- Preserve manual/stale reactivation for living dossiers, retained dead history/relationships/portraits, explicit player correction for erroneous death, and owned-history rollback.
+- Add Stage 4 regression coverage for flat upgrade, form switching/refinement, clothing-only changes, locks, unknown forms, portrait/injection agreement, terminal death, explicit correction and automatic-writer presence guards.
+- Review/fix pass hardens alias consolidation, bundle-import terminal death, unidentified-form anatomy isolation, current-form portrait anatomy, and budgeted roleplay appearance injection without changing relationship formulas.
+- Final Stage 4 review fixes unnamed-form normalization so form-independent appearance is never duplicated across repeated loads; the retained editor's manually locked Appearance field edits the selected current form rather than creating a second authority.
+- Treat deliberate manual Restore of a confirmed-dead dossier as explicit erroneous-death correction, retain correction provenance, and keep the corrected NPC off-screen until story evidence establishes presence again; automatic narrative/structured writers still cannot revive it.
+- Full deterministic verification after the final review: 488 unit tests plus compatibility/runtime/migration smoke checks, validation, prompt measurement, package verification, and diff check; real SillyTavern/provider acceptance remains separate.
+
+## Stage 3 scanner routing - 12 September 2026
+
+- Add one selectable scanner connection-profile setting and shared request-scoped dispatcher for retained NPC model requests.
+- Keep the empty/default route on the existing host generation path; explicit profile failures are surfaced without silent fallback and do not redirect roleplay or portrait generation.
+- Cover automatic/manual scans, Refresh, focused relationships, retries, structured import and retained backfills, including timeout/cancellation and stale-result rejection.
+- Restore the omitted `scan-context.js` runtime dependency after the initial Stage 3 merge and add it to the canonical runtime inventory; the post-hotfix main CI passed.
+- Follow-up review moves redundant automatic backfill suppression ahead of the shared dispatcher and removes the inherited `full-cast.js` `generateRaw` monkey-patch, preserving identical default/selected-profile routing and manual repair access. Validation now rejects runtime bypasses of `scanner-routing.js`.
+
+## Stage 2 active-runtime normalization - 11 September 2026
+
+- Classify every implementation module executed by Delta as active Delta code regardless of source ancestry.
+- Add `runtime-modules.json` as the canonical machine-readable inventory for every shipped top-level JavaScript module and its semantic role.
+- Normalize the active mechanics and branch primitive paths to `core-mechanics.js` and `branch-core.js`; remove the old source-version-labelled runtime paths.
+- Make validation require an exact one-to-one match between the active inventory and root runtime JavaScript, and reject legacy/version-labelled active paths or dependencies.
+- Build packages from the same active inventory instead of a root wildcard so undeclared residue cannot silently enter a release archive.
+- Drive CI syntax and release-consistency checks from the same inventory, and rename source-version-labelled safety test filenames to their current responsibilities.
+- Keep historical source names/versions only in Git history, `docs/history/`, provenance records, and historical-shape fixture data where the old identifier itself is evidence. Required historical-shape readers remain active Delta compatibility logic inside current owners, not a separate runtime layer.
+- Preserve scanner behavior, relationship formulas, persistence/recovery semantics, lifecycle policy, and roleplay injection while performing this structural normalization.
+
+## Stage 2 consolidation / Delta v0.1.0 - 11 September 2026
+
+- Establish `0.1.0` as NPC State Delta's own application-version baseline in the manifest, core facade and package metadata. Persisted bundle, branch, and data schema versions remain independent.
+- Replace the broad `enhancements.js` layer with a dedicated `full-cast.js` owner that preserves the opt-in full-cast scan and redundant-backfill guard.
+- Remove the superseded secondary Dossier Library overlay now that Stage 1 owns the dossier/cast presentation surface.
+- Update bootstrap, validation, package naming and focused tests around the consolidated owner boundaries.
+- Keep scanner semantics, persistence/recovery, relationship mechanics, evidence/injection behavior and later-stage contracts unchanged.
+
+## Stage 1 tablet cast rail fix - 11 September 2026
+
+- Keep the cast search field and lifecycle filters on one row for tablet widths so they do not consume most of the fixed cast rail height.
+- Reserve enough vertical space for complete dossier cards on tablet and phone layouts instead of clipping the portrait/status row at the bottom edge.
+- Add a small minimum bottom inset in touch layouts even when the browser reports no safe-area inset, while retaining horizontal cast scrolling.
+- Keep the change presentation-only; scanner, state, persistence, relationship mechanics, and later stages are unchanged.
+
+## Stage 1 compact launcher and mobile viewport fix - 11 September 2026
+
+- Restyle the floating launcher as a 48px rounded-square stacked `npc` / `state` wordmark inspired by the supplied icon, keeping the full button as the touch/drag target and avoiding a large raster asset.
+- Keep the compact launcher on desktop, tablet, and mobile; retain drag-and-persist positioning and the safe-area-aware side-midpoint default on narrower screens.
+- On tablet/mobile widths, remove the centered `top: 50%` dossier transform and pin the dossier to the top-left of the dynamic viewport so the header cannot be shifted off-screen.
+- Make the dossier top bar sticky and the Close control at least 44x44px on touch layouts, with safe-area padding for notches and browser chrome.
+- Keep the change presentation-only: scanner, state, persistence, relationship mechanics, and later stages are untouched.
+
+## Stage 1 mobile and overlay fixes - 11 September 2026
+
+- Promote the movable dossier launcher to a top-level floating control so SillyTavern mobile/tablet stacking and nested extension layout cannot bury it.
+- Use a compact 48px launcher icon at the right-side midpoint on phone/tablet widths, away from the bottom composer, while retaining drag-and-persist positioning.
+- Replace the visual-only overlay shadow with a real clickable backdrop so clicking outside the dossier closes it.
+- Remove the duplicate Edit button from the dossier document header while retaining the primary Edit dossier action beside the portrait.
+- Keep NPC State Delta settings exclusively under SillyTavern Extensions.
+
+## Stage 1 launcher refinement - 11 September 2026
+
+- Make the side dossier launcher draggable with mouse, pen, or touch while preserving normal click-to-open behavior.
+- Persist only the launcher's UI coordinates locally and clamp restored positions inside the current viewport after resize/orientation changes.
+- Remove launcher-panel Settings access; NPC State Delta settings remain under SillyTavern's Extensions settings surface.
+- Remove the Stage 1 root stacking context that could trap the fixed launcher below SillyTavern mobile chrome.
+- Force mobile launcher visibility and add safe-area-aware default right/bottom offsets for notched/home-indicator devices.
+
+## Stage 1 dossier UI - 11 September 2026
+
+- Add a persistent side launcher that opens a centered portrait-led dossier surface without changing the canonical Delta scanner, persistence, or relationship behavior.
+- Adapt the useful donor presentation ideas into Delta-local code: selected portrait hero, readable dossier document, searchable horizontal cast rail, and active/archived/dead filters.
+- Project canonical Delta NPC state into bounded UI records so relationship/event histories and branch snapshots are not rendered or retained by the view layer.
+- Route editing through the existing `NPCStateDelta.openEditor` owner and keep settings owned by the existing Delta Extensions settings surface rather than creating duplicate mutation/settings paths.
+- Preserve search state, selection, cast/document scroll, focused cast selection, and external editor drafts while canonical state notifications refresh the open view.
+- Add focused Stage 1 tests for lifecycle filtering, search, selection retention, projection boundaries, no-chat behavior, editor/settings ownership, and bootstrap reachability.
+
+Real-browser visual/performance QA remains a host acceptance check; deterministic HTML/model tests are not treated as visual evidence.
+
+## Source seed - 11 September 2026
+
+- Seed the exact source snapshot from `kohz87/npc_state` at `a12b2937b5c1305e3e3017218a626478a5bedcdc`.
+- Apply Delta identity isolation to runtime/CSS and inherited tests while initially preserving source algorithms and version markers for reproducible comparison.
+- Preserve the existing GPL license and record all source paths/blob hashes.
+- Add the core contract, agent instructions, nine-stage workplan and verification/package tooling.
+- Move upstream markdown into historical reference documentation.
+
+No work stages 1-9 were implemented in the original seed. Upstream release history is retained in `docs/history/`.

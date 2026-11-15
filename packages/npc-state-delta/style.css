@@ -1,0 +1,5 @@
+/* NPC State Delta stylesheet. SillyTavern loads only this file (manifest "css"); it holds nothing but @import lines, in the original cascade order. */
+@import url('./style-editor.css');
+@import url('./style-cast.css');
+@import url('./style-portrait.css');
+@import url('./style-settings-panel.css');

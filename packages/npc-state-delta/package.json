@@ -1,0 +1,16 @@
+{
+  "name": "npc_state_delta",
+  "version": "1.18.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "test": "node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test tests/*.test.js tests/v2/break/*.test.js && node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/compatibility-check.js && node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/runtime-smoke.mjs",
+    "test:dot": "node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test --test-reporter=dot tests/*.test.js tests/v2/break/*.test.js && node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/compatibility-check.js && node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/runtime-smoke.mjs",
+    "check": "npm run -s validate",
+    "validate": "node scripts/validate.mjs",
+    "measure:prompts": "node scripts/measure-prompts.mjs",
+    "package": "node scripts/package.mjs"
+  }
+}
