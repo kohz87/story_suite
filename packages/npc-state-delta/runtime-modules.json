@@ -322,6 +322,9 @@
     { "path": "src/key-people-parts/entries.js", "role": "key-people-entries-part", "required": true },
     { "path": "src/key-people-parts/lock.js", "role": "key-people-lock-part", "required": true },
     { "path": "src/key-people-parts/memory.js", "role": "key-people-memory-part", "required": true },
-    { "path": "src/key-people-parts/shared-text.js", "role": "key-people-shared-text-part", "required": true }
+    { "path": "src/key-people-parts/shared-text.js", "role": "key-people-shared-text-part", "required": true },
+    { "path": "src/card-settings-parts/constants.js", "role": "story-block-card-settings-constants", "required": true },
+    { "path": "src/card-settings-parts/validators.js", "role": "story-block-card-settings-validators", "required": true },
+    { "path": "src/card-settings-parts/definition.js", "role": "story-block-card-settings-definition", "required": true }
   ]
 }
