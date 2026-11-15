@@ -41,6 +41,11 @@ export const SPLIT_PARTS = Object.freeze({
         'src/v2/view/template/render/view.js', 'src/v2/view/template/render/blocks.js', 'src/v2/view/template/render/elements.js',
         'src/v2/view/template/render/widgets.js', 'src/v2/view/template/render/dom.js', 'src/v2/view/template/render/page-ids.js',
     ],
+    'src/v2/view/widgets/nav.js': [
+        'src/v2/view/widgets/nav-parts/shared-limits.js', 'src/v2/view/widgets/nav-parts/shared-short.js', 'src/v2/view/widgets/nav-parts/items.js',
+        'src/v2/view/widgets/nav-parts/reveal.js', 'src/v2/view/widgets/nav-parts/widget.js',
+    ],
+    'src/v2/view/widgets/map.js': ['src/v2/view/widgets/map-parts/props.js', 'src/v2/view/widgets/map-parts/widget.js'],
 });
 
 /** The text of `rel` (a path from the repository root) and of the parts moved out of it. */
