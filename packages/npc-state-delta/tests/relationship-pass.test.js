@@ -1,4 +1,5 @@
 // Focused relationship decisions, hosted pacing (the slice counts; Delta's sidecar is never written from it), and synthetic host reconciliation.
+import { partsSource } from './helpers/parts-source.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -177,7 +178,7 @@ test('hosted: nothing of the slice is written into a Delta record (no adopt func
     try {
         assert.equal(h.adapter.sliceNumbers, undefined);
         assert.doesNotMatch(fs.readFileSync(new URL('../runtime-hosted.js', import.meta.url), 'utf8'), /adoptSlice|sliceNumbers|persist\(/);
-        assert.doesNotMatch(fs.readFileSync(new URL('../src/relationship-pass.js', import.meta.url), 'utf8'), /adoptSlice/);
+        assert.doesNotMatch(partsSource(new URL('../src/relationship-pass.js', import.meta.url)), /adoptSlice/);
     } finally { h.host.close(); }
 });
 
