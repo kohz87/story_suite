@@ -263,7 +263,7 @@ test('the outer ring word sits where no face or label is, and moves out of the w
     for (const spot of [empty, crowded]) assert.ok(['start', 'middle', 'end'].includes(spot.anchor));
     assert.deepEqual(ringWordSpot([box(390, 700), box(100, 400)]), ringWordSpot([box(390, 700), box(100, 400)]), 'deterministic');
     assert.deepEqual(nodeBoxes([{ x: 50, y: 50 }]).length, 1);
-    const source = fs.readFileSync(new URL('../relationship-map-focus.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../relationship-map-focus-parts/map-markup.js', import.meta.url), 'utf8');
     assert.match(source, /ringWordSpot\(nodeBoxes\(model\.nodes\)\)/);
     const adapter = fs.readFileSync(new URL('../relationship-map.js', import.meta.url), 'utf8');
     assert.match(adapter, /fitRingWord\(map\)[\s\S]*ResizeObserver/, 'placed against the measured labels, again when the circle resizes');

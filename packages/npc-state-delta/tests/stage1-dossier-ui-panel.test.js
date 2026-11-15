@@ -59,7 +59,7 @@ test('header menu keeps the classes and data-npc-id the global Edit, Refresh, Sc
 
 test('Dossier style: the skin tokens exist for all three looks and the panel root carries data-skin', () => {
   const styles = fs.readFileSync(path.join(root, 'dossier-ui-styles-board.js'), 'utf8');
-  const skin = fs.readFileSync(path.join(root, 'dossier-skin.js'), 'utf8');
+  const skin = ['look', 'store', 'apply', 'settings'].map(part => fs.readFileSync(path.join(root, 'dossier-skin-parts', `${part}.js`), 'utf8')).join('\n');
   assert.match(styles, /:not\(\[data-skin\]\), \$\{PANEL\}\[data-skin="neutral"\]/, 'Neutral is the default, with or without the attribute');
   assert.match(styles, /\[data-skin="fantasy"\]/);
   assert.match(styles, /\[data-skin="modern"\]/);

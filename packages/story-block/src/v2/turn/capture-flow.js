@@ -8,7 +8,7 @@ import {
     LEGACY_PROBLEM, assistSections, grammarHeads, markCaps, parseChanges, sameChangeLine, strayLines,
 } from '../capture.js';
 import { cutAt } from '../../text.js';
-import { refusedWhy } from '../assist/safety.js';
+import { heldWhy, refusedWhy } from '../assist/safety.js';
 import { notWritten } from '../assist/extractor.js';
 import { CHATTER_MAX, displayLines } from '../extras.js';
 import { readRecord } from '../persist.js';
