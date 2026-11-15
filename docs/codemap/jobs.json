@@ -35,6 +35,7 @@
   "ui/css/base.css": "Base styles: reset, font and focus rules for everything inside the suite root.",
   "ui/css/card.css": "Character card styles (decisions 19-21): tokens renamed from --g-* to --su-*.",
   "ui/css/chat.css": "Inline row and people drawer: SillyTavern theme variables only, never the suite tokens (decision 34).",
+  "ui/css/dossier.css": "Styles for the dossier: top bar, hero ring, summary cards, pager and the page bodies; tokens only, sized from the container.",
   "ui/css/fight.css": "Styles for the Fight tab: header, foes, party, action tiles, log and end card; tokens only, sized from the container.",
   "ui/css/journal.css": "Styles for the Journal tab: quest cards, leads, closed list, calendar, day panel, coming up and the edit form; tokens only.",
   "ui/css/kit.css": "Kit styles: the one button, chip, switch and segmented-control family, sized for touch.",
