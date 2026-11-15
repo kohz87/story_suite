@@ -41,10 +41,7 @@ packages/story-block/tests/v2/features-ui.test.js 478
 packages/story-block/tests/v2/features.test.js 459
 packages/story-block/tests/v2/gear-start.test.js 512
 packages/story-block/tests/v2/gear-ui.test.js 603
-packages/story-block/tests/v2/host-ui.test.js 686
 packages/story-block/tests/v2/layout/render.test.js 474
-packages/story-block/tests/v2/lean-rpg/board/commit.test.js 716
-packages/story-block/tests/v2/lean-rpg/board/view.test.js 723
 packages/story-block/tests/v2/lean-rpg/fight-flow.test.js 496
 packages/story-block/tests/v2/lean-rpg/standard.test.js 607
 packages/story-block/tests/v2/lean-rpg/view/battle-log.test.js 479
@@ -59,7 +56,6 @@ packages/story-block/tests/v2/packs/validate.test.js 459
 packages/story-block/tests/v2/public-api.test.js 636
 packages/story-block/tests/v2/replay-review3.test.js 592
 packages/story-block/tests/v2/send-pending.test.js 616
-packages/story-block/tests/v2/store.test.js 730
 packages/story-block/tests/v2/timeline-hardening.test.js 470
 packages/story-block/tests/v2/timeline-restore.test.js 573
 packages/story-block/tests/v2/turn.test.js 672
