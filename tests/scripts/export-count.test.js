@@ -101,3 +101,37 @@ test('aliases and chains resolve to the underlying binding; different bindings s
   const other = { ...DIAMOND, 'core/right.mjs': 'export const a = 9;\n' };
   assert.deepEqual(run(other), []);
 });
+
+const BASE_A = 'export default function a() {}\nexport { a };\n';
+const MAIN = "export * from './left.mjs';\nexport * from './right.mjs';\nexport const b = 2, c = 3, d = 4, e = 5;\n";
+
+test('a default declaration and its name are one binding through a diamond', () => {
+  const problems = run({
+    'core/base.mjs': BASE_A,
+    'core/left.mjs': "export { default as a } from './base.mjs';\n",
+    'core/right.mjs': "export { a } from './base.mjs';\n",
+    'core/main.mjs': MAIN,
+  });
+  assert.deepEqual(problems, ['core/main.mjs: 5 exports (one job per file allows at most 4)']);
+});
+
+test('export default <identifier> is a distinct binding from the name, so the star export is ambiguous', () => {
+  const problems = run({
+    'core/base.mjs': 'const a = 1;\nexport default a;\nexport { a };\n',
+    'core/left.mjs': "export { default as a } from './base.mjs';\n",
+    'core/right.mjs': "export { a } from './base.mjs';\n",
+    'core/main.mjs': MAIN,
+  });
+  assert.deepEqual(problems, []);
+});
+
+test('different bindings stay ambiguous even when one is a default', () => {
+  const problems = run({
+    'core/base.mjs': 'export default function a() {}\n',
+    'core/other.mjs': 'export const a = 1;\n',
+    'core/left.mjs': "export { default as a } from './base.mjs';\n",
+    'core/right.mjs': "export { a } from './other.mjs';\n",
+    'core/main.mjs': MAIN,
+  });
+  assert.deepEqual(problems, []);
+});
