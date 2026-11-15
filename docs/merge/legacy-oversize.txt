@@ -29,8 +29,6 @@ packages/npc-state-delta/tests/v1094-deep-audit-fixes.test.js 541
 packages/npc-state-delta/tests/v118-narration-capture-host.test.js 756
 packages/npc-state-delta/tests/v120-story-suite.test.js 972
 packages/story-block/tests/v2/bench/load.js 678
-packages/story-block/tests/v2/domains/mounts.test.js 456
-packages/story-block/tests/v2/domains/you.test.js 455
 packages/story-block/tests/v2/packs/fixtures/old-host/validate.js 1210
 packages/story-director/tests/note.test.js 695
 packages/story-director/tests/planner.test.js 600
