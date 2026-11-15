@@ -21,8 +21,8 @@ export function isCodeFile(filePath) {
   if (posixPath.split('/').some(seg => IGNORED_SEGMENTS.has(seg))) return false;
   if (DATA_FILES.some(re => re.test(posixPath))) return false;
   const ext = path.posix.extname(posixPath).toLowerCase();
-  // Workflow YAML runs shell commands, so it is checked; other YAML is data.
-  if (YAML_EXTENSIONS.has(ext)) return posixPath.startsWith('.github/workflows/');
+  // YAML under .github/ (workflows, composite actions) runs shell commands, so it is checked; other YAML is data.
+  if (YAML_EXTENSIONS.has(ext)) return posixPath.startsWith('.github/');
   return !DATA_EXTENSIONS.has(ext);
 }
 

@@ -10,6 +10,8 @@ const MODULE_EXT = /\.(?:m?js|cjs)$/;
 // Parsed (or refused) languages, plus style and the allowed script types, which are listed but not parsed.
 const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|sh|bash|py|ya?ml)$/;
 const REFUSED_EXT = /\.(?:jsx|tsx|ts|mts|cts)$/;
+// Makefile and Dockerfile hold build commands: they get a job row (no exports parsed). The rest are only size-checked.
+const BUILD_FILES = new Set(['Makefile', 'Dockerfile']);
 const EXTENSIONLESS_OK = new Set(['Makefile', 'Dockerfile', '.gitignore', '.gitattributes', '.nvmrc', '.npmrc', 'CODEOWNERS']);
 const EMPTY = { exports: [], imports: [], commonJs: false, facade: false };
 
@@ -36,6 +38,7 @@ export function buildMap({ files, readSource, jobs }) {
     const extensionless = !base.replace(/^\.+/, '').includes('.');
     if (!extensionless) problems.push(`${filePath}: this language is not used in this repo`);
     else if (!filePath.startsWith('packages/') && !EXTENSIONLESS_OK.has(base)) problems.push(`${filePath}: files need an extension here`);
+    else if (BUILD_FILES.has(base)) sortedFiles.push(filePath);
   }
   const fileSet = new Set(sortedFiles);
   const byPath = new Map();

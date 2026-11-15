@@ -1,0 +1,66 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { unrunTests } from '../../scripts/checks/package-test-globs.mjs';
+
+const repo = path.resolve(import.meta.dirname, '../..');
+const nsdScript = JSON.parse(fs.readFileSync(path.join(repo, 'packages/npc-state-delta/package.json'), 'utf8')).scripts.test;
+
+function pkg(script, files) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ptg-'));
+  fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ scripts: { test: script } }));
+  for (const rel of files) {
+    fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
+    fs.writeFileSync(path.join(dir, rel), '\n');
+  }
+  return dir;
+}
+
+test('every real package runs all of its test files', () => {
+  for (const name of fs.readdirSync(path.join(repo, 'packages'))) {
+    assert.deepEqual(unrunTests(path.join(repo, 'packages', name)), [], name);
+  }
+});
+
+test('a nested test the NSD globs miss is an error; the matched ones are not', () => {
+  const dir = pkg(nsdScript, ['tests/a.test.js', 'tests/v2/break/b.test.js', 'tests/v2/break/nested/new.test.js', 'tests/helper.js']);
+  try {
+    assert.deepEqual(unrunTests(dir, 'npc-state-delta'), [
+      "npc-state-delta/tests/v2/break/nested/new.test.js is not run by the package's npm test",
+    ]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('recursive and quoted globs, examples tests, and node_modules are handled', () => {
+  const script = 'NODE_OPTIONS="--x $NODE_OPTIONS" node --test "tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js"';
+  const dir = pkg(script, [
+    'tests/a.test.js', 'tests/v2/x.test.js', 'tests/v2/deep/er/y.test.js', 'examples/fishing/tests/f.test.js',
+    'examples/cards/tests/c.test.js', 'tests/node_modules/z/z.test.js',
+  ]);
+  try {
+    assert.deepEqual(unrunTests(dir, 'p'), ["p/examples/cards/tests/c.test.js is not run by the package's npm test"]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a test script with no node --test globs is an error', () => {
+  const dir = pkg('echo none', ['tests/a.test.js']);
+  try {
+    assert.equal(unrunTests(dir, 'p').length, 2);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the command exits 1 and names the file on a fixture root', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ptg-root-'));
+  try {
+    const dir = path.join(root, 'packages/nsd');
+    fs.mkdirSync(path.join(dir, 'tests/v2/break/nested'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ scripts: { test: nsdScript } }));
+    fs.writeFileSync(path.join(dir, 'tests/v2/break/nested/new.test.js'), '\n');
+    const r = spawnSync(process.execPath, [path.join(repo, 'scripts/checks/package-test-globs.mjs'), root], { encoding: 'utf8' });
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /nsd\/tests\/v2\/break\/nested\/new\.test\.js is not run/);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});

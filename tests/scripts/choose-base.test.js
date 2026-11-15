@@ -40,7 +40,8 @@ function choose(work, env) {
   r.output_file = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : '';
   return r;
 }
-const baseOf = r => /^base=(.*)$/m.exec(r.output_file)?.[1];
+const basesOf = r => /^bases<<(\S+)\n([\s\S]*?)\n\1$/m.exec(r.output_file)?.[2].split('\n');
+const baseOf = r => { const b = basesOf(r); return b?.length === 1 ? b[0] : b; };
 
 test('after B1: a manual run on a branch ahead of main uses origin/main', () => {
   const { dir, work } = setup(true);
@@ -149,4 +150,67 @@ test('the import commit is the fallback base when it is in history', () => {
     // A real import commit hash can not be forged, so check that the script text names it.
     assert.ok(fs.readFileSync(script, 'utf8').includes(IMPORT));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+// A merge commit whose first parent predates the list and whose second parent has it.
+function mergeSetup(firstHasList, secondHasList) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  git(dir, 'init', '-q', '-b', 'main');
+  const addList = () => {
+    fs.mkdirSync(path.join(dir, 'docs/merge'), { recursive: true });
+    fs.writeFileSync(path.join(dir, LIST), '# list\n');
+    git(dir, 'add', '.');
+  };
+  git(dir, 'commit', '-q', '--allow-empty', '-m', 'root');
+  git(dir, 'checkout', '-q', '-b', 'other');
+  if (secondHasList) { addList(); git(dir, 'commit', '-qm', 'list on other'); } else git(dir, 'commit', '-q', '--allow-empty', '-m', 'o');
+  const second = git(dir, 'rev-parse', 'HEAD');
+  git(dir, 'checkout', '-q', 'main');
+  if (firstHasList) { addList(); fs.writeFileSync(path.join(dir, 'm.txt'), 'm\n'); git(dir, 'add', '.'); git(dir, 'commit', '-qm', 'list on main'); } else git(dir, 'commit', '-q', '--allow-empty', '-m', 'm');
+  const first = git(dir, 'rev-parse', 'HEAD');
+  git(dir, 'merge', '-q', '--no-ff', '--no-edit', '-X', 'theirs', 'other');
+  return { dir, first, second };
+}
+
+test('a merge: the parent that has the list is the base, even when it is the second parent', () => {
+  const { dir, second } = mergeSetup(false, true);
+  try {
+    const r = choose(dir, { EVENT: 'push', BASE: ZEROS });
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(basesOf(r), [second]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a merge where both parents have the list: both are bases', () => {
+  const { dir, first, second } = mergeSetup(true, true);
+  try {
+    const r = choose(dir, { EVENT: 'push', BASE: ZEROS });
+    assert.deepEqual(basesOf(r), [first, second]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a merge where no parent has it but an older ancestor does: that ancestor; where none has it: bootstrap', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  try {
+    git(dir, 'init', '-q', '-b', 'main');
+    fs.mkdirSync(path.join(dir, 'docs/merge'), { recursive: true });
+    fs.writeFileSync(path.join(dir, LIST), '# list\n');
+    git(dir, 'add', '.');
+    git(dir, 'commit', '-qm', 'list');
+    const listCommit = git(dir, 'rev-parse', 'HEAD');
+    git(dir, 'checkout', '-q', '-b', 'other');
+    git(dir, 'rm', '-q', LIST);
+    git(dir, 'commit', '-qm', 'drop list');
+    git(dir, 'checkout', '-q', 'main');
+    git(dir, 'rm', '-q', LIST);
+    git(dir, 'commit', '-qm', 'drop list too');
+    git(dir, 'merge', '-q', '--no-ff', '--no-edit', 'other');
+    const r = choose(dir, { EVENT: 'push', BASE: ZEROS });
+    assert.deepEqual(basesOf(r), [listCommit]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  const none = mergeSetup(false, false);
+  try {
+    const r = choose(none.dir, { EVENT: 'push', BASE: ZEROS });
+    assert.equal(baseOf(r), 'HEAD^', 'no ancestor has the list: the B1 bootstrap');
+  } finally { fs.rmSync(none.dir, { recursive: true, force: true }); }
 });

@@ -23,23 +23,28 @@ jobs:
       - name: Install root dev dependencies
         run: npm ci
       # Check what this PR or push introduced; a bare `git diff --check` on a fresh checkout
-      # compares a clean tree and never finds anything. The same BASE feeds the legacy-list ratchet.
-      - name: Choose the base commit
+      # compares a clean tree and never finds anything. The same bases feed the legacy-list ratchet;
+      # a merge with no usable event base has several (every parent that has the list), one per line.
+      - name: Choose the base commits
         id: base
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           EVENT: ${{ github.event_name }}
         run: bash scripts/ci/choose-base.sh
-      - name: Diff check
+      - name: Diff check and size check (once per base)
         env:
-          BASE: ${{ steps.base.outputs.base }}
-        run: git diff --check "$BASE" HEAD
-      - name: Size check
-        env:
-          BASE: ${{ steps.base.outputs.base }}
-        run: node scripts/checks/run-size-check.mjs --base "$BASE"
+          BASES: ${{ steps.base.outputs.bases }}
+        run: |
+          while read -r base; do
+            [ -n "$base" ] || continue
+            echo "== base $base"
+            git diff --check "$base" HEAD
+            node scripts/checks/run-size-check.mjs --base "$base"
+          done <<< "$BASES"
       - name: Codemap check
         run: node scripts/codemap/cli.mjs --check
+      - name: Every package test file is run by its npm test
+        run: node scripts/checks/package-test-globs.mjs
       - name: Script tests
         run: npm run test:scripts
 

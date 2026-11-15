@@ -23,8 +23,8 @@ test('a licence-looking name with any other extension is code', () => {
 });
 
 test('workflow YAML is checked; other YAML is data', () => {
-  for (const p of ['.github/workflows/ci.yml', '.github/workflows/x.yaml']) assert.equal(isCodeFile(p), true, p);
-  for (const p of ['data/a.yml', 'docs/b.yaml', '.github/dependabot.yml', 'packages/x/.github-workflows/a.yml']) assert.equal(isCodeFile(p), false, p);
+  for (const p of ['.github/workflows/ci.yml', '.github/workflows/x.yaml', '.github/actions/setup/action.yml', '.github/actions/a/b/action.yaml', '.github/dependabot.yml']) assert.equal(isCodeFile(p), true, p);
+  for (const p of ['data/a.yml', 'docs/b.yaml', 'packages/x/.github/workflows/a.yml', 'packages/x/.github-workflows/a.yml']) assert.equal(isCodeFile(p), false, p);
 });
 
 test('data and asset files are not checked', () => {

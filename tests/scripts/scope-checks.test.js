@@ -25,7 +25,7 @@ test('outside packages/, extensionless files are refused except an allow-list', 
 });
 
 test('allow-listed extensionless names are accepted as text; packages/ is exempt', () => {
-  const names = ['Makefile', 'Dockerfile', '.gitignore', '.gitattributes', '.nvmrc', '.npmrc', 'CODEOWNERS', '.github/CODEOWNERS', 'docs/Makefile'];
+  const names = ['.gitignore', '.gitattributes', '.nvmrc', '.npmrc', 'CODEOWNERS', '.github/CODEOWNERS'];
   assert.deepEqual(buildMap({ files: names, readSource: () => 'x\n', jobs: {} }).problems, []);
   assert.deepEqual(buildMap({ files: ['packages/a/LICENSE', 'packages/a/VERSION'], readSource: () => 'x\n', jobs: {} }).problems, []);
   assert.deepEqual(buildMap({ files: ['core/Makefile.bak'], readSource: () => 'x\n', jobs: {} }).problems, ['core/Makefile.bak: this language is not used in this repo']);
