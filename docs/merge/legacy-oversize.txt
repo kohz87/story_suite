@@ -30,14 +30,3 @@ packages/npc-state-delta/tests/v118-narration-capture-host.test.js 756
 packages/npc-state-delta/tests/v120-story-suite.test.js 972
 packages/story-block/tests/v2/bench/load.js 678
 packages/story-block/tests/v2/packs/fixtures/old-host/validate.js 1210
-packages/story-director/tests/note.test.js 695
-packages/story-director/tests/planner.test.js 600
-packages/story-director/tests/routes.test.js 480
-packages/story-director/tests/tracker.test.js 1067
-packages/story-director/tests/v2/atlas/widget.test.js 911
-packages/story-director/tests/v2/break/fuzz-delete.test.js 634
-packages/story-director/tests/v2/cast/rules.test.js 839
-packages/story-director/tests/v2/chronicle/lasting.test.js 451
-packages/story-director/tests/v2/integration/module.test.js 531
-packages/story-director/tests/v2/screens/render.test.js 521
-packages/story-director/tests/v2/tracker/initiative.test.js 605
