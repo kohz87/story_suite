@@ -62,4 +62,3 @@ export function bondToneOf(word = '', relation = '', { bondTone, tags } = {}) {
     }
     return localBondTone(word);
 }
-

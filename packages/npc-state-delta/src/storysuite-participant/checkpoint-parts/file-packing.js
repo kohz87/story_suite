@@ -28,4 +28,3 @@ export function unpackFromFile(raw) {
         return { ...raw.doc, state: { ...raw.doc.state, checkpoints: unpackCheckpoints(raw.doc.state.checkpoints, raw.packing) } };
     } catch { return null; }
 }
-

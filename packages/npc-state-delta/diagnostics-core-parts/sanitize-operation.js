@@ -33,4 +33,3 @@ export function sanitizeDiagnosticOperation(raw = {}) {
         birthdays,
     };
 }
-

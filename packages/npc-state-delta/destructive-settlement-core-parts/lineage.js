@@ -40,4 +40,3 @@ export function destructiveMutationSettled(operation, previous = [], current = [
     if (kind === 'edit') return firstNarrativeDivergence(previous, current) >= 0;
     return false;
 }
-

@@ -12,5 +12,3 @@ export function lifeStateChoice(npc = {}) {
     if (value === 'alive' || value === 'living') return 'alive';
     return 'unknown';
 }
-
-

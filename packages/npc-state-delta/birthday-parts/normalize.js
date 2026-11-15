@@ -113,4 +113,3 @@ export function reanchorDerivedBirthYearFromAge(npc = {}, config = undefined, re
         birthDateYearSource: 'derived',
     }, calendar, current);
 }
-
