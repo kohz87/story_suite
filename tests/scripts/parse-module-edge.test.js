@@ -75,3 +75,11 @@ test('namespace re-exports, default declarations and import() order', () => {
   assert.deepEqual(r.imports, ['./n.js', './b.js', './a.js']);
   assert.deepEqual(parseModule("export const a = () => import('./deep.js');").imports, ['./deep.js']);
 });
+
+test('default expressions are distinct bindings; named declarations keep theirs', () => {
+  const loc = src => parseModule(src).exports.map(e => `${e.name}:${e.local}`);
+  assert.deepEqual(loc('let a = 1; export default a; export { a };'), ['default:undefined', 'a:a']);
+  assert.deepEqual(loc('export default function f() {}'), ['default:f']);
+  assert.deepEqual(loc('export default class C {}'), ['default:C']);
+  assert.deepEqual(loc('export default function () {}'), ['default:undefined']);
+});

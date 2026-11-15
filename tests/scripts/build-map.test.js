@@ -87,7 +87,7 @@ test('test files are not held to the export limit', () => {
 });
 
 const runFiles = SRC => {
-  const jobs = Object.fromEntries(Object.keys(SRC).filter(p => !p.startsWith('tests/') && /\.(?:m?js|cjs|sh|bash|py)$/.test(p)).map(p => [p, 'A job.']));
+  const jobs = Object.fromEntries(Object.keys(SRC).filter(p => !p.startsWith('tests/') && /\.(?:m?js|cjs|html|sh|bash|py)$/.test(p)).map(p => [p, 'A job.']));
   return buildMap({ files: Object.keys(SRC), readSource: p => SRC[p], jobs }).problems;
 };
 
@@ -102,8 +102,8 @@ test('a source file in an unused language is a problem; allowed scripts and plai
     'scripts/x.pl: this language is not used in this repo',
     'scripts/y.rb: this language is not used in this repo',
   ]);
-  assert.deepEqual(runFiles({ 'scripts/run': '#!/bin/sh\necho\n' }), ['scripts/run: this language is not used in this repo']);
-  const ok = { 'scripts/a.sh': 'echo 1\n', 'scripts/b.bash': 'echo 1\n', 'scripts/c.py': 'print(1)\n', 'LICENSE': 'text\n', '.gitignore': 'x\n' };
+  assert.deepEqual(runFiles({ 'scripts/run': '#!/bin/sh\necho\n' }), ['scripts/run: files need an extension here']);
+  const ok = { 'scripts/a.sh': 'echo 1\n', 'scripts/b.bash': 'echo 1\n', 'scripts/c.py': 'print(1)\n', 'ui/dev/h.html': '<p>x</p>\n', '.gitignore': 'x\n' };
   assert.deepEqual(runFiles(ok), []);
 });
 
@@ -114,4 +114,13 @@ test('test files skip only the export cap: stars, CommonJS names and JSX/TS stil
   ]);
   assert.match(runFiles({ 'tests/x.test.js': 'module.exports = {};\n' })[0], /CommonJS is not allowed here/);
   assert.equal(runFiles({ 'tests/x.test.tsx': 'export {};\n' })[0], 'tests/x.test.tsx: JSX and TypeScript are not used in this repo');
+});
+
+test('Makefile and Dockerfile outside packages need a job sentence and get a row without exports', () => {
+  const src = { 'Makefile': 'all:\n\tnpm test\n', 'tools/Dockerfile': 'FROM node\nRUN npm ci\n' };
+  const bare = buildMap({ files: Object.keys(src), readSource: p => src[p], jobs: {} });
+  assert.deepEqual(bare.problems, ['Makefile: no job sentence in docs/codemap/jobs.json', 'tools/Dockerfile: no job sentence in docs/codemap/jobs.json']);
+  const done = buildMap({ files: Object.keys(src), readSource: p => src[p], jobs: { 'Makefile': 'Runs the tests.', 'tools/Dockerfile': 'Builds the image.' } });
+  assert.deepEqual(done.problems, []);
+  assert.deepEqual(done.rows.map(r => [r.path, r.exports]), [['Makefile', []], ['tools/Dockerfile', []]]);
 });

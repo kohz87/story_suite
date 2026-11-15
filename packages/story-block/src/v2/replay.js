@@ -13,7 +13,6 @@
 //
 // The ID shapes are exactly check.js's RECORD_ID; nothing here widens a regex.
 
-import { RECORD_ID } from './check.js';
 // Public face: re-exports its parts.
 
 export { sha256 } from './replay-parts/sha256.js';

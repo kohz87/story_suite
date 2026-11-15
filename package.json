@@ -7,18 +7,20 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "npm run test:scripts && npm run test:sb && npm run test:sd && npm run test:nsd && npm run test:suite",
+    "test": "npm run test:scripts && npm run test:ui && npm run test:sb && npm run test:sd && npm run test:nsd && npm run test:suite",
     "test:scripts": "node --test \"tests/scripts/*.test.js\"",
+    "test:ui": "node --test \"tests/ui/**/*.test.js\"",
     "test:sb": "npm --prefix packages/story-block test",
     "test:sd": "npm --prefix packages/story-director test",
     "test:nsd": "npm --prefix packages/npc-state-delta test",
     "test:suite": "bash scripts/ci/suite-tests.sh",
-    "check": "node scripts/checks/run-size-check.mjs && node scripts/codemap/cli.mjs --check && npm --prefix packages/story-block run check && npm --prefix packages/story-director run check && npm --prefix packages/npc-state-delta run validate",
+    "check": "node scripts/checks/no-tracked-deps.mjs && node scripts/checks/run-size-check.mjs && node scripts/codemap/cli.mjs --check && npm --prefix packages/story-block run check && npm --prefix packages/story-director run check && npm --prefix packages/npc-state-delta run validate",
     "codemap": "node scripts/codemap/cli.mjs --write",
     "verify-import": "bash scripts/verify-import.sh"
   },
   "devDependencies": {
     "acorn": "^8.19.0",
-    "acorn-walk": "^8.3.5"
+    "acorn-walk": "^8.3.5",
+    "playwright": "1.64.1"
   }
 }
