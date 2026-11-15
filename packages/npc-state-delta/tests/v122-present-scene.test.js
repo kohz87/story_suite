@@ -338,5 +338,5 @@ test('v1.2.2 suite.css is linked once per page, first extension wins', () => {
     assert.equal(appended.length, 1);
     assert.equal(ensureSuiteStylesheet('x', null), false);
     assert.equal(ensureSuiteStylesheet('x', { createElement() { throw new Error('boom'); }, head: { appendChild() {} } }), false, 'never throws');
-    assert.match(ensureSuiteStylesheet.toString(), /new URL\('\.\/suite\.css', import\.meta\.url\)/);
+    assert.match(ensureSuiteStylesheet.toString(), /new URL\('\.\.\/suite\.css', import\.meta\.url\)/);
 });

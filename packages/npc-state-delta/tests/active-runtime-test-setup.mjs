@@ -48,6 +48,8 @@ fs.copyFileSync = (source, destination, ...args) => {
             for (const folder of [module.path.replace(/\.js$/, ''), `${module.path.replace(/\.js$/, '')}-parts`]) {
             const splitRoot = path.join(sourceRoot, folder);
             const splitRoot = path.join(sourceRoot, `${module.path.replace(/\.js$/, '')}${suffix}`);
+            const splitName = module.path.replace(/\.js$/, '') + suffix;
+            const splitRoot = path.join(sourceRoot, splitName);
             if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
             const copySplit = (directory, relative = '') => {
                 for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -63,6 +65,7 @@ fs.copyFileSync = (source, destination, ...args) => {
                     const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
                     const to = path.join(path.dirname(resolvedDestination), folder, moduleRelative);
                     const to = path.join(path.dirname(resolvedDestination), `${module.path.replace(/\.js$/, '')}${suffix}`, moduleRelative);
+                    const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
                     if (!entry.isFile() || fs.existsSync(to)) continue;
                     fs.mkdirSync(path.dirname(to), { recursive: true });
                     copyFileSync(from, to);
