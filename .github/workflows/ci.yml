@@ -45,6 +45,8 @@ jobs:
         run: node scripts/codemap/cli.mjs --check
       - name: Every package test file is run by its npm test
         run: node scripts/checks/package-test-globs.mjs
+      - name: No tracked node_modules
+        run: node scripts/checks/no-tracked-deps.mjs
       - name: Script tests
         run: npm run test:scripts
 
