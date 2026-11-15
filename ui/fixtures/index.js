@@ -9,6 +9,7 @@ import { worldFor } from './world.js';
 import { buildJournal } from './journal.js';
 import { buildStory } from './story.js';
 import { buildSettings } from './settings.js';
+import { DOSSIERS, dossierFor } from './dossier.js';
 
 function resolveOptions(variant) {
   if (typeof variant === 'string') {
@@ -250,5 +251,6 @@ export function fixture(variant = 'default') {
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
     story: buildStory({ empty: opts.empty }),
     settings: buildSettings({ rpg: opts.rpg }),
+    dossier: Object.fromEntries(Object.keys(DOSSIERS).map(id => [id, dossierFor(id)])),
   };
 }

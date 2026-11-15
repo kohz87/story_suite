@@ -3,6 +3,7 @@ import { h } from '../kit/dom.js';
 import { characterCard } from '../card/character-card.js';
 import { nowTab } from '../tabs/now/now.js';
 import { createTabViews } from './tab-views.js';
+import { dossierPage } from '../tabs/people/dossier/dossier.js';
 
 const TITLES = {
   party: 'Party', bag: 'Bag', people: 'People', world: 'World', journal: 'Journal', story: 'Story', fight: 'Fight',
@@ -17,13 +18,41 @@ export function pendingCard(tab) {
 
 /** Returns the default `{ card, tab }` renderers wired to a port, back-stack and prefs. */
 export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
+  let dossier = null;
+  let peopleStart = null;
+  const openDossier = (personId) => {
+    const vm = port.view('dossier')?.[personId];
+    const host = tabHost()?.el?.parentNode;
+    if (!vm || !host) return;
+    dossier?.close();
+    const from = tabHost().current();
+    let stay = false;
+    const el = dossierPage(vm, {
+      port, prefs, backStack, go, youName: port.view('card')?.you?.name, origin: `‹ ${TITLES[from] ?? 'Now'}`,
+      seeOnMap: (id) => {
+        stay = true;
+        el.close();
+        peopleStart = { view: 'map', focus: id };
+        const already = tabHost().current() === 'people';
+        tabHost().select('people');
+        if (already) refresh?.();
+      },
+      onClose: () => { el.remove(); if (dossier === el) dossier = null; if (!stay && from !== 'people') tabHost()?.select(from); },
+    });
+    dossier = el;
+    host.appendChild(el);
+  };
   const go = (tab, args) => {
+    const opening = tab === 'people' && args?.personId;
+    if (!opening) dossier?.close();
     if (tab === 'chat') { onChat?.(); return; }
+    if (opening) openDossier(args.personId);
     if (tab) tabHost()?.select(tab);
     if (args) port.command('suite.go', { tab, ...args });
   };
+  const takeStart = () => { const s = peopleStart; peopleStart = null; return s; };
   const ctx = { port, prefs, go };
-  const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh });
+  const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, peopleStart: takeStart });
   return {
     card: vm => (vm ? characterCard(vm, {
       onBack: () => port.command('suite.close', {}),
