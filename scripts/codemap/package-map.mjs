@@ -40,7 +40,7 @@ export function packageMap({ pkg, files, readSource, explicitJobs = {}, devMapTe
   const featureOut = renderFeatures(features, new Set(rows.map(r => r.path)), `docs/codemap/features-${pkg}.json`);
   const backlog = [
     '', '## One job per file: backlog', '',
-    `${built.overLimit.length} file${built.overLimit.length === 1 ? '' : 's'} with more than ${MAX_EXPORTS} exports (legacy; pure re-export facades are exempt; split when moving out of \`packages/\`).`,
+    `Files with more than ${MAX_EXPORTS} exports (legacy; pure re-export facades are exempt; split when moving out of \`packages/\`).`,
   ];
   if (built.overLimit.length > 0) backlog.push('');
   for (const { path: p, count } of built.overLimit) backlog.push(`- \`${p.slice(prefix.length)}\`: ${count} exports`);
@@ -53,5 +53,6 @@ export function packageMap({ pkg, files, readSource, explicitJobs = {}, devMapTe
     problems: [...built.problems, ...featureOut.problems].sort(),
     backlog: built.overLimit.length,
     rows: rows.length,
+    lines: rows.reduce((n, r) => n + r.lines, 0),
   };
 }

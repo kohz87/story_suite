@@ -114,11 +114,13 @@ test('ONEPASSCAP-1: a change Delta saves while a participant write is in flight 
     const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-quietly-'));
     const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
     fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
-    for (const { path: file } of JSON.parse(fs.readFileSync(path.join(sourceRoot, 'runtime-modules.json'), 'utf8')).modules) {
+    const { shippedModulePaths } = await import('./helpers/shipped-modules.js');
+    for (const file of shippedModulePaths()) {
         fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
         fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
     }
     fs.cpSync(path.join(sourceRoot, 'src'), path.join(extRoot, 'src'), { recursive: true });
+    for (const entry of fs.readdirSync(sourceRoot, { withFileTypes: true })) if (entry.isDirectory() && entry.name.endsWith('-parts')) fs.cpSync(path.join(sourceRoot, entry.name), path.join(extRoot, entry.name), { recursive: true });
     fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), 'export const extension_settings = {};\nexport function getContext() { return { chat: [] }; }\n');
     fs.writeFileSync(path.join(tempRoot, 'public', 'script.js'), 'export function getRequestHeaders() { return {}; }\nexport async function saveSettings() {}\n');
     t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));

@@ -21,7 +21,7 @@ function functionBody(source, signature, nextSignature) {
 }
 
 test('settings migration batches historical changes into one save', () => {
-    const body = functionBody(fs.readFileSync(path.join(root, 'runtime-settings.js'), 'utf8'), 'function getSettings()', '\nconst PRESENT_CAST_DISPLAY_MODES');
+    const body = functionBody(fs.readFileSync(path.join(root, 'runtime-settings-parts', 'get-settings.js'), 'utf8'), 'function getSettings()', '\n}\n');
     assert.equal((body.match(/persistSettings\(\)/g) || []).length, 1);
     assert.match(body, /assign\('schemaVersion', DEFAULTS\.schemaVersion\)/);
     assert.match(body, /if \(dirty\) persistSettings\(\)/);
@@ -37,7 +37,7 @@ test('sidecar persistence writes immutable snapshots until the latest version is
 });
 
 test('recent transcript collection stops after the requested meaningful tail', () => {
-    const transcript = fs.readFileSync(new URL('../src/transcript.js', import.meta.url), 'utf8');
+    const transcript = fs.readFileSync(new URL('../src/transcript-parts/recent.js', import.meta.url), 'utf8');
     const body = functionBody(transcript, 'export function recentTranscript', '\nexport function recentUserDevelopmentContext');
     assert.match(body, /for \(let i = chat\.length - 1; i >= 0 && lines\.length < count; i -= 1\)/);
     assert.match(body, /return lines\.reverse\(\)\.join\('\\n'\)/);

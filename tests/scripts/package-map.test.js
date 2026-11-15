@@ -60,7 +60,7 @@ test('an explicit job for a file that does not exist is a problem; a stale dev-m
 test('backlog counts bindings (multi-binding declarations, wildcards) and exempts facades', () => {
   const { markdown, backlog } = build({});
   assert.equal(backlog, 1);
-  assert.match(markdown, /1 file with more than 4 exports/);
+  assert.match(markdown, /Files with more than 4 exports/);
   assert.match(markdown, /- `src\/many\.js`: 5 exports/);
   assert.ok(!markdown.includes('`src/facade.js`: '));
   assert.match(markdown, /\| `src\/a\.js` \|[^\n]*`A`<br>`B`<br>`f\(x = \/\^\(\?:a\\\|b\)\/\)`/);

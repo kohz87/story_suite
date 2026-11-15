@@ -42,7 +42,7 @@ test('--check fails when a map is missing; --write creates the root and package 
   assert.ok(fs.existsSync(path.join(dir, 'docs/codemap/demo.md')));
   const ok = run(dir, '--check');
   assert.equal(ok.status, 0, ok.out);
-  assert.match(ok.out, /docs\/codemap\/demo\.md demo 2 files/);
+  assert.match(ok.out, /docs\/codemap\/demo\.md demo 2 files, \d+ lines/);
 }));
 
 test('--check fails when a package file changes after the map was written, and --write repairs it', withRepo(dir => {
@@ -72,6 +72,22 @@ test('a package file without a job fails even when its map is current', withRepo
   put(dir, 'docs/codemap/jobs-demo.json', '{"src/b.js":"Holds b."}\n');
   assert.equal(run(dir, '--write').status, 0);
   assert.equal(run(dir, '--check').status, 0);
+}));
+
+test('a generated map has no totals line, and an edit changes only its own row and its neighbours', withRepo(dir => {
+  put(dir, 'packages/demo/src/c.js', '// Does c.\nexport const c = 3;\n');
+  put(dir, 'docs/codemap/jobs-demo.json', '{"src/c.js":"Holds c."}\n');
+  run(dir, '--write');
+  const mapPath = path.join(dir, 'docs/codemap/demo.md');
+  const before = fs.readFileSync(mapPath, 'utf8').split('\n');
+  assert.ok(!before.some(l => /\d+ files?, \d+ lines/.test(l)));
+  put(dir, 'packages/demo/src/c.js', '// Does c.\nexport const c = 3;\nexport const d = 4;\n');
+  run(dir, '--write');
+  const after = fs.readFileSync(mapPath, 'utf8').split('\n');
+  const changed = after.filter(l => !before.includes(l));
+  assert.equal(changed.length, 1);
+  assert.match(changed[0], /^\| `src\/c\.js` /);
+  assert.equal(before.filter(l => !after.includes(l)).length, 1);
 }));
 
 test('an unknown mode prints usage and fails', () => {

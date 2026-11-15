@@ -20,8 +20,8 @@ test('renders a generated header, one section per top folder, one table row per 
   assert.ok(md.endsWith('\n'));
 });
 
-test('the totals line counts files and lines', () => {
-  assert.match(renderMap(rows), /3 files, 55 lines\./);
+test('the map has no whole-file totals line', () => {
+  assert.doesNotMatch(renderMap(rows), /\d+ files?, \d+ lines/);
 });
 
 test('rendering is deterministic', () => {

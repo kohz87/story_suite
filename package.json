@@ -14,7 +14,7 @@
     "test:sd": "npm --prefix packages/story-director test",
     "test:nsd": "npm --prefix packages/npc-state-delta test",
     "test:suite": "bash scripts/ci/suite-tests.sh",
-    "check": "node scripts/checks/run-size-check.mjs && node scripts/codemap/cli.mjs --check && npm --prefix packages/story-block run check && npm --prefix packages/story-director run check && npm --prefix packages/npc-state-delta run validate",
+    "check": "node scripts/checks/no-tracked-deps.mjs && node scripts/checks/run-size-check.mjs && node scripts/codemap/cli.mjs --check && npm --prefix packages/story-block run check && npm --prefix packages/story-director run check && npm --prefix packages/npc-state-delta run validate",
     "codemap": "node scripts/codemap/cli.mjs --write",
     "verify-import": "bash scripts/verify-import.sh"
   },
