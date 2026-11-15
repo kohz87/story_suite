@@ -25,8 +25,10 @@ jobs:
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
+          # No usable base (a first push, a new branch, a manual run): check only the newest commit, as the old
+          # NPC State Delta CI did; the empty tree would re-check every imported file, which B1 must not edit.
           if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            BASE="$(git hash-object -t tree /dev/null)"
+            if git cat-file -e HEAD^ 2>/dev/null; then BASE=HEAD^; else BASE="$(git hash-object -t tree /dev/null)"; fi
           fi
           git diff --check "$BASE" HEAD
       - name: Size check
