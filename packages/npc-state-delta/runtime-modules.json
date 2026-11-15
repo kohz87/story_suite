@@ -226,6 +226,12 @@
     { "path": "src/key-people.js", "role": "key-people-rules", "required": true },
     { "path": "src/cast-dossier.js", "role": "cast-dossier-rules", "required": true },
     { "path": "src/portrait-file.js", "role": "cast-portrait-user-files", "required": true },
+    { "path": "src/portrait-file-parts/data-url.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/hash.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/missing.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/record.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/shared-name.js", "role": "cast-portrait-user-files-parts", "required": true },
+    { "path": "src/portrait-file-parts/view.js", "role": "cast-portrait-user-files-parts", "required": true },
     { "path": "src/card-settings.js", "role": "story-block-card-settings", "required": true }
   ]
 }
