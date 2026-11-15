@@ -26,6 +26,15 @@ export const DOSSIER_UI_SOURCE_PARTS = [
     'dossier-ui-header.js',
     'dossier-ui-styles-board.js',
     'dossier-ui-styles-sections.js',
+    'dossier-ui-parts/browser-start.js',
+    'dossier-ui-parts/catalog-cast.js',
+    'dossier-ui-parts/catalog-select.js',
+    'dossier-ui-parts/controller.js',
+    'dossier-ui-parts/html.js',
+    'dossier-ui-parts/meters.js',
+    'dossier-ui-parts/model-labels.js',
+    'dossier-ui-parts/model-projection.js',
+    'dossier-ui-parts/relationship.js',
 ];
 
 const read = file => fs.readFileSync(new URL(file, root), 'utf8');
