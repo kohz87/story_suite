@@ -28,7 +28,6 @@ packages/npc-state-delta/tests/v1093-deep-audit-fixes.test.js 503
 packages/npc-state-delta/tests/v1094-deep-audit-fixes.test.js 541
 packages/npc-state-delta/tests/v118-narration-capture-host.test.js 756
 packages/npc-state-delta/tests/v120-story-suite.test.js 972
-packages/story-block/tests/v2/assist/safety-net.test.js 742
 packages/story-block/tests/v2/bench/load.js 678
 packages/story-block/tests/v2/cast-skills.test.js 545
 packages/story-block/tests/v2/commands.test.js 657
@@ -40,7 +39,6 @@ packages/story-block/tests/v2/evidence-ids.test.js 536
 packages/story-block/tests/v2/extras.test.js 473
 packages/story-block/tests/v2/features-ui.test.js 478
 packages/story-block/tests/v2/features.test.js 459
-packages/story-block/tests/v2/gear-inventory.test.js 819
 packages/story-block/tests/v2/gear-start.test.js 512
 packages/story-block/tests/v2/gear-ui.test.js 603
 packages/story-block/tests/v2/host-ui.test.js 686
@@ -53,7 +51,6 @@ packages/story-block/tests/v2/lean-rpg/standard.test.js 607
 packages/story-block/tests/v2/lean-rpg/view/battle-log.test.js 479
 packages/story-block/tests/v2/lean-rpg/view/char-export.test.js 947
 packages/story-block/tests/v2/lean-rpg/view/settings.test.js 496
-packages/story-block/tests/v2/lean-rpg/view/wizard.test.js 848
 packages/story-block/tests/v2/lifecycle.test.js 572
 packages/story-block/tests/v2/long-chat.test.js 565
 packages/story-block/tests/v2/loot-undo.test.js 541
@@ -65,7 +62,6 @@ packages/story-block/tests/v2/replay-review3.test.js 592
 packages/story-block/tests/v2/send-pending.test.js 616
 packages/story-block/tests/v2/store.test.js 730
 packages/story-block/tests/v2/timeline-hardening.test.js 470
-packages/story-block/tests/v2/timeline-principles.test.js 766
 packages/story-block/tests/v2/timeline-restore.test.js 573
 packages/story-block/tests/v2/turn.test.js 672
 packages/story-block/tests/v2/ux/settings-window.test.js 867
