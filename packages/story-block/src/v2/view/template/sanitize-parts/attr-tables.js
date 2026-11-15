@@ -1,0 +1,43 @@
+// Story Suite v2: the allow-list of attribute names (global, per element, SVG).
+
+export const GLOBAL_ATTRS = new Set(['class', 'id', 'title', 'role', 'lang', 'dir', 'hidden', 'tabindex', 'style', 'translate']);
+export const ATTRS = {
+    a: ['href', 'target', 'rel'],
+    img: ['src', 'alt', 'width', 'height', 'loading', 'decoding'],
+    input: ['type', 'name', 'value', 'placeholder', 'min', 'max', 'step', 'checked', 'disabled', 'readonly', 'required', 'maxlength', 'minlength', 'size', 'autocomplete', 'inputmode'],
+    select: ['name', 'disabled', 'required', 'size'],
+    option: ['value', 'selected', 'disabled', 'label'],
+    optgroup: ['label', 'disabled'],
+    textarea: ['name', 'rows', 'cols', 'placeholder', 'maxlength', 'minlength', 'disabled', 'readonly', 'required', 'wrap'],
+    button: ['type', 'name', 'value', 'disabled'],
+    form: ['name', 'novalidate', 'autocomplete'],
+    fieldset: ['disabled', 'name'],
+    label: ['for'],
+    output: ['for', 'name'],
+    td: ['colspan', 'rowspan', 'headers'],
+    th: ['colspan', 'rowspan', 'headers', 'scope', 'abbr'],
+    col: ['span'],
+    colgroup: ['span'],
+    ol: ['start', 'reversed', 'type'],
+    li: ['value'],
+    progress: ['value', 'max'],
+    meter: ['value', 'min', 'max', 'low', 'high', 'optimum'],
+    time: ['datetime'],
+    data: ['value'],
+    details: ['open'],
+    del: ['datetime'],
+    ins: ['datetime'],
+    'ss-widget': ['name'],
+};
+export const SVG_ATTRS = new Set([
+    'viewBox', 'width', 'height', 'xmlns', 'preserveAspectRatio', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
+    'stroke-linejoin', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-miterlimit', 'opacity', 'fill-opacity',
+    'stroke-opacity', 'fill-rule', 'clip-rule', 'transform', 'd', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'x1', 'y1',
+    'x2', 'y2', 'dx', 'dy', 'fx', 'fy', 'points', 'offset', 'stop-color', 'stop-opacity', 'gradientUnits',
+    'gradientTransform', 'spreadMethod', 'patternUnits', 'patternContentUnits', 'patternTransform', 'clipPathUnits',
+    'maskUnits', 'maskContentUnits', 'clip-path', 'mask', 'text-anchor', 'dominant-baseline', 'alignment-baseline',
+    'font-size', 'font-weight', 'font-family', 'font-style', 'letter-spacing', 'pathLength', 'textLength',
+    'lengthAdjust', 'rotate', 'startOffset', 'vector-effect', 'visibility', 'display', 'href', 'xlink:href',
+    'marker-start', 'marker-mid', 'marker-end', 'markerWidth', 'markerHeight', 'refX', 'refY', 'orient',
+    'shape-rendering', 'paint-order',
+]);

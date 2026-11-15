@@ -1,8 +1,9 @@
 // The timeline package (docs/v2/TIMELINE.md): save points, the restore protocol, participants.
-export { createTimeline, MANUAL_LIMIT } from './coordinator.js';
-export { createTimelinePart } from './part.js';
-export { ACTIVE_READERS } from './active.js';
-export { GENESIS_EPOCH, HOST_DOMAIN, epochOf, gateProblem, rulesHashOf } from './gate.js';
-export { capture, planRestore, registered } from './manifest.js';
-export { crash } from './util.js';
-export { withRuleOverlay } from './overlay.js';
+//
+// Public face: re-exports its parts.
+
+export { createTimeline, MANUAL_LIMIT, createTimelinePart, withRuleOverlay } from './index-parts/build.js';
+export { GENESIS_EPOCH, HOST_DOMAIN, epochOf } from './index-parts/epoch.js';
+export { gateProblem, rulesHashOf } from './index-parts/guards.js';
+export { capture, planRestore, registered } from './index-parts/manifest.js';
+export { ACTIVE_READERS, crash } from './index-parts/support.js';
