@@ -2,6 +2,7 @@
 # Chooses the base commit for the diff check and the legacy-list ratchet; writes a multi-line
 # bases=<ref per line> output to $GITHUB_OUTPUT (or stdout); the workflow checks once per line.
 # Inputs: BASE (event base sha, may be empty) and EVENT (event name).
+# A usable event base is compared together with every parent of HEAD that has the list.
 # When there is no usable event base (a push that creates a branch, a manual run), the base comes from
 # history, never from remote refs: every parent of HEAD whose tree has docs/merge/legacy-oversize.txt (several
 # lines for a merge), else the nearest ancestor of any lineage that has it.
@@ -55,9 +56,23 @@ elif [ "$EVENT" = push ] && [ "$BASE" = "$ZEROS" ]; then
   fallback
 elif [ -z "$BASE" ]; then
   fail "no base commit for a $EVENT event; cannot apply the legacy-list ratchet"
-elif ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-  git fetch --no-tags origin "$BASE" || true
-  git cat-file -e "$BASE^{commit}" 2>/dev/null || fail "the base $BASE is not available; cannot apply the legacy-list ratchet"
+else
+  if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+    git fetch --no-tags origin "$BASE" || true
+    git cat-file -e "$BASE^{commit}" 2>/dev/null || fail "the base $BASE is not available; cannot apply the legacy-list ratchet"
+  fi
+  # A usable event base is compared together with every parent of HEAD that has the list, so a merge
+  # cannot restore what the other parent removed. Without any list among them, the event base stands alone
+  # (the import commit is then the one allowed to lack it).
+  extra=""
+  for rev in $(git rev-list --parents -n 1 HEAD | cut -d' ' -f2-); do
+    if [ "$(git rev-parse "$rev")" != "$(git rev-parse "$BASE^{commit}")" ] && git cat-file -e "$rev:$LIST" 2>/dev/null; then
+      extra="$extra$rev"$'\n'
+    fi
+  done
+  if [ -n "$extra" ]; then
+    if git cat-file -e "$BASE:$LIST" 2>/dev/null; then BASE="$BASE"$'\n'"${extra%$'\n'}"; else BASE="${extra%$'\n'}"; fi
+  fi
 fi
 echo "Bases: $BASE" | tr '\n' ' '; echo
 { echo "bases<<BASES_EOF"; printf '%s\n' "$BASE"; echo "BASES_EOF"; } >> "${GITHUB_OUTPUT:-/dev/stdout}"
