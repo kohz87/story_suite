@@ -30,6 +30,10 @@ fs.copyFileSync = (source, destination, ...args) => {
             const splitName = `${module.path.replace(/\.js$/, '')}${suffix}`;
             const splitName = module.path.replace(/\.js$/, suffix);
             const splitRoot = path.join(sourceRoot, splitName);
+            // Split modules live in a sibling folder named after their owner. Copy every file
+            // beneath it too (a root module's parts may sit in `<name>-parts`), while preserving any host/fixture file that already exists.
+            for (const suffix of ['', '-parts']) {
+            const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, suffix));
             if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
             const copySplit = (directory, relative = '') => {
                 for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -41,6 +45,7 @@ fs.copyFileSync = (source, destination, ...args) => {
                     }
                     const to = path.join(path.dirname(resolvedDestination), module.path.replace(/\.js$/, '') + suffix, moduleRelative);
                     const to = path.join(path.dirname(resolvedDestination), splitName, moduleRelative);
+                    const to = path.join(path.dirname(resolvedDestination), module.path.replace(/\.js$/, suffix), moduleRelative);
                     if (!entry.isFile() || fs.existsSync(to)) continue;
                     fs.mkdirSync(path.dirname(to), { recursive: true });
                     copyFileSync(from, to);

@@ -30,6 +30,11 @@ export function shippedModulePaths() {
             for (const name of fs.readdirSync(directory, { recursive: true })) {
                 if (!String(name).endsWith('.js')) continue;
                 split.push(`${folder}/${String(name).replace(/\\/g, '/')}`);
+            const directory = path.join(root, modulePath.replace(/\.js$/, suffix));
+            if (!fs.statSync(directory, { throwIfNoEntry: false })?.isDirectory()) continue;
+            for (const name of fs.readdirSync(directory, { recursive: true })) {
+                if (!String(name).endsWith('.js')) continue;
+                split.push(`${modulePath.replace(/\.js$/, suffix)}/${String(name).replace(/\\/g, '/')}`);
             }
         }
     }

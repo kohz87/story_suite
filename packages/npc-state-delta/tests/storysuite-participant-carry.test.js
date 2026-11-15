@@ -114,7 +114,8 @@ test('ONEPASSCAP-1: a change Delta saves while a participant write is in flight 
     const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-quietly-'));
     const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
     fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
-    for (const { path: file } of JSON.parse(fs.readFileSync(path.join(sourceRoot, 'runtime-modules.json'), 'utf8')).modules) {
+    const { shippedModulePaths } = await import('./helpers/shipped-modules.js');
+    for (const file of shippedModulePaths()) {
         fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
         fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
         const parts = path.join(sourceRoot, file.replace(/\.js$/, '-parts'));

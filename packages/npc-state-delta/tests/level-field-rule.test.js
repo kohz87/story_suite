@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { shippedModulePaths } from './helpers/shipped-modules.js';
 import {
     LEVEL_FIELD_RULE, buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt,
     buildScannerPrompt, createNpcRecord, mergeScanResult, normalizeNpcRecord,
@@ -88,7 +89,7 @@ const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-level-auto-'));
 const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
 fs.mkdirSync(extRoot, { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
-for (const { path: file } of JSON.parse(fs.readFileSync(path.join(sourceRoot, 'runtime-modules.json'), 'utf8')).modules) {
+for (const file of shippedModulePaths()) {
     fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
     fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
 }
