@@ -1,5 +1,7 @@
 ## Unreleased
 
+- **Taking on a job is a shorter line.** The hook / quest prompt now teaches `+ quest Missing boatman` with only the hook's name (add `| reward: …` only when something is new), because the hook's summary, giver, goal and labels are already kept when it becomes the quest. This changes the prompt only; code is unchanged, so written replies replay and Re-read exactly as before.
+
 ## 2.16.0
 
 - **The World pulse invents events instead of repeating a shout and a cart wheel.** Code still rolls the kind (the d20 tables) and now adds an intensity: around (happens nearby), noticed (draws a glance) or intrusive (cuts into the scene, about 1 in 5, never two in a row). The note's "World this reply" line becomes a short brief for the narrator: kind, intensity, place group, and "invent one small plausible thing from the people and threads in the note; it may touch an open thread and write its change line; never resolve it for the player", with the last three pulses listed so it does not repeat (never the same kind twice running). The fixed lines stay as the fallback (5 or more per kind and place group, and quiet mode now spreads over different kinds), used when the new setting "Pulse invents events (model)" is off (default on) or when the note has no people or threads to draw from. New replies only (step version 2); written replies replay and Re-read exactly as before.

@@ -58,11 +58,11 @@ test('every thread kind has one concrete example line in the static grammar, and
     }
     const hook = part.kinds.hook.grammar;
     assert.match(hook, /Write a hook when someone mentions a job, rumour or trouble \{\{user\}\} could follow, e\.g\. \+ hook Missing boatman — /);
-    assert.match(hook, /once \{\{user\}\} agrees: \+ quest Pest job — clear a cellar \| giver: Person B \| reward: 20 copper/);
+    assert.match(hook, /once \{\{user\}\} agrees: \+ quest Missing boatman \| reward: 20 copper/);
     assert.match(hook, /\+ hook Missing boatman — Person A says he vanished near Place X \| giver: Person A \| goal: ask at the docks; once/);
     assert.doesNotMatch(hook, /\S\|(Missing boatman|Pest job)/);
-    assert.equal(hook.split('Missing boatman').length, 2);
-    assert.equal(hook.split('Pest job').length, 2);
+    assert.equal(hook.split('Missing boatman').length, 3);
+    assert.ok(!hook.includes('Pest job'));
     // One line each (no newline), the same bytes for every reply (no state in them), and small: about 600 characters in all.
     assert.ok(!agenda.includes('\n') && !hook.includes('\n'));
     assert.ok(agenda.length + hook.length < 1350, `${agenda.length + hook.length}`);
@@ -89,7 +89,7 @@ test('each kind has one grammar line for the change instruction, a family on its
     }
     assert.match(part.kinds.agenda.grammar({ fights: true }), /encounter \(the foes, for a fight\)/);
     // A hook is an open thread, no job offer with a giver and a reward; + quest is written once {{user}} accepts.
-    assert.match(part.kinds.hook.grammar, /a hook is an open thread or lead \(a job only offered stays in the story; \+ quest with the same name once \{\{user\}\} accepts it\); a quest is a job \{\{user\}\} accepted, not an errand\. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome \(or - hook Name\)/);
+    assert.match(part.kinds.hook.grammar, /a hook is an open thread or lead \(a job only offered stays in the story; once \{\{user\}\} accepts it, \+ quest with the hook's name alone: code keeps its summary and labels, add only new ones\); a quest is a job \{\{user\}\} accepted, not an errand\. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome \(or - hook Name\)/);
     assert.doesNotMatch(part.kinds.agenda.grammar({ fights: false }), /encounter|fight|foe/);
 });
 
