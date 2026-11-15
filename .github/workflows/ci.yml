@@ -1,0 +1,206 @@
+name: Story Suite CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # Check the whitespace of what this PR or push introduced; a bare `git diff --check`
+      # on a fresh checkout compares a clean tree and never finds anything.
+      - name: Diff check
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            BASE="$(git hash-object -t tree /dev/null)"
+          fi
+          git diff --check "$BASE" HEAD
+      - name: Size check
+        run: node scripts/checks/run-size-check.mjs
+      - name: Codemap check
+        run: node scripts/codemap/cli.mjs --check
+      - name: Script tests
+        run: npm run test:scripts
+
+  story-block:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/story-block
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax check
+        run: npm run check
+      # A pull request whose changed files are all inside the pack area runs only the pack
+      # tests. Anything else (other files, a push to main, a manual run, no base to compare,
+      # an empty list) runs the full suite. This stays one job so the job always reports a result.
+      - name: Choose the test set
+        id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          scope=full
+          if [ "$EVENT" = "pull_request" ] && [ -n "$BASE" ] && git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            files="$(git diff --name-only --no-renames "$BASE" HEAD)"
+            if [ -n "$files" ] && ! printf '%s\n' "$files" | grep -qvE '^packages/story-block/(examples/packs/|docs/v2/ERSVEIL\.md$|tests/v2/packs/)'; then
+              scope=packs
+            fi
+          fi
+          echo "Test set: $scope"
+          echo "scope=$scope" >> "$GITHUB_OUTPUT"
+      - name: Pack tests (pack-only change)
+        if: steps.scope.outputs.scope == 'packs'
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: |
+          # Tests outside tests/v2/packs also read the example packs and the pack test helpers.
+          others="$(grep -rliE 'examples/packs|packs/helpers|ersveil' tests --include='*.test.js' | grep -v '^tests/v2/packs/' | sort)"
+          echo "Also running the tests that read the example packs:"
+          printf '%s\n' "$others"
+          # shellcheck disable=SC2086
+          node --test tests/v2/packs/*.test.js $others
+      - name: Behavioral tests
+        if: steps.scope.outputs.scope != 'packs'
+        env:
+          FUZZ_DUMP_DIR: ${{ runner.temp }}
+        run: npm test
+      - name: Keep state-fuzz replay dumps
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: state-fuzz-replay-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/state-fuzz-*/mismatch.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  story-director:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/story-director
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax check
+        run: npm run check
+      - name: Behavioral tests
+        run: npm test
+
+  npc-state-delta:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/npc-state-delta
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const config = JSON.parse(fs.readFileSync('runtime-modules.json', 'utf8'));
+          const modules = config.modules.map(item => item.path);
+          if (!modules.length) throw new Error('runtime-modules.json contains no active modules');
+          for (const file of modules) {
+            require('node:child_process').execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
+          }
+          NODE
+      - name: Full verification
+        run: npm test
+      - name: Delta validation and prompt measurement
+        run: |
+          npm run validate
+          npm run measure:prompts
+      - name: Verify runtime package
+        run: npm run package
+      - name: Release consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const runtime = JSON.parse(fs.readFileSync('runtime-modules.json', 'utf8'));
+          const core = fs.readFileSync('core.js', 'utf8');
+          const readme = fs.readFileSync('README.md', 'utf8');
+          const rootJs = fs.readdirSync('.', { withFileTypes: true })
+            .filter(entry => entry.isFile() && entry.name.endsWith('.js'))
+            .map(entry => entry.name)
+            .sort();
+          const configured = runtime.modules.map(item => item.path).filter(item => !item.includes('/')).sort();
+          if (manifest.version !== pkg.version) throw new Error(`version mismatch: manifest=${manifest.version} package=${pkg.version}`);
+          if (runtime.applicationVersion !== manifest.version) throw new Error(`runtime inventory version mismatch: ${runtime.applicationVersion}`);
+          if (runtime.entrypoint !== manifest.js) throw new Error(`runtime inventory entrypoint mismatch: ${runtime.entrypoint}`);
+          if (JSON.stringify(rootJs) !== JSON.stringify(configured)) throw new Error('active runtime inventory does not exactly match root JS modules');
+          if (!core.includes(`NPC_STATE_VERSION = '${manifest.version}'`)) throw new Error('core application version mismatch');
+          if (!core.includes("./core-mechanics.js")) throw new Error('canonical core mechanics owner missing');
+          if (!fs.readFileSync('branch.js', 'utf8').includes("./branch-core.js")) throw new Error('canonical branch core owner missing');
+          if (configured.some(path => /(?:^|[-_.])legacy(?:[-_.]|$)|(?:^|[-_.])v\d{3,}(?:[-_.]|$)/i.test(path))) throw new Error('active runtime inventory contains legacy/version-labelled paths');
+          if (!readme.startsWith(`# NPC State Delta v${manifest.version}`)) throw new Error('README title/version mismatch');
+          if (manifest.js !== 'bootstrap.js' || !fs.readFileSync('bootstrap.js', 'utf8').includes("await import('./index.js')")) throw new Error('entrypoint mismatch');
+          console.log(`Delta ${manifest.version}; ${configured.length} canonical active runtime modules`);
+          NODE
+          test -f "dist/npc_state_delta-$(node -p "require('./manifest.json').version").zip"
+          unzip -l "dist/npc_state_delta-$(node -p "require('./manifest.json').version").zip"
+      - name: Record reproducible verification source
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          git rev-parse HEAD > dist/verification-commit.txt
+          git bundle create dist/verification-source.bundle HEAD
+      - name: Retain verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delta-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            packages/npc-state-delta/dist/verification-commit.txt
+            packages/npc-state-delta/dist/verification-source.bundle
+            packages/npc-state-delta/dist/npc_state_delta-*.zip
+          retention-days: 3
+          if-no-files-found: error
+
+  suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Cross-package suite tests (a skip fails the job)
+        run: bash scripts/ci/suite-tests.sh

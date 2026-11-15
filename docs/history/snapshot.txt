@@ -1,0 +1,5 @@
+# B1 import snapshot (16 Nov 2026): tree of each old repo's main at the import, and the merge commit that completed the import.
+import-commit c340e6533a3eb63abfa0623870dbc8d6f9bf5927
+story-block kohz87/Story_block 73a82b02b079a86cb6f4078f88c842865faaccdf
+story-director kohz87/Story_director e70925f6c913265ff9fcebfa89aea252ef987776
+npc-state-delta kohz87/npc_state_delta 591acebe0abec68b6df47456816506dc9b2a614c
