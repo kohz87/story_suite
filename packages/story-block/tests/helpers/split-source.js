@@ -79,6 +79,14 @@ export const SPLIT_PARTS = Object.freeze({
         'src/v2/view/template/render/view.js', 'src/v2/view/template/render/blocks.js', 'src/v2/view/template/render/elements.js',
         'src/v2/view/template/render/widgets.js', 'src/v2/view/template/render/dom.js', 'src/v2/view/template/render/page-ids.js',
     ],
+    'src/v2/runtime.js': ['src/v2/runtime-parts/version.js', 'src/v2/runtime-parts/create.js'],
+    'src/v2/reply-notes.js': ['src/v2/reply-notes-parts/problems.js', 'src/v2/reply-notes-parts/notes.js'],
+    'src/v2/rewind.js': ['src/v2/rewind-parts/st-branch.js', 'src/v2/rewind-parts/shared-limits.js', 'src/v2/rewind-parts/rewind.js', 'src/v2/rewind-parts/save-points.js'],
+    'src/v2/rpg-lazy.js': ['src/v2/rpg-lazy-parts/holds.js', 'src/v2/rpg-lazy-parts/library.js', 'src/v2/rpg-lazy-parts/stand-in.js'],
+    'src/v2/runtime/saving.js': [
+        'src/v2/runtime/saving-parts/shared-plain.js', 'src/v2/runtime/saving-parts/page-marks.js', 'src/v2/runtime/saving-parts/rescue-lookup.js',
+        'src/v2/runtime/saving-parts/unload.js', 'src/v2/runtime/saving-parts/store-saving.js',
+    ],
 });
 
 /** The text of `rel` (a path from the repository root) and of the parts moved out of it. */
