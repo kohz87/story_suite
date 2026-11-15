@@ -40,7 +40,19 @@ export const SPLIT_PARTS = Object.freeze({
     'src/v2/view/template/render.js': [
         'src/v2/view/template/render/view.js', 'src/v2/view/template/render/blocks.js', 'src/v2/view/template/render/elements.js',
         'src/v2/view/template/render/widgets.js', 'src/v2/view/template/render/dom.js', 'src/v2/view/template/render/page-ids.js',
+        'src/v2/view/template/render/dom-parts/access.js', 'src/v2/view/template/render/dom-parts/controls.js', 'src/v2/view/template/render/page-ids-parts/copies.js', 'src/v2/view/template/render/page-ids-parts/prefix.js', 'src/v2/view/template/render/page-ids-parts/value.js',
     ],
+    'src/v2/view/theme.js': [
+        'src/v2/view/theme-parts/bridge.js', 'src/v2/view/theme-parts/colors.js', 'src/v2/view/theme-parts/css.js', 'src/v2/view/theme-parts/defaults.js', 'src/v2/view/theme-parts/fonts.js', 'src/v2/view/theme-parts/glass.js', 'src/v2/view/theme-parts/options.js', 'src/v2/view/theme-parts/palettes.js', 'src/v2/view/theme-parts/roots.js', 'src/v2/view/theme-parts/scheme-choice.js', 'src/v2/view/theme-parts/scheme-tokens.js', 'src/v2/view/theme-parts/sheet-tokens.js', 'src/v2/view/theme-parts/text-size.js', 'src/v2/view/theme-parts/tint.js', 'src/v2/view/theme-parts/tokens.js',
+    ],
+    'src/v2/view/template/sanitize.js': [
+        'src/v2/view/template/sanitize-parts/attr-tables.js', 'src/v2/view/template/sanitize-parts/attrs.js', 'src/v2/view/template/sanitize-parts/control-types.js', 'src/v2/view/template/sanitize-parts/filter.js', 'src/v2/view/template/sanitize-parts/paint.js', 'src/v2/view/template/sanitize-parts/purify-config.js', 'src/v2/view/template/sanitize-parts/reserved.js', 'src/v2/view/template/sanitize-parts/run.js', 'src/v2/view/template/sanitize-parts/tags.js', 'src/v2/view/template/sanitize-parts/urls.js',
+    ],
+    'src/v2/view/widgets/dialog.js': [
+        'src/v2/view/widgets/dialog-parts/content.js', 'src/v2/view/widgets/dialog-parts/props.js', 'src/v2/view/widgets/dialog-parts/render.js', 'src/v2/view/widgets/dialog-parts/shared-text.js', 'src/v2/view/widgets/dialog-parts/widget.js',
+    ],
+    'src/v2/view/template/render/dom.js': ['src/v2/view/template/render/dom-parts/access.js', 'src/v2/view/template/render/dom-parts/controls.js'],
+    'src/v2/view/template/render/page-ids.js': ['src/v2/view/template/render/page-ids-parts/copies.js', 'src/v2/view/template/render/page-ids-parts/prefix.js', 'src/v2/view/template/render/page-ids-parts/value.js'],
 });
 
 /** The text of `rel` (a path from the repository root) and of the parts moved out of it. */
