@@ -35,7 +35,7 @@ function closure(entry) {
     return [...seen].map(file => relative(ROOT, file));
 }
 // The RPG's code proper: everything of src/v2/lean-rpg/ but the small helpers every block uses (names, blocks, formula, read, soul, tail, cue, foes, levels, roster, noroll: the no-rolls record, a small command with no state).
-const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster', 'noroll']);
+const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster', 'noroll', 'soul-parts/label', 'soul-parts/reading']);
 const rpgFiles = files => files.filter(file => file.startsWith('src/v2/lean-rpg/') && !SHARED.has(file.slice('src/v2/lean-rpg/'.length, -3)));
 
 test('the page start (index.js static imports) reaches none of the RPG\'s code, only its small shared helpers', () => {
