@@ -69,3 +69,9 @@ test('test files are not held to the export limit', () => {
   const { problems } = buildMap({ files: ['tests/helpers/h.mjs'], readSource: () => many, jobs: {} });
   assert.deepEqual(problems, []);
 });
+
+test('a test file with its own job sentence keeps it instead of the generated one', () => {
+  const { rows, problems } = buildMap({ files, readSource, jobs: { ...jobs, 'tests/core/pace.test.js': 'Pins the daily pace of each kind.' } });
+  assert.equal(rows.find(r => r.path === 'tests/core/pace.test.js').job, 'Pins the daily pace of each kind.');
+  assert.deepEqual(problems, []);
+});

@@ -6,5 +6,7 @@
   "scripts/codemap/build-map.mjs": "Builds sorted codemap rows and validates jobs and export limits.",
   "scripts/codemap/cli.mjs": "CLI that writes or verifies docs/codemap.md from source files and jobs.json.",
   "scripts/codemap/parse-module.mjs": "Extracts exports and import specifiers from ES module source text.",
-  "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document."
+  "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
+  "tests/suite/nsd-static-part.js": "Writes NPC State Delta's own one-pass static prompt key the way its runtime injection does, and switches its adapter on or off for the suite test.",
+  "tests/suite/static-prompt.test.js": "Pins the whole static prompt of the three-module suite per scenario against the golden and checks it is byte-identical reply to reply."
 }
