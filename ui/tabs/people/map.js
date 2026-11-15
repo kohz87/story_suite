@@ -39,6 +39,21 @@ export function placePeople(people, lens) {
   return out;
 }
 
+/** Finds the spot on the dashed outer ring farthest from every face (skipping the far left and right), where its word is written. */
+function ringLabelSpot(pos) {
+  const spots = Object.values(pos);
+  let best = null;
+  for (let a = 0; a < 360; a += 10) {
+    const r = (a * Math.PI) / 180;
+    const x = 50 + 43 * Math.sin(r);
+    const y = 50 - 43 * Math.cos(r);
+    if (x < 14 || x > 86) continue;
+    const dm = spots.length ? Math.min(...spots.map(q => Math.hypot(q[0] - x, (q[1] - y) * 1.2))) : 99;
+    if (!best || dm > best.dm) best = { x, y, dm };
+  }
+  return best ?? { x: 50, y: 7 };
+}
+
 function tieLines(ties, pos, sel, focus) {
   return (ties ?? [])
     .filter(t => pos[t.a] && pos[t.b] && (!focus || t.a === focus || t.b === focus))
@@ -57,7 +72,7 @@ function tieLines(ties, pos, sel, focus) {
 
 function pickedCard(person, ties, people, ctx, handlers, focus) {
   if (!person) {
-    return h('div', { class: 'mcard' }, h('span', { class: 'fine' }, 'Tap a face to see how they feel about you, then Open dossier or Focus.'));
+    return h('div', { class: 'mcard' }, h('span', { class: 'mhint' }, 'Tap a face to see how they feel about you, then Open dossier or Focus.'));
   }
   const names = new Map(people.map(p => [p.personId, shortName(p)]));
   const tieText = (ties ?? [])
@@ -87,6 +102,7 @@ export function castMap({ people = [], ties = [], state = {}, handlers = {}, ctx
   const focus = people.some(p => p.personId === state.focus) ? state.focus : null;
   const near = id => !focus || id === focus
     || (ties ?? []).some(t => (t.a === focus && t.b === id) || (t.b === focus && t.a === id));
+  const spot = ringLabelSpot(pos);
   const lensName = lens[0] === 'warmth' ? 'warmer' : `higher ${lens[0]}`;
   const ring = (pct, cold) => h('div', { class: ['ring2', cold ? 'cold' : null], style: { width: `${pct}%`, height: `${pct}%` } });
 
@@ -98,6 +114,7 @@ export function castMap({ people = [], ties = [], state = {}, handlers = {}, ctx
     h('p', { class: 'fine' }, `Closer to ${you.name ?? 'you'} = ${lensName} · the dashed outer ring = ${lens[2]}`),
     h('div', { class: 'cmap' },
       ring(39.2), ring(62.8), ring(92.2, true),
+      h('span', { class: 'rw', style: { left: `${spot.x}%`, top: `${spot.y}%` } }, lens[2]),
       svgEl('svg', { viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' }, tieLines(ties, pos, sel?.personId, focus)),
       h('span', { class: 'cm you', style: { left: '50%', top: '50%' } }, portraitDisc(you, 'cm-face')),
       people.map(p => h('button', {

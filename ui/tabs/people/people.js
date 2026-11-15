@@ -93,8 +93,6 @@ export function peopleTab(vm = {}, ctx = {}) {
       items: [['list', 'List'], ['map', 'Map']], value: state.view, label: 'View', className: 'seg2',
       onChange: (v) => { state.view = v; draw(); },
     }));
-    filterBar.hidden = state.view === 'map';
-    legend.hidden = state.view === 'map';
     if (state.view === 'map') drawMap(); else drawList();
   }
 

@@ -2,24 +2,25 @@
 .people-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .people-tab .phd{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .people-tab .phd h3{margin:0;font:700 19px var(--su-font);color:var(--su-text);flex:1}
-.people-tab .cnt{font:700 12px var(--su-font);color:var(--su-muted)}
+.people-tab .cnt{font:400 14px var(--su-font);color:var(--su-text)}
 .psrch{width:100%;min-height:44px;font:600 14px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1px solid var(--su-line2);border-radius:12px;padding:8px 12px;outline:none}
 .fil{display:flex;flex-wrap:wrap;gap:6px}
-.fil button{min-height:44px;display:inline-flex;align-items:center;gap:6px;font:700 13px var(--su-font);color:var(--su-text);background:var(--su-line2);border:1.5px solid transparent;border-radius:999px;padding:0 14px;cursor:pointer}
-.fil button small{font:700 12px var(--su-font);color:var(--su-muted)}
-.fil button[aria-pressed="true"]{border-color:var(--su-accent);color:var(--su-accent)}
+.fil button{min-height:44px;display:inline-flex;align-items:center;gap:0;font:700 12.5px var(--su-font);color:var(--su-soft);background:transparent;border:1px solid var(--su-line2);border-radius:12px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.fil button small{font:800 12px var(--su-font);color:var(--su-muted);margin-left:3px}
+.fil button[aria-pressed="true"]{background:var(--su-panel2);color:var(--su-text);border-color:var(--su-line)}
+.fil button[aria-pressed="true"] small{color:var(--su-accent)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;font:700 12px var(--su-font);color:var(--su-muted)}
 .legend i{display:inline-block;width:10px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .legend .f0 i{background:var(--su-info)}.legend .f1 i{background:#ff7aa8}.legend .f2 i{background:#c08aff}.legend .f3 i{background:var(--su-warn)}
 .people-body{display:flex;flex-direction:column;gap:12px}
-.psec{display:flex;flex-direction:column;gap:6px}
-.secl2{font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted)}
+.psec{display:flex;flex-direction:column;gap:12px}
+.secl2{font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted);margin:4px 0 -2px}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:16px 8px}
 .pc{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;cursor:pointer;color:var(--su-text);font:inherit;min-width:44px;min-height:44px;padding:0;text-align:center}
 .people-tab .prg{position:relative;width:84px;height:84px}
 .people-tab .prg>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .people-tab .prg .ph{position:absolute;inset:9px;border-radius:50%;background:var(--su-tile) center 18%/cover;display:grid;place-items:center;font:800 22px var(--su-font);color:var(--su-soft)}
-.people-tab .prg .star{right:-4px;color:var(--su-warn)}
+.people-tab .prg .star{right:-4px;color:var(--su-warn-t)}
 .pc .nm2{font:800 13.5px/1.15 var(--su-font);margin-top:3px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .pc .md2{font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:1px 8px}
 .pc .wh{font:600 12px/1.25 var(--su-font);color:var(--su-muted);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
@@ -57,3 +58,12 @@
 .mcard .who b{font:800 14px var(--su-font)}
 .mcard .who small{display:block;font:600 12px var(--su-font);color:var(--su-muted)}
 .mcard .acts{display:flex;flex-wrap:wrap;gap:8px}
+/* the List/Map switch: a soft pill track with a raised current half (mock .seg2) */
+.people-tab .seg2{display:inline-flex;flex-wrap:wrap;background:var(--su-line2);border:0;border-radius:12px;padding:3px;gap:2px;overflow:visible}
+.people-tab .seg2 button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--su-soft);font:700 12.5px var(--su-font);padding:5px 10px;border-radius:9px}
+.people-tab .seg2 button[aria-pressed="true"]{background:var(--su-panel2);color:var(--su-text)}
+/* map: the lens switch spans the row, the outer-ring word sits on the ring, the empty hint reads as body text */
+.mapctl .seg2{flex:1 1 100%}.mapctl .seg2 button{flex:1}
+.cmap .rw{position:absolute;transform:translate(-50%,-50%);font:700 12px var(--su-font);color:var(--su-muted);background:var(--su-panel);border-radius:999px;padding:0 6px;white-space:nowrap}
+.mcard .mhint{font:400 14px/1.5 var(--su-font);color:var(--su-text)}
+.fchip{display:inline-flex;align-items:center;gap:6px;color:var(--su-text);background:var(--su-panel2)}

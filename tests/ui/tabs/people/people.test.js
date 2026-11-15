@@ -85,18 +85,18 @@ test('tiles open the dossier through ctx.go, and + Add sends npc.add on the port
   assert.deepEqual(port.recorded.map(e => [e.kind, e.type]), [['command', 'npc.add']]);
 });
 
-test('the List/Map switch swaps filters and legend for the map, and back', () => {
+test('the List/Map switch swaps the lists for the map and back, keeping the filters and legend (as in the mock)', () => {
   installFakeDom();
   const tab = peopleTab(vm(), { you: { name: 'Astra' } });
   tab.querySelector('[data-value="map"]').click();
   assert.ok(tab.querySelector('.castmap'));
-  assert.equal(tab.querySelector('.fil').hidden, true);
-  assert.equal(tab.querySelector('.legend').hidden, true);
+  assert.ok(!tab.querySelector('.fil').hidden);
+  assert.ok(!tab.querySelector('.legend').hidden);
   assert.equal(tab.querySelectorAll('.cmw').length, 7);
   assert.match(tab.querySelector('.castmap .fine').textContent, /Closer to Astra = warmer/);
   tab.querySelector('[data-value="list"]').click();
   assert.equal(tab.querySelector('.castmap'), null);
-  assert.equal(tab.querySelector('.fil').hidden, false);
+  assert.ok(!tab.querySelector('.fil').hidden);
 });
 
 test('on the map, lens, pick and focus redraw in place, and Open dossier goes to the person', () => {
