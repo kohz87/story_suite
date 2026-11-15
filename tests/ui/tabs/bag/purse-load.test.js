@@ -11,9 +11,9 @@ test('Purse shows three coin counts and this turn\'s changes with colour class',
   installFakeDom();
   const card = purseCard(bagFixture(), makeCtx());
   assert.deepEqual(card.querySelectorAll('.coin').map(c => c.textContent), ['2gold', '14silver', '6copper']);
-  assert.match(card.querySelector('.last').textContent, /^This turn: −8 copper room at the Gull · \+1 silver guild advance$/);
-  assert.equal(card.querySelectorAll('.last b')[1].classList.contains('up'), true);
-  assert.equal(card.querySelectorAll('.last b')[0].classList.contains('up'), false);
+  assert.match(card.querySelector('.last').textContent, /^This turn: \+1 silver guild advance · earlier today −8 copper room at the Gull$/);
+  assert.equal(card.querySelectorAll('.last b')[0].classList.contains('up'), true);
+  assert.equal(card.querySelectorAll('.last b')[1].classList.contains('up'), false);
 });
 
 test('no changes this turn leaves the line out; Story-only has no load block', () => {
@@ -34,8 +34,8 @@ test('light load: text, value, bar width, marker, no notes', () => {
   assert.ok(el.querySelector('.mk'));
   assert.equal(el.classList.contains('heavy'), false);
   assert.equal(el.querySelector('.hvy'), null);
-  assert.equal(el.querySelectorAll('.src').length, 6);
-  assert.equal(el.querySelector('.src').textContent, 'Astra +22');
+  assert.equal(el.querySelectorAll('.src').length, 5);
+  assert.equal(el.querySelector('.src').textContent, 'Members 10 + 2×STR each = 112');
 });
 
 test('heavy load shows the 80% note; over the limit shows the slow-down note', () => {
@@ -66,4 +66,14 @@ test('Edit money opens a sheet; Save sends wallet.set with clean whole numbers',
   sheet.querySelector('.btn2').click();
   assert.deepEqual(ctx.sent, [['wallet.set', { gold: 3, silver: 0, copper: 0 }], ['close']]);
   assert.doesNotThrow(() => moneySheet({ gold: 0, silver: 0, copper: 0 }).querySelector('.btn2').click());
+});
+
+test('Prices here opens the rates sheet with one row per price', () => {
+  installFakeDom();
+  const opened = [];
+  const card = purseCard(bagFixture(), { openSheet: (el, label) => opened.push([el, label]) });
+  const btn = card.querySelectorAll('button').find(b => b.textContent.startsWith('Prices here'));
+  btn.click();
+  assert.equal(opened[0][1], 'Prices here');
+  assert.equal(opened[0][0].querySelectorAll('.rt').length, 7);
 });

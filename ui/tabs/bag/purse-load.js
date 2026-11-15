@@ -1,6 +1,7 @@
 // Builds the Purse card (coins, this turn's changes, edit money) with the party load bar and its source chips.
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
+import { ratesSheet } from './rates-sheet.js';
 
 const COIN_COLOUR = { gold: '#e3b341', silver: '#c3c9d6', copper: '#c8784a' };
 
@@ -25,7 +26,7 @@ export function loadBlock(load) {
       ? h('div', { class: 'hvy' }, `Heavy: past 80% of the limit (${heavyAt}). Nothing slows yet; one more item may.`) : null,
     load.level === 'over'
       ? h('div', { class: 'ovr' }, `Over the limit by ${load.value - load.limit}. Everyone is slowed: −2 to AGI and DEX checks and travel pace −25%. Drop something to get back under.`) : null,
-    h('div', { class: 'srcs' }, load.breakdown.map(b => h('span', { class: 'src' }, `${b.label} +${b.value}`))),
+    h('div', { class: 'srcs' }, load.breakdown.map(b => h('span', { class: ['src', b.dim ? 'dim' : null] }, b.text ?? `${b.label} +${b.value}`))),
   );
 }
 
@@ -52,7 +53,7 @@ export function moneySheet(coins, ctx = {}) {
 
 /** Builds the Purse card from the bag view-model; ctx = { port, openSheet(el, label) }. */
 export function purseCard(bag, ctx = {}) {
-  const { coins, thisTurn } = bag.purse;
+  const { coins, thisTurn, rates } = bag.purse;
   const edit = button({
     tone: 'icon', label: 'Edit money', className: 'sm', icon: null,
     onClick: () => ctx.openSheet?.(moneySheet(coins, ctx), 'Edit money'),
@@ -64,7 +65,8 @@ export function purseCard(bag, ctx = {}) {
     h('div', { class: 'ch' }, h('h3', null, 'Purse'), edit),
     h('div', { class: 'coins' }, Object.keys(COIN_COLOUR).map(k => h(
       'span', { class: 'coin', dataset: { coin: k } }, h('i', { style: { background: COIN_COLOUR[k] } }), String(coins[k]), h('small', null, k)))),
-    thisTurn.length ? h('div', { class: 'last' }, 'This turn: ', thisTurn.map((t, i) => [i ? ' · ' : null, h('b', { class: t.up ? 'up' : null }, t.delta), ` ${t.line}`])) : null,
+    thisTurn.length ? h('div', { class: 'last' }, 'This turn: ', thisTurn.map((t, i) => [i ? ' · ' : null, t.earlier ? 'earlier today ' : null, h('b', { class: t.up ? 'up' : null }, t.delta), ` ${t.line}`])) : null,
+    rates ? h('div', { class: 'brow' }, button({ label: 'Prices here ›', onClick: () => ctx.openSheet?.(ratesSheet(rates), 'Prices here') })) : null,
     loadBlock(bag.load),
   );
 }

@@ -35,7 +35,7 @@ describe('BAG fixture', () => {
 
   it('has the purse with this turn’s two lines', () => {
     assert.equal(BAG.purse.words, '2 gold 14 silver 6 copper');
-    assert.deepEqual(BAG.purse.thisTurn.map(t => [t.delta, t.up]), [['−8 copper', false], ['+1 silver', true]]);
+    assert.deepEqual(BAG.purse.thisTurn.map(t => [t.delta, t.up]), [['+1 silver', true], ['−8 copper', false]]);
   });
 
   it('lists four transports (cart parked, not with the party) and two properties', () => {

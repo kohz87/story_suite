@@ -84,6 +84,7 @@
   "ui/tabs/bag/bag.js": "Composes the Bag tab: Purse with party load and Assets side by side when wide, then the Items card.",
   "ui/tabs/bag/item-grid.js": "Builds the Items card: find box, filter chips and the grid of item tiles (rarity, quantity, wearer, new and torn marks).",
   "ui/tabs/bag/item-sheet.js": "Builds the item sheet body: tile, rarity and kind chips, details, and the Wear on / Take off / Give to / Use on / Drop actions.",
+  "ui/tabs/bag/rates-sheet.js": "Builds the Prices here sheet body: the going rates for this place and the note on how they are worked out.",
   "ui/tabs/bag/purse-load.js": "Builds the Purse card (coins, this turn's changes, edit money) with the party load bar and its source chips.",
   "ui/tabs/fight/actions.js": "Builds the acting member's panel (resources, stance switch, action tiles by kind, Back, Auto, Discard) and the after-exchange panel.",
   "ui/tabs/fight/end.js": "Builds the offer card that starts a fight and the won, fled or lost card that ends it.",

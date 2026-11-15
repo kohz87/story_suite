@@ -2,25 +2,19 @@
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 
-function tagOf(asset, section, rpg) {
-  if (section === 'property') return asset.kindLabel.split(' ')[0].toLowerCase();
-  if (asset.withParty && asset.riders.length) return rpg ? 'equipped' : 'with you';
-  return asset.withParty ? 'with you' : 'not with you';
-}
-
-function metaOf(asset, section) {
-  const riders = asset.riders.length && section === 'transport' ? `ridden by ${asset.riders.join(', ')}` : null;
-  const seats = asset.seats ? `${asset.seats} ${asset.seats === 1 ? 'seat' : 'seats'}` : null;
-  return [riders, asset.kindLabel, seats, asset.where].filter(Boolean);
+function riderMeta(asset, section) {
+  if (section !== 'transport' || !asset.riders.length) return [];
+  const who = asset.riders[0];
+  return [h('span', { class: 'rg' }, h('span', { class: 'av', dataset: { portrait: who.toLowerCase() } }), ` ridden by ${asset.riders.join(', ')}`)];
 }
 
 function assetRow(asset, section, rpg, onOpen) {
-  const tag = tagOf(asset, section, rpg);
+  const tag = !rpg && asset.tag === 'equipped' ? 'with you' : asset.tag;
   return h(
     'button',
     { type: 'button', class: 'tr', dataset: { asset: asset.id }, onClick: () => onOpen?.(asset, section) },
     h('span', { class: 'ti' }, glyph(asset.glyph) ?? glyph('item')),
-    h('span', null, h('b', null, asset.name), h('small', { class: 'bmt' }, metaOf(asset, section).map(t => h('span', null, t)))),
+    h('span', null, h('b', null, asset.name), h('small', { class: 'bmt' }, [...riderMeta(asset, section), ...asset.meta.map(t => h('span', null, t))])),
     h('span', { class: ['tg', tag === 'equipped' ? 'eq' : null, tag === 'equipped' ? 'rpg' : null] }, tag),
   );
 }
@@ -52,16 +46,16 @@ export function assetsCard(bag, ctx = {}) {
   const pace = bag.pace;
   const open = Boolean(ctx.prefs?.getFold?.('bag.assets', false));
   const summary = [pace ? `${pace.kmDay} km/day` : null, `${transport.length} transport`, `${property.length} property`].filter(Boolean).join(' · ');
-  const body = h('div', { class: 'abody', hidden: !open },
+  const body = h('div', { class: 'abody', dataset: { open: String(open) } },
     pace ? h('div', { class: ['pacebox', pace.slowed ? 'slow' : null] },
-      h('div', { class: 'pr' }, h('span', null, 'Party pace'), h('b', null, `${pace.kmDay} km/day`)), h('p', null, pace.why)) : null,
+      h('div', { class: 'pr' }, h('span', null, 'Party pace'), h('b', null, `${pace.kmDay} km/day`)), h('p', null, pace.why), pace.alt ? h('p', { class: 'opt' }, pace.alt) : null) : null,
     transport.length ? [h('div', { class: 'asub' }, 'Transport'), h('div', { class: 'trs' }, transport.map(a => assetRow(a, 'transport', rpg, show)))] : null,
     property.length ? [h('div', { class: 'asub' }, 'Property'), h('div', { class: 'trs' }, property.map(a => assetRow(a, 'property', rpg, show)))] : null);
   const fold = h('button', { type: 'button', class: ['afold', pace?.slowed ? 'slow' : null], 'aria-expanded': String(open),
     onClick: () => {
       const now = fold.getAttribute('aria-expanded') !== 'true';
       fold.setAttribute('aria-expanded', String(now));
-      if (now) body.removeAttribute('hidden'); else body.setAttribute('hidden', '');
+      body.dataset.open = String(now);
       ctx.prefs?.setFold?.('bag.assets', now);
     } },
   h('b', null, 'Assets'), h('span', { class: 't' }, summary), h('span', { class: 'chev' }, '›'));

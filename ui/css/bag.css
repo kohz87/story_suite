@@ -13,6 +13,8 @@
 .last{font-size:12.5px;color:var(--su-muted)}
 .last b{color:var(--su-hp);font-weight:800}.last b.up{color:var(--su-ok-t)}
 .brow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.brow .grow{flex:1}
+.load .secl{margin:4px 0 0}
+.load .lr{border-top:1px solid var(--su-line2);padding-top:6px;margin-top:6px}
 .load .lr{display:flex;justify-content:space-between;align-items:baseline;font:700 12.5px var(--su-font);color:var(--su-muted)}
 .load .lr b{font:800 16px var(--su-font);color:var(--su-text)}
 .lbar{position:relative;height:9px;border-radius:5px;background:var(--su-line2);overflow:hidden;margin:6px 0 8px}
@@ -23,16 +25,24 @@
 .hvy,.ovr{font:700 12.5px/1.35 var(--su-font);color:var(--su-warn-t);margin-bottom:8px}
 .ovr{border:1px solid var(--su-warn);border-radius:12px;padding:7px 10px}
 .srcs{display:flex;flex-wrap:wrap;gap:6px}
+.src.dim{opacity:.75}
+.rates{display:flex;flex-direction:column}
+.rt{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--su-line2);font-size:13.5px}
+.rt:first-child{border-top:0}.rt span:last-child{font-weight:800;white-space:nowrap}
 .src{font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:2px 9px}
 /* Assets */
-.afold{display:flex;align-items:center;gap:8px;min-height:44px;width:100%;background:none;border:0;color:var(--su-text);font:inherit;text-align:left;cursor:pointer;padding:0}
-.afold .t{flex:1;font:700 12.5px var(--su-font);color:var(--su-muted)}.afold.slow .t{color:var(--su-warn-t)}
-.afold .chev{transition:transform .15s}.afold[aria-expanded="true"] .chev{transform:rotate(90deg)}
-.abody[hidden]{display:none}
-.pacebox{background:var(--su-line2);border-radius:12px;padding:8px 12px;margin-bottom:8px}
-.pacebox .pr{display:flex;justify-content:space-between;font:700 12.5px var(--su-font);color:var(--su-muted)}
-.pacebox .pr b{font:800 16px var(--su-font);color:var(--su-text)}.pacebox.slow .pr b{color:var(--su-warn-t)}
-.pacebox p{margin:4px 0 0;font-size:12.5px;color:var(--su-soft)}
+.afold{display:none;align-items:center;justify-content:space-between;gap:8px;min-height:44px;width:100%;background:none;border:0;color:var(--su-text);font:700 13.5px var(--su-font);text-align:left;cursor:pointer;padding:0;white-space:nowrap}
+.afold b{font:700 19px var(--su-font)}
+.afold .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--su-soft)}.afold.slow .t{color:var(--su-warn-t)}
+.afold .chev{color:var(--su-muted);font-size:18px;transition:transform .15s}.afold[aria-expanded="true"] .chev{transform:rotate(90deg)}
+/* Wide: the card shows its body always; the fold row is for narrow containers only. */
+.abody{display:flex;flex-direction:column;gap:10px}
+@container (max-width:600px){.assets .afold{display:flex}.assets .ch{display:none}.assets .abody[data-open="false"]{display:none}}
+.pacebox{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:14px;background:var(--su-line2)}
+.pacebox .pr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pacebox .pr span{font:800 12px var(--su-font);letter-spacing:.1em;text-transform:uppercase;color:var(--su-muted)}
+.pacebox .pr b{font:800 18px var(--su-font);color:var(--su-text)}.pacebox.slow .pr b{color:var(--su-warn-t)}
+.pacebox p{margin:0;font-size:12.5px;line-height:1.4;color:var(--su-soft)}.pacebox .opt{color:var(--su-muted)}
 .asub{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);margin:6px 0 2px}
 .trs{display:flex;flex-direction:column}
 .tr{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:44px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--su-line2);color:var(--su-text);font:inherit;cursor:pointer;padding:8px 0}
@@ -73,3 +83,4 @@
 .bag-sheet .wbar{display:inline-flex;gap:3px;margin-right:8px}.bag-sheet .wbar i{width:14px;height:6px;border-radius:3px;background:var(--su-line2)}
 .bag-sheet .wbar i.on{background:var(--su-ok)}.bag-sheet .wbar.w2 i.on{background:var(--su-warn)}
 .bag-sheet .pick{display:flex;flex-wrap:wrap;gap:8px}.bag-sheet .mb{display:inline-flex;align-items:center;gap:6px;min-height:44px}
+.tr .rg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
