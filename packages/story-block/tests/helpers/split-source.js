@@ -18,7 +18,7 @@ export const SPLIT_PARTS = Object.freeze({
     ],
     'src/v2/timeline/boundary.js': ['src/v2/timeline/boundary-parts/marker.js', 'src/v2/timeline/boundary-parts/write-check.js'],
     'src/v2/ui-host.js': [
-        'src/v2/ui-host/shared.js', 'src/v2/ui-host/setup.js', 'src/v2/ui-host/screens.js',
+        'src/v2/ui-host/shared.js', 'src/v2/ui-host/shared-parts/dom-build.js', 'src/v2/ui-host/shared-parts/game-view-key.js', 'src/v2/ui-host/shared-parts/names.js', 'src/v2/ui-host/shared-parts/reader-settings.js', 'src/v2/ui-host/shared-parts/reply-record.js', 'src/v2/ui-host/setup.js', 'src/v2/ui-host/screens.js',
         'src/v2/ui-host/replies.js', 'src/v2/ui-host/mounts.js', 'src/v2/ui-host/navigation.js',
         'src/v2/ui-host/panel.js', 'src/v2/ui-host/settings.js', 'src/v2/ui-host/events.js',
     ],
@@ -27,7 +27,7 @@ export const SPLIT_PARTS = Object.freeze({
         'src/v2/store/write/records.js', 'src/v2/store/write/lifecycle.js',
     ],
     'src/v2/turn.js': [
-        'src/v2/turn/text.js', 'src/v2/turn/session.js', 'src/v2/turn/reread.js',
+        'src/v2/turn/text.js', 'src/v2/turn/text-parts/battle-marker.js', 'src/v2/turn/text-parts/closing-cue.js', 'src/v2/turn/text-parts/content.js', 'src/v2/turn/text-parts/context-room.js', 'src/v2/turn/text-parts/kept-lines.js', 'src/v2/turn/text-parts/names.js', 'src/v2/turn/text-parts/quiet-mark.js', 'src/v2/turn/text-parts/restore-missing.js', 'src/v2/turn/text-parts/timeout.js', 'src/v2/turn/session.js', 'src/v2/turn/reread.js',
         'src/v2/turn/prompt-build.js', 'src/v2/turn/prompt-hooks.js', 'src/v2/turn/capture-flow.js', 'src/v2/turn/events.js',
         'src/v2/turn-parts/keys.js', 'src/v2/turn-parts/prompt-limits.js', 'src/v2/turn-parts/hook-time.js', 'src/v2/turn-parts/waits.js', 'src/v2/turn-parts/create-turn.js',
     ],
