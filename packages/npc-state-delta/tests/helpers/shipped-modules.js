@@ -17,6 +17,7 @@ export function shippedModulePaths() {
                 if (!String(name).endsWith('.js')) continue;
                 split.push(`${modulePath.replace(/\.js$/, '')}${suffix}/${String(name).replace(/\\/g, '/')}`);
             const base = modulePath.replace(/\.js$/, '') + suffix;
+            const base = `${modulePath.replace(/\.js$/, '')}${suffix}`;
             const directory = path.join(root, base);
             if (!fs.statSync(directory, { throwIfNoEntry: false })?.isDirectory()) continue;
             for (const name of fs.readdirSync(directory, { recursive: true })) {

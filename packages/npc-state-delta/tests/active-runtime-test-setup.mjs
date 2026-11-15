@@ -25,6 +25,9 @@ fs.copyFileSync = (source, destination, ...args) => {
             for (const suffix of ['', '-parts']) {
             const splitRoot = path.join(sourceRoot, module.path.replace(/\.js$/, '') + suffix);
             const splitName = module.path.replace(/\.js$/, '') + suffix;
+            // A facade's parts live in "<owner>-parts"; both folder names are copied.
+            for (const suffix of ['', '-parts']) {
+            const splitName = `${module.path.replace(/\.js$/, '')}${suffix}`;
             const splitRoot = path.join(sourceRoot, splitName);
             if (!fs.statSync(splitRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
             const copySplit = (directory, relative = '') => {
