@@ -53,6 +53,7 @@
 .xp2 i{display:block;height:4px;border-radius:2px;background:var(--su-line2);overflow:hidden}
 .xp2 i b{display:block;height:100%;background:var(--su-accent);border-radius:2px}
 .st7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+@container (max-width:420px){.st7{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .sv{position:relative;background:var(--su-line2);border:0;border-radius:10px;padding:6px 2px;min-height:48px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 12px var(--su-font);color:var(--su-muted);cursor:pointer}
 .sv b{font:800 17px var(--su-font);color:var(--su-text)}
 .sv.can{box-shadow:inset 0 0 0 1.5px var(--su-ok)}

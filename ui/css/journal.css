@@ -37,7 +37,7 @@
 .qkv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-size:13px;margin:0}
 .qkv dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}
 .qkv dd{margin:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.lk{background:none;border:0;padding:0;min-height:44px;display:inline-flex;align-items:center;color:var(--su-accent);font:700 13px var(--su-font);cursor:pointer}
+.lk{background:none;border:0;padding:0 8px;min-width:44px;min-height:44px;justify-content:center;display:inline-flex;align-items:center;color:var(--su-accent);font:700 13px var(--su-font);cursor:pointer}
 .due{font:800 12px var(--su-font);border-radius:999px;padding:1px 8px;background:var(--su-line2);color:var(--su-soft)}
 .due.soon{color:var(--su-warn-t);background:var(--su-line2)}.due.late{color:var(--su-bad-t);background:var(--su-line2)}
 /* leads and closed */

@@ -2,6 +2,13 @@
 
 import { MOMENT } from './moment.js';
 import { PEOPLE } from './people.js';
+import { partyFixture } from './party.js';
+import { bagFixture } from './bag.js';
+import { fightFixture } from './fight.js';
+import { worldFor } from './world.js';
+import { buildJournal } from './journal.js';
+import { buildStory } from './story.js';
+import { buildSettings } from './settings.js';
 
 function resolveOptions(variant) {
   if (typeof variant === 'string') {
@@ -236,5 +243,12 @@ export function fixture(variant = 'default') {
     now: buildNow(opts, hereList, changes, needsYou),
     chat: buildChat(opts, hereList, changes, needsYou),
     people: buildPeople(opts, hereList),
+    party: opts.rpg ? partyFixture() : null,
+    bag: bagFixture({ rpg: opts.rpg }),
+    fight: opts.fightOpen ? fightFixture('choose') : null,
+    world: worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
+    journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
+    story: buildStory({ empty: opts.empty }),
+    settings: buildSettings({ rpg: opts.rpg }),
   };
 }

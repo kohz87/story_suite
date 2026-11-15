@@ -30,7 +30,9 @@ test('mounts closed; open draws card and Now; close and Escape work', () => {
 
 test('open(tab) switches tab and shows the pending card for an unfed tab', () => {
   const doc = installFakeDom();
-  const suite = mountSuite({ port: createFakePort(), doc });
+  const full = createFakePort();
+  const port = createFakePort({ views: { card: full.view('card'), now: full.view('now'), chat: full.view('chat') } });
+  const suite = mountSuite({ port, doc });
   suite.open('world');
   assert.equal(suite.tabHost.current(), 'world');
   assert.ok(doc.body.querySelector('[data-pending="world"]'));

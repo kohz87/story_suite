@@ -172,9 +172,9 @@
   transform: translateX(-50%);
   display: flex;
   justify-content: space-between;
-  gap: 2px;
-  width: min(94%, 560px);
-  padding: 6px 8px;
+  gap: 0;
+  width: min(calc(100% - 4px), 560px);
+  padding: 4px 0;
   border-radius: 999px;
 }
 

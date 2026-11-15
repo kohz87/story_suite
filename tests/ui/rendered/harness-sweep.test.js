@@ -36,6 +36,13 @@ function serve() {
 function audit({ minTap, fightTap = 48, tapFloor = true }) {
   const frame = document.getElementById('hx-frame');
   const seen = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && r.right > 0 && r.left < innerWidth; };
+  // A control may draw small and own a bigger invisible hit area (an absolutely placed ::after); a finger hits that box.
+  const tapBox = (el) => {
+    const r = el.getBoundingClientRect();
+    const a = getComputedStyle(el, '::after');
+    if (a.content === 'none' || a.position !== 'absolute') return r;
+    return { width: Math.max(r.width, parseFloat(a.width) || 0), height: Math.max(r.height, parseFloat(a.height) || 0) };
+  };
   const label = el => `${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]}${el.dataset?.tab ? `[${el.dataset.tab}]` : ''}`;
   const problems = [];
   const doc = document.documentElement;
@@ -48,7 +55,7 @@ function audit({ minTap, fightTap = 48, tapFloor = true }) {
   }
   for (const el of frame.querySelectorAll('button, [role=tab], a, [data-tap]')) {
     if (!seen(el)) continue;
-    const r = el.getBoundingClientRect();
+    const r = tapBox(el);
     const need = el.closest('.su-panel[data-tab="fight"]') ? fightTap : minTap;
     if (tapFloor && (r.height < need - 0.5 || r.width < need - 0.5)) problems.push(`tap: ${label(el)} ${Math.round(r.width)}x${Math.round(r.height)}`);
   }
@@ -127,10 +134,8 @@ test('the 8-tab bar fits at 360 px and the fight tab shows with 48 px taps', asy
     await settle(page);
     const count = await page.evaluate(() => document.querySelectorAll('#hx-frame .su-bar-btn').length);
     assert.equal(count, 8);
-    // Known gap (see report): with 8 tabs the bar buttons are 38 px wide at 360 px, so only they are excused here.
     const problems = await page.evaluate(audit, { minTap: 44, fightTap: 48 });
-    assert.deepEqual(problems.filter(p => !p.startsWith('tap: button.su-bar-btn')), []);
-    assert.ok(problems.every(p => /^tap: button\.su-bar-btn\[\w+\] (3[89]|4[0-3])x\d+$/.test(p) || !p.startsWith('tap: button.su-bar-btn')));
+    assert.deepEqual(problems, []);
     const fitsBar = await page.evaluate(() => { const b = document.querySelector('#hx-frame .su-bar'); return b.scrollWidth <= b.clientWidth + 1; });
     assert.equal(fitsBar, true);
   } finally { await page.close(); }

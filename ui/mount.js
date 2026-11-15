@@ -10,6 +10,7 @@ import { followSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
 import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
+import { createSettingsOverlay } from './settings/overlay.js';
 
 const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];
 
@@ -51,7 +52,23 @@ export function mountSuite(options = {}) {
   let destroyed = false;
 
   const prefs = options.prefs ?? createPrefs({ port });
-  const views = defaultViews({ port, prefs, tabHost: () => tabHost });
+  let settingsOverlay = null;
+  const openSettings = () => {
+    const settings = port.view('settings');
+    if (!settings || destroyed) return port.command('suite.settings', {});
+    settingsOverlay?.destroy();
+    settingsOverlay = createSettingsOverlay({
+      doc, host: view.root, settings, backStack, subtitle: 'this chat',
+      onChange: (key, value) => port.command('settings.set', { key, value }),
+      onAction: (key) => port.command('settings.action', { key }),
+    });
+    settingsOverlay.open();
+    return port.command('suite.settings', {});
+  };
+  const views = defaultViews({
+    port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
+    onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,
+  });
   const picked = resolveTheme(theme, doc);
   scheme = picked.scheme;
   const view = createSuiteView({ doc, host, backStack, tokens: picked.tokens, scheme });
@@ -61,7 +78,7 @@ export function mountSuite(options = {}) {
     initial,
     onSelect: id => showTab(id),
     onChat: () => view.close(),
-    onSettings: () => port.command('suite.settings', {}),
+    onSettings: openSettings,
   });
   view.content.appendChild(tabHost.el);
 
@@ -125,6 +142,7 @@ export function mountSuite(options = {}) {
       for (const off of offs) off();
       unbindKeys();
       redraw.destroy();
+      settingsOverlay?.destroy();
       view.destroy();
     },
   };
