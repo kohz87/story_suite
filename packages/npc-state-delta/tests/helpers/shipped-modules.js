@@ -10,11 +10,13 @@ export function shippedModulePaths() {
     const modules = JSON.parse(fs.readFileSync(path.join(root, 'runtime-modules.json'), 'utf8')).modules.map(module => module.path);
     const split = [];
     for (const modulePath of modules) {
-        const directory = path.join(root, modulePath.replace(/\.js$/, ''));
-        if (!fs.statSync(directory, { throwIfNoEntry: false })?.isDirectory()) continue;
-        for (const name of fs.readdirSync(directory, { recursive: true })) {
-            if (!String(name).endsWith('.js')) continue;
-            split.push(`${modulePath.replace(/\.js$/, '')}/${String(name).replace(/\\/g, '/')}`);
+        for (const suffix of ['', '-parts']) {
+            const directory = path.join(root, `${modulePath.replace(/\.js$/, '')}${suffix}`);
+            if (!fs.statSync(directory, { throwIfNoEntry: false })?.isDirectory()) continue;
+            for (const name of fs.readdirSync(directory, { recursive: true })) {
+                if (!String(name).endsWith('.js')) continue;
+                split.push(`${modulePath.replace(/\.js$/, '')}${suffix}/${String(name).replace(/\\/g, '/')}`);
+            }
         }
     }
     return [...modules, ...split];
