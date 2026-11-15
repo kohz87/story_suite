@@ -1,0 +1,521 @@
+// Screens part: the four screens drawn by Story Block's template renderer (SPEC §13.2) against fixture
+// states, with the real condition language and standard widgets; the status card through Story Block's
+// card mount, which draws each reply's card from that reply's state (stateAt). Needs a Story Block
+// checkout (STORY_BLOCK_DIR, see helpers/runtime.js); skipped with the reason otherwise.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { installFakeDom } from '../../ui-fake-dom.js';
+import { resolveData, runtime, skipReason } from './helpers/runtime.js';
+import { at, calendar, earlierState, headState, makeQueries, makeRunner, makeState, plot, raid, rats, smuggler, thread, wolves } from './helpers/fixtures.js';
+import { DIRECTOR_ID, QUESTS_ID, STATUS_CARD_ID, createBehindWidget, createScreensPart, createRipplesWidget, part, planWidget, questsWidget, screens } from '../../../src/v2/screens/index.js';
+import { SPOILER_STORE, createSpoilerPreference, createSpoilerSwitchWidget, spoilerSwitchWidget } from '../../../src/v2/screens/director.js';
+import { createArcWidget } from '../../../src/v2/arc/widget.js';
+import { toSlot } from '../../../src/v2/slot.js';
+
+// The module's own widgets on the Director screen, with a planner that is not there and a reveal choice
+// the test sets (shown unless a test hides it).
+let shown = true;
+const stillReveal = { guard: () => true, revealed: () => shown, set: on => { shown = on; }, hidden: () => !shown, subscribe: () => () => {} };
+const noPlanner = { status: () => ({ available: true, busy: false, draft: null, error: '', hidden: !shown, arc: null }), subscribe: () => () => {}, plan() {}, end() {} };
+const moduleWidgets = () => ({ ...runtime.widgets, 'story-director.arc': createArcWidget({ controller: noPlanner }), 'story-director.behind': createBehindWidget({ reveal: stillReveal }), 'story-director.quests': questsWidget, 'story-director.plan': planWidget, 'story-director.ripples': createRipplesWidget(), 'story-director.spoiler-switch': spoilerSwitchWidget });
+
+const skip = runtime ? false : skipReason;
+const byId = Object.fromEntries(screens.map(screen => [screen.id, screen]));
+const formatters = { time: minutes => (Number.isInteger(minutes) ? calendar.format(minutes) : '') };
+const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();
+
+function draw(id, state, { command = null, changes = [], mount = byId[id].mounts[0], queries = makeQueries(), index = undefined, widgets = moduleWidgets() } = {}) {
+    const { run } = makeRunner(queries);
+    const screen = byId[id];
+    const doc = installFakeDom();
+    doc.head = doc.createElement('head');
+    const el = doc.createElement('div');
+    el.setAttribute('data-ss-screen', id);
+    doc.body.appendChild(el);
+    const data = resolveData(screen.data, (name, args) => run(state, name, args));
+    assert.equal(data.ok, true);
+    const compiled = runtime.compileTemplate(screen.template);
+    const warnings = [...compiled.warnings];
+    const results = [];
+    const view = runtime.renderTemplate(el, compiled, { state, q: data.q, changes, settings: {}, mount, screenId: id, index, api: {} }, {
+        evaluate: runtime.evaluate,
+        widgets,
+        formatters,
+        command,
+        onWarn: message => warnings.push(message),
+        onResult: result => results.push(result),
+    });
+    return { el, view, warnings, results, doc, data };
+}
+
+const button = (root, label) => root.querySelectorAll('button').filter(node => squash(node.textContent) === label);
+
+test('every screen compiles and renders without a warning, and its CSS scopes cleanly', { skip }, () => {
+    for (const screen of screens) {
+        const { warnings } = draw(screen.id, headState());
+        assert.deepEqual(warnings, [], screen.id);
+        const scoped = runtime.scopeCss(screen.css, screen.id);
+        assert.deepEqual(scoped.warnings, [], `${screen.id} css`);
+        const prefix = `[data-ss-screen="${screen.id}"]`;
+        // Every selector of every rule starts at the screen root.
+        for (const match of scoped.css.matchAll(/(^|})\s*([^{}@]+)\{/g)) {
+            const selectors = match[2].split(',').map(part => part.trim()).filter(Boolean);
+            for (const selector of selectors) assert.ok(selector.startsWith(prefix), `${screen.id}: ${selector}`);
+        }
+    }
+});
+
+test('director: the arc then the plan cards; secrets by name; problems (visible, then behind the scenes); nothing tracked says so', { skip }, () => {
+    const { el } = draw(DIRECTOR_ID, headState());
+    const kinds = el.querySelectorAll('section.sd-kind').map(node => node.getAttribute('data-kind'));
+    assert.deepEqual(kinds, ['pulse', 'arc', 'clock', 'agenda', 'secret', 'problem'], 'a Clocks card, but no Quests or World list');
+    const agenda = squash(el.querySelector('section[data-kind="agenda"]').textContent);
+    assert.match(agenda, /Smuggler Vane wants: moving crates at night At: the docks · Next: meet the reeve/);
+    assert.equal(squash(el.querySelector('section[data-kind="secret"] .sd-thread').textContent), 'The Reeve Is Bought', 'a secret shows only its name');
+    assert.equal(el.querySelectorAll('.sd-problem').length, 2);
+    assert.equal(el.querySelector('.sd-empty'), null);
+    const { el: none } = draw(DIRECTOR_ID, makeState());
+    assert.match(squash(none.textContent), /Director shows spoilers .*No arc planned yet\. Plan arc Nothing planned yet\.$/);
+});
+
+test('director spoiler switch hides all planning cards, keeps pulse and quiet, survives redraws and restores from either control', { skip }, () => {
+    const values = new Map();
+    const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+    const preference = createSpoilerPreference({ storage });
+    const widgets = { ...moduleWidgets(), 'story-director.spoiler-switch': createSpoilerSwitchWidget({ preference }) };
+    const state = headState({ threads: [
+        thread('th_beat0001', 'beat', 'A secret meeting'), thread('th_hook0001', 'hook', 'A planned hook', { then: 'the trap closes' }),
+        raid(), smuggler(), plot(),
+    ] });
+    const queries = { ...makeQueries(), 'ripples.sway': () => [{ id: 'power', name: 'Power', sway: 52, reasons: [] }] };
+    const sent = [];
+    const first = draw(DIRECTOR_ID, state, { widgets, queries, command: (type, payload) => sent.push([type, payload]) });
+    assert.deepEqual(first.warnings, []);
+    const root = first.el;
+    const group = root.querySelector('.sd-spoilers');
+    const toggle = root.querySelector('button.sd-spoil');
+    const note = root.querySelector('.sd-spoiler-note');
+    assert.equal(toggle.getAttribute('role'), 'switch');
+    assert.equal(toggle.getAttribute('aria-label'), 'Show spoilers');
+    assert.equal(toggle.getAttribute('aria-checked'), 'true');
+    assert.equal(group.hidden, false);
+    assert.equal(note.hidden, true);
+    for (const kind of ['arc', 'beat', 'hook', 'clock', 'agenda', 'secret', 'problem', 'ripples']) {
+        const card = root.querySelector(`section[data-kind="${kind}"]`);
+        assert.ok(card && group.contains(card), `${kind} is in the spoiler group`);
+    }
+    assert.ok(root.querySelector('section[data-kind="pulse"]'));
+    assert.ok(root.querySelector('.sd-quiet'));
+    assert.equal(group.contains(root.querySelector('section[data-kind="pulse"]')), false);
+    assert.equal(group.contains(root.querySelector('.sd-quiet')), false);
+    toggle.focus();
+    toggle.click();
+    assert.equal(first.doc.activeElement, toggle);
+    assert.equal(toggle.getAttribute('aria-checked'), 'false');
+    assert.equal(group.hidden, true);
+    assert.equal(note.hidden, false);
+    assert.equal(note.textContent, 'Spoilers hidden — tap to show');
+    assert.equal(values.get(SPOILER_STORE), 'hidden');
+    assert.deepEqual(sent, [], 'a view preference sends no story command');
+    first.view.update({ state, q: first.data.q, changes: [], settings: {}, mount: 'screen', screenId: DIRECTOR_ID, api: {} });
+    assert.equal(group.hidden, true, 'a screen redraw keeps spoilers hidden');
+    root.querySelector('.sd-quiet button').click();
+    assert.deepEqual(sent, [['director.pulse.quiet', { on: true }]], 'quiet scene still works');
+    const second = draw(DIRECTOR_ID, state, { widgets, queries });
+    assert.equal(second.el.querySelector('.sd-spoilers').hidden, true, 'another mounted view shares the choice');
+    const reloaded = createSpoilerPreference({ storage });
+    assert.equal(reloaded.shown(), false, 'a new page reads the saved device choice');
+    note.focus();
+    note.click();
+    assert.equal(first.doc.activeElement, toggle, 'activating the restore line moves focus to the switch');
+    assert.equal(group.hidden, false);
+    assert.equal(second.el.querySelector('.sd-spoilers').hidden, false);
+    assert.equal(toggle.getAttribute('aria-checked'), 'true');
+    assert.equal(values.get(SPOILER_STORE), 'shown');
+    toggle.click();
+    toggle.click();
+    assert.equal(group.hidden, false, 'the switch itself also restores the cards');
+    first.view.destroy();
+    second.view.destroy();
+});
+
+test('director spoiler preference defaults to shown and keeps a page choice when storage is blocked or damaged', () => {
+    const denied = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('full'); } };
+    const preference = createSpoilerPreference({ storage: denied });
+    assert.equal(preference.shown(), true);
+    preference.set(false);
+    assert.equal(preference.shown(), false);
+    preference.set(true);
+    assert.equal(preference.shown(), true);
+    assert.equal(createSpoilerPreference({ storage: { getItem: () => 'unexpected' } }).shown(), true);
+    assert.equal(createSpoilerPreference({ storage: null }).shown(), true);
+});
+
+test('director spoiler choice follows another open tab: storage is re-read on each draw and a storage event redraws', () => {
+    const values = new Map();
+    const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+    const listeners = [];
+    const win = { addEventListener: (type, fn) => { if (type === 'storage') listeners.push(fn); } };
+    const tabA = createSpoilerPreference({ storage, win });
+    const tabB = createSpoilerPreference({ storage, win });
+    let drawsB = 0;
+    tabB.subscribe(() => { drawsB += 1; });
+    tabA.set(false);
+    assert.equal(tabB.shown(), false, 'a new mount in tab B reads the choice made in tab A');
+    for (const fn of listeners) fn({ key: SPOILER_STORE });
+    assert.ok(drawsB > 0, 'a storage event redraws tab B');
+    const before = drawsB;
+    for (const fn of listeners) fn({ key: 'other' });
+    assert.equal(drawsB, before, 'unrelated keys are ignored');
+    tabB.set(true);
+    assert.equal(tabA.shown(), true, 'and the other direction');
+    values.set(SPOILER_STORE, 'garbage');
+    assert.equal(tabA.shown(), true, 'a damaged value keeps the last good choice');
+});
+
+test('status card: time, place, goal and step, progress, with what this reply changed marked; no next beat', { skip }, () => {
+    const changes = ['/domains/director/time/minutes', '/domains/director/threads/th_wolves01/rev'];
+    const { el } = draw(STATUS_CARD_ID, headState(), { changes });
+    const rows = el.querySelectorAll('.sd-row').map(row => [row.querySelector('dt').textContent.trim(), squash(row.querySelector('dd').textContent)]);
+    assert.deepEqual(rows.map(([label]) => label), ['Time', 'Place', 'Region', 'Goal']);
+    assert.deepEqual(rows[0], ['Time', 'June 11, 2025, 9:00 am']);
+    assert.deepEqual(rows[1], ['Place', 'Bluewatch Village']);
+    assert.deepEqual(rows[2], ['Region', 'Eastmarch']);
+    // The goal row holds the progress bar (its text is the bar's own label, not part of the goal line).
+    assert.ok(rows[3][1].startsWith('East Bluff Wolves — Clear at least 3 wolves from East Bluff Now: Hunt along the ridge'), rows[3][1]);
+    // What comes next is the Director screen's, behind Reveal: a spoiler under the reply (user, beta).
+    assert.equal(el.querySelector('.sd-next'), null);
+    assert.equal(byId[STATUS_CARD_ID].data.next, undefined);
+    assert.equal(rows.some(([label]) => label === 'Next'), false);
+    // No atlas place and no weather query here: neither is shown.
+    assert.equal(el.querySelector('.sd-coords'), null);
+    assert.equal(el.querySelector('.sd-weather'), null);
+    assert.ok(el.querySelector('.sd-time').classList.contains('sd-new'));
+    assert.ok(el.querySelector('.sd-goal').classList.contains('sd-new'));
+    assert.equal(el.querySelector('.sd-place').classList.contains('sd-new'), false);
+    // Nothing tracked: only what there is.
+    const { el: bare } = draw(STATUS_CARD_ID, makeState({ place: { name: 'Nowhere' } }));
+    assert.deepEqual(bare.querySelectorAll('.sd-row').map(row => row.querySelector('dt').textContent.trim()), ['Place']);
+});
+
+test('status card: the place\'s map coordinates when the atlas knows it, and Story Block\'s weather when the story set one', { skip }, () => {
+    const queries = {
+        ...makeQueries(),
+        'atlas.here': () => ({ id: 'pl_guild001', name: 'Bluewatch Village', kind: 'settlement' }),
+        'atlas.place': (_state, args) => (args?.id === 'pl_guild001' ? { id: 'pl_guild001', name: 'Bluewatch Village', x: 59.4, y: 110 } : null),
+        // The contract of the coming Story Block query (scene.weather → { text } | null, from `~ weather <text>`).
+        'scene.weather': () => ({ text: 'Light rain over the sluices' }),
+    };
+    const { el, warnings } = draw(STATUS_CARD_ID, headState(), { queries });
+    assert.deepEqual(warnings, []);
+    const rows = el.querySelectorAll('.sd-row').map(row => [row.querySelector('dt').textContent.trim(), squash(row.querySelector('dd').textContent)]);
+    // Time, Weather, Place, Coordinates (its own row; the place does not carry the coordinates any more).
+    assert.deepEqual(rows.slice(0, 5), [
+        ['Time', 'June 11, 2025, 9:00 am'],
+        ['Weather', 'Light rain over the sluices'],
+        ['Place', 'Bluewatch Village'],
+        ['Region', 'Eastmarch'],
+        ['Coordinates', '59.4, 110'],
+    ]);
+    // The place line "Town · Spot" comes from the atlas (`line`); the region has its own row.
+    const parted = { ...queries, 'atlas.here': () => ({ id: 'pl_guild001', name: 'Bluewatch Village / Guild Office', line: 'Bluewatch Village · Guild Office', region: 'River' }) };
+    const { el: partedEl } = draw(STATUS_CARD_ID, headState(), { queries: parted });
+    assert.equal(squash(partedEl.querySelector('.sd-place dd').textContent), 'Bluewatch Village · Guild Office');
+    assert.equal(squash(partedEl.querySelector('.sd-region dd').textContent), 'River');
+    // Unknown to the atlas, no position, no weather (null): nothing of either, and no error.
+    for (const more of [
+        { 'atlas.here': () => null, 'scene.weather': () => null },
+        { 'atlas.here': () => ({ id: 'pl_guild001' }), 'atlas.place': () => ({ id: 'pl_guild001', x: null, y: 4 }), 'scene.weather': () => ({ text: '  ' }) },
+        { 'atlas.here': () => { throw new Error('no atlas'); }, 'scene.weather': () => { throw new Error('older Story Block'); } },
+    ]) {
+        const { el: plain } = draw(STATUS_CARD_ID, headState(), { queries: { ...makeQueries(), ...more } });
+        assert.equal(plain.querySelector('.sd-coords'), null);
+        assert.equal(plain.querySelector('.sd-weather'), null);
+        assert.equal(squash(plain.querySelector('.sd-place dd').textContent), 'Bluewatch Village');
+        assert.equal(squash(plain.querySelector('.sd-region dd').textContent), 'Eastmarch');
+    }
+});
+
+test('status card: a Travel row (icon fa-route) after Coordinates while a trip is on, that reply\'s trip; left out with none or with the feature off', { skip }, () => {
+    const now = at('June 11, 2025, 9:00 am');
+    const leg = (from, to, km, days, start) => ({ from, to, km, kind: 'frontier road', days, start, arrive: start + days * 1440 });
+    const withTrip = (minutes, state = headState()) => ({
+        ...state,
+        domains: {
+            ...state.domains,
+            director: { ...state.domains.director, time: { minutes } },
+            atlas: {
+                places: {}, routes: {}, keys: {}, focus: null,
+                trips: { '21.0': { kind: 'go', at: now, rev: 21, to: 'Wolfmere Outpost', by: 'foot', mode: 'foot', pace: 20, unit: 'day', mount: '', short: false, setOut: now, legs: [leg('Bluewatch Village', "Hollin's Reach", 100, 5, now), leg("Hollin's Reach", 'Wolfmere Outpost', 60, 3, now + 5 * 1440)] } },
+            },
+        },
+    });
+    const queries = { ...makeQueries(), 'atlas.here': () => ({ id: 'pl_guild001', name: 'Bluewatch Village', kind: 'settlement' }), 'atlas.place': () => ({ id: 'pl_guild001', x: 64, y: 110 }) };
+    const rowsOf = el => el.querySelectorAll('.sd-row').map(row => [row.querySelector('dt').textContent.trim(), squash(row.querySelector('dd').textContent)]);
+    const { el, warnings } = draw(STATUS_CARD_ID, withTrip(now + 2 * 1440), { queries });
+    assert.deepEqual(warnings, []);
+    const rows = rowsOf(el);
+    assert.deepEqual(rows.map(([label]) => label), ['Time', 'Place', 'Region', 'Coordinates', 'Travel', 'Goal']);
+    assert.deepEqual(rows[4], ['Travel', "Bluewatch Village → Hollin's Reach → Wolfmere Outpost · on foot, 20 km/day · leg 1 of 2 · arrive Wolfmere Outpost June 19"]);
+    assert.ok(el.querySelector('.sd-travel i').classList.contains('fa-route'));
+    // Arrived: the row says so; the place has moved on elsewhere: no row.
+    assert.deepEqual(rowsOf(draw(STATUS_CARD_ID, withTrip(now + 9 * 1440), { queries }).el).find(([label]) => label === 'Travel'), ['Travel', 'Arrived at Wolfmere Outpost, June 19']);
+    const moved = withTrip(now + 9 * 1440);
+    moved.domains.scene = { ...moved.domains.scene, place: { name: 'Eastmarch Keep', kind: '', region: '' } };
+    assert.equal(draw(STATUS_CARD_ID, moved, { queries }).el.querySelector('.sd-travel'), null);
+    // A feature that is off answers null (Story Block's feature tag on the query): no row, no warning.
+    const off = draw(STATUS_CARD_ID, withTrip(now + 2 * 1440), { queries: { ...queries, 'atlas.trip': () => null } });
+    assert.deepEqual(off.warnings, []);
+    assert.equal(off.el.querySelector('.sd-travel'), null);
+    assert.equal(draw(STATUS_CARD_ID, headState(), { queries }).el.querySelector('.sd-travel'), null, 'no trip');
+    // With Story Block's Your look too: Time, Weather, Place, Coordinates, Travel, then the rank, Wearing and Condition, then the goal.
+    const looking = { ...queries, 'scene.weather': () => ({ text: 'Light rain' }), 'scene.you': () => ({ rank: 'F-rank', rankLabel: 'Guild rank', wearing: 'oilskin coat, boots', condition: 'tired and cold' }) };
+    const both = draw(STATUS_CARD_ID, withTrip(now + 2 * 1440), { queries: looking });
+    assert.deepEqual(both.warnings, []);
+    assert.deepEqual(rowsOf(both.el).map(([label]) => label), ['Time', 'Weather', 'Place', 'Region', 'Coordinates', 'Travel', 'Guild rank', 'Wearing', 'Condition', 'Goal']);
+});
+
+test('status card: Rank, Wearing and Condition (Story Block 2.10.0\'s scene.you) come after Coordinates, one row per value, each reply\'s own', { skip }, () => {
+    // The contract of Story Block's query: scene.you → { rank, wearing, condition } on the state it is given, null while its feature is off.
+    const youOf = state => state?.domains?.scene?.you ?? null;
+    const queries = {
+        ...makeQueries(),
+        'atlas.here': () => ({ id: 'pl_guild001', name: 'Bluewatch Village', kind: 'settlement' }),
+        'atlas.place': () => ({ id: 'pl_guild001', x: 59.4, y: 110 }),
+        'scene.weather': () => ({ text: 'Light rain' }),
+        'scene.you': state => youOf(state),
+    };
+    const withYou = you => {
+        const state = headState();
+        return { ...state, domains: { ...state.domains, scene: { ...state.domains.scene, you } } };
+    };
+    const rowsOf = el => el.querySelectorAll('.sd-row').map(row => [row.querySelector('dt').textContent.trim(), squash(row.querySelector('dd').textContent)]);
+    const full = draw(STATUS_CARD_ID, withYou({ rank: 'F-rank, Adventurer Guild', rankLabel: 'Guild rank', wearing: 'oilskin coat, boots', condition: 'tired and cold' }), { queries });
+    assert.deepEqual(full.warnings, []);
+    assert.deepEqual(rowsOf(full.el).map(([label]) => label), ['Time', 'Weather', 'Place', 'Region', 'Coordinates', 'Guild rank', 'Wearing', 'Condition', 'Goal']);
+    assert.deepEqual(rowsOf(full.el).slice(5, 8), [['Guild rank', 'F-rank, Adventurer Guild'], ['Wearing', 'oilskin coat, boots'], ['Condition', 'tired and cold']]);
+    assert.ok(full.el.querySelector('.sd-rank dt i.fa-user'), 'the user icon');
+    assert.ok(full.el.querySelector('.sd-wearing dt i.fa-user'), 'the user icon');
+    assert.ok(full.el.querySelector('.sd-condition dt i.fa-user'));
+    // A row with no value is left out; a record with neither, no query (an older Story Block), a throwing query and the feature off (null): nothing new.
+    assert.deepEqual(rowsOf(draw(STATUS_CARD_ID, withYou({ rank: '', rankLabel: 'Guild rank', wearing: '', condition: 'tired' }), { queries }).el).map(([label]) => label), ['Time', 'Weather', 'Place', 'Region', 'Coordinates', 'Condition', 'Goal']);
+    assert.deepEqual(rowsOf(draw(STATUS_CARD_ID, withYou({ rank: 'novice', rankLabel: 'Standing', wearing: 'a grey coat', condition: '  ' }), { queries }).el).map(([label]) => label), ['Time', 'Weather', 'Place', 'Region', 'Coordinates', 'Standing', 'Wearing', 'Goal']);
+    // A rank with no label (a game with no pack that gives one) is not a row, whatever the answer holds.
+    assert.deepEqual(rowsOf(draw(STATUS_CARD_ID, withYou({ rank: 'F-rank', wearing: 'a coat', condition: '' }), { queries }).el).map(([label]) => label), ['Time', 'Weather', 'Place', 'Region', 'Coordinates', 'Wearing', 'Goal']);
+    for (const more of [
+        { 'scene.you': () => ({ rank: '', rankLabel: 'Guild rank', wearing: '', condition: '' }) },
+        { 'scene.you': () => null },
+        { 'scene.you': () => { throw new Error('older Story Block'); } },
+        { 'scene.you': () => 'not a record' },
+    ]) {
+        const { el, warnings } = draw(STATUS_CARD_ID, headState(), { queries: { ...queries, ...more } });
+        assert.deepEqual(warnings, []);
+        assert.deepEqual(rowsOf(el).map(([label]) => label), ['Time', 'Weather', 'Place', 'Region', 'Coordinates', 'Goal']);
+    }
+    const noQuery = { ...queries };
+    delete noQuery['scene.you'];
+    assert.deepEqual(rowsOf(draw(STATUS_CARD_ID, headState(), { queries: noQuery }).el).map(([label]) => label), ['Time', 'Weather', 'Place', 'Region', 'Coordinates', 'Goal'], 'no such query: nothing new');
+    // Long words are cut at the card's cap (120), text only (no markup).
+    const long = draw(STATUS_CARD_ID, withYou({ wearing: `<b>${'w'.repeat(200)}</b>`, condition: 'ok' }), { queries });
+    assert.equal(long.el.querySelectorAll('.sd-wearing b').length, 0);
+    assert.ok(Array.from(rowsOf(long.el).find(([label]) => label === 'Wearing')[1]).length <= 125);
+});
+
+test('status card: each reply\'s card is drawn from that reply\'s state (stateAt), not the head', { skip }, () => {
+    const doc = installFakeDom();
+    doc.head = doc.createElement('head');
+    const { run, calls } = makeRunner();
+    const states = { 1: earlierState(), 3: headState() };
+    const changes = { 1: ['/domains/scene/place'], 3: [] };
+    const messages = {};
+    for (const index of [1, 3]) {
+        const message = doc.createElement('div');
+        message.className = 'mes';
+        message.setAttribute('mesid', String(index));
+        const block = doc.createElement('div');
+        block.className = 'mes_block';
+        message.appendChild(block);
+        doc.body.appendChild(message);
+        messages[index] = message;
+    }
+    // The reader's screen settings (extension_settings.storySuite.{screens, cards} live): none yet.
+    let reader = {};
+    const registry = runtime.createScreens({ reader: () => reader, saveReader: next => { reader = next; } });
+    registry.addModule('story-director', part.screens);
+    const compiled = new Map();
+    // Keyed by the template, not the screen id: a host that draws the card's one-line summary (a second template) uses the same id.
+    const render = (el, screen, scope) => {
+        if (!compiled.has(screen.template)) compiled.set(screen.template, runtime.compileTemplate(screen.template));
+        return runtime.renderTemplate(el, compiled.get(screen.template), scope, { evaluate: runtime.evaluate, widgets: runtime.widgets, formatters });
+    };
+    const cards = runtime.createCardMount({
+        screens: registry, render, document: doc, IntersectionObserver: null,
+        stateAt: index => states[index], headIndex: () => 3, carriers: () => [1, 3],
+        changesAt: index => changes[index], messageElement: index => messages[index],
+        query: (name, args, state) => run(state, name, args),
+    });
+    // No `enabled` given: the registry's cardsOn decides, and the status card says `defaultOn: true`.
+    assert.equal(registry.cardsOn(STATUS_CARD_ID), true);
+    cards.attachAll();
+    // Open each reply's card the way the reader does, by its header. (Story Block's card mount changed its `toggle` signature when it
+    // merged the cards into one "This reply" card, so the test does not call it: this runs against either.)
+    for (const index of [1, 3]) {
+        const head = messages[index].querySelector('.ss-card-head');
+        assert.ok(head, `reply ${index} has a card to open`);
+        head.click();
+        assert.equal(head.getAttribute('aria-expanded'), 'true');
+    }
+    // The status card's body: a section of the merged card (`data-ss-section`), or the card's own body in an older Story Block.
+    const body = index => messages[index].querySelector(`[data-ss-section="${STATUS_CARD_ID}"] .ss-card-sec-body`) ?? messages[index].querySelector('.ss-card-body');
+    const text = index => squash(body(index).textContent);
+    const merged = messages[1].querySelector(`[data-ss-section="${STATUS_CARD_ID}"]`) !== null;
+
+    assert.match(text(1), /June 10, 2025, 6:30 pm/);
+    assert.match(text(1), /Place Mill Road Region Eastmarch/);
+    assert.match(text(1), /Tanner Pelts — Bring 5 wolf pelts/);
+    assert.doesNotMatch(text(1), /Bluewatch|Wolves 8\/3|Bandit Raid/);
+    assert.ok(body(1).querySelector('.sd-place').classList.contains('sd-new'), 'reply 1 moved the place');
+
+    assert.match(text(3), /June 11, 2025, 9:00 am/);
+    assert.match(text(3), /Bluewatch Village/);
+    assert.doesNotMatch(text(3), /Harvest Fair|Bandit Raid/, 'no next beat under a reply');
+    assert.equal(body(3).querySelector('.sd-place').classList.contains('sd-new'), false);
+    assert.equal(body(1).getAttribute('data-ss-screen'), STATUS_CARD_ID);
+    // The merged card's closed line is the status card's own summary, read from that reply's state too.
+    if (merged) {
+        const line = index => squash(messages[index].querySelector('.ss-card-summary').textContent);
+        assert.match(line(1), /Mill Road/);
+        assert.doesNotMatch(line(1), /Bluewatch/);
+        assert.match(line(3), /Bluewatch Village/);
+        assert.doesNotMatch(line(3), /Mill Road/);
+    }
+
+    // Every binding of reply 1's card ran on reply 1's state.
+    const forOne = calls.filter(call => call.state === states[1]).map(call => call.name);
+    assert.ok(['director.time', 'director.status', 'director.goal'].every(name => forOne.includes(name)) && !forOne.includes('director.next'));
+    // The reader turns it off: gone from under the replies.
+    registry.setCards(STATUS_CARD_ID, false);
+    cards.refreshAll({ force: true });
+    assert.deepEqual(reader.cards, { [STATUS_CARD_ID]: false });
+    assert.ok(messages[1].querySelector('.ss-card') === null && messages[3].querySelector('.ss-card') === null, 'no card once turned off');
+    cards.destroy();
+});
+
+test('status card rows: a row with no value is left out; no box of its own (the rows sit in the fold)', { skip }, () => {
+    const queries = {
+        ...makeQueries(),
+        'atlas.here': () => null,
+        'scene.weather': () => null,
+    };
+    // Nothing known but the time: one row, no goal, no weather, no coordinates, no place.
+    const { el: timeOnly } = draw(STATUS_CARD_ID, makeState({ minutes: at('June 11, 2025, 9:00 am') }), { queries });
+    assert.deepEqual(timeOnly.querySelectorAll('.sd-row').map(row => row.querySelector('dt').textContent.trim()), ['Time']);
+    // The full card: the five fields in order, with the goal's progress inside its row.
+    const { el } = draw(STATUS_CARD_ID, headState());
+    assert.deepEqual(el.querySelectorAll('.sd-row').map(row => row.querySelector('dt').textContent.trim()), ['Time', 'Place', 'Region', 'Goal']);
+    // No box: the list is not a glass or bordered panel; the labels are muted small caps; the values are body text.
+    const dl = el.querySelector('dl.sd-status');
+    assert.ok(dl, 'the card is a definition list');
+    assert.equal(dl.classList.contains('ss-glass'), false, 'no second glass box inside the fold');
+    assert.equal(/ss-glass|ss-tile|ss-card/.test(dl.className), false);
+    const css = byId[STATUS_CARD_ID].css;
+    assert.match(css, /\.sd-status \{[^}]*background: none;[^}]*border: 0;[^}]*box-shadow: none;/);
+    assert.match(css, /\.sd-status \{[^}]*gap: 6px 14px;/, 'six pixels between the rows');
+    assert.match(css, /\.sd-row > dt \{[^}]*font-variant: small-caps;[^}]*color: color-mix\(in srgb, var\(--sd-text\) 80%, transparent\);/);
+    assert.match(css, /\.sd-row > dd \{[^}]*color: var\(--sd-text\);/);
+    // A changed value reads in the accent's text tone (4.5:1 or more), not the accent itself.
+    assert.match(css, /\.sd-new > dd \{ color: var\(--sd-accent-text\); \}/);
+    // An unset clock: no Time row, the place and goal still shown.
+    const { el: noClock } = draw(STATUS_CARD_ID, headState({ minutes: null }));
+    assert.deepEqual(noClock.querySelectorAll('.sd-row').map(row => row.querySelector('dt').textContent.trim()), ['Place', 'Region', 'Goal']);
+});
+// The Ripples card (spoilers): each power's sway bar and top reasons, "+N more"; behind Reveal; nothing without a table.
+test('director: the Ripples card shows each power\'s sway bar and its top reasons, +N more; always drawn (no Reveal); none without a table', { skip }, () => {
+    const reason = (delta, text) => ({ kind: 'quest', delta, text, when: null });
+    const rows = [
+        { id: 'wendhild', name: 'Princess Wendhild', sway: 52, reasons: [reason(8, 'finished the grain levy for Sir Lothar'), reason(4, 'finished a b'), reason(-3, 'failed c'), reason(-1, 'gave up on d')] },
+        { id: 'corvin', name: 'Prince Corvin', sway: 35, reasons: [] },
+    ];
+    const queries = { ...makeQueries(), 'ripples.sway': () => rows };
+    shown = true;
+    const { el } = draw(DIRECTOR_ID, headState(), { queries });
+    const card = el.querySelector('section[data-kind="ripples"]');
+    assert.ok(card, 'the card is drawn');
+    const first = card.querySelector('[data-power="wendhild"]');
+    assert.equal(first.querySelector('[role="meter"]').getAttribute('aria-valuenow'), '52');
+    assert.equal(first.querySelector('.sd-ripple-fill').style.width, '52%');
+    assert.deepEqual(first.querySelectorAll('.sd-reason').map(node => squash(node.textContent)), ['+8 · finished the grain levy for Sir Lothar', '+4 · finished a b', '-3 · failed c']);
+    assert.equal(squash(first.querySelector('.sd-more').textContent), '+1 more');
+    assert.equal(card.querySelector('[data-power="corvin"]').querySelectorAll('.sd-reason').length, 0);
+    shown = false;
+    assert.ok(draw(DIRECTOR_ID, headState(), { queries }).el.querySelector('section[data-kind="ripples"]'), 'drawn with Behind hidden, no Reveal needed');
+    shown = true;
+    assert.equal(draw(DIRECTOR_ID, headState()).el.querySelector('section[data-kind="ripples"]'), null, 'no table: no card');
+});
+
+// The World pulse card, the recent rolls and the Quiet scene switch (Director tab); the roll row under a reply's status card (setting on).
+const pulseState = (results, quiet = false) => {
+    const base = headState();
+    const director = { ...base.domains.director, pulse: toSlot({ results }), ...(quiet ? { pulseQuiet: toSlot({ on: true }) } : {}) };
+    return { ...base, domains: { ...base.domains, director } };
+};
+const rolls = [
+    { at: 4, clock: 1, kind: 'ENTER_CHECK', d20: 3, table: 'std', text: 'Joren will reach the Stray Oar soon.', effect: { type: 'director.pulse.arrive', thread: 'th_a' } },
+    { at: 6, clock: 2, kind: 'SKIP', skipped: 'fight', text: '' },
+    { at: 8, clock: 3, kind: 'OVERHEARD_DETAIL', d20: 14, table: 'std', text: 'The inspector learns Astra paid in false coin.', effect: { type: 'chronicle.rumor', at: 8 } },
+];
+test('director: the World pulse card (die, kind, line, effect pill, table pill) and Recent rows (the earlier rolls, not this roll), newest first; the Quiet scene switch sends the command', { skip }, () => {
+    const sent = [];
+    const { el, warnings } = draw(DIRECTOR_ID, pulseState(rolls), { command: (type, payload) => sent.push([type, payload]) });
+    assert.deepEqual(warnings, []);
+    const card = el.querySelector('section[data-kind="pulse"]');
+    assert.equal(card.querySelector('.sd-die').textContent, '14');
+    assert.match(squash(card.textContent), /World pulse this reply 14 Overheard detail The inspector learns Astra paid in false coin\. rumour recorded standard · \d+ away Swipe for a fresh roll\./);
+    const recent = el.querySelector('section[data-kind="pulse-recent"]');
+    assert.deepEqual(recent.querySelectorAll('.sd-li').map(row => squash(row.textContent)), [
+        '— Skipped fight under way',
+        '3 Enter check Joren will reach the Stray Oar soon. arrival set',
+    ]);
+    assert.match(squash(recent.querySelector('h4').textContent), /Recent last 2/);
+    assert.equal(el.querySelector('.sd-quiet small'), null, 'switch off: no "pulse paused"');
+    el.querySelector('button.ss-switch').click();
+    assert.deepEqual(sent, [['director.pulse.quiet', { on: true }]]);
+    const { el: quiet } = draw(DIRECTOR_ID, pulseState(rolls, true), { command: (type, payload) => sent.push([type, payload]) });
+    assert.equal(squash(quiet.querySelector('.sd-quiet small').textContent), 'pulse paused');
+    assert.equal(quiet.querySelector('button.ss-switch').getAttribute('aria-checked'), 'true');
+    quiet.querySelector('button.ss-switch').click();
+    assert.deepEqual(sent.at(-1), ['director.pulse.quiet', { on: false }]);
+    // No roll yet: the card says so and there are no Recent rows. Mode off, or the feature off: no card and no switch.
+    assert.match(squash(draw(DIRECTOR_ID, headState()).el.querySelector('section[data-kind="pulse"]').textContent), /No roll yet/);
+    assert.equal(draw(DIRECTOR_ID, headState()).el.querySelector('section[data-kind="pulse-recent"]'), null);
+    const off = { ...makeQueries(), 'pulse.view': () => null };
+    const gone = draw(DIRECTOR_ID, pulseState(rolls), { queries: off });
+    assert.equal(gone.el.querySelector('.sd-quiet, section[data-kind="pulse"], section[data-kind="pulse-recent"]'), null);
+    assert.deepEqual([...gone.warnings, ...draw(STATUS_CARD_ID, pulseState(rolls), { index: 8, queries: off }).warnings], [], 'no warning while the feature is off (the query answers null)');
+    const offMode = createScreensPart({ settings: { 'pulse.mode': 'off' } }).queries;
+    assert.equal(draw(DIRECTOR_ID, pulseState(rolls), { queries: { ...makeQueries(), ...offMode } }).el.querySelector('.sd-quiet, section[data-kind="pulse"]'), null);
+});
+
+test('director: with a host that has the header slot the Quiet scene switch is not drawn on the tab (the card stays); without one it is', { skip }, () => {
+    const before = globalThis.StoryBlock;
+    try {
+        globalThis.StoryBlock = { sdk: { modules: () => [{ id: 'story-block', headerControls: [] }] } };
+        const hosted = draw(DIRECTOR_ID, pulseState(rolls, true));
+        assert.deepEqual(hosted.warnings, []);
+        assert.equal(hosted.el.querySelector('.sd-quiet'), null, 'the header has the switch');
+        assert.equal(hosted.el.querySelector('button.ss-switch'), null);
+        assert.ok(hosted.el.querySelector('section[data-kind="pulse"]'), 'the World pulse card is still drawn');
+        globalThis.StoryBlock = { sdk: { modules: () => [{ id: 'story-block' }] } };
+        assert.ok(draw(DIRECTOR_ID, pulseState(rolls, true)).el.querySelector('.sd-quiet button.ss-switch'), 'an older host: the tab keeps its switch');
+    } finally {
+        if (before === undefined) delete globalThis.StoryBlock; else globalThis.StoryBlock = before;
+    }
+});
+
+test('status card: the roll row shows only for that reply and only with "Show the roll under replies" on', { skip }, () => {
+    const on = { ...makeQueries(), ...createScreensPart({ settings: { 'pulse.showUnderReply': true } }).queries };
+    const row = (index, queries) => draw(STATUS_CARD_ID, pulseState(rolls), { index, queries }).el.querySelector('.sd-roll-row');
+    assert.equal(squash(row(8, on).textContent), 'Roll 14 · Overheard detail — The inspector learns Astra paid in false coin.');
+    assert.equal(row(6, on), null, 'an older reply does not show the latest roll');
+    assert.equal(row(8, makeQueries()), null, 'off by default');
+});

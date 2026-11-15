@@ -1,0 +1,875 @@
+## Unreleased
+
+## 2.16.0
+
+- **The World pulse invents events instead of repeating a shout and a cart wheel.** Code still rolls the kind (the d20 tables) and now adds an intensity: around (happens nearby), noticed (draws a glance) or intrusive (cuts into the scene, about 1 in 5, never two in a row). The note's "World this reply" line becomes a short brief for the narrator: kind, intensity, place group, and "invent one small plausible thing from the people and threads in the note; it may touch an open thread and write its change line; never resolve it for the player", with the last three pulses listed so it does not repeat (never the same kind twice running). The fixed lines stay as the fallback (5 or more per kind and place group, and quiet mode now spreads over different kinds), used when the new setting "Pulse invents events (model)" is off (default on) or when the note has no people or threads to draw from. New replies only (step version 2); written replies replay and Re-read exactly as before.
+- **Fix: the Journal and News show what the story told.** A met person's relationship changes (and the story's own news) are no longer dropped from the Journal just because they have a hidden agenda; only a line naming a secret or an arc stays out, the same on every day. A world event the story wrote now shows in News even when a planned beat bears its name, and a faction's "Seen in: <event>" shows exactly when that event is in News. The Journal's Events no longer list NPC meter upkeep (mood, drives, taste, flags, "nothing moved", "meters started", "nothing changed"), a meter that ended where it began is not a change, and a text the digest cut off ends at a word end. Display only: these rules change only what the World screen draws; the narrator's [Earlier days] input, the stored days and replay are exactly as before (a test compares them with the old output).
+- **Fix: the World tab shows every person's inner chatter.** With "Most chatter lines per reply" above 3, only the first three thoughts reached the People here cards (the last people, often key characters, showed none); it now follows the setting, up to its limit of 10. Display only; no prompt or replay change.
+- **The Director can hide spoilers.** Tap its spoiler switch to hide the arc, planned threads, problems and Ripples while keeping World pulse and Quiet scene available. The choice is remembered on this device and starts with spoilers shown.
+- **A custom calendar's world no longer gets Tuesday or January.** In a story on a pack's (or your own) calendar without weekdays, the fixed prompt now carries one short rule: the calendar's month names in order, no Monday–Sunday or January–December in narration or speech, say "three days ago" or the date. It replaces the Director note's own no-weekdays line (no duplicate), and a Gregorian calendar gets none. A reply whose prose still uses a real-world day or month name gets a quiet Problem (not a refusal). New replies only; written replies replay as before.
+- **While Story Director is held back, the safety net's lines are refused with a visible reason** (its weather hook would otherwise change the reply on a later Re-read); answers for a replaced reply are dropped; the line cap counts the same live and on Re-read. Story Block's side (vendored copy re-synced); the real-host test covers it with Director's weather on.
+- **The safety net no longer resets a faction's stance.** A faction line from Assist's safety net updates a known faction's summary and area but never its stance; a new faction takes the stated stance even when an earlier world line in the same answer named it. New replies use Story Block's `assistFactionFresh` mark and older replies keep their former behavior. Safety-net lines arriving while the module is held back are refused with a visible reason.
+- **Finished jobs and leads now get closed.** The hook / quest prompt line asks the story to write `+ quest` with the hook's exact name when {{user}} takes a job on, and `- quest Name — outcome` (or `- hook Name`) in the same reply that pays, fails or drops it, so a paid contract no longer stays listed as an open hook. This changes the prompt only (a few words longer); written replies replay as before.
+- **World news is easier to record.** The prompt now asks for a world line when a scene reports or shows changes beyond it, and for a new faction when an unknown group acts, an update when a faction's stance or aims change, and an end when it is gone; news can also be a hook. This changes the prompt only, and written replies replay as before.
+
+## 2.15.2
+
+Update Story Director. Completes the 2.15.1 cast fix: a chance meeting can no longer bring someone from farther away than the story time allows (a real run showed one path still did), while people placed in a town can still be met there; places match by the map's own links, not by similar names. New replies only.
+
+- **Fix: a World pulse event and a cast meeting never name the player's persona.** A mood or memory in the pulse, a chance meeting, and the cast part's own meetings skip {{user}}'s persona (alone with it, the roll steps down). Matching is by exact name, as the Initiative line already does ("Astra" does not match "Astra Vale"). Replies already written replay and Re-read exactly as before: only replies written after this update use the rule.
+- **Fix: town meetings still happen under the travel rule.** A person placed in a town can still be met there by a chance meeting; places match by the map's own links, not by similar names. New replies only; replies already written replay as before.
+- **Fix: no path brings someone faster than travel.** The last path that could bring a far-away person to you sooner than the story time allows now respects travel time too. New replies only; replies already written replay as before.
+
+## 2.15.1
+
+Update Story Director. Cast members no longer appear from far away: the World pulse's chance meetings, goal pulls and the planner's moves respect travel time between places; a far-away person with a real reason travels toward you instead. New replies only; old replies replay unchanged.
+
+- **Fix: cast members no longer appear from far away.** A chance meeting, a goal pull or a planner move now needs a real link (not a shared word) and that the person is nearby or had the atlas travel time since their last place; otherwise a far-away person with a real reason travels toward you. New replies only; replies already written replay as before. No fixed-prompt change.
+
+## 2.15.0
+
+Update Story Block, Story Director, NPC State Delta (and Story Studio for pack authors) together. Replies already written replay and Re-read exactly as before; start a new chat to see the new dossier, mood, ties and drives behaviour.
+
+- **Fix: a cast planner call that failed in the connection is made once more, and a plan that still fails shows a Problems line.** One extra request at most, only after a connection error that came back within 15 s; a refusal, an empty answer or a timeout is not asked again. The line "cast planner failed for this reply" appears once, on the reply the plan was for (not on the later replies of that story day). Needs a Story Block that lists a hook's problems. Replies already written replay and Re-read as before.
+- **Fix: the player's persona is never named on the Initiative line.** The Initiative line (who acts next in the scene) skipped the persona only by chance; it now never picks the player's own persona. Replies already written replay as before: only the prompt line changes.
+- **Fix: a group giver now matches a present member.** A quest or agenda given by a group ("South Gate wardens") is matched to a present member by role or faction, so the Initiative line can name that person. Replies already written replay as before.
+- **A chat's fixed prompt changes: the agenda and hook grammar gain worked examples.** The `+ agenda` and `+ hook|quest` lines of the change grammar now carry an example each, so the story writes them in the right form. Prompt only: replies already written replay and Re-read as before.
+
+## 2.14.1
+
+Update Story Block, Story Director and NPC State Delta together. Replies already written replay and Re-read exactly as before. For the harder foes, start a new chat (or re-add the Foes block).
+
+- **Fix: the world pulse line and the Initiative line survive a tight tail budget.** The pulse receipt already marked its cue kept; the Initiative line now goes to Story Block as a kept tail line (`{ text, keep: true }`), so under a small tail budget with many threads both still reach the narrator. Needs Story Block 2.31.1 or later (an older host ignores a kept line object, so it would not tell the Initiative line at all). Replies already written replay as before: only the prompt changes.
+- **Fix: replies after a deleted middle reply keep applying.** A refused name, a key person's death record or a place line that rewrites a record an older reply made is passed over when that reply was deleted, instead of skipping the whole block; a day digest left by a rewind or a deleted cap drop is no longer listed in the Journal or [Earlier days]. Replies already written replay and Re-read exactly as before.
+- **Trips rest like the estimate.** A `~ trip` now counts rest days the way the travel estimate does (a rest day every sixth day on foot or riding; a night's stop on a modern drive), so the party arrives when the estimate said. Applies to replies written after this update; earlier replies, and a Re-read of them, keep their timing exactly.
+
+## 2.14.0
+
+Update Story Block, Story Director and NPC State Delta together, then re-import the Ersveil pack (2.9.5 needs Story Block 2.31.0). The new features apply to new replies; start a new chat to see them all. Replies already written replay and Re-read exactly as before.
+
+- **World pulse.** Before each reply code rolls a d20 (a fresh roll on every swipe) on the preset's two tables, using only real people, places and agendas: small background touches by place and weather, rumours between NPCs (capped, they expire, never revealed to the player until the story tells them), chance meetings, arrivals and schedule shifts for off-screen agendas. The narrator gets one line (at most 40 tokens). Skipped in fights, rests (an explicit rest or a 6-hour jump) and while "quiet scene" is on. Agendas gain a place and step progress. A chat's fixed prompt gains one sentence. On the Director tab, a World pulse card shows this reply's roll (die, kind, the line, and what it changed: rumour recorded, agenda step moved, arrival set), the table used and how many people are away, then the five earlier rolls. A Quiet scene switch holds the pulse for a calm scene (in the game view's header; the Director tab keeps it only on an older Story Block). Off-screen agendas show a step bar ("step 3 of 4 · since June 9"), the place in bold and "arriving within the hour" when someone is close. Settings: Off / Quiet / Lively (Lively by default) and "Show the roll under replies" (off by default), which adds a Roll row to that reply's status card.
+- **Journal by kind.** Each day folds (today open) into Met, Relationships, Events, Party & gear, Items & money, Reputation and News, each with its count; the day's summary appears once; "X is here / not here" and "Key people: noted" lines are gone; nothing is listed twice; a thread shows one line a day (began, a step, finished) with its steps folded; board fights are listed; search covers every kind of every day and shows how long ago.
+- **Journal: Standing, Fame and Guild instead of one Reputation fold.** A block's result line (Ersveil's Standing and Court favour, Fame, Adventurer Guild) is sorted by the kind the receipt carries: gain, loss, back, undermine under Standing; deed, spread under Fame; register, dues, contract, promote, yearend under Guild; any other kind (add-xp and the like) is an Event. The kinds are those of Ersveil's blocks: another pack's block with the same kind names (gain, loss, deed, spread, register, dues, contract...) lands in the same folds. Days written before this keep their lines under Reputation. A chat run on this build stores the kind in a line's tag and the new kinds in a short day's list, so an older Story Director cannot read it: downgrading needs a restore from before this build.
+- **Routes line: no street legs inside the city.** The Routes line of a city scene lists only the ways out, not the streets to its own districts; a district scene shows the ways out of its town (a district whose only road is its street to the city goes by the city's routes). Tail text only; no stored state.
+- **A person who arrives and leaves within one reply is not withdrawn.** The cast's meeting counts the people the reply's own `+ present` lines had in the scene at any point, so someone brought in and sent out again in the same reply stays met (someone brought in by a place line's `with:` and taken out again is still withdrawn). Replies written before this judge by the end state as before.
+- **Trips from a district.** A trip from a place named "Town / Spot" with no road of its own (a pack's start place) sets out from its town; a reply whose `~ trip` was refused before plans the trip on Re-read.
+- **Earlier days for the narrator, and who was there.** A short `[Earlier days]` block (at most 6 dated lines, about 200 tokens, dropped first when space is short) reminds the narrator what happened on past days that matter now (people present, this place, open threads, the last two days), with "N days ago" worked out by code, only from what the player knows. A chat's fixed prompt gains one sentence once it has a past day. A chat run on this build cannot be opened by an older Story Director. Each line names up to three people who were present when it happened (then "+N"), from the people recorded at that reply; a move to another place starts a fresh list, and only named people count. Days recorded before this update have no names. Names are trimmed first when space is short.
+- **Factions named on a world event become known factions.** A `+ world` or `~ world` line tagged `factions: A, B` adds each newly named faction to World → Factions (with the event's place as its area; stance unknown until a faction line sets it). An existing or removed faction is not duplicated or revived by an unchanged tag. Needs Story Block's `factionTags` rule mark (Story Block main, PR #384); replies written before keep their chronicle.
+
+## 2.13.0
+
+- **A fired beat no longer blocks the story.** A beat the story has fired (`!`) counts as done: it leaves the Director note and the lists, and a beat that waits for it (`after:`) can now happen. Dating it again brings it back.
+- **A death closes that person's agenda.** When NPC State Delta marks someone dead, or the story writes `- key Name | died`, their own agenda leaves the note and the lists. Beats, secrets, hooks and quests about them stay: they can still be played.
+- **A death line counts for anyone,** not only a pinned key person (the receipt reads "Died: Name"). Needs Story Block 2.28.0; with an older Story Block the line is refused as before. Replies written before this keep the old behaviour.
+- Requires Story Block 2.25.0 or later (unpinned deaths need 2.28.0); Story Block testkit re-synced from Story Block main (the 2.28.0 code, before its version bump).
+
+## 2.12.0
+
+- **Inner chatter on the World tab shows up to 240 characters** (it was 140).
+- **The same stretch of time is counted once.** When a reply gives both a date and a "+2h" for the same stretch (within 15 minutes of each other, in either order), the clock moves once, to the date. The one-line form "~ time <date> · ! time +2h" is read as the two lines it is, and the grammar now says to write one or the other.
+- **World, Here keeps the last cards while People are being read.** While NPC State Delta reads a new reply, the cards stay on screen, marked "updating", and no longer flash empty. (With NPC State Delta 1.14.0 or later; older versions behave as before.)
+- **The Journal is easier to read.**
+  - **Lines wrap** inside their day card, and the "Around here" time chip no longer shares the day card's look.
+  - **Bookkeeping is not an event:** lines that only keep the books are no longer listed.
+  - **"Show all N events"** loads a day's whole list on tap, and a second tap folds it.
+  - **Old days drop the fight narrator notes** they kept.
+- **The Hooks list keeps the width of its "offered" label.**
+- Requires Story Block 2.25.0 or later (unchanged: nothing here needs a newer Story Block); Story Block testkit re-synced to 2.27.0.
+
+## 2.11.3
+
+- **Scene time lines with the date in angle brackets are read again.** A line like "~ time <CY 611, Goldwane 12, 1:15 pm>" was rejected as "not a date or a stretch of time". Re-read an older reply to apply its time line.
+
+## 2.11.2
+
+- Requires Story Block 2.25.0 or later; Story Block testkit re-synced to 2.25.0. No other change.
+
+## 2.11.1
+
+- Internal: the map widget's place and pointer helpers take their inputs in three groups (dom, view, hooks); a new test checks that closing the map leaves no listener behind. No behaviour change.
+- Requires Story Block 2.24.0 or later; Story Block testkit re-synced to 2.24.0.
+
+## 2.11.0
+
+- **An offer with no deadline lapses 3 story days after the story last spoke of it.** (The reader asked: "without deadline, it should expire in 2-3 game days".) An offer (a job not yet taken on) with no `due` now closes like a deadline lapse ("- Key — offer lapsed", claimed once, shown in Quests and the next note) at the first reply at or after 3 story days from the later of when it was offered and when a line last touched it; each such line starts the 3 days over. The span is a constant (`UNDATED_OFFER_DAYS`), not a setting; it counts story time only. Offers with a deadline and quests taken on are unchanged. **Existing chats: undated offers not mentioned for 3+ days close at the next reply.** Also fixed: an offer that a line had touched (`~ Key | now: …`) was read as a quest and skipped by time, so it never lapsed even past its deadline; it now lapses as the rule says. No prompt change.
+- **The cast's cue and rumor can no longer be cut by the tail budget.** They are returned from `beforeGenerate` as pinned cues (`{ text, keep: true }`) instead of tail lines, so a busy tail never drops them (it did: Story Director's tail section ranks after the scene and inventory lines). Needs a Story Block that passes such cues through (testkit re-synced to 44a0e73). Static prompt unchanged.
+- **A won Lean RPG fight no longer keeps the living cast from meeting anyone.** The cast read any Foes slot with a name and a count above 0 as a fight
+  that is still on, but the narrator never empties a slot, it only sets the group's health (Down = 0). Now a slot counts only while its health is
+  above 0, as Story Block reads it (a block of Down groups only is a won fight). Both formulas' health shapes (Classic stage, Standard blocks) read the same.
+  No prompt change.
+- **The cast answers when you seek a kind of person** (feature `story-director.cast`, no new setting). When your message (or the story's
+  last reply) asks for a healer, a priest, a smith, a guide... the cast planner (its own model call, only when a word of an unmet
+  person's calling appears) may name an unmet person who fits and quote the words that ask for them; code accepts the quote only as whole
+  words from the message or reply, so an invented request is refused. At your place the person comes in (meeting `why: sought`, card
+  "Paths crossed: Name — you sought ..."); elsewhere the narrator hears one nameless rumor (calling, who they are, where; any sentence
+  with the name or an alias left out) and the card says "Heard of: ...", told once until they move (`person.rumored`, new step
+  `cast.rumor`). One new face a reply, the pace setting, never in a fight, never someone present or pinned; a reply that does not show
+  the person takes the meeting back. Unmet people stay hidden everywhere else. No static prompt change; the rumor is a tail line within
+  the cast's budget. Planner prompt: a new 'sought' mode with its own wording (docs/dev/cast.md).
+- **v1 code removed from main** (the unloaded `index.v1.js`, its glue, UI, `style.css` and their tests); it is kept on the `v1` branch. Nothing v2 loads changed.
+- **A quest line no longer closes or advances a hook through a near name.** A `- quest`, `~ quest` or `! quest` line whose name only
+  reads near a hook or event (even the only near match) now stays unclear: the record is left as it was and a Problems line names it.
+  An exact key or alias still reaches it, so a quest line that names a hook exactly closes that hook as before.
+  When a quest line near-matches a quest and other records alike, it settles on the quest only if the quest is the strictly stronger
+  match (more of the line's core words, plurals folded and job words dropped, shared with the quest's name than with each other
+  candidate's); a tie stays unclear and a Problems line names the candidates ("Wolf Hunt" for quest "Wolf Hunt North" and hook "Wolf Hunt South").
+  No prompt change.
+- **Existing chats, also:** offers the story had touched (a `~` line) were never closed by time before this fix; a touched offer already past its deadline now closes as "offer lapsed" at your next reply, and one within its deadline now shows as overdue like any other. An undated offer's 3 days count from the latest of when it was offered, when the story last touched it and when you first spoke of it.
+- **No source file is over 450 lines, and every source file is in a codemap (no behaviour change).** The eight large files (`planner.js`, `tracker.js`, `note.js`, `v2/module.js`, `arc/plan.js`, `atlas/widget.js`, `chronicle/capture.js`, `chronicle/days.js`) are now small parts with header comments; each original keeps its path and its exports. `docs/dev/codemap.md` names every file the other docs do not.
+- **The vendored Story Block testkit follows Story Block 2.23.0.**
+
+## 2.10.2
+
+- **A quest closed under a slightly different name next to a similar hook.** A `- quest` or `~ quest` line whose name is close
+  to, but not exactly, the quest's ("Storehouse No. 2 Cellar-Rat Cull" for "Storehouse No. 2 Cellar-Rats") was ignored when an
+  older hook of a similar name was still open ("Storehouse No. 2 Rats"): two near matches counted as unclear. Now, when exactly one
+  of the near matches is a quest, the quest line settles on it; the hook is left alone. Two or more qualifying quests still count as
+  unclear (a Problems line names them). Re-read the reply to repair a quest that stayed open. No prompt change.
+
+## 2.10.1
+
+- **Quest cards on the Quests tab.** The tab draws its quests with the cards Story Block 2.22's blocks use: the title and
+  a status chip (Active, Offered, Done, Failed, Abandoned, Declined), the description clamped to 2 lines with More, the
+  current step (else the goal) with a pin, and short rows only where a value is set: Progress, Giver, Reward, Difficulty
+  (left out when normal) and Due. Finished quests fold under "Finished (n)", closed by default; More and the fold stay as
+  the reader left them across redraws. Display only: the same quests as before, the same query, no change to quest data,
+  story lines, the tracker or the prompt. A quest from an earlier version still says so. Drawn by the new widget
+  `story-director.quests`; with an older Story Block (no such widget) the tab shows the plain list as before.
+
+## 2.10.0
+
+- **Shorter Director text** (about 3.1k → 1.5–1.7k characters a reply): one grammar line per family, merged rules, the Checks rule only without an RPG, route/landmark/trip taught on first use. Needs Story Block 2.19.0 (kind heads keep stray lines working).
+
+## 2.9.3
+
+- **Someone you never saw is no longer "met".** The living cast picks who crosses your path before a reply and asks
+  the narrator to bring them in. When the reply did not show them (their name or an alias in the story, or a
+  `+ present` line), they stayed recorded as met anyway, with a "Paths crossed" note and an NPC State Delta dossier.
+  Now such a meeting is withdrawn after the reply: no note, no dossier, the day's pace is not used up, and they can
+  still come later. A swipe that shows them makes the meeting stand; Re-read decides again. Needs Story Block 2.16.6
+  for replies without a change block.
+
+## 2.9.2
+
+- **No more freeze on a nonsense date.** A date the model wrote with an absurd year (17 digits or more) in a plan, a
+  trip or a thread could freeze the page while it was shown; such a date is now not read as a date.
+- **Clearer time lines.** The narrator's time rule shows a clock-time example (`~ time <date, clock time such as
+  9:30 am>`), so it writes a real time instead of "midday".
+
+## 2.9.1
+
+- World → Now: a long place in "Around here" is shortened with "…" (the whole place shows when you point at it), and
+  the time of day gives way first; the heading no longer runs into the next card.
+- Key people: the Pin list stays inside its card and scrolls there when it is long.
+
+## 2.9.0
+
+- **Set the story clock by hand.** With Story Block 2.16.0, the Game view's Edit button has the story date and time:
+  pick a day in the chat's own calendar (its months, month lengths and leap years) and a time, forward or back. The
+  change is set on the current reply, shows on its card as "Clock set to …", and follows swipes, Re-read and deletes;
+  deadlines, the cast and Key people go by the new time. A day the calendar does not have is refused in one sentence.
+- The Status card's Time row reads the time the way the Game view does ("6:00 pm").
+- **Key people:** when NPC State Delta archives someone pinned, or they die there, the line saying they were taken off
+  now shows on the reply that follows, not on the one before.
+- The cast's own scroll fix is gone: Story Block 2.16.0 keeps the newest reply card in view.
+
+## 2.8.0
+
+A pack's cast (Story Block 2.15.0 or later) comes alive. Without a pack that has a cast nothing changes.
+
+- **The living cast.** Each person in the pack starts at their place with a goal and a routine, and lives off-screen:
+  when the day changes or time skips they move on, one short planner line each and only where something changed. People
+  you have not met stay hidden — never named on any screen nor told to the narrator.
+- **Meeting them (no dice).** You meet someone the first time you are at their place while their routine has them there,
+  or when the story touches what draws them and they come looking. At most one new face a day by default (Settings →
+  Modules → Story Director → The cast: 1 a day, 2 a day or 1 a week); never during a fight. The narrator is told who they
+  are and why now, once, on the meeting reply; "This reply" says "Paths crossed: Fenna" with the reason. A swipe rewrites
+  the scene, not who you meet. Someone already in the scene under their name is met "in the story".
+- **World → Around here.** How many of the cast you have met, whether an unmet one may cross your path here (no names),
+  and the last news of those you have met.
+- **Pack updates.** A newer pack brings its new people into running chats from that story day, hidden until met; an unmet
+  person whose entry changed takes the new words; people you have met are never overwritten.
+- **Before they are met** they can be hurt, lose things or move, but not die — unless you turn that on or the pack
+  marks someone so.
+- Met cast can be pinned as Key people.
+
+## 2.7.0
+
+- **Key people.** Pin up to 10 people who matter (the number is a setting) in World → Now → Key people, with **+ Pin**
+  (people in the scene, the story's threads, NPC State Delta's dossiers). A pinned person can go **away** on their own
+  business: the narrator records it (`+ away Ren — scouting the north road | back: Gw 18`, steps along the way, the
+  return), and while they are away each reply tells the narrator, in one short line, what they are doing and when they
+  are due back, within a token budget you set (300 by default, no upper limit; the overall budget still applies). A
+  passed date reads "due back" and the narrator brings them home.
+- **Removed on their own.** With NPC State Delta, a pinned person whose dossier is archived is unpinned ("archived"),
+  and one whose death is confirmed reads "died". The story can also record a death. "This reply" says so.
+- The fixed instructions about key people are sent only while someone is pinned; with nobody pinned the prompt is
+  exactly as before. A switch "Key people" (on by default, kept in Lean) turns the whole feature off.
+
+## 2.6.0
+
+Needs Story Block 2.12.0 or later (its screen cleanup, the one "This reply" card and the Lean / Standard / Full presets).
+
+- **One scene header.** In the Game view, World → Now and the Director tab no longer repeat the place, time and weather:
+  Story Block's header above every screen shows them. The Story panel, which has no header, keeps them.
+- **"Where things stand".** The status part of Story Block's "This reply" card is titled "Where things stand" and gives
+  its one-line summary itself: the clock time and the place ("1:30 pm, Bluewatch Village").
+- **World-building threads** (new switch, on by default, off in Lean). It owns the off-screen agendas, events, clocks,
+  beats, secrets, factions, world happenings, landmarks and routes: off, the narrator is not taught them (the fixed
+  prompt drops about 420 tokens), and the Off-screen, Clocks, Beats, Secrets panels, the Chronicle tab and World's News
+  and Factions are hidden. Nothing stored is deleted; turning it back on brings everything back. Quests, hooks, time and
+  checks are not part of it. A pack's events that write lasting world changes keep working with it off.
+- **Presets.** Lean also turns off NPC initiative, trips and arc planning.
+- Quests, World and Map are in Story Block's tab bar by default (`bar: true`); Chronicle and Director start under More.
+- World → Now's "Here" heading is hidden with the scene lines in the Game view.
+- The Director tab's card grid lays out from its own width (no card can run over another).
+- Tests: the vendored Story Block is 2.12.0.
+
+## 2.5.1
+
+- **Delays that overlap:** a second `~ trip delay` written while the first hold is still running no longer pulls the party backwards. The km along, the "You" marker and the narrator's "N of M km" stay where they were until both holds end (the second hold starts where the first ends); the arrival dates were already right.
+- **"Arrived at X" ends:** once the party is back at a place the trip names other than the destination, three days after the arrival, the trip is over (the row, the Map panel and the "has reached X: write ~ place X" cue go). It used to stay while the scene was at the trip's starting point or at an earlier stop. At the destination the arrival still stays until the story moves on, and the narrator still has three days to write it.
+- **Line order in a reply:** `~ trip` now declares that it runs after the reply's `~ place` and `+ mount` lines, so a trip written before them plans from the place and the mount pace the same reply sets up (it used to plan from the old place, or refuse with "no place yet"). This needs Story Block 2.11.1; an older Story Block reads the lines as written, as before.
+- Nothing in saved chats changes.
+
+## 2.5.0
+
+- **Trips (Features → Trips, on by default):** the story can set out with `~ trip Wolfmere Outpost | by: riding | via: Hollin's Reach`. Code plans the way along the known routes only (the packs' routes and the story's `+ route` lines), through each stop, the shortest by km, with each stage's days rounded up as in the travel times. A ride goes at the pace of Story Block's slowest mount (when Mounts answers), else the usual ride pace; on foot, by wagon, boat or ship at the usual paces, and a river or sea stage at its own. A trip with no known route is refused, naming the gap.
+- `~ trip stop` ends the trip where the party is; `~ trip delay: 1 day | because: lame horse` pushes every arrival still ahead. A new `~ trip` while on the road goes on to the end of the stage or back to its start.
+- Where the party is on the road is worked out from the story time, never stored. The narrator is told "On the road: Bluewatch Village → Hollin's Reach, 8 of 100 km, arrive Goldwane 16; then Wolfmere Outpost, Goldwane 19", and when a stage has been reached, to write `~ place` (Story Director never moves the place itself). At the end the trip reads "Arrived at X, <date>" until the place changes or a new trip starts.
+- The **Status card** has a **Travel** row after Coordinates (that reply's trip); the World screen's Now view an "On the road" line.
+- The **Map** draws the trip's route as a thick accent line over the known routes, a "You" marker on the current stage, and an **On the road** panel (destination, how the party travels and what sets the pace, each stage with its km, days and arrival, a progress bar on the current one; under the map on a phone). The map first opens fitted to the trip, on All when the road runs into another region. **Movers you know of** (events with a `leg:` and an `arrive:`) are diamonds on their stage and listed in the panel; agendas, clocks, beats and secrets never appear.
+- A swipe, a Re-read or a delete takes a trip back exactly: the plan is kept as it was made, so a rebuild or a reload never plans again. Off, nothing new is in the prompt, the saved story or the screens. Chats saved before this read as having no trip.
+- **Home:** Story Block 2.11.0's game-view header shows a **Travel** line (under Rank, Wearing and Condition) from `atlas.trip` (its `row`); an older Story Block shows none. See docs/dev/trips.md.
+
+## 2.4.0
+
+- **Wearing, Condition and a pack's Rank on the Status card:** the card under each reply now has up to three more rows after Coordinates, with what you were wearing (**Wearing**), how you were (**Condition**) and, in a game whose pack gives your character a rank, that rank under the pack's own word (Ersveil: **Guild rank**), as of that reply (Story Block 2.10.0's "Your look"). A row with nothing to say is left out, and each reply keeps its own. With an older Story Block, or with Your look switched off, the card is as it was.
+- Nothing in saved chats changes.
+
+## 2.3.0
+
+- **A pack's lasting changes to the world:** a pack event can now add a world event, or change one, with the new `chronicle.lasting` command, for changes the story must not undo. The entry is locked: a reply's `world` line can still add to its summary, place and factions, but cannot change its state or name (the change card says so), while your own edits in the Chronicle and another pack event can change anything. `keep` holds up to two open entries in every reply's reminder of what is under way, within the usual three.
+- A pack event can wait a set time after a world event began with `query('chronicle.passed', { name, minutes })`. Dates count from the Director's clock.
+- A pack event's lasting change waits for the story to have a date: while the Director's clock is not set the change is not made, the event is not counted as happened, and it is tried again on the next reply. An event that waits a set time after another one therefore always counts from a real date.
+- Story Director now declares the pack capability `chronicle-lasting`. A pack that lists it in `requires.capabilities` installs with Story Director and is turned away, with the reason, without it (or with a version that lacks the command).
+- Chats saved before this change load and read exactly as they did.
+
+## 2.2.0
+
+- RPG Battle is no longer supported. Its rules packs cannot be imported; existing RPG Battle chats should stay on the previous versions.
+- Quests are told by the story. Checks, the calendar, map, World, Chronicle and arc planning continue without battle rules.
+- A goal such as “defeat 3 wolves” closes when the story says it is done; it no longer needs a counted turn-in or a payment receipt. Quest types, rewards and difficulty remain part of the story's record.
+- Checks work in a new chat without any setup: until a check character is set up, a check (the story's own or Assist's pre-roll) rolls for you at +0. Check characters saved in earlier chats keep working with their bonuses.
+- Chats with checks from 2.1 and earlier keep their characters and check history, and editing a character or rolling a check in them works again.
+
+
+## 2.1.1
+
+- **The Map's regions are a list:** the rows of region chips are replaced by a **Region** list on the same row as **Find a place**, before the zoom and locate buttons. It has the same choices in the same order (All first) and shows a region as its chip did; the region shown is the one selected, and a search that lands on another region moves the list with it. On a phone the bar wraps to three rows: Find a place, Region, the buttons.
+- **The Map works at Story Block 2.5.2's new size** (Story Suite drawn at what used to be 80%): the places fill the map, a drag follows the pointer or finger, the wheel zooms about the pointer, and a click or tap picks the place under it. On a phone (a screen under 760 px or a touch screen, as the rest of Story Suite) a place's tap area stays 44 px on the screen, and Enter or Space on a focused place picks that place, never a neighbour's dot.
+
+### Upgrading from 2.1.0
+
+Update together with Story Block 2.5.2: under Story Block 2.5.2, Story Director 2.1.0's Map draws its places in a corner and its drags and clicks land off target. Story Director 2.1.1 also works with Story Block 2.5.1 as before. Nothing in saved chats changes.
+
+## 2.1.0
+
+- **Open quest templates:** add `| like: <template>` to a quest offer line, or use the reader's **Make this a quest** action. The reward is fixed from the template's range at offer time and recorded with the offer.
+- **Foe variants:** `! encounter <name> | like: <foe>` derives a named variant from a pinned pack foe while keeping its identity and rewards tied to that foe.
+- The bundled **Ersveil pack 1.5.0** includes **12 open quest templates**.
+- **Pinned-pack encounters now follow their danger label.** In 2.0.0, weak fights could be unwinnable at level 1 because pinned foes kept their fixed pack stats. New offers record opposition calibrated to the label at offer time.
+
+### Upgrading from 2.0
+
+Saved chats keep their recorded quest and encounter offers, including their rewards and opposition; updating does not reroll them. Legacy chats stay unpinned.
+Update all extensions together, with Story Block first; NPC State Delta stays at 1.3.0. Existing `requires` and peer ranges remain satisfied by 2.0.0 or later; no 2.1-only peer requirement is added.
+
+### Known issues
+
+- Fight offers appear in the Game view and Fight tab dot, but are not listed in **Changed this reply**.
+- The creation wizard allows Next without a class and says **Choose a basic class** only at the end.
+- Shop prices and the bestiary can still read the installed pack in pinned chats, so reinstalling a pack can affect them.
+- If an extension stops responding during recovery, the chat can remain on hold until it responds.
+
+## 2.0.0
+
+- Story Block v2 hosts the suite's inventory, purse and scene, with reply cards and a **Game view** for your party, fights and world.
+- Rules packs can be pinned at character creation; the bundled **Ersveil** pack supplies a ready-to-play world and rules.
+- **Story Director owns checks**; RPG Battle uses those results for practice and crafting alongside its party and combat rules.
+- **Save points** let you return to a saved story with the suite's records together.
+- **Native-death recovery** returns an NPC's living dossier when the lethal reply is retracted, keeping combat and dossiers in agreement. It needs Story Block 2.0.0, RPG Battle 2.0.0 and NPC State Delta 1.3.0 together.
+
+### Upgrading from 1.x
+
+Old chats load and rebuild unchanged. Legacy chats stay unpinned; updating does not choose a rules pack for them.
+For a pinned Ersveil adventure, start a fresh chat with **Setup → Pin Ersveil Rules → Create**.
+
+### Known issues
+
+- Fight offers appear in the Game view and Fight tab dot, but are not listed in **Changed this reply**.
+- The creation wizard allows Next without a class and says **Choose a basic class** only at the end.
+- Shop prices and the bestiary can still read the installed pack in pinned chats, so reinstalling a pack can affect them.
+- If an extension stops responding during recovery, the chat can remain on hold until it responds.
+
+## Unreleased
+
+- **Ripples: a hidden sway per power from the player's deeds.** Story Director works out, from what the chat already recorded (quests done or failed for a power's people, world events that ended for or against them, standing changes, board fights against them), how much each named power or claimant is favoured; nothing new is stored. A pack can read it in its timeline conditions (`ripples.leader`) and the Director tab shows a Ripples card with each power's sway and why. Needs a pack `ripples` table (Ersveil's comes in a later pack release).
+- Licence: MIT (was GPL-3.0), so the module can be a base for other extensions. Releases already published keep the licence they shipped with.
+
+- **Fights only with a ready RPG Battle** (`src/v2/fights.js`, `module.js`, `arc/controller.js`). On a Story Block host with module lifecycle (2.0.0-beta.2 and later, track E), the fight runner counts only when its `sdk.modules()` entry is `ready`: a dormant or restore-pending RPG Battle gets no encounter requests, and the arc planner asks for no fights (one rule, `fightsAmong`, used by both). Older hosts keep the old command probe. Testkit synced to Story Block main cd2e2ec.
+
+## 2.0.0-beta.2 (`v2` branch)
+
+Story Suite v2, second beta. What's new for players, known issues and every module's version: [Story Block docs/v2/RELEASES.md](https://github.com/kohz87/Story_block/blob/v2/docs/v2/RELEASES.md). Player guide: [Story Block docs/v2/GUIDE.md](https://github.com/kohz87/Story_block/blob/v2/docs/v2/GUIDE.md).
+
+- Version 2.0.0-beta.2. Needs Story Block `>=2.0.0-beta.2` (`requires`). Update Story Block first: a Story Block 2.0.0-beta.1 or older refuses the module with a red notice ("… needs Story Block ≥ 2.0.0-beta.2; this is 2.0.0-beta.1. Update Story Block to use it."). Arc planning's own check (`ARC_NEEDS_STORY_BLOCK`) stays at 2.0.0-beta.1: the feature needs nothing newer.
+- Story Block testkit re-synced to Story Block `release-beta2` 87da9fe (Story Block 2.0.0-beta.2).
+
+- **Status card: a changed value reads in the accent's text tone** (`src/v2/screens/status-card.js`, `style.js`). The value of a row this reply changed (the time, the goal) used the accent itself, under 4.5:1 on Glass and Solid; it now uses Story Block's `--ss-accent-text` (falling back to the accent). The header comment describes the card as it is; a test covers an unset clock.
+- **Status fold** (`screens/status-card.js`): no box of its own (the rows sit in the fold, no border or second background); Time, Weather, Place (with region), Coordinates and Goal (the quest, its Now line and progress), each skipped when it has no value; a label column of muted small caps with the icon, values in body text, 6px between rows.
+- **Story Director fixes and layout.** The v1 glue stays off a Story Block v2 host (`index.v1.js`: `storyBlock()` and `init()` skip v2, the `blockInText` calls are optional). The map's places have 44px tap areas on a phone and a tap picks the nearest dot (`atlas/widget.js`, desktop unchanged). The HUD strip is gone (time and place are in the Status fold; the queries stay). Quest rows are one card each (status and reward pills, Now, Details), the arc card uses the section label and matches the cards, and problem tags sit on their own line when there is no room. The Chronicle day head puts the date and the pill on one line, the summary below.
+- **Quests, Director, World, the status card, the HUD and Chronicle are on Story Block's glass.** Rows are list cards (`ss-listcard`), tags are pills, buttons are `ss-button`, progress is `ss.bar`, colours and shapes are Story Block's tokens (Glass, Solid and Follow SillyTavern). Same commands, ids and data attributes; no quest buttons, as before (`screens/quests.js`, `screens/director.js`, `screens/status-card.js`, `screens/hud.js`, `screens/style.js`, `screens/dom.js`, `world/screen.js`, `chronicle/screen.js`, `arc/widget.js`, `screens/behind.js`).
+- **World**: Here is a glass card with the people below it (Delta's cards untouched); Upcoming, News and events and Factions are list cards; every section label goes through one helper and one hairline rule (`.wv-label::after`, Story Block's `--ss-border`).
+- **Map** (`atlas/widget.js`): restyled only. A glass panel and glass controls, the current place in the accent, and the legend as a list card. Its search, layers, zoom and pick are unchanged, and a screen's `--ss-w-*` overrides still win.
+- The Director's problems box keeps its newest-first order; threads keep their open and closed groups.
+- Review fixes: the People here label sits above the people; text under 4.5:1 (pixel-measured) is text colour, with pills or marks for state; long names wrap at 360px; the map keeps a screen's `--ss-w-fg` and `--ss-w-border` overrides (the root's colour and border are set, so Story Block's `.ss-glass` does not beat them); the Chronicle headings, inputs and state pills; the HUD place and layer chips cut with an ellipsis.
+- Story Block testkit re-synced to Story Block `v2` b2116cc ("UI 4b: State inspector and ss.map on glass; ss-button states; phone HUD density (#169)").
+
+## 2.0.0-beta.1 (`v2` branch)
+
+Story Suite v2, first beta. What's new, known issues and every module's version: [Story Block docs/v2/RELEASES.md](https://github.com/kohz87/Story_block/blob/v2/docs/v2/RELEASES.md). Player guide: [Story Block docs/v2/GUIDE.md](https://github.com/kohz87/Story_block/blob/v2/docs/v2/GUIDE.md).
+
+- Version 2.0.0-beta.1. Needs Story Block `>=2.0.0-beta.1` (`requires`; arc planning's model call needs it too). Update Story Block first: an older Story Block 2 refuses the module with a red notice ("… needs Story Block ≥ 2.0.0-beta.1; this is 2.0.0-alpha.2. Update Story Block to use it.").
+- In this beta, from Story Director: quests straight to active on the story's `+ quest` (no offers); arc planning back (Plan arc, review, End arc, by itself) and behind the scenes hidden until Reveal; the day digest and the Days screen; quest ranks held to the party's and story rewards inside one reply's budget, following the reader's rank ladder and coins; story time kept as a count with a most-per-reply jump; calendar months as text, and the pack's calendar shown in its settings; Story Director alone (no RPG Battle). Each with its details below.
+- Story Block testkit re-synced to the beta host (Story Block 2.0.0-beta.1).
+- **Rewards in a coin the chat cannot count yet are owed, then paid** (beta decision "A"). A quest turned in with a reward like "30 copper bits" in a chat with no such coin still closes in that reply, but the reward is now kept (`thread.owed`, the story's words, keyed by the quest) instead of lost: the quest card shows "Reward owed: 30 copper bits (add copper bits in Settings → Coins)", the take-on Problem becomes "… is owed, not paid by code" (`reward-owed`). New system step `quest.payOwed` (quests part, Story Block's afterCapture, kept on the reply): once Story Block's coins count the word it pays the reward once, priced and held by code like any reward (quest rank, the reply's story-money budget through `wallet.receive { story: true }`; what does not fit stays owed for the next reply), takes the Problem back and tells the next reply ("Elula's 30 copper bits for Sluice-Rat Bounty are paid"). The story's own `+ coin` in the turn-in reply (either order, `quest.owedCredits`) or an equal one in the paying reply counts as the reward (claim `storycoin:<sid>`), as for an auto turn-in, so it is never paid twice; a click or a story line cannot pay it. Payments are add-only keys under the debt (`owed.paid.<rev>`), so swipe, delete (back to owed), Re-read and rebuild agree; deleting the turn-in reply takes later payments with it (Story Block reports the skipped block). New `unknownCoin` / `coinPhrase` in `quests/parse.js`; queries `quest.owed`, `quest.owedCredits`, `quest.details.owed`. Tests: `tests/v2/integration/quest-owed.test.js`; the delete fuzz now has rewards in "copper bits" and adds the coins mid-run.
+- Story Block testkit re-synced to Story Block a2b20ac (the folded changes card counts the Assist safety net's lines).
+- **World → Now → Here shows the weather** (final live check: "does the Status card or World → Now show the weather with no `~ weather` line?"). The weather by rule worked (the Status card under each reply, new each story day and region, the story's `~ weather` over it for that day and place), but the panel had no weather once World replaced Story Block's Scene tab, which showed it. `director.world.here` gains `weather` (Story Block's `scene.weather` text, `''` while there is none or `story-block.weather` is off) and the Here section a Weather row under the place. Tests: `tests/v2/world/world.test.js` (the rule's weather with no `~ weather`, the story's over it, a new day, the weather off). Also `tests/v2/integration/assist-time.test.js`: the Assist safety net's plain-line answer `! time +20m` moves the clock 20 minutes through the `time` kind, marked `assist` on the reply (the live path of FL-3).
+- **The Director note shows what can happen now; NPC initiative** (mvu-helper's "only show the narrator what could happen now"). *Scene filter* (`src/v2/tracker/scene.js`): the kind lines keep the open threads tied to the place or region or to someone present (Story Block's and NPC State Delta's present lists, dossier names and aliases), those due within the Due soon days, beats whose reach is met (one waiting on an open `after:` beat is left out), quests ready to turn in or waiting for their pay, clocks showing signs and what the reader's message names; the rest is one line, *Elsewhere, not in this scene: Herb run (hook)*, at most `tracker.elsewhere` (2) names, only threads {{user}} knows of (quests taken on, hooks, events; never agendas, beats, clocks, secrets or planned threads), and only while the budget has room. No scene known: as before. *NPC initiative* (feature `story-director.initiative`, on; `src/v2/tracker/initiative.js`): before each reply the system step `director.initiative { at }` picks at most one person present or nearby (an NSD dossier at the scene's place or region) with an open thread naming them, weighted by urgency (due now 4, ready or due soon 3, else 2) and by NSD trust (×0.25 to ×2) when NSD answers, else even, drawn with the step's seed; a cooldown (`tracker.initiativeCooldown`, 2, at least 2) keeps anyone from it two replies running. Kept as a slot written whole (`director.initiative`), so swipe, Continue, Re-read, rebuild and reload show the same pick. One tail line, *Initiative: Elula may approach {{user}} about Wolf Contract.*, naming the thread only when {{user}} knows of it; one static line while the feature is on (a `context.parts` entry under the feature, passed on by module.js). Tests: `tests/v2/tracker/scene-tail.test.js`, `tests/v2/tracker/initiative.test.js`, `tests/v2/integration/initiative.test.js` (with and without an NSD stand-in, swipe, Re-read, static bytes with the feature on and off); the delete fuzz also deletes replies holding an initiative pick.
+- **Weather by rule, a delivery handed in at the giver, rewards in a coin the chat does not know** (beta live test 5; Story Block MODULES §F122; needs Story Block's `scene.weather` command, testkit re-synced to Story Block `v2-weather-rule` 776b20c). *Weather* ("weather is not working": the model wrote no `~ weather`): feature `story-director.weather` (on) sets each story day's weather from the calendar's season and the region, seeded per story day and region (FNV-1a of the key), through Story Block's `scene.weather` as an afterCapture step kept on the reply when the day or region changes; a pack's `weather` table by season and region is used when given (`packs.weather`), else a temperate one; a story `~ weather` wins for the rest of that day and place. New `src/v2/time/weather.js`. *Delivery* (the quest stuck at "Ready to turn in — goal met" after the pelt was slammed on Elula's counter): the afterCapture auto turn-in also takes a delivery goal ("bring / deliver / take / return / carry … to …") the story said was met in this reply (`turn.now.met`), where the place rule allows it, with the thing delivered held, given this reply or said brought/delivered in the progress note; paid once by `quest.finish` within the per-reply limits and budget (`deliveredThing`). *Coins*: without Coins a reward in another coin word ("40 silver" where money is pennies) is no longer read as that many pennies: amount null, the story's words on the row and in the terms with "not paid by code: …", and the `reward-coin` Problem names the chat's money; a reward with a second amount after the first ("8 pennies per tail + 3 silver") is not paid by code either. Tests: `tests/v2/time/weather.test.js`, `tests/v2/integration/turnin-delivery.test.js` (the reader's two replies), `quests/coins.test.js`.
+- **A story turn-in completes in the same reply** (live play: the quest sat at "Turned in by the story — checked where this reply ends up, before the next reply" after a block with no Director line after its `~ place` / `+ present` lines, and read as not done). The tracker settles the reply's waiting turn-ins (`director.turn.now.pending`) in Story Block's new `afterCapture` hook (Story Block MODULES §F121): `quest.settle` runs as a system step right after the reply's last story line, kept on that reply, so the turn-in is paid in that reply when it ends at a settlement or with the giver, and refused with the same Problem otherwise. The beforeGenerate `quest.settle` stays as the fallback for an older Story Block, which never calls `afterCapture`; only then does the row's "checked … before the next reply" show. A Continue is the same reply: a turn-in the place alone refused at the end of a reply's first part is kept as retriable (`turn.now.refused`, with the refusal's problem key), and the Continue's afterCapture step pays it once the party reaches the giver (`quest.settle { id, retry: true }`), taking back that Problem and the `ready` mark the refusal set; a Continue still away changes nothing (refused once), and a later reply never pays it (new read-only query `director.retriable`, the head reply's only). Paid once; Re-read of the joined reply gives the same outcome; swipe and delete take it back. Story Block testkit re-synced to the `afterCapture` branch. Tests: `tests/v2/integration/turnin-order.test.js` (the reader's exact block paid in that reply, with and without RPG Battle; a Continue; the older-host fallback; refusals in the same reply).
+- **The turn-in safeguard** (the user: "include the safeguard"). (a) While a quest is ready to turn in (goal met), the tail has one line naming it, its giver and where: "Ready to turn in: Sluice-Rat Bounty (to Elula, at a settlement or where Elula is)" ("here" when the place rule holds), at most two quests, the latest; it replaces the "Quests ready to turn in here" line and the optional "done but turned in only at a settlement" line. The static part is unchanged. (b) The afterCapture step turns a ready quest in from where things stand (`quest.settle { id, auto: true }` → `quest.finish`, never on the story's word, so a goal not met is never closed) when the place rule holds at the reply's end and the reply shows it was turned in: a quest line in turn-in words that does not close it (`~`/`!`, kept as the reply's `turn.now.intent`), or, with the giver present, the story's own coin this reply equal to the reward or an item the reply gave named in the reward (new read-only query `quest.autoTurnIns`). Paid once (`quest:<id>:paid`). The story's own coin this reply (Story Block's `inventory.storyBudget` paid less vouched) counts as a story or system turn-in's reward when it is the reward's amount or the giver is present, and is never paid on top of it (claim `storycoin:<sid>`; not for a click; the receipt says "30 gold paid (30 gold of it the story's own coin this reply)"); a `+ coin` written after a turn-in had paid (the same amount, or the quest's giver present) is taken back by the afterCapture step (`quest.settle { repeated: true }`, `wallet.pay`, query `quest.repeatedCoin`). (c) Quests → **Story's-word turn-ins per reply** (`quests.wordTurnIns`, 1 to 5, default 1): how many quests code cannot count one reply turns in on the story's word (`turn.now.words` past 1). Tests: `tests/v2/integration/turnin-safeguard.test.js` (tail, auto turn-in by wording, coin and item, never closed when not met / away / no sign, no double pay with the coin before or after, Re-read, swipe, the setting); the delete fuzz writes the new wordings and coin.
+- **A turn-in is checked where the reply ends up** (live play: "The story says Sluice-Rat Bounty was turned in, but it can only be turned in at a settlement or where Elula is; it stays open." for a reply whose block was `- quest Sluice-Rat Bounty — turned in`, then `~ place Bluewatch Village, Guild Office | kind: settlement | …`, `+ present Elula`). Story Block reads a reply's lines in order, so the place rule saw the scene before the reply's own place and present lines. A story turn-in the place alone refuses now waits in the reply's bookkeeping (`director.turn.now.pending`, thread ids, inside the reply's slot): each later Director line of the same reply pays it once the place rule holds, and the step before the next reply (`quest.settle { id }`, a beforeGenerate command, cause `system`, `replan: true`, kept on the reply that turned it in) pays or refuses it on the scene after all the reply's lines (refused: the same Problem and narrated receipt as before). A turn-in the place rule allows when its line is read is paid at once, as before; one reply that leaves the giver before its turn-in line is still refused. Paid once (`quest:<id>:paid`), within the reply's story-money budget and the one-quest-on-the-story's-word rule. `quest.details` gains `waiting`, and the row says "Turned in by the story — checked where this reply ends up, before the next reply". The day's money and a quest's history read a Director line's `settled` turn-ins. Story Block reads a reply's lines in order and has no step after a reply's lines; with one (a capture `end` step run as a story capture), the wait before the next reply would go. Tests: `tests/v2/integration/turnin-order.test.js` (the reader's block, place lines before and after, the giver arriving, leaving the giver, swipe, Re-read, a middle delete, a click refused, Story Director alone); the delete fuzz writes such turn-ins.
+- **Quest money in the wallet's words** (live play: "Reward: 30 copper bits" beside "Terms: beat 4 sluice-rats; 30 pennies"). With Story Block's coins the terms, the rank range, the turn-in receipt and the Quests row's reward write an amount as Story Block's wallet does (mixed coins, largest first, or the smallest coin with `coinDisplay: base`): "30 copper bits", "1 silver mark 30 copper bits". The row's reward is the one the terms count (`quest.details` `terms.reward`), the story's words only when code does not count it. Without coins, as before.
+- **Status card: no next beat; map coordinates and weather** (user: "under inline status, can we include coordinate and weather? Next beat shouldn't be here, it's a spoiler."). The Status fold under each reply no longer shows *Next* (the Director screen still does, behind Reveal). The place gains its map coordinates when the atlas knows it (pack or atlas map data, whole map units: "Guild Office · 59, 110"), and a Weather row shows Story Block's `scene.weather` (`{ text } | null`, the story's `~ weather <text>` line; nothing when absent or on a Story Block without it). New query `director.status` → `{ coords, weather }`, read on each reply's own state; only what {{user}} knows (where they are, the weather there).
+- **Testkit** re-synced to Story Block v2 (c18f663 or later).
+- **World → Now → Here has the people, with NPC State Delta's cards and their inner chatter** (beta live test: "World tab character part should inherit what Cast is doing and include the inner chatter"; "the NSD link doesn't refresh until I change tab"; Story Block MODULES §F119). With NPC State Delta on, Here draws its own present-cast cards (through its page API `NPCStateDeltaCast`, never a copy of its markup), with each person's thought from the newest reply's Inner chatter inside their card; without it, chips with the thought under the name. `director.world.here` gains `moved`, `chatter: [{ key, name, text }]` and each person's `key` and `thought` (matched by dossier name or alias, as Story Block's chatter strip). **The stale dossier link is fixed**: NPC State Delta's scan ends after the reply, with no Story Block event, so the chips' dossier flags (worked out when the screen was drawn) stayed old until a tab switch; the widget now subscribes to Delta's `onChange` and asks `director.world.here` again (once per task, no chat walk). The place shows its kind and "moved here this reply" (Story Block's `scene.moved`), since Story Block now hides its Scene tab by default while World is there. Needs Story Block's `chatter.head` and `scene.moved` (an older Story Block: no thoughts, no mark).
+- **Testkit** re-synced to Story Block world-people (`chatter.head`, `scene.moved`, Dossiers last, Scene hidden by default with World).
+
+## 2.0.0-alpha.1 (in progress, `v2` branch)
+
+Story Suite v2. Story Director v2 module: tracker, quests, time, atlas, chronicle and screens parts merged into one module. Status: https://github.com/kohz87/Story_block/blob/v2/docs/v2/STATUS.md
+
+- **A Continue is the same reply** (beta-candidate breaker B-a1-6). Story Block keeps a reply's record ID (`ctx.carrier.sid`) through its Continues, whose lines are numbered from 0 again; the tracker now tells replies apart by that ID alone when the host gives it. So `maxJump` (30 days) holds for a reply and all its Continues (one reply and two Continues moved the clock 90 days), `director.turn.n` counts the reply once, and its tallies (`added`, `paid`, `vouched`, the quests it turned in) go on instead of starting at 0; a Re-read after a Continue gives the same `director.turn` as live. With a sid, `turn.now.index` is no longer kept (-1); a host with no sid is read by the line's place, as before. Tests: `tests/v2/break/a1-time-jump-continue.test.js`, `fixcand-continue-reward.test.js`.
+- **Rewards in coins are read whole, by Story Block's coin rule** (B-a1-16). With Story Block's coins a reward is priced from the chat's coins only (`coinValueIn`: a coin's name or plural, or its name + "s", "coins"/"pieces of" ignored, as money.js reads a coin line; a short form only when the coin list gives one): parts add up ("1 gold 5 silver", "1 gold and 5 silver", "1 gold, 5 silver" are 150 when gold is 100 and silver 10), and a coin the chat does not have ("2 platinum", "3 gp" where the coins are copper, silver and gold, "5 crowns") pays nothing code counts (amount null, the story settles it) with one Problem on the Director tab per quest ("the reward is not counted, "platinum" is not a coin here: write copper, silver, gold, or a number of copper"). Before, only the first part was read, and a coin word not in the list counted as the smallest coin. Without coins a reward is its number as before; two amounts in one reward are refused. Tests: `tests/v2/break/a1-reward-coin-forms.test.js` (5 cases), `fixcand-continue-reward.test.js`.
+- **Testkit** re-synced to Story Block v2 9a6002a.
+- **The World screen** (the user's design; feature `story-director.world`, on). A new part `world` and one tab and game-view screen, **World** (`story-director/world`), in two views the reader switches between: **Now** (Here: the place and the people the scene lists as present, as NPC State Delta chips with their stance and a dossier link when it is there, else plain names; the news, events and factions the character knows, newest first with a short summary; Upcoming: quest due dates, the dates of known events and hooks, and the pack calendar's holidays within `world.upcomingDays`, 30) and **Journal** (each story day from the day digest: places, people met, news, quests taken on and finished, fights, money, NPC stage moves and the rest, today so far included, with search). "Known" is defined in `src/v2/world/known.js`: what a reply's story lines or the reader wrote, and Story Block's scene; never agendas, beats, clocks, secrets, arcs or anything the arc planner made or changed (`track.arc`), nor a chronicle entry named like them, nor a journal line naming a secret or an arc. Queries `director.world`, `director.world.here` (for NPC State Delta's scans), `director.journal`; widget `story-director.people`. Nothing new is stored: all of it is read from the state, the other parts' queries and the day facts. **The Days screen is folded into the Journal**: its tab and game-view screen are gone, and `story-director/days` is a dialog of the Journal alone for older layouts. The day digest gains `met` (who came into the scene that day, from Story Block's `present` receipts; optional, kept only when there is someone) and no longer takes the arc planner's commands in as facts of the day (an arc's name never reached the Days data from then on). Holidays are read from `packs.calendar().holidays` when a pack gives them (Story Block's pack calendar has no such field yet, so for now none show). Tests: SD alone, with an NPC State Delta stand-in, without the digest, the feature off, nothing hidden in World or Journal (agendas, beats, clocks, secrets, an arc and its planned hook, a world event named like a secret), replay after a swipe and a middle delete, holidays; the day-crossing delete fuzz writes `+ present` lines and checks World and Journal after each rebuild.
+- **Accept planned arcs automatically** (setting `arc.autoAccept`, off by default; was "Use a plan without review"). On, a planned arc (Plan arc or by itself) is accepted without review through the same strict reading and the same commands; the Arc panel shows a quiet note that an arc began, with OK, naming nothing while behind the scenes is hidden, and the toast names nothing. A plan code cannot use is refused as before; deleting the reply it was accepted on takes the arc and the note away. Tests: `tests/v2/arc/auto-accept.test.js`.
+- **Testkit** re-synced to Story Block v2 8d45185.
+- **The quest check no longer says "leave it an offer"** (beta.1 docs tidy; v2 has no offers since #99). When your message may take on a hook with a giver and reward, the Director note now says "Write + quest Key with its parts when {{user}} accepts (no - line for the hook); if not, leave it." A per-reply note line only: the fixed (static) prompt is unchanged. v1's note keeps its wording.
+- **Arc planning is back** (v1 parity; feature `story-director.arc`, on by default; V1 audit #1). A new part `arc`: **Plan arc**, **End arc** and a review (Accept, Accept without reading, Discard, Plan again) on the Director tab's Arc panel (widget `story-director.arc`). The planner is one call through Story Block's `sdk.callModel({ profile, system, prompt, maxTokens, signal, feature })` on its own connection profile (setting `arc.profile`, Story Block's `type: 'profile'` field); a Story Block without it gets one plain sentence ("Arc planning needs Story Block 2.0.0-beta.1 or newer …") and no buttons. Its answer is read strictly (`arc/plan.js readPlan`): only the plan labels, only each kind's parts, caps per kind and per plan (6 beats, 6 agendas, 3 hooks, 2 clocks, 4 secrets, 16 items, 2 fights), names and texts cleaned and cut by code points, relative dates written on the chat's calendar by code, past or unreadable dates left out, no rewards, XP, ranks or amounts. Accepting sends the plan's text, which the command reads again: `director.arc.accept` (domain `arc`: arcs and endings keyed by id, add-only; the plan's new threads through the tracker's own rules, tagged `track.arc`), then `director.arc.update` for each item that names a thread already tracked (its own receipt, so a middle delete of that thread's reply takes only that change away), and `director.arc.end`. Query `director.arc`; tail line "Arc: Name — …" while it runs; nothing added to the static prompt. Planning by itself (`arc.trigger: auto`, after each reply via Story Block's `turn` event in index.js): no arc, every beat played out, stalled, running low (v1). Settings: genre and tone, Director's note (used for one arc, or kept), messages read, longest plan, stall days, running low, and the planner prompt with Reset (settings section). Works without RPG Battle (no fights asked for). Tests: the parser with hostile input, plan/accept/discard/plan again with the testkit's scripted model, replay after swipes and middle deletes, the feature off, SD alone and with a fight runner, an older host, planning by itself, the note used once; the delete fuzz now accepts plans and ends arcs between replies.
+- **Behind the scenes, hidden until revealed** (v1's Director tab "Hide behind the scenes", Story Block v1's "Hide off-screen until revealed"; V1 audit #5). The Director screen draws quests, hooks and world events; agendas, planned beats, clocks and secrets, and the problems about them, are in a Reveal panel (widget `story-director.behind`, query `director.behind`) that puts none of them on the page until revealed. Per chat, remembered in the browser's storage (not story state: a swipe does not hide it again). The status card's *Next* (`director.next { shown: true }`) names no agenda, beat or clock while hidden; `director.problems { behind }` splits the problems. Setting `screens.hideBehind` (on). The story's prompt is unchanged.
+- **Testkit** re-synced to Story Block v2 6cd899b.
+- **The Calendar settings show the calendar in use** (live test: "populate the calendar fields from the pack, otherwise it's misleading"). With Calendar "pack" the Era, Months, Leap years and Weekdays fields show the enabled pack's calendar (while you have not typed your own) and the choice's help says "From the pack: Ersveil: Bluewatch Starter (CY, 12 months), shown below. Switch to Custom to edit it."; the fields' help says they are the pack's. Custom starts from the pack's calendar (a field you edit is yours). No pack: the built-in Gregorian, as before.
+- **Breaker a3 (final report)**: the Map's **Centre on where you are** is off, saying why, until the story names where you are (it was enabled and did nothing); the **Day digest** feature's description no longer speaks of fights (SB + SD only games: neutral wording).
+- **Rewards in coins** (Story Block's coins, MODULES §F108): `reward: 3 silver` is 30 of the smallest coin when silver is worth 10 (`inventory.currency`'s `coins`); without coins a reward is its number, as before.
+- **Quest ranks and the rank ladder** (terms2): the ladder and Levels per rank are now RPG Battle's Terms; quest ranks follow them (with their levels) through Story Block. Without RPG Battle there is no reader's ladder, so quests keep Story Director's own ranks (the pack's, else F to S), as the new **Quests → Quest ranks follow the rank ladder** help says; off, always Story Director's own. Query `quest.followsLadder`. Testkit re-synced.
+- **Quests go straight to active** (user decision, live test). The story writes `+ quest` when the character accepts a job, and the quest is active and taken on at once (`quest.take` from the capture, whatever the reader's message said, also with no message), so fights count from that reply. There is no Offered list, no accept step and no offer cooldown: the Quests tab's Offered fold, the "Offered — say you take it" and "say you take it on" wording, the tail's "Quest offers not yet taken" line, the "held" tag, the `quests.offerCooldown` setting and `quest.decline` are gone. A job the story only mentions stays in the story: `+ hook … | giver | reward` is an open thread (no quest, nothing to accept), a `~` never makes a hook a quest, and a hook closed as done stays a closed hook; `+ quest` (or `- hook … — taken on`) makes it the quest. Giving a quest up still takes the reader's words, and `quest.abandon` stays. An older chat's offers load as stored (`offer: true` is still valid) and are shown nowhere: not on the board, not in the tail, no "offered" Problem; the Director tab tags them "offered", they still lapse at their deadline, and `+ quest` for one takes it on. Rank hold, the money budget (`inventory.storyBudget`) and Story Director alone are unchanged. **Static prompt, one deliberate change:** the `hook` grammar line now reads "+ hook Name — an open thread or lead (a job only offered stays in the story; + quest once {{user}} accepts it)", and the Fields line drops "a job only offered: + hook with giver, reward"; both stay the same bytes reply to reply. The delete fuzz now writes a hook and its `+ quest` in one reply; a new test loads an older chat with an offer and replays it after swipes and a middle delete, with and without RPG Battle.
+- **Testkit** re-synced to Story Block v2 f6c52c0.
+- **Your own rank ladder** (live test: "Soul Class I–IX in one game, F–SSS in another"; MODULES §F105). Story Block's **Rank ladder** setting answers `packs.content({ kind: 'ranks' })` with records marked `reader: true`; `quest.ranks` then is that ladder: RPG Battle's `party.ranks` when it bands the same ranks (its levels and rewards), else the reader's ranks with the pack's reward Story Block kept at each place, else one by place × the money scale. Quest rank lines, terms and turn-in receipts name its titles ("Soul Class I"). Works without RPG Battle (no level known: the lowest rank). Story Block testkit re-synced.
+
+- **Story time is a count, and the longest jump is per reply** (beta fuzz C1-6, C2-5). `director.time.minutes` is declared a counter (SPEC §2.2 "Counts move"): every write keeps the minutes it replaced (`was`), so deleting a reply from the middle takes its own time move back and the later replies add theirs on (before, the clock kept the deleted reply's hours for good, and with it timed effects, deadlines, the day digest). A `~ time <date>` set is kept the same way, as the move it made: after a middle delete it lands that much earlier. Story Block has no way to store a counter write as an absolute set, so this is the one rule for the clock; the first set (no clock yet) and a pack's start stay as written. The day digest drops a written day the clock is back on or before (it is written again from its facts when the clock passes it). `maxJump` (the Calendar setting "Longest time jump", 30 days) now holds for the whole reply, from where its first Director line found the clock, so 150 × `! time +30d` moves 30 days, not 4,500; a Problem says so, and the next reply has its own 30 days. The clock never goes back for the cap.
+- **Day digest: off means off, and back on catches up** (beta matrix B-c2-2, B-c2-3). `chronicle.days`, `chronicle.day`, `chronicle.dayBoard` and `chronicle.dayFacts` carry `feature: 'story-director.digest'`, so Story Block answers null while the reader has the digest off. While off, `chronicle.note` keeps where the day facts stopped (`chronicle.noted.gap: { rev, minutes }`); the first note with the feature back on reads the receipts from there, and the digest runs at once when nothing was written yet and a day the notes saw has ended, so the days that ended while it was off are on the Days screen before the next reply. `noted.from` is now the first day a note saw the clock on.
+- **The Days screen shows each date once** (beta matrix B-c1-3). `chronicle.dayBoard` gives each day `short`, its line without the leading date, and the folded head shows the date beside it; `line` keeps the date for the `[Yesterday]` tail and other modules.
+- **Testkit** re-synced to Story Block v2 81b5da3.
+- **Months typed as text.** The calendar's **Months** setting asks Story Block for its text form (`form: 'lines'`): a box with one month a line, `Frostmoon: 30`, so a calendar of 13 months (or 5) is just typed. A month of 0, negative or no days is refused with the line named, and the months stay as they were. A Story Block without the text form ignores `form` and shows the rows as before. Weekdays stay one comma-separated field.
+- **A Story Block v2 module.** `index.js` waits for `globalThis.StoryBlock.ready` and registers module `story-director` (`src/v2/module.js`, the tracker and quests parts merged); without Story Block v2 it shows one line in the drawer. The v1 glue moved to `index.v1.js` and is not loaded. The manifest declares `"dependencies": ["third-party/Story_block"]` and no generate interceptor.
+- **Quest rewards in the one currency.** `quest.finish` pays `wallet.receive { owner, amount }` with a whole number; coin words in the story are only read as "this is money", and summaries name the chat's currency from `inventory.currency`.
+- **One fight pays one kill quest.** A turn-in claims each fight it counted (`beaten:<rev>`); another kill quest no longer counts those fights. Item quests count the inventory and stay independent.
+- **Typed acceptance counts.** When the reader's own message takes a quest on, it is taken from that reply (`taken: { rev }`, through `quest.take`), so fights count from there.
+- **Screens instead of hand-built tabs.** The module registers the screens part's Quests, Director, status card and time-and-place strip and the atlas's Map (`def.screens`, every part's in order; `def.widgets` likewise; an id in two parts is refused). The old Quests and Director tabs are gone. The status card says `defaultOn: true`, so it shows under every reply, collapsed, until the reader turns it off.
+- **Finish says why, from one rule.** `quest.progress` returns `finish: { ok, reason }`, `quest.finish`'s own checks in its order (over, taken on, a countable target, met, the place: a settlement or the giver present). The Quests board shows that reason instead of working the place rule out again.
+- **The pack's calendar and start date.** The calendar setting has a new default, `pack`: the first enabled pack's calendar (`packs.calendar`), else Gregorian; `gregorian` and `custom` stay the reader's own. When the story has not set the time and the pack gives a start, the clock is set to it before the first reply (`director.seed`, a `system` receipt, claim `clock:seed`), so dated deadlines and events work from turn one. `director.time` gives the time written on that calendar (`text`), which the status card and the strip show; `director.calendar` gives the calendar as data.
+- **Deadlines lapse on the reader's calendar.** A part's `settings.reads` hands it another part's setting (the time part reads `tracker.calendar`, as the chat uses it), so custom and pack calendars slip and lapse too. What the *While away* recap tells is left off the Director note's *Due now* and *Arriving* for that reply, as in v1.
+- **The map uses the reader's map settings.** Queries get `tools.settings()` (their part's own) and `tools.substitute()`; `atlas.routes` and `atlas.travel` take the reader's map settings when the caller gives none.
+- **Problems name the reader.** The Director screen's problems come from `director.problems`, with v1's `{{user}}` written out through Story Block's `sdk.substitute` (else "you").
+- **The chronicle: the world moves on.** A new part keeps the wider world's events (`+ world Dragon Calamity — awakens near Dragonfang | state: ongoing | place: Dragonfang | factions: Ashen Court`; `~ world … | state: resolved — how`; `- world … — how it ended` resolves it) and its factions (`+ faction Name — who | area: | stance:`) in a `chronicle` domain (at most 60 events, resolved ones pruned oldest first beyond 30; 40 factions). The kind is `world`, not `event`: `event` stays the tracker's dated happening, unchanged. Code stamps `since` and `updated` from the Director's clock. Before each reply, when more than three events are under way, code picks three (`chronicle.surface`, a `system` receipt with a seeded pick that favours those shown least recently and those near the scene's place) and the tail lists them with how long since the last news; a swipe keeps the pick. The **Chronicle** screen lists the events under way, the resolved ones folded, and the factions, with Edit, Resolved, Reopen and Remove (`chronicle.edit`, `chronicle.remove`). Other modules read `chronicle.events`, `chronicle.event`, `chronicle.factions` and `chronicle.faction`.
+- **Day digest (feature `story-director.digest`, on by default; TRS idea 2).** When the story clock has moved into a new day, the next reply's `beforeGenerate` commits `chronicle.digest` (cause `system`, never a click) and code writes each finished day from the stored receipts, with no model call: where the scene moved to, quests taken on, finished, failed or given up (the threads' own `taken`/`ended` stamps), fights ended (won, lost, fled), money in and out (the receipts' own amounts: coin lines, wallet commands, quest pay, loot, sales and purchases), NPC State Delta's stage moves, the chronicle's world lines, up to eight other code-written summaries, and one line of those facts (at most 200 code points). A receipt belongs to the day the clock was on when it was committed. Days are kept in `chronicle.days` under their day number, each written whole (a slot), and `chronicle.written` records how far they go and which days there were: a swipe keeps them, deleting the reply that crossed a day (or one that wrote a digest) writes that day again from the receipts left, at the next reply. Caps: `chronicle.digestDays` whole days (default 14, up to 60), older ones kept as their line only, at most `chronicle.digestKeep` days in all (default 120, up to 365). The new **Days** screen lists the days newest first, each folding out to its digest, with a search box. The reply right after a time skip (a jump of at least the While away hours) or a While away recap gets one optional tail line, `[Yesterday] …` (or `[Last day] …`); setting `chronicle.digestTail` turns it off. The static part is unchanged. Queries: `chronicle.days({ from?, to? })` and `chronicle.day({ day })` (day numbers), and `time.now` → `{ minutes, text, day, date }` for other modules (RPG Battle's timed effects). The module now passes its parts' `features` and the `feature` tags of commands and queries to Story Block (MODULES §F100).
+- **Rules that take story time: `director.advance { minutes, cause?, reason? }`.** For modules and Story Block's own steps (RPG Battle's crafting calls it through `ctx.call`); a click is `REFUSED`. The clock moves forward as a `~ time` line moves it (so the settle, the While away recap and the day digest follow), at most a day (1440 minutes) a call, with a Problem when held. One move per reply per cause (`cause`, else the calling module): claim `advance:<cause>:<reply sid>`; a second call for the same cause in that reply moves nothing and says so without failing the caller's command. The receipt (or the data handed back to the caller) names the cause and the reason.
+- **Story Director alone (WAVE rule 11; B-rxui-7).** Without RPG Battle (a dating sim, a mystery) everything still works. Before each reply the module learns whether a module runs fights (a `combat.*` command in Story Block's `sdk.modules()`, else a `combat.*` query that answers); with none, the beat grammar and the Fields line name no `encounter`, a due beat is told without "(fight: …)" and without the "stop at the first blow" cue, and the While away recap has no "fought off-screen". A written `encounter:` stays on the thread as plain data. The static part is the same bytes for one set of modules. A kill goal nobody counts is the story's word, like a goal code cannot count: `met: yes` marks it ready, the story's turn-in pays it (one such turn-in a reply, held to the reply's budget), the receipt says "on the story's word (no fights are counted)"; `quest.progress` and `quest.details` give `countable`. With no character level known, a quest the pack does not rank pays as the lowest rank, and its terms say so ("no character level is known, so it pays as F-rank, the lowest"; `quest.details().terms.level`).
+- **F104 on RPG Battle's tiers.** With RPG Battle's `party.ranks` (rewards by place), the rewards are times the pack's money scale (`inventory.economy`) too, as the built-in ladder's; a pack's own ladder keeps its rewards as written.
+- **Day digest: bookkeeping is no fact of the day (RX-cap-5).** Receipts committed by Story Block or a module on their own that the story was not told (RPG Battle's `checks.prepare` dice), `party.create` and `creation.*` are left out of a day's facts, so a day the clock only moves through has no digest and the `[Yesterday]` line never carries another reply's dice.
+- **Day digest keeps its own facts (RX-TL-3).** Story Block trims old receipts' `data`, so a day is no longer read back from receipts when it ends. Before each reply, `chronicle.note` (system) reads the receipts committed since the last note while they are fresh and keeps their facts by day as small entries `chronicle.dayFacts["<day>.<rev>"]` (added whole, on that reply; `dayFacts` is a scratch field), with `chronicle.noted` recording where it got to. A day holding 200 entries has them folded into the newest one. The digest is written from a day's entries and removes them; deleting or swiping a reply takes exactly its entries away, and the missing-day rewrite still works. A chat from before this reads its older days from the receipts as before. The quest details' history is kept the same way (`chronicle.questLog["<rev>"] = { thread, text }`, the newest 8 per thread, written by the note whether the digest is on or off; `chronicle.questLog({ id })`), with the still-whole receipts filling in. The three digest settings carry `feature: 'story-director.digest'` (shown only while it is on, Story Block's settings-field features, B-rxui-3).
+- **The day digest follows its day's facts** (Story Block beta.1 known issue). A digest written from a day's entries keeps their revisions (`src`), and those entries now stay while the digest is whole (the newest 800 entries in all, newest days first). Every read (`chronicle.days`, `chronicle.day`, the Days screen, the `[Yesterday]` / `[Last day]` line) works the digest out again from the entries left when one is gone, so a reply deleted from the middle of a digested day takes its places, money, fights, NPC moves, world lines and summaries out of the digest and its line; a day with none left is not shown and the next digest drops it. Nothing positional is stored and replay never runs code: rebuild, reload, swipes and rewinds give the live state. A day's entries go when it is kept short or past the 800 (its digest then stays as the facts stood, `src` cleared), and at once for a day not written from them (a day read from old receipts keeps its digest as written). Without RPG Battle a day lists no fights, as before. The delete fuzz with day crossings now deletes inside digested days and checks that each digest matches its entries.
+- **Deleting a reply no longer drops a later reply's world line** (final soak). The tail's world pick kept each event's last round in one whole `chronicle.seen` slot, and a world line that closed an event wrote it whole again with the pick's rounds; deleting the reply that held the pick put `round` back, the later block failed validation ("must be a round so far") and was skipped with everything in it. Now the rounds live in `chronicle.seenAt` (by event id, added and removed by key; a scratch field), `round` is a counter (a deleted pick takes its +1 away, later ones keep theirs), and a round past `round` is read as just shown, never refused. An older chat's `seen` slot is still read (under `seenAt`) and never written again. The other whole writes in the chronicle (`surfaced`, `noted`, `written`, each day's digest) are each written by their own command and checked on their own. The delete fuzz now opens six world events, moves and resolves them in later replies, and often deletes a reply that holds a world pick.
+- **Quests follow the story, with code as the referee (F82–F88, F94, F95).**
+  - *Turn-ins.* When a reply's `<Changes>` closes a taken quest as done (`- quest X — turned in`, or a step or status saying so), the capture runs `quest.finish`'s checks in the same reply: the target met (fights or items counted; for a goal code cannot count, `met: yes` earlier, or the story's word at turn-in) and the place (a settlement or the giver present). All pass: code pays exactly as `quest.finish` does, under the same claim `quest:<id>:paid`, in one receipt. Any fails: the quest stays open and unpaid, with a Problem and a receipt the next reply hears ("The story says Wolf Cull was turned in, but only 2 of 3 wolves are beaten; it stays open."). Failing and giving up close as before.
+  - *No buttons.* The Quests screen draws no Take on, Turn down, Finish or Give up: each row says where the quest stands ("Ready to turn in — 3/3 wolves", "Ready — 3/3 wolves; turn it in at a settlement or where Orsa is.", "Not yet: 2/3 wolves", "Offered — say you take it"). The commands stay in the SDK for cards, packs and tests.
+  - *Every quest needs a goal.* A `+ quest` with no `goal:` and no target code can read is kept, flagged as a Problem ("no-goal"), and the tail asks the story for one while it is open without one.
+  - *Goals the story judges.* The tail lists up to three open taken quests code cannot count, one short line each; `~ quest Name | met: yes` marks one Ready (`ready: { rev }` on the thread), `met: no` clears it. `quest.progress` reports `ready`; `quest.finish` pays a Ready one's fixed reward and keeps it in Finished.
+  - *Details.* Each quest row opens a details panel (a screen-local `<details>`; templates have no dialog): goal, progress note, terms, rank, giver, due, taken and ended dates, and the receipts that touched it, from the new query `quest.details`.
+  - *Progress note.* `~ quest Name | progress: …` is read as v1's `step:`; the latest is kept, at most 160 characters.
+  - *Rank ladder.* New query `quest.ranks` → `[{ id, title, levels, reward }]`: the first enabled pack's `ranks` content, else RPG Battle's `party.ranks` (rewards added by place: about 10–50, then ×4.5 a rank), else F, E, D, C, B, A, S (levels 1–60). `rank:` or `difficulty:` may name a rank by id or title ("D", "D-rank", "II", "Soul Class II"); easy/normal/hard leave a quest unranked.
+  - *Rewards held to the rank.* A ranked quest's reward (in all, or per unit times the count) outside its rank's range is held at turn-in, and the receipt and the terms line say so ("reward held to D-rank range: 230–1000 gold (the story said 5000 gold)").
+  - *A written rank only lowers a reward (B-b3-r3-1, RX-E-1).* A rank the story writes on a quest (`rank: S`, or a `difficulty:` such as nightmare) is held to the party's own rank, whether code counts the goal or not (`WRITTEN_RANKS_ABOVE = 0`): "bring 1 Torch" or "kill 1 rat" is counted but cheap, and RPG Battle's fight records do not say how strong the foes were. A written rank below the party's still lowers the reward. A pack quest keeps its pack's rank. Hard and nightmare now pay as normal (RPG Battle still scales their XP).
+  - *One reply's budget holds every story-written reward (RX-E-1).* Every turn-in but a pack quest's own reward is the story's money (`wallet.receive { story: true }`), counted or not, and one reply pays at most the top of the party rank's range in such rewards, clicks after the reply included (`paid` in the reply's `director.turn.now`). The first turn-in of a reply is paid up to that; one that would go past it is refused, unpaid and open, "ready for the next reply" (a story turn-in says so in a Problem). Pack quests keep their pack reward, outside the budget. One story-vouched turn-in per reply still holds.
+  - *One budget per reply, Story Block's (RX-E-2).* A reply's own `+ coin` lines and a Finish click after it were held by two tallies that could not see each other, so one reply could give two budgets. A turn-in now reads Story Block's `inventory.storyBudget` (`{ budget, paid, left, vouched }`: the reply's coin lines, the quests it closed and the clicks after it, against the reader's `storyCoinPerReply` or the party rank's top) and is paid from that one tally. It waits, unpaid and open, when nothing is left, or when another turn-in already paid from the reply's budget and it does not fit; the reply's first turn-in is otherwise paid what is left. On a Story Block without the query, the module's own `paid` tally holds as before. Works without RPG Battle (the pack's or the built-in ladder sets the budget).
+  - *The pack's money scale (F104).* When the ladder is the built-in F to S, `quest.ranks` multiplies its rewards by `inventory.economy`'s `scale` (whole numbers, at least 1; 1 when the query is missing or gives no positive number). A pack's ladder, such as Ersveil's, and RPG Battle's tiers are kept as written.
+  - *Pacing.* The static part asks for few quests, quiet stretches, passers-by who stay passers-by, and no trouble sent at the reader unprovoked. New setting `quests.offerCooldown` (replies with Director lines, default 6, 0 off): an offer sooner than that after the last one is kept but held off the board and the tail until the cooldown passes, with no Problem; nothing the story wrote is lost.
+  - The Director screen shows the story time and place in its header, and drops a Problem about an offer or a missing goal once the quest is taken on, given a goal or over.
+- Rule refusals use `REFUSED`; settings are namespaced per part (`tracker.calendar.months`); thread IDs, revisions and the reply come from the host's capture context.
+
+## 0.9.46
+
+- **Quest turn-ins work over plain HTTP.** Checkpoint and completion IDs no longer require `crypto.randomUUID`, which browsers can omit on HTTP LAN hosts. Use with Story Block **0.9.28** to restore journal reads and the Quests tab on those hosts. Existing quests and IDs remain intact; no chat reset or HTTPS change is required.
+
+## 0.9.45
+
+- **Long quests retain their history.** Accepted terms and completed state have durable checkpoints in Story Block's shared chat journal. A quest can be handed in hundreds of replies later after hiding or archiving its old messages. Proven archived ancestors seed replay; the active branch determines which defeats and claims count.
+- **Coins and XP settle together.** Complete saves Inventory, Party XP, quest closure, receipts and the checkpoint in one verified transaction. Repeated events do not pay or award XP again. Rollback restores full Party state, including levels and points, while preserving earlier battle XP.
+- Hidden completion replies remain readable through `questsDoneAt`. Ambiguous interior edits require recovery; no guessed refunds or reconstruction of edited suffixes. Preserve chat metadata and at least one recognized reply when archiving. Use RPG Battle **0.5.49** and Story Block **0.9.27** together.
+
+## 0.9.44
+
+- **A cleared and turned-in quest leaves Pending.** A story-tracked quest whose step says `cleared and turned in for 60 copper` now closes, as `completed and turned in` already did. Merely clearing the site and heading back stays pending. This records the ending without paying coins again; quests with verified targets still require their code-owned turn-in receipt.
+- **Turn-in ownership is visible.** Eligible verified quests say **Ready to turn in**; quests without a numeric target say their completion follows the story. The story note includes each verified quest's accepted target and reward and waits for the explicit turn-in instruction. A model-declared turn-in without a receipt blocks another payout and explains which reply needs correction.
+
+## 0.9.43
+
+- **Complete verified quests from the Quests tab.** Targets such as `defeat 3 wolves`, `possess 1 Travel Permit` and `deliver 5 Rat Tail` show progress under **Pending**. **Complete** becomes available when the target is met and the giver is present or you are in the issuing settlement. **Undo complete** cancels before generation. The next story reply receives the exact completion, payment and delivery instruction; code saves effects the model leaves out once.
+- **Accepted terms and earned rewards are checked by code.** Defeats count after acceptance, paid bounties cannot share defeats, possession keeps goods, and delivery removes the required quantity. Eight eligible wolves at 1 silver each pays 8 silver. Receipts prevent repeat payouts; edited or missing proof blocks further turn-in for recovery.
+- Verified completion requires RPG Battle **0.5.48** and Story Block **0.9.26**. Unmeasurable quests keep narrative completion; old prose battles are not backfilled.
+
+## 0.9.42
+
+- **A quest whose step says it is done and turned in is closed.** A model wrote `~ EastBluffWolves — reward: Claimed 2 gold | step: Completed and turned in to Fenna` every reply instead of a `-` line, and the quest stayed on the Quests tab as active: a step only closed a quest when the ending stood alone or before punctuation (*completed — Garrow paid*). Now a step that opens with the ending and goes on to confirm it (*Completed and turned in to Fenna*, *Done — bounty paid*) closes the quest too, as does one whose line carries a reward already taken (*reward: Claimed 2 gold*). A step that goes on to more work (*done tracking, now the den*, *Completed and heading back to Fenna*) is still a step.
+
+## 0.9.41
+
+- **The put-back instruction stays out of other extensions' calls.** Since 0.9.38 the note's fixed part is put back when a preset leaves the Main Prompt out of its prompt order (SillyTavern then drops in-prompt extension text; a Main Prompt merely switched off still carries it). That check ran on every prompt while a reply's note was out, so another extension's call made during the generation (NPC State Delta's dossier scan through generateRaw, a summary) got the change instruction too. Now it only goes into the story's own prompt: one that carries the chat's replies, never a dry run, and only between the reply's interceptor and the reply arriving or being stopped. The note's part for this reply never reached those calls (generateRaw leaves extension prompts out).
+
+## 0.9.40
+
+- **One write after each reply.** The reader's choices that went with a reply (given up, taken on, turned down) and what its story time ran past (beats that slipped, offers that lapsed) used to be two separate writes to the reply's Director block, each saving the chat and redrawing the tabs. They are one write now. A record the reader just chose about is never also closed as lapsed.
+- **One redraw per reply.** Story Block already redraws the tabs as a reply comes in and after every block write; Story Director now redraws once more only for what Story Block cannot see (this reply's findings, a choice stamped without a line).
+- **One set of defaults.** The settings panel kept its own copy of the defaults, which had drifted (a missing *keep the Director's note* default, a different calendar fallback). Both now read one copy (`src/defaults.js`); the runtime's values won, so nothing changes for a saved setup.
+- **Not done: trimming the change instruction.** Dropping its kinds list (16 tokens) on replies that expect no new records would change the fixed part of the note on exactly those replies, which breaks the cached start of the prompt there and costs far more than it saves.
+
+## 0.9.39
+
+- **Search the Journal.** A long story's Journal (more than 15 entries) now has a search box on top. It filters as you type by name, what happened, giver or date, ignoring case and accents (*cafe* finds *Café*). It shows *N of M* and opens every day that matches, folded ones included, or says nothing matches. Esc or the box's ✕ clears it; in the drawer or bottom sheet, Esc closes the panel as it does everywhere there.
+- **The Quests tab's badge counts the offers waiting for your answer**, the ones under Offered, instead of the open quests. It counts exactly what the tab shows; an offer past its deadline counts only while you've spoken of it.
+
+## 0.9.38
+
+- **Cache-friendly note.** Providers cache the longest identical start of a prompt (OpenAI, DeepSeek and Gemini on their own, Claude with cache breakpoints), so what never changes should come early and stay byte-for-byte the same. The Director note is now sent in two parts:
+  - **The fixed part** goes right after the main prompt and is the same text every reply: the change instruction, the NPC plans line, and Pacing. Pacing used to come only when something was scheduled; a part that comes and goes would break the cached start, so it is always there now (about 70 tokens, cached).
+  - **The part for this reply** (the header with the story time and place, what is due and arriving, the records, the checks and your choices) goes at the very end, after your message, at depth 0 by default. It is cleared once its reply is in.
+  - Measured on two consecutive replies in the test chat: the identical start of the prompt grew from 4,816 to 5,900 characters, now including the whole instruction. What still breaks it early is another extension's state, not Story Director's.
+- **Kept when a preset leaves the Main Prompt out.** SillyTavern drops in-prompt extension text with chat completion when the Main Prompt is missing from the preset's prompt order (merely switched off, it still places it); the fixed part is then put in after the leading system messages, still early and in the same place every reply, so the change instruction is never lost.
+- **Depth.** The setting now places the part for this reply. A depth left at the old default (1) moves to 0 once; one you set yourself stays. The note's old single prompt key is cleared, so no copy from an earlier version lingers.
+
+## 0.9.37
+
+- **An offer is taken on where it was offered.** Whether you can take a job on now follows the place, not only the person.
+  - An offer is *here* while the story is in the settlement it was offered in: the first part of the scene's Loc at the reply that first showed it, so moving from the Guild Post to the Stray Oar is still Bluewatch Village.
+  - It is also *here* while its giver is in the scene.
+  - The badge reads *Bluewatch Village · here*, *Elke · here* or *offered in Bluewatch Village*.
+  - Elsewhere, Take on asks once: *You're not in Bluewatch Village — take it anyway?* Turn down never asks.
+  - An offer's `place:` field often names the job's site (*lower shallows*), so it is only used when nothing else says where it was offered.
+
+## 0.9.36
+
+- **Who is in the scene, from one place at a time.** An offer's *here* / *not here* badge now asks, in order:
+  1. the scene block's *NPCs Present* (World State);
+  2. NPC State Delta's present cast, when it is installed;
+  3. the latest reply naming the giver.
+
+  The first that has anything decides. A reply that mentions someone the scene board doesn't list no longer counts them as present.
+
+## 0.9.35
+
+- **Offers read more simply.** In 0.9.34 an offer whose giver was away showed four things for one decision: a disabled Take on, Turn down, an "I'm with them" box and a hint. Now the card carries a badge, *Elke · here* or *Elke · not here*, and Take on is always there. While the giver is away it asks once, inline: *Elke isn't here — take it anyway?* **Take on** / **Cancel**. Turn down never asks.
+- **No "No open quests" above a list of offers.** With offers waiting it now reads *No quests yet — 2 offers below.*
+
+### Cleanup
+
+- The tabs and the settings panel share one set of small page helpers (`src/ui/dom.js`) instead of four copies. The Quests tab keeps its own button, where the visible label stays the button's name.
+- `modesFor` in `src/routes.js`, which nothing used, is gone.
+
+## 0.9.34
+
+- **Take on waits for the giver.** A job is taken on in front of whoever offers it.
+  - Take on is there while the giver is in the scene: under *NPCs Present* in the scene block (its Off-Screen list never counts), or named in the latest reply.
+  - Until then it reads *Elke isn't here. Find Elke, or tick "I'm with them"*. The box lets you take it anyway, and Turn down never waits.
+  - The wait can be turned off in Settings → Tracking & note.
+- **What's sent.** The Director tab has a fold with the note the next reply gets, word for word, and its size. While Behind the scenes is hidden, only the size shows, since the note names agendas and secrets. The note is built only while the fold is open. Story Suite's overlay can read it too, through `manage.preview()` or `StoryDirector.preview()`.
+- **The note is cleared once its reply is in.** It was rebuilt for every reply but stayed set afterwards, so other extensions' background calls (a quiet prompt, a capture pass) carried it too. Now it goes when the reply arrives or you stop it, so nothing in it (*Taken on*, *Abandoned*, *Slipped*…) can be told twice. It still sits one message from the end, where RPG Battle puts its hand-off.
+
+## 0.9.33
+
+- **Take on and Turn down buttons on offers.** You no longer have to find the words to take a job: each offer under **Offered** in the Quests tab has **Take on** and **Turn down**. The choice goes with your next reply, the way Abandon does:
+  - until then the offer reads *taken on with your next reply* (or *turned down*), with **Undo**;
+  - the reply is told behind the scenes (*Taken on: Ren takes on Lime Kiln Bats. Show it in this reply as part of the scene, in the story's own voice*), so the story narrates it without menus or game words;
+  - your choice is stamped on that reply, and the change lines are written for the story if it left them out. The offer becomes your quest, or closes as declined, whatever the story wrote;
+  - a swipe of that reply is told again, and deleting it takes the choice back.
+
+  Saying it in the story still works too.
+
+## 0.9.32
+
+- **Taking several jobs at once counts.** *"I nodded and took down all three contracts and head south to the wicker beds…"* left all three quests stuck under Offered. Story Director takes a job on only when your message accepts it and names it. *Took down* was not a phrase it knew for that, and *all three contracts* names no job. Now:
+  - *took down*, *took them* and *tore down* (a notice) count as taking a job on;
+  - *all three contracts*, *both jobs*, *all of them* and *them all* mean the offers shown most lately (that many of them, newest first).
+
+  So that message takes on the three the board just showed, and an older offer stays an offer. *Turned them all down* refuses them the same way. Reading a notice (*I read all three contracts*) still takes nothing.
+
+## 0.9.31
+
+- **Off-Screen lines are short and readable.** With *Mirror Off-Screen* on, each agenda was written into the World State as a full dump of its fields: *Bond collector — now: … | then: … | on: Goldwane 30, 06:40 am | leg: Glassdock → Bluewatch Village 440 km W, upstream 25/day → 18 days | arrive: Goldwane 30, 06:40 am*. It was hard to read and cost tokens on every reply. Now each agenda is one line that reads like the story's own: *Bond collector — on a supply barge up the Bluewatch Branch; arrives Goldwane 30, 06:40 am; next, on arrival: questions the quay inspector*, or *Marrit — at the customs shed; next: drinking at the Stray Oar (Goldwane 12, 01:00 pm)*. The travel leg's arithmetic stays in the tracker and the Director tab, where travel is checked. What each agenda does next, and when, is still there, because the note leaves agendas to this section. Seeding from a World State reads these lines back into their parts.
+
+## 0.9.30
+
+- **The tracker is kept at the back of the chat.** Until now, Story Director rebuilt quests, hooks and agendas by re-reading every reply from the very first message. So any old message that went missing could take a quest with it. Now it keeps a **checkpoint**: one copy of the tracker as it stood ten replies back, saved in the chat's own hidden data (not in any message, never sent to the model). The tracker is that copy plus the last few replies. Messages before it are never read again, so hiding them, summarising them away (Summarybook and the like) or deleting them changes nothing. A new checkpoint is taken every ten replies and the newest four are kept, about 7 KB each.
+  - **Swipe, edit or delete** within the last ten or so replies rolls back exactly as before.
+  - **A bigger rollback** (deleting replies past the newest checkpoint) falls back on an older checkpoint. Past all of them, the tracker is rebuilt from whatever messages are left, hidden ones included.
+  - **Editing a reply older than the checkpoint** no longer changes the tracker: the past stays put.
+  - **Changing the calendar or the scene block's tag** starts the checkpoints over, because they turn dates into numbers.
+  - **Branches** check that the checkpoint's reply is really there before using it.
+- The Journal dates its entries from the story time saved with each change line, so entries from before a checkpoint keep their day.
+
+## 0.9.29
+
+- **Hidden replies stay part of the story.** Story Director builds its quests, hooks and agendas by reading every reply's Director block from the start of the chat, and it skipped replies hidden from the model. Extensions that save context by hiding old messages (Summarybook hides messages 0–10, for example) therefore wiped out everything those replies had set up: the Lone Grey Wolf bounty and the rat granary job vanished from the Quests tab, the Finished fold and the Journal at once. Now a hidden reply that carries a Director or scene block is still read. Hiding only changes what the model sees, and the tracker keeps everything. Swiping and deleting still roll changes back as before. Hidden messages without those blocks (system notes, battle hand-offs) are still skipped. Quests lost this way come back on their own once you update and reload the chat.
+
+## 0.9.28
+
+- **A quest with only its pay left is no longer failed by the clock.** Lone Grey Wolf was done (the wolf dead, a voucher in hand) and its step was *turn in voucher at the bailiff hatch on Friday noon*, with `due: Goldwane 14, 12:00 pm`. That time was when the hatch opens, but Story Director read it as a deadline. When the hour came, the note told the story *Lone Grey Wolf — deadline reached (Slay the pack)*, so the story failed the quest while you were on your way to cash it. Now a quest whose step or now is only collecting the pay (*turn in the voucher*, *collect the bounty*, *return to Verna for payment*, *get paid*) is told as *pay waiting from Goldwane 14, 12:00 pm (…); the work is done, the hour fails nothing*. A `-` line that fails it only for time (*deadline passed*, *expired*, *too late*, *missed the window*) leaves it open, with a note in the Director tab. A failure for another reason (*the bailiff tore up the voucher*) still ends it, and so does cashing it. The Quests tab marks such a quest **pay waiting**, not *deadline passed*.
+- **`- Key — failed: reason` counts as a failure.** A closing line that wrote its outcome as a label (*failed: the pack fled*, *done: pack slain*) was saved with no reason at all, and a quest with no reason counts as done, so a failed quest could award quest XP. The label and its text are now the reason.
+
+## 0.9.27
+
+- **A job you went and did counts as done.** An offer only became your quest when your message used words like *accept* or *I'll take it*, so a job you simply went and did stayed under **Offered** even after the story finished it: *! Barrow-Viper Clearing — cleared pit, 10 skins turned in to Verna* changed nothing. Now, when the story says an offer is done (a `!`, a `~ … step: completed` or a `-` that reads as finished) and your messages have spoken of it, it closes as your finished quest, and RPG Battle awards its quest XP. An offer you never spoke of still leaves the Offered list, but as news with no XP (someone else did it). Failed, given up or lapsed is never a quest done.
+- **More ways to take a job on.** *We'll join the hunt*, *count us in* and *I'm up for it* now take a job, and so does a plain *yes*, *sure* or *aye* when the reply has only one new quest.
+- **An offer you talked about no longer vanishes on its date.** Offers lapse when their deadline passes, but a job's `due` is often the day it happens (*the hunt rides out on Goldwane 15*). That is how the wolfhound hunt you were waiting for got closed as *offer lapsed*. Now an offer your messages have spoken of gets two more story days, the same grace a late beat gets, and stays under Offered with its date shown as overdue. An offer nobody mentioned still lapses on time.
+- A `~` line that reads as over, on a name nothing is tracked by (*~ Quests: North Levee Vipers — step: completed*), no longer creates a new, never-closed hook.
+- The Quests tab now shows once there is an offer, not only once there is a quest.
+
+## 0.9.26
+
+- **The Off-Screen mirror keeps the story's own lines.** With *Mirror Off-Screen* on, Story Director rewrote the World State's whole Off-Screen section from its tracked agendas, so the story's own lines were dropped: *Jor — crying in the granary alley*, *Lefty — hiding aboard the Kettle Wife*. Now the agendas come first and the story's lines for people the tracker has no agenda for stay after them. A line for an agenda that has been closed still goes, and so does one written under a name the agenda was also called by. NPC State Delta 1.2.10 reads this section to tell who has left the scene, so keeping these lines also keeps those people off its Present cards.
+
+## 0.9.25
+
+- **The distance Fix button stays in the Director tab.** In 0.9.24 the button only lived on the pop-up warning, which goes after 20 seconds. Now the warning also sits under Director tab → Problems → Warnings with its own **Fix** button, for as long as the latest reply carries the wrong figure. It is read from the reply itself, so it is there after a reload too, needs no Reveal, and goes once the reply is fixed or swiped away.
+
+## 0.9.24
+
+- **A wrong distance is caught the moment the reply arrives.** Until now, a travel time the story got wrong was only corrected in the note for the next reply, so it sat in the reply you were reading. Now each new reply is checked as it comes in. If it names a place on the world pack's roads and says a time far off the map, a warning shows at once: *“three days” to Ledgerford: by the map it is 18–33 days (ride to wagon) from Bluewatch Village; by boat, 21.* The warning has a **Fix** button that writes the map's figure into the reply (*…twenty-one days downstream*), using the way the sentence names (downstream: by boat) or else the quickest. The warning is also listed in the Director tab. Nothing changes unless you press Fix.
+
+## 0.9.23
+
+- **Distances for every place in play, on every reply.** The Distances line no longer waits for a place to be named in the latest exchange. Every note now carries the real trip to up to six places in play:
+  - places your message names;
+  - places the latest reply names;
+  - places tied to an open quest, hook or agenda (a giver's town, a road an agent is on), never a secret's;
+  - places named in the last ten messages.
+
+  So when the story brings a place back, or an NPC mentions where a job is, the figures are already in front of it. Routes are worked out once per world pack and reused, and the line costs about 15 tokens a place.
+
+## 0.9.22
+
+- **The story is told how far places really are.** Story Director already checked travel times on its own records, but never what the story itself said. So Verna could call Ninebarge Crossing "three days downstream" when the world pack's routes make it 22 to 40 days. Now, with a world pack, the note after a reply lists the places that reply or your message named, with the real trip from where the scene is, from the quickest way to the slowest: *Distances from Bluewatch Village: Ninebarge Crossing 22–40 days (boat to foot)*. If the reply said a time far off the map (under half the quickest trip, or over twice the slowest), it adds *not three days* and asks the story to keep to the map when the trip comes up again. Your own message is never corrected, and nothing is written into the reply.
+
+## 0.9.21
+
+- **Weekdays follow your world.** Story Director never used weekday names itself, but it never told the story the world has none either. So a model would make up "Friday noon" for a deadline, and nobody in a world with no week could say which day that is. Now:
+  - **No week:** with a custom calendar and no week, the note says so once, right after its header: *This world has no weekdays: name a day by its date (Goldwane 14), never Monday to Sunday.*
+  - **A week of its own:** list its day names under Settings → Calendar → **Week**, then pick which one the story's current day is under **Today is**. The note's header then starts with today's weekday (*Ashday, CY 611, Goldwane 12, 12:18 pm*), and the week runs on from there.
+  - **Gregorian:** the header shows the real weekday.
+
+## 0.9.20
+
+- **A quest you just took on no longer finishes in the same reply.** When the story turned an offered hook into a quest, it sometimes also wrote `- hook Lone Grey Wolf — Hunt the lone wolf…` to retire the hook. That line was read as the quest being finished, so the quest closed right away and RPG Battle awarded its XP. Now a `-` line on a quest taken on in that same reply leaves it open, unless its reason says the job is done or failed. A word like `hook` in front of a tracked name is read as a label, not as part of the name. The quest check also tells the story not to write a `-` line for the hook. Quests already closed this way in older chats reopen; the XP already given stays in that reply's Party block, and swiping or deleting that reply removes it.
+
+## 0.9.19
+
+Six improvements to how the Director keeps the world moving around your character.
+
+- **Every planned beat now says how it reaches your character.** The arc planner gives each beat a `reach`: what it changes for you wherever you are, such as a price, a door shut or opened, someone's mood, a danger or an opening, without deciding what you do about it. When the beat comes due, the note's Due line adds it (`Due now: Guards sack the Stray Oar (Goldwane 13, 10:30 pm) · reach: the inn shuts for repairs; Marrit is out of work…`), and the While away recap does too. A beat that happens while you are elsewhere still leaves something concrete for the story to show. Beats still ahead keep their reach out of the note, and the Director tab shows it as a row on the beat.
+- **A story with little left to do plans its next arc.** With arc planning on *Automatic*, a new arc is planned when fewer than 3 threads are open: hooks, clocks and the arc's beats still to play. Offers of work don't count, since they wait for you, and neither do quests, agendas or secrets. Change the number under Settings → Arc planning → *Running low at*; 0 turns it off. After a plan is asked for, this trigger waits 5 replies before asking again, so a plan you discarded doesn't come back after every reply.
+- **A made-up name is remembered.** When the story calls a tracked job or thread by another name (`! Fold Wolf Contract — …` for *Wolf Hunt*), Story Director works out which record it means and keeps that name on the record. Later lines with the same name go straight to it, a `+` included: no second copy of the job, and no new note each time. The Director tab lists those names under *also called*. Like everything else, they go away if you swipe or delete the reply that brought them in.
+- **When the story skips ahead, what happened in between comes as a recap.** After a night's sleep or days on the road (12 hours or more of story time since the reply before), everything that came due or arrived in that stretch is listed on one "While away" line, with the times it covers. The story is asked to bring them in as news, signs or aftermath, not as scenes your character lived through, and they are no longer piled onto "Due now". A quest deadline that passed in the gap says so, a planned fight there was fought off-screen (no Fight? offer), and secrets never appear.
+- **Beats that slip close themselves, and offers that lapse get one reaction.** A planned beat the story never got to used to stay on the note's *Due now* line for ever. Once the story is more than two days past its date, the reply where that happens closes it as *slipped*, and the next note says once that it happened off-screen or not at all. A job you were offered but never took closes as *offer lapsed* when its deadline passes, and the next note says it went to someone else and that the person who offered it may mention it. Neither counts as your choice or as a failed quest, and deleting or swiping that reply undoes it.
+- **A Journal to catch up with.** A new **Journal** tab in Story Block's sidebar recaps what your character saw and heard, by story day, newest first: what happened, the quests you took on and how they ended, and the places you first visited. It only shows what the story has already told you: no agendas, secrets, plans or beats still to come. So it needs no Reveal and is safe to read after a long break.
+
+## 0.9.18
+
+- **A planned fight is reached by the scene, not the clock.** `encountersAt` now says, per fight, whether the reply fired it (`reached`: a `! Key — …` line in that reply). A fight fired there is listed even though firing cleared its date. RPG Battle 0.5.18 offers a planned fight only when it is reached. A brawl at the Stray Oar while your character sits at the guild post no longer pops up as a fight; the story brings it in as news, as the Pacing line asks.
+
+## 0.9.17
+
+- **Problems read without Reveal.** With *Hide behind the scenes* on, the Director tab only counted problems, so reading a warning such as *"Fold Wolf Contract" is not tracked* meant revealing every agenda, beat and secret. Problems and notes now show while the tab is hidden. Only those about an agenda, a planned beat, a clock or a secret stay hidden, counted on the lock as *N problems behind the scenes*.
+
+## 0.9.16
+
+- **A made-up name for a tracked job still finds it.** A model wrote `! Fold Wolf Contract — …` for a job tracked under another name, and the line was ignored with a warning. When the usual matching finds nothing, a looser reading now tries: plurals folded (*wolves* is *wolf*), job words set aside (*contract*, *bounty*, *quest*…), and a word inside a longer one (*fold* in *sheepfold*). Then it tries every word of the name found in one record's own name, goal or description (*Wolf Hunt — kill ridge wolves threatening the sheep fold*). Only a single match is taken. With two, the warning names both and neither changes.
+
+## 0.9.15
+
+- **Quest choices are yours.** A model wrote `+ quest` for two jobs a clerk had only offered ("What's it going to be?"), and both showed as active quests. Taking a job on, turning it down and giving it up now come only from your own message, the one the reply answers. Finishing and failing stay with the story.
+  - A `+ quest` counts only when your message accepts the job, in a sentence naming it, its giver or a word of its name (or with only one job in question). Otherwise it is kept as an offer.
+  - A main quest is the story's to give, and an offer the story moves on (a step under way, not `0/1`) is one your character is already doing: both start at once.
+  - A model's *abandoned*, *gave up*, *declined* or *refused* line changes nothing unless your message said so. Your giving up is read from your message only, no longer from the narration.
+  - When your message takes an offer on or turns one down, the note asks the story to write the line.
+  - The change instruction now says an offered job is `+ hook` with its giver and reward.
+- **Offered** jobs fold away in the Quests tab, with no buttons, until taken on, turned down or past their deadline.
+- **Abandon works behind the scenes, like a fight's hand-off.** The flag no longer edits the latest reply. The quest shows *giving up* with a **Keep** button until your next reply. That reply's note tells the story you give it up, and the reply records it: your choice is stamped on the message, and the closing line is added if the story left it out. A swipe is told again; deleting that reply takes the abandon back.
+- Chats already played are re-read the same way on the next refresh, so jobs that were only offered move to Offered.
+
+## 0.9.14
+
+- **"! Encounter — …" is not a missing record.** A model wrote a Director line under the word *Encounter*. It showed as a warning ("Encounter" is not tracked), and the next note told the model to add it with `+ kind Encounter — …`, which invites a fake record. A key that only labels the line (*Encounter*, *Fight*, *Combat*, *Battle*, *Scene*, *Director*, *Status*, *Update*, *Changes*, or a kind word such as *Quest* or *Hook*) is now skipped quietly: no warning, and nothing in `Corrections:`. A record actually called that is still changed, and a `+` still adds one. Fights are RPG Battle's, from the `<Encounter>` block.
+
+## 0.9.13
+
+- **Taking a job on no longer finishes it.** A model wrote `+ quest Sheepfold Wolves — …` and then `- Hook Sheepfold Wolves — accepted by Wessel` to say the hook had become the quest. The `-` was read as closing the quest, so it showed as finished the moment it was accepted and RPG Battle gave its quest XP. A `-` whose reason says the job was taken on (*accepted*, *taken on*, *took up*, *signed up*, *agreed to*, *became a quest*) now makes a hook or event the quest, and on a quest it changes nothing. One that also speaks of pay or an ending (*reward accepted*, *8 silver paid*, *declined*, *finished*) still closes it. Chats already affected are fixed on the next refresh, because the tracker is rebuilt from the replies.
+
+## 0.9.12
+
+- **Quest deadlines at a clock time.** A deadline written as `Goldwane 12 sunset` or `Goldwane 30` is now shown at the time the calendar gives it: *Goldwane 12, 07:00 pm*, or for a date alone the end of its day, *Goldwane 30, 11:59 pm*. This applies in the Quests tab and in the Director's note, so the story sees the exact time too. A deadline already at a clock time, and words around the date, are kept as written; the record itself is unchanged. The change-line instruction now asks for dates with a clock time (4 tokens more).
+
+## 0.9.11
+
+- **Quieter quest cards.** Each quest read as a stack of labelled rows (GOAL, STEP, GIVER, REWARD, DEADLINE), a long description and a big Abandon button. A card is now the goal (or the description when there is no goal), the next step after an arrow, and one small line of giver, reward, deadline and place, each with an icon. A description beside a goal comes last, cut to two lines until clicked. The difficulty tag shows only when it is not normal. Abandon is a small flag at the end of the quest's name; a click turns it into *Abandon?* and a second click gives the quest up, as before.
+- **"Goldwane 12 sunset" is not past at breakfast.** A deadline the calendar read as a date alone counted from the start of that day, so a quest due at sunset showed *deadline passed* that morning. A deadline without a time now runs to the end of its day, and `sunrise`, `daybreak`, `sunset` and `sundown` are parts of the day like `dawn` and `dusk` (a calendar's own parts of day still win).
+
+## 0.9.10
+
+- **`Hook: Key` is the key.** A model wrote `~ Hook: Sheepfold Wolves — giver: Nelke, …`: the key read as *Hook: Sheepfold Wolves*. A kind and a colon in front of a key (`Hook:`, `Quest:`, any kind word) now name the kind and are not part of the key; on a `+` with no kind yet, they set it. A colon after any other word (`Mister: Smith`) stays in the key.
+- Goes with **Story Block 0.9.7**, which reads change lines a model wrote as `<!-- Director … -->` outside the envelope (no quest was captured from them).
+
+## 0.9.9
+
+- **`+ quest` on an offered hook makes it the quest.** A job the arc planner (or an earlier reply) offered as a hook (`+ hook Sheepfold Wolves — … | reward: 2 silver per ear`) and then taken on with `+ quest Sheepfold Wolves — … | giver: … | goal: …` only had the new fields applied ("already tracked; the + was applied as a change"): it stayed a hook and never reached the Quests tab. A `+ quest` on an active hook or event now turns it into the quest (the Director tab notes it), keeping its key, description and history; beats and agendas stay what they are. The tracker is replayed from the replies, so such quests appear on their own.
+
+## 0.9.8
+
+- **Fields written with commas.** A model wrote `+ quest Sheepfold Wolves — Cull up to 4 timber wolves | type: contract, giver: Nelke/Herders, goal: return right wolf ears, reward: 2 silver per head, due: Goldwane 12`, and everything after `type:` became the type: the quest had no giver, goal, reward or deadline, and the Quests tab put it under a heading made of that whole string. Fields run together with commas or semicolons are now split as if written with `|`, only before a field the format knows (so `giver: Nelke, the clerk` keeps its comma). The tracker is replayed from the replies, so such quests are read correctly on their own.
+
+## 0.9.7
+
+- **A quest is finished once.** A later reply that closed an already closed quest again (`- Wolves at the weir — the pack is dead`, repeated by the model; or a `~ … status: completed`, or a quest's `!` that says so) re-stamped it as closed in that reply, so `questsDoneAt` reported it again and RPG Battle, which now awards quest XP at once, gave it twice. Closing something already closed now changes nothing (a note, `already-closed`, in the Director tab); it stays finished in the reply that first closed it. Reopened with `+`, it can be finished again.
+
+## 0.9.6
+
+- **Giving up, however it is written.** *forfeit*, *quit*, *walked away*, *backed out*, *called off* (and *withdrew*) now close a quest as a failure wherever *failed* or *gave up* already did: a `~ … status:` / `outcome:`, a quest's `!`, and the Quest check on its step. A failure earns no quest XP. *quit* is a whole word, so "turned in, quite a haul" is still a quest done.
+- **Your own message is heard.** When your latest message, or the reply's narration, gives up an open quest in a sentence that names it or its giver ("I give up on the Sheep-killer bounty", "Tell Garrow I quit"), the note's Quest check asks the story to close it with `- Key — abandoned` if it does. A negation ("I won't give up") does not count; only a hint, so the story still closes it. Only while the model writes change lines.
+
+## 0.9.5
+
+The story closes quests, not a click.
+
+- **Done and Failed are gone.** They let a click declare an outcome the story never told, and a Done earned RPG Battle's quest XP. A quest is finished or failed only when the story says so.
+- **Abandon** (asks twice) is the one closing left to the reader: giving a job up is a decision, like accepting one. It writes `- Key — abandoned` into the latest reply (deleting or swiping it takes it back); it is a failure, so no quest XP.
+- **Quest check:** an open quest whose `step` or `now` reads as over (*completed*, *wolf slain, reward collected*, *delivered*, *failed*… but not *complete the ritual* or *done with the first part*) adds one line to the note asking the story to close it with `- Key — outcome` if it has, and to leave it if not. Only while the model writes change lines.
+
+## 0.9.4
+
+- **Bounties and contracts are quests again.** 0.9.2 stopped a `step` alone from turning a hook into a quest, but the arc planner offers jobs as hooks that already carry their pay (`+ hook Wolf pelts — … | reward: 2 silver each | type: bounty`), and taking one on is usually written as progress (`~ Wolf pelts — step: tracking the pack`), so offered bounties and contracts stayed hooks and left the Quests tab. A hook or event that is a job (it has, or the change gives it, a giver, a reward or a quest category) now becomes a quest when a `~` moves it on (giver, reward, goal, step or difficulty); a plain thread's step still does not, and beats never do. An event given a reward is a quest again, as before 0.9.2. The tracker is replayed from the replies, so the quests come back on their own.
+- **An untracked job is a quest:** a `~` on a key that is not tracked, with a giver or a reward, adds a quest instead of a hook.
+
+## 0.9.3
+
+One home for each thing, so the model is not steered from several places at once.
+
+- **The arc rides on its beats.** The note's separate `Arc:` line is gone: the arc's name and what it is about head the Beats line (`Beats — The Weir Debt (who sold the route): Toll riders reach the ford (Goldwane 19)`), and with every beat due or none left, that line is the arc alone. A beat that comes due is on *Due now* as before.
+- **Off-screen said once.** While Story Director keeps the timeline, mirrors the agendas into the scene block's Off-Screen section (*Mirror Off-Screen*, on by default) and the chat has that block, the note leaves its *Off-screen* line out: the section already shows every active agenda. An agenda due or arriving is still on *Due now* / *Arriving*. The token readout follows.
+- **Quests: the last loose rule.** A new line with no kind (`+ Herb run — goal: twelve moonleaf | step: two found`) was a quest for any quest field; it is a quest only with a `giver`, a `reward` or a quest `type` now, and a hook otherwise.
+- Goes with **Story Block 0.9.5**, whose World State leaves out Unresolved Threads, Planted Seeds, Consequence Timers and Arc Phase while Story Director keeps the timeline.
+
+## 0.9.2
+
+- **Not every task is a quest.** Since 0.8.6 a `~` that gave a hook, event or beat a `step`, `goal` or `difficulty` turned it into a quest, and models write `step:` for any progress ("asked around at the inn"), so open threads and even arc beats filled the Quests tab. Now only a hook given a `giver` or a `reward`, or a hook or event named a quest (`type: quest` or a category such as bounty), becomes one; beats never do. The tracker is replayed from the replies, so threads turned into quests this way are threads again.
+- **Jobs, not errands:** the change instruction says a quest is "a job {{user}} accepted, not an errand", and that a hook taken on gets its giver and reward (the instruction stays about 160 tokens); the capture prompt says the same.
+
+## 0.9.1
+
+Quests that never finished. A quest closed only on a `- Key — reason` line, and nothing told the model that this is how a quest ends, so models wrote `~ Sheep-killer — step: done` or `! Sheep-killer — the wolf is slain, reward paid`, and the quest stayed open (and RPG Battle never offered its XP).
+
+- **The instruction says it:** quests, "done or failed: - it" (about 5 tokens; the instruction is about 155).
+- **Read as finished:** a `~` whose quest `step:` or `now:`, or any record's `status:`, `state:`, `outcome:`, `result:` or `progress:`, is just *done*, *completed*, *finished*, *fulfilled*, *failed*, *abandoned*, *expired*… (alone or before punctuation, so `step: complete the hunt at dawn` stays a step), and a `!` on a quest that says it was completed, finished, done, turned in, rewarded or failed, close the record as its `-` would. The Director tab notes it (`closed-by-change`). A failure is closed but not a quest done.
+- **Done and Failed in the Quests tab:** each open quest has both (asking twice); the `-` line is written into the latest reply, so the tracker, RPG Battle's quest XP and a swipe or delete all follow it.
+
+## 0.9.0
+
+Modern travel. Roads, paces and rest days were all pre-modern (bastion roads, wagons, a rest day every six days), so a story set now could not use world packs or `/route`.
+
+- **Modern packs:** a pack with `"era": "modern"` (or `pace_km_per_hour`) has its own road codes (`MW` motorway, `RD` road, `ST` city streets, `OR` off-road, `TR` trail, `RL` railway, `HS` high-speed rail, `MT` metro, `FY` ferry, `SL` sea lane, `AR` air route) and modes (foot, bike, car, motorbike, bus, train, metro, ferry, ship, plane), with built-in paces in km an hour. A mode a code does not list cannot use it. The pack's own paces are merged over them, may take a mode off (`null`) or add codes (one to three letters).
+- **Hours, not days:** each road rounds up to the quarter hour; routes, legs, corrections and findings read in hours (`2 h 15 min`); arrivals are checked to the quarter hour or a tenth of the trip.
+- **Nights on long drives:** car, motorbike, bike and foot stop for the night after 10 hours on the road (`drive_hours_per_day`); public transport goes on.
+- **Boarding:** trains 15 min, high-speed rail and ferries 30 min, ships 1 h, flights 2 h (`board_hours` per code).
+- **Getting to the station:** train, plane, ferry, bus and metro trips reach their station by a short taxi or walk (up to 60 km), shown as `(car)`; modern routes take the fastest way.
+- **Without a pack:** Settings → Map & travel → **Travel** (*Pre-modern* or *Modern*) chooses how `/route` estimates from coordinates; modern paces are door to door with boarding. The Director tab's route tool offers the era's modes.
+- **README:** a Modern travel section with the codes and paces, and a modern version of the pack-making prompt.
+
+## 0.8.8
+
+- **Your world pack's coordinates win.** A reply's coordinates (`Hollin's Reach | … | [70, 104]`) used to win over the pack's for any place the story had been, so one wrong number from the model made the Places section and `/route` give the wrong distance and direction (Hollin's Reach "east" when the pack puts it south-west of Bluewatch). Now the pack's coordinates are used for every place it knows. When a reply's coordinates differ by more than one map unit, the place says "(world pack; the story wrote 70, 104)" and the Places section names it. Places the pack does not know keep the story's coordinates.
+- **Apostrophes don't split places:** "Hollins Reach" in a reply is the pack's "Hollin's Reach", and a place the pack knows is shown with the pack's spelling.
+- **A pack that contradicts itself is noted on import:** a road shorter than the straight line between its places (with `scale_km_per_unit`), and a road whose `bearing` (`"SW/NE"`) its coordinates do not give. When every bearing fits a map whose y grows southwards, one note says to set **North is** to *Down* instead. The import message now shows the first five notes in full (it showed one).
+- **README: Making a world pack**, with what a pack must get right, the road codes, and a prompt that has any model write a pack from your lorebook or map.
+
+## 0.8.7
+
+- **The Director's note is used once.** The note stayed in the settings after it shaped an arc, so a goal you forgot (*bring the twins home*) went on steering every later plan. Now accepting the arc it shaped (with **Accept**, or without review) clears it, with a notice saying so. It stays when the plan is discarded or planned again, and when you change the note while the plan waits.
+- **Keep the note for every plan:** a new switch under Arc planning (off by default) keeps the note for good, as before.
+
+## 0.8.6
+
+- **A hook you take on becomes the quest.** A job offered and tracked as a hook (*Sheep-killer*) stayed a hook after you took it, so it never reached the Quests tab and RPG Battle never offered quest XP for finishing it: the format had no way to say "this is now a quest", and a `~` adding its reward only added a part. Now a `~` that gives a hook, event or beat a quest's own part (`giver`, `goal`, `reward`, `step`, `difficulty`, or a quest category such as `type: bounty`; `type: quest` alone too) turns it into a quest, keeping its key, description and history; the Director tab notes it. Agendas, clocks, secrets and arcs are never turned.
+- **The model is told.** The change instruction's quest fields say *a hook they take on: ~ it with these* (about 10 tokens; the instruction is now about 150), and the capture prompt says the same.
+
+## 0.8.5
+
+- **Placeholders are not text.** A model sometimes copies the format's own word as the text: `- Sheep-killer — part` resolved the record with the reason "part". A part that is only `part`, `summary`, `reason`, `what happened` or `label: value` is now ignored, so the record resolves with no reason (or a new one gets no description).
+- **The format copied word for word.** `+ kind hook — Guild post crisis | label: The desk is insolvent` made a World record keyed "kind hook" with a *label* row. A `kind` (or `kind:`) written before the kind word is now skipped, so this reads as the hook *Guild post crisis*; and a part labelled `label:` or `field:` is plain text (the description). The tracker is replayed from the replies, so records already made this way are read again correctly.
+- **Clearer format line:** the instruction and the capture prompt say `+ kind Key — summary | label: value` instead of `— part`, the same length.
+
+## 0.8.4
+
+Long parts trimmed in the note, notes folded. The Director tab filled with harmless `long-part` notes ("The bond: goal has 27 words (keep parts to 12)"), while the full text was repeated in the note before every reply.
+
+- **Trimmed in the note, kept in the tracker:** each record part the note writes runs to at most 12 words for what a record is doing and when (`now`, `then`, `on`, `due`, `arrive`) and 16 for what it is (`desc`, a quest's `goal`, `step`, `giver`, `reward`, a fight's foes, and any other part), then ends in "…" at a word boundary, before an unclosed bracket when words are left. The tracker, the Director and Quests tabs, `questsDoneAt`, `encountersAt`, and the planner's and capture's view of the tracker keep every word; `api.manage.tokens()` counts the trimmed note.
+- **No more `long-part` findings:** the note no longer pays for long parts, so they are not reported.
+- **Notes fold away:** in the Director tab, findings of severity info (a near key, a record added from a `~`, something still due, a date in prose, a duplicate add, a reopened record, …) sit in one closed **Notes** fold with their count; errors and warnings stay in view under **Problems**, counted alone. The hidden tab's counts and the toast after a reply name errors and warnings only (the toast already did).
+- **API (pure, `src/note.js`):** `NOTE_PART_WORDS` and `notePart(text, field)`.
+
+## 0.8.3
+
+Changes to untracked keys are matched, added or corrected. A `~ Footing in Bluewatch — …` for a record tracked as *Footing at Bluewatch* (or never added with `+`) used to be dropped with an `unknown-key` warning the model never saw, so it kept writing it.
+
+- **Near keys are matched:** a `~`, `!` or `-` on a key that is not tracked goes to the one active record it plainly means: the same words once case, punctuation, a leading *the/a/an* and small connective words (*in, at, of, on, to, for, from, the, and*) are set aside; or, failing that, one key's words inside the other's (the shorter of two words or more), or a word overlap of three quarters. The Director tab notes it (`"Footing in Bluewatch" read as "Footing at Bluewatch".`). Two such records are never guessed between; the warning names them.
+- **A `~` that carries something is added:** with no near record, a `~` with at least one part becomes a new **hook** (a `type:` that names a kind, such as `type: clock`, sets that kind; `type: bounty` makes a bounty quest), noted as `"Key" was not tracked; added as a hook (write "+ kind Key" to set its kind).` A `!` stays strict, and a `-` of something never tracked still does nothing.
+- **The model is told:** a `~` or `!` still ignored is corrected in the next note's `Corrections:` line, next to the travel corrections: `"Key" is not tracked: add it with "+ kind Key — …" before changing it.` (or, between two near records, `use its exact key ("A" or "B") or add it …`). Only from the latest reply, at most three, once per key; an older reply's lines are not repeated, and nothing is added when there is nothing to correct (or while capture writes every reply's changes).
+- **Director tab:** lines read as a near key or added show under Notes; the `unknown-key` warning remains for lines that were ignored.
+- **Capture** keeps a `~`, `-` or `!` whose key plainly means one tracked record instead of dropping it; it still never adds a record from a `~`.
+- **API (pure, `src/tracker.js`):** `keyWords(key)`, `nearMatches(records, key)`, `untrackedCorrections(problems, { message, limit })`; `src/changes.js` exports `kindOf(word)`. `unknown-key` findings carry `op` (and `candidates` when ambiguous).
+
+## 0.8.2
+
+Quest difficulty, and the quests a reply finished.
+
+- **A `difficulty` quest field:** `easy`, `normal`, `hard` or `nightmare`; missing or unreadable is `normal`. Obvious other words are read as one of the four (`trivial`/`simple` → easy, `medium`/`moderate` → normal, `difficult`/`tough` → hard, `deadly`/`impossible`/`extreme` → nightmare), and stored that way: `+ bounty Kettle Jack — reward: 40 crowns | difficulty: hard`. A line with only a difficulty is a quest, like the other quest fields.
+- **The change instruction** names the field (one word; about 140 tokens now); **the capture prompt** names it with its four values. A planned offer of work (a HOOK) may carry one too and keeps it. **The note** shows a difficulty that is not normal next to the type: `Kettle Jack (bounty, hard) — …`.
+- **Quests tab:** every quest shows its difficulty in its head (`normal` when none was written; hard and nightmare stand out). The Director tab shows a `difficulty` row on a record that has one.
+- **API:** `globalThis.StoryDirector.questsDoneAt(index)` lists the quests the assistant reply at `index` finished, a `-` line in that reply closing them (not as failed, abandoned, expired or superseded), as `[{ id, name, type, difficulty, reward, giver }]` plain copies; quests finished earlier are not listed, and it is `[]` when there are none. Also in the Story Suite's api. `apiVersion` stays 1. RPG Battle uses it to offer XP for a finished quest.
+- **Token estimate for Story Suite:** `api.manage.tokens()` gives what Story Director adds to the next ordinary reply, `{ input, output, parts: [{ label, input, output }] }`, at about 4 characters a token and without a model call: `input` is the note as it would be injected now, per section (Header, Arc, Due now, Arriving, Off-screen, World, Hooks, Quests, Clocks, Beats, Do not reveal, Corrections, Pacing, Encounter cue, Change instruction, NPC plans only); `output` is a rough allowance of 60 tokens for the `<Director>` lines it asks for (0 when capture writes them on *always*). Planner and capture calls are quiet calls and not counted. All zeros while the note is not sent; it never throws. The note itself is unchanged.
+- **One look for the four settings panels:** the settings panel uses the Story Suite's shared markup and `src/suite.css` (identical in Story Block, Story Director, NPC State Delta and RPG Battle; linked once per page as `#story-suite-css`), after NPC State Delta's panel: a quick bar with the switches as Enabled/Disabled pills and the main actions, folding sections (Tracking & note, Calendar, Map & travel, Arc planning, Capture, Existing chat & compatibility) with a one-line summary of what each is set to, all closed at first and remembered when opened; numbers show their units. Story Director's own copies of these styles are gone. Setting ids are unchanged. [docs/STORY_SUITE.md](docs/STORY_SUITE.md) is the suite's shared copy.
+
+## 0.8.1
+
+Story Suite overlay support ([docs/STORY_SUITE.md](docs/STORY_SUITE.md#one-place-to-manage-them-all)).
+
+- **Managed from Story Suite:** Story Block's overlay can show Story Director's settings panel as a tab (the announcement names it: `settings: '#story_director_settings'`) and set its Source of truth choices and tracking switch from its Overview, through `api.manage` (`areas`, `sources()`, `setSource(area, choice)`, `enabled()`, `setEnabled(on)`). Each goes the same way as the panel's own control: saved, shown in the panel, announced again and refreshed.
+- **Switched off, still listed:** turning tracking off now announces Story Director with `enabled: false` (offering nothing) instead of withdrawing it, so the overlay can switch it back on. Who owns an area is unchanged: a switched-off extension owns nothing. Without Story Block it is still withdrawn.
+- **A *Manage all in Story Suite* line** on top of the settings while the overlay is available (two or more story extensions, and a Story Block that offers it); marked `data-story-suite-link` so the overlay can hide it while it holds the panel. Alone, nothing changes.
+- `globalThis.StoryDirector` is unchanged; `manage` is only in what the Story Suite gets.
+
+## 0.8.0
+
+Encounters: planned fights as part of the arc, and the Story Suite handshake.
+
+- **An `encounter` field** for the foes of a planned fight, free text in RPG Battle's shape (`3 bandit, bandit captain (boss)`, `2 x dire wolf rank D`), stored as written: `+ beat Ambush at the weir — on: Haywane 14 | place: Weir road | encounter: 3 bandit, bandit captain (boss)`. Usually on a beat; a quest (a bounty's target) or a clock (one that fires as an attack) may carry one too. A `+` line with only foes and a date is a beat.
+- **The note** ends a due or arriving fight's item with `(fight: …)`, shows planned ones compactly in the kind lines (`· fight: …`), and, only while a fight is due, adds one sentence to the Pacing line: the foes appear and the reply stops at the first blow, since the fight is resolved outside the story. The change instruction and the capture prompt name the field.
+- **The arc planner** may plan one or two fights per arc, as `BEAT: … | encounter: …` (an `ENCOUNTER:` line becomes one too), only where the story would really come to blows. The default prompt stays under 600 words.
+- **Director tab:** an `encounter` row and a `fight` tag on records that carry one.
+- **API:** `globalThis.StoryDirector.encountersAt(index)` lists the fights due (or arriving) at a message, then those within the due-soon window, as `{ key, id, kind, encounter, place, on, status: 'due' | 'soon' }`. `apiVersion` stays 1. RPG Battle uses it to offer a **Fight?** notice with the foes filled in; the model closes the record with `!` or `-` when it narrates the outcome.
+- **Story Suite** ([docs/STORY_SUITE.md](docs/STORY_SUITE.md)): Story Block, Story Director, NPC State Delta and RPG Battle find each other through a small shared registry (`src/suite.js`, identical in all four) and agree who is the source of truth for each area. While it tracks the story, Story Director announces itself for the calendar, the timeline and NPCs, sharing `globalThis.StoryDirector`; turning tracking off withdraws it. Alone, nothing changes.
+- **NPCs are NPC State Delta's** when it is installed: it keeps who each NPC is, so one short line in the note, the planner's request and the capture call asks for agenda lines that give only what an NPC plans and when.
+- **Source of truth settings** (Existing chat & compatibility): Automatic, This extension or The other one for the calendar, the timeline and NPCs. *The other one* stops Story Director offering that area; for the timeline it also stops the Off-Screen mirror while another extension keeps it.
+- **API:** `StoryDirector.calendar()` gives the reader's calendar as `{ era, months: [{ name, days }] }` (plain copies; Gregorian until one is set). NPC State Delta uses it instead of its own calendar. `apiVersion` stays 1.
+- **Wording:** the Off-Screen mirror is described for what it is (it keeps a World State Off-Screen list in step, for readers who keep one), not as something NPC State Delta reads.
+
+## 0.7.2
+
+- **A read-only API for other extensions:** `globalThis.StoryDirector.timeAt(index)` (the story time known at a message, in minutes on your calendar) and `formatTime(abs)`. RPG Battle uses it for recovery as story time passes.
+
+## 0.7.1
+
+- **A Quests tab of its own** in Story Block's sidebar, next to Director, appearing with the first quest. Quests are grouped by type (Main, Side, Bounties, Contracts, Missions, Favours, then any other type), each with its goal, step, giver, reward, deadline and place; a deadline that is close or has passed is marked, and finished quests fold away with how they ended. The badge counts open quests. Always shown in full: quests are not spoilers. The Director tab no longer lists them.
+- **Quest types.** A `type` field (`main`, `side`, `bounty`, `contract`…, or any word); writing the category as the kind (`+ bounty Wolf pelts — …`) sets it. The note shows it: `Wolf pelts (bounty) — …`.
+
+## 0.7.0
+
+Quests.
+
+- **A `quest` kind** for long-running work your character took on: `+ quest Key — giver: … | goal: … | reward: … | step: … | due: …`. Aliases `bounty`, `contract`, `mission`; a line with a giver, goal, reward or step is a quest even without the word.
+- **Never dormant**, woken by its giver's name; `due` is the deadline, and the note says "deadline … reached" when it passes. Quests get their own line in the note (`Quests: Bounty — goal · at: step · for giver · reward · by deadline`), and a deadline counts as a schedule for the Pacing line.
+- **Director tab:** a Quests section with goal, step, giver, reward and deadline rows, also shown while the tab is hidden (quests are not spoilers).
+- **Only on acceptance:** the change instruction and the capture prompt say a quest starts when {{user}} accepts it; an offer is a hook. The arc planner presses on quests but never completes them, and a planned `QUEST:` becomes an offered hook.
+- **Seeding** reads `Quests`, `Bounties` or `Contracts` sections of the scene block.
+
+## 0.6.0
+
+Places, without writing a map.
+
+- **Place book.** Every reply's World State location is read as the story goes: each place, the spots inside it, how many visits and when. The Director tab's new **Places** section lists them (shown even while the tab is hidden; you were there).
+- **Map from coordinates.** When the location carries coordinates (`Auvoth | Terrace | [59.0, 110.0]`), the places go on a small map, north up, with the distance and direction from where the scene is ("136 km NW"). Places within about 100 km count as nearby for the note.
+- **Map settings** (Settings → *Map & travel*, was *World pack & travel*): which way north and east run (a chart, or an image whose y grows downwards), km per coordinate unit, and a road factor. Importing a world pack with `scale_km_per_unit` sets the scale.
+- **`/route` and the route tool without a world pack**: a trip estimated from the coordinates (straight line × road factor, half-day round-up, rest days, default paces). With a pack that knows both places, its roads are used as before.
+
+## 0.5.4
+
+- **You can see planning run.** Planning an arc (button or automatic) shows a notice that stays up until it finishes, naming the connection profile when one is used. A failed or unusable plan now says why in a red notice instead of only inside the Director tab. Pressing Plan again while it runs says it is already planning.
+- **Beats do not force the scene.** When anything is scheduled, the note adds a short Pacing line: bring a due item in only where it fits (on-screen if {{user}} is there, otherwise later as news, signs or aftermath), never cut into or bend the current scene for a beat, never decide what {{user}} does; what cannot fit happens off-screen or slips. The planner prompt adds the same idea: beats are when the world acts, not appointments, and each must work without {{user}} present.
+
+## 0.5.3
+
+- **Settled records fold away.** In the Director tab, records marked `settled: yes` (World State Alpha's imported facts, or any the model marks) go into a closed **Settled · N** fold at the end of their section, so live events, hooks and agendas read first. The redundant "settled: yes" row is dropped.
+- **Folds stay open.** Dormant, Resolved recently, Settled and the like no longer snap shut whenever the tab redraws (after every reply or pin). *Do not reveal* still closes again.
+
+## 0.5.2
+
+- **Behind the scenes, hidden by default.** The Director tab no longer shows agendas, planned beats, the arc, clocks, secrets or problem details until you press **Reveal** (like Story Block's secrets: hidden text is not in the page at all). Locked, it shows the time and place, counts (due, tracked, problems), the arc buttons (with **Accept without reading** for a waiting plan, or **Review** to look), Seed and the route tool. **Hide** locks it again; a reveal lasts for that chat until you hide it or reload. Problem pop-ups only give a count while hidden. Switch: **Hide behind the scenes** in the settings' quick bar (on by default).
+## 0.5.1
+
+- **Settings sorted like NPC State Delta's:** the version in the header; a quick bar with the on/off switch, **Plan arc** and **Seed from World State**; then folding groups with a one-line hint each: Tracking & note (with the dormant shelf), Calendar, World pack & travel, Arc planning, Capture, and Existing chat & compatibility. Only Tracking starts open, and the groups you keep open are remembered in this browser.
+## 0.5.0
+
+Capture, and coming from World State Alpha.
+
+- **Capture:** a second call, on the chat's model or a connection profile, writes a reply's change lines. *When a reply has no `<Director>` block* fills in only when the model skipped it; *Always* stops asking the model for change lines and captures every reply. It reads only that exchange with the tracker for context, records only what the exchange established (no plans or guesses; claims in dialogue stay claims), drops changes to untracked keys and never starts an arc. The lines are written into the reply, so swipes and edits behave as with the model's own.
+- **Import from World State Alpha** (Settings → Existing chat): an exported bundle's active facts and developments become World records, with their trend or "settled", keyed by their summary's first words, anchors as the names to watch for; previewed before it applies, written into the latest reply.
+- The note carries no change-line instructions when capture writes them.
+## 0.4.0
+
+Arc planning: one model call per arc, tracked every reply.
+
+- **Plan arc** (Director tab) asks a planner for the next arc, on the chat's own model or any **connection profile** you pick in settings. It reads the recent chat (60 messages by default), the tracker, the time and place, nearby places, your genre and tone, your Director's note and the previous arc.
+- **The plan becomes tracked records:** an arc, dated beats, NPC agendas, hooks, clocks and secrets, tagged with the arc. Relative dates ("in 2 days", "tomorrow at dusk", "next morning") are turned into dates in your calendar. Plans with no arc or no items are refused; past dates and actions for your character are flagged.
+- **Review first:** the plan waits in the tab as editable change lines (Accept, Discard, Plan again); accepting writes it into the latest reply, so deleting that reply undoes it. *Use plans without review* skips this.
+- **Triggers:** manual, or automatic when there is no arc, when every beat has played out, or when no beat is due within the stall window (7 story days by default). **End arc** closes the current arc.
+- **Steering in the note:** an `Arc:` line under the header, the current arc's beats first, its secrets under "Do not reveal". One arc is active at a time; a new arc closes the old one.
+- Settings: when to plan, model, messages to read, answer length, stall window, review, genre and tone, Director's note, and the planning prompt (editable, with reset).
+## 0.3.0
+
+Travel, with your map.
+
+- **World packs:** import your map as JSON (places, roads with km and road codes, paces per road and mode, courier multiplier, travel rules, and optionally a calendar, which you are offered). Settings → World pack; the summary shows what is loaded. Edge endpoints missing from the places list are reported as notes, not errors.
+- **Travel maths in code:** shortest road by km for the mode (wagons off trails, mountains, tunnels and hidden paths; riders at foot pace where the pack says so; water by boat unless a levee road), **each road rounded up to the next half day**, a rest day after every 6 days on land (none for couriers or crewed boats), courier pace = ride × multiplier.
+- **Legs checked** whenever a reply writes or changes one: one road at a time, from where the party really is (the end of its last leg), the road's km, a mode the road allows, and an arrival that matches the pace from when the leg was set. Each problem carries the corrected leg, which goes into the next note under Corrections, and shows in the Director tab.
+- **`/route FROM to TO [mode] [rate=N]`** and a **Route** tool in the Director tab: roads, km, pace, days and the arrival from the scene's current time.
+- **Relevance:** with a map, places one road away from the scene count as nearby.
+## 0.1.0
+
+First release: the tracker.
+
+- **Tracker** of agendas, events, hooks, clocks, beats and secrets, written by the model as short `<Director>` change lines (`+` new, `~` changed, `-` resolved, `!` fired) that Story Block carries hidden in each reply. Anything the model leaves out stays unchanged.
+- **Replay:** the tracker for any point in the chat is rebuilt from the change lines up to that reply, so swipes, edits, deletes and branches are always right. Cached per message.
+- **Calendar:** Gregorian, or your own months, days and era; dates without a year take the nearest year.
+- **The note,** before every reply: what is due and arriving, then the most relevant records (due, the scene's place, names in the scene, recent changes) within a token budget (1000 by default), secrets only as "do not reveal", and the change-line instructions.
+- **Dormant shelf:** records unseen for 15 replies or 30 story days (both adjustable) leave the note until their name, place or date comes up again. Pinned records never go dormant.
+- **Checks** on every reply: unknown keys, duplicates, due items left unfired or missed, dates written outside on/due/arrive, overlong parts, a missing `<Director>` block while something was due.
+- **Director tab** in Story Block's sidebar, **settings**, **Seed from World State** (turns an existing World State's Off-Screen, World, Hooks and Clocks lines into records), and an **Off-Screen mirror** for NPC State Delta (on by default).

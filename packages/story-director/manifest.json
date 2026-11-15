@@ -1,0 +1,11 @@
+{
+  "display_name": "Story Director",
+  "loading_order": 30,
+  "requires": [],
+  "optional": [],
+  "dependencies": ["third-party/Story_block"],
+  "js": "index.js",
+  "author": "kohz87",
+  "version": "2.16.0",
+  "homePage": "https://github.com/kohz87/Story_director"
+}

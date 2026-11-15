@@ -1,0 +1,34 @@
+{
+  "static": "Director lines: ~ only what changed, never the whole list; - closes it (— reason); ! fires a due item (— what happened). Only on, due and arrive take a date, as <date, clock time>. Never write or decide what {{user}} does.\nInitiative: whoever the note names under Initiative takes the first step (approach, interrupt or ask) where the scene allows; {{user}}'s part stays theirs.",
+  "kinds": [
+    {
+      "kind": "check",
+      "grammar": "? check <skill or stat> — what is tried | dc: easy|normal|hard|very hard | who: Name | vs: Name (no result: code rolls once, tell its outcome from the tail; one under [Happened] is not rolled again)",
+      "heads": [
+        "? check"
+      ]
+    },
+    {
+      "kind": "hook",
+      "grammar": "+ hook|quest Name — a hook is an open thread or lead (a job only offered stays in the story; + quest with the same name once {{user}} accepts it); a quest is a job {{user}} accepted, not an errand. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome (or - hook Name) | goal | giver | reward | step | due | difficulty | type. Write a hook when someone mentions a job, rumour or trouble {{user}} could follow, e.g. + hook Missing boatman — Person A says he vanished near Place X | giver: Person A | goal: ask at the docks; once {{user}} agrees: + quest Pest job — clear a cellar | giver: Person B | reward: 20 copper"
+    },
+    {
+      "kind": "quest",
+      "grammar": "",
+      "heads": [
+        "+ quest"
+      ]
+    },
+    {
+      "kind": "time",
+      "grammar": "~ time <date, clock time such as 9:30 am> (the scene's time) or ! time +2h (time passes), never both for one stretch"
+    },
+    {
+      "kind": "trip",
+      "grammar": "",
+      "heads": [
+        "~ trip"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+// Story Director v2, tracker part: what the model is told (pure).
+//
+// static: the Director's change-line rules, the same bytes every reply of every chat (SPEC §5):
+// v1's field rules and Pacing, word for word, under v2's `<Changes>` envelope (the host writes
+// the block's header and each kind's one-line grammar).
+// tail: v1's Director note (note.js) for this reply: the story time and place, what is due and
+// arriving, the relevant threads one line per kind, what not to reveal, corrections for the
+// last reply's lines, and the quest checks (a quest that reads finished, one the reader's message
+// gives up, takes on or turns down). Built by v1's noteParts within this part's budget.
+// What can happen now comes first (scene.js): the kind lines list only the threads that fit the
+// scene, then one Initiative line (initiative.js, feature `story-director.initiative`), then, while
+// the budget has room, at most `tracker.elsewhere` (2) other threads {{user}} knows of, by name only.
+
+import { noteHeader, noteParts, tailNote } from '../../note.js';
+import { classify, estimateTokens } from '../../relevance.js';
+import { givenUpIn, offersChosenIn, untrackedCorrections } from '../../tracker.js';
+import { orderedThreads, toTracker } from './convert.js';
+import { problemList } from './domain.js';
+import { calendarOf, packCalendarOf, settingsFrom } from './time.js';
+import { calendarRule } from './calendar-settings.js';
+import { dropThreads, quietThreads } from './quiet.js';
+import { elsewhereCap, elsewhereItem, elsewhereLine, knownToUser, sceneOf, splitByScene } from './scene.js';
+import { initiativeTail } from './initiative.js';
+import { threadsOn, withoutOwnedThreads } from '../threads.js';
+
+export const TAIL_BUDGET = 500;
+/**
+ * The most relevant threads the tail lists, at most (B-b1-capture-13). v1's note drops threads from the
+ * end until it fits its budget, building the note again each time, so with hundreds of threads every
+ * reply paid for all of them; 40 short ones already fill the budget.
+ */
+export const TAIL_THREADS = 40;
+/**
+ * How long an open thread may go untouched (replies with Director lines since it was last seen or
+ * changed) before the tail stops reading it (B-b1r2-8), unless it has a date, is a quest the reader
+ * took on, is pinned, is a secret, or the reader's message or the scene's place names it. v1 already
+ * shelves such a thread after 15 quiet replies; this only keeps the work per reply with the live ones.
+ */
+export const IDLE_REPLIES = 60;
+// Ended threads are read for this many replies after (v1's "resolved recently", relevance.js).
+const ENDED_REPLIES = 5;
+const DATED = ['due', 'on', 'arrive'];
+
+// The Director's rules, merged into as few lines as keep every rule (the lean diet, 3 Nov): v1's change-line instruction
+// (note.js) stays v1's own; v2 words it here. The change ops are Story Block's header's, so only what is the Director's is said.
+// The date rule is here, not in a grammar line, so it is said while the threads feature is off too.
+const RULES = [
+    'Director lines: ~ only what changed, never the whole list; - closes it (— reason); ! fires a due item (— what happened). Only on, due and arrive take a date, as <date, clock time>. Never write or decide what {{user}} does.',
+];
+// Pacing, shortened: the "never decide what {{user}} does" rule is in the line above.
+const PACING_V2 = 'Pacing: a due item comes in only where it fits (on-screen if {{user}} is there, else later as news, signs or aftermath); never cut into or bend the scene for a beat. What cannot fit yet happens off-screen (!) or slips (~ on: later).';
+
+/**
+ * The Director's part of the static prompt: no names, counts, times or dice. The same bytes for one
+ * set of modules. `threads: false` leaves out the Pacing paragraph, which belongs to the feature
+ * `story-director.threads` (the module hands it to the host as a context part under that feature, so
+ * it is sent only while the feature is on). `fights` no longer changes it: the encounter field is in the beat grammar.
+ * `calendarRule` (calendar-settings.js calendarRule) is the one line a custom calendar without weekdays adds: the world's own month
+ * names and no real-world day or month names. The calendar is a setting, so the line is the same every reply of a story.
+ */
+export function staticText({ threads = true, calendarRule = '' } = {}) {
+    return [...RULES, calendarRule, threads ? PACING_V2 : ''].filter(Boolean).join('\n');
+}
+
+/** The Pacing paragraph (a due item comes in only where it fits), the feature `story-director.threads`' own. */
+export const PACING_TEXT = PACING_V2;
+
+/** The static part when an optional fight runner is present. */
+export const STATIC_TEXT = staticText();
+
+/**
+ * The Director kinds' grammar, one line per family where the kinds share a shape (the lean diet, 3 Nov): the kinds of a family
+ * other than its carrier have no line of their own (the host leaves a kind with '' out), and the parser reads them as before.
+ * `agenda` carries the five world-building threads, `hook` the hook and the quest, `time` itself.
+ */
+export const GRAMMAR = Object.freeze({
+    agenda: '+ agenda|event|clock|beat|secret Name — summary | label: value. Labels: agenda now (where), then (what next), on, leg, arrive; event then, on; clock due, shown: none|sign|warning; beat on, reach (what it changes for {{user}}), encounter (the foes, for a fight); a secret is what must not be revealed yet. Write one whenever the story sets something moving, e.g. + agenda Person A\'s errand — buys goods at Place X | then: back at dusk; + event Festival at Place X — stalls fill the square; + clock Rising water — the level climbs | shown: sign; + beat Offer from Person B — an answer is wanted | reach: {{user}} must choose',
+    event: '',
+    clock: '',
+    beat: '',
+    secret: '',
+    hook: '+ hook|quest Name — a hook is an open thread or lead (a job only offered stays in the story; + quest with the same name once {{user}} accepts it); a quest is a job {{user}} accepted, not an errand. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome (or - hook Name) | goal | giver | reward | step | due | difficulty | type. Write a hook when someone mentions a job, rumour or trouble {{user}} could follow, e.g. + hook Missing boatman — Person A says he vanished near Place X | giver: Person A | goal: ask at the docks; once {{user}} agrees: + quest Pest job — clear a cellar | giver: Person B | reward: 20 copper',
+    quest: '',
+    time: '~ time <date, clock time such as 9:30 am> (the scene\'s time) or ! time +2h (time passes), never both for one stretch',
+});
+
+// The grammar Story Director alone writes (no fight runner): a beat is a turn of the story only.
+export const GRAMMAR_ALONE = Object.freeze({
+    agenda: GRAMMAR.agenda.replace(', encounter (the foes, for a fight)', ''),
+});
+
+/** A kind's grammar line for the module set: `fights: false` takes GRAMMAR_ALONE's where it has one. */
+export const grammarOf = (kind, { fights = true } = {}) => (fights ? GRAMMAR[kind] : GRAMMAR_ALONE[kind] ?? GRAMMAR[kind]);
+
+/** A v1 tracker with no record's `encounter` told (no fight runner): the field stays on the thread. */
+export function withoutEncounters(tracker) {
+    return { ...tracker, records: tracker.records.map(record => (record.fields?.encounter ? { ...record, fields: { ...record.fields, encounter: '' } } : record)) };
+}
+
+// All neutral instructions keep hook identity.
+const v2Lines = value => value.replace(/\bquest Key\b/g, 'hook Key');
+
+// The thread ids the time part's recap for this reply tells (empty without the time part).
+function recappedIds(view) {
+    if (typeof view?.query !== 'function') return new Set();
+    try {
+        const recap = view.query('time.recap', {});
+        return new Set(Array.isArray(recap?.threads) ? recap.threads : []);
+    } catch {
+        return new Set();
+    }
+}
+
+const lastTurn = thread => Math.max(...['created', 'changed', 'seen', 'closed', 'engaged']
+    .map(name => thread.track?.[name]?.turn).filter(Number.isSafeInteger), -Infinity);
+
+/**
+ * The threads the tail reads (B-b1r2-8): ended ones only for ENDED_REPLIES replies, open ones until they
+ * have been idle for IDLE_REPLIES (see there). However long the chat, the tail works on the live ones.
+ */
+export function tailThreads(director, { said = '', place = '' } = {}) {
+    const threads = director.threads ?? {};
+    const n = Number.isSafeInteger(director.turn?.n) ? director.turn.n : 0;
+    const words = `${said}\n${place}`.toLowerCase();
+    const keep = thread => {
+        const last = lastTurn(thread);
+        // A thread with no reply count (made outside a reply's lines) is read as before.
+        if (last === -Infinity) return true;
+        if (thread.status !== 'active') return n - last < ENDED_REPLIES;
+        if (n - last < IDLE_REPLIES || thread.kind === 'secret' || thread.taken || thread.track?.pinned) return true;
+        if ((thread.kind === 'quest' && !thread.offer) || DATED.some(name => String(thread.fields?.[name] ?? '').trim())) return true;
+        const key = String(thread.key ?? '').toLowerCase();
+        return Boolean(key) && words.includes(key);
+    };
+    if (Object.values(threads).every(keep)) return director;
+    return { ...director, threads: Object.fromEntries(Object.entries(threads).filter(([, thread]) => keep(thread))) };
+}
+
+// The note's labels up to its kind lines: the Initiative and Elsewhere lines go right after them.
+const SCENE_LABELS = new Set(['Header', 'No weekdays', 'While away', 'Due now', 'Arriving', 'Off-screen', 'World', 'Hooks', 'Quests', 'Clocks', 'Beats']);
+
+function insertAfterKinds(parts, extra) {
+    if (!extra.length) return parts;
+    let at = 0;
+    parts.forEach((entry, index) => { if (SCENE_LABELS.has(entry.label)) at = index + 1; });
+    return [...parts.slice(0, at), ...extra, ...parts.slice(at)];
+}
+
+const joined = parts => parts.map((entry, index) => (index ? entry.join : '') + entry.text).join('');
+
+/** `context.tail(view)` → `{ lines, optional }` (SPEC §5). */
+export function directorTail(view, { budget = TAIL_BUDGET } = {}) {
+    const state = view?.state;
+    const stored = state?.domains?.director;
+    if (!stored) return { lines: [], optional: [] };
+    const said = typeof view?.chat?.lastUser === 'string' ? view.chat.lastUser : '';
+    // Without the feature `story-director.threads` the note speaks of quests and hooks only: nothing of the
+    // agendas, events, clocks, beats and secrets the story may still hold (they are kept, not told).
+    const threads = threadsOn(view);
+    const kept = threads ? stored : withoutOwnedThreads(stored);
+    const director = tailThreads(dropThreads(kept, quietThreads(kept, { state, query: typeof view.query === 'function' ? view.query : null })), { said, place: String(state?.domains?.scene?.place?.name ?? '') });
+    const settings = settingsFrom(typeof view.settings === 'function' ? view.settings() : view.settings);
+    const calendar = calendarOf(settings, packCalendarOf(view.query));
+    const fights = view?.fights !== false;
+    const tracker = fights ? toTracker(director) : withoutEncounters(toTracker(director));
+    const now = director.time?.minutes ?? null;
+    const message = director.turn?.n ?? 0;
+    const selection = classify(tracker, {
+        calendar,
+        now,
+        message,
+        place: String(state?.domains?.scene?.place?.name ?? ''),
+        recentText: said,
+        settings: { dormantReplies: settings.dormantReplies, dormantDays: settings.dormantDays, dueSoonDays: settings.dueSoonDays },
+    });
+    // Highest priority first: the rest would only be cut again by the budget.
+    if (selection.relevant.length > TAIL_THREADS) selection.relevant = selection.relevant.slice(0, TAIL_THREADS);
+    const ordered = orderedThreads(director);
+    const threadOf = new Map(tracker.records.map((record, index) => [record, ordered[index]]));
+    // What can happen now first: the kind lines keep the threads that fit the scene (scene.js).
+    const query = typeof view.query === 'function' ? view.query : null;
+    const scene = sceneOf(query, state);
+    const split = splitByScene(selection.relevant, { scene, calendar, now, dueSoonDays: settings.dueSoonDays, threads: threadOf, records: tracker.records });
+    selection.relevant = split.here;
+    // What the While away recap (the time part's `time.recap`) tells is not repeated under Due now or
+    // Arriving (v1 note.js: the recapped items leave those lines).
+    const recapped = recappedIds(view);
+    if (recapped.size) {
+        const ids = new Map(ordered.map((thread, index) => [tracker.records[index], thread.id]));
+        selection.due = selection.due.filter(record => !recapped.has(ids.get(record)));
+        selection.arriving = selection.arriving.filter(record => !recapped.has(ids.get(record)));
+    }
+    // The last reply's lines on names not tracked, as v1 reads its problems.
+    const corrections = untrackedCorrections(problemList(director)
+        .filter(problem => problem.turn === message)
+        .map(problem => ({ ...problem, message: problem.turn })), { message });
+    // Who takes the initiative in this reply (initiative.js): its line is kept, so its room comes first.
+    const initiative = initiativeTail(view, { scene });
+    const initiativeCost = initiative ? estimateTokens(`\n${initiative}`) : 0;
+    const instruction = staticText({ fights, threads, calendarRule: calendarRule(calendar) });
+    const total = budget + estimateTokens(instruction);
+    let parts = noteParts(selection, {
+        calendar,
+        // v1's budget counts the instruction too; here it is in the static part.
+        budgetTokens: total - initiativeCost,
+        corrections,
+        instruction,
+        givenUp: givenUpIn(tracker, said),
+        taking: [],
+        declining: [],
+    });
+    // The rest {{user}} knows of, by name, at most `elsewhere` of them, while the budget has room.
+    const others = split.elsewhere.filter(entry => knownToUser(entry.record)).slice(0, elsewhereCap(settings)).map(entry => elsewhereItem(entry.record));
+    const room = total - initiativeCost - estimateTokens(joined(parts));
+    while (others.length && estimateTokens(`\n${elsewhereLine(others)}`) > room) others.pop();
+    const extra = [
+        initiative ? { label: 'Initiative', text: initiative, join: '\n' } : null,
+        others.length ? { label: 'Elsewhere', text: elsewhereLine(others), join: '\n' } : null,
+    ].filter(Boolean);
+    // A note with nothing else in it still says when and where it is.
+    if (extra.length && !parts.some(entry => entry.label === 'Header')) parts = [{ label: 'Header', text: noteHeader(selection, calendar), join: '\n' }, ...parts];
+    // The static part says there are no weekdays (calendarRule): the tail's own line for it would say it twice.
+    if (calendarRule(calendar)) parts = parts.filter((entry, index) => !index || entry.label !== 'No weekdays');
+    const text = v2Lines(tailNote(insertAfterKinds(parts, extra)));
+    // The Initiative line is kept (Story Block pins a `{ text, keep: true }` tail line under a tight budget); the rest are plain lines.
+    const pinnedLine = initiative ? v2Lines(initiative).trimEnd() : '';
+    return { lines: text ? text.split('\n').map(line => (pinnedLine && line.trimEnd() === pinnedLine ? { text: line, keep: true } : line)) : [], optional: [] };
+}

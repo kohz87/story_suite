@@ -1,0 +1,195 @@
+// The Party tab: one card per Character block (you first, then block order), side by side on a wide screen and
+// stacked on a phone. Each card has the name and role line, the level pill ("Lv 14 · Guild F"), the XP bar ("24 / 100 to Lv 15"), the three stage bars, the seven
+// stats in a row and the skills from that character's Skills block. A character with points to spend shows
+// "N points to spend" and a Spend points button; any other shows Stats. Both open the Spend points sheet (distribute.js)
+// over the cards; Skills opens the character's Skills view (skills.js) the same way. A fallen character (`alive` false) is greyed
+// and says "Fallen"; a companion who left the party (`left`, a `- party` line) is greyed too and says "Left". The header's "+ New character" (and "Create your character" when there is none) opens the New character
+// wizard (wizard.js). Each card also has Export (export.js: a file of the character to import in another chat, with or without what they carry). The tab shows while the feature is on, with or without a Character block.
+// Every node is built with createElement and textContent.
+
+import { shell, h, s } from '../../view/widgets/dom.js';
+import { meter } from '../../view/widgets/meter.js';
+import { RPG_STRINGS, fill } from '../strings.js';
+import { drawStageBars } from './bars.js';
+import { newSession, renderDistribute } from './distribute.js';
+import { growthText, readParty, xpLine } from './party-data.js';
+import { dressParty, effOf } from './gear-stats.js';
+import { newGearSession, renderGearCard } from './gear-card.js';
+import { newSkillsSession, renderSkills } from './skills.js';
+
+const P = RPG_STRINGS.party;
+export const PARTY_WIDGET = 'rpg.party';
+/** The id ends in `party`, so the navigation puts the tab right after Home (screens.js DEFAULT_ORDER). */
+export const PARTY_SCREEN_ID = 'story-block/party';
+
+/** The Party screen: a tab and a game-view screen. It is on while the feature is (the screen is only added then), so a story with no character yet can make one. */
+export function createPartyScreen() {
+    return Object.freeze({
+        id: PARTY_SCREEN_ID, title: P.title, icon: 'fa-users', mounts: Object.freeze(['screen', 'tab']),
+        template: `<ss-widget name="${PARTY_WIDGET}"></ss-widget>`,
+    });
+}
+
+const sameCharacter = (a, b) => a.module === b.module && a.subject === b.subject;
+
+/**
+ * The Party widget. `deps`: `headState()` (the head state or null), `readerName()` (the reader's persona name),
+ * `roleOf(definition)` (default: the definition's `role`), `openWizard()` (opens the New character dialog; without it there is no button),
+ * `exportCharacter(character)` (opens the Export dialog for a card's character; without it there is no Export button).
+ * The page draws a screen again from nothing on every change of the story, so what must outlive that, the open sheet and
+ * its draft, is kept here, outside the widget (as Settings → Blocks keeps its editor): `shared.open` is the Spend points sheet's
+ * session and `shared.skills` the Skills view's; at most one of them is open.
+ */
+export function createPartyWidget({ headState = () => null, readerName = () => '', roleOf, openWizard = null, exportCharacter = null, rules = undefined, rolled = () => false, levels = () => ({}), gear = null, board = null, chatKey = () => '', storage = undefined } = {}) {
+    // `gear` ({ on(), view(args), plan() }, none without a host): while Gear in fights is on a card has an Inventory button that opens the slot card (gear-card.js).
+    const shared = { open: null, skills: null, gear: null };
+    const live = new Set();
+    // "Left the party" folded or open: the viewer's choice, per chat on this device (localStorage), never game state; a storage that throws means folded.
+    const foldKey = () => `story-block.partyLeftOpen|${chatKey()}`;
+    const area = () => { try { return storage === undefined ? globalThis.localStorage : storage; } catch { return null; } };
+    const kept = new Map();
+    const leftOpen = () => { if (kept.has(foldKey())) return kept.get(foldKey()); try { return area()?.getItem?.(foldKey()) === '1'; } catch { return false; } };
+    const setLeftOpen = on => { kept.set(foldKey(), on); try { if (on) area()?.setItem?.(foldKey(), '1'); else area()?.removeItem?.(foldKey()); } catch { /* the choice lasts this page only */ } };
+    const tell = () => { for (const redraw of [...live]) redraw(); };
+    return {
+        props: {}, primary: null, validate: () => [],
+        /** The sheet that is open (for tests and the page): the session, or null. */
+        get open() { return shared.open; },
+        render: (el, _props, api) => shell(el, 'section', 'rpg-party', ({ doc, root }) => {
+            let handles = [], sheet = null, alive = true;
+            const main = h(doc, 'div', 'rpg-main'), host = h(doc, 'div', 'rpg-sheet-host');
+            root.append(main, host);
+
+            // (while Gear in fights is on, each stat gear moves carries `eff` and `add`: the number the roll uses, gear-stats.js)
+            const planned = () => { try { return gear?.on?.() === true ? gear.plan?.() ?? null : null; } catch { return null; } };
+            const read = () => dressParty(readParty(headState(), { own: readerName(), roleOf, ...levels() }), planned());
+            const clear = () => {
+                for (const handle of handles) handle.destroy?.();
+                handles = [];
+                main.replaceChildren();
+                sheet?.destroy();
+                sheet = null;
+            };
+            const button = (parent, text, cls, fn) => {
+                const node = h(doc, 'button', cls, text);
+                node.setAttribute('type', 'button');
+                node.addEventListener('click', fn);
+                parent.appendChild(node);
+                return node;
+            };
+
+            // A sheet opened, closed or ended in any instance is drawn in every one that is on a page.
+            const openSheet = character => { shared.open = newSession(character); shared.skills = null; shared.gear = null; tell(); };
+            const closeSheet = () => { shared.open = null; tell(); };
+            const ended = ({ ok }) => { if (ok) shared.open = null; tell(); };
+            const openSkills = character => { shared.skills = newSkillsSession(character); shared.open = null; shared.gear = null; tell(); };
+            const openGear = character => { shared.gear = newGearSession(character); shared.open = null; shared.skills = null; tell(); };
+            const closeGear = () => { shared.gear = null; tell(); };
+            const gearOn = () => { try { return gear?.on?.() === true; } catch { return false; } };
+            const closeSkills = () => { shared.skills = null; tell(); };
+            const newCharacter = () => { try { openWizard?.(); } catch { /* the dialog may not open here */ } };
+
+            function card(parent, character) {
+                const node = h(doc, 'article', `rpg-card ss-glass${character.alive && !character.left ? '' : ' rpg-fallen'}${character.left ? ' rpg-left' : ''}`);
+                node.setAttribute('aria-label', character.name);
+                node.setAttribute('data-character', character.name);
+                parent.appendChild(node);
+                const top = h(doc, 'div', 'rpg-top'), who = h(doc, 'div', 'rpg-who');
+                who.appendChild(h(doc, 'p', 'rpg-name', character.name));
+                who.appendChild(h(doc, 'span', 'rpg-sub', character.own ? P.own : P.companion));
+                const pills = h(doc, 'div', 'rpg-pills');
+                if (character.left) pills.appendChild(h(doc, 'span', 'ss-pill rpg-fallen-pill rpg-left-pill', P.left));
+                else if (!character.alive) pills.appendChild(h(doc, 'span', 'ss-pill rpg-fallen-pill', P.fallen));
+                pills.appendChild(h(doc, 'span', 'ss-pill rpg-level-pill', character.levelText));
+                if (character.points > 0) pills.appendChild(h(doc, 'span', 'ss-pill rpg-points', fill(character.points === 1 ? P.pointsOne : P.points, { n: character.points })));
+                top.append(who, pills);
+                node.appendChild(top);
+                const xp = h(doc, 'div', 'rpg-xp');
+                node.appendChild(xp);
+                handles.push(meter.render(xp, { label: P.xp, value: character.xp, max: 100, tone: 'accent', text: xpLine(character), icon: 'fa-star' }, {}));
+                drawStageBars(doc, node, character, { api, handles });
+                const stats = h(doc, 'div', 'rpg-stats');
+                for (const stat of character.stats) {
+                    const cell = h(doc, 'span', 'rpg-stat');
+                    cell.setAttribute('data-stat', stat.key);
+                    // Gear on this stat: the number a roll uses (coloured), the gear's +N under it; else the block's number alone, as before.
+                    if (stat.add) cell.append(stat.label, h(doc, 'b', stat.add > 0 ? 'rpg-stat-up' : 'rpg-stat-down', String(stat.eff)), h(doc, 'span', 'rpg-stat-add', `${stat.add > 0 ? '+' : ''}${stat.add}`));
+                    else cell.append(stat.label, h(doc, 'b', '', String(stat.value)));
+                    if (stat.add) cell.classList.add('rpg-stat-gear');
+                    stats.appendChild(cell);
+                }
+                node.appendChild(stats);
+                if (character.skillsBlock) node.appendChild(h(doc, 'div', 'rpg-skills', character.skills.length ? character.skills.map(skill => `${skill.name} (${skill.rankName})`).join(' · ') : P.noSkills));
+                // The Standard formula's bars grow with VIT, AGI and INT: how many blocks each has and the stat that earns the next one, and Luck's next step.
+                if (character.growth) node.appendChild(h(doc, 'p', 'rpg-growth', growthText(character.growth, character.scale === 2 ? effOf(character.stats.find(stat => stat.key === 'vit')) : null)));
+                const actions = h(doc, 'div', `rpg-card-actions${gearOn() ? ' rpg-card-actions-gear' : ''}`);
+                const spend = character.points > 0;
+                button(actions, spend ? P.spend : P.stats, `ss-button${spend ? ' ss-button-primary' : ''} rpg-open`, () => openSheet(character));
+                if (character.skillsBlock) button(actions, P.skills, 'ss-button rpg-skills-open', () => openSkills(character));
+                if (gearOn()) button(actions, P.inventory, 'ss-button rpg-gear-open', () => openGear(character));
+                if (exportCharacter) {
+                    const out = button(actions, '', 'ss-button rpg-export-open', () => { try { exportCharacter(character); } catch { /* the dialog may not open here */ } });
+                    const icon = h(doc, 'i', 'fa-solid fa-file-export');
+                    icon.setAttribute('aria-hidden', 'true');
+                    out.append(icon, h(doc, 'span', '', P.export));
+                    out.setAttribute('aria-label', fill(P.exportLabel, { name: character.name }));
+                }
+                node.appendChild(actions);
+            }
+
+            function draw() {
+                if (!alive) return;
+                clear();
+                const party = read();
+                const open = shared.open ? party.find(character => sameCharacter(character, shared.open)) : null;
+                if (shared.open && !open) shared.open = null;
+                const looking = shared.skills ? party.find(character => sameCharacter(character, shared.skills) && character.skillsBlock) : null;
+                if (shared.skills && !looking) shared.skills = null;
+                const wearing = shared.gear && gearOn() ? party.find(character => sameCharacter(character, shared.gear)) : null;
+                const wearView = wearing ? (() => { try { return gear.view({ who: wearing.name, own: wearing.own }); } catch { return null; } })() : null;
+                if (shared.gear && !(wearing && wearView)) shared.gear = null;
+                main.hidden = Boolean(open || looking || shared.gear);
+                if (open) sheet = renderDistribute(host, { character: open, session: shared.open, api, doc, onClose: closeSheet, onDone: ended, ...(rules ? { rules } : {}) });
+                else if (shared.gear) sheet = renderGearCard(host, { character: wearing, view: wearView, onBack: closeGear, api, onChanged: tell, doc });
+                else if (looking) sheet = renderSkills(host, { character: looking, session: shared.skills, api, doc, onBack: closeSkills, onSaved: tell, rolled, board, ...(rules ? { rules } : {}) });
+                const head = h(doc, 'div', 'rpg-head');
+                head.appendChild(h(doc, 'h3', '', P.title));
+                const away = party.filter(character => character.left), here = party.filter(character => !character.left);
+                const count = h(doc, 'div', 'rpg-pills');
+                count.appendChild(h(doc, 'span', 'ss-pill rpg-count', fill(P.active, { n: here.length }) + (away.length ? fill(P.leftCount, { n: away.length }) : '')));
+                if (party.length && openWizard) button(count, P.newCharacter, 'ss-button rpg-new', newCharacter);
+                head.appendChild(count);
+                main.appendChild(head);
+                if (!party.length) {
+                    main.appendChild(h(doc, 'p', 'rpg-empty', P.empty));
+                    if (openWizard) button(main, P.createFirst, 'ss-button ss-button-primary rpg-create', newCharacter);
+                    return;
+                }
+                const grid = h(doc, 'div', 'rpg-cards');
+                main.appendChild(grid);
+                for (const character of here) card(grid, character);
+                if (!away.length) return;
+                // One row for the members who left: a chevron on the left, the whole row a button; opened, their full cards as ever.
+                const opened = leftOpen();
+                const row = button(main, '', `rpg-left-fold${opened ? ' rpg-left-open' : ''}`, () => { setLeftOpen(!opened); tell(); root.querySelector('.rpg-left-fold')?.focus?.(); });   // (the redraw replaced the button: focus its replacement, so a keyboard reader keeps their place)
+                row.setAttribute('aria-expanded', String(opened));
+                const chevron = h(doc, 'span', 'rpg-left-chev');
+                const drawn = s(doc, 'svg', { viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' });
+                drawn.appendChild(s(doc, 'path', { d: 'M4.5 2.5 8 6l-3.5 3.5' }));
+                chevron.appendChild(drawn);
+                const line = h(doc, 'span', 'rpg-left-line');
+                line.appendChild(h(doc, 'b', '', fill(P.leftRow, { n: away.length })));
+                if (!opened) line.appendChild(h(doc, 'span', 'rpg-left-names', away.map(character => fill(P.leftOne, { name: character.name, level: character.level })).join(', ')));
+                row.append(chevron, line);
+                if (opened) { const gone = h(doc, 'div', 'rpg-cards rpg-left-cards'); main.appendChild(gone); for (const character of away) card(gone, character); }
+            }
+
+            live.add(draw);
+            draw();
+            return {
+                update() { draw(); },
+                destroy() { alive = false; live.delete(draw); clear(); },
+            };
+        }),
+    };
+}
