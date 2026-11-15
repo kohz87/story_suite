@@ -54,7 +54,7 @@ test('problems: missing job, empty job, job for an unknown file', () => {
   ]);
 });
 
-test('one job per file: more than MAX_EXPORTS exports is a problem, except an index.js that only re-exports', () => {
+test('one job per file: more than MAX_EXPORTS exports is a problem, except a file that only re-exports', () => {
   assert.equal(MAX_EXPORTS, 4);
   const many = 'export const a=1;\nexport const b=2;\nexport const c=3;\nexport const d=4;\nexport function e() {}\n';
   const { problems } = buildMap({ files: ['core/many.js'], readSource: () => many, jobs: { 'core/many.js': 'Too much.' } });
@@ -62,6 +62,22 @@ test('one job per file: more than MAX_EXPORTS exports is a problem, except an in
   const reex = Array.from({ length: 6 }, (_, i) => `export { f${i} } from './f${i}.js';`).join('\n');
   const r2 = buildMap({ files: ['core/index.js'], readSource: () => reex, jobs: { 'core/index.js': 'Entry.' } });
   assert.deepEqual(r2.problems, []);
+  const facade = buildMap({ files: ['core/facade.js'], readSource: () => reex, jobs: { 'core/facade.js': 'Kept for old imports.' } });
+  assert.deepEqual(facade.problems, []);
+  const mixed = `${reex}\nexport const own = 1;`;
+  const r3 = buildMap({ files: ['core/index.js'], readSource: () => mixed, jobs: { 'core/index.js': 'Entry.' } });
+  assert.deepEqual(r3.problems, ['core/index.js: 7 exports (one job per file allows at most 4)']);
+});
+
+test('CommonJS and unparsable files are problems', () => {
+  const run = src => buildMap({ files: ['a.js'], readSource: () => src, jobs: { 'a.js': 'x' } }).problems;
+  const cjs = 'a.js: CommonJS exports are not allowed here (use ES modules)';
+  assert.deepEqual(run('module.exports = {a:1,b:2,c:3,d:4,e:5};'), [cjs]);
+  assert.deepEqual(run('Object.assign(exports, {a:1,b:2,c:3,d:4,e:5});'), [cjs]);
+  assert.deepEqual(run('module.exports = {...{a:1,b:2,c:3,d:4,e:5}};'), [cjs]);
+  assert.deepEqual(run('exports.a = 1;'), [cjs]);
+  assert.deepEqual(run("exports['a'] = 1;"), [cjs]);
+  assert.deepEqual(run('export const = ;'), ['a.js: cannot be parsed as an ES module']);
 });
 
 test('test files are not held to the export limit', () => {

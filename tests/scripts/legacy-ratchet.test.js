@@ -27,3 +27,12 @@ test('both problems are reported, sorted', () => {
     'z.js: added to the legacy list',
   ]);
 });
+
+test('decideBase: fails closed except for the import commit without a list', async () => {
+  const { decideBase, IMPORT_COMMIT } = await import('../../scripts/checks/legacy-ratchet.mjs');
+  assert.deepEqual(decideBase({ ref: 'main', resolved: 'abc', read: { text: 'x 1' } }), { list: 'x 1' });
+  assert.deepEqual(decideBase({ ref: 'c340', resolved: IMPORT_COMMIT, read: { missing: true } }), { skip: true });
+  assert.match(decideBase({ ref: 'main', resolved: 'abc', read: { missing: true } }).error, /the base main has no legacy list/);
+  assert.match(decideBase({ ref: 'nope', resolved: '', read: { error: 'bad ref' } }).error, /cannot read the base nope/);
+  assert.match(decideBase({ ref: IMPORT_COMMIT, resolved: IMPORT_COMMIT, read: { error: 'io' } }).error, /cannot read/);
+});

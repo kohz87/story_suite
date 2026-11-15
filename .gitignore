@@ -1,1 +1,4 @@
+# The temporary compatibility symlink that scripts/ci/suite-tests.sh creates and removes.
 packages/Story_director
+# Dependencies installed by npm ci (root devDependencies: the code-map parser).
+node_modules/

@@ -60,7 +60,7 @@ test('an import spread over several lines', () => {
 });
 
 test('no exports and no imports', () => {
-  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [] });
+  assert.deepEqual(parseModule('const a = 1;\n'), { exports: [], imports: [], commonJs: false });
 });
 
 test('generator functions are functions', () => {
@@ -81,16 +81,6 @@ test('multi-declarator and destructuring consts count every name', () => {
   const names = parseModule(src).exports.map(e => e.name);
   assert.deepEqual(names, ['a', 'b', 'c', 'e', 'f', 'g', 'x', 'y', 'z', 'm', 'deep', 'rest']);
   assert.ok(parseModule(src).exports.every(e => e.kind === 'const'));
-});
-
-test('an unclassifiable export is returned as unknown', () => {
-  const src = 'export   @weird   thing that goes on and on and on and on and on and on and on and on;';
-  const { exports } = parseModule(src);
-  assert.equal(exports.length, 1);
-  assert.equal(exports[0].name, '?');
-  assert.equal(exports[0].kind, 'unknown');
-  assert.equal(exports[0].signature.length, 60);
-  assert.ok(exports[0].signature.startsWith('export @weird thing'));
 });
 
 test('trailing // comments drop imports but string URLs survive', () => {

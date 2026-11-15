@@ -9,7 +9,7 @@
 ## Non-negotiables
 
 1. **≤ 450 lines per file** (aim for 300), including tests; `docs/merge/legacy-oversize.txt` may only shrink.
-2. **One job per file** with **≤ 4 exports** serving that job; an `index.js` that only re-exports its folder's files is the folder's public face and may list more than 4.
+2. **One job per file** with **≤ 4 exports** serving that job; a file that only re-exports — a folder's `index.js` or a facade kept for existing imports — may list more than 4.
 3. **Code map current:** every new or moved file outside `packages/` gets a `docs/codemap/jobs.json` sentence and `npm run codemap` before finishing.
 4. **Replay == live:** swipes, middle deletes, rewinds, and reloads must reproduce identical state.
 5. **Never edit vendored copies** (`tests/vendor/`).

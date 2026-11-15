@@ -17,10 +17,9 @@ function resolveInternalImports(filePath, specifiers, fileSet) {
   return Array.from(resolved).sort();
 }
 
-function isPureReexportIndex(filePath, parsedExports) {
-  const base = path.posix.basename(filePath);
-  if (base !== 'index.js' && base !== 'index.mjs') return false;
-  return parsedExports.every(exp => exp.kind === 'reexport');
+// A file whose exports are all re-exports (a folder's index.js, or a facade kept for existing imports).
+function isPureReexportFile(parsedExports) {
+  return parsedExports.length > 0 && parsedExports.every(exp => exp.kind === 'reexport');
 }
 
 /**
@@ -34,16 +33,22 @@ export function buildMap({ files, readSource, jobs }) {
 
   for (const filePath of sortedFiles) {
     const source = readSource(filePath);
-    const parsed = MODULE_EXT.test(filePath) ? parseModule(source) : { exports: [], imports: [] };
+    const parsed = MODULE_EXT.test(filePath) ? parseModule(source) : { exports: [], imports: [], commonJs: false };
     const isTest = isTestFile(filePath);
     const imports = resolveInternalImports(filePath, parsed.imports, fileSet);
+
+    if (parsed.exports.some(exp => exp.kind === 'unparsable')) {
+      problems.push(`${filePath}: cannot be parsed as an ES module`);
+    } else if (parsed.commonJs) {
+      problems.push(`${filePath}: CommonJS exports are not allowed here (use ES modules)`);
+    }
 
     if (!isTest) {
       const rawJob = jobs[filePath];
       if (!rawJob || !rawJob.trim()) {
         problems.push(`${filePath}: no job sentence in docs/codemap/jobs.json`);
       }
-      if (parsed.exports.length > MAX_EXPORTS && !isPureReexportIndex(filePath, parsed.exports)) {
+      if (parsed.exports.length > MAX_EXPORTS && !isPureReexportFile(parsed.exports)) {
         problems.push(
           `${filePath}: ${parsed.exports.length} exports (one job per file allows at most ${MAX_EXPORTS})`,
         );

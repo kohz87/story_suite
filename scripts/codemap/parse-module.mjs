@@ -1,125 +1,93 @@
-import { blankLiterals } from './blank-literals.mjs';
-import { declaredNames, splitTopLevel } from './split-declarators.mjs';
+import { parse } from 'acorn';
+import { simple } from 'acorn-walk';
+import { collectNames } from './pattern-names.mjs';
 
-const IMPORT_RE =
-  /\bimport\s*\(\s*(['"])([^'"]*)\1\s*\)|\bimport\s*(['"])([^'"]*)\3|\b(?:import|export)\s+(?:(?!\b(?:import|export)\b)[^;])*?\bfrom\s*(['"])([^'"]*)\5/gd;
+const OPTIONS = { ecmaVersion: 'latest', sourceType: 'module' };
 
-/** Returns the [start, end) offsets of the text inside the parentheses opening at openIdx. */
-function balancedParens(text, openIdx) {
-  let depth = 0;
-  for (let i = openIdx; i < text.length; i += 1) {
-    if (text[i] === '(') depth += 1;
-    else if (text[i] === ')') {
-      depth -= 1;
-      if (depth === 0) return [openIdx + 1, i];
-    }
+const exp = (name, kind, signature = name) => ({ name, kind, signature });
+
+function declarationExports(decl, source) {
+  if (decl.type === 'FunctionDeclaration') {
+    const params = source.slice(decl.params[0]?.start ?? 0, decl.params.at(-1)?.end ?? 0);
+    return [exp(decl.id.name, 'function', `${decl.id.name}(${params.replace(/\s+/g, ' ').trim()})`)];
   }
-  return [openIdx + 1, openIdx + 1];
+  if (decl.type === 'ClassDeclaration') return [exp(decl.id.name, 'class', `class ${decl.id.name}`)];
+  return decl.declarations.flatMap(d => collectNames(d.id)).map(name => exp(name, 'const'));
 }
 
-function parseNamedList(body, kind) {
-  const results = [];
-  for (const raw of body.split(',')) {
-    const item = raw.trim();
-    if (!item) continue;
-    const asMatch = item.match(/^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/);
-    const name = asMatch ? asMatch[2] : item;
-    results.push({ name, kind, signature: name });
-  }
-  return results;
+function moduleName(node) {
+  return node.type === 'Literal' ? String(node.value) : node.name;
 }
 
-function unknownExport(rest) {
-  const signature = `export ${rest}`.replace(/\s+/g, ' ').trim().slice(0, 60);
-  return { name: '?', kind: 'unknown', signature };
+function exportsOf(node, source) {
+  if (node.type === 'ExportDefaultDeclaration') return [exp('default', 'default')];
+  if (node.type === 'ExportAllDeclaration') {
+    const name = node.exported ? moduleName(node.exported) : '*';
+    return [exp(name, 'reexport')];
+  }
+  if (node.declaration) return declarationExports(node.declaration, source);
+  const kind = node.source ? 'reexport' : 'binding';
+  return node.specifiers.map(s => exp(moduleName(s.exported), kind));
 }
 
-function commonJsUnknown(text) {
-  return { name: '?', kind: 'unknown', signature: text.replace(/\s+/g, ' ').trim().slice(0, 60) };
+// Names the file declares itself (variables, parameters); a local `exports` or `module` is not CommonJS.
+function declaredNames(ast) {
+  const names = new Set();
+  const addAll = patterns => patterns.forEach(p => collectNames(p).forEach(n => names.add(n)));
+  const fn = node => addAll(node.params);
+  simple(ast, {
+    VariableDeclarator(node) { addAll([node.id]); },
+    FunctionDeclaration: fn,
+    FunctionExpression: fn,
+    ArrowFunctionExpression: fn,
+    CatchClause(node) { if (node.param) addAll([node.param]); },
+  });
+  return names;
 }
 
-function parseExportAt(clean, source, startIdx) {
-  const rest = clean.slice(startIdx);
-
-  if (/^\s+default\b/.test(rest)) {
-    return [{ name: 'default', kind: 'default', signature: 'default' }];
-  }
-
-  const fnMatch = rest.match(/^\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(/);
-  if (fnMatch) {
-    const openIdx = startIdx + fnMatch[0].length - 1;
-    const [from, to] = balancedParens(clean, openIdx);
-    const params = source.slice(from, to).replace(/\s+/g, ' ').trim();
-    const name = fnMatch[1];
-    return [{ name, kind: 'function', signature: `${name}(${params})` }];
-  }
-
-  const classMatch = rest.match(/^\s+class\s+([A-Za-z_$][\w$]*)/);
-  if (classMatch) {
-    const name = classMatch[1];
-    return [{ name, kind: 'class', signature: `class ${name}` }];
-  }
-
-  const varMatch = rest.match(/^\s+(?:const|let|var)\s+/);
-  if (varMatch) {
-    const names = declaredNames(rest.slice(varMatch[0].length));
-    if (names.length) return names.map(name => ({ name, kind: 'const', signature: name }));
-  }
-
-  const starMatch = rest.match(/^\s*\*\s*(?:as\s+([A-Za-z_$][\w$]*)\s+)?from\s*(['"])[^'"]*\2/);
-  if (starMatch) {
-    const name = starMatch[1] ?? '*';
-    return [{ name, kind: 'reexport', signature: name }];
-  }
-
-  const listMatch = rest.match(/^\s*\{([^}]*)\}(\s*from\s*(['"])[^'"]*\3)?/);
-  if (listMatch) {
-    return parseNamedList(listMatch[1], listMatch[2] ? 'reexport' : 'binding');
-  }
-
-  return [unknownExport(rest)];
-}
-
-function commonJsExports(clean) {
-  const found = [];
-  const moduleRe = /(?<![.\w$])module\s*\.\s*exports\b(\s*=\s*\{)?/g;
-  for (let m; (m = moduleRe.exec(clean)) !== null; ) {
-    if (!m[1]) { found.push(commonJsUnknown('module.exports')); continue; }
-    const open = m.index + m[0].length - 1;
-    let depth = 0;
-    let close = clean.length;
-    for (let i = open; i < clean.length && close === clean.length; i += 1) {
-      if ('([{'.includes(clean[i])) depth += 1;
-      else if (')]}'.includes(clean[i])) { depth -= 1; if (depth === 0) close = i; }
-    }
-    const items = splitTopLevel(clean.slice(open + 1, close), ',').filter(item => item.trim());
-    for (const item of items.length ? items : ['']) found.push(commonJsUnknown(`module.exports ${item}`));
-  }
-  const exportsRe = /(?<![.\w$])exports\s*(?:\.\s*[\w$]+|\[[^\]]*\])\s*=(?!=)/g;
-  for (const m of clean.matchAll(exportsRe)) found.push(commonJsUnknown(m[0]));
+function findCommonJs(ast) {
+  const local = declaredNames(ast);
+  const isRoot = node => {
+    if (node.type === 'Identifier') return node.name === 'exports' && !local.has('exports');
+    if (node.type !== 'MemberExpression') return false;
+    const isModuleExports = node.object.type === 'Identifier' && node.object.name === 'module'
+      && !local.has('module') && !node.computed && node.property.name === 'exports';
+    return isModuleExports || isRoot(node.object);
+  };
+  let found = false;
+  simple(ast, {
+    AssignmentExpression(node) { if (isRoot(node.left)) found = true; },
+    MemberExpression(node) { if (isRoot(node)) found = true; },
+    CallExpression(node) { if (node.arguments.some(isRoot)) found = true; },
+  });
   return found;
 }
 
 /**
- * Extracts exported declarations (ES and CommonJS) and imported specifiers from module source text.
+ * Extracts exports, import specifiers (source order) and CommonJS use from ES module source text.
+ * A file that cannot be parsed as a module yields one `unparsable` export carrying the error message.
  */
 export function parseModule(source) {
-  const clean = blankLiterals(source);
+  let ast;
+  try {
+    ast = parse(source, OPTIONS);
+  } catch (error) {
+    return { exports: [exp('?', 'unparsable', String(error.message))], imports: [], commonJs: false };
+  }
   const exports = [];
-  const exportRe = /(?<![.\w$])export(?![\w$])(?!\s*[:=,)(])/g;
-  for (let m; (m = exportRe.exec(clean)) !== null; ) {
-    if (/\?\.\s*$/.test(clean.slice(0, m.index))) continue;
-    exports.push(...parseExportAt(clean, source, m.index + m[0].length));
+  const found = [];
+  for (const node of ast.body) {
+    if (node.type.startsWith('Export')) exports.push(...exportsOf(node, source));
+    if (node.source) found.push(node);
   }
-  exports.push(...commonJsExports(clean));
-
-  const imports = [];
-  IMPORT_RE.lastIndex = 0;
-  for (let m; (m = IMPORT_RE.exec(clean)) !== null; ) {
-    const group = [2, 4, 6].find(g => m[g] !== undefined);
-    const [from, to] = m.indices[group];
-    if (to > from) imports.push(source.slice(from, to));
-  }
-
-  return { exports, imports };
+  simple(ast, {
+    ImportExpression(node) {
+      if (node.source.type === 'Literal' && typeof node.source.value === 'string') found.push(node);
+    },
+  });
+  const imports = found
+    .map(node => ({ at: node.start, spec: String(node.source.value) }))
+    .sort((a, b) => a.at - b.at)
+    .map(item => item.spec);
+  return { exports, imports, commonJs: findCommonJs(ast) };
 }
