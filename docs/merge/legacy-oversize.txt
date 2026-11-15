@@ -21,10 +21,8 @@ packages/npc-state-delta/tests/storysuite-v2-meters-ladder.test.js 1298
 packages/npc-state-delta/tests/storysuite-v2-meters-runtime.test.js 618
 packages/npc-state-delta/tests/storysuite-v2-meters.test.js 1342
 packages/npc-state-delta/tests/storysuite-v2.test.js 837
-packages/npc-state-delta/tests/ui-layout.test.js 463
 packages/npc-state-delta/tests/v106-speech-development-ledger.test.js 545
 packages/npc-state-delta/tests/v1091-deep-audit-fixes.test.js 509
-packages/npc-state-delta/tests/v1093-deep-audit-fixes.test.js 503
 packages/npc-state-delta/tests/v1094-deep-audit-fixes.test.js 541
 packages/npc-state-delta/tests/v118-narration-capture-host.test.js 756
 packages/npc-state-delta/tests/v120-story-suite.test.js 972
