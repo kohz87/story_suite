@@ -8,11 +8,9 @@ packages/npc-state-delta/tests/dossier-page-perf.test.js 529
 packages/npc-state-delta/tests/history-replay-wiring.test.js 583
 packages/npc-state-delta/tests/key-people.test.js 693
 packages/npc-state-delta/tests/lean-scan-cadence.test.js 510
-packages/npc-state-delta/tests/npc-notes-kinds.test.js 1077
 packages/npc-state-delta/tests/profile-evolution-integrity.test.js 727
 packages/npc-state-delta/tests/relationship-pacing.test.js 1132
 packages/npc-state-delta/tests/runtime-smoke.mjs 1659
-packages/npc-state-delta/tests/stage1-dossier-ui.test.js 870
 packages/npc-state-delta/tests/stage4-appearance.test.js 543
 packages/npc-state-delta/tests/storage.test.js 716
 packages/npc-state-delta/tests/storysuite-participant.test.js 863
@@ -27,7 +25,6 @@ packages/npc-state-delta/tests/v1091-deep-audit-fixes.test.js 509
 packages/npc-state-delta/tests/v1093-deep-audit-fixes.test.js 503
 packages/npc-state-delta/tests/v1094-deep-audit-fixes.test.js 541
 packages/npc-state-delta/tests/v118-narration-capture-host.test.js 756
-packages/npc-state-delta/tests/v120-story-suite.test.js 972
 packages/story-block/tests/v2/assist/safety-net.test.js 742
 packages/story-block/tests/v2/bench/load.js 678
 packages/story-block/tests/v2/cast-skills.test.js 545
