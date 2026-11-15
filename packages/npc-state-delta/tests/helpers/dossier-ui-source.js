@@ -30,6 +30,10 @@ export const DOSSIER_UI_SOURCE_PARTS = [
 
 const read = file => fs.readFileSync(new URL(file, root), 'utf8');
 
+// Files whose code moved into a sibling "<name>-parts/" folder (the file itself is now a facade of re-exports).
+const SPLIT_PARTS = ['dossier-ui-relationship', 'dossier-ui-screens', 'dossier-ui-sections', 'dossier-ui-view-model']
+    .flatMap(name => fs.readdirSync(new URL(`${name}-parts/`, root)).filter(file => file.endsWith('.js')).sort().map(file => `${name}-parts/${file}`));
+
 export function dossierUiSource() {
-    return ['dossier-ui.js', ...DOSSIER_UI_SOURCE_PARTS].map(read).join('\n');
+    return ['dossier-ui.js', ...DOSSIER_UI_SOURCE_PARTS, ...SPLIT_PARTS].map(read).join('\n');
 }
