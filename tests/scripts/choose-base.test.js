@@ -42,23 +42,48 @@ function choose(work, env) {
 }
 const baseOf = r => /^base=(.*)$/m.exec(r.output_file)?.[1];
 
-test('after B1: a manual run uses origin/main', () => {
+test('after B1: a manual run on a branch ahead of main uses origin/main', () => {
   const { dir, work } = setup(true);
   try {
+    git(work, 'commit', '-q', '--allow-empty', '-m', 'two');
     const r = choose(work, { EVENT: 'workflow_dispatch', BASE: '' });
     assert.equal(r.status, 0, r.stderr);
     assert.equal(baseOf(r), 'origin/main');
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('after B1: a zero push base on another branch is an error, not the import commit', () => {
+test('a zero push base: the nearest ancestor with the list is used, not the import commit', () => {
+  const { dir, work } = setup(true);
+  try {
+    const listCommit = git(work, 'rev-parse', 'HEAD');
+    git(work, 'commit', '-q', '--allow-empty', '-m', 'two');
+    const r = choose(work, { EVENT: 'push', BASE: ZEROS });
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(baseOf(r), listCommit);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('recreated main (origin/main is HEAD, HEAD^ has the list): HEAD^ is the base', () => {
   const { dir, work } = setup(true);
   try {
     git(work, 'commit', '-q', '--allow-empty', '-m', 'two');
+    const parent = git(work, 'rev-parse', 'HEAD^');
+    git(work, 'push', '-q', 'origin', 'HEAD:main');
+    git(work, 'fetch', '-q', 'origin');
     const r = choose(work, { EVENT: 'push', BASE: ZEROS });
-    assert.equal(r.status, 1);
-    assert.match(r.stderr, /already has docs\/merge\/legacy-oversize\.txt/);
-    assert.equal(baseOf(r), undefined);
+    assert.equal(baseOf(r), parent);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a manual run with the remote main deleted uses history, not the import commit', () => {
+  const { dir, work } = setup(true);
+  try {
+    git(work, 'commit', '-q', '--allow-empty', '-m', 'two');
+    const parent = git(work, 'rev-parse', 'HEAD^');
+    git(path.join(dir, 'origin.git'), 'update-ref', '-d', 'refs/heads/main');
+    const r = choose(work, { EVENT: 'workflow_dispatch', BASE: '' });
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(baseOf(r), parent);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -95,12 +120,26 @@ test('before B1: the push that creates main falls back, the first manual run too
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('the push that creates main with the list in it still falls back (origin/main is that push)', () => {
-  const { dir, work } = setup(true);
+test('the genuine first push: HEAD creates the list, so no ancestor has it (HEAD^ here)', () => {
+  const { dir, work } = setup(false);
   try {
+    fs.mkdirSync(path.join(work, 'docs/merge'), { recursive: true });
+    fs.writeFileSync(path.join(work, LIST), '# list\n');
+    git(work, 'add', '.');
+    git(work, 'commit', '-qm', 'list');
     const r = choose(work, { EVENT: 'push', BASE: ZEROS });
     assert.equal(r.status, 0, r.stderr);
     assert.equal(baseOf(r), 'HEAD^');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a single root commit with no parent falls back to the empty tree', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  try {
+    git(dir, 'init', '-q', '-b', 'main');
+    git(dir, 'commit', '-q', '--allow-empty', '-m', 'root');
+    const r = choose(dir, { EVENT: 'push', BASE: ZEROS });
+    assert.equal(baseOf(r), git(dir, 'hash-object', '-t', 'tree', '/dev/null'));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 

@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildMap } from '../../scripts/codemap/build-map.mjs';
-import { isExtensionlessJs } from '../../scripts/codemap/extensionless-js.mjs';
 import { nulProblem } from '../../scripts/checks/nul-check.mjs';
 import { packageScopeProblems } from '../../scripts/checks/package-scope.mjs';
 
@@ -18,28 +17,18 @@ test('a NUL byte is a problem, in any file', () => {
   assert.deepEqual(buildMap({ files: ['core/x.dat'], readSource: () => 'a\0b', jobs: {} }).problems, ['core/x.dat: contains a NUL byte; text files must not', 'core/x.dat: this language is not used in this repo'].sort());
 });
 
-test('extensionless JavaScript: node shebang or ES module syntax', () => {
-  assert.equal(isExtensionlessJs('#!/usr/bin/env node\nexport const a = 1;\n'), true);
-  assert.equal(isExtensionlessJs('#!/usr/bin/node\n'), true);
-  assert.equal(isExtensionlessJs(FIVE), true);
-  assert.equal(isExtensionlessJs("import fs from 'node:fs';\n"), true);
-  for (const text of ['#!/bin/sh\nexport A=1\n', '#!/usr/bin/env python3\n', 'MIT License\n\nPermission is hereby granted\n', 'node_modules\ndist\n', 'all:\n\techo hi\n', '']) {
-    assert.equal(isExtensionlessJs(text), false, text);
-  }
+test('outside packages/, extensionless files are refused except an allow-list', () => {
+  const refused = p => buildMap({ files: [p], readSource: () => 'echo hi\n', jobs: {} }).problems;
+  for (const p of ['scripts/run', 'bin/tool', 'core/extensionless', 'LICENSE', 'docs/NOTES']) assert.deepEqual(refused(p), [`${p}: files need an extension here`], p);
+  assert.deepEqual(refused('bin/tool2'), ['bin/tool2: files need an extension here']);
+  assert.deepEqual(buildMap({ files: ['core/t'], readSource: () => '#!/usr/bin/env node\nmodule.exports = 1;\n', jobs: {} }).problems, ['core/t: files need an extension here']);
 });
 
-test('extensionless JavaScript gets the export limit, a job and the CommonJS refusal', () => {
-  assert.deepEqual(map({ 'core/extensionless': FIVE }), ['core/extensionless: 5 exports (one job per file allows at most 4)']);
-  assert.deepEqual(map({ 'bin/tool': '#!/usr/bin/env node\n' + FIVE }), ['bin/tool: 5 exports (one job per file allows at most 4)']);
-  assert.match(map({ 'bin/tool': '#!/usr/bin/env node\nmodule.exports = 1;\n' })[0], /CommonJS is not allowed/);
-  const noJob = buildMap({ files: ['core/extensionless'], readSource: () => 'export const a = 1;\n', jobs: {} });
-  assert.deepEqual(noJob.problems, ['core/extensionless: no job sentence in docs/codemap/jobs.json']);
-});
-
-test('other extensionless text stays unmapped; other shebangs are not used here', () => {
-  const SRC = { LICENSE: 'MIT\n', '.gitignore': 'node_modules\n', Makefile: 'all:\n\techo hi\n' };
-  assert.deepEqual(buildMap({ files: Object.keys(SRC), readSource: p => SRC[p], jobs: {} }).problems, []);
-  assert.deepEqual(buildMap({ files: ['scripts/run'], readSource: () => '#!/bin/sh\necho hi\n', jobs: {} }).problems, ['scripts/run: this language is not used in this repo']);
+test('allow-listed extensionless names are accepted as text; packages/ is exempt', () => {
+  const names = ['Makefile', 'Dockerfile', '.gitignore', '.gitattributes', '.nvmrc', '.npmrc', 'CODEOWNERS', '.github/CODEOWNERS', 'docs/Makefile'];
+  assert.deepEqual(buildMap({ files: names, readSource: () => 'x\n', jobs: {} }).problems, []);
+  assert.deepEqual(buildMap({ files: ['packages/a/LICENSE', 'packages/a/VERSION'], readSource: () => 'x\n', jobs: {} }).problems, []);
+  assert.deepEqual(buildMap({ files: ['core/Makefile.bak'], readSource: () => 'x\n', jobs: {} }).problems, ['core/Makefile.bak: this language is not used in this repo']);
 });
 
 test('workflow YAML is a mapped file type that needs a job', () => {

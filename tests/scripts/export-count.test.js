@@ -115,16 +115,14 @@ test('a default declaration and its name are one binding through a diamond', () 
   assert.deepEqual(problems, ['core/main.mjs: 5 exports (one job per file allows at most 4)']);
 });
 
-test('export { default } from and export default <identifier> follow to the binding', () => {
+test('export default <identifier> is a distinct binding from the name, so the star export is ambiguous', () => {
   const problems = run({
     'core/base.mjs': 'const a = 1;\nexport default a;\nexport { a };\n',
     'core/left.mjs': "export { default as a } from './base.mjs';\n",
     'core/right.mjs': "export { a } from './base.mjs';\n",
-    'core/mid.mjs': "export { default } from './base.mjs';\n",
-    'core/mid2.mjs': "import a from './mid.mjs';\nexport { a };\n",
     'core/main.mjs': MAIN,
   });
-  assert.deepEqual(problems, ['core/main.mjs: 5 exports (one job per file allows at most 4)']);
+  assert.deepEqual(problems, []);
 });
 
 test('different bindings stay ambiguous even when one is a default', () => {

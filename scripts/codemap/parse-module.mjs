@@ -23,9 +23,10 @@ function moduleName(node) {
 
 function exportsOf(node, source) {
   if (node.type === 'ExportDefaultDeclaration') {
-    // A named declaration or an identifier keeps its binding, so `default` and the name can be matched.
+    // A named function or class declaration keeps its binding, so `default` and the name can be matched;
+    // an expression (even a bare identifier) creates a separate default binding.
     const decl = node.declaration;
-    const local = decl.type === 'Identifier' ? decl.name : decl.id?.name;
+    const local = /^(?:Function|Class)Declaration$/.test(decl.type) ? decl.id?.name : undefined;
     return [exp('default', 'default', undefined, undefined, local)];
   }
   if (node.type === 'ExportAllDeclaration') {

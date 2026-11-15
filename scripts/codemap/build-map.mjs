@@ -1,7 +1,6 @@
 import { isTestFile } from '../checks/code-files.mjs';
 import { countLines } from '../checks/count-lines.mjs';
 import { nulProblem } from '../checks/nul-check.mjs';
-import { isExtensionlessJs } from './extensionless-js.mjs';
 import { exportNames } from './export-names.mjs';
 import { parseModule } from './parse-module.mjs';
 import { resolveSpecifier } from './resolve-spec.mjs';
@@ -11,6 +10,7 @@ const MODULE_EXT = /\.(?:m?js|cjs)$/;
 // Parsed (or refused) languages, plus style and the allowed script types, which are listed but not parsed.
 const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|sh|bash|py|ya?ml)$/;
 const REFUSED_EXT = /\.(?:jsx|tsx|ts|mts|cts)$/;
+const EXTENSIONLESS_OK = new Set(['Makefile', 'Dockerfile', '.gitignore', '.gitattributes', '.nvmrc', '.npmrc', 'CODEOWNERS']);
 const EMPTY = { exports: [], imports: [], commonJs: false, facade: false };
 
 function resolveInternalImports(filePath, specifiers, fileSet) {
@@ -30,17 +30,12 @@ export function buildMap({ files, readSource, jobs }) {
     if (nul) problems.push(nul);
     if (MODULE_EXT.test(filePath)) jsFiles.add(filePath);
     if (MAPPED_EXT.test(filePath)) { sortedFiles.push(filePath); continue; }
-    // Dotfiles and extensionless text (LICENSE, .gitignore) are not code; a Node script (shebang or ES
-    // module syntax) is JavaScript and is mapped; a script with another shebang or any other
-    // extension means a language this repo does not use.
+    // Outside packages/ every file needs an extension (a script without one hides its language); only
+    // these well-known names are accepted, as text that is size-checked but not parsed.
     const base = filePath.split('/').pop();
-    if (!base.replace(/^\.+/, '').includes('.') && isExtensionlessJs(readSource(filePath))) {
-      jsFiles.add(filePath);
-      sortedFiles.push(filePath);
-      continue;
-    }
-    const plain = !base.replace(/^\.+/, '').includes('.') && !readSource(filePath).startsWith('#!');
-    if (!plain) problems.push(`${filePath}: this language is not used in this repo`);
+    const extensionless = !base.replace(/^\.+/, '').includes('.');
+    if (!extensionless) problems.push(`${filePath}: this language is not used in this repo`);
+    else if (!filePath.startsWith('packages/') && !EXTENSIONLESS_OK.has(base)) problems.push(`${filePath}: files need an extension here`);
   }
   const fileSet = new Set(sortedFiles);
   const byPath = new Map();

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Runs Story Block's cross-package suite tests against the three workspace packages
+# Runs the cross-package suite tests (discovered, see discover-suite-tests.sh) against the three workspace packages
 # by symlinking them under a temporary directory with their legacy sibling names.
 set -euo pipefail
 
 # Raise this when suite tests are added. A lower "# tests" count means test-level results were not
 # reported (only one result per file) or tests were lost, so the skip counter below cannot be trusted.
-EXPECTED_SUITE_TESTS=32
+EXPECTED_SUITE_TESTS=87
 
 repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
@@ -28,22 +28,9 @@ cd "$repo_root/packages/story-block"
 export STORY_SUITE_ROOT="$suite_root"
 export NPC_STATE_DELTA_PATH="$suite_root/npc_state_delta"
 
-files="
-  tests/v2/lean-rpg/checks/suite.test.js
-  tests/v2/packs/holidays-world.test.js
-  tests/v2/packs/cast-presets.test.js
-  tests/v2/integration/checks-flip.test.js
-  tests/v2/data-modules/unused.test.js
-  tests/v2/data-modules/example-b.test.js
-  tests/v2/break/e2e-playthrough.test.js
-"
-
-for f in $files; do
-  if [ ! -f "$f" ]; then
-    echo "error: missing suite test $f" >&2
-    exit 1
-  fi
-done
+files="$(bash "$repo_root/scripts/ci/discover-suite-tests.sh" "$repo_root")"
+echo "suite test files:"
+printf '%s\n' "$files"
 
 set +e
 # shellcheck disable=SC2086

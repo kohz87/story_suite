@@ -102,8 +102,8 @@ test('a source file in an unused language is a problem; allowed scripts and plai
     'scripts/x.pl: this language is not used in this repo',
     'scripts/y.rb: this language is not used in this repo',
   ]);
-  assert.deepEqual(runFiles({ 'scripts/run': '#!/bin/sh\necho\n' }), ['scripts/run: this language is not used in this repo']);
-  const ok = { 'scripts/a.sh': 'echo 1\n', 'scripts/b.bash': 'echo 1\n', 'scripts/c.py': 'print(1)\n', 'LICENSE': 'text\n', '.gitignore': 'x\n' };
+  assert.deepEqual(runFiles({ 'scripts/run': '#!/bin/sh\necho\n' }), ['scripts/run: files need an extension here']);
+  const ok = { 'scripts/a.sh': 'echo 1\n', 'scripts/b.bash': 'echo 1\n', 'scripts/c.py': 'print(1)\n', 'Makefile': 'text\n', '.gitignore': 'x\n' };
   assert.deepEqual(runFiles(ok), []);
 });
 
