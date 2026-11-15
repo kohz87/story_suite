@@ -7,8 +7,8 @@ import { resolveSpecifier } from './resolve-spec.mjs';
 
 export const MAX_EXPORTS = 4;
 const MODULE_EXT = /\.(?:m?js|cjs)$/;
-// Parsed (or refused) languages, plus style and the allowed script types, which are listed but not parsed.
-const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|sh|bash|py|ya?ml)$/;
+// Parsed (or refused) languages, plus style, the UI harness page (html) and the allowed script types, which are listed but not parsed.
+const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|html|sh|bash|py|ya?ml)$/;
 const REFUSED_EXT = /\.(?:jsx|tsx|ts|mts|cts)$/;
 // Makefile and Dockerfile hold build commands: they get a job row (no exports parsed). The rest are only size-checked.
 const BUILD_FILES = new Set(['Makefile', 'Dockerfile']);

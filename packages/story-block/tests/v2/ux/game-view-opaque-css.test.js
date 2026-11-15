@@ -5,13 +5,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { sourceOf } from '../../helpers/split-source.js';
 import { cssOf, hostImports as hostSheet } from '../helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/view/${path}`, import.meta.url), 'utf8');
 const mounts = cssOf('mounts');
 const strip = read('screenbar-strip.css');
 const host = cssOf('host');
-const theme = read('theme.js');
+const theme = sourceOf('src/v2/view/theme.js');
 
 // The block of the media query that opens at `needle`, up to its closing brace at the left margin.
 const block = (css, needle) => {
