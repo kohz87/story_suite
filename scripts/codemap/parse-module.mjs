@@ -1,5 +1,7 @@
+import { declaredNames } from './split-declarators.mjs';
+
 const COMMENT_OR_STRING_RE =
-  /(['"`])(?:\\.|(?!\1)[\s\S])*?\1|\/\*[\s\S]*?\*\/|^[ \t]*\/\/.*$/gm;
+  /(['"`])(?:\\.|(?!\1)[\s\S])*?\1|\/\*[\s\S]*?\*\/|\/\/.*$/gm;
 
 const IMPORT_RE =
   /\bimport\s*\(\s*(['"])([^'"]+)\1\s*\)|\bimport\s*(['"])([^'"]+)\3|\b(?:import|export)\s+(?:(?!\b(?:import|export)\b)[^;])*?\bfrom\s*(['"])([^'"]+)\5/g;
@@ -32,6 +34,11 @@ function parseNamedList(body, kind) {
   return results;
 }
 
+function unknownExport(rest) {
+  const signature = `export ${rest}`.replace(/\s+/g, ' ').trim().slice(0, 60);
+  return { name: '?', kind: 'unknown', signature };
+}
+
 function parseExportAt(clean, startIdx) {
   const rest = clean.slice(startIdx);
 
@@ -39,7 +46,7 @@ function parseExportAt(clean, startIdx) {
     return [{ name: 'default', kind: 'default', signature: 'default' }];
   }
 
-  const fnMatch = rest.match(/^\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/);
+  const fnMatch = rest.match(/^\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(/);
   if (fnMatch) {
     const openIdx = startIdx + fnMatch[0].length - 1;
     const params = readBalancedParens(clean, openIdx).replace(/\s+/g, ' ').trim();
@@ -53,10 +60,10 @@ function parseExportAt(clean, startIdx) {
     return [{ name, kind: 'class', signature: `class ${name}` }];
   }
 
-  const varMatch = rest.match(/^\s+(?:const|let|var)\s+([A-Za-z_$][\w$]*)/);
+  const varMatch = rest.match(/^\s+(?:const|let|var)\s+/);
   if (varMatch) {
-    const name = varMatch[1];
-    return [{ name, kind: 'const', signature: name }];
+    const names = declaredNames(rest.slice(varMatch[0].length));
+    if (names.length) return names.map(name => ({ name, kind: 'const', signature: name }));
   }
 
   const starMatch = rest.match(/^\s*\*\s*(?:as\s+([A-Za-z_$][\w$]*)\s+)?from\s*(['"])[^'"]+\2/);
@@ -70,7 +77,7 @@ function parseExportAt(clean, startIdx) {
     return parseNamedList(listMatch[1], listMatch[2] ? 'reexport' : 'binding');
   }
 
-  return [];
+  return [unknownExport(rest)];
 }
 
 /**

@@ -6,5 +6,6 @@
   "scripts/codemap/build-map.mjs": "Builds sorted codemap rows and validates jobs and export limits.",
   "scripts/codemap/cli.mjs": "CLI that writes or verifies docs/codemap.md from source files and jobs.json.",
   "scripts/codemap/parse-module.mjs": "Extracts exports and import specifiers from ES module source text.",
-  "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document."
+  "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
+  "scripts/codemap/split-declarators.mjs": "Splits JS declarator lists and destructuring patterns into the names they bind."
 }
