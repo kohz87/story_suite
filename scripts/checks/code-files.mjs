@@ -3,7 +3,7 @@ import path from 'node:path';
 
 // Extensionless files are not checked: none exist in this repo, and a script must carry an extension.
 const CODE_EXTENSIONS = new Set([
-  '.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx', '.css', '.sh', '.bash', '.zsh', '.py',
+  '.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx', '.mts', '.cts', '.css', '.sh', '.bash', '.zsh', '.py',
 ]);
 const IGNORED_SEGMENTS = new Set(['vendor', 'node_modules']);
 

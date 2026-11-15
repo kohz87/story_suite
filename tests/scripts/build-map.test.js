@@ -71,7 +71,7 @@ test('one job per file: more than MAX_EXPORTS exports is a problem, except a fil
 
 test('CommonJS and unparsable files are problems', () => {
   const run = src => buildMap({ files: ['a.js'], readSource: () => src, jobs: { 'a.js': 'x' } }).problems;
-  const cjs = 'a.js: CommonJS exports are not allowed here (use ES modules)';
+  const cjs = 'a.js: uses the name module/exports (CommonJS is not allowed here; rename it)';
   assert.deepEqual(run('module.exports = {a:1,b:2,c:3,d:4,e:5};'), [cjs]);
   assert.deepEqual(run('Object.assign(exports, {a:1,b:2,c:3,d:4,e:5});'), [cjs]);
   assert.deepEqual(run('module.exports = {...{a:1,b:2,c:3,d:4,e:5}};'), [cjs]);

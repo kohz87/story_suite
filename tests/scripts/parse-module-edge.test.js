@@ -61,10 +61,10 @@ test('CommonJS programs are flagged, not silently counted', () => {
 });
 
 test('a file that is not a valid module is one unparsable export', () => {
-  const { exports } = parseModule('export const = ;');
-  assert.equal(exports.length, 1);
-  assert.deepEqual([exports[0].name, exports[0].kind], ['?', 'unparsable']);
-  assert.ok(exports[0].signature.length > 0);
+  const { exports: list } = parseModule('export const = ;');
+  assert.equal(list.length, 1);
+  assert.deepEqual([list[0].name, list[0].kind], ['?', 'unparsable']);
+  assert.ok(list[0].signature.length > 0);
   assert.equal(parseModule('const a = 1; with (a) {}').exports[0].kind, 'unparsable');
 });
 

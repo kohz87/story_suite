@@ -6,7 +6,7 @@ import { resolveSpecifier } from './resolve-spec.mjs';
 
 export const MAX_EXPORTS = 4;
 const MODULE_EXT = /\.(?:m?js|cjs)$/;
-const TYPESCRIPT_EXT = /\.tsx?$/;
+const REFUSED_EXT = /\.(?:jsx|tsx|ts|mts|cts)$/;
 const EMPTY = { exports: [], imports: [], commonJs: false, facade: false };
 
 function resolveInternalImports(filePath, specifiers, fileSet) {
@@ -31,12 +31,12 @@ export function buildMap({ files, readSource, jobs }) {
     const isTest = isTestFile(filePath);
     const imports = resolveInternalImports(filePath, parsed.imports, fileSet);
 
-    if (TYPESCRIPT_EXT.test(filePath)) {
-      problems.push(`${filePath}: TypeScript is not used in this repo`);
+    if (REFUSED_EXT.test(filePath)) {
+      problems.push(`${filePath}: JSX and TypeScript are not used in this repo`);
     } else if (parsed.exports.some(exp => exp.kind === 'unparsable')) {
       problems.push(`${filePath}: cannot be parsed as an ES module`);
     } else if (parsed.commonJs) {
-      problems.push(`${filePath}: CommonJS exports are not allowed here (use ES modules)`);
+      problems.push(`${filePath}: uses the name module/exports (CommonJS is not allowed here; rename it)`);
     }
 
     if (!isTest) {
@@ -60,7 +60,8 @@ export function buildMap({ files, readSource, jobs }) {
   // Star re-exports need every file parsed first, so the export limit is checked in a second pass.
   for (const filePath of sortedFiles) {
     if (isTestFile(filePath)) continue;
-    const names = exportNames(filePath, parsedByPath, fileSet);
+    const { names, unresolved } = exportNames(filePath, parsedByPath, fileSet);
+    for (const from of new Set(unresolved)) problems.push(`${filePath}: export * from ${from} cannot be counted; list the names`);
     if (names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade) {
       problems.push(`${filePath}: ${names.size} exports (one job per file allows at most ${MAX_EXPORTS})`);
     }

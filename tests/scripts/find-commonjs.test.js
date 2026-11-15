@@ -4,31 +4,33 @@ import { parseModule } from '../../scripts/codemap/parse-module.mjs';
 
 const cjs = src => parseModule(src).commonJs;
 
-test('free module and exports are flagged, including computed access', () => {
+test('any reference to module or exports is flagged, including computed access', () => {
   assert.equal(cjs('module.exports = {};'), true);
   assert.equal(cjs("module['exports'] = {a: 1};"), true);
   assert.equal(cjs('exports.a = 1;'), true);
-  assert.equal(cjs("Object.assign(exports, {a: 1});"), true);
+  assert.equal(cjs('Object.assign(exports, {a: 1});'), true);
   assert.equal(cjs('exports = {};'), true);
   assert.equal(cjs('const x = typeof module;'), true);
 });
 
-test('a declaration in another scope does not hide a free reference', () => {
-  assert.equal(cjs('function unrelated(module) {}\nmodule.exports = {a: 1};'), true);
-  assert.equal(cjs('function unrelated(exports) {}\nObject.assign(exports, {});'), true);
-  assert.equal(cjs('{ const exports = []; }\nexports.a = 1;'), true);
-  assert.equal(cjs('try {} catch (module) {}\nmodule.exports = 1;'), true);
+test('the review examples with shadowing declarations are flagged', () => {
+  assert.equal(cjs('switch (module.exports = {a:1,b:2,c:3,d:4,e:5}) {\n  default: let module;\n}'), true);
+  assert.equal(cjs('(function (x = module.exports = {a:1,b:2,c:3,d:4,e:5}) {\n  var module;\n})();'), true);
 });
 
-test('a local declaration in an enclosing scope is fine', () => {
-  assert.equal(cjs('const exports = [];\nexports.push(1);'), false);
-  assert.equal(cjs('function f(module) { return module.exports; }'), false);
-  assert.equal(cjs('function f() { if (1) { var exports = {}; } return exports.a; }'), false);
-  assert.equal(cjs('for (const module of []) { module.exports; }'), false);
-  assert.equal(cjs('try {} catch (exports) { exports.a; }'), false);
-  assert.equal(cjs('const f = ({ module }) => module.exports;'), false);
+test('declaring or binding the names is flagged too', () => {
+  assert.equal(cjs('const exports = [];'), true);
+  assert.equal(cjs('function f(module) {}'), true);
+  assert.equal(cjs('try {} catch (exports) {}'), true);
+  assert.equal(cjs('const { module } = {};'), true);
+  assert.equal(cjs("import module from './x.js';"), true);
+  assert.equal(cjs("import { a as exports } from './x.js';"), true);
+  assert.equal(cjs('function module() {}'), true);
 });
 
-test('property names and keys called module or exports are not references', () => {
+test('member properties and object keys called module or exports are fine', () => {
   assert.equal(cjs('const o = { module: 1, exports: 2 }; o.module; o.exports;'), false);
+  assert.equal(cjs('const o = { module: 1 };'), false);
+  assert.equal(cjs('const o = {}; o.module;'), false);
+  assert.equal(cjs('class A { module() {} }'), false);
 });

@@ -8,7 +8,7 @@ test('code files are js, mjs, cjs, ts, css, sh and py', () => {
 });
 
 test('jsx, tsx, bash and zsh are checked; extensionless files are not', () => {
-  for (const p of ['ui/a.jsx', 'ui/b.tsx', 'scripts/x.bash', 'scripts/y.zsh']) assert.equal(isCodeFile(p), true, p);
+  for (const p of ['ui/a.jsx', 'ui/b.tsx', 'a/b.mts', 'a/c.cts', 'scripts/x.bash', 'scripts/y.zsh']) assert.equal(isCodeFile(p), true, p);
   for (const p of ['scripts/run', 'bin/tool', 'Makefile']) assert.equal(isCodeFile(p), false, p);
 });
 

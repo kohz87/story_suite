@@ -15,6 +15,10 @@ const legacyAbsPath = path.join(repoRoot, legacyRelPath);
 const writeLegacy = process.argv.includes('--write-legacy');
 const baseFlag = process.argv.indexOf('--base');
 const baseRef = baseFlag >= 0 ? process.argv[baseFlag + 1] : undefined;
+if (baseFlag >= 0 && !baseRef) {
+  console.error('size check: --base needs a git ref');
+  process.exit(1);
+}
 
 function git(args) {
   return execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });

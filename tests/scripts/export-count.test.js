@@ -24,9 +24,12 @@ test('default is not re-exported by a wildcard, and cycles end', () => {
   assert.deepEqual(problems, ['core/main.js: 5 exports (one job per file allows at most 4)']);
 });
 
-test('an external or unresolvable wildcard counts as one and is listed', () => {
-  const src = "export * from 'lodash';\nexport * from './missing.js';\nexport const a = 1, b = 2, c = 3;\n";
-  assert.deepEqual(run({ 'core/main.js': src }), ['core/main.js: 5 exports (one job per file allows at most 4)']);
+test('an external or unresolvable wildcard cannot be counted and is an error', () => {
+  const src = "export * from 'node:fs';\nexport * from './missing.js';\nexport const a = 1;\n";
+  assert.deepEqual(run({ 'core/main.js': src }), [
+    "core/main.js: export * from ./missing.js cannot be counted; list the names",
+    "core/main.js: export * from node:fs cannot be counted; list the names",
+  ]);
   assert.deepEqual(parseModule("export * from 'lodash';").exports[0].signature, "* from 'lodash'");
 });
 
@@ -45,8 +48,30 @@ test('a directive and comments keep the exemption', () => {
   assert.deepEqual(run({ 'core/one.js': 'export const a=1,b=2,c=3,d=4;export const e=5;', 'core/f.js': src }).filter(p => p.startsWith('core/f.js')), []);
 });
 
-test('TypeScript files are refused', () => {
-  const problems = run({ 'core/a.ts': 'export const a: number = 1;\n', 'core/b.tsx': 'export const b = 1;\n' });
-  assert.ok(problems.includes('core/a.ts: TypeScript is not used in this repo'));
-  assert.ok(problems.includes('core/b.tsx: TypeScript is not used in this repo'));
+test('a name from two star sources is ambiguous and not counted; a shared origin is not ambiguous', () => {
+  const problems = run({
+    'core/one.js': 'export const a = 1, b = 2;\n',
+    'core/two.js': 'export const a = 1, c = 3;\n',
+    'core/main.js': "export * from './one.js';\nexport * from './two.js';\nexport const d = 4, e = 5;\n",
+  });
+  assert.deepEqual(problems, []);
+  const diamond = run({
+    'core/base.js': 'export const a = 1, b = 2, c = 3;\n',
+    'core/l.js': "export * from './base.js';\n",
+    'core/r.js': "export * from './base.js';\n",
+    'core/main.js': "export * from './l.js';\nexport * from './r.js';\nexport const d = 4, e = 5;\n",
+  });
+  assert.deepEqual(diamond, ['core/main.js: 5 exports (one job per file allows at most 4)']);
+  const local = run({
+    'core/one.js': 'export const a = 1, b = 2;\n',
+    'core/two.js': 'export const a = 1, c = 3;\n',
+    'core/main.js': "export * from './one.js';\nexport * from './two.js';\nexport const a = 0, d = 4, e = 5;\n",
+  });
+  assert.deepEqual(local, ['core/main.js: 5 exports (one job per file allows at most 4)']);
+});
+
+test('JSX and TypeScript files are refused', () => {
+  const files = ['a.ts', 'b.tsx', 'c.jsx', 'd.mts', 'e.cts'];
+  const problems = run(Object.fromEntries(files.map(f => [`core/${f}`, 'export const a = 1;\n'])));
+  for (const f of files) assert.ok(problems.includes(`core/${f}: JSX and TypeScript are not used in this repo`), f);
 });

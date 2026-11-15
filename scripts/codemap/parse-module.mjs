@@ -44,10 +44,10 @@ export function parseModule(source) {
   } catch (error) {
     return { exports: [exp('?', 'unparsable', String(error.message))], imports: [], commonJs: false, facade: false };
   }
-  const exports = [];
+  const list = [];
   const found = [];
   for (const node of ast.body) {
-    if (node.type.startsWith('Export')) exports.push(...exportsOf(node, source));
+    if (node.type.startsWith('Export')) list.push(...exportsOf(node, source));
     if (node.source) found.push(node);
   }
   simple(ast, {
@@ -59,5 +59,5 @@ export function parseModule(source) {
     .map(node => ({ at: node.start, spec: String(node.source.value) }))
     .sort((a, b) => a.at - b.at)
     .map(item => item.spec);
-  return { exports, imports, commonJs: findCommonJs(ast), facade: exports.length > 0 && isFacade(ast) };
+  return { exports: list, imports, commonJs: findCommonJs(ast), facade: list.length > 0 && isFacade(ast) };
 }
