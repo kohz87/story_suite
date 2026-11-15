@@ -1,0 +1,160 @@
+/* Kit styles: the one button, chip, switch and segmented-control family, sized for touch. */
+.su-root .btn2,
+.su-root .ibtn,
+.su-root .chip2,
+.su-root .seg button {
+  cursor: pointer;
+}
+
+.su-root .btn2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 7px 12px;
+  font: 800 12.5px var(--su-font);
+  color: var(--su-text);
+  background: var(--su-panel2);
+  border: 1px solid var(--su-line2);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.su-root .btn2.pri {
+  background: var(--su-accent);
+  border-color: transparent;
+  color: #14102a;
+}
+
+.su-root .btn2.dng {
+  color: var(--su-hp);
+}
+
+.su-root .btn2[disabled],
+.su-root .sw[disabled],
+.su-root .seg button[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.su-root .btn2 svg {
+  width: 16px;
+  height: 16px;
+}
+
+.su-root .ibtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--su-panel2);
+  border: 1px solid var(--su-line2);
+  border-radius: 12px;
+  color: var(--su-glyph);
+}
+
+.su-root .ibtn svg {
+  width: 19px;
+  height: 19px;
+}
+
+.su-root .chip2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 800 12px var(--su-font);
+  color: var(--su-soft);
+  background: var(--su-line2);
+  border: 0;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.su-root button.chip2 {
+  min-height: 44px;
+  padding: 3px 12px;
+}
+
+.su-root .chip2 svg {
+  width: 14px;
+  height: 14px;
+}
+
+.su-root .chip2[aria-pressed="true"] {
+  background: var(--su-panel2);
+  color: var(--su-text);
+  box-shadow: inset 0 0 0 1px var(--su-line);
+}
+
+.su-root .chip2.slow {
+  color: var(--su-warn);
+  background: var(--su-warn-t);
+}
+
+.su-root .sw {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.su-root .sw::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 12px;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--su-line2);
+  transition: background 0.15s;
+}
+
+.su-root .sw::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 15px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--su-text);
+  transition: transform 0.15s;
+}
+
+.su-root .sw[aria-checked="true"]::before {
+  background: var(--su-accent);
+}
+
+.su-root .sw[aria-checked="true"]::after {
+  transform: translateX(16px);
+  background: #fff;
+}
+
+.su-root .seg {
+  display: inline-flex;
+  border: 1px solid var(--su-line2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.su-root .seg button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 7px 12px;
+  background: transparent;
+  border: 0;
+  font: 600 13px var(--su-font);
+  color: var(--su-muted);
+}
+
+.su-root .seg button[aria-pressed="true"],
+.su-root .seg button[aria-selected="true"] {
+  background: var(--su-panel2);
+  color: var(--su-text);
+}
