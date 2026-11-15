@@ -48,7 +48,7 @@ function pulseCard(pulse, shown, ctx) {
     recent.length ? h('div', { class: 'recent' }, h('div', { class: 'secl2' }, 'Recent rolls'), recent) : null,
     h('div', { class: 'prow' },
       h('span', { class: 'tgl' }, toggle({ checked: pulse.quiet, label: 'Quiet scene', onChange: on => ctx.command?.('pulse.quiet', { on }) }), 'Quiet scene'),
-      h('span', { class: 'fine' }, `mode: ${pulse.mode}`)));
+      h('span', { class: 'fine' }, `mode: ${pulse.mode} · swipe for a fresh roll`)));
 }
 
 function castCard(cast) {
