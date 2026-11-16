@@ -152,7 +152,7 @@ export function beforeGenerate(view) {
     if (!keyOf(name)) return commands.length ? { commands } : undefined;
     const known = findPlace(atlas, name);
     // A region saved from the scene where a pack says better is mended by a visit (ensurePlace).
-    const packRegion = known && scene.region && known.region === scene.region ? packPlace(packWorld(view.query ?? null), name)?.region : '';
+    const packRegion = known && !known.regionBy && scene.region && known.region === scene.region ? packPlace(packWorld(view.query ?? null), name)?.region : '';
     const fresh = !known || !known.discovered || (scene.kind && !known.kind) || (scene.region && !known.region) || Boolean(packRegion && packRegion !== known.region);
     if (!fresh) return commands.length ? { commands } : undefined;
     const payload = { name: scene.name.trim(), parents: true };

@@ -38,10 +38,12 @@ test('a quiet story: the Director prompt is short and teaches world and faction 
             // 2,750: one example line for each thread kind and when to write it (about 570 characters, 12 Nov; generic placeholders): flash never wrote them without one.
             // 3,200 (measured 3,138 and 3,173 with the fight runner, 13 Nov): explicit world-news and faction triggers (create, update, end), with separate grammar lines for Assist.
             // 3,350 (measured 3,280, 13 Nov): the hook / quest line says when to close a job or lead and that + quest keeps the hook's name.
-            assert.ok(text.length < 3350, `${text.length} characters`);
+            // 3,400 (measured 3,350, 16 Nov): the hook / quest line says + quest takes the hook's name alone; its example is the bare line (B1.6).
+            // 3,500 (measured 3,415, 16 Nov): the time line says a clock face is today's time and how to skip to a later day (B1.1).
+            assert.ok(text.length < 3500, `${text.length} characters`);
             assert.match(text, /^\+ agenda\|event\|clock\|beat\|secret Name — summary/m);
             assert.match(text, /^\+ hook\|quest Name — /m);
-            assert.match(text, /^~ time <date, clock time/m);
+            assert.match(text, /^~ time 9:30 am \(the clock now/m);
             // The rare kinds are not taught to a story that uses none of them.
             assert.doesNotMatch(text, /\+ route|\+ landmark|~ trip|World lines|\[World\]/);
             // Each kind is always taught on its own line, so the first of either can be recorded.

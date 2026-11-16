@@ -76,14 +76,16 @@ function keptResult(result, perUse) {
 /**
  * A reply's check lines worked in order against `party`, with `dice` = { list, rules, dc, perUse } as recorded with the reply (null: none was offered)
  * and `table` the note's bonus table when the reply was worked by it (null: the sheet's bonuses, as older replies were).
+ * `inOrder` (a reply marked `diceInOrder`): each check takes the next die in order; a line that wrote another die is worked with code's and says so.
  * → { results (kept records), notes (one reason for each refused line), uses (practice: [{ who, skill, n }]) }.
  */
-export function workChecks(party, lines, dice, table = null) {
+export function workChecks(party, lines, dice, table = null, inOrder = false) {
     const results = [], notes = [], used = [], count = new Map();
     for (const raw of lines) {
-        const check = dice ? validateCheck(parseCheckLine(raw), { party, offeredDice: dice.list, usedDice: used, dc: dice.dc }) : { ok: false, reason: 'no dice were offered this reply' };
+        const check = dice ? validateCheck(parseCheckLine(raw, { dieOptional: inOrder }), { party, offeredDice: dice.list, usedDice: used, dc: dice.dc, inOrder }) : { ok: false, reason: 'no dice were offered this reply' };
         if (!check.ok) { notes.push(`"${raw}" was not used: ${check.reason}.`); continue; }
         used.push(check.die);
+        if (check.wrote !== undefined) notes.push(`"${raw}" was worked with ${check.die}, the next die in order (the line wrote ${check.wrote}).`);
         const done = resolveCheck(check, check.die, dice.rules, table);
         if (done.unlisted) notes.push(`${done.who} rolled ${done.what} with no bonus: ${done.unlisted === 'member' ? 'they were' : 'it was'} not in the table the note showed.`);
         results.push(keptResult(done, dice.perUse));

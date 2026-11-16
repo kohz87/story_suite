@@ -89,7 +89,7 @@ test('route lines that cannot be used are rejected and nothing is saved', () => 
 test('+ landmark puts a described place on the map, discovered, with its region, kind and plane', () => {
     const { state, runs } = lines(makeState(), '+ landmark Thunder Ruins — a broken tower on the ridge | region: The Marches | kind: Ruin');
     const place = placeNamed(state, 'thunder ruins');
-    assert.deepEqual({ ...place, id: undefined }, { id: undefined, name: 'Thunder Ruins', region: 'The Marches', kind: 'ruin', layer: '', discovered: true, rev: 1 });
+    assert.deepEqual({ ...place, id: undefined }, { id: undefined, name: 'Thunder Ruins', region: 'The Marches', kind: 'ruin', layer: '', discovered: true, regionBy: 'landmark', rev: 1 });
     assert.equal(runs[0].result.summary, 'Thunder Ruins (ruin, The Marches) is on the map.');
     const below = lines(state, '+ landmark Sunken Vault | kind: dungeon | plane: Underground | at: 12.4, 40 | aka: the Vault').state;
     const vault = placeNamed(below, 'sunken vault');
