@@ -57,6 +57,9 @@ jobs:
       - name: Script tests
         # Same command as npm run test:scripts, plus a per-test timeout.
         run: node --test --test-timeout=900000 "tests/scripts/*.test.js"
+      - name: Core tests
+        # Same command as npm run test:core, plus a per-test timeout.
+        run: node --test --test-timeout=900000 "tests/core/**/*.test.js"
 
   ui:
     runs-on: ubuntu-latest
