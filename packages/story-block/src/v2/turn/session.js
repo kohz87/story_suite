@@ -34,6 +34,11 @@ export function createSession(s, deps) {
 
     function problem(entry) {
         const item = { module: null, code: 'PROBLEM', ...entry };
+        // An over-long settle note is named once however often the prompt is built (send, regenerate, dry run): the same words are not listed again.
+        if (item.code === 'NOTE_LONG') {
+            const same = s.problemLog.find(old => old.code === item.code && old.module === item.module && old.message === item.message);
+            if (same) return same;
+        }
         s.problemLog.push(item);
         if (s.problemLog.length > MAX_PROBLEMS) s.problemLog.splice(0, s.problemLog.length - MAX_PROBLEMS);
         // A quiet one (a line of a feature the reader turned off) is listed, not warned about.

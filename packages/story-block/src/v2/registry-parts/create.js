@@ -35,7 +35,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
     const { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
     const commandLookups = createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf: life.nameOf, off, warn });
     const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial } = commandLookups;
-    const { interaction, interactionIds } = createInteractionLookups({ defs, held });
+    const { interaction, interactionIds, markerWords } = createInteractionLookups({ defs, held, featureOn });
     const { register } = createRegistration({ defs, declared, owners, fallbacks, canonical, refusals, hostVersion, warn, needsOf, setPeers: life.setPeers });
 
     return {
@@ -60,6 +60,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         interaction,
         /** The full kind ids a module defines, sorted. */
         interactionIds,
+        /** The marker words of the registered kinds whose marker feature is on (what the prompt history drops). */
+        markerWords,
         captureOwner: kind => captureEntry(kind)?.moduleId ?? null,
         queryOwner: name => owners.query.get(name) ?? null,
         /** The handler for a command type (module commands and the registry's own), or null. */

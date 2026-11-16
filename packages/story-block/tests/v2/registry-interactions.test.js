@@ -93,3 +93,9 @@ test('the core module answers interaction.view with null until an interaction ap
         assert.deepEqual(host.sdk.modules().find(item => item.id === 'story-block').interactions, []);
     } finally { host.close(); }
 });
+
+test('a marker word is a plain lowercase word, and never a header the host\'s own prompt text uses', () => {
+    for (const word of ['Battle', 'two words', 'a'.repeat(25), '[x]', '1st', 'happened']) assert.equal(problems({ marker: { word } }).length, 1, word);
+    assert.match(problems({ marker: { word: 'happened' } })[0], /header of the host's own prompt text/);
+    for (const word of ['battle', 'hard-bargain', 'a'.repeat(24)]) assert.deepEqual(problems({ marker: { word } }), [], word);
+});
