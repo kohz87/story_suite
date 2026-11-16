@@ -42,6 +42,7 @@ button.rnr{cursor:pointer}
 .prg .star{right:-4px;color:#f0b84a;font:900 13px var(--su-font)}
 [data-scheme="light"] .prg .star{color:#8a5600}
 .now-tab .prg .star{color:var(--pk-gold)}
+[data-scheme="light"] .now-tab .prg .star{color:#8a5600}
 .ring-track{stroke:var(--su-line2)}
 .ring-arc.f0{stroke:var(--su-info)}.ring-arc.f1{stroke:#ff7aa8}.ring-arc.f2{stroke:#c08aff}.ring-arc.f3{stroke:var(--su-warn)}
 /* The mock draws the ring arcs in its fixed dark-theme colours in both schemes. */

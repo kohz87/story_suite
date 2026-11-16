@@ -24,8 +24,8 @@ function itemOf(row, ctx) {
   const wearer = row.owner === 'party' ? ctx.pcId : row.owner;
   const glyphSlot = GLYPH_OF_SLOT[row.equipped] ?? (kind === 'gear' ? 'gear' : kind);
   return {
-    stack: String(row.stack), name: String(row.name), kind, glyph: glyphSlot, rarity: RARITY[row.rarity] ?? 'common',
-    qty: Number.isSafeInteger(row.qty) ? row.qty : 1, wornBy: worn ? wearer ?? null : null, isNew: null,
+    stack: String(row.stack), name: String(row.name), kind, glyph: glyphSlot, rarity: RARITY[row.rarity] ?? 'common', realRarity: typeof row.rarity === 'string' ? row.rarity : null,
+    qty: Number.isSafeInteger(row.qty) ? row.qty : 1, count: Number.isSafeInteger(ctx.counts?.[row.stack]) ? ctx.counts[row.stack] : null, wornBy: worn ? wearer ?? null : null, isNew: null,
     wear: kind === 'gear' && word ? (word === 'torn' || word === 'broken' ? 'torn' : 'good') : null,
     weight: null, worth: money(row.value, ctx.currency), soak: null, desc: null, from: typeof row.from === 'string' ? row.from : '',
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
@@ -40,12 +40,12 @@ const assetOf = row => ({
 });
 
 /**
- * Bag view-model from { rpg, items: inventory.items, gear: gear.view, wallet: inventory.wallet, currency: inventory.currency,
+ * Bag view-model from { rpg, items: inventory.items, counts: inventory.counts (pieces per def+owner for unstacked items), gear: gear.view, wallet: inventory.wallet, currency: inventory.currency,
  * mounts: mounts.list, pace: mounts.pace, pcId }; null when inventory.items does not answer.
  */
-export function selectBag({ rpg = false, items, gear, wallet, currency, mounts, pace, pcId = null } = {}) {
+export function selectBag({ rpg = false, items, counts, gear, wallet, currency, mounts, pace, pcId = null } = {}) {
   if (!Array.isArray(items)) return null;
-  const ctx = { rows: gear?.rows, currency, pcId };
+  const ctx = { rows: gear?.rows, currency, pcId, counts: isRecord(counts) ? counts : {} };
   const list = items.filter(row => isRecord(row) && KIND_OF[row.kind]).map(row => itemOf(row, ctx));
   const countOf = { all: list.length, worn: list.filter(item => item.wornBy !== null).length };
   const carry = gear?.carry;

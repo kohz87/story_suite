@@ -21,6 +21,10 @@ const ITEM = {
   note: { $optional: T.STRING },
   hand: { $optional: T.BOOLEAN },
   slot: { $optional: { $nullable: T.STRING } },
+  // The grouped piece count (inventory.counts) the Edit form's Count starts from; null when the query gave none.
+  // The item's own rarity word (the tile class folds legendary into epic); the Edit form's Rarity starts from it.
+  realRarity: { $optional: { $nullable: T.STRING } },
+  count: { $optional: { $nullable: T.NUMBER } },
 };
 
 const ASSET = {

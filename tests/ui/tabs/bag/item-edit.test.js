@@ -91,3 +91,33 @@ test('Save with nothing changed sends nothing; patch drops blank names and bad c
   assert.deepEqual(itemPatch(item, { name: '', qty: '0', note: 'x' }), { stack: 's', note: 'x' });
   assert.deepEqual(itemPatch(item, { name: 'Rope', qty: '3', note: '' }), { stack: 's', qty: 3, group: true });
 });
+
+test('Rarity prefills the real rarity and Slot keeps an unusual stored slot, so a note-only Save sends neither', async () => {
+  installFakeDom();
+  const item = { ...find('Spare dagger'), rarity: 'epic', realRarity: 'legendary', slot: 'shield', hand: true, kind: 'gear' };
+  const [el, ctx] = open(item, true, () => Promise.resolve({ ok: true }));
+  const [rarity, slot] = el.querySelectorAll('.iedit select');
+  assert.equal(rarity.value, 'legendary');
+  assert.equal(slot.value, 'shield');
+  set(el, '.iedit textarea', 'a note');
+  el.querySelector('.btn2.save').click();
+  await tick();
+  assert.deepEqual(ctx.sent[0], ['inventory.edit', { stack: item.stack, note: 'a note' }]);
+});
+
+test('Save is disabled while the command is in flight and sends once', async () => {
+  installFakeDom();
+  let release;
+  const [el, ctx] = open(find('Healing draught'), true, () => new Promise(resolve => { release = resolve; }));
+  set(el, '.iedit textarea', 'x');
+  const save = el.querySelector('.btn2.save');
+  save.click();
+  await tick();
+  assert.equal(save.disabled, true);
+  save.click();
+  await tick();
+  assert.equal(ctx.sent.filter(([type]) => type === 'inventory.edit').length, 1);
+  release({ ok: false, message: 'no' });
+  await tick();
+  assert.equal(save.disabled, false);
+});

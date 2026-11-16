@@ -67,7 +67,7 @@ function measure() {
 // The mock's per-scheme --m0..m3 feeling colours, --pk-gold star and initial disc (light: #dcdcea with a #1d2030 letter).
 const WANT = {
   dark: { star: 'rgb(240, 184, 74)', bg: 'rgb(58, 60, 82)', letter: 'rgb(255, 255, 255)', wants: 'rgb(192, 138, 255)', feel: ['rgb(90, 160, 255)', 'rgb(255, 122, 168)', 'rgb(192, 138, 255)', 'rgb(240, 184, 74)'] },
-  light: { star: 'rgb(138, 90, 0)', bg: 'rgb(220, 220, 234)', letter: 'rgb(29, 32, 48)', wants: 'rgb(110, 48, 196)', feel: ['rgb(31, 95, 191)', 'rgb(184, 38, 95)', 'rgb(122, 63, 192)', 'rgb(138, 90, 0)'] },
+  light: { star: 'rgb(138, 86, 0)', bg: 'rgb(220, 220, 234)', letter: 'rgb(29, 32, 48)', wants: 'rgb(110, 48, 196)', feel: ['rgb(31, 95, 191)', 'rgb(184, 38, 95)', 'rgb(122, 63, 192)', 'rgb(138, 90, 0)'] },
 };
 for (const theme of ['dark', 'light']) for (const width of [390, 820]) {
   test(`Now person card and pinned tracker match the mock at ${width}px, ${theme}`, async t => {
