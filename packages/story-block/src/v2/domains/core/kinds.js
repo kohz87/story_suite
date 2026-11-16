@@ -4,10 +4,12 @@
 import { CORE_FEATURE } from '../../features.js';
 import { EXTRA_KINDS } from '../../extras.js';
 import { FEATURE } from '../inventory.js';
-import { WEATHER_CHARS, YOU_CHARS } from '../scene.js';
+import { WEATHER_CHARS, YOU_CHARS, YOU_SHORT_CHARS } from '../scene.js';
 
-/** The `~ you` grammar line: wearing and condition, and a rank under the pack's own word for it (`label`) when a pack gives one. */
-export function youGrammar(label = '') {
+/** The `~ you` grammar line: wearing and condition (with gear on, outfit, look and condition), and a rank under the pack's own word for it (`label`) when a pack gives one. */
+export function youGrammar(label = '', gear = false) {
+    // Gear on (B1.4): what is equipped comes from the gear; the story writes the clothes that are not gear and how {{user}} looks for now.
+    if (gear) return `~ you ${label ? `rank: ${label} | ` : ''}outfit: clothes {{user}} has on that are not gear (at most ${YOU_SHORT_CHARS} characters; armour and weapons come from Equipped) | look: how {{user}} looks right now, gone at the next move (at most ${YOU_SHORT_CHARS} characters) | condition: how {{user}} is (only when one changes; at most ${YOU_CHARS} characters)`;
     return `~ you ${label ? `rank: ${label} | ` : ''}wearing: what {{user}} has on | condition: how {{user}} is (only when one changes; each at most ${YOU_CHARS} characters)`;
 }
 

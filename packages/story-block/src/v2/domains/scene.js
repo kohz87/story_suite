@@ -4,7 +4,7 @@
 // query tables and the tail, and re-exports every name the scene always exported, so importers keep this path.
 // Public face: re-exports its parts.
 
-export { WEATHER_CHARS, WEATHER_TAIL_CHARS, WEATHER_KEY_CHARS, WEATHER_FEATURE, YOU_CHARS, YOU_FEATURE } from './scene/constants.js';
+export { WEATHER_CHARS, WEATHER_TAIL_CHARS, WEATHER_KEY_CHARS, WEATHER_FEATURE, YOU_CHARS, YOU_FEATURE, YOU_SHORT_CHARS } from './scene/constants.js';
 export { capturePresent } from './scene/present.js';
 export { capturePlace } from './scene/place.js';
 export { captureWeather, weatherText } from './scene/weather.js';

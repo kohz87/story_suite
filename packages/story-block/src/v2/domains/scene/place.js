@@ -6,6 +6,7 @@ import { cleanName } from '../names.js';
 import { foldKey } from '../../../text.js';
 import { MAX_NAME, MAX_PRESENT } from './constants.js';
 import { companions } from './present.js';
+import { clearLook } from './you-look.js';
 import { told } from './shared.js';
 
 function field(ctx, value, what) {
@@ -44,6 +45,8 @@ export function setPlace(ctx, { name, kind, region, with: along }, { keepPresent
     if (!placeName) ctx.fail('INVALID', 'A place needs a name.');
     const moved = placeName.toLowerCase() !== scene.place.name.toLowerCase();
     const came = companions(ctx, along).filter(person => !keepPresent || !departed.includes(person.toLowerCase()));
+    // A move leaves the passing look behind (only a reply marked `youLook`: an older one keeps its look on Re-read).
+    if (moved && scene.you && ctx.carrier?.rules?.includes('youLook')) scene.you = clearLook(scene.you);
     // Whoever comes along is added once: replayed after a reply that took them out was deleted, the add is passed over.
     ctx.unique('scene', '/present');
     scene.place = {
