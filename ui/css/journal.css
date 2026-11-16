@@ -80,7 +80,8 @@
 .journal-tab .cd.today{background:var(--su-accent)}.cd.today b{color:#14102a}
 .journal-tab .cd.sel{border-color:var(--su-accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--su-accent) 25%,transparent)}
 .journal-tab .cd.today .ds i{box-shadow:0 0 0 1px #14102a}.journal-tab .cd.today.sel{border-color:#fff}
-.journal-tab .cd.pre{opacity:.35}.journal-tab .mo.pre{opacity:.4}
+.journal-tab .cd.pre{opacity:.35;padding:12px 0;border-radius:14px}
+.journal-tab .cd.pre b{font-size:15px}.journal-tab .mo.pre{opacity:.4}
 .journal-tab .cd .ds{display:flex;gap:2px;height:5px}.cd .ds i{width:5px;height:5px;border-radius:50%}
 
 .journal-tab .calcard{padding:14px}
