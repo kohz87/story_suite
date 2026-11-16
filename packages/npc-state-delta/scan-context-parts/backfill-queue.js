@@ -3,7 +3,7 @@ import { text } from './shared-text.js';
 
 export const AUTOMATIC_BACKFILL_QUEUE_VERSION = 1;
 export const AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT = 1;
-export const AUTOMATIC_BACKFILL_REASONS = Object.freeze(['missed-participant', 'new-admission']);
+export const AUTOMATIC_BACKFILL_REASONS = Object.freeze(['missed-participant', 'new-admission', 'new-person']);   // (new-person: the fill-in of a `+ npc` stub, src/npc-lines-parts/fill-in.js)
 
 export function normalizeAutomaticBackfillRequest(raw = {}) {
     if (!raw || typeof raw !== 'object') return null;
@@ -24,5 +24,6 @@ export function normalizeAutomaticBackfillRequest(raw = {}) {
         requestedAt: Math.max(0, Number(raw.requestedAt || 0) || 0),
         attempts: Math.max(0, Math.round(Number(raw.attempts) || 0)),
         lastAttemptAt: Math.max(0, Number(raw.lastAttemptAt || 0) || 0),
+        ...(raw.lastError === 'call' || raw.lastError === 'json' ? { lastError: raw.lastError } : {}),   // (a fill-in's last failure: src/npc-lines-parts/fill-in.js)
     };
 }

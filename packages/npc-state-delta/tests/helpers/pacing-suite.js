@@ -37,7 +37,7 @@ export const clockModule = {
     queries: { 'director.time': state => ({ minutes: state?.domains?.director?.time?.minutes ?? null }) },
 };
 
-export async function suite({ records = dossiers(), clock = true, allowance, calendarOwn = false, features = null, settings = {}, modules = [] } = {}) {
+export async function suite({ records = dossiers(), clock = true, allowance, calendarOwn = false, features = null, settings = {}, modules = [], lines = false, players = [] } = {}) {
     const host = await createHost({ settings: { modules: { [MODULE_ID]: { ...settings } }, ...(features ? { features: { ...features } } : {}) }, modules: [...(clock ? [clockModule] : []), ...modules] });
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
     const delta = { records };
@@ -50,11 +50,12 @@ export async function suite({ records = dossiers(), clock = true, allowance, cal
         presentCastHtml: () => '<section class="cast">cast</section>',
         castEmptyReason: () => ({ text: 'Nobody here.' }),
         fillPresentCast: () => {},
+        playerNames: () => players,
     };
     const adapter = createStorySuiteV2Adapter({
         suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
-        calendarOwn: () => calendarOwn,
+        calendarOwn: () => calendarOwn, linesMode: () => (typeof lines === 'function' ? lines() : lines),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
         timers: { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} },
         logger: { warn() {} }, loadEmptyCast: async () => null,
