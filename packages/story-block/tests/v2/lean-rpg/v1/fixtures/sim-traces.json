@@ -1,0 +1,6095 @@
+{
+ "rules": "v8.1",
+ "simSha256": "f6b4f667bbfa91720911c58185bc201efac2d3f5bf1e00e57a3ba4328fe12ad1",
+ "cases": [
+  {
+   "name": "normal-hit",
+   "note": "Hit by 6 (not decisive), skill dmg 6, tempo fails, foe hits through 10% soak (VIT 5 + Defence stance 5)",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    12,
+    5,
+    3,
+    10,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     12,
+     17,
+     5,
+     11,
+     "hit",
+     6,
+     2
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "standard",
+     3,
+     5,
+     10,
+     16,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 5,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 2
+     }
+    ]
+   }
+  },
+  {
+   "name": "decisive-by-8",
+   "note": "Win by exactly 8 is decisive: 6 x 1.5 = 9",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "elite",
+      "tier": "elite",
+      "lv": 1,
+      "hp": 12,
+      "maxhp": 12,
+      "dmg": 5,
+      "roll": 7
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    15,
+    5,
+    2,
+    10,
+    2,
+    15
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "elite",
+     5,
+     6
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "elite"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "elite",
+     15,
+     20,
+     5,
+     12,
+     "decisive",
+     9,
+     3
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "elite",
+     2,
+     4,
+     10,
+     17,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "elite"
+     ]
+    ],
+    [
+     "foe-attack",
+     "elite",
+     "Warrior",
+     2,
+     9,
+     15,
+     16,
+     "evaded",
+     0,
+     0,
+     7
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "elite",
+      "hp": 3
+     }
+    ]
+   }
+  },
+  {
+   "name": "natural-20",
+   "note": "Natural 20 is decisive even when the margin is under 8 (25 vs 22)",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "elite",
+      "tier": "elite",
+      "lv": 1,
+      "hp": 12,
+      "maxhp": 12,
+      "dmg": 5,
+      "roll": 7
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    20,
+    15,
+    2,
+    10,
+    2,
+    15
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "elite",
+     5,
+     6
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "elite"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "elite",
+     20,
+     25,
+     15,
+     22,
+     "decisive",
+     9,
+     3
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "elite",
+     2,
+     4,
+     10,
+     17,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "elite"
+     ]
+    ],
+    [
+     "foe-attack",
+     "elite",
+     "Warrior",
+     2,
+     9,
+     15,
+     16,
+     "evaded",
+     0,
+     0,
+     7
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "elite",
+      "hp": 3
+     }
+    ]
+   }
+  },
+  {
+   "name": "natural-1",
+   "note": "Natural 1 always misses; the foe's defence die is not drawn; no tempo roll after a miss",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 5,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "tie-attack-to-player",
+   "note": "Total 12 vs defence 12: a tie goes to the player",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    7,
+    6,
+    3,
+    10,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     7,
+     12,
+     6,
+     12,
+     "hit",
+     6,
+     2
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "standard",
+     3,
+     5,
+     10,
+     16,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 5,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 2
+     }
+    ]
+   }
+  },
+  {
+   "name": "tie-evasion-to-player",
+   "note": "Foe roll 10 vs evasion 10: a tie goes to the player, the blow misses",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    4,
+    9
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     4,
+     10,
+     9,
+     10,
+     "evaded",
+     0,
+     0,
+     7
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "tempo-chain-to-cap-3",
+   "note": "AGI 25 gives cap 3: attack lands, three tempo wins, three extra actions, the chain stops",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 15,
+      "stats": {
+       "STR": 14,
+       "VIT": 8,
+       "AGI": 25,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 20,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "tier": "boss",
+      "lv": 15,
+      "hp": 90,
+      "maxhp": 30,
+      "dmg": 10,
+      "roll": 13
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    15,
+    5,
+    12,
+    10,
+    15,
+    5,
+    12,
+    10,
+    15,
+    5,
+    12,
+    10,
+    15,
+    5,
+    15,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     30
+    ],
+    [
+     "init",
+     "boss",
+     5,
+     12
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "boss"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     80
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "boss",
+     12,
+     27,
+     10,
+     23,
+     true
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     70
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "boss",
+     12,
+     27,
+     10,
+     23,
+     true
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     60
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "boss",
+     12,
+     27,
+     10,
+     23,
+     true
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     50
+    ],
+    [
+     "foe-phase",
+     [
+      "boss"
+     ]
+    ],
+    [
+     "foe-attack",
+     "boss",
+     "Warrior",
+     15,
+     28,
+     10,
+     21,
+     "hit",
+     23,
+     7,
+     7
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 13,
+      "sp": 15
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "hp": 50
+     }
+    ]
+   }
+  },
+  {
+   "name": "tempo-lost-stops-chain",
+   "note": "A lost tempo roll ends the chain after one action",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 15,
+      "stats": {
+       "STR": 14,
+       "VIT": 8,
+       "AGI": 25,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 20,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "tier": "boss",
+      "lv": 15,
+      "hp": 90,
+      "maxhp": 30,
+      "dmg": 10,
+      "roll": 13
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    15,
+    5,
+    2,
+    12,
+    3,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     30
+    ],
+    [
+     "init",
+     "boss",
+     5,
+     12
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "boss"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     80
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "boss",
+     2,
+     17,
+     12,
+     25,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "boss"
+     ]
+    ],
+    [
+     "foe-attack",
+     "boss",
+     "Warrior",
+     3,
+     16,
+     10,
+     21,
+     "evaded",
+     0,
+     0,
+     14
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 14,
+      "mp": 13,
+      "sp": 18
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "hp": 80
+     }
+    ]
+   }
+  },
+  {
+   "name": "tempo-cap-1-low-agi",
+   "note": "AGI under 15 gives cap 1: one extra action even though the tempo roll could keep winning",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 15,
+      "stats": {
+       "STR": 14,
+       "VIT": 8,
+       "AGI": 8,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "tier": "boss",
+      "lv": 15,
+      "hp": 90,
+      "maxhp": 30,
+      "dmg": 10,
+      "roll": 13
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    15,
+    5,
+    14,
+    5,
+    15,
+    5,
+    12,
+    18
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     22
+    ],
+    [
+     "init",
+     "boss",
+     5,
+     12
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "boss"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     80
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "boss",
+     14,
+     21,
+     5,
+     18,
+     true
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     70
+    ],
+    [
+     "foe-phase",
+     [
+      "boss"
+     ]
+    ],
+    [
+     "foe-attack",
+     "boss",
+     "Warrior",
+     12,
+     25,
+     18,
+     23,
+     "hit",
+     23,
+     7,
+     7
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 13,
+      "sp": 13
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "hp": 70
+     }
+    ]
+   }
+  },
+  {
+   "name": "defence-stance-soak",
+   "note": "Warrior L15 Defence stance: soak VIT 8 + 3 x 5 = 23%; boss hit 10 -> 7",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 15,
+      "stats": {
+       "STR": 14,
+       "VIT": 8,
+       "AGI": 8,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "tier": "boss",
+      "lv": 15,
+      "hp": 30,
+      "maxhp": 30,
+      "dmg": 10,
+      "roll": 13
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    12,
+    17
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     22
+    ],
+    [
+     "init",
+     "boss",
+     5,
+     12
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "boss"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     1,
+     11,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     30
+    ],
+    [
+     "foe-phase",
+     [
+      "boss"
+     ]
+    ],
+    [
+     "foe-attack",
+     "boss",
+     "Warrior",
+     12,
+     25,
+     17,
+     22,
+     "hit",
+     23,
+     7,
+     7
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 13,
+      "sp": 14
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "hp": 30
+     }
+    ]
+   }
+  },
+  {
+   "name": "soak-cap-50",
+   "note": "VIT 30 plus Defence stance 25 = 55%, capped at 50%: boss dmg 22 -> 11",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 50,
+      "stats": {
+       "STR": 23,
+       "VIT": 30,
+       "AGI": 17,
+       "DEX": 22,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 36,
+      "maxhp": 36,
+      "mp": 22,
+      "sp": 30,
+      "mastery": 5,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "tier": "boss",
+      "lv": 50,
+      "hp": 66,
+      "maxhp": 66,
+      "dmg": 22,
+      "roll": 24
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    12,
+    18
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     35
+    ],
+    [
+     "init",
+     "boss",
+     5,
+     23
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "boss"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "boss",
+     1,
+     24,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     66
+    ],
+    [
+     "foe-phase",
+     [
+      "boss"
+     ]
+    ],
+    [
+     "foe-attack",
+     "boss",
+     "Warrior",
+     12,
+     36,
+     18,
+     35,
+     "hit",
+     50,
+     11,
+     25
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 25,
+      "mp": 22,
+      "sp": 28
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "hp": 66
+     }
+    ]
+   }
+  },
+  {
+   "name": "soak-min-1",
+   "note": "A mob hit of 1 against 10% soak still deals 1 (minimum 1)",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "mob",
+      "tier": "mob",
+      "lv": 1,
+      "hp": 2,
+      "maxhp": 2,
+      "dmg": 1,
+      "roll": 4
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    12,
+    12
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "mob",
+     5,
+     3
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "mob"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "mob",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     2
+    ],
+    [
+     "foe-phase",
+     [
+      "mob"
+     ]
+    ],
+    [
+     "foe-attack",
+     "mob",
+     "Warrior",
+     12,
+     16,
+     12,
+     13,
+     "hit",
+     10,
+     1,
+     6
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 6,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "mob",
+      "hp": 2
+     }
+    ]
+   }
+  },
+  {
+   "name": "evasion-stance",
+   "note": "Skirmisher L15 Evasion stance: d20 + 4 + 3 + 2; the 21 ties the foe's 21 and evades (19 would hit)",
+   "sheet": {
+    "party": [
+     {
+      "label": "Skirmisher",
+      "build": "Skirmisher",
+      "lv": 15,
+      "stats": {
+       "STR": 8,
+       "VIT": 8,
+       "AGI": 14,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 15,
+      "hp": 15,
+      "maxhp": 15,
+      "dmg": 5,
+      "roll": 11
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    10,
+    12
+   ],
+   "events": [
+    [
+     "init",
+     "Skirmisher",
+     15,
+     25
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     10
+    ],
+    [
+     "order",
+     [
+      "Skirmisher"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Skirmisher",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "attack",
+     "Skirmisher",
+     "skill",
+     "standard",
+     1,
+     11,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     15
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Skirmisher",
+     10,
+     21,
+     12,
+     21,
+     "evaded",
+     0,
+     0,
+     14
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Skirmisher",
+      "hp": 14,
+      "mp": 13,
+      "sp": 14
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 15
+     }
+    ]
+   }
+  },
+  {
+   "name": "movement-stance-cap-plus-1",
+   "note": "Skirmisher-Move L15: tempo cap 1 + 1 = 2, tempo roll gets +ceil(3/2); two extra actions",
+   "sheet": {
+    "party": [
+     {
+      "label": "Skirmisher-Move",
+      "build": "Skirmisher-Move",
+      "lv": 15,
+      "stats": {
+       "STR": 8,
+       "VIT": 8,
+       "AGI": 14,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "movement"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "tier": "boss",
+      "lv": 15,
+      "hp": 90,
+      "maxhp": 30,
+      "dmg": 10,
+      "roll": 13
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    15,
+    5,
+    15,
+    10,
+    15,
+    5,
+    15,
+    10,
+    15,
+    5,
+    8,
+    15
+   ],
+   "events": [
+    [
+     "init",
+     "Skirmisher-Move",
+     15,
+     25
+    ],
+    [
+     "init",
+     "boss",
+     5,
+     12
+    ],
+    [
+     "order",
+     [
+      "Skirmisher-Move"
+     ],
+     [
+      "boss"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Skirmisher-Move",
+     [
+      "movement"
+     ]
+    ],
+    [
+     "attack",
+     "Skirmisher-Move",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     80
+    ],
+    [
+     "tempo",
+     "Skirmisher-Move",
+     "boss",
+     15,
+     27,
+     10,
+     23,
+     true
+    ],
+    [
+     "attack",
+     "Skirmisher-Move",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     70
+    ],
+    [
+     "tempo",
+     "Skirmisher-Move",
+     "boss",
+     15,
+     27,
+     10,
+     23,
+     true
+    ],
+    [
+     "attack",
+     "Skirmisher-Move",
+     "skill",
+     "boss",
+     15,
+     25,
+     5,
+     18,
+     "hit",
+     10,
+     60
+    ],
+    [
+     "foe-phase",
+     [
+      "boss"
+     ]
+    ],
+    [
+     "foe-attack",
+     "boss",
+     "Skirmisher-Move",
+     8,
+     21,
+     15,
+     22,
+     "evaded",
+     0,
+     0,
+     14
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Skirmisher-Move",
+      "hp": 14,
+      "mp": 13,
+      "sp": 12
+     }
+    ],
+    "foes": [
+     {
+      "label": "boss",
+      "hp": 60
+     }
+    ]
+   }
+  },
+  {
+   "name": "area-60",
+   "note": "Skirmisher-area L15 vs two foes: area costs 2 SP, rolled per target, 60% of 10 = 6; one hit, one miss, tempo rolled once",
+   "sheet": {
+    "party": [
+     {
+      "label": "Skirmisher-area",
+      "build": "Skirmisher-area",
+      "lv": 15,
+      "stats": {
+       "STR": 8,
+       "VIT": 8,
+       "AGI": 14,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "evasion"
+      ],
+      "area": true,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "tier": "standard",
+      "lv": 15,
+      "hp": 15,
+      "maxhp": 15,
+      "dmg": 5,
+      "roll": 11
+     },
+     {
+      "label": "b",
+      "tier": "standard",
+      "lv": 15,
+      "hp": 15,
+      "maxhp": 15,
+      "dmg": 5,
+      "roll": 11
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    5,
+    15,
+    10,
+    8,
+    14,
+    2,
+    12,
+    8,
+    10,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Skirmisher-area",
+     15,
+     25
+    ],
+    [
+     "init",
+     "a",
+     5,
+     10
+    ],
+    [
+     "init",
+     "b",
+     5,
+     10
+    ],
+    [
+     "order",
+     [
+      "Skirmisher-area"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Skirmisher-area",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "attack",
+     "Skirmisher-area",
+     "area",
+     "a",
+     15,
+     25,
+     10,
+     21,
+     "hit",
+     6,
+     9
+    ],
+    [
+     "attack",
+     "Skirmisher-area",
+     "area",
+     "b",
+     8,
+     18,
+     14,
+     25,
+     "miss",
+     0,
+     15
+    ],
+    [
+     "tempo",
+     "Skirmisher-area",
+     "a",
+     2,
+     12,
+     12,
+     23,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "a",
+      "b"
+     ]
+    ],
+    [
+     "foe-attack",
+     "a",
+     "Skirmisher-area",
+     8,
+     19,
+     10,
+     19,
+     "evaded",
+     0,
+     0,
+     14
+    ],
+    [
+     "foe-attack",
+     "b",
+     "Skirmisher-area",
+     8,
+     19,
+     10,
+     19,
+     "evaded",
+     0,
+     0,
+     14
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Skirmisher-area",
+      "hp": 14,
+      "mp": 13,
+      "sp": 13
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "hp": 9
+     },
+     {
+      "label": "b",
+      "hp": 15
+     }
+    ]
+   }
+  },
+  {
+   "name": "heal",
+   "note": "Healer L15 heals the ally below half HP: WIS 14 / 3 + mastery 3 = 7, 2 MP",
+   "sheet": {
+    "party": [
+     {
+      "label": "Healer",
+      "build": "Healer",
+      "lv": 15,
+      "stats": {
+       "STR": 5,
+       "VIT": 14,
+       "AGI": 8,
+       "DEX": 5,
+       "INT": 8,
+       "WIS": 14,
+       "CHA": 5
+      },
+      "hp": 17,
+      "maxhp": 17,
+      "mp": 16,
+      "sp": 14,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": true
+     },
+     {
+      "label": "Ally",
+      "build": "Warrior",
+      "lv": 15,
+      "stats": {
+       "STR": 14,
+       "VIT": 8,
+       "AGI": 8,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 4,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 15,
+      "hp": 15,
+      "maxhp": 15,
+      "dmg": 5,
+      "roll": 11
+     }
+    ]
+   },
+   "dice": [
+    15,
+    12,
+    5,
+    1,
+    2,
+    9
+   ],
+   "events": [
+    [
+     "init",
+     "Healer",
+     15,
+     22
+    ],
+    [
+     "init",
+     "Ally",
+     12,
+     19
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     10
+    ],
+    [
+     "order",
+     [
+      "Healer",
+      "Ally"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Healer",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "stance",
+     "Ally",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "heal",
+     "Healer",
+     "Ally",
+     7,
+     11
+    ],
+    [
+     "attack",
+     "Ally",
+     "skill",
+     "standard",
+     1,
+     11,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     15
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Healer",
+     2,
+     13,
+     9,
+     14,
+     "evaded",
+     0,
+     0,
+     17
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Healer",
+      "hp": 17,
+      "mp": 13,
+      "sp": 14
+     },
+     {
+      "label": "Ally",
+      "hp": 11,
+      "mp": 13,
+      "sp": 14
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 15
+     }
+    ]
+   }
+  },
+  {
+   "name": "heal-clamps-at-max",
+   "note": "Heal never passes max HP: ally 2/7 healed by 7 ends at 7",
+   "sheet": {
+    "party": [
+     {
+      "label": "Healer",
+      "build": "Healer",
+      "lv": 15,
+      "stats": {
+       "STR": 5,
+       "VIT": 14,
+       "AGI": 8,
+       "DEX": 5,
+       "INT": 8,
+       "WIS": 14,
+       "CHA": 5
+      },
+      "hp": 17,
+      "maxhp": 17,
+      "mp": 16,
+      "sp": 14,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": true
+     },
+     {
+      "label": "Ally",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 2,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 15,
+      "hp": 15,
+      "maxhp": 15,
+      "dmg": 5,
+      "roll": 11
+     }
+    ]
+   },
+   "dice": [
+    15,
+    12,
+    5,
+    1,
+    2,
+    9
+   ],
+   "events": [
+    [
+     "init",
+     "Healer",
+     15,
+     22
+    ],
+    [
+     "init",
+     "Ally",
+     12,
+     14
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     10
+    ],
+    [
+     "order",
+     [
+      "Healer",
+      "Ally"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Healer",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "stance",
+     "Ally",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "heal",
+     "Healer",
+     "Ally",
+     7,
+     7
+    ],
+    [
+     "attack",
+     "Ally",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     15
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Healer",
+     2,
+     13,
+     9,
+     14,
+     "evaded",
+     0,
+     0,
+     17
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Healer",
+      "hp": 17,
+      "mp": 13,
+      "sp": 14
+     },
+     {
+      "label": "Ally",
+      "hp": 7,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 15
+     }
+    ]
+   }
+  },
+  {
+   "name": "flee-fails",
+   "note": "Flee 5 vs the strongest foe roll 16: the exchange is wasted and the foe attacks",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    3,
+    10,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "flee",
+     "Warrior",
+     "standard",
+     3,
+     5,
+     10,
+     16,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 5,
+      "mp": 10,
+      "sp": 10
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "flee-succeeds",
+   "note": "Flee 17 vs 14: the party gets away, the fight ends",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    15,
+    8
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "flee",
+     "Warrior",
+     "standard",
+     15,
+     17,
+     8,
+     14,
+     true
+    ]
+   ],
+   "end": {
+    "result": "fled",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 10,
+      "sp": 10
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "flee-tie-to-player",
+   "note": "Flee 14 vs 14: a tie goes to the player",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    12,
+    8
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "flee",
+     "Warrior",
+     "standard",
+     12,
+     14,
+     8,
+     14,
+     true
+    ]
+   ],
+   "end": {
+    "result": "fled",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 10,
+      "sp": 10
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "lone-elite-once-per-hero",
+   "note": "A lone elite attacks once per standing hero (2 heroes, 2 attacks), each at its own turn",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     },
+     {
+      "label": "Mage",
+      "build": "Mage",
+      "lv": 1,
+      "stats": {
+       "STR": 5,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 5,
+       "INT": 10,
+       "WIS": 10,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 13,
+      "sp": 10,
+      "mastery": 1,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "elite",
+      "tier": "elite",
+      "lv": 1,
+      "hp": 12,
+      "maxhp": 12,
+      "dmg": 5,
+      "roll": 7
+     }
+    ]
+   },
+   "dice": [
+    15,
+    15,
+    5,
+    1,
+    1,
+    10,
+    5,
+    10,
+    5
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "Mage",
+     15,
+     17
+    ],
+    [
+     "init",
+     "elite",
+     5,
+     6
+    ],
+    [
+     "order",
+     [
+      "Warrior",
+      "Mage"
+     ],
+     [
+      "elite"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "stance",
+     "Mage",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "elite",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     12
+    ],
+    [
+     "attack",
+     "Mage",
+     "skill",
+     "elite",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     12
+    ],
+    [
+     "foe-phase",
+     [
+      "elite",
+      "elite"
+     ]
+    ],
+    [
+     "foe-attack",
+     "elite",
+     "Warrior",
+     10,
+     17,
+     5,
+     6,
+     "decisive",
+     10,
+     6,
+     1
+    ],
+    [
+     "foe-attack",
+     "elite",
+     "Mage",
+     10,
+     17,
+     5,
+     7,
+     "decisive",
+     5,
+     6,
+     1
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 1,
+      "mp": 10,
+      "sp": 9
+     },
+     {
+      "label": "Mage",
+      "hp": 1,
+      "mp": 11,
+      "sp": 10
+     }
+    ],
+    "foes": [
+     {
+      "label": "elite",
+      "hp": 12
+     }
+    ]
+   }
+  },
+  {
+   "name": "lone-apex-three-heroes",
+   "note": "A lone apex attacks once per standing hero (3 attacks); heroes that go down mid-phase are skipped by the target rotation",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 15,
+      "stats": {
+       "STR": 14,
+       "VIT": 8,
+       "AGI": 8,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     },
+     {
+      "label": "Skirmisher",
+      "build": "Skirmisher",
+      "lv": 15,
+      "stats": {
+       "STR": 8,
+       "VIT": 8,
+       "AGI": 14,
+       "DEX": 14,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 13,
+      "sp": 16,
+      "mastery": 3,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     },
+     {
+      "label": "Mage",
+      "build": "Mage",
+      "lv": 15,
+      "stats": {
+       "STR": 5,
+       "VIT": 8,
+       "AGI": 8,
+       "DEX": 5,
+       "INT": 14,
+       "WIS": 14,
+       "CHA": 5
+      },
+      "hp": 14,
+      "maxhp": 14,
+      "mp": 18,
+      "sp": 14,
+      "mastery": 3,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "apex",
+      "tier": "apex",
+      "lv": 15,
+      "hp": 45,
+      "maxhp": 45,
+      "dmg": 15,
+      "roll": 15
+     }
+    ]
+   },
+   "dice": [
+    15,
+    15,
+    15,
+    5,
+    1,
+    1,
+    1,
+    3,
+    5,
+    3,
+    5,
+    3,
+    5
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     22
+    ],
+    [
+     "init",
+     "Skirmisher",
+     15,
+     25
+    ],
+    [
+     "init",
+     "Mage",
+     15,
+     22
+    ],
+    [
+     "init",
+     "apex",
+     5,
+     14
+    ],
+    [
+     "order",
+     [
+      "Skirmisher",
+      "Warrior",
+      "Mage"
+     ],
+     [
+      "apex"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Skirmisher",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "stance",
+     "Mage",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "attack",
+     "Skirmisher",
+     "skill",
+     "apex",
+     1,
+     11,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     45
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "apex",
+     1,
+     11,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     45
+    ],
+    [
+     "attack",
+     "Mage",
+     "skill",
+     "apex",
+     1,
+     11,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     45
+    ],
+    [
+     "foe-phase",
+     [
+      "apex",
+      "apex",
+      "apex"
+     ]
+    ],
+    [
+     "foe-attack",
+     "apex",
+     "Skirmisher",
+     3,
+     18,
+     5,
+     14,
+     "hit",
+     8,
+     13,
+     1
+    ],
+    [
+     "foe-attack",
+     "apex",
+     "Warrior",
+     3,
+     18,
+     5,
+     10,
+     "decisive",
+     23,
+     16,
+     0
+    ],
+    [
+     "foe-attack",
+     "apex",
+     "Skirmisher",
+     3,
+     18,
+     5,
+     14,
+     "hit",
+     8,
+     13,
+     0
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Skirmisher",
+      "hp": 0,
+      "mp": 13,
+      "sp": 14
+     },
+     {
+      "label": "Warrior",
+      "hp": 0,
+      "mp": 13,
+      "sp": 14
+     },
+     {
+      "label": "Mage",
+      "hp": 14,
+      "mp": 16,
+      "sp": 14
+     }
+    ],
+    "foes": [
+     {
+      "label": "apex",
+      "hp": 45
+     }
+    ]
+   }
+  },
+  {
+   "name": "cap-2x-party",
+   "note": "Four standard foes vs one hero: only 2 x party (2) of them attack",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "b",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "c",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "d",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    5,
+    5,
+    5,
+    1,
+    8,
+    10,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "a",
+     5,
+     5
+    ],
+    [
+     "init",
+     "b",
+     5,
+     5
+    ],
+    [
+     "init",
+     "c",
+     5,
+     5
+    ],
+    [
+     "init",
+     "d",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "a",
+      "b",
+      "c",
+      "d"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "a",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "a",
+      "b"
+     ]
+    ],
+    [
+     "foe-attack",
+     "a",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ],
+    [
+     "foe-attack",
+     "b",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     3
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 3,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "hp": 8
+     },
+     {
+      "label": "b",
+      "hp": 8
+     },
+     {
+      "label": "c",
+      "hp": 8
+     },
+     {
+      "label": "d",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "foe-decisive-by-8",
+   "note": "Foe roll beats evasion by exactly 8: decisive, 3 x 1.5 = 4, through 10% soak = 3",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    14,
+    11
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     14,
+     20,
+     11,
+     12,
+     "decisive",
+     10,
+     3,
+     4
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 4,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "foe-natural-20",
+   "note": "A foe natural 20 is decisive under 8 margin",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    20,
+    19
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     20,
+     26,
+     19,
+     20,
+     "decisive",
+     10,
+     3,
+     4
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 4,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "foes-act-first",
+   "note": "Foe initiative 10 beats the party's 3: the foe phase runs before the party's",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    1,
+    10,
+    8,
+    10,
+    12,
+    5,
+    3,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     1,
+     3
+    ],
+    [
+     "init",
+     "standard",
+     10,
+     10
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "foes"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     12,
+     17,
+     5,
+     11,
+     "hit",
+     6,
+     2
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "standard",
+     3,
+     5,
+     10,
+     16,
+     false
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 5,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 2
+     }
+    ]
+   }
+  },
+  {
+   "name": "order-tie-to-party",
+   "note": "Party initiative 5 ties the foe's 5: the party goes first",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    3,
+    5,
+    1,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     3,
+     5
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 5,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "order-tie-higher-agi",
+   "note": "Equal initiative 12: the hero with the higher AGI acts first",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     },
+     {
+      "label": "Skirmisher",
+      "build": "Skirmisher",
+      "lv": 1,
+      "stats": {
+       "STR": 5,
+       "VIT": 5,
+       "AGI": 10,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    10,
+    7,
+    5,
+    1,
+    1,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     10,
+     12
+    ],
+    [
+     "init",
+     "Skirmisher",
+     7,
+     12
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Skirmisher",
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Skirmisher",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Skirmisher",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Skirmisher",
+     8,
+     14,
+     10,
+     14,
+     "evaded",
+     0,
+     0,
+     7
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Skirmisher",
+      "hp": 7,
+      "mp": 10,
+      "sp": 9
+     },
+     {
+      "label": "Warrior",
+      "hp": 7,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "normal-attack-no-sp",
+   "note": "With 0 SP the hero falls back to the normal attack (STR / 2 = 5) and runs no stance",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    12,
+    5,
+    3,
+    10,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     []
+    ],
+    [
+     "attack",
+     "Warrior",
+     "normal",
+     "standard",
+     12,
+     17,
+     5,
+     11,
+     "hit",
+     5,
+     3
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "standard",
+     3,
+     5,
+     10,
+     16,
+     false
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     5,
+     2,
+     5
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 5,
+      "mp": 10,
+      "sp": 0
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 3
+     }
+    ]
+   }
+  },
+  {
+   "name": "hero-down-loss",
+   "note": "A hero at 1 HP hit by the foe goes down: the fight ends as a loss",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 1,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    15,
+    5,
+    1,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     15,
+     17
+    ],
+    [
+     "init",
+     "standard",
+     5,
+     5
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "standard"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "standard",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "foe-phase",
+     [
+      "standard"
+     ]
+    ],
+    [
+     "foe-attack",
+     "standard",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     0
+    ]
+   ],
+   "end": {
+    "result": "loss",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 0,
+      "mp": 10,
+      "sp": 9
+     }
+    ],
+    "foes": [
+     {
+      "label": "standard",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "focus-lowest-hp-five-foes",
+   "note": "Five foes with different HP: each action goes to the lowest-HP standing foe (first in order on a tie); a decisive hit kills it and a won tempo roll moves the next action to the next lowest",
+   "sheet": {
+    "party": [
+     {
+      "label": "Warrior",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 6,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "b",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 3,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "c",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 5,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "d",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 3,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "e",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 4,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    20,
+    10,
+    12,
+    14,
+    11,
+    13,
+    19,
+    1,
+    20,
+    1,
+    19,
+    1,
+    3,
+    5,
+    8,
+    10
+   ],
+   "events": [
+    [
+     "init",
+     "Warrior",
+     20,
+     22
+    ],
+    [
+     "init",
+     "a",
+     10,
+     10
+    ],
+    [
+     "init",
+     "b",
+     12,
+     12
+    ],
+    [
+     "init",
+     "c",
+     14,
+     14
+    ],
+    [
+     "init",
+     "d",
+     11,
+     11
+    ],
+    [
+     "init",
+     "e",
+     13,
+     13
+    ],
+    [
+     "order",
+     [
+      "Warrior"
+     ],
+     [
+      "c",
+      "e",
+      "b",
+      "d",
+      "a"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Warrior",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "b",
+     19,
+     24,
+     1,
+     7,
+     "decisive",
+     9,
+     0
+    ],
+    [
+     "tempo",
+     "Warrior",
+     "b",
+     20,
+     22,
+     1,
+     7,
+     true
+    ],
+    [
+     "attack",
+     "Warrior",
+     "skill",
+     "d",
+     19,
+     24,
+     1,
+     7,
+     "decisive",
+     9,
+     0
+    ],
+    [
+     "foe-phase",
+     [
+      "c",
+      "e"
+     ]
+    ],
+    [
+     "foe-attack",
+     "c",
+     "Warrior",
+     3,
+     9,
+     5,
+     6,
+     "hit",
+     10,
+     2,
+     5
+    ],
+    [
+     "foe-attack",
+     "e",
+     "Warrior",
+     8,
+     14,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     3
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Warrior",
+      "hp": 3,
+      "mp": 10,
+      "sp": 8
+     }
+    ],
+    "foes": [
+     {
+      "label": "c",
+      "hp": 5
+     },
+     {
+      "label": "e",
+      "hp": 4
+     },
+     {
+      "label": "b",
+      "hp": 0
+     },
+     {
+      "label": "d",
+      "hp": 0
+     },
+     {
+      "label": "a",
+      "hp": 6
+     }
+    ]
+   }
+  },
+  {
+   "name": "tempo-retargets-across-four-foes",
+   "note": "Skirmisher L50 (AGI under 25, tempo cap 2) vs four weak foes: a kill, a won tempo roll, the next action on the next lowest foe, twice; the cap stops the chain with the fourth foe still standing, and it attacks alone",
+   "sheet": {
+    "party": [
+     {
+      "label": "Skirmisher",
+      "build": "Skirmisher",
+      "lv": 50,
+      "stats": {
+       "STR": 17,
+       "VIT": 17,
+       "AGI": 23,
+       "DEX": 22,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 29,
+      "maxhp": 29,
+      "mp": 22,
+      "sp": 30,
+      "mastery": 5,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 1,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "b",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 2,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "c",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 3,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "d",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 4,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    20,
+    1,
+    2,
+    3,
+    4,
+    19,
+    1,
+    20,
+    1,
+    19,
+    1,
+    20,
+    1,
+    19,
+    1,
+    20,
+    1
+   ],
+   "events": [
+    [
+     "init",
+     "Skirmisher",
+     20,
+     43
+    ],
+    [
+     "init",
+     "a",
+     1,
+     1
+    ],
+    [
+     "init",
+     "b",
+     2,
+     2
+    ],
+    [
+     "init",
+     "c",
+     3,
+     3
+    ],
+    [
+     "init",
+     "d",
+     4,
+     4
+    ],
+    [
+     "order",
+     [
+      "Skirmisher"
+     ],
+     [
+      "d",
+      "c",
+      "b",
+      "a"
+     ],
+     "party"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "Skirmisher",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "attack",
+     "Skirmisher",
+     "skill",
+     "a",
+     19,
+     42,
+     1,
+     7,
+     "decisive",
+     24,
+     0
+    ],
+    [
+     "tempo",
+     "Skirmisher",
+     "a",
+     20,
+     43,
+     1,
+     7,
+     true
+    ],
+    [
+     "attack",
+     "Skirmisher",
+     "skill",
+     "b",
+     19,
+     42,
+     1,
+     7,
+     "decisive",
+     24,
+     0
+    ],
+    [
+     "tempo",
+     "Skirmisher",
+     "b",
+     20,
+     43,
+     1,
+     7,
+     true
+    ],
+    [
+     "attack",
+     "Skirmisher",
+     "skill",
+     "c",
+     19,
+     42,
+     1,
+     7,
+     "decisive",
+     24,
+     0
+    ],
+    [
+     "foe-phase",
+     [
+      "d"
+     ]
+    ],
+    [
+     "foe-attack",
+     "d",
+     "Skirmisher",
+     20,
+     26,
+     1,
+     23,
+     "decisive",
+     17,
+     3,
+     26
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "Skirmisher",
+      "hp": 26,
+      "mp": 22,
+      "sp": 26
+     }
+    ],
+    "foes": [
+     {
+      "label": "d",
+      "hp": 4
+     },
+     {
+      "label": "c",
+      "hp": 0
+     },
+     {
+      "label": "b",
+      "hp": 0
+     },
+     {
+      "label": "a",
+      "hp": 0
+     }
+    ]
+   }
+  },
+  {
+   "name": "six-foes-all-attack-three-heroes",
+   "note": "Six foes act first against three heroes: 2 x party = 6, so all six attack, targets rotating through the heroes in party order",
+   "sheet": {
+    "party": [
+     {
+      "label": "w",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     },
+     {
+      "label": "s",
+      "build": "Skirmisher",
+      "lv": 1,
+      "stats": {
+       "STR": 5,
+       "VIT": 5,
+       "AGI": 10,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     },
+     {
+      "label": "m",
+      "build": "Mage",
+      "lv": 1,
+      "stats": {
+       "STR": 5,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 5,
+       "INT": 10,
+       "WIS": 10,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 13,
+      "sp": 10,
+      "mastery": 1,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "b",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "c",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "d",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "e",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "f",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    1,
+    1,
+    1,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    1,
+    1,
+    1
+   ],
+   "events": [
+    [
+     "init",
+     "w",
+     1,
+     3
+    ],
+    [
+     "init",
+     "s",
+     1,
+     6
+    ],
+    [
+     "init",
+     "m",
+     1,
+     3
+    ],
+    [
+     "init",
+     "a",
+     20,
+     20
+    ],
+    [
+     "init",
+     "b",
+     19,
+     19
+    ],
+    [
+     "init",
+     "c",
+     18,
+     18
+    ],
+    [
+     "init",
+     "d",
+     17,
+     17
+    ],
+    [
+     "init",
+     "e",
+     16,
+     16
+    ],
+    [
+     "init",
+     "f",
+     15,
+     15
+    ],
+    [
+     "order",
+     [
+      "s",
+      "w",
+      "m"
+     ],
+     [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+     ],
+     "foes"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "s",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "stance",
+     "w",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "stance",
+     "m",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "foe-phase",
+     [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+     ]
+    ],
+    [
+     "foe-attack",
+     "a",
+     "s",
+     10,
+     16,
+     10,
+     14,
+     "hit",
+     5,
+     2,
+     5
+    ],
+    [
+     "foe-attack",
+     "b",
+     "w",
+     10,
+     16,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ],
+    [
+     "foe-attack",
+     "c",
+     "m",
+     10,
+     16,
+     10,
+     12,
+     "hit",
+     5,
+     2,
+     5
+    ],
+    [
+     "foe-attack",
+     "d",
+     "s",
+     10,
+     16,
+     10,
+     14,
+     "hit",
+     5,
+     2,
+     3
+    ],
+    [
+     "foe-attack",
+     "e",
+     "w",
+     10,
+     16,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     3
+    ],
+    [
+     "foe-attack",
+     "f",
+     "m",
+     10,
+     16,
+     10,
+     12,
+     "hit",
+     5,
+     2,
+     3
+    ],
+    [
+     "attack",
+     "s",
+     "skill",
+     "a",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "attack",
+     "w",
+     "skill",
+     "a",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "attack",
+     "m",
+     "skill",
+     "a",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "s",
+      "hp": 3,
+      "mp": 10,
+      "sp": 9
+     },
+     {
+      "label": "w",
+      "hp": 3,
+      "mp": 10,
+      "sp": 9
+     },
+     {
+      "label": "m",
+      "hp": 3,
+      "mp": 11,
+      "sp": 10
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "hp": 8
+     },
+     {
+      "label": "b",
+      "hp": 8
+     },
+     {
+      "label": "c",
+      "hp": 8
+     },
+     {
+      "label": "d",
+      "hp": 8
+     },
+     {
+      "label": "e",
+      "hp": 8
+     },
+     {
+      "label": "f",
+      "hp": 8
+     }
+    ]
+   }
+  },
+  {
+   "name": "six-foes-cap-four-vs-two-heroes",
+   "note": "Six foes vs two heroes: the cap 2 x party = 4, so only the first four foes in order attack",
+   "sheet": {
+    "party": [
+     {
+      "label": "w",
+      "build": "Warrior",
+      "lv": 1,
+      "stats": {
+       "STR": 10,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 10,
+       "INT": 5,
+       "WIS": 5,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 10,
+      "sp": 11,
+      "mastery": 1,
+      "stances": [
+       "defence"
+      ],
+      "area": false,
+      "heal": false
+     },
+     {
+      "label": "m",
+      "build": "Mage",
+      "lv": 1,
+      "stats": {
+       "STR": 5,
+       "VIT": 5,
+       "AGI": 5,
+       "DEX": 5,
+       "INT": 10,
+       "WIS": 10,
+       "CHA": 5
+      },
+      "hp": 7,
+      "maxhp": 7,
+      "mp": 13,
+      "sp": 10,
+      "mastery": 1,
+      "stances": [
+       "evasion"
+      ],
+      "area": false,
+      "heal": false
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "b",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "c",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "d",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "e",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     },
+     {
+      "label": "f",
+      "tier": "standard",
+      "lv": 1,
+      "hp": 8,
+      "maxhp": 8,
+      "dmg": 3,
+      "roll": 6
+     }
+    ]
+   },
+   "dice": [
+    1,
+    1,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    1,
+    1
+   ],
+   "events": [
+    [
+     "init",
+     "w",
+     1,
+     3
+    ],
+    [
+     "init",
+     "m",
+     1,
+     3
+    ],
+    [
+     "init",
+     "a",
+     20,
+     20
+    ],
+    [
+     "init",
+     "b",
+     19,
+     19
+    ],
+    [
+     "init",
+     "c",
+     18,
+     18
+    ],
+    [
+     "init",
+     "d",
+     17,
+     17
+    ],
+    [
+     "init",
+     "e",
+     16,
+     16
+    ],
+    [
+     "init",
+     "f",
+     15,
+     15
+    ],
+    [
+     "order",
+     [
+      "w",
+      "m"
+     ],
+     [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+     ],
+     "foes"
+    ],
+    [
+     "exchange",
+     1
+    ],
+    [
+     "stance",
+     "w",
+     [
+      "defence"
+     ]
+    ],
+    [
+     "stance",
+     "m",
+     [
+      "evasion"
+     ]
+    ],
+    [
+     "foe-phase",
+     [
+      "a",
+      "b",
+      "c",
+      "d"
+     ]
+    ],
+    [
+     "foe-attack",
+     "a",
+     "w",
+     10,
+     16,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     5
+    ],
+    [
+     "foe-attack",
+     "b",
+     "m",
+     10,
+     16,
+     10,
+     12,
+     "hit",
+     5,
+     2,
+     5
+    ],
+    [
+     "foe-attack",
+     "c",
+     "w",
+     10,
+     16,
+     10,
+     11,
+     "hit",
+     10,
+     2,
+     3
+    ],
+    [
+     "foe-attack",
+     "d",
+     "m",
+     10,
+     16,
+     10,
+     12,
+     "hit",
+     5,
+     2,
+     3
+    ],
+    [
+     "attack",
+     "w",
+     "skill",
+     "a",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ],
+    [
+     "attack",
+     "m",
+     "skill",
+     "a",
+     1,
+     6,
+     null,
+     null,
+     "miss-nat1",
+     0,
+     8
+    ]
+   ],
+   "end": {
+    "result": "unfinished",
+    "exchanges": 1,
+    "party": [
+     {
+      "label": "w",
+      "hp": 3,
+      "mp": 10,
+      "sp": 9
+     },
+     {
+      "label": "m",
+      "hp": 3,
+      "mp": 11,
+      "sp": 10
+     }
+    ],
+    "foes": [
+     {
+      "label": "a",
+      "hp": 8
+     },
+     {
+      "label": "b",
+      "hp": 8
+     },
+     {
+      "label": "c",
+      "hp": 8
+     },
+     {
+      "label": "d",
+      "hp": 8
+     },
+     {
+      "label": "e",
+      "hp": 8
+     },
+     {
+      "label": "f",
+      "hp": 8
+     }
+    ]
+   }
+  }
+ ]
+}
