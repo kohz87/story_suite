@@ -41,7 +41,7 @@ import { VERSION } from './version.js';
 export function createRuntime({
     ctx, packs = null, core = true, modules = [], createStore = realStore, createCommandBus = realBus,
     notify, onBlocked = null, onSaveError = null, onRegister = null, branch = null, callModel = null, modelTimeoutMs = undefined,
-    live = () => globalThis.SillyTavern?.getContext?.() ?? ctx, fetch = null, page = globalThis.window ?? null, timelineFaults = null, rpgLoad = undefined,
+    live = () => globalThis.SillyTavern?.getContext?.() ?? ctx, fetch = null, page = globalThis.window ?? null, timelineFaults = null, rpgLoad = undefined, corePeople = true,
 } = {}) {
     let features = null;
     let events = null;
@@ -118,6 +118,7 @@ export function createRuntime({
             extras: { promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
             version: VERSION,
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
+            people: corePeople,
             timeline: () => timeline,
             dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg) && registry.featureOn(CORE_FEATURE.fightBoard), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
             // The RPG's hooks read the chat and its metadata; no model is asked for rolls.
