@@ -2,6 +2,7 @@
 
 import { SHAPE_TYPES as T } from './shapes.js';
 
+const BAR = [-3, -2, -1, 0, 1, 2, 3];
 const NULL_STR = { $nullable: T.STRING };
 
 export const DOSSIER_SHAPE = {
@@ -17,6 +18,8 @@ export const DOSSIER_SHAPE = {
   stage: { $nullable: { now: T.STRING, next: NULL_STR, needs: NULL_STR } },
   changes: [{ date: T.STRING, meter: T.STRING, delta: T.NUMBER, why: T.STRING, heldBack: T.BOOLEAN }],
   mood: NULL_STR,
+  // Mood meters on NPC State's -3..+3 scale (whole numbers); absent when it has no mood numbers.
+  moodBars: { $optional: { feeling: { $enum: BAR }, energy: { $enum: BAR }, control: { $enum: BAR } } },
   now: {
     $oneOf: [
       { where: NULL_STR, doing: NULL_STR, wearing: NULL_STR, thought: NULL_STR },

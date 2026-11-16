@@ -4,18 +4,21 @@ const readJson = (text, fallback) => (text ? JSON.parse(text) : fallback);
 
 /**
  * The package map documents: one `{ mapPath, markdown, problems, summary }` per directory under
- * packages/ that has code files. `readOptional` returns a repo file's text or '' when it is missing.
+ * a package root (scripts/layout.json) that has code files. `readOptional` returns a repo file's text or '' when it is missing.
  */
-export function packageOutputs({ files, readSource, readOptional }) {
-  const names = [...new Set(files.map(p => /^packages\/([^/]+)\//.exec(p)?.[1]).filter(Boolean))].sort();
+export function packageOutputs({ files, readSource, readOptional, layout }) {
+  const roots = new Map(files.map(p => [layout.packageRootOf(p), layout.packageOf(p)]).filter(([dir, name]) => dir && name));
+  const names = [...new Set(roots.values())].sort();
   return names.map(pkg => {
-    const prefix = `packages/${pkg}/`;
+    const dir = [...roots].find(([, name]) => name === pkg)[0];
+    const prefix = `${dir}/`;
     const result = packageMap({
       pkg,
+      prefix,
       files: files.filter(p => p.startsWith(prefix)),
       readSource,
       explicitJobs: readJson(readOptional(`docs/codemap/jobs-${pkg}.json`), {}),
-      devMapText: readOptional(`${prefix}docs/dev/codemap.md`),
+      devMapText: readOptional(`${prefix}${layout.packageDevMap}`),
       features: readJson(readOptional(`docs/codemap/features-${pkg}.json`), []),
     });
     return {

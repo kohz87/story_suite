@@ -9,14 +9,41 @@ const deep = value => {
 /** Single numbers of the rule set (die, margins, caps, bar and foe formulas, costs). */
 export const V1 = deep({
     die: 20,
-    decisiveMargin: 8, decisiveTimes: 1.5, tempoMargin: 3, soakCap: 50, areaPercent: 60,
+    decisiveMargin: 8, decisiveTimes: 1.5, tempoMargin: 3, soakCap: 50, areaPercent: 60, percent: 100,
     stat: { min: 1, max: 30, start: 5, creationPoints: 10, creationCap: 10, perLevel: 1 },
     level: { min: 1, max: 99 },
     hp: { base: 5, levelDiv: 3, vitDiv: 2 },
     mp: { base: 8, levelDiv: 4, pairDiv: 4 },
     sp: { base: 8, levelDiv: 4, pairDiv: 4 },
-    foe: { rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6, damageRound: 0.5, defaultTier: 'standard', groupMax: 6 },
-    cost: { attack: 1, area: 2, heal: 2, stance: 1 },
+    roll: {
+        physicalDiv: 2, magicDiv: 2, evasionDiv: 3, tempoDiv: 2, orderDiv: 2, fleeDiv: 2, levelDiv: 4,
+        naturalMiss: 1, masteryDiv: 2,
+    },
+    damage: { statDiv: 2, healDiv: 3, min: 1 },
+    soak: { stanceStep: 5 },
+    tempoStanceBonus: 1,
+    foe: {
+        rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6,
+        damageRound: 0.5, defaultTier: 'standard', groupMax: 6, attackCapTimes: 2,
+        loneTiers: ['elite', 'boss', 'apex'],
+    },
+    fight: { maxExchanges: 60, healBelowTimes: 2, areaTargets: 2 },
+    cost: { normal: 0, attack: 1, area: 2, heal: 2, stance: 1, utility: 0 },
+    skill: {
+        defaultType: 'attack', normalType: 'normal', fallbackTypes: ['attack', 'area'],
+        magicStats: ['int', 'wis'], pools: { physical: 'sp', magic: 'mp' },
+        normal: { kind: 'action', cost: 'normal', pool: null, adds: 'damage' },
+        types: {
+            attack: { label: 'Attack', kind: 'action', cost: 'attack', pool: 'stat', adds: 'damage', aliases: ['attack'] },
+            area: { label: 'Area attack', kind: 'action', cost: 'area', pool: 'stat', adds: 'damage', aliases: ['area', 'area attack', 'areaattack'] },
+            defence: { label: 'Defence', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'soak', aliases: ['defence', 'defense'] },
+            evasion: { label: 'Evasion', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['evasion'] },
+            movement: { label: 'Movement', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['movement'] },
+            heal: { label: 'Heal', kind: 'action', cost: 'heal', pool: 'mp', adds: 'healing', aliases: ['heal', 'healing'] },
+            support: { label: 'Support', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'value', aliases: ['support'] },
+            utility: { label: 'Utility', kind: 'story', cost: 'utility', pool: null, adds: 'check', aliases: ['utility'] },
+        },
+    },
 });
 
 /** Foe tiers: the HP and damage multiplier and the tier's roll bonus. An absent tier is V1.foe.defaultTier. */

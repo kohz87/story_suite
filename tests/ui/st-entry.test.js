@@ -122,6 +122,36 @@ test('startPreview does nothing without Story Block or the context', async () =>
   assert.equal(await startPreview({ doc, getContext: () => null, StoryBlock: fakeBlock() }), null);
 });
 
+test('startPreview waits for Story Block that appears after the extension entry runs', async () => {
+  const doc = page();
+  const ctx = fakeCtx();
+  const savedTavern = globalThis.SillyTavern;
+  const savedBlock = globalThis.StoryBlock;
+  globalThis.SillyTavern = { getContext: () => ctx };
+  delete globalThis.StoryBlock;
+  try {
+    const pending = startPreview({ doc, base: 'x/' });
+    await new Promise(resolve => setTimeout(resolve, 30));
+    globalThis.StoryBlock = fakeBlock();
+    assert.ok(await pending);
+    assert.ok(doc.querySelector('#story-suite-ui-next'));
+  } finally {
+    if (savedTavern === undefined) delete globalThis.SillyTavern; else globalThis.SillyTavern = savedTavern;
+    if (savedBlock === undefined) delete globalThis.StoryBlock; else globalThis.StoryBlock = savedBlock;
+  }
+});
+
+test('startPreview waits for the settings host that appears after the extension entry runs', async () => {
+  const doc = page();
+  const host = doc.getElementById('extensions_settings2');
+  host.remove();
+  const pending = startPreview({ doc, getContext: () => fakeCtx(), StoryBlock: fakeBlock(), base: 'x/' });
+  await new Promise(resolve => setTimeout(resolve, 30));
+  doc.body.appendChild(host);
+  assert.ok(await pending);
+  assert.ok(doc.querySelector('#story-suite-ui-next'));
+});
+
 test('the manifest and hide sheet name the entry and every old furniture class, scoped to the body class', () => {
   const manifest = JSON.parse(fs.readFileSync(new URL('../../ui/manifest.json', import.meta.url), 'utf8'));
   assert.equal(manifest.js, 'st-entry.js');

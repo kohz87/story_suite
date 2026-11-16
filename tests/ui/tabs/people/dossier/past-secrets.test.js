@@ -55,8 +55,8 @@ test('Secrets: counts, opened text readable, locked ones show only the rule', ()
 test('a dead person keeps their opened secret readable', () => {
   installFakeDom();
   const [, list] = secretsPage(dossier('marro'));
-  assert.match(list.textContent, /Paid the bandits to spare the road/);
-  assert.match(list.textContent, /paid the grey men twice/);
+  assert.match(list.textContent, /Waved the bandits through for a share of the toll/);
+  assert.match(list.textContent, /strongbox lists what the bandits paid him/);
   assert.equal(secretsPage({}).length, 1);
 });
 

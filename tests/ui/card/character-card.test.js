@@ -113,3 +113,19 @@ test('names and notes are text, not markup', () => {
   assert.equal(el.querySelector('.nm').textContent, '<b>Ann</b>');
   assert.equal(el.querySelector('.fx2 .tx').textContent, '<i>L</i><u>n</u>');
 });
+
+test('the pace chip holds span.pacet with the km/day text', () => {
+  installFakeDom();
+  const el = characterCard(fixture('default').card);
+  assert.equal(el.querySelector('.pace .pacet').textContent, '20 km/day');
+});
+
+test('a Story-only card still shows a good timed condition', () => {
+  installFakeDom();
+  const base = fixture('rpg-off').card;
+  const card = { ...base, statuses: [{ id: 'well-rested', label: 'Well rested', tone: 'buff', note: '6 h' }, ...(base.statuses ?? [])] };
+  const el = characterCard(card);
+  assert.ok(el.className.includes('story-only'));
+  const buff = [...el.querySelectorAll('.fx2 .f')].find((f) => /Well rested/.test(f.textContent));
+  assert.ok(buff && buff.className.includes('buff'));
+});
