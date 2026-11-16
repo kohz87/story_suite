@@ -1,8 +1,8 @@
 // Story Director v2, part **world**: the World screen's Leads data and the fold every World section shares.
 //
-// * `leadsOf(state, tools)` → `[{ id, name, heard, heardAgo, where }]`: the hooks the player has heard of, newest first.
+// * `leadsOf(state, tools)` → `[{ id, name, heard, heardAgo, where, lapses, lapsesAt }]`: the hooks the player has heard of, newest first.
 //   The same filter as World's known list (known.js): active, not ended, no planner offer, no arc thread, no hidden name
-//   or hidden phrase. `heard`: the hook's summary; `heardAgo`: when it was first heard; `where`: its place when the hook
+//   or hidden phrase. `heard`: the hook's summary; `heardAgo`: when it was first heard; `lapses` / `lapsesAt`: the story day (text, minute) it lapses on, or '' / null for a lead that never does; `where`: its place when the hook
 //   names one (fields `where` or `place`), else ''. Never its Next line. Query `director.world.leads` (index.js).
 // * `foldMemory(storage?)`: which World sections the reader folded, per chat, on this device (one JSON object under
 //   FOLD_STORE; every storage access is guarded and the page keeps its own copy).
