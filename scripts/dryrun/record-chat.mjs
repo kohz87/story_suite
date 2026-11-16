@@ -2,6 +2,8 @@ import { capturePrompt } from './prompt-capture.mjs';
 import { pageSuiteHost } from './suite-host.mjs';
 import { discoverQueries, runQueriesAt } from './query-steps.mjs';
 import { loadFull, readChanges, rereadAt } from './reread-step.mjs';
+import { makeCardText } from './card-text.mjs';
+import { applyFlags } from './flags.mjs';
 import { sha256, stableStringify } from './state-hash.mjs';
 
 const FIXED_NOW = 1700000000000;
@@ -28,7 +30,7 @@ function coverageOf(replies) {
  * the static prompt and next-reply tail as built for that reply, queries (plain and with real arguments), and a
  * Re-read. Anything that failed is listed in `errors`; a record with errors is never a pass.
  */
-export async function recordChat({ suite, chat }) {
+export async function recordChat({ suite, chat, flags = null }) {
   const origNow = Date.now;
   Date.now = () => FIXED_NOW;
   let host = null;
@@ -40,6 +42,8 @@ export async function recordChat({ suite, chat }) {
     host = await makeHost(suite, { seed: 1 });
     const header = chat?.header ?? {};
     const messages = Array.isArray(chat?.messages) ? chat.messages : [];
+    applyFlags(host, flags);
+    const cardText = await makeCardText(suite);
     host.ctx.name1 = header.user_name || 'You';
     host.ctx.name2 = header.character_name || 'Narrator';
     await loadFull(host, header, messages);
@@ -59,6 +63,13 @@ export async function recordChat({ suite, chat }) {
         entry.queries = runQueriesAt(host, queryNames, index);
       } catch (err) {
         errors.push({ reply: index, step: 'state', detail: String(err?.message ?? err) });
+      }
+      if (cardText) {
+        try {
+          entry.card = cardText(host, index);
+        } catch (err) {
+          errors.push({ reply: index, step: 'card', detail: String(err?.message ?? err) });
+        }
       }
       replies.push(entry);
     }
@@ -90,6 +101,7 @@ export async function recordChat({ suite, chat }) {
       queryCoverage: coverageOf(replies),
       errors,
       replies,
+      ...(flags && Object.keys(flags).length ? { flags } : {}),
     };
   } finally {
     try {

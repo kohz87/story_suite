@@ -7,6 +7,8 @@ import { loadChat } from './load-chat.mjs';
 import { recordChat } from './record-chat.mjs';
 import { runHistoryOps } from './history-ops.mjs';
 import { historyErrors } from './compare-history.mjs';
+import { parseFlagList } from './flags.mjs';
+import { compareCards } from './compare-cards.mjs';
 import { compareRecords } from './compare-records.mjs';
 import { prepareOutDir, writeManifest } from './out-guard.mjs';
 
@@ -15,7 +17,7 @@ function parseFlags(args) {
   const positional = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--fresh' || arg === '--history') {
+    if (arg === '--fresh' || arg === '--history' || arg === '--cards') {
       flags[arg.slice(2)] = true;
     } else if (arg.startsWith('--')) {
       flags[arg.slice(2)] = args[++i];
@@ -32,8 +34,9 @@ async function runRecord(args) {
   const chatsDir = path.resolve(flags.chats ?? '');
   const outDir = path.resolve(flags.out ?? '');
   if (!flags.code || !flags.chats || !flags.out) {
-    throw new Error('Usage: record --code <repo root> --chats <folder> --out <folder> [--fresh] [--history]');
+    throw new Error('Usage: record --code <repo root> --chats <folder> --out <folder> [--fresh] [--history] [--flags name=value,...]');
   }
+  const setFlags = parseFlagList(flags.flags);
   prepareOutDir({ outDir, repoRoot, fresh: flags.fresh === true });
 
   mkdirSync(outDir, { recursive: true });
@@ -70,7 +73,7 @@ async function runRecord(args) {
     for (const file of files) {
       const start = performance.now();
       const chat = loadChat(path.join(chatsDir, file));
-      const record = await recordChat({ suite, chat });
+      const record = await recordChat({ suite, chat, flags: setFlags });
       if (flags.history) {
         record.history = await runHistoryOps({ suite, chat, chatId: file.replace(/\.jsonl(\.gz)?$/, '') });
         record.errors.push(...historyErrors(record, 'new').map(item => ({ reply: null, step: item.field, detail: item.before })));
@@ -93,9 +96,9 @@ async function runRecord(args) {
 }
 
 function runCompare(args) {
-  const { positional } = parseFlags(args);
+  const { flags, positional } = parseFlags(args);
   if (positional.length < 2) {
-    throw new Error('Usage: compare <dirA> <dirB>');
+    throw new Error('Usage: compare [--cards] <dirA> <dirB>');
   }
   const dirA = path.resolve(positional[0]);
   const dirB = path.resolve(positional[1]);
@@ -103,6 +106,10 @@ function runCompare(args) {
   const filesB = new Set(readdirSync(dirB).filter(name => name.endsWith('.json')));
   const allFiles = [...new Set([...filesA, ...filesB])].sort();
 
+  if (flags.cards) {
+    compareCardsIn({ dirA, dirB, allFiles, filesA, filesB });
+    return;
+  }
   let anyDiff = false;
   if (allFiles.length === 0) {
     console.log('no recordings found: nothing was compared');
@@ -136,6 +143,31 @@ function runCompare(args) {
   if (anyDiff) {
     process.exitCode = 1;
   }
+}
+
+// The replies whose card text differs, per chat: a file missing on one side or a record with no card text is a failure, not "no change".
+function compareCardsIn({ dirA, dirB, allFiles, filesA, filesB }) {
+  let bad = allFiles.length === 0;
+  if (bad) console.log('no recordings found: nothing was compared');
+  let changed = 0;
+  for (const file of allFiles) {
+    if (!filesA.has(file) || !filesB.has(file)) {
+      console.log(`${file}: missing in ${filesA.has(file) ? dirB : dirA}`);
+      bad = true;
+      continue;
+    }
+    const res = compareCards(JSON.parse(readFileSync(path.join(dirA, file), 'utf8')), JSON.parse(readFileSync(path.join(dirB, file), 'utf8')));
+    if (res.missing) {
+      console.log(`${file}: a recording has no card text (record it again with code that has the card): nothing was compared`);
+      bad = true;
+      continue;
+    }
+    console.log(`${file}: ${res.replies.length} replies with a changed card`);
+    for (const item of res.replies) console.log(`  reply=${item.reply}\n    before: ${item.before}\n    after:  ${item.after}`);
+    changed += res.replies.length;
+  }
+  console.log(`${changed} replies with a changed card in total`);
+  if (bad) process.exitCode = 1;
 }
 
 async function main() {

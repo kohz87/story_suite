@@ -1,5 +1,5 @@
 import { withD1 } from '../helpers/d1.js';
-// Chronicle part, day digest on the real Story Block v2 host (the vendored runtime and testkit), merged
+// Chronicle part, day digest on the real Story Block v2 host (the live runtime and testkit), merged
 // into the module by src/v2/module.js: a day the clock leaves is written once, before the next reply,
 // from the receipts; a swipe keeps it; deleting the reply that crossed the day (or the one that wrote a
 // digest) writes that day again from what is left; rebuild and a fresh load give the live state; the

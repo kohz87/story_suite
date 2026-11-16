@@ -1,4 +1,4 @@
-// Chronicle part on the real Story Block v2 host (the vendored runtime and testkit), merged into the
+// Chronicle part on the real Story Block v2 host (the live runtime and testkit), merged into the
 // module with the other parts by src/v2/module.js: replies with <Changes> blocks, the
 // interceptor's beforeGenerate, swipes and deletes. World lines are the chronicle's and `event`
 // lines stay the tracker's; times come from the Director's clock; a swipe or a delete takes the

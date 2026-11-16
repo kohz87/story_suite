@@ -1,15 +1,13 @@
 ---
 name: release-resync
-description: Before a release candidate, rebase Story Block's release branch on main and rebuild each module's release commit on its own main with the testkit taken from the Story Block release head. Use when Story Block's main moved after the release draft PRs were opened.
+description: Before a release candidate, rebase Story Block's release branch on main and rebuild each module's release commit on its own main. Use when Story Block's main moved after the release draft PRs were opened.
 ---
 
 # Release re-sync
 
 A release is one draft PR per repo (Story Block first, then the modules): Story Block's release branch
 (e.g. `v2-release-beta1`) carries the version bump; each module's release branch (e.g.
-`v2-release-beta1-r2`) is one commit on its `main`: version, `requires` Story Block, CHANGELOG, and the
-Story Block testkit re-synced to the Story Block release head (its message names that head:
-"Story Block <sha>, <version>"). When Story Block's `main` moves, all three must be rebuilt.
+`v2-release-beta1-r2`) is one commit on its `main`: version, `requires` Story Block and CHANGELOG. When Story Block's `main` moves, all three must be rebuilt.
 
 1. Have the three checkouts side by side (`Story_block`, `Story_director`, `npc_state_delta`,
    see the `suite-check` skill). The script only fetches in them; it works in git worktrees under a new
@@ -27,7 +25,7 @@ Story Block testkit re-synced to the Story Block release head (its message names
 4. Push: run again with `PUSH=1` (each branch is pushed with `--force-with-lease` on its current remote
    commit). The open release PRs update in place; wait for CI green on all three.
 5. Do not merge them yourself: message the coordinator with the four PR links. Merge order is Story Block
-   first, then the modules. NSD's `DEVELOPMENT.md` may name the testkit or version by hand: check it.
+   first, then the modules. NSD's `DEVELOPMENT.md` may name the Story Block version by hand: check it.
 6. Clean up, in each checkout: `git worktree remove --force <work>/<repo>` and
    `git branch -D resync-<release branch>`; then delete the work folder. The proxy refuses tag creation:
    the user makes release tags.
