@@ -11,8 +11,9 @@
 
 import { DEFAULT_MAP, DEFAULT_PACES, mapSettings, parseLocation } from '../../places.js';
 import { MAX_NAME, cleanName, revOf } from './domain.js';
-import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
+import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, goKeyOf, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
 import { packWorld, worldOf } from './world.js';
+import { replyKey } from '../reply-keys.js';
 
 const DAY = 1440;
 const AMOUNT = /^(\d+(?:\.\d+)?)\s*(m|min|mins|minutes?|h|hrs?|hours?|d|days?)?$/i;
@@ -55,16 +56,6 @@ function storyNow(ctx) {
     }
 }
 
-// A free `<rev>.<n>` key in `trips`.
-function freeKey(ctx, trips) {
-    const rev = Math.max(0, revOf(ctx));
-    for (let n = 0; n < 10000; n += 1) {
-        const key = `${rev}.${n}`;
-        if (!Object.hasOwn(trips, key)) return key;
-    }
-    throw new Error('No free trip key.');
-}
-
 const clear = trips => { for (const key of Object.keys(trips)) delete trips[key]; };
 
 function stopTrip(ctx, line) {
@@ -93,7 +84,7 @@ function delayTrip(ctx, line, text) {
     if (trip.delays.length >= MAX_DELAYS) return ctx.fail('REFUSED', `This trip is already delayed ${MAX_DELAYS} times. Stop it with ~ trip stop and start again.`);
     const because = cleanName(line?.labels?.because ?? line?.labels?.why ?? '').slice(0, MAX_NAME);
     const trips = (atlas.trips ??= {});
-    trips[freeKey(ctx, trips)] = { kind: 'delay', at: now, rev: Math.max(0, revOf(ctx)), minutes, because };
+    trips[replyKey(ctx, trips)] = { kind: 'delay', at: now, rev: Math.max(0, revOf(ctx)), minutes, because, go: goKeyOf(atlas) };
     const hours = minutes % DAY === 0 ? `${minutes / DAY} day${minutes === DAY ? '' : 's'}` : minutes % 60 === 0 ? `${minutes / 60} hour${minutes === 60 ? '' : 's'}` : `${minutes} minutes`;
     return { summary: `The trip to ${trip.to} is delayed ${hours}${because ? ` (${because})` : ''}: every arrival ahead moves later.`, narrate: false, data: { delayed: minutes } };
 }
@@ -152,7 +143,7 @@ export function applyTripLine(ctx, line) {
 
     const trips = (atlas.trips ??= {});
     clear(trips);
-    trips[freeKey(ctx, trips)] = {
+    trips[replyKey(ctx, trips)] = {
         kind: 'go', at: now, rev: Math.max(0, revOf(ctx)), to: end.name, by: by || modeWords(mode).replace(/^by /, ''), mode,
         pace: ride.pace, unit: modern ? 'hour' : 'day', mount: ride.mount, short: ride.short, setOut: now, legs: plan.legs,
     };

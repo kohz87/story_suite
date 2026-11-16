@@ -7,7 +7,7 @@ export { USE_ITEM, NOROLL, DICE, CHECK_STEP } from './names-parts/steps.js';
 export { ROLL_KIND, CHECKS_SETTING, checksOn, CHECK_GRAMMAR } from './names-parts/checks.js';
 export { FOES_TOUCH_QUERY, FIGHT, PRACTICE_STEP, ROLLS_QUERY } from './names-parts/queries.js';
 export { PRACTICE, PRACTICE_SETTING, practiceOf, practiceFromRollsOnly } from './names-parts/practice.js';
-export { ROLES, ROLES_WITHOUT_TAB, STATS } from './names-parts/roles.js';
+export { ROLES, ROLES_WITHOUT_TAB, STATS, STATS_V1 } from './names-parts/roles.js';
 export { STAGES, stageWord } from './names-parts/stages.js';
 export { FORMULA, PACE, FOE_SLOTS, LIMITS } from './names-parts/rules.js';
 export { ROLLS_SETTING, ROLLS, NOROLL_LIMIT_MAX, FIX_VERSION } from './names-parts/rolls.js';

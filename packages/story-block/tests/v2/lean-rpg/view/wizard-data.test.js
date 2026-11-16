@@ -14,20 +14,20 @@ import { CHECK, FIGHTER } from './wizard.helpers.js';
 
 test('a new draft: the persona\'s name, You unless there is one already, every stat at 5 and 10 points to spend', () => {
     const { creation } = newDraft({ persona: 'Wessel' });
-    assert.deepEqual([creation.start, creation.budget, creation.min, creation.max, creation.standard], [5, 10, 3, 10, true], 'the Standard numbers');
+    assert.deepEqual([creation.start, creation.budget, creation.min, creation.max, creation.standard], [5, 10, 5, 10, true], 'the Standard numbers');
     assert.deepEqual(newDraft({ persona: 'Wessel' }), { name: 'Wessel', kind: 'you', about: '', stats: Object.fromEntries(STATS.map(stat => [stat, 5])), skills: [], set: '', creation });
     assert.equal(newDraft({ persona: 'Wessel', hasYou: true }).kind, 'companion');
     assert.equal(newDraft().name, '');
     assert.equal(pointsLeft(newDraft()), 10);
 });
 
-test('the budget: a stat above 5 costs a point a step, below it gives one back, 3 to 10, and a draft is made whole when read', () => {
+test('the budget: a stat above 5 costs a point a step, none goes below 5, up to 10, and a draft is made whole when read', () => {
     const draft = newDraft({ persona: 'Wessel' });
     assert.equal(pointsLeft({ ...draft, stats: { ...draft.stats, str: 9, vit: 7 } }), 4, '+4 and +2');
-    assert.equal(pointsLeft({ ...draft, stats: { ...draft.stats, str: 10, vit: 3, agi: 3 } }), 10 - 5 + 2 + 2, 'two stats at 3 free four points');
+    assert.equal(pointsLeft(readDraft({ ...draft, stats: { ...draft.stats, str: 10, vit: 3, agi: 3 } })), 10 - 5, 'a stat below 5 is held at 5 and frees no point');
     const odd = readDraft({ name: `  ${'x'.repeat(60)}  `, kind: 'boss', about: 'y'.repeat(300), stats: { str: 99, vit: 1, agi: 12.5, dex: 'ten' }, skills: 'many', set: 7 });
     assert.deepEqual([odd.name.length, odd.kind, odd.about.length, odd.set], [40, 'you', 240, '']);
-    assert.deepEqual([odd.stats.str, odd.stats.vit, odd.stats.agi, odd.stats.dex, odd.stats.luk], [10, 3, 5, 5, 5], 'clamped to 3 to 10, a bad value is the start');
+    assert.deepEqual([odd.stats.str, odd.stats.vit, odd.stats.agi, odd.stats.dex, odd.stats.luk], [10, 5, 5, 5, 5], 'clamped to 5 to 10, a bad value is the start');
     assert.deepEqual(odd.skills, []);
     assert.deepEqual(readDraft(null).stats, newDraft().stats);
     assert.equal(statsLine(newDraft()), 'STR 5 · VIT 5 · AGI 5 · DEX 5 · INT 5 · LUK 5 · CHA 5');

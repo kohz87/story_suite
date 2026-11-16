@@ -207,7 +207,9 @@ test('~ trip delay pushes every arrival still ahead; the party stands still whil
     assert.match(held.result.summary, /delayed 1 day \(lame horse\): every arrival ahead moves later\./);
     const records = Object.values(trips(held.state));
     assert.equal(records.length, 2);
-    assert.deepEqual(records.find(record => record.kind === 'delay'), { kind: 'delay', at: T0 + 2 * DAY, rev: 2, minutes: DAY, because: 'lame horse' });
+    // `go`: the key of the go record it delays.
+    const goKey = Object.keys(trips(held.state)).find(key => trips(held.state)[key].kind === 'go');
+    assert.deepEqual(records.find(record => record.kind === 'delay'), { kind: 'delay', at: T0 + 2 * DAY, rev: 2, minutes: DAY, because: 'lame horse', go: goKey });
     assert.deepEqual(goRecord(held.state).legs.map(leg => leg.arrive), [T0 + 5 * DAY, T0 + 8 * DAY], 'the plan is kept as it was made');
     const trip = tripOf(held.state.domains.atlas);
     assert.deepEqual(trip.legs.map(leg => leg.arrive), [T0 + 6 * DAY, T0 + 9 * DAY]);
