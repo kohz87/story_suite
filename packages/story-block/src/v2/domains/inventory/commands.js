@@ -175,7 +175,7 @@ export function createInventoryCommands(env) {
                 if ((typeof payload.name === 'string' && cleanName(payload.name) !== original.name) || (payload.qty !== undefined && payload.qty !== group)) refuseBound(ctx, inv, stack);
             }
             // The reader's own gear (gear on): kind, slot, rarity and bonus of a piece they added by hand.
-            if (['kind', 'slot', 'rarity', 'stats'].some(key => payload[key] !== undefined)) {
+            if (['kind', 'slot', 'rarity', 'stats', 'soak'].some(key => payload[key] !== undefined)) {
                 if (wantsRepoint(env, inv, stack, payload)) repoint(ctx, inv, stack, payload);
                 else handEdit(ctx, env, inv, stack, payload);
             }
@@ -241,6 +241,7 @@ export function createInventoryCommands(env) {
                         const copy = { ...clone(original), id, name };
                         delete copy.carry;
                         delete copy.bonus;
+                        delete copy.soak;
                         storeDef(inv, copy);
                         stack.def = id;
                     } else {

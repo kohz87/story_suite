@@ -3,7 +3,7 @@
 import { clone } from '../../common.js';
 import { cleanName, resolveDef, slugify } from '../../names.js';
 import { DEF_ID } from '../../../check.js';
-import { packBonus } from '../../gear.js';
+import { packBonus, packSoak } from '../../gear.js';
 import { MAX_NAME, defaultDef, packCarry } from '../state.js';
 import { ambiguous, freeId } from './lookup.js';
 import { packDef } from './def-pack.js';
@@ -47,5 +47,6 @@ export function defineGiven(ctx, inv, given, env, about) {
     // A pack item's carry capacity comes with it (a pack shop's stock bought through a module).
     if (packCarry(id, given.carry) !== null) keep.carry = given.carry;
     if (packBonus(id, given.bonus) !== null) keep.bonus = given.bonus;
+    if (packSoak(id, given.soak) !== null) keep.soak = given.soak;
     return { def: registerNew(ctx, inv, def, env, about, { keep, written: name }), created: true };
 }

@@ -10,6 +10,7 @@ export { KIND_CARRY, OTHER_CARRY, kindCarry, itemCarryOf } from './gear-parts/ca
 export { travelsWith, capacityFor, atLimit, loadLevel } from './gear-parts/carry-load.js';
 export { carryPicture, carryAnswer } from './gear-parts/carry-picture.js';
 export { statBonus, gearAnswer, bonusText, gearView } from './gear-parts/views-answers.js';
+export { soakFor, soakCap, packSoak, soakTotal, soakRecord } from './gear-parts/views-soak.js';
 export { createGearQueries, statsFor } from './gear-parts/views-queries.js';
 export { CONDITION, condWord, condMark, valueByCond } from './gear-parts/conditions-words.js';
 export { stepDown, stepUp } from './gear-parts/conditions-steps.js';
