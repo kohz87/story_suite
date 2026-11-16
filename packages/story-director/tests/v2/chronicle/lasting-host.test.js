@@ -1,4 +1,4 @@
-// `chronicle.lasting` on the real Story Block v2 host (the vendored runtime and testkit): a pack's events
+// `chronicle.lasting` on the real Story Block v2 host (the live runtime and testkit): a pack's events
 // write the chronicle through their `then` steps, a second event waits on the first with
 // `query('chronicle.passed', …)` (the condition language has no sums, so "N days after" is asked of the
 // chronicle), the story's own world lines cannot move the state of what an event wrote, and a swipe, a

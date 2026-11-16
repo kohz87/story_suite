@@ -5,22 +5,21 @@
 
 import { extractBlock, hasHidden, hasLegacy, stripBlock } from '../capture.js';
 import { HOST_MODULE } from '../registry.js';
-import { assemble, contextNotice, estimateTokens, KEPT_TAIL_TOKENS } from '../prompt.js';
+import { assemble, contextNotice, estimateTokens } from '../prompt.js';
 import { ensureModules, makeView } from '../sdk.js';
 import { cutAt } from '../../text.js';
 import { CORE_FEATURE } from '../features.js';
-import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
-import { NO_ROLLS_LINE, receiptCue } from '../lean-rpg/cue.js';
+import { RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
+import { NO_ROLLS_LINE } from '../lean-rpg/cue.js';
 import { fightCue, holdStart } from './fight-start.js';
 import { rpgLib } from '../rpg-lazy.js';
 import { readRecord } from '../persist.js';
 import { hashText } from '../assist/common.js';
-import { boardFailure, boardStartState } from './held-board.js';
 import { KEPT_CHARS_MAX, KEPT_LINES_MAX, TIMED_OUT, defuseMacros, keptGiven, firstLine, mapContent, stripBattleMarker, substituteNames, within } from './text.js';
 
 export { KEPT_LINES_MAX, KEPT_CHARS_MAX };
-// A prelude cue a module marks kept (receipt `data.keep === true`) is pinned too, up to this many tokens in all per reply; the rest are plain cues.
-export const KEPT_PRELUDE_TOKENS = KEPT_TAIL_TOKENS;
+export { KEPT_PRELUDE_TOKENS } from './prelude-run.js';
+import { runPreludes } from './prelude-run.js';
 
 export function createPromptBuild(s, deps) {
     const { ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
@@ -106,39 +105,10 @@ export function createPromptBuild(s, deps) {
         }
         // Other cues may settle a fight or change a modifier. Preview on the state they leave,
         // which is also the state the generated reply's prelude will start from.
-        let keptPrelude = 0;
-        for (const { moduleId, type: preludeType, payload, seed } of requested) {
-            if (preludeType === RPG_RESOLVE && payload?.board?.setup?.opening) {
-                const checked = boardStartState(bus, store.head(), payload.board);
-                if (checked.error) return { blocked: { moduleId, reason: checked.error } };
-            }
-            const prior = s.session?.prechecks?.find(step => step.type === preludeType && JSON.stringify(step.payload) === JSON.stringify(payload));
-            const result = bus.run(preludeType, payload, { cause: 'system', ...(previewState ? { state: previewState } : {}), ...(prior || seed !== undefined ? { seed: prior?.seed ?? seed } : {}) });
-            if (result?.ok) {
-                // The RPG's rolls move bars (hits, heals, skill costs): the tail's block lines are read from the state they leave, so they say what the cue says.
-                if (preludeType === RPG_RESOLVE && result.state) previewState = result.state;
-                // How the carried board fight ended (won / fled / lost / open): the tail reads it to allow a new foe group only after an ended fight.
-                if (preludeType === RPG_RESOLVE && payload?.board) boardStop = result.receipt?.data?.v2?.result?.stop ?? null;
-                prechecks.push({ type: preludeType, payload, seed: result.receipt.seed });
-                // The reply's story-check dice: told as the tail note itself (kept whole, no [Happened] marker), drawn from the receipt's recorded dice.
-                if (preludeType === RPG_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
-                // A prelude that says it is not for the narrator (`narrate: false`, the RPG's no-rolls note) is stored with the reply and told to no one.
-                if (result.receipt.narrate === false) continue;
-                const told = `[Happened]\n${receiptCue(result.receipt)}`;
-                // A module may mark its prelude cue kept (`receipt.data.keep === true`): pinned like the RPG's, but only while the pinned
-                // prelude text of the reply stays within KEPT_PRELUDE_TOKENS in all, so pinning can never starve the rest of the tail.
-                let pin = false;
-                if (preludeType !== RPG_RESOLVE && result.receipt.data?.keep === true) {
-                    const size = estimateTokens(told);
-                    if (keptPrelude + size <= KEPT_PRELUDE_TOKENS) { keptPrelude += size; pin = true; }
-                }
-                cues[moduleId] = [...(cues[moduleId] ?? []), preludeType === RPG_RESOLVE ? { text: told, keep: true, ...(payload?.board ? { board: true } : {}) } : pin ? { text: told, keep: true } : told];
-            } else if (preludeType === RPG_RESOLVE && payload?.board) {
-                const reason = boardFailure('The fight could not be prepared:', result?.message);
-                problem({ module: moduleId, code: result?.code ?? 'FAILED', message: reason });
-                return { blocked: { moduleId, reason } };
-            } else problem({ module: moduleId, code: result?.code ?? 'FAILED', message: `The cue "${preludeType}" was not prepared: ${result?.message ?? 'unknown error'}` });
-        }
+        const ran = runPreludes({ s, bus, store, problem }, { requested, cues, prechecks, previewState });
+        if (ran.blocked) return { blocked: ran.blocked };
+        ({ previewState, boardStop } = ran);
+        const { keptPrelude } = ran;
         // A fight narrated with no foes line (fight-start.js fightCue): one short tail line for this reply, only with the RPG on and no foe set.
         // (A swipe: the reply being swiped is the last message, so the reader's message and the reply before it sit one place further back.)
         const back = type === 'swipe' ? 1 : 0, last = ctx?.chat?.at(-1 - back), prior = ctx?.chat?.at(-2 - back);

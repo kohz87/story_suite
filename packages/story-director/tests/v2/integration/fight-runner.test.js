@@ -3,7 +3,7 @@
 // module while a restore is pending, asks for no encounters, and no query is asked as a fallback.
 // Older hosts have no status and keep the command probe. Story Block's own lifecycle (peers, dormant,
 // restore barrier) is tested there; here the host is a stand-in for `StoryBlock.sdk.modules()`, and one
-// test runs the real host when the vendored Story Block has the lifecycle (sdk.preflight).
+// test runs the real host when the Story Block host has the lifecycle (sdk.preflight).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -62,7 +62,7 @@ test('the real host: a dormant fight runner is not asked for, and a late peer wa
     const probe = await createHost({ modules: [] });
     const capable = typeof probe.sdk.preflight === 'function';
     probe.close();
-    if (!capable) { t.skip('the vendored Story Block has no module lifecycle yet'); return; }
+    if (!capable) { t.skip('the Story Block host has no module lifecycle yet'); return; }
     const host = await createHost({ modules: [] });
     t.after(() => { restoreLive(); host.close(); });
     globalThis.StoryBlock = { sdk: host.sdk };

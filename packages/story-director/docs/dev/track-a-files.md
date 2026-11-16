@@ -1,6 +1,6 @@
 # Resume file inventory
 
-Changes since the review at 2ba4acd. Vendor changes are a re-sync from SB
+Changes since the review at 2ba4acd. Historical note: these included a vendor re-sync from SB
 78fd75e11b7bd3aa96d51ccf11a993bf102bd0d9; no vendor file was edited by hand.
 
 ```text

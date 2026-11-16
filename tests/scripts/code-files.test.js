@@ -35,7 +35,6 @@ test('data and asset files are not checked', () => {
 
 test('vendored copies, node_modules and data files are not checked', () => {
   for (const p of [
-    'packages/story-director/tests/vendor/story-block/src/v2/store.js',
     'packages/x/vendor/lib.js',
     'packages/npc-state-delta/tests/fixtures/big.json',
     'node_modules/a/index.js',

@@ -1,5 +1,5 @@
 // A command context for the checks part (SPEC §3.2) in outline: the handler runs on drafts, the drafts are diffed with Story Block's own
-// ops.js (vendored), the validators run, claims are a real set (a second claim of a key is false), `roll` is the host's seeded die, and the
+// ops.js (live), the validators run, claims are a real set (a second claim of a key is false), `roll` is the host's seeded die, and the
 // queries other modules answer (rules.sheet, rules.modifier, npc.identity, npc.socialModifier, story.evidence) are given by the test.
 import { checkKind, part } from '../../../src/v2/checks/index.js';
 import { apply, checkOps, diff } from '../../../../story-block/src/v2/ops.js';

@@ -3,7 +3,6 @@
 import { PRECHECK } from '../assist/classifier.js';
 import { makeView } from '../sdk.js';
 import { SLOT_NUMBER } from '../skill-slots.js';
-import { rpgLib } from '../rpg-lazy.js';
 import { FLAGS, flagOn } from '../flags.js';
 import { contentText, contextRoom } from '../turn/text.js';
 import { createSession } from '../turn/session.js';
@@ -12,7 +11,7 @@ import { createReread } from '../turn/reread.js';
 import { createPromptBuild } from '../turn/prompt-build.js';
 import { createPromptHooks } from '../turn/prompt-hooks.js';
 import { createEvents } from '../turn/events.js';
-import { boardStartState, boardStep, restoreHint } from '../turn/held-board.js';
+import { createBoardWatch } from '../turn/board-watch.js';
 import { pendingStart } from '../turn/fight-start.js';
 import { STATIC_KEY, TAIL_KEY, V1_KEYS, INTERCEPTOR_NAME } from './keys.js';
 import { FOREGROUND, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, normalizeType } from './prompt-limits.js';
@@ -102,19 +101,6 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     const metadata = () => liveContext()?.chatMetadata ?? null;
     const contextNow = () => contextRoom(liveContext(), s.lastSize);
     const whenIdle = () => (s.replyBusy ? new Promise(resolve => s.idleWaiters.push(resolve)) : Promise.resolve());
-    const boardError = (state, board) => {
-        const start = boardStartState(bus, state, board);
-        if (start.error) return start.error;
-        const check = rpgLib()?.boardInputError;
-        return typeof check === 'function' ? check(start.state, board) : 'The fight could not be checked.';
-    };
-    // Keep the witnessed inputs against reader edits while the reply is in flight. Capture runs its own changes in order.
-    bus.setCommitGuard?.((next, receipt) => {
-        if (receipt?.cause !== 'ui') return null;
-        const board = s.replyBusy && boardStep(s.session)?.payload.board;
-        if (!board) return null;
-        return boardError(next(), board) ? 'Wait for the reply to finish before changing the fight sheet or gear.' : null;
-    });
     // Our own model call's prompt (model-call.js) is never the reply's.
     const isOwn = eventData => {
         try { return ownPrompt(eventData) === true; } catch { return false; }
@@ -131,17 +117,7 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
 
     // Session housekeeping and Re-read (turn/session.js, turn/reread.js): wired here, after every const they are given.
     const { markBusy, markIdle, setPrompt, setPrompts, clearPrompts, problem, trySave, ensureInitial, held, repairActions, repair, startOver, rebuild, planAgain, reconcileNow } = createSession(s, { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM });
-    const stopChangedBoard = () => {
-        const current = s.session, board = s.replyBusy && boardStep(current)?.payload.board;
-        if (!board || current.boardInvalid) return;
-        const error = boardError(store.head(), board);
-        if (!error) return;
-        current.boardInvalid = true;
-        const reason = `${error}${restoreHint(error, ' before retrying.')}`;
-        problem({ module: 'story-block', code: 'BOARD_CHANGED', message: reason });
-        try { s.abortBoard?.(true); } catch { /* the reason is still shown */ }
-        try { notify?.(reason, 'story-block'); } catch { /* the problem remains visible */ }
-    };
+    const { boardError, stopChangedBoard } = createBoardWatch(s, { bus, store, problem, notify });
     // The capture flow (turn/capture-flow.js): wired here, after the session's `problem` it is given and before the Re-read that calls it.
     const { changeHeads, readBlock, strayProblems, legacyProblem, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW } = createCaptureFlow(s, { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, boardError, PRACTICE_LINE, HOOK_TIMEOUT_MS, isolated });
     const { reread, saveText, redraw } = createReread(s, { ctx, metadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, legacyProblem, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave });
