@@ -16,7 +16,7 @@ const QUESTS = [
     steps: ['Pay 30 silver at the smithy'], stepIndex: 0,
     giver: { personId: 'brann', name: 'Brann', portrait: 'brann' },
     due: { date: 'Goldwane 12', rel: '1 day late', state: 'late' },
-    place: 'Bluewatch', stepPlace: 'Bluewatch', reward: null, xp: null, difficulty: 'easy',
+    place: 'Bluewatch', stepPlace: 'Bluewatch', reward: null, difficulty: 'easy',
   },
   {
     id: 'boat', title: 'Missing boatman',
@@ -25,7 +25,7 @@ const QUESTS = [
     giver: { personId: 'temiwa', name: 'Sister Temiwa', portrait: 'temiwa' },
     due: { date: 'Goldwane 18', rel: 'in 5 days', state: '' },
     place: 'Auvoth', stepPlace: 'Auvoth', trip: 'Trip to Auvoth planned: leave about 10:00 am, arrive about 3:18 pm (town hop, then 12 km on foot)',
-    reward: '40 copper', xp: '60 XP', difficulty: 'normal',
+    reward: '40 copper', difficulty: 'normal',
   },
   {
     id: 'harb', title: 'Word to the harbour',
@@ -33,14 +33,14 @@ const QUESTS = [
     steps: ['Hand the letter to the Harbour Master'], stepIndex: 0,
     giver: { personId: 'oyla', name: 'Oyla' },
     due: { date: 'Goldwane 14', rel: 'tomorrow', state: 'soon' },
-    place: 'Thousand Sails', stepPlace: 'Thousand Sails', reward: '1 silver', xp: '30 XP', difficulty: 'easy',
+    place: 'Thousand Sails', stepPlace: 'Thousand Sails', reward: '1 silver', difficulty: 'easy',
   },
   {
     id: 'hound', title: 'Bounty on the ridge hounds',
     summary: 'Clear the hounds harrying the north farms.',
     steps: ['Take the bounty at the guild', 'Track the pack along the ridge path', 'Clear the hounds'], stepIndex: 1,
     giver: { personId: null, name: 'Bluewatch Guild' },
-    due: null, place: 'Varnhold Watch', stepPlace: 'Varnhold Watch', reward: '60 copper', xp: '120 XP', difficulty: 'hard',
+    due: null, place: 'Varnhold Watch', stepPlace: 'Varnhold Watch', reward: '60 copper', difficulty: 'hard',
   },
 ];
 
@@ -51,7 +51,7 @@ const LEADS = [
 ];
 
 const CLOSED = [
-  { title: 'Wolf tracks on the ridge', outcome: 'done', detail: 'Finished Goldwane 13 · giver Torka', paid: '+12 XP' },
+  { title: 'Wolf tracks on the ridge', outcome: 'done', detail: 'Finished Goldwane 13 · giver Torka', paid: '+40 copper' },
   { title: 'Dock work at the east quay', outcome: 'declined', detail: 'Declined Goldwane 11 · offered by the dock foreman', paid: null },
   { title: 'Escort to Hollin’s Reach', outcome: 'lapsed', detail: 'Offer lapsed Goldwane 12 · deadline Goldwane 10, plus 2 days because you spoke of it', paid: null },
   { title: 'The toll keeper’s request', outcome: 'failed', detail: 'Failed Goldwane 12 · Old Marro died before you came back', paid: null },
@@ -140,7 +140,6 @@ export function buildJournal(opts = {}) {
     due: q.due ? { ...q.due } : null,
     trip: q.trip ?? null,
     reward: rpg ? q.reward : null,
-    xp: rpg ? q.xp : null,
     difficulty: rpg ? q.difficulty : null,
   })).sort((a, b) => (b.id === focusId) - (a.id === focusId));
   return {

@@ -87,7 +87,7 @@ describe('selectJournal', () => {
     assert.deepEqual([q.step, q.stepIndex, q.stepCount, q.steps], ['Reach Auvoth', 0, 1, ['Reach Auvoth']]);
     assert.deepEqual(q.giver, { personId: null, name: 'Sister Temiwa' });
     assert.equal(q.reward, '40 copper');
-    assert.deepEqual([q.xp, q.difficulty, q.trip, q.place], [null, null, null, null]);
+    assert.deepEqual([q.difficulty, q.trip, q.place], [null, null, null]);
   });
 
   it('gives a quest with no step an empty step list', () => {

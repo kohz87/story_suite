@@ -63,7 +63,7 @@ function dueOf(thread, upcoming) {
   return due ? { date: due, rel: '', state: '' } : null;
 }
 
-// steps, difficulty, xp and the planned trip are GAPs (no query lists a quest's steps or its XP); only the current step is known.
+// steps, difficulty and the planned trip are GAPs (no query lists a quest's steps); only the current step is known.
 function questOf(thread, rpg, upcoming) {
   const fields = thread.fields ?? {};
   const step = text(fields.step);
@@ -72,7 +72,7 @@ function questOf(thread, rpg, upcoming) {
     step, stepIndex: 0, stepCount: step ? 1 : 0, steps: step ? [step] : [],
     giver: { personId: null, name: text(fields.giver) },
     due: dueOf(thread, upcoming), place: text(fields.place) || null, trip: null,
-    reward: rpg ? text(fields.reward) || null : null, xp: null, difficulty: null,
+    reward: rpg ? text(fields.reward) || null : null, difficulty: null,
   };
 }
 
