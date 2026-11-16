@@ -10,6 +10,7 @@ if [ ! -f "$snapshot_file" ]; then
   exit 1
 fi
 
+pkg_root="$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).packageRoots[0])" "$repo_root/scripts/layout.json")"
 import_commit=""
 differ=0
 
@@ -29,7 +30,6 @@ while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     exit 1
   fi
 
-  pkg_root="$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).packageRoots[0])" "$repo_root/scripts/layout.json")"
   import_tree="$(git -C "$repo_root" rev-parse "${import_commit}:${pkg_root}/${folder}")"
   head_tree="$(git -C "$repo_root" rev-parse "HEAD:${pkg_root}/${folder}")"
 

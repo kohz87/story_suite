@@ -28,6 +28,8 @@ test('layout lookups: package roots, source roots, package name and folder', () 
   assert.equal(layout.isSourceFile('scripts/x.js'), false);
   assert.equal(layout.packageOf('packages/story-block/src/a.js'), 'story-block');
   assert.equal(layout.packageRootOf('packages/story-block/src/a.js'), 'packages/story-block');
+  assert.equal(layout.packageRootOf('packages/pa/x.js'), 'packages/pa');
+  assert.equal(layout.packageRootOf('packages/a/x.js'), 'packages/a');
   assert.equal(layout.packageOf('ui/a.js'), null);
   assert.deepEqual(layout.packageDirs(repo).sort(), ['packages/npc-state-delta', 'packages/story-block', 'packages/story-director']);
   assert.deepEqual(layout.packageDirs(os.tmpdir() + '/no-such-dir-b3p3'), []);

@@ -15,15 +15,17 @@ export function loadLayout(root = path.resolve(import.meta.dirname, '..')) {
     }
     return null;
   };
+  const rootOf = filePath => {
+    const r = raw.packageRoots.find(x => filePath.startsWith(`${x}/`));
+    const pkg = packageOf(filePath);
+    return r === undefined || pkg === null ? null : `${r}/${pkg}`;
+  };
   return {
     ...raw,
     isPackageFile: filePath => under(raw.packageRoots, filePath),
     isSourceFile: filePath => under(raw.sourceRoots, filePath),
     packageOf,
-    packageRootOf: filePath => {
-      const pkg = packageOf(filePath);
-      return pkg === null ? null : filePath.slice(0, filePath.indexOf(pkg) + pkg.length);
-    },
+    packageRootOf: rootOf,
     packageDirs: base => raw.packageRoots.flatMap(r => {
       const dir = path.join(base, r);
       if (!fs.existsSync(dir)) return [];

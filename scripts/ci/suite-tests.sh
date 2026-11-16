@@ -33,9 +33,12 @@ repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
 # One test looks only for a sibling folder "../../../../Story_director" (packages/Story_director here) and
 # ignores STORY_SUITE_ROOT; B1 must not edit package files, so a temporary symlink stands in for it.
-legacy_link="$repo_root/packages/Story_director"
+layout_json="$repo_root/scripts/layout.json"
+farm="$(node -e "const l = JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')); for (const f of l.suiteFarm) console.log(f.link, f.dir)" "$layout_json")"
+legacy_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_director" { print $2 }')"
+legacy_link="$repo_root/$(dirname "$legacy_dir")/Story_director"
 made_link=0
-if [ ! -e "$legacy_link" ]; then ln -s story-director "$legacy_link"; made_link=1; fi
+if [ ! -e "$legacy_link" ]; then ln -s "$(basename "$legacy_dir")" "$legacy_link"; made_link=1; fi
 trap 'rm -rf "$tmpdir"; if [ "$made_link" = 1 ]; then rm -f "$legacy_link"; fi' EXIT
 
 suite_root="$tmpdir/suite"
@@ -43,10 +46,11 @@ mkdir -p "$suite_root"
 # The links and their folders come from scripts/layout.json (suiteFarm).
 while IFS=' ' read -r link dir; do
   ln -s "$repo_root/$dir" "$suite_root/$link"
-done < <(node -e "for (const f of JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).suiteFarm) console.log(f.link, f.dir)" "$repo_root/scripts/layout.json")
+done <<< "$farm"
 
 tap_file="$tmpdir/suite.tap"
-cd "$repo_root/$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).suiteFarm.find(f => f.link === 'Story_block').dir)" "$repo_root/scripts/layout.json")"
+block_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_block" { print $2 }')"
+cd "$repo_root/$block_dir"
 export STORY_SUITE_ROOT="$suite_root"
 export NPC_STATE_DELTA_PATH="$suite_root/npc_state_delta"
 export NODE_OPTIONS="--max-old-space-size=4096 ${NODE_OPTIONS:-}"

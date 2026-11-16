@@ -21,7 +21,7 @@
   "scripts/codemap/is-facade.mjs": "Decides whether a file only forwards other modules exports and so is exempt from the export limit.",
   "scripts/codemap/package-features.mjs": "Renders a package's feature entry-point index and reports entries that are not files.",
   "scripts/codemap/package-map.mjs": "Builds one package's code map: rows with tests, feature index and the one-job-per-file backlog.",
-  "scripts/codemap/package-outputs.mjs": "Finds each package under packages/ and builds its map from its jobs, dev map and feature files.",
+  "scripts/codemap/package-outputs.mjs": "Finds each package under the layout's package roots and builds its map from its jobs, dev map and feature files.",
   "scripts/codemap/parse-module.mjs": "Extracts exports and import specifiers from ES module source text.",
   "scripts/codemap/pattern-names.mjs": "Lists the names a destructuring or plain binding pattern declares.",
   "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
