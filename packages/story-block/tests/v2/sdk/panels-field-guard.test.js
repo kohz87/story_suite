@@ -24,7 +24,7 @@ function bound() {
     return { ...hub, wiring, root, field, button, log, frame: () => frames.splice(0).forEach(fn => fn()) };
 }
 
-test('a focused field holds the redraw through every reply; the draw runs once after blur', async () => {
+test('a focused field keeps its value and focus: the redraw is held through every reply; the draw runs once after blur', async () => {
     const t = bound();
     t.field.focus();
     t.panels.changed(['people']); t.frame();

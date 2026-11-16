@@ -112,7 +112,7 @@ test('redrawCastViews leaves a view a section draws to the section; a view drawn
     assert.deepEqual(drawn, ['off']);
 });
 
-test('every section names its root, so Story Block holds its redraw while a field in it has the focus (typing in the Dossiers search box)', () => {
+test('every section names its root, so Story Block holds its redraw while a field in it has the focus', () => {
     const { fake, castPanels } = setup();
     const box = { isConnected: true };
     const pane = { isConnected: true };

@@ -3,7 +3,7 @@
 // that draw looks again (a field focused again waits again). A chat switch (`guarded()` false) still draws: the field goes with the old chat.
 
 /** Thrown out of a held-back draw: the scheduler then keeps the section's old digest, so the later draw is not skipped. */
-export const HELD = Object.freeze({ held: true });
+export const HELD = Object.freeze({ held: true, message: 'held: a field in the section has the focus' });
 
 const FIELDS = ['INPUT', 'TEXTAREA', 'SELECT'];
 const typingIn = el => {
