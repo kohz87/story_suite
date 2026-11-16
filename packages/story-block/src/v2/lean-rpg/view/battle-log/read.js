@@ -9,6 +9,7 @@ import { RPG_STRINGS, fill } from '../../strings.js';
 import { wearLine, cueOfResult, itemLineText } from '../../cue.js';
 import { memberOrderEntries } from '../../board/order.js';
 import { B, IDLE } from './constants.js';
+import { readResolveV1 } from './read-v1.js';
 import { isRecord, list, words } from './util.js';
 
 /** 'success' | 'cost' | 'fail' | '' for an outcome. */
@@ -144,6 +145,7 @@ function whyOf(result, shape, summary) {
  */
 export function readResolve(result, { soulOf = () => null, shape = 0, summary = '' } = {}) {
     if (!isRecord(result)) return null;
+    if (isRecord(result.board) && result.board.v1 === 1) return readResolveV1(result);
     const lv = result.lv === 1;
     const divisor = Number.isInteger(result.rules?.levelDivisor) ? result.rules.levelDivisor : null;
     const memberList = Array.isArray(result.members) ? result.members.filter(isRecord) : null;

@@ -10,6 +10,7 @@ import { memberLevel } from './levels.js';
 import { fightOf, groupsOf } from './won.js';
 import { memberXp, outnumberedMultiplier } from './xp-amount.js';
 import { fightWitness, fromOf, paidOf } from './witness.js';
+import { holdStepV1 } from './hold-v1.js';
 
 /** Said once in a reply where the narrator wrote XP for a won fight (a Problems line). */
 export const FIGHT_XP_HELD = 'XP for the fight is given by code; the narrator\'s XP line was not used.';
@@ -23,6 +24,7 @@ const RISES = Object.freeze(['xp', 'soul', 'level', 'points']);
  */
 export function fightXp(ctx, payload = {}) {
     if (ctx.cause !== 'system' || ctx.caller !== null) ctx.fail('REFUSED', 'The XP for a fight is given by Story Block after a reply, not by an action.');
+    if (payload?.v1 === 1) return holdStepV1(ctx, payload);   // (a Combat Rules v1 fight: the settle paid; this puts back the story's own practice, hold-v1.js)
     const was = slotsOf(payload?.was);
     if (payload?.bars !== undefined && payload.bars !== 2) ctx.fail('INVALID', 'The fight\'s mark was damaged.');
     const bars = payload?.bars === 2;

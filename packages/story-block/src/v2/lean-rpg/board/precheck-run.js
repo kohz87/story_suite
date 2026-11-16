@@ -24,7 +24,7 @@ export async function runPrecheck({ callModel, message, previous = '', sheet, va
     try {
         const prompt = precheckPrompt({ message, previous, sheet, ranks: rankScale(query), known: knownLines(query, message, previous) });
         const answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, profile: String(values[SETTING.profile] ?? ''), helper: 'precheck', timeoutMs: limit }), limit, timer);
-        return vetGroups(parsePrecheck(answer), { message, previous, sheet, stated: name => statedLevel(query, name) });
+        return vetGroups(parsePrecheck(answer), { message, previous, sheet, stated: name => statedLevel(query, name), v1: sheet.characters.some(character => character.v1 === true) });
     } catch { return []; }
 }
 

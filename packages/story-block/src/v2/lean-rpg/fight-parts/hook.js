@@ -19,9 +19,9 @@ const PAID_TYPES = Object.freeze(['normal', 'swipe', 'regenerate', 'reread']);
 export function fightHook(view, info) {
     if (!PAID_TYPES.includes(info?.type ?? 'normal') || view?.feature?.(LEAN_RPG_FEATURE) !== true) return undefined;
     const board = boardWin(info?.receipts);
+    // A Combat Rules v1 fight is paid by its settle (board/v1-award.js); this step only puts back the practice a story line of the reply added to the skills it practised (hold-v1.js). No old XP step.
+    if (board?.v1) return board.claim && board.uses?.length ? { commands: [{ type: FIGHT, payload: { v1: 1, claim: board.claim, uses: board.uses } }] } : undefined;
     if (board && !board.won) return undefined;
-    // A Combat Rules v1 fight pays no XP through this step yet (it counts the old Foes block's hurt and the old levels): the v1 XP rule is not built.
-    if (board?.v1) return undefined;
     const sheet = readSheet(view.state);
     // XP is combat on the board only (owner, 9 Nov): on the new rules a fight the story settles without the board pays nothing.
     if (!board && sheet.characters.length && sheet.characters.every(character => character.scale === 2)) return undefined;

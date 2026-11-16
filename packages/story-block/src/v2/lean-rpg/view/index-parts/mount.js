@@ -10,7 +10,7 @@ import { heroLead } from '../hero-data.js';
 import { HOLD_WIDGET, createStart } from '../start.js';
 import { WIZARD_WIDGET, createWizard } from '../wizard.js';
 import { EXPORT_WIDGET, createExporter } from '../export.js';
-import { packLevelsOf } from '../../levels.js';
+import { packLevelsOf, xpRateFrom } from '../../levels.js';
 import { PRACTICE_SETTING, autoCapFrom, practiceFromRollsOnly, practiceOf } from '../../names.js';
 import { planGear } from '../../gear.js';
 import { readSheet } from '../../read.js';
@@ -99,7 +99,7 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
     let board;
     const fightStart = createStartController({ doc, chat: () => ctx?.chat ?? [], meta, state: headState, preview: previewStart, interaction,
         board: () => board, on: () => featureOn() && boardOn(), save, refresh, generate: generateHeld, cap: () => autoCapFrom(values()), show: () => openScreen(FIGHT_SCREEN_ID), close: () => closeView?.() });
-    board = createBoardView({ doc, headState: () => fightStart.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rules, query, readerName, roleOf, levels, on: boardOn, start: fightStart, cap: () => autoCapFrom(values()) });
+    board = createBoardView({ doc, headState: () => fightStart.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rate: () => xpRateFrom(values()), rules, query, readerName, roleOf, levels, on: boardOn, start: fightStart, cap: () => autoCapFrom(values()) });
     let offers;
     const offerView = createOfferLineView({ doc, onFight: data => offers.choose(data, 'board'), onAuto: data => offers.choose(data, 'auto') });
     offers = createFightOffers({ ctx, doc, store, meta, on: () => featureOn() && boardOn() && isStandard(rulesFromSettings(values(), packOnce())), view: offerView,
