@@ -14,7 +14,7 @@ export function feelingsHero(d, { onProfile } = {}) {
   const disc = h('button', { type: 'button', class: 'bigph', 'aria-label': 'Profile', dataset: { act: 'profile' }, onClick: () => onProfile?.() },
     portraitDisc(d, 'ph'), h('span', { class: 'prof' }, 'Profile ›'));
   return h('div', { class: ['bigring', dead ? 'dead' : null] },
-    dead ? null : feelingsRing(d.meters, { width: 2.6, pad: 4 }),
+    dead ? null : feelingsRing(d.meters, { width: 2.6, pad: 4, ticks: true }),
     disc,
     dead ? null : FEELING_KEYS.map((key, i) => h('span', { class: ['ml', CORNERS[i], `f${i}`], dataset: { meter: key } },
       h('b', null, signed(Number(d.meters?.[key]) || 0)), key.toUpperCase())));

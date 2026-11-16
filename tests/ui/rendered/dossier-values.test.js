@@ -11,6 +11,8 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const SIZES = [[390, 844], [820, 1180]];
 const GOLD = { dark: 'rgb(240, 184, 74)', light: 'rgb(138, 90, 0)' };
 const DISC = { dark: 'rgb(58, 60, 82)', light: 'rgb(74, 77, 104)' };
+const MUTED = { dark: 'rgb(154, 156, 180)', light: 'rgb(106, 110, 134)' };
+const HERE = { dark: 'rgb(79, 211, 154)', light: 'rgb(11, 110, 73)' };
 const TILE = { dark: 'rgb(58, 60, 82)', light: 'rgb(220, 220, 234)' };
 
 function serve() {
@@ -55,6 +57,8 @@ function read() {
     follow: css('.dossier .fbtn', 'color'), moodRows: rows, here: [...document.querySelectorAll('#hx-frame .dossier .idl')].map(e => e.textContent).at(-1),
     trust: css('.dossier .ml.f0', 'color'),
     ring: ['.bigring .ring-track', '.bigring .ring-arc'].map(s => [q(s).getAttribute('stroke-width'), q(s).getAttribute('r') ?? 'arc']),
+    ticks: document.querySelectorAll('#hx-frame .bigring .ring-tick').length, tickStroke: css('.bigring .ring-tick', 'stroke'),
+    arcs: ['.f0', '.f3'].map(f => { const a = q(`.bigring .ring-arc${f}`); return a && getComputedStyle(a).stroke; }),
     idLh: css('.dossier .idl', 'lineHeight'), bk: css('.dossier .bk2', 'paddingLeft'),
     ph: (() => { const a = q('.bigph').getBoundingClientRect(); const b = q('.bigring').getBoundingClientRect(); return Math.round((a.left - b.left) / b.width * 100); })(),
   };
@@ -81,6 +85,10 @@ for (const theme of ['dark', 'light']) {
         assert.equal(v.here, 'Here');
         assert.deepEqual(v.ring[0], ['2.6', '44.7'], 'hero ring track');
         assert.equal(v.ring[1][0], '2.6');
+        assert.equal(v.ticks, 4, 'hero ring quarter ticks');
+        assert.equal(v.tickStroke, MUTED[theme]);
+        assert.equal(v.arcs[0], 'rgb(90, 160, 255)', 'Trust arc, both schemes');
+        if (v.arcs[1]) assert.equal(v.arcs[1], 'rgb(240, 184, 74)', 'Tension arc, both schemes');
         assert.equal(v.idLh, '19.5px');
         assert.equal(v.bk, '12px');
         assert.equal(v.ph, 17, 'hero portrait inset');
@@ -94,4 +102,26 @@ for (const theme of ['dark', 'light']) {
       } finally { await page.close(); }
     });
   }
+}
+
+for (const theme of ['dark', 'light']) {
+  test(`people map values at 820 in ${theme}`, async (t) => {
+    if (ctx.skip) return t.skip(ctx.skip);
+    const page = await ctx.browser.newPage({ viewport: { width: 820, height: 1180 } });
+    await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+    try {
+      await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=820&tab=people`);
+      await page.waitForSelector('#hx-frame .su-host');
+      await page.evaluate(() => [...document.querySelectorAll('#hx-frame .seg2 button')].find(b => b.textContent.trim() === 'Map').click());
+      await page.waitForSelector('#hx-frame .castmap');
+      const v = await page.evaluate(() => {
+        const q = s => document.querySelector(`#hx-frame ${s}`); const c = (s, p) => getComputedStyle(q(s))[p];
+        return { gap: c('.castmap', 'rowGap'), fw: c('.castmap .fine', 'fontWeight'), lh: c('.castmap .fine', 'lineHeight'), leg: c('.mleg', 'columnGap'),
+          here: c('.hm.here', 'backgroundColor'), hint: c('.mhint', 'fontSize'), hintLh: c('.mhint', 'lineHeight'), legText: q('.mleg').lastElementChild.textContent };
+      });
+      assert.equal(v.gap, '12px'); assert.equal(v.fw, '400'); assert.equal(v.lh, '18px'); assert.equal(v.leg, '14px');
+      assert.equal(v.here, HERE[theme]); assert.equal(v.hint, '13px'); assert.equal(v.hintLh, '19.5px');
+      assert.equal(v.legText, '● here\u00a0 ○ away');
+    } finally { await page.close(); }
+  });
 }
