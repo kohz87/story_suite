@@ -45,7 +45,7 @@ const nameOf = file => file.slice(RPG.length, -3).replace(/-parts\/.*$/, '');
 const rpgFiles = files => files.filter(file => file.startsWith(RPG) && !SHARED.has(nameOf(file)) && !OUTSIDE.has(nameOf(file)));
 
 test('the page start (index.js static imports) reaches none of the RPG\'s code, only its small shared helpers', () => {
-    const files = closure('index.js');
+    const files = closure('../../core/boot/boot.js');
     assert.deepEqual(rpgFiles(files), [], 'the RPG\'s files come in by import() only');
     const bytes = list => list.reduce((sum, file) => sum + statSync(resolve(ROOT, file)).size, 0);
     const lean = files.filter(file => file.startsWith(RPG) && !OUTSIDE.has(nameOf(file)));
@@ -62,7 +62,7 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
 // ---- the pack checker, the Diagnostics page and the UI sample (P4: less code at every page open) ----------------------------------------
 
 test('the page start reaches neither the pack checker\'s checks, nor the Diagnostics page, nor the UI sample', () => {
-    const files = closure('index.js');
+    const files = closure('../../core/boot/boot.js');
     for (const file of ['../../packs/validate.js', '../../packs/validate/items.js', '../../packs/validate/world.js', '../../packs/validate/events-economy.js',
         '../../ui/legacy/view/settings/diagnostics-page.js', '../../ui/legacy/screens/ui-sample.js']) assert.ok(!files.includes(file), `${file} comes in by import() only`);
     // …while the checker and the page are reachable on their own, so the split is real.
