@@ -18,16 +18,16 @@ const sourceOf = host => { const s = host.store.sourceAt(host.store.headIndex())
 const send = (host, source, v) => host.sdk.command('people.write', { v: 1, source, view: v });
 const opsOnHead = host => host.store.opsAt(host.store.headIndex());
 
-test('the first write adds leaves under the existing domain, and the query hash matches the stored slice', async t => {
+test('the first write stores the people, and the query hash matches the stored slice (a chat with no people holds no people slice)', async t => {
     const host = await peopleHost(t);
     await host.send('Go.', 'The road.');
-    assert.deepEqual(host.head().domains.people, { v: 1, order: [], npcs: {} }, 'present from the first reply, empty');
+    assert.equal(host.head().domains.people, undefined, 'an empty initial slice is not stored: a chat that never uses people stays byte-identical');
+    assert.equal(host.sdk.query('people.hash'), null);
     assert.throws(() => host.sdk.query('people.mirrorOn'), /no module answers/, 'no flag query');
     const result = await send(host, sourceOf(host), view());
     assert.equal(result.ok, true, `${result.code}: ${result.message}`);
     assert.deepEqual(host.head().domains.people, view());
     assert.equal(host.sdk.query('people.hash'), hashJson(view()));
-    assert.equal(opsOnHead(host).some(op => op.path === '/domains/people'), false, 'no whole-domain add: the domain already exists');
 });
 
 test('the next write stores only the changed leaves', async t => {
@@ -51,7 +51,7 @@ test('a sid that is not the head is STALE, a bad view is INVALID, and neither st
     const png = 'data:image/png;base64,AAAA';
     const bads = [view({ portraitAssets: { npc_ann: { dataUrl: png } } }), view({ portraitAssets: { npc_ann: { path: png, type: 'image/png', hash: 'h' } } }), view({ npcs: { npc_ann: { name: 'Ann', face: png } } }), view({ socialGraph: { edges: [{ aId: 'npc_ann', bId: 'bob' }] } }), null, {}, view({ v: 2 }), view({ order: ['npc_bo'] }), view({ npcs: { npc_ann: [] } }), view({ turn: 1.5 }), view({ socialGraph: { x: () => 1 } }), view({ candidates: 'no' })];
     for (const bad of bads) assert.equal((await send(host, source, bad)).code, 'INVALID', JSON.stringify(bad));
-    assert.deepEqual(host.head().domains.people, { v: 1, order: [], npcs: {} });
+    assert.equal(host.head().domains.people, undefined);
     assert.equal(opsOnHead(host).some(op => String(op.path).startsWith('/domains/people')), false);
 });
 

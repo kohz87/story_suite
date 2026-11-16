@@ -10,7 +10,7 @@ const clone = value => JSON.parse(JSON.stringify(value));
 
 export function createPeoplePart() {
     return {
-        domains: { [PEOPLE_DOMAIN]: { initial: () => ({ v: 1, order: [], npcs: {} }), validate: validatePeople } },
+        domains: { [PEOPLE_DOMAIN]: { initial: () => ({ v: 1, order: [], npcs: {} }), deferred: true, snapshot: 'when-present', validate: validatePeople } },
         commands: {
             // Replaces the people draft with the view, for the reply the view belongs to (`source`: { sid, swipeKey }); the store diffs it into leaf ops.
             'people.write': {
