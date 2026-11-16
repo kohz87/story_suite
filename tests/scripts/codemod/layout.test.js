@@ -187,6 +187,7 @@ test('the rules delete only manifests dead at the move PR and keep later removal
   assert.deepEqual(deletes, [
     'packages/npc-state-delta/package.json',
     'packages/story-block/package.json',
+    'packages/story-block/src/v2/shared/redraw.js',
     'packages/story-director/package.json',
   ]);
   const target = file => matchPath(rules, file).to;

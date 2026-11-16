@@ -41,6 +41,7 @@
     { "from": "packages/story-block/tests/helpers", "to": "tests/helpers" },
     { "from": "packages/story-block/tests/id.test.js", "to": "tests/core/id.test.js" },
     { "from": "packages/story-block/tests/text.test.js", "to": "tests/core/text.test.js" },
-    { "from": "packages/story-block/tests/ui-fake-dom.js", "to": "tests/helpers/ui-fake-dom.js" }
+    { "from": "packages/story-block/tests/ui-fake-dom.js", "to": "tests/helpers/ui-fake-dom.js" },
+    { "from": "packages/story-block/src/v2/shared/redraw.js", "to": null }
   ]
 }

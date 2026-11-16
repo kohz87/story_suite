@@ -1,4 +1,5 @@
 // Writes the generated Story Block copy of the one redraw scheduler; with --check, fails on drift.
+// Any new generated file needs a move rule in scripts/codemod/layout/*.rules.json (a delete if J14/B3 removes it); `npm run layout:plan` fails on an unmatched file.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
