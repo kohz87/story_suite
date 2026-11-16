@@ -68,7 +68,7 @@ export function sceneSheet(scene = {}, here = [], { onSave, onClose } = {}) {
   return h(
     'div',
     { class: 'scsheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Scene' },
-    h('div', { class: 'sch' }, h('h3', null, 'Scene'), button({ label: '×', tone: 'icon', ariaLabel: 'Close', className: 'x', onClick: () => onClose?.() })),
+    h('div', { class: 'sch' }, h('h3', null, 'Scene'), h('button', { type: 'button', class: 'x', 'aria-label': 'Close', onClick: () => onClose?.() }, '×')),
     h('div', { class: 'row2' }, field('Date', inputs.date), field('Time', inputs.time)),
     field('Place', inputs.place),
     field('Weather', inputs.weather),
@@ -84,6 +84,7 @@ export function sceneSheet(scene = {}, here = [], { onSave, onClose } = {}) {
 export function openSceneSheet(ctx = {}, scene = {}, here = []) {
   const send = ctx.command ?? (ctx.port ? ctx.port.command.bind(ctx.port) : () => {});
   const sheet = openSheet(ctx, { id: 'scene-sheet', label: 'Scene' });
+  sheet.el.classList.add('sh-scene');
   sheet.body.appendChild(sceneSheet(scene, here, {
     onSave: async patch => {
       if (Object.keys(patch).length) await send('scene.correct', patch);

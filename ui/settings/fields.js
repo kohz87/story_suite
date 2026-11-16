@@ -102,7 +102,7 @@ export function renderRow(row, ctx = {}) {
   const el = h(
     'div',
     { class: ['srow', isWide(row) && 'wide', isSwitch && 'swrow'], dataset: { key: row.key, type: row.type } },
-    h('span', { class: 'lb' }, h('b', { id: labelId }, row.label, tags), row.hint ? h('small', row.hint) : null),
+    h('span', { class: 'lb' }, h('b', { id: labelId, class: tags.length ? 'tagd' : null }, tags.length ? h('span', { class: 'ln' }, row.label) : row.label, tags), row.hint ? h('small', row.hint) : null),
     h('span', { class: 'ctl' }, controlFor(row, emit, labelId)),
   );
   if (isSwitch) {

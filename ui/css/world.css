@@ -1,5 +1,6 @@
 /* Styles for the World tab: switch, map, trip card, place sheet, news and factions; tokens only, sized from the container. */
-.world-tab{display:flex;flex-direction:column;gap:12px;min-width:0}
+.world-tab{display:flex;flex-direction:column;gap:12px;min-width:0;--pk-disc:#3a3c52}
+[data-scheme="light"] .world-tab{--pk-disc:#4a4d68}
 .world-tab .wbody{display:flex;flex-direction:column;gap:12px;min-width:0}
 .world-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .world-tab .ch{display:flex;align-items:center;gap:10px}
@@ -138,6 +139,6 @@
 .fac p{margin:3px 0 0;font-size:13px;color:var(--su-soft)}
 .fac .fl{display:flex;flex-wrap:wrap;gap:4px 12px;font:700 12px var(--su-font);color:var(--su-muted);align-items:center}
 .fac .avs{display:flex}
-.fac .avs .a{width:24px;height:24px;border-radius:50%;background:#3a3c52;margin-right:-6px;box-shadow:0 0 0 2px var(--su-panel);display:grid;place-items:center;font:800 10px var(--su-font);color:var(--su-soft);border:0;padding:0}
+.fac .avs .a{width:24px;height:24px;border-radius:50%;background-color:var(--pk-disc);margin-right:-6px;box-shadow:0 0 0 2px var(--su-panel);display:grid;place-items:center;font:800 12px var(--su-font);color:#fff;border:0;padding:0}
 .fac .avs button.a{cursor:pointer}
 .fac .avs .a svg{width:15px;height:15px}

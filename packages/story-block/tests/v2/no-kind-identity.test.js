@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHost } from '../../testkit/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../src/v2/turn.js';
+import { createGuards } from '../../src/v2/commands/guards.js';
 
 const FIXTURE = new URL('./fixtures/no-kind-identity.json', import.meta.url);
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
@@ -30,6 +31,8 @@ async function scenario() {
         out.metadata = host.ctx.chatMetadata;
         out.records = host.ctx.chat.map(message => message.extra?.storySuite ?? null);
         out.state = host.head();
+        // The checkpoint trust mark (what main computes for this host): no `;kinds:` suffix while no module registers a kind.
+        out.guardMark = createGuards({ registry: host.registry, findQuery: () => null }).guardMark();
     } finally { host.close(); }
     return JSON.parse(JSON.stringify(out));
 }
@@ -47,5 +50,8 @@ test('no kind registered: prompt, chat metadata, receipts and guard mark equal m
     assert.deepEqual(got.metadata, want.metadata, 'chat metadata');
     assert.deepEqual(got.records, want.records, 'receipts and the guard mark on each reply');
     assert.deepEqual(got.state, want.state, 'the state');
+    assert.equal(typeof want.guardMark, 'string', 'the fixture records the guard mark');
+    assert.equal(got.guardMark, want.guardMark, 'the guard mark, byte for byte');
+    assert.ok(!got.guardMark.includes('kinds'), 'no kinds suffix');
     assert.ok(!JSON.stringify(got).includes('interaction'), 'no interaction key appears anywhere');
 });
