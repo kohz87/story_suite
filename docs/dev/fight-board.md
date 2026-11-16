@@ -6,12 +6,9 @@ rules, the only formula; the roll planner and Classic are gone. With the board o
 
 ## On the interaction port (I6)
 
-The board is an interaction kind, `story-block/fight` (`lean-rpg/board/interaction.js`, registered by the core module through the lazy RPG part). The core owns what used to be the board's own plumbing:
-the unsent session, the Send copy, the waiting choice and the held reply live in `chatMetadata.storySuiteInteraction` (`open`, `send`, `start`, `last`, `held`, `heldDiscarded`, `attempts`; `src/v2/interaction/`),
-a reply's fight is settled by the core's `interaction.settle` (a prelude of the reply) and the view calls `sdk.interaction` (`open`, `stage`, `auto`, `send`, `discard`, `current`). What stays the module's:
-the engine, the rules, the view, the note and the pre-check. A step is one exchange (`toExchanges(steps)` gives the engine the exchanges it always had, so dice and results do not move).
-The kind's `settle` returns the old record (`data.v2.result`, `board.id` = the setup id) and the writes in the old order: `gear.wear`, `inventory.consume`, then the module's internal commands
-`rpg.board.openFoes` (the foes a pre-check found), `rpg.board.hurts` and `rpg.board.clearFoes` (`board/changes.js`); the pre-check's offer is the kind's `opening` (`board/opening.js`, the same roll the old opening made).
+The board is an interaction kind, `story-block/fight` (`modules/rpg/board/interaction.js`, registered by the core module through the lazy RPG part). The core owns the plumbing (session, Send copy, waiting choice, held reply, settle, note, marker): docs/dev/interaction.md.
+What stays the module's: the engine, the rules, the view, the note and the pre-check. A step is one exchange (`toExchanges(steps)` gives the engine the exchanges it always had, so dice and results do not move).
+The kind's `settle` returns the old record (`data.v2.result`) and the writes in the old order: `gear.wear`, `inventory.consume`, then the internal commands `rpg.board.openFoes`, `rpg.board.hurts` and `rpg.board.clearFoes` (`board/changes.js`); the pre-check's offer is the kind's `opening` (`board/opening.js`).
 A staged fight goes with the reader's next message (`autoSend`); only a waiting pause (a typed attack met a known foe, or the pre-check found new foes) asks for "Send with this fight", which is `interaction.send`.
 Readers of a settled fight ask `board/results.js` (`fightResults`), which accepts both an `interaction.settle` of this kind and a pre-port board `rpg.resolve`.
 Chats made before the port: their settled fights stay readable and re-plannable (`board/commit.js` and the board branch of `rpg.resolve` are kept unchanged until C11); an unsent fight, its Send copy,

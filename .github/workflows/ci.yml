@@ -47,6 +47,7 @@ jobs:
             echo "== base $base"
             git diff --check "$base" HEAD
             node scripts/checks/run-size-check.mjs --base "$base"
+            node scripts/checks/core-module-refs.mjs --base "$base"
           done <<< "$BASES"
       - name: Redraw copy is current
         run: node scripts/sync-redraw-copy.mjs --check
