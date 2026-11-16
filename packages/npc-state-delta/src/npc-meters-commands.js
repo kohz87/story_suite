@@ -77,7 +77,7 @@ export function createNpcCommands({
         const known = Boolean(who && (Object.hasOwn(ctx.read(NPC_DOMAIN)?.npcs ?? {}, who.key) || ctx.read('people')?.npcs?.[who.key]));
         if (labelled && !changes.length && !known && line.op !== '+') problems.push(`${clean(line.name, 40)} has no record yet; ${Object.keys(fields).join(', ')} not stored.`);
         const out = run(ctx, { label: line.name, changes, problems, limit: true, reply, at, disposition, via, allowEmpty: line.op === '+' || (labelled && known), impact: tierCaps() ? { tier, caps: tierCaps() } : null, story: true, reason, key: line.stubKey });
-        return labelled ? labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMinutes, clockDay, startDate: day => call(hooks.startDate, '', day), moodOn: featureOn(FEATURE_MOOD_PULL, ctx), note }) : out;
+        return labelled ? labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMinutes, clockDay, startDate: day => call(hooks.startDate, '', day), moodOn: featureOn(FEATURE_MOOD_PULL, ctx), note, lines: line.linesOn === true }) : out;
     }
 
     // ---- commands (cause ui from Delta itself; capture is the story's) ----

@@ -13,8 +13,10 @@ const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 
 /** → { name, role, look, problems } from a `+ npc` line (read from the line as written: its parts are the role and the look, whatever they hold). */
 export function readStub(line) {
-    const parts = String(line?.raw ?? '').split('|').slice(1).map(part => part.trim()).filter(Boolean);
-    const [role = '', ...looks] = line?.raw === undefined ? String(line?.text ?? '').split(';').map(part => part.trim()).filter(Boolean) : parts;
+    // The first slot is the role even when empty (`+ npc Ilse || eyes: grey` has a look and no role); only empty slots after it are dropped.
+    const slots = (line?.raw === undefined ? String(line?.text ?? '').split(';') : String(line.raw).split('|').slice(1)).map(part => part.trim());
+    const [role = '', ...rest] = slots;
+    const looks = rest.filter(Boolean);
     const written = clean(looks.join('; '), 10000);
     const look = clean(written, STUB_LOOK_MAX);
     const problems = written.length > look.length ? [`${clean(line.name, 40)}: the look was cut to ${STUB_LOOK_MAX} characters.`] : [];
@@ -53,8 +55,9 @@ function refusalOf(ctx, name, hooks) {
 export function withStubs(handler, { hooks, linesMode, baseline, note }) {
     return function stubbedLine(ctx, line = {}) {
         if (!linesMode(ctx)) return handler(ctx, line);
+        const on = { ...line, linesOn: true };   // (the label readers of npc-lines-parts/facts.js run only on a marked line)
         const aboutPerson = line.kind === 'npc' || line.kind === 'milestone' || isNoteKind(line.kind);
-        if (!aboutPerson) return handler(ctx, line);
+        if (!aboutPerson) return handler(ctx, on);
         if (line.kind === 'npc' && line.op === '+') {
             const stub = readStub(line);
             const refused = refusalOf(ctx, stub.name, hooks);
@@ -64,7 +67,7 @@ export function withStubs(handler, { hooks, linesMode, baseline, note }) {
             const id = makeNpcId(stub.name, taken);
             if (!PEOPLE_ID.test(id)) ctx.fail('INVALID', `${stub.name} cannot be given an id.`);
             ctx.call('people.stub', { id, record: stubRecord(stub, id, baseline(), Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1) });
-            const out = handler(ctx, { ...line, labels: {}, name: stub.name, stubKey: id });
+            const out = handler(ctx, { ...on, labels: {}, name: stub.name, stubKey: id });
             if (stub.problems.length) note(ctx.draft(NPC_DOMAIN), ctx.rev, stub.problems);
             return stub.problems.length ? { ...out, data: { ...out.data, problems: [...(out.data?.problems ?? []), ...stub.problems] } } : out;
         }
@@ -72,6 +75,6 @@ export function withStubs(handler, { hooks, linesMode, baseline, note }) {
             const text = `${clean(line.name, 40)} has no record yet; write + npc ${clean(line.name, 40)} | role | look first.`;
             ctx.fail('REFUSED', text);
         }
-        return handler(ctx, line);
+        return handler(ctx, on);
     };
 }

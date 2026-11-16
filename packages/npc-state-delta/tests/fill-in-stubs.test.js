@@ -118,12 +118,18 @@ test('two new people of one reply: two fill-ins in that reply, each with the quo
         await reply('Wiz and Chris arrive.', { npcs: [mk('Wiz'), mk('Chris')] });
         await reply('Quiet.', { npcs: [] });
         const before = mockState.rawCalls.length;
-        globalThis.NPCStateDelta.queueFills(['Wiz', 'Chris'].map(name => ({ id: st().npcs.find(n => n.name === name).id, name })));
+        const stubs = ['Wiz', 'Chris'].map(name => ({ id: st().npcs.find(n => n.name === name).id, name }));
+        const refused = globalThis.NPCStateDelta.queueFills(stubs);   // no reply given: nothing is queued
+        const at = mockState.context.chat.length - 1 - 1;   // the reply the stubs came from, not the head
+        globalThis.NPCStateDelta.queueFills(stubs, at);
+        const keyed = st().pendingBackfills.map(item => item.requestedMessageId);
         const queuedNow = st().pendingBackfills.map(item => item.reason);
         const run = await reply('Quiet again.', { npcs: [] });
         const calls = mockState.rawCalls.slice(before).filter(call => /backfill scanner/i.test(String(call?.[0]?.systemPrompt || '')));
-        return { held: run.held.backfill, all: run.all.backfill, queuedNow, calls: calls.length, quoted: calls.filter(call => /quote the few words of the story that show it/.test(String(call[0].prompt))).length, queued: st().pendingBackfills.length };
+        return { refused, at, keyed, held: run.held.backfill, all: run.all.backfill, queuedNow, calls: calls.length, quoted: calls.filter(call => /quote the few words of the story that show it/.test(String(call[0].prompt))).length, queued: st().pendingBackfills.length };
     });
+    assert.equal(r.refused, false);
+    assert.deepEqual(r.keyed, [r.at, r.at], 'each fill is keyed by the reply that made the stubs');
     assert.deepEqual(r.queuedNow, ['new-person', 'new-person']);
     assert.equal(r.held, 0, 'run after the reply: the reply did not wait for them (nothing added before Send)');
     assert.equal(r.all, 2);
@@ -132,7 +138,7 @@ test('two new people of one reply: two fill-ins in that reply, each with the quo
     assert.equal(r.queued, 0);
 });
 
-for (const [kind, expected] of [['not json', 2], ['throw', 1]]) {
+for (const [kind, expected, first] of [['not json', 2, { calls: 2, queued: 0 }], ['throw', 2, { calls: 1, queued: 1 }]]) {
     test(`a failed fill-in (${kind === 'throw' ? 'the model errors' : 'an answer that is not JSON'}) is dropped after ${expected} call${expected > 1 ? 's' : ''} and the reader is told once; the stub stays`, () => {
         const r = runCalls(`failed-fill-${kind}`, true, new Function('kind', 'return ' + (async ({ reply, settings, mockState }) => {
             const mk = n => ({ name: n, present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO });
@@ -147,14 +153,15 @@ for (const [kind, expected] of [['not json', 2], ['throw', 1]]) {
             const before = mockState.rawCalls.length;
             const count = () => mockState.rawCalls.slice(before).filter(call => /backfill scanner/i.test(String(call?.[0]?.systemPrompt || ''))).length;
             const toasts = notes.length;
-            globalThis.NPCStateDelta.queueFills([{ id: wiz.id, name: wiz.name }]);
+            globalThis.NPCStateDelta.queueFills([{ id: wiz.id, name: wiz.name }], mockState.context.chat.length - 1);
             await reply('Quiet 1.', { npcs: [] });
             const afterFirst = { calls: count(), queued: st().pendingBackfills.length };
             await reply('Quiet 2.', { npcs: [] });
+            await reply('Quiet 3.', { npcs: [] });
             return { afterFirst, calls: count(), notes: notes.slice(toasts), stays: Boolean(st().npcs.find(n => n.name === 'Wiz')) };
         }).toString().replace('KIND', kind))());
-        assert.deepEqual(r.afterFirst, { calls: expected, queued: 0 }, 'the calls of the one attempt, then it is dropped');
-        assert.equal(r.calls, expected, 'nothing is tried again on a later reply');
+        assert.deepEqual(r.afterFirst, first, 'an answer that is not JSON: its compact retry is the retry, dropped at once; a model error: one queued retry on the next run');
+        assert.equal(r.calls, expected, 'two model calls at most, nothing tried again after');
         assert.equal(r.notes.length, 1, 'one note for the failure: ' + r.notes.join(' | '));
         assert.match(r.notes[0], /the profile for Wiz could not be filled in\. The name, role and look from the story stay/);
         assert.equal(r.stays, true);

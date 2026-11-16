@@ -24,5 +24,6 @@ export function normalizeAutomaticBackfillRequest(raw = {}) {
         requestedAt: Math.max(0, Number(raw.requestedAt || 0) || 0),
         attempts: Math.max(0, Math.round(Number(raw.attempts) || 0)),
         lastAttemptAt: Math.max(0, Number(raw.lastAttemptAt || 0) || 0),
+        ...(raw.lastError === 'call' || raw.lastError === 'json' ? { lastError: raw.lastError } : {}),   // (a fill-in's last failure: src/npc-lines-parts/fill-in.js)
     };
 }

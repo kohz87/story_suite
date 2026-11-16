@@ -23,6 +23,6 @@ export function derivedFields(row, known = null) {
 export function stubRecord({ name, role, look }, id, baseline, stamp = 1) {
     const record = createNpcRecord(name, [], baseline);
     const { identityKind, dossierReason } = derivedFields({ name }, null);
-    // No clock: the stamp is the reply's place, so a Re-read of the same line makes the same record (replay equals live).
+    // No clock: the stamp is the reply's place (a small integer, not epoch ms: nothing may order people by it), so a Re-read of the same line makes the same record (replay equals live).
     return { ...record, id, role, appearance: look, identityKind, dossierReason, createdAt: stamp, updatedAt: stamp };
 }

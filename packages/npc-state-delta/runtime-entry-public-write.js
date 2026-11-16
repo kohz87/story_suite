@@ -158,12 +158,14 @@ export function createPublicApiStatePart(deps) {
         state.readAhead = [];
         return true;
     },
-    // (lines mode; N7 calls it) One fill-in per person a `+ npc` stub made in the latest reply (`stubs`: [{ id, name }]); the queue runs after the reply, never before Send.
-    queueFills: stubs => {
+    // (lines mode; N7 calls it) One fill-in per person a `+ npc` stub made in the reply at `reply` (its own index: a Re-read of an earlier reply, or a delete since, must not
+    // point the fill at another reply's exchange); `stubs`: [{ id, name }]. The queue runs after the reply, never before Send. N7 calls it after the reply's hydrate
+    // (hydratePeople clears the queue) and persists what it queued.
+    queueFills: (stubs, reply) => {
         const key = getChatKey();
-        const state = key && key !== 'no-chat' ? getChatState(key) : null;
+        const state = key && key !== 'no-chat' && chatHydrationStatus(key) === 'ready' && Number.isInteger(reply) && reply >= 0 ? getChatState(key) : null;
         if (!state) return false;
-        queueFillsInState(state, stubs, latestReplyIndex());
+        queueFillsInState(state, stubs, reply);
         return true;
     },
     // (the one timeline) The scan marker the store holds for the head (people.scan, src/adapter/people-sync.js): `index` is the last reply read (null: none), `since`

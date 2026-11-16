@@ -170,6 +170,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
             },
             onError: error => {
                 noteScanFailure('dossier backfill', error, getChatKey());
+                if (request.reason === FILL_REASON) request.lastError = error?.jsonFailed ? 'json' : 'call';   // (fillPolicy: a call error gets one queue retry)
                 if (error?.code === 'NPC_SCANNER_ROUTE_CANCELLED' || error?.code === 'NPC_SCANNER_ROUTE_TIMEOUT') return null;
                 // (a stub's fill-in tells the reader once, when the queue gives it up: fillFailureNote)
                 if (request.reason !== FILL_REASON && (!request.silent || (isScannerRoutingError(error) && error.code !== 'NPC_SCANNER_ROUTE_CANCELLED'))) globalThis.toastr?.warning?.(`NPC State Delta backfill failed for ${request.label}: ${error?.message || error}`);
@@ -207,7 +208,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
             if (attempts >= policy.max) {
                 state.pendingBackfills = state.pendingBackfills.filter(item => item.npcId !== request.npcId);
                 persist();
-                if (!request.silent) globalThis.toastr?.warning?.(request.reason === 'new-person' ? fillFailureNote(request.label) : `NPC State Delta: stopped automatic backfill retries for ${request.label} after ${BACKFILL_MAX_ATTEMPTS} failed attempts. The bare dossier is preserved; use Scan dossier to retry manually.`);
+                if (!request.silent) globalThis.toastr?.warning?.(request.reason === FILL_REASON ? fillFailureNote(request.label) : `NPC State Delta: stopped automatic backfill retries for ${request.label} after ${BACKFILL_MAX_ATTEMPTS} failed attempts. The bare dossier is preserved; use Scan dossier to retry manually.`);
                 continue;
             }
             const lastAttemptAt = Math.max(0, Number(request.lastAttemptAt || 0) || 0);
@@ -229,9 +230,10 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 if (queued) {
                     queued.attempts = attempts + 1;
                     queued.lastAttemptAt = Date.now();
-                    if (queued.attempts >= policy.max) {
+                    if (request.lastError) queued.lastError = request.lastError;
+                    if (queued.attempts >= fillPolicy(queued, { max: BACKFILL_MAX_ATTEMPTS, cooldown: true }).max) {
                         latest.pendingBackfills = latest.pendingBackfills.filter(item => item.npcId !== request.npcId);
-                        if (!queued.silent) globalThis.toastr?.warning?.(queued.reason === 'new-person' ? fillFailureNote(queued.label) : `NPC State Delta: automatic backfill for ${queued.label} failed ${BACKFILL_MAX_ATTEMPTS} times and was removed from the retry queue. The dossier itself was not deleted.`);
+                        if (!queued.silent) globalThis.toastr?.warning?.(queued.reason === FILL_REASON ? fillFailureNote(queued.label) : `NPC State Delta: automatic backfill for ${queued.label} failed ${BACKFILL_MAX_ATTEMPTS} times and was removed from the retry queue. The dossier itself was not deleted.`);
                     }
                 }
                 persist();

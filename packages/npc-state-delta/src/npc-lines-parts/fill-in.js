@@ -2,13 +2,15 @@
 // Built here and not wired: the reply writes the full dossier itself until lines mode is live (N7), so extra fill-ins would cost calls and save nothing.
 // The calls run after the reply is shown and never before Send. The queue is the existing backfill queue (runtime-scan-backfill.js); these are its rules for this kind of request.
 export const FILL_REASON = 'new-person';
-// One attempt of the queue. Its one retry is the request layer's own: an answer that is not JSON is asked for once more with the compact correction prompt
-// (src/scanner-request-parts/generate.js), so a fill-in is at most two model calls. The queue does not try again on top of that (no stacked retries).
+// One attempt, and one retry: an answer that is not JSON is asked for once more by the request layer itself (the compact correction prompt,
+// src/scanner-request-parts/generate.js), so the queue adds no second attempt after that (two calls). A model or transport error (a thrown call, `lastError: 'call'`)
+// gets the queue's one retry on the next run instead (two calls too). Never more than two model calls for one fill-in.
 const FILL_ATTEMPTS = 1;
+const FILL_ATTEMPTS_AFTER_CALL_ERROR = 2;
 
 /** How the backfill queue treats a request: { max (attempts), cooldown (wait before a retry), ownsCall (its own model call: the per-reply cap does not hold it back) }. */
 export function fillPolicy(request, defaults = { max: 3, cooldown: true }) {
-    if (request?.reason === FILL_REASON) return { max: FILL_ATTEMPTS, cooldown: false, ownsCall: true };
+    if (request?.reason === FILL_REASON) return { max: request.lastError === 'call' ? FILL_ATTEMPTS_AFTER_CALL_ERROR : FILL_ATTEMPTS, cooldown: false, ownsCall: true };
     return { max: defaults.max, cooldown: defaults.cooldown, ownsCall: request?.reason === 'new-admission' };
 }
 
