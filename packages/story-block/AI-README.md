@@ -406,7 +406,7 @@ Public read-only API for card authors and scripts (not for modules): `StoryBlock
 | `src/v2/screens/`, `view/` | Default screens; template renderer, widgets, settings window, Game view header, themes |
 | `src/v2/ui-host.js`, `host-ui.js` | Bar, panel, drawer; settings folds |
 | `src/id.js`, `src/text.js`, `src/ui/dom.js` | Helpers the testkit imports. Story Block 1's code and docs live on the `v1` branch |
-| `testkit/` | Fake SillyTavern and a whole host (`createHost`); vendored by the modules |
+| `testkit/` | Fake SillyTavern and a whole host (`createHost`); copied into a module's `tests/vendor` by `sync-testkit.mjs` when needed |
 | `tests/`, `tests/v2/` | Tests (about 2,100): `qa/`, `break/`, `domains/`, `packs/`, `view/`, `screens/`, `ux/` |
 | `examples/packs/` | `ersveil` (sample world, lorebook, 12 portraits) and `ersveil.zip` (pack.json + portraits, the one-step import; `node scripts/build-example-zip.mjs` rebuilds it, a test fails if it drifts), `riverside-starter`, `ersveil-factions`, `ersveil-survival` |
 | `examples/fishing/` | A reference activity module |
@@ -422,7 +422,7 @@ prompt byte-identical, every optional mechanic a Feature, no markup from text, n
 - One currency per chat, up to 8 coins. A stack that does not stack holds at most 50 pieces. Party mounts: at most 6.
 - At most 150 change lines a reply by default; 16 blocks-and-modules pins and 8 blocks a chat; 16 block templates.
 - A reply cut off inside its block loses its last half line (a Problem says how to recover). A chat's pack is the copy it began with.
-- A change to `testkit/` or `src/v2/` can turn a module's tests red after its next re-sync; say so and re-sync.
+- A change to `testkit/` or `src/v2/` can turn a module's tests red at once; say so and re-run that module's tests.
 - Open: one `test.todo` (C4-2, a save already on its way when a chat is renamed can write the old name again;
   `tests/v2/break/c4-rename-midsave.test.js`).
 - Docs that lag the code: `docs/v2/STATUS.md` and `docs/STORY_SUITE.md` still describe older releases; `docs/v2/ERSVEIL.md` names pack

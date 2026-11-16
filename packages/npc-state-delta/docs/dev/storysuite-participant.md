@@ -6,7 +6,7 @@ dossier of the person who died has to learn it. Story Block's timeline asks ever
 This folder is Delta's: `src/storysuite-participant/` (new files only; Delta's own modules, storage and **prompts** are untouched).
 
 Story Block's side is `docs/v2/TIMELINE.md` (participants, the commit-time probe, recovery) and `docs/v2/HISTORY.md` (active history, the head-selection
-barrier) in kohz87/Story_block. This note is Delta's side; the tests import the live Story Block code by relative path (no vendored copy).
+barrier) in kohz87/Story_block. This note is Delta's side; the tests import the live Story Block code by relative path.
 
 ## What it is
 

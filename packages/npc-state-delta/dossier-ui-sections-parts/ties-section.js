@@ -6,7 +6,7 @@ import { noteTieTags, readTieRows, TIE_TYPE_LABELS } from '../core-keyrel.js';
 
 // One tie, stacked: its type (Ally, Rival, Owes, Interest, Passing: small heading, toned), the other person, and the description (the
 // relation as written, then the dynamic). Older ties add why they are there (died, left, not mentioned for N days). Own divider each.
-const TIE_TONES = { ally: 'good', rival: 'bad', owes: 'gold', interest: 'rose', passing: 'grey' };
+const TIE_TONES = { kin: 'good', partner: 'good', friend: 'good', ally: 'good', mentor: 'good', serves: 'gold', rival: 'bad', enemy: 'bad', owes: 'gold', interest: 'rose', passing: 'grey' };
 function tieHtml(row) {
     const parsed = parseKeyRelationshipEntry(row.entry);
     if (!parsed) return `<div class="delta-bond" data-tone="grey"><p>${escapeHtml(plain(row.entry))}</p></div>`;

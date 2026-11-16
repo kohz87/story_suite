@@ -1,6 +1,6 @@
 // The Ties rows for a bond list, folding tie keys under aliases, and who owes whom.
 import { npcKey } from '../npc-meters-config.js';
-import { tiesView, tagsFromRelation, owedBy } from '../npc-notes-ties.js';
+import { TIE_TAGS, tiesView, tagsFromRelation, owedBy } from '../npc-notes-ties.js';
 
 /**
  * The Ties rows for a person's bond list (bond strings "Name — relation | dynamic"): the stored tags, and for a bond with none the
@@ -33,7 +33,7 @@ export function foldTies(ties, canon = {}) {
         const to = Object.hasOwn(canon, key) ? canon[key] : key;
         out[to] = [...new Set([...(out[to] ?? []), ...(Array.isArray(tags) ? tags : [])])];
     }
-    for (const [key, tags] of Object.entries(out)) out[key] = ['ally', 'rival', 'owes'].filter(tag => tags.includes(tag));
+    for (const [key, tags] of Object.entries(out)) out[key] = TIE_TAGS.filter(tag => tags.includes(tag));
     return out;
 }
 

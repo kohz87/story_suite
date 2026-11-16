@@ -1,4 +1,4 @@
-// The checks part and the map's policy on the real Story Block host (the vendored testkit) with the module registered whole: the writers
+// The checks part and the map's policy on the real Story Block host (the live testkit) with the module registered whole: the writers
 // as the player calls them, the policy and its hash, the probe, a rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';

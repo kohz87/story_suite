@@ -23,10 +23,13 @@ export function bondTone(relationText) {
     return 'neutral';
 }
 
-// A bond's tone from its tie tags (ally, rival, owes): rival is hostile, then owes is duty, then ally is close; none: null.
+// A bond's tone from its tie tags: rival or enemy is hostile, then owes or serves is duty, then kin, partner, friend, ally or mentor is close; none: null.
+const HOSTILE_TAGS = ['rival', 'enemy'];
+const DUTY_TAGS = ['owes', 'serves'];
+const CLOSE_TAGS = ['kin', 'partner', 'friend', 'ally', 'mentor'];
 export function tieTone(tags) {
     const list = Array.isArray(tags) ? tags : [];
-    if (list.includes('rival')) return 'hostile';
-    if (list.includes('owes')) return 'duty';
-    return list.includes('ally') ? 'close' : null;
+    if (HOSTILE_TAGS.some(tag => list.includes(tag))) return 'hostile';
+    if (DUTY_TAGS.some(tag => list.includes(tag))) return 'duty';
+    return CLOSE_TAGS.some(tag => list.includes(tag)) ? 'close' : null;
 }
