@@ -4,14 +4,14 @@ import { selectDossier } from '../../../ui/select/dossier.js';
 import { DOSSIER_SHAPE } from '../../../ui/contract/dossier.js';
 import { checkShape } from '../../../ui/contract/shapes.js';
 
-// npc.dossier: packages/npc-state-delta/src/adapter/queries.js:215-237 (DOSSIER_FIELDS, fields/registry.js:215; meters, stages, unlocked from npc.meters).
+// people.dossier (packages/story-block/src/v2/domains/people/queries.js): the stored dossier fields, `followed` (the Follow flag), meters, stages, unlocked and recent from the bonds.
 const DOSSIER = {
   id: 'np_1', name: 'Sister Temiwa', aliases: ['Tem'], role: 'Guild chaplain', species: 'Human', gender: 'Female', age: '26', homeBase: 'Bluewatch chapel',
   appearance: 'Tall, dark hair under a white veil.', personality: 'Careful with strangers.', speech: 'Quiet and precise.', background: 'Raised in the orphanage.',
   mannerisms: ['Folds her hands before answering'], behaviorProfile: ['Checks the door', 'Folds her hands before answering'],
   memories: ['Handed back the offering coin.', 'Met at the Guild Office.'],
   keyRelationships: ['Torka — childhood friend | Tem to her', 'The Harbour Master'],
-  mood: 'wary hope', location: 'by the notice board', status: 'Waiting for the clerk', lifeState: 'alive', present: true,
+  mood: 'wary hope', location: 'by the notice board', status: 'Waiting for the clerk', lifeState: 'alive', present: true, followed: true,
   meters: { trust: 22, affection: 9, desire: 0, tension: -4 }, relationship: { trust: 1, affection: 1, desire: 1, tension: 1 }, stages: {}, unlocked: ['s1'],
 };
 // npc.meters({ name }) with `recent`: npc-meters-queries.js:17-35 and eventLog, npc-meters-pacing.js:126-128 (newest first).
@@ -63,9 +63,40 @@ describe('selectDossier', () => {
 
   it('gives Now for a present person, with wearing and thought as gaps, and Last seen for an away one', () => {
     assert.deepEqual(selectDossier(ALL).now, { where: 'by the notice board', doing: 'Waiting for the clerk', wearing: null, thought: null });
-    const away = selectDossier({ dossier: { ...DOSSIER, present: false }, keyPeople: { people: [{ name: 'Sister Temiwa', place: 'Bluewatch stables', newsAgo: 'yesterday' }] } });
+    const away = selectDossier({ dossier: { ...DOSSIER, present: false, followed: true }, keyPeople: { people: [{ name: 'Sister Temiwa', place: 'Bluewatch stables', newsAgo: 'yesterday' }] } });
     assert.deepEqual(away.now, { lastPlace: 'Bluewatch stables', lastSeen: 'yesterday', said: null });
     assert.equal(away.following, true);
+  });
+
+  it('a person at the scene\'s place has the live Now block even when not flagged present', () => {
+    const vm = selectDossier({ dossier: { ...DOSSIER, present: false }, place: 'By the Notice Board' });
+    assert.deepEqual(vm.now, { where: 'by the notice board', doing: 'Waiting for the clerk', wearing: null, thought: null });
+    assert.equal('lastPlace' in selectDossier({ dossier: { ...DOSSIER, present: false } }).now, true);
+  });
+
+  it('reads Following from the store flag alone, not from the key people', () => {
+    const { followed: _f, ...plain } = DOSSIER;
+    assert.equal(selectDossier({ dossier: plain, keyPeople: KEY_PEOPLE }).following, false);
+    assert.equal(selectDossier({ dossier: DOSSIER }).following, true);
+  });
+
+  it('links a tie to a stored person and brings their portrait; a stranger stays plain text', () => {
+    const people = [{ id: 'npc_torka', name: 'Torka', aliases: ['The Sellsword'], portrait: '/user/files/torka.webp' }, { id: 'npc_x', name: 'Nobody', aliases: [], portrait: null }];
+    const vm = selectDossier({ ...ALL, people });
+    assert.deepEqual(vm.ties, [{ personId: 'npc_torka', name: 'Torka', line: 'childhood friend · Tem to her', portrait: '/user/files/torka.webp' }, { personId: null, name: 'The Harbour Master', line: '' }]);
+    assert.deepEqual(checkShape(vm, DOSSIER_SHAPE), []);
+    const viaAlias = selectDossier({ dossier: { ...DOSSIER, keyRelationships: ['the sellsword — hired blade'] }, people });
+    assert.equal(viaAlias.ties[0].personId, 'npc_torka');
+    const noPortrait = selectDossier({ dossier: { ...DOSSIER, keyRelationships: ['Nobody — a name'] }, people });
+    assert.equal('portrait' in noPortrait.ties[0], false);
+  });
+
+  it('fills Likes from the dossier likes list or its Likes custom field, and leaves the key out with neither', () => {
+    assert.equal('likes' in selectDossier(ALL).profile, false);
+    assert.deepEqual(selectDossier({ dossier: { ...DOSSIER, likes: ['plain bread', ' sea songs ', ''] } }).profile.likes, ['plain bread', 'sea songs']);
+    const custom = selectDossier({ dossier: { ...DOSSIER, customFields: { Likes: 'plain bread; sea songs\nrain' } } });
+    assert.deepEqual(custom.profile.likes, ['plain bread', 'sea songs', 'rain']);
+    assert.deepEqual(checkShape(custom, DOSSIER_SHAPE), []);
   });
 
   it('keeps scene null (hiding has no source) and mood from the dossier, else the cast row', () => {

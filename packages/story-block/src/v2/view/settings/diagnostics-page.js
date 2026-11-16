@@ -110,6 +110,16 @@ export function diagnosticsBody(pane, ctx) {
             const failed = error => { status.textContent = fill(T.sampleFailed, { why: error?.message ?? error }); };
             sample.addEventListener('click', () => { try { Promise.resolve(diagnostics.sample()).catch(failed); } catch (error) { failed(error); } });
         }
+        // The fallback while the redraw scheduler is on: every panel is drawn again (the host's redrawAll).
+        if (typeof diagnostics.redrawAll === 'function' && diagnostics.redrawOn?.() === true) {
+            const redraw = action('story-suite-diagnostics-redraw-all', 'fa-arrows-rotate', T.redrawAll);
+            redraw.title = T.redrawAllTitle;
+            redraw.addEventListener('click', () => {
+                let done = false;
+                try { done = diagnostics.redrawAll() === true; } catch { done = false; }
+                status.textContent = done ? T.redrawAllDone : T.redrawAllOff;
+            });
+        }
         // The tools below the fold, in a glass card of their own (the credit needs a surface behind it, as the cards have): the
         // buttons, the status line, then the icon credit with a hairline above it.
         const tools = h(doc, 'div', 'ss-diagnostics-tools ss-glass');

@@ -40,6 +40,8 @@ export const PEOPLE_SHAPE = {
   here: [PERSON_CARD],
   elsewhere: [ELSEWHERE_CARD],
   notSeenLately: T.NUMBER,
+  // The dormant people themselves (36.12), optional: the fixtures send only the count.
+  dormant: { $optional: [ELSEWHERE_CARD] },
   deceased: [DECEASED_CARD],
   ties: {
     $optional: [{ a: T.STRING, b: T.STRING, kind: { $enum: ['friend', 'kin', 'rival', 'owes'] } }],

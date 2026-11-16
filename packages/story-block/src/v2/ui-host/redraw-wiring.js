@@ -5,11 +5,11 @@
 import { createRedraw } from '../shared/redraw.js';
 
 /**
- * `wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule? })` → { on(), mark(), flushNow(), hold(), destroy() }.
+ * `wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule? })` → { on(), mark(), flushNow(), hold(), redrawAll(), register(id, section), changed(keys), destroy() }.
  * `on()` is the flag, read at every call; the scheduler is built at the first call that needs it. `hold()` gives a release function
  * (a no-op while the flag is off). `flushNow({ guard })` draws at once even while a hold is open (a chat switch must not show the old chat); `guard: false` skips the field guard.
  */
-export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule }) {
+export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule, panels = null }) {
     // (a draw that throws is logged, then thrown on: the scheduler keeps its own failed list)
     const logged = (name, fn) => () => { try { return fn(); } catch (error) { console.warn(`[Story Suite] the ${name} redraw failed`, error); throw error; } };
     let scheduler = null;
@@ -44,7 +44,17 @@ export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, sched
             guarded = guard !== false;
             try { return sched.flushNow(); } finally { guarded = true; }
         },
+        /** Diagnostics → Redraw all: every module section (the hub's count moves, so none is skipped) and the panel draw in the next frame. False while the flag is off. */
+        redrawAll() {
+            if (on() !== true) return false;
+            try { panels?.changed?.([]); } catch { /* the hub is the module's; the host's own sections still draw */ }
+            this.mark();
+            return true;
+        },
         hold() { return on() === true ? own().hold() : () => {}; },
+        /** What sdk.panels needs of the scheduler (bound by mountUi): modules' sections are registered into it, and `changed(keys)` marks them. */
+        register: (id, section) => own().register(id, section),
+        changed: keys => own().changed(keys),
         destroy() { scheduler?.destroy(); scheduler = null; },
     };
 }
