@@ -23,7 +23,7 @@ export function questPatch(quest, values) {
   }
   if ('reward' in values) {
     const reward = (values.reward ?? '').trim();
-    const was = [quest.reward, quest.xp].filter(Boolean).join(' · ');
+    const was = quest.reward ?? '';
     if (reward !== was) patch.reward = reward || null;
   }
   if (values.difficulty && values.difficulty !== quest.difficulty) patch.difficulty = values.difficulty;
@@ -38,11 +38,11 @@ export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onCl
   const step = h('select', null, quest.steps.map((s, i) => h('option', { value: i, selected: i === quest.stepIndex }, `${i + 1} of ${quest.steps.length} · ${s}`)));
   step.value = String(quest.stepIndex);
   const due = h('input', { type: 'text', value: quest.due?.date ?? '', placeholder: 'No due date' });
-  const reward = rpg ? h('input', { type: 'text', value: [quest.reward, quest.xp].filter(Boolean).join(' · '), placeholder: 'None' }) : null;
+  const reward = rpg ? h('input', { type: 'text', value: quest.reward ?? '', placeholder: 'None' }) : null;
   const difficulty = rpg ? h('select', null, DIFFICULTIES.map(v => h('option', { value: v, selected: v === quest.difficulty }, v))) : null;
   if (difficulty) difficulty.value = quest.difficulty ?? 'normal';
   const menu = h('div', { class: 'qmore', hidden: true }, button({ label: `Give up this ${kind}`, className: 'giveup', onClick: () => onGiveUp?.() }), button({ label: 'Delete', tone: 'danger', className: 'delete', onClick: () => onDelete?.() }));
-  const more = button({ label: '⋯', tone: 'icon', ariaLabel: 'More: give up or delete', className: 'x qmore-btn' });
+  const more = button({ label: '⋯', icon: h('span', null, '⋯'), tone: 'icon', ariaLabel: 'More: give up or delete', className: 'x qmore-btn' });
   more.setAttribute('aria-expanded', 'false');
   more.addEventListener('click', () => {
     const open = menu.hasAttribute('hidden');
@@ -61,7 +61,7 @@ export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onCl
   return h(
     'div',
     { class: 'qsheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Edit ${kind}`, dataset: { quest: quest.id } },
-    h('div', { class: 'qeh' }, h('div', { class: 'dn' }, `Edit ${kind}`), more, button({ label: '×', tone: 'icon', ariaLabel: 'Close', className: 'x qclose', onClick: () => onClose?.() })),
+    h('div', { class: 'qeh' }, h('div', { class: 'dn' }, `Edit ${kind}`), more, button({ label: '×', icon: h('span', null, '×'), tone: 'icon', ariaLabel: 'Close', className: 'x qclose', onClick: () => onClose?.() })),
     menu,
     field('Title', title),
     field('What it is', summary),

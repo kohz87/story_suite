@@ -22,7 +22,7 @@ test('open drawer shows the header count and one page of cards', () => {
   const d = peopleDrawer(list, { perPage: 2 });
   assert.match(d.querySelector('.dhd').textContent, new RegExp(`Here · ${list.length}`));
   assert.equal(d.querySelectorAll('.pc2').length, Math.min(2, list.length));
-  assert.equal(d.querySelectorAll('.mf').length, list.length);
+  assert.equal(d.querySelectorAll('.mface').length, list.length);
   const first = d.querySelector('.pc2');
   assert.match(first.textContent, new RegExp(list[0].name));
   assert.equal(first.querySelectorAll('svg path').length > 0, true);
@@ -64,7 +64,7 @@ test('swipe on the row pages by direction and ignores short drags', () => {
   const list = [...rows(), ...rows()].slice(0, 4).map((p, i) => ({ ...p, personId: `q${i}` }));
   const pages = [];
   const d = peopleDrawer(list, { perPage: 2, page: 1, onPage: p => pages.push(p) });
-  const row = d.querySelector('.prow');
+  const row = d.querySelector('.pcrow');
   row.dispatch('touchstart', { changedTouches: [{ clientX: 100 }] });
   row.dispatch('touchend', { changedTouches: [{ clientX: 130 }] });
   assert.deepEqual(pages, []);

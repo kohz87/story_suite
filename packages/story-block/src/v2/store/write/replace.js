@@ -217,10 +217,11 @@ export function createReplace(s, deps) {
                 const guarded = isGuardedBlock(was, paired ? receipt : receiptsFor({ receipts: keptReceipts }, block));       // (the one classifier: a stripped span is still a guarded block)
                 let applied = true;      // the block applied: only then is its proof the guards' to see
                 try {
-                    state = again ? step(state, blockOps) : guarded ? replayGuarded(state, record, blockOps, was, message, receipt) : replayLegacy(state, blockOps);
+                    state = again ? step(state, blockOps) : guarded ? replayGuarded(state, record, blockOps, was, message, receipt) : replayLegacy(state, blockOps, () => receiptsFor({ receipts: keptReceipts }, block));
                 } catch (error) {
-                    // (a people block that no longer applies is skipped, and recorded exactly as a rebuild records it: the code only for a guarded block or a prerequisite error; the other kept blocks refuse the Re-read)
-                    if ((!guarded && !isPeopleBlock(blockOps)) || again) throw fail(error);
+                    // (a people block that no longer applies, or a block whose claim the new story already holds, is skipped and recorded exactly
+                    // as a rebuild records it: the code only for a guarded block or a prerequisite error; the other kept blocks refuse the Re-read)
+                    if ((!guarded && !isPeopleBlock(blockOps) && error?.claimHeld !== true) || again) throw fail(error);
                     applied = false;
                     state = skipped(state, blockOps);
                     keptProblems.push({ index, block: storySpans.filter(each => each.n).length + keptSpans.filter(each => each.n).length, receipts: receiptsOf({ receipts: keptReceipts }, block), why: String(error?.message ?? error), ...(guarded || error?.code === 'REPLAY_PREREQUISITE' ? { code: 'REPLAY_PREREQUISITE' } : {}) });

@@ -8,7 +8,7 @@ const boat = () => buildJournal().quests.find(q => q.id === 'boat');
 
 test('questPatch returns only what changed', () => {
   const q = boat();
-  const same = { title: q.title, summary: q.summary, stepIndex: '1', due: 'Goldwane 18', reward: '40 copper · 60 XP', difficulty: 'normal' };
+  const same = { title: q.title, summary: q.summary, stepIndex: '1', due: 'Goldwane 18', reward: '40 copper', difficulty: 'normal' };
   assert.deepEqual(questPatch(q, same), {});
   assert.deepEqual(questPatch(q, { ...same, title: ' Found Hal ', stepIndex: '2', difficulty: 'hard' }), { title: 'Found Hal', stepIndex: 2, difficulty: 'hard' });
 });

@@ -2,18 +2,16 @@
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { SLOT_META, slotSheet } from './slot-picker.js';
+import { isSafePortraitUrl } from '../../kit/safe-url.js';
 
 const LEFT = ['head', 'armor', 'cloak', 'feet', 'mount'];
 const RIGHT = ['weapon', 'offhand', 'accessory1', 'accessory2', 'bag'];
 const RARITY_CLASS = { uncommon: 'r-unc', rare: 'r-rare', epic: 'r-epic' };
-const URL_LIKE = /^[^"'()\\\s]+$/;
 
 /** Builds a round portrait: a background image when the value looks like a path or data URL, else the initial. */
 export function portraitEl(member, className) {
   const src = member.portrait;
-  const style = typeof src === 'string' && URL_LIKE.test(src) && (src.includes('/') || src.startsWith('data:image'))
-    ? { 'background-image': `url("${src}")` }
-    : null;
+  const style = isSafePortraitUrl(src) ? { 'background-image': `url("${src}")` } : null;
   return h('span', { class: className, style, dataset: { portrait: src ?? null }, 'aria-hidden': 'true' }, style ? null : member.name.slice(0, 1));
 }
 

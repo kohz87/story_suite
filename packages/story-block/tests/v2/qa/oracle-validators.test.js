@@ -72,3 +72,19 @@ test('the oracle has rule (c): a replace of a key only a deleted reply had added
     assert.throws(() => strictApply(state, [{ op: 'replace', path: '/domains/plot/hooks/y/now', value: 'c' }]), /no /, 'no parent object: it does not fit');
     assert.throws(() => strictApply(state, [{ op: 'replace', path: '/meta/other', value: 1 }]), /no /, 'outside the domains: as written');
 });
+
+test('the oracle skips a legacy block whose claim is already held, whole: oracle == store rebuild (REPLAY.md rule 4)', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const h = await createHost({ modules: [probeModule()] });
+    t.after(() => h.close());
+    await h.send('On.', reply('R0.', ['+ item Rope']));
+    await h.send('On.', reply('R1.', ['+ item Lamp', '! probe frost']));
+    await h.st.editMessage(2, reply('R0.', ['+ item Rope', '! probe frost']));
+    assert.equal((await h.sdk.reread(2)).ok, true);
+    assert.deepEqual(h.head().domains.probe.seen, ['frost']);
+    const last = carriers(h.ctx.chat).at(-1);
+    assert.equal(rebuildAt(h.ctx.chat, last).skipped.length, 1, 'the oracle skips the later claiming block');
+    checkInvariants(h, 'after the edited Re-read');
+    h.store.rebuild();
+    checkInvariants(h, 'after a rebuild');
+});

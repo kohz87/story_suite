@@ -37,17 +37,19 @@ test('Transport rows: riders, kind, seats, where; tags equipped, not with you; P
   const card = assetsCard(bagFixture(), makeCtx());
   const rows = card.querySelectorAll('.tr');
   assert.equal(rows.length, 6);
-  assert.match(rows[0].querySelector('.bmt').textContent, /^ ridden by Astrahorsewith the party$/);
+  assert.match(rows[0].querySelector('.bmt').textContent, /^\u00a0ridden by Astrahorsewith the party$/);
   assert.deepEqual(rows.map(r => r.querySelector('.tg').textContent), ['equipped', 'equipped', 'not with you', 'water', 'rented', 'owned']);
   assert.equal(rows[0].querySelector('.tg').classList.contains('eq'), true);
   assert.match(rows[2].querySelector('.bmt').textContent, /2 seats/);
   assert.deepEqual(card.querySelectorAll('.asub').map(a => a.textContent), ['Transport', 'Property']);
 });
 
-test('Story-only calls a ridden animal "with you" instead of equipped', () => {
+test('Story-only shows no equipped tag on a ridden animal, as the mock hides it', () => {
   installFakeDom();
   const card = assetsCard(bagFixture({ rpg: false }), makeCtx());
-  assert.equal(card.querySelector('.tg').textContent, 'with you');
+  const rows = card.querySelectorAll('.tr');
+  assert.equal(rows[0].querySelector('.tg'), null);
+  assert.equal(rows[2].querySelector('.tg').textContent, 'not with you');
 });
 
 test('tapping a row opens the asset sheet with riders, seats, where and condition', () => {

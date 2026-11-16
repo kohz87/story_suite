@@ -104,6 +104,15 @@ Blocks replay one by one on the state before them. A guarded block is applied on
    twin was stored, is never paid twice: `claim already held`);
 5. its ops (claims among them) apply and every domain they touch still validates.
 
+**A claim already held, guarded or legacy.** Rule 4 holds for a legacy block too: replay that meets a legacy block
+adding a claim key the state before it already holds (an edited Re-read of an earlier reply made the same whole-story
+claim) skips the block, ops and claims alike, and reports one `REPLAY_PREREQUISITE` Problem, `claim already held (<key>),
+so <command> stays off` (the command named from the block's receipts; a guarded block names its `operation`). The first
+holder wins; the skipped block stays stored and inactive, and applies again on a later replay where its claim is free.
+A Re-read whose new story takes the claim of a kept (non-story) block of the same reply skips that block the same way
+rather than refusing. Per-reply keys (a reply's sid or evidence in the key) never collide, so nothing changes for them;
+neither does a live command, which `ctx.claim` already refuses. One check (`guards.js` `claimHeld`) serves both paths.
+
 Guarded blocks fail closed on validators too: every domain the block touches must pass outright (a legacy block still
 has an error that was already there forgiven; a guarded one does not).
 
@@ -125,7 +134,8 @@ rather than keep changes it cannot attribute.
 Otherwise **neither the ops nor the claims** are applied. The block stays stored and inactive, and is reported
 by `store.problems()` with `code: 'REPLAY_PREREQUISITE'`; it is asked again on the next replay, so a block turned
 off by a Re-read comes back when its prerequisite does. The host never picks a replacement. A Re-read does not
-refuse because a guarded block is inactive; it does refuse when a legacy block no longer applies, as before.
+refuse because a guarded block is inactive; it does refuse when a legacy block no longer applies, as before, except
+for a claim already held (above), which skips the block.
 Where there is no module or hook to ask (the owner is not registered), the block is inactive too. So is a block
 whose owner is held back (dormant, or the restore barrier is up): it is not asked until the module is ready. When
 a module turns ready or dormant (the `modules` event) the turn calls `store.lifecycleChanged()`, which drops the

@@ -46,6 +46,7 @@ export function createRuntime({
 } = {}) {
     let features = null;
     let events = null;
+    let guardRefresh = null;   // the UI's redraw for a listener that fails late (setGuardRefresh)
     const registry = createRegistry({ hostVersion: VERSION, featureValue: id => features?.stored(id) });
     features = createFeatureStore({
         root: () => ctx.extensionSettings,
@@ -188,7 +189,7 @@ export function createRuntime({
     saveOnUnload(store, page, { fits: saving.keepaliveFits });
     bus = createCommandBus({ store, registry, settings });
     // `turn` is built after the events: a module listener's failure is reported through it when it is called.
-    events = createEvents({ flag: name => flagOn(() => ctx.extensionSettings, name), report: entry => turn?.report(entry), problems: id => turn?.problems(id) });
+    events = createEvents({ flag: name => flagOn(() => ctx.extensionSettings, name), report: entry => turn?.report(entry), problems: id => turn?.problems(id), refresh: () => guardRefresh?.() });
     // The timeline (docs/v2/TIMELINE.md): save points, restores, participants. Its archive is in the open chat's metadata.
     const chatMetadata = () => {
         try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; }
@@ -302,5 +303,6 @@ export function createRuntime({
         dialogOpener = typeof fn === 'function' ? fn : null;
         dialogCurrent = typeof current === 'function' ? current : null;
     };
-    return { registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, markReady: made.markReady, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
+    const setGuardRefresh = fn => { guardRefresh = typeof fn === 'function' ? fn : null; };
+    return { registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
 }

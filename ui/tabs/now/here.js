@@ -2,11 +2,9 @@
 import { h } from '../../kit/dom.js';
 import { feelingsRing } from '../../kit/ring.js';
 import { spoilerSwitch, hiddenValue } from '../../kit/spoiler.js';
-import { glyph } from '../../kit/glyphs.js';
+import { isSafePortraitUrl } from '../../kit/safe-url.js';
 
 const LETTERS = Object.freeze([['trust', 'T'], ['affection', 'A'], ['desire', 'D'], ['tension', 'Tn']]);
-const NO_BREAKOUT = /^[^"'()\\\s]+$/;
-const looksLikeUrl = src => typeof src === 'string' && NO_BREAKOUT.test(src) && (src.includes('/') || src.startsWith('data:image'));
 
 function signed(n) {
   const v = Number(n) || 0;
@@ -15,7 +13,7 @@ function signed(n) {
 
 function portrait(person) {
   const src = person.portrait;
-  const style = looksLikeUrl(src) ? { 'background-image': `url("${src}")` } : null;
+  const style = isSafePortraitUrl(src) ? { 'background-image': `url("${src}")` } : null;
   return h('span', { class: 'ph', style, dataset: { portrait: src ?? null } }, style ? null : person.name.slice(0, 1));
 }
 
@@ -39,8 +37,7 @@ function personRow(person, shown, expanded, ctx, redraw) {
     h('span', { class: 'prg' },
       feelingsRing(person.meters),
       portrait(person),
-      person.followed ? h('span', { class: 'star', title: 'Followed' }, '★') : null,
-      person.inParty ? h('span', { class: 'pty', title: 'In your party' }, glyph('party')) : null),
+      person.followed ? h('span', { class: 'star', title: 'Followed' }, '★') : null),
     h('div', { class: 'hp2-body' },
       h('div', { class: 'nl' },
         h('b', null, person.name),

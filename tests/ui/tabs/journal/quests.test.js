@@ -28,7 +28,7 @@ test('quest cards: focus first, step, dots, giver, due, trip, reward and difficu
   assert.match(kv, /Sister Temiwa/);
   assert.match(kv, /Goldwane 18 in 5 days/);
   assert.match(kv, /Trip to Auvoth planned/);
-  assert.match(kv, /40 copper · 60 XP/);
+  assert.match(kv, /40 copper/);
   assert.match(kv, /normal/);
   assert.equal(cards[1].querySelector('.sdots'), null);
 });
@@ -111,7 +111,7 @@ test('Closed is folded by default, opens to all five outcomes with pay, and the 
   card.querySelector('.fold').click();
   assert.equal(card.querySelectorAll('.cq').length, 5);
   assert.deepEqual(card.querySelectorAll('.cq .qst').map(n => n.textContent), ['done', 'declined', 'lapsed', 'failed', 'given up']);
-  assert.match(card.querySelector('.cq small').textContent, /\+12 XP/);
+  assert.match(card.querySelector('.cq small').textContent, /\+40 copper/);
   assert.equal(ctx.prefs.getFold('journal.closed', false), true);
   assert.equal(closedCard(buildJournal(), ctx).querySelector('.closed') !== null, true);
   card.querySelector('.fold').click();

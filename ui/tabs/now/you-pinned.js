@@ -47,7 +47,7 @@ function field(f) {
 export function pinnedCards(pinned) {
   return (Array.isArray(pinned) ? pinned : []).map(tracker => h(
     'section',
-    { class: 'card glass now-o5', dataset: { card: 'pinned', trackerId: tracker.trackerId } },
+    { class: 'card glass trkmini now-o5', dataset: { card: 'pinned', trackerId: tracker.trackerId } },
     h('div', { class: 'ch' }, h('h3', null, tracker.name), h('span', { class: 'cnt' }, 'pinned · Story › Trackers')),
     (tracker.fields ?? []).map(field),
   ));
