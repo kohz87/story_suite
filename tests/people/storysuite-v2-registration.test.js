@@ -16,12 +16,11 @@ import { fakeDocument, fakeRegistry, fakeSdk, fakeTimers, hosted, setup, v2Host 
 
 // ---- without a host ----
 
-test('without Story Block the adapter looks a bounded number of times, then stops, touching nothing', async () => {
+test('without Story Block the adapter looks once, sets no timer, and touches nothing', async () => {
     const { adapter, timers, dom } = setup({ hostValue: undefined });
     adapter.start();
-    let rounds = 0;
-    while (timers.runTimeouts()) rounds += 1;
-    assert.equal(rounds, HOST_RETRY_ATTEMPTS);
+    assert.equal(timers.timeouts.size, 0, 'no retry is scheduled');
+    assert.ok(!timers.runTimeouts());
     assert.equal(timers.intervals.size, 0);
     assert.equal(adapter.hosted(), false);
     assert.equal(await adapter.settled(), false);
@@ -72,18 +71,13 @@ test('registers module npc-state-delta once, with the npc domain, its queries an
     assert.equal(adapter.hosted(), true);
 });
 
-test('a host that appears after Delta loads is found by the bounded retry; `sdk` without `ready` works too', async () => {
+test('a host that is there when Delta starts is found at once; `sdk` without `ready` works too', async () => {
     const sdk = fakeSdk();
-    const { adapter, timers, box } = setup({ hostValue: { apiVersion: 1 } });
+    const { adapter, timers } = setup({ hostValue: { sdk } });
     adapter.start();
-    timers.runTimeouts();
-    timers.runTimeouts();
-    assert.equal(sdk.registered.length, 0);
-    box.host = { sdk };
-    timers.runTimeouts();
     assert.equal(await adapter.settled(), true);
     assert.equal(sdk.registered.length, 1);
-    assert.equal(timers.timeouts.size, 0, 'polling stopped once found');
+    assert.equal(timers.timeouts.size, 0, 'nothing polls');
 });
 
 test('a registration the host refuses leaves Delta standalone and is not retried', async () => {

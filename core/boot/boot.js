@@ -15,18 +15,29 @@
 import { createRuntime, VERSION } from '../runtime.js';
 import { INTERCEPTOR_NAME } from '../turn.js';
 import { mountUi } from '../../ui/legacy/ui-host.js';
-import { noteSaveError } from '../diagnostics.js';
+import { noteError, noteSaveError } from '../diagnostics.js';
 import { createV1Watch } from '../persist/v1-copy.js';
 import { registerSbMacro } from '../runtime/sb-macro.js';
+import { BUILTIN_MODULES } from '../modules-list.js';
+import { registerIsolated } from './register-isolated.js';
 import { packs as livePacks, part as livePacksPart, portraits as livePortraits, refreshLore, resolveItem, startState } from '../../packs/index.js';
 
 const LOG = '[Story Block v2]';
+export const OLD_COPY = 'Disable the old Story Block, Story Director and NPC State Delta: Story Suite replaces all three.';
 
-function boot() {
+/** Starts Story Suite: one call from the root index.js. Resolves true once the host is up; false when it did not start. */
+export async function boot() {
+    // An old Story Block still enabled shares the settings tree and the interceptor name: say so once and stay out of its way.
+    if (globalThis.StoryBlock) {
+        console.error(`${LOG} ${OLD_COPY}`);
+        noteError([`${LOG} ${OLD_COPY}`]);
+        try { globalThis.toastr?.error?.(OLD_COPY, 'Story Suite'); } catch { /* no toastr */ }
+        return false;
+    }
     const ctx = globalThis.SillyTavern?.getContext?.();
     if (!ctx) {
         console.error(`${LOG} SillyTavern's context is not available; Story Block did not start.`);
-        return;
+        return false;
     }
     let ui = null;
     const runtime = createRuntime({
@@ -66,8 +77,9 @@ function boot() {
     lookForV1();
     // `{{sb::path}}` for SillyTavern's prompts, regex scripts and status bars (src/v2/sb-macro.js), registered once.
     registerSbMacro({ ctx, api });
+    // The modules after the core one, in the fixed order of core/modules-list.js; one that fails is switched off and the rest start.
+    for (const mod of BUILTIN_MODULES) await registerIsolated(runtime, mod);
     markReady();
     console.info(`${LOG} ${VERSION} ready`);
+    return true;
 }
-
-boot();

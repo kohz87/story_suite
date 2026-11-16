@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { installFakeDom } from './helpers/dom.js';
-import { startPreview } from '../../ui/st-entry.js';
+import { startPreview } from '../../ui/entry/start.js';
 import { buildSelectors } from '../../ui/select/build.js';
 import { readFlag, writeFlag } from '../../ui/entry/flag.js';
 
@@ -122,18 +122,18 @@ test('startPreview does nothing without Story Block or the context', async () =>
   assert.equal(await startPreview({ doc, getContext: () => null, StoryBlock: fakeBlock() }), null);
 });
 
-test('startPreview waits for Story Block that appears after the extension entry runs', async () => {
+test('startPreview takes the Story Block global the entry started, and does nothing when there is none', async () => {
   const doc = page();
   const ctx = fakeCtx();
   const savedTavern = globalThis.SillyTavern;
   const savedBlock = globalThis.StoryBlock;
   globalThis.SillyTavern = { getContext: () => ctx };
-  delete globalThis.StoryBlock;
   try {
-    const pending = startPreview({ doc, base: 'x/' });
-    await new Promise(resolve => setTimeout(resolve, 30));
+    delete globalThis.StoryBlock;
+    assert.equal(await startPreview({ doc, base: 'x/' }), null, 'no host: no switch, no waiting');
+    assert.equal(doc.querySelector('#story-suite-ui-next'), null);
     globalThis.StoryBlock = fakeBlock();
-    assert.ok(await pending);
+    assert.ok(await startPreview({ doc, base: 'x/' }));
     assert.ok(doc.querySelector('#story-suite-ui-next'));
   } finally {
     if (savedTavern === undefined) delete globalThis.SillyTavern; else globalThis.SillyTavern = savedTavern;
@@ -152,10 +152,13 @@ test('startPreview waits for the settings host that appears after the extension 
   assert.ok(doc.querySelector('#story-suite-ui-next'));
 });
 
-test('the manifest and hide sheet name the entry and every old furniture class, scoped to the body class', () => {
-  const manifest = JSON.parse(fs.readFileSync(new URL('../../ui/manifest.json', import.meta.url), 'utf8'));
-  assert.equal(manifest.js, 'st-entry.js');
-  assert.equal(manifest.css, 'css/next-hide.css');
+test('the one manifest names the root entry and suite.css; suite.css lists the hide sheet, which names every old furniture class, scoped to the body class', () => {
+  const manifest = JSON.parse(fs.readFileSync(new URL('../../manifest.json', import.meta.url), 'utf8'));
+  assert.equal(manifest.js, 'index.js');
+  assert.equal(manifest.css, 'suite.css');
+  assert.equal(fs.existsSync(new URL('../../ui/manifest.json', import.meta.url)), false);
+  assert.equal(fs.existsSync(new URL('../../ui/st-entry.js', import.meta.url)), false);
+  assert.match(fs.readFileSync(new URL('../../suite.css', import.meta.url), 'utf8'), /@import url\('\.\/ui\/css\/next-hide\.css'\)/);
   const css = fs.readFileSync(new URL('../../ui/css/next-hide.css', import.meta.url), 'utf8');
   for (const sel of ['.story-suite-bar', '.ss-cards', '.ss-hud', '.story-suite-extras', '.story-suite-reply-note']) assert.ok(css.includes(`body.ss-ui-next ${sel}`), sel);
 });

@@ -190,7 +190,6 @@
   "ui/shell/suite-view.js": "Builds the suite root that slides in over the chat, sized from its container and centred over a dimmed chat on desktop.",
   "ui/shell/tab-host.js": "Builds the 8-tab host: tablet strip, phone bottom bar, scrolling panel and the mini bar shown after the card scrolls away.",
   "ui/shell/tab-views.js": "Builds the renderer for every built tab (Party, Bag, Fight, People, World, Journal, Story) from a view-model and a shared context.",
-  "ui/st-entry.js": "Staging entry for the preview extension: waits for Story Block, draws the \"new view (preview)\" switch, and turns the new view on or off as ui.next changes.",
   "ui/tabs/bag/assets.js": "Builds the Assets card (party pace, Transport and Property lists, folded by default) and the asset detail sheet.",
   "ui/tabs/bag/bag.js": "Composes the Bag tab: Purse with party load and Assets side by side when wide, then the Items card.",
   "ui/tabs/bag/item-grid.js": "Builds the Items card: find box, filter chips and the grid of item tiles (rarity, quantity, wearer, new and torn marks).",
@@ -321,5 +320,8 @@
   "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses.",
   "modules/people/core/destructive-settlement.js": "Browser-side registry that connects the destructive-settlement controller to SillyTavern and Delta's public API.",
   "modules/people/core/hardening.js": "Applies the settings-key hardening rules in the browser: owner-qualified keys, renames and deleted chats.",
-  "modules/people/legacy/style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules."
+  "modules/people/legacy/style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules.",
+  "index.js": "The one entry SillyTavern loads: starts the host and its built-in modules, then the people part, then the new view's switch.",
+  "suite.css": "The one stylesheet SillyTavern loads: lists the host, people and hide sheets in cascade order.",
+  "scripts/checks/one-manifest.mjs": "Refuses a repo with a second manifest.json or no root one."
 }

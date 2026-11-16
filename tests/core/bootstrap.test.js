@@ -23,20 +23,22 @@ const st = createFakeContext();
 globalThis.SillyTavern = { getContext: () => st.ctx };
 globalThis.toastr = { warning() {}, info() {}, error() {} };
 
-await import('../../core/boot/boot.js');
+const { boot } = await import('../../core/boot/boot.js');
+assert.equal(await boot(), true);
 const sdk = await globalThis.StoryBlock.ready;
 const texts = (root, selector) => root.querySelectorAll(selector).map(node => node.textContent);
 
 test('the global host and the manifest agree: v2, the interceptor, the CSS, 2.33.0', () => {
-    const manifest = JSON.parse(readFileSync(new URL('../../docs/history/packages/story-block/manifest.json', import.meta.url), 'utf8'));
-    assert.equal(manifest.version, '2.33.0');
-    assert.equal(globalThis.StoryBlock.version, manifest.version);
-    assert.equal(manifest.css, 'src/v2/view/host.css');
+    const manifest = JSON.parse(readFileSync(new URL('../../manifest.json', import.meta.url), 'utf8'));
+    assert.equal(manifest.version, '0.1.0');
+    assert.equal(globalThis.StoryBlock.version, '2.33.0');
+    assert.equal(manifest.css, 'suite.css');
+    assert.equal(manifest.js, 'index.js');
     assert.match(hostImports(), /@import url\('\.\/mounts-game\.css'\)/);
     assert.equal(typeof globalThis[manifest.generate_interceptor], 'function');
     assert.equal(globalThis.StoryBlock.apiVersion, 2);
     assert.equal(globalThis.StoryBlock.sdk, sdk);
-    assert.deepEqual(sdk.modules().map(module => module.id), ['story-block']);
+    assert.deepEqual(sdk.modules().map(module => module.id), ['story-block', 'story-director']);
     assert.ok(!/import[^;]*index\.v1\.js|from '\.\/src\/(?!v2\/)/.test(readFileSync(new URL('../../core/boot/boot.js', import.meta.url), 'utf8')), 'v1 is not loaded');
 });
 
@@ -56,7 +58,7 @@ test('a reply\'s change lines reach the Inventory tab of the story panel', async
     doc.querySelector('.story-suite-bar-story').click();
     const panel = doc.querySelector('#story_suite_v2_panel');
     assert.equal(panel.hidden, false);
-    assert.deepEqual(texts(panel, '.story-suite-tab .ss-screenbar-label'), ['Inventory', 'Scene']);
+    assert.deepEqual(texts(panel, '.story-suite-tab .ss-screenbar-label'), ['Inventory', 'Quests', 'World', 'Map', 'Chronicle']);
     panel.querySelector('[data-tab-id="story-block/inventory"]').click();
     assert.match(panel.querySelector('.story-suite-pane').textContent, /Rope/);
     assert.match(panel.querySelector('.story-suite-pane').textContent, /7/);
@@ -85,7 +87,7 @@ test('a module\'s layout screen with a standard widget shows as a tab and in the
     assert.match(strip.textContent, /plenty/);
     doc.querySelector('.story-suite-bar-story').click();
     const panel = doc.querySelector('#story_suite_v2_panel');
-    assert.deepEqual(texts(panel, '.story-suite-tab .ss-screenbar-label'), ['Inventory', 'Scene', 'Rope'], 'the usual tabs first, then the rest');
+    assert.deepEqual(texts(panel, '.story-suite-tab .ss-screenbar-label'), ['Inventory', 'Quests', 'World', 'Map', 'Chronicle', 'Rope'], 'the usual tabs first, then the rest');
     panel.querySelector('[data-tab-id="gauge/rope"]').click();
     assert.ok(panel.querySelector('.story-suite-pane [data-widget="ss.meter"]'), 'the ss.meter widget is drawn');
     doc.querySelector('.story-suite-sheet-close').click();
@@ -155,8 +157,8 @@ test('the game view opens on the home screen; a screen asking a query no module 
     const view = doc.querySelector('.ss-gameview');
     assert.ok(view);
     assert.equal(view.querySelector('.ss-gameview-body').getAttribute('data-ss-screen'), 'story-block/home');
-    view.querySelector('[data-ss-target="story-block/scene"]').click();
-    assert.equal(view.querySelector('.ss-gameview-body').getAttribute('data-ss-screen'), 'story-block/scene');
+    view.querySelector('[data-ss-target="story-director/world"]').click();
+    assert.equal(view.querySelector('.ss-gameview-body').getAttribute('data-ss-screen'), 'story-director/world');
     assert.equal(view.querySelector('.ss-mount-problem'), null, 'npc.portrait is absent without NSD: no problem line');
     view.querySelector('.ss-gameview-close').click();
     assert.equal(doc.querySelector('.ss-gameview'), null);

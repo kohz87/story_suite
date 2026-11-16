@@ -17,16 +17,15 @@
 // HOSTED_FLAG, which index.js and the CSS read (launcher, in-chat cast default, sidecar checks).
 //
 // Without a v2 host (no Story Block, or a v1 Story Block whose global has no `ready`/`sdk`) this
-// module does nothing: it looks for the host a bounded number of times and then stops. The v1
+// module does nothing: it looks for the host once and then stops. The v1
 // handshake (suite.js, suite-handshake.js) keeps working with v1 hosts; with a
 // v2 host (`apiVersion: 2`) it offers nothing (suite-handshake.js storyBlockIsV2), and this adapter
 // sends V2_HOST_EVENT when it registers and when the host goes away so the v1 side can follow.
 //
-// Waiting for the host: the spec names no page event for it, so the adapter polls
-// `globalThis.StoryBlock` every 250 ms, 40 times (10 s, the same bound as the v1 tabs), and once it
-// has `ready` (or `sdk`) waits on that promise. Going away: every 5 s, while hosted, it checks that
-// `globalThis.StoryBlock` is still the host it registered with; when it is not, the drawer copy is
-// restored and the search starts again.
+// Finding the host: Story Suite's entry (index.js) starts the host first and this part after it, so the adapter looks at
+// `globalThis.StoryBlock` once (no waiting) and, once it has `ready` (or `sdk`), waits on that promise. Going away: every 5 s,
+// while hosted, it checks that `globalThis.StoryBlock` is still the host it registered with; when it is not, the drawer copy is
+// restored and it looks again.
 //
 // Pure apart from the DOM it is given: no SillyTavern import, and every outside thing (Delta's
 // runtime api, the host global, the document, timers) is injectable for tests.
@@ -170,7 +169,6 @@ export function createStorySuiteV2Adapter({
 } = {}) {
     const session = {
         started: false,
-        pollTimer: null,
         sdkRef: null,           // the sdk we registered with (once per sdk)
         hosted: false,
         emptyCast: fallbackEmptyCast,
@@ -372,8 +370,6 @@ export function createStorySuiteV2Adapter({
             session.started = false;
             offerPage(false);
             watchers.clear();
-            if (session.pollTimer !== null) timers.clearTimeout?.(session.pollTimer);
-            session.pollTimer = null;
             unhost();
         },
         check,

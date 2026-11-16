@@ -10,7 +10,7 @@ import { interactionWarnings } from './interaction-problems.js';
 // or a fold's `place`): 'diagnostics' draws it as a sub-fold of Settings → Diagnostics (SPEC §6).
 const SETTINGS_KEYS = ['defaults', 'schema', 'section', 'render', 'folds', 'place', 'rules'];
 
-const KNOWN_KEYS = ['id', 'name', 'version', 'description', 'requires', 'domains', 'commands', 'queries', 'replayQueries', 'capture', 'context', 'hooks', 'settings', 'tabs', 'screens', 'widgets', 'features', 'cards', 'headerControls', 'participant', 'batchResults', 'capabilities', 'interactions'];
+const KNOWN_KEYS = ['id', 'name', 'version', 'description', 'requires', 'domains', 'commands', 'queries', 'replayQueries', 'capture', 'context', 'hooks', 'settings', 'tabs', 'screens', 'widgets', 'features', 'cards', 'headerControls', 'participant', 'batchResults', 'capabilities', 'interactions', 'register'];
 const CONTEXT_KEYS = ['static', 'tail', 'budget', 'feature', 'parts'];
 
 // What `requires` may name: the Story Block it needs, and the peers (modules) it needs registered.
