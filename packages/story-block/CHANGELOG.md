@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **The sdk tells modules when the story state changed (`changed` event, always on, nothing listens yet).** `sdk.on('changed', ({ keys, index, reason }) => …)` fires once per reply, Re-read or out-of-turn change with the domains it touched, and with `['*']` when the head moved (swipe, delete, rewind, chat change). The `committed`, `turn` and `head` events keep their order and count. Nothing you play changes.
+
 - **A story change that makes a once-only claim is never applied twice after an edited Re-read.** If you edit an earlier reply so it now makes the same once-only claim a later reply already made, and Re-read it, the later reply's change is skipped (the earlier one wins) and the Problems list says `claim already held (<key>), so <command> stays off`; the rest of the later reply still applies. Before, a change with no guard of its own (an older kind of change) applied again. No change on main makes such a claim from a story line today, so nothing you play changes; this guards the next one.
 
 - **A module's event listener can be named, so a failure in it is that module's Problem (internal flag, off by default).** `sdk.on(name, fn, { module })` takes an optional third argument. With `suite.isolatedApply` on, a listener that throws or returns a rejected promise adds a "<event> failed" Problem for that module on the reply (once per reply and event) instead of only a console warning; NPC State's turn step that is not kept now counts the same way. With the flag off nothing changes.
