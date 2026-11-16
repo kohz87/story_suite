@@ -30,7 +30,9 @@ test('2/3: no unused imports or uncalled functions remain in shipped modules', (
     // Exported only so the test suite can drive them.
     const testHooks = new Set(['cancelScannerRequests', 'estimateInjectionTokens', 'sameChatOwnerScope', 'pendingNpcStateDurabilityKeys', 'modalTopLayerSupported', 'diffJson' /* checkpoint-pack's public diff; packing uses its internal walk, the tests drive this one */,
         // Called from src/ (the hosted adapter, which the shipped-module list does not hold).
-        'applyEvents', 'applyWord', 'nextMoodLog', 'moodWord', 'storedMoodWord', 'moodBars', 'stepPull', 'restingMood', 'restMood', 'emptyCastHtml', 'dossierRowNodes', 'unionMarks' /* memory-fact-marks: called from the participant's restoredState (src/storysuite-participant/timeline.js) */]);
+        'applyEvents', 'applyWord', 'nextMoodLog', 'moodWord', 'storedMoodWord', 'moodBars', 'stepPull', 'restingMood', 'restMood', 'emptyCastHtml', 'dossierRowNodes', 'unionMarks' /* memory-fact-marks: called from the participant's restoredState (src/storysuite-participant/timeline.js) */,
+        // Unwired on purpose until NPC State Batch 2 N7 switches the reply to lines (NSD2-BUILD-PLAN N0); its golden test drives it.
+        'buildLinesParts']);
     const problems = [];
     for (const [path, source] of Object.entries(sources)) {
         for (const match of source.matchAll(/^(?:export\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)\s*\(/gm)) {
