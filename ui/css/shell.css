@@ -229,6 +229,15 @@
   opacity: 1;
 }
 
+/* Narrow phones: the mock's side padding would shrink taps under 44 px wide, so the bar goes edge to edge. */
+@container (max-width: 399px) {
+  .su-bar {
+    gap: 0;
+    width: min(calc(100% - 4px), 560px);
+    padding: 10px 0 8px;
+  }
+}
+
 @container (min-width: 600px) {
   .su-strip {
     display: flex;
