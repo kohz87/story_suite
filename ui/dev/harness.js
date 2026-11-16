@@ -9,7 +9,7 @@ const THEMES = ['dark', 'light', 'follow'];
 const VARIANTS = ['default', 'rpgOff', 'fightOpen', 'empty'];
 const WIDTHS = [360, 390, 820, 1280];
 const PLANS = ['off', 'on'];
-const FIGHT_STEPS = ['offer', 'choose', 'target', 'ally', 'after', 'end']; // fight board steps 1, 2, 3 (target), ally, 4, 5
+const FIGHT_STEPS = ['offer', 'choose', 'target', 'ally', 'after', 'end', 'real', 'realafter']; // fight board steps 1, 2, 3 (target), ally, 4, 5; then a captured v1 fight, choosing and after one exchange
 const SCENES = ['off', 'open', 'staged', 'sent', 'invalidated']; // the Scene tab: off, or an interaction in that state
 const BAG_LOADS = ['light', 'over', 'heavy']; // bag load variants: 0, 1 (the anvil), 2 (the sack)
 

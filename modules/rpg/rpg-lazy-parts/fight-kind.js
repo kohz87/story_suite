@@ -3,7 +3,7 @@
 import { FIGHT_STATIC } from '../board/kind-static.js';
 import { rpgLib } from './library.js';
 
-const FUNCTIONS = ['open', 'opening', 'witness', 'validate', 'play', 'settle', 'note', 'actors', 'auto', 'next'];
+const FUNCTIONS = ['view', 'open', 'opening', 'witness', 'validate', 'play', 'settle', 'note', 'actors', 'auto', 'next'];
 const real = () => rpgLib()?.fightKind ?? null;
 const waiting = () => { throw new Error('The RPG is still loading. Try again in a moment.'); };
 

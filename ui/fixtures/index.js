@@ -263,7 +263,7 @@ export function fixture(variant = 'default') {
     people: buildPeople(opts, hereList),
     party: opts.rpg ? partyFixture() : null,
     bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),
-    fight: opts.fightOpen ? fightFixture(opts.fightState) : null,
+    fight: opts.fightOpen ? fightFixture(['real', 'realafter'].includes(opts.fightState) ? 'choose' : opts.fightState) : null,   // (the captured v1 moments are the scene's only)
     world: worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
     story: buildStory({ empty: opts.empty, planShown: opts.planShown }),
