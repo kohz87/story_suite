@@ -18,8 +18,9 @@ import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACT
 // The RPG's code is loaded only when it is needed (rpg-lazy.js): this part answers for it until it is there.
 import { createLazyRpgPart } from '../../rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../interaction/view.js';
-import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
+import { SETTLED, createInteractionCommands, interactionGuardFor, settledQuery } from './interaction-part.js';
 import { createPeoplePart } from '../people/part.js';
+import { createInteractionHooks } from '../../interaction/hooks.js';
 import { CORE_BUDGET, CORE_FEATURES, CORE_MODULE_ID } from './constants.js';
 import { CORE_KINDS } from './kinds.js';
 import { createCorePart } from './part.js';
@@ -54,11 +55,11 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
     const dataPart = createDataModulesPart({ packs: packs.packs, settings: () => settings(), ...dataModules });
     // The RPG's pre-call and rolls (`leanRpg`: the runtime's queued model call, the chat and its metadata; src/v2/lean-rpg/).
     const rpg = createLazyRpgPart({ ...leanRpg, persona: () => extras?.persona?.() ?? '', rosterOn: () => { try { return extras?.rpgOn?.() === true && extras?.gearOn?.() === true; } catch { return false; } } });
-    const merged = mergeParts([core, packs.part, events, assist ?? createAssistPart({ settings: () => settings() }), createTimelinePart({ timeline }), dataPart, rpg, createPeoplePart()], { flagOn: name => { try { return flagOn(name) === true; } catch { return false; } } });
+    const merged = mergeParts([core, packs.part, events, assist ?? createAssistPart({ settings: () => settings() }), createTimelinePart({ timeline }), dataPart, rpg, createPeoplePart(), { hooks: createInteractionHooks({ chat: () => extras?.chat?.() ?? [], metadata: () => extras?.metadata?.() ?? null, kindOf: interaction }) }], { flagOn: name => { try { return flagOn(name) === true; } catch { return false; } } });
     const timelineGuard = merged.hooks.replayGuard;
     // The interaction kinds modules register (`interaction(kindId)`: the kind or null) and the settle that plays them (interaction/settle.js).
     const interactionGuard = interactionGuardFor(interaction);
-    const interactionCommands = createInteractionCommands({ kindOf: interaction, receipts: () => extras?.receipts?.() ?? null });
+    const interactionCommands = createInteractionCommands({ kindOf: interaction });
     // One host-owned hook for the host's guarded blocks, by predicate: data modules (`dm.*`), the RPG's rolls
     // (`rpg.resolve`), a loot offer or take (`loot.offer`, `loot.take`, inventory.js), else the timeline's.
     merged.hooks.replayGuard = Object.assign((view, info) => {
@@ -97,6 +98,7 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
             }, { feature: CORE_FEATURE.chatter }),
             'scene.moved': (_state, _args, tools) => headMoved(tools, extras?.headIndex),
             // The open interaction as the sdk's current() reads it: null until the host passes an interaction api (`extras.interaction`).
+            [SETTLED]: settledQuery,
             [INTERACTION_VIEW]: createInteractionView(() => extras?.interaction?.()?.current?.() ?? null),
             // The active, visible, code-validated proof (contract §6, docs/v2/EVIDENCE.md); the stored proof comes from the store.
             'story.evidence': createEvidenceQuery({ stored: () => extras?.proofs?.() ?? [] }),

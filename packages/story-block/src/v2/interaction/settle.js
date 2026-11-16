@@ -110,8 +110,9 @@ function checkPrior(ctx, payload, title, receipts) {
     if (!text(payload.prior)) return;
     let entries = null;
     try {
-        if (typeof receipts === 'function') entries = receipts();
-        else if (typeof ctx.receipts === 'function') entries = ctx.receipts();
+        // The transaction's own list first: on a re-plan it is the receipts before the block, not the store's stale ones.
+        if (typeof ctx.receipts === 'function') entries = ctx.receipts();
+        else if (typeof receipts === 'function') entries = receipts();
     } catch {
         entries = null;
     }

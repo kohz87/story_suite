@@ -14,15 +14,18 @@ import { CHATTER_MAX, displayLines } from '../extras.js';
 import { readRecord } from '../persist.js';
 import { createMarkHistory, ruleMarksOf } from './rule-marks.js';
 import { boardFailure, boardStep } from './held-board.js';
+import { settleStep } from '../interaction/watch.js';
 import { createCaptureAfter } from './capture-after.js';
 import { createCaptureEach, LATE, NOW } from './capture-each.js';
 import { heldInReply as heldInReplyOf } from './capture-held.js';
 import { stepSeeds, storySeeds } from './capture-seeds.js';
 export function createCaptureFlow(s, deps) {
-    const { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, boardError, PRACTICE_LINE, HOOK_TIMEOUT_MS } = deps;
+    const { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, boardError, PRACTICE_LINE, HOOK_TIMEOUT_MS, interactionError = () => null } = deps;
     const markHistory = createMarkHistory();
     const holdBoard = message => Object.assign(new Error(`${boardFailure('The fight could not be saved:', message)} Once restored, this reply can finish; after discarding, regenerate it.`), { code: 'BOARD_PRELUDE' });
-    const { afterCapture } = createCaptureAfter({ ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, HOOK_TIMEOUT_MS, isolated: deps.isolated });
+    // A reply whose interaction settle can no longer be kept is held, as a board reply is: restore what it read or discard, then regenerate.
+    const holdInteraction = message => Object.assign(new Error(`${String(message ?? 'The interaction could not be saved.').trim().replace(/[.\s]+$/u, '')}. Restore what it used, or discard it; once restored, this reply can finish, and after discarding, regenerate it.`), { code: 'INTERACTION_PRELUDE' });
+    const { afterCapture } = createCaptureAfter({ ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, holdInteraction, HOOK_TIMEOUT_MS, isolated: deps.isolated });
     // Runs the reply's change lines; returns { receipts, problems }.
     // Each line runs on the state the lines before it left (bus.run's `state`), as its owner's
     // capture handler (bus.run's `capture`), and is stored on the reply before the next one runs.
@@ -114,6 +117,11 @@ export function createCaptureFlow(s, deps) {
         if (board) {
             const error = boardError(store.head(), board);
             if (error) throw holdBoard(error);
+        }
+        const settle = settleStep({ prechecks })?.payload;
+        if (settle) {
+            const error = interactionError(store.head(), settle);
+            if (error) throw holdInteraction(error);
         }
         const receipts = [];
         const found = [];

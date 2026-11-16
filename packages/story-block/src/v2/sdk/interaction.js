@@ -4,6 +4,7 @@ import { interactionError, limitsFor } from '../interaction/contract.js';
 import { dice, interactionSeed } from '../interaction/dice.js';
 import { STORY_ACTION_POLICY, policyProblem } from '../interaction/policy.js';
 import { markSend } from '../interaction/send.js';
+import { discardHeld } from '../interaction/held.js';
 import { actorsOf, currentFor, playPreview } from '../interaction/preview.js';
 import { createSession, stageInteraction } from '../interaction/session.js';
 import { hashJson } from '../replay.js';
@@ -332,8 +333,9 @@ export function createInteractionApi({
             if (!plain(box.attempts)) box.attempts = {};
             box.attempts[session.origin] = (whole(box.attempts[session.origin]) ? box.attempts[session.origin] : session.attempt ?? 0) + 1;
             if (plain(box.send) && box.send.anchor === session.anchor) delete box.send;
-            if (plain(box.held)) delete box.held[session.anchor];
-            if (plain(box.heldDiscarded)) delete box.heldDiscarded[session.anchor];
+            // A held reply keeps its marker (regenerate it); it is only marked discarded so a restore no longer resumes it. A waiting choice goes.
+            discardHeld(meta, session.id);
+            if (plain(box.start) && box.start.id === session.id) delete box.start;
             delete box.open;
             persist();
             return { ok: true, discarded: true, id: session.id, kindId: session.kindId, title };

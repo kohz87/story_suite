@@ -12,11 +12,13 @@ import { ensureModules } from '../sdk.js';
 import { boardStep, rememberHeld, pruneMissingBoard } from './held-board.js';
 import { clearStart, pendingStart } from './fight-start.js';
 import { createHeldEvents } from './events-held.js';
+import { rememberHeld as rememberInteractionHeld } from '../interaction/held.js';
+import { settleStep } from '../interaction/watch.js';
 import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
 export function createEvents(s, deps) {
-    const { markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
-    const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, boardError, getOnMessageReceived: () => onMessageReceived });
+    const { markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
+    const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, boardError, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
     const { afterReply, receivedHooks } = createReplyHooks(s, { store, problem, events, registry, view, captureLate });
 
@@ -116,6 +118,17 @@ export function createEvents(s, deps) {
                 if (rememberHeld(metadata(), sid, current, staged)) {
                     store.touch?.();
                     await trySave('after holding the fight');
+                }
+                try { notify?.(error.message, 'story-block'); } catch { /* the problem remains visible */ }
+            } else if (error?.code === 'INTERACTION_PRELUDE') {
+                // The same hold for an interaction reply: kept uncaptured until what its settle read is restored, or discarded.
+                const payload = settleStep(current).payload, staged = metadata()?.storySuiteInteraction?.open?.id === payload.id;
+                s.session = current;
+                s.heldBoard = { index: id, message, current, interaction: payload, hold: error.message, staged };
+                if (!readRecord(message)) store.setNarrated(id, []);
+                if (rememberInteractionHeld(metadata(), store.carrierSid(id), current, staged)) {
+                    store.touch?.();
+                    await trySave('after holding the interaction');
                 }
                 try { notify?.(error.message, 'story-block'); } catch { /* the problem remains visible */ }
             } else if (isolated() === true) {
@@ -265,6 +278,9 @@ export function createEvents(s, deps) {
         }) ?? null;
         for (const off of s.offBoard) off();
         s.offBoard = ['committed', 'head'].flatMap(name => [events?.on?.(name, stopChangedBoard), events?.on?.(name, resumeHeldBoard)]).filter(Boolean);
+        // The unsent interaction scratch follows every head move (a rewind or a restore announces only this event).
+        const offScratch = events?.on?.('head', reconcileScratch);
+        if (offScratch) s.offBoard.push(offScratch);
         const source = ctx?.eventSource;
         const names = ctx?.eventTypes ?? ctx?.event_types ?? {};
         const on = (event, fn) => {

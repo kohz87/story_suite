@@ -13,7 +13,7 @@ export function markSend(meta, pending, session) {
         || session.anchor !== pending.anchor || typeof pending.message !== 'string' || !pending.message) return false;
     const payload = interactionPayload(session);
     if (!payload) return false;
-    meta.send = { anchor: session.anchor, message: pending.message, payload };
+    meta.send = { anchor: session.anchor, message: pending.message, payload, ...(plain(session.opening) ? { opening: clone(session.opening) } : {}) };
     return true;
 }
 
@@ -34,12 +34,13 @@ export function linkMessage(message, key) {
     return true;
 }
 
-/** The earlier swipe's own interaction payload, which is the authority for swipe and regenerate replay. */
-export function priorPayload(message) {
+const settleIn = message => {
     const records = [message?.extra?.storySuite, ...(Array.isArray(message?.swipe_info) ? message.swipe_info.map(info => info?.extra?.storySuite) : [])];
-    for (const record of records) for (const receipt of record?.receipts ?? []) {
-        const payload = receipt?.type === 'interaction.settle' ? receipt.replan?.payload : null;
-        if (plain(payload) && typeof payload.kindId === 'string') return clone(payload);
-    }
-    return null;
+    return records.flatMap(record => record?.receipts ?? []).filter(receipt => receipt?.type === 'interaction.settle' && plain(receipt.replan?.payload) && typeof receipt.replan.payload.kindId === 'string');
+};
+
+/** The earlier swipe's own interaction payload (not its opening), which is the authority for swipe and regenerate replay. */
+export function priorPayload(message) {
+    const receipt = settleIn(message).find(item => item.replan.payload.opening !== true);
+    return receipt ? clone(receipt.replan.payload) : null;
 }
