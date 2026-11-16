@@ -214,6 +214,13 @@ is as before; the new words are refused ("Gear in fights is not switched on.") a
 * **Screens:** `gear.view` rows carry `hand`, `defSlot` and `stats` for such a piece; the item Edit takes `gear.row`, `gear.kit` and `gear.def`.
   The form is `view/gear-form.js` over `ss.editable` kind `fields` (field `showWhen`, `disabled`, and the entries `note` and `points`).
 
+## Soak, load weights and animals (Combat rules v1, not read by the fight engine yet)
+
+- **Soak per piece:** a whole piece in body, off-hand, head, cloak, feet or accessory gives its rarity's points (common 1 … legendary 5; a pack's `bonus` counts as the budget) as soak; a weapon gives none. A piece in a worse state than Worn (cond below 40: torn, broken) gives none. `inventory.gear` slots carry `soak` and the answer `soak: { total, pieces: [{ place, name, soak }] }`; `gear.view` carries `soak` on `slots`, `bag`, `rows` and as a total. The total is not capped here (the engine caps with VIT and stance).
+- **Load:** `gear.carry` answers `unit: 'load'` and `weights` (stack id → load: 1 a unit, money 0).
+- **Animals:** `gear.carry` answers `animals: [{ name, carry, withParty }]`; horse 40, pony 30, cart 60 (times count) add to the shared bag only while they travel with the party.
+- No other gear bonus is read in v1 (BATCH1 B1.5 stays closed); the stat adds above remain until the engine switch.
+
 ## Replay
 
 Everything is derived from the inventory slice and its condition events; a swipe, a delete, a Re-read, a rebuild and a reload

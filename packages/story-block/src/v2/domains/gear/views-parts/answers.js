@@ -2,7 +2,8 @@
 
 import { isPlainObject } from '../../common.js';
 import { GEAR } from '../stats.js';
-import { statsFor } from '../stats.js';
+import { statsFor, soakFor } from '../stats.js';
+import { soakRecord } from './soak.js';
 import { carryPicture, atLimit, capacityFor } from '../carry.js';
 
 const PLACES = GEAR.places;
@@ -20,7 +21,7 @@ function wornBy(state, owner, condOf) {
         if (!stack) { out[place] = null; continue; }
         const def = defs[stack.def];
         const cond = condOf(stack, inventory);
-        out[place] = { name: def.name, stats: cond > 0 ? statsFor(def, stack) : {}, cond, broken: cond <= 0 };
+        out[place] = { name: def.name, stats: cond > 0 ? statsFor(def, stack) : {}, soak: soakFor(def, cond), cond, broken: cond <= 0 };
     }
     return out;
 }
@@ -34,7 +35,8 @@ export function statBonus(state, owner, condOf) {
 
 /**
  * `inventory.gear { owner }`: what `owner` has on, the stats it gives, and what they carry:
- * { on, owner, slots: { weapon, body, off-hand, head, cloak, feet, accessory-1, accessory-2 }: { name, stats, cond, broken } | null,
+ * { on, owner, slots: { weapon, body, off-hand, head, cloak, feet, accessory-1, accessory-2 }: { name, stats, soak, cond, broken } | null,
+ *   soak: { total, pieces: [{ place, name, soak }] } (torn and broken pieces give none),
  *   statBonus: { STR…CHA }, carry: { load, capacity, encumbered, penalty, sources } }.
  * A broken piece (cond 0) gives no stats. Part 2 adds `statBonus` to the effective stats (held to GEAR.effectiveMax).
  */
@@ -44,7 +46,7 @@ export function gearAnswer(state, args, { condOf, carryOf, penalty, mounts }) {
     const mine = owner === 'party' ? picture.shared : picture.people.find(person => person.id === owner) ?? { load: 0, capacity: capacityFor(null) };
     const over = atLimit(mine.load, mine.capacity);
     return {
-        on: true, owner, slots: wornBy(state, owner, condOf), statBonus: statBonus(state, owner, condOf),
+        on: true, owner, slots: wornBy(state, owner, condOf), statBonus: statBonus(state, owner, condOf), soak: soakRecord(state, owner, condOf),
         carry: { load: mine.load, capacity: mine.capacity, encumbered: over, penalty: over ? penalty : 0, sources: picture.sources[owner] ?? [{ name: owner, carry: capacityFor(null) }] },
     };
 }

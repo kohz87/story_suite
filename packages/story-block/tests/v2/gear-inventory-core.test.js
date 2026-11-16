@@ -111,16 +111,16 @@ test('inventory.gear: the worn pieces with their stats and condition; a broken p
     await host.send('Loot.', reply('Gear.', ['+ item Iron Sword | rarity: rare', '+ item Oak Shield | quality: fine', '+ item Chain Mail | rarity: epic', '+ item Rope']));
     const empty = Object.fromEntries(['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory-1', 'accessory-2'].map(place => [place, null]));
     const zero = { STR: 0, VIT: 0, AGI: 0, DEX: 0, INT: 0, LUK: 0, CHA: 0 };
-    assert.deepEqual(host.sdk.query('inventory.gear', { owner: 'party' }), { on: true, owner: 'party', slots: empty, statBonus: zero, carry: { load: 4, capacity: 30, encumbered: false, penalty: 0, sources: [{ name: 'The reader', carry: 30 }] } });
+    assert.deepEqual(host.sdk.query('inventory.gear', { owner: 'party' }), { on: true, owner: 'party', slots: empty, statBonus: zero, soak: { total: 0, pieces: [] }, carry: { load: 4, capacity: 30, encumbered: false, penalty: 0, sources: [{ name: 'The reader', carry: 30 }] } });
     for (const name of ['Iron Sword', 'Oak Shield', 'Chain Mail']) await equip(host, name);
     const gear = () => host.sdk.query('inventory.gear', { owner: 'party' });
     const slot = place => gear().slots[place];
     assert.deepEqual([slot('weapon'), slot('off-hand'), slot('body')], [
-        { name: 'Iron Sword', stats: { DEX: 3 }, cond: 100, broken: false }, { name: 'Oak Shield', stats: { VIT: 2 }, cond: 100, broken: false }, { name: 'Chain Mail', stats: { VIT: 4 }, cond: 100, broken: false }]);
+        { name: 'Iron Sword', stats: { DEX: 3 }, soak: 0, cond: 100, broken: false }, { name: 'Oak Shield', stats: { VIT: 2 }, soak: 2, cond: 100, broken: false }, { name: 'Chain Mail', stats: { VIT: 4 }, soak: 4, cond: 100, broken: false }]);
     assert.deepEqual(gear().statBonus, { ...zero, DEX: 3, VIT: 6 }, 'summed over what is worn');
     assert.deepEqual(host.sdk.query('inventory.statBonus', { owner: 'party' }), gear().statBonus);
     await host.send('Fight.', reply('A hard blow.', ['~ hit weapon 1']));
-    assert.deepEqual(slot('weapon'), { name: 'Iron Sword', stats: { DEX: 3 }, cond: 69, broken: false }, 'worn still gives its stats');
+    assert.deepEqual(slot('weapon'), { name: 'Iron Sword', stats: { DEX: 3 }, soak: 0, cond: 69, broken: false }, 'worn still gives its stats');
     assert.equal(host.sdk.receipts().at(-1).receipt.summary, 'Iron Sword wears (100 → 69).');
     assert.equal(host.sdk.receipts().at(-1).receipt.data.steps, 1);
     const stackId = wear(host, 'Iron Sword').stack;
@@ -128,7 +128,7 @@ test('inventory.gear: the worn pieces with their stats and condition; a broken p
     await host.send('More.', reply('Again.', ['~ hit weapon 1']));
     assert.equal(slot('weapon').cond, 39, 'worn → torn');
     await host.send('Last.', reply('It snaps.', ['~ hit weapon 1']));
-    assert.deepEqual(slot('weapon'), { name: 'Iron Sword', stats: {}, cond: 0, broken: true }, 'broken: no stats');
+    assert.deepEqual(slot('weapon'), { name: 'Iron Sword', stats: {}, soak: 0, cond: 0, broken: true }, 'broken: no stats');
     assert.deepEqual(gear().statBonus, { ...zero, VIT: 6 });
     assert.equal(host.sdk.receipts().at(-1).receipt.summary, 'Iron Sword breaks.');
     await host.send('Again.', reply('Splinters.', ['~ hit weapon 1']));

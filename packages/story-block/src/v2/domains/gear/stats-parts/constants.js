@@ -19,5 +19,8 @@ export const GEAR = Object.freeze({
     // The story's own words reach `epic` at most; legendary comes from a pack or a module's reward.
     storyRarityMax: 'epic',
     // Carry: capacity = base + perStr × STR (STR 1…20) + what is worn; a thing weighs 1 per unit, coins are free.
+    // Soak (Combat rules v1, decisions 36.7/38.5): a whole piece in one of these slots gives its rarity's points as soak (1 point = 1 % of damage, inside the 50 % cap
+    // with VIT and stance). A piece in a worse state than `minCond` (the Worn word's floor: torn and broken pieces) gives none. No other gear bonus counts (BATCH1 B1.5 stays closed).
+    soak: Object.freeze({ slots: Object.freeze(['body', 'off-hand', 'head', 'cloak', 'feet', 'accessory']), minCond: 40 }),
     carry: Object.freeze({ base: 10, perStr: 2, strMin: 1, strMax: 20, strDefault: 10 }),
 });
