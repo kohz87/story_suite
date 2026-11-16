@@ -171,6 +171,13 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   whatever an earlier deleted reply did, and later moves (with `was`) add on top of it. It is written even
   when the count already holds that number, so a replay that finds another number there sets it too.
   A counted change of a count that an earlier op of the same block already changed starts from the number that op left (not from the state before the block).
+  **Rule (h), an anchored set.** A set whose value depends on the one before it (a clock face: "9:30 pm" is today's 9:30 pm) calls `ctx.anchored(domain, path, { period, roll, to? })`
+  instead of `ctx.absolute`. The op is stored with `was` (the value before it), `period` and `roll` (`same`: never below the value before it; `after`: always after it). On replay
+  (never for a live command), when the count holds `was` the op applies as stored; otherwise it keeps its offset in whole periods from `was`, landing at
+  `value + period × (⌊now/period⌋ − ⌊was/period⌋)`, then `same` goes no lower than `now` and `after` goes one more period when that is not after `now` (`ops/anchored.js`). It is checked before the
+  counter rule reads `was` as a move. For a `same` set the count already stood past, the module passes `to` (the face before the clamp); the op stores it (only when the clamp moved the value) and replay uses it
+  in place of `value` before the `same` clamp, so a clamped face lands where a fresh telling would. Where the count is not there on replay (its domain's slice is gone), the op applies as stored, not as a move. A first write that makes a deferred domain
+  carries no mark (there is no value before it to keep). An op without the mark replays exactly as before; no module uses the mark yet.
 * **Replayed blocks are checked.** After each replayed block the validators of the domains it touches run
   (§2.5); a block that brings a problem the state did not have before it (a stack whose definition a
   deleted reply made, a route to a deleted place) is skipped and reported like one that does not apply.
@@ -329,6 +336,8 @@ commands: {
   thing is gone (§2.2 rule d); `ctx.unique(domain, path)`: its appends to the list at `path` are passed over
   on replay when the list holds the item already (§2.2 rule e). All three only for a domain the module owns (`NOT_OWNER`), `path` a pointer
   inside it (`INVALID`).
+* `ctx.anchored(domain, path, { period, roll, to? })`: this command's write of the number at `path` is a set that depends on the value before it (§2.2 rule h);
+  `period` a whole number of 1 or more, `roll` `'same'` or `'after'`, `to` (optional) a whole number, the face before a `same` clamp; owner only (`NOT_OWNER`), `INVALID` for a bad path, period or roll, `CONFLICT` with `ctx.absolute` on the same path.
 * `ctx.query(name, args)` runs a registered query against the transaction's current state (drafts included).
 * `ctx.proof({ kind, payload, parents? })` → `{ id, payloadHash }`: the owner of `kind` (Story Director: visit, acceptance,
   event) gives closed proof on the command's block; `story.evidence({ ids? })` lists

@@ -433,6 +433,16 @@ pure too, but of the prefix as it is at the moment they are read, which is why a
 identity. Nothing new is stored for any of it (the span already holds the boundary), so there is no new replay input: what an owner writes from
 a cursor into its changes or `recorded` is already an input.
 
+## Anchored sets
+
+A set that depends on the number before it (SPEC §2.2 rule h, `ctx.anchored`) is stored as a `replace` with `was`, `period` and `roll` (and `to`, the face before a `same` clamp, when the clock stood past it). Replay, in `ops/rebase.js` `fit` ahead of the
+counter rule, applies it as stored while the count holds `was` (so a reload, a swipe and an unchanged Re-read give what was live), and otherwise at its offset in whole periods from `was`
+(`ops/anchored.js`), clamped by `roll` (a clamped face is clamped again from `to`, so it lands where a fresh telling would; the op's `to` moves with it). The result depends only on the stored op and the replayed value, so a reload after an edit, a middle delete or an edited Re-read equals live. A date
+is not anchored (`ctx.absolute`) and stays exact. The rule is not named in `rulesSignature()` yet: no stored op carries the mark, so no kept answer differs; the module that first uses it adds it.
+Step 2b (the first module to use it) must bump `rulesSignature()` and must keep the mark on a refused face (a refused clock line stores no op today, so it needs checking). Limits as built: where the count is
+not there on replay (its domain's slice is gone) the op applies as stored; a deferred domain's first write carries no mark (no value before it); a joined line that sets one path through both `ctx.absolute` and
+`ctx.anchored` is `CONFLICT`, and two anchored calls on one path in one command keep the last `roll`.
+
 ## Deferred domains
 
 A deferred domain (LIFECYCLE.md) is not in a chat until a reply writes it, so every later write of it is a leaf change under the
