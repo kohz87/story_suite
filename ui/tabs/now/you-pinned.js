@@ -19,7 +19,7 @@ export function youCard(you, ctx = {}) {
 
   function draw() {
     head.setAttribute('aria-expanded', String(!folded));
-    head.replaceChildren(h('i', null, '›'), h('h3', null, 'You'), folded ? h('small', null, summary(you)) : null);
+    head.replaceChildren(h('i', null, '›'), h('h3', null, 'You'), ...(folded ? [h('small', null, summary(you))] : []));
     body.replaceChildren(...(folded ? [] : [
       you.look ? h('span', { class: 'srcl' }, 'Look · from the story') : null,
       you.look ? h('p', null, you.look) : null,

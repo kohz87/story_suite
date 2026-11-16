@@ -92,7 +92,7 @@
   "ui/css/journal.css": "Styles for the Journal tab: quest cards, leads, closed list, calendar, day panel, coming up and the edit form; tokens only.",
   "ui/css/kit.css": "Kit styles: the one button, chip, switch and segmented-control family, sized for touch.",
   "ui/css/next-hide.css": "Hides the old Story Suite furniture in the chat only while the body carries ss-ui-next.",
-  "ui/css/now.css": "Styles for the Now tab cards, the Show-all list, the spoiler switch and the feelings ring; tokens only.",
+  "ui/css/now.css": "Styles for the Now tab cards, the Show-all list, the spoiler switch and the feelings ring; tokens, plus the mock's fixed late, fight and torn tones.",
   "ui/css/party.css": "Party tab styles (decision 22, party.html): member row, sheet, equipment doll, stats, skills and the bottom sheets; tokens only.",
   "ui/css/people.css": "Styles for the People tab: tiles, filters, search and the cast map; tokens only.",
   "ui/css/settings.css": "Settings overlay styles: frame, section nav, rows and controls, search, footer meter (decision 33; tokens renamed --g-* to --su-*).",
