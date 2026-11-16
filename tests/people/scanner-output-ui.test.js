@@ -15,7 +15,7 @@ function fixture(profileId = '') {
     const profiles = [{ id: 'fast', name: 'Fast' }];
     const ctx = {
         extensionSettings: {
-            storySuite: { schema: 1, modules: { 'npc-state-delta': { scannerConnectionProfile: profileId, scannerMaxOutputTokens: 0 } } },
+            storySuite: { schema: 1, core: { backgroundConnection: profiles.find(p => p.id === profileId)?.name ?? profileId }, modules: { 'npc-state-delta': { scannerMaxOutputTokens: 0 } } },
             connectionManager: { profiles },
             disabledExtensions: [],
         },

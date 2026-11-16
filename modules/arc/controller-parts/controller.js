@@ -177,7 +177,7 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
                 fights: seen.fights,
             });
             const answer = await api.callModel({
-                profile: settings.profile,
+                role: 'background',
                 system: substitute(api, request.system),
                 prompt: substitute(api, request.prompt),
                 maxTokens: settings.maxTokens,

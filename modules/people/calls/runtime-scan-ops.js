@@ -5,10 +5,9 @@
    runtime state. Bodies are moved from index.js without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
-import { isEmptyScannerAnswer } from './scanner-routing.js';
+import { isEmptyScannerAnswer, selectedScannerProfileId } from './scanner-routing.js';
 import { refreshMessageGate, messageGateSettled } from '../transcript/transcript.js';
 import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../legacy/branch.js';
-import { getSettings } from '../settings/runtime-settings.js';
 import { currentWriterId } from '../storage/storage.js';
 import { replayScope, setNpcDossierScanIndicator, setNpcChatRefreshIndicator, lineageMoved, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
 
@@ -74,7 +73,7 @@ export function createScanOpsPart(rt, deps) {
         if (targetId) operation.targetFingerprint = targetFingerprint(key, targetId);
         operation.requestController = new AbortController();
         operation.requestScope = {
-            route: { profileId: getSettings().scannerConnectionProfile },
+            route: { profileId: selectedScannerProfileId(getContext()) },
             chatKey: key,
             operationId: operation.id,
             signal: operation.requestController.signal,

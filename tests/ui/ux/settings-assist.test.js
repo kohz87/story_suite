@@ -40,28 +40,28 @@ test('the page: Extra calls, Checks, Safety net, then Recent runs, in the form e
     assert.ok(page.querySelector('.ss-form').classList.contains('ss-assist-page'));
     assert.deepEqual(page.querySelectorAll('.ss-section-title').map(node => node.textContent), ['Extra calls', 'Checks', 'Safety net', 'Recent runs']);
     assert.deepEqual(page.querySelectorAll('.ss-form .ss-section').map(card => card.querySelectorAll('.ss-field').map(row => row.dataset.field)), [
-        [SETTING.profile, 'callQueue'], [CORE_FEATURE.preroll], [CORE_FEATURE.extractor, SETTING.extractorProfile, SETTING.extractorKinds],
+        ['quickConnection', 'backgroundConnection', 'callQueue'], [CORE_FEATURE.preroll], [CORE_FEATURE.extractor, SETTING.extractorKinds],
     ]);
     assert.equal(page.querySelectorAll('details').length, 0);
     assert.equal(page.querySelectorAll('.story-suite-row').length, 0, 'the old rows are gone');
-    assert.equal(field(page, SETTING.profile).querySelector('.ss-field-label').textContent, ASSIST_TEXT.profile);
+    assert.equal(field(page, 'quickConnection').querySelector('.ss-field-label').textContent, ASSIST_TEXT.profile);
     assert.equal(field(page, CORE_FEATURE.preroll).querySelector('.ss-field-label').textContent, 'Roll checks before the reply');
     assert.equal(field(page, 'callQueue').querySelector('.ss-field-label').textContent, 'Run extra calls one at a time per connection');
     // The old Assist panel is the last card; no "N settings shown" line of its own.
     assert.ok(page.querySelector('.ss-assist-runs-card .ss-assist'));
     assert.equal(page.querySelector('.ss-form-status').hidden, true);
-    assert.deepEqual(ASSIST_HOST_KEYS, ['callQueue']);
+    assert.deepEqual(ASSIST_HOST_KEYS, ['callQueue', 'quickConnection', 'backgroundConnection']);
     assert.equal(ASSIST_FOLD, 'story-block::group:Assist');
     host.close();
 });
 
-test('the safety net: a switch in the Features store; its profile and kinds are drawn and locked, with the reason, while it is off', async () => {
+test('the safety net: a switch in the Features store; its kinds are drawn and locked, with the reason, while it is off', async () => {
     const { page, host, win, root } = await open();
     const net = field(page, CORE_FEATURE.extractor);
     assert.equal(host.features.on(CORE_FEATURE.extractor), false);
     assert.equal(switchOf(page, CORE_FEATURE.extractor).getAttribute('aria-checked') ?? String(switchOf(page, CORE_FEATURE.extractor).checked), 'false');
-    // Off: both rows are there, locked, and say why; they are not hidden.
-    for (const key of [SETTING.extractorProfile, SETTING.extractorKinds]) {
+    // Off: the row is there, locked, and says why; it is not hidden.
+    for (const key of [SETTING.extractorKinds]) {
         const row = field(page, key);
         assert.ok(row && !row.hidden, `${key} is drawn`);
         assert.equal(locked(row), true, `${key} is locked`);
@@ -70,20 +70,17 @@ test('the safety net: a switch in the Features store; its profile and kinds are 
         assert.ok(tag(row).classList.contains('ss-field-tag-why'));
     }
     assert.ok(chips(page).every(chip => chip.disabled), 'the chips are locked');
-    assert.equal(control(field(page, SETTING.extractorProfile)).disabled, true);
-    // The shared profile is off while both helpers are off.
-    assert.equal(locked(field(page, SETTING.profile)), true);
-    assert.equal(tag(field(page, SETTING.profile)).textContent, ASSIST_TEXT.bothOff);
+    // The two connections are the Models page's: never locked by the helpers' switches.
+    assert.equal(locked(field(page, 'quickConnection')), false);
     // Turn it on: the same store the Features page writes through.
     switchOf(page, CORE_FEATURE.extractor).click();
     assert.equal(host.features.on(CORE_FEATURE.extractor), true);
     assert.equal(net.querySelector('.ss-field-error')?.hidden ?? true, true);
-    for (const key of [SETTING.extractorProfile, SETTING.extractorKinds, SETTING.profile]) {
+    for (const key of [SETTING.extractorKinds]) {
         assert.equal(locked(field(page, key)), false, `${key} is open now`);
         assert.equal(tag(field(page, key)).hidden, true);
     }
     assert.ok(chips(page).every(chip => !chip.disabled));
-    assert.equal(control(field(page, SETTING.extractorProfile)).disabled, false);
     // The Features page agrees (it was redrawn).
     const tile = root.querySelectorAll('.ss-settings-page').find(node => node.dataset.ssSection === 'features').querySelector(`[data-feature="${CORE_FEATURE.extractor}"], .ss-field[data-field="${CORE_FEATURE.extractor}"]`);
     assert.ok(tile);
@@ -107,14 +104,10 @@ test('pre-roll: drawn and locked, with the reason the feature gives, while no mo
     const { page, host } = await open({ modules: [CHECKS] });
     assert.equal(locked(field(page, CORE_FEATURE.preroll)), false);
     assert.equal(host.features.on(CORE_FEATURE.preroll), false);
-    // The shared profile is off while both are off, and opens as soon as one is on.
-    assert.equal(locked(field(page, SETTING.profile)), true);
     switchOf(page, CORE_FEATURE.preroll).click();
     assert.equal(host.features.on(CORE_FEATURE.preroll), true);
-    assert.equal(locked(field(page, SETTING.profile)), false);
     switchOf(page, CORE_FEATURE.preroll).click();
     assert.equal(host.features.on(CORE_FEATURE.preroll), false);
-    assert.equal(locked(field(page, SETTING.profile)), true);
     host.close();
 });
 
@@ -173,11 +166,10 @@ test('no chip is on the wrong side of the value wall, and the things without a c
     }
 });
 
-test('a profile select with only "Same as chat" to pick is disabled, with a note; with profiles it is open and writes the name', async () => {
+test('the two connections are host settings: a select with only "Same as chat" is disabled, with a note; with profiles it is open and writes the name', async () => {
+    const hostValue = host => host.settings(null);
     const none = await open({ profiles: () => ({ usable: false, why: 'The Connection Manager is off.' }) });
-    none.host.features.set(CORE_FEATURE.extractor, true);
-    none.win.refresh();
-    for (const key of [SETTING.profile, SETTING.extractorProfile]) {
+    for (const key of ['quickConnection', 'backgroundConnection']) {
         const row = field(none.page, key);
         assert.equal(control(row).disabled, true, `${key} has nothing to pick`);
         assert.equal(row.querySelector('.ss-field-note').textContent, 'The Connection Manager is off.');
@@ -185,27 +177,25 @@ test('a profile select with only "Same as chat" to pick is disabled, with a note
     }
     none.host.close();
     const empty = await open({ profiles: () => ({ usable: true, profiles: [] }) });
-    assert.equal(control(field(empty.page, SETTING.profile)).disabled, true);
-    assert.equal(field(empty.page, SETTING.profile).querySelector('.ss-field-note').textContent, PROFILE_TEXT.none);
+    assert.equal(control(field(empty.page, 'quickConnection')).disabled, true);
+    assert.equal(field(empty.page, 'quickConnection').querySelector('.ss-field-note').textContent, PROFILE_TEXT.none);
     empty.host.close();
 
     const { page, host, win } = await open();
-    host.features.set(CORE_FEATURE.extractor, true);
-    win.refresh();
-    const select = control(field(page, SETTING.extractorProfile));
-    assert.equal(select.disabled, false);
-    assert.deepEqual(select.querySelectorAll('option').map(node => node.textContent), [PROFILE_TEXT.same, 'Cheap', 'Main']);
-    select.value = 'Cheap';
-    select.dispatch('change');
-    assert.equal(stored(host).assistExtractorProfile, 'Cheap');
-    const shared = control(field(page, SETTING.profile));
-    shared.value = 'Main';
-    shared.dispatch('change');
-    assert.equal(stored(host).assistProfile, 'Main');
+    const quick = control(field(page, 'quickConnection'));
+    assert.equal(quick.disabled, false);
+    assert.deepEqual(quick.querySelectorAll('option').map(node => node.textContent), [PROFILE_TEXT.same, 'Cheap', 'Main']);
+    quick.value = 'Cheap';
+    quick.dispatch('change');
+    assert.equal(hostValue(host).quickConnection, 'Cheap');
+    const background = control(field(page, 'backgroundConnection'));
+    background.value = 'Main';
+    background.dispatch('change');
+    assert.equal(hostValue(host).backgroundConnection, 'Main');
     // A stored profile that is gone stays, named, with the note; the select is open so it can be changed.
-    host.settings.set('story-block', SETTING.extractorProfile, 'Old One');
+    host.settings.set(null, 'backgroundConnection', 'Old One');
     win.refresh();
-    const gone = field(page, SETTING.extractorProfile);
+    const gone = field(page, 'backgroundConnection');
     assert.equal(control(gone).disabled, false);
     assert.match(gone.querySelector('.ss-field-note').textContent, /"Old One" is not in the Connection Manager any more/);
     host.close();

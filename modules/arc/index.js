@@ -8,7 +8,7 @@
 // * Domain `arc` (domain.js): one record per accepted plan and one per ending, each added under its key.
 // * Commands (commands.js): `director.arc.accept`, `director.arc.update`, `director.arc.end`, the reader's
 //   (cause ui). The planner's call is not a command: the panel makes it (controller.js), through Story
-//   Block's `sdk.callModel` on the planner's own connection profile (setting `arc.profile`).
+//   Block's `sdk.callModel` on the Models page's Background connection.
 // * Query `director.arc`: the current arc and its beats played. Tail: "Arc: Name — what it is about" while
 //   it runs. Nothing is added to the fixed prompt: the beats and agendas are tracker threads, whose lines
 //   the static part already has.

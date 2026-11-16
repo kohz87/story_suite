@@ -68,10 +68,6 @@ export function createSettingsBindPart(rt, deps) {
         $(document).off('.npcStateDelta');
         bindSettingsCheckbox('#npc_state_delta_enabled', 'enabled', afterEnabledChange);
         bindSettingsCheckbox('#npc_state_delta_auto', 'autoScan');
-        $(document).on('change.npcStateDelta', '#npc_state_delta_scanner_connection_profile', function () {
-            getSettings().scannerConnectionProfile = String(this.value || '').trim();
-            persistSettings();
-        });
         bindSettingsCheckbox('#npc_state_delta_full_scan_every_turn', 'fullScanEveryTurn');
         bindSettingsCheckbox('#npc_state_delta_narration_capture', 'narrationCapture');
         bindSettingsCheckbox('#npc_state_delta_narration_capture_compact', 'narrationCaptureCompact');

@@ -1,6 +1,6 @@
 /* NPC State Delta: the scanner's lines for the Settings diagnostics report. */
 import { normalizeScannerMaxOutputTokens } from './shared-limits.js';
-import { connectionManagerDisabled, scannerProfileOptions } from './profile-settings.js';
+import { connectionManagerDisabled, scannerProfileOptions, selectedScannerProfileId } from './profile-settings.js';
 import { scannerRoutingMetrics } from './request-tracking.js';
 
 // (v2 Diagnostics) The scanner's lines for Story Block's Settings → Diagnostics report: the route, the
@@ -12,13 +12,13 @@ const callKind = label => String(label || 'scanner request').replace(/\s+for\s+[
 export function scannerDiagnosticLines({ ctx = null, settings = {}, metrics = scannerRoutingMetrics(), enabled = true, now = Date.now() } = {}) {
     const lines = [];
     lines.push(`Delta on: ${yesNo(enabled)}. Auto scan: ${yesNo(settings?.autoScan)}. Full scan every turn: ${yesNo(settings?.fullScanEveryTurn)}. One-pass narration capture: ${yesNo(settings?.narrationCapture)}.`);
-    const selected = typeof settings?.scannerConnectionProfile === 'string' ? settings.scannerConnectionProfile.trim() : '';
+    const selected = selectedScannerProfileId(ctx);
     const options = scannerProfileOptions(ctx, selected);
     const usable = options.filter(option => option.id && !option.name.startsWith('Unavailable profile ('));
     if (connectionManagerDisabled(ctx)) lines.push('Connection Profiles: turned off in SillyTavern.');
     else if (typeof ctx?.ConnectionManagerRequestService?.sendRequest !== 'function') lines.push('Connection Profiles: this SillyTavern has no Connection Manager request service.');
     else lines.push(`Connection Profiles: ${usable.length} usable for text.`);
-    if (!selected) lines.push('Scanner route: the current roleplay connection.');
+    if (!selected) lines.push('Scanner route: the current roleplay connection (the Models page: Background is Same as chat).');
     else {
         const found = usable.find(option => option.id === selected);
         lines.push(found

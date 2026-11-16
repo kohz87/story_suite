@@ -64,3 +64,32 @@ test('without sent or pack data the cards are not drawn and no empty Reset is sh
   assert.equal(page('tools').querySelector('pre.sent'), null);
   assert.equal(page('packs').querySelector('.cfm'), null);
 });
+
+test('Models: each card\'s select holds its profiles with the stored one chosen; a pick is sent as models.<id> and kept; the note shows', () => {
+  const connections = [
+    { id: 'story', name: 'Story', desc: '', choice: 'The chat’s own', value: '', options: [], readOnly: true, usedFor: [] },
+    { id: 'quick', name: 'Quick helpers', desc: '', choice: 'Big', value: 'Big', options: [{ value: '', label: 'Same as chat' }, { value: 'Big', label: 'Big' }], note: 'A note.', readOnly: false, usedFor: [] },
+    { id: 'background', name: 'Background', desc: '', choice: 'Same as chat', value: '', options: [{ value: '', label: 'Same as chat' }, { value: 'Big', label: 'Big' }], readOnly: false, usedFor: [] },
+  ];
+  const { page, calls } = mountSettings({ connections });
+  const el = page('models');
+  const quick = el.querySelectorAll('select')[0];
+  assert.deepEqual(quick.querySelectorAll('option').map(o => [o.value, o.textContent]), [['', 'Same as chat'], ['Big', 'Big']]);
+  assert.equal(quick.value, 'Big');
+  assert.equal(el.querySelector('.cnote').textContent, 'A note.');
+  quick.value = '';
+  quick.dispatch('change');
+  assert.deepEqual(calls.at(-1).slice(1), ['models.quick', '']);
+  assert.equal(page('models').querySelectorAll('select')[0].value, '', 'the pick is kept when the page is drawn again');
+});
+
+test('Test shows the host\'s answer: the seconds, or why it failed', async () => {
+  const answers = [{ ok: true, seconds: 2.5 }, { ok: false, message: 'no key' }];
+  const { page } = mountSettings({}, { onAction: () => Promise.resolve(answers.shift()) });
+  page('models').querySelector('.cn .tst2 button').click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(page('models').querySelector('.cn .tst2 small').textContent, 'answered in 2.5 s');
+  page('models').querySelectorAll('.cn .tst2 button')[1].click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(page('models').querySelectorAll('.cn .tst2 small')[1].textContent, 'failed: no key');
+});

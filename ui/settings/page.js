@@ -18,6 +18,7 @@ export function createPages(settings, ctx) {
   const connections = settings.connections ?? [];
   const openMods = {};
   const tested = new Set();
+  const failed = new Map();
   let confirming = false;
   const redraw = () => ctx.repaint();
 
@@ -34,10 +35,28 @@ export function createPages(settings, ctx) {
     setPreset(id) { modules.preset = id; ctx.onAction?.('modules.preset', id); redraw(); },
   });
 
+  // One tiny call on the card's connection. The host's answer ({ ok, seconds } or { ok: false, message }) is shown on the card;
+  // a host that answers at once (or not at all) counts as answered.
+  function testConnection(id) {
+    tested.delete(id); failed.delete(id);
+    const settle = answer => {
+      if (answer?.ok === false) failed.set(id, String(answer.message ?? 'no answer'));
+      else {
+        tested.add(id);
+        const c = connections.find(x => x.id === id);
+        if (c && Number.isFinite(answer?.seconds)) c.testSeconds = answer.seconds;
+      }
+      redraw();
+    };
+    const answer = ctx.onAction?.('models.test', id);
+    if (typeof answer?.then !== 'function') return settle(answer);
+    answer.then(settle, error => { failed.set(id, String(error?.message ?? error)); redraw(); });
+  }
+
   function special(section) {
     if (section.special === 'start') return renderStart(cardState());
     if (section.special === 'models') {
-      return renderConnections({ connections, tested, test: (id) => { tested.add(id); ctx.onAction?.('models.test', id); redraw(); }, pick: (id, value) => ctx.onChange?.(`models.${id}`, value) });
+      return renderConnections({ connections, tested, failed, test: testConnection, pick: (id, value) => { tested.delete(id); failed.delete(id); const c = connections.find(x => x.id === id); if (c) c.value = value; ctx.onChange?.(`models.${id}`, value); redraw(); } });
     }
     if (section.special === 'packs') {
       return renderPacks({

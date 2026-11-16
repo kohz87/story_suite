@@ -116,7 +116,7 @@ Extensions, or in Story Suite settings when hosted. Hosted settings (the `npc` p
 | `fullScanEveryTurn` (Full scan every turn) | Reconcile the whole scan window every reply. | off |
 | `narrationCapture` (One-pass narration capture) | Reply carries the scan block. Experimental. | off |
 | `narrationCaptureCompact`, `narrationCaptureCatchUp` | Shorter one-pass rules; quiet Refresh every N captured replies. | off, 8 |
-| `scannerConnectionProfile` | Route for every scan, Refresh and focused pass. Empty keeps the chat's route; a missing profile errors, never falls back. | empty |
+| ~~`scannerConnectionProfile`~~ | Removed: the scanner uses the Models page's Background connection (Story Suite host setting `backgroundConnection`, a profile name). Empty keeps the chat's route; a missing profile errors, never falls back. | (none) |
 | `scanEvery` (Scan every) | Quick-scan cadence in replies. | 1 |
 | `scanDepth` (Scan context) | Messages in the window for full, manual and Refresh scans (quick scans read the latest exchange). | 6 |
 | `admissionMode` (NPC admission) | `conservative`, `balanced`, `manual_only`. | conservative |

@@ -4,7 +4,7 @@ import { DEFAULT_FACES, FACES, FEATURE } from '../domain.js';
 
 export { FEATURE };
 
-export const DEFAULTS = Object.freeze({ on: true, faces: DEFAULT_FACES, unmetDie: false, profile: '' });
+export const DEFAULTS = Object.freeze({ on: true, faces: DEFAULT_FACES, unmetDie: false });
 
 const field = spec => Object.freeze({ ...spec, feature: FEATURE, group: 'The cast' });
 
@@ -17,5 +17,4 @@ export const SCHEMA = Object.freeze({
         help: 'You meet someone the first time you are at their place while they are there, or when their goal leads them to you. This keeps it to a few at a time; the rest wait. Never during a fight.',
     }),
     unmetDie: field({ type: 'bool', label: 'Unmet cast can die off-screen', help: 'Off: before you meet them they can be hurt, lose things or move, but not die. A pack entry can still mark someone as able to die.' }),
-    profile: field({ type: 'profile', label: 'Planner connection', help: 'The model that moves the cast when a day passes. They move only when the day changes or time skips: one short planner line each, only where something changed. Same as chat uses the chat\'s own connection.' }),
 });

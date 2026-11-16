@@ -73,7 +73,7 @@ export function createClassifier({ callModel, settings, chat, chatId, hasKind, l
         const prompt = classifierPrompt(text);
         let answer;
         try {
-            answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, profile: String(values?.[SETTING.profile] ?? '') }), timeoutMs, timer);
+            answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, role: 'quick' }), timeoutMs, timer);
         } catch (error) {
             note(error?.code === 'TIMEOUT' ? 'timeout' : 'failed', { key, message: error?.message ?? String(error) });
             return null;

@@ -7,8 +7,6 @@ import { createRegistry } from '../../core/registry.js';
 import { createSettings } from '../../core/sdk.js';
 import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { createFeatureStore } from '../../core/features.js';
-import { SCHEMA, SETTING, createAssistPart, stCallModel } from '../../modules/assist/index.js';
-import { listProfiles } from '../../core/model-call.js';
 import {
     REMOVED, buildReport, captureConsole, caughtSoFar, chatCounts, isSecretKey, noteError, noteSaveError, reportFileName, resetCaught,
     scrubLine, scrubSecrets, scrubSettings,
@@ -99,88 +97,10 @@ test('every module\'s controls sit at most two folds deep (Story Block\'s own mo
     const controls = root.querySelectorAll('input, select, textarea');
     assert.ok(controls.length > 5);
     for (const control of controls) assert.ok(depth(control) <= 2, `${control.id} is ${depth(control)} folds deep`);
-    // Story Block's Assist panel is in its fold; its profile dropdown in the Assist group, two folds deep.
+    // Story Block's Assist panel is in its fold; the kinds field in the Assist group, two folds deep.
     const sb = foldOf(root, 'story-block');
     assert.ok(texts(sb, '.story-suite-section h4').includes('Assist'));
-    assert.equal(depth(sb.querySelector('.story-suite-row[data-field="assistProfile"] select')), 2);
-});
-
-// ---- 2. the assist's connection profile: the shared `profile` field (MODULES §G) -----------------
-
-function withSillyTavern(ctx, fn) {
-    const previous = globalThis.SillyTavern;
-    globalThis.SillyTavern = { getContext: () => ctx };
-    return Promise.resolve().then(fn).finally(() => {
-        if (previous === undefined) delete globalThis.SillyTavern;
-        else globalThis.SillyTavern = previous;
-    });
-}
-const stWith = (profiles, { calls = [], disabled = [] } = {}) => ({
-    ConnectionManagerRequestService: {
-        isProfileSupported: profile => Boolean(profile?.api),
-        sendRequest: async (id, messages, maxTokens) => { calls.push({ id, messages, maxTokens }); return { content: 'none' }; },
-    },
-    extensionSettings: { connectionManager: { profiles }, disabledExtensions: disabled },
-});
-function storyBlockSettings() {
-    let read = () => ({});
-    const assist = createAssistPart({ moduleId: 'story-block', settings: () => read() });
-    const made = setup({ id: 'story-block', name: 'Story Block', settings: assist.settings });
-    read = () => made.settings('story-block');
-    return made;
-}
-const assistRow = root => root.querySelector('.story-suite-row[data-field="assistProfile"]');
-
-test('the assist profile is a `profile` field in its own Assist group: Same as chat, then the profiles; the pick is kept and used', async () => {
-    assert.equal(SCHEMA[SETTING.profile].type, 'profile');
-    const calls = [];
-    const ctx = stWith([{ id: 'p2', name: 'Big', api: 'openai', 'api-url': 'http://10.0.0.9/v1' }, { id: 'p1', name: 'Cheap', api: 'openai' }, { id: 'p3', name: 'No API' }], { calls });
-    await withSillyTavern(ctx, async () => {
-        const { registry, settings, es } = storyBlockSettings();
-        const root = doc.createElement('div');
-        renderSettingsHost(root, { registry, settings, doc });
-        const row = assistRow(root);
-        assert.equal(row.closest('details').dataset.fold, 'story-block::group:Assist');
-        assert.equal(depth(row), 2, 'two folds deep');
-        const select = row.querySelector('select');
-        assert.deepEqual(select.querySelectorAll('option').map(node => [node.value, node.textContent]), [['', 'Same as chat'], ['Big', 'Big'], ['Cheap', 'Cheap']]);
-        assert.equal(row.querySelector('.story-suite-profile-note'), null, 'nothing to say');
-        select.value = 'Cheap';
-        select.dispatch('change');
-        assert.equal(es.storySuite.modules['story-block'].assistProfile, 'Cheap', 'stored');
-        const again = doc.createElement('div');
-        renderSettingsHost(again, { registry, settings, doc });
-        assert.equal(assistRow(again).querySelector('select').value, 'Cheap', 'drawn again (a reload): the choice shows');
-        assert.deepEqual(texts(again, '.ss-assist-profile'), ['Calls go through the profile "Cheap".']);
-        assert.equal(await stCallModel('q', { maxTokens: 40, profile: settings('story-block').assistProfile }), 'none');
-        assert.deepEqual(calls.map(call => [call.id, call.maxTokens]), [['p1', 40]], 'the call went through that profile');
-        assert.ok(!JSON.stringify(listProfiles(ctx)).includes('10.0.0.9'), 'the list holds names and ids only');
-    });
-});
-
-test('the assist profile: no profile yet, Connection Profiles off, or a profile gone: a plain note, the choice never moved', async () => {
-    await withSillyTavern(stWith([]), () => {
-        const { registry, settings } = storyBlockSettings();
-        const root = doc.createElement('div');
-        renderSettingsHost(root, { registry, settings, doc });
-        assert.match(assistRow(root).querySelector('.story-suite-profile-note').textContent, /There are no connection profiles yet/);
-        assert.equal(assistRow(root).querySelectorAll('option').length, 1);
-    });
-    await withSillyTavern(stWith([{ id: 'p1', name: 'Cheap', api: 'openai' }], { disabled: ['connection-manager'] }), () => {
-        const { registry, settings } = storyBlockSettings();
-        const root = doc.createElement('div');
-        renderSettingsHost(root, { registry, settings, doc });
-        assert.match(assistRow(root).querySelector('.story-suite-profile-note').textContent, /turned off/);
-    });
-    await withSillyTavern(stWith([{ id: 'p1', name: 'Cheap', api: 'openai' }]), () => {
-        const { registry, settings, es } = storyBlockSettings();
-        settings.set('story-block', 'assistProfile', 'Old one');
-        const root = doc.createElement('div');
-        renderSettingsHost(root, { registry, settings, doc });
-        assert.equal(assistRow(root).querySelector('select').value, 'Old one');
-        assert.match(assistRow(root).querySelector('.story-suite-profile-note').textContent, /not in the Connection Manager any more/);
-        assert.equal(es.storySuite.modules['story-block'].assistProfile, 'Old one');
-    });
+    assert.equal(depth(sb.querySelector('.story-suite-row[data-field="assistExtractorKinds"] input, .story-suite-row[data-field="assistExtractorKinds"] textarea')), 2);
 });
 
 // ---- 3. Diagnostics ---------------------------------------------------------------------------

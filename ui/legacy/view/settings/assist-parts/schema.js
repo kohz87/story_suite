@@ -1,6 +1,6 @@
 // The Assist page's schema and the places its switches live.
 
-import { SETTING, SCHEMA } from '../../../../../modules/assist/common.js';
+import { SETTING } from '../../../../../modules/assist/common.js';
 import { KIND_CHOICES, allowedKinds } from '../../../../../modules/assist/safety.js';
 import { CORE_FEATURE } from '../../../../../core/features.js';
 import { HOST_SETTINGS_SCHEMA } from '../../../../../core/sdk.js';
@@ -22,17 +22,12 @@ export function assistSchema({ featureOf, on, hostSettings, features }) {
     });
     const calls = ASSIST_TEXT.callsTitle;
     const schema = {
-        [SETTING.profile]: {
-            ...SCHEMA[SETTING.profile], group: calls, label: ASSIST_TEXT.profile,
-            readOnly: () => !on(ids.preroll) && !on(ids.net), lockText: ASSIST_TEXT.bothOff,
-        },
+        // The Models page's two roles, as host settings (the preview's Models page sets the same two).
+        quickConnection: { ...HOST_SETTINGS_SCHEMA.quickConnection, group: calls, label: ASSIST_TEXT.profile },
+        backgroundConnection: { ...HOST_SETTINGS_SCHEMA.backgroundConnection, group: calls },
         callQueue: { ...HOST_SETTINGS_SCHEMA.callQueue, group: calls },
         [ids.preroll]: switchFor(ids.preroll, ASSIST_TEXT.preroll, ASSIST_TEXT.checksTitle),
         [ids.net]: switchFor(ids.net, ASSIST_TEXT.net, ASSIST_TEXT.netTitle),
-        [SETTING.extractorProfile]: {
-            ...SCHEMA[SETTING.extractorProfile], group: ASSIST_TEXT.netTitle, label: ASSIST_TEXT.netProfile,
-            readOnly: () => !on(ids.net), lockText: ASSIST_TEXT.netOff,
-        },
         [SETTING.extractorKinds]: {
             type: 'text', form: 'chips', group: ASSIST_TEXT.netTitle, label: ASSIST_TEXT.kinds, help: ASSIST_TEXT.kindsHelp,
             options: KIND_CHOICES, read: text => [...allowedKinds(text)],
@@ -41,6 +36,8 @@ export function assistSchema({ featureOf, on, hostSettings, features }) {
     };
     const sources = {
         callQueue: { get: () => hostSettings().callQueue === true, set: value => hostSettings.set(null, 'callQueue', value) },
+        quickConnection: { get: () => hostSettings().quickConnection ?? '', set: value => hostSettings.set(null, 'quickConnection', value) },
+        backgroundConnection: { get: () => hostSettings().backgroundConnection ?? '', set: value => hostSettings.set(null, 'backgroundConnection', value) },
     };
     for (const id of Object.values(ids)) {
         sources[id] = {

@@ -19,7 +19,6 @@ export const DEFAULTS = Object.freeze({
     narrationCaptureCatchUp: 8,
     // (1.2.17) Opt-in: the one-pass rules in fewer words (about 500 tokens less per armed reply).
     narrationCaptureCompact: false,
-    scannerConnectionProfile: '',
     portraitGenerationEnabled: true,
     portraitThemePreset: 'fantasy_anime',
     portraitCustomPresetId: DEFAULT_CUSTOM_PORTRAIT_PRESET_ID,

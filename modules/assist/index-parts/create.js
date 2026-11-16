@@ -51,13 +51,12 @@ export function createAssistPart({
     const classifier = createClassifier({ ...shared, settings: read, chat, hasKind, ...(skip ? { skip } : {}) });
     const extractor = createExtractor({ ...shared, settings: () => read(null), grammar, capture, where });
 
-    /** assist.status: { classifier: { on, last }, extractor: { on, last }, profile, runs }. */
+    /** assist.status: { classifier: { on, last }, extractor: { on, last }, runs }. */
     function status() {
         const values = read(null);
         return {
             classifier: { on: values[SETTING.classifier] === true, last: log.last('classifier') },
             extractor: { on: values[SETTING.extractor] === true, last: log.last('extractor') },
-            profile: String(values[SETTING.profile] ?? '').trim(),
             runs: log.list(),
         };
     }

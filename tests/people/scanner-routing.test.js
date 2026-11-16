@@ -16,7 +16,8 @@ function fixture(profileId = '') {
     const calls = { host: [], profile: [] };
     const profiles = [{ id: 'fast', name: 'Scanner Fast', supported: true, model: 'scanner-model' }];
     const ctx = {
-        extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': { scannerConnectionProfile: profileId } } }, connectionManager: { profiles, selectedProfile: 'roleplay' }, disabledExtensions: [] },
+        // The scanner's route is the Models page's Background connection: a profile name in the host settings.
+        extensionSettings: { storySuite: { core: { backgroundConnection: profiles.find(p => p.id === profileId)?.name ?? profileId } }, connectionManager: { profiles, selectedProfile: 'roleplay' }, disabledExtensions: [] },
         generateRaw(options) { calls.host.push(options); return Promise.resolve('{"npcs":[]}'); },
         ConnectionManagerRequestService: {
             getProfile(id) { const found = profiles.find(p => p.id === id); if (!found) throw new Error('missing'); return found; },
@@ -62,7 +63,7 @@ test('operation-pinned profile does not follow a changed global selection on ret
     const { ctx, calls } = fixture('fast');
     const route = { profileId: 'fast' };
     await dispatchScannerRequest(ctx, payload, { route });
-    ctx.extensionSettings.storySuite.modules['npc-state-delta'].scannerConnectionProfile = '';
+    ctx.extensionSettings.storySuite.core.backgroundConnection = '';
     await dispatchScannerRequest(ctx, { ...payload, responseLength: 5200 }, { route, label: 'scanner JSON retry' });
     assert.deepEqual(calls.profile.map(args => args[0]), ['fast', 'fast']);
     assert.equal(calls.profile[1][2], 5200);
@@ -255,4 +256,21 @@ test('metrics distinguish actual calls from rejected preflights and keep termina
     assert.equal(m.inflight, 0);
     m.last.code = 'mutation';
     assert.notEqual(scannerRoutingMetrics().last.code, 'mutation');
+});
+
+test('the scanner profile is the Background connection: a name finds its profile id; a name no profile has stays as it is and fails closed; Same as chat is none', async () => {
+    const { ctx } = fixture('fast');
+    assert.equal(ctx.extensionSettings.storySuite.core.backgroundConnection, 'Scanner Fast');
+    assert.equal(selectedScannerProfileId(ctx), 'fast');
+    ctx.extensionSettings.storySuite.core.backgroundConnection = 'Deleted one';
+    assert.equal(selectedScannerProfileId(ctx), 'Deleted one');
+    await assert.rejects(() => dispatchScannerRequest(ctx, payload), /Selected profile "Deleted one" is missing/);
+    for (const same of ['', 'chat']) {
+        ctx.extensionSettings.storySuite.core.backgroundConnection = same;
+        assert.equal(selectedScannerProfileId(ctx), '');
+    }
+    delete ctx.extensionSettings.storySuite;
+    assert.equal(selectedScannerProfileId(ctx), '');
+    ctx.extensionSettings.npc_state_delta = { scannerConnectionProfile: 'fast' };
+    assert.equal(selectedScannerProfileId(ctx), '', 'the old setting is not read');
 });

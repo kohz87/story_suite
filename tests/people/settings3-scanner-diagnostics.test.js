@@ -10,9 +10,9 @@ import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 
-function ctxWith(profiles, { disabled = [], service = true } = {}) {
+function ctxWith(profiles, { disabled = [], service = true, background = '' } = {}) {
     return {
-        extensionSettings: { connectionManager: { profiles }, disabledExtensions: disabled },
+        extensionSettings: { connectionManager: { profiles }, disabledExtensions: disabled, storySuite: { core: { backgroundConnection: background } } },
         ...(service ? {
             ConnectionManagerRequestService: {
                 isProfileSupported: profile => Boolean(profile?.api),
@@ -29,7 +29,7 @@ test('the scanner lines: the current connection, no calls yet', () => {
     assert.deepEqual(lines, [
         'Delta on: yes. Auto scan: yes. Full scan every turn: no. One-pass narration capture: no.',
         'Connection Profiles: 1 usable for text.',
-        'Scanner route: the current roleplay connection.',
+        'Scanner route: the current roleplay connection (the Models page: Background is Same as chat).',
         'Scanner output limit: the default per pass.',
         'Calls this page load: 0 sent (current connection 0, profile 0); succeeded 0, failed 0, timed out 0, cancelled 0, refused before sending 0; in flight 0.',
         'Last call: none yet.',
@@ -41,7 +41,7 @@ test('the scanner lines: a picked profile by name and id, the last call\'s outco
         ...idle, total: 3, profileRoute: 3, succeeded: 2, failed: 1,
         last: { label: 'chat refresh for Anna Kessler (JSON retry)', route: 'profile', profileId: 'fast', dispatched: true, outcome: 'failure', code: 'NPC_SCANNER_PROFILE_REQUEST_FAILED', durationMs: 1234, effectiveResponseLength: 1800, at: 1000 },
     };
-    const lines = scannerDiagnosticLines({ ctx: ctxWith(PROFILES), settings: { scannerConnectionProfile: 'fast', scannerMaxOutputTokens: 2000 }, metrics, now: 6000 });
+    const lines = scannerDiagnosticLines({ ctx: ctxWith(PROFILES, { background: 'Scanner Fast' }), settings: { scannerMaxOutputTokens: 2000 }, metrics, now: 6000 });
     assert.ok(lines.includes('Scanner route: the profile Scanner Fast (id fast), available.'));
     assert.ok(lines.includes('Scanner output limit: 2000 tokens.'));
     assert.ok(lines.includes('Calls this page load: 3 sent (current connection 0, profile 3); succeeded 2, failed 1, timed out 0, cancelled 0, refused before sending 0; in flight 0.'));
@@ -51,7 +51,7 @@ test('the scanner lines: a picked profile by name and id, the last call\'s outco
 });
 
 test('the scanner lines: a missing profile fails closed, Connection Profiles off or absent is said plainly', () => {
-    const missing = scannerDiagnosticLines({ ctx: ctxWith(PROFILES), settings: { scannerConnectionProfile: 'gone' }, metrics: idle });
+    const missing = scannerDiagnosticLines({ ctx: ctxWith(PROFILES, { background: 'gone' }), settings: {}, metrics: idle });
     assert.ok(missing.some(line => /profile id gone, which is missing or not usable for text: scans fail until another is picked \(no fallback\)/.test(line)));
     const off = scannerDiagnosticLines({ ctx: ctxWith(PROFILES, { disabled: ['connection-manager'] }), settings: {}, metrics: idle });
     assert.ok(off.includes('Connection Profiles: turned off in SillyTavern.'));
@@ -83,10 +83,9 @@ test('the module definition offers hooks.diagnostics: the scanner report, the do
     assert.deepEqual(early.definition.hooks.diagnostics(), ['NPC State Delta is still loading (no scanner report yet).']);
 });
 
-test('the scanner profile list says plainly when there is no profile to pick; the drawer is held open in Story Block\'s fold', () => {
+test('the scanner has no profile row of its own any more (the Models page\'s Background connection routes it); the drawer is held open in Story Block\'s fold', () => {
     const index = runtimeSource();
-    assert.match(index, /id="npc_state_delta_scanner_profile_none"[^>]*hidden> There is no connection profile yet/);
-    assert.match(index, /\$\('#npc_state_delta_scanner_profile_none'\)\.prop\('hidden', usable\)/);
+    assert.doesNotMatch(index, /npc_state_delta_scanner_connection_profile|npc_state_delta_scanner_profile_none|scannerConnectionProfile/);
     assert.match(index, /scannerReport: \(\) => scannerDiagnosticLines\(/);
     const css = styleSource();
     assert.match(css, /\.story-suite-section \.story-suite-drawer > \.inline-drawer-content \{ display: block !important; \}/);
