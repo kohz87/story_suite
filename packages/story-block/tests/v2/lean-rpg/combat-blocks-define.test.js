@@ -1,4 +1,4 @@
-// Combat Rules v1 blocks (Character, Skills, Foes): the block checker takes each definition, and the numbers its rules work out are combat/bars.js's and combat/foes.js's.
+// Combat Rules v1 blocks (Character, Skills, Foes, Combat rules): the block checker takes each definition, and the numbers its rules work out are combat/bars.js's and combat/foes.js's.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
@@ -8,16 +8,17 @@ import { barsOf } from '../../../src/v2/lean-rpg/combat/bars.js';
 import { success } from '../data-modules/helpers.js';
 
 const characterV1 = COMBAT_V1_TEMPLATES[0].definition;
-test('the checker takes all three v1 definitions, and each says its own role', async t => {
+test('the checker takes all four v1 definitions, and each says its own role', async t => {
     const host = await createHost(); t.after(() => host.close());
     await host.send('Begin.', 'Opening.');
     for (const { name, definition } of COMBAT_V1_TEMPLATES) success(await host.sdk.command('dm.define', { definition: structuredClone(definition) }), name);
-    for (const slug of ['character', 'skills', 'foes']) assert.ok(host.sdk.query('dataModules.view', { module: `pack.chat/${slug}` }).chat, slug);
+    for (const slug of ['character', 'skills', 'foes', 'combat-rules']) assert.ok(host.sdk.query('dataModules.view', { module: `pack.chat/${slug}` }).chat, slug);
 });
 
 test('the block prompts fit the checker prompt cap and say what the v1 rules changed', () => {
     for (const { definition } of COMBAT_V1_TEMPLATES) assert.ok(definition.prompt.length <= 1200, definition.slug);
-    const [character, skills, foes] = COMBAT_V1_TEMPLATES.map(entry => entry.definition.prompt);
+    const [character, skills, foes, rules] = COMBAT_V1_TEMPLATES.map(entry => entry.definition.prompt);
+    assert.match(rules, /Code moves HP, MP and SP/u); assert.doesNotMatch(rules, /\d/u, 'the rules text holds no number');
     assert.match(character, /1 to 30/u); assert.match(character, /WIS/u); assert.doesNotMatch(character, /LUK|1 to 20/u);
     assert.match(skills, /Legend/u); assert.match(skills, /one stance/iu);
     assert.match(foes, /tier/u); assert.doesNotMatch(foes, /yield/iu);

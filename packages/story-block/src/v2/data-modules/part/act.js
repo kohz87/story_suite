@@ -109,7 +109,9 @@ export function createAct(deps) {
         }
         const kind = dmOwn(definition.kinds, given.kind) && definition.kinds[given.kind];
         // A foe group the narrator sets may give `level: N` or `rank: <name>`, or neither: then its level is drawn from the reply's seed (see foeLevelLabels).
-        const labels = kind && line && definition.role === 'foes' ? foeLevelLabels(given, kind, prefix, ctx, module) : given;
+        const levelled = kind && line && definition.role === 'foes' ? foeLevelLabels(given, kind, prefix, ctx, module) : given;
+        // A foe group of the Combat Rules v1 Foes block (its set-slot kind has a `tier` label) that names no tier is a standard foe.
+        const labels = kind && line && definition.role === 'foes' && kind.labels?.tier && !dmOwn(levelled, 'tier') ? { ...levelled, tier: 'standard' } : levelled;
         // A marked Character (recovery.js): the story's XP line is not used (the kind is not in its block), with the note the reader sees.
         const marked = ctx.cause === 'story' && isMarkedCharacter(definition);
         if (marked && given.kind === 'add-xp') ctx.fail('RECOVERY_REFUSED', recoveryNote.xp(String(instanceOf(prefix, module)?.fields?.who || definition.name)).slice(0, 280));

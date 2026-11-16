@@ -19,6 +19,7 @@ const SIZE = {
     sp: add2(add2(V1.sp.base, level(V1.sp.levelDiv)), pair('str', 'agi', V1.sp.pairDiv)),
 };
 const hidden = { prompt: false, edit: false };
+const HEAL_WORDS = ['A quarter', 'Half', 'Three quarters'];
 
 // The level rise: XP in whole hundreds raise the level (up to the cap) and each level gained gives ONE point to spend. `rise` is the rule's working number.
 const levelUp = () => ({ id: 'level-up', when: ['and', ['ge', get('xp'), LEVEL.xpPerLevel], ['lt', get('level'), get('cap')]],
@@ -69,8 +70,8 @@ export const characterV1 = {
         'button-rest': { op: '!', ui: true, title: 'Rest', labels: {}, effects: refill(['sp', 'mp']) },
         rest: { op: '~', labels: {}, effects: refill(['sp', 'mp']) },
         'full-rest': { op: '~', labels: {}, effects: refill(['hp', 'sp', 'mp']) },
-        // `amount` quarters of the largest HP (1 to 3), up to the largest.
-        heal: { op: '~', labels: { amount: { type: 'int', min: 1, max: 3 } }, effects: [{ op: 'add', path: ['hp'], value: ['mul', ['floorDiv', get('hp-max'), 4], ['arg', 'amount']], bounds: 'clamp' }] },
+        // `amount` quarters of the largest HP (1 to 3), up to the largest; the story says it in words (a quarter, half, three quarters), never a number.
+        heal: { op: '~', labels: { amount: { type: 'int', min: 1, max: 3, names: names(HEAL_WORDS, 1) } }, effects: [{ op: 'add', path: ['hp'], value: ['mul', ['floorDiv', get('hp-max'), 4], ['arg', 'amount']], bounds: 'clamp' }] },
     },
     // The level rise first (the sizes read the new level), then each bar's size; the death latch below.
     rules: [levelUp(), xpCap(), ...BARS.flatMap(([bar]) => barRules(bar))],
