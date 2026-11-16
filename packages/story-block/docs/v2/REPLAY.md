@@ -447,8 +447,8 @@ that is there already (an edited Re-read: the new capture made the slice, the ke
 keys it wrote and cannot reset a meter move. A block of removes alone makes nothing, and a chat that never writes the domain stays
 byte-identical and holds no slice of it. Data modules (`dataModules`, also deferred) follow the same rule, and the QA oracle holds its
 initial slice too. The store gets the initial slices from
-`registry.deferredInitial(name)` (`createStore({ seed })`); a store built without `seed` (older tests and tools) replays as before.
-The QA oracle (`tests/v2/qa/helpers/oracle.js`) writes the rule on its own with a literal table of the initial slices.
+`registry.deferredInitial(name)` (`createStore({ seed })`); a store built without `seed` (older tests and tools) replays as before and stores a first write as one whole `add` (`store.seeds()`).
+The QA oracle (`tests/v2/qa/helpers/oracle.js`) writes the rule with a literal table of the initial slices (the data-modules entry imports its value from the code under test; the people entry is a literal).
 
 Story Block's `people` is the first user: its `initial()` is `{ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } }`, and
 both its writers start a new slice from it, so NPC State's later meter moves survive deleting the reply that made the slice (and the

@@ -38,9 +38,9 @@ export function createTransact({ store, registry, resolve, internal, internalMes
             const before = tx.head.domains?.[name];
             const path = `/domains/${escapeKey(name)}`;
             const draft = tx.drafts.get(name);
-            // A deferred domain's first write is diffed against its initial slice, not stored as one whole `add`: replayed onto a slice that is
+            // A deferred domain's first write (in a store that seeds; one without `seed` stores the whole `add`, as before) is diffed against its initial slice, not stored as one whole `add`: replayed onto a slice that is
             // there already (an edited Re-read keeps the block after a new capture made it) it changes only the keys it wrote (REPLAY.md "Deferred domains").
-            const initial = before === undefined && typeof registry.deferredInitial === 'function' ? registry.deferredInitial(name) : null;
+            const initial = before === undefined && typeof store.seeds === 'function' && store.seeds() && typeof registry.deferredInitial === 'function' ? registry.deferredInitial(name) : null;
             let changes = initial ? diff(initial, draft, path) : null;
             if (changes && changes.some(change => change.op === 'add' || change.op === 'replace')) seeded[name] = initial;
             else changes = before === undefined ? [{ op: 'add', path, value: clone(draft) }] : diff(before, draft, path);

@@ -361,6 +361,8 @@ export function createStore({
         dirty() { return saver.dirty(); },
         /** True while saves are failing (until one works again). */
         failing() { return saver.failing(); },
+        /** True when the store was given `seed`: it can lay a deferred domain's first write on its initial slice (commands/transact.js opsOf). */
+        seeds() { return typeof seed === 'function'; },
     };
     // A Re-read and a reconcile plan blocks that are stored only when they are all planned: for their length the proof
     // those blocks give is laid over the stored (store.proofs), so a step planned again, and the guards asked on the
