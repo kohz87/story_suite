@@ -7,7 +7,7 @@ export function initialDirector() {
         keys: {},
         writes: {},
         problems: {},
-        // The steps each thread has been through, under "<rev>.<n>" keys (capture-parts/step-trail.js).
+        // The steps each thread has been through, under "<reply>.<n>" keys (capture-parts/step-trail.js).
         steps: {},
         turn: { n: 0, now: null },
         // The time part's last settle and its While away recap (slots, time/settle.js).

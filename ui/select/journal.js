@@ -65,7 +65,7 @@ function dueOf(thread, upcoming) {
   return due ? { date: due, rel: '', state: '' } : null;
 }
 
-// xp and the planned trip are GAPs (nothing stores a quest's XP; the story describes it); steps come from the thread's trail, difficulty from its label.
+// The planned trip is a GAP; steps come from the thread's trail, difficulty from its label.
 const DIFFICULTIES = ['easy', 'normal', 'hard'];
 function questOf(thread, rpg, upcoming, trail) {
   const fields = thread.fields ?? {};
@@ -77,7 +77,7 @@ function questOf(thread, rpg, upcoming, trail) {
     step, stepIndex: Math.max(0, steps.length - 1), stepCount: steps.length, steps,
     giver: { personId: null, name: text(fields.giver) },
     due: dueOf(thread, upcoming), place: text(fields.place) || null, trip: null,
-    reward: rpg ? text(fields.reward) || null : null, xp: null, difficulty: DIFFICULTIES.includes(difficulty) ? difficulty : null,
+    reward: rpg ? text(fields.reward) || null : null, difficulty: DIFFICULTIES.includes(difficulty) ? difficulty : null,
   };
 }
 

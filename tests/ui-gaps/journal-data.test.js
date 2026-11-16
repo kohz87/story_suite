@@ -36,7 +36,8 @@ test('a quest told over three replies keeps its steps; difficulty, reward, the w
   const [quest] = vm.quests;
   assert.deepEqual(quest.steps, ['ask at the lodge', 'track the pack along the ridge', 'clear the den']);
   assert.deepEqual([quest.stepIndex, quest.stepCount, quest.step], [2, 3, 'clear the den']);
-  assert.deepEqual([quest.difficulty, quest.reward, quest.xp], ['hard', '20 copper', null]);
+  assert.deepEqual([quest.difficulty, quest.reward], ['hard', '20 copper']);
+  assert.equal(Object.hasOwn(quest, 'xp'), false, 'quests give no XP');
   const time = host.sdk.query('director.time');
   assert.equal(typeof time.weekday, 'string');
   assert.ok(time.weekday.length > 0);

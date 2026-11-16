@@ -52,7 +52,6 @@ function threadLine(ctx, given) {
     const asRead = new Map(tracker.records.map(record => [record.id, JSON.stringify(record)]));
     const ops = [op];
     const named = director.threads[director.keys[op.id]];
-    const stepBefore = String(named?.fields?.step ?? '').trim();
     if (named?.rpg || named?.owed || named?.ready) {
         return { summary: 'Quest from an earlier version (read only).', narrate: false, data: { thread: named.id } };
     }
@@ -60,6 +59,8 @@ function threadLine(ctx, given) {
         const id = newId(ctx, new Set(Object.keys(director.threads)));
         ctx.call('threads.offer', { write: threadWriteId(ctx, `offer:${id}`), thread: id, kind: 'hook', key: op.key,
             summary: capSummary(line.text ?? ''), fields: Object.fromEntries(Object.entries(line.labels ?? {}).filter(([key]) => ['goal', 'giver', 'step', 'progress', 'due', 'place', 'people', 'now', 'then', 'on', 'type', 'reward', 'difficulty'].includes(key))), expectedHash: null });
+        // The offer's starting step belongs to the reply that made it (the same draft: the writer ran in this command).
+        if (director.threads[id]?.status === 'active') recordStep(director, ctx, director.threads[id]);
         return { summary: `Director: ${raw}`, narrate: false, data: { thread: id } };
     }
     if (named?.offer) acceptIntent(ctx, named);
@@ -113,7 +114,7 @@ function threadLine(ctx, given) {
         });
     }
     const current = thread ? director.threads[thread] : null;
-    if (current && current.status === 'active') recordStep(director, ctx, current, stepBefore);
+    if (current && current.status === 'active') recordStep(director, ctx, current);
     // An agenda's step progress and place (feature `story-director.pulse`): optional fields the pulse reads, written by code, never the story's.
     if (current?.kind === 'agenda' && current.status === 'active' && pulseActive(ctx)) {
         const patch = agendaProgress(named?.fields ?? null, current.fields ?? {}, { minutes: director.time.minutes, where: placeNamed(ctx.query, current.fields?.now) });

@@ -5,6 +5,7 @@ import { lineKey } from '../../../changes.js';
 import { slotValue } from '../../slot.js';
 import { initiativeErrors } from '../initiative.js';
 import { PROBLEM_KEY, PROBLEM_ROOM } from './shared-problem-keys.js';
+import { STEP_CEILING, STEP_KEY } from './shared-step-keys.js';
 import { isInt, isRecord } from './shared-guards.js';
 import { threadErrors } from './thread-errors.js';
 
@@ -42,9 +43,10 @@ export function validateDirector(slice) {
         errors.push('director.problems entries need rev, kind and text.');
     }
     const steps = slice.steps;
-    if (steps !== undefined && (!isRecord(steps) || Object.keys(steps).length > 400 || Object.entries(steps).some(([key, entry]) => !PROBLEM_KEY.test(key)
-        || !isRecord(entry) || typeof entry.thread !== 'string' || typeof entry.text !== 'string' || Array.from(entry.text).length > 600))) {
-        errors.push('director.steps must hold at most 400 { thread, text } entries under "<rev>.<n>" keys.');
+    // Replay can hold more than the writer keeps (shared-step-keys.js STEP_CEILING).
+    if (steps !== undefined && (!isRecord(steps) || Object.keys(steps).length > STEP_CEILING || Object.entries(steps).some(([key, entry]) => !STEP_KEY.test(key)
+        || !isRecord(entry) || typeof entry.thread !== 'string' || typeof entry.text !== 'string' || Array.from(entry.text).length > 600 || !isInt(entry.turn) || entry.turn < 0 || !isInt(entry.place) || entry.place < -1))) {
+        errors.push(`director.steps must hold at most ${STEP_CEILING} { thread, text, turn, place } entries under "<reply>.<n>" keys.`);
     }
     const turn = slice.turn;
     const legacy = isRecord(turn) && !Object.hasOwn(turn, 'now');
