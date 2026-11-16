@@ -128,7 +128,7 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
         if (n === 26) await playFight(host, 'Astra');
         if (n === 27) (await import('../helpers/board-port.js')).discardBoard(host.ctx.chatMetadata);   // the reader leaves the fight
         const result = await host.send(player, host.reply(story, lines.filter(line => line !== '! encounter')));
-        if (n === 26) await soft(label, () => assert.ok(host.ctx.chat[result.index]?.extra?.storySuite?.receipts?.some(r => r.type === 'rpg.resolve' && r.replan?.payload?.board), 'the fight reply carries a board resolve receipt'));
+        if (n === 26) await soft(label, () => assert.ok(host.ctx.chat[result.index]?.extra?.storySuite?.receipts?.some(r => r.type === 'interaction.settle' && r.replan?.payload?.kindId === 'story-block/fight' && r.replan.payload.opening !== true), 'the fight reply carries a fight settle receipt (the port\'s, since I6)'));
         if (!(result.index >= 0)) {
             failures.push(`${label}: no reply was written (index ${result.index}); notices: ${JSON.stringify(host.st.notices.slice(-2))}; ${Object.keys(result).join(',')}`);
             continue;
