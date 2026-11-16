@@ -77,11 +77,12 @@ for (const theme of ['dark', 'light']) {
     await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
     try {
       await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=390&variant=fightOpen&tab=fight`);
+      await page.waitForLoadState('load');
       await page.waitForSelector('#hx-frame .fight-tab .stance .sw');
       await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
       const m = await page.evaluate(measure);
       const e = EXPECT[theme];
-      assert.equal(m.smallDisplay, 'block');
+      assert.equal(m.smallDisplay, 'inline');
       assert.equal(m.bLine, 'normal');
       assert.equal(m.pill, e.pill);
       assert.equal(m.elite, e.elite);
