@@ -186,7 +186,7 @@ test('Stats under Standard: steppers from 5, 10 points to spend, 5 to 10, and th
     const step = (stat, dir) => root().querySelector(`.rpg-stat-step[data-stat="${stat}"] .ss-w-stepper-${dir}`);
     assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 10');
     assert.match(root().querySelector('.rpg-wiz-sum').textContent, /STR 5 · VIT 5 · AGI 5 · DEX 5 · INT 5 · LUK 5 · CHA 5/);
-    assert.match(root().textContent, /Every stat starts at 5\. Spend 10 points; a stat can go down to 5 to free a point and up to 10 now\. Every third level gives 1 more point, and XP rises on its own\./);
+    assert.match(root().textContent, /Every stat starts at 5, the minimum\. Spend 10 points; a stat can go up to 10 now\. Every third level gives 1 more point, and XP rises on its own\./);
     const line = () => root().querySelector('[data-wiz="growth"]').textContent;
     assert.equal(line(), 'Health 10 blocks (VIT 5, next at 10) · Stamina 10 (AGI 5, next at 10) · Mana 10 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)');
     for (let n = 0; n < 5; n += 1) step('vit', 'inc').click();

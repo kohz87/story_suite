@@ -40,7 +40,9 @@ export function createStatsStep(ctx) {
         const actions = h(doc, 'div', 'rpg-actions rpg-wiz-stats-actions');
         button(actions, W.statsReset, 'ss-button rpg-wiz-reset', () => { put({ ...draft(), stats: startStats(snap()) }); redraw(); });
         const creation = draftCreation(now), standard = creation.standard === true;
-        const words = { ...creation, label: LEVEL_WORD };
+        const flat = !(creation.min < creation.start);
+        // Min at the start (the default 5): 5 is the minimum, so there is nothing to free. Only a lower Custom minimum keeps the go-down clause.
+        const words = { ...creation, label: LEVEL_WORD, floor: flat ? W.statsFloor : '', range: fill(flat ? W.statsRangeUp : W.statsRangeDown, creation) };
         actions.appendChild(h(doc, 'p', 'rpg-sheet-note', now.from ? fill(standard ? W.statsNoteImportStandard : W.statsNoteImport, { ...words, n: now.from.points }) : fill(standard ? W.statsNoteStandard : W.statsNote, words)));
         const fromPack = standard ? safe(packNote, '') : '';
         if (fromPack) actions.appendChild(h(doc, 'p', 'rpg-sheet-note rpg-wiz-pack', fill(RPG_STRINGS.settings.fromPack, { name: fromPack })));

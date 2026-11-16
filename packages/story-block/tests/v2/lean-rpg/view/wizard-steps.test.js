@@ -89,7 +89,7 @@ test('Stats: steppers under 10 points, a stat never goes below 5 and goes up to 
     click(stats, 'Reset');
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 10');
     assert.match(wizardOf(dialog).querySelector('.rpg-wiz-sum').textContent, /STR 5 · VIT 5 · AGI 5 · DEX 5/);
-    assert.match(wizardOf(dialog).textContent, /Every stat starts at 5\. Spend 10 points; a stat can go down to 5 to free a point and up to 10 now\./);
+    assert.match(wizardOf(dialog).textContent, /Every stat starts at 5, the minimum\. Spend 10 points; a stat can go up to 10 now\./);
     dialog.close();
 });
 
