@@ -5,8 +5,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../ui-fake-dom.js';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
-import { renderSettingsHost } from '../../vendor/story-block/src/v2/host-ui.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
+import { renderSettingsHost } from '../../../../story-block/src/v2/host-ui.js';
 import { createModule, MODULE_ID } from '../../../src/v2/module.js';
 import { part as trackerPart } from '../../../src/v2/tracker/index.js';
 

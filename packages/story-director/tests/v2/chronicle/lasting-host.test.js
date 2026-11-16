@@ -9,9 +9,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
-import { packsFor } from '../../vendor/story-block/src/v2/runtime.js';
-import { stCapabilities } from '../../vendor/story-block/src/v2/packs/st-adapter.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
+import { packsFor } from '../../../../story-block/src/v2/runtime.js';
+import { stCapabilities } from '../../../../story-block/src/v2/packs/st-adapter.js';
 import { createModule } from '../../../src/v2/module.js';
 import { BACKLOG_STATIC } from '../../../src/v2/chronicle/digest.js';
 import { TAIL_HEADER } from '../../../src/v2/chronicle/note.js';

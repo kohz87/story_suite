@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import { PRESETS, makeCalendar } from '../../../src/calendar.js';
 import { clockFaceAfter } from '../../../src/v2/tracker/time-parts/clock-face.js';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { lastProblems, makeState, reply } from './helpers/fake-ctx.js';
 

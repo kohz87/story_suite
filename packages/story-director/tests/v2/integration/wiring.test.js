@@ -1,4 +1,4 @@
-// The whole module on the real Story Block v2 host (tests/vendor/story-block, see its VERSION): the
+// The whole module on the real Story Block v2 host (packages/story-block, live code): the
 // tracker, quests, time, atlas and screens parts merged by src/v2/module.js, driven the way SillyTavern
 // drives them. Screens and the Map are registered, the scene's place goes on the map through
 // beforeGenerate, routes are captured, Finish follows quest.progress's `finish`, the clock starts from
@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { MODULE_ID, createModule } from '../../../src/v2/module.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 import { problemList } from '../../../src/v2/tracker/domain.js';

@@ -7,9 +7,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
-import { replyEdits } from '../../vendor/story-block/src/v2/reply-cards.js';
+import { replyEdits } from '../../../../story-block/src/v2/reply-cards.js';
 import { castPlans } from '../../../src/v2/cast/index.js';
 import { OPENING, castHost, castSource, entry, people, receipts as castReceipts, said, settle, slice, validatorErrors as castValidatorErrors } from '../cast/helpers.js';
 

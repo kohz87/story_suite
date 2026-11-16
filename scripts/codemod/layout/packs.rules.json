@@ -1,0 +1,8 @@
+{
+  "area": "packs",
+  "scope": ["packages"],
+  "rules": [
+    { "from": "packages/story-block/src/v2/packs", "to": "packs" },
+    { "from": "packages/story-block/tests/v2/packs", "to": "tests/packs" }
+  ]
+}

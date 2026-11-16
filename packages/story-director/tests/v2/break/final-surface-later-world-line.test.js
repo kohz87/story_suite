@@ -11,7 +11,7 @@
 // counter; a round past `round` after a delete is read as just shown, never refused.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { surface } from '../../../src/v2/chronicle/pick.js';
 import { seenOf, validateChronicle } from '../../../src/v2/chronicle/domain.js';

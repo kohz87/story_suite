@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "test": "npm run test:scripts && npm run test:core && npm run test:ui && npm run test:sb && npm run test:sd && npm run test:nsd && npm run test:suite",
-    "test:scripts": "node --test \"tests/scripts/*.test.js\"",
+    "test:scripts": "node --test \"tests/scripts/**/*.test.js\"",
     "test:core": "node --test \"tests/core/**/*.test.js\"",
     "test:ui": "node --test \"tests/ui/**/*.test.js\" \"tests/ui-gaps/*.test.js\"",
     "test:sb": "npm --prefix packages/story-block test",
@@ -20,6 +20,7 @@
     "release:check": "node scripts/release.mjs --check",
     "play:dist": "node scripts/play/dist.mjs",
     "codemap": "node scripts/codemap/cli.mjs --write",
+    "layout:plan": "node scripts/codemod/cli.mjs plan --all",
     "verify-import": "bash scripts/verify-import.sh"
   },
   "devDependencies": {

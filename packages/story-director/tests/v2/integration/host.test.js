@@ -1,12 +1,12 @@
 // Story Director on the real Story Block v2 host (the vendored runtime and testkit in
-// tests/vendor/story-block/): Story Block's core module, a stand-in example fight runner and this module,
+// packages/story-block): Story Block's core module, a stand-in example fight runner and this module,
 // driven the way SillyTavern drives them (messages, replies with <Changes> blocks, swipes,
 // deletes, UI commands).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule, MODULE_ID } from '../../../src/v2/module.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 

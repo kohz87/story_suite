@@ -1,7 +1,7 @@
 // P23: SD capture, the reader UI and a third module cannot supply an RPG extension.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/host.js';
+import { createHost } from '../../../../story-block/testkit/host.js';
 import { createModule } from '../../../src/v2/module.js';
 import { withD1 } from '../helpers/d1.js';
 
