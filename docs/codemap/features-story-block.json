@@ -1,0 +1,18 @@
+[
+  { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads: wires the v2 runtime, packs and diagnostics." },
+  { "name": "Runtime start-up", "entry": "src/v2/runtime.js", "about": "Builds the host, registers modules and hooks chat events." },
+  { "name": "Prompt building", "entry": "src/v2/prompt.js", "about": "Assembles the static text and tail Story Block adds to each reply's prompt." },
+  { "name": "Reply capture", "entry": "src/v2/capture.js", "about": "Reads state changes out of a finished reply." },
+  { "name": "Saving and persistence", "entry": "src/v2/persist.js", "about": "Stores story state in the chat and its files." },
+  { "name": "Replay and rewind", "entry": "src/v2/replay.js", "about": "Rebuilds state from the chat after a swipe, edit or delete." },
+  { "name": "Commands", "entry": "src/v2/commands.js", "about": "The command registry every screen and module changes state through." },
+  { "name": "Module registry", "entry": "src/v2/registry.js", "about": "registerModule: how modules add parts, screens, widgets and queries." },
+  { "name": "Public API", "entry": "src/v2/public-api.js", "about": "The frozen read-only StoryBlock.api other extensions use." },
+  { "name": "Packs", "entry": "src/v2/packs/index.js", "about": "Loads story packs and their events, items and rules." },
+  { "name": "Pack events", "entry": "src/v2/events/condition.js", "about": "Parses and safely evaluates pack-event conditions." },
+  { "name": "Lean RPG (rolls, fights, gear)", "entry": "src/v2/lean-rpg/index.js", "about": "The optional RPG module: checks, the fight board, gear and levels." },
+  { "name": "Fight board", "entry": "src/v2/lean-rpg/board/commit.js", "about": "Commits staged board choices as the reply's one guarded RPG resolution." },
+  { "name": "Layouts and screens", "entry": "src/v2/layout/index.js", "about": "Screen layout definitions, validation and rendering." },
+  { "name": "Data modules and block editor", "entry": "src/v2/data-modules/block-builder.js", "about": "Builds and edits data-module definitions in the in-chat editor." },
+  { "name": "Model calls", "entry": "src/v2/model-call.js", "about": "Helper model calls and their connection profile." }
+]
