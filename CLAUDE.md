@@ -20,6 +20,7 @@ One extension at `0.1.0`:
 6. **No model names** anywhere in code, commits, or PRs.
 7. **Reviews before merges; serialize changes to the same files.**
 8. **Static prompt golden:** the whole static prompt is pinned by `tests/suite/static-prompt.golden.json`; regenerate it (`WRITE_GOLDEN=1`) only for an intended, reviewed change, and NPC State wording changes need the owner's approval. The golden is a pure data fixture, exempt from the 450-line limit and not in the code map (JSON is not code); it holds each scenario's `story_suite_static*` keys, including `story_suite_static_npc_state_delta` when one-pass capture is on.
+9. **Story-driven:** no buttons for story actions except through the interaction port (`core/interaction/`), whose one policy is `STORY_ACTION_POLICY` in `core/interaction/policy.js`: the reader chooses for their own character, and for every party member in fights (MODULES §F132; docs/dev/interaction.md). Bag management (use, equip, sell) is fine. `scripts/checks/core-module-refs.mjs` keeps RPG and fight words out of the core; its list `docs/merge/core-module-refs.txt` may only shrink.
 
 ## Commands
 

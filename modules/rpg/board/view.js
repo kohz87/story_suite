@@ -23,6 +23,10 @@ import { areaLineGroups } from './order.js';
 import { dropOf } from '../ambush.js';
 import { AUTO_CAP, autoExchanges } from '../names.js';
 import { autoNote, runAuto } from './auto-run.js';
+import { renderV1 } from './view-v1.js';
+
+// A foe that stands: a v1 slot has no hurt bar, a filled slot stands until a fight clears it.
+const isStanding = foe => foe.filled && (foe.v1 === true || foe.hurt > 0);
 
 // Send acts on the press itself: the board may redraw between press and release (a save, a head event), which would
 // lose the click on a replaced button and make the reader press twice. Fires once; a keyboard click still works.
@@ -74,6 +78,11 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         session.setup.weapons = weapons;
         if (gear) session.setup.gear = gear; else delete session.setup.gear;
     };
+    // A v1 fight's play is the kind's (the page never calls the old engine on it): what the Fight view says, with the result the page's readers know.
+    const v1Played = state => {
+        const now = interaction?.current?.();
+        return now?.view?.result && Array.isArray(now.view.actors) ? { state, result: now.view.result, v1: now } : { error: 'The fight could not be played.' };
+    };
     const snapshot = state => {
         if (!on()) return null;
         const index = store?.headIndex?.(), sid = store?.carrierSid?.(index);
@@ -83,14 +92,14 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         const matched = session.anchor === sid;
         if (!held && !matched && !session.exchanges.length) return null;
         if (session.id !== activeId) { activeId = session.id; reset(); }
-        if (!held) fresh(session, state);
+        if (!held && session.setup?.v1 !== 1) fresh(session, state);   // (a v1 fight's stored setup is never written to: its flags, gear and weapons are read live by the kind)
         const played = held ? { error: held.discarded
             ? 'The fight was discarded. Regenerate the held reply.'
             : 'The fight reply is waiting. Restore the sheet or gear, or discard the fight (Fight tab, Discard fight) and regenerate the reply.' }
             : !matched ? { error: 'The fight no longer matches this reply. Restore the reply or discard the fight (Fight tab, Discard fight).' }
             : !isStandard(rules()) ? { error: 'The fight board needs Standard rules. Switch back to Standard or discard this fight.' }
             : sessionProblem(session, state) ? { error: sessionProblem(session, state) }
-            : playBoard(state, session.setup, session.exchanges);
+            : session.setup?.v1 === 1 ? v1Played(state) : playBoard(state, session.setup, session.exchanges);
         return { session, played, heldSid: held ? sid : null };
     };
     // Whether the Fight tab draws a board now (the gate of `snapshot`, with none of its writes): a held reply's fight, a staged exchange, or a board
@@ -105,7 +114,7 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         if (!on() || !isStandard(rules())) return false;
         const { gear, weapons } = equipment(state), sheet = readSheet(state);
         // A fight against the foes a fled or lost fight left starts from that fight's exact bars (resume.js), if the Foes block still reads what the board left.
-        const resumed = resumeMembers(store?.receipts?.() ?? [], sheet.foes.filter(foe => foe.filled && foe.hurt > 0).map(foe => foe.slot), sheet.foes);
+        const resumed = resumeMembers(store?.receipts?.() ?? [], sheet.foes.filter(isStanding).map(foe => foe.slot), sheet.foes);
         // (a fight a pre-check offered opens on the sheet its opening left, and carries the opening's own approach record: interaction/start.js keeps the opening)
         const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), gear, weapons, practice: practice(), rate: rate(), ...(resumed ? { resumed } : {}),
             ...(opening ? { opened: approach?.opened ?? [], approach: structuredClone(approach?.checks ?? []), drop: dropOf(approach) } : {}) });
@@ -127,7 +136,7 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
     const offer = (root, redraw) => {
         if (!on() || !isStandard(rules())) return;
         const state = headState(), sheet = readSheet(state);
-        if (!sheet.foes.some(foe => foe.filled && foe.hurt > 0)) return;
+        if (!sheet.foes.some(isStanding)) return;
         const box = h(doc, 'div', 'rpg-board-offer ss-glass');
         box.appendChild(h(doc, 'p', '', 'Choose each exchange on the fight board, or keep telling the story.'));
         box.appendChild(button(doc, 'Fight on the board', 'ss-button ss-button-primary rpg-board-open', () => {
@@ -165,6 +174,21 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
             const panel = h(doc, 'div', 'rpg-board-controls');
             if (confirm) confirmDiscard(panel); else panel.appendChild(button(doc, 'Discard fight', 'ss-button rpg-board-discard', () => { confirm = true; redraw(); }));
             root.appendChild(panel);
+            return;
+        }
+        if (played.v1) {
+            root.classList.add('rpg-board-members');
+            if (notice) root.appendChild(h(doc, 'p', 'rpg-board-error', notice));
+            const stage = step => {
+                const result = interaction?.stage?.(session.interactionId, step) ?? { ok: false, message: 'The fight could not be played.' };
+                notice = result.ok ? '' : result.message;
+                if (result.ok) persist();
+                redraw();
+            };
+            const tools = { stage, auto: () => { auto(); redraw(); }, discard: () => { confirm = true; redraw(); }, waiting: () => Boolean(start?.waiting?.()), sending: () => Boolean(start?.sending?.()), send: () => { start.send(); redraw(); }, redraw };
+            if (confirm) { const box = h(doc, 'div', 'rpg-board-controls'); confirmDiscard(box); root.appendChild(box); return; }
+            if (autoLine) root.appendChild(h(doc, 'p', 'rpg-board-auto-note', autoLine));
+            renderV1(root, { doc, id: session.id, steps: session.steps.length, view: played.v1.view, tools });
             return;
         }
         const tools = h(doc, 'div', 'rpg-board-actions');   // Back / Auto / Discard in one row, under the skills

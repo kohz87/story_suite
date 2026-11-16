@@ -20,7 +20,7 @@ F93 save points, F95/F96 story-driven, F100 Features); REVIEW.md risky part §4.
 - Mounts: `tab` (head), `screen` (game view), `card` (that reply's state, under each reply), `hud`, `dialog`
   (head + draft). Wizards fill a draft; the last step submits one command; a random button uses
   `preview` / `commit(token)` so the roll shown is the roll kept.
-- **Story-driven:** no buttons for story actions (fight, travel, talk); bag management (use, equip, sell) is fine.
+- **Story-driven:** no buttons for story actions (travel, talk) except through the interaction port (docs/dev/interaction.md: the fight board is its one kind); bag management (use, equip, sell) is fine.
 - `data-command` buttons run a command through the public sdk with cause `ui`; internal commands
   (`capture.*`, `module.init.*`, `events.fire`) are never callable from a screen.
 - Navigation order (tabs and game view): Home first, then `SUITE_NAV` in `DEFAULT_ORDER` (party, inventory,

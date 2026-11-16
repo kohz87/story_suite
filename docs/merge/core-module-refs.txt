@@ -1,0 +1,96 @@
+# The core-module gate's allow-list (scripts/checks/core-module-refs.mjs): lines in the core's turn, prompt, sdk, registry, commands, interaction and old-view host code
+# that still name an RPG or fight-board word. One entry per line: "<path> :: <the line's code, comment cut, trimmed>". The list may only shrink: a line that
+# is gone or reworded must leave it, and no entry may be added (CI compares it with the base's list).
+# Reasons for what is left (INTERACTION-PLAN I9):
+#   * the lazy RPG loader and its wait (rpgLib, RPG_LOAD_WAIT_MS, the RPG's names) until the RPG is a plain module;
+#   * the pre-port compatibility lines (INTERACTION-PLAN 6.4: RPG_RESOLVE blocks, payload.board, pre-port-fight.js) until C11;
+#   * the old-view wording 'Open fight board' and the host's RPG screens (ui/legacy), until the Suite view replaces that host;
+#   * partyKinds / START_KINDS / the board seed line (interaction/policy.js, start.js, dice.js): owner Q1 and the board-only chooser until I8 / C6;
+#   * the board-named stop and pass-through names (boardStop, stopChangedBoard) still threaded through the turn: to be renamed when the RPG tail reads the generic stop.
+core/commands/guards.js :: .filter(def => typeof def?.hooks?.replayGuard === 'function' && def.hooks.replayGuard.hostOwned !== true && registry.held?.(def.id) !== true).map(def => `${def.id}@${def.version ?? ''}`).join(',')}${rpgLib() ? '' : ';rpg:missing'}${kindsMark()}`;
+core/commands/guards.js :: import { rpgLib } from '../../modules/rpg/rpg-lazy.js';
+core/interaction/dice.js :: const BOARD_KIND = 'story-block/fight';
+core/interaction/dice.js :: const text = kindId === BOARD_KIND ? `fight:${sid}:${tries}` : `interaction:${String(kindId ?? '')}:${sid}:${tries}`;
+core/interaction/policy.js :: const own = Object.freeze(['story-block/fight']);
+core/interaction/start.js :: export const START_KINDS = ['story-block/fight'];
+core/interaction/watch.js :: try { s.abortBoard?.(true); } catch { /* the reason is still shown */ }
+core/prompt-parts/assemble.js :: const body = cue?.keep === true && (cue.interaction === true || cue.board === true) ? happenedCue(text) : null;
+core/registry/registry-checks-parts/interaction-problems.js :: if (!isObject(def.interactions)) return ['interactions is not an object (like { fight: { … } })'];
+core/sdk-parts/create.js :: import { RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
+core/sdk/constants-parts/host-settings.js :: help: 'Shows a small note above the message box when a Send could not go yet (the story is still finishing, or a fight start is holding it), and sends your text once by itself when the story is free. It never changes what you typed.',
+core/sdk/queries-parts/view.js :: boardStop,
+core/sdk/queries-parts/view.js :: export function makeView({ store, registry, settings, chat = [], active = null, state = store.head(), reply = headReply(store), pendingProofs = null, boardStop = null }) {
+core/turn-parts/create-turn.js :: abortBoard: null,
+core/turn-parts/create-turn.js :: const stopChangedBoard = () => watch.stopChanged();
+core/turn-parts/create-turn.js :: const { install, uninstall, onMessageReceived, onChatChanged, seed, onChatRenamed, onTimelineChanged, onGenerationEnded } = createEvents(s, { ia, markIdle, clearPrompts, ctx, metadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi: () => api, isolated });
+core/turn-parts/create-turn.js :: const { runCues, build, askCanGenerate, runOnBlocked, interceptor, markers, stripHistory, backgroundPrompt, foreignPrompt } = createPromptBuild(s, { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet: () => claimQuiet(), FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType });
+core/turn-parts/create-turn.js :: heldBoard: null,
+core/turn-parts/create-turn.js :: import { REPLY_BUSY_MAX_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS } from './waits.js';
+core/turn-parts/create-turn.js :: offBoard: [],
+core/turn-parts/waits.js :: export const RPG_LOAD_WAIT_MS = 4000;
+core/turn.js :: export { REPLY_BUSY_MAX_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS } from './turn-parts/waits.js';
+core/turn/capture-each.js :: else if (base === null && lines.some(line => PRACTICE_LINE.test(line.raw ?? '')) && practiceFromRollsOnly(registry.featureOn?.(LEAN_RPG_FEATURE) === true, settings?.('story-block'))) {
+core/turn/capture-each.js :: import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../../modules/rpg/names.js';
+core/turn/events-held.js :: const held = s.heldBoard;
+core/turn/events-held.js :: function restoreHeldBoard() {
+core/turn/events-held.js :: function resumeHeldBoard() {
+core/turn/events-held.js :: if (!s.heldBoard) restoreHeldInteraction();
+core/turn/events-held.js :: if (s.heldBoard || !box?.held) return;
+core/turn/events-held.js :: return { resumeHeldBoard, restoreHeldBoard };
+core/turn/events-held.js :: s.heldBoard = null;
+core/turn/events-held.js :: s.heldBoard = { index, message, current, interaction: payload, staged: saved.staged === true,
+core/turn/events.js :: const closed = dropPrePortFight(meta);
+core/turn/events.js :: const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
+core/turn/events.js :: const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
+core/turn/events.js :: for (const off of s.offBoard) off();
+core/turn/events.js :: if (closed) problem({ code: 'FIGHT_CLOSED', quiet: true, message: FIGHT_CLOSED });
+core/turn/events.js :: if (offScratch) s.offBoard.push(offScratch);
+core/turn/events.js :: if (typeof prepare === 'function') { try { await within(prepare(), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
+core/turn/events.js :: if (typeof prepare === 'function') { try { await within(prepare({ scan: false }), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
+core/turn/events.js :: import { FIGHT_CLOSED, dropPrePortFight } from './pre-port-fight.js';
+core/turn/events.js :: restoreHeldBoard();
+core/turn/events.js :: resumeHeldBoard();
+core/turn/events.js :: return waiting ? within(waiting, RPG_LOAD_WAIT_MS).then(seedNow, seedNow) : seedNow();
+core/turn/events.js :: s.heldBoard = null;
+core/turn/events.js :: s.heldBoard = { index: id, message, current, interaction: payload, hold: error.message, staged };
+core/turn/events.js :: s.offBoard = ['committed', 'head'].flatMap(name => [events?.on?.(name, stopChangedBoard), events?.on?.(name, resumeHeldBoard)]).filter(Boolean);
+core/turn/events.js :: s.offBoard = [];
+core/turn/pre-port-fight.js :: const OPEN = ['rpgFightBoard', 'rpgFightSend', 'rpgFightStart', 'rpgFightHeld', 'rpgFightHeldDiscarded'];
+core/turn/pre-port-fight.js :: const QUIET = ['rpgFightAttempts', 'rpgFightLast', 'rpgFightLinks'];
+core/turn/pre-port-fight.js :: export const FIGHT_CLOSED = 'A fight that was open before the update was closed. Start it again from the Fight tab.';
+core/turn/pre-port-fight.js :: export function dropPrePortFight(meta) {
+core/turn/prelude-run.js :: cues[moduleId] = [...(cues[moduleId] ?? []), preludeType === RPG_RESOLVE ? { text: told, keep: true, ...(payload?.board ? { board: true } : {}) } : pin ? { text: told, keep: true } : told];
+core/turn/prelude-run.js :: if ((preludeType === RPG_RESOLVE || preludeType === SETTLE) && result.state) previewState = result.state;
+core/turn/prelude-run.js :: if (preludeType !== RPG_RESOLVE && result.receipt.data?.keep === true) {
+core/turn/prelude-run.js :: if (preludeType === RPG_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
+core/turn/prelude-run.js :: if (preludeType === RPG_RESOLVE && payload?.board) boardStop = result.receipt?.data?.v2?.result?.stop ?? null;
+core/turn/prelude-run.js :: if (preludeType === SETTLE && payload?.opening !== true) boardStop = result.receipt?.data?.interaction?.stop ?? null;
+core/turn/prelude-run.js :: import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
+core/turn/prelude-run.js :: let boardStop = null;
+core/turn/prelude-run.js :: return { previewState, boardStop, keptPrelude };
+core/turn/prompt-build.js :: ({ previewState, boardStop } = ran);
+core/turn/prompt-build.js :: block({ moduleId: 'story-block', reason: s.heldBoard.hold ?? 'Restore what the interaction used, or discard it from its screen, and regenerate the held reply.', keepSession: true }, abort);
+core/turn/prompt-build.js :: const built = build(cues, previewState, boardStop, keptPrelude);
+core/turn/prompt-build.js :: const cue = fightCue(prior, { foesNow });
+core/turn/prompt-build.js :: const current = state ? makeView({ store, registry, settings, chat: ctx?.chat, active: viewReader, state, boardStop }) : view();
+core/turn/prompt-build.js :: const state = store.head(), lib = rpgLib(), foesNow = (lib?.rpgBlocks(state) ?? []).some(block => block.role === 'foes' && lib.foesOf(block).length > 0);
+core/turn/prompt-build.js :: const { cues, prechecks, previewState, boardStop, keptPrelude, blocked: cueBlocked } = await runCues(kind);
+core/turn/prompt-build.js :: const { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
+core/turn/prompt-build.js :: function build(cues = {}, state = null, boardStop = null, keptTokens = 0) {
+core/turn/prompt-build.js :: if (s.heldBoard) {
+core/turn/prompt-build.js :: if (typeof prepare === 'function') { try { const waiting = prepare({ scan: false }); if (waiting) await within(waiting, RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
+core/turn/prompt-build.js :: if (waiting) { block({ ...waiting, keepSession: Boolean(s.heldBoard) }, abort); return; }
+core/turn/prompt-build.js :: import { fightCue } from '../../modules/rpg/board/fight-start.js';
+core/turn/prompt-build.js :: import { rpgLib } from '../../modules/rpg/rpg-lazy.js';
+core/turn/prompt-build.js :: let previewState = null, boardStop = null;
+core/turn/prompt-build.js :: return { cues, prechecks, previewState, boardStop, keptPrelude };
+core/turn/prompt-build.js :: s.abortBoard = abort;
+core/turn/session.js :: if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && receipt.replan?.payload?.board) {
+core/turn/session.js :: problem({ code: 'FIGHT_TAKEN_BACK', message: `A fight on the board was taken back because the story before it changed: ${planned.message ?? 'the sheet or gear is not what it was.'}` });
+ui/legacy/ui-host.js :: import { createLeanRpgSync } from './ui-host/lean-rpg-sync.js';
+ui/legacy/ui-host/lean-rpg-sync.js :: boardFeature: { on: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true, set: value => runtime.features?.set?.(CORE_FEATURE.fightBoard, Boolean(value)) },
+ui/legacy/ui-host/lean-rpg-sync.js :: rpg = view.mountLeanRpg({ doc, ctx, store, events, screens, widgets: hostWidgets, headState: getHeadState(), featureOn: rpgOn, boardOn: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true,
+ui/legacy/ui-host/send-note.js :: interactionHeld: 'Your fight hasn\'t been sent yet',
+ui/legacy/ui-host/send-note.js :: openHeld: 'Open fight board',
+ui/legacy/ui-host/setup.js :: [RPG_START_WIDGET]: Object.freeze({
+ui/legacy/ui-host/setup.js :: import { RPG_START_WIDGET } from '../screens/home.js';
