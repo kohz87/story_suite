@@ -5,6 +5,7 @@ import { readSheet } from '../../../lean-rpg/read.js';
 import { kindCarry } from './mount-kinds.js';
 import { travelsWith } from './mount-travel.js';
 import { capacityFor } from './load.js';
+import { weightFor } from '../stats-parts/weight.js';
 
 function actorStr(actor) {
     for (const value of [actor?.str, actor?.STR, actor?.stats?.str, actor?.stats?.STR]) if (Number.isSafeInteger(value)) return value;
@@ -16,7 +17,7 @@ function actorStr(actor) {
  * { on, people: [{ id, name, load, capacity }] (the party's own members who hold things of their own), bag, load, capacity, bonuses }.
  * `carryOf(def)` is the capacity a def adds (inventory.js: a pack item's `carry`).
  * The shared bag (owner `party`) has the RPG characters' capacities added up (a story with none counts one reader of default
- * strength); each person owns theirs. A thing weighs 1 per unit, and what a stack adds counts while it is worn (equipment) or held.
+ * strength); each person owns theirs. A unit weighs its def's weight (stats-parts/weight.js: its own, else by slot or kind; coins 0), and what a stack adds counts while it is worn (equipment) or held.
  */
 export function carryPicture(state, { carryOf, mounts = [] }) {
     const inventory = state?.domains?.inventory;
@@ -26,8 +27,8 @@ export function carryPicture(state, { carryOf, mounts = [] }) {
     const load = {}, bags = {}, bonuses = [];
     for (const stack of stacks) {
         const def = defs[stack.def];
-        // Coins weigh nothing (the unit is "load": a thing is 1 per unit, money 0): `load` and `weights` count the same.
-        load[stack.owner] = (load[stack.owner] ?? 0) + (def.kind === 'money' ? 0 : stack.qty);
+        // The unit is "load": a stack weighs its def's weight × its count (coins 0): `load` and `weights` count the same.
+        load[stack.owner] = (load[stack.owner] ?? 0) + weightFor(def) * stack.qty;
         const carry = carryOf(def);
         if (carry) {
             bonuses.push({ stack: stack.id, carry });
@@ -57,8 +58,8 @@ export function carryPicture(state, { carryOf, mounts = [] }) {
         sources[person.id] = [{ name: person.name, carry: capacityFor(actorStr(actors[person.id])) },
             ...stacks.filter(stack => stack.owner === person.id && carryOf(defs[stack.def]) && (defs[stack.def].kind !== 'equipment' || stack.equipped !== null)).map(stack => ({ name: defs[stack.def].name, carry: carryOf(defs[stack.def]) }))];
     }
-    // Load weights (the unit is "load"): each stack's weight (1 per unit, coins free, as `load` counts it); and the animals and carts, each with what it adds and whether it travels with the party.
-    const weights = Object.fromEntries(stacks.map(stack => [stack.id, defs[stack.def].kind === 'money' ? 0 : stack.qty]));
+    // Load weights (the unit is "load"): each stack's weight (the def's weight × the count, coins free, as `load` counts it); and the animals and carts, each with what it adds and whether it travels with the party.
+    const weights = Object.fromEntries(stacks.map(stack => [stack.id, weightFor(defs[stack.def]) * stack.qty]));
     const total = Object.values(load).reduce((sum, n) => sum + n, 0);
     return {
         on: true, people, bag: load.party ?? 0, load: total, capacity: sharedCapacity + people.reduce((sum, person) => sum + person.capacity, 0),
@@ -68,7 +69,7 @@ export function carryPicture(state, { carryOf, mounts = [] }) {
 
 const weightOf = (add, defs) => (Array.isArray(add) ? add : []).reduce((sum, entry) => {
     const qty = Number.isSafeInteger(entry?.qty) && entry.qty > 0 ? entry.qty : 0;
-    return sum + (entry?.defId && defs?.[entry.defId]?.kind === 'money' ? 0 : qty);
+    return sum + (entry?.defId && defs?.[entry.defId] ? weightFor(defs[entry.defId]) * qty : qty);
 }, 0);
 
 /** `items.carry`'s answer, from Story Block's own rules: the whole picture, or `{ ok, message }` when `args.add` asks whether things fit. */

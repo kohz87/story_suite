@@ -11,3 +11,4 @@ export { handDef } from './stats-parts/hand.js';
 export { gearDefine } from './stats-parts/define.js';
 export { soakFor, soakCap, packSoak } from './stats-parts/soak.js';
 export { soakTotal } from './stats-parts/soak-total.js';
+export { weightFor, defaultWeight, packWeight } from './stats-parts/weight.js';

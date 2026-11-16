@@ -16,10 +16,13 @@ function money(amount, currency) {
   return `${amount} ${amount === 1 ? name : currency?.plural || `${name}s`}`;
 }
 
-// inventory.items row (queries.js:42-63) + gear.view `rows[stack]` (views.js:93-110) → one contract item; weight, desc, isNew and soak are gaps.
+// inventory.items row (queries.js:42-63) + gear.view `rows[stack]` (views.js:93-110) → one contract item; desc and isNew are gaps; weight, soak and soakMax come from gear.view's row.
+const whole = value => (Number.isSafeInteger(value) ? value : null);
+
 function itemOf(row, ctx) {
   const kind = KIND_OF[row.kind];
-  const word = ctx.rows?.[row.stack]?.word;
+  const info = ctx.rows?.[row.stack];
+  const word = info?.word;
   const worn = row.equipped !== null && row.equipped !== undefined;
   const wearer = row.owner === 'party' ? ctx.pcId : row.owner;
   const glyphSlot = GLYPH_OF_SLOT[row.equipped] ?? (kind === 'gear' ? 'gear' : kind);
@@ -27,7 +30,7 @@ function itemOf(row, ctx) {
     stack: String(row.stack), name: String(row.name), kind, glyph: glyphSlot, rarity: RARITY[row.rarity] ?? 'common', realRarity: typeof row.rarity === 'string' ? row.rarity : null,
     qty: Number.isSafeInteger(row.qty) ? row.qty : 1, count: Number.isSafeInteger(ctx.counts?.[row.stack]) ? ctx.counts[row.stack] : null, wornBy: worn ? wearer ?? null : null, isNew: null,
     wear: kind === 'gear' && word ? (word === 'torn' || word === 'broken' ? 'torn' : 'good') : null,
-    weight: null, worth: money(row.value, ctx.currency), soak: null, desc: null, from: typeof row.from === 'string' ? row.from : '',
+    weight: whole(info?.weight), worth: money(row.value, ctx.currency), soak: whole(info?.soakOwn), ...(whole(info?.soakMax) !== null ? { soakMax: info.soakMax } : {}), desc: null, from: typeof row.from === 'string' ? row.from : '',
     note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
   };
 }
