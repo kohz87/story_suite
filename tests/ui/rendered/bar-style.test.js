@@ -87,3 +87,18 @@ for (const theme of ['dark', 'light']) {
     } finally { await page.close(); }
   });
 }
+
+for (const theme of ['dark', 'light']) {
+  test(`phone bar with the fight open keeps every tab at least 44 px wide in ${theme}`, async (t) => {
+    if (ctx.skip) return t.skip(ctx.skip);
+    const page = await ctx.browser.newPage({ viewport: { width: 390, height: 844 } });
+    try {
+      await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=390&variant=fightOpen&tab=now`);
+      await page.waitForSelector('#hx-frame .su-host');
+      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const widths = await page.evaluate(() => [...document.querySelectorAll('#hx-frame .su-bar-btn')].map((b) => b.getBoundingClientRect().width));
+      assert.equal(widths.length, 8);
+      for (const w of widths) assert.ok(w >= 44, `bar button ${w}px wide`);
+    } finally { await page.close(); }
+  });
+}

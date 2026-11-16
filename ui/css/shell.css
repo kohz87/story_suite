@@ -235,6 +235,14 @@
   }
 }
 
+/* Fight open (8 tabs) at 390 px: trim the side padding and gaps so each tap stays at least 44 px wide. */
+@container (min-width: 390px) and (max-width: 440px) {
+  .su-bar:has(> .su-bar-btn:nth-child(8)) {
+    gap: 0;
+    padding: 10px 6px 8px;
+  }
+}
+
 @container (min-width: 600px) {
   .su-strip {
     display: flex;
