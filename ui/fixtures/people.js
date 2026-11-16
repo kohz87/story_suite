@@ -232,6 +232,6 @@ export const PEOPLE = Object.freeze({
   fightOverrides: Object.freeze({
     brann: Object.freeze({ mood: 'braced', where: 'at the front, shield up', thought: 'Hounds first, then the men.' }),
     torka: Object.freeze({ mood: 'fierce', where: 'beside you', thought: 'Come on, then.' }),
-    rika: Object.freeze({ mood: 'alert', where: 'by the grey pony', thought: 'Keep the pony behind us.' }),
+    rika: Object.freeze({ mood: 'alert', where: 'by the grey pony', thought: 'Keep the pony behind us.', meters: Object.freeze({ trust: 26, affection: 6, desire: 0, tension: 3 }) }),
   }),
 });

@@ -58,3 +58,13 @@ test('fixture({ notApplied: true }) flags unapplied change on inlineRow and repl
   assert.equal(vm.chat.inlineRow.notApplied, 1);
   assert.equal(vm.chat.replyMenus[2].counts.notApplied, 1);
 });
+
+test('fight-open here list keeps the mock fight-state meters for Rika; People keeps its own', () => {
+  const rika = fixture('fightOpen').now.here.find(p => p.personId === 'rika');
+  assert.deepEqual(rika.meters, { trust: 26, affection: 6, desire: 0, tension: 3 });
+  assert.equal(fixture().people.elsewhere.find(p => p.personId === 'rika').meters.trust, 30);
+});
+
+test('Story-only keeps the status chips', () => {
+  assert.ok(fixture('rpgOff').card.statuses.length > 0);
+});

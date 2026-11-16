@@ -25,7 +25,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
   const query = new URLSearchParams(search);
   const state = {
     theme: pick(query.get('theme'), THEMES, 'dark'),
-    variant: pick(query.get('variant'), VARIANTS, 'default'),
+    variant: pick(query.get('variant'), VARIANTS, query.has('fight') ? 'fightOpen' : 'default'), // ?fight= is read once, here
     width: Number(query.get('width')) || 390,
     tab: query.get('tab') || 'now',
     plan: pick(query.get('plan'), PLANS, 'off'),
@@ -40,7 +40,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
   function fixtureOptions() {
     return {
       rpg: state.variant !== 'rpgOff',
-      fightOpen: state.variant === 'fightOpen' || query.has('fight') || state.fightOpen === true,
+      fightOpen: state.variant === 'fightOpen',
       empty: state.variant === 'empty',
       planShown: state.plan === 'on',
       fightState: state.fight,
@@ -80,7 +80,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     if (patch.plan) state.plan = pick(patch.plan, PLANS, state.plan);
     if (patch.fight) {
       state.fight = pick(patch.fight, FIGHT_STEPS, state.fight);
-      state.fightOpen = true;
+      state.variant = 'fightOpen'; // a fight button opens the fight for that variant; a variant button decides again
     }
     if (patch.bag) state.bag = pick(patch.bag, BAG_LOADS, state.bag);
     mount();

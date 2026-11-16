@@ -68,7 +68,7 @@ function buildCard(opts) {
     },
     bars: opts.rpg ? MOMENT.bars.map(b => ({ ...b })) : [],
     exp: opts.rpg ? { ...MOMENT.exp } : null,
-    statuses: opts.rpg ? MOMENT.statuses.map(s => ({ ...s })) : [],
+    statuses: MOMENT.statuses.map(s => ({ ...s })),
   };
 }
 
@@ -81,7 +81,7 @@ function buildHereList(opts) {
         const over = PEOPLE.fightOverrides[p.personId] || {};
         return {
           ...p,
-          meters: { ...p.meters },
+          meters: { ...(over.meters ?? p.meters) },
           scene: p.scene ? { ...p.scene } : null,
           mood: over.mood ?? p.mood,
           where: over.where ?? p.where,

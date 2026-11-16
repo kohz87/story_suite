@@ -59,3 +59,15 @@ test('the fight step and bag load switches reach the fixtures', () => {
 test('the public face exposes the mount, contract and fake port', () => {
   assert.deepEqual(Object.keys(face).sort(), ['PORT_METHODS', 'checkPort', 'createFakePort', 'mountSuite']);
 });
+
+test('the fight switch turns off: variant buttons decide again, a fight button sets the fight for that variant', () => {
+  const { h } = setup('?fight=end');
+  assert.equal(h.state.variant, 'fightOpen');
+  h.apply({ variant: 'default' });
+  assert.equal(h.suite().tabHost.tabs().includes('fight'), false);
+  h.apply({ fight: 'after' });
+  assert.equal(h.state.variant, 'fightOpen');
+  h.apply({ variant: 'rpgOff' });
+  assert.equal(h.suite().tabHost.tabs().includes('fight'), false);
+  assert.equal(setup('?fight=end&variant=empty').h.state.variant, 'empty');
+});
