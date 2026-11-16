@@ -175,22 +175,23 @@
   bottom: 14px;
   transform: translateX(-50%);
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 0;
-  width: min(calc(100% - 4px), 560px);
-  padding: 4px 0;
+  gap: 4px;
+  width: min(94%, 560px);
+  padding: 10px 14px 8px;
   border-radius: 999px;
 }
 
-.su-bar-btn {
+.su-root .su-bar-btn {
   flex: 1 1 0;
   min-width: 0;
-  min-height: 48px;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
+  justify-content: flex-start;
+  gap: 3px;
   background: none;
   border: 0;
   color: var(--su-muted);
@@ -205,7 +206,7 @@
 }
 
 .su-bar-label {
-  font-size: 12px;
+  height: 14px;
   line-height: 14px;
 }
 
@@ -217,12 +218,29 @@
   opacity: 0;
 }
 
-.su-bar-btn[aria-current="true"] {
+.su-root .su-bar-btn[aria-current="true"] {
   color: var(--su-accent);
 }
 
-.su-bar-btn[aria-current="true"] .su-bar-dot {
+.su-root .su-bar-btn[aria-current="true"] .su-bar-dot {
   opacity: 1;
+}
+
+/* Narrow phones: the mock's side padding would shrink taps under 44 px wide, so the bar goes edge to edge. */
+@container (max-width: 389px) {
+  .su-bar {
+    gap: 0;
+    width: min(calc(100% - 4px), 560px);
+    padding: 10px 0 8px;
+  }
+}
+
+/* Fight open (8 tabs) at 390 px: trim the side padding and gaps so each tap stays at least 44 px wide. */
+@container (min-width: 390px) and (max-width: 440px) {
+  .su-bar:has(> .su-bar-btn:nth-child(8)) {
+    gap: 0;
+    padding: 10px 6px 8px;
+  }
 }
 
 @container (min-width: 600px) {
@@ -263,7 +281,7 @@
   visibility: visible;
 }
 
-.su-mini-btn {
+.su-root .su-mini-btn {
   min-width: 44px;
   min-height: 44px;
   padding: 9px 14px;
