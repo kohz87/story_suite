@@ -13,10 +13,10 @@ export function youText(raw) {
 }
 
 // The words a change line may call each part.
-const YOU_LABELS = Object.freeze({ rank: 'rank', standing: 'rank', wearing: 'wearing', wear: 'wearing', wears: 'wearing', worn: 'wearing', outfit: 'wearing', clothes: 'wearing', clothing: 'wearing', condition: 'condition', state: 'condition' });
+const YOU_LABELS = Object.freeze({ rank: 'rank', standing: 'rank', wearing: 'wearing', wear: 'wearing', wears: 'wearing', worn: 'wearing', outfit: 'wearing', clothes: 'wearing', clothing: 'wearing', condition: 'condition', state: 'condition', position: 'position', posture: 'position', pose: 'position' });
 
 /**
- * The parts a `~ you` line gives: `{ rank?, wearing?, condition?, outfit?, look? }` from "rank: … | wearing: … | condition: …" (any of them is fine; a part
+ * The parts a `~ you` line gives: `{ rank?, wearing?, condition?, outfit?, look?, position? }` from "rank: … | wearing: … | condition: …" (any of them is fine; a part
  * with no words is '', which clears it). A piece after a `|` with no label of its own goes on the part before it; one with a
  * label that is not a part ("mood: glad") is not used.
  */

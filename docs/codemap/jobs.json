@@ -45,6 +45,7 @@
   "tests/people/participant-equality.test.js": "Tests that the head's people equal the view of Delta's state after every reply, swipe, delete and reload, with Delta's own ids.",
   "tests/people/participant-fuzz.test.js": "Fuzzes seeded runs of replies, swipes, deletes and reloads and checks the head's people always equal the view of Delta's state.",
   "tests/suite/nsd-static-part.js": "Writes NPC State Delta's own one-pass static prompt key the way its runtime injection does, and switches its adapter on or off for the suite test.",
+  "tests/suite/redraw-count.bench.test.js": "Pins today's tab-pane redraw and NPC State renderCast counts per reply for the three-module suite (quiet and active scenarios, flag off).",
   "tests/suite/static-prompt.test.js": "Pins the whole static prompt of the three-module suite per scenario against the golden and checks it is byte-identical reply to reply.",
   "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
   "ui/card/card-row.js": "Builds the card's top row: \u2039 Chat, time \u00b7 place \u00b7 weather with the mock's glyphs (opens the Scene sheet) and \u2699.",

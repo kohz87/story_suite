@@ -7,7 +7,7 @@ import { changeYou } from './change.js';
 import { youParts, youText } from './text.js';
 
 /**
- * `scene.you({ rank?, wearing?, condition? })`: {{user}}'s standing, what they wear and how they are, from the reader (the pencils on Home) or a
+ * `scene.you({ rank?, wearing?, condition?, position? })`: {{user}}'s standing, what they wear, how they are and their position, from the reader (the pencils on Home) or a
  * module, never the story (it writes `~ you`). A part that is given replaces that part, '' clears it; a part left out stays.
  */
 export function setYou(ctx, payload = {}) {
