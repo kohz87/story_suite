@@ -37,6 +37,18 @@ export function hiddenNoteEventParagraph(eventWatch) {
     return rule ? `\n\n${rule}` : '';
 }
 
+// The one-pass lines builder's variant of the paragraph above (NSD12, G8): the watch list and the event rule's first sentence as they are; the two JSON sentences ("Return top-level secretEvents",
+// "Also return secretEventEvidence") are replaced by the approved line form. The keys are the notes' own ids (a line can name them again on a Re-read; a position in a list cannot be).
+const LINE_FORM = 'Because there is no JSON block in the reply, a secret event is written as a line: ~ secret Name | opened: <key> | quote: "short exact quote from this reply". Only when the event happened as written, by the actor it names. No quote, no line.';
+const EVENT_FIRST_SENTENCE = EVENT_STRICT_RULE.slice(0, EVENT_STRICT_RULE.indexOf(' Also return'));
+
+/** The story events to look for in the lines builder ('' with none): [{ key (a note id), name, event }]. */
+export function hiddenNoteEventLinesParagraph(eventWatch) {
+    const watch = watchItems(eventWatch);
+    if (!watch.length) return '';
+    return `\n\nSTORY EVENTS to look for (present NPCs' hidden notes): ${watch.map(item => `${item.key} = ${item.name}: ${item.event}`).join(' | ')}. ${EVENT_FIRST_SENTENCE} ${LINE_FORM}`;
+}
+
 /**
  * A targeted prompt (backfill, Refresh) with the hidden notes it was asked for, as paragraphs at its end. `layeredSecrets`
  * (a backfill of a NEW dossier only) and `eventWatch` (this one person's locked event notes) are the only options; given

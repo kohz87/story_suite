@@ -20,8 +20,8 @@ export function newestFlatDay(value) {
 export function dossiers() {
     const blank = { trust: 0, affection: 0, desire: 0, tension: 0 };
     return {
-        npc_temiwa: { id: 'npc_temiwa', name: 'Sister Temiwa', aliases: [], present: true, archived: false, relationship: { ...blank } },
-        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, archived: false, relationship: { ...blank } },
+        npc_temiwa: { id: 'npc_temiwa', name: 'Sister Temiwa', aliases: [], present: true, archived: false, memories: [], memoryStamps: {}, relationship: { ...blank } },
+        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, archived: false, memories: [], memoryStamps: {}, relationship: { ...blank } },
     };
 }
 
