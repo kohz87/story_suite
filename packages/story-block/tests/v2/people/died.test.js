@@ -11,7 +11,7 @@ const caller = { id: 'x', name: 'X', commands: {
 const people = host => host.head().domains.people;
 const ann = { id: 'npc_ann', record: { id: 'npc_ann', name: 'Ann', aliases: [] } };
 
-test('only a module\'s command kills; the record is terminal and archived; a second death and a missing person are refused', async t => {
+test('only a module\'s command kills; the record is terminal (lifeState alone, no archive fields); a second death and a missing person are refused', async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await createHost({ modules: [caller] });
     t.after(() => host.close());
@@ -22,7 +22,7 @@ test('only a module\'s command kills; the record is terminal and archived; a sec
     assert.equal((await host.sdk.command('x.died', { ...give, id: 'npc_zed' })).ok, false);
     assert.equal((await host.sdk.command('x.died', { ...give, reason: '' })).ok, false);
     assert.equal((await host.sdk.command('x.died', give)).ok, true);
-    assert.deepEqual([people(host).npcs.npc_ann.lifeState, people(host).npcs.npc_ann.archiveReason, people(host).npcs.npc_ann.present], ['deceased', 'deceased', false]);
+    assert.deepEqual([people(host).npcs.npc_ann.lifeState, people(host).npcs.npc_ann.archived, people(host).npcs.npc_ann.present], ['deceased', undefined, false]);
     assert.equal((await host.sdk.command('x.died', { ...give, reason: 'again' })).ok, false);
     assert.equal(people(host).npcs.npc_ann.lifeStateReason, 'fell');
 });

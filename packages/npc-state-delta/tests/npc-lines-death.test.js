@@ -6,7 +6,7 @@ import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 
 // N6 death (NSD13): `~ npc Name | died | how: …` marks the person dead and frozen, by the reply's own write; swipe, edited Re-read, middle delete, rewind and reload decide it the same way.
 const blank = { trust: 0, affection: 0, desire: 0, tension: 0 };
-const records = () => ({ ...dossiers(), npc_kit: { id: 'npc_kit', name: 'Kit', aliases: [], present: false, archived: false, memories: [], memoryStamps: {}, relationship: { ...blank }, gender: 'female', location: 'the keep' } });
+const records = () => ({ ...dossiers(), npc_kit: { id: 'npc_kit', name: 'Kit', aliases: [], present: false, memories: [], memoryStamps: {}, relationship: { ...blank }, gender: 'female', location: 'the keep' } });
 const DIED = '~ npc Oren | died | how: struck down by the duke\'s guard at the gate';
 const person = (s, id = 'npc_oren') => s.host.head().domains.people.npcs[id];
 const snap = s => JSON.stringify(s.host.head().domains.people);
@@ -23,8 +23,7 @@ test('died marks the person dead and frozen; a later where: and the frozen field
     assert.equal(dead(person(s)), true);
     assert.equal(person(s).lifeStateCertainty, 'explicit');
     assert.match(person(s).lifeStateReason, /struck down/);
-    assert.equal(person(s).archived, true);
-    assert.equal(person(s).archiveReason, 'deceased');
+    assert.equal(person(s).archived, undefined, 'no archive fields: the death is lifeState alone');
     assert.equal(person(s).present, false);
     assert.equal(dead(person(s, 'npc_temiwa')), false, 'nobody else');
     same(s, 'replay equals live');
@@ -55,14 +54,14 @@ test('a second died, an unknown person, and a not-listed name are refused; nothi
     same(s, 'replay equals live');
 });
 
-test('the Director\'s read sees deceased: the stored record, restored into NPC State\'s cache, is a terminal death, archived (pinned by id and not pinned alike)', async () => {
+test('the Director\'s read sees deceased: the stored record, restored into NPC State\'s cache, is a terminal death (pinned by id and not pinned alike)', async () => {
     const s = await suite({ lines: true, records: records() });
     await say(s, [DIED]);
     const cache = peopleState(s.host.head().domains.people).npcs;
     const oren = cache.find(item => item.id === 'npc_oren');
     assert.equal(oren.lifeState, 'deceased');
     assert.equal(isTerminalNpcDeath(oren), true, 'the same test confirmDeath\'s records pass');
-    assert.equal(oren.archived, true, 'so npc.known leaves them out and npc.dossier answers by id with lifeState deceased');
+    assert.equal(oren.archived, undefined, 'no archive fields');
     assert.equal(isTerminalNpcDeath(cache.find(item => item.id === 'npc_temiwa')), false);
     assert.equal(oren.present, false);
 });
@@ -102,7 +101,7 @@ test('switch off: died is an ordinary ~ npc line and kills nobody (byte-identica
     const s = await suite({ lines: false, records: records() });
     await say(s, [DIED]);
     assert.equal(dead(person(s)), false);
-    assert.equal(person(s).archived, false);
+    assert.notEqual(person(s).archived, true);
 });
 
 test('only the bare word died (optionally with a full stop) is a death line; died with more text is an ordinary ~ npc line', async () => {
