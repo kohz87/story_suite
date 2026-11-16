@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildPlan, makeMapper, planProblems, trackedFiles } from './plan.mjs';
+import { areaMapper, planForArea } from './area.mjs';
 import { rewriteImports } from './rewrite-imports.mjs';
 import { rewriteStrings } from './rewrite-strings.mjs';
 
@@ -34,16 +35,18 @@ function pruneEmpty(root, sources) {
 /**
  * Applies the rule sets to the git tree at `root`: plans (throws listing every problem), moves files with `git mv`,
  * deletes `to: null` files after copying them with a MANIFEST.txt into `backupDir`, then rewrites imports and
- * string references. `commits` ({ moves, rewrites } messages) makes one commit after each step. Returns
+ * string references. `commits` ({ moves, rewrites } messages) makes one commit after each step. With `area`, the
+ * plan is made with all rule sets but only that area's moves and deletes are applied (and its problems refused), and
+ * only that area's paths are rewritten; other areas' files stay where they are. Returns
  * { plan, rewritten, unresolved, removed, nonLiteral, stale, errors } for the caller to fail on.
  */
-export function applyLayout(root, ruleSets, { backupDir = null, commits = null, allowNonLiteral = [] } = {}) {
+export function applyLayout(root, ruleSets, { backupDir = null, commits = null, allowNonLiteral = [], area = null } = {}) {
   const before = trackedFiles(root);
   const files = new Set(before);
-  const plan = buildPlan(before, ruleSets);
+  const { plan } = area ? planForArea(before, ruleSets, area) : { plan: buildPlan(before, ruleSets) };
   const problems = planProblems(plan, { files, readFile: file => fs.readFileSync(path.join(root, file), 'utf8') });
   if (problems.length) throw new Error(`plan refused:\n${problems.join('\n')}`);
-  const mapper = makeMapper(plan, ruleSets);
+  const mapper = area ? areaMapper(plan, ruleSets, area) : makeMapper(plan, ruleSets);
   backUp(root, plan.deletes, backupDir);
   for (const file of plan.deletes) git(root, ['rm', '-q', '--', file]);
   for (const move of plan.moves) {

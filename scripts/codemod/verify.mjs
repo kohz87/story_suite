@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildPlan, makeMapper, trackedFiles } from './plan.mjs';
+import { areaMapper, planForArea } from './area.mjs';
 import { rewriteStrings } from './rewrite-strings.mjs';
 import { resolveSpecifier, scanSpecifiers } from './specifiers.mjs';
 
@@ -12,7 +13,7 @@ import { resolveSpecifier, scanSpecifiers } from './specifiers.mjs';
  * a folder the rules move away that no rule covers, and,
  * when `codemap` is set, a failing `node scripts/codemap/cli.mjs --check`.
  */
-export function verifyTree(root, ruleSets, { codemap = false } = {}) {
+export function verifyTree(root, ruleSets, { codemap = false, area = null } = {}) {
   const files = trackedFiles(root);
   const set = new Set(files);
   const problems = [];
@@ -23,7 +24,7 @@ export function verifyTree(root, ruleSets, { codemap = false } = {}) {
       if (item.spec.startsWith('.') && !resolveSpecifier(file, item.spec, set, item.kind === 'url')) problems.push(`${file}:${item.line}: "${item.spec}" resolves to no tracked file`);
     }
   }
-  const plan = buildPlan(files, ruleSets);
+  const { plan } = area ? planForArea(files, ruleSets, area) : { plan: buildPlan(files, ruleSets) };
   for (const move of plan.moves) problems.push(`${move.from} is still at its old location (rule target ${move.to})`);
   for (const file of plan.deletes) problems.push(`${file} should have been deleted`);
   for (const file of plan.unmatched) problems.push(`${file} is still in a folder the rules cover and no rule moves it`);
@@ -84,9 +85,10 @@ function gitDiff(root, args) {
  * relative value read from the file's old and new folders), so `'x'` -> `'y'` is reported.
  * A bare `.`/`..` value is never a mapped path. A JS file deleted in step 2 is a problem unless the plan deletes it.
  * Step 3 reads every package JS file of `base` and lists a package-relative string that would go stale.
+ * With `area`, only that area's moves and deletes are judged (the rest of the tree is expected to be unmoved).
  * Returns { problems, dataEdits }; dataEdits counts changed non-JS files and deleted files (listed, not judged).
  */
-export function verifyDiff(root, base, movesRef, head = 'HEAD', ruleSets = []) {
+export function verifyDiff(root, base, movesRef, head = 'HEAD', ruleSets = [], { area = null } = {}) {
   const problems = [];
   const newToOld = new Map();
   for (const line of gitDiff(root, ['--name-status', '-M100%', base, movesRef]).split('\n').filter(Boolean)) {
@@ -95,8 +97,8 @@ export function verifyDiff(root, base, movesRef, head = 'HEAD', ruleSets = []) {
     if (status === 'R100') newToOld.set(names[1], names[0]);
   }
   const baseSet = filesAt(root, base);
-  const plan = buildPlan([...baseSet].sort(), ruleSets);
-  const ctx = { baseSet, headSet: filesAt(root, head), mapper: makeMapper(plan, ruleSets) };
+  const { plan } = area ? planForArea([...baseSet].sort(), ruleSets, area) : { plan: buildPlan([...baseSet].sort(), ruleSets) };
+  const ctx = { baseSet, headSet: filesAt(root, head), mapper: area ? areaMapper(plan, ruleSets, area) : makeMapper(plan, ruleSets) };
   const planned = new Set(plan.deletes);
   let dataEdits = 0;
   for (const block of gitDiff(root, ['--no-renames', '-U0', movesRef, head]).split(/^diff --git /m).slice(1)) {

@@ -1,10 +1,12 @@
-// Plans every B3 layout area from the rule files: per-area counts, the unmatched list and dead-rule warnings.
+// Parses the layout tool commands (plan, apply, verify, port-branch) and prints the per-area plan with unmatched files and dead rules.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { loadRules, matchPath, ruleKey } from './rules.mjs';
 import { buildPlan, planProblems } from './plan.mjs';
+import { planForArea } from './area.mjs';
 import { loadKnownProblems, splitKnown } from './known.mjs';
+import { runApply, runPort, runVerify } from './area-commands.mjs';
 
 const AREAS = ['core', 'director', 'legacy-ui', 'packs', 'people', 'rpg', 'scene-inventory', 'shared'];
 const DEFAULT_RULES_DIR = path.join(import.meta.dirname, 'layout');
@@ -56,7 +58,10 @@ export function planLayout(files, ruleSets) {
 }
 
 function usage(stream) {
-  stream.write('usage: node scripts/codemod/cli.mjs plan --area <area> | --all [--root <dir>] [--rules <dir>] [--known <file>]\n');
+  stream.write('usage: node scripts/codemod/cli.mjs plan --area <area> | --all [--root <dir>] [--rules <dir>] [--known <file>]\n'
+    + '       node scripts/codemod/cli.mjs apply --area <area> [--dry] [--backup <dir>]\n'
+    + '       node scripts/codemod/cli.mjs verify --area <area> [--base <ref>]\n'
+    + '       node scripts/codemod/cli.mjs port-branch <branch> --area <area> [--main <ref>] [--backup <dir>]\n');
 }
 
 function printRows(stream, counts) {
@@ -83,6 +88,11 @@ export async function main(argv = process.argv.slice(2), options = {}) {
   let root = options.root ?? process.cwd();
   let rulesDir = options.rulesDir ?? DEFAULT_RULES_DIR;
   let knownFile = null;
+  let dry = false;
+  let backupDir = null;
+  let base;
+  let mainRef;
+  let branch = null;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === '--area') area = argv[++index];
@@ -90,6 +100,11 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     else if (arg === '--root') root = argv[++index];
     else if (arg === '--rules') rulesDir = argv[++index];
     else if (arg === '--known') knownFile = argv[++index];
+    else if (arg === '--dry') dry = true;
+    else if (arg === '--backup') backupDir = argv[++index];
+    else if (arg === '--base') base = argv[++index];
+    else if (arg === '--main') mainRef = argv[++index];
+    else if (!arg.startsWith('-') && command === 'port-branch' && branch === null) branch = arg;
     else if (!arg.startsWith('-') && command === null) command = arg;
     else {
       stderr.write(`unknown argument: ${arg}\n`);
@@ -97,7 +112,8 @@ export async function main(argv = process.argv.slice(2), options = {}) {
       return 2;
     }
   }
-  if (command !== 'plan' || (Boolean(area) === all)) {
+  const areaCommand = ['apply', 'verify', 'port-branch'].includes(command);
+  if (areaCommand ? (!area || all || (command === 'port-branch') !== (branch !== null)) : (command !== 'plan' || Boolean(area) === all)) {
     usage(stderr);
     return 2;
   }
@@ -115,7 +131,11 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     stderr.write(`${error.message}\n`);
     return 1;
   }
-  const { files, counts, plan } = planLayout(listed, ruleSets);
+  if (command === 'apply') return runApply(root, ruleSets, area, { dry, backupDir, stdout, stderr });
+  if (command === 'verify') return runVerify(root, ruleSets, area, { base, stdout, stderr });
+  if (command === 'port-branch') return runPort(root, ruleSets, area, branch, { mainRef, backupDir, stdout, stderr });
+  const { files, counts, plan: fullPlan } = planLayout(listed, ruleSets);
+  const plan = area ? planForArea(listed, ruleSets, area).plan : fullPlan;
   if (area) stdout.write(`${area}: ${counts[area].moves} moves, ${counts[area].deletes} deletes\n`);
   else {
     stdout.write(`tracked files: ${files}\n`);
