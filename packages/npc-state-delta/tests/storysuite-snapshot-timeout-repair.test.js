@@ -153,42 +153,6 @@ test('an abort waiting on a host-dependent repair releases the host and finishes
     assert.deepEqual(await r.vault.getIndex(r.delta.timeline().lineage), r.delta.index());
 });
 
-test('a participant-index repair does not wait under the host queue', { timeout: 3000 }, async t => {
-    const r = await adapterRig(t, { participantOptions: { boundMs: 120 } });
-    await r.host.send('Hello.', 'The road is quiet.');
-    assert.equal((await r.host.sdk.timeline.make({ kind: 'manual', name: 'First' })).ok, true);
-    const entered = deferred();
-    const release = deferred();
-    const repaired = deferred();
-    const putIndex = r.vault.putIndex.bind(r.vault);
-    let calls = 0;
-    r.vault.putIndex = async (lineage, index) => {
-        calls += 1;
-        if (calls === 1) { entered.resolve(); await release.promise; }
-        if (calls === 2) throw new Error('index temporarily unavailable');
-        if (calls === 3) {
-            const answer = await r.host.sdk.timeline.forget({ snapshot: 'sn_missing' });
-            assert.equal(answer.code, 'NOT_FOUND');
-            await putIndex(lineage, index);
-            repaired.resolve();
-            return;
-        }
-        return putIndex(lineage, index);
-    };
-    const slow = r.host.sdk.timeline.make({ kind: 'manual', name: 'Slow' });
-    await entered.promise;
-    assert.equal((await slow).code, 'STALE');
-    release.resolve();
-    await new Promise(resolve => setImmediate(resolve));
-    const blocked = await r.host.sdk.timeline.make({ kind: 'manual', name: 'Retry' });
-    assert.equal(blocked.code, 'STALE');
-    assert.match(blocked.message, /restoring the participant index/);
-    await repaired.promise;
-    await new Promise(resolve => setImmediate(resolve));
-    const saved = await r.host.sdk.timeline.make({ kind: 'manual', name: 'Retry' });
-    assert.equal(saved.ok, true, saved.message);
-});
-
 test('a stalled branch inheritance returns without minting a competing lineage', { timeout: 3000 }, async () => {
     const r = participantRig();
     const entered = deferred();

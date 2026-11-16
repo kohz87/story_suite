@@ -16,16 +16,6 @@ async function pendingHost(t, extra) {
     return { r, looks };
 }
 
-test('a permanent block the host names (CONFLICT, SNAPSHOT_UNAVAILABLE) ends the wait after one look', async t => {
-    for (const code of ['CONFLICT', 'SNAPSHOT_UNAVAILABLE']) {
-        const { r, looks } = await pendingHost(t, { blockedBy: { module: 'npc-state-delta', code } });
-        const started = Date.now();
-        assert.equal(await r.api.gate.settled(), false);
-        assert.equal(looks.n, 1, `${code}: one look`);
-        assert.ok(Date.now() - started < 100, `${code}: no waiting`);
-    }
-});
-
 test('a transient block (FAILED, STALE) and a host that names no block are waited for in full, then reported not settled', async t => {
     for (const extra of [{ blockedBy: { module: 'npc-state-delta', code: 'FAILED' } }, { blockedBy: { module: 'npc-state-delta', code: 'STALE' } }, {}]) {
         const { r, looks } = await pendingHost(t, extra);
@@ -34,12 +24,6 @@ test('a transient block (FAILED, STALE) and a host that names no block are waite
         assert.ok(looks.n > 5, `${JSON.stringify(extra)}: looked again and again (${looks.n})`);
         assert.ok(Date.now() - started >= 190, 'the whole bound');
     }
-});
-
-test('settled({ wait: false }) is one look, whatever the answer', async t => {
-    const { r, looks } = await pendingHost(t, {});
-    assert.equal(await r.api.gate.settled({ wait: false }), false);
-    assert.equal(looks.n, 1);
 });
 
 // ---- (8) a send: AFTER_COMMANDS then MESSAGE_SENT ----

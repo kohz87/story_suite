@@ -1,7 +1,6 @@
 // Reads Story Block's internal rollout flags from `extension_settings.storySuite.flags`: not Features, no UI, off unless set to true.
 
 export const FLAGS = Object.freeze({
-    peopleInStore: 'suite.peopleInStore',
     isolatedApply: 'suite.isolatedApply',
     redrawScheduler: 'suite.redrawScheduler',
     worldPeopleOwn: 'suite.worldPeopleOwn',

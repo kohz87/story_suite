@@ -13,7 +13,7 @@ export function isV2Host(host) {
 export function createConnectPart(session, deps) {
     const {
         aliveMs, announceHosted, attempts, cardSettings, chatKeyOf, definition, dossiersReady, host, listen, loadDossierList,
-        doc, loadEmptyCast, mirror, onTurn: runTurn, portraitFill: fillPortraits, registerCardSettings, registerPublicPaths, retryMs, startTimeline, stopTimeline,
+        doc, loadEmptyCast, onTurn: runTurn, peopleSync, portraitFill: fillPortraits, registerCardSettings, registerPublicPaths, retryMs, startTimeline, stopTimeline,
         syncDrawer, timers, unmountSection, warn,
     } = deps;
 
@@ -23,15 +23,18 @@ export function createConnectPart(session, deps) {
         try { doc?.getElementById?.('npc_state_delta_dossier_root')?.__npcStateDeltaStage1Ui?.scheduleRefresh?.(); } catch { /* no panel open */ }
     }
     // The host's 'turn' and 'head' events run Delta's own steps, then the panel's refresh.
-    const onTurn = turn => { try { return runTurn(turn); } finally { refreshPanel(); } };
-    const portraitFill = (...args) => { try { return fillPortraits(...args); } finally { refreshPanel(); } };
+    // The cache stands on the head's reply (a swipe, a delete, a rewind or a new reply moved the head): the look is queued before any commit of Delta's own, so a
+    // commit never goes out for a reply the cache does not stand on. Delta's own step is not held for it.
+    const onTurn = turn => { void peopleSync.sync().catch(() => {}); try { return runTurn(turn); } finally { refreshPanel(); } };
+    const portraitFill = (...args) => { void peopleSync.sync().catch(() => {}); try { return fillPortraits(...args); } finally { refreshPanel(); } };
 
     let aliveTimer = null;
     let hostRef = null;          // the Story Block global we connected to
     let offTurn = null;          // unsubscribes from the host's 'turn' event
-    let offMirror = null;        // stops the people mirror's own 'head' listener
     let offHead = null;          // unsubscribes from the host's 'head' event
     let offCardSettings = null;  // unregisters Delta's card settings
+    let giveUpTimer = null;      // the bound on the host's `ready` (a host that never becomes ready counts as refused)
+    const stopGiveUp = () => { if (giveUpTimer !== null) timers.clearTimeout?.(giveUpTimer); giveUpTimer = null; };
 
     async function register(sdk, from, attempt) {
         if (hostRef !== from) return false;
@@ -49,17 +52,17 @@ export function createConnectPart(session, deps) {
             await sdk.registerModule(definition);
         } catch (error) {
             if (session.sdkRef === sdk) session.sdkRef = null;
+            session.refused = true;
             warn('Story Suite v2 registration failed; Delta keeps working on its own', error);
             return false;
         }
         if (!session.started || hostRef !== from || session.sdkRef !== sdk) return false;
         session.hosted = true;
+        session.refused = false;
         try {
             const off = typeof sdk.on === 'function' ? sdk.on('turn', onTurn) : null;
             offTurn = typeof off === 'function' ? off : null;
         } catch (error) { warn('Story Suite v2 turn events are not available', error); }
-        // The people mirror listens to 'head' first: a host that keeps one listener per event leaves the portrait fill its own.
-        offMirror = mirror.start();
         try {
             const off = typeof sdk.on === 'function' ? sdk.on('head', portraitFill) : null;
             offHead = typeof off === 'function' ? off : null;
@@ -87,9 +90,18 @@ export function createConnectPart(session, deps) {
         Promise.resolve().then(() => loadDossierList?.()).then(parts => {
             if (parts && typeof parts.rowNodes === 'function') session.listParts = parts;
         }, () => { /* plain rows */ });
+        // The host's `ready` may never settle (its boot stopped): after the same bound as the look for a host, it counts as refused, so the sidecar is given back.
+        stopGiveUp();
+        giveUpTimer = timers.setTimeout?.(() => {
+            giveUpTimer = null;
+            if (session.started && hostRef === sb && !session.hosted) { session.refused = true; warn('Story Block v2 did not become ready in time; Delta keeps working on its own'); }
+        }, attempts * retryMs) ?? null;
+        giveUpTimer?.unref?.();
         return Promise.all([ready, cast])
-            .then(([sdk]) => register(sdk, sb, attempt))
+            .then(([sdk]) => { stopGiveUp(); return register(sdk, sb, attempt); })
             .catch(error => {
+                stopGiveUp();
+                session.refused = true;
                 warn('Story Block v2 did not become ready; Delta keeps working on its own', error);
                 return false;
             });
@@ -114,15 +126,15 @@ export function createConnectPart(session, deps) {
 
     // The host went away (or was replaced): everything goes back as it was before hosting.
     function unhost() {
+        stopGiveUp();
         if (aliveTimer !== null) timers.clearInterval?.(aliveTimer);
         aliveTimer = null;
         const was = session.hosted;
         session.hosted = false;
         stopTimeline();
+        peopleSync.forget();
         try { offTurn?.(); } catch { /* the host is gone */ }
         offTurn = null;
-        try { offMirror?.(); } catch { /* the host is gone */ }
-        offMirror = null;
         try { offHead?.(); } catch { /* the host is gone */ }
         offHead = null;
         try { offCardSettings?.(); } catch { /* the host is gone */ }
@@ -130,6 +142,7 @@ export function createConnectPart(session, deps) {
         try { session.offPublicPaths?.(); } catch { /* the host is gone */ }
         session.offPublicPaths = null;
         session.baselineKey = null;
+        session.refused = false;
         hostRef = null;
         session.sdkRef = null;
         session.pendingSection = null;
@@ -147,7 +160,16 @@ export function createConnectPart(session, deps) {
         return false;
     }
 
+    /**
+     * Who holds the chat's state: 'hosted' (the host accepted the module: the store holds the people), 'pending' (a v2 host is on the page and has not
+     * accepted yet: nothing is written to a sidecar meanwhile, so the window before the connection leaves no file behind), or false (no host, or it refused).
+     */
+    function storeOwns() {
+        if (session.hosted) return 'hosted';
+        return session.started && !session.refused && isV2Host(host()) ? 'pending' : false;
+    }
+
     return {
-        poll, unhost, check,
+        poll, unhost, check, storeOwns,
     };
 }

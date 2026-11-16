@@ -131,6 +131,33 @@ export function createPublicApiStatePart(deps) {
             return true;
         });
     },
+    // (the one timeline) Replaces the open chat's people with the keys read from the Story Block store (src/adapter/people-sync.js); every other key stays.
+    // The scan bookkeeping of the replaced head (pending backfills, read-ahead, replies since the scan) is dropped, and the scan marker is held to the chat as it
+    // stands. Nothing is persisted and no native change is announced: the store is the copy, and this hydrate is not news for it.
+    hydratePeople: keys => {
+        const key = getChatKey();
+        if (!key || key === 'no-chat' || !keys || typeof keys !== 'object' || chatHydrationStatus(key) !== 'ready') return false;
+        const next = { ...getChatState(key), ...structuredClone(keys), pendingBackfills: [], readAhead: [], assistantSinceScan: 0 };
+        const latest = latestReplyIndex();
+        if (Number.isInteger(next.lastScannedMessageId) && Number.isInteger(latest) && next.lastScannedMessageId > latest) next.lastScannedMessageId = latest;
+        setChatState(key, next, { markLoaded: true });
+        renderDossier();
+        updateInjection();
+        return true;
+    },
+    // (the one timeline) The head's reply took the place of one that was read (a delete or swipe, then a new reply at the same place): the scan marker is held below
+    // the latest reply, so that reply is read again. In place on the state a running scan holds; nothing is persisted.
+    rescanLatest: () => {
+        const key = getChatKey();
+        if (!key || key === 'no-chat') return false;
+        const state = getChatState(key);
+        const latest = latestReplyIndex();
+        if (!state || !Number.isInteger(state.lastScannedMessageId) || !Number.isInteger(latest) || state.lastScannedMessageId < latest) return false;
+        state.lastScannedMessageId = latest - 1 >= 0 ? latest - 1 : null;
+        state.pendingBackfills = [];
+        state.readAhead = [];
+        return true;
+    },
     // Told after every durable change of the open chat's state that is not the participant's own; returns the way to stop.
     onNativeChange: listener => {
         if (typeof listener !== 'function') return () => {};

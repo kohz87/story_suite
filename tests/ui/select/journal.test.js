@@ -175,3 +175,25 @@ describe('calendarOf', () => {
     assert.deepEqual(calendarOf({ ...CALENDAR, week: [] }, TIME).weekdays, []);
   });
 });
+
+describe('selectJournal: steps, difficulty, weekdays, lapse date, start', () => {
+  const answers = {
+    'director.calendar': CALENDAR,
+    'director.time': { ...TIME, weekday: 'Secondday', firstWeekdays: [0, 1, 2, 0, 1, 2, 0, 1] },
+    'director.threads': [thread('th_1', 'Wolf pelts', { goal: 'Thin the pack', step: 'clear the den', difficulty: 'Hard' }, {})],
+    'quest.board': { active: [{ id: 'th_1', steps: ['ask at the lodge', 'clear the den'] }], offers: [] },
+    'director.world.leads': { rows: [{ name: 'Odd job', where: '', lapses: 'Goldwane 16' }] },
+    'director.journal': { on: true, days: [{ date: 'Goldwane 13', short: '' }, { date: 'Seedtime 2', short: '' }] },
+  };
+  const vm = selectJournal(name => answers[name] ?? null);
+  it('reads the step trail, the difficulty word, and a lead\'s lapse date', () => {
+    assert.deepEqual([vm.quests[0].steps, vm.quests[0].stepIndex, vm.quests[0].stepCount], [['ask at the lodge', 'clear the den'], 1, 2]);
+    assert.equal(vm.quests[0].difficulty, 'hard');
+    assert.equal(vm.leads[0].lapses, 'Goldwane 16');
+  });
+  it('takes each month\'s first weekday from director.time and the start from the oldest day', () => {
+    assert.deepEqual(vm.calendar.months.map(m => m.firstWeekday), [0, 1, 2, 0, 1, 2, 0, 1]);
+    assert.deepEqual(vm.calendar.start, { month: 2, day: 2 });
+  });
+  it('fits the shape', () => assert.deepEqual(checkShape(vm, JOURNAL_SHAPE), []));
+});

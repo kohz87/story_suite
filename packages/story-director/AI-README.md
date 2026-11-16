@@ -266,7 +266,7 @@ Queries:
 - State lives with the chat: Story Block keeps each reply's record in `message.extra.storySuite`; Story Director's domains are
   `director`, `atlas`, `chronicle`, `keypeople`, `cast`, `arc` and `checks`. Reader edits are `ui` commands stored on the latest
   reply, so a swipe or delete of it takes them back.
-- `director`: `time`, `threads`, `keys`, `problems` (newest 100 kept, 50 shown), `turn`, `checked`, `recap`, `initiative`.
+- `director`: `time`, `threads`, `keys`, `problems` (newest 100 kept, 50 shown), `steps` (quest step trails, newest 400 kept), `turn`, `checked`, `recap`, `initiative`.
   `atlas`: `places`, `routes`, `regions`, `danger`, `trips` (per-reply records). `chronicle`: `events`, `factions`, `days`,
   `dayFacts`. `keypeople`: `pins`, `away`, `gone`, `notes`. `cast`: `people`, `notes`, `day`, `meeting`.
 - Derived on read, never stored: World, Journal, Where things stand, a trip's position, dormant threads.

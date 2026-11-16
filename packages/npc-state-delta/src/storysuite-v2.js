@@ -45,8 +45,9 @@ import { createCastUiPart } from './adapter/cast-ui.js';
 import { createTimelinePart } from './adapter/timeline.js';
 import { createConnectPart } from './adapter/connect.js';
 import { createEditorPart } from './adapter/editor.js';
-import { createPeopleMirror } from './adapter/people-mirror.js';
-import { peopleView } from './people/view.js';
+import { createNativeDeath } from './adapter/native-death.js';
+import { createPeopleSync } from './adapter/people-sync.js';
+import { peopleView, peopleState, peopleCarry } from './people/view.js';
 import { hashJson } from './storysuite-participant/hash.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './adapter/queries.js';
@@ -178,6 +179,7 @@ export function createStorySuiteV2Adapter({
         pendingSection: null,   // a section element waiting for the panel to mount
         castEl: null,           // the last element the Cast tab rendered into
         pending: null,          // the connection attempt in progress, if any
+        refused: false,         // the host did not accept the module (or never became ready): nothing is held back for it
         baselineKey: null,      // the chat whose first loaded render was taken as the public paths' baseline
         offPublicPaths: null,   // unregisters Delta's public paths (npc.<name>.<meter>); `.changed()` tells the host the values moved
         lastTick: Promise.resolve(null),
@@ -197,15 +199,24 @@ export function createStorySuiteV2Adapter({
     deps.timeline = { get queries() { return timelinePartRef.timeline.queries; }, get catchUp() { return timelinePartRef.timeline.catchUp; } };
     const queriesPart = createQueriesPart(session, deps);
     Object.assign(deps, queriesPart);
-    // The people mirror (flag `suite.peopleInStore`, off unless the host answers `people.mirrorOn`): fed by the participant's publications.
-    const mirror = createPeopleMirror({
-        sdk: () => session.sdkRef, view: peopleView, hash: hashJson, readState: () => queriesPart.runtime()?.getState?.() ?? null,
-        warn: text => queriesPart.warn(text), idle: ms => queriesPart.runtime()?.scanIdle?.(ms) ?? true,
-        settled: () => timelinePartRef.headSettled(), catchUp: () => deps.timeline.catchUp?.status?.()?.running === true,
-        schedule: (fn, ms) => timers.setTimeout?.(fn, ms),
+    // The people live in the host's `people` domain: Delta's memory is a cache hydrated from it on every head move and chat load, and each change of
+    // Delta's own is one `people.write` for the reply the cache stands on (a head that moved refuses it and the cache hydrates again).
+    const peopleSync = createPeopleSync({
+        sdk: () => session.sdkRef, view: peopleView, restore: peopleState, hash: hashJson, warn: text => queriesPart.warn(text),
+        readState: () => queriesPart.runtime()?.getState?.() ?? null,
+        install: keys => queriesPart.runtime()?.hydratePeople?.(keys) === true,
+        ready: () => queriesPart.runtime()?.stateReady?.() !== false,
+        chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
+        rescan: () => queriesPart.runtime()?.rescanLatest?.(),
+        carry: peopleCarry,
     });
-    deps.mirror = mirror;
-    deps.participantOptions = { ...participantOptions, onPublished: published => mirror.onPublished(published) };
+    deps.peopleSync = peopleSync;
+    // A death the host confirmed: stored as a people write for the head's reply (see src/adapter/native-death.js).
+    const nativeDeath = createNativeDeath({
+        sdk: () => session.sdkRef, peopleSync, identity: args => timelinePartRef.timeline.queries['npc.identity'](null, args),
+        readState: () => queriesPart.runtime()?.getState?.() ?? null,
+        apply: state => queriesPart.runtime()?.hydratePeople?.(peopleState(peopleView(state))) === true,
+    });
     const castUiPart = createCastUiPart(session, deps);
     Object.assign(deps, castUiPart);
     const timelinePart = createTimelinePart(session, deps);
@@ -365,7 +376,11 @@ export function createStorySuiteV2Adapter({
             unhost();
         },
         check,
+        /** A death the host confirmed (an `np_` identity, the event's id, the head it read): stored for the head's reply; `{ ok }` or the refusal. */
+        confirmDeath: input => nativeDeath.confirmDeath(input),
         hosted: () => session.hosted,
+        /** 'hosted' | 'pending' | false: whether the store holds the chat's state (see connect.js storeOwns). */
+        storeOwns: connectPart.storeOwns,
         /** Resolves (true when it registered) once the latest connection attempt has settled. */
         settled: () => session.pending ?? Promise.resolve(false),
     });
