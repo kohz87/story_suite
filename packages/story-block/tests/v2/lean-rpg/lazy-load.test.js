@@ -60,10 +60,10 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
 test('the page start reaches neither the pack checker\'s checks, nor the Diagnostics page, nor the UI sample', () => {
     const files = closure('index.js');
     for (const file of ['src/v2/packs/validate.js', 'src/v2/packs/validate/items.js', 'src/v2/packs/validate/world.js', 'src/v2/packs/validate/events-economy.js',
-        'src/v2/view/settings/diagnostics-page.js', 'src/v2/screens/ui-sample.js']) assert.ok(!files.includes(file), `${file} comes in by import() only`);
+        '../../ui/legacy/view/settings/diagnostics-page.js', '../../ui/legacy/screens/ui-sample.js']) assert.ok(!files.includes(file), `${file} comes in by import() only`);
     // …while the checker and the page are reachable on their own, so the split is real.
     assert.ok(closure('src/v2/packs/validate.js').includes('src/v2/packs/validate/items.js'));
-    assert.ok(closure('src/v2/ui-host/settings.js').every(file => file !== 'src/v2/screens/ui-sample.js'), 'the settings host does not import the sample');
+    assert.ok(closure('../../ui/legacy/ui-host/settings.js').every(file => file !== '../../ui/legacy/screens/ui-sample.js'), 'the settings host does not import the sample');
 });
 
 const TINY = { id: 'tiny', name: 'Tiny', version: '1.0.0', requires: { storyBlock: '^2' }, content: { items: [{ name: 'Brass key', slot: 'hand' }] } };

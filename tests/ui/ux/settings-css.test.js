@@ -9,7 +9,7 @@ import { PALETTES, ROOT_SELECTOR, parseColor } from '../../../ui/legacy/view/the
 import { HOST_SETTINGS_SCHEMA } from '../../../core/sdk.js';
 import { cssOf, hostImports } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
+const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8');
 const css = cssOf('settings');
 
 function splitTop(text) {

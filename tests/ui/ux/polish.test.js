@@ -18,7 +18,7 @@ import { sourceOf } from '../../helpers/split-source.js';
 import { screen, screensWith, setupDom } from '../view/mounts/helpers.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
+const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8');
 
 // ---- navigation order -----------------------------------------------------------------------------
 
@@ -167,7 +167,7 @@ test('storyCalendar: Story Director\'s calendar, else the pack\'s, else Gregoria
 });
 
 test('the host gives templates the calendar fmt.time; Home and Scene use it', () => {
-    const host = sourceOf('src/v2/ui-host.js');
+    const host = sourceOf('../../ui/legacy/ui-host.js');
     assert.match(host, /time: minutes => formatStoryTime\(minutes, calendar\)/);
     assert.match(homeScreen.template, /fmt\.time\(state\.director\.time\.minutes\)/);
     assert.match(read('screens/scene.js'), /fmt\.time\(state\.director\.time\.minutes\)/);

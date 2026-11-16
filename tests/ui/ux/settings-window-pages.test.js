@@ -189,7 +189,7 @@ test('the window\'s layer and window never stay scrolled; the document is held w
 
 test('source: nothing in the settings window or the form engine calls scrollIntoView or a bare focus()', async () => {
     const { readFileSync, readdirSync } = await import('node:fs');
-    const dirs = ['src/v2/view/settings', 'src/v2/view/form'];
+    const dirs = ['ui/legacy/view/settings', 'ui/legacy/view/form'];
     const offenders = [];
     for (const dir of dirs) {
         for (const name of readdirSync(new URL(`../../../${dir}/`, import.meta.url))) {

@@ -17,10 +17,10 @@ export const SPLIT_PARTS = Object.freeze({
         '../../core/store/write/records.js', '../../core/store/write/lifecycle.js', '../../core/store/chains.js', '../../core/store-parts/create.js',
     ],
     '../../core/timeline/boundary.js': ['../../core/timeline/boundary-parts/marker.js', '../../core/timeline/boundary-parts/write-check.js'],
-    'src/v2/ui-host.js': [
-        'src/v2/ui-host/shared.js', 'src/v2/ui-host/shared-parts/dom-build.js', 'src/v2/ui-host/shared-parts/game-view-key.js', 'src/v2/ui-host/shared-parts/names.js', 'src/v2/ui-host/shared-parts/reader-settings.js', 'src/v2/ui-host/shared-parts/reply-record.js', 'src/v2/ui-host/setup.js', 'src/v2/ui-host/screens.js',
-        'src/v2/ui-host/replies.js', 'src/v2/ui-host/mounts.js', 'src/v2/ui-host/navigation.js',
-        'src/v2/ui-host/panel.js', 'src/v2/ui-host/settings.js', 'src/v2/ui-host/events.js',
+    '../../ui/legacy/ui-host.js': [
+        '../../ui/legacy/ui-host/shared.js', '../../ui/legacy/ui-host/shared-parts/dom-build.js', '../../ui/legacy/ui-host/shared-parts/game-view-key.js', '../../ui/legacy/ui-host/shared-parts/names.js', '../../ui/legacy/ui-host/shared-parts/reader-settings.js', '../../ui/legacy/ui-host/shared-parts/reply-record.js', '../../ui/legacy/ui-host/setup.js', '../../ui/legacy/ui-host/screens.js',
+        '../../ui/legacy/ui-host/replies.js', '../../ui/legacy/ui-host/mounts.js', '../../ui/legacy/ui-host/navigation.js',
+        '../../ui/legacy/ui-host/panel.js', '../../ui/legacy/ui-host/settings.js', '../../ui/legacy/ui-host/events.js',
     ],
     '../../core/store/write.js': [
         '../../core/store/write/saving.js', '../../core/store/write/story.js', '../../core/store/write/replace.js',
@@ -41,26 +41,26 @@ export const SPLIT_PARTS = Object.freeze({
         'src/v2/domains/inventory/queries-parts/carry.js', 'src/v2/domains/inventory/queries-parts/definitions.js', 'src/v2/domains/inventory/queries-parts/encumbrance.js', 'src/v2/domains/inventory/queries-parts/equipment.js', 'src/v2/domains/inventory/queries-parts/gear-names.js', 'src/v2/domains/inventory/queries-parts/list.js', 'src/v2/domains/inventory/queries-parts/shared-ask.js',
         'src/v2/domains/inventory/prompt-parts/packing.js', 'src/v2/domains/inventory/prompt-parts/phrases.js', 'src/v2/domains/inventory/prompt-parts/tail.js',
     ],
-    'src/v2/host-ui.js': [
-        'src/v2/host-ui/text.js',
-        'src/v2/host-ui/controls.js',
-        'src/v2/host-ui/sent.js',
-        'src/v2/host-ui/tab-host.js',
-        'src/v2/host-ui-parts/diagnostics-keys.js',
-        'src/v2/host-ui-parts/feature-row.js',
-        'src/v2/host-ui-parts/settings-host.js',
-        'src/v2/host-ui/text-parts/fold-ids-main.js',
-        'src/v2/host-ui/text-parts/fold-ids-more.js',
-        'src/v2/host-ui/text-parts/fold-ids-sub.js',
-        'src/v2/host-ui/text-parts/page-text.js',
-        'src/v2/host-ui/text-parts/settings-text.js',
-        'src/v2/host-ui/controls-parts/dom.js',
-        'src/v2/host-ui/controls-parts/field-control.js',
-        'src/v2/host-ui/controls-parts/field-row.js',
-        'src/v2/host-ui/controls-parts/groups.js',
-        'src/v2/host-ui/controls-parts/list-lines.js',
-        'src/v2/host-ui/controls-parts/row-value.js',
-        'src/v2/host-ui/controls-parts/values.js',
+    '../../ui/legacy/host-ui.js': [
+        '../../ui/legacy/host-ui/text.js',
+        '../../ui/legacy/host-ui/controls.js',
+        '../../ui/legacy/host-ui/sent.js',
+        '../../ui/legacy/host-ui/tab-host.js',
+        '../../ui/legacy/host-ui-parts/diagnostics-keys.js',
+        '../../ui/legacy/host-ui-parts/feature-row.js',
+        '../../ui/legacy/host-ui-parts/settings-host.js',
+        '../../ui/legacy/host-ui/text-parts/fold-ids-main.js',
+        '../../ui/legacy/host-ui/text-parts/fold-ids-more.js',
+        '../../ui/legacy/host-ui/text-parts/fold-ids-sub.js',
+        '../../ui/legacy/host-ui/text-parts/page-text.js',
+        '../../ui/legacy/host-ui/text-parts/settings-text.js',
+        '../../ui/legacy/host-ui/controls-parts/dom.js',
+        '../../ui/legacy/host-ui/controls-parts/field-control.js',
+        '../../ui/legacy/host-ui/controls-parts/field-row.js',
+        '../../ui/legacy/host-ui/controls-parts/groups.js',
+        '../../ui/legacy/host-ui/controls-parts/list-lines.js',
+        '../../ui/legacy/host-ui/controls-parts/row-value.js',
+        '../../ui/legacy/host-ui/controls-parts/values.js',
     ],
     'src/v2/packs/validate.js': [
         'src/v2/packs/validate/core.js', 'src/v2/packs/validate/items.js', 'src/v2/packs/validate/events-economy.js', 'src/v2/packs/validate/world.js', 'src/v2/packs/validate/theme.js',
@@ -80,35 +80,35 @@ export const SPLIT_PARTS = Object.freeze({
     'src/v2/packs/version.js': [
         'src/v2/packs/version-parts/shared-tag.js', 'src/v2/packs/version-parts/single.js', 'src/v2/packs/version-parts/range.js', 'src/v2/packs/version-parts/satisfy.js',
     ],
-    'src/v2/view/template/render.js': [
-        'src/v2/view/template/render/view.js', 'src/v2/view/template/render/blocks.js', 'src/v2/view/template/render/elements.js',
-        'src/v2/view/template/render/widgets.js', 'src/v2/view/template/render/dom.js', 'src/v2/view/template/render/page-ids.js',
-        'src/v2/view/template/render/dom-parts/access.js', 'src/v2/view/template/render/dom-parts/controls.js', 'src/v2/view/template/render/page-ids-parts/copies.js', 'src/v2/view/template/render/page-ids-parts/prefix.js', 'src/v2/view/template/render/page-ids-parts/value.js',
+    '../../ui/legacy/view/template/render.js': [
+        '../../ui/legacy/view/template/render/view.js', '../../ui/legacy/view/template/render/blocks.js', '../../ui/legacy/view/template/render/elements.js',
+        '../../ui/legacy/view/template/render/widgets.js', '../../ui/legacy/view/template/render/dom.js', '../../ui/legacy/view/template/render/page-ids.js',
+        '../../ui/legacy/view/template/render/dom-parts/access.js', '../../ui/legacy/view/template/render/dom-parts/controls.js', '../../ui/legacy/view/template/render/page-ids-parts/copies.js', '../../ui/legacy/view/template/render/page-ids-parts/prefix.js', '../../ui/legacy/view/template/render/page-ids-parts/value.js',
     ],
     '../../core/runtime.js': ['../../core/runtime-parts/version.js', '../../core/runtime-parts/create.js'],
-    'src/v2/reply-notes.js': ['src/v2/reply-notes-parts/problems.js', 'src/v2/reply-notes-parts/notes.js'],
+    '../../ui/legacy/reply-notes.js': ['../../ui/legacy/reply-notes-parts/problems.js', '../../ui/legacy/reply-notes-parts/notes.js'],
     '../../core/timeline/rewind.js': ['../../core/timeline/rewind-parts/st-branch.js', '../../core/timeline/rewind-parts/shared-limits.js', '../../core/timeline/rewind-parts/rewind.js', '../../core/timeline/rewind-parts/save-points.js'],
     'src/v2/rpg-lazy.js': ['src/v2/rpg-lazy-parts/holds.js', 'src/v2/rpg-lazy-parts/library.js', 'src/v2/rpg-lazy-parts/stand-in.js'],
     '../../core/runtime/saving.js': [
         '../../core/runtime/saving-parts/shared-plain.js', '../../core/runtime/saving-parts/page-marks.js', '../../core/runtime/saving-parts/rescue-lookup.js',
         '../../core/runtime/saving-parts/unload.js', '../../core/runtime/saving-parts/store-saving.js',
     ],
-    'src/v2/view/theme.js': [
-        'src/v2/view/theme-parts/bridge.js', 'src/v2/view/theme-parts/colors.js', 'src/v2/view/theme-parts/css.js', 'src/v2/view/theme-parts/defaults.js', 'src/v2/view/theme-parts/fonts.js', 'src/v2/view/theme-parts/glass.js', 'src/v2/view/theme-parts/options.js', 'src/v2/view/theme-parts/palettes.js', 'src/v2/view/theme-parts/roots.js', 'src/v2/view/theme-parts/scheme-choice.js', 'src/v2/view/theme-parts/scheme-tokens.js', 'src/v2/view/theme-parts/sheet-tokens.js', 'src/v2/view/theme-parts/text-size.js', 'src/v2/view/theme-parts/tint.js', 'src/v2/view/theme-parts/tokens.js',
+    '../../ui/legacy/view/theme.js': [
+        '../../ui/legacy/view/theme-parts/bridge.js', '../../ui/legacy/view/theme-parts/colors.js', '../../ui/legacy/view/theme-parts/css.js', '../../ui/legacy/view/theme-parts/defaults.js', '../../ui/legacy/view/theme-parts/fonts.js', '../../ui/legacy/view/theme-parts/glass.js', '../../ui/legacy/view/theme-parts/options.js', '../../ui/legacy/view/theme-parts/palettes.js', '../../ui/legacy/view/theme-parts/roots.js', '../../ui/legacy/view/theme-parts/scheme-choice.js', '../../ui/legacy/view/theme-parts/scheme-tokens.js', '../../ui/legacy/view/theme-parts/sheet-tokens.js', '../../ui/legacy/view/theme-parts/text-size.js', '../../ui/legacy/view/theme-parts/tint.js', '../../ui/legacy/view/theme-parts/tokens.js',
     ],
-    'src/v2/view/template/sanitize.js': [
-        'src/v2/view/template/sanitize-parts/attr-tables.js', 'src/v2/view/template/sanitize-parts/attrs.js', 'src/v2/view/template/sanitize-parts/control-types.js', 'src/v2/view/template/sanitize-parts/filter.js', 'src/v2/view/template/sanitize-parts/paint.js', 'src/v2/view/template/sanitize-parts/purify-config.js', 'src/v2/view/template/sanitize-parts/reserved.js', 'src/v2/view/template/sanitize-parts/run.js', 'src/v2/view/template/sanitize-parts/tags.js', 'src/v2/view/template/sanitize-parts/urls.js',
+    '../../ui/legacy/view/template/sanitize.js': [
+        '../../ui/legacy/view/template/sanitize-parts/attr-tables.js', '../../ui/legacy/view/template/sanitize-parts/attrs.js', '../../ui/legacy/view/template/sanitize-parts/control-types.js', '../../ui/legacy/view/template/sanitize-parts/filter.js', '../../ui/legacy/view/template/sanitize-parts/paint.js', '../../ui/legacy/view/template/sanitize-parts/purify-config.js', '../../ui/legacy/view/template/sanitize-parts/reserved.js', '../../ui/legacy/view/template/sanitize-parts/run.js', '../../ui/legacy/view/template/sanitize-parts/tags.js', '../../ui/legacy/view/template/sanitize-parts/urls.js',
     ],
-    'src/v2/view/widgets/dialog.js': [
-        'src/v2/view/widgets/dialog-parts/content.js', 'src/v2/view/widgets/dialog-parts/props.js', 'src/v2/view/widgets/dialog-parts/render.js', 'src/v2/view/widgets/dialog-parts/shared-text.js', 'src/v2/view/widgets/dialog-parts/widget.js',
+    '../../ui/legacy/view/widgets/dialog.js': [
+        '../../ui/legacy/view/widgets/dialog-parts/content.js', '../../ui/legacy/view/widgets/dialog-parts/props.js', '../../ui/legacy/view/widgets/dialog-parts/render.js', '../../ui/legacy/view/widgets/dialog-parts/shared-text.js', '../../ui/legacy/view/widgets/dialog-parts/widget.js',
     ],
-    'src/v2/view/template/render/dom.js': ['src/v2/view/template/render/dom-parts/access.js', 'src/v2/view/template/render/dom-parts/controls.js'],
-    'src/v2/view/template/render/page-ids.js': ['src/v2/view/template/render/page-ids-parts/copies.js', 'src/v2/view/template/render/page-ids-parts/prefix.js', 'src/v2/view/template/render/page-ids-parts/value.js'],
-    'src/v2/view/widgets/nav.js': [
-        'src/v2/view/widgets/nav-parts/shared-limits.js', 'src/v2/view/widgets/nav-parts/shared-short.js', 'src/v2/view/widgets/nav-parts/items.js',
-        'src/v2/view/widgets/nav-parts/reveal.js', 'src/v2/view/widgets/nav-parts/widget.js',
+    '../../ui/legacy/view/template/render/dom.js': ['../../ui/legacy/view/template/render/dom-parts/access.js', '../../ui/legacy/view/template/render/dom-parts/controls.js'],
+    '../../ui/legacy/view/template/render/page-ids.js': ['../../ui/legacy/view/template/render/page-ids-parts/copies.js', '../../ui/legacy/view/template/render/page-ids-parts/prefix.js', '../../ui/legacy/view/template/render/page-ids-parts/value.js'],
+    '../../ui/legacy/view/widgets/nav.js': [
+        '../../ui/legacy/view/widgets/nav-parts/shared-limits.js', '../../ui/legacy/view/widgets/nav-parts/shared-short.js', '../../ui/legacy/view/widgets/nav-parts/items.js',
+        '../../ui/legacy/view/widgets/nav-parts/reveal.js', '../../ui/legacy/view/widgets/nav-parts/widget.js',
     ],
-    'src/v2/view/widgets/map.js': ['src/v2/view/widgets/map-parts/props.js', 'src/v2/view/widgets/map-parts/widget.js'],
+    '../../ui/legacy/view/widgets/map.js': ['../../ui/legacy/view/widgets/map-parts/props.js', '../../ui/legacy/view/widgets/map-parts/widget.js'],
 });
 
 /** The text of `rel` (a path from the repository root) and of the parts moved out of it. */

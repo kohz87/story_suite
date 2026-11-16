@@ -270,7 +270,7 @@ test('Inventory Grid: a storage that throws on every call still draws the folds'
 });
 
 test('the inventory sheet\'s style sheet is imported by size.css and its rules are not in mounts.css', () => {
-    const read = name => readFileSync(new URL(`../../../src/v2/view/${name}`, import.meta.url), 'utf8');
+    const read = name => readFileSync(new URL(`../../../ui/legacy/view/${name}`, import.meta.url), 'utf8');
     assert.match(read('size.css'), /^@import url\('\.\/inv-sheet\.css'\);$/m);
     assert.match(read('inv-sheet.css'), /\.ss-dialog\.inv-sheet/);
     assert.match(read('inv-sheet.css'), /@supports[^{]*rgb\(from[^{]*\{\s*\.ss-dialog\.inv-sheet \{ background-color: var\(--ss-sheet-floor, rgb\(from var\(--ss-surface\) r g b \/ 1\)\)/, 'an opaque floor under non-Glass styles');

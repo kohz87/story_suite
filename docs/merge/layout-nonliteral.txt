@@ -103,3 +103,4 @@ tests/suite/nsd-static-part.js
 tests/suite/redraw-count.bench.test.js
 scripts/dryrun/suite-at.mjs
 tests/scripts/dryrun-suite-at.test.js
+tests/modules/cast/keypeople/pin-list.test.js

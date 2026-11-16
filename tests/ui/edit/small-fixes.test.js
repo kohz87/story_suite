@@ -6,7 +6,7 @@ import { luminance, parseColor, themeTokens } from '../../../ui/legacy/view/them
 import { core, queries, show, stocked } from '../screens/helpers.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
-const read = name => readFileSync(new URL(`../../../src/v2/view/${name}`, import.meta.url), 'utf8');
+const read = name => readFileSync(new URL(`../../../ui/legacy/view/${name}`, import.meta.url), 'utf8');
 
 test('a changed purse has one coin icon', () => {
     const module = core();

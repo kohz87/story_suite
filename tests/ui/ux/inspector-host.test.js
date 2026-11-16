@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 import { fakeRenderer, screen, screensWith, setupDom } from '../view/mounts/helpers.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
+const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8');
 
 // `features`: the reader's stored switches (extension_settings.storySuite.features).
 function setup({ features = null } = {}) {

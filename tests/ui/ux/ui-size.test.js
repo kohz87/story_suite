@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
 import { cssOf, hostImports } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 const size = read('view/size.css');
 const PHONE = '@media (max-width: 759.98px), (pointer: coarse)';
 const ROOTS = ['.ss-cards', '.story-suite-extras', '.story-suite-reply-note', '.story-suite-bar', '.ss-hud', '.story-suite-sheet > *',

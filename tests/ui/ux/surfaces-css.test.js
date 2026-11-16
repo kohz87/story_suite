@@ -11,7 +11,7 @@ import { ROOT_SELECTOR, THEME_ROOTS, themeCss, themeTokens } from '../../../ui/l
 import { changesCardScreen } from '../../../ui/legacy/screens/changes-card.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
+const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8');
 const host = cssOf('host');
 const mounts = cssOf('mounts');
 const glass = cssOf('glass');

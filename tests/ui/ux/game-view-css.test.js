@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { sourceOf } from '../../helpers/split-source.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/view/${path}`, import.meta.url), 'utf8');
+const read = path => readFileSync(new URL(`../../../ui/legacy/view/${path}`, import.meta.url), 'utf8');
 const mounts = cssOf('mounts');
 const glass = cssOf('glass');
 
@@ -79,7 +79,7 @@ test('the phone game view has an opaque floor under the tint, so blur off hides 
     // Glass only: the phone's floor and layers are tokens the theme sets for Glass; Solid and Follow SillyTavern have none
     assert.match(phone, /\.ss-gameview \{\s*background-image: var\(--ss-gameview-phone-layers, var\(--ss-sheet-layers, none\)\);/);
     assert.match(phone, /--ss-gameview-phone-floor, var\(--ss-sheet-bg, rgb\(from var\(--ss-surface\) r g b \/ 1\)\)/);
-    const theme = sourceOf('src/v2/view/theme.js');
+    const theme = sourceOf('../../ui/legacy/view/theme.js');
     assert.match(theme, /\['--ss-sheet-floor', 'rgb\(from var\(--ss-glass-strong\) r g b \/ 1\)'\]/, 'the floor is the Glass colour with no alpha');
     assert.match(theme, /\['--ss-gameview-phone-layers'/);
 });

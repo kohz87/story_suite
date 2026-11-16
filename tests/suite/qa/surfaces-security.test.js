@@ -24,9 +24,9 @@ test('no innerHTML, outerHTML, insertAdjacentHTML, document.write, eval or rando
 
 test('the tab strip built from a hostile title: the title is text, and the strip has no markup from it', () => {
     // host-ui.js passes the tab's title as the block's label (textContent in nav.js); the card and the notes do the same.
-    const nav = sourceOf('src/v2/view/widgets/nav.js');
+    const nav = sourceOf('../../ui/legacy/view/widgets/nav.js');
     assert.match(nav, /h\(doc, 'span', `ss-\$\{kind\}-label`, item\.label\)/, 'the label is text');
-    const hostUi = sourceOf('src/v2/host-ui.js');
+    const hostUi = sourceOf('../../ui/legacy/host-ui.js');
     assert.match(hostUi, /label: tab\.title,/);
     assert.doesNotMatch(hostUi.slice(hostUi.indexOf('function decorate()'), hostUi.indexOf('function draw()')), /innerHTML/);
 });

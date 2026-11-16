@@ -8,7 +8,7 @@ import { sourceOf } from '../../helpers/split-source.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
 const mounts = cssOf('mounts').replace(/\/\*[\s\S]*?\*\//g, '');
-const theme = sourceOf('src/v2/view/theme.js');
+const theme = sourceOf('../../ui/legacy/view/theme.js');
 
 test('the HUD strip: on a phone (below 760px) its background layers are the Glass token, and the rule is set after the strip\'s own rule', () => {
     const at = mounts.indexOf('@media (max-width: 759.98px) {\n    .ss-hud {');

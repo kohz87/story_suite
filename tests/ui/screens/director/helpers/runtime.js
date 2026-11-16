@@ -11,13 +11,18 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const STORY_BLOCK = new URL('../../../../../packages/story-block/', import.meta.url);
-const live = await import(new URL('src/v2/view/screens.js', STORY_BLOCK).href);
+// Story Block's view moved to ui/legacy/view (the events to modules/world/events) when the layout was applied; a
+// STORY_BLOCK_DIR checkout from before that still has them under src/v2, so each file is looked up there first.
+const ROOT = new URL('../../../../../', import.meta.url);
+const MOVED = { 'src/v2/events/index.js': 'modules/world/events/index.js' };
+const movedTo = rel => MOVED[rel] ?? rel.replace('src/v2/view/', 'ui/legacy/view/');
+const live = await import(new URL(movedTo('src/v2/view/screens.js'), ROOT).href);
 
 const dir = resolve(process.env.STORY_BLOCK_DIR ?? fileURLToPath(STORY_BLOCK));
-const file = rel => pathToFileURL(join(dir, rel)).href;
+const file = rel => pathToFileURL(existsSync(join(dir, rel)) ? join(dir, rel) : join(dir, '../..', movedTo(rel))).href;
 
 async function loadRenderer() {
-    if (!existsSync(join(dir, 'src/v2/view/template/index.js'))) return { runtime: null, reason: `STORY_BLOCK_DIR (${dir}) has no src/v2/view/template/index.js.` };
+    if (!existsSync(fileURLToPath(file('src/v2/view/template/index.js')))) return { runtime: null, reason: `STORY_BLOCK_DIR (${dir}) has no src/v2/view/template/index.js.` };
     try {
         const [template, bind, css, events, widgets, card, screens] = await Promise.all([
             import(file('src/v2/view/template/index.js')),

@@ -8,11 +8,11 @@ import { readFileSync } from 'node:fs';
 import { sourceOf } from '../../helpers/split-source.js';
 import { cssOf, hostImports as hostSheet } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/view/${path}`, import.meta.url), 'utf8');
+const read = path => readFileSync(new URL(`../../../ui/legacy/view/${path}`, import.meta.url), 'utf8');
 const mounts = cssOf('mounts');
 const strip = read('screenbar-strip.css');
 const host = cssOf('host');
-const theme = sourceOf('src/v2/view/theme.js');
+const theme = sourceOf('../../ui/legacy/view/theme.js');
 
 // The block of the media query that opens at `needle`, up to its closing brace at the left margin.
 const block = (css, needle) => {

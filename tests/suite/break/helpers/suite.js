@@ -36,7 +36,7 @@ export async function loadSuite() {
 /** A host with the two modules and the Ersveil pack installed before the chat starts. crypto is seeded while it lives. */
 export async function suiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [] } = {}) {
     // Receipt ids, seeds and reply ids follow the seed (the QA helper; its ids differ from the first character, unlike a counter's).
-    const restoreCrypto = (await loaded.at('tests/v2/qa/helpers/seeded.js')).seedCrypto(seed);
+    const restoreCrypto = (await loaded.at('../../tests/suite/qa/helpers/seeded.js')).seedCrypto(seed);
     let sdk = null;
     const sd = loaded.SD.createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) } });
     // NPC State Delta connects the way the page does (adapter.start(): it registers itself with the host and learns the sdk it

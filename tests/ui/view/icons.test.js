@@ -47,7 +47,7 @@ test('svgIcon: one <svg> and one <path> through createElementNS, the weight from
         assert.equal(hasIcon(bad), false, String(bad));
         assert.equal(svgIcon(doc, bad), null, String(bad));
     }
-    const source = readRepo('src/v2/view/icons/index.js');
+    const source = readRepo('ui/legacy/view/icons/index.js');
     assert.doesNotMatch(source, /innerHTML|insertAdjacentHTML|DOMParser|outerHTML/);
 });
 
@@ -77,11 +77,11 @@ test('the suite\'s screens have their own icons; a module\'s own icon wins on a 
 });
 
 test('credits: ICONS-CREDITS.md has the MIT text and every id; README and Diagnostics name Phosphor', () => {
-    const credits = readRepo('ICONS-CREDITS.md');
+    const credits = readRepo('packages/story-block/ICONS-CREDITS.md');
     assert.match(credits, /MIT License/);
     assert.match(credits, /Copyright \(c\) \d{4} Phosphor Icons/);
     for (const id of Object.keys(ICON_SET)) assert.ok(credits.includes(`\`${id}\``), id);
-    assert.match(readRepo('README.md'), /Phosphor Icons/);
-    assert.match(sourceOf('src/v2/host-ui.js'), /credits: 'Icons: Phosphor Icons/);
-    assert.equal(JSON.parse(readRepo('package.json')).dependencies?.['@phosphor-icons/core'], undefined, 'inlined, not a dependency');
+    assert.match(readRepo('packages/story-block/README.md'), /Phosphor Icons/);
+    assert.match(sourceOf('../../ui/legacy/host-ui.js'), /credits: 'Icons: Phosphor Icons/);
+    assert.equal(JSON.parse(readRepo('packages/story-block/package.json')).dependencies?.['@phosphor-icons/core'], undefined, 'inlined, not a dependency');
 });

@@ -9,7 +9,7 @@ import { FONT_STACKS, ROOT_SELECTOR, themeTokens } from '../../../ui/legacy/view
 import { sourceOf } from '../../helpers/split-source.js';
 import { cssOf, hostImports } from '../../core/helpers/css-parts.js';
 
-const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
+const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.meta.url), 'utf8');
 const css = cssOf('glass');
 
 function splitTop(text) {
@@ -132,14 +132,14 @@ test('Nunito is bundled: fonts.css points at files that exist, with the licence;
     }
     for (const [, path] of fonts.matchAll(/url\('([^']+)'\)/g)) {
         assert.ok(path.startsWith('../../../packages/story-block/assets/fonts/nunito/') && path.endsWith('.woff2'), path);
-        const file = new URL(`../../../src/v2/view/${path}`, import.meta.url);
+        const file = new URL(`../../../ui/legacy/view/${path}`, import.meta.url);
         assert.ok(existsSync(file) && statSync(file).size > 5000, `${path} exists`);
         assert.equal(readFileSync(file).subarray(0, 4).toString('latin1'), 'wOF2', `${path} is a woff2`);
     }
     assert.match(readFileSync(new URL('../../../packages/story-block/assets/fonts/nunito/OFL.txt', import.meta.url), 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/);
     assert.ok(!/https?:\/\//.test(fonts.replace(/\/\*[\s\S]*?\*\//g, '')), 'no external URL');
     for (const file of ['view/theme.js', 'view/fonts.css', 'view/glass.css', 'ui-host.js']) {
-        const source = file === 'ui-host.js' ? sourceOf('src/v2/ui-host.js') : file === 'view/glass.css' ? cssOf('glass') : read(file);
+        const source = file === 'ui-host.js' ? sourceOf('../../ui/legacy/ui-host.js') : file === 'view/glass.css' ? cssOf('glass') : read(file);
         assert.ok(!/googleapis|gstatic/.test(source), `${file} fetches nothing from Google`);
     }
     assert.match(themeFontStack(), /^'Nunito', system-ui/);
