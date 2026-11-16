@@ -4,6 +4,16 @@
 # packages symlinked under a temporary directory with their legacy names.
 set -euo pipefail
 
+# SUITE_SHARD=i/N runs only shard i of N (node --test-shard: every test file runs in exactly one shard). A shard
+# cannot check the floor alone, so it writes its test count to SUITE_COUNT_FILE and scripts/ci/suite-floor.sh
+# checks the sum over all shards. Skips and todos are still checked per shard.
+shard="${SUITE_SHARD:-}"
+shard_flag=()
+if [ -n "$shard" ]; then
+  case "$shard" in [1-9]/[1-9]) ;; *) echo "error: SUITE_SHARD must look like 1/2, got $shard" >&2; exit 1 ;; esac
+  shard_flag=("--test-shard=$shard")
+fi
+
 # Raise the floor when tests are added. A lower "# tests" count means test-level results were not
 # reported or tests were lost.
 MIN_TESTS=5826
@@ -65,7 +75,7 @@ set +e
 # The limit reports the hung test as "not ok ... timed out"; if it holds a live handle the job's own timeout-minutes ends the run.
 # Do not add --test-force-exit: it stops the run once the top-level tests registered so far finish, dropping later tests with exit 0.
 # Headroom: the slowest local test (fuzz seed 16) took up to ~490 s on a loaded machine, so 900 s is about 1.8x locally (about 3x on GitHub).
-node --test --test-timeout=900000 --test-reporter=tap "${globs[@]}" | tee "$tap_file"
+node --test --test-timeout=900000 ${shard_flag[@]+"${shard_flag[@]}"} --test-reporter=tap "${globs[@]}" | tee "$tap_file"
 status=${PIPESTATUS[0]}
 set -e
 
@@ -74,7 +84,9 @@ tests="$(count_of tests)"; skipped="$(count_of skipped)"; todo="$(count_of todo)
 echo "suite tests: ${tests:-unknown}, skipped: ${skipped:-unknown}, todo: ${todo:-unknown}"
 
 fail=0
-if [ "${tests:-0}" -lt "$MIN_TESTS" ]; then
+if [ -n "$shard" ]; then
+  if [ -n "${SUITE_COUNT_FILE:-}" ]; then echo "${tests:-0}" > "$SUITE_COUNT_FILE"; fi
+elif [ "${tests:-0}" -lt "$MIN_TESTS" ]; then
   echo "error: only ${tests:-0} tests reported, expected at least $MIN_TESTS (siblings missing, results lost or tests deleted)" >&2
   fail=1
 fi
