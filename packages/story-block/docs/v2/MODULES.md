@@ -183,7 +183,7 @@ These settle questions agents raised; the host changes they need are made at int
 28. XP curve and level cap: v1's, adjustable in settings.
 29. Companions' stat points auto-spent by default; a per-member toggle switches auto ↔ manual.
 30. Healing: rests and items, and story heals (`~ wound X — heal …`) capped by v1's wound shares.
-31. Checks: natural 20 always succeeds, natural 1 always fails, whatever the modifiers. *Superseded for Story Block's story checks by Combat Rules v1 Q8: they use the v1 roll (d20 + stat÷2 + level÷4, half utility mastery), a natural 20 that falls short fails, and there is no success at a cost. Story Director's standalone check still follows F31.*
+31. Checks: natural 20 always succeeds, natural 1 always fails, whatever the modifiers. *Superseded for Story Block's story checks by Combat Rules v1 Q8: they use the v1 roll (d20 + stat÷2 + level÷4, half utility mastery), a natural 20 that falls short fails, and there is no success at a cost. Story Director's own checks now follow the v1 rule too: F31 is superseded for story checks (owner, 16 Nov).*
 32. Up to 2 checks per reply, each rolled separately.
 33. **Modifiers apply to the roll result**: the reader presses Roll, sees the d20 (fixed by the seed through
     preview), may still add modifiers (abilities, items, custom) to that result, then confirms; total =

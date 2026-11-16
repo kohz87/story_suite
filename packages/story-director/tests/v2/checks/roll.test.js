@@ -42,10 +42,11 @@ test('standalone: bonuses[stat] and each matching topic once; the outcome is the
     assert.equal(out.result.narrate, true);
 });
 
-test('outcomes: natural 20 and 1, success at the number, fail one short (no cost outcome); no dc uses the setting', () => {
+test('outcomes: natural 20 (only when it meets the DC) and 1, success at the number, fail one short (no cost outcome); no dc uses the setting', () => {
     const { state } = withActor();
     const outcome = (die, dc, settings) => roll(state, dc ? { dc } : {}, { die, settings }).result.data.v2.result.outcome;
-    assert.equal(outcome(20, 40), 'crit');
+    assert.equal(outcome(20, 15), 'crit');
+    assert.equal(outcome(20, 40), 'fail', 'a natural 20 that misses the number is not a critical (the v1 rule)');
     assert.equal(outcome(1, 1), 'critfail');
     assert.equal(outcome(10, 10), 'success');
     assert.equal(outcome(9, 10), 'fail');
