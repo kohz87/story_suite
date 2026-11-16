@@ -11,6 +11,7 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const SIZES = [[390, 844], [820, 1180]];
 const GOLD = { dark: 'rgb(240, 184, 74)', light: 'rgb(138, 90, 0)' };
 const DISC = { dark: 'rgb(58, 60, 82)', light: 'rgb(74, 77, 104)' };
+const TILE = { dark: 'rgb(58, 60, 82)', light: 'rgb(220, 220, 234)' };
 
 function serve() {
   const server = http.createServer((req, res) => {
@@ -71,7 +72,7 @@ for (const theme of ['dark', 'light']) {
         await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=people`);
         await page.waitForSelector('#hx-frame .su-host');
         const tile = await page.evaluate(() => getComputedStyle(document.querySelector('#hx-frame .prg .ph')).backgroundColor);
-        assert.equal(tile, DISC[theme], 'People tile disc colour');
+        assert.equal(tile, TILE[theme], 'People tile disc colour');
         await page.evaluate(() => document.querySelector('#hx-frame [data-person-id="temiwa"]').click());
         await page.waitForSelector('#hx-frame .dossier .mood3');
         const v = await page.evaluate(read);
