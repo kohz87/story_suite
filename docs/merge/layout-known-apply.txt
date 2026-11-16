@@ -13,3 +13,19 @@ test tests/core/skills-reread.test.js:288
 test tests/core/skills-reread.test.js:57
 test tests/core/timeline-active-history.test.js:271
 test tests/core/v1-copy.test.js:21
+stale packages/story-block/tests/v2/break/helpers/suite.js tests/v2/qa/helpers/seeded.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/view/settings/diagnostics-page.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/screens/ui-sample.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/ui-host/settings.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/screens/ui-sample.js
+stale packages/story-block/tests/v2/qa/surfaces-security.test.js src/v2/view/widgets/nav.js
+stale packages/story-block/tests/v2/qa/surfaces-security.test.js src/v2/host-ui.js
+stale packages/story-block/tests/v2/ux/game-view-css.test.js src/v2/view/theme.js
+stale packages/story-block/tests/v2/ux/game-view-opaque-css.test.js src/v2/view/theme.js
+stale packages/story-block/tests/v2/ux/glass-css.test.js src/v2/ui-host.js
+stale packages/story-block/tests/v2/ux/hud-buttons-css.test.js src/v2/view/theme.js
+stale packages/story-block/tests/v2/ux/polish.test.js src/v2/ui-host.js
+stale packages/story-block/tests/v2/ux/settings-window-pages.test.js src/v2/view/settings
+stale packages/story-block/tests/v2/ux/settings-window-pages.test.js src/v2/view/form
+stale packages/story-block/tests/v2/view/icons.test.js src/v2/view/icons/index.js
+stale packages/story-block/tests/v2/view/icons.test.js src/v2/host-ui.js
