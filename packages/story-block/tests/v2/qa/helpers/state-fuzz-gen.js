@@ -105,8 +105,9 @@ export function bonusPaidOnLine(host) {
     // One rebuild per checkpoint segment: at the carrier before each later checkpoint, and at the head.
     const list = carriers(chat);
     const ends = list.filter((index, at) => at === list.length - 1 || readRecord(chat[list[at + 1]])?.checkpoint);
+    const memo = new Map();
     for (const index of ends) {
-        for (const entry of rebuildAt(chat, index).skipped) for (const rev of entry.revs) skipped.add(`${entry.index}:${rev}`);
+        for (const entry of rebuildAt(chat, index, memo).skipped) for (const rev of entry.revs) skipped.add(`${entry.index}:${rev}`);
     }
     let paid = 0;
     for (const index of carriers(chat)) {
