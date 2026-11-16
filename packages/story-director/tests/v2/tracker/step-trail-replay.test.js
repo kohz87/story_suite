@@ -6,6 +6,7 @@ import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { withD1 } from '../helpers/d1.js';
 import { validateDirector } from '../../../src/v2/tracker/domain-parts/validate.js';
+import { recordStep, stepsFor } from '../../../src/v2/tracker/capture-parts/step-trail.js';
 import { STEP_CEILING, STEP_KEPT, stepOrder } from '../../../src/v2/tracker/domain-parts/shared-step-keys.js';
 
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
@@ -88,7 +89,7 @@ test('the validator: at most 2 × the kept entries, keys by reply, each entry wi
     assert.deepEqual(stepErrors(map(STEP_CEILING)), []);
     assert.equal(stepErrors(map(STEP_CEILING + 1)).length, 1);
     assert.deepEqual(stepErrors({ 'r12.0': { thread: 'th_x', text: 's', turn: 0, place: -1 } }), []);
-    assert.equal(stepErrors({ 'plan:arc.0': { thread: 'th_x', text: 's', turn: 0, place: 0 } }).length, 1);
+    assert.equal(stepErrors({ 'bad key.0': { thread: 'th_x', text: 's', turn: 0, place: 0 } }).length, 1);
     assert.equal(stepErrors({ 'sw_1.0': { thread: 'th_x', text: 's' } }).length, 1);
 });
 
@@ -103,4 +104,14 @@ test('an offer writes its first step: deleting the reply that next changes the s
     assert.deepEqual(board(host), board(fresh));
     // Places and turns after the delete keep the values stored when written; the entries, their order and texts match.
     assert.deepEqual(stored(host).map(row => row.slice(1, 4)), stored(fresh).map(row => row.slice(1, 4)));
+});
+
+test('a step written outside a reply\'s capture (an arc plan) is kept under <sid>:<receipt>.<n>, and every older key form still reads in order', () => {
+    const director = { turn: { n: 3, now: null }, steps: { 'r4.0': { thread: 'th_x', text: 'old-r', turn: 1, place: -1 }, '5.0': { thread: 'th_x', text: 'old-rev', turn: 2, place: 4 } } };
+    const thread = { id: 'th_x', fields: { step: 'planned' } };
+    recordStep(director, { cause: 'plan', reply: { sid: 'sw_9' }, receiptId: 'rc1', rev: 7 }, thread);
+    recordStep(director, { cause: 'story', carrier: { sid: 'sw_9', index: 2 }, rev: 7 }, { id: 'th_x', fields: { step: 'told' } });
+    assert.deepEqual(Object.keys(director.steps).sort(), ['5.0', 'r4.0', 'sw_9.0', 'sw_9:rc1.0']);
+    assert.deepEqual(stepsFor(director, 'th_x'), ['old-r', 'old-rev', 'planned', 'told']);
+    assert.deepEqual(validateDirector({ time: { minutes: null }, threads: {}, keys: {}, writes: {}, problems: {}, turn: { n: 0, now: null }, steps: director.steps }), []);
 });

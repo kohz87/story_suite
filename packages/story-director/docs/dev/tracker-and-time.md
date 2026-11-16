@@ -14,10 +14,10 @@ this repo's AI-README "Reply format the model writes" and "Data the model sees" 
   Problems are kept under `<sid>.<n>` keys (the reply's record ID and a count, `src/v2/reply-keys.js`; older states `<rev>.<n>`),
   read in reply-count (`turn`), rev, then count order, the newest `PROBLEM_ROOM` (100) kept, `PROBLEM_LIMIT` (50) shown.
 - **Quest step trail** (`director.steps`, `tracker/capture-parts/step-trail.js`, limits in `domain-parts/shared-step-keys.js`): each
-  step a thread takes is one add `{ thread, text, turn, place }` under a key of the reply that wrote it, `<carrier sid>.<n>`
-  (`r<rev>.<n>` outside a reply's capture, such as an arc plan), so an edited Re-read never lands on a later reply's stored key.
-  A trail is read in story order: the writing reply's `turn`, then its number within the reply, and between two replies on one
-  turn (a Re-read that gave Director lines to a reply that had none) the earlier `place` (carrier index). The reply that makes
+  step a thread takes is one add `{ thread, text, turn, place }` under a key of the reply that wrote it, the shared reply key (`<sid>.<n>`,
+  `<sid>:<receipt>.<n>` outside a reply's capture such as an arc plan, `src/v2/reply-keys.js`; older `r<rev>.<n>` / `<rev>.<n>` still read), so an edited Re-read never lands on a later reply's stored key.
+  A trail is read in story order: the writing reply's `turn`, then the earlier `place` (carrier index; two replies share a turn when a
+  Re-read gave Director lines to a reply that had none), then its number within the reply. The reply that makes
   a thread writes its first step, the offer path (`+ hook … | goal: … | step: …`) included. The newest `STEP_KEPT` (400)
   entries are kept, oldest pruned by key; `quest.board` and the Journal show the newest 12 of a trail. The validator allows
   `STEP_CEILING` (2 × 400): a Re-read can hold more than the live cap, because a later reply's stored prune of a key that is
