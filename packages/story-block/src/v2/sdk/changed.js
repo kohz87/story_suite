@@ -1,4 +1,6 @@
 // The sdk's `changed` event: one tell per reply (or per out-of-turn change) of which domains moved, so a panel redraws what changed.
+// `keys` is never empty (a change that stored nothing is not told); `['*']` means everything.
+// `index` is the head carrier when the tell is sent (null if the store fails); `reason` is `turn`, `command`, the head event's reason, or `head`.
 
 import { parsePath } from '../ops/paths.js';
 
@@ -26,21 +28,26 @@ function domainsOf(ops) {
  */
 export function createChangedFeed({ store, events, defer = queueMicrotask }) {
     let seen = { index: -1, count: 0 };
-    let pending = null;     // { star, reason } when a microtask flush is owed
+    let pending = null;     // { rank, reason } when a microtask flush is owed
     let queued = false;
 
     // The domains of the ops stored since the last look, and the head carrier's index.
     function take() {
         const index = store.headIndex();
         const ops = store.opsAt(index);
-        const from = seen.index === index && seen.count <= ops.length ? seen.count : 0;
+        const moved = seen.index !== index;
+        let before = [];
+        // The head moved: what the old carrier grew since the last look (a cue before the reply) is told too.
+        if (moved && seen.index >= 0) { try { before = store.opsAt(seen.index).slice(seen.count); } catch { before = []; } }
+        const from = !moved && seen.count <= ops.length ? seen.count : 0;
         seen = { index, count: ops.length };
-        return { index, keys: domainsOf(ops.slice(from)) };
+        return { index, keys: domainsOf([...before, ...ops.slice(from)]) };
     }
     function tell(star, reason) {
         let found;
         try { found = take(); } catch { found = { index: null, keys: [] }; star = true; }
-        events.emit('changed', { keys: star ? ['*'] : found.keys, index: found.index, reason });
+        const keys = star ? ['*'] : found.keys;
+        if (keys.length) events.emit('changed', { keys, index: found.index, reason });   // never an empty tell
     }
     // One tell is owed per microtask: what came in meanwhile (a head move, a turn, commands) joins it; a head move's ['*'] wins, then a turn's reason.
     function owe(name, rank) {
@@ -56,7 +63,8 @@ export function createChangedFeed({ store, events, defer = queueMicrotask }) {
     }
 
     const offs = [
-        events.on('committed', ({ receipt } = {}) => { if (!REPLY_CAUSES.has(receipt?.cause)) owe('command', 0); }),
+        // A reply's own lines wait for its turn; a system commit outside a reply (standalone: module set-up, due events, the timeline) is told itself.
+        events.on('committed', ({ receipt, standalone } = {}) => { if (standalone || !REPLY_CAUSES.has(receipt?.cause)) owe('command', 0); }),
         events.on('head', payload => owe(payload?.reason ?? 'head', STAR)),
         events.on('turn', () => owe('turn', 1)),
     ];

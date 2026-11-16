@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **The sdk tells modules when the story state changed (`changed` event, always on, nothing listens yet).** `sdk.on('changed', ({ keys, index, reason }) => …)` fires once per reply, Re-read or out-of-turn change with the domains it touched, and with `['*']` when the head moved (swipe, delete, rewind, chat change). The `committed`, `turn` and `head` events keep their order and count. Nothing you play changes.
+- **The sdk tells modules when the story state changed (`changed` event, always on, nothing listens yet).** `sdk.on('changed', ({ keys, index, reason }) => …)` fires once per reply, Re-read, out-of-turn change or system commit outside a reply (a module set up mid-chat, a cue before the reply) with the domains it touched, and with `['*']` (meaning everything) when the head moved (swipe, delete, rewind, chat change; with Assist on a second one follows the reply). `keys` is never empty: a change that stored nothing is not told. The `committed`, `turn` and `head` events keep their order and count. Nothing you play changes.
 
 - **A story change that makes a once-only claim is never applied twice after an edited Re-read.** If you edit an earlier reply so it now makes the same once-only claim a later reply already made, and Re-read it, the later reply's change is skipped (the earlier one wins) and the Problems list says `claim already held (<key>), so <command> stays off`; the rest of the later reply still applies. Before, a change with no guard of its own (an older kind of change) applied again. No change on main makes such a claim from a story line today, so nothing you play changes; this guards the next one.
 

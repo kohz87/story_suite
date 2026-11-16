@@ -839,7 +839,7 @@ sdk.registerModule({
     a module that must run there checks `sdk.feature?.(id) ?? true` and keeps its core text in
     `context.static` / `context.tail`.
 * **Tabs** render into Story Block's tab bar from the head state; they never read message text.
-* **Events**: `sdk.on('committed' | 'head' | 'turn' | 'feature' | 'modules' | 'changed', fn, { module }?)` (`module`: with the internal flag `suite.isolatedApply` on, a throw or rejection of `fn` is a Problem of that module; `sdk/listener-guard.js`); `head` fires after any rebuild; `changed` ({ keys, index, reason }) fires once per reply or out-of-turn change with the domains touched, `['*']` when the head moved (`sdk/changed.js`).
+* **Events**: `sdk.on('committed' | 'head' | 'turn' | 'feature' | 'modules' | 'changed', fn, { module }?)` (`module`: with the internal flag `suite.isolatedApply` on, a throw or rejection of `fn` is a Problem of that module; `sdk/listener-guard.js`); `head` fires after any rebuild; `changed` ({ keys, index, reason }) fires once per reply (or Re-read, or out-of-turn change, or system commit outside a reply such as a module set up mid-chat) with the domains touched, and again after any head move; `keys` is never empty (a change that stored nothing is not told) and `['*']` means everything; `index` is the head carrier when it is sent (`null` if the store fails); `reason` is `turn`, `command`, or the `head` event's reason (`sdk/changed.js`).
 * `sdk.query(name, args)`, `sdk.modules()`, `sdk.id(prefix)`, `sdk.check`, `sdk.settings(id)`, `sdk.feature(id)`,
   `sdk.features()`.
 * **Model calls** (MODULES §G): `sdk.callModel({ profile, system, prompt, maxTokens, signal, feature })` →

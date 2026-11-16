@@ -14,7 +14,14 @@ const counter = {
         'tally.add'(ctx) { ctx.draft('tally').n += 1; return {}; },
         'ab.add'(ctx) { ctx.draft('other').n += 1; return {}; },
     },
-    capture: { kinds: { tally: { grammar: '+ tally Name' } }, apply: () => ({}) },
+    capture: { kinds: { tally: { grammar: '+ tally Name' } }, apply(ctx) { ctx.draft('tally').n += 1; return {}; } },
+};
+// A cue before the reply writes the "cue" domain (a system commit on the previous reply); the reply writes "tally".
+const cued = {
+    id: 'cued', name: 'Cued', version: '2.0.0-alpha.1',
+    domains: { cue: { initial: () => ({ n: 0 }) } },
+    commands: { 'cue.bump'(ctx) { ctx.draft('cue').n += 1; return {}; } },
+    hooks: { beforeGenerate: () => ({ commands: [{ type: 'cue.bump', payload: {} }] }) },
 };
 
 // A store stand-in: the head carrier's stored ops.
@@ -116,8 +123,7 @@ test('live: a reply, an out-of-turn command, a swipe and a delete; committed and
     const names = () => seen.map(entry => entry[0]);
     await host.send('Go.', 'Done.\n\n<Changes>\n+ tally Name\n</Changes>');
     await tick();
-    const changedAfter = seen.filter(entry => entry[0] === 'changed');
-    assert.ok(changedAfter.length >= 1);
+    assert.deepEqual(seen.filter(entry => entry[0] === 'changed').map(entry => entry[1]), [['tally']], 'the reply tells its own domain');
     assert.ok(names().indexOf('turn') < names().indexOf('changed'), 'changed follows turn');
     seen.length = 0;
     await Promise.all([host.sdk.command('tally.add'), host.sdk.command('ab.add')]);
@@ -127,7 +133,15 @@ test('live: a reply, an out-of-turn command, a swipe and a delete; committed and
     seen.length = 0;
     await host.swipe('Other.\n\n<Changes>\n+ tally Name\n</Changes>');
     await tick();
-    assert.ok(seen.some(entry => entry[0] === 'changed'), 'a swipe tells');
+    assert.deepEqual(seen.filter(entry => entry[0] === 'changed').map(entry => entry[1]), [['*'], ['tally']], 'a swipe tells ["*"] (the head moved), then its reply');
+    seen.length = 0;
+    await host.st.swipeTo(host.ctx.chat.length - 1, 0);
+    await tick();
+    assert.deepEqual(seen.filter(entry => entry[0] === 'changed').map(entry => entry[1]), [['*']], 'a swipe back tells ["*"] once');
+    seen.length = 0;
+    await host.cont('More.\n\n<Changes>\n+ tally Name\n</Changes>');
+    await tick();
+    assert.deepEqual(seen.filter(entry => entry[0] === 'changed').map(entry => entry[1]), [['tally']], 'a Continue tells only its new ops');
     host.close();
 });
 
@@ -160,4 +174,49 @@ test('live: a Re-read, an edited Re-read and a middle delete each tell, and the 
     await tick();
     assert.deepEqual(got.map(value => value.keys), [['tally']], 'the next command tells only its own keys');
     host.close();
+});
+
+test('live: a cue before the reply and a module set up mid-chat are told, not only the reply\'s own domain', async () => {
+    const host = await createHost({ fakes: true, core: false, modules: [counter, cued] });
+    const got = [];
+    host.sdk.on('changed', value => got.push(value));
+    await host.send('One.', 'A.\n\n<Changes>\n+ tally Name\n</Changes>');
+    await tick();
+    got.length = 0;
+    await host.send('Two.', 'B.\n\n<Changes>\n+ tally Name\n</Changes>');
+    await tick();
+    const told = new Set(got.flatMap(value => value.keys));
+    assert.ok(told.has('cue') && told.has('tally'), `both domains told: ${JSON.stringify(got)}`);
+    got.length = 0;
+    await host.sdk.registerModule({ id: 'late', name: 'Late', version: '2.0.0-alpha.1', domains: { lt: { initial: () => ({ n: 0 }) } } });
+    await tick();
+    assert.ok(got.some(value => value.keys.includes('lt') || value.keys.includes('*')), `a module set up mid-chat is told: ${JSON.stringify(got)}`);
+    host.close();
+});
+
+test('a change that stored nothing is not told (keys are never empty)', async () => {
+    const { events, got } = rig();
+    events.emit('turn', { index: 1 });
+    events.emit('committed', { receipt: { cause: 'ui' } });
+    await tick();
+    assert.deepEqual(got, []);
+});
+
+test('a standalone system commit is told; the old carrier\'s growth joins the next reply', async () => {
+    const { store, events, got, add } = rig();
+    add(1, '/domains/a/n');
+    events.emit('turn', { index: 1 });
+    await tick();
+    got.length = 0;
+    add(1, '/domains/late/n');
+    events.emit('committed', { receipt: { cause: 'system' }, standalone: true });
+    await tick();
+    assert.deepEqual(got, [{ keys: ['late'], index: 1, reason: 'command' }]);
+    got.length = 0;
+    add(1, '/domains/cue/n');
+    events.emit('committed', { receipt: { cause: 'system' } });   // a cue: waits for its reply
+    store.index = 2; add(2, '/domains/tally/n');
+    events.emit('turn', { index: 2 });
+    await tick();
+    assert.deepEqual(got, [{ keys: ['cue', 'tally'], index: 2, reason: 'turn' }]);
 });
