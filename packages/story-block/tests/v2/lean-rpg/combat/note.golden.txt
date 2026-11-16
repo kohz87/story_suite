@@ -1,9 +1,9 @@
-## A quiet fight, won (about 100 words asked)
+## A quiet fight, won, a foe taken to 0 (at most 250 words asked)
 
 Tell the settled fight results in order; do not reroll them.
 Write [battle] on its own line where the fight is told.
 Code has already moved the bars for these results; never set those yourself.
-Tell the fight in about 100 words: how it opened, the deciding moment, how it ended; the battle log keeps the blow-by-blow.
+Tell the fight in at most 250 words, in up to three short paragraphs: the opening, the turning point, the finish; the battle log keeps the blow-by-blow.
 Order: Cy, Kira before Wolf; the party act first.
 Exchange 1: Cy takes the Defence stance
 Kira takes the Defence stance
@@ -38,7 +38,7 @@ Exchange 2: Wolf 2 attacks Ana: hit, decisive; Ana's Defence stance absorbs 19%;
 The fight is lost.
 Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.
 
-## A fight the party flees (about 250 words asked)
+## A fight the party flees (at most 250 words asked)
 
 Tell the settled fight results in order; do not reroll them.
 Write [battle] on its own line where the fight is told.
@@ -59,3 +59,57 @@ Exchange 3: Cy's flee from Wolf fails
 Kira flees from Wolf.
 The party fled.
 Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.
+
+## An open skirmish: plain, area and skill attacks, stances taken and dropped, a heal, soaked hits (about 100 words asked)
+
+Tell the settled fight results in order; do not reroll them.
+Write [battle] on its own line where the fight is told.
+Code has already moved the bars for these results; never set those yourself.
+Tell the fight in about 100 words: how it opened, the deciding moment, how it ended; the battle log keeps the blow-by-blow.
+Order: Rin, Kira, Bo before Rat 2, Rat 3, Rat 1; the party act first.
+Exchange 1: Rin takes the Evasion stance
+Kira takes the Defence stance
+Rin attacks Rat 2 (area): hit; Rat 2 HP 30 → 23
+Rin attacks Rat 3 (area): miss
+Rin attacks Rat 1 (area): hit; Rat 1 HP 30 → 23
+Rin acts again (tempo)
+Rin attacks Rat 2 (area): miss
+Rin attacks Rat 3 (area): hit; Rat 3 HP 30 → 23
+Rin attacks Rat 1 (area): miss
+Rin acts again (tempo)
+Rin attacks Rat 2 (area): hit; Rat 2 HP 23 → 16
+Rin attacks Rat 3 (area): hit; Rat 3 HP 23 → 16
+Rin attacks Rat 1 (area): miss
+Kira attacks Rat 2 (skill): miss
+Bo attacks Rat 2: hit; Rat 2 HP 16 → 12
+Bo acts again (tempo)
+Bo attacks Rat 2: miss
+Rat 2 attacks Rin: evaded
+Rat 3 attacks Kira: evaded
+Rat 1 attacks Bo: evaded.
+Exchange 2: Kira drops the Defence stance
+Rin attacks Rat 2 (area): miss
+Rin attacks Rat 3 (area): miss
+Rin attacks Rat 1 (area): miss (natural 1)
+Kira attacks Rat 2 (skill): hit; Rat 2 HP 12 → 5
+Kira acts again (tempo)
+Kira attacks Rat 2 (skill): miss (natural 1)
+Bo attacks Rat 2: hit; Rat 2 HP 5 → 1
+Rat 2 attacks Rin: hit; 12% absorbed; Rin HP 15 → 10
+Rat 3 attacks Kira: hit; 20% absorbed; Kira HP 19 → 15
+Rat 1 attacks Bo: evaded.
+Exchange 3: Kira takes the Defence stance
+Rin attacks Rat 2 (area): miss
+Rin attacks Rat 3 (area): hit; Rat 3 HP 16 → 9
+Rin attacks Rat 1 (area): miss
+Rin acts again (tempo)
+Rin attacks Rat 2 (area): miss
+Rin attacks Rat 3 (area): miss (natural 1)
+Rin attacks Rat 1 (area): miss
+Kira heals Rin: Rin HP 10 → 15
+Bo attacks Rat 2: miss
+Rat 2 attacks Rin: evaded
+Rat 3 attacks Kira: evaded
+Rat 1 attacks Bo: evaded.
+The fight is still open.
+The fight is still in progress; do not tell a post-fight aftermath yet.

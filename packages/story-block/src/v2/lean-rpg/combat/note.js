@@ -1,5 +1,5 @@
 // The v1 settled note, pure: the narrator's account of a fight from the v1 envelope (envelope.js), told exchange by exchange in numbers. Not wired (C7 wires it).
-// The fixed instructions and the closing lines are the old note's words (board/note-parts/settled-note.js), and the fight-length line is the old one (fight-length.js), unchanged.
+// The fixed instructions and the closing lines are the old note's words (board/note-parts/settled-note.js), and the fight-length line is the old one (fight-length.js) with the old rule unchanged: any actor going to 0, a foe included, makes the fight intense (250 words).
 
 import { BATTLE_MARKER } from '../names.js';
 import { fightLength } from '../board/note-parts/fight-length.js';
@@ -12,10 +12,15 @@ const AFTER = {
     other: 'Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.',
 };
 
-// fightLength reads the old result shape: its turn order as entries, the rounds and the hero bar rows. A foe going down does not make a fight intense here, a hero going down does.
+// fightLength reads the old result shape: its turn order as entries, a list of rounds (only their count is used here) and `hurts` rows. The v1 rows are arrays it would misread,
+// so it gets empty rounds, and "someone went to 0" (a hero or a foe, the old rule) is derived from the HP moves and passed as `hurts` rows.
+const wentDown = moves => moves.filter(move => move?.bar === 'hp' && Number(move.from) > 0 && Number(move.to) <= 0).map(move => ({ id: String(move.id ?? ''), from: move.from, to: move.to }));
 function lengthOf(envelope) {
     const order = envelope.order ?? {};
-    return fightLength({ stop: envelope.stop, rounds: envelope.rounds ?? [], hurts: envelope.hurts ?? [], order: [...(order.party ?? []).map(() => ({ party: true })), ...(order.foes ?? []).map(() => ({ party: false }))] });
+    return fightLength({
+        stop: envelope.stop, rounds: (envelope.rounds ?? []).map(() => ({ lines: [] })), hurts: wentDown(envelope.moves ?? []),
+        order: [...(order.party ?? []).map(() => ({ party: true })), ...(order.foes ?? []).map(() => ({ party: false }))],
+    });
 }
 
 /** The exchanges of the record as `{ n, parts }`, the parts being the told rows in order (stance changes first as the engine writes them); `opening` is the order line of a first segment. */

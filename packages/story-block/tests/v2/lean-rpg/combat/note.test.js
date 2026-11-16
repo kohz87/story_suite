@@ -9,7 +9,7 @@ import { settledNote } from '../../../../src/v2/lean-rpg/board/note-parts/settle
 import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
 import { envelopeOf } from '../../../../src/v2/lean-rpg/combat/envelope.js';
 import { seeded } from './dice.helper.js';
-import { hard, played, quiet, turns } from './note.helper.js';
+import { hard, played, quiet, skirmish, skirmishChoices, turns } from './note.helper.js';
 
 const GOLDEN = new URL('./note.golden.txt', import.meta.url);
 const split = note => note.split(' | ');
@@ -20,13 +20,25 @@ const exchanges = note => note.replace(/ \| (The fight is|The party fled)[\s\S]*
 const healing = [{}, {}, { Cy: { kind: 'heal', target: 'Kira' } }, {}, {}, {}];
 const win = () => played(quiet(), 'a', healing);
 const loss = () => played(hard(), 'a', 12);
+const open = () => played(skirmish(), 'a', skirmishChoices);
 const fled = () => played(quiet(), 'a', 6, { flee: { 3: ['Kira', 'Cy'] } });
 
-test('the drafted note golden: a quiet win, a lost fight and a fled one', () => {
-    const text = [['A quiet fight, won (about 100 words asked)', win()], ['A hard fight, lost (at most 250 words asked)', loss()], ['A fight the party flees (about 250 words asked)', fled()]]
+test('the drafted note golden: a quiet win, a lost fight, a fled one and an open skirmish (every sentence shape)', () => {
+    const text = [['A quiet fight, won, a foe taken to 0 (at most 250 words asked)', win()], ['A hard fight, lost (at most 250 words asked)', loss()], ['A fight the party flees (at most 250 words asked)', fled()], ['An open skirmish: plain, area and skill attacks, stances taken and dropped, a heal, soaked hits (about 100 words asked)', open()]]
         .map(([title, envelope]) => `## ${title}\n\n${show(settledNoteV1(envelope))}\n`).join('\n');
     if (process.env.WRITE_GOLDEN) writeFileSync(GOLDEN, text);
     assert.equal(text, readFileSync(GOLDEN, 'utf8'));
+});
+
+test('the length rule is unchanged: any actor going to 0, a foe included, asks for 250 words; a won fight where none went down asks for 100', () => {
+    const rats = envelope => settledNoteV1(envelope);
+    const won = played(quiet(), 'a', 6);
+    assert.equal(won.stop, 'won');
+    assert.ok(won.moves.some(move => move.bar === 'hp' && move.from > 0 && move.to === 0 && !won.party.some(hero => hero.id === move.id)), 'the won fight has a foe taken to 0');
+    assert.equal(won.hurts.some(hurt => hurt.to === 0), false, 'and no hero went to 0 (hurts hold heroes only)');
+    assert.match(rats(won), /at most 250 words/u);
+    const quietWin = { ...won, moves: won.moves.filter(move => !(move.to === 0 && move.bar === 'hp')) };
+    assert.match(rats(quietWin), /about 100 words/u);
 });
 
 test('the fixed instructions and the closing lines are the old note\'s words, byte for byte', () => {
@@ -57,8 +69,9 @@ test('a hit names the stance that soaked it, once; a stance told once, and dropp
     assert.match(dropped, /Exchange 1: Kira takes the Defence stance\. \| Exchange 2: Kira drops the Defence stance\./u);
 });
 
-test('the length line follows the fight: a hero down, a loss or a flee ask for 250 words, a plain win for 100; none for an empty account', () => {
-    assert.match(settledNoteV1(win()), /about 100 words/u);
+test('the length line follows the fight: a hero or a foe down, a loss or a flee ask for 250 words, an open fight where none went down for 100; none for an empty account', () => {
+    assert.match(settledNoteV1(win()), /at most 250 words/u, 'a foe went to 0: the old rule');
+    assert.match(settledNoteV1(open()), /about 100 words/u);
     assert.match(settledNoteV1(loss()), /at most 250 words/u);
     assert.match(settledNoteV1(fled()), /at most 250 words/u);
     assert.doesNotMatch(settledNoteV1(win(), { fightLen: false }), /words/u);
