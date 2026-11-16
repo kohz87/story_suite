@@ -80,3 +80,24 @@ test('switch off: a ~ secret line opens nothing', async () => {
     await say(s, STORY, [line()]);
     assert.deepEqual(opened(s), []);
 });
+
+test('Continue: the quote may come in the continuation; the same line again in a later continuation opens nothing twice; rebuild equals live', async () => {
+    const s = await suite({ lines: true, records: records() });
+    const at = await say(s, 'The hall was quiet.', []);
+    await quiet(async () => { await s.host.cont(`\n${STORY}\n\n<Changes>\n${line()}\n</Changes>`); await s.adapter.ticked(); });
+    assert.deepEqual(opened(s), [DUKE], 'the line and its quote both came with the continuation');
+    same(s, 'continue replay equals live');
+    await quiet(async () => { await s.host.cont('\nThe doors closed.'); await s.adapter.ticked(); });
+    assert.deepEqual(opened(s), [DUKE], 'a later continuation does not open it again');
+    assert.equal(s.host.store.headIndex(), at);
+    same(s, 'second continue replay equals live');
+});
+
+test('Continue: a line whose quote is not in the text so far is refused, and stays refused when the continuation only adds other words', async () => {
+    const s = await suite({ lines: true, records: records() });
+    await say(s, 'The hall was quiet.', [line()]);
+    assert.deepEqual(opened(s), []);
+    await quiet(async () => { await s.host.cont('\nShe turned away.'); await s.adapter.ticked(); });
+    assert.deepEqual(opened(s), []);
+    same(s, 'replay equals live');
+});

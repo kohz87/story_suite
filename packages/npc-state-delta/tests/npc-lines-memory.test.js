@@ -24,13 +24,27 @@ test('a why: becomes that person\'s memory with the reply and its story day; the
     same(s, 'replay equals live');
 });
 
-test('a told lie and a milestone are memories too; a caught lie and a line with no words are not', async () => {
-    const s = await suite({ lines: true });
+test('a told lie (its words as written) and a milestone are memories too; a caught lie and a meter line with no why: are not', async () => {
+    const s = await suite({ lines: true, features: { 'npc-state-delta.stages': true } });
     await s.say(['~ lie Oren | to: Sister Temiwa | said: I was home all night', '~ npc Oren | trust: +1']);
-    assert.deepEqual(memories(s), ['Told Sister Temiwa: I was home all night']);
+    assert.deepEqual(memories(s), ['I was home all night'], 'the lie\'s own words; the meter line without a why: adds none');
     await s.say(['~ lie Oren | to: Sister Temiwa | said: I was home all night | caught: yes']);
     assert.equal(memories(s).length, 1, 'catching it saves nothing more');
+    await s.say(['+ milestone Oren — a promise was kept']);
+    assert.deepEqual(memories(s), ['I was home all night', 'a promise was kept']);
     same(s, 'replay equals live');
+});
+
+test('storage only appends: six memories, the first reply deleted, only its memory goes and the rest stay; the dossier cap of five applies where a record is read', async () => {
+    const s = await suite({ lines: true });
+    const SIX = ['1 Promised the abbot a quiet gate.', '2 Swam the river at night carrying a lantern.', '3 Burned the bridge ledger behind him.', '4 Heard the tower bell ring thirteen times.', '5 Traded a silver comb at the market.', '6 Confessed a forged seal to the cook.'];
+    const first = await s.say([`~ memory Oren | ${SIX[0]}`]);
+    for (const text of SIX.slice(1)) await s.say([`~ memory Oren | ${text}`]);
+    assert.equal(memories(s).length, 6, 'six stored (the five-memory cap is applied by the reader of a record)');
+    same(s, 'replay equals live');
+    await quiet(async () => { await s.host.st.deleteMessage(first); await s.host.st.deleteMessage(first - 1); });
+    assert.deepEqual(memories(s).map(text => text.match(/\d/)[0]), ['2', '3', '4', '5', '6'], 'the deleted reply\'s memory is gone and nothing else was rewritten');
+    same(s, 'middle delete replay equals live');
 });
 
 test('~ memory: one sentence about a moment no line covers; code owns who and the day', async () => {
@@ -139,4 +153,16 @@ test('a new person starts with empty memory containers, so a later memory surviv
     await quiet(async () => { await s.host.st.deleteMessage(middle); await s.host.st.deleteMessage(middle - 1); });
     assert.deepEqual(people(s).npcs.npc_marta.memories, ['Lent a pen.'], 'the deleted reply\'s memory goes, the later one stays');
     same(s, 'middle delete replay equals live');
+});
+
+test('Continue: a third ~ memory arriving in a continuation is still refused, and a repeat of the first two writes nothing more', async () => {
+    const s = await suite({ lines: true });
+    await quiet(() => s.say(['~ memory Oren | Promised to guard the gate.', '~ memory Sister Temiwa | Shared a joke about the abbot.']));
+    await quiet(async () => { await s.host.cont('\n\n<Changes>\n~ memory Oren | Swore never to speak of it.\n</Changes>'); await s.adapter.ticked(); });
+    assert.deepEqual(memories(s), ['Promised to guard the gate.'], 'the third is refused');
+    assert.deepEqual(memories(s, 'npc_temiwa'), ['Shared a joke about the abbot.']);
+    same(s, 'continue replay equals live');
+    await quiet(async () => { await s.host.cont('\nMore story.'); await s.adapter.ticked(); });
+    assert.equal(memories(s).length, 1);
+    same(s, 'second continue replay equals live');
 });

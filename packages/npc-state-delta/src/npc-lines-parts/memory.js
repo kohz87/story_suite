@@ -1,14 +1,15 @@
 // Memories from the lines (NSD8), only while lines mode is on. The words of a `~ npc` line's why:, of a lie and of a milestone are saved as that person's memory by code
-// (withMemories); `~ memory Name | what happened` is only for a moment no line covers, at most two a reply (memoryLine). Code owns who, the story day, the cap
-// (the dossier's five important memories) and the trim; a memory already stored, or one that only rewords it, is not stored twice. The writes are the reply's own
+// (withMemories); `~ memory Name | what happened` is only for a moment no line covers, at most two a reply (memoryLine). Code owns who, the story day and the cap and trim
+// (the dossier's five important memories, applied where a record is read; storage only appends); a memory already stored, or one that only rewords it, is not stored twice. The writes are the reply's own
 // (`people.memory` in the line's transaction), so a swipe, a middle delete, a Re-read and a reload decide them again the same way.
 import { clean, isInt, slug, REASON_LABELS } from '../npc-meters-config.js';
 import { normalizeName } from '../../core-text.js';
-import { normalizeStoredMemories, stampMemories } from '../../core-record-shared.js';
+import { normalizeStoredMemories } from '../../core-record-shared.js';
 import { knownPerson } from './stub.js';
 
 export const MEMORY_PER_REPLY = 2;
 const MEMORY_MAX = 300;
+const MEMORY_STORE_MAX = 400;   // what people.memory takes (Story Block's own cap is 500)
 
 // The memories this reply's `~ memory` lines already saved, across every person (a stamp keeps its reply's sid in `s`).
 const savedBy = (ctx, sid) => Object.values(ctx.read('people')?.npcs ?? {}).reduce((count, record) => count + Object.values(record?.memoryStamps ?? {}).filter(stamp => stamp?.s === sid).length, 0);
@@ -23,11 +24,14 @@ function saveMemory(ctx, { key, text, date = '', tag = false }) {
     const sid = typeof ctx.carrier?.sid === 'string' ? ctx.carrier.sid : null;
     if (tag && sid && savedBy(ctx, sid) >= MEMORY_PER_REPLY) return `at most ${MEMORY_PER_REPLY} memories a reply`;
     const before = Array.isArray(record.memories) ? record.memories : [];
-    const memories = normalizeStoredMemories([...before, said]);
-    const kept = new Set(before.map(normalizeName));
-    if (!memories.some(item => normalizeName(item) === normalizeName(said)) || kept.has(normalizeName(said))) return 'already stored';
-    const stamps = { ...(stampMemories({ memories: before, memoryStamps: record.memoryStamps }, { memories, memoryStamps: record.memoryStamps }, at, () => date) ?? {}) };
-    if (tag && sid && stamps[normalizeName(said)]) stamps[normalizeName(said)] = { ...stamps[normalizeName(said)], s: sid };
+    if (before.length >= MEMORY_STORE_MAX) return 'the list is full';
+    // Storage only ever grows by one at the end (an add, never a replace of what an earlier reply wrote, so deleting that reply takes only its own memory); the
+    // dossier's five-memory cap and trim happen where a record is read (normalizeNpcRecord). normalizeStoredMemories is used here to tell a repeat or a rewording.
+    const recent = normalizeStoredMemories([...before.slice(-8), said]);
+    if (!recent.some(item => normalizeName(item) === normalizeName(said)) || before.some(item => normalizeName(item) === normalizeName(said))) return 'already stored';
+    const stamp = { m: at ?? 0, ...(date ? { d: String(date).slice(0, 40) } : {}), ...(tag && sid ? { s: sid } : {}) };
+    const stamps = { ...(record.memoryStamps ?? {}), [normalizeName(said)]: stamp };
+    const memories = [...before, said];
     ctx.call('people.memory', { id: key, memories, stamps });
     return '';
 }
@@ -43,13 +47,13 @@ export function memoryLine(ctx, line, deps) {
     return { summary: `${clean(line.name, 40)}: a memory.`, data: { key: found.key, memory: true }, narrate: false };
 }
 
-// The words a line leaves as a memory (or ''): a `~ npc` line's why:, a told lie, a milestone.
+// The words a line leaves as a memory (or ''), exactly as written: a `~ npc` line's why:, a told lie's said:, a milestone.
 function wordsOf(line) {
     if (line.kind === 'npc' && line.op === '~') {
         const why = Object.entries(line.labels ?? {}).find(([label, raw]) => REASON_LABELS.has(slug(label)) && String(raw ?? '').trim());
         return why ? why[1] : '';
     }
-    if (line.kind === 'lie' && !/^(yes|true)$/i.test(String(line.labels?.caught ?? '').trim()) && line.labels?.said) return `Told ${clean(line.labels.to, 40) || 'someone'}: ${line.labels.said}`;
+    if (line.kind === 'lie' && !/^(yes|true)$/i.test(String(line.labels?.caught ?? '').trim()) && line.labels?.said) return line.labels.said;
     return line.kind === 'milestone' && line.op === '+' ? line.text : '';
 }
 
