@@ -7,7 +7,7 @@ export { LIMITS, RECORD_LIMITS, CONTENT_KINDS, OPTIONAL_KINDS } from './limits-p
 export { YOU_FIELDS, YOU_RANK_FIELDS, YOU_RANK_LABEL_MAX, HOST_CAPABILITIES } from './limits-parts/host.js';
 export { PACK_FIELDS, ECONOMY_FIELDS, ECONOMY_LIMITS, START_FIELDS } from './limits-parts/pack-fields.js';
 export { ITEM_KINDS, RARITIES, ITEM_FIELDS, STAT_NAME } from './limits-parts/items.js';
-export { ITEM_CARRY, ITEM_BONUS, ITEM_SOAK } from './limits-parts/item-bounds.js';
+export { ITEM_CARRY, ITEM_BONUS, ITEM_SOAK, ITEM_WEIGHT } from './limits-parts/item-bounds.js';
 export { EVENT_FIELDS, EVENT_LIMITS, CHOICE_FIELDS } from './limits-parts/events.js';
 export { SKILL_FIELDS, SKILL_TYPES, SKILL_TARGETS, PRESET_FIELDS } from './limits-parts/skills.js';
 export { PLACE_FIELDS, ROUTE_FIELDS } from './limits-parts/map.js';

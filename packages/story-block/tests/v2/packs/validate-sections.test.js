@@ -19,7 +19,9 @@ test('item fields follow the inventory def', () => {
     refused(withItem({ name: 'Rope', tags: 'fibre' }), 'BAD_RECORD');
     refused(withItem({ name: 'Rope', aliases: [''] }), 'BAD_RECORD');
     refused(withItem({ name: 'Rope', note: 'n'.repeat(501) }), 'BAD_RECORD');
-    refused(withItem({ name: 'Rope', weight: 2 }), 'UNKNOWN_FIELD');
+    refused(withItem({ name: 'Rope', heft: 2 }), 'UNKNOWN_FIELD');
+    assert.equal(validatePack(withItem({ name: 'Rope', weight: 2 })).ok, true, 'weight is a field now (0 to 99)');
+    refused(withItem({ name: 'Rope', weight: 100 }), 'BAD_RECORD');
     refused(withItem({ name: 'Rope', id: 'rope' }), 'UNKNOWN_FIELD', 'the id is made, not given');
     const several = validatePack(withItem({ name: 'Rope', kind: 'x', value: -1 }));
     assert.equal(several.errors.length, 2, 'one record reports each problem');
