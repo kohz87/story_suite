@@ -11,7 +11,7 @@ import { validatePack } from '../../packs/validate.js';
 import { findPackEntries } from '../../packs/lorebook.js';
 import { evaluateCondition } from '../../modules/world/events/condition.js';
 
-const root = fileURLToPath(new URL('../../core/boot/boot.js/', import.meta.url));
+const root = fileURLToPath(new URL('../../', import.meta.url));
 const packPath = new URL('../../examples/packs/ersveil/pack.json', import.meta.url);
 const lorePath = new URL('../../examples/packs/ersveil/ersveil-lore.json', import.meta.url);
 const packText = readFileSync(packPath, 'utf8');

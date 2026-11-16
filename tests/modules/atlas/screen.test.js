@@ -10,9 +10,10 @@ import { installFakeDom } from '../../helpers/director/ui-fake-dom.js';
 import { command, makeState, query } from './helpers/fake-ctx.js';
 
 // Story Block's template renderer (SPEC §13.2), used from a Story Block checkout when there is one.
-const SB = new URL('../../../packages/story-block/src/v2/', import.meta.url).pathname;
-const HAVE_TEMPLATES = ['view/template/index.js', 'view/bind.js', 'events/index.js'].every(file => existsSync(`${SB}${file}`));
-const NO_TEMPLATES = HAVE_TEMPLATES ? false : `Story Block's template renderer is not at ${SB}view/template/`;
+const ROOT = new URL('../../../', import.meta.url).pathname;
+const TEMPLATE_FILES = ['ui/legacy/view/template/index.js', 'ui/legacy/view/bind.js', 'modules/world/events/index.js'];
+const HAVE_TEMPLATES = TEMPLATE_FILES.every(file => existsSync(`${ROOT}${file}`));
+const NO_TEMPLATES = HAVE_TEMPLATES ? false : `the template renderer is not at ${ROOT}ui/legacy/view/template/`;
 
 const PACK = {
     places: [
@@ -44,9 +45,9 @@ test('the Map screen is a valid screen definition holding the atlas Map widget b
 });
 
 test('Story Block\'s template renderer draws the real Map widget from atlas.view; a pick shows the trip and writes nothing', { skip: NO_TEMPLATES }, async () => {
-    const { compileTemplate, renderTemplate } = await import(`${SB}view/template/index.js`);
-    const { conditionEvaluator } = await import(`${SB}view/bind.js`);
-    const { compile, evaluate } = await import(`${SB}events/index.js`);
+    const { compileTemplate, renderTemplate } = await import(`${ROOT}ui/legacy/view/template/index.js`);
+    const { conditionEvaluator } = await import(`${ROOT}ui/legacy/view/bind.js`);
+    const { compile, evaluate } = await import(`${ROOT}modules/world/events/index.js`);
     forgetViews();
     const compiled = compileTemplate(mapScreen.template);
     assert.deepEqual(compiled.warnings, []);

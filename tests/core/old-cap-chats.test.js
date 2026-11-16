@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../testkit/index.js';
 
-const load = name => JSON.parse(readFileSync(new URL(`../../packages/story-block/tests/v2/fixtures/${name}`, import.meta.url), 'utf8'));
+const load = name => JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8'));
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const coin = host => host.head().domains.inventory.wallets.party?.coin ?? 0;
 const qty = (host, name) => host.sdk.query('inventory.items').filter(item => item.name === name).reduce((sum, item) => sum + item.qty, 0);

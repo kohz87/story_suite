@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { SB_V2 } from './scripts/sb-root.mjs';
 
-const { validatePack } = await import(new URL('../../../../packs/validate.js', SB_V2));
-const { HOST_CAPABILITIES } = await import(new URL('../../../../packs/limits.js', SB_V2));
+const { validatePack } = await import(new URL('packs/validate.js', SB_V2));
+const { HOST_CAPABILITIES } = await import(new URL('packs/limits.js', SB_V2));
 export const SUITE_CAPABILITIES = Object.freeze([...new Set([...HOST_CAPABILITIES,
     'story-block', 'story-director', 'npc-state-delta', 'inventory', 'scene', 'director', 'quests', 'npc', 'chronicle-lasting'])]);
 

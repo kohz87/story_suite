@@ -83,5 +83,5 @@ test('credits: ICONS-CREDITS.md has the MIT text and every id; README and Diagno
     for (const id of Object.keys(ICON_SET)) assert.ok(credits.includes(`\`${id}\``), id);
     assert.match(readRepo('docs/history/packages/story-block/README.md'), /Phosphor Icons/);
     assert.match(sourceOf('../../ui/legacy/host-ui.js'), /credits: 'Icons: Phosphor Icons/);
-    assert.equal(JSON.parse(readRepo('docs/history/packages/story-block/package.json')).dependencies?.['@phosphor-icons/core'], undefined, 'inlined, not a dependency');
+    assert.equal(JSON.parse(readRepo('package.json')).dependencies?.['@phosphor-icons/core'], undefined, 'inlined, not a dependency');
 });

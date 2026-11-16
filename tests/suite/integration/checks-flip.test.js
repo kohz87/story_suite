@@ -1,13 +1,11 @@
 // The send flow keeps its pre-roll when Story Director supplies standalone checks.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
 
-const path = new URL('../../../../Story_director/src/v2/module.js', import.meta.url);
-const director = existsSync(path) ? (await import(path.href)).createModule : null;
+const director = (await import('../../../ui/legacy/director/module.js')).createModule;
 
-test('a pre-roll uses Director checks without a battle module and replays with the reply', { skip: director ? false : 'Story Director checkout not present' }, async t => {
+test('a pre-roll uses Director checks without a battle module and replays with the reply', async t => {
     let sdk;
     let calls = 0;
     const module = director({ host: { settings: id => sdk?.settings(id) ?? {}, substitute: text => text } });

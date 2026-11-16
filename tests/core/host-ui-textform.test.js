@@ -156,7 +156,7 @@ const coreFor = () => createCoreModule({ packs: packsFor({ extensionSettings: {}
 const report = { report: () => 'REPORT' };
 
 test('the legacy story-suite-slider is gone: no code or rule draws it (the form engine has the slider)', () => {
-    const hostUi = sourceOf('src/v2/host-ui.js');
+    const hostUi = sourceOf('../../ui/legacy/host-ui.js');
     const css = cssOf('host');
     assert.doesNotMatch(hostUi, /story-suite-slider|sliderControl/);
     assert.doesNotMatch(css, /story-suite-slider/);

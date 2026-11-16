@@ -1,7 +1,6 @@
 // The order of a reply's lines does not matter to a trip: `~ trip` declares `after: ['place', 'mount']`, so Story Block (2.11.1 and later)
 // runs it behind the reply's `~ place` and `+ mount` lines and plans from the place and the mount pace they set up. An older host reads
-// the lines as written (the trip then plans from where the scene was). The host part runs against a Story Block checkout named by
-// STORY_BLOCK_DIR (Story Block 2.11.1 and later reorder; an older checkout does not).
+// the lines as written (the trip then plans from where the scene was). The host part runs on this repo's own testkit host.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +10,7 @@ import { pathToFileURL } from 'node:url';
 
 import { createModule } from '../../../../ui/legacy/director/module.js';
 
-const dir = process.env.STORY_BLOCK_DIR ? path.resolve(process.env.STORY_BLOCK_DIR) : null;
+const dir = path.resolve(import.meta.dirname, '../../../..');
 const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
@@ -30,7 +29,7 @@ async function hostWith(createHost) {
     return host;
 }
 
-test('a trip written before its place and mount lines plans from them, as if written after (needs STORY_BLOCK_DIR at Story Block 2.11.1 or later)', { skip: dir ? false : 'set STORY_BLOCK_DIR to a Story Block checkout' }, async t => {
+test('a trip written before its place and mount lines plans from them, as if written after ', async t => {
     t.mock.method(console, 'warn', () => {});
     const { createHost } = await import(pathToFileURL(path.join(dir, 'testkit/index.js')).href);
     const make = async lines => {

@@ -14,7 +14,7 @@ import { loadSuite, suiteHost } from './helpers/suite.js';
 
 const loaded = await loadSuite();
 const skip = loaded.skip ?? false;
-const helpers = loaded.skip ? null : await loaded.at('tests/v2/data-modules/helpers.js');
+const helpers = loaded.skip ? null : await loaded.at('tests/modules/data-modules/helpers.js');
 const settle = () => new Promise(resolve => setImmediate(resolve));
 // The first few paths where two states differ, so a failure names what moved instead of printing two walls of JSON.
 function paths(a, b, at = '', out = []) {
@@ -66,7 +66,7 @@ const STEPS = [
 ];
 
 async function playFight(host, hero) {
-    const { STANDARD_TEMPLATES } = await loaded.at('src/v2/lean-rpg/templates.js');
+    const { STANDARD_TEMPLATES } = await loaded.at('modules/rpg/templates.js');
     const defs = structuredClone(STANDARD_TEMPLATES.filter(entry => ['character', 'foes'].includes(entry.definition.role)).map(entry => entry.definition));
     const [pc, foes] = [defs.find(d => d.role === 'character'), defs.find(d => d.role === 'foes')];
     pc.slug = 'e2e-hero'; pc.name = 'E2E Hero';
@@ -82,8 +82,8 @@ async function playFight(host, hero) {
 }
 // Open a board segment on the current head and stage the hero's attack (as the fuzz does before each send of a fight).
 async function stageBoard(host, hero) {
-    const { STANDARD_FORMULA } = await loaded.at('src/v2/lean-rpg/rules.js');
-    const { openBoard, stageExchange } = await loaded.at('src/v2/lean-rpg/board/session.js');
+    const { STANDARD_FORMULA } = await loaded.at('modules/rpg/rules.js');
+    const { openBoard, stageExchange } = await loaded.at('modules/rpg/board/session.js');
     const opened = openBoard(host.ctx.chatMetadata, host.store.head(), { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
     assert.equal(opened.error, undefined, `the board opens: ${opened.error}`);
     assert.equal(stageExchange(host.ctx.chatMetadata, host.store.head(), [{ who: hero, kind: 'attack', target: 21 }]).error, undefined, 'the exchange stages');
@@ -126,7 +126,7 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
     for (const [n, [player, story, lines]] of STEPS.map((step, i) => [i + 1, step])) {
         const label = `reply ${n}`;
         if (n === 26) await playFight(host, 'Astra');
-        if (n === 27) (await loaded.at('src/v2/lean-rpg/board/session.js')).discardBoard(host.ctx.chatMetadata);   // the reader leaves the fight
+        if (n === 27) (await loaded.at('modules/rpg/board/session.js')).discardBoard(host.ctx.chatMetadata);   // the reader leaves the fight
         const result = await host.send(player, host.reply(story, lines.filter(line => line !== '! encounter')));
         if (n === 26) await soft(label, () => assert.ok(host.ctx.chat[result.index]?.extra?.storySuite?.receipts?.some(r => r.type === 'rpg.resolve' && r.replan?.payload?.board), 'the fight reply carries a board resolve receipt'));
         if (!(result.index >= 0)) {

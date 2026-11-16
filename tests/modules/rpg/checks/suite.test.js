@@ -14,7 +14,7 @@ import { tailOf } from '../helpers.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const file = [process.env.STORY_SUITE_ROOT, path.resolve(here, '../../../../packages')].filter(Boolean).map(root => path.join(root, 'Story_director', 'src', 'v2', 'module.js')).find(existsSync);
+const file = [path.join(process.env.STORY_SUITE_ROOT ?? '', 'Story_director', 'src', 'v2', 'module.js'), path.resolve(here, '../../../../ui/legacy/director/module.js')].find(existsSync);
 let SD = null;
 if (file) { try { SD = await import(pathToFileURL(file).href); } catch { SD = null; } }
 const available = await hostAvailable();

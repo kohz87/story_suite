@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CASES, ROWS, discoverRoots, formatDetails, formatTable, loadModules, runMatrix, summaryLine } from '../../testkit/matrix/index.js';
 
-const root = fileURLToPath(new URL('../../core/boot/boot.js/', import.meta.url));
+const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixture = name => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
 const cell = (out, row, id) => out.results.find(result => result.row === row && result.id === id);
 
@@ -58,12 +58,12 @@ test('missing modules are skipped and broken modules fail their rows', async () 
 });
 
 test('scripts/matrix.mjs: a table and exit 0; --json; unknown option exits 2; --strict', () => {
-    const run = (...args) => spawnSync(process.execPath, [join(root, 'scripts', 'matrix.mjs'), ...args], { encoding: 'utf8', env: { ...process.env, STORY_SUITE_ROOT: '', MATRIX_SD: '', MATRIX_NSD: '' } });
+    const run = (...args) => spawnSync(process.execPath, [join(root, 'scripts', 'core', 'matrix.mjs'), ...args], { encoding: 'utf8', env: { ...process.env, STORY_SUITE_ROOT: '', MATRIX_SD: '', MATRIX_NSD: '' } });
     const empty = mkdtempSync(join(tmpdir(), 'sb-matrix-empty-'));
     try {
         const plain = run('--root', empty, '--rows', 'SB,SB+SD');
         assert.equal(plain.status, 0, plain.stderr);
-        assert.match(plain.stdout, /Story Suite matrix, Story Block .*\(checkout\), matrix \d+/);
+        assert.match(plain.stdout, /Story Suite matrix, Story Suite .*\(checkout\), matrix \d+/);
         assert.match(plain.stdout, /\| SB\+SD \| skip \|/);
         assert.match(plain.stdout, /matrix ok:/);
         const json = JSON.parse(run('--root', empty, '--rows', 'SB', '--json').stdout);

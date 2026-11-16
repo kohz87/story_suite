@@ -3,9 +3,10 @@
 // test still sees every line the file had before the split. Add a file here when it is split and a test reads its text.
 import { readFileSync } from 'node:fs';
 
-const ROOT = new URL('../../core/boot/boot.js/', import.meta.url);
+// Paths are written from this folder (tests/helpers/), so '../../core/x.js' is the repository's core/x.js.
+const ROOT = new URL('./', import.meta.url);
 
-/** facade path (from the repository root) → the parts moved out of it, in the order they appear in the folder. */
+/** facade path (from tests/helpers/) → the parts moved out of it, in the order they appear in the folder. */
 export const SPLIT_PARTS = Object.freeze({
     '../../core/commands.js': [
         '../../core/commands/shared.js', '../../core/commands/state.js', '../../core/commands/guards.js', '../../core/commands/ctx.js', '../../core/commands/transact.js',
@@ -111,7 +112,7 @@ export const SPLIT_PARTS = Object.freeze({
     '../../ui/legacy/view/widgets/map.js': ['../../ui/legacy/view/widgets/map-parts/props.js', '../../ui/legacy/view/widgets/map-parts/widget.js'],
 });
 
-/** The text of `rel` (a path from the repository root) and of the parts moved out of it. */
+/** The text of `rel` (a path from tests/helpers/) and of the parts moved out of it. */
 export function sourceOf(rel) {
     return [rel, ...(SPLIT_PARTS[rel] ?? [])].map(file => readFileSync(new URL(file, ROOT), 'utf8')).join('\n');
 }

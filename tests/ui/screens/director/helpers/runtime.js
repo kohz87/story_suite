@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const STORY_BLOCK = new URL('../../../../../core/boot/boot.js/', import.meta.url);
+const STORY_BLOCK = new URL('../../../../../', import.meta.url);
 // Story Block's view moved to ui/legacy/view (the events to modules/world/events) when the layout was applied; a
 // STORY_BLOCK_DIR checkout from before that still has them under src/v2, so each file is looked up there first.
 const ROOT = new URL('../../../../../', import.meta.url);
@@ -19,7 +19,8 @@ const movedTo = rel => MOVED[rel] ?? rel.replace('src/v2/view/', 'ui/legacy/view
 const live = await import(new URL(movedTo('src/v2/view/screens.js'), ROOT).href);
 
 const dir = resolve(process.env.STORY_BLOCK_DIR ?? fileURLToPath(STORY_BLOCK));
-const file = rel => pathToFileURL(existsSync(join(dir, rel)) ? join(dir, rel) : join(dir, '../..', movedTo(rel))).href;
+// dir is a checkout root (this repo, or an old one that keeps src/v2) or a packages/story-block folder of an old checkout.
+const file = rel => pathToFileURL([join(dir, rel), join(dir, movedTo(rel)), join(dir, '../..', movedTo(rel))].find(existsSync) ?? join(dir, rel)).href;
 
 async function loadRenderer() {
     if (!existsSync(fileURLToPath(file('src/v2/view/template/index.js')))) return { runtime: null, reason: `STORY_BLOCK_DIR (${dir}) has no src/v2/view/template/index.js.` };

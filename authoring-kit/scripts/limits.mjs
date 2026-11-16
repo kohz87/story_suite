@@ -1,10 +1,10 @@
 // Prints the host's limits for packs and data modules.
 import { SB_V2 } from './sb-root.mjs';
 
-const { LIMITS, RECORD_LIMITS, CAST_LIMITS, PORTRAIT_LIMITS, ZIP_LIMITS, NAMES_LIMITS, RIPPLES_LIMITS } = await import(new URL('../../packs/limits.js', SB_V2));
-const { LIMITS: CONDITION_LIMITS } = await import(new URL('../../modules/world/events/condition-errors.js', SB_V2));
-const { MAX_REGIONS } = await import(new URL('../../modules/world/events/calls.js', SB_V2));
-const { DM_LIMITS } = await import(new URL('data-modules/schema.js', SB_V2));
+const { LIMITS, RECORD_LIMITS, CAST_LIMITS, PORTRAIT_LIMITS, ZIP_LIMITS, NAMES_LIMITS, RIPPLES_LIMITS } = await import(new URL('packs/limits.js', SB_V2));
+const { LIMITS: CONDITION_LIMITS } = await import(new URL('modules/world/events/condition-errors.js', SB_V2));
+const { MAX_REGIONS } = await import(new URL('modules/world/events/calls.js', SB_V2));
+const { DM_LIMITS } = await import(new URL('modules/data-modules/schema.js', SB_V2));
 const group = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const table = (head, rows) => [`| ${head.join(' | ')} |`, `|${head.map(() => '---').join('|')}|`, ...rows.map(row => `| ${row.join(' | ')} |`)].join('\n');
 const out = [];

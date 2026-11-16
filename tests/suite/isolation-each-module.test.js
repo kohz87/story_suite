@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '../..');
-const findDir = (env, suiteName, pkgName, rel) => [env, process.env.STORY_SUITE_ROOT && path.join(process.env.STORY_SUITE_ROOT, suiteName), path.join(repoRoot, 'packages', pkgName)]
+const findDir = (env, suiteName, pkgName, rel) => [env, process.env.STORY_SUITE_ROOT && path.join(process.env.STORY_SUITE_ROOT, suiteName), pkgName === 'story-block' ? repoRoot : path.join(repoRoot, 'packages', pkgName)]
     .filter(Boolean).find(dir => existsSync(path.join(dir, rel)));
 const sbDir = findDir(process.env.SUITE_SB, 'Story_block', 'story-block', 'testkit/index.js');
 const sdDir = findDir(process.env.SUITE_SD, 'Story_director', 'story-director', 'src/v2/module.js');
@@ -24,8 +24,8 @@ async function run(t, { flag, fail }) {
     t.mock.method(console, 'warn', () => {});
     const at = (dir, rel) => import(pathToFileURL(path.join(dir, rel)).href);
     const [kit, { setupDom }, SD, NSD, { moduleFailures }, { readRecord }] = await Promise.all([
-        at(sbDir, 'testkit/index.js'), at(sbDir, 'tests/v2/view/mounts/helpers.js'), at(sdDir, 'src/v2/module.js'), at(nsdDir, 'src/storysuite-v2.js'),
-        at(sbDir, 'src/v2/turn/apply-report.js'), at(sbDir, 'src/v2/persist.js'),
+        at(sbDir, 'testkit/index.js'), at(sbDir, 'tests/ui/view/mounts/helpers.js'), at(sdDir, 'src/v2/module.js'), at(nsdDir, 'src/storysuite-v2.js'),
+        at(sbDir, 'core/turn/apply-report.js'), at(sbDir, 'core/persist.js'),
     ]);
     const doc = setupDom();
     let sdk = null;

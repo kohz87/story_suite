@@ -5,8 +5,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { checkPack, report } from '../../authoring-kit/check.mjs';
 
-const root = fileURLToPath(new URL('../../core/boot/boot.js/', import.meta.url));
-const data = name => readFileSync(new URL(`../../../authoring-kit/reference/data-modules/${name}.pack.json`, import.meta.url), 'utf8');
+const root = fileURLToPath(new URL('../../', import.meta.url));
+const data = name => readFileSync(new URL(`../../authoring-kit/reference/data-modules/${name}.pack.json`, import.meta.url), 'utf8');
 
 test('the data-module examples pass the same checker as the host', () => {
     for (const name of ['faction-standing', 'survival-meters']) {

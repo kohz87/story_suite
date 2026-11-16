@@ -64,8 +64,8 @@ async function runScenario(t, { active, flag = false }) {
     const at = (dir, rel) => import(pathToFileURL(path.join(dir, rel)).href);
     const [kit, { mountUi }, { setupDom }, SD, NSD] = await Promise.all([
         at(sbDir, 'testkit/index.js'),
-        at(sbDir, 'src/v2/ui-host.js'),
-        at(sbDir, 'tests/v2/view/mounts/helpers.js'),
+        at(sbDir, 'ui/legacy/ui-host.js'),
+        at(sbDir, 'tests/ui/view/mounts/helpers.js'),
         at(sdDir, 'src/v2/module.js'),
         at(nsdDir, 'src/storysuite-v2.js'),
     ]);

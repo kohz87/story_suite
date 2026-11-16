@@ -401,12 +401,10 @@ test('cited words must contain a telling word of the person\'s kind: "the", "her
     assert.deepEqual(read('? cast temiwa | "the healer"').sought, [{ key: 'ersveil:temiwa', words: 'the healer' }]);
 });
 
-// Story Block's example pack, when it sits beside this checkout (CI has no sibling checkout).
-const PACK_FILE = new URL('../../../../Story_block/examples/packs/ersveil/pack.json', import.meta.url);
-const PACK_FILE2 = new URL('../../../../../Story_block/examples/packs/ersveil/pack.json', import.meta.url);
-const packFile = [PACK_FILE, PACK_FILE2].find(file => existsSync(file));
+// The Ersveil example pack, from this repo.
+const packFile = new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url);
 
-test('the gate: calling and the lead of about, common prose words dropped; the 12 Ersveil entries', { skip: !packFile && 'Story Block\'s example pack is not beside this checkout' }, () => {
+test('the gate: calling and the lead of about, common prose words dropped; the 12 Ersveil entries', () => {
     const pack = JSON.parse(readFileSync(packFile, 'utf8'));
     const entries = pack.content.cast.map(raw => readEntry({ pack: 'ersveil', packVersion: '1', ...raw }));
     const gate = id => gateWords(entries.find(item => item.id === id));
