@@ -94,10 +94,10 @@
 .fight-tab .stance .t{flex:1;font:700 13px var(--su-font)}
 .fight-tab .stance .t small{display:block;font:600 12px var(--su-font);color:var(--su-muted)}
 .fight-tab .stance .now{font:800 12px var(--su-font);color:var(--fx-ok);background:rgba(79,211,154,.13);border-radius:999px;padding:1px 7px;margin-left:8px}
-/* Stance switch as in the mock: a 54 x 24 track and an 18 px knob, in a 48 px tall hit area */
+/* Stance switch as in the mock: a 54 x 26 track with 19/13 px corners (the mock's padding box) and an 18 px knob, in a 48 px tall hit area */
 .su-root .fight-tab .sw{width:54px;height:48px}
-.su-root .fight-tab .sw::before{left:0;top:12px;width:54px;height:24px}
-.su-root .fight-tab .sw::after{left:3px;top:15px;width:18px;height:18px;background:var(--su-soft)}
+.su-root .fight-tab .sw::before{left:0;top:11px;width:54px;height:26px;border-radius:19px/13px}
+.su-root .fight-tab .sw::after{left:3px;top:14px;width:18px;height:18px;background:var(--su-soft)}
 .su-root .fight-tab .sw[aria-checked="true"]::after{transform:translateX(18px);background:#fff}
 .fight-tab .agrp{font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted);margin:2px 0 0}
 .fight-tab .atiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}

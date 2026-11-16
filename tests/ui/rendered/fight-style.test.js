@@ -57,6 +57,8 @@ function measure() {
     foldFont: cs('.fold', 'fontSize') + ' ' + cs('.fold', 'lineHeight'),
     swW: sw.width,
     swTrack: getComputedStyle(q('.stance .sw'), '::before').width,
+    swTrackH: getComputedStyle(q('.stance .sw'), '::before').height,
+    swTrackTop: getComputedStyle(q('.stance .sw'), '::before').top,
     foeRowGap: rows.length > 1 ? Math.round(rows[1].top - rows[0].bottom) : null,
     foldPad: cs('.party-card', 'paddingTop'),
   };
@@ -90,6 +92,8 @@ for (const theme of ['dark', 'light']) {
       assert.equal(m.foldFont, '14px normal');
       assert.equal(m.swW, 54);
       assert.equal(m.swTrack, '54px');
+      assert.equal(m.swTrackH, '26px');
+      assert.equal(m.swTrackTop, '11px');
       assert.equal(m.foeRowGap, 8);
       assert.equal(m.foldPad, '8px');
     } finally { await page.close(); }
