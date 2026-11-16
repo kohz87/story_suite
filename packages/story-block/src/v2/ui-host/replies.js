@@ -5,12 +5,13 @@ import { mergeRpgLines } from '../screens/changes-card.js';
 import { readRecord } from '../persist.js';
 import { laterStore, replyEdits, replyRules, scanReplyCards } from '../reply-cards.js';
 import { createReplyFailures } from './reply-failures.js';
+import { interactionAt } from './reply-interaction.js';
 import { FLAGS, flagOn } from '../flags.js';
 import { drawReplyCard } from '../view/reply-cards-ui.js';
 
 export function createReplyCards({ runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg, getMounts, nameOf }) {
-    // A card's scope also gets `refused`: that reply's change lines the code did not apply; the "Changed this
-    // reply" card also `moduleLines`: the modules' own lines for that reply (hooks.replyCard, MODULES §F125).
+    // A card's scope also gets `refused`: that reply's change lines the code did not apply, and `interaction`: what a settle changed
+    // on it (reply-interaction.js); the "Changed this reply" card also `moduleLines`: the modules' own lines for that reply (hooks.replyCard, MODULES §F125).
     const recordAt = index => readRecord(ctx.chat?.[index]);
     const editsAt = index => replyEdits(recordAt(index), store.problems?.() ?? [], index);
     const cardLines = (index, state, changes, before = null) => {
@@ -50,7 +51,7 @@ export function createReplyCards({ runtime, ctx, doc, store, registry, events, q
         } catch { return []; }
     };
     renderer.render = (el, screen, scope) => drawScreen(el, screen, scope?.mount === 'card'
-        ? { ...scope, refused: notes.refusedAt(scope.index), warned: notes.warnedAt?.(scope.index) ?? [], assisted: assistedAt(scope.index), ...(screen?.id === CHANGES_CARD_SCREEN_ID ? { moduleLines: cardLines(scope.index, scope.state, scope.changes, scope.before), edits: editsAt(scope.index), moduleFailed: moduleFailedAt(scope.index), editableHead: scope.index === store.headIndex() } : {}) }
+        ? { ...scope, refused: notes.refusedAt(scope.index), warned: notes.warnedAt?.(scope.index) ?? [], assisted: assistedAt(scope.index), interaction: interactionAt(recordAt(scope.index)), ...(screen?.id === CHANGES_CARD_SCREEN_ID ? { moduleLines: cardLines(scope.index, scope.state, scope.changes, scope.before), edits: editsAt(scope.index), moduleFailed: moduleFailedAt(scope.index), editableHead: scope.index === store.headIndex() } : {}) }
         : scope);
     // The story head a dialog was opened on (mounts/dialog.js): the head's index and record. Which swipe is shown is not part of
     // it: a swipe that keeps the head record is not a move (the chat's id is checked on its own).

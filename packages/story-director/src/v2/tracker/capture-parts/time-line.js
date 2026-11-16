@@ -3,6 +3,7 @@
 import { addProblem, replyDraft } from '../domain.js';
 import { calendarOf, lineStretch, maxJumpMinutes, packCalendarOf, sameStretch, settingsFrom, splitTimeLine, timeAfter } from '../time.js';
 import { clockFaceAfter, dayKey } from '../time-parts/clock-face.js';
+import { DAY_MINUTES } from '../time-parts/limits.js';
 import { KEY_CHARS } from './limits.js';
 import { beginTurn } from './reply.js';
 import { lineText } from './text.js';
@@ -11,7 +12,9 @@ import { lineText } from './text.js';
 export function applyTimeLine(ctx, line) {
     // "~ time <date> · ! time +2h" on one line is the two lines (the same stretch counts once: timeLine). One command writes one clock op, so
     // its receipt says that op: `from` the clock before the command (the first part that read one), `kind` 'set' if any part set it.
-    const parts = splitTimeLine(line).map((part, n) => timeLine(ctx, part, n > 0));
+    // A joined line writes one op through plain sets only (a set and an anchored set on one path are a conflict in Story Block).
+    const pieces = splitTimeLine(line);
+    const parts = pieces.map((part, n) => timeLine(ctx, part, n > 0, pieces.length === 1));
     const last = parts.at(-1);
     if (parts.length < 2) return last;
     const from = parts.map(part => part.data.from).find(Number.isSafeInteger);
@@ -20,7 +23,7 @@ export function applyTimeLine(ctx, line) {
 }
 
 // `again`: the second half of a joined line, which is the same line (the same place in the reply), not a new reply.
-function timeLine(ctx, line, again = false) {
+function timeLine(ctx, line, again = false, anchorable = true) {
     const director = ctx.draft('director');
     // `from`: the clock when this reply's first Director line was read. maxJump holds for the whole
     // reply, so a reply that repeats "! time +30d" moves the clock 30 days in all (C2-5).
@@ -45,15 +48,25 @@ function timeLine(ctx, line, again = false) {
         const alone = read(line, from, calendar, options);
         if (alone.set && !alone.error && sameStretch(turn.advanced, alone.minutes - from)) next = alone;
     }
-    next ??= read(line, director.time.minutes, calendar, options);
+    const fromNow = next === null ? read(line, director.time.minutes, calendar, options) : null;
+    next ??= fromNow;
     if (!next.error && Number.isSafeInteger(next.minutes)) {
         if (stretch !== null) turn.advanced = (turn.advanced ?? 0) + stretch;
         else if (next.set) turn.setAt = next.minutes;
     }
     if (next.problem) addProblem(director, ctx, { kind: 'time', severity: 'warn', key: String(line?.name ?? '').slice(0, KEY_CHARS), op: line?.op, text: next.problem });
+    // An anchored set (`ctx.anchored`, Story Block rule h) follows a clock that an earlier edit or delete moved, as a fresh telling of the line would.
+    // Only read from the clock as it stands (not the reply's start), and only where Story Block has it.
+    const anchoring = anchorable && faced && typeof ctx.anchored === 'function' && Number.isSafeInteger(director.time.minutes);
     if (next.error) {
         addProblem(director, ctx, { kind: 'time', severity: 'warn', key: String(line?.name ?? '').slice(0, KEY_CHARS), op: line?.op, text: next.error });
-        return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: director.time.minutes, kind: 'move' } };
+        const now = director.time.minutes;
+        // A refused `~` clock face keeps its mark: after an edit that moves the day it is today's face on the new day (the clock stays when it is not).
+        if (anchoring && Number.isSafeInteger(next.face)) {
+            ctx.anchored('director', '/time/minutes', { period: DAY_MINUTES, roll: 'same', to: next.face });
+            return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: now, from: now, kind: 'same', to: next.face } };
+        }
+        return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: now, kind: 'move' } };
     }
     const before = director.time.minutes;
     if (next.minutes !== before) director.time.minutes = next.minutes;
@@ -64,12 +77,14 @@ function timeLine(ctx, line, again = false) {
         const openDay = dayKey(next.minutes) !== dayKey(before) && Number.isSafeInteger(before) ? dayKey(next.minutes) : null;
         if (openDay !== (director.time.openDay ?? null)) director.time.openDay = openDay;
     }
-    const set = Boolean(next.set) && typeof ctx.absolute === 'function';
-    if (set) ctx.absolute('director', '/time/minutes');
-    // `kind`: the op the receipt describes, as Story Block replays it (a move: `from` → `minutes`; a set: the stored minute).
+    const roll = anchoring && next.set && !next.held && next === fromNow ? next.roll : undefined;
+    const set = Boolean(next.set) && !roll && typeof ctx.absolute === 'function';
+    if (roll) ctx.anchored('director', '/time/minutes', { period: DAY_MINUTES, roll });
+    else if (set) ctx.absolute('director', '/time/minutes');
+    // `kind`: the op the receipt describes, as Story Block replays it (a move: `from` → `minutes`; a set: the stored minute; 'same' / 'after': an anchored set).
     return {
         summary: `Story time: ${calendar.format(next.minutes)}.`,
         narrate: false,
-        data: { minutes: next.minutes, from: before, kind: set ? 'set' : 'move', ...(next.held ? { held: next.held } : {}) },
+        data: { minutes: next.minutes, from: before, kind: roll ?? (set ? 'set' : 'move'), ...(next.held ? { held: next.held } : {}) },
     };
 }
