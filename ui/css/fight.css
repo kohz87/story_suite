@@ -5,7 +5,7 @@
 .fight-tab .fhead{display:flex;align-items:center;gap:10px;padding:12px 14px}
 .fight-tab .fhead .t{flex:1;min-width:0}
 .fight-tab .fhead .t b{display:block;font:800 16px var(--su-font)}
-.fight-tab .fhead .t small{font:700 12px var(--su-font);color:var(--su-muted)}
+.fight-tab .fhead .t small{display:block;font:700 12px var(--su-font);color:var(--su-muted)}
 .fight-tab .fpill{font:800 12px var(--su-font);border-radius:999px;padding:3px 10px;background:rgba(255,107,107,.14);color:var(--fx-bad);white-space:nowrap}
 .fight-tab .fpill.won{color:var(--fx-ok);background:rgba(79,211,154,.14)}
 .fight-tab .fgrid{display:flex;flex-direction:column;gap:12px}
@@ -31,7 +31,6 @@
 .fight-tab .tier{font:800 12px var(--su-font);border-radius:999px;padding:1px 8px;background:var(--su-panel2);color:var(--su-soft)}
 .su-root .fight-tab .tier.Elite{color:var(--fx-warn)}
 .fight-tab .tier.Boss,.fight-tab .tier.Apex{color:var(--fx-bad)}
-.fight-tab .tier.Minion,.fight-tab .tier.Mob,.fight-tab .tier.Standard{color:var(--su-soft)}
 .fight-tab .fm2{display:flex;flex-wrap:wrap;gap:5px}
 .fight-tab .mbx{flex:1 1 84px;display:flex;flex-direction:column;gap:3px;padding:5px 7px;border-radius:10px;background:var(--su-panel2);border:1.5px solid transparent;color:var(--su-text);font:inherit;text-align:left;cursor:default}
 .fight-tab .mbx .mn{display:flex;justify-content:space-between;gap:6px;font:800 12px var(--su-font)}

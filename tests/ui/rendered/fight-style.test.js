@@ -17,12 +17,8 @@ function serve() {
     res.end(fs.readFileSync(file));
   });
   return new Promise((resolve, reject) => {
-    const tryPort = port => {
-      if (port > 8899) { reject(new Error('no free port in 8800-8899')); return; }
-      server.once('error', () => tryPort(port + 1));
-      server.listen(port, '127.0.0.1', () => { server.removeAllListeners('error'); resolve({ server, port }); });
-    };
-    tryPort(8800);
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port }));
   });
 }
 
@@ -50,7 +46,8 @@ function measure() {
   const sw = q('.stance .sw').getBoundingClientRect();
   const rows = [...document.querySelectorAll('#hx-frame .foes-card .fline')].map(e => e.getBoundingClientRect());
   return {
-    smallDisplay: cs('.fight-tab .fhead .t small', 'display'),
+    smallH: Math.round(q('.fight-tab .fhead .t small').getBoundingClientRect().height),
+    headH: Math.round(q('.fight-tab .fhead').getBoundingClientRect().height),
     bLine: cs('.fight-tab .fhead .t b', 'lineHeight'),
     pill: cs('.fpill', 'color'),
     elite: cs('.tier.Elite', 'color'),
@@ -77,12 +74,13 @@ for (const theme of ['dark', 'light']) {
     await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
     try {
       await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=390&variant=fightOpen&tab=fight`);
-      await page.waitForLoadState('load');
+      await page.waitForFunction(() => { const p = document.querySelector('#hx-frame .fpill'); return p && /^rgb\((255, 122, 122|180, 35, 24)\)$/.test(getComputedStyle(p).color); });
       await page.waitForSelector('#hx-frame .fight-tab .stance .sw');
       await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
       const m = await page.evaluate(measure);
       const e = EXPECT[theme];
-      assert.equal(m.smallDisplay, 'inline');
+      assert.equal(m.smallH, 32);
+      assert.equal(m.headH, 80);
       assert.equal(m.bLine, 'normal');
       assert.equal(m.pill, e.pill);
       assert.equal(m.elite, e.elite);
@@ -97,3 +95,17 @@ for (const theme of ['dark', 'light']) {
     } finally { await page.close(); }
   });
 }
+
+test('fight tab at 820: header keeps the mock height (subtitle 16, header 64)', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await ctx.browser.newPage({ viewport: { width: 820, height: 1000 } });
+  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+  try {
+    await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=820&variant=fightOpen&tab=fight`);
+    await page.waitForFunction(() => { const p = document.querySelector('#hx-frame .fpill'); return p && getComputedStyle(p).color === 'rgb(255, 122, 122)'; });
+    await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const m = await page.evaluate(measure);
+    assert.equal(m.smallH, 16);
+    assert.equal(m.headH, 64);
+  } finally { await page.close(); }
+});
