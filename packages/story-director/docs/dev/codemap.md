@@ -51,6 +51,7 @@ Generated 2026-11-07.
 - `src/v2/screens/style.js`: Shared `BASE_CSS` layout tokens and styles for Story Director screens, built on Story Block classes.
 
 ## src/v2/time/
+- `src/v2/time/line-gap.js`: How many replies have passed since the story last moved the clock, and the tail's reminder at three.
 - `src/v2/time/records.js`: Time-part settings, calendar defaults, and read-only v1 record adapters for lapse, relevance and note rules.
 
 ## src/v2/tracker/

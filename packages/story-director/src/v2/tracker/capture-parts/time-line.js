@@ -2,6 +2,7 @@
 
 import { addProblem, replyDraft } from '../domain.js';
 import { calendarOf, lineStretch, maxJumpMinutes, packCalendarOf, sameStretch, settingsFrom, splitTimeLine, timeAfter } from '../time.js';
+import { clockFaceAfter } from '../time-parts/clock-face.js';
 import { KEY_CHARS } from './limits.js';
 import { beginTurn } from './reply.js';
 import { lineText } from './text.js';
@@ -22,6 +23,8 @@ function timeLine(ctx, line, again = false) {
     const settings = settingsFrom(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings);
     const calendar = calendarOf(settings, packCalendarOf(ctx.query));
     const options = { maxJump: maxJumpMinutes(settings), from };
+    // A reply marked `clockFace` (Story Block's rule marks) reads its time lines by the clock-face rules: a clock face is today's time, nothing moves back.
+    const read = Array.isArray(ctx.carrier?.rules) && ctx.carrier.rules.includes('clockFace') ? clockFaceAfter : timeAfter;
     const stretch = lineStretch(line);
     // The same stretch of time counts once: a date and a "+X" within 15 minutes of the gap from where
     // the reply began, in either order, are one stretch, and the date is the one that is used.
@@ -31,10 +34,10 @@ function timeLine(ctx, line, again = false) {
     }
     let next = null;
     if (stretch === null && turn.advanced > 0 && Number.isSafeInteger(from)) {
-        const alone = timeAfter(line, from, calendar, options);
+        const alone = read(line, from, calendar, options);
         if (alone.set && !alone.error && sameStretch(turn.advanced, alone.minutes - from)) next = alone;
     }
-    next ??= timeAfter(line, director.time.minutes, calendar, options);
+    next ??= read(line, director.time.minutes, calendar, options);
     if (!next.error && Number.isSafeInteger(next.minutes)) {
         if (stretch !== null) turn.advanced = (turn.advanced ?? 0) + stretch;
         else if (next.set) turn.setAt = next.minutes;

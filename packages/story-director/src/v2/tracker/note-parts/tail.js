@@ -10,6 +10,7 @@ import { calendarRule } from '../calendar-settings.js';
 import { dropThreads, quietThreads } from '../quiet.js';
 import { elsewhereCap, elsewhereItem, elsewhereLine, knownToUser, sceneOf, splitByScene } from '../scene.js';
 import { initiativeTail } from '../initiative.js';
+import { gapCue, replyGap } from '../../time/line-gap.js';
 import { threadsOn, withoutOwnedThreads } from '../../threads.js';
 import { TAIL_BUDGET, TAIL_THREADS } from './budgets.js';
 import { staticText } from './static.js';
@@ -38,6 +39,16 @@ function insertAfterKinds(parts, extra) {
     let at = 0;
     parts.forEach((entry, index) => { if (SCENE_LABELS.has(entry.label)) at = index + 1; });
     return [...parts.slice(0, at), ...extra, ...parts.slice(at)];
+}
+
+// The reminder that the story has not moved its clock for a while (time/line-gap.js), or ''. Only while the clock is set.
+function gapLine(view, now) {
+    if (now === null || typeof view?.query !== 'function') return '';
+    try {
+        return gapCue(replyGap(view?.chat?.length, view.query('time.lastLine', {})?.index));
+    } catch {
+        return '';
+    }
 }
 
 const joined = parts => parts.map((entry, index) => (index ? entry.join : '') + entry.text).join('');
@@ -114,6 +125,12 @@ export function directorTail(view, { budget = TAIL_BUDGET } = {}) {
     // A note with nothing else in it still says when and where it is.
     if (extra.length && !parts.some(entry => entry.label === 'Header')) parts = [{ label: 'Header', text: noteHeader(selection, calendar), join: '\n' }, ...parts];
     // The static part says there are no weekdays (calendarRule): the tail's own line for it would say it twice.
+    // The time-gap cue goes right after the Header.
+    const cue = gapLine(view, now);
+    if (cue) {
+        const at = parts.findIndex(entry => entry.label === 'Header') + 1;
+        parts = [...parts.slice(0, at), { label: 'Time gap', text: cue, join: '\n' }, ...parts.slice(at)];
+    }
     if (calendarRule(calendar)) parts = parts.filter((entry, index) => !index || entry.label !== 'No weekdays');
     const text = v2Lines(tailNote(insertAfterKinds(parts, extra)));
     // The Initiative line is kept (Story Block pins a `{ text, keep: true }` tail line under a tight budget); the rest are plain lines.
