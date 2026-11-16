@@ -219,7 +219,7 @@ test('on the real host: an invented place name and a vague time from the safety 
     try {
         const first = await host.send('I walk to the village.', 'You walk into Bluewatch Village.\n<Changes>\n~ place Bluewatch Village | kind: settlement\n</Changes>');
         await settleAssist();
-        assert.match(prompts[0], /Place now: Bluewatch Village \(settlement\)/);
+        assert.match(prompts[0], /Place now: Bluewatch Village \(settlement, River\)/);
         assert.match(prompts[0], /Story date and time now: Goldwane 12, 611, 06:40 am/);
         assert.match(prompts[0], /Known places near it \(use these exact names\): Bluewatch Village \/ Guild Office/);
         const problems = host.turn.problems().filter(item => item.index === first.index && item.code === 'REFUSED');
