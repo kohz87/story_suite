@@ -14,7 +14,6 @@ export function createInteractionLookups({ defs, held, featureOn }) {
             if (!def || held(id) || !Object.hasOwn(def.interactions ?? {}, kind)) return null;
             return def.interactions[kind];
         },
-        /** The full kind ids a module defines, sorted ([] for none or an unknown module). */
         /** The marker words of the kinds whose marker feature is on (the kind's own feature when the marker names none), sorted, no repeats. */
         markerWords() {
             const words = new Set();
@@ -28,6 +27,7 @@ export function createInteractionLookups({ defs, held, featureOn }) {
             }
             return [...words].sort();
         },
+        /** The full kind ids a module defines, sorted ([] for none or an unknown module). */
         interactionIds: id => (defs.has(id) ? kindsOf(defs.get(id)).map(kind => `${id}/${kind}`) : []),
     };
 }

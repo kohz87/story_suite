@@ -34,3 +34,44 @@ test('the segment is previewed on the state its opening leaves, and each summary
         { text: '[Happened]\ndone 2', keep: true, interaction: true },
     ], 'each note is pinned by its receipt type, not by data.keep');
 });
+
+// The settled note's allowance (interaction/note.js) reaches the reader only through this loop: the quiet NOTE_LONG Problem, the note still whole and pinned.
+const LONG = 'The long note. '.repeat(600);
+function runNote(summary, { payload = { kindId: 'mod/hard_bargain' }, kindOf } = {}) {
+    const cues = {}, problems = [];
+    const bus = { run: () => ({ ok: true, receipt: receipt(summary), state: {} }) };
+    runPreludes({ s: {}, bus, store: { head: () => ({}) }, problem: entry => problems.push(entry), ...(kindOf ? { kindOf } : {}) },
+        { requested: [{ moduleId: 'mod', type: SETTLE, payload }], cues, prechecks: [], previewState: null });
+    return { cues, problems };
+}
+
+test('an over-long note raises the quiet NOTE_LONG with the module and is still told whole and pinned', () => {
+    const { cues, problems } = runNote(LONG, { kindOf: () => ({ title: 'Bargain' }) });
+    assert.equal(problems.length, 1);
+    assert.deepEqual({ code: problems[0].code, quiet: problems[0].quiet, module: problems[0].module }, { code: 'NOTE_LONG', quiet: true, module: 'mod' });
+    assert.match(problems[0].message, /^The Bargain note is \d+ tokens, over its 960; it is sent whole\.$/);
+    assert.deepEqual(cues.mod, [{ text: `[Happened]\n${LONG}`, keep: true, interaction: true }]);
+});
+
+test('a kind\'s limits.noteTokens is the allowance; a short note raises nothing', () => {
+    const kindOf = () => ({ title: 'Bargain', limits: { noteTokens: 5 } });
+    assert.equal(runNote('Short note that is over five tokens for sure, yes.', { kindOf }).problems[0]?.code, 'NOTE_LONG');
+    assert.match(runNote('Short note that is over five tokens for sure, yes.', { kindOf }).problems[0].message, /over its 5;/);
+    assert.deepEqual(runNote('Short.', { kindOf }).problems, []);
+});
+
+test('with no kindOf or an unknown kind the shared allowance and the readable kind id are used', () => {
+    assert.match(runNote(LONG).problems[0].message, /^The Hard bargain note is \d+ tokens, over its 960;/);
+    assert.match(runNote(LONG, { kindOf: () => null }).problems[0].message, /^The Hard bargain note/);
+    assert.deepEqual(runNote('Short.').problems, []);
+});
+
+test('a note with no text tells nothing: no bare [Happened] header is pinned (the receipt is still recorded)', () => {
+    for (const summary of ['', '  \n', undefined]) {
+        const cues = {}, prechecks = [];
+        const bus = { run: () => ({ ok: true, receipt: receipt(summary), state: {} }) };
+        runPreludes({ s: {}, bus, store: { head: () => ({}) }, problem: () => {} }, { requested: [{ moduleId: 'mod', type: SETTLE, payload: {} }], cues, prechecks, previewState: null });
+        assert.deepEqual(cues, {});
+        assert.equal(prechecks.length, 1);
+    }
+});
