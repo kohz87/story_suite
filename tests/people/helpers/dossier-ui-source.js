@@ -2,6 +2,7 @@
 // A part that is missing fails loudly; keep this list in step when more code moves out of dossier-ui.js.
 import fs from 'node:fs';
 import { oldUrl } from './old-path.js';
+import { oldSource } from './old-source.js';
 
 
 export const DOSSIER_UI_SOURCE_PARTS = [
@@ -68,7 +69,7 @@ export const DOSSIER_UI_SOURCE_PARTS = [
     'dossier-ui-parts/relationship.js',
 ];
 
-const read = file => fs.readFileSync(oldUrl(file), 'utf8');
+const read = file => oldSource(file);
 
 // Files whose code moved into a sibling "<name>-parts/" folder (the file itself is now a facade of re-exports).
 const SPLIT_PARTS = ['dossier-ui-relationship', 'dossier-ui-screens', 'dossier-ui-sections', 'dossier-ui-view-model']

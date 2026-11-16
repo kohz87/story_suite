@@ -6,14 +6,15 @@ import { escapeHtml as toolsEscape } from '../../modules/people/legacy/dossier-t
 import { matchingNpcRecords, scanRowMatchesNpc } from '../../modules/people/core/core.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 import { runtimeSource } from './helpers/runtime-source.js';
+import { oldUrl } from './helpers/old-path.js';
 
 // Cleanup step 11: one HTML escape, one "is this row / record that NPC" pair, no dead pass-through,
 // and the settings other modules keep controls for are declared and normalized by the settings owner.
 
 const runtime = JSON.parse(fs.readFileSync(new URL('../../modules/people/runtime/runtime-modules.json', import.meta.url), 'utf8')).modules.map(module => module.path);
 const sources = Object.fromEntries([...runtime, 'src/storysuite-v2.js', 'src/adapter/queries.js', 'src/adapter/cast-ui.js', 'src/adapter/timeline.js', 'src/adapter/connect.js', 'src/adapter/editor.js', 'src/npc-meters.js', 'src/npc-meters-config.js', 'src/npc-meters-secrets.js', 'src/npc-meters-slice.js', 'src/npc-meters-schema.js', 'src/npc-meters-screen.js']
-    .filter((path, i, all) => all.indexOf(path) === i && fs.existsSync(new URL(`../${path}`, import.meta.url)))
-    .map(path => [path, fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')]));
+    .filter((path, i, all) => all.indexOf(path) === i && fs.existsSync(oldUrl(path)))
+    .map(path => [path, fs.readFileSync(oldUrl(path), 'utf8')]));
 
 test('one escapeHtml: every module imports src/util/html.js', () => {
     const owners = Object.entries(sources).filter(([, source]) => /(?:function escapeHtml\(|const escapeHtml\s*=)/.test(source)).map(([path]) => path);

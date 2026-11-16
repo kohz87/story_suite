@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { oldSource } from './helpers/old-source.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const portraitToolsUrl = new URL('../../modules/people/portrait/portrait-tools.js', import.meta.url);
@@ -35,7 +36,7 @@ test('maintained Portrait workflow uses SillyTavern Image Generation with explic
 
 test('dossier Portrait control routes to the maintained manager and suppresses the legacy image-generation action', async () => {
     const source = await readFile(controlsUrl, 'utf8');
-    const experience = await readFile(new URL('../../modules/people/legacy/dossier-experience.js', import.meta.url), 'utf8');
+    const experience = oldSource('dossier-experience.js');
     assert.match(experience, /from '\.\/portrait-tools\.js'/);
     const index = runtimeSource();
     assert.doesNotMatch(index + source, /npc-state-delta-generate-portrait/, 'the legacy image-generation button is gone, not merely hidden');

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { standInTree } from './helpers/temp-tree.js';
 import { snapshotNpc } from '../../modules/people/fields/registry.js';
 import path from 'node:path';
 import { root, index, css, dossierUi } from './ui-layout.helpers.js';
@@ -224,14 +225,13 @@ test('switched off, Delta renders no in-chat cards, and the Enable switch redraw
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-enabled-cards-'));
     const ext = path.join(temp, 'a', 'b', 'ext');
     fs.mkdirSync(ext, { recursive: true });
-    for (const file of fs.readdirSync(root).filter(name => name.endsWith('.js'))) fs.copyFileSync(path.join(root, file), path.join(ext, file));
-    fs.cpSync(path.join(root, 'src'), path.join(ext, 'src'), { recursive: true });
-    fs.writeFileSync(path.join(temp, 'extensions.js'), 'export const getContext = () => ({ chat: [] });\nexport const extension_settings = {};\n');
+    standInTree(ext);   // old names, stand-ins for the real files; the host's extensions.js is the shared stub reading __npcMock
+    globalThis.__npcMock = { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };
     const savedDocument = globalThis.document;
     globalThis.document = { documentElement: { dataset: {} } };
     try {
         const { createInlineCardsModePart } = await import(pathToFileURL(path.join(ext, 'runtime-inline-cards-mode.js')).href);
-        const { extension_settings } = await import(pathToFileURL(path.join(temp, 'extensions.js')).href);
+        const extension_settings = globalThis.__npcMock.extensionSettings;
         const state = { npcs: [{ id: 'n1', name: 'Mira', present: true }] };
         const part = createInlineCardsModePart({
             chatHydrationStatus: () => 'ready', getChatKey: () => 'k', getChatState: () => state, latestMessageId: () => 4,

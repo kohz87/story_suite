@@ -5,7 +5,7 @@
 // every file is unchanged. A part that moves or a marker that goes missing fails loudly; add an entry when more code
 // moves out of index.js.
 import fs from 'node:fs';
-import { oldUrl } from './old-path.js';
+import { oldSource } from './old-source.js';
 
 
 export const RUNTIME_SOURCE_PARTS = [
@@ -52,7 +52,7 @@ export const RUNTIME_SOURCE_PARTS = [
     { file: 'runtime-entry-public-write.js', before: 'window.NPCStateDelta = Object.freeze({ ...publicReadApi' },
 ];
 
-const read = file => fs.readFileSync(oldUrl(file), 'utf8');
+const read = file => oldSource(file);
 
 export function runtimeSource() {
     let source = read('index.js');

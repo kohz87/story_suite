@@ -1,3 +1,4 @@
+import { oldUrl } from './helpers/old-path.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -104,8 +105,8 @@ test('recovery filenames are distinct across separate module instances at the sa
     const originalNow = Date.now;
     try {
         Date.now = () => 1700000000000;
-        const a = await import(`../storage.js?tab-a-${Math.random()}`);
-        const b = await import(`../storage.js?tab-b-${Math.random()}`);
+        const a = await import(`${oldUrl('storage.js').href}?tab-a-${Math.random()}`);
+        const b = await import(`${oldUrl('storage.js').href}?tab-b-${Math.random()}`);
         assert.notEqual(a.makeNpcStateRecoveryFileName(keyA), b.makeNpcStateRecoveryFileName(keyA));
     } finally {
         Date.now = originalNow;

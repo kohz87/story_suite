@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { standInTree } from './helpers/temp-tree.js';
+import { oldSource } from './helpers/old-source.js';
 import { createNpcPart, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
@@ -125,12 +127,13 @@ test('hosted forward: an open dossier panel draws again when each delayed npc.ad
         const rt = { storySuiteV2: { hosted: () => true, adjust: change => { calls.push(change.name); return new Promise(resolve => { release = resolve; }); } } };
         // runtime-hosted.js with its siblings copied beside it; only the SillyTavern-bound helper and settings files are stubs.
         const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-hosted-forward-'));
-        const root = fileURLToPath(new URL('../../modules/people/legacy', import.meta.url));
-        fs.cpSync(root, temp, { recursive: true, filter: from => !/[\\/](tests|docs|scripts|\.git|node_modules|dist)([\\/]|$)/.test(path.relative(root, from)) });
+        globalThis.__npcMock ??= { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };   // the shared host stubs read it
+        standInTree(temp);   // every file under its old name, a stand-in for the real one; runtime-hosted.js itself is a copy with its imports written the old way
+        fs.writeFileSync(path.join(temp, 'runtime-hosted.js'), oldSource('runtime-hosted.js'));
         fs.writeFileSync(path.join(temp, 'runtime-scan-helpers.js'), [
             "import { normalizeName, normalizeRelationshipBaseline, npcMatchesLabel } from './core.js'; import { rejectedOverallLook } from './appearance-update.js'; import { physicalTraitSwaps } from './appearance-physical.js'; import { moodNumbers } from './npc-mood.js';",
-            'export const chatContext = () => ({ chat: [] }); export const markStands = () => true; export const replayScope = () => null; export const scopedAdapter = a => a; ' + fs.readFileSync(path.join(root, 'runtime-scan-helpers-parts', 'value-rules.js'), 'utf8').split('\n').find(line => line.startsWith('export const worth')),
-            fs.readFileSync(path.join(root, 'runtime-scan-helpers-parts', 'scan-results.js'), 'utf8').split('// What a committed scan tells the slice')[1],   // the real pure readers moved out of runtime-hosted.js
+            'export const chatContext = () => ({ chat: [] }); export const markStands = () => true; export const replayScope = () => null; export const scopedAdapter = a => a; ' + oldSource('runtime-scan-helpers-parts/value-rules.js').split('\n').find(line => line.startsWith('export const worth')),
+            oldSource('runtime-scan-helpers-parts/scan-results.js').split('// What a committed scan tells the slice')[1],   // the real pure readers moved out of runtime-hosted.js
         ].map((part, index) => (index === 2 ? '//' + part : part)).join('\n'));
         fs.writeFileSync(path.join(temp, 'runtime-settings.js'), 'export const getSettings = () => ({}); export const setRpgProbe = () => {};');
         cleanup = temp;

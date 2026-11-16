@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { root, index, continuityUi, css, dossierUi } from './ui-layout.helpers.js';
+import { index, continuityUi, css, dossierUi } from './ui-layout.helpers.js';
+import { oldSource } from './helpers/old-source.js';
 import { partsSource } from './helpers/parts-source.js';
 
 test('present NPC pane uses portrait-first cards that open the launcher dossier', () => {
@@ -174,21 +175,21 @@ test('dossier exposes species/race, age, form-owned appearance, and portrait gen
     assert.match(index, /npc_state_delta_edit_portrait_positive[^\n]+maxlength=\"\$\{PORTRAIT_NPC_PROMPT_LIMIT\}\"/);
     assert.match(index, /npc_state_delta_edit_portrait_negative[^\n]+maxlength=\"\$\{PORTRAIT_NPC_PROMPT_LIMIT\}\"/);
     assert.doesNotMatch(index, /npc_state_delta_portrait_style_(?:positive|negative)[^\n]+maxlength=\"2400\"/);
-    assert.match(fs.readFileSync(path.join(root, 'portrait-tools.js'), 'utf8'), />Generate Portrait<\/button>/);
+    assert.match(oldSource('portrait-tools.js'), />Generate Portrait<\/button>/);
     assert.doesNotMatch(index, /<b>Current thoughts<\/b>|Thought basis|npc_state_delta_edit_thought/i);
 });
 
 test('scanner uses current-exchange auto context and keeps wider history for manual scans', () => {
-    assert.match(fs.readFileSync(path.join(root, 'src', 'transcript-parts', 'exchange-text.js'), 'utf8'), /export function currentExchangeTranscript/);
+    assert.match(oldSource('src/transcript-parts/exchange-text.js'), /export function currentExchangeTranscript/);
     assert.match(index, /const fullWindowScan = Boolean\(!savedCapture && !manual && settings\.fullScanEveryTurn\)/);
     assert.match(index, /\(manual \|\| fullWindowScan\) \? recentTranscript\(settings\.scanDepth\) : \(skippedWindow\?\.transcript \|\| currentTranscript\)/);
-    assert.match(fs.readFileSync(path.join(root, 'src', 'transcript-parts', 'skipped.js'), 'utf8'), /export function skippedExchangesWindow/);
-    assert.match(partsSource(path.join(root, 'src', 'scanner-request.js')), /SCAN_RESPONSE_LENGTH = 1800/);
-    assert.match(partsSource(path.join(root, 'src', 'scanner-request.js')), /FULL_SCAN_RESPONSE_LENGTH = 3200/);
+    assert.match(oldSource('src/transcript-parts/skipped.js'), /export function skippedExchangesWindow/);
+    assert.match(partsSource('src/scanner-request.js'), /SCAN_RESPONSE_LENGTH = 1800/);
+    assert.match(partsSource('src/scanner-request.js'), /FULL_SCAN_RESPONSE_LENGTH = 3200/);
     assert.match(index, /fullWindowScan \? FULL_SCAN_RESPONSE_LENGTH : SCAN_RESPONSE_LENGTH/);
-    assert.match(partsSource(path.join(root, 'src', 'scanner-request.js')), /BACKFILL_RESPONSE_LENGTH = 3200/);
-    assert.match(partsSource(path.join(root, 'src', 'scanner-request.js')), /JSON_RETRY_RESPONSE_LENGTH = 5200/);
-    assert.match(partsSource(path.join(root, 'src', 'scanner-request.js')), /CRITICAL COMPACT JSON RETRY/);
+    assert.match(partsSource('src/scanner-request.js'), /BACKFILL_RESPONSE_LENGTH = 3200/);
+    assert.match(partsSource('src/scanner-request.js'), /JSON_RETRY_RESPONSE_LENGTH = 5200/);
+    assert.match(partsSource('src/scanner-request.js'), /CRITICAL COMPACT JSON RETRY/);
     assert.match(index, /'Scan context'/);
     assert.match(index, /Full scan every turn/);
     assert.match(index, /Quick automatic scans read every reply since the last scan/);

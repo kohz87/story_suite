@@ -192,17 +192,23 @@ test('v2 older build: a v1 decoder refuses a v2 file and the file bytes are unto
     assert.equal(cancelPendingNpcStateWrite(chatKey), true);
 });
 
-// T9b: the real pre-format-2 build (origin/main at the time of format 2) meets a v2 file on its write path. Its decoder refuses
+// T9b: the real pre-format-2 build (the commit just before format 2 landed) meets a v2 file on its write path. Its decoder refuses
 // (no error code, so it retries a bounded number of times); it must never upload, and the server bytes stay unchanged.
-// Skipped when git or the base ref is not available (a source tarball). Uses the real old storage.js, not a copy kept here.
+// The build is pinned by commit (origin/main moved on to format 2 itself) and taken out of git, not copied here. CI checks out the whole
+// history, so there a missing commit fails; on a machine without it (a source tarball, a shallow clone) the test skips.
+const PREVIOUS_BUILD = { commit: '721774f903768945a4bd2343a48f6453de1684fc', folder: 'packages/npc-state-delta' };
 test('v2 older build (T9b): the real previous build, writing over a v2 file, uploads nothing and leaves the bytes unchanged', async t => {
     const dir = mkdtempSync(join(tmpdir(), 'nsd-old-build-'));
     try {
         const here = dirname(fileURLToPath(import.meta.url));
-        const packed = spawnSync('sh', ['-c', 'git archive "$0" | tar -x -C "$1"', 'origin/main', dir], { cwd: join(here, '..') });
-        if (packed.status !== 0 || !existsSync(join(dir, 'storage.js'))) { t.skip('no git history for origin/main'); return; }
+        const packed = spawnSync('sh', ['-c', 'git archive "$0:$2" | tar -x -C "$1"', PREVIOUS_BUILD.commit, dir, PREVIOUS_BUILD.folder], { cwd: join(here, '..', '..') });
+        if (packed.status !== 0 || !existsSync(join(dir, 'storage.js'))) {
+            if (process.env.CI === 'true') assert.fail(`the previous build ${PREVIOUS_BUILD.commit} is not in this checkout (CI fetches the whole history)`);
+            t.skip('the previous build is not in this checkout (needs the full git history)');
+            return;
+        }
         const old = await import(pathToFileURL(join(dir, 'storage.js')).href);
-        if (old.NPC_STATE_FILE_FORMAT_VERSION !== 1) { t.skip('origin/main already writes format 2'); return; }
+        assert.equal(old.NPC_STATE_FILE_FORMAT_VERSION, 1, 'the pinned build is a format 1 writer');
         const { state } = buildChat(30);
         const chatKey = 'chat:old-tab';
         const v2 = encodeStateFilePayload(chatKey, state, 'new', { revision: 5, writerId: 'newtab' });

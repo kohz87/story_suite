@@ -5,31 +5,19 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { pathToFileURL, fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
+import { standInTree } from './helpers/temp-tree.js';
 
-const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-settings-debounce-'));
 const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
 fs.mkdirSync(extRoot, { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
-const modules = JSON.parse(fs.readFileSync(path.join(sourceRoot, 'runtime-modules.json'), 'utf8')).modules;
-for (const { path: file } of modules) {
-    const target = path.join(extRoot, file);
-    fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.copyFileSync(path.join(sourceRoot, file), target);
-}
-for (const name of fs.readdirSync(sourceRoot).filter(entry => entry.endsWith('-parts'))) fs.cpSync(path.join(sourceRoot, name), path.join(extRoot, name), { recursive: true });
-fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), `
-export const extension_settings = globalThis.__settingsHost.extensionSettings;
-export function getContext() { return globalThis.__settingsHost.context; }
-`);
-fs.writeFileSync(path.join(tempRoot, 'public', 'script.js'), `
-export function getRequestHeaders() { return {}; }
-export async function saveSettings() {}
-`);
+// the files sit in extRoot under their old names as stand-ins that load the real file; the host modules come from the shared stubs
+// (helpers/host-stubs), which read globalThis.__npcMock: here that is this test's settings host.
+standInTree(extRoot);
 const host = { extensionSettings: {}, saves: 0, context: null };
 host.context = { saveSettingsDebounced: () => { host.saves += 1; } };
-globalThis.__settingsHost = host;
+globalThis.__npcMock = { extensionSettings: host.extensionSettings, get context() { return host.context; }, saveSettingsCalls: 0 };
 test.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
 
 const load = file => import(pathToFileURL(path.join(extRoot, file)).href);

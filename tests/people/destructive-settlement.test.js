@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { oldSource } from './helpers/old-source.js';
 import {
     createDestructiveSettlementController,
     destructiveMutationSettled,
@@ -141,7 +142,7 @@ test('chat switch cancels a pending destructive settlement and timeout fails clo
 });
 
 test('runtime wiring loads the settlement adapter after the canonical index and listens only to destructive/chat-change events', () => {
-    const bootstrap = fs.readFileSync(new URL('../../modules/people/legacy/bootstrap.js', import.meta.url), 'utf8');
+    const bootstrap = oldSource('bootstrap.js');
     const adapter = fs.readFileSync(new URL('../../modules/people/core/destructive-settlement.js', import.meta.url), 'utf8');
     const runtime = JSON.parse(fs.readFileSync(new URL('../../modules/people/runtime/runtime-modules.json', import.meta.url), 'utf8'));
     assert.match(bootstrap, /await import\('\.\/index\.js'\);[\s\S]*await import\('\.\/destructive-settlement\.js'\)/);

@@ -1,3 +1,4 @@
+import { oldSource } from './helpers/old-source.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -125,7 +126,7 @@ test('the snapshot built from the registry is today\'s snapshotNpc, key order in
 });
 
 test('the modules use the derived lists, not copies of their own', () => {
-    const read = path => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+    const read = oldSource;
     assert.match(read('core-prompts.js'), /import \{ PROFILE_EVIDENCE_FIELDS, RETURN_KEYS, RETURN_SHAPES \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-merge-incoming.js'), /import \{ TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);
     assert.match(read('core-merge-aliases.js'), /import \{ ALIAS_MERGE_TEXT_FIELDS \} from '\.\/src\/fields\/registry\.js';/);

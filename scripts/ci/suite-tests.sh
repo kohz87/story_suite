@@ -32,6 +32,13 @@ BROWSER_SKIPS=(
   "Install the optional browser package to run the rendered"
   "Browser unavailable:"
 )
+# A skip allowed only outside CI: the previous-build test needs the whole git history (CI checks it out, and there the test fails instead).
+LOCAL_SKIPS=(
+  "the previous build is not in this checkout (needs the full git history)"
+)
+if [ "${CI:-}" != "true" ]; then
+  ALLOWED_SKIPS+=("${LOCAL_SKIPS[@]}")
+fi
 browser_installed() {
   node -e "import('playwright').then(m => process.exit(require('fs').existsSync(m.chromium.executablePath()) ? 0 : 1), () => process.exit(1))" 2>/dev/null
 }

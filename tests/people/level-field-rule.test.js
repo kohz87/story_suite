@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { shippedModulePaths } from './helpers/shipped-modules.js';
+import { pathToFileURL } from 'node:url';
+import { standInTree } from './helpers/temp-tree.js';
+import { oldSource } from './helpers/old-source.js';
 import {
     LEVEL_FIELD_RULE, buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt,
     buildScannerPrompt, createNpcRecord, mergeScanResult, normalizeNpcRecord,
@@ -84,18 +85,12 @@ test('merge: a Level estimate needs a quote that is really in the story; hand-se
 
 // ---- the Level field appears by itself while Story Block's RPG feature is on (read time, never stored) ----
 // runtime-settings.js imports SillyTavern's extensions.js, so it is loaded from a temp tree with a stub host (as settings-debounce.test.js does).
-const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-level-auto-'));
 const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
 fs.mkdirSync(extRoot, { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
-for (const file of shippedModulePaths()) {
-    fs.mkdirSync(path.dirname(path.join(extRoot, file)), { recursive: true });
-    fs.copyFileSync(path.join(sourceRoot, file), path.join(extRoot, file));
-}
-for (const name of fs.readdirSync(sourceRoot).filter(entry => entry.endsWith('-parts'))) fs.cpSync(path.join(sourceRoot, name), path.join(extRoot, name), { recursive: true });
-fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), 'export const extension_settings = {};\nexport function getContext() { return {}; }\n');
-fs.writeFileSync(path.join(tempRoot, 'public', 'script.js'), 'export function getRequestHeaders() { return {}; }\nexport async function saveSettings() {}\n');
+standInTree(extRoot);   // old names, stand-ins for the real files; the host modules are the shared stubs reading __npcMock
+globalThis.__npcMock = { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };
 const { effectiveCustomFieldNames, setRpgProbe } = await import(pathToFileURL(path.join(extRoot, 'runtime-settings.js')).href);
 const { buildInjection } = await import('../../modules/people/core/core.js');
 const { suite } = await import('./helpers/pacing-suite.js');
@@ -221,7 +216,7 @@ test('partyLevelList drops a member who left (rule 2), keeps whole-number levels
 });
 
 test('every merge call site passes the party levels: the reply scan and the targeted passes (backfill, Refresh, catch-up and import go through them)', () => {
-    const read = file => fs.readFileSync(path.join(sourceRoot, file), 'utf8');
+    const read = oldSource;
     for (const file of ['runtime-scan.js', 'runtime-targeted.js']) {
         const source = read(file);
         const calls = source.split('mergeScanResult(').length - 1;

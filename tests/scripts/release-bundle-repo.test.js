@@ -54,3 +54,17 @@ test('import.meta.url keeps the original location of a moved file, and two build
   assert.match(read(a, 'boot.js'), /new URL\("\.\.\/\.\.\/core\/helper\.js", import\.meta\.url\)/);
   for (const file of files) assert.equal(read(a, file), read(b, file));
 });
+
+// A host import keeps the text it was written with for the file's place in the old package folder: two ../ plus one per folder level the file sat
+// below the package root. A moved file's depth comes from that old place, not from where it sits in the new layout.
+test('a host import in a moved file resolves from the file\'s old place in its package, not its new folder', async () => {
+  write('modules/people/legacy/bootstrap.js', "import './../settings/runtime-settings-parts/save.js';\nimport { ext } from '../../../extensions.js';\nexport const both = [ext];\n");
+  write('modules/people/settings/runtime-settings-parts/save.js', "import { ext } from '../../../../extensions.js';\nexport const save = ext;\n");
+  const set = { name: 'npc-state-delta', dir: 'packages/npc-state-delta', entries: ['bootstrap.js'], lazy: [] };
+  const out = path.join(root, 'out5');
+  await buildBundleSet(set, out, root);
+  const graph = walkBundle(out, 'bootstrap.js');
+  assert.deepEqual(graph.missing, []);
+  // bootstrap.js sat at the package root (3 up from third-party/npc-state-delta/ is scripts/), save.js one folder down (4 up): both name /scripts/extensions.js
+  assert.deepEqual(graph.host, ['../../../extensions.js']);
+});

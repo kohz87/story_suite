@@ -1,3 +1,4 @@
+import { oldSource } from './helpers/old-source.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -216,7 +217,7 @@ test('catch-up: every due NPC is held from the reply backfill; a newly met NPC k
     // The real module in a temp tree whose two imports are small stubs (the real ones need the host).
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nsd-catchup-'));
     try {
-        fs.copyFileSync(fileURLToPath(new URL('../../modules/people/calls/runtime-catchup.js', import.meta.url)), path.join(dir, 'runtime-catchup.js'));
+        fs.writeFileSync(path.join(dir, 'runtime-catchup.js'), oldSource('runtime-catchup.js'));
         fs.writeFileSync(path.join(dir, 'runtime-settings.js'), 'export const getSettings = () => ({ narrationCaptureCatchUp: 1 });\n');
         fs.writeFileSync(path.join(dir, 'runtime-scan-helpers.js'), 'export const latestMessageId = () => 5;\n');
         var { createCatchUpPart } = await import(pathToFileURL(path.join(dir, 'runtime-catchup.js')).href);

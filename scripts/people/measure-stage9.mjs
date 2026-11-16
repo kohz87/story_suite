@@ -5,18 +5,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-const root = path.resolve(process.argv[2] || fileURLToPath(new URL('../../modules/people/legacy', import.meta.url)));
-const core = await import(pathToFileURL(path.join(root, 'core.js')));
-const routing = await import(pathToFileURL(path.join(root, 'scanner-routing.js')));
+import { atEitherLayout } from '../release/layout-paths.mjs';
+// A file by the name it had in the old flat NPC State package folder: under the folder named on the command line, else where the layout put it.
+const repo = path.resolve(fileURLToPath(new URL('../..', import.meta.url)));
+const at = (...names) => (process.argv[2] ? path.join(path.resolve(process.argv[2]), ...names) : path.join(repo, atEitherLayout(repo, path.posix.join('packages/npc-state-delta', ...names))));
+const core = await import(pathToFileURL(at('core.js')));
+const routing = await import(pathToFileURL(at('scanner-routing.js')));
 // The request owners live in index.js and the parts split out of it (targeted passes, then the reply scan, in the order they stood in index.js).
-const source = ['index.js', 'runtime-targeted-scope.js', 'runtime-targeted.js', 'runtime-targeted-refresh.js', 'runtime-targeted-backfill.js', 'runtime-scan.js'].filter(file => fs.existsSync(path.join(root, file))).map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+const source = ['index.js', 'runtime-targeted-scope.js', 'runtime-targeted.js', 'runtime-targeted-refresh.js', 'runtime-targeted-backfill.js', 'runtime-scan.js'].filter(file => fs.existsSync(at(file))).map(file => fs.readFileSync(at(file), 'utf8')).join('\n');
 // The scanner request (response lengths, JSON retry) lives in src/scanner-request.js.
-const request = await import(pathToFileURL(path.join(root, 'src', 'scanner-request.js')));
+const request = await import(pathToFileURL(at('src', 'scanner-request.js')));
 const lengths = Object.fromEntries(Object.entries(request).filter(([name]) => /RESPONSE_LENGTH$/.test(name)));
 const systemPrompts = text => [...text.matchAll(/systemPrompt: "([^"]+)"/g)].map(match => match[1]);
 const systems = systemPrompts(source);
 // The focused relationship pass (systems[3]) lives in src/relationship-pass-parts/run.js (facade: src/relationship-pass.js).
-const relationshipPassPath = path.join(root, 'src', 'relationship-pass-parts', 'run.js');
+const relationshipPassPath = at('src', 'relationship-pass-parts', 'run.js');
 if (fs.existsSync(relationshipPassPath)) systems.splice(3, 0, ...systemPrompts(fs.readFileSync(relationshipPassPath, 'utf8')));
 assert.equal(systems.length, 5, 'Review measurement fixture when request owners change.');
 const requestOwner = request.generateParsedNpcJson;

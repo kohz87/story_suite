@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,7 +18,7 @@ const walk = dir => readdirSync(dir).flatMap(name => {
 test('no module calls director.advance through ctx.call or commits it: only the time part and the receipt readers name it', () => {
     const named = [];
     const scan = dir => { for (const file of walk(dir)) if (/director\.advance|\bADVANCE\b/.test(readFileSync(file, 'utf8'))) named.push(relative(repo, file)); };
-    for (const pack of readdirSync(packages)) {
+    for (const pack of existsSync(packages) ? readdirSync(packages) : []) {   // the package folders are gone once the layout is switched
         const src = join(packages, pack, 'src');
         try { if (!statSync(src).isDirectory()) continue; } catch { continue; }
         scan(src);
