@@ -18,9 +18,9 @@ const real = state => ({ domains: { dataModules: state.domains.dataModules, inve
 const standingHero = character => character.v1 === true && character.alive !== false && character.hp > 0;
 
 /** True for a setup the v1 engine plays. */
-export const isV1 = setup => setup?.v1 === 1;
+const isV1 = setup => setup?.v1 === 1;
 /** True when the sheet is a Combat Rules v1 one: a v1 Character stands (the old engine cannot read it). */
-export const v1Sheet = state => readSheet(real(state)).characters.some(character => character.v1 === true);
+const v1Sheet = state => readSheet(real(state)).characters.some(character => character.v1 === true);
 
 // What each hero's worn pieces soak (the Bag's `inventory.gear` answers; the first hero also holds the party's shared bag). Soak is read live by the witness and fixed into the setup at open.
 function soakOf(state, sheet) {
@@ -63,7 +63,7 @@ function playedOf(state, setup, steps, dice) {
 const mapped = (state, setup, played) => fightResultV1(setup, played.record, { sheet: played.sheet, groups: played.input.groups });
 
 /** The first setup of a fight on a v1 sheet: every filled foe group fights, the party is every standing hero. `error` when no one can fight. */
-export function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
+function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
     const soak = soakOf(state, sheet);
@@ -73,20 +73,21 @@ export function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
 }
 
 /** `{ view, result, stop }`: the fight so far (the port's preview). */
-export function playV1(state, setup, steps, dice) {
+function playV1(state, setup, steps, dice) {
     const played = playedOf(state, setup, steps, dice);
     const result = mapped(state, setup, played);
     return { view: { result: played.record }, result, stop: result.stop };
 }
 
 /** The settled fight: the record the readers know and the calls that write the party's new bars and clear the ended groups. */
-export function settleV1(state, setup, steps, dice) {
+function settleV1(state, setup, steps, dice) {
     const played = playedOf(state, setup, steps, dice), result = mapped(state, setup, played);
     return { result, stop: result.stop, changes: fightChangesV1(result, played.sheet) };
 }
 
-/** The pieces the kind's hooks use: Auto is the engine's own automatic policy for that hero; the next setup carries the start and the foes' bars; the witness is what the engine reads. */
+/** Everything the kind's hooks use for a v1 fight (`isV1`/`sheet` tell whether a setup or a state is one): Auto is the engine's own automatic policy for that hero; the next setup carries the start and the foes' bars; the witness is what the engine reads. */
 export const V1 = Object.freeze({
+    isV1, sheet: v1Sheet, open: openV1, play: playV1, settle: settleV1,
     auto: () => ({ choice: 'auto', args: {} }),
     next(setup, result) {
         const out = structuredClone(setup), exchanges = Number(result.exchanges);
