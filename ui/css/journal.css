@@ -50,7 +50,7 @@
 .lead2 small.lapse{color:var(--su-warn-t);font-weight:700;font-size:12px}
 .journal-tab .fold{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;background:none;border:0;color:var(--su-text);font:800 14px var(--su-font);cursor:pointer}
 .journal-tab .fold i{font-style:normal;color:var(--su-muted);transition:transform .15s}.fold[aria-expanded="true"] i{transform:rotate(90deg)}
-.journal-tab .fold small{color:var(--su-muted);font-weight:700}
+.journal-tab .fold small{color:var(--su-muted);font-weight:600}
 .closed{display:flex;flex-direction:column;gap:8px}
 .cq{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 12px;border-radius:14px;background:var(--su-line2);font-size:13px}
 .cq b{font:800 14px var(--su-font)}.cq small{color:var(--su-muted);grid-column:1/-1}
@@ -80,7 +80,8 @@
 .journal-tab .cd.today{background:var(--su-accent)}.cd.today b{color:#14102a}
 .journal-tab .cd.sel{border-color:var(--su-accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--su-accent) 25%,transparent)}
 .journal-tab .cd.today .ds i{box-shadow:0 0 0 1px #14102a}.journal-tab .cd.today.sel{border-color:#fff}
-.journal-tab .cd.pre{opacity:.35}.journal-tab .mo.pre{opacity:.4}
+.journal-tab .cd.pre{opacity:.35;padding:12px 0;border-radius:14px}
+.journal-tab .cd.pre b{font-size:15px}.journal-tab .mo.pre{opacity:.4}
 .journal-tab .cd .ds{display:flex;gap:2px;height:5px}.cd .ds i{width:5px;height:5px;border-radius:50%}
 
 .journal-tab .calcard{padding:14px}

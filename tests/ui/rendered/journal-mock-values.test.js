@@ -62,6 +62,7 @@ for (const theme of ['dark', 'light']) {
         assert.equal(q.soon.bg, 'rgba(242, 180, 90, 0.16)');
         assert.equal(q.late.bg, 'rgba(229, 72, 77, 0.14)');
         assert.equal(q.lapse.size, '12px');
+        assert.equal((await read(page, { f: '.journal-tab .fold small' })).f?.weight, '600', 'Closed count weight is the mock\'s later 600 rule');
         assert.equal((await read(page, { s: '.lead2 small:not(.lapse)' })).s.size, '12px', 'lead sub-line is 12 px');
         await page.evaluate(() => document.querySelector('#hx-frame [data-value="cal"]').click());
         await page.waitForSelector('#hx-frame .cd b');
