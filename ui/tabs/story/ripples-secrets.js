@@ -8,7 +8,7 @@ export function secretsCard(secrets, shown, ctx = {}) {
     h('div', { class: 'h' }, h('b', null, s.title), h('span', { class: 'tagx' }, s.state)),
     h('p', null, s.text),
     s.personId
-      ? h('div', { class: 'm' }, h('a', { href: '#', dataset: { personId: s.personId }, onClick: (e) => { e.preventDefault?.(); ctx.go?.('people', { personId: s.personId }); } }, 'in dossier ›'))
+      ? h('div', { class: 'm' }, h('a', { href: '#', dataset: { personId: s.personId }, onClick: (e) => { e.preventDefault?.(); ctx.go?.('people', { personId: s.personId }); } }, s.person ? `in ${s.person}’s dossier ›` : 'in dossier ›'))
       : null));
 }
 

@@ -4,9 +4,11 @@ import { CHANGES_CARD_SCREEN_ID, replyCardLines } from '../screens/index.js';
 import { mergeRpgLines } from '../screens/changes-card.js';
 import { readRecord } from '../persist.js';
 import { laterStore, replyEdits, replyRules, scanReplyCards } from '../reply-cards.js';
+import { createReplyFailures } from './reply-failures.js';
+import { FLAGS, flagOn } from '../flags.js';
 import { drawReplyCard } from '../view/reply-cards-ui.js';
 
-export function createReplyCards({ runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg, getMounts }) {
+export function createReplyCards({ runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg, getMounts, nameOf }) {
     // A card's scope also gets `refused`: that reply's change lines the code did not apply; the "Changed this
     // reply" card also `moduleLines`: the modules' own lines for that reply (hooks.replyCard, MODULES §F125).
     const recordAt = index => readRecord(ctx.chat?.[index]);
@@ -19,6 +21,26 @@ export function createReplyCards({ runtime, ctx, doc, store, registry, events, q
         // The RPG's own lines (rolls, class and rank rises), only while its screens are mounted.
         return getRpg() ? mergeRpgLines(lines, getRpg().cardLines({ state, before, record: recordAt(index), problems: (store.problems?.() ?? []).filter(item => item?.index === index) })) : lines;
     };
+    // `moduleFailed` (suite.isolatedApply on; always empty with it off): the modules that could not finish the reply on its shown swipe, in memory only.
+    const isolatedOn = () => flagOn(() => ctx?.extensionSettings, FLAGS.isolatedApply);
+    const failures = createReplyFailures({ chat: () => ctx.chat ?? [], problems: () => runtime.turn?.problems?.() ?? [] });
+    const moduleFailedAt = index => {
+        if (!isolatedOn()) return [];
+        failures.observe();
+        return failures.at(index, nameOf);
+    };
+    // A turn or Re-read starts the shown swipe's failures afresh (a late one adds); a listener that fails after the card is drawn redraws it.
+    const redrawFailed = indexes => { for (const index of indexes) getMounts()?.card?.refresh?.(index, { force: true }); };
+    const failureOffs = [
+        events.on('turn', done => {
+            if (!isolatedOn()) return;
+            const index = Number(done?.index);
+            if (Number.isInteger(index) && done?.type !== 'late') failures.clearReply(index);
+            failures.observe();
+        }),
+    ];
+    runtime.setGuardRefresh?.(() => { if (isolatedOn()) redrawFailed(failures.observe()); });
+    failureOffs.push(() => runtime.setGuardRefresh?.(null));
     const drawScreen = renderer.render;
     // …and `assisted`: the lines the Assist safety net applied on it (its receipts marked `assist`).
     const assistedAt = index => {
@@ -28,7 +50,7 @@ export function createReplyCards({ runtime, ctx, doc, store, registry, events, q
         } catch { return []; }
     };
     renderer.render = (el, screen, scope) => drawScreen(el, screen, scope?.mount === 'card'
-        ? { ...scope, refused: notes.refusedAt(scope.index), warned: notes.warnedAt?.(scope.index) ?? [], assisted: assistedAt(scope.index), ...(screen?.id === CHANGES_CARD_SCREEN_ID ? { moduleLines: cardLines(scope.index, scope.state, scope.changes, scope.before), edits: editsAt(scope.index), editableHead: scope.index === store.headIndex() } : {}) }
+        ? { ...scope, refused: notes.refusedAt(scope.index), warned: notes.warnedAt?.(scope.index) ?? [], assisted: assistedAt(scope.index), ...(screen?.id === CHANGES_CARD_SCREEN_ID ? { moduleLines: cardLines(scope.index, scope.state, scope.changes, scope.before), edits: editsAt(scope.index), moduleFailed: moduleFailedAt(scope.index), editableHead: scope.index === store.headIndex() } : {}) }
         : scope);
     // The story head a dialog was opened on (mounts/dialog.js): the head's index and record. Which swipe is shown is not part of
     // it: a swipe that keeps the head record is not a move (the chat's id is checked on its own).
@@ -43,10 +65,10 @@ export function createReplyCards({ runtime, ctx, doc, store, registry, events, q
     let replyNodes = new Map();    // drawn card nodes by `${chat}|${index}|${card key}`, reused while the card is the same
     const pageFolds = new Set();   // folds of a chat with no id: this page only, never saved
     const dropReplyScan = () => { replyScan = null; };
-    const replyOffs = ['head', 'committed', 'turn', 'feature'].map(name => events.on(name, dropReplyScan));
+    const replyOffs = ['head', 'committed', 'turn', 'feature'].map(name => events.on(name, dropReplyScan)).concat(failureOffs);
     const replyChatTypes = ctx.eventTypes ?? ctx.event_types ?? {};
     if (typeof ctx.eventSource?.on === 'function' && replyChatTypes.CHAT_CHANGED) {
-        const chatLeft = () => { dropReplyScan(); pageFolds.clear(); replyNodes = new Map(); };
+        const chatLeft = () => { dropReplyScan(); pageFolds.clear(); replyNodes = new Map(); failures.forget(); };
         ctx.eventSource.on(replyChatTypes.CHAT_CHANGED, chatLeft);
         replyOffs.push(() => (ctx.eventSource.removeListener ?? ctx.eventSource.off)?.call(ctx.eventSource, replyChatTypes.CHAT_CHANGED, chatLeft));
     }
@@ -136,5 +158,5 @@ export function createReplyCards({ runtime, ctx, doc, store, registry, events, q
             try { Promise.resolve(api.command(action.command, JSON.parse(JSON.stringify(action.payload ?? {})), { cause: 'ui' })).catch(() => {}); } catch { /* the host reports its own failures */ }
         }
     }
-    return { cardLines, assistedAt, branchNow, replyCardsAt, replyOffs };
+    return { cardLines, assistedAt, branchNow, replyCardsAt, replyOffs, forgetFailures: failures.forget };
 }

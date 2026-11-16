@@ -47,7 +47,7 @@ test('a saved spoiler level starts shown, and Less closes the detail', () => {
   assert.equal(card.querySelector('dl'), null);
 });
 
-test('followed, in-party marks, initial fallback, safe portraits and the dossier link', () => {
+test('followed mark, no party badge, initial fallback, safe portraits and the dossier link', () => {
   installFakeDom();
   const ctx = makeCtx();
   const base = { personId: 'p', meters: { trust: 0, affection: 0, desire: 0, tension: 0 }, mood: 'calm', where: 'door', thought: null, doing: null, wearing: null, scene: null };
@@ -59,7 +59,7 @@ test('followed, in-party marks, initial fallback, safe portraits and the dossier
   const rows = card.querySelectorAll('.hp2');
   assert.equal(rows[0].querySelector('.ph').textContent, 'O');
   assert.equal(rows[0].querySelectorAll('.star').length, 1);
-  assert.equal(rows[0].querySelectorAll('.pty').length, 1);
+  assert.equal(rows[0].querySelectorAll('.pty').length, 0, 'the party badge is on the Party tab only');
   assert.equal(rows[0].querySelectorAll('.ring-arc').length, 0);
   assert.equal(rows[0].querySelector('.th3'), null);
   assert.equal(rows[1].querySelector('.ph').textContent, '');

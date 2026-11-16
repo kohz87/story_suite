@@ -9,6 +9,7 @@
 .ctop .meta:focus-visible{outline:2px solid var(--su-accent);outline-offset:2px}
 .ctop .meta > span{display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:100%;white-space:normal}
 .ctop .meta .tm,.ctop .meta .pl2{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ctop .meta span{gap:5px}
 .ctop .meta svg{width:15px;height:15px;color:var(--su-muted)}
 .ctop .meta::after{content:'›';align-self:center;font-weight:800;color:var(--su-muted);margin-left:auto;padding-left:4px}
 /* 13.3333px Arial is the browser's default button font, copied from the mock's unstyled settings button. */

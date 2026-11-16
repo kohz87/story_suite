@@ -3,6 +3,7 @@ import { h, svgEl } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { button } from '../../kit/controls.js';
 import { tripCard, tripSummary } from './trip.js';
+import { labelGeom, nudgeLabels } from './label-nudge.js';
 
 const BASE = Object.freeze({ x: 0, y: 0, w: 1000, h: 700 });
 const KIND_GLYPHS = [[/port|harbou?r/i, 'port'], [/ford|bridge|mill/i, 'ford'], [/city/i, 'city'], [/village|hamlet/i, 'village'],
@@ -47,12 +48,10 @@ function regionLabels(places) {
   }, name.toUpperCase()));
 }
 
-function placeNode(p, u, newsIds, state, act, vb) {
+function placeNode(p, u, newsIds, state, act, vb, dy = 0) {
   const big = p.here || /city|market/i.test(p.kind);
-  const r = Math.max(big ? 17 : 13, 15 * u);
-  const fs = 13 * u * (big ? 1.1 : 1);
+  const { r, fs, flip } = labelGeom(p, u, vb);
   const nr = Math.max(8, 9 * u);
-  const flip = p.x + r + 6 + p.name.length * fs * 0.6 > vb.x + vb.w;
   const stroked = /port|harbou?r|ford|bridge|mill/i.test(p.kind);
   const badge = newsIds.has(p.id)
     ? svgEl('g', { class: 'news' },
@@ -72,7 +71,7 @@ function placeNode(p, u, newsIds, state, act, vb) {
   svgEl('circle', { class: 'b', cx: p.x, cy: p.y, r }),
   svgEl('svg', { class: 'g', x: p.x - r * 0.6, y: p.y - r * 0.6, width: r * 1.2, height: r * 1.2, viewBox: '0 0 24 24', fill: 'currentColor', ...(stroked ? { stroke: 'currentColor', 'stroke-width': 2 } : {}) },
     ...(glyph(placeGlyph(p.kind))?.childNodes ?? [])),
-  svgEl('text', { x: flip ? p.x - r - 6 : p.x + r + 6, y: p.y + fs * 0.35, 'text-anchor': flip ? 'end' : 'start', style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` } }, p.name),
+  svgEl('text', { x: flip ? p.x - r - 6 : p.x + r + 6, y: p.y + fs * 0.35 + dy, 'text-anchor': flip ? 'end' : 'start', style: { 'font-size': `${fs}px`, 'stroke-width': `${3 * u}px` } }, p.name),
   badge);
 }
 
@@ -83,6 +82,7 @@ function drawSvg(world, vb, scale, state, act) {
   const tripPts = (world.trip?.placeIds ?? []).map(id => byId.get(id)).filter(Boolean);
   const here = world.places.find(p => p.here);
   const terrain = world.terrain ?? {};
+  const shifts = nudgeLabels(world.places, u, vb);
   const grid = [];
   for (let i = 0; i <= 1000; i += 100) grid.push(svgEl('path', { class: 'grid', d: `M${i} -500V1200M-500 ${i}H1500` }));
   return svgEl('svg', { class: 'mp', viewBox: viewText(vb), preserveAspectRatio: 'xMidYMid slice', 'aria-label': 'Map' },
@@ -99,7 +99,7 @@ function drawSvg(world, vb, scale, state, act) {
     tripPts.length > 1
       ? svgEl('path', { class: ['trip', world.trip.state === 'arrived' ? 'done' : null], d: `M${tripPts.map(p => `${p.x} ${p.y}`).join('L')}`, style: { 'stroke-width': Math.max(5, 4 * u) } })
       : null,
-    world.places.map(p => placeNode(p, u, newsIds, state, act, vb)),
+    world.places.map(p => placeNode(p, u, newsIds, state, act, vb, shifts.get(p.id) ?? 0)),
     here ? svgEl('g', { class: 'you' }, svgEl('circle', { class: 'r', cx: here.x, cy: here.y, r: 14 })) : null);
 }
 
@@ -128,7 +128,10 @@ export function mapCard(world, state, act, ctx = {}) {
   const regions = [...new Set(places.map(p => p.region).filter(Boolean))];
   const box = h('div', { class: 'mapbox', dataset: { map: 'box' } });
   const ratio = () => (box.clientWidth && box.clientHeight ? box.clientHeight / box.clientWidth : 0.7);
-  const scale = vb => (box.clientWidth ? box.clientWidth / vb.w : 0.7);
+  const scale = vb => {
+    const w = box.clientWidth || (typeof ctx.width === 'function' ? ctx.width() : ctx.width) || 0;
+    return w ? w / vb.w : 0.7;
+  };
   const tripPts = (data.trip?.placeIds ?? []).map(id => places.find(p => p.id === id)).filter(Boolean);
   const firstFit = () => {
     const w = box.clientWidth || (typeof ctx.width === 'function' ? ctx.width() : ctx.width) || 0;

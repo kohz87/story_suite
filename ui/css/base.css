@@ -16,15 +16,20 @@
   display: none !important;
 }
 
-.su-root button {
+/* :where() keeps this reset at one class: it beats SillyTavern's bare button rule wherever the links load, and any one-class component button rule loaded later still wins. */
+.su-root :where(button) {
   font: inherit;
   color: inherit;
 }
 
 .su-root h1,
 .su-root h2,
-.su-root h3,
-.su-root p {
+.su-root h3 {
+  margin: 0;
+}
+
+/* :where() keeps the p reset at one class, so a one-class component rule loaded later (Settings .applies) keeps its own margin. */
+.su-root :where(p) {
   margin: 0;
 }
 

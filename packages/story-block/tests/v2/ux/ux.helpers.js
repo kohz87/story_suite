@@ -23,7 +23,7 @@ export async function page({ reread = null, modules = [], settings = null, callM
     const sdk = reread === false ? { ...host.sdk, reread: undefined }
         : reread ? { ...host.sdk, reread: async index => { calls.push(index); return reread(index, host); } } : host.sdk;
     const turn = reread === false ? { ...host.turn, reread: undefined } : host.turn;
-    const runtime = { registry: host.registry, store: host.store, sdk, settings: host.settings, events: host.events, turn };
+    const runtime = { registry: host.registry, store: host.store, sdk, settings: host.settings, events: host.events, turn, setGuardRefresh: host.setGuardRefresh };
     const ui = mountUi({ runtime, ctx: host.ctx, doc, version: '2.0.0-test' });
     /** SillyTavern drawing every message of the chat. */
     const draw = () => {

@@ -81,7 +81,7 @@ export function peopleDrawer(rows, opts = {}) {
     'button',
     { type: 'button', class: 'dhd', 'aria-expanded': String(!folded), onClick: () => opts.onToggle?.(!folded) },
     h('b', `Here · ${list.length}`),
-    h('span', { class: 'mini' }, list.map(p => face(p, 'mf'))),
+    h('span', { class: 'mini' }, list.map(p => face(p, 'mface'))),
     !folded && pages > 1 ? h('span', { class: 'dots2' }, Array.from({ length: pages }, (_, i) => h('i', { class: i === page ? 'on' : null }))) : null,
     h('span', { class: 'chev', 'aria-hidden': 'true' }, folded ? '▴' : '▾'),
   );
@@ -89,11 +89,11 @@ export function peopleDrawer(rows, opts = {}) {
     'div',
     { class: 'dbody2' },
     arrow(-1, 'Previous', page === 0, opts, pages, page),
-    h('div', { class: 'prow', onTouchstart: e => { startX = e.changedTouches?.[0]?.clientX; }, onTouchend: e => {
+    h('div', { class: 'pcrow', style: { '--per': String(per) }, onTouchstart: e => { startX = e.changedTouches?.[0]?.clientX; }, onTouchend: e => {
       const t = e.changedTouches?.[0];
       if (t && Number.isFinite(startX) && Math.abs(t.clientX - startX) > 40) opts.onPage?.(Math.max(0, Math.min(pages - 1, page + (t.clientX < startX ? 1 : -1))));
     } }, list.slice(page * per, page * per + per).map(p => card(p, opts))),
     arrow(1, 'Next', page >= pages - 1, opts, pages, page),
   );
-  return h('div', { class: 'drawer', dataset: { ssDrawer: '1', page: String(page) } }, header, body);
+  return h('div', { class: 'ssdrawer', dataset: { ssDrawer: '1', page: String(page) } }, header, body);
 }

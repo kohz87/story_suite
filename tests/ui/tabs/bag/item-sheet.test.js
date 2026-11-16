@@ -9,7 +9,7 @@ import { makeCtx } from './helpers.js';
 
 const find = (name, rpg = true) => bagFixture({ rpg }).items.find(i => i.name === name);
 const sheet = (item, rpg = true) => { const ctx = { ...makeCtx(), rpg }; return [itemSheet(item, ctx), ctx]; };
-const labels = el => el.querySelectorAll('.btn2').map(b => b.textContent);
+const labels = el => el.querySelectorAll('.brow .btn2').map(b => b.textContent);
 
 test('fixture variants match the Bag shape', () => {
   for (const o of [{}, { rpg: false }, { over: true }]) assert.deepEqual(checkShape(bagFixture(o), BAG_SHAPE), []);
@@ -44,7 +44,7 @@ test('Take off, Give to and Drop send the unequip, transfer and drop commands', 
   const [el, ctx] = sheet(find('Chain shirt'));
   el.querySelector('.btn2.pri').click();
   el.querySelector('.btn2.dng').click();
-  el.querySelectorAll('.btn2')[1].click();
+  el.querySelectorAll('.brow .btn2')[1].click();
   el.querySelectorAll('.pick .mb')[2].click();
   assert.deepEqual(ctx.sent, [
     ['inventory.unequip', { stack: 'chain-shirt', member: 'brann' }], ['close'],

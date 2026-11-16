@@ -65,6 +65,8 @@ export const STORY_SHAPE = {
     text: T.STRING,
     state: T.STRING,
     personId: { $nullable: T.STRING },
+    // The person's name for "in <name>'s dossier ›"; optional, the selector leaves it out until there is a data source (owner question).
+    person: { $optional: { $nullable: T.STRING } },
   }),
   ripples: gated({ name: T.STRING, sway: T.NUMBER }),
   trackers: [
