@@ -76,6 +76,7 @@ test('CI commands equal their package.json scripts plus the timeout flag', () =>
   const [rules, ui, sb, sd, nsd] = ['rules', 'ui', 'story-block', 'story-director', 'npc-state-delta'];
   for (const j of [rules, ui, sb, sd, nsd]) assert.ok(jobNames().includes(j), `job ${j} missing`);
   assert.equal(noFlag(step(rules, 'Script tests').run), script('package.json', 'test:scripts'));
+  assert.equal(noFlag(step(rules, 'Core tests').run), script('package.json', 'test:core'));
   assert.equal(noFlag(step(ui, 'UI tests').run), script('package.json', 'test:ui'));
   assert.equal(noFlag(step(sd, 'Behavioral tests').run), script('packages/story-director/package.json', 'test'));
   // Story Block's script sets the heap through NODE_OPTIONS; the CI step must set the same value in its env.
