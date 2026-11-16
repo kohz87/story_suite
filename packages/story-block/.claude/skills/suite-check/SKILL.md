@@ -21,6 +21,6 @@ The cross-repo tests (Story Block and the modules) look for a folder holding `St
    after another (NSD's synthetic-host timing tests are flaky when suites run in parallel), and prints one
    line per repo and the logs' folder. Run them one at a time.
 3. Read a red repo's log (path printed): the `Failed tests:` section at the end, as in `run-tests`.
-4. A module red only here, after a Story Block change, usually needs its testkit re-synced
-   (`node ../Story_block/scripts/sync-testkit.mjs --to .` in the module) and a PR there; the vendored copy
-   in each module is what its CI tests against.
+4. A module red only here after a Story Block change is a real incompatibility; fix it on that module's main.
+   The suite modules import Story Block's testkit and `src/v2` live; no vendored copy is refreshed, and CI tests
+   against that live `packages/story-block`.

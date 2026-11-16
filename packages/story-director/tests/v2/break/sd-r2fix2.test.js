@@ -221,7 +221,7 @@ test('the module needs Story Block 2.25.0 or later', async t => {
         assert.equal(satisfies(version, def.requires.storyBlock), ok, version);
     }
     const host = await fresh(t);
-    assert.ok(host.head().domains.director, 'the vendored host registers it');
+    assert.ok(host.head().domains.director, 'the host registers it');
 });
 
 // ---- the story-vouched payout on Story Block's per-reply budget (SD-r2fix follow-up) --------------------
