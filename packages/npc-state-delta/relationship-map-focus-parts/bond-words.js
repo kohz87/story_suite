@@ -9,12 +9,12 @@ import { FOCUS_TONES } from './focus-constants.js';
 const GOOD_WORDS = new Set([
     'child', 'parent', 'sibling', 'partner', 'mentor', 'student', 'guardian', 'ward', 'friend', 'cousin',
     'aunt-uncle', 'niece-nephew', 'grandparent', 'grandchild', 'parent-in-law', 'child-in-law', 'sibling-in-law',
-    'ally',
+    'ally', 'kin',
 ]);
 // Red: open hostility.
 const BAD_WORDS = new Set(['rival', 'enemy']);
 // Gold: a debt or a duty owed one way.
-const GOLD_WORDS = new Set(['owes', 'debt', 'duty']);
+const GOLD_WORDS = new Set(['owes', 'serves', 'debt', 'duty']);
 
 // Free relation text that is not a known family still gets a word when it names one of the above.
 const WORD_HINTS = Object.freeze([
@@ -53,7 +53,7 @@ export function localBondTone(word = '') {
 // A bondTone(word, relation) passed in through options wins when it returns a known tone; otherwise
 // the local rule decides. No bondTone helper exists in this repository yet, so callers pass none.
 export function bondToneOf(word = '', relation = '', { bondTone, tags } = {}) {
-    // A tie tag the story gave (ally, rival, owes) wins over the relation word's tone (dossier-ui-bond-tone.js).
+    // A tie tag the story gave (any of the nine tags) wins over the relation word's tone (dossier-ui-bond-tone.js).
     const tied = { hostile: FOCUS_TONES.bad, duty: FOCUS_TONES.gold, close: FOCUS_TONES.good }[tieTone(tags)];
     if (tied) return tied;
     if (typeof bondTone === 'function') {

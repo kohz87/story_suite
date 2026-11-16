@@ -83,8 +83,8 @@ test('runKind tie: +ally applies, self-ties and unknown tags are refused, an emp
 
     const self = runKind('tie', null, { with: 'Rika', tags: ['+ally'] }, { name: 'Rika' });
     assert.match(self.problem, /self/);
-    const unknown = runKind('tie', null, { with: 'Mara', tags: ['+friend'] }, { name: 'Rika' });
-    assert.match(unknown.problem, /Unknown tie tag: \+friend/);
+    const unknown = runKind('tie', null, { with: 'Mara', tags: ['+buddy'] }, { name: 'Rika' });
+    assert.match(unknown.problem, /Unknown tie tag: \+buddy/);
 
     const cleared = runKind('tie', added.text, { with: 'Mara', tags: ['-ally'] }, { name: 'Rika' });
     assert.equal(cleared.text, null);

@@ -1,14 +1,14 @@
 // The `~ tie` change: applying +tag and -tag words to a ties object without mutating it.
-import { TIES_MAX_PEOPLE, ordered } from './shared-tags.js';
+import { TIE_TAGS, TIES_MAX_PEOPLE, ordered } from './shared-tags.js';
 import { tiesText } from './record.js';
 import { keyOf, readTiesObject, sortedCopy } from './shared-object.js';
 
-const TAG_CHANGE = /^([+-])(ally|rival|owes)$/;
+const TAG_CHANGE = new RegExp(`^([+-])(${TIE_TAGS.join('|')})$`);
 
 /**
  * The story's `~ tie` change, applied to a ties object (or null). `change` is { self, with, tags }, where tags are "+ally", "-rival",
- * "+owes" (this person owes `with`). Returns { ties, changed, ignored, refused }: `ties` is a new object (the input is never mutated),
- * `ignored` lists the tag words that were not `+`/`-` plus one of ally, rival, owes, and `refused` is 'self' (tying a person to
+ * "+owes" (this person owes `with`), or any other of the nine TIE_TAGS. Returns { ties, changed, ignored, refused }: `ties` is a new object (the input is never mutated),
+ * `ignored` lists the tag words that were not `+`/`-` plus one of TIE_TAGS, and `refused` is 'self' (tying a person to
  * themself), 'name' (a name with no key), 'people' (a new person beyond the twelve) or null.
  */
 export function applyTags(ties, change) {
