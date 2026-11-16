@@ -4,7 +4,7 @@
 import {
     FORM_TEXT, SETTINGS_TEXT, SETTING_LIST_ROWS, changeNote, emptyValue, fieldKind, fill, linesToList, listTextFields, listToLines, normalizeField,
 } from '../schema.js';
-import { cutAt } from '../../../../../../../core/text.js';
+import { cutAt } from '../../../../../core/text.js';
 import { button, h, named } from './shared.js';
 import { RENDERERS } from './renderers.js';
 

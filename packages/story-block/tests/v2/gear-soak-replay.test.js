@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { fresh, reply, equip, FIGHT, ON } from './gear-inventory.helpers.js';
-import { reload, clone } from './helpers/timeline.js';
+import { reload, clone } from '../../../../tests/core/helpers/timeline.js';
 
 const SETTINGS = { settings: { features: { 'story-block.gear': true, 'story-block.rpg': true } } };
 const record = host => JSON.stringify([host.sdk.query('gear.view', {}).soak, host.sdk.query('inventory.gear', { owner: 'party' }).soak, host.sdk.query('gear.carry', {}).weights, host.sdk.query('gear.carry', {}).load, host.sdk.query('gear.view', {}).bag.map(entry => [entry.name, entry.soak])]);

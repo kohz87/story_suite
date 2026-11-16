@@ -1,7 +1,7 @@
 // Test helpers for the template renderer: the v1 fake DOM, a printer for what was rendered, a counter of
 // DOM writes (to prove a second render changes nothing), and a tiny stand-in for the events condition
 // language (paths, literals, ! && || == != < <= > >=, + - * /, calls to scope functions).
-import { FakeElement, FakeText, installFakeDom } from '../../../../../../tests/helpers/ui-fake-dom.js';
+import { FakeElement, FakeText, installFakeDom } from '../../../helpers/ui-fake-dom.js';
 
 export { installFakeDom };
 

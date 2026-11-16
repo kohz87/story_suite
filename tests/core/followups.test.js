@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { changesSummary } from '../../packages/story-block/src/v2/screens/changes-card.js';
+import { changesSummary } from '../../ui/legacy/screens/changes-card.js';
 import { countsLine } from '../../packages/story-block/src/v2/packs/panel.js';
 import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
 import { USED_WORDS, usedByLine } from '../../packages/story-block/src/v2/domains/inventory.js';

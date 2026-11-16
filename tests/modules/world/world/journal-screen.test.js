@@ -11,11 +11,11 @@ import { DAYS_ID, WORLD_ID, daysScreen, hiddenNames, knownDay, part, worldScreen
 import { backlogBlock } from '../../../../modules/world/chronicle/backlog.js';
 import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { part as chronicle } from '../../../../modules/world/chronicle/index.js';
-import { validateScreen } from '../../../../packages/story-block/src/v2/view/screens.js';
-import { compileTemplate, renderTemplate } from '../../../../packages/story-block/src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../../../packages/story-block/src/v2/view/bind.js';
+import { validateScreen } from '../../../../ui/legacy/view/screens.js';
+import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
+import { conditionEvaluator } from '../../../../ui/legacy/view/bind.js';
 import { compile, evaluate } from '../../../../modules/world/events/index.js';
-import { scopeCss } from '../../../../packages/story-block/src/v2/view/css.js';
+import { scopeCss } from '../../../../ui/legacy/view/css.js';
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';

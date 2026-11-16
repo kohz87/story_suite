@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { currencyOf, parseMixedAmount } from '../../../src/v2/domains/money.js';
-import { TOLD } from '../../../src/v2/domains/inventory.js';
-import { createHost } from '../../../testkit/index.js';
-import { core, stocked } from '../domains/fixtures.js';
-import { createHarness } from '../domains/helpers/fake-ctx.js';
+import { currencyOf, parseMixedAmount } from '../../../packages/story-block/src/v2/domains/money.js';
+import { TOLD } from '../../../packages/story-block/src/v2/domains/inventory.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { core, stocked } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
 
 const currency = currencyOf({ coins: [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }, { name: 'gold', value: 100 }] });
 
@@ -45,7 +45,7 @@ test('a purse edit is a counted difference and survives rebuild, reload and unch
 });
 
 test('the purse pencil parses mixed coins before sending the command', async () => {
-    const { homeScreen } = await import('../../../src/v2/screens/home.js');
+    const { homeScreen } = await import('../../../ui/legacy/screens/home.js');
     const { queries, show, settle } = await import('../screens/helpers.js');
     const module = core({}, { coins: [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }] });
     const state = stocked(module);

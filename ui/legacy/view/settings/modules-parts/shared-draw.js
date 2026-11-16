@@ -1,6 +1,6 @@
 // Small drawing helpers the Modules page shares: make a node, clean text and cut what other extensions give.
 
-import { cutAt } from '../../../../../../../core/text.js';
+import { cutAt } from '../../../../../core/text.js';
 
 export const h = (doc, tag, className = '', text = '') => {
     const node = doc.createElement(tag);

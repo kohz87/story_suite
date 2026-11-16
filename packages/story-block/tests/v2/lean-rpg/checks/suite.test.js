@@ -11,7 +11,7 @@ import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { checksOf } from '../../../../src/v2/lean-rpg/practice.js';
 import { success } from '../../data-modules/helpers.js';
 import { tailOf } from '../helpers.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const file = [process.env.STORY_SUITE_ROOT, path.resolve(here, '../../../../..')].filter(Boolean).map(root => path.join(root, 'Story_director', 'src', 'v2', 'module.js')).find(existsSync);

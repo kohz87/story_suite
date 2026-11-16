@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
-import { activeSettles, iaApi, iaChain, iaModule } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { activeSettles, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 
 test('a text-only edit of a settled reply keeps the settle: same payload, same result, same change', async () => {
     const host = await createHost({ modules: [iaModule()] });

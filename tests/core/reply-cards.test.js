@@ -3,7 +3,7 @@
 // object or has no `for`, and the viewer's Later state is kept per key and never throws.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CARD_ACTIONS_MAX, CARD_ROWS_MAX, laterStore, mergeSummaries, normalizeCard, orderSections, scanReplyCards, sectionHeading } from '../../packages/story-block/src/v2/reply-cards.js';
+import { CARD_ACTIONS_MAX, CARD_ROWS_MAX, laterStore, mergeSummaries, normalizeCard, orderSections, scanReplyCards, sectionHeading } from '../../ui/legacy/reply-cards.js';
 import { createRegistry, definitionProblems } from '../../core/registry.js';
 
 test('normalizeCard: a card with a title; tones, icons and the lists cleaned; no title, no card', () => {

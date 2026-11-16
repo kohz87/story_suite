@@ -3,9 +3,9 @@
 // object is there. Counted ops (`was`) keep the counter rules; live commands stay strict.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { createStore } from '../../../../../core/store.js';
-import { rebaseOps } from '../../../../../core/ops.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createStore } from '../../../core/store.js';
+import { rebaseOps } from '../../../core/ops.js';
 
 // Story Director's hooks, cut down: `+ hook X` opens one, `~ hook X | now: …` says where it stands.
 const plot = {

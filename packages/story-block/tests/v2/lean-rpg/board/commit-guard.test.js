@@ -8,7 +8,7 @@ import { character, foeBlock, setup } from '../helpers.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { planGear } from '../../../../src/v2/lean-rpg/gear.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { gearAnswer } from '../../../../src/v2/domains/gear.js';
 import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../../../src/v2/domains/inventory.js';
 import { aiMessage } from '../../../../testkit/fake-st.js';

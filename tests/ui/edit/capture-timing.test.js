@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assertCaptureTiming, timedCapture } from '../break/capture-timing.js';
+import { assertCaptureTiming, timedCapture } from '../../suite/break/capture-timing.js';
 
 test('the timing helper rejects an injected threefold capture delay', async () => {
     let clock = 0;

@@ -1,6 +1,6 @@
 // Small stand-ins for the store (SB-state) and the registry (SB-turn), shaped like SPEC §12, for the
 // command bus tests. The fake store keeps an in-memory head and the list of what was appended.
-import { apply, deepFreeze } from '../../../../../core/ops.js';
+import { apply, deepFreeze } from '../../../core/ops.js';
 
 export function fakeStore(initial) {
     let head = deepFreeze(structuredClone(initial));

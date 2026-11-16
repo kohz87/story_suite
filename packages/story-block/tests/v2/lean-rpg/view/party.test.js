@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { createPartyScreen, createPartyWidget, PARTY_SCREEN_ID, PARTY_WIDGET } from '../../../../src/v2/lean-rpg/view/party.js';
 import { hasCharacters, readParty, stageTone, stageWord } from '../../../../src/v2/lean-rpg/view/party-data.js';
-import { activeNow } from '../../../../src/v2/view/mounts/common.js';
+import { activeNow } from '../../../../../../ui/legacy/view/mounts/common.js';
 import { characterDefinition, fakeState, foesDefinition, roleOf, skillsDefinition } from './helpers.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 

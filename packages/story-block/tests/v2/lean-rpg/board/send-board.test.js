@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { boardSession } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 
 const MSG = 'I attack the boar.';

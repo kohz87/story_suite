@@ -6,7 +6,7 @@ import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { boardSession } from '../../../../src/v2/lean-rpg/board/session.js';
 import { createFightOffers } from '../../../../src/v2/lean-rpg/board/offers.js';
 import { offerLineData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 
 const SET = 'The boar charges out.\n<Changes>\n+ dm foes — a fight starts | kind: set-slot-1 | name: Bristle-boar | count: 3 | level: 3\n</Changes>';

@@ -4,7 +4,7 @@
 // 2000 times (about 24 KB of text) blocks the page for tens of seconds.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

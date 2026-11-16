@@ -2,9 +2,9 @@
 // `ss.meter` with one smooth strip, the stage word and value. A tap on a bar opens the existing inline edit
 // (`ss.editable`, a choice of the stage words) for that field, saved through `dm.set` like any other pencil.
 
-import { h } from '../../view/widgets/dom.js';
-import { editable } from '../../view/widgets/editable.js';
-import { meter } from '../../view/widgets/meter.js';
+import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { editable } from '../../../../../../ui/legacy/view/widgets/editable.js';
+import { meter } from '../../../../../../ui/legacy/view/widgets/meter.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { BARS, barOptions } from './party-data.js';
 

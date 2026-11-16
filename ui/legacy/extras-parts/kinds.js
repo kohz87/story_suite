@@ -1,6 +1,6 @@
 // Choices and Inner chatter: the two display kinds as Story Block declares them, with their feature ids and grammar lines.
 
-import { CORE_FEATURE } from '../../../../../core/features.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 import { CHATTER_MAX, CHOICE_CHARS, CHOICE_MAX } from './limits.js';
 import { CHATTER_CHARS, chatterCap } from './chatter-limits.js';
 import { readChatter, readChoice } from './readers.js';

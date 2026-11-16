@@ -9,7 +9,7 @@ import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { CALENDAR_KEYS, calendarReadOnly, fieldHelp, gregorianFields, packCalendarFields, presetHelp } from '../../../../modules/time/tracker/calendar-settings.js';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
-import { renderSettingsHost } from '../../../../packages/story-block/src/v2/host-ui.js';
+import { renderSettingsHost } from '../../../../ui/legacy/host-ui.js';
 
 const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 

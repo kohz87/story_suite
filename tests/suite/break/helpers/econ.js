@@ -1,5 +1,5 @@
 // Shared bits for the b3-economy break tests (Story Block only: core module, testkit host).
-import { createHost } from '../../../../testkit/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
 
 export const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 export const coin = (host, owner = 'party') => host.head().domains.inventory.wallets?.[owner]?.coin ?? 0;

@@ -2,8 +2,8 @@
 // may carry (`unsafeCss`, urls and loaders refused) and the screens (`checkScreens`, also used by data-module blocks).
 
 import { SCREEN_FIELDS, SCREEN_ID, LIMITS, TAB_ID, TAB_TITLE_MAX, MOUNTS } from '../limits.js';
-import { tooDeep, MAX_DEPTH as MAX_TEMPLATE_DEPTH } from '../../view/template/html.js';
-import { cssDepth, MAX_AT_DEPTH, sheetEscape } from '../../view/css.js';
+import { tooDeep, MAX_DEPTH as MAX_TEMPLATE_DEPTH } from '../../../../../../ui/legacy/view/template/html.js';
+import { cssDepth, MAX_AT_DEPTH, sheetEscape } from '../../../../../../ui/legacy/view/css.js';
 import { isObject, shapeProblem } from './core.js';
 
 // Themes are CSS custom properties (SPEC §13.3): `{ "--ss-accent": "#7c5cff" }`.

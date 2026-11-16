@@ -230,8 +230,8 @@ test('RX-TL-2: a deleted repair is gone, and a repair after a deleted wear stays
 const fold = log => [...log.values()].reduce((cond, d) => Math.max(0, Math.min(100, cond + d)), 100);
 
 test('fuzz: middle deletes around wear and repair: no Problems, the condition is what the kept replies leave, rebuild equals live', async t => {
-    const { prng } = await import('../qa/helpers/seeded.js');
-    const { checkInvariants } = await import('../qa/helpers/oracle.js');
+    const { prng } = await import('../../../../../tests/suite/qa/helpers/seeded.js');
+    const { checkInvariants } = await import('../../../../../tests/suite/qa/helpers/oracle.js');
     for (const seed of [5, 23, 91, 140]) {
         const r = prng(seed);
         const host = await gearHost(t);

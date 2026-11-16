@@ -1,7 +1,7 @@
 // Draws the RPG settings Combat card: the chat's Combat rules text in a bounded box, saved as an edit of that block
 // when the box is left, reset, hidden with the page, or the window closes; one save waits for the one before it.
 
-import { h } from '../../../view/widgets/dom.js';
+import { h } from '../../../../../../../ui/legacy/view/widgets/dom.js';
 import { refusalText } from '../../../../../../../core/strings.js';
 import { fill } from '../../strings.js';
 import { COMBAT_MAX, COMBAT_DEFAULT, combatBlock, combatTemplate, withPrompt } from '../settings-data.js';

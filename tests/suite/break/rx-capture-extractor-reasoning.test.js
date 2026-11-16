@@ -7,7 +7,7 @@
 // Drop into Story_block/tests/v2/break/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const EXTRACTOR_ON = { features: { 'story-block.extractor': true } };
 const settle = () => new Promise(resolve => setTimeout(resolve, 50));

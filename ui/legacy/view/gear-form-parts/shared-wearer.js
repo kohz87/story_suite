@@ -1,6 +1,6 @@
 // Gear form: the "Equipped by" / "Equip on" choice of who can wear a piece.
 
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 
 const F = STRINGS.inventory.gear.form;
 const G = STRINGS.inventory.gear;

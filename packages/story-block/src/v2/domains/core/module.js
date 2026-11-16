@@ -4,11 +4,11 @@
 import { createAssistPart } from '../../assist/index.js';
 import { INVENTORY_FEATURES, INVENTORY_EDIT_GUARD, LOOT_KINDS, inventoryEditGuard, lootTakeGuard } from '../inventory.js';
 import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { chatterCap, chatterGrammar, headChatter, sceneChatter } from '../../extras.js';
+import { chatterCap, chatterGrammar, headChatter, sceneChatter } from '../../../../../../ui/legacy/extras.js';
 import { createEvidenceQuery } from '../../../../../../core/evidence.js';
 import { createEventsPart } from '../../../../../../modules/world/events/index.js';
-import { standardWidgets } from '../../view/widgets/index.js';
-import { screens as defaultScreens } from '../../screens/index.js';
+import { standardWidgets } from '../../../../../../ui/legacy/view/widgets/index.js';
+import { screens as defaultScreens } from '../../../../../../ui/legacy/screens/index.js';
 import { youRankOf } from '../../packs/content.js';
 import { createPacksPart, packs as liveInstalled, part as livePart, resolveItem as liveResolve, startState as liveStart } from '../../packs/index.js';
 import { createTimelinePart } from '../../../../../../core/timeline/part.js';

@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
-import { activeSettles, box, iaApi, iaChain, iaModule } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { activeSettles, box, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 
 test('a regenerate of a linked reply settles the same payload and result again', async () => {
     const host = await createHost({ modules: [iaModule()] });

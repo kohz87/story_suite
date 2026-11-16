@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { nativeModule, rulesModule, clone, NATIVE } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { nativeModule, rulesModule, clone, NATIVE } from './helpers/timeline.js';
 import { RETRY_SCHEDULE_MS } from '../../core/timeline/coordinator-block.js';
 import { PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';
 import { ensureModules } from '../../core/sdk.js';

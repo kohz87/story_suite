@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { RECORD_ID } from '../../core/registry/check.js';
 import { hashJson, isMetaSpan } from '../../core/replay.js';
 import { KINDS, LIMITS, OWNERS } from '../../core/evidence.js';
-import { CHECK, SD, T1, T2, evidenceHarness } from '../../packages/story-block/tests/v2/helpers/evidence.js';
+import { CHECK, SD, T1, T2, evidenceHarness } from './helpers/evidence.js';
 
 const ids = made => made.map(each => each.id);
 

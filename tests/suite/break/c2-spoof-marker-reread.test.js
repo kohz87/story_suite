@@ -5,7 +5,7 @@
 // a line outside the comment, so the saved message no longer holds the lines that were applied.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 async function fresh(t) {
     t.mock.method(console, 'warn', () => {});

@@ -10,10 +10,10 @@
 // more takes `was` from it (seeds 7, 25, 36 there, 16 on ff96802), and rule (c).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { probeModule } from './helpers/probe-module.js';
 import { carriers, checkInvariants, rebuildAt, strictApply } from './helpers/oracle.js';
-import { initialScene } from '../../../src/v2/domains/scene.js';
+import { initialScene } from '../../../packages/story-block/src/v2/domains/scene.js';
 
 const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

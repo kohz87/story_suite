@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
     action, fullReplay, greeting, initial, receipt, reply, setup, user,
     withoutStory,
-} from '../../packages/story-block/tests/v2/helpers/store-chat.js';
+} from './helpers/store-chat.js';
 import { afterOps, isDeepFrozen, SHORT, story } from './store.helpers.js';
 
 
@@ -211,7 +211,7 @@ test('a chat switched in place (same array) is noticed without an explicit rebui
 });
 
 test('the default apply comes from ops.js', async () => {
-    const { createStore } = await import('../../packages/story-block/tests/v2/helpers/store-chat.js');
+    const { createStore } = await import('./helpers/store-chat.js');
     const chat = [greeting()];
     const store = createStore({ chat: () => chat, save: async () => {} });
     store.ensureInitial(initial());

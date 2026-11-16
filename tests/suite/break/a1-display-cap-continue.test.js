@@ -5,8 +5,8 @@
 // says "the first lines in reply order are kept, the rest get a Problem".
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { displayLines } from '../../../src/v2/extras.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { displayLines } from '../../../ui/legacy/extras.js';
 
 const B = lines => `\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -2,8 +2,8 @@
 // block from `heroOf(head state)`. It is there on open, follows the head, goes when there is no state, and is removed on close.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createScreenMount } from '../../../../src/v2/view/mounts/screen.js';
-import { createScreens } from '../../../../src/v2/view/screens.js';
+import { createScreenMount } from '../../../../ui/legacy/view/mounts/screen.js';
+import { createScreens } from '../../../../ui/legacy/view/screens.js';
 import { fakeRenderer, setupDom, stateWith } from './helpers.js';
 
 const screen = (id, title) => ({ id, title, icon: 'fa-star', mounts: ['screen'], template: `<p>${title}</p>` });

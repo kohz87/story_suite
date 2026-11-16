@@ -1,9 +1,9 @@
 // The Assist page's schema and the places its switches live.
 
-import { SETTING, SCHEMA } from '../../../assist/common.js';
-import { KIND_CHOICES, allowedKinds } from '../../../assist/safety.js';
-import { CORE_FEATURE } from '../../../../../../../core/features.js';
-import { HOST_SETTINGS_SCHEMA } from '../../../../../../../core/sdk.js';
+import { SETTING, SCHEMA } from '../../../../../packages/story-block/src/v2/assist/common.js';
+import { KIND_CHOICES, allowedKinds } from '../../../../../packages/story-block/src/v2/assist/safety.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
+import { HOST_SETTINGS_SCHEMA } from '../../../../../core/sdk.js';
 import { ASSIST_TEXT } from './text.js';
 
 const ids = Object.freeze({ preroll: CORE_FEATURE.preroll, net: CORE_FEATURE.extractor });

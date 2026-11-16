@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../../../../../core/registry.js';
-import { HOST_SETTINGS_SCHEMA, createSettings } from '../../../../../../core/sdk.js';
-import { changeNote, renderModuleForm, renderSettingsForm } from '../../../../src/v2/view/form/index.js';
-import { UI_SAMPLE_FORM, mountDemoForm } from '../../../../src/v2/screens/ui-sample.js';
+import { createRegistry } from '../../../../core/registry.js';
+import { HOST_SETTINGS_SCHEMA, createSettings } from '../../../../core/sdk.js';
+import { changeNote, renderModuleForm, renderSettingsForm } from '../../../../ui/legacy/view/form/index.js';
+import { UI_SAMPLE_FORM, mountDemoForm } from '../../../../ui/legacy/screens/ui-sample.js';
 import { doc, setup, row, input, hasClass } from './form.helpers.js';
 
 test('fold: with more than one group each group is a fold keyed by its name, the first open; the state is kept; openGroup opens one; a search opens the matches and gives the reader\'s choice back', () => {

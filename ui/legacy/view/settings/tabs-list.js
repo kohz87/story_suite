@@ -14,7 +14,7 @@
 // Built with createElement and textContent only: tab names come from modules.
 
 import { TABS_FOLD, TABS_TEXT } from '../../host-ui.js';
-import { fill } from '../../../../../../core/strings.js';
+import { fill } from '../../../../core/strings.js';
 import { newId, sectionBlock, selectField, switchField } from '../form/fields.js';
 import { revealIn, showAndFocus } from '../scroll.js';
 import { iconNode } from '../widgets/dom.js';

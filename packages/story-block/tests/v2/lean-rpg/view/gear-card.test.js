@@ -2,7 +2,7 @@
 // no carry on the card; off, the card is as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
 import { SLOT_ORDER } from '../../../../src/v2/lean-rpg/view/gear-card.js';
 import { createCoreModule } from '../../../../src/v2/domains/index.js';

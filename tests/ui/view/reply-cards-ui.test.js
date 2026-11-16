@@ -2,8 +2,8 @@
 // the primary in the accent, Later only when the card asks for it, the folded line, and what a click does.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { drawReplyCard } from '../../../src/v2/view/reply-cards-ui.js';
-import { normalizeCard } from '../../../src/v2/reply-cards.js';
+import { drawReplyCard } from '../../../ui/legacy/view/reply-cards-ui.js';
+import { normalizeCard } from '../../../ui/legacy/reply-cards.js';
 import { setupDom } from './mounts/helpers.js';
 
 const card = normalizeCard({

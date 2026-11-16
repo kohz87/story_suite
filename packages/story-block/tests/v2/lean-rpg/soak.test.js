@@ -23,8 +23,8 @@ import { buildPanel, panelModel, readResolve } from '../../../src/v2/lean-rpg/vi
 import { cueTokens } from '../../../src/v2/lean-rpg/cue.js';
 import { LIMITS } from '../../../src/v2/lean-rpg/names.js';
 import { SOAK_MAX, soakGrowth, soakOf } from '../../../src/v2/lean-rpg/soak.js';
-import { setupDom } from '../view/mounts/helpers.js';
-import { prng, seedCrypto } from '../qa/helpers/seeded.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { prng, seedCrypto } from '../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, levelFoeBlock, rollReceipt, setup, sheetDomain, skillBlock } from './helpers.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

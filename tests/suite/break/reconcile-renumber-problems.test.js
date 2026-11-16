@@ -4,7 +4,7 @@
 // Problem disappeared from the head and from every checkpoint written after it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Q1, guarded, harness } from '../helpers/guarded.js';
+import { Q1, guarded, harness } from '../../core/helpers/guarded.js';
 
 const EVERY = { checkpointEvery: 3, checkpointBytes: 1 << 30 };
 const NONE = { checkpointEvery: 100000, checkpointBytes: 1 << 30 };

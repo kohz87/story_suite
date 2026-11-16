@@ -3,8 +3,8 @@
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../view/mounts/helpers.js';
-import { mountUi } from '../../../../src/v2/ui-host.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { mountUi } from '../../../../../../ui/legacy/ui-host.js';
 import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { STANDARD_TEMPLATES as EARLIER_TEMPLATES } from '../fixtures/templates-2.16.js';

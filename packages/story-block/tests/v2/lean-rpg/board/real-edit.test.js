@@ -7,7 +7,7 @@ import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 
 for (const [label, otherCount] of [['real only', 1], ['mixed', 2]]) test(`NEW5: ${label} commits and replays a live lone-foe edit`, async () => {
     const restore = seedCrypto(81), rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

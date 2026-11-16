@@ -14,7 +14,7 @@
 // A failing seed replays exactly: the host's crypto IDs and seeds follow the run's seed.
 // Not a test file (the test glob does not match helpers/).
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { prng, seedCrypto } from './seeded.js';
 import { probeModule } from './probe-module.js';
 import { carriers, checkInvariants } from './oracle.js';

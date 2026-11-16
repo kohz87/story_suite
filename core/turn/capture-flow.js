@@ -10,7 +10,7 @@ import {
 import { cutAt } from '../text.js';
 import { refusedWhy } from '../../packages/story-block/src/v2/assist/safety.js';
 import { notWritten } from '../../packages/story-block/src/v2/assist/extractor.js';
-import { CHATTER_MAX, displayLines } from '../../packages/story-block/src/v2/extras.js';
+import { CHATTER_MAX, displayLines } from '../../ui/legacy/extras.js';
 import { readRecord } from '../persist.js';
 import { createMarkHistory, ruleMarksOf } from './rule-marks.js';
 import { boardFailure, boardStep } from './held-board.js';

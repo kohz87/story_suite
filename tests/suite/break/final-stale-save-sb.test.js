@@ -5,9 +5,9 @@
 // tests: final-stale-timeout-save.test.js, f1-late-save-overwrites-newer.test.js.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { RECHECK_MS, createSaver } from '../../../../../core/persist.js';
-import { SAVE_SEQ_KEY } from '../../../../../core/runtime.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { RECHECK_MS, createSaver } from '../../../core/persist.js';
+import { SAVE_SEQ_KEY } from '../../../core/runtime.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 async function seconds(t, n) {

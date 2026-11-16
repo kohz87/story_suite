@@ -1,6 +1,6 @@
 // The state the gear screens' tests draw: a chat with worn pieces, a bag and a few goods, built by story lines (so it is the same for the gear-on and the
 // gear-off host), and a serialiser for the rendered screen (tag, class, attributes and text, no ids that change from run to run).
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 export const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

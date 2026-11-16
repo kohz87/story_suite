@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../testkit/index.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { clockProps, gameHeroProps } from '../../../src/v2/view/game-header.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { clockProps, gameHeroProps } from '../../../ui/legacy/view/game-header.js';
 import { setupDom } from './mounts/helpers.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 import { LEAD, MONTHS, WHERE, draw, sent, settle } from './hero-scene.helpers.js';
 
 test('an invalid field saves nothing and is named; a half-given date is refused in the words of the clock', async () => {
@@ -150,7 +150,7 @@ test('the page: the header\'s one editor changes the scene through the real comm
 
 test('the header\'s one Edit button is a pill in the corner (a phone: beside the name), the editor stacks its groups on a phone, and the lines it edits are hidden while it is open', () => {
     const css = cssOf('glass');
-    const widgetCss = readFileSync(new URL('../../../src/v2/view/widgets/styles.js', import.meta.url), 'utf8');
+    const widgetCss = readFileSync(new URL('../../../ui/legacy/view/widgets/styles.js', import.meta.url), 'utf8');
     const rule = selector => {
         const at = css.indexOf(`${selector} {`);
         assert.ok(at >= 0, `${selector} has a rule`);

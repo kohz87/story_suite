@@ -5,7 +5,7 @@ import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { boardGuard } from '../../../../src/v2/lean-rpg/board/commit.js';
 import { hashJson } from '../../../../../../core/replay.js';
 import { createBoardPart } from '../../../../src/v2/lean-rpg/board/overrides.js';

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { heroLead } from '../../../../src/v2/lean-rpg/view/hero-data.js';
-import { gameHeroProps } from '../../../../src/v2/view/game-header.js';
+import { gameHeroProps } from '../../../../../../ui/legacy/view/game-header.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 import { begin, fieldsOf, makeBlocks, page, settle } from './page.js';
 

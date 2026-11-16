@@ -1,6 +1,6 @@
 // The start pieces: Home's "Your character" card and the hold on a chat's first send.
 
-import { h, shell } from '../../../view/widgets/dom.js';
+import { h, shell } from '../../../../../../../ui/legacy/view/widgets/dom.js';
 import { setStartNotes, startNotes } from '../../start.js';
 import { RPG_STRINGS } from '../../strings.js';
 import { readParty } from '../party-data.js';

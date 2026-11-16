@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
-import { BATCH, DEATH, NATIVE, clone, nativeModule, reload, rulesModule, seal, slice, track } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { BATCH, DEATH, NATIVE, clone, nativeModule, reload, rulesModule, seal, slice, track } from './helpers/timeline.js';
 import { RETRY_SCHEDULE_MS } from '../../core/timeline/coordinator-block.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);

@@ -9,7 +9,7 @@
 // or delete back shows a different state). Drop into Story_block/tests/v2/break/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const clock = {
     id: 'clock',

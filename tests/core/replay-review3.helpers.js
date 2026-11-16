@@ -1,4 +1,4 @@
-import { guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
+import { guarded, harness } from './helpers/guarded.js';
 
 export const clone = value => JSON.parse(JSON.stringify(value));
 export const setStory = (host, at, text) => {

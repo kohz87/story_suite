@@ -2,7 +2,7 @@
 // the parts in the order host.css imports them, so a test can look for a rule without knowing which part holds it.
 import { readFileSync } from 'node:fs';
 
-const VIEW = new URL('../../../src/v2/view/', import.meta.url);
+const VIEW = new URL('../../../ui/legacy/view/', import.meta.url);
 const text = name => readFileSync(new URL(name, VIEW), 'utf8');
 
 /** host.css itself: the head comment and the @import list. */

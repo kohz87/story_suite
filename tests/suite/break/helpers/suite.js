@@ -8,12 +8,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const SB = process.env.SUITE_SB ?? path.resolve(here, '../../../..');
+const SB = process.env.SUITE_SB ?? path.resolve(here, '../../../../packages/story-block');
 const ROOTS = [process.env.STORY_SUITE_ROOT, path.resolve(SB, '..')].filter(Boolean);
 // Story Director's module: in its own folder on a checkout from before the layout move, else at ui/legacy/director/ of the repo that folder sits in (packages/<name>/../..).
 const SD_MODULE = 'src/v2/module.js';
 const SD_MOVED = 'ui/legacy/director/module.js';
-export const sdModuleAt = dir => (existsSync(path.join(dir, SD_MODULE)) ? path.join(dir, SD_MODULE) : path.join(realpathSync(dir), '../..', SD_MOVED));
+export const sdModuleAt = dir => (existsSync(path.join(dir, SD_MODULE)) ? path.join(dir, SD_MODULE) : path.join(realpathSync(dir), '../../../../packages/story-block/tests/v2', SD_MOVED));
 const find = (env, name, rel) => [env, ...ROOTS.map(root => path.join(root, name))].filter(Boolean).find(dir => existsSync(path.join(dir, rel)) || (rel === SD_MODULE && existsSync(sdModuleAt(dir))));
 
 export const roots = () => ({

@@ -2,7 +2,7 @@
 // Custom numbers and the live odds.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { DIFFICULTY_SETTING, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../src/v2/lean-rpg/index.js';
 import { renderRpgSettings, rollsOf, rpgSection } from '../../../../src/v2/lean-rpg/view/settings.js';

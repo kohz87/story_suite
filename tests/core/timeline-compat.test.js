@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { rulesModule } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { rulesModule } from './helpers/timeline.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const KEYS = ['ops', 'receipts', 'narrated', 'rev', 'sid', 'source', 'spans', 'swipe', 'v', 'mark'];

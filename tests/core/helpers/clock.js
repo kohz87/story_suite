@@ -1,4 +1,4 @@
-import { GENESIS_EPOCH } from '../../../../../core/timeline/index.js';
+import { GENESIS_EPOCH } from '../../../core/timeline/index.js';
 export function clockModule({ start = 1410, marked = [], leak = false } = {}) {
     return {
         id: 'story-director', name: 'Clock fixture', version: '2.0.0',

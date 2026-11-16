@@ -9,9 +9,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { WEATHER_CHARS, WEATHER_FEATURE, WEATHER_TAIL_CHARS, initialScene, sceneTail, validateScene, weatherText } from '../../../src/v2/domains/scene.js';
-import { homeScreen, sceneScreen } from '../../../src/v2/screens/index.js';
-import { checkInvariants } from '../qa/helpers/oracle.js';
-import { recordingWidgets, renderSkip, show, text } from '../screens/helpers.js';
+import { homeScreen, sceneScreen } from '../../../../../ui/legacy/screens/index.js';
+import { checkInvariants } from '../../../../../tests/suite/qa/helpers/oracle.js';
+import { recordingWidgets, renderSkip, show, text } from '../../../../../tests/ui/screens/helpers.js';
 
 const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const staticText = host => host.st.requests.at(-1)?.chat?.[0]?.content ?? '';

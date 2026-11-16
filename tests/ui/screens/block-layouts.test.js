@@ -1,12 +1,12 @@
 // How a block draws its values by their shape (BLOCKS-UI): quest cards, a map of numbers, a record of fields, and an entries field read through roles.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { createBlockWidgets, BLOCK_WIDGET } from '../../../src/v2/screens/blocks.js';
-import { createFieldsWidgets } from '../../../src/v2/screens/block-fields.js';
-import { FIELDS_WIDGET } from '../../../src/v2/data-modules/fields-widget.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createBlockWidgets, BLOCK_WIDGET } from '../../../packages/story-block/src/v2/screens/blocks.js';
+import { createFieldsWidgets } from '../../../packages/story-block/src/v2/screens/block-fields.js';
+import { FIELDS_WIDGET } from '../../../packages/story-block/src/v2/data-modules/fields-widget.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { success } from '../data-modules/helpers.js';
+import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { readFileSync } from 'node:fs';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
@@ -152,7 +152,7 @@ test('a data module screen draws its own fields as a map of numbers or a record 
 });
 
 test('a block that says show.into is a section of that tab beside the pack screens that name it, not a tab of its own', async t => {
-    const { mountUi } = await import('../../../src/v2/ui-host.js');
+    const { mountUi } = await import('../../../ui/legacy/ui-host.js');
     const doc = setupDom(), form = doc.createElement('div'); form.id = 'send_form'; doc.body.appendChild(form);
     doc.defaultView = { confirm: () => true };
     const host = await createHost(), ui = mountUi({ runtime: host, ctx: host.ctx, doc });
@@ -173,7 +173,7 @@ test('a block that says show.into is a section of that tab beside the pack scree
 });
 
 test('the editor preview draws entries in a layout with no editors (renderPreview)', async t => {
-    const { renderBlockPreview } = await import('../../../src/v2/screens/block-layouts.js');
+    const { renderBlockPreview } = await import('../../../packages/story-block/src/v2/screens/block-layouts.js');
     const { doc } = await world(t);
     const definition = entriesFixture();
     const parent = doc.createElement('div');
@@ -312,7 +312,7 @@ test('the pencils stay hidden until the section\'s Edit button is pressed, for t
 });
 
 test('number lists CSS: no hairline beside Edit, no bullet indent under the Enable all button', () => {
-    const css = readFileSync(new URL('../../../src/v2/screens/block-maps.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../packages/story-block/src/v2/screens/block-maps.css', import.meta.url), 'utf8');
     assert.match(css, /\.ss-rm-head > \.ss-section-label::after \{ display: none; \}/, 'the heading with Edit has no hairline (it would count in the label\'s width and push Edit down)');
     assert.match(css, /\.ss-dm-list-rows \{ list-style: none; margin: 0; padding: 0; \}/);
 });

@@ -3,8 +3,8 @@
 // of the chat now open told of lines refused in the chat before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createReplyNotes } from '../../../src/v2/reply-notes.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { createReplyNotes } from '../../../ui/legacy/reply-notes.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
 
 const reply = text => ({ is_user: false, mes: text, swipe_id: 0, swipes: [text], extra: {} });
 

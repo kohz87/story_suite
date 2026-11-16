@@ -2,11 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../view/mounts/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { world, pin, success } from '../data-modules/helpers.js';
-import { mergeTabs } from '../../../src/v2/view/tab-merge.js';
+import { mergeTabs } from '../../../../../ui/legacy/view/tab-merge.js';
 import { grammarFor, summaryOf } from '../../../src/v2/data-modules/part.js';
-import { renderLayout } from '../../../src/v2/layout/render.js';
+import { renderLayout } from '../../../../../ui/legacy/layout/render.js';
 import { editableLayout } from '../../../src/v2/data-modules/editable-layout.js';
 import { createFieldsWidgets } from '../../../src/v2/screens/block-fields.js';
 import { FIELDS_WIDGET } from '../../../src/v2/data-modules/fields-widget.js';
@@ -97,7 +97,7 @@ test('a meter with no maximum takes its field\'s own, and a bare number shows it
 });
 
 test('in the host the three screens are one tab, Reputation, and none of them a tab of its own', async t => {
-    const { mountUi } = await import('../../../src/v2/ui-host.js');
+    const { mountUi } = await import('../../../../../ui/legacy/ui-host.js');
     const { createHost } = await import('../../../testkit/index.js');
     const doc = setupDom(), form = doc.createElement('div'); form.id = 'send_form'; doc.body.appendChild(form);
     doc.defaultView = { confirm: () => true };

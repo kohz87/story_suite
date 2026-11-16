@@ -4,11 +4,11 @@
 // them in a light and a dark pane, opened from Settings → Diagnostics.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileTemplate } from '../../../src/v2/view/template/index.js';
-import { standardWidgets } from '../../../src/v2/view/widgets/index.js';
-import { stPurify } from '../../../testkit/index.js';
-import { UI_SAMPLE_DATA, UI_SAMPLE_ID, openUiSample, uiSampleScreen } from '../../../src/v2/screens/ui-sample.js';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { compileTemplate } from '../../../ui/legacy/view/template/index.js';
+import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
+import { stPurify } from '../../../packages/story-block/testkit/index.js';
+import { UI_SAMPLE_DATA, UI_SAMPLE_ID, openUiSample, uiSampleScreen } from '../../../ui/legacy/screens/ui-sample.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 const CLASSES = ['ss-glass', 'ss-glass-strong', 'ss-label', 'ss-pill', 'ss-pill-soft', 'ss-pill-outline', 'ss-bar', 'ss-bar-exp', 'ss-bar-head', 'ss-bar-label', 'ss-bar-value', 'ss-bar-track', 'ss-bar-fill'];
 const WIDGETS = ['ss.tile', 'ss.bar', 'ss.status', 'ss.pill', 'ss.hero', 'ss.tiers', 'ss.listcard', 'ss.tabs', 'ss.navbar', 'ss.map'];

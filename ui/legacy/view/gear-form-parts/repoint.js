@@ -1,7 +1,7 @@
 // Gear form: the point-moving stat boxes of the Edit of an unbound piece that is not a gear-form piece.
 
-import { STRINGS } from '../../../../../../core/strings.js';
-import { GEAR } from '../../domains/gear.js';
+import { STRINGS } from '../../../../core/strings.js';
+import { GEAR } from '../../../../packages/story-block/src/v2/domains/gear.js';
 import { statOptions } from './shared-options.js';
 
 const F = STRINGS.inventory.gear.form;

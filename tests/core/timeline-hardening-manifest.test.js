@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { gateProblem } from '../../core/timeline/index.js';
 import { hashJson } from '../../core/replay.js';
-import { BATCH, DEATH, NATIVE, batchFor, clone, nativeModule, resultFor, rulesModule, seal, slice } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { BATCH, DEATH, NATIVE, batchFor, clone, nativeModule, resultFor, rulesModule, seal, slice } from './helpers/timeline.js';
 import { cmd, reply, restoreFrom, world } from './timeline-hardening.helpers.js';
 
 // ---- 4. participants fail closed -------------------------------------------------------------------------------

@@ -7,7 +7,7 @@
 // The same cuts an amount: "+ coin 5" + Continue "00" pays 5, not 500.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const items = host => host.sdk.query('inventory.items').map(item => `${item.name} x${item.qty}`).sort();
 

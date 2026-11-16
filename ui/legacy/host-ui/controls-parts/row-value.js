@@ -1,6 +1,6 @@
 // Whether a settings field is read-only now, and the value its row shows.
 
-import { normalizeField } from '../../../../../../core/registry.js';
+import { normalizeField } from '../../../../core/registry.js';
 import { emptyValue } from './values.js';
 
 /**

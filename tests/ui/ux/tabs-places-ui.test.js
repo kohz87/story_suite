@@ -4,11 +4,11 @@
 // apart in the list ("Notes (2)"). Home's place is locked.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../../testkit/fake-st.js';
-import { createRuntime } from '../../../../../core/runtime.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { TABS_FOLD, TABS_TEXT } from '../../../src/v2/host-ui.js';
-import { fill } from '../../../../../core/strings.js';
+import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createRuntime } from '../../../core/runtime.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
+import { TABS_FOLD, TABS_TEXT } from '../../../ui/legacy/host-ui.js';
+import { fill } from '../../../core/strings.js';
 import { setupDom } from '../view/mounts/helpers.js';
 
 const screen = (id, title, mounts = ['tab', 'screen'], bar = false) => ({ id, title, icon: 'fa-star', mounts, template: `<p>${title}</p>`, ...(bar ? { bar: true } : {}) });

@@ -1,6 +1,6 @@
 // Gear form: the fields and the plan of "+ Add item".
 
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 import { FORM_KINDS, NAME_MAX, NOTE_MAX, SHOWN } from './shared-limits.js';
 import { short } from './shared-short.js';
 import { kindOptions, rarityOptions, slotOptions } from './shared-options.js';

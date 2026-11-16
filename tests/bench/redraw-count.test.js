@@ -2,9 +2,9 @@
 // Scripted reply: 5 change lines, 2 afterCapture steps, Assist afterReply, 1 out-of-turn command.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { mountUi } from '../../ui/legacy/ui-host.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 
 // Waits for `promise`, failing with a clear message instead of hanging when it never settles.
 async function within(promise, ms, what) {

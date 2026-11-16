@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
-import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { mountUi } from '../../ui/legacy/ui-host.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 import { fixture, success } from '../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { buildBlock } from '../../packages/story-block/src/v2/data-modules/block-builder.js';
 import { BLOCK_STARTERS } from '../../packages/story-block/src/v2/data-modules/block-starters.js';

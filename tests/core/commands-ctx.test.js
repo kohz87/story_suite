@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCommandBus, newId } from '../../core/commands.js';
 import { apply } from '../../core/ops.js';
-import { counterIds, fakeRegistry, fakeStore } from '../../packages/story-block/tests/v2/helpers/bus-fakes.js';
+import { counterIds, fakeRegistry, fakeStore } from './helpers/bus-fakes.js';
 import { STACK, REN, INITIAL, storyBlock, rpgBattle, director, setup, mod } from './commands.helpers.js';
 
 test('ctx.read: deep-frozen copies of any domain, null for one that does not exist', () => {

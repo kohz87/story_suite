@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
-import { inventoryScreen } from '../../src/v2/screens/index.js';
+import { inventoryScreen } from '../../../../ui/legacy/screens/index.js';
 import { createCoreModule } from '../../src/v2/domains/index.js';
 import { createHarness } from './domains/helpers/fake-ctx.js';
 import { stocked } from './domains/fixtures.js';
-import { destroyTemplate } from '../../src/v2/view/template/render.js';
-import { show, settle } from './screens/helpers.js';
+import { destroyTemplate } from '../../../../ui/legacy/view/template/render.js';
+import { show, settle } from '../../../../tests/ui/screens/helpers.js';
 import { page } from './lean-rpg/view/page.js';
-import { reply } from './helpers/gear-ui-state.js';
-import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../src/v2/screens/inventory-add.js';
+import { reply } from '../../../../tests/core/helpers/gear-ui-state.js';
+import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../../ui/legacy/screens/inventory-add.js';
 
 export const draw = (host, options = {}) => show(inventoryScreen, { state: host.head(), query: host.sdk.query, draft: { wornOpen: '1' }, command: (type, payload, opts) => host.sdk.command(type, payload, opts), ...options });   // (Worn opened: every piece has its row)
 export const rowOf = (el, name) => el.querySelectorAll('li.item').find(item => item.querySelector('.name')?.textContent === name);

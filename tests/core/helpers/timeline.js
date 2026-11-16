@@ -12,7 +12,7 @@
 //   tl.rules { hash }        freezes the ruleset (sets the rules slice's marker).
 // `tl-native` (domain `nat`, participant): a dossier store with checkpoints of its own, kept in `native.store`; `native.fail`
 // makes a callback fail, `native.missing` forgets a checkpoint's bytes.
-import { hashJson } from '../../../../../core/replay.js';
+import { hashJson } from '../../../core/replay.js';
 
 /** The sealed result a test batch id stands for, and its reference { id, hash }. */
 export const resultFor = id => ({ batch: id, dice: [14, 3], outcome: 'dead' });

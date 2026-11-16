@@ -3,7 +3,7 @@
 // without the new parts draw exactly as before (the older view tests cover those).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../../src/v2/lean-rpg/templates.js';
 import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
 import { createFightWidget, readFight } from '../../../../src/v2/lean-rpg/view/fight.js';

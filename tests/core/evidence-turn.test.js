@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { director, sampleModule, hostModule, T1, T2 } from '../../packages/story-block/tests/v2/helpers/evidence.js';
+import { director, sampleModule, hostModule, T1, T2 } from './helpers/evidence.js';
 
 const text = (narration, lines) => `${narration}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { parseChanges } from '../../../../../core/capture.js';
 import { EXTRACTOR_FOOT, MAX_NEAR, SETTING, WHERE_HEAD, WORLD_FOOT, footFor, createAssistPart, extractorPrompt, hasClockTime, knownPlace, mapPlaces, parseExtractorAnswer, whereLines, whereNow, whereWhy } from '../../../src/v2/assist/index.js';
 import { assistPlaceConflict, worldKnown } from '../../../src/v2/assist/where.js';
-import { refusedFrom } from '../../../src/v2/reply-notes.js';
+import { refusedFrom } from '../../../../../ui/legacy/reply-notes.js';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { fakeModel, on } from './helpers/fakes.js';
 

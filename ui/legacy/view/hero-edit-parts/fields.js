@@ -1,6 +1,6 @@
 // Hero editor: the fields (Story and Character groups) it shows for the hero's props.
 
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
 import { short, HERE_MAX, NAME_MAX } from './shared-limits.js';
 import { timeText, hereNames, hereText } from './time-here.js';
 import { clockOf } from './clock.js';

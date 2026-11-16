@@ -6,7 +6,7 @@ import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
 import { readRecord } from '../../../core/persist.js';
 import { START_KINDS } from '../../../core/interaction/start.js';
-import { IA_KIND, activeSettles, box, iaApi, iaModule, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { IA_KIND, activeSettles, box, iaApi, iaModule, withLines } from '../../suite/qa/helpers/probe-interaction.js';
 
 const plain = value => JSON.parse(JSON.stringify(value));
 

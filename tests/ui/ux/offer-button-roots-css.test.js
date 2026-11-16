@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cssOf } from '../helpers/css-parts.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const glass = cssOf('glass').replace(/\/\*[\s\S]*?\*\//g, '');
 const rules = [...glass.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(m => m[1]).filter(s => /\.ss-(button|iconbutton)\b/.test(s));

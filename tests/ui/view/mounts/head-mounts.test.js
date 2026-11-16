@@ -1,7 +1,7 @@
 // Head-state mounts (SPEC §13.4): tab, the full-screen game view and the hud strip.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHudMount, createScreenMount, createTabMount, createMounts } from '../../../../src/v2/view/mounts/index.js';
+import { createHudMount, createScreenMount, createTabMount, createMounts } from '../../../../ui/legacy/view/mounts/index.js';
 import { fakeChat, fakeQuery, fakeRenderer, screen, screensWith, setupDom, stateWith as stateOf } from './helpers.js';
 
 function world(defs, extra = {}) {

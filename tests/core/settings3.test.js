@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom, texts } from '../helpers/ui-fake-dom.js';
 import { createRegistry } from '../../core/registry.js';
 import { createSettings } from '../../core/sdk.js';
-import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { createFeatureStore } from '../../core/features.js';
 import { SCHEMA, SETTING, createAssistPart, stCallModel } from '../../packages/story-block/src/v2/assist/index.js';
 import { listProfiles } from '../../core/model-call.js';

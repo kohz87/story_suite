@@ -21,7 +21,7 @@
 // foot of the page. The cards size to their content and sit three to a row on a wide screen, one to a row on a phone. Packs are not on
 // Home: Settings → Tabs & Packs has the import.
 
-import { STRINGS, html, jsonText } from '../../../../../core/strings.js';
+import { STRINGS, html, jsonText } from '../../../core/strings.js';
 import { BASE_CSS } from './style.js';
 import { QUESTS_LINK_WIDGET, SHOW_MORE_WIDGET } from './show-more.js';
 

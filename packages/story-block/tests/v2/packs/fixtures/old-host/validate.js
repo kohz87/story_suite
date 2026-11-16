@@ -20,10 +20,10 @@ import { CALENDAR_FIELDS, CALENDAR_HOLIDAY_FIELDS, CALENDAR_LIMITS, CALENDAR_STA
 import { byteLength, checkPlain } from '../../../../../src/v2/packs/safety.js';
 import { parseRange, satisfies } from '../../../../../src/v2/packs/version.js';
 import { foldKey, oneLine } from '../../../../../../../core/text.js';
-import { MAX_DEPTH as MAX_TEMPLATE_DEPTH, tooDeep } from '../../../../../src/v2/view/template/html.js';
-import { MAX_LOOP_DEPTH, templateShape } from '../../../../../src/v2/view/template/index.js';
-import { MAX_JSON_DEPTH } from '../../../../../src/v2/view/template/json.js';
-import { MAX_AT_DEPTH, cssDepth, sheetEscape } from '../../../../../src/v2/view/css.js';
+import { MAX_DEPTH as MAX_TEMPLATE_DEPTH, tooDeep } from '../../../../../../../ui/legacy/view/template/html.js';
+import { MAX_LOOP_DEPTH, templateShape } from '../../../../../../../ui/legacy/view/template/index.js';
+import { MAX_JSON_DEPTH } from '../../../../../../../ui/legacy/view/template/json.js';
+import { MAX_AT_DEPTH, cssDepth, sheetEscape } from '../../../../../../../ui/legacy/view/css.js';
 import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../../src/v2/domains/money.js';
 
 export const HOST_VERSION = '2.0.0';

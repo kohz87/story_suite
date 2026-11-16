@@ -4,11 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { renderLayout, validateLayout, tabFromLayout } from '../../../src/v2/layout/index.js';
+import { renderLayout, validateLayout, tabFromLayout } from '../../../ui/legacy/layout/index.js';
 import { mount, fakeQuery, one, settle } from './helpers/fake-dom.js';
-import { texts } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { texts } from '../../helpers/ui-fake-dom.js';
 
-const doc = readFileSync(new URL('../../../docs/v2/LAYOUTS.md', import.meta.url), 'utf8');
+const doc = readFileSync(new URL('../../../packages/story-block/docs/v2/LAYOUTS.md', import.meta.url), 'utf8');
 const example = heading => {
     const match = new RegExp(`## Example: ${heading}\\n[\\s\\S]*?\`\`\`json\\n([\\s\\S]*?)\\n\`\`\``).exec(doc);
     assert.ok(match, `the ${heading} example is in LAYOUTS.md`);

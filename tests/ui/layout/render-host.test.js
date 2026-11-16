@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderLayout, tabFromLayout, part } from '../../../src/v2/layout/index.js';
+import { renderLayout, tabFromLayout, part } from '../../../ui/legacy/layout/index.js';
 import { mount, fakeQuery, layoutOf, one, settle } from './helpers/fake-dom.js';
-import { texts } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { texts } from '../../helpers/ui-fake-dom.js';
 import { pc } from './render.helpers.js';
 
 test('failed and missing queries leave parts empty and are listed as problems', () => {
@@ -149,7 +149,7 @@ test('the part registers nothing in the state', () => {
 });
 
 test('ensureLayoutStyles puts the stylesheet in the page once', async () => {
-    const { ensureLayoutStyles, LAYOUT_CSS, LAYOUT_STYLE_ID } = await import('../../../src/v2/layout/index.js');
+    const { ensureLayoutStyles, LAYOUT_CSS, LAYOUT_STYLE_ID } = await import('../../../ui/legacy/layout/index.js');
     const { doc } = mount();
     assert.equal(ensureLayoutStyles(doc), false, 'no <head>, nothing to do');
     doc.head = doc.createElement('head');

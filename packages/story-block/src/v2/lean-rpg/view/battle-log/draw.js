@@ -2,7 +2,7 @@
 // checks, ambush, opening and rounds, breakdown on tap, status bars, foes the why-it-ended line, the Receipt row and the no-rolls wording.
 
 import { RPG_STRINGS, fill } from '../../strings.js';
-import { barStep } from '../../../view/widgets/dom.js';
+import { barStep } from '../../../../../../../ui/legacy/view/widgets/dom.js';
 import { stopLine, stopHint } from './stop.js';
 import { buildReceipt } from './receipt.js';
 import { B, FOE_WORDS, DECISIVE_WORDS, BATTLE_ROOT, BATTLE_ID, IDLE } from './constants.js';

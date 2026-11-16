@@ -22,9 +22,9 @@
 // it, so Back and Next keep what was typed. Every node is built with createElement and textContent.
 
 import { DM_LIMITS } from '../../data-modules/schema.js';
-import { h, shell } from '../../view/widgets/dom.js';
-import { radar } from '../../view/widgets/radar.js';
-import { stepper } from '../../view/widgets/stepper.js';
+import { h, shell } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { radar } from '../../../../../../ui/legacy/view/widgets/radar.js';
+import { stepper } from '../../../../../../ui/legacy/view/widgets/stepper.js';
 import { refusalText } from '../../../../../../core/strings.js';
 import { DEFAULT_CURRENCY } from '../../domains/money.js';
 import { FILE_LIMITS, moneyText, parseCharacterFile, skillLine, thingsWord } from '../charfile.js';

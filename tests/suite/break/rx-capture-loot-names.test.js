@@ -6,7 +6,7 @@
 // item. There is no per-reply cap on either.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 test('rx-capture: a loot count is never part of a name, and money is a coin offer, never a thing', async t => {
     t.mock.method(console, 'warn', () => {});

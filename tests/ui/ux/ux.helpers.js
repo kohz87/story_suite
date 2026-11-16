@@ -1,7 +1,7 @@
-import { createHost } from '../../../testkit/index.js';
-import { makeMessage } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../helpers/ui-fake-dom.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
 
 export const WITH_LINES = 'You find a rope.\n<Changes>\n+ item Rope | qty: 1\n- item Lantern | qty: 1\n</Changes>';
 export const HUD_MODULE = {

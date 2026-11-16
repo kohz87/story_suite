@@ -4,7 +4,7 @@
 // reply's changes replaced, its item lost), or refused with the wrong reason ("Message 4 is the user's").
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const items = h => {

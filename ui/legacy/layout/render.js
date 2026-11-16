@@ -6,7 +6,7 @@
 // Everything a layout or a query supplies is set with textContent or a checked
 // attribute; nothing is parsed as markup. Class names start with `ss-l-`.
 
-import { el, stop } from '../../ui/dom.js';
+import { el, stop } from '../ui/dom.js';
 import { LIMITS, NODE_TYPES, TONES, isBinding, itemRef, getPath, imageUrlError } from './schema.js';
 import { validateLayout, widgetRegistry } from './validate.js';
 import { editable } from '../view/widgets/editable.js';

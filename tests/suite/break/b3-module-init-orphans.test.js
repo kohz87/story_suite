@@ -3,7 +3,7 @@
 // value is out of reach and no receipt says where it went.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { reply } from './helpers/econ.js';
 
 const partyModule = () => ({

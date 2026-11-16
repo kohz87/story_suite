@@ -17,7 +17,7 @@ function run(dir, ...args) {
   const r = spawnSync('node', [SCRIPT, ...args], { env: { ...process.env, SYNC_REDRAW_ROOT: dir }, encoding: 'utf8' });
   return r.status;
 }
-const copy = dir => path.join(dir, 'packages/story-block/src/v2/shared/redraw.js');
+const copy = dir => path.join(dir, 'ui/legacy/shared/redraw.js');
 
 test('a missing copy fails the check', () => {
   assert.equal(run(makeRoot(), '--check'), 1);

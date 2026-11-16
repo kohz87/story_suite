@@ -2,7 +2,7 @@
 // rewind.js). The items Story Block fix 1 took (5, 11; 4 with the counters); the others are SB-fix3's.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const items = h => {
     const inv = h.head()?.domains?.inventory;

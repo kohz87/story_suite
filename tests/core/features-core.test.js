@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
 import { FEATURE_OFF } from '../../core/features.js';
-import { refusedFrom } from '../../packages/story-block/src/v2/reply-notes.js';
+import { refusedFrom } from '../../ui/legacy/reply-notes.js';
 import { BASE_STATIC, WEAR_GRAMMAR, WEAR_STATIC, WEATHER_LINE, gear, statics, tails } from './features.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

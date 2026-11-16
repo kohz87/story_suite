@@ -1,6 +1,6 @@
 // Reads a module's raw card into a clean card: tone, icon, title, text, rows and actions.
 
-import { oneLine } from '../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { isRecord } from './shared-record.js';
 
 export const CARD_TONES = Object.freeze(['accent', 'bad', 'good', 'info']);

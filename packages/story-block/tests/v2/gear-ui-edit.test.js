@@ -3,16 +3,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { inventoryScreen } from '../../src/v2/screens/index.js';
+import { inventoryScreen } from '../../../../ui/legacy/screens/index.js';
 import { createHarness } from './domains/helpers/fake-ctx.js';
-import { show, settle, text } from './screens/helpers.js';
-import { editPlan } from '../../src/v2/view/gear-form.js';
-import { FIGHT, gearHost } from './helpers/gear-ui-state.js';
-import { createScreenRenderer } from '../../src/v2/view/render-screen.js';
-import { resolveData } from '../../src/v2/view/screens.js';
-import { standardWidgets } from '../../src/v2/view/widgets/index.js';
+import { show, settle, text } from '../../../../tests/ui/screens/helpers.js';
+import { editPlan } from '../../../../ui/legacy/view/gear-form.js';
+import { FIGHT, gearHost } from '../../../../tests/core/helpers/gear-ui-state.js';
+import { createScreenRenderer } from '../../../../ui/legacy/view/render-screen.js';
+import { resolveData } from '../../../../ui/legacy/view/screens.js';
+import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
 import { installFakeDom } from '../../../../tests/helpers/ui-fake-dom.js';
-import { createInventoryAddWidget, createInventoryViewWidget, createWornFoldWidget, WORN_FOLD_WIDGET, INVENTORY_ADD_WIDGET, INVENTORY_VIEW_WIDGET } from '../../src/v2/screens/inventory-add.js';
+import { createInventoryAddWidget, createInventoryViewWidget, createWornFoldWidget, WORN_FOLD_WIDGET, INVENTORY_ADD_WIDGET, INVENTORY_VIEW_WIDGET } from '../../../../ui/legacy/screens/inventory-add.js';
 import { crewState, draw, fill, gameForm, gearRun, mounted, open, pieces, rowOf, rowsOf, twoSwords } from './gear-ui.helpers.js';
 
 test('Edit, gear on: Slot (the eight places or none) and Equipped by (a member or none) go through item.equip; transfer and unequip too; a rebuild and a reload agree', async t => {

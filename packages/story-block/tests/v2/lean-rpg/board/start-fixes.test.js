@@ -9,8 +9,8 @@ import { pendingStart } from '../../../../../../core/turn/fight-start.js';
 import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 import { character, foeBlock, setup, skillBlock } from '../helpers.js';
 

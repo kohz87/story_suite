@@ -4,7 +4,7 @@
 // holding one appeared verbatim in Copy report and Save report (scripts/diag.mjs, diag-report-1440.txt).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scrubSettings, scrubLine } from '../../../../../core/diagnostics.js';
+import { scrubSettings, scrubLine } from '../../../core/diagnostics.js';
 
 const KEYS = {
     mistral: 'Xq7Lm2Pz9Rt4Vb8N' + 'c1Kd6Fg3Hj5Ws0Ya',

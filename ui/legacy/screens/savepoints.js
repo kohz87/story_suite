@@ -8,8 +8,8 @@
 // it is off the widget draws nothing at all. Names are the reader's own, flattened to one line and set
 // with textContent.
 
-import { STRINGS, fill } from '../../../../../core/strings.js';
-import { SAVEPOINT_LIMITS } from '../../../../../core/timeline/rewind.js';
+import { STRINGS, fill } from '../../../core/strings.js';
+import { SAVEPOINT_LIMITS } from '../../../core/timeline/rewind.js';
 import { capToggle } from './show-more.js';
 
 const S = STRINGS.savepoints;

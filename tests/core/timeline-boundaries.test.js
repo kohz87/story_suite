@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { clockModule, paidTraining } from '../../packages/story-block/tests/v2/helpers/clock.js';
+import { clockModule, paidTraining } from './helpers/clock.js';
 import { hashJson } from '../../core/replay.js';
-import { nativeModule, sealerModule, restore, clone, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { nativeModule, sealerModule, restore, clone, reload } from './helpers/timeline.js';
 import { sourceOf } from '../helpers/split-source.js';
 
 const advance = (host, minutes, rest = {}) => host.bus.command('director.advance', { minutes, ...rest }, { cause: 'system' });

@@ -2,8 +2,8 @@
 import { createFakeContext } from '../../../../testkit/fake-st.js';
 import { createRuntime } from '../../../../../../core/runtime.js';
 import { createPacksPart } from '../../../../src/v2/packs/index.js';
-import { mountUi } from '../../../../src/v2/ui-host.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { mountUi } from '../../../../../../ui/legacy/ui-host.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { fixture } from '../../data-modules/helpers.js';
 import { fakeFiles, webp } from './portraits.js';
 

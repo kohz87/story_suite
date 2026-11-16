@@ -4,8 +4,8 @@
 // the overlay shows no "Changes the fixed prompt once" hint (SPEC §5 / §6 Features, invariant 5).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { STATIC_KEY } from '../../../../../core/turn.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { STATIC_KEY } from '../../../core/turn.js';
 
 const whole = () => ({
     id: 'wy', name: 'Whole Y', version: '0.0.1',

@@ -8,7 +8,7 @@
 //
 // Built with createElement and textContent only.
 
-import { fill } from '../../../../../../core/strings.js';
+import { fill } from '../../../../core/strings.js';
 import { PROMPT_TEXT, footerSummary } from './prompt.js';
 
 const h = (doc, tag, className = '', text = '') => {

@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createOfferLineView } from '../../../../src/v2/lean-rpg/board/offer-line.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 
 const data = {
     visible: true, text: 'A fight started: Sluice Rats.', label: 'Fight offer: Sluice Rats',

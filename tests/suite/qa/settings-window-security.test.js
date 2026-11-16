@@ -6,10 +6,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { FakeElement } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { createHost } from '../../../testkit/index.js';
-import { setupDom } from '../view/mounts/helpers.js';
-import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
+import { FakeElement } from '../../helpers/ui-fake-dom.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 
 const forbid = name => function () { throw new Error(`markup was parsed: ${name}`); };
 Object.defineProperty(FakeElement.prototype, 'innerHTML', { configurable: true, get: forbid('innerHTML get'), set: forbid('innerHTML set') });
@@ -76,7 +76,7 @@ test('hostile module text is drawn as text only: no markup, no data-picked class
 });
 
 test('no innerHTML, outerHTML, insertAdjacentHTML, document.write or eval in the settings window\'s sources', () => {
-    const dir = new URL('../../../src/v2/view/settings/', import.meta.url);
+    const dir = new URL('../../../ui/legacy/view/settings/', import.meta.url);
     const files = readdirSync(dir).filter(file => file.endsWith('.js'));
     assert.deepEqual(files.sort(), ['assist.js', 'blocks.js', 'bodies.js', 'diagnostics-page.js', 'footer.js', 'modules.js', 'money.js', 'prompt.js', 'search.js', 'sections.js', 'tabs-list.js', 'tabs-packs.js', 'window.js']);
     for (const file of files) {

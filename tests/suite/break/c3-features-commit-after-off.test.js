@@ -3,7 +3,7 @@
 // stored although the command is now refused with FEATURE_OFF at the top (SPEC §6 Features).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const poke = () => ({
     id: 'pk', name: 'Poke', version: '0.0.1',

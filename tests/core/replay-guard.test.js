@@ -6,7 +6,7 @@ import { createHost } from '../../packages/story-block/testkit/index.js';
 import { ensureModules } from '../../core/sdk.js';
 import { RECORD_ID } from '../../core/registry/check.js';
 import { claimKeys, hashJson, isMetaSpan, spanProblem } from '../../core/replay.js';
-import { EPOCH, OWNER, Q1, Q2, Q5, Q9, claimKey, guarded, harness, outer } from '../../packages/story-block/tests/v2/helpers/guarded.js';
+import { EPOCH, OWNER, Q1, Q2, Q5, Q9, claimKey, guarded, harness, outer } from './helpers/guarded.js';
 
 // Three replies: the quest is offered (1), proved (2), and settled for 7 coin (3).
 function settled(options = {}) {

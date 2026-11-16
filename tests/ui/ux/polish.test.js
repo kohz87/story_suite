@@ -5,18 +5,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { HOME_ID, REST_ORDER, byNavOrder, createScreens, screenOrder, validateScreen } from '../../../src/v2/view/screens.js';
-import { hiddenSides, overflowAxis, scrollCue } from '../../../src/v2/view/scroll-cue.js';
-import { calendarFrom, clockText, dateOf, formatStoryTime, storyCalendar, timeFormatter } from '../../../src/v2/view/clock.js';
-import { hasReplyRecord } from '../../../src/v2/ui-host.js';
-import { writeRecord } from '../../../../../core/persist.js';
-import { createDialogMount, focusablesIn } from '../../../src/v2/view/mounts/dialog.js';
-import { createScreenMount } from '../../../src/v2/view/mounts/screen.js';
-import { LABEL_MIN_PX, labelUnits } from '../../../src/v2/view/widgets/radar.js';
-import { homeScreen } from '../../../src/v2/screens/home.js';
-import { sourceOf } from '../../../../../tests/helpers/split-source.js';
+import { HOME_ID, REST_ORDER, byNavOrder, createScreens, screenOrder, validateScreen } from '../../../ui/legacy/view/screens.js';
+import { hiddenSides, overflowAxis, scrollCue } from '../../../ui/legacy/view/scroll-cue.js';
+import { calendarFrom, clockText, dateOf, formatStoryTime, storyCalendar, timeFormatter } from '../../../ui/legacy/view/clock.js';
+import { hasReplyRecord } from '../../../ui/legacy/ui-host.js';
+import { writeRecord } from '../../../core/persist.js';
+import { createDialogMount, focusablesIn } from '../../../ui/legacy/view/mounts/dialog.js';
+import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
+import { LABEL_MIN_PX, labelUnits } from '../../../ui/legacy/view/widgets/radar.js';
+import { homeScreen } from '../../../ui/legacy/screens/home.js';
+import { sourceOf } from '../../helpers/split-source.js';
 import { screen, screensWith, setupDom } from '../view/mounts/helpers.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
 
@@ -284,7 +284,7 @@ test('CSS: hud items cannot collapse, the game view is opaque unless Glass, the 
 // ---- through a whole host: real turns, real records ----------------------------------------------
 
 test('a real chat: the greeting gets no cards, a reply with change lines does; a move clears who is here', async () => {
-    const { createHost } = await import('../../../testkit/index.js');
+    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
     const host = await createHost();
     try {
         await host.send('We land.', '<Changes>\n~ place Inspection Quay | kind: dock\n+ present Marrit, Fenna\n</Changes>');

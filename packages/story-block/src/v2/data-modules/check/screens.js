@@ -5,10 +5,10 @@ import { E, array, entries, named, names, same, shape } from './shape.js';
 import { compatible, expressionType, fieldType } from '../expressions.js';
 import { BLOCK_NODE_WIDGETS, FIELDS_WIDGET, fieldsNodeProblems } from '../fields-widget.js';
 import { dmObject, dmOwn } from '../schema.js';
-import { validateLayout } from '../../layout/validate.js';
+import { validateLayout } from '../../../../../../ui/legacy/layout/validate.js';
 import { checkScreens } from '../../packs/validate/theme.js';
-import { validateScreen } from '../../view/screens.js';
-import { parseHtml } from '../../view/template/html.js';
+import { validateScreen } from '../../../../../../ui/legacy/view/screens.js';
+import { parseHtml } from '../../../../../../ui/legacy/view/template/html.js';
 
 // An editable in data-module presentation may address only this pin and an editable declared field.
 function editableProps(definition, props, at, add) {

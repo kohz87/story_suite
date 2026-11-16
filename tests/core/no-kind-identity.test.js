@@ -7,7 +7,7 @@ import { createHost } from '../../packages/story-block/testkit/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
 import { createGuards } from '../../core/commands/guards.js';
 
-const FIXTURE = new URL('../../packages/story-block/tests/v2/fixtures/no-kind-identity.json', import.meta.url);
+const FIXTURE = new URL('./fixtures/no-kind-identity.json', import.meta.url);
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
 // Ids are random: fix the sources so two runs of the same code write the same bytes.

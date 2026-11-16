@@ -1,7 +1,7 @@
 // The Game view hero's editor model (view/hero-edit.js): its fields, and which commands a Save sends, in which order, for which changes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CLOCK_KEYS, hasClock, heroEditFields, heroEditPlan, hereNames, hereText, timeMinutes, timeText } from '../../../src/v2/view/hero-edit.js';
+import { CLOCK_KEYS, hasClock, heroEditFields, heroEditPlan, hereNames, hereText, timeMinutes, timeText } from '../../../ui/legacy/view/hero-edit.js';
 
 const MONTHS = [{ name: 'Dawnwane', days: 30 }, { name: 'Rainmoot', days: 28 }, { name: 'Greengale', days: 30 }];
 const CLOCK = { parts: { year: 611, month: 2, day: 12, minutes: 810 }, era: 'CY', months: MONTHS };

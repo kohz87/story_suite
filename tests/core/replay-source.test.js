@@ -7,8 +7,8 @@ import { createHost } from '../../packages/story-block/testkit/index.js';
 import { RECORD_ID } from '../../core/registry/check.js';
 import { newRecordId, readRecord, trimReceipts } from '../../core/persist.js';
 import { deriveId, isMetaSpan } from '../../core/replay.js';
-import { EPOCH, Q1, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
-import { deleteSwipe, newSwipe, reply, showSwipe, user } from '../../packages/story-block/tests/v2/helpers/store-chat.js';
+import { EPOCH, Q1, guarded, harness } from './helpers/guarded.js';
+import { deleteSwipe, newSwipe, reply, showSwipe, user } from './helpers/store-chat.js';
 
 const questId = n => `th_${n.toString(36).padStart(8, '0')}`;
 

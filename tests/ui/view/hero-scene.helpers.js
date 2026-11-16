@@ -1,4 +1,4 @@
-import { hero } from '../../../src/v2/view/widgets/hero.js';
+import { hero } from '../../../ui/legacy/view/widgets/hero.js';
 import { fakeApi, host as widgetHost, installDom } from './widgets/fake-dom.js';
 
 export const settle = async () => { for (let n = 0; n < 6; n += 1) await new Promise(resolve => setImmediate(resolve)); };

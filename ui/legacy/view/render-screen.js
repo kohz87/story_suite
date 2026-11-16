@@ -12,7 +12,7 @@
 // * every registered widget (the `ss.*` set and the modules' own) by its namespaced name;
 // * the mount's api (`command`, `preview`, `commit`, `query`, `on`, and in dialogs `onDraft`).
 
-import { compile, evaluate as evaluateAst } from '../../../../../modules/world/events/condition.js';
+import { compile, evaluate as evaluateAst } from '../../../modules/world/events/condition.js';
 import { renderLayout } from '../layout/index.js';
 import { ensureLayoutStyles } from '../layout/styles.js';
 import { conditionEvaluator } from './bind.js';

@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { RETRY_SCHEDULE_MS } from '../../core/timeline/coordinator-block.js';
 import { PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';
-import { director } from '../../packages/story-block/tests/v2/helpers/evidence.js';
-import { BATCH, DEATH, NATIVE, batchFor, clone, nativeModule, rulesModule, seal, slice } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { director } from './helpers/evidence.js';
+import { BATCH, DEATH, NATIVE, batchFor, clone, nativeModule, rulesModule, seal, slice } from './helpers/timeline.js';
 import { cmd, reply, story } from './timeline-restore.helpers.js';
 
 test('a stale head is STALE: at prepare, at activate (the preparation is aborted), and a make in between moves it', async t => {

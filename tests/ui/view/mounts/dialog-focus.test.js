@@ -3,8 +3,8 @@
 // the same field, by its draft key.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDialogMount } from '../../../../src/v2/view/mounts/dialog.js';
-import { createScreenRenderer } from '../../../../src/v2/view/render-screen.js';
+import { createDialogMount } from '../../../../ui/legacy/view/mounts/dialog.js';
+import { createScreenRenderer } from '../../../../ui/legacy/view/render-screen.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './helpers.js';
 
 const wizard = {

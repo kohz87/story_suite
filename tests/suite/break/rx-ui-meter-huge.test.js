@@ -3,9 +3,9 @@
 // "Infinity / 100" (and aria-valuenow/valuemax "Infinity") for a value that is a real, finite number.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { meter } from '../../../src/v2/view/widgets/meter.js';
-import { fmt } from '../../../src/v2/view/widgets/dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { meter } from '../../../ui/legacy/view/widgets/meter.js';
+import { fmt } from '../../../ui/legacy/view/widgets/dom.js';
 
 test('fmt never turns a finite number into "Infinity"', () => {
     for (const n of [1e307, 1e308, -1e308, Number.MAX_VALUE]) assert.doesNotMatch(fmt(n), /Infinity/, `fmt(${n}) = ${fmt(n)}`);

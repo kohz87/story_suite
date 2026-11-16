@@ -5,7 +5,7 @@ import { parseCharacterFile } from "../../../../src/v2/lean-rpg/charfile.js";
 import { EXPORT_WIDGET } from "../../../../src/v2/lean-rpg/view/export.js";
 import { reload } from "../../data-modules/helpers.js";
 import { begin, fieldsOf, fillBlocks, makeBlocks, page, settle } from "./page.js";
-import { cssOf } from "../../helpers/css-parts.js";
+import { cssOf } from "../../../../../../tests/core/helpers/css-parts.js";
 import { PARTY_STUB, REN, SAVED, click, companion, createRen, exportDialog, exportOf, goTo, importInto, names, newcomer, oldSkillsBlock, purseOf, carried, saveFrom, story, type, without, wizardOf, wizardWith } from "./char-export.helpers.js";
 
 test('a You takes the things to the bag, a companion with a party actor to that actor', async t => {

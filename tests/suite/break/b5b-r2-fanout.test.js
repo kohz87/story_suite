@@ -5,9 +5,9 @@
 // draw, 1.7 s each later one. Pack install accepts such a screen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { compileTemplate, renderTemplate } from '../../../src/v2/view/template/index.js';
-import { createHost } from '../../../testkit/index.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { compileTemplate, renderTemplate } from '../../../ui/legacy/view/template/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const nested = depth => {
     let html = 'x';

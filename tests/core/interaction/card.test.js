@@ -2,11 +2,11 @@
 // a receipt trimmed after 200 carriers shows the summary alone. The row follows the shown swipe's record, so swipe, delete, rewind, reload and Re-read agree.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { THIS_REPLY_ID } from '../../../packages/story-block/src/v2/reply-cards.js';
+import { THIS_REPLY_ID } from '../../../ui/legacy/reply-cards.js';
 import { trimReceipts } from '../../../core/persist/receipts.js';
-import { interactionAt } from '../../../packages/story-block/src/v2/ui-host/reply-interaction.js';
-import { page } from '../../../packages/story-block/tests/v2/ux/ux.helpers.js';
-import { iaApi, iaChain, iaModule, setText, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { interactionAt } from '../../../ui/legacy/ui-host/reply-interaction.js';
+import { page } from '../../ui/ux/ux.helpers.js';
+import { iaApi, iaChain, iaModule, setText, withLines } from '../../suite/qa/helpers/probe-interaction.js';
 
 const rowsAt = (doc, index) => [...doc.querySelectorAll(`.mes[mesid="${index}"] [data-ss-card="${THIS_REPLY_ID}"] .interaction`)].map(row => row.textContent.replace(/\s+/g, ' ').trim());
 function show(made, index) {

@@ -5,11 +5,11 @@
 // written one. Checked with the testkit's stand-in for SillyTavern's DOMPurify (testkit/purify.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileTemplate } from '../../../../src/v2/view/template/index.js';
-import { TYPE_MARK, markControlTypes } from '../../../../src/v2/view/template/sanitize.js';
-import { stPurify } from '../../../../testkit/index.js';
-import { inventoryScreen } from '../../../../src/v2/screens/inventory.js';
-import { changesCardScreen } from '../../../../src/v2/screens/changes-card.js';
+import { compileTemplate } from '../../../../ui/legacy/view/template/index.js';
+import { TYPE_MARK, markControlTypes } from '../../../../ui/legacy/view/template/sanitize.js';
+import { stPurify } from '../../../../packages/story-block/testkit/index.js';
+import { inventoryScreen } from '../../../../ui/legacy/screens/inventory.js';
+import { changesCardScreen } from '../../../../ui/legacy/screens/changes-card.js';
 
 /** Every element of a compiled template, depth first: [{ tag, attrs }]. */
 function elements(nodes, out = []) {

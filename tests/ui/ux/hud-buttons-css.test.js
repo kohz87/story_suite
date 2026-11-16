@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { sourceOf } from '../../../../../tests/helpers/split-source.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { sourceOf } from '../../helpers/split-source.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const mounts = cssOf('mounts').replace(/\/\*[\s\S]*?\*\//g, '');
 const theme = sourceOf('src/v2/view/theme.js');

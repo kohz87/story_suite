@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { Q1, Q2, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
+import { Q1, Q2, guarded, harness } from './helpers/guarded.js';
 import { clone, inOrder, receiptRevsOf, revsOf, setStory } from './replay-review3.helpers.js';
 
 test('F: revs stay strictly increasing and unique across the chat after a Re-read, with no step planned again', async t => {

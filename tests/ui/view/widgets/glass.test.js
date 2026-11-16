@@ -3,8 +3,8 @@
 // the tile's command.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BAR_KINDS, GLASS_TONES, bar, barRatio, leftSpoken, leftText, pill, status, tile, tileSpoken } from '../../../../src/v2/view/widgets/glass.js';
-import { standardWidgets } from '../../../../src/v2/view/widgets/index.js';
+import { BAR_KINDS, GLASS_TONES, bar, barRatio, leftSpoken, leftText, pill, status, tile, tileSpoken } from '../../../../ui/legacy/view/widgets/glass.js';
+import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
 import { fakeApi, host, installDom } from './fake-dom.js';
 
 function mount(widget, props, api = fakeApi()) {

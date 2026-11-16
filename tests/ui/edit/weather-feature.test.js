@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { setupDom } from '../view/mounts/helpers.js';
 
 test('Home and Scene offer weather editing only while the feature is on, even when no weather is set', async t => {

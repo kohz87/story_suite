@@ -2,7 +2,7 @@
 // in the window does not, and the page behind is locked while it is open (the body's class; the CSS holds it still).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createScreenMount } from '../../../../src/v2/view/mounts/screen.js';
+import { createScreenMount } from '../../../../ui/legacy/view/mounts/screen.js';
 import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screensWith, setupDom } from './helpers.js';
 
 function world() {

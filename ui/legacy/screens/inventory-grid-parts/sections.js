@@ -1,7 +1,7 @@
 // The Grid view's category sections and the Worn view's one fold per wearer.
 
-import { SCREEN_STRINGS } from '../../../../../../core/strings/screens.js';
-import { fill } from '../../../../../../core/strings.js';
+import { SCREEN_STRINGS } from '../../../../core/strings/screens.js';
+import { fill } from '../../../../core/strings.js';
 import { h } from '../../view/widgets/dom.js';
 import { foldSection } from './folds.js';
 import { tileGrid } from './tiles.js';

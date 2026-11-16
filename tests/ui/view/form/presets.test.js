@@ -3,12 +3,12 @@
 // the fixed prompt changed, each tile's token number from the static text built for that preset, the search that hides it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { createHost } from '../../../../testkit/index.js';
-import { renderFeaturesForm } from '../../../../src/v2/view/form/features.js';
-import { PRESET_TEXT } from '../../../../src/v2/view/form/presets.js';
-import { CORE_FEATURE, PROMPT_HINT } from '../../../../../../core/features.js';
-import { estimateTokens, staticTextWith } from '../../../../../../core/prompt.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { renderFeaturesForm } from '../../../../ui/legacy/view/form/features.js';
+import { PRESET_TEXT } from '../../../../ui/legacy/view/form/presets.js';
+import { CORE_FEATURE, PROMPT_HINT } from '../../../../core/features.js';
+import { estimateTokens, staticTextWith } from '../../../../core/prompt.js';
 
 const doc = installFakeDom();
 

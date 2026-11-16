@@ -3,7 +3,7 @@
 // not through the off-aware hook lists). SPEC §6 Features: "Its hooks are not called."
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 test('an onBlocked hook whose feature is off is not called', async t => {
     t.mock.method(console, 'warn', () => {});

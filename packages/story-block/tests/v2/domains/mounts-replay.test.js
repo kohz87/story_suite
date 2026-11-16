@@ -5,11 +5,11 @@ import { createHost } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../../core/features.js';
 import { MAX_ROWS, MOUNTS_FEATURE, WALK_PACE } from '../../../src/v2/domains/mounts.js';
 import { validateScene } from '../../../src/v2/domains/scene.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { homeScreen } from '../../../src/v2/screens/index.js';
-import { checkInvariants } from '../qa/helpers/oracle.js';
-import { recordingWidgets, renderSkip, show, text } from '../screens/helpers.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { mountUi } from '../../../../../ui/legacy/ui-host.js';
+import { homeScreen } from '../../../../../ui/legacy/screens/index.js';
+import { checkInvariants } from '../../../../../tests/suite/qa/helpers/oracle.js';
+import { recordingWidgets, renderSkip, show, text } from '../../../../../tests/ui/screens/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { MARE, block, character, fresh, lastIndex, names, problems } from './mounts.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

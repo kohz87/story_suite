@@ -1,5 +1,5 @@
 // Draws an entries field (a list of records read through the block's roles) as cards, bars or fields rows.
-import { h, humanize } from '../../view/widgets/dom.js';
+import { h, humanize } from '../../../../../../ui/legacy/view/widgets/dom.js';
 import { dmObject, dmOwn } from '../../data-modules/schema.js';
 import { V } from './shared-chrome.js';
 import { barNode } from './shared-bar.js';

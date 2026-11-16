@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { hashJson } from '../../core/replay.js';
-import { director } from '../../packages/story-block/tests/v2/helpers/evidence.js';
-import { BATCH, DEATH, NATIVE, batchFor, clone, nativeModule, restore, rulesModule, slice } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { director } from './helpers/evidence.js';
+import { BATCH, DEATH, NATIVE, batchFor, clone, nativeModule, restore, rulesModule, slice } from './helpers/timeline.js';
 import { cmd, story } from './timeline-restore.helpers.js';
 
 test('absolute restore: time, wallet, pools, XP, gear, combat, training and npc go back to the save, whatever came after', async t => {

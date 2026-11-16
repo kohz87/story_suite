@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const mod = extra => ({ id: 'zz-versioned', name: 'Versioned', version: '2.1.0', queries: { 'zz.ping': () => 'pong' }, ...extra });
 

@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { hashJson } from '../../../../../core/replay.js';
-import { carriers, rebuildAt } from '../qa/helpers/oracle.js';
+import { carriers, rebuildAt } from '../../../../../tests/suite/qa/helpers/oracle.js';
 
 const plain = value => (value === undefined ? null : JSON.parse(JSON.stringify(value)));
 // A module whose own command moves a meter by calling people.bonds (as NPC State's change lines do).

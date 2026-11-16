@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { rulesModule, restore } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { rulesModule, restore } from './helpers/timeline.js';
 
 test('history excludes the entire intra-reply target, reader messages and the restoring reply from all active readers', async t => {
     const host = await createHost({ modules: [rulesModule()] });

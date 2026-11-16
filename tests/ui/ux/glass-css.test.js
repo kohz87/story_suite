@@ -5,9 +5,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, statSync } from 'node:fs';
-import { FONT_STACKS, ROOT_SELECTOR, themeTokens } from '../../../src/v2/view/theme.js';
-import { sourceOf } from '../../../../../tests/helpers/split-source.js';
-import { cssOf, hostImports } from '../helpers/css-parts.js';
+import { FONT_STACKS, ROOT_SELECTOR, themeTokens } from '../../../ui/legacy/view/theme.js';
+import { sourceOf } from '../../helpers/split-source.js';
+import { cssOf, hostImports } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
 const css = cssOf('glass');
@@ -131,12 +131,12 @@ test('Nunito is bundled: fonts.css points at files that exist, with the licence;
         assert.match(fonts, new RegExp(`font-weight: ${weight};[\\s\\S]*?nunito-${subset}-${weight}\\.woff2`), `${subset} ${weight}`);
     }
     for (const [, path] of fonts.matchAll(/url\('([^']+)'\)/g)) {
-        assert.ok(path.startsWith('../../../assets/fonts/nunito/') && path.endsWith('.woff2'), path);
+        assert.ok(path.startsWith('../../../packages/story-block/assets/fonts/nunito/') && path.endsWith('.woff2'), path);
         const file = new URL(`../../../src/v2/view/${path}`, import.meta.url);
         assert.ok(existsSync(file) && statSync(file).size > 5000, `${path} exists`);
         assert.equal(readFileSync(file).subarray(0, 4).toString('latin1'), 'wOF2', `${path} is a woff2`);
     }
-    assert.match(readFileSync(new URL('../../../assets/fonts/nunito/OFL.txt', import.meta.url), 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/);
+    assert.match(readFileSync(new URL('../../../packages/story-block/assets/fonts/nunito/OFL.txt', import.meta.url), 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/);
     assert.ok(!/https?:\/\//.test(fonts.replace(/\/\*[\s\S]*?\*\//g, '')), 'no external URL');
     for (const file of ['view/theme.js', 'view/fonts.css', 'view/glass.css', 'ui-host.js']) {
         const source = file === 'ui-host.js' ? sourceOf('src/v2/ui-host.js') : file === 'view/glass.css' ? cssOf('glass') : read(file);

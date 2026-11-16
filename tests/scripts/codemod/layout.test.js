@@ -191,7 +191,7 @@ test('the rules delete only manifests dead at the move PR and keep later removal
   assert.equal(matchPath(rules, 'packages/story-block/package.json').to, 'docs/history/packages/story-block/package.json', 'still read by two importers, so it moves');
   const target = file => matchPath(rules, file).to;
   assert.equal(target('packages/story-block/index.js'), 'core/boot/boot.js');
-  assert.equal(target('packages/story-block/src/v2/shared/redraw.js'), 'ui/legacy/shared/redraw.js');
+  assert.equal(target('ui/legacy/shared/redraw.js'), 'ui/legacy/shared/redraw.js');
   assert.equal(target('packages/story-director/index.js'), 'ui/legacy/director/index.js');
   assert.equal(target('ui/legacy/director/module/shared.js'), 'ui/legacy/director/module/shared.js');
   for (const file of [

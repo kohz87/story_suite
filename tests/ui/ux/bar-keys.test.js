@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const host = readFileSync(new URL('../../../src/v2/ui-host.js', import.meta.url), 'utf8');
+const host = readFileSync(new URL('../../../ui/legacy/ui-host.js', import.meta.url), 'utf8');
 
 test('Enter on the bar buttons: the browser activation is cancelled once, for Story, Game view and Settings', () => {
     assert.match(host, /for \(const node of \[storyButton, gameButton, settingsButton\]\) node\.addEventListener\('keypress', event => \{ if \(event\.key === 'Enter'\) event\.preventDefault\(\); \}\);/);

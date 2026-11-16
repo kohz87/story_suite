@@ -3,18 +3,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compileTemplate, renderTemplate } from '../../../../src/v2/view/template/index.js';
-import { scopeCss } from '../../../../src/v2/view/css.js';
-import { conditionEvaluator } from '../../../../src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../../../modules/world/events/index.js';
-import { standardWidgets } from '../../../../src/v2/view/widgets/index.js';
+import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
+import { scopeCss } from '../../../../ui/legacy/view/css.js';
+import { conditionEvaluator } from '../../../../ui/legacy/view/bind.js';
+import { compile, evaluate } from '../../../../modules/world/events/index.js';
+import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
 import { fakeEvaluate, installFakeDom } from './helpers.js';
 
 // The examples run with the real condition language (no truthiness, no arithmetic) and with the test
 // stand-in; both must render them without a single warning.
 const LANGUAGES = [['the condition language', conditionEvaluator({ compile, evaluate })], ['the test stand-in', fakeEvaluate]];
 
-const doc = readFileSync(new URL('../../../../docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
+const doc = readFileSync(new URL('../../../../packages/story-block/docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
 const blocks = {};
 for (const match of doc.matchAll(/```(html|css) ([\w-]+)\n([\s\S]*?)```/g)) (blocks[match[2]] ??= {})[match[1]] = match[3];
 

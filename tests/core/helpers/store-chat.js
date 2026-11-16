@@ -3,7 +3,7 @@ import { register } from 'node:module';
 import { apply } from './ops-stub.js';
 
 register('./ops-hooks.mjs', import.meta.url);
-const { createStore } = await import('../../../../../core/store.js');
+const { createStore } = await import('../../../core/store.js');
 
 export { apply, createStore };
 

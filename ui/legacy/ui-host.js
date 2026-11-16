@@ -36,12 +36,12 @@
 import { HOME_SCREEN_ID } from './screens/index.js';
 import { createReplyExtras } from './extras-ui.js';
 import { displayLines } from './extras.js';
-import { fill } from '../../../../core/strings.js';
-import { CORE_FEATURE } from '../../../../core/features.js';
-import { renderCardOffers } from './packs/card-offer-ui.js';
-import { readCharacterLorebook, saveSettingsNow } from './packs/st-adapter.js';
+import { fill } from '../../core/strings.js';
+import { CORE_FEATURE } from '../../core/features.js';
+import { renderCardOffers } from '../../packages/story-block/src/v2/packs/card-offer-ui.js';
+import { readCharacterLorebook, saveSettingsNow } from '../../packages/story-block/src/v2/packs/st-adapter.js';
 import { createReplyCards } from './ui-host/replies.js';
-import { FLAGS, flagOn } from '../../../../core/runtime/flags.js';
+import { FLAGS, flagOn } from '../../core/runtime/flags.js';
 import { inspectorProblemsFor } from './ui-host/inspector-problems.js';
 import { createCardOfferWiring } from './ui-host/card-offer-wiring.js';
 import { createHostApi } from './ui-host/host-api.js';
@@ -67,7 +67,7 @@ export { isGameViewKey, hasReplyRecord, hudOn } from './ui-host/shared.js';
  * setHidden(id, hidden), reset(), isDefault()), syncScreens(), destroy() }.
  * Re-read uses `sdk.reread(index)` (or `runtime.turn.reread(index)`) when the runtime has one.
  */
-export function mountUi({ runtime, ctx, doc = globalThis.document, version = '', loadLeanRpg = () => import('./lean-rpg/view/index.js'), readLorebook = readCharacterLorebook, flushSettings = saveSettingsNow }) {
+export function mountUi({ runtime, ctx, doc = globalThis.document, version = '', loadLeanRpg = () => import('../../packages/story-block/src/v2/lean-rpg/view/index.js'), readLorebook = readCharacterLorebook, flushSettings = saveSettingsNow }) {
     const { registry, store, sdk, settings, events } = runtime;
     const { queryAt, widgets, coreOn, blockTemplates, blockWidgets, liveCtx, savePoints, inspector, hostWidgets, renderer,
         screens, tabOrder, extraTabs, navPresent, barDeclared, setSharedTabs } = createHostSetup({

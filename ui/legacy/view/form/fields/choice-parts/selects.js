@@ -1,7 +1,7 @@
 // The select-style choice fields: a plain select and the Connection Manager profile select.
 
 import { optionsOf } from '../../schema.js';
-import { profileChoices } from '../../../../../../../../core/model-call/profile-field.js';
+import { profileChoices } from '../../../../../../core/model-call/profile-field.js';
 import { h, named, setDisabled } from '../shared.js';
 
 // ---- select and profile ----------------------------------------------------------------------------

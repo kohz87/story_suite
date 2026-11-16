@@ -1,7 +1,7 @@
 // The timeline's rules as principles (docs/v2/TIMELINE.md): in-memory state belongs to one chat, and the line of work is chat-bound.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clone } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { clone } from './helpers/timeline.js';
 import { HOLD_AT, SCENARIOS, announced, hold, open, otherChat, until, world } from './timeline-principles.helpers.js';
 
 // ---- 5. in-memory state belongs to one chat ------------------------------------------------------------------------------------

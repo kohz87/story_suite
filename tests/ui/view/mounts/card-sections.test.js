@@ -1,7 +1,7 @@
 // Inline cards (SPEC §13.4): card lifecycle, caching, events, and per-module sections ("This reply").
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { changeSummary, createCardMount } from '../../../../src/v2/view/mounts/card.js';
+import { changeSummary, createCardMount } from '../../../../ui/legacy/view/mounts/card.js';
 import { fakeObserverClass, fakeRenderer, screen } from './helpers.js';
 import { cardsUnder, sectionsOf, world } from './card.helpers.js';
 

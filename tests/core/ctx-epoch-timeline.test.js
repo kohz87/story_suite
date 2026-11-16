@@ -6,8 +6,8 @@ import { existsSync } from 'node:fs';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { GENESIS_EPOCH } from '../../core/replay.js';
 
-const have = existsSync(new URL('../../core/timeline/index.js', import.meta.url)) && existsSync(new URL('../../packages/story-block/tests/v2/helpers/timeline.js', import.meta.url));
-const helpers = have ? await import('../../packages/story-block/tests/v2/helpers/timeline.js') : null;
+const have = existsSync(new URL('../../core/timeline/index.js', import.meta.url)) && existsSync(new URL('./helpers/timeline.js', import.meta.url));
+const helpers = have ? await import('./helpers/timeline.js') : null;
 const skip = have ? false : 'needs the timeline (docs/v2/TIMELINE.md), which is not in this tree yet';
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 

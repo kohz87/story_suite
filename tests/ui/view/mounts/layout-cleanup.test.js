@@ -3,10 +3,10 @@
 // listener, and nothing left over that takes the keys.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDialogMount } from '../../../../src/v2/view/mounts/dialog.js';
-import { createScreenRenderer } from '../../../../src/v2/view/render-screen.js';
-import { standardWidgets } from '../../../../src/v2/view/widgets/index.js';
-import { stackOf } from '../../../../src/v2/view/modal-stack.js';
+import { createDialogMount } from '../../../../ui/legacy/view/mounts/dialog.js';
+import { createScreenRenderer } from '../../../../ui/legacy/view/render-screen.js';
+import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
+import { stackOf } from '../../../../ui/legacy/view/modal-stack.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './helpers.js';
 
 const observers = new Set();

@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { createSettings } from '../../../../../core/sdk.js';
-import { renderSettingsForm } from '../../../src/v2/view/form/index.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { createSettings } from '../../../core/sdk.js';
+import { renderSettingsForm } from '../../../ui/legacy/view/form/index.js';
 
 const doc = installFakeDom();
 const EVIL = '<img src=x onerror=alert(1)>"\'><svg onload=alert(1)>';
@@ -72,7 +72,7 @@ test('hostile names and values are drawn as text only: no markup, no data-picked
 });
 
 test('no innerHTML, outerHTML, insertAdjacentHTML, document.write or eval in the form engine\'s sources', () => {
-    const dir = new URL('../../../src/v2/view/form/', import.meta.url);
+    const dir = new URL('../../../ui/legacy/view/form/', import.meta.url);
     const files = readdirSync(dir).filter(file => file.endsWith('.js'));
     assert.ok(files.length >= 4);
     for (const file of files) {

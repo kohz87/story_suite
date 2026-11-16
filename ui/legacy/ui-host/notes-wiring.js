@@ -1,7 +1,7 @@
 // Story Block v2's page furniture: the notes under replies, moved out of mountUi unchanged: Re-read when the runtime offers one, and whether the extractor is on
 // or failed for a reply. `createNotesWiring(deps)` is given the runtime parts it reads and the mounts (a note's change redraws the changes card).
 import { createReplyNotes } from '../reply-notes.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 
 export function createNotesWiring({ runtime, ctx, doc, sdk, events, getMounts, onForget }) {
     const rereadFn = typeof sdk.reread === 'function' ? index => sdk.reread(index)

@@ -2,7 +2,7 @@
 // The list is the file's export list from before the split (30 names): each must still be there, of the same kind.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as facade from '../../../src/v2/host-ui.js';
+import * as facade from '../../../ui/legacy/host-ui.js';
 
 const EXPORTS = {
     DIAGNOSTICS_FOLD: 'string',

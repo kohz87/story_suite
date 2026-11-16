@@ -1,7 +1,7 @@
 // The Inventory screen's Grid view widget: tiles, folding categories, Worn per wearer and the item sheet.
 
-import { KIND_ORDER } from '../../domains/inventory.js';
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { KIND_ORDER } from '../../../../packages/story-block/src/v2/domains/inventory.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
 import { categorySection, foldSection, foldStore, itemSheet, wornSection } from '../inventory-grid.js';
 import { h, shell } from '../../view/widgets/dom.js';
 import { editable } from '../../view/widgets/editable.js';

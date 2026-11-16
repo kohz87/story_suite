@@ -5,12 +5,12 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { faClasses, propProblems, resolveProps, safeImageUrl, standardWidgets, unfoldValue, widgetCss } from '../../../../src/v2/view/widgets/index.js';
-import { iconNode, initials } from '../../../../src/v2/view/widgets/dom.js';
+import { faClasses, propProblems, resolveProps, safeImageUrl, standardWidgets, unfoldValue, widgetCss } from '../../../../ui/legacy/view/widgets/index.js';
+import { iconNode, initials } from '../../../../ui/legacy/view/widgets/dom.js';
 import { fakeApi, host, installDom } from './fake-dom.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const SOURCES = join(here, '../../../../src/v2/view/widgets');
+const SOURCES = join(here, '../../../../ui/legacy/view/widgets');
 
 // One realistic props object per widget.
 export const SAMPLES = {

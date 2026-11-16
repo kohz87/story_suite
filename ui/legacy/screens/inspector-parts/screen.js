@@ -1,7 +1,7 @@
 // The Inspector's screen definition: its ids, feature, template, scoped CSS and the screen data.
 
-import { STRINGS } from '../../../../../../core/strings.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
+import { STRINGS } from '../../../../core/strings.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
 import { BASE_CSS } from '../style.js';
 
 const S = STRINGS.inspector;

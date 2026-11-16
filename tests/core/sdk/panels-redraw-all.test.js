@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPanels } from '../../../core/sdk/panels.js';
-import { wireRedraw } from '../../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
+import { wireRedraw } from '../../../ui/legacy/ui-host/redraw-wiring.js';
 
 function bound(flag = { on: true }) {
     const frames = [];

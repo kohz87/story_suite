@@ -7,7 +7,7 @@
 // Continue and the rebuild read the same.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const coin = host => host.sdk.query('inventory.wallet', { owner: 'party' }).coin ?? 0;
 

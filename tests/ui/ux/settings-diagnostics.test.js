@@ -3,16 +3,16 @@
 // report never holds.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { createRegistry } from '../../../../../core/registry.js';
-import { createSettings } from '../../../../../core/sdk.js';
-import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { packsFor } from '../../../../../core/runtime.js';
-import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, EVENTS_FOLD } from '../../../src/v2/host-ui.js';
-import { EVENTS_NOTE } from '../../../../../modules/world/events/index.js';
-import { REMOVED, buildReport } from '../../../../../core/diagnostics.js';
-import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createSettings } from '../../../core/sdk.js';
+import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { packsFor } from '../../../core/runtime.js';
+import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, EVENTS_FOLD } from '../../../ui/legacy/host-ui.js';
+import { EVENTS_NOTE } from '../../../modules/world/events/index.js';
+import { REMOVED, buildReport } from '../../../core/diagnostics.js';
+import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 // A module whose settings are placed in Diagnostics (debug information), with a panel and a field.

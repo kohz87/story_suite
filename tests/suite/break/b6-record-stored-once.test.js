@@ -7,7 +7,7 @@
 // Drop into Story_block/tests/v2/break/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 test('an older reply stores its story record once in the saved chat', async () => {
     const host = await createHost({ st: { greeting: 'The quay.' } });

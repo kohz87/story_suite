@@ -5,10 +5,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { SAVEPOINT_LIMITS, STILL_WAITING_MS, createSavePoints, stCreateBranch } from '../../core/timeline/rewind.js';
-import { createSavePointsWidget, savedAt } from '../../packages/story-block/src/v2/screens/savepoints.js';
-import { homeScreen } from '../../packages/story-block/src/v2/screens/home.js';
+import { createSavePointsWidget, savedAt } from '../../ui/legacy/screens/savepoints.js';
+import { homeScreen } from '../../ui/legacy/screens/home.js';
 import { CORE_FEATURES } from '../../packages/story-block/src/v2/domains/index.js';
-import { host as widgetHost, installDom } from '../../packages/story-block/tests/v2/view/widgets/fake-dom.js';
+import { host as widgetHost, installDom } from '../ui/view/widgets/fake-dom.js';
 
 const clone = value => structuredClone(value);
 const NOW = Date.UTC(2026, 9, 21, 18, 30);

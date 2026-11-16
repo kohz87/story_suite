@@ -19,7 +19,7 @@ function watch({ before = null, now = null, doc = docWith([]) } = {}) {
 }
 
 test('v1\'s signs are the ones its entry file makes (a frozen excerpt of it), and v2 makes none of them', () => {
-    const v1 = read('packages/story-block/tests/v2/fixtures/v1-index-excerpt.txt');
+    const v1 = read('tests/core/fixtures/v1-index-excerpt.txt');
     assert.match(v1, /globalThis\.StoryBlock = Object\.freeze\(\{\s*version: VERSION,\s*apiVersion: 1,/);
     for (const name of ['listBlocks', 'getBlock', 'registerBlock']) assert.match(v1, new RegExp(`\\b${name}\\b`));
     for (const id of ['story_block_rescan', 'story_block_display', 'story_block_money']) assert.ok(v1.includes(`id="${id}"`), id);

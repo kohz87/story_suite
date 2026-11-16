@@ -1,8 +1,8 @@
 // Paints the Prompt card's size block: the sums, the meter, the per-module table, then "Show what's sent".
 
 import { SETTINGS_TEXT } from '../../../host-ui.js';
-import { contextNotice } from '../../../../../../../core/prompt.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { contextNotice } from '../../../../../core/prompt.js';
+import { fill } from '../../../../../core/strings.js';
 import { el, num } from './shared-dom.js';
 import { sentFold } from './sent.js';
 

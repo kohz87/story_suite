@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { clone, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { clone, reload } from './helpers/timeline.js';
 
 function owner() {
     return { id: 'guard-diagnostic', name: 'Guard diagnostic fixture', version: '1.0.0',

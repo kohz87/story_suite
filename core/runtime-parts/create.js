@@ -11,9 +11,9 @@ import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, p
 import { readRecord } from '../persist.js';
 import { createRegistry } from '../registry.js';
 import { MAX_CHANGE_LINES, announceModules, createEvents, createSdk, createSettings, runQuery } from '../sdk.js';
-import { displayLines } from '../../packages/story-block/src/v2/extras.js';
-import { DEFAULT_HIDDEN } from '../../packages/story-block/src/v2/view/screens.js';
-import { SCENE_SCREEN_ID } from '../../packages/story-block/src/v2/screens/scene.js';
+import { displayLines } from '../../ui/legacy/extras.js';
+import { DEFAULT_HIDDEN } from '../../ui/legacy/view/screens.js';
+import { SCENE_SCREEN_ID } from '../../ui/legacy/screens/scene.js';
 import { createRewind } from '../timeline/rewind.js';
 import { createTimeline, withRuleOverlay } from '../timeline/index.js';
 import { createStore as realStore } from '../store.js';

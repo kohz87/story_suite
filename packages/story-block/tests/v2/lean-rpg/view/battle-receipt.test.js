@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cueOfResult } from '../../../../src/v2/lean-rpg/cue.js';
 import { buildReceipt } from '../../../../src/v2/lean-rpg/view/battle-log/receipt.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 
 const result = () => ({
     v: 1, key: '1-receipt', pace: 'normal', stop: 'won', flow: 2, fix: 2, checks: [], refused: [],

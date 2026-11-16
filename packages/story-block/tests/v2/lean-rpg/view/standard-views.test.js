@@ -231,7 +231,7 @@ test('Create under Standard writes the stats and full bars as the new blocks\' d
 
 // ---- Spend points and the Skills view ----------------------------------------------------------------------------------------
 
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { renderDistribute } from '../../../../src/v2/lean-rpg/view/distribute.js';
 import { renderSkills, rollOf } from '../../../../src/v2/lean-rpg/view/skills.js';
 import { readParty } from '../../../../src/v2/lean-rpg/view/party-data.js';

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { core, stocked } from '../domains/fixtures.js';
-import { createHarness } from '../domains/helpers/fake-ctx.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { core, stocked } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
 
 test('reader scene actions mark edits; system scene actions retain their old receipts', () => {
     const module = core();
@@ -44,7 +44,7 @@ test('scene edits rebuild, reload and disappear on a swipe', async t => {
 });
 
 test('scene pencils send a place, the weather and a list of people', async () => {
-    const { sceneScreen } = await import('../../../src/v2/screens/scene.js');
+    const { sceneScreen } = await import('../../../ui/legacy/screens/scene.js');
     const { queries, sceneState, show, settle } = await import('../screens/helpers.js');
     const module = core();
     const state = sceneState(module);

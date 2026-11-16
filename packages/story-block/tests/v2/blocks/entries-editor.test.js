@@ -9,7 +9,7 @@ import { layoutShape, cardRoles } from '../../../src/v2/data-modules/block-layou
 import { createBlockTemplates, exportBlockPack } from '../../../src/v2/data-modules/block-templates.js';
 import { validatePack } from '../../../src/v2/packs/validate.js';
 import { STRINGS } from '../../../../../core/strings.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 
 const S = STRINGS.blocks;
 const newDraft = () => ({ name: '', fields: [], functions: [], prompt: '', show: { tab: true, card: false, tabName: '', icon: 'ph-bookmark-simple' } });
@@ -302,7 +302,7 @@ test('layoutShape names the right suggestion for each shape', () => {
 
 // --- the whole host: define, story lines, redefine, the tab as plain rows, Show as ---
 import { createHost } from '../../../testkit/index.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
+import { mountUi } from '../../../../../ui/legacy/ui-host.js';
 import { dataModuleDefaults, validateDataMigration, validateDataModules } from '../../../src/v2/data-modules/check.js';
 
 async function hostWith(t, draft = starter('quest-log').draft()) {

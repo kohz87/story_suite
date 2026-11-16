@@ -16,10 +16,10 @@
 // Since #76 wallet.receive is refused from a button, so the reader's action here is scene.present.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { createStore } from '../../../../../core/store.js';
-import { IDLE_MS, readRecord } from '../../../../../core/persist.js';
-import { serveChats } from '../helpers/st-server.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createStore } from '../../../core/store.js';
+import { IDLE_MS, readRecord } from '../../../core/persist.js';
+import { serveChats } from '../../core/helpers/st-server.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const settled = async (n = 4) => { for (let i = 0; i < n; i++) await settle(); };

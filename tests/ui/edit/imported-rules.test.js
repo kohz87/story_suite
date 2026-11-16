@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { definition, directorStub, pack, pin, reply, view, world, reload } from '../data-modules/helpers.js';
+import { definition, directorStub, pack, pin, reply, view, world, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 for (const mode of ['prefix', 'recorded']) test(`field edits witness ${mode} inputs used by rules`, async t => {
     const d = definition();

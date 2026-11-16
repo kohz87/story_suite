@@ -1,8 +1,8 @@
 // Draws a state value as a folding tree (hits, search, lazy opening) for the Inspector.
 
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
 import { pointer, preview } from '../../inspect.js';
-import { cutAt } from '../../../../../../core/text.js';
+import { cutAt } from '../../../../core/text.js';
 import { el } from './shared-dom.js';
 
 const S = STRINGS.inspector;

@@ -5,10 +5,10 @@
 // a dead control. It should be hidden there, or shown off and disabled with the reason.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { setupDom } from '../view/mounts/helpers.js';
-import { renderSettingsHost } from '../../../src/v2/host-ui.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { renderSettingsHost } from '../../../ui/legacy/host-ui.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 
 test('without a module that keeps checks, the pre-roll switch is not a live control', async () => {
     const doc = setupDom();

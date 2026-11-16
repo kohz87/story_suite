@@ -1,6 +1,6 @@
 // Hero editor: the shared limits and the one-line text cutter.
 
-import { cutAt } from '../../../../../../core/text.js';
+import { cutAt } from '../../../../core/text.js';
 
 export const short = (value, max) => cutAt(String(value ?? '').replace(/\s+/g, ' ').trim(), max);
 

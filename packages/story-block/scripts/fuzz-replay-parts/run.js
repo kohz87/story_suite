@@ -9,8 +9,8 @@ const imp = p => import(pathToFileURL(`${SB}/${p}`).href);
 const { createStore } = await imp('../../core/store.js');
 const { createCommandBus } = await imp('../../core/commands.js');
 const { createRegistry } = await imp('../../core/registry.js');
-const { guarded, Q1, Q2, Q5, Q9 } = await imp('tests/v2/helpers/guarded.js');
-const { greeting } = await imp('tests/v2/helpers/store-chat.js');
+const { guarded, Q1, Q2, Q5, Q9 } = await imp('../../tests/core/helpers/guarded.js');
+const { greeting } = await imp('../../tests/core/helpers/store-chat.js');
 const { isMetaSpan } = await imp('../../core/replay.js');
 
 const [seedArg, stepsArg, ckArg] = process.argv.slice(2);

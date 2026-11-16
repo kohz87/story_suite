@@ -15,9 +15,9 @@ import { earnedLegend, wearGear } from '../../../../src/v2/lean-rpg/gear.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { prepareStandard, rollStandard } from '../../../../src/v2/lean-rpg/standard.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { buildPanel, panelModel, readResolve, resolveOf } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { character, levelFoeBlock, rollReceipt, setup, sheetDomain, skillBlock, tailOf } from '../helpers.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

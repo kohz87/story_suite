@@ -3,12 +3,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ICON_SET } from '../../../src/v2/view/icons/set.js';
-import { TAB_ICONS, hasIcon, iconFor, svgIcon, tabIcon } from '../../../src/v2/view/icons/index.js';
-import { SVG_NS, iconNode } from '../../../src/v2/view/widgets/dom.js';
-import { icon } from '../../../src/v2/view/mounts/common.js';
-import { sourceOf } from '../../../../../tests/helpers/split-source.js';
-import { SUITE_NAV, HOME_ID } from '../../../src/v2/view/screens.js';
+import { ICON_SET } from '../../../ui/legacy/view/icons/set.js';
+import { TAB_ICONS, hasIcon, iconFor, svgIcon, tabIcon } from '../../../ui/legacy/view/icons/index.js';
+import { SVG_NS, iconNode } from '../../../ui/legacy/view/widgets/dom.js';
+import { icon } from '../../../ui/legacy/view/mounts/common.js';
+import { sourceOf } from '../../helpers/split-source.js';
+import { SUITE_NAV, HOME_ID } from '../../../ui/legacy/view/screens.js';
 import { installDom } from './widgets/fake-dom.js';
 
 const readRepo = rel => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8');

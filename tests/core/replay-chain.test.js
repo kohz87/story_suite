@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { isMetaSpan } from '../../core/replay.js';
-import { EPOCH, Q1, claimKey, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
+import { EPOCH, Q1, claimKey, guarded, harness } from './helpers/guarded.js';
 
 const SMALL = { checkpointEvery: 3, checkpointBytes: 1 << 30 };
 

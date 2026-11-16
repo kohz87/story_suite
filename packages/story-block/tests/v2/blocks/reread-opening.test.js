@@ -6,8 +6,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { createReplyNotes } from '../../../src/v2/reply-notes.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { createReplyNotes } from '../../../../../ui/legacy/reply-notes.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 
 test('a Re-read of the opening reply, from its note, keeps the blocks the reader made on it: live, after a reload and after a later reply', async t => {
     const host = await createHost({ settings: { features: { 'story-block.rpg': true }, modules: { 'story-block': { rpgJoin: 'auto', rpgFormula: 'classic' } } } });

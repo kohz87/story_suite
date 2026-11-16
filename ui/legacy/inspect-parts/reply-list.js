@@ -1,7 +1,7 @@
 // The list of replies that keep the story, newest first, for the inspector's picker.
 
-import { carrierIndexes, readRecord } from '../../../../../core/persist.js';
-import { cutAt, oneLine } from '../../../../../core/text.js';
+import { carrierIndexes, readRecord } from '../../../core/persist.js';
+import { cutAt, oneLine } from '../../../core/text.js';
 import { LIMITS } from './shared.js';
 
 /**

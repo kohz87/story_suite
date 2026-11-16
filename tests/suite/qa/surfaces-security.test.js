@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { sourceOf } from '../../../../../tests/helpers/split-source.js';
+import { sourceOf } from '../../helpers/split-source.js';
 
 const FILES = [
     'host-ui.js', 'ui-host.js', 'extras-ui.js', 'reply-notes.js', 'screens/changes-card.js',
@@ -32,11 +32,11 @@ test('the tab strip built from a hostile title: the title is text, and the strip
 });
 
 test('the Choices option of hostile text is a button with that text, never an element', async t => {
-    const { createHost } = await import('../../../testkit/index.js');
-    const { setupDom } = await import('../view/mounts/helpers.js');
-    const { mountUi } = await import('../../../src/v2/ui-host.js');
-    const { makeMessage } = await import('../../../../../tests/helpers/ui-fake-dom.js');
-    const { CHOICES_FEATURE } = await import('../../../src/v2/extras.js');
+    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+    const { setupDom } = await import('../../ui/view/mounts/helpers.js');
+    const { mountUi } = await import('../../../ui/legacy/ui-host.js');
+    const { makeMessage } = await import('../../helpers/ui-fake-dom.js');
+    const { CHOICES_FEATURE } = await import('../../../ui/legacy/extras.js');
     t.mock.method(console, 'warn', () => {});
     const doc = setupDom();
     const box = doc.createElement('textarea');

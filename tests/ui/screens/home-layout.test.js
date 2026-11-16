@@ -2,7 +2,7 @@
 // (UI stage 5a, view/game-header.js), so Home has no hero rule. A quest's status tag wraps and never leaves its card.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { homeScreen } from '../../../src/v2/screens/home.js';
+import { homeScreen } from '../../../ui/legacy/screens/home.js';
 import { core, queries, recordingWidgets, renderSkip, show, stocked, text } from './helpers.js';
 
 const css = homeScreen.css;

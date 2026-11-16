@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { rulesModule, restore } from '../helpers/timeline.js';
+import { rulesModule, restore } from '../../../../../tests/core/helpers/timeline.js';
 import { fixture, reply, success, pin, view } from './helpers.js';
 
 const GAIN = '+ dm reputation — help | kind: gain | faction: guild';

@@ -4,8 +4,8 @@
 // block holds is what its stored payload plays again. A failing seed replays exactly (QA_IA_SEED=n).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../../../core/persist.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../../core/persist.js';
 import { prng, seedCrypto } from './helpers/seeded.js';
 import { interactionOp } from './helpers/state-fuzz-gen.js';
 import { GO, IA_KIND, WAIT, activeSettles, box, iaApi, iaModule, playSegment, setText, withLines } from './helpers/probe-interaction.js';

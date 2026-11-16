@@ -1,7 +1,7 @@
 // The template renderer's text, if and each blocks: each keeps its DOM nodes and updates only what changed.
 // makeBlock/itemBlock choose the block for a compiled node; elements.js uses makeBlock for element children.
 
-import { escapeKey } from '../../../../../../../core/ops.js';
+import { escapeKey } from '../../../../../core/ops.js';
 import { evalExpr, interpolate, pointerOf, withItem } from '../../bind.js';
 import { call } from './dom.js';
 import { ElementBlock } from './elements.js';

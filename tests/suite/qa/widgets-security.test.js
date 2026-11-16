@@ -5,8 +5,8 @@
 // outerHTML / insertAdjacentHTML and records every attribute.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Element, fakeApi, host, installDom } from '../view/widgets/fake-dom.js';
-import { standardWidgets } from '../../../src/v2/view/widgets/index.js';
+import { Element, fakeApi, host, installDom } from '../../ui/view/widgets/fake-dom.js';
+import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
 
 const forbid = name => function () { throw new Error(`markup was parsed: ${name}`); };
 Object.defineProperty(Element.prototype, 'outerHTML', { configurable: true, get: forbid('outerHTML'), set: forbid('outerHTML') });

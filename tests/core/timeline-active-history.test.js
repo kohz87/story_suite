@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { withAssist } from '../../core/capture.js';
 import { ACTIVE_READERS, createTimeline } from '../../core/timeline/index.js';
-import { rulesModule, restore, clone, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { rulesModule, restore, clone, reload } from './helpers/timeline.js';
 import { sourceOf } from '../helpers/split-source.js';
 
 const ALPHA = 'SECRET-ALPHA-the-vault-is-under-the-mill';

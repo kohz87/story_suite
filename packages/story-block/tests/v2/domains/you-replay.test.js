@@ -5,10 +5,10 @@ import { readFileSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
 import { validatePack } from '../../../src/v2/packs/validate.js';
 import { YOU_CHARS, YOU_FEATURE, validateScene } from '../../../src/v2/domains/scene.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { gameHeroProps } from '../../../src/v2/view/game-header.js';
-import { checkInvariants } from '../qa/helpers/oracle.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { mountUi } from '../../../../../ui/legacy/ui-host.js';
+import { gameHeroProps } from '../../../../../ui/legacy/view/game-header.js';
+import { checkInvariants } from '../../../../../tests/suite/qa/helpers/oracle.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { NONE, block, fresh, lastIndex, look, rankPack, settle, staticText, tailText } from './you.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

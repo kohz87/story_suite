@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createHost } from "../../../testkit/index.js";
+import { createHost } from "../../../packages/story-block/testkit/index.js";
 import { setupDom } from "../view/mounts/helpers.js";
-import { FEATURES_FOLD, HOST_FOLD, PACKS_FOLD, SENT_FOLD, TABS_FOLD, VERSIONS_FOLD, SUB_FOLD, featuresFoldOf } from "../../../src/v2/host-ui.js";
-import { FORM_TEXT } from "../../../src/v2/view/form/schema.js";
-import { PROMPT_FOLD } from "../../../src/v2/view/settings/prompt.js";
-import { LOOK_KEYS } from "../../../src/v2/view/settings/sections.js";
-import { openSettingsWindow } from "../../../src/v2/view/settings/window.js";
+import { FEATURES_FOLD, HOST_FOLD, PACKS_FOLD, SENT_FOLD, TABS_FOLD, VERSIONS_FOLD, SUB_FOLD, featuresFoldOf } from "../../../ui/legacy/host-ui.js";
+import { FORM_TEXT } from "../../../ui/legacy/view/form/schema.js";
+import { PROMPT_FOLD } from "../../../ui/legacy/view/settings/prompt.js";
+import { LOOK_KEYS } from "../../../ui/legacy/view/settings/sections.js";
+import { openSettingsWindow } from "../../../ui/legacy/view/settings/window.js";
 import { cardOf, foldAt, loot, open, page, railItems, rpg, search, shownPages, status, tabsControl, texts } from "./settings-window.helpers.js";
 
 // ---- Look and Features (step 3b)
@@ -122,7 +122,7 @@ test('Features: searched with the rest; a feature found by its description or it
 
 // ---- a phone must not be scrolled around the window (hotfix): only the page scroller moves, nothing else is asked to
 test('jumping to a fold scrolls nothing but the page: no scrollIntoView anywhere, every programmatic focus is preventScroll', async () => {
-    const { FakeElement } = await import('../../../../../tests/helpers/ui-fake-dom.js');
+    const { FakeElement } = await import('../../helpers/ui-fake-dom.js');
     const scrolled = [];
     const focused = [];
     const proto = FakeElement.prototype;

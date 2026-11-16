@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { GO, box, iaApi, iaChain, iaModule } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { GO, box, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 
 test('a reload keeps the staged session and gives the same story state', async () => {
     const host = await createHost({ modules: [iaModule()] });

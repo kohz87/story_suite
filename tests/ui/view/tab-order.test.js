@@ -2,12 +2,12 @@
 // and scroll-cue.js bringIntoView (the chosen tab kept in view on a phone).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HOME_ID } from '../../../src/v2/view/screens.js';
+import { HOME_ID } from '../../../ui/legacy/view/screens.js';
 import {
     TAB_ID_MAX, TAB_LIST_MAX, createTabOrderStore, isDefaultChoice, isHiddenNav, moveNav, navKey, orderNav, readTabChoice,
     setNavHidden, visibleNav,
-} from '../../../src/v2/view/tab-order.js';
-import { bringIntoView } from '../../../src/v2/view/scroll-cue.js';
+} from '../../../ui/legacy/view/tab-order.js';
+import { bringIntoView } from '../../../ui/legacy/view/scroll-cue.js';
 
 const entries = ids => ids.map(id => ({ id }));
 const ids = list => list.map(entry => entry.id);

@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { boardSession, openBoard, reconcileBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, skillBlock } from '../helpers.js';
 
 const FIGHT = {

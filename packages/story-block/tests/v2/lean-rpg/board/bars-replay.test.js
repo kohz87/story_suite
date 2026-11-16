@@ -10,7 +10,7 @@ import { runAuto } from '../../../../src/v2/lean-rpg/board/auto-run.js';
 import { readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
 import { pendingStart } from '../../../../../../core/turn/fight-start.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { prng, seedCrypto } from '../../qa/helpers/seeded.js';
+import { prng, seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { clearFoes } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { character, levelFoeBlock, rollReceipt, setup, sheetDomain, skillBlock } from '../helpers.js';
 

@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { inventoryScreen } from '../../../src/v2/screens/inventory.js';
-import { homeScreen } from '../../../src/v2/screens/home.js';
-import { core, stocked, stack as makeStack } from '../domains/fixtures.js';
-import { createHarness } from '../domains/helpers/fake-ctx.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { inventoryScreen } from '../../../ui/legacy/screens/inventory.js';
+import { homeScreen } from '../../../ui/legacy/screens/home.js';
+import { core, stocked, stack as makeStack } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
 import { queries, show, settle, text } from '../screens/helpers.js';
 
 test('the single item form validates, cancels and saves only changed fields', async () => {

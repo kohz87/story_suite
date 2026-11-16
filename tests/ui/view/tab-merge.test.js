@@ -1,7 +1,7 @@
 // Screens that name one `tab` are one tab, each a section of it (view/tab-merge.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeTabs, MERGED_PREFIX } from '../../../src/v2/view/tab-merge.js';
+import { mergeTabs, MERGED_PREFIX } from '../../../ui/legacy/view/tab-merge.js';
 
 const text = value => ({ type: 'text', value });
 const screen = (id, extra = {}) => ({ id, title: id.toUpperCase(), icon: 'fa-flag', mounts: ['tab', 'card'], layout: { root: text(id) }, pack: `dm:${id}`, ...extra });

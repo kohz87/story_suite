@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { setupDom } from "../view/mounts/helpers.js";
-import { SETTINGS_TEXT } from "../../../src/v2/host-ui.js";
-import { FORM_TEXT } from "../../../src/v2/view/form/schema.js";
-import { SECTION_BODIES, createLegacySettings } from "../../../src/v2/view/settings/bodies.js";
-import { filterPane } from "../../../src/v2/view/settings/search.js";
-import { SECTION_IDS, WINDOW_TEXT } from "../../../src/v2/view/settings/sections.js";
+import { SETTINGS_TEXT } from "../../../ui/legacy/host-ui.js";
+import { FORM_TEXT } from "../../../ui/legacy/view/form/schema.js";
+import { SECTION_BODIES, createLegacySettings } from "../../../ui/legacy/view/settings/bodies.js";
+import { filterPane } from "../../../ui/legacy/view/settings/search.js";
+import { SECTION_IDS, WINDOW_TEXT } from "../../../ui/legacy/view/settings/sections.js";
 import { cardOf, open, page, railItems, search, shownPages, status, texts } from "./settings-window.helpers.js";
 
 // ---- search

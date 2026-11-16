@@ -4,7 +4,7 @@
 // Every pack-written string (names, authors, problems) goes in through textContent.
 // The panel only renders and calls `packs` (installed.js); it holds no rules of its own.
 
-import { button, el, plural } from '../../ui/dom.js';
+import { button, el, plural } from '../../../../../ui/legacy/ui/dom.js';
 import { LIMITS, ZIP_LIMITS } from './limits.js';
 import { isZipFile, readPackZip } from './bundle.js';
 

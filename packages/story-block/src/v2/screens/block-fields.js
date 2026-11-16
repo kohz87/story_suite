@@ -1,10 +1,10 @@
 // The widgets a data module's screen layout can name to show its own fields as a block does (data-modules/fields-widget.js says how they are asked for):
 //   story-block.fields   a map of numbers or a record card of the module's fields (the module's name, or `title`, is the header);
 //   story-block.heading  a section header (`title`), used where several screens share one tab (view/tab-merge.js).
-import { h, shell } from '../view/widgets/dom.js';
+import { h, shell } from '../../../../../ui/legacy/view/widgets/dom.js';
 import { FIELDS_WIDGET, HEADING_WIDGET } from '../data-modules/fields-widget.js';
 import { drawNumberMap, drawRecordCard, numberRows } from './block-layouts.js';
-import { humanize } from '../view/widgets/dom.js';
+import { humanize } from '../../../../../ui/legacy/view/widgets/dom.js';
 import { dmOwn } from '../data-modules/schema.js';
 
 const ask = (api, name, args) => { try { return api?.query?.(name, args); } catch { return null; } };

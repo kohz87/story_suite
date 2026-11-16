@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { checkInvariants, rebuildAt } from './helpers/oracle.js';
 import { firstDifference } from './helpers/replay-diagnostics.js';
 import { fuzz } from './helpers/state-fuzz-run.js';

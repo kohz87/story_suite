@@ -1,7 +1,7 @@
 // Draws a list of records as compact cards (open ones first, finished ones folded) and gives a status value its tone.
-import { h, iconNode } from '../../view/widgets/dom.js';
+import { h, iconNode } from '../../../../../../ui/legacy/view/widgets/dom.js';
 import { defaultTone } from '../../data-modules/block-builder.js';
-import { ensureLayoutStyles } from '../../layout/styles.js';
+import { ensureLayoutStyles } from '../../../../../../ui/legacy/layout/styles.js';
 import { fill } from '../../../../../../core/strings.js';
 import { V, chip, pencilFor } from './shared-chrome.js';
 

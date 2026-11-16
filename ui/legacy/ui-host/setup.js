@@ -1,22 +1,22 @@
 // Story Suite v2: build the host's widgets, renderer and screen registry.
 // Shared choices and callbacks stay live while the page furniture is mounted.
 
-import { formatAmount } from '../domains/money.js';
-import { mountQuery } from '../../../../../core/sdk.js';
+import { formatAmount } from '../../../packages/story-block/src/v2/domains/money.js';
+import { mountQuery } from '../../../core/sdk.js';
 import { createScreenRenderer } from '../view/render-screen.js';
 import { formatStoryTime, storyCalendar } from '../view/clock.js';
 import { createScreens } from '../view/screens.js';
 import { createTabOrderStore, navKey, orderNav } from '../view/tab-order.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { createBlockTemplates } from '../data-modules/block-templates.js';
-import { createBlockWidgets } from '../screens/blocks.js';
-import { createFieldsWidgets } from '../screens/block-fields.js';
-import { renderBlockPreview } from '../screens/block-layouts.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { createBlockTemplates } from '../../../packages/story-block/src/v2/data-modules/block-templates.js';
+import { createBlockWidgets } from '../../../packages/story-block/src/v2/screens/blocks.js';
+import { createFieldsWidgets } from '../../../packages/story-block/src/v2/screens/block-fields.js';
+import { renderBlockPreview } from '../../../packages/story-block/src/v2/screens/block-layouts.js';
 import { createInspectorSource } from '../inspect.js';
-import { createSavePoints } from '../../../../../core/timeline/rewind.js';
+import { createSavePoints } from '../../../core/timeline/rewind.js';
 import { createInspectorWidget, INSPECTOR_WIDGET } from '../screens/inspector.js';
 import { createSavePointsWidget, SAVEPOINTS_WIDGET } from '../screens/savepoints.js';
-import { replyNumberAt } from '../../../../../core/timeline/coordinator-rebuild.js';
+import { replyNumberAt } from '../../../core/timeline/coordinator-rebuild.js';
 import { createRebuildBannerWidget, REBUILD_BANNER_WIDGET } from '../screens/rebuild-banner.js';
 import { createReadyHintWidget, READY_HINT_WIDGET } from '../screens/ready-hint.js';
 import { RPG_START_WIDGET } from '../screens/home.js';

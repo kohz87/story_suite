@@ -2,8 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRegistry } from '../../core/registry.js';
-import { OPEN_CLASS, createTabHost, emptyValue, readInt, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
-import { openSettingsWindow as openSettingsOverlay } from '../../packages/story-block/src/v2/view/settings/window.js';
+import { OPEN_CLASS, createTabHost, emptyValue, readInt, renderSettingsHost } from '../../ui/legacy/host-ui.js';
+import { openSettingsWindow as openSettingsOverlay } from '../../ui/legacy/view/settings/window.js';
 import { change, doc, foldAt, row, rpg, setup } from './host-ui.helpers.js';
 
 test('a fold per module with settings, after the host\'s own; fields render with their stored values', () => {

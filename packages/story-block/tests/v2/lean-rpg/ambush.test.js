@@ -11,7 +11,7 @@ import { carriedFrom, dropOf } from '../../../src/v2/lean-rpg/ambush.js';
 import { cueOfResult } from '../../../src/v2/lean-rpg/cue.js';
 import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
 import { buildPanel, panelModel, readResolve } from '../../../src/v2/lean-rpg/view/battle-log.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { PARTY, character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock } from './helpers.js';
 
 const available = await hostAvailable();

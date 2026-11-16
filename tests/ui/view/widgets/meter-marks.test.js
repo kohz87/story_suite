@@ -2,7 +2,7 @@
 // critical bands. Each is left out when not given or outside the range, and the spoken value names it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { deltaText, meter, meterStage, meterTicks, meterWarning } from '../../../../src/v2/view/widgets/meter.js';
+import { deltaText, meter, meterStage, meterTicks, meterWarning } from '../../../../ui/legacy/view/widgets/meter.js';
 import { fakeApi, host, installDom } from './fake-dom.js';
 
 function mount(props) {

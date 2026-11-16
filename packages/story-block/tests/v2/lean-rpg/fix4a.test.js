@@ -13,7 +13,7 @@ import { activeDefinition } from '../../../src/v2/data-modules/adapters.js';
 import { createCoreModule } from '../../../src/v2/domains/index.js';
 import { readParty, stageMax } from '../../../src/v2/lean-rpg/view/party-data.js';
 import { createPartyWidget } from '../../../src/v2/lean-rpg/view/party.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { characterDefinition, fakeState, roleOf } from './view/helpers.js';
 import { reload, rebuilt, reply, success, view } from '../data-modules/helpers.js';
 

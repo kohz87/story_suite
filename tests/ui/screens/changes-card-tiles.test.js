@@ -2,7 +2,7 @@
 // with the die in a tile, the story-against-dice note only when they disagree, and the lines a module gives as tiles too.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { changesCardScreen, replyCardLines } from '../../../src/v2/screens/index.js';
+import { changesCardScreen, replyCardLines } from '../../../ui/legacy/screens/index.js';
 import { core, queries, sceneState, show, stocked, text } from './helpers.js';
 
 const lines = (answer, moduleId = 'rpg-battle') => replyCardLines([{ moduleId, fn: () => answer }], {});
@@ -70,7 +70,7 @@ const contrast = (a, b) => {
 };
 
 test('the card\'s text tones meet 4.5:1 on each scheme\'s solid surface', async () => {
-    const { PALETTES } = await import('../../../src/v2/view/theme.js');
+    const { PALETTES } = await import('../../../ui/legacy/view/theme.js');
     for (const scheme of ['dark', 'light']) {
         const p = PALETTES[scheme];
         for (const tone of ['text', 'muted', 'good', 'bad', 'warn', 'info']) {

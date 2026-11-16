@@ -8,10 +8,10 @@ import { readFileSync } from 'node:fs';
 import {
     ACCENT, DEFAULT_GLASS, FONT_STACKS, GLASS_MAX, GLASS_MIN, PALETTES, PANEL_STYLES, ROOT_SELECTOR, THEME_ROOTS, createThemeBridge, decideScheme, glassAlphas,
     luminance, parseColor, schemeTokens, TEXT_SIZES, textSizeOf, themeChoice, themeCss, themeTokens,
-} from '../../../src/v2/view/theme.js';
-import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA, createSettings } from '../../../../../core/sdk.js';
+} from '../../../ui/legacy/view/theme.js';
+import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA, createSettings } from '../../../core/sdk.js';
 import { installDom } from './widgets/fake-dom.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const REQUIRED = [
     '--ss-glass', '--ss-glass-strong', '--ss-tile', '--ss-border', '--ss-shadow', '--ss-text', '--ss-muted', '--ss-track',
@@ -307,7 +307,7 @@ test('Text size: Normal adds nothing (the same bytes as before the setting); 110
     assert.deepEqual([p.snapshot(p.doc.documentElement), p.snapshot(p.doc.body)], touched, 'no attribute or style on SillyTavern\'s elements, at any size');
     bridge.destroy();
     // size.css's own default is 0.8, which the rule is relative to (110% of it, 120% of it).
-    const sizeCss = readFileSync(new URL('../../../src/v2/view/size.css', import.meta.url), 'utf8');
+    const sizeCss = readFileSync(new URL('../../../ui/legacy/view/size.css', import.meta.url), 'utf8');
     assert.match(sizeCss, /:root \{\s*--ss-zoom: 0\.8;/);
     assert.equal(TEXT_SIZES['110'], Math.round(0.8 * 1.1 * 100) / 100);
     assert.equal(TEXT_SIZES['120'], Math.round(0.8 * 1.2 * 100) / 100);
@@ -364,7 +364,7 @@ const ratioOf = (a, b) => {
 };
 
 test('warning and error text tokens are readable on each scheme (>= 4.5:1), defined for dark, light, Glass, Solid and Follow SillyTavern', async () => {
-    const { PALETTES, themeTokens } = await import('../../../src/v2/view/theme.js');
+    const { PALETTES, themeTokens } = await import('../../../ui/legacy/view/theme.js');
     for (const scheme of ['dark', 'light']) {
         const p = PALETTES[scheme];
         assert.ok(ratioOf(p.badText, p.solid) >= 4.5, `${scheme} bad text ${p.badText} on ${p.solid}: ${ratioOf(p.badText, p.solid).toFixed(2)}`);
@@ -384,7 +384,7 @@ test('warning and error text tokens are readable on each scheme (>= 4.5:1), defi
 // The settings window's help lines (the field, card and feature help, the Diagnostics credit) have a tone of their own that reads
 // over a busy background: at least 4.5:1 against the scheme's solid surface and the light tint, and the rule for them is scoped to the window.
 test('the settings window\'s help tone reads (>= 4.5:1) on each scheme\'s surface, and the rule for it is scoped to the window', async () => {
-    const { PALETTES, themeTokens } = await import('../../../src/v2/view/theme.js');
+    const { PALETTES, themeTokens } = await import('../../../ui/legacy/view/theme.js');
     assert.ok(ratioOf(PALETTES.dark.help, PALETTES.dark.solid) >= 4.5, 'dark help');
     assert.ok(ratioOf(PALETTES.light.help, PALETTES.light.solid) >= 4.5, 'light help');
     assert.ok(ratioOf(PALETTES.light.help, '#eceaf6') >= 4.5, 'light help on a darker tint');

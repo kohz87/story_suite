@@ -9,9 +9,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../testkit/index.js';
-import { setupDom } from '../view/mounts/helpers.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
 
 const SCREEN_MODULE = {
     id: 'late-screen', name: 'Late', version: '0.0.1',

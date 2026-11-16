@@ -5,10 +5,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../view/mounts/helpers.js';
-import { mountUi } from '../../../../src/v2/ui-host.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { mountUi } from '../../../../../../ui/legacy/ui-host.js';
 import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { THIS_REPLY_ID } from '../../../../src/v2/reply-cards.js';
+import { THIS_REPLY_ID } from '../../../../../../ui/legacy/reply-cards.js';
 import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
 import { characterDefinition, defineAll, fieldsOf, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';
 

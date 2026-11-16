@@ -4,12 +4,12 @@
 // cannot reuse SillyTavern's ids, names or handler classes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileTemplate, renderTemplate, strictSanitize } from '../../../../src/v2/view/template/index.js';
-import { parseHtml } from '../../../../src/v2/view/template/html.js';
-import { RESERVED_CLASSES, RESERVED_NAMES, cleanClasses, paintAllowed } from '../../../../src/v2/view/template/sanitize.js';
-import { cssVarValue, scopeCss, templateIdPrefix, themeVars, valueProblem } from '../../../../src/v2/view/css.js';
-import { validateScreen } from '../../../../src/v2/view/screens.js';
-import { drawScreen } from '../../../../src/v2/view/mounts/common.js';
+import { compileTemplate, renderTemplate, strictSanitize } from '../../../../ui/legacy/view/template/index.js';
+import { parseHtml } from '../../../../ui/legacy/view/template/html.js';
+import { RESERVED_CLASSES, RESERVED_NAMES, cleanClasses, paintAllowed } from '../../../../ui/legacy/view/template/sanitize.js';
+import { cssVarValue, scopeCss, templateIdPrefix, themeVars, valueProblem } from '../../../../ui/legacy/view/css.js';
+import { validateScreen } from '../../../../ui/legacy/view/screens.js';
+import { drawScreen } from '../../../../ui/legacy/view/mounts/common.js';
 import { fakeEvaluate, installFakeDom } from './helpers.js';
 import { screen, screensWith, setupDom } from '../mounts/helpers.js';
 

@@ -3,13 +3,13 @@
 // for templates, the Inspector lists a reply's problems; and the status strip's scroll cue on a phone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../../testkit/fake-st.js';
-import { createRuntime } from '../../../../../core/runtime.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { createHudMount } from '../../../src/v2/view/mounts/index.js';
+import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createRuntime } from '../../../core/runtime.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
+import { createHudMount } from '../../../ui/legacy/view/mounts/index.js';
 import { readFileSync } from 'node:fs';
 import { fakeRenderer, screen, screensWith, setupDom } from '../view/mounts/helpers.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
 

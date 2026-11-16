@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../testkit/index.js';
-import { addPlan } from '../../src/v2/view/gear-form.js';
+import { addPlan } from '../../../../ui/legacy/view/gear-form.js';
 import { validatePack } from '../../src/v2/packs/validate.js';
 import { pack } from './packs/helpers/fixtures.js';
 

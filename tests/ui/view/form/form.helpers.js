@@ -1,7 +1,7 @@
-import { installFakeDom } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { createRegistry } from '../../../../../../core/registry.js';
-import { createSettings } from '../../../../../../core/sdk.js';
-import { renderSettingsForm } from '../../../../src/v2/view/form/index.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
+import { createRegistry } from '../../../../core/registry.js';
+import { createSettings } from '../../../../core/sdk.js';
+import { renderSettingsForm } from '../../../../ui/legacy/view/form/index.js';
 
 export const doc = installFakeDom();
 

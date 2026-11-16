@@ -4,7 +4,7 @@
 // block, the draft stays applied: the reader gets the draft's coin and items as well as the real ones.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 async function fresh(t) {
     t.mock.method(console, 'warn', () => {});

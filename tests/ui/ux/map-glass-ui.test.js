@@ -3,7 +3,7 @@
 // disabled (zoom clamps at its limits instead). The map's keys, clicks and focus are the same as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { map } from '../../../src/v2/view/widgets/map.js';
+import { map } from '../../../ui/legacy/view/widgets/map.js';
 import { fakeApi, host, installDom } from '../view/widgets/fake-dom.js';
 
 // ---- the map: the legend is a glass list card; the controls read back; nothing is disabled ------------------

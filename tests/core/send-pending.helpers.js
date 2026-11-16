@@ -1,6 +1,6 @@
-import { createSendPending } from '../../packages/story-block/src/v2/ui-host/send-pending.js';
-import { installDom } from '../../packages/story-block/tests/v2/view/widgets/fake-dom.js';
-import { createSendNote } from '../../packages/story-block/src/v2/ui-host/send-note.js';
+import { createSendPending } from '../../ui/legacy/ui-host/send-pending.js';
+import { installDom } from '../ui/view/widgets/fake-dom.js';
+import { createSendNote } from '../../ui/legacy/ui-host/send-note.js';
 
 // A tiny fake clock: timers fire in due order when advance() moves time forward.
 export function fakeClock() {

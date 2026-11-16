@@ -3,10 +3,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
 import { createRuntime } from '../../core/runtime.js';
-import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
-import { createHold } from '../../packages/story-block/src/v2/ui-host/events.js';
-import { wireRedraw } from '../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
-import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { mountUi } from '../../ui/legacy/ui-host.js';
+import { createHold } from '../../ui/legacy/ui-host/events.js';
+import { wireRedraw } from '../../ui/legacy/ui-host/redraw-wiring.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 5));
 

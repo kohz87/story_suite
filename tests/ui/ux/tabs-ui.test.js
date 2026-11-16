@@ -4,10 +4,10 @@
 // stay in Settings; Home is first and always shown; it works with any subset of modules.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../../testkit/fake-st.js';
-import { createRuntime } from '../../../../../core/runtime.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { TABS_FOLD } from '../../../src/v2/host-ui.js';
+import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createRuntime } from '../../../core/runtime.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
+import { TABS_FOLD } from '../../../ui/legacy/host-ui.js';
 import { setupDom } from '../view/mounts/helpers.js';
 
 const screen = (id, title, mounts = ['tab', 'screen'], extra = {}) => ({ id, title, icon: 'fa-star', mounts, template: `<p>${title}</p>`, ...extra });

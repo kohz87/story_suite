@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { NATIVE, NPC, clone, nativeModule, reload, rulesModule, track } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { NATIVE, NPC, clone, nativeModule, reload, rulesModule, track } from './helpers/timeline.js';
 
 const featureModule = () => ({ id: 'qc-feat', name: 'Query cache feature', version: '1.0.0', features: [{ id: 'qc-feat.x', label: 'X', describe: 'A switch.', default: true }] });
 

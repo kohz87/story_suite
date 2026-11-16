@@ -2,7 +2,7 @@
 // + disabled when the budget is spent, keyboard, and new props resetting the count.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stepper, stepperBudget, stepperClamp, stepperLimits, stepperRemaining } from '../../../../src/v2/view/widgets/stepper.js';
+import { stepper, stepperBudget, stepperClamp, stepperLimits, stepperRemaining } from '../../../../ui/legacy/view/widgets/stepper.js';
 import { fakeApi, host, installDom } from './fake-dom.js';
 
 function mount(props, api = fakeApi()) {

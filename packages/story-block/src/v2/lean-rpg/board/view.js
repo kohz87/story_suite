@@ -2,8 +2,8 @@
 // It reads the staged session and calls its pure rules; only metadata holds unsent choices.
 // Text is placed in DOM nodes, never interpreted as markup.
 
-import { button, h } from '../../view/widgets/dom.js';
-import { zoomOf } from '../../view/scroll.js';
+import { button, h } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { zoomOf } from '../../../../../../ui/legacy/view/scroll.js';
 import { discardHeld, heldForSid } from '../../../../../../core/turn/held-board.js';
 import { readFoes, readParty, stageTone } from '../view/party-data.js';
 import { readSheet } from '../read.js';

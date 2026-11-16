@@ -9,7 +9,7 @@ import { foeGroupChip, resourceStrip, skillButton } from '../../../../src/v2/lea
 import { boardSession, discardBoard, openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { AREA_MEMBERS, AREA_ORDER, areaBoard, defineFoes, renderMembers } from './view.helpers.js';
 
 const BOARD_CSS = readFileSync(new URL('../../../../src/v2/lean-rpg/board/board.css', import.meta.url), 'utf8');

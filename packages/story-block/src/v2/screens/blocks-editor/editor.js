@@ -2,8 +2,8 @@
 // re-exports renderBlockEditor): the draft's fields, starters, effects, save and error placement. The drawing of
 // the layout/preview and the form's sections live in layout.js and draw.js.
 
-import { textField, numberField, selectField } from '../../view/form/fields.js';
-import { h } from '../../view/widgets/dom.js';
+import { textField, numberField, selectField } from '../../../../../../ui/legacy/view/form/fields.js';
+import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
 import { buildBlock, partKey } from '../../data-modules/block-builder.js';
 import { BLOCK_STARTERS } from '../../data-modules/block-starters.js';
 import { cardRoles, layoutShape } from '../../data-modules/block-layout.js';

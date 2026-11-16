@@ -2,11 +2,11 @@
 // that edit the draft, and the host's `ss.*` widget names in the registry.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createScreenRenderer, layoutEvaluator } from '../../../src/v2/view/render-screen.js';
-import { createDialogMount } from '../../../src/v2/view/mounts/dialog.js';
-import { createRegistry } from '../../../../../core/registry.js';
-import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { standardWidgets } from '../../../src/v2/view/widgets/index.js';
+import { createScreenRenderer, layoutEvaluator } from '../../../ui/legacy/view/render-screen.js';
+import { createDialogMount } from '../../../ui/legacy/view/mounts/dialog.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './mounts/helpers.js';
 
 const state = { v: 2, meta: { rev: 3, claims: {} }, domains: { n: 4 } };
@@ -106,7 +106,7 @@ test('the host registers the ss.* widgets; any other module must use its own id'
 });
 
 test('contains(a, b): case-insensitive text search for filter boxes, in templates', async () => {
-    const { contains } = await import('../../../src/v2/view/bind.js');
+    const { contains } = await import('../../../ui/legacy/view/bind.js');
     assert.equal(contains('Moonveil Trout', 'TROUT'), true);
     assert.equal(contains('Rope', 'lamp'), false);
     assert.equal(contains('Rope', ''), true, 'an empty filter keeps everything');
@@ -119,7 +119,7 @@ test('contains(a, b): case-insensitive text search for filter boxes, in template
 });
 
 test('card scopes carry the state before the reply and the reply\'s own ops; every scope has query()', async () => {
-    const { createCardMount } = await import('../../../src/v2/view/mounts/card.js');
+    const { createCardMount } = await import('../../../ui/legacy/view/mounts/card.js');
     const doc = setupDom();
     const chat = fakeChat(doc, [1, 5, 9]);
     const scopes = [];
@@ -140,7 +140,7 @@ test('card scopes carry the state before the reply and the reply\'s own ops; eve
 });
 
 test('a card screen with defaultOn shows until the reader turns it off', async () => {
-    const { createScreens } = await import('../../../src/v2/view/screens.js');
+    const { createScreens } = await import('../../../ui/legacy/view/screens.js');
     let saved = {};
     const screens = createScreens({ reader: () => saved, saveReader: next => { saved = next; } });
     screens.addModule('story-block', [

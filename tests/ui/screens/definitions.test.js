@@ -3,11 +3,11 @@
 // CSS is scoped, small and follows SillyTavern's theme.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createScreens, resolveData, validateScreen, CSS_LIMIT } from '../../../src/v2/view/screens.js';
+import { createScreens, resolveData, validateScreen, CSS_LIMIT } from '../../../ui/legacy/view/screens.js';
 import {
     screens, inventoryScreen, sceneScreen, changesCardScreen, homeScreen, inspectorScreen,
     INVENTORY_SCREEN_ID, SCENE_SCREEN_ID, CHANGES_CARD_SCREEN_ID, HOME_SCREEN_ID, INSPECTOR_SCREEN_ID,
-} from '../../../src/v2/screens/index.js';
+} from '../../../ui/legacy/screens/index.js';
 import { core, css, cssSkip, queries, sceneState } from './helpers.js';
 
 // Queries of other modules the screens may read (MODULES.md §B–D, §F11).

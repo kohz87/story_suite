@@ -2,7 +2,7 @@
 // and reads the boxes back as changed/all values. The returned object keeps the input list mutable so editable.js's
 // open, plan and submit paths share the same entries the user sees.
 import { h } from '../dom.js';
-import { STRINGS, fill } from '../../../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../../../core/strings.js';
 import { cut } from './props.js';
 
 const E = STRINGS.editable;

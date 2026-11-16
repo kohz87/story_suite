@@ -12,7 +12,7 @@ import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/tem
 import { fakeState } from './view/helpers.js';
 import { hostAvailable } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../../core/features.js';
-import { seedCrypto } from '../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../tests/suite/qa/helpers/seeded.js';
 import { PARTY, character, rollReceipt, setup, sheetDomain } from './helpers.js';
 
 // (the narrator's XP line belongs to the Character made before the marked one, which keeps it: these tests run on that block)

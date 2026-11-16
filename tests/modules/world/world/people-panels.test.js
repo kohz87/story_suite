@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PEOPLE_WIDGET, createPeopleWidget } from '../../../../modules/world/world/index.js';
 import { createPanels } from '../../../../core/sdk/panels.js';
-import { wireRedraw } from '../../../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
+import { wireRedraw } from '../../../../ui/legacy/ui-host/redraw-wiring.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
 // NPC State Delta's page API as a stand-in (cards in its classes; onChange kept so a subscriber would be seen).

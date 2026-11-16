@@ -1,8 +1,8 @@
 // The Fight widget: foe cards, character bars, turn order and the last exchange.
 
-import { h, shell } from '../../../view/widgets/dom.js';
-import { editable } from '../../../view/widgets/editable.js';
-import { meter } from '../../../view/widgets/meter.js';
+import { h, shell } from '../../../../../../../ui/legacy/view/widgets/dom.js';
+import { editable } from '../../../../../../../ui/legacy/view/widgets/editable.js';
+import { meter } from '../../../../../../../ui/legacy/view/widgets/meter.js';
 import { RPG_STRINGS, fill } from '../../strings.js';
 import { fold } from '../../read.js';
 import { buildPanel } from '../battle-log.js';

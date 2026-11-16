@@ -1,6 +1,6 @@
 // The chip, pencil and editor props the block layouts share, with the view words.
-import { h } from '../../view/widgets/dom.js';
-import { editable } from '../../view/widgets/editable.js';
+import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { editable } from '../../../../../../ui/legacy/view/widgets/editable.js';
 import { STRINGS } from '../../../../../../core/strings.js';
 
 export const V = STRINGS.blocks.view;

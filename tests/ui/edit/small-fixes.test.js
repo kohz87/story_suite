@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { changesCardScreen } from '../../../src/v2/screens/changes-card.js';
-import { luminance, parseColor, themeTokens } from '../../../src/v2/view/theme.js';
+import { changesCardScreen } from '../../../ui/legacy/screens/changes-card.js';
+import { luminance, parseColor, themeTokens } from '../../../ui/legacy/view/theme.js';
 import { core, queries, show, stocked } from '../screens/helpers.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const read = name => readFileSync(new URL(`../../../src/v2/view/${name}`, import.meta.url), 'utf8');
 

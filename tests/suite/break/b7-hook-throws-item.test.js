@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 for (const hook of ['item.define']) {
     test(`a throwing ${hook} hook does not stop the core + item capture`, async () => {

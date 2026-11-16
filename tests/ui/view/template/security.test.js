@@ -1,8 +1,8 @@
 // Security: nothing in a template or in bound data can run code, load from outside or escape as markup.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PURIFY_CONFIG, compileTemplate, renderTemplate, strictSanitize } from '../../../../src/v2/view/template/index.js';
-import { parseHtml, serializeHtml } from '../../../../src/v2/view/template/html.js';
+import { PURIFY_CONFIG, compileTemplate, renderTemplate, strictSanitize } from '../../../../ui/legacy/view/template/index.js';
+import { parseHtml, serializeHtml } from '../../../../ui/legacy/view/template/html.js';
 import { fakeEvaluate, inner, installFakeDom } from './helpers.js';
 
 const clean = html => strictSanitize(html);

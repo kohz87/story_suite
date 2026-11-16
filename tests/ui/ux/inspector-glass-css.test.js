@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { inspectorScreen } from '../../../src/v2/screens/inspector.js';
+import { inspectorScreen } from '../../../ui/legacy/screens/inspector.js';
 
 // The declarations of every rule whose selector list is `selector` (as a whole) or has it as one of its entries; a
 // `:where(...)` wrapper is read through.
@@ -58,7 +58,7 @@ test('the inspector: monospace only on the raw values (paths, state values, oper
 });
 
 test('the inspector: a text box and a select are the form engine\'s controls, not SillyTavern\'s text_pole', () => {
-    const source = readFileSync(new URL('../../../src/v2/screens/inspector-parts/widget.js', import.meta.url), 'utf8');
+    const source = readFileSync(new URL('../../../ui/legacy/screens/inspector-parts/widget.js', import.meta.url), 'utf8');
     assert.match(source, /'ss-input ss-select sb-insp-pick'/);
     assert.match(source, /'ss-input ss-text sb-insp-search'/);
     assert.doesNotMatch(source, /text_pole/);

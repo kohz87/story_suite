@@ -2,8 +2,8 @@
 // render that patches instead of rebuilding.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileTemplate, destroyTemplate, isCompiled, renderTemplate } from '../../../../src/v2/view/template/index.js';
-import { makeScope } from '../../../../src/v2/view/bind.js';
+import { compileTemplate, destroyTemplate, isCompiled, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
+import { makeScope } from '../../../../ui/legacy/view/bind.js';
 import { countWrites, fakeEvaluate, inner, installFakeDom, print } from './helpers.js';
 
 function setup() {

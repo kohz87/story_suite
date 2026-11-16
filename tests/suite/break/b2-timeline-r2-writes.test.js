@@ -3,8 +3,8 @@
 // after the reply. The cues now go with the reply's save; a reply that never comes still has them saved.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../../../core/persist.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../../core/persist.js';
 
 const clock = {
     id: 'clock',

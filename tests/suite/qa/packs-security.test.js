@@ -6,8 +6,8 @@
 // test.todo entries at the end, named after what should happen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { LIMITS } from '../../../src/v2/packs/limits.js';
+import { validatePack } from '../../../packages/story-block/src/v2/packs/validate.js';
+import { LIMITS } from '../../../packages/story-block/src/v2/packs/limits.js';
 
 const base = (extra = {}) => ({ id: 'evil', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, ...extra });
 const withNote = note => base({ content: { items: [{ name: 'Lure', note }] } });

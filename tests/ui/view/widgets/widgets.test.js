@@ -2,12 +2,12 @@
 // its accessibility attributes, and its commands.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { badge, counterText } from '../../../../src/v2/view/widgets/badge.js';
-import { meter, meterCells, meterRatio } from '../../../../src/v2/view/widgets/meter.js';
-import { portrait } from '../../../../src/v2/view/widgets/portrait.js';
-import { radar, radarAxes, radarPoint, radarPoints } from '../../../../src/v2/view/widgets/radar.js';
-import { columnCentre, skillTree, treeLinks, treeTiers } from '../../../../src/v2/view/widgets/skill-tree.js';
-import { currentIndex, timeline, timelineEvents } from '../../../../src/v2/view/widgets/timeline.js';
+import { badge, counterText } from '../../../../ui/legacy/view/widgets/badge.js';
+import { meter, meterCells, meterRatio } from '../../../../ui/legacy/view/widgets/meter.js';
+import { portrait } from '../../../../ui/legacy/view/widgets/portrait.js';
+import { radar, radarAxes, radarPoint, radarPoints } from '../../../../ui/legacy/view/widgets/radar.js';
+import { columnCentre, skillTree, treeLinks, treeTiers } from '../../../../ui/legacy/view/widgets/skill-tree.js';
+import { currentIndex, timeline, timelineEvents } from '../../../../ui/legacy/view/widgets/timeline.js';
 import { fakeApi, host, installDom, texts } from './fake-dom.js';
 
 function mount(widget, props, api = fakeApi()) {

@@ -2,8 +2,8 @@
 // portrait's order (persona avatar, card avatar, the module's picture, the initial), and nothing thrown when a module is missing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cardAvatarUrl, gameHeroProps, headerControlItems, personaAvatarUrl, portraitOf, readHeroContext } from '../../../src/v2/view/game-header.js';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { cardAvatarUrl, gameHeroProps, headerControlItems, personaAvatarUrl, portraitOf, readHeroContext } from '../../../ui/legacy/view/game-header.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 const STATE = { domains: {} };
 const ren = { id: 'ac_ren00001', name: 'Ren', level: 4, role: 'ranger', hp: { cur: 20, max: 82 }, mp: { cur: 3, max: 10 }, sp: { cur: 0, max: 0 }, conditions: [{ kind: 'poisoned', stacks: 1 }] };
@@ -99,7 +99,7 @@ test('the avatar paths are SillyTavern\'s own, and the context is read without t
 });
 
 test('a module\'s picture answer is a string or an object (`{ url }` / `{ src }`), and the lead\'s pictures are an ordered list', async () => {
-    const { pictureOf, portraitCandidates } = await import('../../../src/v2/view/game-header.js');
+    const { pictureOf, portraitCandidates } = await import('../../../ui/legacy/view/game-header.js');
     assert.equal(pictureOf('https://x.example/a.png'), 'https://x.example/a.png');
     assert.equal(pictureOf({ url: 'https://x.example/b.png' }), 'https://x.example/b.png');
     assert.equal(pictureOf({ src: 'https://x.example/c.png' }), 'https://x.example/c.png');
@@ -114,7 +114,7 @@ test('a module\'s picture answer is a string or an object (`{ url }` / `{ src }`
 });
 
 test('a 70+ character class and role are cut to the header\'s limits (40 each), and the pill line stays bounded', async () => {
-    const { heroLine } = await import('../../../src/v2/view/widgets/hero.js');
+    const { heroLine } = await import('../../../ui/legacy/view/widgets/hero.js');
     const long = 'Soul Class of the Long Wakeful Watchers of the Northern Reaches and Beyond'; // 74 characters
     const props = gameHeroProps({ state: STATE, query: answers({ 'party.pc': { ...ren, role: long, className: long } }), formatTime: fmt, context: {} });
     assert.equal(props.title.length, 40);
@@ -193,8 +193,8 @@ test('the portrait with the persona from the list: the persona\'s picture, else 
 // Conditions as the header's status badges: an icon for the kind (never a letter), the time left in its own unit when the entry has one,
 // and a name a screen reader says ("Bleeding, 10 minutes left").
 test('a condition badge has its kind\'s icon, its label, and the time left in the unit the entry gives', async () => {
-    const { ICON_SET } = await import('../../../src/v2/view/icons/set.js');
-    const { conditionIcon, gameHeroProps: props } = await import('../../../src/v2/view/game-header.js');
+    const { ICON_SET } = await import('../../../ui/legacy/view/icons/set.js');
+    const { conditionIcon, gameHeroProps: props } = await import('../../../ui/legacy/view/game-header.js');
     assert.equal(conditionIcon('bleeding'), 'ph-drop');
     assert.equal(conditionIcon('poison'), 'ph-skull');
     assert.equal(conditionIcon('poisoned'), 'ph-skull');

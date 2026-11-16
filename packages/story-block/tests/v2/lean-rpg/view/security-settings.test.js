@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
 import { buildPanel, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
 import { ROLLS_DEFAULT, rollsOf } from '../../../../src/v2/lean-rpg/view/settings.js';

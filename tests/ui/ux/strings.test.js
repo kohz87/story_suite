@@ -3,9 +3,9 @@
 // Also the Inventory's name filter ("Filter…") and the summary's count of refused lines (§F41).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STRINGS, escapeHtml, fill, html, jsonText } from '../../../../../core/strings.js';
-import { changesSummary, homeScreen, inventoryScreen, sceneScreen, changesCardScreen, screens } from '../../../src/v2/screens/index.js';
-import { parseHtml } from '../../../src/v2/view/template/html.js';
+import { STRINGS, escapeHtml, fill, html, jsonText } from '../../../core/strings.js';
+import { changesSummary, homeScreen, inventoryScreen, sceneScreen, changesCardScreen, screens } from '../../../ui/legacy/screens/index.js';
+import { parseHtml } from '../../../ui/legacy/view/template/html.js';
 import { core, queries, renderSkip, show, stocked, text } from '../screens/helpers.js';
 
 const leaves = (value, out = []) => {

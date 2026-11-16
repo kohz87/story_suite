@@ -9,8 +9,8 @@
 // only parsed lines, so a block of 100 000 junk lines makes 100 000 Problems, each a console.warn.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cutLine, extractBlock, hideBlock, stripBlock } from '../../../../../core/capture.js';
-import { createHost } from '../../../testkit/index.js';
+import { cutLine, extractBlock, hideBlock, stripBlock } from '../../../core/capture.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const ms = fn => {
     const start = process.hrtime.bigint();

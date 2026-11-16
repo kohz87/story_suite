@@ -4,7 +4,7 @@
 // rewind's dry run must too, or it refuses what the chat replays fine.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createStore } from '../../../../../core/store.js';
+import { createStore } from '../../../core/store.js';
 
 const carrier = mes => ({ name: 'N', is_user: false, mes, swipe_id: 0, swipes: [mes], swipe_info: [{ extra: {} }], extra: {} });
 const user = mes => ({ name: 'You', is_user: true, mes, extra: {} });

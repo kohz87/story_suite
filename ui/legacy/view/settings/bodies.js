@@ -22,9 +22,9 @@
 // the entry.
 
 import { DIAGNOSTICS_FOLD, FEATURES_FOLD, SUB_FOLD, renderSettingsHost } from '../../host-ui.js';
-import { HOST_SETTINGS_SCHEMA } from '../../../../../../core/sdk.js';
+import { HOST_SETTINGS_SCHEMA } from '../../../../core/sdk.js';
 import { renderFeaturesForm } from '../form/features.js';
-import { staticTextWith } from '../../../../../../core/prompt.js';
+import { staticTextWith } from '../../../../core/prompt.js';
 import { renderSettingsForm } from '../form/form.js';
 import { assistBody } from './assist.js';
 import { blocksBody } from './blocks.js';

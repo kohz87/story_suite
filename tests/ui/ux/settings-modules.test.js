@@ -2,13 +2,13 @@
 // version, what it does, the line to its features, its own panels, its settings by group), and a small Versions card at the end.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { createRegistry } from '../../../../../core/registry.js';
-import { createSettings } from '../../../../../core/sdk.js';
-import { VERSIONS_FOLD, featuresFoldOf } from '../../../src/v2/host-ui.js';
-import { FOLD_ABOVE, KNOWN_DESCRIPTIONS, MODULES_TEXT, moduleSchema } from '../../../src/v2/view/settings/modules.js';
-import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createSettings } from '../../../core/sdk.js';
+import { VERSIONS_FOLD, featuresFoldOf } from '../../../ui/legacy/host-ui.js';
+import { FOLD_ABOVE, KNOWN_DESCRIPTIONS, MODULES_TEXT, moduleSchema } from '../../../ui/legacy/view/settings/modules.js';
+import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 
 const field = (type, label, extra = {}) => ({ type, label, ...extra });
 // A module with eight settings in three groups (written as "Group: Name" labels), a description and a version.

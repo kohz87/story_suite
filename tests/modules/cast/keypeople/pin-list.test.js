@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { worldScreen } from '../../../../modules/world/world/screen.js';
 import { keyPeopleWidget } from '../../../../modules/cast/keypeople/widget.js';
 import { revealIn, scrollerOf, zoomOf } from '../../../../ui/legacy/director/screens/scroll.js';
-import { revealIn as hostRevealIn } from '../../../../packages/story-block/src/v2/view/scroll.js';
+import { revealIn as hostRevealIn } from '../../../../ui/legacy/view/scroll.js';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 
 const VIEW = {

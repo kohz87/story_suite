@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { replyEdits, replyRules } from '../../../src/v2/reply-cards.js';
-import { changesCardScreen, changesSummary } from '../../../src/v2/screens/changes-card.js';
+import { replyEdits, replyRules } from '../../../ui/legacy/reply-cards.js';
+import { changesCardScreen, changesSummary } from '../../../ui/legacy/screens/changes-card.js';
 import { core, queries, show, stocked, text } from '../screens/helpers.js';
 
 test('edits and fired rules follow receipt order and skip inactive blocks', () => {

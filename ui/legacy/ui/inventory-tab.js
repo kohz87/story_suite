@@ -4,9 +4,9 @@
 //
 // Interim: the tab layer is being redesigned (layouts of module widgets), so this stays small.
 
-import { KIND_ORDER, listItems } from '../domains/inventory.js';
-import { ownerName } from '../domains/common.js';
-import { DEFAULT_CURRENCY, formatWallet } from '../domains/money.js';
+import { KIND_ORDER, listItems } from '../../../packages/story-block/src/v2/domains/inventory.js';
+import { ownerName } from '../../../packages/story-block/src/v2/domains/common.js';
+import { DEFAULT_CURRENCY, formatWallet } from '../../../packages/story-block/src/v2/domains/money.js';
 
 const KIND_TITLES = {
     quest: 'Quest items', equipment: 'Equipment', consumable: 'Consumables',

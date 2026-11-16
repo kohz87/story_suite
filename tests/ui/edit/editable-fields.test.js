@@ -3,7 +3,7 @@
 // (the mount editor on Home: ungrouped text and number fields, one command) keep their look and words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { editable } from '../../../src/v2/view/widgets/editable.js';
+import { editable } from '../../../ui/legacy/view/widgets/editable.js';
 import { host, installDom } from '../view/widgets/fake-dom.js';
 
 const settle = async () => { for (let n = 0; n < 6; n += 1) await new Promise(resolve => setImmediate(resolve)); };

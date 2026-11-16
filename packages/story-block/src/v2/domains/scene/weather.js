@@ -1,7 +1,7 @@
 // The scene's weather: `~ weather cold drizzle, low fog` (the story's words, kept as they are) and the `scene.weather` command a module's
 // rule uses (with a key it chose the weather for). Descriptive only; no mechanics read it. Pure.
 
-import { cutPoints, flatten } from '../../extras.js';
+import { cutPoints, flatten } from '../../../../../../ui/legacy/extras.js';
 import { lineBody } from '../../../../../../core/capture.js';
 import { WEATHER_CHARS, WEATHER_KEY_CHARS } from './constants.js';
 import { HAS_WORD } from './shared.js';

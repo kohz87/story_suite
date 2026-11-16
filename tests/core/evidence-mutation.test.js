@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { proofWriteProblem, touchesProof } from '../../core/evidence.js';
-import { T1, evidenceHarness } from '../../packages/story-block/tests/v2/helpers/evidence.js';
+import { T1, evidenceHarness } from './helpers/evidence.js';
 
 const ids = list => list.map(each => each.id);
 

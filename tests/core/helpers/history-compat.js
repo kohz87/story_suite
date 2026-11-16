@@ -1,6 +1,6 @@
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { rulesModule, clone } from './timeline.js';
-import { seedCrypto } from '../qa/helpers/seeded.js';
+import { seedCrypto } from '../../suite/qa/helpers/seeded.js';
 
 export async function historyCompat(guarded) {
     const undo = seedCrypto(603);

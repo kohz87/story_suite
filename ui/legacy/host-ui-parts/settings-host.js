@@ -1,11 +1,11 @@
 // The settings host: renders the settings folds (Features, each module's settings, Versions) into a root and keeps them current.
 
-import { FIELD_TYPES, normalizeField } from '../../../../../core/registry.js';
-import { featureOf } from '../../../../../core/features.js';
-import { compatReport, renderCompat } from '../../../../../core/persist/compat.js';
-import { contextNotice } from '../../../../../core/prompt.js';
-import { fill } from '../../../../../core/strings.js';
-import { cutAt } from '../../../../../core/text.js';
+import { FIELD_TYPES, normalizeField } from '../../../core/registry.js';
+import { featureOf } from '../../../core/features.js';
+import { compatReport, renderCompat } from '../../../core/persist/compat.js';
+import { contextNotice } from '../../../core/prompt.js';
+import { fill } from '../../../core/strings.js';
+import { cutAt } from '../../../core/text.js';
 import { focusNode, revealIn } from '../view/scroll.js';
 import { el, fold, button, fieldRow, rowValue, fieldReadOnly, groupFields, humanize } from '../host-ui/controls.js';
 import { FEATURES_FOLD, FEATURE_TEXT, featuresFoldOf, SETTINGS_TEXT, SUB_FOLD, VERSIONS_FOLD } from '../host-ui/text.js';

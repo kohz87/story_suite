@@ -8,7 +8,7 @@ import { autoPicks } from '../../../../src/v2/lean-rpg/board/auto.js';
 import { autoNote, runAuto } from '../../../../src/v2/lean-rpg/board/auto-run.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, rollReceipt, setup, sheetDomain } from '../helpers.js';
 
 const RULES = { ...STANDARD_FORMULA, levelDivisor: 5 };

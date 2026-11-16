@@ -17,7 +17,7 @@ test('a line of a kind whose module is dormant is a MODULE_HELD Problem (with a 
         const found = host.turn.problems().filter(item => item.index === index);
         assert.deepEqual(found.map(item => item.code), ['MODULE_HELD', 'UNKNOWN_KIND']);
         assert.match(found[0].message, /^"\+ zed One" was not used: held-probe is held back/);
-        const { refusedFrom } = await import('../../../src/v2/reply-notes.js');
+        const { refusedFrom } = await import('../../../../../ui/legacy/reply-notes.js');
         assert.deepEqual(refusedFrom(found, index).map(item => item.reason), ['held-probe is held back right now (dormant, or a restore is in progress).', 'no module keeps "nope"']);
     } finally { host.close(); }
 });

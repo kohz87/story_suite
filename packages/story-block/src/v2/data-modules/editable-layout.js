@@ -1,6 +1,6 @@
 // Add an editor beside a displayed local field in a data-module layout. Authored templates opt in with ss.editable.
-import { validateLayout } from '../layout/validate.js';
-import { standardWidgets } from '../view/widgets/index.js';
+import { validateLayout } from '../../../../../ui/legacy/layout/validate.js';
+import { standardWidgets } from '../../../../../ui/legacy/view/widgets/index.js';
 import { BLOCK_NODE_WIDGETS } from './fields-widget.js';
 
 function propsFor(module, field, key, schema, label) {

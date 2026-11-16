@@ -6,14 +6,14 @@
 // is told once per chat (and in the settings' prompt size) and the reply still goes out.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { DEFAULT_CONTEXT_SHARE, MIN_TAIL_BUDGET, assemble, contextFit, contextNotice, estimateTokens } from '../../../../../core/prompt.js';
-import { contextRoom } from '../../../../../core/turn.js';
-import { createRegistry } from '../../../../../core/registry.js';
-import { createSettings } from '../../../../../core/sdk.js';
-import { SETTINGS_TEXT } from '../../../src/v2/host-ui.js';
-import { createPromptReader, renderPromptCard } from '../../../src/v2/view/settings/prompt.js';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { DEFAULT_CONTEXT_SHARE, MIN_TAIL_BUDGET, assemble, contextFit, contextNotice, estimateTokens } from '../../../core/prompt.js';
+import { contextRoom } from '../../../core/turn.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createSettings } from '../../../core/sdk.js';
+import { SETTINGS_TEXT } from '../../../ui/legacy/host-ui.js';
+import { createPromptReader, renderPromptCard } from '../../../ui/legacy/view/settings/prompt.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 // A module with a big static part (`words` × 5 characters) and a long tail: 4 required lines, 150 optional.
 const big = (words = 600) => ({

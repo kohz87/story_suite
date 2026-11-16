@@ -10,7 +10,7 @@
 
 import { performance } from 'node:perf_hooks';
 import { createHost } from '../testkit/index.js';
-import { NATIVE, clone, nativeModule, rulesModule } from '../tests/v2/helpers/timeline.js';
+import { NATIVE, clone, nativeModule, rulesModule } from '../../../tests/core/helpers/timeline.js';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {

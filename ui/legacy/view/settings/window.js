@@ -23,7 +23,7 @@
 // Every node is built with createElement and textContent (security tests forbid markup APIs in view code).
 
 import { DIAGNOSTICS_FOLD, OPEN_CLASS, SUB_FOLD, diagnosticsKeys, featuresFoldOf } from '../../host-ui.js';
-import { fill } from '../../../../../../core/strings.js';
+import { fill } from '../../../../core/strings.js';
 import { createFooter } from './footer.js';
 import { PROMPT_FOLD, createPromptReader } from './prompt.js';
 import { FORM_TEXT } from '../form/schema.js';

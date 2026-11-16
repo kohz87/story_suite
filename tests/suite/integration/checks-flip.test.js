@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const path = new URL('../../../../Story_director/src/v2/module.js', import.meta.url);
 const director = existsSync(path) ? (await import(path.href)).createModule : null;

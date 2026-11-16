@@ -16,7 +16,7 @@
 // Built with createElement and textContent only: the report and module text are never markup.
 
 import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT } from '../../host-ui.js';
-import { fill } from '../../../../../../core/strings.js';
+import { fill } from '../../../../core/strings.js';
 import { newId, sectionBlock } from '../form/fields.js';
 import { matchesSearch } from '../form/schema.js';
 import { createModuleCard } from './modules.js';

@@ -1,8 +1,8 @@
 // The blocks built from the building blocks (UI stage 1b): ss.tabs, ss.navbar and ss.dialog.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { navItems, navbar, revealItem, tabs } from '../../../../src/v2/view/widgets/nav.js';
-import { dialog, dialogActions, dialogParagraphs } from '../../../../src/v2/view/widgets/dialog.js';
+import { navItems, navbar, revealItem, tabs } from '../../../../ui/legacy/view/widgets/nav.js';
+import { dialog, dialogActions, dialogParagraphs } from '../../../../ui/legacy/view/widgets/dialog.js';
 import { fakeApi, host, installDom } from './fake-dom.js';
 import { classes, key, mount } from './blocks.helpers.js';
 

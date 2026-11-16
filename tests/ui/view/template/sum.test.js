@@ -5,10 +5,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { RESERVED, TEMPLATE_CALLS, compileExpr, conditionEvaluator, evalExpr, isLoopName, makeScope, sum } from '../../../../src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../../../modules/world/events/index.js';
-import { compileTemplate, renderTemplate } from '../../../../src/v2/view/template/index.js';
-import { standardWidgets } from '../../../../src/v2/view/widgets/index.js';
+import { RESERVED, TEMPLATE_CALLS, compileExpr, conditionEvaluator, evalExpr, isLoopName, makeScope, sum } from '../../../../ui/legacy/view/bind.js';
+import { compile, evaluate } from '../../../../modules/world/events/index.js';
+import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
+import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
 import { fakeEvaluate, installFakeDom } from './helpers.js';
 
 const language = conditionEvaluator({ compile, evaluate });
@@ -92,7 +92,7 @@ test('sum() is read without the condition language, and through it', () => {
 });
 
 // The "points left" snippet under Example 3 of the templates page.
-const doc = readFileSync(new URL('../../../../docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
+const doc = readFileSync(new URL('../../../../packages/story-block/docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
 const snippet = /\*\*Points left\.\*\*[\s\S]*?```html\n([\s\S]*?)```/.exec(doc)?.[1];
 
 function showPointsLeft(scope) {

@@ -4,15 +4,15 @@
 // no chip is on the wrong side of it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
-import { ASSIST_FOLD, ASSIST_HOST_KEYS, ASSIST_TEXT, assistSchema } from '../../../src/v2/view/settings/assist.js';
-import { DEFAULT_KINDS, KIND_CHOICES, allowedKinds, refusedWhy } from '../../../src/v2/assist/safety.js';
-import { SETTING } from '../../../src/v2/assist/common.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { PROFILE_TEXT } from '../../../../../core/model-call/profile-field.js';
-import { FORM_TEXT } from '../../../src/v2/view/form/schema.js';
+import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
+import { ASSIST_FOLD, ASSIST_HOST_KEYS, ASSIST_TEXT, assistSchema } from '../../../ui/legacy/view/settings/assist.js';
+import { DEFAULT_KINDS, KIND_CHOICES, allowedKinds, refusedWhy } from '../../../packages/story-block/src/v2/assist/safety.js';
+import { SETTING } from '../../../packages/story-block/src/v2/assist/common.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { PROFILE_TEXT } from '../../../core/model-call/profile-field.js';
+import { FORM_TEXT } from '../../../ui/legacy/view/form/schema.js';
 
 // A module that keeps checks (RPG Battle's `check` kind), so the pre-roll can run.
 const CHECKS = { id: 'checks', name: 'Checks', capture: { kinds: { check: { grammar: '? check skill — what | dc: normal' } }, apply: () => ({ summary: 'checked', narrate: false }) } };

@@ -4,10 +4,10 @@
 // out, but nothing in the page offers "Take selected": the loot can never be taken.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { makeMessage } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../view/mounts/helpers.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../helpers/ui-fake-dom.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
 
 test('with the cards off and loot on, the page still offers a way to take the loot (or loot is not offered)', async () => {
     const doc = setupDom();

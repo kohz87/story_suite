@@ -10,8 +10,8 @@
 // Drop into Story_block/tests/v2/break/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { carryRecord } from '../../../../../core/persist.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { carryRecord } from '../../../core/persist.js';
 
 const settle = async (n = 20) => { for (let i = 0; i < n; i++) await new Promise(resolve => setImmediate(resolve)); };
 

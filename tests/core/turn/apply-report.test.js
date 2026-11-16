@@ -2,9 +2,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyReport, moduleFailures } from '../../../core/turn/apply-report.js';
-import { inspectorProblemsFor } from '../../../packages/story-block/src/v2/ui-host/inspector-problems.js';
-import { changesCardScreen } from '../../../packages/story-block/src/v2/screens/index.js';
-import { core, queries, show, stocked, text } from '../../../packages/story-block/tests/v2/screens/helpers.js';
+import { inspectorProblemsFor } from '../../../ui/legacy/ui-host/inspector-problems.js';
+import { changesCardScreen } from '../../../ui/legacy/screens/index.js';
+import { core, queries, show, stocked, text } from '../../ui/screens/helpers.js';
 
 const problems = [
     { module: 'a', index: 4, code: 'FAILED', message: 'turn failed: torn' },

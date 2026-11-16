@@ -3,9 +3,9 @@
 // no warnings), the filter draft, and the buttons' payloads, which the real command bus accepts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCommandBus } from '../../../../../core/commands.js';
-import { homeScreen, inventoryScreen, sceneScreen, changesCardScreen } from '../../../src/v2/screens/index.js';
-import { counterIds, fakeRegistry, fakeStore } from '../helpers/bus-fakes.js';
+import { createCommandBus } from '../../../core/commands.js';
+import { homeScreen, inventoryScreen, sceneScreen, changesCardScreen } from '../../../ui/legacy/screens/index.js';
+import { counterIds, fakeRegistry, fakeStore } from '../../core/helpers/bus-fakes.js';
 import { core, foldOf, openFold, queries, recordingWidgets, renderSkip, sceneState, settle, show, stocked, text } from './helpers.js';
 
 const skip = renderSkip;
@@ -319,7 +319,7 @@ test('home: with Story Director, its quest panel appears', { skip }, () => {
 });
 
 test('home and scene: the story time through the host\'s fmt.time (the calendar), not "Day N"', { skip }, async () => {
-    const { formatStoryTime } = await import('../../../src/v2/view/clock.js');
+    const { formatStoryTime } = await import('../../../ui/legacy/view/clock.js');
     const ersveil = { era: 'CY', months: ['Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane'].map(name => ({ name, days: 30 })) };
     const module = core();
     const state = sceneState(module);

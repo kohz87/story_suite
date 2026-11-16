@@ -5,7 +5,7 @@ import {
     DEFAULT_PACE, KIND_PACE, MAX_ROWS, MOUNTS_FEATURE, WALK_PACE, mountsPace, mountsTail, paceOfKind, validateMounts,
 } from '../../../src/v2/domains/mounts.js';
 import { initialScene, validateScene } from '../../../src/v2/domains/scene.js';
-import { checkInvariants } from '../qa/helpers/oracle.js';
+import { checkInvariants } from '../../../../../tests/suite/qa/helpers/oracle.js';
 import { MARE, block, fresh, lastIndex, names, names2, problems, staticText, tailText } from './mounts.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

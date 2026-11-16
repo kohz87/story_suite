@@ -5,8 +5,8 @@
 // queries or state changes. Checked against the live Story Block code.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createScreens, validateScreen } from '../../story-block/src/v2/view/screens.js';
-import { compileTemplate } from '../../story-block/src/v2/view/template/index.js';
+import { createScreens, validateScreen } from '../../../ui/legacy/view/screens.js';
+import { compileTemplate } from '../../../ui/legacy/view/template/index.js';
 import { CAST_SCREEN_ID, CAST_SCREEN_ORDER, CAST_TAB_ID, CAST_WIDGET, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 
 // A minimal element: what renderCast and the widget use (innerHTML is Delta's own escaped markup, as in the tab).

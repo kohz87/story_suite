@@ -6,7 +6,7 @@ import { AUTO_CAP, AUTO_CAP_SETTING, autoCapFrom, autoExchanges } from '../../..
 import { SETTINGS_SCHEMA } from '../../../../src/v2/lean-rpg/levels.js';
 import { DEFAULT_SETTINGS } from '../../../../src/v2/lean-rpg/index.js';
 import { boardSetting, capSetting, capWords } from '../../../../src/v2/lean-rpg/board/settings.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 
 test('the cap reads 1 to 9, defaults to 3, and 9 means until the end', () => {
     assert.equal(autoCapFrom({}), 3);

@@ -5,14 +5,14 @@
 // kept with the order and the hidden ones; those older choices work as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HOME_ID, inDefaultBar, validateScreen } from '../../../src/v2/view/screens.js';
-import { homeScreen, inventoryScreen } from '../../../src/v2/screens/index.js';
-import { isDefaultChoice, isInBar, moveNav, readTabChoice, setNavHidden, setNavInBar, createTabOrderStore } from '../../../src/v2/view/tab-order.js';
-import { createScreenMount } from '../../../src/v2/view/mounts/screen.js';
-import { createScreens } from '../../../src/v2/view/screens.js';
-import { createTabHost } from '../../../src/v2/host-ui.js';
+import { HOME_ID, inDefaultBar, validateScreen } from '../../../ui/legacy/view/screens.js';
+import { homeScreen, inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { isDefaultChoice, isInBar, moveNav, readTabChoice, setNavHidden, setNavInBar, createTabOrderStore } from '../../../ui/legacy/view/tab-order.js';
+import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
+import { createScreens } from '../../../ui/legacy/view/screens.js';
+import { createTabHost } from '../../../ui/legacy/host-ui.js';
 import { fakeRenderer, setupDom, stateWith } from './mounts/helpers.js';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 
 // What the fixtures declare: a module's own screens, three of them with `bar: true`.

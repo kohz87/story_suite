@@ -1,6 +1,6 @@
 // The editable widget's prop schema and its one-line cut helper. editable.js keeps the widget and re-exports the same
 // `editable` definition; this part only declares what callers may pass and how much text a box keeps.
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../../../core/text.js';
 
 export const props = {
     value: { type: 'any', default: '' },

@@ -12,11 +12,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { HOST_DOMAIN } from '../../core/timeline/index.js';
-import { prng, seedCrypto } from '../../packages/story-block/tests/v2/qa/helpers/seeded.js';
-import { clockModule } from '../../packages/story-block/tests/v2/helpers/clock.js';
+import { prng, seedCrypto } from '../suite/qa/helpers/seeded.js';
+import { clockModule } from './helpers/clock.js';
 import { hashJson } from '../../core/replay.js';
-import { director, T1, T2 } from '../../packages/story-block/tests/v2/helpers/evidence.js';
-import { NATIVE, batchFor, clone, nativeModule, reload, rulesModule, seal } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { director, T1, T2 } from './helpers/evidence.js';
+import { NATIVE, batchFor, clone, nativeModule, reload, rulesModule, seal } from './helpers/timeline.js';
 
 const SEEDS = process.env.QA_FUZZ_SEED ? [Number(process.env.QA_FUZZ_SEED)]
     : process.env.QA_FUZZ_SEEDS ? Array.from({ length: Number(process.env.QA_FUZZ_SEEDS) }, (_, i) => i + 1) : [1, 2, 3, 4, 5, 6, 7, 8];

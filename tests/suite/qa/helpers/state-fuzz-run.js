@@ -17,17 +17,17 @@
 // - the static prompt is byte-identical in every request of the run.
 // A failing seed replays exactly: the host's crypto IDs and seeds follow the run's seed.
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { aiMessage } from '../../../../testkit/fake-st.js';
-import { readRecord } from '../../../../../../core/persist.js';
-import { HAPPENED } from '../../../../../../core/prompt.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
+import { readRecord } from '../../../../core/persist.js';
+import { HAPPENED } from '../../../../core/prompt.js';
 import { prng, seedCrypto } from './seeded.js';
 import { BONUS_CLAIM, probeModule } from './probe-module.js';
 import { carriers, checkInvariants, rebuildAt } from './oracle.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { STANDARD_TEMPLATES } from '../../../../packages/story-block/src/v2/lean-rpg/templates.js';
+import { STANDARD_FORMULA } from '../../../../packages/story-block/src/v2/lean-rpg/rules.js';
+import { readSheet } from '../../../../packages/story-block/src/v2/lean-rpg/read.js';
+import { boardSession, openBoard, stageExchange } from '../../../../packages/story-block/src/v2/lean-rpg/board/session.js';
 import { changeLine, replyText, uiCommand, bonusPaidOnLine } from './state-fuzz-gen.js';
 
 

@@ -4,7 +4,7 @@
 // `.ss-packs-confirm-actions`, the Packs panel's `fa-book`, SillyTavern's `.checkbox_label`, and `.ss-card-help` for the muted lines.
 // Everything a card wrote (names, versions) goes in through textContent only.
 
-import { button, el } from '../../ui/dom.js';
+import { button, el } from '../../../../../ui/legacy/ui/dom.js';
 
 /**
  * Draws the offers into `root` and again at each change. `offer`: card-offer.js's controller. → `{ refresh(), destroy() }`.

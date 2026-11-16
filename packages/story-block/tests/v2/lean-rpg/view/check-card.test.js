@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom, makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { createHost } from '../../../../testkit/index.js';
 import { buildCheckCard } from '../../../../src/v2/lean-rpg/view/check-card.js';
 import { createBattleLog } from '../../../../src/v2/lean-rpg/view/battle-log.js';

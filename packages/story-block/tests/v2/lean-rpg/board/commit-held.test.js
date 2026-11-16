@@ -5,7 +5,7 @@ import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { character, foeBlock, setup } from '../helpers.js';
 import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { aiMessage } from '../../../../testkit/fake-st.js';
 import { heldForMessage } from '../../../../../../core/turn/held-board.js';
 import { gearHost, openWithGear } from './commit.helpers.js';

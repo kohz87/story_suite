@@ -4,13 +4,13 @@
 // redraw keeps the reader's choice). The keys and the markup the tests and modules use are the same as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { makeMessage } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../helpers/ui-fake-dom.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
-import { createTabHost } from '../../../src/v2/host-ui.js';
-import { CHOICES_FEATURE } from '../../../src/v2/extras.js';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { mountUi } from '../../../ui/legacy/ui-host.js';
+import { createTabHost } from '../../../ui/legacy/host-ui.js';
+import { CHOICES_FEATURE } from '../../../ui/legacy/extras.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 const key = (node, name, init = {}) => node.dispatch('keydown', { key: name, ...init });
 const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

@@ -1,8 +1,8 @@
 // J11 step 4: the field guard survives focus moves, destroy and chat switches (flag suite.redrawScheduler on).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createTabHost } from '../../packages/story-block/src/v2/host-ui.js';
-import { wireRedraw } from '../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
+import { createTabHost } from '../../ui/legacy/host-ui.js';
+import { wireRedraw } from '../../ui/legacy/ui-host/redraw-wiring.js';
 import { doc, setup } from './host-ui.helpers.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 5));

@@ -16,7 +16,7 @@ import { ROLES } from '../../lean-rpg/names.js';
 import { LIMITS as PACK_LIMITS, TAB_ID } from '../../packs/limits.js';
 import { byteLength, checkPlain } from '../../packs/safety.js';
 import { STRINGS } from '../../../../../../core/strings.js';
-import { hasIcon } from '../../view/icons/index.js';
+import { hasIcon } from '../../../../../../ui/legacy/view/icons/index.js';
 import { isTypedSkills } from '../../../../../../core/runtime/skill-slots.js';
 
 /** Checked definitions plus an optional catalog for imports from other packs. No state is read. */

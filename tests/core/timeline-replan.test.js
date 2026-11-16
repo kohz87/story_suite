@@ -3,7 +3,7 @@
 // built on it is not taken back, now or on a later valid dependent.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evidenceHarness } from '../../packages/story-block/tests/v2/helpers/evidence.js';
+import { evidenceHarness } from './helpers/evidence.js';
 
 const ids = list => list.map(each => each.id);
 const rerunOf = h => (state, receipt, info) => {

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
 import { definitionWarnings } from '../../core/registry.js';
-import { BATCH, DEATH, NATIVE, NPC, clone, nativeModule, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { BATCH, DEATH, NATIVE, NPC, clone, nativeModule, reload } from './helpers/timeline.js';
 import { SCENARIOS, journalOf, reply, world } from './timeline-principles.helpers.js';
 
 // ---- 1. durability, at every write position ------------------------------------------------------------------------------

@@ -5,8 +5,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { inventoryScreen } from '../../../src/v2/screens/index.js';
-import { cssOf, hostImports } from '../helpers/css-parts.js';
+import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { cssOf, hostImports } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 const size = read('view/size.css');

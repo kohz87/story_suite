@@ -3,10 +3,10 @@
 // goes to More) and shows a red dot. Settings says "shown only while active" instead of a switch.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { activeNow } from '../../../src/v2/view/mounts/common.js';
-import { createScreenMount } from '../../../src/v2/view/mounts/screen.js';
-import { barItems } from '../../../src/v2/view/screen-bar.js';
-import { validateScreen } from '../../../src/v2/view/screens.js';
+import { activeNow } from '../../../ui/legacy/view/mounts/common.js';
+import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
+import { barItems } from '../../../ui/legacy/view/screen-bar.js';
+import { validateScreen } from '../../../ui/legacy/view/screens.js';
 import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screen, screensWith, setupDom } from './mounts/helpers.js';
 
 test('activeNow: no active is always on; the answer is read; a failing answer is off; a badge is an alert', () => {

@@ -2,9 +2,9 @@
 // its invariants hold: the full one is `node scripts/bench-v2.mjs`.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { KEY, readRecord } from '../../../../../core/persist.js';
-import { CHECKPOINT_BYTES, CHECKPOINT_EVERY } from '../../../../../core/store.js';
+import { hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { KEY, readRecord } from '../../core/persist.js';
+import { CHECKPOINT_BYTES, CHECKPOINT_EVERY } from '../../core/store.js';
 import {
     PARTY_SIZE, STACKS, THREADS, UI_COMMANDS, UI_EVERY,
     breakdown, changeLines, compactCarrierOps, compactOps, everyCopy, measureLoad, measureSwipe, relayout, runScenario, sameHead,

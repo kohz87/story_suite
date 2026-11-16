@@ -10,7 +10,7 @@ import { memberXp } from '../../../../src/v2/lean-rpg/fight.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { carriedFrom } from '../../../../src/v2/lean-rpg/board/members.js';
 import { boardSession, discardBoard, openBoard, receiveBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, sheetDomain, skillBlock } from '../helpers.js';
 
 test('more than 40 board skills earn practice once through swipe and Re-read', async () => {

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { core, stocked, stack, def } from '../domains/fixtures.js';
-import { createHarness } from '../domains/helpers/fake-ctx.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { core, stocked, stack, def } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
 
 function setup() {
     const module = core();
@@ -81,7 +81,7 @@ test('an item edit agrees live, rebuilt, and reloaded and goes with a swipe', as
 });
 
 test('inventory pencils and Add item send reader commands from their inline forms', async () => {
-    const { inventoryScreen } = await import('../../../src/v2/screens/inventory.js');
+    const { inventoryScreen } = await import('../../../ui/legacy/screens/inventory.js');
     const { queries, show, settle } = await import('../screens/helpers.js');
     const module = core();
     const state = stocked(module);

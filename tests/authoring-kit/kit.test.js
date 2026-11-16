@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { checkPack, report } from '../../../authoring-kit/check.mjs';
+import { checkPack, report } from '../../packages/story-block/authoring-kit/check.mjs';
 
-const root = fileURLToPath(new URL('../../../', import.meta.url));
+const root = fileURLToPath(new URL('../../packages/story-block/', import.meta.url));
 const data = name => readFileSync(new URL(`../../../authoring-kit/reference/data-modules/${name}.pack.json`, import.meta.url), 'utf8');
 
 test('the data-module examples pass the same checker as the host', () => {
@@ -16,7 +16,7 @@ test('the data-module examples pass the same checker as the host', () => {
 });
 
 test('the tiny world example is a valid ordinary pack', () => {
-    const input = readFileSync(new URL('../../../authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8');
+    const input = readFileSync(new URL('../../packages/story-block/authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8');
     const result = checkPack(input);
     assert.equal(result.ok, true, report('tiny-world', result));
 });
@@ -39,11 +39,11 @@ test('the command-line checker reports a valid pack and an invalid one', () => {
 
 test('the limits reference is generated from the host exports', () => {
     const output = execFileSync(process.execPath, ['authoring-kit/scripts/limits.mjs'], { cwd: root, encoding: 'utf8' });
-    assert.equal(output, readFileSync(new URL('../../../authoring-kit/reference/LIMITS.md', import.meta.url), 'utf8'));
+    assert.equal(output, readFileSync(new URL('../../packages/story-block/authoring-kit/reference/LIMITS.md', import.meta.url), 'utf8'));
 });
 
 test('the checker reports an event condition that cannot be read, naming the event', () => {
-    const input = JSON.parse(readFileSync(new URL('../../../authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8'));
+    const input = JSON.parse(readFileSync(new URL('../../packages/story-block/authoring-kit/examples/tiny-world/pack.json', import.meta.url), 'utf8'));
     input.content = { ...(input.content ?? {}), events: [{ id: 'gate', when: "has('Smith's key')", cue: 'The gate opens.' }] };
     const result = checkPack(input);
     assert.equal(result.ok, false);

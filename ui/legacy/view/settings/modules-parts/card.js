@@ -1,9 +1,9 @@
 // One module's card on the Modules page (and the Diagnostics page): panels, folds, settings, search and focus.
 
 import { FEATURE_TEXT, SUB_FOLD, featuresFoldOf } from '../../../host-ui.js';
-import { LIFE_TEXT } from '../../../../../../../core/persist/compat.js';
-import { featureOf } from '../../../../../../../core/features.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { LIFE_TEXT } from '../../../../../core/persist/compat.js';
+import { featureOf } from '../../../../../core/features.js';
+import { fill } from '../../../../../core/strings.js';
 import { newId, sectionBlock } from '../../form/fields.js';
 import { renderModuleForm } from '../../form/form.js';
 import { matchesSearch } from '../../form/schema.js';

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 // A 150-line capture on a new chat measures the same parser and command machinery without the long history.
 // The history case has consistently cost about 11 times this baseline; 24 leaves room for noisy machines

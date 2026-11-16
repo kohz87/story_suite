@@ -3,7 +3,7 @@
 // and the replay rules: the stated level is read BEFORE the opening is recorded, so rebuild, Re-read, reload and swipe agree even after the field changes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, foeBlock, setup, skillBlock } from '../helpers.js';
 import { parseStatedLevel, statedLevel } from '../../../../src/v2/lean-rpg/board/stated-level.js';
 import { vetGroups } from '../../../../src/v2/lean-rpg/board/precheck.js';

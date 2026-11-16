@@ -1,7 +1,7 @@
 // Builds one reply card and its sections, draws a standalone card body, and opens or closes a card while
 // filling every section the first time it opens.
 
-import { STRINGS } from '../../../../../../../core/strings.js';
+import { STRINGS } from '../../../../../core/strings.js';
 import { THIS_REPLY_ID, mergeSummaries, sectionHeading } from '../../../reply-cards.js';
 import { button, dispose, drawScreen, icon, make } from '../common.js';
 import { changeSummary } from './summary.js';

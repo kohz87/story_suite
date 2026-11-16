@@ -3,10 +3,10 @@
 // note, and the refused lines in the changes card.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { problemReason, refusedFrom, warnedFrom } from '../../../src/v2/reply-notes.js';
-import { THIS_REPLY_ID } from '../../../src/v2/reply-cards.js';
-import { STRINGS } from '../../../../../core/strings.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
+import { problemReason, refusedFrom, warnedFrom } from '../../../ui/legacy/reply-notes.js';
+import { THIS_REPLY_ID } from '../../../ui/legacy/reply-cards.js';
+import { STRINGS } from '../../../core/strings.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 import { WITH_LINES, page } from './ux.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

@@ -1,13 +1,13 @@
 // Inventory actions keep their accessible disclosure behavior without a battle module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inventoryScreen } from '../../../src/v2/screens/index.js';
+import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
 import { core, foldButtons, foldOf, openFold, queries, renderSkip, settle, show, stocked, text } from './helpers.js';
 import { readFileSync } from 'node:fs';
-import { stackOf } from '../../../src/v2/view/modal-stack.js';
-import { gearHost } from '../helpers/gear-ui-state.js';
-import { createInventoryGridWidget, createInventoryViewWidget, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET } from '../../../src/v2/screens/inventory-add.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { stackOf } from '../../../ui/legacy/view/modal-stack.js';
+import { gearHost } from '../../core/helpers/gear-ui-state.js';
+import { createInventoryGridWidget, createInventoryViewWidget, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET } from '../../../ui/legacy/screens/inventory-add.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const skip = renderSkip;
 function world() {

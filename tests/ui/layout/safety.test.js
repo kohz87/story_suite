@@ -6,9 +6,9 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LAYOUT_CSS } from '../../../src/v2/layout/index.js';
+import { LAYOUT_CSS } from '../../../ui/legacy/layout/index.js';
 
-const dir = fileURLToPath(new URL('../../../src/v2/layout/', import.meta.url));
+const dir = fileURLToPath(new URL('../../../ui/legacy/layout/', import.meta.url));
 const walk = path => readdirSync(path).flatMap(name => {
     const full = join(path, name);
     return statSync(full).isDirectory() ? walk(full) : full.endsWith('.js') ? [full] : [];

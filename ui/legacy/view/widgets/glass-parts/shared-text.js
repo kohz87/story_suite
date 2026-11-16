@@ -1,7 +1,7 @@
 // Shared text helpers of the glass widgets: pick an allowed value, cut a label to one short line.
 
 import { str } from '../dom.js';
-import { cutAt } from '../../../../../../../core/text.js';
+import { cutAt } from '../../../../../core/text.js';
 
 export const LABEL_MAX = 60;
 

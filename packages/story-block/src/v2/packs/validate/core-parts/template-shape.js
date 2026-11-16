@@ -1,7 +1,7 @@
 // The job: saying what is wrong with a template's shape for a pack.
 
-import { templateShape, MAX_LOOP_DEPTH } from '../../../view/template/index.js';
-import { MAX_JSON_DEPTH } from '../../../view/template/json.js';
+import { templateShape, MAX_LOOP_DEPTH } from '../../../../../../../ui/legacy/view/template/index.js';
+import { MAX_JSON_DEPTH } from '../../../../../../../ui/legacy/view/template/json.js';
 
 // What is wrong with a template's shape for a pack (B-b5b-robust-r2-2, r2-3), or ''.
 export function shapeProblem(template) {

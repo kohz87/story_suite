@@ -10,17 +10,17 @@
 // A failing seed replays exactly (QA_DELETE_SEED=n).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { prng, seedCrypto } from './helpers/seeded.js';
 import { checkInvariants } from './helpers/oracle.js';
-import { displayLines } from '../../../src/v2/extras.js';
-import { readRecord } from '../../../../../core/persist.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
-import { memberLevel, memberXp } from '../../../src/v2/lean-rpg/fight.js';
-import { readSheet } from '../../../src/v2/lean-rpg/read.js';
-import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../src/v2/lean-rpg/board/session.js';
+import { displayLines } from '../../../ui/legacy/extras.js';
+import { readRecord } from '../../../core/persist.js';
+import { STANDARD_TEMPLATES } from '../../../packages/story-block/src/v2/lean-rpg/templates.js';
+import { STANDARD_FORMULA } from '../../../packages/story-block/src/v2/lean-rpg/rules.js';
+import { memberLevel, memberXp } from '../../../packages/story-block/src/v2/lean-rpg/fight.js';
+import { readSheet } from '../../../packages/story-block/src/v2/lean-rpg/read.js';
+import { usesOf } from '../../../packages/story-block/src/v2/lean-rpg/practice.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../../packages/story-block/src/v2/lean-rpg/board/session.js';
 
 const SEEDS = process.env.QA_DELETE_SEED ? [Number(process.env.QA_DELETE_SEED)] : [3, 6, 9, 11, 19, 22, 27, 29, 101];
 const REPLIES = 20;

@@ -1,7 +1,7 @@
 // view/scroll.js (phone hotfix): scrolling and focus inside the settings window move nothing around the page scroller.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BOTTOM_SLACK, atBottom, bottomSlack, followViewport, focusNode, gapBelow, holdPage, keepAtBottom, revealIn, scrollToBottom, scrollerOf, showAndFocus, zoomOf } from '../../../src/v2/view/scroll.js';
+import { BOTTOM_SLACK, atBottom, bottomSlack, followViewport, focusNode, gapBelow, holdPage, keepAtBottom, revealIn, scrollToBottom, scrollerOf, showAndFocus, zoomOf } from '../../../ui/legacy/view/scroll.js';
 
 // A scroller with a box and a scrollTop that clamps like a browser's; ancestors that must never move.
 function scene({ nodeTop = 500, nodeHeight = 40, scrollTop = 0, sticky = 0 } = {}) {

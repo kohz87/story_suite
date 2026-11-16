@@ -7,7 +7,7 @@ import { MODEL_CALL_TIMEOUT_MS, createModelCalls, listProfiles, safeReason, stMo
 import { PROFILE_TEXT, profileChoices } from '../../core/model-call/profile-field.js';
 import { createRegistry, definitionProblems } from '../../core/registry.js';
 import { createSettings, settingValue } from '../../core/sdk.js';
-import { renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { planner, other, handTimer, fakeSt, withSt } from './model-call.helpers.js';
 
 const doc = installFakeDom();

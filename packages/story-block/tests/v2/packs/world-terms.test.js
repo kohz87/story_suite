@@ -10,7 +10,7 @@ import { createPacksPart, marketsOf } from '../../../src/v2/packs/index.js';
 import { marketEntries, readMarketLine } from '../../../src/v2/packs/lorebook.js';
 import { CONTENT_KINDS, OPTIONAL_KINDS, RANKS_LIMITS } from '../../../src/v2/packs/limits.js';
 import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { linesToList, listToLines } from '../../../src/v2/host-ui.js';
+import { linesToList, listToLines } from '../../../../../ui/legacy/host-ui.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 import { createHarness, line } from '../domains/helpers/fake-ctx.js';

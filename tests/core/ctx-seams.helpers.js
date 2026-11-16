@@ -53,7 +53,7 @@ export function seams({ giveProof = false } = {}) {
 export const steps = { n: 0 };
 
 export async function upgraded(t, modules = [seams()]) {
-    const image = JSON.parse(readFileSync(new URL('../../packages/story-block/tests/v2/helpers/fixtures/ctx-seams-main.json', import.meta.url), 'utf8'));
+    const image = JSON.parse(readFileSync(new URL('./helpers/fixtures/ctx-seams-main.json', import.meta.url), 'utf8'));
     const saved = JSON.stringify(readRecord(image.chat.at(-1)).spans[0]);
     const host = await createHost({ modules, st: { chat: image.chat } });
     t.after(() => host.close());

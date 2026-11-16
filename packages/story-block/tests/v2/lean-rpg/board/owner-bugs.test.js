@@ -6,7 +6,7 @@ import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
 import { memberOrderLine } from '../../../../src/v2/lean-rpg/board/view-data.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { buildPanel, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { character, levelFoeBlock, skillBlock } from '../helpers.js';
 import { characterDefinition, fakeState, foesDefinition, skillsDefinition } from '../view/helpers.js';
 

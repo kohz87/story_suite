@@ -5,9 +5,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 import { createFakeContext } from '../../packages/story-block/testkit/index.js';
-import { hostImports } from '../../packages/story-block/tests/v2/helpers/css-parts.js';
+import { hostImports } from './helpers/css-parts.js';
 
 const doc = setupDom();
 doc.head = doc.createElement('head');

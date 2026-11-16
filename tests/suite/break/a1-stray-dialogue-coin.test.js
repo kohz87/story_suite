@@ -5,7 +5,7 @@
 // ignores the trailing words when the world has no coins, so the sentence pays as a bare "+ coin 5".
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const HIDDEN = /<!--\s*STORY_SUITE_V2[\s\S]*?-->/g;
 const shown = mes => String(mes).replace(HIDDEN, '');

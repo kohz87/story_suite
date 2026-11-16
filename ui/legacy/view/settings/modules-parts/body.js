@@ -1,8 +1,8 @@
 // The Modules page's body: a card per module, the Versions card, and the search and focus handles.
 
 import { VERSIONS_FOLD } from '../../../host-ui.js';
-import { compatReport, renderCompat } from '../../../../../../../core/persist/compat.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { compatReport, renderCompat } from '../../../../../core/persist/compat.js';
+import { fill } from '../../../../../core/strings.js';
 import { newId, sectionBlock } from '../../form/fields.js';
 import { matchesSearch } from '../../form/schema.js';
 import { showAndFocus } from '../../scroll.js';

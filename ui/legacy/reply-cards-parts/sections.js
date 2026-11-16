@@ -1,6 +1,6 @@
 // Orders the sections of the one card under a reply and names their headings.
 
-import { oneLine } from '../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 
 // ---- The one card under a reply ("This reply") ----------------------------------------------------------------------------
 // Every module's card screen (mount `card`: "Changed this reply" and every other module's) is a

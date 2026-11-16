@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCommandBus } from '../../../../../core/commands.js';
-import { counterIds, fakeRegistry, fakeStore } from '../helpers/bus-fakes.js';
+import { counterIds, fakeRegistry, fakeStore } from '../../../../../tests/core/helpers/bus-fakes.js';
 import { initialState, line } from './helpers/fake-ctx.js';
 import { core, stocked } from './fixtures.js';
 

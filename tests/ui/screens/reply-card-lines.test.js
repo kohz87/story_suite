@@ -3,7 +3,7 @@
 // "Nothing changed" line left out when a module had something to say.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { REPLY_LINES_MAX, changesCardScreen, changesSummary, replyCardLines } from '../../../src/v2/screens/index.js';
+import { REPLY_LINES_MAX, changesCardScreen, changesSummary, replyCardLines } from '../../../ui/legacy/screens/index.js';
 import { core, queries, renderSkip, show, stocked, text } from './helpers.js';
 
 const skip = renderSkip;

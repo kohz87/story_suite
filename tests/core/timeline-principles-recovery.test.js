@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { BATCH, DEATH, NATIVE, NPC, clone, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { BATCH, DEATH, NATIVE, NPC, clone, reload } from './helpers/timeline.js';
 import { open, otherChat, world } from './timeline-principles.helpers.js';
 
 // ---- 7. recovery never lets the host look ready on a story its native state has not caught up with -----------------------------

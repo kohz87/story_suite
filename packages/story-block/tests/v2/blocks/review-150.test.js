@@ -2,11 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { mountUi } from '../../../src/v2/ui-host.js';
+import { mountUi } from '../../../../../ui/legacy/ui-host.js';
 import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
 import { renderBlockEditor } from '../../../src/v2/screens/blocks-editor.js';
 import { STRINGS } from '../../../../../core/strings.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { definition, directorStub, pack } from '../data-modules/helpers.js';
 
 const S = STRINGS.blocks;

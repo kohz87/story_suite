@@ -6,8 +6,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { WORLD_ID, worldScreen } from '../../../../modules/world/world/index.js';
-import { compileTemplate, renderTemplate } from '../../../../packages/story-block/src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../../../packages/story-block/src/v2/view/bind.js';
+import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
+import { conditionEvaluator } from '../../../../ui/legacy/view/bind.js';
 import { compile, evaluate } from '../../../../modules/world/events/index.js';
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';

@@ -2,5 +2,5 @@
 # Format: <repo-relative path> <line count>.
 # This list may only shrink — split a file when it moves out of packages/.
 packages/npc-state-delta/tests/runtime-smoke.mjs 1659
-packages/story-block/tests/v2/bench/load.js 678
+tests/bench/load.js 678
 packages/story-block/tests/v2/packs/fixtures/old-host/validate.js 1210

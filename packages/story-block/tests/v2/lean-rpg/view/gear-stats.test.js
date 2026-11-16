@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
 import { readParty } from '../../../../src/v2/lean-rpg/view/party-data.js';
@@ -14,7 +14,7 @@ import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { createCoreModule } from '../../../../src/v2/domains/index.js';
 import { createHarness } from '../../domains/helpers/fake-ctx.js';
 import { stocked } from '../../domains/fixtures.js';
-import { dump } from '../../helpers/gear-ui-state.js';
+import { dump } from '../../../../../../tests/core/helpers/gear-ui-state.js';
 import { fakeState } from './helpers.js';
 
 const template = role => structuredClone(STANDARD_TEMPLATES.find(entry => entry.definition.role === role).definition);

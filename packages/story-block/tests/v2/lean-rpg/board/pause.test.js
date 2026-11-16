@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createPauseView } from '../../../../src/v2/lean-rpg/board/pause.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 
 const foe = { name: 'Rat Swarms', label: 'Rat Swarms · Lv 3', health: 'Unhurt' };
 const known = {

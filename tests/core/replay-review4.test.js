@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REPLAY_BOOKKEEPING, replayInputsOf } from '../../core/replay.js';
-import { EPOCH, OWNER, Q1, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
+import { EPOCH, OWNER, Q1, guarded, harness } from './helpers/guarded.js';
 
 const SMALL = { checkpointEvery: 3, checkpointBytes: 1 << 30 };
 const clone = value => JSON.parse(JSON.stringify(value));

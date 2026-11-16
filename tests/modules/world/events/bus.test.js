@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCommandBus } from '../../../../core/commands.js';
 import { createEventsPart } from '../../../../modules/world/events/index.js';
-import { counterIds, fakeRegistry, fakeStore } from '../../../../packages/story-block/tests/v2/helpers/bus-fakes.js';
+import { counterIds, fakeRegistry, fakeStore } from '../../../core/helpers/bus-fakes.js';
 
 const INITIAL = {
     v: 2,

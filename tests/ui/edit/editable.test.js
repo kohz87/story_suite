@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { editable } from '../../../src/v2/view/widgets/editable.js';
+import { editable } from '../../../ui/legacy/view/widgets/editable.js';
 import { fakeApi, host, installDom } from '../view/widgets/fake-dom.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));

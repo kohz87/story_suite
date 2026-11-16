@@ -10,7 +10,7 @@ import { checkStep, checksHook, checksOf } from '../../../../src/v2/lean-rpg/pra
 import { practiceLines } from '../../../../src/v2/lean-rpg/view/changes-lines.js';
 import { reply, success } from '../../data-modules/helpers.js';
 import { character, sheetDomain, skillBlock, tailOf } from '../helpers.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { LIMITS } from '../../../../src/v2/lean-rpg/names.js';

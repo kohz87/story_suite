@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { GO, activeSettles, box, codes, iaApi, iaChain, iaModule, setText, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { GO, activeSettles, box, codes, iaApi, iaChain, iaModule, setText, withLines } from '../../suite/qa/helpers/probe-interaction.js';
 
 test('a Re-read plans the settle again from its stored payload: same result, same change, applied once', async () => {
     const host = await createHost({ modules: [iaModule()] });

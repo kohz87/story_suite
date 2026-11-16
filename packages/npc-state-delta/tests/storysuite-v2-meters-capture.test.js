@@ -4,7 +4,7 @@ import { MODULE_ID, meterBarNode } from '../src/storysuite-v2.js';
 import { DEFAULT_CHANGE_CAP, MAX_CUSTOM_METERS, normalizeMeterSettings, npcKey, parseMeterValue, stageAt, validateNpcSlice } from '../src/npc-meters.js';
 import { METERS_CARD_ID, metersCardScreen } from '../src/npc-meters-screen.js';
 import { fakeDocument } from './helpers/fake-dom.js';
-import { CHANGED, changedHelper } from '../../story-block/src/v2/view/bind-parts/scope-shared.js';
+import { CHANGED, changedHelper } from '../../../ui/legacy/view/bind-parts/scope-shared.js';
 import { STAGES, fakeDelta, host, plain } from './storysuite-v2-meters.helpers.js';
 
 test('the real registry accepts the definition: meters in the people domain, npc kind, commands, queries, the NPC card screen', async () => {

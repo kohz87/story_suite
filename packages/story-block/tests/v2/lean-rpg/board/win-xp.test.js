@@ -10,7 +10,7 @@ import { fightHook, fightGuard, fightXp, groupsOf, memberXp, openedSlots } from 
 import { fightLines } from '../../../../src/v2/lean-rpg/view/changes-lines.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, levelFoeBlock, recordOf, sheetDomain } from '../helpers.js';
 
 async function world({ old = false, level = 1, health = 5, foeLevel = level } = {}) {

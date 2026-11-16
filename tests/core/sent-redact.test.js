@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { SETTINGS_TEXT, redactSentOf, sentText } from '../../packages/story-block/src/v2/host-ui.js';
-import { createPromptReader, renderPromptCard } from '../../packages/story-block/src/v2/view/settings/prompt.js';
+import { SETTINGS_TEXT, redactSentOf, sentText } from '../../ui/legacy/host-ui.js';
+import { createPromptReader, renderPromptCard } from '../../ui/legacy/view/settings/prompt.js';
 import { installFakeDom } from '../helpers/ui-fake-dom.js';
 
 const T = SETTINGS_TEXT.sent;

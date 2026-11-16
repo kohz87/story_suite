@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
-import { setupDom } from '../view/mounts/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { STANDARD, prepare, readSheet, rollPrepared, validatePlan } from '../../../src/v2/lean-rpg/index.js';
 // (The Character block here is one made before levels, 2.17.0: it has the Soul Class field a pack may rename.)
 import { STANDARD_TEMPLATES } from './fixtures/templates-2.16.js';

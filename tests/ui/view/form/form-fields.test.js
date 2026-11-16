@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderSettingsForm } from '../../../../src/v2/view/form/index.js';
-import { groupFields, rowValue, fieldReadOnly } from '../../../../src/v2/host-ui.js';
+import { renderSettingsForm } from '../../../../ui/legacy/view/form/index.js';
+import { groupFields, rowValue, fieldReadOnly } from '../../../../ui/legacy/host-ui.js';
 import { doc, SCHEMA, setup, row, input, hasClass } from './form.helpers.js';
 
 test('every field of a known type is drawn in its group; one the engine does not know is not, and its value is left alone', () => {

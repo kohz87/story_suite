@@ -1,7 +1,7 @@
 // What the form says to the reader: its plain-words messages and the note for a value the store did not keep as typed.
 
-import { normalizeField } from '../../../../../../../core/registry.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { normalizeField } from '../../../../../core/registry.js';
+import { fill } from '../../../../../core/strings.js';
 import { humanize } from './labels.js';
 
 /** What the form says to the reader (plain words). */

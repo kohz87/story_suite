@@ -1,5 +1,5 @@
 // The `story-block/changes-card` screen: the inline card under a reply, its template and its styles.
-import { STRINGS, html } from '../../../../../../core/strings.js';
+import { STRINGS, html } from '../../../../core/strings.js';
 import { BASE_CSS } from '../style.js';
 
 export const CHANGES_CARD_SCREEN_ID = 'story-block/changes-card';

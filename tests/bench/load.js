@@ -15,11 +15,11 @@
 // tests/v2/bench/smoke.test.js runs a short version in `npm test`; scripts/bench-v2.mjs runs the full one.
 
 import { performance } from 'node:perf_hooks';
-import { MAIN_PROMPT, aiMessage, createHost } from '../../../testkit/index.js';
-import { STATIC_KEY, TAIL_KEY } from '../../../../../core/turn.js';
-import { createStore } from '../../../../../core/store.js';
-import { apply as applyOps } from '../../../../../core/ops.js';
-import { readRecord, isCarrier } from '../../../../../core/persist.js';
+import { MAIN_PROMPT, aiMessage, createHost } from '../../packages/story-block/testkit/index.js';
+import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
+import { createStore } from '../../core/store.js';
+import { apply as applyOps } from '../../core/ops.js';
+import { readRecord, isCarrier } from '../../core/persist.js';
 
 export const MODULE_ID = 'bench-rpg';
 export const PARTY_SIZE = 4;

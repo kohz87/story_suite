@@ -1,6 +1,6 @@
 // The two host widgets of a card's footer: Show all / Show less, and the Open Quests link.
 
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 import { CAP_CLASS, QUESTS_SCREEN } from './names.js';
 import { capToggle } from './toggle.js';
 

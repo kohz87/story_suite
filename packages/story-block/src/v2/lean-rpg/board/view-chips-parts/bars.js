@@ -1,5 +1,5 @@
 // The four-segment Health mini-bar and how many segments a value lights.
-import { h, text } from '../../../view/widgets/dom.js';
+import { h, text } from '../../../../../../../ui/legacy/view/widgets/dom.js';
 import { numberOr } from './shared-values.js';
 
 export const SEGMENTS = 4;

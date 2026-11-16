@@ -2,7 +2,7 @@
 // The list is the file's export list from before the split (24 names): each must still be there, of the same kind.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as facade from '../../../../../core/turn.js';
+import * as facade from '../../../core/turn.js';
 
 const EXPORTS = {
     ASSIST_WAIT_MS: 'number',

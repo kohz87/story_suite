@@ -1,6 +1,6 @@
 // Reader settings: the status strip switch and the reader's saved screen and card choices.
 
-import { CORE_FEATURE } from '../../../../../../core/features.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
 
 /**
  * The status strip is on unless the reader turned it off (MODULES §F54): the feature `story-block.hud`

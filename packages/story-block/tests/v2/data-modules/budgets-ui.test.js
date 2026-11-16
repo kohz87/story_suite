@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setupDom } from '../view/mounts/helpers.js';
+import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 import { renderDataModules } from '../../../src/v2/data-modules/setup.js';
-import { renderLayout } from '../../../src/v2/layout/render.js';
+import { renderLayout } from '../../../../../ui/legacy/layout/render.js';
 import { DM_LIMITS as L } from '../../../src/v2/data-modules/schema.js';
 import { world, pack, definition, pin, success, view, reply, rebuilt, fixture, directorStub } from './helpers.js';
 

@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { FIGHT_SCREEN_ID, FIGHT_WIDGET, createFightScreen, createFightWidget, hasFoes, readFight } from '../../../../src/v2/lean-rpg/view/fight.js';
 import { panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
 import { ROLES_WITHOUT_TAB } from '../../../../src/v2/lean-rpg/names.js';
-import { activeNow } from '../../../../src/v2/view/mounts/common.js';
+import { activeNow } from '../../../../../../ui/legacy/view/mounts/common.js';
 import { characterDefinition, fakeState, foesDefinition, roleOf } from './helpers.js';
 
 const wessel = { definition: characterDefinition('wessel', 'Wessel'), fields: { health: 3, mana: 4, stamina: 1 } };

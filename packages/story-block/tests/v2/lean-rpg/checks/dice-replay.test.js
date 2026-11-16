@@ -8,7 +8,7 @@ import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { checksOf } from '../../../../src/v2/lean-rpg/practice.js';
 import { reply, success } from '../../data-modules/helpers.js';
 import { tailOf } from '../helpers.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

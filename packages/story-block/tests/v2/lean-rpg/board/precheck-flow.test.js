@@ -3,14 +3,14 @@
 // replay / Re-read / rebuild read the recorded opening and never ask a model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { NEVER, character, foeBlock, setup, skillBlock, tailOf } from '../helpers.js';
 import { boardSession, markSend, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { clearStart, holdStart, pendingStart } from '../../../../../../core/turn/fight-start.js';
 import { createPauseView } from '../../../../src/v2/lean-rpg/board/pause.js';
 import { createStartController } from '../../../../src/v2/lean-rpg/board/start-controller.js';
 import { pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { PRECHECK_SETTING } from '../../../../src/v2/lean-rpg/names.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { validateDataModules } from '../../../../src/v2/data-modules/check.js';

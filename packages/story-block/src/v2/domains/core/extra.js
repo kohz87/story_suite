@@ -1,7 +1,7 @@
 // Story Block's extra core query helpers: Inner chatter coming back into the prompt, and whether the
 // head reply moved the scene.
 
-import { answeredReply, chatterTail } from '../../extras.js';
+import { answeredReply, chatterTail } from '../../../../../../ui/legacy/extras.js';
 
 /**
  * The tail part of Inner chatter (MODULES §F115): with the reader's `chatterInPrompt` on, the thoughts

@@ -1,7 +1,7 @@
 // Draws the RPG settings Difficulty card: the chosen difficulty, the Custom numbers of the formula in force, and the
 // odds for the reader's character, updated in place as the numbers or the story change.
 
-import { h } from '../../../view/widgets/dom.js';
+import { h } from '../../../../../../../ui/legacy/view/widgets/dom.js';
 import { LEVEL } from '../../names.js';
 import { DIFFICULTIES, DIFFICULTY_SETTING, STANDARD_RANGES, STANDARD_SETTING, difficultyOf, normalizeStandard, rulesFromSettings } from '../../rules.js';
 import { fill } from '../../strings.js';

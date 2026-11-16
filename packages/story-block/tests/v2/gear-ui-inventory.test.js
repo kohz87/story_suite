@@ -6,10 +6,10 @@ import { readFileSync } from 'node:fs';
 import { createHost } from '../../testkit/index.js';
 import { createCoreModule } from '../../src/v2/domains/index.js';
 import { createHarness } from './domains/helpers/fake-ctx.js';
-import { settle, text } from './screens/helpers.js';
+import { settle, text } from '../../../../tests/ui/screens/helpers.js';
 import { page } from './lean-rpg/view/page.js';
-import { FIGHT, dump, gearHost } from './helpers/gear-ui-state.js';
-import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../src/v2/screens/inventory-add.js';
+import { FIGHT, dump, gearHost } from '../../../../tests/core/helpers/gear-ui-state.js';
+import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../../ui/legacy/screens/inventory-add.js';
 import { BAG, buttonsOf, crewState, draw, foldWidgets, groupRows, headings, memory, names, rowOf } from './gear-ui.helpers.js';
 
 test('Inventory, gear on: Carry first, then Equipment (in the bag), the wearer\'s Worn list, Consumables, Goods; the Carry card is a row-style card with the load, a bar and the breakdown', async t => {
@@ -84,7 +84,7 @@ test('gear off: the Inventory screen renders exactly as it did before the featur
     const host = await gearHost(t, { gear: false });
     const { el, view, problems } = draw(host);
     assert.deepEqual([view.warnings, problems], [[], []]);
-    assert.equal(dump(el), readFileSync(new URL('./fixtures/inventory-gear-off.html', import.meta.url), 'utf8'));
+    assert.equal(dump(el), readFileSync(new URL('../../../../tests/core/fixtures/inventory-gear-off.html', import.meta.url), 'utf8'));
     assert.equal(el.querySelector('.carry-sec'), null);
     assert.equal(el.querySelector('.ss-w-inventory-add button').classList.contains('ss-tap-pill'), false, 'the add button is the one it always was');
     assert.equal(el.querySelector('.inv').classList.contains('gear'), false);

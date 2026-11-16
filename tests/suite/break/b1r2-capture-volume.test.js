@@ -13,7 +13,7 @@
 //   is checked against a same-run plain capture and a 10 s ceiling; the separate 6 s case is unchanged.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { assertCaptureTiming, plainCaptureBaseline } from './capture-timing.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

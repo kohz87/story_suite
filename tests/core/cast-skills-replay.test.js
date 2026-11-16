@@ -5,7 +5,7 @@ import { validatePack } from '../../packages/story-block/src/v2/packs/validate.j
 import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES, grownSkills } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
 import { readParty } from '../../packages/story-block/src/v2/lean-rpg/view/party-data.js';
 import { summaryOf } from '../../packages/story-block/src/v2/data-modules/part.js';
-import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 import { fakeState } from '../../packages/story-block/tests/v2/lean-rpg/view/helpers.js';
 import { renderSkills, slotsShown } from '../../packages/story-block/src/v2/lean-rpg/view/skills.js';
 import { joinCard, joinDraft, joinOffers } from '../../packages/story-block/src/v2/lean-rpg/join.js';

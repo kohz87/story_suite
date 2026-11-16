@@ -5,11 +5,11 @@
 // records every attribute set, so a renderer that parsed markup or set a handler fails here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FakeElement, installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { renderLayout, validateLayout } from '../../../src/v2/layout/index.js';
-import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
-import { badge } from '../../../src/v2/view/widgets/badge.js';
-import { meter } from '../../../src/v2/view/widgets/meter.js';
+import { FakeElement, installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { renderLayout, validateLayout } from '../../../ui/legacy/layout/index.js';
+import { evaluateCondition } from '../../../modules/world/events/condition.js';
+import { badge } from '../../../ui/legacy/view/widgets/badge.js';
+import { meter } from '../../../ui/legacy/view/widgets/meter.js';
 
 const forbid = name => function () { throw new Error(`markup was parsed: ${name}`); };
 Object.defineProperty(FakeElement.prototype, 'innerHTML', { configurable: true, get: forbid('innerHTML get'), set: forbid('innerHTML set') });

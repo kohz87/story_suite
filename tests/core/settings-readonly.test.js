@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom } from '../helpers/ui-fake-dom.js';
 import { createRegistry, definitionProblems } from '../../core/registry.js';
 import { createSettings } from '../../core/sdk.js';
-import { fieldReadOnly, renderSettingsHost, rowValue } from '../../packages/story-block/src/v2/host-ui.js';
+import { fieldReadOnly, renderSettingsHost, rowValue } from '../../ui/legacy/host-ui.js';
 
 const doc = installFakeDom();
 

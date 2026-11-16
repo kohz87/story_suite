@@ -8,11 +8,11 @@ import { createRegistry } from '../../core/registry.js';
 import { MAX_CHANGE_LINES, createSettings, settingValue } from '../../core/sdk.js';
 import { parseAmount } from '../../packages/story-block/src/v2/domains/money.js';
 import { cleanName } from '../../packages/story-block/src/v2/domains/names.js';
-import { MAX_DEPTH, parseHtml, tooDeep } from '../../packages/story-block/src/v2/view/template/html.js';
-import { MAX_AT_DEPTH, cssDepth, scopeCss } from '../../packages/story-block/src/v2/view/css.js';
+import { MAX_DEPTH, parseHtml, tooDeep } from '../../ui/legacy/view/template/html.js';
+import { MAX_AT_DEPTH, cssDepth, scopeCss } from '../../ui/legacy/view/css.js';
 import { unsafeCss } from '../../packages/story-block/src/v2/packs/validate.js';
 import { installFakeDom } from '../helpers/ui-fake-dom.js';
-import { renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { readRecord } from '../../core/persist.js';
 

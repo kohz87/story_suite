@@ -3,8 +3,8 @@
 // the focus kept across a redraw. There is no More and no sheet: the pill's code is gone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { barItems, createScreenBar, stripOrder } from '../../../src/v2/view/screen-bar.js';
-import { STRINGS, fill } from '../../../../../core/strings.js';
+import { barItems, createScreenBar, stripOrder } from '../../../ui/legacy/view/screen-bar.js';
+import { STRINGS, fill } from '../../../core/strings.js';
 import { installDom, host } from './widgets/fake-dom.js';
 
 const ITEMS = [

@@ -5,10 +5,10 @@
 // draws the screens; the fake DOM throws on innerHTML and records every attribute.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FakeElement } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { createMounts, drawScreen } from '../../../src/v2/view/mounts/index.js';
-import { renderLayout } from '../../../src/v2/layout/index.js';
-import { fakeChat, screensWith, setupDom } from '../view/mounts/helpers.js';
+import { FakeElement } from '../../helpers/ui-fake-dom.js';
+import { createMounts, drawScreen } from '../../../ui/legacy/view/mounts/index.js';
+import { renderLayout } from '../../../ui/legacy/layout/index.js';
+import { fakeChat, screensWith, setupDom } from '../../ui/view/mounts/helpers.js';
 
 const forbid = name => function () { throw new Error(`markup was parsed: ${name}`); };
 Object.defineProperty(FakeElement.prototype, 'innerHTML', { configurable: true, get: forbid('innerHTML get'), set: forbid('innerHTML set') });

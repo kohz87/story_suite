@@ -1,6 +1,6 @@
 // Cleans the modules' own reply-card lines (their checks and tones) and merges in the RPG's lines.
-import { STRINGS, fill } from '../../../../../../core/strings.js';
-import { oneLine } from '../../../../../../core/text.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
+import { oneLine } from '../../../../core/text.js';
 import { isRecord } from './shared-record.js';
 
 const C = STRINGS.card;

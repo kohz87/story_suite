@@ -2,8 +2,8 @@
 // The current overlay, card log and RPG sections are read when the reader opens or uses them.
 
 import { openSettingsWindow } from '../view/settings/window.js';
-import { CORE_FEATURE, GEAR_FEATURE, withHiddenFeatures } from '../../../../../core/features.js';
-import { buildReport, caughtSoFar, reportFileName } from '../../../../../core/diagnostics.js';
+import { CORE_FEATURE, GEAR_FEATURE, withHiddenFeatures } from '../../../core/features.js';
+import { buildReport, caughtSoFar, reportFileName } from '../../../core/diagnostics.js';
 import { createThemeBridge } from '../view/theme.js';
 
 export function createUiSettings({ runtime, doc, registry, store, sdk, settings, version, widgets, liveCtx, tabsControl, blockTemplates, blockWidgets, getRpg, getHudAsked, getCardLog, getOverlay, setOverlay, redrawAll = null, redrawOn = () => false }) {

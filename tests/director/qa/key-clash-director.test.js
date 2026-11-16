@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readRecord, writeRecord } from '../../../core/persist.js';
-import { keyClashes } from '../../../packages/story-block/tests/v2/qa/helpers/key-clash.js';
+import { keyClashes } from '../../suite/qa/helpers/key-clash.js';
 import { makeDirectorHost } from './helpers/reread-host.js';
 
 const bad = '<Changes>\n~ quest a1 | step:\n</Changes>';

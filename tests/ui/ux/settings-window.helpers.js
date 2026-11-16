@@ -1,7 +1,7 @@
 // Shared fixtures and helpers for the settings-window test suite.
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
+import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 
 export const texts = (root, selector) => root.querySelectorAll(selector).map(node => node.textContent);
 

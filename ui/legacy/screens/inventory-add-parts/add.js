@@ -1,6 +1,6 @@
 // The Inventory header's inline form (and gear form) for the reader's own items.
 
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 import { h, shell } from '../../view/widgets/dom.js';
 import { editable } from '../../view/widgets/editable.js';
 import { addFields, addPlan } from '../../view/gear-form.js';

@@ -2,14 +2,14 @@
 // Versions list: a dormant module says what it waits for, a restore pending says so, a ready one says nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { createRegistry } from '../../../../../core/registry.js';
-import { createSettings } from '../../../../../core/sdk.js';
-import { LIFE_TEXT, compatReport, renderCompat } from '../../../../../core/persist/compat.js';
-import { renderSettingsHost } from '../../../src/v2/host-ui.js';
-import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createSettings } from '../../../core/sdk.js';
+import { LIFE_TEXT, compatReport, renderCompat } from '../../../core/persist/compat.js';
+import { renderSettingsHost } from '../../../ui/legacy/host-ui.js';
+import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 
 const HOST = '2.0.0-beta.2';
 const rb = () => ({ id: 'rpg-battle', name: 'RPG Battle', version: '2.0.0-beta.2', requires: { storyBlock: '>=2.0.0-beta.2', peers: { 'story-director': '>=2.0.0-beta.1' } }, domains: { party: { initial: () => ({}) } } });

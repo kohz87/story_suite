@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
-import { replyEdits } from '../../../../packages/story-block/src/v2/reply-cards.js';
+import { replyEdits } from '../../../../ui/legacy/reply-cards.js';
 import { castPlans } from '../../../../modules/cast/cast/index.js';
 import { OPENING, castHost, castSource, entry, people, receipts as castReceipts, said, settle, slice, validatorErrors as castValidatorErrors } from '../../cast/cast/helpers.js';
 

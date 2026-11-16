@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { createCommandBus } from '../../core/commands.js';
 import { checkOps, clone, deepFreeze, diff, escapeKey, frozenCopy, isDeepFrozen } from '../../core/ops.js';
 import { rng } from '../../core/commands/rng.js';
-import { counterIds, fakeRegistry, fakeStore } from '../../packages/story-block/tests/v2/helpers/bus-fakes.js';
+import { counterIds, fakeRegistry, fakeStore } from './helpers/bus-fakes.js';
 
 const isPlain = value => {
     if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;

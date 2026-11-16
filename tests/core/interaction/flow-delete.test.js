@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { GO, activeSettles, box, codes, iaApi, iaChain, iaModule, playSegment } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { GO, activeSettles, box, codes, iaApi, iaChain, iaModule, playSegment } from '../../suite/qa/helpers/probe-interaction.js';
 
 // The reader deletes the last reply and the message it answered.
 async function dropLast(host, index) {

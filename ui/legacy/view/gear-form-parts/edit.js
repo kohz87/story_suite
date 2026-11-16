@@ -1,6 +1,6 @@
 // Gear form: the fields and the plan of the Edit of a piece the reader added.
 
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 import { NOTE_MAX, SHOWN } from './shared-limits.js';
 import { short } from './shared-short.js';
 import { kindOptions, rarityOptions, slotOptions } from './shared-options.js';

@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { createSavePoints } from '../../../core/timeline/rewind.js';
-import { GO, activeSettles, box, iaApi, iaChain, iaModule } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { GO, activeSettles, box, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 
 const clone = value => structuredClone(value);
 

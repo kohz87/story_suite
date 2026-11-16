@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { nativeModule, rulesModule, restore, clone, reload, NATIVE } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { nativeModule, rulesModule, restore, clone, reload, NATIVE } from './helpers/timeline.js';
 import { hashJson } from '../../core/replay.js';
 import { createParticipants } from '../../core/timeline/participants.js';
 import { sourceOf } from '../helpers/split-source.js';
-import { director, hostModule } from '../../packages/story-block/tests/v2/helpers/evidence.js';
+import { director, hostModule } from './helpers/evidence.js';
 
 async function setup(t) {
     const native = nativeModule();

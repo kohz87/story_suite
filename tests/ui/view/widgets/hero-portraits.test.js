@@ -2,7 +2,7 @@
 // is not asked for again on a redraw, and past the last the initial shows. Fired as DOM errors on the image, one at a time.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hero, pictureCandidates, pictureUrl } from '../../../../src/v2/view/widgets/hero.js';
+import { hero, pictureCandidates, pictureUrl } from '../../../../ui/legacy/view/widgets/hero.js';
 import { fakeApi, host, installDom } from './fake-dom.js';
 
 const A = 'https://a.example/persona.png';

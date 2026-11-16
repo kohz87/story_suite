@@ -7,9 +7,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ROOT_SELECTOR, THEME_ROOTS, themeCss, themeTokens } from '../../../src/v2/view/theme.js';
-import { changesCardScreen } from '../../../src/v2/screens/changes-card.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { ROOT_SELECTOR, THEME_ROOTS, themeCss, themeTokens } from '../../../ui/legacy/view/theme.js';
+import { changesCardScreen } from '../../../ui/legacy/screens/changes-card.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
 const host = cssOf('host');

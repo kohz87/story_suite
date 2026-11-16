@@ -11,8 +11,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createRegistry } from '../../../../../core/registry.js';
-import { satisfies } from '../../../src/v2/packs/version.js';
+import { createRegistry } from '../../../core/registry.js';
+import { satisfies } from '../../../packages/story-block/src/v2/packs/version.js';
 
 const mod = range => ({ id: 'zz-needs', name: 'Needs', queries: { 'zz.ping': () => 'pong' }, requires: { storyBlock: range } });
 const quiet = { warn: () => {} };

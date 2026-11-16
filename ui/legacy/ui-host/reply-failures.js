@@ -1,8 +1,8 @@
 // The modules that could not finish a reply, kept per shown swipe (in memory only) for the changes card's "could not finish" row.
 // The Problem log is shared and append-only (the Inspector reads it), so a failure is attributed to the swipe shown when it is first seen.
 
-import { isModuleFailure, moduleFailures } from '../../../../../core/turn/apply-report.js';
-import { swipeOf } from '../../../../../core/persist.js';
+import { isModuleFailure, moduleFailures } from '../../../core/turn/apply-report.js';
+import { swipeOf } from '../../../core/persist.js';
 
 const signOf = item => `${item.index}\n${item.module}\n${item.code}\n${String(item.message ?? '').trim()}`;
 

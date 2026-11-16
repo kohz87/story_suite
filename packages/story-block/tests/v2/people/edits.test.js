@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../../../core/persist.js';
-import { replyEdits } from '../../../src/v2/reply-cards.js';
-import { carriers, rebuildAt } from '../qa/helpers/oracle.js';
+import { replyEdits } from '../../../../../ui/legacy/reply-cards.js';
+import { carriers, rebuildAt } from '../../../../../tests/suite/qa/helpers/oracle.js';
 
 const plain = value => (value === undefined ? null : JSON.parse(JSON.stringify(value)));
 const view = { v: 1, order: ['npc_ann'], npcs: { npc_ann: { id: 'npc_ann', name: 'Ann', role: 'smith' } }, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {}, turn: 1 };

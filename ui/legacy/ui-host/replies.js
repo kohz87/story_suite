@@ -2,11 +2,11 @@
 
 import { CHANGES_CARD_SCREEN_ID, replyCardLines } from '../screens/index.js';
 import { mergeRpgLines } from '../screens/changes-card.js';
-import { readRecord } from '../../../../../core/persist.js';
+import { readRecord } from '../../../core/persist.js';
 import { laterStore, replyEdits, replyRules, scanReplyCards } from '../reply-cards.js';
 import { createReplyFailures } from './reply-failures.js';
 import { interactionAt } from './reply-interaction.js';
-import { FLAGS, flagOn } from '../../../../../core/runtime/flags.js';
+import { FLAGS, flagOn } from '../../../core/runtime/flags.js';
 import { drawReplyCard } from '../view/reply-cards-ui.js';
 
 export function createReplyCards({ runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg, getMounts, nameOf }) {

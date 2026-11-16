@@ -3,8 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
 import { createRuntime } from '../../core/runtime.js';
-import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
-import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { mountUi } from '../../ui/legacy/ui-host.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 
 const LATE = { id: 'qa-late', name: 'Late', screens: [{ id: 'qa-late/strip', title: 'Strip', mounts: ['hud', 'tab'], template: '<div>{{ state.meta.rev }}</div>' }] };
 

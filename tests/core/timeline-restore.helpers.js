@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { director, T1, T2 } from '../../packages/story-block/tests/v2/helpers/evidence.js';
-import { nativeModule, rulesModule, seal, slice } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { director, T1, T2 } from './helpers/evidence.js';
+import { nativeModule, rulesModule, seal, slice } from './helpers/timeline.js';
 
 export const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 export const cmd = (host, type, payload = {}) => host.sdk.command(type, payload).then(result => {

@@ -17,7 +17,7 @@ import { reply, success } from './data-modules/helpers.js';
 import { pack } from './packs/helpers/fixtures.js';
 import { character, sheetDomain } from './lean-rpg/helpers.js';
 import { legacyPlanner } from './lean-rpg/legacy-planner.js';
-import { seedCrypto } from './qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../tests/suite/qa/helpers/seeded.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

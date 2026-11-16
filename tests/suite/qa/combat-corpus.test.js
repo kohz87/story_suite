@@ -6,10 +6,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { setup } from '../lean-rpg/helpers.js';
+import { setup } from '../../../packages/story-block/tests/v2/lean-rpg/helpers.js';
 import { seedCrypto } from './helpers/seeded.js';
 import { firstDifference } from './helpers/replay-diagnostics.js';
-import { capture } from '../fixtures/combat-corpus/corpus.mjs';
+import { capture } from '../../core/fixtures/combat-corpus/corpus.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', 'fixtures', 'combat-corpus');

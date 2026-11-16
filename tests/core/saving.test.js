@@ -9,7 +9,7 @@ import { createChatFile } from '../../core/store/chat-file.js';
 import { IDLE_MS, createSaver, markFits, readRecord, swipeMark, writeRecord } from '../../core/persist.js';
 import { createRewind } from '../../core/timeline/rewind.js';
 import { createRuntime, saveOnUnload } from '../../core/runtime.js';
-import { serveChats } from '../../packages/story-block/tests/v2/helpers/st-server.js';
+import { serveChats } from './helpers/st-server.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const settled = async (n = 4) => { for (let i = 0; i < n; i++) await settle(); };

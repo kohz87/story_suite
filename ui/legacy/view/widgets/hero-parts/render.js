@@ -4,7 +4,7 @@ import { h, iconNode, initials, shell } from '../dom.js';
 import { resolveProps } from '../props.js';
 import { bar, status } from '../glass.js';
 import { editable } from '../editable.js';
-import { STRINGS } from '../../../../../../../core/strings.js';
+import { STRINGS } from '../../../../../core/strings.js';
 import { svgIcon } from '../../icons/index.js';
 import { focusNode } from '../../scroll.js';
 import { heroEditFields, heroEditPlan } from '../../hero-edit.js';

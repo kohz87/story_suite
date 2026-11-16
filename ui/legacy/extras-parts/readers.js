@@ -1,6 +1,6 @@
 // Choices and Inner chatter: reading one `? choice` or `~ chatter` line into its value.
 
-import { lineBody } from '../../../../../core/capture.js';
+import { lineBody } from '../../../core/capture.js';
 import { cutPoints, flatten } from './text.js';
 import { CHOICE_KEEP } from './limits.js';
 import { CHATTER_CHARS, NAME_CHARS } from './chatter-limits.js';

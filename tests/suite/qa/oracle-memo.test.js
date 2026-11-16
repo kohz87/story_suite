@@ -2,7 +2,7 @@
 // carrier of a chat, in ascending order and in a shuffled order, so the memo cannot hide a replay bug.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { probeModule } from './helpers/probe-module.js';
 import { carriers, rebuildAt } from './helpers/oracle.js';
 

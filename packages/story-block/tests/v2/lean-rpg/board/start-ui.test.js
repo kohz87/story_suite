@@ -5,7 +5,7 @@ import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { boardSession, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 
 async function world(t) {
     const app = await page(t, { formula: 'standard' });

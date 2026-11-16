@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { activeSettles, box, codes, iaApi, iaChain, iaModule, playSegment, setText, withLines, GO } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { activeSettles, box, codes, iaApi, iaChain, iaModule, playSegment, setText, withLines, GO } from '../../suite/qa/helpers/probe-interaction.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -4,7 +4,7 @@
 import { extractBlock, stripBlock } from '../capture.js';
 import { cutAt } from '../text.js';
 import { assistDepartures, assistPlaceConflict } from '../../packages/story-block/src/v2/assist/where.js';
-import { readDisplayLine } from '../../packages/story-block/src/v2/extras.js';
+import { readDisplayLine } from '../../ui/legacy/extras.js';
 import { CAPTURE_PREFIX } from '../registry.js';
 import { occurrenceOf } from '../evidence.js';
 import { readRecord } from '../persist.js';

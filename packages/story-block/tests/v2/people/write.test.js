@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { hashJson } from '../../../../../core/replay.js';
 import { readRecord } from '../../../../../core/persist.js';
-import { replyEdits } from '../../../src/v2/reply-cards.js';
+import { replyEdits } from '../../../../../ui/legacy/reply-cards.js';
 import { isPeopleView, validatePeople } from '../../../src/v2/domains/people/validate.js';
 
 async function peopleHost(t) {

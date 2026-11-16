@@ -8,10 +8,10 @@
 // does (verified against Chromium with Playwright: break/b5b-robust/repro/pw-forms.mjs).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { compileTemplate, renderTemplate } from '../../../src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../../src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../../modules/world/events/condition.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { compileTemplate, renderTemplate } from '../../../ui/legacy/view/template/index.js';
+import { conditionEvaluator } from '../../../ui/legacy/view/bind.js';
+import { compile, evaluate } from '../../../modules/world/events/condition.js';
 
 const EVALUATE = conditionEvaluator({ compile, evaluate });
 const LISTED = new Set(['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'FIELDSET', 'OUTPUT', 'OBJECT']);

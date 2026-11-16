@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     action, fullReplay, greeting, initial, receipt, reply, setup, user,
-} from '../../packages/story-block/tests/v2/helpers/store-chat.js';
+} from './helpers/store-chat.js';
 import { SHORT, story } from './store.helpers.js';
 
 

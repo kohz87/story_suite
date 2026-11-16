@@ -82,14 +82,14 @@ Last checked: 2026-11-07.
 - `src/v2/packs/kind.js`: classifies a pack as a World pack, Story Block pack or plain pack from its content.
 - `src/v2/packs/portrait-fit.js`: shrinks and encodes portraits to stored size limits using browser image APIs.
 
-## src/v2/screens/
+## ../../ui/legacy/screens/
 - `src/v2/screens/block-fields.js`: registers the fields and heading widgets used by data-module screen layouts.
 - `src/v2/screens/block-layouts.js`: draws block and data-module values as cards, number maps, record cards or previews.
 - `src/v2/screens/block-maps.css`: the number-list rows, centre-line bars, fold, Edit-reveal pencils, guild tiles and the Enable all box; overrides host.css's `.ss-b-*` rules.
 - `src/v2/screens/blocks-editor.js`: provides the in-chat form for authoring a block from fields, starters, layout and preview.
-- `src/v2/screens/rebuild-banner.js`: Home's dossier banner: blocked branch, start-from-chat dialog, catching-up progress with Skip, and the done or stopped notes.
-- `src/v2/screens/inventory-add.js`: places the inline form for adding an item to the reader's own inventory, the folded "Worn (N)" row of the Inventory tab, and the Grid view's two widgets (the List | Grid switch, the tiles with folds and the item sheet).
-- `src/v2/screens/inventory-grid.js`: pure DOM helpers for the Inventory Grid view: square item tiles, foldable category and per-wearer Worn sections (with their remembered open state), and the bottom sheet for one item calling the same actions as the list rows.
+- `../../ui/legacy/screens/rebuild-banner.js`: Home's dossier banner: blocked branch, start-from-chat dialog, catching-up progress with Skip, and the done or stopped notes.
+- `../../ui/legacy/screens/inventory-add.js`: places the inline form for adding an item to the reader's own inventory, the folded "Worn (N)" row of the Inventory tab, and the Grid view's two widgets (the List | Grid switch, the tiles with folds and the item sheet).
+- `../../ui/legacy/screens/inventory-grid.js`: pure DOM helpers for the Inventory Grid view: square item tiles, foldable category and per-wearer Worn sections (with their remembered open state), and the bottom sheet for one item calling the same actions as the list rows.
 
 ## ../../core/timeline/
 - `../../core/timeline/boundary.js`: hashes and checks logical clock markers against transactions and captured proofs.
@@ -110,52 +110,52 @@ Last checked: 2026-11-07.
 - `../../core/turn/events-late.js`: change lines that come after a reply: late lines kept in a hidden block, the safety net's lines now or for the next reply.
 - `../../core/turn/events-hooks.js`: the afterReply and afterReceive hooks run on a received reply.
 
-## src/v2/ui/
-- `src/v2/ui/inventory-tab.js`: draws a minimal plain Inventory tab with item stacks and command buttons.
-- `src/v2/ui/scene-tab.js`: draws a minimal plain read-only Scene tab with place and present people.
+## ../../ui/legacy/ui/
+- `../../ui/legacy/ui/inventory-tab.js`: draws a minimal plain Inventory tab with item stacks and command buttons.
+- `../../ui/legacy/ui/scene-tab.js`: draws a minimal plain read-only Scene tab with place and present people.
 
-## src/v2/view/
-- `src/v2/view/clock.js`: formats story minutes as calendar dates and times using the best available calendar.
-- `src/v2/view/download.js`: saves text files through a temporary browser download link.
-- `src/v2/view/glass-base.css`: the building blocks: variables, section label, icons, pill, progress bar, tones, tile and status badge. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-hero.css`: the hidden rule and the hero block (header, Edit button, editor). Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-scene-lists.css`: the hero's Wearing, Travel and compact lines, the scene on a phone, tiers and list cards. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-screenbar.css`: the screen bar, tabs and navbar, and the Story panel's tab strip. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-modal.css`: the modal of ss.dialog and the UI sample helpers. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-forms.css`: the form engine: grouped section, field rows, text, number, select, switch and slider. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-forms-features.css`: the form engine's chips, segmented, lines and search, and the Features form with its presets. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-pages.css`: the settings pages: select ellipsis, Money, Assist, shared buttons, Tabs & Packs and Prompt. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/glass-pages-modules.css`: the Modules and Diagnostics pages, Versions, finger-sized folds and the UI sample. Part of the split of glass.css, loaded by host.css in the original order.
-- `src/v2/view/host-furniture.css`: the host furniture: tokens, bar, card offer, Story panel, tab host, settings folds and rows. Part of the split of host.css, loaded by host.css in the original order.
-- `src/v2/view/host-notes-blocks.css`: notes and Choices under a reply, motion, the Data modules card, block records and the block editor. Part of the split of host.css, loaded by host.css in the original order.
-- `src/v2/view/send-note.css`: the "Send pending" note: a pill above the message box, right-aligned when its container is wide and full width when narrow (container query), in the Story Suite tokens, light and dark.
-- `src/v2/view/inv-sheet.css`: styles the Inventory Grid's item sheet dialog contents (`.ss-dialog.inv-sheet`), split out of the mounts sheets.
-- `src/v2/view/mounts-game.css`: the game view: bottom bar, header, window. Part of the split of mounts.css, loaded by host.css in the original order.
-- `src/v2/view/mounts-cards-hud.css`: inline cards under replies and the HUD strip. Part of the split of mounts.css, loaded by host.css in the original order.
-- `src/v2/view/mounts-dialogs.css`: dialogs, cards under replies, tags, tab alerts and the Story panel floor. Part of the split of mounts.css, loaded by host.css in the original order.
-- `src/v2/view/settings-window.css`: the settings window: shell, side, rail, page and form sections. Part of the split of settings.css, loaded by host.css in the original order.
-- `src/v2/view/settings-folds.css`: the settings window's old folds and rows, switch, footer bar and desktop window. Part of the split of settings.css, loaded by host.css in the original order.
-- `src/v2/view/scroll-cue.js`: marks which edge of a scroller has overflow and brings items into view.
-- `src/v2/view/screenbar-strip.css`: the screen bar as one scrolling strip (edge fades, snapping slots, a centred full row from 1000px), loaded after the mounts and glass sheets.
-- `src/v2/view/tab-merge.js`: merges screens that share a tab id into one tab with ordered sections.
+## ../../ui/legacy/view/
+- `../../ui/legacy/view/clock.js`: formats story minutes as calendar dates and times using the best available calendar.
+- `../../ui/legacy/view/download.js`: saves text files through a temporary browser download link.
+- `../../ui/legacy/view/glass-base.css`: the building blocks: variables, section label, icons, pill, progress bar, tones, tile and status badge. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-hero.css`: the hidden rule and the hero block (header, Edit button, editor). Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-scene-lists.css`: the hero's Wearing, Travel and compact lines, the scene on a phone, tiers and list cards. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-screenbar.css`: the screen bar, tabs and navbar, and the Story panel's tab strip. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-modal.css`: the modal of ss.dialog and the UI sample helpers. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-forms.css`: the form engine: grouped section, field rows, text, number, select, switch and slider. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-forms-features.css`: the form engine's chips, segmented, lines and search, and the Features form with its presets. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-pages.css`: the settings pages: select ellipsis, Money, Assist, shared buttons, Tabs & Packs and Prompt. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-pages-modules.css`: the Modules and Diagnostics pages, Versions, finger-sized folds and the UI sample. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/host-furniture.css`: the host furniture: tokens, bar, card offer, Story panel, tab host, settings folds and rows. Part of the split of host.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/host-notes-blocks.css`: notes and Choices under a reply, motion, the Data modules card, block records and the block editor. Part of the split of host.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/send-note.css`: the "Send pending" note: a pill above the message box, right-aligned when its container is wide and full width when narrow (container query), in the Story Suite tokens, light and dark.
+- `../../ui/legacy/view/inv-sheet.css`: styles the Inventory Grid's item sheet dialog contents (`.ss-dialog.inv-sheet`), split out of the mounts sheets.
+- `../../ui/legacy/view/mounts-game.css`: the game view: bottom bar, header, window. Part of the split of mounts.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/mounts-cards-hud.css`: inline cards under replies and the HUD strip. Part of the split of mounts.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/mounts-dialogs.css`: dialogs, cards under replies, tags, tab alerts and the Story panel floor. Part of the split of mounts.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/settings-window.css`: the settings window: shell, side, rail, page and form sections. Part of the split of settings.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/settings-folds.css`: the settings window's old folds and rows, switch, footer bar and desktop window. Part of the split of settings.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/scroll-cue.js`: marks which edge of a scroller has overflow and brings items into view.
+- `../../ui/legacy/view/screenbar-strip.css`: the screen bar as one scrolling strip (edge fades, snapping slots, a centred full row from 1000px), loaded after the mounts and glass sheets.
+- `../../ui/legacy/view/tab-merge.js`: merges screens that share a tab id into one tab with ordered sections.
 
-## src/v2/view/mounts/
-- `src/v2/view/mounts/hud.js`: mounts and refreshes the HUD strip above the message box.
-- `src/v2/view/mounts/tab.js`: registers screen tabs and renders them from the current head state.
+## ../../ui/legacy/view/mounts/
+- `../../ui/legacy/view/mounts/hud.js`: mounts and refreshes the HUD strip above the message box.
+- `../../ui/legacy/view/mounts/tab.js`: registers screen tabs and renders them from the current head state.
 
-## src/v2/view/template/
-- `src/v2/view/template/json.js`: compiles and fills JSON payloads with escaped template holes and a depth guard.
+## ../../ui/legacy/view/template/
+- `../../ui/legacy/view/template/json.js`: compiles and fills JSON payloads with escaped template holes and a depth guard.
 
-## src/v2/view/widgets/
-- `src/v2/view/widgets/badge.js`: renders an icon with an optional counter and optional selection command.
-- `src/v2/view/widgets/editable.js`: renders an inline reader edit for text, choice, number, money or meter values.
-- `src/v2/view/widgets/map-math.js`: provides pure map viewport, zoom, pan, minimap and automatic node-layout maths.
-- `src/v2/view/widgets/meter.js`: renders a labelled meter with segments, marks, warnings and spoken value text.
-- `src/v2/view/widgets/portrait.js`: renders a safe framed portrait with initials when the image cannot load.
-- `src/v2/view/widgets/props.js`: declares, coerces and validates widget props and creates widget definitions.
-- `src/v2/view/widgets/radar.js`: renders an SVG radar chart with an optional earlier series and accessible values.
-- `src/v2/view/widgets/skill-tree.js`: renders skill tiers with connectors, levels, active states and locked states.
-- `src/v2/view/widgets/stepper.js`: renders a bounded numeric stepper that edits drafts against point budgets.
+## ../../ui/legacy/view/widgets/
+- `../../ui/legacy/view/widgets/badge.js`: renders an icon with an optional counter and optional selection command.
+- `../../ui/legacy/view/widgets/editable.js`: renders an inline reader edit for text, choice, number, money or meter values.
+- `../../ui/legacy/view/widgets/map-math.js`: provides pure map viewport, zoom, pan, minimap and automatic node-layout maths.
+- `../../ui/legacy/view/widgets/meter.js`: renders a labelled meter with segments, marks, warnings and spoken value text.
+- `../../ui/legacy/view/widgets/portrait.js`: renders a safe framed portrait with initials when the image cannot load.
+- `../../ui/legacy/view/widgets/props.js`: declares, coerces and validates widget props and creates widget definitions.
+- `../../ui/legacy/view/widgets/radar.js`: renders an SVG radar chart with an optional earlier series and accessible values.
+- `../../ui/legacy/view/widgets/skill-tree.js`: renders skill tiers with connectors, levels, active states and locked states.
+- `../../ui/legacy/view/widgets/stepper.js`: renders a bounded numeric stepper that edits drafts against point budgets.
 
 ## Pointer to add
 - `docs/dev/codemap.md`: map of `src/` files not already covered by the existing docs.
@@ -163,23 +163,23 @@ Last checked: 2026-11-07.
 ## Split files (7 Nov: files over 450 lines split into small parts; each original keeps its path and public exports)
 - `../../core/store/chains.js`: cached hashes of record bodies, replay chains and checkpoint windows.
 - `../../core/store/prefix-memo.js`: the incremental prefix memo, a bounded LRU of store states by replayed prefix that steps one new record instead of replaying a window.
-- `src/v2/ui-host/shared.js`: shared DOM helpers, reader choices and public UI checks.
-- `src/v2/ui-host/setup.js`: widgets, renderer and screen-registry setup for the page host.
-- `src/v2/ui-host/screens.js`: synchronization of module, pack and pinned-block screens.
-- `src/v2/ui-host/replies.js`: reply-card scopes, scans, rendering and actions.
-- `src/v2/ui-host/mounts.js`: screen, card, HUD and dialog mount wiring.
-- `src/v2/ui-host/navigation.js`: tab source and Settings navigation controls.
-- `src/v2/ui-host/panel.js`: panel creation, opening, closing and live tab-host access.
-- `src/v2/ui-host/settings.js`: settings overlay, diagnostics and theme inputs.
-- `src/v2/ui-host/events.js`: runtime and chat listeners with their teardown callbacks.
-- `src/v2/ui-host/send-pending.js`: the "Send pending" note's state machine (idle, pending, stalled, fightHeld, sent): one re-send when SillyTavern is free, never a changed or empty text, pure logic with injected page and timers.
-- `src/v2/ui-host/send-note.js`: the "Send pending" note above SillyTavern's message box: sees a Send SillyTavern ignored, draws the five states (role=status), re-sends once through #send_but; UI only, never touches the text, prompt or chat.
-- `src/v2/ui-host/inspector-problems.js`: what the Inspector lists as a reply's problems (skipped blocks, what the turn met, head-selection notices, refused lines).
-- `src/v2/ui-host/card-offer-wiring.js`: the card offer's wiring (lorebook read, "not now" memory, data modules, problems to the turn and the card log).
-- `src/v2/ui-host/lean-rpg-sync.js`: loads and mounts the Lean RPG's screens while its feature is on and takes them away when it goes off.
-- `src/v2/ui-host/drawer.js`: the Extensions drawer and the wand menu entry, with the status strip's switch.
-- `src/v2/ui-host/host-api.js`: the api handed to screens (commands, queries, held `committed` handlers, rewinds, dialogs, open screen).
-- `src/v2/ui-host/notes-wiring.js`: the notes under replies, wired to Re-read and the extractor's state.
+- `../../ui/legacy/ui-host/shared.js`: shared DOM helpers, reader choices and public UI checks.
+- `../../ui/legacy/ui-host/setup.js`: widgets, renderer and screen-registry setup for the page host.
+- `../../ui/legacy/ui-host/screens.js`: synchronization of module, pack and pinned-block screens.
+- `../../ui/legacy/ui-host/replies.js`: reply-card scopes, scans, rendering and actions.
+- `../../ui/legacy/ui-host/mounts.js`: screen, card, HUD and dialog mount wiring.
+- `../../ui/legacy/ui-host/navigation.js`: tab source and Settings navigation controls.
+- `../../ui/legacy/ui-host/panel.js`: panel creation, opening, closing and live tab-host access.
+- `../../ui/legacy/ui-host/settings.js`: settings overlay, diagnostics and theme inputs.
+- `../../ui/legacy/ui-host/events.js`: runtime and chat listeners with their teardown callbacks.
+- `../../ui/legacy/ui-host/send-pending.js`: the "Send pending" note's state machine (idle, pending, stalled, fightHeld, sent): one re-send when SillyTavern is free, never a changed or empty text, pure logic with injected page and timers.
+- `../../ui/legacy/ui-host/send-note.js`: the "Send pending" note above SillyTavern's message box: sees a Send SillyTavern ignored, draws the five states (role=status), re-sends once through #send_but; UI only, never touches the text, prompt or chat.
+- `../../ui/legacy/ui-host/inspector-problems.js`: what the Inspector lists as a reply's problems (skipped blocks, what the turn met, head-selection notices, refused lines).
+- `../../ui/legacy/ui-host/card-offer-wiring.js`: the card offer's wiring (lorebook read, "not now" memory, data modules, problems to the turn and the card log).
+- `../../ui/legacy/ui-host/lean-rpg-sync.js`: loads and mounts the Lean RPG's screens while its feature is on and takes them away when it goes off.
+- `../../ui/legacy/ui-host/drawer.js`: the Extensions drawer and the wand menu entry, with the status strip's switch.
+- `../../ui/legacy/ui-host/host-api.js`: the api handed to screens (commands, queries, held `committed` handlers, rewinds, dialogs, open screen).
+- `../../ui/legacy/ui-host/notes-wiring.js`: the notes under replies, wired to Re-read and the extractor's state.
 - `../../core/commands/shared.js`: limits, error helpers, reply and ID helpers; `commands.js` re-exports the public names.
 - `../../core/commands/state.js`: drafts, frozen reads, queries, Source, cursor and proof.
 - `../../core/commands/guards.js`: replay guards and their mark.
@@ -203,9 +203,9 @@ Last checked: 2026-11-07.
 - `src/v2/screens/blocks-editor.js` → `blocks-editor/`: `constants.js` labels and types; `editor.js` form state and controls; `draw.js` the sections; `layout.js` layout chips, card roles, colours and preview.
 - `src/v2/screens/blocks.js` → `screens/blocks/page.js` the page's list, Show as, row menu and template chooser; `screens/blocks/shared.js` words and format helpers.
 - `../../core/strings.js` → `strings/messages.js` inline edits and refusals; `strings/page.js` bar, panel, drawer, menu, features and reply cards; `strings/screens.js` Story Block's own screens.
-- `src/v2/view/bind.js` → `view/bind/`: `paths.js` path syntax and reads; `scope.js` scopes; `expressions.js` compiled expressions; `helpers.js` helpers and formatters; `text.js` text and interpolation; `changes.js` change checks.
-- `src/v2/view/css.js` → `view/css/`: `parse.js` limits and tokenizing; `names.js` scope names; `selectors.js` selector scoping; `values.js` value filtering and theme properties; `scoping.js` the scoper.
-- `src/v2/view/widgets/map.js` → `view/widgets/map/data.js`: map data cleaning and layer visibility.
+- `../../ui/legacy/view/bind.js` → `view/bind/`: `paths.js` path syntax and reads; `scope.js` scopes; `expressions.js` compiled expressions; `helpers.js` helpers and formatters; `text.js` text and interpolation; `changes.js` change checks.
+- `../../ui/legacy/view/css.js` → `view/css/`: `parse.js` limits and tokenizing; `names.js` scope names; `selectors.js` selector scoping; `values.js` value filtering and theme properties; `scoping.js` the scoper.
+- `../../ui/legacy/view/widgets/map.js` → `view/widgets/map/data.js`: map data cleaning and layer visibility.
 - `src/v2/data-modules/check/shape.js`: the message table `E`, the shape validators shared by every section, and the display names of an int field.
 - `src/v2/data-modules/check/names.js`: `dataModuleDefaults`, the defaults a checked definition starts from.
 - `src/v2/data-modules/check/effects.js`: reward types, the line a List of entries field is worked by, and the effects a rule may write.
@@ -255,27 +255,27 @@ Last checked: 2026-11-07.
 - `src/v2/lean-rpg/view/settings.js` → `settings/difficulty.js`: Difficulty, Custom numbers and odds.
 - `src/v2/lean-rpg/view/settings.js` → `settings/combat.js`: the Combat box, saves and reset.
 - `src/v2/lean-rpg/view/settings.js` → `settings/page.js`: the live page closure and card order.
-- `src/v2/view/mounts/card.js` → `card/summary.js`: the closed-line summary helpers and recent-carrier default.
-- `src/v2/view/mounts/card.js` → `card/context.js`: document lookup, carrier readers, caches, sets and observer.
-- `src/v2/view/mounts/card.js` → `card/follow.js`: keeping the newest reply's card in view.
-- `src/v2/view/mounts/card.js` → `card/build.js`: the reply card, its sections, mounts and open state.
-- `src/v2/view/mounts/card.js` → `card/draw.js`: card drawing, cache reuse, strip sync and carrier passes.
-- `src/v2/view/mounts/card.js` → `card/events.js`: open/close, story and SillyTavern event wiring.
-- `src/v2/view/mounts/card.js` → `card/mount.js`: wires the parts into the public controller.
-- `src/v2/view/widgets/editable/props.js`: the editable widget's prop schema and line-cutting helper.
-- `src/v2/view/widgets/editable/fields.js`: the editable widget's field boxes, grouped layout, live refresh and readback.
+- `../../ui/legacy/view/mounts/card.js` → `card/summary.js`: the closed-line summary helpers and recent-carrier default.
+- `../../ui/legacy/view/mounts/card.js` → `card/context.js`: document lookup, carrier readers, caches, sets and observer.
+- `../../ui/legacy/view/mounts/card.js` → `card/follow.js`: keeping the newest reply's card in view.
+- `../../ui/legacy/view/mounts/card.js` → `card/build.js`: the reply card, its sections, mounts and open state.
+- `../../ui/legacy/view/mounts/card.js` → `card/draw.js`: card drawing, cache reuse, strip sync and carrier passes.
+- `../../ui/legacy/view/mounts/card.js` → `card/events.js`: open/close, story and SillyTavern event wiring.
+- `../../ui/legacy/view/mounts/card.js` → `card/mount.js`: wires the parts into the public controller.
+- `../../ui/legacy/view/widgets/editable/props.js`: the editable widget's prop schema and line-cutting helper.
+- `../../ui/legacy/view/widgets/editable/fields.js`: the editable widget's field boxes, grouped layout, live refresh and readback.
 - `src/v2/domains/inventory/commands/wallet.js`: the purse commands and the narrator's edit wording.
 - `../../core/timeline/coordinator-prepare/finish.js`: the participant activation and acknowledgement phase of a committed restore.
-- `src/v2/view/template/render/view.js`: the renderer's view lifecycle, draft scope, element budget and the renderTemplate/destroyTemplate entry points.
-- `src/v2/view/template/render/blocks.js`: the text, if and each blocks and the block factory.
-- `src/v2/view/template/render/elements.js`: the element block for attributes, variables, classes, text, drafts, commands and form submits.
-- `src/v2/view/template/render/widgets.js`: the widget block, its props, api and instance cleanup.
-- `src/v2/view/form/fields/shared.js`: the field renderers' shared element, button, label and disabled helpers and fresh ids.
-- `src/v2/view/form/fields/basic.js`: the switch, text, number and slider field renderers.
-- `src/v2/view/form/fields/choice.js`: the select, profile, chips, segmented and chipset field renderers.
-- `src/v2/view/form/fields/lines.js`: the editable list field in rows or lines form.
-- `src/v2/view/form/fields/page.js`: the settings search box and grouped section block.
-- `src/v2/view/form/fields/renderers.js`: the frozen renderer table by field kind.
+- `../../ui/legacy/view/template/render/view.js`: the renderer's view lifecycle, draft scope, element budget and the renderTemplate/destroyTemplate entry points.
+- `../../ui/legacy/view/template/render/blocks.js`: the text, if and each blocks and the block factory.
+- `../../ui/legacy/view/template/render/elements.js`: the element block for attributes, variables, classes, text, drafts, commands and form submits.
+- `../../ui/legacy/view/template/render/widgets.js`: the widget block, its props, api and instance cleanup.
+- `../../ui/legacy/view/form/fields/shared.js`: the field renderers' shared element, button, label and disabled helpers and fresh ids.
+- `../../ui/legacy/view/form/fields/basic.js`: the switch, text, number and slider field renderers.
+- `../../ui/legacy/view/form/fields/choice.js`: the select, profile, chips, segmented and chipset field renderers.
+- `../../ui/legacy/view/form/fields/lines.js`: the editable list field in rows or lines form.
+- `../../ui/legacy/view/form/fields/page.js`: the settings search box and grouped section block.
+- `../../ui/legacy/view/form/fields/renderers.js`: the frozen renderer table by field kind.
 - `../../core/persist/carrier.js`: carrier identities, record keys and the record shape check.
 - `../../core/persist/marks.js`: swipe marks, opening hashes and the evidence payload text.
 - `../../core/persist/copies.js`: the kept `swipe_info` record copy and swipe-delete loading checks.
@@ -312,12 +312,12 @@ Last checked: 2026-11-07.
 - `testkit/matrix/report.js`: the matrix report: the rows-by-cases Markdown table, details, summary line and testkit description.
 
 ## ../../tests/core/ (combat replay corpus)
-- `tests/v2/qa/combat-corpus.test.js`: replays the D0 combat chats and pins state, Problems, Re-read, cues and battle-log models.
-- `tests/v2/qa/state-fuzz-1..4.test.js`: four balanced shards of the seeded whole-chat fuzz (same seeds and steps as the old single file; a QA_FUZZ_* override runs in shard 1).
-- `tests/v2/qa/helpers/state-fuzz-run.js`: the fuzz run function, the seed lists and the shard split; `state-fuzz-gen.js`: its seeded generators (change lines, replies, UI commands) and the bonus-paid counter.
-- `tests/v2/fixtures/combat-corpus/corpus.mjs`: captures one combat chat's full-replay golden.
-- `tests/v2/fixtures/combat-corpus/make.mjs`: builds the Standard-rules planner, fight-start, board, noroll and practice chats and writes their goldens.
-- `tests/v2/fixtures/combat-corpus/chats.json`: the ten pinned combat chats and their replay setup.
-- `tests/v2/fixtures/combat-corpus/goldens.json`: the golden state, Problems, cues, battle-log models and Re-read results.
+- `../../tests/suite/qa/combat-corpus.test.js`: replays the D0 combat chats and pins state, Problems, Re-read, cues and battle-log models.
+- `../../tests/suite/qa/state-fuzz-1..4.test.js`: four balanced shards of the seeded whole-chat fuzz (same seeds and steps as the old single file; a QA_FUZZ_* override runs in shard 1).
+- `../../tests/suite/qa/helpers/state-fuzz-run.js`: the fuzz run function, the seed lists and the shard split; `state-fuzz-gen.js`: its seeded generators (change lines, replies, UI commands) and the bonus-paid counter.
+- `../../tests/core/fixtures/combat-corpus/corpus.mjs`: captures one combat chat's full-replay golden.
+- `../../tests/core/fixtures/combat-corpus/make.mjs`: builds the Standard-rules planner, fight-start, board, noroll and practice chats and writes their goldens.
+- `../../tests/core/fixtures/combat-corpus/chats.json`: the ten pinned combat chats and their replay setup.
+- `../../tests/core/fixtures/combat-corpus/goldens.json`: the golden state, Problems, cues, battle-log models and Re-read results.
 - `../../tests/core/turn/isolation.test.js`: the isolated-apply flag: a failing core part, hook problems and the failed-reply tail, flag off and on.
 - `../../tests/core/sdk-flag.test.js`: `sdk.flag`, the read-only internal flag reader for Story Director and Delta (off by default).

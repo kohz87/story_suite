@@ -6,10 +6,10 @@
 // QA_REREAD_SEEDS=1-100 (or 7, or 3,9,12) and QA_REREAD_STEPS=n run a longer hunt locally; CI runs the fixed list.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fuzzReread } from '../../../packages/story-block/tests/v2/qa/helpers/reread-fuzz-run.js';
+import { fuzzReread } from '../../suite/qa/helpers/reread-fuzz-run.js';
 import { makeDirectorHost, directorLines, DIRECTOR_READERS, LEFT_OUT, TOLERATE, COUNTED } from './helpers/reread-host.js';
 
-import { seedList } from '../../../packages/story-block/tests/v2/qa/helpers/seed-list.js';
+import { seedList } from '../../suite/qa/helpers/seed-list.js';
 
 const SEEDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 // The most reply-checks one seed may let the oracle tolerate (D-1): a drift that spreads cannot pass quietly.

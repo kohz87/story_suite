@@ -3,9 +3,9 @@
 // cards size to their content, three to a row on a wide screen and one on a phone, and the save points are one slim row at the end.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { homeScreen } from '../../../src/v2/screens/home.js';
-import { createScreenMount } from '../../../src/v2/view/mounts/screen.js';
-import { createScreens } from '../../../src/v2/view/screens.js';
+import { homeScreen } from '../../../ui/legacy/screens/home.js';
+import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
+import { createScreens } from '../../../ui/legacy/view/screens.js';
 import { fakeRenderer, setupDom, stateWith } from '../view/mounts/helpers.js';
 import { core, queries, recordingWidgets, renderSkip, sceneState, show, text } from './helpers.js';
 

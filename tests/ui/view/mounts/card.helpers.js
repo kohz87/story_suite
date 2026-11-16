@@ -1,4 +1,4 @@
-import { createCardMount } from '../../../../src/v2/view/mounts/card.js';
+import { createCardMount } from '../../../../ui/legacy/view/mounts/card.js';
 import { fakeChat, fakeQuery, fakeRenderer, screen, screensWith, setupDom } from './helpers.js';
 
 export function world({ revs = [1, 2, 3, 4], users = [], observer = null, cards = { 'm/sheet': true }, defs, extra = {} } = {}) {

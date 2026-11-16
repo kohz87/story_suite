@@ -20,7 +20,7 @@
 import { h, iconNode, str } from './widgets/dom.js';
 import { focusNode } from './scroll.js';
 import { hasIcon } from './icons/index.js';
-import { STRINGS, fill } from '../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../core/strings.js';
 
 const S = STRINGS.bar;
 export const DEFAULT_ICON = 'ph-list';

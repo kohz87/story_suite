@@ -1,8 +1,8 @@
 // The form engine's field renderers (view/form/fields.js): chipset, segmented, chips, lines, search, and section.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RENDERERS, chipsField, chipsetField, linesField, searchField, sectionBlock, segmentedField } from '../../../../src/v2/view/form/fields.js';
-import { fieldKind } from '../../../../src/v2/view/form/schema.js';
+import { RENDERERS, chipsField, chipsetField, linesField, searchField, sectionBlock, segmentedField } from '../../../../ui/legacy/view/form/fields.js';
+import { fieldKind } from '../../../../ui/legacy/view/form/schema.js';
 import { classes, doc, make } from './fields.helpers.js';
 
 test('chipset: several chips over a comma-separated text; entries the options do not list are kept and never drawn', () => {

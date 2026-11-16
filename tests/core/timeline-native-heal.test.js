@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
-import { NATIVE, NPC, clone, nativeModule, reload, rulesModule, track } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { NATIVE, NPC, clone, nativeModule, reload, rulesModule, track } from './helpers/timeline.js';
 
 const LINE = /^A change Test native was making when the page closed could not be finished; the story goes on from its current state\.$/;
 

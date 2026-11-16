@@ -2,18 +2,18 @@
 // form engine's look (Tabs, Packs, Prompt) in place of Story Suite's fold and the Packs fold, and the footer bar "What's sent each reply".
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { createRegistry } from '../../../../../core/registry.js';
-import { createSettings } from '../../../../../core/sdk.js';
-import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { packsFor } from '../../../../../core/runtime.js';
-import { HOST_FOLD, PACKS_FOLD, SENT_FOLD, SETTINGS_TEXT, TABS_FOLD, TABS_TEXT, promptSize } from '../../../src/v2/host-ui.js';
-import { estimateTokens } from '../../../../../core/prompt.js';
-import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
-import { PROMPT_FOLD, PROMPT_KEYS, PROMPT_SCHEMA, PROMPT_TEXT, createPromptReader, footerSummary } from '../../../src/v2/view/settings/prompt.js';
-import { renderTabsCard } from '../../../src/v2/view/settings/tabs-list.js';
-import { sampleText } from '../packs/helpers/fixtures.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createSettings } from '../../../core/sdk.js';
+import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { packsFor } from '../../../core/runtime.js';
+import { HOST_FOLD, PACKS_FOLD, SENT_FOLD, SETTINGS_TEXT, TABS_FOLD, TABS_TEXT, promptSize } from '../../../ui/legacy/host-ui.js';
+import { estimateTokens } from '../../../core/prompt.js';
+import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
+import { PROMPT_FOLD, PROMPT_KEYS, PROMPT_SCHEMA, PROMPT_TEXT, createPromptReader, footerSummary } from '../../../ui/legacy/view/settings/prompt.js';
+import { renderTabsCard } from '../../../ui/legacy/view/settings/tabs-list.js';
+import { sampleText } from '../../../packages/story-block/tests/v2/packs/helpers/fixtures.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 const texts = (root, selector) => root.querySelectorAll(selector).map(node => node.textContent);

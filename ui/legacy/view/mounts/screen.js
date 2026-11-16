@@ -35,7 +35,7 @@ import { focusNode } from '../scroll.js';
 import { stackOf } from '../modal-stack.js';
 import { iconFor } from '../icons/index.js';
 import { barItems, createScreenBar } from '../screen-bar.js';
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 
 const PHONE_QUERY = '(max-width: 759.98px)';
 

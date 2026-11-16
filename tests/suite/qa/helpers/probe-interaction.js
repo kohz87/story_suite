@@ -3,7 +3,7 @@
 // `lamp` is witnessed (the settle stops when it changes), `luck` is read by `play` only after the witness (a kind with a narrow witness).
 // Actors: the reader's own `hero` (named like the persona), and `mate`, played by the kind's `auto` (derived, never stored).
 
-import { createInteractionApi } from '../../../../../../core/sdk/interaction.js';
+import { createInteractionApi } from '../../../../core/sdk/interaction.js';
 
 export const IA_MODULE = 'ia-probe';
 export const IA_KIND = `${IA_MODULE}/probe`;

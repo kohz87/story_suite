@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { BATTLE_ROOT, createBattleLog, createFoldStore, markerNodes, placeAtMarker } from '../../../../src/v2/lean-rpg/view/battle-log.js';
 import { stripBattleMarker } from '../../../../../../core/turn.js';
 import { roleOf } from './helpers.js';

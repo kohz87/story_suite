@@ -4,10 +4,10 @@
 // change); readers clip it later (money.js currencyOf), so the reader is never told and the file grows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { createRegistry } from '../../../../../core/registry.js';
-import { createSettings } from '../../../../../core/sdk.js';
-import { renderSettingsHost } from '../../../src/v2/host-ui.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createSettings } from '../../../core/sdk.js';
+import { renderSettingsHost } from '../../../ui/legacy/host-ui.js';
 
 const doc = installFakeDom();
 

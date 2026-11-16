@@ -1,5 +1,5 @@
-import { installFakeDom } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { newId } from '../../../../src/v2/view/form/fields.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
+import { newId } from '../../../../ui/legacy/view/form/fields.js';
 
 export const doc = installFakeDom();
 export const classes = node => node.classes();

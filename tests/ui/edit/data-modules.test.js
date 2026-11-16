@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { parseLabels } from '../../../src/v2/data-modules/interpreter.js';
-import { moduleGrammar } from '../../../src/v2/data-modules/grammar.js';
-import { describe } from '../../../src/v2/data-modules/setup.js';
-import { definition, pack, pin, view, world } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { validatePack } from '../../../packages/story-block/src/v2/packs/validate.js';
+import { parseLabels } from '../../../packages/story-block/src/v2/data-modules/interpreter.js';
+import { moduleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
+import { describe } from '../../../packages/story-block/src/v2/data-modules/setup.js';
+import { definition, pack, pin, view, world } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 function made() {
     const d = definition();
@@ -162,9 +162,9 @@ test('data-module template editables may address only their own editable fields'
 });
 
 test('a pinned layout puts pencils beside displayed editable fields', async t => {
-    const { fixture } = await import('../data-modules/helpers.js');
-    const { renderLayout } = await import('../../../src/v2/layout/index.js');
-    const { standardWidgets } = await import('../../../src/v2/view/widgets/index.js');
+    const { fixture } = await import('../../../packages/story-block/tests/v2/data-modules/helpers.js');
+    const { renderLayout } = await import('../../../ui/legacy/layout/index.js');
+    const { standardWidgets } = await import('../../../ui/legacy/view/widgets/index.js');
     const { setupDom } = await import('../view/mounts/helpers.js');
     const host = await world(t, fixture('reputation'));
     const offer = await pin(host);
@@ -190,8 +190,8 @@ test('a pinned layout puts pencils beside displayed editable fields', async t =>
 });
 
 test('character meters edit the field for the character shown in that row', async t => {
-    const { fixture, directorStub } = await import('../data-modules/helpers.js');
-    const { renderLayout } = await import('../../../src/v2/layout/index.js');
+    const { fixture, directorStub } = await import('../../../packages/story-block/tests/v2/data-modules/helpers.js');
+    const { renderLayout } = await import('../../../ui/legacy/layout/index.js');
     const { setupDom } = await import('../view/mounts/helpers.js');
     const host = await world(t, fixture('survival'), [directorStub()]);
     const offer = await pin(host, ['ca_wessel01']);

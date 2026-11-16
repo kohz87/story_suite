@@ -3,11 +3,11 @@
 // filter, fog, minimap, legend, and node selection.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { map } from '../../../../src/v2/view/widgets/map.js';
+import { map } from '../../../../ui/legacy/view/widgets/map.js';
 import {
     autoLayout, clampView, clientToWorld, fitView, minimapBox, minimapToWorld, panBy, toPercent, withAspect,
     worldBounds, zoomAt, zoomLevel, ZOOM_IN_LIMIT, ZOOM_OUT_LIMIT,
-} from '../../../../src/v2/view/widgets/map-math.js';
+} from '../../../../ui/legacy/view/widgets/map-math.js';
 import { fakeApi, host, installDom, texts } from './fake-dom.js';
 
 const close = (actual, expected, message, eps = 1e-6) => assert.ok(Math.abs(actual - expected) < eps, `${message ?? ''} ${actual} ≈ ${expected}`);

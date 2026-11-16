@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRuntime } from '../../core/runtime.js';
-import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
+import { mountUi } from '../../ui/legacy/ui-host.js';
 import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
-import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 
 test('Settings → Tabs: an active screen or tab has its note and no switch; an ordinary one keeps its switch', async () => {
     const doc = setupDom();

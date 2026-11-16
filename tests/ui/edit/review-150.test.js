@@ -1,11 +1,11 @@
 // Review 148r: ordinary edits follow their non-leading reply, and item choices are replay prerequisites.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { inventoryEditGuard } from '../../../src/v2/domains/inventory.js';
-import { renameDecision } from '../../../src/v2/domains/inventory/edit.js';
-import { hashJson } from '../../../../../core/replay.js';
-import { definition, pack, reload } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { inventoryEditGuard } from '../../../packages/story-block/src/v2/domains/inventory.js';
+import { renameDecision } from '../../../packages/story-block/src/v2/domains/inventory/edit.js';
+import { hashJson } from '../../../core/replay.js';
+import { definition, pack, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const change = (...lines) => `Changed.\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const items = host => host.sdk.query('inventory.items').map(({ name, qty, note }) => ({ name, qty, note })).sort((a, b) => a.name.localeCompare(b.name));

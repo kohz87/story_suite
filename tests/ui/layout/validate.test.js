@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateLayout, imageUrlError, LIMITS } from '../../../src/v2/layout/index.js';
+import { validateLayout, imageUrlError, LIMITS } from '../../../ui/legacy/layout/index.js';
 import { layoutOf } from './helpers/fake-dom.js';
 
 const errorsFor = (root, extra, options) => validateLayout(layoutOf(root, extra), options);

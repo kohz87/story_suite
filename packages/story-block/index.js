@@ -14,7 +14,7 @@
 
 import { createRuntime, VERSION } from '../../core/runtime.js';
 import { INTERCEPTOR_NAME } from '../../core/turn.js';
-import { mountUi } from './src/v2/ui-host.js';
+import { mountUi } from '../../ui/legacy/ui-host.js';
 import { noteSaveError } from '../../core/diagnostics.js';
 import { createV1Watch } from '../../core/persist/v1-copy.js';
 import { registerSbMacro } from '../../core/runtime/sb-macro.js';

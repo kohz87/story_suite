@@ -1,7 +1,7 @@
 // The shared fake DOM (tests/ui-fake-dom.js) with markup parsing made a test failure:
 // any innerHTML / outerHTML / insertAdjacentHTML from the layout renderer throws.
 
-import { installFakeDom, FakeElement } from '../../../../../../tests/helpers/ui-fake-dom.js';
+import { installFakeDom, FakeElement } from '../../../helpers/ui-fake-dom.js';
 
 const forbid = name => () => { throw new Error(`layout code used ${name}`); };
 Object.defineProperty(FakeElement.prototype, 'innerHTML', { configurable: true, get: forbid('innerHTML'), set: forbid('innerHTML') });

@@ -1,12 +1,12 @@
 // Helpers for the default screens' tests: the template renderer when it is there (it is loaded
 // dynamically, so these tests skip with a reason on a tree that does not have it yet), the core module's
 // queries over a state, extra fake module queries, and a renderer for one screen.
-import { resolveData } from '../../../src/v2/view/screens.js';
-import { standardWidgets } from '../../../src/v2/view/widgets/index.js';
-import { createInventoryAddWidget, createInventoryGridWidget, createInventoryViewWidget, createWornFoldWidget, INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from '../../../src/v2/screens/inventory-add.js';
-import { compile, evaluate } from '../../../../../modules/world/events/index.js';
-import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { core, stocked } from '../domains/fixtures.js';
+import { resolveData } from '../../../ui/legacy/view/screens.js';
+import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
+import { createInventoryAddWidget, createInventoryGridWidget, createInventoryViewWidget, createWornFoldWidget, INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from '../../../ui/legacy/screens/inventory-add.js';
+import { compile, evaluate } from '../../../modules/world/events/index.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
+import { core, stocked } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
 
 async function load(path) {
     try {
@@ -16,9 +16,9 @@ async function load(path) {
     }
 }
 
-const template = await load('../../../src/v2/view/template/index.js');
-const bind = await load('../../../src/v2/view/bind.js');
-export const css = await load('../../../src/v2/view/css.js');
+const template = await load('../../../ui/legacy/view/template/index.js');
+const bind = await load('../../../ui/legacy/view/bind.js');
+export const css = await load('../../../ui/legacy/view/css.js');
 
 /** null when the renderer can be used; else the reason the render tests are skipped. */
 export const renderSkip = template && bind

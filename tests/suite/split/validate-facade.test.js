@@ -2,7 +2,7 @@
 // The list is the file's export list from before the split (5 names): each must still be there, of the same kind.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as facade from '../../../src/v2/packs/validate.js';
+import * as facade from '../../../packages/story-block/src/v2/packs/validate.js';
 
 const EXPORTS = {
     HOST_VERSION: 'string',

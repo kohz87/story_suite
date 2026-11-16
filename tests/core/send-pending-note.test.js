@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { SEND_NOTE_TEXT } from '../../packages/story-block/src/v2/ui-host/send-note.js';
+import { SEND_NOTE_TEXT } from '../../ui/legacy/ui-host/send-note.js';
 import { rig, pageRig } from './send-pending.helpers.js';
 
 test('send note: busy at the press shows a role=status pill right above #send_form, then re-sends once and says Sent for 2 s', () => {
@@ -192,7 +192,7 @@ test('send note: switched off, nothing is drawn or re-sent; destroy leaves no li
 });
 
 test('send note CSS: container-decided layout, 44 px targets, tokens, motion guard; the setting is on by default', () => {
-    const css = readFileSync(new URL('../../packages/story-block/src/v2/view/send-note.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../ui/legacy/view/send-note.css', import.meta.url), 'utf8');
     assert.match(css, /@container \(min-width: \d+px\)/);
     assert.doesNotMatch(css, /@media \((min|max)-width/);
     assert.match(css, /min-height: 44px; min-width: 44px/);

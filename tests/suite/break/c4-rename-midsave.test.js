@@ -10,7 +10,7 @@
 // again into the renamed chat's file. Left open: the copy under the old name (test.todo below).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const settle = async (n = 20) => { for (let i = 0; i < n; i++) await new Promise(resolve => setImmediate(resolve)); };
 const present = state => [...(state?.domains?.scene?.present ?? [])];

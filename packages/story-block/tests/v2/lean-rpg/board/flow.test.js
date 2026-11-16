@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, foeBlock, rollReceipt, setup, tailOf } from '../helpers.js';
 
 test('send, swipe and continue an open fight without planning it again', async () => {

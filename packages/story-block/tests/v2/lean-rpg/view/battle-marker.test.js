@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../view/mounts/helpers.js';
+import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
 import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog, hideMarkers, markerNodes } from '../../../../src/v2/lean-rpg/view/battle-log.js';
 import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
 import { characterDefinition, defineAll, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';

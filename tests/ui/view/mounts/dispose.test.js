@@ -2,9 +2,9 @@
 // observers go, so a window opened and closed three times leaves nothing behind (no listener, no observer: the baseline).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDialogMount } from '../../../../src/v2/view/mounts/dialog.js';
-import { createTabHost } from '../../../../src/v2/host-ui.js';
-import { shell } from '../../../../src/v2/view/widgets/dom.js';
+import { createDialogMount } from '../../../../ui/legacy/view/mounts/dialog.js';
+import { createTabHost } from '../../../../ui/legacy/host-ui.js';
+import { shell } from '../../../../ui/legacy/view/widgets/dom.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './helpers.js';
 
 // Observers still connected (a ResizeObserver stands in: it is taken down by disconnect()).

@@ -6,7 +6,7 @@ import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { runAuto } from '../../../../src/v2/lean-rpg/board/auto-run.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, levelFoeBlock, rollReceipt, setup } from '../helpers.js';
 
 const RULES = { ...STANDARD_FORMULA, levelDivisor: 5 };

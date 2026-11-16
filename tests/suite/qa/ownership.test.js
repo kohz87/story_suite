@@ -5,8 +5,8 @@
 // prototypes. Every refusal stores and saves nothing. Problems found are the test.todo entries.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../../../core/persist.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../../core/persist.js';
 
 const plain = value => JSON.parse(JSON.stringify(value));
 
@@ -282,7 +282,7 @@ test('ops.js checkOps: a value holding an own "__proto__" key is refused, as a p
 
 test('capture.js parseChanges: a label named "constructor" keeps its value', async () => {
     // Labels are a prototype-less object: "constructor" is the line's own label, never Object.
-    const { parseChanges } = await import('../../../../../core/capture.js');
+    const { parseChanges } = await import('../../../core/capture.js');
     const { lines } = parseChanges('+ item Rope | constructor: Kael | qty: 2');
     assert.equal(lines[0].labels.constructor, 'Kael');
     assert.equal(typeof lines[0].labels.constructor, 'string');

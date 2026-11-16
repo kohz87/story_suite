@@ -5,9 +5,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { PALETTES, ROOT_SELECTOR, parseColor } from '../../../src/v2/view/theme.js';
-import { HOST_SETTINGS_SCHEMA } from '../../../../../core/sdk.js';
-import { cssOf, hostImports } from '../helpers/css-parts.js';
+import { PALETTES, ROOT_SELECTOR, parseColor } from '../../../ui/legacy/view/theme.js';
+import { HOST_SETTINGS_SCHEMA } from '../../../core/sdk.js';
+import { cssOf, hostImports } from '../../core/helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/${path}`, import.meta.url), 'utf8');
 const css = cssOf('settings');

@@ -1,6 +1,6 @@
 // Builds DOM elements (HTML nodes, buttons) and marks them with a data attribute.
 
-import { cutAt } from '../../../../../../../core/text.js';
+import { cutAt } from '../../../../../core/text.js';
 
 /** The document an element lives in (a widget may be drawn into another window's document). */
 export function docOf(el) {

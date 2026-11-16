@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { FEATURES_FOLD, HOST_FOLD, OPEN_CLASS, VERSIONS_FOLD, featuresFoldOf } from "../../../src/v2/host-ui.js";
-import { SECTION_BODIES } from "../../../src/v2/view/settings/bodies.js";
-import { DEFAULT_SECTION, SECTION_IDS, SETTINGS_SECTIONS, WINDOW_TEXT, opensByDefault, routeOf } from "../../../src/v2/view/settings/sections.js";
+import { FEATURES_FOLD, HOST_FOLD, OPEN_CLASS, VERSIONS_FOLD, featuresFoldOf } from "../../../ui/legacy/host-ui.js";
+import { SECTION_BODIES } from "../../../ui/legacy/view/settings/bodies.js";
+import { DEFAULT_SECTION, SECTION_IDS, SETTINGS_SECTIONS, WINDOW_TEXT, opensByDefault, routeOf } from "../../../ui/legacy/view/settings/sections.js";
 import { cardOf, diagnosticsDrawn, foldAt, foldsOf, open, page, railItems, shownPages, texts } from "./settings-window.helpers.js";
 
 test('the sections, in the concept\'s order, each with an icon, a title and a line under it', () => {

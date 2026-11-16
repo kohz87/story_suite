@@ -153,7 +153,7 @@ test('a new fight clears the Down groups of earlier replies: after the gnashers 
     assert.ok(xpAfterFirst > 0);
     // the log's Status: only the groups that rolled in this reply
     const { buildPanel, panelModel, readResolve } = await import('../../../src/v2/lean-rpg/view/battle-log.js');
-    const { setupDom } = await import('../view/mounts/helpers.js');
+    const { setupDom } = await import('../../../../../tests/ui/view/mounts/helpers.js');
     const model2 = panelModel({ resolve: readResolve(rats.roll.data.v2.result), state: host.store.at(rats.index), before: host.store.at(rats.index - 1), roleOf: definition => definition.role ?? null });
     assert.deepEqual(model2.foes.map(foe => foe.text.split(' ')[0]), ['rats']);
     // the gnasher reply keeps its own fight: its state still has the gnashers, and a Re-read, a rebuild and a reload agree

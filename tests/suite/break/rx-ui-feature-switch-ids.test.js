@@ -6,9 +6,9 @@
 // of module `a.b` both become story_suite_feature_a_b_c), and then a label toggles another module's feature.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { setupDom } from '../view/mounts/helpers.js';
-import { renderSettingsHost } from '../../../src/v2/host-ui.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { renderSettingsHost } from '../../../ui/legacy/host-ui.js';
 
 const modA = { id: 'a', name: 'A', features: [{ id: 'a.b_c', label: 'A b_c' }] };
 const modAB = { id: 'a.b', name: 'A.B', features: [{ id: 'a.b.c', label: 'A.B c' }] };

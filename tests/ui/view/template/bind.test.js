@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
     TEMPLATE_CALLS, changedPointers, compileExpr, conditionEvaluator, evalExpr, interpolate, isScope, makeScope, parseInterpolation, parsePath,
     pathKeys, pct, pointerOf, ratio, len, resolvePath, setIn, splitPairs, stateView, toText, touches, withItem,
-} from '../../../../src/v2/view/bind.js';
+} from '../../../../ui/legacy/view/bind.js';
 import { fakeEvaluate } from './helpers.js';
 
 const STATE = {

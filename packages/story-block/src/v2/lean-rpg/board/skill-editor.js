@@ -2,7 +2,7 @@
 // The draft belongs to that editor; saving it uses the reply-owned board skill command.
 // Labels and checkbox state are text and booleans, never markup from the skill.
 
-import { h } from '../../view/widgets/dom.js';
+import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
 
 export function drawSkillFlags(doc, parent, draft) {
     const fieldset = h(doc, 'fieldset', 'rpg-board-skill-flags');

@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { apply, rebaseOps } from '../../core/ops.js';
-import { director, T1 } from '../../packages/story-block/tests/v2/helpers/evidence.js';
-import { BATCH, DEATH, clone, nativeModule, restore, rulesModule, slice } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { director, T1 } from './helpers/evidence.js';
+import { BATCH, DEATH, clone, nativeModule, restore, rulesModule, slice } from './helpers/timeline.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const cmd = async (host, type, payload = {}) => {

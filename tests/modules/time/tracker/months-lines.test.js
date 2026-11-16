@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
-import { renderSettingsHost } from '../../../../packages/story-block/src/v2/host-ui.js';
+import { renderSettingsHost } from '../../../../ui/legacy/host-ui.js';
 import { createModule, MODULE_ID } from '../../../../ui/legacy/director/module.js';
 import { part as trackerPart } from '../../../../modules/time/tracker/index.js';
 

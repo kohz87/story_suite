@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { nativeModule, rulesModule, batchFor, clone, pause, reload, seal, NATIVE, DEATH } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { nativeModule, rulesModule, batchFor, clone, pause, reload, seal, NATIVE, DEATH } from './helpers/timeline.js';
 import { hashJson } from '../../core/replay.js';
 import { HOST_DOMAIN } from '../../core/timeline/index.js';
 import { sourceOf } from '../helpers/split-source.js';

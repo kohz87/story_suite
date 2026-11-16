@@ -1,7 +1,7 @@
 // A held fight starts before the narrator reply; the opening and board exchanges replay together.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
 import { character, foeBlock, setup } from '../helpers.js';
 import { boardSession, markSend, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { pendingStart } from '../../../../../../core/turn/fight-start.js';

@@ -1,8 +1,8 @@
 // Draws the RPG settings page's Formula, Rolls, Levels, Companions and Gear cards from the live settings store and
 // story facts, using the page's shared card, chip and number-row builders.
 
-import { h } from '../../../view/widgets/dom.js';
-import { switchField } from '../../../view/form/fields.js';
+import { h } from '../../../../../../../ui/legacy/view/widgets/dom.js';
+import { switchField } from '../../../../../../../ui/legacy/view/form/fields.js';
 import { boardSetting } from '../../board/settings.js';
 import { AUTO_CAP_SETTING, CHECKS_SETTING, PRECHECK_SETTING, checksOn, precheckOn, LEVEL, LEVEL_CAP_SETTING, autoCapFrom, levelCapOf, JOIN_SETTING, PRACTICE, PRACTICE_SETTING, practiceOf } from '../../names.js';
 import { joinMode } from '../../join.js';

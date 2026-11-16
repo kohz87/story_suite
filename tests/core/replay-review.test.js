@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { isMetaSpan } from '../../core/replay.js';
-import { Q1, Q2, claimKey, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
+import { Q1, Q2, claimKey, guarded, harness } from './helpers/guarded.js';
 
 // SillyTavern moves away from a swipe by copying `extra` into that swipe's own slot first.
 function newSwipe(message, text) {

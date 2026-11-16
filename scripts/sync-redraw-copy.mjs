@@ -14,7 +14,7 @@ export function expectedCopy(root) {
 
 export function syncRedrawCopy(root, check) {
   // named as of the old layout; found where the checkout has it (a missing copy is looked for in both places)
-  const target = path.join(root, atEitherLayout(root, 'packages/story-block/src/v2/shared/redraw.js'));
+  const target = path.join(root, atEitherLayout(root, 'ui/legacy/shared/redraw.js'));
   const want = expectedCopy(root);
   if (check) {
     const have = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null;

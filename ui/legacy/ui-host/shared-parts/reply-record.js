@@ -1,6 +1,6 @@
 // Reply record: tells whether a chat message gets inline cards.
 
-import { readRecord } from '../../../../../../core/persist.js';
+import { readRecord } from '../../../../core/persist.js';
 
 /**
  * Does message `index` of `chat` get inline cards? Only a reply after the reader's first message (not the

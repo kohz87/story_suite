@@ -4,7 +4,7 @@
 // on a cold rebuild alike (it once held both to one budget; that budget is gone).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 // A module whose click pays a reward the story vouched for (as Story Director's quest.finish does).
 const QUESTS = {

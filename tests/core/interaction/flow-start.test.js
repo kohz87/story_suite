@@ -6,7 +6,7 @@ import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
 import { readRecord } from '../../../core/persist.js';
 import { START_KINDS, pendingStart } from '../../../core/interaction/start.js';
-import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaKind, iaModule, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
+import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaKind, iaModule, withLines } from '../../suite/qa/helpers/probe-interaction.js';
 
 // A module hook that offers the probe before a typed message goes out (what a rules module's beforeGenerate does with `interactionStart`).
 function offering() {

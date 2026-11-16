@@ -4,11 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../testkit/index.js';
-import { inventoryScreen } from '../../src/v2/screens/index.js';
-import { addFields, addPlan, editFields, editPlan, repointControls } from '../../src/v2/view/gear-form.js';
+import { inventoryScreen } from '../../../../ui/legacy/screens/index.js';
+import { addFields, addPlan, editFields, editPlan, repointControls } from '../../../../ui/legacy/view/gear-form.js';
 import { validatePack } from '../../src/v2/packs/validate.js';
 import { pack } from './packs/helpers/fixtures.js';
-import { show, settle, text } from './screens/helpers.js';
+import { show, settle, text } from '../../../../tests/ui/screens/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -306,7 +306,7 @@ test('the 32 px control rule is only for a roomy screen with a fine pointer; a p
 
 test('controls inside a form group carry no host margin, so the Bonus select and its points box start on one line', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync(new URL('../../src/v2/view/widgets/styles.js', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../ui/legacy/view/widgets/styles.js', import.meta.url), 'utf8');
     assert.match(css, /^\.ss-w-editable-group input, \.ss-w-editable-group select \{ margin: 0; \}$/m);
 });
 

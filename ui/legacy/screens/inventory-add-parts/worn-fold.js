@@ -1,6 +1,6 @@
 // The folded "Worn (N)" row of the Inventory screen (gear on), kept open or shut per chat on this device.
 
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 import { h, s as svg, shell } from '../../view/widgets/dom.js';
 
 const S = STRINGS.inventory;

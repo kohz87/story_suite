@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSdk } from '../../../core/sdk.js';
 import { createPanels } from '../../../core/sdk/panels.js';
-import { wireRedraw } from '../../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
+import { wireRedraw } from '../../../ui/legacy/ui-host/redraw-wiring.js';
 
 // The hub bound to a real wiring (the host's), with frames the test runs by hand.
 function bound({ flag = { on: true } } = {}) {

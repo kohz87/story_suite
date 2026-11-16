@@ -2,7 +2,7 @@
 // feature flags; the capture handlers that apply them live with the scene and inventory domains.
 
 import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { EXTRA_KINDS } from '../../extras.js';
+import { EXTRA_KINDS } from '../../../../../../ui/legacy/extras.js';
 import { FEATURE } from '../inventory.js';
 import { WEATHER_CHARS, YOU_CHARS, YOU_SHORT_CHARS } from '../scene.js';
 

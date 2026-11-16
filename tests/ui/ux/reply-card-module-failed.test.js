@@ -1,7 +1,7 @@
 // The changes card's "could not finish" row on the real host (ui-host/replies.js moduleFailedAt): only with suite.isolatedApply on.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { THIS_REPLY_ID } from '../../../src/v2/reply-cards.js';
+import { THIS_REPLY_ID } from '../../../ui/legacy/reply-cards.js';
 import { WITH_LINES, page } from './ux.helpers.js';
 
 async function rowsFor(flagOn) {

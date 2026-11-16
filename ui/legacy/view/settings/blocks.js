@@ -6,7 +6,7 @@
 // The body: `(pane, ctx) → { filter, refresh, refreshSize, destroy }` (bodies.js). `ctx.options.blocks` is the block widgets of
 // ui-host.js (`page`), `chatOpen()` whether a story is open.
 
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 
 export function blocksBody(pane, ctx) {
     const { doc } = ctx;

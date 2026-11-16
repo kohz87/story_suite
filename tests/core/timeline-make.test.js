@@ -5,7 +5,7 @@ import { createHost } from '../../packages/story-block/testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
 import { isMetaSpan } from '../../core/replay.js';
 import { RECORD_ID } from '../../core/registry/check.js';
-import { NATIVE, nativeModule, rulesModule } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { NATIVE, nativeModule, rulesModule } from './helpers/timeline.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 

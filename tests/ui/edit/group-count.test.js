@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { core, stocked, stack } from '../domains/fixtures.js';
-import { createHarness } from '../domains/helpers/fake-ctx.js';
+import { core, stocked, stack } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
 
 test('the count pencil changes separate pieces for the same owner in one edit', () => {
     const module = core(), state = stocked(module), inv = state.domains.inventory;

@@ -4,10 +4,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { PALETTES } from '../../../src/v2/view/theme.js';
-import { changesCardScreen } from '../../../src/v2/screens/index.js';
-import { inventoryScreen } from '../../../src/v2/screens/inventory.js';
-import { cssOf } from '../helpers/css-parts.js';
+import { PALETTES } from '../../../ui/legacy/view/theme.js';
+import { changesCardScreen } from '../../../ui/legacy/screens/index.js';
+import { inventoryScreen } from '../../../ui/legacy/screens/inventory.js';
+import { cssOf } from '../../core/helpers/css-parts.js';
 
 const mountsCss = cssOf('mounts');
 const luminance = hex => {

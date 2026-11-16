@@ -4,8 +4,8 @@
 // rebuild (SPEC §2.2). There is no per-reply cap. Story Block alone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { createStore } from '../../../../../core/store.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createStore } from '../../../core/store.js';
 
 const QUESTS = {
     id: 'rv-quests', name: 'rv quests', version: '0.0.0',

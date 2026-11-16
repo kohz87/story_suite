@@ -1,12 +1,12 @@
 // The blocks built from the building blocks (UI stage 1b): ss.hero, ss.tiers, ss.listcard.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hero, heroBars, heroLevel, heroLine, heroPicture } from '../../../../src/v2/view/widgets/hero.js';
-import { tiers, tierList } from '../../../../src/v2/view/widgets/tiers.js';
-import { listcard, listRows } from '../../../../src/v2/view/widgets/listcard.js';
-import { tabs, navbar } from '../../../../src/v2/view/widgets/nav.js';
-import { dialog } from '../../../../src/v2/view/widgets/dialog.js';
-import { standardWidgets } from '../../../../src/v2/view/widgets/index.js';
+import { hero, heroBars, heroLevel, heroLine, heroPicture } from '../../../../ui/legacy/view/widgets/hero.js';
+import { tiers, tierList } from '../../../../ui/legacy/view/widgets/tiers.js';
+import { listcard, listRows } from '../../../../ui/legacy/view/widgets/listcard.js';
+import { tabs, navbar } from '../../../../ui/legacy/view/widgets/nav.js';
+import { dialog } from '../../../../ui/legacy/view/widgets/dialog.js';
+import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
 import { fakeApi } from './fake-dom.js';
 import { PNG, classes, mount } from './blocks.helpers.js';
 

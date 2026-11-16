@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderDataModules } from '../../../src/v2/data-modules/setup.js';
+import { renderDataModules } from '../../../packages/story-block/src/v2/data-modules/setup.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { definition, directorStub, int, pack, pin, success, view, world } from '../data-modules/helpers.js';
+import { definition, directorStub, int, pack, pin, success, view, world } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const line = (root, label) => root.querySelectorAll('.ss-dm-field').find(node => node.textContent.startsWith(`${label}:`));

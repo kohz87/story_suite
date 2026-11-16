@@ -4,9 +4,9 @@
 // so it counts once against the reply's budget, and one "You set" line in "Changed this reply"); Cancel writes nothing. The Party tab
 // opens it in place over its cards. Every node is built with createElement and textContent.
 
-import { h } from '../../view/widgets/dom.js';
-import { radar } from '../../view/widgets/radar.js';
-import { stepper } from '../../view/widgets/stepper.js';
+import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { radar } from '../../../../../../ui/legacy/view/widgets/radar.js';
+import { stepper } from '../../../../../../ui/legacy/view/widgets/stepper.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { refusalText } from '../../../../../../core/strings.js';
 import { drawStageBars, fieldsPayload } from './bars.js';

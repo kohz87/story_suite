@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRuntime } from '../../core/runtime.js';
-import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
+import { mountUi } from '../../ui/legacy/ui-host.js';
 import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
-import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { setupDom } from '../ui/view/mounts/helpers.js';
 
 // A reply that carries the story's record (its sid). SillyTavern's new swipe copies the record into the swipe, so the second
 // swipe holds the same text and the same record (the state is identical).

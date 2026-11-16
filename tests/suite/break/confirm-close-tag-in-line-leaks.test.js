@@ -5,8 +5,8 @@
 // Drops into Story_block/tests/v2/break/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 
 const REPLY = [
     'Fenna waits for your answer.',

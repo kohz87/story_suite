@@ -1,7 +1,7 @@
 // Screen CSS: scoped to the screen root, keyframes prefixed, nothing loaded from outside, 64 KB.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MAX_CSS_BYTES, cssVarValue, filterDeclarations, keyframePrefix, scopeCss, screenSelector, selectorEscape, themeVars } from '../../../../src/v2/view/css.js';
+import { MAX_CSS_BYTES, cssVarValue, filterDeclarations, keyframePrefix, scopeCss, screenSelector, selectorEscape, themeVars } from '../../../../ui/legacy/view/css.js';
 
 const S = '[data-ss-screen="rpg-battle/party"]';
 const scope = css => scopeCss(css, 'rpg-battle/party');

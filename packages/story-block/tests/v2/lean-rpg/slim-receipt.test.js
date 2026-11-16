@@ -10,7 +10,7 @@ import { fieldMax, positionalDice } from '../../../src/v2/lean-rpg/resolve.js';
 import { hashJson } from '../../../../../core/replay.js';
 import { rng, roll } from '../../../../../core/commands/rng.js';
 import { assemble } from '../../../../../core/prompt.js';
-import { receiptView } from '../../../src/v2/inspect.js';
+import { receiptView } from '../../../../../ui/legacy/inspect.js';
 import { character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock, tailOf } from './helpers.js';
 
 const available = await hostAvailable();

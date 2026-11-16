@@ -1,5 +1,5 @@
 // Foe group chips, party chips and the status block that holds them.
-import { h, text } from '../../../view/widgets/dom.js';
+import { h, text } from '../../../../../../../ui/legacy/view/widgets/dom.js';
 import { healthMiniBar } from './bars.js';
 import { hasValue, numberOr } from './shared-values.js';
 
