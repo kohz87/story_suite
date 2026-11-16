@@ -57,7 +57,7 @@ export function confirmedDeath(npc, { event, now }) {
 
 const SNAPSHOT_EXPIRED = Symbol('snapshot-expired');
 
-export function createParticipant({ port, vault, module = MODULE_ID, now = () => Date.now(), random, schedule = (fn, ms) => setTimeout(fn, ms), cancel = id => clearTimeout(id), debounceMs = 300, retryMs = 1500, idleMs = 8000, boundMs = 8000, pollMs = 50, vaultTimeoutMs = 15000 }) {
+export function createParticipant({ port, vault, module = MODULE_ID, now = () => Date.now(), random, schedule = (fn, ms) => setTimeout(fn, ms), cancel = id => clearTimeout(id), debounceMs = 300, retryMs = 1500, idleMs = 8000, boundMs = 8000, pollMs = 50, vaultTimeoutMs = 15000, onPublished = null, mirrorMs = 5000 }) {
     let session = null;      // { key, lineage, index }
     let handle = null;
     let queue = Promise.resolve();
@@ -284,7 +284,7 @@ export function createParticipant({ port, vault, module = MODULE_ID, now = () =>
     const busy = scanBusy;
     const publication = createPublication({
         cancel, exclusive, getAnnounced: () => announced, getHandle: () => handle,
-        hydrate, made, module, port, preparedAt, preparing, retryMs, save, schedule, started, verified, warn, keyNow,
+        hydrate, made, module, port, preparedAt, preparing, retryMs, save, schedule, started, verified, warn, keyNow, onPublished, mirrorMs,
     });
     const { participant } = createParticipantHandlers({
         abort, bounded, boundedCheckpoint, busy, confirmedDeath, getAnnounced: () => announced, getHandle: () => handle,
