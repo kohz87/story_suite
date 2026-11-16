@@ -22,7 +22,7 @@ function resolveInternalImports(filePath, specifiers, fileSet) {
 /**
  * Builds codemap rows and validation problems for a set of repo files.
  */
-export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/jobs.json', legacyPackage = false }) {
+export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/jobs.json', legacyPackage = false, isLegacyFile = p => p.startsWith('packages/') }) {
   const problems = [];
   const overLimit = [];
   const sortedFiles = [];
@@ -32,12 +32,12 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
     if (nul) problems.push(nul);
     if (MODULE_EXT.test(filePath)) jsFiles.add(filePath);
     if (MAPPED_EXT.test(filePath)) { sortedFiles.push(filePath); continue; }
-    // Outside packages/ every file needs an extension (a script without one hides its language); only
+    // Outside the package roots every file needs an extension (a script without one hides its language); only
     // these well-known names are accepted, as text that is size-checked but not parsed.
     const base = filePath.split('/').pop();
     const extensionless = !base.replace(/^\.+/, '').includes('.');
     if (!extensionless) problems.push(`${filePath}: this language is not used in this repo`);
-    else if (!filePath.startsWith('packages/') && !EXTENSIONLESS_OK.has(base)) problems.push(`${filePath}: files need an extension here`);
+    else if (!isLegacyFile(filePath) && !EXTENSIONLESS_OK.has(base)) problems.push(`${filePath}: files need an extension here`);
     else if (BUILD_FILES.has(base)) sortedFiles.push(filePath);
   }
   const fileSet = new Set(sortedFiles);
