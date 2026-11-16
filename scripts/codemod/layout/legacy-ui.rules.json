@@ -1,0 +1,34 @@
+{
+  "area": "legacy-ui",
+  "scope": ["packages"],
+  "rules": [
+    { "from": "packages/story-block/src/v2/view", "to": "ui/legacy/view" },
+    { "from": "packages/story-block/src/v2/layout", "to": "ui/legacy/layout" },
+    { "from": "packages/story-block/src/v2/screens", "to": "ui/legacy/screens" },
+    { "from": "packages/story-block/src/v2/ui", "to": "ui/legacy/ui" },
+    { "from": "packages/story-block/src/v2/ui-host", "to": "ui/legacy/ui-host", "stem": true },
+    { "from": "packages/story-block/src/v2/host-ui", "to": "ui/legacy/host-ui", "stem": true },
+    { "from": "packages/story-block/src/v2/extras*", "to": "ui/legacy/extras*" },
+    { "from": "packages/story-block/src/v2/reply-cards", "to": "ui/legacy/reply-cards", "stem": true },
+    { "from": "packages/story-block/src/v2/reply-notes", "to": "ui/legacy/reply-notes", "stem": true },
+    { "from": "packages/story-block/src/v2/inspect", "to": "ui/legacy/inspect", "stem": true },
+    { "from": "packages/story-block/src/v2/diagnostics-parts", "to": "ui/legacy/diagnostics-parts" },
+    { "from": "packages/story-block/src/ui", "to": "ui/legacy/ui" },
+
+    { "from": "packages/story-block/tests/v2/authoring-kit", "to": "tests/authoring-kit" },
+    { "from": "packages/story-block/tests/v2/bench", "to": "tests/bench" },
+    { "from": "packages/story-block/tests/v2/break", "to": "tests/suite/break" },
+    { "from": "packages/story-block/tests/v2/edit", "to": "tests/ui/edit" },
+    { "from": "packages/story-block/tests/v2/fixtures", "to": "tests/core/fixtures" },
+    { "from": "packages/story-block/tests/v2/helpers", "to": "tests/core/helpers" },
+    { "from": "packages/story-block/tests/v2/integration", "to": "tests/suite/integration" },
+    { "from": "packages/story-block/tests/v2/layout", "to": "tests/ui/layout" },
+    { "from": "packages/story-block/tests/v2/matrix", "to": "tests/matrix" },
+    { "from": "packages/story-block/tests/v2/qa", "to": "tests/suite/qa" },
+    { "from": "packages/story-block/tests/v2/scripts", "to": "tests/scripts/sb" },
+    { "from": "packages/story-block/tests/v2/screens", "to": "tests/ui/screens" },
+    { "from": "packages/story-block/tests/v2/split", "to": "tests/suite/split" },
+    { "from": "packages/story-block/tests/v2/ux", "to": "tests/ui/ux" },
+    { "from": "packages/story-block/tests/v2/view", "to": "tests/ui/view" }
+  ]
+}

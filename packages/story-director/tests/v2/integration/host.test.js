@@ -1,12 +1,12 @@
 // Story Director on the real Story Block v2 host (the vendored runtime and testkit in
-// tests/vendor/story-block/): Story Block's core module, a stand-in example fight runner and this module,
+// packages/story-block): Story Block's core module, a stand-in example fight runner and this module,
 // driven the way SillyTavern drives them (messages, replies with <Changes> blocks, swipes,
 // deletes, UI commands).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule, MODULE_ID } from '../../../src/v2/module.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 
@@ -74,7 +74,7 @@ test('the static prompt is byte-identical reply after reply, with the Director\'
     assert.notEqual(tails[0], tails.at(-1), 'the tail changes with the state');
 
     const text = statics[0];
-    assert.match(text, /~ time <date, clock time such as 9:30 am>/);
+    assert.match(text, /~ time 9:30 am \(the clock now, today/);
     assert.match(text, /Director lines:/);
     // No offers to accept: a hook is an open thread, and + quest is written once the reader accepts.
     assert.doesNotMatch(text, /a job only offered: \+ hook with giver, reward/);

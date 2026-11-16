@@ -145,7 +145,9 @@ test('B: a backwards story-time edit accrues nothing and keeps the high-water mi
     const { host, T } = await camp(t);
     await host.send('Hours.', reply('! time +3h'));
     assert.deepEqual(needs(host), [6, 3]);
-    await host.send('Back.', reply('~ time March 2, 1000, 07:00 am'));
+    // The story can no longer write a date before the clock (the clockFace rule): the reader's own clock edit is what goes back.
+    const back = await host.sdk.command('director.clock', { year: 1000, month: 3, day: 2, minutes: 7 * 60 });
+    assert.equal(back.ok, true, back.message);
     assert.deepEqual(needs(host), [6, 3], 'absolute backwards edit: nothing accrues');
     assert.deepEqual(timer(host), { lastMinute: T + 180, remainder: 0 });
     await host.send('Forward, but not past it.', reply('! time +1h'));

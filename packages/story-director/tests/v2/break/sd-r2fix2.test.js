@@ -9,8 +9,8 @@
 // * B-b7r2-1: the module says which Story Block it needs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
-import { satisfies } from '../../vendor/story-block/src/v2/packs/version.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
+import { satisfies } from '../../../../story-block/src/v2/packs/version.js';
 import { STORY_BLOCK_RANGE, createModule } from '../../../src/v2/module.js';
 import { MAX_PLACES, NEW_PER_REPLY, applyLandmarkLine, applyRouteLine } from '../../../src/v2/atlas/capture.js';
 import { initialAtlas } from '../../../src/v2/atlas/domain.js';

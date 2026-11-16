@@ -42,7 +42,7 @@ test('--check fails when a map is missing; --write creates the root and package 
   assert.ok(fs.existsSync(path.join(dir, 'docs/codemap/demo.md')));
   const ok = run(dir, '--check');
   assert.equal(ok.status, 0, ok.out);
-  assert.match(ok.out, /docs\/codemap\/demo\.md demo 2 files, \d+ lines/);
+  assert.match(ok.out, /docs\/codemap\/demo\.md demo 2 files \(\d+ over the export limit\), up to date/);
 }));
 
 test('--check fails when a package file changes after the map was written, and --write repairs it', withRepo(dir => {
@@ -81,6 +81,12 @@ test('a generated map has no totals line, and an edit changes only its own row a
   const mapPath = path.join(dir, 'docs/codemap/demo.md');
   const before = fs.readFileSync(mapPath, 'utf8').split('\n');
   assert.ok(!before.some(l => /\d+ files?, \d+ lines/.test(l)));
+  assert.ok(!before.some(l => l.includes('| Lines |')));
+  put(dir, 'packages/demo/src/c.js', '// Does c.\n\n\nexport const c = 3;\n');
+  run(dir, '--write');
+  assert.equal(fs.readFileSync(mapPath, 'utf8'), before.join('\n'));
+  put(dir, 'packages/demo/src/c.js', '// Does c.\nexport const c = 3;\n');
+  run(dir, '--write');
   put(dir, 'packages/demo/src/c.js', '// Does c.\nexport const c = 3;\nexport const d = 4;\n');
   run(dir, '--write');
   const after = fs.readFileSync(mapPath, 'utf8').split('\n');

@@ -1,4 +1,4 @@
-// The time part's queries: `time.now`, `time.overdue` and `time.recap`.
+// The time part's queries: `time.now`, `time.lastLine`, `time.overdue` and `time.recap`.
 
 import { makeCalendar } from '../../../calendar.js';
 import { calendarOf, timeSettings } from '../records.js';
@@ -46,7 +46,23 @@ export function nowQuery(state, _args, tools) {
     return { minutes, text, day: Math.floor(minutes / 1440), date };
 }
 
+/**
+ * `time.lastLine`: the chat index of the last reply whose receipts moved the clock by a time line (`capture.time` or `director.advance`), `{ index }`;
+ * `{ index: null }` when none is kept (trimmed receipts only make a gap read long).
+ */
+export function lastLineQuery(_state, _args, tools) {
+    let entries = [];
+    try { entries = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { entries = []; }
+    let index = null;
+    for (const entry of Array.isArray(entries) ? entries : []) {
+        const type = entry?.receipt?.type;
+        if ((type === 'capture.time' || type === 'director.advance') && Number.isSafeInteger(entry.index) && (index === null || entry.index > index)) index = entry.index;
+    }
+    return { index };
+}
+
 export const queries = {
+    'time.lastLine': lastLineQuery,
     'time.now': nowQuery,
     /**
      * Where threads stood when the story time was last settled: `{ minutes, lapsed, overdue,

@@ -10,8 +10,8 @@ import { DAYS_ID, FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidge
 import { DIGEST_FEATURE } from '../../../src/v2/chronicle/days.js';
 import { createModule, storyDirectorModule } from '../../../src/v2/module.js';
 import { makeCalendar } from '../../../src/calendar.js';
-import { validateScreen } from '../../vendor/story-block/src/v2/view/screens.js';
-import { scopeCss } from '../../vendor/story-block/src/v2/view/css.js';
+import { validateScreen } from '../../../../story-block/src/v2/view/screens.js';
+import { scopeCss } from '../../../../story-block/src/v2/view/css.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
 // Everything behind the scenes or planned in the story below: none of it may reach World or Journal.

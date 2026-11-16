@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createFakeModel, createHost } from '../../vendor/story-block/testkit/index.js';
+import { createFakeModel, createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { ACCEPT, END, FEATURE, UPDATE, createArcController } from '../../../src/v2/arc/index.js';
 import { FIGHT_RULE, NO_FIGHT_RULE } from '../../../src/v2/arc/plan.js';
