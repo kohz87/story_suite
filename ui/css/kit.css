@@ -175,11 +175,25 @@
   border-color: var(--su-line);
   border-radius: 22px;
   box-shadow: var(--su-shadow);
+  gap: 4px;
+  padding: 4px;
 }
 
 .su-root .seg.wseg button {
   flex: 1;
+  min-height: 44px;
   font: 800 13.5px var(--su-font);
+  color: var(--su-soft);
+  background: transparent;
+  border: 0;
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+
+.su-root .seg.wseg button[aria-pressed="true"] {
+  background: var(--su-panel2);
+  color: var(--su-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
 }
 
 /* shared sheet (kit/sheet.js) and the Scene sheet */
