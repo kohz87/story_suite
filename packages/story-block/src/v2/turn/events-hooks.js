@@ -2,7 +2,7 @@
 // (the plan the RPG held lets go). `createReplyHooks(s, deps)` is given the turn's state holder `s` and the turn parts it uses; `captureLate` is the
 // late-lines capture an afterReply hook's `capture` runs.
 export function createReplyHooks(s, deps) {
-    const { store, problem, events, registry, view, captureLate } = deps;
+    const { ia, store, problem, events, registry, view, captureLate } = deps;
 
     // afterReply (the assist extractor, run after every reply; `lines` are the change lines its capture read): not awaited, a failure is
     // logged. `capture(text, { index, swipe })` runs lines as story captures on that reply while it is the head on the same swipe.
@@ -31,6 +31,10 @@ export function createReplyHooks(s, deps) {
             try { fn(view(), { index, type }); } catch (error) {
                 problem({ module: moduleId, index, code: 'FAILED', message: `afterReceive failed: ${error?.message ?? error}` });
             }
+        }
+        // The core's own: an interaction reply opens its next segment (or closes it); a chat that never used one has nothing to do (interaction/hooks.js).
+        try { ia.afterReceive(view(), { index, type }); } catch (error) {
+            problem({ module: 'story-block', index, code: 'FAILED', message: `afterReceive failed: ${error?.message ?? error}` });
         }
     }
 
