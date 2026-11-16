@@ -3,7 +3,7 @@
 
 import { captureConsole } from '../diagnostics.js';
 
-export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer, blockPresentation, syncScreens, syncLeanRpg, refresh, clearBlocked, getPanel, getTabHost, getOverlay, getBlockedBy, redrawHold }) {
+export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer, blockPresentation, syncScreens, syncLeanRpg, refresh, clearBlocked, getPanel, getTabHost, getOverlay, getBlockedBy, redrawHold, wiring }) {
     const offs = [...replyOffs, ...offs0];
     // Story Suite's console errors, kept for Diagnostics (once per page; the console still prints them).
     offs.push(captureConsole());
@@ -20,7 +20,7 @@ export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx
             return JSON.stringify(Object.entries(modules?.active ?? {}).map(([id, entry]) => [id, entry?.hash, Boolean(modules.pins?.[entry?.hash])]));
         } catch { return null; }   // (not known: asked every time, as before)
     };
-    for (const name of ['head', 'committed']) offs.push(events.on(name, () => {
+    for (const name of ['head', 'committed']) offs.push(events.on(name, payload => {
         const stamp = presentationStamp();
         if (stamp === null || stamp !== dataStamp) {
             dataStamp = stamp;
@@ -29,12 +29,18 @@ export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx
             try { pinned = blockPresentation() ?? []; if (pinned.length) next = JSON.stringify(pinned); } catch { dataStamp = null; /* older host */ }
             if (next !== dataPresentation) { dataPresentation = next; syncScreens(pinned); }
         }
+        if (wiring?.on()) {
+            // (the one scheduler draws the panel and the overlay size once per frame; a chat switch draws at once)
+            wiring.mark();
+            if (name === 'head' && payload?.reason === 'chat') wiring.flushNow();
+            return;
+        }
         // (the panel's redraw waits while a form's plan holds it, and runs once after)
         const redraw = () => { mounts.tab.register(); if (!getPanel().hidden) getTabHost()?.refresh(); };
         if (name === 'committed') redrawHold.run('panel', redraw); else redraw();
     }));
     // A feature turned on or off: its screens, tabs, widgets and cards come and go; nothing else changes.
-    for (const name of ['head', 'committed', 'turn']) offs.push(events.on(name, () => getOverlay()?.refreshSize?.()));
+    for (const name of ['head', 'committed', 'turn']) offs.push(events.on(name, () => { if (!wiring?.on()) getOverlay()?.refreshSize?.(); }));
     // A chat change closes the dialogs (their drafts were for the chat they were opened in).
     const chatTypes = ctx.eventTypes ?? ctx.event_types ?? {};
     const onChatChanged = () => {
@@ -76,7 +82,8 @@ export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx
         clearBlocked();
         // The "Installed …" notice stays for one reply.
         cardOffer?.clearDone();
-        if (!getPanel().hidden) getTabHost()?.refresh();
+        if (wiring?.on()) wiring.mark();
+        else if (!getPanel().hidden) getTabHost()?.refresh();
         // The card under that reply now knows its refused lines.
         if (Number.isInteger(done?.index)) mounts.card?.refresh?.(done.index, { force: true });
     }));
@@ -86,8 +93,8 @@ export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx
 
 // The redraw hold: a form with several steps (the Inventory item form) holds the screens' redraw from `committed` events until its plan
 // ends, so the form stays alive for every step and shows a refusal; the held redraws then run once each. Held work is keyed, so
-// the same listener held twice runs once.
-export function createHold() {
+// the same listener held twice runs once. With the flag `suite.redrawScheduler` on, a hold is also the scheduler's hold (`outer`).
+export function createHold(outer = () => null) {
     let holds = 0;
     const queued = new Map();
     const flush = () => { const run = [...queued.values()]; queued.clear(); for (const fn of run) fn(); };
@@ -95,8 +102,10 @@ export function createHold() {
         /** → a release function (safe to call twice); the last release runs what was held. */
         hold() {
             holds += 1;
+            // (`outer()`: the scheduler's own hold while the flag is on, so head and turn redraws wait too; null otherwise)
+            const outerRelease = outer();
             let done = false;
-            return () => { if (done) return; done = true; holds -= 1; if (!holds) flush(); };
+            return () => { if (done) return; done = true; holds -= 1; if (!holds) flush(); if (typeof outerRelease === 'function') outerRelease(); };
         },
         /** Runs `fn` now, or after the last release when held. */
         run(key, fn) { if (holds) queued.set(key, fn); else fn(); },
