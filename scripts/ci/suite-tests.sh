@@ -16,7 +16,7 @@ fi
 
 # Raise the floor when tests are added. A lower "# tests" count means test-level results were not
 # reported or tests were lost.
-MIN_TESTS=4800
+MIN_TESTS=7400
 # The only TODO tests allowed, by exact test name (like the skip reasons). Any other TODO fails the job.
 ALLOWED_TODOS=(
   "C4-2 (open): no chat file is made again under the old name by a save already on its way (needs the server to refuse a save of a renamed chat, or the page to delete that copy)"
