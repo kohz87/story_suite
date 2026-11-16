@@ -10,6 +10,7 @@ MIN_TESTS=5826
 # The only TODO tests allowed, by exact test name (like the skip reasons). Any other TODO fails the job.
 ALLOWED_TODOS=(
   "C4-2 (open): no chat file is made again under the old name by a save already on its way (needs the server to refuse a save of a renamed chat, or the page to delete that copy)"
+  "Re-read of a reply that carries a mirror block, after a middle delete of an earlier carrier that created the people domain, refuses with \"/domains/people/npcs/p0/stage does not exist (no people)\" (repro: 3 replies each mirrored; delete carriers()[1]; mirror again at the head; host.turn.reread(headIndex) returns ok:false)"
 )
 # The only skips allowed, by reason. Any other skip fails the job.
 ALLOWED_SKIPS=(
@@ -33,19 +34,24 @@ repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
 # One test looks only for a sibling folder "../../../../Story_director" (packages/Story_director here) and
 # ignores STORY_SUITE_ROOT; B1 must not edit package files, so a temporary symlink stands in for it.
-legacy_link="$repo_root/packages/Story_director"
+layout_json="$repo_root/scripts/layout.json"
+farm="$(node -e "const l = JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')); for (const f of l.suiteFarm) console.log(f.link, f.dir)" "$layout_json")"
+legacy_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_director" { print $2 }')"
+legacy_link="$repo_root/$(dirname "$legacy_dir")/Story_director"
 made_link=0
-if [ ! -e "$legacy_link" ]; then ln -s story-director "$legacy_link"; made_link=1; fi
+if [ ! -e "$legacy_link" ]; then ln -s "$(basename "$legacy_dir")" "$legacy_link"; made_link=1; fi
 trap 'rm -rf "$tmpdir"; if [ "$made_link" = 1 ]; then rm -f "$legacy_link"; fi' EXIT
 
 suite_root="$tmpdir/suite"
 mkdir -p "$suite_root"
-ln -s "$repo_root/packages/story-block" "$suite_root/Story_block"
-ln -s "$repo_root/packages/story-director" "$suite_root/Story_director"
-ln -s "$repo_root/packages/npc-state-delta" "$suite_root/npc_state_delta"
+# The links and their folders come from scripts/layout.json (suiteFarm).
+while IFS=' ' read -r link dir; do
+  ln -s "$repo_root/$dir" "$suite_root/$link"
+done <<< "$farm"
 
 tap_file="$tmpdir/suite.tap"
-cd "$repo_root/packages/story-block"
+block_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_block" { print $2 }')"
+cd "$repo_root/$block_dir"
 export STORY_SUITE_ROOT="$suite_root"
 export NPC_STATE_DELTA_PATH="$suite_root/npc_state_delta"
 export NODE_OPTIONS="--max-old-space-size=4096 ${NODE_OPTIONS:-}"

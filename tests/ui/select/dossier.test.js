@@ -75,6 +75,18 @@ describe('selectDossier', () => {
     assert.equal(selectDossier({ dossier: { ...DOSSIER, mood: '' }, cast: CAST }).mood, 'hopeful');
   });
 
+  it('maps NPC State mood numbers to moodBars (tile rows first, else the cast row), absent without them', () => {
+    const tile = { title: 'Mood', text: 'wary hope', known: true, rows: [{ key: 'v', label: 'Feeling', value: -2, change: 0 }, { key: 'a', label: 'Energy', value: 1, change: 0 }, { key: 'd', label: 'Control', value: 3, change: 0 }] };
+    const vm = selectDossier({ ...ALL, moodTile: tile });
+    assert.deepEqual(vm.moodBars, { feeling: -2, energy: 1, control: 3 });
+    assert.deepEqual(checkShape(vm, DOSSIER_SHAPE), []);
+    const fromCast = selectDossier({ dossier: DOSSIER, cast: { ...CAST, mood: { word: 'hopeful', valence: 1, energy: -1, control: 0 } } });
+    assert.deepEqual(fromCast.moodBars, { feeling: 1, energy: -1, control: 0 });
+    assert.equal('moodBars' in selectDossier(ALL), false);
+    assert.equal('moodBars' in selectDossier({ ...ALL, moodTile: { ...tile, known: false } }), false);
+    assert.equal('moodBars' in selectDossier({ ...ALL, moodTile: { ...tile, rows: [{ key: 'v', value: 5 }, tile.rows[1], tile.rows[2]] } }), false);
+  });
+
   it('parses ties, past, secrets and the profile with merged habits', () => {
     const vm = selectDossier(ALL);
     assert.deepEqual(vm.ties, [{ personId: null, name: 'Torka', line: 'childhood friend · Tem to her' }, { personId: null, name: 'The Harbour Master', line: '' }]);
