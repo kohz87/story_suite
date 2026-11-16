@@ -214,6 +214,13 @@ is as before; the new words are refused ("Gear in fights is not switched on.") a
 * **Screens:** `gear.view` rows carry `hand`, `defSlot` and `stats` for such a piece; the item Edit takes `gear.row`, `gear.kit` and `gear.def`.
   The form is `view/gear-form.js` over `ss.editable` kind `fields` (field `showWhen`, `disabled`, and the entries `note` and `points`).
 
+## Soak, load weights and animals (Combat rules v1, not read by the fight engine yet)
+
+- **Soak per piece (per item, as the Party and Bag screens show it; rarity never sets it):** an item's soak is its definition's `soak` (default 0): a pack item's `soak` (0 to 2), a story line's `soak: N`, or the Edit's Soak on a piece the reader made by hand (while the starting kit is open, like Rarity and Bonus; `inventory.edit { stack, soak }`). Code holds it to the slot's cap: **body 2, off-hand 2, head 1, cloak 0, feet 0, accessory 0**, a weapon 0, so a line cannot mint soak and rings and boots give none. A piece in a worse state than Worn (cond below 40: torn, broken) gives none. `inventory.gear` slots carry `soak` and the answer `soak: { total, pieces: [{ place, name, soak }] }` (counted by the place worn); `gear.view` carries `soak` on `slots`, `bag`, `rows` and as a total. A member's soak is `soakTotal(VIT, gear total, stance)` = VIT + the pieces + a stance's extra, 1 to 50 (the Party tab's rule: Astra 11, Torka 13, Rika 8, Brann 17, or 22 with Shield wall).
+- **Load:** `gear.carry` answers `unit: 'load'` and `weights` (stack id → load: 1 a unit, money 0; `load` counts the same way, so it is the sum of the weights).
+- **Animals:** `gear.carry` answers `animals: [{ name, carry, withParty }]`; horse 40, pony 30, cart 60 and the other kinds in the mount table (mule, carriage, boat, wagon, barge…), times count, add to the shared bag only while they travel with the party.
+- No other gear bonus is read in v1 (BATCH1 B1.5 stays closed); the stat adds above remain until the engine switch.
+
 ## Replay
 
 Everything is derived from the inventory slice and its condition events; a swipe, a delete, a Re-read, a rebuild and a reload

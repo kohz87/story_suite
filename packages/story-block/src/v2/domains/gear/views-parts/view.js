@@ -4,9 +4,10 @@ import { isPlainObject } from '../../common.js';
 import { STRINGS } from '../../../strings.js';
 import { readSheet } from '../../../lean-rpg/read.js';
 import { GEAR } from '../stats.js';
-import { statsFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';
+import { statsFor, soakFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';
 import { condWord } from '../conditions.js';
 import { carryPicture, travelsWith, kindCarry, loadLevel } from '../carry.js';
+import { soakRecord } from './soak.js';
 import { bonusText } from './bonus-text.js';
 
 const PLACES = GEAR.places;
@@ -46,7 +47,7 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
             place: worn ? stack.equipped : '', by: worn ? names(stack.owner) : '', byId: worn ? stack.owner : '',
             // The slot the Edit form offers: where it is worn, else the place its own slot names ('' for none: a bag).
             slotKey: worn ? stack.equipped : (def.kind === 'equipment' && slotWordOf(def.slot) ? placeOf(slotWordOf(def.slot)) : ''),
-            fill: FILL[condWord(cond)],
+            fill: FILL[condWord(cond)], soak: soakFor(def, cond),
             // What the reader set for it to add to carrying (0: none), and whether the item's own Edit form offers its Carry field (not a pack's, not money, not a hand-made piece: that form has its own).
             carry: Number.isSafeInteger(def.carry) && !def.id.startsWith('pack.') ? def.carry : 0,
             carryEdit: !def.id.startsWith('pack.') && def.kind !== 'money' && !handDef(inventory, def),
@@ -63,12 +64,12 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
         if (stack.owner !== owner || typeof stack.equipped !== 'string' || !Object.hasOwn(slots, stack.equipped) || slots[stack.equipped]) continue;
         const def = defs[stack.def];
         const cond = condOf(stack, inventory);
-        slots[stack.equipped] = { stack: stack.id, name: def.name, rarity: def.rarity, bonus: bonusText(statsFor(def, stack)), cond, word: condWord(cond), broken: cond <= 0,
+        slots[stack.equipped] = { stack: stack.id, name: def.name, rarity: def.rarity, bonus: bonusText(statsFor(def, stack)), soak: soakFor(def, cond, stack.equipped), cond, word: condWord(cond), broken: cond <= 0,
             ...(typeof stack.bound === 'string' && stack.bound ? { bound: { who: names(stack.bound) || stack.bound } } : {}) };
     }
     // The bag (the slot card's "Equip from bag"): equipment nobody wears and that is not a cast member's signature piece, with the slot word it fits.
     const bag = stacks.filter(stack => typeof stack.equipped !== 'string' && !(typeof stack.bound === 'string' && stack.bound) && defs[stack.def].kind === 'equipment' && slotWordOf(defs[stack.def].slot))
-        .map(stack => ({ stack: stack.id, name: defs[stack.def].name, rarity: defs[stack.def].rarity, bonus: bonusText(statsFor(defs[stack.def], stack)), fits: slotWordOf(defs[stack.def].slot) }));
+        .map(stack => ({ stack: stack.id, name: defs[stack.def].name, rarity: defs[stack.def].rarity, bonus: bonusText(statsFor(defs[stack.def], stack)), soak: soakFor(defs[stack.def], condOf(stack, inventory)), fits: slotWordOf(defs[stack.def].slot) }));
     // Who wears something, for the Inventory's Worn list: the main character first, then by name (a member who left still counts: their pieces are listed).
     const wearers = [...new Set(stacks.filter(stack => typeof stack.equipped === 'string').map(stack => stack.owner))].map(value => ({ value, label: names(value) || value }))
         .sort((a, b) => (a.value === 'party' ? -1 : b.value === 'party' ? 1 : a.label.localeCompare(b.label, 'en')));
@@ -85,7 +86,7 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
         return `${row.name} +${carry} · ${String(row.where).trim()}, not with you`;
     });
     return {
-        on: true, owner, owners: list, rows, slots, bag, wearers,
+        on: true, owner, owners: list, rows, slots, bag, wearers, soak: soakRecord(state, owner, condOf),
         // The starting kit (the chat has no message from the reader yet): Rarity and Bonus may be set by hand.
         kit: { open: kit() === true, ...(empty() === true ? { empty: true } : {}) },
         carry: {

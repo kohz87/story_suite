@@ -2,7 +2,7 @@
 
 import { isPlainObject, clone } from '../../common.js';
 import { aliasKey } from '../../names.js';
-import { gearDefine, packBonus, itemCarryOf } from '../../gear.js';
+import { gearDefine, packBonus, soakCap, itemCarryOf } from '../../gear.js';
 import { gearOn, RARITIES, STORY_KIND, packCarry } from '../state.js';
 import { legendaryEarned } from '../validate.js';
 import { economyOf } from './economy.js';
@@ -68,6 +68,10 @@ function buildDef(def, env, about, keep = {}) {
     const bonus = packBonus(id, def.bonus);
     if (bonus === null) delete def.bonus;
     else def.bonus = bonus;
+    // A soak is a whole number inside the slot's cap (a hook cannot raise it, nor a line); none outside a protecting slot.
+    const soak = Number.isSafeInteger(def.soak) ? Math.min(def.soak, soakCap(def.slot)) : 0;
+    if (soak > 0) def.soak = soak;
+    else delete def.soak;
     // With gear on, a cart, barrow, sledge, carriage, coach, barge or wagon the story names adds the capacity of its kind (gear.js KIND_CARRY) while it is owned.
     if (about.gear === true && itemCarryOf(def.name)) def.carry = itemCarryOf(def.name);
     if (def.kind === 'equipment') def.stack = false;   // MODULES.md F6
