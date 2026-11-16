@@ -28,19 +28,21 @@ function parseDate(when, months) {
   return null;
 }
 
-// The calendar of the current year, or null while the config or the story clock is missing. firstWeekday is 0: no query gives the weekday (§2.1 GAP).
+// The calendar of the current year, or null while the config or the story clock is missing. firstWeekday comes from director.time's firstWeekdays (0 when it has none).
 export function calendarOf(config, time) {
   const parts = time?.parts;
   const months = list(config?.months);
   if (!months.length || !parts || !Number.isInteger(parts.month) || !Number.isInteger(parts.day)) return null;
   return {
-    months: months.map(m => ({ name: text(m.name), length: asNumber(m.days), firstWeekday: 0, year: asNumber(parts.year) })),
+    months: months.map((m, i) => ({ name: text(m.name), length: asNumber(m.days), firstWeekday: weekdayAt(time.firstWeekdays, i), year: asNumber(parts.year) })),
     weekdays: (Array.isArray(config.week) ? config.week : []).map(name => ({ short: text(name).slice(0, 1), name: text(name) })),
     era: text(config.era),
     today: { month: parts.month - 1, day: parts.day },
-    start: null, // GAP: the story's start date has no query
+    start: null, // set by selectJournal from the oldest day the Journal knows
   };
 }
+
+const weekdayAt = (list, i) => (Array.isArray(list) && Number.isInteger(list[i]) && list[i] >= 0 ? list[i] : 0);
 
 const groupOf = row => (row.overdue ? 'late' : row.inDays <= 1 ? 'soon' : row.inDays <= 7 ? 'week' : 'later');
 
@@ -63,16 +65,20 @@ function dueOf(thread, upcoming) {
   return due ? { date: due, rel: '', state: '' } : null;
 }
 
-// steps, difficulty, xp and the planned trip are GAPs (no query lists a quest's steps or its XP); only the current step is known.
+// xp and the planned trip are GAPs (nothing stores a quest's XP; the story describes it); steps come from the thread's trail, difficulty from its label.
+const DIFFICULTIES = ['easy', 'normal', 'hard'];
 function questOf(thread, rpg, upcoming) {
   const fields = thread.fields ?? {};
   const step = text(fields.step);
+  const trail = strings(thread.steps);
+  const steps = trail.length ? trail : step ? [step] : [];
+  const difficulty = text(fields.difficulty).toLowerCase();
   return {
     id: text(thread.id), title: text(thread.key), summary: text(fields.goal) || text(thread.summary),
-    step, stepIndex: 0, stepCount: step ? 1 : 0, steps: step ? [step] : [],
+    step, stepIndex: Math.max(0, steps.length - 1), stepCount: steps.length, steps,
     giver: { personId: null, name: text(fields.giver) },
     due: dueOf(thread, upcoming), place: text(fields.place) || null, trip: null,
-    reward: rpg ? text(fields.reward) || null : null, xp: null, difficulty: null,
+    reward: rpg ? text(fields.reward) || null : null, xp: null, difficulty: DIFFICULTIES.includes(difficulty) ? difficulty : null,
   };
 }
 
@@ -105,8 +111,11 @@ export function selectJournal(read, opts = {}) {
     const outcome = OUTCOMES[t.ended?.outcome];
     return outcome ? [{ title: text(t.key), outcome, detail: text(t.ended?.reason), paid: null }] : [];
   });
-  const leads = list(read('director.world.leads', {})?.rows).map(r => ({ title: text(r.name), from: '', where: text(r.where), lapses: '' }));
+  const leads = list(read('director.world.leads', {})?.rows).map(r => ({ title: text(r.name), from: '', where: text(r.where), lapses: text(r.lapses) }));
   const journal = read('director.journal', {});
   const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0)) : [];
+  // The story's start: the oldest day the Journal knows (days run newest first).
+  const first = days.at(-1);
+  if (calendar && first) calendar.start = { month: first.month, day: first.day };
   return { rpg, quests, focusId, leads, closed, calendar, days, planned: [], upcoming };
 }

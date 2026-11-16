@@ -12,6 +12,7 @@ import { beginTurn, readerSaid } from './reply.js';
 import { capSummary, lineText } from './text.js';
 import { droppedProblem, toV1Op, withoutDroppedLabels } from './reading.js';
 import { newId, writeBack } from './thread-store.js';
+import { trailStep } from './step-trail.js';
 
 // Problems are the domain's (domain.js addProblem: each under its own key, never a list position).
 export { addProblem };
@@ -51,6 +52,7 @@ function threadLine(ctx, given) {
     const asRead = new Map(tracker.records.map(record => [record.id, JSON.stringify(record)]));
     const ops = [op];
     const named = director.threads[director.keys[op.id]];
+    const stepBefore = String(named?.fields?.step ?? '').trim();
     if (named?.rpg || named?.owed || named?.ready) {
         return { summary: 'Quest from an earlier version (read only).', narrate: false, data: { thread: named.id } };
     }
@@ -111,6 +113,7 @@ function threadLine(ctx, given) {
         });
     }
     const current = thread ? director.threads[thread] : null;
+    if (current && current.status === 'active') trailStep(current, stepBefore);
     // An agenda's step progress and place (feature `story-director.pulse`): optional fields the pulse reads, written by code, never the story's.
     if (current?.kind === 'agenda' && current.status === 'active' && pulseActive(ctx)) {
         const patch = agendaProgress(named?.fields ?? null, current.fields ?? {}, { minutes: director.time.minutes, where: placeNamed(ctx.query, current.fields?.now) });

@@ -7,6 +7,7 @@ import { lineKey } from '../../../changes.js';
 import { orderedThreads } from '../convert.js';
 import { calendarConfig, calendarOf, packCalendarOf, settingsFrom } from '../time.js';
 import { quietThreads } from '../quiet.js';
+import { weekdaysAt } from '../time-parts/weekdays.js';
 
 // Plain copies: nothing a caller changes reaches the state.
 const copy = value => structuredClone(value);
@@ -35,12 +36,16 @@ export const queries = {
      */
     'director.time': (state, _args, tools) => {
         const minutes = state?.domains?.director?.time?.minutes ?? null;
-        if (!Number.isInteger(minutes)) return { minutes: null, text: '', parts: null };
+        if (!Number.isInteger(minutes)) return { minutes: null, text: '', parts: null, weekday: '', firstWeekdays: [] };
         const { settings, pack } = queryCalendar(tools);
         const calendar = calendarOf(settings, pack);
         let text = '';
         try { text = calendar.format(minutes); } catch { text = ''; }
-        return { minutes, text, parts: partsOf(calendar, minutes) };
+        const parts = partsOf(calendar, minutes);
+        let days = { weekday: '', firstWeekdays: [] };
+        try { if (parts) days = weekdaysAt(calendar, minutes, parts.year); } catch { /* a calendar with no week */ }
+        // `weekday`: the day's name; `firstWeekdays`: for each month of this year, the index in `director.calendar`'s `week` of its first day.
+        return { minutes, text, parts, ...days };
     },
     /**
      * The calendar the chat runs on, as plain data (calendar.js normalizeCalendar's shape: `preset`,

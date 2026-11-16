@@ -106,7 +106,7 @@ test('queries: time, threads by kind, status and offer, one thread by key, alias
     assert.equal(wolf.track, undefined, 'bookkeeping stays inside');
     wolf.fields.step = 'changed';
     assert.equal(state.domains.director.threads[wolf.id].fields.step, 'tracking');
-    assert.deepEqual(part.queries['director.time'](makeState()), { minutes: null, text: '', parts: null });
+    assert.deepEqual(part.queries['director.time'](makeState()), { minutes: null, text: '', parts: null, weekday: '', firstWeekdays: [] });
     assert.deepEqual(part.queries['director.threads'](makeState(), { kind: 'hook' }), []);
 });
 

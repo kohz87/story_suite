@@ -28,7 +28,13 @@ export function currentGoal(state, args, tools) {
     };
 }
 
-/** Story-told quests on the Home screen, using only Director threads. */
+// The steps a quest has been through, the current one last: the thread's trail, else just its current step.
+const stepsOf = thread => {
+    const kept = Array.isArray(thread.steps) ? thread.steps.map(text).filter(Boolean) : [];
+    return kept.length ? kept : [text(thread.fields?.step)].filter(Boolean);
+};
+
+/** Story-told quests on the Home screen, using only Director threads: `{ id, key, goal, status, meter, step, steps, reward, difficulty }` (a gap is ''). */
 export function questBoard(state, _args, tools) {
     const quests = threadsOf(state, queryFrom(tools), { kind: 'quest', status: 'active' }).filter(isOpen);
     const row = thread => ({
@@ -37,6 +43,10 @@ export function questBoard(state, _args, tools) {
         goal: text(thread.fields?.goal) || text(thread.summary),
         status: isOffer(thread) ? { state: 'offered', text: 'Offered' } : { state: 'active', text: 'Under way' },
         meter: false,
+        step: text(thread.fields?.step),
+        steps: stepsOf(thread),
+        reward: text(thread.fields?.reward),
+        difficulty: text(thread.fields?.difficulty).toLowerCase(),
     });
     return { active: quests.filter(thread => !isOffer(thread)).map(row), offers: quests.filter(isOffer).map(row) };
 }
