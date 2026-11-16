@@ -29,7 +29,7 @@ const arrow = (before, after) => (before === undefined || before === null ? `${a
 const HP_ROW = { attack: [3, 10], heal: [2, 4], 'foe-attack': [2, 10] };
 
 /** The HP each row started from: the target's next unused HP move when it ends on the row's HP after, else unchanged. */
-function hpBefores(lines, moves) {
+export function hpBefores(lines, moves) {
     const queues = new Map();
     for (const move of moves) if (move?.bar === 'hp') queues.set(move.label, [...(queues.get(move.label) ?? []), move]);
     return lines.map(line => {

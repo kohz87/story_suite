@@ -22,3 +22,4 @@ export { dressOf, gearMatches } from './gear-parts/dress.js';
 export { gearMarkOf, gearValid, gearOf } from './gear-parts/record.js';
 export { applyGear, gearOfLine, noteGear } from './gear-parts/apply.js';
 export { isDecisive, wearGear } from './gear-parts/wear.js';
+export { gearSoakRecord } from './gear-parts/soak.js';

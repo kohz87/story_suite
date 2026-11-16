@@ -7,6 +7,7 @@ export const MESSAGE_STRINGS = {
         // Hand-set gear (the starting kit, docs/v2/GEAR.md "Your own gear"): the refusals of a reader's add or edit.
         gearOff: 'Gear in fights is not switched on.', gearNeedsEquipment: 'Slot, bonus and Equip on are for equipment: set Kind to Equipment.',
         kitClosed: 'Rarity and bonuses come from the story after the first message.',
+        handSoak: 'Soak is a whole number from 0 up to the slot\'s cap (body 2, off-hand 2, head 1, the rest 0).',
         kitBudget: '{a} {rarity} piece gives at most {max} {points}.', kitNoBonus: 'A common piece gives no bonus.',
         kitStats: 'Choose at most {max} different stats, each worth a whole number of at least 1.',
         kitSlot: 'The slot is one of {slots}.', kitNeedSlot: 'Choose a slot to put it on.', kitNotEquipment: '{name} is not equipment, so it cannot be put on.',

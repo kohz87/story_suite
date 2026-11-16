@@ -16,6 +16,7 @@ export function itemDef(item) {
     for (const field of DEF_FIELDS) def[field] = copy(item[field]);
     if (Number.isSafeInteger(item.carry) && item.carry > 0) def.carry = item.carry;
     if (Number.isSafeInteger(item.bonus) && item.bonus >= 0) def.bonus = item.bonus;
+    if (Number.isSafeInteger(item.soak) && item.soak >= 0) def.soak = item.soak;
     return def;
 }
 
