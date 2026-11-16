@@ -45,7 +45,7 @@
 /* leads and closed */
 .lead2{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--su-line2);align-items:start}
 .lead2:first-child{border-top:0}
-.lead2 .a{width:34px;height:34px;border-radius:50%;background:var(--su-tile);display:grid;place-items:center;font:800 13px var(--su-font);color:var(--su-soft)}
+.lead2 .a{width:34px;height:34px;border-radius:50%;background:#3a3c52;display:grid;place-items:center;font:800 13px var(--su-font);color:#fff}
 [data-scheme="light"] .lead2 .a{background:#dcdcea;color:#1d2030}
 .lead2 b{font:800 14px var(--su-font);display:block}.lead2 small{display:block;font-size:12px;color:var(--su-muted)}
 .lead2 small.lapse{color:var(--su-warn-t);font-weight:700;font-size:12px}
