@@ -67,13 +67,31 @@ test('flag on: a click on a card opens that dossier by name', () => {
     assert.deepEqual(opened, ['Old Tom']);
 });
 
-test('flag off (the default): the queries are never asked and the page API alone draws; byte-identical to the old path', () => {
+test('flag off (the default): the queries are never asked and the page API draws the cards, as before', () => {
     const api = world(PEOPLE());
-    const { el } = draw(api, { flag: false });
+    const page = { available: () => true, busy: () => false, onChange: () => () => {}, render: el => { const cell = el.ownerDocument.createElement('div'); cell.className = 'npc-state-delta-present-cell'; cell.textContent = 'from the page API'; el.append(cell); return 1; } };
+    for (const options of [{ cast: () => page, flag: () => false }, { cast: () => page }]) {
+        const doc = installFakeDom();
+        const el = doc.createElement('div');
+        doc.body.appendChild(el);
+        createPeopleWidget({ open: () => null, ...options }).render(el, { value: VALUE }, api);
+        assert.deepEqual(rows(el).map(cell => cell.textContent), ['from the page API']);
+    }
     assert.equal(api.asked.includes('npc.present'), false);
-    assert.equal(rows(el).length, 0, 'no page API: no cards (the same as without NPC State)');
-    const old = draw(world(PEOPLE()), { flag: false });
-    assert.equal(el.innerHTML, old.el.innerHTML);
+});
+
+test('flag on: NPC State\'s own change tell redraws too (its people cache refills after a swipe without a store write)', async () => {
+    const people = PEOPLE();
+    const api = world(people);
+    const fns = new Set();
+    const doc = installFakeDom();
+    const el = doc.createElement('div');
+    doc.body.appendChild(el);
+    createPeopleWidget({ open: () => null, cast: () => ({ onChange: fn => { fns.add(fn); return () => fns.delete(fn); } }), flag: () => true }).render(el, { value: VALUE }, api);
+    delete people['Old Tom'];
+    fns.forEach(fn => fn());
+    await tick();
+    assert.equal(rows(el).length, 1);
 });
 
 test('flag on, NPC State absent: no cards, no error, chips as without it', () => {

@@ -24,7 +24,7 @@ export function createPeopleWidget({ open = dossierOpener, cast = castApi, flag 
         render: (el, props, api) => {
             let own = false;
             try { own = flag() === true; } catch { own = false; }
-            const page = own ? createOwnCast(api, { open }) : null;
+            const page = own ? createOwnCast(api, { open, signal: cast }) : null;
             return render(el, props, api, { open, cast: page ? () => page : cast });
         },
     });

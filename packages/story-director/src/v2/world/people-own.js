@@ -12,7 +12,7 @@ const CLASS = {
 
 const text = value => (typeof value === 'string' ? value.trim() : '');
 
-export function createOwnCast(api, { open = () => null } = {}) {
+export function createOwnCast(api, { open = () => null, signal = () => null } = {}) {
     const who = new WeakMap();   // a cell → { name, aliases }
     const ask = (name, args) => { try { return api?.query?.(name, args) ?? null; } catch { return null; } };
     const names = () => {
@@ -128,8 +128,12 @@ export function createOwnCast(api, { open = () => null } = {}) {
         },
         // A change the store tells (`changed`): the same moments the section would draw on; the widget redraws once per task.
         onChange(fn) {
-            if (typeof fn !== 'function' || typeof api?.on !== 'function') return () => {};
-            try { return api.on('changed', () => fn()) ?? (() => {}); } catch { return () => {}; }
+            if (typeof fn !== 'function') return () => {};
+            const offs = [];
+            try { if (typeof api?.on === 'function') offs.push(api.on('changed', () => fn())); } catch { /* no store events */ }
+            // NPC State's own change tell (its people cache refills after a swipe, delete or chat change without a store write): a signal only, nothing is drawn from it.
+            try { offs.push(signal()?.onChange?.(fn)); } catch { /* no page API */ }
+            return () => offs.forEach(off => { try { off?.(); } catch { /* gone */ } });
         },
     });
 }
