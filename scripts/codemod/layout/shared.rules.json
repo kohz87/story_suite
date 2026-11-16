@@ -23,7 +23,7 @@
     { "from": "packages/story-block/.github", "to": "docs/history/packages/story-block/.github" },
     { "from": "packages/story-block/.gitignore", "to": "docs/history/packages/story-block/.gitignore" },
     { "from": "packages/story-block/manifest.json", "to": "docs/history/packages/story-block/manifest.json" },
-    { "from": "packages/story-block/package.json", "to": null },
+    { "from": "packages/story-block/package.json", "to": "docs/history/packages/story-block/package.json" },
 
     { "from": "packages/story-director/AI-README.md", "to": "docs/history/packages/story-director/AI-README.md" },
     { "from": "packages/story-director/CHANGELOG.md", "to": "docs/history/packages/story-director/CHANGELOG.md" },

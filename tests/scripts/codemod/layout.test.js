@@ -186,9 +186,9 @@ test('the rules delete only manifests dead at the move PR and keep later removal
   const deletes = rules.filter(rule => rule.to === null).map(rule => rule.from).sort();
   assert.deepEqual(deletes, [
     'packages/npc-state-delta/package.json',
-    'packages/story-block/package.json',
     'packages/story-director/package.json',
   ]);
+  assert.equal(matchPath(rules, 'packages/story-block/package.json').to, 'docs/history/packages/story-block/package.json', 'still read by two importers, so it moves');
   const target = file => matchPath(rules, file).to;
   assert.equal(target('packages/story-block/index.js'), 'core/boot/boot.js');
   assert.equal(target('packages/story-block/src/v2/shared/redraw.js'), 'ui/legacy/shared/redraw.js');

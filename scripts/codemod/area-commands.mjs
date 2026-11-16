@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { applyLayout } from './apply.mjs';
-import { dropKnownProblems, splitApplyKnown } from './apply-known.mjs';
+import { dropKnownProblems, occurringStale, splitApplyKnown } from './apply-known.mjs';
 import { dryRun } from './dry-run.mjs';
 import { verifyApplied } from './verify-applied.mjs';
 import { portBranch } from './port-branch.mjs';
@@ -54,8 +54,8 @@ function showTests(stdout, ran, split) {
 export function runApply(root, ruleSets, area, { dry, backupDir, allowNonLiteral = [], known = [], codemap = false, stdout, stderr }) {
   try {
     if (dry) {
-      const result = dryRun(root, ruleSets, area, { allowNonLiteral, codemap });
-      const split = splitApplyKnown(result.report, result.tests, known);
+      const result = dryRun(root, ruleSets, area, { allowNonLiteral, codemap, after: tree => occurringStale(tree, ruleSets, known) });
+      const split = splitApplyKnown(result.report, result.tests, known, result.after);
       summary(stdout, area, { ...result.report, stale: split.stale });
       showKnown(stdout, result.report, split);
       listData(stdout, result.dataFiles);
@@ -75,7 +75,7 @@ export function runApply(root, ruleSets, area, { dry, backupDir, allowNonLiteral
     }
     const base = head(root);
     const report = applyLayout(root, ruleSets, { area, backupDir: backupDir && path.resolve(root, backupDir), allowNonLiteral, commits: { moves: `layout: move ${area}`, rewrites: `layout: rewrite ${area}` } });
-    const split = splitApplyKnown(report, null, known);
+    const split = splitApplyKnown(report, null, known, occurringStale(root, ruleSets, known));
     summary(stdout, area, { ...report, stale: split.stale });
     showKnown(stdout, report, split);
     const checked = verifyApplied(root, ruleSets, area, base, { codemap });
@@ -92,11 +92,12 @@ export function runApply(root, ruleSets, area, { dry, backupDir, allowNonLiteral
 /**
  * `verify --area <a> [--base <ref>] [--moves <ref>] [--rewrites <ref>]`: checks the tree after an apply. `base` is the
  * commit before the move commit (default HEAD~2), `moves` the move commit (HEAD~1) and `rewrites` the rewrite commit
- * (HEAD); name them when a fix-up commit follows the rewrite commit. The code map check runs unless `codemap` is false.
+ * (HEAD); name them when a fix-up commit follows the rewrite commit. `tip` is the area's last commit (default: the
+ * working tree): name it to verify an area once later areas were applied on top, which is how the batch verifies each area. The code map check runs unless `codemap` is false (or `tip` is named).
  */
-export function runVerify(root, ruleSets, area, { base = 'HEAD~2', moves = 'HEAD~1', rewrites = 'HEAD', codemap = true, known = [], stdout, stderr }) {
+export function runVerify(root, ruleSets, area, { base = 'HEAD~2', moves = 'HEAD~1', rewrites = 'HEAD', tip = null, codemap = tip === null, known = [], stdout, stderr }) {
   try {
-    const checked = verifyApplied(root, ruleSets, area, base, { codemap, moves, head: rewrites });
+    const checked = verifyApplied(root, ruleSets, area, base, { codemap, moves, head: rewrites, tip });
     listData(stdout, checked.dataFiles);
     const problems = dropKnownProblems(checked.problems, known).fresh;
     for (const problem of problems) stderr.write(`verify: ${problem}\n`);

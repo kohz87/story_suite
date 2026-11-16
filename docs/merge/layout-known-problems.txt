@@ -1,3 +1,2 @@
 # Expected layout:plan problems, one exact line each. The plan passes when every problem is listed here
-# and fails on any other. Shrink only: never add a line; M2 fixes the problem below and removes its line.
-plan deletes packages/story-block/package.json, still imported by packages/story-block/testkit/matrix/report.js, packages/story-block/tests/v2/bootstrap.test.js
+# and fails on any other. Shrink only: never add a line. Empty now: the story-block package.json moves to docs/history, so no plan problem is expected.

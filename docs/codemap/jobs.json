@@ -261,6 +261,8 @@
   "tests/people/scan-marker.test.js": "Tests that NPC State's scan marker is stored with its people write and taken back from the store after a swipe, a swipe back, deletes, a regenerate and a reload, and that a change line never makes the cache re-hydrate.",
   "scripts/codemod/baseline.mjs": "Counts, per file, the relative specifiers that already resolve to nothing in a commit, so a migration is not blamed for them.",
   "scripts/codemod/quoted.mjs": "Reads the quoted strings of one source line, skipping regex literals, so two lines compare equal when only a path differs.",
+  "scripts/codemod/layout-map.mjs": "Maps a path through the whole layout's rules alone, so a name given as of the old layout is found after earlier areas moved it.",
+  "scripts/codemod/snapshot.mjs": "Reads a tree's files and JS sources from the working tree or from a git ref, with no checkout.",
   "scripts/codemod/verify-applied.mjs": "Verifies an applied area: the tree judged against what already failed before the move, plus the two-commit diff.",
   "scripts/codemod/apply-known.mjs": "Splits an apply run's stale strings, verify problems and failing moved tests into new ones and the ones a shrink-only list names."
 }

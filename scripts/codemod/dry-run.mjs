@@ -18,10 +18,10 @@ function cleanEnv() {
 /**
  * Checks out HEAD of `repo` in a temp worktree (its `node_modules`, if any, linked in), applies `area` there with the
  * same two commits a real run makes, verifies, and runs the moved test files with `node --test` (skip with
- * `tests: false`). The worktree and its backup dir are always
- * removed (a deleting area backs up into a temp dir, never the caller's). Returns { report, problems, dataFiles, tests: { count, status, output } | null }.
+ * `tests: false`; `after(worktree)` is called before it is removed and its result comes back as `after`). The worktree and its backup dir are always
+ * removed (a deleting area backs up into a temp dir, never the caller's). Returns { report, problems, dataFiles, tests: { count, status, output } | null, after }.
  */
-export function dryRun(repo, ruleSets, area, { allowNonLiteral = [], tests = true, codemap = false } = {}) {
+export function dryRun(repo, ruleSets, area, { allowNonLiteral = [], tests = true, codemap = false, after = null } = {}) {
   const worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'codemod-dry-'));
   fs.rmSync(worktree, { recursive: true });
   git(repo, ['worktree', 'add', '-q', '--detach', worktree, 'HEAD']);
@@ -39,7 +39,7 @@ export function dryRun(repo, ruleSets, area, { allowNonLiteral = [], tests = tru
       const result = files.length ? spawnSync('node', ['--test', ...files], { cwd: worktree, encoding: 'utf8', maxBuffer: 1 << 28, env: cleanEnv() }) : { status: 0 };
       ran = { count: files.length, status: result.status, output: result.status ? `${result.stdout ?? ''}${result.stderr ?? ''}` : '' };
     }
-    return { report, problems: checked.problems, dataFiles: checked.dataFiles, tests: ran };
+    return { report, problems: checked.problems, dataFiles: checked.dataFiles, tests: ran, after: after ? after(worktree) : null };
   } finally {
     try { fs.rmSync(path.join(worktree, 'node_modules'), { force: true }); } catch { /* none linked */ }
     git(repo, ['worktree', 'remove', '--force', worktree]);

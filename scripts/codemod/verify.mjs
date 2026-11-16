@@ -1,11 +1,11 @@
 // Checks a migrated tree: every relative specifier resolves, nothing sits at an old location, and the diff is only renames plus path edits.
 import { execFileSync } from 'node:child_process';
-import fs from 'node:fs';
 import path from 'node:path';
-import { buildPlan, makeMapper, trackedFiles } from './plan.mjs';
+import { buildPlan, makeMapper } from './plan.mjs';
 import { areaMapper, planForArea } from './area.mjs';
 import { flatten, quotedValues } from './quoted.mjs';
 import { PACKAGE_BASED, rewriteStrings } from './rewrite-strings.mjs';
+import { snapshot } from './snapshot.mjs';
 import { resolveSpecifier, scanSpecifiers } from './specifiers.mjs';
 
 /**
@@ -14,13 +14,14 @@ import { resolveSpecifier, scanSpecifiers } from './specifiers.mjs';
  * a folder the rules move away that no rule covers, and,
  * when `codemap` is set, a failing `node scripts/codemap/cli.mjs --check`. `baseline` (Map of file -> count) is how many
  * specifiers of that file already resolved to nothing before the migration; only the ones beyond that count are reported.
+ * `ref` judges that commit's tree instead of the working tree (an area verified at its own tip, with later areas on top).
  */
-export function verifyTree(root, ruleSets, { codemap = false, area = null, baseline = new Map() } = {}) {
-  const files = trackedFiles(root);
+export function verifyTree(root, ruleSets, { codemap = false, area = null, baseline = new Map(), ref = null } = {}) {
+  const { files, sources } = snapshot(root, ref);
   const set = new Set(files);
   const problems = [];
-  for (const file of files.filter(name => /\.m?js$/.test(name))) {
-    const scan = scanSpecifiers(fs.readFileSync(path.join(root, file), 'utf8'));
+  for (const [file, text] of sources) {
+    const scan = scanSpecifiers(text);
     if (scan.error) { problems.push(`${file}: does not parse (${scan.error})`); continue; }
     let known = baseline.get(file) ?? 0;
     for (const item of scan.specs) {
@@ -57,8 +58,12 @@ function pathPart(value) {
 }
 
 // True when a changed string value is a path the mapper produced: the new one is the old one's new place.
-function isMappedPath(oldValue, newValue, oldFile, newFile, ctx) {
-  if (/^\.{1,2}\/?$/.test(oldValue) || /^\.{1,2}\/?$/.test(newValue)) return false;
+function isMappedPath(oldValue, newValue, oldFile, newFile, ctx, line = '') {
+  // A bare `.`/`..` is a path only as the folder of a `new URL(value, import.meta.url)` read; anywhere else it is a plain string.
+  const bare = value => /^\.{1,2}\/?$/.test(value);
+  const urlRead = value => line.includes('import.meta.url') && new RegExp(`new URL\\(\\s*['"\`]${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"\`]\\s*,`).test(line);
+  if (bare(oldValue) && !urlRead(oldValue)) return false;
+  if (bare(newValue) && !bare(oldValue)) return false;
   const relative = value => /^\.{1,2}(\/|$)/.test(value);
   const pkg = /^packages\/[^/]+/.exec(oldFile)?.[0];
   if (pkg && PACKAGE_BASED.test(oldFile) && !relative(oldValue) && relative(newValue)) {
@@ -91,7 +96,7 @@ function gitDiff(root, args) {
  * file's changed lines must come in equal-length removed/added runs that differ only inside quoted strings, and
  * each changed string value must be a path the rule sets' mapper produced (the old value's new place, for a
  * relative value read from the file's old and new folders), so `'x'` -> `'y'` is reported.
- * A bare `.`/`..` value is never a mapped path. A JS file deleted in step 2 is a problem unless the plan deletes it.
+ * A bare `.`/`..` value (a folder URL) is a mapped path only when the old and the new one name the same folder, after the move. A JS file deleted in step 2 is a problem unless the plan deletes it.
  * Step 3 reads every package JS file of `base` and lists a package-relative string that would go stale.
  * With `area`, only that area's moves and deletes are judged (the rest of the tree is expected to be unmoved).
  * Returns { problems, dataEdits, dataFiles }; dataFiles names the changed non-JS files and deleted files (listed, not judged), dataEdits counts them.
@@ -133,7 +138,7 @@ export function verifyDiff(root, base, movesRef, head = 'HEAD', ruleSets = [], {
         const was = quotedValues(line);
         const now = quotedValues(added[i]);
         was.forEach((value, k) => {
-          if (value !== now[k] && !isMappedPath(value, now[k], newToOld.get(name) ?? name, name, ctx)) problems.push(`${name}: string "${value}" became "${now[k]}", which is not a mapped path`);
+          if (value !== now[k] && !isMappedPath(value, now[k], newToOld.get(name) ?? name, name, ctx, line)) problems.push(`${name}: string "${value}" became "${now[k]}", which is not a mapped path`);
         });
       });
       removed.length = 0; added.length = 0;
