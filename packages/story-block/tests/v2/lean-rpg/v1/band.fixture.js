@@ -2,7 +2,7 @@
 // cells: [scenario, row, level, win %, unfinished %, mean exchanges, HP % left on wins, tempo per exchange, SP % left, MP % left]
 // bands: [scenario, row, low, high, "in band" as counted in the results file]
 // bandsMany: 4-6-foe scenarios H-J, LOCKED bands (owner decision 48, 16 Nov), same row shape as bands.
-// Encounter rule for v1 (implemented later in C4): an even fight is at most 4 standard foes; elites at most 3 per group.
+// Encounter rule for v1 (not enforced by the C4 engine; owned by C6 encounter sizing (board precheck), see COMBAT-PLAN C6): an even fight is at most 4 standard foes; elites at most 3 per group.
 // sheet: [build, level, STR, VIT, AGI, DEX, INT, WIS, HP, SP, MP, hit bonus, rank text]; foes: [tier, level, HP, damage, roll bonus]
 export const BAND_SOURCE_SHA256 = "98e6fdd73f4c95384065753f2de150101727690f78e564db7dca3551e94b8913";
 export const BAND_RUNS = 3000;

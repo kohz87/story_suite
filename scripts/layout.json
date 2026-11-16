@@ -1,0 +1,10 @@
+{
+  "packageRoots": ["packages"],
+  "sourceRoots": ["core", "ui", "modules", "packs", "testkit"],
+  "packageDevMap": "docs/dev/codemap.md",
+  "suiteFarm": [
+    { "link": "Story_block", "dir": "packages/story-block" },
+    { "link": "Story_director", "dir": "packages/story-director" },
+    { "link": "npc_state_delta", "dir": "packages/npc-state-delta" }
+  ]
+}

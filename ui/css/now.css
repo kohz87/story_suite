@@ -1,4 +1,4 @@
-/* Styles for the Now tab cards, the Show-all list, the spoiler switch and the feelings ring; tokens only. */
+/* Styles for the Now tab cards, the Show-all list, the spoiler switch and the feelings ring; tokens, plus the mock's fixed late, fight and torn tones. */
 .now-tab{display:flex;flex-direction:column;gap:12px}
 .now-tab .ncol{display:contents}
 .now-tab .now-o1{order:1}.now-tab .now-o2{order:2}.now-tab .now-o3{order:3}.now-tab .now-o4{order:4}.now-tab .now-o5{order:5}
@@ -15,16 +15,19 @@
 .rnr{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--su-line2);background:none;color:var(--su-text);font:inherit;text-align:left}
 .rnr:first-child{border-top:0}
 button.rnr{cursor:pointer}
-.rnr .ti{width:30px;height:30px;border-radius:9px;background:var(--su-line2);display:grid;place-items:center;color:var(--su-soft)}
+.rnr .ti{width:30px;height:30px;border-radius:9px;background:var(--su-line2);display:grid;place-items:center;color:var(--su-soft);font:400 14px/1.5 var(--su-font)}
 .rnr .ti svg{width:16px;height:16px}
 .rnr-text{display:flex;flex-direction:column;min-width:0}
-.rnr b{font:700 14px var(--su-font)}
+.rnr b{font:800 14px var(--su-font);display:block}
 .rnr small{font-size:12px;color:var(--su-muted)}
 .rnr .go{font:800 13px var(--su-font);color:var(--su-muted);white-space:nowrap}
-.rnr.need-overdue .ti,.rnr.torn .ti{color:var(--su-warn)}
-.rnr.need-fight .ti{color:var(--su-hp)}
+@container (max-width:400px){.rnr{column-gap:8px}.rnr b{font-size:13.5px}.rnr .go{font-size:12.5px}}
+.rnr.torn .ti{color:#f0b84a}
+[data-scheme="light"] .rnr.torn .ti{color:#8a5600}
+.rnr.need-fight{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.35);border-radius:12px;padding:8px 10px;margin-bottom:4px}
+.rnr.need-fight .ti{background:rgba(255,107,107,.18);color:var(--su-hp)}
 .rnr.need-points .ti{color:var(--su-ok)}
-.rnr .lp{display:block;height:4px;border-radius:2px;background:var(--su-line2);overflow:hidden;margin-top:5px}
+.rnr .lp{display:block;height:4px;border-radius:2px;background:var(--su-line2);overflow:hidden;margin-top:4px;max-width:220px}
 .rnr .lp b{display:block;height:100%;background:var(--su-accent)}
 /* Here + ring */
 .here2{display:flex;flex-direction:column;gap:10px}
@@ -63,26 +66,29 @@ button.rnr{cursor:pointer}
 .cr:first-child{border-top:0}
 .cr .ti{width:30px;height:30px;border-radius:9px;background:var(--su-line2);color:var(--su-soft);display:grid;place-items:center}
 .cr .ti svg{width:16px;height:16px}
-.cr .crm{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0}
+.cr .crm{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-width:0}
 .cr .crx{flex:1;min-width:0;display:flex;flex-direction:column}
 .cr b{font:700 14px var(--su-font);color:var(--su-text)}
 .cr small{font-size:12px;color:var(--su-muted)}
 .cr.w{background:var(--su-warn-t);border:1px solid var(--su-warn);border-radius:12px;padding:7px 8px;margin-top:4px}
 .cr.w .ti{color:var(--su-warn)}.cr.w b{color:var(--su-warn)}
-.cr .why{min-height:44px;min-width:44px;font:800 12px var(--su-font);border:1px solid var(--su-line2);background:var(--su-panel2);color:var(--su-text);border-radius:8px;padding:1px 8px;cursor:pointer}
+.cr .why{min-height:44px;min-width:44px;font:800 12px var(--su-font);border:1px solid var(--su-line2);background:var(--su-panel2);color:var(--su-text);border-radius:8px;padding:4px 10px;margin-left:6px;cursor:pointer}
 .cr .why-text{flex-basis:100%;font-size:12px;color:var(--su-soft)}
 .more-foot:empty{display:none}
 .more-foot{margin-top:6px}
 /* You + pinned */
+.su-root .fold{font:800 14px var(--su-font)}
 .fold{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;min-width:0;background:none;border:0;color:var(--su-text);font:800 14px var(--su-font);cursor:pointer;padding:4px 0;text-align:left}
 .fold i{font-style:normal;color:var(--su-muted);transition:transform .15s}
 .fold[aria-expanded="true"] i{transform:rotate(90deg)}
-.fold h3{margin:0;font:700 19px var(--su-font)}
+.now-tab .fold h3{margin:0;font:700 19px var(--su-font);flex:none}
 .fold small{flex:1;min-width:0;font:600 12px var(--su-font);color:var(--su-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.you-body{display:contents}
 .you p{margin:0;font-size:13.5px;line-height:1.5}
-.srcl{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
-.kv2{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 14px;font-size:13.5px;margin:0}
-.kv2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
+.srcl{display:block;font:700 12px var(--su-font);letter-spacing:.06em;text-transform:uppercase;color:var(--su-muted)}
+.kv2{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:13.5px;margin:0}
+.you .kv2{row-gap:8px}
+.kv2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}
 .kv2 dd{margin:0}
 .fld{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px}
 .fld>span:first-child{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
@@ -90,8 +96,8 @@ button.rnr{cursor:pointer}
 .fbar{display:block;height:6px;border-radius:3px;background:var(--su-line2);overflow:hidden}
 .fbar b{display:block;height:100%;background:var(--su-accent)}
 .fbar b.bad{background:var(--su-bad)}.fbar b.ok{background:var(--su-ok)}
-.rnr.need-overdue b{color:var(--su-bad)}
-.rnr.need-overdue .ti{background:rgba(229,72,77,.18);color:var(--su-bad)}
+.rnr.need-overdue b,.rnr.need-overdue .ti{color:#ff7a7a}
+[data-scheme="light"] .rnr.need-overdue b,[data-scheme="light"] .rnr.need-overdue .ti{color:var(--su-bad)}
+.rnr.need-overdue .ti{background:rgba(255,122,122,.15)}
 .su-root .dossier-link,.su-root .more2{background:none;border:0;font:800 13px var(--su-font);color:var(--su-accent);cursor:pointer;min-height:44px;padding:0 4px}
-.rnr .ti{font:800 14px var(--su-font)}
 .rnr.focus .ti{color:var(--su-accent)}

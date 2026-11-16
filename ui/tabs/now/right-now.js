@@ -3,7 +3,7 @@ import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 
 const GO_LABEL = Object.freeze({ fight: 'Fight ›', party: 'Party ›', world: 'Map ›', bag: 'Bag ›' });
-const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: '!', points: 'plus' });
+const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: '!', points: '+' });
 
 function asRow(value) {
   if (value === null || value === undefined || value === '') return null;
@@ -68,11 +68,11 @@ function todayRows(today, ctx) {
   }
   const due = Array.isArray(today.dueSoon) ? today.dueSoon : [today.dueSoon];
   for (const item of due.map(asRow).filter(Boolean)) {
-    rows.push(row({ icon: '✉', tone: 'due', title: item.title, detail: item.detail, go: item.go ?? 'journal' }, ctx));
+    rows.push(row({ icon: '✉', tone: 'dueitem', title: item.title, detail: item.detail, go: item.go ?? 'journal' }, ctx));
   }
   for (const torn of today.torn ?? []) {
     rows.push(row({
-      icon: 'armor',
+      icon: '⛨',
       tone: 'torn',
       title: `${torn.name} torn`,
       detail: torn.detail,
