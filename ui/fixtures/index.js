@@ -39,6 +39,7 @@ function resolveOptions(variant) {
     bagLoad: Number(opts.bagLoad) || 0,
     scene: opts.scene || null,
     sceneLong: Boolean(opts.sceneLong),
+    sceneFight: Boolean(opts.sceneFight),
   };
 }
 
@@ -255,7 +256,7 @@ export function fixture(variant = 'default') {
 
   return {
     // The open interaction (the Scene tab): present only when asked for, so every other fixture is as it was.
-    ...(opts.scene ? { scene: sceneFixture(opts.scene, { long: opts.sceneLong }) } : {}),
+    ...(opts.scene ? { scene: sceneFixture(opts.scene, { long: opts.sceneLong, fight: opts.sceneFight ? opts.fightState : null }) } : {}),
     card: buildCard(opts),
     now: buildNow(opts, hereList, changes, needsYou),
     chat: buildChat(opts, hereList, changes, needsYou),

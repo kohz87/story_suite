@@ -17,7 +17,7 @@ function foldLine(group) {
     'div',
     { class: 'fline' },
     h('b', null, group.name),
-    h('span', { class: ['tier', group.tier] }, group.tier),
+    group.tier ? h('span', { class: ['tier', group.tier] }, group.tier) : null,
     h('span', { class: 'fstand' }, `${standing(group).length} of ${group.members.length} up`),
     h('span', { class: 'hb' }, h('b', { style: { width: `${Math.round((hp / max) * 100)}%` } })),
   );
@@ -26,19 +26,19 @@ function foldLine(group) {
 function memberButton(member, group, pick, onPick) {
   const down = member.hp <= 0;
   const can = pick === 'member' && !down;
-  const word = group.odds.word;
+  const word = group.odds?.word ?? null;
   return h(
     'button',
     {
       type: 'button',
       class: ['mbx', down ? 'down' : null, can ? 'tgt' : null],
       disabled: !can,
-      'aria-label': `${member.name}: ${down ? 'down' : `${member.hp} of ${member.max} health`}${can ? `, ${word}` : ''}`,
+      'aria-label': `${member.name}: ${down ? 'down' : `${member.hp} of ${member.max} health`}${can && word ? `, ${word}` : ''}`,
       dataset: can ? { target: member.id } : null,
       onClick: can ? () => onPick?.({ kind: 'member', id: member.id }) : null,
     },
     h('span', { class: 'mn' }, member.name, h('small', null, down ? 'down' : `${member.hp}/${member.max}`)),
-    can ? h('span', { class: ['todds', oddsClass(word)] }, word) : null,
+    can && word ? h('span', { class: ['todds', oddsClass(word)] }, word) : null,
     h('span', { class: 'hb' }, h('b', { style: { width: `${Math.round((Math.max(0, member.hp) / (member.max || 1)) * 100)}%` } })),
   );
 }
@@ -50,12 +50,12 @@ function groupBlock(group, pick, onPick) {
     { class: 'h' },
     h('b', null, group.members.length > 1 ? `${group.name} ×${group.members.length}` : group.name),
     h('span', { class: 'tier' }, `Lv ${group.lv}`),
-    h('span', { class: ['tier', group.tier] }, group.tier),
-    aim ? h('span', { class: ['todds', oddsClass(group.odds.word)] }, `${group.odds.word} each`) : null,
+    group.tier ? h('span', { class: ['tier', group.tier] }, group.tier) : null,
+    aim && group.odds?.word ? h('span', { class: ['todds', oddsClass(group.odds.word)] }, `${group.odds.word} each`) : null,
   );
   const attrs = aim
-    ? { role: 'button', tabindex: '0', dataset: { target: group.name }, onClick: () => onPick?.({ kind: 'group', id: group.name }),
-        onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') onPick?.({ kind: 'group', id: group.name }); } }
+    ? { role: 'button', tabindex: '0', dataset: { target: group.name }, onClick: () => onPick?.({ kind: 'group', id: group.id ?? group.name }),
+        onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') onPick?.({ kind: 'group', id: group.id ?? group.name }); } }
     : {};
   return h('div', { class: ['fg', aim ? 'tgt' : null], ...attrs }, head,
     h('div', { class: 'fm2' }, group.members.map(m => memberButton(m, group, pick, onPick))));

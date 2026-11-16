@@ -42,7 +42,7 @@ function groupsOf(members, foes) {
     const name = text(real?.name ?? list[0].name.replace(/ pack \d+$/u, '').replace(/ \d+$/u, ''));
     // tier and the odds word have no source until Combat Rules v1 (plan §2.3): null.
     return {
-      name, tier: null, lv: Number.isFinite(real?.level) ? real.level : 0, odds: { word: null },
+      id: String(group), name, tier: null, lv: Number.isFinite(real?.level) ? real.level : 0, odds: { word: null },
       members: list.map(member => ({ id: String(member.slot), name: text(member.name), hp: whole(member.value), max: Math.max(1, whole(member.size)) })),
     };
   });
@@ -81,7 +81,8 @@ function groupsOfChoices(choices, foeGroups) {
     const group = action.kind === 'flee' ? 'Flee' : action.kind === 'item' ? 'Item' : action.kind === 'skill' && info.uses === 'mana' ? 'Magic' : 'Attack';
     const target = action.kind === 'flee' ? 'none' : action.kind === 'item' || action.support ? 'ally'
       : info.area ? 'none' : foeGroups.length > 1 ? 'group' : 'member';
-    groups[group].push({ id: `${action.kind}:${at}`, label: text(info.name), cost, target, damage: null, odds: null, enabled: !choice.reason });
+    const { kind, ...args } = action; // the input this action stands for: the board's action object split back into choice and args (SB board/interaction.js `toAction`)
+    groups[group].push({ id: `${action.kind}:${at}`, label: text(info.name), cost, target, damage: null, odds: null, enabled: !choice.reason, pick: { choice: String(kind ?? ''), args } });
   });
   return groups;
 }
@@ -108,8 +109,10 @@ export function selectFight({ snapshot, party, foes, choices, view, awards, plac
     state, title: text(place) ? `Fight · ${text(place)}` : 'Fight', subtitle: null,
     exchange: whole(session.setup?.offset) + (Array.isArray(session.exchanges) ? session.exchanges.length : 0) + (ended ? 0 : 1),
     foeGroups,
-    party: members.map(({ id, name, bars, chosen }) => ({ id, name, portrait: null, hp: bars.hp.value, hpMax: bars.hp.max, mp: bars.mp.value, mpMax: bars.mp.max, sp: bars.sp.value, spMax: bars.sp.max, chosen })),
+    party: members.map(({ id, name, bars, chosen }) => ({ id, actorId: id, name, portrait: null, hp: bars.hp.value, hpMax: bars.hp.max, mp: bars.mp.value, mpMax: bars.mp.max, sp: bars.sp.value, spMax: bars.sp.max, chosen })),
     actor: actor && !ended ? { id: fold(actor.who), stance: null, groups: groupsOfChoices(choices.choices, foeGroups) } : null,
+    // The board answers for one member at a time, so only the acting member is listed (the scene renderer needs all; the kind's view gives them).
+    actors: actor && !ended ? [{ id: fold(actor.who), groups: groupsOfChoices(choices.choices, foeGroups) }] : [],
     order: orderOf(result.order, result.members),
     bonuses: null,
     log: rounds.map(round => ({ n: whole(round.n), summary: `${(round.lines ?? []).length} rolls${round.decisive ? ' · decisive' : ''}`, rows: (round.lines ?? []).filter(isRecord).map(rowOf) })),

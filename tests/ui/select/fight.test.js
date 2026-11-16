@@ -74,7 +74,7 @@ describe('selectFight', () => {
 
   it('builds the party strip from the bars and the staged picks', () => {
     const vm = selectFight(input({ view: { chosen: [{ who: 'Torka', kind: 'skill', skill: 'Brute strike', target: 'Captain' }, { who: 'Astra', kind: 'flee' }] } }));
-    assert.deepEqual(vm.party[0], { id: 'astra', name: 'Astra', portrait: null, hp: 11, hpMax: 14, mp: 14, mpMax: 14, sp: 9, spMax: 15, chosen: 'Flee' });
+    assert.deepEqual(vm.party[0], { id: 'astra', actorId: 'astra', name: 'Astra', portrait: null, hp: 11, hpMax: 14, mp: 14, mpMax: 14, sp: 9, spMax: 15, chosen: 'Flee' });
     assert.equal(vm.party[1].chosen, 'Brute strike → Captain');
     assert.equal(selectFight(input()).party[0].chosen, null);
   });
@@ -126,10 +126,13 @@ describe('selectFight', () => {
     assert.equal(vm.exchange, 1);
   });
 
-  it('matches the contract except the gap fields it leaves null', () => {
-    const errors = checkShape(selectFight(input()), FIGHT_SHAPE);
-    const gaps = errors.filter(e => !/tier|odds\.word|stance|bonuses|xpEach/u.test(e) && !/damage|odds:/u.test(e));
-    assert.deepEqual(gaps, []);
-    assert.ok(errors.some(e => /tier/u.test(e)), 'tier is a known gap');
+  it('matches the contract; tier, the odds word and xpEach are null gaps the shape allows', () => {
+    const vm = selectFight(input());
+    const errors = checkShape(vm, FIGHT_SHAPE).filter(e => !/stance|bonuses/u.test(e));
+    assert.deepEqual(errors, []);
+    assert.deepEqual([vm.foeGroups[0].tier, vm.foeGroups[0].odds.word, vm.foeGroups[0].id], [null, null, '1']);
+    assert.deepEqual(vm.actors.map(a => a.id), ['astra']);
+    assert.deepEqual(vm.actors[0].groups.Attack[0].pick, { choice: 'attack', args: { who: 'Astra' } });
+    assert.deepEqual(vm.actors[0].groups.Magic[0].pick.args, { who: 'Astra', skill: 'Flash', area: true });
   });
 });

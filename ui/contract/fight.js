@@ -1,4 +1,4 @@
-// Defines the view-model shape for the Fight tab (board state, foes, party strip, actions, log, end).
+// Defines the view-model shape for the Fight tab and the fight scene renderer (board state, foes, party strip, actions per member, log, end).
 
 import { SHAPE_TYPES as T } from './shapes.js';
 
@@ -12,6 +12,9 @@ const ACTION = {
   damage: { $nullable: T.STRING },
   odds: { $nullable: { $enum: ODDS } },
   enabled: T.BOOLEAN,
+  // The input this action stands for, as the kind stages it: `choice` is the kind's choice id, `args` the rest of the action (`who` and so on).
+  // The renderer adds the target: `args.target` = a foe member id (target 'member'), a foe group id with `area: true` (target 'group'), or a party id (target 'ally').
+  pick: { choice: T.STRING, args: T.ANY },
 };
 
 export const FIGHT_SHAPE = {
@@ -21,16 +24,18 @@ export const FIGHT_SHAPE = {
   exchange: T.NUMBER,
   foeGroups: [
     {
+      id: T.STRING,
       name: T.STRING,
-      tier: { $enum: ['Mob', 'Minion', 'Standard', 'Elite', 'Boss', 'Apex'] },
+      // tier and the odds word are null while the engine has no source for them (selectFight today); a card with a null shows no tier tag and no odds.
+      tier: { $nullable: { $enum: ['Mob', 'Minion', 'Standard', 'Elite', 'Boss', 'Apex'] } },
       lv: T.NUMBER,
-      odds: { word: { $enum: ODDS } },
+      odds: { word: { $nullable: { $enum: ODDS } } },
       members: [{ id: T.STRING, name: T.STRING, hp: T.NUMBER, max: T.NUMBER }],
     },
   ],
   party: [
     {
-      id: T.STRING, name: T.STRING, portrait: { $nullable: T.STRING },
+      id: T.STRING, actorId: T.STRING, name: T.STRING, portrait: { $nullable: T.STRING },
       hp: T.NUMBER, hpMax: T.NUMBER, mp: T.NUMBER, mpMax: T.NUMBER, sp: T.NUMBER, spMax: T.NUMBER,
       chosen: { $nullable: T.STRING },
     },
@@ -42,6 +47,8 @@ export const FIGHT_SHAPE = {
       groups: { Attack: [ACTION], Magic: [ACTION], Item: [ACTION], Flee: [ACTION] },
     },
   },
+  // Every standing member's actions, in the order the picks are asked; `id` is the party member's `actorId` (the input's `actor`). The scene renderer reads these, not `actor`.
+  actors: [{ id: T.STRING, groups: { Attack: [ACTION], Magic: [ACTION], Item: [ACTION], Flee: [ACTION] } }],
   order: [T.STRING],
   bonuses: { $nullable: [{ label: { $nullable: T.STRING }, text: T.STRING }] },
   log: [
@@ -55,7 +62,7 @@ export const FIGHT_SHAPE = {
   end: {
     $nullable: {
       outcome: { $enum: ['won', 'fled', 'lost'] },
-      xpEach: T.NUMBER,
+      xpEach: { $nullable: T.NUMBER }, // null until the awards are known (selectFight today); the end card then shows no XP figure
       exchanges: T.NUMBER,
       members: [{ id: T.STRING, hp: T.NUMBER, hpMax: T.NUMBER, practice: [{ skill: T.STRING, gain: T.NUMBER }] }],
     },

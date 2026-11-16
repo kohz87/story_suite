@@ -34,6 +34,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     bag: pick(query.get('bag'), BAG_LOADS, 'light'),
     scene: pick(query.get('scene'), SCENES, 'off'),
     long: query.get('long') === '1',
+    kind: pick(query.get('kind'), ['ferry', 'fight'], 'ferry'), // the scene's kind: the made-up ferry choice or the fight
   };
   let port = null;
   let suite = null;
@@ -50,6 +51,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
       bagLoad: BAG_LOADS.indexOf(state.bag),
       scene: state.scene === 'off' ? null : state.scene,
       sceneLong: state.long,
+      sceneFight: state.kind === 'fight',
     };
   }
 
@@ -88,6 +90,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
       state.variant = 'fightOpen'; // a fight button opens the fight for that variant; a variant button decides again
     }
     if (patch.scene) state.scene = pick(patch.scene, SCENES, state.scene);
+    if (patch.kind) state.kind = pick(patch.kind, ['ferry', 'fight'], state.kind);
     if (patch.bag) state.bag = pick(patch.bag, BAG_LOADS, state.bag);
     mount();
     return { ...state };
@@ -97,7 +100,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     type: 'button', 'data-key': key, 'data-value': String(value), onClick: () => apply({ [key]: value }),
   }, `${key}: ${value}`));
   controls?.replaceChildren(...group('theme', THEMES), ...group('variant', VARIANTS), ...group('width', WIDTHS),
-    ...group('plan', PLANS), ...group('fight', FIGHT_STEPS), ...group('scene', SCENES), ...group('bag', BAG_LOADS));
+    ...group('plan', PLANS), ...group('fight', FIGHT_STEPS), ...group('scene', SCENES), ...group('kind', ['ferry', 'fight']), ...group('bag', BAG_LOADS));
 
   mount();
   return { get port() { return port; }, state, apply, suite: () => suite };
