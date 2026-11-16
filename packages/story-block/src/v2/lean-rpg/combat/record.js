@@ -7,12 +7,15 @@ const publicActor = actor => ({
     mp: Number(actor?.mp ?? 0), maxMp: Number(actor?.maxMp ?? actor?.maxmp ?? 0),
     sp: Number(actor?.sp ?? 0), maxSp: Number(actor?.maxSp ?? actor?.maxsp ?? 0),
     mastery: Number(actor?.mastery ?? 0), stances: [...(actor?.stances ?? [])], stance: actor?.stance ?? null,
+    // (what a carried fight needs to go on from this record: a hero's skills, a foe's tier and its own damage and roll)
+    ...(actor?.skills?.length ? { skills: actor.skills.map(skill => ({ ...skill })) } : {}),
+    ...(typeof actor?.tier === 'string' ? { tier: actor.tier, damage: Number(actor.damage ?? 0), roll: Number(actor.roll ?? 0) } : {}),
 });
 
 /** Normalise a finished engine run into the record shape. The result is 'win', 'loss', 'fled' or 'unfinished'. */
 export function resultOf(run = {}) {
     return {
-        result: run.result ?? 'unfinished', exchanges: Number(run.exchanges ?? 0),
+        result: run.result ?? 'unfinished', exchanges: Number(run.exchanges ?? 0), rotation: Number(run.rotation ?? 0),
         order: { party: [...(run.order?.party ?? [])], foes: [...(run.order?.foes ?? [])], first: run.order?.first ?? 'party' },
         party: (run.party ?? []).map(publicActor), foes: (run.foes ?? []).map(publicActor),
         lines: [...(run.lines ?? [])], rounds: (run.rounds ?? []).map(lines => [...lines]), moves: [...(run.moves ?? [])],

@@ -9,6 +9,9 @@ import { foeAttacks } from '../../../../src/v2/lean-rpg/combat/foe-turns.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
 import { fightDice } from '../../../../src/v2/lean-rpg/combat/dice.js';
 import { lineOf, lineTexts } from '../../../../src/v2/lean-rpg/combat/record.js';
+import { dice } from '../../../../src/v2/interaction/dice.js';
+import { seeded } from './dice.helper.js';
+import { withSkills } from './derived-skills.helper.js';
 
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
 const CASES = JSON.parse(readFileSync(new URL('../../../../scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
@@ -20,7 +23,7 @@ const lower = stats => Object.fromEntries(Object.entries(stats).map(([key, value
 function sheetOf(trace) {
     const spec = SPECS.get(trace.name);
     return {
-        party: trace.sheet.party.map((hero, index) => ({
+        party: trace.sheet.party.map((hero, index) => withSkills({
             ...hero, stats: lower(hero.stats), hp: spec[index].hp ?? hero.hp, mp: spec[index].mp ?? hero.mp,
             sp: spec[index].sp ?? hero.sp,
         })),
@@ -85,10 +88,10 @@ test('all 34 C0 simulator traces replay exactly through the whole-fight engine',
     }
 });
 
-const ACE = {
+const ACE = withSkills({
     label: 'Ace', build: 'Skirmisher-plain', level: 99, mastery: 7, hp: 100, maxHp: 100, mp: 10, sp: 10,
     stats: { str: 30, vit: 30, agi: 30, dex: 30, int: 5, wis: 5 }, stances: [],
-};
+});
 const POST = { label: 'post', tier: 'mob', level: 1, hp: 1000, maxHp: 1000, damage: 1, roll: 1 };
 
 function exchangeWith(dice, choice = {}) {
@@ -111,7 +114,7 @@ test('a natural 1 can still flee, matching the simulator baseline', () => {
 });
 
 test('junk setup, dice and actions are refused instead of becoming a hit', () => {
-    assert.throws(() => playBoard({ party: [ACE], foes: [POST] }, { seed: 'junk' }), /uint32 seed/);
+    assert.throws(() => playBoard({ party: [ACE], foes: [POST] }, {}), /dice source/);
     assert.throws(() => exchangeWith([0]), /d20/);
     assert.throws(() => exchangeWith([20, 1], { kind: 'dance' }), /Unknown exchange action/);
 });
@@ -148,31 +151,30 @@ test('the record text carries the real HP before an overkill hit, a capped heal 
 });
 
 test('a real fight text reads its before values from the record moves', () => {
-    const run = playBoard({ party: [ACE], foes: [{ ...POST, hp: 3, maxHp: 3 }] }, { seed: 7, maxExchanges: 1 });
+    const run = playBoard({ party: [ACE], foes: [{ ...POST, hp: 3, maxHp: 3 }] }, seeded({ seed: 7, maxExchanges: 1 }));
     const hit = run.lines.findIndex(line => line[0] === 'attack' && line[8] !== 'miss' && line[8] !== 'miss-nat1');
     if (hit < 0) return;
     assert.match(lineTexts(run.lines, run.moves)[hit], /post HP 3 → 0\./);
 });
 
 test('every die slot in one exchange has its own stream, and a seed replays the same dice', () => {
-    const roll = fightDice(123, 1), twin = fightDice(123, 1), other = fightDice(124, 1);
-    const kinds = ['act', 'foe', 'check', 'flee'], slots = [0, 50, 90, 154, 204, 140, 1000, 1040, 1000000], seen = new Map();
+    const roll = fightDice(dice(123), 1), twin = fightDice(dice(123), 1), other = fightDice(dice(124), 1);
+    const kinds = ['act', 'foe', 'check', 'flee'], slots = [0, 50, 90, 154, 204, 140, 1000, 1040, 1000000];
     for (const kind of kinds) for (const slot of slots) {
         const key = `${kind}:${slot}`, draws = [roll(kind, slot)(), roll(kind, slot)()];
         assert.deepEqual(draws, [twin(kind, slot)(), twin(kind, slot)()], `${key} replays`);
         assert.ok(draws.every(die => die >= 1 && die <= 20));
-        seen.set(key, roll(kind, slot).toString());
     }
-    // the two slots the board's own key scheme collided on (act 154 and foe 90) now differ in their key space
-    const sample = (kind, slot) => Array.from({ length: 24 }, (_, at) => fightDice(at, 1)(kind, slot)());
+    // the slots the board's own key scheme collided on (act 154 and foe 90) differ here, and so does every other (slot, kind) pair
+    const sample = (kind, slot) => Array.from({ length: 24 }, (_, at) => fightDice(dice(at), 1)(kind, slot)());
     assert.notDeepEqual(sample('act', 154), sample('foe', 90));
     assert.notDeepEqual(sample('act', 204), sample('foe', 140));
-    assert.notDeepEqual(Array.from({ length: 24 }, (_, at) => fightDice(at, 1)('act', 0)()), Array.from({ length: 24 }, (_, at) => other('act', at)()));
+    assert.notDeepEqual(Array.from({ length: 24 }, (_, at) => fightDice(dice(at), 1)('act', 0)()), Array.from({ length: 24 }, (_, at) => other('act', at)()));
 });
 
 test('the same seed through the real dice path plays the same record; another seed differs', () => {
     const heroes = [ACE, { ...ACE, label: 'Bea', id: 'Bea' }], foes = [{ ...POST, hp: 60, maxHp: 60 }, { ...POST, label: 'post2', hp: 60, maxHp: 60 }];
-    const play = seed => playBoard({ party: heroes, foes }, { seed, maxExchanges: 3 });
+    const play = seed => playBoard({ party: heroes, foes }, seeded({ seed, maxExchanges: 3 }));
     assert.deepEqual(play(11), play(11));
     assert.notDeepEqual(play(11).lines, play(12).lines);
 });
@@ -182,7 +184,7 @@ test('opening initiative dice are validated like the exchange dice', () => {
 });
 
 test('a heal goes to living wounded allies only; with no target it falls back to the auto attack and spends nothing', () => {
-    const healer = { label: 'Mira', id: 'Mira', build: 'Healer', hp: 30, maxHp: 30, mp: 10, maxMp: 10, sp: 5, maxSp: 5, stats: { str: 5, agi: 5, vit: 5, int: 10, wis: 10, dex: 5, luk: 5 }, level: 5, stances: [] };
+    const healer = withSkills({ label: 'Mira', id: 'Mira', build: 'Healer', hp: 30, maxHp: 30, mp: 10, maxMp: 10, sp: 5, maxSp: 5, stats: { str: 5, agi: 5, vit: 5, int: 10, wis: 10, dex: 5, luk: 5 }, level: 5, stances: [] });
     const downed = { label: 'Dag', id: 'Dag', hp: 0, maxHp: 30, mp: 0, sp: 0, stats: { str: 5, agi: 5, vit: 5 }, level: 5, stances: [] };
     const wounded = { ...downed, label: 'Wen', id: 'Wen', hp: 5 };
     const run = (party, choice) => playExchange({ party, foes: [{ ...POST }] }, { Mira: choice }, { order: { party: party.map(a => a.id), foes: ['post'], first: 'party' }, roll: () => 15, number: 1, rotation: 0 });

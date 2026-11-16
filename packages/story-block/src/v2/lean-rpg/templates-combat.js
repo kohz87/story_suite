@@ -3,13 +3,15 @@
 import { characterV1 } from './templates-parts/v1-character.js';
 import { skillsV1 } from './templates-parts/v1-skills.js';
 import { foesV1 } from './templates-parts/v1-foes.js';
+import { rulesV1 } from './templates-parts/v1-rules.js';
 
 export { STATS_V1, TIER_NAMES } from './templates-parts/v1-shared.js';
 export { SKILL_TYPE_NAMES } from './templates-parts/v1-skills.js';
 
-/** The three v1 templates in the chooser's order (the Combat rules template is C6's). */
+/** The four v1 templates in the chooser's order. */
 export const COMBAT_V1_TEMPLATES = Object.freeze([
     { name: 'Character', definition: characterV1 },
     { name: 'Skills', definition: skillsV1 },
     { name: 'Foes', definition: foesV1 },
+    { name: 'Combat rules', definition: rulesV1 },
 ]);

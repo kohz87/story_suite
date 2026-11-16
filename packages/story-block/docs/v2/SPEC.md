@@ -177,7 +177,7 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   `value + period × (⌊now/period⌋ − ⌊was/period⌋)`, then `same` goes no lower than `now` and `after` goes one more period when that is not after `now` (`ops/anchored.js`). It is checked before the
   counter rule reads `was` as a move. For a `same` set the count already stood past, the module passes `to` (the face before the clamp); the op stores it (only when the clamp moved the value) and replay uses it
   in place of `value` before the `same` clamp, so a clamped face lands where a fresh telling would. Where the count is not there on replay (its domain's slice is gone), the op applies as stored, not as a move. A first write that makes a deferred domain
-  carries no mark (there is no value before it to keep). An op without the mark replays exactly as before; no module uses the mark yet.
+  carries no mark (there is no value before it to keep). An op without the mark replays exactly as before; Story Director's clock faces and skips are the first to use it (`rules:h`).
 * **Replayed blocks are checked.** After each replayed block the validators of the domains it touches run
   (§2.5); a block that brings a problem the state did not have before it (a stack whose definition a
   deleted reply made, a route to a deleted place) is skipped and reported like one that does not apply.

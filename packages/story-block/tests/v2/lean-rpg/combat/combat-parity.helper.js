@@ -4,6 +4,7 @@
 import { crc32 } from 'node:zlib';
 import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
 import { BANDS, CELLS } from '../v1/band.fixture.js';
+import { withSkills } from './derived-skills.helper.js';
 
 const N = 624, M = 397, MATRIX_A = 0x9908b0df, UPPER = 0x80000000, LOWER = 0x7fffffff;
 
@@ -94,7 +95,7 @@ function hero(build, level, label = build) {
         mp: 8 + Math.floor(level / 4) + Math.floor((stats.int + stats.wis) / 4),
         sp: 8 + Math.floor(level / 4) + Math.floor((stats.str + stats.agi) / 4),
     };
-    return { label, build, level, stats, mastery: MASTERY[level], hp: bars.hp, maxHp: bars.hp, mp: bars.mp, maxMp: bars.mp, sp: bars.sp, maxSp: bars.sp, stances: STANCES[build] };
+    return withSkills({ label, build, level, stats, mastery: MASTERY[level], hp: bars.hp, maxHp: bars.hp, mp: bars.mp, maxMp: bars.mp, sp: bars.sp, maxSp: bars.sp, stances: STANCES[build] });
 }
 
 const PARTIES = {
