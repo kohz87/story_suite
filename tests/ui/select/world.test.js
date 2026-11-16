@@ -27,12 +27,12 @@ const SELECTED = { id: 'oldweir', name: 'Old Weir', here: false, routes: [], tri
 // director.world → worldView: SD/world/known.js:399-423 (news :249-278, factions :280-293).
 const WORLD_VIEW = {
   news: [
-    { id: 'ev_1', kind: 'world', name: 'Raids', summary: 'A caravan burned.', state: 'ongoing', open: true, when: 'Goldwane 12', ago: 'a day ago', place: 'Wolfmere', factions: 'Men in Grey' },
+    { id: 'ev_1', kind: 'world', name: 'Raids', summary: 'A caravan burned.', state: 'ongoing', open: true, when: 'Goldwane 12', ago: 'a day ago', place: 'Wolfmere', factions: 'Men in Grey', placeId: 'wolfmere', factionIds: ['fa_1'], heard: [{ where: 'Wolfmere', when: 'Goldwane 12', from: 'Men in Grey' }, { where: '', when: '', from: null }] },
     { id: 'th_2', kind: 'event', name: 'Harvest fair', summary: 'Set for the 16th.', state: '', open: true, when: '', ago: '', place: '', factions: '' },
     { id: 'th_3', kind: 'event', name: 'Old news', summary: '', state: '', open: false, when: '', ago: '', place: 'Atlantis', factions: '' },
   ],
   factions: [
-    { id: 'fa_1', name: 'Men in Grey', summary: 'Bandits.', area: 'Wolfmere', stance: 'Hostile' },
+    { id: 'fa_1', name: 'Men in Grey', summary: 'Bandits.', area: 'Wolfmere', stance: 'Hostile', areaPlaceIds: ['wolfmere'], members: [{ personId: 'np_1', name: 'Garr' }, { personId: null, name: 'Dess' }, { name: '' }] },
     { id: 'fa_2', name: 'Guild', summary: 'Adventurers.', area: 'The Salt Coast', stance: 'friendly to you' },
     { id: 'fa_3', name: 'Quiet', summary: '', area: '', stance: '' },
   ],
@@ -80,7 +80,7 @@ test('trip: hours unit, null without a selected trip', () => {
   assert.equal(selectWorld({ atlasView: ATLAS_VIEW, selected: null }).trip, null);
 });
 
-test('news: state, place and faction links; heard stamps are a gap (empty)', () => {
+test('news: state, place and faction links come from the answer; heard stamps are read, empty ones dropped', () => {
   const { news } = world();
   assert.deepEqual(news.map(n => n.state), ['ongoing', 'ongoing', 'resolved']);
   assert.equal(news[0].placeId, 'wolfmere');
@@ -88,17 +88,18 @@ test('news: state, place and faction links; heard stamps are a gap (empty)', () 
   assert.equal(news[1].placeId, null);
   assert.equal(news[1].factionId, null);
   assert.equal(news[2].placeId, null);
-  assert.deepEqual(news.map(n => n.heard), [[], [], []]);
+  assert.deepEqual(news.map(n => n.heard), [[{ where: 'Wolfmere', when: 'Goldwane 12', from: 'Men in Grey' }], [], []]);
   assert.equal(news[0].title, 'Raids');
 });
 
-test('factions: stance words fold into the enum, area links to places, members are a gap', () => {
+test('factions: stance words fold into the enum, area links to places, members are read', () => {
   const { factions } = world();
   assert.deepEqual(factions.map(f => f.stance), ['hostile', 'friendly', 'neutral']);
   assert.deepEqual(factions[0].areaPlaceIds, ['wolfmere']);
   assert.deepEqual(factions[1].areaPlaceIds, ['bluewatch', 'oldweir']);
   assert.deepEqual(factions[2].areaPlaceIds, []);
-  assert.deepEqual(factions[0].members, []);
+  assert.deepEqual(factions[0].members, [{ personId: 'np_1', name: 'Garr' }, { personId: null, name: 'Dess' }]);
+  assert.deepEqual(factions[1].members, []);
 });
 
 test('stance wording: unfriendly, warm, and unknown text', () => {
@@ -118,4 +119,11 @@ test('no answers at all gives an empty world that matches the shape', () => {
 test('items without an id are skipped', () => {
   const w = selectWorld({ worldView: { news: [{ name: 'x' }], factions: [{ name: 'y' }] } });
   assert.deepEqual([w.news, w.factions], [[], []]);
+});
+
+test('place quests: the open quests that name a place by id; others leave the place without quests', () => {
+  const view = { ...WORLD_VIEW, quests: [{ id: 'th_9', name: 'Ford the river', place: 'Old Weir', placeId: 'oldweir' }, { id: 'th_8', name: 'Far', place: 'Atlantis', placeId: null }] };
+  const { places } = selectWorld({ atlasView: ATLAS_VIEW, tiers: TIERS, selected: SELECTED, worldView: view });
+  assert.deepEqual(places.map(p => p.quests), [[], ['Ford the river'], []]);
+  assert.deepEqual(checkShape(selectWorld({ atlasView: ATLAS_VIEW, worldView: view }), WORLD_SHAPE), []);
 });
