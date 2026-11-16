@@ -3,6 +3,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { atEitherLayout } from '../release/layout-paths.mjs';
 
 /** One row per bundled tool: where it lives in the source tree, which bundle set it is, and the asset roots it keeps. */
 export const DIST_SETS = [
@@ -16,7 +17,7 @@ export const DIST_SETS = [
   },
   { name: 'story-director', dir: 'packages/story-director', entries: ['index.js'], lazy: [], assets: [], topCss: false },
   { name: 'npc-state-delta', dir: 'packages/npc-state-delta', entries: ['bootstrap.js'], lazy: [], assets: [], topCss: true },
-  { name: 'ui', dir: 'ui', entries: ['st-entry.js'], lazy: [], assets: ['css'], topCss: false },
+  { name: 'ui', dir: 'ui', entries: ['st-entry.js'], lazy: [], assets: ['css', 'legacy'], topCss: false },
 ];
 
 const entry = commit => [
@@ -42,19 +43,27 @@ const MANIFEST = {
   version: '0.1.0',
 };
 
+// Where Story Block's host stylesheet sits in the copied extension: under its set's folder, at the old or the new layout.
+const HOST_CSS = 'packages/story-block/src/v2/view/host.css';
+function hostCssUrl(sourceDir) {
+  const rel = atEitherLayout(sourceDir, HOST_CSS);
+  const set = DIST_SETS.find(one => rel.startsWith(`${one.dir}/`));
+  return set ? `./${set.name}/${rel.slice(set.dir.length + 1)}` : `./${rel}`;
+}
+
 // One stylesheet for the extension; cross-package links resolve beside the copied package folders.
-const STYLE = [
-  '@import url(\'./story-block/src/v2/view/host.css\');',
+const style = sourceDir => [
+  `@import url('${hostCssUrl(sourceDir)}');`,
   '@import url(\'./ui/css/next-hide.css\');',
   '@import url(\'./npc-state-delta/style.css\');',
   '',
 ].join('\n');
 
 /** Writes the root files of the extension: manifest, entry, stylesheet and the build record. */
-export function writeRootFiles(outDir, { commit, builtAt }) {
+export function writeRootFiles(outDir, { commit, builtAt, sourceDir }) {
   const write = (file, text) => fs.writeFileSync(path.join(outDir, file), text);
   write('manifest.json', `${JSON.stringify(MANIFEST, null, 2)}\n`);
   write('entry.js', entry(commit));
-  write('style.css', STYLE);
+  write('style.css', style(sourceDir));
   write('BUILD.txt', `Story Suite (play build)\nsource commit: ${commit}\nbuilt: ${builtAt}\n`);
 }

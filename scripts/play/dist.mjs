@@ -50,7 +50,7 @@ export async function buildDist({ repo = process.cwd(), commit = 'origin/main', 
       await buildBundleSet({ ...set, installAt: `${installFolder}/${set.name}` }, dir, sourceDir);
       copyRuntimeAssets(path.join(sourceDir, set.dir), dir, set);
     }
-    writeRootFiles(outDir, { commit: full, builtAt: now.toISOString() });
+    writeRootFiles(outDir, { commit: full, builtAt: now.toISOString(), sourceDir });
     const sha = write ? commitFolder({ repo, folder: outDir, branch, message: `Play build from ${full}` }) : null;
     return { outDir, commit: full, sha };
   } finally {

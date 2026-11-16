@@ -90,3 +90,18 @@ test('the install folder is an option: parseArgs reads it, and the host depth fo
   await buildDist({ repo: source, commit: 'c'.repeat(40), source, out: deeper, write: false, installFolder: 'a/b' });
   assert.match(fs.readFileSync(path.join(deeper, 'npc-state-delta', 'bootstrap.js'), 'utf8'), /from "\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/extensions\.js"/);
 });
+
+test('the stylesheet imports the host stylesheet from where the source has it: the old package path, or ui/legacy after the move', async () => {
+  const moved = fs.mkdtempSync(path.join(os.tmpdir(), 'play-dist-moved-'));
+  try {
+    for (const file of ['packages/story-block/index.js', 'packages/story-director/index.js', 'packages/npc-state-delta/bootstrap.js', 'ui/st-entry.js']) put(moved, file, '\n');
+    put(moved, 'ui/legacy/view/host.css', '@import url(\'./glass.css\');\n');
+    put(moved, 'ui/legacy/view/glass.css', '.glass { color: red; }\n');
+    const to = path.join(moved, 'out');
+    await buildDist({ repo: moved, commit: 'd'.repeat(40), source: moved, out: to, write: false });
+    const style = fs.readFileSync(path.join(to, 'style.css'), 'utf8');
+    assert.match(style, /@import url\('\.\/ui\/legacy\/view\/host\.css'\)/);
+    assert.ok(fs.existsSync(path.join(to, 'ui/legacy/view/host.css')), 'the file the import names is copied');
+    assert.ok(fs.existsSync(path.join(to, 'ui/legacy/view/glass.css')), 'and so is what it imports');
+  } finally { fs.rmSync(moved, { recursive: true, force: true }); }
+});
