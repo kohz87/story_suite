@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPeopleSync } from '../src/adapter/people-sync.js';
 import { peopleView, peopleState, peopleCarry } from '../src/people/view.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { hashJson } from '../src/adapter/hash.js';
 
 const mk = id => ({ id: `npc_${id}`, name: id.toUpperCase(), aliases: [], lifeState: 'alive' });
 function rig({ ready = true } = {}) {

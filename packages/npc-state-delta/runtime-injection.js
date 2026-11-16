@@ -39,7 +39,7 @@ export function createInjectionPart(rt, deps) {
         if (!message) return [];
         // Hosted, "called in" is judged against the scene's presence, not the stored copy (which can be a scan behind).
         return (scenePresenceView(state?.npcs || []))
-            .filter(npc => npc && !npc.present && !npc.archived && !isTerminalNpcDeath(npc) && npcNamedInText(npc, message, state.npcs))
+            .filter(npc => npc && !npc.present && !isTerminalNpcDeath(npc) && npcNamedInText(npc, message, state.npcs))
             .map(npc => npc.id);
     }
 
@@ -104,7 +104,7 @@ export function createInjectionPart(rt, deps) {
             : { rules: '', context: '' };
         const captureParts = { rules: armed || rulesSent ? builtParts.rules : '', context: armed ? builtParts.context : '' };
         const capture = captureParts.context;
-        const present = (state.npcs || []).filter(npc => npc?.present && !npc?.archived);
+        const present = (state.npcs || []).filter(npc => npc?.present);
         const depth = injectDepthOf(settings);
         rt.lastInjection = {
             text: prompt,
@@ -165,7 +165,7 @@ export function createInjectionPart(rt, deps) {
                 : `In chat as a system message, ${rt.lastInjection.depth ?? injectDepthOf(settings)} message(s) from the end`,
             capturePlacement: 'One-pass capture: its rules in the system prompt (unchanged reply to reply), its context and reminder in their own system message at the very end (depth 0)',
             builtAt: rt.lastInjection.at ? new Date(rt.lastInjection.at).toISOString() : '',
-            presentNpcs: (state.npcs || []).filter(npc => npc?.present && !npc?.archived).map(npc => npc.name),
+            presentNpcs: (state.npcs || []).filter(npc => npc?.present).map(npc => npc.name),
             namedByPlayer: (rt.lastInjection.namedByPlayer || []).filter(name => injectedNpcs.includes(name)),
             injectedNpcs,
             referencedNpcs,

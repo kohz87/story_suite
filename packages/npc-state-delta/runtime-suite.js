@@ -26,8 +26,8 @@ export function createSuitePart(rt, deps) {
                 id: String(npc?.id || ''),
                 name: String(npc?.name || ''),
                 aliases: [...(npc?.aliases || [])],
-                present: Boolean(npc?.present && !npc?.archived),
-                archived: Boolean(npc?.archived) || isTerminalNpcDeath(npc),   // P6: no archive flag; a confirmed death is out of the cast list as the death archive was
+                present: Boolean(npc?.present),
+                archived: isTerminalNpcDeath(npc),   // a confirmed death is out of the cast list
             }));
         },
         /** The tracked, non-archived, not-deceased NPCs' { id, name, aliases, present, role, summary } (frozen copies; empty until the chat's dossiers load). */

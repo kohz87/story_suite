@@ -10,8 +10,8 @@ export function mapStatus(npc = {}) {
     return 'away';
 }
 
-// Dead NPCs and stale removals never appear on the map; a manual archive does.
-function onMap(npc) { return Boolean(npc?.id) && npc.bucket !== 'dead' && !(npc.bucket === 'archived' && npc.archiveReason === 'stale'); }
+// Dead NPCs never appear on the map.
+function onMap(npc) { return Boolean(npc?.id) && npc.bucket !== 'dead'; }
 
 // In-chat and active NPCs are always shown; the rest are the strongest by the current lens, up to
 // the cap. The selected dossier is kept on the map when it is eligible.

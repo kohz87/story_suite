@@ -99,7 +99,7 @@ export function createPublicApiStatePart(deps) {
     return {
     // (timeline participant) A state as installState keeps it: normalized like the chat's state, on a copy (nothing stored).
     normalizeState: state => structuredClone(normalizeChatState(state)),
-    // (timeline participant, src/storysuite-participant/) The open chat's key; SillyTavern's request headers for its user files; and an
+    // (read by the runtime's own callers; the timeline participant was removed in P7) The open chat's key; SillyTavern's request headers for its user files; and an
     // absolute, durable replacement of the chat's native state (a restore to a save point), refused unless it is the open chat's.
     chatKey: () => getChatKey(),
     requestHeaders: () => requestHeaders(),
@@ -214,7 +214,7 @@ export function createPublicApiStatePart(deps) {
     // Story Director's "still reading the newest reply": scanActive, plus a reply held while the chat loads (its receipt has no scan intent yet).
     pageBusy: () => scanWorkPending() || loadingReconcilePending(),
     scanIdle: ms => scanIdle(ms),
-    // History replay (src/storysuite-participant/history-replay.js reads these): the boundaries between the engine and the live scan path.
+    // History replay boundaries (the replay engine was removed in P7; the runtime's own scope still reads these): the boundaries between the engine and the live scan path.
     replay: createReplayBoundaries(deps),
     // Which messages the story stands on (the Story Suite adapter's gate): scans do not read what Story Block faded.
     useMessageGate: gate => useMessageGate(gate),

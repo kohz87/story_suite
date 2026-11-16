@@ -41,7 +41,7 @@ export function applyScenePresence(npcs, scene) {
         let next = npc.present;
         if (present.length && named(npc, present)) next = true;
         else if (scene?.none === true || (offscreen.length && named(npc, offscreen))) next = false;
-        if (next && (npc.archived || isTerminalNpcDeath(npc))) next = false;
+        if (next && isTerminalNpcDeath(npc)) next = false;
         if (npc.present && !next) cleared.push(npc.id);
         if (!npc.present && next) added.push(npc.id);
         npc.present = Boolean(next);

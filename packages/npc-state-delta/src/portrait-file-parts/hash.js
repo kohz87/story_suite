@@ -1,6 +1,6 @@
 // SHA-256 of bytes as lowercase hex, computed without the platform digest.
 // SHA-256 of bytes as 64 lowercase hex characters (the platform's digest is asynchronous and needs a secure page; a picture's name is made
-// where neither holds). The same function as src/storysuite-participant/hash.js `sha256`; tests/portrait-file.test.js holds it to the platform's.
+// where neither holds). The same function as src/adapter/hash.js `sha256`; tests/portrait-file.test.js holds it to the platform's.
 const K = new Uint32Array([
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,

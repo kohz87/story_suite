@@ -5,7 +5,7 @@ import { normalizeNpcRecord } from '../core.js';
 import { peopleView, peopleState } from '../src/people/view.js';
 import { keepStampContainers } from '../src/people/keep-containers.js';
 import { createPeopleSync } from '../src/adapter/people-sync.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { hashJson } from '../src/adapter/hash.js';
 
 // N5 (REVN5X fixes): the runtime rewrites every record through its normalizer and writes them back (people.write for the head reply). The per-reply cap marker `s` and a stub's
 // empty `memoryStamps` container must survive that write, or Continue breaks the two-a-reply cap and a middle delete drops a later memory.

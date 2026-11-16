@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { peopleRig, record, idOf } from './helpers/people-rig.js';
 import { proveHead } from './helpers/proofs.js';
-import { hashJson } from '../../packages/npc-state-delta/src/storysuite-participant/hash.js';
+import { hashJson } from '../../packages/npc-state-delta/src/adapter/hash.js';
 
 const people = rig => rig.host.head().domains.people ?? null;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));

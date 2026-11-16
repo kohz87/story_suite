@@ -20,7 +20,7 @@ function npc(name, extra = {}) {
 
 const MIRA = npc('Mira', { id: 'npc_mira', present: false, lastSeenTurn: 2, role: 'Smith' });
 const BRECHT = npc('Brecht', { id: 'npc_brecht', present: true, lastSeenTurn: 5, role: 'Thug' });
-const OLD = npc('Kael', { id: 'npc_kael', archived: true, present: false });
+const OLD = npc('Kael', { id: 'npc_kael', lifeState: 'deceased', lifeStateCertainty: 'explicit', present: false });
 const base = extra => ({
     transcript: 'User: I ask Brecht about the debt.\nNarrator: Brecht shrugs.',
     existingNpcs: [MIRA, BRECHT, OLD], candidates: [], userName: 'Astra', charName: 'Narrator', ...extra,
@@ -51,12 +51,12 @@ test('a scene list: one dynamic line, the present dossiers in the live context w
     assert.ok(prompt.indexOf('In the scene now') < prompt.indexOf('Relevant live context'));
 });
 
-test('the scene list: names cleaned and capped; archived dossiers never join; the context limit holds', () => {
+test('the scene list: names cleaned and capped; dead dossiers never join; the context limit holds', () => {
     const many = Array.from({ length: 20 }, (_, i) => `Person ${i}\n`);
     const focus = scenePresentFocus([MIRA, OLD], ['Kael', 'Mira', ...many]);
     assert.equal(focus.names.length, 12);
     assert.equal(focus.names[2], 'Person 0');
-    assert.deepEqual(focus.npcs.map(entry => entry.id), ['npc_mira'], 'Kael is archived');
+    assert.deepEqual(focus.npcs.map(entry => entry.id), ['npc_mira'], 'Kael is dead');
     const crowd = Array.from({ length: 6 }, (_, i) => npc(`Guard ${i}`, { id: `npc_g${i}` }));
     assert.equal(withScenePresent([BRECHT], crowd, 4).length, 4);
     assert.deepEqual(withScenePresent([BRECHT], [BRECHT, MIRA], 4).map(entry => entry.id), ['npc_brecht', 'npc_mira']);

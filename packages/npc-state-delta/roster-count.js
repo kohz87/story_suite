@@ -3,7 +3,7 @@ import { isTerminalNpcDeath } from './terminal-lifecycle.js';
 
 const DORMANT_AFTER_DEFAULT = 30;
 
-// Dormant: not in the scene and unseen for `dormantAfter` replies (the "Archive after" setting). Nothing is deleted or hidden; the person
+// Dormant: not in the scene and unseen for `dormantAfter` replies (the "Dormant after" setting, key staleArchiveAfter). Nothing is deleted or hidden; the person
 // counts again the moment the story brings them back (their last-seen reply moves up, or they are present).
 export function isDormantNpc(npc = {}, turn = 0, dormantAfter = DORMANT_AFTER_DEFAULT) {
     if (npc?.present || npc?.worldActive) return false;
@@ -14,7 +14,7 @@ export function isDormantNpc(npc = {}, turn = 0, dormantAfter = DORMANT_AFTER_DE
 
 // The dead and the dormant take no slot.
 export function countsTowardCap(npc, turn = 0, dormantAfter = DORMANT_AFTER_DEFAULT) {
-    return Boolean(npc) && !npc.archived && !isTerminalNpcDeath(npc) && !isDormantNpc(npc, turn, dormantAfter);
+    return Boolean(npc) && !isTerminalNpcDeath(npc) && !isDormantNpc(npc, turn, dormantAfter);
 }
 
 export function rosterCount(npcs, turn = 0, dormantAfter = DORMANT_AFTER_DEFAULT) {

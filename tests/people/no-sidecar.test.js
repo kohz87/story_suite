@@ -37,7 +37,7 @@ test('a reload hydrates NPC State from the store and the next reply keeps the pe
     for (let n = 1; n <= 3; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.npcs[0].seenCount = n; }), true);
     assert.deepEqual(Object.keys(rig.host.head().domains.people.npcs), ['npc_mira', 'npc_tom']);
     const live = { chatKey: rig.live.chatKey, state: { npcs: [], candidates: [], socialGraph: { edges: [] }, checkpoints: [], lineage: [], turn: 0 } };
-    const again = await peopleRig(t, { vault: rig.vault, image: { chat: clone(rig.host.ctx.chat), metadata: clone(rig.host.ctx.chatMetadata) }, live });
+    const again = await peopleRig(t, { image: { chat: clone(rig.host.ctx.chat), metadata: clone(rig.host.ctx.chatMetadata) }, live });
     await again.settle();
     assert.deepEqual(again.live.state.npcs.map(npc => npc.id), ['npc_mira', 'npc_tom'], 'the memory is hydrated from the store (no sidecar was read)');
     assert.equal(await again.reply('New.', state => { state.npcs.push(record('zed')); }), true);
