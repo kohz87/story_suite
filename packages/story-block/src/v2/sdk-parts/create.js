@@ -14,6 +14,7 @@ import { createCardSettings } from '../packs/card-settings.js';
 import { isObject } from '../sdk/shared.js';
 import { createEvents } from '../sdk/events.js';
 import { newId } from '../sdk/ids.js';
+import { createChangedFeed } from '../sdk/changed.js';
 import { featureOn, makeView, missingModules, runQuery, withCue } from '../sdk/queries.js';
 import { announceModules, ensureModules, preflight, rememberTimeline } from '../sdk/lifecycle.js';
 
@@ -236,5 +237,6 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
             });
         }),
     });
+    if (typeof store?.opsAt === 'function' && typeof store?.headIndex === 'function') createChangedFeed({ store, events });
     return { sdk, events, markReady };
 }
