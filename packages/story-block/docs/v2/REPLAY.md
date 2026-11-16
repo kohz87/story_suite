@@ -438,8 +438,7 @@ a cursor into its changes or `recorded` is already an input.
 A set that depends on the number before it (SPEC §2.2 rule h, `ctx.anchored`) is stored as a `replace` with `was`, `period` and `roll` (and `to`, the face before a `same` clamp, when the clock stood past it). Replay, in `ops/rebase.js` `fit` ahead of the
 counter rule, applies it as stored while the count holds `was` (so a reload, a swipe and an unchanged Re-read give what was live), and otherwise at its offset in whole periods from `was`
 (`ops/anchored.js`), clamped by `roll` (a clamped face is clamped again from `to`, so it lands where a fresh telling would; the op's `to` moves with it). The result depends only on the stored op and the replayed value, so a reload after an edit, a middle delete or an edited Re-read equals live. A date
-is not anchored (`ctx.absolute`) and stays exact. The rule is not named in `rulesSignature()` yet: no stored op carries the mark, so no kept answer differs; the module that first uses it adds it.
-Step 2b (the first module to use it) must bump `rulesSignature()` and must keep the mark on a refused face (a refused clock line stores no op today, so it needs checking). Limits as built: where the count is
+is not anchored (`ctx.absolute`) and stays exact. Story Director's clock lines are the first to use it (a `~` clock face rolls `same`, a skip or a bare `!` clock time rolls `after`; a refused `~` face keeps the mark, with the face it asked for as `to`), and `rulesSignature()` names it (`rules:h`). Limits as built: where the count is
 not there on replay (its domain's slice is gone) the op applies as stored; a deferred domain's first write carries no mark (no value before it); a joined line that sets one path through both `ctx.absolute` and
 `ctx.anchored` is `CONFLICT`, and two anchored calls on one path in one command keep the last `roll`.
 
@@ -468,7 +467,7 @@ first stored it. Left as it was (the stated limit): a write under a person only 
 people slice and a later dossier write changes someone it made, that whole later write (its new people and the marker included) is skipped
 with a Problem; a later write that leaves every earlier person as it was is kept.
 
-The replay rules the host applies are named in the registry's `rulesSignature()` (`rules:g` for this rule; it only keys in-memory answers, which a reload empties, so it matters to a running store, not to a chat file), which is part of the replay
+The replay rules the host applies are named in the registry's `rulesSignature()` (`rules:h` for the anchored-set rule; it only keys in-memory answers, which a reload empties, so it matters to a running store, not to a chat file), which is part of the replay
 environment the store keys its kept answers and prefix memos on: a state kept under an older rule is not reused. Checkpoints saved in a
 chat file are keyed on their prefix hash only (above); one saved under the older rule stays valid until the next reply or rebuild
 rewrites it, which is accepted (the owner's chats were started again, nothing older exists).

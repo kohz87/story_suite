@@ -1,6 +1,6 @@
 // An edit (or a delete) that moves the clock, then replies noted after it: the walk follows the clock as Story Block replays it,
 // so each is compared with a fresh telling of the edited (or shortened) chat, and a rebuild from the stored records equals live.
-// Sets (a date, a clock face, a skip) are taken as Story Block replays them (stored minute): the known limit, not tested here.
+// A date is a set Story Block replays as stored (exact); a clock face and a skip follow the edit too (clock-anchored.test.js).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
