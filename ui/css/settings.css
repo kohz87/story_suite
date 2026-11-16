@@ -20,6 +20,7 @@
 .srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:10px 0;border-top:1px solid var(--su-line2)}
 .sgrp>.gt+.srow{border-top:0}
 .srow .lb b{font:700 14px var(--su-font);display:block}
+.srow .lb b.tagd{line-height:0}.srow .lb b.tagd .ln{line-height:normal}
 .srow .lb small{display:block;font-size:12px;color:var(--su-muted);line-height:1.35;margin-top:1px}
 .srow .lb .tg2{display:inline-block;font:800 10px var(--su-font);letter-spacing:.04em;border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px;background:var(--su-panel2);color:var(--su-muted)}
 .tg2.chat{color:#5aa0ff}.tg2.merged{color:#4fd39a}.tg2.cost{color:#f0b84a}
