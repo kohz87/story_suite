@@ -39,10 +39,10 @@ export const BAG_SHAPE = {
   filters: [{ key: { $enum: ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'] }, count: T.NUMBER }],
   items: [ITEM],
   purse: {
-    coins: { gold: T.NUMBER, silver: T.NUMBER, copper: T.NUMBER },
+    coins: { $nullable: { gold: T.NUMBER, silver: T.NUMBER, copper: T.NUMBER } },
     words: T.STRING,
-    thisTurn: [{ line: T.STRING, delta: T.STRING, up: T.BOOLEAN, earlier: T.BOOLEAN }],
-    rates: { place: T.STRING, rows: [{ name: T.STRING, price: T.STRING }], note: T.STRING },
+    thisTurn: { $optional: [{ line: T.STRING, delta: T.STRING, up: T.BOOLEAN, earlier: T.BOOLEAN }] },
+    rates: { $optional: { $nullable: { place: T.STRING, rows: [{ name: T.STRING, price: T.STRING }], note: T.STRING } } },
   },
   load: {
     $nullable: {

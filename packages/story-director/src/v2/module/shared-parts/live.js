@@ -25,6 +25,8 @@ export const LIVE_HOST = Object.freeze({
     substitute: text => tryLive(() => liveSdk()?.substitute?.(text), undefined),
     // Whether the reader has a feature on (Story Block's `sdk.feature`); undefined when it cannot be asked, which reads as on.
     feature: id => tryLive(() => liveSdk()?.feature?.(id), undefined),
+    // An internal rollout flag (Story Block's `sdk.flag`); off when it cannot be asked.
+    flag: name => tryLive(() => liveSdk()?.flag?.(name), false) === true,
     // A model call for a part that needs one (the cast's planner): Story Block's `sdk.callModel`, when it has one.
     callModel: request => liveSdk().callModel(request),
     canCallModel: () => typeof liveSdk()?.callModel === 'function',
