@@ -77,7 +77,7 @@
     },
     {
       "kind": "time",
-      "grammar": "~ time <date, clock time such as 9:30 am> (the scene's time) or ! time +2h (time passes), never both for one stretch"
+      "grammar": "~ time 9:30 am (the clock now, today; never a date, never earlier than the story time) or ! time +2h / ! time next morning (time passes; the only way into a later day), never both for one stretch"
     },
     {
       "kind": "trip",
