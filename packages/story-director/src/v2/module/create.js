@@ -213,7 +213,7 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
             ...(staticParts.length || contextParts.length ? { parts: [...staticParts, ...contextParts] } : {}),
         },
         hooks: Object.fromEntries(Object.entries(hooks).map(([name, entries]) => {
-            const merged = mergeHook(name, entries, shared);
+            const merged = mergeHook(name, entries, shared, name => (typeof host?.flag === 'function' ? host.flag(name) : false));
             // Before each reply: what the module set is, before the prompt is assembled.
             return [name, name === 'beforeGenerate'
                 ? Object.assign((view, ...rest) => { learn(view); return merged(view, ...rest); }, Number.isFinite(merged.timeoutMs) ? { timeoutMs: merged.timeoutMs } : {})

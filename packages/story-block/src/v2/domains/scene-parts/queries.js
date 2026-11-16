@@ -1,7 +1,7 @@
 // The scene's queries: place, present, weather and {{user}}'s look. Pure.
 
 import { WEATHER_FEATURE, YOU_FEATURE } from '../scene/constants.js';
-import { rankLabelIn } from '../scene/you.js';
+import { rankLabelIn, wornWords } from '../scene/you.js';
 import { initialScene } from './state.js';
 
 export const sceneQueries = {
@@ -19,6 +19,8 @@ export const sceneQueries = {
         const you = state?.domains?.scene?.you;
         const text = part => (typeof you?.[part] === 'string' ? you[part] : '');
         const label = typeof tools?.query === 'function' ? rankLabelIn(tools.query) : '';
-        return { ...(label ? { rank: text('rank'), rankLabel: label } : {}), wearing: text('wearing'), condition: text('condition'), ...(text('position') ? { position: text('position') } : {}) };
+        // With gear on (B1.4) also `outfit` and `look` once set, and `gear`: the words for what is equipped.
+        const extra = Object.fromEntries([['outfit', text('outfit')], ['look', text('look')], ['gear', wornWords(state)]].filter(([, words]) => words));
+        return { ...(label ? { rank: text('rank'), rankLabel: label } : {}), wearing: text('wearing'), condition: text('condition'), ...extra, ...(text('position') ? { position: text('position') } : {}) };
     }, { feature: YOU_FEATURE }),
 };

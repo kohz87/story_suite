@@ -16,16 +16,18 @@ export function youText(raw) {
 const YOU_LABELS = Object.freeze({ rank: 'rank', standing: 'rank', wearing: 'wearing', wear: 'wearing', wears: 'wearing', worn: 'wearing', outfit: 'wearing', clothes: 'wearing', clothing: 'wearing', condition: 'condition', state: 'condition', position: 'position', posture: 'position', pose: 'position' });
 
 /**
- * The parts a `~ you` line gives: `{ rank?, wearing?, condition?, position? }` from "rank: … | wearing: … | condition: …" (any of them is fine; a part
+ * The parts a `~ you` line gives: `{ rank?, wearing?, condition?, outfit?, look?, position? }` from "rank: … | wearing: … | condition: …" (any of them is fine; a part
  * with no words is '', which clears it). A piece after a `|` with no label of its own goes on the part before it; one with a
  * label that is not a part ("mood: glad") is not used.
  */
-export function youParts(raw) {
+export function youParts(raw, { lasting = false } = {}) {
+    // With a lasting outfit (gear on, mark `youLook`) `outfit` is its own part and `look` is a part; otherwise `outfit` is what `wearing` is and `look` is not used.
+    const labels = lasting ? { ...YOU_LABELS, outfit: 'outfit', look: 'look' } : YOU_LABELS;
     const found = {};
     let last = null;
     for (const piece of lineBody(String(raw ?? '')).split('|')) {
         const named = /^\s*(\p{L}+)\s*:\s*([\s\S]*)$/u.exec(piece);
-        const part = named ? YOU_LABELS[named[1].toLowerCase()] : null;
+        const part = named ? labels[named[1].toLowerCase()] : null;
         if (part) {
             found[part] = named[2];
             last = part;
