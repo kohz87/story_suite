@@ -95,12 +95,39 @@ for (const theme of ['dark', 'light']) {
         assert.deepEqual(errors, []);
       } finally { await page.close(); }
     });
+    test(`bag colours at ${width}x${height} in ${theme} are the mock's fixed values`, async (t) => {
+      if (ctx.skip) return t.skip(ctx.skip);
+      const page = await ctx.browser.newPage({ viewport: { width, height } });
+      await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+      try {
+        await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=bag&bag=over`);
+        await page.waitForSelector('#hx-frame .bag-tab .itm');
+        const c = await page.evaluate(() => {
+          const f = document.getElementById('hx-frame');
+          if (f.querySelector('.afold').getAttribute('aria-expanded') !== 'true') f.querySelector('.afold').click();
+          const g = (s, p) => { const el = f.querySelector(s); return el ? getComputedStyle(el)[p] : null; };
+          return {
+            unc: g('.tl.r-unc', 'borderTopColor'), rare: g('.tl.r-rare', 'borderTopColor'), epic: (() => { const t = f.querySelector('.tl'); t.classList.add('r-epic'); return getComputedStyle(t).borderTopColor; })(),
+            neg: g('.last b:not(.up)', 'color'), pos: g('.last b.up', 'color'),
+            eq: g('.tr .tg.eq', 'backgroundColor'), ovr: g('.ovr', 'backgroundColor'), ovrBorder: g('.ovr', 'borderTopColor'),
+          };
+        });
+        assert.deepEqual([c.unc, c.rare, c.epic], ['rgba(79, 211, 154, 0.6)', 'rgba(90, 160, 255, 0.7)', 'rgba(190, 120, 255, 0.7)'], 'tile rarity borders are the soft tints');
+        assert.equal(c.neg, theme === 'light' ? 'rgb(179, 38, 30)' : 'rgb(255, 107, 107)', 'This turn spent amount');
+        assert.equal(c.pos, theme === 'light' ? 'rgb(13, 122, 79)' : 'rgb(79, 211, 154)', 'This turn gained amount');
+        assert.equal(c.eq, 'rgba(168, 151, 255, 0.14)', 'equipped tag tint');
+        assert.equal(c.ovr, 'rgba(242, 180, 90, 0.1)', 'over banner tint');
+        assert.equal(c.ovrBorder, 'rgba(242, 180, 90, 0.35)', 'over banner border');
+      } finally { await page.close(); }
+    });
   }
 }
 
 test('Story-only Transport rows have no tag, are 55px high, and the pace note is the Story text', async (t) => {
   if (ctx.skip) return t.skip(ctx.skip);
   const page = await ctx.browser.newPage({ viewport: { width: 390, height: 844 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
   await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
   try {
     await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=390&tab=bag&variant=rpgOff`);
@@ -115,5 +142,6 @@ test('Story-only Transport rows have no tag, are 55px high, and the pace note is
     assert.deepEqual(r.heights, [55, 56], 'rows as high as the mock (the second has the 1px divider)');
     assert.equal(r.rider, 118, 'rider label keeps the leading nbsp');
     assert.equal(r.pace, 'On foot: not everyone has a riding animal, so everyone walks. Riders lead their animals.');
+    assert.deepEqual(errors, []);
   } finally { await page.close(); }
 });

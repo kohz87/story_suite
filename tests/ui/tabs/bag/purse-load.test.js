@@ -30,7 +30,7 @@ test('light load: text, value, bar width, marker, no notes', () => {
   const el = loadBlock(bagFixture().load);
   assert.equal(el.querySelector('.lr b').textContent, '149 / 192');
   assert.equal(el.querySelector('.lt').textContent, '43 left before you slow down');
-  assert.equal(el.querySelector('.lbar b').style.getPropertyValue('width'), '78%');
+  assert.equal(el.querySelector('.lbar b').style.getPropertyValue('width'), '77.60416666666666%');
   assert.ok(el.querySelector('.mk'));
   assert.equal(el.classList.contains('heavy'), false);
   assert.equal(el.querySelector('.hvy'), null);

@@ -1,4 +1,4 @@
-/* Styles for the Bag tab: Purse and load, Assets, item grid and sheets; tokens only (the two mock tints are fixed in both themes), layout follows the container. */
+/* Styles for the Bag tab: Purse and load, Assets, item grid and sheets; tokens, plus the mock's fixed tints and rarity borders in both themes, layout follows the container. */
 .bag-tab{display:flex;flex-direction:column;gap:12px}
 .bag-tab .btop{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;}
 @container (min-width:620px){.bag-tab .btop{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}}
@@ -11,7 +11,7 @@
 .coin small{font:700 12px var(--su-font);font-size:max(12px,.85em);color:var(--su-muted)}
 .coin i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25),inset 0 0 0 1.5px rgba(255,255,255,.25)}
 .last{font-size:12.5px;color:var(--su-muted)}
-.last b{color:var(--su-hp);font-weight:800}.last b.up{color:var(--su-ok-t);display:inline;padding:0;border:0;gap:0}
+.last b{color:var(--su-last-neg);font-weight:800}.last b.up{color:var(--su-last-pos);display:inline;padding:0;border:0;gap:0}
 .brow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.brow .grow{flex:1}
 .load .secl{margin:4px 0 6px}
 .load .lr{border-top:1px solid var(--su-line2);padding:8px 0}
@@ -68,9 +68,9 @@
 .itm .k{font:600 12px/1.1 var(--su-font);color:var(--su-muted);margin-top:-3px}
 .tl{position:relative;width:60px;height:60px;border-radius:16px;background:var(--su-line2);border:1.5px solid transparent;display:grid;place-items:center;color:var(--su-glyph)}
 .tl svg{width:28px;height:28px}.tl.sm{width:64px;height:64px}
-.tl.r-unc{border-color:var(--su-rar-unc)}.tl.r-unc svg{color:var(--su-rar-unc)}
-.tl.r-rare{border-color:var(--su-rar-rare)}.tl.r-rare svg{color:var(--su-rar-rare)}
-.tl.r-epic{border-color:var(--su-rar-epic)}.tl.r-epic svg{color:var(--su-rar-epic)}
+.tl.r-unc{border-color:rgba(79,211,154,.6)}.tl.r-unc svg{color:var(--su-rar-unc)}
+.tl.r-rare{border-color:rgba(90,160,255,.7)}.tl.r-rare svg{color:var(--su-rar-rare)}
+.tl.r-epic{border-color:rgba(190,120,255,.7)}.tl.r-epic svg{color:var(--su-rar-epic)}
 .tl .q{position:absolute;right:-6px;bottom:-6px;min-width:22px;height:20px;border-radius:999px;background:var(--su-pill);color:var(--su-pilltext);font:800 12px/20px var(--su-font);padding:0 6px;text-align:center}
 .tl .wr{position:absolute;left:-5px;top:-5px;width:22px;height:22px}
 .tl .nw{position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--su-accent);box-shadow:0 0 0 2px var(--su-panel2)}
