@@ -19,7 +19,7 @@ function resultFrom(entry) {
         bonus: entry.bonus, total: entry.total, outcome: entry.outcome, decisive: entry.decisive === true, ...unlisted, ...practice };
 }
 
-// The step's input as recorded: { lines, dice } (the narrator's lines and the dice, rules and practice recorded with the reply; dice null: none was offered), or null.
+// The step's input as recorded: { lines, dice, inOrder? } (the narrator's lines, and the dice, rules and practice recorded with the reply; `inOrder`: the reply was marked `diceInOrder`; dice null: none was offered), or null.
 export function inputOf(payload) {
     const lines = payload?.lines;
     if (!Array.isArray(lines) || lines.length > CHECK_LINES || !lines.every(line => typeof line === 'string' && line.length > 0 && line.length <= 200)) return null;
@@ -27,7 +27,7 @@ export function inputOf(payload) {
     if (payload.dice !== null && !dice) return null;
     if (payload.table !== undefined && (!Array.isArray(payload.table) || !dice)) return null;
     if (payload.spent !== undefined && (!Array.isArray(payload.spent) || payload.spent.length > 1024 || !payload.spent.every(entry => isObject(entry) && keptText(entry.who) && keptText(entry.skill) && Number.isSafeInteger(entry.amount) && entry.amount >= 1 && entry.amount <= PRACTICE.max))) return null;
-    return { lines: [...lines], dice, ...(payload.practice === true ? { practice: true } : {}), ...(payload.table ? { table: tableOf(payload.table) } : {}), ...(payload.spent ? { spent: payload.spent.map(({ who, skill, amount }) => ({ who, skill, amount })) } : {}) };
+    return { lines: [...lines], dice, ...(payload.practice === true ? { practice: true } : {}), ...(payload.inOrder === true ? { inOrder: true } : {}), ...(payload.table ? { table: tableOf(payload.table) } : {}), ...(payload.spent ? { spent: payload.spent.map(({ who, skill, amount }) => ({ who, skill, amount })) } : {}) };
 }
 
 /** The story-check results a reply's receipts hold, excluding blocks that replay skipped. */
