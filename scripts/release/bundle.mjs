@@ -3,6 +3,7 @@ import path from 'node:path';
 import { build } from 'esbuild';
 import { PACK_MODULE, PACK_SOURCE, rewriteSource } from './rewrite.mjs';
 import { assertSafeOut, claimOutDir } from './outdir.mjs';
+import { fromPackage } from './layout-paths.mjs';
 
 // The place SillyTavern serves an extension from. Host specifiers are URLs: they are resolved against this, so
 // the result does not depend on where the checkout sits on disk.
@@ -13,6 +14,8 @@ const SERVED = 'http://host/scripts/extensions/third-party';
 //    leaves the package ('../../../extensions.js'). The relative form is resolved as a URL from where the importer
 //    is served (SERVED/<folder>/<file>) and rewritten from the package folder, where the chunks sit, so it keeps the
 //    depth the host expects whatever the checkout's own depth.
+//    A file inside the repo (any source root, whichever package folder it sits in) is bundled; only a specifier that
+//    leaves the repo, or names a file the repo does not have (a host file), stays external.
 //    A set may carry installAt: the folder it is installed in when that is deeper than the folder its host
 //    specifiers were written for (set.name); they are still resolved from set.name and rewritten from installAt.
 // 2. A literal import('./x.js') of a module not listed as lazy is awaited at startup anyway; it is packed into
@@ -20,7 +23,8 @@ const SERVED = 'http://host/scripts/extensions/third-party';
 //    instead of becoming a request of its own. Lazy modules keep a real import() and stay separate chunks.
 // 3. import.meta.url keeps naming the module's original location (see rewrite.mjs), so assets beside it resolve.
 function packagePlugin(pkgDir, repoRoot, lazy, folder, installAt) {
-  const inside = abs => !path.relative(pkgDir, abs).startsWith('..');
+  const inRepo = abs => !path.relative(repoRoot, abs).startsWith('..');
+  const inside = abs => !path.relative(pkgDir, abs).startsWith('..') || (inRepo(abs) && fs.existsSync(abs));
   return { name: 'package', setup(b) {
     b.onResolve({ filter: /^release:pack$/ }, () => ({ path: PACK_MODULE, namespace: 'release' }));
     b.onLoad({ filter: /.*/, namespace: 'release' }, () => ({ contents: PACK_SOURCE, loader: 'js' }));
@@ -40,8 +44,9 @@ function packagePlugin(pkgDir, repoRoot, lazy, folder, installAt) {
       if (!source.includes('import(') && !source.includes('import.meta')) return undefined;
       const file = path.relative(pkgDir, args.path).split(path.sep).join('/');
       const packKey = spec => {
-        const key = path.relative(pkgDir, path.resolve(path.dirname(args.path), spec));
-        return !key.startsWith('..') && !lazy.has(key) ? key.split(path.sep).join('/') : null;
+        const target = path.resolve(path.dirname(args.path), spec);
+        const key = path.relative(pkgDir, target).split(path.sep).join('/');
+        return inside(target) && !lazy.has(key) ? key : null;
       };
       return { contents: rewriteSource(source, file, packKey), loader: 'js' };
     });
@@ -55,9 +60,9 @@ export async function buildBundleSet(set, outDir, repoRoot) {
   claimOutDir(outDir);
   const pkgDir = path.join(repoRoot, set.dir);
   const result = await build({
-    absWorkingDir: pkgDir, entryPoints: set.entries, outdir: outDir, entryNames: '[name]', chunkNames: '[name]-[hash]',
+    absWorkingDir: pkgDir, entryPoints: set.entries.map(entry => path.isAbsolute(entry) ? entry : fromPackage(repoRoot, set.dir, entry)), outdir: outDir, entryNames: '[name]', chunkNames: '[name]-[hash]',
     bundle: true, splitting: true, format: 'esm', target: 'es2022', sourcemap: true, legalComments: 'none',
-    plugins: [packagePlugin(pkgDir, repoRoot, new Set(set.lazy), set.name, set.installAt ?? set.name)], metafile: true, logLevel: 'silent',
+    plugins: [packagePlugin(pkgDir, repoRoot, new Set(set.lazy.map(name => fromPackage(repoRoot, set.dir, name))), set.name, set.installAt ?? set.name)], metafile: true, logLevel: 'silent',
   });
   return Object.keys(result.metafile.outputs).map(file => path.basename(file)).sort();
 }
