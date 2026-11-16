@@ -26,7 +26,6 @@ export const JOURNAL_SHAPE = {
       place: { $nullable: T.STRING },
       trip: { $optional: { $nullable: T.STRING } },
       reward: { $nullable: T.STRING },
-      xp: { $nullable: T.STRING },
       difficulty: { $nullable: { $enum: ['easy', 'normal', 'hard'] } },
     },
   ],
