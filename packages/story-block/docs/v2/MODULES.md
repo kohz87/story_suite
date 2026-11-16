@@ -183,7 +183,7 @@ These settle questions agents raised; the host changes they need are made at int
 28. XP curve and level cap: v1's, adjustable in settings.
 29. Companions' stat points auto-spent by default; a per-member toggle switches auto ↔ manual.
 30. Healing: rests and items, and story heals (`~ wound X — heal …`) capped by v1's wound shares.
-31. Checks: natural 20 always succeeds, natural 1 always fails, whatever the modifiers.
+31. Checks: natural 20 always succeeds, natural 1 always fails, whatever the modifiers. *Superseded for Story Block's story checks by Combat Rules v1 Q8: they use the v1 roll (d20 + stat÷2 + level÷4, half utility mastery), a natural 20 that falls short fails, and there is no success at a cost. Story Director's own checks now follow the v1 rule too: F31 is superseded for story checks (owner, 16 Nov).*
 32. Up to 2 checks per reply, each rolled separately.
 33. **Modifiers apply to the roll result**: the reader presses Roll, sees the d20 (fixed by the seed through
     preview), may still add modifiers (abilities, items, custom) to that result, then confirms; total =
@@ -270,7 +270,7 @@ These settle questions agents raised; the host changes they need are made at int
     that apply by code's rule). The model decides whether an attempt needs a roll and how hard it is, uses
     the next roll, and narrates the outcome **in the same reply**, writing `? check stealth — slipping past
     the guard | dc: hard | roll: 1 | result: success` in `<Changes>`. Code then recomputes the total from the
-    given roll and its own modifiers against the DC (natural 20/1 rule, F31); that is the recorded result. If
+    given roll and its own modifiers against the DC (the v1 roll, Q8, which replaced F31 for story checks); that is the recorded result. If
     the model's stated result or narration disagrees, the reply's card flags it ("narrated as success, the
     dice say fail") — v1's verdict rule — and the recorded result stands. Modifiers are code's only; the
     reader can't change them; a swipe or regenerate brings fresh rolls. Up to 2 checks per reply (F32). The

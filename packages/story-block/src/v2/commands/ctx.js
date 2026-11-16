@@ -4,6 +4,7 @@
 
 import { clone, deepFreeze, escapeKey, frozenCopy } from '../ops.js';
 import { deriveId, epochOf, guardProblem, hashJson, isPlainJson } from '../replay.js';
+import { ROLLS } from '../ops/anchored.js';
 import { roll as rollDice } from '../rng.js';
 import { CLOCK_COMMANDS, markerHash } from '../timeline/boundary.js';
 import { capture as captureSnapshot } from '../timeline/manifest.js';
@@ -145,7 +146,25 @@ export function createCtxTools({
                 const owner = registry.domainOwner(domain);
                 if (owner !== moduleId) fail('NOT_OWNER', `${moduleId} cannot set a count in ${domain}: only its owner can.`);
                 if (typeof path !== 'string' || !/^\/[^~]/.test(path)) fail('INVALID', `A count to set is a path inside the domain, like "/time/minutes", not "${path}".`);
+                if (tx.anchored.has(`/domains/${escapeKey(domain)}${path}`)) fail('CONFLICT', `${path} is already anchored (ctx.anchored); it cannot be a plain set too.`);
                 tx.absolute.add(`/domains/${escapeKey(domain)}${path}`);
+            },
+            // A count this command sets to a value that depends on the one before it (a clock face is today's time: SPEC §2.2 rule h): its write
+            // keeps `was` and a `period` (whole units, a day's 1440 minutes) and a `roll` ('same': never below the value before it; 'after': always
+            // after it). `to` is the face before a 'same' clamp (the number asked for, when the count stood past it): replay clamps it again, so an
+            // edit or delete before it lands where a fresh telling would. When replay finds the count as it was, it applies as written; otherwise it
+            // keeps its offset in whole periods.
+            anchored(domain, path, { period, roll, to } = {}) {
+                open();
+                const owner = registry.domainOwner(domain);
+                if (owner !== moduleId) fail('NOT_OWNER', `${moduleId} cannot set a count in ${domain}: only its owner can.`);
+                if (typeof path !== 'string' || !/^\/[^~]/.test(path)) fail('INVALID', `A count to set is a path inside the domain, like "/time/minutes", not "${path}".`);
+                if (!Number.isSafeInteger(period) || period < 1) fail('INVALID', 'An anchored set needs a period of a whole number, 1 or more.');
+                if (!ROLLS.has(roll)) fail('INVALID', `An anchored set rolls "same" or "after", not "${roll}".`);
+                if (to !== undefined && !Number.isSafeInteger(to)) fail('INVALID', 'The face (to) of an anchored set is a whole number.');
+                const at = `/domains/${escapeKey(domain)}${path}`;
+                if (tx.absolute.has(at)) fail('CONFLICT', `${path} is already marked as a set (ctx.absolute); it cannot be anchored too.`);
+                tx.anchored.set(at, to === undefined ? { period, roll } : { period, roll, to });
             },
             // This command's writes inside a thing (a thread, `/threads/th_x`) only make sense while it is
             // there (SPEC §2.2 rule d): marked `within` it, they are passed over on replay when the reply

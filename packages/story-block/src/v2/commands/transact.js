@@ -69,6 +69,17 @@ export function createTransact({ store, registry, resolve, internal, internalMes
                 const value = valueAt(tx.head, at);
                 if (typeof value === 'number' && valueAt(draft, at.slice(path.length)) === value) changes.push({ op: 'replace', path: at, value });
             }
+            // An anchored set (ctx.anchored, rule h) keeps the value before it (`was`) and its `period` and `roll`; written even when it
+            // left the count as it was, so a replay that finds another value there moves it.
+            for (const [at, mark] of tx.anchored) {
+                if (!at.startsWith(`${path}/`)) continue;
+                const was = valueAt(tx.head, at);
+                if (!Number.isSafeInteger(was)) continue;
+                const found = changes.find(change => change.path === at && change.op === 'replace' && Number.isSafeInteger(change.value));
+                const kept = value => (mark.to === value ? { period: mark.period, roll: mark.roll } : mark);   // `to` only when the clamp moved it
+                if (found) Object.assign(found, { was, ...kept(found.value) });
+                else if (!changes.some(change => change.path === at) && valueAt(draft, at.slice(path.length)) === was) changes.push({ op: 'replace', path: at, value: was, was, ...kept(was) });
+            }
             // Changes inside a thing marked with ctx.ifThere carry it (`within`, rule d).
             for (const change of changes) {
                 for (const at of tx.within) if (change.path === at || change.path.startsWith(`${at}/`)) { change.within = at; break; }
@@ -108,7 +119,7 @@ export function createTransact({ store, registry, resolve, internal, internalMes
                 standing: cause === 'story' && isRecord(standing) ? (isDeepFrozen(standing) ? standing : deepFreeze(clone(standing))) : null,
                 standingReceipts: cause === 'story' && Array.isArray(standingReceipts) ? deepFreeze(clone(standingReceipts)) : null,
                 receiptsBefore: cause === 'system' && Array.isArray(receiptsBefore) ? deepFreeze(clone(receiptsBefore)) : null,
-                drafts: new Map(), meta: null, failure: null, closed: false, absolute: new Set(), within: new Set(), unique: new Set(),
+                drafts: new Map(), meta: null, failure: null, closed: false, absolute: new Set(), anchored: new Map(), within: new Set(), unique: new Set(),
                 clockBoundaries: [], guard: null, recorded: null, source: undefined, pending: 0, ordinal: undefined, proofs: newRoot(), cursor: undefined, opsBefore: null, reusing,
                 // The proof a Re-read's earlier lines gave (planned, not stored yet), for parents and story.evidence.
                 planned: Array.isArray(planned) ? planned : [],

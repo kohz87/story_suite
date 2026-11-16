@@ -36,14 +36,14 @@ test('a utility skill marks utility, names its rank, and shows the practice gain
     assert.equal(card.querySelector('.rpg-check-gain').textContent, 'Obscure +3 practice');
 });
 
-test('success at a cost has its own pill and a list draws one line per check', () => {
+test('a fail has its own pill (there is no cost outcome) and a list draws one line per check', () => {
     const doc = installFakeDom();
-    const card = buildCheckCard(doc, [result({ who: 'Temiwa', what: 'Pick a lock', stat: 'dex', bonus: 2, die: 17, total: 19, dc: 20, difficulty: 'hard', outcome: 'cost' }), result()]);
+    const card = buildCheckCard(doc, [result({ who: 'Temiwa', what: 'Pick a lock', stat: 'dex', bonus: 2, die: 17, total: 19, dc: 20, difficulty: 'hard', outcome: 'fail' }), result()]);
     const lines = card.querySelectorAll('.rpg-check-line');
     assert.equal(lines.length, 2);
     assert.equal(lines[0].querySelector('.rpg-check-who').textContent, 'Temiwa · Pick a lock (DEX, no skill) · hard');
     assert.equal(lines[0].querySelector('.rpg-check-num').textContent, 'd20 17 + 2 = 19 vs 20');
-    assert.equal(lines[0].querySelector('.rpg-check-cost').textContent, 'Success at a cost');
+    assert.equal(lines[0].querySelector('.rpg-check-fail').textContent, 'Fail');
 });
 
 test('a check card disappears when replay skips its guarded result and returns when it applies', async t => {
@@ -93,17 +93,17 @@ test('the header is a fold button like the fight log\'s: dice, Check, chevron, a
 test('folded, the header keeps one pill per roll, named when the roller is not the reader', () => {
     const doc = installFakeDom();
     const results = [
-        result({ who: 'Astra', stat: 'cha', outcome: 'cost' }),
+        result({ who: 'Astra', stat: 'cha', outcome: 'fail' }),
         result({ who: 'Temiwa', stat: 'dex', skill: { name: 'Pick locks', stat: 'dex', rank: 1 }, outcome: 'success' }),
     ];
     const named = buildCheckCard(doc, results, { folded: true, reader: 'Astra' });
     const pills = Array.from(named.querySelectorAll('.rpg-check-sum .rpg-check-chip'));
-    assert.deepEqual(pills.map(pill => pill.textContent), ['CHA · Success at a cost', 'Temiwa · Pick locks · Success']);
-    assert.ok(pills[0].classList.contains('rpg-check-chip-cost') && pills[1].classList.contains('rpg-check-chip-ok'));
+    assert.deepEqual(pills.map(pill => pill.textContent), ['CHA · Fail', 'Temiwa · Pick locks · Success']);
+    assert.ok(pills[0].classList.contains('rpg-check-chip-fail') && pills[1].classList.contains('rpg-check-chip-ok'));
     assert.equal(named.querySelector('.rpg-bl-body').hidden, true);
     assert.equal(named.querySelector('.rpg-check-sum').hidden, false);
     const unnamed = buildCheckCard(doc, [results[0]], { folded: true });
-    assert.equal(unnamed.querySelector('.rpg-check-sum .rpg-check-chip').textContent, 'Astra · CHA · Success at a cost');
+    assert.equal(unnamed.querySelector('.rpg-check-sum .rpg-check-chip').textContent, 'Astra · CHA · Fail');
     assert.equal(buildCheckCard(doc, results).querySelector('.rpg-check-sum').hidden, true, 'open: no pills in the header');
 });
 
