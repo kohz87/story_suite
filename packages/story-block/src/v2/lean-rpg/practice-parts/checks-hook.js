@@ -13,8 +13,11 @@ import { rollOf, usesOf } from './uses.js';
 export function checksHook(view, info) {
     if (!PAID_TYPES.includes(info?.type ?? 'normal') || view?.feature?.(LEAN_RPG_FEATURE) !== true) return undefined;
     const receipts = Array.isArray(info?.receipts) ? info.receipts : [];
-    const lines = receipts.filter(receipt => receipt?.type === 'capture.roll' && typeof receipt.data?.check?.raw === 'string').map(receipt => receipt.data.check.raw).slice(0, CHECK_LINES);
+    const rolls = receipts.filter(receipt => receipt?.type === 'capture.roll' && typeof receipt.data?.check?.raw === 'string').slice(0, CHECK_LINES);
+    const lines = rolls.map(receipt => receipt.data.check.raw);
     if (!lines.length) return undefined;
+    // A reply marked `diceInOrder` recorded `inOrder` on each of its roll lines: the step then gives each check the next die. It is in the step's input, so a recorded step replays as recorded.
+    const inOrder = rolls.every(receipt => receipt.data.check.inOrder === true);
     const kept = receipts.findLast(receipt => receipt?.type === DICE)?.data?.v2?.dice;
     const dice = diceOf(kept);
     // The note's table is the contract: the step works each check at the bonuses the table showed (recorded in `table`). A Re-read keeps what the reply was worked with:
@@ -25,5 +28,5 @@ export function checksHook(view, info) {
     const board = receipts.findLast(receipt => receipt?.type === RESOLVE && receipt.replan?.payload?.board);
     const fight = board && rollOf([board]);
     const spent = fight && (!old || Array.isArray(old.spent)) ? usesOf(fight).map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, use.n * fight.practice) })) : [];
-    return { commands: [{ type: CHECK_STEP, payload: { lines, dice, practice: true, ...(table ? { table } : {}), ...(spent.length ? { spent } : {}) } }] };
+    return { commands: [{ type: CHECK_STEP, payload: { lines, dice, practice: true, ...(inOrder ? { inOrder: true } : {}), ...(table ? { table } : {}), ...(spent.length ? { spent } : {}) } }] };
 }

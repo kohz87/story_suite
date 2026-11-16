@@ -15,7 +15,7 @@ import { createHeldEvents } from './events-held.js';
 import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
 export function createEvents(s, deps) {
-    const { markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi } = deps;
+    const { markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
     const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, boardError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
     const { afterReply, receivedHooks } = createReplyHooks(s, { store, problem, events, registry, view, captureLate });
@@ -104,7 +104,7 @@ export function createEvents(s, deps) {
             afterReply(id, current.type, message, [...parsed.lines, ...late].map(line => line.raw));
             return turn;
         } catch (error) {
-            problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });
+            const failure = problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });
             if (error?.code === 'BOARD_PRELUDE') {
                 const staged = metadata()?.rpgFightBoard?.id === s.boardCapture?.id;
                 s.session = current;
@@ -118,6 +118,11 @@ export function createEvents(s, deps) {
                     await trySave('after holding the fight');
                 }
                 try { notify?.(error.message, 'story-block'); } catch { /* the problem remains visible */ }
+            } else if (isolated() === true) {
+                // Flag `suite.isolatedApply`: the reply's lines were not kept, but the other modules still learn it arrived and the card says why.
+                try { receivedHooks(id, current.type); } catch { /* each hook is already guarded */ }
+                try { events?.emit('turn', { index: id, type: current.type, receipts: [], steps: [], problems: [failure], told: [] }); } catch { /* a listener's failure is its own */ }
+                try { afterReply(id, current.type, message, []); } catch { /* each hook is already guarded */ }
             }
             return null;
         } finally {
