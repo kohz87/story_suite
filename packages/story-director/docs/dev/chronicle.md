@@ -68,6 +68,37 @@ The day's world line for a lasting change is found by the receipt of the event t
 revision: the entry keeps `fire: { rev, by }` (the last pack event that changed it), written with its other fields, so a
 `world` line of the story or an edit of the reader after the fire does not hide the change on the day it happened.
 
+## The day facts and quest history the note keeps
+
+Before each reply, `chronicle.note` (`src/v2/chronicle/digest-parts/note.js`) keeps what the receipts since the last note
+hold: the day facts (`dayFacts["<day>.<rev>"]`) and the quest history (`questLog["<rev>"]`). It reads from the last
+note's own receipt, in chat order (`noted.through`, its receipt ID; `chronicle.noteFacts { through }`), not from a
+revision: a Re-read renumbers the receipts after the edited reply but keeps a note's receipt ID and moves it after the
+reply's new receipts, so the next note never reads again what an earlier note kept, nor files a reply's receipts under
+a later note. An older state (no `through`), or a note whose receipt is gone, reads by revision (`noted.rev`) as before;
+the digest's gap (`noted.gap`) keeps the same mark. A thread's outcome (`chronicle.threadOutcome`, inside a capture) is
+kept under its reply key (`<sid>.<n>`, `src/v2/reply-keys.js`) with its revision (`rev`), and the history is put in order
+by revision, never by a reply key (`days-parts/quest-log-order.js`).
+
+Known limit: an edited reply is never noted again. Its note is a kept block (it replays as stored), so what a Re-read of
+an edited reply adds is not in the day facts, the written digest or the quest history, and what it removed stays; the
+World screen's lists, read from the domains, show the edit. Tests: `tests/v2/chronicle/note-cursor.test.js` (the real
+host, compared with a fresh telling), `note-outcome.test.js` (an accepted goal's outcome on the real host),
+`note-cursor-units.test.js`, `note-cursor-clock.test.js` (an edit that adds a scene change, and the clock-change known limit, real host) and
+`note-cursor-start.test.js`.
+
+The walk starts from the scene the receipts up to and including the cursor say (`since()` in `queries-parts/receipts.js`,
+shared by the note, its gap path and the Journal's "today so far"), so a scene change an edit added is followed by the
+replies after it; where those receipts say nothing (data trimmed) it starts from the note's stored `minutes` and `present`.
+A `gap.through` naming a reply that was deleted falls back to `gap.rev`. The cursor never re-notes, and survives trimming,
+swipes, deletes and Continue. **Known limit (planned follow-up):** a clock change an edit adds is NOT followed. Replies told
+before the edit keep their pre-edit absolute times, so later replies, up to their own time line, can be filed under the day
+before the edit, and that day's written digest keeps them; a fresh telling files them a day later. This is not the same as a
+fresh telling, and no rule in the day walk can make it so while those receipts keep their old times
+(`note-cursor-clock.test.js` pins today's behaviour so a later fix flips it on purpose). Also: a thread's outcome line after
+a grown Re-read of the reply that resolved the goal takes a new revision, so a paid turn-in settled later could sort before
+it in that thread's history, unlike a fresh telling (rare; nothing else reads the order).
+
 ## Tests
 
 `tests/v2/chronicle/lasting.test.js` (the command, the lock, keep, replay, the Journal) and `lasting-host.test.js` (on the

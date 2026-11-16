@@ -15,6 +15,7 @@
     { "from": "packages/story-block/src/v2/events", "to": "modules/world/events" },
     { "from": "packages/story-director/src/v2/writes*", "to": "modules/world/writes*" },
     { "from": "packages/story-director/src/v2/hash.js", "to": "modules/world/hash.js" },
+    { "from": "packages/story-director/src/v2/reply-keys.js", "to": "modules/world/reply-keys.js" },
     { "from": "packages/story-director/src/changes*", "to": "modules/world/changes*" },
     { "from": "packages/story-director/src/note*", "to": "modules/world/note*" },
 

@@ -48,6 +48,8 @@ jobs:
             git diff --check "$base" HEAD
             node scripts/checks/run-size-check.mjs --base "$base"
           done <<< "$BASES"
+      - name: Redraw copy is current
+        run: node scripts/sync-redraw-copy.mjs --check
       - name: Codemap check
         run: node scripts/codemap/cli.mjs --check
       - name: Every package test file is run by its npm test
@@ -72,6 +74,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
+      - name: Install root dev dependencies
+        run: npm ci
       - name: Plan every layout area (no writes)
         run: npm run layout:plan
 

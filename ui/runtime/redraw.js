@@ -129,10 +129,22 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
       target: section.target ?? null,
     };
     sections.set(id, entry);
-    if (isVisible(entry)) {
-      dirtyIds.add(id);
-    } else {
-      staleIds.add(id);
+    let seeded = false;
+    if (section.drawn === true) {
+      // Already on screen: remember what it shows, draw nothing until it changes.
+      // A read() that throws seeds nothing: the section is then drawn like any other new one, and register does not throw.
+      try {
+        lastDigest.set(id, stableStringify(entry.read ? entry.read() : undefined));
+        dirtyIds.delete(id);
+        staleIds.delete(id);
+        seeded = true;
+      } catch {
+        lastDigest.delete(id);
+      }
+    }
+    if (!seeded) {
+      if (isVisible(entry)) dirtyIds.add(id);
+      else staleIds.add(id);
     }
     return () => unregister(id);
   }
@@ -161,9 +173,10 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
     return 'drawn';
   }
 
-  function flush() {
+  // `force` (flushNow) draws even while a hold is open: the hold stays open and what it covers is drawn again only if it changes.
+  function flush(force = false) {
     scheduled = false;
-    if (destroyed || holds > 0) {
+    if (destroyed || (holds > 0 && force !== true)) {
       return { drawn: [], skipped: [], failed: [] };
     }
 
@@ -241,7 +254,8 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
     setVisibleTab,
     markDirty,
     changed,
-    flush,
+    flush: () => flush(),
+    flushNow: () => flush(true),
     hold,
     pending,
     destroy,

@@ -198,3 +198,78 @@ describe('createRedraw', () => {
     assert.deepEqual(redraw.pending(), []);
   });
 });
+
+describe('createRedraw drawn sections and flushNow', () => {
+  it('a drawn section seeds its digest and is not drawn until it changes', () => {
+    const sched = makeManualScheduler();
+    const redraw = createRedraw({ schedule: sched.schedule, initialTab: 'now' });
+    let value = 1;
+    let draws = 0;
+    redraw.register('pane', { tab: 'now', drawn: true, read: () => value, draw: () => { draws += 1; } });
+    assert.deepEqual(redraw.pending(), []);
+    assert.equal(redraw.flush().drawn.length, 0);
+    redraw.changed([]);
+    sched.runAll();
+    assert.equal(draws, 0);
+    value = 2;
+    redraw.changed([]);
+    sched.runAll();
+    assert.equal(draws, 1);
+  });
+
+  it('a section registered without drawn is still drawn once', () => {
+    const redraw = createRedraw({ schedule: () => {}, initialTab: 'now' });
+    let draws = 0;
+    redraw.register('pane', { tab: 'now', read: () => 1, draw: () => { draws += 1; } });
+    redraw.flush();
+    assert.equal(draws, 1);
+  });
+
+  it('flushNow draws pending sections synchronously', () => {
+    const sched = makeManualScheduler();
+    const redraw = createRedraw({ schedule: sched.schedule, initialTab: 'now' });
+    let drawn = 0;
+    redraw.register('pane', { tab: 'now', read: () => 1, draw: () => { drawn += 1; } });
+    const result = redraw.flushNow();
+    assert.deepEqual(result.drawn, ['pane']);
+    assert.equal(drawn, 1);
+    sched.runAll();
+    assert.equal(drawn, 1);
+  });
+});
+
+describe('createRedraw carry-overs (J11 step 3)', () => {
+  it('flushNow draws while a hold is open; the hold stays open and later marks wait for it', () => {
+    const sched = makeManualScheduler();
+    const redraw = createRedraw({ schedule: sched.schedule, initialTab: 'now' });
+    let value = 1;
+    const seen = [];
+    redraw.register('pane', { tab: 'now', read: () => value, draw: vm => seen.push(vm) });
+    const release = redraw.hold();
+    redraw.markDirty();
+    assert.deepEqual(redraw.flush().drawn, [], 'a plain flush waits for the hold');
+    redraw.markDirty();
+    assert.deepEqual(redraw.flushNow().drawn, ['pane'], 'flushNow draws through the hold');
+    value = 2;
+    redraw.markDirty();
+    sched.runAll();
+    assert.deepEqual(seen, [1], 'still held after flushNow');
+    release();
+    sched.runAll();
+    assert.deepEqual(seen, [1, 2]);
+  });
+
+  it('a drawn section whose read() throws: register does not throw and the section is drawn on the next flush', () => {
+    const redraw = createRedraw({ schedule: () => {}, initialTab: 'now' });
+    let reads = 0;
+    const drawn = [];
+    assert.doesNotThrow(() => redraw.register('pane', {
+      tab: 'now', drawn: true,
+      read: () => { reads += 1; if (reads === 1) throw new Error('not ready'); return 5; },
+      draw: vm => drawn.push(vm),
+    }));
+    assert.deepEqual(redraw.pending(), ['pane']);
+    assert.deepEqual(redraw.flush().drawn, ['pane']);
+    assert.deepEqual(drawn, [5]);
+  });
+});
