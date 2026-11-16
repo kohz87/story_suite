@@ -18,9 +18,9 @@ const seeded = path.join(pkg('story-block'), 'tests/v2/qa/helpers/seeded.js');
 const SB_LAZY = BUNDLE_SETS.find(set => set.name === 'story-block').lazy;
 const sbAt = rel => path.join(pkg('story-block'), rel);
 const KIT = [
-  `export { createRuntime } from '${sbAt('src/v2/runtime.js')}';`,
-  `export { createStore } from '${sbAt('src/v2/store.js')}';`,
-  `export { createCommandBus } from '${sbAt('src/v2/commands.js')}';`,
+  `export { createRuntime } from '${path.join(repoRoot, 'core/runtime.js')}';`,
+  `export { createStore } from '${path.join(repoRoot, 'core/store.js')}';`,
+  `export { createCommandBus } from '${path.join(repoRoot, 'core/commands.js')}';`,
   `export { setRpgLib } from '${sbAt('src/v2/rpg-lazy.js')}';`,
   `export * as leanRpg from '${sbAt('src/v2/lean-rpg/index.js')}';`,
   `export { createFakeContext } from '${sbAt('testkit/fake-st.js')}';`,
