@@ -29,3 +29,9 @@ stale packages/story-block/tests/v2/ux/settings-window-pages.test.js src/v2/view
 stale packages/story-block/tests/v2/ux/settings-window-pages.test.js src/v2/view/form
 stale packages/story-block/tests/v2/view/icons.test.js src/v2/view/icons/index.js
 stale packages/story-block/tests/v2/view/icons.test.js src/v2/host-ui.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/packs/validate.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/packs/validate/items.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/packs/validate/world.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/packs/validate/events-economy.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/packs/validate.js
+stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/packs/validate/items.js
