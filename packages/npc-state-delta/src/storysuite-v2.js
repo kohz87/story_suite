@@ -154,6 +154,8 @@ export function createStorySuiteV2Adapter({
     logger = console,
     // True while the reader keeps the calendar in Delta (Source of truth: calendar "mine"): no story clock.
     calendarOwn = () => false,
+    // True while the one-pass lines switch is on (N7 wires the real setting): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
+    linesMode = () => false,
     // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
     loadDossierList = () => Promise.all([import('../story-block-tabs.js'), import('../dossier-ui.js')])
         .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
@@ -189,7 +191,7 @@ export function createStorySuiteV2Adapter({
     // The parts, in the order the closure declared them: each gets the options and constants (deps) and what the parts before it return.
     const deps = {
         suiteApi, delta, panelId, version, host, headReply, castSync, castPortraitDue, doc, timers, loadEmptyCast, retryMs,
-        attempts, aliveMs, watchMs, logger, calendarOwn, loadDossierList, page, participantVault, participantOptions, settleMs,
+        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, loadDossierList, page, participantVault, participantOptions, settleMs,
         settlePollMs, cardSettings, MODULE_ID, MODULE_NAME, CAST_TAB_ID, DOSSIERS_TITLE, DOSSIERS_ICON, CAST_SCREEN_ID,
         CAST_WIDGET, CAST_SCREEN_ORDER, WORLD_FEATURE, PAGE_API, PAGE_SLOT_CLASS, TICK_TURNS, PRESET_KIND,
         V2_HOST_EVENT, HOSTED_FLAG,

@@ -10,6 +10,7 @@ import { getSettings, effectiveCustomFieldNames } from './runtime-settings.js';
 import { fillAllowed, FILL_MERGE_OPTION } from './appearance-fill.js';
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
 import { backgroundRuleOn, captureJournalEntry } from './runtime-narration.js';
+import { FILL_REASON, fillPolicy, fillFailureNote } from './src/npc-lines-parts/fill-in.js';
 
 const { backfillScanMatchesTarget, rowContradictsTarget, soleRowMayBeTarget, transcriptMentionsBackfillTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 
@@ -56,10 +57,10 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
         } else if (!backfillNeedsRequest(existing, state.npcs)) {
             return true;
         }
-        const notes = hostedTargetNotes(existing, { newDossier: request.reason === 'new-admission', messageId, ...(refreshLike ? { tastes: true } : {}) });
+        const notes = hostedTargetNotes(existing, { newDossier: request.reason === 'new-admission' || request.reason === FILL_REASON, messageId, ...(refreshLike ? { tastes: true } : {}) });
         // A newly met person's one backfill also fills the looks the story never gave (appearance-fill.js). A retry of it may too, while looks are
         // still wanted; a missed-participant repair and an established person never do. No extra call: the line rides on this request.
-        const fillLooks = request.reason === 'new-admission' && fillAllowed(existing, ctx.name1);
+        const fillLooks = (request.reason === 'new-admission' || request.reason === FILL_REASON) && fillAllowed(existing, ctx.name1);
         const common = {
             transcript,
             userName: ctx.name1 || 'User',
@@ -67,6 +68,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
             memoryCriteria: settings.memoryCriteria,
             customFieldNames: effectiveCustomFieldNames(settings),
             fillLooks,
+            quoteFacts: request.reason === FILL_REASON,   // (NSD6: the fill-in of a stub quotes the story for each fact; no request has this reason until N7 queues it)
             ...targetNoteOptions(notes),
         };
         const prompt = refreshLike
@@ -168,8 +170,10 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
             },
             onError: error => {
                 noteScanFailure('dossier backfill', error, getChatKey());
+                if (request.reason === FILL_REASON) request.lastError = error?.jsonFailed ? 'json' : 'call';   // (fillPolicy: a call error gets one queue retry)
                 if (error?.code === 'NPC_SCANNER_ROUTE_CANCELLED' || error?.code === 'NPC_SCANNER_ROUTE_TIMEOUT') return null;
-                if (!request.silent || (isScannerRoutingError(error) && error.code !== 'NPC_SCANNER_ROUTE_CANCELLED')) globalThis.toastr?.warning?.(`NPC State Delta backfill failed for ${request.label}: ${error?.message || error}`);
+                // (a stub's fill-in tells the reader once, when the queue gives it up: fillFailureNote)
+                if (request.reason !== FILL_REASON && (!request.silent || (isScannerRoutingError(error) && error.code !== 'NPC_SCANNER_ROUTE_CANCELLED'))) globalThis.toastr?.warning?.(`NPC State Delta backfill failed for ${request.label}: ${error?.message || error}`);
                 return false;
             },
         });
@@ -187,7 +191,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
             if (!Array.isArray(state.pendingBackfills) || !state.pendingBackfills.length) break;
             // (ONEPASSCAPR2-3) Hosted one-pass: each new admission owns its queued fill, once (the admission cap bounds it); the per-reply cap still limits other repairs.
             const request = state.pendingBackfills.find(item => item?.npcId && !attemptedNpcIds.has(item.npcId)
-                && (calls < limit || (admissions && item.reason === 'new-admission')));
+                && (calls < limit || (admissions && fillPolicy(item).ownsCall)));
             if (!request) break;
             attemptedNpcIds.add(request.npcId);
             const savedCapture = replayScope() && captureJournalEntry(replayScope(), getContext().chat || [], request.requestedMessageId);
@@ -200,14 +204,15 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 continue;
             }
             const attempts = Math.max(0, Math.round(Number(request.attempts) || 0));
-            if (attempts >= BACKFILL_MAX_ATTEMPTS) {
+            const policy = fillPolicy(request, { max: BACKFILL_MAX_ATTEMPTS, cooldown: true });
+            if (attempts >= policy.max) {
                 state.pendingBackfills = state.pendingBackfills.filter(item => item.npcId !== request.npcId);
                 persist();
-                if (!request.silent) globalThis.toastr?.warning?.(`NPC State Delta: stopped automatic backfill retries for ${request.label} after ${BACKFILL_MAX_ATTEMPTS} failed attempts. The bare dossier is preserved; use Scan dossier to retry manually.`);
+                if (!request.silent) globalThis.toastr?.warning?.(request.reason === FILL_REASON ? fillFailureNote(request.label) : `NPC State Delta: stopped automatic backfill retries for ${request.label} after ${BACKFILL_MAX_ATTEMPTS} failed attempts. The bare dossier is preserved; use Scan dossier to retry manually.`);
                 continue;
             }
             const lastAttemptAt = Math.max(0, Number(request.lastAttemptAt || 0) || 0);
-            if (attempts > 0 && lastAttemptAt && Date.now() - lastAttemptAt < BACKFILL_RETRY_COOLDOWN_MS) continue;
+            if (policy.cooldown && attempts > 0 && lastAttemptAt && Date.now() - lastAttemptAt < BACKFILL_RETRY_COOLDOWN_MS) continue;
 
             calls += 1;
             const succeeded = await backfillNpcFromHistory(request, messageId, { automatic: true });
@@ -225,9 +230,10 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 if (queued) {
                     queued.attempts = attempts + 1;
                     queued.lastAttemptAt = Date.now();
-                    if (queued.attempts >= BACKFILL_MAX_ATTEMPTS) {
+                    if (request.lastError) queued.lastError = request.lastError;
+                    if (queued.attempts >= fillPolicy(queued, { max: BACKFILL_MAX_ATTEMPTS, cooldown: true }).max) {
                         latest.pendingBackfills = latest.pendingBackfills.filter(item => item.npcId !== request.npcId);
-                        if (!queued.silent) globalThis.toastr?.warning?.(`NPC State Delta: automatic backfill for ${queued.label} failed ${BACKFILL_MAX_ATTEMPTS} times and was removed from the retry queue. The dossier itself was not deleted.`);
+                        if (!queued.silent) globalThis.toastr?.warning?.(queued.reason === FILL_REASON ? fillFailureNote(queued.label) : `NPC State Delta: automatic backfill for ${queued.label} failed ${BACKFILL_MAX_ATTEMPTS} times and was removed from the retry queue. The dossier itself was not deleted.`);
                     }
                 }
                 persist();

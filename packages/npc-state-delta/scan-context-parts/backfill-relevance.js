@@ -21,7 +21,7 @@ export function backfillNeedsRequest(target, roster = []) {
 export function automaticBackfillStillRelevant(request, target, roster = [], owningExchange = '') {
     const normalized = normalizeAutomaticBackfillRequest(request);
     if (!normalized || !backfillNeedsRequest(target, roster)) return false;
-    if (normalized.reason === 'new-admission') return true;
+    if (normalized.reason === 'new-admission' || normalized.reason === 'new-person') return true;
     if (normalized.reason === 'missed-participant') {
         return npcParticipatesInExchange(target, roster, owningExchange, { includeRole: false });
     }

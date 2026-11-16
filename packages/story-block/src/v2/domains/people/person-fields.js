@@ -5,7 +5,7 @@ export const PERSON_FIELDS = new Set([
     'age', 'aliases', 'apparentAge', 'apparentAgeAnchor', 'appearance', 'appearanceForms', 'appearanceModelVersion', 'background', 'behaviorProfile',
     'birthDate', 'birthDateCalendarFingerprint', 'birthDateDisplay', 'birthDatePrecision', 'birthDateReason', 'birthDateSource',
     'birthDateSourceMessageId', 'birthDateYearSource', 'birthday', 'calendarAge', 'castFrom', 'createdAt', 'currentForm', 'currentFormUnknown',
-    'customFields', 'deathCorrection', 'fieldChangeDays', 'fieldChangeMessages', 'fieldChanges', 'followed', 'gender', 'goal', 'homeBase', 'id',
+    'customFields', 'deathCorrection', 'dossierReason', 'fieldChangeDays', 'fieldChangeMessages', 'fieldChanges', 'followed', 'gender', 'goal', 'homeBase', 'id',
     'identityKind', 'impactDay', 'keyRelationships', 'lastRelationshipChange', 'lastSeenTurn', 'lastWorldActiveTurn', 'lifeState',
     'lifeStateCertainty', 'lifeStateReason', 'location', 'lookGuess', 'mannerisms', 'manualMemories', 'manualProfileFields', 'manualProfileLocksExplicit',
     'memories', 'memoryFacts', 'memoryStamps', 'meterSetup', 'minor', 'mood', 'name', 'overallAppearance', 'personality',

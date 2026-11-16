@@ -267,6 +267,7 @@
     { "path": "src/scanner-request-parts/response-lengths.js", "role": "scanner-request-response-lengths", "required": true },
     { "path": "src/scanner-request-parts/retry.js", "role": "scanner-request-retry", "required": true },
     { "path": "src/scanner-request-parts/salvage.js", "role": "scanner-request-salvage", "required": true },
+    { "path": "src/npc-lines-parts/fill-in.js", "role": "npc-new-person-fill-in-rules", "required": true },
     { "path": "src/relationship-pass.js", "role": "focused-relationship-pass", "required": true },
     { "path": "src/relationship-pass-parts/apply.js", "role": "focused-relationship-pass-apply", "required": true },
     { "path": "src/relationship-pass-parts/run.js", "role": "focused-relationship-pass-run", "required": true },

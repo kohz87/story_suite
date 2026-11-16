@@ -3,11 +3,12 @@
 //   it keeps `bonds`. `people.bonds` (called by a module's own command inside the reply's transaction: NPC State's change lines, its scan's meter moves,
 //   the reader's meter edits): the per-person meters, stages and notes keyed by the same npc_ ids; it keeps everything else. Neither can overwrite the other.
 // `people.hash` hashes the stored slice; with { dossiers: true } it leaves out `bonds` and `scan` (what NPC State's cache holds), null when no dossier is stored.
-// The reader's narrow edits (people.edit, people.follow, people.portrait.set) are in ./edits.js; the read queries (people.list, .dossier, .ties, .secretOwners) in ./queries.js.
+// The story line's new person (people.stub) is in ./stub.js. The reader's narrow edits (people.edit, people.follow, people.portrait.set) are in ./edits.js; the read queries (people.list, .dossier, .ties, .secretOwners) in ./queries.js.
 
 import { hashJson } from '../../replay.js';
 import { isPeopleView, validatePeople } from './validate.js';
 import { peopleEdits } from './edits.js';
+import { peopleStub } from './stub.js';
 import { peopleQueries } from './queries.js';
 
 export const PEOPLE_DOMAIN = 'people';
@@ -75,6 +76,7 @@ export function createPeoplePart() {
                 },
             },
             ...peopleEdits(PEOPLE_DOMAIN),
+            ...peopleStub(PEOPLE_DOMAIN, { initial: initialPeople, validate: validatePeople }),
         },
         queries: {
             ...peopleQueries(PEOPLE_DOMAIN),

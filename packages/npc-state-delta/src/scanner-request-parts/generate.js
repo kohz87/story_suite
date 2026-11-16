@@ -57,6 +57,7 @@ export async function generateParsedNpcJson(ctx, {
                     ? `${label} received a text reply instead of JSON twice. The provider/model said: "${reply}" This usually means the provider blocked or refused the request, the request exceeded the model's context, or the selected connection profile is not using a chat model that follows JSON instructions.`
                     : `${label} returned malformed JSON twice; the model did not produce a valid dossier object. ${error?.message || error}`);
             wrapped.cause = error;
+            wrapped.jsonFailed = true;   // (the compact retry was already spent on this answer)
             throw wrapped;
         }
     };
