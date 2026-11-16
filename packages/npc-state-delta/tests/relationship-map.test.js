@@ -288,6 +288,7 @@ test('round 2 fix 5: a tie tag names the tie, the card says "Her ties" by gender
     assert.equal(tagWord(['rival', 'owes']), 'owes');
     assert.equal(tagWord(['ally', 'rival']), 'ally');
     assert.equal(tagWord(['kin', 'enemy']), 'enemy');
+    assert.equal(tagWord(['kin', 'serves']), 'serves');
     const npcs = [npc('rika', { keyRelationships: ['Temiwa: friend | saved her'], v2Meters: { ties: { temiwa: ['ally'] } } }), npc('temiwa')];
     const map = buildMapModel({ npcs, turn: 1 }, { selectedId: 'rika' });
     const tie = buildFocusModel({ npcs }, map, 'rika').ties[0];

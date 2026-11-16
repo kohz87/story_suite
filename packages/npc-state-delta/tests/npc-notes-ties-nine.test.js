@@ -62,6 +62,7 @@ test('relation text maps as before: partner, kin and mentor words give ally or n
     assert.equal(tieType('stranger', ['kin', 'enemy']), 'enemy');
     assert.equal(tieType('stranger', ['ally', 'rival']), 'ally', 'old-only lists pick as on main');
     assert.equal(tieType('stranger', ['rival', 'owes']), 'owes');
+    assert.equal(tieType('stranger', ['kin', 'serves']), 'serves', 'duty before close, as the tone reads it');
     assert.equal(tieType('stranger', ['ally', 'rival', 'owes']), 'owes');
     assert.equal(tieType('stranger', ['kin', 'rival']), 'rival');
     assert.equal(tieType('stranger', ['kin', 'owes']), 'owes');
