@@ -1,0 +1,260 @@
+{
+  "core": {
+    "callQueue": true,
+    "contextShare": 40,
+    "font": "nunito",
+    "glassStrength": 50,
+    "maxChangeLines": 150,
+    "panelStyle": "glass",
+    "sendPending": true,
+    "tailBudget": 1500,
+    "textSize": "100"
+  },
+  "modules": {
+    "npc-state-delta": {
+      "admissionMode": "conservative",
+      "autoArchiveDeaths": true,
+      "autoPruneStale": true,
+      "autoReactivateArchived": true,
+      "autoScan": true,
+      "behaviorCriteria": "IDENTITY DOMINANCE: First determine behavior from personality, values, morality, speech, mannerisms, goals, duties, current mood/status, independence, and other bonds. Only then let the player relationship make a secondary adjustment. Relationship scores are a tint on established behavior, never the character's main personality.\nRELATIONSHIP SCOPE: Scores modify how the NPC weighs and responds to the player only; they do not replace the person, make the player a universal priority, reduce kindness/empathy toward others, or need to surface in every scene.\nTrust: confidence, safety, reliance, and willingness to expose vulnerability. Trust can permit candor or reliance when context calls for it; it is not obedience.\nAffection: emotional importance, fondness, attachment, and care. Affection may bias attention, patience, interpretation, or willingness to accept some inconvenience through the NPC's established care style. It is not devotion, clinginess, jealousy, softness, or self-erasure.\nDesire: attraction or pull toward romantic/intimate/physical closeness when established. Desire does not prescribe flirting, blushing, stammering, possessiveness, sexual behavior, or constant romantic attention; expression passes through personality, expressiveness, consent, and context.\nTension: unresolved interpersonal pressure. It may be conflict, awkwardness, fear, rivalry, uncertainty, resentment, or charged restraint only when context supports that form. Never infer jealousy, embarrassment, hostility, or tsundere-style denial from tension alone.\nStrong feelings should usually alter small choices, interpretation, openness, attention, or willingness before altering voice or overt behavior. A duty-bound, reserved, kind, blunt, proud, or independent NPC remains recognizably so at every relationship score. Runtime narration receives only a compact qualitative relationship lens; raw meter numbers are bookkeeping, not characterization instructions.",
+      "branchRescan": true,
+      "changeCap": 15,
+      "conflictAt": 50,
+      "customFieldNames": [],
+      "customMeters": [],
+      "dataFiles": {},
+      "demoteAfter": 3,
+      "dossierStyle": "neutral",
+      "enabled": true,
+      "fullCastScanEveryTurn": false,
+      "fullScanEveryTurn": false,
+      "gateDays": 3,
+      "gateStrength": "normal",
+      "inject": true,
+      "injectBudgetTokens": 4000,
+      "injectDepth": 0,
+      "injectLimit": 3,
+      "ladder": [],
+      "launcherWithStoryBlock": false,
+      "launcherWithStoryBlockV2": false,
+      "layeredSecrets": true,
+      "maxNpcs": 40,
+      "memoryCriteria": "Store only durable, story-relevant events the NPC would reasonably recall in a later scene and that could affect future decisions, attitude, relationship, goals, obligations, fears, knowledge, or circumstances. Prefer concrete events such as promises, betrayals, rescues, confessions, consequential discoveries, major conflicts, meaningful gifts or favors, losses, or commitments. Do not store routine dialogue, ordinary transactions, repeated summaries of existing dossier facts, transient emotions, moment-to-moment NPC Inner Chatter, or trivial scene details. A memory should say what happened and why it matters in one short grounded sentence. Avoid duplicates or near-duplicates of memories already stored for that NPC.",
+      "memoryFacts": true,
+      "midDeleteRewind": false,
+      "narrationCapture": false,
+      "narrationCaptureCatchUp": 8,
+      "narrationCaptureCompact": false,
+      "portraitComposition": "solo character portrait, upper body, centered composition, face clearly visible, portrait orientation",
+      "portraitCustomPresetId": "custom-default",
+      "portraitCustomPresets": [
+        {
+          "composition": "solo character portrait, upper body, centered composition, face clearly visible, portrait orientation",
+          "id": "custom-default",
+          "name": "Custom 1",
+          "negative": "low quality, blurry, pixelated, bad anatomy, malformed hands, extra limbs, duplicate character, multiple heads, cropped face, obscured eyes, text, watermark, logo, photorealistic, 3d render",
+          "positive": "fantasy anime character illustration, refined clean linework, soft cel shading, detailed expressive eyes, elegant character design, cinematic soft lighting",
+          "promptFormat": "hybrid",
+          "useLocation": false,
+          "useMood": true
+        }
+      ],
+      "portraitGenerationEnabled": true,
+      "portraitPromptFormat": "hybrid",
+      "portraitSaveToGallery": false,
+      "portraitStyleNegative": "low quality, blurry, pixelated, bad anatomy, malformed hands, extra limbs, duplicate character, multiple heads, cropped face, obscured eyes, text, watermark, logo, photorealistic, 3d render",
+      "portraitStylePositive": "fantasy anime character illustration, refined clean linework, soft cel shading, detailed expressive eyes, elegant character design, cinematic soft lighting",
+      "portraitThemePreset": "fantasy_anime",
+      "portraitUseLocation": false,
+      "portraitUseMood": true,
+      "presentCastDisplay": "full",
+      "presentCastDisplayChosen": false,
+      "presets": [],
+      "recoveryFiles": {},
+      "recoveryGarbage": {},
+      "recoveryHistory": {},
+      "relationshipAllowance": {
+        "extreme": 1,
+        "major": 1,
+        "meaningful": 1,
+        "ordinary": 3
+      },
+      "relationshipBaseline": {
+        "affection": 0,
+        "desire": 0,
+        "tension": 0,
+        "trust": 0
+      },
+      "relationshipCaps": {
+        "extreme": 6,
+        "major": 3,
+        "meaningful": 2,
+        "ordinary": 1
+      },
+      "relationshipCriteria": "All relationship stats use a bipolar -100 to +100 scale with 0 as neutral. Positive and negative values are durable relationship states, not percentages or per-turn rewards. Score genuinely new directional evidence; do not replay the same event or its aftermath.\nLOW-BAND FAMILIARITY: while the CURRENT magnitude of an axis is below 25, a fresh mundane interaction may score ordinary +/-1 on ONE supported axis when it newly demonstrates relationship direction. Examples include voluntarily spending time together, a small personal favor, considerate treatment, keeping a small promise, mild rudeness, or a modest disagreement. A mere greeting, neutral transaction, repeated routine, or continuation of an already-scored beat is still 0. Ordinary evidence may reach 25, but cannot deepen beyond that boundary until a meaningful event unlocks the milestone.\nTrust: confidence, reliance, safety, and willingness to be vulnerable. Increase for newly demonstrated dependability, kept promises, protection, honest support, entrusted vulnerability, or comparable evidence. In the low band, a small newly demonstrated act of reliability may be ordinary +1. Decrease for betrayal, deception, abandonment, unreliability, violated confidence, or comparable distrust evidence. Trust is not obedience.\nAffection: fondness, attachment, warmth, and personal care. Increase for newly demonstrated kindness, chosen companionship, comfort, bonding, or comparable emotional attachment. In the low band, a fresh modest warm interaction may be ordinary +1. Decrease for supported dislike, resentment, cruelty, rejection, humiliation, neglect, or emotional injury. Affection is not devotion, clinginess, jealousy, or self-erasure.\nDesire: attraction or pull toward romantic/intimate/physical closeness. Positive Desire REQUIRES explicit attraction/romantic/intimate/physical evidence in the current exchange. Friendliness, gratitude, admiration, rescue, affection, proximity, repeated contact, or trust alone are never Desire evidence. Negative Desire means explicit aversion to that kind of closeness, not mere absence of attraction.\nTension: unresolved interpersonal pressure, conflict, fear, suspicion, awkward pressure, rivalry, resentment, or exceptional ease/release when negative. In the low band, a fresh modest friction/ease beat may be ordinary +/-1 when it actually changes interpersonal pressure; simple continuation is 0.\nRELATIONSHIP WEIGHT: the farther an established score is from 0, the harder it becomes to deepen further. New evidence accumulates fractionally behind the integer display. Near-extreme scores therefore require repeated fresh evidence even when each event is valid. Minor contrary evidence also meets some established-relationship resistance; major/extreme betrayal, reconciliation, or comparable turning points can overcome more of it.\nMost ordinary events affect zero or one axis. Meaningful events may affect two axes only with separate evidence. Major events may affect up to three; four axes are reserved for extreme events with distinct support for every moved axis. Every non-zero axis must carry its own grounded evidence.",
+      "relationshipImpactCriteria": "none: no NEW directional relationship evidence, insufficient evidence, repeated routine, or aftermath of an already-scored event; all deltas must be 0.\nordinary (a kind word, most moments): a fresh modest relationship-relevant beat. Maximum raw weight 1 on one axis. While the affected axis magnitude is below 25, mundane but directional interaction may qualify: chosen companionship, a small personal favor, minor reliability, modest kindness, mild disrespect, a small disagreement, or similar fresh evidence. Mere greetings, neutral transactions, automatic politeness, and repetition of the same established routine are none. Ordinary evidence may reach 25, but cannot deepen beyond it until the milestone is unlocked by meaningful evidence.\nmeaningful (a real favour, a shared secret): clearly new evidence with noticeable emotional weight. Maximum raw weight 2 per supported axis, at most two axes. This is the minimum tier that can unlock/cross 25.\nmajor (saved from danger, a betrayal): an important turning point with lasting consequences such as serious betrayal, costly rescue, explicit romantic advance/rejection, major reconciliation, or deep personal revelation. Maximum raw weight 3 per supported axis, at most three axes.\nextreme (a life-changing turning point, very rare): a rare relationship-defining event such as catastrophic betrayal, self-sacrifice, irreversible loss, or explicit decisive commitment. Maximum raw weight 6 per supported axis. Extreme is still raw evidence before score resistance, so a near-extreme relationship does not automatically jump six visible points.",
+      "relationshipMap": {
+        "defaultLens": "warmth",
+        "enabled": true
+      },
+      "scanDepth": 6,
+      "scanEvery": 5,
+      "scannerConnectionProfile": "",
+      "scannerMaxOutputTokens": 0,
+      "schemaVersion": 30,
+      "sidecarTombstones": {},
+      "socialCap": 5,
+      "socialScale": 100,
+      "sourceOfTruth": {
+        "calendar": "auto",
+        "npc": "auto",
+        "scene": "auto",
+        "stats": "auto"
+      },
+      "stages": [],
+      "staleArchiveAfter": 30,
+      "staleDeleteAfter": 50
+    },
+    "story-block": {
+      "assistClassifier": false,
+      "assistExtractor": false,
+      "assistExtractorKinds": "! time, ~ time, ~ place, + present, - present, ~ weather, ~ quest, - quest, ~ wound, - item",
+      "assistExtractorProfile": "",
+      "assistProfile": "",
+      "chatterInPrompt": false,
+      "chatterMax": 3,
+      "coinDisplay": "mixed",
+      "coins": [],
+      "currency": "gold",
+      "currencyPlural": "",
+      "currencyShort": "",
+      "economyScale": "0",
+      "rpgAutoCap": 3,
+      "rpgChecks": true,
+      "rpgLevelCap": 99,
+      "rpgPracticePerUse": 3,
+      "rpgPrecheck": true,
+      "rpgRolls": "automatic",
+      "rpgXpRate": 100
+    },
+    "story-director": {
+      "arc.autoAccept": false,
+      "arc.genre": "",
+      "arc.keepNote": false,
+      "arc.lowThreads": 3,
+      "arc.maxTokens": 1500,
+      "arc.note": "",
+      "arc.profile": "",
+      "arc.prompt": "",
+      "arc.recent": 40,
+      "arc.stallDays": 7,
+      "arc.trigger": "manual",
+      "atlas.map.east": "right",
+      "atlas.map.era": "pre-modern",
+      "atlas.map.kmPerUnit": "1",
+      "atlas.map.north": "up",
+      "atlas.map.roadFactor": "1.25",
+      "cast.faces": "day1",
+      "cast.on": true,
+      "cast.profile": "",
+      "cast.unmetDie": false,
+      "checks.costMargin": 2,
+      "checks.defaultDc": 15,
+      "checks.social": true,
+      "chronicle.digestDays": 14,
+      "chronicle.digestKeep": 120,
+      "chronicle.digestTail": true,
+      "keypeople.cap": 10,
+      "keypeople.tokens": 300,
+      "names.banned": "",
+      "names.suggestions": 3,
+      "pulse.invents": true,
+      "pulse.mode": "lively",
+      "pulse.showUnderReply": false,
+      "screens.hideBehind": true,
+      "time.lapses": true,
+      "time.recapHours": 6,
+      "tracker.calendar.daysPerMonth": 30,
+      "tracker.calendar.era": "",
+      "tracker.calendar.leapYears": true,
+      "tracker.calendar.months": [
+        {
+          "days": 31,
+          "name": "January"
+        },
+        {
+          "days": 28,
+          "name": "February"
+        },
+        {
+          "days": 31,
+          "name": "March"
+        },
+        {
+          "days": 30,
+          "name": "April"
+        },
+        {
+          "days": 31,
+          "name": "May"
+        },
+        {
+          "days": 30,
+          "name": "June"
+        },
+        {
+          "days": 31,
+          "name": "July"
+        },
+        {
+          "days": 31,
+          "name": "August"
+        },
+        {
+          "days": 30,
+          "name": "September"
+        },
+        {
+          "days": 31,
+          "name": "October"
+        },
+        {
+          "days": 30,
+          "name": "November"
+        },
+        {
+          "days": 31,
+          "name": "December"
+        }
+      ],
+      "tracker.calendar.partsOfDay": {
+        "afternoon": 900,
+        "dawn": 360,
+        "daybreak": 360,
+        "dusk": 1140,
+        "evening": 1140,
+        "midnight": 0,
+        "morning": 540,
+        "night": 1320,
+        "noon": 720,
+        "sundown": 1140,
+        "sunrise": 360,
+        "sunset": 1140
+      },
+      "tracker.calendar.preset": "pack",
+      "tracker.calendar.week": "",
+      "tracker.dormantDays": 30,
+      "tracker.dormantReplies": 15,
+      "tracker.dueSoonDays": 3,
+      "tracker.elsewhere": 2,
+      "tracker.initiativeCooldown": 2,
+      "tracker.maxJump": 30,
+      "world.upcomingDays": 30
+    }
+  },
+  "schema": 1,
+  "ui": {
+    "next": false
+  }
+}
