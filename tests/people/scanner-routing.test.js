@@ -31,7 +31,6 @@ const code = expected => error => error?.code === expected;
 
 test('default uses unchanged generateRaw options exactly once and creates no settings', async () => {
     const { ctx, calls } = fixture();
-    delete ctx.extensionSettings.storySuite.modules['npc-state-delta'];
     const before = structuredClone(ctx.extensionSettings);
     assert.equal(await dispatchScannerRequest(ctx, payload), '{"npcs":[]}');
     assert.equal(calls.host.length, 1);

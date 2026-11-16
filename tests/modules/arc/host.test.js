@@ -43,7 +43,7 @@ async function setUp({ script = [PLAN], rpg = false, settings = {}, hostSettings
     host = await createHost({
         callModel: model,
         modules: [...(rpg ? [fakeFightRunner()] : []), module],
-        settings: { ...(hostSettings ? { host: hostSettings } : {}), modules: { 'story-director': settings } },
+        settings: { ...(hostSettings ? { core: hostSettings } : {}), modules: { 'story-director': settings } },
     });
     const store = browserStore(null);
     let chatId = 'chat-1';
