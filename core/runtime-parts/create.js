@@ -11,6 +11,8 @@ import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, p
 import { readRecord } from '../persist.js';
 import { createRegistry } from '../registry.js';
 import { MAX_CHANGE_LINES, announceModules, createEvents, createSdk, createSettings, runQuery } from '../sdk.js';
+import { HOST_SETTINGS_DEFAULTS } from '../sdk/constants.js';
+import { loadSettings } from '../settings/load.js';
 import { displayLines } from '../../ui/legacy/extras.js';
 import { DEFAULT_HIDDEN } from '../../ui/legacy/view/screens.js';
 import { SCENE_SCREEN_ID } from '../../ui/legacy/screens/scene.js';
@@ -173,6 +175,8 @@ export function createRuntime({
         }));
     }
     for (const def of modules) registry.register(def);
+    // The one settings tree (B3 F3): an old-shaped one moves to storySuite_legacy, the defaults go in.
+    loadSettings({ root: () => ctx.extensionSettings, registry, coreDefaults: HOST_SETTINGS_DEFAULTS, save: () => ctx.saveSettingsDebounced?.() });
 
     // A replay that moves counts (a reply before them deleted) checks the domains it moved (B3-8).
     const validate = (state, names) => names.flatMap(name => {

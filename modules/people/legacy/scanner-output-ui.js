@@ -1,20 +1,17 @@
 /* NPC State Delta scanner-output setting. */
 import { extension_settings, getContext } from '../../../extensions.js';
+import { npcBucket } from '../settings/bucket.js';
 import {
     normalizeScannerMaxOutputTokens,
     SCANNER_MAX_OUTPUT_TOKENS_MAX,
 } from '../calls/scanner-routing.js';
 
-const EXTENSION_NAME = 'npc_state_delta';
 const SETTINGS_ID = 'npc_state_delta_settings';
 const CONTROL_ID = 'npc_state_delta_scanner_max_output_tokens';
 const GUARD = '__npcStateDeltaScannerOutputUi';
 
 function settings() {
-    if (!extension_settings[EXTENSION_NAME] || typeof extension_settings[EXTENSION_NAME] !== 'object') {
-        extension_settings[EXTENSION_NAME] = {};
-    }
-    return extension_settings[EXTENSION_NAME];
+    return npcBucket(extension_settings, { create: true });
 }
 
 function persistSettings() {

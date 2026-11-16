@@ -18,7 +18,7 @@ const tailText = host => (host.st.promptLog.filter(entry => entry.key === 'story
 
 for (const tailBudget of [1500, 8]) {
     test(`a hook line { text, keep: true } stays at tailBudget ${tailBudget}; a plain one is dropped when the budget is small`, async () => {
-        const host = await createHost({ modules: [cueModule([PLAIN, { text: KEPT, keep: true }, { text: 'object without keep', keep: false }, { nope: 1 }, null])], settings: { host: { tailBudget } } });
+        const host = await createHost({ modules: [cueModule([PLAIN, { text: KEPT, keep: true }, { text: 'object without keep', keep: false }, { nope: 1 }, null])], settings: { core: { tailBudget } } });
         try {
             await host.send('Hello.', 'Hi.');
             const tail = tailText(host);
@@ -46,7 +46,7 @@ test('an ordinary string line from a hook still works as before', async () => {
 test('a module keeps at most KEPT_LINES_MAX lines and KEPT_CHARS_MAX characters; the rest are ordinary lines the budget may drop', async () => {
     const { KEPT_LINES_MAX, KEPT_CHARS_MAX } = await import('../../core/turn/prompt-build.js');
     const many = Array.from({ length: 60 }, (_, i) => ({ text: `[Test] kept line ${i} ${'x'.repeat(500)}`, keep: true }));
-    const host = await createHost({ modules: [cueModule(many)], settings: { host: { tailBudget: 50 } } });
+    const host = await createHost({ modules: [cueModule(many)], settings: { core: { tailBudget: 50 } } });
     try {
         await host.send('Hello.', 'Hi.');
         const tail = tailText(host);
@@ -68,7 +68,7 @@ const tailModule = (id, lines, extra = {}) => ({
     ...extra,
 });
 const tailWith = async (modules, tailBudget) => {
-    const host = await createHost({ modules, settings: { host: { tailBudget } } });
+    const host = await createHost({ modules, settings: { core: { tailBudget } } });
     try {
         await host.send('Hello.', 'Hi.');
         assert.deepEqual(host.store.problems(), []);

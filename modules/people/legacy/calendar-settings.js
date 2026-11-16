@@ -1,5 +1,6 @@
 /* NPC State Delta fantasy-calendar settings adapter over the canonical Delta settings object. */
 import { extension_settings, getContext } from '../../../extensions.js';
+import { npcBucket } from '../settings/bucket.js';
 import {
     monthDefinitionsText,
     normalizeCalendarConfig,
@@ -8,18 +9,13 @@ import {
 } from './calendar.js';
 import { escapeHtml } from '../util/html.js';
 
-const EXTENSION_NAME = 'npc_state_delta';
 const ROOT_ID = 'npc_state_delta_calendar_settings';
 const SETTINGS_ID = 'npc_state_delta_settings';
 let observer = null;
 
 
 function settingsObject({ create = false } = {}) {
-    const current = extension_settings[EXTENSION_NAME];
-    if (current && typeof current === 'object') return current;
-    if (!create) return null;
-    extension_settings[EXTENSION_NAME] = {};
-    return extension_settings[EXTENSION_NAME];
+    return npcBucket(extension_settings, { create });
 }
 
 function persistedCalendar() {

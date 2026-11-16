@@ -11,7 +11,7 @@ const defaults = () => assembleDefaults({
 test('moves an old-shaped storySuite object whole to storySuite_legacy and builds defaults', () => {
     const old = {
         modules: { 'story-block': { currency: 'silver', chatterMax: 8 } },
-        host: { tailBudget: 9999 },
+        core: { tailBudget: 9999 },
         ui: { next: true },
         features: { 'story-block.rpg': true },
     };

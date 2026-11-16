@@ -48,7 +48,7 @@ test('changes are stored under extension_settings.storySuite.modules[id], ints k
     title.value = 'Wanderer';
     change(title);
     assert.deepEqual(es.storySuite.modules['rpg-battle'], { hardMode: true, level: 30, pace: 'fast', title: 'Wanderer' });
-    assert.deepEqual(es.storySuite.host ?? {}, {}, 'the host\'s own settings are not drawn here');
+    assert.deepEqual(es.storySuite.core ?? {}, {}, 'the core settings are not drawn here');
     assert.equal(saves(), 4);
 });
 

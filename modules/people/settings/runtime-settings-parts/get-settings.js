@@ -1,6 +1,7 @@
 // getSettings: fills in and canonicalizes the stored settings, saving once when anything changed.
 
 import { extension_settings } from '../../../../extensions.js';
+import { npcBucket } from '../bucket.js';
 import { normalizeScannerMaxOutputTokens } from '../../calls/scanner-routing.js';
 import { normalizeRelationshipMapSettings } from '../../legacy/relationship-map-core.js';
 import { normalizeDossierSkin } from '../../legacy/dossier-skin.js';
@@ -11,14 +12,15 @@ import { PORTRAIT_THEME_PRESETS } from './portrait-preset-constants.js';
 import { portraitCustomPresetLibrary } from './portrait-preset-library.js';
 import { DEFAULTS } from './defaults.js';
 import { persistSettings } from './save.js';
-import { EXTENSION_NAME, injectDepthOf, normalizePresentCastDisplay } from './settings-values.js';
+import { injectDepthOf, normalizePresentCastDisplay } from './settings-values.js';
 
 export function getSettings() {
-    let settings = extension_settings[EXTENSION_NAME];
+    let settings = npcBucket(extension_settings);
     let dirty = false;
-    if (!settings || typeof settings !== 'object') {
+    // (an empty bucket is a new one: the sdk's settings may have made it before the first read)
+    if (!settings || !Object.keys(settings).length) {
         settings = structuredClone(DEFAULTS);
-        extension_settings[EXTENSION_NAME] = settings;
+        settings = Object.assign(npcBucket(extension_settings, { create: true }), settings);
         dirty = true;
     }
 

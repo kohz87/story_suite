@@ -1,8 +1,8 @@
 /* NPC State Delta optional full-cast scanning owner. */
 import { extension_settings, getContext } from '../../../extensions.js';
+import { npcBucket } from '../settings/bucket.js';
 import { npcParticipatesInExchange } from '../calls/scan-context.js';
 
-const EXTENSION_NAME = 'npc_state_delta';
 const FULL_CAST_KEY = 'fullCastScanEveryTurn';
 const CONTROL_ID = 'npc_state_delta_full_cast_scan';
 const SCAN_BUTTON_ID = 'npc_state_delta_full_cast_scan_now';
@@ -14,7 +14,7 @@ let userSnapshotChatKey = '';
 
 const api = () => globalThis.NPCStateDelta || null;
 // The setting's default and normalization live in index.js getSettings (the settings owner).
-const cfg = () => (extension_settings[EXTENSION_NAME] ||= {});
+const cfg = () => npcBucket(extension_settings, { create: true });
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function saveSettings() {

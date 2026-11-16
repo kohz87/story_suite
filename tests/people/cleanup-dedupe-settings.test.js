@@ -44,7 +44,7 @@ test('dead code is gone', () => {
 
 test('the settings owner declares the settings other modules keep controls for, and the dossier NPC limit has one', () => {
     runEditorHostScenario('settings-owner', async () => {
-        const settings = () => mockState.extensionSettings.npc_state_delta;
+        const settings = () => mockState.extensionSettings.storySuite.modules['npc-state-delta'];
         assert.equal(settings().fullCastScanEveryTurn, false);
         assert.equal(settings().scannerMaxOutputTokens, 0);
         assert.deepEqual(settings().relationshipMap, { enabled: true, defaultLens: 'warmth' });

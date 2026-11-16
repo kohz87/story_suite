@@ -167,7 +167,7 @@ test('hosted: the scan that builds a dossier also writes 2 to 5 layered notes, o
         await sleep(300);
         const after = api.getState().npcs.find(npc => npc.name === 'Yunyun')?.secrets ?? [];
         // Switched off: a new person gets none.
-        mockState.extensionSettings.npc_state_delta.layeredSecrets = false;
+        mockState.extensionSettings.storySuite.modules['npc-state-delta'].layeredSecrets = false;
         mockState.quietResponder = async options => {
             { const text = String(options?.prompt ?? ''); if (text.startsWith('Private NPC dossier scanner.')) prompts.push(text); }
             return JSON.stringify({ npcs: [row('Aqua', { secrets: [layer(1)] })] });

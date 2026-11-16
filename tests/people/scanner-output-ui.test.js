@@ -15,7 +15,7 @@ function fixture(profileId = '') {
     const profiles = [{ id: 'fast', name: 'Fast' }];
     const ctx = {
         extensionSettings: {
-            npc_state_delta: { scannerConnectionProfile: profileId, scannerMaxOutputTokens: 0 },
+            storySuite: { schema: 1, modules: { 'npc-state-delta': { scannerConnectionProfile: profileId, scannerMaxOutputTokens: 0 } } },
             connectionManager: { profiles },
             disabledExtensions: [],
         },
@@ -40,14 +40,14 @@ test('scanner output setting normalizes disabled, bounded, and oversized values'
 
 test('configured scanner output setting remains separate from the roleplay connection', () => {
     const { ctx } = fixture('fast');
-    ctx.extensionSettings.npc_state_delta.scannerMaxOutputTokens = 12000;
+    ctx.extensionSettings.storySuite.modules['npc-state-delta'].scannerMaxOutputTokens = 12000;
     assert.equal(configuredScannerMaxOutputTokens(ctx), 12000);
     assert.equal(ctx.extensionSettings.connectionManager.selectedProfile, undefined);
 });
 
 test('default scanner route applies the configured maximum only to scanner request options', async () => {
     const { ctx, calls } = fixture('');
-    ctx.extensionSettings.npc_state_delta.scannerMaxOutputTokens = 7000;
+    ctx.extensionSettings.storySuite.modules['npc-state-delta'].scannerMaxOutputTokens = 7000;
     const payload = { prompt: 'scan', responseLength: 1800 };
     await dispatchScannerRequest(ctx, payload, { route: { profileId: '' } });
     assert.equal(calls.host.length, 1);
@@ -57,10 +57,10 @@ test('default scanner route applies the configured maximum only to scanner reque
 
 test('profile scanner route applies and pins the configured maximum across later calls', async () => {
     const { ctx, calls } = fixture('fast');
-    ctx.extensionSettings.npc_state_delta.scannerMaxOutputTokens = 9000;
+    ctx.extensionSettings.storySuite.modules['npc-state-delta'].scannerMaxOutputTokens = 9000;
     const route = { profileId: 'fast' };
     await dispatchScannerRequest(ctx, { prompt: 'scan', responseLength: 1800 }, { route });
-    ctx.extensionSettings.npc_state_delta.scannerMaxOutputTokens = 3000;
+    ctx.extensionSettings.storySuite.modules['npc-state-delta'].scannerMaxOutputTokens = 3000;
     await dispatchScannerRequest(ctx, { prompt: 'retry', responseLength: 5200 }, { route });
     assert.equal(calls.profile.length, 2);
     assert.deepEqual(calls.profile.map(call => call[2]), [9000, 9000]);
@@ -69,7 +69,7 @@ test('profile scanner route applies and pins the configured maximum across later
 
 test('zero scanner output setting preserves built-in request lengths', async () => {
     const { ctx, calls } = fixture('fast');
-    ctx.extensionSettings.npc_state_delta.scannerMaxOutputTokens = 0;
+    ctx.extensionSettings.storySuite.modules['npc-state-delta'].scannerMaxOutputTokens = 0;
     await dispatchScannerRequest(ctx, { prompt: 'relationship', responseLength: 900 }, { route: { profileId: 'fast' } });
     assert.equal(calls.profile[0][2], 900);
 });

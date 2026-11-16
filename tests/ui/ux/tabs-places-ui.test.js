@@ -85,7 +85,7 @@ test('choosing a place moves the screen in the bar at once, is stored with the r
 
 test('the Story panel\'s strip follows the choice, and a saved choice from before (order, hidden) works with the new default places', async t => {
     t.mock.method(console, 'warn', () => {});
-    const { doc, ui } = await setup({ storySuite: { tabs: { order: ['example-module/director', 'example-module/world'], hidden: ['notes/b'] } } });
+    const { doc, ui } = await setup({ storySuite: { schema: 1, tabs: { order: ['example-module/director', 'example-module/world'], hidden: ['notes/b'] } } });
     ui.openPanel();
     const strip = () => doc.querySelectorAll('.story-suite-tab').map(node => node.getAttribute('data-tab-id'));
     const slots = () => doc.querySelectorAll('.story-suite-sheet-bar .ss-screenbar-item').filter(node => !node.classList.contains('ss-screenbar-more')).map(node => node.getAttribute('data-tab-id'));

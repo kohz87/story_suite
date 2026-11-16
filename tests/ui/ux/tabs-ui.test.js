@@ -158,7 +158,7 @@ test('Shown: a hidden tab leaves the strip and the game view, stays in Settings,
 
 test('Reset to default: the default order, everything shown, nothing stored', async t => {
     t.mock.method(console, 'warn', () => {});
-    const { doc, st, ui } = await setup(ALL_MODULES, { storySuite: { tabs: { order: ['story-director/director', 'rpg-battle/trade'], hidden: ['story-block/scene'], inBar: ['story-director/director', 'rpg-battle/trade'] } } });
+    const { doc, st, ui } = await setup(ALL_MODULES, { storySuite: { schema: 1, tabs: { order: ['story-director/director', 'rpg-battle/trade'], hidden: ['story-block/scene'], inBar: ['story-director/director', 'rpg-battle/trade'] } } });
     ui.openPanel();
     assert.deepEqual(stripIds(doc).slice(0, 2), ['Director', 'Trade'], 'a saved order is read at start (these two are in the bar, so they are its first slots)');
     assert.ok(!stripIds(doc).includes('Scene'));
@@ -177,14 +177,14 @@ test('Dossiers is last by default; an order saved when it was Cast, in its old p
     // The whole default order of the beta, Cast before Scene, as Settings → Tabs saved it after one move.
     const old = ['rpg-battle/party', 'story-block/inventory', 'story-director/quests', 'story-director/world', 'story-director/map',
         'rpg-battle/fight', 'rpg-battle/crafting', 'rpg-battle/trade', 'npc-state-delta/cast', 'story-block/scene', 'story-director/chronicle', 'story-director/director'];
-    const { doc, st, ui } = await setup(ALL_MODULES, { storySuite: { tabs: { order: old } } });
+    const { doc, st, ui } = await setup(ALL_MODULES, { storySuite: { schema: 1, tabs: { order: old } } });
     ui.openPanel();
     assert.deepEqual(stripIds(doc), ['Party', 'Inventory', 'Quests', 'World', 'Map', 'Fight', 'Crafting', 'Trade', 'Dossiers', 'Scene', 'Chronicle', 'Director'],
         'the saved place wins, under its new name');
     assert.deepEqual(saved(st).order, old, 'nothing is rewritten');
     ui.destroy();
     // A shorter saved order that does not name it: Dossiers follows in default order, i.e. at the end.
-    const short = await setup(ALL_MODULES, { storySuite: { tabs: { order: ['story-director/director', 'rpg-battle/trade'] } } });
+    const short = await setup(ALL_MODULES, { storySuite: { schema: 1, tabs: { order: ['story-director/director', 'rpg-battle/trade'] } } });
     short.ui.openPanel();
     assert.equal(stripIds(short.doc).at(-1), 'Dossiers');
 });
@@ -220,11 +220,11 @@ test('Scene is hidden by default with Story Director\'s World; shown without it;
     assert.ok(stripIds(alone.doc).includes('Scene'));
     alone.ui.destroy();
     // A saved order that shows Scene (from before, when it was in view): it stays; a saved hidden still hides it.
-    const old = await setup(ALL_MODULES, { storySuite: { tabs: { order: ['story-block/scene', 'rpg-battle/party'], hidden: [], inBar: ['story-block/scene'] } } });
+    const old = await setup(ALL_MODULES, { storySuite: { schema: 1, tabs: { order: ['story-block/scene', 'rpg-battle/party'], hidden: [], inBar: ['story-block/scene'] } } });
     old.ui.openPanel();
     assert.equal(stripIds(old.doc)[0], 'Scene');
     old.ui.destroy();
-    const hid = await setup(['rpg-battle', 'npc-state-delta'], { storySuite: { tabs: { order: [], hidden: ['story-block/scene'] } } });
+    const hid = await setup(['rpg-battle', 'npc-state-delta'], { storySuite: { schema: 1, tabs: { order: [], hidden: ['story-block/scene'] } } });
     hid.ui.openPanel();
     assert.ok(!stripIds(hid.doc).includes('Scene'), 'hidden by the reader, also without Story Director');
 });
@@ -248,7 +248,7 @@ test('any subset of modules; ids of modules not installed are ignored and kept; 
         ui.destroy();
     }
     // A saved order naming Fight and Party, with RPG Battle not installed: passed over, kept in the file.
-    const { doc, st, ui, runtime } = await setup(['story-director'], { storySuite: { tabs: { order: ['rpg-battle/fight', 'story-director/map', 'rpg-battle/party', 'story-block/scene'] } } });
+    const { doc, st, ui, runtime } = await setup(['story-director'], { storySuite: { schema: 1, tabs: { order: ['rpg-battle/fight', 'story-director/map', 'rpg-battle/party', 'story-block/scene'] } } });
     ui.openSettings({ fold: TABS_FOLD });
     assert.deepEqual(rowIds(doc).slice(0, 3), ['story-block/home', 'story-director/map', 'story-block/scene']);
     row(doc, 'story-block/scene').querySelector('.ss-tabrow-up').click();
