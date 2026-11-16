@@ -106,8 +106,22 @@ test('the cli reads the allow-list file and passes it on', async () => {
   const list = path.join(tmp(), 'allow.txt');
   fs.writeFileSync(list, '# shrink only\npkg/src/ui/dyn.js\n');
   const rules = path.join(import.meta.dirname, '../../../scripts/codemod/layout');
+  const args = ['apply', '--area', 'rpg', '--dry', '--root', root, '--rules', rules];
+  const without = streams();
+  assert.equal(await main(args, without), 1);
+  assert.match(without.stdout.text, /non-literal \(not allow-listed\) \(1\)/);
+  const withList = streams();
+  assert.equal(await main([...args, '--allow-non-literal', list], withList), 0, withList.stderr.text);
+  assert.match(withList.stdout.text, /allow-listed files: 1/);
+});
+
+test('verify runs the code map check by default and --no-codemap skips it; apply skips it unless --codemap', () => {
+  const root = toyRepo({ ...TOY, 'scripts/codemap/cli.mjs': "console.log('stale map'); process.exit(1);\n" });
+  const base = git(root, 'rev-parse', 'HEAD').trim();
   const io = streams();
-  const code = await main(['apply', '--area', 'rpg', '--dry', '--root', root, '--rules', rules, '--allow-non-literal', list], io);
-  assert.notEqual(code, 2, io.stderr.text);
-  assert.doesNotMatch(io.stderr.text, /allow-list/);
+  assert.equal(runApply(root, [SET_A, SET_B], 'a', { dry: false, ...io }), 0, io.stderr.text);
+  const checked = streams();
+  assert.equal(runVerify(root, [SET_A, SET_B], 'a', { base, ...checked }), 1);
+  assert.match(checked.stderr.text, /codemap check failed: stale map/);
+  assert.equal(runVerify(root, [SET_A, SET_B], 'a', { base, codemap: false, ...streams() }), 0);
 });

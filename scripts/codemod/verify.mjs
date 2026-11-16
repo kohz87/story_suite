@@ -5,7 +5,7 @@ import path from 'node:path';
 import { buildPlan, makeMapper, trackedFiles } from './plan.mjs';
 import { areaMapper, planForArea } from './area.mjs';
 import { flatten, quotedValues } from './quoted.mjs';
-import { rewriteStrings } from './rewrite-strings.mjs';
+import { PACKAGE_BASED, rewriteStrings } from './rewrite-strings.mjs';
 import { resolveSpecifier, scanSpecifiers } from './specifiers.mjs';
 
 /**
@@ -61,8 +61,8 @@ function isMappedPath(oldValue, newValue, oldFile, newFile, ctx) {
   if (/^\.{1,2}\/?$/.test(oldValue) || /^\.{1,2}\/?$/.test(newValue)) return false;
   const relative = value => /^\.{1,2}(\/|$)/.test(value);
   const pkg = /^packages\/[^/]+/.exec(oldFile)?.[0];
-  if (pkg && !relative(oldValue) && relative(newValue)) {
-    // A package-relative string that now climbs out of the package it is still read against.
+  if (pkg && PACKAGE_BASED.test(oldFile) && !relative(oldValue) && relative(newValue)) {
+    // A package-relative string in a PACKAGE_BASED file that now climbs out of the package it is still read against.
     const a = pathPart(oldValue);
     const b = pathPart(newValue);
     return a.tail === b.tail && Boolean(a.bare) && ctx.mapper.map(path.posix.join(pkg, a.bare)) === path.posix.normalize(path.posix.join(pkg, b.bare));

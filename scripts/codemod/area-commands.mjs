@@ -92,9 +92,9 @@ export function runApply(root, ruleSets, area, { dry, backupDir, allowNonLiteral
 /**
  * `verify --area <a> [--base <ref>] [--moves <ref>] [--rewrites <ref>]`: checks the tree after an apply. `base` is the
  * commit before the move commit (default HEAD~2), `moves` the move commit (HEAD~1) and `rewrites` the rewrite commit
- * (HEAD); name them when a fix-up commit follows the rewrite commit.
+ * (HEAD); name them when a fix-up commit follows the rewrite commit. The code map check runs unless `codemap` is false.
  */
-export function runVerify(root, ruleSets, area, { base = 'HEAD~2', moves = 'HEAD~1', rewrites = 'HEAD', codemap = false, known = [], stdout, stderr }) {
+export function runVerify(root, ruleSets, area, { base = 'HEAD~2', moves = 'HEAD~1', rewrites = 'HEAD', codemap = true, known = [], stdout, stderr }) {
   try {
     const checked = verifyApplied(root, ruleSets, area, base, { codemap, moves, head: rewrites });
     listData(stdout, checked.dataFiles);

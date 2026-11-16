@@ -75,7 +75,7 @@ function packageRoot(file) {
 
 // Files that read their package-relative strings against their own package folder, which stays where it is when they move.
 // For these a string may climb out of the package ("../../core/store.js"); for any other file it is listed as stale.
-const PACKAGE_BASED = /^packages\/story-block\/(?:scripts\/fuzz-replay-parts\/run\.js|tests\/helpers\/split-source\.js|tests\/v2\/(?:replay-guard-problem|selection-fallback|timeline-(?:boundaries|followups|release|restore-binding|selection))\.test\.js)$/;
+export const PACKAGE_BASED = /^packages\/story-block\/(?:scripts\/fuzz-replay-parts\/run\.js|tests\/helpers\/split-source\.js|tests\/v2\/(?:replay-guard-problem|selection-fallback|timeline-(?:boundaries|followups|release|restore-binding|selection))\.test\.js)$/;
 
 // A string that is only dots and slashes ('.', '..', './', '../') is a separator or a bare folder name, never a file reference.
 const BARE_DOTS = /^\.{1,2}\/?$/;

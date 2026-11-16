@@ -1,5 +1,6 @@
 # Files with a non-literal import()/new URL specifier that the layout tool cannot rewrite (core area run).
-# Shrink only: never add a line; M1 fixes the file or the specifier and removes its line.
+# Shrink only: a line goes when M1 fixes the file or the specifier. Lines are added only by the run of the area that first
+# lists them (core's are the lines below); never to cover a problem a later change causes.
 packages/npc-state-delta/scripts/measure-stage9.mjs
 packages/npc-state-delta/tests/b7-capture-rerender.test.js
 packages/npc-state-delta/tests/cleanup-dedupe-settings.test.js

@@ -30,16 +30,29 @@ test('any other file that leaves its package lists the string as stale and leave
   assert.deepEqual(out.stale, ['src/v2/store.js']);
 });
 
-test('verifyDiff accepts a package string that climbs to the mapped place and flags one that climbs elsewhere', () => {
-  const root = toyRepo({
-    'packages/story-block/src/v2/store.js': 'export const s = 1;\n',
-    'packages/story-block/tests/other/x.js': "export const f = 'src/v2/store.js';\n",
-  });
+const PKG_FILES = {
+  'packages/story-block/src/v2/store.js': 'export const s = 1;\n',
+  'packages/story-block/tests/other/x.js': "export const f = 'src/v2/store.js';\n",
+  'packages/story-block/tests/helpers/split-source.js': "export const f = 'src/v2/store.js';\n",
+};
+
+// Applies the rules, then commits `text` over the moved file as a hand edit and returns verify's mapped-path problems.
+function editedProblems(moved, text) {
+  const root = toyRepo(PKG_FILES);
   const base = git(root, 'rev-parse', 'HEAD').trim();
   applyLayout(root, [rules], { commits: { moves: 'm', rewrites: 'r' } });
-  const edit = text => { fs.writeFileSync(path.join(root, 'tests/other/x.js'), text); git(root, 'add', '-A'); git(root, 'commit', '-q', '-m', 'edit'); };
-  edit("export const f = '../../core/store.js';\n");
-  assert.deepEqual(verifyDiff(root, base, 'HEAD~2', 'HEAD', [rules]).problems.filter(line => /mapped path|content line/.test(line)), []);
-  edit("export const f = '../../core/elsewhere.js';\n");
-  assert.ok(verifyDiff(root, base, 'HEAD~3', 'HEAD', [rules]).problems.some(line => line.includes('not a mapped path')));
+  fs.writeFileSync(path.join(root, moved), text);
+  git(root, 'add', '-A');
+  git(root, 'commit', '-q', '--allow-empty', '-m', 'edit');
+  return verifyDiff(root, base, 'HEAD~2', 'HEAD', [rules]).problems.filter(line => line.startsWith(moved) && /mapped path|content line/.test(line));
+}
+
+test('verifyDiff accepts a listed file\'s package string that climbs to the mapped place and flags one that climbs elsewhere', () => {
+  const file = 'tests/helpers/split-source.js';
+  assert.deepEqual(editedProblems(file, "export const f = '../../core/store.js';\n"), []);
+  assert.equal(editedProblems(file, "export const f = '../../core/elsewhere.js';\n").length, 1);
+});
+
+test('verifyDiff flags the same climb in a file the rewriter does not treat as package-based', () => {
+  assert.equal(editedProblems('tests/other/x.js', "export const f = '../../core/store.js';\n").length, 1);
 });

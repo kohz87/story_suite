@@ -63,10 +63,10 @@ export function planLayout(files, ruleSets) {
 function usage(stream) {
   stream.write('usage: node scripts/codemod/cli.mjs plan --area <area> | --all [--root <dir>] [--rules <dir>] [--known <file>]\n'
     + '       node scripts/codemod/cli.mjs apply --area <area> [--dry] [--backup <dir>] [--allow-non-literal <file>] [--known <file>] [--codemap]\n'
-    + '       node scripts/codemod/cli.mjs verify --area <area> [--base <ref>] [--moves <ref>] [--rewrites <ref>] [--codemap] [--known <file>]\n'
+    + '       node scripts/codemod/cli.mjs verify --area <area> [--base <ref>] [--moves <ref>] [--rewrites <ref>] [--no-codemap] [--known <file>]\n'
     + '       node scripts/codemod/cli.mjs port-branch <branch> --area <area> [--main <ref>] [--backup <dir>] [--allow-non-literal <file>]\n'
     + '--allow-non-literal: one path per line (# comments); default docs/merge/layout-nonliteral.txt when it exists. Shrink only.\n'
-    + '--codemap: also run the code map check (off by default; a moved tree needs a regenerated map and renames first).\n'
+    + '--codemap (apply): also run the code map check, off by default (a moved tree needs a regenerated map and renames first). verify runs it unless --no-codemap.\n'
     + '--known (apply, verify): lines `stale <file> <value>` and `test <file>`; default docs/merge/layout-known-apply.txt when it exists. Shrink only.\n');
 }
 
@@ -99,7 +99,7 @@ export async function main(argv = process.argv.slice(2), options = {}) {
   let base;
   let mainRef;
   let moves;
-  let codemap = false;
+  let codemap;
   let rewrites;
   let allowFile = null;
   const given = new Set();
@@ -117,6 +117,7 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     else if (arg === '--base') base = argv[++index];
     else if (arg === '--main') mainRef = argv[++index];
     else if (arg === '--codemap') codemap = true;
+    else if (arg === '--no-codemap') codemap = false;
     else if (arg === '--moves') moves = argv[++index];
     else if (arg === '--rewrites') rewrites = argv[++index];
     else if (arg === '--allow-non-literal') allowFile = argv[++index];
@@ -133,7 +134,7 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     usage(stderr);
     return 2;
   }
-  const accepted = { apply: ['--area', '--root', '--rules', '--dry', '--backup', '--allow-non-literal', '--known', '--codemap'], verify: ['--area', '--root', '--rules', '--base', '--moves', '--rewrites', '--codemap', '--known'], 'port-branch': ['--area', '--root', '--rules', '--main', '--backup', '--allow-non-literal'], plan: ['--area', '--all', '--root', '--rules', '--known'] }[command];
+  const accepted = { apply: ['--area', '--root', '--rules', '--dry', '--backup', '--allow-non-literal', '--known', '--codemap'], verify: ['--area', '--root', '--rules', '--base', '--moves', '--rewrites', '--no-codemap', '--known'], 'port-branch': ['--area', '--root', '--rules', '--main', '--backup', '--allow-non-literal'], plan: ['--area', '--all', '--root', '--rules', '--known'] }[command];
   const stray = [...given].find(flag => !accepted.includes(flag));
   if (stray) {
     stderr.write(`${stray} does not apply to ${command}\n`);
