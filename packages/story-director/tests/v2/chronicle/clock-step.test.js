@@ -76,3 +76,28 @@ test('noteFacts: the last settle jump starts from the walked clock of the settle
     assert.deepEqual(out.settle, { from: T + 60 + DAY, to: T + 120 + DAY });
     assert.equal(out.minutes, T + 120 + DAY);
 });
+
+// An anchored set (`kind` 'same' | 'after'): the walked clock mirrors Story Block's replay of it (as stored on the clock it was told on, else its offset in whole days).
+const anchored = (kind, minutes, from, extra = {}) => r('capture.time', minutes, { from, kind, ...extra });
+test('an anchored set is as stored on the clock it was told at, and keeps its offset in days on another', () => {
+    const face = anchored('same', 2 * DAY + 1290, 2 * DAY + 1140);   // "~ time 9:30 pm" told at 7 pm
+    assert.equal(stepClock(2 * DAY + 1140, face), 2 * DAY + 1290);
+    assert.equal(stepClock(3 * DAY + 1140, face), 3 * DAY + 1290, 'a day later');
+    assert.equal(stepClock(1 * DAY + 600, face), 1 * DAY + 1290, 'a day earlier, and earlier in the day');
+    const skip = anchored('after', 3 * DAY + 540, 2 * DAY + 1140);  // "! time next morning" told at 7 pm
+    assert.equal(stepClock(2 * DAY + 1140, skip), 3 * DAY + 540);
+    assert.equal(stepClock(4 * DAY + 1140, skip), 5 * DAY + 540);
+});
+test('a "same" face never lands below the clock; an "after" skip lands after it', () => {
+    assert.equal(stepClock(2 * DAY + 1380, anchored('same', 2 * DAY + 1290, 2 * DAY + 1140)), 2 * DAY + 1380, 'the clock stands past the face: it stays');
+    assert.equal(stepClock(2 * DAY + 1380, anchored('after', 2 * DAY + 1290, 2 * DAY + 1140)), 3 * DAY + 1290, 'a bare ! time past it is the next day');
+});
+test('a refused face (the clock stayed, `to` is the face it asked for) lands once the clock is before it', () => {
+    const refused = anchored('same', 2 * DAY + 1140, 2 * DAY + 1140, { to: 2 * DAY + 480 });   // "~ time 8:00 am" told at 7 pm
+    assert.equal(stepClock(2 * DAY + 1140, refused), 2 * DAY + 1140, 'still refused on the clock it was told at');
+    assert.equal(stepClock(3 * DAY + 300, refused), 3 * DAY + 480, 'at 5 am the next day it is 8 am');
+    assert.equal(stepClock(3 * DAY + 1140, refused), 3 * DAY + 1140, 'at 7 pm the next day it is refused again');
+});
+test('an anchored receipt with no `from` moves nothing', () => {
+    assert.equal(stepClock(5 * DAY, r('capture.time', 99, { kind: 'same' })), 5 * DAY);
+});
