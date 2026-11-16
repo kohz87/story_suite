@@ -8,6 +8,7 @@ import { linesMeterText } from '../src/npc-meters-prompt-parts/lines-text.js';
 
 // The unwired one-pass lines builder is pinned at its settings variants (default; layered secrets on; notes and stages off; the held NSD3 mood text on) and a
 // separate meters-paragraph entry per feature combination (NSD2 + the G2 clauses). Each item changes this golden on purpose, in its own reviewed diff.
+// N6: NSD13 (rules).
 // N5: NSD8 (rules) and NSD12 (the context's event paragraph, joined as G8 says).
 // N3: NSD4, NSD5, NSD9 (rules), NSD3 (rules, off by default) and NSD2 (linesMeterText, never in the rules).
 const GOLDEN = new URL('./fixtures/prompt-lines.golden.json', import.meta.url);
