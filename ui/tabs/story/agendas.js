@@ -4,7 +4,8 @@ import { moreList } from '../../kit/more.js';
 
 function agendaRow(a, ctx) {
   const who = a.whoId
-    ? h('a', { href: '#', dataset: { personId: a.whoId }, onClick: (e) => { e.preventDefault?.(); ctx.go?.('people', { personId: a.whoId }); } }, a.who)
+    ? h('a', { href: '#', dataset: { personId: a.whoId }, onClick: (e) => { e.preventDefault?.(); ctx.go?.('people', { personId: a.whoId }); } },
+      h('span', { class: 'av', dataset: { portrait: a.whoId }, 'aria-hidden': 'true' }), ` ${a.who}`)
     : a.who;
   const pct = a.of > 0 ? Math.min(100, Math.max(0, (a.step / a.of) * 100)) : 0;
   return h('div', { class: 'it2', dataset: { agenda: a.title } },
