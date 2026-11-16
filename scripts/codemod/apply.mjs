@@ -35,7 +35,7 @@ function pruneEmpty(root, sources) {
  * Applies the rule sets to the git tree at `root`: plans (throws listing every problem), moves files with `git mv`,
  * deletes `to: null` files after copying them with a MANIFEST.txt into `backupDir`, then rewrites imports and
  * string references. `commits` ({ moves, rewrites } messages) makes one commit after each step. Returns
- * { plan, rewritten, unresolved, removed, nonLiteral, errors } for the caller to fail on.
+ * { plan, rewritten, unresolved, removed, nonLiteral, stale, errors } for the caller to fail on.
  */
 export function applyLayout(root, ruleSets, { backupDir = null, commits = null, allowNonLiteral = [] } = {}) {
   const before = trackedFiles(root);
@@ -52,10 +52,11 @@ export function applyLayout(root, ruleSets, { backupDir = null, commits = null, 
   }
   pruneEmpty(root, [...plan.moves.map(move => move.from), ...plan.deletes]);
   if (commits?.moves) { git(root, ['add', '-A']); git(root, ['commit', '-q', '--allow-empty', '-m', commits.moves]); }
+  const deleted = new Set(plan.deletes);
   const newToOld = new Map(plan.moves.map(move => [move.to, move.from]));
-  const report = { plan, rewritten: 0, unresolved: [], removed: [], nonLiteral: [], errors: [] };
+  const report = { plan, rewritten: 0, unresolved: [], removed: [], nonLiteral: [], stale: [], errors: [] };
   for (const oldFile of before) {
-    if (plan.deletes.includes(oldFile)) continue;
+    if (deleted.has(oldFile)) continue;
     const newFile = mapper.map(oldFile);
     if (!/\.(m?js|json|txt|md|ya?ml)$/.test(newFile)) continue;
     const abs = path.join(root, newFile);
@@ -72,6 +73,7 @@ export function applyLayout(root, ruleSets, { backupDir = null, commits = null, 
     }
     const strings = rewriteStrings(text, ctx);
     if (strings.error) report.errors.push(`${oldFile}: ${strings.error}`);
+    for (const value of strings.stale) report.stale.push({ file: oldFile, value });
     text = strings.source;
     if (text !== original) { fs.writeFileSync(abs, text); report.rewritten += 1; }
   }

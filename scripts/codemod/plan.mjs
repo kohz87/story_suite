@@ -1,6 +1,6 @@
 // Turns tracked files plus rule sets into a move/delete plan and refuses unmatched files, collisions and clobbered targets.
 import { execFileSync } from 'node:child_process';
-import { matchPath } from './rules.mjs';
+import { matchPath, ruleKey } from './rules.mjs';
 
 /** Lists the repo's tracked files (sorted) with `git ls-files`. */
 export function trackedFiles(root) {
@@ -9,7 +9,8 @@ export function trackedFiles(root) {
 }
 
 /**
- * Builds { moves: [{from,to}], deletes: [path], unmatched: [path], collisions: [{to,sources}], existing: [{from,to}], chains: [{from,to}] }.
+ * Builds { moves: [{from,to}], deletes: [path], unmatched: [path], collisions: [{to,sources}], existing: [{from,to}], chains: [{from,to}], duplicates: [{key,areas}] }.
+ * A "duplicate" is one rule name (`from`, a trailing * ignored) given by two rule sets; order never decides, so it fails the plan.
  * A "chain" is a move whose target is another move's source (a rename chain or a swap); `git mv` would fail on it.
  * A file is "unmatched" when no rule covers it and it lies under a rule file's `scope` (any file, when no rule
  * file gives a scope). Files whose target equals their own path are not moves.
@@ -20,7 +21,11 @@ export function buildPlan(files, ruleSets) {
   const everything = scopes.some(scope => scope === null);
   const prefixes = scopes.flatMap(scope => scope ?? []);
   const inScope = file => everything || prefixes.some(prefix => file === prefix || file.startsWith(prefix.endsWith('/') ? prefix : `${prefix}/`));
-  const plan = { moves: [], deletes: [], unmatched: [], collisions: [], existing: [], chains: [] };
+  const plan = { moves: [], deletes: [], unmatched: [], collisions: [], existing: [], chains: [], duplicates: [] };
+  const owners = new Map();
+  for (const set of ruleSets) for (const key of new Set(set.rules.map(ruleKey))) owners.set(key, [...(owners.get(key) ?? []), set.area]);
+  for (const [key, areas] of owners) if (areas.length > 1) plan.duplicates.push({ key, areas });
+  if (plan.duplicates.length) return plan;
   for (const file of files) {
     const hit = matchPath(rules, file);
     if (!hit) { if (inScope(file)) plan.unmatched.push(file); continue; }
@@ -43,6 +48,7 @@ export function buildPlan(files, ruleSets) {
 /** Lists what is wrong with a plan, as sentences; an empty list means it may be applied. */
 export function planProblems(plan) {
   return [
+    ...plan.duplicates.map(item => `rule "${item.key}" is given by more than one rule file (${item.areas.join(', ')})`),
     ...plan.unmatched.map(file => `no rule covers ${file}`),
     ...plan.collisions.map(item => `${item.sources.join(', ')} all move to ${item.to}`),
     ...plan.chains.map(move => `${move.from} moves to ${move.to}, which is itself moved (a rename chain or swap)`),

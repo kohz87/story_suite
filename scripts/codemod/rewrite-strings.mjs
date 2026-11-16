@@ -68,50 +68,74 @@ function existsInTree(abs, files) {
   return files.has(abs) || [...files].some(file => file.startsWith(`${abs}/`));
 }
 
-function rewriteJs(source, { oldFile, newFile, files, mapper }) {
+/** The package folder a file lives in ("packages/x"), or null: package-relative strings ("src/v2/x.js") are read against it. */
+function packageRoot(file) {
+  return /^packages\/[^/]+(?=\/)/.exec(file)?.[0] ?? null;
+}
+
+// A string that is only dots and slashes ('.', '..', './', '../') is a separator or a bare folder name, never a file reference.
+const BARE_DOTS = /^\.{1,2}\/?$/;
+
+// The new text of one string literal's value, or null to leave it (and a `stale` entry when a package-relative path cannot follow).
+function mapValue(value, { oldFile, newFile, files, mapper }, stale) {
+  if (/\s/.test(value) || BARE_DOTS.test(value) || !value.includes('/')) return null;
+  const oldDir = path.posix.dirname(oldFile);
+  const newDir = path.posix.dirname(newFile);
+  if (/^\.{1,2}\//.test(value)) {
+    const abs = path.posix.normalize(path.posix.join(oldDir, value)).replace(/\/$/, '');
+    if (!abs || abs.startsWith('..') || !existsInTree(abs, files)) return null;
+    const mapped = mapper.map(abs);
+    if (mapped === null) return null;
+    let next = path.posix.relative(newDir, mapped) || '.';
+    if (!next.startsWith('.')) next = `./${next}`;
+    if (value.endsWith('/') && !next.endsWith('/')) next += '/';
+    return next;
+  }
+  const exists = abs => existsInTree(abs, files);
+  const root = mapToken(value, '', mapper, exists);
+  if (root !== value) return root;
+  const pkg = packageRoot(oldFile);
+  if (!pkg) return null;
+  const next = mapToken(value, pkg, mapper, exists);
+  if (next === value) return null;
+  if (packageRoot(newFile) !== pkg || next.startsWith('..')) { stale.push(value); return null; }
+  return next;
+}
+
+function rewriteJs(source, ctx) {
   let tree;
   try {
     tree = acorn.parse(source, { ecmaVersion: 'latest', sourceType: 'module', allowHashBang: true, allowReturnOutsideFunction: true });
   } catch (error) {
-    return { source, changed: 0, error: error.message };
+    return { source, changed: 0, stale: [], error: error.message };
   }
   const skip = new Set(scanSpecifiers(source).specs.map(item => item.start));
   const edits = [];
-  const oldDir = path.posix.dirname(oldFile);
-  const newDir = path.posix.dirname(newFile);
-  walk.simple(tree, {
-    Literal(node) {
-      if (typeof node.value !== 'string' || skip.has(node.start) || /\s/.test(node.value) || !node.value.includes('/') && !/^\.{1,2}$/.test(node.value)) return;
-      const value = node.value;
-      let next = value;
-      if (/^\.{1,2}(\/|$)/.test(value)) {
-        const abs = path.posix.normalize(path.posix.join(oldDir, value)).replace(/\/$/, '') || '.';
-        if (abs.startsWith('..') || !(abs === '.' || existsInTree(abs, files))) return;
-        const mapped = abs === '.' ? '.' : mapper.map(abs);
-        if (mapped === null) return;
-        next = path.posix.relative(newDir, mapped) || '.';
-        if (!next.startsWith('.')) next = `./${next}`;
-        if (value.endsWith('/') && !next.endsWith('/')) next += '/';
-      } else {
-        next = mapToken(value, '', mapper, abs => existsInTree(abs, files));
-      }
-      if (next !== value) edits.push({ start: node.start + 1, end: node.end - 1, text: next });
-    },
-  });
+  const stale = [];
+  const visit = node => {
+    if (node?.type !== 'Literal' || typeof node.value !== 'string' || skip.has(node.start)) return;
+    const next = mapValue(node.value, ctx, stale);
+    if (next !== null && next !== node.value) edits.push({ start: node.start + 1, end: node.end - 1, text: next });
+  };
+  // acorn-walk skips a key unless it is computed, so plain keys are visited here.
+  const visitKey = node => { if (!node.computed) visit(node.key); };
+  walk.simple(tree, { Literal: visit, Property: visitKey, PropertyDefinition: visitKey, MethodDefinition: visitKey });
   let out = source;
   for (const edit of edits.sort((a, b) => b.start - a.start)) out = out.slice(0, edit.start) + edit.text + out.slice(edit.end);
-  return { source: out, changed: edits.length, error: null };
+  return { source: out, changed: edits.length, stale, error: null };
 }
 
 /**
  * Rewrites the non-import path references of one file (see SITES): codemap `jobs*.json` keys, path lines in
  * the legacy-oversize list, codemap bullets, CI and package.json paths, and path-like string literals in JS.
- * `files` is the tracked set before the move; `mapper.map(path)` gives the new place. Returns { source, changed, error }.
+ * `files` is the tracked set before the move; `mapper.map(path)` gives the new place. A bare `.`/`..`/`./`/`../` string is never rewritten; object keys are visited like values; a package-relative
+ * string ("src/v2/x.js", read against `packages/<name>`) is rewritten when it can stay package-relative, else listed in
+ * `stale`. Returns { source, changed, stale, error }.
  */
 export function rewriteStrings(source, ctx) {
   const site = siteFor(ctx.oldFile);
-  if (!site) return { source, changed: 0, error: null };
-  if (site.mode === 'json-keys') return { ...rewriteJsonKeys(source, ctx.mapper), error: null };
-  if (site.mode === 'text') return { ...rewriteText(source, site.base, ctx.mapper), error: null };
+  if (!site) return { source, changed: 0, stale: [], error: null };
+  if (site.mode === 'json-keys') return { ...rewriteJsonKeys(source, ctx.mapper), stale: [], error: null };
+  if (site.mode === 'text') return { ...rewriteText(source, site.base, ctx.mapper), stale: [], error: null };
   return rewriteJs(source, ctx);
 }
