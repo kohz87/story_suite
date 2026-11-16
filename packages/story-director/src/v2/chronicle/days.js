@@ -17,8 +17,8 @@
 // own summary, a name the state keeps, or a calendar date.
 //
 // Which day a receipt belongs to: receipts are walked in chat order and the clock is followed through
-// the receipts that set it (the tracker's `time` line, the pack's start, the time part's settle and
-// `director.advance`, each with `data.minutes`). A receipt belongs to the day the clock was on when it was committed; before the
+// the receipts that move or set it, as Story Block replays them (days-parts/clock-step.js; the tracker's `time` line, the pack's start, the time part's settle and
+// `director.advance`, each with `data.minutes`). A receipt belongs to the day the clock was on when it was committed (on the walked clock, so an edit or delete before it is followed); before the
 // clock was first set, to the first day it was set to.
 //
 // chronicle.days    = { [day]: [Digest] }   each day a slot (../slot.js), written whole

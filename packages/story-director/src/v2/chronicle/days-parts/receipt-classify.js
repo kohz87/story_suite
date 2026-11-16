@@ -4,8 +4,8 @@ import { DM_TYPES, PRESENCE_TEXT, PRESENT_TYPES } from './receipt-scene.js';
 import { isInt, isRecord, text } from './shared-values.js';
 
 // Receipts that set the clock (module story-director, `data.minutes`; `director.clock` is the reader's own edit of it).
-// `director.advance` called by another module's command has no receipt of its own; the time part's settle before the
-// next reply sets the clock right again.
+// `director.advance` called by another module's command would have no receipt of its own, and the walk (clock-step.js) would then drift,
+// as a settle is only a checkpoint there; no module calls it that way (tests/v2/time/advance-callers.test.js pins it).
 const CLOCK_TYPES = new Set(['capture.time', 'director.seed', 'director.clock', 'time.settle', 'director.advance']);
 // Receipts that are the code's own bookkeeping, never an event of the day (neither picked nor counted under "happened"): Story Block's
 // fight board result (`rpg.resolve`, whose summary is the narrator's instruction), its no-roll step, field edits, timer ticks and

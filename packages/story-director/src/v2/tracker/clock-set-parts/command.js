@@ -36,6 +36,6 @@ export function clockCommand(ctx, payload) {
         // The Director note gives the time every reply, and a jump forward is told as While away: nothing more to narrate.
         narrate: false,
         // `edit: true` is what Story Block's reply card lists under "Changed this reply" as the reader's own edit (reply-cards.js replyEdits).
-        data: { minutes: abs, from: before, date: full, edit: true },
+        data: { minutes: abs, from: before, kind: typeof ctx.absolute === 'function' ? 'set' : 'move', date: full, edit: true },
     };
 }

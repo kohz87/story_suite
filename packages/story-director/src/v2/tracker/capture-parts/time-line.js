@@ -9,8 +9,14 @@ import { lineText } from './text.js';
 
 /** `apply(ctx, line)` for `time` lines: `~ time <date, clock time>`, `! time +2h`. */
 export function applyTimeLine(ctx, line) {
-    // "~ time <date> · ! time +2h" on one line is the two lines (the same stretch counts once: timeLine).
-    return splitTimeLine(line).map((part, n) => timeLine(ctx, part, n > 0)).at(-1);
+    // "~ time <date> · ! time +2h" on one line is the two lines (the same stretch counts once: timeLine). One command writes one clock op, so
+    // its receipt says that op: `from` the clock before the command (the first part that read one), `kind` 'set' if any part set it.
+    const parts = splitTimeLine(line).map((part, n) => timeLine(ctx, part, n > 0));
+    const last = parts.at(-1);
+    if (parts.length < 2) return last;
+    const from = parts.map(part => part.data.from).find(Number.isSafeInteger);
+    const kind = parts.some(part => part.data.kind === 'set') ? 'set' : 'move';
+    return { ...last, data: { ...last.data, kind, ...(Number.isSafeInteger(from) ? { from } : {}) } };
 }
 
 // `again`: the second half of a joined line, which is the same line (the same place in the reply), not a new reply.
@@ -32,7 +38,7 @@ function timeLine(ctx, line, again = false) {
     // the reply began, in either order, are one stretch, and the date is the one that is used.
     if (stretch !== null && Number.isSafeInteger(turn.setAt) && Number.isSafeInteger(from) && sameStretch(stretch, turn.setAt - from)) {
         const kept = director.time.minutes;
-        return { summary: `Story time: ${calendar.format(kept)}.`, narrate: false, data: { minutes: kept, from: kept } };
+        return { summary: `Story time: ${calendar.format(kept)}.`, narrate: false, data: { minutes: kept, from: kept, kind: 'move' } };
     }
     let next = null;
     if (stretch === null && turn.advanced > 0 && Number.isSafeInteger(from)) {
@@ -47,7 +53,7 @@ function timeLine(ctx, line, again = false) {
     if (next.problem) addProblem(director, ctx, { kind: 'time', severity: 'warn', key: String(line?.name ?? '').slice(0, KEY_CHARS), op: line?.op, text: next.problem });
     if (next.error) {
         addProblem(director, ctx, { kind: 'time', severity: 'warn', key: String(line?.name ?? '').slice(0, KEY_CHARS), op: line?.op, text: next.error });
-        return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: director.time.minutes } };
+        return { summary: `Director: ${lineText(line)} (not used)`, narrate: false, data: { minutes: director.time.minutes, kind: 'move' } };
     }
     const before = director.time.minutes;
     if (next.minutes !== before) director.time.minutes = next.minutes;
@@ -58,10 +64,12 @@ function timeLine(ctx, line, again = false) {
         const openDay = dayKey(next.minutes) !== dayKey(before) && Number.isSafeInteger(before) ? dayKey(next.minutes) : null;
         if (openDay !== (director.time.openDay ?? null)) director.time.openDay = openDay;
     }
-    if (next.set && typeof ctx.absolute === 'function') ctx.absolute('director', '/time/minutes');
+    const set = Boolean(next.set) && typeof ctx.absolute === 'function';
+    if (set) ctx.absolute('director', '/time/minutes');
+    // `kind`: the op the receipt describes, as Story Block replays it (a move: `from` → `minutes`; a set: the stored minute).
     return {
         summary: `Story time: ${calendar.format(next.minutes)}.`,
         narrate: false,
-        data: { minutes: next.minutes, from: before, ...(next.held ? { held: next.held } : {}) },
+        data: { minutes: next.minutes, from: before, kind: set ? 'set' : 'move', ...(next.held ? { held: next.held } : {}) },
     };
 }

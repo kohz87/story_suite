@@ -1,7 +1,6 @@
 // The chronicle's note cursor follows a scene change an edit adds: a Re-read of the reply that carries the cursor note (R2)
 // that adds a scene line moves the scene the next replies start from, so their facts are filed with the people a fresh
-// telling of the edited chat gives. A clock change an edit adds is NOT followed (known limit, option A): a reply told before
-// the edit keeps its pre-edit time, so it is filed under the day before the edit. The clock case below pins that on purpose.
+// telling of the edited chat gives. A clock change an edit adds is followed too (moves and settles; the clock case at the end).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -57,16 +56,16 @@ test("an edited Re-read that adds a scene change: the next note's stored present
     live.close(); fresh.close(); unedited.close();
 });
 
-// KNOWN LIMIT (option A, planned follow-up): the cursor does not follow a clock change an edit adds. R3 was told before the
-// edit, so its receipts keep the pre-edit time and its place is filed under June 3, and that day's written digest keeps it;
-// a fresh telling files it under June 4. If a later fix makes this equal a fresh telling, flip these assertions on purpose.
-test('an edited Re-read that adds a clock change: a reply told before the edit stays on the day before it (known limit)', async t => {
+// A clock change an edit adds is followed (step 1, Story Director only): R3 was told before the edit, and the walk replays its
+// receipts as Story Block replays the clock (a duration is a move, so it follows the edit), so its place is filed under June 4 and
+// the June 3 digest does not carry it, as in a fresh telling. (Before this, R3 stayed on June 3: the pre-edit time of its receipt.)
+test('an edited Re-read that adds a clock change: a reply told before the edit is filed on the edited clock, as in a fresh telling', async t => {
     quiet(t);
     const { live, fresh } = await edit(['! time +1 day']);
-    assert.equal(dayOf(live, 'Frostgate'), 0);
-    assert.equal(dayOf(fresh, 'Frostgate'), 1);
-    assert.match(written(live)[0] ?? '', /Frostgate/);
-    assert.doesNotMatch(written(fresh)[0] ?? '', /Frostgate/);
+    assert.equal(dayOf(live, 'Frostgate'), 1);
+    assert.equal(dayOf(live, 'Frostgate'), dayOf(fresh, 'Frostgate'));
+    assert.doesNotMatch(written(live)[0] ?? '', /Frostgate/);
+    assert.equal(written(live)[0], written(fresh)[0]);
     assert.equal(reloadSame(live), true);
     live.close(); fresh.close();
 });

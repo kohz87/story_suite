@@ -1,7 +1,8 @@
 // Story Director v2, world: when and where {{user}} heard of each chronicle event, read from the chat's receipts (chat data, so a
 // swipe, a middle delete or a reload gives the same stamps). Nothing is stored; no teller is known, so `from` is always null.
 
-import { clockSet, receiptOf } from '../../chronicle/days-parts/receipt-classify.js';
+import { stepClock } from '../../chronicle/days-parts/clock-step.js';
+import { receiptOf } from '../../chronicle/days-parts/receipt-classify.js';
 import { dateText } from './clock.js';
 import { isInt, isRecord, text, cut } from './shared-text.js';
 
@@ -22,7 +23,7 @@ export function heardStamps(tools, calendar) {
     for (const entry of Array.isArray(entries) ? entries : []) {
         const receipt = receiptOf(entry);
         if (!receipt) continue;
-        if (clockSet(receipt)) minutes = receipt.data.minutes;
+        minutes = stepClock(minutes, receipt);
         if (PLACE_TYPES.has(receipt.type) && text(receipt.data?.name)) place = cut(receipt.data.name, 80);
         const id = receipt.type === 'capture.world' && isRecord(receipt.data) && receipt.data.idle !== true ? text(receipt.data.event) : '';
         if (!id) continue;
