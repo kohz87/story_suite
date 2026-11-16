@@ -1,7 +1,8 @@
 // The World screen's Leads data: the hooks the player has heard of, newest first.
 
 import { lineKey } from '../../../changes.js';
-import { agoText, cut, hiddenNames, namesHidden, nowFrom, queryOf } from '../known.js';
+import { agoText, calendarFrom, cut, hiddenNames, namesHidden, nowFrom, queryOf } from '../known.js';
+import { lapseOf } from './lapse-date.js';
 import { isRecord } from './shared-guards.js';
 
 const SUMMARY_CHARS = 160;
@@ -18,6 +19,7 @@ export function leadsOf(state, tools) {
     const query = queryOf(tools);
     const now = nowFrom(query, state);
     const hidden = hiddenNames(state);
+    const calendar = calendarFrom(query);
     const threads = isRecord(state?.domains?.director?.threads) ? Object.values(state.domains.director.threads).filter(isRecord) : [];
     const out = [];
     for (const thread of threads) {
@@ -32,6 +34,7 @@ export function leadsOf(state, tools) {
             heard,
             heardAgo: ageOf(now, at),
             where: cut(thread.fields?.where ?? thread.fields?.place, 80),
+            ...lapseOf(thread, { calendar, now }),
             at,
         });
     }
