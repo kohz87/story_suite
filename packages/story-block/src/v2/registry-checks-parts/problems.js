@@ -9,6 +9,7 @@ import { CAPTURE_PREFIX, HOST_MODULE, STANDARD_PREFIX } from './names.js';
 import { MAX_CAPABILITIES } from './lists.js';
 import { fieldProblem } from './fields.js';
 import { headsOf, grammarOf } from './capture-heads.js';
+import { interactionProblems } from './interaction-problems.js';
 
 const MODULE_ID = /^[a-z0-9][a-z0-9._-]*$/;
 // Domain names are JSON Pointer segments (/domains/<name>/…): no `/` or `~`.
@@ -240,6 +241,7 @@ export function definitionProblems(def) {
             fn(widget.render, `widget "${name}" render`);
         }
     }
+    problems.push(...interactionProblems(def));
     problems.push(...featureProblems(def));
     return problems;
 }

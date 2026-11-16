@@ -49,7 +49,7 @@ test('registers module npc-state-delta once, with the npc domain, its queries an
     const { adapter, sdk, def, timers } = await hosted();
     assert.equal(sdk.registered.length, 1);
     assert.equal(def.id, MODULE_ID);
-    assert.equal(def.name, 'NPC State Delta');
+    assert.equal(def.name, 'NPC State');
     assert.equal(def.version, '1.18.0');
     assert.equal(def.domains, undefined, 'no domain of its own: the NPC meters live in the people domain (people store P4)');
     assert.deepEqual(Object.keys(def.queries).sort(), ['npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dossier', 'npc.identity', 'npc.keyAway', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);

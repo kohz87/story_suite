@@ -3,14 +3,15 @@
 import { slotValue } from '../../slot.js';
 import { ENTRY_KEY, QUEST_LOG_KEPT } from './log-constants.js';
 import { isRecord } from './shared-values.js';
+import { QUEST_LOG_KEY, questLogOrder, questLogRank } from './quest-log-order.js';
 
-/** A thread's kept history, oldest first: `[{ rev, text }]` (the last QUEST_LOG_KEPT). */
+/** A thread's kept history, oldest first (by the revision each line was told at): `[{ rev, text }]` (the last QUEST_LOG_KEPT). */
 export function questLogOf(chronicle, id) {
     if (typeof id !== 'string' || !id) return [];
     return Object.entries(isRecord(chronicle?.questLog) ? chronicle.questLog : {})
-        .filter(([key, entry]) => /^\d+$/.test(key) && isRecord(entry) && entry.thread === id)
-        .map(([key, entry]) => ({ rev: Number(key), text: entry.text }))
-        .sort((a, b) => a.rev - b.rev)
+        .filter(([key, entry]) => QUEST_LOG_KEY(key) && isRecord(entry) && entry.thread === id)
+        .sort(questLogOrder)
+        .map(([key, entry]) => ({ rev: questLogRank(key, entry), text: entry.text }))
         .slice(-QUEST_LOG_KEPT);
 }
 

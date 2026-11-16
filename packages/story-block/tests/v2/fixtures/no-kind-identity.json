@@ -1,0 +1,609 @@
+{
+ "prompt": {
+  "static": "",
+  "tail": "",
+  "request": {
+   "chat": [
+    {
+     "role": "system",
+     "content": "Write the next reply in this story.\n[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change, and the whole block when nothing did.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist."
+    },
+    {
+     "role": "assistant",
+     "content": "The story begins."
+    },
+    {
+     "role": "user",
+     "content": "I look around."
+    },
+    {
+     "role": "system",
+     "content": "Your look is not set yet: on this reply write ~ you wearing: … | condition: … for You, from the persona and what they carry.\nWallet (before this reply): 0 gold\nCarried: nothing\n\nAfter the story, write the <Changes> block. Changes worked out only in thinking are lost."
+    }
+   ],
+   "dryRun": false
+  }
+ },
+ "prompts": [
+  {
+   "key": "story_suite_static_story_block",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1_story_block",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_block",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change, and the whole block when nothing did.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "Your look is not set yet: on this reply write ~ you wearing: … | condition: … for You, from the persona and what they carry.\nWallet (before this reply): 0 gold\nCarried: nothing",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change, and the whole block when nothing did.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "Place: Harbour\nWallet (before this reply): 0 gold\nCarried: Rope",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "[Story Suite: how this story is kept]\nCode keeps this story's facts and numbers; you narrate. A note starting [Happened] has just happened: tell it in the scene, keep its numbers, do not write it again as a change.\nAt the very end of your reply, after the story, list what changed in one block (outside any thinking, once; it counts toward no length limit):\n<Changes>\nop kind Name — what happened | label: value\n</Changes>\nop: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change, and the whole block when nothing did.\nThis is the only block you write: no state, inventory or party blocks.\nKinds:\n+ coin 30 | from: who (- coin 5 | to: who when paid; whenever You is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.\n+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)\n? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)\n+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)\n~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)\n+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)\n~ weather cold drizzle, low fog (only when the weather changes, not every reply; a few words, at most 60 characters)\n~ you wearing: what You has on | condition: how You is (only when one changes; each at most 120 characters)\n\nCode keeps the inventory, the wallet, the place and who is present: use or pay only what the lists below hold, and write a change line for every item gained, used or lost and every arrival, departure or move.\nMoney in this story is gold. Name amounts in gold in narration and in coin lines (+ coin 35); no other coins exist.",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "Place: Harbour\nWallet (before this reply): 0 gold\nCarried: Rope",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_static",
+   "value": "",
+   "position": 0,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  },
+  {
+   "key": "story_suite_tail_1",
+   "value": "",
+   "position": 1,
+   "depth": 0,
+   "scan": false,
+   "role": 0
+  }
+ ],
+ "metadata": {
+  "tainted": true
+ },
+ "records": [
+  {
+   "v": 2,
+   "sid": "sw_000000000000",
+   "checkpoint": {
+    "v": 2,
+    "meta": {
+     "rev": 0,
+     "claims": {}
+    },
+    "domains": {
+     "inventory": {
+      "defs": {},
+      "stacks": {},
+      "wallets": {},
+      "aliases": {}
+     },
+     "scene": {
+      "place": {
+       "name": "",
+       "kind": "",
+       "region": ""
+      },
+      "present": []
+     }
+    }
+   },
+   "ops": [],
+   "receipts": [],
+   "narrated": [],
+   "spans": [],
+   "rev": 0,
+   "source": {
+    "logical": "sr_c8obqlog",
+    "swipeKey": "sw_74fulbbd",
+    "evidence": "ev_00uwo6wt",
+    "next": 0
+   },
+   "swipe": 0,
+   "mark": {
+    "t": "ca1478b1:17",
+    "d": ""
+   }
+  },
+  null,
+  {
+   "v": 2,
+   "sid": "sw_000000000000",
+   "ops": [
+    {
+     "op": "add",
+     "path": "/domains/inventory/aliases/rope",
+     "value": "story/rope"
+    },
+    {
+     "op": "add",
+     "path": "/domains/inventory/defs/story~1rope",
+     "value": {
+      "id": "story/rope",
+      "name": "Rope",
+      "kind": "goods",
+      "rarity": "common",
+      "value": 0,
+      "stack": true,
+      "slot": null,
+      "stats": {},
+      "effect": {},
+      "tags": [],
+      "note": ""
+     }
+    },
+    {
+     "op": "add",
+     "path": "/domains/inventory/stacks/it_tt7y2i1l",
+     "value": {
+      "id": "it_tt7y2i1l",
+      "def": "story/rope",
+      "qty": 1,
+      "owner": "party",
+      "equipped": null,
+      "note": "",
+      "from": "rc_8hpibalz",
+      "story": true
+     }
+    },
+    {
+     "op": "replace",
+     "path": "/meta/rev",
+     "value": 1
+    },
+    {
+     "op": "replace",
+     "path": "/domains/scene/place/name",
+     "value": "Harbour"
+    },
+    {
+     "op": "replace",
+     "path": "/meta/rev",
+     "value": 2
+    }
+   ],
+   "receipts": [
+    {
+     "id": "rc_8hpibalz",
+     "type": "capture.item",
+     "module": "story-block",
+     "cause": "story",
+     "seed": 0,
+     "summary": "The party gains Rope.",
+     "narrate": false,
+     "data": {
+      "def": "story/rope",
+      "qty": 1,
+      "owner": "party",
+      "stacks": [
+       "it_tt7y2i1l"
+      ],
+      "created": true,
+      "from": ""
+     },
+     "rev": 1,
+     "line": "6187d8d9"
+    },
+    {
+     "id": "rc_lgkz3277",
+     "type": "capture.place",
+     "module": "story-block",
+     "cause": "story",
+     "seed": 247,
+     "summary": "The scene moves to Harbour.",
+     "narrate": false,
+     "data": {
+      "name": "Harbour",
+      "kind": "",
+      "region": "",
+      "moved": true,
+      "present": [],
+      "left": []
+     },
+     "rev": 2,
+     "line": "632079bb"
+    }
+   ],
+   "narrated": [],
+   "spans": [
+    {
+     "n": 4,
+     "story": true
+    },
+    {
+     "n": 2,
+     "story": true
+    }
+   ],
+   "source": {
+    "logical": "sr_b97c2qd9",
+    "swipeKey": "sw_74fulbbd",
+    "evidence": "ev_00uwo6wt",
+    "next": 0
+   },
+   "foeCap": 20,
+   "rev": 2,
+   "swipe": 0,
+   "mark": {
+    "t": "9811d809:18",
+    "d": ""
+   },
+   "rules": [
+    "assistFaction",
+    "assistFactionFresh",
+    "assistPlace",
+    "assistPresent",
+    "caretWords",
+    "checks",
+    "clockFace",
+    "clockMonth",
+    "consumableRecovery",
+    "diceInOrder",
+    "diedAny",
+    "factionTags",
+    "foesClear",
+    "foesFresh",
+    "gearFinesse",
+    "gearOrder",
+    "itemIds",
+    "oneCoin",
+    "partyFields",
+    "partyFour",
+    "partyLeft",
+    "partyRoom",
+    "placeFromMap",
+    "skillPractice",
+    "xpKept",
+    "youLook",
+    "youRank"
+   ]
+  },
+  null,
+  {
+   "v": 2,
+   "sid": "sw_000000000000",
+   "ops": [
+    {
+     "op": "add",
+     "path": "/domains/inventory/aliases/lamp",
+     "value": "story/lamp"
+    },
+    {
+     "op": "add",
+     "path": "/domains/inventory/defs/story~1lamp",
+     "value": {
+      "id": "story/lamp",
+      "name": "Lamp",
+      "kind": "goods",
+      "rarity": "common",
+      "value": 0,
+      "stack": true,
+      "slot": null,
+      "stats": {},
+      "effect": {},
+      "tags": [],
+      "note": ""
+     }
+    },
+    {
+     "op": "add",
+     "path": "/domains/inventory/stacks/it_t7bmb6sf",
+     "value": {
+      "id": "it_t7bmb6sf",
+      "def": "story/lamp",
+      "qty": 1,
+      "owner": "party",
+      "equipped": null,
+      "note": "",
+      "from": "rc_9d8eiakq",
+      "story": true
+     }
+    },
+    {
+     "op": "replace",
+     "path": "/meta/rev",
+     "value": 3
+    }
+   ],
+   "receipts": [
+    {
+     "id": "rc_9d8eiakq",
+     "type": "capture.item",
+     "module": "story-block",
+     "cause": "story",
+     "seed": 68,
+     "summary": "The party gains Lamp.",
+     "narrate": false,
+     "data": {
+      "def": "story/lamp",
+      "qty": 1,
+      "owner": "party",
+      "stacks": [
+       "it_t7bmb6sf"
+      ],
+      "created": true,
+      "from": ""
+     },
+     "rev": 3,
+     "line": "00d05e37"
+    }
+   ],
+   "narrated": [],
+   "spans": [
+    {
+     "n": 4,
+     "story": true
+    }
+   ],
+   "source": {
+    "logical": "sr_9hcbzhza",
+    "swipeKey": "sw_74fulbbd",
+    "evidence": "ev_00uwo6wt",
+    "next": 0
+   },
+   "foeCap": 20,
+   "rev": 3,
+   "swipe": 1,
+   "mark": {
+    "t": "9de54544:20",
+    "d": ""
+   },
+   "rules": [
+    "assistFaction",
+    "assistFactionFresh",
+    "assistPlace",
+    "assistPresent",
+    "caretWords",
+    "checks",
+    "clockFace",
+    "clockMonth",
+    "consumableRecovery",
+    "diceInOrder",
+    "diedAny",
+    "factionTags",
+    "foesClear",
+    "foesFresh",
+    "gearFinesse",
+    "gearOrder",
+    "itemIds",
+    "oneCoin",
+    "partyFields",
+    "partyFour",
+    "partyLeft",
+    "partyRoom",
+    "placeFromMap",
+    "skillPractice",
+    "xpKept",
+    "youLook",
+    "youRank"
+   ]
+  }
+ ],
+ "state": {
+  "v": 2,
+  "meta": {
+   "rev": 3,
+   "claims": {}
+  },
+  "domains": {
+   "inventory": {
+    "defs": {
+     "story/rope": {
+      "id": "story/rope",
+      "name": "Rope",
+      "kind": "goods",
+      "rarity": "common",
+      "value": 0,
+      "stack": true,
+      "slot": null,
+      "stats": {},
+      "effect": {},
+      "tags": [],
+      "note": ""
+     },
+     "story/lamp": {
+      "id": "story/lamp",
+      "name": "Lamp",
+      "kind": "goods",
+      "rarity": "common",
+      "value": 0,
+      "stack": true,
+      "slot": null,
+      "stats": {},
+      "effect": {},
+      "tags": [],
+      "note": ""
+     }
+    },
+    "stacks": {
+     "it_tt7y2i1l": {
+      "id": "it_tt7y2i1l",
+      "def": "story/rope",
+      "qty": 1,
+      "owner": "party",
+      "equipped": null,
+      "note": "",
+      "from": "rc_8hpibalz",
+      "story": true
+     },
+     "it_t7bmb6sf": {
+      "id": "it_t7bmb6sf",
+      "def": "story/lamp",
+      "qty": 1,
+      "owner": "party",
+      "equipped": null,
+      "note": "",
+      "from": "rc_9d8eiakq",
+      "story": true
+     }
+    },
+    "wallets": {},
+    "aliases": {
+     "rope": "story/rope",
+     "lamp": "story/lamp"
+    }
+   },
+   "scene": {
+    "place": {
+     "name": "Harbour",
+     "kind": "",
+     "region": ""
+    },
+    "present": []
+   }
+  }
+ },
+ "guardMark": ""
+}

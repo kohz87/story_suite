@@ -3,6 +3,7 @@
 import { byId, grammarOf, placeOf, headsOf } from '../registry-checks.js';
 import { createCommandLookups } from '../registry/commands.js';
 import { createFeatureLookups } from '../registry/features.js';
+import { createInteractionLookups } from '../registry/interactions.js';
 import { createLifecycle } from '../registry/lifecycle.js';
 import { createRegistration } from '../registry/registration.js';
 
@@ -33,6 +34,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
     const { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
     const commandLookups = createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf: life.nameOf, off, warn });
     const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial } = commandLookups;
+    const { interaction, interactionIds } = createInteractionLookups({ defs, held });
     const { register } = createRegistration({ defs, declared, owners, fallbacks, canonical, refusals, hostVersion, warn, needsOf, setPeers: life.setPeers });
 
     return {
@@ -53,6 +55,10 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
             return `${name}@${id}@${defs.get(id)?.version ?? ''}:${typeof def.validate === 'function' ? 'v' : ''}:${list(def.scratch)}:${list(def.counters)}`;
         }).join(';') + `;${REPLAY_RULES}`,
         commandOwner,
+        /** The interaction kind a full id `<module>/<kind>` names (its KindDef), or null. */
+        interaction,
+        /** The full kind ids a module defines, sorted. */
+        interactionIds,
         captureOwner: kind => captureEntry(kind)?.moduleId ?? null,
         queryOwner: name => owners.query.get(name) ?? null,
         /** The handler for a command type (module commands and the registry's own), or null. */
