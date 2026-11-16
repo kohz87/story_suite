@@ -7,6 +7,8 @@ import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
 import { receiptCue } from '../lean-rpg/cue.js';
 import { boardFailure, boardStartState } from './held-board.js';
 
+const SETTLE = 'interaction.settle';
+
 // A prelude cue a module marks kept (receipt `data.keep === true`) is pinned too, up to this many tokens in all per reply; the rest are plain cues.
 export const KEPT_PRELUDE_TOKENS = KEPT_TAIL_TOKENS;
 
@@ -22,7 +24,8 @@ let keptPrelude = 0;
         const result = bus.run(preludeType, payload, { cause: 'system', ...(previewState ? { state: previewState } : {}), ...(prior || seed !== undefined ? { seed: prior?.seed ?? seed } : {}) });
         if (result?.ok) {
             // The RPG's rolls move bars (hits, heals, skill costs): the tail's block lines are read from the state they leave, so they say what the cue says.
-            if (preludeType === RPG_RESOLVE && result.state) previewState = result.state;
+            // (An interaction's opening and segment chain the same way: the segment is previewed on the state its opening leaves.)
+            if ((preludeType === RPG_RESOLVE || preludeType === SETTLE) && result.state) previewState = result.state;
             // How the carried board fight ended (won / fled / lost / open): the tail reads it to allow a new foe group only after an ended fight.
             if (preludeType === RPG_RESOLVE && payload?.board) boardStop = result.receipt?.data?.v2?.result?.stop ?? null;
             prechecks.push({ type: preludeType, payload, seed: result.receipt.seed });
@@ -41,6 +44,11 @@ let keptPrelude = 0;
             cues[moduleId] = [...(cues[moduleId] ?? []), preludeType === RPG_RESOLVE ? { text: told, keep: true, ...(payload?.board ? { board: true } : {}) } : pin ? { text: told, keep: true } : told];
         } else if (preludeType === RPG_RESOLVE && payload?.board) {
             const reason = boardFailure('The fight could not be prepared:', result?.message);
+            problem({ module: moduleId, code: result?.code ?? 'FAILED', message: reason });
+            return { blocked: { moduleId, reason } };
+        } else if (preludeType === SETTLE) {
+            // An interaction that cannot be settled (what it read changed) holds the send with the reason; nothing goes out without it.
+            const reason = result?.message ?? 'The interaction could not be prepared.';
             problem({ module: moduleId, code: result?.code ?? 'FAILED', message: reason });
             return { blocked: { moduleId, reason } };
         } else problem({ module: moduleId, code: result?.code ?? 'FAILED', message: `The cue "${preludeType}" was not prepared: ${result?.message ?? 'unknown error'}` });

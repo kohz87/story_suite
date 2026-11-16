@@ -9,7 +9,7 @@ import { occurrenceOf } from '../evidence.js';
 import { occurrenceFor } from './capture-seeds.js';
 
 export function createCaptureAfter(deps) {
-    const { ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, HOOK_TIMEOUT_MS, isolated = () => false } = deps;
+    const { ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, holdInteraction, HOOK_TIMEOUT_MS, isolated = () => false } = deps;
     /**
      * afterCapture (SPEC §4.2 step 3): once the reply's story lines have run, each module's
      * `afterCapture(view, { index, type })` hook may return `{ commands: [{ type, payload }] }` to run as
@@ -63,6 +63,7 @@ export function createCaptureAfter(deps) {
                 if (!result?.ok) {
                     problems.push(problem({ module: moduleId, index, code: result?.code ?? 'FAILED', message: `The step "${command?.type}" after the reply's lines was not run: ${result?.message ?? 'unknown error'}` }));
                     if (precheck && command?.type === 'rpg.resolve' && payload?.board) throw holdBoard(result?.message);
+                    if (precheck && command?.type === 'interaction.settle') throw holdInteraction(result?.message);
                     continue;
                 }
                 // Done, but not all of what was asked (a clamp, a line of the story that was not used): the step says why, and it goes to the Problems list.

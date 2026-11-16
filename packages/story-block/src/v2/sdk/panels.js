@@ -8,6 +8,7 @@
  * so a module keeps its old paths. A section is the scheduler's: `{ keys, isVisible, read, draw | render, drawn }`; `drawn: true` says it is already on
  * screen, so it is not drawn until something it listens to changes. Its digest also holds the number of `changed` calls for its keys, so
  * a section that was just drawn (its seed counts the calls so far) is not drawn again for a change it already shows.
+ * A section with `root: () => element` is held while a field in that element has the focus (ui-host/section-guard.js).
  * `bind(target)` (the host only, never given to modules) connects `{ register, changed, hold }` of the scheduler (or null to let go);
  * sections registered meanwhile are registered when it binds, and again at the next bind.
  */

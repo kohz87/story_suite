@@ -26,7 +26,7 @@ export function createCastPanels(session, deps) {
     function ensurePanel(found) {
         if (offPanel) return;
         offPanel = found.register('npc-state-delta.dossier-panel', {
-            keys: PEOPLE, drawn: true, isVisible: () => dossierPanel() !== null,
+            keys: PEOPLE, drawn: true, root: dossierPanel, isVisible: () => dossierPanel() !== null,
             draw: () => { try { dossierPanel()?.__npcStateDeltaStage1Ui?.scheduleRefresh?.(); } catch (error) { warn('Story Suite v2 dossier panel failed', error); } },
         });
     }
@@ -43,7 +43,7 @@ export function createCastPanels(session, deps) {
             const found = panels();
             if (!found) return null;
             ensurePanel(found);
-            const off = found.register(`npc-state-delta.cast-view.${views += 1}`, { keys: PEOPLE, drawn: true, isVisible: () => box.isConnected !== false, draw });
+            const off = found.register(`npc-state-delta.cast-view.${views += 1}`, { keys: PEOPLE, drawn: true, root: () => box, isVisible: () => box.isConnected !== false, draw });
             covered.add(box);
             return () => { covered.delete(box); off(); };
         },
@@ -57,7 +57,7 @@ export function createCastPanels(session, deps) {
             offPane?.();
             paneEl = el;
             offPane = found.register('npc-state-delta.dossiers-pane', {
-                keys: PEOPLE, drawn: true, isVisible: () => el.isConnected !== false && shown(el), draw: () => { try { draw(el); } catch (error) { warn('Story Suite v2 Dossiers tab failed', error); } },
+                keys: PEOPLE, drawn: true, root: () => el, isVisible: () => el.isConnected !== false && shown(el), draw: () => { try { draw(el); } catch (error) { warn('Story Suite v2 Dossiers tab failed', error); } },
             });
         },
         paneCovered: el => panels() !== null && paneEl !== null && paneEl === el,

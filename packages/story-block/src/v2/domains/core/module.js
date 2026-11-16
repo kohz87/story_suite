@@ -58,7 +58,7 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
     const timelineGuard = merged.hooks.replayGuard;
     // The interaction kinds modules register (`interaction(kindId)`: the kind or null) and the settle that plays them (interaction/settle.js).
     const interactionGuard = interactionGuardFor(interaction);
-    const interactionCommands = createInteractionCommands({ kindOf: interaction, receipts: () => extras?.receipts?.() ?? null });
+    const interactionCommands = createInteractionCommands({ kindOf: interaction });
     // One host-owned hook for the host's guarded blocks, by predicate: data modules (`dm.*`), the RPG's rolls
     // (`rpg.resolve`), a loot offer or take (`loot.offer`, `loot.take`, inventory.js), else the timeline's.
     merged.hooks.replayGuard = Object.assign((view, info) => {

@@ -26,6 +26,12 @@ async function scenario() {
         out.prompt = { static: host.st.prompt(STATIC_KEY), tail: host.st.prompt(TAIL_KEY), request: first.request };
         await host.send('I take it.', reply('You take it.', ['+ item Coin']));
         await host.swipe(reply('You take it, slowly.', ['+ item Lamp']));
+        // A third reply, a middle delete, a rewind and a swipe flip: the head-move reconcile and the hooks run on each and touch nothing.
+        await host.send('I look again.', reply('A map.', ['+ item Map']));
+        await host.st.deleteMessage(2);
+        const last = host.store.receipts().at(-1);
+        await host.sdk.rewind({ index: last.index, beforeRev: last.receipt.rev });
+        await host.st.swipeTo(host.ctx.chat.length - 1, 0);
         await host.turn.onChatChanged();
         out.prompts = host.st.promptLog;
         out.metadata = host.ctx.chatMetadata;
