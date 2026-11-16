@@ -107,6 +107,7 @@
 .dl2 .ic{font-size:13px;text-align:center}
 .dl2 .nm{color:var(--su-accent);font-weight:700}
 .dl2 small{color:var(--su-muted);font-size:12px}
+.journal-tab .dl2 small.wrap{display:block}
 /* coming up */
 .journal-tab button.up{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;min-height:44px;padding:9px 0;background:none;border:0;border-top:1px solid var(--su-line2);color:var(--su-text);text-align:left;cursor:pointer;font:inherit}
 .up .ti{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:16px;background:var(--su-line2)}
@@ -123,4 +124,4 @@
 .ef textarea{resize:vertical}
 .ef input:focus,.ef select:focus,.ef textarea:focus{border-color:var(--su-accent)}
 .brow{display:flex;gap:8px}
-.journal-tab .lk-plain{color:var(--su-accent);font:700 13px var(--su-font)}
+.journal-tab .lk-plain{color:var(--su-accent);font:700 13px/1.5 var(--su-font)}

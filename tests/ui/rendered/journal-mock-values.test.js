@@ -57,11 +57,12 @@ for (const theme of ['dark', 'light']) {
         const q = await read(page, { lk: '.journal-tab .lk', fstar: '.fstar', soon: '.qkv .due.soon', late: '.qkv .due.late', lapse: '.lapse' });
         assert.equal(q.lk.h, 19.5, 'link is a text line, not a 44 px box');
         assert.equal(q.lk.pad, '0px');
+        assert.equal((await read(page, { g: '.lk-plain' })).g?.h ?? 19.5, 19.5, 'plain giver is a 19.5 px line');
         assert.equal(q.fstar.pad, '0px');
         assert.equal(q.soon.bg, 'rgba(242, 180, 90, 0.16)');
         assert.equal(q.late.bg, 'rgba(229, 72, 77, 0.14)');
-        assert.equal(q.lapse?.size ?? '12px', '12px');
-        assert.equal((await read(page, { s: '.lead2 small:not(.lapse)' })).s?.size ?? '12px', '12px', 'lead sub-line is 12 px');
+        assert.equal(q.lapse.size, '12px');
+        assert.equal((await read(page, { s: '.lead2 small:not(.lapse)' })).s.size, '12px', 'lead sub-line is 12 px');
         await page.evaluate(() => document.querySelector('#hx-frame [data-value="cal"]').click());
         await page.waitForSelector('#hx-frame .cd b');
         const day = await read(page, { n: '.cd:not(.pre) b', t: '.cd.today b' });
@@ -69,6 +70,8 @@ for (const theme of ['dark', 'light']) {
         assert.equal(day.t.size, day.n.size);
         assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('#hx-frame .dsec .secl')).marginBottom), '2px', 'day-panel label margin');
         assert.equal((await read(page, { t: '.cd.today' })).t.h, 44, 'calendar cell is 44 px tall at every width');
+        const dl2 = await read(page, { r: '.dl2:has(small.wrap)' });
+        if (dl2.r) assert.equal(dl2.r.h, 84.3, 'planned row matches the mock quirks-mode height');
         assert.equal((await read(page, { u: '.up' })).u.h, 56, 'coming-up row is 56 px tall');
         await page.evaluate(() => document.querySelector('#hx-frame [data-value="quests"]')?.click());
         await page.waitForSelector('#hx-frame .qedit');
