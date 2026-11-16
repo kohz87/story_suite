@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../../helpers/dom.js';
-import { tiesPage, pastPage, secretsPage, tieInitial } from '../../../../../ui/tabs/people/dossier/past-secrets.js';
+import { tiesPage, pastPage, secretsPage } from '../../../../../ui/tabs/people/dossier/past-secrets.js';
+import { tieInitial } from '../../../../../ui/tabs/people/dossier/tie-disc.js';
 import { dossier, makeCtx } from './helpers.js';
 
 test('Ties: a tie with a person opens their dossier, one without is plain text', async () => {

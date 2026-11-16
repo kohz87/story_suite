@@ -1,4 +1,6 @@
 /* Styles for the People tab: tiles, filters, search and the cast map; tokens only. */
+.people-tab{--pk-disc:#3a3c52}
+[data-scheme="light"] .people-tab{--pk-disc:#4a4d68}
 .people-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .people-tab .phd{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .people-tab .phd h3{margin:0;font:700 19px var(--su-font);color:var(--su-text);flex:1}
@@ -19,7 +21,7 @@
 .pc{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;cursor:pointer;color:var(--su-text);font:inherit;min-width:44px;min-height:44px;padding:0;text-align:center}
 .people-tab .prg{position:relative;width:84px;height:84px}
 .people-tab .prg>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.people-tab .prg .ph{position:absolute;inset:9px;border-radius:50%;background:var(--su-tile) center 18%/cover;display:grid;place-items:center;font:800 22px var(--su-font);color:var(--su-soft)}
+.people-tab .prg .ph{position:absolute;inset:9px;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 22px var(--su-font);color:#fff}
 .people-tab .prg .star{right:-4px;color:var(--su-warn-t)}
 .pc .nm2{font:800 13.5px/1.15 var(--su-font);margin-top:3px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .pc .md2{font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:1px 8px}
@@ -38,7 +40,7 @@
 .cmap .ring2.cold{border-style:dashed;border-color:var(--su-muted)}
 .tie-line.ok{stroke:var(--su-ok)}.tie-line.bad{stroke:var(--su-bad)}.tie-line.gold{stroke:var(--su-warn)}
 .tie-line{opacity:.6}.tie-line.on{opacity:1}
-.cm{position:relative;width:44px;height:44px;border-radius:50%;background:var(--su-tile);display:grid;place-items:center;font:800 15px var(--su-font);color:var(--su-soft);box-shadow:0 0 0 2px var(--su-line2)}
+.cm{position:relative;width:44px;height:44px;border-radius:50%;background:var(--pk-disc);display:grid;place-items:center;font:800 15px var(--su-font);color:#fff;box-shadow:0 0 0 2px var(--su-line2)}
 .cm .cm-face{position:absolute;inset:0;border-radius:50%;background:center 18%/cover;display:grid;place-items:center}
 .cm.you{position:absolute;transform:translate(-50%,-50%);width:54px;height:54px;box-shadow:0 0 0 3px var(--su-accent)}
 .cmw{position:absolute;transform:translate(-50%,-30%);display:flex;flex-direction:column;align-items:center;width:64px;min-height:44px;background:none;border:0;cursor:pointer;color:var(--su-text);font:inherit;padding:0}
