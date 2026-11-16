@@ -4,7 +4,7 @@
 // RPG, until 2.9.4 added one clause to the `present` grammar line (fixtures/off-2.9.4.json is that one), 2.10.0 put Your look's
 // `~ you` grammar line and tail line in and 2.11.0 the Mounts grammar line, both on by default. With the old clause and
 // `story-block.you` and `story-block.mounts` both off the code still gives 2.9.4's exactly; with them on only the prompt hashes differ;
-// the 2.11.0 hashes were made again when a chat whose look is empty began to ask for it in the tail, you-first.test.js).
+// the 2.11.0 hashes were made again when a chat whose look is empty began to ask for it in the tail, you-first.test.js; both fixtures' prompt hashes were made again when the coin line stopped saying "one coin" and dropped its worked sum (Batch 1 B1.2: only the hashes moved).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
