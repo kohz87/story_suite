@@ -459,7 +459,11 @@ save).
    for one; it is not read from GENERATION_STARTED, which another caller's dry run can send in between.)
    A pack event fires only from its own definition (the payload names its id); a repeating one at most
    once per reply (claim `event:<id>:<reply index>`).
-4. Assemble the prompt (§5).
+4. **Interactions** (§6.1): a module's `beforeGenerate` or `canGenerate` may answer `interactionStart`, which holds the send for the reader's
+   choice (the waiting choice). An interaction staged on the head reply holds a normal generate ("Play the waiting …"); once sent, the core
+   asks for `interaction.settle` as a prelude of the reply (its note joins the tail, §5). Swipe and regenerate replay the stored payload; a
+   Continue runs none of this.
+5. Assemble the prompt (§5).
 
 Quiet and impersonate generations get nothing and capture nothing. A quiet generation whose instruction GENERATION_STARTED
 tells (`quiet_prompt`) is found by that instruction at its own prompt-ready, which loses Story Block's text; the slots stay
@@ -486,7 +490,9 @@ pending is another caller's (`generateRaw` runs no interceptor) and is left alon
    that is refused, is a Problem; the reply's lines are kept. A Re-read runs it again after the new lines
    (§3.2 "afterCapture step"). Use it for what must be checked where the reply ends up, not where a line
    is read: Story Director's story turn-in, whose line often comes before the reply's `~ place` line.
-4. Record `narrated` = the untold receipt IDs given to this reply.
+4. Record `narrated` = the untold receipt IDs given to this reply. When the reply carried a settled interaction that stopped `open` and its
+   kind has `carry`, the core opens the next segment on this reply (§6.1); a settle that failed its witness holds the reply uncaptured until
+   the state is restored or the interaction is discarded.
 5. One save (the lines and the afterCapture steps in one write).
 
 A capture runs with `ctx.carrier = { index, swipe, sid, key }` (frozen; `String(ctx.carrier)` is `key`,
@@ -670,6 +676,7 @@ Story Block is the only v2 code that calls `setExtensionPrompt` for the host and
 
 * `context.tail` returns `{ lines: string[], optional: string[] }`; each module has a `budget` (tokens,
   estimated chars/4); optional lines drop first. The host's total tail budget is a setting (default 1,500).
+* **Interaction note.** A settled interaction's note is its `interaction.settle` receipt's `summary` (the kind's `note(...)` joined with ` | `), a kept prelude cue that joins the leading `[Happened]` note. It counts inside the tail total ahead of module sections and outside the 120-token kept pool. Its allowance, `INTERACTION_NOTE_TOKENS` = 1290 (the longest board note measured, plus 20 %), is what the kind is told; a longer note is never cut, only the quiet Problem `NOTE_LONG` is raised. A kind's `marker` word (one per kind; the board's `[battle]`) is dropped from the history lines of the prompt (the board's gate is the RPG feature). The static part is unchanged: an interaction adds no static text.
 * **Kept cues.** A `beforeGenerate` line may be `{ text, keep: true }`, and a prelude command (marked `prelude`) whose receipt carries `data: { keep: true }` has its `[Happened]` cue pinned the same way: kept whatever the budget says. A module keeps at most 4 lines / 4,000 characters through `beforeGenerate`, and the host pins prelude cues up to 120 tokens in all per reply (`KEPT_PRELUDE_TOKENS`); the rest are ordinary cues. A module's own `context.tail().lines` may hold `{ text, keep: true }` items too (kept whole, in the module's section): at most 4 per module (`KEPT_TAIL_LINES`) and 120 tokens in all per reply (`KEPT_TAIL_TOKENS`, counted after names are filled in), shared with the kept prelude cues and first come first served in tail order; any more are ordinary lines. Unmarked lines behave as before. The static part is not affected.
 * **The context size.** SillyTavern fits the extension prompts first and drops the conversation when the
   rest no longer fits, so the static part and the tail together are held to a share of the room the prompt
@@ -886,6 +893,19 @@ sdk.registerModule({
   a refusal; one level down the same: an unknown command option, `settings.*` part, or settings field
   type (that field is hidden in the settings and its value kept as stored). A module whose domains grow keeps the data of the domains a chat already has: only the
   missing ones get their `initial()` (§2.6).
+
+### 6.1 Interactions
+
+A module may add `interactions: { [kind]: KindDef }`; the full id is `<moduleId>/<kind>` (`story-block/fight`). Registry checks refuse a bad field with one sentence. docs/dev/interaction.md has the files; MODULES §F132 the decision.
+
+- **Required:** `version` (integer, stored in sessions and payloads), `title` (≤ 24 chars), `feature` (off: open and stage are refused, guards still run; `null` = always on), `screen`, `limits` (overrides of the defaults: 99 steps, 12 inputs per step, 16 KB setup, 1 KB per input, 64 KB payload, 48 changes), `changes` (the only commands settle may call), `ready()`, and the pure functions `open`, `witness`, `validate`, `play`, `settle`, `note`. Optional: `actors`, `auto`, `opening`, `carry` + `next`, `marker`, `view`. No DOM, clock, `Math.random` or model call in any of them.
+- **A step** is `{ inputs: [{ actor, choice, args? }] }`, validated and played as a whole; staged steps are final. Dice are one positional stream per step (`dice(i)(lane, at)`); a kind owns lanes 1-62, lane 63 is the core's for derived inputs. For `story-block/fight` the seed equals the board's `fightSeed`.
+- **sdk:** `sdk.interaction` (version 1) with `open`, `stage`, `auto`, `send`, `discard`, `current`, each answering `{ ok: true, … }` or `{ ok: false, code, message }` and never throwing; the query `interaction.view` gives `current()`. Codes: `FEATURE_OFF`, `NO_REPLY`, `BUSY`, `NOT_YOURS`, `INVALID`, `CHANGED`, `TOO_BIG`, `ENDED`, `NO_INPUT`, `REFUSED`, `DAMAGED`, and on settle and replay `CLAIMED`, `NO_LONGER_DONE`, `NOT_READY`.
+- **Settle** is the core's internal prelude command `interaction.settle` (refused for cause `ui`). It checks the payload's witness and the recorded policy and player, derives the code-played inputs, runs `play` + `settle` with the stored seed, claims the key, records a replay guard (not `replyBound`) and runs each change through `ctx.call`, all atomic. The receipt keeps the result under `data.v2.result` and a display list under `data.interaction`; a settle is found by `type` + `replan.payload.kindId`.
+- **Storage:** unsent scratch in `chatMetadata.storySuiteInteraction` (not game state); the seed, steps, setup, witness and recorded policy in the receipt's `replan.payload`. Swipe, middle delete, rewind, reload and Re-read all replay the stored payload (§2.2, §3.2).
+- **Policy:** `STORY_ACTION_POLICY` (`core/interaction/policy.js`): own character only, except kinds in `partyKinds` (fights: every party member, permanently).
+- **Guard mark:** `;kinds:<kindId>@<version>:<ready>` is appended for registered kinds (nothing with none).
+- **Built:** one kind, the fight board, on the old view; the Suite view's scene host and the rules chooser that offers Combat Rules v1 are not on yet. The gate `scripts/checks/core-module-refs.mjs` keeps fight and RPG words out of the core except the lines in `docs/merge/core-module-refs.txt`.
 
 ## 7. Core domains (Story Block)
 
