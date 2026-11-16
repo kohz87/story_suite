@@ -64,7 +64,7 @@
 .legend2 .newsmark{color:var(--su-warn)}
 /* trip */
 .tripc{display:flex;flex-direction:column;gap:6px}
-.tripc.side{padding:12px 14px;background:var(--su-panel2)}
+.tripc.side{padding:12px 14px;background:var(--su-panel2);flex:1 1 320px;max-width:520px;gap:10px;position:sticky;top:12px}
 .tripsum{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;font:700 13px var(--su-font);color:var(--su-soft)}
 .tripsum b{color:var(--su-text);font-weight:800}
 .tripc .th{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
