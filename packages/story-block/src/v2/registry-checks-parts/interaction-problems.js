@@ -7,6 +7,9 @@ const KIND = /^[a-z][a-z0-9_-]*$/;
 const COMMAND = /^[a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+)*$/;
 const SCREEN = /^[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*$/;
 const TITLE_MAX = 24;
+const MARKER_WORD = /^[a-z][a-z0-9-]{0,23}$/;
+/** Words the host's own prompt text uses as a lone header line (the tail's "[Happened]"): a marker may not strip them. */
+const HOST_HEADERS = Object.freeze(['happened']);
 const FUNCTIONS = ['ready', 'open', 'witness', 'validate', 'play', 'settle', 'note'];
 const OPTIONAL_FUNCTIONS = ['actors', 'auto', 'opening', 'view'];
 /** The members of a kind this host knows (an unknown one is only warned about). */
@@ -45,6 +48,8 @@ function kindProblems(kind, def) {
     if (def.marker !== undefined) {
         const marker = def.marker;
         if (!isObject(marker) || typeof marker.word !== 'string' || !marker.word) out.push(`${at} marker has no word (like { word: "battle" })`);
+        else if (!MARKER_WORD.test(marker.word)) out.push(`${at} marker word "${marker.word}" is not a plain lowercase word (letters, digits and "-", like "battle")`);
+        else if (HOST_HEADERS.includes(marker.word)) out.push(`${at} marker word "${marker.word}" is a header of the host's own prompt text`);
         else if (marker.feature !== undefined && (typeof marker.feature !== 'string' || !marker.feature)) out.push(`${at} marker feature is not a feature id`);
     }
     return out;
