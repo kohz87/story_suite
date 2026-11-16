@@ -17,6 +17,7 @@ of `src/v2/world/index.js` and `known.js` (the exact PC-known rules), Story Bloc
 - Never shown: agendas, beats, clocks, secrets (behind the scenes, Reveal), and anything the arc planner made
   or touched, unless revealed.
 - Feature `story-director.world` (on by default): the screen, the people widget, the queries and the setting.
+- Flag `suite.worldPeopleOwn` (off by default; Story Block's `sdk.flag`, read at each render): the people widget draws the present cards itself (`world/people-own.js`) from NPC State's `npc.present` / `npc.dossier` / `npc.meters` / `npc.portrait` and `director.keyPeople`, in NPC State's card classes, instead of `NPCStateDeltaCast`; it redraws on the store's `changed` event. It does not draw NPC State's chatter bubbles, speaker cards or the "updating" mark, and it lists the dossiers marked present (not the scene's list). Flag off: unchanged.
   Off, none of it is drawn or asked.
 - Works with any set of modules: without NSD the people are plain names; without a pack no holidays; without
   the clock nothing has a date; without the day digest the Journal says it is off.
