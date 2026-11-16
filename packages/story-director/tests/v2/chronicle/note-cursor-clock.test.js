@@ -28,8 +28,8 @@ const edit = async (extra, r3 = R3, later = LATER, unedited = false) => {
 };
 const dayOf = (host, place) => Object.values(chronicleOf(host).dayFacts ?? {}).find(entry => entry.places.includes(place))?.day - FIRST;
 
-// The later reply moves no place and leaves Mira, whom the edit put in the scene: its entry says "Mira leaves." only if the
-// walk started from the edited scene. A fresh telling of the unedited chat has no Mira to leave, so it differs.
+// The later reply leaves Mira, whom the edit put in the scene. The "Mira leaves." line is Story Block's own replay of the
+// present line, so these assertions pin the host's replay, not the chronicle's scene start (the next test pins that).
 test("an edited Re-read of the cursor's reply that adds a scene change: the next reply is filed as in a fresh telling", async t => {
     quiet(t);
     const { live, fresh, unedited } = await edit(['+ present Mira'], ['~ quest Q | done'], [['~ quest Z — x | giver: B', '- present Mira'], ['~ place Redmoor']], true);
@@ -40,6 +40,19 @@ test("an edited Re-read of the cursor's reply that adds a scene change: the next
     assert.deepEqual(next(live), next(fresh));
     assert.notDeepEqual(next(live), next(unedited));
     assert.doesNotMatch(JSON.stringify(next(unedited)), /Mira leaves/);
+    assert.equal(reloadSame(live), true);
+    live.close(); fresh.close(); unedited.close();
+});
+
+// What the chronicle itself records from its walk start (receipts.js sceneOf): the later replies do not touch the scene, so the
+// next note's stored present is the scene the walk started from, which the edited Re-read put Mira into.
+test("an edited Re-read that adds a scene change: the next note's stored present is the edited scene, as in a fresh telling", async t => {
+    quiet(t);
+    const { live, fresh, unedited } = await edit(['+ present Mira'], ['~ quest Q | done'], [['+ quest W — find the ring | giver: B'], ['~ place Ashford']], true);
+    const present = host => chronicleOf(host).noted.at(-1)?.present;
+    assert.deepEqual(present(live), ['Mira']);
+    assert.deepEqual(present(live), present(fresh));
+    assert.equal(present(unedited), undefined);
     assert.equal(reloadSame(live), true);
     live.close(); fresh.close(); unedited.close();
 });
