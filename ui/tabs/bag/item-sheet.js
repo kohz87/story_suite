@@ -31,7 +31,7 @@ function details(item, rpg, ctx) {
     wear,
     rpg ? row('Weight', weightText(item)) : [],
     row('Worth here', item.worth),
-    item.from ? row('From', item.from) : [],
+    item.from ? row('From', h('span', { class: 'bfrom' }, `${item.from} ›`)) : [],
   );
 }
 

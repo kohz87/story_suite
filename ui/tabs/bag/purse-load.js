@@ -14,7 +14,7 @@ function loadText(load) {
 /** Builds the party load block (bar, 80% marker, heavy and over notes, sources); null when load is null (Story-only). */
 export function loadBlock(load) {
   if (!load) return null;
-  const pct = Math.min(100, Math.round((load.value / load.limit) * 100));
+  const pct = Math.min(100, (load.value / load.limit) * 100);
   const heavyAt = Math.ceil(load.limit * 0.8);
   return h(
     'div',
