@@ -59,7 +59,7 @@ runs), so a note names the message its card goes under (`at`) rather than the re
    arrival goes back to where they were (`met.was`), the "Paths crossed" card line goes, the pace is not used up, they may come again. `why:
    'story'` is never withdrawn. It runs before NPC State Delta's step after the reply (its `npc.tick` follows the `turn` event), so no dossier is
    made for a withdrawn meeting; a swipe or Re-read decides again. The hook opts in (`hook.always`, Story Block's afterCapture) to run for a
-   reply with no change lines too; module.js then runs only the parts that opted in. Needs a Story Block with that option (the vendored testkit has it).
+   reply with no change lines too; module.js then runs only the parts that opted in. Needs a Story Block with that option (the live testkit has it).
 
 5. **Sought** (`sought.js`, hooks.js, part of the same feature): the reader's latest message (or the story's last reply) may look for a kind of
    person ("a healer or sister around"). The cheap gate (`kindTouches`): a telling word of an unmet, living, placed person's calling

@@ -1,5 +1,5 @@
 // World part: the Journal (the World screen's second view, which took the Days screen's place), drawn by
-// Story Block's template renderer (vendored in tests/vendor/story-block) with the real condition language:
+// Story Block's template renderer (from packages/story-block) with the real condition language:
 // newest day first, each folded to its line and opening to its facts; the search box keeps the days that
 // hold what was typed; an older day shows its line only; with no day yet, one plain sentence. The old Days
 // id is a dialog of the Journal alone.
@@ -11,12 +11,12 @@ import { DAYS_ID, WORLD_ID, daysScreen, hiddenNames, knownDay, part, worldScreen
 import { backlogBlock } from '../../../src/v2/chronicle/backlog.js';
 import { DIGEST_FEATURE } from '../../../src/v2/chronicle/days.js';
 import { part as chronicle } from '../../../src/v2/chronicle/index.js';
-import { validateScreen } from '../../vendor/story-block/src/v2/view/screens.js';
-import { compileTemplate, renderTemplate } from '../../vendor/story-block/src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../vendor/story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../vendor/story-block/src/v2/events/index.js';
-import { scopeCss } from '../../vendor/story-block/src/v2/view/css.js';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { validateScreen } from '../../../../story-block/src/v2/view/screens.js';
+import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
+import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
+import { scopeCss } from '../../../../story-block/src/v2/view/css.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
 import { installFakeDom } from '../../ui-fake-dom.js';

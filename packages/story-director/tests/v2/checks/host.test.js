@@ -2,7 +2,7 @@
 // as the player calls them, the policy and its hash, the probe, a rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { moduleWithChecks } from './helpers.js';
 
 const newHost = () => createHost({ modules: [moduleWithChecks()] });

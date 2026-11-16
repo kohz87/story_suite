@@ -5,9 +5,9 @@ import assert from 'node:assert/strict';
 
 import { worldScreen } from '../../../src/v2/world/index.js';
 import { STATUS_SUMMARY, statusCardScreen } from '../../../src/v2/screens/status-card.js';
-import { conditionEvaluator } from '../../vendor/story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../vendor/story-block/src/v2/events/index.js';
-import { compileTemplate, renderTemplate } from '../../vendor/story-block/src/v2/view/template/index.js';
+import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
+import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
 import { installFakeDom } from '../../ui-fake-dom.js';
 import { OPENING, castHost, castSource, createFakeModel, entry, said, settle } from './helpers.js';
 
