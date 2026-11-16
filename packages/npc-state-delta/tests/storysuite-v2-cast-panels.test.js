@@ -111,3 +111,15 @@ test('redrawCastViews leaves a view a section draws to the section; a view drawn
     old.redrawCastViews();
     assert.deepEqual(drawn, ['off']);
 });
+
+test('every section names its root, so Story Block holds its redraw while a field in it has the focus', () => {
+    const { fake, castPanels } = setup();
+    const box = { isConnected: true };
+    const pane = { isConnected: true };
+    castPanels.view(box, () => {});
+    castPanels.pane(pane, () => {}, () => true);
+    castPanels.touch();
+    assert.equal(fake.sections.get('npc-state-delta.cast-view.1').root(), box);
+    assert.equal(fake.sections.get('npc-state-delta.dossiers-pane').root(), pane);
+    assert.equal(typeof fake.sections.get('npc-state-delta.dossier-panel').root, 'function');
+});

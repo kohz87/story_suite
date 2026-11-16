@@ -17,10 +17,11 @@ function stateOf(ctx) {
 
 /**
  * `{ 'interaction.settle': handler }`: a prelude, internal command (the host stores it on a generated reply, no caller can run it).
- * `kindOf(kindId)` is the registered kind or null; `receipts()` answers the stored receipts for a carried segment.
+ * `kindOf(kindId)` is the registered kind or null.
  */
-export function createInteractionCommands({ kindOf = () => null, receipts = null } = {}) {
-    const handler = (ctx, payload) => settleInteraction(ctx, payload, kindOf, { state: stateOf(ctx), receipts });
+export function createInteractionCommands({ kindOf = () => null } = {}) {
+    // (a carried segment finds the earlier one's receipt through ctx.receipts(): on a re-plan, the receipts before its block)
+    const handler = (ctx, payload) => settleInteraction(ctx, payload, kindOf, { state: stateOf(ctx) });
     return { [SETTLE]: Object.assign(handler, { prelude: true, internal: true }) };
 }
 

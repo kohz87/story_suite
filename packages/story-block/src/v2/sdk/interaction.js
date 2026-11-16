@@ -4,6 +4,7 @@ import { interactionError, limitsFor } from '../interaction/contract.js';
 import { dice, interactionSeed } from '../interaction/dice.js';
 import { STORY_ACTION_POLICY, policyProblem } from '../interaction/policy.js';
 import { markSend } from '../interaction/send.js';
+import { discardHeld } from '../interaction/held.js';
 import { actorsOf, currentFor, playPreview } from '../interaction/preview.js';
 import { createSession, stageInteraction } from '../interaction/session.js';
 import { hashJson } from '../replay.js';
@@ -138,9 +139,16 @@ export function createInteractionApi({
     policy = STORY_ACTION_POLICY,
     featureOn = id => registry?.featureOn?.(id) ?? true,
     query = null,
+    preview = null,
 } = {}) {
     const persist = () => { try { save(); } catch { /* the in-memory choice stands */ } };
     const stateNow = () => stateOf(state);
+    // A session with an opening is played on the state its opening leaves (the reply's preludes run opening first; `preview(payload, seed, state)` → that state).
+    const stateFor = session => {
+        const head = stateNow();
+        if (!plain(session?.opening) || typeof preview !== 'function') return head;
+        try { return preview(session.opening.payload, session.opening.seed, head) ?? head; } catch { return head; }
+    };
     const ask = (name, args) => (typeof query === 'function' ? query(name, args) : undefined);
 
     function open(kindId, args = {}) {
@@ -180,13 +188,13 @@ export function createInteractionApi({
                 opening: plain(start?.opening) ? start.opening : null,
             });
             if (!session) return failed('DAMAGED', kind);
-            const played = playPreview(kind, stateNow(), session, personaOf(persona), title);
+            const played = playPreview(kind, stateFor(session), session, personaOf(persona), title);
             if (played.error) return played.error;
             const box = boxOf(meta, true);
             box.open = session;
             delete box.send;
             persist();
-            return success(currentFor(box, kindId, kind, stateNow(), personaOf(persona), title));
+            return success(currentFor(box, kindId, kind, stateFor(session), personaOf(persona), title));
         } catch (error) {
             return failed('DAMAGED', kind, `${title} could not open: ${error?.message ?? error}`);
         }
@@ -202,10 +210,10 @@ export function createInteractionApi({
         const title = titleOf(kind);
         try {
             for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title)]) if (problem) return problem;
-            const actors = actorsOf(kind, stateNow(), session.setup, personaOf(persona), title);
+            const actors = actorsOf(kind, stateFor(session), session.setup, personaOf(persona), title);
             if (actors.error) return actors.error;
             if (session.steps.length) {
-                const now = playPreview(kind, stateNow(), session, personaOf(persona), title);
+                const now = playPreview(kind, stateFor(session), session, personaOf(persona), title);
                 if (!now.error && now.preview.stop !== 'open') return interactionError('ENDED', title);
             }
             const next = stageInteraction({
@@ -213,14 +221,14 @@ export function createInteractionApi({
                 step,
                 kind,
                 kindId: session.kindId,
-                state: stateNow(),
+                state: stateFor(session),
                 actors: actors.actors,
                 policy,
             });
             if (next.error) return next.error;
             box.open = clone(next.session);
             persist();
-            return success(currentFor(box, session.kindId, kind, stateNow(), personaOf(persona), title));
+            return success(currentFor(box, session.kindId, kind, stateFor(session), personaOf(persona), title));
         } catch (error) {
             return failed('DAMAGED', kind, `${title} could not stage that step: ${error?.message ?? error}`);
         }
@@ -242,10 +250,10 @@ export function createInteractionApi({
             while (done < n) {
                 if (session.invalidated) return interactionError('ENDED', title, `The earlier ${title} was taken back. Restore that reply or discard it.`);
                 if (session.steps.length >= limitsFor(kind).steps) return interactionError('ENDED', title, `The ${title} has all the steps it can hold.`);
-                const before = playPreview(kind, stateNow(), session, personaOf(persona), title);
+                const before = playPreview(kind, stateFor(session), session, personaOf(persona), title);
                 if (before.error) return before.error;
                 if (before.preview.stop !== 'open') break;
-                const actors = actorsOf(kind, stateNow(), session.setup, personaOf(persona), title);
+                const actors = actorsOf(kind, stateFor(session), session.setup, personaOf(persona), title);
                 if (actors.error) return actors.error;
                 const livePolicy = session.policy ?? policy ?? STORY_ACTION_POLICY;
                 const choosers = actors.actors.filter(actor => !policyProblem(livePolicy, session.kindId, actors.actors, { actor: actor.id }));
@@ -255,7 +263,7 @@ export function createInteractionApi({
                 for (const actor of choosers) {
                     let input;
                     try {
-                        input = kind.auto(stateNow(), session.setup, session.steps, actor.id, source);
+                        input = kind.auto(stateFor(session), session.setup, session.steps, actor.id, source);
                     } catch (error) {
                         return interactionError('INVALID', title, `${title} could not choose for ${String(actor.name ?? actor.id)}: ${error?.message ?? error}`);
                     }
@@ -268,7 +276,7 @@ export function createInteractionApi({
                     step: { inputs },
                     kind,
                     kindId: session.kindId,
-                    state: stateNow(),
+                    state: stateFor(session),
                     actors: actors.actors,
                     policy: livePolicy,
                 });
@@ -279,7 +287,7 @@ export function createInteractionApi({
                 if (next.preview?.stop !== 'open') break;
             }
             persist();
-            const current = currentFor(box, session.kindId, kind, stateNow(), personaOf(persona), title);
+            const current = currentFor(box, session.kindId, kind, stateFor(session), personaOf(persona), title);
             return current ? { ok: true, staged: done, ...current } : { ok: true, staged: done };
         } catch (error) {
             return failed('DAMAGED', kind, `${title} could not play Auto: ${error?.message ?? error}`);
@@ -304,18 +312,18 @@ export function createInteractionApi({
             }
             let witness;
             try {
-                witness = hashJson(kind.witness(stateNow(), session.setup));
+                witness = hashJson(kind.witness(stateFor(session), session.setup));
             } catch (error) {
                 return interactionError('INVALID', title, `${title} could not read its setup: ${error?.message ?? error}`);
             }
             if (!plain(session.witness) || session.witness.hash !== witness || session.witness.offset !== session.offset) {
                 return interactionError('CHANGED', title);
             }
-            const played = playPreview(kind, stateNow(), session, personaOf(persona), title);
+            const played = playPreview(kind, stateFor(session), session, personaOf(persona), title);
             if (played.error) return played.error;
             if (!markSend(box, pending, session)) return interactionError('CHANGED', title);
             persist();
-            return success(currentFor(box, session.kindId, kind, stateNow(), personaOf(persona), title));
+            return success(currentFor(box, session.kindId, kind, stateFor(session), personaOf(persona), title));
         } catch (error) {
             return failed('DAMAGED', kind, `${title} could not be sent: ${error?.message ?? error}`);
         }
@@ -332,8 +340,9 @@ export function createInteractionApi({
             if (!plain(box.attempts)) box.attempts = {};
             box.attempts[session.origin] = (whole(box.attempts[session.origin]) ? box.attempts[session.origin] : session.attempt ?? 0) + 1;
             if (plain(box.send) && box.send.anchor === session.anchor) delete box.send;
-            if (plain(box.held)) delete box.held[session.anchor];
-            if (plain(box.heldDiscarded)) delete box.heldDiscarded[session.anchor];
+            // A held reply keeps its marker (regenerate it); it is only marked discarded so a restore no longer resumes it. A waiting choice goes.
+            discardHeld(meta, session.id);
+            if (plain(box.start) && box.start.id === session.id) delete box.start;
             delete box.open;
             persist();
             return { ok: true, discarded: true, id: session.id, kindId: session.kindId, title };
@@ -349,7 +358,7 @@ export function createInteractionApi({
             if (!session) return null;
             const kind = kindOf(registry, session.kindId);
             if (!kind) return null;
-            return currentFor(box, session.kindId, kind, stateNow(), personaOf(persona), titleOf(kind));
+            return currentFor(box, session.kindId, kind, stateFor(session), personaOf(persona), titleOf(kind));
         } catch {
             return null;
         }
