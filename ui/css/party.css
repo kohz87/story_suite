@@ -1,11 +1,12 @@
-/* Party tab styles (decision 22, party.html): member row, sheet, equipment doll, stats, skills and the bottom sheets; tokens only. */
+/* Party tab styles (decision 22, party.html): member row, sheet, equipment doll, stats, skills and the bottom sheets; tokens, plus the mock's fixed stance, rarity, mastery and scrim colours in both themes. */
 .party-tab{display:flex;flex-direction:column;gap:12px}
 .party-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.party-tab .slim{padding:10px 14px}
+.party-tab .slim{padding:10px 12px}
 .memrow{display:flex;align-items:center;gap:10px}
 .mem{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
 .su-root .mb{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;cursor:pointer;color:var(--su-muted);font:700 12px var(--su-font);padding:2px 6px;min-width:56px;min-height:44px}
 .su-root .mb .aw{font:700 12px var(--su-font);color:var(--su-muted);white-space:nowrap}
+.su-root .mb.away{border-radius:12px}
 .su-root .mb.away .a{opacity:.55}
 .su-root .mb .a{width:44px;height:44px;border-radius:50%;background:var(--su-panel2) center 18%/cover;display:grid;place-items:center;font:800 18px var(--su-font);color:var(--su-text);box-shadow:0 0 0 2px var(--su-line2)}
 .su-root .mb[aria-current="true"]{color:var(--su-text)}
@@ -14,10 +15,10 @@
 .su-root .mb .hpl b{display:block;height:100%;background:var(--su-hp)}
 .su-root .inv,.su-root .edit{flex:none;font:800 12.5px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:12px;padding:7px 12px;min-height:44px;cursor:pointer}
 .su-root .edit{align-self:flex-start}
-.psheet{gap:12px}
+.party-tab .psheet{gap:12px}
 .shead{display:flex;flex-direction:column;gap:6px}
 .shtop{display:flex;align-items:center;gap:10px}
-.shtop .nm{flex:1;font:800 26px/1.05 var(--su-font);color:var(--su-text)}
+.shtop .nm{flex:1;letter-spacing:.01em;font:800 26px/1.05 var(--su-font);color:var(--su-text)}
 .shtop .ibtn{width:44px;height:44px;flex:none;font:800 20px var(--su-font);padding:0;line-height:1}
 .awn{font:700 12.5px/1.35 var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:12px;padding:6px 10px}
 .sgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
@@ -46,7 +47,7 @@
 .dcol.right .slot .torn{right:auto;left:-5px}
 .big{width:clamp(96px,26cqi,150px);aspect-ratio:1;border-radius:50%;background:var(--su-panel2) center 18%/cover;display:grid;place-items:center;font:800 40px var(--su-font);color:var(--su-text);box-shadow:0 0 0 3px var(--su-panel2),0 10px 26px rgba(0,0,0,.35)}
 @container (max-width:420px){.su-root .slot{flex-direction:column!important;justify-content:center;gap:2px;padding:5px 2px;min-height:52px;text-align:center!important}.su-root .slot .sx b{display:none}.su-root .slot .lf{display:none}.su-root .slot .ls{display:inline}.st7{grid-template-columns:repeat(4,minmax(0,1fr))}.doll{grid-template-columns:58px minmax(0,1fr) 58px}.big{width:min(100%,150px);justify-self:center}}
-@container (min-width:620px){.lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}.doll{max-width:640px;margin:0 auto;width:100%}}
+@container (min-width:620px){.lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}.doll{max-width:640px;margin:0 auto;width:100%}}
 .secl{font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted);display:flex;justify-content:space-between;align-items:center}
 .pts{font:800 12px var(--su-font);letter-spacing:0;text-transform:none;color:#0e1a14;background:var(--su-ok);border-radius:999px;padding:2px 9px}
 .xp2{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;font:700 12px var(--su-font);color:var(--su-muted)}
@@ -61,15 +62,16 @@
 .skl{display:flex;flex-direction:column}
 .su-root .sk{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:44px;padding:7px 0;border:0;border-top:1px solid var(--su-line2);background:none;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
 .su-root .sk:first-child{border-top:0}
+.su-root .sk.stance{border-radius:12px}
 .su-root .sk .ti{width:30px;height:30px;border-radius:9px;background:var(--su-line2);display:grid;place-items:center;color:var(--su-soft)}
 .su-root .sk .ti svg{width:16px;height:16px}
 .su-root .sk b{font:700 13.5px var(--su-font);display:block;color:var(--su-text)}
 .su-root .sk small{font-size:12px;display:block;color:var(--su-muted)}
 .skr{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
 .rk{font:800 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:2px 9px;white-space:nowrap}
-.su-root .sk.stance .rk{color:var(--su-warn)}
+.su-root .sk.stance .rk{color:#f0b84a}
 .mbar{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:3px;width:84px}
-.mbar.inline{display:inline-grid;vertical-align:middle;margin:0 0 0 6px}
+.mbar.inline{display:inline-grid;vertical-align:middle;margin:3px 0 0 6px}
 .mbar i{height:3px;border-radius:2px;background:var(--su-line2)}.mbar i.on{background:var(--su-accent)}
 /* bottom sheets (slot, stat, skill, ⋯) */
 .pty-ov{position:fixed;inset:0;background:rgba(6,8,16,.45);z-index:20;display:flex}
@@ -79,8 +81,16 @@
 @container (min-width:601px){.pty-sheet{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:460px;border-radius:24px;padding:18px 20px 20px}.pty-sheet .grab{display:none}}
 .ps-h{display:flex;align-items:center;gap:10px}.ps-h>div{flex:1;min-width:0}
 .ps-n{font:800 20px/1.1 var(--su-font);color:var(--su-text)}.ps-n2{font-size:17px}
-.ps-s{font:600 13px var(--su-font);color:var(--su-muted);margin-top:2px}
+.ps-s{font:600 13px var(--su-font);color:var(--su-muted);margin-top:2px}.ps-slot .ps-s:empty{display:none}
 .su-root .ps-x{width:44px;height:44px;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-line2);color:var(--su-text);font:800 20px var(--su-font);cursor:pointer;flex:none;padding:0}
+/* Bag sheets use the mock's .x (radius 10, no border, 16px glyph, the button's own 1px 6px padding); Party's own sheets keep .ps-x above. */
+.su-root .pty-sheet:has(>.ps-body>.bag-sheet) .ps-x{border-radius:10px;border:0;font-size:16px;padding:1px 6px}
+/* Bag sheets with a .dh header (item, asset, Prices here, money): the mock has no title row; the × sits in the header row, centred on the tile (phone y 36, tablet y 28) or at the top of a tile-less header (phone y 26, tablet y 18). */
+.pty-sheet:has(>.ps-body>.bag-sheet>.dh) .ps-h{position:absolute;top:36px;right:18px;z-index:1;display:block}
+.pty-sheet:has(>.ps-body>.bag-sheet>.dh) .ps-h>div{display:none}
+@container (min-width:601px){.pty-sheet:has(>.ps-body>.bag-sheet>.dh) .ps-h{top:28px;right:20px}}
+.pty-sheet:has(>.ps-body>.bag-sheet>.dh.solo) .ps-h{top:26px}
+@container (min-width:601px){.pty-sheet:has(>.ps-body>.bag-sheet>.dh.solo) .ps-h{top:18px}}
 .ps-i{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center}
 .ps-i .ti,.ps-r .ti{width:44px;height:44px;border-radius:12px;background:var(--su-tile);border:2px solid var(--su-tileline);display:grid;place-items:center;color:var(--su-glyph)}
 .ps-i .ti svg,.ps-r .ti svg{width:24px;height:24px}

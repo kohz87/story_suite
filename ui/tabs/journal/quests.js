@@ -18,7 +18,7 @@ function questCard(q, state, ctx, rpg) {
   const dots = q.stepCount > 1
     ? h('div', { class: 'sdots' }, Array.from({ length: q.stepCount }, (_, i) => h('i', { class: i < q.stepIndex ? 'on' : null })), h('span', null, `step ${q.stepIndex + 1} of ${q.stepCount}`))
     : null;
-  const reward = [q.reward, q.xp].filter(Boolean).join(' · ');
+  const reward = q.reward ?? '';
   const giver = q.giver?.name
     ? [
       q.giver.portrait ? h('span', { class: 'av', dataset: { portrait: q.giver.portrait } }) : null,

@@ -84,7 +84,7 @@ test('drawer hides when nobody is here and returns when someone is', () => {
   assert.equal(drawerHost.children.length, 0);
   s.refresh(vm);
   assert.equal(drawerHost.hasAttribute('hidden'), false);
-  assert.equal(drawerHost.querySelectorAll('.drawer').length, 1);
+  assert.equal(drawerHost.querySelectorAll('.ssdrawer').length, 1);
 });
 
 test('typing folds the drawer on a narrow screen only; toggle and paging work', () => {
@@ -113,7 +113,7 @@ test('typing folds the drawer on a narrow screen only; toggle and paging work', 
   s.refresh(vm);
   if (vm.drawer.length > 2) {
     drawerHost.querySelector('.arr[aria-label="Next"]').click();
-    assert.equal(drawerHost.querySelector('.drawer').dataset.page, '1');
+    assert.equal(drawerHost.querySelector('.ssdrawer').dataset.page, '1');
   }
 });
 

@@ -128,4 +128,10 @@ describe('selectStory', () => {
     assert.deepEqual(checkShape(vm, STORY_SHAPE), []);
     assert.deepEqual([vm.pulse.mode, vm.cast.total, vm.trackers, vm.trackersHidden, vm.beats.count], ['off', 0, [], 0, 0]);
   });
+
+  it('leaves the harness-only secret person name out until there is a data source (owner question)', () => {
+    const { secrets } = selectStory(recorded(), { planShown: true });
+    assert.equal(secrets.items.length > 0, true);
+    for (const s of secrets.items) { assert.equal('person' in s, false); assert.equal(s.personId, null); }
+  });
 });

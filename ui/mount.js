@@ -6,7 +6,7 @@ import { createRedraw } from './runtime/redraw.js';
 import { createSuiteView } from './shell/suite-view.js';
 import { createTabHost } from './shell/tab-host.js';
 import { GLASS_DARK, GLASS_LIGHT } from './theme/tokens.js';
-import { followSt } from './theme/follow-st.js';
+import { followSt, watchSt } from './theme/follow-st.js';
 import { skyFor } from './theme/sky.js';
 import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
@@ -19,7 +19,7 @@ function resolveTheme(theme, doc) {
   if (theme === 'light') return { tokens: GLASS_LIGHT, scheme: 'light' };
   if (theme === 'follow') {
     const tokens = followSt({ doc });
-    return { tokens, scheme: tokens['--su-back'] === GLASS_LIGHT['--su-back'] ? 'light' : 'dark' };
+    return { tokens, scheme: tokens['--su-hp'] === GLASS_LIGHT['--su-hp'] ? 'light' : 'dark' };
   }
   return { tokens: GLASS_DARK, scheme: 'dark' };
 }
@@ -122,6 +122,16 @@ export function mountSuite(options = {}) {
     if (tabHost.current() !== before) showTab(tabHost.current());
   }
   for (const event of PORT_EVENTS) offs.push(port.on(event, refreshFlags));
+
+  if (theme === 'follow') {
+    offs.push(watchSt(doc, () => {
+      if (destroyed) return;
+      const next = resolveTheme('follow', doc);
+      scheme = next.scheme;
+      view.setTheme(next.tokens, next.scheme);
+      paintSky();
+    }));
+  }
 
   return {
     root: view.root,

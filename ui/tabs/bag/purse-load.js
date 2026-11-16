@@ -14,7 +14,7 @@ function loadText(load) {
 /** Builds the party load block (bar, 80% marker, heavy and over notes, sources); null when load is null (Story-only). */
 export function loadBlock(load) {
   if (!load) return null;
-  const pct = Math.min(100, Math.round((load.value / load.limit) * 100));
+  const pct = Math.min(100, (load.value / load.limit) * 100);
   const heavyAt = Math.ceil(load.limit * 0.8);
   return h(
     'div',
@@ -38,7 +38,7 @@ export function moneySheet(coins, ctx = {}) {
   return h(
     'div',
     { class: 'bag-sheet', dataset: { sheet: 'money' } },
-    h('div', { class: 'dn' }, 'Edit money'),
+    h('div', { class: 'dh solo' }, h('div', null, h('div', { class: 'dn' }, 'Edit money'))),
     h('div', { class: 'coins' }, inputs.map(i => h('label', { class: 'coin' }, i.dataset.coin, i))),
     h('div', { class: 'brow' }, button({
       label: 'Save', tone: 'primary',

@@ -1,10 +1,13 @@
 // Composes one person's dossier: top bar with ⋯ menu, hero, the summary cards, and the paged detail views, with Escape through the back-stack.
 import { h } from '../../../kit/dom.js';
+import { FEELING_KEYS } from '../../../kit/ring.js';
 import { button } from '../../../kit/controls.js';
 import { pager, pageSection } from '../../../kit/page.js';
 import { feelingsHero, withPage } from './feelings.js';
 import { nowPage, moodPage } from './now-page.js';
-import { tiesPage, pastPage, secretsPage, tieInitial } from './past-secrets.js';
+import { tiesPage, pastPage, secretsPage } from './past-secrets.js';
+import { moodMeters } from './mood-meters.js';
+import { tieDisc } from './tie-disc.js';
 import { profilePage } from './profile.js';
 import { deathPage, deathCard } from './death.js';
 
@@ -29,14 +32,14 @@ function summary(d, id) {
   if (id === 'death') return deathCard(d);
   if (id === 'with') {
     const c = d.changes?.[0];
-    return c ? h('span', { class: 'lc' }, h('b', null, `${c.meter[0].toUpperCase()}${c.meter.slice(1)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`) : h('span', { class: 'fine' }, 'Nothing yet');
+    return c ? h('span', { class: 'lc' }, h('b', { class: `f${Math.max(0, FEELING_KEYS.indexOf(c.meter))}` }, `${c.meter[0].toUpperCase()}${c.meter.slice(1)} ${c.delta > 0 ? '+' : ''}${c.delta}`), ` · ${c.why}`) : h('span', { class: 'fine' }, 'Nothing yet');
   }
-  if (id === 'mood') return h('span', { class: 'mw' }, d.mood);
+  if (id === 'mood') return [h('span', { class: 'mw' }, d.mood), moodMeters(d.moodBars)];
   if (id === 'now') {
     const line = Object.hasOwn(now, 'where') ? [now.where, lower(now.doing)].filter(Boolean).join(' · ') : [now.lastPlace, now.lastSeen && `last seen ${now.lastSeen}`].filter(Boolean).join(' · ');
     return [h('span', { class: 'lc' }, line), d.scene ? h('span', { class: 'hint' }, 'This scene: wants and hiding · spoiler') : null];
   }
-  if (id === 'ties') return [h('span', { class: 'avs' }, d.ties.map(t => h('span', { class: 'a' }, tieInitial(t)))), h('span', { class: 'lc sm' }, `${d.ties.length} · ${d.ties.map(t => t.name).join(', ')}`)];
+  if (id === 'ties') return [h('span', { class: 'avs' }, d.ties.map(t => tieDisc(t, 'a'))), h('span', { class: 'lc sm' }, `${d.ties.length} · ${d.ties.map(t => t.name).join(', ')}`)];
   if (id === 'past') {
     const dots = (d.past ?? []).flatMap((_, i) => (i ? [h('b'), h('i')] : [h('i')]));
     return [h('span', { class: 'dots' }, dots), h('span', { class: 'lc sm' }, d.past?.[0]?.text ?? 'No memories yet')];
@@ -47,7 +50,8 @@ function summary(d, id) {
     return h('span', { class: 'secrow' }, h('span', { class: 'sring', style: { '--p': total ? (opened / total) * 100 : 0 } }, `${opened}/${total}`),
       h('span', { class: 'lc' }, next ? `next: ${lower(next.rule)}` : 'all opened'));
   }
-  return h('span', { class: 'lc sm' }, [d.profile?.personality, d.idLine].filter(Boolean).join(' · '));
+  const likes = d.profile?.likes?.length ? `Likes ${d.profile.likes.join(', ')}` : null;
+  return h('span', { class: 'lc sm' }, [d.profile?.personality, likes].filter(Boolean).join(' · '));
 }
 
 const BODIES = { death: deathPage, with: withPage, mood: moodPage, now: nowPage, ties: tiesPage, past: pastPage, secrets: secretsPage, profile: profilePage };
@@ -118,7 +122,7 @@ export function dossierPage(d, ctx = {}) {
         ? h('span', { class: ['deadb', d.life === 'presumed' ? 'pres' : null] }, d.life === 'presumed' ? 'Presumed dead' : 'Deceased')
         : follow),
       h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, ' · gender unknown') : null),
-      h('div', { class: 'idl' }, [where, d.inParty ? 'in your party' : null].filter(Boolean).join(' · ')),
+      h('div', { class: 'idl' }, [dead ? where : (d.now && Object.hasOwn(d.now, 'where') ? 'Here' : where), d.inParty ? 'in your party' : null].filter(Boolean).join(' · ')),
       dead ? null : button({ label: 'See on map', dataset: { act: 'map' }, onClick: () => { if (ctx.seeOnMap) ctx.seeOnMap(d.id); else cmd('people.focus'); } }));
   }
 

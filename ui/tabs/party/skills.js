@@ -41,7 +41,7 @@ function skillRow(member, skill, ctx) {
     'button',
     { type: 'button', class: ['sk', skill.kind === 'stance' ? 'stance' : null], dataset: { skill: skill.name }, onClick: () => skillSheet(member, skill, ctx) },
     h('span', { class: 'ti' }, glyph(glyphOf(skill))),
-    h('span', null, h('b', null, skill.name), h('small', null, `${KIND_LABEL[skill.kind] ?? skill.kind} · ${skill.stat} · ${costText(skill)}`)),
+    h('span', null, h('b', null, skill.name), h('small', null, skill.line ?? `${KIND_LABEL[skill.kind] ?? skill.kind} · ${skill.stat} · ${costText(skill)}`)),
     h('span', { class: 'skr' }, h('span', { class: 'rk' }, skill.rank), masteryBar(skill.mastery)),
   );
 }

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../../helpers/dom.js';
-import { tiesPage, pastPage, secretsPage, tieInitial } from '../../../../../ui/tabs/people/dossier/past-secrets.js';
+import { tiesPage, pastPage, secretsPage } from '../../../../../ui/tabs/people/dossier/past-secrets.js';
+import { tieInitial } from '../../../../../ui/tabs/people/dossier/tie-disc.js';
 import { dossier, makeCtx } from './helpers.js';
 
 test('Ties: a tie with a person opens their dossier, one without is plain text', async () => {
@@ -60,11 +61,12 @@ test('a dead person keeps their opened secret readable', () => {
   assert.equal(secretsPage({}).length, 1);
 });
 
-test('tieInitial drops a leading "the" and upper-cases', () => {
-  assert.equal(tieInitial({ name: 'the Harbour Master' }), 'H');
+test('tieInitial takes the first letter of the last word, upper-cased', () => {
+  assert.equal(tieInitial({ name: 'Old Sera Vane' }), 'V');
   assert.equal(tieInitial({ name: 'oyla' }), 'O');
   assert.equal(tieInitial({}), '?');
   installFakeDom();
   const page = tiesPage(dossier('temiwa'), {});
-  assert.deepEqual(page.querySelectorAll('.tie .a').map(a => a.textContent), ['T', 'O', 'H']);
+  assert.deepEqual(page.querySelectorAll('.tie .a').map(a => a.textContent), ['T', 'O', '']);
+  assert.equal(page.querySelectorAll('.tie .a').at(-1).querySelectorAll('svg').length, 1, 'a nameless tie shows the person glyph');
 });

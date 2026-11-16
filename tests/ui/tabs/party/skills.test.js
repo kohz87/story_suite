@@ -11,7 +11,7 @@ test('Skills lists count, kind line, rank pill and a seven-step mastery bar per 
   assert.deepEqual(rows.map(r => r.querySelector('b').textContent), ['Iaijutsu', 'Flash', 'Shadow Bolt', 'Mend', 'Shadow Step']);
   assert.equal(rows[0].querySelector('small').textContent, 'Attack · DEX · 1 Stamina');
   assert.equal(rows[2].querySelector('small').textContent, 'Magic attack · INT · 1 Mana');
-  assert.equal(rows[4].querySelector('small').textContent, 'Stance · AGI · 1 Stamina each exchange');
+  assert.equal(rows[4].querySelector('small').textContent, 'Stance · evasion · 1 Stamina each exchange');
   assert.equal(rows[4].classList.contains('stance'), true);
   assert.equal(rows[0].querySelector('.rk').textContent, 'Adept');
   assert.equal(rows[0].querySelectorAll('.mbar i.on').length, 3);
