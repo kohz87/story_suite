@@ -115,3 +115,19 @@ test('a step written outside a reply\'s capture (an arc plan) is kept under <sid
     assert.deepEqual(stepsFor(director, 'th_x'), ['old-r', 'old-rev', 'planned', 'told']);
     assert.deepEqual(validateDirector({ time: { minutes: null }, threads: {}, keys: {}, writes: {}, problems: {}, turn: { n: 0, now: null }, steps: director.steps }), []);
 });
+
+test('one reply\'s steps stay in count order when a later write carries a lower place (a Continue after a middle delete, a swipe or Re-read that shifted the count)', () => {
+    const step = (text, turn, place) => ({ thread: 'th_x', text, turn, place });
+    // The review's probe: same turn, sw_A.0 placed 5, then its Continue sw_A.1 placed 4.
+    const probe = { turn: { n: 3, now: null }, steps: { 'sw_A.0': step('a0', 3, 5), 'sw_A.1': step('a1', 3, 4) } };
+    assert.deepEqual(stepsFor(probe, 'th_x'), ['a0', 'a1']);
+    // A later reply B (same turn, higher place) still follows A, and an earlier reply Z (lower place) still precedes it.
+    const mixed = { turn: { n: 3, now: null }, steps: { 'sw_B.0': step('b0', 3, 9), 'sw_A.1': step('a1', 3, 4), 'sw_Z.0': step('z0', 3, 2), 'sw_A.0': step('a0', 3, 5) } };
+    assert.deepEqual(stepsFor(mixed, 'th_x'), ['z0', 'a0', 'a1', 'b0']);
+    // A swipe / Re-read of an earlier message moved the count up and then down: a reply's steps carry places 6, 4 and 7, still by number.
+    const shifted = { turn: { n: 5, now: null }, steps: { 'sw_A.2': step('a2', 2, 7), 'sw_A.0': step('a0', 2, 6), 'sw_A.1': step('a1', 2, 4), 'sw_C.0': step('c0', 3, 1) } };
+    assert.deepEqual(stepsFor(shifted, 'th_x'), ['a0', 'a1', 'a2', 'c0']);
+    // A write kept on the reply under its receipt belongs to the same reply (equal counts: its own place decides).
+    const receipt = { turn: { n: 3, now: null }, steps: { 'sw_A.0': step('a0', 3, 5), 'sw_A:rc1.0': step('kept', 3, 4), 'sw_B.0': step('b0', 3, 6) } };
+    assert.deepEqual(stepsFor(receipt, 'th_x'), ['kept', 'a0', 'b0']);
+});
