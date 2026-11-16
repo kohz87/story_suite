@@ -1,6 +1,6 @@
 // The time part's settings: their defaults, reading them from a ctx, and the reader's calendar.
 
-import { PRESETS, makeCalendar, normalizeCalendar } from '../../../calendar.js';
+import { PRESETS, makeCalendar, normalizeCalendar } from '../calendar.js';
 import { isInt } from './shared-int.js';
 
 /** The part's settings defaults (section 'Time'). */

@@ -1,6 +1,6 @@
 // The empty checks state, the policy of a state and its read-only projection.
 
-import { hashJson } from '../../hash.js';
+import { hashJson } from '../../../../../../modules/world/hash.js';
 import { isRecord } from './shared-record.js';
 
 export function initialChecks() {

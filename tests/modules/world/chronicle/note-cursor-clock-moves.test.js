@@ -6,8 +6,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { STORY, chronicleOf, editAndReread, reloadSame, replyAt, said, tell } from './note-cursor.helpers.js';
-import { heardStamps } from '../../../src/v2/world/known-parts/heard.js';
-import { calendarFrom } from '../../../src/v2/world/known-parts/clock.js';
+import { heardStamps } from '../../../../modules/world/world/known-parts/heard.js';
+import { calendarFrom } from '../../../../modules/world/world/known-parts/clock.js';
 
 const FIRST = 438445;
 const quiet = t => t.mock.method(console, 'warn', () => {});

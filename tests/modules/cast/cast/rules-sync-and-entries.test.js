@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { applyAdvance, applyMeet, applySync, planSync, syncEmpty, syncPayload, whyNarrator, whyText } from '../../../src/v2/cast/apply.js';
-import { initialCast, timeOfDay, validateCast } from '../../../src/v2/cast/domain.js';
-import { atParty, castOf, fightOn, readEntry, routineHolds, samePlace } from '../../../src/v2/cast/entries.js';
-import { chooseMeetings, dueMove, metInTheStory, movable, paceOf, roomLeft } from '../../../src/v2/cast/world.js';
+import { applyAdvance, applyMeet, applySync, planSync, syncEmpty, syncPayload, whyNarrator, whyText } from '../../../../modules/cast/cast/apply.js';
+import { initialCast, timeOfDay, validateCast } from '../../../../modules/cast/cast/domain.js';
+import { atParty, castOf, fightOn, readEntry, routineHolds, samePlace } from '../../../../modules/cast/cast/entries.js';
+import { chooseMeetings, dueMove, metInTheStory, movable, paceOf, roomLeft } from '../../../../modules/cast/cast/world.js';
 import { entry } from './helpers.js';
 import { DAY, HOUR, SYNC_NOW, castFor, crowd, synced } from './rules.helpers.js';
 test('entries: a listed entry is read cut to size; one without a pack, id or name is not one; a key once; the pack list names the packs', () => {

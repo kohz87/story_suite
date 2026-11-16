@@ -98,7 +98,7 @@ export const replay = (initial, runs) => runs.reduce((state, one) => apply(state
 let writes = 0;
 export const write = () => `wr_${(writes += 1).toString(36).padStart(8, '0')}`;
 
-import { PARTS, createModule } from '../../../src/v2/module.js';
+import { PARTS, createModule } from '../../../../../ui/legacy/director/module.js';
 
 /**
  * Story Director's module with the checks part registered, as the flip release will register it. The module as shipped does not register it

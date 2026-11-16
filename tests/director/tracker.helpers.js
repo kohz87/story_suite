@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
-import { parseChanges } from '../src/changes.js';
-import { emptyTracker, replay } from '../src/tracker.js';
+import { parseChanges } from '../../modules/world/changes.js';
+import { emptyTracker, replay } from '../../modules/time/tracker/tracker.js';
 
 export function ops(text) {
     const parsed = parseChanges(text);

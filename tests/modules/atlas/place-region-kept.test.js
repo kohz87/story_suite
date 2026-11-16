@@ -1,7 +1,7 @@
 // A region set on purpose (a landmark line, the reader's edit) stays on a pack place; the mend only fixes a region that repeats the scene's word.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { part } from '../../../src/v2/atlas/index.js';
+import { part } from '../../../modules/atlas/atlas/index.js';
 import { at, command, lines, makeState, query, queryFor } from './helpers/fake-ctx.js';
 
 const PACK = { places: [{ name: 'Bluewatch Village', region: 'River', kind: 'settlement', x: 64, y: 110 }], routes: [] };

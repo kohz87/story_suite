@@ -1,6 +1,6 @@
 // Choosing who meets the party, who is only rumored, who may be sought, and who the story already shows.
 
-import { isPersona } from '../../tracker/initiative.js';
+import { isPersona } from '../../../time/tracker/initiative.js';
 import { routineHolds, samePlace } from '../entries.js';
 import { isAlive, isMet, keysOfPerson, peopleOf, slotOf } from '../domain.js';
 import { kindTouches, rumorText } from '../sought.js';

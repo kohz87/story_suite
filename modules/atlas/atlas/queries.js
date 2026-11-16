@@ -5,7 +5,7 @@
 // default map (one km a unit, roads winding ×1.25) unless `map` is given in the args. The tail
 // (note.js) uses the reader's map settings.
 
-import { mapSettings, parseLocation } from '../../places.js';
+import { mapSettings, parseLocation } from '../places.js';
 import { findPlace, keyOf } from './domain.js';
 import { ensurePlace } from './capture.js';
 import { atlasView, mapProps } from './map.js';

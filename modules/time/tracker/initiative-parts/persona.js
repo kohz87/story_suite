@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (initiative): holds the host's reader of {{user}}'s name and tells whether someone is the player.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../../world/changes.js';
 import { cutPoints } from '../scene.js';
 
 // {{user}}'s name, read from the host (index.js sets it from sdk.substitute): the player is never who takes the initiative.

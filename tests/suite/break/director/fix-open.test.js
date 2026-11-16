@@ -6,12 +6,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { DIGEST_FEATURE } from '../../../src/v2/chronicle/days.js';
-import { needsDigest } from '../../../src/v2/chronicle/digest.js';
-import { timeAfter } from '../../../src/v2/tracker/time.js';
-import { calendarOf, settingsDefaults } from '../../../src/v2/tracker/time.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
+import { needsDigest } from '../../../../modules/world/chronicle/digest.js';
+import { timeAfter } from '../../../../modules/time/tracker/time.js';
+import { calendarOf, settingsDefaults } from '../../../../modules/time/tracker/time.js';
 
 const DAY = 1440;
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);

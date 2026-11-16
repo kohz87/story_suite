@@ -1,6 +1,6 @@
 // Checking that an acceptance proof for a thread is genuine and that the reader accepted.
 
-import { offersChosenIn } from '../../../tracker.js';
+import { offersChosenIn } from '../tracker.js';
 import { copy, failure } from './shared-results.js';
 
 const own = (object, key) => Object.hasOwn(object ?? {}, key);

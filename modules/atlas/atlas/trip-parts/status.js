@@ -1,6 +1,6 @@
 // Determines whether an atlas trip is over and where a new trip starts.
 
-import { parseLocation } from '../../../places.js';
+import { parseLocation } from '../../places.js';
 import { cleanName, keyOf } from '../domain.js';
 import { DAY } from './shared-constants.js';
 import { nodesOf, positionOf, tripOf } from './state.js';

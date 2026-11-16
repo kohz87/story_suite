@@ -1,10 +1,10 @@
 // Screens part: the status card through Story Block's card mount and template renderer.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { runtime } from './helpers/runtime.js';
 import { at, earlierState, headState, makeQueries, makeRunner, makeState } from './helpers/fixtures.js';
-import { STATUS_CARD_ID, createScreensPart, part } from '../../../src/v2/screens/index.js';
+import { STATUS_CARD_ID, createScreensPart, part } from '../../../../ui/legacy/director/screens/index.js';
 import { byId, draw, formatters, pulseState, rolls, skip, squash } from './render.helpers.js';
 
 test('status card: time, place, goal and step, progress, with what this reply changed marked; no next beat', { skip }, () => {

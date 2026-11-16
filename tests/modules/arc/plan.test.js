@@ -2,11 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { PRESETS, makeCalendar } from '../../../src/calendar.js';
+import { PRESETS, makeCalendar } from '../../../modules/time/calendar.js';
 import {
     DEFAULT_PLANNER_PROMPT, FIGHT_RULE, MAX_ANSWER_CHARS, MAX_ITEMS, NO_FIGHT_RULE, PLAN_CAPS,
     autoPlanReason, flat, noteMark, planText, plannerRequest, readPlan, trackerSummary,
-} from '../../../src/v2/arc/plan.js';
+} from '../../../modules/arc/plan.js';
 
 const calendar = makeCalendar(PRESETS.gregorian);
 const now = calendar.parse('June 3, 1200, 08:00 am', { reference: null }).abs;

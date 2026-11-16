@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/atlas/index.js';
-import { atlasView, mapProps, viewLayerOf } from '../../../src/v2/atlas/map.js';
-import { packWorld, worldOf } from '../../../src/v2/atlas/world.js';
+import { part } from '../../../modules/atlas/atlas/index.js';
+import { atlasView, mapProps, viewLayerOf } from '../../../modules/atlas/atlas/map.js';
+import { packWorld, worldOf } from '../../../modules/atlas/atlas/world.js';
 import { at, command, lines, makeState, placeNamed, query, queryFor } from './helpers/fake-ctx.js';
 
 // The Ersveil shape in small: a village whose streets are pack places of their own region, inside

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { canonicalJson, hashJson, sha256 } from '../../src/v2/hash.js';
+import { canonicalJson, hashJson, sha256 } from '../../../modules/world/hash.js';
 
 test('sha256 is the platform\'s, for short, block-edge and multi-block text, with non-ASCII', () => {
     for (const text of ['', 'abc', 'a'.repeat(55), 'a'.repeat(56), 'a'.repeat(64), 'é☃🙂'.repeat(40), 'x'.repeat(1000)]) assert.equal(sha256(text), createHash('sha256').update(text).digest('hex'));

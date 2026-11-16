@@ -2,7 +2,7 @@
 
 import { FIRE, createEngine, createFireEvent } from '../engine.js';
 import { EVENTS_NOTE, renderEventsSection } from '../section.js';
-import { stateHash } from '../../../../../../core/timeline/host-block.js';
+import { stateHash } from '../../../../core/timeline/host-block.js';
 import { packEvents } from './pack-events.js';
 
 const sdk = () => globalThis.StoryBlock?.sdk ?? null;

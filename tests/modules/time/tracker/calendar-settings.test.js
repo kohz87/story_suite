@@ -5,13 +5,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { CALENDAR_KEYS, calendarReadOnly, fieldHelp, gregorianFields, packCalendarFields, presetHelp } from '../../../src/v2/tracker/calendar-settings.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
-import { renderSettingsHost } from '../../../../story-block/src/v2/host-ui.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { CALENDAR_KEYS, calendarReadOnly, fieldHelp, gregorianFields, packCalendarFields, presetHelp } from '../../../../modules/time/tracker/calendar-settings.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
+import { renderSettingsHost } from '../../../../packages/story-block/src/v2/host-ui.js';
 
-const ERSVEIL = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 
 async function director(t) {
     t.mock.method(console, 'warn', () => {});

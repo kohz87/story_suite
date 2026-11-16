@@ -2,9 +2,9 @@
 // R0-R5 are the replay checks (audit 7.1 rule 3). No rule mark: the code is unchanged, so an old long line and the new short one agree.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/host.js';
-import { createModule } from '../../../src/v2/module.js';
-import { part } from '../../../src/v2/tracker/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/host.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { part } from '../../../../modules/time/tracker/index.js';
 
 const HOOK = '+ hook Missing boatman — Person A says he vanished | giver: Person A | goal: ask at the docks';
 const changes = (...lines) => `<Changes>\n${lines.join('\n')}\n</Changes>`;

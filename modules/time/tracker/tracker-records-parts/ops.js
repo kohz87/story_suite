@@ -1,6 +1,6 @@
 // Op inspection, finding construction, and untracked-op normalization.
 
-import { kindOf, lineKey } from '../changes.js';
+import { kindOf, lineKey } from '../../../world/changes.js';
 
 // A `~` on a key that is not tracked, with something to say, becomes a record of this kind.
 const UNTRACKED_KIND = 'hook';

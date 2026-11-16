@@ -3,13 +3,13 @@
 // Story Director and the Ersveil Bluewatch pack (trips need its clock), the RPG and the pulse off.
 // Not a test file (the test glob does not match helpers/).
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../../../story-block/testkit/index.js';
-import { probeModule } from '../../../../../story-block/tests/v2/qa/helpers/probe-module.js';
-import { READERS } from '../../../../../story-block/tests/v2/qa/helpers/reread-fuzz-run.js';
-import { createModule } from '../../../../src/v2/module.js';
-import { withD1 } from '../../helpers/d1.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { probeModule } from '../../../../packages/story-block/tests/v2/qa/helpers/probe-module.js';
+import { READERS } from '../../../../packages/story-block/tests/v2/qa/helpers/reread-fuzz-run.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { withD1 } from '../../../helpers/director/d1.js';
 
-const PACK = readFileSync(new URL('../../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const PACK = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const QUESTS = ['Lost Road', 'Old Debt', 'Red Fox'];
 
 /** A new host with Story Director plugged in (the same maker serves the live chat and every told-again one). */

@@ -2,9 +2,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { initialChronicle, validateChronicle } from '../../../src/v2/chronicle/domain.js';
+import { initialChronicle, validateChronicle } from '../../../../modules/world/chronicle/domain.js';
 import { clockAt, command, eventNamed, line, lines, makeState, query, runCommand } from './helpers/fake-ctx.js';
-import { part } from '../../../src/v2/chronicle/index.js';
+import { part } from '../../../../modules/world/chronicle/index.js';
 import { BY, DAY, SEAL, lasting, must } from './lasting.helpers.js';
 
 test('only a pack event may call it: a button, a reply line, another module or a bare "event:" is refused, nothing saved', () => {

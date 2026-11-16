@@ -16,8 +16,8 @@ import { TRIP_FEATURE } from './trip.js';
 import { applyTripLine, markTrips } from './trip-capture.js';
 import { tripQuery } from './trip-query.js';
 import { MAP_WIDGET, atlasMapWidget } from './widget.js';
-import { DEFAULT_MAP } from '../../places.js';
-import { THREADS_FEATURE } from '../threads.js';
+import { DEFAULT_MAP } from '../places.js';
+import { THREADS_FEATURE } from '../../time/tracker/threads.js';
 
 /** The atlas's optional mechanics (MODULES §F100): trips and the map's road. */
 export const features = Object.freeze([

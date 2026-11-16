@@ -1,6 +1,6 @@
 // Story Director v2, tracker part: new thread ids and the write-back of the records the rules returned.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../../world/changes.js';
 import { fromRecord, keysOf, orderedThreads, sameValue } from '../convert.js';
 import { revOf } from './reply.js';
 

@@ -3,7 +3,7 @@
 import { REGION_ID, MAX_ALIASES, MAX_NAME, MAX_REGIONS, PLACE_ID, areaPolicyProblems, cleanName, findPlace, isRecord, keyOf } from '../domain.js';
 import { canonicalOf, candidatesOf } from '../canonical.js';
 import { packWorld } from '../world.js';
-import { WRITE_ID, fingerprintOf, idFrom, remember, retryOf } from '../../writes.js';
+import { WRITE_ID, fingerprintOf, idFrom, remember, retryOf } from '../../../world/writes.js';
 import { policyProjection } from './projection.js';
 
 const HASH = /^[0-9a-f]{64}$/;

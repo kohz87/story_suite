@@ -2,10 +2,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadWorldPack, placesIn } from '../src/routes.js';
-import { noteParts } from '../src/note.js';
+import { loadWorldPack, placesIn } from '../../modules/atlas/routes.js';
+import { noteParts } from '../../modules/world/note.js';
 
-const { pack } = loadWorldPack(JSON.parse(readFileSync(new URL('./fixtures/world-pack.json', import.meta.url), 'utf8')));
+const { pack } = loadWorldPack(JSON.parse(readFileSync(new URL('../fixtures/director/world-pack.json', import.meta.url), 'utf8')));
 
 test('placesIn finds every place named, in order, a long name once', () => {
     assert.deepEqual(placesIn(pack, 'From Bluewatch Village to Glassdock, then Auvoth.'), ['Bluewatch Village', 'Glassdock', 'Auvoth']);

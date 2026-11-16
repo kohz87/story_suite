@@ -5,7 +5,7 @@
 // (src/calendar.js:104 trims the era, :73 the month name).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { makeCalendar, normalizeCalendar } from '../../../src/calendar.js';
+import { makeCalendar, normalizeCalendar } from '../../../../modules/time/calendar.js';
 
 const SETTINGS = {
     preset: 'custom',

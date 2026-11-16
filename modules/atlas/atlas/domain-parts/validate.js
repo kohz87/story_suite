@@ -1,6 +1,6 @@
 // Validates atlas slices, places, routes, regions, and area policies.
 
-import { ledgerProblems } from '../../writes.js';
+import { ledgerProblems } from '../../../world/writes.js';
 import { tripsProblems } from '../trip-shape.js';
 import { isRecord } from './ids.js';
 import { MAX_ALIASES, MAX_REGIONS, PACK_NODE, REGION_ID } from './policy-limits.js';

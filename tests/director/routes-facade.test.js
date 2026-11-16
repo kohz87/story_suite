@@ -2,7 +2,7 @@
 // src/routes/ is still exported from the old path, and nothing else is.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import * as routes from '../src/routes.js';
+import * as routes from '../../modules/atlas/routes.js';
 
 const BEFORE_SPLIT = [
     'ROUTE_CODES',

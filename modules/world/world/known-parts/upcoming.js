@@ -1,6 +1,6 @@
 // Story Director v2, world: what {{user}} knows is coming (quest due dates, event and hook dates, holidays).
 
-import { threadsOn } from '../../threads.js';
+import { threadsOn } from '../../../time/tracker/threads.js';
 import { dateText } from './clock.js';
 import { daysText } from './day-words.js';
 import { holidays } from './holidays.js';

@@ -9,10 +9,10 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { createModule } from '../../../src/v2/module.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
 
 const dir = process.env.STORY_BLOCK_DIR ? path.resolve(process.env.STORY_BLOCK_DIR) : null;
-const ERSVEIL = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
 test('the trip kind is declared to run after the place and mount kinds', () => {

@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { FIELDS, KINDS, KIND_ALIASES, QUEST_DIFFICULTIES, formatOp, lineKey, parseChanges, questDifficulty } from '../src/changes.js';
+import { FIELDS, KINDS, KIND_ALIASES, QUEST_DIFFICULTIES, formatOp, lineKey, parseChanges, questDifficulty } from '../../modules/world/changes.js';
 
 // Real <Director> output, including a bulleted op, a bolded op and a stray prose line.
 const REAL = [

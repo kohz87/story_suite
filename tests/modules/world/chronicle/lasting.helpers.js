@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { lines, makeState, runCommand } from './helpers/fake-ctx.js';
-import { part } from '../../../src/v2/chronicle/index.js';
+import { part } from '../../../../modules/world/chronicle/index.js';
 
 export const DAY = 1440;
 export const BY = 'event:the-seventh-seal-fails';

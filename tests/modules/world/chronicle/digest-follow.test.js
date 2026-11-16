@@ -8,11 +8,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { DIGEST, FOLLOW_MAX, daysOf, entriesByDay, makeDigest, orderedDays, validateDays, writtenOf } from '../../../src/v2/chronicle/days.js';
-import { YESTERDAY_TAG, digestTailLine } from '../../../src/v2/chronicle/digest.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
+import { DIGEST, FOLLOW_MAX, daysOf, entriesByDay, makeDigest, orderedDays, validateDays, writtenOf } from '../../../../modules/world/chronicle/days.js';
+import { YESTERDAY_TAG, digestTailLine } from '../../../../modules/world/chronicle/digest.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const digests = host => host.sdk.receipts().filter(entry => entry.receipt.type === DIGEST);

@@ -4,9 +4,9 @@
 // validator run, and a throw or a problem keeps the state as it was. Change lines are read by
 // Story Block's own parser (capture.js parseChanges).
 
-import { part } from '../../../../src/v2/chronicle/index.js';
-import { apply, checkOps, diff } from '../../../../../../core/ops.js';
-import { parseChanges } from '../../../../../../core/capture.js';
+import { part } from '../../../../../modules/world/chronicle/index.js';
+import { apply, checkOps, diff } from '../../../../../core/ops.js';
+import { parseChanges } from '../../../../../core/capture.js';
 
 export function deepFreeze(value) {
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {

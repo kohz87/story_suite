@@ -3,7 +3,7 @@
 // `createOwnCast(api, { open })` has the page API's shape ({ available, busy, render, onChange }), so the widget's chips, thoughts and
 // covered-people logic (people-parts/draw.js) stay exactly as they are. The cards use NPC State's own classes (its stylesheet draws them).
 
-import { lineKey } from '../../changes.js';
+import { lineKey } from '../changes.js';
 
 const CLASS = {
     pane: 'npc-state-delta-story-pane', roster: 'npc-state-delta-present-roster', head: 'npc-state-delta-present-roster-head', grid: 'npc-state-delta-present-grid',

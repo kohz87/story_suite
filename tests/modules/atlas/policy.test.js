@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/atlas/index.js';
-import { policyProjection } from '../../../src/v2/atlas/policy.js';
-import { areaPolicyProblems, initialAtlas, validateAtlas } from '../../../src/v2/atlas/domain.js';
+import { part } from '../../../modules/atlas/atlas/index.js';
+import { policyProjection } from '../../../modules/atlas/atlas/policy.js';
+import { areaPolicyProblems, initialAtlas, validateAtlas } from '../../../modules/atlas/atlas/domain.js';
 import { at, command, makeState, placeNamed, query, replay } from './helpers/fake-ctx.js';
 
 const HAVEN = 'pack.north/haven';

@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (convert): reads the `director` domain as a v1 tracker (thread order, one record per thread).
 
-import { FIELDS, lineKey } from '../../../changes.js';
+import { FIELDS, lineKey } from '../../../world/changes.js';
 import { OFFER_KINDS, position, text } from './shared-text.js';
 
 /** Threads in tracker order: by `track.order`, then by id, so a rebuilt state reads the same. */

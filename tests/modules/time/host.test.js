@@ -5,11 +5,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { PARTS, createModule } from '../../../src/v2/module.js';
-import { part as time } from '../../../src/v2/time/index.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { BACKLOG_STATIC } from '../../../src/v2/chronicle/digest.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { PARTS, createModule } from '../../../ui/legacy/director/module.js';
+import { part as time } from '../../../modules/time/index.js';
+import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
+import { BACKLOG_STATIC } from '../../../modules/world/chronicle/digest.js';
 // The static part without the one sentence that explains [Earlier days] (taught once a past day is told, module/create.js `backlog`).
 const bare = text => String(text).split('\n').filter(line => line !== BACKLOG_STATIC).join('\n');
 

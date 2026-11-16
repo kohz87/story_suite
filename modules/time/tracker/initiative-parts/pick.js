@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (initiative): reads the recorded pick and tells whether it is fresh or cooling down.
 
-import { slotValue } from '../../slot.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
 import { isInt, isRecord } from './shared-guards.js';
 
 /** The recorded pick, or null. */

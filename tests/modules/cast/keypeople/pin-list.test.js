@@ -6,11 +6,11 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { worldScreen } from '../../../src/v2/world/screen.js';
-import { keyPeopleWidget } from '../../../src/v2/keypeople/widget.js';
-import { revealIn, scrollerOf, zoomOf } from '../../../src/v2/screens/scroll.js';
-import { revealIn as hostRevealIn } from '../../../../story-block/src/v2/view/scroll.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { worldScreen } from '../../../../modules/world/world/screen.js';
+import { keyPeopleWidget } from '../../../../modules/cast/keypeople/widget.js';
+import { revealIn, scrollerOf, zoomOf } from '../../../../ui/legacy/director/screens/scroll.js';
+import { revealIn as hostRevealIn } from '../../../../packages/story-block/src/v2/view/scroll.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 
 const VIEW = {
     on: true, cap: 10, count: 1, countText: '1 of 10', limitText: '', full: false, hasPeople: true,
@@ -112,7 +112,7 @@ test('the Pin list: a max height that follows the screen (32vh, at most 260px), 
 test('Story Director never scrolls with scrollIntoView and never calls a bare focus()', () => {
     const files = [];
     const walk = dir => { for (const name of readdirSync(dir)) { const path = join(dir, name); if (statSync(path).isDirectory()) walk(path); else if (name.endsWith('.js')) files.push(path); } };
-    walk(new URL('../../../src', import.meta.url).pathname);
+    walk(new URL('../../../../packages/story-director/src', import.meta.url).pathname);
     assert.ok(files.length > 50);
     for (const file of files) {
         const code = readFileSync(file, 'utf8').split('\n').filter(line => !line.trim().startsWith('//') && !line.trim().startsWith('*')).join('\n');

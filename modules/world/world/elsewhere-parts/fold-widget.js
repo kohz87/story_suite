@@ -1,7 +1,7 @@
 // The fold head widget: a chevron, title and count that folds or opens a World section.
 
-import { maker, spaced } from '../../screens/dom.js';
-import { stChatId } from '../../screens/reveal.js';
+import { maker, spaced } from '../../../../ui/legacy/director/screens/dom.js';
+import { stChatId } from '../../../../ui/legacy/director/screens/reveal.js';
 import { foldMemory } from './fold-memory.js';
 
 export const FOLD_WIDGET = 'story-director.fold';

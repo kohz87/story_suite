@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
     ROUTE_CODES, MODES, loadWorldPack, packSummary, exitsFrom, findPlace, paceFor, legDays,
     shortestPath, planRoute,
-} from '../src/routes.js';
+} from '../../modules/atlas/routes.js';
 import { FIXTURE, hopsText, pack, tinyPack } from './routes.helpers.js';
 
 // ---------------------------------------------------------------------------------------

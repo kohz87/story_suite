@@ -4,9 +4,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { rareKindsUsed } from '../../../src/v2/rare.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { rareKindsUsed } from '../../../../packages/story-director/src/v2/rare.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 
 const STATIC_KEY = 'story_suite_static';

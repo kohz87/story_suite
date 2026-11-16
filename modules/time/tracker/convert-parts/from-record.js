@@ -1,7 +1,7 @@
 // Story Director v2, tracker part (convert): writes a v1 record back onto its thread and builds the key index.
 
-import { FIELDS } from '../../../changes.js';
-import { isOffer } from '../../../tracker.js';
+import { FIELDS } from '../../../world/changes.js';
+import { isOffer } from '../tracker.js';
 import { OFFER_KINDS, stamp, text } from './shared-text.js';
 import { sameValue } from './compare.js';
 import { outcomeOf } from './outcome.js';

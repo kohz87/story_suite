@@ -1,6 +1,6 @@
 // Read-only record lookups in a tracker by key, id, alias, or status.
 
-import { lineKey } from '../changes.js';
+import { lineKey } from '../../../world/changes.js';
 
 /**
  * The record with this key or id (markdown and punctuation ignored), or null. (0.9.19) Failing

@@ -4,11 +4,11 @@
 // refused with the line named, the months kept. An older Story Block ignores `form` and shows rows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../ui-fake-dom.js';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { renderSettingsHost } from '../../../../story-block/src/v2/host-ui.js';
-import { createModule, MODULE_ID } from '../../../src/v2/module.js';
-import { part as trackerPart } from '../../../src/v2/tracker/index.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { renderSettingsHost } from '../../../../packages/story-block/src/v2/host-ui.js';
+import { createModule, MODULE_ID } from '../../../../ui/legacy/director/module.js';
+import { part as trackerPart } from '../../../../modules/time/tracker/index.js';
 
 const doc = installFakeDom();
 const KEY = 'tracker.calendar.months';

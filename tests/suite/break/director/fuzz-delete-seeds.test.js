@@ -2,14 +2,14 @@
 // lines): a few seeds of 20 replies, each with a middle exchange deleted twice along the way.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createFakeModel } from '../../../../story-block/testkit/model.js';
-import { createModule } from '../../../src/v2/module.js';
-import { castPlans } from '../../../src/v2/cast/index.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { problemList } from '../../../src/v2/tracker/domain.js';
-import { fakeDelta } from '../keypeople/helpers.js';
-import { LASTING_PACK, lastingEdit, lastingLines } from '../chronicle/helpers/lasting-pack.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../../packages/story-block/testkit/model.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { castPlans } from '../../../../modules/cast/cast/index.js';
+import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
+import { problemList } from '../../../../modules/time/tracker/domain.js';
+import { fakeDelta } from '../../../modules/cast/keypeople/helpers.js';
+import { LASTING_PACK, lastingEdit, lastingLines } from '../../../modules/world/chronicle/helpers/lasting-pack.js';
 import {
     BASE, BASE_OFFERS, BASE_PLACES, BASE_WORLD, CAST_IDS, FACTIONS, KEY_BASE, NEAR, RIPPLES, SOUGHT_ASK, STATES, TIE,
     castAnswer, castEdits, castEntry, editOf, expectedClock, keyEdits, keyLines, nameLines, nearLines, prng, replyLines,

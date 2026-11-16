@@ -1,6 +1,6 @@
 // Accepts a new arc plan, stores its arc record, and creates fresh tracker threads.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../world/changes.js';
 import { ARC_ROOM, arcList } from '../domain.js';
 import { flat, itemLine, planCounts, readPlan } from '../plan.js';
 import { fail, has, planOptions, revOf } from './shared-helpers.js';

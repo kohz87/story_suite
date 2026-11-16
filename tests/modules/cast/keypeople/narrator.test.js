@@ -4,11 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule } from '../../../src/v2/module.js';
-import { presetValue } from '../../../../../core/features.js';
-import { makeCalendar, PRESETS } from '../../../src/calendar.js';
-import { FEATURE, DEFAULT_TOKENS } from '../../../src/v2/keypeople/domain.js';
-import { GRAMMAR, STATIC_TEXT, TAIL_HEADER, awayEntries, awayLine, keyTail, tokensOf } from '../../../src/v2/keypeople/note.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { presetValue } from '../../../../core/features.js';
+import { makeCalendar, PRESETS } from '../../../../modules/time/calendar.js';
+import { FEATURE, DEFAULT_TOKENS } from '../../../../modules/cast/keypeople/domain.js';
+import { GRAMMAR, STATIC_TEXT, TAIL_HEADER, awayEntries, awayLine, keyTail, tokensOf } from '../../../../modules/cast/keypeople/note.js';
 import { STATIC_KEY, OPENING, keyHost, keyTail as tailOf, pin, said, sent } from './helpers.js';
 
 const calendar = makeCalendar(PRESETS.gregorian);

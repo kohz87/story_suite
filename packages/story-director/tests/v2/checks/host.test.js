@@ -67,7 +67,7 @@ test('director.contract: SD alone answers true for what it owns, and not for the
 
 // After the flip example fight runner's checks part is gone and this module owns the `checks` domain, the `check` kind and the `checks.*` names.
 test('flip: the module registers the checks domain, the check kind, the commands and the settings', async () => {
-    const { createModule } = await import('../../../src/v2/module.js');
+    const { createModule } = await import('../../../../../ui/legacy/director/module.js');
     const def = createModule();
     assert.equal(Object.hasOwn(def.domains, 'checks'), true);
     assert.deepEqual(Object.keys(def.commands).filter(name => name.startsWith('checks.')).sort(), ['checks.actor', 'checks.roll']);

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { questOutcome } from '../src/tracker.js';
+import { questOutcome } from '../../modules/time/tracker/tracker.js';
 
 test('questOutcome reads a closed quest\'s reason', () => {
     const quest = reason => ({ kind: 'quest', status: 'resolved', resolved: { reason } });

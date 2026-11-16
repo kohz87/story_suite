@@ -2,7 +2,7 @@
 //
 // Seen marks, replay and its mention helpers moved out of tracker.js; tracker.js re-exports
 // their public names.
-import { lineKey } from './changes.js';
+import { lineKey } from '../../world/changes.js';
 import { escapeRegExp, normalizeQuotes } from './tracker-said.js';
 import { emptyTracker } from './tracker-records.js';
 import { applyOps } from './tracker-apply.js';

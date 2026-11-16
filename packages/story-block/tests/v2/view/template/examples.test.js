@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { compileTemplate, renderTemplate } from '../../../../src/v2/view/template/index.js';
 import { scopeCss } from '../../../../src/v2/view/css.js';
 import { conditionEvaluator } from '../../../../src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../src/v2/events/index.js';
+import { compile, evaluate } from '../../../../../../modules/world/events/index.js';
 import { standardWidgets } from '../../../../src/v2/view/widgets/index.js';
 import { fakeEvaluate, installFakeDom } from './helpers.js';
 

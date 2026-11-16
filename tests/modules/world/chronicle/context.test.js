@@ -6,14 +6,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET, TAIL_HEADER, chronicleTail } from '../../../src/v2/chronicle/note.js';
-import { SURFACE, TAIL_EVENTS, beforeGenerate, hashUnit, nearness, pickEvents, pickFresh, tailPick } from '../../../src/v2/chronicle/pick.js';
-import { agoText } from '../../../src/v2/chronicle/queries.js';
-import { part } from '../../../src/v2/chronicle/index.js';
-import { BACKLOG_BUDGET, BACKLOG_STATIC, DIGEST_TAIL_BUDGET, backlogCue, backlogLines } from '../../../src/v2/chronicle/digest.js';
-import { BACKLOG_CHARS, BACKLOG_LINES, BACKLOG_TAG, agoWords, backlogBlock } from '../../../src/v2/chronicle/backlog.js';
+import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET, TAIL_HEADER, chronicleTail } from '../../../../modules/world/chronicle/note.js';
+import { SURFACE, TAIL_EVENTS, beforeGenerate, hashUnit, nearness, pickEvents, pickFresh, tailPick } from '../../../../modules/world/chronicle/pick.js';
+import { agoText } from '../../../../modules/world/chronicle/queries.js';
+import { part } from '../../../../modules/world/chronicle/index.js';
+import { BACKLOG_BUDGET, BACKLOG_STATIC, DIGEST_TAIL_BUDGET, backlogCue, backlogLines } from '../../../../modules/world/chronicle/digest.js';
+import { BACKLOG_CHARS, BACKLOG_LINES, BACKLOG_TAG, agoWords, backlogBlock } from '../../../../modules/world/chronicle/backlog.js';
 import { clockAt, command, eventNamed, lines, makeState, replay, runCommand, sceneAt, viewOf } from './helpers/fake-ctx.js';
-import { seenOf, surfacedOf } from '../../../src/v2/chronicle/domain.js';
+import { seenOf, surfacedOf } from '../../../../modules/world/chronicle/domain.js';
 
 const DAY = 1440;
 const surface = (state, payload, options = {}) => runCommand(state, part.commands[SURFACE], payload, { cause: 'system', ...options });

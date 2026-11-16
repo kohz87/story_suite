@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseChanges } from '../src/changes.js';
-import { applyOps, emptyTracker, findRecord, givenUpIn, questsDoneIn, replay, untrackedCorrections } from '../src/tracker.js';
+import { parseChanges } from '../../modules/world/changes.js';
+import { applyOps, emptyTracker, findRecord, givenUpIn, questsDoneIn, replay, untrackedCorrections } from '../../modules/time/tracker/tracker.js';
 import { ops } from './tracker.helpers.js';
 test('a hook taken on becomes a quest: ~ with its own parts (0.8.6)', () => {
     const start = applyOps(emptyTracker(), parseChanges('+ hook Sheep-killer — Beast taking sheep by the drainage ditch\n+ event Market day — stalls on the green\n+ agenda Marrit — now: unloading').ops, { message: 1, time: 0 }).tracker;
@@ -224,7 +224,7 @@ test('a line keyed by a label ("! Encounter — …") is skipped quietly and nev
 });
 
 test('choices are the reader\'s: a + quest counts only when their message took the job on (0.9.15)', async () => {
-    const { isOffer, offersChosenIn } = await import('../src/tracker.js');
+    const { isOffer, offersChosenIn } = await import('../../modules/time/tracker/tracker.js');
     const offerLines = '+ quest Rat Culling — Kill granary rats | type: side | giver: Danique | reward: 8 copper a sack\n+ quest Wolf Hunt — Kill ridge wolves | type: side | giver: Danique | reward: 4 silver';
     // Danique only offered them: both stay offers, not quests.
     const offeredOnly = applyOps(emptyTracker(), ops(offerLines), { message: 1, said: 'I pay the fee and ask what work there is.' });

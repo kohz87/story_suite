@@ -7,11 +7,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { assistSections } from '../../../../../core/capture.js';
-import { createModule } from '../../../src/v2/module.js';
-import { THREADS_FEATURE } from '../../../src/v2/threads.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { assistSections } from '../../../../core/capture.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { THREADS_FEATURE } from '../../../../modules/time/tracker/threads.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const assisted = host => host.sdk.receipts().map(entry => entry.receipt).filter(receipt => receipt.assist === 'now' || receipt.assist === 'late');
@@ -151,7 +151,7 @@ test('assist: a safety-net faction line never resets the stance of a known facti
 });
 
 test('assist: with Story Director held every safety-net line (its weather hook included) is visibly refused before any hook runs; release and Re-read leave a cap-10 reply unchanged (real chronicle)', async () => {
-    const { announceModules } = await import('../../../../../core/sdk/lifecycle.js');
+    const { announceModules } = await import('../../../../core/sdk/lifecycle.js');
     let release;
     const gate = new Promise(resolve => { release = resolve; });
     let calls = 0;

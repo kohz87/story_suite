@@ -1,6 +1,6 @@
 // Story Director v2, tracker part: reads a story line as a v1 op, leaving out the labels the Director does not keep.
 
-import { lineKey, parseChanges } from '../../../changes.js';
+import { lineKey, parseChanges } from '../../../world/changes.js';
 import { bareName, capKey, lineText } from './text.js';
 import { clip } from './shared-clip.js';
 

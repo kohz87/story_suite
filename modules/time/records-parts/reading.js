@@ -1,7 +1,7 @@
 // Reading one thread as the v1 record the time rules run on.
 
-import { FIELDS, lineKey } from '../../../changes.js';
-import { isOffer } from '../../../tracker.js';
+import { FIELDS, lineKey } from '../../world/changes.js';
+import { isOffer } from '../tracker/tracker.js';
 import { isInt } from './shared-int.js';
 
 // v1's own kinds a job may be offered as before the reader takes it on.

@@ -1,15 +1,15 @@
 // Rolls the entry for one reply: the table kind, its effect applied, its line.
 
-import { lineKey } from '../../../changes.js';
-import { dateOf } from '../../../relevance.js';
-import { castOf, partyPlace, pinnedKeys, presentKeys, roadsOf, travelOf } from '../../cast/entries.js';
-import { chanceCandidates } from '../../cast/world.js';
-import { cueOf } from '../../cast/note.js';
+import { lineKey } from '../../changes.js';
+import { dateOf } from '../../../atlas/relevance.js';
+import { castOf, partyPlace, pinnedKeys, presentKeys, roadsOf, travelOf } from '../../../cast/cast/entries.js';
+import { chanceCandidates } from '../../../cast/cast/world.js';
+import { cueOf } from '../../../cast/cast/note.js';
 import { hiddenNames } from '../../world/known.js';
-import { calendarFrom } from '../../keypeople/time.js';
-import { isPersona } from '../../tracker/initiative.js';
-import { orderedThreads } from '../../tracker/convert.js';
-import { ask, cutPoints, namesPerson } from '../../tracker/scene.js';
+import { calendarFrom } from '../../../cast/keypeople/time.js';
+import { isPersona } from '../../../time/tracker/initiative.js';
+import { orderedThreads } from '../../../time/tracker/convert.js';
+import { ask, cutPoints, namesPerson } from '../../../time/tracker/scene.js';
 import { d20Of, fillSlots, flavourFor, pickIndex, placeGroupOf, plainSlot, resolveKind, tableFor, briefFor, intensityOf, ACTOR_NEEDS, QUIET_FALLBACK, QUIET_SPREAD } from '../tables.js';
 import { RUMOUR_ROOM } from './limits.js';
 import { TAIL_CHARS, BRIEF_CHARS, cutWord } from './lines.js';

@@ -1,6 +1,6 @@
 // Reading closed quest outcomes and quests finished in a reply.
 
-import { questDifficulty } from '../changes.js';
+import { questDifficulty } from '../../../world/changes.js';
 import { FAILED } from '../tracker-said.js';
 
 // (0.9.19) A closed quest's own reason, read for the Journal: given up is the reader's choice,

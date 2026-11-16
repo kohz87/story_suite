@@ -1,7 +1,7 @@
 // Story Director: arc planner prompt, tracker summary and messages (pure).
 
-import { KINDS } from '../changes.js';
-import { NPC_PLANS_ONLY } from '../note.js';
+import { KINDS } from '../../world/changes.js';
+import { NPC_PLANS_ONLY } from '../../world/note.js';
 import { capitalize, isNumber } from './shared.js';
 
 // (0.9.19) A BEAT carries `reach:`, how it touches {{user}} wherever they are, so an off-screen

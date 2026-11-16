@@ -1,10 +1,10 @@
 // The Quests tab's cards (widget `story-director.quests`, src/v2/screens/quest-cards.js): display only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { runtime, resolveData, skipReason } from './helpers/runtime.js';
 import { closed, makeQueries, makeRunner, makeState, rats, thread, wolves } from './helpers/fixtures.js';
-import { QUESTS_ID, QUESTS_WIDGET, createQuestsWidget, part, screens } from '../../../src/v2/screens/index.js';
+import { QUESTS_ID, QUESTS_WIDGET, createQuestsWidget, part, screens } from '../../../../ui/legacy/director/screens/index.js';
 
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();
 const LONG = 'Quartermaster Hobb revealed that the missing party drew climbing iron and rope for the sunken quarry trench, not the flat peat bog';

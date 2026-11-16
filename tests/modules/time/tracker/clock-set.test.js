@@ -6,13 +6,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { PRESETS, makeCalendar } from '../../../src/calendar.js';
-import { part } from '../../../src/v2/tracker/index.js';
-import { CLOCK, clockCommand, clockProblem, heroDate, partsOf } from '../../../src/v2/tracker/clock-set.js';
-import { calendarOf, settingsDefaults } from '../../../src/v2/tracker/time.js';
+import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
+import { part } from '../../../../modules/time/tracker/index.js';
+import { CLOCK, clockCommand, clockProblem, heroDate, partsOf } from '../../../../modules/time/tracker/clock-set.js';
+import { calendarOf, settingsDefaults } from '../../../../modules/time/tracker/time.js';
 import { makeState, reply, runCommand } from './helpers/fake-ctx.js';
-import { statusExtras } from '../../../src/v2/screens/queries.js';
-import { formatStoryTime } from '../../../../story-block/src/v2/view/clock.js';
+import { statusExtras } from '../../../../ui/legacy/director/screens/queries.js';
+import { formatStoryTime } from '../../../../packages/story-block/src/v2/view/clock.js';
 
 const MONTHS = ['Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane', 'Emberwane', 'Nightfall', 'Frostfall', 'Deepwinter', 'Icewane', 'Yearsend']
     .map(name => ({ name, days: 30 }));
@@ -218,7 +218,7 @@ test('the card line and its tooltip write the time the way the Game view hero do
 });
 
 test('calendarRule: only a custom calendar without a week; foreignNames: whole words, capitalised, "May" only as a date', async () => {
-    const { calendarRule, foreignNames } = await import('../../../src/v2/tracker/calendar-settings.js');
+    const { calendarRule, foreignNames } = await import('../../../../modules/time/tracker/calendar-settings.js');
     const custom = makeCalendar({ preset: 'custom', era: 'CY', months: [{ name: 'Goldwane', days: 30 }, { name: 'Icewane', days: 30 }], leapYears: false });
     assert.equal(calendarRule(custom), "Dates use this world's calendar only: months Goldwane, Icewane; no weekdays. Never use Monday–Sunday or January–December, in narration or speech; say 'three days ago', 'yesterday' or the date (Goldwane 14).");
     assert.equal(calendarRule(GREGORIAN), '');

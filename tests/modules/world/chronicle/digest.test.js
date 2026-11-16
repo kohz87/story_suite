@@ -1,4 +1,4 @@
-import { withD1 } from '../helpers/d1.js';
+import { withD1 } from '../../../helpers/director/d1.js';
 // Chronicle part, day digest on the real Story Block v2 host (the live runtime and testkit), merged
 // into the module by src/v2/module.js: a day the clock leaves is written once, before the next reply,
 // from the receipts; a swipe keeps it; deleting the reply that crossed the day (or the one that wrote a
@@ -8,12 +8,12 @@ import { withD1 } from '../helpers/d1.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { DIGEST, DIGEST_FEATURE, dayOf, orderedDays, writtenOf } from '../../../src/v2/chronicle/days.js';
-import { BACKLOG_STATIC, LAST_DAY_TAG, YESTERDAY_TAG, digestCommands, digestTailLine } from '../../../src/v2/chronicle/digest.js';
-import { features, part } from '../../../src/v2/chronicle/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
+import { DIGEST, DIGEST_FEATURE, dayOf, orderedDays, writtenOf } from '../../../../modules/world/chronicle/days.js';
+import { BACKLOG_STATIC, LAST_DAY_TAG, YESTERDAY_TAG, digestCommands, digestTailLine } from '../../../../modules/world/chronicle/digest.js';
+import { features, part } from '../../../../modules/world/chronicle/index.js';
 
 const STATIC_KEY = 'story_suite_static';
 // The static part without the one sentence that explains [Earlier days] (taught once a past day is told, module/create.js `backlog`).

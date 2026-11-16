@@ -4,7 +4,7 @@ import { findPlace, keyOf } from '../domain.js';
 import { canonicalOf, definitionsFor } from '../canonical.js';
 import { packWorld } from '../world.js';
 import { scenePlace } from '../note.js';
-import { parseLocation } from '../../../places.js';
+import { parseLocation } from '../../places.js';
 import { dangerOf, policyProjection } from './projection.js';
 
 const toolsQuery = tools => (typeof tools?.query === 'function' ? (name, args) => tools.query(name, args) : null);

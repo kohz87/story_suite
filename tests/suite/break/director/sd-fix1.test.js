@@ -7,14 +7,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { makeCalendar } from '../../../src/calendar.js';
-import { KEY_CHARS } from '../../../src/v2/tracker/capture.js';
-import { directorTail } from '../../../src/v2/tracker/note.js';
-import { MAX_JUMP_DAYS, maxJumpMinutes, settingsDefaults, timeAfter } from '../../../src/v2/tracker/time.js';
-import { lastProblems, makeState, reply, thread } from '../tracker/helpers/fake-ctx.js';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
+import { makeCalendar } from '../../../../modules/time/calendar.js';
+import { KEY_CHARS } from '../../../../modules/time/tracker/capture.js';
+import { directorTail } from '../../../../modules/time/tracker/note.js';
+import { MAX_JUMP_DAYS, maxJumpMinutes, settingsDefaults, timeAfter } from '../../../../modules/time/tracker/time.js';
+import { lastProblems, makeState, reply, thread } from '../../../modules/time/tracker/helpers/fake-ctx.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 
 const gregorian = makeCalendar('gregorian');
 const DAY = 1440;

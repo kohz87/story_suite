@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { nsdVerdicts } from '../../../src/v2/keypeople/nsd.js';
+import { nsdVerdicts } from '../../../../modules/cast/keypeople/nsd.js';
 import { OPENING, keyHost, pin, said, slice, validatorErrors } from './helpers.js';
 
 const pinned = names => ({ pins: Object.fromEntries(names.map(name => [name.toLowerCase(), { name, since: null, rev: 1 }])), away: {}, gone: {}, notes: {} });

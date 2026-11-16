@@ -1,6 +1,6 @@
 // Plans a multi-leg trip along known atlas routes.
 
-import { DEFAULT_RULES, MODERN_RULES, legDays, restDaysFor } from '../../../routes.js';
+import { DEFAULT_RULES, MODERN_RULES, legDays, restDaysFor } from '../../routes.js';
 import { TOWN_HOP_DAYS, hopMode, townOf } from '../travel.js';
 import { cleanWord } from '../domain.js';
 import { MAX_LEGS } from '../trip-shape.js';

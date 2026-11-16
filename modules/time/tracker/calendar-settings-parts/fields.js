@@ -1,6 +1,6 @@
 // Story Director v2, tracker part: the calendar setting keys and the fields the pack's or Gregorian calendar shows.
 
-import { PRESETS } from '../../../calendar.js';
+import { PRESETS } from '../../calendar.js';
 
 export const CALENDAR_KEYS = Object.freeze({
     preset: 'tracker.calendar.preset',

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { CALLS, LIMITS, compile, evaluate, evaluateCondition, parse, tokenize } from '../../../src/v2/events/condition.js';
+import { CALLS, LIMITS, compile, evaluate, evaluateCondition, parse, tokenize } from '../../../../modules/world/events/condition.js';
 
 const env = (domains = {}, query) => ({ state: { v: 2, meta: { rev: 0, claims: {} }, domains }, query });
 const value = (source, context = env()) => {
@@ -280,7 +280,7 @@ test('parse output is plain frozen data; compile caches by text; evaluation is d
 });
 
 test('the events sources use no eval, Function, Math.random or Date.now', () => {
-    const dir = new URL('../../../src/v2/events/', import.meta.url);
+    const dir = new URL('../../../../modules/world/events/', import.meta.url);
     const scan = (folder, prefix) => {
         for (const entry of readdirSync(folder, { withFileTypes: true })) {
             if (entry.isDirectory()) { scan(new URL(`${entry.name}/`, folder), `${prefix}${entry.name}/`); continue; }

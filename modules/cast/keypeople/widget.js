@@ -8,8 +8,8 @@
 // not story actions. Text goes in as text only (WAVE rule 7). The Pin list stays inside the card (a max height, scrolling there); opening it
 // brings the card into view by moving its own scroller only (screens/scroll.js; never scrollIntoView).
 
-import { button, maker } from '../screens/dom.js';
-import { revealIn } from '../screens/scroll.js';
+import { button, maker } from '../../../ui/legacy/director/screens/dom.js';
+import { revealIn } from '../../../ui/legacy/director/screens/scroll.js';
 import { FEATURE } from './domain.js';
 
 export const KEY_PEOPLE_WIDGET = 'story-director.key-people';

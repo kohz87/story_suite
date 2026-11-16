@@ -3,7 +3,7 @@
 import { queryFrom } from './shared-ask.js';
 import { isOffer, isOpen, threadsOf } from './shared-threads.js';
 import { text } from './shared-words.js';
-import { clipStep, stepsFor } from '../../tracker/capture-parts/step-trail.js';
+import { clipStep, stepsFor } from '../../../../../modules/time/tracker/capture-parts/step-trail.js';
 
 // The trail while its last step is the quest's step now; else just that step (none when it is cleared).
 const current = (trail, step) => (step && trail.at(-1) === clipStep(step) ? trail : [step].filter(Boolean));

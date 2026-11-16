@@ -2,7 +2,7 @@
 //
 // `applyOps` moved out of tracker.js, which re-exports it. Its record helpers live in
 // tracker-records.js.
-import { QUEST_TYPE_WORDS, kindOf, lineKey } from './changes.js';
+import { QUEST_TYPE_WORDS, kindOf, lineKey } from '../../world/changes.js';
 import { nearMatches } from './tracker-words.js';
 import { ACCEPT_WORDS, AGREE_WORDS, BECOMES_QUEST, CHOSEN_END, FAILED, GIVE_UP, LOOKS_OVER, OVER_VALUE, QUEST_OVER_FIELDS, QUEST_OVER_TEXT, REFUSE_WORDS, TIME_FAIL, allJobsIn, closingReason, endsJob, isJob, isOffer, namesJob, offersInQuestion, overByChange, overStep, saidAbout, sentencesOf, takenOn, takesOnQuest, waitsForPay } from './tracker-said.js';
 import { MAX_ALIASES, NOT_STARTED, SUPERSEDED, aliasIndexOf, applyFields, blankFields, cloneRecord, finding, hasContent, isLabelKey, newRecord, touch, untrackedRecordOp, withArticle } from './tracker-records.js';

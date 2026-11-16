@@ -3,7 +3,7 @@
 import { isRecord } from '../domain.js';
 import { KEY } from '../trip-shape.js';
 import { isInt } from './shared-constants.js';
-import { entryOrder } from '../../reply-keys.js';
+import { entryOrder } from '../../../world/reply-keys.js';
 
 // The records' order: by story time, then revision, then the key's count (reply-keys.js), never by key: a key names the reply.
 const byRecord = entryOrder(record => [record?.at, record?.rev]);

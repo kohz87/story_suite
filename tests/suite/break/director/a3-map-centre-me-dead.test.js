@@ -4,9 +4,9 @@
 // (or hidden) while there is no current place, enabled once there is one.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { atlasMapWidget, forgetViews } from '../../../src/v2/atlas/widget.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
-import { makeState, query } from '../atlas/helpers/fake-ctx.js';
+import { atlasMapWidget, forgetViews } from '../../../../modules/atlas/atlas/widget.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
+import { makeState, query } from '../../../modules/atlas/helpers/fake-ctx.js';
 
 test('a3-2: with no current place the "Centre on where you are" button is not a dead control', () => {
     forgetViews();

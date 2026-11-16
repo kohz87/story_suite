@@ -3,7 +3,7 @@
 import { backlogCue, backlogOlder, digestCommands, digestTailLine, noteCommands } from '../digest.js';
 import { chronicleTail } from '../note.js';
 import { beforeGenerate as surfaceHook } from '../pick.js';
-import { threadsOn } from '../../threads.js';
+import { threadsOn } from '../../../time/tracker/threads.js';
 
 /**
  * `beforeGenerate(view)`: the last reply's day facts, the digest when a day ended, then the world events' pick (while the threads feature is on);

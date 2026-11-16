@@ -1,6 +1,6 @@
 // Shared tracker line conversion and application helpers for arc commands.
 
-import { applyThreadLine } from '../../tracker/capture.js';
+import { applyThreadLine } from '../../time/tracker/capture.js';
 import { itemLine } from '../plan.js';
 
 // A plan item as the change line the tracker reads (SPEC §4.4's parsed form).

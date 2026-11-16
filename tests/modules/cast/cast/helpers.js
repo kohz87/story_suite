@@ -1,9 +1,9 @@
 // The living cast tests: a real Story Block host (the testkit) with Story Director, the packs' cast stood in for (Story Block's
 // `packs.content({ kind: 'cast' })` is answered from `source`), and a scripted model for the planner.
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createFakeModel } from '../../../../story-block/testkit/model.js';
-import { createModule } from '../../../src/v2/module.js';
-import { castPlans } from '../../../src/v2/cast/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../../packages/story-block/testkit/model.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { castPlans } from '../../../../modules/cast/cast/index.js';
 
 export const STATIC_KEY = 'story_suite_static';
 export const TAIL_KEY = 'story_suite_tail_1';

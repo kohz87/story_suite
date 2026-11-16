@@ -1,6 +1,6 @@
 // Chronicle queries' reading of the chat's calendar, the Director's clock and a date as text.
 
-import { PRESETS, makeCalendar } from '../../../calendar.js';
+import { PRESETS, makeCalendar } from '../../../time/calendar.js';
 import { isInt } from '../domain-parts/shared-basics.js';
 import { agoText } from '../days.js';
 import { ask } from './shared-ask.js';

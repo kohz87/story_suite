@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/tracker/index.js';
+import { part } from '../../../../modules/time/tracker/index.js';
 import { makeState, readLine, runCommand, story } from './helpers/fake-ctx.js';
 
 const validate = director => part.domains.director.validate(director, {});

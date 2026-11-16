@@ -1,6 +1,6 @@
 // Reads the pack table and the scoring inputs from the head state.
 
-import { questDifficulty } from '../../../changes.js';
+import { questDifficulty } from '../../changes.js';
 import { validateRipples } from './table.js';
 
 const GREAT = new Set(['hard', 'nightmare']);

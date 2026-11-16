@@ -1,7 +1,7 @@
 // Story Director v2, tracker part (scene): splits relevant threads into what fits the scene and the rest.
 
-import { lineKey } from '../../../changes.js';
-import { looksFinished, waitsForPay } from '../../../tracker.js';
+import { lineKey } from '../../../world/changes.js';
+import { looksFinished, waitsForPay } from '../tracker.js';
 import { MIN_NAME } from './shared-limits.js';
 import { flat, normalize } from './shared-text.js';
 import { namesPerson, wholeWord as names } from './names.js';

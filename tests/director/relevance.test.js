@@ -1,7 +1,7 @@
 // Tests for src/relevance.js: due, arriving, dormant and the priority order of classify.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { AWAY_GAP_MINUTES, DEFAULTS, awayIn, estimateTokens, dateOf, isDue, isArriving, isDormant, classify, encountersIn } from '../src/relevance.js';
+import { AWAY_GAP_MINUTES, DEFAULTS, awayIn, estimateTokens, dateOf, isDue, isArriving, isDormant, classify, encountersIn } from '../../modules/atlas/relevance.js';
 
 // A small fake of the Calendar API (12 months of 30 days, abs in minutes), enough for these
 // tests; the real calendar.js is tested on its own.

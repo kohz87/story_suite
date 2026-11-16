@@ -1,7 +1,7 @@
 // Story Director v2, people widget: draws the cast cards and chips into an element and keeps them fresh.
 
-import { maker } from '../../screens/dom.js';
-import { lineKey } from '../../../changes.js';
+import { maker } from '../../../../ui/legacy/director/screens/dom.js';
+import { lineKey } from '../../changes.js';
 import { dossierOpener, castApi } from './delta-api.js';
 
 export const HERE_QUERY = 'director.world.here';

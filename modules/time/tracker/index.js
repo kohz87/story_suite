@@ -15,7 +15,7 @@ import { CALENDAR_NAMES, CLOCK, calendarNamesCommand, calendarNamesHook, clockCo
 import { DEFAULT_COOLDOWN, FEATURE as INITIATIVE_FEATURE, INITIATIVE, INITIATIVE_STATIC, MAX_COOLDOWN, initiativeCommand, initiativeHook } from './initiative.js';
 import { DEFAULT_ELSEWHERE, MAX_ELSEWHERE } from './scene.js';
 import { PRESET_CHOICES, settingsDefaults } from './time.js';
-import { THREADS_FEATURE, ownedKind } from '../threads.js';
+import { THREADS_FEATURE, ownedKind } from './threads.js';
 
 // A kind Story Director alone words otherwise (GRAMMAR_ALONE) gets its grammar from the module set. The agenda,
 // event, clock, beat and secret kinds belong to the feature `story-director.threads` (src/v2/threads.js): while it

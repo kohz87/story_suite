@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (domain): the step trail's size limits, key rule and order, shared by its writer and its validator.
 
-import { REPLY_KEY, countOf } from '../../reply-keys.js';
+import { REPLY_KEY, countOf } from '../../../world/reply-keys.js';
 
 /** Entries the writer keeps (capture-parts/step-trail.js), the oldest going first. */
 export const STEP_KEPT = 400;

@@ -5,7 +5,7 @@
 // and the ripples table drives the Marrowbridge and crown branches.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateCondition, parse } from '../../../src/v2/events/condition.js';
+import { evaluateCondition, parse } from '../../../../../modules/world/events/condition.js';
 import { DAY, OWN, START, T, beats, delays, events, lastingOf, order, pack, roadOf, variants, view, walk, written } from './ersveil-timeline.helpers.js';
 
 test('the timeline is data Story Block and Story Director accept: conditions read, links resolve, lasting changes fit', () => {

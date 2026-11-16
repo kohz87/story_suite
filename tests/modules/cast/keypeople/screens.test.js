@@ -5,13 +5,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { FOLD_WIDGET, foldWidget, worldScreen } from '../../../src/v2/world/index.js';
-import { STATUS_SUMMARY, statusCardScreen } from '../../../src/v2/screens/status-card.js';
-import { KEY_PEOPLE_WIDGET, keyPeopleWidget } from '../../../src/v2/keypeople/widget.js';
-import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
-import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { FOLD_WIDGET, foldWidget, worldScreen } from '../../../../modules/world/world/index.js';
+import { STATUS_SUMMARY, statusCardScreen } from '../../../../ui/legacy/director/screens/status-card.js';
+import { KEY_PEOPLE_WIDGET, keyPeopleWidget } from '../../../../modules/cast/keypeople/widget.js';
+import { conditionEvaluator } from '../../../../packages/story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../modules/world/events/index.js';
+import { compileTemplate, renderTemplate } from '../../../../packages/story-block/src/v2/view/template/index.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { OPENING, keyHost, pin, said } from './helpers.js';
 
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();

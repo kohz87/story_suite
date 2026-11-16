@@ -1,8 +1,8 @@
 // Computing shortest-path and map-estimated travel times between places.
 
-import { DEFAULT_MAP, estimateTrip, mapSettings } from '../../../places.js';
+import { DEFAULT_MAP, estimateTrip, mapSettings } from '../../places.js';
 import { parentOf } from '../parent.js';
-import { DEFAULT_RULES, MODERN_RULES, durationText, restDaysFor } from '../../../routes.js';
+import { DEFAULT_RULES, MODERN_RULES, durationText, restDaysFor } from '../../routes.js';
 import { defaultMode, routeDays } from './modes.js';
 import { tidy } from './shared-math.js';
 

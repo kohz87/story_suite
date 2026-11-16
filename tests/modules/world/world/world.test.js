@@ -6,12 +6,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DAYS_ID, FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidget, createPeopleWidget, daysScreen, foldMemory, holidays, knownFactions, knownNews, part, worldScreen } from '../../../src/v2/world/index.js';
-import { DIGEST_FEATURE } from '../../../src/v2/chronicle/days.js';
-import { createModule, storyDirectorModule } from '../../../src/v2/module.js';
-import { makeCalendar } from '../../../src/calendar.js';
-import { validateScreen } from '../../../../story-block/src/v2/view/screens.js';
-import { scopeCss } from '../../../../story-block/src/v2/view/css.js';
+import { DAYS_ID, FEATURE, FOLD_WIDGET, PEOPLE_WIDGET, WORLD_ID, createFoldWidget, createPeopleWidget, daysScreen, foldMemory, holidays, knownFactions, knownNews, part, worldScreen } from '../../../../modules/world/world/index.js';
+import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
+import { createModule, storyDirectorModule } from '../../../../ui/legacy/director/module.js';
+import { makeCalendar } from '../../../../modules/time/calendar.js';
+import { validateScreen } from '../../../../packages/story-block/src/v2/view/screens.js';
+import { scopeCss } from '../../../../packages/story-block/src/v2/view/css.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
 // Everything behind the scenes or planned in the story below: none of it may reach World or Journal.
@@ -163,7 +163,7 @@ test('the Journal: each day with places, people met, news and quests; today so f
 });
 
 test('an older digest that kept an arc line or a secret\'s name: the Journal leaves the line out', async () => {
-    const { knownDay, hiddenNames } = await import('../../../src/v2/world/index.js');
+    const { knownDay, hiddenNames } = await import('../../../../modules/world/world/index.js');
     const state = { domains: { director: { threads: { th_aaaaaaaa: { id: 'th_aaaaaaaa', kind: 'secret', key: 'Bell Curse', summary: 'x', fields: {}, status: 'active' } }, keys: {} }, arc: { arcs: { arc_aaaaaaaa: { id: 'arc_aaaaaaaa', key: 'The Drowned Bell', desc: '' } } } } };
     const day = knownDay({
         day: 1, date: 'June 3, 1200', short: 'New arc: The Drowned Bell (1 beat)', brief: false, count: 3, more: 0,

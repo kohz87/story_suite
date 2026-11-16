@@ -4,12 +4,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { PRESETS, makeCalendar } from '../../../src/calendar.js';
-import { part } from '../../../src/v2/atlas/index.js';
-import { validateAtlas } from '../../../src/v2/atlas/domain.js';
-import { modeOf, positionOf, tripLines, tripOf, tripView } from '../../../src/v2/atlas/trip.js';
-import { tripsProblems } from '../../../src/v2/atlas/trip-shape.js';
-import { tripTail } from '../../../src/v2/atlas/note.js';
+import { PRESETS, makeCalendar } from '../../../modules/time/calendar.js';
+import { part } from '../../../modules/atlas/atlas/index.js';
+import { validateAtlas } from '../../../modules/atlas/atlas/domain.js';
+import { modeOf, positionOf, tripLines, tripOf, tripView } from '../../../modules/atlas/atlas/trip.js';
+import { tripsProblems } from '../../../modules/atlas/atlas/trip-shape.js';
+import { tripTail } from '../../../modules/atlas/atlas/note.js';
 import { command, deepFreeze, line, makeState, query, replay } from './helpers/fake-ctx.js';
 
 const calendar = makeCalendar(PRESETS.gregorian);

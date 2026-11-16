@@ -1,6 +1,6 @@
 // Parses and applies route and landmark change lines for the atlas.
 
-import { parseLocation } from '../../../places.js';
+import { parseLocation } from '../../places.js';
 import {
     MAX_NAME, cleanName, cleanWord, findPlace, keyOf, newId, routesBetween,
 } from '../domain.js';

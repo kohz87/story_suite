@@ -8,11 +8,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { makeCalendar, normalizeCalendar, PRESETS } from '../../../src/calendar.js';
-import { TEMPERATE, WEATHER_FEATURE, hashOf, seasonByYear, seasonOf, tableFor, weatherFor, weatherHook, weatherKey } from '../../../src/v2/time/weather.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../ui/legacy/director/module.js';
+import { makeCalendar, normalizeCalendar, PRESETS } from '../../../modules/time/calendar.js';
+import { TEMPERATE, WEATHER_FEATURE, hashOf, seasonByYear, seasonOf, tableFor, weatherFor, weatherHook, weatherKey } from '../../../modules/time/weather.js';
+import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const weather = host => host.head().domains.scene.weather;

@@ -5,7 +5,7 @@ import {
     FIT_PAD, KNOWN_LABEL_ZOOM, LONE_SPAN, MAX_ZOOM_SPAN, NEAR_PX, SLOTS, ZOOM_IN, ZOOM_OUT,
     between, boundsOf, centreOn, clampView, clipSegment, fitView, fold, labelSize, mapPoint, nearestGap,
     panBy, placeLabels, placeUnplaced, searchPlaces, shorten, toMap, toScreen, zoomAt, zoomLevel, zoomLimits,
-} from '../../../src/v2/atlas/view.js';
+} from '../../../modules/atlas/atlas/view.js';
 
 const close = (actual, expected, message) => assert.ok(Math.abs(actual - expected) < 1e-6, `${message ?? ''} ${actual} ≈ ${expected}`);
 

@@ -1,6 +1,6 @@
 // Story Director: note section assembly, budget trimming and tail extraction.
 
-import { awayIn, estimateTokens } from '../relevance.js';
+import { awayIn, estimateTokens } from '../../atlas/relevance.js';
 import { CHANGE_INSTRUCTION, NPC_PLANS_ONLY } from '../note-text.js';
 import { part } from '../note-format.js';
 import { compose, joinParts } from './compose.js';

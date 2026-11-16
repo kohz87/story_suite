@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
-import { loadWorldPack, parseLeg, validateLeg } from '../src/routes.js';
-import { makeCalendar } from '../src/calendar.js';
+import { loadWorldPack, parseLeg, validateLeg } from '../../modules/atlas/routes.js';
+import { makeCalendar } from '../../modules/time/calendar.js';
 
-export const FIXTURE = readFileSync(new URL('./fixtures/world-pack.json', import.meta.url), 'utf8');
+export const FIXTURE = readFileSync(new URL('../fixtures/director/world-pack.json', import.meta.url), 'utf8');
 export const { pack } = loadWorldPack(FIXTURE);
 
 export const cal = makeCalendar({

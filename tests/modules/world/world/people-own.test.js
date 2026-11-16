@@ -1,8 +1,8 @@
 // J11 step 7: with the flag `suite.worldPeopleOwn` the World people widget draws NPC State's cards itself from its queries.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPeopleWidget } from '../../../src/v2/world/index.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { createPeopleWidget } from '../../../../modules/world/world/index.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { squash } from './helpers.js';
 
 const tick = () => new Promise(resolve => setImmediate(resolve));

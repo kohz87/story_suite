@@ -1,6 +1,6 @@
 // Creating and mutating tracker records while tracking leg changes.
 
-import { FIELDS, formatOp, lineKey } from '../changes.js';
+import { FIELDS, formatOp, lineKey } from '../../../world/changes.js';
 import { blankFields } from './shape.js';
 
 const HISTORY_LIMIT = 20;

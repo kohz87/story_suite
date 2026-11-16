@@ -1,8 +1,8 @@
 // Story Director v2: building the one module definition from its parts.
 
-import { CALENDAR_KEYS, calendarRule, liveCalendarSettings } from '../tracker/calendar-settings.js';
-import { calendarOf, packCalendarOf, settingsFrom } from '../tracker/time.js';
-import { rareKindsUsed } from '../rare.js';
+import { CALENDAR_KEYS, calendarRule, liveCalendarSettings } from '../../../../modules/time/tracker/calendar-settings.js';
+import { calendarOf, packCalendarOf, settingsFrom } from '../../../../modules/time/tracker/time.js';
+import { rareKindsUsed } from '../../../../packages/story-director/src/v2/rare.js';
 import { MODULE_ID, MODULE_NAME, PARTS, STORY_BLOCK_RANGE, VERSION } from './parts.js';
 import { LIVE_HOST, isObject, liveSdk, tryLive } from './shared.js';
 import { fightRunner } from './host.js';

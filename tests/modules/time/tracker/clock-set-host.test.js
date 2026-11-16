@@ -7,13 +7,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { replyEdits } from '../../../../story-block/src/v2/reply-cards.js';
-import { castPlans } from '../../../src/v2/cast/index.js';
-import { OPENING, castHost, castSource, entry, people, receipts as castReceipts, said, settle, slice, validatorErrors as castValidatorErrors } from '../cast/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { replyEdits } from '../../../../packages/story-block/src/v2/reply-cards.js';
+import { castPlans } from '../../../../modules/cast/cast/index.js';
+import { OPENING, castHost, castSource, entry, people, receipts as castReceipts, said, settle, slice, validatorErrors as castValidatorErrors } from '../../cast/cast/helpers.js';
 
-const ERSVEIL = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const TAIL_KEY = 'story_suite_tail_1';
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);

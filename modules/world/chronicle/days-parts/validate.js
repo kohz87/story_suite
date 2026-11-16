@@ -1,6 +1,6 @@
 // Story Director v2, chronicle part: validation of day digests, facts and quest history. Pure.
 
-import { slotValue } from '../../slot.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
 import { FOLD_AT, FULL_CEILING, KEEP_CEILING } from './digest-ceilings.js';
 import { MAX_HAPPENED, MAX_NPCS, MAX_PLACES, MAX_QUESTS } from './digest-caps.js';
 import { ENTRY_HAPPENED, MAX_MET, MAX_NAME, MAX_WHO } from './entry-caps.js';

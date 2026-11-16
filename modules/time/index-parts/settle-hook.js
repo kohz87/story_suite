@@ -2,7 +2,7 @@
 
 import { needsSettle, settle, settleSummary } from '../settle.js';
 import { calendarOf, timeSettings } from '../records.js';
-import { ownedKind, threadsOn } from '../../threads.js';
+import { ownedKind, threadsOn } from '../tracker/threads.js';
 import { isInt } from './shared-int.js';
 
 export const SETTLE = 'time.settle';

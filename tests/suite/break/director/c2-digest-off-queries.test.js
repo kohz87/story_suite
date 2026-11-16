@@ -9,8 +9,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule } from '../../../src/v2/module.js';
-import { DIGEST_FEATURE } from '../../../src/v2/chronicle/days.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 
 const DIGEST_QUERIES = ['chronicle.days', 'chronicle.day', 'chronicle.dayBoard', 'chronicle.dayFacts'];
 

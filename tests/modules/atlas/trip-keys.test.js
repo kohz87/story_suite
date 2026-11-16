@@ -8,12 +8,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { tripOf } from '../../../src/v2/atlas/trip.js';
-import { tripsProblems } from '../../../src/v2/atlas/trip-shape.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../ui/legacy/director/module.js';
+import { tripOf } from '../../../modules/atlas/atlas/trip.js';
+import { tripsProblems } from '../../../modules/atlas/atlas/trip-shape.js';
 
-const PACK = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const PACK = readFileSync(new URL('../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const GO = ['~ place Bluewatch Village', '~ trip Wolfmere Outpost | by: foot'];
 const pad = n => Array.from({ length: n }, (_, i) => `+ quest P${i} — x | giver: A`);

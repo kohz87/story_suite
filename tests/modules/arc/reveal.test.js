@@ -4,11 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { installFakeDom } from '../../ui-fake-dom.js';
-import { createFakeModel, createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { createArcController, createArcWidget } from '../../../src/v2/arc/index.js';
-import { browserStore, createBehindWidget, createReveal } from '../../../src/v2/screens/index.js';
+import { installFakeDom } from '../../helpers/director/ui-fake-dom.js';
+import { createFakeModel, createHost } from '../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../ui/legacy/director/module.js';
+import { createArcController, createArcWidget } from '../../../modules/arc/index.js';
+import { browserStore, createBehindWidget, createReveal } from '../../../ui/legacy/director/screens/index.js';
 
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();

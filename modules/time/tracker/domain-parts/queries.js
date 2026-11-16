@@ -3,7 +3,7 @@
 import { threadProjection } from '../thread-writes.js';
 import { partsOf } from '../clock-set.js';
 import { hashJson } from '../hash.js';
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../../world/changes.js';
 import { orderedThreads } from '../convert.js';
 import { calendarConfig, calendarOf, packCalendarOf, settingsFrom } from '../time.js';
 import { quietThreads } from '../quiet.js';

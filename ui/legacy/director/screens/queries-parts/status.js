@@ -1,6 +1,6 @@
 // Story Director v2, part screens: what the reply's Status card adds to the scene (`director.status`): the time, place, weather and the player's own condition.
 
-import { heroDate } from '../../tracker/clock-set.js';
+import { heroDate } from '../../../../../modules/time/tracker/clock-set.js';
 import { calendarFrom } from './calendar.js';
 import { ask, queryFrom } from './shared-ask.js';
 import { cut, isRecord, text } from './shared-words.js';

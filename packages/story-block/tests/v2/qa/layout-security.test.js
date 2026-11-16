@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FakeElement, installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { renderLayout, validateLayout } from '../../../src/v2/layout/index.js';
-import { evaluateCondition } from '../../../src/v2/events/condition.js';
+import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
 import { badge } from '../../../src/v2/view/widgets/badge.js';
 import { meter } from '../../../src/v2/view/widgets/meter.js';
 

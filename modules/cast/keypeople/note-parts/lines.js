@@ -1,6 +1,6 @@
 // Story Director v2, part **keypeople**: writes one away person's tail line and fits the lines to the token budget.
 
-import { estimateTokens } from '../../../relevance.js';
+import { estimateTokens } from '../../../atlas/relevance.js';
 import { DEFAULT_TOKENS, cutPoints } from '../domain.js';
 import { dateText } from '../time.js';
 import { awayEntries } from './entries.js';

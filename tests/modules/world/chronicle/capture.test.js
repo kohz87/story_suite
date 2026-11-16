@@ -5,17 +5,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { MAX_EVENTS, MAX_FACTIONS, initialChronicle, validateChronicle } from '../../../src/v2/chronicle/domain.js';
-import { clockOf, readNames, readState } from '../../../src/v2/chronicle/capture.js';
+import { MAX_EVENTS, MAX_FACTIONS, initialChronicle, validateChronicle } from '../../../../modules/world/chronicle/domain.js';
+import { clockOf, readNames, readState } from '../../../../modules/world/chronicle/capture.js';
 import {
     clockAt, command, eventNamed, factionNamed, line, lines, makeState, query, replay, runCommand,
 } from './helpers/fake-ctx.js';
-import { knownFactions } from '../../../src/v2/world/known.js';
-import { part } from '../../../src/v2/chronicle/index.js';
-import { RUMOUR_DAYS, RUMOUR_OPEN_MAX, seenOf, surfacedOf } from '../../../src/v2/chronicle/domain.js';
-import { eventOut } from '../../../src/v2/chronicle/queries.js';
-import { knownNews } from '../../../src/v2/world/known.js';
-import { heardStamps } from '../../../src/v2/world/known-parts/heard.js';
+import { knownFactions } from '../../../../modules/world/world/known.js';
+import { part } from '../../../../modules/world/chronicle/index.js';
+import { RUMOUR_DAYS, RUMOUR_OPEN_MAX, seenOf, surfacedOf } from '../../../../modules/world/chronicle/domain.js';
+import { eventOut } from '../../../../modules/world/chronicle/queries.js';
+import { knownNews } from '../../../../modules/world/world/known.js';
+import { heardStamps } from '../../../../modules/world/world/known-parts/heard.js';
 
 const DAY = 1440;
 

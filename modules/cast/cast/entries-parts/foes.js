@@ -1,7 +1,7 @@
 // Story Director v2, part **cast**: reading Lean RPG Foes slots and detecting leftover fights from pulse records.
 
 import { isRecord } from '../domain.js';
-import { slotValue } from '../../slot.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
 
 /**
  * Whether a Lean RPG fight is open in `state`: a Foes block (a data module with the role `foes`) with a live slot: a name, a count above

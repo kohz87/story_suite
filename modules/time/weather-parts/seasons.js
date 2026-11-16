@@ -1,6 +1,6 @@
 // Story Director v2, part time: the season of a story day, from the pack's seasons or the built-in year split, and the built-in table.
 
-import { makeCalendar } from '../../../calendar.js';
+import { makeCalendar } from '../calendar.js';
 import { fold } from './shared-text.js';
 
 export const SEASONS = Object.freeze(['winter', 'spring', 'summer', 'autumn']);

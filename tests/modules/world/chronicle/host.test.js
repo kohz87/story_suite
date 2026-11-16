@@ -8,11 +8,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { TAIL_HEADER } from '../../../src/v2/chronicle/note.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { seenOf, surfacedOf } from '../../../src/v2/chronicle/domain.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';
+import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
+import { seenOf, surfacedOf } from '../../../../modules/world/chronicle/domain.js';
 
 const STATIC_KEY = 'story_suite_static';
 const TAIL_KEY = 'story_suite_tail_1';

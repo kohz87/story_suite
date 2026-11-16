@@ -1,6 +1,6 @@
 // Shared constants and label-key predicate for tracker record ops.
 
-import { kindOf } from '../changes.js';
+import { kindOf } from '../../../world/changes.js';
 
 export const SUPERSEDED = /supersed|replac|merged/i;
 // A step that has not started is not the story moving a job on.

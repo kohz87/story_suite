@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { normalizeEvents } from '../../../src/v2/events/engine.js';
+import { normalizeEvents } from '../../../../../modules/world/events/engine.js';
 import { createInstalled } from '../../../src/v2/packs/installed.js';
 import { resolveItemIn, contentOf } from '../../../src/v2/packs/content.js';
 import { fakeSettings } from './helpers/fake-settings.js';

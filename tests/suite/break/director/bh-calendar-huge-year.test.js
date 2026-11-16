@@ -6,9 +6,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 
-import { makeCalendar } from '../../../src/calendar.js';
+import { makeCalendar } from '../../../../modules/time/calendar.js';
 
-const calendarUrl = new URL('../../../src/calendar.js', import.meta.url).href;
+const calendarUrl = new URL('../../../../modules/time/calendar.js', import.meta.url).href;
 
 test('a huge written year is not a date, and formatting one ends at once', () => {
     const script = `

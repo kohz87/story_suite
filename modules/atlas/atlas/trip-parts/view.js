@@ -1,6 +1,6 @@
 // Builds the reader-facing trip view and narrator status lines.
 
-import { parseLocation } from '../../../places.js';
+import { parseLocation } from '../../places.js';
 import { keyOf } from '../domain.js';
 import { DAY, daysWord, isInt, tidy } from './shared-constants.js';
 import { positionOf, tripOf } from './state.js';

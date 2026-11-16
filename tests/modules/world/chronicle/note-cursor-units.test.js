@@ -7,11 +7,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { noteFactsQuery } from '../../../src/v2/chronicle/queries.js';
-import { noteCommand, noteCommands } from '../../../src/v2/chronicle/digest-parts/note.js';
-import { questLogOf, validateDays } from '../../../src/v2/chronicle/days.js';
-import { threadOutcome } from '../../../src/v2/chronicle/thread-outcome.js';
-import { slotValue } from '../../../src/v2/slot.js';
+import { noteFactsQuery } from '../../../../modules/world/chronicle/queries.js';
+import { noteCommand, noteCommands } from '../../../../modules/world/chronicle/digest-parts/note.js';
+import { questLogOf, validateDays } from '../../../../modules/world/chronicle/days.js';
+import { threadOutcome } from '../../../../modules/world/chronicle/thread-outcome.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
 
 const line = (id, rev, text) => ({ index: 2, receipt: { id, rev, type: 'capture.quest', summary: `Director: ${text}`, data: { thread: 'th_q' } } });
 // Chat order as a Re-read leaves it: the kept note `rc_note` (rev 5) sits after its reply's renumbered lines (revs 9, 10).

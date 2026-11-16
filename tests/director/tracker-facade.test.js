@@ -3,9 +3,9 @@
 // nothing else is.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import * as tracker from '../src/tracker.js';
-import * as words from '../src/tracker-words.js';
-import * as said from '../src/tracker-said.js';
+import * as tracker from '../../modules/time/tracker/tracker.js';
+import * as words from '../../modules/time/tracker/tracker-words.js';
+import * as said from '../../modules/time/tracker/tracker-said.js';
 
 const BEFORE_SPLIT = [
     'waitsForPay',

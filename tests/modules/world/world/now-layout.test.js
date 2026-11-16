@@ -3,11 +3,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { WORLD_ID, worldScreen } from '../../../src/v2/world/index.js';
-import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
-import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { WORLD_ID, worldScreen } from '../../../../modules/world/world/index.js';
+import { conditionEvaluator } from '../../../../packages/story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../modules/world/events/index.js';
+import { compileTemplate, renderTemplate } from '../../../../packages/story-block/src/v2/view/template/index.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();
 

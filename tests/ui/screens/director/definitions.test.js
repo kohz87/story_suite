@@ -5,9 +5,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CSS_LIMIT, resolveData, runtime, validateScreen, liveScreens } from './helpers/runtime.js';
 import { headState, makeQueries, makeRunner } from './helpers/fixtures.js';
-import { DIRECTOR_ID, QUESTS_ID, STATUS_CARD_ID, createScreensPart, part, screens } from '../../../src/v2/screens/index.js';
-import { worldScreen } from '../../../src/v2/world/screen.js';
-import { mapScreen } from '../../../src/v2/atlas/screen.js';
+import { DIRECTOR_ID, QUESTS_ID, STATUS_CARD_ID, createScreensPart, part, screens } from '../../../../ui/legacy/director/screens/index.js';
+import { worldScreen } from '../../../../modules/world/world/screen.js';
+import { mapScreen } from '../../../../modules/atlas/atlas/screen.js';
 
 const byId = Object.fromEntries(screens.map(screen => [screen.id, screen]));
 const utf8 = new TextEncoder();

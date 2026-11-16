@@ -1,6 +1,6 @@
 // Updates a tracked thread with a pending plan item or ends the current arc.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../world/changes.js';
 import { currentArc } from '../domain.js';
 import { flat, readPlan } from '../plan.js';
 import { fail, has, planOptions, revOf } from './shared-helpers.js';

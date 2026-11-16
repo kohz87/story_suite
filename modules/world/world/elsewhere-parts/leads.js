@@ -1,6 +1,6 @@
 // The World screen's Leads data: the hooks the player has heard of, newest first.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../changes.js';
 import { agoText, calendarFrom, cut, hiddenNames, namesHidden, nowFrom, queryOf } from '../known.js';
 import { lapseOf } from './lapse-date.js';
 import { isRecord } from './shared-guards.js';

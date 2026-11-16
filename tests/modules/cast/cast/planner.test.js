@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { castPlans } from '../../../src/v2/cast/index.js';
+import { castPlans } from '../../../../modules/cast/cast/index.js';
 import { OPENING, castCue, castHost, castSource, createFakeModel, withRoads, entry, people, receipts, said, sent, settle, slice, validatorErrors, TAIL_KEY } from './helpers.js';
 
 const FENNA = entry('fenna', { start: { place: 'Bluewatch docks', goal: 'keep the night ferry running', routine: 'works the night ferry' } });

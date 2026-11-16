@@ -1,7 +1,7 @@
 // Story Director v2, tracker part (domain): checks one thread of the `director` slice (cached for frozen threads).
 
 import { closed, cursor, hash, map, minute, recordId, source } from '../thread-shape.js';
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../../world/changes.js';
 import { OUTCOMES, THREAD_KINDS } from '../convert.js';
 import { isInt, isRecord } from './shared-guards.js';
 

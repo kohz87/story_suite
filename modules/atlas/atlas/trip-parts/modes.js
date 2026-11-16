@@ -1,6 +1,6 @@
 // Travel mode aliases, wording, and base pace lookup for atlas trips.
 
-import { DEFAULT_PACES, MODERN_PACES } from '../../../places.js';
+import { DEFAULT_PACES, MODERN_PACES } from '../../places.js';
 
 // The words the story writes for a mode of travel (by: riding), as v1's routes.js reads them.
 const ALIASES = Object.freeze({

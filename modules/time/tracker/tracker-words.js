@@ -3,7 +3,7 @@
 // tracker.js re-exports `keyWords` and `nearMatches`. The names part also uses the person-name
 // resolver here to count distinct identities without treating a partial name as a second person.
 
-import { lineKey } from './changes.js';
+import { lineKey } from '../../world/changes.js';
 
 // Matching a key that is not tracked to the record it most likely means (v0.8.3): the words
 // that tell keys apart, without a leading article or the small words models swap freely.

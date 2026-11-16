@@ -1,8 +1,8 @@
 // The pulse's two commands: the roll for the reply being written and the quiet-scene flag.
 
-import { slotValue, toSlot } from '../../slot.js';
-import { fightOn, foesLeftover, foesSignature } from '../../cast/entries.js';
-import { ask, sceneOf } from '../../tracker/scene.js';
+import { slotValue, toSlot } from '../../../../packages/story-director/src/v2/slot.js';
+import { fightOn, foesLeftover, foesSignature } from '../../../cast/cast/entries.js';
+import { ask, sceneOf } from '../../../time/tracker/scene.js';
 import { drawsFrom } from '../tables.js';
 import { STALE_REPLIES } from './limits.js';
 import { TAIL_CHARS, BRIEF_CHARS, worldLine } from './lines.js';

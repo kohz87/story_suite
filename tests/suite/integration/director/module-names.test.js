@@ -3,13 +3,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule } from '../../../src/v2/module.js';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { fakeDelta } from '../keypeople/helpers.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { fakeDelta } from '../../../modules/cast/keypeople/helpers.js';
 import {
     OVERUSED, applyPerson, beforeGenerate as namesBefore, bareKey, capMinor, checkName, clampCount, initialNames, nameKey, parseBanned, parseProfile, pickSuggestions,
     part as namesPart, profileText, tail as namesTail, validateNames,
-} from '../../../src/v2/names/index.js';
+} from '../../../../modules/cast/names/index.js';
 
 // ---- the names part (src/v2/names/index.js) ----
 const PACK_NAMES = { banned: ['Mordred'], river: { regions: ['River Confederacy'], given: ['Wenna', 'Joost', 'Maaike', 'Bregje', 'Temiwa', 'Hilde', 'Gerold', 'Sigrun'] } };

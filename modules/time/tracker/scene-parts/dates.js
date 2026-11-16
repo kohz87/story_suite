@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (scene): tells whether a record's date falls within some story days.
 
-import { dateOf, isDue } from '../../../relevance.js';
+import { dateOf, isDue } from '../../../atlas/relevance.js';
 
 const DATE_FIELDS = ['on', 'due', 'arrive'];
 

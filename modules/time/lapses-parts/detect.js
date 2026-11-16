@@ -1,5 +1,5 @@
 // Story Director: detecting slipped beats and lapsed offers from tracker state.
-import { isOffer } from '../tracker.js';
+import { isOffer } from '../tracker/tracker.js';
 import { SLIP_GRACE_DAYS, UNDATED_OFFER_DAYS } from './constants.js';
 import { dateEnd, isNumber } from './shared-dates.js';
 

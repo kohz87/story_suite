@@ -6,11 +6,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { withD1 } from '../helpers/d1.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../ui/legacy/director/module.js';
+import { withD1 } from '../../helpers/director/d1.js';
 
-const PACK = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const PACK = readFileSync(new URL('../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const claimsOf = h => Object.keys(h.head().meta.claims ?? {}).sort();
 const held = h => h.store.problems().filter(p => p.code === 'REPLAY_PREREQUISITE');

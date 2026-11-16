@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { journalDay } from '../../../src/v2/world/index.js';
-import { DIGEST_FEATURE } from '../../../src/v2/chronicle/days.js';
-import { FEATURE } from '../../../src/v2/world/index.js';
+import { journalDay } from '../../../../modules/world/world/index.js';
+import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
+import { FEATURE } from '../../../../modules/world/world/index.js';
 import { said, worldHost } from './helpers.js';
 
 async function story() {

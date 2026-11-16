@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseChanges } from '../src/changes.js';
-import { activeRecords, applyOps, emptyTracker, findRecord, markSeen, questsDoneIn, replay } from '../src/tracker.js';
+import { parseChanges } from '../../modules/world/changes.js';
+import { activeRecords, applyOps, emptyTracker, findRecord, markSeen, questsDoneIn, replay } from '../../modules/time/tracker/tracker.js';
 import { START, deepFreeze, ops } from './tracker.helpers.js';
 test('emptyTracker has the contract shape', () => {
     assert.deepEqual(emptyTracker(), { version: 1, records: [], message: -1, time: null });

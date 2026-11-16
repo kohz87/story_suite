@@ -1,7 +1,7 @@
 // Story Director v2, part screens: the Director screen's plan cards (`director.plan`) and an off-screen agenda's step progress.
 
-import { dateOf } from '../../../relevance.js';
-import { threadsOn } from '../../threads.js';
+import { dateOf } from '../../../../../modules/atlas/relevance.js';
+import { threadsOn } from '../../../../../modules/time/tracker/threads.js';
 import { calendarFrom } from './calendar.js';
 import { behindThread, behindView } from './behind-view.js';
 import { problemsList } from './problems.js';

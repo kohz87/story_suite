@@ -1,7 +1,7 @@
 // Arc list, current arc, thread-arc mapping, and director.arc query.
 
 import { arcBeats } from '../plan.js';
-import { firedBeatIds } from '../../tracker/quiet.js';
+import { firedBeatIds } from '../../time/tracker/quiet.js';
 import { isRecord } from './shared-records.js';
 
 /** The arcs kept, oldest first (by rev, then id). */

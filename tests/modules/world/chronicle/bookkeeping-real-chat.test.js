@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isBookkeeping } from '../../../src/v2/chronicle/days/shared.js';
-import { eventsOf } from '../../../src/v2/chronicle/days/facts.js';
+import { isBookkeeping } from '../../../../modules/world/chronicle/days/shared.js';
+import { eventsOf } from '../../../../modules/world/chronicle/days/facts.js';
 
 const dm = (summary, kind) => ({ type: 'capture.dm', module: 'story-block', cause: 'story', narrate: false, summary, data: { v2: { result: { kind } } } });
 const make = (type, summary, cause = 'story', module = 'story-block') => ({ type, module, cause, narrate: false, summary, data: {} });

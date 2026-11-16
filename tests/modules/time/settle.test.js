@@ -5,13 +5,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { makeCalendar } from '../../../src/calendar.js';
-import { LAPSED_REASON, SLIPPED_REASON } from '../../../src/lapses.js';
-import { SETTLE, part } from '../../../src/v2/time/index.js';
-import { calendarOf, timeSettings } from '../../../src/v2/time/records.js';
-import { DEADLINE_REASON, claimKey } from '../../../src/v2/time/settle.js';
+import { makeCalendar } from '../../../modules/time/calendar.js';
+import { LAPSED_REASON, SLIPPED_REASON } from '../../../modules/time/lapses.js';
+import { SETTLE, part } from '../../../modules/time/index.js';
+import { calendarOf, timeSettings } from '../../../modules/time/records.js';
+import { DEADLINE_REASON, claimKey } from '../../../modules/time/settle.js';
 import { CALENDAR, Chat, SETTINGS, makeState, reply, runCommand, thread } from './helpers/fake-ctx.js';
-import { slotValue } from '../../../src/v2/slot.js';
+import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
 
 const calendar = makeCalendar(CALENDAR);
 const at = text => calendar.parse(text).abs;

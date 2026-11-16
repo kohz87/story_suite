@@ -1,8 +1,8 @@
 // Tests for src/note.js: noteParts, noteTokens, trimming, quest checks, while away, weekdays and caching.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { AWAY_ARRIVAL, AWAY_CUE, AWAY_DEADLINE, AWAY_RECORD, CHANGE_INSTRUCTION, DIRECTOR_OUTPUT_TOKENS, NOTE_PART_WORDS, NPC_PLANS_ONLY, PACING, PACING_NO_CHANGES, STATIC_LABELS, buildNote, notePart, noteParts, noteTokens, staticNote, tailNote } from '../src/note.js';
-import { estimateTokens } from '../src/relevance.js';
+import { AWAY_ARRIVAL, AWAY_CUE, AWAY_DEADLINE, AWAY_RECORD, CHANGE_INSTRUCTION, DIRECTOR_OUTPUT_TOKENS, NOTE_PART_WORDS, NPC_PLANS_ONLY, PACING, PACING_NO_CHANGES, STATIC_LABELS, buildNote, notePart, noteParts, noteTokens, staticNote, tailNote } from '../../modules/world/note.js';
+import { estimateTokens } from '../../modules/atlas/relevance.js';
 import { at, brant, calendar, council, fires, geva, graves, joined, lines, record, selection, stranger } from './note.helpers.js';
 
 test('noteParts: the note in labelled sections that join back into buildNote exactly', () => {
@@ -119,7 +119,7 @@ test('quest check: a quest the latest exchange gives up asks the story to close 
 });
 
 test('a quest deadline goes out at the clock time the calendar sets, never "sunset" (0.9.12)', async () => {
-    const { makeCalendar } = await import('../src/calendar.js');
+    const { makeCalendar } = await import('../../modules/time/calendar.js');
     const real = makeCalendar({ preset: 'custom', months: ['Dawnwane', 'Goldwane', 'Haywane'].map(name => ({ name, days: 30 })) });
     const now = real.parse('Goldwane 16, 09:00 am').abs;
     const quest = (key, due) => record({ key, kind: 'quest', fields: { goal: 'drive off the wolves', due } });
@@ -243,7 +243,7 @@ test('an offer that lapsed in the latest reply gets one line, its giver by name 
 });
 
 test('weekdays in the note (0.9.21): today\'s leads the header; a world without a week is told to give dates', async () => {
-    const { makeCalendar } = await import('../src/calendar.js');
+    const { makeCalendar } = await import('../../modules/time/calendar.js');
     const plain = makeCalendar({ preset: 'custom', era: 'CY', months: ['Dawnwane', 'Goldwane', 'Haywane'] });
     const now = plain.toAbs({ year: 611, month: 1, day: 12, minutes: 738 });
     const selection = { now, place: 'Bluewatch', arc: null, due: [], arriving: [], relevant: [{ record: record({ key: 'Marsh-trolls', kind: 'hook' }), reason: 'active', priority: 6 }], dormant: [], secrets: [], resolvedRecently: [] };
@@ -303,7 +303,7 @@ test('cache-friendly: the fixed part is byte-identical reply to reply, the rest 
 });
 
 test('a preset without its Main Prompt in the prompt order drops in-prompt parts: the fixed part is put back early (0.9.38)', async () => {
-    const { withFixedNote } = await import('../src/note.js');
+    const { withFixedNote } = await import('../../modules/world/note.js');
     const fixed = `${CHANGE_INSTRUCTION}\n${PACING}`;
     const messages = [{ role: 'system', content: 'Character card' }, { role: 'system', content: 'World info' }, { role: 'user', content: 'hi' }];
     const kept = withFixedNote(messages, fixed);
@@ -315,7 +315,7 @@ test('a preset without its Main Prompt in the prompt order drops in-prompt parts
 });
 
 test('the put-back fixed part goes only into the story\'s own prompt, never another extension\'s call (0.9.41)', async () => {
-    const { withFixedNote } = await import('../src/note.js');
+    const { withFixedNote } = await import('../../modules/world/note.js');
     const fixed = `${CHANGE_INSTRUCTION}\n${PACING}`;
     // The reply's own prompt: the chat's replies are in it, so the part goes in once.
     const story = [{ role: 'system', content: 'Card' }, { role: 'user', content: 'hi' }, { role: 'assistant', content: 'The wolves come.' }, { role: 'user', content: 'I draw.' }];

@@ -1,7 +1,7 @@
 // The events engine: definitions, beforeGenerate firing, claims, rollback, chains, then-commands, status.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FIRE, claimKey, createEngine, createFireEvent, fireEvent, inspect, normalizeEvents, repeatKey } from '../../../src/v2/events/engine.js';
+import { FIRE, claimKey, createEngine, createFireEvent, fireEvent, inspect, normalizeEvents, repeatKey } from '../../../../modules/world/events/engine.js';
 import { baseState, createFakeHost } from './helpers/fake-host.js';
 
 // A tiny wallet module for `then`: its command writes its own domain, as SPEC §3.2 handlers do.

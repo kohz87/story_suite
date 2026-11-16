@@ -4,9 +4,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { SUMMARY_CHARS, capSummary } from '../../../src/v2/tracker/capture.js';
-import { lastProblems, makeState, reply, thread } from '../tracker/helpers/fake-ctx.js';
-import { problemList } from '../../../src/v2/tracker/domain.js';
+import { SUMMARY_CHARS, capSummary } from '../../../../modules/time/tracker/capture.js';
+import { lastProblems, makeState, reply, thread } from '../../../modules/time/tracker/helpers/fake-ctx.js';
+import { problemList } from '../../../../modules/time/tracker/domain.js';
 
 test('a thread summary is cut to 600 characters at a space, with a Problem', () => {
     const long = Array.from({ length: 300 }, (_, i) => `word${i}`).join(' ');

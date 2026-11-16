@@ -9,7 +9,7 @@ import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
 import { queries } from '../queries.js';
 import { chronicleScreen } from '../screen.js';
-import { THREADS_FEATURE } from '../../threads.js';
+import { THREADS_FEATURE } from '../../../time/tracker/threads.js';
 import { beforeGenerate, tail } from './hooks.js';
 
 /** The chronicle's optional mechanics (MODULES §F100). */

@@ -2,9 +2,9 @@
 // part's tests. Commit works as Story Block's does in outline: the handler runs on drafts, the
 // touched domains are validated, and a throw or a validation error keeps the state as it was.
 
-import { hashJson } from '../../../../../../core/replay.js';
-import { part } from '../../../../src/v2/tracker/index.js';
-import { problemList } from '../../../../src/v2/tracker/domain.js';
+import { hashJson } from '../../../../../core/replay.js';
+import { part } from '../../../../../modules/time/tracker/index.js';
+import { problemList } from '../../../../../modules/time/tracker/domain.js';
 
 function deepFreeze(value) {
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {

@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (convert): tells how a closed v1 record ended, in v2's words.
 
-import { questOutcome } from '../../../tracker.js';
+import { questOutcome } from '../tracker.js';
 import { text } from './shared-text.js';
 
 const DECLINED = /\b(?:declin|refus|turned down|passed on)/i;

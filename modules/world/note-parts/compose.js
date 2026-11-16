@@ -1,6 +1,6 @@
 // Story Director: internal section composer and part-joining helpers for the note.
 
-import { looksFinished } from '../tracker.js';
+import { looksFinished } from '../../time/tracker/tracker.js';
 import { ENCOUNTER_CUE, PACING, PACING_NO_CHANGES } from '../note-text.js';
 import { notePart, part } from '../note-format.js';
 import { addBeats, addLine, arrivalItem, awayPart, dueItem, encounterOf, recordItem, withFight, withReach } from '../note-items.js';

@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (scene): reads the scene (place, region, people present) from the queries.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../../world/changes.js';
 import { MIN_NAME, NAME_POINTS } from './shared-limits.js';
 import { cutPoints, flat } from './shared-text.js';
 

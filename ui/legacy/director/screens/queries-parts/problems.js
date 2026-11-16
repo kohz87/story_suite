@@ -1,7 +1,7 @@
 // Story Director v2, part screens: the Director problems in the reader's words (`director.problems`), and which of them are about threads behind the scenes.
 
-import { lineKey } from '../../../changes.js';
-import { problemList } from '../../tracker/domain.js';
+import { lineKey } from '../../../../../modules/world/changes.js';
+import { problemList } from '../../../../../modules/time/tracker/domain.js';
 import { BEHIND } from '../reveal.js';
 import { isOpen } from './shared-threads.js';
 import { isRecord, text } from './shared-words.js';

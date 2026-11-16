@@ -1,8 +1,8 @@
 // Story Director v2, tracker part (note): builds the Director note's tail for a reply.
 
-import { noteHeader, noteParts, tailNote } from '../../../note.js';
-import { classify, estimateTokens } from '../../../relevance.js';
-import { givenUpIn, untrackedCorrections } from '../../../tracker.js';
+import { noteHeader, noteParts, tailNote } from '../../../world/note.js';
+import { classify, estimateTokens } from '../../../atlas/relevance.js';
+import { givenUpIn, untrackedCorrections } from '../tracker.js';
 import { orderedThreads, toTracker } from '../convert.js';
 import { problemList } from '../domain.js';
 import { calendarOf, packCalendarOf, settingsFrom } from '../time.js';
@@ -10,8 +10,8 @@ import { calendarRule } from '../calendar-settings.js';
 import { dropThreads, quietThreads } from '../quiet.js';
 import { elsewhereCap, elsewhereItem, elsewhereLine, knownToUser, sceneOf, splitByScene } from '../scene.js';
 import { initiativeTail } from '../initiative.js';
-import { gapCue, replyGap } from '../../time/line-gap.js';
-import { threadsOn, withoutOwnedThreads } from '../../threads.js';
+import { gapCue, replyGap } from '../../line-gap.js';
+import { threadsOn, withoutOwnedThreads } from '../threads.js';
 import { TAIL_BUDGET, TAIL_THREADS } from './budgets.js';
 import { staticText } from './static.js';
 import { withoutEncounters } from './encounters.js';

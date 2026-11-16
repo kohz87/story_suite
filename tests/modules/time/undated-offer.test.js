@@ -6,9 +6,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { LAPSED_REASON, UNDATED_OFFER_DAYS } from '../../../src/lapses.js';
-import { part } from '../../../src/v2/time/index.js';
-import { claimKey } from '../../../src/v2/time/settle.js';
+import { LAPSED_REASON, UNDATED_OFFER_DAYS } from '../../../modules/time/lapses.js';
+import { part } from '../../../modules/time/index.js';
+import { claimKey } from '../../../modules/time/settle.js';
 import { Chat, SETTINGS, thread } from './helpers/fake-ctx.js';
 
 const OFFER = '+ hook Herb run — moonleaf | giver: Mother Ysolde | reward: 5 copper';

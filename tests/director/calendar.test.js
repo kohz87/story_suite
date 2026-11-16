@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { PRESETS, DEFAULT_PARTS_OF_DAY, normalizeCalendar, makeCalendar, parseWeek, sharedCalendar } from '../src/calendar.js';
+import { PRESETS, DEFAULT_PARTS_OF_DAY, normalizeCalendar, makeCalendar, parseWeek, sharedCalendar } from '../../modules/time/calendar.js';
 
 const MONTHS = [
     'Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane',

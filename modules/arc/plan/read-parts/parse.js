@@ -1,7 +1,7 @@
 // Story Director v2, part **arc**: strict reading and validation of a planner answer or edited plan.
 
-import { lineKey, parseChanges } from '../../../../changes.js';
-import { resolveRelative } from '../../../../planner.js';
+import { lineKey, parseChanges } from '../../../world/changes.js';
+import { resolveRelative } from '../../../atlas/planner.js';
 import {
     DATE_PARTS, DECORATION, DESC_POINTS, FENCE, KEY_POINTS, KIND_ORDER, LABELS, LABEL_LINE,
     MAX_ANSWER_CHARS, MAX_FIGHTS, MAX_ITEMS, MAX_LINES, PARTS, PART_POINTS, PLAN_CAPS,

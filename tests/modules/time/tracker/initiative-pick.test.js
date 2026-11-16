@@ -6,12 +6,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/tracker/index.js';
+import { part } from '../../../../modules/time/tracker/index.js';
 import {
     FEATURE, INITIATIVE, cooldownOf, setPersonaReader, initiativeCandidates, initiativeHook, initiativeLine, initiativeTail, nextPick, pickOf, weightedPick,
-} from '../../../src/v2/tracker/initiative.js';
+} from '../../../../modules/time/tracker/initiative.js';
 import { makeState, runCommand, story } from './helpers/fake-ctx.js';
-import { rng } from '../../../../../core/commands/rng.js';
+import { rng } from '../../../../core/commands/rng.js';
 import { WORLD, base, withScene } from './initiative.helpers.js';
 
 const command = part.commands[INITIATIVE];

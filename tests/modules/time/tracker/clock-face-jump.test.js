@@ -3,10 +3,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { PRESETS, makeCalendar } from '../../../src/calendar.js';
-import { clockFaceAfter } from '../../../src/v2/tracker/time-parts/clock-face.js';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
+import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
+import { clockFaceAfter } from '../../../../modules/time/tracker/time-parts/clock-face.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
 import { lastProblems, makeState, reply } from './helpers/fake-ctx.js';
 
 const gregorian = makeCalendar(PRESETS.gregorian);

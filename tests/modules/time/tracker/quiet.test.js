@@ -3,9 +3,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/tracker/index.js';
-import { directorTail } from '../../../src/v2/tracker/note.js';
-import { dropThreads, firedByLog, quietThreads } from '../../../src/v2/tracker/quiet.js';
+import { part } from '../../../../modules/time/tracker/index.js';
+import { directorTail } from '../../../../modules/time/tracker/note.js';
+import { dropThreads, firedByLog, quietThreads } from '../../../../modules/time/tracker/quiet.js';
 import { makeState, story, thread } from './helpers/fake-ctx.js';
 
 const START = '~ time March 3, 2026, 08:00 am';

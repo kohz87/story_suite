@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { leanFight } from '../../../src/v2/cast/entries.js';
+import { leanFight } from '../../../../modules/cast/cast/entries.js';
 import { OPENING, castCue, castHost, castSource, createFakeModel, entry, people, receipts, said, sent, settle, slice, validatorErrors, TAIL_KEY } from './helpers.js';
 
 const BROM = entry('brom', { start: { place: 'Harrow', goal: 'keep the forge lit', routine: 'at the forge in the morning' }, drawnTo: [] });
@@ -186,7 +186,7 @@ test('a start place is the pack place\'s name, slug or alias, in any case; one t
 
 test('never during a Lean RPG fight either: a Foes block with a foe in it holds the meetings back until the foes are gone; the RPG switched off is no fight', async t => {
     quiet(t);
-    const { STANDARD_TEMPLATES } = await import('../../../../story-block/src/v2/lean-rpg/templates.js');
+    const { STANDARD_TEMPLATES } = await import('../../../../packages/story-block/src/v2/lean-rpg/templates.js');
     const host = await castHost({ source: castSource([entry('brom', { start: { place: 'Kesh', goal: 'forge', routine: '' } })]) });
     try {
         await host.send('Hello.', said('Dawn.', OPENING));
@@ -224,7 +224,7 @@ test('never during a Lean RPG fight either: a Foes block with a foe in it holds 
 for (const [formula, down] of [['standard', 'Down']]) {
     test(`a won Lean RPG fight (${formula}) no longer holds the meetings back: a Down group stays in its slot, a live one still blocks; the next fight Down too`, async t => {
         quiet(t);
-        const { STANDARD_TEMPLATES } = await import('../../../../story-block/src/v2/lean-rpg/templates.js');
+        const { STANDARD_TEMPLATES } = await import('../../../../packages/story-block/src/v2/lean-rpg/templates.js');
         const host = await castHost({ source: castSource([entry('brom', { start: { place: 'Kesh', goal: 'forge', routine: '' } })]) });
         try {
             await host.send('Hello.', said('Dawn.', OPENING));

@@ -1,8 +1,8 @@
 // The time part's queries: `time.now`, `time.lastLine`, `time.overdue` and `time.recap`.
 
-import { makeCalendar } from '../../../calendar.js';
+import { makeCalendar } from '../calendar.js';
 import { calendarOf, timeSettings } from '../records.js';
-import { slotValue } from '../../slot.js';
+import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
 import { isInt } from './shared-int.js';
 
 const copy = value => structuredClone(value);

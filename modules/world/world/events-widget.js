@@ -4,7 +4,7 @@
 // the pick, loads that day's whole list on tap (`director.journal.events { day }`, worked out from the chat's receipts by the same
 // rules, stored nowhere) and shows it under the pick; a second tap folds it. Text goes in as text only.
 
-import { maker } from '../screens/dom.js';
+import { maker } from '../../../ui/legacy/director/screens/dom.js';
 import { FEATURE } from './known.js';
 
 export const EVENTS_WIDGET = 'story-director.journal-events';

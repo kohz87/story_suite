@@ -9,19 +9,19 @@
 // * B-b7r2-1: the module says which Story Block it needs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { satisfies } from '../../../../story-block/src/v2/packs/version.js';
-import { STORY_BLOCK_RANGE, createModule } from '../../../src/v2/module.js';
-import { MAX_PLACES, NEW_PER_REPLY, applyLandmarkLine, applyRouteLine } from '../../../src/v2/atlas/capture.js';
-import { initialAtlas } from '../../../src/v2/atlas/domain.js';
-import { MAX_OPEN_THREADS } from '../../../src/v2/tracker/capture.js';
-import { PROBLEM_ROOM, problemList, replyTurn } from '../../../src/v2/tracker/domain.js';
-import { IDLE_REPLIES, tailThreads } from '../../../src/v2/tracker/note.js';
-import { REPLY_KEY } from '../../../src/v2/reply-keys.js';
-import { seenOf } from '../../../src/v2/chronicle/domain.js';
-import { slotValue } from '../../../src/v2/slot.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { makeState, reply as trackerReply } from '../tracker/helpers/fake-ctx.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { satisfies } from '../../../../packages/story-block/src/v2/packs/version.js';
+import { STORY_BLOCK_RANGE, createModule } from '../../../../ui/legacy/director/module.js';
+import { MAX_PLACES, NEW_PER_REPLY, applyLandmarkLine, applyRouteLine } from '../../../../modules/atlas/atlas/capture.js';
+import { initialAtlas } from '../../../../modules/atlas/atlas/domain.js';
+import { MAX_OPEN_THREADS } from '../../../../modules/time/tracker/capture.js';
+import { PROBLEM_ROOM, problemList, replyTurn } from '../../../../modules/time/tracker/domain.js';
+import { IDLE_REPLIES, tailThreads } from '../../../../modules/time/tracker/note.js';
+import { REPLY_KEY } from '../../../../modules/world/reply-keys.js';
+import { seenOf } from '../../../../modules/world/chronicle/domain.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
+import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
+import { makeState, reply as trackerReply } from '../../../modules/time/tracker/helpers/fake-ctx.js';
 
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const director = host => host.head().domains.director;

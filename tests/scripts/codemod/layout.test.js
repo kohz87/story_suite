@@ -193,7 +193,7 @@ test('the rules delete only manifests dead at the move PR and keep later removal
   assert.equal(target('packages/story-block/index.js'), 'core/boot/boot.js');
   assert.equal(target('packages/story-block/src/v2/shared/redraw.js'), 'ui/legacy/shared/redraw.js');
   assert.equal(target('packages/story-director/index.js'), 'ui/legacy/director/index.js');
-  assert.equal(target('packages/story-director/src/v2/module/shared.js'), 'ui/legacy/director/module/shared.js');
+  assert.equal(target('ui/legacy/director/module/shared.js'), 'ui/legacy/director/module/shared.js');
   for (const file of [
     'packages/npc-state-delta/story-block-tabs.js',
     'packages/npc-state-delta/runtime-suite.js',

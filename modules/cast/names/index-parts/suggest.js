@@ -1,6 +1,6 @@
 // Story Director v2, names: unused name suggestions from a pack's names lists, picked deterministically.
 
-import { sha256 } from '../../hash.js';
+import { sha256 } from '../../../world/hash.js';
 import { DEFAULT_SUGGESTIONS } from './limits.js';
 import { flat, cleanName } from './text.js';
 import { nameKey } from './keys.js';

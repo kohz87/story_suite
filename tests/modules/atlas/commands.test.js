@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/atlas/index.js';
+import { part } from '../../../modules/atlas/atlas/index.js';
 import { at, command, lines, makeState, placeNamed, query, replay } from './helpers/fake-ctx.js';
 
 const PACK = {

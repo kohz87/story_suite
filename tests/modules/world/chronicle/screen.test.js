@@ -6,14 +6,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { CHRONICLE_ID, chronicleScreen } from '../../../src/v2/chronicle/screen.js';
-import { part } from '../../../src/v2/chronicle/index.js';
-import { validateScreen } from '../../../../story-block/src/v2/view/screens.js';
-import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
-import { scopeCss } from '../../../../story-block/src/v2/view/css.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { CHRONICLE_ID, chronicleScreen } from '../../../../modules/world/chronicle/screen.js';
+import { part } from '../../../../modules/world/chronicle/index.js';
+import { validateScreen } from '../../../../packages/story-block/src/v2/view/screens.js';
+import { compileTemplate, renderTemplate } from '../../../../packages/story-block/src/v2/view/template/index.js';
+import { conditionEvaluator } from '../../../../packages/story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../modules/world/events/index.js';
+import { scopeCss } from '../../../../packages/story-block/src/v2/view/css.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { clockAt, command, eventNamed, factionNamed, lines, makeState, query } from './helpers/fake-ctx.js';
 
 const DAY = 1440;

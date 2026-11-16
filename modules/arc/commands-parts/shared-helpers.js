@@ -1,6 +1,6 @@
 // Shared validation, revision, and plan-option helpers for arc commands.
 
-import { makeCalendar } from '../../../calendar.js';
+import { makeCalendar } from '../../time/calendar.js';
 
 export function fail(ctx, code, message) {
     ctx.fail(code, message);

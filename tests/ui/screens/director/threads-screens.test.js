@@ -3,17 +3,17 @@
 // the world-building threads feature's panels, and the Status card's own title and one-line summary.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { resolveData, runtime, skipReason } from './helpers/runtime.js';
 import { at, calendar, headState, makeQueries, makeRunner, makeState, plot, smuggler, thread, wolves } from './helpers/fixtures.js';
-import { DIRECTOR_ID, STATUS_CARD_ID, createBehindWidget, planWidget, screens } from '../../../src/v2/screens/index.js';
-import { statusExtras, clockText } from '../../../src/v2/screens/queries.js';
-import { STATUS_SUMMARY, STATUS_TITLE, statusCardScreen } from '../../../src/v2/screens/status-card.js';
-import { BASE_CSS } from '../../../src/v2/screens/style.js';
-import { directorScreen, spoilerSwitchWidget } from '../../../src/v2/screens/director.js';
-import { worldScreen, createPeopleWidget, foldWidget } from '../../../src/v2/world/index.js';
-import { makeCalendar } from '../../../src/calendar.js';
-import { createArcWidget } from '../../../src/v2/arc/widget.js';
+import { DIRECTOR_ID, STATUS_CARD_ID, createBehindWidget, planWidget, screens } from '../../../../ui/legacy/director/screens/index.js';
+import { statusExtras, clockText } from '../../../../ui/legacy/director/screens/queries.js';
+import { STATUS_SUMMARY, STATUS_TITLE, statusCardScreen } from '../../../../ui/legacy/director/screens/status-card.js';
+import { BASE_CSS } from '../../../../ui/legacy/director/screens/style.js';
+import { directorScreen, spoilerSwitchWidget } from '../../../../ui/legacy/director/screens/director.js';
+import { worldScreen, createPeopleWidget, foldWidget } from '../../../../modules/world/world/index.js';
+import { makeCalendar } from '../../../../modules/time/calendar.js';
+import { createArcWidget } from '../../../../modules/arc/widget.js';
 
 const skip = runtime ? false : skipReason;
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();

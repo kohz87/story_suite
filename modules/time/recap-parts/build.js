@@ -1,7 +1,7 @@
 // Building the While away recap for a jump of the story clock.
 
-import { AWAY_CUE, noteParts } from '../../../note.js';
-import { AWAY_GAP_MINUTES, awayIn, classify, estimateTokens } from '../../../relevance.js';
+import { AWAY_CUE, noteParts } from '../../world/note.js';
+import { AWAY_GAP_MINUTES, awayIn, classify, estimateTokens } from '../../atlas/relevance.js';
 import { trackerOf } from '../records.js';
 import { v2Asks } from './asks.js';
 

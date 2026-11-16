@@ -1,6 +1,6 @@
 // What the settle receipt tells about the threads time closed.
 
-import { noteParts } from '../../../note.js';
+import { noteParts } from '../../world/note.js';
 
 // One item per key, in order.
 function unique(entries) {

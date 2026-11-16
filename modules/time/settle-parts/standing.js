@@ -1,8 +1,8 @@
 // Story Director v2, part time: where the active threads stand at a story time (lapsed, overdue, pay, due).
 
-import { LAPSED_REASON, SLIPPED_REASON, SLIP_GRACE_DAYS, lapsedOffers, slippedBeats } from '../../../lapses.js';
-import { isDue } from '../../../relevance.js';
-import { waitsForPay } from '../../../tracker.js';
+import { LAPSED_REASON, SLIPPED_REASON, SLIP_GRACE_DAYS, lapsedOffers, slippedBeats } from '../lapses.js';
+import { isDue } from '../../atlas/relevance.js';
+import { waitsForPay } from '../tracker/tracker.js';
 import { trackerOf } from '../records.js';
 import { DEADLINE_REASON, claimKey } from './constants.js';
 import { isInt } from './shared-int.js';

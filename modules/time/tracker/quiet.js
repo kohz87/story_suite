@@ -11,7 +11,7 @@
 //
 // `quietThreads` → Set of thread ids; `dropThreads(director, ids)` → the same director without them (the same object when none).
 
-import { lineKey } from '../../changes.js';
+import { lineKey } from '../../world/changes.js';
 import { ask, cutPoints, flat } from './scene.js';
 
 const MAX_PROBES = 60;

@@ -5,9 +5,9 @@
 // Two Continues moved one reply's clock 90 days.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 
 const reply = (text, lines = []) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -7,7 +7,7 @@
 //              `+ landmark Old Weir | kind: ruin` is a place of kind ruin).
 // Everything is read from the state and Story Block's `packs.content` query when that is there; nothing is written.
 
-import { packWorld } from './atlas/world.js';
+import { packWorld } from '../../../../modules/atlas/atlas/world.js';
 
 const filled = value => value !== null && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length > 0;
 

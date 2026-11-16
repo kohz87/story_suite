@@ -3,12 +3,12 @@
 // (SPEC §6, MODULES §F3): `(state, args, tools)` with `tools.query` over the same state, answers
 // copied. The Director's own queries are the real tracker and quests parts'; other modules' are fakes.
 
-import { PRESETS, makeCalendar } from '../../../../src/calendar.js';
-import { part as tracker } from '../../../../src/v2/tracker/index.js';
-import { part as arc } from '../../../../src/v2/arc/index.js';
-import { part as atlas } from '../../../../src/v2/atlas/index.js';
-import { part as ripples } from '../../../../src/v2/ripples/index.js';
-import { createScreensPart } from '../../../../src/v2/screens/index.js';
+import { PRESETS, makeCalendar } from '../../../../../modules/time/calendar.js';
+import { part as tracker } from '../../../../../modules/time/tracker/index.js';
+import { part as arc } from '../../../../../modules/arc/index.js';
+import { part as atlas } from '../../../../../modules/atlas/atlas/index.js';
+import { part as ripples } from '../../../../../modules/world/ripples/index.js';
+import { createScreensPart } from '../../../../../ui/legacy/director/screens/index.js';
 
 export const calendar = makeCalendar(PRESETS.gregorian);
 export const at = words => calendar.parse(words, { reference: null }).abs;

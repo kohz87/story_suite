@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { applyAdvance, applyJourney } from '../../../src/v2/cast/apply.js';
-import { validateCast } from '../../../src/v2/cast/domain.js';
-import { atParty, partyPlace } from '../../../src/v2/cast/entries.js';
-import { atPlace, canBeHere, canReach, chanceCandidates, chooseMeetings, daysBetween, linkOf, movable, moveFits, moveReach, paceOf, reachDays, sortComes } from '../../../src/v2/cast/world.js';
-import { packWorld, worldOf } from '../../../src/v2/atlas/world.js';
-import { travelTime } from '../../../src/v2/atlas/travel.js';
+import { applyAdvance, applyJourney } from '../../../../modules/cast/cast/apply.js';
+import { validateCast } from '../../../../modules/cast/cast/domain.js';
+import { atParty, partyPlace } from '../../../../modules/cast/cast/entries.js';
+import { atPlace, canBeHere, canReach, chanceCandidates, chooseMeetings, daysBetween, linkOf, movable, moveFits, moveReach, paceOf, reachDays, sortComes } from '../../../../modules/cast/cast/world.js';
+import { packWorld, worldOf } from '../../../../modules/atlas/atlas/world.js';
+import { travelTime } from '../../../../modules/atlas/atlas/travel.js';
 import { BLUEWATCH, DAY, ERSVEIL, GUILD, HOUR, LINKED_TAPROOM, LOCATED_GUILD, LOCATED_TAPROOM, REPLY14, RUN_ATLAS, RUN_PACK, START, TAPROOM, anyTrip, atlasOf, farWorld, keysOf, linked, located, named, partyOf, queryOver, roadTrip, runCast, runTrip, travel } from './rules.helpers.js';
 test('reach: the same area is no distance; a route needs the story time since they were placed; no route is far', () => {
     const { slice } = farWorld();

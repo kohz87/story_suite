@@ -1,7 +1,7 @@
 // The part's settings: their defaults, the longest-jump setting in minutes, and settings read from a source.
 
-import { PRESETS } from '../../../calendar.js';
-import { DEFAULTS } from '../../../relevance.js';
+import { PRESETS } from '../../calendar.js';
+import { DEFAULTS } from '../../../atlas/relevance.js';
 import { PACK_PRESET } from './constants.js';
 import { DAY_MINUTES, MAX_JUMP_DAYS } from './limits.js';
 

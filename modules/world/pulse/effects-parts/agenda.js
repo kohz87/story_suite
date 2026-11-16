@@ -1,6 +1,6 @@
 // Works out an agenda's step progress fields and the atlas place a text names.
 
-import { ask } from '../../tracker/scene.js';
+import { ask } from '../../../time/tracker/scene.js';
 import { plainSlot } from '../tables.js';
 import { isInt } from './shared-guards.js';
 import { NAME_MAX } from './shared-names.js';

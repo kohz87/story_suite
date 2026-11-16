@@ -6,10 +6,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { estimateTokens } from '../../../src/relevance.js';
-import { part } from '../../../src/v2/tracker/index.js';
-import { PACING_TEXT, STATIC_TEXT, TAIL_BUDGET, directorTail, staticText } from '../../../src/v2/tracker/note.js';
-import { DEFAULT_ELSEWHERE, elsewhereCap, sceneOf, splitByScene } from '../../../src/v2/tracker/scene.js';
+import { estimateTokens } from '../../../../modules/atlas/relevance.js';
+import { part } from '../../../../modules/time/tracker/index.js';
+import { PACING_TEXT, STATIC_TEXT, TAIL_BUDGET, directorTail, staticText } from '../../../../modules/time/tracker/note.js';
+import { DEFAULT_ELSEWHERE, elsewhereCap, sceneOf, splitByScene } from '../../../../modules/time/tracker/scene.js';
 import { makeState, story } from './helpers/fake-ctx.js';
 
 const START = '~ time March 3, 2026, 08:00 am';
@@ -175,7 +175,7 @@ test('the static part is byte-identical whatever the scene, the threads or the p
 });
 
 test('wholeWord keeps its answers when a name is asked again and past the pattern memo bound', async () => {
-    const { wholeWord } = await import('../../../src/v2/tracker/scene.js');
+    const { wholeWord } = await import('../../../../modules/time/tracker/scene.js');
     for (let i = 0; i < 3; i++) {
         assert.equal(wholeWord("Vorn's Return", 'Vorn'), true);
         assert.equal(wholeWord('Annual Fair', 'Ann'), false);

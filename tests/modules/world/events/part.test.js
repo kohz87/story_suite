@@ -2,10 +2,10 @@
 // debug section of the settings overlay.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FIRE, createEventsPart, packEvents, part, renderEventsSection, summaryLine } from '../../../src/v2/events/index.js';
-import { installFakeDom, texts } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { FIRE, createEventsPart, packEvents, part, renderEventsSection, summaryLine } from '../../../../modules/world/events/index.js';
+import { installFakeDom, texts } from '../../../helpers/ui-fake-dom.js';
 import { baseState, createFakeHost } from './helpers/fake-host.js';
-import { createFireEvent } from '../../../src/v2/events/engine.js';
+import { createFireEvent } from '../../../../modules/world/events/engine.js';
 
 test('the part: one internal command, one query, the beforeGenerate hook, an Events settings section', () => {
     assert.deepEqual(Object.keys(part.commands), [FIRE]);

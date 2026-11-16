@@ -1,10 +1,10 @@
-import { applySync, planSync, syncPayload } from '../../../src/v2/cast/apply.js';
-import { initialCast } from '../../../src/v2/cast/domain.js';
-import { castOf, locator, partyPlace } from '../../../src/v2/cast/entries.js';
-import { packWorld, worldOf } from '../../../src/v2/atlas/world.js';
-import { travelTime } from '../../../src/v2/atlas/travel.js';
-import { queries as atlasQueries } from '../../../src/v2/atlas/queries.js';
-import { keyOf as atlasKey } from '../../../src/v2/atlas/domain.js';
+import { applySync, planSync, syncPayload } from '../../../../modules/cast/cast/apply.js';
+import { initialCast } from '../../../../modules/cast/cast/domain.js';
+import { castOf, locator, partyPlace } from '../../../../modules/cast/cast/entries.js';
+import { packWorld, worldOf } from '../../../../modules/atlas/atlas/world.js';
+import { travelTime } from '../../../../modules/atlas/atlas/travel.js';
+import { queries as atlasQueries } from '../../../../modules/atlas/atlas/queries.js';
+import { keyOf as atlasKey } from '../../../../modules/atlas/atlas/domain.js';
 import { entry } from './helpers.js';
 export const castFor = (...entries) => castOf((name, args) => (name === 'packs.content' ? (args?.kind === 'cast' ? entries.map(item => structuredClone(item)) : []) : name === 'packs.list' ? [{ id: 'ersveil', name: 'Ersveil', version: '1.1.0', enabled: true }] : null));
 export const HOUR = 60;

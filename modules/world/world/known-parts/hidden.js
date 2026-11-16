@@ -1,7 +1,7 @@
 // Story Director v2, world: works out the names that must stay hidden and whether a line names one.
 
-import { lineKey } from '../../../changes.js';
-import { BEHIND } from '../../screens/reveal.js';
+import { lineKey } from '../../changes.js';
+import { BEHIND } from '../../../../ui/legacy/director/screens/reveal.js';
 import { isRecord, text } from './shared-text.js';
 import { threadsOf } from './shared-threads.js';
 

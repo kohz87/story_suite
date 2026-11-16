@@ -1,7 +1,7 @@
 // Story Director v2, tracker part (domain): keeps the Director's problem list: read, add, drop.
 
 import { PROBLEM_ROOM, problemOrder } from './shared-problem-keys.js';
-import { replyKey } from '../../reply-keys.js';
+import { replyKey } from '../../../world/reply-keys.js';
 import { turnNumber } from './turn.js';
 import { isInt, isRecord } from './shared-guards.js';
 

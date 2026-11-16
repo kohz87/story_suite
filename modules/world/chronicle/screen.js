@@ -11,7 +11,7 @@
 // Block's --ss-* properties, as the Director's other screens do; cards and packs may restyle or
 // replace it by its id.
 
-import { THREADS_FEATURE } from '../threads.js';
+import { THREADS_FEATURE } from '../../time/tracker/threads.js';
 
 export const CHRONICLE_ID = 'story-director/chronicle';
 

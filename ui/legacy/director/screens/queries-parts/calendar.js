@@ -1,6 +1,6 @@
 // Story Director v2, part screens: the calendar the view queries read dates on: the module's calendar setting, or the chat's own.
 
-import { PRESETS, makeCalendar, normalizeCalendar } from '../../../calendar.js';
+import { PRESETS, makeCalendar, normalizeCalendar } from '../../../../../modules/time/calendar.js';
 import { ask } from './shared-ask.js';
 import { isRecord } from './shared-words.js';
 

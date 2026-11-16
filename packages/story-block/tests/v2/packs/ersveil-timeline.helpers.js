@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { evaluateCondition } from '../../../src/v2/events/condition.js';
+import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
 import { rippleChoice } from '../../../src/v2/packs/content.js';
 
 export const pack = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));

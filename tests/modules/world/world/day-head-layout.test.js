@@ -2,7 +2,7 @@
 // the one-line summary is inside the fold, once, in body text.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { worldScreen } from '../../../src/v2/world/screen.js';
+import { worldScreen } from '../../../../modules/world/world/screen.js';
 
 test('a day head: the date, pill and "ago · N events" in one row with a centred chevron; the summary inside, once', () => {
     const template = worldScreen.template;

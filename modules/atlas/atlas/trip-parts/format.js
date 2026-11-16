@@ -1,6 +1,6 @@
 // Formats trip dates, paces, and leg durations for display.
 
-import { PRESETS, makeCalendar } from '../../../calendar.js';
+import { PRESETS, makeCalendar } from '../../../time/calendar.js';
 import { isRecord } from '../domain.js';
 import { modeWords } from './modes.js';
 import { daysWord, isInt, tidy } from './shared-constants.js';

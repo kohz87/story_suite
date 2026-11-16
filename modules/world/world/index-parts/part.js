@@ -4,7 +4,7 @@ import { DEFAULT_UPCOMING_DAYS, FEATURE, MAX_UPCOMING_DAYS, hereView, worldView 
 import { journalDay, journalEvents, journalView } from '../journal.js';
 import { PEOPLE_WIDGET, peopleWidget } from '../people.js';
 import { EVENTS_WIDGET, eventsWidget } from '../events-widget.js';
-import { stChatId } from '../../screens/reveal.js';
+import { stChatId } from '../../../../ui/legacy/director/screens/reveal.js';
 import { FOLD_WIDGET, foldWidget, leadsOf } from '../elsewhere.js';
 import { daysScreen, worldScreen } from '../screen.js';
 

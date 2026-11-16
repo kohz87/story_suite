@@ -1,8 +1,8 @@
 // Tests for src/note.js: the note's format, its budget and the change-line instruction.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CHANGE_INSTRUCTION, ENCOUNTER_CUE, NOTE_PART_WORDS, NPC_PLANS_ONLY, PACING, PACING_NO_CHANGES, buildNote, noteParts } from '../src/note.js';
-import { estimateTokens } from '../src/relevance.js';
+import { CHANGE_INSTRUCTION, ENCOUNTER_CUE, NOTE_PART_WORDS, NPC_PLANS_ONLY, PACING, PACING_NO_CHANGES, buildNote, noteParts } from '../../modules/world/note.js';
+import { estimateTokens } from '../../modules/atlas/relevance.js';
 import { brant, calendar, council, courier, debt, fires, geva, graves, lines, record, sale, selection, stranger, weir } from './note.helpers.js';
 
 test('the header carries the formatted time and the place', () => {

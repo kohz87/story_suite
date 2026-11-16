@@ -1,6 +1,6 @@
 // Key people tests: a real Story Block host (the testkit) with Story Director, and small stand-ins for NPC State Delta.
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
 
 export const STATIC_KEY = 'story_suite_static';
 export const TAIL_KEY = 'story_suite_tail_1';

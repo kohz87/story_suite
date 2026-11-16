@@ -1,6 +1,6 @@
 // Story Director v2, part **cast**: reading enabled pack cast entries and matching pack places.
 
-import { hashJson } from '../../hash.js';
+import { hashJson } from '../../../world/hash.js';
 import { MAX_ALIASES, MAX_NAME, MAX_PEOPLE, MAX_PLACE, cutPoints, isRecord, keyOf, personKey } from '../domain.js';
 import { shortName } from './pack-names.js';
 import { ask } from './query.js';

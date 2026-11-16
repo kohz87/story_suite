@@ -1,6 +1,6 @@
 // Story Director: due, pay-waiting and While-away recap item formatting for the note.
 
-import { waitsForPay } from '../tracker.js';
+import { waitsForPay } from '../../time/tracker/tracker.js';
 import { AWAY_ARRIVAL, AWAY_CUE, AWAY_DEADLINE, AWAY_RECORD } from '../note-text.js';
 import { ITEM_SEPARATOR } from '../note-format.js';
 import { noteFields } from './shared-fields.js';

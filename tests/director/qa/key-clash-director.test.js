@@ -2,8 +2,8 @@
 // (reply-keys.js) that a later reply's stored add lands on again fails it; the same chat without the forced clash does not.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readRecord, writeRecord } from '../../../../../core/persist.js';
-import { keyClashes } from '../../../../story-block/tests/v2/qa/helpers/key-clash.js';
+import { readRecord, writeRecord } from '../../../core/persist.js';
+import { keyClashes } from '../../../packages/story-block/tests/v2/qa/helpers/key-clash.js';
 import { makeDirectorHost } from './helpers/reread-host.js';
 
 const bad = '<Changes>\n~ quest a1 | step:\n</Changes>';

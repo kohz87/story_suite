@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (domain): the problem list's size limits, key rule and order, shared by its writers and its validator.
 
-import { REPLY_KEY, entryOrder } from '../../reply-keys.js';
+import { REPLY_KEY, entryOrder } from '../../../world/reply-keys.js';
 
 export const PROBLEM_LIMIT = 50;
 

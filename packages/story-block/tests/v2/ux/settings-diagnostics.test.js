@@ -10,7 +10,7 @@ import { createSettings } from '../../../../../core/sdk.js';
 import { createCoreModule } from '../../../src/v2/domains/index.js';
 import { packsFor } from '../../../../../core/runtime.js';
 import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, EVENTS_FOLD } from '../../../src/v2/host-ui.js';
-import { EVENTS_NOTE } from '../../../src/v2/events/index.js';
+import { EVENTS_NOTE } from '../../../../../modules/world/events/index.js';
 import { REMOVED, buildReport } from '../../../../../core/diagnostics.js';
 import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
 

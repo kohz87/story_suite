@@ -1,7 +1,7 @@
 // Route travel modes, per-route day calculation, and default trip mode.
 
-import { DEFAULT_PACES, MODERN_PACES, mapSettings } from '../../../places.js';
-import { DEFAULT_RULES, MODERN_RULES, legDays } from '../../../routes.js';
+import { DEFAULT_PACES, MODERN_PACES, mapSettings } from '../../places.js';
+import { DEFAULT_RULES, MODERN_RULES, legDays } from '../../routes.js';
 import { tidy } from './shared-math.js';
 
 // The mode a route of this kind is travelled by, whatever the trip's own.

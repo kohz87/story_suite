@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     exitsFrom, paceFor, shortestPath, planRoute, parseLeg, validateLeg, formatRoute, formatLeg,
-} from '../src/routes.js';
+} from '../../modules/atlas/routes.js';
 import { at, cal, check, hopsText, kinds, pack } from './routes.helpers.js';
 
 // ---------------------------------------------------------------------------------------

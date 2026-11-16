@@ -1,8 +1,8 @@
 // Story Director v2, tracker part (domain): validates the whole `director` slice.
 
 import { closed, hash, map, recordId } from '../thread-shape.js';
-import { lineKey } from '../../../changes.js';
-import { slotValue } from '../../slot.js';
+import { lineKey } from '../../../world/changes.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
 import { initiativeErrors } from '../initiative.js';
 import { PROBLEM_KEY, PROBLEM_ROOM } from './shared-problem-keys.js';
 import { STEP_CEILING, STEP_KEY } from './shared-step-keys.js';

@@ -1,6 +1,6 @@
 // Thread offers and acceptance use an optimistic hash and an atomic retry ledger.
 import { hashJson } from './hash.js';
-import { lineKey } from '../../changes.js';
+import { lineKey } from '../../world/changes.js';
 import { THREAD_KINDS } from './convert.js';
 import { replyDraft, replyTurn } from './domain.js';
 import { neutralAcceptance, prepareThreadWrite, threadProjection, threadWriteEntry } from './thread-writes.js';

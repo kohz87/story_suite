@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const STORY_BLOCK = new URL('../../../../../story-block/', import.meta.url);
+const STORY_BLOCK = new URL('../../../../../packages/story-block/', import.meta.url);
 const live = await import(new URL('src/v2/view/screens.js', STORY_BLOCK).href);
 
 const dir = resolve(process.env.STORY_BLOCK_DIR ?? fileURLToPath(STORY_BLOCK));

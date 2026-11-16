@@ -1,6 +1,6 @@
 // Story Director: arc plan findings and the change ops of an accepted plan (pure).
 
-import { formatOp, lineKey } from '../changes.js';
+import { formatOp, lineKey } from '../../world/changes.js';
 import { FIRE_FIELDS } from './relative.js';
 import { escapeRegExp, isNumber } from './shared.js';
 

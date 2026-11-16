@@ -3,8 +3,8 @@
 // `atlas.trip` → the trip at the state it is asked on (a reply's card gets that reply's), with the movers {{user}} knows of, or null while the
 // feature is off or there is neither. Nothing is stored here: the position comes from the story time against the planned legs (trip.js).
 
-import { lineKey } from '../../changes.js';
-import { parseLeg } from '../../routes.js';
+import { lineKey } from '../../world/changes.js';
+import { parseLeg } from '../routes.js';
 import { scenePlace } from './note.js';
 import { calendarOf, dateText, tripView } from './trip.js';
 import { packWorld, worldOf } from './world.js';

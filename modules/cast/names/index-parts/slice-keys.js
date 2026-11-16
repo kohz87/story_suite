@@ -1,6 +1,6 @@
 // Story Director v2, names: reading the stored slice tables, the identity of a seen person and the reply revision.
 
-import { sha256 } from '../../hash.js';
+import { sha256 } from '../../../world/hash.js';
 import { MAX_NAME } from './limits.js';
 import { nameKey } from './keys.js';
 import { MAX_ALIASES, isInt } from './slice-limits.js';

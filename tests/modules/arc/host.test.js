@@ -4,12 +4,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createFakeModel, createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { ACCEPT, END, FEATURE, UPDATE, createArcController } from '../../../src/v2/arc/index.js';
-import { FIGHT_RULE, NO_FIGHT_RULE } from '../../../src/v2/arc/plan.js';
-import { browserStore, createReveal } from '../../../src/v2/screens/reveal.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
+import { createFakeModel, createHost } from '../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../ui/legacy/director/module.js';
+import { ACCEPT, END, FEATURE, UPDATE, createArcController } from '../../../modules/arc/index.js';
+import { FIGHT_RULE, NO_FIGHT_RULE } from '../../../modules/arc/plan.js';
+import { browserStore, createReveal } from '../../../ui/legacy/director/screens/reveal.js';
+import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
 
 const STATIC_KEY = 'story_suite_static';
 const TAIL_KEY = 'story_suite_tail_1';

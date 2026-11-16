@@ -1,6 +1,6 @@
 // Story Director: token allowance and token-count estimation for note parts.
 
-import { estimateTokens } from '../relevance.js';
+import { estimateTokens } from '../../atlas/relevance.js';
 
 // What the model is allowed for writing the change lines the instruction asks for, in tokens:
 // the two tags and about two lines of 20 to 25 tokens, a usual reply's worth. A rough

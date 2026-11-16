@@ -1,6 +1,6 @@
 // Building correction lines for untracked keys from replay problems.
 
-import { lineKey } from '../changes.js';
+import { lineKey } from '../../../world/changes.js';
 
 // What the next note may say about ignored lines: at most this many, from the latest reply.
 const MAX_UNTRACKED_CORRECTIONS = 3;

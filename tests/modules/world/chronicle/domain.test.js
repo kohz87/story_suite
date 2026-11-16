@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import {
     MAX_EVENTS, MAX_FACTIONS, MAX_RESOLVED, findIn, initialChronicle, keyOf, orderedEvents, prune, seenOf, surfacedOf, validateChronicle,
-} from '../../../src/v2/chronicle/domain.js';
+} from '../../../../modules/world/chronicle/domain.js';
 
 const event = (n, over = {}) => ({
     id: `ev_${String(n).padStart(8, '0')}`, name: `Event ${n}`, summary: '', state: 'ongoing', since: null, updated: null,

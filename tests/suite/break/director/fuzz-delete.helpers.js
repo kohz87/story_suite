@@ -1,5 +1,5 @@
 // Shared PRNG, line generators, cast/clock helpers and validators for fuzz-delete-seeds.test.js.
-import { PRESETS, makeCalendar } from '../../../src/calendar.js';
+import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
 
 // mulberry32: the fuzz's only randomness.
 export function prng(seed) {

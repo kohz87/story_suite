@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (domain): reads and starts the reply being read's bookkeeping (`turn`).
 
-import { slotIn, slotValue, toSlot } from '../../slot.js';
+import { slotIn, slotValue, toSlot } from '../../../../packages/story-director/src/v2/slot.js';
 import { isInt, isRecord } from './shared-guards.js';
 
 /** What the reply being read has done so far (a blank before its first line). */

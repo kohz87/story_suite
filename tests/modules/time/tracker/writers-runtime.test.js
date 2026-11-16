@@ -1,10 +1,10 @@
 // P23 runs on the real host: ownership, atomic retry, intent evidence and standalone goals.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/host.js';
-import { createModule } from '../../../src/v2/module.js';
-import { withD1 } from '../helpers/d1.js';
-import { initialDirector, validateDirector } from '../../../src/v2/tracker/domain.js';
+import { createHost } from '../../../../packages/story-block/testkit/host.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { withD1 } from '../../../helpers/director/d1.js';
+import { initialDirector, validateDirector } from '../../../../modules/time/tracker/domain.js';
 
 const id = 'th_00000001';
 const offer = (write = 'wr_00000001', more = {}) => ({ write, thread: id, kind: 'hook', key: 'The mill', summary: 'Help the miller', fields: { goal: 'Talk to the miller' }, expectedHash: null, ...more });

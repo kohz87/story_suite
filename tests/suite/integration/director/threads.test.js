@@ -8,15 +8,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { featureProblems } from '../../../../../core/features.js';
-import { allowedGrammar, allowedKinds } from '../../../../story-block/src/v2/assist/index.js';
-import { createModule, storyDirectorModule } from '../../../src/v2/module.js';
-import { GRAMMAR, TAIL_HEADER } from '../../../src/v2/chronicle/note.js';
-import { PACING_TEXT, staticText } from '../../../src/v2/tracker/note.js';
-import { STATIC_TEXT as WORLD_PARAGRAPHS } from '../../../src/v2/chronicle/note.js';
-import { FEATURE as KEY_PEOPLE_FEATURE } from '../../../src/v2/keypeople/domain.js';
-import { THREADS_FEATURE, THREAD_KINDS_OWNED, ownedKind, threadsOn, withoutOwnedThreads } from '../../../src/v2/threads.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { featureProblems } from '../../../../core/features.js';
+import { allowedGrammar, allowedKinds } from '../../../../packages/story-block/src/v2/assist/index.js';
+import { createModule, storyDirectorModule } from '../../../../ui/legacy/director/module.js';
+import { GRAMMAR, TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';
+import { PACING_TEXT, staticText } from '../../../../modules/time/tracker/note.js';
+import { STATIC_TEXT as WORLD_PARAGRAPHS } from '../../../../modules/world/chronicle/note.js';
+import { FEATURE as KEY_PEOPLE_FEATURE } from '../../../../modules/cast/keypeople/domain.js';
+import { THREADS_FEATURE, THREAD_KINDS_OWNED, ownedKind, threadsOn, withoutOwnedThreads } from '../../../../modules/time/tracker/threads.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 
 const TAIL_KEY = 'story_suite_tail_1';
@@ -211,7 +211,7 @@ test('the While away recap leaves out the owned kinds while off, and is made aga
 });
 
 test('off: a pack event\'s lasting world change is still written (Ersveil\'s calendar), the Chronicle line stays out of the notes, and a rebuild agrees', async () => {
-    const base = JSON.parse(readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8'));
+    const base = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8'));
     const pack = JSON.stringify({
         id: 'ersveil-lasting', version: '1.0.0', name: 'Ersveil lasting', requires: { storyBlock: '^2', capabilities: ['chronicle-lasting'] },
         calendar: base.calendar, start: { scene: { place: { name: 'Bluewatch Village', kind: 'settlement', region: 'River Confederacy' } } },

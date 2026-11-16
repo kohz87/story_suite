@@ -3,8 +3,8 @@
 // are diffed into ops with Story Block's own ops.js (live), the generic op rules and the
 // touched domains' validators run, and a throw or a problem keeps the state as it was.
 
-import { part } from '../../../../src/v2/atlas/index.js';
-import { apply, checkOps, diff } from '../../../../../../core/ops.js';
+import { part } from '../../../../modules/atlas/atlas/index.js';
+import { apply, checkOps, diff } from '../../../../core/ops.js';
 
 export function deepFreeze(value) {
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {

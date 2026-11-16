@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 
-import { PRESETS, makeCalendar } from '../../../src/calendar.js';
-import { atlasMapWidget, forgetViews } from '../../../src/v2/atlas/widget.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { PRESETS, makeCalendar } from '../../../modules/time/calendar.js';
+import { atlasMapWidget, forgetViews } from '../../../modules/atlas/atlas/widget.js';
+import { installFakeDom } from '../../helpers/director/ui-fake-dom.js';
 import { at, command, deepFreeze, line, makeState, query } from './helpers/fake-ctx.js';
 
 // The screenshot's knot (Ersveil's Bluewatch Village: places a hundredth of a unit apart) inside a

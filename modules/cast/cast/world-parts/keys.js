@@ -1,6 +1,6 @@
 // Building world fingerprints and planner cache keys.
 
-import { sha256 } from '../../hash.js';
+import { sha256 } from '../../../world/hash.js';
 import { dayOf, peopleOf } from '../domain.js';
 
 /** A short fingerprint of who is in the world (keys and join minutes): in-flight plans are told apart by it, chat from chat. */

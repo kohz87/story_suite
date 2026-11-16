@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { MAP_CSS, onLayer, readTrip, readView } from '../../../src/v2/atlas/widget.js';
+import { MAP_CSS, onLayer, readTrip, readView } from '../../../modules/atlas/atlas/widget.js';
 import { PACK, PHONE_LINE, TRIP_DAY, TRIP_T0, chooseRegion, clusterDraw, draw, regionShown, story, tripDraw } from './widget.helpers.js';
 import { at, command, deepFreeze, query } from './helpers/fake-ctx.js';
 test('phone taps: the dot keeps its size, its tap area is 44px (CSS), and in a dense cluster the tap picks the nearest dot', () => {

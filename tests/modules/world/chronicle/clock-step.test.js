@@ -3,9 +3,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { stepClock } from '../../../src/v2/chronicle/days-parts/clock-step.js';
-import { walkDays } from '../../../src/v2/chronicle/days.js';
-import { noteFactsQuery } from '../../../src/v2/chronicle/queries.js';
+import { stepClock } from '../../../../modules/world/chronicle/days-parts/clock-step.js';
+import { walkDays } from '../../../../modules/world/chronicle/days.js';
+import { noteFactsQuery } from '../../../../modules/world/chronicle/queries.js';
 
 const DAY = 1440;
 const r = (type, minutes, extra = {}, rev = 1) => ({ type, rev, module: 'story-director', summary: 'x', data: { minutes, ...extra } });

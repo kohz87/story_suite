@@ -1,5 +1,5 @@
 // Shared calendar fixture, timestamp and planner answer for planner-*.test.js.
-import { makeCalendar } from '../src/calendar.js';
+import { makeCalendar } from '../../modules/time/calendar.js';
 
 export const calendar = makeCalendar({
     preset: 'custom',

@@ -7,19 +7,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DAYS_ID, WORLD_ID, daysScreen, hiddenNames, knownDay, part, worldScreen } from '../../../src/v2/world/index.js';
-import { backlogBlock } from '../../../src/v2/chronicle/backlog.js';
-import { DIGEST_FEATURE } from '../../../src/v2/chronicle/days.js';
-import { part as chronicle } from '../../../src/v2/chronicle/index.js';
-import { validateScreen } from '../../../../story-block/src/v2/view/screens.js';
-import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
-import { scopeCss } from '../../../../story-block/src/v2/view/css.js';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { DAYS_ID, WORLD_ID, daysScreen, hiddenNames, knownDay, part, worldScreen } from '../../../../modules/world/world/index.js';
+import { backlogBlock } from '../../../../modules/world/chronicle/backlog.js';
+import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
+import { part as chronicle } from '../../../../modules/world/chronicle/index.js';
+import { validateScreen } from '../../../../packages/story-block/src/v2/view/screens.js';
+import { compileTemplate, renderTemplate } from '../../../../packages/story-block/src/v2/view/template/index.js';
+import { conditionEvaluator } from '../../../../packages/story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../modules/world/events/index.js';
+import { scopeCss } from '../../../../packages/story-block/src/v2/view/css.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);

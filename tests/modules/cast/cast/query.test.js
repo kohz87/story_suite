@@ -101,7 +101,7 @@ test('a person met from the cast can be pinned as a key person: the Pin chooser 
 
 // ---- the order other modules rely on, and the real-size cast ------------------------------------------------------------------------
 
-const ERSVEIL = JSON.parse(readFileSync(new URL('../../fixtures/ersveil-cast.json', import.meta.url), 'utf8')).map(item => ({ pack: 'ersveil', packVersion: '2.2.1', ...item }));
+const ERSVEIL = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-cast.json', import.meta.url), 'utf8')).map(item => ({ pack: 'ersveil', packVersion: '2.2.1', ...item }));
 
 test('a meeting is in director.cast before the reply is written and while it is read, so a module that ticks on that reply (NPC State Delta) sees them at once, not a reply late', async t => {
     quiet(t);

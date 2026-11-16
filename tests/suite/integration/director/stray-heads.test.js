@@ -5,8 +5,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule } from '../../../src/v2/module.js';
-import { grammarHeads, strayLines } from '../../../../../core/capture.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { grammarHeads, strayLines } from '../../../../core/capture.js';
 
 const def = createModule();
 // What the host's contexts() would hand grammarHeads: the kinds with a grammar line or with heads.

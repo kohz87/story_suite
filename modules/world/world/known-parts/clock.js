@@ -1,6 +1,6 @@
 // Story Director v2, world: the chat's calendar, the story clock, and the date and time-of-day text.
 
-import { PRESETS, makeCalendar } from '../../../calendar.js';
+import { PRESETS, makeCalendar } from '../../../time/calendar.js';
 import { tryQuery } from './query.js';
 import { isRecord, isInt, text } from './shared-text.js';
 

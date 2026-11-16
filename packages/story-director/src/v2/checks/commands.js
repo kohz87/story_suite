@@ -3,8 +3,8 @@
 import { ACTOR_ID, BONUS_LIMIT, MAX_ACTORS, MAX_BONUSES, MAX_LOG, MAX_NAME, bonusKeyOk, draftChecks, isRecord, policyOf, projection } from './domain.js';
 import { TOPIC_NAMES, outcomeOf, statForCheck } from './words.js';
 import { combine, socialParts, standaloneParts } from './roll.js';
-import { hashJson } from '../hash.js';
-import { WRITE_ID, fingerprintOf, idFrom, remember, retryOf } from '../writes.js';
+import { hashJson } from '../../../../../modules/world/hash.js';
+import { WRITE_ID, fingerprintOf, idFrom, remember, retryOf } from '../../../../../modules/world/writes.js';
 
 const isPlayer = ctx => ctx.cause === 'ui' && !ctx.caller;
 const text = value => String(value ?? '').normalize('NFC').replace(/\p{Cf}+/gu, '').replace(/\s+/g, ' ').trim();

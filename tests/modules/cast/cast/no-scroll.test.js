@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createCastHooks } from '../../../src/v2/cast/hooks.js';
-import { createPlans } from '../../../src/v2/cast/plan.js';
+import { createCastHooks } from '../../../../modules/cast/cast/hooks.js';
+import { createPlans } from '../../../../modules/cast/cast/plan.js';
 
 test('a reply with a cast note for it: afterReceive does not look at the page or set a timer', () => {
     const touched = [];

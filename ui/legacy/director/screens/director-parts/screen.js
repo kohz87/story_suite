@@ -2,7 +2,7 @@
 
 import { BASE_CSS } from '../style.js';
 import { PLAN_WIDGET, RIPPLES_WIDGET } from '../behind.js';
-import { ARC_WIDGET } from '../../arc/widget.js';
+import { ARC_WIDGET } from '../../../../../modules/arc/widget.js';
 import { SPOILER_WIDGET } from './spoiler-switch.js';
 
 export const DIRECTOR_ID = 'story-director/director';

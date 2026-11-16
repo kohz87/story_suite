@@ -5,17 +5,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { makeCalendar } from '../../../src/calendar.js';
-import { parseChanges } from '../../../src/changes.js';
-import { lapsedOffers, slippedBeats } from '../../../src/lapses.js';
-import { AWAY_ARRIVAL, AWAY_CUE, AWAY_DEADLINE, AWAY_RECORD, noteParts } from '../../../src/note.js';
-import { classify, estimateTokens } from '../../../src/relevance.js';
-import { applyOps, emptyTracker } from '../../../src/tracker.js';
-import { part } from '../../../src/v2/time/index.js';
-import { AWAY_ARRIVAL_V2, AWAY_DEADLINE_V2, AWAY_RECORD_V2, RECAP_BUDGET, buildRecap, v2Asks } from '../../../src/v2/time/recap.js';
-import { standing } from '../../../src/v2/time/settle.js';
+import { makeCalendar } from '../../../modules/time/calendar.js';
+import { parseChanges } from '../../../modules/world/changes.js';
+import { lapsedOffers, slippedBeats } from '../../../modules/time/lapses.js';
+import { AWAY_ARRIVAL, AWAY_CUE, AWAY_DEADLINE, AWAY_RECORD, noteParts } from '../../../modules/world/note.js';
+import { classify, estimateTokens } from '../../../modules/atlas/relevance.js';
+import { applyOps, emptyTracker } from '../../../modules/time/tracker/tracker.js';
+import { part } from '../../../modules/time/index.js';
+import { AWAY_ARRIVAL_V2, AWAY_DEADLINE_V2, AWAY_RECORD_V2, RECAP_BUDGET, buildRecap, v2Asks } from '../../../modules/time/recap.js';
+import { standing } from '../../../modules/time/settle.js';
 import { CALENDAR, Chat, SETTINGS, thread } from './helpers/fake-ctx.js';
-import { slotValue } from '../../../src/v2/slot.js';
+import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
 
 const calendar = makeCalendar(CALENDAR);
 const at = text => calendar.parse(text).abs;
@@ -198,7 +198,7 @@ test('v1 parity: the recap is v1\'s While away for a twelve-hour jump, in v2\'s 
 });
 
 test('alone (no fight runner): no record tells its encounter; the thread keeps it', async () => {
-    const { trackerOf } = await import('../../../src/v2/time/records.js');
+    const { trackerOf } = await import('../../../modules/time/records.js');
     const thread = { id: 'th_beat0001', key: 'Ambush', kind: 'beat', status: 'active', summary: 'bandits', fields: { on: 'June 3, 1200, 09:00 am', encounter: '3 Bandit' }, track: { order: 1 } };
     const director = Object.freeze({ threads: Object.freeze({ th_beat0001: Object.freeze({ ...thread, fields: Object.freeze({ ...thread.fields }) }) }), time: { minutes: 0 } });
     assert.equal(trackerOf(director).tracker.records[0].fields.encounter, '3 Bandit');

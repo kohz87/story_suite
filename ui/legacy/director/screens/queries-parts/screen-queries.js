@@ -1,6 +1,6 @@
 // Story Director v2, part screens: the part's view queries, as the table the module registers.
 
-import { THREADS_FEATURE } from '../../threads.js';
+import { THREADS_FEATURE } from '../../../../../modules/time/tracker/threads.js';
 import { behindView } from './behind-view.js';
 import { currentGoal, questBoard } from './goal.js';
 import { nextDue } from './next-due.js';

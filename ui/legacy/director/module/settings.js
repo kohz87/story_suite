@@ -1,6 +1,6 @@
 // Story Director v2: namespaced settings and what each part reads.
 
-import { calendarConfig, packCalendarOf } from '../tracker/time.js';
+import { calendarConfig, packCalendarOf } from '../../../../modules/time/tracker/time.js';
 import { MODULE_ID } from './parts.js';
 import { isObject } from './shared.js';
 

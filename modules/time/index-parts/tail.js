@@ -1,11 +1,11 @@
 // The `[While away]` line the reply after a jump is told, in the context tail.
 
-import { estimateTokens } from '../../../relevance.js';
+import { estimateTokens } from '../../atlas/relevance.js';
 import { RECAP_BUDGET, buildRecap } from '../recap.js';
 import { calendarOf, timeSettings } from '../records.js';
 import { recapStale } from '../settle.js';
-import { slotValue } from '../../slot.js';
-import { ownedKind, threadsOn, withoutOwnedThreads } from '../../threads.js';
+import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
+import { ownedKind, threadsOn, withoutOwnedThreads } from '../tracker/threads.js';
 import { isInt } from './shared-int.js';
 
 /** The recap the reply about to be written gets, or null. */

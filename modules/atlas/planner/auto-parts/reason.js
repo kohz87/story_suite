@@ -1,6 +1,6 @@
 // Evaluates open threads, arc beats, and whether automatic planning should trigger.
 
-import { isOffer } from '../../tracker.js';
+import { isOffer } from '../../../time/tracker/tracker.js';
 import { isNumber } from '../shared.js';
 import { DEFAULT_LOW_THREADS, DEFAULT_STALL_DAYS, LOW_THREADS_REPLIES } from './thresholds.js';
 

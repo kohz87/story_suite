@@ -1,6 +1,6 @@
 // Story Director v2, chronicle part: reading quest-log, noted, and day-facts entries from chronicle state. Pure.
 
-import { slotValue } from '../../slot.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
 import { ENTRY_KEY, QUEST_LOG_KEPT } from './log-constants.js';
 import { isRecord } from './shared-values.js';
 import { QUEST_LOG_KEY, questLogOrder, questLogRank } from './quest-log-order.js';

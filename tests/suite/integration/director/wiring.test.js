@@ -9,18 +9,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { MODULE_ID, createModule } from '../../../src/v2/module.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { MODULE_ID, createModule } from '../../../../ui/legacy/director/module.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
-import { problemList } from '../../../src/v2/tracker/domain.js';
-import { BACKLOG_STATIC } from '../../../src/v2/chronicle/digest.js';
+import { problemList } from '../../../../modules/time/tracker/domain.js';
+import { BACKLOG_STATIC } from '../../../../modules/world/chronicle/digest.js';
 // The static part without the one sentence that explains [Earlier days] (taught once a past day is told, module/create.js `backlog`).
 const bare = text => String(text).split('\n').filter(line => line !== BACKLOG_STATIC).join('\n');
-import { leaderQuery, problemsQuery, swayQuery, validateRipples } from '../../../src/v2/ripples/index.js';
+import { leaderQuery, problemsQuery, swayQuery, validateRipples } from '../../../../modules/world/ripples/index.js';
 
 const STATIC_KEY = 'story_suite_static';
 const TAIL_KEY = 'story_suite_tail_1';
-const ERSVEIL = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);

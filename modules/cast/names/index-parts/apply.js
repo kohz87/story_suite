@@ -1,6 +1,6 @@
 // Story Director v2, names: `apply` for `person` lines: check the name, store the person, refuse with a Problem and cue.
 
-import { personMatches } from '../../../tracker-words.js';
+import { personMatches } from '../../../time/tracker/tracker-words.js';
 import { checkName } from './check.js';
 import { cleanName } from './text.js';
 import { nameKey, bareKey } from './keys.js';

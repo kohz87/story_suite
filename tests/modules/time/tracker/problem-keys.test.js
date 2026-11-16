@@ -7,12 +7,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { addProblem, problemList, validateDirector } from '../../../src/v2/tracker/domain.js';
-import { withD1 } from '../helpers/d1.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { addProblem, problemList, validateDirector } from '../../../../modules/time/tracker/domain.js';
+import { withD1 } from '../../../helpers/director/d1.js';
 
-const ERSVEIL = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../fixtures/director/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const bad = (tag, n) => Array.from({ length: n }, (_, i) => `~ quest ${tag}${i} | step:`);
 

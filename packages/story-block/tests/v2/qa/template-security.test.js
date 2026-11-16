@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { FakeElement, installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { compileTemplate, renderTemplate } from '../../../src/v2/view/template/index.js';
 import { cssVarValue, scopeCss, themeVars, valueProblem } from '../../../src/v2/view/css.js';
-import { evaluateCondition } from '../../../src/v2/events/condition.js';
+import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
 
 const forbid = name => function () { throw new Error(`markup was parsed: ${name}`); };
 Object.defineProperty(FakeElement.prototype, 'innerHTML', { configurable: true, get: forbid('innerHTML get'), set: forbid('innerHTML set') });

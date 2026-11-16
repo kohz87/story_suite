@@ -2,7 +2,7 @@
 
 import { DIGEST, FOLLOW_MAX, capDays, dayOf, daysOf, digestSettings, entriesByDay, factsOf, makeDigest, notedOf, orderedDays, rangeDays, writtenOf } from '../days.js';
 import { calendarFrom } from '../queries.js';
-import { toSlot } from '../../slot.js';
+import { toSlot } from '../../../../packages/story-director/src/v2/slot.js';
 import { ask, digestOn, isInt, minutesFrom } from './shared-ask.js';
 import { daysToWrite, needsDigest } from './write-days.js';
 

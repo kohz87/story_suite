@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { applySync, planSync, syncEmpty, syncPayload, whyNarrator, whyText } from '../../../src/v2/cast/apply.js';
-import { cutWords, initialCast, validateCast } from '../../../src/v2/cast/domain.js';
-import { castOf, fightOn, leanFight, shortName } from '../../../src/v2/cast/entries.js';
-import { CAPS, castRequest, createPlans, readCast, touches } from '../../../src/v2/cast/plan.js';
+import { applySync, planSync, syncEmpty, syncPayload, whyNarrator, whyText } from '../../../../modules/cast/cast/apply.js';
+import { cutWords, initialCast, validateCast } from '../../../../modules/cast/cast/domain.js';
+import { castOf, fightOn, leanFight, shortName } from '../../../../modules/cast/cast/entries.js';
+import { CAPS, castRequest, createPlans, readCast, touches } from '../../../../modules/cast/cast/plan.js';
 import { entry } from './helpers.js';
 import { SYNC_NOW, allow, castFor, refs, synced } from './rules.helpers.js';
 test('the answer is read strictly: three labels, only for people it named, each part cut and cleaned, each person once, in caps; anything else is ignored', () => {
@@ -106,7 +106,7 @@ test('a long routine is not quoted in the card\'s or the narrator\'s words for w
 });
 
 test('places: the pack\'s places match by name, slug or alias in any case; with no places listed a start place stays as written', async () => {
-    const { placeMatcher } = await import('../../../src/v2/cast/entries.js');
+    const { placeMatcher } = await import('../../../../modules/cast/cast/entries.js');
     const list = [{ id: 'pack.ersveil/bluewatch-village', name: 'Bluewatch Village', aliases: ['The Watch Town'] }, { id: 'pack.ersveil/guild-office', name: 'Bluewatch Village / Guild Office' }, { nope: true }, 'x'];
     const matcher = placeMatcher(name => (name === 'packs.content' ? list : null));
     assert.equal(matcher.any, true);

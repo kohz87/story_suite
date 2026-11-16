@@ -3,9 +3,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { PRESETS, makeCalendar } from '../../../src/calendar.js';
-import { clockFaceAfter, skipTarget } from '../../../src/v2/tracker/time-parts/clock-face.js';
-import { timeAfter } from '../../../src/v2/tracker/time.js';
+import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
+import { clockFaceAfter, skipTarget } from '../../../../modules/time/tracker/time-parts/clock-face.js';
+import { timeAfter } from '../../../../modules/time/tracker/time.js';
 import { lastProblems, makeState, reply } from './helpers/fake-ctx.js';
 
 const gregorian = makeCalendar(PRESETS.gregorian);

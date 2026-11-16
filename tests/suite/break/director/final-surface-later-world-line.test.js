@@ -11,11 +11,11 @@
 // counter; a round past `round` after a delete is read as just shown, never refused.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { surface } from '../../../src/v2/chronicle/pick.js';
-import { seenOf, validateChronicle } from '../../../src/v2/chronicle/domain.js';
-import { lines, makeState, runCommand } from '../chronicle/helpers/fake-ctx.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { surface } from '../../../../modules/world/chronicle/pick.js';
+import { seenOf, validateChronicle } from '../../../../modules/world/chronicle/domain.js';
+import { lines, makeState, runCommand } from '../../../modules/world/chronicle/helpers/fake-ctx.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 

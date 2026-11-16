@@ -4,10 +4,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { CHANGE_INSTRUCTION, PACING } from '../../../src/note.js';
-import { estimateTokens } from '../../../src/relevance.js';
-import { part } from '../../../src/v2/tracker/index.js';
-import { GRAMMAR, PACING_TEXT, STATIC_TEXT, TAIL_BUDGET, staticText } from '../../../src/v2/tracker/note.js';
+import { CHANGE_INSTRUCTION, PACING } from '../../../../modules/world/note.js';
+import { estimateTokens } from '../../../../modules/atlas/relevance.js';
+import { part } from '../../../../modules/time/tracker/index.js';
+import { GRAMMAR, PACING_TEXT, STATIC_TEXT, TAIL_BUDGET, staticText } from '../../../../modules/time/tracker/note.js';
 import { makeState, story } from './helpers/fake-ctx.js';
 
 const tail = (state, lastUser = '', settings = {}) => part.context.tail({ state, settings, chat: { length: 9, lastUser } });

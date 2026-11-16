@@ -5,9 +5,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { noteFactsQuery } from '../../../src/v2/chronicle/queries.js';
-import { noteCommand } from '../../../src/v2/chronicle/digest-parts/note.js';
-import { dayOf } from '../../../src/v2/chronicle/days.js';
+import { noteFactsQuery } from '../../../../modules/world/chronicle/queries.js';
+import { noteCommand } from '../../../../modules/world/chronicle/digest-parts/note.js';
+import { dayOf } from '../../../../modules/world/chronicle/days.js';
 
 const DAY0 = 438445 * 1440 + 600;
 const DAY1 = DAY0 + 1440;

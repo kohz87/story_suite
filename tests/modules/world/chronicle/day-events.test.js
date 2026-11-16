@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { BOOKKEEPING_TYPES } from '../../../src/v2/chronicle/days/shared.js';
-import { entryOf, eventsOf, factsOf } from '../../../src/v2/chronicle/days.js';
-import { dayEventsQuery, queries } from '../../../src/v2/chronicle/queries.js';
+import { BOOKKEEPING_TYPES } from '../../../../modules/world/chronicle/days/shared.js';
+import { entryOf, eventsOf, factsOf } from '../../../../modules/world/chronicle/days.js';
+import { dayEventsQuery, queries } from '../../../../modules/world/chronicle/queries.js';
 
 let rev = 0;
 const r = (type, summary, fields = {}) => ({ type, module: 'story-block', cause: 'story', summary, narrate: false, data: {}, rev: (rev += 1), ...fields });

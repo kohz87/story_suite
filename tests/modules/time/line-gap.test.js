@@ -3,8 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { GAP_REPLIES, gapCue, replyGap } from '../../../src/v2/time/line-gap.js';
-import { lastLineQuery } from '../../../src/v2/time/index-parts/queries.js';
+import { GAP_REPLIES, gapCue, replyGap } from '../../../modules/time/line-gap.js';
+import { lastLineQuery } from '../../../modules/time/index-parts/queries.js';
 
 test('replyGap counts whole replies since the last time line, the reader\'s message last', () => {
     // greeting 0, user 1, reply 2 (time line), user 3, reply 4, user 5, reply 6, user 7: next reply is index 8.

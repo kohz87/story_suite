@@ -2,10 +2,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadWorldPack } from '../src/routes.js';
-import { bearing, buildPlaceBook, distanceKm, estimateTrip, findBookPlace, formatTrip, mapSettings, nearbyByCoords, parseLocation } from '../src/places.js';
+import { loadWorldPack } from '../../modules/atlas/routes.js';
+import { bearing, buildPlaceBook, distanceKm, estimateTrip, findBookPlace, formatTrip, mapSettings, nearbyByCoords, parseLocation } from '../../modules/atlas/places.js';
 
-const pack = loadWorldPack(JSON.parse(readFileSync(new URL('./fixtures/world-pack.json', import.meta.url), 'utf8'))).pack;
+const pack = loadWorldPack(JSON.parse(readFileSync(new URL('../fixtures/director/world-pack.json', import.meta.url), 'utf8'))).pack;
 
 test('parseLocation: place, spot and coordinates', () => {
     assert.deepEqual(parseLocation('Auvoth | Seventh Seal Terrace | [59.0, 110.0]'), {

@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { keyPeopleQuery, keyPeopleView } from '../../../src/v2/keypeople/queries.js';
-import { FEATURE } from '../../../src/v2/keypeople/domain.js';
+import { keyPeopleQuery, keyPeopleView } from '../../../../modules/cast/keypeople/queries.js';
+import { FEATURE } from '../../../../modules/cast/keypeople/domain.js';
 import { OPENING, keyHost, pin, said, unpin } from './helpers.js';
 
 

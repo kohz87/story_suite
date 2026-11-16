@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { namedIn, unshown } from '../../../src/v2/cast/world.js';
+import { namedIn, unshown } from '../../../../modules/cast/cast/world.js';
 import { OPENING, castCue, castHost, castSource, entry, people, receipts, said, slice, validatorErrors } from './helpers.js';
 
 const TEMIWA = entry('temiwa', { name: 'Sister Temiwa', aliases: ['Temiwa', 'Last Candle'], start: { place: 'Harrow', goal: 'tend the dying', routine: 'at the infirmary by day' } });

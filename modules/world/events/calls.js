@@ -6,7 +6,7 @@
 // and give null / false when that module is not installed. `query` is the open door to every other
 // module's read-only queries, except this part's own (`events.*`), which would read itself.
 
-import { aliasKey } from '../domains/names.js';
+import { aliasKey } from '../../../packages/story-block/src/v2/domains/names.js';
 
 /** The allow-list, in the order error messages name it. */
 export const CALLS = Object.freeze(['query', 'quest', 'has', 'time', 'actor', 'count', 'region']);

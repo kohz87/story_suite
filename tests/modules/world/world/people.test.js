@@ -8,8 +8,8 @@
 // off.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PEOPLE_WIDGET, createPeopleWidget } from '../../../src/v2/world/index.js';
-import { hereView } from '../../../src/v2/world/known.js';
+import { PEOPLE_WIDGET, createPeopleWidget } from '../../../../modules/world/world/index.js';
+import { hereView } from '../../../../modules/world/world/known.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
 const CHATTER = { 'story-block.chatter': true };

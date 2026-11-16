@@ -2,8 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { arcQuery, threadsWithArc } from '../../../src/v2/arc/domain.js';
-import { arcBeats, autoPlanReason } from '../../../src/v2/arc/plan.js';
+import { arcQuery, threadsWithArc } from '../../../modules/arc/domain.js';
+import { arcBeats, autoPlanReason } from '../../../modules/arc/plan.js';
 
 const KEYS = ['Red-Cord Demand', 'Salt Impound', 'Ledger Check', 'Harbour Bell'];
 const build = (statuses = {}) => {

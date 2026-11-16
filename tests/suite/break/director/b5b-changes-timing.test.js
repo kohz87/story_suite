@@ -5,7 +5,7 @@
 //   changes.js:197 body.split(/\s*\|\s*/)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseChanges } from '../../../src/changes.js';
+import { parseChanges } from '../../../../modules/world/changes.js';
 
 const SMALL = 5_000;
 const LARGE = 20_000;

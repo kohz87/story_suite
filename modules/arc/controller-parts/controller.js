@@ -1,12 +1,12 @@
 // Creates and shares the page's arc planner controller lifecycle.
 
-import { makeCalendar } from '../../../calendar.js';
-import { browserStore, reveal as pageReveal, stChatId } from '../../screens/reveal.js';
+import { makeCalendar } from '../../time/calendar.js';
+import { browserStore, reveal as pageReveal, stChatId } from '../../../ui/legacy/director/screens/reveal.js';
 import { ACCEPT, END, UPDATE } from '../commands.js';
 import { FEATURE, arcQuery, currentArc, threadsWithArc } from '../domain.js';
 import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, trackerSummary } from '../plan.js';
 import { arcSettings } from '../settings.js';
-import { fightsAmong } from '../../fights.js';
+import { fightsAmong } from '../../../packages/story-director/src/v2/fights.js';
 import { MODULE_ID, NEEDS_TEXT, PLANNER_TIMEOUT_MS } from './constants.js';
 import { recentStory } from './story.js';
 import { isCarrier, liveSdk, stChat, toast } from './shared-host.js';

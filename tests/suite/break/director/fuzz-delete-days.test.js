@@ -9,12 +9,12 @@
 // Journal's world lines of the day their event fired, and the reader's edits of them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { fakeCraft } from '../time/helpers/fake-craft.js';
-import { LASTING_PACK, lastingEdit, lastingLines } from '../chronicle/helpers/lasting-pack.js';
-import { DIGEST, dayOf, entriesByDay, orderedDays, writtenOf } from '../../../src/v2/chronicle/days.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
+import { fakeCraft } from '../../../modules/time/helpers/fake-craft.js';
+import { LASTING_PACK, lastingEdit, lastingLines } from '../../../modules/world/chronicle/helpers/lasting-pack.js';
+import { DIGEST, dayOf, entriesByDay, orderedDays, writtenOf } from '../../../../modules/world/chronicle/days.js';
 
 // Seeds 11–12 keep few days (older ones go short, which a later digest rewrites); 13–14 keep them
 // whole, so a delete leaves a gap a later digest lists.

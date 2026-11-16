@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { walkDays } from '../../../src/v2/chronicle/days.js';
+import { walkDays } from '../../../../modules/world/chronicle/days.js';
 
 const D = 1440;
 let id = 0;

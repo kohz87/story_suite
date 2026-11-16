@@ -1,6 +1,6 @@
 // Story Director v2, part **cast**: shared validation, note-recording, and cause-guard helpers for cast steps.
 
-import { idFrom } from '../../writes.js';
+import { idFrom } from '../../../world/writes.js';
 import { MAX_KEY, MAX_NOTE_REPLIES, cutPoints, isInt } from '../domain.js';
 
 const revOf = ctx => (isInt(ctx?.rev) ? ctx.rev : 0);

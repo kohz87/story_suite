@@ -1,6 +1,6 @@
 // Name and person key builders for cast entries.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../../world/changes.js';
 
 /** The identity of a name (`lineKey`): lower case, punctuation squashed. '' for a name with no letters or digits. */
 export const keyOf = name => lineKey(String(name ?? ''));

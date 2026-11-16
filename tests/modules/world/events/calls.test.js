@@ -1,8 +1,8 @@
 // The allow-listed calls of the condition language, against head-state layouts (SPEC §7, MODULES B1/C1).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateCondition } from '../../../src/v2/events/condition.js';
-import { ARITY, CALLS, runCall } from '../../../src/v2/events/calls.js';
+import { evaluateCondition } from '../../../../modules/world/events/condition.js';
+import { ARITY, CALLS, runCall } from '../../../../modules/world/events/calls.js';
 
 const state = domains => ({ v: 2, meta: { rev: 3, claims: {} }, domains });
 const met = (source, domains = {}, query) => {

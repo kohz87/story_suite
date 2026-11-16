@@ -1,8 +1,8 @@
 // Story Director v2, part screens: the World pulse card's view (`pulse.view`) and the header Quiet scene toggle's state (`pulse.quiet`).
 
-import { slotValue } from '../../slot.js';
+import { slotValue } from '../../../../../packages/story-director/src/v2/slot.js';
 import { hostHasHeaderSlot } from '../../module/shared.js';
-import { FEATURE as PULSE_FEATURE, modeOf, resultsOf } from '../../pulse/effects.js';
+import { FEATURE as PULSE_FEATURE, modeOf, resultsOf } from '../../../../../modules/world/pulse/effects.js';
 
 export { PULSE_FEATURE };
 

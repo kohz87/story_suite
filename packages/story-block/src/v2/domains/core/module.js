@@ -6,7 +6,7 @@ import { INVENTORY_FEATURES, INVENTORY_EDIT_GUARD, LOOT_KINDS, inventoryEditGuar
 import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { chatterCap, chatterGrammar, headChatter, sceneChatter } from '../../extras.js';
 import { createEvidenceQuery } from '../../../../../../core/evidence.js';
-import { createEventsPart } from '../../events/index.js';
+import { createEventsPart } from '../../../../../../modules/world/events/index.js';
 import { standardWidgets } from '../../view/widgets/index.js';
 import { screens as defaultScreens } from '../../screens/index.js';
 import { youRankOf } from '../../packs/content.js';

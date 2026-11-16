@@ -1,7 +1,7 @@
 // The story day a lead (a hook that is a job offered) lapses on, by the rule that closes it (lapses.js lapseTime).
 
-import { lapseTime } from '../../../lapses.js';
-import { recordOf } from '../../time/records.js';
+import { lapseTime } from '../../../time/lapses.js';
+import { recordOf } from '../../../time/records.js';
 
 /** `{ lapsesAt: minute | null, lapses: date text | '' }`; a plain hook, or no clock, never lapses. */
 export function lapseOf(thread, { calendar, now }) {

@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { CALLS, LIMITS, compile, evaluate, evaluateCondition, parse } from '../../../src/v2/events/condition.js';
+import { CALLS, LIMITS, compile, evaluate, evaluateCondition, parse } from '../../../../../modules/world/events/condition.js';
 import { probeModule } from './helpers/probe-module.js';
 
 const HOSTILE = [

@@ -2,7 +2,7 @@
 // once made stays made) and 2.9.6 flood news.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateCondition } from '../../../src/v2/events/condition.js';
+import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
 import { NEWS_REGIONS, events, pack, rowsOf, view } from './ersveil-timeline.helpers.js';
 
 // A small Director on the real host: quests change Hasse's sway, world entries behave like lasting

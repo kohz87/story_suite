@@ -1,14 +1,14 @@
 // World part tests: a real Story Block host (the testkit) with Story Director, and small stand-ins for
 // NPC State Delta (its queries `npc.known`, `npc.dossier`, `npc.meters`) and example fight runner.
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { withD1 } from '../helpers/d1.js';
-import { createModule } from '../../../src/v2/module.js';
-import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
-import { FOLD_WIDGET, foldWidget, worldScreen } from '../../../src/v2/world/index.js';
-import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { withD1 } from '../../../helpers/director/d1.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
+import { FOLD_WIDGET, foldWidget, worldScreen } from '../../../../modules/world/world/index.js';
+import { compileTemplate, renderTemplate } from '../../../../packages/story-block/src/v2/view/template/index.js';
+import { conditionEvaluator } from '../../../../packages/story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../modules/world/events/index.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 
 export const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 export const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();

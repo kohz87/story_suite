@@ -4,11 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule, PARTS } from '../../../src/v2/module.js';
-import { presetValue } from '../../../../../core/features.js';
-import { cueOf, tail, meetingFresh } from '../../../src/v2/cast/note.js';
-import { FEATURE } from '../../../src/v2/cast/domain.js';
-import { TAIL_BUDGET } from '../../../src/v2/cast/settings.js';
+import { createModule, PARTS } from '../../../../ui/legacy/director/module.js';
+import { presetValue } from '../../../../core/features.js';
+import { cueOf, tail, meetingFresh } from '../../../../modules/cast/cast/note.js';
+import { FEATURE } from '../../../../modules/cast/cast/domain.js';
+import { TAIL_BUDGET } from '../../../../modules/cast/cast/settings.js';
 import { OPENING, STATIC_KEY, TAIL_KEY, castCue, castHost, castSource, entry, people, receipts, said, sent, settle, syncCast, withRoads } from './helpers.js';
 
 const quiet = t => t.mock.method(console, 'warn', () => {});
@@ -18,7 +18,7 @@ test('with no cast in the packs the prompt is byte for byte what it was without 
     const without = createModule({ parts: PARTS.filter(([id]) => id !== 'cast') });
     const chat = [['Hello.', said('Dawn.', OPENING)], ['Look.', said('Smoke.')], ['Sleep.', said('Morning.', ['~ time June 5, 1200, 08:00 am'])], ['On.', said('Road.', ['~ place Kesh | kind: town', '! time +3h'])], ['Again.', said('Quiet.')]];
     const run = async (modules, { cast = true } = {}) => {
-        const host = cast ? await castHost({ source: castSource([]) }) : await (await import('../../../../story-block/testkit/index.js')).createHost({ modules, settings: { features: { 'story-director.pulse': false } } });
+        const host = cast ? await castHost({ source: castSource([]) }) : await (await import('../../../../packages/story-block/testkit/index.js')).createHost({ modules, settings: { features: { 'story-director.pulse': false } } });
         try {
             for (const [text, reply] of chat) await host.send(text, reply);
             return { statics: sent(host, STATIC_KEY), tails: sent(host, TAIL_KEY), steps: host.sdk.receipts().filter(item => item.receipt.type.startsWith('cast.')).length, head: host.head() };
@@ -80,7 +80,7 @@ test('without a model the world still meets by place and nobody moves; a Continu
     // A host whose Story Block has no model call: the module is built without one.
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
-    const { createHost } = await import('../../../../story-block/testkit/index.js');
+    const { createHost } = await import('../../../../packages/story-block/testkit/index.js');
     host = await createHost({ modules: [module] });
     const source = castSource([entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' } }), entry('fenna', { start: { place: 'Kesh', goal: 'x', routine: '' } })]);
     await syncCast(host, source);
@@ -105,10 +105,10 @@ test('without a model the world still meets by place and nobody moves; a Continu
 // ---- the cue with real-length entries ------------------------------------------------------------------------------------------------
 
 import { readFileSync } from 'node:fs';
-import { castOf } from '../../../src/v2/cast/entries.js';
-import { whyNarrator } from '../../../src/v2/cast/apply.js';
+import { castOf } from '../../../../modules/cast/cast/entries.js';
+import { whyNarrator } from '../../../../modules/cast/cast/apply.js';
 
-const REAL = JSON.parse(readFileSync(new URL('../../fixtures/ersveil-cast.json', import.meta.url), 'utf8')).map(item => ({ pack: 'ersveil', packVersion: '2.2.1', ...item }));
+const REAL = JSON.parse(readFileSync(new URL('../../../fixtures/director/ersveil-cast.json', import.meta.url), 'utf8')).map(item => ({ pack: 'ersveil', packVersion: '2.2.1', ...item }));
 const CLOSING = 'Bring them in naturally; do not treat them as known to {{user}} yet.';
 
 test('the cue keeps why now and how to bring them in whole for every real-length entry, a goal meeting and a place meeting alike; the descriptive fields give way', () => {

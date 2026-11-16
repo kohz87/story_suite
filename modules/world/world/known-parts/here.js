@@ -1,7 +1,7 @@
 // Story Director v2, world: the Here view, the scene's place, who is present, their stance and their thought.
 
-import { lineKey } from '../../../changes.js';
-import { parseLocation } from '../../../places.js';
+import { lineKey } from '../../changes.js';
+import { parseLocation } from '../../../atlas/places.js';
 import { queryOf, tryQuery } from './query.js';
 import { isRecord, text, cut } from './shared-text.js';
 

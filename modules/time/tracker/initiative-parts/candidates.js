@@ -1,8 +1,8 @@
 // Story Director v2, tracker part (initiative): finds who could take the initiative now and how urgent their threads are.
 
-import { lineKey } from '../../../changes.js';
-import { isDue } from '../../../relevance.js';
-import { waitsForPay } from '../../../tracker.js';
+import { lineKey } from '../../../world/changes.js';
+import { isDue } from '../../../atlas/relevance.js';
+import { waitsForPay } from '../tracker.js';
 import { orderedThreads, toTracker } from '../convert.js';
 import { calendarOf, packCalendarOf, settingsFrom } from '../time.js';
 import { dropThreads, quietThreads } from '../quiet.js';

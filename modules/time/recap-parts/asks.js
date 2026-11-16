@@ -1,6 +1,6 @@
 // v1's While away asks in v2's change-line forms.
 
-import { AWAY_ARRIVAL, AWAY_DEADLINE, AWAY_RECORD } from '../../../note.js';
+import { AWAY_ARRIVAL, AWAY_DEADLINE, AWAY_RECORD } from '../../world/note.js';
 
 // v1's asks name a record bare ("! Key — …"); every v2 line names its kind.
 export const AWAY_RECORD_V2 = 'Record each with ! <its kind> Key — what came of it.';

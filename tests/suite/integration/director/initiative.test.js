@@ -6,9 +6,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { FEATURE, INITIATIVE_STATIC } from '../../../src/v2/tracker/initiative.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { FEATURE, INITIATIVE_STATIC } from '../../../../modules/time/tracker/initiative.js';
 
 const STATIC_KEY = 'story_suite_static';
 const TAIL_KEY = 'story_suite_tail_1';
@@ -159,7 +159,7 @@ test('pulse: a regenerate, a swipe or a delete of the reply takes its roll and e
 });
 
 test('pulse: a chance meeting reaches the narrator with the cast cue, names the person, and survives the reply that shows them', async () => {
-    const { castHost, castSource, entry, said, sent: sentTo, withRoads } = await import('../cast/helpers.js');
+    const { castHost, castSource, entry, said, sent: sentTo, withRoads } = await import('../../../modules/cast/cast/helpers.js');
     // Gwenmar is two hours from Harrow by the pack's road: by 10:30 (2.5 hours after the cast's first minute) she can be here.
     const host = await castHost({ source: withRoads(castSource([entry('sera', { start: { place: 'Gwenmar', goal: 'find her brother', routine: '' } })])), features: { 'story-director.pulse': true } });
     try {
@@ -187,7 +187,7 @@ test('pulse: a chance meeting reaches the narrator with the cast cue, names the 
 });
 
 test('pulse: nobody who is too far away is chanced upon (no road known, or the time since they were placed is short): the roll steps down and nobody is moved', async () => {
-    const { castHost, castSource, entry, said, withRoads } = await import('../cast/helpers.js');
+    const { castHost, castSource, entry, said, withRoads } = await import('../../../modules/cast/cast/helpers.js');
     for (const [label, source, time] of [['no road', castSource([entry('rika', { start: { place: 'Auvoth / Pale Market', goal: 'a licence', routine: '' } })]), '10:30 am'], ['road, too little time', withRoads(castSource([entry('rika', { start: { place: 'Gwenmar', goal: 'a licence', routine: '' } })])), '08:30 am']]) {
         const host = await castHost({ source, features: { 'story-director.pulse': true } });
         try {
@@ -205,7 +205,7 @@ test('pulse: nobody who is too far away is chanced upon (no road known, or the t
 });
 
 test('pulse, rule 2: run5cast reply 14, Rika (Auvoth / Pale Market, 3.5 days by the frontier road) is never chanced upon in Drowned Bell taproom 1730 minutes in, though the map\'s straight line makes it half a day', async () => {
-    const { castHost, castSource, entry, said } = await import('../cast/helpers.js');
+    const { castHost, castSource, entry, said } = await import('../../../modules/cast/cast/helpers.js');
     // Ersveil 2.9.6's places and road as the pack writes them; the taproom is the story's, placed on the map by the atlas with no road.
     const source = castSource([entry('rika', { start: { place: 'Auvoth / Pale Market', goal: 'A Guild licence and a crew.', routine: '' } })]);
     source.places = [

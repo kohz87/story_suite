@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { atlasMapWidget, forgetViews, onLayer, readView } from '../../../src/v2/atlas/widget.js';
-import { iconFor } from '../../../src/v2/atlas/map.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { atlasMapWidget, forgetViews, onLayer, readView } from '../../../modules/atlas/atlas/widget.js';
+import { iconFor } from '../../../modules/atlas/atlas/map.js';
+import { installFakeDom } from '../../helpers/director/ui-fake-dom.js';
 import { PACK, chooseRegion, draw, placeButton, regionNames, story } from './widget.helpers.js';
 import { at, command, query } from './helpers/fake-ctx.js';
 test('updated selection commands stay live, keep the API receiver and remove listeners on destroy', () => {

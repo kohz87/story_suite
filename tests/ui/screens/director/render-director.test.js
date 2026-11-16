@@ -3,9 +3,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runtime } from './helpers/runtime.js';
 import { headState, makeQueries, makeState, plot, raid, smuggler, thread } from './helpers/fixtures.js';
-import { DIRECTOR_ID, STATUS_CARD_ID, createBehindWidget, createScreensPart, createRipplesWidget, planWidget, questsWidget, screens } from '../../../src/v2/screens/index.js';
-import { SPOILER_STORE, createSpoilerPreference, createSpoilerSwitchWidget, spoilerSwitchWidget } from '../../../src/v2/screens/director.js';
-import { createArcWidget } from '../../../src/v2/arc/widget.js';
+import { DIRECTOR_ID, STATUS_CARD_ID, createBehindWidget, createScreensPart, createRipplesWidget, planWidget, questsWidget, screens } from '../../../../ui/legacy/director/screens/index.js';
+import { SPOILER_STORE, createSpoilerPreference, createSpoilerSwitchWidget, spoilerSwitchWidget } from '../../../../ui/legacy/director/screens/director.js';
+import { createArcWidget } from '../../../../modules/arc/widget.js';
 import { draw as drawBase, pulseState, rolls, skip, squash } from './render.helpers.js';
 
 let shown = true;

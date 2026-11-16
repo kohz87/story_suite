@@ -2,12 +2,12 @@
 // story told that way, for the board and the stored map.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { withD1 } from '../helpers/d1.js';
-import { validateDirector } from '../../../src/v2/tracker/domain-parts/validate.js';
-import { recordStep, stepsFor } from '../../../src/v2/tracker/capture-parts/step-trail.js';
-import { STEP_CEILING, STEP_KEPT, stepOrder } from '../../../src/v2/tracker/domain-parts/shared-step-keys.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { withD1 } from '../../../helpers/director/d1.js';
+import { validateDirector } from '../../../../modules/time/tracker/domain-parts/validate.js';
+import { recordStep, stepsFor } from '../../../../modules/time/tracker/capture-parts/step-trail.js';
+import { STEP_CEILING, STEP_KEPT, stepOrder } from '../../../../modules/time/tracker/domain-parts/shared-step-keys.js';
 
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

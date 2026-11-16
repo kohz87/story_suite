@@ -3,28 +3,28 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../src/v2/module.js';
-import { STATIC_TEXT, staticText } from '../../../src/v2/tracker/note.js';
-import { STATIC_TEXT as ATLAS_STATIC, TAIL_BUDGET as ATLAS_BUDGET, TRIP_TAIL_BUDGET } from '../../../src/v2/atlas/note.js';
-import { RECAP_BUDGET } from '../../../src/v2/time/recap.js';
-import { screens as SCREENS } from '../../../src/v2/screens/index.js';
-import { mapScreen } from '../../../src/v2/atlas/screen.js';
-import { chronicleScreen } from '../../../src/v2/chronicle/screen.js';
-import { daysScreen, worldScreen } from '../../../src/v2/world/index.js';
-import { STATIC_TEXT as CHRONICLE_STATIC, TAIL_BUDGET as CHRONICLE_BUDGET } from '../../../src/v2/chronicle/note.js';
-import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET } from '../../../src/v2/chronicle/digest.js';
-import { part as checksPart } from '../../../src/v2/checks/index.js';
-import { part as chroniclePart } from '../../../src/v2/chronicle/index.js';
-import { part as keyPeoplePart } from '../../../src/v2/keypeople/index.js';
-import { DEFAULT_TOKENS as KEY_PEOPLE_TOKENS } from '../../../src/v2/keypeople/domain.js';
-import { STATIC_TEXT as KEY_PEOPLE_STATIC } from '../../../src/v2/keypeople/note.js';
-import { ARC_TAIL_BUDGET } from '../../../src/v2/arc/domain.js';
-import { TAIL_BUDGET as CAST_BUDGET } from '../../../src/v2/cast/settings.js';
-import { PULSE_STATIC, STALE_REPLIES, pulseCommand, pulseHook } from '../../../src/v2/pulse/effects.js';
-import { foesLeftover, foesSignature, leanFight, pulseResults } from '../../../src/v2/cast/entries.js';
-import { slotValue } from '../../../src/v2/slot.js';
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { part as namesPart } from '../../../src/v2/names/index.js';
+import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../../ui/legacy/director/module.js';
+import { STATIC_TEXT, staticText } from '../../../../modules/time/tracker/note.js';
+import { STATIC_TEXT as ATLAS_STATIC, TAIL_BUDGET as ATLAS_BUDGET, TRIP_TAIL_BUDGET } from '../../../../modules/atlas/atlas/note.js';
+import { RECAP_BUDGET } from '../../../../modules/time/recap.js';
+import { screens as SCREENS } from '../../../../ui/legacy/director/screens/index.js';
+import { mapScreen } from '../../../../modules/atlas/atlas/screen.js';
+import { chronicleScreen } from '../../../../modules/world/chronicle/screen.js';
+import { daysScreen, worldScreen } from '../../../../modules/world/world/index.js';
+import { STATIC_TEXT as CHRONICLE_STATIC, TAIL_BUDGET as CHRONICLE_BUDGET } from '../../../../modules/world/chronicle/note.js';
+import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET } from '../../../../modules/world/chronicle/digest.js';
+import { part as checksPart } from '../../../../packages/story-director/src/v2/checks/index.js';
+import { part as chroniclePart } from '../../../../modules/world/chronicle/index.js';
+import { part as keyPeoplePart } from '../../../../modules/cast/keypeople/index.js';
+import { DEFAULT_TOKENS as KEY_PEOPLE_TOKENS } from '../../../../modules/cast/keypeople/domain.js';
+import { STATIC_TEXT as KEY_PEOPLE_STATIC } from '../../../../modules/cast/keypeople/note.js';
+import { ARC_TAIL_BUDGET } from '../../../../modules/arc/domain.js';
+import { TAIL_BUDGET as CAST_BUDGET } from '../../../../modules/cast/cast/settings.js';
+import { PULSE_STATIC, STALE_REPLIES, pulseCommand, pulseHook } from '../../../../modules/world/pulse/effects.js';
+import { foesLeftover, foesSignature, leanFight, pulseResults } from '../../../../modules/cast/cast/entries.js';
+import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { part as namesPart } from '../../../../modules/cast/names/index.js';
 
 // What the host builds from a module's context (Story Block's registry contextOf): its static, then each context part that is on, trimmed,
 // the empty ones left out, one per line.

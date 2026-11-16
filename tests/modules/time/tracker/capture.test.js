@@ -4,12 +4,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/tracker/index.js';
-import { toV1Op } from '../../../src/v2/tracker/capture.js';
-import { parseChanges } from '../../../src/changes.js';
-import { applyOps, emptyTracker, nearMatches } from '../../../src/tracker.js';
+import { part } from '../../../../modules/time/tracker/index.js';
+import { toV1Op } from '../../../../modules/time/tracker/capture.js';
+import { parseChanges } from '../../../../modules/world/changes.js';
+import { applyOps, emptyTracker, nearMatches } from '../../../../modules/time/tracker/tracker.js';
 import { lastProblems, makeState, readLine, reply, runCommand, story, thread } from './helpers/fake-ctx.js';
-import { problemList, replyTurn } from '../../../src/v2/tracker/domain.js';
+import { problemList, replyTurn } from '../../../../modules/time/tracker/domain.js';
 
 const kinds = state => lastProblems(state).map(problem => problem.kind);
 const threads = (state, args = {}) => part.queries['director.threads'](state, args);

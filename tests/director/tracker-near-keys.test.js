@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { lineKey } from '../src/changes.js';
-import { applyOps, emptyTracker, findRecord, keyWords, nearMatches, questsDoneIn, replay, untrackedCorrections } from '../src/tracker.js';
+import { lineKey } from '../../modules/world/changes.js';
+import { applyOps, emptyTracker, findRecord, keyWords, nearMatches, questsDoneIn, replay, untrackedCorrections } from '../../modules/time/tracker/tracker.js';
 import { BLUEWATCH, WOLF_HUNT, after, deepFreeze, ops } from './tracker.helpers.js';
 test('keyWords drops case, punctuation, a leading article and small connective words', () => {
     assert.deepEqual(keyWords('Footing in Bluewatch'), ['footing', 'bluewatch']);

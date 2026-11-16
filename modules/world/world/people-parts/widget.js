@@ -4,7 +4,7 @@ import { FEATURE } from '../known.js';
 import { dossierOpener, castApi } from './delta-api.js';
 import { render } from './draw.js';
 import { createOwnCast } from '../people-own.js';
-import { LIVE_HOST } from '../../module/shared.js';
+import { LIVE_HOST } from '../../../../ui/legacy/director/module/shared.js';
 
 const OWN_FLAG = 'suite.worldPeopleOwn';
 

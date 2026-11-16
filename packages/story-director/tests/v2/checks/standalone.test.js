@@ -6,9 +6,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createFakeModel, createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
+import { createModule } from '../../../../../ui/legacy/director/module.js';
 
-const OLD = JSON.parse(readFileSync(new URL('../../fixtures/checks-2.1.1-chat.json', import.meta.url), 'utf8'));
+const OLD = JSON.parse(readFileSync(new URL('../../../../../tests/fixtures/director/checks-2.1.1-chat.json', import.meta.url), 'utf8'));
 const CHECK = '? check Stealth — sneak past the guard | dc: hard';
 const ok = out => assert.equal(out.ok, true, JSON.stringify(out));
 const log = host => Object.values(host.head().domains.checks.log);

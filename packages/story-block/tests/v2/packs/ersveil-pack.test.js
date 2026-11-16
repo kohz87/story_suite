@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { checkPack, report } from '../../../authoring-kit/check.mjs';
 import { validatePack } from '../../../src/v2/packs/validate.js';
 import { findPackEntries } from '../../../src/v2/packs/lorebook.js';
-import { evaluateCondition } from '../../../src/v2/events/condition.js';
+import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const packPath = new URL('../../../examples/packs/ersveil/pack.json', import.meta.url);

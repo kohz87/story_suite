@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { KNOWN_LABEL_ZOOM, labelSize } from '../../../src/v2/atlas/view.js';
+import { KNOWN_LABEL_ZOOM, labelSize } from '../../../modules/atlas/atlas/view.js';
 import { PACK, chooseRegion, draw, placeButton, regionNames, regionShown, story } from './widget.helpers.js';
 import { query } from './helpers/fake-ctx.js';
 test('the controls: search, zoom in and out, fit, centre on me, layers, a focusable map; the bar sits outside the map', () => {

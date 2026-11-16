@@ -4,9 +4,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/tracker/index.js';
-import { SEED, seedCommand, seedHook } from '../../../src/v2/tracker/seed.js';
-import { PACK_PRESET, SEED_CLAIM, calendarConfig, calendarOf, settingsDefaults, startMinutes } from '../../../src/v2/tracker/time.js';
+import { part } from '../../../../modules/time/tracker/index.js';
+import { SEED, seedCommand, seedHook } from '../../../../modules/time/tracker/seed.js';
+import { PACK_PRESET, SEED_CLAIM, calendarConfig, calendarOf, settingsDefaults, startMinutes } from '../../../../modules/time/tracker/time.js';
 import { makeState, reply, runCommand } from './helpers/fake-ctx.js';
 
 const MONTHS = ['Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane', 'Emberwane', 'Nightfall', 'Frostfall', 'Deepwinter', 'Icewane', 'Yearsend']

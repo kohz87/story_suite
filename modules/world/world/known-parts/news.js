@@ -1,6 +1,6 @@
 // Story Director v2, world: the news and factions {{user}} knows, newest first.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../changes.js';
 import { dateText } from './clock.js';
 import { agoText } from './day-words.js';
 import { hiddenNames } from './hidden.js';

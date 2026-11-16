@@ -2,8 +2,8 @@
 // query it is handed). The chat's calendar comes from the tracker's `director.calendar` (the reader's, else the
 // pack's, else Gregorian); a date is a story minute, and a person's `back` is the start of the day they are due.
 
-import { PRESETS, makeCalendar } from '../../calendar.js';
-import { durationMinutes } from '../tracker/time.js';
+import { PRESETS, makeCalendar } from '../../time/calendar.js';
+import { durationMinutes } from '../../time/tracker/time.js';
 
 const DAY = 1440;
 

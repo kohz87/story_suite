@@ -2,12 +2,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { MAX_KEPT, keptEvents, validateChronicle } from '../../../src/v2/chronicle/domain.js';
-import { TAIL_HEADER, chronicleTail } from '../../../src/v2/chronicle/note.js';
-import { pickEvents, tailPick } from '../../../src/v2/chronicle/pick.js';
-import { entryOf } from '../../../src/v2/chronicle/days.js';
+import { MAX_KEPT, keptEvents, validateChronicle } from '../../../../modules/world/chronicle/domain.js';
+import { TAIL_HEADER, chronicleTail } from '../../../../modules/world/chronicle/note.js';
+import { pickEvents, tailPick } from '../../../../modules/world/chronicle/pick.js';
+import { entryOf } from '../../../../modules/world/chronicle/days.js';
 import { clockAt, command, eventNamed, line, lines, makeState, replay, runCommand, viewOf } from './helpers/fake-ctx.js';
-import { part } from '../../../src/v2/chronicle/index.js';
+import { part } from '../../../../modules/world/chronicle/index.js';
 import { BY, DAY, SEAL, crowd, lasting, must, shown } from './lasting.helpers.js';
 
 // ---- keep in mind ----------------------------------------------------------------------------------

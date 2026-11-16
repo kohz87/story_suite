@@ -1,6 +1,6 @@
 // Story Director v2, part time: the reason words, outcome and claim key a deadline closing uses.
 
-import { LAPSED_REASON, SLIPPED_REASON } from '../../../lapses.js';
+import { LAPSED_REASON, SLIPPED_REASON } from '../lapses.js';
 
 export const DEADLINE_REASON = 'deadline passed';
 export const REASONS = Object.freeze({ slipped: SLIPPED_REASON, lapsed: LAPSED_REASON, failed: DEADLINE_REASON });

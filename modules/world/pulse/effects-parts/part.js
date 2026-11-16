@@ -1,6 +1,6 @@
 // The pulse part definition: its static sentence, before-reply hook, feature, commands and settings.
 
-import { personaName } from '../../tracker/initiative.js';
+import { personaName } from '../../../time/tracker/initiative.js';
 import { FEATURE, PULSE, QUIET } from './ids.js';
 import { isInt } from './shared-guards.js';
 import { pulseOn, modeOf, settingsOf } from './settings.js';

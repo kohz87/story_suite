@@ -1,6 +1,6 @@
 // Empty tracker creation, blank fields, record cloning, and alias indexing.
 
-import { FIELDS } from '../changes.js';
+import { FIELDS } from '../../../world/changes.js';
 
 export function emptyTracker() {
     return { version: 1, records: [], message: -1, time: null };

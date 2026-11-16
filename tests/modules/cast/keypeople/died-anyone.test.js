@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { OPENING, keyHost, pin, said, slice, validatorErrors } from './helpers.js';
-import { MAX_GONE } from '../../../src/v2/keypeople/domain.js';
+import { MAX_GONE } from '../../../../modules/cast/keypeople/domain.js';
 
 const OPEN = ['+ agenda Vorn — pawns the rations | now: the quay', '+ beat Vorn\'s Return — Vorn comes back | now: the quay', '+ agenda Ann — mends nets | now: the quay'];
 const open = host => host.sdk.query('director.threads', { open: true }).map(thread => thread.key).sort();

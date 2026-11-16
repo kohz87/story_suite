@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/atlas/index.js';
-import { routeTime } from '../../../src/v2/atlas/capture.js';
+import { part } from '../../../modules/atlas/atlas/index.js';
+import { routeTime } from '../../../modules/atlas/atlas/capture.js';
 import { line, lines, makeState, placeNamed, replay } from './helpers/fake-ctx.js';
 
 const routesOf = state => Object.values(state.domains.atlas.routes);

@@ -1,9 +1,9 @@
 // J11 step 5: the World people widget is a `people` section of sdk.panels while suite.redrawScheduler is on (its onChange subscription stays idle).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PEOPLE_WIDGET, createPeopleWidget } from '../../../src/v2/world/index.js';
-import { createPanels } from '../../../../../core/sdk/panels.js';
-import { wireRedraw } from '../../../../story-block/src/v2/ui-host/redraw-wiring.js';
+import { PEOPLE_WIDGET, createPeopleWidget } from '../../../../modules/world/world/index.js';
+import { createPanels } from '../../../../core/sdk/panels.js';
+import { wireRedraw } from '../../../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 
 // NPC State Delta's page API as a stand-in (cards in its classes; onChange kept so a subscriber would be seen).

@@ -1,7 +1,7 @@
 // Story Director v2, part **cast**: querying atlas travel times, known roads, and party goal links.
 
 import { flat } from '../domain.js';
-import { orderedThreads } from '../../tracker/convert.js';
+import { orderedThreads } from '../../../time/tracker/convert.js';
 import { ask } from './query.js';
 
 /** `(from, to)` → days of travel by the atlas's trip (`atlas.travel`), or null when nothing says. */

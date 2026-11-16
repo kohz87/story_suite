@@ -5,8 +5,8 @@
 // shape the real module gives them. `Chat` keeps the state per carrier, so a swipe or a delete
 // takes back what was written to that reply, as the store does.
 
-import { part as tracker } from '../../../../src/v2/tracker/index.js';
-import { part as time } from '../../../../src/v2/time/index.js';
+import { part as tracker } from '../../../../modules/time/tracker/index.js';
+import { part as time } from '../../../../modules/time/index.js';
 
 function deepFreeze(value) {
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {

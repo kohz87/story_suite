@@ -1,9 +1,9 @@
 // Shared by the note-cursor tests: a real Story Block host with Story Director, and revision-free views of what the
 // chronicle's note kept (the quest history and the day facts), so a chat and a fresh telling of it can be compared.
 
-import { createHost } from '../../../../story-block/testkit/index.js';
-import { createModule } from '../../../src/v2/module.js';
-import { questLogOrder } from '../../../src/v2/chronicle/days-parts/quest-log-order.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createModule } from '../../../../ui/legacy/director/module.js';
+import { questLogOrder } from '../../../../modules/world/chronicle/days-parts/quest-log-order.js';
 
 export const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -1,7 +1,7 @@
 // Builds the four effect entries (rumour, chance meeting, arrival, schedule shift) from their candidates.
 
-import { lineKey } from '../../../changes.js';
-import { isPersona } from '../../tracker/initiative.js';
+import { lineKey } from '../../changes.js';
+import { isPersona } from '../../../time/tracker/initiative.js';
 import { pickIndex, plainSlot } from '../tables.js';
 import { REPLY_MINUTES } from './limits.js';
 import { isInt, isRecord, unit, frac } from './shared-guards.js';

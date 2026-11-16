@@ -12,7 +12,7 @@
 // no buttons. Bound to `director.arc` (props.value); the panel's own state (busy, the waiting plan, the
 // error) comes from the controller (controller.js), and the panel draws itself again when that changes.
 
-import { button, maker, spaced } from '../screens/dom.js';
+import { button, maker, spaced } from '../../ui/legacy/director/screens/dom.js';
 import { FEATURE } from './domain.js';
 import { REASON_TEXT } from './plan.js';
 import { arcController } from './controller.js';

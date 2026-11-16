@@ -7,7 +7,7 @@
 // the story's lines and the reader's edits name only the entries the first exchanges made, so a skipped block
 // can only come from bookkeeping one reply keeps for another.
 
-import { cleanName } from '../../../../src/v2/chronicle/domain.js';
+import { cleanName } from '../../../../../modules/world/chronicle/domain.js';
 
 const passed = (name, minutes) => `query('chronicle.passed', { name: '${name}', minutes: ${minutes} })`;
 const lasting = payload => ({ command: 'chronicle.lasting', payload });

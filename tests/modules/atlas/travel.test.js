@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DEFAULT_PACES, MODERN_PACES, estimateTrip } from '../../../src/places.js';
-import { DEFAULT_RULES, MODERN_RULES, durationText, legDays, loadWorldPack, planRoute, restDaysFor } from '../../../src/routes.js';
-import { TOWN_HOP_DAYS, travelTime } from '../../../src/v2/atlas/travel.js';
-import { planTrip } from '../../../src/v2/atlas/trip.js';
-import { packWorld, worldOf } from '../../../src/v2/atlas/world.js';
+import { DEFAULT_PACES, MODERN_PACES, estimateTrip } from '../../../modules/atlas/places.js';
+import { DEFAULT_RULES, MODERN_RULES, durationText, legDays, loadWorldPack, planRoute, restDaysFor } from '../../../modules/atlas/routes.js';
+import { TOWN_HOP_DAYS, travelTime } from '../../../modules/atlas/atlas/travel.js';
+import { planTrip } from '../../../modules/atlas/atlas/trip.js';
+import { packWorld, worldOf } from '../../../modules/atlas/atlas/world.js';
 import { command, lines, makeState, placeNamed, query } from './helpers/fake-ctx.js';
 
 const tidy = value => Math.round(value * 1e9) / 1e9;

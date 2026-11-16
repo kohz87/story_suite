@@ -2,9 +2,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseChanges } from '../src/changes.js';
-import { NPC_PLANS_ONLY } from '../src/note.js';
-import { replay } from '../src/tracker.js';
+import { parseChanges } from '../../modules/world/changes.js';
+import { NPC_PLANS_ONLY } from '../../modules/world/note.js';
+import { replay } from '../../modules/time/tracker/tracker.js';
 import {
     DEFAULT_PLANNER_PROMPT,
     LOW_THREADS_REPLIES,
@@ -17,7 +17,7 @@ import {
     planToOps,
     summarizeTracker,
     validatePlan,
-} from '../src/planner.js';
+} from '../../modules/atlas/planner.js';
 import { calendar, now } from './planner.helpers.js';
 
 // --- summarizeTracker --------------------------------------------------------------------

@@ -3,9 +3,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { makeCalendar } from '../src/calendar.js';
-import { estimateTrip, formatTrip } from '../src/places.js';
-import { durationText, formatRoute, loadWorldPack, packSummary, paceFor, parseLeg, planRoute, validateLeg } from '../src/routes.js';
+import { makeCalendar } from '../../modules/time/calendar.js';
+import { estimateTrip, formatTrip } from '../../modules/atlas/places.js';
+import { durationText, formatRoute, loadWorldPack, packSummary, paceFor, parseLeg, planRoute, validateLeg } from '../../modules/atlas/routes.js';
 
 const CITY = {
     source: 'A small modern region, for tests',

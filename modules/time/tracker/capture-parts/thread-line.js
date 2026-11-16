@@ -1,12 +1,12 @@
 // Story Director v2, tracker part: applies a story-told thread line (`+ ~ - !`) to the director draft.
 
-import { lineKey } from '../../../changes.js';
-import { applyOps } from '../../../tracker.js';
+import { lineKey } from '../../../world/changes.js';
+import { applyOps } from '../tracker.js';
 import { orderedThreads, toTracker } from '../convert.js';
 import { addProblem, turnNumber } from '../domain.js';
 import { acceptIntent } from '../acceptance.js';
 import { threadWriteId } from '../thread-writes.js';
-import { agendaProgress, placeNamed, pulseActive } from '../../pulse/effects.js';
+import { agendaProgress, placeNamed, pulseActive } from '../../../world/pulse/effects.js';
 import { KEY_CHARS, MAX_OPEN_THREADS, NEW_THREADS_PER_REPLY, SUMMARY_CHARS } from './limits.js';
 import { beginTurn, readerSaid } from './reply.js';
 import { capSummary, lineText } from './text.js';

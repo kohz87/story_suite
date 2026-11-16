@@ -1,6 +1,6 @@
 // Building the atlas and trip tail lines and reading the scene's place.
 
-import { mapSettings } from '../../../places.js';
+import { mapSettings } from '../../places.js';
 import { packWorld, worldOf } from '../world.js';
 import { parentOf } from '../parent.js';
 import { travelTime } from '../travel.js';

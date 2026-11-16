@@ -2,7 +2,7 @@
 
 import { BEHIND_KINDS, reveal as pageReveal } from '../reveal.js';
 import { button, maker, plural, spaced } from '../dom.js';
-import { THREADS_FEATURE } from '../../threads.js';
+import { THREADS_FEATURE } from '../../../../../modules/time/tracker/threads.js';
 
 export const BEHIND_WIDGET = 'story-director.behind';
 

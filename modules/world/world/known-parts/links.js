@@ -1,8 +1,8 @@
 // Story Director v2, world: the links the World map needs, worked out on read from what is known (nothing stored):
 // place ids by name, a faction's members, and the open quests tied to a place.
 
-import { lineKey } from '../../../changes.js';
-import { parseLocation } from '../../../places.js';
+import { lineKey } from '../../changes.js';
+import { parseLocation } from '../../../atlas/places.js';
 import { queryOf, tryQuery } from './query.js';
 import { planned, threadsOf } from './shared-threads.js';
 import { cut, isRecord, text } from './shared-text.js';

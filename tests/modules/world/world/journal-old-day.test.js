@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { knownDay, worldScreen } from '../../../src/v2/world/index.js';
-import { isNarratorNote } from '../../../src/v2/world/journal.js';
+import { knownDay, worldScreen } from '../../../../modules/world/world/index.js';
+import { isNarratorNote } from '../../../../modules/world/world/journal.js';
 
 const none = { words: [], behind: [] };
 

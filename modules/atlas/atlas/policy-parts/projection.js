@@ -1,6 +1,6 @@
 // Building the read-only atlas policy projection and danger view.
 
-import { hashJson } from '../../hash.js';
+import { hashJson } from '../../../world/hash.js';
 
 const sortedBy = table => Object.fromEntries(Object.keys(table ?? {}).sort().map(key => [key, table[key]]));
 const emptyDanger = { world: null, regions: {}, places: {} };

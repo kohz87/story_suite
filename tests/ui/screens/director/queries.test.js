@@ -5,9 +5,9 @@ import assert from 'node:assert/strict';
 import {
     at, closed, earlierState, fair, headState, makeQueries, makeRunner, makeState, pelts, plot, raid, rats, ring, smuggler, thread, wolves,
 } from './helpers/fixtures.js';
-import { calendarSetting, createScreensPart, readerWords } from '../../../src/v2/screens/index.js';
-import { agendaSteps } from '../../../src/v2/screens/queries.js';
-import { toSlot } from '../../../src/v2/slot.js';
+import { calendarSetting, createScreensPart, readerWords } from '../../../../ui/legacy/director/screens/index.js';
+import { agendaSteps } from '../../../../ui/legacy/director/screens/queries.js';
+import { toSlot } from '../../../../packages/story-director/src/v2/slot.js';
 
 const { run } = makeRunner();
 

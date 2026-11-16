@@ -1,6 +1,6 @@
 // The chat's calendar: the packs' calendar, the config the chat runs on, and a pack start date as story minutes.
 
-import { PRESETS, makeCalendar, normalizeCalendar } from '../../../calendar.js';
+import { PRESETS, makeCalendar, normalizeCalendar } from '../../calendar.js';
 import { PACK_PRESET } from './constants.js';
 
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);

@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { EVENTS_QUERY, eventsWidget } from '../../../src/v2/world/events-widget.js';
-import { EVENTS_WIDGET, journalEvents, knownDay, part, worldScreen } from '../../../src/v2/world/index.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { EVENTS_QUERY, eventsWidget } from '../../../../modules/world/world/events-widget.js';
+import { EVENTS_WIDGET, journalEvents, knownDay, part, worldScreen } from '../../../../modules/world/world/index.js';
+import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 
 const mount = (props, events) => {
     const doc = installFakeDom();

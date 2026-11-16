@@ -6,7 +6,7 @@ import { screenQueries } from '../queries.js';
 import { statusCardScreen } from '../status-card.js';
 import { BEHIND_WIDGET, PLAN_WIDGET, RIPPLES_WIDGET, behindWidget, planWidget, createRipplesWidget, ripplesWidget } from '../behind.js';
 import { QUESTS_WIDGET, questsWidget } from '../quest-cards.js';
-import { THREADS_FEATURE } from '../../threads.js';
+import { THREADS_FEATURE } from '../../../../../modules/time/tracker/threads.js';
 
 export const MODULE_ID = 'story-director';
 

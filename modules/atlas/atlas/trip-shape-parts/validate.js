@@ -1,7 +1,7 @@
 // Validating the shape and fields of `atlas.trips` records.
 
 import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, MAX_TEXT } from './limits.js';
-import { REPLY_KEY } from '../../reply-keys.js';
+import { REPLY_KEY } from '../../../world/reply-keys.js';
 
 const DAY = 1440;
 

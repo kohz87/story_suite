@@ -1,6 +1,6 @@
 // Story Director v2, names: the identity of a name, without titles, its given name, and whether two names are the same.
 
-import { lineKey } from '../../../changes.js';
+import { lineKey } from '../../../world/changes.js';
 import { flat } from './text.js';
 
 // Titles and rank words a name may open with ("Sister Temiwa", "Watch-Captain Roelof"): not part of the given name.

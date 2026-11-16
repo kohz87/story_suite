@@ -9,11 +9,11 @@
 // moves Story Block's place: when a leg's arrival passes, the narrator is asked to write the `~ place` line (trip.js `tripLines`).
 // A line the rules cannot use fails with a plain sentence, which Story Block keeps in its problems list; nothing is saved for it.
 
-import { DEFAULT_MAP, DEFAULT_PACES, mapSettings, parseLocation } from '../../places.js';
+import { DEFAULT_MAP, DEFAULT_PACES, mapSettings, parseLocation } from '../places.js';
 import { MAX_NAME, cleanName, revOf } from './domain.js';
 import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, goKeyOf, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
 import { packWorld, worldOf } from './world.js';
-import { replyKey } from '../reply-keys.js';
+import { replyKey } from '../../world/reply-keys.js';
 
 const DAY = 1440;
 const AMOUNT = /^(\d+(?:\.\d+)?)\s*(m|min|mins|minutes?|h|hrs?|hours?|d|days?)?$/i;

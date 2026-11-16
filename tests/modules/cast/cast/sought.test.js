@@ -5,12 +5,12 @@ import test from 'node:test';
 import { existsSync, readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 
-import { applyRumor, applySync, planSync, syncPayload } from '../../../src/v2/cast/apply.js';
-import { DAY, initialCast, validateCast } from '../../../src/v2/cast/domain.js';
-import { castOf, readEntry } from '../../../src/v2/cast/entries.js';
-import { citedIn, citesKind, gateWords, kindTouches, nameTester, rumorText } from '../../../src/v2/cast/sought.js';
-import { chooseMeetings, chooseRumor, paceOf } from '../../../src/v2/cast/world.js';
-import { castRequest, createPlans, readCast } from '../../../src/v2/cast/plan.js';
+import { applyRumor, applySync, planSync, syncPayload } from '../../../../modules/cast/cast/apply.js';
+import { DAY, initialCast, validateCast } from '../../../../modules/cast/cast/domain.js';
+import { castOf, readEntry } from '../../../../modules/cast/cast/entries.js';
+import { citedIn, citesKind, gateWords, kindTouches, nameTester, rumorText } from '../../../../modules/cast/cast/sought.js';
+import { chooseMeetings, chooseRumor, paceOf } from '../../../../modules/cast/cast/world.js';
+import { castRequest, createPlans, readCast } from '../../../../modules/cast/cast/plan.js';
 import { OPENING, castCue, castHost, castSource, createFakeModel, entry, people, receipts, said, sent, settle, slice, validatorErrors, TAIL_KEY } from './helpers.js';
 
 const castFor = (...entries) => castOf((name, args) => (name === 'packs.content' && args?.kind === 'cast' ? entries : name === 'packs.list' ? [{ id: 'ersveil', name: 'Ersveil', version: '1.1.0', enabled: true }] : null));

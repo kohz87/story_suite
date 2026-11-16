@@ -1,6 +1,6 @@
 // Story Director: reading a planner answer into items (pure).
 
-import { parseChanges } from '../changes.js';
+import { parseChanges } from '../../world/changes.js';
 import { resolveDates } from './relative.js';
 
 // Plan labels, lowercased with spaces, hyphens and underscores squashed to one space. The

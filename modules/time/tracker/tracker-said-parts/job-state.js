@@ -1,6 +1,6 @@
 // Predicates determining whether a record is a job, an open offer, or taken on as a quest.
 
-import { QUEST_TYPE_WORDS, lineKey } from '../changes.js';
+import { QUEST_TYPE_WORDS, lineKey } from '../../../world/changes.js';
 
 // Work {{user}} took on (0.8.6): a hook or event that a `~` names a quest (`type: quest`, or a
 // category such as bounty), or that is a job — it has, or the `~` gives it, a giver, a reward or

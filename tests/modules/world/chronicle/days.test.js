@@ -8,10 +8,10 @@ import assert from 'node:assert/strict';
 import {
     DIGEST_DEFAULTS, FULL_MAX, KEEP_MAX, MAX_HAPPENED, MAX_LINE, briefOf, capDays, cut, dayFacts, dayLine, dayOf, digestSettings,
     entryOf, factsOf as factsOfEntries, foldEntries, makeDigest, moneyText, sceneOf, validateDays, walkDays,
-} from '../../../src/v2/chronicle/days.js';
-import { bucketDay, classify, classifyText, trimCats } from '../../../src/v2/chronicle/backlog.js';
-import { noteFactsQuery } from '../../../src/v2/chronicle/queries.js';
-import { initialChronicle, validateChronicle } from '../../../src/v2/chronicle/domain.js';
+} from '../../../../modules/world/chronicle/days.js';
+import { bucketDay, classify, classifyText, trimCats } from '../../../../modules/world/chronicle/backlog.js';
+import { noteFactsQuery } from '../../../../modules/world/chronicle/queries.js';
+import { initialChronicle, validateChronicle } from '../../../../modules/world/chronicle/domain.js';
 
 const DAY = 1440;
 const D = 100;   // a story day number

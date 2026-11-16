@@ -1,6 +1,6 @@
 // Story Director v2, part **keypeople**: adds one note for a reply's card, keeping only the newest replies' notes.
 
-import { idFrom } from '../../writes.js';
+import { idFrom } from '../../../world/writes.js';
 import { MAX_NOTE_REPLIES, cutPoints } from '../domain.js';
 import { revOf } from './shared-ctx.js';
 

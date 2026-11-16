@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { part } from '../../../src/v2/atlas/index.js';
-import { TAIL_BUDGET, TRIP_TAIL_BUDGET } from '../../../src/v2/atlas/note.js';
+import { part } from '../../../modules/atlas/atlas/index.js';
+import { TAIL_BUDGET, TRIP_TAIL_BUDGET } from '../../../modules/atlas/atlas/note.js';
 import { at, command, lines, makeState, queryFor } from './helpers/fake-ctx.js';
 
 // What the host puts in the static prompt for this part: each kind's one line, then its static.

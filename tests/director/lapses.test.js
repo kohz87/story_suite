@@ -3,10 +3,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { makeCalendar } from '../src/calendar.js';
-import { parseChanges } from '../src/changes.js';
-import { LAPSED_REASON, SLIPPED_REASON, SLIP_GRACE_DAYS, UNDATED_OFFER_DAYS, lapseLines, lapseTime, lapsedOffers, lapsesIn, slippedBeats } from '../src/lapses.js';
-import { applyOps, emptyTracker, findRecord, isOffer, markSeen, questsDoneIn, replay } from '../src/tracker.js';
+import { makeCalendar } from '../../modules/time/calendar.js';
+import { parseChanges } from '../../modules/world/changes.js';
+import { LAPSED_REASON, SLIPPED_REASON, SLIP_GRACE_DAYS, UNDATED_OFFER_DAYS, lapseLines, lapseTime, lapsedOffers, lapsesIn, slippedBeats } from '../../modules/time/lapses.js';
+import { applyOps, emptyTracker, findRecord, isOffer, markSeen, questsDoneIn, replay } from '../../modules/time/tracker/tracker.js';
 
 const calendar = makeCalendar({ preset: 'custom', months: ['Haywane', 'Goldwane', 'Reapwane'].map(name => ({ name, days: 30 })) });
 const at = text => calendar.parse(text).abs;

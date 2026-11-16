@@ -1,6 +1,6 @@
 // Atlas visit, edit, and focus commands.
 
-import { parseLocation } from '../../../places.js';
+import { parseLocation } from '../../places.js';
 import {
     MAX_NAME, PACK_NODE, cleanName, cleanWord, findPlace, isRecord, keyOf, revOf,
 } from '../domain.js';

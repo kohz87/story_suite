@@ -9,7 +9,7 @@
 // so deleting a later reply never takes it away.
 
 import { turnNumber } from '../domain-parts/turn.js';
-import { replyKey } from '../../reply-keys.js';
+import { replyKey } from '../../../world/reply-keys.js';
 import { STEP_KEPT, stepOrder } from '../domain-parts/shared-step-keys.js';
 
 /** Most steps a trail shows (the newest). */
