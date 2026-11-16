@@ -50,16 +50,28 @@ export function dayEventsQuery(_state, { day = null } = {}, tools) {
     return { day: wanted, events: eventsOf(walkDays(entries).days.get(wanted) ?? []) };
 }
 
+// The receipts after the note `through` names (a receipt ID), in chat order; else those after revision `after`. A note
+// that a Re-read kept keeps its ID and sits after that reply's new receipts, so reading from it never reads again what it
+// kept nor files a reply's receipts under a later note, whatever revisions the Re-read gave. `rev` is for an older state
+// (no `through`) or a note whose receipt is gone.
+function since(list, after, through) {
+    const at = typeof through === 'string' && through ? list.findIndex(item => (item?.receipt ?? item)?.id === through) : -1;
+    if (at >= 0) return { list: list.slice(at + 1), after: null };
+    return { list, after: Number.isSafeInteger(after) ? after : null };
+}
+
 /**
- * `chronicle.noteFacts { after, minutes, present }`: what the receipts committed after revision `after` hold
+ * `chronicle.noteFacts { after, through, minutes, present }`: what the receipts committed after the note `through` (a
+ * receipt ID; else after revision `after`) hold
  * (fresh: Story Block still keeps their data), by story day, the clock at `minutes` before them:
  * `{ entries: [{ day, entry }], minutes, rev, settle }` (the clock and the last revision after them,
  * and the last time settle's jump among them; `present`: the scene they leave, from where the last note left it). The note command keeps the entries (digest.js).
  */
-export function noteFactsQuery(state, { after = null, minutes = null, present = null } = {}, tools) {
-    let list = [];
-    try { list = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { list = []; }
-    const walk = walkDays(list, { after: Number.isSafeInteger(after) ? after : null, minutes });
+export function noteFactsQuery(state, { after: rev = null, through = null, minutes = null, present = null } = {}, tools) {
+    let all = [];
+    try { all = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { all = []; }
+    const { list, after } = since(Array.isArray(all) ? all : [], rev, through);
+    const walk = walkDays(list, { after, minutes });
     const lasting = lastingByRev(state);
     // Who was in the scene: the note's own (`present`, where the last note left it), moved on day by day through the present receipts.
     let scene = Array.isArray(present) ? present : [];
@@ -73,9 +85,9 @@ export function noteFactsQuery(state, { after = null, minutes = null, present = 
     // The receipts that touched a quest or thread (their own commands' `data.quest`, their lines'
     // `data.thread`), for the quest history (quest.details), kept by the note before the trim.
     const quests = [];
-    for (const item of Array.isArray(list) ? list : []) {
+    for (const item of list) {
         const receipt = item?.receipt ?? item;
-        if (!receipt || !Number.isSafeInteger(receipt.rev) || (Number.isSafeInteger(after) && receipt.rev <= after)) continue;
+        if (!receipt || !Number.isSafeInteger(receipt.rev) || (after !== null && receipt.rev <= after)) continue;
         const thread = typeof receipt.data?.quest === 'string' ? receipt.data.quest : typeof receipt.data?.thread === 'string' ? receipt.data.thread : null;
         const said = typeof receipt.summary === 'string' ? receipt.summary.trim() : '';
         if (thread && said) quests.push({ rev: receipt.rev, thread, text: said });
@@ -84,5 +96,7 @@ export function noteFactsQuery(state, { after = null, minutes = null, present = 
             if (typeof item?.quest === 'string' && item.quest !== thread && said) quests.push({ rev: receipt.rev, thread: item.quest, text: said });
         }
     }
-    return { entries, quests, present: scene, minutes: walk.minutes, rev: revs.length ? Math.max(...revs) : null, settle: walk.settle ? { ...walk.settle } : null };
+    // `fresh`: whether any receipt came after the last note at all (the hook's test once a Re-read has made the revisions shorter).
+    const fresh = list.some(item => { const receipt = item?.receipt ?? item; return Boolean(receipt) && (after === null || (Number.isSafeInteger(receipt.rev) && receipt.rev > after)); });
+    return { entries, quests, present: scene, minutes: walk.minutes, rev: revs.length ? Math.max(...revs) : null, settle: walk.settle ? { ...walk.settle } : null, fresh };
 }

@@ -68,6 +68,23 @@ The day's world line for a lasting change is found by the receipt of the event t
 revision: the entry keeps `fire: { rev, by }` (the last pack event that changed it), written with its other fields, so a
 `world` line of the story or an edit of the reader after the fire does not hide the change on the day it happened.
 
+## The day facts and quest history the note keeps
+
+Before each reply, `chronicle.note` (`src/v2/chronicle/digest-parts/note.js`) keeps what the receipts since the last note
+hold: the day facts (`dayFacts["<day>.<rev>"]`) and the quest history (`questLog["<rev>"]`). It reads from the last
+note's own receipt, in chat order (`noted.through`, its receipt ID; `chronicle.noteFacts { through }`), not from a
+revision: a Re-read renumbers the receipts after the edited reply but keeps a note's receipt ID and moves it after the
+reply's new receipts, so the next note never reads again what an earlier note kept, nor files a reply's receipts under
+a later note. An older state (no `through`), or a note whose receipt is gone, reads by revision (`noted.rev`) as before;
+the digest's gap (`noted.gap`) keeps the same mark. A thread's outcome (`chronicle.threadOutcome`, inside a capture) is
+kept under its reply key (`<sid>.<n>`, `src/v2/reply-keys.js`) with its revision (`rev`), and the history is put in order
+by revision, never by a reply key (`days-parts/quest-log-order.js`).
+
+Known limit: an edited reply is never noted again. Its note is a kept block (it replays as stored), so what a Re-read of
+an edited reply adds is not in the day facts, the written digest or the quest history, and what it removed stays; the
+World screen's lists, read from the domains, show the edit. Tests: `tests/v2/chronicle/note-cursor.test.js` (the real
+host, compared with a fresh telling) and `note-cursor-units.test.js`.
+
 ## Tests
 
 `tests/v2/chronicle/lasting.test.js` (the command, the lock, keep, replay, the Journal) and `lasting-host.test.js` (on the
