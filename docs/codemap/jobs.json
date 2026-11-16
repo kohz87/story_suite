@@ -4,6 +4,7 @@
   "core/settings/schema.js": "Declares the current Story Suite settings schema version.",
   "core/settings/ui-defaults.js": "Holds the UI settings defaults, with the preview view off.",
   ".github/workflows/ci.yml": "The CI workflow: rules checks and the three package test jobs plus the cross-package suite job.",
+  "scripts/sync-redraw-copy.mjs": "Writes the generated Story Block copy of the redraw scheduler and, with --check, fails when it drifts from ui/runtime/redraw.js.",
   "scripts/checks/code-files.mjs": "Classifies code and test paths and lists repo code files via git.",
   "scripts/checks/count-lines.mjs": "Counts lines in source text without adding a line for a trailing newline.",
   "scripts/checks/file-size.mjs": "Parses the legacy-oversize list and checks file line counts against the 450-line limit.",

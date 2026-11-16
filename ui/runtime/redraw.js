@@ -129,7 +129,12 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
       target: section.target ?? null,
     };
     sections.set(id, entry);
-    if (isVisible(entry)) {
+    if (section.drawn === true) {
+      // Already on screen: remember what it shows, draw nothing until it changes.
+      lastDigest.set(id, stableStringify(entry.read ? entry.read() : undefined));
+      dirtyIds.delete(id);
+      staleIds.delete(id);
+    } else if (isVisible(entry)) {
       dirtyIds.add(id);
     } else {
       staleIds.add(id);
@@ -242,6 +247,7 @@ export function createRedraw({ port = null, schedule = defaultSchedule, initialT
     markDirty,
     changed,
     flush,
+    flushNow: flush,
     hold,
     pending,
     destroy,
