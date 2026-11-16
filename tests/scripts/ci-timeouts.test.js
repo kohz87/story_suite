@@ -61,7 +61,7 @@ test('every node --test run in CI sets --test-timeout=900000, never --test-force
 
 // node ignores --test-timeout after the globs, so CI repeats each package test command with the flag in front.
 // These tests keep each repeated command equal to its package.json script, so they cannot drift apart.
-const noFlag = (cmd) => cmd.replace(/ --test-timeout=\d+/g, '');
+const noFlag = (cmd) => cmd.replace(/ --test-timeout=\d+/g, '').replace(/ --test-shard=(\$\{\{ [^}]*\}\}|\S+)/g, '');
 const script = (file, name) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8')).scripts[name];
 const step = (job, name) => {
   const text = jobs().find(([n]) => n === job)?.[1] ?? '';

@@ -435,7 +435,7 @@ export function createTimelinePart(session, deps) {
     }
 
     return {
-        ownPrompt, storyClock, calendarLink, timeline, startTimeline, stopTimeline, definition, announceHosted, chatKeyOf,
+        ownPrompt, storyClock, calendarLink, timeline, headSettled, startTimeline, stopTimeline, definition, announceHosted, chatKeyOf,
         dossiersReady, listen, registerCardSettings, scenePresentNames, registerPublicPaths,
     };
 }

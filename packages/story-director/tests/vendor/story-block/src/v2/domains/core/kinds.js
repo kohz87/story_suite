@@ -4,17 +4,19 @@
 import { CORE_FEATURE } from '../../features.js';
 import { EXTRA_KINDS } from '../../extras.js';
 import { FEATURE } from '../inventory.js';
-import { WEATHER_CHARS, YOU_CHARS } from '../scene.js';
+import { WEATHER_CHARS, YOU_CHARS, YOU_SHORT_CHARS } from '../scene.js';
 
-/** The `~ you` grammar line: wearing and condition, and a rank under the pack's own word for it (`label`) when a pack gives one. */
-export function youGrammar(label = '') {
+/** The `~ you` grammar line: wearing and condition (with gear on, outfit, look and condition), and a rank under the pack's own word for it (`label`) when a pack gives one. */
+export function youGrammar(label = '', gear = false) {
+    // Gear on (B1.4): what is equipped comes from the gear; the story writes the clothes that are not gear and how {{user}} looks for now.
+    if (gear) return `~ you ${label ? `rank: ${label} | ` : ''}outfit: clothes {{user}} has on that are not gear (at most ${YOU_SHORT_CHARS} characters; armour and weapons come from Equipped) | look: how {{user}} looks right now, gone at the next move (at most ${YOU_SHORT_CHARS} characters) | condition: how {{user}} is (only when one changes; at most ${YOU_CHARS} characters)`;
     return `~ you ${label ? `rank: ${label} | ` : ''}wearing: what {{user}} has on | condition: how {{user}} is (only when one changes; each at most ${YOU_CHARS} characters)`;
 }
 
 export const CORE_KINDS = Object.freeze({
     item: Object.freeze({ grammar: '+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)' }),
-    coin: Object.freeze({ grammar: '+ coin 30 | from: who (- coin 5 | to: who when paid; whenever {{user}} is paid or pays in the story, even a few coins, write the coin line; one number, in the wallet\'s currency). Pay each find once. Do not repeat loot already paid in an earlier reply.' }),
-    place: Object.freeze({ grammar: '~ place Name | kind: settlement|wild|dungeon|… | region: wider area | with: who came along (the rest stay behind)' }),
+    coin: Object.freeze({ grammar: '+ coin 30 | from: who (- coin 5 | to: who when paid; whenever {{user}} is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.' }),
+    place: Object.freeze({ grammar: '~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)' }),
     // `after: ['place']`: a move leaves behind everyone it does not bring (scene.js setPlace), so a reply's present lines run behind its place line,
     // whatever order they were written in (registry captureEntry, capture-flow linesInOrder): the people the story adds at the new place stay.
     present: Object.freeze({ grammar: '+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)', after: Object.freeze(['place']) }),

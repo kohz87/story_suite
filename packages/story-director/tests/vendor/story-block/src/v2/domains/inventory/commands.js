@@ -16,7 +16,7 @@ import { wear, repair, gearWear, itemEquip, stow, restore, release } from './wea
 import { lootTake } from './loot.js';
 import {
     byReader, handStats, handSlot, kitOpen, holdBudget, remakeAsEquipment, guardReaderEdit, addDecision,
-    handPlace, handEdit, renameDecision, editStack, editPieces, setCarry,
+    handPlace, handEdit, wantsRepoint, repoint, renameDecision, editStack, editPieces, setCarry,
 } from './edit.js';
 import { readerCarry } from './lines.js';
 import { TOLD, createWalletCommands } from './commands/wallet.js';
@@ -135,8 +135,9 @@ export function createInventoryCommands(env) {
                     Object.assign(keep, { slot: null, stats: {}, stack: true });
                 }
             }
-            // A saved character's piece the reader set by hand keeps its own slot and bonus (still held to the rarity's points); with gear off the words are left out.
-            if (gear && payload.starting === true && open && keep.kind === 'equipment' && (slot || Object.keys(stats).length)) {
+            // A saved character's piece the reader set by hand keeps its own slot and bonus (still held to the rarity's points), with Gear on or off: the file's words are the
+            // piece's own, so turning Gear on later finds them (left out, the name's guess would speak instead).
+            if (payload.starting === true && open && keep.kind === 'equipment' && (slot || Object.keys(stats).length)) {
                 holdBudget(ctx, keep.rarity ?? 'common', stats);
                 if (slot) keep.slot = baseSlot(slot);
                 if (Object.keys(stats).length) keep.stats = stats;
@@ -148,7 +149,7 @@ export function createInventoryCommands(env) {
             if (gear && payload.starting !== true && keep.kind === 'equipment' && def.kind === 'equipment' && !def.slot) ctx.fail('REFUSED', fill(E.kitNoSlot, { name: def.name }));
             // (slot, bonus and putting on are for equipment: judged on the def the name means, which may be a pack's or the story's own)
             if (gear && payload.starting !== true && (slot || Object.keys(stats).length) && def.kind !== 'equipment') ctx.fail('INVALID', E.gearNeedsEquipment);
-            if (created && gear && def.id.startsWith('story/')) inv.defs[def.id].hand = true;
+            if (created && (gear || payload.starting === true) && def.id.startsWith('story/')) inv.defs[def.id].hand = true;
             guardReaderEdit(ctx, 'inventory.add', null, null, { def: def.id, witness: addDecision(prefix, payload, def.id) });
             readerCarry(ctx, [{ defId: def.id, qty }], owner);
             const stacks = grantInto(ctx, inv, def, qty, owner, note);
@@ -174,7 +175,10 @@ export function createInventoryCommands(env) {
                 if ((typeof payload.name === 'string' && cleanName(payload.name) !== original.name) || (payload.qty !== undefined && payload.qty !== group)) refuseBound(ctx, inv, stack);
             }
             // The reader's own gear (gear on): kind, slot, rarity and bonus of a piece they added by hand.
-            if (['kind', 'slot', 'rarity', 'stats'].some(key => payload[key] !== undefined)) handEdit(ctx, env, inv, stack, payload);
+            if (['kind', 'slot', 'rarity', 'stats'].some(key => payload[key] !== undefined)) {
+                if (wantsRepoint(env, inv, stack, payload)) repoint(ctx, inv, stack, payload);
+                else handEdit(ctx, env, inv, stack, payload);
+            }
             const oldName = original.name;
             const decision = typeof payload.name === 'string' ? { witness: renameDecision(inv, stack, payload, true), story: 1 } : null;
             let groupQty;

@@ -25,7 +25,7 @@ function chipRow(card, onPace) {
   if (chips.pace) {
     const p = chips.pace;
     out.push(chip({
-      label: `${p.kmDay} km/day`,
+      label: h('span', { class: 'pacet' }, `${p.kmDay} km/day`),
       icon: paceIcon(),
       title: p.why || null,
       tone: p.slowed ? 'slow' : null,

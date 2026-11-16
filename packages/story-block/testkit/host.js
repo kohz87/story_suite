@@ -75,7 +75,7 @@ export async function createHost(options = {}) {
     // `storeOptions` (checkpointEvery, receiptKeep, …): the real store's own thresholds, for tests that need checkpoints or trimmed receipts early.
     const makeStore = storeOptions && !fakes ? base => createStore({ ...base, ...storeOptions }) : createStore;
     const runtime = createRuntime({
-        ctx, core, modules, createStore: makeStore, createCommandBus, callModel, timelineFaults: options.timelineFaults ?? null, rpgLoad,
+        ctx, core, modules, createStore: makeStore, createCommandBus, callModel, timelineFaults: options.timelineFaults ?? null, rpgLoad, corePeople: options.people !== false,
         onBlocked: stOptions.onBlocked ?? null,
         notify: (reason, moduleId) => st.notices.push({ reason, moduleId }),
     });

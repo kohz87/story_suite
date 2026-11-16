@@ -84,7 +84,12 @@ export function edit(ctx, payload = {}) {
         atlas.keys[key] = place.id;   // the old name stays an alias
     }
     for (const field of ['layer', 'region', 'kind']) {
-        if (fields[field] === undefined || fields[field] === place[field]) continue;
+        if (fields[field] === undefined) continue;
+        if (field === 'region') {
+            if (fields[field]) place.regionBy = 'reader';
+            else delete place.regionBy;   // cleared: the pack's region applies again
+        }
+        if (fields[field] === place[field]) continue;
         place[field] = fields[field];
         changes.push(fields[field] ? `${field} ${fields[field]}` : `no ${field}`);
     }
