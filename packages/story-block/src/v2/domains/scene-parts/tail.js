@@ -21,7 +21,7 @@ export function sceneTail(state, { weather = false, you = false, rankLabel = '',
     }
     if (scene?.present?.length) lines.push(`Present: ${scene.present.join(', ')}`);
     if (you) {
-        const said = [...(rankLabel ? [['rank', rankLabel]] : []), ['wearing', 'wears'], ['condition', 'condition']]
+        const said = [...(rankLabel ? [['rank', rankLabel]] : []), ['wearing', 'wears'], ['condition', 'condition'], ['position', 'position']]
             .map(([part, word]) => [word, typeof scene?.you?.[part] === 'string' ? scene.you[part] : '']).filter(([, text]) => text);
         // "{{user}}: Guild rank …; wears …; condition …" (the pack's word for the Rank, only with a pack that gives one), only the parts that are set.
         if (said.length) lines.push(`{{user}}: ${said.map(([word, text]) => `${word} ${text}`).join('; ')}`);

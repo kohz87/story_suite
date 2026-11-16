@@ -39,8 +39,9 @@ export function changeYou(ctx, parts, { dropRank = false } = {}) {
         said.push(parts[part] ? `${part} ${parts[part]}` : `${part} cleared`);
     }
     const data = part => parts[part] === undefined ? now(part) : parts[part];
+    const place = (out, read) => (read('position') ? { ...out, position: read('position') } : out);   // position only when one is set
     const told = problem ? { problem } : {};
-    if (!said.length) return { summary: 'Your look stays.', data: { rank: now('rank'), wearing: now('wearing'), condition: now('condition'), same: true }, narrate: false, ...told };
+    if (!said.length) return { summary: 'Your look stays.', data: place({ rank: now('rank'), wearing: now('wearing'), condition: now('condition'), same: true }, now), narrate: false, ...told };
     scene.you = next;
-    return { summary: `Your look: ${said.join('; ')}.`, data: { rank: data('rank'), wearing: data('wearing'), condition: data('condition') }, narrate: false, ...told };
+    return { summary: `Your look: ${said.join('; ')}.`, data: place({ rank: data('rank'), wearing: data('wearing'), condition: data('condition') }, data), narrate: false, ...told };
 }
