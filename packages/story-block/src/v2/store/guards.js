@@ -75,7 +75,21 @@ export function createGuards(s, deps) {
 
     // A block with no metadata (a legacy block) never pins proof: only a guarded or proof block that holds the proof it
     // pins does (replayGuarded), so a hand-edited record cannot publish a proof by writing its pin on another block.
-    function replayLegacy(state, ops) {
+    // A claim the state before a block holds already is never made twice (REPLAY.md rule 4): the first holder wins, and the
+    // block (guarded or legacy) stays stored and off. `named()` gives the block's command names, asked only on a clash. The
+    // error is flagged so a Re-read skips such a kept block (one Problem) rather than refusing.
+    function claimHeld(state, keys, named) {
+        const held = state?.meta?.claims;
+        const taken = isObject(held) ? keys.find(key => Object.hasOwn(held, key)) : undefined;
+        if (taken === undefined) return;
+        const names = [...new Set(named().filter(name => typeof name === 'string' && name))];
+        const which = names.length ? `, so ${names.join(', ')} stays off` : '';
+        throw Object.assign(prerequisite(`claim already held (${taken})${which}`), { claimHeld: true });
+    }
+
+    // `receipts()`: the block's receipts (their command types name it in a Problem).
+    function replayLegacy(state, ops, receipts = () => []) {
+        claimHeld(state, claimKeys(ops), () => receipts().map(receipt => receipt?.type));
         const clock = clockWriteProblem(null, ops);
         if (clock) throw prerequisite(clock);
         if (ops.some(op => op && typeof op === 'object' && touchesProof(op))) throw prerequisite('it changes the record of proof pins (or the state around it), and a block with no proof of its own cannot');
@@ -139,9 +153,7 @@ export function createGuards(s, deps) {
         if (collides !== undefined) throw prerequisite(`proof ${collides.id} already belongs to a block that applied`);
         // A claim someone else holds already (a retried settlement, a block that woke up after its twin was stored)
         // is never paid twice: the block stays off.
-        const held = state?.meta?.claims;
-        const taken = isObject(held) ? span.claims.find(key => Object.hasOwn(held, key)) : undefined;
-        if (taken !== undefined) throw prerequisite(`claim already held (${taken})`);
+        claimHeld(state, span.claims, () => [span.operation?.type]);
         if (span.guard) {
             // The host's own check of the guard's epoch and rules hash against the timeline (docs/v2/TIMELINE.md), then the owner's.
             const gate = gateProblem(state, span.guard);
