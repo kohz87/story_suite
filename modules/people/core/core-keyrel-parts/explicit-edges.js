@@ -1,5 +1,5 @@
 /* NPC State Delta explicit edges: extracting stated relationships ("X is Y's sister") from a transcript as key-relationship edges. */
-import { cleanText, normalizeName } from '../../core-text.js';
+import { cleanText, normalizeName } from '../core-text.js';
 import { relationshipEdgeNpc } from './edges.js';
 
 function escapeRegexLiteral(value) {

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { dossierDetailProjection, lastRelationshipChangeHtml } from '../dossier-ui.js';
+import { dossierDetailProjection, lastRelationshipChangeHtml } from '../../modules/people/legacy/dossier-ui.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 const npc = {
@@ -45,7 +45,7 @@ test('the player card states when no change or only progress was recorded', () =
 
 test('the dossier layout keeps portrait emphasis, section jumps and compact dead cards', () => {
     const ui = dossierUiSource();
-    const experience = fs.readFileSync(new URL('../dossier-experience-styles.js', import.meta.url), 'utf8');
+    const experience = fs.readFileSync(new URL('../../modules/people/legacy/dossier-experience-styles.js', import.meta.url), 'utf8');
     // The portrait is the dial's centre (a tap opens the profile) and fills the profile's left column; a tap there opens it full size.
     assert.match(ui, /data-delta-screen="profile"/);
     assert.match(ui, /img\.delta-profile-image/);

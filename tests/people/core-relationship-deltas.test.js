@@ -9,7 +9,7 @@ import {
     normalizeNpcRecord,
     normalizeRelationshipCaps,
     applyRelationshipDelta,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('creates new NPC from baseline, applies deltas, and preserves portrait through scanner updates', () => {
     const state = { npcs: [], turn: 3 };

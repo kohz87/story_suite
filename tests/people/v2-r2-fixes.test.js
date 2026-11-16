@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-import { CAST_TAB_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { CAST_TAB_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import {
     PROMPT_NAME_MAX,
@@ -17,7 +17,7 @@ import {
     mergeScanResult,
     normalizeNpcRecord,
     setNpcArchived,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 // Re-break round 2 fixes: the hosted Cast tab and the other modules' tabs (R2-3), a sidecar that
 // could not be read (R2-5), names in the prompts (b5b r2-8) and terminal death (audit C-1).

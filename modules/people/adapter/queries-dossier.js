@@ -1,7 +1,7 @@
 // Dossier field copies and portrait URL helpers for the Story Suite v2 adapter. A pure part of
 // src/adapter/queries.js (same owner, moved without change); queries.js re-exports every public name it exported before.
 import { DOSSIER_FIELDS } from '../fields/registry.js';
-import { portraitFileSrc } from '../portrait-file.js';
+import { portraitFileSrc } from '../portrait/portrait-file.js';
 
 const RELATIONSHIP_KEYS = ['trust', 'affection', 'desire', 'tension'];
 

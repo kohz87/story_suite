@@ -1,6 +1,6 @@
 // The record of dossiers Delta has made for the living cast (Story Director's director.cast, read only) and its validation.
 import { FORBIDDEN_KEYS, isInt, isObject, MAX_RUNGS, NAME_MAX } from '../npc-meters-config.js';
-import { CAST_KEY, metWithEntry } from '../cast-dossier.js';
+import { CAST_KEY, metWithEntry } from '../../dossier/cast-dossier.js';
 
 // ---- the living cast: who Delta has made a dossier for (Story Director's director.cast, read only) ----
 

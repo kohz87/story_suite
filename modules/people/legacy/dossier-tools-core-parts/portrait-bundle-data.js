@@ -1,5 +1,5 @@
 /* NPC State Delta supporting tools: portrait file validation and the portable portrait settings and bundle summary shapes. */
-import { PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core-mechanics.js';
+import { PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../../core/core-mechanics.js';
 import { plain, safeNumber, clampText } from './values.js';
 
 const PORTRAIT_FILE_LIMIT = 16 * 1024 * 1024;

@@ -1,7 +1,7 @@
 /* NPC State Delta hosted tastes (role: hosted-tastes). A Refresh's answered tastes sent to the host as npc.taste. Moved from
    runtime-hosted.js without change; the factory takes the closures it read there. */
-import { replayScope } from '../runtime-scan-helpers.js';
-import { npcMatchesLabel } from '../core.js';
+import { replayScope } from '../../calls/runtime-scan-helpers.js';
+import { npcMatchesLabel } from '../../core/core.js';
 
 export function createTastes({ storySuiteV2Meters, chatHeadUnchanged, latestMessageId }) {
     // A Refresh's answered tastes (the target's row of `rows`: { tastes: [{ sign, item, from }] }) → npc.taste on the head reply the Refresh read, once the

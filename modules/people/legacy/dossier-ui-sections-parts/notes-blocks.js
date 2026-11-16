@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: the notes blocks shown inside other sections: lies told and what this person knows about others. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { storyDayText } from '../calendar.js';
 import { subhead } from './shared-section-bits.js';
 

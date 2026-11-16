@@ -2,8 +2,8 @@
    profile updates and relationship edges belong to a single-target request. Split from runtime-targeted.js;
    bodies are moved without change. */
 
-import { npcMatchesLabel, normalizeName } from './core.js';
-import { resolveNpcReference } from './social.js';
+import { npcMatchesLabel, normalizeName } from '../core/core.js';
+import { resolveNpcReference } from '../social/social.js';
 
 export function createTargetedScopePart() {
     function backfillScanMatchesTarget(npc, request) {

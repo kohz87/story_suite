@@ -1,6 +1,6 @@
 /* NPC State Delta key-relationship entries: the limit, compacting one entry, reading its subject and splitting it into parts. */
-import { compactSocialKeyRelationship } from '../../social.js';
-import { cleanText, cleanTextBoundary, normalizeName } from '../../core-text.js';
+import { compactSocialKeyRelationship } from '../../social/social.js';
+import { cleanText, cleanTextBoundary, normalizeName } from '../core-text.js';
 
 export const KEY_RELATIONSHIP_LIMIT = 8;
 

@@ -3,7 +3,7 @@
    runtime-scan.js with the factory holding the same getChatKey closure reference. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
-import { chatLineage, lineageCheckpointKey } from './branch.js';
+import { chatLineage, lineageCheckpointKey } from '../legacy/branch.js';
 
 export function createScanReplyPart(deps) {
     const { getChatKey } = deps;

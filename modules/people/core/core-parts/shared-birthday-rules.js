@@ -1,7 +1,7 @@
 // Shared birthday-rule helpers the prompt builders use: calendar-projected options and the birthday rule inserts.
 import * as mechanics from '../core-mechanics.js';
-import { calendarPromptContext, getActiveCalendarConfig } from '../calendar.js';
-import { birthdayCaptureRule, birthdayEvidenceInText, birthdayPromptRule } from '../birthday.js';
+import { calendarPromptContext, getActiveCalendarConfig } from '../../legacy/calendar.js';
+import { birthdayCaptureRule, birthdayEvidenceInText, birthdayPromptRule } from '../../birthday/birthday.js';
 import { birthdayPromptSource, calendarReference, calendarNpcProjection } from '../core-birthday.js';
 
 export function calendarPromptOptions(options = {}) {

@@ -2,15 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { dossierDetailProjection } from '../dossier-ui.js';
-import { setStoryClockSource } from '../calendar.js';
-import { DeltaDossierUi } from '../dossier-ui.js';
-import { boardHtml, boardTiles } from '../dossier-ui-board.js';
-import { libraryFaceHtml, libraryFootHtml, librarySearchHtml } from '../dossier-ui-library.js';
-import { dossierMenuHtml } from '../dossier-ui-header.js';
-import { dossierProfileHtml } from '../dossier-ui-profile.js';
-import { createScreenState, escapeAction, goBack, layoutFor, openNpc, openSection, parseScreen, screenSignature, setSection, showScreen, stepSection, swipeStep } from '../dossier-ui-screens.js';
-import { boardModel } from '../dossier-ui-view-model.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
+import { setStoryClockSource } from '../../modules/people/legacy/calendar.js';
+import { DeltaDossierUi } from '../../modules/people/legacy/dossier-ui.js';
+import { boardHtml, boardTiles } from '../../modules/people/legacy/dossier-ui-board.js';
+import { libraryFaceHtml, libraryFootHtml, librarySearchHtml } from '../../modules/people/legacy/dossier-ui-library.js';
+import { dossierMenuHtml } from '../../modules/people/legacy/dossier-ui-header.js';
+import { dossierProfileHtml } from '../../modules/people/legacy/dossier-ui-profile.js';
+import { createScreenState, escapeAction, goBack, layoutFor, openNpc, openSection, parseScreen, screenSignature, setSection, showScreen, stepSection, swipeStep } from '../../modules/people/legacy/dossier-ui-screens.js';
+import { boardModel } from '../../modules/people/legacy/dossier-ui-view-model.js';
 import { builtCss, rika, root, stubNode } from './stage1-dossier-ui.helpers.js';
 
 test('screens: back, section arrows, Esc order, swipe, layout and the signature a refresh keeps', () => {
@@ -163,9 +163,9 @@ test('the library face shows the mood (the dossier status when archived), the fo
 });
 
 test('phase 2 UI: mood bars, pull ring, gate wording, tags, redacted lies and secrets, tastes, drives, look note; none without data', async () => {
-  const { v2MetersProjection } = await import('../dossier-ui-meters.js');
-  const { sectionScreenHtml } = await import('../dossier-ui-sections.js');
-  const { dossierProfileHtml } = await import('../dossier-ui-profile.js');
+  const { v2MetersProjection } = await import('../../modules/people/legacy/dossier-ui-meters.js');
+  const { sectionScreenHtml } = await import('../../modules/people/legacy/dossier-ui-sections.js');
+  const { dossierProfileHtml } = await import('../../modules/people/legacy/dossier-ui-profile.js');
   const meters = v2MetersProjection({
     bars: [], rank: '', next: '', milestones: [], secrets: [],
     mood: { word: 'alarmed · tense', bars: { energy: 5, control: 1, max: 6 }, cause: 'trust dropped: Astra lied' },
@@ -240,7 +240,7 @@ test('the dial\'s no-portrait fallback is small initials in the suite font stack
 
 test('the dossier layout follows its own container width: container queries, one switch line, no window query, bar in the flow', async () => {
   const css = await builtCss();
-  const screens = await import('../dossier-ui-screens.js');
+  const screens = await import('../../modules/people/legacy/dossier-ui-screens.js');
   assert.match(css, /container:dsr \/ inline-size/);
   assert.match(css, new RegExp(`@container dsr \\(min-width: ${screens.TWO_PANE_MIN}px\\)`));
   assert.match(css, new RegExp(`@container dsr \\(max-width: ${screens.TWO_PANE_MIN - 0.02}px\\)`));

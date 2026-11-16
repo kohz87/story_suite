@@ -3,20 +3,20 @@
    once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
-import { REFRESH_CHANGED_FIELDS } from './src/fields/registry.js';
-import { storyDayAt, tieDayAt, currentExclusions, refreshMessageGate, activeChat } from './src/transcript.js';
-import { BACKFILL_RESPONSE_LENGTH, generateParsedNpcJson } from './src/scanner-request.js';
-import { buildDossierImportPrompt, mergeScanResult, protectTerminalNpc } from './core.js';
-import { secretEventsShown } from './core-prompts-capture.js';
-import { chatLineage } from './branch.js';
+import { REFRESH_CHANGED_FIELDS } from '../fields/registry.js';
+import { storyDayAt, tieDayAt, currentExclusions, refreshMessageGate, activeChat } from '../transcript/transcript.js';
+import { BACKFILL_RESPONSE_LENGTH, generateParsedNpcJson } from './scanner-request.js';
+import { buildDossierImportPrompt, mergeScanResult, protectTerminalNpc } from '../core/core.js';
+import { secretEventsShown } from '../core/core-prompts-capture.js';
+import { chatLineage } from '../legacy/branch.js';
 import { isScannerRoutingError } from './scanner-routing.js';
-import { getSettings, effectiveCustomFieldNames } from './runtime-settings.js';
+import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { replayScope, setNpcDossierScanIndicator, lineageMoved, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
 import { createTargetedRefreshPart } from './runtime-targeted-refresh.js';
 import { createTargetedBackfillPart } from './runtime-targeted-backfill.js';
-import { advanceCastAdmission } from './runtime-cast-sync.js';
-import { captureJournalEntry, recordAcceptedFill } from './runtime-narration.js';
+import { advanceCastAdmission } from '../runtime/runtime-cast-sync.js';
+import { captureJournalEntry, recordAcceptedFill } from '../runtime/runtime-narration.js';
 
 export function createTargetedPart(rt, deps) {
     const { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, commitBranchCheckpoint, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, forwardTastesToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, partyLevelList, persist, recordInlineCardsInState, recordScanDiagnostics, removeNpcInlineCardAtMessage, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, scenePresentAt, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection } = deps;

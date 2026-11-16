@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createEventRegistration } from '../runtime-entry-events.js';
+import { createEventRegistration } from '../../modules/people/runtime/runtime-entry-events.js';
 
 // CHAT_CHANGED cancels the scan of every cached chat; the cache must reach the split-out registration.
 test('CHAT_CHANGED listener cancels the scan operation of each cached chat key', async () => {

@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: the Right now section: where, doing, goal and condition, with the away and cast blocks above. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 import { castFromHtml, keyAwayHtml } from '../dossier-ui-catalog.js';
 import { subhead, updatedLineHtml } from './shared-section-bits.js';

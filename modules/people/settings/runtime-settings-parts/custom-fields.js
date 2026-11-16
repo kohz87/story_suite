@@ -1,6 +1,6 @@
 // The custom field names in force: the configured names plus Level while the host's RPG feature is on (holds the probe).
 
-import { normalizeCustomFieldNames } from '../core.js';
+import { normalizeCustomFieldNames } from '../../core/core.js';
 import { getSettings } from './get-settings.js';
 
 // The host's answer to "is Story Block's RPG feature on?", set by runtime-hosted.js; null (no host) means off.

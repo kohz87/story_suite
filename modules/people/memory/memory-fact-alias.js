@@ -2,7 +2,7 @@
 // are (never rehashed from the new name). For the same event key a tombstone (deleted/edited/evicted) beats an automatic duplicate, which is dropped with
 // its text; otherwise one entry is kept with the larger attempt count; different keys stay different. The floor is the more conservative (larger) one;
 // exact-text collisions and the five-slot order are then settled by the store.
-import { normalizeName } from '../core-text.js';
+import { normalizeName } from '../core/core-text.js';
 import { normalizeFactMemories } from './memory-fact-store.js';
 
 export function mergeAliasFacts(merged, a, b) {

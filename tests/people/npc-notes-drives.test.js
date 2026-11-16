@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     DRIVES, DRIVE_DEFAULT, DRIVE_RULE, growDrives, parseLever, driveEvidence, DRIVES_TEXT_MAX, readDrives, setDrives, seedDrives, strengthMultiplier, applyStrength, scaledInst, driveRows,
-} from '../src/npc-notes-drives.js';
+} from '../../modules/people/notes/npc-notes-drives.js';
 
 const allDefault = () => Object.fromEntries(DRIVES.map(drive => [drive.key, DRIVE_DEFAULT]));
 

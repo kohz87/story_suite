@@ -6,7 +6,7 @@ import {
     buildNpcPortraitPrompts,
     normalizePortraitPromptFormat,
     normalizePortraitSeed,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('portrait prompt builder uses visual dossier fields and excludes nonvisual profile prose', () => {
     const prompts = buildNpcPortraitPrompts({

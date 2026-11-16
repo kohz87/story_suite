@@ -2,14 +2,14 @@
    accessors, hydration revision metadata, freshness events, dirty marks and native-change notices.
    Split from runtime-hydration.js without change; the factory keeps the public exports. */
 
-import { replayScope } from './runtime-scan-helpers.js';
-import { normalizeAutomaticBackfillRequest } from './scan-context.js';
-import { normalizeNpcRecord, normalizeNpcCandidate, normalizeFormPortraitAssets, refreshCalendarAges, storyDateKey, withStoryDateMemo } from './core.js';
-import { BRANCH_LINEAGE_VERSION, ROLLBACK_JOURNAL_VERSION, normalizeUserDismissedGroups } from './branch.js';
-import { normalizeSocialGraph, reconcileSocialState } from './social.js';
-import { undurableNpcStateSnapshot } from './storage.js';
-import { portraitHasImage } from './src/portrait-file.js';
-import { getSettings } from './runtime-settings.js';
+import { replayScope } from '../calls/runtime-scan-helpers.js';
+import { normalizeAutomaticBackfillRequest } from '../calls/scan-context.js';
+import { normalizeNpcRecord, normalizeNpcCandidate, normalizeFormPortraitAssets, refreshCalendarAges, storyDateKey, withStoryDateMemo } from '../core/core.js';
+import { BRANCH_LINEAGE_VERSION, ROLLBACK_JOURNAL_VERSION, normalizeUserDismissedGroups } from '../legacy/branch.js';
+import { normalizeSocialGraph, reconcileSocialState } from '../social/social.js';
+import { undurableNpcStateSnapshot } from '../storage/storage.js';
+import { portraitHasImage } from '../portrait/portrait-file.js';
+import { getSettings } from '../settings/runtime-settings.js';
 
 export function installHydrationState(api, rt, deps) {
     const { BACKFILL_MAX_ATTEMPTS, checkPortraitFilesSoon, getChatKey, touchChatCache } = deps;

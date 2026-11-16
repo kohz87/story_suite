@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: the Mood section: the mood word, its meter rows, Recent changes and the Pull. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { changeStamp, wholeNumber } from '../dossier-ui-model.js';
 import { changeRowHtml, NO_REASON } from '../dossier-ui-relationship.js';
 import { MOOD_AXES, moodDescriptors, moodTile, possessiveWord, pullTile } from '../dossier-ui-view-model.js';

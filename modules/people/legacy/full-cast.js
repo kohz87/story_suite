@@ -1,6 +1,6 @@
 /* NPC State Delta optional full-cast scanning owner. */
 import { extension_settings, getContext } from '../../../extensions.js';
-import { npcParticipatesInExchange } from './scan-context.js';
+import { npcParticipatesInExchange } from '../calls/scan-context.js';
 
 const EXTENSION_NAME = 'npc_state_delta';
 const FULL_CAST_KEY = 'fullCastScanEveryTurn';

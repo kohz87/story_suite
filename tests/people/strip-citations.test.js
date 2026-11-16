@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stripMessageCitations } from '../core-text.js';
-import { buildInjection, createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../core.js';
-import { tagScanEvidence } from '../core-evidence.js';
-import { stripRecordCitations } from '../core-record.js';
+import { stripMessageCitations } from '../../modules/people/core/core-text.js';
+import { buildInjection, createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { tagScanEvidence } from '../../modules/people/core/core-evidence.js';
+import { stripRecordCitations } from '../../modules/people/core/core-record.js';
 
 const USER_SENTENCE = 'Young woman with a slight frame and an easily distressed demeanor';
 

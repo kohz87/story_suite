@@ -3,16 +3,16 @@
    relationship changes, secret events and hidden-note options Delta sends back, and the words for why no one shows as present. Built by index.js once per module instance with the shared
    runtime state and the controller functions it calls. Bodies are moved from index.js without change. */
 
-import { chatContext as getContext, markStands, refusedLooks, worth, relationshipChanges, replayScope, scanMoodNumbers, scopedAdapter } from './runtime-scan-helpers.js';
-import { replyScanned } from './scan-context.js';
-import { tieDayAt } from './src/transcript.js';
-import { normalizeRelationshipBaseline, isTerminalNpcDeath, npcMatchesLabel, storyMinuteText } from './core.js';
-import { defersArea, resolveDossierTarget } from './suite-handshake.js';
-import { awayNpcIds, findKeyEntry, isKey, keyView, normalizeKeyPeople, returnNote } from './src/key-people.js';
-import { castView, findCastPerson, normalizeCast } from './src/cast-dossier.js';
-import { getSettings, setRpgProbe } from './runtime-settings.js';
-import { sheetLevelOf } from './core-record.js';
-import { stage1Refresh } from './dossier-tools-core.js';
+import { chatContext as getContext, markStands, refusedLooks, worth, relationshipChanges, replayScope, scanMoodNumbers, scopedAdapter } from '../calls/runtime-scan-helpers.js';
+import { replyScanned } from '../calls/scan-context.js';
+import { tieDayAt } from '../transcript/transcript.js';
+import { normalizeRelationshipBaseline, isTerminalNpcDeath, npcMatchesLabel, storyMinuteText } from '../core/core.js';
+import { defersArea, resolveDossierTarget } from '../legacy/suite-handshake.js';
+import { awayNpcIds, findKeyEntry, isKey, keyView, normalizeKeyPeople, returnNote } from '../cast/key-people.js';
+import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier.js';
+import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
+import { sheetLevelOf } from '../core/core-record.js';
+import { stage1Refresh } from '../legacy/dossier-tools-core.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
 import { createTastes } from './runtime-hosted-parts/tastes.js';
 

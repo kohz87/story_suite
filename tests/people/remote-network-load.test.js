@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inspectNpcStateDataFile } from '../storage.js';
+import { inspectNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 // On a slow remote/mobile link every full sidecar transfer is felt: boundary checks must revalidate
 // (never read stale) but let an unchanged file come back as "304 Not Modified" without its body.

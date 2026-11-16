@@ -1,5 +1,5 @@
 // The grammar lines the host sends per kind and the kinds entries built from them.
-import { FEATURE_NOTES } from '../npc-meters-config.js';
+import { FEATURE_NOTES } from '../../meters/npc-meters-config.js';
 import { KINDS } from './handlers.js';
 
 // ---- the host's side: grammar lines, the label parser and the player's view ----

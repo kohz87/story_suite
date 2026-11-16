@@ -1,5 +1,5 @@
 // Appearance text typing: clause normalization and the split of appearance into core traits and clothing.
-import { cleanText } from '../core-text.js';
+import { cleanText } from '../../core/core-text.js';
 import { uniquePortraitParts } from './shared-parts.js';
 
 const PORTRAIT_CLOTHING_TERMS = /\b(?:dress|gown|tunic|shirt|blouse|vest|coat|cloak|jacket|robe|skirt|trousers|pants|shorts|boots?|shoes?|stockings?|gloves?|hat|hood|uniform|armou?r|badge|ribbons?|necklace|earrings?|belt|scarf|sweater|wool|leather|silk|linen|cotton|sleeves?|collar)\b/i;

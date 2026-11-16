@@ -4,12 +4,12 @@
 import { chatContext as getContext, awayFromReplay, replayScope, latestMessageId } from './runtime-scan-helpers.js';
 import { isScannerRoutingError } from './scanner-routing.js';
 import { automaticBackfillStillRelevant, backfillNeedsRequest } from './scan-context.js';
-import { recentTranscript, recentUserDevelopmentContext, currentExchangeTranscript, currentExclusions, storyDayAt, storyDaysForTranscript, refreshMessageGate } from './src/transcript.js';
-import { IMPORTANT_MEMORY_LIMIT, DEFAULT_RELATIONSHIP, inferNpcIdentityKind, npcCurrentlyAbsentInText, buildBackfillPrompt, buildProfileRefreshPrompt, extractExplicitKeyRelationshipEdges } from './core.js';
-import { getSettings, effectiveCustomFieldNames } from './runtime-settings.js';
-import { fillAllowed, FILL_MERGE_OPTION } from './appearance-fill.js';
+import { recentTranscript, recentUserDevelopmentContext, currentExchangeTranscript, currentExclusions, storyDayAt, storyDaysForTranscript, refreshMessageGate } from '../transcript/transcript.js';
+import { IMPORTANT_MEMORY_LIMIT, DEFAULT_RELATIONSHIP, inferNpcIdentityKind, npcCurrentlyAbsentInText, buildBackfillPrompt, buildProfileRefreshPrompt, extractExplicitKeyRelationshipEdges } from '../core/core.js';
+import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
+import { fillAllowed, FILL_MERGE_OPTION } from '../appearance/appearance-fill.js';
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
-import { backgroundRuleOn, captureJournalEntry } from './runtime-narration.js';
+import { backgroundRuleOn, captureJournalEntry } from '../runtime/runtime-narration.js';
 
 const { backfillScanMatchesTarget, rowContradictsTarget, soleRowMayBeTarget, transcriptMentionsBackfillTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 

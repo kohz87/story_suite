@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { HOSTED_FLAG, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { HOSTED_FLAG, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 function fakeDoc() {
     const dataset = {};

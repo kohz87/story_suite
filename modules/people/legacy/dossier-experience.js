@@ -4,7 +4,7 @@
  */
 import { activeChatKey, api, escapeHtml, flushDurably, plain, stage1Refresh, uiRoot } from './dossier-tools-core.js';
 import { exportNativeTools, openDiagnostics, openImportTools } from './dossier-tools.js';
-import { openPortraitTools } from './portrait-tools.js';
+import { openPortraitTools } from '../portrait/portrait-tools.js';
 import { currentNpc, lifeStateChoice, screenNpcId, setNodeTextIfChanged, setNodeValueIfChanged } from './dossier-experience-state.js';
 import { dossierMenuHtml } from './dossier-ui-header.js';
 export { lifeStateChoice, setNodeTextIfChanged };

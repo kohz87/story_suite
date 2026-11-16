@@ -1,6 +1,6 @@
 // Reading a pack's `People` field as species, gender and ages.
 
-import { normalizeAge, normalizeApparentAge, normalizeGender } from '../../core-identity.js';
+import { normalizeAge, normalizeApparentAge, normalizeGender } from '../../core/core-identity.js';
 import { FIELD_VALUE_MAX } from './limits-fields.js';
 import { clip } from './shared-text.js';
 

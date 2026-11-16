@@ -5,7 +5,7 @@ import {
     dossierFields,
     portraitUrl,
     safeImageUrl,
-} from '../src/storysuite-v2.js';
+} from '../../modules/people/storysuite-v2.js';
 import { PNG, WEBP, hosted, portraitDelta } from './storysuite-v2.helpers.js';
 
 // ---- queries ----

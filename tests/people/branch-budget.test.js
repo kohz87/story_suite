@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     BRANCH_LINEAGE_VERSION,
     BRANCH_SNAPSHOT_BUDGET_BYTES,
@@ -8,7 +8,7 @@ import {
     chatLineage,
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
-} from '../branch.js';
+} from '../../modules/people/legacy/branch.js';
 
 const user = turn => ({ is_user: true, is_system: false, name: 'User', mes: `user-${turn}` });
 const bot = turn => ({ is_user: false, is_system: false, name: 'Narrator', mes: `assistant-${turn}` });

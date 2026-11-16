@@ -1,9 +1,9 @@
 // Rules the scan, editor and mutations apply to the dossier state: stamping a manual edit, spotting a lineage move, clearing dismissed groups.
 
-import { storyDayAt } from '../src/transcript.js';
-import { stampNpcChanges } from '../src/relationship-pass.js';
-import { normalizeName } from '../core.js';
-import { firstLineageDivergence, clearUserDismissedGroupsFor } from '../branch.js';
+import { storyDayAt } from '../../transcript/transcript.js';
+import { stampNpcChanges } from '../../legacy/relationship-pass.js';
+import { normalizeName } from '../../core/core.js';
+import { firstLineageDivergence, clearUserDismissedGroupsFor } from '../../legacy/branch.js';
 import { latestReplyIndex } from './chat-positions.js';
 
 // The stamps for one of the reader's own edits: Delta's turn and the latest reply.

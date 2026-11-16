@@ -1,7 +1,7 @@
 /* NPC State Delta merging a scan result into the NPC list with appearance and terminal-death rules. */
 import * as mechanics from '../core-mechanics.js';
 import { stripRecordCitations } from '../core-record.js';
-import { APPEARANCE_MODEL_VERSION, carryOmittedPhysicalTraits, completeFormWithShared, normalizeAppearanceForms } from '../appearance.js';
+import { APPEARANCE_MODEL_VERSION, carryOmittedPhysicalTraits, completeFormWithShared, normalizeAppearanceForms } from '../../appearance/appearance.js';
 import { isTerminalNpcDeath, normalizeTerminalNpc, protectTerminalNpc } from '../terminal-lifecycle.js';
 import { lockedAppearance, applyModel, mergeAppearanceKnowledge } from './appearance-model.js';
 import { normalizeNpcRecord } from './records.js';

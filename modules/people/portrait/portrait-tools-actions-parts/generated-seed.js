@@ -1,5 +1,5 @@
 /* NPC State Delta portrait actions: reading, showing and resetting the generated portrait seed. */
-import { currentSessionIs } from '../dossier-tools-core.js';
+import { currentSessionIs } from '../../legacy/dossier-tools-core.js';
 
 export function portraitSeedFromOverlay(overlay) {
     const raw = String(overlay?.querySelector?.('#npc_state_delta_tools_seed')?.value ?? '').trim();

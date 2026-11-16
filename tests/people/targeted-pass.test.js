@@ -322,10 +322,10 @@ test('REFRESHCANCEL2: an unrelated write during the final freshness read survive
 });
 
 test('REFRESHCANCEL2: the revision is re-based only for this session\'s own writer, and the final read precedes the merge', () => {
-    const scanOps = fs.readFileSync(new URL('../runtime-scan-ops.js', import.meta.url), 'utf8');
+    const scanOps = fs.readFileSync(new URL('../../modules/people/calls/runtime-scan-ops.js', import.meta.url), 'utf8');
     assert.match(scanOps, /meta\.writerId === currentWriterId\(\) && meta\.latestObservedServerWriterId === currentWriterId\(\)/);
     assert.match(scanOps, /currentRevision !== baseRevision && ownWrite/);
-    const runner = fs.readFileSync(new URL('../runtime-targeted.js', import.meta.url), 'utf8');
+    const runner = fs.readFileSync(new URL('../../modules/people/calls/runtime-targeted.js', import.meta.url), 'utf8');
     assert.ok(runner.indexOf('final commit') < runner.indexOf('const latest = getChatState(chatKey);'), 'no await between reading the state and committing it');
     assert.match(runner, /!committed && isScannerRoutingError\(error\)/);
 });

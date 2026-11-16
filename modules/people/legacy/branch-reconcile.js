@@ -4,8 +4,8 @@
 // before. Never imports branch.js.
 
 import * as branchCore from './branch-core.js';
-import { portraitHasImage } from './src/portrait-file.js';
-import { prunePortraitAssetsInPlace } from './storage.js';
+import { portraitHasImage } from '../portrait/portrait-file.js';
+import { prunePortraitAssetsInPlace } from '../storage/storage.js';
 import { BRANCH_LINEAGE_VERSION, ROLLBACK_JOURNAL_VERSION } from './branch-constants.js';
 import { chatLineage, lineageCheckpointKeys, migrateLegacyLineage } from './branch-lineage.js';
 import { cloneNpcList } from './branch-util.js';

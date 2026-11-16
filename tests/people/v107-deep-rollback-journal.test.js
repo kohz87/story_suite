@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     ROLLBACK_JOURNAL_LIMIT,
     chatLineage,
@@ -8,9 +8,9 @@ import {
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
-import { normalizeSocialGraph } from '../social.js';
-import { prunePortraitAssetsForState } from '../storage.js';
+} from '../../modules/people/legacy/branch.js';
+import { normalizeSocialGraph } from '../../modules/people/social/social.js';
+import { prunePortraitAssetsForState } from '../../modules/people/storage/storage.js';
 
 function assistant(index) {
     return {

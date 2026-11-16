@@ -1,7 +1,7 @@
 /* Shared-prefix stripping and combining of an overall appearance with a specific one. A part of appearance-text.js (same owner, moved without change). */
 import { appearanceText } from './basics.js';
 import { appearanceClauses, sameAppearance } from './clauses.js';
-import { normalizeName } from '../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 
 export function regexEscape(value) { return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 export function stripOverallPrefix(value, overall, max) {

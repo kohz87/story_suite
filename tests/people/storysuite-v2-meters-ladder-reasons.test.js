@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { withSectionHtml } from '../dossier-ui-sections.js';
-import { projectDossierState } from '../dossier-ui.js';
-import { NO_REASON, recentChangeRowHtml } from '../dossier-ui-relationship.js';
-import { cutWords, eventLog, movesOf, nextEvent, readEvent, withEvidence } from '../src/npc-meters-pacing.js';
-import { logKept, reasonKept } from '../src/npc-meters-slice.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { withSectionHtml } from '../../modules/people/legacy/dossier-ui-sections.js';
+import { projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+import { NO_REASON, recentChangeRowHtml } from '../../modules/people/legacy/dossier-ui-relationship.js';
+import { cutWords, eventLog, movesOf, nextEvent, readEvent, withEvidence } from '../../modules/people/meters/npc-meters-pacing.js';
+import { logKept, reasonKept } from '../../modules/people/meters/npc-meters-slice.js';
 import { LOOSE, OWNER_LINES, OWNER_ROWS, SIEKE_TENSION, SIEKE_TRUST, TEMIWA_TRUST, eventOf, hostedForwardParts, ownerForward, ownerRecords, pacedSuite, rowOf } from './storysuite-v2-meters-ladder.helpers.js';
 
 // ---- 9. a reply with both a '~ npc' line and a one-pass relationshipDelta for the same person (owner's run, 12 Nov: main-reply-1755) ----
@@ -134,7 +134,7 @@ test('reason length (rule mark): a Re-read of a reply whose earlier read stored 
 });
 
 test('reason length: the dossier row wraps the whole reason (no CSS truncation on the Recent changes rows or the With card)', () => {
-    const root = fileURLToPath(new URL('..', import.meta.url));
+    const root = fileURLToPath(new URL('../../modules/people/legacy', import.meta.url));
     const css = fs.readFileSync(path.join(root, 'dossier-ui-styles-sections.js'), 'utf8');
     for (const name of ['.delta-chg-via', '.delta-chg > div', '.delta-chg']) {
         const rule = css.split('\n').find(line => line.includes(`${name} {`)) || '';
@@ -266,7 +266,7 @@ test('last three changes: Recent changes lists a chat from before the log by the
 });
 
 test('last three changes: the Recent changes rows wrap on phone, tablet and desktop (the shared row rule has no width or truncation clamp)', () => {
-    const root = fileURLToPath(new URL('..', import.meta.url));
+    const root = fileURLToPath(new URL('../../modules/people/legacy', import.meta.url));
     const css = fs.readFileSync(path.join(root, 'dossier-ui-styles-sections.js'), 'utf8');
     const row = css.split('\n').find(line => line.includes('.delta-chg {')) || '';
     assert.ok(row && !/text-overflow|line-clamp|nowrap|max-height/.test(row));

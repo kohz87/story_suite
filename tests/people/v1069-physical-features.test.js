@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyAppearanceUpdate } from '../appearance.js';
-import { buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt, buildScannerPrompt, createNpcRecord, currentPresentationText, mergeScanResult } from '../core.js';
+import { applyAppearanceUpdate } from '../../modules/people/appearance/appearance.js';
+import { buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt, buildScannerPrompt, createNpcRecord, currentPresentationText, mergeScanResult } from '../../modules/people/core/core.js';
 
 // She is introduced as "the half elf woman" and "she"; the story never names her.
 const INTRO = "Ari: When I arrived, I saw Kora's son looking at the half elf woman, the woman wasn't exactly tall, her long black hair falls like a waterfall to her waist but her attires looked torn and worn out.\n"

@@ -1,9 +1,9 @@
 // What a committed scan changed, read from the people before and after: relationship moves, refused looks and roles, scan mood numbers.
 
-import { normalizeName, normalizeRelationshipBaseline, npcMatchesLabel } from '../core.js';
-import { rejectedOverallLook } from '../appearance-update.js';
-import { physicalTraitSwaps } from '../appearance-physical.js';
-import { moodNumbers } from '../npc-mood.js';
+import { normalizeName, normalizeRelationshipBaseline, npcMatchesLabel } from '../../core/core.js';
+import { rejectedOverallLook } from '../../appearance/appearance-update.js';
+import { physicalTraitSwaps } from '../../appearance/appearance-physical.js';
+import { moodNumbers } from '../../meters/npc-mood.js';
 
 // What a committed scan tells the slice, read from the people before and after it (moved from runtime-hosted.js, bodies unchanged).
 // Each person's relationship moves since the scan began, as npc.adjust payloads; the tier the scanner gave the scan's newest event rides along

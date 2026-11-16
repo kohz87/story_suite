@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from '../src/fields/registry.js';
+import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from '../../modules/people/fields/registry.js';
 import {
     buildBackfillPrompt,
     buildInjection,
@@ -11,8 +11,8 @@ import {
     mergeScanResult,
     normalizeCustomFieldNames,
     normalizeNpcRecord,
-} from '../core.js';
-import { dossierDetailProjection } from '../dossier-ui.js';
+} from '../../modules/people/core/core.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const dead = (extra = {}) => normalizeNpcRecord({

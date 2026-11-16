@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildInjection, createNpcRecord } from '../core.js';
-import { createHost } from '../../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { buildInjection, createNpcRecord } from '../../modules/people/core/core.js';
+import { createHost } from '../../testkit/index.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { runHostScenario } from './helpers/host-scenario.js';
 
 // Story Block 2.18.0's `packs.castGear { name }` → { name, line: "Gear: A, B", items } or null. The narrator's entry for a pack cast member

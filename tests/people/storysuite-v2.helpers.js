@@ -1,4 +1,4 @@
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 // Story Suite v2 adapter (src/storysuite-v2.js): Delta registers with a Story Block v2 host when one
 // is on the page, and does nothing otherwise. A fake sdk, a fake Delta runtime, fake timers and a

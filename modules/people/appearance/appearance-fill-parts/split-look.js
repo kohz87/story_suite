@@ -1,6 +1,6 @@
 /* Splitting a look written into the clothes field: body clauses move to overallAppearance. A part of appearance-fill.js (same owner, moved without change). */
 import { eligible, patternOf } from './shared-basics.js';
-import { DURABLE_PROFILE_LIMITS } from '../core-mechanics.js';
+import { DURABLE_PROFILE_LIMITS } from '../../core/core-mechanics.js';
 import { appearanceClauses, appearanceText, combineAppearance } from '../appearance-text.js';
 import { currentPresentationText } from '../appearance-model.js';
 import { CHANGEABLE_PRESENTATION, PHYSICAL_TRAITS, physicalTraitKeys } from '../appearance-physical.js';

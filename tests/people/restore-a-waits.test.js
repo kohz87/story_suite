@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { adapterRig } from './helpers/participant-rig.js';
 import { runHostScenario } from './helpers/host-scenario.js';
-import { createParticipant, memoryVault } from '../src/storysuite-participant/index.js';
+import { createParticipant, memoryVault } from '../../modules/people/legacy/storysuite-participant/index.js';
 
 // ---- (8) the gate of the adapter ----
 

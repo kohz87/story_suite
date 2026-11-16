@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the current-value card and the birthday card. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 import { changedMark } from './change-marks.js';
 

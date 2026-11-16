@@ -7,14 +7,14 @@ import {
     liveLifecycleCandidateKeys,
     resolveDeletedLifecycleKeyFromPresence,
     resolveOwnedLifecycleKey,
-} from '../hardening-core.js';
-import { buildQualifiedChatKey } from '../identity.js';
+} from '../../modules/people/core/hardening-core.js';
+import { buildQualifiedChatKey } from '../../modules/people/core/identity.js';
 import {
     encodeStateFilePayload,
     pendingNpcStateDurabilityKeys,
     readNpcStateDataFile,
     writeNpcStateDataFile,
-} from '../storage.js';
+} from '../../modules/people/storage/storage.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const keyA = buildQualifiedChatKey('chat', 'A.png', 'Adventure');
@@ -121,7 +121,7 @@ test('runtime wiring uses pure owner-safe helpers and cheap host chat listing', 
 });
 
 test('hardening owner-wide work is per-key isolated and current-only', () => {
-    const source = fs.readFileSync(new URL('../hardening.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../../modules/people/core/hardening.js', import.meta.url), 'utf8');
     assert.match(source, /character rename preserved .* continued with other chats/);
     assert.match(source, /character deletion preserved .* continued with other chats/);
     assert.match(source, /runBoundedHardeningEvent/);
@@ -143,7 +143,7 @@ test('historical tombstone replay cannot poison an already-live renamed destinat
 
 test('lifecycle wrappers schedule retries for late background rejection and owner flush fails closed', () => {
     const index = runtimeSource();
-    const hardening = fs.readFileSync(new URL('../hardening.js', import.meta.url), 'utf8');
+    const hardening = fs.readFileSync(new URL('../../modules/people/core/hardening.js', import.meta.url), 'utf8');
     assert.match(index, /void operation\.catch\(error =>[\s\S]*scheduleLifecycleRetry/);
     assert.match(hardening, /void operation\.catch\(error =>[\s\S]*scheduleHardeningRetry/);
     assert.match(index, /NPC_STATE_OWNER_FLUSH_INCOMPLETE/);
@@ -152,7 +152,7 @@ test('lifecycle wrappers schedule retries for late background rejection and owne
 
 
 test('owner-wide partial failures are surfaced to the retry scheduler after successful keys are persisted', () => {
-    const hardening = fs.readFileSync(new URL('../hardening.js', import.meta.url), 'utf8');
+    const hardening = fs.readFileSync(new URL('../../modules/people/core/hardening.js', import.meta.url), 'utf8');
     assert.match(hardening, /NPC_STATE_OWNER_RENAME_PARTIAL/);
     assert.match(hardening, /NPC_STATE_OWNER_DELETE_PARTIAL/);
     assert.match(hardening, /failedKeys\.push\(\{ key: oldKey, error \}\)/);
@@ -161,7 +161,7 @@ test('owner-wide partial failures are surfaced to the retry scheduler after succ
 
 test('final review protects all rename destination representations and event instances are unique', () => {
     const index = runtimeSource();
-    const hardening = fs.readFileSync(new URL('../hardening.js', import.meta.url), 'utf8');
+    const hardening = fs.readFileSync(new URL('../../modules/people/core/hardening.js', import.meta.url), 'utf8');
     assert.match(index, /destinationRepresentations = \[destinationState, destinationCache\]/);
     assert.match(index, /const eventId = \+\+lifecycleEventSequence/);
     assert.match(index, /delete:chat:\$\{String\(chatId \|\| ''\)\}:\$\{eventId\}/);
@@ -172,7 +172,7 @@ test('final review protects all rename destination representations and event ins
 
 
 test('storage has a cross-tab lease fallback when Web Locks are unavailable', () => {
-    const storage = fs.readFileSync(new URL('../storage.js', import.meta.url), 'utf8');
+    const storage = fs.readFileSync(new URL('../../modules/people/storage/storage.js', import.meta.url), 'utf8');
     assert.match(storage, /async function withLocalStorageWriterLock/);
     assert.match(storage, /npc-state-delta-writer-lock:/);
     assert.match(storage, /CROSS_TAB_LOCK_LEASE_MS/);

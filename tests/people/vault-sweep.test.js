@@ -2,7 +2,7 @@
 // 30-day grace, and refuses deletion when the reference scan is incomplete. The sweep is one-shot and removes only the planned candidates.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_KEEP_NEWER_THAN_MS, createVaultSweep } from '../src/storysuite-participant/vault-sweep.js';
+import { DEFAULT_KEEP_NEWER_THAN_MS, createVaultSweep } from '../../modules/people/legacy/storysuite-participant/vault-sweep.js';
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = 100 * DAY;

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { developmentScaleReady } from '../core-mechanics.js';
+import { developmentScaleReady } from '../../modules/people/core/core-mechanics.js';
 
 const REASON = 'Sustained academy training and repeated practice developed a polished formal cadence.';
 

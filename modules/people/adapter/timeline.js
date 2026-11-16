@@ -5,13 +5,13 @@
 // A part of the adapter closure: createTimelinePart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. No SillyTavern import.
 
-import { resolveDossierTarget } from '../../suite-handshake.js';
-import { FEATURE_STAGES, MILESTONE_KIND, NPC_KIND } from '../npc-meters.js';
-import { metersCardScreen } from '../npc-meters-screen.js';
+import { resolveDossierTarget } from '../legacy/suite-handshake.js';
+import { FEATURE_STAGES, MILESTONE_KIND, NPC_KIND } from '../meters/npc-meters.js';
+import { metersCardScreen } from '../meters/npc-meters-screen.js';
 import { createPublicPathsDefinition } from '../public-paths.js';
-import { fileVault } from '../storysuite-participant/index.js';
+import { fileVault } from '../legacy/storysuite-participant/index.js';
 import { createIdentity } from './identity.js';
-import { createStorageRow, REFERENCED_QUERY } from '../storysuite-participant/storage-row.js';
+import { createStorageRow, REFERENCED_QUERY } from '../legacy/storysuite-participant/storage-row.js';
 
 const EVENTS = Object.freeze({
     settingsMounted: 'npc-state-delta:settings-mounted',

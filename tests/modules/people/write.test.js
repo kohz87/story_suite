@@ -2,11 +2,11 @@
 // a bad view INVALID (portraits as image bytes, a bad socialGraph), the receipt is not a reader edit, an equal hash needs no send.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../../testkit/index.js';
-import { hashJson } from '../../../../../core/replay.js';
-import { readRecord } from '../../../../../core/persist.js';
-import { replyEdits } from '../../../../../ui/legacy/reply-cards.js';
-import { isPeopleView, validatePeople } from '../../../src/v2/domains/people/validate.js';
+import { createHost } from '../../../testkit/index.js';
+import { hashJson } from '../../../core/replay.js';
+import { readRecord } from '../../../core/persist.js';
+import { replyEdits } from '../../../ui/legacy/reply-cards.js';
+import { isPeopleView, validatePeople } from '../../../modules/people/domain/validate.js';
 
 async function peopleHost(t) {
     const host = await createHost();

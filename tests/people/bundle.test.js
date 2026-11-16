@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     decodeNpcStateBundle,
     encodeNpcStateBundle,
     mergeImportedDossierState,
-} from '../bundle.js';
+} from '../../modules/people/bundle/bundle.js';
 
 function makePortraitDataUrl(bytes = [0x52, 0x49, 0x46, 0x46, 0x01, 0x02, 0x03]) {
     return `data:image/webp;base64,${Buffer.from(bytes).toString('base64')}`;

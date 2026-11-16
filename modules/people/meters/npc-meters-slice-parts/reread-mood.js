@@ -1,6 +1,6 @@
 // What a Re-read keeps of the mood: the stored form of a leaf, the mood write and its history, and whether the earlier read had a mood.
 import { isObject, leafText, own, readLeaf } from '../npc-meters-config.js';
-import { decayMood, nextMoodLog } from '../../npc-mood.js';
+import { decayMood, nextMoodLog } from '../npc-mood.js';
 
 // A Re-read of a reply (the host gives ctx.standing: the story as it stood after that reply's earlier read) gives the reply's mood only where that
 // state already had one on this person: a reply written before the feature was on is read again as it was; a reply written with it on keeps

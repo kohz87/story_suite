@@ -1,5 +1,5 @@
 // One chat message cleaned to a `Speaker: text` line (empty for a hidden or empty message).
-import { stripUiNoise } from '../../core.js';
+import { stripUiNoise } from '../../core/core.js';
 import { readContext } from './source.js';
 
 export function cleanMessage(message) {

@@ -8,7 +8,7 @@ import {
     createNpcRecord,
     selectRelevantNpcs,
     scoreNpcRelevance,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('selects recently relevant NPCs but injection is strictly presence-gated', () => {
     const yunyun = createNpcRecord('Yunyun'); yunyun.lastSeenTurn = 10; yunyun.mood = 'embarrassed'; yunyun.present = true; yunyun.personality = 'proud but earnest'; yunyun.speech = 'formal when nervous'; yunyun.mannerisms = ['boasts when embarrassed']; yunyun.keyRelationships = ['Megumin — friend / rival | competitive but loyal'];
@@ -216,7 +216,7 @@ test('v0.2.10 RP injection exposes one qualitative relationship lens and no raw 
 });
 
 test('v0.2.12 hidden social graph affects salience but never leaks graph machinery or unresolved slots into RP injection', async () => {
-    const { normalizeSocialGraph } = await import('../social.js');
+    const { normalizeSocialGraph } = await import('../../modules/people/social/social.js');
     const brina = createNpcRecord('Brina');
     const liza = createNpcRecord('Liza', [brina.id]);
     brina.present = true;

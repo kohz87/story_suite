@@ -9,9 +9,9 @@ import {
     fingerprintMessage,
     lineageCheckpointKeys,
     setBranchProvenanceHint,
-} from '../branch.js';
-import { buildQualifiedChatKey } from '../identity.js';
-import { makeNpcStateRecoveryFileName, readNpcStateDataFile, writeNpcStateDataFile } from '../storage.js';
+} from '../../modules/people/legacy/branch.js';
+import { buildQualifiedChatKey } from '../../modules/people/core/identity.js';
+import { makeNpcStateRecoveryFileName, readNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const user = (mes, send_date = '') => ({ is_user: true, is_system: false, name: 'User', mes, send_date });
@@ -78,7 +78,7 @@ test('hydration repairs a stale settings revision token from the authoritative s
 });
 
 test('lifecycle hardening does not monkey-patch the shared SillyTavern event emitter', () => {
-    const hardening = fs.readFileSync(new URL('../hardening.js', import.meta.url), 'utf8');
+    const hardening = fs.readFileSync(new URL('../../modules/people/core/hardening.js', import.meta.url), 'utf8');
     assert.doesNotMatch(hardening, /installLegacyLifecycleRegistrationGuard|source\.on\s*=/);
     assert.doesNotMatch(hardening, /events\.(?:CHAT_RENAMED|CHAT_DELETED|GROUP_CHAT_DELETED)/);
 });
@@ -130,7 +130,7 @@ test('recovery filenames remain unique across same-millisecond calls', () => {
 
 
 test('owner-wide retired canonical predecessors are deleted only after settings become durable', () => {
-  const hardening = fs.readFileSync(new URL('../hardening.js', import.meta.url), 'utf8');
+  const hardening = fs.readFileSync(new URL('../../modules/people/core/hardening.js', import.meta.url), 'utf8');
   const rename = hardening.slice(hardening.indexOf('async function moveCharacterOwnerState'), hardening.indexOf('async function retireCharacterOwner'));
   assert.ok(rename.indexOf('await saveSettingsNow()') >= 0);
   assert.ok(rename.indexOf('deleteNpcStateDataFile(predecessor.pointer') > rename.indexOf('await saveSettingsNow()'));

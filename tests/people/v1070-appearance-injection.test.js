@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildInjection, createNpcRecord } from '../core.js';
+import { buildInjection, createNpcRecord } from '../../modules/people/core/core.js';
 
 const PHYSICAL = 'Petite (~160 cm), narrow willowy frame, slender arms and limbs, remarkably generous bust; straight ink-black hair to her hips; faintly pointed, swept-back half-elven ears.';
 const OUTFIT = 'threadbare boiled gray linen shift torn at the shoulder seams, stained with water rings, barley chaff and meal dust on collarbones and cheeks.';

@@ -1,5 +1,5 @@
 // Imported-dossier identity: name keys, identity matching and fresh import ids.
-import { normalizeName } from '../core.js';
+import { normalizeName } from '../../core/core.js';
 
 export function npcKeys(npc) {
     return [...new Set([npc?.name, ...(Array.isArray(npc?.aliases) ? npc.aliases : [])]

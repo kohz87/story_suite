@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the living-cast projection and its "From the cast" block markup. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 
 // (the living cast) What the dossier shows for a person Delta made from the pack's cast: { badge, packName, firstMet, goal, routine,

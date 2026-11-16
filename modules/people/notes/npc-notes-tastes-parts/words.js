@@ -1,6 +1,6 @@
 // Taste words: citation-free cleaning and cutting, the taste identity key and the content words of a text.
-import { clean, slug } from '../npc-meters-config.js';
-import { stripMessageCitations } from '../../core-text.js';
+import { clean, slug } from '../../meters/npc-meters-config.js';
+import { stripMessageCitations } from '../../core/core-text.js';
 import { TASTE_LIMITS } from './shared-limits.js';
 
 const STOP_WORDS = new Set([

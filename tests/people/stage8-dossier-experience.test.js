@@ -1,15 +1,15 @@
-import { manualLifeStateRecord } from '../terminal-lifecycle.js';
+import { manualLifeStateRecord } from '../../modules/people/core/terminal-lifecycle.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { lifeStateChoice, setNodeTextIfChanged } from '../dossier-experience.js';
+import { lifeStateChoice, setNodeTextIfChanged } from '../../modules/people/legacy/dossier-experience.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { faceRingVar, keyFirstRows, libraryFaceHtml, libraryRows } from '../dossier-ui-library.js';
+import { faceRingVar, keyFirstRows, libraryFaceHtml, libraryRows } from '../../modules/people/legacy/dossier-ui-library.js';
 
 const source = [
-    fs.readFileSync(fileURLToPath(new URL('../dossier-experience.js', import.meta.url)), 'utf8'),
-    fs.readFileSync(fileURLToPath(new URL('../dossier-experience-styles.js', import.meta.url)), 'utf8'),
+    fs.readFileSync(fileURLToPath(new URL('../../modules/people/legacy/dossier-experience.js', import.meta.url)), 'utf8'),
+    fs.readFileSync(fileURLToPath(new URL('../../modules/people/legacy/dossier-experience-styles.js', import.meta.url)), 'utf8'),
 ].join('\n');
 
 test('manual life-state projection distinguishes unknown alive terminal death and the short-lived manual dead shape', () => {
@@ -79,7 +79,7 @@ test('launcher remains direct-to-dossier and is presented as a circular 48px flo
 });
 
 test('dossier library is a grid of tone-ringed faces; the old collapsible cast rail is gone', () => {
-    const styles = fs.readFileSync(fileURLToPath(new URL('../dossier-ui-styles-board.js', import.meta.url)), 'utf8');
+    const styles = fs.readFileSync(fileURLToPath(new URL('../../modules/people/legacy/dossier-ui-styles-board.js', import.meta.url)), 'utf8');
     assert.match(styles, /\.delta-library-faces \{ display:grid; grid-template-columns:repeat\(auto-fill,minmax\(clamp\(150px,17cqw,260px\),1fr\)\)/);
     assert.match(styles, /\.delta-library-av \{[^}]*box-shadow:0 0 0 2px var\(--dsk-tile\), 0 0 0 3\.5px var\(--rc\)/);
     assert.doesNotMatch(source, /delta-cast-card|delta-cast-rail-wrap|delta-rail-arrow|libraryCollapsed|ensureLibraryChrome/);
@@ -131,7 +131,7 @@ test('settings are grouped by task and extension-wide backup diagnostics live in
 });
 
 test('cohesive experience keeps selected dossier actions routed through the maintained Portrait tool', () => {
-    const header = fs.readFileSync(fileURLToPath(new URL('../dossier-ui-header.js', import.meta.url)), 'utf8');
+    const header = fs.readFileSync(fileURLToPath(new URL('../../modules/people/legacy/dossier-ui-header.js', import.meta.url)), 'utf8');
     assert.match(source, /delta-header-slot/);
     assert.match(source, /dossierMenuHtml\(npcId/);
     assert.match(header, /npc-state-delta-refresh-chat/);

@@ -1,10 +1,10 @@
 // Shared synthetic host for the relationship pacing tests: the production adapter on Story Block's testkit, two dossiers
 // and a stand-in for Story Director's clock (`director.time`). suite() returns say / swipe / setDay and readers.
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../../src/storysuite-v2.js';
-import { DEFAULT_RELATIONSHIP_CAPS } from '../../core.js';
-import { fromFlatDay, normalizeAllowance } from '../../src/relationship-pacing.js';
+import { createHost } from '../../../testkit/index.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../../modules/people/storysuite-v2.js';
+import { DEFAULT_RELATIONSHIP_CAPS } from '../../../modules/people/core/core.js';
+import { fromFlatDay, normalizeAllowance } from '../../../modules/people/legacy/relationship-pacing.js';
 import { seedPeople } from './seed-people.js';
 
 export const DAY = 1440;

@@ -4,23 +4,23 @@
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { isScannerRoutingError } from './scanner-routing.js';
 import { readAheadOf, replyScanned, settleScan, storyTextsForAdmission } from './scan-context.js';
-import { recentTranscript, recentUserDevelopmentContext, currentExchangeUserDevelopmentContext, currentExchangeTranscript, skippedExchangesWindow, recentReplyIds, activeReplyIds, activeChat, currentExchangeProse, storyDayAt, tieDayAt, currentExclusions, refreshMessageGate } from './src/transcript.js';
-import { FULL_SCAN_RESPONSE_LENGTH, SCAN_RESPONSE_LENGTH, generateParsedNpcJson } from './src/scanner-request.js';
-import { applyFocusedRelationshipDecisions, runFocusedRelationshipPass, suppressPrimaryRelationshipForFocusedDecisions } from './src/relationship-pass.js';
-import { prepareFullWindowRelationshipPayload, buildScannerPrompt, mergeScanResult, tagScanEvidence, resolveInterimIdentityPromotions, hasCompactMeguminWorldState, extractExplicitKeyRelationshipEdges } from './core.js';
-import { secretEventsShown } from './core-prompts-capture.js';
-import { chatLineage, fingerprintMessage, lineageCheckpointKey } from './branch.js';
-import { getSettings, effectiveCustomFieldNames } from './runtime-settings.js';
+import { recentTranscript, recentUserDevelopmentContext, currentExchangeUserDevelopmentContext, currentExchangeTranscript, skippedExchangesWindow, recentReplyIds, activeReplyIds, activeChat, currentExchangeProse, storyDayAt, tieDayAt, currentExclusions, refreshMessageGate } from '../transcript/transcript.js';
+import { FULL_SCAN_RESPONSE_LENGTH, SCAN_RESPONSE_LENGTH, generateParsedNpcJson } from './scanner-request.js';
+import { applyFocusedRelationshipDecisions, runFocusedRelationshipPass, suppressPrimaryRelationshipForFocusedDecisions } from '../legacy/relationship-pass.js';
+import { prepareFullWindowRelationshipPayload, buildScannerPrompt, mergeScanResult, tagScanEvidence, resolveInterimIdentityPromotions, hasCompactMeguminWorldState, extractExplicitKeyRelationshipEdges } from '../core/core.js';
+import { secretEventsShown } from '../core/core-prompts-capture.js';
+import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../legacy/branch.js';
+import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { clockNow, lineageMoved, notify, replayScope, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
 import { createCatchUpPart } from './runtime-catchup.js';
 import { capCaptureAdmissions, queueScanFollowUps } from './runtime-scan-backfill.js';
 import { applyStaleLifecycleAfterScan } from './runtime-scan-stale.js';
 import { createScanReplyPart } from './runtime-scan-reply.js';
 import { createAssistantHandlerPart } from './runtime-scan-handler.js';
-import { normalizeAllowance } from './src/relationship-pacing.js';
+import { normalizeAllowance } from '../legacy/relationship-pacing.js';
 import { seedNewAdmissions, notifyStaleCleanup } from './runtime-scan-parts/capture-result.js';
-import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from './runtime-narration.js';
-import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from './src/memory-fact-scan.js';
+import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from '../runtime/runtime-narration.js';
+import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';
 export function createScanPart(rt, deps) {
     const { attachGeneratedSecrets, beginScanOperation, castList, clearInlineCardsAtMessage, commitBranchCheckpoint, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyAwayScanOptions, partyLevelList, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordInlineCardsInState, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scanInlineNpcIds, scannerPromptOptions, scanOperationCurrent, scanScenePresent, scenePresentAt, setChatState, storySuiteV2Meters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which

@@ -1,6 +1,6 @@
 /* NPC State Delta portrait target resolution: which forms an NPC has and which portrait a form shows. */
-import { api } from '../dossier-tools-core.js';
-import { portraitSrc } from '../src/portrait-file.js';
+import { api } from '../../legacy/dossier-tools-core.js';
+import { portraitSrc } from '../portrait-file.js';
 
 export function npcForms(npc) {
     return (Array.isArray(npc?.appearanceForms) ? npc.appearanceForms : []).map(form => String(form?.name || '').trim()).filter(Boolean);

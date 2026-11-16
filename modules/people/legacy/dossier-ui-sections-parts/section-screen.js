@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: one whole section screen: the header, then the body of the section picked by its id. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { sectionHeaderHtml, sectionTitle } from './section-header.js';
 import { moodSectionHtml } from './mood-section.js';
 import { nowSectionHtml } from './now-section.js';

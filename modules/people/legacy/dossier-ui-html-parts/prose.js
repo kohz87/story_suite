@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: plain list and paragraph markup. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 
 function listHtml(items, empty = 'None established yet.') {

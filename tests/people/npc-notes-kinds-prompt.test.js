@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { noteKinds } from '../src/npc-notes-kinds.js';
-import { tastesText, mergeRefreshTastes, readTastes } from '../src/npc-notes-tastes.js';
+import { noteKinds } from '../../modules/people/notes/npc-notes-kinds.js';
+import { tastesText, mergeRefreshTastes, readTastes } from '../../modules/people/notes/npc-notes-tastes.js';
 import { suite } from './helpers/pacing-suite.js';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { FEATURE_NOTES } from '../src/npc-meters-config.js';
-import { projectDossierState } from '../dossier-ui-catalog.js';
-import { dossierProfileHtml } from '../dossier-ui-profile.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { FEATURE_NOTES } from '../../modules/people/meters/npc-meters-config.js';
+import { projectDossierState } from '../../modules/people/legacy/dossier-ui-catalog.js';
+import { dossierProfileHtml } from '../../modules/people/legacy/dossier-ui-profile.js';
 import { ON, oren, crowded } from './npc-notes-kinds.helpers.js';
 
 const exampleOf = grammar => /e\.g\. ([^)]+)\)$/.exec(grammar)?.[1];
@@ -29,7 +29,7 @@ test('notes grammar: each kind says plainly when to write it and carries one exa
     assert.equal(JSON.parse(o.lies).length, 1, 'the lie example wrote a lie leaf');
     assert.equal(JSON.parse(o.knows).length, 1);
     assert.ok(o.tastes && o.ties, 'the taste and tie examples wrote their leaves');
-    const { createNpcPart } = await import('../src/npc-meters.js');
+    const { createNpcPart } = await import('../../modules/people/meters/npc-meters.js');
     const milestone = createNpcPart({ settings: () => ({}), present: () => [], feature: () => true }).kinds.milestone.grammar;
     assert.match(milestone, /when a bond changes for good; e\.g\. \+ milestone Person A — a promise was kept\)$/);
 });
@@ -86,7 +86,7 @@ test('notes tail: the cue is sent in a reply with nobody present (a quiet travel
 });
 
 test('notes tail: under a tight tail budget (the run\'s 550 tokens, here 60 with a crowded section) the host still sends the cue (the meters line is the one that goes)', async () => {
-    const { assemble } = await import('../../../core/prompt.js');
+    const { assemble } = await import('../../core/prompt.js');
     const s = await suite({ allowance: null, features: ON });
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);

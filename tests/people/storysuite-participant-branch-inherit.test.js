@@ -4,7 +4,7 @@
 // its dossiers and its parent's checkpoints. A new chat that is not a branch mints its line as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createParticipant, memoryVault } from '../src/storysuite-participant/index.js';
+import { createParticipant, memoryVault } from '../../modules/people/legacy/storysuite-participant/index.js';
 import { freshState, npc } from './helpers/participant-rig.js';
 
 const HEAD = { ok: true, headHash: 'a'.repeat(64), cursor: { sid: 'sr_1', swipeKey: 'sw_1', block: 'bl_1', op: 1, rev: 1 }, source: { sid: 'sr_1', swipeKey: 'sw_1', evidence: 'e', ordinal: 0 } };

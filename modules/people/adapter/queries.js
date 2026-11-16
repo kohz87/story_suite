@@ -6,12 +6,12 @@
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. Pure apart from the DOM it
 // is given: no SillyTavern import.
 
-import { normalizeRelationshipMilestones, normalizeRelationshipProgress } from '../../core-relationship-model.js';
-import { resolveDossierTarget } from '../../suite-handshake.js';
-import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../npc-meters.js';
-import { normalizeLimits, presetCatalog } from '../npc-meters-presets.js';
+import { normalizeRelationshipMilestones, normalizeRelationshipProgress } from '../core/core-relationship-model.js';
+import { resolveDossierTarget } from '../legacy/suite-handshake.js';
+import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../meters/npc-meters.js';
+import { normalizeLimits, presetCatalog } from '../meters/npc-meters-presets.js';
 import { RELATIONSHIP_KEYS, dossierFields, portraitUrl } from './queries-dossier.js';
-import { storyMinuteText } from '../../calendar.js';
+import { storyMinuteText } from '../legacy/calendar.js';
 import { createDirectorQueriesPart } from './queries-director.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './queries-dossier.js';

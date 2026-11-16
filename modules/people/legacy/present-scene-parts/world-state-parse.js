@@ -1,5 +1,5 @@
 // Reading a World State block: its NPC sections and who it says is present or off-screen.
-import { normalizeName } from '../core-mechanics.js';
+import { normalizeName } from '../../core/core-mechanics.js';
 import { PLACEHOLDER, RULE } from './shared-patterns.js';
 import { cleanLine, plain } from './shared-text.js';
 

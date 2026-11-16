@@ -5,21 +5,21 @@ import {
     createNpcRecord,
     mergeScanResult,
     applyStaleNpcLifecycle,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 import {
     encodeNpcStateBundle,
     mergeImportedDossierState,
-} from '../bundle.js';
+} from '../../modules/people/bundle/bundle.js';
 import {
     decodeDeltaNativeBundle,
     nativeStateForTarget,
     prepareNativeImport,
-} from '../native-transfer.js';
+} from '../../modules/people/transfer/native-transfer.js';
 import {
     reconcileSocialState,
     normalizeSocialGraph,
     SOCIAL_GRAPH_EDGE_LIMIT,
-} from '../social.js';
+} from '../../modules/people/social/social.js';
 
 function emptyGraph() {
     return { version: 1, edges: [], unresolved: [] };

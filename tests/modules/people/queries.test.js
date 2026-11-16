@@ -2,8 +2,8 @@
 // paths only) and the meters from the bonds. They answer the head after a swipe and a delete because they read the store, never a cache.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../../testkit/index.js';
-import { peopleQueries } from '../../../src/v2/domains/people/queries.js';
+import { createHost } from '../../../testkit/index.js';
+import { peopleQueries } from '../../../modules/people/domain/queries.js';
 
 const person = (id, name, extra = {}) => ({ id, name, ...extra });
 const view = {

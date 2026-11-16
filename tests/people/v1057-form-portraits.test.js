@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { appearanceFingerprint, createNpcRecord, normalizeFormPortraitAssets, normalizeNpcRecord } from '../core.js';
-import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../bundle.js';
-import { prepareNativeImport } from '../native-transfer.js';
-import { pruneFormPortraitAssetsForState } from '../storage.js';
-import { dossierDetailProjection } from '../dossier-ui.js';
+import { appearanceFingerprint, createNpcRecord, normalizeFormPortraitAssets, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { prepareNativeImport } from '../../modules/people/transfer/native-transfer.js';
+import { pruneFormPortraitAssetsForState } from '../../modules/people/storage/storage.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAaX2RUAAAAAASUVORK5CYII=';
 const shifter = (extra = {}) => normalizeNpcRecord({

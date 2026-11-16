@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the portrait image or its initials placeholder. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 import { imageSourceAttribute } from './portrait-refs.js';
 

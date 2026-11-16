@@ -4,7 +4,7 @@ import {
     normalizeRelationshipEvidence,
     npcMatchesLabel,
     relationshipAxisEvidenceGrounded,
-} from '../../core.js';
+} from '../../core/core.js';
 
 export function transcriptMentionsNpcRecord(transcript, npc) {
     const haystack = ` ${normalizeName(transcript)} `;

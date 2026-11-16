@@ -4,10 +4,10 @@
 // participant and the `npc.identity` query; src/storysuite-v2.js wires them the same way (storysuite-participant-parity and -selection run that).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { hashJson } from '../../../core/replay.js';
-import { MODULE_ID, createParticipant, memoryVault } from '../src/storysuite-participant/index.js';
-import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
+import { createHost } from '../../testkit/index.js';
+import { hashJson } from '../../core/replay.js';
+import { MODULE_ID, createParticipant, memoryVault } from '../../modules/people/legacy/storysuite-participant/index.js';
+import { isTerminalNpcDeath } from '../../modules/people/core/terminal-lifecycle.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const npc = (id, name, extra = {}) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });

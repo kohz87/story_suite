@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dossierRowNodes, emptyCastHtml } from '../story-block-tabs.js';
+import { dossierRowNodes, emptyCastHtml } from '../../modules/people/legacy/story-block-tabs.js';
 import { fakeDocument } from './helpers/fake-dom.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';

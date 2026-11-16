@@ -13,8 +13,8 @@ import {
     normalizeScanNpc,
     returnShape,
     setActiveCalendarConfig,
-} from '../core.js';
-import { RETURN_KEYS, RETURN_SHAPES } from '../src/fields/registry.js';
+} from '../../modules/people/core/core.js';
+import { RETURN_KEYS, RETURN_SHAPES } from '../../modules/people/fields/registry.js';
 
 // Cleanup steps 12-13 (user-approved prompt changes): context caps at the stored limits, the one-pass
 // rules' fixed Stage 4 / birthday rules and role words, *State keys in backfill and import, and the

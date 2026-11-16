@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     applyManualKeyRelationshipEdit,
     normalizeSocialGraph,
     reconcileSocialState,
-} from '../social.js';
+} from '../../modules/people/social/social.js';
 
 function stateWith(...npcs) {
     return { npcs, candidates: [], dismissed: [], socialGraph: normalizeSocialGraph(), turn: 1 };

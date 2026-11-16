@@ -1,5 +1,5 @@
 // Imported dossier record handling: the import report, manual-lock preservation and source reply numbers.
-import { LOCKED_FIELD_KEYS } from '../src/dossier-edit.js';
+import { LOCKED_FIELD_KEYS } from '../../dossier/dossier-edit.js';
 
 export function initImportReport(report) {
     if (!report || typeof report !== 'object') return null;

@@ -6,7 +6,7 @@ import {
     destructiveMutationSettled,
     firstNarrativeDivergence,
     narrativeLineage,
-} from '../destructive-settlement-core.js';
+} from '../../modules/people/core/destructive-settlement-core.js';
 
 function user(mes) { return { is_user: true, is_system: false, mes }; }
 function assistant(mes) { return { is_user: false, is_system: false, mes }; }
@@ -141,9 +141,9 @@ test('chat switch cancels a pending destructive settlement and timeout fails clo
 });
 
 test('runtime wiring loads the settlement adapter after the canonical index and listens only to destructive/chat-change events', () => {
-    const bootstrap = fs.readFileSync(new URL('../bootstrap.js', import.meta.url), 'utf8');
-    const adapter = fs.readFileSync(new URL('../destructive-settlement.js', import.meta.url), 'utf8');
-    const runtime = JSON.parse(fs.readFileSync(new URL('../runtime-modules.json', import.meta.url), 'utf8'));
+    const bootstrap = fs.readFileSync(new URL('../../modules/people/legacy/bootstrap.js', import.meta.url), 'utf8');
+    const adapter = fs.readFileSync(new URL('../../modules/people/core/destructive-settlement.js', import.meta.url), 'utf8');
+    const runtime = JSON.parse(fs.readFileSync(new URL('../../modules/people/runtime/runtime-modules.json', import.meta.url), 'utf8'));
     assert.match(bootstrap, /await import\('\.\/index\.js'\);[\s\S]*await import\('\.\/destructive-settlement\.js'\)/);
     assert.match(adapter, /MESSAGE_DELETED[\s\S]*controller\.schedule\('delete'/);
     assert.match(adapter, /MESSAGE_EDITED[\s\S]*controller\.schedule\('edit'/);

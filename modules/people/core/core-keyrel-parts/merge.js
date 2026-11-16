@@ -1,5 +1,5 @@
 /* NPC State Delta key-relationship merging: subject equivalence and merging updates into a person's list, evicting the weakest tie when full. */
-import { normalizeName } from '../../core-text.js';
+import { normalizeName } from '../core-text.js';
 import { KEY_RELATIONSHIP_LIMIT, compactKeyRelationshipEntry, keyRelationshipSubject } from './entries.js';
 import { readTieRows } from './tie-rows.js';
 

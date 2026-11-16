@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { bytesToBase64, encodeStateFilePayload, inspectNpcStateDataFile, writeNpcStateDataFile } from '../storage.js';
+import { bytesToBase64, encodeStateFilePayload, inspectNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { runHostScenario } from './helpers/host-scenario.js';
 
@@ -43,7 +43,7 @@ const birthdayCast = () => Array.from({ length: 30 }, (_, i) => ({
 }));
 
 test('1.10.1 story date: one clock read per normalize pass, the same dossiers as reading it per dossier', async () => {
-    const { normalizeNpcRecord, setStoryClockSource, withStoryDateMemo, applyNpcStateCommand } = await import('../core.js');
+    const { normalizeNpcRecord, setStoryClockSource, withStoryDateMemo, applyNpcStateCommand } = await import('../../modules/people/core/core.js');
     let reads = 0;
     setStoryClockSource(() => { reads += 1; return { minutes: MINUTES_611_06_15, calendar: GREGORIAN_CLOCK }; });
     try {

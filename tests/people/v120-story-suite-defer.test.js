@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {
     announceNpcStateDelta,
     externalCalendar,
-} from '../suite-handshake.js';
-import { buildInjection, getActiveCalendarConfig, setActiveCalendarConfig, setExternalCalendarSource, stripUiNoise } from '../core.js';
-import { deterministicCalendarBirthday } from '../calendar.js';
+} from '../../modules/people/legacy/suite-handshake.js';
+import { buildInjection, getActiveCalendarConfig, setActiveCalendarConfig, setExternalCalendarSource, stripUiNoise } from '../../modules/people/core/core.js';
+import { deterministicCalendarBirthday } from '../../modules/people/legacy/calendar.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 import { fresh, runHostScenario } from './v120-story-suite.helpers.js';

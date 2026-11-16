@@ -2,7 +2,7 @@
 import {
     calendarPromptContext,
     normalizeCalendarConfig,
-} from '../calendar.js';
+} from '../../legacy/calendar.js';
 import { activeOrProvided } from './shared-config.js';
 
 export function birthdayEvidenceInText(value) {

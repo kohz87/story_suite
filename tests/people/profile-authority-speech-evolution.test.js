@@ -4,7 +4,7 @@ import {
     buildInjection,
     createNpcRecord,
     mergeScanResult,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 function speechUpdate(npc, evidence, speech, {
     state = 'evolve',

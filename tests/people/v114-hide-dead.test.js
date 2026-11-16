@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { chooseDossierSelection, dossierIndexProjection, filterDossierIndex } from '../dossier-ui.js';
+import { chooseDossierSelection, dossierIndexProjection, filterDossierIndex } from '../../modules/people/legacy/dossier-ui.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 const rows = [

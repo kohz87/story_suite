@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LINEAGE_ID, hydrateIdentity, memoryVault, restoredState, selectionBehind, selectionMaxBehind, storedTimeline, timelineOf } from '../src/storysuite-participant/index.js';
+import { LINEAGE_ID, hydrateIdentity, memoryVault, restoredState, selectionBehind, selectionMaxBehind, storedTimeline, timelineOf } from '../../modules/people/legacy/storysuite-participant/index.js';
 import { behindSetup, handleFor, names, npc, setup } from './storysuite-participant.helpers.js';
 
 test('the query reads the ids from the chat\'s state: a state with its ids answers at once (a reload), one without hydrates behind the first ask', async () => {
@@ -272,7 +272,7 @@ test('a head selection at the exact parent installs; a reader\'s restore far bac
 
 test('the run data: the first reply\'s checkpoint is told for the swipe of the sixth reply, the fifth reply\'s is not (when the run data is here)', async t => {
     const { readFile } = await import('node:fs/promises');
-    const { chatLineage } = await import('../branch.js');
+    const { chatLineage } = await import('../../modules/people/legacy/branch.js');
     const dir = process.env.SWIPECHK_FILES;
     if (!dir) { t.skip('SWIPECHK_FILES (the run data folder) is not set'); return; }
     let chat; let first; let fifth; let live;

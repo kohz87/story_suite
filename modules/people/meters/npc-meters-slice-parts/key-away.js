@@ -1,6 +1,6 @@
 // The memory of a key person's last absence (Story Director's director.keyPeople, read only) and its validation.
 import { isInt, isObject } from '../npc-meters-config.js';
-import { isKey, memoryKey, RECENT_REPLIES } from '../key-people.js';
+import { isKey, memoryKey, RECENT_REPLIES } from '../../cast/key-people.js';
 
 // ---- key people: the memory of the last absence (Story Director's director.keyPeople, read only) ----
 //

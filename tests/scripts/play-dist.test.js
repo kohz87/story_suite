@@ -18,9 +18,9 @@ before(() => {
   put(source, 'packages/story-block/assets/font.woff2', 'font');
   put(source, 'packages/story-block/host.css', '@import url(\'./src/look.css\');\n');
   put(source, 'packages/story-director/index.js', 'globalThis.storyDirector = 1;\n');
-  put(source, 'packages/npc-state-delta/bootstrap.js', "import { getContext } from '../../../extensions.js';\nawait import('./part.js');\nglobalThis.npcState = getContext;\n");
+  put(source, 'modules/people/legacy/bootstrap.js', "import { getContext } from '../../../extensions.js';\nawait import('./part.js');\nglobalThis.npcState = getContext;\n");
   put(source, 'packages/npc-state-delta/part.js', "import { getContext } from '../../../../extensions.js';\nglobalThis.npcHost = getContext;\n");
-  put(source, 'packages/npc-state-delta/style.css', '.npc { color: blue; }\n');
+  put(source, 'modules/people/legacy/style.css', '.npc { color: blue; }\n');
   put(source, 'ui/st-entry.js', "globalThis.preview = new URL('./', import.meta.url).href;\n");
   put(source, 'ui/css/next-hide.css', '.next { display: none; }\n');
   out = path.join(source, 'out');
@@ -94,7 +94,7 @@ test('the install folder is an option: parseArgs reads it, and the host depth fo
 test('the stylesheet imports the host stylesheet from where the source has it: the old package path, or ui/legacy after the move', async () => {
   const moved = fs.mkdtempSync(path.join(os.tmpdir(), 'play-dist-moved-'));
   try {
-    for (const file of ['core/boot/boot.js', 'ui/legacy/director/index.js', 'packages/npc-state-delta/bootstrap.js', 'ui/st-entry.js']) put(moved, file, '\n');
+    for (const file of ['core/boot/boot.js', 'ui/legacy/director/index.js', 'modules/people/legacy/bootstrap.js', 'ui/st-entry.js']) put(moved, file, '\n');
     put(moved, 'ui/legacy/view/host.css', '@import url(\'./glass.css\');\n');
     put(moved, 'ui/legacy/view/glass.css', '.glass { color: red; }\n');
     const to = path.join(moved, 'out');

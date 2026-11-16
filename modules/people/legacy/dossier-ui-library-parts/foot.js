@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the library foot bar, its static count and the search box. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 
 // The bar under every other screen: it goes back to the library ("▸ DOSSIER LIBRARY · 10 NPCs").
 export function libraryFootHtml(count = 0) {

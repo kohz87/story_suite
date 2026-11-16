@@ -2,11 +2,11 @@
    second half of the window.NPCStateDelta surface split from index.js. Built by index.js with the controller closure;
    index.js still assigns and freezes the combined object in its original property order. */
 
-import { readAheadOf } from './scan-context.js';
-import { activeReplyIds } from './src/transcript.js';
-import { chatContext, inReplay } from './runtime-scan-helpers.js';
-import { normalizeAllowance } from './src/relationship-pacing.js';
-import { effectiveCustomFieldNames } from './runtime-settings.js';
+import { readAheadOf } from '../calls/scan-context.js';
+import { activeReplyIds } from '../transcript/transcript.js';
+import { chatContext, inReplay } from '../calls/runtime-scan-helpers.js';
+import { normalizeAllowance } from '../legacy/relationship-pacing.js';
+import { effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 
 const quietKeys = new Set(['timeline', 'catchUp']);
 

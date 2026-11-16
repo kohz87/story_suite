@@ -1,6 +1,6 @@
 /* NPC State Delta dossier view-model part: the data of the board's section tiles: Right now, Ties, Past and Secrets. */
 import { plain, stringList } from '../dossier-ui-model.js';
-import { parseKeyRelationshipEntry } from '../social-bonds.js';
+import { parseKeyRelationshipEntry } from '../../social/social-bonds.js';
 import { tieTone } from '../dossier-ui-bond-tone.js';
 import { object } from './shared-object.js';
 import { bondTone, boardTone } from './bond-tones.js';

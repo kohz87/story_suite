@@ -1,5 +1,5 @@
 /* Which NPCs the relationship map shows, with their status, and the bonds between them. */
-import { parseKeyRelationshipEntry, resolveNpcReference } from '../social.js';
+import { parseKeyRelationshipEntry, resolveNpcReference } from '../../social/social.js';
 import { DESKTOP_NODE_CAP } from './span-and-caps.js';
 import { lensValue } from './lenses.js';
 

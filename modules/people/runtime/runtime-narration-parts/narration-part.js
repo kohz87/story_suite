@@ -1,11 +1,11 @@
 // The narration capture part: arming, receiving, holding, stripping and taking the one-pass block per reply, plus the capture statistics.
 
 import { getContext } from '../../../../extensions.js';
-import { extractNarrationCapture, parseNarrationCapture } from '../core.js';
-import { chatLineage, lineageCheckpointKey } from '../branch.js';
-import { getSettings } from '../runtime-settings.js';
-import { narrationCaptureEnabled } from '../runtime-scan-helpers.js';
-import { salvageScannerJson } from '../src/scanner-request.js';
+import { extractNarrationCapture, parseNarrationCapture } from '../../core/core.js';
+import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
+import { getSettings } from '../../settings/runtime-settings.js';
+import { narrationCaptureEnabled } from '../../calls/runtime-scan-helpers.js';
+import { salvageScannerJson } from '../../calls/scanner-request.js';
 
 export function createNarrationPart(rt, deps) {
     const { getChatKey, storySuiteV2Meters, updateInjection } = deps;

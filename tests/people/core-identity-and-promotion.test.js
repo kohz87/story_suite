@@ -4,7 +4,7 @@ import {
     createNpcRecord,
     mergeScanResult,
     resolveInterimIdentityPromotions,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('matches alias to existing NPC instead of duplicating', () => {
     const npc = createNpcRecord('Luna');
@@ -218,7 +218,7 @@ test('name collisions: the alias consolidation pass keeps a surname-alias pair o
 });
 
 // Card-only ghost: a name only the greeting's World State roster or a hidden Notebook note holds is never admitted.
-import { storyTextsForAdmission } from '../scan-context.js';
+import { storyTextsForAdmission } from '../../modules/people/calls/scan-context.js';
 const GREETING = 'Mist over Bluewatch, and Astra waits at the gate.\n<Blocks><World_State>\n**📡 Off-Screen:**\n* Watch-Captain Edda Rorke - Counting a short garrison\n</World_State></Blocks>';
 const REPLY1 = 'The guard nods at you.\n<Blocks><Notebook>\nSecret: the toll is forged.\nHidden from: Astra, Edda Rorke, the reader\nComes out when: Astra speaks directly with Watch-Captain Edda Rorke\n</Notebook><CYOA>\n1. Ask about the toll\n</CYOA></Blocks>';
 const ghostRow = name => ({ npcs: [{ name, identityKind: 'proper_name', dossierSignal: 'meaningful', present: false, worldActive: true }] });
@@ -250,7 +250,7 @@ test('an existing ghost dossier keeps updating, no storyTexts means no check', (
 });
 
 // Live run 3: "leader in the gambeson" (a description the scanner wrote for an unnamed man) became a dossier at the second sighting.
-import { isDescriptivePhrase } from '../core-identity.js';
+import { isDescriptivePhrase } from '../../modules/people/core/core-identity.js';
 test('a descriptive phrase is not admitted as a person; names, role labels and uncased scripts are', () => {
     const row = name => ({ npcs: [{ name, identityKind: 'proper_name', dossierSignal: 'meaningful', present: true, sameIndividual: true }] });
     let state = { npcs: [], candidates: [], turn: 1 };

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { READ_AHEAD_MAX, readAheadOf, replyScanned, settleScan } from '../scan-context.js';
-import { activeReplyIds, recentReplyIds, skippedExchangesWindow, useTranscriptSource } from '../src/transcript.js';
-import { restoreSnapshotIntoState, snapshotBranchState } from '../branch-core.js';
-import { mergeImportedDossierState } from '../bundle.js';
+import { READ_AHEAD_MAX, readAheadOf, replyScanned, settleScan } from '../../modules/people/calls/scan-context.js';
+import { activeReplyIds, recentReplyIds, skippedExchangesWindow, useTranscriptSource } from '../../modules/people/transcript/transcript.js';
+import { restoreSnapshotIntoState, snapshotBranchState } from '../../modules/people/legacy/branch-core.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 
 // The chat: reply k is message 2k (message 0 is the opening); user messages sit between.
 const chatOf = replies => {

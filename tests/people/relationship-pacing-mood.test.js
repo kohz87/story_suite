@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { validateNpcSlice, createNpcPart } from '../src/npc-meters.js';
-import { applyEvents, easeAxis, restMood, restingMood } from '../npc-mood.js';
-import { stepPull, samePlace } from '../npc-instincts.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { validateNpcSlice, createNpcPart } from '../../modules/people/meters/npc-meters.js';
+import { applyEvents, easeAxis, restMood, restingMood } from '../../modules/people/meters/npc-mood.js';
+import { stepPull, samePlace } from '../../modules/people/meters/npc-instincts.js';
 import { DAY, suite } from './helpers/pacing-suite.js';
 import { MOOD_ON, axes, clockTo, moodSuite, plain, recordOf, world } from './relationship-pacing.helpers.js';
 
@@ -172,7 +172,7 @@ test('pull trace (run 3): a hook names its giver, and the thread counts its own 
 });
 
 test('pull trace (run 3): Pull and Mood reach the prompt as kept lines (after the Changes cue), and survive a tight tail budget', async () => {
-    const { assemble } = await import('../../../core/prompt.js');
+    const { assemble } = await import('../../core/prompt.js');
     const s = await moodSuite();
     await s.setDay(1);
     await s.say(['~ place Market | street | Dunmere', '~ npc Oren | trust: +1']);
@@ -190,7 +190,7 @@ test('pull trace (run 3): Pull and Mood reach the prompt as kept lines (after th
 });
 
 test('pull + mood + cue + another module\'s kept line, tailBudget 550: all reach the prompt, the other module\'s kept line stays, the tail is under budget; a spent cap keeps the cue and gives up Pull and Mood first', async () => {
-    const { assemble, estimateTokens } = await import('../../../core/prompt.js');
+    const { assemble, estimateTokens } = await import('../../core/prompt.js');
     async function run(keptTokens) {
         const s = await moodSuite();
         await s.setDay(1);
@@ -217,7 +217,7 @@ test('pull + mood + cue + another module\'s kept line, tailBudget 550: all reach
 });
 
 test('run-3 shape, tailBudget 550, 1/2/3 present people with a Pull: the cue and the first Pull reach the prompt, another module\'s kept line stays, a line over the felt cap is optional', async () => {
-    const { assemble, estimateTokens } = await import('../../../core/prompt.js');
+    const { assemble, estimateTokens } = await import('../../core/prompt.js');
     const record = (name, extra) => ({ name, meters: { trust: 5, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [], turn: { reply: 0, from: {} }, day: 5, ...extra });
     const awe = 'first time at River wall, Highmark Capital';
     const shapes = {

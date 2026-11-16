@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the appearance forms disclosure with its per-form portraits. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { imageSourceAttribute } from './portrait-refs.js';
 import { proseHtml } from './prose.js';
 

@@ -1,7 +1,7 @@
 // Recording branch checkpoints and the parent anchor on the branch state.
 
 import * as branchCore from '../branch-core.js';
-import { prunePortraitAssetsInPlace } from '../storage.js';
+import { prunePortraitAssetsInPlace } from '../../storage/storage.js';
 import { BRANCH_LINEAGE_VERSION, BRANCH_SNAPSHOT_MAX_BYTES } from '../branch-constants.js';
 import { chatLineage, lineageCheckpointKeys, migrateLegacyLineage } from '../branch-lineage.js';
 import { utf8Bytes } from '../branch-util.js';

@@ -1,5 +1,5 @@
 // The stored ties record: reading a JSON text into a valid ties object and writing it back as canonical text.
-import { npcKey } from '../npc-meters-config.js';
+import { npcKey } from '../../meters/npc-meters-config.js';
 import { TIE_TAGS, TIES_MAX_PEOPLE, ordered, isPlainObject } from './shared-tags.js';
 
 export const TIES_TEXT_MAX = 1600;

@@ -1,6 +1,6 @@
 // Branch state snapshots: the history limit, taking a snapshot of the narrative state and restoring one into a state.
-import { normalizeSocialGraph } from '../social.js';
-import { isPortraitFileRecord } from '../src/portrait-file.js';
+import { normalizeSocialGraph } from '../../social/social.js';
+import { isPortraitFileRecord } from '../../portrait/portrait-file.js';
 import { cloneNpcList } from './shared-npc-records.js';
 
 export const BRANCH_HISTORY_LIMIT = 160;

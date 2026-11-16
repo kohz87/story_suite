@@ -1,6 +1,6 @@
 /* NPC State Delta citation stripping: removes scanner message citations from a stored record, keeping locks and pack words. */
 import { stripMessageCitations } from '../core-text.js';
-import { TEXT_FIELDS } from '../src/fields/registry.js';
+import { TEXT_FIELDS } from '../../fields/registry.js';
 
 // (stage 73) Message citations ("[m1, m2]") the scanner's model appended to a field are not dossier text: normalizeNpcRecord strips them from
 // every stored text field and list item, so a saved dossier is cleaned the next time it is normalized. An evidence item keeps its intended

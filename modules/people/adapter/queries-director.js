@@ -1,9 +1,9 @@
 // Story Director and pack lookups for the Story Suite v2 adapter. A pure part of src/adapter/queries.js
 // (same owner, moved without change); queries.js re-exports every public name it exported before.
-import { storyMinuteText } from '../../calendar.js';
-import { CAST_QUERY, KEY_PEOPLE_QUERY } from '../npc-meters.js';
-import { normalizeKeyPeople } from '../key-people.js';
-import { normalizeCast } from '../cast-dossier.js';
+import { storyMinuteText } from '../legacy/calendar.js';
+import { CAST_QUERY, KEY_PEOPLE_QUERY } from '../meters/npc-meters.js';
+import { normalizeKeyPeople } from '../cast/key-people.js';
+import { normalizeCast } from '../dossier/cast-dossier.js';
 import { safeImageUrl } from './queries-dossier.js';
 
 // Story Block's query for a pack portrait's image URL (read only): packs.portrait({ pack, file }) → a safe URL or null.

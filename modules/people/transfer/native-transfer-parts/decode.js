@@ -1,5 +1,5 @@
 // Decoding a native bundle together with its checked declared-contents metadata.
-import { decodeNpcStateBundle } from '../bundle.js';
+import { decodeNpcStateBundle } from '../../bundle/bundle.js';
 import { parseEnvelope } from './envelope.js';
 import { validateDeclaredContents, validatePortableSettings, validateHistoryArchive } from './validate.js';
 

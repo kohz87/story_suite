@@ -4,7 +4,7 @@ import {
     createNpcRecord,
     mergeScanResult,
     normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 // (card traits win) A pack card's physical traits stay unless a story EVENT changes them (a grounded `change`); a refine adds detail.
 const TEMIWA_CARD = 'Dogfolk woman, about 160 cm. Black dog ears with cream points, the left one notched. A curled black tail with a cream underside. Long straight black hair that falls like a waterfall. An exceptionally full, curvy figure, especially her chest. Fingertips scarred from flame rites. Brown eyes ringed dark from too little sleep. She smells of lye and smoke.';
@@ -24,7 +24,7 @@ function scanTemiwa(npc, update, context = TEMIWA_STORY, channel = 'profileUpdat
 }
 
 test('physicalTraitSwaps: a swapped value is named; a shade, a synonym, a fill or an omission is not a swap', async () => {
-    const { physicalTraitSwaps, physicalTraitSwapped } = await import('../appearance-physical.js');
+    const { physicalTraitSwaps, physicalTraitSwapped } = await import('../../modules/people/appearance/appearance-physical.js');
     assert.deepEqual(physicalTraitSwaps(TEMIWA_CARD, TEMIWA_REFINE), [{ trait: 'eyes', said: 'pale', kept: 'brown' }]);
     assert.deepEqual(physicalTraitSwaps('Long black hair', 'Short black hair'), [{ trait: 'hair', said: 'short', kept: 'long' }]);
     assert.deepEqual(physicalTraitSwaps('Slender build, blue eyes', 'Stocky build, green eyes'), [{ trait: 'eyes', said: 'green', kept: 'blue' }, { trait: 'build', said: 'stocky', kept: 'slender' }]);
@@ -37,8 +37,8 @@ test('physicalTraitSwaps: a swapped value is named; a shade, a synonym, a fill o
 });
 
 test('card traits win: Temiwa\'s card keeps its brown eyes when a Refresh refine says pale; the mantle is added and the drift names the swap', async () => {
-    const { rejectedOverallLook } = await import('../appearance-update.js');
-    const { lookDrift } = await import('../src/npc-notes-look.js');
+    const { rejectedOverallLook } = await import('../../modules/people/appearance/appearance-update.js');
+    const { lookDrift } = await import('../../modules/people/notes/npc-notes-look.js');
     const before = temiwa();
     const after = scanTemiwa(before, { overallAppearance: TEMIWA_REFINE, overallAppearanceState: 'refine' });
     assert.match(after.overallAppearance, /Brown eyes ringed dark from too little sleep/);
@@ -52,7 +52,7 @@ test('card traits win: Temiwa\'s card keeps its brown eyes when a Refresh refine
 });
 
 test('card traits win: a refine that only swaps a card trait is refused whole and reported the old way', async () => {
-    const { rejectedOverallLook } = await import('../appearance-update.js');
+    const { rejectedOverallLook } = await import('../../modules/people/appearance/appearance-update.js');
     const swapOnly = TEMIWA_CARD.replace('Brown eyes', 'Pale eyes');
     const after = scanTemiwa(temiwa(), { overallAppearance: swapOnly, overallAppearanceState: 'refine' });
     assert.equal(after.overallAppearance, TEMIWA_CARD);
@@ -73,7 +73,7 @@ test('card traits win: a grounded change event may change a card trait', () => {
 });
 
 test('card traits win: the flat appearance and a named form keep a card trait; a look that is not the card\'s is protected too', async () => {
-    const { applyAppearanceUpdate } = await import('../appearance-update.js');
+    const { applyAppearanceUpdate } = await import('../../modules/people/appearance/appearance-update.js');
     const habit = 'Brown eyes ringed dark from too little sleep, a grey Church habit';
     const flat = temiwa({ overallAppearance: '', appearance: habit });
     const story = 'Sister Temiwa, her pale eyes ringed dark from too little sleep, pulled a grey wool mantle over her grey Church habit.';
@@ -94,7 +94,7 @@ test('card traits win: the flat appearance and a named form keep a card trait; a
 // ---- (card traits win, round 2) items 1, 2, 3, 5 ----
 const STORY_PALE = 'Sister Temiwa looked up, her pale eyes ringed dark from too little sleep. A grey wool mantle hangs from her shoulders.';
 test('item 1: an established trait is protected whatever its source; a fill guess alone is replaceable; a missing trait fills; a grounded change swaps', async () => {
-    const { applyAppearanceUpdate } = await import('../appearance-update.js');
+    const { applyAppearanceUpdate } = await import('../../modules/people/appearance/appearance-update.js');
     const nonCard = { castFrom: undefined };
     const refine = { overallAppearance: TEMIWA_REFINE, overallAppearanceState: 'refine' };
     for (const channel of ['npcs', 'profileUpdates']) {
@@ -127,7 +127,7 @@ test('item 1: an established trait is protected whatever its source; a fill gues
 });
 
 test('item 2: distinct hues, multicolour parts, marks and facial features are told apart; shades and fills are not swaps', async () => {
-    const { physicalTraitSwaps: swaps } = await import('../appearance-physical.js');
+    const { physicalTraitSwaps: swaps } = await import('../../modules/people/appearance/appearance-physical.js');
     const traits = (a, b) => swaps(a, b).map(item => item.trait);
     assert.deepEqual(traits('White hair', 'Grey hair'), ['hair']);
     assert.deepEqual(traits('Long black and red hair', 'Long black and blonde hair'), ['hair'], 'one shared colour does not hide a changed one');

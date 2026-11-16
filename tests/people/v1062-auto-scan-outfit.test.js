@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult } from '../core.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
 
 // Routine (non-targeted) scans with two present NPCs, so NPC-scoped evidence rules apply as in a real
 // auto scan. Outfit changes are usually narrated in the sentence after the one naming the NPC.

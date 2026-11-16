@@ -1,5 +1,5 @@
 // The window of replies a lean scan skipped plus the current exchange, read oldest first with a catch-up marker.
-import { storyProse } from '../../core.js';
+import { storyProse } from '../../core/core.js';
 import { activeChat } from './gate.js';
 import { cleanMessage } from './shared-clean.js';
 import { readContext } from './source.js';

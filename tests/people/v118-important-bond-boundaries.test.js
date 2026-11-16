@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createNpcRecord, normalizeNpcRecord } from '../core.js';
+import { createNpcRecord, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import {
     compactSocialKeyRelationship,
     reconcileSocialState,
     SOCIAL_DYNAMIC_MAX_CHARS,
     SOCIAL_KEY_RELATIONSHIP_MAX_CHARS,
-} from '../social.js';
+} from '../../modules/people/social/social.js';
 
 function npc(id, name) {
     const record = createNpcRecord(name);

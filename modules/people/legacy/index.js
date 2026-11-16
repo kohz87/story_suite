@@ -5,13 +5,13 @@ import {
     scannerRoutingError,
     scannerRoutingMetrics,
     scannerDiagnosticLines,
-} from './scanner-routing.js';
-import { createDiagnosticStore } from './diagnostics-core.js';
+} from '../calls/scanner-routing.js';
+import { createDiagnosticStore } from '../core/diagnostics-core.js';
 import {
     useTranscriptSource,
     activeChat,
     useMessageGate,
-} from './src/transcript.js';
+} from '../transcript/transcript.js';
 import {
     NPC_STATE_VERSION,
     normalizeRelationshipBaseline,
@@ -20,7 +20,7 @@ import {
     setStoryClockSource,
     setStoryDateAtSource,
     setStoryDayAtSource,
-} from './core.js';
+} from '../core/core.js';
 import {
     createScanOperationRegistry,
     chatLineage,
@@ -32,45 +32,45 @@ import {
     undurableNpcStateSnapshot,
     verifyPortraitFiles,
     dataFileExists,
-} from './storage.js';
-import { isPortraitFileRecord, markPortraitFileMissing, portraitFilesVersion, PORTRAIT_FILE_DIR, PORTRAIT_FILE_PREFIX } from './src/portrait-file.js';
+} from '../storage/storage.js';
+import { isPortraitFileRecord, markPortraitFileMissing, portraitFilesVersion, PORTRAIT_FILE_DIR, PORTRAIT_FILE_PREFIX } from '../portrait/portrait-file.js';
 import {
     normalizeSourceOfTruth,
 } from './suite-handshake.js';
 import {
     fillPresentSceneText,
 } from './present-scene.js';
-import { createCardSettingsDefinition, SCAN_EVERY_RANGE } from './src/card-settings.js';
-import { createRuntimeState } from './runtime-state.js';
-import { chatContext, setNpcDossierScanIndicator, setNpcChatRefreshIndicator, stampManualEdit, narrationCaptureEnabled, setScanIndicator, relationshipNumber, latestReplyIndex, latestMessageId, currentLineageKeyForMessage, clearUserDismissedSuppression } from './runtime-scan-helpers.js';
-import { createInjectionPart } from './runtime-injection.js';
-import { createNarrationPart } from './runtime-narration.js';
-import { createScanOpsPart } from './runtime-scan-ops.js';
-import { createTargetedPart } from './runtime-targeted.js';
-import { createScanPart } from './runtime-scan.js';
+import { createCardSettingsDefinition, SCAN_EVERY_RANGE } from '../settings/card-settings.js';
+import { createRuntimeState } from '../runtime/runtime-state.js';
+import { chatContext, setNpcDossierScanIndicator, setNpcChatRefreshIndicator, stampManualEdit, narrationCaptureEnabled, setScanIndicator, relationshipNumber, latestReplyIndex, latestMessageId, currentLineageKeyForMessage, clearUserDismissedSuppression } from '../calls/runtime-scan-helpers.js';
+import { createInjectionPart } from '../runtime/runtime-injection.js';
+import { createNarrationPart } from '../runtime/runtime-narration.js';
+import { createScanOpsPart } from '../calls/runtime-scan-ops.js';
+import { createTargetedPart } from '../calls/runtime-targeted.js';
+import { createScanPart } from '../calls/runtime-scan.js';
 import { createBranchPart } from './runtime-branch.js';
 import { createReconcilePart } from './runtime-reconcile.js';
-import { createLifecyclePart } from './runtime-lifecycle.js';
-import { createChatKeysPart } from './runtime-chat-keys.js';
-import { createHydrationPart } from './runtime-hydration.js';
+import { createLifecyclePart } from '../runtime/runtime-lifecycle.js';
+import { createChatKeysPart } from '../runtime/runtime-chat-keys.js';
+import { createHydrationPart } from '../runtime/runtime-hydration.js';
 import { createPersistPart } from './runtime-persist.js';
-import { createHostedPart } from './runtime-hosted.js';
-import { createCastSyncPart } from './runtime-cast-sync.js';
-import { createEditorPart } from './runtime-editor.js';
-import { createMutationsPart } from './runtime-mutations.js';
-import { createPortraitPart } from './runtime-portrait.js';
-import { createPortraitSettingsPart } from './runtime-portrait-settings.js';
+import { createHostedPart } from '../runtime/runtime-hosted.js';
+import { createCastSyncPart } from '../runtime/runtime-cast-sync.js';
+import { createEditorPart } from '../runtime/runtime-editor.js';
+import { createMutationsPart } from '../runtime/runtime-mutations.js';
+import { createPortraitPart } from '../portrait/runtime-portrait.js';
+import { createPortraitSettingsPart } from '../portrait/runtime-portrait-settings.js';
 import { createInlineCardsPart } from './runtime-inline-cards.js';
-import { createSettingsHtmlPart } from './runtime-settings-html.js';
-import { createSettingsBindPart } from './runtime-settings-bind.js';
-import { persistSettings, flushPendingSettingsSave, getSettings } from './runtime-settings.js';
+import { createSettingsHtmlPart } from '../settings/runtime-settings-html.js';
+import { createSettingsBindPart } from '../settings/runtime-settings-bind.js';
+import { persistSettings, flushPendingSettingsSave, getSettings } from '../settings/runtime-settings.js';
 import { createSuitePart } from './runtime-suite.js';
-import { createEventRegistration } from './runtime-entry-events.js';
-import { createUiCaptureParts } from './runtime-entry-ui-events.js';
-import { createCardSettingsPart } from './runtime-entry-card-settings.js';
-import { createStartup } from './runtime-entry-startup.js';
-import { createPublicApiReadPart } from './runtime-entry-public-read.js';
-import { createPublicApiStatePart } from './runtime-entry-public-write.js';
+import { createEventRegistration } from '../runtime/runtime-entry-events.js';
+import { createUiCaptureParts } from '../runtime/runtime-entry-ui-events.js';
+import { createCardSettingsPart } from '../runtime/runtime-entry-card-settings.js';
+import { createStartup } from '../runtime/runtime-entry-startup.js';
+import { createPublicApiReadPart } from '../runtime/runtime-entry-public-read.js';
+import { createPublicApiStatePart } from '../runtime/runtime-entry-public-write.js';
 
 // The chat text helpers (src/transcript.js) read the host's chat and the Scan context setting.
 useTranscriptSource({ context: () => chatContext(), scanDepth: () => getSettings().scanDepth });

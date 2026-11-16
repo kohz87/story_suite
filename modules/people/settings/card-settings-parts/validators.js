@@ -1,6 +1,6 @@
 // Validators for the two settings a character card may recommend.
 
-import { PORTRAIT_PROMPT_FORMATS } from '../../core-mechanics.js';
+import { PORTRAIT_PROMPT_FORMATS } from '../../core/core-mechanics.js';
 import { SCAN_EVERY_RANGE } from './constants.js';
 
 /** True only for the exact lowercase value of a format Delta has (no case or spacing variants). */

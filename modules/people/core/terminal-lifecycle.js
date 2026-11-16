@@ -1,6 +1,6 @@
 /* NPC State Delta terminal lifecycle helpers. */
 import { normalizeLifeState } from './core-identity.js';
-import { TERMINAL_FROZEN_FIELDS } from './src/fields/registry.js';
+import { TERMINAL_FROZEN_FIELDS } from '../fields/registry.js';
 
 export function isTerminalNpcDeath(npc = {}) {
     return npc?.archiveReason === 'deceased'

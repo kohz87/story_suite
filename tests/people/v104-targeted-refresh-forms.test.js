@@ -4,7 +4,7 @@ import {
     buildProfileRefreshPrompt,
     createNpcRecord,
     mergeScanResult,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 function ryuChimericRecord() {
     const npc = createNpcRecord('Ryu');

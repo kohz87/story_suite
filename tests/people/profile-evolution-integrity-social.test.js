@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult } from '../core.js';
-import { reconcileSocialState } from '../social.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { reconcileSocialState } from '../../modules/people/social/social.js';
 import { state } from './profile-evolution-integrity.helpers.js';
 
 test('fully proven collective bonds retire into named members while partial groups and unrelated unresolved bonds remain', () => {

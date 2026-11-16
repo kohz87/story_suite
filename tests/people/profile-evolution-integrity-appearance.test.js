@@ -8,7 +8,7 @@ import {
     mergeScanResult,
     normalizeNpcRecord,
     resolveNpcAppearance,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 import { merge, profileRow, state } from './profile-evolution-integrity.helpers.js';
 
 test('scanner requires explicit current Appearance to survive alongside other profile fields', () => {

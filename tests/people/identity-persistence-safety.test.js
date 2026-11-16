@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { partsSource } from './helpers/parts-source.js';
-import { bestAncestorState, chatLineage, recordBranchCheckpoint } from '../branch.js';
-import { encodeRetiredStateFilePayload, decodeStateFilePayload, makeNpcStateRecoveryFileName } from '../storage.js';
+import { bestAncestorState, chatLineage, recordBranchCheckpoint } from '../../modules/people/legacy/branch.js';
+import { encodeRetiredStateFilePayload, decodeStateFilePayload, makeNpcStateRecoveryFileName } from '../../modules/people/storage/storage.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const index = runtimeSource();
-const runtimeState = fs.readFileSync(new URL('../runtime-state.js', import.meta.url), 'utf8');
+const runtimeState = fs.readFileSync(new URL('../../modules/people/runtime/runtime-state.js', import.meta.url), 'utf8');
 const identity = partsSource('identity.js');
-const ci = fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
+const ci = fs.readFileSync(new URL('../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
 
 function msg(text, isUser = false) { return { mes: text, is_user: isUser, is_system: false, name: isUser ? 'User' : 'Character' }; }
 function stateFor(chat) {

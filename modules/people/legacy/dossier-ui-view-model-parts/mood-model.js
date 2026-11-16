@@ -1,6 +1,6 @@
 /* NPC State Delta dossier view-model part: the Mood tile data and the plain words read from its numbers. */
 import { plain, wholeNumber } from '../dossier-ui-model.js';
-import { moodBars, moodWord } from '../npc-mood.js';
+import { moodBars, moodWord } from '../../meters/npc-mood.js';
 import { object } from './shared-object.js';
 
 // Mood: the word (the scanner's own, which the numbers follow; the table word of the numbers when it wrote none), and Feeling / Energy / Control each as a row (value on the stored -3..+3 scale, and what it moved by in the reply on show), always

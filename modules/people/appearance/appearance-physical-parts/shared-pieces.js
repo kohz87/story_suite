@@ -2,7 +2,7 @@
 import { refinementTokens } from './refine-tokens.js';
 import { CHANGEABLE_PRESENTATION } from './trait-patterns.js';
 import { presentationSegments } from './segments.js';
-import { normalizeName } from '../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 import { appearanceClauses, appearanceText, clean } from '../appearance-text.js';
 
 // A current presentation may restate some of the enduring physical features held in the shared

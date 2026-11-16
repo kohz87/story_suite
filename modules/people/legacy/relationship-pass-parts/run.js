@@ -5,9 +5,9 @@ import {
     isTerminalNpcDeath,
     normalizeScanNpc,
     npcMatchesLabel,
-} from '../../core.js';
-import { isScannerRoutingError } from '../../scanner-routing.js';
-import { RELATIONSHIP_RESPONSE_LENGTH, generateParsedNpcJson } from '../scanner-request.js';
+} from '../../core/core.js';
+import { isScannerRoutingError } from '../../calls/scanner-routing.js';
+import { RELATIONSHIP_RESPONSE_LENGTH, generateParsedNpcJson } from '../../calls/scanner-request.js';
 import { currentExchangeRelationshipRelevant, rawScanMatchesExisting, hasCompletePrimaryRelationshipDecision } from './targets.js';
 
 export async function runFocusedRelationshipPass(ctx, parsed, existingNpcs, transcript, settings, options = {}) {

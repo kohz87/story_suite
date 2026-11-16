@@ -7,19 +7,19 @@ import {
     mergeScanResult,
     normalizeNpcRecord,
     setActiveCalendarConfig,
-} from '../core.js';
-import * as calendar from '../calendar.js';
+} from '../../modules/people/core/core.js';
+import * as calendar from '../../modules/people/legacy/calendar.js';
 import {
     BRANCH_LINEAGE_VERSION,
     ensureBranchParentAnchor,
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
-import { mergeImportedDossierState } from '../bundle.js';
-import { normalizeSocialGraph } from '../social.js';
-import { appearanceFingerprint } from '../appearance.js';
-import { quarantineUnreadableNpcStateDataFile } from '../storage.js';
+} from '../../modules/people/legacy/branch.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { normalizeSocialGraph } from '../../modules/people/social/social.js';
+import { appearanceFingerprint } from '../../modules/people/appearance/appearance.js';
+import { quarantineUnreadableNpcStateDataFile } from '../../modules/people/storage/storage.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }] };
@@ -281,7 +281,7 @@ test('RB93-14: a scan after a skipped birthday carries the proven delta into app
 });
 
 test('RB93-15: apparent age owns portrait generation and the stale-portrait marker', () => {
-    const portrait = fs.readFileSync(new URL('../portrait-tools.js', import.meta.url), 'utf8');
+    const portrait = fs.readFileSync(new URL('../../modules/people/portrait/portrait-tools.js', import.meta.url), 'utf8');
     const base = portrait.slice(portrait.indexOf('function portraitGenerationBase'), portrait.indexOf('async function generatePortrait'));
     assert.match(base, /npc\.apparentAge/);
     const npc = normalizeNpcRecord({ name: 'Mira', appearance: 'Short silver hair, green coat.', apparentAge: '~6' });

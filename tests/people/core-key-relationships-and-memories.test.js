@@ -10,7 +10,7 @@ import {
     mergeScanResult,
     normalizeNpcRecord,
     extractExplicitKeyRelationshipEdges,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('key relationships are durable social continuity and evolution never erases unrelated bonds by omission', () => {
     const npc = createNpcRecord('Marris');

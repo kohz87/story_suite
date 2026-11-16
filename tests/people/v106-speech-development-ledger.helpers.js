@@ -1,4 +1,4 @@
-import { mergeScanResult } from '../core.js';
+import { mergeScanResult } from '../../modules/people/core/core.js';
 
 export function gradualSpeechUpdate(npc, evidence, speech = 'Confident and direct; speaks in concise sentences without habitual hedging.') {
     return {

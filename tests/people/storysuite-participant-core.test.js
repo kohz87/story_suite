@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { NP_ID, buildCheckpoint, checkpointIdOf, checkpointProblem, createParticipant, hydrateIdentity, memoryVault, resolveIdentity, storedTimeline, timelineOf } from '../src/storysuite-participant/index.js';
-import { hashJson, sha256 } from '../src/storysuite-participant/hash.js';
-import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
+import { NP_ID, buildCheckpoint, checkpointIdOf, checkpointProblem, createParticipant, hydrateIdentity, memoryVault, resolveIdentity, storedTimeline, timelineOf } from '../../modules/people/legacy/storysuite-participant/index.js';
+import { hashJson, sha256 } from '../../modules/people/legacy/storysuite-participant/hash.js';
+import { isTerminalNpcDeath } from '../../modules/people/core/terminal-lifecycle.js';
 import { freshState, npc, setup } from './storysuite-participant.helpers.js';
 
 test('the hash is the platform\'s SHA-256 of the normalized JSON, and a checkpoint is named by it', () => {

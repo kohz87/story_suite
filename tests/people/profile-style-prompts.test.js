@@ -3,11 +3,11 @@
 // the evidence rule stays, examples are generic and valid, and old and new behaviorProfile entries both parse.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt, buildScannerPrompt, DURABLE_PROFILE_LIMITS, normalizeNpcRecord } from '../core.js';
-import { PROFILE_STYLE_LINE } from '../core-prompts-targeted.js';
-import { normalizeBehaviorProfile, isBehaviorLever } from '../core-behavior.js';
-import { applyAppearanceUpdate } from '../appearance.js';
-import { splitPortraitAppearance } from '../core-portrait-visuals.js';
+import { buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt, buildScannerPrompt, DURABLE_PROFILE_LIMITS, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { PROFILE_STYLE_LINE } from '../../modules/people/core/core-prompts-targeted.js';
+import { normalizeBehaviorProfile, isBehaviorLever } from '../../modules/people/core/core-behavior.js';
+import { applyAppearanceUpdate } from '../../modules/people/appearance/appearance.js';
+import { splitPortraitAppearance } from '../../modules/people/portrait/core-portrait-visuals.js';
 
 const npc = normalizeNpcRecord({ id: 'npc_myla', name: 'Myla Venn' });
 const transcript = '[m1] Myla set the cup down. "Sit, I\'ll pour."';

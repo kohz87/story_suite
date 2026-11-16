@@ -1,5 +1,5 @@
 // The stored taste record: reading a JSON leaf or array into valid capped rows and writing it back as text.
-import { clean } from '../npc-meters-config.js';
+import { clean } from '../../meters/npc-meters-config.js';
 import { TASTE_LIMITS, TASTE_RULE, LIKE, DISLIKE } from './shared-limits.js';
 import { tasteWords, tasteKey } from './words.js';
 import { isSign, limitOf } from './shared-signs.js';

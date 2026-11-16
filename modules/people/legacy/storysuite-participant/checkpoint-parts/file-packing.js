@@ -1,6 +1,6 @@
 // Packing a checkpoint for its on-disk file and unpacking what the vault read.
 
-import { packCheckpoints, unpackCheckpoints } from '../../../checkpoint-pack.js';
+import { packCheckpoints, unpackCheckpoints } from '../../checkpoint-pack.js';
 import { PARTICIPANT_SCHEMA, KIND_PACKED } from './shared-basics.js';
 import { isRecord } from './shared-records.js';
 

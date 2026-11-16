@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import * as registry from '../src/fields/registry.js';
-import { DOSSIER_FIELDS as V2_DOSSIER_FIELDS } from '../src/storysuite-v2.js';
-import { EDITOR_LOCKABLE_FIELDS as EDITOR_LOCKS, LOCKED_FIELD_KEYS as EDITOR_LOCK_KEYS } from '../src/dossier-edit.js';
-import * as core from '../core.js';
+import * as registry from '../../modules/people/fields/registry.js';
+import { DOSSIER_FIELDS as V2_DOSSIER_FIELDS } from '../../modules/people/storysuite-v2.js';
+import { EDITOR_LOCKABLE_FIELDS as EDITOR_LOCKS, LOCKED_FIELD_KEYS as EDITOR_LOCK_KEYS } from '../../modules/people/dossier/dossier-edit.js';
+import * as core from '../../modules/people/core/core.js';
 import { adapterFiles } from './helpers/adapter-source.js';
 
 // Cleanup step 4: the field registry is read-only. Every list derived from it is exactly the hand-kept

@@ -1,5 +1,5 @@
 // Decodes sidecar JSON text to its payload, or reads only its head cheaply.
-import { unpackCheckpoints } from '../checkpoint-pack.js';
+import { unpackCheckpoints } from '../../legacy/checkpoint-pack.js';
 import { NPC_STATE_FILE_FORMAT, NPC_STATE_FILE_READ_VERSIONS } from './format.js';
 
 export function decodeStateFilePayload(text) {

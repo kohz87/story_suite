@@ -2,10 +2,10 @@
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
 import { BUILT_IN_METERS, IMPACT_TIERS, FEATURE_GATE, FEATURE_PRESETS, FEATURE_MOOD_PULL, FEATURE_NOTES, RECENT_MESSAGES, SECRET_TEXT_MAX, TAIL_SECRETS_PER_NPC, isInt, clean, bandWord, readLeaf } from './npc-meters-config.js';
 import { meterValue } from './npc-meters-slice.js';
-import { APPROACH_KINDS, gateCue } from '../npc-meters-gate.js';
+import { APPROACH_KINDS, gateCue } from './npc-meters-gate.js';
 import { readEvent } from './npc-meters-pacing.js';
-import { moodWord, normalizeMood, storedMoodWord } from '../npc-mood.js';
-import { notesTail } from './npc-notes-kinds.js';
+import { moodWord, normalizeMood, storedMoodWord } from './npc-mood.js';
+import { notesTail } from '../notes/npc-notes-kinds.js';
 
 export function createNpcPrompt({
     call, hooks, storedSettings, tierCaps, tierAllowance, featureOn, defsFrom, setupFor, rungsFor, rulesFor,

@@ -9,8 +9,8 @@ import {
     normalizeNpcRecord,
     parseAppearanceFormsText,
     resolveNpcAppearance,
-} from '../core.js';
-import { appearanceFormsHtml, dossierDetailProjection } from '../dossier-ui.js';
+} from '../../modules/people/core/core.js';
+import { appearanceFormsHtml, dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 function formNpc(name = 'Sora') {
     return normalizeNpcRecord({
@@ -342,7 +342,7 @@ test('scanner prompt treats current outfit and explicit visual corrections as Ap
 });
 
 test('rejectedOverallLook: a refused durable look is reported, an accepted or unchanged one is not', async () => {
-    const { rejectedOverallLook } = await import('../appearance-update.js');
+    const { rejectedOverallLook } = await import('../../modules/people/appearance/appearance-update.js');
     const held = 'White hair, yellow-green eyes.';
     assert.deepEqual(rejectedOverallLook(held, held, { overallAppearance: 'Black hair, brown eyes.' }), { incoming: 'Black hair, brown eyes.' });
     assert.deepEqual(rejectedOverallLook(held, held, { overall_appearance: 'Black hair.' }), { incoming: 'Black hair.' });

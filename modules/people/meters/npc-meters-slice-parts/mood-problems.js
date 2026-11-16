@@ -1,7 +1,7 @@
 // The problems of a record's mood and pull fields (feature mood-pull).
 import { isInt, isObject, readLeaf } from '../npc-meters-config.js';
-import { normalizeMood, readMoodLog } from '../../npc-mood.js';
-import { INSTINCT_KINDS } from '../../npc-instincts.js';
+import { normalizeMood, readMoodLog } from '../npc-mood.js';
+import { INSTINCT_KINDS } from '../npc-instincts.js';
 
 // The mood and pull fields (feature mood-pull): small whole numbers and short plain text, as the cores write them.
 const LEAF_TEXT_MAX = 1200;

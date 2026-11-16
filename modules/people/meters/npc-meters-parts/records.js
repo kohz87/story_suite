@@ -1,7 +1,7 @@
 // Builds and edits one NPC's record: who a change is about, a new entry, problems, meter changes, stages, notes and impact tiers.
-import { RELATIONSHIP_KEYS, applyRelationshipDelta, normalizeRelationshipCaps } from '../../core-mechanics.js';
+import { RELATIONSHIP_KEYS, applyRelationshipDelta, normalizeRelationshipCaps } from '../../core/core-mechanics.js';
 import { CUSTOM_RANGE, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, NAME_MAX, clamp, clean, intOr, isInt, isObject, slug } from '../npc-meters-config.js';
-import { makeNpcId } from '../../core-identity.js';
+import { makeNpcId } from '../../core/core-identity.js';
 
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 import { findNpcKey, meterValue, settle } from '../npc-meters-slice.js';

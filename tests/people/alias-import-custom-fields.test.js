@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { mergeScanResult, normalizeNpcRecord } from '../core.js';
-import { mergeImportedDossierState } from '../bundle.js';
-import { dossierDetailProjection, projectDossierState } from '../dossier-ui.js';
-import { dossierFields } from '../src/storysuite-v2.js';
+import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { dossierDetailProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+import { dossierFields } from '../../modules/people/storysuite-v2.js';
 import { adapterSource } from './helpers/adapter-source.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 

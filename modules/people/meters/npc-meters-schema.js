@@ -1,9 +1,9 @@
 // NPC meters, the settings defaults and the settings schema the Story Suite overlay renders. A pure part of npc-meters.js (same
 // owner, moved without change); npc-meters.js re-exports both names. Never imports npc-meters.js.
 import { BUILT_IN_RANGE, DEFAULT_CHANGE_CAP, DEFAULT_CONFLICT_AT, DEFAULT_DEMOTE_AFTER, DESCRIBE_MAX, LABEL_MAX, MAX_CHANGE_CAP, MAX_CUSTOM_METERS, MILESTONE_MAX, STAGE_NAME_MAX, TONES, TRACK_MAX } from './npc-meters-config.js';
-import { DEFAULT_GATE_SETTINGS, GATE_STRENGTHS, GATE_WINDOW_MAX } from '../npc-meters-gate.js';
+import { DEFAULT_GATE_SETTINGS, GATE_STRENGTHS, GATE_WINDOW_MAX } from './npc-meters-gate.js';
 import { FEATURE_GATE } from './npc-meters-config.js';
-import { DEFAULT_SOCIAL_CAP, DEFAULT_SOCIAL_SCALE, FEATURE_SOCIAL, MAX_SOCIAL_CAP, MAX_SOCIAL_SCALE } from './social-check.js';
+import { DEFAULT_SOCIAL_CAP, DEFAULT_SOCIAL_SCALE, FEATURE_SOCIAL, MAX_SOCIAL_CAP, MAX_SOCIAL_SCALE } from '../social/social-check.js';
 
 export const SETTINGS_DEFAULTS = Object.freeze({ changeCap: DEFAULT_CHANGE_CAP, customMeters: [], stages: [], ladder: [], conflictAt: DEFAULT_CONFLICT_AT, demoteAfter: DEFAULT_DEMOTE_AFTER, presets: [], socialScale: DEFAULT_SOCIAL_SCALE, socialCap: DEFAULT_SOCIAL_CAP, gateDays: DEFAULT_GATE_SETTINGS.windowDays, gateStrength: DEFAULT_GATE_SETTINGS.strength });
 

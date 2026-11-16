@@ -231,7 +231,7 @@ const onePassCapture = async ({ reply, mockState, sleep }) => {
 test('ONEPASSCAP: a hosted one-pass reply\'s memory, appearance change and evidence, and the admission backfill\'s fill, ties and edges, are in the dossier without a Refresh', async () => {
     const result = runCalls('hosted-onepass-capture', true, onePassCapture);
     const { afterFirst, afterSecond } = result;
-    const { fillWanted } = await import('../appearance-fill.js');
+    const { fillWanted } = await import('../../modules/people/appearance/appearance-fill.js');
     assert.ok(afterFirst.sieke && afterFirst.temiwa, 'both admitted from the block');
     assert.equal(afterFirst.backfills, 2, '(ONEPASSCAPR2-3) each of the two people admitted in one hosted reply gets its fill on that reply');
     assert.equal(afterFirst.queued, 0, 'nothing waits for another reply');
@@ -248,8 +248,8 @@ test('ONEPASSCAP: a hosted one-pass reply\'s memory, appearance change and evide
 });
 
 test('ONEPASSCAP-2/3: one keyRelationships string is one entry per line; an edge endpoint resolves by exact id, folded id, then name', async () => {
-    const { normalizeScanNpc, mergeScanResult } = await import('../core.js');
-    const { resolveNpcId, resolveNpcReference } = await import('../social.js');
+    const { normalizeScanNpc, mergeScanResult } = await import('../../modules/people/core/core.js');
+    const { resolveNpcId, resolveNpcReference } = await import('../../modules/people/social/social.js');
     const one = 'Sister Temiwa — Church novice who brings her supper | Drops off bread at the guild every evening';
     assert.deepEqual(normalizeScanNpc({ name: 'Sieke', keyRelationships: one }).keyRelationships, normalizeScanNpc({ name: 'Sieke', keyRelationships: [one] }).keyRelationships, 'the string reads as the one-entry list');
     assert.equal(normalizeScanNpc({ name: 'Sieke', keyRelationships: `${one}\nMarrit — employer | strict` }).keyRelationships.length, 2, 'one entry per line');
@@ -278,7 +278,7 @@ test('ONEPASSCAP-2/3: one keyRelationships string is one entry per line; an edge
 // (ONEPASSCAPR2-4, -5 and the old-reply rule) The merge keeps an accepted detailed bond when the same reply's edge is only the short form,
 // rejects a name or alias two dossiers share, and a history re-read (historicalRead) keeps the readings it always had.
 test('ONEPASSCAPR2-4/5: a same-reply edge keeps the detailed bond; an ambiguous alias binds to nobody; a historical re-read is unchanged', async () => {
-    const { mergeScanResult } = await import('../core.js');
+    const { mergeScanResult } = await import('../../modules/people/core/core.js');
     const detail = 'Sister Temiwa — Church novice who brings her supper | Drops off bread at the guild every evening';
     const base = () => ({ npcs: [{ id: 'npc_sieke', name: 'Sieke', keyRelationships: [] }, { id: 'npc_sister-temiwa', name: 'Sister Temiwa', keyRelationships: [] }], candidates: [] });
     const scan = { npcs: [{ id: 'npc_sieke', name: 'Sieke', keyRelationships: detail }], keyRelationshipEdges: [{ from: 'npc_sieke', to: 'npc_sister_temiwa', aToB: 'friend', bToA: 'friend' }] };
@@ -407,7 +407,7 @@ test('ONEPASSMISS-2: one-pass with Auto scan off still captures; a missing block
 });
 
 test('ONEPASSMISS-2: the settings text no longer ties one-pass to Auto scan', () => {
-    const html = fs.readFileSync(new URL('../runtime-settings-html.js', import.meta.url), 'utf8');
+    const html = fs.readFileSync(new URL('../../modules/people/settings/runtime-settings-html.js', import.meta.url), 'utf8');
     assert.match(html, /Works on its own, with Auto scan on or off/);
     assert.doesNotMatch(html, /'With Auto scan, the roleplay model/);
 });

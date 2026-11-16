@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseScanJson } from '../core-text.js';
+import { parseScanJson } from '../../modules/people/core/core-text.js';
 import {
     cancelScannerRequests, dispatchScannerRequest, scannerRoutingMetrics,
     selectedScannerProfileId, scannerProfileOptions,
-} from '../scanner-routing.js';
+} from '../../modules/people/calls/scanner-routing.js';
 
 const payload = { systemPrompt: 'scanner system', prompt: 'scanner payload', responseLength: 777, quietToLoud: false, instructOverride: true, trimNames: false };
 function deferred() {

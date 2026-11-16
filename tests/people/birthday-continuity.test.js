@@ -15,7 +15,7 @@ import {
     refreshCalendarAges,
     setActiveCalendarConfig,
     setStoryClockSource,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 const CUSTOM_CALENDAR = Object.freeze({
     era: 'CR',

@@ -2,9 +2,9 @@
 // disabled state with its reason, and a referenced checkpoint never removed (by the vault itself, whatever the caller asks).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createStorageRow, offReason, sizeText } from '../src/storysuite-participant/storage-row.js';
-import { fileVault, memoryVault } from '../src/storysuite-participant/vault.js';
-import { createVaultSweep } from '../src/storysuite-participant/vault-sweep.js';
+import { createStorageRow, offReason, sizeText } from '../../modules/people/legacy/storysuite-participant/storage-row.js';
+import { fileVault, memoryVault } from '../../modules/people/legacy/storysuite-participant/vault.js';
+import { createVaultSweep } from '../../modules/people/legacy/storysuite-participant/vault-sweep.js';
 
 const DAY = 24 * 60 * 60 * 1000;
 const proof = (referenced = []) => ({ complete: true, referenced });

@@ -1,5 +1,5 @@
 // Picking the pending facts whose source reply is in the prompt window, as numbered handles.
-import { normalizeName } from '../../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 import { MAX_HANDLES, MAX_ATTEMPTS } from './limits.js';
 import { locked } from './shared-locked.js';
 

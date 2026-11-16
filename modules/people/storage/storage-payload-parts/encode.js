@@ -1,7 +1,7 @@
 // Encodes a state, or a retired marker, to the sidecar JSON text: compacted, packed and stamped.
-import { isPortraitFileRecord } from '../src/portrait-file.js';
-import { lineageCheckpointKeys } from '../branch-lineage.js';
-import { packCheckpoints } from '../checkpoint-pack.js';
+import { isPortraitFileRecord } from '../../portrait/portrait-file.js';
+import { lineageCheckpointKeys } from '../../legacy/branch-lineage.js';
+import { packCheckpoints } from '../../legacy/checkpoint-pack.js';
 import { LEGACY_FORMAT_VERSION, NPC_STATE_FILE_FORMAT, NPC_STATE_FILE_FORMAT_VERSION } from './format.js';
 import { pruneFormPortraitAssetsForState, prunePortraitAssetsForState } from './portrait-retention.js';
 

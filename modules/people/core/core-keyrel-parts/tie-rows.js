@@ -1,5 +1,5 @@
 /* NPC State Delta tie rows: reading a person's ties for the board and the narrator, with the roster map and tracked-state test. */
-import { normalizeName } from '../../core-text.js';
+import { normalizeName } from '../core-text.js';
 import { tieParts } from './entries.js';
 import { TIE_FADE_DAYS, TIE_TYPE_RANK, tieType } from './tie-types.js';
 

@@ -14,8 +14,8 @@ import { fileURLToPath } from 'node:url';
 // as-of reads are proven on the adapter's `at` and the scoped adapter, not against a host.
 
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
-const REPLAY_URL = new URL('../src/storysuite-participant/history-replay.js', import.meta.url).href;
-const TIMELINE_URL = new URL('../src/storysuite-participant/timeline.js', import.meta.url).href;
+const REPLAY_URL = new URL('../../modules/people/legacy/storysuite-participant/history-replay.js', import.meta.url).href;
+const TIMELINE_URL = new URL('../../modules/people/legacy/storysuite-participant/timeline.js', import.meta.url).href;
 
 function runScenario(name, scenario) {
     let source = fs.readFileSync(new URL('./runtime-smoke.mjs', import.meta.url), 'utf8');

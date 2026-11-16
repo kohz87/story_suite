@@ -1,8 +1,8 @@
 // Filling a fresh dossier from a cast person's pack entry (profile, numbers, hidden notes, castFrom).
 
-import { portraitHasImage } from '../portrait-file.js';
-import { PACK_BIRTHDAY_REASON, normalizeBirthDate } from '../../birthday.js';
-import { getActiveCalendarConfig, normalizeCalendarConfig } from '../../calendar.js';
+import { portraitHasImage } from '../../portrait/portrait-file.js';
+import { PACK_BIRTHDAY_REASON, normalizeBirthDate } from '../../birthday/birthday.js';
+import { getActiveCalendarConfig, normalizeCalendarConfig } from '../../legacy/calendar.js';
 import { ALIASES_MAX } from './limits-text.js';
 import { castSecrets } from './entry-lists.js';
 import { shortPackName } from './dossier-lookup.js';

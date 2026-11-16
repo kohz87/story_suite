@@ -7,13 +7,13 @@ import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, normalizeRelationshipB
 import { findInterimIdentityPromotionIndex, inferNpcIdentityKind, isDescriptivePhrase, normalizeGender } from './core-identity.js';
 import { applySheetLevels, withoutSheetLevels, candidateMatches, createNpcRecord, IMPORTANT_MEMORY_LIMIT, makeNpcCandidate, mergeLists, normalizeCustomFieldNames, normalizeNpcAdmissionMode, normalizeNpcCandidate, normalizeNpcRecord, normalizeScanNpc, NPC_CANDIDATE_LIMIT, NPC_CANDIDATE_TTL_TURNS, scanLabelsMatch, shouldCreateDossierImmediately, shouldPromoteCandidate } from './core-record.js';
 import { applyKeyRelationshipEdges, recordTieMentions, tieRoster } from './core-keyrel.js';
-import { canonicalizeNpcKeyRelationships, reconcileSocialState } from './social.js';
+import { canonicalizeNpcKeyRelationships, reconcileSocialState } from '../social/social.js';
 import { isTerminalNpcDeath } from './terminal-lifecycle.js';
 import { applyIncoming } from './core-merge-incoming.js';
 import { applyDurableProfileUpdates } from './core-development.js';
 import { consolidateAliasLinkedNpcDuplicates } from './core-merge-aliases.js';
 import { npcNamedInText } from './core-merge-names.js';
-import { withSettledGuess } from './appearance-physical.js';
+import { withSettledGuess } from '../appearance/appearance-physical.js';
 
 export { npcNamedInText, countNormalizedPhrase } from './core-merge-names.js';
 

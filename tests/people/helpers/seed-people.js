@@ -1,6 +1,6 @@
 // Puts a test host's dossiers in the store's people domain, as NPC State's own write would after a reply (people store P4: npc.cast lists the store's
 // people). `records`: the fake runtime's dossiers ({ [id]: record } or a list). Tests only.
-import { peopleView } from '../../src/people/view.js';
+import { peopleView } from '../../../modules/people/view.js';
 
 /**
  * A state without the stored dossiers (`domains.people.npcs`): since P2 NPC State's people.write keeps whole dossiers in the store (a note's text included,

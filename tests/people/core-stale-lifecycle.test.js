@@ -7,7 +7,7 @@ import {
     mergeScanResult,
     setNpcArchived,
     applyStaleNpcLifecycle,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('stale lifecycle auto-archives at 30 and deletes only stale auto-archives at 50', () => {
     const stale = createNpcRecord('Court Herald');
@@ -182,7 +182,7 @@ test('death archive ignores off-screen activity, an explicit living return inclu
 });
 
 // ---- Dossiers that matter are archived, never auto-deleted by the stale pass ----
-import { applyStaleLifecycleAfterScan as staleAfterScan } from '../runtime-scan-stale.js';
+import { applyStaleLifecycleAfterScan as staleAfterScan } from '../../modules/people/calls/runtime-scan-stale.js';
 
 const PNG_1PX = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 const awayNpc = (name, extra = {}) => ({ ...createNpcRecord(name), id: `npc_${name.toLowerCase()}`, lastSeenTurn: 1, ...extra });
@@ -235,9 +235,9 @@ test('stale pass at the roster cap: archives what matters, deletes the incidenta
 });
 
 // ---- Keep dossiers, second round: form portraits, fail safe, starting-value meters, replay clock, snapshot size ----
-import { snapshotBranchState as snapshotOf } from '../branch-core.js';
-import { utf8Bytes as bytesOf } from '../branch-util.js';
-import { BRANCH_SNAPSHOT_MAX_BYTES as SNAPSHOT_MAX } from '../branch-constants.js';
+import { snapshotBranchState as snapshotOf } from '../../modules/people/legacy/branch-core.js';
+import { utf8Bytes as bytesOf } from '../../modules/people/legacy/branch-util.js';
+import { BRANCH_SNAPSHOT_MAX_BYTES as SNAPSHOT_MAX } from '../../modules/people/legacy/branch-constants.js';
 
 test('stale pass: a dossier with only a form portrait is archived, and its form image stays', () => {
     const formOnly = awayNpc('Fay');

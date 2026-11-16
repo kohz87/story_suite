@@ -4,12 +4,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import assert from 'node:assert/strict';
-import { NOTE_FIELDS } from '../src/npc-notes-kinds.js';
-import { readTastes } from '../src/npc-notes-tastes.js';
+import { NOTE_FIELDS } from '../../modules/people/notes/npc-notes-kinds.js';
+import { readTastes } from '../../modules/people/notes/npc-notes-tastes.js';
 import { suite } from './helpers/pacing-suite.js';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { FEATURE_NOTES, RECORD_FIELDS, readLeaf } from '../src/npc-meters-config.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { FEATURE_NOTES, RECORD_FIELDS, readLeaf } from '../../modules/people/meters/npc-meters-config.js';
 import { ON, oren, cast, optional, shape } from './npc-notes-kinds.helpers.js';
 
 test('notes host: the record fields are the kinds file\'s NOTE_FIELDS, and a lie told is one leaf in the line\'s own op, hidden in the tail', async () => {
@@ -145,7 +145,7 @@ test('notes host: npc.flag stamps the first look once and the reader\'s button i
 
 test('locked look: the scan forwards a refused durable look as a flag (Problem + cue), and nothing when it is accepted or unchanged', async () => {
     // runtime-hosted.js imports the host's extensions.js: load a copy of the runtime beside a stub of it.
-    const root = fileURLToPath(new URL('../', import.meta.url));
+    const root = fileURLToPath(new URL('../../modules/people/legacy/', import.meta.url));
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-look-flag-'));
     const ext = path.join(temp, 'a', 'b', 'ext');
     fs.mkdirSync(ext, { recursive: true });
@@ -283,7 +283,7 @@ test('notes host: npc.meet takes the reply the scan read (as npc.adjust does); r
 });
 
 test('scan-admitted people: the scan sends npc.meet for a dossier it just made, not for a known or archived one, and an older host without meet gets nothing', async () => {
-    const root = fileURLToPath(new URL('../', import.meta.url));
+    const root = fileURLToPath(new URL('../../modules/people/legacy/', import.meta.url));
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-meet-'));
     const ext = path.join(temp, 'a', 'b', 'ext');
     fs.mkdirSync(ext, { recursive: true });

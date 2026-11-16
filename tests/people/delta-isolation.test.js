@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { encodeStateFilePayload, decodeStateFilePayload, makeNpcStateDataFileName } from '../storage.js';
-import { encodeNpcStateBundle, decodeNpcStateBundle } from '../bundle.js';
+import { encodeStateFilePayload, decodeStateFilePayload, makeNpcStateDataFileName } from '../../modules/people/storage/storage.js';
+import { encodeNpcStateBundle, decodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
 
 test('Delta sidecars round-trip their own namespace and reject legacy data', () => {
   const own = encodeStateFilePayload('chat:test.png:seed', { npcs: [] }, '0.1.0');

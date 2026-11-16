@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     TIES_MAX_PEOPLE, TIES_TEXT_MAX, readTies, applyTags, tiesText, tagsFromRelation, owedBy, tiesView,
-} from '../src/npc-notes-ties.js';
+} from '../../modules/people/notes/npc-notes-ties.js';
 
 const tie = (ties, tags, extra = {}) => applyTags(ties, { self: 'Mira', with: 'Astra', tags, ...extra });
 
@@ -152,10 +152,10 @@ test('tiesView: an empty or absent record shows only the owed-by lines', () => {
 // ---- Tie types, full list, fading (core-keyrel.js; owner decisions 12 Nov) ----
 import {
     mergeKeyRelationshipUpdates, tieType, readTieRows, narratorTies, recordTieMentions, TIE_FADE_DAYS,
-} from '../core-keyrel.js';
-import { buildInjection, mergeScanResult } from '../core.js';
-import { projectDossierState } from '../dossier-ui-catalog.js';
-import { tiesSectionHtml } from '../dossier-ui-sections.js';
+} from '../../modules/people/core/core-keyrel.js';
+import { buildInjection, mergeScanResult } from '../../modules/people/core/core.js';
+import { projectDossierState } from '../../modules/people/legacy/dossier-ui-catalog.js';
+import { tiesSectionHtml } from '../../modules/people/legacy/dossier-ui-sections.js';
 
 test('tieType: the keyword table, first matching row wins (rival, owes, ally, interest), else Passing; a set tag wins', () => {
     assert.equal(tieType('rival at the annex'), 'rival');
@@ -255,9 +255,9 @@ test('dossier Ties section: type headings in priority order, every entry its div
 });
 
 // ---- Fix round 2 (review probes): stray digit, hosted story day, cap 8 live, whole-name mentions, one roster map ----
-import { setStoryDayAtSource } from '../core.js';
-import { tieDayAt, useTranscriptSource } from '../src/transcript.js';
-import { tieRoster } from '../core-keyrel.js';
+import { setStoryDayAtSource } from '../../modules/people/core/core.js';
+import { tieDayAt, useTranscriptSource } from '../../modules/people/transcript/transcript.js';
+import { tieRoster } from '../../modules/people/core/core-keyrel.js';
 
 test('Ties section: a tie with no dynamic shows no stray digit, and a relation equal to its type shows no description', () => {
     const html = tiesSectionHtml({ keyRelationships: ['Hale — mentor', 'Bregje — rival', 'Ann — stranger | met once'] });

@@ -1,7 +1,7 @@
 /* Records why a birthday or age change was applied or held, as a birthday receipt in a scan report. */
-import { normalizeCalendarDate } from '../calendar.js';
+import { normalizeCalendarDate } from '../../legacy/calendar.js';
 import { birthdayPromptSource, exactStoredAge, sameCalendarBirthday } from '../core-birthday.js';
-import { birthdayEvidenceInText } from '../birthday.js';
+import { birthdayEvidenceInText } from '../../birthday/birthday.js';
 export function recordBirthdayDiagnostic(report, beforeNpc, afterNpc, ordinaryUpdate, options, calendar, referenceDate) {
     if (!report || !beforeNpc || !afterNpc || !referenceDate) return;
     const birthdayMatched = sameCalendarBirthday(afterNpc.birthDate, referenceDate, calendar);

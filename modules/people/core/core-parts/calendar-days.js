@@ -1,6 +1,6 @@
 // Story day of a dated World State, and the story-date key and calendar-age refresh built on the active calendar.
-import { calendarDayNumber, extractStructuredWorldDate, getActiveCalendarConfig, storyCurrentDate, withStoryDateMemo } from '../calendar.js';
-import { normalizeNpcBirthday } from '../birthday.js';
+import { calendarDayNumber, extractStructuredWorldDate, getActiveCalendarConfig, storyCurrentDate, withStoryDateMemo } from '../../legacy/calendar.js';
+import { normalizeNpcBirthday } from '../../birthday/birthday.js';
 
 // Story day of a dated World State block in the text, or null when none is dated.
 export function storyDayFromText(text, calendar = getActiveCalendarConfig()) {

@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: the Secrets section: opened notes in full, hidden ones only as a bar and a rule. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 import { knowsHtml } from './notes-blocks.js';
 

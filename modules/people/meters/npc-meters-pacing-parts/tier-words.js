@@ -1,7 +1,7 @@
 // What the hosted slice does with a held event: the day rule, the story-clock readers, the reader's words for the receipt and the cut of a forwarded change to a lower tier.
-import { RELATIONSHIP_KEYS, RELATIONSHIP_MILESTONE_REQUIREMENTS, RELATIONSHIP_MILESTONE_THRESHOLDS } from '../../core-relationship-model.js';
+import { RELATIONSHIP_KEYS, RELATIONSHIP_MILESTONE_REQUIREMENTS, RELATIONSHIP_MILESTONE_THRESHOLDS } from '../../core/core-relationship-model.js';
 import { DAY_MINUTES } from '../npc-meters-config.js';
-import { PACING_TIERS } from '../relationship-pacing.js';
+import { PACING_TIERS } from '../../legacy/relationship-pacing.js';
 
 const list = words => (words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words.at(-1)}` : words[0]);
 

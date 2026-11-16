@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, carryOmittedPhysicalTraits, completeFormWithShared, normalizeAppearanceModel } from '../appearance.js';
+import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, carryOmittedPhysicalTraits, completeFormWithShared, normalizeAppearanceModel } from '../../modules/people/appearance/appearance.js';
 
 const BODY = 'Tall and slender, long silver hair, violet eyes';
 

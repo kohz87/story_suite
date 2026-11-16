@@ -1,11 +1,11 @@
 // J11 step 5 review fixes: one section per Cast view, the flag turned off at runtime, and a cast change reaching covered views after a rewind or an edited Re-read.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCastPanels } from '../src/adapter/cast-ui/panels.js';
-import { createCastViews } from '../src/adapter/cast-ui/cast-views.js';
-import { createWatchers } from '../src/adapter/cast-ui/watchers.js';
-import { createPanels } from '../../../core/sdk/panels.js';
-import { wireRedraw } from '../../../ui/legacy/ui-host/redraw-wiring.js';
+import { createCastPanels } from '../../modules/people/adapter/cast-ui/panels.js';
+import { createCastViews } from '../../modules/people/adapter/cast-ui/cast-views.js';
+import { createWatchers } from '../../modules/people/adapter/cast-ui/watchers.js';
+import { createPanels } from '../../core/sdk/panels.js';
+import { wireRedraw } from '../../ui/legacy/ui-host/redraw-wiring.js';
 
 // The real hub bound to the real scheduler (frames run by hand); the Cast views draw what `people.now` says.
 function page({ flag = { on: true } } = {}) {

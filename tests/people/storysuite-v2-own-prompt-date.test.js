@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createHost } from '../../testkit/index.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import {
     buildNarrationCaptureParts, calendarPromptContext, getActiveCalendarConfig, hostedStoryDate, setActiveCalendarConfig, setStoryClockSource,
     storyClockDate, storyCurrentDate,
-} from '../core.js';
-import { effectiveChronologicalAge } from '../birthday.js';
+} from '../../modules/people/core/core.js';
+import { effectiveChronologicalAge } from '../../modules/people/birthday/birthday.js';
 
 // Two v1 features back under Story Block v2 (V1 audit #8 and #9):
 //  1. Delta's own prompt in Story Block's prompt size. Delta sends its live dossier (and, with one-pass

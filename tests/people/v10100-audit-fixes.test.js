@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { mergeScanResult } from '../core.js';
-import { completeFormWithShared } from '../appearance.js';
+import { mergeScanResult } from '../../modules/people/core/core.js';
+import { completeFormWithShared } from '../../modules/people/appearance/appearance.js';
 import { shippedModulePaths } from './helpers/shipped-modules.js';
 
 const BODY = 'Tall and slender, long silver hair, violet eyes';
@@ -51,6 +51,6 @@ test('2/3: no unused imports or uncalled functions remain in shipped modules', (
 });
 
 test('4: the README explains where the body of a multi-form NPC belongs', () => {
-    const readme = fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/README.md', import.meta.url), 'utf8');
+    const readme = fs.readFileSync(new URL('../../docs/history/packages/npc-state-delta/README.md', import.meta.url), 'utf8');
     assert.match(readme, /For an NPC with named forms, the body belongs in each form instead/);
 });

@@ -62,5 +62,5 @@ export { NPC_DOMAIN, NPC_KIND, MILESTONE_KIND, BUILT_IN_METERS, BUILT_IN_RANGE, 
 export { normalizeSecrets, secretId, normalizeGeneratedSecrets, secretsToLines, secretsFromLines, limitsToLines, limitsFromLines } from './npc-meters-secrets.js';
 export { initialNpcSlice, observeKeyAway, CAST_QUERY, CAST_MADE_MAX, observeCast, validateNpcSlice, findNpcKey, meterValue, rungMet } from './npc-meters-slice.js';
 export { SETTINGS_DEFAULTS, SETTINGS_SCHEMA } from './npc-meters-schema.js';
-export { FEATURE_SOCIAL, SOCIAL_QUERY } from './social-check.js';
+export { FEATURE_SOCIAL, SOCIAL_QUERY } from '../social/social-check.js';
 export { createNpcPart } from './npc-meters-parts/part.js';

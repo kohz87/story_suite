@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult, npcNamedInText, setActiveCalendarConfig } from '../core.js';
+import { createNpcRecord, mergeScanResult, npcNamedInText, setActiveCalendarConfig } from '../../modules/people/core/core.js';
 import {
     BRANCH_LINEAGE_VERSION,
     ensureBranchParentAnchor,
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
+} from '../../modules/people/legacy/branch.js';
 
 const user = turn => ({ is_user: true, is_system: false, name: 'User', mes: `user-${turn}` });
 const bot = turn => ({ is_user: false, is_system: false, name: 'Narrator', mes: `assistant-${turn}` });

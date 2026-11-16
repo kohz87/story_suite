@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MAX_SECRETS, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../src/npc-meters.js';
-import { normalizeNpcRecord } from '../core.js';
-import { validatePack } from '../../../packs/validate.js';
-import { contentOf } from '../../../packs/content.js';
-import { castSecrets } from '../src/cast-dossier.js';
+import { MAX_SECRETS, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../../modules/people/meters/npc-meters.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { validatePack } from '../../packs/validate.js';
+import { contentOf } from '../../packs/content.js';
+import { castSecrets } from '../../modules/people/dossier/cast-dossier.js';
 import { ERSVEIL, fakeDelta, handedOver, host, plain } from './storysuite-v2-meters.helpers.js';
 
 const allNotes = ERSVEIL.flatMap(entry => entry.secrets);

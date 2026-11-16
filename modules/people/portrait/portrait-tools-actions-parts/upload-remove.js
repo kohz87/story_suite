@@ -2,7 +2,7 @@
 import {
     api, closeOverlay, currentSessionIs, flushDurably,
     npcById, recordToolEvent, setBusy, stage1Refresh,
-} from '../dossier-tools-core.js';
+} from '../../legacy/dossier-tools-core.js';
 import { targetPortrait } from '../portrait-tools-targets.js';
 
 function toast(kind, message) { globalThis.toastr?.[kind]?.(message); }

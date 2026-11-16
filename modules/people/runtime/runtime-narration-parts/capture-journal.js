@@ -1,6 +1,6 @@
 // The capture journal: finding a reply's accepted capture entry and recording accepted captures, read marks and fills.
 
-import { chatLineage, lineageCheckpointKey } from '../branch.js';
+import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
 
 // (ONEPASSCAPR2-1) Accepted captures and admission fills are canonical reply-owned inputs, not diagnostic model responses.
 // The full lineage key prevents a swipe, edit or different parent from borrowing another reply's capture.

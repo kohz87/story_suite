@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { suite } from './helpers/pacing-suite.js';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { readLeaf } from '../src/npc-meters-config.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { readLeaf } from '../../modules/people/meters/npc-meters-config.js';
 import { ON, oren, cast } from './npc-notes-kinds.helpers.js';
 
 test('mood words: the fixed lexicon gives the axes of a word or phrase, an unknown text gives none, a negated word does not count, and the numbers always settle toward rest', async () => {
-    const { moodFromWord, applyWord, decayMood, restMood, nextMoodLog, readMoodLog } = await import('../npc-mood.js');
+    const { moodFromWord, applyWord, decayMood, restMood, nextMoodLog, readMoodLog } = await import('../../modules/people/meters/npc-mood.js');
     assert.deepEqual(moodFromWord('mortified and flustered'), { v: -2, a: 2, d: -3, words: ['mortified', 'flustered'] }, 'the mean of the words found, rounded away from zero');
     assert.deepEqual(moodFromWord('Alarmed'), { v: -2, a: 3, d: -2, words: ['alarmed'] });
     assert.equal(moodFromWord('xyzzy plugh'), null, 'no known word: no numbers, never a guess');
@@ -74,7 +74,7 @@ test('notes host: a caught lie (a trust drop) writes its move on the mood histor
 });
 
 test('notes host: the reason a story line gave is kept on the reply\'s last event and read back by the card summary; a line without one keeps none', async () => {
-    const { readEvent, eventSummary } = await import('../src/npc-meters-pacing.js');
+    const { readEvent, eventSummary } = await import('../../modules/people/meters/npc-meters-pacing.js');
     const s = await suite({ allowance: null, features: ON });
     await s.setDay(1);
     await s.say(['~ npc Oren | affection: +2 | reason: Astra helped her cover up after the mishap']);
@@ -88,8 +88,8 @@ test('notes host: the reason a story line gave is kept on the reply\'s last even
 });
 
 test('replay: a Re-read of a reply the older code read writes no mood history and keeps no story reason; a first read and a read the new code made do', async () => {
-    const { writeMood, reasonKept } = await import('../src/npc-meters-slice.js');
-    const { restMood, applyEvents } = await import('../npc-mood.js');
+    const { writeMood, reasonKept } = await import('../../modules/people/meters/npc-meters-slice.js');
+    const { restMood, applyEvents } = await import('../../modules/people/meters/npc-mood.js');
     const prev = restMood({}, 0);
     const mood = applyEvents(prev, 100, [{ kind: 'trust-drop', reason: 'Astra lied' }]);
     const write = ctx => { const record = {}; writeMood(ctx, 'oren', record, { prev, mood, day: 100, n: 4, date: 'Goldwane 1' }); return record; };
@@ -115,8 +115,8 @@ test('notes host: the catch-up (again) gives a mood word kept from before the nu
 });
 
 test('display: a person with a scanner word and the numbers the command wrote shows the scanner\'s word', async () => {
-    const { moodTile } = await import('../dossier-ui-view-model.js');
-    const { v2MetersProjection } = await import('../dossier-ui-meters.js');
+    const { moodTile } = await import('../../modules/people/legacy/dossier-ui-view-model.js');
+    const { v2MetersProjection } = await import('../../modules/people/legacy/dossier-ui-meters.js');
     const view = { mood: { word: 'Alarmed', valence: -2, energy: 2, control: -3, bars: { energy: 5, control: 0, max: 6 }, cause: 'now mortified and flustered', log: [] }, bars: [], secrets: [] };
     const tile = moodTile({ mood: 'Mortified and flustered', v2Meters: v2MetersProjection(view) }, 4);
     assert.equal(tile.text, 'Mortified and flustered');
@@ -217,7 +217,7 @@ anxious and fearful of discovery
 bewildered and subdued`.split('\n');
 
 test('mood words (real runs): every mood text the scanner really wrote maps to numbers, none is left unread', async () => {
-    const { moodFromWord } = await import('../npc-mood.js');
+    const { moodFromWord } = await import('../../modules/people/meters/npc-mood.js');
     assert.equal(REAL_MOODS.length, 90);
     const unread = REAL_MOODS.filter(text => !moodFromWord(text));
     assert.deepEqual(unread, [], 'no real mood text is left without numbers');
@@ -227,7 +227,7 @@ test('mood words (real runs): every mood text the scanner really wrote maps to n
 });
 
 test('mood words: a negated word does not count (not / no longer / never / less / n\'t), only in its own clause', async () => {
-    const { moodFromWord } = await import('../npc-mood.js');
+    const { moodFromWord } = await import('../../modules/people/meters/npc-mood.js');
     assert.equal(moodFromWord('not angry'), null);
     assert.equal(moodFromWord('never afraid'), null);
     assert.equal(moodFromWord('less angry'), null);
@@ -239,7 +239,7 @@ test('mood words: a negated word does not count (not / no longer / never / less 
 });
 
 test('mood numbers the scanner gives: whole numbers clamped to -3..3, all three or none', async () => {
-    const { moodNumbers } = await import('../npc-mood.js');
+    const { moodNumbers } = await import('../../modules/people/meters/npc-mood.js');
     assert.deepEqual(moodNumbers({ moodV: 2, moodA: '-1', moodD: 0 }), { v: 2, a: -1, d: 0 });
     assert.deepEqual(moodNumbers({ moodV: 9, moodA: -9, moodD: 1.6 }), { v: 3, a: -3, d: 2 }, 'clamped and whole');
     assert.deepEqual(moodNumbers({ v: 1, a: 1, d: -1 }), { v: 1, a: 1, d: -1 }, 'the command\'s own shape');
@@ -250,7 +250,7 @@ test('mood numbers the scanner gives: whole numbers clamped to -3..3, all three 
 });
 
 test('mood history: the same reply is the same record id, a netted-out move drops its row', async () => {
-    const { nextMoodLog, readMoodLog } = await import('../npc-mood.js');
+    const { nextMoodLog, readMoodLog } = await import('../../modules/people/meters/npc-mood.js');
     const one = nextMoodLog(null, { n: 4, s: 'r-a', date: 'D1', change: { v: -1, a: 2, d: 0 }, why: 'first' });
     assert.deepEqual(readMoodLog(one).map(row => [row.n, row.s]), [[4, 'r-a']]);
     // the same index but another record id (a delete in the middle shifted the chat): another reply, another row

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildQualifiedChatKey, getCharacterOwnerId, getChatIdentityFromContext } from '../identity.js';
-import { applyCanonicalOwnershipMove } from '../hardening-core.js';
-import { BRANCH_LINEAGE_VERSION, bestAncestorState, recordBranchCheckpoint, setBranchProvenanceHint } from '../branch.js';
-import { readNpcStateDataFile, retireNpcStateDataFile, writeNpcStateDataFile } from '../storage.js';
+import { buildQualifiedChatKey, getCharacterOwnerId, getChatIdentityFromContext } from '../../modules/people/core/identity.js';
+import { applyCanonicalOwnershipMove } from '../../modules/people/core/hardening-core.js';
+import { BRANCH_LINEAGE_VERSION, bestAncestorState, recordBranchCheckpoint, setBranchProvenanceHint } from '../../modules/people/legacy/branch.js';
+import { readNpcStateDataFile, retireNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const user = mes => ({ is_user: true, is_system: false, name: 'User', mes });
 const bot = mes => ({ is_user: false, is_system: false, name: 'NPC', mes });

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, applyStaleNpcLifecycle } from '../core.js';
-import { applyStaleNpcLifecycle as mechanicsLifecycle } from '../core-mechanics.js';
-import { ensureRollbackJournalBaseline, ensureBranchParentAnchor, recordBranchCheckpoint, reconcileBranchState, pruneRollbackJournal } from '../branch.js';
-import { writeNpcStateDataFile, readNpcStateDataFile, undurableNpcStateSnapshot, pendingNpcStateDurabilityKeys, cancelPendingNpcStateWrite, retireNpcStateDataFile, encodeStateFilePayload } from '../storage.js';
+import { createNpcRecord, applyStaleNpcLifecycle } from '../../modules/people/core/core.js';
+import { applyStaleNpcLifecycle as mechanicsLifecycle } from '../../modules/people/core/core-mechanics.js';
+import { ensureRollbackJournalBaseline, ensureBranchParentAnchor, recordBranchCheckpoint, reconcileBranchState, pruneRollbackJournal } from '../../modules/people/legacy/branch.js';
+import { writeNpcStateDataFile, readNpcStateDataFile, undurableNpcStateSnapshot, pendingNpcStateDurabilityKeys, cancelPendingNpcStateWrite, retireNpcStateDataFile, encodeStateFilePayload } from '../../modules/people/storage/storage.js';
 
 const immediate = resolve => resolve();
 const rejection = status => ({ ok: false, status, text: async () => 'synthetic rejection' });

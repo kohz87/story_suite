@@ -6,7 +6,7 @@ import {
     dispatchScannerRequest,
     normalizeScannerMaxOutputTokens,
     SCANNER_MAX_OUTPUT_TOKENS_MAX,
-} from '../scanner-routing.js';
+} from '../../modules/people/calls/scanner-routing.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 
@@ -75,7 +75,7 @@ test('zero scanner output setting preserves built-in request lengths', async () 
 });
 
 test('scanner output UI mounts into the Scanning slot, leaves panel styling to style.css, and keeps cast cards taller', () => {
-    const source = fs.readFileSync(new URL('../scanner-output-ui.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../../modules/people/legacy/scanner-output-ui.js', import.meta.url), 'utf8');
     const index = runtimeSource();
     const css = styleSource();
     assert.match(source, /Maximum output tokens/);

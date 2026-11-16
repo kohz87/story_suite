@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS, editorProfileLocks } from '../src/dossier-edit.js';
-import { preserveUserNpcMetadata } from '../branch-core.js';
+import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS, editorProfileLocks } from '../../modules/people/dossier/dossier-edit.js';
+import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 import { runtimeSource } from './helpers/runtime-source.js';
 
@@ -41,7 +41,7 @@ test('a branch restore keeps every key a lock covers, the same keys a bundle imp
     assert.equal('unclassifiedAppearance' in npc, false, 'a part the current dossier does not have is not kept from the old copy');
     assert.equal(npc.mood, 'tired', 'an unlocked field is the restored one');
     assert.deepEqual(npc.manualProfileFields, ['appearance', 'apparentAge']);
-    const bundle = fs.readFileSync(new URL('../bundle-import-helpers-parts/records.js', import.meta.url), 'utf8');
+    const bundle = fs.readFileSync(new URL('../../modules/people/bundle/bundle-import-helpers-parts/records.js', import.meta.url), 'utf8');
     assert.match(bundle, /for \(const key of LOCKED_FIELD_KEYS\[field\] \|\| \[\]\)/, 'bundle import uses the same map');
 });
 

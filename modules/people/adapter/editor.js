@@ -6,10 +6,10 @@
 
 import {
     FEATURE_STAGES, limitsFromLines, limitsToLines, meterValue, MAX_SECRETS, normalizeSecrets, secretsFromLines, secretsToLines, wordKey,
-} from '../npc-meters.js';
-import { eventSummary } from '../npc-meters-pacing.js';
+} from '../meters/npc-meters.js';
+import { eventSummary } from '../meters/npc-meters-pacing.js';
 import { escapeHtml } from '../util/html.js';
-import { tieRows, owedBy, foldTies, aliasCanon } from '../npc-notes-kinds.js';
+import { tieRows, owedBy, foldTies, aliasCanon } from '../notes/npc-notes-kinds.js';
 
 // The scan's short list of story events to watch for: this many people, this many events each.
 const EVENT_WATCH_NPCS = 6;

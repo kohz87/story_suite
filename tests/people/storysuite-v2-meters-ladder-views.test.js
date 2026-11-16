@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileTemplate } from '../../../ui/legacy/view/template/index.js';
-import { validateScreen } from '../../../ui/legacy/view/screens.js';
-import { MODULE_ID, meterBarNode } from '../src/storysuite-v2.js';
-import { DEFAULT_CHANGE_CAP, FEATURE_DRIFT, FEATURE_PRESETS, FEATURE_STAGES, createNpcPart, normalizeMeterSettings, parseNeeds, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../src/npc-meters.js';
-import { metersCardScreen } from '../src/npc-meters-screen.js';
-import { v2MetersHtml, v2MetersProjection, v2SecretsHtml } from '../dossier-ui.js';
+import { compileTemplate } from '../../ui/legacy/view/template/index.js';
+import { validateScreen } from '../../ui/legacy/view/screens.js';
+import { MODULE_ID, meterBarNode } from '../../modules/people/storysuite-v2.js';
+import { DEFAULT_CHANGE_CAP, FEATURE_DRIFT, FEATURE_PRESETS, FEATURE_STAGES, createNpcPart, normalizeMeterSettings, parseNeeds, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { metersCardScreen } from '../../modules/people/meters/npc-meters-screen.js';
+import { v2MetersHtml, v2MetersProjection, v2SecretsHtml } from '../../modules/people/legacy/dossier-ui.js';
 import { fakeRoot, fakeDocument } from './helpers/fake-dom.js';
 import { withoutDossiers } from './helpers/seed-people.js';
 import { DATING_PACK, LADDER, SECRET, dossiers, fuzzSeeds, lastReceipt, prng, suite } from './storysuite-v2-meters-ladder.helpers.js';
@@ -214,7 +214,7 @@ for (const seed of fuzzSeeds(process.env.FUZZ_SEEDS, [5, 17, 41])) {
 }
 
 test('the meter setup is kept on the dossier and never reaches Delta\'s own prompts', async () => {
-    const core = await import('../core.js');
+    const core = await import('../../modules/people/core/core.js');
     const npc = core.normalizeNpcRecord({ id: 'npc_mira', name: 'Mira', present: true, role: 'Clerk', meterSetup: { track: 'rival-track-x', limits: { affection: { ceiling: 37 } } } });
     assert.deepEqual(npc.meterSetup, { track: 'rival-track-x', limits: { affection: { ceiling: 37 } } });
     const transcript = 'USER: Hello.\nASSISTANT: Mira smiles.';

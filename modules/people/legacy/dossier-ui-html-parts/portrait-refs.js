@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: portrait image references: the key table, the image source attribute and the signature mark. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 
 // (perf) A data-URL picture reaches the panel by reference: the markup carries a short key (data-delta-portrait="3") and the

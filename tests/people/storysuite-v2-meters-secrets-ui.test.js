@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../src/npc-meters.js';
-import { assemble } from '../../../core/prompt.js';
-import { escapeHtml } from '../src/util/html.js';
-import { projectDossierState, v2SecretsHtml, v2MetersProjection } from '../dossier-ui.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../../modules/people/meters/npc-meters.js';
+import { assemble } from '../../core/prompt.js';
+import { escapeHtml } from '../../modules/people/util/html.js';
+import { projectDossierState, v2SecretsHtml, v2MetersProjection } from '../../modules/people/legacy/dossier-ui.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
-import { hiddenNotePromptRules } from '../core-mechanics.js';
-import { buildScannerPrompt } from '../core.js';
+import { hiddenNotePromptRules } from '../../modules/people/core/core-mechanics.js';
+import { buildScannerPrompt } from '../../modules/people/core/core.js';
 import { ERSVEIL, EVENT, EVENT_SECRET, SECRET, SECRET_TWO, eventNote, fakeDelta, handedOver, host } from './storysuite-v2-meters.helpers.js';
 
 test('secrets: the Secrets view is the notes in order, opened with title, text and what opened them, hidden as a rule only', async () => {

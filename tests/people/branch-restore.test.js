@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     addUserDismissedGroup,
     clearUserDismissedGroupsFor,
@@ -12,10 +12,10 @@ import {
     recordBranchCheckpoint,
     reconcileBranchState,
     snapshotBranchState,
-} from '../branch.js';
-import { normalizeSocialGraph } from '../social.js';
-import { readAheadOf } from '../scan-context.js';
-import { skippedExchangesWindow, useTranscriptSource } from '../src/transcript.js';
+} from '../../modules/people/legacy/branch.js';
+import { normalizeSocialGraph } from '../../modules/people/social/social.js';
+import { readAheadOf } from '../../modules/people/calls/scan-context.js';
+import { skippedExchangesWindow, useTranscriptSource } from '../../modules/people/transcript/transcript.js';
 import { assistant, baseState, user } from './branch.helpers.js';
 
 test('v0.2.10 branch rollback restores fractional relationship progress and recent evidence history', () => {

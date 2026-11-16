@@ -2,9 +2,9 @@
 // social-graph undo and tombstone-safe cleanup. A pure part of branch.js (same owner, moved without change);
 // branch.js re-exports every public name it exported before. Never imports branch.js.
 
-import { isTerminalNpcDeath, normalizeNpcRecord } from './core.js';
-import { normalizeSocialGraph, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from './social.js';
-import { NPC_REVERT_GROUPS, NPC_REVERT_LIST_FIELDS } from './src/fields/registry.js';
+import { isTerminalNpcDeath, normalizeNpcRecord } from '../core/core.js';
+import { normalizeSocialGraph, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../social/social.js';
+import { NPC_REVERT_GROUPS, NPC_REVERT_LIST_FIELDS } from '../fields/registry.js';
 import { jsonEqual } from './branch-util.js';
 import { lineageCheckpointKeys } from './branch-lineage.js';
 import { restoreLinearBoundaryFromJournal } from './branch-recovery.js';

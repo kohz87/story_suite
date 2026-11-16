@@ -2,7 +2,7 @@
 // Story Block operation, publication or model route exists here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHistoryReplay, HISTORY_REPLAY_CAP, HISTORY_REPLAY_MAX_ATTEMPTS } from '../src/storysuite-participant/history-replay.js';
+import { createHistoryReplay, HISTORY_REPLAY_CAP, HISTORY_REPLAY_MAX_ATTEMPTS } from '../../modules/people/legacy/storysuite-participant/history-replay.js';
 
 const repliesOf = count => Array.from({ length: count }, (_unused, index) => ({ index, text: `Reply ${index}` }));
 

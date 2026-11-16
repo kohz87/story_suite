@@ -3,8 +3,8 @@
 // install), and tells the reader once; an unsafe selection is refused with a note and the live dossiers stay. Pure over a memory port and vault.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createParticipant, memoryVault, installGuard, changeAt, restoreNoteText } from '../src/storysuite-participant/index.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { createParticipant, memoryVault, installGuard, changeAt, restoreNoteText } from '../../modules/people/legacy/storysuite-participant/index.js';
+import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
 
 const npc = (id, name) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3 });
 const names = count => Array.from({ length: count }, (_, at) => `m${at}`);

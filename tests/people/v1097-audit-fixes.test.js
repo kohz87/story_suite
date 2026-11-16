@@ -1,16 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig } from '../core.js';
-import { appearanceFingerprint, resolveNpcAppearance } from '../appearance.js';
-import { mergeImportedDossierState } from '../bundle.js';
+import { createNpcRecord, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig } from '../../modules/people/core/core.js';
+import { appearanceFingerprint, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 import {
     BRANCH_LINEAGE_VERSION,
     ensureBranchParentAnchor,
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
-import { quarantineUnreadableNpcStateDataFile } from '../storage.js';
+} from '../../modules/people/legacy/branch.js';
+import { quarantineUnreadableNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }] };
 const dated = (npc, date, id) => normalizeNpcRecord(mergeScanResult({ npcs: [npc], candidates: [], turn: 3, socialGraph: { version: 1, edges: [], unresolved: [] } }, { npcs: [] },

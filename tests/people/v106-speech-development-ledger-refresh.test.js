@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
     createNpcRecord,
     mergeScanResult,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 import { scan } from './v106-speech-development-ledger.helpers.js';
 
 test('v1.0.19 unlabeled Speech evidence accumulates across independent scans and can promote a grounded refine candidate', () => {

@@ -10,7 +10,7 @@ import {
     lookText,
     readLookStamp,
     stampLook,
-} from '../src/npc-notes-look.js';
+} from '../../modules/people/notes/npc-notes-look.js';
 
 const LOCK = 'white hair, yellow-green eyes';
 

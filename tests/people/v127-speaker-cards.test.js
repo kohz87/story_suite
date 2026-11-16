@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { othersSlotsHtml, presentSceneModel, speakerChatterHtml, speakerGroups } from '../present-scene.js';
+import { othersSlotsHtml, presentSceneModel, speakerChatterHtml, speakerGroups } from '../../modules/people/legacy/present-scene.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 

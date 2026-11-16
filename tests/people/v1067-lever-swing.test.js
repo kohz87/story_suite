@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildScannerPrompt, createNpcRecord, mergeScanResult } from '../core.js';
+import { buildScannerPrompt, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
 
 const DISPOSITION = 'Disposition: reserved - practical and guarded';
 const AVOIDANT = 'Conflict/Assertiveness: avoidant - answers challenges with cold politeness';

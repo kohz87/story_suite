@@ -3,11 +3,11 @@
 // Delta's ids: `npc_` then letters, digits, `-` and `_` (as the people domain checks them).
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 import { FORBIDDEN_KEYS, isInt, isObject, isReplyId, MAX_METERS_PER_NPC, MAX_MILESTONES, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, METER_ID_MAX, MILESTONE_MAX, NAME_MAX, npcKey, RECORD_FIELDS, replyKey, CUSTOM_RANGE, DISPOSITION_MAX, STAGE_NAME_MAX, WORDS } from '../npc-meters-config.js';
-import { RELATIONSHIP_KEYS } from '../../core-mechanics.js';
-import { flatDayProblems } from '../relationship-pacing.js';
+import { RELATIONSHIP_KEYS } from '../../core/core-mechanics.js';
+import { flatDayProblems } from '../../legacy/relationship-pacing.js';
 import { readEvent } from '../npc-meters-pacing.js';
-import { readApproachRing } from '../../npc-meters-gate.js';
-import { validateNotes } from '../npc-notes-kinds.js';
+import { readApproachRing } from '../npc-meters-gate.js';
+import { validateNotes } from '../../notes/npc-notes-kinds.js';
 import { validateCast } from './cast-memory.js';
 import { validateKeyAway } from './key-away.js';
 import { moodPullProblems } from './mood-problems.js';

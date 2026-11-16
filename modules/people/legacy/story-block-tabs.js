@@ -1,7 +1,7 @@
 // Display helpers for Delta's Cast and Dossiers lists in the Story Suite v2 host (src/storysuite-v2.js loads them lazily):
 // the dossier list rows and the empty-cast line. The v1 Story Block tab registration is gone (12 Nov): Story Block is v2 only.
 // Display only: DOM built with textContent; nothing here writes state, prompts or messages.
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 
 // (1.2.13) An empty tab says why, and offers what would fill it.
 const actionButton = (action, icon, label) => `<button type="button" class="menu_button npc-state-delta-story-action" data-npc-state-delta-action="${action}"><i class="fa-solid ${icon}"></i> ${label}</button>`;

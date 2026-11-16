@@ -5,11 +5,11 @@ import { cleanList, cleanText, normalizeName } from '../core-text.js';
 import { cleanTieSeen, compactKeyRelationshipEntry, KEY_RELATIONSHIP_LIMIT, mergeKeyRelationshipUpdates } from '../core-keyrel.js';
 import { normalizeMannerisms } from '../core-durable.js';
 import { BEHAVIOR_PROFILE_LIMIT, normalizeBehaviorProfile } from '../core-behavior.js';
-import { PORTRAIT_NPC_PROMPT_LIMIT } from '../core-portrait.js';
+import { PORTRAIT_NPC_PROMPT_LIMIT } from '../../portrait/core-portrait.js';
 import { normalizeProfileEvidence } from '../core-evidence.js';
-import { normalizeFactMemories } from '../src/memory-fact-store.js';
+import { normalizeFactMemories } from '../../memory/memory-fact-store.js';
 import { CAST_APPEARANCE_WIDE, castAppearanceKept, normalizeAppearanceCanon, normalizeLifeStateCertainty, normalizeMemoryStamps, normalizePortraitSeed, normalizeStoredMemories, stripRecordCitations } from '../core-record-shared.js';
-import { impactDayProblems } from '../src/relationship-pacing.js';
+import { impactDayProblems } from '../../legacy/relationship-pacing.js';
 import { normalizeCustomFields } from '../core-record-custom-fields.js';
 
 export function normalizeNpcRecord(rawInput = {}) {

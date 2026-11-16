@@ -15,7 +15,7 @@ import {
     resolveMapBonds,
     ringWordSpot,
     selectMapNpcs,
-} from '../relationship-map-core.js';
+} from '../../modules/people/legacy/relationship-map-core.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
@@ -153,7 +153,7 @@ test('the map is a read-only adapter wired through the existing owners', () => {
 });
 
 test('focus: the web of one person lights her ties, dims the rest and words each tie', async () => {
-    const { buildFocusModel, relationWord, localBondTone, mapNodeHtml, mapSvgHtml, mapCardHtml, mapKeyLine } = await import('../relationship-map-focus.js');
+    const { buildFocusModel, relationWord, localBondTone, mapNodeHtml, mapSvgHtml, mapCardHtml, mapKeyLine } = await import('../../modules/people/legacy/relationship-map-focus.js');
     const npcs = [
         npc('rika', { keyRelationships: ['Temiwa: friend', 'Bregje: rival'] }),
         npc('temiwa'), npc('bregje', { keyRelationships: ['Vane: owes a debt'] }), npc('vane'), npc('joren'),
@@ -186,8 +186,8 @@ test('focus: the web of one person lights her ties, dims the rest and words each
 });
 
 test('map faces go through the portrait refs, never a raw data URL in the markup', async () => {
-    const { mapNodeHtml, buildFocusModel } = await import('../relationship-map-focus.js');
-    const { createPortraitRefs } = await import('../dossier-ui-html.js');
+    const { mapNodeHtml, buildFocusModel } = await import('../../modules/people/legacy/relationship-map-focus.js');
+    const { createPortraitRefs } = await import('../../modules/people/legacy/dossier-ui-html.js');
     const refs = createPortraitRefs();
     const data = 'data:image/png;base64,AAAA';
     const map = buildMapModel({ npcs: [npc('rika', { portrait: data })] }, {});
@@ -198,7 +198,7 @@ test('map faces go through the portrait refs, never a raw data URL in the markup
 });
 
 test('the map wires Focus: button, double-tap, chip clear and portrait fill', () => {
-    const adapter = fs.readFileSync(new URL('../relationship-map.js', import.meta.url), 'utf8');
+    const adapter = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map.js', import.meta.url), 'utf8');
     assert.match(adapter, /data-map-focus-clear/);
     assert.match(adapter, /addEventListener\('dblclick'/);
     assert.match(adapter, /refs\?\.fill\(pane\)/);
@@ -206,13 +206,13 @@ test('the map wires Focus: button, double-tap, chip clear and portrait fill', ()
 });
 
 test('map mode hides the dossier hero and gives the map the full width; meters get their own spaced columns', async () => {
-    const { mapNodeHtml, buildFocusModel } = await import('../relationship-map-focus.js');
-    const adapter = fs.readFileSync(new URL('../relationship-map.js', import.meta.url), 'utf8');
+    const { mapNodeHtml, buildFocusModel } = await import('../../modules/people/legacy/relationship-map-focus.js');
+    const adapter = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map.js', import.meta.url), 'utf8');
     assert.match(adapter, /delta-map-mode > \.delta-hero \{ display:none; \}/);
     assert.match(adapter, /\.delta-spread\.delta-map-mode \{ grid-template-columns:minmax\(0,1fr\); grid-template-rows:minmax\(0,1fr\); \}/);
     assert.doesNotMatch(adapter, /delta-map-mode \.delta-hero-media/);
     // the card stands beside the map from a width derived from content (map minimum + card minimum + room), under it below; no bare 899 / 520 lines
-    const core = await import('../relationship-map-core.js');
+    const core = await import('../../modules/people/legacy/relationship-map-core.js');
     assert.equal(core.MAP_CARD_BESIDE_MIN, core.MAP_CIRCLE_MIN + core.MAP_CARD_MIN + core.MAP_ROOM);
     assert.match(adapter, /@container dsr \(min-width: \$\{MAP_CARD_BESIDE_MIN\}px\)/);
     assert.match(adapter, /@container dmap \(max-width: \$\{MAP_LABELS_SHORT_MAX\}px\)/);
@@ -224,7 +224,7 @@ test('map mode hides the dossier hero and gives the map the full width; meters g
 });
 
 test('the map card: ties without Focus, the numbers line, a portrait or initials, the library bar and compact tap pills', async () => {
-    const { buildFocusModel, mapCardHtml, selectedTies, cardNumbersLine, cardNumberItems, mapNodeHtml } = await import('../relationship-map-focus.js');
+    const { buildFocusModel, mapCardHtml, selectedTies, cardNumbersLine, cardNumberItems, mapNodeHtml } = await import('../../modules/people/legacy/relationship-map-focus.js');
     const npcs = [
         npc('rika', { name: 'Rika', relationship: { trust: 11, affection: 11, desire: 6, tension: 13 }, keyRelationships: ['Temiwa: friend', 'Bregje: rival'], v2Meters: { ties: { bregje: ['rival'] } } }),
         npc('temiwa', { name: 'Temiwa' }), npc('bregje', { name: 'Bregje' }),
@@ -260,7 +260,7 @@ test('the map card: ties without Focus, the numbers line, a portrait or initials
     assert.match(mapCardHtml(map, buildFocusModel({ npcs }, map, 'rika'), 'Astra', { npc: { ...npcs[0], gender: '' } }), /Their ties/);
     const face = mapNodeHtml({ ...map.nodes[0], name: 'Captain Vane', short: 'Vane', portrait: '' }, buildFocusModel({}, map, ''), {});
     assert.match(face, /<span>CV<\/span>/, 'two initials for a two-word name');
-    const adapter = fs.readFileSync(new URL('../relationship-map.js', import.meta.url), 'utf8');
+    const adapter = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map.js', import.meta.url), 'utf8');
     assert.match(adapter, /libraryFootHtml\(count\)/, 'the map ends in the same Dossier library bar');
     assert.match(adapter, /closest\('\.delta-library-foot'\)\) return void setMode\(ui, 'dossier'\)/);
     assert.match(adapter, /class="ss-tap-pill" data-map-mode="map"/);
@@ -275,14 +275,14 @@ test('the outer ring word sits where no face or label is, and moves out of the w
     for (const spot of [empty, crowded]) assert.ok(['start', 'middle', 'end'].includes(spot.anchor));
     assert.deepEqual(ringWordSpot([box(390, 700), box(100, 400)]), ringWordSpot([box(390, 700), box(100, 400)]), 'deterministic');
     assert.deepEqual(nodeBoxes([{ x: 50, y: 50 }]).length, 1);
-    const source = fs.readFileSync(new URL('../relationship-map-focus-parts/map-markup.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map-focus-parts/map-markup.js', import.meta.url), 'utf8');
     assert.match(source, /ringWordSpot\(nodeBoxes\(model\.nodes\)\)/);
-    const adapter = fs.readFileSync(new URL('../relationship-map.js', import.meta.url), 'utf8');
+    const adapter = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map.js', import.meta.url), 'utf8');
     assert.match(adapter, /fitRingWord\(map\)[\s\S]*ResizeObserver/, 'placed against the measured labels, again when the circle resizes');
 });
 
 test('round 2 fix 5: a tie tag names the tie, the card says "Her ties" by gender, full names show down to a named width', async () => {
-    const { possessiveWord, tagWord, buildFocusModel } = await import('../relationship-map-focus.js');
+    const { possessiveWord, tagWord, buildFocusModel } = await import('../../modules/people/legacy/relationship-map-focus.js');
     assert.deepEqual(['female', 'Female', 'male', 'nonbinary', ''].map(possessiveWord), ['Her', 'Her', 'His', 'Their', 'Their']);
     assert.equal(tagWord(['ally']), 'ally');
     assert.equal(tagWord(['rival', 'owes']), 'owes');
@@ -293,6 +293,6 @@ test('round 2 fix 5: a tie tag names the tie, the card says "Her ties" by gender
     const map = buildMapModel({ npcs, turn: 1 }, { selectedId: 'rika' });
     const tie = buildFocusModel({ npcs }, map, 'rika').ties[0];
     assert.deepEqual([tie.word, tie.dynamic], ['ally', 'saved her'], 'the tag, not the family word, and the dynamic text');
-    const core = await import('../relationship-map-core.js');
+    const core = await import('../../modules/people/legacy/relationship-map-core.js');
     assert.ok(core.MAP_NAMES_MIN < core.MAP_LABELS_SHORT_MAX && core.MAP_DENSE_NODES >= 10);
 });

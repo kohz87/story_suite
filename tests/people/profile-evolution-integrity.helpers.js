@@ -1,4 +1,4 @@
-import { mergeScanResult } from '../core.js';
+import { mergeScanResult } from '../../modules/people/core/core.js';
 
 export const state = (...npcs) => ({ npcs, candidates: [], turn: 1 });
 export const merge = (npc, update, context = '', extra = {}) => mergeScanResult(

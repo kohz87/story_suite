@@ -1,18 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { dossierDetailProjection, DeltaDossierUi } from '../dossier-ui.js';
+import { dossierDetailProjection, DeltaDossierUi } from '../../modules/people/legacy/dossier-ui.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
-import { boardHtml, boardTiles } from '../dossier-ui-board.js';
-import { dialArcs, dialSvg } from '../dossier-ui-dial.js';
-import { v2MetersProjection } from '../dossier-ui-meters.js';
-import { dossierProfileHtml } from '../dossier-ui-profile.js';
-import { goBack, openNpc, openSection } from '../dossier-ui-screens.js';
-import { sectionScreenHtml } from '../dossier-ui-sections.js';
+import { boardHtml, boardTiles } from '../../modules/people/legacy/dossier-ui-board.js';
+import { dialArcs, dialSvg } from '../../modules/people/legacy/dossier-ui-dial.js';
+import { v2MetersProjection } from '../../modules/people/legacy/dossier-ui-meters.js';
+import { dossierProfileHtml } from '../../modules/people/legacy/dossier-ui-profile.js';
+import { goBack, openNpc, openSection } from '../../modules/people/legacy/dossier-ui-screens.js';
+import { sectionScreenHtml } from '../../modules/people/legacy/dossier-ui-sections.js';
 import { builtCss, rika } from './stage1-dossier-ui.helpers.js';
 
 test('fix 3: two-letter initials, mood bars in Right now, flat profile rows in the mockup order, count bar on the library, no debug wording', async () => {
-  const { initialsOf, portraitHtml } = await import('../dossier-ui-html.js');
+  const { initialsOf, portraitHtml } = await import('../../modules/people/legacy/dossier-ui-html.js');
   assert.equal(initialsOf('The inspector'), 'TI');
   assert.equal(initialsOf('Marrit'), 'M');
   assert.match(portraitHtml({ name: 'Sister Temiwa' }, 'x'), /<span>ST<\/span>/);
@@ -24,10 +24,10 @@ test('fix 3: two-letter initials, mood bars in Right now, flat profile rows in t
   assert.match(html, /<dt>Look<\/dt><dd>Freckled<\/dd><dt>Wearing<\/dt><dd>Singed coat<\/dd><dt>Habits<\/dt><dd>Ties off bandages<\/dd>/);
   assert.ok(html.indexOf('data-delta-profile="identity"') < html.indexOf('data-delta-profile="appearance"') && html.indexOf('data-delta-profile="appearance"') < html.indexOf('data-delta-profile="character"') && html.indexOf('data-delta-profile="character"') < html.indexOf('data-delta-profile="background"'), 'Identity, Appearance, Character, ..., Background');
   assert.doesNotMatch(html, /delta-profile-col"|Deterministic fallback|Physical features/);
-  const { libraryCountHtml } = await import('../dossier-ui-library.js');
+  const { libraryCountHtml } = await import('../../modules/people/legacy/dossier-ui-library.js');
   assert.match(libraryCountHtml(10), /data-static="true">▸ Dossier library · 10 NPCs</);
   assert.doesNotMatch(libraryCountHtml(10), /data-delta-screen/, 'on the library the bar is a count, not a link');
-  const header = await import('../dossier-ui-header.js');
+  const header = await import('../../modules/people/legacy/dossier-ui-header.js');
   assert.match(header.dossierMenuHtml('a'), /delta-header-menu-toggle ss-tap-pill/);
   const css = await builtCss();
   assert.match(css, /--dt-meta:clamp\(/, 'type flows with the panel width');
@@ -65,7 +65,7 @@ test('round 2 fix 2-4: the Mood section with three bars and the Pull last, Right
 });
 
 test('round 2 fix 6-11: gate words, pronouns, the Pull ring at three quarters, tension rising is bad, a square-root dial, Character rows, one mood word', async () => {
-  const { gateWords, possessiveWord } = await import('../dossier-ui-view-model.js');
+  const { gateWords, possessiveWord } = await import('../../modules/people/legacy/dossier-ui-view-model.js');
   assert.equal(gateWords('via praise · 3rd in 2 days · backfired'), 'praise, the 3rd time in 2 days, backfired');
   assert.equal(gateWords('via praise · 3rd in 2 days · backfired', { row: true }), 'via praise: the 3rd time in 2 days, so it backfired');
   assert.equal(gateWords('via gift · less', { row: true }), 'via gift: it landed less');
@@ -77,8 +77,8 @@ test('round 2 fix 6-11: gate words, pronouns, the Pull ring at three quarters, t
   assert.match(boardTiles({ tiles: { pull: { text: 'Awe', level: 1, note: 'low' }, mood: { text: 'Calm' } } }, {}).find(tile => tile.title === 'Mood').footHtml, /strength 1 of 3"[^>]*><i class="on"><\/i><i><\/i><i><\/i>/, 'low is one dot');
   const sweep = value => { const arc = dialArcs({ trust: value }).find(a => a.axis === 'trust'); const [x, y] = arc.path.split('A')[1].split(' ').slice(-2).map(Number); return Math.round(Math.atan2(x - 120, 120 - y) * 180 / Math.PI); };
   assert.equal(sweep(100), 90); assert.equal(sweep(25), 45); assert.ok(sweep(11) >= 28 && sweep(11) <= 32, 'about a third of the quadrant at +11');
-  const { dossierIndexProjection } = await import('../dossier-ui-model.js');
-  const { projectDossierState } = await import('../dossier-ui-catalog.js');
+  const { dossierIndexProjection } = await import('../../modules/people/legacy/dossier-ui-model.js');
+  const { projectDossierState } = await import('../../modules/people/legacy/dossier-ui-catalog.js');
   const state = { npcs: [{ id: 'r', name: 'Rika', mood: 'Cautious', bucket: 'active' }], meterViews: { r: { bars: [], mood: { word: 'Alarmed', bars: { energy: 5, control: 1, max: 6 }, cause: '' } } } };
   assert.equal(projectDossierState(state).index[0].mood, 'Cautious', 'the library says what the board says: the scanner\'s own word leads');
   assert.equal(projectDossierState({ npcs: [{ id: 'r', name: 'Rika', mood: '', bucket: 'active' }], meterViews: state.meterViews }).index[0].mood, 'Alarmed', 'the numbers\' table word when the scanner wrote none');
@@ -93,8 +93,8 @@ test('round 2 fix 6-11: gate words, pronouns, the Pull ring at three quarters, t
 });
 
 test('round 3 fix 2-6: no tier line under a change row, a muted secrets intro, Levers joined without a doubled full stop, no Identity heading, the card dial without labels', async () => {
-  const { recentChangeRowHtml } = await import('../dossier-ui-relationship.js');
-  const { secretsSectionHtml } = await import('../dossier-ui-sections.js');
+  const { recentChangeRowHtml } = await import('../../modules/people/legacy/dossier-ui-relationship.js');
+  const { secretsSectionHtml } = await import('../../modules/people/legacy/dossier-ui-sections.js');
   const earlier = recentChangeRowHtml({ event: { impact: 'meaningful', reason: 'She shared the map.', axes: ['Trust'] } });
   assert.doesNotMatch(earlier, /meaningful change|ordinary change/);
   assert.match(earlier, /She shared the map\./);
@@ -104,23 +104,23 @@ test('round 3 fix 2-6: no tier line under a change row, a muted secrets intro, L
   const npc = dossierDetailProjection({ id: 'r', name: 'Rika', personality: 'Proud', behaviorProfile: ['Never rushes before concluding business.', 'Honesty: high'] }, {}, {});
   assert.match(dossierProfileHtml(npc, { layout: 'desktop' }), /<dd>Never rushes before concluding business; Honesty: high<\/dd>/);
   const css = dossierUiSource();
-  const mapCss = fs.readFileSync(new URL('../relationship-map-focus-parts/focus-styles.js', import.meta.url), 'utf8');
+  const mapCss = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map-focus-parts/focus-styles.js', import.meta.url), 'utf8');
   assert.match(mapCss, /\.delta-map-card-dial \.dial-label \{ display:none; \}/);
   assert.match(mapCss, /\.delta-map-ties-focus \.delta-map-ties-head \{ font-size:var\(--dt-kick\); letter-spacing:\.12em; text-transform:uppercase/);
   assert.match(css, /\.delta-section-body p\.delta-secrets-intro\.delta-muted \{[^}]*font-size:var\(--dt-meta\)/);
   assert.match(css, /--delta-muted: color-mix\(in srgb, var\(--delta-text\) 62%, transparent\);/);
-  assert.match(fs.readFileSync(new URL("../dossier-ui-styles-board.js", import.meta.url), "utf8"), /\.delta-tile-dots::before \{ content:""; position:absolute/);
+  assert.match(fs.readFileSync(new URL("../../modules/people/legacy/dossier-ui-styles-board.js", import.meta.url), "utf8"), /\.delta-tile-dots::before \{ content:""; position:absolute/);
 });
 
 test("light themes: the neutral tones take their lightness from the panel's text colour and nothing keeps a fixed pale tone (12 Nov)", async () => {
-  const board = await import("../dossier-ui-styles-board.js");
+  const board = await import("../../modules/people/legacy/dossier-ui-styles-board.js");
   const css = board.BOARD_STYLES;
   assert.match(css, /@supports \(color: oklch\(from white l c h\)\) \{[\s\S]*--good: oklch\(from var\(--delta-text\) clamp\(\.46, calc\(l \+ \.1\), \.78\) \.073 143\);/);
   for (const tone of ["bad", "held", "dsk-ten", "aff", "des", "trust"]) assert.match(css, new RegExp(`--${tone}: oklch\\(from var\\(--delta-text\\)`), tone);
   const dial = dialSvg({ trust: 11, affection: 11, desire: 6, tension: 13 });
   assert.doesNotMatch(dial, /(?:fill|stroke)="#(?:8fb4d9|d99aaa|b7a3cf|d9a273)"/, "the dial's arcs and labels follow the tone variables");
   assert.match(dial, /fill="var\(--trust, #8fb4d9\)"/);
-  const styles = await import("../dossier-ui-styles.js");
+  const styles = await import("../../modules/people/legacy/dossier-ui-styles.js");
   assert.match(css, /--delta-accent-soft: var\(--ss-text, oklch\(from var\(--delta-text\)/, "the panel's own fallbacks follow the text colour too");
   assert.match(styles.STYLES, /--delta-good: var\(--ss-good, #9ed5b6\);[\s\S]*--delta-danger: var\(--ss-bad-text, #efaaaa\);/);
   assert.doesNotMatch(styles.STYLES, /\.delta-rel-(step|delta)-\w+ \{ color:#/);
@@ -165,7 +165,7 @@ test('browser back: every history.go(-n) is skipped once (a counter); in Map mod
 });
 
 test('the section "‹ Dossier" pill is hidden only where the board tiles are beside the section (three panes), by the container, not a device width', () => {
-  const css = fs.readFileSync(new URL('../dossier-ui-styles-sections.js', import.meta.url), 'utf8');
+  const css = fs.readFileSync(new URL('../../modules/people/legacy/dossier-ui-styles-sections.js', import.meta.url), 'utf8');
   assert.match(css, /@container dsr \(min-width: \$\{THREE_PANE_MIN\}px\) \{ #\$\{ROOT_ID\} \.delta-section-back \{ display:none; \} \}/);
   assert.doesNotMatch(css, /@media[^{]*\{[^}]*delta-section-back/);
 });
@@ -255,7 +255,7 @@ test('VADFIX2: a quiet reply for a mood that already rests says "no mood change 
 });
 
 test('Ties: each tie is three stacked lines (type label, name, description); a long type wraps; spacing between lines and ties is in the container styles', async () => {
-  const { SECTIONS_STYLES } = await import('../dossier-ui-styles-sections.js');
+  const { SECTIONS_STYLES } = await import('../../modules/people/legacy/dossier-ui-styles-sections.js');
   const ties = sectionScreenHtml('ties', { keyRelationships: ['Sister Temiwa — novice companion present at the counter | shares the cramped office and covered Sieke with an altar-cloth', 'Bregje — rival | clashes at the annex'] }, {});
   const rows = ties.match(/<div class="delta-bond"[\s\S]*?<\/div>/g) || [];
   assert.equal(rows.length, 2);
@@ -273,7 +273,7 @@ test('Ties: each tie is three stacked lines (type label, name, description); a l
 });
 
 test('Past: a stamped memory shows its story date and reply as a small label; an older memory shows none; the text is untouched', async () => {
-  const { SECTIONS_STYLES } = await import('../dossier-ui-styles-sections.js');
+  const { SECTIONS_STYLES } = await import('../../modules/people/legacy/dossier-ui-styles-sections.js');
   const memories = ['Met Astra at the counter', 'Spilled the ink'];
   const stamps = { 'met astra at the counter': { m: 4, d: 'Icewane 27' }, 'spilled the ink': { m: 9 } };
   const old = sectionScreenHtml('past', { memories: [...memories, 'An old memory'], memoryStamps: stamps }, {});
@@ -306,7 +306,7 @@ test('mood words come from the rows\' numbers; the old cause folds into a row or
 });
 
 test('mood lexicon tokens keep a curly apostrophe; scanner numbers must be numbers or numeric strings', async () => {
-  const { plainMoodWords, moodNumbers } = await import('../npc-mood.js');
+  const { plainMoodWords, moodNumbers } = await import('../../modules/people/meters/npc-mood.js');
   assert.deepEqual(plainMoodWords('she isn\u2019t angry'), [], 'curly n\u2019t negates like the straight one');
   assert.deepEqual(plainMoodWords("she isn't angry"), []);
   assert.deepEqual(moodNumbers({ moodV: '2', moodA: -1, moodD: 0 }), { v: 2, a: -1, d: 0 });

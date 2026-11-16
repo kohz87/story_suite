@@ -35,6 +35,6 @@ export function stubNode() {
 }
 
 export async function builtCss() {
-  const [a, b, c] = await Promise.all([import('../dossier-ui-styles.js'), import('../dossier-ui-styles-board.js'), import('../dossier-ui-styles-sections.js')]);
+  const [a, b, c] = await Promise.all([import('../../modules/people/legacy/dossier-ui-styles.js'), import('../../modules/people/legacy/dossier-ui-styles-board.js'), import('../../modules/people/legacy/dossier-ui-styles-sections.js')]);
   return `${dossierUiSource()}\n${a.STYLES}\n${b.BOARD_STYLES}\n${c.SECTIONS_STYLES}`;
 }

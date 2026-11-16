@@ -1,8 +1,8 @@
 // A pack entry's list fields (hidden notes, behaviour levers, mannerisms, tastes), each cleaned to Delta's own rules.
 
-import { isBehaviorLever, normalizeBehaviorProfile } from '../../core-behavior.js';
-import { normalizeMannerisms } from '../../core-durable.js';
-import { DURABLE_PROFILE_LIMITS } from '../../core-relationship.js';
+import { isBehaviorLever, normalizeBehaviorProfile } from '../../core/core-behavior.js';
+import { normalizeMannerisms } from '../../core/core-durable.js';
+import { DURABLE_PROFILE_LIMITS } from '../../core/core-relationship.js';
 import { BEHAVIOUR_MAX, MANNERISMS_MAX, SECRETS_MAX } from './limits-lists.js';
 import { clip, isObject, wholeNumber } from './shared-text.js';
 

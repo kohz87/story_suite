@@ -4,12 +4,12 @@
    sidecar. Built by index.js once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
 import { getContext } from '../../../extensions.js';
 import { saveSettings as saveHostSettings } from '../../../../script.js';
-import { NPC_STATE_VERSION } from './core.js';
-import { chatLineage } from './branch.js';
-import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, readNpcStateDataFile, retireNpcStateDataFile, quarantineUnreadableNpcStateDataFile, writeNpcStateDataFile } from './storage.js';
-import { buildQualifiedChatKey, getCharacterOwnerId, parseQualifiedChatKey } from './identity.js';
-import { lifecycleRenameStateIsEmpty } from './hardening-core.js';
-import { persistSettings, flushPendingSettingsSave, getSettings } from './runtime-settings.js';
+import { NPC_STATE_VERSION } from '../core/core.js';
+import { chatLineage } from '../legacy/branch.js';
+import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, readNpcStateDataFile, retireNpcStateDataFile, quarantineUnreadableNpcStateDataFile, writeNpcStateDataFile } from '../storage/storage.js';
+import { buildQualifiedChatKey, getCharacterOwnerId, parseQualifiedChatKey } from '../core/identity.js';
+import { lifecycleRenameStateIsEmpty } from '../core/hardening-core.js';
+import { persistSettings, flushPendingSettingsSave, getSettings } from '../settings/runtime-settings.js';
 import { createLifecycleDelete } from './runtime-lifecycle-delete.js';
 
 export function createLifecyclePart(rt, deps) {

@@ -2,8 +2,8 @@
 // has already left ("Brecht lay in the mud" before the walk to the Guild).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyScenePresence, createNpcRecord, mergeScanResult } from '../core.js';
-import { worldStatePeople } from '../present-scene.js';
+import { applyScenePresence, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { worldStatePeople } from '../../modules/people/legacy/present-scene.js';
 
 const WORLD_STATE = [
     '**📅 Time:** CY 611, Goldwane 12, 01:10 pm | **🌤 Loc:** Bluewatch Village, Adventurer Guild Branch',

@@ -2,10 +2,10 @@
    the flush with its ownership and conflict handling, settling a write, and the persist calls the rest of Delta makes (normal, critical, critical and
    durable). Built by index.js once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
 
-import { replayScope } from './runtime-scan-helpers.js';
-import { NPC_STATE_VERSION } from './core.js';
-import { writeNpcStateDataFile } from './storage.js';
-import { persistSettings, persistSettingsLazy, getSettings } from './runtime-settings.js';
+import { replayScope } from '../calls/runtime-scan-helpers.js';
+import { NPC_STATE_VERSION } from '../core/core.js';
+import { writeNpcStateDataFile } from '../storage/storage.js';
+import { persistSettings, persistSettingsLazy, getSettings } from '../settings/runtime-settings.js';
 
 export function createPersistPart(rt, deps) {
     const { assertChatHydratedForWrite, chatHydrationStatus, storeOwnsState = () => false, getChatKey, getChatState, holdRetiredLocalWork, isCanonicalChatKey, markStateDirty, ownershipEpoch, ownershipEpochCurrent, reconcileCrossSessionWriteConflict, requestHeaders, requireReadyChatMutation, updateHydratedStateMeta } = deps;

@@ -10,8 +10,8 @@ import {
     V2_HOST_EVENT,
     createStorySuiteV2Adapter,
     isV2Host,
-} from '../src/storysuite-v2.js';
-import { announceNpcStateDelta, openSuiteOverlay, storyBlockIsV2, suiteManageAvailable } from '../suite-handshake.js';
+} from '../../modules/people/storysuite-v2.js';
+import { announceNpcStateDelta, openSuiteOverlay, storyBlockIsV2, suiteManageAvailable } from '../../modules/people/legacy/suite-handshake.js';
 import { fakeDocument, fakeRegistry, fakeSdk, fakeTimers, hosted, setup, v2Host } from './storysuite-v2.helpers.js';
 
 // ---- without a host ----

@@ -1,6 +1,6 @@
 import { suite } from './helpers/pacing-suite.js';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { FEATURE_NOTES } from '../src/npc-meters-config.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { FEATURE_NOTES } from '../../modules/people/meters/npc-meters-config.js';
 
 export const said = "I didn't sell a spell.";
 
@@ -21,7 +21,7 @@ export const shape = s => JSON.stringify(s.host.head()).replace(/sw_[a-z0-9]+/g,
 
 // The run's conditions: tailBudget 550, a crowded earlier section (Story Director's lines) with a kept Initiative line, a kept pulse prelude, nobody present.
 export async function crowded(keptTokens) {
-    const { assemble, estimateTokens, KEPT_TAIL_TOKENS } = await import('../../../core/prompt.js');
+    const { assemble, estimateTokens, KEPT_TAIL_TOKENS } = await import('../../core/prompt.js');
     const s = await suite({ allowance: null, features: ON, present: [] });
     await s.setDay(1);
     const initiative = 'Initiative: Mira acts first, then the guards, then Oren.';

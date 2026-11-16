@@ -1,5 +1,5 @@
 /* Word tokens for appearance comparison: stop words, aliases and concept folding. A part of appearance-physical.js (same owner, moved without change). */
-import { normalizeName } from '../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 
 export const STOPWORDS = new Set([
     'and', 'the', 'with', 'that', 'this', 'their', 'they', 'them', 'when', 'while', 'from', 'into', 'over', 'under',

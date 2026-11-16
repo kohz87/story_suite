@@ -2,7 +2,7 @@
 // instead of minting a new one. A chat with dossiers or a line is never changed, and a bad file never gives a line.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { timelineOf } from '../src/storysuite-participant/index.js';
+import { timelineOf } from '../../modules/people/legacy/storysuite-participant/index.js';
 import { keep, makeDelta, npc } from './helpers/p24-port.js';
 
 const JOURNAL = 'lg_jrnlline';

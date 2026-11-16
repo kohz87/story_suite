@@ -4,7 +4,7 @@
  * today's handlers already use (delegated clicks in dossier-experience.js, runtime-settings-bind.js and
  * the jQuery refresh/scan/archive handlers), so those handlers keep working unchanged.
  */
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 
 const text = value => String(value ?? '').trim();
 

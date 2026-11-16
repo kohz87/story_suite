@@ -245,7 +245,7 @@ test('without a v2 host the launcher and the in-chat cast are as before', () => 
 });
 
 test('the launcher rule, the setting row and its CSS follow the hosted flag', () => {
-    const launcher = fs.readFileSync(new URL('../launcher-ui.js', import.meta.url), 'utf8');
+    const launcher = fs.readFileSync(new URL('../../modules/people/legacy/launcher-ui.js', import.meta.url), 'utf8');
     assert.match(launcher, /html\[data-npc-state-delta-story-block-v2="1"\]:not\(\[data-npc-state-delta-launcher-v2="keep"\]\) #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
     // v1's rule is unchanged.
     assert.match(launcher, /html\[data-npc-state-delta-story-block="1"\]:not\(\[data-npc-state-delta-launcher="keep"\]\) #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);

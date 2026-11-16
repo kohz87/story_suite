@@ -9,10 +9,10 @@ import {
     formatAppearanceForms,
     normalizeAppearanceModel,
     resolveNpcAppearance,
-} from '../appearance.js';
-import { buildScannerPrompt } from '../continuity-core.js';
-import { mergeImportedDossierState } from '../bundle.js';
-import { normalizeNpcRecord } from '../core.js';
+} from '../../modules/people/appearance/appearance.js';
+import { buildScannerPrompt } from '../../modules/people/core/continuity-core.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core.js';
 
 const SHARED = 'Tall and slender, long silver hair, violet eyes, pale skin';
 const v1 = (extra = {}) => ({

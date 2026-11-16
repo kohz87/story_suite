@@ -1,5 +1,5 @@
 /* NPC State Delta dossier relationship part: the relationship meter steps: the ▲/▼ beside one axis and the centre-out axis meter. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { relationshipValue, wholeNumber } from '../dossier-ui-model.js';
 
 // (1.2.15) The change the latest reply made to one axis, beside its meter: ▲3 / ▼2. Only for a change

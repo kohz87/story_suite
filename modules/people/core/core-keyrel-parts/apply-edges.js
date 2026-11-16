@@ -1,6 +1,6 @@
 /* NPC State Delta edge application: writing normalized key-relationship edges into the people they name. */
-import { compactSocialKeyRelationship, SOCIAL_DYNAMIC_MAX_CHARS } from '../../social.js';
-import { cleanText, cleanTextBoundary, normalizeName } from '../../core-text.js';
+import { compactSocialKeyRelationship, SOCIAL_DYNAMIC_MAX_CHARS } from '../../social/social.js';
+import { cleanText, cleanTextBoundary, normalizeName } from '../core-text.js';
 import { keyRelationshipSubjectsEquivalent, mergeKeyRelationshipUpdates } from './merge.js';
 import { normalizeKeyRelationshipEdges, relationshipEdgeNpc } from './edges.js';
 

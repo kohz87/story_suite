@@ -2,17 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createHost } from '../../../testkit/index.js';
-import { buildInjection, createNpcRecord, mergeScanResult } from '../core.js';
-import { keyAwayHtml, keyProjection, projectDossierState } from '../dossier-ui.js';
-import { dossierRowNodes } from '../story-block-tabs.js';
-import { storyMinuteText } from '../calendar.js';
-import { FEATURE_DRIFT, FEATURE_STAGES, KEY_PEOPLE_QUERY, observeKeyAway, validateNpcSlice } from '../src/npc-meters.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createHost } from '../../testkit/index.js';
+import { buildInjection, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { keyAwayHtml, keyProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+import { dossierRowNodes } from '../../modules/people/legacy/story-block-tabs.js';
+import { storyMinuteText } from '../../modules/people/legacy/calendar.js';
+import { FEATURE_DRIFT, FEATURE_STAGES, KEY_PEOPLE_QUERY, observeKeyAway, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import {
     AWAY_LOCKED_FIELDS, RECENT_REPLIES, awayNpcIds, awayRange, findKeyEntry, isAway, isKey, keyView,
     lockAwayNpcs, memoryKey, normalizeKeyPeople, returnNote,
-} from '../src/key-people.js';
+} from '../../modules/people/cast/key-people.js';
 import { fakeDocument } from './helpers/fake-dom.js';
 import { runHostScenario } from './helpers/host-scenario.js';
 import { runtimeSource } from './helpers/runtime-source.js';

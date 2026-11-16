@@ -8,7 +8,7 @@ import { shippedModulePaths } from './helpers/shipped-modules.js';
 import {
     LEVEL_FIELD_RULE, buildBackfillPrompt, buildDossierImportPrompt, buildNarrationCaptureParts, buildProfileRefreshPrompt,
     buildScannerPrompt, createNpcRecord, mergeScanResult, normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 // The Level field rule (owner-approved, core contract C10): one sentence in the custom-field rule, only when the
 // configured names include Level (any case); every other prompt and field is unchanged.
@@ -97,7 +97,7 @@ for (const name of fs.readdirSync(sourceRoot).filter(entry => entry.endsWith('-p
 fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), 'export const extension_settings = {};\nexport function getContext() { return {}; }\n');
 fs.writeFileSync(path.join(tempRoot, 'public', 'script.js'), 'export function getRequestHeaders() { return {}; }\nexport async function saveSettings() {}\n');
 const { effectiveCustomFieldNames, setRpgProbe } = await import(pathToFileURL(path.join(extRoot, 'runtime-settings.js')).href);
-const { buildInjection } = await import('../core.js');
+const { buildInjection } = await import('../../modules/people/core/core.js');
 const { suite } = await import('./helpers/pacing-suite.js');
 const setNames = names => ({ customFieldNames: names });
 const rpg = { on: false };
@@ -189,8 +189,8 @@ test('active party member: stored Level follows the sheet and the scanner\'s Lev
 
 test('the adapter reads party.levels (null without the query), the dossier marks Level "from the party sheet" only for those people', async () => {
     assert.equal((await suite({})).adapter.partyLevelsAnswer(), null, 'a host without the query: as today (the answer with the query: cast-dossier.test.js)');
-    const { projectDossierState } = await import('../dossier-ui-catalog.js');
-    const { currentCard } = await import('../dossier-ui-html.js');
+    const { projectDossierState } = await import('../../modules/people/legacy/dossier-ui-catalog.js');
+    const { currentCard } = await import('../../modules/people/legacy/dossier-ui-html.js');
     const people = [normalizeNpcRecord({ id: 'npc_mira', name: 'Mira', customFields: { Level: '5' } }), normalizeNpcRecord({ id: 'npc_bo', name: 'Bo', customFields: { Level: '2' } })];
     const marked = projectDossierState({ npcs: people, customFieldNames: ['Level'], sheetLevels: { npc_mira: true } }, { chatKey: 'c1' }).npcs;
     assert.equal(marked[0].levelFromSheet, true);

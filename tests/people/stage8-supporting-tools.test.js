@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { buildNpcPortraitPrompts, createNpcRecord } from '../core.js';
-import { encodeNpcStateBundle } from '../bundle.js';
+import { buildNpcPortraitPrompts, createNpcRecord } from '../../modules/people/core/core.js';
+import { encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
 import {
     boundedAppend,
     buildPortablePortraitSettings,
@@ -17,20 +17,20 @@ import {
     toolEvents,
     uiRoot,
     validatePortraitFile,
-} from '../dossier-tools-core.js';
+} from '../../modules/people/legacy/dossier-tools-core.js';
 import {
     augmentNativeBundle,
     buildHistoryArchive,
     decodeDeltaNativeBundle,
     prepareNativeImport,
-} from '../native-transfer.js';
+} from '../../modules/people/transfer/native-transfer.js';
 
 function portraitData(bytes = [1, 2, 3, 4]) {
     return `data:image/png;base64,${Buffer.from(bytes).toString('base64')}`;
 }
 
 test('Diagnostics retains the manual full-cast follow-up action', () => {
-    const source = fs.readFileSync(fileURLToPath(new URL('../dossier-tools.js', import.meta.url)), 'utf8');
+    const source = fs.readFileSync(fileURLToPath(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url)), 'utf8');
     assert.match(source, /data-run-full-cast-scan/);
     assert.match(source, /Full scan current cast/);
     assert.match(source, /npc-state-delta:request-full-cast-scan/);

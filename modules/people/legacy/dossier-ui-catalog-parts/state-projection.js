@@ -1,7 +1,7 @@
 /* NPC State Delta dossier surface: shaping the whole dossier state (details, ties, meters, key and cast views, index) for the panel. */
 import { changeStamp, dossierDetailProjection, plain, RELATIONSHIP_AXES, wholeNumber } from '../dossier-ui-model.js';
 import { v2MetersProjection } from '../dossier-ui-meters.js';
-import { noteTieTags, readTieRows, tieRoster } from '../core-keyrel.js';
+import { noteTieTags, readTieRows, tieRoster } from '../../core/core-keyrel.js';
 import { libraryTone, moodTile } from '../dossier-ui-view-model.js';
 import { sortDossierIndex } from './index-order.js';
 import { keyProjection } from './key-projection.js';

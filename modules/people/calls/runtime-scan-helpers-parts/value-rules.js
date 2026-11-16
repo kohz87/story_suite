@@ -1,6 +1,6 @@
 // Small shared predicates and clamps: whether one-pass capture is on, the relationship number clamp and who is worth a slice entry.
 
-import { getSettings } from '../runtime-settings.js';
+import { getSettings } from '../../settings/runtime-settings.js';
 
 export function narrationCaptureEnabled(settings = getSettings()) {
     return Boolean(settings.enabled && settings.narrationCapture && !settings.fullScanEveryTurn);

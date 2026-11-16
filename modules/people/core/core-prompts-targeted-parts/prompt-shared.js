@@ -2,7 +2,7 @@
 import { DURABLE_PROFILE_LIMITS } from '../core-relationship.js';
 import { BEHAVIOR_PROFILE_LIMIT } from '../core-behavior.js';
 import { KEY_RELATIONSHIP_LIMIT } from '../core-keyrel.js';
-import { RETURN_KEYS, RETURN_SHAPES } from '../src/fields/registry.js';
+import { RETURN_KEYS, RETURN_SHAPES } from '../../fields/registry.js';
 // (cleanup steps 12-13) Written once for every dossier prompt: the behaviour-lever labels, the output
 // caps (the stored limits, DURABLE_PROFILE_LIMITS, so a FULL field the model returns is what is
 // kept), and the targeted prompts' return shapes (the registry's RETURN_SHAPES).

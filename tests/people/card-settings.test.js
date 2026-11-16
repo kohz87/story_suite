@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 import {
     CARD_SETTINGS_OWNER, createCardSettingsDefinition, validPortraitPromptFormat, validScanEvery,
-} from '../src/card-settings.js';
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+} from '../../modules/people/settings/card-settings.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 // ---- the definition (pure) ----
 

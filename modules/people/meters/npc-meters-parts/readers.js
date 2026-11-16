@@ -1,8 +1,8 @@
 // Reads the host's hooks for the npc part: settings, features, dossier lookups, clock, setup and ladder helpers.
-import { normalizeRelationshipCaps } from '../../core-mechanics.js';
+import { normalizeRelationshipCaps } from '../../core/core-mechanics.js';
 import { BUILT_IN_PRESETS, normalizeLimits } from '../npc-meters-presets.js';
 import { FEATURE_DEFAULTS, FEATURE_PRESETS, FEATURE_STAGES, MAX_RUNGS, TRACK_MAX, clean, isInt, isObject, meterDefs, normalizeMeterSettings, replyKey, rung } from '../npc-meters-config.js';
-import { normalizeAllowance } from '../relationship-pacing.js';
+import { normalizeAllowance } from '../../legacy/relationship-pacing.js';
 import { clockReaders } from '../npc-meters-pacing.js';
 
 /** The hook readers of one npc part, as the closure the other parts share. */

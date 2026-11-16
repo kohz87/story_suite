@@ -3,21 +3,21 @@ import { partsSource } from './helpers/parts-source.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { mergeScanResult, normalizeNpcRecord } from '../core.js';
+import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import {
     RELATIONSHIP_RESPONSE_LENGTH,
-} from '../src/scanner-request.js';
+} from '../../modules/people/calls/scanner-request.js';
 import {
     applyFocusedRelationshipDecisions,
     currentExchangeRelationshipRelevant,
     hasCompletePrimaryRelationshipDecision,
     runFocusedRelationshipPass,
     suppressPrimaryRelationshipForFocusedDecisions,
-} from '../src/relationship-pass.js';
+} from '../../modules/people/legacy/relationship-pass.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { newestFlatDay as fromFlatDay } from './helpers/pacing-suite.js';
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 // Cleanup step 10: the focused relationship pass moved from index.js to src/relationship-pass.js unchanged.
 
@@ -177,8 +177,8 @@ test('hosted: nothing of the slice is written into a Delta record (no adopt func
     const h = await hostedPair({ ordinary: 3, meaningful: 1, major: 1, extreme: 1 });
     try {
         assert.equal(h.adapter.sliceNumbers, undefined);
-        assert.doesNotMatch(fs.readFileSync(new URL('../runtime-hosted.js', import.meta.url), 'utf8'), /adoptSlice|sliceNumbers|persist\(/);
-        assert.doesNotMatch(partsSource(new URL('../src/relationship-pass.js', import.meta.url)), /adoptSlice/);
+        assert.doesNotMatch(fs.readFileSync(new URL('../../modules/people/runtime/runtime-hosted.js', import.meta.url), 'utf8'), /adoptSlice|sliceNumbers|persist\(/);
+        assert.doesNotMatch(partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url)), /adoptSlice/);
     } finally { h.host.close(); }
 });
 

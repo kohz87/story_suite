@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const source=runtimeSource();
-const runtimeState=readFileSync(new URL('../runtime-state.js',import.meta.url),'utf8');
+const runtimeState=readFileSync(new URL('../../modules/people/runtime/runtime-state.js',import.meta.url),'utf8');
 
 test('runtime integration uses per-chat scan operations and no legacy global scanBusy flag',()=>{
   assert.match(source,/createScanOperationRegistry/);
@@ -23,7 +23,7 @@ test('filename-only chat deletion fails closed instead of borrowing an unrelated
 test('bundle import reports skipped capacity and only clears deletion state for accepted imports',()=>{
   assert.match(source,/report: importReport/);
   assert.match(source,/for \(const accepted of importReport\.accepted \|\| \[\]\)/);
-  const tools = readFileSync(new URL('../dossier-tools.js', import.meta.url), 'utf8');
+  const tools = readFileSync(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url), 'utf8');
   assert.match(tools,/existing active dossiers were preserved/);
   assert.match(tools,/nativeImportResultSummary\(result\)/);
 });

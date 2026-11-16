@@ -2,9 +2,9 @@
 // a change after the head moved belongs to the new reply, another chat's cache is never kept, and no unresolved owner is ever a name.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPeopleSync } from '../src/adapter/people-sync.js';
-import { peopleView, peopleState, peopleCarry } from '../src/people/view.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { createPeopleSync } from '../../modules/people/adapter/people-sync.js';
+import { peopleView, peopleState, peopleCarry } from '../../modules/people/view.js';
+import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
 
 const mk = id => ({ id: `npc_${id}`, name: id.toUpperCase(), aliases: [], lifeState: 'alive' });
 function rig({ ready = true } = {}) {

@@ -7,7 +7,7 @@ import {
     buildProfileRefreshPrompt,
     createNpcRecord,
     selectScannerContextNpcs,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('scanner prompt exposes durable Key Relationships and stable profile context', () => {
     const npc = createNpcRecord('Marris');

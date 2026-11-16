@@ -1,6 +1,6 @@
 // Stored memories that carry a sidecar: exact-text dedupe, the sidecar validated against them, then the slot order.
-import { cleanList, normalizeName } from '../../core-text.js';
-import { DURABLE_PROFILE_LIMITS } from '../../core-relationship.js';
+import { cleanList, normalizeName } from '../../core/core-text.js';
+import { DURABLE_PROFILE_LIMITS } from '../../core/core-relationship.js';
 import { normalizeFacts, withDisposition } from '../memory-fact-ledger.js';
 import { chooseSlots, stable } from './slots.js';
 

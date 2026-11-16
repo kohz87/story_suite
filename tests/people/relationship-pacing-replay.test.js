@@ -3,8 +3,8 @@
 // rebuilds by replaying stored ops only and never runs a handler again (Story_block docs/v2/SPEC.md §2.2, line 216).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { impactDayProblems } from '../src/relationship-pacing.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { impactDayProblems } from '../../modules/people/legacy/relationship-pacing.js';
 import { suite, major } from './helpers/pacing-suite.js';
 
 const shape = s => JSON.stringify(s.host.head());

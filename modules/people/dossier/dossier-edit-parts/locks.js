@@ -1,7 +1,7 @@
 // Which fields a manual dossier Save locks, and the lock fields it writes.
 
-import { normalizeCustomFields } from '../../core.js';
-import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from '../fields/registry.js';
+import { normalizeCustomFields } from '../../core/core.js';
+import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from '../../fields/registry.js';
 
 // The fields the editor locks when the reader changes them, and the stored keys a lock covers (a lock
 // on a field keeps everything that field is made of, so a restored or imported copy never pairs a kept

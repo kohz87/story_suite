@@ -1,8 +1,8 @@
 /* NPC State Delta dossier bond tone: maps a relation text to a display tone (close, hostile, duty, neutral)
    for the dossier's bond lines and the map. Pure: no DOM, no storage. Family detection comes
    from social-relations.js; the enemy and duty words are matched here because that file has no such family. */
-import { norm } from './social-primitives.js';
-import { socialRelationFamily } from './social-relations.js';
+import { norm } from '../social/social-primitives.js';
+import { socialRelationFamily } from '../social/social-relations.js';
 
 const HOSTILE_WORD = /\b(?:enem|foe|nemesis|hate)\w*/;
 const DUTY_WORD = /\b(?:owes?|owed|debts?|duty|duties|oath|sworn|indebted)\b/;

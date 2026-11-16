@@ -8,7 +8,7 @@ import {
     extractNarrationCapture,
     mergeScanResult,
     parseNarrationCapture,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 // (1.2.19) An NPC already in the dossier gains new memories: they are added to the stored ones,
 // deduplicated and capped, whichever part of the capture (npcs[] or profileUpdates) carries them.

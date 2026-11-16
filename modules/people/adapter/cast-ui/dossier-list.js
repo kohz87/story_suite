@@ -1,8 +1,8 @@
 // Dossier browser rows and cast-meter projections: the cached dossier rows, plain/story-block row nodes, the search filter,
 // key-person marks, row meters, the visible meter entries and their bar/note nodes. Text is set through textContent only.
 
-import { normalizeSecrets } from '../../npc-meters.js';
-import { findKeyEntry, isKey } from '../../key-people.js';
+import { normalizeSecrets } from '../../meters/npc-meters.js';
+import { findKeyEntry, isKey } from '../../cast/key-people.js';
 import { elementOf, meterBarNode } from './dom.js';
 
 export function createDossierListPart(session, deps) {

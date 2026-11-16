@@ -5,7 +5,7 @@ import {
     recordToolEvent, relationshipDiagnosticRows, selectedNpcId,
     setBusy, stage1Refresh, summarizeDecodedBundle, toolEvents,
 } from './dossier-tools-core.js';
-import { augmentNativeBundle, buildHistoryArchive, prepareNativeImport } from './native-transfer.js';
+import { augmentNativeBundle, buildHistoryArchive, prepareNativeImport } from '../transfer/native-transfer.js';
 
 const STYLE_ID = 'npc_state_delta_tools_style';
 const IMPORT_ACCEPT = '.npcstatedelta,application/octet-stream';

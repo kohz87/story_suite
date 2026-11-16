@@ -2,11 +2,11 @@
 // for the head's reply; unknown ids, a moved head and a bad call change nothing; the same event again is acknowledged, another person is a CONFLICT; a failed write is not an ack.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPeopleSync } from '../src/adapter/people-sync.js';
-import { createNativeDeath } from '../src/adapter/native-death.js';
-import { createIdentity } from '../src/adapter/identity.js';
-import { peopleView, peopleState } from '../src/people/view.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { createPeopleSync } from '../../modules/people/adapter/people-sync.js';
+import { createNativeDeath } from '../../modules/people/adapter/native-death.js';
+import { createIdentity } from '../../modules/people/adapter/identity.js';
+import { peopleView, peopleState } from '../../modules/people/view.js';
+import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
 
 function rig({ failWrite = false } = {}) {
     const fake = { state: { npcs: [{ id: 'npc_mira', name: 'Mira', aliases: [], archived: false, lifeState: 'alive' }, { id: 'npc_tom', name: 'Tom', aliases: [], archived: false, lifeState: 'alive' }], candidates: [], socialGraph: {}, turn: 1 }, head: 'h1', writes: 0 };

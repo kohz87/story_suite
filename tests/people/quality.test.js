@@ -41,7 +41,7 @@ test('sidecar persistence writes immutable snapshots until the latest version is
 });
 
 test('recent transcript collection stops after the requested meaningful tail', () => {
-    const transcript = fs.readFileSync(new URL('../src/transcript-parts/recent.js', import.meta.url), 'utf8');
+    const transcript = fs.readFileSync(new URL('../../modules/people/transcript/transcript-parts/recent.js', import.meta.url), 'utf8');
     const body = functionBody(transcript, 'export function recentTranscript', '\nexport function recentUserDevelopmentContext');
     assert.match(body, /for \(let i = chat\.length - 1; i >= 0 && lines\.length < count; i -= 1\)/);
     assert.match(body, /return lines\.reverse\(\)\.join\('\\n'\)/);

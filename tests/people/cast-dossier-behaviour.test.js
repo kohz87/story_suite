@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildInjection, createNpcRecord, mergeScanResult, normalizeNpcRecord as normalizeProduction } from '../core.js';
-import { normalizeNpcRecord } from '../core-mechanics.js';
-import { applyCastEntry, normalizeCast, normalizeEntry } from '../src/cast-dossier.js';
+import { buildInjection, createNpcRecord, mergeScanResult, normalizeNpcRecord as normalizeProduction } from '../../modules/people/core/core.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core-mechanics.js';
+import { applyCastEntry, normalizeCast, normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
 import { TEMIWA_ENTRY, dateText, person, temiwaPerson } from './cast-dossier.helpers.js';
 
 const LEVER_LABELS = ['Disposition', 'Care', 'Expression', 'Independence', 'Conflict', 'Threat', 'Analytical', 'Presentation', 'Mercy', 'Loyalty', 'Drive', 'Honesty'];

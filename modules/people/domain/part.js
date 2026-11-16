@@ -5,7 +5,7 @@
 // `people.hash` hashes the stored slice; with { dossiers: true } it leaves out `bonds` and `scan` (what NPC State's cache holds), null when no dossier is stored.
 // The reader's narrow edits (people.edit, people.follow, people.portrait.set) are in ./edits.js; the read queries (people.list, .dossier, .ties, .secretOwners) in ./queries.js.
 
-import { hashJson } from '../../../../../../core/replay.js';
+import { hashJson } from '../../../core/replay.js';
 import { isPeopleView, validatePeople } from './validate.js';
 import { peopleEdits } from './edits.js';
 import { peopleQueries } from './queries.js';

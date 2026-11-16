@@ -2,12 +2,12 @@
    for one existing NPC. Split from runtime-targeted.js; bodies are moved without change. */
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
-import { recentTranscript, recentUserDevelopmentContext, currentExclusions, storyDayAt, storyDaysForTranscript, refreshMessageGate } from './src/transcript.js';
-import { DEFAULT_RELATIONSHIP, relationshipSummaryConsistent, calibrateRelationshipSummary, npcMatchesLabel, buildProfileRefreshPrompt, extractExplicitKeyRelationshipEdges, normalizeCustomFields } from './core.js';
+import { recentTranscript, recentUserDevelopmentContext, currentExclusions, storyDayAt, storyDaysForTranscript, refreshMessageGate } from '../transcript/transcript.js';
+import { DEFAULT_RELATIONSHIP, relationshipSummaryConsistent, calibrateRelationshipSummary, npcMatchesLabel, buildProfileRefreshPrompt, extractExplicitKeyRelationshipEdges, normalizeCustomFields } from '../core/core.js';
 import { setNpcChatRefreshIndicator, relationshipNumber, latestMessageId } from './runtime-scan-helpers.js';
-import { getSettings, effectiveCustomFieldNames } from './runtime-settings.js';
+import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
-import { fillAllowed, FILL_MERGE_OPTION } from './appearance-fill.js';
+import { fillAllowed, FILL_MERGE_OPTION } from '../appearance/appearance-fill.js';
 
 const { profileRowBindsToTarget, rowContradictsTarget, soleRowMayBeTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 

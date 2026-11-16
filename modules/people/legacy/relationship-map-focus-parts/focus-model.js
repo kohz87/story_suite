@@ -1,7 +1,7 @@
 // The Focus model: the "Focus: Name ✕" chip and which nodes and bonds stay lit for the focused person.
 
 import { plain, resolveMapBonds } from '../relationship-map-core.js';
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { FOCUS_STATES } from './focus-constants.js';
 import { relationWord, tagWord, bondToneOf } from './bond-words.js';
 

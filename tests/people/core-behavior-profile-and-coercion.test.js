@@ -9,7 +9,7 @@ import {
     normalizeRelationshipCaps,
     normalizeRelationshipBaseline,
     normalizeScanNpc,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('v0.2.5 behavior profile stays compact, labeled, and category-stable', () => {
     const npc = normalizeNpcRecord({

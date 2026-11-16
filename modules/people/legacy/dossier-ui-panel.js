@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: panel lifecycle, shell, events, observers and portrait lightbox. */
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 import { OBSERVER_RETRY_LIMIT, OBSERVER_RETRY_MS, REFRESH_DEBOUNCE_MS, REFRESH_MAX_WAIT_MS, REFRESH_STREAM_RECHECK_MS, ROOT_ID, SETTINGS_ID, STYLE_ID } from './dossier-ui-constants.js';
 import { createPortraitRefs } from './dossier-ui-html.js';
 import { STYLES } from './dossier-ui-styles.js';

@@ -8,7 +8,7 @@ import {
     normalizeAge,
     normalizeApparentAge,
     normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('qualitative visual age evidence resolves to stable apparent age without inventing chronology', () => {
     const young = normalizeApparentAge('young', 'npc_marris');

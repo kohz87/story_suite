@@ -1,6 +1,6 @@
 /* NPC State Delta dossier surface: draws the current screen (library | board | profile | section) from the projection.
    The screen state machine is dossier-ui-screens.js; the screens' markup is library / board / sections / profile. */
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 import { portraitMark } from './dossier-ui-html.js';
 import { replyHeaderLabel } from './dossier-ui-model.js';
 import { DossierUiPanel } from './dossier-ui-panel.js';

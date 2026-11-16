@@ -4,10 +4,10 @@ import { MAX_STAGES_PER_METER, SECRET_TITLE_MAX, NAME_MAX, FEATURE_NOTES, isObje
 import { findNpcKey, meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
 import { bondsOf } from './npc-meters-parts/fold.js';
 import { eventLog, readEvent } from './npc-meters-pacing.js';
-import { INSTINCT_KEYS } from '../npc-instincts.js';
-import { moodBars, moodWord, normalizeMood, readMoodLog } from '../npc-mood.js';
-import { dossierNotes, NOTE_FIELDS } from './npc-notes-kinds.js';
-import { FEATURE_SOCIAL, SOCIAL_QUERY, socialModifier, socialSettings, socialSkill } from './social-check.js';
+import { INSTINCT_KEYS } from './npc-instincts.js';
+import { moodBars, moodWord, normalizeMood, readMoodLog } from './npc-mood.js';
+import { dossierNotes, NOTE_FIELDS } from '../notes/npc-notes-kinds.js';
+import { FEATURE_SOCIAL, SOCIAL_QUERY, socialModifier, socialSettings, socialSkill } from '../social/social-check.js';
 
 export function createNpcQueries({
     call, hooks, resolve, presentNames, featureOn, storedSettings, defsFrom, setupFor, rungsFor, limitsFor, identify, rulesFor,

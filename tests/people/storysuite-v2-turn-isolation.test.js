@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createTurnPart } from '../src/adapter/cast-ui/turn.js';
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createTurnPart } from '../../modules/people/adapter/cast-ui/turn.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 const FLAG = 'suite.isolatedApply';
 

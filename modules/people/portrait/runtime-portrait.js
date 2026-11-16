@@ -4,9 +4,9 @@
    functions it calls, so each instance keeps its own generated-picture memory. Bodies are moved from index.js without change. */
 
 import { getContext } from '../../../extensions.js';
-import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitSeed, normalizePortraitPromptFormat, buildNpcPortraitPrompts } from './core.js';
-import { escapeHtml } from './src/util/html.js';
-import { PORTRAIT_THEME_PRESETS, PORTRAIT_CUSTOM_PRESET_LIMIT, portraitCustomPreset, portraitCustomPresetLibrary, getSettings } from './runtime-settings.js';
+import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitSeed, normalizePortraitPromptFormat, buildNpcPortraitPrompts } from '../core/core.js';
+import { escapeHtml } from '../util/html.js';
+import { PORTRAIT_THEME_PRESETS, PORTRAIT_CUSTOM_PRESET_LIMIT, portraitCustomPreset, portraitCustomPresetLibrary, getSettings } from '../settings/runtime-settings.js';
 
 export function createPortraitPart(rt, deps) {
     const { currentNpcById, eventTargetClosest, flushStateFile, getChatKey, requireReadyChatMutation, setNpcPortrait } = deps;

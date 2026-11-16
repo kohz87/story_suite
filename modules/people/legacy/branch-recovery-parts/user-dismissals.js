@@ -1,7 +1,7 @@
 // Enforcing the groups a reader dismissed on every list of a branch state.
 import * as branchCore from '../branch-core.js';
-import { normalizeName } from '../core.js';
-import { purgeNpcStructuredReferences, removeNpcFromSocialGraph } from '../social.js';
+import { normalizeName } from '../../core/core.js';
+import { purgeNpcStructuredReferences, removeNpcFromSocialGraph } from '../../social/social.js';
 
 function npcLabels(npc) {
     return [npc?.name, ...(Array.isArray(npc?.aliases) ? npc.aliases : [])].map(normalizeName).filter(Boolean);

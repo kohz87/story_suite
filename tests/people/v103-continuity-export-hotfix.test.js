@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildScannerPrompt, createNpcRecord } from '../core.js';
-import { encodeNpcStateBundle } from '../bundle.js';
-import { augmentNativeBundle, decodeDeltaNativeBundle } from '../native-transfer.js';
+import { buildScannerPrompt, createNpcRecord } from '../../modules/people/core/core.js';
+import { encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
+import { augmentNativeBundle, decodeDeltaNativeBundle } from '../../modules/people/transfer/native-transfer.js';
 
 test('v1.0.3 implicit anatomical transitions activate the existing Stage 4 form contract without explicit form wording', () => {
     const prompt = buildScannerPrompt({

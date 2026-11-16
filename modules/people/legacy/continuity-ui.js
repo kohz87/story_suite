@@ -6,7 +6,7 @@ import {
     normalizeAppearanceModel,
     parseAppearanceFormsText,
     resolveNpcAppearance,
-} from './appearance.js';
+} from '../appearance/appearance.js';
 import { activeChatKey, api, escapeHtml, flushDurably, plain, stage1Refresh } from './dossier-tools-core.js';
 
 const STYLE_ID = 'npc_state_delta_continuity_ui_styles';

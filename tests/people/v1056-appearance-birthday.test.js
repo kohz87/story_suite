@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyAppearanceUpdate } from '../appearance.js';
-import { createNpcRecord, mergeScanResult } from '../core.js';
+import { applyAppearanceUpdate } from '../../modules/people/appearance/appearance.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
 
 const physical = 'Long silver hair, violet eyes, slender build, a thin scar across her left cheek; wearing a travel-stained blue cloak and leather boots.';
 const change = (appearance, reason) => ({ appearance, appearanceState: 'change', appearanceReason: reason });

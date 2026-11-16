@@ -15,9 +15,9 @@ import {
     readNpcStateDataFile,
     undurableNpcStateSnapshot,
     writeNpcStateDataFile,
-} from '../storage.js';
-import { createNpcRecord } from '../core.js';
-import { reconcileBranchState, recordBranchCheckpoint } from '../branch.js';
+} from '../../modules/people/storage/storage.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { reconcileBranchState, recordBranchCheckpoint } from '../../modules/people/legacy/branch.js';
 import {
     atClock,
     buildChat,

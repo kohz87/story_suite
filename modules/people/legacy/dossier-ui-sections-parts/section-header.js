@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: the section ids, their titles, the step between them and the header every section shares. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
 import { SECTION_KEYS } from '../dossier-ui-screens.js';
 

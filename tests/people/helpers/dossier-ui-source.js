@@ -2,7 +2,7 @@
 // A part that is missing fails loudly; keep this list in step when more code moves out of dossier-ui.js.
 import fs from 'node:fs';
 
-const root = new URL('../../', import.meta.url);
+const root = new URL('../../../modules/people/legacy/', import.meta.url);
 
 export const DOSSIER_UI_SOURCE_PARTS = [
     'dossier-ui-constants.js',

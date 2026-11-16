@@ -1,5 +1,5 @@
 // Cast-portrait user files: save a picture once, verify which are still there and read one back as a data URL.
-import { dataUrlOfBytes, isPortraitFileRecord, markPortraitFileMissing, markPortraitFilePresent, parseImageDataUrl, portraitFileRecordFor } from '../src/portrait-file.js';
+import { dataUrlOfBytes, isPortraitFileRecord, markPortraitFileMissing, markPortraitFilePresent, parseImageDataUrl, portraitFileRecordFor } from './portrait-file.js';
 import { dataFileExists, dataFilesExist } from './exists.js';
 
 /**

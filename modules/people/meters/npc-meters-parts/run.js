@@ -1,10 +1,10 @@
 // Applies one change to the npc slice: pacing, the anti-lever gate, tiers, meters, mood, milestones, notes and settling.
-import { normalizeRelationshipCaps } from '../../core-mechanics.js';
-import { applyEvents, eventsFromMoves } from '../../npc-mood.js';
-import { gateStoryLine } from '../../npc-meters-gate.js';
+import { normalizeRelationshipCaps } from '../../core/core-mechanics.js';
+import { applyEvents, eventsFromMoves } from '../npc-mood.js';
+import { gateStoryLine } from '../npc-meters-gate.js';
 import { FEATURE_GATE, FEATURE_MOOD_PULL, MAX_MILESTONES, NPC_DOMAIN, isInt, isObject, isReplyId, readLeaf, replyKey, sameReply } from '../npc-meters-config.js';
 import { logKept, meterValue, moodStands, moveMeters, reasonKept, result, writeMood } from '../npc-meters-slice.js';
-import { pacedTier, spendFlatEvent } from '../relationship-pacing.js';
+import { pacedTier, spendFlatEvent } from '../../legacy/relationship-pacing.js';
 import { askedOf, cutToTier, dayRuleFor, movesOf, nextEvent, pacingNote, withEvidence } from '../npc-meters-pacing.js';
 
 /** The change runner of one npc part, built on its readers and record helpers. */

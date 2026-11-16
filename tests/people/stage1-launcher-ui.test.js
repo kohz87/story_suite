@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { clampLauncherPosition, launcherPositionRecord } from '../launcher-ui.js';
+import { clampLauncherPosition, launcherPositionRecord } from '../../modules/people/legacy/launcher-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));

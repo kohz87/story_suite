@@ -1,5 +1,5 @@
 /* NPC State Delta portrait target UI: the upload input, generation availability and the form selector markup. */
-import { api, escapeHtml } from '../dossier-tools-core.js';
+import { api, escapeHtml } from '../../legacy/dossier-tools-core.js';
 import { npcForms } from './target-resolve.js';
 
 export function hiddenUploadInput(npcId) {

@@ -5,9 +5,9 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
     NARRATION_CAPTURE_CONTEXT_MARKER, buildBackfillPrompt, buildNarrationCaptureParts, buildNarrationCapturePrompt, buildProfileRefreshPrompt, buildScannerPrompt,
-} from '../core.js';
-import { appendHiddenNotePrompt } from '../core-mechanics.js';
-import { secretEventsShown } from '../core-prompts-capture.js';
+} from '../../modules/people/core/core.js';
+import { appendHiddenNotePrompt } from '../../modules/people/core/core-mechanics.js';
+import { secretEventsShown } from '../../modules/people/core/core-prompts-capture.js';
 
 // Hidden notes (layered notes for a new dossier, the story events of present people's locked notes) in every path that
 // builds a dossier or scans a present person, not only the ordinary scan: the one-pass block (full and compact rules),

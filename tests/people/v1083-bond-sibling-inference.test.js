@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeNpcRecord } from '../core.js';
-import { applyManualKeyRelationshipEdit, reconcileSocialState } from '../social.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { applyManualKeyRelationshipEdit, reconcileSocialState } from '../../modules/people/social/social.js';
 
 const npc = (name, gender, keyRelationships = [], extra = {}) => normalizeNpcRecord({
     id: `npc_${name.toLowerCase()}`, name, gender, species: 'human', keyRelationships, ...extra,

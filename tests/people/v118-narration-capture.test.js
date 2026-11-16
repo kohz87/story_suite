@@ -13,7 +13,7 @@ import {
     storyProse,
     stripUiNoise,
     tagScanEvidence,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 // One-pass narration capture: the roleplay reply ends with a hidden quick-scan block that the
 // extension strips before anything reads the message and merges instead of a scanner request.

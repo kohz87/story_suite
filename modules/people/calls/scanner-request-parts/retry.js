@@ -1,5 +1,5 @@
 // The compact JSON retry: the retry length, the truncation test, and the correction prompt.
-import { IMPORTANT_MEMORY_LIMIT } from '../../core.js';
+import { IMPORTANT_MEMORY_LIMIT } from '../../core/core.js';
 
 export const JSON_RETRY_RESPONSE_LENGTH = 5200;
 

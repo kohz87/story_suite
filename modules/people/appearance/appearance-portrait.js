@@ -2,7 +2,7 @@
    the compact identity used to mark a portrait stale when the presentation moves on. A pure part of
    appearance.js (same owner, moved without change); appearance.js keeps the public facade and
    re-exports every public name. Never imports appearance.js. */
-import { normalizeName } from './core-mechanics.js';
+import { normalizeName } from '../core/core-mechanics.js';
 import { APPEARANCE_FORM_LIMIT, clean, formKey } from './appearance-text.js';
 import { resolveNpcAppearance } from './appearance-model.js';
 

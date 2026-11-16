@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CAST_TAB_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { CAST_TAB_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { drawerWithPanel, fakeDelta, fakeDocument, fakeSdk, fakeTimers, hosted, v2Host } from './storysuite-v2.helpers.js';
 
 // ---- the drawer copy and the settings section ----

@@ -21,7 +21,7 @@
 // the way Delta's own sidecar does (storage.js: POST /api/files/upload, read back from /user/files/<name>), one file per checkpoint.
 // A first write (a new checkpoint, a new lineage's index) asks SillyTavern whether the file exists (storage.js `dataFileExists`) before it
 // reads it, so a file that is not there yet makes no 404 request (a red line in the browser's console); a server that cannot say is read as before.
-import { dataFileExists, deleteNpcStateDataFile } from '../../storage.js';
+import { dataFileExists, deleteNpcStateDataFile } from '../../storage/storage.js';
 import { CHECKPOINT_ID, packForFile, unpackFromFile } from './checkpoint.js';
 
 const REGISTRY_NAME = 'npc-state-delta-checkpoint-registry.json';

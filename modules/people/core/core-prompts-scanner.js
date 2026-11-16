@@ -5,7 +5,7 @@ import { cleanText, cleanWords, cleanWordsList } from './core-text.js';
 import { normalizeBehaviorProfile } from './core-behavior.js';
 
 import { KEY_RELATIONSHIP_LIMIT } from './core-keyrel.js';
-import { PROFILE_EVIDENCE_FIELDS } from './src/fields/registry.js';
+import { PROFILE_EVIDENCE_FIELDS } from '../fields/registry.js';
 import { isInterimNpcLabel, normalizeGender, normalizeLifeState } from './core-identity.js';
 import { IMPORTANT_MEMORY_LIMIT, normalizeLifeStateCertainty, normalizeNpcAdmissionMode, normalizeNpcCandidate } from './core-record.js';
 import { profileEvidenceCount, promptProfileEvidence } from './core-evidence.js';

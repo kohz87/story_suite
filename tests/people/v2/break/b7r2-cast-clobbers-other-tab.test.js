@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createStorySuiteV2Adapter } from '../../../src/storysuite-v2.js';
+import { createStorySuiteV2Adapter } from '../../../../modules/people/storysuite-v2.js';
 import { fakeRoot } from '../../helpers/fake-dom.js';
 
 function fakeDoc() {

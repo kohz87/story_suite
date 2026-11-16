@@ -4,7 +4,7 @@ import {
     buildScannerPrompt,
     mergeScanResult,
     normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('grounded appearance age cues recover apparentAge when the scanner omits the field', () => {
     const young = normalizeNpcRecord({ id: 'npc_mara', name: 'Mara', appearance: 'A young woman with silver hair and grey eyes.' });

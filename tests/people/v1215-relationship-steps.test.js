@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { relationshipStepHtml } from '../dossier-ui.js';
+import { relationshipStepHtml } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 

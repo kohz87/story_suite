@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
     createNpcRecord,
     mergeScanResult,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('existing scanner deltas may use dossier id without repeating name or unchanged profile fields', () => {
     const npc = createNpcRecord('Myla Fenn');

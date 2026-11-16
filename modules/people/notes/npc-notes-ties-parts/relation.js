@@ -1,6 +1,6 @@
 // The read-time tie tags a bond relation word implies (never stored).
-import { clean } from '../npc-meters-config.js';
-import { socialRelationFamily } from '../../social-relations.js';
+import { clean } from '../../meters/npc-meters-config.js';
+import { socialRelationFamily } from '../../social/social-relations.js';
 import { ordered } from './shared-tags.js';
 import { NAME_MAX } from './shared-object.js';
 

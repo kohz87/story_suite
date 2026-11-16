@@ -2,7 +2,7 @@
 import { normalizeLifeState } from '../core-identity.js';
 import { normalizeRelationshipBaseline, RELATIONSHIP_KEYS } from '../core-relationship.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
-import { portraitHasImage } from '../src/portrait-file.js';
+import { portraitHasImage } from '../../portrait/portrait-file.js';
 import { normalizeNpcRecord } from './normalize.js';
 
 export function setNpcArchived(npc, archived, { reason = 'manual', sourceMessageId = null, lifeState = null, now = null } = {}) {

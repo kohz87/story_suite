@@ -1,10 +1,10 @@
 /* NPC State Delta relevance selection: scoring how relevant each person is to the current text and picking the top few. */
-import { DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../../core-relationship.js';
-import { cleanList, normalizeName } from '../../core-text.js';
-import { countNormalizedPhrase } from '../../core-merge.js';
-import { KEY_RELATIONSHIP_LIMIT, keyRelationshipSubject } from '../../core-keyrel.js';
-import { socialGraphLabelsForNpc } from '../../social.js';
-import { IMPORTANT_MEMORY_LIMIT } from '../../core-record.js';
+import { DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../core-relationship.js';
+import { cleanList, normalizeName } from '../core-text.js';
+import { countNormalizedPhrase } from '../core-merge.js';
+import { KEY_RELATIONSHIP_LIMIT, keyRelationshipSubject } from '../core-keyrel.js';
+import { socialGraphLabelsForNpc } from '../../social/social.js';
+import { IMPORTANT_MEMORY_LIMIT } from '../core-record.js';
 
 export function scoreNpcRelevance(npc, text, turn = 0, socialGraph = null, allNpcs = []) {
     const haystack = normalizeName(text);

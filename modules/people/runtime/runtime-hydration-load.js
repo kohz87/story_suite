@@ -3,10 +3,10 @@
    checks a write must pass. Split from runtime-hydration.js without change; the factory keeps the
    public exports. */
 
-import { replayScope } from './runtime-scan-helpers.js';
-import { NPC_STATE_VERSION } from './core.js';
-import { cancelPendingNpcStateWrite, makeNpcStateDataFileName, preserveUndurableNpcStateSnapshot, readNpcStateDataFile, undurableNpcStateSnapshot } from './storage.js';
-import { persistSettings, getSettings } from './runtime-settings.js';
+import { replayScope } from '../calls/runtime-scan-helpers.js';
+import { NPC_STATE_VERSION } from '../core/core.js';
+import { cancelPendingNpcStateWrite, makeNpcStateDataFileName, preserveUndurableNpcStateSnapshot, readNpcStateDataFile, undurableNpcStateSnapshot } from '../storage/storage.js';
+import { persistSettings, getSettings } from '../settings/runtime-settings.js';
 
 export function installHydrationLoad(api, rt, deps) {
     const { assertOwnershipEpoch, checkPortraitFilesSoon, getChatKey, isCanonicalChatKey, ownershipEpoch, requestHeaders, staleOwnershipError } = deps;

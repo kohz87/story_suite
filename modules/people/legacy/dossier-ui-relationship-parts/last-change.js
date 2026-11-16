@@ -1,5 +1,5 @@
 /* NPC State Delta dossier relationship part: the "Last relationship change" block and the "Earlier changes" history list. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { changeStamp, RELATIONSHIP_AXES, stampHtml, wholeNumber } from '../dossier-ui-model.js';
 import { impactLabel } from './shared-impact.js';
 

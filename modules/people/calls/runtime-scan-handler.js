@@ -4,12 +4,12 @@
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { autoScanDue as autoScanDueAfterReply, replyMayChangeDossiers, replyScanned } from './scan-context.js';
-import { currentExchangeBodies } from './src/transcript.js';
-import { markLiveReply, memoryFactsOn } from './src/memory-fact-marks.js';
-import { chatLineage, lineageCheckpointKey, ensureBranchParentAnchor, migrateLegacyLineage } from './branch.js';
-import { getSettings } from './runtime-settings.js';
+import { currentExchangeBodies } from '../transcript/transcript.js';
+import { markLiveReply, memoryFactsOn } from '../memory/memory-fact-marks.js';
+import { chatLineage, lineageCheckpointKey, ensureBranchParentAnchor, migrateLegacyLineage } from '../legacy/branch.js';
+import { getSettings } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, latestMessageId, notify, replayScope } from './runtime-scan-helpers.js';
-import { captureJournalEntry } from './runtime-narration.js';
+import { captureJournalEntry } from '../runtime/runtime-narration.js';
 
 export function createAssistantHandlerPart(rt, deps, helpers) {
     const { commitBranchCheckpoint, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, updateInjection } = deps;

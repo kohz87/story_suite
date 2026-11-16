@@ -3,7 +3,7 @@
 // envelope as the original participant factory and uses the factory's live session, handle and publication accessors.
 
 import { PARTICIPANT_SCHEMA } from '../checkpoint.js';
-import { isTerminalNpcDeath } from '../../../terminal-lifecycle.js';
+import { isTerminalNpcDeath } from '../../../core/terminal-lifecycle.js';
 import { hashJson } from '../hash.js';
 import { changeAt, installGuard, restoredState, restoreNoteText, selectionBehind, selectionMaxBehind, storedTimeline, timelineOf } from '../timeline.js';
 import { HISTORY_REPLAY_CAP } from '../history-replay.js';

@@ -13,7 +13,7 @@ import {
     scoreNpcRelevance,
     stripUiNoise,
     hasCompactMeguminWorldState,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('normalizes names across punctuation and casing', () => {
     assert.equal(normalizeName('  Lady Éris!! '), 'lady éris');
@@ -166,5 +166,5 @@ test('retired Importance/manual metadata is stripped while current story salienc
 test('key relationship limit is eight and the editor label says so', async () => {
     assert.equal(KEY_RELATIONSHIP_LIMIT, 8);
     const fs = await import('node:fs');
-    assert.match(fs.readFileSync(new URL('../runtime-editor.js', import.meta.url), 'utf8'), /Max \$\{KEY_RELATIONSHIP_LIMIT\}/);
+    assert.match(fs.readFileSync(new URL('../../modules/people/runtime/runtime-editor.js', import.meta.url), 'utf8'), /Max \$\{KEY_RELATIONSHIP_LIMIT\}/);
 });

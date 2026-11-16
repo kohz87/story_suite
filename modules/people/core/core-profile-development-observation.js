@@ -3,7 +3,7 @@
    core-profile-development.js (same owner, moved without change); the root file keeps the public
    facade and re-exports every public name it exported before. Never imports core-profile-development.js. */
 import * as mechanics from './core-mechanics.js';
-import { STORY_DAY_SCHEME } from './calendar.js';
+import { STORY_DAY_SCHEME } from '../legacy/calendar.js';
 import { PROFILE_DEVELOPMENT_CONCEPT_LIMIT, PROFILE_DEVELOPMENT_OBSERVATION_LIMIT, profileDevelopmentEvidence, profileDevelopmentSourceMessageId, profileDevelopmentTurn, parseProfileDevelopmentEvidence, normalizeProfileDevelopmentConcept } from './core-profile-development-ledger.js';
 
 export function developmentRecordMatches(record, parsed) {

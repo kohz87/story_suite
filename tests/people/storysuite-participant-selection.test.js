@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { adapterRig, BATCH, clone, crash, rig } from './helpers/participant-rig.js';
 import { runHostScenario } from './helpers/host-scenario.js';
-import { fileVault, memoryVault } from '../src/storysuite-participant/vault.js';
+import { fileVault, memoryVault } from '../../modules/people/legacy/storysuite-participant/vault.js';
 
 const deferred = () => { let resolve; const promise = new Promise(done => { resolve = done; }); return { promise, resolve }; };
 

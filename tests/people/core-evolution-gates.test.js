@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
     createNpcRecord,
     mergeScanResult,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('v0.2.5 gradual identity evolution requires evidence carried across scans', () => {
     const npc = createNpcRecord('Marris');

@@ -2,9 +2,9 @@
 import * as continuity from '../continuity-core.js';
 import * as mechanics from '../core-mechanics.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
-import { lockAwayNpcs } from '../src/key-people.js';
-import { getActiveCalendarConfig, normalizeCalendarDate, withStoryDateMemo } from '../calendar.js';
-import { applyNpcBirthdayUpdate, mergeNpcBirthdayKnowledge, normalizeNpcBirthday, reanchorDerivedBirthYearFromAge } from '../birthday.js';
+import { lockAwayNpcs } from '../../cast/key-people.js';
+import { getActiveCalendarConfig, normalizeCalendarDate, withStoryDateMemo } from '../../legacy/calendar.js';
+import { applyNpcBirthdayUpdate, mergeNpcBirthdayKnowledge, normalizeNpcBirthday, reanchorDerivedBirthYearFromAge } from '../../birthday/birthday.js';
 import { birthdayUpdateGrounded, withAppearanceDerivedApparentAge, birthdayUpdateRow, stampFieldChanges, calendarReference, applyDeterministicBirthdayRollover } from '../core-birthday.js';
 import { prepareProfileDevelopmentState, appearanceUpdateForNpc, durableUpdateForNpc, recordAppearanceDiagnostic, recordSecondaryProfileDiagnostics, recordBirthdayDiagnostic } from '../core-profile-development.js';
 import { finalizeProfileDevelopment } from '../core-profile-finalize.js';

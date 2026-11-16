@@ -1,5 +1,5 @@
 /* NPC State Delta: the story prose used to admit a new person. */
-import { storyProse } from '../core.js';
+import { storyProse } from '../../core/core.js';
 
 /**
  * The story's own prose for admitting a new person: messages 0..`upTo` (the scanned reply, nothing later), faded and system

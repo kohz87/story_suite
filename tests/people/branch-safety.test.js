@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
   addUserDismissedGroup, bestAncestorState, chatLineage, clearUserDismissedGroupsFor, normalizeUserDismissedGroups,
   BRANCH_LINEAGE_VERSION, preserveUserNpcMetadata, recordBranchCheckpoint, reconcileBranchState
-} from '../branch.js';
+} from '../../modules/people/legacy/branch.js';
 
 function user(text){return {is_user:true,is_system:false,name:'User',mes:text};}
 function assistant(text){return {is_user:false,is_system:false,name:'AI',mes:text};}
@@ -90,7 +90,7 @@ test('explicit manual name-based tombstone clearing remains available',()=>{
 });
 
 test('a swipe of the latest of six replies restores the state of the reply before it, from sidecar format 1 and from format 2 with packed checkpoints',async()=>{
-  const {encodeStateFilePayload,decodeStateFilePayload}=await import('../storage-payload.js');
+  const {encodeStateFilePayload,decodeStateFilePayload}=await import('../../modules/people/storage/storage-payload.js');
   const greeting=assistant('Greeting');
   const chat=[greeting];
   const state=baseState();

@@ -1,16 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { NOTE_FIELDS, KINDS, runKind, validateNotes, notesTail, NOTES_TAIL_PER_NPC, NOTES_TAIL_MAX, seedNotes, driveScale, foldTies, aliasCanon, tieRows, dossierNotes } from '../src/npc-notes-kinds.js';
-import { addLie } from '../src/npc-notes-lies.js';
-import { addKnow } from '../src/npc-notes-knows.js';
-import { tastesText } from '../src/npc-notes-tastes.js';
-import { tiesText } from '../src/npc-notes-ties.js';
-import { stepPull } from '../npc-instincts.js';
-import { setDrives } from '../src/npc-notes-drives.js';
-import { normalizeEntry } from '../src/cast-dossier.js';
-import { bondToneOf } from '../relationship-map-focus.js';
-import { resolveMapBonds } from '../relationship-map-core.js';
-import { tieTone } from '../dossier-ui-bond-tone.js';
+import { NOTE_FIELDS, KINDS, runKind, validateNotes, notesTail, NOTES_TAIL_PER_NPC, NOTES_TAIL_MAX, seedNotes, driveScale, foldTies, aliasCanon, tieRows, dossierNotes } from '../../modules/people/notes/npc-notes-kinds.js';
+import { addLie } from '../../modules/people/notes/npc-notes-lies.js';
+import { addKnow } from '../../modules/people/notes/npc-notes-knows.js';
+import { tastesText } from '../../modules/people/notes/npc-notes-tastes.js';
+import { tiesText } from '../../modules/people/notes/npc-notes-ties.js';
+import { stepPull } from '../../modules/people/meters/npc-instincts.js';
+import { setDrives } from '../../modules/people/notes/npc-notes-drives.js';
+import { normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
+import { bondToneOf } from '../../modules/people/legacy/relationship-map-focus.js';
+import { resolveMapBonds } from '../../modules/people/legacy/relationship-map-core.js';
+import { tieTone } from '../../modules/people/legacy/dossier-ui-bond-tone.js';
 import { said, notesSpy } from './npc-notes-kinds.helpers.js';
 
 test('NOTE_FIELDS lists the six record fields the kinds own, and KINDS maps the four line kinds to their fields', () => {

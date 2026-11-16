@@ -12,8 +12,8 @@ import {
     inspectNpcStateDataFile,
     preserveUndurableNpcStateSnapshot,
     undurableNpcStateSnapshot,
-} from '../storage.js';
-import { createNpcRecord } from '../core.js';
+} from '../../modules/people/storage/storage.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 
 test('extension data filename is deterministic and filesystem-safe', () => {
     const a = makeNpcStateDataFileName('chat:My Adventure/01');

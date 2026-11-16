@@ -4,12 +4,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createNpcPart, validateNpcSlice } from '../src/npc-meters.js';
-import { projectDossierState } from '../dossier-ui.js';
+import { createNpcPart, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { lastRelationshipChangeHtml, relationshipHistoryHtml } from '../dossier-ui-relationship.js';
-import { storyMinuteText } from '../calendar.js';
-import { eventSummary } from '../src/npc-meters-pacing.js';
+import { lastRelationshipChangeHtml, relationshipHistoryHtml } from '../../modules/people/legacy/dossier-ui-relationship.js';
+import { storyMinuteText } from '../../modules/people/legacy/calendar.js';
+import { eventSummary } from '../../modules/people/meters/npc-meters-pacing.js';
 import { LOOSE, SHUT, STORED, cardOf, eventOf, pacedSuite, suite } from './storysuite-v2-meters-ladder.helpers.js';
 
 // ---- 7. the dossier's "Last relationship change" is the meters' own net change (hosted; read time only) ----
@@ -125,7 +125,7 @@ test('hosted forward: an open dossier panel draws again when each delayed npc.ad
         const rt = { storySuiteV2: { hosted: () => true, adjust: change => { calls.push(change.name); return new Promise(resolve => { release = resolve; }); } } };
         // runtime-hosted.js with its siblings copied beside it; only the SillyTavern-bound helper and settings files are stubs.
         const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-hosted-forward-'));
-        const root = fileURLToPath(new URL('..', import.meta.url));
+        const root = fileURLToPath(new URL('../../modules/people/legacy', import.meta.url));
         fs.cpSync(root, temp, { recursive: true, filter: from => !/[\\/](tests|docs|scripts|\.git|node_modules|dist)([\\/]|$)/.test(path.relative(root, from)) });
         fs.writeFileSync(path.join(temp, 'runtime-scan-helpers.js'), [
             "import { normalizeName, normalizeRelationshipBaseline, npcMatchesLabel } from './core.js'; import { rejectedOverallLook } from './appearance-update.js'; import { physicalTraitSwaps } from './appearance-physical.js'; import { moodNumbers } from './npc-mood.js';",
@@ -287,7 +287,7 @@ test('event card: an older record without a last event (or an unusable one) show
 });
 
 test('event card: a hosted manual edit keeps "Manual edit" with the edited amounts (the save writes the manual change; the slice window restarts)', async () => {
-    assert.match(fs.readFileSync(fileURLToPath(new URL('../runtime-editor-save.js', import.meta.url)), 'utf8'), /else if \(meterEdits && shownRelationship\) \{[^}]*impact: 'manual',\s*delta: edited/s);
+    assert.match(fs.readFileSync(fileURLToPath(new URL('../../modules/people/runtime/runtime-editor-save.js', import.meta.url)), 'utf8'), /else if \(meterEdits && shownRelationship\) \{[^}]*impact: 'manual',\s*delta: edited/s);
     const s = await pacedSuite(LOOSE);
     const reply = await s.say(['~ npc Mira | trust: +1']);
     await s.adapter.setMeters({ name: 'Mira', meters: { trust: 30 } });
@@ -334,5 +334,5 @@ test('event summary: events naming only custom meters do not count toward the ti
     assert.equal(tier([item('major', {}), item('ordinary', { trust: 1 })]), 'ordinary');
     assert.equal(tier([item('major', {}), item('meaningful', { trust: 1 }, true)]), 'meaningful', 'all that ask were held: the asked tier');
     assert.equal(tier([item('major', {})]), 'major', 'nothing asks anything: as before');
-    assert.match(fs.readFileSync(new URL('../dossier-ui-styles.js', import.meta.url), 'utf8'), /\.delta-rel-held \{ color:var\(--ss-warn-text, var\(--ss-warn, #e8c46a\)\)/);
+    assert.match(fs.readFileSync(new URL('../../modules/people/legacy/dossier-ui-styles.js', import.meta.url), 'utf8'), /\.delta-rel-held \{ color:var\(--ss-warn-text, var\(--ss-warn, #e8c46a\)\)/);
 });

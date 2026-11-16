@@ -2,13 +2,13 @@
 // mapping, tone and type reads, the unchanged `~ tie` grammar line, and live == replay through the host (swipe, Re-read, edited Re-read).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TIE_TAGS, TIE_FAMILIES, ONE_WAY_TAGS, applyTags, readTies, tiesText, tagsFromRelation } from '../src/npc-notes-ties.js';
-import { foldTies } from '../src/npc-notes-kinds.js';
-import { TIE_TYPE_LABELS, TIE_TYPE_RANK, tieType } from '../core-keyrel.js';
-import { noteKinds } from '../src/npc-notes-kinds-parts/grammar.js';
-import { tieTone } from '../dossier-ui-bond-tone.js';
+import { TIE_TAGS, TIE_FAMILIES, ONE_WAY_TAGS, applyTags, readTies, tiesText, tagsFromRelation } from '../../modules/people/notes/npc-notes-ties.js';
+import { foldTies } from '../../modules/people/notes/npc-notes-kinds.js';
+import { TIE_TYPE_LABELS, TIE_TYPE_RANK, tieType } from '../../modules/people/core/core-keyrel.js';
+import { noteKinds } from '../../modules/people/notes/npc-notes-kinds-parts/grammar.js';
+import { tieTone } from '../../modules/people/legacy/dossier-ui-bond-tone.js';
 import { suite } from './helpers/pacing-suite.js';
-import { validateNpcSlice } from '../src/npc-meters.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { ON, oren, shape } from './npc-notes-kinds.helpers.js';
 
 const NINE = ['kin', 'partner', 'friend', 'ally', 'mentor', 'serves', 'rival', 'enemy', 'owes'];

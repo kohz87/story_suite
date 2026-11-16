@@ -1,18 +1,18 @@
 // NPC meter story-line capture and hosted commands. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
-import { storyMinuteText } from '../calendar.js';
-import { isAway, labelKey, labelsOf, normalizeKeyPeople } from './key-people.js';
-import { normalizeCast } from './cast-dossier.js';
-import { normalizeApproachKind } from '../npc-meters-gate.js';
+import { storyMinuteText } from '../legacy/calendar.js';
+import { isAway, labelKey, labelsOf, normalizeKeyPeople } from '../cast/key-people.js';
+import { normalizeCast } from '../dossier/cast-dossier.js';
+import { normalizeApproachKind } from './npc-meters-gate.js';
 import { NPC_DOMAIN, BUILT_IN_METERS, FEATURE_GATE, FEATURE_MOOD_PULL, FEATURE_NOTES, MILESTONE_KIND, DAY_MINUTES, MILESTONE_MAX, DISPOSITION_MAX, REASON_LABELS, FEATURE_STAGES, FEATURE_DRIFT, KEY_PEOPLE_QUERY, isObject, isInt, isReplyId, readLeaf, replyKey, clamp, clean, slug, wordKey, tierOf, parseMeterValue } from './npc-meters-config.js';
 import { readLabels } from './npc-lines-parts/labels.js';
 import { wordChanges } from './npc-lines-parts/direction.js';
 import { labelFields } from './npc-lines-parts/live-fields.js';
-import { stepPull } from '../npc-instincts.js';
-import { growDrives, DRIVE_RULE } from './npc-notes-drives.js';
-import { mergeRefreshTastes } from './npc-notes-tastes.js';
-import { runKind, noteLine, noteRule, markNote, isNoteKind, noteField, driveScale, seedNotes, lookStamp, readLookStamp, CAUGHT_TIER, CAUGHT_DROP } from './npc-notes-kinds.js';
-import { applyEvents, applyWord, moodFromWord, moodNumbers, restMood, restingMood } from '../npc-mood.js';
+import { stepPull } from './npc-instincts.js';
+import { growDrives, DRIVE_RULE } from '../notes/npc-notes-drives.js';
+import { mergeRefreshTastes } from '../notes/npc-notes-tastes.js';
+import { runKind, noteLine, noteRule, markNote, isNoteKind, noteField, driveScale, seedNotes, lookStamp, readLookStamp, CAUGHT_TIER, CAUGHT_DROP } from '../notes/npc-notes-kinds.js';
+import { applyEvents, applyWord, moodFromWord, moodNumbers, restMood, restingMood } from './npc-mood.js';
 import { CAST_QUERY, observeKeyAway, observeCast, meterValue, sentence, asStored, writeMood } from './npc-meters-slice.js';
 
 export function createNpcCommands({

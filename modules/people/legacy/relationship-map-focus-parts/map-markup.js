@@ -2,7 +2,7 @@
 
 import { MAP_CENTER, MAP_LENSES, MAP_SPAN, mapRadius, nodeBoxes, plain, ringWordSpot, signed } from '../relationship-map-core.js';
 import { portraitHtml } from '../dossier-ui-html.js';
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { FOCUS_TONES, FOCUS_STATES } from './focus-constants.js';
 import { relationWord, tagWord, bondToneOf } from './bond-words.js';
 

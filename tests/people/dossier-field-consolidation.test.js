@@ -8,7 +8,7 @@ import {
   createNpcRecord,
   mergeScanResult,
   normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('dossier consolidation retires legacy Importance and generic manual metadata', () => {
   const created = createNpcRecord('Mira');

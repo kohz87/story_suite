@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { eventSummary, readEvent } from '../src/npc-meters-pacing.js';
-import { FEATURE_GATE, readLeaf } from '../src/npc-meters-config.js';
-import { diff } from '../../../core/ops/diff.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { eventSummary, readEvent } from '../../modules/people/meters/npc-meters-pacing.js';
+import { FEATURE_GATE, readLeaf } from '../../modules/people/meters/npc-meters-config.js';
+import { diff } from '../../core/ops/diff.js';
 import { DAY, dossiers, suite } from './helpers/pacing-suite.js';
 
 export const noCue = lines => lines.filter(line => !/^Whenever anything changed, write the <Changes> block/.test(line)); // the flash-rare-lines cue: pinned in npc-notes-kinds.test.js

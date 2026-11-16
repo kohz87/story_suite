@@ -1,6 +1,6 @@
 /* Comparing an existing and an incoming text: grounding, similarity, safe refinement and merge. A part of appearance-physical.js (same owner, moved without change). */
 import { refinementTokens } from './refine-tokens.js';
-import { normalizeName } from '../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 import { clean, sameAppearance } from '../appearance-text.js';
 
 export function grounded(value, context = '') {

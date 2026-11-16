@@ -1,17 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { buildInjection, buildScannerPrompt, createNpcRecord, mergeScanResult } from '../core.js';
-import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../bundle.js';
-import { reconcileBranchState, recordBranchCheckpoint, snapshotBranchState, BRANCH_LINEAGE_VERSION } from '../branch.js';
-import { preserveUserNpcMetadata } from '../branch-core.js';
-import { dossierDetailProjection, dossierIndexProjection, projectDossierState } from '../dossier-ui.js';
-import { decodeStateFilePayload, encodeStateFilePayload, readPortraitFileDataUrl, savePortraitFile, verifyPortraitFiles } from '../storage.js';
+import { buildInjection, buildScannerPrompt, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { reconcileBranchState, recordBranchCheckpoint, snapshotBranchState, BRANCH_LINEAGE_VERSION } from '../../modules/people/legacy/branch.js';
+import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
+import { dossierDetailProjection, dossierIndexProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+import { decodeStateFilePayload, encodeStateFilePayload, readPortraitFileDataUrl, savePortraitFile, verifyPortraitFiles } from '../../modules/people/storage/storage.js';
 import {
     PORTRAIT_FILE_PREFIX, isPortraitFileRecord, markPortraitFileMissing, markPortraitFilePresent, parseImageDataUrl,
     portraitFileName, portraitHasImage, portraitSrc, sha256Hex,
-} from '../src/portrait-file.js';
-import { portraitUrl } from '../src/storysuite-v2.js';
+} from '../../modules/people/portrait/portrait-file.js';
+import { portraitUrl } from '../../modules/people/storysuite-v2.js';
 
 // The cast portraits as user files (src/portrait-file.js, storage.js): one content-named file per picture, written only when absent, with
 // the dossier keeping only { path, type, hash, … }. Chats that hold the picture itself in the dossier (dataUrl) are read as before.
@@ -262,7 +262,7 @@ test('what is sent to the model never carries a portrait: not the path, not the 
 
 test('a cast dossier made with a file-form portrait carries the record, and one made with the picture (the file could not be written) carries that', async () => {
     const { record } = await fileRecord();
-    const { applyCastEntry } = await import('../src/cast-dossier.js');
+    const { applyCastEntry } = await import('../../modules/people/dossier/cast-dossier.js');
     const person = { key: 'p:t', pack: 'p', id: 't', name: 'Tom', entry: { aliases: [], fields: {}, meters: { values: {} }, secrets: [], stages: [], start: {}, about: 'a' } };
     assert.equal(applyCastEntry(createNpcRecord('Tom'), person, { portrait: structuredClone(record) }).portrait.path, record.path);
     assert.equal(applyCastEntry(createNpcRecord('Tom'), person, { portrait: { dataUrl: PNG, mime: 'image/png' } }).portrait.dataUrl, PNG);
@@ -280,8 +280,8 @@ test('a scan or a Refresh that updates a dossier keeps its file-form portrait as
 });
 
 test('a failed image load alone does not blank a cast portrait; a file known gone lets cast sync refill it, a present one does not', async () => {
-    const { castPortraitWanted } = await import('../src/cast-dossier.js');
-    const { portraitFileKnownGone } = await import('../src/portrait-file.js');
+    const { castPortraitWanted } = await import('../../modules/people/dossier/cast-dossier.js');
+    const { portraitFileKnownGone } = await import('../../modules/people/portrait/portrait-file.js');
     const record = { path: `/user/files/${PORTRAIT_FILE_PREFIX}${hashOf(PNG).slice(0, 40)}.png`, type: 'image/png', hash: hashOf(PNG) };
     const npc = castNpc('Brecht', record, { castFrom: { key: 'pack:brecht' } });
     assert.equal(portraitSrc(npc.portrait), record.path, 'nothing marks it missing without a fresh check');

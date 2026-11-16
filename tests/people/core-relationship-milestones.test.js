@@ -10,7 +10,7 @@ import {
     inferManualRelationshipMilestones,
     relationshipMilestoneUnlocked,
     applyRelationshipDelta,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 // (relationship pacing: the stock points per event are 1 / 2 / 3 / 6 now; the engine tests below that need the old 5 / 10 pass them.)
 const OLD_CAPS = { ordinary: 1, meaningful: 2, major: 5, extreme: 10 };

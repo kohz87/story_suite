@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { normalizeNpcRecord } from '../core.js';
-import { EDITOR_FIELDS, EDITOR_LOCKABLE_FIELDS, editorShownValue, settleEditorSave, untouchedEditorFields } from '../src/dossier-edit.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { EDITOR_FIELDS, EDITOR_LOCKABLE_FIELDS, editorShownValue, settleEditorSave, untouchedEditorFields } from '../../modules/people/dossier/dossier-edit.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 import { runtimeSource } from './helpers/runtime-source.js';
 

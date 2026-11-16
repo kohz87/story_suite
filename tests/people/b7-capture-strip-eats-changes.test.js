@@ -9,7 +9,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { extractNarrationCapture } from '../core-mechanics.js';
+import { extractNarrationCapture } from '../../modules/people/core/core-mechanics.js';
 
 const CHANGES = '<Changes>\n+ item Rope | qty: 1\n+ coin 5 | from: Fenna\n</Changes>';
 

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { recordBranchCheckpoint, ensureBranchParentAnchor, BRANCH_LINEAGE_VERSION } from '../branch.js';
-import { decodeStateFilePayload, encodeStateFilePayload, NPC_STATE_FILE_FORMAT, prunePortraitAssetsForState, pruneFormPortraitAssetsForState } from '../storage.js';
-import { createNpcRecord } from '../core.js';
-import { isPortraitFileRecord } from '../src/portrait-file.js';
+import { recordBranchCheckpoint, ensureBranchParentAnchor, BRANCH_LINEAGE_VERSION } from '../../modules/people/legacy/branch.js';
+import { decodeStateFilePayload, encodeStateFilePayload, NPC_STATE_FILE_FORMAT, prunePortraitAssetsForState, pruneFormPortraitAssetsForState } from '../../modules/people/storage/storage.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { isPortraitFileRecord } from '../../modules/people/portrait/portrait-file.js';
 
 // Frozen copies of the format-1 behaviour (storage-payload.js at e2d027d): the compact + encode an older build runs on save.
 export function legacyCompactState(state) {

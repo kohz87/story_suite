@@ -1,5 +1,5 @@
 // Imported social-graph reconciliation: slot rekeying and filtering the graph by valid ids.
-import { normalizeSocialGraph } from '../social.js';
+import { normalizeSocialGraph } from '../../social/social.js';
 
 // Unresolved slot and group ids are generated inside each source chat, so after the atomic id remap a
 // coincident id can name a target slot that belongs to a different NPC. Such a collision does not

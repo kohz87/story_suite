@@ -2,7 +2,7 @@
 import {
     calendarFingerprint,
     getActiveCalendarConfig,
-} from '../calendar.js';
+} from '../../legacy/calendar.js';
 import { activeOrProvided, groundedReferenceDate } from './shared-config.js';
 import { exactAge, sameDate, sameMonthDay } from './shared-compare.js';
 import { normalizeBirthDate } from './date.js';

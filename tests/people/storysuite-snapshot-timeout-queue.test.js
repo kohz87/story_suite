@@ -2,7 +2,7 @@
 // These tests use the production participant and the synthetic Story Block host; no live chat or files are involved.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createParticipant, fileVault, memoryVault } from '../src/storysuite-participant/index.js';
+import { createParticipant, fileVault, memoryVault } from '../../modules/people/legacy/storysuite-participant/index.js';
 import { adapterRig, BATCH, freshState, rig } from './helpers/participant-rig.js';
 import { deferred, participantRig } from './storysuite-snapshot-timeout.helpers.js';
 

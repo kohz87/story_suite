@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildProfileRefreshPrompt, createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../core.js';
+import { buildProfileRefreshPrompt, createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 
 function profileScan(state, update, turn, sourceMessageId, developmentContext = '') {
     return mergeScanResult(state, { npcs: [], profileUpdates: [update] }, { turn, sourceMessageId, developmentContext });

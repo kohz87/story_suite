@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from '../src/fields/registry.js';
-import { buildInjection, createNpcRecord, isRoleDescriptionLabel, mergeScanResult, normalizeNpcRecord, npcNamedInText } from '../core.js';
-import { dossierDetailProjection } from '../dossier-ui.js';
+import { EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from '../../modules/people/fields/registry.js';
+import { buildInjection, createNpcRecord, isRoleDescriptionLabel, mergeScanResult, normalizeNpcRecord, npcNamedInText } from '../../modules/people/core/core.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 

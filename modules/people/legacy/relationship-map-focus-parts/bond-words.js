@@ -1,8 +1,8 @@
 // A bond's relation word and tone: the word from a relation text or tie tags, and the tone the word or the story's tags give.
 
 import { plain } from '../relationship-map-core.js';
-import { KNOWN_SOCIAL_RELATION_FAMILIES, socialRelationFamily } from '../social-relations.js';
-import { pickTieTag } from '../src/core-keyrel-parts/tie-pick.js';
+import { KNOWN_SOCIAL_RELATION_FAMILIES, socialRelationFamily } from '../../social/social-relations.js';
+import { pickTieTag } from '../../core/core-keyrel-parts/tie-pick.js';
 import { tieTone } from '../dossier-ui-bond-tone.js';
 import { FOCUS_TONES } from './focus-constants.js';
 

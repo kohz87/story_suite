@@ -1,6 +1,6 @@
 /* NPC State Delta the deterministic birthday rollover of age and apparent age. */
-import { normalizeNpcBirthday, reanchorDerivedBirthYearFromAge } from '../birthday.js';
-import { normalizeCalendarDate } from '../calendar.js';
+import { normalizeNpcBirthday, reanchorDerivedBirthYearFromAge } from '../../birthday/birthday.js';
+import { normalizeCalendarDate } from '../../legacy/calendar.js';
 import * as mechanics from '../core-mechanics.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 import { npcBirthdayNarrated } from './birthday-claims.js';

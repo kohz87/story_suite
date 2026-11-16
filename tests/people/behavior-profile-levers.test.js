@@ -8,7 +8,7 @@ import {
     buildScannerPrompt,
     createNpcRecord,
     normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('behavior profile soft aliases consolidate into stable lever families', () => {
     const npc = normalizeNpcRecord({

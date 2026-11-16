@@ -38,7 +38,7 @@ import { createStore } from '../../../../core/store.js';
 import { validateInventory } from '../../../../modules/inventory/index.js';
 import { aliasKey, resolveDef } from '../../../../modules/scene/names.js';
 import { validateScene } from '../../../../modules/scene/index.js';
-import { validatePeople } from '../../../../packages/story-block/src/v2/domains/people/validate.js';
+import { validatePeople } from '../../../../modules/people/domain/validate.js';
 import { hashJson } from '../../../../core/replay.js';
 import { checkGuard } from '../../../../modules/rpg/practice.js';
 import { inventoryEditGuard } from '../../../../modules/inventory/edit.js';

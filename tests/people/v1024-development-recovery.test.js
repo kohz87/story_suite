@@ -5,7 +5,7 @@ import {
     createNpcRecord,
     durableProfileCollectionCandidateGrounded,
     mergeScanResult,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 function baseSora() {
     const npc = createNpcRecord('Sora');

@@ -8,7 +8,7 @@ import {
     normalizeNpcRecord,
     setActiveCalendarConfig,
     storyDayFromText,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 const CALENDAR = Object.freeze({
     era: 'CY',

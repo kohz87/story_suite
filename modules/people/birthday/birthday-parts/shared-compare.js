@@ -1,7 +1,7 @@
 // Birthday shared helpers: identity text, same-date and same-month-day comparison, exact age parsing.
 import {
     normalizeCalendarDate,
-} from '../calendar.js';
+} from '../../legacy/calendar.js';
 
 export function normalizedIdentity(value) {
     return String(value ?? '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g, ' ').trim();

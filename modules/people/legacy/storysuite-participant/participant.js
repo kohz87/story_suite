@@ -39,7 +39,7 @@
 
 import { resolveIdentity } from './identity.js';
 import { restoreNoteText, timelineOf } from './timeline.js';
-import { manualLifeStateRecord } from '../../terminal-lifecycle.js';
+import { manualLifeStateRecord } from '../../core/terminal-lifecycle.js';
 import { createCatchUp } from './history-replay.js';
 import { createParticipantHandlers } from './participant/handlers.js';
 import { createPublication } from './participant/publication.js';

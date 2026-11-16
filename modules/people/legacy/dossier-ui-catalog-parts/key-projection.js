@@ -1,6 +1,6 @@
 /* NPC State Delta dossier surface: the key-person (while away) projection and its section markup. */
-import { escapeHtml } from '../src/util/html.js';
-import { awayRange } from '../src/key-people.js';
+import { escapeHtml } from '../../util/html.js';
+import { awayRange } from '../../cast/key-people.js';
 import { plain } from '../dossier-ui-model.js';
 
 // (key people) What the dossier shows of Story Director's key-person data for one dossier: { here, away, recent }, with the

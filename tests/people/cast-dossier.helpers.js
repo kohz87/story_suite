@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createHost } from '../../../testkit/index.js';
-import { createNpcRecord, normalizeNpcRecord as normalizeProduction } from '../core.js';
-import { normalizeCast, applyCastEntry } from '../src/cast-dossier.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createHost } from '../../testkit/index.js';
+import { createNpcRecord, normalizeNpcRecord as normalizeProduction } from '../../modules/people/core/core.js';
+import { normalizeCast, applyCastEntry } from '../../modules/people/dossier/cast-dossier.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 export const DAY = 1440;
 export const FENNA_ENTRY = {

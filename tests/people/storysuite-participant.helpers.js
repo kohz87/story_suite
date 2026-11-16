@@ -1,6 +1,6 @@
-import { createParticipant, memoryVault } from '../src/storysuite-participant/index.js';
-import { buildCheckpoint } from '../src/storysuite-participant/index.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { createParticipant, memoryVault } from '../../modules/people/legacy/storysuite-participant/index.js';
+import { buildCheckpoint } from '../../modules/people/legacy/storysuite-participant/index.js';
+import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
 
 export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });
 export const freshState = () => ({

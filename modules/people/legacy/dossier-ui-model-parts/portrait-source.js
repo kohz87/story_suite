@@ -1,6 +1,6 @@
 /* NPC State Delta dossier surface: which portrait a dossier shows and whether its appearance has changed since. */
-import { appearanceFingerprint } from '../appearance.js';
-import { portraitSrc } from '../src/portrait-file.js';
+import { appearanceFingerprint } from '../../appearance/appearance.js';
+import { portraitSrc } from '../../portrait/portrait-file.js';
 import { plain } from './values.js';
 
 function portraitAppearanceChanged(npc = {}, shown = null) {

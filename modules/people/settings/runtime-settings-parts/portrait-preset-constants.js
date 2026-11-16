@@ -1,6 +1,6 @@
 // The portrait theme presets and the custom-preset limits: the fixed style table every portrait setting is read against.
 
-import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE } from '../core.js';
+import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE } from '../../core/core.js';
 
 export const PORTRAIT_THEME_PRESETS = Object.freeze({
     fantasy_anime: {

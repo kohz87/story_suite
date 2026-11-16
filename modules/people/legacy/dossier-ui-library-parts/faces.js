@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the library face buttons and the faces list or its empty state. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { portraitHtml } from '../dossier-ui-html.js';
 import { faceRingVar } from './face-ring.js';
 

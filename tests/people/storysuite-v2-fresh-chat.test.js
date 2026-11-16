@@ -1,10 +1,10 @@
 import { seedPeople } from './helpers/seed-people.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
-import { inspectNpcStateDataFile, dataFileExists, readNpcStateDataFile, writeNpcStateDataFile } from '../storage.js';
-import { isEmptyScannerAnswer } from '../scanner-routing.js';
+import { createHost } from '../../testkit/index.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { inspectNpcStateDataFile, dataFileExists, readNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
+import { isEmptyScannerAnswer } from '../../modules/people/calls/scanner-routing.js';
 import { fakeRoot } from './helpers/fake-dom.js';
 
 // The final breaker's NSD lows on a fresh chat (B-final-13 / a3-4), with Story Block v2:

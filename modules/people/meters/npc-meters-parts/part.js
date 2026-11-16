@@ -4,7 +4,7 @@ import { SETTINGS_DEFAULTS, SETTINGS_SCHEMA } from '../npc-meters-schema.js';
 import { createNpcCommands } from '../npc-meters-commands.js';
 import { createNpcQueries } from '../npc-meters-queries.js';
 import { createNpcPrompt } from '../npc-meters-prompt.js';
-import { noteKinds } from '../npc-notes-kinds.js';
+import { noteKinds } from '../../notes/npc-notes-kinds.js';
 import { createNpcReaders } from './readers.js';
 import { createNpcRecords } from './records.js';
 import { createNpcRun } from './run.js';

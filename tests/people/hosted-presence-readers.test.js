@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runHostScenario } from './helpers/host-scenario.js';
-import { projectDossierState } from '../dossier-ui-catalog.js';
-import { mapStatus } from '../relationship-map-core.js';
+import { projectDossierState } from '../../modules/people/legacy/dossier-ui-catalog.js';
+import { mapStatus } from '../../modules/people/legacy/relationship-map-core.js';
 import fs from 'node:fs';
 
 const scenario = async () => {
@@ -62,9 +62,9 @@ test('hosted: the person the reader names, whom the scene leaves out, keeps her 
 });
 
 test('npcProfiles and the called-in check read the scene\'s presence through scenePresenceView (the v1 handshake does not run hosted)', () => {
-    const suite = fs.readFileSync(new URL('../runtime-suite.js', import.meta.url), 'utf8');
+    const suite = fs.readFileSync(new URL('../../modules/people/legacy/runtime-suite.js', import.meta.url), 'utf8');
     assert.match(suite, /buildNpcProfiles\(scenePresenceView\(getChatState\(key\)\.npcs \|\| \[\]\)/);
-    const injection = fs.readFileSync(new URL('../runtime-injection.js', import.meta.url), 'utf8');
+    const injection = fs.readFileSync(new URL('../../modules/people/runtime/runtime-injection.js', import.meta.url), 'utf8');
     assert.match(injection, /return \(scenePresenceView\(state\?\.npcs \|\| \[\]\)\)\n\s*\.filter\(npc => npc && !npc\.present/);
 });
 
@@ -79,7 +79,7 @@ test('standalone: the stored presence stands for every reader', () => {
 });
 
 test('full cast reads the people through the dossier panel\'s view (full-cast.js cannot be imported here: it needs SillyTavern\'s modules)', () => {
-    const source = fs.readFileSync(new URL('../full-cast.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../../modules/people/legacy/full-cast.js', import.meta.url), 'utf8');
     assert.match(source, /function shownState\(runtime\) \{\n    const raw = runtime\?\.getState\?\.\(\);\n    try \{\n        const shown = runtime\?\.getDossierState\?\.\(\)\?\.npcs;\n        return raw && Array\.isArray\(shown\) \? \{ \.\.\.raw, npcs: shown \} : raw;\n    \} catch \{ return raw; \}/);
     assert.equal((source.match(/npcApi\.getState\(\)|api\(\)\?\.getState/g) || []).length, 0, 'no raw reader left');
     assert.equal((source.match(/shownState\(/g) || []).length, 4);

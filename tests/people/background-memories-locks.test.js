@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeScanResult, normalizeNpcRecord } from '../core.js';
-import { editorManualMemories } from '../src/dossier-edit.js';
+import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { editorManualMemories } from '../../modules/people/dossier/dossier-edit.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 
 // Cleanup step 6 (audit I-4, I-5): background is keep-by-default like the home base; Player Dynamic,
@@ -135,7 +135,7 @@ test('editor through the synthetic host: Player Dynamic, mood and memories lock;
 
 // Past length and dated memories (owner 12 Nov): a memory keeps up to 400 characters everywhere it applies; each NEW memory gets the reply and the
 // story date of that reply in a parallel map (memoryStamps), the memories list keeps its string shape, and live == replay.
-import { setStoryDateAtSource, storyDateTextAt, buildInjection, buildScannerPrompt, DURABLE_PROFILE_LIMITS, stampChangedFields } from '../core.js';
+import { setStoryDateAtSource, storyDateTextAt, buildInjection, buildScannerPrompt, DURABLE_PROFILE_LIMITS, stampChangedFields } from '../../modules/people/core/core.js';
 
 const LONG = `${'Held the guild door against the flood crowd while Sister Temiwa carried the registry out, '.repeat(4)}and never spoke of it`.slice(0, 380);
 const clockAt = { 5: 'Icewane 27', 9: 'Icewane 29' };
@@ -209,8 +209,8 @@ test('Dated memories: live and replay give the same stamp (the date comes from t
 
 // (memory dates, every path) The cast first meeting, the reader's own memory edit and a Refresh/follow-up merge all stamp a new memory with its
 // reply and that reply's story date; a memory already stored undated stays undated on every one of them.
-import { applyNpcMemories, firstMeetingCandidates } from '../src/memory-fact-apply.js';
-import { stampMemories } from '../core-record-shared.js';
+import { applyNpcMemories, firstMeetingCandidates } from '../../modules/people/memory/memory-fact-apply.js';
+import { stampMemories } from '../../modules/people/core/core-record-shared.js';
 
 test('Dated memories: the cast first meeting carries the first-meeting reply and its story date (met.on is minutes, never the date text)', () => {
     setStoryDateAtSource(index => clockAt[index] ?? '');

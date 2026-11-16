@@ -2,7 +2,7 @@
 // and the dossier rows. Pure functions only (src/npc-notes-knows.js); no host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { KNOW_RULE, KNOWS_MAX, KNOWS_TAIL_MAX, addKnow, knowRuleFor, markKnowResult, readHow, knowFact, knowsTail, knowsView, openKnow, readKnows } from '../src/npc-notes-knows.js';
+import { KNOW_RULE, KNOWS_MAX, KNOWS_TAIL_MAX, addKnow, knowRuleFor, markKnowResult, readHow, knowFact, knowsTail, knowsView, openKnow, readKnows } from '../../modules/people/notes/npc-notes-knows.js';
 
 const gate = { about: 'Oren', fact: 'copies the gate-logs', how: 'saw', secret: true };
 const weather = { about: 'Mira', fact: 'is afraid of rain', how: 'heard' };

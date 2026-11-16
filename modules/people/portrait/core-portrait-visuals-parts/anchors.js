@@ -1,5 +1,5 @@
 // Direct visual anchor tags (hair colour/form, eye colour, build) pulled from appearance text, and the tag-format fallback parts.
-import { cleanText } from '../core-text.js';
+import { cleanText } from '../../core/core-text.js';
 import { uniquePortraitParts } from './shared-parts.js';
 
 const PORTRAIT_HAIR_COLOR_SURFACE_RULES = Object.freeze([

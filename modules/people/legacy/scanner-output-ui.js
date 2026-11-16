@@ -3,7 +3,7 @@ import { extension_settings, getContext } from '../../../extensions.js';
 import {
     normalizeScannerMaxOutputTokens,
     SCANNER_MAX_OUTPUT_TOKENS_MAX,
-} from './scanner-routing.js';
+} from '../calls/scanner-routing.js';
 
 const EXTENSION_NAME = 'npc_state_delta';
 const SETTINGS_ID = 'npc_state_delta_settings';

@@ -7,9 +7,9 @@ import {
     parseNarrationCapture,
     prepareFullWindowRelationshipPayload,
     tagScanEvidence,
-} from '../core.js';
-import { mergeImportedDossierState } from '../bundle.js';
-import { preserveUserNpcMetadata } from '../branch-core.js';
+} from '../../modules/people/core/core.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 
 // Cleanup step 3: characterisation ("golden") outputs for every dossier write path, frozen before
 // the field logic is refactored. Each path is the real merge (core.js mergeScanResult) with the

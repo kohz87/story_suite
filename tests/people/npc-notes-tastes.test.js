@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
     TASTE_LIMITS, TASTE_RULE, addTaste, contentWords, mirrorCheck, mirrorWording, mergeRefreshTastes, readTastes, tasteKey, tasteRuleFor, tasteTail, tastesText, tasteWords,
-} from '../src/npc-notes-tastes.js';
+} from '../../modules/people/notes/npc-notes-tastes.js';
 
 const row = (sign, item, extra = {}) => ({ sign, item, day: 1, r: 'r1', ...extra });
 
@@ -199,7 +199,7 @@ test('tastesText round-trips through readTastes', () => {
 });
 
 test('the module does not import npc-meters.js', () => {
-    const source = fs.readFileSync(fileURLToPath(new URL('../src/npc-notes-tastes.js', import.meta.url)), 'utf8');
+    const source = fs.readFileSync(fileURLToPath(new URL('../../modules/people/notes/npc-notes-tastes.js', import.meta.url)), 'utf8');
     assert.doesNotMatch(source, /from\s+['"]\.\/npc-meters\.js['"]/);
 });
 

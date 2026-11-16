@@ -3,13 +3,13 @@
    function bodies; the original factory closure is passed in explicitly and the original path keeps
    the public exports. */
 
-import { chatContext as getContext } from './runtime-scan-helpers.js';
-import { currentPresentationText, formPortraitFor } from './core.js';
-import { portraitSrc } from './src/portrait-file.js';
+import { chatContext as getContext } from '../calls/runtime-scan-helpers.js';
+import { currentPresentationText, formPortraitFor } from '../core/core.js';
+import { portraitSrc } from '../portrait/portrait-file.js';
 import { areaOwner } from './suite-handshake.js';
 import { chatterSlotsHtml, matchPresentCard, nowSlotHtml, othersSlotsHtml, presentSceneModel, rememberPresentScene, sceneAttr, speakerChatterHtml, speakerGroups, storyBlockTags, worldStatePeople } from './present-scene.js';
-import { escapeHtml } from './src/util/html.js';
-import { getSettings } from './runtime-settings.js';
+import { escapeHtml } from '../util/html.js';
+import { getSettings } from '../settings/runtime-settings.js';
 
 export function createInlineCardsPresentPart(deps, inChatCastMode) {
     const { getChatState, isKeyNpc, scenePresenceView } = deps;

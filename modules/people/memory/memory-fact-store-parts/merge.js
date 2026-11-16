@@ -1,7 +1,7 @@
 // The whole fact-aware merge of one dossier's memories (ordinary memories compete for the slots pins and facts leave).
-import { cleanList, normalizeName } from '../../core-text.js';
-import { DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../../core-relationship.js';
-import { mergeImportantMemories } from '../../core-record-merge.js';
+import { cleanList, normalizeName } from '../../core/core-text.js';
+import { DURABLE_PROFILE_LIMITS, durableSemanticSimilarity } from '../../core/core-relationship.js';
+import { mergeImportantMemories } from '../../core/core-record-merge.js';
 import { fallbackText } from '../memory-fact-text.js';
 import { FACT_SLOTS, isFactKey, withDisposition } from '../memory-fact-ledger.js';
 import { admitCandidates } from './admit.js';

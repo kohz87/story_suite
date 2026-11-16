@@ -1,5 +1,5 @@
 // The Ties rows for a bond list, folding tie keys under aliases, and who owes whom.
-import { npcKey } from '../npc-meters-config.js';
+import { npcKey } from '../../meters/npc-meters-config.js';
 import { TIE_TAGS, tiesView, tagsFromRelation, owedBy } from '../npc-notes-ties.js';
 
 /**

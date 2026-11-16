@@ -1,8 +1,8 @@
 /* NPC State Delta dossier sections part: the Ties section: each tie stacked by type, with the older ties folded away. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain } from '../dossier-ui-model.js';
-import { parseKeyRelationshipEntry } from '../social-bonds.js';
-import { noteTieTags, readTieRows, TIE_TYPE_LABELS } from '../core-keyrel.js';
+import { parseKeyRelationshipEntry } from '../../social/social-bonds.js';
+import { noteTieTags, readTieRows, TIE_TYPE_LABELS } from '../../core/core-keyrel.js';
 
 // One tie, stacked: its type (Ally, Rival, Owes, Interest, Passing: small heading, toned), the other person, and the description (the
 // relation as written, then the dynamic). Older ties add why they are there (died, left, not mentioned for N days). Own divider each.

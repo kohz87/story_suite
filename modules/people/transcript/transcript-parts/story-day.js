@@ -1,5 +1,5 @@
 // The story day of a message (its own dated block or the nearest earlier one), the tie day and the days a transcript names.
-import { storyClockDayAt, storyDayFromText } from '../../core.js';
+import { storyClockDayAt, storyDayFromText } from '../../core/core.js';
 import { activeChat } from './gate.js';
 import { readContext } from './source.js';
 

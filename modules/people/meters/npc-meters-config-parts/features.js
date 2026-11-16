@@ -1,5 +1,5 @@
 // The feature list with each feature's default, and the map of those defaults.
-import { FEATURE_SOCIAL } from '../social-check.js';
+import { FEATURE_SOCIAL } from '../../social/social-check.js';
 import { FEATURE_STAGES, FEATURE_DRIFT, FEATURE_PRESETS, FEATURE_SCAN_EVERY_REPLY } from './feature-ids.js';
 import { FEATURE_GATE, FEATURE_MOOD_PULL, FEATURE_NOTES } from './feature-ids-more.js';
 

@@ -1,7 +1,7 @@
 /* The canonical appearance model, with the one-time conversion of version-1 forms. A part of appearance-model.js (same owner, moved without change). */
 import { normalizeAppearanceForms } from './forms.js';
 import { castWords } from './shared-cast-words.js';
-import { CAST_APPEARANCE_WIDE } from '../core-mechanics.js';
+import { CAST_APPEARANCE_WIDE } from '../../core/core-mechanics.js';
 import { APPEARANCE_MODEL_VERSION, appearanceText, clean, combineAppearance, formKey, stripOverallPrefix, truthy } from '../appearance-text.js';
 import { CONCEALED_MENTION, physicalPieces, physicalTraitKeys, presentationSegments, traitParts, withoutSharedPieces } from '../appearance-physical.js';
 

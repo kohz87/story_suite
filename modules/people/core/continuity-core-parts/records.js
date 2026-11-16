@@ -1,7 +1,7 @@
 /* NPC State Delta normalizing, archiving and commanding NPC records with the appearance model applied. */
 import * as mechanics from '../core-mechanics.js';
 import { stripRecordCitations } from '../core-record.js';
-import { normalizeAppearanceForms } from '../appearance.js';
+import { normalizeAppearanceForms } from '../../appearance/appearance.js';
 import { isTerminalNpcDeath, normalizeTerminalNpc, protectTerminalNpc } from '../terminal-lifecycle.js';
 import { applyModel } from './appearance-model.js';
 

@@ -3,9 +3,9 @@
    Split unchanged from runtime-lifecycle.js with live rt/deps helper references supplied by
    createLifecyclePart. */
 import { saveSettings as saveHostSettings } from '../../../../script.js';
-import { NPC_STATE_VERSION } from './core.js';
-import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, retireNpcStateDataFile, writeNpcStateDataFile } from './storage.js';
-import { persistSettings, getSettings } from './runtime-settings.js';
+import { NPC_STATE_VERSION } from '../core/core.js';
+import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, retireNpcStateDataFile, writeNpcStateDataFile } from '../storage/storage.js';
+import { persistSettings, getSettings } from '../settings/runtime-settings.js';
 
 export function createLifecycleDelete(deps, helpers) {
     const { requestHeaders, resolveDeletedChatKey, settleStateFileWrite } = deps;

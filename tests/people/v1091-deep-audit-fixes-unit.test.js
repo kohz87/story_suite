@@ -9,7 +9,7 @@ import {
     npcNamedInText,
     relationshipSummaryConsistent,
     setActiveCalendarConfig,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 import {
     BRANCH_LINEAGE_VERSION,
     applyRollbackUndo,
@@ -18,11 +18,11 @@ import {
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
-import { preserveUserNpcMetadata } from '../branch-core.js';
-import { mergeImportedDossierState } from '../bundle.js';
-import { applyManualKeyRelationshipEdit, inverseSocialRelation, reconcileSocialState, socialRelationFamily } from '../social.js';
-import { retireNpcStateDataFile } from '../storage.js';
+} from '../../modules/people/legacy/branch.js';
+import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { applyManualKeyRelationshipEdit, inverseSocialRelation, reconcileSocialState, socialRelationFamily } from '../../modules/people/social/social.js';
+import { retireNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }], currentYear: 821, currentMonth: 'Redleaf', currentDay: 16 };
 
@@ -255,7 +255,7 @@ test('RB87-15: a refused obligation is a boundary, an affirmative one still need
 });
 
 test('RB87-17 (controller): native export checks the freshness result and its originating chat', () => {
-    const source = fs.readFileSync(new URL('../dossier-tools.js', import.meta.url), 'utf8');
+    const source = fs.readFileSync(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url), 'utf8');
     const exporter = source.slice(source.indexOf('export async function exportNativeTools'), source.indexOf('// What the roleplay model receives'));
     assert.match(exporter, /if \(!await api\(\)\?\.ensureFresh\?\.\(\{ reason: 'dossier-export' \}\) \|\| !sameChat\(\)\)/);
     assert.match(exporter, /exportBytes\?\.\(\{ chatKey \}\)/);

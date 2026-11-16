@@ -7,7 +7,7 @@ import {
     mergeScanResult,
     inferNpcIdentityKind,
     normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('classifies obvious role labels separately from proper names', () => {
     assert.equal(inferNpcIdentityKind('Guild Boy'), 'role_label');

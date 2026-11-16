@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createScanOperationRegistry } from '../branch.js';
+import { createScanOperationRegistry } from '../../modules/people/legacy/branch.js';
 
 test('scan locks are isolated by chat key',()=>{
   const timers=[];

@@ -19,7 +19,7 @@ import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACT
 import { createLazyRpgPart } from '../../../rpg/rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../../../core/interaction/view.js';
 import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
-import { createPeoplePart } from '../../../../packages/story-block/src/v2/domains/people/part.js';
+import { createPeoplePart } from '../../../people/domain/part.js';
 import { CORE_BUDGET, CORE_FEATURES, CORE_MODULE_ID } from './constants.js';
 import { CORE_KINDS } from './kinds.js';
 import { createCorePart } from './part.js';

@@ -5,7 +5,7 @@ import {
     mergeScanResult,
     normalizeApparentAge,
     normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('existing personality is keep-by-default even if the scanner casually rephrases it', () => {
     const npc = createNpcRecord('Marris');

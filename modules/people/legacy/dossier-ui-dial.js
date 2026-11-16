@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the halo dial for the Board screen (four meter arcs from -100..100, ticks, labels) with the portrait img under it. */
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 import { plain, relationshipValue } from './dossier-ui-model.js';
 import { portraitHtml } from './dossier-ui-html.js';
 

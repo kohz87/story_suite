@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
-import { FEATURE_DRIFT, FEATURE_STAGES, KEY_PEOPLE_QUERY, observeKeyAway, validateNpcSlice } from '../src/npc-meters.js';
-import { isAway, keyView, returnNote } from '../src/key-people.js';
-import { keyAwayHtml, keyProjection } from '../dossier-ui.js';
-import { createDirectorQueriesPart } from '../src/adapter/queries-director.js';
-import { applyStaleLifecycleAfterScan as staleAfterScan } from '../runtime-scan-stale.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { FEATURE_DRIFT, FEATURE_STAGES, KEY_PEOPLE_QUERY, observeKeyAway, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { isAway, keyView, returnNote } from '../../modules/people/cast/key-people.js';
+import { keyAwayHtml, keyProjection } from '../../modules/people/legacy/dossier-ui.js';
+import { createDirectorQueriesPart } from '../../modules/people/adapter/queries-director.js';
+import { applyStaleLifecycleAfterScan as staleAfterScan } from '../../modules/people/calls/runtime-scan-stale.js';
 import { REN_AWAY, key, suite } from './key-people.helpers.js';
 
 test('the adapter reads the key people from Story Director; with none to ask (or no such query) it answers null', async () => {

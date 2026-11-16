@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
-import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../bundle.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { decodeNpcStateBundle, encodeNpcStateBundle, mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 
 function graphEdge(a,b) { return { version:1, edges:[{aId:a,bId:b,aToB:'friend',bToA:'friend'}], unresolved:[] }; }
 

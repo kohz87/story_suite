@@ -1,7 +1,7 @@
 // Keeping the reader's own NPC metadata (portrait, locks, user fields) when a restore brings back older NPC records.
-import { lockedFieldKeys } from '../src/dossier-edit.js';
-import { portraitHasImage } from '../src/portrait-file.js';
-import { BRANCH_USER_METADATA_FIELDS } from '../src/fields/registry.js';
+import { lockedFieldKeys } from '../../dossier/dossier-edit.js';
+import { portraitHasImage } from '../../portrait/portrait-file.js';
+import { BRANCH_USER_METADATA_FIELDS } from '../../fields/registry.js';
 import { cloneNpcList, npcLabels } from './shared-npc-records.js';
 
 function findNpcForMetadataRestore(npc, currentNpcs = []) {

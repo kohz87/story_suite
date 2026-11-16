@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNpcPortraitPrompts, createNpcRecord } from '../core.js';
+import { buildNpcPortraitPrompts, createNpcRecord } from '../../modules/people/core/core.js';
 
 function indexOfOrFail(text, fragment) {
     const index = text.toLowerCase().indexOf(fragment.toLowerCase());

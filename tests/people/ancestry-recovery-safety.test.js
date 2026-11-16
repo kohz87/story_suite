@@ -5,7 +5,7 @@ import {
     bestAncestorState,
     chatLineage,
     recordBranchCheckpoint,
-} from '../branch.js';
+} from '../../modules/people/legacy/branch.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const index = runtimeSource();

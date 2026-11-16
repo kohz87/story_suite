@@ -190,9 +190,9 @@ test('hosted: a held command is not applied when its reply was taken back (swipe
 
 // (live run 4) A scan cancelled because the saved state advanced under it (not by the reader, not by a chat change) is asked for again, once per reply.
 test('a scan cancelled by "server revision advanced" is queued again once; a reader\'s cancel or a chat change is not', () => {
-    const scan = fs.readFileSync(new URL('../runtime-scan.js', import.meta.url), 'utf8');
-    const ops = fs.readFileSync(new URL('../runtime-scan-ops.js', import.meta.url), 'utf8');
-    const index = fs.readFileSync(new URL('../index.js', import.meta.url), 'utf8');
+    const scan = fs.readFileSync(new URL('../../modules/people/calls/runtime-scan.js', import.meta.url), 'utf8');
+    const ops = fs.readFileSync(new URL('../../modules/people/calls/runtime-scan-ops.js', import.meta.url), 'utf8');
+    const index = fs.readFileSync(new URL('../../modules/people/legacy/index.js', import.meta.url), 'utf8');
     assert.match(index, /cancelScanOperation\(key, dirtyConflict \? 'cross-session conflict' : 'server revision advanced'\)/, 'the reason the scan is cancelled with');
     assert.match(ops, /operation\.cancelReason|scanOperations\.cancel\(key, reason\)/, 'the registry keeps the reason');
     const line = scan.split('\n').find(text => text.includes("queuePendingAutoScan(scanChatKey, messageId, 'stale-auto-scan')"));

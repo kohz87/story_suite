@@ -2,7 +2,7 @@
 // whole view; the bytes a reply adds to the chat stay bounded and do not climb with the reply number (a whole-array rewrite would climb).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../../testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const bytes = chat => Buffer.byteLength(JSON.stringify(chat));
 const IDS = Array.from({ length: 12 }, (_, i) => `npc_p${i}`);

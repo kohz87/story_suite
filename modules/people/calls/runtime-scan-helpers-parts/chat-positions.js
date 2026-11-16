@@ -1,6 +1,6 @@
 // Reading the open chat's positions: the latest reply and message, whether a mark still stands, and a message's lineage key.
 
-import { chatLineage, lineageCheckpointKey } from '../branch.js';
+import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
 import { chatContext } from './replay-reads.js';
 
 // The chat message index of the latest assistant reply (the greeting is 0), or -1: the number Story

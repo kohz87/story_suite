@@ -5,8 +5,8 @@
 // answer is `ok` only once the store holds the death. After the store took it, the death is set on the cache as it is NOW (`setRecord`, in place): changes NPC
 // State made while the commit was awaited (a scan, a cast dossier, an edit) stay, and so does the scan bookkeeping (never the whole-state hydrate).
 
-import { confirmedDeath } from '../storysuite-participant/participant.js';
-import { isTerminalNpcDeath } from '../../terminal-lifecycle.js';
+import { confirmedDeath } from '../legacy/storysuite-participant/participant.js';
+import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 
 const fail = (code, message) => ({ ok: false, code, message });
 

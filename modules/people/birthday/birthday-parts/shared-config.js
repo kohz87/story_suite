@@ -3,7 +3,7 @@ import {
     getActiveCalendarConfig,
     normalizeCalendarDate,
     storyCurrentDate,
-} from '../calendar.js';
+} from '../../legacy/calendar.js';
 
 export function activeOrProvided(config = undefined) {
     return config === undefined ? getActiveCalendarConfig() : config;

@@ -1,7 +1,7 @@
 // The per-reply cast step and portrait backfill: decides whether npc.tick is needed, syncs made cast dossiers, and asks for
 // a missing portrait only when the host says one is due. Keeps the same send ordering and lastTick promise.
 
-import { metWithEntry } from '../../cast-dossier.js';
+import { metWithEntry } from '../../dossier/cast-dossier.js';
 
 export function createTurnPart(session, deps) {
     const {

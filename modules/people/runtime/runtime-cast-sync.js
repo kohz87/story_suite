@@ -2,19 +2,19 @@
    cast dossier its pack picture when Story Block answers for it. Built by index.js once per module instance, after the dossier editor (the
    sync redraws the dossier view), so each instance keeps its own run flags. Bodies are moved from index.js without change. */
 
-import { currentExclusions } from './src/transcript.js';
-import { applyNpcStateCommand, normalizeName, normalizeNpcRecord, appearanceFingerprint } from './core.js';
-import { savePortraitFile } from './storage.js';
-import { portraitHasImage } from './src/portrait-file.js';
-import { applyCastEntry, applyCastPortrait, castPortraitWanted, dossierFor, findCastPerson, metWithEntry } from './src/cast-dossier.js';
-import { getSettings } from './runtime-settings.js';
-import { normalizeSourceOfTruth } from './suite-handshake.js';
-import { chatLineage, lineageCheckpointKey } from './branch.js';
-import { chatContext } from './runtime-scan-helpers.js';
-import { applyNpcMemories, firstMeetingCandidates } from './src/memory-fact-apply.js';
-import { scanMemoryFacts } from './src/memory-fact-scan.js';
-import { stampMemories } from './core-record-shared.js';
-import { storyDateTextAt } from './calendar.js';
+import { currentExclusions } from '../transcript/transcript.js';
+import { applyNpcStateCommand, normalizeName, normalizeNpcRecord, appearanceFingerprint } from '../core/core.js';
+import { savePortraitFile } from '../storage/storage.js';
+import { portraitHasImage } from '../portrait/portrait-file.js';
+import { applyCastEntry, applyCastPortrait, castPortraitWanted, dossierFor, findCastPerson, metWithEntry } from '../dossier/cast-dossier.js';
+import { getSettings } from '../settings/runtime-settings.js';
+import { normalizeSourceOfTruth } from '../legacy/suite-handshake.js';
+import { chatLineage, lineageCheckpointKey } from '../legacy/branch.js';
+import { chatContext } from '../calls/runtime-scan-helpers.js';
+import { applyNpcMemories, firstMeetingCandidates } from '../memory/memory-fact-apply.js';
+import { scanMemoryFacts } from '../memory/memory-fact-scan.js';
+import { stampMemories } from '../core/core-record-shared.js';
+import { storyDateTextAt } from '../legacy/calendar.js';
 
 // (ONEPASSCAPR2-2) Keep the admission values until the host's meeting step can answer. A later manual edit or scan wins over this seed.
 const SEED_FIELDS = ['aliases', 'role', 'overallAppearance', 'appearance', 'unclassifiedAppearance', 'appearanceForms', 'currentForm', 'currentFormUnknown', 'speech', 'personality', 'background', 'behaviorProfile', 'mannerisms', 'relationshipSummary', 'homeBase', 'goal', 'location', 'customFields', 'species', 'gender', 'age', 'apparentAge', 'birthDate', 'birthDateSource', 'birthDateReason', 'birthDatePrecision', 'birthDateYearSource', 'relationship', 'meterSetup', 'secrets'];

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { modalTopLayerSupported, overlayMountHost } from '../dossier-tools-core.js';
+import { modalTopLayerSupported, overlayMountHost } from '../../modules/people/legacy/dossier-tools-core.js';
 
 test('supporting tools mount on body and prefer a native modal dialog top layer', () => {
     const previousDocument = globalThis.document;

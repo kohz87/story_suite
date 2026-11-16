@@ -1,6 +1,6 @@
 // Whether and how a cast dossier is given, or told it lost, the pack's picture.
 
-import { portraitFileKnownGone, portraitHasImage } from '../portrait-file.js';
+import { portraitFileKnownGone, portraitHasImage } from '../../portrait/portrait-file.js';
 import { isObject } from './shared-text.js';
 
 /**

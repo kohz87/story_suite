@@ -6,7 +6,7 @@ import { cleanText, normalizeName } from './core-text.js';
 import { mergeLists, normalizeScanNpc, npcMatchesLabel } from './core-record.js';
 import { findInterimIdentityPromotionIndex, inferNpcIdentityKind } from './core-identity.js';
 import { applyDurableProfileUpdate } from './core-development-update.js';
-import { resolveNpcId, resolveNpcReference } from './social.js';
+import { resolveNpcId, resolveNpcReference } from '../social/social.js';
 
 export function applyDurableProfileUpdates(state, scanResult, excludeNames, report, options = {}) {
     const rawUpdates = Array.isArray(scanResult?.profileUpdates) ? scanResult.profileUpdates

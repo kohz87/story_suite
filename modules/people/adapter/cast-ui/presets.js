@@ -1,8 +1,8 @@
 // The meter-presets block shown in Delta's settings fold: preset catalog buttons, their Use/Stop-using state and the one
 // setting write path. It keeps the original button construction and ordering.
 
-import { FEATURE_PRESETS } from '../../npc-meters.js';
-import { presetIds } from '../../npc-meters-presets.js';
+import { FEATURE_PRESETS } from '../../meters/npc-meters.js';
+import { presetIds } from '../../meters/npc-meters-presets.js';
 
 export function createPresetsPart(session, deps) {
     const { catalog, doc, MODULE_ID, part, storedSettings, warn } = deps;

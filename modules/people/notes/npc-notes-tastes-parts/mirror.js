@@ -1,5 +1,5 @@
 // The mirror check: the deterministic test for a taste that echoes the user, and its Problem and cue wording.
-import { clean } from '../npc-meters-config.js';
+import { clean } from '../../meters/npc-meters-config.js';
 import { TASTE_LIMITS } from './shared-limits.js';
 import { contentWords } from './words.js';
 import { noun } from './shared-signs.js';

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { mergeImportedDossierState } from '../bundle.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 // Lean scan cadence through the real event handlers of the synthetic SillyTavern host.

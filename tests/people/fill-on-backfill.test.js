@@ -2,11 +2,11 @@
 // narrow merge allowance, only for a 'new-admission' entry; no extra model call. Looks only: personality still needs evidence.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildBackfillPrompt, createNpcRecord, mergeScanResult } from '../core.js';
-import { normalizeName } from '../core-text.js';
-import { durableSemanticSimilarity } from '../core-relationship.js';
-import { sameReplyRetelling } from '../core-record-merge.js';
-import { fillAllowed, fillLooksLine, isReadersOwn, FILL_MERGE_OPTION } from '../appearance-fill.js';
+import { buildBackfillPrompt, createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { normalizeName } from '../../modules/people/core/core-text.js';
+import { durableSemanticSimilarity } from '../../modules/people/core/core-relationship.js';
+import { sameReplyRetelling } from '../../modules/people/core/core-record-merge.js';
+import { fillAllowed, fillLooksLine, isReadersOwn, FILL_MERGE_OPTION } from '../../modules/people/appearance/appearance-fill.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 
 const story = 'Tamsin, the ferry keeper from the salt marsh, tied the boat and asked the stranger for the toll.';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeScanResult, normalizeNpcRecord } from '../core.js';
+import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 
 // Cleanup step 5 (audit I-3): a durable fact in profileUpdates[] is applied by the same rules as in the
 // NPC's own npcs[] entry. Before, profileUpdates silently dropped background, homeBase, role, species,

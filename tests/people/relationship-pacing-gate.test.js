@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { readEvent } from '../src/npc-meters-pacing.js';
-import { FEATURE_GATE } from '../src/npc-meters-config.js';
-import { gateApproach, readApproachRing } from '../npc-meters-gate.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { readEvent } from '../../modules/people/meters/npc-meters-pacing.js';
+import { FEATURE_GATE } from '../../modules/people/meters/npc-meters-config.js';
+import { gateApproach, readApproachRing } from '../../modules/people/meters/npc-meters-gate.js';
 import { dossiers, suite, major, newestFlatDay } from './helpers/pacing-suite.js';
 import { fuzzLine, fuzzSeeds, gateOf, gateOn, lowTrust, praise, prng, record, shape, tailOf, world, worldModule } from './relationship-pacing.helpers.js';
 

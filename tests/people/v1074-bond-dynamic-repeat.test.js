@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult } from '../core.js';
-import { normalizeSocialGraph, reconcileSocialState } from '../social.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { normalizeSocialGraph, reconcileSocialState } from '../../modules/people/social/social.js';
 
 const SCOLDING = 'endures her harsh scolding and abuse in submissive silence';
 const SERVITUDE = 'trapped under her control and subjected to harsh servitude';

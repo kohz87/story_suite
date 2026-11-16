@@ -4,7 +4,7 @@ import { MAP_LENSES } from '../relationship-map-core.js';
 import { portraitHtml } from '../dossier-ui-html.js';
 import { dialHtml } from '../dossier-ui-dial.js';
 import { moodTile, possessiveWord } from '../dossier-ui-view-model.js';
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { selectedTies, cardNumberItems, cardNumbersLine } from './card-ties.js';
 
 // The phone's one line: "warmth +11 · ally of Temiwa · rival of Bregje" (a tie word that reads "of": ally, rival; owes and the rest lead the name).

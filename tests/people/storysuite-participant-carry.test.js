@@ -2,10 +2,10 @@
 // lifecycle: a branch inherits it (branch.js), a bundle export carries it (bundle.js) and the sidecar a rename moves is the state itself.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
-import { bestAncestorState, chatLineage, recordBranchCheckpoint, setBranchProvenanceHint } from '../branch.js';
-import { decodeNpcStateBundle, encodeNpcStateBundle } from '../bundle.js';
-import { hydrateIdentity, storedTimeline, timelineOf } from '../src/storysuite-participant/index.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { bestAncestorState, chatLineage, recordBranchCheckpoint, setBranchProvenanceHint } from '../../modules/people/legacy/branch.js';
+import { decodeNpcStateBundle, encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
+import { hydrateIdentity, storedTimeline, timelineOf } from '../../modules/people/legacy/storysuite-participant/index.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const user = text => ({ mes: text, is_user: true, is_system: false, name: 'Kazuma' });
@@ -57,7 +57,7 @@ test('N1: a bundle export carries the block with the dossiers it names, and a bu
 });
 
 test('N2: after a restore the scanner reads the messages the story stands on: faded replies are skipped, indexes kept; no gate, or nothing faded, reads the chat as it is', async () => {
-    const { activeChat, currentExchangeMessages, recentTranscript, refreshMessageGate, storyDayAt, useMessageGate, useTranscriptSource } = await import('../src/transcript.js');
+    const { activeChat, currentExchangeMessages, recentTranscript, refreshMessageGate, storyDayAt, useMessageGate, useTranscriptSource } = await import('../../modules/people/transcript/transcript.js');
     const chat = [user('I go north.'), assistant('The road bends.'), user('I turn back.'), assistant('The dead timeline\'s reply.')];
     useTranscriptSource({ context: () => ({ chat, name1: 'Kazuma', name2: 'Megumin' }), scanDepth: () => 6 });
     const plain = recentTranscript(4, { messageIds: true });
@@ -95,7 +95,7 @@ test('N2: every durable write of the chat\'s state ends in the one function that
     assert.match(index.slice(index.indexOf('function installCanonicalServerState('), index.indexOf('async function reconcileCrossSessionWriteConflict(')), /announceNativeChange\(key\)/);
     // The participant's own writes are not changes.
     assert.match(index, /return quietly\(key, async \(\) => \{\s*setChatState\(key, state, \{ markLoaded: true \}\);/);
-    const runtimeState = readFileSync(new URL('../runtime-state.js', import.meta.url), 'utf8');
+    const runtimeState = readFileSync(new URL('../../modules/people/runtime/runtime-state.js', import.meta.url), 'utf8');
     assert.match(runtimeState, /participantWrites: new Map\(\),/, 'the participant\'s own writes are counted per chat');
     assert.match(index, /writeTimeline: async block =>[\s\S]*?return quietly\(key, /);
     // Scan intent: the entry points that start dossier work hold it for their whole run, and the probe counts it with the queued automatic scans.

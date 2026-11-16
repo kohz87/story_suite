@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLinesParts } from '../core-prompts-lines.js';
-import { linesMeterText } from '../src/npc-meters-prompt-parts/lines-text.js';
+import { buildLinesParts } from '../../modules/people/core/core-prompts-lines.js';
+import { linesMeterText } from '../../modules/people/meters/npc-meters-prompt-parts/lines-text.js';
 
 // The unwired one-pass lines builder is pinned at its settings variants (default; layered secrets on; notes and stages off; the held NSD3 mood text on) and a
 // separate meters-paragraph entry per feature combination (NSD2 + the G2 clauses). Each item changes this golden on purpose, in its own reviewed diff.
@@ -32,7 +32,7 @@ test('the lines builder output matches its golden at every settings variant', ()
 });
 
 test('the lines builder is unwired: no runtime, core, src or *-parts file imports it', () => {
-    const root = fileURLToPath(new URL('..', import.meta.url));
+    const root = fileURLToPath(new URL('../../modules/people/legacy', import.meta.url));
     const own = new Set(['core-prompts-lines.js', 'core-prompts-lines-parts/context.js', 'core-prompts-lines-parts/rules.js', 'src/npc-meters-prompt-parts/lines-text.js']);
     const importers = fs.readdirSync(root, { recursive: true })
         .map(name => String(name).split(path.sep).join('/'))

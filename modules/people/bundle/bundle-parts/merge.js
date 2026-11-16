@@ -1,7 +1,7 @@
 // Native bundle dossier merge: folds an imported dossier state and social graph into the current chat's.
-import { isTerminalNpcDeath, normalizeFormPortraitAssets, normalizeName, normalizeNpcRecord, protectTerminalNpc } from '../core.js';
-import { normalizeSocialGraph, remapSocialGraphNpcIds } from '../social.js';
-import { portraitHasImage } from '../src/portrait-file.js';
+import { isTerminalNpcDeath, normalizeFormPortraitAssets, normalizeName, normalizeNpcRecord, protectTerminalNpc } from '../../core/core.js';
+import { normalizeSocialGraph, remapSocialGraphNpcIds } from '../../social/social.js';
+import { portraitHasImage } from '../../portrait/portrait-file.js';
 import {
     filterGraphByIds, identityMatchIndex, initImportReport, npcKeys, preserveTargetManualLocks,
     rekeyCollidingImportedSlots, uniqueImportedId, withoutSourceReplyNumbers,

@@ -3,8 +3,8 @@
 // before. Never imports branch.js.
 
 import * as branchCore from './branch-core.js';
-import { parseQualifiedChatKey } from './identity.js';
-import { prunePortraitAssetsInPlace } from './storage.js';
+import { parseQualifiedChatKey } from '../core/identity.js';
+import { prunePortraitAssetsInPlace } from '../storage/storage.js';
 import { BRANCH_LINEAGE_VERSION } from './branch-constants.js';
 import { chatLineage, lineageCheckpointKeys, provenanceHint } from './branch-lineage.js';
 import { ensureBranchFamilyId, normalizeBranchCheckpointsV3, pruneBranchCheckpoints } from './branch-checkpoints.js';

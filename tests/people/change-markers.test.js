@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeNpcRecord, stampChangedFields } from '../core.js';
+import { normalizeNpcRecord, stampChangedFields } from '../../modules/people/core/core.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 
 // Cleanup step 9 (audit I-18): the per-field "changed at" markers (fieldChanges: Delta's turn;

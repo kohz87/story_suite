@@ -8,7 +8,7 @@
 //   system message, change whenever the speaker changes (the provider's prompt cache is lost).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNarrationCaptureParts } from '../../../core.js';
+import { buildNarrationCaptureParts } from '../../../../modules/people/core/core.js';
 
 const base = { transcript: 'USER: hi', userName: 'Astra', charName: 'Narrator', existingNpcs: [] };
 

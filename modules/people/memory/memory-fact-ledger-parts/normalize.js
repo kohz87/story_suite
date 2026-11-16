@@ -1,5 +1,5 @@
 // The sidecar normalizer: stored facts checked against the visible memories, detached entries tombstoned.
-import { normalizeName } from '../../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 import { cleanPayload, productions, FACT_KINDS } from '../memory-fact-text.js';
 import { FACT_SLOTS, PAYLOAD_BYTES } from './limits.js';
 import { isFactKey, nonNegative } from './shared-checks.js';

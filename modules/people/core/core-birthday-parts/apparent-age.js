@@ -1,6 +1,6 @@
 /* NPC State Delta deriving apparent age from an appearance and projecting an NPC onto the calendar. */
-import { effectiveChronologicalAge, normalizeNpcBirthday } from '../birthday.js';
-import { getActiveCalendarConfig } from '../calendar.js';
+import { effectiveChronologicalAge, normalizeNpcBirthday } from '../../birthday/birthday.js';
+import { getActiveCalendarConfig } from '../../legacy/calendar.js';
 import * as mechanics from '../core-mechanics.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 

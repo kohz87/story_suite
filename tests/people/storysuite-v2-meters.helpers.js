@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { CAPTURE_PREFIX, createRegistry } from '../../../core/registry.js';
-import { createPeoplePart } from '../../story-block/src/v2/domains/people/part.js';
-import { createStore } from '../../../core/store.js';
-import { createCommandBus } from '../../../core/commands.js';
-import { parseChanges } from '../../../core/capture.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
-import { secretId } from '../src/npc-meters.js';
+import { CAPTURE_PREFIX, createRegistry } from '../../core/registry.js';
+import { createPeoplePart } from '../../modules/people/domain/part.js';
+import { createStore } from '../../core/store.js';
+import { createCommandBus } from '../../core/commands.js';
+import { parseChanges } from '../../core/capture.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { secretId } from '../../modules/people/meters/npc-meters.js';
 import { seedPeople } from './helpers/seed-people.js';
 
 export const SECRET = 'She is the lost heir of House Venn.';

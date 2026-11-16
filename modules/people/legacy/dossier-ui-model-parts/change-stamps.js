@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: reply-number change stamps, the header label and the stamp markup. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { wholeNumber } from './values.js';
 
 // Reply numbers (1.2.3). A change recorded with its reply's chat message index shows "reply #N", the

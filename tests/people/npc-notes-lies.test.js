@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     LIES_MAX, LIE_SAID_MAX, LIE_TO_MAX, LIES_TEXT_MAX, readLies, addLie, catchLie, caughtChange, lieTail, lieRows, caughtSummary,
-} from '../src/npc-notes-lies.js';
+} from '../../modules/people/notes/npc-notes-lies.js';
 
 const said = "I didn't sell a spell.";
 const one = (over = {}) => addLie(null, { to: 'Astra', said, day: 3, r: 'r1', ...over });
@@ -107,8 +107,8 @@ test('catchLie: stamps the latest uncaught lie to the person and returns the tru
 });
 
 test('the caught-lie tier is one source: the kinds file re-exports the lies file\'s extreme tier', async () => {
-    const kinds = await import('../src/npc-notes-kinds.js');
-    const lies = await import('../src/npc-notes-lies.js');
+    const kinds = await import('../../modules/people/notes/npc-notes-kinds.js');
+    const lies = await import('../../modules/people/notes/npc-notes-lies.js');
     assert.equal(lies.CAUGHT_TIER, 'extreme');
     assert.equal(kinds.CAUGHT_TIER, lies.CAUGHT_TIER);
     assert.equal(kinds.CAUGHT_DROP, lies.CAUGHT_DROP);

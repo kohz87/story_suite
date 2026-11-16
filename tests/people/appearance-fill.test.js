@@ -3,9 +3,9 @@
 // look fields take a fitted value without quoted evidence. Everything else keeps the evidence rule.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt, buildScannerPrompt, createNpcRecord, DURABLE_PROFILE_LIMITS, mergeScanResult } from '../core.js';
-import { dossierDetailProjection } from '../dossier-ui.js';
-import { agreeWithStoredAge, appendedLooks, blankLookFields, describedFeatures, fillLooksLine, fillWanted, missingFeatures, partialLookGaps, splitLook, withSplitLook } from '../appearance-fill.js';
+import { buildBackfillPrompt, buildDossierImportPrompt, buildProfileRefreshPrompt, buildScannerPrompt, createNpcRecord, DURABLE_PROFILE_LIMITS, mergeScanResult } from '../../modules/people/core/core.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
+import { agreeWithStoredAge, appendedLooks, blankLookFields, describedFeatures, fillLooksLine, fillWanted, missingFeatures, partialLookGaps, splitLook, withSplitLook } from '../../modules/people/appearance/appearance-fill.js';
 
 const NONE = { relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } };
 const story = 'Tamsin, the ferry keeper from the salt marsh, tied the boat and asked the stranger for the toll. The tide was out.';

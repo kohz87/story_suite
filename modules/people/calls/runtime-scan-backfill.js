@@ -3,8 +3,8 @@
    Split unchanged from runtime-scan.js. */
 
 import { AUTOMATIC_BACKFILL_QUEUE_VERSION, AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT, npcParticipatesInExchange } from './scan-context.js';
-import { npcMatchesLabel } from './core.js';
-import { rawScanMatchesExisting } from './src/relationship-pass.js';
+import { npcMatchesLabel } from '../core/core.js';
+import { rawScanMatchesExisting } from '../legacy/relationship-pass.js';
 
 export function queueNpcBackfillInState(state, npcId, label, requestedMessageId = null, options = {}) {
     const reason = String(options?.reason || '').trim();

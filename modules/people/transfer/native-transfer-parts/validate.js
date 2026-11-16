@@ -1,5 +1,5 @@
 // Checks of the manifest metadata a native bundle declares: declared contents, portable settings and source history.
-import { PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core-mechanics.js';
+import { PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../../core/core-mechanics.js';
 
 const PORTABLE_SETTING_SCHEMA = Object.freeze({
     portraitGenerationEnabled: { type: 'boolean' },

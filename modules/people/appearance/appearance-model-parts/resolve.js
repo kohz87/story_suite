@@ -2,7 +2,7 @@
 import { appearanceFormByName } from './forms.js';
 import { castWords } from './shared-cast-words.js';
 import { normalizeAppearanceModel } from './canonical.js';
-import { CAST_APPEARANCE_WIDE } from '../core-mechanics.js';
+import { CAST_APPEARANCE_WIDE } from '../../core/core-mechanics.js';
 import { appearanceText, combineAppearance, stripOverallPrefix } from '../appearance-text.js';
 
 export function resolveNpcAppearance(rawNpc = {}) {

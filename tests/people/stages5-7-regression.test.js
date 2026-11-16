@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
-import * as core from '../core.js';
-import { buildInjection as baselineInjection } from '../core-mechanics.js';
+import * as core from '../../modules/people/core/core.js';
+import { buildInjection as baselineInjection } from '../../modules/people/core/core-mechanics.js';
 import { scoringCases, canonicalResult } from './fixtures/scoring-cases.mjs';
-import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../branch.js';
-import { decodeStateFilePayload, encodeStateFilePayload, readNpcStateDataFile, writeNpcStateDataFile } from '../storage.js';
-import { dossierDetailProjection } from '../dossier-ui.js';
+import { BRANCH_LINEAGE_VERSION, recordBranchCheckpoint, reconcileBranchState } from '../../modules/people/legacy/branch.js';
+import { decodeStateFilePayload, encodeStateFilePayload, readNpcStateDataFile, writeNpcStateDataFile } from '../../modules/people/storage/storage.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 const zero = { trust: 0, affection: 0, desire: 0, tension: 0 };
 const OLD_CAPS = { ordinary: 1, meaningful: 2, major: 5, extreme: 10 };

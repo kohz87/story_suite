@@ -1,6 +1,6 @@
 // One scanner request with JSON parsing, salvage and a single compact retry.
-import { dispatchScannerRequest, scannerRoutingError } from '../../scanner-routing.js';
-import { parseScanJson } from '../../core.js';
+import { dispatchScannerRequest, scannerRoutingError } from '../scanner-routing.js';
+import { parseScanJson } from '../../core/core.js';
 import { JSON_RETRY_RESPONSE_LENGTH, compactRetryPrompt, isTruncatedScannerJsonError } from './retry.js';
 import { salvageScannerJson } from './salvage.js';
 

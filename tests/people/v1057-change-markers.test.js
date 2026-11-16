@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { appearanceFingerprint, createNpcRecord, mergeScanResult, normalizeNpcRecord, normalizeFieldChanges } from '../core.js';
-import { mergeImportedDossierState } from '../bundle.js';
-import { dossierDetailProjection } from '../dossier-ui.js';
+import { appearanceFingerprint, createNpcRecord, mergeScanResult, normalizeNpcRecord, normalizeFieldChanges } from '../../modules/people/core/core.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
@@ -61,7 +61,7 @@ test('portrait attachment records the appearance it was made for and the dossier
 });
 
 test('change markers and portrait fingerprints never reach model-facing prompts or injection', async () => {
-    const core = await import('../core.js');
+    const core = await import('../../modules/people/core/core.js');
     const npc = core.normalizeNpcRecord({ ...core.createNpcRecord('Elia'), present: true, mood: 'calm', fieldChanges: { mood: 71 },
         portrait: { dataUrl: 'data:image/png;base64,AA==', appearanceFingerprint: 'a1:zz:9', appearanceForm: 'Base' } });
     const options = { transcript: 'Elia waits.', existingNpcs: [npc], existingNpc: npc, targetNpc: npc, candidates: [], userName: 'U', charName: 'C', maxNpcs: 40 };

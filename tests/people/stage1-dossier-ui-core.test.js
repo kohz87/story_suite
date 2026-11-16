@@ -9,15 +9,15 @@ import {
   filterDossierIndex,
   projectDossierState,
   sortDossierIndex,
-} from '../dossier-ui.js';
-import { boardHtml } from '../dossier-ui-board.js';
-import { createPortraitRefs } from '../dossier-ui-html.js';
-import { dialArcs, dialSvg } from '../dossier-ui-dial.js';
-import { SECTIONS_STYLES as sectionsCss } from '../dossier-ui-styles-sections.js';
-import { dossierProfileHtml, profileMeterItems } from '../dossier-ui-profile.js';
-import { SECTION_KEYS } from '../dossier-ui-screens.js';
-import { sectionHeaderHtml, sectionScreenHtml } from '../dossier-ui-sections.js';
-import { boardModel, bondTone, libraryTone } from '../dossier-ui-view-model.js';
+} from '../../modules/people/legacy/dossier-ui.js';
+import { boardHtml } from '../../modules/people/legacy/dossier-ui-board.js';
+import { createPortraitRefs } from '../../modules/people/legacy/dossier-ui-html.js';
+import { dialArcs, dialSvg } from '../../modules/people/legacy/dossier-ui-dial.js';
+import { SECTIONS_STYLES as sectionsCss } from '../../modules/people/legacy/dossier-ui-styles-sections.js';
+import { dossierProfileHtml, profileMeterItems } from '../../modules/people/legacy/dossier-ui-profile.js';
+import { SECTION_KEYS } from '../../modules/people/legacy/dossier-ui-screens.js';
+import { sectionHeaderHtml, sectionScreenHtml } from '../../modules/people/legacy/dossier-ui-sections.js';
+import { boardModel, bondTone, libraryTone } from '../../modules/people/legacy/dossier-ui-view-model.js';
 import { bootstrap, cast, rika, uiSource } from './stage1-dossier-ui.helpers.js';
 
 test('Stage 1 lifecycle buckets are presentation-only and expose active archived dead filters', () => {
@@ -125,7 +125,7 @@ test('Stage 1 UI loads after the canonical legacy runtime and remains package-re
 });
 
 test('bond tone: close, hostile, duty and neutral relations', async () => {
-  const { bondTone } = await import('../dossier-ui-bond-tone.js');
+  const { bondTone } = await import('../../modules/people/legacy/dossier-ui-bond-tone.js');
   assert.equal(bondTone('mother'), 'close');
   assert.equal(bondTone('rival'), 'hostile');
   assert.equal(bondTone('former friend turned enemy'), 'hostile');

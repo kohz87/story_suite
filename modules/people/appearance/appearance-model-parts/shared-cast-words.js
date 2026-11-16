@@ -1,5 +1,5 @@
 /* A cast dossier's pack-given words kept whole: which appearance texts use the wide limit. A part of appearance-model.js (same owner, moved without change). */
-import { castAppearanceKept } from '../core-mechanics.js';
+import { castAppearanceKept } from '../../core/core-mechanics.js';
 
 // A cast dossier still holding the pack's own words (castFrom.first) keeps them whole: the physical text up to 1800 characters and the
 // resolved appearance ("<physical>; <wears>") up to the wide limit; every other dossier keeps the usual 800.

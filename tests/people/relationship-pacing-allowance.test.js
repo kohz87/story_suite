@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { DEFAULT_RELATIONSHIP_CAPS, normalizeNpcRecord } from '../core.js';
-import { applyFocusedRelationshipDecisions } from '../src/relationship-pass.js';
-import { DEFAULT_IMPACT_CRITERIA } from '../core-prompts-criteria.js';
-import { DEFAULT_ALLOWANCE, flatDayProblems, fromFlatDay, impactDayProblems, toFlatDay, normalizeAllowance, pacingDefaults, spendEvent, spendFlatEvent } from '../src/relationship-pacing.js';
-import { cutToTier, eventSummary, pacingNote, readEvent } from '../src/npc-meters-pacing.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { DEFAULT_RELATIONSHIP_CAPS, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { applyFocusedRelationshipDecisions } from '../../modules/people/legacy/relationship-pass.js';
+import { DEFAULT_IMPACT_CRITERIA } from '../../modules/people/core/core-prompts-criteria.js';
+import { DEFAULT_ALLOWANCE, flatDayProblems, fromFlatDay, impactDayProblems, toFlatDay, normalizeAllowance, pacingDefaults, spendEvent, spendFlatEvent } from '../../modules/people/legacy/relationship-pacing.js';
+import { cutToTier, eventSummary, pacingNote, readEvent } from '../../modules/people/meters/npc-meters-pacing.js';
 import { DAY, dossiers, suite, major } from './helpers/pacing-suite.js';
 import { TEMIWA } from './relationship-pacing.helpers.js';
 

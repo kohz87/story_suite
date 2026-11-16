@@ -1,5 +1,5 @@
 // Capturing taste lines: adding one taste under the first-mention rule and merging a Refresh into the list.
-import { clean } from '../npc-meters-config.js';
+import { clean } from '../../meters/npc-meters-config.js';
 import { TASTE_LIMITS, TASTE_RULE, LIKE, DISLIKE } from './shared-limits.js';
 import { tidy, tasteWords, tasteKey } from './words.js';
 import { isSign, verb, limitOf } from './shared-signs.js';

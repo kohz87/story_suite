@@ -2,7 +2,7 @@
 // equals an independent rebuild of the chat at the head (the oracle), and the Delta queries answer the same people as the store.
 import assert from 'node:assert/strict';
 import { rebuildAt } from '../../suite/qa/helpers/oracle.js';
-import { hashJson } from '../../../packages/npc-state-delta/src/storysuite-participant/hash.js';
+import { hashJson } from '../../../modules/people/legacy/storysuite-participant/hash.js';
 
 /** Waits until the cache equals the store at the head (hydrate has run), then asserts the three equalities. `label` names the step. */
 export async function proveHead(rig, label) {

@@ -6,7 +6,7 @@ import {
     backfillNeedsRequest,
     normalizeAutomaticBackfillRequest,
     npcParticipatesInExchange,
-} from '../scan-context.js';
+} from '../../modules/people/calls/scan-context.js';
 
 test('backfill eligibility follows the live active roster and rejects stale archives', () => {
     const active = { id: 'npc-a', name: 'Astra', archived: false };

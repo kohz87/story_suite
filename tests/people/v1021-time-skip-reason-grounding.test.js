@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { developmentScaleReady } from '../core-mechanics.js';
+import { developmentScaleReady } from '../../modules/people/core/core-mechanics.js';
 
 const LIVE_REASON = 'Two-month domestic time jump covering parish schooling, hospice chirurgery, and nameday preparation.';
 

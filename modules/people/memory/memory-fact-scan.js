@@ -1,7 +1,7 @@
 // Memory facts (design MEMDESIGN2 §4, §8): the scan's three touch points, kept out of runtime-scan.js. (1) the conditional paragraph for the scanner
 // prompt (pending facts whose reply is in the call's own window; never for a one-pass capture), (2) the merge option that turns fact derivation on
 // only for a marked live reply, (3) the phrasing applied after a successful merge.
-import { fingerprintMessage, lineageCheckpointKey } from '../branch.js';
+import { fingerprintMessage, lineageCheckpointKey } from '../legacy/branch.js';
 import { isMarked, memoryFactsOn } from './memory-fact-marks.js';
 import { applyPhrasing, memoryParagraph, selectHandles } from './memory-fact-phrase.js';
 

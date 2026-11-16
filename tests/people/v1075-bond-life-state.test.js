@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../core.js';
-import { compactSocialKeyRelationship, reconcileSocialState } from '../social.js';
+import { createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { compactSocialKeyRelationship, reconcileSocialState } from '../../modules/people/social/social.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const CORIN = 'Master Corin — late father | original builder and owner of The Grey Post, deeply revered by Elena; deceased';

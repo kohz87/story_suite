@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     bestAncestorState,
     chatLineage,
@@ -11,8 +11,8 @@ import {
     recordBranchCheckpoint,
     reconcileBranchState,
     setBranchProvenanceHint,
-} from '../branch.js';
-import { editorProfileLocks } from '../src/dossier-edit.js';
+} from '../../modules/people/legacy/branch.js';
+import { editorProfileLocks } from '../../modules/people/dossier/dossier-edit.js';
 import { assistant, baseState, user } from './branch.helpers.js';
 
 test('message fingerprint follows narrative content and ignores unstable swipe index numbering', () => {

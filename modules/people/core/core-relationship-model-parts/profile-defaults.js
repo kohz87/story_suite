@@ -1,5 +1,5 @@
 /* Durable profile limits, the default relationship, its four keys and the default progress. */
-import { SOCIAL_KEY_RELATIONSHIP_MAX_CHARS } from '../social.js';
+import { SOCIAL_KEY_RELATIONSHIP_MAX_CHARS } from '../../social/social.js';
 
 export const DURABLE_PROFILE_LIMITS = Object.freeze({
     personality: 320,

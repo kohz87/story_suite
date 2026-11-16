@@ -10,7 +10,7 @@ import {
     replyTokenEstimate,
     replyPreview,
     buildManageApi,
-} from '../suite-handshake.js';
+} from '../../modules/people/legacy/suite-handshake.js';
 import { fresh, runHostScenario } from './v120-story-suite.helpers.js';
 
 test('v1.2.2 Delta announces shows: [\'chatter\'] while enabled, never while off', () => {

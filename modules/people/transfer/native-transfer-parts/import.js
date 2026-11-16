@@ -1,5 +1,5 @@
 // Preparing a native bundle for import into a target chat, clearing source-message ownership of a foreign chat.
-import { encodeNpcStateBundle } from '../bundle.js';
+import { encodeNpcStateBundle } from '../../bundle/bundle.js';
 import { augmentNativeBundle } from './augment.js';
 import { decodeDeltaNativeBundle } from './decode.js';
 

@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildInjection, createNpcRecord, normalizeNpcRecord as normalizeProduction } from '../core.js';
-import { normalizeNpcRecord } from '../core-mechanics.js';
-import { resolveNpcAppearance } from '../appearance.js';
-import { castFromHtml, castProjection, projectDossierState } from '../dossier-ui.js';
-import { normalizeSecrets, observeCast, validateNpcSlice } from '../src/npc-meters.js';
+import { buildInjection, createNpcRecord, normalizeNpcRecord as normalizeProduction } from '../../modules/people/core/core.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core-mechanics.js';
+import { resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
+import { castFromHtml, castProjection, projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+import { normalizeSecrets, observeCast, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import {
     applyCastEntry, castBadge, castSecrets, castView, dossierFor, findCastPerson, metWithEntry, normalizeCast, normalizeEntry, parsePeople, shortPackName,
-} from '../src/cast-dossier.js';
+} from '../../modules/people/dossier/cast-dossier.js';
 import { ERSVEIL, FENNA_ENTRY, dateText, person, unmet } from './cast-dossier.helpers.js';
 
 test('the answer is cleaned; an unmet person never carries an entry, a met one does; dates are written on the calendar', () => {

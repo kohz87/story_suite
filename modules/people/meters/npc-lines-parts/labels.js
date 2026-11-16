@@ -1,6 +1,6 @@
 // Reads the labels of one `~ npc` line: meter moves (+N, -N, =N or the words up / down), impact, why, the anti-lever approach, disposition, and the
 // dossier labels (goal, status, where, look, gender, age, birthday, mood). Unknown labels become problems; the rest of the line still applies.
-import { normalizeApproachKind } from '../../npc-meters-gate.js';
+import { normalizeApproachKind } from '../npc-meters-gate.js';
 import { DISPOSITION_MAX, REASON_LABELS, clean, isObject, parseMeterValue, slug, tierOf } from '../npc-meters-config.js';
 import { directionOf } from './direction.js';
 

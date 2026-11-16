@@ -6,7 +6,7 @@ import { KEY_RELATIONSHIP_LIMIT } from '../core-keyrel.js';
 import { normalizeGender } from '../core-identity.js';
 import { IMPORTANT_MEMORY_LIMIT } from '../core-record.js';
 import { compactMemoryRubric, DEFAULT_MEMORY_CRITERIA } from '../core-prompts-criteria.js';
-import { fillLooksLine } from '../appearance-fill.js';
+import { fillLooksLine } from '../../appearance/appearance-fill.js';
 import { BEHAVIOR_LEVER_LABELS, PROFILE_STYLE_LINE, PROMPT_CAPS, returnShape } from './prompt-shared.js';
 export function buildBackfillPrompt({
     transcript,

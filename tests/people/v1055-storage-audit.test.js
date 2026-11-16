@@ -5,8 +5,8 @@ import {
     encodeStateFilePayload,
     makeNpcStateDataFileName,
     writeNpcStateDataFile,
-} from '../storage.js';
-import { createNpcRecord } from '../core.js';
+} from '../../modules/people/storage/storage.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 
 test('an unpointered first write probes the deterministic sidecar and refuses to overwrite another session', async () => {
     const chatKey = 'chat:unpointered-first-write';

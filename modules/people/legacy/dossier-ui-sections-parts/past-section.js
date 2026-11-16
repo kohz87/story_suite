@@ -1,6 +1,6 @@
 /* NPC State Delta dossier sections part: the Past section: the remembered events on a timeline of dots. */
-import { escapeHtml } from '../src/util/html.js';
-import { normalizeName } from '../core-text.js';
+import { escapeHtml } from '../../util/html.js';
+import { normalizeName } from '../../core/core-text.js';
 import { plain, wholeNumber } from '../dossier-ui-model.js';
 
 // Past: the remembered events as written on a timeline of dots. A memory recorded with a stamp (npc.memoryStamps: the reply and the story date

@@ -6,8 +6,8 @@ import {
     developmentScaleReady,
     durableProfileAggregateCandidateGrounded,
     mergeScanResult,
-} from '../core.js';
-import { createDiagnosticStore, DIAGNOSTIC_BUNDLE_VERSION } from '../diagnostics-core.js';
+} from '../../modules/people/core/core.js';
+import { createDiagnosticStore, DIAGNOSTIC_BUNDLE_VERSION } from '../../modules/people/core/diagnostics-core.js';
 
 function profileScan(state, update, turn, sourceMessageId, developmentContext = '') {
     return mergeScanResult(state, { npcs: [], profileUpdates: [update] }, { turn, sourceMessageId, developmentContext });
@@ -194,7 +194,7 @@ test('v1.0.23 diagnostic store is always bounded, filterable per NPC, and strips
 });
 
 test('secondary profile diagnostics use the actual durable field parser and formatter', () => {
-    const block = fs.readFileSync(new URL('../core-profile-development-parts/secondary-diagnostics.js', import.meta.url), 'utf8');
+    const block = fs.readFileSync(new URL('../../modules/people/core/core-profile-development-parts/secondary-diagnostics.js', import.meta.url), 'utf8');
     assert.match(block, /parseProfileDevelopmentEvidence\(field, item\)/);
     assert.match(block, /profileDevelopmentText\(field, item, mechanics\.DURABLE_PROFILE_LIMITS\.evidence\)/);
     assert.match(block, /profileDevelopmentText\(field, previousValue, 720\)/);
@@ -226,8 +226,8 @@ test('diagnostic sanitizer preserves unknown numeric provenance as null without 
 });
 
 test('v1.0.23 per-NPC diagnostic visibility is presentation-only while Maintenance export uses the runtime store', () => {
-    const experience = fs.readFileSync(new URL('../dossier-experience.js', import.meta.url), 'utf8');
-    const tools = fs.readFileSync(new URL('../dossier-tools.js', import.meta.url), 'utf8');
+    const experience = fs.readFileSync(new URL('../../modules/people/legacy/dossier-experience.js', import.meta.url), 'utf8');
+    const tools = fs.readFileSync(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url), 'utf8');
     assert.match(experience, /const diagnosticVisibleNpcIds = new Set\(\)/);
     assert.match(experience, /diagnosticsForNpc/);
     assert.doesNotMatch(experience, /saveSettings.*diagnosticVisibleNpcIds|manualProfileFields.*diagnosticVisibleNpcIds/);

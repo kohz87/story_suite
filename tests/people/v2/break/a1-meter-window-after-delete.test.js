@@ -7,8 +7,8 @@
 // it moves nothing. Story Block gives every reply a record id (`ctx.carrier.sid`) that a delete never moves.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../../testkit/index.js';
-import { createStorySuiteV2Adapter } from '../../../src/storysuite-v2.js';
+import { createHost } from '../../../../testkit/index.js';
+import { createStorySuiteV2Adapter } from '../../../../modules/people/storysuite-v2.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -3,7 +3,7 @@
 // and a screen reader get, not the stylesheet text.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { DOSSIER_BAR_MAX, dossierRowNodes } from '../story-block-tabs.js';
+import { DOSSIER_BAR_MAX, dossierRowNodes } from '../../modules/people/legacy/story-block-tabs.js';
 import { fakeDocument } from './helpers/fake-dom.js';
 
 const markup = (rows, opts) => dossierRowNodes(rows, fakeDocument(), opts).map(node => node.serialize()).join('');

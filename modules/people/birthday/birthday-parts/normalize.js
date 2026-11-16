@@ -2,7 +2,7 @@
 import {
     calendarFingerprint,
     deriveAgeFromBirthDate,
-} from '../calendar.js';
+} from '../../legacy/calendar.js';
 import { activeOrProvided, groundedReferenceDate } from './shared-config.js';
 import { normalizedIdentity, exactAge } from './shared-compare.js';
 import { normalizeBirthDate, formatBirthDate, normalizeStoredBirthDate } from './date.js';

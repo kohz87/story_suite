@@ -4,10 +4,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { createNpcRecord, mergeScanResult, normalizeFieldChangeMessages, normalizeNpcRecord } from '../core.js';
-import { mergeImportedDossierState } from '../bundle.js';
-import { changeStamp, changeSummaryHtml, dossierDetailProjection, lastRelationshipChangeHtml, projectDossierState, replyHeaderLabel } from '../dossier-ui.js';
-import { buildMapModel } from '../relationship-map-core.js';
+import { createNpcRecord, mergeScanResult, normalizeFieldChangeMessages, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { mergeImportedDossierState } from '../../modules/people/bundle/bundle.js';
+import { changeStamp, changeSummaryHtml, dossierDetailProjection, lastRelationshipChangeHtml, projectDossierState, replyHeaderLabel } from '../../modules/people/legacy/dossier-ui.js';
+import { buildMapModel } from '../../modules/people/legacy/relationship-map-core.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 
@@ -95,7 +95,7 @@ test('v1.2.3 relationship events recorded by a scan carry the reply\'s message i
     assert.equal('message' in legacy.lastRelationshipChange, false);
 
     const index = runtimeSource();
-    const relationshipPass = partsSource(new URL('../src/relationship-pass.js', import.meta.url));
+    const relationshipPass = partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url));
     assert.match(relationshipPass, /turn: Number\.isFinite\(Number\(state\.turn\)\) \? Number\(state\.turn\) : null,\n\s*\.\.\.relationshipEventMessage\(\{ message: sourceMessageId \}\),/, 'focused relationship pass');
     assert.match(index, /\.\.\.relationshipEventMessage\(\{ message: latestReplyIndex\(\) \}\),/, 'manual relationship edit');
 });
@@ -145,7 +145,7 @@ test('v1.2.3 the relationship map labels the last change the same way', () => {
     const model = buildMapModel(projection, { selectedId: 'npc_mira' });
     assert.equal(model.reply, 14);
     assert.equal(model.nodes.find(node => node.id === 'npc_mira').delta, 1, 'the this-turn badge still follows the counter');
-    const map = fs.readFileSync(new URL('../relationship-map.js', import.meta.url), 'utf8');
+    const map = fs.readFileSync(new URL('../../modules/people/legacy/relationship-map.js', import.meta.url), 'utf8');
     assert.match(map, /Reply #\$\{model\.reply\}: nobody/);
     assert.doesNotMatch(map, /Turn \$\{model\.turn\}/);
 });
@@ -174,7 +174,7 @@ test('v1.2.3 a foreign-chat import never carries the source chat\'s reply number
 });
 
 test('v1.2.3 reply numbers never reach model-facing prompts or injection', async () => {
-    const core = await import('../core.js');
+    const core = await import('../../modules/people/core/core.js');
     const npc = core.normalizeNpcRecord({ ...mira(), fieldChanges: { mood: 71 }, fieldChangeMessages: { mood: 4242 },
         lastRelationshipChange: { impact: 'ordinary', reason: 'Supper.', turn: 71, message: 4242 },
         relationshipEventHistory: [{ impact: 'ordinary', reason: 'Supper.', turn: 71, message: 4242 }] });

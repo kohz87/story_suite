@@ -1,12 +1,12 @@
 // getSettings: fills in and canonicalizes the stored settings, saving once when anything changed.
 
 import { extension_settings } from '../../../../extensions.js';
-import { normalizeScannerMaxOutputTokens } from '../scanner-routing.js';
-import { normalizeRelationshipMapSettings } from '../relationship-map-core.js';
-import { normalizeDossierSkin } from '../dossier-skin.js';
-import { normalizeAllowance, pacingDefaults } from '../src/relationship-pacing.js';
-import { DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitPromptFormat, normalizeCustomFieldNames } from '../core.js';
-import { normalizeSourceOfTruth } from '../suite-handshake.js';
+import { normalizeScannerMaxOutputTokens } from '../../calls/scanner-routing.js';
+import { normalizeRelationshipMapSettings } from '../../legacy/relationship-map-core.js';
+import { normalizeDossierSkin } from '../../legacy/dossier-skin.js';
+import { normalizeAllowance, pacingDefaults } from '../../legacy/relationship-pacing.js';
+import { DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitPromptFormat, normalizeCustomFieldNames } from '../../core/core.js';
+import { normalizeSourceOfTruth } from '../../legacy/suite-handshake.js';
 import { PORTRAIT_THEME_PRESETS } from './portrait-preset-constants.js';
 import { portraitCustomPresetLibrary } from './portrait-preset-library.js';
 import { DEFAULTS } from './defaults.js';

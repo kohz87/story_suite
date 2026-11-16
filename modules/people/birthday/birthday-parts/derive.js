@@ -2,7 +2,7 @@
 import {
     deriveBirthDateFromAgeParts,
     deterministicCalendarBirthday,
-} from '../calendar.js';
+} from '../../legacy/calendar.js';
 import { activeOrProvided } from './shared-config.js';
 
 export function deterministicBirthday(seed, config = undefined) {

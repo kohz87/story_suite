@@ -1,9 +1,9 @@
 // J11 step 5: the Cast views, the Dossiers pane and the dossier panel as `people` sections of sdk.panels (flag suite.redrawScheduler).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCastPanels } from '../src/adapter/cast-ui/panels.js';
-import { createCastViews } from '../src/adapter/cast-ui/cast-views.js';
-import { createWatchers } from '../src/adapter/cast-ui/watchers.js';
+import { createCastPanels } from '../../modules/people/adapter/cast-ui/panels.js';
+import { createCastViews } from '../../modules/people/adapter/cast-ui/cast-views.js';
+import { createWatchers } from '../../modules/people/adapter/cast-ui/watchers.js';
 
 // A fake sdk.panels that records what is registered and changed.
 function fakePanels(on = true) {

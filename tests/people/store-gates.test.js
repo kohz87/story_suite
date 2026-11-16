@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { createStorySuiteV2Adapter } from '../../packages/npc-state-delta/src/storysuite-v2.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { peopleRig, record, idOf } from './helpers/people-rig.js';
 import { proveHead } from './helpers/proofs.js';
 

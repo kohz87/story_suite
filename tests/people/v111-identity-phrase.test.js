@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, carryOmittedPhysicalTraits, normalizeAppearanceModel } from '../appearance.js';
+import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, carryOmittedPhysicalTraits, normalizeAppearanceModel } from '../../modules/people/appearance/appearance.js';
 
 const carry = (previous, next) => carryOmittedPhysicalTraits({ appearance: previous }, { appearance: next }).appearance;
 const dragon = normalizeAppearanceModel({ appearanceModelVersion: APPEARANCE_MODEL_VERSION, currentForm: 'Dragon', appearanceForms: [{ name: 'Dragon', appearance: 'A silver dragon' }] });

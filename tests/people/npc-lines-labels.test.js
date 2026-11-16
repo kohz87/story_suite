@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readLeaf } from '../src/npc-meters-config.js';
+import { readLeaf } from '../../modules/people/meters/npc-meters-config.js';
 import { suite, dossiers } from './helpers/pacing-suite.js';
 
 const withWren = () => ({ ...dossiers(), npc_wren: { id: 'npc_wren', name: 'Wren', aliases: [], present: false, archived: false, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } } });

@@ -8,11 +8,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { buildInjection, buildScannerPrompt, normalizeNpcRecord } from '../core.js';
-import { closeOverlay } from '../dossier-tools-core.js';
-import { openDiagnostics } from '../dossier-tools.js';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { applyFocusedRelationshipDecisions } from '../src/relationship-pass.js';
+import { buildInjection, buildScannerPrompt, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { closeOverlay } from '../../modules/people/legacy/dossier-tools-core.js';
+import { openDiagnostics } from '../../modules/people/legacy/dossier-tools.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { applyFocusedRelationshipDecisions } from '../../modules/people/legacy/relationship-pass.js';
 import { suite, major } from './helpers/pacing-suite.js';
 
 const milestone25 = { axis: 'trust', polarity: 1, threshold: 25, reason: 'earned on the sidecar', sourceMessageId: 1, turn: 1, inferred: false };
@@ -39,7 +39,7 @@ test('diagnostics renders the selected relationship view without changing the st
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-diagnostic-view-'));
     fs.mkdirSync(path.join(temp, 'src'));
     fs.writeFileSync(path.join(temp, 'package.json'), '{"type":"module"}');
-    fs.copyFileSync(fileURLToPath(new URL('../runtime-entry-public-write.js', import.meta.url)), path.join(temp, 'runtime-entry-public-write.js'));
+    fs.copyFileSync(fileURLToPath(new URL('../../modules/people/runtime/runtime-entry-public-write.js', import.meta.url)), path.join(temp, 'runtime-entry-public-write.js'));
     fs.writeFileSync(path.join(temp, 'scan-context.js'), 'export const readAheadOf = () => [];');
     fs.writeFileSync(path.join(temp, 'src/transcript.js'), 'export const activeReplyIds = () => [];');
     fs.writeFileSync(path.join(temp, 'runtime-scan-helpers.js'), 'export const chatContext = () => ({}); export const inReplay = () => {};');
@@ -116,7 +116,7 @@ test('the prompt injection and the relationship lines the narrator sees read the
         setSidecar(s, 70);
         assert.equal(inject(viewOf(s)), inject(control), 'a different sidecar does not move it');
         assert.notEqual(inject(sidecarMira(70)), inject(control), 'the sidecar would have read differently');
-        assert.match(fs.readFileSync(new URL('../runtime-injection.js', import.meta.url), 'utf8'), /buildInjection\(scenePresenceView\(hostedMeterView\(state\.npcs\)\)/);
+        assert.match(fs.readFileSync(new URL('../../modules/people/runtime/runtime-injection.js', import.meta.url), 'utf8'), /buildInjection\(scenePresenceView\(hostedMeterView\(state\.npcs\)\)/);
         const def = s.host.registry.module(MODULE_ID);
         const tail = () => JSON.stringify(def.context.tail({ state: s.host.head(), chat: { length: s.host.ctx.chat.length } }));
         const lines = tail();
@@ -138,7 +138,7 @@ test('stages, behaviour tiers and the social modifier read the slice', async () 
 
 // The scanner: runtime-hosted.js hostedScanState is hostedMeterView(state.npcs) (adapter.sliceView) in a copy of the state (it cannot be
 // imported here: it needs SillyTavern's modules), then the production prompt and pass run on that copy.
-const hostedSource = fs.readFileSync(new URL('../runtime-hosted.js', import.meta.url), 'utf8');
+const hostedSource = fs.readFileSync(new URL('../../modules/people/runtime/runtime-hosted.js', import.meta.url), 'utf8');
 assert.match(hostedSource, /function hostedMeterView\(npcs\) \{[^}]*adapter\.sliceView\(npcs\)/);
 assert.match(hostedSource, /function hostedScanState\(state\) \{\n\s*const npcs = hostedMeterView\(state\?\.npcs\);\n\s*return npcs === state\?\.npcs \? state : \{ \.\.\.state, npcs \};/);
 const scanStateOf = async s => ({ turn: 1, npcs: s.adapter.sliceView(Object.values(s.delta.records)) });

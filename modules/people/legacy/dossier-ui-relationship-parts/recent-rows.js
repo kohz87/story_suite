@@ -1,5 +1,5 @@
 /* NPC State Delta dossier relationship part: the rows of the "Recent changes" lists (With {{user}} and Right now's mood). */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { changeStamp, RELATIONSHIP_AXES } from '../dossier-ui-model.js';
 import { gateWords } from '../dossier-ui-view-model.js';
 import { impactLabel } from './shared-impact.js';

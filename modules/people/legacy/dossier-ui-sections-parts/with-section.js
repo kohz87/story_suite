@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: the With {{user}} section: the four meter bars, the dynamic, lies told and Recent changes. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { plain, relationshipValue, RELATIONSHIP_AXES, wholeNumber } from '../dossier-ui-model.js';
 import { recentChangeRowHtml } from '../dossier-ui-relationship.js';
 import { meterRowHtml } from '../dossier-ui-board.js';

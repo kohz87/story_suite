@@ -1,7 +1,7 @@
 /* NPC State Delta natural-language portrait prose: sentence assembly for the natural prompt format.
    Split unchanged from core-portrait.js; buildNaturalPortraitProse is module-internal rather than
    a public core export. */
-import { normalizeName } from './core-text.js';
+import { normalizeName } from '../core/core-text.js';
 import { portraitPartKey } from './core-portrait-visuals.js';
 
 function portraitProseLower(value) {

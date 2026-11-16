@@ -1,5 +1,5 @@
 /* NPC State Delta tie bookkeeping: recording which ties a reply mentioned, the notes' tie tag lookup and cleaning a stored tieSeen. */
-import { normalizeName } from '../../core-text.js';
+import { normalizeName } from '../core-text.js';
 import { KEY_RELATIONSHIP_LIMIT, tieParts } from './entries.js';
 import { tiesTracked } from './tie-rows.js';
 

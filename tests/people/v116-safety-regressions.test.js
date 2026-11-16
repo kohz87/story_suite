@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createNpcRecord, mergeScanResult } from '../core.js';
-import { applyAppearanceUpdate, appearanceFormByName } from '../appearance.js';
-import { encodeNpcStateBundle } from '../bundle.js';
-import { augmentNativeBundle, decodeDeltaNativeBundle, prepareNativeImport } from '../native-transfer.js';
-import { reconcileSocialState, SOCIAL_GRAPH_EDGE_LIMIT } from '../social.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { applyAppearanceUpdate, appearanceFormByName } from '../../modules/people/appearance/appearance.js';
+import { encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
+import { augmentNativeBundle, decodeDeltaNativeBundle, prepareNativeImport } from '../../modules/people/transfer/native-transfer.js';
+import { reconcileSocialState, SOCIAL_GRAPH_EDGE_LIMIT } from '../../modules/people/social/social.js';
 
 function profileState(npc, update, options = {}) {
     return mergeScanResult({ npcs: [npc], candidates: [], turn: 1 }, {

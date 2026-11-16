@@ -1,5 +1,5 @@
 /* NPC State Delta dossier sections part: the sub-heading and the "Updated this reply" line several sections share. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { changeStamp, wholeNumber } from '../dossier-ui-model.js';
 
 // A sub-heading inside a section (Recent changes, Pull, Lies told, Knows about others, Where and what): one class, so one CSS rule spaces them all.

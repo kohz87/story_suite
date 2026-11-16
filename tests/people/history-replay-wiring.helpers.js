@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 // as-of reads are proven on the adapter's `at` and the scoped adapter, not against a host.
 
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
-const REPLAY_URL = new URL('../src/storysuite-participant/history-replay.js', import.meta.url).href;
+const REPLAY_URL = new URL('../../modules/people/legacy/storysuite-participant/history-replay.js', import.meta.url).href;
 
 // A fake Story Block v2 global beside Delta: its Story Suite adapter is loaded and hosted (the same setup as storysuite-v2-hosted.test.js).
 const HOSTED_SETUP = `globalThis.document.documentElement = { dataset: {} };

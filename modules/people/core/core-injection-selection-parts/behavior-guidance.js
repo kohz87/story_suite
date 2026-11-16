@@ -1,5 +1,5 @@
 /* NPC State Delta behavior guidance: turns a person's relationship scores into a short behavior cue line. */
-import { DEFAULT_RELATIONSHIP, normalizeRelationshipBaseline, RELATIONSHIP_KEYS } from '../../core-relationship.js';
+import { DEFAULT_RELATIONSHIP, normalizeRelationshipBaseline, RELATIONSHIP_KEYS } from '../core-relationship.js';
 
 export function buildBehaviorGuidance(npc) {
     const rel = normalizeRelationshipBaseline(npc?.relationship || DEFAULT_RELATIONSHIP);

@@ -1,6 +1,6 @@
 // The custom portrait preset library: shaping one preset, the whole library, picking one and minting the next id.
 
-import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitPromptFormat } from '../core.js';
+import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT, normalizePortraitPromptFormat } from '../../core/core.js';
 import { DEFAULT_CUSTOM_PORTRAIT_PRESET_ID, PORTRAIT_CUSTOM_PRESET_LIMIT } from './portrait-preset-constants.js';
 
 export function portraitCustomPreset(raw = {}, index = 0) {

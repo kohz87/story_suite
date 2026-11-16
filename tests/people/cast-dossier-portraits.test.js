@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
-import { normalizeNpcRecord } from '../core-mechanics.js';
-import { applyCastEntry, applyCastPortrait, castPortraitWanted, markCastPortraitRemoved, normalizeCast } from '../src/cast-dossier.js';
-import { preserveUserNpcMetadata } from '../branch-core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core-mechanics.js';
+import { applyCastEntry, applyCastPortrait, castPortraitWanted, markCastPortraitRemoved, normalizeCast } from '../../modules/people/dossier/cast-dossier.js';
+import { preserveUserNpcMetadata } from '../../modules/people/legacy/branch-core.js';
 import { runHostScenario } from './helpers/host-scenario.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { adapterSource } from './helpers/adapter-source.js';

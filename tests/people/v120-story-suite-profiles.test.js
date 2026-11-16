@@ -7,8 +7,8 @@ import {
     buildNpcProfiles,
     resolveDossierTarget,
     trimAtWord,
-} from '../suite-handshake.js';
-import { normalizeNpcRecord, setNpcArchived } from '../core.js';
+} from '../../modules/people/legacy/suite-handshake.js';
+import { normalizeNpcRecord, setNpcArchived } from '../../modules/people/core/core.js';
 import { runHostScenario } from './v120-story-suite.helpers.js';
 
 test('v1.2.2 trimAtWord keeps whole words and ends a shortened text in an ellipsis', () => {

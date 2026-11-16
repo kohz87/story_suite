@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     BRANCH_LINEAGE_VERSION,
     BRANCH_SNAPSHOT_BUDGET_BYTES,
@@ -12,7 +12,7 @@ import {
     lineageCheckpointKeys,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
+} from '../../modules/people/legacy/branch.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const user = turn => ({
@@ -244,7 +244,7 @@ const ONE_PASS = '<!--npc_state_delta {"npcs":[{"name":"Fenna","present":true}]}
 const withChanges = lines => `The gate creaks open.\n${ONE_PASS}\n<!-- STORY_SUITE_V2\n<Changes>\n${lines}\n</Changes>\n<Changes-assist>\n${lines}\n</Changes-assist>\n-->`;
 
 test('EDITKEEP strip helper removes Story Suite blocks and keeps the story and the one-pass block', async () => {
-    const { stripStorySuiteBlocks } = await import('../branch.js');
+    const { stripStorySuiteBlocks } = await import('../../modules/people/legacy/branch.js');
     const a = stripStorySuiteBlocks(withChanges('~ npc Fenna trust +1'));
     assert.equal(a, stripStorySuiteBlocks(withChanges('~ npc Fenna trust +2\n+ item rope')));
     assert.match(a, /The gate creaks open\./);
@@ -254,7 +254,7 @@ test('EDITKEEP strip helper removes Story Suite blocks and keeps the story and t
 });
 
 test('EDITKEEP only Changes lines edited: no invalidation; prose or one-pass block edited: still diverges', async () => {
-    const { onlyStorySuiteBlocksChanged } = await import('../branch.js');
+    const { onlyStorySuiteBlocksChanged } = await import('../../modules/people/legacy/branch.js');
     const edit = (mes, change) => {
         const chat = [user(0), { ...bot(1, 'x'), mes: withChanges('~ npc Fenna trust +1') }];
         const stored = chatLineage(chat);
@@ -276,7 +276,7 @@ test('EDITKEEP only Changes lines edited: no invalidation; prose or one-pass blo
 });
 
 test('EDITKEEP remapping lineage keys carries the capture journal to the reply\'s new key', async () => {
-    const { remapLineageKeys } = await import('../branch.js');
+    const { remapLineageKeys } = await import('../../modules/people/legacy/branch.js');
     const from = chatLineage([user(0), bot(0, 'A')]);
     const to = chatLineage([user(0), bot(0, 'B')]);
     const state = { captureJournal: [{ messageId: 1, key: lineageCheckpointKey(from, 1), parsed: { npcs: [] }, fills: {} }] };
@@ -288,7 +288,7 @@ test('EDITKEEP remapping lineage keys carries the capture journal to the reply\'
 const ownerReply = lines => `Sieke flinched. "Wait. You're asking to register?"\n\nTemiwa stepped in.\n\n<!-- STORY_SUITE_V2 cap:chatter=8\n<Changes>\n+ person Sieke | temper: Anxious\n+ person Sister Temiwa | temper: Gentle\n${lines}\n</Changes>\n-->`;
 
 test('EDITKEEP3 several saves before the reconcile, or line endings and trailing spaces, still count as a hidden-blocks-only edit', async () => {
-    const { onlyStorySuiteBlocksChanged } = await import('../branch.js');
+    const { onlyStorySuiteBlocksChanged } = await import('../../modules/people/legacy/branch.js');
     const chat = [user(0), { ...bot(1, 'x'), mes: ownerReply('- item Cane Sword | qty: 1') }];
     const stored = chatLineage(chat);
     chat[1].mes = ownerReply('- item Cane Sword | qty: 1\n+ item Oak Stick Dagger | qty: 1');
@@ -300,7 +300,7 @@ test('EDITKEEP3 several saves before the reconcile, or line endings and trailing
 });
 
 test('EDITKEEP3 priorCaptureFor returns the same reply\'s stored capture only', async () => {
-    const { priorCaptureFor } = await import('../branch.js');
+    const { priorCaptureFor } = await import('../../modules/people/legacy/branch.js');
     const before = chatLineage([user(0), bot(1, 'A')]);
     const after = chatLineage([user(0), bot(1, 'B')]);
     const keys = lineageCheckpointKeys;

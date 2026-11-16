@@ -1,6 +1,6 @@
 /* NPC State Delta the scanner, backfill, dossier import and refresh prompts with the Stage 4 appearance and death rules. */
 import * as mechanics from '../core-mechanics.js';
-import { normalizeAppearanceForms } from '../appearance.js';
+import { normalizeAppearanceForms } from '../../appearance/appearance.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 
 const COMPACT_STAGE4_RULE = `\nS4: forms/current; confirmed death terminal.`;

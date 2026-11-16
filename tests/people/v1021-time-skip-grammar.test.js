@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult } from '../core.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
 
 function ryuBatchPayload(npc) {
     return {

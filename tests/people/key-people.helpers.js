@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { createNpcRecord } from '../core.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createHost } from '../../testkit/index.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 export const REN_AWAY = { doing: 'scouting the north road', since: 'Gw 12', back: 'Gw 18', steps: [{ date: 'Gw 14', text: 'reached Wolfmere Outpost' }, { date: 'Gw 16', text: 'met the toll-gang at the weir' }] };
 export const key = (name, extra = {}) => ({ name, aliases: [], here: true, away: null, ...extra });

@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { appearanceDraftRecord, resolveNpcAppearance } from '../appearance.js';
-import { applyNpcStateCommand, buildInjection, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, stripUiNoise } from '../core.js';
-import { deriveAgeFromBirthDate, extractStructuredWorldDate } from '../calendar.js';
-import { decodeNpcStateBundle, encodeNpcStateBundle } from '../bundle.js';
-import { buildHistoryArchive, prepareNativeImport } from '../native-transfer.js';
-import { nativeImportResultSummary } from '../dossier-tools.js';
-import { recordToolEvent, toolEvents } from '../dossier-tools-core.js';
+import { appearanceDraftRecord, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
+import { applyNpcStateCommand, buildInjection, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, stripUiNoise } from '../../modules/people/core/core.js';
+import { deriveAgeFromBirthDate, extractStructuredWorldDate } from '../../modules/people/legacy/calendar.js';
+import { decodeNpcStateBundle, encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
+import { buildHistoryArchive, prepareNativeImport } from '../../modules/people/transfer/native-transfer.js';
+import { nativeImportResultSummary } from '../../modules/people/legacy/dossier-tools.js';
+import { recordToolEvent, toolEvents } from '../../modules/people/legacy/dossier-tools-core.js';
 import { execFileSync } from 'node:child_process';
 
 const calendar = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }] };
@@ -119,11 +119,11 @@ test('bounded diagnostic history never retains exception details containing prom
     assert.equal(toolEvents[0].persisted, false);
 });
 test('production request bytes, retry counts, output allowances and flags match the recorded baseline', () => {
-    execFileSync(process.execPath, ['scripts/people/measure-stage9.mjs'], { cwd: new URL('../../..', import.meta.url), stdio: 'pipe' });
+    execFileSync(process.execPath, ['scripts/people/measure-stage9.mjs'], { cwd: new URL('../..', import.meta.url), stdio: 'pipe' });
 });
 
 test('the new hosted features off: the npc static line is the one from before the batch (no via sentence); on adds only the gate sentence', async () => {
-    const { createNpcPart } = await import('../src/npc-meters.js');
+    const { createNpcPart } = await import('../../modules/people/meters/npc-meters.js');
     const lineOf = on => { const part = createNpcPart({ settings: () => ({}), present: () => [], feature: () => on }); return `${part.kinds.npc.grammar}\n${part.kinds.milestone.grammar}\n${part.context.static()}`; };
     const off = lineOf(false);
     assert.doesNotMatch(off, /via:/, 'features off: no gate wording in the static part');

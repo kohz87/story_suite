@@ -1,7 +1,7 @@
 import { extension_settings, getContext } from '../../../extensions.js';
 import { getRequestHeaders, saveSettings as saveHostSettings } from '../../../../script.js';
 import { NPC_STATE_VERSION } from './core.js';
-import { setBranchProvenanceHint } from './branch.js';
+import { setBranchProvenanceHint } from '../legacy/branch.js';
 import {
     chatOwnerScope,
     getCharacterOwnerId,
@@ -13,7 +13,7 @@ import {
     readNpcStateDataFile,
     retireNpcStateDataFile,
     writeNpcStateDataFile,
-} from './storage.js';
+} from '../storage/storage.js';
 import {
     applyCanonicalOwnershipMove,
     destinationKeyForOwnerRename,

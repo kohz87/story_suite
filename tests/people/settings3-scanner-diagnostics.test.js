@@ -5,8 +5,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { scannerDiagnosticLines } from '../scanner-routing.js';
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { scannerDiagnosticLines } from '../../modules/people/calls/scanner-routing.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 

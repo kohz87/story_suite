@@ -7,7 +7,7 @@ import { normalizeGender, normalizeLifeState } from '../core-identity.js';
 import { IMPORTANT_MEMORY_LIMIT, normalizeNpcRecord } from '../core-record.js';
 import { promptProfileEvidence } from '../core-evidence.js';
 import { compactMemoryRubric, DEFAULT_MEMORY_CRITERIA } from '../core-prompts-criteria.js';
-import { fillLooksLine } from '../appearance-fill.js';
+import { fillLooksLine } from '../../appearance/appearance-fill.js';
 import { BEHAVIOR_LEVER_LABELS, PROFILE_STYLE_LINE, PROMPT_CAPS, returnShape } from './prompt-shared.js';
 // A stable field unchanged for this many turns is named in Refresh so outdated clauses (an ended
 // situation, a former role, someone now dead) are re-checked instead of persisting by omission.

@@ -2,7 +2,7 @@
 import { addressedTraitKeys } from './segments.js';
 import { TRAIT_AXES, axisSwapped, axisWords } from './swap-axes.js';
 import { traitPieces, valueWords } from './trait-pieces.js';
-import { normalizeName } from '../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 import { appearanceText, sameAppearance } from '../appearance-text.js';
 
 /**

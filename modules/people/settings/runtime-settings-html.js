@@ -3,10 +3,10 @@
    state and the controller functions it calls. Bodies are moved from index.js without change. */
 
 import { getContext } from '../../../extensions.js';
-import { scannerProfileOptions } from './scanner-routing.js';
-import { NPC_STATE_VERSION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from './core.js';
-import { SUITE_AREAS } from './suite-handshake.js';
-import { escapeHtml } from './src/util/html.js';
+import { scannerProfileOptions } from '../calls/scanner-routing.js';
+import { NPC_STATE_VERSION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core/core.js';
+import { SUITE_AREAS } from '../legacy/suite-handshake.js';
+import { escapeHtml } from '../util/html.js';
 import { PORTRAIT_THEME_PRESETS, getSettings } from './runtime-settings.js';
 
 export function createSettingsHtmlPart(rt, deps) {

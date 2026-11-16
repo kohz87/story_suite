@@ -1,6 +1,6 @@
 // Builds the definition handed to sdk.registerCardSettings.
 
-import { normalizePortraitPromptFormat } from '../../core-mechanics.js';
+import { normalizePortraitPromptFormat } from '../../core/core-mechanics.js';
 import { CARD_SETTINGS_OWNER, CARD_SETTINGS_LABEL } from './constants.js';
 import { validPortraitPromptFormat, validScanEvery } from './validators.js';
 

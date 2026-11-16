@@ -1,6 +1,6 @@
 // Portrait prompt building: prompt-format normalization and buildNpcPortraitPrompts.
-import { cleanText, normalizeName } from '../core-text.js';
-import { normalizeGender } from '../core-identity.js';
+import { cleanText, normalizeName } from '../../core/core-text.js';
+import { normalizeGender } from '../../core/core-identity.js';
 import { derivePortraitContradictionNegatives, extractPortraitVisualAnchorTags, normalizePortraitAppearanceClause, portraitTagFallbackParts, splitPortraitAppearance, uniquePortraitParts } from '../core-portrait-visuals.js';
 import { buildNaturalPortraitProse } from '../core-portrait-prose.js';
 import { DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION } from './style-defaults.js';

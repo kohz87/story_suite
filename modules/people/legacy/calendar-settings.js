@@ -6,7 +6,7 @@ import {
     parseMonthDefinitions,
     setActiveCalendarConfig,
 } from './calendar.js';
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 
 const EXTENSION_NAME = 'npc_state_delta';
 const ROOT_ID = 'npc_state_delta_calendar_settings';

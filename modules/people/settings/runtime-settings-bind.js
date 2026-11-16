@@ -4,10 +4,10 @@
    index.js without change. */
 
 import { getContext } from '../../../extensions.js';
-import { DEFAULT_ALLOWANCE, normalizeAllowance } from './src/relationship-pacing.js';
-import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, normalizeCustomFieldNames } from './core.js';
-import { chatLineage } from './branch.js';
-import { openSuiteOverlay } from './suite-handshake.js';
+import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../legacy/relationship-pacing.js';
+import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, normalizeCustomFieldNames } from '../core/core.js';
+import { chatLineage } from '../legacy/branch.js';
+import { openSuiteOverlay } from '../legacy/suite-handshake.js';
 import { PORTRAIT_THEME_PRESETS, PORTRAIT_CUSTOM_PRESET_LIMIT, portraitCustomPreset, portraitCustomPresetLibrary, portraitCustomPresetFor, nextPortraitCustomPresetId, portraitCustomPresetNameTaken, uniquePortraitCustomPresetName, persistSettings, getSettings, normalizePresentCastDisplay } from './runtime-settings.js';
 
 export function createSettingsBindPart(rt, deps) {

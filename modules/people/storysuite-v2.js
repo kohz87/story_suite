@@ -34,10 +34,10 @@
 // The factory is cut into parts under src/adapter/ (queries, cast-ui, timeline, connect, editor). Each part is a factory that gets
 // the shared state (`session`: the lets more than one part uses) and `deps` (the options, the constants below and the parts built
 // before it). This file keeps the exported constants, the assembly of the parts and the adapter object they make.
-import { FEATURE_SCAN_EVERY_REPLY, FEATURE_NOTES, normalizeGeneratedSecrets, secretsFromLines, secretsToLines } from './npc-meters.js';
-import { lookDrift, lookFlagWording } from './npc-notes-look.js';
-import { driveEvidence } from './npc-notes-drives.js';
-import { METERS_CARD_ID } from './npc-meters-screen.js';
+import { FEATURE_SCAN_EVERY_REPLY, FEATURE_NOTES, normalizeGeneratedSecrets, secretsFromLines, secretsToLines } from './meters/npc-meters.js';
+import { lookDrift, lookFlagWording } from './notes/npc-notes-look.js';
+import { driveEvidence } from './notes/npc-notes-drives.js';
+import { METERS_CARD_ID } from './meters/npc-meters-screen.js';
 import { DOSSIER_FIELDS } from './fields/registry.js';
 import { escapeHtml } from './util/html.js';
 import { createQueriesPart } from './adapter/queries.js';
@@ -47,8 +47,8 @@ import { createConnectPart } from './adapter/connect.js';
 import { createEditorPart } from './adapter/editor.js';
 import { createNativeDeath } from './adapter/native-death.js';
 import { createPeopleSync } from './adapter/people-sync.js';
-import { peopleView, peopleState, peopleCarry } from './people/view.js';
-import { hashJson } from './storysuite-participant/hash.js';
+import { peopleView, peopleState, peopleCarry } from './view.js';
+import { hashJson } from './legacy/storysuite-participant/hash.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './adapter/queries.js';
 export { meterBarNode } from './adapter/cast-ui.js';
@@ -146,7 +146,7 @@ export function createStorySuiteV2Adapter({
     castPortraitDue = null,
     doc = globalThis.document,
     timers = globalThis,
-    loadEmptyCast = () => import('../story-block-tabs.js').then(module => module.emptyCastHtml),
+    loadEmptyCast = () => import('./legacy/story-block-tabs.js').then(module => module.emptyCastHtml),
     retryMs = HOST_RETRY_MS,
     attempts = HOST_RETRY_ATTEMPTS,
     aliveMs = HOST_ALIVE_MS,
@@ -155,7 +155,7 @@ export function createStorySuiteV2Adapter({
     // True while the reader keeps the calendar in Delta (Source of truth: calendar "mine"): no story clock.
     calendarOwn = () => false,
     // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
-    loadDossierList = () => Promise.all([import('../story-block-tabs.js'), import('../dossier-ui.js')])
+    loadDossierList = () => Promise.all([import('./legacy/story-block-tabs.js'), import('./legacy/dossier-ui.js')])
         .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
     // Where the page API (PAGE_API) goes; null for none.
     page = globalThis,

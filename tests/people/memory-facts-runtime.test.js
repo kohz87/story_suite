@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 // Memory facts through the production handler and scanner of the synthetic SillyTavern host: the live-eligibility mark at receipt, the fact an applied
 // relationship move leaves, the MEMORY FACTS paragraph only for a call whose own window holds the fact's reply, the phrasing taken at commit, and an old
 // (unmarked) chat staying exactly as before. Deterministic fake model; no provider. Each scenario runs in its own process (runtime-smoke setup).
-const REPLAY_URL = new URL('../src/storysuite-participant/history-replay.js', import.meta.url).href;
+const REPLAY_URL = new URL('../../modules/people/legacy/storysuite-participant/history-replay.js', import.meta.url).href;
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
 
 function runScenario(name, scenario) {

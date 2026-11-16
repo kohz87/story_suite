@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CAST_TAB_ID, PAGE_API, WORLD_FEATURE, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { CAST_TAB_ID, PAGE_API, WORLD_FEATURE, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 

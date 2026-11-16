@@ -1,4 +1,4 @@
-import { BRANCH_LINEAGE_VERSION } from '../branch.js';
+import { BRANCH_LINEAGE_VERSION } from '../../modules/people/legacy/branch.js';
 
 export function user(text, name = 'Kazuma') {
     return { is_user: true, is_system: false, name, mes: text };

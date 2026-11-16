@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateNpcSlice, createNpcPart } from '../src/npc-meters.js';
-import { eventSummary, nextEvent, readEvent } from '../src/npc-meters-pacing.js';
-import { FEATURE_GATE, FEATURE_MOOD_PULL, CONTEXT_BUDGET, readLeaf } from '../src/npc-meters-config.js';
-import { applyEvents, eventsFromMoves, moodBars, moodWord, storedMoodWord } from '../npc-mood.js';
-import { stepPull } from '../npc-instincts.js';
+import { validateNpcSlice, createNpcPart } from '../../modules/people/meters/npc-meters.js';
+import { eventSummary, nextEvent, readEvent } from '../../modules/people/meters/npc-meters-pacing.js';
+import { FEATURE_GATE, FEATURE_MOOD_PULL, CONTEXT_BUDGET, readLeaf } from '../../modules/people/meters/npc-meters-config.js';
+import { applyEvents, eventsFromMoves, moodBars, moodWord, storedMoodWord } from '../../modules/people/meters/npc-mood.js';
+import { stepPull } from '../../modules/people/meters/npc-instincts.js';
 import { DAY, suite } from './helpers/pacing-suite.js';
 import { MOOD_ON, moodSuite, noCue, plain, recordOf, toOld, world, worldModule } from './relationship-pacing.helpers.js';
 

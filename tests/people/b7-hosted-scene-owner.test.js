@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { defersArea } from '../suite-handshake.js';
+import { defersArea } from '../../modules/people/legacy/suite-handshake.js';
 
 test('with a Story Block v2 host, "scene: theirs" defers the scene to Story Block', () => {
     const before = globalThis.StoryBlock;

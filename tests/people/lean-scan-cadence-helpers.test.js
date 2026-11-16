@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { autoScanDue, replyMayChangeDossiers } from '../scan-context.js';
+import { autoScanDue, replyMayChangeDossiers } from '../../modules/people/calls/scan-context.js';
 import { partsSource } from './helpers/parts-source.js';
-import { buildInjection, buildRelationshipPassPrompt, buildScannerPrompt } from '../core.js';
-import { skippedExchangesWindow, useTranscriptSource } from '../src/transcript.js';
-import { currentExchangeRelationshipRelevant } from '../src/relationship-pass.js';
+import { buildInjection, buildRelationshipPassPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
+import { skippedExchangesWindow, useTranscriptSource } from '../../modules/people/transcript/transcript.js';
+import { currentExchangeRelationshipRelevant } from '../../modules/people/legacy/relationship-pass.js';
 
 test('lean: autoScanDue lets a reply that names someone scan at once; a quiet reply waits for the safety scan', () => {
     const due = (sinceScan, extra = {}) => autoScanDue({ autoScan: true, full: false, scanEvery: 5, sinceScan, ...extra });
@@ -208,6 +208,6 @@ test('lean: the relationship evaluator prompt scores a change in the exchange it
 });
 
 test('lean: the relationship evaluator system prompt says exchanges for a window and is unchanged otherwise', () => {
-    const source = partsSource(new URL('../src/relationship-pass.js', import.meta.url));
+    const source = partsSource(new URL('../../modules/people/legacy/relationship-pass.js', import.meta.url));
     assert.match(source, /Use only the supplied targets and current exchange\. Return only the requested JSON object\."\.replace\(options\.window === true \? \/current exchange\/ : \/\(\?!\)\/, 'exchanges'\)/);
 });

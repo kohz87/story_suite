@@ -1,5 +1,5 @@
 /* NPC State Delta dossier surface: the changed-field mark and the latest-change summary line. */
-import { escapeHtml } from '../src/util/html.js';
+import { escapeHtml } from '../../util/html.js';
 import { changeStamp, FIELD_CHANGE_LABELS, wholeNumber } from '../dossier-ui-model.js';
 
 function changedMark(npc, field) {

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { PEOPLE_KEYS, peopleState, peopleView } from '../src/people/view.js';
+import { PEOPLE_KEYS, peopleState, peopleView } from '../../modules/people/view.js';
 
 // J07 step 3: the people view is lossless over every frozen dossier write path. For each path in
 // field-paths-golden.json (already free of clock fields), view -> state gives back the golden's

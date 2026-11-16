@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PACK_SCHEME, PackError, applyJson, diffJson, packCheckpoints, unpackCheckpoints } from '../checkpoint-pack.js';
+import { PACK_SCHEME, PackError, applyJson, diffJson, packCheckpoints, unpackCheckpoints } from '../../modules/people/legacy/checkpoint-pack.js';
 
 const text = value => JSON.stringify(value);
 

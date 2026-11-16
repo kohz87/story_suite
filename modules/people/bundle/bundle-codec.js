@@ -1,6 +1,6 @@
 /* NPC State Delta native bundle codec: manifest framing, portrait binary encoding, and bundle decoding. */
-import { formPortraitKey, normalizeFormPortraitAssets } from './core.js';
-import { normalizeSocialGraph } from './social.js';
+import { formPortraitKey, normalizeFormPortraitAssets } from '../core/core.js';
+import { normalizeSocialGraph } from '../social/social.js';
 
 const MAGIC = new Uint8Array([0x4e, 0x50, 0x43, 0x53, 0x54, 0x42, 0x30, 0x31]); // NPCSTB01
 const HEADER_SIZE = 12;

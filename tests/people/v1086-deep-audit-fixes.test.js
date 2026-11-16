@@ -1,16 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult, npcNamedInText, normalizeNpcRecord, setActiveCalendarConfig } from '../core.js';
+import { createNpcRecord, mergeScanResult, npcNamedInText, normalizeNpcRecord, setActiveCalendarConfig } from '../../modules/people/core/core.js';
 import {
     BRANCH_LINEAGE_VERSION,
     ensureBranchParentAnchor,
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
-import { narrativeLineage } from '../destructive-settlement-core.js';
-import { applyManualKeyRelationshipEdit, reconcileSocialState } from '../social.js';
-import { retireNpcStateDataFile } from '../storage.js';
+} from '../../modules/people/legacy/branch.js';
+import { narrativeLineage } from '../../modules/people/core/destructive-settlement-core.js';
+import { applyManualKeyRelationshipEdit, reconcileSocialState } from '../../modules/people/social/social.js';
+import { retireNpcStateDataFile } from '../../modules/people/storage/storage.js';
 
 const CALENDAR = { era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }], currentYear: 821, currentMonth: 'Redleaf', currentDay: 16 };
 

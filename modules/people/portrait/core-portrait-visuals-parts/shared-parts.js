@@ -1,5 +1,5 @@
 // Shared portrait-part helpers: the normalized key of an appearance fragment and de-duplication of fragment lists.
-import { normalizeName } from '../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 
 export function portraitPartKey(value) {
     return normalizeName(value).replace(/\b(?:a|an|the)\b/g, ' ').replace(/\s+/g, ' ').trim();

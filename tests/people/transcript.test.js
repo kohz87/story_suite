@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {
     cleanMessage, currentExchangeProse, currentExchangeTranscript, currentExchangeUserDevelopmentContext, currentExclusions,
     recentTranscript, recentUserDevelopmentContext, storyDayAt, storyDaysForTranscript, useTranscriptSource,
-} from '../src/transcript.js';
+} from '../../modules/people/transcript/transcript.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 // Cleanup step 10: the chat text helpers moved from index.js to src/transcript.js unchanged.
@@ -32,7 +32,7 @@ test('the chat text helpers read the wired context', () => {
 });
 
 test('index.js wires the helpers and keeps no copy', () => {
-    const index = fs.readFileSync(new URL('../index.js', import.meta.url), 'utf8');
+    const index = fs.readFileSync(new URL('../../modules/people/legacy/index.js', import.meta.url), 'utf8');
     assert.match(index, /useTranscriptSource\(\{ context: \(\) => chatContext\(\), scanDepth: \(\) => getSettings\(\)\.scanDepth \}\);/);
     assert.doesNotMatch(runtimeSource(), /^\s*function (?:cleanMessage|recentTranscript|currentExchangeTranscript|storyDayAt)\(/m);
 });

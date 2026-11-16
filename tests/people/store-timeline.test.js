@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { peopleRig, record, idOf } from './helpers/people-rig.js';
 import { proveHead } from './helpers/proofs.js';
-import { hashJson } from '../../packages/npc-state-delta/src/storysuite-participant/hash.js';
+import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
 
 const people = rig => rig.host.head().domains.people ?? null;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -118,7 +118,7 @@ test('a branch from a message (SillyTavern) opens with the people of that messag
 });
 
 test('Delta\'s own ids (npc_myla) are stored: all 15 frozen write paths reach equality at the head', async t => {
-    const golden = JSON.parse(fs.readFileSync(new URL('../../packages/npc-state-delta/tests/fixtures/field-paths-golden.json', import.meta.url), 'utf8'));
+    const golden = JSON.parse(fs.readFileSync(new URL('./fixtures/field-paths-golden.json', import.meta.url), 'utf8'));
     const asState = (key, value) => (key === 'editorNormalize' ? { npcs: [value] } : Array.isArray(value) ? { npcs: value } : value);
     const rig = await peopleRig(t);
     await rig.reply('Hello.');

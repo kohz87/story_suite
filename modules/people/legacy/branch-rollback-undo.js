@@ -3,7 +3,7 @@
 // before. Never imports branch.js.
 
 import * as branchCore from './branch-core.js';
-import { normalizeSocialGraph, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from './social.js';
+import { normalizeSocialGraph, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../social/social.js';
 import { cloneNpcList, jsonEqual } from './branch-util.js';
 
 const ROLLBACK_SCALAR_KEYS = Object.freeze([

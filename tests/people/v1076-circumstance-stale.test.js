@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildProfileRefreshPrompt, buildScannerPrompt, normalizeNpcRecord } from '../core.js';
+import { buildProfileRefreshPrompt, buildScannerPrompt, normalizeNpcRecord } from '../../modules/people/core/core.js';
 
 function elena(fieldChanges, extra = {}) {
     return normalizeNpcRecord({

@@ -1,5 +1,5 @@
 // The life-state choice of a dossier (alive, deceased or unknown) projected from an NPC record.
-import { isTerminalNpcDeath } from '../core.js';
+import { isTerminalNpcDeath } from '../../core/core.js';
 import { plain } from '../dossier-tools-core.js';
 
 export function lifeStateChoice(npc = {}) {

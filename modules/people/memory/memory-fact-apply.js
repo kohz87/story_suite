@@ -1,6 +1,6 @@
 // Memory facts (design MEMDESIGN2 §4, §6): the callers' entry points. A dossier with no sidecar and no new candidates runs the ORIGINAL
 // mergeImportantMemories untouched (old chats and the no-fact path stay byte-identical); anything else goes through the identity-aware store.
-import { mergeImportantMemories } from '../core-record-merge.js';
+import { mergeImportantMemories } from '../core/core-record-merge.js';
 import { mergeFactMemories } from './memory-fact-store.js';
 import { metFact, moveFact } from './memory-fact-events.js';
 

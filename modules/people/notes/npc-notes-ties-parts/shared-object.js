@@ -1,5 +1,5 @@
 // The ties object helpers: the name cap, the person key, the tolerant reader and the sorted copy.
-import { clean, npcKey } from '../npc-meters-config.js';
+import { clean, npcKey } from '../../meters/npc-meters-config.js';
 import { ordered, isPlainObject } from './shared-tags.js';
 
 export const NAME_MAX = 120;

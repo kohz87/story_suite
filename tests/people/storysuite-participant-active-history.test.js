@@ -6,10 +6,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { adapterRig, BATCH } from './helpers/participant-rig.js';
 import { runHostScenario } from './helpers/host-scenario.js';
-import { setActiveCalendarConfig } from '../core.js';
+import { setActiveCalendarConfig } from '../../modules/people/core/core.js';
 import {
     activeChat, recentTranscript, refreshMessageGate, storyDayAt, useMessageGate, useTranscriptSource, currentExchangeMessages,
-} from '../src/transcript.js';
+} from '../../modules/people/transcript/transcript.js';
 
 const CALENDAR = Object.freeze({ era: 'CY', months: [{ name: 'Goldfield', days: 30 }, { name: 'Leafturn', days: 30 }, { name: 'Deepfrost', days: 30 }] });
 const dated = (date, text) => `<details><summary>World State</summary>Time | ${date} | dusk\nLocation | The Grey Post</details>\n${text}`;
@@ -64,7 +64,7 @@ test('the story day and the transcript window use only the messages the story st
     const chat = r.host.ctx.chat;
     const hidden = chat.map((message, at) => (message.is_system ? at : -1)).filter(at => at >= 0);
     assert.equal(hidden.length > 0, true, 'the host hid the faded replies with SillyTavern\'s own flag');
-    const day = (await import('../core.js')).calendarDayNumber('CY308, Goldfield 2', CALENDAR);
+    const day = (await import('../../modules/people/core/core.js')).calendarDayNumber('CY308, Goldfield 2', CALENDAR);
     const seen = await reads(r);
     assert.equal(seen.storyDay, day, 'the day of the last active dated reply, not the dead timeline\'s Leafturn 3');
     assertActiveOnly(seen);
@@ -76,7 +76,7 @@ test('a faded reply the host could not hide is still not evidence: the gate is a
     const chat = r.host.ctx.chat;
     for (const message of chat) if (message.story_suite_hid) message.is_system = false;   // the hide failed (or was undone)
     assert.equal(chat.some(message => message.story_suite_hid && !message.is_system), true);
-    const day = (await import('../core.js')).calendarDayNumber('CY308, Goldfield 2', CALENDAR);
+    const day = (await import('../../modules/people/core/core.js')).calendarDayNumber('CY308, Goldfield 2', CALENDAR);
     const seen = await reads(r);
     assert.equal(seen.storyDay, day);
     assertActiveOnly(seen);
@@ -107,7 +107,7 @@ test('after a reload and a rebuild the same messages are faded and the same read
     again.host.store.rebuild();
     await again.host.timeline.host.recover();
     readFrom(again);
-    const day = (await import('../core.js')).calendarDayNumber('CY308, Goldfield 2', CALENDAR);
+    const day = (await import('../../modules/people/core/core.js')).calendarDayNumber('CY308, Goldfield 2', CALENDAR);
     const seen = await reads(again);
     assert.equal(seen.storyDay, day);
     assertActiveOnly(seen);

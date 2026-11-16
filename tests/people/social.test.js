@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult, scoreNpcRelevance } from '../core.js';
+import { createNpcRecord, mergeScanResult, scoreNpcRelevance } from '../../modules/people/core/core.js';
 import {
     normalizeSocialGraph,
     socialRelationFamily,
@@ -8,7 +8,7 @@ import {
     applyManualKeyRelationshipEdit,
     removeNpcFromSocialGraph,
     purgeNpcStructuredReferences,
-} from '../social.js';
+} from '../../modules/people/social/social.js';
 
 function stateWith(...npcs) {
     return { npcs, candidates: [], dismissed: [], socialGraph: normalizeSocialGraph(), turn: 1 };

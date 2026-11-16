@@ -4,9 +4,9 @@
    Bodies are moved from index.js without change. */
 
 import { getContext } from '../../../extensions.js';
-import { getCharacterOwnerId, getChatIdentityFromContext, isQualifiedChatKey, parseQualifiedChatKey } from './identity.js';
-import { liveLifecycleCandidateKeys, resolveDeletedLifecycleKeyFromPresence, resolveOwnedLifecycleKey } from './hardening-core.js';
-import { getSettings } from './runtime-settings.js';
+import { getCharacterOwnerId, getChatIdentityFromContext, isQualifiedChatKey, parseQualifiedChatKey } from '../core/identity.js';
+import { liveLifecycleCandidateKeys, resolveDeletedLifecycleKeyFromPresence, resolveOwnedLifecycleKey } from '../core/hardening-core.js';
+import { getSettings } from '../settings/runtime-settings.js';
 
 export function createChatKeysPart(rt, deps) {
     const { isScanBusy, requestHeaders } = deps;

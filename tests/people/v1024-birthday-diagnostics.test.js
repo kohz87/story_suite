@@ -4,7 +4,7 @@ import {
     mergeScanResult,
     normalizeNpcRecord,
     setActiveCalendarConfig,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 const CALENDAR = Object.freeze({
     era: 'CR',

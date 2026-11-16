@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createParticipant, memoryVault } from '../src/storysuite-participant/index.js';
+import { createParticipant, memoryVault } from '../../modules/people/legacy/storysuite-participant/index.js';
 import { freshState } from './helpers/participant-rig.js';
 
 export const deferred = () => {

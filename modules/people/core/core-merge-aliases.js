@@ -4,16 +4,16 @@
 import { cleanText, normalizeName } from './core-text.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_PROGRESS, normalizeRelationshipBaseline, RELATIONSHIP_KEYS } from './core-relationship.js';
 import { inferNpcIdentityKind, isInterimNpcLabel, normalizeGender } from './core-identity.js';
-import { mergeAliasFacts } from './src/memory-fact-alias.js';
+import { mergeAliasFacts } from '../memory/memory-fact-alias.js';
 import { mergeLists, normalizeCustomFields, normalizeNpcRecord, normalizePortraitSeed, normalizeStoredMemories } from './core-record.js';
-import { ALIAS_MERGE_TEXT_FIELDS } from './src/fields/registry.js';
+import { ALIAS_MERGE_TEXT_FIELDS } from '../fields/registry.js';
 import { normalizeMannerisms } from './core-durable.js';
 import { normalizeBehaviorProfile } from './core-behavior.js';
 import { mergeKeyRelationshipUpdates } from './core-keyrel.js';
 import { normalizeProfileEvidence } from './core-evidence.js';
-import { portraitHasImage } from './src/portrait-file.js';
-import { PORTRAIT_NPC_PROMPT_LIMIT } from './core-portrait.js';
-import { remapSocialGraphNpcId } from './social.js';
+import { portraitHasImage } from '../portrait/portrait-file.js';
+import { PORTRAIT_NPC_PROMPT_LIMIT } from '../portrait/core-portrait.js';
+import { remapSocialGraphNpcId } from '../social/social.js';
 import { identityConflict, partialNamePair } from './core-merge-names.js';
 
 function explicitAliasLink(a, b) {

@@ -7,7 +7,7 @@ import {
     isQualifiedChatKey,
     parseQualifiedChatKey,
     sameChatOwnerScope,
-} from '../identity.js';
+} from '../../modules/people/core/identity.js';
 
 test('character owner is part of durable chat identity', () => {
     const base = { chatId: 'Eos', getCurrentChatId: () => 'Eos', groupId: null, characters: [{ avatar: 'alice.png' }, { avatar: 'bob.png' }] };

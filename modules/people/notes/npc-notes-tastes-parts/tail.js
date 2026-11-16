@@ -1,5 +1,5 @@
 // The optional taste tail line for a present NPC: the newest like and dislike.
-import { clean } from '../npc-meters-config.js';
+import { clean } from '../../meters/npc-meters-config.js';
 import { LIKE, DISLIKE } from './shared-limits.js';
 import { readTastes } from './record.js';
 

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { freshState, rig } from './helpers/participant-rig.js';
-import { buildCheckpoint, restoredState, storedTimeline, timelineOf } from '../src/storysuite-participant/index.js';
+import { buildCheckpoint, restoredState, storedTimeline, timelineOf } from '../../modules/people/legacy/storysuite-participant/index.js';
 
 const FAMILY = 'b5c2d3e4-0000-4000-8000-000000000001';
 const familyState = () => ({ ...freshState(), branchFamilyId: FAMILY });

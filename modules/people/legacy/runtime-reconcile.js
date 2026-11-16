@@ -4,10 +4,10 @@
    with the shared runtime state. Bodies are moved from index.js without change. */
 
 import { getContext } from '../../../extensions.js';
-import { messageGateSettled } from './src/transcript.js';
+import { messageGateSettled } from '../transcript/transcript.js';
 import { BRANCH_SNAPSHOT_BUDGET_BYTES, BRANCH_SNAPSHOT_MAX_BYTES, ROLLBACK_JOURNAL_BUDGET_BYTES, chatLineage, firstLineageDivergence, lineageCheckpointKeys, priorCaptureFor, onlyStorySuiteBlocksChanged, reconcileBranchState, remapLineageKeys, snapshotBranchState } from './branch.js';
-import { getSettings } from './runtime-settings.js';
-import { textCapture } from './runtime-narration.js';
+import { getSettings } from '../settings/runtime-settings.js';
+import { textCapture } from '../runtime/runtime-narration.js';
 
 export function createReconcilePart(rt, deps) {
     const { storeOwnsState = () => false, branchInheritancePending, cancelScanOperation, deferUntilSettled, drainPendingAutoScan, ensureChatStateLoaded, getChatKey, getChatState, handleAssistantMessageReceived, hostChatComplete, hostedOnePass, narrationCaptureKey, isHostSwipeActive, isScanBusy, maybeInheritKnownBranch, persist, queuePendingAutoScan, renderDossier, scanNow, seedBranchTracking, setChatState, staleHostPrefix, updateInjection } = deps;

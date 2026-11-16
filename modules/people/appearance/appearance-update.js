@@ -10,11 +10,11 @@ import {
     groundedAppearanceCorrection,
     isSafeUnmarkedDurableRefinement,
     isSafeUnmarkedDurableReplacement,
-} from './core-mechanics.js';
+} from '../core/core-mechanics.js';
 import { APPEARANCE_FORM_LIMIT, APPEARANCE_MODEL_VERSION, appearanceText, clean, formKey, formState, hasOwn, sameAppearance, stripOverallPrefix } from './appearance-text.js';
 import { agreeWithStoredAge, appendedLooks, attemptsExtension, withSplitLook } from './appearance-fill.js';
 import { filledGuess, guessedTraits, mergeRefinement, physicalTraitSwaps, settledGuess, preserveOmittedPhysicalTraits, withoutSharedPieces, withoutTraitSwaps } from './appearance-physical.js';
-import { groundedTraitEvent } from './core-durable-grounding.js';
+import { groundedTraitEvent } from '../core/core-durable-grounding.js';
 import { completeFormWithShared, normalizeAppearanceForms, normalizeAppearanceModel, resolveNpcAppearance } from './appearance-model.js';
 
 function reconcileFormAppearance(existing, update, context = '', npc = {}) {

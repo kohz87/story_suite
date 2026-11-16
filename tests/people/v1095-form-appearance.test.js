@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveNpcAppearance } from '../appearance.js';
+import { resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
 
 // Since 1.0.98 these unversioned records are version-1 data: the checks cover the one-time
 // conversion, which stores exactly what each form showed.

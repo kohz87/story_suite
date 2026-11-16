@@ -16,9 +16,9 @@
 // Pure. The block is plain JSON and is part of every checkpoint (restoring puts the saved map and deaths back; `reserved` is merged with the
 // live one so an id the dead timeline issued is not issued again).
 
-import { unionMarks } from '../memory-fact-marks.js';
+import { unionMarks } from '../../memory/memory-fact-marks.js';
 import { cleanApplied } from './checkpoint.js';
-import { commonPrefixLength, firstLineageDivergence } from '../../branch-core.js';
+import { commonPrefixLength, firstLineageDivergence } from '../branch-core.js';
 import { cleanIdentity } from './identity.js';
 
 export const TIMELINE_VERSION = 1;

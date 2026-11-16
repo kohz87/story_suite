@@ -2,7 +2,7 @@
 // fallback asks it of each candidate; it must give the answer `prepare` would give, and leave the participant exactly as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
 import { keep, makeDelta, npc } from './helpers/p24-port.js';
 
 const LINE = 'lg_lineone1';

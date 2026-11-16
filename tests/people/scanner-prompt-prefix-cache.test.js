@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNarrationCaptureParts, buildProfileRefreshPrompt, buildRelationshipPassPrompt, buildScannerPrompt } from '../core.js';
+import { buildNarrationCaptureParts, buildProfileRefreshPrompt, buildRelationshipPassPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
 
 test('scanner and capture maxima follow configured caps, including custom values and zero', () => {
     for (const caps of [

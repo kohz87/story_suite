@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult } from '../core.js';
-import { applyAppearanceUpdate, appearanceFormByName, resolveNpcAppearance } from '../appearance.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
+import { applyAppearanceUpdate, appearanceFormByName, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
 
 function profileState(npc, update, options = {}) {
     return mergeScanResult({ npcs: [npc], candidates: [], turn: 1 }, {

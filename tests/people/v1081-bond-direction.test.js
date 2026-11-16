@@ -7,8 +7,8 @@ import {
     buildScannerPrompt,
     createNpcRecord,
     normalizeNpcRecord,
-} from '../core.js';
-import { inverseSocialRelation, reconcileSocialState } from '../social.js';
+} from '../../modules/people/core/core.js';
+import { inverseSocialRelation, reconcileSocialState } from '../../modules/people/social/social.js';
 
 const npc = (name, gender, species, keyRelationships = []) => normalizeNpcRecord({
     id: `npc_${name.toLowerCase()}`, name, gender, species, keyRelationships,

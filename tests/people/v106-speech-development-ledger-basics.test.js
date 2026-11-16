@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {
     createNpcRecord,
     normalizeNpcRecord,
-} from '../core.js';
-import { decodeNpcStateBundle, encodeNpcStateBundle } from '../bundle.js';
+} from '../../modules/people/core/core.js';
+import { decodeNpcStateBundle, encodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
 import { gradualSpeechUpdate, scan } from './v106-speech-development-ledger.helpers.js';
 
 test('v1.0.6 gradual speech evolution counts independent same-concept observations and ignores replay of one source message', () => {

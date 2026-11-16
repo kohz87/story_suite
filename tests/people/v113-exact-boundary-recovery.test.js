@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord } from '../core.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
 import {
     BRANCH_LINEAGE_VERSION,
     chatLineage,
@@ -10,7 +10,7 @@ import {
     recordBranchCheckpoint,
     reconcileBranchState,
     snapshotBranchState,
-} from '../branch.js';
+} from '../../modules/people/legacy/branch.js';
 
 const user = turn => ({
     is_user: true,

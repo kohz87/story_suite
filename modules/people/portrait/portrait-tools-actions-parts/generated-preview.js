@@ -1,5 +1,5 @@
 /* NPC State Delta portrait actions: showing a generated portrait preview and turning its URL into a file. */
-import { currentSessionIs, validatePortraitFile } from '../dossier-tools-core.js';
+import { currentSessionIs, validatePortraitFile } from '../../legacy/dossier-tools-core.js';
 
 export function generatedPreview(session, overlay, url) {
     if (!currentSessionIs(session)) return false;

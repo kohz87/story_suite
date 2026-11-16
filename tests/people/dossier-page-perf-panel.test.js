@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DeltaDossierUi } from '../dossier-ui.js';
-import { openNpc, showScreen } from '../dossier-ui-screens.js';
+import { DeltaDossierUi } from '../../modules/people/legacy/dossier-ui.js';
+import { openNpc, showScreen } from '../../modules/people/legacy/dossier-ui-screens.js';
 import { runHostScenario } from './helpers/host-scenario.js';
 
 // The dossier page at a long chat's scale: portraits reach the panel by reference (never escaped into its markup or copied by the

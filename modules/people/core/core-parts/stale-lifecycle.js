@@ -1,6 +1,6 @@
 // Public stale-NPC lifecycle: mechanics plus social-graph and structured-reference cleanup for removed NPCs.
 import * as mechanics from '../core-mechanics.js';
-import { removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../social.js';
+import { removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../../social/social.js';
 
 export function applyStaleNpcLifecycle(state = {}, options = {}) {
     const beforeNpcs = new Map((Array.isArray(state?.npcs) ? state.npcs : [])

@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { partsSource } from './helpers/parts-source.js';
-import { BRANCH_SNAPSHOT_BUDGET_BYTES, chatLineage, pruneBranchCheckpoints } from '../branch.js';
-import { prunePortraitAssetsForState } from '../storage.js';
-import { buildQualifiedChatKey } from '../identity.js';
+import { BRANCH_SNAPSHOT_BUDGET_BYTES, chatLineage, pruneBranchCheckpoints } from '../../modules/people/legacy/branch.js';
+import { prunePortraitAssetsForState } from '../../modules/people/storage/storage.js';
+import { buildQualifiedChatKey } from '../../modules/people/core/identity.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const index = runtimeSource().replace(/\r\n/g, '\n');
-const ci = fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
+const ci = fs.readFileSync(new URL('../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
 
 function msg(text, isUser = false) { return { mes: text, is_user: isUser, is_system: false, name: isUser ? 'User' : 'Character' }; }
 

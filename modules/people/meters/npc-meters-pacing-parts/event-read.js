@@ -1,6 +1,6 @@
 // Reading the stored last event of a reply: whether a stored text is a valid event (with its log rows) and its parsed form.
-import { PACING_TIERS } from '../relationship-pacing.js';
-import { gateEventProblems, normalizeApproachKind } from '../../npc-meters-gate.js';
+import { PACING_TIERS } from '../../legacy/relationship-pacing.js';
+import { gateEventProblems, normalizeApproachKind } from '../npc-meters-gate.js';
 import { AXES, EVENT_MAX, EVENT_TEXT_MAX, LOG_MAX } from './shared-limits.js';
 import { DATE_MAX, NOTE_MAX, WHY_MAX, wholeInt } from './shared-fields.js';
 

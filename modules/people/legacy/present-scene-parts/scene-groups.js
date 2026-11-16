@@ -1,5 +1,5 @@
 // Grouping chatter by unmatched speaker and tagging the roster with the model signature.
-import { normalizeName } from '../core-mechanics.js';
+import { normalizeName } from '../../core/core-mechanics.js';
 import { escapeAttr } from './shared-text.js';
 
 /**

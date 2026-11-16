@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildInjection, createNpcRecord, mergeScanResult, normalizeNpcRecord as normalizeProduction } from '../core.js';
-import { normalizeNpcRecord } from '../core-mechanics.js';
-import { currentPresentationText, normalizeAppearanceModel, resolveNpcAppearance } from '../appearance.js';
-import { applyCastEntry, normalizeEntry } from '../src/cast-dossier.js';
+import { buildInjection, createNpcRecord, mergeScanResult, normalizeNpcRecord as normalizeProduction } from '../../modules/people/core/core.js';
+import { normalizeNpcRecord } from '../../modules/people/core/core-mechanics.js';
+import { currentPresentationText, normalizeAppearanceModel, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
+import { applyCastEntry, normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
 import { TEMIWA_ENTRY, madeTemiwa, temiwaPerson } from './cast-dossier.helpers.js';
 
 const TEMIWA_SCENE = 'Temiwa stood slender, amber eyes bright, russet fur damp, white-tipped tail showing: the veil pinned back and the tail in a grey linen wrap.';

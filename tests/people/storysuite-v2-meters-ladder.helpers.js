@@ -3,12 +3,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHost } from '../../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createHost } from '../../testkit/index.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { seedPeople } from './helpers/seed-people.js';
-import { secretId } from '../src/npc-meters.js';
-import { projectDossierState } from '../dossier-ui.js';
-import { lastRelationshipChangeHtml, recentChangeRowHtml } from '../dossier-ui-relationship.js';
+import { secretId } from '../../modules/people/meters/npc-meters.js';
+import { projectDossierState } from '../../modules/people/legacy/dossier-ui.js';
+import { lastRelationshipChangeHtml, recentChangeRowHtml } from '../../modules/people/legacy/dossier-ui-relationship.js';
 
 // TRS ideas 1-4 on the NPC meters (stage ladders with several needs and milestones, per-NPC ceilings
 // and floors, fuller custom meters with presets and drift, locked-note teasers), against Story
@@ -183,7 +183,7 @@ export const ownerRecords = () => {
 export async function hostedForwardParts() {
     const sent = [];
     const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-onepass-why-'));
-    const root = fileURLToPath(new URL('..', import.meta.url));
+    const root = fileURLToPath(new URL('../../modules/people/legacy', import.meta.url));
     try {
         fs.cpSync(root, temp, { recursive: true, filter: from => !/[\\/](tests|docs|scripts|\.git|node_modules|dist)([\\/]|$)/.test(path.relative(root, from)) });
         fs.writeFileSync(path.join(temp, 'runtime-scan-helpers.js'), [

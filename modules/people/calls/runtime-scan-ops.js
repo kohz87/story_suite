@@ -6,10 +6,10 @@
 
 import { chatContext as getContext } from './runtime-scan-helpers.js';
 import { isEmptyScannerAnswer } from './scanner-routing.js';
-import { refreshMessageGate, messageGateSettled } from './src/transcript.js';
-import { chatLineage, fingerprintMessage, lineageCheckpointKey } from './branch.js';
-import { getSettings } from './runtime-settings.js';
-import { currentWriterId } from './storage.js';
+import { refreshMessageGate, messageGateSettled } from '../transcript/transcript.js';
+import { chatLineage, fingerprintMessage, lineageCheckpointKey } from '../legacy/branch.js';
+import { getSettings } from '../settings/runtime-settings.js';
+import { currentWriterId } from '../storage/storage.js';
 import { replayScope, setNpcDossierScanIndicator, setNpcChatRefreshIndicator, lineageMoved, setScanIndicator, latestMessageId } from './runtime-scan-helpers.js';
 
 export function createScanOpsPart(rt, deps) {

@@ -16,8 +16,8 @@ import {
     rememberPresentScene,
     sceneAttr,
     storyBlockTags,
-} from '../present-scene.js';
-import { ensureSuiteStylesheet, SUITE_STYLESHEET_ID } from '../suite-handshake.js';
+} from '../../modules/people/legacy/present-scene.js';
+import { ensureSuiteStylesheet, SUITE_STYLESHEET_ID } from '../../modules/people/legacy/suite-handshake.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
 
@@ -313,7 +313,7 @@ test('v1.2.2 the settings panel carries the shared story-suite-* classes beside 
     assert.match(index, /<i class="fa-solid fa-layer-group"><\/i> Manage all in Story Suite/);
 
     // suite.css is the shared copy, shipped beside suite.js and loaded once.
-    const css = fs.readFileSync(new URL('../suite.css', import.meta.url), 'utf8');
+    const css = fs.readFileSync(new URL('../../modules/people/legacy/suite.css', import.meta.url), 'utf8');
     assert.match(css, /^\/\* Story Suite shared styles, v1/);
     assert.match(css, /\.story-suite-panel \.story-suite-fold \{/);
     assert.match(index, /suiteConnected = true;\s*ensureSuiteStylesheet\(\);/);

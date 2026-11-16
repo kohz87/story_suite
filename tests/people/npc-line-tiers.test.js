@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
-import { validateNpcSlice } from '../src/npc-meters.js';
-import { applyRelationshipDelta } from '../core-mechanics.js';
+import { createHost } from '../../testkit/index.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { applyRelationshipDelta } from '../../modules/people/core/core-mechanics.js';
 
 // RT2: the narrator's `~ npc` line goes through Delta's impact tiers (ordinary 1 / meaningful 2 / major 5 /
 // extreme 10, the reader's relationshipCaps), against Story Block's whole host from its testkit.
@@ -194,7 +194,7 @@ test('day rule: a held line names the story day it used ("used on <date>"); a re
     await s.say(['~ npc Oren | trust: +1 | impact: major']);
     await s.say(['~ time Day | at: 700', '~ npc Oren | trust: +1 | impact: major']);
     assert.match(JSON.stringify(s.host.head().domains.people.bonds.npcs.npc_oren.lastEvent), / used on January 1/);
-    const { dayRuleFor } = await import('../src/npc-meters-pacing.js');
+    const { dayRuleFor } = await import('../../modules/people/meters/npc-meters-pacing.js');
     assert.equal(dayRuleFor({ standing: null }, 'oren'), 1, 'a first read');
     assert.equal(dayRuleFor({ standing: {}, standingReceipts: [{ data: { key: 'oren' } }] }, 'oren'), 0, 'a Re-read of a reply read before the rule');
     assert.equal(dayRuleFor({ standing: {}, standingReceipts: [{ data: { key: 'oren', dayRule: 1 } }] }, 'oren'), 1);
@@ -222,7 +222,7 @@ test('day rule: a Re-read of an old reply written npc-before-time keeps its numb
 // New memories take the date of the reply they are recorded in: the story's date AFTER that reply, so a `~ time` earlier or later in the same
 // reply counts (Sieke / Sister Temiwa: `~ time Goldwane 14, 07:45 am` and their new memories -> Goldwane 14). Stored stamps never move.
 test('memory dates: a reply that moves the clock stamps its new memories with the new day, whichever order its lines are written in; an old stamp stays', async () => {
-    const { setStoryDateAtSource, stampChangedFields } = await import('../core.js');
+    const { setStoryDateAtSource, stampChangedFields } = await import('../../modules/people/core/core.js');
     for (const lines of [['~ time Day | at: 1905', '~ npc Oren | trust: +1'], ['~ npc Oren | trust: +1', '~ time Day | at: 1905']]) {
         const s = await suite({ modules: [dayClock()] });
         await s.say(['~ npc Oren | trust: +1']);

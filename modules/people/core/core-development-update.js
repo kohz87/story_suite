@@ -8,11 +8,11 @@ import { cleanText, normalizeName } from './core-text.js';
 import { DURABLE_PROFILE_LIMITS, durableEvidenceGroundsValue, durableSeedGrounded } from './core-relationship.js';
 import { durableRefinementCandidateGrounded, filterSafeMannerismRefinements, groundedAppearanceChange, groundedAppearanceCorrection, identityMoralityConflict, isExplicitRecurringMannerism, isSafeIdentityTextRefinement, isSafeSpeechRefinement, isSafeUnmarkedDurableFieldReplacement, isSafeUnmarkedDurableRefinement, mergeDurableTextRefinement, normalizeMannerisms, presentationContinuationEvidence, speechSupportContext } from './core-durable.js';
 import { durableTextAccepted, incomingCustomFields, incomingKeyRelationships, normalizeScanNpc, PROFILE_UPDATE_TEXT_FIELDS } from './core-record.js';
-import { applyNpcMemories } from './src/memory-fact-apply.js';
-import { PROFILE_EVIDENCE_FIELDS } from './src/fields/registry.js';
+import { applyNpcMemories } from '../memory/memory-fact-apply.js';
+import { PROFILE_EVIDENCE_FIELDS } from '../fields/registry.js';
 import { durableProfileCollectionCandidateGrounded, durableProfileCollectionEquivalent, groundedBehaviorProfile, mergeBehaviorProfileRefinements, normalizeBehaviorProfile, reconcileBehaviorProfileWithPersonality, recoverBehaviorProfileKeepAdditions } from './core-behavior.js';
 import { developmentScaleReady } from './core-development-episode.js';
-import { guessedTraits, physicalTraitSwaps, withSettledGuess, withoutTraitSwaps } from './appearance-physical.js';
+import { guessedTraits, physicalTraitSwaps, withSettledGuess, withoutTraitSwaps } from '../appearance/appearance-physical.js';
 import { groundedTraitEvent } from './core-durable-grounding.js';
 
 function normalizeProfileUpdateEvidence(raw = {}) {

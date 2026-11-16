@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MODULE_ID } from '../src/storysuite-v2.js';
-import { FEATURE_DRIFT, FEATURE_PRESETS, bandWord, createNpcPart, limitsFromLines, limitsToLines, normalizeMeterSettings, parseBands } from '../src/npc-meters.js';
-import { BUILT_IN_PRESETS, presetCatalog } from '../src/npc-meters-presets.js';
+import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
+import { FEATURE_DRIFT, FEATURE_PRESETS, bandWord, createNpcPart, limitsFromLines, limitsToLines, normalizeMeterSettings, parseBands } from '../../modules/people/meters/npc-meters.js';
+import { BUILT_IN_PRESETS, presetCatalog } from '../../modules/people/meters/npc-meters-presets.js';
 import { LADDER, dossiers, fakeDom, lastReceipt, suite } from './storysuite-v2-meters-ladder.helpers.js';
 
 // ---- 1. stages with several needs and a milestone ----

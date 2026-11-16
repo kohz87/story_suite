@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildInjection, createNpcRecord, npcNamedInText } from '../core.js';
+import { buildInjection, createNpcRecord, npcNamedInText } from '../../modules/people/core/core.js';
 
 function npc(name, extra = {}) {
     const record = createNpcRecord(name);

@@ -2,12 +2,12 @@
    dialog and the click activation that opens it. The save path lives in runtime-editor-save.js. Built by index.js once
    per module instance with the shared runtime state and the controller functions it calls, so each instance keeps its
    own activation memory. Bodies are moved from index.js without change. */
-import { replayScope } from './runtime-scan-helpers.js';
+import { replayScope } from '../calls/runtime-scan-helpers.js';
 import { getContext } from '../../../extensions.js';
-import { EDITOR_FIELDS } from './src/dossier-edit.js';
-import { DEFAULT_RELATIONSHIP, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, isTerminalNpcDeath, PORTRAIT_NPC_PROMPT_LIMIT, normalizeCustomFields } from './core.js';
-import { escapeHtml } from './src/util/html.js';
-import { getSettings, effectiveCustomFieldNames } from './runtime-settings.js';
+import { EDITOR_FIELDS } from '../dossier/dossier-edit.js';
+import { DEFAULT_RELATIONSHIP, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, isTerminalNpcDeath, PORTRAIT_NPC_PROMPT_LIMIT, normalizeCustomFields } from '../core/core.js';
+import { escapeHtml } from '../util/html.js';
+import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { createEditorSave } from './runtime-editor-save.js';
 
 export function createEditorPart(rt, deps) {

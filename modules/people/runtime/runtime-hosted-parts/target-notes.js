@@ -1,7 +1,7 @@
 /* NPC State Delta hosted target notes (role: hosted-target-notes). What a targeted pass (backfill, Refresh) is asked about hidden notes
    while hosted, and the prompt options that follow from it. Moved from runtime-hosted.js without change; the factory takes the two
    closures it read there. */
-import { getSettings } from '../runtime-settings.js';
+import { getSettings } from '../../settings/runtime-settings.js';
 
 export function createTargetNotes({ storySuiteV2Meters, hostedEventWatch }) {
     // (v2 hidden notes) What a targeted pass (backfill, Refresh) is asked about hidden notes: { layered, watch } or null when

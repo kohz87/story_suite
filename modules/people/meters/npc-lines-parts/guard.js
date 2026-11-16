@@ -1,7 +1,7 @@
 // What a `~ npc` line may not write: a field the reader locked in the dossier, and, once the person has died, the fields a death freezes.
 // Reads the dossier the reply sees (ctx.read('people'), reply-pinned), so a swipe, a Re-read and a replay decide the same way.
-import { lockedFieldKeys } from '../dossier-edit.js';
-import { TERMINAL_FROZEN_FIELDS } from '../fields/registry.js';
+import { lockedFieldKeys } from '../../dossier/dossier-edit.js';
+import { TERMINAL_FROZEN_FIELDS } from '../../fields/registry.js';
 import { unknownWord } from './facts.js';
 
 const LINE_NAME = Object.freeze({ location: 'where', appearance: 'look' });

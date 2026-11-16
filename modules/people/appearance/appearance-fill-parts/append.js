@@ -1,6 +1,6 @@
 /* Accepting a fill result only when it keeps the stored text word for word and adds what was missing. A part of appearance-fill.js (same owner, moved without change). */
 import { describedFeatures } from './features.js';
-import { DURABLE_PROFILE_LIMITS } from '../core-mechanics.js';
+import { DURABLE_PROFILE_LIMITS } from '../../core/core-mechanics.js';
 import { appearanceText } from '../appearance-text.js';
 
 // What `next` adds to `prior`, or '': all of `prior` word for word, then more. A closing full stop (or ; ,) of `prior` may give way to the

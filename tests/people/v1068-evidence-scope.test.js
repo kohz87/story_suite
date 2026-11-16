@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, mergeScanResult } from '../core.js';
+import { createNpcRecord, mergeScanResult } from '../../modules/people/core/core.js';
 
 // Story text that only concerns Bram must never support an update for Malia.
 const BRAM_SCENE = '[m1] Bram studies the stranger from the doorway for a long moment before he unbars the door. [m2] Bram dyes his hair crimson and waits in stern silence until the stranger pays.';

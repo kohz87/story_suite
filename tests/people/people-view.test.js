@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PEOPLE_KEYS, peopleState, peopleView, stripVolatile } from '../src/people/view.js';
+import { PEOPLE_KEYS, peopleState, peopleView, stripVolatile } from '../../modules/people/view.js';
 
 // J07 step 3: rules of the people view (which keys, which clock fields, ids, determinism).
 

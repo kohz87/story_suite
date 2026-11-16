@@ -6,7 +6,7 @@
 // moves out of index.js.
 import fs from 'node:fs';
 
-const root = new URL('../../', import.meta.url);
+const root = new URL('../../../modules/people/legacy/', import.meta.url);
 
 export const RUNTIME_SOURCE_PARTS = [
     { files: ['runtime-settings-parts/portrait-preset-constants.js', 'runtime-settings-parts/portrait-preset-library.js', 'runtime-settings-parts/portrait-preset-names.js', 'runtime-settings-parts/defaults.js', 'runtime-settings-parts/save-timing.js', 'runtime-settings-parts/save.js', 'runtime-settings-parts/settings-values.js', 'runtime-settings-parts/custom-fields.js', 'runtime-settings-parts/get-settings.js'], before: 'const { getChatKey,' },

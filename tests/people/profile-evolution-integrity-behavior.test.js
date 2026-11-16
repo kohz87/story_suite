@@ -6,7 +6,7 @@ import {
     createNpcRecord,
     durableProfileEvidenceAlreadyRepresented,
     mergeScanResult,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 import { merge, profileRow, state } from './profile-evolution-integrity.helpers.js';
 
 test('grounded additive Behavioral Profile candidates recover safely when provider leaves state at keep', () => {

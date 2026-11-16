@@ -3,10 +3,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { deterministicBirthday, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, setStoryClockSource } from '../core.js';
-import { applyCastEntry, normalizeEntry } from '../src/cast-dossier.js';
-import { createNpcRecord } from '../core.js';
-import { dossierDetailProjection } from '../dossier-ui.js';
+import { deterministicBirthday, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, setStoryClockSource } from '../../modules/people/core/core.js';
+import { applyCastEntry, normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
+import { createNpcRecord } from '../../modules/people/core/core.js';
+import { dossierDetailProjection } from '../../modules/people/legacy/dossier-ui.js';
 
 const CALENDAR = Object.freeze({
     era: 'CR',
@@ -39,7 +39,7 @@ test('a pack birthday is the dossier\'s starting birthday; without one the deter
     assert.deepEqual(bad.birthDate, none.birthDate);
     assert.deepEqual(none.birthDate, deterministicBirthday(none.id || none.name, CALENDAR));
     // The editor never says "generated" or "deterministic".
-    assert.doesNotMatch(readFileSync(new URL('../runtime-editor.js', import.meta.url), 'utf8').match(/Birthday <small>[^\n]*/)[0], /generated|deterministic/i);
+    assert.doesNotMatch(readFileSync(new URL('../../modules/people/runtime/runtime-editor.js', import.meta.url), 'utf8').match(/Birthday <small>[^\n]*/)[0], /generated|deterministic/i);
 });
 
 for (const state of ['establish', 'correct']) {

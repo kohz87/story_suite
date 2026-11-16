@@ -1,5 +1,5 @@
 // The dossier view of ties: who owes a person and the tie rows for the people in a bond list.
-import { clean } from '../npc-meters-config.js';
+import { clean } from '../../meters/npc-meters-config.js';
 import { ordered } from './shared-tags.js';
 import { NAME_MAX, keyOf, readTiesObject } from './shared-object.js';
 

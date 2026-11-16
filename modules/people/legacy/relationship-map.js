@@ -16,7 +16,7 @@ import {
     ringWordSpot,
 } from './relationship-map-core.js';
 import { buildFocusModel, focusStyles, mapCardHtml, mapKeyLine, mapNodeHtml, mapSvgHtml } from './relationship-map-focus.js';
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 import { isNarrow, isNarrowWidth, observedWidth, showScreen, TWO_PANE_MIN } from './dossier-ui-screens.js';
 import { libraryFootHtml } from './dossier-ui-library.js';
 

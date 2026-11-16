@@ -1,10 +1,10 @@
 // A rig for the timeline participant on the real Story Block host (the live testkit): Delta's chat state and its checkpoint vault are
 // the rig's, the host is the real one, and `reload()` starts everything again over what was saved (the chat file and its metadata, Delta's
 // state, the vault), the way a page reload does. Tests only; nothing here ships.
-import { createHost } from '../../../../testkit/index.js';
-import { hashJson } from '../../../../core/replay.js';
-import { crash } from '../../../../core/timeline/index.js';
-import { MODULE_ID, createParticipant, memoryVault } from '../../src/storysuite-participant/index.js';
+import { createHost } from '../../../testkit/index.js';
+import { hashJson } from '../../../core/replay.js';
+import { crash } from '../../../core/timeline/index.js';
+import { MODULE_ID, createParticipant, memoryVault } from '../../../modules/people/legacy/storysuite-participant/index.js';
 
 export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });
 export const BATCH = { id: 'br_batch001', hash: hashJson({ batch: 'br_batch001', outcome: 'dead' }) };
@@ -112,7 +112,7 @@ export async function played(t, options = {}) {
  * (`window.NPCStateDelta`): the chat's state, an absolute install, the change announcements, the scan counters and the message gate.
  */
 export async function adapterRig(t, { state = freshState(), vault = memoryVault(), image = null, live = null, modules = [], participantOptions = { debounceMs: 1, retryMs: 5 }, settle = {}, wrapSdk = sdk => sdk } = {}) {
-    const { createStorySuiteV2Adapter } = await import('../../src/storysuite-v2.js');
+    const { createStorySuiteV2Adapter } = await import('../../../modules/people/storysuite-v2.js');
     t.mock.method(console, 'warn', () => {});
     const mine = live ?? { chatKey: 'chat:avatar.png:one', state: structuredClone(state), installs: 0, writes: 0, scans: 0, waiting: 0 };
     const host = await createHost({ modules: [sealer(), ...modules], ...(image ? { st: { chat: image.chat } } : {}) });

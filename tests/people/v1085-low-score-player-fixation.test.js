@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildInjection, createNpcRecord, mergeScanResult, relationshipSummaryConsistent } from '../core.js';
+import { buildInjection, createNpcRecord, mergeScanResult, relationshipSummaryConsistent } from '../../modules/people/core/core.js';
 
 const elena = (relationship = { trust: 15, affection: 11, desire: 6, tension: 0 }) => {
     const npc = createNpcRecord('Elena');

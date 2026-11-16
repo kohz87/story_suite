@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { BACKFILL_RESPONSE_LENGTH, JSON_RETRY_RESPONSE_LENGTH, SCAN_RESPONSE_LENGTH, compactRetryPrompt, generateParsedNpcJson, isTruncatedScannerJsonError, salvageScannerJson } from '../src/scanner-request.js';
-import { parseScanJson } from '../core.js';
+import { BACKFILL_RESPONSE_LENGTH, JSON_RETRY_RESPONSE_LENGTH, SCAN_RESPONSE_LENGTH, compactRetryPrompt, generateParsedNpcJson, isTruncatedScannerJsonError, salvageScannerJson } from '../../modules/people/calls/scanner-request.js';
+import { parseScanJson } from '../../modules/people/core/core.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 // Cleanup step 10: the scanner request moved from index.js to src/scanner-request.js unchanged.

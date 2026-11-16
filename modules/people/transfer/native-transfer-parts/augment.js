@@ -1,5 +1,5 @@
 // Adding the declared Stage 8 metadata (portable settings, source history) to a native bundle within the size limits.
-import { decodeNpcStateBundle } from '../bundle.js';
+import { decodeNpcStateBundle } from '../../bundle/bundle.js';
 import { MAX_MANIFEST_BYTES, MAX_NATIVE_BYTES, parseEnvelope, encodeAugmentedEnvelope } from './envelope.js';
 import { validatePortableSettings, validateHistoryArchive } from './validate.js';
 import { compactHistoryArchive } from './history-archive.js';

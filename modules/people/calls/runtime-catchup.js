@@ -4,7 +4,7 @@
    reply's backfill. A newly met NPC (a new admission whose backfill has not tried) is the exception: the catch-up's targeted Refresh
    writes its structured appearance, so it gets the Refresh AND its backfill (never skipped, its queue entry kept). Built by runtime-scan.js; nothing here is saved. */
 
-import { getSettings } from './runtime-settings.js';
+import { getSettings } from '../settings/runtime-settings.js';
 import { latestMessageId } from './runtime-scan-helpers.js';
 
 export function createCatchUpPart(rt, deps) {

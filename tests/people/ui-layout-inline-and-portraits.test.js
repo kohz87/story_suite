@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { snapshotNpc } from '../src/fields/registry.js';
+import { snapshotNpc } from '../../modules/people/fields/registry.js';
 import path from 'node:path';
 import { root, index, css, dossierUi } from './ui-layout.helpers.js';
 

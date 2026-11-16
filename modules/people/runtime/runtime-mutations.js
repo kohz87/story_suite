@@ -3,16 +3,16 @@
    portrait files. Built by index.js once per module instance with the shared runtime state and the controller functions it calls.
    Bodies are moved from index.js without change. */
 
-import { currentExclusions } from './src/transcript.js';
-import { NPC_STATE_VERSION, applyNpcStateCommand, isTerminalNpcDeath, manualLifeStateRecord, normalizeName, normalizeNpcRecord, setNpcArchived, normalizePortraitSeed, appearanceDraftRecord, appearanceFingerprint, formPortraitKey, normalizeFormPortraitAssets } from './core.js';
-import { encodeNpcStateBundle, mergeImportedDossierState } from './bundle.js';
-import { decodeDeltaNativeBundle, nativeStateForTarget } from './native-transfer.js';
-import { addUserDismissedGroup } from './branch.js';
-import { reconcileSocialState, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from './social.js';
-import { readPortraitFileDataUrl, savePortraitFile } from './storage.js';
-import { isPortraitFileRecord } from './src/portrait-file.js';
-import { markCastPortraitRemoved } from './src/cast-dossier.js';
-import { getSettings } from './runtime-settings.js';
+import { currentExclusions } from '../transcript/transcript.js';
+import { NPC_STATE_VERSION, applyNpcStateCommand, isTerminalNpcDeath, manualLifeStateRecord, normalizeName, normalizeNpcRecord, setNpcArchived, normalizePortraitSeed, appearanceDraftRecord, appearanceFingerprint, formPortraitKey, normalizeFormPortraitAssets } from '../core/core.js';
+import { encodeNpcStateBundle, mergeImportedDossierState } from '../bundle/bundle.js';
+import { decodeDeltaNativeBundle, nativeStateForTarget } from '../transfer/native-transfer.js';
+import { addUserDismissedGroup } from '../legacy/branch.js';
+import { reconcileSocialState, removeNpcFromSocialGraph, purgeNpcStructuredReferences } from '../social/social.js';
+import { readPortraitFileDataUrl, savePortraitFile } from '../storage/storage.js';
+import { isPortraitFileRecord } from '../portrait/portrait-file.js';
+import { markCastPortraitRemoved } from '../dossier/cast-dossier.js';
+import { getSettings } from '../settings/runtime-settings.js';
 
 export function createMutationsPart(rt, deps) {
     const { clearUserDismissedSuppression, closeNpcEditor, commitBranchCheckpoint, editorIsMounted, ensureFreshMutationBoundary, ensureHydratedStateFresh, getChatKey, getChatState, hydratedRevision, latestMessageId, ownershipEpoch, ownershipEpochCurrent, persistCritical, persistCriticalDurable, purgeInlineCardsInState, recordFreshnessEvent, renderDossier, requestHeaders, requireReadyChatMutation, setChatState, stampManualEdit, updateInjection, workingCopyAdoption } = deps;

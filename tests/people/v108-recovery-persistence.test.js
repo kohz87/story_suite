@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createNpcRecord, applyStaleNpcLifecycle } from '../core.js';
+import { createNpcRecord, applyStaleNpcLifecycle } from '../../modules/people/core/core.js';
 import {
     ROLLBACK_JOURNAL_WINDOW_MESSAGES,
     applyRollbackUndo,
@@ -10,9 +10,9 @@ import {
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
-import { normalizeSocialGraph } from '../social.js';
-import { prunePortraitAssetsForState } from '../storage.js';
+} from '../../modules/people/legacy/branch.js';
+import { normalizeSocialGraph } from '../../modules/people/social/social.js';
+import { prunePortraitAssetsForState } from '../../modules/people/storage/storage.js';
 
 function user(index) {
     return {

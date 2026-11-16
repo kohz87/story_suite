@@ -6,12 +6,12 @@ import { developmentScaleReady } from './core-development.js';
 import { cleanText, normalizeName } from './core-text.js';
 import { identityLabelsRelated, inferNpcIdentityKind, isInterimNpcLabel } from './core-identity.js';
 import { durableTextAccepted, incomingCustomFields, incomingKeyRelationships, mergeLists } from './core-record.js';
-import { applyNpcMemories, firstMeetingCandidates, scanFactCandidates } from './src/memory-fact-apply.js';
-import { TEXT_FIELDS } from './src/fields/registry.js';
+import { applyNpcMemories, firstMeetingCandidates, scanFactCandidates } from '../memory/memory-fact-apply.js';
+import { TEXT_FIELDS } from '../fields/registry.js';
 import { durableRefinementCandidateGrounded, filterSafeMannerismRefinements, groundedAppearanceChange, groundedAppearanceCorrection, isExplicitRecurringMannerism, isSafeIdentityTextRefinement, isSafeSpeechRefinement, isSafeUnmarkedDurableFieldReplacement, isSafeUnmarkedDurableRefinement, mergeDurableTextRefinement, normalizeMannerisms, presentationContinuationEvidence, speechSeedVetoed, speechSupportContext } from './core-durable.js';
 import { groundedBehaviorProfile, mergeBehaviorProfileRefinements, reconcileBehaviorProfileWithPersonality } from './core-behavior.js';
 import { isTerminalNpcDeath } from './terminal-lifecycle.js';
-import { guessedTraits, physicalTraitSwaps, withoutTraitSwaps } from './appearance-physical.js';
+import { guessedTraits, physicalTraitSwaps, withoutTraitSwaps } from '../appearance/appearance-physical.js';
 import { groundedTraitEvent } from './core-durable-grounding.js';
 
 export function applyIncoming(existing, incoming, turn, relationshipCaps = DEFAULT_RELATIONSHIP_CAPS, sourceMessageId = null, lifecycleOptions = {}) {

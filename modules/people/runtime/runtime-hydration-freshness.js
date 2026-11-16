@@ -2,9 +2,9 @@
    loaded state, preserved local work and canonical-state installation. Split from
    runtime-hydration.js without change; the factory keeps the public exports. */
 
-import { NPC_STATE_VERSION } from './core.js';
-import { cancelPendingNpcStateWrite, inspectNpcStateDataFile, probeNpcStateDataFilePointer, preserveUndurableNpcStateSnapshot } from './storage.js';
-import { getSettings } from './runtime-settings.js';
+import { NPC_STATE_VERSION } from '../core/core.js';
+import { cancelPendingNpcStateWrite, inspectNpcStateDataFile, probeNpcStateDataFilePointer, preserveUndurableNpcStateSnapshot } from '../storage/storage.js';
+import { getSettings } from '../settings/runtime-settings.js';
 
 export function installHydrationFreshness(api, rt, deps) {
     const { getChatKey, installCanonicalServerState, isCanonicalChatKey, ownershipEpoch, ownershipEpochCurrent, requestHeaders, sidecarMissTrusted, staleOwnershipError } = deps;

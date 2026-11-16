@@ -1,9 +1,9 @@
 /* NPC State Delta reply-scan result follow-ups (role: reply-scan-result). What a committed scan does with its merged result: seeding
    the cast's first-meeting details into the dossiers it admitted, and telling the reader about stale dossiers it archived or deleted.
    Moved from runtime-scan.js without change. */
-import { rememberCastAdmissions, seedCastAdmission } from '../runtime-cast-sync.js';
-import { dossierFor, metWithEntry } from '../src/cast-dossier.js';
-import { normalizeSourceOfTruth } from '../suite-handshake.js';
+import { rememberCastAdmissions, seedCastAdmission } from '../../runtime/runtime-cast-sync.js';
+import { dossierFor, metWithEntry } from '../../dossier/cast-dossier.js';
+import { normalizeSourceOfTruth } from '../../legacy/suite-handshake.js';
 import { notify } from '../runtime-scan-helpers.js';
 
 /** Remembers the new dossiers' cast admissions and seeds each one that matches exactly one met cast person (hosted scans only). */

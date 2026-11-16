@@ -1,7 +1,7 @@
 /* NPC State Delta dossier surface: the profile screen (portrait with the four meter numbers, identity, appearance forms,
    character, background). Markup only, built from the detail projection; the screens module draws it and fills portraits. */
 import { storyDayText } from './calendar.js';
-import { escapeHtml } from './src/util/html.js';
+import { escapeHtml } from '../util/html.js';
 import { changeStamp, plain } from './dossier-ui-model.js';
 import { appearanceFormsHtml, birthdayCard, changedMark, currentCard, identityLine, ageText, portraitHtml, proseHtml } from './dossier-ui-html.js';
 

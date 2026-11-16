@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 import { adapterSource } from './helpers/adapter-source.js';
-import { FEATURE_STAGES, validateNpcSlice } from '../src/npc-meters.js';
-import { readLeaf } from '../src/npc-meters-config.js';
-import { normalizeEntry } from '../src/cast-dossier.js';
-import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { FEATURE_STAGES, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { readLeaf } from '../../modules/people/meters/npc-meters-config.js';
+import { normalizeEntry } from '../../modules/people/dossier/cast-dossier.js';
+import { MODULE_ID, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { ERSVEIL, FENNA_ENTRY, OLD_DEFAULTS, castRow, director, suite } from './cast-dossier.helpers.js';
 
 test('a person\'s pack stages are reached by the numbers alone, in order, with the preset\'s meters from the first meeting', async () => {

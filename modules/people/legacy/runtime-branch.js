@@ -3,11 +3,11 @@
    keeps a chat shorter than its adopted dossier from rolling that dossier back. Built by index.js once per module instance with the shared runtime
    state. Bodies are moved from index.js without change. */
 
-import { chatContext as getContext } from './runtime-scan-helpers.js';
+import { chatContext as getContext } from '../calls/runtime-scan-helpers.js';
 import { BRANCH_LINEAGE_VERSION, bestAncestorState, chatLineage, firstLineageDivergence, recordBranchCheckpoint, setBranchProvenanceHint } from './branch.js';
-import { currentWriterId } from './storage.js';
-import { buildQualifiedChatKey, parseQualifiedChatKey } from './identity.js';
-import { getSettings } from './runtime-settings.js';
+import { currentWriterId } from '../storage/storage.js';
+import { buildQualifiedChatKey, parseQualifiedChatKey } from '../core/identity.js';
+import { getSettings } from '../settings/runtime-settings.js';
 
 export function createBranchPart(rt, deps) {
     const { storeOwnsState = () => false, ensureChatStateLoaded, evictDormantChatStates, freshChatState, getChatKey, getChatState, isCanonicalChatKey, queueStateFileWrite, requestHeaders, setChatState } = deps;

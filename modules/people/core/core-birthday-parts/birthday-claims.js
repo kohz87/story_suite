@@ -1,6 +1,6 @@
 /* NPC State Delta recognising own-birthday claims in narration and grounding a scanned birth date. */
-import { normalizeBirthDate } from '../birthday.js';
-import { normalizeCalendarDate } from '../calendar.js';
+import { normalizeBirthDate } from '../../birthday/birthday.js';
+import { normalizeCalendarDate } from '../../legacy/calendar.js';
 import { npcOwnedSentences, foreignSubjectClause, npcFirstLabels } from './owned-text.js';
 
 const NEGATED_BEFORE = /\b(?:not|never|isn['’]?t|wasn['’]?t|no longer)\s+(?:\w+\s+){0,3}$/i;

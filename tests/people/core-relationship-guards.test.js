@@ -11,7 +11,7 @@ import {
     relationshipHistoryLooksDuplicate,
     relationshipAxisEvidenceGrounded,
     relationshipSummaryConsistent,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 
 test('v0.2.8 Noctis-style relationship summary is calibrated and unexplained audit deltas are discarded', () => {
     const npc = normalizeNpcRecord({

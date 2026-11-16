@@ -2,8 +2,8 @@
 // as one `people.fields` write on the people domain, and mood (one word → the fixed list's V/A/D numbers) on the meter record. Each refusal is a problem;
 // the line's other labels still apply.
 import { NPC_DOMAIN, clean, isInt, isReplyId, readLeaf } from '../npc-meters-config.js';
-import { labelKey } from '../key-people.js';
-import { applyWord, moodFromWord, restMood, restingMood } from '../../npc-mood.js';
+import { labelKey } from '../../cast/key-people.js';
+import { applyWord, moodFromWord, restMood, restingMood } from '../npc-mood.js';
 import { sentence, writeMood } from '../npc-meters-slice.js';
 import { factFields, unknownWord } from './facts.js';
 import { lookField } from './look.js';

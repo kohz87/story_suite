@@ -4,7 +4,7 @@
    without change. */
 
 import { saveSettings as saveHostSettings } from '../../../../script.js';
-import { portraitCustomPresetLibrary, portraitCustomPresetFor, getSettings } from './runtime-settings.js';
+import { portraitCustomPresetLibrary, portraitCustomPresetFor, getSettings } from '../settings/runtime-settings.js';
 
 export function createPortraitSettingsPart(rt, deps) {
     const { normalizePortraitSettingsDraft, portraitSettingsDraftFromUi, portraitSettingsSnapshot, syncSettingsControls, updatePortraitSettingsSaveUi } = deps;

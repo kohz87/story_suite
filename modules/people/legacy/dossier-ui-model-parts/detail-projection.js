@@ -1,8 +1,8 @@
 /* NPC State Delta dossier surface: the full detail projection of one dossier record. */
-import { currentPresentationText, normalizeAppearanceModel, resolveNpcAppearance } from '../appearance.js';
-import { withSplitLook } from '../appearance-fill.js';
-import { PACK_BIRTHDAY_REASON, formatBirthDate } from '../birthday.js';
-import { normalizeMemoryStamps } from '../core-record-shared.js';
+import { currentPresentationText, normalizeAppearanceModel, resolveNpcAppearance } from '../../appearance/appearance.js';
+import { withSplitLook } from '../../appearance/appearance-fill.js';
+import { PACK_BIRTHDAY_REASON, formatBirthDate } from '../../birthday/birthday.js';
+import { normalizeMemoryStamps } from '../../core/core-record-shared.js';
 import { plain, relationshipValue, stringList, wholeNumber } from './values.js';
 import { RELATIONSHIP_AXES, fieldChangesProjection, relationshipChangeProjection } from './change-projections.js';
 import { displayedPortrait, portraitAppearanceChanged } from './portrait-source.js';

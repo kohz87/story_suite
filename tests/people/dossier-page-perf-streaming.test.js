@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createInlineCardsMountPart } from '../runtime-inline-cards-mount.js';
-import { createWatchers } from '../src/adapter/cast-ui/watchers.js';
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createInlineCardsMountPart } from '../../modules/people/legacy/runtime-inline-cards-mount.js';
+import { createWatchers } from '../../modules/people/adapter/cast-ui/watchers.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 test('page-API change notifications: only the streamed-token cast render is coalesced and held; every other change goes out at once', async () => {
     let generating = false;

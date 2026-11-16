@@ -1,5 +1,5 @@
 // A meter's word direction (`trust: up`, `tension: down`) and its price: the step code gives it from the impact word and the caps setting.
-import { normalizeRelationshipCaps } from '../../core-mechanics.js';
+import { normalizeRelationshipCaps } from '../../core/core-mechanics.js';
 
 const BASE_STEP = Object.freeze({ ordinary: 1, meaningful: 2, major: 3 });
 

@@ -1,5 +1,5 @@
 // Applying the model's phrasing answers to the still-current handles after a merged response.
-import { normalizeName } from '../../core-text.js';
+import { normalizeName } from '../../core/core-text.js';
 import { validPhrasing } from '../memory-fact-text.js';
 import { normalizeFacts } from '../memory-fact-ledger.js';
 import { MAX_ATTEMPTS } from './limits.js';

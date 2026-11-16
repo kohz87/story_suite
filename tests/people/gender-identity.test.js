@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { boardHtml } from '../dossier-ui-board.js';
+import { boardHtml } from '../../modules/people/legacy/dossier-ui-board.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -14,13 +14,13 @@ import {
     mergeScanResult,
     normalizeGender,
     normalizeNpcRecord,
-} from '../core.js';
+} from '../../modules/people/core/core.js';
 import {
     dossierIndexProjection,
     filterDossierIndex,
     projectDossierState,
-} from '../dossier-ui.js';
-import { encodeNpcStateBundle, decodeNpcStateBundle } from '../bundle.js';
+} from '../../modules/people/legacy/dossier-ui.js';
+import { encodeNpcStateBundle, decodeNpcStateBundle } from '../../modules/people/bundle/bundle.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
 

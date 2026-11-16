@@ -1,6 +1,6 @@
 // Normalization of one profile-development concept record.
 import * as mechanics from '../core-mechanics.js';
-import { migrateLegacyStoryDay, STORY_DAY_SCHEME } from '../calendar.js';
+import { migrateLegacyStoryDay, STORY_DAY_SCHEME } from '../../legacy/calendar.js';
 import { PROFILE_DEVELOPMENT_OBSERVATION_LIMIT } from './limits.js';
 import { profileDevelopmentText, profileDevelopmentTurn, profileDevelopmentSourceMessageId } from './values.js';
 

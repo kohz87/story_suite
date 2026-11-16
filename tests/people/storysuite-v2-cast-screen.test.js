@@ -5,9 +5,9 @@
 // queries or state changes. Checked against the live Story Block code.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createScreens, validateScreen } from '../../../ui/legacy/view/screens.js';
-import { compileTemplate } from '../../../ui/legacy/view/template/index.js';
-import { CAST_SCREEN_ID, CAST_SCREEN_ORDER, CAST_TAB_ID, CAST_WIDGET, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { createScreens, validateScreen } from '../../ui/legacy/view/screens.js';
+import { compileTemplate } from '../../ui/legacy/view/template/index.js';
+import { CAST_SCREEN_ID, CAST_SCREEN_ORDER, CAST_TAB_ID, CAST_WIDGET, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 // A minimal element: what renderCast and the widget use (innerHTML is Delta's own escaped markup, as in the tab).
 function element(owner, tag = 'div') {
@@ -136,6 +136,6 @@ test('Delta\'s page events redraw a shown Cast screen, and the tab pane is still
 
 test('the hosted Dossiers list shows no bullet marks: its <li> rows are not under a <ul class="ss-listcard-rows"> (ZC, 12 Nov)', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync(new URL('../style-cast.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../modules/people/legacy/style-cast.css', import.meta.url), 'utf8');
     assert.match(css, /\.npc-state-delta-v2-dossiers \.npc-state-delta-story-list > \.ss-listcard-row \{ list-style: none; \}/);
 });

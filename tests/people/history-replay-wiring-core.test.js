@@ -213,14 +213,14 @@ test('a disabled Delta or a chat with nothing missed holds nothing', () => {
 });
 
 test('participant: restored is exposed to Story Block; an exact install never calls it', async () => {
-    const { createParticipant } = await import('../src/storysuite-participant/participant.js');
+    const { createParticipant } = await import('../../modules/people/legacy/storysuite-participant/participant.js');
     let live = 0;
     const port = { chatKey: () => 'chat', readState: () => ({ npcs: [] }), installState() {}, writeTimeline() {}, enabled: () => true, live: () => { live += 1; return null; } };
     const { participant } = createParticipant({ port, vault: { put() {}, get() {}, getIndex() {}, putIndex() {} } });
     assert.equal(typeof participant.restored, 'function');
     assert.equal(typeof participant.rebuild, 'function');
     assert.equal(live, 0, 'registering touches nothing');
-    const handlers = fs.readFileSync(new URL('../src/storysuite-participant/participant/handlers.js', import.meta.url), 'utf8');
+    const handlers = fs.readFileSync(new URL('../../modules/people/legacy/storysuite-participant/participant/handlers.js', import.meta.url), 'utf8');
     assert.ok(!/port\.restored/.test(handlers), 'an install (an exact restore too) does not start a catch-up');
     const answer = await participant.prepare({ return: '', checkpoint: 'c', hash: 'h' });
     assert.equal(answer.ok, false, 'an empty return is refused before anything is adopted');

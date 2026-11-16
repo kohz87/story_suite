@@ -2,10 +2,10 @@
    graph, branch checkpoint and persistence path. Split unchanged from runtime-editor.js with the
    same rt/deps closure state and live helper references supplied by createEditorPart. */
 import { getContext } from '../../../extensions.js';
-import { EDITOR_FIELDS, editorManualMemories, editorProfileLocks, settleEditorSave, untouchedEditorFields } from './src/dossier-edit.js';
-import { DEFAULT_RELATIONSHIP, IMPORTANT_MEMORY_LIMIT, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, inferNpcIdentityKind, normalizeRelationshipProgress, inferManualRelationshipMilestones, normalizeRelationshipEvidence, relationshipEventMessage, npcMatchesLabel, normalizeName, normalizeGender, normalizeNpcRecord, PORTRAIT_NPC_PROMPT_LIMIT } from './core.js';
-import { applyNpcBirthdayUpdate, normalizeBirthDate } from './birthday.js';
-import { reconcileSocialState, applyManualKeyRelationshipEdit } from './social.js';
+import { EDITOR_FIELDS, editorManualMemories, editorProfileLocks, settleEditorSave, untouchedEditorFields } from '../dossier/dossier-edit.js';
+import { DEFAULT_RELATIONSHIP, IMPORTANT_MEMORY_LIMIT, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, inferNpcIdentityKind, normalizeRelationshipProgress, inferManualRelationshipMilestones, normalizeRelationshipEvidence, relationshipEventMessage, npcMatchesLabel, normalizeName, normalizeGender, normalizeNpcRecord, PORTRAIT_NPC_PROMPT_LIMIT } from '../core/core.js';
+import { applyNpcBirthdayUpdate, normalizeBirthDate } from '../birthday/birthday.js';
+import { reconcileSocialState, applyManualKeyRelationshipEdit } from '../social/social.js';
 
 export function createEditorSave(rt, deps, helpers) {
     const { commitBranchCheckpoint, ensureFreshMutationBoundary, getChatKey, getChatState, hostedMeterView, latestMessageId, latestReplyIndex, persistCriticalDurable, stampManualEdit, storySuiteV2Meters, updateInjection, workingCopyAdoption } = deps;

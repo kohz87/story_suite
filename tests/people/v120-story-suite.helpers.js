@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { storySuite } from '../suite.js';
+import { storySuite } from '../../modules/people/legacy/suite.js';
 
 export const fresh = () => {
     delete globalThis.StorySuite;

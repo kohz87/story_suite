@@ -2,10 +2,10 @@
 // NPC State Delta's real adapter with its participant and its people sync, over a fake Delta runtime that holds the chat's state.
 // `reload()` starts everything again over what was saved. Tests only; nothing here ships.
 import { createHost } from '../../../testkit/index.js';
-import { memoryVault } from '../../../packages/npc-state-delta/src/storysuite-participant/index.js';
-import { createStorySuiteV2Adapter } from '../../../packages/npc-state-delta/src/storysuite-v2.js';
-import { peopleView, peopleState } from '../../../packages/npc-state-delta/src/people/view.js';
-import { hashJson } from '../../../packages/npc-state-delta/src/storysuite-participant/hash.js';
+import { memoryVault } from '../../../modules/people/legacy/storysuite-participant/index.js';
+import { createStorySuiteV2Adapter } from '../../../modules/people/storysuite-v2.js';
+import { peopleView, peopleState } from '../../../modules/people/view.js';
+import { hashJson } from '../../../modules/people/legacy/storysuite-participant/hash.js';
 
 // Ids are Delta's own (`npc_` + a name slug, as makeNpcId makes them): the people domain takes them as they are.
 export const idOf = key => `npc_${key}`;

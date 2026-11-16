@@ -1,8 +1,8 @@
 import test from 'node:test';
 import { seedPeople } from './helpers/seed-people.js';
 import assert from 'node:assert/strict';
-import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
-import { DEFAULT_CHANGE_CAP, MAX_NPCS, meterDefs, validateNpcSlice } from '../src/npc-meters.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { DEFAULT_CHANGE_CAP, MAX_NPCS, meterDefs, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { fakeRoot } from './helpers/fake-dom.js';
 import { STAGES, fakeDelta, fakeDoc, host, timers } from './storysuite-v2-meters.helpers.js';
 

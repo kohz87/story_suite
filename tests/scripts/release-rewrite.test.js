@@ -116,5 +116,5 @@ for (const set of BUNDLE_SETS) {
 
 test('the three packages hold the two known references, so the check above is not empty', () => {
   const all = BUNDLE_SETS.flatMap(set => metaUsers(setFiles(set)).map(file => path.relative(repoRoot, file)));
-  assert.deepEqual(all.sort(), ['modules/rpg/view/index-parts/mount.js', 'packages/npc-state-delta/suite-handshake-parts/stylesheet.js']);
+  assert.deepEqual(all.sort(), ['modules/rpg/view/index-parts/mount.js', 'modules/people/legacy/suite-handshake-parts/stylesheet.js']);
 });

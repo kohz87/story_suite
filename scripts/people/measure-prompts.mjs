@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { buildScannerPrompt, buildProfileRefreshPrompt, buildInjection, buildNarrationCapturePrompt, buildNarrationCaptureParts } from '../../packages/npc-state-delta/core.js';
-import { createNpcPart } from '../../packages/npc-state-delta/src/npc-meters.js';
+import { buildScannerPrompt, buildProfileRefreshPrompt, buildInjection, buildNarrationCapturePrompt, buildNarrationCaptureParts } from '../../modules/people/core/core.js';
+import { createNpcPart } from '../../modules/people/meters/npc-meters.js';
 
 // Same short source scenes used in the legacy/Beta comparison. No provider calls.
 const cases = [

@@ -1,17 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../core.js';
-import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, normalizeAppearanceModel, resolveNpcAppearance } from '../appearance.js';
-import { buildScannerPrompt } from '../continuity-core.js';
-import { appearanceFormsHtml } from '../dossier-ui.js';
+import { createNpcRecord, mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
+import { APPEARANCE_MODEL_VERSION, applyAppearanceUpdate, normalizeAppearanceModel, resolveNpcAppearance } from '../../modules/people/appearance/appearance.js';
+import { buildScannerPrompt } from '../../modules/people/core/continuity-core.js';
+import { appearanceFormsHtml } from '../../modules/people/legacy/dossier-ui.js';
 import {
     BRANCH_LINEAGE_VERSION,
     ensureBranchParentAnchor,
     ensureRollbackJournalBaseline,
     recordBranchCheckpoint,
     reconcileBranchState,
-} from '../branch.js';
+} from '../../modules/people/legacy/branch.js';
 
 const BODY = 'Tall and slender, long silver hair, violet eyes';
 
@@ -76,7 +76,7 @@ test('5: deleting a message from before the upgrade still removes the NPC it int
 });
 
 test('7/8: unused Physical features do not reject a portrait, and other forms are bounded in scan context', () => {
-    const portrait = fs.readFileSync(new URL('../portrait-tools.js', import.meta.url), 'utf8');
+    const portrait = fs.readFileSync(new URL('../../modules/people/portrait/portrait-tools.js', import.meta.url), 'utf8');
     assert.match(portrait, /formsInUse \? '' : \(npc\.overallAppearance \|\| ''\)/);
     const long = `${'A towering silver dragon with pearl-white scales, '.repeat(12)}and vast wings`;
     const npc = normalizeNpcRecord({ name: 'Noela', present: true, appearanceModelVersion: APPEARANCE_MODEL_VERSION, currentForm: 'Human',
@@ -89,7 +89,7 @@ test('7/8: unused Physical features do not reject a portrait, and other forms ar
 });
 
 test('11/12: dead code is gone', () => {
-    const sources = JSON.parse(fs.readFileSync(new URL('../runtime-modules.json', import.meta.url), 'utf8')).modules
+    const sources = JSON.parse(fs.readFileSync(new URL('../../modules/people/runtime/runtime-modules.json', import.meta.url), 'utf8')).modules
         .map(module => fs.readFileSync(new URL(`../${module.path}`, import.meta.url), 'utf8')).join('\n');
     for (const name of ['hostIsOlderPrefix', 'portraitCustomPresetOptionsHtml', 'mergeMannerismRefinements', 'behaviorAgencyPolarity', 'safeUnmarkedReplacement',
         'boundRootSnapshot', 'queueSettingsSave', 'destructiveSettlementStatus', 'calendarSettingsSnapshot', 'estimateLocalTokens', 'portraitSignature']) {

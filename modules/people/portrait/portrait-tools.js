@@ -3,7 +3,7 @@ import {
     activeChatKey, api, closeOverlay, currentSessionIs, draftKey, escapeHtml, flushDurably,
     keepPromptDraft, makeSession, mountOverlay, npcById, promptDrafts,
     recordToolEvent, selectedNpcId, setBusy, stage1Refresh, validatePortraitFile,
-} from './dossier-tools-core.js';
+} from '../legacy/dossier-tools-core.js';
 import {
     finishUploadedPortrait, generatedPreview, generatedPortraitFile, portraitSeedFromOverlay,
     removePortrait, resetGeneratedSeed, showGeneratedSeed,

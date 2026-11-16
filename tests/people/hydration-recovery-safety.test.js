@@ -4,9 +4,9 @@ import fs from 'node:fs';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const index = runtimeSource().replace(/\r\n/g, '\n');
-const runtimeState = fs.readFileSync(new URL('../runtime-state.js', import.meta.url), 'utf8');
-const core = fs.readFileSync(new URL('../core.js', import.meta.url), 'utf8');
-const manifest = JSON.parse(fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/manifest.json', import.meta.url), 'utf8'));
+const runtimeState = fs.readFileSync(new URL('../../modules/people/runtime/runtime-state.js', import.meta.url), 'utf8');
+const core = fs.readFileSync(new URL('../../modules/people/core/core.js', import.meta.url), 'utf8');
+const manifest = JSON.parse(fs.readFileSync(new URL('../../docs/history/packages/npc-state-delta/manifest.json', import.meta.url), 'utf8'));
 
 test('successful hydration is the only default authority transition', () => {
     assert.match(index, /function setChatState\(key, state, \{ markLoaded = false \} = \{\}\)/);

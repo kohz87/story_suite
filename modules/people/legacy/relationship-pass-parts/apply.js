@@ -14,8 +14,8 @@ import {
     relationshipHistoryLooksDuplicate,
     relationshipSummaryConsistent,
     stampChangedFields,
-} from '../../core.js';
-import { applyNpcMemories, scanFactCandidates } from '../memory-fact-apply.js';
+} from '../../core/core.js';
+import { applyNpcMemories, scanFactCandidates } from '../../memory/memory-fact-apply.js';
 import { spendEvent } from '../relationship-pacing.js';
 
 export function suppressPrimaryRelationshipForFocusedDecisions(parsed, decisions, stateNpcs = () => []) {

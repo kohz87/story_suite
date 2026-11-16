@@ -1,5 +1,5 @@
 // The taste rule marks: which rule a taste write follows and the receipt data that records it.
-import { clean } from '../npc-meters-config.js';
+import { clean } from '../../meters/npc-meters-config.js';
 import { TASTE_LIMITS, TASTE_RULE } from './shared-limits.js';
 import { tidy, tasteWords, tasteKey } from './words.js';
 import { readTastes } from './record.js';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildProfileRefreshPrompt, createNpcRecord, isBehaviorLever, mergeScanResult, normalizeNpcRecord } from '../core.js';
+import { buildProfileRefreshPrompt, createNpcRecord, isBehaviorLever, mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 
 const CONTEXT = 'Malia keeps a quiet household and enforces advance payment and dusk curfews. She sizes up every prospective boarder at the door before admitting them, and she avoids open confrontation, answering challenges with cold politeness.';
 const HABITS = [

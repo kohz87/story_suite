@@ -1,9 +1,9 @@
 /* NPC State Delta injection assembly: buildInjection, the budgeted dossier text for the selected cast and reference blocks. */
-import { cleanText } from '../../core-text.js';
-import { narratorTies, tieRoster, tiesTracked } from '../../core-keyrel.js';
-import { DEFAULT_BEHAVIOR_CRITERIA } from '../../core-prompts.js';
-import { APPROX_CHARS_PER_TOKEN, INJECTION_CAP_BASE_TOKENS, DEFAULT_INJECTION_BUDGET_TOKENS, normalizeInjectionBudgetTokens, selectRelevantNpcs } from '../../core-injection-selection.js';
-import { clauseBoundedInjection, compactInjectionBehaviorRubric, injectionEssentialBlock, injectionOptionalFields, lowPlayerStanding, referenceBlock, truncateInjectionText } from '../../core-injection-parts.js';
+import { cleanText } from '../core-text.js';
+import { narratorTies, tieRoster, tiesTracked } from '../core-keyrel.js';
+import { DEFAULT_BEHAVIOR_CRITERIA } from '../core-prompts.js';
+import { APPROX_CHARS_PER_TOKEN, INJECTION_CAP_BASE_TOKENS, DEFAULT_INJECTION_BUDGET_TOKENS, normalizeInjectionBudgetTokens, selectRelevantNpcs } from '../core-injection-selection.js';
+import { clauseBoundedInjection, compactInjectionBehaviorRubric, injectionEssentialBlock, injectionOptionalFields, lowPlayerStanding, referenceBlock, truncateInjectionText } from '../core-injection-parts.js';
 
 export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null } = {}) {
     const named = new Set(Array.isArray(namedNpcIds) ? namedNpcIds : []);

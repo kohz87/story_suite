@@ -3,8 +3,8 @@ import { CONCEALED_MENTION } from './trait-patterns.js';
 import { addressedTraitKeys, physicalTraitKeys, presentationSegments } from './segments.js';
 import { physicalPieces } from './pieces.js';
 import { describesIdentity, identityPhrase } from './identity.js';
-import { DURABLE_PROFILE_LIMITS } from '../core-relationship.js';
-import { normalizeName } from '../core-text.js';
+import { DURABLE_PROFILE_LIMITS } from '../../core/core-relationship.js';
+import { normalizeName } from '../../core/core-text.js';
 import { appearanceText, sameAppearance } from '../appearance-text.js';
 
 export function preserveOmittedPhysicalTraits(previous, next, { alsoPresent = '' } = {}) {

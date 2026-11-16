@@ -1,5 +1,5 @@
 // Field-level salvage of slipped key quotes in a scanner reply that would not parse.
-import { parseScanJson } from '../../core.js';
+import { parseScanJson } from '../../core/core.js';
 
 // (rule NSDFOLLOW-1, 12 Nov) Field-level salvage of slipped key quotes, tried only after parseScanJson's own repairs failed, so a
 // reply that parsed before parses exactly as before. Each fix is made where JSON.parse stopped, so the parser's own reading says

@@ -1,5 +1,5 @@
 // The current exchange as text: labelled transcript, bare story bodies and the story prose with speakers.
-import { storyProse } from '../../core.js';
+import { storyProse } from '../../core/core.js';
 import { currentExchangeMessages } from './exchange.js';
 import { cleanMessage } from './shared-clean.js';
 import { recentTranscript } from './recent.js';
