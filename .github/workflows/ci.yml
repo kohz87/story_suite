@@ -50,7 +50,7 @@ jobs:
         run: node scripts/checks/no-tracked-deps.mjs
       - name: Script tests
         # Same command as npm run test:scripts, plus a per-test timeout.
-        run: node --test --test-timeout=900000 "tests/scripts/*.test.js"
+        run: node --test --test-timeout=900000 --test-force-exit "tests/scripts/*.test.js"
 
   ui:
     runs-on: ubuntu-latest
@@ -70,7 +70,7 @@ jobs:
       # CI=true makes a missing browser a failure, so the rendered sweeps never skip here.
       - name: UI tests
         # Same command as npm run test:ui, plus a per-test timeout.
-        run: node --test --test-timeout=900000 "tests/ui/**/*.test.js"
+        run: node --test --test-timeout=900000 --test-force-exit "tests/ui/**/*.test.js"
 
   story-block:
     runs-on: ubuntu-latest
@@ -119,7 +119,7 @@ jobs:
           echo "Also running the tests that read the example packs:"
           printf '%s\n' "$others"
           # shellcheck disable=SC2086
-          node --test --test-timeout=900000 $packs $others
+          node --test --test-timeout=900000 --test-force-exit $packs $others
       - name: Behavioral tests
         if: steps.scope.outputs.scope != 'packs'
         env:
@@ -128,7 +128,7 @@ jobs:
         # The same command and heap as Story Block's npm test, plus a per-test timeout (node ignores the flag
         # after the globs and refuses it in NODE_OPTIONS, so `npm test -- --test-timeout` cannot be used;
         # tests/scripts/ci-timeouts.test.js checks this command against package.json).
-        run: node --test --test-timeout=900000 "tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js"
+        run: node --test --test-timeout=900000 --test-force-exit "tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js"
       - name: Keep state-fuzz replay dumps
         if: failure()
         uses: actions/upload-artifact@v4
@@ -155,7 +155,7 @@ jobs:
         run: npm run check
       - name: Behavioral tests
         # The same command as Story Director's npm test, plus a per-test timeout.
-        run: node --test --test-timeout=900000 "tests/*.test.js" "tests/v2/**/*.test.js"
+        run: node --test --test-timeout=900000 --test-force-exit "tests/*.test.js" "tests/v2/**/*.test.js"
 
   npc-state-delta:
     runs-on: ubuntu-latest
@@ -186,7 +186,7 @@ jobs:
       - name: Full verification
         # The same three commands as this package's npm test; the first runs many tests, so it gets a per-test timeout.
         run: |
-          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test --test-timeout=900000 tests/*.test.js tests/v2/break/*.test.js
+          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test --test-timeout=900000 --test-force-exit tests/*.test.js tests/v2/break/*.test.js
           node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/compatibility-check.js
           node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/runtime-smoke.mjs
       - name: Delta validation and prompt measurement

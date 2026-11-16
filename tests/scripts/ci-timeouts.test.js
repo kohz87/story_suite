@@ -1,7 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const ci = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
@@ -28,21 +30,38 @@ test('every CI job has timeout-minutes between 1 and 120', () => {
   }
 });
 
-test('every node --test run in CI sets --test-timeout', () => {
+// Every node --test command in CI, with backslash-continued lines joined.
+function testCommands() {
   const sources = [ci, fs.readFileSync(path.join(root, 'scripts/ci/suite-tests.sh'), 'utf8')];
+  const out = [];
   for (const src of sources) {
-    for (const line of src.split('\n')) {
+    const lines = src.replace(/\\\n\s*/g, ' ').split('\n');
+    for (const line of lines) {
       if (/^\s*#/.test(line)) continue;
-      if (/\bnode\b[^|]*\s--test(\s|$)/.test(line)) {
-        assert.match(line, /--test-timeout=\d+/, `no --test-timeout on: ${line.trim()}`);
-      }
+      if (/\bnode\b[^|]*\s--test(\s|$)/.test(line)) out.push(line.trim());
     }
+  }
+  return out;
+}
+
+test('every node --test run in CI sets --test-timeout (at least 600000) and --test-force-exit before the test globs', () => {
+  const cmds = testCommands();
+  assert.ok(cmds.length >= 7, `expected at least 7 node --test commands, found ${cmds.length}`);
+  for (const cmd of cmds) {
+    const after = cmd.slice(cmd.search(/\s--test(\s|$)/) + 1);
+    const m = after.match(/--test-timeout=(\d+)/);
+    assert.ok(m, `no --test-timeout on: ${cmd}`);
+    assert.ok(Number(m[1]) >= 600000, `--test-timeout below 600000 on: ${cmd}`);
+    assert.ok(/--test-force-exit(\s|$)/.test(after), `no --test-force-exit on: ${cmd}`);
+    // node ignores flags placed after the globs, so both must come before the first test path.
+    const firstGlob = after.search(/\s["']?(\$packs|tests\/|\$\{globs)/);
+    assert.ok(firstGlob > after.indexOf('--test-timeout') && firstGlob > after.indexOf('--test-force-exit'), `flags must come before the test globs on: ${cmd}`);
   }
 });
 
 // node ignores --test-timeout after the globs, so CI repeats each package test command with the flag in front.
 // These tests keep each repeated command equal to its package.json script, so they cannot drift apart.
-const noFlag = (cmd) => cmd.replace(/ --test-timeout=\d+/, '');
+const noFlag = (cmd) => cmd.replace(/ --test-timeout=\d+/g, '').replace(/ --test-force-exit/g, '');
 const script = (file, name) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8')).scripts[name];
 const step = (job, name) => {
   const text = jobs().find(([n]) => n === job)?.[1] ?? '';
@@ -69,4 +88,18 @@ test('CI commands equal their package.json scripts plus the timeout flag', () =>
   // NPC State's first command is the one CI runs with the timeout; the other two must match the script as-is.
   const nsdLines = step(nsd, 'Full verification').block.trim().split('\n').map((l) => l.trim());
   assert.equal(nsdLines.map(noFlag).join(' && '), script('packages/npc-state-delta/package.json', 'test'));
+});
+
+test('a hung test that holds a live handle is named and fails the run at the timeout', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-timeouts-'));
+  try {
+    fs.writeFileSync(path.join(dir, 'hang.test.js'), "import { test } from 'node:test';\ntest('hangs holding a handle', async () => { setInterval(() => {}, 1000); await new Promise(() => {}); });\n");
+    fs.writeFileSync(path.join(dir, 'ok.test.js'), "import { test } from 'node:test';\ntest('healthy', () => {});\n");
+    const r = spawnSync(process.execPath, ['--test', '--test-timeout=1500', '--test-force-exit', '--test-reporter=tap', 'hang.test.js', 'ok.test.js'], { cwd: dir, encoding: 'utf8', timeout: 20000, env: { ...process.env, NODE_TEST_CONTEXT: undefined } });
+    assert.equal(r.status, 1, `expected exit 1, got ${r.status} ${r.signal}`);
+    assert.match(r.stdout, /not ok \d+ - hangs holding a handle/);
+    assert.match(r.stdout, /timed out after 1500ms/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });

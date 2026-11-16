@@ -56,7 +56,9 @@ if [ -d "$repo_root/tests/suite" ]; then globs+=("$repo_root/tests/suite/**/*.te
 
 set +e
 # --test-timeout fails a hung test after 15 minutes instead of holding the job (the job has its own timeout too).
-node --test --test-timeout=900000 --test-reporter=tap "${globs[@]}" | tee "$tap_file"
+# --test-force-exit makes that work when the hung test holds a live handle (a timer, a browser): the run ends and names the test.
+# Headroom: the slowest local test (fuzz seed 16) took up to ~490 s on a loaded machine, so 900 s is about 1.8x locally (about 3x on GitHub).
+node --test --test-timeout=900000 --test-force-exit --test-reporter=tap "${globs[@]}" | tee "$tap_file"
 status=${PIPESTATUS[0]}
 set -e
 
