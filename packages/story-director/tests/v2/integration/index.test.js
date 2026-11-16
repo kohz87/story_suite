@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 
 globalThis.STORY_DIRECTOR_NO_START = true;

@@ -12,7 +12,7 @@ import { KEY_CHARS } from '../../../src/v2/tracker/capture.js';
 import { directorTail } from '../../../src/v2/tracker/note.js';
 import { MAX_JUMP_DAYS, maxJumpMinutes, settingsDefaults, timeAfter } from '../../../src/v2/tracker/time.js';
 import { lastProblems, makeState, reply, thread } from '../tracker/helpers/fake-ctx.js';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
 

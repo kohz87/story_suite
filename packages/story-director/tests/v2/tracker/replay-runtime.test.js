@@ -1,7 +1,7 @@
 // The production neutral writers retain reader acceptance through unchanged prefix Re-reads.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/host.js';
+import { createHost } from '../../../../story-block/testkit/host.js';
 import { createModule } from '../../../src/v2/module.js';
 
 const ok = out => assert.equal(out.ok, true, JSON.stringify(out));

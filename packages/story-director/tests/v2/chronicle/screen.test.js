@@ -1,5 +1,5 @@
 // Chronicle part: the Chronicle screen, checked by Story Block's screen validator and drawn by its
-// template renderer (vendored in tests/vendor/story-block) with the real condition language:
+// template renderer (from packages/story-block) with the real condition language:
 // events under way first, resolved ones folded, factions; Save sends what the reader typed as
 // chronicle.edit, the one-click buttons send their payloads, and the queries other modules read.
 
@@ -8,11 +8,11 @@ import assert from 'node:assert/strict';
 
 import { CHRONICLE_ID, chronicleScreen } from '../../../src/v2/chronicle/screen.js';
 import { part } from '../../../src/v2/chronicle/index.js';
-import { validateScreen } from '../../vendor/story-block/src/v2/view/screens.js';
-import { compileTemplate, renderTemplate } from '../../vendor/story-block/src/v2/view/template/index.js';
-import { conditionEvaluator } from '../../vendor/story-block/src/v2/view/bind.js';
-import { compile, evaluate } from '../../vendor/story-block/src/v2/events/index.js';
-import { scopeCss } from '../../vendor/story-block/src/v2/view/css.js';
+import { validateScreen } from '../../../../story-block/src/v2/view/screens.js';
+import { compileTemplate, renderTemplate } from '../../../../story-block/src/v2/view/template/index.js';
+import { conditionEvaluator } from '../../../../story-block/src/v2/view/bind.js';
+import { compile, evaluate } from '../../../../story-block/src/v2/events/index.js';
+import { scopeCss } from '../../../../story-block/src/v2/view/css.js';
 import { installFakeDom } from '../../ui-fake-dom.js';
 import { clockAt, command, eventNamed, factionNamed, lines, makeState, query } from './helpers/fake-ctx.js';
 

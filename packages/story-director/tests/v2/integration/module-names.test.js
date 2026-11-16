@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createModule } from '../../../src/v2/module.js';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { fakeDelta } from '../keypeople/helpers.js';
 import {
     OVERUSED, applyPerson, beforeGenerate as namesBefore, bareKey, capMinor, checkName, clampCount, initialNames, nameKey, parseBanned, parseProfile, pickSuggestions,

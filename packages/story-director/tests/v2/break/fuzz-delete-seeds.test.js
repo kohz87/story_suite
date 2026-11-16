@@ -2,8 +2,8 @@
 // lines): a few seeds of 20 replies, each with a middle exchange deleted twice along the way.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
-import { createFakeModel } from '../../vendor/story-block/testkit/model.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
+import { createFakeModel } from '../../../../story-block/testkit/model.js';
 import { createModule } from '../../../src/v2/module.js';
 import { castPlans } from '../../../src/v2/cast/index.js';
 import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';

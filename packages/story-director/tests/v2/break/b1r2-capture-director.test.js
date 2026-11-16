@@ -2,7 +2,7 @@
 // written; B-b1r2-9 was fixed by #86, B-b1r2-14 was Story Block's, #86).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
 

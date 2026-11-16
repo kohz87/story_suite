@@ -27,5 +27,5 @@ Node 24 is what CI uses (node ≥ 22 works). No install step.
    - for totals and skips run a file with the default reporter: `node --test tests/v2/tracker/time.test.js`.
 4. Run cross-repository checks with Story Block and NPC State Delta alongside this checkout.
 5. Always keep `tests/v2/integration/alone.test.js` green.
-6. Tests run against the vendored Story Block in `tests/vendor/story-block/` (VERSION names the commit). A
-   failure that comes from the host side needs the `sync-testkit` skill, not a local workaround.
+6. Tests import the live Story Block (`packages/story-block/testkit` and `src/v2`) by relative path. A
+   failure that comes from the host side is a real change in the host: fix this module or Story Block, not the test.
