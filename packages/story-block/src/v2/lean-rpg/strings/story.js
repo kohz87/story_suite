@@ -65,6 +65,7 @@ export const STORY_STRINGS = Object.freeze({
         slotLater: 'The next slot opens at Lv {level}.',
         slotsFull: 'All eight skill slots hold a skill.',
         utilityFull: 'No free utility skill slot for {skill}: all {max} hold a skill.',
+        stanceHeld: 'Only one stance skill (defence, evasion, movement or support) may be owned, so {skill} is not learned.',
         taken: '{name} is already in the party.',
         fullActive: 'the party is full ({max} active); someone must leave first',
         full: 'the party is full ({max} characters, counting those who left)',
