@@ -1,4 +1,4 @@
-// Trips on the real Story Block v2 host (the vendored runtime and testkit) with the Ersveil pack: set out from Bluewatch Village by the pack's
+// Trips on the real Story Block v2 host (the live runtime and testkit) with the Ersveil pack: set out from Bluewatch Village by the pack's
 // frontier road (100 km to Hollin's Reach, 60 on to Wolfmere Outpost), what the narrator is told as the story time passes, the Status row,
 // the feature switch, and replay: a swipe, a Re-read, a middle delete, a rebuild and a reload all give the same trip.
 

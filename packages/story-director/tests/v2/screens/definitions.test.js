@@ -3,7 +3,7 @@
 // CSS within what §13.3 allows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CSS_LIMIT, resolveData, runtime, validateScreen, vendoredScreens } from './helpers/runtime.js';
+import { CSS_LIMIT, resolveData, runtime, validateScreen, liveScreens } from './helpers/runtime.js';
 import { headState, makeQueries, makeRunner } from './helpers/fixtures.js';
 import { DIRECTOR_ID, QUESTS_ID, STATUS_CARD_ID, createScreensPart, part, screens } from '../../../src/v2/screens/index.js';
 import { worldScreen } from '../../../src/v2/world/screen.js';
@@ -38,7 +38,7 @@ test('each screen mounts where it is meant to', () => {
 });
 
 test('the screens register in Story Block\'s screen registry and list by mount', () => {
-    const registry = vendoredScreens();
+    const registry = liveScreens();
     registry.addModule('story-director', part.screens);
     assert.deepEqual(registry.problems(), []);
     // Story Block sorts the navigation by screen `order` (SB #75): an id ending in /quests takes the

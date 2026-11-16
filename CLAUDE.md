@@ -12,7 +12,7 @@
 2. **One job per file** with **≤ 4 exports** serving that job; a file that only re-exports — a folder's `index.js` or a facade kept for existing imports — may list more than 4. Test files and test helpers under `tests/` are exempt from the export cap (not from the other rules).
 3. **Code map current:** every new or moved file outside `packages/` gets a `docs/codemap/jobs.json` sentence and `npm run codemap` before finishing. Package maps (`docs/codemap/<package>.md`, every file including tests) are generated too: any edit under `packages/` that adds, removes or renames a file, or changes its job, exports, imports or tests (line counts are not in the maps) needs `npm run codemap`; a new package source file needs a job (its opening comment, a `docs/dev/codemap.md` bullet or `docs/codemap/jobs-<package>.json`). After merging main, regenerate the maps with `npm run codemap`; never hand-merge them.
 4. **Replay == live:** swipes, middle deletes, rewinds, and reloads must reproduce identical state.
-5. **Never edit vendored copies** (`tests/vendor/`).
+5. **Never edit vendored copies** (`**/vendor/`).
 6. **No model names** anywhere in code, commits, or PRs.
 7. **Reviews before merges; serialize changes to the same files.**
 8. **Static prompt golden:** the whole static prompt is pinned by `tests/suite/static-prompt.golden.json`; regenerate it (`WRITE_GOLDEN=1`) only for an intended, reviewed change, and NPC State Delta wording changes need the owner's approval. The golden is a pure data fixture, exempt from the 450-line limit and not in the code map (JSON is not code); it holds each scenario's `story_suite_static*` keys, including `story_suite_static_npc_state_delta` when one-pass capture is on.

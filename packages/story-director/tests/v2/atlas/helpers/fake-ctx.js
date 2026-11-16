@@ -1,6 +1,6 @@
 // A fake command context (SPEC §3.2) and a change-line reader (SPEC §4.4) for the atlas part's
 // tests. Commit works as Story Block's does in outline: the handler runs on drafts, the drafts
-// are diffed into ops with Story Block's own ops.js (vendored), the generic op rules and the
+// are diffed into ops with Story Block's own ops.js (live), the generic op rules and the
 // touched domains' validators run, and a throw or a problem keeps the state as it was.
 
 import { part } from '../../../../src/v2/atlas/index.js';

@@ -1,4 +1,4 @@
 {
-  ".claude/skills/release-resync/release-resync.sh": "Rebases Story Block's release branch on main, then rebuilds each module's release commit with the testkit copied from it.",
+  ".claude/skills/release-resync/release-resync.sh": "Rebases Story Block's release branch on main, then rebuilds each module's release commit on its main.",
   ".claude/skills/suite-check/suite-check.sh": "Tests the three Story Suite repos side by side in one folder, each in turn."
 }

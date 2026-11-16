@@ -1,5 +1,5 @@
 // A change line of a family-member kind written outside <Changes> is still taken, as in 2.9.3 (the lean diet gave those kinds no grammar line
-// of their own). Story Block reads a kind spec's `heads` (a release after the vendored copy), so this uses a stand-in that honours them the way
+// of their own). Story Block reads a kind spec's `heads`, so this uses a stand-in that honours them the way
 // the host will: the heads of the grammar lines, plus every kind's `heads`.
 
 import { test } from 'node:test';
@@ -35,7 +35,7 @@ test('the eight family-member kinds carry heads, and a stray line of each is tak
         assert.equal(out.taken.length, 1, `${kind}: ${JSON.stringify(out)}`);
         assert.deepEqual(out.problems, [], kind);
     }
-    // Without the heads (the vendored host today) the lines are not taken: the regression this closes.
+    // Without the heads the lines are not taken: the regression this closes.
     const plain = grammarHeads(Object.entries(def.capture.kinds).map(([kind, spec]) => ({ kind, grammar: typeof spec.grammar === 'string' ? spec.grammar : '' })).filter(entry => entry.grammar));
     assert.equal(strayLines(`Dawn.\n\n${STRAYS.event}\n\nMore.`, plain).taken.length, 0);
 });

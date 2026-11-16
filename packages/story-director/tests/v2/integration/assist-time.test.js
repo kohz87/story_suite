@@ -115,7 +115,7 @@ test('assist: + world and + faction lines apply like the main block\'s (real chr
     }
 });
 
-// Through the real host path (vendored Story Block with the `assistFaction` rule mark): a safety-net faction line never moves the stance of a known faction.
+// Through the real host path (live Story Block with the `assistFaction` rule mark): a safety-net faction line never moves the stance of a known faction.
 async function worldHost(answer, { maxChangeLines } = {}) {
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });

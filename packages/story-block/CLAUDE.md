@@ -38,7 +38,7 @@ modules' `tryQuery` helpers, or an optional command; degrade to a sensible defau
   pure choices in `plan.js`/`rules.js`/`flee.js`, flags in `flags.js`/`overrides.js`, the narrator note in `note.js`, and its
   view, data and styles in `view.js`, `view-data.js` and `board.css`.
 - `src/v2/rewind.js`, `reply-notes.js`, `diagnostics.js`: rewinds and save points, per-reply notes, Diagnostics fold.
-- `testkit/`: fake SillyTavern (`createFakeContext`) and a whole host on it (`createHost`); vendored by modules.
+- `testkit/`: fake SillyTavern (`createFakeContext`) and a whole host on it (`createHost`); copied by `sync-testkit.mjs` when a module needs a pinned copy.
 - `scripts/`: `check.mjs` (syntax), `sync-testkit.mjs`, `bench-v2.mjs` / `bench-long.mjs` (PERFORMANCE.md).
 - `examples/packs/`: `ersveil` (the open-world pack and lorebook) and `riverside-starter` (small). `examples/fishing/`: reference activity.
 - `tests/*.test.js`: `id.test.js`, `text.test.js` (the helpers kept in `src/`). `tests/v2/`: v2 tests; `qa/` (fuzz, ownership, security, prompt layout),
@@ -86,8 +86,8 @@ Full suite: about 2,100 tests, 1.5–3 minutes. Skills in `.claude/skills/`: `ru
 - No model names anywhere in the repo. Commit trailers and PR attribution: the lines the session gives.
 - Branch off `main`, PR into `main`. Agents never merge their own PR; the coordinator reviews and merges.
 - Rebase on `origin/main` before pushing; on conflicts keep both sides, never edit another agent's files.
-- Module repos vendor this repo's testkit in `tests/vendor/story-block/` (VERSION names the commit). After a
-  change to `testkit/` or `src/v2/`, modules re-sync with `scripts/sync-testkit.mjs` and re-run their tests.
+- A module that needs a pinned copy vendors this repo's testkit in `tests/vendor/story-block/` (VERSION names the commit). After a
+  change to `testkit/` or `src/v2/`, such a module re-syncs with `scripts/sync-testkit.mjs` and re-runs its tests; the suite's own modules import it live.
 - Each file opens with a comment that says what it does and why; keep that style and plain-words messages.
 - Kill processes by PID, never with a broad `pkill -f`.
 
@@ -123,8 +123,8 @@ matches. Board touch coverage uses a rendered browser at 390×844 and 360×740 w
 - A `test.todo` that fails prints `X` / `⚠` in the dot output but does not fail the run; it is a known open problem.
 - The testkit has no chat file of its own, so saves there are immediate (`ctx.saveChat`); the 1.5 s / 8 s
   turn save of SPEC §3.3 only happens in SillyTavern.
-- A change to `testkit/` or `src/v2/` can turn module tests red after their next re-sync (e.g. RB's fuzz after
-  money-named items, #139): say so in the PR and re-sync the modules.
+- A change to `testkit/` or `src/v2/` can turn module tests red at once (e.g. RB's fuzz after
+  money-named items, #139): say so in the PR and re-run the modules' tests; the suite modules import it live.
 - `MODULES.md §F` and later decisions override older SPEC text; read them before "fixing" a contradiction.
 - NSD's prompts are byte-identical by contract (its C10); Story Block never sends NSD's own prompt keys.
 - The GitHub proxy refuses tag creation and branch deletion: leave branches, the user makes tags.
