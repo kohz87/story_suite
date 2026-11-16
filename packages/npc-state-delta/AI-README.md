@@ -102,8 +102,7 @@ packs. Nothing flows back to Studio.
 - **Portraits**: upload, replace, remove, prompt building and generation through SillyTavern's Image Generation (preview first,
   applied on confirm), per-form portraits.
 - **Social checks**: read-only modifier for Story Director's checks (`vs: Name`) or another dice module.
-- **Save points**: dossiers go back with Story Block's save points through the participant. Branches inherit state and wait
-  for the parent's dossiers.
+- **Save points**: while hosted, Story Block's people store is the story's one timeline; Delta keeps no checkpoints, vault or participant of its own (see People store above).
 
 ## Settings
 

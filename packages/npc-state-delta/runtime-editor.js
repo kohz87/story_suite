@@ -103,14 +103,14 @@ export function createEditorPart(rt, deps) {
         const active = state.npcs;
         const activeRows = active.length ? active.map(npc => `
       <div class="npc-state-delta-roster-entry" data-npc-id="${escapeHtml(npc.id)}">
-        <div class="menu_button npc-state-delta-roster-edit" role="button" tabindex="0" data-npc-id="${escapeHtml(npc.id)}" title="Edit ${escapeHtml(npc.name)} dossier">${npc.present ? '● ' : (npc.worldActive ? '◌ ' : '')}${npc.retentionProtected ? '📌 ' : ''}${npc.minor ? '·minor ' : ''}${escapeHtml(npc.name)} <i class="fa-solid fa-pen"></i></div>
+        <div class="menu_button npc-state-delta-roster-edit" role="button" tabindex="0" data-npc-id="${escapeHtml(npc.id)}" title="Edit ${escapeHtml(npc.name)} dossier">${npc.present ? '● ' : (npc.worldActive ? '◌ ' : '')}${npc.minor ? '·minor ' : ''}${escapeHtml(npc.name)} <i class="fa-solid fa-pen"></i></div>
         <div class="menu_button npc-state-delta-roster-scan npc-state-delta-scan-dossier" role="button" tabindex="0" data-npc-id="${escapeHtml(npc.id)}" title="Scan matching Megumin dossier for ${escapeHtml(npc.name)}"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
         <div class="menu_button npc-state-delta-roster-delete npc-state-delta-delete-npc" role="button" tabindex="0" data-npc-id="${escapeHtml(npc.id)}" title="Delete ${escapeHtml(npc.name)} dossier"><i class="fa-solid fa-trash-can"></i></div>
       </div>`).join('') : '<span class="npc-state-delta-muted">No active NPCs.</span>';
         holder.html(`
       <span class="npc-state-delta-muted">Persistent NPC database:</span>
       <div class="npc-state-delta-roster-block"><b>Active (${active.length})</b><div class="npc-state-delta-roster-chips">${activeRows}</div></div>
-      <small class="npc-state-delta-muted">● present in the latest scanned scene · ◌ current off-screen activity from World State · 📌 protected from stale lifecycle · ·minor hidden from the portrait gallery. Present Minor NPCs still update and remain eligible for generation injection. Auto-archive is reversible; timed stale deletion does not suppress rediscovery, while manual trash does.</small>
+      <small class="npc-state-delta-muted">● present in the latest scanned scene · ◌ current off-screen activity from World State · ·minor hidden from the portrait gallery. Present Minor NPCs still update and remain eligible for generation injection. Auto-archive is reversible; timed stale deletion does not suppress rediscovery, while manual trash does.</small>
       <small class="npc-state-delta-muted npc-state-delta-data-file">Data file: ${escapeHtml(pointer?.path || 'created on first save')}</small>`);
         wireSettingsRosterEditor();
     }

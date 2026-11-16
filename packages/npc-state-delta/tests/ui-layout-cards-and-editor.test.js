@@ -88,6 +88,7 @@ test('present-only behavior injection and manual dossier editor controls are exp
     assert.match(index, /npc_state_delta_behavior_criteria/);
     assert.match(index, /Relationship-to-behavior rubric/);
     assert.match(index, /npc-state-delta-roster-edit/);
+    assert.doesNotMatch(index, /protected from stale lifecycle|retentionProtected/);
     assert.match(index, /Save dossier/);
     assert.match(index, /Protect edited stable profile fields/);
     assert.match(index, /Leave off to use manual edits as an organic baseline/);
