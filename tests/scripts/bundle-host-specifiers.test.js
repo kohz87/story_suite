@@ -10,7 +10,8 @@ import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { buildDist } from '../../scripts/play/dist.mjs';
 
 // Every import specifier that leaves a bundle (a host file: starts with `/` or `../`) is what the host SillyTavern resolves, so it must be the text
-// main's builds wrote, recorded in fixtures/host-specifiers.json. A host import that lost or gained a `../` stops the extension from loading.
+// recorded in fixtures/host-specifiers.json. A host import that lost or gained a `../` stops the extension from loading. The repo root is the extension
+// folder, so a file's host imports are written for the depth of the file itself; the bundle rewrites them from the extension folder.
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const recorded = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'fixtures/host-specifiers.json'), 'utf8'));
 
@@ -33,29 +34,49 @@ function hostSpecifiers(dir) {
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'host-specs-'));
 
-test('the release bundles import the same host files, written the same way, as main\'s release', async () => {
+test('the release bundle imports exactly the recorded host specifiers', async () => {
   const out = tmp();
   try {
-    const got = {};
-    for (const set of BUNDLE_SETS) {
-      await buildBundleSet(set, path.join(out, set.name), repoRoot);
-      const specs = hostSpecifiers(path.join(out, set.name));
-      if (specs.length) got[set.name] = specs;
-    }
-    assert.deepEqual(got, recorded.release);
+    await buildBundleSet(BUNDLE_SETS[0], path.join(out, 'set'), repoRoot);
+    assert.deepEqual(hostSpecifiers(path.join(out, 'set')), recorded.bundle);
   } finally { fs.rmSync(out, { recursive: true, force: true }); }
 });
 
-test('the play build imports the same host files, written the same way, as main\'s play build', async () => {
+test('the play build imports the same host specifiers as the release bundle', async () => {
   const out = tmp();
   try {
     await buildDist({ repo: repoRoot, source: repoRoot, commit: 'HEAD', out, write: false });
-    const got = {};
-    for (const name of fs.readdirSync(out)) {
-      if (!fs.statSync(path.join(out, name)).isDirectory()) continue;
-      const specs = hostSpecifiers(path.join(out, name));
-      if (specs.length) got[name] = specs;
-    }
-    assert.deepEqual(got, recorded.play);
+    assert.deepEqual(hostSpecifiers(out), recorded.bundle);
   } finally { fs.rmSync(out, { recursive: true, force: true }); }
+});
+
+// The unbundled install (a dev checkout or the replica's symlink of the repo root) loads the source files themselves: every host specifier of the
+// graph reached from index.js is resolved from where that file is served, against a fake public/ tree, and must name a file the host has.
+test('the unbundled entry graph names only host files that exist, from where each file is served', () => {
+  const pub = tmp();
+  try {
+    const hostFiles = ['script.js', 'scripts/extensions.js', 'scripts/utils.js', 'scripts/extensions/shared.js'];
+    for (const file of hostFiles) { fs.mkdirSync(path.dirname(path.join(pub, file)), { recursive: true }); fs.writeFileSync(path.join(pub, file), ''); }
+    const served = path.join(pub, 'scripts/extensions/third-party/story_suite');
+    const seen = new Set([path.join(repoRoot, 'index.js')]);
+    const queue = [...seen];
+    const targets = new Set();
+    while (queue.length) {
+      const file = queue.shift();
+      const here = path.dirname(path.relative(repoRoot, file));
+      walk.full(acorn.parse(fs.readFileSync(file, 'utf8'), { ecmaVersion: 'latest', sourceType: 'module', allowHashBang: true }), node => {
+        const spec = node.source?.value;
+        if (typeof spec !== 'string' || !(spec.startsWith('.') || spec.startsWith('/'))) return;
+        const inRepo = spec.startsWith('.') ? path.resolve(path.dirname(file), spec) : null;
+        if (inRepo && !path.relative(repoRoot, inRepo).startsWith('..')) {
+          if (/\.m?js$/.test(inRepo) && !seen.has(inRepo)) { seen.add(inRepo); queue.push(inRepo); }
+          return;
+        }
+        const target = spec.startsWith('/') ? path.join(pub, spec) : path.resolve(served, here, spec);
+        assert.ok(fs.existsSync(target), `${path.relative(repoRoot, file)}: ${spec} resolves to ${path.relative(pub, target)}, which the host does not have`);
+        targets.add(`/${path.relative(pub, target)}`);
+      });
+    }
+    assert.deepEqual([...targets].sort(), recorded.targets);
+  } finally { fs.rmSync(pub, { recursive: true, force: true }); }
 });

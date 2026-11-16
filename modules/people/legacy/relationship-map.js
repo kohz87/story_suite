@@ -1,6 +1,8 @@
+/* LEGACY, kept until B4 replaces the old dossier surface: the dossier panel's Map view and its settings; see docs/merge/b4-removals.md. */
 /* NPC State Delta relationship map: a read-only second view of the dossier panel. It draws the
    dossier panel's own projection (no extra state reads) and never writes dossier data. */
-import { extension_settings, getContext } from '../../../extensions.js';
+import { extension_settings, getContext } from '../../../../../../extensions.js';
+import { npcBucket } from '../settings/bucket.js';
 import {
     buildMapModel,
     DESKTOP_NODE_CAP,
@@ -20,7 +22,6 @@ import { escapeHtml } from '../util/html.js';
 import { isNarrow, isNarrowWidth, observedWidth, showScreen, TWO_PANE_MIN } from './dossier-ui-screens.js';
 import { libraryFootHtml } from './dossier-ui-library.js';
 
-const EXTENSION_NAME = 'npc_state_delta';
 const DOSSIER_ROOT_ID = 'npc_state_delta_dossier_root';
 const SETTINGS_ID = 'npc_state_delta_settings';
 const SETTINGS_ROOT_ID = 'npc_state_delta_relationship_map_settings';
@@ -31,12 +32,11 @@ const view = { mode: 'dossier', lens: '', allBonds: true, focus: '', signature: 
 
 
 function readMapSettings() {
-    return normalizeRelationshipMapSettings(extension_settings?.[EXTENSION_NAME]?.relationshipMap);
+    return normalizeRelationshipMapSettings(npcBucket(extension_settings)?.relationshipMap);
 }
 
 function writeMapSettings(patch) {
-    if (!extension_settings[EXTENSION_NAME] || typeof extension_settings[EXTENSION_NAME] !== 'object') extension_settings[EXTENSION_NAME] = {};
-    extension_settings[EXTENSION_NAME].relationshipMap = normalizeRelationshipMapSettings({ ...readMapSettings(), ...patch });
+    npcBucket(extension_settings, { create: true }).relationshipMap = normalizeRelationshipMapSettings({ ...readMapSettings(), ...patch });
     const ctx = getContext();
     if (typeof ctx?.saveSettingsDebounced === 'function') ctx.saveSettingsDebounced();
 }

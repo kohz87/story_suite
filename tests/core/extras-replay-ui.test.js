@@ -9,6 +9,7 @@ import { sceneScreen } from '../../ui/legacy/screens/scene.js';
 import { renderSkip, show } from '../ui/screens/helpers.js';
 import { CHATTER_FEATURE, CHOICES_FEATURE, displayLines } from '../../ui/legacy/extras.js';
 import { BOTH, block, REPLY, lastIndex, extrasOf, fresh } from './extras.helpers.js';
+import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 // ---------------------------------------------------------------------------------------------------
 // Replay: Re-read, swipes, deletes, a reload
@@ -178,9 +179,9 @@ test('no Inner chatter strip is drawn under replies; the choices stay', async t 
         id: 'npc-state-delta', name: 'NPC State Delta', version: '0.0.1',
         queries: { 'npc.dossier': (state, args) => (String(args?.name).toLowerCase() === 'minke' ? { name: 'Minke' } : null) },
     };
-    const previous = globalThis.NPCStateDelta;
-    globalThis.NPCStateDelta = { openDossier: name => { opened.push(name); return true; } };
-    t.after(() => { globalThis.NPCStateDelta = previous; });
+    const previous = pageHandles.deltaApi;
+    pageHandles.deltaApi = { openDossier: name => { opened.push(name); return true; } };
+    t.after(() => { pageHandles.deltaApi = previous; });
     const { host, draw, at, doc } = await page(t, { modules: [nsd] });
     await host.send('Hello.', REPLY);
     await host.send('Next.', block('Later.', ['? choice Wait', '~ chatter Minke: <b>still</b> here']));

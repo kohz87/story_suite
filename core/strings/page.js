@@ -25,7 +25,7 @@ export const PAGE_STRINGS = {
     },
     drawer: {
         title: 'Story Block',
-        status: 'Story Block {version} (v2) · {modules}',
+        status: 'Story Suite {version} · {modules}',
         settings: 'Story Suite settings',
         panel: 'Story panel',
         hud: 'Status strip above the message box',

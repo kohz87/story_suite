@@ -1,0 +1,5 @@
+# Files in core/, ui/, modules/ or packs/ that may still name a removed global or DOM flag (NPCStateDelta, NPCStateDeltaCast,
+# window/globalThis.StorySuite, data-npc-state-delta-story-block*, the launcher keep flags). scripts/checks/globals-gate.mjs fails on any
+# other hit, on an entry here with no hit, and on an entry added relative to the base. This list may only shrink.
+# The v1 Story Suite registry: deleted with the handshake in F1b (see docs/merge/b4-removals.md; take this line off when it goes).
+modules/people/legacy/suite.js

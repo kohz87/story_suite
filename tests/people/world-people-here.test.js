@@ -7,9 +7,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CAST_TAB_ID, PAGE_API, WORLD_FEATURE, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { CAST_TAB_ID, WORLD_FEATURE, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { styleSource } from './helpers/shipped-modules.js';
+import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const css = styleSource();
@@ -136,17 +137,16 @@ async function setup({ world }) {
         feature: id => (id === WORLD_FEATURE ? world : false), settings: () => ({}),
     };
     const host = { apiVersion: 2, sdk, ready: Promise.resolve(sdk) };
-    const page = {};
     const adapter = createStorySuiteV2Adapter({
         suiteApi: { npcs: () => NPCS.map(npc => ({ id: npc.id, name: npc.name, aliases: npc.aliases, present: npc.present, archived: npc.archived })) },
-        delta: () => delta, host: () => host, doc, page, logger: { warn() {} }, retryMs: 1, attempts: 2, aliveMs: 1e9,
+        delta: () => delta, host: () => host, doc, logger: { warn() {} }, retryMs: 1, attempts: 2, aliveMs: 1e9,
         loadEmptyCast: async () => reason => `<p>${reason?.text ?? ''}</p>`,
         loadDossierList: async () => ({ rowNodes: () => [], project: () => [], filter: () => [] }),
     });
     adapter.start();
     await adapter.settled();
     await new Promise(resolve => setTimeout(resolve, 0));
-    return { doc, page, adapter, opened, def: adapter.definition };
+    return { doc, adapter, opened, def: adapter.definition };
 }
 
 const LOOK = /Look|grey habit|Faith|lapsed/;
@@ -154,9 +154,9 @@ const NEXT = /Next:|Patches you|trust 25\/45/;
 const NOTES = /Why Bluewatch|Hidden note|opens at/;
 
 test('World → People here: a person with Look, a field, Next, an opened and a hidden note shows none of them; portrait, name, chip and description stay', async () => {
-    const { doc, page, adapter } = await setup({ world: true });
+    const { doc, adapter } = await setup({ world: true });
     const el = element(doc);
-    assert.equal(page[PAGE_API].render(el, {}), 1);
+    assert.equal(adapter.pageApi.render(el, {}), 1);
     const cell = el.children[0];
     assert.ok(cell.classList.contains('npc-state-delta-world-people'));
     const html = el.innerHTML;
@@ -190,9 +190,9 @@ test('the Dossiers screen (World off) still draws the same person with Next, the
 });
 
 test('the whole row opens the dossier: a click on the card, on the cell, or a keyboard-made click on the card button', async () => {
-    const { doc, page, adapter, opened } = await setup({ world: true });
+    const { doc, adapter, opened } = await setup({ world: true });
     const el = element(doc);
-    page[PAGE_API].render(el, {});
+    adapter.pageApi.render(el, {});
     const cell = el.children[0];
     const card = cell.querySelector('.npc-state-delta-present-card');
     // Pointer on the cell itself (outside the card), on the name inside the card.
@@ -207,9 +207,9 @@ test('the whole row opens the dossier: a click on the card, on the cell, or a ke
 });
 
 test('a click elsewhere on the pane opens nothing; the Dossiers rows still open theirs', async () => {
-    const { doc, page, adapter, opened } = await setup({ world: true });
+    const { doc, adapter, opened } = await setup({ world: true });
     const el = element(doc);
-    page[PAGE_API].render(el, {});
+    adapter.pageApi.render(el, {});
     el.fire('click', { target: el });
     assert.deepEqual(opened, []);
     const row = { dataset: { npcId: 'npc_x' }, closest: selector => (selector === '.npc-state-delta-story-row' ? row : null) };

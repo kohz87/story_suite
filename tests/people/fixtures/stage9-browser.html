@@ -6,7 +6,7 @@
 <script type="module">
 import { normalizeNpcRecord, buildNpcPortraitPrompts, appearanceDraftRecord, manualLifeStateRecord } from '/delta/core.js';
 window.counts={getState:0,getNpc:0,projection:0,scan:0,flush:0,applied:0};
-window.settings={npc_state_delta:{calendarConfig:{era:'CR',months:[{name:'Redleaf',days:30},{name:'Sunwane',days:31}]}}};
+window.settings={storySuite:{schema:1,modules:{'npc-state-delta':{calendarConfig:{era:'CR',months:[{name:'Redleaf',days:30},{name:'Sunwane',days:31}]}}}}};
 window.host={saveSettingsDebounced(){},async saveSettings(){if(window.failSettings)throw new Error('Synthetic settings failure')}};
 window.state={turn:1,npcs:Array.from({length:12},(_,i)=>normalizeNpcRecord({id:`npc-${i}`,name:i?'Surveyor '+i:'Mara',age:'26',apparentAge:'~26',species:'Human',role:'Survey clerk',present:true,location:'Ridge station',mood:'Attentive',goal:'Complete the survey.',personality:'Patient, observant and independent.',speech:'Concise formal sentences.',behaviorProfile:['Keeps firm boundaries.'],background:'An experienced survey clerk.',mannerisms:['Squares the ledger.'],appearanceModelVersion:1,currentForm:'Human',overallAppearance:'Silver pendant.',appearanceForms:[{name:'Human',appearance:'Golden-blue hair, ordinary human ears, blue wool coat.'},{name:'Raven',appearance:'Black feathers, beak and wings.'}],manualProfileLocksExplicit:true,manualProfileFields:['appearance'],birthDate:{era:'',year:null,month:'Redleaf',day:16},birthDateSource:'established'})),checkpoints:Array(20).fill({privateHistory:'NOT FOR UI'})};
 window.chatKey='chat:synthetic:stage9'; window.toasts=[];

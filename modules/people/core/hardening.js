@@ -1,5 +1,6 @@
-import { extension_settings, getContext } from '../../../extensions.js';
-import { getRequestHeaders, saveSettings as saveHostSettings } from '../../../../script.js';
+import { extension_settings, getContext } from '../../../../../../extensions.js';
+import { npcBucket } from '../settings/bucket.js';
+import { getRequestHeaders, saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from './core.js';
 import { setBranchProvenanceHint } from '../legacy/branch.js';
 import {
@@ -20,7 +21,6 @@ import {
     qualifiedKeysForOwner,
 } from './hardening-core.js';
 
-const EXTENSION_NAME = 'npc_state_delta';
 const RECOVERY_HISTORY_LIMIT = 80;
 const LIFECYCLE_EVENT_WAIT_MS = 12_000;
 const LIFECYCLE_RETRY_DELAY_MS = 30_000;
@@ -30,9 +30,7 @@ let installed = false;
 let lifecycleEventSequence = 0;
 
 function settings() {
-    const value = extension_settings[EXTENSION_NAME] && typeof extension_settings[EXTENSION_NAME] === 'object'
-        ? extension_settings[EXTENSION_NAME]
-        : (extension_settings[EXTENSION_NAME] = {});
+    const value = npcBucket(extension_settings, { create: true });
     for (const key of ['dataFiles', 'sidecarTombstones', 'recoveryFiles', 'recoveryHistory', 'recoveryGarbage', 'pendingRenames']) {
         if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) value[key] = {};
     }

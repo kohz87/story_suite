@@ -44,7 +44,7 @@ describe('selectSettings', () => {
     assert.deepEqual([glass.type, glass.value, glass.default, glass.unit, glass.label], ['num', 70, 50, '%', 'Glass strength']);
     assert.equal(rowOf(vm, 'look', 'host.sendPending').type, 'sw');
     assert.equal(rowOf(vm, 'tools', 'host.tailBudget').unit, 'tokens');
-    assert.equal(rowOf(vm, 'tools', 'host.callQueue').value, true);
+    assert.equal(vm.sections.find(s => s.id === 'tools').rows.some(r => r.key === 'host.callQueue'), false, 'the queue switch moved to the Models page');
   });
 
   it('shows choices by label, drops Solid, and falls back to the default when the stored value is not offered', () => {
@@ -74,11 +74,47 @@ describe('selectSettings', () => {
     assert.equal(selectSettings(answers({ features: FEATURES.map((f, i) => ({ ...f, on: i === 0 })) })).modules.preset, null);
   });
 
-  it('leaves gaps empty: connections, packs, sent, presets, per-chat sets', () => {
+  it('leaves gaps empty: packs, sent, presets, per-chat sets', () => {
     const vm = selectSettings(answers({ subtitle: 'this chat' }));
     assert.equal(vm.sent, null);
     assert.equal(vm.subtitle, 'this chat');
-    assert.deepEqual([vm.connections, vm.modules.presets, vm.modules.newChats, vm.packs.packs], [[], [], {}, []]);
+    assert.deepEqual([vm.modules.presets, vm.modules.newChats, vm.packs.packs], [[], {}, []]);
     assert.equal(selectSettings(answers({ features: undefined })).modules.defs.length, 0);
+  });
+
+  it('Models: Story is read-only; Quick and Background carry the profiles, the stored choice and the notes', () => {
+    const list = { usable: true, why: '', profiles: [{ id: 'p2', name: 'Big' }, { id: 'p1', name: 'Cheap' }] };
+    const vm = selectSettings(answers({ host: { ...HOST, quickConnection: 'Cheap', backgroundConnection: 'Gone one' }, profiles: list }));
+    assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
+    const [story, quick, background] = vm.connections;
+    assert.deepEqual([story.id, story.readOnly, story.options], ['story', true, []]);
+    assert.deepEqual([quick.id, quick.value, quick.choice, quick.options.map(o => o.label), quick.note], ['quick', 'Cheap', 'Cheap', ['Same as chat', 'Big', 'Cheap'], '']);
+    assert.deepEqual([background.value, background.choice], ['Gone one', 'Gone one (not found)']);
+    assert.match(background.note, /not in the Connection Manager any more/);
+    assert.equal(vm.sections.find(s => s.id === 'models').special, 'models');
+  });
+
+  it('Models: the Calls group has the mock\'s five rows, read from the stored values', () => {
+    const vm = selectSettings(answers({ calls: { kinds: '~ time, + world', maxOutput: 900 }, features: [{ id: 'story-block.extractor', label: 'x', on: true }] }));
+    assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
+    const rows = vm.sections.find(s => s.id === 'models').rows;
+    assert.deepEqual(rows.map(r => [r.key, r.type]), [['calls.queue', 'sw'], ['calls.priority', 'info'], ['calls.fallback', 'sw'], ['calls.maxOutput', 'info'], ['calls.kinds', 'chips']]);
+    assert.deepEqual(rows.map(r => r.value), [true, 'always on', true, '900 tokens', ['Time moves on', 'World news']]);
+    assert.equal(rows.at(-1).options.length, 15);
+    const none = selectSettings(answers({})).sections.find(s => s.id === 'models').rows;
+    assert.deepEqual([none[2].value, none[3].value, none[4].value.length], [false, 'built-in limits', 10], 'no feature list: off; no stored kinds: the ten defaults');
+  });
+
+  it('Models: the Background card names the fallback call, the Quick card does not', () => {
+    const [, quick, background] = selectSettings(answers({})).connections;
+    assert.ok(background.usedFor.some(u => /fallback call/.test(u)));
+    assert.ok(!quick.usedFor.some(u => /fallback/.test(u)));
+  });
+
+  it('Models without a profile list: Same as chat only, with the plain note', () => {
+    const vm = selectSettings(answers({ profiles: { usable: false, why: 'The Connection Manager is off.', profiles: [] } }));
+    assert.deepEqual(vm.connections[1].options.map(o => o.label), ['Same as chat']);
+    assert.equal(vm.connections[1].note, 'The Connection Manager is off.');
+    assert.deepEqual(vm.connections[2].options.map(o => [o.value, o.label]), [['', 'Same as chat']]);
   });
 });

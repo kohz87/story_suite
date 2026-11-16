@@ -124,14 +124,14 @@ test('the host\'s own schema (moduleId null): Panel style, Glass strength (a sli
     assert.deepEqual([slider.min, slider.max, slider.value], ['30', '90', '50']);
     slider.value = '70';
     slider.dispatch('change');
-    assert.equal(es.storySuite.host.glassStrength, 70);
+    assert.equal(es.storySuite.core.glassStrength, 70);
     form.field('panelStyle').handle.input.value = 'solid';
     form.field('panelStyle').handle.input.dispatch('change');
-    assert.equal(es.storySuite.host.panelStyle, 'solid');
+    assert.equal(es.storySuite.core.panelStyle, 'solid');
     const budget = form.field('tailBudget').handle.input;
     budget.value = '50';
     budget.dispatch('change');
-    assert.equal(es.storySuite.host.tailBudget, 100, 'moved into its range by the store');
+    assert.equal(es.storySuite.core.tailBudget, 100, 'moved into its range by the store');
     assert.match(form.field('tailBudget').row.querySelector('.ss-field-error').textContent, /Set to 100, the least/);
 });
 

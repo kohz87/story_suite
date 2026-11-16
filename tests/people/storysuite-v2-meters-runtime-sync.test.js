@@ -205,7 +205,7 @@ test('without a v2 host the same turns send nothing, and the sidecar and the inj
     const run = (name, prelude) => scenarioOutput(runHostScenario(name, prelude, async () => {
         const api = globalThis.NPCStateDelta;
         // Memory facts are standalone-only (hosted, the slice applies the move and derives none), so this parity compares the runs without them.
-        mockState.extensionSettings.npc_state_delta.memoryFacts = false;
+        mockState.extensionSettings.storySuite.modules['npc-state-delta'].memoryFacts = false;
         await sleep(200);
         const { relationship } = await turns();
         const yunyun = api.getState().npcs.find(npc => npc.name === 'Yunyun');
@@ -213,7 +213,7 @@ test('without a v2 host the same turns send nothing, and the sidecar and the inj
         console.log('RESULT ' + JSON.stringify({
             relationship,
             sent: mockState.sdk?.sent?.length ?? 0,
-            hosted: globalThis.document.documentElement.dataset.npcStateDeltaStoryBlockV2 ?? null,
+            hosted: globalThis.__handles.hosted ? '1' : null,
             injection: api.injectionPreview().text,
             presentQuery: mockState.sdk?.registered?.[0]?.queries?.['npc.present']?.({}) ?? null,
             castHtml: api.presentCastHtml(),

@@ -99,9 +99,9 @@ test('the module registers whole: screens instead of tabs, settings fields, capt
     ]);
     const defs = host.registry.settingsDefs().find(entry => entry.moduleId === MODULE_ID);
     assert.deepEqual(Object.keys(defs.schema).sort(), [
-        'arc.autoAccept', 'arc.genre', 'arc.keepNote', 'arc.lowThreads', 'arc.maxTokens', 'arc.note', 'arc.profile', 'arc.recent', 'arc.stallDays', 'arc.trigger',
+        'arc.autoAccept', 'arc.genre', 'arc.keepNote', 'arc.lowThreads', 'arc.maxTokens', 'arc.note', 'arc.recent', 'arc.stallDays', 'arc.trigger',
         'atlas.map.east', 'atlas.map.era', 'atlas.map.kmPerUnit', 'atlas.map.north', 'atlas.map.roadFactor',
-        'cast.faces', 'cast.on', 'cast.profile', 'cast.unmetDie',
+        'cast.faces', 'cast.on', 'cast.unmetDie',
         'checks.defaultDc', 'checks.social',
         'chronicle.digestDays', 'chronicle.digestKeep', 'chronicle.digestTail', 'keypeople.cap', 'keypeople.tokens', 'names.banned', 'names.suggestions', 'pulse.invents', 'pulse.mode', 'pulse.showUnderReply',
         'screens.hideBehind', 'time.lapses', 'time.recapHours',

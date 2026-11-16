@@ -1,5 +1,7 @@
 // Wraps Story Block's sdk as the UI port: views come from injected selectors fed by sdk queries, actions pass through, and nothing throws.
 
+import { modelsCommand } from './models.js';
+
 const FAILED = Object.freeze({ ok: false, code: 'FAILED', message: 'The engine could not do that.' });
 
 function failure(error) {
@@ -36,8 +38,8 @@ const INTERACTION = {
   discard: p => [p?.id],
 };
 
-/** Creates the port: `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's. */
-export function createSbPort({ sdk, selectors = {}, prefs = null, onError = null } = {}) {
+/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's. */
+export function createSbPort({ sdk, writes = null, selectors = {}, prefs = null, onError = null } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -65,7 +67,13 @@ export function createSbPort({ sdk, selectors = {}, prefs = null, onError = null
         return null;
       }
     },
-    command(type, payload, options) {
+    async command(type, payload, options) {
+      // The Models page's pick and test (port/models.js) are answered here; every other command goes to the sdk.
+      if (type === 'settings.set' || type === 'settings.action') {
+        let answer = null;
+        try { answer = await modelsCommand(sdk, type, payload, Date.now, writes); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
+      }
       if (typeof type === 'string' && type.startsWith('interaction.')) {
         const verb = type.slice('interaction.'.length);
         return Object.hasOwn(INTERACTION, verb) ? interact(verb, payload) : Promise.resolve({ ...FAILED, message: `The engine does not take ${type}.` });

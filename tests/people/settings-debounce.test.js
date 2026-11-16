@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { standInTree } from './helpers/temp-tree.js';
+import { npcBucket } from '../../modules/people/settings/bucket.js';
 
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-settings-debounce-'));
 const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
@@ -36,27 +37,33 @@ const stopTimers = () => {};
 test.after(() => mock.timers.reset());
 const tick = async ms => { mock.timers.tick(ms); await settle(); };
 
+// The NPC State bucket of the one settings tree, made when the test starts from nothing.
+function putSettings(value) {
+    npcBucket(host.extensionSettings, { create: true });
+    host.extensionSettings.storySuite.modules['npc-state-delta'] = value;
+}
+
 function freshSettings() {
-    host.extensionSettings.npc_state_delta = undefined;
+    putSettings(undefined);
     flushPendingSettingsSave();
     getSettings();
     host.saves = 0;
 }
 
 test('pacing settings migrate once and preserve blank, zero and chosen caps across reload', () => {
-    host.extensionSettings.npc_state_delta = {
+    putSettings({
         relationshipCaps: { ordinary: 1, meaningful: 2, major: 5, extreme: 10 },
         relationshipAllowance: { ordinary: null, meaningful: 0, major: 1, extreme: 1 },
-    };
+    });
     let settings = getSettings();
     assert.deepEqual(settings.relationshipCaps, { ordinary: 1, meaningful: 2, major: 3, extreme: 6 });
     assert.deepEqual(settings.relationshipAllowance, { ordinary: null, meaningful: 0, major: 1, extreme: 1 });
     settings.relationshipCaps = { ordinary: 1, meaningful: 2, major: 5, extreme: 10 };
-    host.extensionSettings.npc_state_delta = JSON.parse(JSON.stringify(settings));
+    putSettings(JSON.parse(JSON.stringify(settings)));
     settings = getSettings();
     assert.deepEqual(settings.relationshipCaps, { ordinary: 1, meaningful: 2, major: 5, extreme: 10 });
     assert.deepEqual(settings.relationshipAllowance, { ordinary: null, meaningful: 0, major: 1, extreme: 1 });
-    host.extensionSettings.npc_state_delta = { relationshipCaps: { ordinary: 1, meaningful: 2, major: 4, extreme: 10 } };
+    putSettings({ relationshipCaps: { ordinary: 1, meaningful: 2, major: 4, extreme: 10 } });
     assert.deepEqual(getSettings().relationshipCaps, { ordinary: 1, meaningful: 2, major: 4, extreme: 10 });
 });
 
@@ -76,7 +83,7 @@ test('relationship reset and allowance controls persist their intended values', 
         const change = handlers.find(item => item.selector?.includes('#npc_state_delta_allow_ordinary')).fn;
         change.call({ id: 'npc_state_delta_allow_ordinary', value: '' });
         change.call({ id: 'npc_state_delta_allow_major', value: '0' });
-        host.extensionSettings.npc_state_delta = JSON.parse(JSON.stringify(settings));
+        putSettings(JSON.parse(JSON.stringify(settings)));
         assert.deepEqual(getSettings().relationshipAllowance, { ordinary: null, meaningful: 1, major: 0, extreme: 1 });
     } finally {
         globalThis.document = previous.document;

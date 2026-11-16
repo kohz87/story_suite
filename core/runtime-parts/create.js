@@ -7,10 +7,13 @@ import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../../packs/card-settings.js';
 import { skipOf } from '../../modules/rpg/start-notes.js';
 import { XP_RATE_SETTING, xpRateFrom, xpRateOf } from '../../modules/rpg/levels.js';
+import { connectionFor } from '../model-call/connection-for.js';
 import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, profileName, stModelCall } from '../model-call.js';
 import { readRecord } from '../persist.js';
 import { createRegistry } from '../registry.js';
 import { MAX_CHANGE_LINES, announceModules, createEvents, createSdk, createSettings, runQuery } from '../sdk.js';
+import { HOST_SETTINGS_DEFAULTS } from '../sdk/constants.js';
+import { loadSettings } from '../settings/load.js';
 import { displayLines } from '../../ui/legacy/extras.js';
 import { DEFAULT_HIDDEN } from '../../ui/legacy/view/screens.js';
 import { SCENE_SCREEN_ID } from '../../ui/legacy/screens/scene.js';
@@ -24,7 +27,7 @@ import { createPublicApi } from '../public-api.js';
 import { createPublicPaths } from '../persist/public-paths.js';
 import { initialWithStart, packsFor, withPackCurrency } from '../runtime/start.js';
 import { pageStorage, saveOnUnload, storeSaving } from '../runtime/saving.js';
-import { VERSION } from './version.js';
+import { HOST_VERSION } from './version.js';
 
 /**
  * createRuntime({ ctx, packs?, core = true, modules = [], createStore?, createCommandBus?, notify?,
@@ -47,7 +50,7 @@ export function createRuntime({
     let features = null;
     let events = null;
     let guardRefresh = null;   // the UI's redraw for a listener that fails late (setGuardRefresh)
-    const registry = createRegistry({ hostVersion: VERSION, featureValue: id => features?.stored(id) });
+    const registry = createRegistry({ hostVersion: HOST_VERSION, featureValue: id => features?.stored(id) });
     features = createFeatureStore({
         root: () => ctx.extensionSettings,
         registry,
@@ -118,7 +121,7 @@ export function createRuntime({
             // The head reply's index too, for `scene.moved` (the store is made below; asked only later).
             // Whether Story Director's World screen is there (it shows the chatter; else Scene does: `scene.chatter`).
             extras: { interaction: () => sdk?.interaction ?? null, promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
-            version: VERSION,
+            version: HOST_VERSION,
             interaction: kindId => registry.interaction(kindId),
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
             timeline: () => timeline,
@@ -173,6 +176,8 @@ export function createRuntime({
         }));
     }
     for (const def of modules) registry.register(def);
+    // The one settings tree (B3 F3): an old-shaped one moves to storySuite_legacy, the defaults go in.
+    loadSettings({ root: () => ctx.extensionSettings, registry, coreDefaults: HOST_SETTINGS_DEFAULTS, save: () => ctx.saveSettingsDebounced?.() });
 
     // A replay that moves counts (a reply before them deleted) checks the domains it moved (B3-8).
     const validate = (state, names) => names.flatMap(name => {
@@ -215,6 +220,7 @@ export function createRuntime({
     const callQueue = createCallQueue({ enabled: () => settings()?.callQueue !== false });
     const modelCalls = createModelCalls({
         queue: callQueue,
+        roleProfile: role => connectionFor(role, settings()),
         call: marked(callModel ?? stModelCall),
         gate: { whenIdle: () => turn?.whenIdle?.() ?? Promise.resolve() },
         featureOn: id => registry.featureOn(id),
@@ -223,8 +229,8 @@ export function createRuntime({
     });
     // The assist helpers' call (assist/index.js: (prompt, { maxTokens, profile, helper }) → text, throwing
     // with a code on failure; an empty answer is '' as before).
-    assistCall = async (prompt, { maxTokens, profile = '', helper = 'pre-roll', timeoutMs } = {}) => {
-        const result = await modelCalls.callModel({ prompt, maxTokens, profile, module: `${CORE_MODULE_ID} (${helper === 'extractor' ? 'safety net' : helper === 'precheck' ? 'fight setup' : helper === 'rolls' ? 'rolls' : 'pre-roll'})`, timeoutMs: (helper === 'rolls' || helper === 'precheck') && Number.isFinite(timeoutMs) ? timeoutMs : ASSIST_TIMEOUT_MS }, { idle: false });
+    assistCall = async (prompt, { maxTokens, profile = '', role = '', helper = 'pre-roll', timeoutMs } = {}) => {
+        const result = await modelCalls.callModel({ prompt, maxTokens, profile, role, module: `${CORE_MODULE_ID} (${helper === 'extractor' ? 'safety net' : helper === 'precheck' ? 'fight setup' : helper === 'rolls' ? 'rolls' : 'pre-roll'})`, timeoutMs: (helper === 'rolls' || helper === 'precheck') && Number.isFinite(timeoutMs) ? timeoutMs : ASSIST_TIMEOUT_MS }, { idle: false });
         if (result.ok) return result.text;
         if (result.error === MODEL_CALL_ERRORS.EMPTY) return '';
         throw Object.assign(new Error(result.message), { code: result.error });
@@ -287,7 +293,7 @@ export function createRuntime({
     // The public API (public-api.js, docs/v2/PUBLIC-API.md): the head state read through the queries and readers that exist, events after the store has written.
     const apiPersona = () => { try { return String((live() ?? ctx)?.name1 ?? ''); } catch { return String(ctx?.name1 ?? ''); } };
     const api = createPublicApi({
-        version: VERSION,
+        version: HOST_VERSION,
         hostReady: made.sdk.ready,
         state: () => store.head(),
         before: index => { try { return store.before?.(index) ?? null; } catch { return null; } },
@@ -307,5 +313,7 @@ export function createRuntime({
         dialogCurrent = typeof current === 'function' ? current : null;
     };
     const setGuardRefresh = fn => { guardRefresh = typeof fn === 'function' ? fn : null; };
-    return { registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
+    /** `writes`: the reader's own stores for the Story Suite view (the public sdk reads settings and has no setter). */
+    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value) }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
+    return { writes, registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
 }

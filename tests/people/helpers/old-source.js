@@ -2,6 +2,7 @@
 // (`./src/fields/registry.js`, `./index.js`), so a test that pins how a file imports its neighbours keeps its assertion unchanged.
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { oldLocation } from '../../../scripts/release/layout-paths.mjs';
 import { oldPath } from './old-path.js';
 
@@ -21,6 +22,8 @@ export function oldSource(rel) {
         const target = path.posix.join(path.posix.dirname(fromRel), spec);
         if (!fs.existsSync(path.join(REPO, target))) return all;
         const old = oldName(target);
+        // A file added after the move has no old name (it is not in the old folder's list): name the real file itself.
+        if (old === target) return `${head}${pathToFileURL(path.join(REPO, target)).href}${tail}`;
         const relative = path.posix.relative(path.posix.dirname(oldHere), old.startsWith('packages/') ? old : path.posix.join(PKG, old));
         return `${head}${relative.startsWith('.') ? relative : `./${relative}`}${tail}`;
     });

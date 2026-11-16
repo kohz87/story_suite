@@ -1,12 +1,12 @@
-// createHost(): a whole Story Block v2 host on a fake SillyTavern context, the way index.js
-// wires it (registry, settings, store, command bus, sdk, turn), for module tests (docs/v2/SPEC.md
-// §10). The store and the command bus are imported lazily from ../src/v2/, so the testkit loads
-// in a checkout that does not have them yet; `hostAvailable()` says whether they are there, for
-// `test(..., { skip })`. `fakes: true` uses the small stand-ins in fakes.js instead.
+// createHost(): a whole host on a fake SillyTavern context, the way core/boot wires it (registry, settings,
+// store, command bus, sdk, turn), for module tests (docs/v2/SPEC.md §10). The store and the command bus are
+// imported lazily from ../core/, so the testkit loads where they are missing; `hostAvailable()` says whether
+// they are there, for `test(..., { skip })`. `fakes: true` uses the small stand-ins in fakes.js instead.
 
 import { createFakeContext } from './fake-st.js';
 import { createFakeBus, createFakeStore } from './fakes.js';
 import { createRuntime } from '../core/runtime.js';
+import { SETTINGS_SCHEMA } from '../core/settings/schema.js';
 import { setRpgLib } from '../modules/rpg/rpg-lazy.js';
 import * as leanRpg from '../modules/rpg/index.js';
 
@@ -39,7 +39,7 @@ export async function hostAvailable() {
  * Builds a host. `options`: { modules?: def[] (registered after the core ones), core?: true
  * (register Story Block's core module: scene, inventory, packs, events, assist), callModel?(prompt, opts)
  * (the model behind sdk.callModel and the assist helpers; createFakeModel in model.js scripts one), storeOptions?: the real store's thresholds, fakes?: false (use fakes.js), st?: options for
- * createFakeContext (plus onBlocked?), settings?: initial extension_settings.storySuite, timelineFaults?: { at(phase) } (the
+ * createFakeContext (plus onBlocked?), settings?: initial extension_settings.storySuite (a partial tree is taken as the current schema; its core bucket is `core`), timelineFaults?: { at(phase) } (the
  * timeline calls it at every phase; a test makes it throw to stop there), lazyRpg?: true (the RPG's code is NOT handed to the host: it is
  * imported by `rpgLoad?()` (default: lean-rpg/index.js) only when the feature is on or the chat holds the RPG's records, as in the real page; by
  * default the host has it at once, so a test may switch the feature on and use the RPG without waiting) }.
@@ -61,13 +61,14 @@ export async function createHost(options = {}) {
         ({ createCommandBus } = await import(RUNTIME.commands));
     }
     const extensionSettings = stOptions.extensionSettings ?? {};
-    if (initialSettings) extensionSettings.storySuite = structuredClone(initialSettings);
+    // A partial tree is the current schema (a tree without one is an old shape, and the first load would set it aside).
+    if (initialSettings) extensionSettings.storySuite = { schema: SETTINGS_SCHEMA, ...structuredClone(initialSettings) };
     const st = createFakeContext({ ...stOptions, extensionSettings });
     // What the reader was told when a generation was held back (a toastr warning live).
     st.notices = [];
     const ctx = st.ctx;
 
-    // The same wiring as index.js (src/v2/runtime.js): the core module with its packs part over the
+    // The same wiring as core/boot: the core module with its packs part over the
     // fake extension settings, then the given modules.
     // `storeOptions` (checkpointEvery, receiptKeep, …): the real store's own thresholds, for tests that need checkpoints or trimmed receipts early.
     const makeStore = storeOptions && !fakes ? base => createStore({ ...base, ...storeOptions }) : createStore;

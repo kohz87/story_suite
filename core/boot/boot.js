@@ -12,21 +12,36 @@
 //    events, and the v1 prompt keys cleared.
 // 4. The UI (bar, story panel, settings overlay, drawer, mounts), then markReady().
 
-import { createRuntime, VERSION } from '../runtime.js';
+import { createRuntime, HOST_VERSION } from '../runtime.js';
+import { SUITE_VERSION } from '../version.js';
 import { INTERCEPTOR_NAME } from '../turn.js';
 import { mountUi } from '../../ui/legacy/ui-host.js';
-import { noteSaveError } from '../diagnostics.js';
+import { noteError, noteSaveError } from '../diagnostics.js';
 import { createV1Watch } from '../persist/v1-copy.js';
 import { registerSbMacro } from '../runtime/sb-macro.js';
+import { BUILTIN_MODULES } from '../modules-list.js';
+import { registerIsolated, startIsolated } from './register-isolated.js';
 import { packs as livePacks, part as livePacksPart, portraits as livePortraits, refreshLore, resolveItem, startState } from '../../packs/index.js';
 
 const LOG = '[Story Block v2]';
+export const OLD_COPY = 'Disable the old Story Block, Story Director and NPC State Delta: Story Suite replaces all three.';
 
-function boot() {
+/**
+ * Starts Story Suite: one call from the root index.js. Resolves true once the host is up; false when it did not start.
+ * `late` lists parts that start after every module, each `{ id, name, start }`; one that throws is reported as a Problem and the rest go on.
+ */
+export async function boot({ late = [] } = {}) {
+    // An old Story Block still enabled shares the settings tree and the interceptor name: say so once and stay out of its way.
+    if (globalThis.StoryBlock) {
+        console.error(`${LOG} ${OLD_COPY}`);
+        noteError([`${LOG} ${OLD_COPY}`]);
+        try { globalThis.toastr?.error?.(OLD_COPY, 'Story Suite'); } catch { /* no toastr */ }
+        return false;
+    }
     const ctx = globalThis.SillyTavern?.getContext?.();
     if (!ctx) {
         console.error(`${LOG} SillyTavern's context is not available; Story Block did not start.`);
-        return;
+        return false;
     }
     let ui = null;
     const runtime = createRuntime({
@@ -42,14 +57,15 @@ function boot() {
     const { sdk, api, turn, markReady } = runtime;
     // (An old v1 copy loaded before this one left its own object here: src/v2/v1-copy.js.)
     const before = globalThis.StoryBlock ?? null;
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: VERSION, ready: sdk.ready, sdk, api });
+    // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
+    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes });
     const v1 = createV1Watch({ before, report: entry => turn.report(entry), problems: () => turn.problems() });
     const lookForV1 = () => { try { v1.check(); } catch { /* never in the way of the story */ } };
 
     turn.install({ globalName: INTERCEPTOR_NAME });
     turn.onChatChanged().catch(error => console.warn(`${LOG} the first chat could not be read`, error));
     try {
-        ui = mountUi({ runtime, ctx, version: VERSION });
+        ui = mountUi({ runtime, ctx, version: SUITE_VERSION });
     } catch (error) {
         console.error(`${LOG} the Story Suite UI could not be shown`, error);
     }
@@ -66,8 +82,10 @@ function boot() {
     lookForV1();
     // `{{sb::path}}` for SillyTavern's prompts, regex scripts and status bars (src/v2/sb-macro.js), registered once.
     registerSbMacro({ ctx, api });
+    // The modules after the core one, in the fixed order of core/modules-list.js; one that fails is switched off and the rest start.
+    for (const mod of BUILTIN_MODULES) await registerIsolated(runtime, mod);
     markReady();
-    console.info(`${LOG} ${VERSION} ready`);
+    for (const part of late) await startIsolated(runtime, part);
+    console.info(`Story Suite ${SUITE_VERSION} ready`);
+    return true;
 }
-
-boot();

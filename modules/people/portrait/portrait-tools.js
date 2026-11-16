@@ -62,7 +62,7 @@ function revealManualCopy(overlay, value, label) {
 async function hostCopyText(value) {
     // SillyTavern owns this host-only module. Lazy loading keeps Delta's isolated
     // Node/runtime tests independent from the surrounding SillyTavern install.
-    const hostUtils = await import('../../../utils.js');
+    const hostUtils = await import('../../../../../../utils.js');
     if (typeof hostUtils?.copyText !== 'function') throw new Error('SillyTavern clipboard helper is unavailable.');
     return hostUtils.copyText(value);
 }

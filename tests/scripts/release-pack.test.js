@@ -28,7 +28,7 @@ before(async () => {
   write('pkg/shared.js', "(globalThis.order ??= []).push('shared');\nexport let counter = 0;\nexport const bump = () => { counter += 1; };\n");
   write('pkg/ok.js', "import { bump } from './shared.js';\nglobalThis.order.push('ok');\nbump();\nexport const answer = 42;\nexport function add(a, b) { return a + b; }\nexport default { kind: 'default' };\n");
   write('pkg/bad.js', "globalThis.order.push('bad');\nglobalThis.badRuns = (globalThis.badRuns ?? 0) + 1;\nthrow new Error('init failed');\n");
-  await buildBundleSet({ name: 'pkg', dir: 'pkg', entries: ['boot.js'], lazy: [] }, path.join(root, 'out'), root);
+  await buildBundleSet({ name: 'pkg', entries: ['pkg/boot.js'], lazy: [] }, path.join(root, 'out'), root);
   const load = async file => {
     for (const key of ['order', 'badRuns']) delete globalThis[key];
     const boot = await import(`${pathToFileURL(file).href}?run=${Math.random()}`);

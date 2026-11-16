@@ -95,7 +95,7 @@ const TAB = { id: 'qa-wire', name: 'Wire', version: '2.0.0-alpha.1', commands: {
 async function page(flag) {
     const doc = setupDom();
     const st = createFakeContext();
-    if (flag) st.ctx.extensionSettings.storySuite = { ...st.ctx.extensionSettings.storySuite, flags: { 'suite.redrawScheduler': true } };
+    if (flag) st.ctx.extensionSettings.storySuite = { schema: 1, ...st.ctx.extensionSettings.storySuite, flags: { 'suite.redrawScheduler': true } };
     let ui = null;
     const runtime = createRuntime({ ctx: st.ctx, onRegister: () => ui?.syncScreens() });
     ui = mountUi({ runtime, ctx: st.ctx, doc });

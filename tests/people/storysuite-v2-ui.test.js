@@ -47,7 +47,7 @@ test('a second section element takes the panel from the first; the first one\'s 
     assert.equal(dom.drawer.children.filter(node => node.dataset.npcStateDeltaPlaceholder).length, 1);
 });
 
-test('when the host goes away the drawer copy comes back as it was, and the adapter looks again', async () => {
+test('when the host goes away the drawer copy comes back as it was, and nothing polls for another', async () => {
     const { adapter, def, dom, doc, box, timers } = await hosted();
     const el = doc.body.appendChild(doc.createElement('section'));
     def.settings.section(el, {});
@@ -57,14 +57,7 @@ test('when the host goes away the drawer copy comes back as it was, and the adap
     assert.deepEqual(dom.drawer.children, [dom.before, dom.panel, dom.after]);
     assert.equal(dom.panel.style.display, 'block', 'its own display value restored');
     assert.equal(dom.panel.dataset.npcStateDeltaHosted, undefined);
-    assert.equal(timers.timeouts.size, 1, 'looking for a host again');
-
-    const sdk2 = fakeSdk();
-    box.host = v2Host(sdk2);
-    timers.runTimeouts();
-    assert.equal(await adapter.settled(), true);
-    assert.equal(sdk2.registered.length, 1, 'a new host gets its own registration');
-    assert.equal(dom.panel.style.display, 'none');
+    assert.equal(timers.timeouts.size, 0, 'no polling: the entry starts the host first, so there is nothing to wait for');
 });
 
 test('stop() gives everything back', async () => {

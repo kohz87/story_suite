@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { API_EVENTS, API_VERSION, createPublicApi } from '../../core/public-api.js';
 import { createEvents } from '../../core/sdk.js';
-import { VERSION } from '../../core/runtime.js';
+import { HOST_VERSION } from '../../core/runtime.js';
 import { character } from '../modules/rpg/helpers.js';
 import { skip, reply, blocksModule, PARTY, TRACKER } from './public-api.helpers.js';
 
@@ -18,7 +18,7 @@ test('the surface is frozen: names, arity, version, host, ready, events', { skip
     assert.deepEqual(Object.keys(api), ['version', 'host', 'ready', 'get', 'paths', 'on']);
     assert.equal(api.version, 1);
     assert.equal(API_VERSION, 1);
-    assert.equal(api.host, VERSION);
+    assert.equal(api.host, HOST_VERSION);
     assert.equal(typeof api.get, 'function');
     assert.equal(api.get.length, 1);
     assert.equal(api.paths.length, 0);

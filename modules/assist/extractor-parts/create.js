@@ -78,10 +78,9 @@ export function createExtractor({ callModel, settings, grammar, capture, chatId,
             if (lines.some(line => ['world', 'faction'].includes(grammarKind(line)))) Object.assign(around, worldKnown(seen?.world));
             const check = { places, here: around.here?.name ?? '' };
             const prompt = extractorPrompt(story, lines, written, around);
-            const profile = String(values?.[SETTING.extractorProfile] ?? '').trim() || String(values?.[SETTING.profile] ?? '');
             let answer;
             try {
-                answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, profile, helper: 'extractor' }), timeoutMs, timer);
+                answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, role: 'background', helper: 'extractor' }), timeoutMs, timer);
             } catch (error) {
                 note(error?.code === 'TIMEOUT' ? 'timeout' : 'failed', { ...at, message: error?.message ?? String(error) });
                 return null;

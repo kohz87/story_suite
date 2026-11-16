@@ -1,3 +1,4 @@
+/* LEGACY, kept until B4 replaces the old dossier surface: the dossier editor's appearance section; see docs/merge/b4-removals.md. */
 /* NPC State Delta continuity UI adapter for the appearance-form editor surface.
  * Calendar settings mount through calendar-settings.js into the settings panel's calendar slot. */
 import {

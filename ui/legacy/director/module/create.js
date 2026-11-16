@@ -8,6 +8,7 @@ import { LIVE_HOST, isObject, liveSdk, tryLive } from './shared.js';
 import { fightRunner } from './host.js';
 import { namespaced, readsOf, settingsFor } from './settings.js';
 import { memoQueries, partCtx, partTools, partView, withSettingArgs } from './contexts.js';
+import { startDirector } from './start.js';
 import { cueLinesOf, linesOf, mergeHook, own, sectionOf, withFeature } from './merge.js';
 
 // Story Block's RPG feature: while it is on, its planner asks for the checks.
@@ -50,7 +51,7 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
         }, '');
     };
     // The model call a part may ask for (the host's `callModel`); built each time the parts' views are, so a host that gains or loses it is followed.
-    const modelOf = () => (typeof host?.callModel === 'function' && (typeof host.canCallModel !== 'function' || host.canCallModel()) ? Object.freeze({ callModel: request => host.callModel(request), chat: () => (typeof host.chat === 'function' ? host.chat() : []) }) : null);
+    const modelOf = () => (typeof host?.callModel === 'function' && (typeof host.canCallModel !== 'function' || host.canCallModel()) ? Object.freeze({ callModel: request => host.callModel(request), chat: () => (typeof host.chat === 'function' ? host.chat() : []), settings: () => (typeof host.settings === 'function' ? host.settings(null) : null) }) : null);
     const storyOf = () => Object.freeze({ chat: () => (typeof host?.chat === 'function' ? host.chat() : []) });
     const shared = ns => ({ defaults, reads: readsByPart[ns] ?? [], env, model: modelOf(), story: storyOf() });
     const domains = {};
@@ -222,6 +223,7 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
         settings: { defaults, schema, ...(sectionOf(sections) ? { section: sectionOf(sections) } : {}) },
         tabs,
         screens: screenList,
+        register: startDirector,
     };
     if (Object.keys(widgets).length) def.widgets = widgets;
     // Story Block's game view header toggle (the host's `headerControls`, one per module): the Quiet scene switch.

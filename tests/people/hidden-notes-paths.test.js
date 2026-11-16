@@ -113,7 +113,7 @@ try {
     await import(pathToFileURL(path.join(extRoot, 'story-block-tabs.js')).href);
     await sleep(30);
     if (${hosted}) await waitFor(() => mockState.sdk.registered.length === 1);
-    const settings = mockState.extensionSettings.npc_state_delta;
+    const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
     settings.narrationCapture = true;
     await (${setup.toString()})(settings);
     globalThis.ZERO = { trust: 0, affection: 0, desire: 0, tension: 0 };

@@ -19,7 +19,6 @@ export const DEFAULTS = Object.freeze({
     narrationCaptureCatchUp: 8,
     // (1.2.17) Opt-in: the one-pass rules in fewer words (about 500 tokens less per armed reply).
     narrationCaptureCompact: false,
-    scannerConnectionProfile: '',
     portraitGenerationEnabled: true,
     portraitThemePreset: 'fantasy_anime',
     portraitCustomPresetId: DEFAULT_CUSTOM_PORTRAIT_PRESET_ID,
@@ -51,10 +50,6 @@ export const DEFAULTS = Object.freeze({
     midDeleteRewind: false,
     presentCastDisplay: 'full',
     presentCastDisplayChosen: false,
-    // The floating npc state button while Story Block carries Delta's Present NPCs and Dossiers tabs.
-    launcherWithStoryBlock: false,
-    // The same button while a Story Block v2 host carries Delta (its Cast tab and overlay).
-    launcherWithStoryBlockV2: false,
     relationshipBaseline: { ...DEFAULT_RELATIONSHIP },
     relationshipCaps: { ...DEFAULT_RELATIONSHIP_CAPS },
     relationshipAllowance: { ...DEFAULT_ALLOWANCE },
@@ -73,9 +68,8 @@ export const DEFAULTS = Object.freeze({
     recoveryFiles: {},
     recoveryHistory: {},
     recoveryGarbage: {},
-    // Settings whose controls live in their own modules (full-cast.js, scanner-output-ui.js,
+    // Settings whose controls live in their own modules (scanner-output-ui.js,
     // relationship-map.js, calendar-settings.js); declared and normalized here, the one settings owner.
-    fullCastScanEveryTurn: false,
     scannerMaxOutputTokens: 0,
     relationshipMap: normalizeRelationshipMapSettings(),
     dossierStyle: DOSSIER_SKIN_DEFAULT,

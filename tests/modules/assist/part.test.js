@@ -24,10 +24,10 @@ test('the part: one command, one query, two hooks, an Assist settings section, n
 });
 
 test('settings: both helpers off by default, fields the overlay knows, the module registers', () => {
-    assert.deepEqual(part.settings.defaults, { assistClassifier: false, assistExtractor: false, assistProfile: '', assistExtractorProfile: '', assistExtractorKinds: DEFAULT_KINDS });
+    assert.deepEqual(part.settings.defaults, { assistClassifier: false, assistExtractor: false, assistExtractorKinds: DEFAULT_KINDS });
     assert.deepEqual(DEFAULTS, part.settings.defaults);
-    // The two switches are Story Block's features now (MODULES §F100); only the profile is a settings field.
-    assert.deepEqual(Object.fromEntries(Object.entries(SCHEMA).map(([key, field]) => [key, field.type])), { assistProfile: 'profile', assistExtractorProfile: 'profile', assistExtractorKinds: 'text' });
+    // The two switches are Story Block's features now (MODULES §F100); only the kinds are a settings field (the helpers' calls use the Models page's Quick helpers connection).
+    assert.deepEqual(Object.fromEntries(Object.entries(SCHEMA).map(([key, field]) => [key, field.type])), { assistExtractorKinds: 'text' });
     for (const field of Object.values(SCHEMA)) assert.ok(field.label && field.help);
     const def = { id: 'story-block', commands: part.commands, queries: part.queries, hooks: part.hooks, settings: part.settings };
     assert.deepEqual(definitionProblems(def), []);
@@ -36,11 +36,11 @@ test('settings: both helpers off by default, fields the overlay knows, the modul
     assert.equal(registry.settingsDefs()[0].title, 'Assist');
 });
 
-test('assist.status: on/off from the settings, the profile, the runs newest last', async () => {
-    let settings = on({ classifier: true, profile: '  Cheap  ' });
+test('assist.status: on/off from the settings, the runs newest last', async () => {
+    let settings = on({ classifier: true });
     const assist = createAssistPart({ callModel: fakeModel('none'), settings: () => settings, chat: () => [user('I climb.')], chatId: () => 'c', hasKind: () => true, warn: () => {} });
     const status = assist.queries[STATUS_QUERY];
-    assert.deepEqual(status(null), { classifier: { on: true, last: null }, extractor: { on: false, last: null }, profile: 'Cheap', runs: [] });
+    assert.deepEqual(status(null), { classifier: { on: true, last: null }, extractor: { on: false, last: null }, runs: [] });
     await assist.hooks.beforeGenerate(view());
     const after = status(null, undefined, { query: () => null });
     assert.equal(after.classifier.last.outcome, 'none');
@@ -55,10 +55,10 @@ test('the Assist section shows the switches and the last runs as text, and refre
     const previous = globalThis.document;
     try {
         const el = installFakeDom().createElement('div');
-        let value = { classifier: { on: true }, extractor: { on: false }, profile: 'Cheap', runs: [] };
+        let value = { classifier: { on: true }, extractor: { on: false }, runs: [] };
         renderAssistSection(el, () => value);
         assert.deepEqual(texts(el, '.ss-assist-state'), ['Pre-roll checks: on. Reading forgotten changes: off.']);
-        assert.deepEqual(texts(el, '.ss-assist-profile'), ['Calls go through the profile "Cheap".']);
+        assert.deepEqual(texts(el, '.ss-assist-profile'), [], 'no profile line: the Models page owns the connection');
         assert.deepEqual(texts(el, '.ss-assist-empty'), ['No runs yet in this session.']);
         value = { ...value, runs: [
             { seq: 1, helper: 'classifier', outcome: 'check', line: '? check stealth | dc: hard' },
@@ -151,5 +151,5 @@ test('sdkHasKind reads the module list of the public sdk', () => {
     } finally {
         globalThis.StoryBlock = previous;
     }
-    assert.equal(SETTING.profile, 'assistProfile');
+    assert.equal(SETTING.profile, undefined, 'the per-module profile keys are gone');
 });

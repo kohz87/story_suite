@@ -1,6 +1,7 @@
 // getSettings: fills in and canonicalizes the stored settings, saving once when anything changed.
 
-import { extension_settings } from '../../../../extensions.js';
+import { extension_settings } from '../../../../../../../extensions.js';
+import { npcBucket } from '../bucket.js';
 import { normalizeScannerMaxOutputTokens } from '../../calls/scanner-routing.js';
 import { normalizeRelationshipMapSettings } from '../../legacy/relationship-map-core.js';
 import { normalizeDossierSkin } from '../../legacy/dossier-skin.js';
@@ -11,14 +12,15 @@ import { PORTRAIT_THEME_PRESETS } from './portrait-preset-constants.js';
 import { portraitCustomPresetLibrary } from './portrait-preset-library.js';
 import { DEFAULTS } from './defaults.js';
 import { persistSettings } from './save.js';
-import { EXTENSION_NAME, injectDepthOf, normalizePresentCastDisplay } from './settings-values.js';
+import { injectDepthOf, normalizePresentCastDisplay } from './settings-values.js';
 
 export function getSettings() {
-    let settings = extension_settings[EXTENSION_NAME];
+    let settings = npcBucket(extension_settings);
     let dirty = false;
-    if (!settings || typeof settings !== 'object') {
+    // (an empty bucket is a new one: the sdk's settings may have made it before the first read)
+    if (!settings || !Object.keys(settings).length) {
         settings = structuredClone(DEFAULTS);
-        extension_settings[EXTENSION_NAME] = settings;
+        settings = Object.assign(npcBucket(extension_settings, { create: true }), settings);
         dirty = true;
     }
 
@@ -56,8 +58,6 @@ export function getSettings() {
     assign('admissionMode', normalizeNpcAdmissionMode(settings.admissionMode));
     assign('presentCastDisplay', normalizePresentCastDisplay(settings.presentCastDisplay));
     assign('presentCastDisplayChosen', settings.presentCastDisplayChosen === true);
-    assign('launcherWithStoryBlock', settings.launcherWithStoryBlock === true);
-    assign('launcherWithStoryBlockV2', settings.launcherWithStoryBlockV2 === true);
     // 1.0.70 raised the default budget from 1800 to 4000 tokens. An install still on the old default
     // is moved once; any value the player chose, including a later deliberate 1800, is kept.
     const legacyDefaultBudget = settings.injectBudgetDefaultUpgraded !== true && Number(settings.injectBudgetTokens) === 1800;
@@ -71,7 +71,6 @@ export function getSettings() {
     assign('narrationCapture', settings.narrationCapture === true);
     assign('narrationCaptureCompact', settings.narrationCaptureCompact === true);
     assign('narrationCaptureCatchUp', Number.isFinite(Number(settings.narrationCaptureCatchUp)) ? Math.max(0, Math.min(50, Math.round(Number(settings.narrationCaptureCatchUp)))) : 8);
-    assign('scannerConnectionProfile', typeof settings.scannerConnectionProfile === 'string' ? settings.scannerConnectionProfile.trim() : '');
     assign('portraitGenerationEnabled', settings.portraitGenerationEnabled !== false);
     assign('portraitThemePreset', PORTRAIT_THEME_PRESETS[settings.portraitThemePreset] ? settings.portraitThemePreset : 'custom');
     const portraitCustomPresets = portraitCustomPresetLibrary(settings.portraitCustomPresets);
@@ -101,7 +100,6 @@ export function getSettings() {
     assign('staleArchiveAfter', archiveAfter);
     assign('staleDeleteAfter', Math.max(archiveAfter + 1, Math.min(1000, Math.round(Number(settings.staleDeleteAfter) || 50))));
     assign('injectLimit', Math.max(1, Math.min(12, Math.round(Number(settings.injectLimit) || 3))));
-    assign('fullCastScanEveryTurn', settings.fullCastScanEveryTurn === true);
     assign('scannerMaxOutputTokens', normalizeScannerMaxOutputTokens(settings.scannerMaxOutputTokens));
     assign('relationshipMap', normalizeRelationshipMapSettings(settings.relationshipMap), sameJson);
     assign('dossierStyle', normalizeDossierSkin(settings.dossierStyle));

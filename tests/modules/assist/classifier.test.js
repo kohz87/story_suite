@@ -82,11 +82,11 @@ test('off (the default): nothing, and no model call', async () => {
 });
 
 test('on, with an uncertain action: one call, then the pre-roll command and the tail line', async () => {
-    const { before, callModel } = setup({ settings: on({ classifier: true, profile: 'Cheap' }) });
+    const { before, callModel } = setup({ settings: on({ classifier: true }) });
     const out = await before();
     assert.equal(callModel.calls.length, 1);
     assert.equal(callModel.calls[0].prompt, classifierPrompt(ACTION));
-    assert.deepEqual(callModel.calls[0].options, { maxTokens: 60, profile: 'Cheap' });
+    assert.deepEqual(callModel.calls[0].options, { maxTokens: 60, role: 'quick' });
     assert.deepEqual(out, {
         lines: [ROLLED_LINE],
         commands: [{

@@ -22,7 +22,7 @@ test('a reply\'s scan whose barrier wait timed out is kept and runs when the bar
         assert.equal(await waitFor(() => api.stateReady()), true);
         // The gate the adapter gives answers "not settled" at once, as it does after its bound.
         api.useMessageGate({ refresh: async () => null, settled: async () => { mockState.gate.calls += 1; return !mockState.gate.pending; } });
-        Object.assign(mockState.extensionSettings.npc_state_delta, { enabled: true, autoScan: true, scanEvery: 1, fullScanEveryTurn: false });
+        Object.assign(mockState.extensionSettings.storySuite.modules['npc-state-delta'], { enabled: true, autoScan: true, scanEvery: 1, fullScanEveryTurn: false });
         await manualAddNpc('Mira');
         await api.flush();
         const names = () => api.getState().npcs.map(npc => npc.name);
@@ -75,7 +75,7 @@ test('the injection of a generation waits for the barrier too, and is built when
         assert.equal(await waitFor(() => mockState.sdk.registered.length === 1), true);
         assert.equal(await waitFor(() => api.stateReady()), true);
         api.useMessageGate({ refresh: async () => null, settled: async () => { mockState.gate.calls += 1; return !mockState.gate.pending; } });
-        Object.assign(mockState.extensionSettings.npc_state_delta, { enabled: true, autoScan: true, scanEvery: 1, fullScanEveryTurn: false });
+        Object.assign(mockState.extensionSettings.storySuite.modules['npc-state-delta'], { enabled: true, autoScan: true, scanEvery: 1, fullScanEveryTurn: false });
         await manualAddNpc('Mira');
         await api.flush();
         mockState.quietResponder = async (args = {}) => (args.jsonSchema ? '{"npcs":[]}' : JSON.stringify({ npcs: [{ name: 'Vale', present: true, role: 'wanderer', species: 'Human', age: '30', appearance: 'Vale wears a grey cloak.', personality: 'quiet', speech: 'brief', relationshipImpact: 'ordinary' }] }));

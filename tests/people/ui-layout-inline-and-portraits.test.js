@@ -218,7 +218,7 @@ test('opening the dossier never focuses the search box (no phone/tablet keyboard
 });
 
 test('switched off, Delta renders no in-chat cards, and the Enable switch redraws them (BH2, 12 Nov)', async () => {
-    assert.match(index, /function afterEnabledChange\(\) \{[\s\S]*renderDossier\(\);[\s\S]*globalThis\.NPCStateDelta\?\.renderInline\?\.\(\);/);
+    assert.match(index, /function afterEnabledChange\(\) \{[\s\S]*renderDossier\(\);[\s\S]*pageHandles\.deltaApi\?\.renderInline\?\.\(\);/);
     // The real part, beside a stub of the host's extensions.js (as the other runtime-copy tests do).
     const os = await import('node:os');
     const { pathToFileURL } = await import('node:url');
@@ -237,11 +237,11 @@ test('switched off, Delta renders no in-chat cards, and the Enable switch redraw
             chatHydrationStatus: () => 'ready', getChatKey: () => 'k', getChatState: () => state, latestMessageId: () => 4,
             scenePresenceView: npcs => npcs, storyBlockV2Hosted: () => false,
         }, () => '');
-        extension_settings.npc_state_delta = { enabled: true };
+        extension_settings.storySuite = { schema: 1, modules: { 'npc-state-delta': { enabled: true } } };
         assert.equal(part.inlineEntriesForRender(state).length, 1, 'on: the latest reply gets the live present grid');
-        extension_settings.npc_state_delta.enabled = false;
+        extension_settings.storySuite.modules['npc-state-delta'].enabled = false;
         assert.deepEqual(part.inlineEntriesForRender(state), [], 'off: no cards');
-        extension_settings.npc_state_delta.enabled = true;
+        extension_settings.storySuite.modules['npc-state-delta'].enabled = true;
         assert.equal(part.inlineEntriesForRender(state).length, 1, 'on again: they come back');
     } finally {
         if (savedDocument === undefined) delete globalThis.document; else globalThis.document = savedDocument;

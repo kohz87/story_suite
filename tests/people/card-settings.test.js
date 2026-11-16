@@ -145,7 +145,7 @@ const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \
 function runInHost(scenario, { settings = { scanEvery: 1 } } = {}) {
     let source = fs.readFileSync(new URL('./runtime-smoke.mjs', import.meta.url), 'utf8');
     source = source.replace('const here = path.dirname(fileURLToPath(import.meta.url));', `const here = ${JSON.stringify(fileURLToPath(new URL('.', import.meta.url)))};`);
-    source = source.replace('extensionSettings: { npc_state_delta: { scanEvery: 1 } },', `extensionSettings: { npc_state_delta: ${JSON.stringify(settings)} },`);
+    source = source.replace("extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': { scanEvery: 1 } } } },", `extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': ${JSON.stringify(settings)} } } },`);
     const cut = source.indexOf(TRY_MARKER);
     if (cut < 0) throw new Error('Runtime smoke import marker changed');
     const script = `${source.slice(0, cut)}
@@ -190,7 +190,7 @@ test('card settings: apply persists the prompt format like "Save prompt settings
         return {
             out,
             savedToHost: mockState.saveSettingsCalls > savesBefore,
-            stored: JSON.parse(JSON.stringify(mockState.extensionSettings.npc_state_delta)),
+            stored: JSON.parse(JSON.stringify(mockState.extensionSettings.storySuite.modules['npc-state-delta'])),
             readBack: [def.read('portraitPromptFormat'), def.read('scanEvery')],
         };
     });
@@ -209,7 +209,7 @@ test('card settings: with a custom portrait preset active, apply changes the pre
         const def = card;
         const before = def.read('portraitPromptFormat');
         await def.apply({ portraitPromptFormat: 'tags' });
-        const s = mockState.extensionSettings.npc_state_delta;
+        const s = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
         const active = (s.portraitCustomPresets || []).find(item => item.id === s.portraitCustomPresetId);
         return { before, after: def.read('portraitPromptFormat'), theme: s.portraitThemePreset, preset: active?.promptFormat, setting: s.portraitPromptFormat };
     }, { settings: { scanEvery: 1, portraitThemePreset: 'custom' } });
@@ -236,7 +236,7 @@ test('card settings: a dirty Portrait-panel draft survives apply; only the forma
             uiHandlers.get('input.npcStateDelta|#npc_state_delta_portrait_style_positive, #npc_state_delta_portrait_style_negative, #npc_state_delta_portrait_composition').call({ id: 'npc_state_delta_portrait_composition' });
             const dirtyBefore = D.portraitSettingsDirty();
             const out = await card.apply({ portraitPromptFormat: 'natural' });
-            const s = mockState.extensionSettings.npc_state_delta;
+            const s = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
             return {
                 dirtyBefore, out, dirtyAfter: D.portraitSettingsDirty(), savedFormat: s.portraitPromptFormat, savedComposition: s.portraitComposition,
                 panelComposition: written['#npc_state_delta_portrait_composition'], panelFormat: written['#npc_state_delta_portrait_prompt_format'],

@@ -1,3 +1,4 @@
-// The version of Story Block v2 the runtime reports.
+// The host compatibility number: the Story Block v2 version that module and pack ranges ("needs Story Block 2.x") are checked against.
+// It is not the version people see; that is SUITE_VERSION (core/version.js).
 
-export const VERSION = '2.33.0';
+export const HOST_VERSION = '2.33.0';

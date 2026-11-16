@@ -3,7 +3,7 @@
    journal (the pure rules stay in branch.js), the reconciliation diagnostics and the rescan after it. Built by index.js once per module instance
    with the shared runtime state. Bodies are moved from index.js without change. */
 
-import { getContext } from '../../../extensions.js';
+import { getContext } from '../../../../../../extensions.js';
 import { messageGateSettled } from '../transcript/transcript.js';
 import { BRANCH_SNAPSHOT_BUDGET_BYTES, BRANCH_SNAPSHOT_MAX_BYTES, ROLLBACK_JOURNAL_BUDGET_BYTES, chatLineage, firstLineageDivergence, lineageCheckpointKeys, priorCaptureFor, onlyStorySuiteBlocksChanged, reconcileBranchState, remapLineageKeys, snapshotBranchState } from './branch.js';
 import { getSettings } from '../settings/runtime-settings.js';

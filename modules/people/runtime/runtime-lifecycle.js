@@ -2,8 +2,8 @@
    reloaded: the transactional delete (runtime-lifecycle-delete.js) and rename (recovery copy, retirement, tombstone), owner flush and
    invalidation, the page-hide flush, the bounded lifecycle event with its background retry, and the manual reload or detach of a chat's
    sidecar. Built by index.js once per module instance with the shared runtime state. Bodies are moved from index.js without change. */
-import { getContext } from '../../../extensions.js';
-import { saveSettings as saveHostSettings } from '../../../../script.js';
+import { getContext } from '../../../../../../extensions.js';
+import { saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from '../core/core.js';
 import { chatLineage } from '../legacy/branch.js';
 import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, readNpcStateDataFile, retireNpcStateDataFile, quarantineUnreadableNpcStateDataFile, writeNpcStateDataFile } from '../storage/storage.js';

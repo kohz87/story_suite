@@ -1,3 +1,4 @@
+/* LEGACY, kept until B4 replaces the old dossier surface: the dossier panel the open-dossier request opens; see docs/merge/b4-removals.md. */
 /* NPC State Delta dossier surface: import-compatible facade over the split dossier UI modules. Public face: re-exports its parts. */
 export { DeltaDossierUi } from './dossier-ui-parts/controller.js';
 export { castFromHtml, castProjection, keyAwayHtml, keyProjection } from './dossier-ui-parts/catalog-cast.js';

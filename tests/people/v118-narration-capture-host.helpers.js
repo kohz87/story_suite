@@ -68,7 +68,7 @@ function captureHelpers(mockState, eventSource, sleep, manualAddNpc) {
         if (JSON.stringify(actual) !== JSON.stringify(expected)) fail(`${message}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
     };
     const runtime = globalThis.NPCStateDelta;
-    const settings = mockState.extensionSettings.npc_state_delta;
+    const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
     const HEADER = 'NPC STATE DELTA ONE-PASS CAPTURE.';
     const REPLY = 'Yunyun, a young woman with long dark brown hair and crimson eyes, waves awkwardly. She remains proud but earnest and stays formal when nervous. Yunyun tells Kazuma she trusts him more and is fond of him.';
     const YUNYUN = {

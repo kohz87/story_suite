@@ -87,7 +87,7 @@ test('the bar and drawer texts come from strings.js', async () => {
     assert.equal(doc.querySelector('.story-suite-bar-story .story-suite-label').textContent, STRINGS.bar.story);
     assert.equal(doc.querySelector('.story-suite-bar-game .story-suite-label').textContent, STRINGS.bar.game);
     assert.equal(doc.querySelector('.story-suite-bar-settings .story-suite-label').textContent, STRINGS.bar.suite);
-    assert.match(doc.querySelector('.story-suite-drawer .story-suite-muted').textContent, /^Story Block 2\.0\.0-test \(v2\) · /);
+    assert.match(doc.querySelector('.story-suite-drawer .story-suite-muted').textContent, /^Story Suite 2\.0\.0-test · /);
 });
 
 test('host.css: subtle transitions, and none under prefers-reduced-motion', () => {

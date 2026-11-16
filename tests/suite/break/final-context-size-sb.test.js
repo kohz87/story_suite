@@ -102,7 +102,7 @@ test('a large context: the same prompt as without a context size (the tail budge
 });
 
 test('contextShare: a host setting, held to 10–90 %', async t => {
-    const h = await host(t, { contextSize: 8192, words: 100, settings: { host: { contextShare: 20 } } });
+    const h = await host(t, { contextSize: 8192, words: 100, settings: { core: { contextShare: 20 } } });
     await h.send('Look.', 'Seen.');
     const { static: stat, tail } = sent(h);
     const fit = h.turn.previewFit().fit;

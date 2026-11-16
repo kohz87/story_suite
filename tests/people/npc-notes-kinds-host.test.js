@@ -151,7 +151,7 @@ test('locked look: the scan forwards a refused durable look as a flag (Problem +
     fs.mkdirSync(ext, { recursive: true });
     standInTree(ext);   // old names, stand-ins for the real files; the host's extensions.js is the shared stub reading __npcMock
     globalThis.__npcMock = { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };
-    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } };
+    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } }; globalThis.__handles.hosted = true;
     const sent = [];
     try {
         const { createHostedPart } = await import(pathToFileURL(path.join(ext, 'runtime-hosted.js')).href);
@@ -287,7 +287,7 @@ test('scan-admitted people: the scan sends npc.meet for a dossier it just made, 
     fs.mkdirSync(ext, { recursive: true });
     standInTree(ext);   // old names, stand-ins for the real files; the host's extensions.js is the shared stub reading __npcMock
     globalThis.__npcMock = { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };
-    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } };
+    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } }; globalThis.__handles.hosted = true;
     const sent = [];
     try {
         const { createHostedPart } = await import(pathToFileURL(path.join(ext, 'runtime-hosted.js')).href);

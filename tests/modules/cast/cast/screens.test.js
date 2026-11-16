@@ -108,23 +108,23 @@ test('on the host: the cast view counts the unmet and never names them', async t
 
 // ---- Settings ---------------------------------------------------------------------------------------------------------------------------
 
-test('Settings -> Modules -> Story Director -> The cast: on/off, new faces at most, unmet can die, the planner connection; in a fold of their own, shown while the feature is on', async t => {
+test('Settings -> Modules -> Story Director -> The cast: on/off, new faces at most, unmet can die; in a fold of their own, shown while the feature is on', async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await castHost();
     try {
         const defs = host.registry.settingsDefs().find(def => def.moduleId === 'story-director');
         const field = key => defs.schema[`cast.${key}`];
-        assert.deepEqual(['on', 'faces', 'unmetDie', 'profile'].map(key => [field(key).type, field(key).label, field(key).group, field(key).feature]), [
+        assert.deepEqual(['on', 'faces', 'unmetDie'].map(key => [field(key).type, field(key).label, field(key).group, field(key).feature]), [
             ['bool', 'The pack\'s cast lives off-screen', 'The cast', 'story-director.cast'],
             ['choice', 'New faces at most', 'The cast', 'story-director.cast'],
             ['bool', 'Unmet cast can die off-screen', 'The cast', 'story-director.cast'],
-            ['profile', 'Planner connection', 'The cast', 'story-director.cast'],
         ]);
         assert.equal(field('faces').form, 'segmented', 'compact pills (the host\'s segmented choice), as in the mockup');
         assert.deepEqual(field('faces').options, [{ value: 'day1', label: '1 a day' }, { value: 'day2', label: '2 a day' }, { value: 'week1', label: '1 a week' }]);
         assert.match(field('faces').help, /Never during a fight\.$/);
         assert.match(field('unmetDie').help, /^Off: before you meet them they can be hurt, lose things or move, but not die\./);
-        assert.deepEqual([defs.defaults['cast.on'], defs.defaults['cast.faces'], defs.defaults['cast.unmetDie'], defs.defaults['cast.profile']], [true, 'day1', false, '']);
+        assert.deepEqual([defs.defaults['cast.on'], defs.defaults['cast.faces'], defs.defaults['cast.unmetDie']], [true, 'day1', false]);
+        assert.equal(field('profile'), undefined, 'the planner connection is the Models page\'s Quick helpers');
         const feature = host.sdk.features().find(item => item.id === 'story-director.cast');
         assert.deepEqual([feature.label, feature.on], ['The cast', true]);
     } finally {

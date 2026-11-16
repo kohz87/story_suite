@@ -10,6 +10,7 @@ import { FEATURE_STAGES, MILESTONE_KIND, NPC_KIND } from '../meters/npc-meters.j
 import { metersCardScreen } from '../meters/npc-meters-screen.js';
 import { createPublicPathsDefinition } from '../public-paths.js';
 import { createIdentity } from './identity.js';
+import { pageHandles } from '../runtime/handles.js';
 
 const EVENTS = Object.freeze({
     settingsMounted: 'npc-state-delta:settings-mounted',
@@ -20,7 +21,7 @@ const EVENTS = Object.freeze({
 export function createTimelinePart(session, deps) {
     const {
         calendarOwn, CAST_TAB_ID, CAST_WIDGET, castPanels, castScreen, castStillShown, castWidget, doc, DOSSIERS_ICON, DOSSIERS_TITLE,
-        enabled, HOSTED_FLAG, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, peopleSync, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
+        enabled, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, peopleSync, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
         storedSettings, suiteApi, syncDrawer, V2_HOST_EVENT, version, warn,
     } = deps;
 
@@ -205,15 +206,9 @@ export function createTimelinePart(session, deps) {
 
     // ---- host lifecycle ----
 
-    // index.js takes back (or offers again) what v1 gave Story Block, and the page flag (HOSTED_FLAG) follows.
+    // index.js takes back (or offers again) what v1 gave Story Block, and the handle's hosted state (runtime/handles.js) follows.
     function announceHosted(on) {
-        try {
-            const data = doc?.documentElement?.dataset;
-            if (data && on) data[HOSTED_FLAG] = '1';
-            else if (data) delete data[HOSTED_FLAG];
-        } catch (error) {
-            warn('Story Suite v2 host flag failed', error);
-        }
+        pageHandles.hosted = Boolean(on);
         try {
             if (typeof doc?.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
                 doc.dispatchEvent(new CustomEvent(V2_HOST_EVENT, { detail: { hosted: on } }));

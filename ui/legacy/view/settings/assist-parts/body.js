@@ -13,7 +13,7 @@ import { assistSchema } from './schema.js';
 export function assistBody(pane, ctx) {
     const { registry, settings, features = null, sdk = null, profiles = null } = ctx.options;
     const def = typeof registry?.settingsDefs === 'function' ? registry.settingsDefs().find(item => item.moduleId === ASSIST_MODULE) : null;
-    const hasPart = Boolean(def?.schema && Object.hasOwn(def.schema, SETTING.profile));
+    const hasPart = Boolean(def?.schema && Object.hasOwn(def.schema, SETTING.extractorKinds));
     const list = () => { try { return typeof features?.list === 'function' ? features.list() : []; } catch { return []; } };
     const featureOf = id => list().find(feature => feature.id === id);
     const on = id => { try { return typeof features?.on === 'function' ? features.on(id) === true : featureOf(id)?.on === true; } catch { return false; } };

@@ -36,14 +36,14 @@ BEAT: Guild Seizure — the guild claims the quay
 AGENDA: Old Tom — guards the bell | now: the quay
 </plan>`;
 
-async function setUp({ script = [PLAN], rpg = false, settings = {}, sdkOverride = null } = {}) {
+async function setUp({ script = [PLAN], rpg = false, settings = {}, hostSettings = null, sdkOverride = null } = {}) {
     const model = createFakeModel(script);
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
     host = await createHost({
         callModel: model,
         modules: [...(rpg ? [fakeFightRunner()] : []), module],
-        settings: { modules: { 'story-director': settings } },
+        settings: { ...(hostSettings ? { core: hostSettings } : {}), modules: { 'story-director': settings } },
     });
     const store = browserStore(null);
     let chatId = 'chat-1';
@@ -63,12 +63,12 @@ async function opening(host) {
 test('plan, review, accept: the arc and its threads are the Director\'s own; the tail names the arc; the static part never changes', async t => {
     t.mock.method(console, 'warn', () => {});
     t.mock.method(console, 'info', () => {});
-    const { host, model, arc } = await setUp({ settings: { 'arc.genre': 'nautical mystery', 'arc.profile': 'Planner' } });
+    const { host, model, arc } = await setUp({ settings: { 'arc.genre': 'nautical mystery' }, hostSettings: { backgroundConnection: 'Planner' } });
     await opening(host);
     const before = JSON.stringify(host.head());
     const out = await arc.plan();
     assert.equal(out.ok, true, out.message);
-    // The planner call: its own profile, the feature, the story and the tracker in the prompt.
+    // The planner call: the Models page's Background connection, the feature, the story and the tracker in the prompt.
     assert.equal(model.calls.length, 1);
     const [call] = model.calls;
     assert.equal(call.profile, 'Planner');
@@ -232,7 +232,8 @@ test('the feature off: no call, commands refused, query null, no tail, panel hid
     assert.doesNotMatch(sent(host, TAIL_KEY).at(-1), /Arc: /);
     assert.equal(JSON.stringify(host.head().domains.arc), kept, 'its state is never touched');
     const defs = host.registry.settingsDefs().find(entry => entry.moduleId === 'story-director');
-    assert.equal(defs.schema['arc.profile'].feature, FEATURE);
+    assert.equal(defs.schema['arc.profile'], undefined, 'the planner connection is the Models page\'s Background');
+    assert.equal(defs.schema['arc.trigger'].feature, FEATURE);
     assert.equal(typeof defs.section, 'function');
     assert.equal(defs.section.feature, FEATURE);
     host.features.set(FEATURE, true);

@@ -7,16 +7,12 @@ import { DEFAULT_KINDS } from '../safety.js';
 export const SETTING = Object.freeze({
     classifier: 'assistClassifier',
     extractor: 'assistExtractor',
-    profile: 'assistProfile',
-    extractorProfile: 'assistExtractorProfile',
     extractorKinds: 'assistExtractorKinds',
 });
 
 export const DEFAULTS = Object.freeze({
     [SETTING.classifier]: false,
     [SETTING.extractor]: false,
-    [SETTING.profile]: '',
-    [SETTING.extractorProfile]: '',
     [SETTING.extractorKinds]: DEFAULT_KINDS,
 });
 
@@ -36,22 +32,8 @@ export const FEATURE_TEXT = Object.freeze({
     }),
 });
 
-// The overlay's field types (registry.js). The profile is a `profile` field (profile-field.js, MODULES §G):
-// a dropdown of SillyTavern's Connection Manager profiles after "Same as chat", storing the profile's name
-// ('' the chat's connection; a name typed by an older version is the same value), in its own "Assist" group.
+// The overlay's field types. The roll-check helper calls on the Models page's Quick helpers connection; the safety net (extractor) on the Background one (core/model-call/connection-for.js).
 export const SCHEMA = Object.freeze({
-    [SETTING.profile]: Object.freeze({
-        type: 'profile',
-        group: 'Assist',
-        label: 'Connection profile for these calls',
-        help: 'The Connection Manager profile the two helpers\' extra calls use (a cheaper model, say). Same as chat: the chat\'s connection.',
-    }),
-    [SETTING.extractorProfile]: Object.freeze({
-        type: 'profile',
-        group: 'Assist',
-        label: 'Connection profile for the safety net',
-        help: 'The profile the safety net\'s one call per reply uses. Same as chat here: the profile above.',
-    }),
     [SETTING.extractorKinds]: Object.freeze({
         type: 'text',
         group: 'Assist',

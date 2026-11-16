@@ -90,9 +90,8 @@ export function createCastHooks({ plans }) {
             place: [frame.party.place, frame.party.region].filter(Boolean).join(', '),
             places: placesOf(frame.query), recent: recentStory(view?.model?.chat?.()),
         });
-        const profile = frame.settings.profile;
         return plans.start(key, async () => {
-            const result = await callOnce(model, { profile, system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
+            const result = await callOnce(model, { role: 'quick', system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
             if (!result?.ok) return { ok: false };
             const read = readCast(result.text, { refs, allow });
             return mode === 'judge' ? { ok: true, moves: [], comes: read.comes, died: [] } : { ok: true, ...read };
@@ -111,7 +110,7 @@ export function createCastHooks({ plans }) {
         });
         const allow = { seek: new Set(asked.map(item => item.key)), kind: new Map(asked.map(item => [item.key, item.entry])) };
         return plans.start(key, async () => {
-            const result = await model.callModel({ profile: frame.settings.profile, system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
+            const result = await model.callModel({ role: 'quick', system: request.system, prompt: request.prompt, maxTokens: MAX_TOKENS, feature: FEATURE, timeoutMs: CALL_MS });
             if (!result?.ok) return { ok: false };
             // The cited words must stand in the reader's message or the reply as they were when the planner read them (readCast refuses others).
             return { ok: true, moves: [], comes: [], died: [], sought: readCast(result.text, { refs, allow, texts: [texts.reader, texts.reply] }).sought ?? [] };

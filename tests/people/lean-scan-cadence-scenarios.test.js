@@ -63,7 +63,7 @@ function cadenceHelpers(mockState, eventSource, sleep) {
         if (JSON.stringify(actual) !== JSON.stringify(expected)) fail(`${message}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
     };
     const runtime = globalThis.NPCStateDelta;
-    const settings = mockState.extensionSettings.npc_state_delta;
+    const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
     const scannerCalls = () => mockState.rawCalls.map(call => call?.[0] || {}).filter(args => /isolated dossier scanner\./i.test(String(args.systemPrompt || '')));
     const emitAsync = async (event, ...args) => {
         await Promise.all((mockState.listeners.get(event) || []).map(fn => fn(...args)));

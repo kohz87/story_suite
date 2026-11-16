@@ -1,25 +1,16 @@
 {
- "_note": "External host import specifiers of each bundle set, recorded from the release and play builds of origin/main (bcdb9c3f8, the old layout). A moved file keeps the same host text.",
- "release": {
-  "npc-state-delta": [
-   "../../../../script.js",
-   "../../../extensions.js",
-   "../../../utils.js",
-   "../../shared.js"
-  ],
-  "story-block": [
-   "/script.js"
-  ]
- },
- "play": {
-  "npc-state-delta": [
-   "../../../../../script.js",
-   "../../../../extensions.js",
-   "../../../../utils.js",
-   "../../../shared.js"
-  ],
-  "story-block": [
-   "/script.js"
-  ]
- }
+ "_note": "What the host files (SillyTavern's own scripts) must be called, in the one extension at third-party/<folder>/. bundle: the external specifiers of the release and play bundles, written from the extension folder where the chunks sit. targets: where the unbundled entry graph's specifiers resolve from the served file's folder, as paths of the host's public/ tree. Recorded from main's per-package builds (the same strings) and from the new tree.",
+ "bundle": [
+  "../../../../script.js",
+  "../../../extensions.js",
+  "../../../utils.js",
+  "../../shared.js",
+  "/script.js"
+ ],
+ "targets": [
+  "/script.js",
+  "/scripts/extensions.js",
+  "/scripts/extensions/shared.js",
+  "/scripts/utils.js"
+ ]
 }

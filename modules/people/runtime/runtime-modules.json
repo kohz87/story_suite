@@ -193,7 +193,6 @@
     { "path": "checkpoint-pack.js", "role": "checkpoint-pack", "required": true },
     { "path": "hardening-core.js", "role": "lifecycle-primitives", "required": true },
     { "path": "hardening.js", "role": "lifecycle-hardening", "required": true },
-    { "path": "full-cast.js", "role": "optional-full-cast-scan", "required": false },
     { "path": "dossier-skin.js", "role": "dossier-skin", "required": true },
     { "path": "dossier-ui-board.js", "role": "dossier-ui-board", "required": true },
     { "path": "dossier-ui-dial.js", "role": "dossier-ui-dial", "required": true },

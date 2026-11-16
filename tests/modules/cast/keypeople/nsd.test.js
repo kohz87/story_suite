@@ -5,6 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { nsdVerdicts } from '../../../../modules/cast/keypeople/nsd.js';
+import { pageHandles } from '../../../../modules/people/runtime/handles.js';
 import { OPENING, keyHost, pin, said, slice, validatorErrors } from './helpers.js';
 
 const pinned = names => ({ pins: Object.fromEntries(names.map(name => [name.toLowerCase(), { name, since: null, rev: 1 }])), away: {}, gone: {}, notes: {} });
@@ -17,12 +18,12 @@ function fakeApi({ npcs = [], profiles = null } = {}) {
     };
 }
 const withSuite = (api, fn) => async (...args) => {
-    const was = globalThis.StorySuite;
-    globalThis.StorySuite = { api: id => (id === 'npc-state-delta' ? api : null) };
+    const was = pageHandles.suiteApi;
+    pageHandles.suiteApi = api;
     try {
         return await fn(...args);
     } finally {
-        if (was === undefined) delete globalThis.StorySuite; else globalThis.StorySuite = was;
+        pageHandles.suiteApi = was;
     }
 };
 
@@ -118,7 +119,7 @@ test('on the host, by the Story Suite api: archived or dead there leaves the lis
     t.mock.method(console, 'warn', () => {});
     const npcs = [{ id: 'np_1', name: 'Mara', archived: false }, { id: 'np_2', name: 'Brom' }, { id: 'np_3', name: 'Ren' }];
     const api = fakeApi({ npcs: [] });
-    globalThis.StorySuite = { api: () => api };
+    pageHandles.suiteApi = api;
     const host = await keyHost();
     try {
         await host.send('Hello.', said('Dawn.', OPENING));
@@ -142,8 +143,8 @@ test('on the host, by the Story Suite api: archived or dead there leaves the lis
 }));
 
 test('without NPC State Delta nothing is asked and nothing changes; the story\'s death line and Unpin are the ways', async () => {
-    const was = globalThis.StorySuite;
-    delete globalThis.StorySuite;
+    const was = pageHandles.suiteApi;
+    pageHandles.suiteApi = null;
     const host = await keyHost();
     try {
         await host.send('Hello.', said('Dawn.', OPENING));
@@ -156,7 +157,7 @@ test('without NPC State Delta nothing is asked and nothing changes; the story\'s
         assert.deepEqual(Object.keys(slice(host).pins), []);
     } finally {
         host.close();
-        if (was !== undefined) globalThis.StorySuite = was;
+        pageHandles.suiteApi = was;
     }
 });
 
@@ -182,12 +183,12 @@ test('the sync step is the system\'s: a click or the story cannot send it, and a
 
 // Delta's page api says whether its dossiers are loaded (`NPCStateDelta.uiStatus().hydrationStatus`, `isEnabled()`).
 const withPageApi = (status, fn) => async (...args) => {
-    const was = globalThis.NPCStateDelta;
-    globalThis.NPCStateDelta = { isEnabled: () => status.enabled !== false, uiStatus: () => ({ hydrationStatus: status.hydration }) };
+    const was = pageHandles.deltaApi;
+    pageHandles.deltaApi = { isEnabled: () => status.enabled !== false, uiStatus: () => ({ hydrationStatus: status.hydration }) };
     try {
         return await fn(...args);
     } finally {
-        if (was === undefined) delete globalThis.NPCStateDelta; else globalThis.NPCStateDelta = was;
+        pageHandles.deltaApi = was;
     }
 };
 const syncs = host => host.sdk.receipts().filter(entry => entry.receipt.type === 'keypeople.sync');

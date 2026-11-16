@@ -3,13 +3,15 @@
    index.js once per module instance with the shared runtime state and the controller functions it calls, so each
    instance keeps its own connection flags. Bodies are moved from index.js without change. */
 
-import { extension_settings } from '../../../extensions.js';
+import { extension_settings } from '../../../../../../extensions.js';
+import { npcBucket } from '../settings/bucket.js';
 import { recentTranscript } from '../transcript/transcript.js';
 import { NPC_STATE_VERSION, buildNarrationCapturePrompt, setExternalCalendarSource } from '../core/core.js';
 import { storySuite } from './suite.js';
+import { pageHandles } from '../runtime/handles.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { SUITE_AREAS, SUITE_SHOWS, NARRATION_CAPTURE_OUTPUT_ESTIMATE_CHARS, announceNpcStateDelta, areaOwner, buildManageApi, buildNpcProfiles, ensureSuiteStylesheet, replyTokenEstimate, resolveDossierTarget, externalCalendar, normalizeSourceOfTruth, statsOverlapWarning, suiteManageAvailable } from './suite-handshake.js';
-import { EXTENSION_NAME, persistSettings, getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
+import { persistSettings, getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 
 export function createSuitePart(rt, deps) {
     const { chatHydrationStatus, effectivePresentCastChoice, getChatKey, getChatState, hostedNotePromptOptions, liveInjectionText, narrationCaptureEnabled, openLauncherDossier, queueInlineRender, renderDossier, scannerPromptOptions, scenePresenceView, startInlineWatchdog, UI_ID, updateInjection } = deps;
@@ -127,7 +129,7 @@ export function createSuitePart(rt, deps) {
         updateInjection();
         renderDossier();
         // The in-chat cast leaves with Delta and comes back with it.
-        try { globalThis.NPCStateDelta?.renderInline?.(); } catch { /* the cards follow at the next render */ }
+        try { pageHandles.deltaApi?.renderInline?.(); } catch { /* the cards follow at the next render */ }
         // (1.2.15) The enabled-changed event: Story Suite's own follow-ups listen for it.
         if (typeof CustomEvent === 'function') globalThis.document?.dispatchEvent?.(new CustomEvent('npc-state-delta:enabled-changed', { detail: { enabled: getSettings().enabled !== false } }));
     }
@@ -152,13 +154,13 @@ export function createSuitePart(rt, deps) {
     }
 
     function syncSuiteControls() {
-        const choices = normalizeSourceOfTruth(extension_settings[EXTENSION_NAME]?.sourceOfTruth);
+        const choices = normalizeSourceOfTruth(npcBucket(extension_settings)?.sourceOfTruth);
         for (const area of SUITE_AREAS) {
             $(`#npc_state_delta_source_${area}`).val(choices[area]);
             const owner = areaOwner(area, choices);
             $(`[data-delta-source-status="${area}"]`).text(owner ? `Now: ${owner.name}` : 'Now: this extension');
         }
-        const warning = statsOverlapWarning(extension_settings[EXTENSION_NAME]?.customFieldNames || [], choices);
+        const warning = statsOverlapWarning(npcBucket(extension_settings)?.customFieldNames || [], choices);
         $('#npc_state_delta_custom_fields_stats_warning').text(warning).prop('hidden', !warning);
         $('#npc_state_delta_suite_manage').prop('hidden', !suiteManageAvailable());
     }
@@ -168,7 +170,7 @@ export function createSuitePart(rt, deps) {
         suiteConnected = true;
         ensureSuiteStylesheet();
         // Read straight from the settings object: the calendar is consulted per NPC projection.
-        setExternalCalendarSource(() => externalCalendar(extension_settings[EXTENSION_NAME]?.sourceOfTruth));
+        setExternalCalendarSource(() => externalCalendar(npcBucket(extension_settings)?.sourceOfTruth));
         announceToSuite();
         try {
             storySuite().onChange(() => {

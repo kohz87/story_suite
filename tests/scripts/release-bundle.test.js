@@ -8,11 +8,11 @@ import { walkBundle } from '../../scripts/release/graph.mjs';
 
 let root;
 const write = (file, text) => { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); };
-const SET = { name: 'demo', dir: 'pkg/demo', entries: ['boot.js'], lazy: ['lazy.js'] };
+const SET = { name: 'demo', entries: ['boot.js'], lazy: ['lazy.js'] };
 
 before(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-bundle-'));
-  write('pkg/demo/boot.js', [
+  write('boot.js', [
     "import { shared } from './shared.js';",
     "import { host } from '../../../extensions.js';",
     "export const eager = () => import('./eager.js');",
@@ -20,9 +20,9 @@ before(() => {
     "export const abs = () => import('/script.js');",
     "export const both = [shared, host];",
   ].join('\n'));
-  write('pkg/demo/shared.js', 'export const shared = 1;\n');
-  write('pkg/demo/eager.js', "import { shared } from './shared.js';\nexport const answer = shared + 1;\n");
-  write('pkg/demo/lazy.js', "import { shared } from './shared.js';\nexport const later = shared + 2;\n");
+  write('shared.js', 'export const shared = 1;\n');
+  write('eager.js', "import { shared } from './shared.js';\nexport const answer = shared + 1;\n");
+  write('lazy.js', "import { shared } from './shared.js';\nexport const later = shared + 2;\n");
 });
 after(() => fs.rmSync(root, { recursive: true, force: true }));
 
@@ -44,12 +44,12 @@ test('every import() in the bundle resolves, and host specifiers stay as the hos
   assert.deepEqual(graph.host, ['../../../extensions.js', '/script.js']);
 });
 
-test('a host import from a nested tool folder resolves to the right ../ depth', async () => {
+test('a host import is written for the depth of the file that carries it: a file one folder down needs one more ../', async () => {
+  write('nest/boot.js', "import { host } from '../../../../extensions.js';\nexport const nested = host;\n");
   const out = path.join(root, 'out-nested');
-  await buildBundleSet({ ...SET, installAt: 'story_suite/demo' }, out, root);
-  const graph = walkBundle(out, 'boot.js');
-  // written for third-party/demo (-> /scripts/extensions.js), installed one folder deeper: one more ../
-  assert.deepEqual(graph.host, ['../../../../extensions.js', '/script.js']);
+  await buildBundleSet({ name: 'demo', entries: ['nest/boot.js'], lazy: [] }, out, root);
+  // /scripts/extensions.js from the extension folder (third-party/<folder>/), where the chunks sit: three ../
+  assert.deepEqual(walkBundle(out, 'boot.js').host, ['../../../extensions.js']);
 });
 
 test('two builds of the same source are byte-identical', async () => {

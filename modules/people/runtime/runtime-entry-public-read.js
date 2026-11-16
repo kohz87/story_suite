@@ -1,5 +1,5 @@
 /* NPC State Delta - public scan, portrait, status and diagnostics API (role: runtime-entry-public-read). The first
-   half of the window.NPCStateDelta surface split from index.js. Built by index.js with the controller closure so every
+   half of the public runtime API surface (pageHandles.deltaApi) split from index.js. Built by index.js with the controller closure so every
    method keeps its live bindings; index.js still assigns and freezes the combined object in its original order. */
 
 export function createPublicApiReadPart(deps) {

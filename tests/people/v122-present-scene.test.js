@@ -287,7 +287,7 @@ test('v1.2.2 the present cards render now/chatter slots', () => {
 });
 
 test('v1.2.2 the settings panel carries the shared story-suite-* classes beside its own', () => {
-    const sources = [runtimeSource(), ...['calendar-settings.js', 'relationship-map.js', 'full-cast.js', 'scanner-output-ui.js']
+    const sources = [runtimeSource(), ...['calendar-settings.js', 'relationship-map.js', 'scanner-output-ui.js']
         .map(name => fs.readFileSync(new URL(`../${name}`, import.meta.url), 'utf8'))];
     const [index] = sources;
     for (const [own, shared] of [

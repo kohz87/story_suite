@@ -15,6 +15,7 @@ import { sheetLevelOf } from '../core/core-record.js';
 import { stage1Refresh } from '../legacy/dossier-tools-core.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
 import { createTastes } from './runtime-hosted-parts/tastes.js';
+import { pageHandles } from './handles.js';
 
 export function createHostedPart(rt, deps) {
     const { chatHydrationStatus, getChatKey, getChatState, latestMessageId, latestReplyIndex } = deps;
@@ -23,9 +24,9 @@ export function createHostedPart(rt, deps) {
     const meetOwed = new Set(), meetTried = new Set(), moodTried = new Set();
     setRpgProbe(() => (storyBlockV2Hosted() && rt.storySuiteV2?.hosted?.() ? rt.storySuiteV2.rpgOn?.() === true : false));
 
-    // Set by src/storysuite-v2.js while Delta is registered with a Story Block v2 host.
+    // Set by adapter/timeline.js (announceHosted) while Delta is registered with a Story Block v2 host.
     function storyBlockV2Hosted() {
-        return globalThis.document?.documentElement?.dataset?.npcStateDeltaStoryBlockV2 === '1';
+        return pageHandles.hosted === true;
     }
 
     // (v2 meters, F81/F90) While hosted, Story Block's per-reply `npc` slice holds the meter values. Every

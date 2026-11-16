@@ -18,7 +18,7 @@ async function profileService(ctx) {
         return ctx.ConnectionManagerRequestService;
     }
     try {
-        const { ConnectionManagerRequestService } = await import('../../../shared.js');
+        const { ConnectionManagerRequestService } = await import('../../../../../../shared.js');
         if (typeof ConnectionManagerRequestService?.sendRequest === 'function') return ConnectionManagerRequestService;
     } catch { /* Normalize host module/API availability without copying credentials. */ }
     throw scannerRoutingError('This host does not expose the Connection Manager request service. Update SillyTavern or explicitly select the default scanner route.');

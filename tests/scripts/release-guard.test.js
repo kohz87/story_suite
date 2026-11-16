@@ -17,12 +17,12 @@ after(() => fs.rmSync(temp, { recursive: true, force: true }));
 function makeRepo(parts) {
   const root = path.join(temp, ...parts);
   for (const dir of ['packages/demo', 'ui', 'scripts', 'tests']) fs.mkdirSync(path.join(root, dir), { recursive: true });
-  fs.writeFileSync(path.join(root, 'packages/demo/boot.js'), "import { a } from '../../../../script.js';\nimport { b } from './deep/mod.js';\nexport const both = [a, b];\n");
+  fs.writeFileSync(path.join(root, 'packages/demo/boot.js'), "import { a } from '../../../../../../script.js';\nimport { b } from './deep/mod.js';\nexport const both = [a, b];\n");
   fs.mkdirSync(path.join(root, 'packages/demo/deep'));
-  fs.writeFileSync(path.join(root, 'packages/demo/deep/mod.js'), "import { c } from '../../../../../../../../../../script.js';\nimport { d } from '../../../../extensions.js';\nexport const b = [c, d];\n");
+  fs.writeFileSync(path.join(root, 'packages/demo/deep/mod.js'), "import { c } from '../../../../../../../script.js';\nimport { d } from '../../../../../../extensions.js';\nexport const b = [c, d];\n");
   return root;
 }
-const SET = { name: 'demo', dir: 'packages/demo', entries: ['boot.js'], lazy: [] };
+const SET = { name: 'demo', entries: ['packages/demo/boot.js'], lazy: [] };
 
 test('an output folder that is the repo, a parent of it, or in or around the source is refused', () => {
   const root = makeRepo(['guard-repo']);
@@ -77,8 +77,8 @@ test('host specifiers are resolved as URLs: the same bundle whatever depth the c
   const names = fs.readdirSync(outs[0]).sort();
   assert.deepEqual(fs.readdirSync(outs[1]).sort(), names);
   for (const name of names) assert.ok(fs.readFileSync(path.join(outs[0], name)).equals(fs.readFileSync(path.join(outs[1], name))), name);
-  // boot.js sits in <folder>/, so four steps up is /script.js; deep/mod.js is one folder lower, so four steps up is
-  // /scripts/extensions.js; ten steps clamp at the site root, also /script.js. All are written from the package folder.
+  // boot.js sits two folders down (six ../ reach /script.js); deep/mod.js is one folder lower (seven for /script.js, six for
+  // /scripts/extensions.js). All are written from the extension folder, where the chunks sit.
   assert.deepEqual(walkBundle(outs[0], 'boot.js').host, ['../../../../script.js', '../../../extensions.js']);
 });
 

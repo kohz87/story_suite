@@ -2,7 +2,7 @@
    writer, retire the revision-checked sidecar, publish the tombstone and clear only after proof.
    Split unchanged from runtime-lifecycle.js with live rt/deps helper references supplied by
    createLifecyclePart. */
-import { saveSettings as saveHostSettings } from '../../../../script.js';
+import { saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from '../core/core.js';
 import { deleteNpcStateDataFile, makeNpcStateDataFileName, makeNpcStateRecoveryFileName, retireNpcStateDataFile, writeNpcStateDataFile } from '../storage/storage.js';
 import { persistSettings, getSettings } from '../settings/runtime-settings.js';

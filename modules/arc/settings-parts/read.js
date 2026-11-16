@@ -11,7 +11,6 @@ export function arcSettings(values) {
     const get = key => (Object.hasOwn(given, `${NS}${key}`) ? given[`${NS}${key}`] : given[key]);
     const text = (key, max) => (typeof get(key) === 'string' ? get(key).slice(0, max) : DEFAULTS[key]);
     return {
-        profile: text('profile', 100).trim(),
         trigger: get('trigger') === 'auto' ? 'auto' : 'manual',
         autoAccept: get('autoAccept') === true,
         genre: text('genre', 200),

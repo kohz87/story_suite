@@ -13,7 +13,7 @@ const pulse = (id, summary, keep) => ({
 });
 const tailText = host => (host.st.promptLog.filter(entry => entry.key === 'story_suite_tail_1' && entry.value).map(entry => entry.value).at(-1) ?? '');
 const run = async (modules, tailBudget) => {
-    const host = await createHost({ modules, settings: { host: { tailBudget } } });
+    const host = await createHost({ modules, settings: { core: { tailBudget } } });
     try {
         await host.send('Hello.', 'Hi.');
         return tailText(host);
