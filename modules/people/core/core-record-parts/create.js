@@ -36,10 +36,6 @@ export function createNpcRecord(name, existingIds = [], baseline = DEFAULT_RELAT
         lifeState: 'unknown',
         lifeStateCertainty: '',
         lifeStateReason: '',
-        archived: false,
-        archiveReason: '',
-        archivedAt: null,
-        archiveSourceMessageId: null,
         relationship: normalizeRelationshipBaseline(baseline),
         relationshipProgress: normalizeRelationshipProgress(),
         relationshipMilestones: [],
@@ -55,7 +51,6 @@ export function createNpcRecord(name, existingIds = [], baseline = DEFAULT_RELAT
         lastSeenTurn: 0,
         seenCount: 0,
         manualProfileFields: [],
-        retentionProtected: false,
         minor: false,
     };
 }

@@ -9,7 +9,7 @@ import {
 } from '../../modules/people/calls/scan-context.js';
 
 test('backfill eligibility follows the live active roster and rejects stale archives', () => {
-    const active = { id: 'npc-a', name: 'Astra', archived: false };
+    const active = { id: 'npc-a', name: 'Astra' };
     const archived = { id: 'npc-b', name: 'Mirel', archived: true };
     assert.equal(backfillNeedsRequest(active, [active, archived], ''), true);
     assert.equal(backfillNeedsRequest(archived, [active, archived], ''), false);
@@ -52,8 +52,8 @@ test('automatic backfill queue rejects legacy unscoped backlog and preserves onl
 });
 
 test('automatic missed-participant repair is revalidated against its owning narrative exchange before dispatch', () => {
-    const astra = { id: 'npc-a', name: 'Astra Vale', aliases: [], archived: false };
-    const mirel = { id: 'npc-b', name: 'Mirel', aliases: [], archived: false };
+    const astra = { id: 'npc-a', name: 'Astra Vale', aliases: [] };
+    const mirel = { id: 'npc-b', name: 'Mirel', aliases: [] };
     const request = {
         queueVersion: AUTOMATIC_BACKFILL_QUEUE_VERSION,
         reason: 'missed-participant',

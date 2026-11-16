@@ -8,8 +8,8 @@ import { peopleRig, record, clone } from './helpers/people-rig.js';
 
 const uploadName = options => { try { return String(JSON.parse(options?.body ?? '{}').name ?? ''); } catch { return ''; } };
 
-// A small change of Delta's own (one person's trust moves by one): the next publication sends the whole view again.
-const nudge = state => { state.npcs[0].trust = (Number(state.npcs[0].trust) || 0) + 1; };
+// A small change of Delta's own (one person's seen count moves by one): the next publication sends the whole view again.
+const nudge = state => { state.npcs[0].seenCount = (Number(state.npcs[0].seenCount) || 0) + 1; };
 
 test('no /api/files/upload of a state file while people are stored over a script of replies, a delete and a reload', async t => {
     const uploads = [];
@@ -22,7 +22,7 @@ test('no /api/files/upload of a state file while people are stored over a script
     const rig = await peopleRig(t);
     assert.equal(rig.doc.documentElement.dataset.npcStateDeltaStoryBlockV2, '1', 'the page flag that gates the sidecar is set');
     assert.equal(rig.adapter.hosted(), true, 'the adapter is hosted: both halves of the gate hold');
-    for (let n = 1; n <= 6; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.turn = n + 1; state.npcs[0].trust = n; if (n === 3) state.npcs.push(record('vale')); }), true);
+    for (let n = 1; n <= 6; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.turn = n + 1; state.npcs[0].seenCount = n; if (n === 3) state.npcs.push(record('vale')); }), true);
     await rig.host.st.deleteMessage(rig.host.ctx.chat.length - 1);
     assert.equal(await rig.publish(nudge), true);
     const again = await rig.reload();
@@ -34,10 +34,10 @@ test('no /api/files/upload of a state file while people are stored over a script
 // The gap P2 left is closed by P3: with the sidecar off, a reload opens an empty NPC State memory and hydrates it from the store, so the next write keeps the people.
 test('a reload hydrates NPC State from the store and the next reply keeps the people', async t => {
     const rig = await peopleRig(t);
-    for (let n = 1; n <= 3; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.npcs[0].trust = n; }), true);
+    for (let n = 1; n <= 3; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.npcs[0].seenCount = n; }), true);
     assert.deepEqual(Object.keys(rig.host.head().domains.people.npcs), ['npc_mira', 'npc_tom']);
     const live = { chatKey: rig.live.chatKey, state: { npcs: [], candidates: [], socialGraph: { edges: [] }, checkpoints: [], lineage: [], turn: 0 } };
-    const again = await peopleRig(t, { vault: rig.vault, image: { chat: clone(rig.host.ctx.chat), metadata: clone(rig.host.ctx.chatMetadata) }, live });
+    const again = await peopleRig(t, { image: { chat: clone(rig.host.ctx.chat), metadata: clone(rig.host.ctx.chatMetadata) }, live });
     await again.settle();
     assert.deepEqual(again.live.state.npcs.map(npc => npc.id), ['npc_mira', 'npc_tom'], 'the memory is hydrated from the store (no sidecar was read)');
     assert.equal(await again.reply('New.', state => { state.npcs.push(record('zed')); }), true);

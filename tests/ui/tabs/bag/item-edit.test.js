@@ -121,3 +121,44 @@ test('Save is disabled while the command is in flight and sends once', async () 
   await tick();
   assert.equal(save.disabled, false);
 });
+
+const labels = el => el.querySelectorAll('.iedit .ef').map(l => l.textContent.slice(0, 20));
+
+test('RPG on: every item shows Weight each and armour shows Soak (up to its slot\'s cap); RPG off shows neither', () => {
+  installFakeDom();
+  const [shield] = open(find('Tower shield'), true);
+  assert.equal(shield.querySelectorAll('.iedit .ef').length, 5, `Name, Count, Your note, Weight each, Soak: ${labels(shield)}`);
+  const [weight, soak] = shield.querySelectorAll('.iedit input[type="number"]').slice(1);
+  assert.deepEqual([weight.value, soak.value, soak.getAttribute('max')], ['6', '2', '2']);
+  const [sword] = open(find('Steel longsword'), true);
+  assert.equal(sword.querySelectorAll('.iedit .ef').length, 4, 'a weapon has a weight and no soak');
+  const [draught] = open(find('Healing draught'), true);
+  assert.equal(draught.querySelectorAll('.iedit .ef').length, 4, 'a potion has a weight and no soak');
+  const [off] = open(find('Tower shield', false), false);
+  assert.equal(off.querySelectorAll('.iedit .ef').length, 3, 'RPG off: Name, Count, Your note only');
+});
+
+test('Save sends the changed weight and soak, the way the command takes them, with nothing else; the same values send nothing', async () => {
+  installFakeDom();
+  const [el, ctx] = open(find('Tower shield'), true, () => Promise.resolve({ ok: true }));
+  const [, weight, soak] = el.querySelectorAll('.iedit input[type="number"]');
+  weight.value = '9';
+  soak.value = '1';
+  el.querySelector('.btn2.save').click();
+  await tick();
+  assert.deepEqual(ctx.sent[0], ['inventory.edit', { stack: 'tower-shield', weight: 9, soak: 1 }]);
+  const item = find('Tower shield');
+  assert.equal(itemPatch(item, { name: item.name, qty: '1', note: '', weight: '6', soak: '2' }, true), null);
+  assert.deepEqual(itemPatch(item, { name: item.name, qty: '1', note: '', weight: '-1', soak: 'x' }, true), null, 'a bad number sends nothing');
+  assert.deepEqual(itemPatch(item, { name: item.name, qty: '1', note: '', weight: '0' }, true), { stack: item.stack, weight: 0 }, 'a weight of 0 is a change');
+  assert.deepEqual(itemPatch(item, { name: item.name, qty: '1', note: '', weight: '9', soak: '1' }, false), null, 'RPG off: not sent');
+});
+
+test('the engine\'s refusal of a soak above the cap shows inline', async () => {
+  installFakeDom();
+  const [el] = open(find('Tower shield'), true, () => Promise.resolve({ ok: false, message: 'Tower shield can soak at most 2 here.' }));
+  el.querySelectorAll('.iedit input[type="number"]')[2].value = '5';
+  el.querySelector('.btn2.save').click();
+  await tick();
+  assert.equal(el.querySelector('.iedit .err').textContent, 'Tower shield can soak at most 2 here.');
+});

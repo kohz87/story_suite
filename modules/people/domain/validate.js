@@ -4,6 +4,8 @@
 // Also the two keys the dossier writer does not own: `bonds` (the meters, keyed by the same npc_ ids; their inner shape is NPC State's to check) and the
 // scan marker `scan` ([lastSid, swipeKey, since]: the last reply NPC State read and the replies since).
 
+import { PERSON_FIELDS } from './person-fields.js';
+
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const LISTS = ['candidates', 'dismissed', 'userDismissedGroups'];
 const MAPS = ['npcs', 'socialGraph', 'portraitAssets'];
@@ -86,6 +88,8 @@ export function validatePeople(slice) {
             errors.push('The people order does not match the people records.');
         }
         if (keys.some(id => !isObject(slice.npcs[id]))) errors.push('A people record is not an object (records are keyed by id, never by position).');
+        const stray = keys.flatMap(id => isObject(slice.npcs[id]) ? Object.keys(slice.npcs[id]).filter(field => !PERSON_FIELDS.has(field)).map(field => `${id}.${field}`) : []);
+        if (stray.length) errors.push(`A people record has a field that is not part of a person (${stray.slice(0, 3).join(', ')}).`);
     }
     if (!plain(slice)) errors.push('The people domain holds something that is not plain JSON.');
     return errors;

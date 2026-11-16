@@ -13,7 +13,7 @@ async function peopleHost(t) {
     t.after(() => host.close());
     return host;
 }
-const view = (extra = {}) => ({ v: 1, order: ['npc_ann'], npcs: { npc_ann: { name: 'Ann', stage: 2 } }, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {}, turn: 1, ...extra });
+const view = (extra = {}) => ({ v: 1, order: ['npc_ann'], npcs: { npc_ann: { name: 'Ann', seenCount: 2 } }, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {}, turn: 1, ...extra });
 const sourceOf = host => { const s = host.store.sourceAt(host.store.headIndex()); return { sid: s.sid, swipeKey: s.swipeKey }; };
 const send = (host, source, v) => host.sdk.command('people.write', { v: 1, source, view: v });
 const opsOnHead = host => host.store.opsAt(host.store.headIndex());
@@ -38,10 +38,10 @@ test('the next write stores only the changed leaves', async t => {
     await host.send('Go.', 'The road.');
     await send(host, sourceOf(host), view());
     const before = opsOnHead(host).length;
-    const next = view({ npcs: { npc_ann: { name: 'Ann', stage: 3 } }, turn: 2 });
+    const next = view({ npcs: { npc_ann: { name: 'Ann', seenCount: 3 } }, turn: 2 });
     assert.equal((await send(host, sourceOf(host), next)).ok, true);
     const fresh = opsOnHead(host).slice(before).map(op => op.path).filter(path => path.startsWith('/domains/people')).sort();
-    assert.deepEqual(fresh, ['/domains/people/npcs/npc_ann/stage', '/domains/people/turn']);
+    assert.deepEqual(fresh, ['/domains/people/npcs/npc_ann/seenCount', '/domains/people/turn']);
     assert.deepEqual(host.head().domains.people, stored(next));
 });
 

@@ -14,6 +14,7 @@
     { "from": "packages/npc-state-delta/continuity-ui*", "to": "modules/people/legacy/continuity-ui*" },
     { "from": "packages/npc-state-delta/core-portrait*", "to": "modules/people/portrait/core-portrait*" },
     { "from": "packages/npc-state-delta/core*", "to": "modules/people/core/core*" },
+    { "from": "packages/npc-state-delta/roster-count.js", "to": "modules/people/core/roster-count.js" },
     { "from": "packages/npc-state-delta/destructive-settlement*", "to": "modules/people/core/destructive-settlement*" },
     { "from": "packages/npc-state-delta/diagnostics-core*", "to": "modules/people/core/diagnostics-core*" },
     { "from": "packages/npc-state-delta/dossier*", "to": "modules/people/legacy/dossier*" },
@@ -59,7 +60,6 @@
     { "from": "packages/story-block/tests/v2/people", "to": "tests/modules/people" },
     { "from": "packages/npc-state-delta/src/people", "to": "modules/people" },
 
-    { "from": "packages/npc-state-delta/src/storysuite-participant", "to": "modules/people/legacy/storysuite-participant" },
     { "from": "packages/npc-state-delta/src/storysuite-v2.js", "to": "modules/people/storysuite-v2.js" },
     { "from": "packages/npc-state-delta/src/adapter", "to": "modules/people/adapter" },
     { "from": "packages/npc-state-delta/src/fields", "to": "modules/people/fields" },

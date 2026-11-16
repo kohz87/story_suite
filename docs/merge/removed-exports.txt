@@ -1,0 +1,30 @@
+# Names removed from the code and not to come back (one per line, # for comments). scripts/checks/removed-exports.mjs fails the check when a
+# tracked .js/.mjs file uses one as a word. A name that is reused on purpose is taken off this list in the same change.
+# People store P7: the NPC State timeline participant (src/storysuite-participant/), deleted with its tests.
+createParticipant
+createParticipantHandlers
+createPublication
+createSessionOps
+createHistoryReplay
+createCatchUp
+createStorageRow
+createVaultSweep
+memoryVault
+fileVault
+buildCheckpoint
+checkpointProblem
+checkpointIdOf
+hydrateIdentity
+storedTimeline
+cleanTimeline
+restoredState
+restoreNoteText
+selectionBehind
+selectionMaxBehind
+installGuard
+mintLineage
+REFERENCED_QUERY
+PARTICIPANT_SCHEMA
+HISTORY_REPLAY_CAP
+participantVault
+participantOptions

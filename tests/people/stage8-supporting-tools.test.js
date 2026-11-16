@@ -237,9 +237,7 @@ test('cross-chat native import clears source message ownership while preserving 
     assert.equal(imported.relationshipProgress.trust, 0.8);
     assert.equal(imported.relationshipMilestones[0].sourceMessageId, null);
     assert.equal(imported.relationshipEventHistory[0].sourceMessageId, null);
-    assert.equal(imported.archiveSourceMessageId, null);
     assert.equal(imported.lifeState, 'deceased');
-    assert.equal(imported.archiveReason, 'deceased');
     assert.ok(imported.portrait.dataUrl.startsWith('data:image/png;base64,'));
     assert.match(prepared.ownershipPolicy, /cleared/i);
     assert.match(prepared.historyPolicy, /audit/i);

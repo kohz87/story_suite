@@ -1079,7 +1079,8 @@ changes `name` and adds an alias; it never changes value, rarity or effects.
 * **Gear in fights** (`story-block.gear`, off by default, switched in Settings → RPG; docs/v2/GEAR.md). An equipped item gives
   +N to the seven stats and nothing else, in every slot (weapon, body, off-hand, head, cloak, feet, accessory-1, accessory-2; a bag
   is no slot, it adds its carry while owned). The budget is by rarity (common 1 … legendary 5) or a pack item's `bonus` (0–6,
-  a `pack.` def only, like `carry`); the stats are the def's `stats`, held to the budget, else picked by name or slot. While
+  a `pack.` def only, like `carry`); a pack item's `soak` (0–2, held to its slot's cap: body 2, off-hand 2, head 1, the rest 0) and `weight`
+  (0–99 load a unit; default by slot or kind) are kept the same way, and the reader's Bag Edit can set both on any piece; the stats are the def's `stats`, held to the budget, else picked by name or slot. While
   the feature is on, a story-made item gets its slot, rarity and stats from the line's words (`kind:`, `slot:`, `rarity:`,
   `DEX: +2`; held to epic and to the budget) and `equipped: <slot>` puts it on. `inventory.gear { owner }` and `inventory.statBonus`
   read what is worn; `gear.wear` and `item.equip` are the commands. With the feature off nothing above exists.

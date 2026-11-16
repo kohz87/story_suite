@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readLeaf } from '../../modules/people/meters/npc-meters-config.js';
 import { suite, dossiers } from './helpers/pacing-suite.js';
 
-const withWren = () => ({ ...dossiers(), npc_wren: { id: 'npc_wren', name: 'Wren', aliases: [], present: false, archived: false, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } } });
+const withWren = () => ({ ...dossiers(), npc_wren: { id: 'npc_wren', name: 'Wren', aliases: [], present: false, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } } });
 
 // N3: the `~ npc` line in words (labels accepted from now on, taught at N7): up / down priced by the impact word, dossier labels, unknown labels.
 const bonds = (s, id = 'npc_oren') => s.host.head().domains.people.bonds.npcs[id];

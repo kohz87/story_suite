@@ -8,6 +8,9 @@ import { IMPORTANT_MEMORY_LIMIT } from '../core-record.js';
 import { compactMemoryRubric, DEFAULT_MEMORY_CRITERIA } from '../core-prompts-criteria.js';
 import { fillLooksLine } from '../../appearance/appearance-fill.js';
 import { BEHAVIOR_LEVER_LABELS, PROFILE_STYLE_LINE, PROMPT_CAPS, returnShape } from './prompt-shared.js';
+// NSD6 (approved wording), the fill-in of a new person in lines mode: off by default, so every other backfill prompt is the same bytes as before.
+const QUOTE_LINE = 'For every fact you write, quote the few words of the story that show it. Leave a field out when you have no quote for it.';
+
 export function buildBackfillPrompt({
     transcript,
     targetName = '',
@@ -16,6 +19,7 @@ export function buildBackfillPrompt({
     charName = 'Character',
     memoryCriteria = DEFAULT_MEMORY_CRITERIA,
     fillLooks = false,
+    quoteFacts = false,
 }) {
     const target = cleanText(targetName, 120);
     const existing = existingNpc ? {
@@ -63,7 +67,7 @@ Rules:
 10. Do not create a dossier for ${userName} or ${charName}.
 11. HOME BASE / USUAL LOCATION is durable home, workplace, headquarters, or regular haunt, not the current scene location. Establish it only from grounded ongoing-life evidence; changing an established homeBase requires homeBaseState:"update"+homeBaseReason. Keep the JSON compact enough to finish reliably, caps: ${PROMPT_CAPS}. Merge overlaps rather than append. Unknown facts may be empty.
 12. A value the dossier already has changes only by its *State, as in the scan: refine=correction/reveal, FULL field; evolve/change/advance/correct/update+reason=lasting change; keyRelationships merge by counterpart; "clear" only when explicitly ended.
-13. Output JSON only. No markdown, no code fence, no commentary. Finish and close every quoted string, array, and object before stopping.
+13. Output JSON only. No markdown, no code fence, no commentary. Finish and close every quoted string, array, and object before stopping.${quoteFacts ? `\n${QUOTE_LINE}` : ''}
 
 Memory criteria:
 ${memoryRubric || '(none configured; store only clearly durable story-relevant events)'}

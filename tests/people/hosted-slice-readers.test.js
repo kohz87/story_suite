@@ -17,7 +17,7 @@ import { suite, major } from './helpers/pacing-suite.js';
 
 const milestone25 = { axis: 'trust', polarity: 1, threshold: 25, reason: 'earned on the sidecar', sourceMessageId: 1, turn: 1, inferred: false };
 const sidecarMira = (trust, extra = {}) => normalizeNpcRecord({
-    id: 'npc_mira', name: 'Mira', aliases: [], present: true, archived: false,
+    id: 'npc_mira', name: 'Mira', aliases: [], present: true,
     relationship: { trust, affection: 0, desire: 0, tension: 0 }, relationshipProgress: { trust: 0.5 }, relationshipMilestones: [milestone25], createdAt: 1, updatedAt: 1, ...extra,
 });
 

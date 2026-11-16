@@ -15,14 +15,14 @@ export const SECRET_TWO = 'She keeps a second ledger under the anvil.';
 export function dossiers() {
     return {
         npc_mira: {
-            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true, archived: false,
+            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true,
             relationship: { trust: 10, affection: 0, desire: 0, tension: 0 },
             secrets: [
                 { id: secretId('trust', 30, SECRET), meter: 'trust', at: 30, text: SECRET },
                 { id: secretId('tension', -20, SECRET_TWO), meter: 'tension', at: -20, text: SECRET_TWO },
             ],
         },
-        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: false, archived: false, relationship: { trust: -5, affection: 2, desire: 0, tension: 1 } },
+        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: false, relationship: { trust: -5, affection: 2, desire: 0, tension: 1 } },
     };
 }
 

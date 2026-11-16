@@ -94,21 +94,18 @@ test('the delta badge shows only a change recorded on this turn', () => {
     assert.deepEqual(Object.fromEntries(model.nodes.map(node => [node.id, node.delta])), { maelis: 4, ferrin: 0 });
 });
 
-test('the map leaves out the dead and stale removals, shows the scene, caps the rest by strength, and keeps the selection', () => {
+test('the map leaves out the dead, shows the scene, caps the rest by strength, and keeps the selection', () => {
     const cast = [
         npc('here', { present: true }), npc('busy', { worldActive: true }),
         ...Array.from({ length: 40 }, (_, i) => npc(`n${i}`, { relationship: { trust: i - 20 } })),
-        npc('gone', { bucket: 'archived', relationship: { trust: 99 } }),
-        npc('stale', { bucket: 'archived', archiveReason: 'stale', present: true }),
         npc('dead', { bucket: 'dead', relationship: { trust: -99 } }),
     ];
     const desktop = selectMapNpcs(cast, { lens: 'trust', cap: DESKTOP_NODE_CAP });
     assert.equal(desktop.shown.length, 24);
-    assert.equal(desktop.total, 43, 'the dead and stale removals are not counted; a manual archive is');
+    assert.equal(desktop.total, 42, 'the dead are not counted');
     assert.ok(desktop.shown.some(item => item.id === 'here') && desktop.shown.some(item => item.id === 'busy'));
     assert.ok(desktop.shown.some(item => item.id === 'n0') && !desktop.shown.some(item => item.id === 'n20'), 'the strongest by the lens fill the cap');
     assert.equal(selectMapNpcs(cast, { lens: 'trust', cap: PHONE_NODE_CAP }).shown.length, 16, 'phones show 16');
-    assert.ok(desktop.shown.some(item => item.id === 'gone'), 'a manual archive competes by strength like anyone else');
     assert.ok(!desktop.shown.some(item => ['stale', 'dead'].includes(item.id)), 'stale removals and the dead never appear, even when marked present');
     const kept = selectMapNpcs(cast, { lens: 'trust', selectedId: 'n19' });
     assert.equal(kept.shown.length, 25);

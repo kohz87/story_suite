@@ -5,10 +5,12 @@
 import { AUTOMATIC_BACKFILL_QUEUE_VERSION, AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT, npcParticipatesInExchange } from './scan-context.js';
 import { npcMatchesLabel } from '../core/core.js';
 import { rawScanMatchesExisting } from '../legacy/relationship-pass.js';
+import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
+import { FILL_REASON } from '../meters/npc-lines-parts/fill-in.js';
 
 export function queueNpcBackfillInState(state, npcId, label, requestedMessageId = null, options = {}) {
     const reason = String(options?.reason || '').trim();
-    if (!state || !npcId || !String(label || '').trim() || !['missed-participant', 'new-admission'].includes(reason)) return state;
+    if (!state || !npcId || !String(label || '').trim() || !['missed-participant', 'new-admission', FILL_REASON].includes(reason)) return state;
     if (!Array.isArray(state.pendingBackfills)) state.pendingBackfills = [];
     const cleanLabel = String(label || '').trim().slice(0, 120);
     state.pendingBackfills = state.pendingBackfills.filter(item => item?.npcId !== npcId);
@@ -67,7 +69,7 @@ export function queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed
     for (const raw of Array.isArray(resolvedParsed?.profileUpdates) ? resolvedParsed.profileUpdates : []) markBroadScanTarget(raw);
     const missedParticipants = [];
     for (const npc of nextState.npcs || []) {
-        if (npc.archived || touchedIds.has(npc.id) || !npcParticipatesInExchange(npc, nextState.npcs || [], currentTranscript || '', { includeRole: false })) continue;
+        if (isTerminalNpcDeath(npc) || touchedIds.has(npc.id) || !npcParticipatesInExchange(npc, nextState.npcs || [], currentTranscript || '', { includeRole: false })) continue;
         missedParticipants.push(npc);
     }
     if (missedParticipants.length <= AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT) {
@@ -89,7 +91,7 @@ export function queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed
     // first pass provides. Repair only those new/promoted dossiers; admitting one NPC must
     // never fan out into targeted model calls for unrelated established cast members.
     for (const id of newlyAdmittedIds) {
-        const admitted = nextState.npcs.find(npc => npc.id === id && !npc.archived);
+        const admitted = nextState.npcs.find(npc => npc.id === id && !isTerminalNpcDeath(npc));
         if (!admitted) continue;
         queueNpcBackfillInState(nextState, admitted.id, admitted.name, targetMessageId, {
             reason: 'new-admission',

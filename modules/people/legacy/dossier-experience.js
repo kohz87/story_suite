@@ -21,7 +21,6 @@ function toast(kind, message) { globalThis.toastr?.[kind]?.(message); }
 
 function lifecycleLabel(npc = {}) {
     if (lifeStateChoice(npc) === 'deceased') return 'Confirmed deceased';
-    if (npc?.archived) return plain(npc?.archiveReason).toLowerCase() === 'stale' ? 'Archived · stale' : 'Archived';
     if (npc?.present) return 'Active · Present';
     if (npc?.worldActive) return 'Active · Off-screen';
     return lifeStateChoice(npc) === 'alive' ? 'Alive · Off-screen' : 'Active · life state unknown';
@@ -46,7 +45,7 @@ async function applyManualLifeState(npcId, requested, editor) {
 }
 
 function actionSignature(npc) {
-    return npc ? `${npc.id}:${Boolean(npc.archived)}:${lifeStateChoice(npc)}:${diagnosticVisibleNpcIds.has(String(npc.id))}` : '';
+    return npc ? `${npc.id}:${lifeStateChoice(npc)}:${diagnosticVisibleNpcIds.has(String(npc.id))}` : '';
 }
 
 function renderNpcDiagnostics(root) {
@@ -74,7 +73,7 @@ function ensureDossierActions(root) {
     const signature = npc ? actionSignature(npc) : '';
     if (slot.dataset.deltaExperienceActions === signature) return;
     slot.dataset.deltaExperienceActions = signature;
-    slot.innerHTML = npc ? dossierMenuHtml(npcId, { archived: Boolean(npc.archived), deceased: lifeStateChoice(npc) === 'deceased', diagnosticsVisible: diagnosticVisibleNpcIds.has(npcId) }) : '';
+    slot.innerHTML = npc ? dossierMenuHtml(npcId, { deceased: lifeStateChoice(npc) === 'deceased', diagnosticsVisible: diagnosticVisibleNpcIds.has(npcId) }) : '';
 }
 
 function editorNpcId(editor) {

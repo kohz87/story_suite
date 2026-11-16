@@ -22,6 +22,7 @@ export function createCatchUpPart(rt, deps) {
     const CATCH_UP_RETRIES = 20;
 
     const queueEntry = (chatKey, id) => (getChatState(chatKey).pendingBackfills || []).find(item => item?.npcId === id);
+    // (A new-person stub's fill-in is not counted here on purpose: it is already its own call, and a Refresh that works covers it, so the queued fill is dropped like any established person's repair.)
     // A newly met NPC: a new admission whose backfill has not tried yet. It gets both the Refresh and the backfill.
     const newlyMet = (chatKey, id) => { const entry = queueEntry(chatKey, id); return entry?.reason === 'new-admission' && !(Number(entry.attempts) > 0); };
 

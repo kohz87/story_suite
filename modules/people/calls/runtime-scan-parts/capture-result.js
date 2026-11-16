@@ -32,3 +32,10 @@ export function notifyStaleCleanup(report) {
     if (removed.length) parts.push(`${removed.length} stale deleted${names ? ` (${names}${extra})` : ''}`);
     notify('info', `NPC State Delta: ${parts.join(', ')}. Deleted stale NPCs can be rediscovered if they return.`);
 }
+
+/** The story contradicted a stored gender and the stored word stayed (report.warnings, set by mergeScanResult): one warning per person. */
+export function notifyGenderConflicts(report) {
+    for (const w of report?.warnings || []) {
+        notify('warning', `NPC State: the story calls ${w.name} ${w.story}, but ${w.dead ? 'they have died and' : 'the dossier says'} ${w.kept}${w.dead ? ' is kept' : ' (kept; change it in the editor if the story is right)'}.`);
+    }
+}

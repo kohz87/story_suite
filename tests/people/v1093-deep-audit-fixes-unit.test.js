@@ -92,7 +92,6 @@ test('RB92-08: a manually saved seed does not keep an NPC whose only introductio
         return deleteMiddle(state, history, 5).state.npcs.map(npc => npc.name);
     };
     assert.ok(!run(npc => { npc.portraitSeed = 123; }).includes('Mira Gone'));
-    assert.ok(!run(npc => { npc.portraitPromptPositive = 'silver hair'; npc.retentionProtected = true; }).includes('Mira Gone'));
     assert.ok(run(npc => { npc.goal = 'find the keeper'; }).includes('Mira Gone'), 'genuine later story use keeps her');
 });
 

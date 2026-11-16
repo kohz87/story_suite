@@ -43,7 +43,6 @@ test('Stage 4 confirmed death is terminal to automatic scanner writes', () => {
     }] }, { turn: 4, sourceMessageId: 4, autoArchiveDeaths: true });
     const dead = death.state.npcs[0];
     assert.equal(isTerminalNpcDeath(dead), true);
-    assert.equal(dead.archived, true);
     assert.equal(dead.present, false);
 
     const claimedRevival = mergeScanResult(death.state, { npcs: [{
@@ -56,7 +55,6 @@ test('Stage 4 confirmed death is terminal to automatic scanner writes', () => {
         lifeStateReason: 'Narration claims resurrection.',
     }] }, { turn: 5, sourceMessageId: 5, autoReactivateArchived: true }).state.npcs[0];
     assert.equal(claimedRevival.lifeState, 'deceased');
-    assert.equal(claimedRevival.archived, true);
     assert.equal(claimedRevival.present, false);
     assert.equal(claimedRevival.worldActive, false);
 });
@@ -71,7 +69,6 @@ test('Stage 4 terminal death remains non-active even when automatic death archiv
         lifeStateCertainty: 'explicit',
         lifeStateReason: 'Death was explicitly confirmed.',
     }] }, { turn: 3, sourceMessageId: 3, autoArchiveDeaths: false }).state.npcs[0];
-    assert.equal(death.archived, false);
     assert.equal(isTerminalNpcDeath(death), true);
     assert.equal(death.present, false);
 
@@ -82,7 +79,6 @@ test('Stage 4 terminal death remains non-active even when automatic death archiv
         lifeState: 'alive',
         lifeStateCertainty: 'explicit',
     }] }, { turn: 4, sourceMessageId: 4, autoArchiveDeaths: false, autoReactivateArchived: true }).state.npcs[0];
-    assert.equal(later.archived, false);
     assert.equal(later.lifeState, 'deceased');
     assert.equal(later.present, false);
     assert.equal(later.worldActive, false);
@@ -133,17 +129,14 @@ test('Stage 4 explicit correction can repair an erroneous death while generic ad
     const dead = setNpcArchived(createNpcRecord('Luna'), true, { reason: 'deceased', sourceMessageId: 8 });
     const generic = applyNpcStateCommand({ npcs: [dead], turn: 9, dismissed: [] }, { action: 'add', name: 'Luna' }, { turn: 9 });
     assert.equal(generic.report.status, 'terminal-death');
-    assert.equal(generic.state.npcs[0].archived, true);
 
     const corrected = setNpcArchived(dead, false, {
         allowDeathCorrection: true,
         lifeState: 'alive',
         lifeStateReason: 'Manual correction: prior death record was erroneous.',
     });
-    assert.equal(corrected.archived, false);
     assert.equal(corrected.lifeState, 'alive');
     assert.equal(corrected.lifeStateCertainty, 'explicit');
-    assert.equal(corrected.deathCorrection.previousDeathSourceMessageId, 8);
     assert.match(corrected.deathCorrection.reason, /prior death record was erroneous/i);
 });
 
@@ -157,6 +150,5 @@ test('Stage 4 inferred death does not become terminal', () => {
         lifeStateCertainty: 'inferred',
         lifeStateReason: 'He was left for dead.',
     }] }, { turn: 2, autoArchiveDeaths: true });
-    assert.equal(result.state.npcs[0].archived, false);
     assert.equal(result.state.npcs[0].present, true);
 });

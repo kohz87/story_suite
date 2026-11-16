@@ -6,6 +6,7 @@ import { iconFor } from '../view/icons/index.js';
 import { dispose } from '../view/mounts/common.js';
 import { el } from './controls.js';
 import { S } from './text.js';
+import { captureField, restoreField } from './field-carry.js';
 
 /**
  * The story panel's tab host, drawn into `root`: one pane, the chosen tab's, rendered with `tab.render(pane, view(), api)`,
@@ -15,7 +16,7 @@ import { S } from './text.js';
  * back to the first. The pane scrolls inside `root`; the bar stays where it is.
  * `options`: { registry, view: () => view, api (the sdk), doc?, active?, barHost?, swap? (() => true while the redraw scheduler's flag is on: the pane is drawn apart and swapped in), inBar? (tab → in the bar; the others follow
  * the ones that are, in the same strip) }. Tabs read the head state's view only,
- * never message text. Returns { refresh(), select(id), active(), bar }.
+ * never message text. Returns { refresh({ guard?, carry? }), select(id), active(), bar }: refresh() is guarded by default (`carry` is for the host's chat-switch draw: false carries no field text).
  */
 export function createTabHost(root, { registry, view, api = null, doc = globalThis.document, active = null, barHost = null, inBar = null, swap = null }) {
     let current = active;
@@ -44,7 +45,8 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
 
     // Flag suite.redrawScheduler (`swap()` true): the pane is drawn apart and swapped in, so the old one stays shown until the new one is
     // ready (no empty moment) and the panel's scroll is kept. Flag off: drawPlain, as it always was.
-    function drawSwap() {
+    function drawSwap(carry = true) {
+        const carried = carry && pane.dataset.tabId === current ? captureField(doc, pane) : null;   // (a draw that replaces the same tab's pane under a focused field)
         const top = root.scrollTop;   // (read before the old pane's widgets are taken down: their removal can clamp the scroll)
         cancelWatch();
         const tabs = registry.tabs();
@@ -69,6 +71,7 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
         // (the swap is one step; the bar may share `root`, so only the old pane is replaced)
         if (pane.parentNode) { pane.parentNode.insertBefore(next, pane); pane.remove(); } else root.prepend(next);
         pane = next;
+        if (carried) restoreField(next, carried);
         if (top) root.scrollTop = top;
     }
     // A host redraw never takes a field the reader is typing in out from under them: it waits for the field to lose focus, then runs once.
@@ -101,11 +104,11 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
         mine.pane.addEventListener?.('focusout', mine.done);
     }
 
-    function draw({ guard = false } = {}) {
+    function draw({ guard = false, carry = true } = {}) {
         if (dead) return;
         if (swap?.() === true) {
             if (guard && typingIn()) return waitForBlur();
-            return drawSwap();
+            return drawSwap(carry);
         }
         drawPlain();
     }
@@ -138,7 +141,8 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
     }
     draw();
     return {
-        refresh: opts => draw(opts ?? {}),
+        // (a refresh is a background one: guarded unless the caller says `guard: false`; select() and the first draw are the reader's own)
+        refresh: opts => draw({ guard: true, ...(opts ?? {}) }),
         select,
         active: () => current,
         bar,

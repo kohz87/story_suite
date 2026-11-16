@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPeopleSync } from '../../modules/people/adapter/people-sync.js';
-import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
+import { hashJson } from '../../modules/people/adapter/hash.js';
 
 const view = state => (state ? { v: 1, order: state.npcs.map(n => n.id), npcs: Object.fromEntries(state.npcs.map(n => [n.id, { ...n }])) } : null);
 const restore = slice => (slice && slice.v === 1 ? { npcs: slice.order.map(id => ({ ...slice.npcs[id] })) } : null);

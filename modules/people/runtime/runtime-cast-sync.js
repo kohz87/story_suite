@@ -216,7 +216,7 @@ export function createCastSyncPart(rt, deps) {
                 continue;
             }
             const added = applyNpcStateCommand(working, { action: 'add', name: person.entry.name || person.name }, {
-                maxNpcs: settings.maxNpcs, excludeNames: currentExclusions(), turn: working.turn, relationshipBaseline: settings.relationshipBaseline,
+                maxNpcs: settings.maxNpcs, archiveAfter: settings.staleArchiveAfter, excludeNames: currentExclusions(), turn: working.turn, relationshipBaseline: settings.relationshipBaseline,
             });
             if (added.report.status !== 'added') continue;
             const base = added.state.npcs.find(npc => npc.id === added.report.npcId);

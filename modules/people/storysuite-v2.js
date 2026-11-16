@@ -48,7 +48,8 @@ import { createEditorPart } from './adapter/editor.js';
 import { createNativeDeath } from './adapter/native-death.js';
 import { createPeopleSync } from './adapter/people-sync.js';
 import { peopleView, peopleState, peopleCarry } from './view.js';
-import { hashJson } from './legacy/storysuite-participant/hash.js';
+import { keepStampContainers } from './keep-containers.js';
+import { hashJson } from './adapter/hash.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './adapter/queries.js';
 export { meterBarNode } from './adapter/cast-ui.js';
@@ -154,15 +155,13 @@ export function createStorySuiteV2Adapter({
     logger = console,
     // True while the reader keeps the calendar in Delta (Source of truth: calendar "mine"): no story clock.
     calendarOwn = () => false,
+    // True while the one-pass lines switch is on (N7 wires the real setting): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
+    linesMode = () => false,
     // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
     loadDossierList = () => Promise.all([import('./legacy/story-block-tabs.js'), import('./legacy/dossier-ui.js')])
         .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
     // Where the page API (PAGE_API) goes; null for none.
     page = globalThis,
-    // Where the timeline participant keeps its checkpoints (storysuite-participant/vault.js); SillyTavern's user files by default.
-    participantVault = null,
-    // The participant's timings (debounceMs, retryMs, idleMs; participant.js), for tests.
-    participantOptions = {},
     // How long Delta waits for the host's head-selection barrier to come down, and how often it looks (messageGate.settled).
     settleMs = HEAD_SETTLE_MS,
     settlePollMs = HEAD_SETTLE_POLL_MS,
@@ -189,12 +188,12 @@ export function createStorySuiteV2Adapter({
     // The parts, in the order the closure declared them: each gets the options and constants (deps) and what the parts before it return.
     const deps = {
         suiteApi, delta, panelId, version, host, headReply, castSync, castPortraitDue, doc, timers, loadEmptyCast, retryMs,
-        attempts, aliveMs, watchMs, logger, calendarOwn, loadDossierList, page, participantVault, participantOptions, settleMs,
+        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, loadDossierList, page, settleMs,
         settlePollMs, cardSettings, MODULE_ID, MODULE_NAME, CAST_TAB_ID, DOSSIERS_TITLE, DOSSIERS_ICON, CAST_SCREEN_ID,
         CAST_WIDGET, CAST_SCREEN_ORDER, WORLD_FEATURE, PAGE_API, PAGE_SLOT_CLASS, TICK_TURNS, PRESET_KIND,
         V2_HOST_EVENT, HOSTED_FLAG,
     };
-    // The queries part reads the timeline participant's npc.identity query when it is called; the timeline part is built after it.
+    // The queries part reads the npc.identity query when it is called; the timeline part is built after it.
     let timelinePartRef = null;
     deps.timeline = { get queries() { return timelinePartRef.timeline.queries; }, get catchUp() { return timelinePartRef.timeline.catchUp; } };
     const queriesPart = createQueriesPart(session, deps);
@@ -209,6 +208,7 @@ export function createStorySuiteV2Adapter({
         chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
         rescan: () => queriesPart.runtime()?.rescanLatest?.(),
         carry: peopleCarry,
+        keep: (built, slice) => (linesMode() ? keepStampContainers(built, slice) : built),   // lines mode only: with the switch off the view is written as it is
         mark: (index, since) => queriesPart.runtime()?.setScanMarker?.(index, since),
     });
     deps.peopleSync = peopleSync;

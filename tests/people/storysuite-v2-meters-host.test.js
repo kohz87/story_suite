@@ -217,7 +217,7 @@ test('without a host the adapter changes nothing and sends nothing', async () =>
 test('the Dossiers tab (once Cast) shows a meter bar per shown meter for the present NPCs, escaped', async () => {
     const h = await host({ settings: { stages: STAGES, customMeters: [{ name: 'Lust', show: 'bar' }, { name: 'Secretive', show: 'hidden' }] } });
     h.reply('Warm.', '~ npc Mira | trust: +12 | lust: +3\n~ npc Oren | trust: +1\n+ npc <b>Bold</b> | trust: +1');
-    h.delta.records.npc_bold = { id: 'npc_bold', name: '<b>Bold</b>', aliases: [], present: true, archived: false, relationship: {} };
+    h.delta.records.npc_bold = { id: 'npc_bold', name: '<b>Bold</b>', aliases: [], present: true, relationship: {} };
     await seedPeople(h.sdk, h.store, h.delta.records);   // Bold's new dossier is stored too (npc.cast lists the store's people)
     const el = fakeRoot();
     h.def.tabs[0].render(el);

@@ -2,7 +2,7 @@
 
 import { isPlainObject, clone } from '../../scene/domains/common.js';
 import { aliasKey } from '../../scene/names.js';
-import { gearDefine, packBonus, soakCap, itemCarryOf } from '../gear.js';
+import { gearDefine, packBonus, packWeight, soakCap, itemCarryOf } from '../gear.js';
 import { gearOn, RARITIES, STORY_KIND, packCarry } from '../state.js';
 import { legendaryEarned } from '../validate.js';
 import { economyOf } from './economy.js';
@@ -68,6 +68,10 @@ function buildDef(def, env, about, keep = {}) {
     const bonus = packBonus(id, def.bonus);
     if (bonus === null) delete def.bonus;
     else def.bonus = bonus;
+    // A load weight only a pack's def keeps (whatever a hook or a line wrote); the reader's Edit sets it afterwards.
+    const weight = packWeight(id, def.weight);
+    if (weight === null) delete def.weight;
+    else def.weight = weight;
     // A soak is a whole number inside the slot's cap (a hook cannot raise it, nor a line); none outside a protecting slot.
     const soak = Number.isSafeInteger(def.soak) ? Math.min(def.soak, soakCap(def.slot)) : 0;
     if (soak > 0) def.soak = soak;

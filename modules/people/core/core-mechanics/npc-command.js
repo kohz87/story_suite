@@ -2,6 +2,7 @@
 import { normalizeName, cleanText, cleanList } from '../core-text.js';
 import { DEFAULT_RELATIONSHIP } from '../core-relationship.js';
 import { setNpcArchived, npcMatchesLabel, candidateRecordMatches, createNpcRecord } from '../core-record.js';
+import { rosterCount } from '../roster-count.js';
 
 // Structured manual add/remove helper shared by the settings UI. Story text is never parsed here.
 export function applyNpcStateCommand(state, command, options = {}) {
@@ -72,7 +73,7 @@ export function applyNpcStateCommand(state, command, options = {}) {
         report.status = wasArchived ? 'restored' : 'exists';
         return { state: next, report };
     }
-    if (next.npcs.filter(npc => !npc?.archived).length >= maxNpcs) {
+    if (rosterCount(next.npcs, turn, options.archiveAfter) >= maxNpcs) {
         report.status = 'full';
         return { state: next, report };
     }

@@ -14,7 +14,7 @@ for (const seed of fuzzSeeds(process.env.FUZZ_SEEDS, [3, 11, 29])) {
     test(`pacing fuzz seed ${seed}: tiers, notes kinds, via gate, look stamp and mood/pull tick over several story days, middle deletes and swipes; the slice validates and replay equals rebuild`, async t => {
         t.mock.method(console, 'warn', () => {});
         // FUZZ_OFF=mood-pull,anti-lever,notes switches those features off for a run (to look past a failure of one).
-        const s = await suite({ modules: [worldModule], features: process.env.FUZZ_OFF ? Object.fromEntries(process.env.FUZZ_OFF.split(',').map(id => [`npc-state-delta.${id}`, false])) : null });
+        const s = await suite({ modules: [worldModule], lines: seed % 2 === 1, features: process.env.FUZZ_OFF ? Object.fromEntries(process.env.FUZZ_OFF.split(',').map(id => [`npc-state-delta.${id}`, false])) : null });
         const r = prng(seed);
         await s.say(['~ npc Oren | trust: +1', '~ npc Sister Temiwa | trust: +1']);   // the set-up reply makes both entries and is never deleted
         const setup = s.host.store.headIndex();

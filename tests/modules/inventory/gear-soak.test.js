@@ -103,22 +103,23 @@ test('story lines cannot mint soak: `soak: N` is held to the slot cap, no word g
     assert.equal(host.sdk.query('inventory.gear', { owner: 'party' }).soak.total, 3);
 });
 
-test('the reader\'s Edit sets soak on a hand-made piece, in the kit, within the cap; after the first message it is refused', async t => {
+test('the Bag Edit sets soak on a hand-made piece within the cap, with the cap named; a hand-made piece is not special any more and any time works', async t => {
     const host = await world(t);
     const added = await host.sdk.command('inventory.add', { name: 'Home Shield', qty: 1, kind: 'equipment', slot: 'off-hand' });
     assert.equal(added.ok, true, added.message);
     const stackId = added.receipt.data.stacks[0];
-    const first = await host.sdk.command('inventory.edit', { stack: stackId, soak: 5 });
-    assert.equal(first.ok, true, first.message);
-    assert.equal(defOf(host, 'Home Shield').soak, 2, 'held to the off-hand cap');
+    const over = await host.sdk.command('inventory.edit', { stack: stackId, soak: 5 });
+    assert.equal(over.ok, false, 'over the cap is refused, not lowered quietly');
+    assert.match(over.message, /at most 2/);
+    assert.equal(defOf(host, 'Home Shield').soak, undefined);
+    assert.equal((await host.sdk.command('inventory.edit', { stack: stackId, soak: 2 })).ok, true);
+    assert.equal(defOf(host, 'Home Shield').soak, 2);
     assert.equal((await host.sdk.command('inventory.edit', { stack: stackId, soak: -1 })).ok, false);
     const rope = await host.sdk.command('inventory.add', { name: 'Home Rope', qty: 1, kind: 'goods' });
     assert.equal((await host.sdk.command('inventory.edit', { stack: rope.receipt.data.stacks[0], soak: 1 })).ok, false, 'not equipment');
     await host.send('Go.', 'The road.');
-    const late = await host.sdk.command('inventory.edit', { stack: stackId, soak: 1 });
-    assert.equal(late.ok, false);
-    assert.equal(defOf(host, 'Home Shield').soak, 2);
-    assert.equal((await host.sdk.command('inventory.edit', { stack: stackId, soak: 2 })).ok, true, 'the same value is no change');
+    assert.equal((await host.sdk.command('inventory.edit', { stack: stackId, soak: 1 })).ok, true, 'soak is not the starting kit\'s: it works after the first message');
+    assert.equal(defOf(host, 'Home Shield').soak, 1);
 });
 
 test('carry: weights in load, the table, and animals add only when they travel with the party', () => {
@@ -136,7 +137,7 @@ test('carry: weights in load, the table, and animals add only when they travel w
     assert.equal(carry.unit, 'load');
     assert.deepEqual(carry.animals.map(row => [row.name, row.carry, row.withParty]), [['Dapple', 40, true], ['Nib', 60, true], ['Wain', 60, true], ['Skiff', 100, false]]);
     assert.equal(carry.capacity - base.capacity, 40 + 60 + 60, 'the boat left at the wharf adds nothing');
-    assert.deepEqual([carry.weights.it_rope0001, carry.weights.it_sword001], [3, 1]);
+    assert.deepEqual([carry.weights.it_rope0001, carry.weights.it_sword001], [3, 3], 'the rope 3 × 1; the sword the weapon default, 3');
     assert.equal(h.query('gear.view', {}).carry.capacity, 30 + 160, 'the shared bag: the reader\'s 30 and the animals; Ren\'s own 30 is his');
 });
 

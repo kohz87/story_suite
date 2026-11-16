@@ -3,15 +3,15 @@
 import { h } from '../kit/dom.js';
 import { glyph } from '../kit/glyphs.js';
 
-const TAB_ORDER = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story', 'fight'];
+const TAB_ORDER = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story', 'scene', 'fight'];
 const LABELS = {
   now: 'Now', party: 'Party', bag: 'Bag', people: 'People',
-  world: 'World', journal: 'Journal', story: 'Story', fight: 'Fight',
+  world: 'World', journal: 'Journal', story: 'Story', scene: 'Scene', fight: 'Fight',
 };
 
-/** Returns the tab ids to show: Party only when the RPG is on, Fight only during a fight. */
-export function visibleTabs({ rpg = true, fightOpen = false } = {}) {
-  return TAB_ORDER.filter((id) => (id !== 'party' || rpg) && (id !== 'fight' || fightOpen));
+/** Returns the tab ids to show: Party only when the RPG is on, Fight only during a fight, Scene only while an interaction is open. */
+export function visibleTabs({ rpg = true, fightOpen = false, sceneOpen = false } = {}) {
+  return TAB_ORDER.filter((id) => (id !== 'party' || rpg) && (id !== 'fight' || fightOpen) && (id !== 'scene' || sceneOpen));
 }
 
 /**
@@ -20,7 +20,7 @@ export function visibleTabs({ rpg = true, fightOpen = false } = {}) {
  */
 export function createTabHost(options = {}) {
   const { flags: startFlags = {}, initial = 'now', onSelect = null, onChat = null, onSettings = null } = options;
-  let flags = { rpg: true, fightOpen: false, ...startFlags };
+  let flags = { rpg: true, fightOpen: false, sceneOpen: false, ...startFlags };
   let current = initial;
 
   const strip = h('nav', { class: 'su-strip', role: 'tablist', 'aria-label': 'Story Suite tabs' });
@@ -40,7 +40,7 @@ export function createTabHost(options = {}) {
 
   function updateMini() {
     const limit = cardSlot.offsetTop + cardSlot.offsetHeight;
-    mini.classList.toggle('on', current !== 'fight' && scroll.scrollTop > limit);
+    mini.classList.toggle('on', current !== 'fight' && current !== 'scene' && scroll.scrollTop > limit);
   }
 
   function pick(id) {

@@ -370,7 +370,6 @@ export function applyIncoming(existing, incoming, turn, relationshipCaps = DEFAU
         merged.relationshipSummary = calibrateRelationshipSummary(existing.relationshipSummary, merged.relationship);
     }
     const autoArchiveDeaths = lifecycleOptions.autoArchiveDeaths !== false;
-    const autoReactivateArchived = lifecycleOptions.autoReactivateArchived !== false;
     const confirmedDeath = incoming.lifeState === 'deceased' && incoming.lifeStateCertainty === 'explicit';
 
     // A confirmed death stays (C05); other life states follow the scan.
@@ -380,25 +379,10 @@ export function applyIncoming(existing, incoming, turn, relationshipCaps = DEFAU
         merged.lifeStateReason = incoming.lifeStateReason || merged.lifeStateReason || '';
     }
 
-    if (confirmedDeath && autoArchiveDeaths) {
-        merged.archived = true;
-        merged.archiveReason = 'deceased';
-        merged.archivedAt = Date.now();
-        merged.archiveSourceMessageId = Number.isInteger(sourceMessageId) ? sourceMessageId : null;
-    } else if (existing.archived && autoReactivateArchived && (incoming.present || incoming.worldActive)) {
-        // A manual or stale archive comes back when the NPC is in the scene again. A death archive
-        // never does (C05): no scan output revives a confirmed-dead NPC.
-        const recoverableReturn = existing.archiveReason === 'manual' || existing.archiveReason === 'stale';
-        if (recoverableReturn) {
-            merged.archived = false;
-            merged.archiveReason = '';
-            merged.archivedAt = null;
-            merged.archiveSourceMessageId = null;
-        }
-    }
-
-    merged.present = Boolean(incoming.present) && !merged.archived;
-    merged.worldActive = Boolean(incoming.worldActive) && !merged.present && !merged.archived;
+    // P6: no archive fields. A confirmed death takes the person off the scene (a dead person's lifeState stays 'deceased', C05: no scan output revives them).
+    const offScene = autoArchiveDeaths && (confirmedDeath || isTerminalNpcDeath(existing));
+    merged.present = Boolean(incoming.present) && !offScene;
+    merged.worldActive = Boolean(incoming.worldActive) && !merged.present && !offScene;
     merged.updatedAt = Date.now();
     if (merged.present) {
         merged.lastSeenTurn = turn;

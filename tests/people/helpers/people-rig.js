@@ -2,25 +2,26 @@
 // NPC State Delta's real adapter with its participant and its people sync, over a fake Delta runtime that holds the chat's state.
 // `reload()` starts everything again over what was saved. Tests only; nothing here ships.
 import { createHost } from '../../../testkit/index.js';
-import { memoryVault } from '../../../modules/people/legacy/storysuite-participant/index.js';
 import { createStorySuiteV2Adapter } from '../../../modules/people/storysuite-v2.js';
 import { peopleView, peopleState } from '../../../modules/people/view.js';
-import { hashJson } from '../../../modules/people/legacy/storysuite-participant/hash.js';
+import { isTerminalNpcDeath } from '../../../modules/people/core/terminal-lifecycle.js';
+import { hashJson } from '../../../modules/people/adapter/hash.js';
 
 // Ids are Delta's own (`npc_` + a name slug, as makeNpcId makes them): the people domain takes them as they are.
 export const idOf = key => `npc_${key}`;
-export const record = (key, extra = {}) => ({ id: idOf(key), name: String(key).toUpperCase(), aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });
+export const record = (key, extra = {}) => ({ id: idOf(key), name: String(key).toUpperCase(), aliases: [], present: true, lifeState: 'alive', ...extra });
 export const clone = value => JSON.parse(JSON.stringify(value));
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 // A new chat starts with nobody: the store is empty and the cache hydrates empty (the first publication below adds Mira and Tom, as a first reply's scan would).
 const freshState = () => ({ npcs: [], candidates: [], socialGraph: { edges: [] }, checkpoints: [], lineage: [], turn: 1 });
 
 /**
- * peopleRig(t, { state?, vault?, image?, live?, wrapSdk?, sends?, started? }) → { host, adapter, live, vault, warnings, sends, expected(), settle(), publish(edit), reply(text, edit), reload() }
+ * peopleRig(t, { state?, image?, live?, wrapSdk?, sends?, started?, linesMode? }) → { host, adapter, live, warnings, sends, expected(), settle(), publish(edit), reply(text, edit), reload() }
  *   live: the fake Delta runtime's chat state ({ chatKey, state }); sends: the `people.write` answers the host gave (code or 'ok').
+ *   linesMode: the one-pass lines switch (default off): with it on, `~ npc Name | died` is a death line.
  *   settle(): waits until the head's people equal the view of live state (true) or the wait ran out (false).
  */
-export async function peopleRig(t, { state = freshState(), vault = memoryVault(), image = null, live = null, wrapSdk = sdk => sdk, sends = [], started = true } = {}) {
+export async function peopleRig(t, { state = freshState(), image = null, live = null, wrapSdk = sdk => sdk, sends = [], started = true, linesMode = false } = {}) {
     t.mock.method(console, 'warn', () => {});
     const mine = live ?? { chatKey: 'chat:avatar.png:one', state: structuredClone(state) };
     const host = await createHost();
@@ -51,12 +52,12 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
     };
     const doc = { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } };
     const adapter = createStorySuiteV2Adapter({
-        suiteApi: { npcs: () => mine.state.npcs.map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
+        suiteApi: { npcs: () => mine.state.npcs.map(npc => ({ id: npc.id, name: npc.name, aliases: npc.aliases, present: npc.present, archived: isTerminalNpcDeath(npc) })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc,
         timers: { setTimeout: (fn, ms) => { const id = setTimeout(fn, ms); id.unref?.(); return id; }, clearTimeout, setInterval: () => ({ unref() {} }), clearInterval() {} },
         logger: { warn: (...args) => warnings.push(args.join(' ')) }, loadEmptyCast: async () => null,
-        participantVault: vault, participantOptions: { debounceMs: 1, retryMs: 5 },
+        linesMode: () => linesMode,
     });
     adapter.start();
     if (await adapter.settled() !== true) throw new Error(`the adapter did not register: ${warnings.join(' / ')}`);
@@ -70,7 +71,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
     // The head's slice as NPC State reads it: an absent slice (nobody written yet) reads as the empty view.
     const stored = () => { const slice = host.head().domains.people ?? { v: 1, order: [], npcs: {} }; const keys = peopleState(slice); return keys ? peopleView(keys) : null; };
     const out = {
-        host, adapter, doc, live: mine, vault, warnings, sends, hydrations, rescans, marks, expected, stored,
+        host, adapter, doc, live: mine, warnings, sends, hydrations, rescans, marks, expected, stored,
         async settle(ms = 3000) {
             const until = Date.now() + ms;
             for (;;) {
@@ -88,7 +89,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
         /** One reply in the story, then Delta's change for it (a native change at that reply). */
         async reply(text, edit) { await host.send(text, `${text} reply.`); return out.publish(edit ?? (() => {})); },
         // A real reload loses NPC State's memory (no sidecar): the cache starts empty and is hydrated from the store.
-        reload() { return peopleRig(t, { vault, image: clone(disk.image), live: { chatKey: mine.chatKey, state: freshState() }, wrapSdk, sends, started }); },
+        reload() { return peopleRig(t, { image: clone(disk.image), live: { chatKey: mine.chatKey, state: freshState() }, wrapSdk, sends, started, linesMode }); },
     };
     return out;
 }

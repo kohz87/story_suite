@@ -10,6 +10,7 @@ const VARIANTS = ['default', 'rpgOff', 'fightOpen', 'empty'];
 const WIDTHS = [360, 390, 820, 1280];
 const PLANS = ['off', 'on'];
 const FIGHT_STEPS = ['offer', 'choose', 'target', 'ally', 'after', 'end']; // fight board steps 1, 2, 3 (target), ally, 4, 5
+const SCENES = ['off', 'open', 'staged', 'sent', 'invalidated']; // the Scene tab: off, or an interaction in that state
 const BAG_LOADS = ['light', 'over', 'heavy']; // bag load variants: 0, 1 (the anvil), 2 (the sack)
 
 function pick(value, allowed, fallback) {
@@ -31,6 +32,8 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     plan: pick(query.get('plan'), PLANS, 'off'),
     fight: pick(query.get('fight'), FIGHT_STEPS, 'choose'),
     bag: pick(query.get('bag'), BAG_LOADS, 'light'),
+    scene: pick(query.get('scene'), SCENES, 'off'),
+    long: query.get('long') === '1',
   };
   let port = null;
   let suite = null;
@@ -45,6 +48,8 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
       planShown: state.plan === 'on',
       fightState: state.fight,
       bagLoad: BAG_LOADS.indexOf(state.bag),
+      scene: state.scene === 'off' ? null : state.scene,
+      sceneLong: state.long,
     };
   }
 
@@ -82,6 +87,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
       state.fight = pick(patch.fight, FIGHT_STEPS, state.fight);
       state.variant = 'fightOpen'; // a fight button opens the fight for that variant; a variant button decides again
     }
+    if (patch.scene) state.scene = pick(patch.scene, SCENES, state.scene);
     if (patch.bag) state.bag = pick(patch.bag, BAG_LOADS, state.bag);
     mount();
     return { ...state };
@@ -91,7 +97,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     type: 'button', 'data-key': key, 'data-value': String(value), onClick: () => apply({ [key]: value }),
   }, `${key}: ${value}`));
   controls?.replaceChildren(...group('theme', THEMES), ...group('variant', VARIANTS), ...group('width', WIDTHS),
-    ...group('plan', PLANS), ...group('fight', FIGHT_STEPS), ...group('bag', BAG_LOADS));
+    ...group('plan', PLANS), ...group('fight', FIGHT_STEPS), ...group('scene', SCENES), ...group('bag', BAG_LOADS));
 
   mount();
   return { get port() { return port; }, state, apply, suite: () => suite };

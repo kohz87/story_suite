@@ -23,5 +23,7 @@ export const GEAR = Object.freeze({
     // `soak: N`; default 0), held by code to its slot's cap, so a story line cannot mint it: body 2, off-hand 2, head 1, cloak, feet and accessory 0. 1 point = 1 % of damage. A piece in a
     // worse state than `minCond` (the Worn word's floor: torn and broken pieces) gives none. A member's soak is VIT + the pieces' soak, at most `max`. No other gear bonus counts (BATCH1 B1.5 stays closed).
     soak: Object.freeze({ caps: Object.freeze({ body: 2, 'off-hand': 2, head: 1, cloak: 0, feet: 0, accessory: 0 }), capMax: 2, max: 50, minCond: 40 }),
+    // Load weights (a thing weighs `weight` a unit; coins 0): a pack's `weight`, or the reader's Edit, 0 up to `max`; with none the default by slot (equipment) or kind, which a story line never raises.
+    weight: Object.freeze({ max: 99, bySlot: Object.freeze({ weapon: 3, body: 5, 'off-hand': 4, head: 2, cloak: 2, feet: 2, accessory: 0 }), byKind: Object.freeze({ quest: 0 }), other: 1 }),
     carry: Object.freeze({ base: 10, perStr: 2, strMin: 1, strMax: 20, strDefault: 10 }),
 });

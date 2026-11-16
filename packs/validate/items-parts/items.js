@@ -1,6 +1,6 @@
 // Checking item records and resolving item references.
 
-import { ITEM_FIELDS, ITEM_KINDS, RARITIES, RECORD_LIMITS, LIMITS, ITEM_CARRY, ITEM_BONUS, ITEM_SOAK, DEF_ID } from '../../limits.js';
+import { ITEM_FIELDS, ITEM_KINDS, RARITIES, RECORD_LIMITS, LIMITS, ITEM_CARRY, ITEM_BONUS, ITEM_SOAK, ITEM_WEIGHT, DEF_ID } from '../../limits.js';
 import { oneLine, foldKey } from '../../../core/text.js';
 import { isInt, isObject } from '../core.js';
 
@@ -36,6 +36,8 @@ export function checkItem(record, path, label, add) {
     if (record.bonus !== undefined && !(isInt(record.bonus, ITEM_BONUS.min) && record.bonus <= ITEM_BONUS.max)) say('bonus', `bonus must be a whole number from ${ITEM_BONUS.min} to ${ITEM_BONUS.max} (the gear bonus it gives while worn), or left out.`);
     // The soak it gives while worn: 0 to 2 (`story-block.gear`; the slot's cap holds it further).
     if (record.soak !== undefined && !(isInt(record.soak, ITEM_SOAK.min) && record.soak <= ITEM_SOAK.max)) say('soak', `soak must be a whole number from ${ITEM_SOAK.min} to ${ITEM_SOAK.max} (the soak it gives while worn), or left out.`);
+    // What one unit weighs in load: 0 to 99 (`story-block.gear`), or left out for the default by slot or kind.
+    if (record.weight !== undefined && !(isInt(record.weight, ITEM_WEIGHT.min) && record.weight <= ITEM_WEIGHT.max)) say('weight', `weight must be a whole number from ${ITEM_WEIGHT.min} to ${ITEM_WEIGHT.max} (what one unit weighs in load), or left out.`);
     if (!ok) return null;
     return {
         name: oneLine(record.name, LIMITS.name), kind, rarity, value, stack,
@@ -45,6 +47,7 @@ export function checkItem(record, path, label, add) {
         ...(record.carry !== undefined ? { carry: record.carry } : {}),
         ...(record.bonus !== undefined ? { bonus: record.bonus } : {}),
         ...(record.soak !== undefined ? { soak: record.soak } : {}),
+        ...(record.weight !== undefined ? { weight: record.weight } : {}),
     };
 }
 

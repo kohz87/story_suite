@@ -93,13 +93,13 @@ export function createPublicApiStatePart(deps) {
         hostedMeterView, scenePresenceView, dossierHostViews, hydrationErrors, portraitFilesVersion, persistedVersions,
         stateWritePromises, stateWriteTimers, hydratedRevision, hydratedStateMeta, undurableNpcStateSnapshot,
         runFreshMutation, updateNpcAppearance, updateNpcLifeState, setNpcPortrait, setNpcPortraitSeed,
-        removeNpcPortrait, flushStateFile, setNpcArchiveStateById, deleteNpcById, storySuiteV2Meters,
+        removeNpcPortrait, flushStateFile, setNpcArchiveStateById, deleteNpcById, storySuiteV2Meters, queueFillsInState,
     } = deps;
 
     return {
     // (timeline participant) A state as installState keeps it: normalized like the chat's state, on a copy (nothing stored).
     normalizeState: state => structuredClone(normalizeChatState(state)),
-    // (timeline participant, src/storysuite-participant/) The open chat's key; SillyTavern's request headers for its user files; and an
+    // (read by the runtime's own callers; the timeline participant was removed in P7) The open chat's key; SillyTavern's request headers for its user files; and an
     // absolute, durable replacement of the chat's native state (a restore to a save point), refused unless it is the open chat's.
     chatKey: () => getChatKey(),
     requestHeaders: () => requestHeaders(),
@@ -158,6 +158,16 @@ export function createPublicApiStatePart(deps) {
         state.readAhead = [];
         return true;
     },
+    // (lines mode; N7 calls it) One fill-in per person a `+ npc` stub made in the reply at `reply` (its own index: a Re-read of an earlier reply, or a delete since, must not
+    // point the fill at another reply's exchange); `stubs`: [{ id, name }]. The queue runs after the reply, never before Send. N7 calls it after the reply's hydrate
+    // (hydratePeople clears the queue) and persists what it queued.
+    queueFills: (stubs, reply) => {
+        const key = getChatKey();
+        const state = key && key !== 'no-chat' && chatHydrationStatus(key) === 'ready' && Number.isInteger(reply) && reply >= 0 ? getChatState(key) : null;
+        if (!state) return false;
+        queueFillsInState(state, stubs, reply);
+        return true;
+    },
     // (the one timeline) The scan marker the store holds for the head (people.scan, src/adapter/people-sync.js): `index` is the last reply read (null: none), `since`
     // the replies since that scan. In place on the state a running scan holds (pending backfills and read-ahead dropped); nothing is persisted.
     setScanMarker: (index, since) => {
@@ -204,7 +214,7 @@ export function createPublicApiStatePart(deps) {
     // Story Director's "still reading the newest reply": scanActive, plus a reply held while the chat loads (its receipt has no scan intent yet).
     pageBusy: () => scanWorkPending() || loadingReconcilePending(),
     scanIdle: ms => scanIdle(ms),
-    // History replay (src/storysuite-participant/history-replay.js reads these): the boundaries between the engine and the live scan path.
+    // History replay boundaries (the replay engine was removed in P7; the runtime's own scope still reads these): the boundaries between the engine and the live scan path.
     replay: createReplayBoundaries(deps),
     // Which messages the story stands on (the Story Suite adapter's gate): scans do not read what Story Block faded.
     useMessageGate: gate => useMessageGate(gate),
@@ -212,6 +222,8 @@ export function createPublicApiStatePart(deps) {
     relationshipBaseline: () => normalizeRelationshipBaseline(getSettings().relationshipBaseline),
     // (v2 meters) Delta's impact-tier caps: the most a story line's `~ npc` move can be at each tier.
     relationshipCaps: () => normalizeRelationshipCaps(getSettings().relationshipCaps),
+    // (lines mode) The player's and the played character's names: a `+ npc` stub is never made for them.
+    playerNames: () => [chatContext()?.name1, chatContext()?.name2].filter(name => typeof name === 'string' && name.trim()),
     // (v2 meters) The events each person can have per story day, by impact tier (null: no limit; src/relationship-pacing.js).
     relationshipAllowance: () => normalizeAllowance(getSettings().relationshipAllowance),
     presentCastHtml: () => storyBlockCastHtml(),

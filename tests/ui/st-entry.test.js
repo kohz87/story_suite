@@ -6,7 +6,7 @@ import { startPreview } from '../../ui/st-entry.js';
 import { buildSelectors } from '../../ui/select/build.js';
 import { readFlag, writeFlag } from '../../ui/entry/flag.js';
 
-const TABS = ['card', 'now', 'chat', 'party', 'bag', 'people', 'dossier', 'world', 'journal', 'story', 'fight', 'settings'];
+const TABS = ['card', 'now', 'chat', 'party', 'bag', 'people', 'dossier', 'world', 'journal', 'story', 'scene', 'fight', 'settings'];
 
 function page() {
   const doc = installFakeDom();
@@ -81,7 +81,7 @@ test('flag on at start mounts the view, hides the old furniture class and links 
   assert.ok(doc.body.classList.contains('ss-ui-next'));
   assert.ok(doc.querySelector('.su-root'));
   assert.ok(doc.querySelector('#story-suite-ui-menu'));
-  assert.equal(doc.head.querySelectorAll('link').length, 15);
+  assert.equal(doc.head.querySelectorAll('link').length, 16);
 });
 
 test('set(true) then set(false) saves the flag and takes everything away again', async () => {

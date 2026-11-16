@@ -42,7 +42,6 @@ const cases = [
     ['homeBase update with state, reason and grounding', 'homeBase', { homeBase: 'Rooms above the bakery on Mill Street', homeBaseState: 'update', homeBaseReason: 'She says she lives there now.' }, 'Rooms above the bakery on Mill Street'],
     ['homeBase without state is kept', 'homeBase', { homeBase: 'Rooms above the bakery on Mill Street' }, null],
     ['homeBase not in the story is kept', 'homeBase', { homeBase: 'A castle in the clouds', homeBaseState: 'update', homeBaseReason: 'Moved.' }, null],
-    ['gender change without correction is kept', 'gender', { gender: 'male' }, null],
     ['gender correction with reason', 'gender', { gender: 'male', genderState: 'correct', genderReason: 'The story corrects it.' }, 'male'],
     ['age advance with reason', 'age', { age: '35', ageState: 'advance', ageReason: 'Her birthday was yesterday.' }, '35'],
     ['age advance backwards is kept', 'age', { age: '33', ageState: 'advance', ageReason: 'Birthday.' }, null],
@@ -66,6 +65,13 @@ for (const [label, field, fields, expected, extra = {}] of cases) {
         assert.deepEqual(viaProfile, viaRow, 'profileUpdates[] applies the same rule');
     });
 }
+
+// P6: the two channels differ on gender once it is stated. A scan row keeps a stated gender unless it carries genderState:"correct" and a reason; a Refresh
+// profile update replaces it with a newly stated one (the Refresh prompt says so) while the person lives.
+test('a new stated gender: a scan row without a correction keeps the old one, a Refresh update replaces it', () => {
+    assert.equal(run('npcs', { gender: 'male' }).gender, dossier().gender);
+    assert.equal(run('profileUpdates', { gender: 'male' }).gender, 'male');
+});
 
 test('profileUpdates[] leaves live state to npcs[] (mood, location, goal, status are not durable)', () => {
     const npc = run('profileUpdates', { mood: 'Elated', location: 'Mill Street', goal: 'Unpack', status: 'Busy' });

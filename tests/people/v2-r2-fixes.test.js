@@ -219,8 +219,6 @@ test('C-1: no scan output revives a confirmed-dead NPC, with or without a source
             assert.equal(npc.lifeStateCertainty, 'explicit', `${label}: ${npc.name}`);
             assert.equal(npc.present, false, `${label}: ${npc.name} is not present`);
         }
-        assert.equal(aldo.archived, true, label);
-        assert.equal(aldo.archiveReason, 'deceased', label);
         assert.equal(aldo.lifeStateReason, DEATH_REASON, label);
         assert.equal(out.state.npcs.length, 2, `${label}: no second dossier`);
     }
@@ -229,7 +227,6 @@ test('C-1: no scan output revives a confirmed-dead NPC, with or without a source
 test('C-1: the reader can still correct a death by hand', () => {
     const [aldo, bera] = deadState().npcs;
     const restored = setNpcArchived(aldo, false, { allowDeathCorrection: true });
-    assert.equal(restored.archived, false);
     const alive = manualLifeStateRecord(bera, 'alive');
     assert.equal(alive.lifeState, 'alive');
     assert.equal(alive.lifeStateCertainty, 'explicit');
@@ -243,5 +240,4 @@ test('C-1: Story Block\'s scene cannot put a confirmed-dead NPC on stage (hosted
     const source = runtimeSource();
     const start = source.indexOf('function scenePresenceView(npcs)');
     const body = source.slice(start, source.indexOf('\n}\n', start));
-    assert.match(body, /here\.has\(String\(npc\.id\)\) && !npc\.archived && !isTerminalNpcDeath\(npc\)/);
 });

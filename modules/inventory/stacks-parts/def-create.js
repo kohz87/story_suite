@@ -3,7 +3,7 @@
 import { clone } from '../../scene/domains/common.js';
 import { cleanName, resolveDef, slugify } from '../../scene/names.js';
 import { DEF_ID } from '../../../core/registry/check.js';
-import { packBonus, packSoak } from '../gear.js';
+import { packBonus, packSoak, packWeight } from '../gear.js';
 import { MAX_NAME, defaultDef, packCarry } from '../state.js';
 import { ambiguous, freeId } from './lookup.js';
 import { packDef } from './def-pack.js';
@@ -48,5 +48,6 @@ export function defineGiven(ctx, inv, given, env, about) {
     if (packCarry(id, given.carry) !== null) keep.carry = given.carry;
     if (packBonus(id, given.bonus) !== null) keep.bonus = given.bonus;
     if (packSoak(id, given.soak) !== null) keep.soak = given.soak;
+    if (packWeight(id, given.weight) !== null) keep.weight = given.weight;
     return { def: registerNew(ctx, inv, def, env, about, { keep, written: name }), created: true };
 }

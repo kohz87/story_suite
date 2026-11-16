@@ -12,6 +12,11 @@ test('visibleTabs applies the Party and Fight show rules', () => {
   assert.deepEqual(visibleTabs({ rpg: false, fightOpen: true }).slice(-1), ['fight']);
 });
 
+test('the Scene tab shows only while an interaction is open, between Story and Fight', () => {
+  assert.equal(visibleTabs().includes('scene'), false);
+  assert.deepEqual(visibleTabs({ sceneOpen: true, fightOpen: true }).slice(-3), ['story', 'scene', 'fight']);
+});
+
 test('renders strip and phone bar with labels, one current tab', () => {
   installFakeDom();
   const host = createTabHost();

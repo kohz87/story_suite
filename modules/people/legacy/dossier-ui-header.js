@@ -8,17 +8,16 @@ import { escapeHtml } from '../util/html.js';
 
 const text = value => String(value ?? '').trim();
 
-// Lifecycle item inside More: deceased is terminal, archived restores, otherwise archive.
-export function dossierLifecycleActionHtml(npcId, { archived = false, deceased = false } = {}) {
+// Lifecycle item inside More: only a confirmed death has one (correct it by hand); P6: there is no archive any more.
+export function dossierLifecycleActionHtml(npcId, { deceased = false } = {}) {
     const id = escapeHtml(text(npcId));
     if (deceased) return `<button type="button" class="delta-btn npc-state-delta-restore-npc" data-npc-id="${id}">Correct death record</button>`;
-    if (archived) return `<button type="button" class="delta-btn npc-state-delta-restore-npc" data-npc-id="${id}">Restore active</button>`;
-    return `<button type="button" class="delta-btn npc-state-delta-archive-npc" data-npc-id="${id}">Archive dossier</button>`;
+    return '';
 }
 
 // The ⋯ menu for one NPC: Edit and Refresh, then More (Scan, Portrait, Diagnostics, lifecycle).
 // Returns '' without an NPC id, because every item acts on one dossier.
-export function dossierMenuHtml(npcId, { archived = false, deceased = false, diagnosticsVisible = false } = {}) {
+export function dossierMenuHtml(npcId, { deceased = false, diagnosticsVisible = false } = {}) {
     const id = text(npcId);
     if (!id) return '';
     const attr = escapeHtml(id);
@@ -33,7 +32,7 @@ export function dossierMenuHtml(npcId, { archived = false, deceased = false, dia
                     <button type="button" class="delta-btn npc-state-delta-scan-dossier" data-npc-id="${attr}">Scan dossier</button>
                     <button type="button" class="delta-btn delta-experience-portrait" data-npc-id="${attr}">Portrait</button>
                     <button type="button" class="delta-btn delta-experience-diagnostics" data-npc-id="${attr}">${diagnosticsVisible ? 'Hide diagnostics' : 'Show diagnostics'}</button>
-                    ${dossierLifecycleActionHtml(id, { archived, deceased })}
+                    ${dossierLifecycleActionHtml(id, { deceased })}
                 </div>
             </details>
         </div>

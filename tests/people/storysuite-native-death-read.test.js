@@ -6,10 +6,10 @@ import { createPeopleSync } from '../../modules/people/adapter/people-sync.js';
 import { createNativeDeath } from '../../modules/people/adapter/native-death.js';
 import { createIdentity } from '../../modules/people/adapter/identity.js';
 import { peopleView, peopleState } from '../../modules/people/view.js';
-import { hashJson } from '../../modules/people/legacy/storysuite-participant/hash.js';
+import { hashJson } from '../../modules/people/adapter/hash.js';
 
 function rig({ failWrite = false } = {}) {
-    const fake = { state: { npcs: [{ id: 'npc_mira', name: 'Mira', aliases: [], archived: false, lifeState: 'alive' }, { id: 'npc_tom', name: 'Tom', aliases: [], archived: false, lifeState: 'alive' }], candidates: [], socialGraph: {}, turn: 1 }, head: 'h1', writes: 0 };
+    const fake = { state: { npcs: [{ id: 'npc_mira', name: 'Mira', aliases: [], lifeState: 'alive' }, { id: 'npc_tom', name: 'Tom', aliases: [], lifeState: 'alive' }], candidates: [], socialGraph: {}, turn: 1 }, head: 'h1', writes: 0 };
     fake.slice = peopleView(fake.state);
     const sdk = {
         query: name => (name === 'people.hash' ? hashJson(fake.slice) : undefined),

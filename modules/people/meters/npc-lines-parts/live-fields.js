@@ -21,7 +21,7 @@ function liveOf(name, raw, { clearable, here }) {
 }
 
 /** → { problems, wrote }. `world`: { present: Set (label keys), at, reply, minutes, date, moodOn }; `dossier`: the people record or null. */
-function applyLive(ctx, { key, name, record, fields, dossier, world }) {
+function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     const problems = [];
     const set = {};
     for (const field of ['goal', 'status', 'where']) {
@@ -30,10 +30,10 @@ function applyLive(ctx, { key, name, record, fields, dossier, world }) {
         if (got.problem) { problems.push(got.problem); continue; }
         set[field === 'where' ? 'location' : field] = got.value;
     }
-    for (const part of [lookField(fields), factFields(fields, dossier)]) { Object.assign(set, part.set); problems.push(...part.problems); }
+    for (const part of [lookField(fields), factFields(fields, dossier, lines)]) { Object.assign(set, part.set); problems.push(...part.problems); }
     const guarded = guardFields(set, dossier, name);
     problems.push(...guarded.problems);
-    for (const key of Object.keys(set)) if (!(key in guarded.set)) delete set[key];
+    for (const key of Object.keys(set)) { if (key in guarded.set) set[key] = guarded.set[key]; else delete set[key]; }
     let wrote = false;
     if (Object.keys(set).length && !dossier) problems.push(`${name} has no dossier yet; ${Object.keys(set).join(', ')} not stored.`);
     else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; }
@@ -54,7 +54,7 @@ function applyLive(ctx, { key, name, record, fields, dossier, world }) {
 }
 
 /** The line's dossier labels applied after its meters (`out`: the meters' receipt); their problems join the card's and the receipt's. */
-export function labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMinutes, clockDay, startDate, moodOn, note }) {
+export function labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMinutes, clockDay, startDate, moodOn, note, lines = false }) {
     const key = out.data.key;
     const here = ctx.query?.('scene.present', {});
     // Only this reply's own scene decides who is here (no fallback to NPC State's live flags: a Re-read or swipe must decide the same way).
@@ -62,7 +62,7 @@ export function labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMin
     const minutes = clockMinutes(at) ?? timeMinutes(ctx);
     const world = { present, at, reply, minutes, moodOn, date: clockDay(at) === null ? '' : startDate(at) };
     const slice = ctx.draft(NPC_DOMAIN);
-    const done = applyLive(ctx, { key, name: out.data.name, record: slice.npcs[key], fields, dossier: ctx.read('people')?.npcs?.[key] ?? null, world });
+    const done = applyLive(ctx, { key, name: out.data.name, record: slice.npcs[key], fields, dossier: ctx.read('people')?.npcs?.[key] ?? null, world, lines });
     if (!done.problems.length) return out;
     note(slice, ctx.rev, done.problems);
     return { ...out, summary: sentence([out.summary, ...done.problems]), data: { ...out.data, problems: [...out.data.problems, ...done.problems] } };

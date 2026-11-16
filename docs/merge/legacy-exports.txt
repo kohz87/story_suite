@@ -5,9 +5,6 @@ modules/scene/constants-parts/you.js
 testkit/fake-st.js
 modules/people/core/core-prompts.js
 modules/people/core/core.js
-modules/people/legacy/storysuite-participant/participant/support.js
-modules/people/legacy/storysuite-participant/storage-row.js
-modules/people/legacy/storysuite-participant/timeline.js
 modules/people/storage/storage.js
 modules/people/storysuite-v2.js
 modules/people/view.js

@@ -48,7 +48,6 @@ test('UI integration remounts inline cards on SillyTavern render lifecycle and c
 test('visible inline rendering is latest-scene present cast only while historical snapshots remain internal', () => {
     assert.match(index, /Visible NPC State Delta is a live present-cast view, not a historical dossier timeline/);
     assert.match(index, /const latestAssistantId = latestMessageId\(true\)/);
-    assert.match(index, /filter\(npc => !npc\.archived && npc\.present && !npc\.minor\)/);
     assert.match(index, /return \[\{[\s\S]*reason: 'live-present-grid'/s);
     assert.doesNotMatch(index, /function inlineEntriesForRender\(state\) \{[\s\S]*state\.inlineCards\.map/s);
 });
@@ -130,9 +129,8 @@ test('stale NPC lifecycle is configurable and recurring NPCs can be protected', 
     assert.match(index, /staleDeleteAfter:\s*50/);
     assert.match(index, /applyStaleLifecycleAfterScan/);
     assert.match(index, /Archived dossiers do not use an active slot/);
-    assert.match(index, /npc_state_delta_edit_retention_protected/);
-    assert.match(index, /Keep this NPC from automatic stale cleanup/);
-    assert.match(index, /retentionProtected/);
+    // P6: no retention flag any more; a quiet dossier that matters is kept by the stale pass itself.
+    assert.doesNotMatch(index, /npc_state_delta_edit_retention_protected/);
     assert.match(index, /Deleted stale NPCs can be rediscovered if they return/);
 });
 
@@ -234,7 +232,7 @@ test('switched off, Delta renders no in-chat cards, and the Enable switch redraw
     try {
         const { createInlineCardsModePart } = await import(pathToFileURL(path.join(ext, 'runtime-inline-cards-mode.js')).href);
         const { extension_settings } = await import(pathToFileURL(path.join(temp, 'extensions.js')).href);
-        const state = { npcs: [{ id: 'n1', name: 'Mira', present: true, archived: false }] };
+        const state = { npcs: [{ id: 'n1', name: 'Mira', present: true }] };
         const part = createInlineCardsModePart({
             chatHydrationStatus: () => 'ready', getChatKey: () => 'k', getChatState: () => state, latestMessageId: () => 4,
             scenePresenceView: npcs => npcs, storyBlockV2Hosted: () => false,

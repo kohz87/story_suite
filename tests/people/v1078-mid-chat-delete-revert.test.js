@@ -261,7 +261,6 @@ test('v1.0.78 a death the deleted message caused is undone; an earlier or later 
     const undone = deleteMiddle(structuredClone(state), chat, 5);
     const clara = undone.state.npcs.find(npc => npc.name === 'Clara');
     assert.equal(clara.lifeState, createNpcRecord('X').lifeState);
-    assert.equal(clara.archived, false);
 
     const earlier = makeState();
     die(earlier.npcs[1]);

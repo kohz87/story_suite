@@ -47,12 +47,13 @@ test('screens: back, section arrows, Esc order, swipe, layout and the signature 
   assert.deepEqual(layoutFor(openSection(openNpc(createScreenState(), 'a'), 1), { phone: true }).panes, ['section']);
 });
 
-test('header menu keeps the classes and data-npc-id the global Edit, Refresh, Scan and Archive handlers find', () => {
+test('header menu keeps the classes and data-npc-id the global Edit, Refresh and Scan handlers find (no Archive any more)', () => {
   const html = dossierMenuHtml('npc_"x', { archived: false });
-  for (const hook of ['delta-edit', 'npc-state-delta-refresh-chat', 'npc-state-delta-scan-dossier', 'delta-experience-portrait', 'delta-experience-diagnostics', 'npc-state-delta-archive-npc']) assert.match(html, new RegExp(hook), hook);
+  for (const hook of ['delta-edit', 'npc-state-delta-refresh-chat', 'npc-state-delta-scan-dossier', 'delta-experience-portrait', 'delta-experience-diagnostics']) assert.match(html, new RegExp(hook), hook);
+  assert.doesNotMatch(html, /npc-state-delta-archive-npc/, 'P6: no archive item');
   assert.match(html, /data-npc-id="npc_&quot;x"/, 'the id is escaped');
   assert.match(html, /<summary class="delta-btn">More<\/summary>/);
-  assert.match(dossierMenuHtml('a', { archived: true }), /npc-state-delta-restore-npc[^>]*>Restore active/);
+  assert.doesNotMatch(dossierMenuHtml('a', { archived: true }), /npc-state-delta-restore-npc/, 'nothing to restore: there is no archive');
   assert.match(dossierMenuHtml('a', { deceased: true }), /Correct death record/);
   assert.equal(dossierMenuHtml(''), '');
 });

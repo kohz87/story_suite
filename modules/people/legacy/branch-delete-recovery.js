@@ -17,7 +17,7 @@ const NPC_REVERT_SKIP = new Set(['id', 'portrait', 'updatedAt', 'createdAt', 'ma
 // Presence bookkeeping alone does not make an NPC "used" by later messages, and neither does manual
 // image/retention metadata (a saved seed or prompt is not a narrative appearance).
 const NPC_REMOVAL_IGNORED = new Set([...NPC_REVERT_SKIP, 'present', 'worldActive', 'lastWorldActiveTurn', 'fieldChanges', 'fieldChangeDays', 'fieldChangeMessages', 'memoryStamps', 'memoryFacts',
-    'portraitSeed', 'portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'retentionProtected', 'minor']);
+    'portraitSeed', 'portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'minor']);
 
 function withoutKeys(record, ignored) {
     const out = {};

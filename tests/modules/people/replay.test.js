@@ -19,7 +19,7 @@ async function rig(t) {
 // A view that changes with `n`: a new person now and then, a stage that moves, the turn counter.
 function viewOf(n) {
     const ids = Array.from({ length: 1 + (n % 3) }, (_, i) => `npc_p${i}`);
-    const npcs = Object.fromEntries(ids.map((id, i) => [id, { name: `Person ${i}`, stage: (n + i) % 4, note: n % 2 ? 'met' : 'seen' }]));
+    const npcs = Object.fromEntries(ids.map((id, i) => [id, { name: `Person ${i}`, seenCount: (n + i) % 4, goal: n % 2 ? 'met' : 'seen' }]));
     return { v: 1, order: ids, npcs, candidates: n % 2 ? [] : [{ name: 'Wren' }], dismissed: [], userDismissedGroups: [], socialGraph: n > 2 ? { npc_p0: { npc_p1: 'friend' } } : {}, portraitAssets: {}, turn: n };
 }
 // The slice as stored: the first write starts it from people's initial value, so the empty meters (`bonds`, P4) sit beside the view.

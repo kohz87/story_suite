@@ -63,7 +63,6 @@ test('v1.0.17 foreign new dossiers rebase low and high source activity clocks on
     }
     const lifecycle = applyStaleNpcLifecycle(merged, { turn: 101, archiveAfter: 30, deleteAfter: 50 });
     assert.equal(lifecycle.removed.length, 0);
-    assert.equal(lifecycle.archived.length, 0);
     assert.equal(lifecycle.state.npcs.length, 2);
 });
 
@@ -120,17 +119,13 @@ test('v1.0.17 prepared foreign import preserves source identity until canonical 
     assert.equal(merged.npcs[0].lastWorldActiveTurn, 100);
 });
 
-test('v1.0.17 foreign activity rebasing preserves manual archive terminal death and retention protection', () => {
+test('v1.0.17 foreign activity rebasing keeps a confirmed death and a present person through the stale pass', () => {
     const manual = importedNpc('Manual Archive', 'npc_manual_archive', 1);
-    manual.archived = true;
-    manual.archiveReason = 'manual';
     const dead = importedNpc('Confirmed Dead', 'npc_confirmed_dead', 1);
     dead.lifeState = 'deceased';
     dead.lifeStateCertainty = 'explicit';
-    dead.archived = true;
-    dead.archiveReason = 'deceased';
     const retained = importedNpc('Retained', 'npc_retained', 1);
-    retained.retentionProtected = true;
+    retained.present = true;
 
     const merged = mergeImportedDossierState(
         { npcs: [], turn: 100, socialGraph: emptyGraph(), dismissed: [] },
@@ -138,10 +133,9 @@ test('v1.0.17 foreign activity rebasing preserves manual archive terminal death 
         { foreignOwnership: true },
     );
     const lifecycle = applyStaleNpcLifecycle(merged, { turn: 1000, archiveAfter: 30, deleteAfter: 50 });
-    assert.equal(lifecycle.removed.length, 0);
-    assert.equal(lifecycle.state.npcs.find(npc => npc.id === manual.id)?.archiveReason, 'manual');
+    // P6: no archive or retention flags; a present person and a confirmed death are kept, the quiet manual one is the only removal.
+    assert.deepEqual(lifecycle.removed.map(item => item.id), [manual.id]);
     assert.equal(lifecycle.state.npcs.find(npc => npc.id === dead.id)?.lifeState, 'deceased');
-    assert.equal(lifecycle.state.npcs.find(npc => npc.id === retained.id)?.retentionProtected, true);
 });
 
 const BASE_PERSONALITY = 'Kind, patient, cautious, reserved, and considerate.';

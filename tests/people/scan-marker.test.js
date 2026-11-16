@@ -112,12 +112,12 @@ test('a change line while NPC State has uncommitted work: no hydrate, and neithe
     const rig = await peopleRig(t);
     await rig.reply('Mira is here.');
     const hydrations = rig.hydrations.length;
-    rig.live.state.npcs.find(item => item.id === 'npc_mira').trust = 7;   // made for the next reply, not committed yet
+    rig.live.state.npcs.find(item => item.id === 'npc_mira').seenCount = 7;   // made for the next reply, not committed yet
     await rig.host.send('Go.', 'Mira smiles.\n\n<Changes>\n~ npc MIRA | trust: +2\n</Changes>');
     await settleSync();
     assert.equal(rig.hydrations.length, hydrations, 'the line\'s meters are not the cache\'s: no hydrate');
-    assert.equal(rig.live.state.npcs.find(item => item.id === 'npc_mira').trust, 7, 'the uncommitted work stays');
+    assert.equal(rig.live.state.npcs.find(item => item.id === 'npc_mira').seenCount, 7, 'the uncommitted work stays');
     assert.equal(await rig.publish(() => {}), true);
-    assert.equal(rig.host.head().domains.people.npcs.npc_mira.trust, 7, 'the cache\'s work is stored');
+    assert.equal(rig.host.head().domains.people.npcs.npc_mira.seenCount, 7, 'the cache\'s work is stored');
     assert.equal(rig.host.head().domains.people.bonds.npcs.npc_mira.meters.trust > 0, true, 'the line\'s meters are kept by the cache\'s write');
 });

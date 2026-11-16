@@ -16,8 +16,8 @@ import {
 
 function dossiers() {
     return {
-        npc_mira: { id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true, archived: false, relationship: { trust: 10, affection: 0, desire: 0, tension: 0 } },
-        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: ['Brother Oren'], present: false, archived: false, relationship: { trust: 30, affection: 0, desire: 0, tension: 0 } },
+        npc_mira: { id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true, relationship: { trust: 10, affection: 0, desire: 0, tension: 0 } },
+        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: ['Brother Oren'], present: false, relationship: { trust: 30, affection: 0, desire: 0, tension: 0 } },
     };
 }
 

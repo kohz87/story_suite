@@ -29,6 +29,7 @@ export function defErrors(key, def) {
     if (def.carry !== undefined && !(isCount(def.carry, 1) && def.carry <= CARRY_MAX)) errors.push(`${label} adds a carry capacity of ${def.carry}; it is a whole number from 1 to ${CARRY_MAX}.`);
     if (def.bonus !== undefined && !(isCount(def.bonus, 0) && def.bonus <= GEAR.bonusMax)) errors.push(`${label} has a gear bonus of ${def.bonus}; it is a whole number from 0 to ${GEAR.bonusMax}.`);
     if (def.soak !== undefined && !(isCount(def.soak, 0) && def.soak <= GEAR.soak.capMax)) errors.push(`${label} has a soak of ${def.soak}; it is a whole number from 0 to ${GEAR.soak.capMax}.`);
+    if (def.weight !== undefined && !(isCount(def.weight, 0) && def.weight <= GEAR.weight.max)) errors.push(`${label} has a weight of ${def.weight}; it is a whole number from 0 to ${GEAR.weight.max}.`);
     return errors;
 }
 

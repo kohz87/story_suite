@@ -111,7 +111,8 @@ test('inventory.gear: the worn pieces with their stats and condition; a broken p
     await host.send('Loot.', reply('Gear.', ['+ item Iron Sword | rarity: rare', '+ item Oak Shield | quality: fine', '+ item Chain Mail | rarity: epic', '+ item Rope']));
     const empty = Object.fromEntries(['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory-1', 'accessory-2'].map(place => [place, null]));
     const zero = { STR: 0, VIT: 0, AGI: 0, DEX: 0, INT: 0, LUK: 0, CHA: 0 };
-    assert.deepEqual(host.sdk.query('inventory.gear', { owner: 'party' }), { on: true, owner: 'party', slots: empty, statBonus: zero, soak: { total: 0, pieces: [] }, carry: { load: 4, capacity: 30, encumbered: false, penalty: 0, sources: [{ name: 'The reader', carry: 30 }] } });
+    // load 13: Iron Sword 3 (weapon) + Oak Shield 4 (off-hand) + Chain Mail 5 (body) + Rope 1, by the default weight of each slot
+    assert.deepEqual(host.sdk.query('inventory.gear', { owner: 'party' }), { on: true, owner: 'party', slots: empty, statBonus: zero, soak: { total: 0, pieces: [] }, carry: { load: 13, capacity: 30, encumbered: false, penalty: 0, sources: [{ name: 'The reader', carry: 30 }] } });
     for (const name of ['Iron Sword', 'Oak Shield', 'Chain Mail']) await equip(host, name);
     const gear = () => host.sdk.query('inventory.gear', { owner: 'party' });
     const slot = place => gear().slots[place];

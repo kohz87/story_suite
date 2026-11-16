@@ -49,7 +49,7 @@ test('an unknown person, an id change, a bad field and image bytes are refused a
     assert.equal((await host.sdk.command('people.edit', { id: 'npc_bo', fields: { role: 'x' } })).code, 'REFUSED');
     assert.equal((await host.sdk.command('people.edit', { id: 'npc_ann', fields: { id: 'npc_x' } })).code, 'INVALID');
     assert.equal((await host.sdk.command('people.edit', { id: 'npc_ann', fields: { 'a/b': 1 } })).code, 'INVALID');
-    assert.equal((await host.sdk.command('people.edit', { id: 'npc_ann', fields: { face: 'data:image/png;base64,AAAA' } })).ok, false);
+    assert.equal((await host.sdk.command('people.edit', { id: 'npc_ann', fields: { appearance: 'data:image/png;base64,AAAA' } })).ok, false);
     assert.equal((await host.sdk.command('people.portrait.set', { id: 'npc_ann', portrait: { dataUrl: 'data:image/png;base64,AAAA' } })).ok, false);
     assert.equal((await host.sdk.command('people.follow', { id: 'npc_ann', on: 'yes' })).code, 'INVALID');
     assert.deepEqual(plain(host.head().domains.people), before);

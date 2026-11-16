@@ -16,23 +16,18 @@ test('manual life-state projection distinguishes unknown alive terminal death an
     assert.equal(lifeStateChoice({ lifeState: 'unknown' }), 'unknown');
     assert.equal(lifeStateChoice({ lifeState: 'alive' }), 'alive');
     assert.equal(lifeStateChoice({ lifeState: 'deceased', lifeStateCertainty: 'explicit' }), 'deceased');
-    assert.equal(lifeStateChoice({ archiveReason: 'deceased', archived: true }), 'deceased');
     assert.equal(lifeStateChoice({ lifeState: 'dead', lifeStateCertainty: 'confirmed' }), 'deceased');
 });
 
 test('manual deceased state uses canonical explicit terminal state and removes live presence', () => {
     const next = manualLifeStateRecord({
         id: 'npc-1', name: 'Maren', lifeState: 'alive', present: true, worldActive: true,
-        archived: false, archiveReason: '', relationship: { trust: 12 },
+        archiveReason: '', relationship: { trust: 12 },
     }, 'deceased', 12345);
     assert.equal(next.lifeState, 'deceased');
     assert.equal(next.lifeStateCertainty, 'explicit');
     assert.equal(next.present, false);
     assert.equal(next.worldActive, false);
-    assert.equal(next.archived, true);
-    assert.equal(next.archiveReason, 'deceased');
-    assert.equal(next.archivedAt, 12345);
-    assert.equal(next.archiveSourceMessageId, null);
     assert.deepEqual(next.relationship, { trust: 12 });
 });
 
@@ -43,18 +38,11 @@ test('manual living correction clears only death-owned archive state', () => {
     }, 'alive', 99);
     assert.equal(corrected.lifeState, 'alive');
     assert.equal(corrected.lifeStateCertainty, 'explicit');
-    assert.equal(corrected.archived, false);
-    assert.equal(corrected.archiveReason, '');
-    assert.equal(corrected.archivedAt, null);
-    assert.equal(corrected.archiveSourceMessageId, null);
 
     const manualArchive = manualLifeStateRecord({
         id: 'npc-2', lifeState: 'unknown', archived: true, archiveReason: 'manual', archivedAt: 55,
     }, 'alive', 99);
     assert.equal(manualArchive.lifeState, 'alive');
-    assert.equal(manualArchive.archived, true);
-    assert.equal(manualArchive.archiveReason, 'manual');
-    assert.equal(manualArchive.archivedAt, 55);
 });
 
 test('editor synchronization is idempotent so MutationObserver refresh cannot self-loop', () => {
@@ -137,7 +125,7 @@ test('cohesive experience keeps selected dossier actions routed through the main
     assert.match(header, /npc-state-delta-refresh-chat/);
     assert.match(header, /npc-state-delta-scan-dossier/);
     assert.match(header, /delta-experience-portrait/);
-    assert.match(header, /Archive dossier/);
+    assert.doesNotMatch(header, /Archive dossier/, 'P6: no archive item in the menu');
     assert.match(source, /openPortraitTools/);
     assert.doesNotMatch(source, /\/imagine/);
 });

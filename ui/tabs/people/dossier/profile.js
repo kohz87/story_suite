@@ -2,9 +2,9 @@
 import { h } from '../../../kit/dom.js';
 import { kvList, pageSection } from '../../../kit/page.js';
 
-/** Words the gender row: Male or Female as written, or a flag that it is unknown and only a hand edit can set it. */
+/** Words the gender row: Male or Female as written, or a flag that it is not stated and only a hand edit can set it. */
 export function genderWords(d) {
-  if (d.genderUnknown || !d.profile?.gender) return h('span', { class: 'gflag' }, 'Unknown · set it in Edit');
+  if (d.genderUnknown || !d.profile?.gender) return h('span', { class: 'gflag' }, 'Not stated · set it in Edit');
   return d.profile.gender;
 }
 

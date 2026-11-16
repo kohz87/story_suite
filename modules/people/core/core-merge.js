@@ -9,6 +9,7 @@ import { applySheetLevels, withoutSheetLevels, candidateMatches, createNpcRecord
 import { applyKeyRelationshipEdges, recordTieMentions, tieRoster } from './core-keyrel.js';
 import { canonicalizeNpcKeyRelationships, reconcileSocialState } from '../social/social.js';
 import { isTerminalNpcDeath } from './terminal-lifecycle.js';
+import { rosterCount } from './roster-count.js';
 import { applyIncoming } from './core-merge-incoming.js';
 import { applyDurableProfileUpdates } from './core-development.js';
 import { consolidateAliasLinkedNpcDuplicates } from './core-merge-aliases.js';
@@ -40,7 +41,7 @@ export function applyScenePresence(npcs, scene) {
         let next = npc.present;
         if (present.length && named(npc, present)) next = true;
         else if (scene?.none === true || (offscreen.length && named(npc, offscreen))) next = false;
-        if (next && (npc.archived || isTerminalNpcDeath(npc))) next = false;
+        if (next && isTerminalNpcDeath(npc)) next = false;
         if (npc.present && !next) cleared.push(npc.id);
         if (!npc.present && next) added.push(npc.id);
         npc.present = Boolean(next);
@@ -92,10 +93,11 @@ export function mergeScanResult(state, scanResult, options = {}) {
         candidates: normalizedCandidates.filter(candidate => turn - Number(candidate.lastSeenTurn || 0) <= NPC_CANDIDATE_TTL_TURNS),
         socialGraph: state?.socialGraph && typeof state.socialGraph === 'object' ? structuredClone(state.socialGraph) : { version: 1, edges: [], unresolved: [] },
     };
-    const report = { created: [], updated: [], profileUpdated: [], renamed: [], deduplicated: [], candidates: [], promoted: [], expired: expiredCandidates.map(c => c.name), skipped: [], profileUpdateStats: { provided: 0, applied: 0, evidenceAdded: 0 } };
+    const report = { created: [], updated: [], profileUpdated: [], renamed: [], deduplicated: [], candidates: [], promoted: [], expired: expiredCandidates.map(c => c.name), skipped: [], warnings: [], profileUpdateStats: { provided: 0, applied: 0, evidenceAdded: 0 } };
+    lifecycleOptions.onGenderConflict = warning => { if (!report.warnings.some(w => w.id === warning.id && w.story === warning.story)) report.warnings.push(warning); };
 
     const createFromIncoming = incoming => {
-        if (next.npcs.filter(npc => !npc?.archived).length >= maxNpcs) {
+        if (rosterCount(next.npcs, turn, options.archiveAfter) >= maxNpcs) {
             report.skipped.push(incoming.name);
             return null;
         }
@@ -211,6 +213,7 @@ export function mergeScanResult(state, scanResult, options = {}) {
         targeted: options.allowTargetedDurableSeed === true || options.developmentSingleTarget === true,
         customFieldNames: options.customFieldNames,
         historicalRead: options.historicalRead,
+        onGenderConflict: lifecycleOptions.onGenderConflict,
     };
     if (Object.prototype.hasOwnProperty.call(options, 'userDevelopmentContext')) {
         profileUpdateOptions.userDevelopmentContext = String(options.userDevelopmentContext || '');

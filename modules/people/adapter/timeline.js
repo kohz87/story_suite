@@ -1,4 +1,4 @@
-// The module definition and the timeline (src/storysuite-v2.js): the Story Block restore participant, the module definition Delta
+// The module definition and the timeline (src/storysuite-v2.js): the module definition Delta
 // registers with a v2 host (queries, capture, context, settings, screens, tabs), the story clock and calendar link, what Delta sends
 // under its own prompt keys, the diagnostics lines, the host events that redraw Delta's views, Delta's card settings and its public paths.
 //
@@ -9,9 +9,7 @@ import { resolveDossierTarget } from '../legacy/suite-handshake.js';
 import { FEATURE_STAGES, MILESTONE_KIND, NPC_KIND } from '../meters/npc-meters.js';
 import { metersCardScreen } from '../meters/npc-meters-screen.js';
 import { createPublicPathsDefinition } from '../public-paths.js';
-import { fileVault } from '../legacy/storysuite-participant/index.js';
 import { createIdentity } from './identity.js';
-import { createStorageRow, REFERENCED_QUERY } from '../legacy/storysuite-participant/storage-row.js';
 
 const EVENTS = Object.freeze({
     settingsMounted: 'npc-state-delta:settings-mounted',
@@ -22,7 +20,7 @@ const EVENTS = Object.freeze({
 export function createTimelinePart(session, deps) {
     const {
         calendarOwn, CAST_TAB_ID, CAST_WIDGET, castPanels, castScreen, castStillShown, castWidget, doc, DOSSIERS_ICON, DOSSIERS_TITLE,
-        enabled, HOSTED_FLAG, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, participantVault, peopleSync, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
+        enabled, HOSTED_FLAG, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, peopleSync, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
         storedSettings, suiteApi, syncDrawer, V2_HOST_EVENT, version, warn,
     } = deps;
 
@@ -109,7 +107,7 @@ export function createTimelinePart(session, deps) {
         } catch { return null; }
     };
     // Story Block's head-selection barrier (docs/v2/TIMELINE.md, HISTORY.md): after a delete, a swipe or a retraction the host raises its barrier and
-    // asks every participant to stand on the checkpoint of the selected head (`prepare`, `activate`: the callbacks of the participant below), and lowers
+    // asks every participant to stand on the checkpoint of the selected head (`prepare`, `activate`: the callbacks of a participant), and lowers
     // it only when they do. Nothing here selects a head. `head()` is the host's own look at it (it raises the barrier when a selection is needed and
     // answers RESTORE_PENDING while it is up), so Delta asks it before it reads or writes the dossiers and waits for it. true once the barrier is
     // down (or when the host has no such barrier), false if it is still up after `settleMs`.
@@ -137,15 +135,6 @@ export function createTimelinePart(session, deps) {
     };
     const messageGate = Object.freeze({ refresh: activeMessages, settled: headSettled });
     let offNativeChange = null;
-    const vault = participantVault ?? fileVault({ headers: () => runtime()?.requestHeaders?.() ?? {} });
-    // The Storage row of the settings panel (clean-up of old dossier files; report and confirmed removal only). Hosted only: Story Block answers
-    // which checkpoint files every chat uses. Nothing here writes to the vault.
-    const storageRow = createStorageRow({
-        doc, vault, warn,
-        exclusive: fn => fn(),
-        ask: async () => session.sdkRef.query(REFERENCED_QUERY, {}),
-        live: () => { try { return runtime()?.getState?.() ?? null; } catch { return null; } },
-    });
     const timeline = createIdentity({ readState: () => runtime()?.getState?.() ?? null });
     function startTimeline() {
         const api = runtime();
@@ -158,7 +147,6 @@ export function createTimelinePart(session, deps) {
         try { offNativeChange?.(); } catch { /* gone */ }
         offNativeChange = null;
         try { runtime()?.useMessageGate?.(null); } catch { /* gone */ }
-        storageRow.unmount();
     }
     const definition = Object.freeze({
         id: MODULE_ID,
@@ -177,10 +165,10 @@ export function createTimelinePart(session, deps) {
         queries: Object.freeze({ ...queries, ...timeline.queries }),
         capture: {
             kinds: {
-                [NPC_KIND]: { grammar: part.kinds[NPC_KIND].grammar, after: part.kinds[NPC_KIND].after },
+                [NPC_KIND]: { grammar: part.kinds[NPC_KIND].grammar, heads: part.kinds[NPC_KIND].heads, after: part.kinds[NPC_KIND].after },
                 [MILESTONE_KIND]: { grammar: part.kinds[MILESTONE_KIND].grammar, feature: FEATURE_STAGES, after: part.kinds[MILESTONE_KIND].after },
-                // The notes kinds (lie, know, taste, tie): each behind the notes feature, all handled by the one apply below. `after: ['time']`: a line runs behind the reply's time line (the day rule).
-                ...Object.fromEntries(Object.entries(part.kinds).filter(([kind]) => kind !== NPC_KIND && kind !== MILESTONE_KIND).map(([kind, entry]) => [kind, { grammar: entry.grammar, feature: entry.feature, after: entry.after }])),
+                // The notes kinds (lie, know, taste, tie) and the line kinds with no grammar line yet (memory, reveal: `heads` only): each behind the notes feature, all handled by the one apply below. `after: ['time']`: a line runs behind the reply's time line (the day rule).
+                ...Object.fromEntries(Object.entries(part.kinds).filter(([kind]) => kind !== NPC_KIND && kind !== MILESTONE_KIND).map(([kind, entry]) => [kind, { grammar: entry.grammar, ...(entry.feature === undefined ? {} : { feature: entry.feature }), ...(entry.heads ? { heads: entry.heads } : {}), after: entry.after }])),
             },
             apply: (ctx, line) => part.kinds[NPC_KIND].apply(ctx, line),
         },
@@ -260,7 +248,6 @@ export function createTimelinePart(session, deps) {
         listening = true;
         doc.addEventListener(EVENTS.settingsMounted, () => {
             if (!session.hosted) return;
-            if (typeof session.sdkRef?.query === 'function') storageRow.mount();
             if (session.pendingSection?.isConnected) mountSection(session.pendingSection);
             else syncDrawer();
         });

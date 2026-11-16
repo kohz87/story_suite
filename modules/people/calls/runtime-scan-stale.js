@@ -2,6 +2,7 @@
    from stale cleanup and the stale archive/delete pass run around a merge. Split unchanged from runtime-scan.js. */
 
 import { applyStaleNpcLifecycle, normalizeName, npcMatchesLabel } from '../core/core.js';
+import { rosterCount } from '../core/roster-count.js';
 
 export function collectStaleCleanupProtectedIds(state, scanResult, transcript = '') {
     const ids = new Set();
@@ -38,7 +39,7 @@ export function collectStaleCleanupProtectedIds(state, scanResult, transcript = 
 
 export function applyStaleLifecycleAfterScan(state, scanResult, transcript, settings, { onlyWhenAtCap = false, keepIds = [], noDelete = false, now = null } = {}) {
     if (settings.autoPruneStale === false) return { state, archived: [], removed: [] };
-    const activeCount = (state.npcs || []).filter(npc => !npc?.archived).length;
+    const activeCount = rosterCount(state.npcs, state.turn, settings.staleArchiveAfter);
     if (onlyWhenAtCap && activeCount < Number(settings.maxNpcs || 40)) return { state, archived: [], removed: [] };
     return applyStaleNpcLifecycle(state, {
         turn: state.turn,

@@ -115,8 +115,8 @@ function fakePage() {
 }
 
 const NPCS = [
-    { id: 'npc_mira', name: 'Mira', aliases: ['Captain'], present: true, archived: false, role: 'Guard' },
-    { id: 'npc_oren', name: 'Oren', aliases: [], present: false, archived: false, role: 'Miller' },
+    { id: 'npc_mira', name: 'Mira', aliases: ['Captain'], present: true, role: 'Guard' },
+    { id: 'npc_oren', name: 'Oren', aliases: [], present: false, role: 'Miller' },
     { id: 'npc_kael', name: 'Kael', aliases: [], present: false, archived: true, role: '' },
 ];
 function fakeDelta() {

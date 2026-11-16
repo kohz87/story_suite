@@ -58,7 +58,6 @@ test('present cards resolve the current canonical NPC name after identity promot
 test('dossier uses trust affection desire tension and strict presence wording', () => {
     assert.match(dossierUi, /RELATIONSHIP_AXES = Object\.freeze\(\[\['trust', 'Trust'\], \['affection', 'Affection'\], \['desire', 'Desire'\], \['tension', 'Tension'\]\]\)/);
     assert.doesNotMatch(dossierUi, /'Respect'/);
-    assert.match(index, /filter\(npc => !npc\.archived && npc\.present && !npc\.minor\)/);
     assert.match(index, /Only active NPCs present in the latest scanned scene/);
 });
 
@@ -89,6 +88,7 @@ test('present-only behavior injection and manual dossier editor controls are exp
     assert.match(index, /npc_state_delta_behavior_criteria/);
     assert.match(index, /Relationship-to-behavior rubric/);
     assert.match(index, /npc-state-delta-roster-edit/);
+    assert.doesNotMatch(index, /protected from stale lifecycle|retentionProtected/);
     assert.match(index, /Save dossier/);
     assert.match(index, /Protect edited stable profile fields/);
     assert.match(index, /Leave off to use manual edits as an organic baseline/);
@@ -109,11 +109,10 @@ test('present-only behavior injection and manual dossier editor controls are exp
 });
 
 
-test('archive lifecycle controls stay reversible while settings roster exposes confirmed hard delete', () => {
+test('the settings roster has no archive control; restore (a death correction) and confirmed hard delete stay', () => {
     assert.match(index, /Archive confirmed deaths/);
     assert.match(index, /Reactivate on clear return/);
-    assert.match(index, /Archived \(\$\{archived\.length\}\)/);
-    assert.match(index, /npc-state-delta-archive-npc/);
+    assert.doesNotMatch(index, /npc-state-delta-archive-npc/);
     assert.match(index, /npc-state-delta-restore-npc/);
     assert.match(index, /npc-state-delta-roster-delete npc-state-delta-delete-npc/);
     assert.match(index, /Delete \${escapeHtml\(npc\.name\)} dossier/);
@@ -123,7 +122,6 @@ test('archive lifecycle controls stay reversible while settings roster exposes c
     assert.match(index, /click\.npcStateDelta', '\.npc-state-delta-delete-npc'/);
     assert.match(index, /keydown\.npcStateDelta', '\.npc-state-delta-delete-npc'/);
     assert.doesNotMatch(index, /npc-state-delta-inline-delete-npc/);
-    assert.match(css, /npc-state-delta-archived-roster/);
     assert.match(css, /npc-state-delta-roster-delete/);
     assert.match(css, /npc-state-delta-editor-lifecycle/);
 });

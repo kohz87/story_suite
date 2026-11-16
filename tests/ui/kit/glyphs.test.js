@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { glyph, GLYPHS } from '../../../ui/kit/glyphs.js';
 
-const EXPECTED_TABS = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story', 'fight'];
+const EXPECTED_TABS = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story', 'scene', 'fight'];
 const EXPECTED_SLOTS = ['head', 'armor', 'cloak', 'feet', 'mount', 'weapon', 'offhand', 'accessory', 'bagslot'];
 
 test('GLYPHS includes all tab and slot glyphs as frozen structured data', () => {

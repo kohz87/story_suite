@@ -7,6 +7,9 @@ import {
     rekeyCollidingImportedSlots, uniqueImportedId, withoutSourceReplyNumbers,
 } from '../bundle-import-helpers.js';
 
+// P6: no archive flag; the roster cap counts neither an old archived record nor a confirmed death (as the death archive did).
+const offRoster = npc => isTerminalNpcDeath(npc);
+
 export function mergeImportedDossierState(currentState, importedState, { maxNpcs = 40, excludeNames = [], report = null, foreignOwnership = false } = {}) {
     const current = currentState && typeof currentState === 'object' ? currentState : {};
     const incoming = importedState && typeof importedState === 'object' ? importedState : {};
@@ -39,7 +42,7 @@ export function mergeImportedDossierState(currentState, importedState, { maxNpcs
         .map(value => String(value || '').trim())
         .filter(Boolean));
     const cap = Math.max(1, Math.min(100, Number(maxNpcs) || 40));
-    let activeCount = npcs.filter(npc => !npc?.archived).length;
+    let activeCount = npcs.filter(npc => !offRoster(npc)).length;
     const acceptedTargetIds = new Map();
 
     for (const rawNpc of imported) {
@@ -49,7 +52,7 @@ export function mergeImportedDossierState(currentState, importedState, { maxNpcs
         const index = identityMatchIndex(npcs, npc, { stableIdOnly: Boolean(sourceId && tombstonedIds.has(sourceId)) });
         if (index >= 0) {
             const old = npcs[index];
-            const wasActive = !old?.archived;
+            const wasActive = !offRoster(old);
             const targetId = old.id;
             if (usedTargetIndexes.has(index)) {
                 importReport?.skipped.push({ sourceId, id: targetId, name: npc.name, reason: 'duplicate-identity' });
@@ -89,7 +92,7 @@ export function mergeImportedDossierState(currentState, importedState, { maxNpcs
             });
             const accepted = isTerminalNpcDeath(old) ? protectTerminalNpc(old, merged) : merged;
             npcs[index] = accepted;
-            const isActive = !accepted?.archived;
+            const isActive = !offRoster(accepted);
             if (wasActive !== isActive) activeCount += isActive ? 1 : -1;
             importReport?.updated.push({ sourceId, id: targetId, name: accepted.name });
             importReport?.accepted.push({ sourceId, id: targetId, name: accepted.name, status: 'updated' });
@@ -118,7 +121,7 @@ export function mergeImportedDossierState(currentState, importedState, { maxNpcs
             delete npc.fieldChangeDays;
         }
 
-        if (!npc.archived && activeCount >= cap) {
+        if (!offRoster(npc) && activeCount >= cap) {
             if (sourceId) rejectedSourceIds.add(sourceId);
             importReport?.skipped.push({ sourceId, id: targetId, name: npc.name, reason: 'capacity' });
             continue;
@@ -127,7 +130,7 @@ export function mergeImportedDossierState(currentState, importedState, { maxNpcs
         npcs.push(npc);
         usedTargetIndexes.add(npcs.length - 1);
         usedIds.add(targetId);
-        if (!npc.archived) activeCount += 1;
+        if (!offRoster(npc)) activeCount += 1;
         importReport?.added.push({ sourceId, id: targetId, name: npc.name, archived: Boolean(npc.archived) });
         importReport?.accepted.push({ sourceId, id: targetId, name: npc.name, status: 'added' });
         if (sourceId) acceptedTargetIds.set(sourceId, targetId);

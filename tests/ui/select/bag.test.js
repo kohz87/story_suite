@@ -37,6 +37,13 @@ describe('selectBag', () => {
     assert.equal(vm.items.find(i => i.stack === 'hd').qty, 3);
   });
 
+  it('takes what one unit weighs, the soak the piece has of its own and its slot\'s cap from gear.view\'s row for the Edit form; null when the row has none', () => {
+    const withRows = selectBag({ ...BASE, gear: { ...GEAR, rows: { ...GEAR.rows, sh: { word: 'torn', weight: 4, soakOwn: 1, soakMax: 2 }, hd: { word: 'good', weight: 1, soakOwn: 0, soakMax: 0 } } } });
+    const of = stack => withRows.items.find(i => i.stack === stack);
+    assert.deepEqual([of('sh').weight, of('sh').soak, of('sh').soakMax, of('hd').weight], [4, 1, 2, 1]);
+    assert.deepEqual([of('sw').weight, of('sw').soak, 'soakMax' in of('sw')], [null, null, false]);
+  });
+
   it('names the wearer by id, and the party-owned worn piece by the pc', () => {
     const by = Object.fromEntries(vm.items.map(i => [i.stack, i.wornBy]));
     assert.equal(by.sw, 'astra');

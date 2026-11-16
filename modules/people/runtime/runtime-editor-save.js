@@ -158,7 +158,6 @@ export function createEditorSave(rt, deps, helpers) {
             };
         }
         Object.assign(next, editorProfileLocks(current, next, { protect: Boolean(document.getElementById('npc_state_delta_edit_lock_profile')?.checked) }));
-        next.retentionProtected = Boolean(document.getElementById('npc_state_delta_edit_retention_protected')?.checked);
         next.minor = Boolean(document.getElementById('npc_state_delta_edit_minor')?.checked);
         next.updatedAt = Date.now();
         state.npcs[index] = normalizeNpcRecord(next);

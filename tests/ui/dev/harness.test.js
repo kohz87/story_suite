@@ -15,19 +15,19 @@ function setup(search = '') {
 
 test('reads theme, variant, width and tab from the query', () => {
   const { h, frame } = setup('?theme=light&variant=rpgOff&width=820&tab=bag');
-  assert.deepEqual(h.state, { theme: 'light', variant: 'rpgOff', width: 820, tab: 'bag', plan: 'off', fight: 'choose', bag: 'light' });
+  assert.deepEqual(h.state, { theme: 'light', variant: 'rpgOff', width: 820, tab: 'bag', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false });
   assert.equal(frame.style.width, '820px');
   assert.equal(h.suite().tabHost.current(), 'bag');
 });
 
 test('falls back on unknown query values', () => {
   const { h } = setup('?theme=neon&variant=x&width=abc');
-  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'now', plan: 'off', fight: 'choose', bag: 'light' });
+  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'now', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false });
 });
 
 test('controls remount with the chosen switch', () => {
   const { h, controls, frame } = setup();
-  assert.equal(controls.querySelectorAll('button').length, 22);
+  assert.equal(controls.querySelectorAll('button').length, 27);
   controls.querySelector('[data-key="variant"][data-value="fightOpen"]').click();
   assert.equal(h.state.variant, 'fightOpen');
   assert.equal(h.suite().tabHost.tabs().includes('fight'), true);
