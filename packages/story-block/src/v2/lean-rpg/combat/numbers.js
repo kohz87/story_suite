@@ -23,7 +23,22 @@ export const V1 = deep({
     soak: { stanceStep: 5 },
     tempoStanceBonus: 1,
     foe: { rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6, damageRound: 0.5, defaultTier: 'standard', groupMax: 6 },
-    cost: { attack: 1, area: 2, heal: 2, stance: 1 },
+    cost: { normal: 0, attack: 1, area: 2, heal: 2, stance: 1, utility: 0 },
+    skill: {
+        defaultType: 'attack', normalType: 'normal', fallbackTypes: ['attack', 'area'],
+        magicStats: ['int', 'wis'], pools: { physical: 'sp', magic: 'mp' },
+        normal: { kind: 'action', cost: 'normal', pool: null, adds: 'damage' },
+        types: {
+            attack: { label: 'Attack', kind: 'action', cost: 'attack', pool: 'stat', adds: 'damage', aliases: ['attack'] },
+            area: { label: 'Area attack', kind: 'action', cost: 'area', pool: 'stat', adds: 'damage', aliases: ['area', 'area attack', 'areaattack'] },
+            defence: { label: 'Defence', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'soak', aliases: ['defence', 'defense'] },
+            evasion: { label: 'Evasion', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['evasion'] },
+            movement: { label: 'Movement', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'roll', aliases: ['movement'] },
+            heal: { label: 'Heal', kind: 'action', cost: 'heal', pool: 'mp', adds: 'healing', aliases: ['heal', 'healing'] },
+            support: { label: 'Support', kind: 'stance', cost: 'stance', pool: 'stat', adds: 'value', aliases: ['support'] },
+            utility: { label: 'Utility', kind: 'story', cost: 'utility', pool: null, adds: 'check', aliases: ['utility'] },
+        },
+    },
 });
 
 /** Foe tiers: the HP and damage multiplier and the tier's roll bonus. An absent tier is V1.foe.defaultTier. */
