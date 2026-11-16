@@ -187,6 +187,7 @@ Last checked: 2026-11-07.
 - `src/v2/commands/transact.js`: one transaction.
 - `src/v2/store/write/saving.js`: touch, lifecycle changed and the idle/late saves.
 - `src/v2/store/write/story.js`: append and before.
+- `src/v2/store/people-block.js`: tells a stored block that holds only people writes, so a Re-read can skip it when it no longer applies.
 - `src/v2/store/write/replace.js`: replaceStory and reconcile.
 - `src/v2/store/write/records.js`: narrated, practice rule, receipts, truncate, untold and work.
 - `src/v2/store/write/lifecycle.js`: rebuild, archive, batch and renamed.
@@ -292,8 +293,8 @@ Last checked: 2026-11-07.
 - `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `src/v2/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
 - `src/v2/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
-- `src/v2/domains/people/part.js`: the deferred `people` domain part: the `people.mirror` command and the `people.mirrorOn` / `people.hash` queries, off unless the flag is on.
-- `src/v2/domains/people/validate.js`: checks a people view (version, order, plain JSON, records keyed by id) before it is stored.
+- `src/v2/domains/people/part.js`: the core `people` domain part (present from the first reply, no flag): the `people.write` command and the `people.hash` query.
+- `src/v2/domains/people/validate.js`: checks a people view (version, order, plain JSON, records keyed by id, portraits as file references only, socialGraph keys and ids) before it is stored.
 - `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
 - `testkit/matrix/run/checks.js`: matrix state checks, cold replay, the fresh-host oracle, dormancy and registration.
