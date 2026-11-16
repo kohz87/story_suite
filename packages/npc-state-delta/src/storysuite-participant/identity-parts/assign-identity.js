@@ -1,6 +1,6 @@
 // Assigning np_ ids to dossiers: a fresh id, and bringing an identity up to date with the dossiers.
 
-import { sha256 } from '../hash.js';
+import { sha256 } from '../../adapter/hash.js';
 import { cleanIdentity } from './clean-identity.js';
 
 const BASE36 = '0123456789abcdefghijklmnopqrstuvwxyz';

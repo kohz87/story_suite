@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { NP_ID, buildCheckpoint, checkpointIdOf, checkpointProblem, createParticipant, hydrateIdentity, memoryVault, resolveIdentity, storedTimeline, timelineOf } from '../src/storysuite-participant/index.js';
-import { hashJson, sha256 } from '../src/storysuite-participant/hash.js';
+import { hashJson, sha256 } from '../src/adapter/hash.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 import { freshState, npc, setup } from './storysuite-participant.helpers.js';
 

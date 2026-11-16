@@ -4,7 +4,7 @@
 
 import { buildCheckpoint, checkpointProblem } from '../checkpoint.js';
 import { hydrateIdentity } from '../identity.js';
-import { hashJson } from '../hash.js';
+import { hashJson } from '../../adapter/hash.js';
 import { LINEAGE_ID, mintLineage, restoredState, storedTimeline, timelineOf } from '../timeline.js';
 import { cleanIndex, fail, isRecord, plain } from './support.js';
 

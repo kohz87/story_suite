@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildCheckpoint, checkpointProblem, memoryVault } from '../src/storysuite-participant/index.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { hashJson } from '../src/adapter/hash.js';
 import { fileVault } from '../src/storysuite-participant/vault.js';
 import { bytesOf, fileOf, filesServer, freshState, lined, saveRun, setup, stateAt } from './storysuite-participant.helpers.js';
 

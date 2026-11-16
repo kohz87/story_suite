@@ -49,7 +49,7 @@ import { createNativeDeath } from './adapter/native-death.js';
 import { createPeopleSync } from './adapter/people-sync.js';
 import { peopleView, peopleState, peopleCarry } from './people/view.js';
 import { keepStampContainers } from './people/keep-containers.js';
-import { hashJson } from './storysuite-participant/hash.js';
+import { hashJson } from './adapter/hash.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './adapter/queries.js';
 export { meterBarNode } from './adapter/cast-ui.js';

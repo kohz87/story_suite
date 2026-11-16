@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createParticipant, memoryVault, installGuard, changeAt, restoreNoteText } from '../src/storysuite-participant/index.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { hashJson } from '../src/adapter/hash.js';
 
 const npc = (id, name) => ({ id, name, aliases: [], present: true, lifeState: 'alive', trust: 3 });
 const names = count => Array.from({ length: count }, (_, at) => `m${at}`);

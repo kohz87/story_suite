@@ -4,7 +4,7 @@
 
 import { PARTICIPANT_SCHEMA } from '../checkpoint.js';
 import { isTerminalNpcDeath } from '../../../terminal-lifecycle.js';
-import { hashJson } from '../hash.js';
+import { hashJson } from '../../adapter/hash.js';
 import { changeAt, installGuard, restoredState, restoreNoteText, selectionBehind, selectionMaxBehind, storedTimeline, timelineOf } from '../timeline.js';
 import { HISTORY_REPLAY_CAP } from '../history-replay.js';
 import { fail, isRecord, plain, preparedId } from './support.js';

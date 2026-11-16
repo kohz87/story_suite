@@ -1,6 +1,6 @@
 import { createParticipant, memoryVault } from '../src/storysuite-participant/index.js';
 import { buildCheckpoint } from '../src/storysuite-participant/index.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { hashJson } from '../src/adapter/hash.js';
 
 export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], present: true, lifeState: 'alive', trust: 3, ...extra });
 export const freshState = () => ({

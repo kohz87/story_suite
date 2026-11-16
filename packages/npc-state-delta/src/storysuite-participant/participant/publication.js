@@ -4,7 +4,7 @@
 
 import { PARTICIPANT_SCHEMA } from '../checkpoint.js';
 import { hydrateIdentity } from '../identity.js';
-import { hashJson } from '../hash.js';
+import { hashJson } from '../../adapter/hash.js';
 import { storedTimeline, timelineOf } from '../timeline.js';
 import { RETRY_CODES, fail, isRecord, plain, preparedId } from './support.js';
 

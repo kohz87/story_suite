@@ -1,6 +1,6 @@
 // Building a checkpoint document and checking that a document is a whole checkpoint with its hash.
 
-import { hashJson } from '../hash.js';
+import { hashJson } from '../../adapter/hash.js';
 import { PARTICIPANT_SCHEMA, KIND } from './shared-basics.js';
 import { isRecord, plain } from './shared-records.js';
 import { checkpointIdOf } from './checkpoint-id.js';

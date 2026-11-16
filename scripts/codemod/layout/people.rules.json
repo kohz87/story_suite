@@ -31,6 +31,7 @@
     { "from": "packages/npc-state-delta/portrait*", "to": "modules/people/portrait/portrait*" },
     { "from": "packages/npc-state-delta/present-scene*", "to": "modules/people/legacy/present-scene*" },
     { "from": "packages/npc-state-delta/relationship*", "to": "modules/people/legacy/relationship*" },
+    { "from": "packages/npc-state-delta/roster-count.js", "to": "modules/people/core/roster-count.js" },
     { "from": "packages/npc-state-delta/runtime-branch*", "to": "modules/people/legacy/runtime-branch*" },
     { "from": "packages/npc-state-delta/runtime-persist*", "to": "modules/people/legacy/runtime-persist*" },
     { "from": "packages/npc-state-delta/runtime-reconcile*", "to": "modules/people/legacy/runtime-reconcile*" },

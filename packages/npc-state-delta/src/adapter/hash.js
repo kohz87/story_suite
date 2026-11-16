@@ -1,7 +1,7 @@
 // NPC State Delta, the contract's Hash (§4): SHA-256 of the normalized JSON of a value. Queries are given no `hash` tool (only
 // commands and the replay hook are: `ctx.hash`, `hooks.replayGuard({ hash })`), and a checkpoint's Hash is the contract's,
 // so this is the same function, written here because an extension cannot import Story Block (Story Director's v2/hash.js and RPG Battle's rules/hash.js are its twins).
-// tests/storysuite-participant.test.js holds it to the platform's SHA-256. Pure.
+// tests/adapter-hash.test.js holds it to the platform's SHA-256. Pure.
 
 const utf8 = new TextEncoder();
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);

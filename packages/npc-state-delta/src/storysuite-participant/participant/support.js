@@ -1,7 +1,7 @@
 // Shared participant helpers: answer envelopes, plain copies, prepared ids and the checked shape of a story line's index.
 // These are pure helpers used by the participant factory and its owner parts; no host state is read here.
 
-import { hashJson } from '../hash.js';
+import { hashJson } from '../../adapter/hash.js';
 import { cleanRestoreNote } from '../timeline.js';
 
 export const fail = (code, message) => ({ ok: false, code, message });
