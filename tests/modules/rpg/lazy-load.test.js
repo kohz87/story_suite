@@ -34,23 +34,23 @@ function closure(entry) {
     walk(resolve(ROOT, entry));
     return [...seen].map(file => relative(ROOT, file));
 }
-// The RPG's code proper: everything of src/v2/lean-rpg/ but the small helpers every block uses (names, blocks, formula, read, soul, tail, cue, foes, levels, roster, noroll: the no-rolls record, a small command with no state).
+// The RPG's code proper: everything of modules/rpg/ but the small helpers every block uses (names, blocks, formula, read, soul, tail, cue, foes, levels, roster, noroll: the no-rolls record, a small command with no state).
 const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster', 'noroll']);
 // A facade's parts (`blocks.js` → `blocks-parts/*.js`) count as the facade's own file.
-const nameOf = file => file.slice('src/v2/lean-rpg/'.length, -3).replace(/-parts\/.*$/, '');
-const rpgFiles = files => files.filter(file => file.startsWith('src/v2/lean-rpg/') && !SHARED.has(nameOf(file)));
+const nameOf = file => file.slice('../../modules/rpg/'.length, -3).replace(/-parts\/.*$/, '');
+const rpgFiles = files => files.filter(file => file.startsWith('../../modules/rpg/') && !SHARED.has(nameOf(file)));
 
 test('the page start (index.js static imports) reaches none of the RPG\'s code, only its small shared helpers', () => {
     const files = closure('index.js');
     assert.deepEqual(rpgFiles(files), [], 'the RPG\'s files come in by import() only');
     const bytes = list => list.reduce((sum, file) => sum + statSync(resolve(ROOT, file)).size, 0);
-    const lean = files.filter(file => file.startsWith('src/v2/lean-rpg/'));
+    const lean = files.filter(file => file.startsWith('../../modules/rpg/'));
     assert.ok(lean.every(file => SHARED.has(nameOf(file))), `only the shared helpers: ${lean.join(', ')}`);
     // (112700, just above the measured 112,685 bytes in 75 files; before the facade splits: 99,910 bytes in 11 files, the rest is parts' header comments and import lists: the facade splits of blocks.js, cue.js, foes.js, formula.js, names.js, levels.js, read.js, roster.js and soul.js add their parts' header comments and imports; 100500: the consumables' one-sentence line in cue.js, shared by the note, the log and the cue; 99000: the harder-foes rule's few lines in foes.js / blocks.js / read.js; 97700: the six foe groups' read.js lines; 97500: the bench card's words in strings/story.js; 97000: the story-check note and grammar words live in cue.js / names.js, shared helpers the page start reaches; party.levels is in read.js / roster.js)
     // (117800: the Combat Rules v1 sheet reader, read-parts/v1-rows.js, and its small names are in the shared `read` helper that the page start reaches: +5,100 bytes, no combat/ file.)
     assert.ok(bytes(lean) < 117800, `the shared helpers stay small (${bytes(lean)} bytes)`);
     // …and what a dynamic import brings in is the whole RPG (the part and its pieces), so the split is real.
-    const whole = closure('src/v2/lean-rpg/index.js').filter(file => file.startsWith('src/v2/lean-rpg/'));
+    const whole = closure('../../modules/rpg/index.js').filter(file => file.startsWith('../../modules/rpg/'));
     assert.ok(bytes(whole) > 4 * bytes(lean), 'the part is most of the RPG\'s code');
 });
 
