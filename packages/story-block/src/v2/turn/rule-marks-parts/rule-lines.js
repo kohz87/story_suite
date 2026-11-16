@@ -38,6 +38,8 @@ export const RULE_LINES = Object.freeze({
     clockMonth: () => false,
     // `~ you rank:` that contradicts the pack's rank data module (Ersveil guild-membership: registered, letter) is left out with a Problem (domains/scene/you.js changeYou). Static per chat: only a reply's first live capture is marked, so an older reply keeps its rank line on Re-read.
     youRank: () => false,
+    // With gear on, `~ you wearing:` from the story is left out with a Problem (what is worn is the equipped gear), `outfit:` (lasting) and `look:` (passing, cleared on a move) are kept, each at most 60 characters (domains/scene/you-look.js). Any you line counts.
+    youLook: line => line?.kind === 'you',
     // Practice lines can explicitly name a skill and must not credit an arbitrary slot when their reason names several skills.
     skillPractice: line => line?.kind === 'dm' && line.op === '+' && (!line.labels?.kind || /^practice-(?:[1-9]|1[01])$/u.test(String(line.labels.kind))),
     // Only new replies change how the safety net's place lines affect presence or reject conflicting places.

@@ -2,3 +2,4 @@
 packages/Story_director
 # Dependencies installed by npm ci (root devDependencies: the code-map parser).
 node_modules
+dist/

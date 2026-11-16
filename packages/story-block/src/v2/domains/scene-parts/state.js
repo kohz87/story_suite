@@ -3,7 +3,7 @@
 import { isPlainObject } from '../common.js';
 import { trimText } from '../names.js';
 import { validateMounts } from '../mounts.js';
-import { MAX_NAME, MAX_PRESENT, WEATHER_CHARS, WEATHER_KEY_CHARS, YOU_CHARS, YOU_PARTS } from '../scene/constants.js';
+import { MAX_NAME, MAX_PRESENT, WEATHER_CHARS, WEATHER_KEY_CHARS, YOU_CHARS, YOU_PARTS, YOU_SHORT, YOU_SHORT_CHARS } from '../scene/constants.js';
 
 export function initialScene() {
     return { place: { name: '', kind: '', region: '' }, present: [] };
@@ -54,8 +54,9 @@ export function validateScene(slice) {
             for (const part of YOU_PARTS) {
                 const value = slice.you[part];
                 if (value === undefined) continue;
+                const cap = YOU_SHORT.includes(part) ? YOU_SHORT_CHARS : YOU_CHARS;
                 if (typeof value !== 'string') errors.push(`Your ${part} is not text.`);
-                else if (Array.from(value).length > YOU_CHARS) errors.push(`Your ${part} is longer than ${YOU_CHARS} characters.`);
+                else if (Array.from(value).length > cap) errors.push(`Your ${part} is longer than ${cap} characters.`);
             }
         }
     }
