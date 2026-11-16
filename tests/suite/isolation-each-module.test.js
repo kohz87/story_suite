@@ -1,6 +1,6 @@
 // J10-5 (suite): with suite.isolatedApply on, a throw injected into one of Story Block (a core hook), Story Director (its afterCapture) or NPC State
 // (its tick after the turn) leaves the other two applying, and the reply's list of failed modules (what the card's "could not finish" row and the
-// Inspector read) names only the failing one. With the flag off the list is empty. Real Story Block + Story Director + the NPC State adapter.
+// Inspector read) names only the failing one. (The flag gates what the card and the Inspector show; the SB host test covers the flag-off card.) Real Story Block + Story Director + the NPC State adapter.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';

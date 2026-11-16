@@ -81,7 +81,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     // before the reader's first one), which holds the chat's start, not a reply's changes.
     const hasCard = index => hasReplyRecord(ctx.chat ?? [], index);
     // ---- notes under replies, and the refused lines the changes card shows (ui-host/notes-wiring.js) ----
-    const notes = createNotesWiring({ runtime, ctx, doc, sdk, events, getMounts: () => mounts });
+    const notes = createNotesWiring({ runtime, ctx, doc, sdk, events, getMounts: () => mounts, onForget: () => forgetFailures?.() });
     // Choices under the latest reply (MODULES §F115), read from its own text.
     const extras = createReplyExtras({
         ctx,
@@ -90,12 +90,13 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         display: typeof runtime.display === 'function' ? runtime.display : mes => displayLines(mes, { entryOf: word => registry.capture(word) }),
         featureOn: id => registry.featureOn?.(id) === true,
     });
+    const nameOf = id => registry.modules?.().find(def => def.id === id)?.name ?? id;
     // What the Inspector lists as a reply's problems (ui-host/inspector-problems.js).
     function inspectorProblems(index) {
         return inspectorProblemsFor(index, {
             store, runtime, notes,
             isolated: () => flagOn(() => ctx?.extensionSettings, FLAGS.isolatedApply),
-            nameOf: id => registry.modules?.().find(def => def.id === id)?.name ?? id,
+            nameOf,
         });
     }
     // The RPG's screens (ui-host/lean-rpg-sync.js): loaded by import() only while its feature is on, taken away when it goes off.
@@ -104,8 +105,8 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         getHeadState: () => headStateNow, getMounts: () => mounts, getOverlay: () => overlay, refresh: () => refresh(), openSettings: options => openSettings(options),
     });
     const { syncLeanRpg } = leanRpg;
-    const { cardLines, assistedAt, branchNow, replyCardsAt, replyOffs } = createReplyCards({
-        runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg: () => leanRpg.getRpg(), getMounts: () => mounts,
+    const { cardLines, assistedAt, branchNow, replyCardsAt, replyOffs, forgetFailures } = createReplyCards({
+        runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg: () => leanRpg.getRpg(), getMounts: () => mounts, nameOf,
     });
     const mounts = createUiMounts({
         screens, renderer, registry, ctx, store, sdk, queryAt, notes, assistedAt, cardLines, replyCardsAt, branchNow, coreOn,

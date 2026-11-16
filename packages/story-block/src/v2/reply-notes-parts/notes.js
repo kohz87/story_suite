@@ -24,7 +24,7 @@ const firstCarrier = chat => (Array.isArray(chat) ? chat.findIndex(isCarrier) : 
  */
 export function createReplyNotes({
     ctx, doc = globalThis.document, extractorOn = () => false, extractorFailed = () => false, reread = null, turn = null, events = null,
-    messageElement = null, onChanged = () => {},
+    messageElement = null, onChanged = () => {}, onForget = () => {},
 } = {}) {
     const chat = () => (Array.isArray(ctx?.chat) ? ctx.chat : []);
     const elementOf = messageElement ?? (index => doc.querySelector(`.mes[mesid="${index}"]`));
@@ -205,6 +205,7 @@ export function createReplyNotes({
         warned.clear();
         failed.clear();
         busy.clear();
+        try { onForget(); } catch { /* the card's own memory */ }
     }
 
     // ---- following SillyTavern and the runtime ----------------------------------------------
