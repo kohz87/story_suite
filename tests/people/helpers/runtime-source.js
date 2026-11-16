@@ -5,8 +5,8 @@
 // every file is unchanged. A part that moves or a marker that goes missing fails loudly; add an entry when more code
 // moves out of index.js.
 import fs from 'node:fs';
+import { oldUrl } from './old-path.js';
 
-const root = new URL('../../../modules/people/legacy/', import.meta.url);
 
 export const RUNTIME_SOURCE_PARTS = [
     { files: ['runtime-settings-parts/portrait-preset-constants.js', 'runtime-settings-parts/portrait-preset-library.js', 'runtime-settings-parts/portrait-preset-names.js', 'runtime-settings-parts/defaults.js', 'runtime-settings-parts/save-timing.js', 'runtime-settings-parts/save.js', 'runtime-settings-parts/settings-values.js', 'runtime-settings-parts/custom-fields.js', 'runtime-settings-parts/get-settings.js'], before: 'const { getChatKey,' },
@@ -52,7 +52,7 @@ export const RUNTIME_SOURCE_PARTS = [
     { file: 'runtime-entry-public-write.js', before: 'window.NPCStateDelta = Object.freeze({ ...publicReadApi' },
 ];
 
-const read = file => fs.readFileSync(new URL(file, root), 'utf8');
+const read = file => fs.readFileSync(oldUrl(file), 'utf8');
 
 export function runtimeSource() {
     let source = read('index.js');

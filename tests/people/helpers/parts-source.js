@@ -3,11 +3,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { oldPath } from './old-path.js';
 
-const root = fileURLToPath(new URL('../../../modules/people/legacy/', import.meta.url));
 
 export function partsSource(file) {
-    const facade = file instanceof URL ? fileURLToPath(file) : path.resolve(root, String(file));
+    const facade = file instanceof URL ? fileURLToPath(file) : oldPath(file);
     const text = fs.readFileSync(facade, 'utf8');
     const reexported = [...new Set([...text.matchAll(/from '(\.\/[^']+\.js)'/g)].map(match => path.resolve(path.dirname(facade), match[1])))];
     const folder = facade.replace(/\.js$/, '-parts');

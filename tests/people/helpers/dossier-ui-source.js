@@ -1,8 +1,8 @@
 // Source text of the dossier UI facade together with every part split out of it, for tests that pin source text.
 // A part that is missing fails loudly; keep this list in step when more code moves out of dossier-ui.js.
 import fs from 'node:fs';
+import { oldUrl } from './old-path.js';
 
-const root = new URL('../../../modules/people/legacy/', import.meta.url);
 
 export const DOSSIER_UI_SOURCE_PARTS = [
     'dossier-ui-constants.js',
@@ -68,11 +68,11 @@ export const DOSSIER_UI_SOURCE_PARTS = [
     'dossier-ui-parts/relationship.js',
 ];
 
-const read = file => fs.readFileSync(new URL(file, root), 'utf8');
+const read = file => fs.readFileSync(oldUrl(file), 'utf8');
 
 // Files whose code moved into a sibling "<name>-parts/" folder (the file itself is now a facade of re-exports).
 const SPLIT_PARTS = ['dossier-ui-relationship', 'dossier-ui-screens', 'dossier-ui-sections', 'dossier-ui-view-model']
-    .flatMap(name => fs.readdirSync(new URL(`${name}-parts/`, root)).filter(file => file.endsWith('.js')).sort().map(file => `${name}-parts/${file}`));
+    .flatMap(name => fs.readdirSync(oldUrl(`${name}-parts/`)).filter(file => file.endsWith('.js')).sort().map(file => `${name}-parts/${file}`));
 
 export function dossierUiSource() {
     return ['dossier-ui.js', ...DOSSIER_UI_SOURCE_PARTS, ...SPLIT_PARTS].map(read).join('\n');

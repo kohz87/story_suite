@@ -86,9 +86,8 @@ test('CI commands equal their package.json scripts plus the timeout flag', () =>
   const sbStep = step(sb, 'Behavioral tests');
   assert.equal(noFlag(sbStep.run), sbScript.replace(heap[0], ''));
   assert.match(sbStep.env, new RegExp(`^ +NODE_OPTIONS: ${heap[1]}$`, 'm'));
-  // NPC State's one command (after the cd into its folder) is the one CI runs with the timeout.
-  const nsdLines = step(nsd, 'Behavioral tests').block.trim().split('\n').map((l) => l.trim());
-  assert.equal(`${nsdLines[0]} && ${noFlag(nsdLines[1])}`, script('package.json', 'test:nsd'));
+  // NPC State's one command is the one CI runs with the timeout.
+  assert.equal(noFlag(step(nsd, 'Behavioral tests').run), script('package.json', 'test:nsd'));
 });
 
 test('no CI file uses --test-force-exit', () => {

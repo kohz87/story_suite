@@ -48,7 +48,7 @@ test('2: no top-level constant in a shipped module goes unused', () => {
 
 test('3: every extension class in style.css is used by a shipped module', () => {
     const classes = [...new Set([...styleSource().matchAll(/\.(npc-state-delta-[A-Za-z0-9_-]+)/g)].map(match => match[1]))];
-    // Every src/ module ships too, including the nested parts of the adapter.
-    const shipped = [all, ...fs.readdirSync(new URL('../../packages/npc-state-delta/src/', import.meta.url), { recursive: true }).filter(name => name.endsWith('.js')).map(name => read(`src/${name}`))].join('\n');
+    // Every module ships too, including the nested parts of the adapter (all of modules/people/).
+    const shipped = [all, ...fs.readdirSync(new URL('../../modules/people/', import.meta.url), { recursive: true }).filter(name => name.endsWith('.js')).map(name => fs.readFileSync(new URL(`../../modules/people/${name}`, import.meta.url), 'utf8'))].join('\n');
     assert.deepEqual(classes.filter(name => !shipped.includes(name)), []);
 });

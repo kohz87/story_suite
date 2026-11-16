@@ -317,5 +317,8 @@
   "scripts/director/check.mjs": "Syntax-checks every `.js` file under `ui/legacy/director/` (the Story Director folder), printing \"syntax ok\".",
   "scripts/people/browser-stage9.py": "Optional synthetic browser checks of the local UI modules using Playwright and an in-memory host.",
   "scripts/people/measure-prompts.mjs": "Builds Delta's scanner, profile, injection and narration prompts for fixed scenes and checks their sizes, without provider calls.",
-  "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses."
+  "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses.",
+  "modules/people/core/destructive-settlement.js": "Browser-side registry that connects the destructive-settlement controller to SillyTavern and Delta's public API.",
+  "modules/people/core/hardening.js": "Applies the settings-key hardening rules in the browser: owner-qualified keys, renames and deleted chats.",
+  "modules/people/legacy/style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules."
 }

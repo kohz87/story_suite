@@ -3,7 +3,9 @@
 // Where the checkouts come from: SUITE_SB / SUITE_SD / SUITE_NSD (a folder each) win; else STORY_SUITE_ROOT
 // (<root>/Story_director, <root>/npc_state_delta); else the tool folders of this repo. Story Block is this repo.
 // No folder found: loadSuite() answers { skip } and the test skips.
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { makeFarm } from '../../../../scripts/ci/farm.mjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
@@ -17,10 +19,14 @@ const SD_MOVED = 'ui/legacy/director/module.js';
 export const sdModuleAt = dir => (existsSync(path.join(dir, SD_MODULE)) ? path.join(dir, SD_MODULE) : path.join(dir, SD_MOVED));
 const find = (env, name, rel, own) => [env, ...ROOTS.map(root => path.join(root, name)), own].filter(Boolean).find(dir => existsSync(path.join(dir, rel)) || (rel === SD_MODULE && existsSync(sdModuleAt(dir))));
 
+// No farm given: the repo's own folders in the old shape, built once in a temporary folder.
+let farm = null;
+const fallbackFarm = name => path.join(farm ??= makeFarm(REPO, mkdtempSync(path.join(tmpdir(), 'suite-farm-'))), name);
+
 export const roots = () => ({
     sb: SB,
     sd: find(process.env.SUITE_SD, 'Story_director', 'src/v2/module.js', REPO),
-    nsd: find(process.env.SUITE_NSD, 'npc_state_delta', 'src/storysuite-v2.js', path.join(REPO, 'packages/npc-state-delta')),
+    nsd: find(process.env.SUITE_NSD, 'npc_state_delta', 'src/storysuite-v2.js', fallbackFarm('npc_state_delta')),
 });
 
 export async function loadSuite() {

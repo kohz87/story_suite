@@ -145,7 +145,7 @@ jobs:
           # Tests outside tests/packs also read the example packs and the pack test helpers.
           # Both searches are recursive, so a test in a nested pack folder is run (once).
           packs="$(find tests/packs -name '*.test.js' | sort)"
-          others="$(grep -rliE 'examples/packs|packs/helpers|ersveil' tests/modules tests/matrix tests/bench tests/authoring-kit examples/fishing/tests packages/story-block/tests --include='*.test.js' | grep -v '^tests/packs/' | sort)"
+          others="$(grep -rliE 'examples/packs|packs/helpers|ersveil' tests/modules tests/matrix tests/bench tests/authoring-kit examples/fishing/tests --include='*.test.js' | grep -v '^tests/packs/' | sort)"
           echo "Pack tests:"
           printf '%s\n' "$packs"
           echo "Also running the tests that read the example packs:"
@@ -160,7 +160,7 @@ jobs:
         # The same command and heap as npm run test:sb, plus a per-test timeout (node ignores the flag
         # after the globs and refuses it in NODE_OPTIONS, so `npm test -- --test-timeout` cannot be used;
         # tests/scripts/ci-timeouts.test.js checks this command against package.json).
-        run: node --test --test-timeout=900000 --test-shard=${{ matrix.shard }} "tests/modules/**/*.test.js" "tests/packs/**/*.test.js" "tests/matrix/**/*.test.js" "tests/bench/*.test.js" "tests/authoring-kit/*.test.js" "examples/fishing/tests/*.test.js" "packages/story-block/tests/**/*.test.js"
+        run: node --test --test-timeout=900000 --test-shard=${{ matrix.shard }} "tests/modules/**/*.test.js" "tests/packs/**/*.test.js" "tests/matrix/**/*.test.js" "tests/bench/*.test.js" "tests/authoring-kit/*.test.js" "examples/fishing/tests/*.test.js"
       - name: Keep state-fuzz replay dumps
         if: failure()
         uses: actions/upload-artifact@v4
@@ -199,10 +199,8 @@ jobs:
       - name: Syntax check
         run: node scripts/core/check.mjs
       - name: Behavioral tests
-        # The same command as npm run test:nsd (it changes into the package folder), plus a per-test timeout.
-        run: |
-          cd packages/npc-state-delta
-          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test --test-timeout=900000 "tests/*.test.js" "tests/v2/break/*.test.js"
+        # The same command as npm run test:nsd, plus a per-test timeout.
+        run: node --max-old-space-size=4096 --import ./tests/people/active-runtime-test-setup.mjs --test --test-timeout=900000 "tests/people/**/*.test.js"
 
   # The cross-package suite runs in two parallel shards; verify adds up their test counts against the floor.
   suite:
