@@ -4,13 +4,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { runApply, runPort, runVerify } from '../../../scripts/codemod/area-commands.mjs';
 import { main } from '../../../scripts/codemod/cli.mjs';
-import { SET_A, SET_B, TOY, git, toyRepo, writeFiles } from '../codemod-toy.js';
+import { SET_A, SET_B } from '../codemod-sets.js';
+import { TOY, git, toyRepo, writeFiles } from '../codemod-toy.js';
 
 const sets = [SET_A, SET_B];
 const sink = () => ({ text: '', write(chunk) { this.text += chunk; } });
 const streams = () => ({ stdout: sink(), stderr: sink() });
 
-test('apply --dry runs area a in a temp worktree, runs its tests and leaves the repo untouched', () => {
+test('apply --dry runs area b in a temp worktree, runs its tests and leaves the repo untouched', () => {
   const root = toyRepo(TOY);
   const io = streams();
   assert.equal(runApply(root, sets, 'b', { dry: true, ...io }), 0, io.stderr.text);

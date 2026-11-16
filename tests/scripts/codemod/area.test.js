@@ -6,7 +6,8 @@ import { applyLayout } from '../../../scripts/codemod/apply.mjs';
 import { planForArea } from '../../../scripts/codemod/area.mjs';
 import { verifyDiff, verifyTree } from '../../../scripts/codemod/verify.mjs';
 import { parseRules } from '../../../scripts/codemod/rules.mjs';
-import { SET_A, SET_B, TOY, TOY_RULES, git, toyRepo } from '../codemod-toy.js';
+import { SET_A, SET_B } from '../codemod-sets.js';
+import { TOY, TOY_RULES, git, toyRepo } from '../codemod-toy.js';
 
 const [, , ui, tests] = TOY_RULES.rules;
 const sets = [SET_A, SET_B];

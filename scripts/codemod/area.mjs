@@ -25,7 +25,8 @@ export function planForArea(files, ruleSets, area) {
   const full = buildPlan(files, ruleSets);
   if (!ruleSets.some(set => set.area === area)) throw new Error(`no rule set for area ${area}`);
   if (full.duplicates.length) return { plan: full };
-  const owns = file => areaOf(ruleSets)(file) === area;
+  const owner = areaOf(ruleSets);
+  const owns = file => owner(file) === area;
   const dirs = new Set([...full.moves.map(move => move.from), ...full.deletes].filter(owns).map(file => path.posix.dirname(file)));
   const plan = {
     moves: full.moves.filter(move => owns(move.from)),

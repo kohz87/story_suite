@@ -3,7 +3,6 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { parseRules } from '../../scripts/codemod/rules.mjs';
 
 export function git(root, ...args) {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -48,8 +47,3 @@ export const TOY_RULES = {
     { from: 'pkg/tests', to: 'tests/core' },
   ],
 };
-
-// The toy layout split into two areas: "a" owns the core folders, "b" the ui and the tests.
-const [STORE, RUNTIME, UI, TESTS] = TOY_RULES.rules;
-export const SET_A = parseRules({ area: 'a', scope: ['pkg'], rules: [STORE, RUNTIME] });
-export const SET_B = parseRules({ area: 'b', scope: ['pkg'], rules: [UI, TESTS] });

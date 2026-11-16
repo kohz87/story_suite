@@ -12,7 +12,7 @@ function git(root, args) {
 }
 
 function backUp(root, deletes, backupDir) {
-  if (!deletes.length || !backupDir) return;
+  if (!deletes.length) return;
   fs.mkdirSync(backupDir, { recursive: true });
   for (const file of deletes) {
     fs.mkdirSync(path.dirname(path.join(backupDir, file)), { recursive: true });
@@ -34,17 +34,20 @@ function pruneEmpty(root, sources) {
 
 /**
  * Applies the rule sets to the git tree at `root`: plans (throws listing every problem), moves files with `git mv`,
- * deletes `to: null` files after copying them with a MANIFEST.txt into `backupDir`, then rewrites imports and
+ * deletes `to: null` files after copying them with a MANIFEST.txt into `backupDir` (required when anything is deleted), then rewrites imports and
  * string references. `commits` ({ moves, rewrites } messages) makes one commit after each step. With `area`, the
  * plan is made with all rule sets but only that area's moves and deletes are applied (and its problems refused), and
  * only that area's paths are rewritten; other areas' files stay where they are. Returns
- * { plan, rewritten, unresolved, removed, nonLiteral, stale, errors } for the caller to fail on.
+ * { plan, rewritten, allowedNonLiteral, unresolved, removed, nonLiteral, stale, errors } for the caller to fail on.
  */
 export function applyLayout(root, ruleSets, { backupDir = null, commits = null, allowNonLiteral = [], area = null } = {}) {
   const before = trackedFiles(root);
   const files = new Set(before);
   const { plan } = area ? planForArea(before, ruleSets, area) : { plan: buildPlan(before, ruleSets) };
   const problems = planProblems(plan, { files, readFile: file => fs.readFileSync(path.join(root, file), 'utf8') });
+  const sources = new Set([...plan.moves.map(move => move.from), ...plan.deletes]);
+  for (const move of plan.moves) if (files.has(move.to) && !sources.has(move.to)) problems.push(`${move.from} -> ${move.to}: the target is a tracked file that this run does not move or delete`);
+  if (plan.deletes.length && !backupDir) problems.push(`${plan.deletes.length} files would be deleted: pass a backup dir`);
   if (problems.length) throw new Error(`plan refused:\n${problems.join('\n')}`);
   const mapper = area ? areaMapper(plan, ruleSets, area) : makeMapper(plan, ruleSets);
   backUp(root, plan.deletes, backupDir);
@@ -57,7 +60,7 @@ export function applyLayout(root, ruleSets, { backupDir = null, commits = null, 
   if (commits?.moves) { git(root, ['add', '-A']); git(root, ['commit', '-q', '--allow-empty', '-m', commits.moves]); }
   const deleted = new Set(plan.deletes);
   const newToOld = new Map(plan.moves.map(move => [move.to, move.from]));
-  const report = { plan, rewritten: 0, unresolved: [], removed: [], nonLiteral: [], stale: [], errors: [] };
+  const report = { plan, rewritten: 0, allowedNonLiteral: 0, unresolved: [], removed: [], nonLiteral: [], stale: [], errors: [] };
   for (const oldFile of before) {
     if (deleted.has(oldFile)) continue;
     const newFile = mapper.map(oldFile);
@@ -71,7 +74,8 @@ export function applyLayout(root, ruleSets, { backupDir = null, commits = null, 
       if (imports.error) report.errors.push(`${oldFile}: ${imports.error}`);
       for (const item of imports.unresolved) report.unresolved.push({ file: oldFile, ...item });
       for (const item of imports.removed) report.removed.push({ file: oldFile, ...item });
-      if (!allowNonLiteral.includes(oldFile)) for (const item of imports.nonLiteral) report.nonLiteral.push({ file: oldFile, ...item });
+      if (allowNonLiteral.includes(oldFile)) report.allowedNonLiteral += imports.nonLiteral.length;
+      else for (const item of imports.nonLiteral) report.nonLiteral.push({ file: oldFile, ...item });
       text = imports.source;
     }
     const strings = rewriteStrings(text, ctx);
