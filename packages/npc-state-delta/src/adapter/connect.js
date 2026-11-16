@@ -10,6 +10,9 @@ export function isV2Host(host) {
     return typeof host.ready?.then === 'function' || typeof host.sdk?.registerModule === 'function';
 }
 
+// The id Delta's listeners are guarded under (the host's `sdk.on(name, fn, { module })`); the same as its module id.
+const MODULE = 'npc-state-delta';
+
 export function createConnectPart(session, deps) {
     const {
         aliveMs, announceHosted, attempts, cardSettings, chatKeyOf, definition, dossiersReady, host, listen, loadDossierList,
@@ -60,11 +63,11 @@ export function createConnectPart(session, deps) {
         session.hosted = true;
         session.refused = false;
         try {
-            const off = typeof sdk.on === 'function' ? sdk.on('turn', onTurn) : null;
+            const off = typeof sdk.on === 'function' ? sdk.on('turn', onTurn, { module: MODULE }) : null;
             offTurn = typeof off === 'function' ? off : null;
         } catch (error) { warn('Story Suite v2 turn events are not available', error); }
         try {
-            const off = typeof sdk.on === 'function' ? sdk.on('head', portraitFill) : null;
+            const off = typeof sdk.on === 'function' ? sdk.on('head', portraitFill, { module: MODULE }) : null;
             offHead = typeof off === 'function' ? off : null;
         } catch (error) { warn('Story Suite v2 head events are not available', error); }
         offCardSettings = registerCardSettings(sdk, cardSettings);
