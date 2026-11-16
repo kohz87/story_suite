@@ -73,14 +73,12 @@ test('staying put keeps the stored labels (no fill on the same place)', () => {
     assert.deepEqual(place(h), { name: 'Bluewatch Village', kind: 'settlement', region: 'Lakeshire' });
 });
 
-test('a pack that gives the place another region than the atlas does keeps the pack\'s region (a landmark would be mended back otherwise)', () => {
-    const h = setup();
-    h.capture(line('~', 'place', 'Old Quay', { kind: 'dock', region: 'River' }));
+test('the atlas\'s region wins over a pack\'s for a known place (a landmark or the reader set it on purpose)', () => {
     Object.assign(queries, { 'packs.content': (_state, { kind }) => (kind === 'places' ? [...PACK, { name: 'Bluewatch Village', kind: 'town', region: 'River' }] : []) });
     try {
-        const h2 = setup();
-        h2.capture(line('~', 'place', 'Bluewatch'), MARK);
-        assert.deepEqual(place(h2), { name: 'Bluewatch', kind: 'settlement', region: 'River' });
+        const h = setup();
+        h.capture(line('~', 'place', 'Bluewatch'), MARK);
+        assert.deepEqual(place(h), { name: 'Bluewatch', kind: 'settlement', region: 'Lakeshire' });
     } finally {
         Object.assign(queries, { 'packs.content': (_state, { kind }) => (kind === 'places' ? PACK : []) });
     }

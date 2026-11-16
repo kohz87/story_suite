@@ -13,8 +13,7 @@ export function knownPlaces(ctx) {
 const named = (place, key) => [place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : [])].some(other => typeof other === 'string' && foldKey(other) === key);
 
 // The place a name or alias is, or null: the atlas's record (`atlas.place` resolves aliases; its list has names only), else a pack's.
-// The atlas's kind and region win; but when a pack gives the place another region, the pack's is used: the atlas's differs by a
-// landmark line, and a scene saying it would have Story Director's mend put the pack's region back on the map.
+// The atlas's kind and region win (a landmark line or the reader may have changed them on purpose); a pack's row only fills in for a place the atlas lacks.
 export function knownPlace(ctx, name) {
     const key = foldKey(name);
     if (!key) return null;
@@ -22,7 +21,5 @@ export function knownPlace(ctx, name) {
     const atlas = detail && typeof detail === 'object' ? detail : rowsOf(ctx, 'atlas.places', {}).find(place => named(place, key)) ?? null;
     const keys = [key, foldKey(atlas?.name ?? '')].filter(Boolean);
     const pack = rowsOf(ctx, 'packs.content', { kind: 'places' }).find(place => keys.some(each => named(place, each))) ?? null;
-    if (!atlas) return pack;
-    const packRegion = typeof pack?.region === 'string' && pack.region.trim() ? pack.region : '';
-    return packRegion && atlas.region !== packRegion ? { ...atlas, region: packRegion } : atlas;
+    return atlas ?? pack;
 }
