@@ -43,6 +43,7 @@ test('building the real packages twice gives byte-identical files', async () => 
 function fakeRepo(version, tags) {
   const fake = fs.mkdtempSync(path.join(os.tmpdir(), 'release-fake-'));
   fs.writeFileSync(path.join(fake, 'package.json'), JSON.stringify({ version }));
+  fs.writeFileSync(path.join(fake, 'package-lock.json'), JSON.stringify({ version }));
   const git = (...args) => execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...args], { cwd: fake, stdio: 'ignore' });
   git('init', '-q');
   git('add', '.');
@@ -66,6 +67,17 @@ test('the gate refuses a tag for exactly 0.1.0 and ignores tags that only contai
   try {
     const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
     assert.deepEqual(problems, ['releases are not tagged; found tag 0.1.0, sb-v0.1.0, v0.1.0']);
+  } finally {
+    fs.rmSync(fake, { recursive: true, force: true });
+  }
+});
+
+test('the gate names a lock file whose version differs from package.json', async () => {
+  const fake = fakeRepo('0.1.0', []);
+  fs.writeFileSync(path.join(fake, 'package-lock.json'), JSON.stringify({ version: '0.0.0' }));
+  try {
+    const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
+    assert.deepEqual(problems, ['package-lock.json version is 0.0.0, package.json says 0.1.0']);
   } finally {
     fs.rmSync(fake, { recursive: true, force: true });
   }

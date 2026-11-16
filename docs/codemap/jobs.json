@@ -38,6 +38,7 @@
   "scripts/release/bundle.mjs": "Packs one extension into a few ES-module bundles with source maps, lazy parts kept as separate chunks.",
   "scripts/release/check.mjs": "Runs the release gate: version 0.1.0, no tag, each bundle set builds, resolves its imports, keeps import.meta.url rewritten and loads in at most ten requests.",
   "scripts/release/entries.mjs": "Lists what the release build packs: the entry files and lazy modules of each extension.",
+  "scripts/release/outdir.mjs": "Decides where the release build may write: refuses the source and the repo root, and empties only folders carrying its own marker file.",
   "scripts/release/rewrite.mjs": "Rewrites a module's source by syntax tree for the bundle: packs eager import() calls and keeps import.meta.url on the module's original location.",
   "scripts/release/graph.mjs": "Walks a bundle folder's import graph to list the files of the load, the lazy chunks and any missing import.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",

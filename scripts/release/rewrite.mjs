@@ -42,15 +42,19 @@ export function rewriteSource(source, file, packKey) {
   return packed ? `${out}\nimport { once as __releasePackOnce } from ${JSON.stringify(PACK_MODULE)};\n` : out;
 }
 
-// How many import.meta uses in bundled code are not the rewritten form new URL('<file>', import.meta.url).href.
+// How many import.meta uses in bundled code are not the rewritten form new URL('<file>.js', import.meta.url).href.
+// Only that exact shape counts: new URL('../x.css', import.meta.url) with no .href (the shape of the first bug) does not.
 export function strayImportMeta(code) {
   const tree = acorn.parse(code, { ecmaVersion: 'latest', sourceType: 'module', allowHashBang: true });
+  const isMeta = node => node?.type === 'MetaProperty' && node.meta.name === 'import';
   let total = 0;
   let rewritten = 0;
   walk.full(tree, node => {
-    if (node.type === 'MetaProperty') total += 1;
-    const [path, base] = node.type === 'NewExpression' && node.callee.name === 'URL' ? node.arguments : [];
-    if (path?.type === 'Literal' && base?.type === 'MemberExpression' && base.object.type === 'MetaProperty' && base.property.name === 'url') rewritten += 1;
+    if (isMeta(node)) total += 1;
+    if (node.type !== 'MemberExpression' || node.computed || node.property.name !== 'href') return;
+    const made = node.object;
+    const [path, base] = made.type === 'NewExpression' && made.callee.name === 'URL' ? made.arguments : [];
+    if (path?.type === 'Literal' && /\.js$/.test(path.value) && base?.type === 'MemberExpression' && !base.computed && isMeta(base.object) && base.property.name === 'url') rewritten += 1;
   });
   return total - rewritten;
 }
