@@ -1,7 +1,7 @@
 /* LEGACY, kept until B4 replaces the old dossier surface: the dossier panel's Map view and its settings; see docs/merge/b4-removals.md. */
 /* NPC State Delta relationship map: a read-only second view of the dossier panel. It draws the
    dossier panel's own projection (no extra state reads) and never writes dossier data. */
-import { extension_settings, getContext } from '../../../extensions.js';
+import { extension_settings, getContext } from '../../../../../../extensions.js';
 import { npcBucket } from '../settings/bucket.js';
 import {
     buildMapModel,

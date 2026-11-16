@@ -3,7 +3,7 @@
    completion find out its chat was deleted, renamed or detached meanwhile. Built by index.js once per module instance with the shared runtime state.
    Bodies are moved from index.js without change. */
 
-import { getContext } from '../../../extensions.js';
+import { getContext } from '../../../../../../extensions.js';
 import { getCharacterOwnerId, getChatIdentityFromContext, isQualifiedChatKey, parseQualifiedChatKey } from '../core/identity.js';
 import { liveLifecycleCandidateKeys, resolveDeletedLifecycleKeyFromPresence, resolveOwnedLifecycleKey } from '../core/hardening-core.js';
 import { getSettings } from '../settings/runtime-settings.js';

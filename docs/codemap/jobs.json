@@ -69,10 +69,10 @@
   "scripts/dryrun/state-hash.mjs": "Stable stringify and hashing of host state so old and new runs compare by bytes.",
   "scripts/dryrun/suite-host.mjs": "Builds the suite host with the page's Delta runtime, a checkpoint vault and stand-in restores for exports without dossier files.",
   "scripts/release.mjs": "CLI that builds every extension's bundles and runs the release gate (--check builds into a temporary folder).",
-  "scripts/release/bundle.mjs": "Packs one extension into a few ES-module bundles with source maps, lazy parts kept as separate chunks.",
+  "scripts/release/bundle.mjs": "Packs the one extension from the repo root into a few ES-module bundles with source maps, lazy parts kept as separate chunks, host imports kept at the depth of the file that names them.",
   "scripts/release/layout-paths.mjs": "Finds a file named as of the old layout on a checkout of either layout, and the old name of a moved file, through the layout rules and a frozen list of old files.",
   "scripts/release/check.mjs": "Runs the release gate: version 0.1.0, no tag, each bundle set builds, resolves its imports, keeps import.meta.url rewritten and loads in at most ten requests.",
-  "scripts/release/entries.mjs": "Lists what the release build packs: the entry files and lazy modules of each extension.",
+  "scripts/release/entries.mjs": "Lists what the release build packs: the one entry file, index.js, and the lazy modules.",
   "scripts/release/outdir.mjs": "Decides where the release build may write: refuses the source and the repo root, and empties only folders carrying its own marker file.",
   "scripts/release/rewrite.mjs": "Rewrites a module's source by syntax tree for the bundle: packs eager import() calls and keeps import.meta.url on the module's original location.",
   "scripts/release/graph.mjs": "Walks a bundle folder's import graph to list the files of the load, the lazy chunks and any missing import.",
@@ -250,9 +250,9 @@
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
   "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
   "scripts/play/git.mjs": "Runs git commands for the play build, with an optional private index file.",
-  "scripts/play/dist.mjs": "Builds the one installable play extension from a commit: bundles the four tools at their installed depth, copies assets, writes root files and commits to the local play branch.",
-  "scripts/play/dist-sets.mjs": "Says what the play extension contains: the four bundled tools, their asset roots and the root manifest, entry and stylesheet.",
-  "scripts/play/dist-assets.mjs": "Copies the CSS, fonts and images the play bundles reach by URL next to their bundle.",
+  "scripts/play/dist.mjs": "Builds the one installable play extension from a commit: bundles the root index.js, copies assets, writes root files and commits to the local play branch.",
+  "scripts/play/dist-sets.mjs": "Says what the play extension contains: the one bundle set, the source folders it reads and the root manifest, stylesheet and build record.",
+  "scripts/play/dist-assets.mjs": "Copies the CSS, fonts and images the play bundle reaches by URL to the same path as in the source tree.",
   "scripts/play/dist-git.mjs": "Extracts a commit's source tree and commits the built play folder as a child of the previous build.",
   "tests/people/head-race.test.js": "Tests that a reply landing between Delta's change and its people write is refused as stale, the change discarded and the cache hydrated from the store.",
   "tests/people/helpers/people-rig.js": "Builds the cross-package people rig: the live Story Block host, Delta's real adapter and people sync over a fake Delta runtime that hydrates from the store.",
@@ -332,5 +332,5 @@
   "index.js": "The one entry SillyTavern loads: starts the host and its built-in modules, then the people part, then the new view's switch.",
   "suite.css": "The one stylesheet SillyTavern loads: lists the host, people and hide sheets in cascade order.",
   "scripts/checks/one-manifest.mjs": "Refuses a repo with a second manifest.json or no root one.",
-  "tests/scripts/bundle-host-specifiers.test.js": "Pins each bundle set's external host import specifiers to the text main's release and play builds wrote."
+  "tests/scripts/bundle-host-specifiers.test.js": "Pins the host import specifiers of the bundles to the recorded text, and checks the unbundled entry graph resolves each to a file the host has."
 }

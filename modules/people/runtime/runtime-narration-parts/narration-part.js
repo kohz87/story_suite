@@ -1,6 +1,6 @@
 // The narration capture part: arming, receiving, holding, stripping and taking the one-pass block per reply, plus the capture statistics.
 
-import { getContext } from '../../../../extensions.js';
+import { getContext } from '../../../../../../../extensions.js';
 import { extractNarrationCapture, parseNarrationCapture } from '../../core/core.js';
 import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
 import { getSettings } from '../../settings/runtime-settings.js';

@@ -1,6 +1,6 @@
 /* LEGACY, kept until the hosted settings fold replaces it (B4 row): the output-token control in the settings panel the hosted overlay carries; see docs/merge/b4-removals.md. */
 /* NPC State Delta scanner-output setting. */
-import { extension_settings, getContext } from '../../../extensions.js';
+import { extension_settings, getContext } from '../../../../../../extensions.js';
 import { npcBucket } from '../settings/bucket.js';
 import {
     normalizeScannerMaxOutputTokens,

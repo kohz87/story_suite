@@ -3,7 +3,7 @@
    per module instance with the shared runtime state and the controller functions it calls, so each instance keeps its
    own activation memory. Bodies are moved from index.js without change. */
 import { replayScope } from '../calls/runtime-scan-helpers.js';
-import { getContext } from '../../../extensions.js';
+import { getContext } from '../../../../../../extensions.js';
 import { EDITOR_FIELDS } from '../dossier/dossier-edit.js';
 import { DEFAULT_RELATIONSHIP, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, isTerminalNpcDeath, PORTRAIT_NPC_PROMPT_LIMIT, normalizeCustomFields } from '../core/core.js';
 import { escapeHtml } from '../util/html.js';

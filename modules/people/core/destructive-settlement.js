@@ -1,4 +1,4 @@
-import { getContext } from '../../../extensions.js';
+import { getContext } from '../../../../../../extensions.js';
 import { createDestructiveSettlementController } from './destructive-settlement-core.js';
 import { pageHandles } from '../runtime/handles.js';
 

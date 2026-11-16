@@ -10,16 +10,15 @@ import { walkBundle } from '../../scripts/release/graph.mjs';
 let root;
 const write = (file, text) => { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); };
 const read = (out, file) => fs.readFileSync(path.join(out, file), 'utf8');
-// 'src/v2/store.js' is the old-layout name of core/store.js: the lazy list names it the old way and the checkout has the new layout.
-const SET = { name: 'story-block', dir: 'packages/story-block', entries: ['boot.js'], lazy: ['src/v2/store.js'] };
+const SET = { name: 'suite', entries: ['boot.js'], lazy: ['core/store.js'] };
 
 before(() => {
   root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-bundle-repo-'));
-  write('packages/story-block/boot.js', [
-    "import { helper } from '../../core/helper.js';",
+  write('boot.js', [
+    "import { helper } from './core/helper.js';",
     "import { host } from '../../../extensions.js';",
-    "export const eager = () => import('../../core/eager.js');",
-    "export const lazy = () => import('../../core/store.js');",
+    "export const eager = () => import('./core/eager.js');",
+    "export const lazy = () => import('./core/store.js');",
     "export const both = [helper, host];",
   ].join('\n'));
   write('core/helper.js', "export const helper = new URL('./asset.txt', import.meta.url).href;\n");
@@ -38,7 +37,7 @@ test('a file of the repo-root core/ is packed into the bundle, not left as an im
   assert.match(read(out, 'boot.js'), /answer/, 'the eager dynamic import is packed into the entry');
 });
 
-test('the lazy list names a file the old way and it is still its own chunk after the move', async () => {
+test('a module on the lazy list is its own chunk', async () => {
   const out = path.join(root, 'out2');
   await buildBundleSet(SET, out, root);
   const graph = walkBundle(out, 'boot.js');
@@ -46,25 +45,24 @@ test('the lazy list names a file the old way and it is still its own chunk after
   assert.match(read(out, graph.lazy[0]), /later/);
 });
 
-test('import.meta.url keeps the original location of a moved file, and two builds are the same bytes', async () => {
+test('import.meta.url names the file from the extension folder, and two builds are the same bytes', async () => {
   const a = path.join(root, 'out3');
   const b = path.join(root, 'out4');
   const files = await buildBundleSet(SET, a, root);
   await buildBundleSet(SET, b, root);
-  assert.match(read(a, 'boot.js'), /new URL\("\.\.\/\.\.\/core\/helper\.js", import\.meta\.url\)/);
+  assert.match(read(a, 'boot.js'), /new URL\("core\/helper\.js", import\.meta\.url\)/);
   for (const file of files) assert.equal(read(a, file), read(b, file));
 });
 
-// A host import keeps the text it was written with for the file's place in the old package folder: two ../ plus one per folder level the file sat
-// below the package root. A moved file's depth comes from that old place, not from where it sits in the new layout.
-test('a host import in a moved file resolves from the file\'s old place in its package, not its new folder', async () => {
-  write('modules/people/legacy/bootstrap.js', "import './../settings/runtime-settings-parts/save.js';\nimport { ext } from '../../../extensions.js';\nexport const both = [ext];\n");
-  write('modules/people/settings/runtime-settings-parts/save.js', "import { ext } from '../../../../extensions.js';\nexport const save = ext;\n");
-  const set = { name: 'npc-state-delta', dir: 'packages/npc-state-delta', entries: ['bootstrap.js'], lazy: [] };
+// A host import is written for the file that carries it: the extension folder is the repo root, so a file in modules/people/legacy/ needs
+// five ../ to reach third-party/ and one more for scripts/. The bundle rewrites each from the extension folder, where the chunks sit.
+test('a host import resolves from the file\'s own folder, whatever its depth', async () => {
+  write('modules/people/legacy/bootstrap.js', "import './../settings/runtime-settings-parts/save.js';\nimport { ext } from '../../../../../../extensions.js';\nexport const both = [ext];\n");
+  write('modules/people/settings/runtime-settings-parts/save.js', "import { ext } from '../../../../../../../extensions.js';\nexport const save = ext;\n");
   const out = path.join(root, 'out5');
-  await buildBundleSet(set, out, root);
+  await buildBundleSet({ name: 'suite', entries: ['modules/people/legacy/bootstrap.js'], lazy: [] }, out, root);
   const graph = walkBundle(out, 'bootstrap.js');
   assert.deepEqual(graph.missing, []);
-  // bootstrap.js sat at the package root (3 up from third-party/npc-state-delta/ is scripts/), save.js one folder down (4 up): both name /scripts/extensions.js
+  // legacy/ is 3 folders down (6 up reaches scripts/); runtime-settings-parts/ is 4 down (7 up): both name /scripts/extensions.js
   assert.deepEqual(graph.host, ['../../../extensions.js']);
 });

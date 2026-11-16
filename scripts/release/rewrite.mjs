@@ -8,11 +8,13 @@ import * as walk from 'acorn-walk';
 // 1. import('./x.js') of a module that is not lazy becomes a lazily initialised module (the bundler's require wrapper)
 //    behind PACK_HELPER's once(): one promise per module, so, as with a real import(), the module starts once, every
 //    caller gets the same namespace object (shaped like a real one) and a failure at start is the same error each time.
+// The helper's state is one map on globalThis and the bundler gives each file its own copy of the helper (see bundle.mjs), so the helper is never a shared chunk
+//    of its own (a request more at load); the key of a packed module is its path from the repo root, so copies never disagree.
 // 2. import.meta.url becomes new URL('<file>', import.meta.url).href: the chunks sit at the package root, so this
 //    names the module's original location again, and a stylesheet or asset next to it resolves as in the source.
 export const PACK_MODULE = 'release:pack';
 export const PACK_SOURCE = [
-  'const made = new Map();',
+  "const made = (globalThis.__storySuitePacked ??= new Map());",
   '// What a real import() resolves to: a module namespace (no prototype, tagged Module, sorted keys, closed, live values).',
   'const asNamespace = mod => {',
   '  const ns = Object.create(null);',

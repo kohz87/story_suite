@@ -11,11 +11,10 @@ import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 // (the suite harness) on the source and on bundles of the same entries built with the release plugin, then
 // compares what both report (register, two replies through capture, a query from each module, the RPG's lazy load).
 const repoRoot = path.resolve(import.meta.dirname, '../..');
-const pkg = name => path.join(repoRoot, 'packages', name);
 const child = path.join(import.meta.dirname, 'release-run/child.mjs');
 const pack = path.join(repoRoot, 'examples/packs/ersveil/pack.json');
 const seeded = path.join(repoRoot, 'tests/suite/qa/helpers/seeded.js');
-const SB_LAZY = BUNDLE_SETS.find(set => set.name === 'story-block').lazy;
+const SB_LAZY = BUNDLE_SETS[0].lazy;
 const KIT = [
   `export { createRuntime } from '${path.join(repoRoot, 'core/runtime.js')}';`,
   `export { createStore } from '${path.join(repoRoot, 'core/store.js')}';`,
@@ -24,11 +23,6 @@ const KIT = [
   `export * as leanRpg from '${path.join(repoRoot, 'modules/rpg/index.js')}';`,
   `export { createFakeContext } from '${path.join(repoRoot, 'testkit/fake-st.js')}';`,
 ].join('\n');
-const SETS = [
-  { name: 'story-block', dir: 'packages/story-block', entries: [], lazy: SB_LAZY },
-  { name: 'story-director', dir: 'packages/story-director', entries: ['src/v2/module.js'], lazy: [] },
-  { name: 'npc-state-delta', dir: 'packages/npc-state-delta', entries: ['src/storysuite-v2.js'], lazy: [] },
-];
 const run = (kitFile, sd, nsd) => JSON.parse(execFileSync(process.execPath, [child, kitFile, sd, nsd, pack, seeded], { encoding: 'utf8', maxBuffer: 1 << 24 }).trim().split('\n').at(-1));
 
 let out;
@@ -38,10 +32,10 @@ before(async () => {
   out = fs.mkdtempSync(path.join(os.tmpdir(), 'release-run-'));
   const kit = path.join(out, 'kit.js');
   fs.writeFileSync(kit, KIT);
-  SETS[0].entries = [kit];
-  for (const set of SETS) await buildBundleSet(set, path.join(out, set.name), repoRoot);
+  // One bundle set for the one extension; the three entries stand for the suite's parts the harness starts one by one.
+  await buildBundleSet({ name: 'suite', entries: [kit, path.join(repoRoot, 'ui/legacy/director/module.js'), path.join(repoRoot, 'modules/people/storysuite-v2.js')], lazy: SB_LAZY }, path.join(out, 'suite'), repoRoot);
   fromSource = run(kit, path.join(repoRoot, 'ui/legacy/director/module.js'), path.join(repoRoot, 'modules/people/storysuite-v2.js'));
-  fromBundle = run(path.join(out, 'story-block/kit.js'), path.join(out, 'story-director/module.js'), path.join(out, 'npc-state-delta/storysuite-v2.js'));
+  fromBundle = run(path.join(out, 'suite/kit.js'), path.join(out, 'suite/module.js'), path.join(out, 'suite/storysuite-v2.js'));
 });
 after(() => fs.rmSync(out, { recursive: true, force: true }));
 
@@ -59,10 +53,10 @@ test('the smoke run on the source does what it should (so the comparison is not 
   assert.equal(fromSource.rpgLoad, true);
 });
 
-test('the bundles of the three packages give the same results as the source in the suite host', () => {
+test('the one bundle set gives the same results as the source in the suite host', () => {
   assert.deepEqual(fromBundle, fromSource);
 });
 
 test('the RPG library came from a separate lazy chunk of the bundle, loaded on demand', () => {
-  assert.ok(fs.readdirSync(path.join(out, 'story-block')).some(file => /^rpg-.*\.js$/.test(file)));
+  assert.ok(fs.readdirSync(path.join(out, 'suite')).some(file => /^rpg-.*\.js$/.test(file)));
 });

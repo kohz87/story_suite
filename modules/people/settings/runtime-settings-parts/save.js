@@ -1,6 +1,6 @@
 // Saving the settings: the immediate save, the coalesced lazy save and the flush of a pending one.
 
-import { getContext } from '../../../../extensions.js';
+import { getContext } from '../../../../../../../extensions.js';
 import { SETTINGS_LAZY_QUIET_MS, SETTINGS_LAZY_MAX_MS } from './save-timing.js';
 
 // Settings changes the reader or a recovery step makes are saved at once (ST's own 1 s debounce). The sidecar pointer that follows

@@ -52,11 +52,12 @@ test('a stylesheet named from import.meta.url resolves to the same file in the b
   fs.writeFileSync(path.join(pkg, 'deep/er/mod.js'), "export const sheet = new URL('../x.css', import.meta.url).href;\n");
   fs.writeFileSync(path.join(pkg, 'deep/x.css'), 'a {}\n');
   const out = path.join(root, 'out');
-  await buildBundleSet({ name: 'demo', dir: 'pkg/demo', entries: ['boot.js'], lazy: [] }, out, root);
+  await buildBundleSet({ name: 'demo', entries: ['pkg/demo/boot.js'], lazy: [] }, out, root);
   const bundled = (await import(pathToFileURL(path.join(out, 'boot.js')).href)).sheet;
   const source = (await import(pathToFileURL(path.join(pkg, 'boot.js')).href)).sheet;
   assert.equal(source, pathToFileURL(path.join(pkg, 'deep/x.css')).href);
-  assert.equal(bundled, pathToFileURL(path.join(out, 'deep/x.css')).href);
+  // the bundle names the module by its path from the extension folder (the repo root), so the stylesheet is copied beside that path
+  assert.equal(bundled, pathToFileURL(path.join(out, 'pkg/demo/deep/x.css')).href);
 });
 
 // Every location-relative reference in the real packages: found by walking the syntax tree of the runtime
@@ -69,11 +70,9 @@ function sourceFiles(dir, found = []) {
   }
   return found;
 }
-// Where a set's runtime modules sit: its old package folder if the checkout has it, plus the new roots (the
-// Story Block set is core, modules, packs and the old UI; the Story Director set is the old UI's director folder).
-const NEW_ROOTS = { 'story-block': ['core', 'modules', 'packs', 'ui/legacy'], 'story-director': ['ui/legacy/director'], 'npc-state-delta': ['modules/people'] };
-const setFiles = set => [set.dir, ...NEW_ROOTS[set.name]].map(dir => path.join(repoRoot, dir)).filter(dir => fs.existsSync(dir))
-  .flatMap(dir => sourceFiles(dir)).filter(file => set.name === 'story-block' ? !file.includes('/ui/legacy/director/') && !file.includes('/modules/people/') : true);
+// Where the extension's runtime modules sit: the new roots of the repo (the extension folder).
+const ROOTS = ['core', 'modules', 'packs', 'ui'];
+const setFiles = () => ROOTS.map(dir => path.join(repoRoot, dir)).filter(dir => fs.existsSync(dir)).flatMap(dir => sourceFiles(dir));
 const metaUsers = files => files.filter(file => {
   let found = false;
   walk.full(acorn.parse(fs.readFileSync(file, 'utf8'), { ecmaVersion: 'latest', sourceType: 'module', allowHashBang: true }), node => { if (node.type === 'MetaProperty') found = true; });
@@ -89,14 +88,14 @@ const relativeAssets = file => {
 
 for (const set of BUNDLE_SETS) {
   test(`${set.name}: every import.meta.url reference resolves, bundled, to the same existing file as in the source`, async () => {
-    const pkgDir = path.join(repoRoot, set.dir);
+    const pkgDir = repoRoot;
     const out = path.join(root, `real-${set.name}`);
     const files = await buildBundleSet(set, out, repoRoot);
     const bundled = new Map();
     for (const file of files.filter(name => name.endsWith('.js'))) {
       for (const [, rel] of fs.readFileSync(path.join(out, file), 'utf8').matchAll(/new URL\("([^"]+)", import\.meta\.url\)\.href/g)) bundled.set(rel, file);
     }
-    const wanted = metaUsers(setFiles(set)).map(file => path.relative(pkgDir, file).split(path.sep).join('/'));
+    const wanted = metaUsers(setFiles()).map(file => path.relative(pkgDir, file).split(path.sep).join('/'));
     for (const rel of wanted) assert.ok(bundled.has(rel), `${rel} uses import.meta.url and is not rewritten in the bundle`);
     for (const rel of bundled.keys()) {
       const sourceFile = path.join(pkgDir, rel);
@@ -114,7 +113,7 @@ for (const set of BUNDLE_SETS) {
   });
 }
 
-test('the three packages hold the two known references, so the check above is not empty', () => {
-  const all = BUNDLE_SETS.flatMap(set => metaUsers(setFiles(set)).map(file => path.relative(repoRoot, file)));
-  assert.deepEqual(all.sort(), ['modules/people/legacy/suite-handshake-parts/stylesheet.js', 'modules/rpg/view/index-parts/mount.js']);
+test('the extension holds the two known references, so the check above is not empty', () => {
+  const all = metaUsers(setFiles()).map(file => path.relative(repoRoot, file));
+  assert.deepEqual(all.sort(), ['modules/people/legacy/suite-handshake-parts/stylesheet.js', 'modules/rpg/view/index-parts/mount.js', 'ui/entry/start.js']);
 });

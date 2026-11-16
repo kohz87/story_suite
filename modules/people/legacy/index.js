@@ -1,6 +1,6 @@
 /* NPC State Delta - standalone SillyTavern extension */
-import { getContext } from '../../../extensions.js';
-import { extension_prompt_types, extension_prompt_roles, getRequestHeaders } from '../../../../script.js';
+import { getContext } from '../../../../../../extensions.js';
+import { extension_prompt_types, extension_prompt_roles, getRequestHeaders } from '../../../../../../../script.js';
 import {
     scannerRoutingError,
     scannerRoutingMetrics,

@@ -1,6 +1,6 @@
-import { extension_settings, getContext } from '../../../extensions.js';
+import { extension_settings, getContext } from '../../../../../../extensions.js';
 import { npcBucket } from '../settings/bucket.js';
-import { getRequestHeaders, saveSettings as saveHostSettings } from '../../../../script.js';
+import { getRequestHeaders, saveSettings as saveHostSettings } from '../../../../../../../script.js';
 import { NPC_STATE_VERSION } from './core.js';
 import { setBranchProvenanceHint } from '../legacy/branch.js';
 import {

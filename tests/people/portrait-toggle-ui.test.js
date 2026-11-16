@@ -17,7 +17,7 @@ test('portrait copying lazy-loads SillyTavern host utility and exposes a selecte
     const source = fs.readFileSync(new URL('../../modules/people/portrait/portrait-tools.js', import.meta.url), 'utf8');
     assert.doesNotMatch(source, /^import .*utils\.js/m, 'host-only utils must not be resolved at module load in isolated tests');
     assert.match(source, /async function hostCopyText\(value\)/);
-    assert.match(source, /await import\('\.\.\/\.\.\/\.\.\/utils\.js'\)/);
+    assert.match(source, /await import\('\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/utils\.js'\)/);
     assert.match(source, /hostUtils\.copyText\(value\)/);
     assert.match(source, /await hostCopyText\(value\)/);
     assert.doesNotMatch(source, /function fallbackCopyText/);

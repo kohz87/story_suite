@@ -3,8 +3,8 @@
    rules kept or held, and the legacy prompt keys cleared on load. The prompt builders stay in core.js. Built by index.js once per module instance
    with the shared runtime state. Bodies are moved from index.js without change. */
 
-import { getContext } from '../../../extensions.js';
-import { extension_prompt_types, extension_prompt_roles } from '../../../../script.js';
+import { getContext } from '../../../../../../extensions.js';
+import { extension_prompt_types, extension_prompt_roles } from '../../../../../../../script.js';
 import { replyScanned } from '../calls/scan-context.js';
 import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcript.js';
 import { buildInjection, npcNamedInText, isTerminalNpcDeath, buildNarrationCaptureParts } from '../core/core.js';

@@ -1,6 +1,6 @@
 // getSettings: fills in and canonicalizes the stored settings, saving once when anything changed.
 
-import { extension_settings } from '../../../../extensions.js';
+import { extension_settings } from '../../../../../../../extensions.js';
 import { npcBucket } from '../bucket.js';
 import { normalizeScannerMaxOutputTokens } from '../../calls/scanner-routing.js';
 import { normalizeRelationshipMapSettings } from '../../legacy/relationship-map-core.js';

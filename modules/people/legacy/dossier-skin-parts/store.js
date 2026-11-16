@@ -1,5 +1,5 @@
 /* NPC State Delta dossier look: reading and writing the stored Dossier style setting. */
-import { extension_settings, getContext } from '../../../../extensions.js';
+import { extension_settings, getContext } from '../../../../../../../extensions.js';
 import { npcBucket } from '../../settings/bucket.js';
 import { normalizeDossierSkin } from './look.js';
 

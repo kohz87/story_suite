@@ -1,7 +1,7 @@
 /* NPC State Delta dossier editor save: applies one editor draft to the canonical chat state, social
    graph, branch checkpoint and persistence path. Split unchanged from runtime-editor.js with the
    same rt/deps closure state and live helper references supplied by createEditorPart. */
-import { getContext } from '../../../extensions.js';
+import { getContext } from '../../../../../../extensions.js';
 import { EDITOR_FIELDS, editorManualMemories, editorProfileLocks, settleEditorSave, untouchedEditorFields } from '../dossier/dossier-edit.js';
 import { DEFAULT_RELATIONSHIP, IMPORTANT_MEMORY_LIMIT, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, inferNpcIdentityKind, normalizeRelationshipProgress, inferManualRelationshipMilestones, normalizeRelationshipEvidence, relationshipEventMessage, npcMatchesLabel, normalizeName, normalizeGender, normalizeNpcRecord, PORTRAIT_NPC_PROMPT_LIMIT } from '../core/core.js';
 import { applyNpcBirthdayUpdate, normalizeBirthDate } from '../birthday/birthday.js';

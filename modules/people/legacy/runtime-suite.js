@@ -3,7 +3,7 @@
    index.js once per module instance with the shared runtime state and the controller functions it calls, so each
    instance keeps its own connection flags. Bodies are moved from index.js without change. */
 
-import { extension_settings } from '../../../extensions.js';
+import { extension_settings } from '../../../../../../extensions.js';
 import { npcBucket } from '../settings/bucket.js';
 import { recentTranscript } from '../transcript/transcript.js';
 import { NPC_STATE_VERSION, buildNarrationCapturePrompt, setExternalCalendarSource } from '../core/core.js';

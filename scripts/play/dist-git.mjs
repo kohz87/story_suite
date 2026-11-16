@@ -9,8 +9,8 @@ import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { git } from './git.mjs';
+import { SOURCES } from './dist-sets.mjs';
 
-const SOURCES = ['packages/story-block', 'packages/story-director', 'packages/npc-state-delta', 'ui'];
 const IDENTITY = { name: process.env.GIT_AUTHOR_NAME || 'play-build', email: process.env.GIT_AUTHOR_EMAIL || 'play-build@localhost' };
 
 /** The full commit id of `ref` in `repo`. */
@@ -18,7 +18,7 @@ export function fullCommit(repo, ref) {
   return git(repo, ['rev-parse', '--verify', `${ref}^{commit}`]);
 }
 
-/** Extracts the four source folders of `commit` into a new temporary folder (caller removes it). */
+/** Extracts the source folders and root files of `commit` into a new temporary folder (caller removes it). */
 export function extractSource(repo, commit) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'play-src-'));
   const tarFile = path.join(dir, 'source.tar');
