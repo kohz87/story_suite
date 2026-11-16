@@ -298,7 +298,7 @@
   "scripts/core/bench-query.mjs": "Query burst benchmark (docs/v2/PERFORMANCE.md, \"Queries on an unchanged chat\").",
   "scripts/core/bench-v2.mjs": "Story Suite v2 storage benchmark (docs/v2/PERFORMANCE.md).",
   "scripts/core/build-example-zip.mjs": "Builds examples/packs/ersveil.zip from examples/packs/ersveil/: pack.json first, then portraits/<file> for each picture the cast names, in cast order.",
-  "scripts/core/check.mjs": "Syntax-checks every shipped module (index.js and everything under src/, testkit/, examples/, scripts/ and authoring-kit/).",
+  "scripts/core/check.mjs": "Syntax-checks every shipped `.js` and `.mjs` file under core, ui (except the Director folder), modules, packs, testkit, examples, scripts, authoring-kit and the NPC State folder, printing \"syntax ok\".",
   "scripts/core/fuzz-data-modules.mjs": "node scripts/fuzz-data-modules.mjs <seed> <steps> one run; prints { seed, steps, fails, stats } for s in $(seq 1 200); do node scripts/fuzz-data-modules.mjs $s 60; done \\| grep -v '\"fails\":\\[\\]' The r\u2026",
   "scripts/core/fuzz-replay-parts/messages.js": "Fake SillyTavern messages for the fuzz: a user line and a reply, each dated a minute after the last.",
   "scripts/core/fuzz-replay-parts/run.js": "The replay fuzz run itself: random chats and steps, with the replay invariants checked after every step.",
@@ -314,11 +314,8 @@
   "scripts/core/sim-standard-parts/shared-grid.js": "The grid the simulation walks: Soul Classes, difficulties, builds and fights per cell.",
   "scripts/core/sim-standard.mjs": "Simulation of the Standard stat formula (no network, no SillyTavern): how often a roll succeeds, succeeds at a cost, fails and is decisive, for a focused and a spread build at Soul Class I, III, V, V\u2026",
   "scripts/core/sim-traces.mjs": "node scripts/sim-traces.mjs <sim.py> [out.json] (or SIM_PY=<sim.py>) Regenerates the combat golden traces: runs the design simulator's scripted-dice mode (`sim.py --trace`, rule set v8.1) over the ca\u2026",
-  "scripts/director/check.mjs": "Syntax-checks `index.js` and every `.js` file under `src/` (`npm run check`), printing \"syntax ok\".",
+  "scripts/director/check.mjs": "Syntax-checks every `.js` file under `ui/legacy/director/` (the Story Director folder), printing \"syntax ok\"."syntax ok\".",
   "scripts/people/browser-stage9.py": "Optional synthetic browser checks of the local UI modules using Playwright and an in-memory host.",
   "scripts/people/measure-prompts.mjs": "Builds Delta's scanner, profile, injection and narration prompts for fixed scenes and checks their sizes, without provider calls.",
-  "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses.",
-  "scripts/people/package.mjs": "Runs package.py with a Python it finds, to produce and verify the installable package.",
-  "scripts/people/package.py": "Produces and verifies a deterministic runtime-only installable package of Delta.",
-  "scripts/people/validate.mjs": "Validates Delta's manifest, module list and source files for the package check."
+  "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses."
 }
