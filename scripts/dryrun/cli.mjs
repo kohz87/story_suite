@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { atEitherLayout } from '../release/layout-paths.mjs';
 import { pathToFileURL } from 'node:url';
 import { loadLayout } from '../layout.mjs';
 import { loadChat } from './load-chat.mjs';
@@ -48,7 +49,8 @@ async function runRecord(args) {
     process.env.STORY_SUITE_ROOT = tmpRoot;
     process.env.NPC_STATE_DELTA_PATH = path.join(tmpRoot, 'npc_state_delta');
 
-    const suiteUrl = pathToFileURL(path.join(repoRoot, farm.find(f => f.link === 'Story_block').dir, 'tests/v2/break/helpers/suite.js')).href;
+    // the suite helper is named as of the old layout; a checkout from after the move has it at its layout-mapped place
+    const suiteUrl = pathToFileURL(path.join(repoRoot, atEitherLayout(repoRoot, path.posix.join(farm.find(f => f.link === 'Story_block').dir, 'tests/v2/break/helpers/suite.js')))).href;
     const { loadSuite, suiteHost } = await import(suiteUrl);
     const loaded = await loadSuite();
     if (loaded.skip) {

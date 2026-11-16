@@ -14,7 +14,7 @@ const repoRoot = path.resolve(import.meta.dirname, '../..');
 const pkg = name => path.join(repoRoot, 'packages', name);
 const child = path.join(import.meta.dirname, 'release-run/child.mjs');
 const pack = path.join(pkg('story-block'), 'examples/packs/ersveil/pack.json');
-const seeded = path.join(pkg('story-block'), 'tests/v2/qa/helpers/seeded.js');
+const seeded = path.join(repoRoot, 'tests/suite/qa/helpers/seeded.js');
 const SB_LAZY = BUNDLE_SETS.find(set => set.name === 'story-block').lazy;
 const sbAt = rel => path.join(pkg('story-block'), rel);
 const KIT = [

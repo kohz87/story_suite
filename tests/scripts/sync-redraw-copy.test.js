@@ -50,6 +50,8 @@ test('a checkout that has the copy at its layout-mapped home is checked there, a
   fs.writeFileSync(moved, 'export const a = 2;\n');
   assert.equal(run(dir, '--check'), 1);
   assert.equal(run(dir), 0);
-  assert.equal(fs.existsSync(copy(dir)), false);
+  // the copy of the old layout is not made again beside it (the path is built so a later layout rewrite does not touch it)
+  assert.equal(fs.existsSync(path.join(dir, 'packages/story-block', 'src/v2/shared/redraw.js')), false);
   assert.equal(run(dir, '--check'), 0);
+  assert.match(fs.readFileSync(moved, 'utf8'), /a = 1/);
 });
