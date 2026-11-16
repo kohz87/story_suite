@@ -25,6 +25,8 @@
 // is free. A taken name means the one thing of the offer the inventory's own name lookup finds for it (names.js resolveDef,
 // so the oracle folds names exactly as the inventory does); none, two, or one an earlier taken name took, and it does not
 // hold. A guarded block of any other kind does not apply here (the QA chats make none).
+// A legacy (unguarded) block whose claim (an add under /meta/claims) the state before it already holds is skipped whole, ops and
+// claims alike, as the store's replay does (REPLAY.md rule 4, store/guards.js claimHeld): the first holder wins, one Problem.
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -285,6 +287,20 @@ export function guardHolds(state, guard, span = null) {
     return items && purse >= predicate.coin;
 }
 
+/** The first claim key a block's ops add (`/meta/claims/<key>`, or the whole map) that the state before it holds already. */
+function claimHeldBy(state, ops) {
+    const held = state?.meta?.claims;
+    if (!record(held)) return undefined;
+    for (const op of ops) {
+        if (!record(op) || (op.op !== 'add' && op.op !== 'replace') || typeof op.path !== 'string') continue;
+        const keys = op.path === '/meta/claims' ? (record(op.value) ? Object.keys(op.value) : [])
+            : op.path.startsWith('/meta/claims/') && !op.path.slice(13).includes('/') ? [unescape(op.path.slice(13))] : [];
+        const taken = keys.find(key => Object.hasOwn(held, key));
+        if (taken !== undefined) return taken;
+    }
+    return undefined;
+}
+
 /** { state, skipped: [{ index, block, revs }] } at carrier `upTo`, rebuilt from the chat alone; state null without a checkpoint. */
 export function rebuildAt(chat, upTo, memo = null) {
     const from = startOf(chat, upTo);
@@ -299,6 +315,7 @@ export function rebuildAt(chat, upTo, memo = null) {
         spannedBlocks(record).forEach(({ ops, span }, block) => {
             try {
                 if (span?.id && span.guard && !guardHolds(state, span.guard, span)) throw new Error('its guard does not hold');
+                if (!span?.guard && claimHeldBy(state, ops)) throw new Error('claim already held');
                 state = strictApply(state, ops);
             } catch (error) {
                 const revs = ops.filter(op => op.path === '/meta/rev').map(op => op.value);
