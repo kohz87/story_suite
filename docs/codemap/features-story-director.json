@@ -1,13 +1,4 @@
 [
   { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads for Story Director." },
-  { "name": "Module registration", "entry": "src/v2/module.js", "about": "Registers Story Director's parts, screens and queries with Story Block." },
-  { "name": "Writes to story state", "entry": "src/v2/writes.js", "about": "The commands that change what Story Director tracks." },
-  { "name": "Story arcs", "entry": "src/v2/arc/controller.js", "about": "Browser-side arc planner and its draft, auto-accept and turn triggers." },
-  { "name": "Threads", "entry": "src/v2/threads.js", "about": "Tracked story threads and their outcomes." },
-  { "name": "Map and places", "entry": "src/v2/atlas/map.js", "about": "Builds the map widget props: places, routes, layers and discovery." },
-  { "name": "Cast", "entry": "src/v2/cast/apply.js", "about": "Applies cast sync, advance, meet, withdraw and rumor steps." },
-  { "name": "Key people", "entry": "src/v2/keypeople/index.js", "about": "Key-person tracking and its link to NPC State Delta." },
-  { "name": "Chronicle", "entry": "src/v2/chronicle/index.js", "about": "The running record of story days and what happened." },
-  { "name": "Time and weather", "entry": "src/v2/time/index.js", "about": "Story clock, days advancing, recaps and weather." },
   { "name": "Checks and danger", "entry": "src/v2/checks/index.js", "about": "Story checks, danger words and rolls." }
 ]

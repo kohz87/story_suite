@@ -7,5 +7,15 @@
   { "name": "Commands", "entry": "core/commands.js", "about": "The command registry every screen and module changes state through." },
   { "name": "Module registry", "entry": "core/registry.js", "about": "registerModule: how modules add parts, screens, widgets and queries." },
   { "name": "Public API", "entry": "core/public-api.js", "about": "The frozen read-only StoryBlock.api other extensions use." },
-  { "name": "Model calls", "entry": "core/model-call.js", "about": "Helper model calls and their connection profile." }
+  { "name": "Model calls", "entry": "core/model-call.js", "about": "Helper model calls and their connection profile." },
+  { "name": "Pack events", "entry": "modules/world/events/condition.js", "about": "Parses and safely evaluates pack-event conditions." },
+  { "name": "Module registration", "entry": "ui/legacy/director/module.js", "about": "Registers Story Director's parts, screens and queries with Story Block." },
+  { "name": "Writes to story state", "entry": "modules/world/writes.js", "about": "The commands that change what Story Director tracks." },
+  { "name": "Story arcs", "entry": "modules/arc/controller.js", "about": "Browser-side arc planner and its draft, auto-accept and turn triggers." },
+  { "name": "Threads", "entry": "modules/time/tracker/threads.js", "about": "Tracked story threads and their outcomes." },
+  { "name": "Map and places", "entry": "modules/atlas/atlas/map.js", "about": "Builds the map widget props: places, routes, layers and discovery." },
+  { "name": "Cast", "entry": "modules/cast/cast/apply.js", "about": "Applies cast sync, advance, meet, withdraw and rumor steps." },
+  { "name": "Key people", "entry": "modules/cast/keypeople/index.js", "about": "Key-person tracking and its link to NPC State Delta." },
+  { "name": "Chronicle", "entry": "modules/world/chronicle/index.js", "about": "The running record of story days and what happened." },
+  { "name": "Time and weather", "entry": "modules/time/index.js", "about": "Story clock, days advancing, recaps and weather." }
 ]
