@@ -63,7 +63,8 @@ export function checkOps(ops, before = undefined) {
 function checkValue(value, key, path, errors) {
     // Data modules' closed checker owns field names/types, including literal authoring IDs
     // and user fields named id/qty. Keep the JSON/prototype/integer safety checks below.
-    const dataDefined = path === '/domains/dataModules' || path.startsWith('/domains/dataModules/');
+    // The people domain holds NPC State Delta's own records, so its validator (domains/people/validate.js) owns their ids and field names.
+    const dataDefined = ['/domains/dataModules', '/domains/people'].some(root => path === root || path.startsWith(`${root}/`));
     if (!dataDefined && key === 'qty' && !(Number.isInteger(value) && value >= 0)) {
         errors.push(`${path}: qty must be a whole number, 0 or more (got ${JSON.stringify(value)}).`);
     }

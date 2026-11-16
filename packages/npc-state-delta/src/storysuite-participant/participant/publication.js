@@ -10,13 +10,21 @@ import { RETRY_CODES, fail, isRecord, plain, preparedId } from './support.js';
 
 export function createPublication({
     cancel, exclusive, getAnnounced, getHandle, hydrate, made, module, port, preparedAt,
-    preparing, retryMs, save, schedule, started, verified, warn, keyNow,
+    preparing, retryMs, save, schedule, started, verified, warn, keyNow, onPublished, mirrorMs = 5000,
 }) {
     let timer = null;
     let publishing = null;
     let again = false;
     let retries = 0;
     let last = null;
+    // After an ok publication only: the published state and its source go to `onPublished` (the people mirror); it never fails the publication,
+    // and waits at most `mirrorMs` for it (a mirror that never answers must not stall the publication; the mirror owes the send and heals later).
+    const told = async (state, source) => {
+        if (!state || !onPublished) return;
+        let timeout = null;
+        const bound = new Promise(resolve => { timeout = schedule(resolve, mirrorMs); timeout?.unref?.(); });
+        try { await Promise.race([Promise.resolve().then(() => onPublished({ state, source })), bound]); } catch { /* best effort */ } finally { cancel(timeout); }
+    };
     const shaped = built => ({ module, checkpoint: built.checkpoint ?? built.id, hash: built.hash, schema: PARTICIPANT_SCHEMA });
 
     /**
@@ -45,10 +53,11 @@ export function createPublication({
      * → the host's answer { ok, checkpoint, hash } or its failure.
      */
     async function nativeChange({ source, edit }) {
+        let published = null;
         if (!getHandle()) return fail('UNSUPPORTED', 'The host has not given this participant its handle.');
         const head = await getHandle().head();
         if (!head?.ok) return head;
-        return getHandle().nativeMutation({
+        const out = await getHandle().nativeMutation({
             participant: module,
             source,
             expectedHead: head.headHash,
@@ -57,6 +66,7 @@ export function createPublication({
                 if (!s) throw new Error('There is no open chat.');
                 const state = plain(port.readState());
                 edit(state);
+                published = plain(state);
                 const block = timelineOf(state);
                 block.lineage = s.lineage;
                 const next = hydrateIdentity(block.identity, state.npcs, { seed: s.lineage, reserved: block.reserved });
@@ -70,6 +80,8 @@ export function createPublication({
                 return { before: shaped(before), after: shaped(after), prepared };
             }),
         });
+        if (out?.ok) await told(published, source);
+        return out;
     }
 
     /**
@@ -94,6 +106,7 @@ export function createPublication({
             if (!head?.ok) return head;
             const source = head.source ?? (typeof port.headSource === 'function' ? port.headSource() : null);
             if (!isRecord(source)) return fail('UNSUPPORTED', 'The host gives no Source for the reply at the head, so a native change cannot be published yet.');
+            let published = null;
             const out = await getHandle().nativeMutation({
                 participant: module,
                 source,
@@ -105,6 +118,7 @@ export function createPublication({
                     // A change announced from here on (the state is read now; the upload of its checkpoint takes time) is newer than this publication.
                     const seen = getAnnounced();
                     const state = port.readState();
+                    published = plain(state);
                     const { before, after } = await pairFor(state, head);
                     const prepared = preparedId({ inPlace: true, before: before.checkpoint, after: after.id, lineage: s.lineage, n: Object.keys(s.index.prepared).length });
                     s.index.prepared[prepared] = { checkpoint: after.id, hash: after.hash, return: null, inPlace: true, stateHash: hashJson(state), newer: getAnnounced() > seen };
@@ -113,7 +127,7 @@ export function createPublication({
                     return { before: shaped(before), after: shaped(after), prepared };
                 }),
             });
-            if (out?.ok) return out;
+            if (out?.ok) { await told(published, source); return out; }
             if (keyNow() !== key) return left;   // (refused because the chat changed: not retried, not told)
             if (out?.code !== 'STALE') return out;
         }
