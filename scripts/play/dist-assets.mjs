@@ -21,7 +21,7 @@ function copyTree(from, to) {
 /** Copies the asset roots of one set, plus its top-level CSS, to the bundle folder (no source JS). */
 export function copyRuntimeAssets(sourceDir, outDir, set) {
   for (const root of set.assets ?? []) copyTree(path.join(sourceDir, root), path.join(outDir, root));
-  if (!set.topCss) return;
+  if (!set.topCss || !fs.existsSync(sourceDir)) return;
   for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
     if (entry.isFile() && entry.name.endsWith('.css')) {
       fs.mkdirSync(outDir, { recursive: true });

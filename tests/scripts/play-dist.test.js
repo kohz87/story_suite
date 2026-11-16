@@ -12,12 +12,12 @@ const put = (root, file, text) => { fs.mkdirSync(path.dirname(path.join(root, fi
 
 before(() => {
   source = fs.mkdtempSync(path.join(os.tmpdir(), 'play-dist-src-'));
-  put(source, 'core/boot/boot.js', "import { asset } from './src/asset.js';\nglobalThis.storyBlock = asset;\n");
+  put(source, 'packages/story-block/index.js', "import { asset } from './src/asset.js';\nglobalThis.storyBlock = asset;\n");
   put(source, 'packages/story-block/src/asset.js', "export const asset = new URL('./look.css', import.meta.url).href;\n");
   put(source, 'packages/story-block/src/look.css', '.look { color: red; }\n');
   put(source, 'packages/story-block/assets/font.woff2', 'font');
   put(source, 'packages/story-block/host.css', '@import url(\'./src/look.css\');\n');
-  put(source, 'ui/legacy/director/index.js', 'globalThis.storyDirector = 1;\n');
+  put(source, 'packages/story-director/index.js', 'globalThis.storyDirector = 1;\n');
   put(source, 'packages/npc-state-delta/bootstrap.js', "import { getContext } from '../../../extensions.js';\nawait import('./part.js');\nglobalThis.npcState = getContext;\n");
   put(source, 'packages/npc-state-delta/part.js', "import { getContext } from '../../../../extensions.js';\nglobalThis.npcHost = getContext;\n");
   put(source, 'packages/npc-state-delta/style.css', '.npc { color: blue; }\n');

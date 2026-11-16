@@ -13,17 +13,16 @@ import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const pkg = name => path.join(repoRoot, 'packages', name);
 const child = path.join(import.meta.dirname, 'release-run/child.mjs');
-const pack = path.join(pkg('story-block'), 'examples/packs/ersveil/pack.json');
+const pack = path.join(repoRoot, 'examples/packs/ersveil/pack.json');
 const seeded = path.join(repoRoot, 'tests/suite/qa/helpers/seeded.js');
 const SB_LAZY = BUNDLE_SETS.find(set => set.name === 'story-block').lazy;
-const sbAt = rel => path.join(pkg('story-block'), rel);
 const KIT = [
   `export { createRuntime } from '${path.join(repoRoot, 'core/runtime.js')}';`,
   `export { createStore } from '${path.join(repoRoot, 'core/store.js')}';`,
   `export { createCommandBus } from '${path.join(repoRoot, 'core/commands.js')}';`,
-  `export { setRpgLib } from '${sbAt('src/v2/rpg-lazy.js')}';`,
-  `export * as leanRpg from '${sbAt('src/v2/lean-rpg/index.js')}';`,
-  `export { createFakeContext } from '${sbAt('testkit/fake-st.js')}';`,
+  `export { setRpgLib } from '${path.join(repoRoot, 'modules/rpg/rpg-lazy.js')}';`,
+  `export * as leanRpg from '${path.join(repoRoot, 'modules/rpg/index.js')}';`,
+  `export { createFakeContext } from '${path.join(repoRoot, 'testkit/fake-st.js')}';`,
 ].join('\n');
 const SETS = [
   { name: 'story-block', dir: 'packages/story-block', entries: [], lazy: SB_LAZY },
@@ -65,5 +64,5 @@ test('the bundles of the three packages give the same results as the source in t
 });
 
 test('the RPG library came from a separate lazy chunk of the bundle, loaded on demand', () => {
-  assert.ok(fs.readdirSync(path.join(out, 'story-block')).some(file => /^lean-rpg-.*\.js$/.test(file)));
+  assert.ok(fs.readdirSync(path.join(out, 'story-block')).some(file => /^rpg-.*\.js$/.test(file)));
 });

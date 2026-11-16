@@ -60,7 +60,7 @@ export async function buildBundleSet(set, outDir, repoRoot) {
   claimOutDir(outDir);
   const pkgDir = path.join(repoRoot, set.dir);
   const result = await build({
-    absWorkingDir: pkgDir, entryPoints: set.entries.map(entry => path.isAbsolute(entry) ? entry : fromPackage(repoRoot, set.dir, entry)), outdir: outDir, entryNames: '[name]', chunkNames: '[name]-[hash]',
+    absWorkingDir: fs.existsSync(pkgDir) ? pkgDir : repoRoot, entryPoints: set.entries.map(entry => ({ in: path.isAbsolute(entry) ? entry : path.resolve(pkgDir, fromPackage(repoRoot, set.dir, entry)), out: path.basename(entry, '.js') })), outdir: outDir, entryNames: '[name]', chunkNames: '[name]-[hash]',
     bundle: true, splitting: true, format: 'esm', target: 'es2022', sourcemap: true, legalComments: 'none',
     plugins: [packagePlugin(pkgDir, repoRoot, new Set(set.lazy.map(name => fromPackage(repoRoot, set.dir, name))), set.name, set.installAt ?? set.name)], metafile: true, logLevel: 'silent',
   });
