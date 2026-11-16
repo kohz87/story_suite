@@ -5,8 +5,6 @@ import { foeMembers } from './foes.js';
 import { skillsOf } from './profile.js';
 import { rankOf } from './skills.js';
 
-const BARS = ['hp', 'mp', 'sp'];
-
 // A hero's mastery is the best rank in force (practice AND level, skills.js rankOf) over its skills; no skill reads as the first rank.
 function masteryOf(character) {
     return Math.max(rankOf(0, character.level).mastery, ...(character.skills ?? []).map(skill => rankOf(skill.practice, character.level).mastery));
@@ -30,14 +28,14 @@ function foesOf(slot, carried) {
 }
 
 /**
- * The engine input of a v1 sheet: `{ party, foes, groups }`. The party is every v1 character still alive (a Down hero stays, at 0 HP); the foes are the
+ * The engine input of a v1 sheet: `{ party, foes, groups }`. The party is every v1 character still alive (a Down hero stays, at 0 HP); with a `carried` record it is exactly the record's `order.party` (a hero who died since stays, at the sheet's bars, so the carried start still matches); the foes are the
  * members of every filled v1 slot at full HP (`id` `<slot>.<n>`), or at the HP the `carried` record (an earlier segment's `{ foes }`) left them; `groups` are the slots.
  */
 export function fightInputOf(sheet, { carried = null } = {}) {
-    const kept = new Map((carried?.foes ?? []).map(foe => [String(foe.id), foe]));
+    const kept = new Map((carried?.foes ?? []).map(foe => [String(foe.id), foe])), roster = carried?.order?.party ? new Set(carried.order.party.map(String)) : null;
     const slots = (sheet?.foes ?? []).filter(slot => slot?.v1 === true && slot.filled);
     return {
-        party: (sheet?.characters ?? []).filter(character => character?.v1 === true && character.alive !== false).map(heroOf),
+        party: (sheet?.characters ?? []).filter(character => character?.v1 === true && (roster ? roster.has(String(character.key)) : character.alive !== false)).map(heroOf),
         foes: slots.flatMap(slot => foesOf(slot, kept)), groups: slots.map(slot => slot.slot),
     };
 }
@@ -45,5 +43,5 @@ export function fightInputOf(sheet, { carried = null } = {}) {
 /** What the guard witnesses of a v1 fight's start: exactly the data the engine reads (the input above, at full foe HP), under a v1 marker. */
 export function witnessOf(sheet) {
     const input = fightInputOf(sheet);
-    return { v1: 1, party: input.party.map(({ module, ...hero }) => ({ ...hero, bars: BARS.map(bar => hero[bar]) })), foes: input.foes, groups: input.groups };
+    return { v1: 1, party: input.party.map(({ module, ...hero }) => hero), foes: input.foes, groups: input.groups };
 }

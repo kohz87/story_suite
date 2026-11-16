@@ -9,6 +9,8 @@ import { foeAttacks } from '../../../../src/v2/lean-rpg/combat/foe-turns.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
 import { fightDice } from '../../../../src/v2/lean-rpg/combat/dice.js';
 import { lineOf, lineTexts } from '../../../../src/v2/lean-rpg/combat/record.js';
+import { dice } from '../../../../src/v2/interaction/dice.js';
+import { seeded } from './dice.helper.js';
 import { withSkills } from './derived-skills.helper.js';
 
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
@@ -112,7 +114,7 @@ test('a natural 1 can still flee, matching the simulator baseline', () => {
 });
 
 test('junk setup, dice and actions are refused instead of becoming a hit', () => {
-    assert.throws(() => playBoard({ party: [ACE], foes: [POST] }, { seed: 'junk' }), /uint32 seed/);
+    assert.throws(() => playBoard({ party: [ACE], foes: [POST] }, {}), /dice source/);
     assert.throws(() => exchangeWith([0]), /d20/);
     assert.throws(() => exchangeWith([20, 1], { kind: 'dance' }), /Unknown exchange action/);
 });
@@ -149,31 +151,30 @@ test('the record text carries the real HP before an overkill hit, a capped heal 
 });
 
 test('a real fight text reads its before values from the record moves', () => {
-    const run = playBoard({ party: [ACE], foes: [{ ...POST, hp: 3, maxHp: 3 }] }, { seed: 7, maxExchanges: 1 });
+    const run = playBoard({ party: [ACE], foes: [{ ...POST, hp: 3, maxHp: 3 }] }, seeded({ seed: 7, maxExchanges: 1 }));
     const hit = run.lines.findIndex(line => line[0] === 'attack' && line[8] !== 'miss' && line[8] !== 'miss-nat1');
     if (hit < 0) return;
     assert.match(lineTexts(run.lines, run.moves)[hit], /post HP 3 → 0\./);
 });
 
 test('every die slot in one exchange has its own stream, and a seed replays the same dice', () => {
-    const roll = fightDice(123, 1), twin = fightDice(123, 1), other = fightDice(124, 1);
-    const kinds = ['act', 'foe', 'check', 'flee'], slots = [0, 50, 90, 154, 204, 140, 1000, 1040, 1000000], seen = new Map();
+    const roll = fightDice(dice(123), 1), twin = fightDice(dice(123), 1), other = fightDice(dice(124), 1);
+    const kinds = ['act', 'foe', 'check', 'flee'], slots = [0, 50, 90, 154, 204, 140, 1000, 1040, 1000000];
     for (const kind of kinds) for (const slot of slots) {
         const key = `${kind}:${slot}`, draws = [roll(kind, slot)(), roll(kind, slot)()];
         assert.deepEqual(draws, [twin(kind, slot)(), twin(kind, slot)()], `${key} replays`);
         assert.ok(draws.every(die => die >= 1 && die <= 20));
-        seen.set(key, roll(kind, slot).toString());
     }
-    // the two slots the board's own key scheme collided on (act 154 and foe 90) now differ in their key space
-    const sample = (kind, slot) => Array.from({ length: 24 }, (_, at) => fightDice(at, 1)(kind, slot)());
+    // the slots the board's own key scheme collided on (act 154 and foe 90) differ here, and so does every other (slot, kind) pair
+    const sample = (kind, slot) => Array.from({ length: 24 }, (_, at) => fightDice(dice(at), 1)(kind, slot)());
     assert.notDeepEqual(sample('act', 154), sample('foe', 90));
     assert.notDeepEqual(sample('act', 204), sample('foe', 140));
-    assert.notDeepEqual(Array.from({ length: 24 }, (_, at) => fightDice(at, 1)('act', 0)()), Array.from({ length: 24 }, (_, at) => other('act', at)()));
+    assert.notDeepEqual(Array.from({ length: 24 }, (_, at) => fightDice(dice(at), 1)('act', 0)()), Array.from({ length: 24 }, (_, at) => other('act', at)()));
 });
 
 test('the same seed through the real dice path plays the same record; another seed differs', () => {
     const heroes = [ACE, { ...ACE, label: 'Bea', id: 'Bea' }], foes = [{ ...POST, hp: 60, maxHp: 60 }, { ...POST, label: 'post2', hp: 60, maxHp: 60 }];
-    const play = seed => playBoard({ party: heroes, foes }, { seed, maxExchanges: 3 });
+    const play = seed => playBoard({ party: heroes, foes }, seeded({ seed, maxExchanges: 3 }));
     assert.deepEqual(play(11), play(11));
     assert.notDeepEqual(play(11).lines, play(12).lines);
 });

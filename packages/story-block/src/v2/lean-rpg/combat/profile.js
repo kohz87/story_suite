@@ -14,6 +14,7 @@ export function skillsOf(actor) {
     }));
 }
 
+// A skill with no stat falls back to str / wis / agi below; a v1 sheet never reaches that, because the Skills block's `stat` is an enum with a default (templates-parts/v1-skills.js).
 const asAttack = skill => (skill ? { stat: skill.stat || 'str', magic: SKILL.magicStats.includes(skill.stat) } : null);
 
 /**

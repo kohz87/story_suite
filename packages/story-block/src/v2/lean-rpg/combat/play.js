@@ -30,14 +30,14 @@ function named(list, prefix) {
     });
 }
 
-function hero(actor, index) {
-    const stats = statsOf(actor), level = Math.floor(number(actor?.level ?? actor?.lv, V1.level.min)), bars = barsOf(stats, level);
+function hero(actor) {
+    const stance = profileOf(actor).stance, stats = statsOf(actor), level = Math.floor(number(actor?.level ?? actor?.lv, V1.level.min)), bars = barsOf(stats, level);
     return {
         ...actor, level, stats, mastery: Math.max(0, Math.floor(number(actor?.mastery))),
         maxHp: Math.floor(number(actor?.maxHp ?? actor?.maxhp, bars.hp)), maxMp: Math.floor(number(actor?.maxMp ?? actor?.maxmp, bars.mp)),
         maxSp: Math.floor(number(actor?.maxSp ?? actor?.maxsp, bars.sp)),
         hp: Math.floor(number(actor?.hp, bars.hp)), mp: Math.floor(number(actor?.mp, bars.mp)), sp: Math.floor(number(actor?.sp, bars.sp)),
-        skills: skillsOf(actor), stances: profileOf(actor).stance ? [profileOf(actor).stance.type] : [],
+        skills: skillsOf(actor), stances: stance ? [stance.type] : [],
         gearSoak: Math.max(0, Math.floor(number(actor?.gearSoak ?? actor?.soak))),
     };
 }
@@ -56,9 +56,9 @@ function sheetOf(input) {
     return { party: named(input.party, 'hero').map(hero), foes: named(input.foes, 'foe').map(foe) };
 }
 
-function dice(setup, exchange) {
+function rollsOf(setup, exchange, offset) {
     if (typeof setup?.random === 'function') return () => setup.random();
-    const source = fightDice(setup.seed, exchange);
+    const source = fightDice(setup.dice, exchange, offset);
     return (kind, slot) => source(kind, Math.floor(number(slot)))();
 }
 
@@ -81,7 +81,7 @@ function seenOrder(order, party, foes) {
 function startOf(start, state) {
     if (start === undefined || start === null) return null;
     const ids = side => Array.isArray(side) && side.every(id => typeof id === 'string');
-    if (typeof start !== 'object' || !Number.isInteger(start.offset) || start.offset < 1 || start.offset > 98 || !Number.isInteger(start.rotation) || start.rotation < 0
+    if (typeof start !== 'object' || !Number.isInteger(start.offset) || start.offset < 1 || start.offset >= V1.fight.cap || !Number.isInteger(start.rotation) || start.rotation < 0
         || !start.order || !ids(start.order.party) || !ids(start.order.foes) || !['party', 'foes'].includes(start.order.first)) throw new TypeError('The fight start is damaged.');
     const known = list => new Set(list.map(actor => actor.id)), mine = known(state.party), theirs = known(state.foes);
     if (start.order.party.length !== mine.size || !start.order.party.every(id => mine.has(id)) || start.order.foes.length !== theirs.size || !start.order.foes.every(id => theirs.has(id))) {
@@ -104,7 +104,7 @@ function choiceAt(exchanges, number, autoRun, setup, offset = 0) {
 }
 
 /**
- * Play a whole fight. `sheet` holds the party and foes; `setup` holds `seed`, optional `maxExchanges`, optional `flee`
+ * Play a whole fight. `sheet` holds the party and foes; `setup` holds `dice` (the port's `dice(seed, offset)`; offset = `start.offset`, 0 for a first segment: see dice.js), optional `maxExchanges`, optional `flee`
  * overrides and an optional scripted `random()` for tests. Passing `exchanges` plays exactly those choices (an object
  * keyed by hero id/label or an array per exchange); omitting it uses the automatic whole-fight policy through the cap.
  * `setup.start` ({ offset, order, rotation }) continues a fight: no initiative is rolled, `input` is the carried sheet, `exchanges` are the new
@@ -112,17 +112,15 @@ function choiceAt(exchanges, number, autoRun, setup, offset = 0) {
  */
 export function playBoard(input, setup = {}, exchanges = undefined) {
     if (!setup || typeof setup !== 'object') throw new TypeError('The fight setup is damaged.');
-    if (typeof setup.random !== 'function' && (!Number.isInteger(setup.seed) || setup.seed < 0 || setup.seed > 0xFFFFFFFF)) {
-        throw new TypeError('A fight needs a uint32 seed or a scripted dice source.');
-    }
+    if (typeof setup.random !== 'function' && typeof setup.dice !== 'function') throw new TypeError('A fight needs a dice source (the port\'s dice(seed, offset)) or a scripted random().');
     const autoRun = exchanges === undefined || exchanges === null;
     if (!autoRun && !Array.isArray(exchanges)) throw new TypeError('The saved exchanges must be a list.');
     const cap = Math.floor(number(setup.maxExchanges, V1.fight.maxExchanges));
-    if (cap < 1 || cap > 99) throw new TypeError('The exchange cap must be from 1 to 99.');
+    if (cap < 1 || cap > V1.fight.cap) throw new TypeError(`The exchange cap must be from 1 to ${V1.fight.cap}.`);
     const state = sheetOf(input), lines = [], moves = [], rounds = [], carried = startOf(setup.start, state), offset = carried?.offset ?? 0;
     let order = carried?.order;
     if (!carried) {
-        const openingRoll = dice(setup, 0), partyTotals = [], foeTotals = [];
+        const openingRoll = rollsOf(setup, 0, 0), partyTotals = [], foeTotals = [];
         state.party.forEach((actor, index) => {
             const die = openingDie(openingRoll, index, actor.label), total = die + playerRoll('order', actor.stats, actor.level);
             actor.total = total; partyTotals.push({ id: actor.id, total, agi: actor.stats.agi });
@@ -142,7 +140,7 @@ export function playBoard(input, setup = {}, exchanges = undefined) {
     const room = Math.max(0, cap - offset), limit = autoRun ? room : Math.min(exchanges.length, room);
     for (let at = offset + 1; at <= offset + limit; at += 1) {
         const choices = choiceAt(exchanges, at, autoRun, setup, offset);
-        const done = playExchange(state, choices, { order, roll: dice(setup, at), number: at, rotation });
+        const done = playExchange(state, choices, { order, roll: rollsOf(setup, at, offset), number: at, rotation });
         lines.push(...done.lines); moves.push(...done.moves); rounds.push(done.lines);
         state.party = done.sheet.party; state.foes = done.sheet.foes; rotation = done.rotation; played = at;
         if (done.result) { result = done.result; break; }

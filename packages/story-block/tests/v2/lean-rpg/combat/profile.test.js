@@ -26,7 +26,7 @@ test('the attack skill\'s stat decides the pool: INT draws MP, STR draws SP, wha
     assert.deepEqual([spent(steel, 'mp'), spent(steel, 'sp')], [0, 1]);
 });
 
-test('a stance is priced by its own skill\'s stat, a heal always draws MP, and a hero with no attack skill strikes with the free normal attack', () => {
+test('a stance is priced by its own skill\'s stat, and a hero with no attack skill strikes with the free normal attack', () => {
     const sp = play({ ...base, skills: [{ type: 'attack', stat: 'str' }, { type: 'evasion', stat: 'agi' }] }), mp = play({ ...base, skills: [{ type: 'attack', stat: 'str' }, { type: 'evasion', stat: 'wis' }] });
     assert.deepEqual([spent(sp, 'sp'), spent(sp, 'mp')], [2, 0]);
     assert.deepEqual([spent(mp, 'sp'), spent(mp, 'mp')], [1, 1]);

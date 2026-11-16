@@ -9,6 +9,7 @@ import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { fightInputOf, witnessOf } from '../../../../src/v2/lean-rpg/combat/input.js';
 import { envelopeOf, hurtsOf } from '../../../../src/v2/lean-rpg/combat/envelope.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
+import { seeded } from './dice.helper.js';
 import { reply, success } from '../../data-modules/helpers.js';
 
 const sign = kind => (/^(practice-|set-slot)/u.test(kind) ? '+' : '~');
@@ -39,7 +40,7 @@ test('the engine input holds the living v1 heroes with their skills and mastery,
     assert.deepEqual([party[0].hp, party[0].maxHp, party[0].mp, party[0].maxMp], [10, 10, party[0].maxMp, party[0].maxMp]);
     assert.deepEqual(foes.map(foe => [foe.id, foe.label, foe.tier, foe.level, foe.hp === foe.maxHp]), [1, 2, 3].map(n => [`1.${n}`, `Wolf ${n}`, 'elite', 8, true]));
     assert.deepEqual(groups, [1]);
-    const run = playBoard({ party, foes }, { seed: 4, maxExchanges: 2 }, [{}, {}]);
+    const run = playBoard({ party, foes }, seeded({ seed: 4, maxExchanges: 2 }), [{}, {}]);
     assert.equal(run.exchanges, 2, 'the engine takes the input as it is');
     // a later segment starts from the record: the foes keep the HP the record left them
     const carried = input(host, { carried: run });
@@ -55,7 +56,7 @@ test('no foes, no heroes, a dead hero and an earlier block all read as nothing t
     assert.deepEqual(fightInputOf(old), { party: [], foes: [], groups: [] });
 });
 
-test('the witness input changes with anything the fight reads and with nothing else; swipe, middle delete, Re-read and reload give the same one', async t => {
+test('the witness input changes with anything the fight reads and with nothing else; a swipe and a middle delete of another reply give the same one', async t => {
     const host = await story(t);
     await host.send('Wolves.', reply(FOES));
     const base = JSON.stringify(witnessOf(readSheet(host.head())));
@@ -71,22 +72,27 @@ test('the witness input changes with anything the fight reads and with nothing e
     assert.equal(JSON.stringify(witnessOf(readSheet(host.head()))), base, 'a middle delete of an unrelated reply');
 });
 
-test('the envelope is the record plus the old words, with the v1 marker inside board and no result version', () => {
+test('the envelope is the record plus the old words, with the v1 marker inside board, no seed and no result version', () => {
     const party = [{ id: 'ren', label: 'Ren', level: 1, stats: {}, hp: 3, maxHp: 10, mp: 8, maxMp: 8, sp: 5, maxSp: 9 }];
     const record = {
-        result: 'win', exchanges: 2, party, foes: [{ id: '1.1', label: 'Wolf' }], lines: [], rounds: [],
+        result: 'win', exchanges: 2, party, foes: [{ id: '1.1', label: 'Wolf' }], lines: [], rounds: [[], []],
         moves: [{ id: 'ren', label: 'Ren', bar: 'hp', from: 10, to: 6, amount: -4 }, { id: '1.1', label: 'Wolf', bar: 'hp', from: 9, to: 0, amount: -9 },
             { id: 'ren', label: 'Ren', bar: 'hp', from: 6, to: 3, amount: -3 }, { id: 'ren', label: 'Ren', bar: 'sp', from: 9, to: 9, amount: 0 }, { id: 'ren', label: 'Ren', bar: 'mp', from: 8, to: 7, amount: -1 },
             { id: 'ren', label: 'Ren', bar: 'mp', from: 7, to: 8, amount: 1 }],
     };
-    const copy = structuredClone(record), where = { id: 'b:1', seed: 77, offset: 0, groups: [1], modules: { ren: 'pack.chat/character' } };
+    const copy = structuredClone(record), where = { id: 'b:1', groups: [1], modules: { ren: 'pack.chat/character' } };
     const out = envelopeOf(record, where);
     assert.deepEqual(record, copy, 'the record is not changed');
-    assert.deepEqual(out.hurts, [{ id: 'ren', kind: 'char', name: 'Ren', module: 'pack.chat/character', field: 'hp', from: 10, to: 3 }], 'net change per hero and bar; foes and a bar that came back are left out');
-    assert.deepEqual([out.stop, out.board, 'v' in out, 'legend' in out, 'items' in out, 'cleared' in out], ['won', { id: 'b:1', seed: 77, offset: 0, groups: [1], v1: 1 }, false, false, false, false]);
+    assert.deepEqual(out.hurts, [{ id: 'c:ren', kind: 'char', name: 'Ren', module: 'pack.chat/character', field: 'hp', from: 10, to: 3 }], 'net change per hero and bar; foes and a bar that came back are left out');
+    assert.deepEqual([out.stop, out.board, 'v' in out, 'legend' in out, 'items' in out, 'cleared' in out], ['won', { id: 'b:1', offset: 0, groups: [1], v1: 1 }, false, false, false, false]);
     assert.equal(out.result, 'win', 'the v1 record stays whole');
     const full = envelopeOf(record, { ...where, legend: true, items: [{ stack: 's' }], cleared: [1] });
     assert.deepEqual([full.legend, full.items, full.cleared], [1, [{ stack: 's' }], [1]]);
     assert.deepEqual(['win', 'loss', 'fled', 'unfinished'].map(result => envelopeOf({ ...record, result }, where).stop), ['won', 'lost', 'fled', 'open']);
     assert.deepEqual(hurtsOf(null), []);
+    // each bar has the old row id (`c:<key>`, `c:<key>:mana`, `c:<key>:stamina`); a later segment's offset is the exchanges before it (the record's exchanges less its rounds)
+    const bars = hurtsOf({ party, moves: [{ id: 'ren', label: 'Ren', bar: 'mp', from: 8, to: 5 }, { id: 'ren', label: 'Ren', bar: 'sp', from: 9, to: 4 }] });
+    assert.deepEqual(bars.map(row => [row.id, row.field]), [['c:ren:mana', 'mp'], ['c:ren:stamina', 'sp']]);
+    assert.equal(envelopeOf({ ...record, exchanges: 5, rounds: [[], []] }, where).board.offset, 3);
+    assert.ok(!('seed' in envelopeOf(record, { ...where, seed: 1 }).board), 'the envelope stores no seed');
 });
