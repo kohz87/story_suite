@@ -71,6 +71,7 @@ function makeItem(row, rpg) {
     wornBy: wornBy || null, isNew: Boolean(isNew),
     wear: rpg && kind === 'gear' ? (torn ? 'torn' : 'good') : null,
     weight: rpg ? weight : 0, worth, soak: rpg ? soak : 0, desc, from,
+    note: '', hand: rpg && name === 'Spare dagger', slot: kind === 'gear' && glyph === 'weapon' ? 'weapon' : null,
   };
 }
 
@@ -117,8 +118,10 @@ export function bagFixture({ rpg = true, over = false, load: loadStep = 0 } = {}
       by: 'foot',
       slowed,
       why: slowed
-        ? 'On foot and over the load limit: 20 km/day less a quarter. Brann and Torka have no mounts, so everyone walks. The rowboat counts for nothing on land.'
-        : 'On foot: Brann and Torka have no mounts, so everyone walks. Riders lead their animals. The rowboat counts for nothing on land.',
+        ? 'On foot and over the load limit: 20 km/day less a quarter. Brann and Torka have no mounts, so everyone walks.'
+        : rpg
+          ? 'On foot: Brann and Torka have no mounts, so everyone walks. Riders lead their animals.'
+          : 'On foot: not everyone has a riding animal, so everyone walks. Riders lead their animals.',
       alt: 'Taking the cart: 15 km/day (the ox sets the pace; Brann and Torka ride in it). Two more horses: 30 km/day (Rika’s pony is the slowest).',
     },
     assets: {

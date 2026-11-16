@@ -1,4 +1,4 @@
-// Maps SillyTavern's theme variables to tokens and decides light or dark.
+// Maps SillyTavern's theme variables to tokens, decides light or dark, and signals when the theme changes.
 
 import { GLASS_DARK, GLASS_LIGHT } from './tokens.js';
 
@@ -121,4 +121,17 @@ export function followSt(input) {
     '--su-shadow': shadow ? `0 10px 30px ${shadow}` : base['--su-shadow'],
     '--su-font': font || base['--su-font'],
   });
+}
+
+/**
+ * Calls onChange whenever SillyTavern's theme may have changed (style or class edits on the page root or body); returns a stop function.
+ */
+export function watchSt(doc, onChange) {
+  const Observer = doc?.defaultView?.MutationObserver ?? globalThis.MutationObserver;
+  if (typeof Observer !== 'function' || !doc?.documentElement) return () => {};
+  const seen = new Observer(() => onChange());
+  const opts = { attributes: true, attributeFilter: ['style', 'class'] };
+  seen.observe(doc.documentElement, opts);
+  if (doc.body) seen.observe(doc.body, opts);
+  return () => seen.disconnect();
 }

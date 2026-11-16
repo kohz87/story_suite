@@ -158,7 +158,7 @@ export function createReplayBlocks(s, deps) {
                 // It could not be asked: the block stays as it was, replayed as any block is (its guard decides).
             }
             try {
-                state = guarded ? replayGuarded(state, record, blockOps, span, message, receipt) : replayLegacy(state, blockOps);
+                state = guarded ? replayGuarded(state, record, blockOps, span, message, receipt) : replayLegacy(state, blockOps, () => receiptsFor(record, ops));
                 keep();
             } catch (error) {
                 const why = String(error?.message ?? error);

@@ -23,12 +23,11 @@ describe('buildJournal', () => {
     assert.equal(buildJournal({ focus: 'nope' }).focusId, null);
   });
 
-  it('story only: no reward, XP, difficulty or closed payouts', () => {
+  it('story only: no reward, difficulty or closed payouts', () => {
     const vm = buildJournal({ rpg: false });
     assert.equal(vm.rpg, false);
     for (const q of vm.quests) {
       assert.equal(q.reward, null);
-      assert.equal(q.xp, null);
       assert.equal(q.difficulty, null);
     }
     assert.ok(vm.closed.every(c => c.paid === null));

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decideScheme, followSt } from '../../../ui/theme/follow-st.js';
+import { decideScheme, followSt, watchSt } from '../../../ui/theme/follow-st.js';
 import { TOKENS, GLASS_DARK, GLASS_LIGHT } from '../../../ui/theme/tokens.js';
 import { checkSkin } from '../../../ui/theme/apply.js';
 
@@ -53,4 +53,22 @@ test('followSt switches to light base tokens when ST theme is light', () => {
 test('followSt falls back to GLASS_DARK when no ST variables are set', () => {
   const tokens = followSt(() => '');
   assert.deepEqual(tokens, GLASS_DARK);
+});
+
+test('watchSt reports style and class edits on the page root and body, and stops when told', () => {
+  const calls = [];
+  const watched = [];
+  class Fake {
+    constructor(fn) { this.fn = fn; Fake.last = this; }
+    observe(node, opts) { watched.push([node, opts.attributeFilter.join()]); }
+    disconnect() { this.off = true; }
+  }
+  const doc = { documentElement: { id: 'root' }, body: { id: 'body' }, defaultView: { MutationObserver: Fake } };
+  const stop = watchSt(doc, () => calls.push(1));
+  assert.deepEqual(watched.map(w => w[0].id), ['root', 'body']);
+  Fake.last.fn();
+  assert.equal(calls.length, 1);
+  stop();
+  assert.equal(Fake.last.off, true);
+  assert.equal(typeof watchSt({}, () => {}), 'function');
 });

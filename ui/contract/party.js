@@ -32,6 +32,8 @@ const SKILL = {
   cost: T.NUMBER,
   rank: { $enum: RANKS },
   mastery: T.NUMBER,
+  // Optional ready-made sheet line; the selector leaves it out until there is a data source (owner question), so the line is built from kind, stat and cost.
+  line: { $optional: { $nullable: T.STRING } },
 };
 
 const MEMBER = {

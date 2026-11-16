@@ -21,6 +21,7 @@ test('a secret tied to a person links to that dossier; others have no link', () 
   const ctx = makeCtx();
   const card = secretsCard(buildStory({ planShown: true }).secrets, true, ctx);
   assert.equal(card.querySelectorAll('a').length, 1);
+  assert.equal(card.querySelector('a').textContent, 'in Sister Temiwa’s dossier ›');
   card.querySelector('a').click();
   assert.deepEqual(ctx.calls.go, [['people', { personId: 'temiwa' }]]);
 });

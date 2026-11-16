@@ -21,7 +21,9 @@ test('shown: five rows in the given order, then Show all, remembered on the devi
   const rows = () => card.querySelectorAll('.it2');
   assert.deepEqual(rows().map(r => r.dataset.agenda).slice(0, 2), ['The hunt for Torka', 'Torka’s deed-hunt']);
   assert.equal(rows().length, 5);
+  assert.equal(card.querySelector('.more-btn').textContent, 'Show all (7)');
   card.querySelector('.more-btn').click();
+  assert.equal(card.querySelector('.more-btn').textContent, 'Show fewer');
   assert.equal(rows().length, 7);
   assert.equal(ctx.prefs.getFold('story.agendas.all'), true);
   assert.equal(agendasCard(buildStory({ planShown: true }).agendas, true, ctx).querySelectorAll('.it2').length, 7);

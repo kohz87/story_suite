@@ -1,5 +1,8 @@
-/* Styles for the Now tab cards, the Show-all list, the spoiler switch and the feelings ring; tokens, plus the mock's fixed late, fight and torn tones. */
-.now-tab{display:flex;flex-direction:column;gap:12px}
+/* Styles for the Now tab cards, the Show-all list, the spoiler switch and the feelings ring; tokens, plus the mock's fixed late, fight, torn, ring and tracker-bar tones and its per-scheme feeling colours. */
+/* The mock's per-scheme feeling colours (--m0..m3: Trust, Affection, Desire, Tension), star gold and initial disc, as the dossier has them. */
+.now-tab{display:flex;flex-direction:column;gap:12px;--m0:#5aa0ff;--m1:#ff7aa8;--m2:#c08aff;--m3:#f0b84a;--pk-gold:#f0b84a;--pk-disc:#3a3c52}
+[data-scheme="light"] .now-tab{--m0:#1f5fbf;--m1:#b8265f;--m2:#7a3fc0;--m3:#8a5a00;--pk-gold:#8a5a00;--pk-disc:#4a4d68}
+[data-scheme="light"] .now-tab .prg .ph{background-color:#dcdcea;color:#1d2030}
 .now-tab .ncol{display:contents}
 .now-tab .now-o1{order:1}.now-tab .now-o2{order:2}.now-tab .now-o3{order:3}.now-tab .now-o4{order:4}.now-tab .now-o5{order:5}
 @container (min-width:620px){
@@ -34,32 +37,42 @@ button.rnr{cursor:pointer}
 .hp2{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;padding:10px;border-radius:16px;background:var(--su-line2);align-items:start}
 .prg{position:relative;width:62px;height:62px}
 .prg>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.prg .ph{position:absolute;inset:7px;border-radius:50%;background:var(--su-tile) center 18%/cover;display:grid;place-items:center;font:800 20px var(--su-font);color:var(--su-soft)}
-.prg .star,.prg .pty{position:absolute;top:-3px;width:22px;height:22px;border-radius:50%;background:var(--su-panel2);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--su-line2)}
-.prg .star{right:-4px;color:var(--su-warn);font:900 13px var(--su-font)}
-.prg .pty{left:-4px;color:var(--su-accent)}
-.prg .pty svg{position:static;width:13px;height:13px}
+.prg .ph{position:absolute;inset:7px;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 22px var(--su-font);color:#fff}
+.prg .star{position:absolute;top:-3px;width:22px;height:22px;border-radius:50%;background:var(--su-panel2);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--su-line2)}
+.prg .star{right:-4px;color:#f0b84a;font:900 13px var(--su-font)}
+[data-scheme="light"] .prg .star{color:#8a5600}
+.now-tab .prg .star{color:var(--pk-gold)}
+[data-scheme="light"] .now-tab .prg .star{color:#8a5600}
 .ring-track{stroke:var(--su-line2)}
 .ring-arc.f0{stroke:var(--su-info)}.ring-arc.f1{stroke:#ff7aa8}.ring-arc.f2{stroke:#c08aff}.ring-arc.f3{stroke:var(--su-warn)}
-.hp2 .nl{display:flex;align-items:center;gap:0 6px;flex-wrap:wrap;min-width:0}
+/* The mock draws the ring arcs in its fixed dark-theme colours in both schemes. */
+.now-tab .ring-arc.f0{stroke:#5aa0ff}.now-tab .ring-arc.f3{stroke:#f0b84a}
+.hp2 .nl{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
 .hp2 .nl b{font:800 15px var(--su-font)}
 .hp2 .md2{flex:none;font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-panel2);border-radius:999px;padding:1px 8px}
-.dossier-link{flex:none;margin-left:auto;display:inline-flex;align-items:center;min-height:44px;padding:0 2px;background:none;border:0;font:800 13px var(--su-font);color:var(--su-accent);cursor:pointer}
+.dossier-link{flex:none;margin-left:auto;display:inline-flex;align-items:center;min-height:44px;padding:0 6px;background:none;border:0;font:800 13px var(--su-font);color:var(--su-accent);cursor:pointer}
 .hp2 .fl2{display:flex;gap:10px;font:800 12px var(--su-font);margin-top:2px}
 .fl2 .f0{color:var(--su-info)}.fl2 .f1{color:#ff7aa8}.fl2 .f2{color:#c08aff}.fl2 .f3{color:var(--su-warn)}
+.now-tab .fl2 .f0{color:var(--m0)}.now-tab .fl2 .f1{color:var(--m1)}.now-tab .fl2 .f2{color:var(--m2)}.now-tab .fl2 .f3{color:var(--m3)}
 .hp2 .wh2{font-size:13px;color:var(--su-soft);margin-top:4px}
 .hp2 .th3{margin-top:6px;font:italic 500 13px/1.4 var(--su-font);color:var(--su-soft);background:var(--su-panel2);border-radius:12px 12px 12px 4px;padding:5px 9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hp2 dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;margin:6px 0 0;font-size:13px}
-.hp2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
+.hp2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}
 .hp2 dd{margin:0}
 .hp2 .sec2{padding:6px 8px;border-radius:10px;border:1px dashed var(--su-line2)}
-.hp2 .sec2 dt{color:var(--su-accent)}
+.hp2 .sec2 dt{color:#c08aff}
+[data-scheme="light"] .hp2 .sec2 dt{color:#6e30c4}
 .more2{margin-top:6px;min-height:44px;background:none;border:0;padding:0;font:800 12px var(--su-font);color:var(--su-accent);cursor:pointer}
 .hid{font-style:italic;color:var(--su-muted);user-select:none}
 /* Spoiler switch */
 .spo{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;border:1px dashed var(--su-line2)}
 .spo .t{flex:1;font:700 13px var(--su-font)}
 .spo .t small{display:block;font:600 12px var(--su-font);color:var(--su-muted)}
+/* The mock's scene-spoiler switch (Now and the dossier, as Story's): a 62x46 touch box (margins pull the row in to 54x26), a 54x26 pill and an 18 px thumb. */
+.su-root .spo .sw{width:62px;height:46px;margin:-10px -4px}
+.su-root .spo .sw::before{left:4px;top:10px;width:54px;height:26px}
+.su-root .spo .sw::after{left:7px;top:13px;width:18px;height:18px;background:var(--su-soft)}
+.su-root .spo .sw[aria-checked="true"]::after{transform:translateX(18px);background:#fff}
 /* This reply + Show all */
 .clist .more-list{display:flex;flex-direction:column}
 .cr{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--su-line2)}
@@ -90,14 +103,18 @@ button.rnr{cursor:pointer}
 .you .kv2{row-gap:8px}
 .kv2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}
 .kv2 dd{margin:0}
-.fld{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px}
+.fld{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(90px,38%);gap:10px;align-items:center;font-size:13.5px;padding:4px 0}
 .fld>span:first-child{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted)}
-.fld .v{font:800 13px var(--su-font)}
-.fbar{display:block;height:6px;border-radius:3px;background:var(--su-line2);overflow:hidden}
-.fbar b{display:block;height:100%;background:var(--su-accent)}
+.fld .v{font:800 13px var(--su-font);text-align:right}
+.fbar{display:block;height:7px;border-radius:4px;background:var(--su-line2);overflow:hidden}
+.fbar b{display:block;height:100%;border-radius:4px;background:var(--su-accent)}
 .fbar b.bad{background:var(--su-bad)}.fbar b.ok{background:var(--su-ok)}
+/* Pinned tracker cards: the mock's .trkmini rows sit 2px apart, and its bars are fixed red and green in both schemes. */
+.now-tab .card.trkmini{gap:2px}
+.now-tab .fbar b.bad{background:#ff7a7a}.now-tab .fbar b.ok{background:#4fd39a}
 .rnr.need-overdue b,.rnr.need-overdue .ti{color:#ff7a7a}
 [data-scheme="light"] .rnr.need-overdue b,[data-scheme="light"] .rnr.need-overdue .ti{color:var(--su-bad)}
 .rnr.need-overdue .ti{background:rgba(255,122,122,.15)}
-.su-root .dossier-link,.su-root .more2{background:none;border:0;font:800 13px var(--su-font);color:var(--su-accent);cursor:pointer;min-height:44px;padding:0 4px}
+.su-root .dossier-link,.su-root .more2{background:none;border:0;font:800 13px var(--su-font);color:var(--su-accent);cursor:pointer;min-height:44px;padding:0 6px}
+.su-root .more2{padding:0 4px}
 .rnr.focus .ti{color:var(--su-accent)}

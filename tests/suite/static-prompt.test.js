@@ -32,6 +32,8 @@ const REPLIES = [
 //   (defined in packages/story-director/src/v2/*/index.js; suiteHost always registers SD with no module-off flag).
 // - npc_state_delta_one_pass: NPC State Delta's one-pass capture on, so its own key (story_suite_static_npc_state_delta) is sent.
 // - npc_state_delta_off: NSD itself off (the adapter's isEnabled() false) with one-pass still set: no NSD part at all.
+// - npc_caps_on: the host gives impact-tier caps, so the meter paragraph's impact clause is pinned (none of the others has it).
+// - key_people_on: one pinned key person, so Story Director's `- key` grammar and Key people STATIC_TEXT are pinned.
 const SCENARIOS = [
     {
         id: 'default',
@@ -66,6 +68,20 @@ const SCENARIOS = [
         onePass: true,
         nsdEnabled: false,
         configure: () => {},
+    },
+    {
+        id: 'npc_caps_on',
+        title: 'NPC State caps given by the host (the meter paragraph carries the impact clause)',
+        caps: { ordinary: 4, meaningful: 8, major: 16, extreme: 30 },
+        configure: () => {},
+    },
+    {
+        id: 'key_people_on',
+        title: 'one pinned key person (Story Director key-people grammar and static text are sent)',
+        configure: async host => {
+            const done = await host.cmd('keypeople.pin', { name: 'Ren' });
+            assert.ok(done?.ok !== false, 'pinning a key person should work');
+        },
     },
 ];
 
@@ -130,9 +146,10 @@ for (const scenario of SCENARIOS) {
         t.mock.method(console, 'warn', () => {});
         const { suite, state } = withNsdSwitch(loaded);
         state.enabled = scenario.nsdEnabled !== false;
+        state.caps = scenario.caps ?? null;
         const host = await suiteHost(suite, { seed: 1 });
         t.after(() => host.close());
-        scenario.configure(host);
+        await scenario.configure(host);
         const nsd = { enabled: state.enabled, onePass: scenario.onePass === true };
 
         // The static keys are read at the moment the request is built (Story Block clears its key again after the reply).

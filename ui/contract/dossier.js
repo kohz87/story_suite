@@ -27,7 +27,8 @@ export const DOSSIER_SHAPE = {
     ],
   },
   scene: { $nullable: { wants: T.STRING, hiding: T.STRING } },
-  ties: [{ personId: { $nullable: T.STRING }, name: T.STRING, line: T.STRING }],
+  // portrait: optional tie portrait URL; the selector leaves it out until there is a data source (owner question), so ties draw letters.
+  ties: [{ personId: { $nullable: T.STRING }, name: T.STRING, line: T.STRING, portrait: { $optional: { $nullable: T.STRING } } }],
   past: [{ date: T.STRING, text: T.STRING, dayRef: NULL_STR }],
   secrets: {
     opened: T.NUMBER,
@@ -45,6 +46,8 @@ export const DOSSIER_SHAPE = {
     speech: NULL_STR,
     background: NULL_STR,
     habits: [T.STRING],
+    // Optional likes for the Profile summary ("Likes …"); the selector leaves it out until there is a data source (owner question).
+    likes: { $optional: [T.STRING] },
   },
   death: {
     $nullable: {

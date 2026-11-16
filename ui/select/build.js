@@ -34,7 +34,7 @@ export function buildSelectors(ctx = () => null, sdk = null) {
       const actors = read('party.actors', {});
       const pc = read('party.pc', {});
       return selectBag({
-        rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), gear: pc?.id ? read('gear.view', { id: pc.id }) : null,
+        rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), counts: read('inventory.counts', {}), gear: pc?.id ? read('gear.view', { id: pc.id }) : null,
         wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), pcId: pc?.id ?? null,
       });
     },

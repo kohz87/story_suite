@@ -1,10 +1,11 @@
 /* NPC State Delta tie types: the five tie kinds, their priority ranks, fade days and the keyword reading of a relation text. */
+import { pickTieTag } from './tie-pick.js';
 // ---- Tie types, fading and priority (owner decisions 12 Nov). All pure; no model call. ----
 // A tie's type is one of five broad kinds, read from the stored relation text with the fixed keyword table below (first matching row
 // wins, in this order); no match, or a weak/one-time word, is Passing. A type set by a pack or the player (a `~ tie` tag) wins over the words.
-export const TIE_TYPE_LABELS = Object.freeze({ ally: 'Ally', rival: 'Rival', owes: 'Owes', interest: 'Interest', passing: 'Passing' });
-// Priority: Ally = Rival = Owes (high) > Interest > Passing. Rank 0 is the strongest.
-export const TIE_TYPE_RANK = Object.freeze({ ally: 0, rival: 0, owes: 0, interest: 1, passing: 2 });
+export const TIE_TYPE_LABELS = Object.freeze({ kin: 'Kin', partner: 'Partner', friend: 'Friend', ally: 'Ally', mentor: 'Mentor', serves: 'Serves', rival: 'Rival', enemy: 'Enemy', owes: 'Owes', interest: 'Interest', passing: 'Passing' });
+// Priority: every tie-tag type (kin, partner, friend, ally, mentor, serves, rival, enemy, owes; high) > Interest > Passing. Rank 0 is the strongest.
+export const TIE_TYPE_RANK = Object.freeze({ kin: 0, partner: 0, friend: 0, ally: 0, mentor: 0, serves: 0, rival: 0, enemy: 0, owes: 0, interest: 1, passing: 2 });
 // Story days without a mention before a tie fades (one constant per tier; the owner's 14 days is the middle tier).
 export const TIE_FADE_DAYS = Object.freeze({ passing: 7, interest: 14, high: 30 });
 const TIE_KEYWORDS = [
@@ -16,11 +17,10 @@ const TIE_KEYWORDS = [
 // "owed by" / "debtor": the OTHER person owes, so it is not an Owes tie for this one (owes is one-way); it falls through to the other rows.
 const OWED_BY = /\b(?:owed by|owed to by|debtor)\b/i;
 
-/** The type of one tie: `tags` (a pack/player tie tag list: rival, owes, ally) wins, else the keyword table on the relation text. */
+/** The type of one tie: `tags` (a pack/player tie tag list: any of the nine tie tags) wins, else the keyword table on the relation text. */
 export function tieType(relation, tags = []) {
-    const set = Array.isArray(tags) ? tags : [];
-    if (set.includes('owes')) return 'owes';
-    for (const tag of set) if (Object.hasOwn(TIE_TYPE_RANK, tag) && TIE_TYPE_RANK[tag] === 0) return tag;
+    const picked = pickTieTag(tags);
+    if (picked) return picked;
     const text = String(relation ?? '').replace(OWED_BY, ' ');
     for (const [type, pattern] of TIE_KEYWORDS) if (pattern.test(text)) return type;
     return 'passing';

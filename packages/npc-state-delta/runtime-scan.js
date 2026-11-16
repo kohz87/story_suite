@@ -18,9 +18,7 @@ import { applyStaleLifecycleAfterScan } from './runtime-scan-stale.js';
 import { createScanReplyPart } from './runtime-scan-reply.js';
 import { createAssistantHandlerPart } from './runtime-scan-handler.js';
 import { normalizeAllowance } from './src/relationship-pacing.js';
-import { rememberCastAdmissions, seedCastAdmission } from './runtime-cast-sync.js';
-import { dossierFor, metWithEntry } from './src/cast-dossier.js';
-import { normalizeSourceOfTruth } from './suite-handshake.js';
+import { seedNewAdmissions, notifyStaleCleanup } from './runtime-scan-parts/capture-result.js';
 import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from './runtime-narration.js';
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from './src/memory-fact-scan.js';
 export function createScanPart(rt, deps) {
@@ -382,18 +380,7 @@ export function createScanPart(rt, deps) {
             if (!manual) queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed, targetMessageId, currentTranscript });
             // (v2 hidden notes) The layered notes for the dossiers this scan built.
             if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, parsed);
-            if (hostedNotes && newlyAdmittedIds.length) {
-                rememberCastAdmissions(nextState, newlyAdmittedIds, targetMessageId, currentLineage);
-                const people = metWithEntry(castList?.());
-                const names = storySuiteV2Meters?.()?.packNames?.() ?? {};
-                for (const npc of nextState.npcs.filter(item => newlyAdmittedIds.includes(item.id))) {
-                    const matches = people.filter(person => dossierFor([npc], person));
-                    if (matches.length !== 1 || nextState.npcs.filter(other => dossierFor([other], matches[0])).length !== 1) continue;
-                    const person = matches[0];
-                    const seeded = seedCastAdmission(nextState, npc, person, { packName: names[person.pack] ?? '', calendarOwn: normalizeSourceOfTruth(settings.sourceOfTruth).calendar === 'mine' });
-                    if (seeded) nextState.npcs = nextState.npcs.map(item => item.id === npc.id ? seeded : item);
-                }
-            }
+            if (hostedNotes && newlyAdmittedIds.length) seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, storySuiteV2Meters });
             const inlineIds = scanInlineNpcIds(resolvedParsed, merged);
             if (targetMessageId >= 0) {
                 clearInlineCardsAtMessage(nextState, targetMessageId);
@@ -417,16 +404,7 @@ export function createScanPart(rt, deps) {
             if (manual) {
                 const { created, updated, candidates, promoted, skipped, staleArchived = [], stalePruned = [] } = merged.report;
                 globalThis.toastr?.success?.(`NPC State Delta scan complete: ${created.length} new, ${updated.length} updated${promoted.length ? `, ${promoted.length} promoted` : ''}${candidates.length ? `, ${candidates.length} candidate${candidates.length === 1 ? '' : 's'} held` : ''}${staleArchived.length ? `, ${staleArchived.length} stale archived` : ''}${stalePruned.length ? `, ${stalePruned.length} stale deleted` : ''}${skipped.length ? `, ${skipped.length} skipped` : ''}.`);
-            } else if ((merged.report.staleArchived || []).length || (merged.report.stalePruned || []).length) {
-                const archivedCount = (merged.report.staleArchived || []).length;
-                const removed = merged.report.stalePruned || [];
-                const names = removed.slice(0, 3).map(item => item.name).join(', ');
-                const extra = removed.length > 3 ? ` +${removed.length - 3} more` : '';
-                const parts = [];
-                if (archivedCount) parts.push(`${archivedCount} stale archived`);
-                if (removed.length) parts.push(`${removed.length} stale deleted${names ? ` (${names}${extra})` : ''}`);
-                notify('info', `NPC State Delta: ${parts.join(', ')}. Deleted stale NPCs can be rediscovered if they return.`);
-            }
+            } else notifyStaleCleanup(merged.report);
             return true;
         } catch (error) {
             noteScanFailure('dossier scan', error, scanChatKey);

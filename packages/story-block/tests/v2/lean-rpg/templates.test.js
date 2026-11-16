@@ -234,9 +234,9 @@ test('the built-in skill sets are five, three skills each, every one with what i
     assert.ok(Object.isFrozen(SKILL_SETS));
 });
 
-test('the creation budget is named constants: stats start at 10, 6 points, 8 to 15, up to five skills, one at Adept', () => {
+test('the creation budget is named constants: stats start at 5 and never go below it, 10 points, cap 10, up to five skills, one at Adept', () => {
     assert.deepEqual({ start: CREATION.start, budget: CREATION.budget, min: CREATION.min, max: CREATION.max, skills: CREATION.skills, adept: CREATION.adept },
-        { start: 10, budget: 6, min: 8, max: 15, skills: 5, adept: 1 });
+        { start: 5, budget: 10, min: 5, max: 10, skills: 5, adept: 1 });
     const { state } = template('Character');
     assert.equal(CREATION.about, state.about.max);
     assert.equal(CREATION.name, state.who.max);
