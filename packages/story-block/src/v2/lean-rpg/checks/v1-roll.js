@@ -14,7 +14,7 @@ const statOf = (member, key) => {
 };
 
 /** The mastery a skill's rank (0..6) gives: Novice 1 … Legend 7. */
-export const masteryOf = rank => RANKS[clamp(rank, 0, RANKS.length - 1)].mastery;
+export const masteryOf = level => RANKS[clamp(level, 0, RANKS.length - 1)].mastery;
 
 /** The stat a check uses: the skill's own (one with none: the old fitting stat) or the plain stat named. */
 export const checkStat = (skill, stat) => (skill ? String(skill.stat ?? '').trim().toLowerCase() || TYPE_STATS.check.main : stat);
