@@ -3,7 +3,7 @@ import { text } from './shared-text.js';
 
 export const AUTOMATIC_BACKFILL_QUEUE_VERSION = 1;
 export const AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT = 1;
-export const AUTOMATIC_BACKFILL_REASONS = Object.freeze(['missed-participant', 'new-admission']);
+export const AUTOMATIC_BACKFILL_REASONS = Object.freeze(['missed-participant', 'new-admission', 'new-person']);   // (new-person: the fill-in of a `+ npc` stub, src/npc-lines-parts/fill-in.js)
 
 export function normalizeAutomaticBackfillRequest(raw = {}) {
     if (!raw || typeof raw !== 'object') return null;

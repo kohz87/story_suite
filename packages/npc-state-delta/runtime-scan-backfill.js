@@ -5,10 +5,11 @@
 import { AUTOMATIC_BACKFILL_QUEUE_VERSION, AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT, npcParticipatesInExchange } from './scan-context.js';
 import { npcMatchesLabel } from './core.js';
 import { rawScanMatchesExisting } from './src/relationship-pass.js';
+import { FILL_REASON } from './src/npc-lines-parts/fill-in.js';
 
 export function queueNpcBackfillInState(state, npcId, label, requestedMessageId = null, options = {}) {
     const reason = String(options?.reason || '').trim();
-    if (!state || !npcId || !String(label || '').trim() || !['missed-participant', 'new-admission'].includes(reason)) return state;
+    if (!state || !npcId || !String(label || '').trim() || !['missed-participant', 'new-admission', FILL_REASON].includes(reason)) return state;
     if (!Array.isArray(state.pendingBackfills)) state.pendingBackfills = [];
     const cleanLabel = String(label || '').trim().slice(0, 120);
     state.pendingBackfills = state.pendingBackfills.filter(item => item?.npcId !== npcId);
