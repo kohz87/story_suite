@@ -16,8 +16,15 @@ export const PROFILE_UPDATE_TEXT_FIELDS = Object.freeze(['role', 'species', 'gen
 // Role, gender, home base, background and ages are keep-by-default once established.
 export function durableTextAccepted(field, existing, incoming, value, options = {}) {
     if (field === 'gender') {
+        // Never stated: filled in whenever the story states it outright, also after death (then it is stated and frozen). Stated: while the person lives a
+        // Refresh (profile update) replaces it with a new stated gender, a scan row only with genderState:"correct" + a reason; once they have died a stated
+        // gender no longer changes (the reader can still change it by hand in the editor).
         const prior = normalizeGender(existing.gender);
-        return !(prior && prior !== value && (incoming.genderState !== 'correct' || !String(incoming.genderReason || '').trim()));
+        const next = normalizeGender(value);
+        if (!next) return false;
+        if (!prior) return true;
+        if (existing.lifeState === 'deceased' || prior === next) return false;
+        return options.profileUpdate === true || (incoming.genderState === 'correct' && String(incoming.genderReason || '').trim() !== '');
     }
     if (field === 'role') {
         // (card traits win) The source event itself supplies the reason for a bare role; an

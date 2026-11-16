@@ -18,11 +18,17 @@ export function normalizeBoolean(value, fallback = false) {
     return Boolean(fallback);
 }
 
+// Gender is male, female or blank (the dossier shows blank as "not stated"). The story's own word is read: male/man/boy/he/him/masculine, female/woman/girl/she/her/feminine
+// (a short phrase such as "a young woman" counts); a word that is neither, or both, or a long sentence, is not stated.
+const MALE_WORDS = new Set(['male', 'man', 'boy', 'he', 'him', 'his', 'masculine', 'gentleman', 'guy']);
+const FEMALE_WORDS = new Set(['female', 'woman', 'girl', 'she', 'her', 'hers', 'feminine', 'lady', 'gal']);
 export function normalizeGender(value) {
-    const text = normalizeName(value);
-    if (['male', 'man', 'boy'].includes(text)) return 'male';
-    if (['female', 'woman', 'girl'].includes(text)) return 'female';
-    return '';
+    const words = normalizeName(value).split(/[^a-z]+/).filter(Boolean);
+    if (!words.length || words.length > 3) return '';
+    const male = words.some(word => MALE_WORDS.has(word));
+    const female = words.some(word => FEMALE_WORDS.has(word));
+    if (male === female) return '';
+    return male ? 'male' : 'female';
 }
 
 export function normalizeDossierSignal(value) {

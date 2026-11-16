@@ -10,7 +10,7 @@ import { MODULE_ID, createParticipant, memoryVault } from '../src/storysuite-par
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
-const npc = (id, name, extra = {}) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });
+const npc = (id, name, extra = {}) => ({ id, name, aliases: [], present: true, lifeState: 'alive', trust: 3, ...extra });
 const BATCH = { id: 'br_batch001', hash: hashJson({ batch: 'br_batch001', outcome: 'dead' }) };
 
 // Who owns the sealed result of a death (RPG Battle's, later): the host asks `batchResults.resolve` for its bytes.

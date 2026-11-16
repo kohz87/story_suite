@@ -26,7 +26,7 @@ test('portrait records that hold image bytes (a failed portrait file write) are 
     assert.deepEqual(Object.keys(head.portraitAssets), [idOf('tom')], 'only the file reference is kept');
     assert.deepEqual(head.npcs[idOf('tom')].portrait, { path: '/user/files/npc-state-delta-portrait-abc.png', type: 'image/png', hash: 'abc' });
     // a later write on top of it is not refused either
-    assert.equal(await rig.publish(state => { state.npcs[0].trust = 9; }), true);
+    assert.equal(await rig.publish(state => { state.npcs[0].seenCount = 9; }), true);
     assert.equal(rig.sends.every(code => code === 'ok'), true, `${rig.sends}`);
     await proveHead(rig, 'with portraits');
 });
@@ -35,10 +35,10 @@ test('portrait records that hold image bytes (a failed portrait file write) are 
 // That is the one rule of the store: the inventory refuses the same way (control below), so the people follow it, and this test pins it as intended.
 test('a rewind over a people block that no longer applies refuses, as the inventory does; a rewind that applies keeps cache and store equal', async t => {
     const rig = await peopleRig(t);
-    for (let n = 1; n <= 5; n++) await rig.reply(`Turn ${n}.`, s => { s.turn = n; if (n === 2) s.npcs.push(record('vale')); if (n > 2) s.npcs.find(x => x.id === 'npc_vale').trust = n; });
+    for (let n = 1; n <= 5; n++) await rig.reply(`Turn ${n}.`, s => { s.turn = n; if (n === 2) s.npcs.push(record('vale')); if (n > 2) s.npcs.find(x => x.id === 'npc_vale').seenCount = n; });
     await rig.host.st.deleteMessage(4);   // the reply that added Vale
     await proveHead(rig, 'after the delete');
-    await rig.publish(s => { s.npcs[0].trust = 77; });
+    await rig.publish(s => { s.npcs[0].seenCount = 77; });
     const index = rig.host.store.headIndex();
     const writes = rig.host.sdk.receipts().filter(entry => entry.index === index && entry.receipt.type === 'people.write');
     assert.ok(writes.length >= 2, 'two blocks on the head reply');

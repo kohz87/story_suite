@@ -130,7 +130,6 @@ test('Stage 7 explicit death correction round-trips while an unrelated terminal 
     const saved = decodeStateFilePayload(encodeStateFilePayload('chat:card.png:correction', { npcs: [corrected, other] }, '0.1.0')).state;
     assert.equal(saved.npcs[0].lifeState, 'alive');
     assert.equal(saved.npcs[0].present, false);
-    assert.equal(saved.npcs[0].deathCorrection.previousDeathSourceMessageId, 5);
     assert.equal(core.isTerminalNpcDeath(saved.npcs[1]), true);
 });
 

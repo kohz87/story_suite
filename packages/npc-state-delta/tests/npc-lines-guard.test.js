@@ -4,13 +4,13 @@ import { suite, dossiers } from './helpers/pacing-suite.js';
 
 // N3 fix round: a `~ npc` line obeys the reader's locks and the death freeze; "here" is the reply's own scene; no ghost bond; the replay checks.
 const blank = { trust: 0, affection: 0, desire: 0, tension: 0 };
-const person = (id, name, extra = {}) => ({ id, name, aliases: [], present: false, archived: false, relationship: { ...blank }, ...extra });
+const person = (id, name, extra = {}) => ({ id, name, aliases: [], present: false, relationship: { ...blank }, ...extra });
 const records = () => ({
     ...dossiers(),
     npc_wren: person('npc_wren', 'Wren', { goal: 'reader goal', location: 'the keep', manualProfileFields: ['goal', 'location'] }),
-    npc_mara: person('npc_mara', 'Mara', { goal: 'old goal', status: 'dying', location: 'the crypt', gender: 'female', lifeState: 'deceased', archived: true }),
+    npc_mara: person('npc_mara', 'Mara', { goal: 'old goal', status: 'dying', location: 'the crypt', gender: 'female', lifeState: 'deceased' }),
     npc_kit: person('npc_kit', 'Kit'),
-    npc_ned: person('npc_ned', 'Ned', { lifeState: 'deceased', archived: true }),
+    npc_ned: person('npc_ned', 'Ned', { lifeState: 'deceased' }),
 });
 const dossier = (s, id) => s.host.head().domains.people.npcs[id];
 const problems = s => JSON.stringify(s.host.head().domains.people.bonds.problems);

@@ -253,13 +253,14 @@ export function createMutationsPart(rt, deps) {
     }
 
     function setNpcArchiveStateById(npcId, archived, { reason = 'manual', confirmAction = true } = {}) {
-        if (!requireReadyChatMutation(archived ? 'archive a dossier' : 'restore a dossier')) return false;
+        if (archived) return false; // P6: a dossier has no archive state any more (P7 removes the button); only a restore, i.e. a death correction, remains
+        if (!requireReadyChatMutation('restore a dossier')) return false;
         const state = getChatState();
         const index = state.npcs.findIndex(item => item.id === npcId);
         if (index < 0) return false;
         const current = state.npcs[index];
         const correctingDeath = !archived && isTerminalNpcDeath(current);
-        if (Boolean(current.archived) === Boolean(archived) && !correctingDeath) return false;
+        if (!correctingDeath) return false;
         if (confirmAction) {
             const message = archived
                 ? `Archive ${current.name}? The dossier, portrait, history, and relationship state will be preserved, but it will stop receiving inline cards and prompt injection until restored or clearly returned in the story.`

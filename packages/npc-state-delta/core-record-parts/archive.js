@@ -5,26 +5,21 @@ import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 import { portraitHasImage } from '../src/portrait-file.js';
 import { normalizeNpcRecord } from './normalize.js';
 
-export function setNpcArchived(npc, archived, { reason = 'manual', sourceMessageId = null, lifeState = null, now = null } = {}) {
+// P6: a record no longer carries archive fields. "Archived" now only decides the life state and presence: archiving for a death marks the person
+// deceased; archiving otherwise just takes them off the scene; un-archiving revives a dead person unless a life state is given. (P7 deletes callers.)
+export function setNpcArchived(npc, archived, { reason = 'manual', lifeState = null, now = null } = {}) {
     // `now` is the caller's clock (the replay clock while a history is replayed); without it, the real one (live, manual).
     const at = Number.isFinite(now) ? now : Date.now();
     const next = normalizeNpcRecord(npc || {});
-    next.archived = Boolean(archived);
-    if (next.archived) {
-        next.archiveReason = reason === 'deceased' ? 'deceased' : (reason === 'stale' ? 'stale' : 'manual');
-        next.archivedAt = at;
-        next.archiveSourceMessageId = Number.isInteger(sourceMessageId) ? sourceMessageId : null;
+    if (archived) {
         next.present = false;
         next.worldActive = false;
-        if (next.archiveReason === 'deceased') {
+        if (reason === 'deceased') {
             next.lifeState = 'deceased';
             next.lifeStateCertainty = 'explicit';
         }
     } else {
-        const wasDeceased = next.archiveReason === 'deceased' || next.lifeState === 'deceased';
-        next.archiveReason = '';
-        next.archivedAt = null;
-        next.archiveSourceMessageId = null;
+        const wasDeceased = next.lifeState === 'deceased';
         if (lifeState !== null) next.lifeState = normalizeLifeState(lifeState);
         else if (wasDeceased) next.lifeState = 'alive';
         if (next.lifeState === 'alive') next.lifeStateCertainty = 'explicit';
@@ -52,7 +47,6 @@ export function applyStaleNpcLifecycle(state = {}, options = {}) {
     const formIds = new Set(Object.entries(state?.formPortraitAssets || {}).filter(([, forms]) => forms && typeof forms === 'object'
         && Object.values(forms).some(portrait => portraitHasImage(portrait))).map(([id]) => String(id)));
     const noDelete = options.noDelete === true; // a hosted read failed: nothing is deleted this round
-    const now = Number.isFinite(options.now) ? options.now : null;
     const next = { ...state };
     const archived = [];
     const removed = [];
@@ -60,37 +54,21 @@ export function applyStaleNpcLifecycle(state = {}, options = {}) {
     next.npcs = [];
 
     for (const raw of (Array.isArray(state?.npcs) ? state.npcs : [])) {
-        let npc = normalizeNpcRecord(raw);
-        if (isTerminalNpcDeath(npc) || npc.present || npc.worldActive || npc.retentionProtected || protectedIds.has(npc.id)) {
+        const npc = normalizeNpcRecord(raw);
+        if (isTerminalNpcDeath(npc) || npc.present || npc.worldActive || protectedIds.has(npc.id)) {
             next.npcs.push(npc);
             continue;
         }
         const activityTurn = Math.max(Number(npc.lastSeenTurn || 0), Number(npc.lastWorldActiveTurn || 0));
         const age = Math.max(0, turn - activityTurn);
 
-        // Only stale-auto-archives participate in timed deletion. Manual and death archives are
-        // durable records and remain until the player explicitly removes them.
+        // P6: no archive step. A dossier that does not matter and has been quiet for deleteAfter turns is removed (the timing is unchanged);
+        // one that matters (portrait, cast, bond off its start, key person) is kept however long it has been quiet.
         const matters = noDelete || npcMattersForRetention(npc, keepIds, formIds, options.baseline);
-        if (npc.archived) {
-            if (npc.archiveReason === 'stale' && age >= deleteAfter && !matters) {
-                removed.push({ id: npc.id, name: npc.name, age, activityTurn, archiveReason: 'stale' });
-                removedIds.add(npc.id);
-                continue;
-            }
-            next.npcs.push(npc);
-            continue;
-        }
-
         if (age >= deleteAfter && !matters) {
-            // On upgrades or very long gaps, a dossier may already be beyond both thresholds.
-            // Delete it directly rather than creating a one-scan zombie archive.
             removed.push({ id: npc.id, name: npc.name, age, activityTurn, archiveReason: 'stale' });
             removedIds.add(npc.id);
             continue;
-        }
-        if (age >= archiveAfter) { // (also a dossier that matters past the delete age: archived, kept)
-            npc = setNpcArchived(npc, true, { reason: 'stale', now });
-            archived.push({ id: npc.id, name: npc.name, age, activityTurn });
         }
         next.npcs.push(npc);
     }

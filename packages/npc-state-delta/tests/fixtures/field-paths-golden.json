@@ -11,9 +11,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -176,7 +173,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -192,9 +188,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -286,7 +279,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 3,
     "species": "",
@@ -302,9 +294,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -389,7 +378,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Courier",
     "seenCount": 1,
     "species": "",
@@ -405,9 +393,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -498,7 +483,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -714,9 +698,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -881,7 +862,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -897,9 +877,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -991,7 +968,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 3,
     "species": "",
@@ -1007,9 +983,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -1094,7 +1067,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Courier",
     "seenCount": 1,
     "species": "",
@@ -1110,9 +1082,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -1203,7 +1172,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -1419,9 +1387,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -1566,7 +1531,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -1582,9 +1546,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -1676,7 +1637,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 3,
     "species": "",
@@ -1692,9 +1652,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -1779,7 +1736,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Courier",
     "seenCount": 1,
     "species": "",
@@ -1795,9 +1751,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -1888,7 +1841,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -2104,9 +2056,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -2253,7 +2202,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -2269,9 +2217,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -2363,7 +2308,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 3,
     "species": "",
@@ -2379,9 +2323,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -2466,7 +2407,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Courier",
     "seenCount": 1,
     "species": "",
@@ -2482,9 +2422,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -2575,7 +2512,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -2791,9 +2727,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -2956,7 +2889,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -2972,9 +2904,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -3066,7 +2995,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 3,
     "species": "",
@@ -3082,9 +3010,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -3169,7 +3094,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Courier",
     "seenCount": 1,
     "species": "",
@@ -3185,9 +3109,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -3278,7 +3199,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -3494,9 +3414,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -3661,7 +3578,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -3677,9 +3593,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -3771,7 +3684,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 3,
     "species": "",
@@ -3787,9 +3699,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -3874,7 +3783,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Courier",
     "seenCount": 1,
     "species": "",
@@ -3890,9 +3798,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -3983,7 +3888,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -4199,9 +4103,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -4346,7 +4247,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -4362,9 +4262,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -4448,7 +4345,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 2,
     "species": "",
@@ -4464,9 +4360,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -4557,7 +4450,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -4753,9 +4645,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -4902,7 +4791,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -4918,9 +4806,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -5004,7 +4889,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 2,
     "species": "",
@@ -5020,9 +4904,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -5113,7 +4994,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -5309,9 +5189,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -5456,7 +5333,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -5472,9 +5348,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -5558,7 +5431,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 2,
     "species": "",
@@ -5574,9 +5446,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -5667,7 +5536,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -5863,9 +5731,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -6012,7 +5877,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -6028,9 +5892,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -6114,7 +5975,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 2,
     "species": "",
@@ -6130,9 +5990,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -6223,7 +6080,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -6419,9 +6275,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -6566,7 +6419,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -6582,9 +6434,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -6668,7 +6517,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 2,
     "species": "",
@@ -6684,9 +6532,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -6777,7 +6622,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -6973,9 +6817,6 @@
     "appearance": "Tall woman with ink-stained fingers and a grey braid.",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
     "behaviorProfile": [
      "Disposition: kind - helps strangers without fuss"
@@ -7122,7 +6963,6 @@
      "trust": 0
     },
     "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-    "retentionProtected": false,
     "role": "Archivist",
     "seenCount": 5,
     "species": "Human",
@@ -7138,9 +6978,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "",
-    "archiveSourceMessageId": null,
-    "archived": false,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -7224,7 +7061,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Guard captain",
     "seenCount": 2,
     "species": "",
@@ -7240,9 +7076,6 @@
     "appearance": "",
     "appearanceForms": [],
     "appearanceModelVersion": 2,
-    "archiveReason": "deceased",
-    "archiveSourceMessageId": null,
-    "archived": true,
     "background": "",
     "behaviorProfile": [],
     "birthDate": {
@@ -7333,7 +7166,6 @@
      "trust": 0
     },
     "relationshipSummary": "",
-    "retentionProtected": false,
     "role": "Weaver",
     "seenCount": 1,
     "species": "",
@@ -7527,9 +7359,6 @@
    "appearance": "Tall woman with ink-stained fingers and a grey braid.",
    "appearanceForms": [],
    "appearanceModelVersion": 2,
-   "archiveReason": "",
-   "archiveSourceMessageId": null,
-   "archived": false,
    "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
    "behaviorProfile": [
     "Disposition: kind - helps strangers without fuss"
@@ -7629,7 +7458,6 @@
     "trust": 0
    },
    "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-   "retentionProtected": false,
    "role": "Archivist",
    "seenCount": 4,
    "species": "Human",
@@ -7645,9 +7473,6 @@
    "appearance": "",
    "appearanceForms": [],
    "appearanceModelVersion": 2,
-   "archiveReason": "",
-   "archiveSourceMessageId": null,
-   "archived": false,
    "background": "",
    "behaviorProfile": [],
    "birthDate": {
@@ -7731,7 +7556,6 @@
     "trust": 0
    },
    "relationshipSummary": "",
-   "retentionProtected": false,
    "role": "Guard captain",
    "seenCount": 2,
    "species": "",
@@ -7747,9 +7571,6 @@
    "appearance": "",
    "appearanceForms": [],
    "appearanceModelVersion": 2,
-   "archiveReason": "deceased",
-   "archiveSourceMessageId": null,
-   "archived": true,
    "background": "",
    "behaviorProfile": [],
    "birthDate": {
@@ -7833,7 +7654,6 @@
     "trust": 0
    },
    "relationshipSummary": "",
-   "retentionProtected": false,
    "role": "Weaver",
    "seenCount": 1,
    "species": "",
@@ -7853,9 +7673,6 @@
    "appearance": "Tall woman with ink-stained fingers and a grey braid.",
    "appearanceForms": [],
    "appearanceModelVersion": 2,
-   "archiveReason": "",
-   "archiveSourceMessageId": null,
-   "archived": false,
    "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
    "behaviorProfile": [
     "Disposition: kind - helps strangers without fuss"
@@ -7954,7 +7771,6 @@
     "trust": 0
    },
    "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-   "retentionProtected": false,
    "role": "Archivist",
    "seenCount": 4,
    "species": "Human",
@@ -7970,9 +7786,6 @@
    "appearance": "",
    "appearanceForms": [],
    "appearanceModelVersion": 2,
-   "archiveReason": "",
-   "archiveSourceMessageId": null,
-   "archived": false,
    "background": "",
    "behaviorProfile": [],
    "birthDate": {
@@ -8056,7 +7869,6 @@
     "trust": 0
    },
    "relationshipSummary": "",
-   "retentionProtected": false,
    "role": "Guard captain",
    "seenCount": 2,
    "species": "",
@@ -8072,9 +7884,6 @@
    "appearance": "",
    "appearanceForms": [],
    "appearanceModelVersion": 2,
-   "archiveReason": "deceased",
-   "archiveSourceMessageId": null,
-   "archived": true,
    "background": "",
    "behaviorProfile": [],
    "birthDate": {
@@ -8158,7 +7967,6 @@
     "trust": 0
    },
    "relationshipSummary": "",
-   "retentionProtected": false,
    "role": "Weaver",
    "seenCount": 1,
    "species": "",
@@ -8177,9 +7985,6 @@
   "appearance": "Tall woman with ink-stained fingers and a grey braid.",
   "appearanceForms": [],
   "appearanceModelVersion": 2,
-  "archiveReason": "",
-  "archiveSourceMessageId": null,
-  "archived": false,
   "background": "Raised in the river quarter; apprenticed to the archive at twelve; survived the flood year.",
   "behaviorProfile": [
    "Disposition: kind - helps strangers without fuss"
@@ -8280,7 +8085,6 @@
    "trust": 0
   },
   "relationshipSummary": "Cautious respect for Ari after the archive fire.",
-  "retentionProtected": false,
   "role": "Archivist",
   "seenCount": 4,
   "species": "Human",

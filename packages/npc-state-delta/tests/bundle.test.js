@@ -37,8 +37,6 @@ test('binary bundle round-trips dossiers and raw portrait bytes', () => {
     assert.equal(decoded.metadata.sourceChatKey, 'chat:test');
     assert.equal(decoded.state.npcs[0].name, 'Yunyun');
     assert.equal(decoded.state.npcs[0].role, 'Crimson Demon adventurer');
-    assert.equal(decoded.state.npcs[0].archived, true);
-    assert.equal(decoded.state.npcs[0].archiveReason, 'manual');
     assert.equal(decoded.state.npcs[0].portrait.mime, 'image/webp');
     assert.equal(decoded.state.npcs[0].portrait.sourceName, 'yunyun.webp');
     assert.deepEqual(
@@ -96,25 +94,6 @@ test('import merge can exclude the current player or main card', () => {
     assert.deepEqual(merged.npcs.map(npc => npc.name), ['Yunyun']);
 });
 
-
-test('v0.2.7 import roster cap counts only active dossiers and preserves archives', () => {
-    const archivedA = createNpcRecord('Old Knight');
-    archivedA.archived = true;
-    archivedA.archiveReason = 'stale';
-    const archivedB = createNpcRecord('Dead Captain');
-    archivedB.archived = true;
-    archivedB.archiveReason = 'deceased';
-    const activeA = createNpcRecord('Falia');
-    const activeB = createNpcRecord('Marris');
-
-    const merged = mergeImportedDossierState({ npcs: [], dismissed: [] }, {
-        npcs: [archivedA, archivedB, activeA, activeB], dismissed: [],
-    }, { maxNpcs: 1 });
-
-    assert.equal(merged.npcs.filter(npc => npc.archived).length, 2, 'archives must not consume the active roster cap');
-    assert.equal(merged.npcs.filter(npc => !npc.archived).length, 1);
-    assert.ok(merged.npcs.some(npc => npc.name === 'Falia'));
-});
 
 test('v0.2.11 bundle/import preserves hidden relationship weight progress, milestone audit, and dedupe history', () => {
     const npc = createNpcRecord('Myla');

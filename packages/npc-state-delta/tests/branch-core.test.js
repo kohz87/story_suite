@@ -147,7 +147,6 @@ test('v0.2.11 branch restore overlays user-owned portrait/profile metadata witho
     const sibling = [user('Wait.'), assistant('Myla refuses.', 1)];
     const result = reconcileBranchState(state, sibling, { explicitDivergence: 1 });
     assert.equal(result.state.npcs[0].portraitPromptPositive, 'custom portrait override');
-    assert.equal(result.state.npcs[0].retentionProtected, true);
     assert.equal(result.state.npcs[0].minor, true);
     assert.equal(Object.prototype.hasOwnProperty.call(result.state.npcs[0], 'importance'), false);
     assert.equal(Object.prototype.hasOwnProperty.call(result.state.npcs[0], 'manual'), false);
@@ -217,8 +216,6 @@ test('branch rollback restores active state when a later death archive is revert
 
     const reverted = chat.slice(0, 3);
     const result = reconcileBranchState(state, reverted, { explicitDivergence: 3 });
-    assert.equal(result.state.npcs[0].archived, false);
-    assert.equal(result.state.npcs[0].archiveReason, '');
     assert.notEqual(result.state.npcs[0].lifeState, 'deceased');
     assert.equal(result.state.npcs[0].present, true);
 });

@@ -3,6 +3,7 @@
 import { MAX_STAGES_PER_METER, SECRET_TITLE_MAX, NAME_MAX, FEATURE_NOTES, isObject, isInt, isReplyId, sameReply, clean, own, bandWord, needMet, thresholdReached, stageAt, clamp, intOr, readLeaf } from './npc-meters-config.js';
 import { findNpcKey, meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
 import { bondsOf } from './npc-meters-parts/fold.js';
+import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 import { eventLog, readEvent } from './npc-meters-pacing.js';
 import { INSTINCT_KEYS } from '../npc-instincts.js';
 import { moodBars, moodWord, normalizeMood, readMoodLog } from '../npc-mood.js';
@@ -16,12 +17,12 @@ export function createNpcQueries({
 
     // The meters are the people domain's `bonds`, keyed by npc_ id (src/npc-meters-parts/fold.js).
     const sliceOf = state => bondsOf(state);
-    // The store's people as the cast lists them: every dossier in the store's order that is not archived (the same people as npc.known; archived ones,
-    // stale, set aside or deceased, stay out until the record shape cleanup replaces archiving), with its bonds entry, or where that entry would start.
+    // The store's people as the cast lists them: every dossier in the store's order that is not a confirmed death (the same people as npc.known; a record has no
+    // archive flag any more), with its bonds entry, or where that entry would start.
     const castPeople = (state, npcs, defs) => {
         const people = state?.domains?.people;
         if (!isObject(people?.npcs) || !Array.isArray(people.order)) return [];
-        return people.order.map(id => people.npcs[id]).filter(person => isObject(person) && person.archived !== true && typeof person.name === 'string' && person.name).map(person => {
+        return people.order.map(id => people.npcs[id]).filter(person => isObject(person) && !isTerminalNpcDeath(person) && typeof person.name === 'string' && person.name).map(person => {
             const labels = [person.id, person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])].filter(label => typeof label === 'string');
             const key = findNpcKey(npcs, labels);
             const seed = isObject(person.relationship) ? person.relationship : {};

@@ -37,7 +37,7 @@ const TODAY = {
         ['appearance', 'overallAppearance', 'unclassifiedAppearance', 'appearanceForms', 'currentForm', 'currentFormUnknown', 'appearanceModelVersion', 'lookGuess', 'lookLockedAt'],
         ['age', 'apparentAge', 'birthDate', 'birthDateSource', 'birthDatePrecision', 'birthDateYearSource', 'birthDateReason',
             'birthDateSourceMessageId', 'birthDateCalendarFingerprint', 'birthDateDisplay', 'calendarAge', 'apparentAgeAnchor'],
-        ['lifeState', 'lifeStateCertainty', 'lifeStateReason', 'archived', 'archiveReason', 'archivedAt', 'archiveSourceMessageId'],
+        ['lifeState', 'lifeStateCertainty', 'lifeStateReason'],
         ['personality', 'personalityDevelopment'],
         ['speech', 'speechDevelopment'],
     ],
@@ -47,14 +47,14 @@ const TODAY = {
         'relationshipEventHistory', 'lastRelationshipChange', 'relationshipSummary',
         'seenCount', 'lastSeenTurn', 'lastWorldActiveTurn'],
     ALIAS_MERGE_TEXT_FIELDS: ['role', 'species', 'age', 'apparentAge', 'personality', 'speech', 'appearance', 'background', 'relationshipSummary', 'mood', 'location', 'goal', 'status', 'lifeStateReason'],
-    BRANCH_USER_METADATA_FIELDS: ['portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'portraitSeed', 'retentionProtected', 'minor', 'manualMemories'],
+    BRANCH_USER_METADATA_FIELDS: ['portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'portraitSeed', 'minor', 'manualMemories'],
     REFRESH_CHANGED_FIELDS: ['name', 'role', 'species', 'gender', 'homeBase', 'age', 'apparentAge', 'appearance', 'personality', 'speech', 'behaviorProfile', 'background', 'keyRelationships', 'relationshipSummary', 'mood', 'location', 'goal', 'status', 'lifeState', 'mannerisms', 'memories'],
     DOSSIER_FIELDS: [
         'id', 'name', 'aliases', 'role', 'species', 'gender', 'age', 'apparentAge', 'birthDate', 'homeBase',
         'appearance', 'appearanceForms', 'currentForm', 'personality', 'speech', 'mannerisms', 'behaviorProfile',
         'background', 'memories', 'keyRelationships', 'relationshipSummary', 'relationship',
         'mood', 'location', 'goal', 'status', 'customFields',
-        'lifeState', 'present', 'worldActive', 'archived', 'minor',
+        'lifeState', 'present', 'worldActive', 'minor',
     ],
 };
 
@@ -88,16 +88,11 @@ function todaySnapshotNpc(npc) {
         lifeState: npc.lifeState || 'unknown',
         lifeStateCertainty: npc.lifeStateCertainty || '',
         lifeStateReason: npc.lifeStateReason || '',
-        archived: Boolean(npc.archived),
-        archiveReason: npc.archiveReason || '',
-        archivedAt: npc.archivedAt || null,
-        archiveSourceMessageId: Number.isInteger(npc.archiveSourceMessageId) ? npc.archiveSourceMessageId : null,
         relationship: { ...(npc.relationship || {}) },
         lastRelationshipChange: structuredClone(npc.lastRelationshipChange || { impact: 'none', delta: { trust: 0, affection: 0, desire: 0, tension: 0 }, reason: '', sourceMessageId: null }),
         updatedAt: npc.updatedAt || Date.now(),
         seenCount: Number(npc.seenCount || 0),
         manualProfileFields: [...(npc.manualProfileFields || [])],
-        retentionProtected: Boolean(npc.retentionProtected),
         minor: Boolean(npc.minor),
     };
 }

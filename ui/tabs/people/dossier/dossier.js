@@ -126,7 +126,7 @@ export function dossierPage(d, ctx = {}) {
       h('div', { class: 'chips dchips' }, dead
         ? h('span', { class: ['deadb', d.life === 'presumed' ? 'pres' : null] }, d.life === 'presumed' ? 'Presumed dead' : 'Deceased')
         : follow),
-      h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, ' · gender unknown') : null),
+      h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, ' · gender not stated') : null),
       h('div', { class: 'idl' }, [dead ? where : (d.now && Object.hasOwn(d.now, 'where') ? 'Here' : where), d.inParty ? 'in your party' : null].filter(Boolean).join(' · ')),
       dead ? null : button({ label: 'See on map', dataset: { act: 'map' }, onClick: () => { if (ctx.seeOnMap) ctx.seeOnMap(d.id); else cmd('people.focus'); } }));
   }

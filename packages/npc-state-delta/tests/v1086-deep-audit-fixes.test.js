@@ -245,16 +245,18 @@ async function deepAuditRuntimeChecks(mockState, eventSource, manualAddNpc, slee
     if (appliedStale !== false) fail('RB84-04: a stale appearance draft was applied');
     if (!/red hair/.test(runtime.getNpc(sela.id).overallAppearance || '')) fail('RB84-04: the newer remote appearance was overwritten');
 
-    // RB84-12: Archive does not announce success before the server has it.
+    // RB84-12: A death correction does not announce success before the server has it (P6: a dossier has no archive state any more).
+    await runtime.updateLifeState(sela.id, 'deceased', { chatKey: runtime.uiStatus().chatKey });
+    await runtime.flush();
     successes.length = 0;
     warnings.length = 0;
     globalThis.fetch = async (url, options = {}) => (url === '/api/files/upload'
         ? { ok: false, status: 403, json: async () => ({}), text: async () => 'forbidden' }
         : baseFetch(url, options));
-    await runtime.archive(sela.id);
-    await waitUntil(() => warnings.some(message => /could not be saved to the server yet/.test(message)), 'archive pending warning');
+    await runtime.restore(sela.id);
+    await waitUntil(() => warnings.some(message => /could not be saved to the server yet/.test(message)), 'restore pending warning');
     globalThis.fetch = baseFetch;
-    if (successes.some(message => /archived Sela Deep/.test(message))) fail('RB84-12: archive reported success before the save');
+    if (successes.some(message => /corrected Sela Deep/.test(message))) fail('RB84-12: the correction reported success before the save');
 
     // RB84-08: an explicitly absent NPC is not repaired into presence from older history.
     await open('deep-absent', ['I enter the records office.', 'Tavi Deep sorts files at the counter.']);

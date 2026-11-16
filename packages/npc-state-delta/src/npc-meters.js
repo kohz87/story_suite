@@ -14,7 +14,7 @@
 // * Keys are the person's npc_ id, the key of their dossier in the same domain (`npc_mira`). A line
 //   about someone Delta has no dossier for gets an id made as Delta makes dossier ids (`npc_` and the
 //   name's slug), so the dossier made later has the same key; an entry is also found by its name.
-//   npc.cast lists the store's people (not archived), each with its entry.
+//   npc.cast lists the store's people (not a confirmed death), each with its entry.
 // * Meters: trust, affection, desire and tension (-100..100, starting from Delta's base values, or
 //   from the dossier's own numbers for someone Delta already knows), plus up to six custom meters
 //   from the reader's settings and the presets in use. Code clamps every value to its range, and the

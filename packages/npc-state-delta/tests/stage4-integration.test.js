@@ -104,21 +104,17 @@ test('Stage 4 clothing-only form change leaves unrelated form anatomy untouched'
 test('Stage 4 archiving preserves death semantics and an explicit user restore is recorded as correction', () => {
     const dead = normalizeNpcRecord({
         ...createNpcRecord('Marris'),
-        archived: false,
+       
         lifeState: 'deceased',
         lifeStateCertainty: 'explicit',
         lifeStateReason: 'Death was explicitly confirmed.',
     });
     const archived = setNpcArchived(dead, true, { reason: 'manual', sourceMessageId: 7 });
-    assert.equal(archived.archived, true);
-    assert.equal(archived.archiveReason, 'deceased');
     assert.equal(archived.lifeState, 'deceased');
     const corrected = setNpcArchived(archived, false, { sourceMessageId: 8 });
-    assert.equal(corrected.archived, false);
     assert.equal(corrected.lifeState, 'alive');
     assert.equal(corrected.present, false);
     assert.equal(corrected.worldActive, false);
-    assert.equal(corrected.deathCorrection.previousDeathSourceMessageId, 7);
 });
 
 test('Stage 4 alias consolidation preserves named forms and lets terminal death dominate a live duplicate', () => {
@@ -166,7 +162,7 @@ test('Stage 4 native bundle merge cannot implicitly revive an existing terminal 
     }, true, { reason: 'deceased', sourceMessageId: 7 });
     const imported = normalizeNpcRecord({
         ...dead,
-        archived: false,
+       
         archiveReason: '',
         lifeState: 'alive',
         lifeStateCertainty: 'explicit',

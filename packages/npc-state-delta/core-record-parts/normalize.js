@@ -151,12 +151,7 @@ export function normalizeNpcRecord(rawInput = {}) {
     npc.lifeState = normalizeLifeState(raw.lifeState);
     npc.lifeStateCertainty = normalizeLifeStateCertainty(raw.lifeStateCertainty);
     npc.lifeStateReason = cleanText(raw.lifeStateReason, 500);
-    npc.archived = normalizeBoolean(raw.archived);
-    npc.archiveReason = raw.archiveReason === 'deceased' ? 'deceased' : (raw.archiveReason === 'stale' ? 'stale' : (raw.archiveReason === 'manual' ? 'manual' : ''));
     npc.minor = normalizeBoolean(raw.minor ?? raw.isMinor ?? raw.is_minor ?? raw.hideFromGallery ?? raw.hide_from_gallery);
-    npc.archivedAt = Number.isFinite(Number(raw.archivedAt)) ? Number(raw.archivedAt) : null;
-    npc.archiveSourceMessageId = Number.isInteger(raw.archiveSourceMessageId) ? raw.archiveSourceMessageId : null;
-    npc.retentionProtected = normalizeBoolean(raw.retentionProtected ?? raw.retention_protected ?? raw.keepFromStaleCleanup ?? raw.keep_from_stale_cleanup);
     npc.lastSeenTurn = Math.max(0, Math.round(Number(raw.lastSeenTurn) || 0));
     npc.lastWorldActiveTurn = Math.max(0, Math.round(Number(raw.lastWorldActiveTurn) || 0));
     npc.seenCount = Math.max(0, Math.round(Number(raw.seenCount) || 0));
@@ -164,6 +159,7 @@ export function normalizeNpcRecord(rawInput = {}) {
     npc.updatedAt = Number.isFinite(Number(raw.updatedAt)) ? Number(raw.updatedAt) : npc.createdAt;
     delete npc.importance;
     delete npc.manual;
-    if (npc.archived) { npc.present = false; npc.worldActive = false; }
+    // P6: no archive or retention fields any more (the old ones in a stored record are dropped here); a death is lifeState 'deceased'.
+    for (const gone of ['archived', 'archiveReason', 'archivedAt', 'archiveSourceMessageId', 'retentionProtected']) delete npc[gone];
     return npc;
 }

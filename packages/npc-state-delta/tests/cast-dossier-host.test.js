@@ -12,7 +12,7 @@ import { ERSVEIL, FENNA_ENTRY, OLD_DEFAULTS, castRow, director, suite } from './
 
 test('a person\'s pack stages are reached by the numbers alone, in order, with the preset\'s meters from the first meeting', async () => {
     const tansy = ERSVEIL.find(entry => entry.id === 'tansy-millrace');
-    const records = { npc_tansy: { id: 'npc_tansy', name: 'Tansy Millrace', aliases: [], present: true, archived: false, castFrom: { key: 'ersveil:tansy-millrace', stages: normalizeEntry(tansy).stages } } };
+    const records = { npc_tansy: { id: 'npc_tansy', name: 'Tansy Millrace', aliases: [], present: true, castFrom: { key: 'ersveil:tansy-millrace', stages: normalizeEntry(tansy).stages } } };
     const host = await createHost({ settings: { modules: { [MODULE_ID]: { presets: ['companion'] } }, features: { [FEATURE_STAGES]: true, ...OLD_DEFAULTS } }, modules: [director()] });
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
     const api = {
@@ -111,7 +111,7 @@ test('a swipe of the meeting\'s reply takes the record with it, a re-meeting on 
 
 test('the person\'s own stages work like a ladder: reached by the numbers, only while stage ladders are on', async () => {
     const own = [{ name: 'Wary', needs: 'trust 5' }, { name: 'Ally', needs: 'trust 40' }];
-    const records = { npc_fenna: { id: 'npc_fenna', name: 'Fenna', aliases: [], present: true, archived: false, castFrom: { key: 'ersveil:fenna', stages: own } } };
+    const records = { npc_fenna: { id: 'npc_fenna', name: 'Fenna', aliases: [], present: true, castFrom: { key: 'ersveil:fenna', stages: own } } };
     const host = await createHost({ settings: { modules: { [MODULE_ID]: {} }, features: { [FEATURE_STAGES]: true } }, modules: [director()] });
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
     const api = {

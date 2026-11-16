@@ -1,5 +1,5 @@
 // The reader's questions about the people domain, answered from the stored slice alone (pure over the state, so a swipe, a delete, a rewind or a reload
-// answers what the head holds): `people.list` (one row per stored, not archived person), `people.dossier` (one person's stored fields plus their meters),
+// answers what the head holds): `people.list` (one row per stored person), `people.dossier` (one person's stored fields plus their meters),
 // `people.ties` (the social graph's edges between stored people) and `people.secretOwners` (whose dossier holds a secret of that title).
 // Definitions: here = the record's `present` flag (NPC State sets it from the reply); dormant = 30 or more replies (the slice's `turn` minus the record's
 // `lastSeenTurn`) unseen, never for someone present, followed, deceased or without a `lastSeenTurn` (decision 36.12; the party is excluded by the caller).
@@ -33,7 +33,7 @@ function metersOf(bond, record) {
     return source ? Object.fromEntries(AXES.map(axis => [axis, Number.isFinite(Number(source[axis])) ? Number(source[axis]) : 0])) : null;
 }
 
-const active = (slice, id) => isObject(slice.npcs?.[id]) && slice.npcs[id].archived !== true;
+const active = (slice, id) => isObject(slice.npcs?.[id]);
 const ids = slice => (Array.isArray(slice?.order) ? slice.order.filter(id => active(slice, id)) : []);
 
 function dormantOf(slice, record) {

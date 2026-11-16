@@ -72,17 +72,16 @@ test('v1.2.2 npc profiles leave out the dead, archived or not, and keep the livi
     const npcs = [
         { id: 'alive', name: 'Alive', lifeState: 'alive', lifeStateCertainty: 'explicit' },
         { id: 'unknown', name: 'Unknown', lifeState: 'unknown' },
-        { id: 'dead-explicit', name: 'Dead', lifeState: 'deceased', lifeStateCertainty: 'explicit', archived: false },
+        { id: 'dead-explicit', name: 'Dead', lifeState: 'deceased', lifeStateCertainty: 'explicit' },
         { id: 'dead-inferred', name: 'Probably dead', lifeState: 'deceased', lifeStateCertainty: 'inferred' },
         { id: 'dead-case', name: 'Dead case', lifeState: ' Deceased ' },
         { id: 'dead-archived', name: 'Archived dead', lifeState: 'deceased', archived: true, archiveReason: 'deceased' },
-        { id: 'restored', name: 'Restored', lifeState: 'alive', lifeStateCertainty: 'explicit', archived: false, archiveReason: '' },
+        { id: 'restored', name: 'Restored', lifeState: 'alive', lifeStateCertainty: 'explicit', archiveReason: '' },
     ];
     assert.deepEqual(buildNpcProfiles(npcs).map(profile => profile.id), ['alive', 'unknown', 'restored']);
     // The same through the dossier owner's own records: a confirmed death kept unarchived
     // (Auto-archive deaths off) is left out; a manual Restore marks the NPC alive again.
     const dead = normalizeNpcRecord({ id: 'n1', name: 'Orrin', lifeState: 'deceased', lifeStateCertainty: 'explicit' });
-    assert.equal(dead.archived, false);
     const restored = setNpcArchived(setNpcArchived(dead, true, { reason: 'deceased' }), false, { allowDeathCorrection: true });
     assert.deepEqual(buildNpcProfiles([dead]), []);
     assert.deepEqual(buildNpcProfiles([restored]).map(profile => profile.id), ['n1']);
@@ -196,10 +195,7 @@ test('v1.2.2 the runtime openDossier opens the launcher dossier path, and nothin
         assert.equal(mockState.prompts.length, prompts, 'no prompt write');
         assert.equal(JSON.stringify(globalThis.NPCStateDelta.getState()), before, 'no data change');
 
-        await globalThis.NPCStateDelta.archive(wiz.id);
-        assert.equal(api.npcs().find(npc => npc.id === wiz.id)?.archived, true);
-        assert.equal(api.openDossier(wiz.id), false, 'archived by id');
-        assert.equal(api.openDossier('Wiz'), false, 'archived by name');
+        // P6: a dossier has no archive state, so there is nothing to open-refuse beyond unknown names.
         assert.deepEqual(opened, [yunyun.id, yunyun.id, yunyun.id]);
     });
 });

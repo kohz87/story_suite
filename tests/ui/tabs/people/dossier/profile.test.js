@@ -16,7 +16,7 @@ test('unknown gender is flagged and says only Edit can set it', () => {
   installFakeDom();
   const d = dossier('dren');
   const parts = profilePage(d);
-  assert.match(parts[0].textContent, /GenderUnknown · set it in Edit/);
+  assert.match(parts[0].textContent, /GenderNot stated · set it in Edit/);
   assert.equal(genderWords(d).className, 'gflag');
   assert.equal(genderWords({ genderUnknown: false, profile: { gender: 'Male' } }), 'Male');
   assert.equal(genderWords({}).className, 'gflag');

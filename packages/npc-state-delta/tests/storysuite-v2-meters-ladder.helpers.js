@@ -24,11 +24,11 @@ export const LADDER = [
 export function dossiers() {
     return {
         npc_mira: {
-            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true, archived: false,
+            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true,
             relationship: { trust: 10, affection: 0, desire: 0, tension: 0 },
             secrets: [{ id: secretId('trust', 30, SECRET), meter: 'trust', at: 30, text: SECRET, title: 'Her past' }],
         },
-        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, archived: false, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
+        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
     };
 }
 
@@ -174,8 +174,8 @@ export const OWNER_ROWS = [
 export const ownerRecords = () => {
     const blank = { trust: 0, affection: 0, desire: 0, tension: 0 };
     return {
-        npc_sieke: { id: 'npc_sieke', name: 'Sieke', aliases: [], present: true, archived: false, relationship: { ...blank } },
-        'npc_sister-temiwa': { id: 'npc_sister-temiwa', name: 'Sister Temiwa', aliases: [], present: true, archived: false, relationship: { ...blank } },
+        npc_sieke: { id: 'npc_sieke', name: 'Sieke', aliases: [], present: true, relationship: { ...blank } },
+        'npc_sister-temiwa': { id: 'npc_sister-temiwa', name: 'Sister Temiwa', aliases: [], present: true, relationship: { ...blank } },
     };
 };
 // runtime-hosted.js and runtime-scan-helpers.js with their siblings copied beside them (as the hosted forward test above); only the

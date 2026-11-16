@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { createParticipant, memoryVault, installGuard, changeAt, restoreNoteText } from '../src/storysuite-participant/index.js';
 import { hashJson } from '../src/storysuite-participant/hash.js';
 
-const npc = (id, name) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3 });
+const npc = (id, name) => ({ id, name, aliases: [], present: true, lifeState: 'alive', trust: 3 });
 const names = count => Array.from({ length: count }, (_, at) => `m${at}`);
 let seeds = 100;
 const seededRandom = seed => () => { seed = (seed * 48271) % 2147483647; return seed / 2147483647; };

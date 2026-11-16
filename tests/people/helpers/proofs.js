@@ -11,7 +11,7 @@ export async function proveHead(rig, label) {
     assert.equal(hashJson(rig.stored()), hashJson(rig.expected()), `${label}: cache == store slice`);
     const oracle = rebuildAt(rig.host.ctx.chat, rig.host.store.headIndex()).state?.domains?.people;
     if (oracle !== undefined) assert.deepEqual(head, oracle, `${label}: store slice == oracle rebuild`);
-    const stored = head.order.map(id => head.npcs[id]).filter(record => record.archived !== true);
+    const stored = head.order.map(id => head.npcs[id]).filter(record => !(record.lifeState === 'deceased' && record.lifeStateCertainty === 'explicit'));
     const known = rig.host.sdk.query('npc.known', {});
     assert.deepEqual([...known].sort(), stored.map(record => record.name).sort(), `${label}: npc.known lists the store's people`);
     for (const record of stored) {

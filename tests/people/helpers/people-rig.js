@@ -5,11 +5,12 @@ import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { memoryVault } from '../../../packages/npc-state-delta/src/storysuite-participant/index.js';
 import { createStorySuiteV2Adapter } from '../../../packages/npc-state-delta/src/storysuite-v2.js';
 import { peopleView, peopleState } from '../../../packages/npc-state-delta/src/people/view.js';
+import { isTerminalNpcDeath } from '../../../packages/npc-state-delta/terminal-lifecycle.js';
 import { hashJson } from '../../../packages/npc-state-delta/src/storysuite-participant/hash.js';
 
 // Ids are Delta's own (`npc_` + a name slug, as makeNpcId makes them): the people domain takes them as they are.
 export const idOf = key => `npc_${key}`;
-export const record = (key, extra = {}) => ({ id: idOf(key), name: String(key).toUpperCase(), aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });
+export const record = (key, extra = {}) => ({ id: idOf(key), name: String(key).toUpperCase(), aliases: [], present: true, lifeState: 'alive', ...extra });
 export const clone = value => JSON.parse(JSON.stringify(value));
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 // A new chat starts with nobody: the store is empty and the cache hydrates empty (the first publication below adds Mira and Tom, as a first reply's scan would).
@@ -51,7 +52,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
     };
     const doc = { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } };
     const adapter = createStorySuiteV2Adapter({
-        suiteApi: { npcs: () => mine.state.npcs.map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
+        suiteApi: { npcs: () => mine.state.npcs.map(npc => ({ id: npc.id, name: npc.name, aliases: npc.aliases, present: npc.present, archived: isTerminalNpcDeath(npc) })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         doc,
         timers: { setTimeout: (fn, ms) => { const id = setTimeout(fn, ms); id.unref?.(); return id; }, clearTimeout, setInterval: () => ({ unref() {} }), clearInterval() {} },

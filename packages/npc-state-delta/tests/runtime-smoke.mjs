@@ -959,27 +959,22 @@ try {
     assert.ok(!state.dismissed.includes('wiz'), 'modern ID tombstones must not globally suppress future same-name NPCs');
 
     const yunyunId = state.npcs.find(n => n.name === 'Yunyun').id;
-    assert.equal(await globalThis.NPCStateDelta.archive(yunyunId), true);
+    // P6: a dossier has no archive state; the manual archive is refused and a restore needs a death to correct.
+    assert.equal(await globalThis.NPCStateDelta.archive(yunyunId), false);
+    assert.equal(await globalThis.NPCStateDelta.restore(yunyunId), false);
     state = globalThis.NPCStateDelta.getState();
-    assert.equal(state.npcs.find(n => n.name === 'Yunyun').archived, true);
-    assert.equal(state.npcs.find(n => n.name === 'Yunyun').present, false);
-    const promptAfterArchive = [...mockState.prompts].reverse().find(args => args?.[0] === 'story_suite_tail_4_npc_state_delta')?.[1] || '';
-    assert.doesNotMatch(promptAfterArchive, /- Yunyun:/);
-    assert.equal(await globalThis.NPCStateDelta.restore(yunyunId), true);
-    state = globalThis.NPCStateDelta.getState();
-    assert.equal(state.npcs.find(n => n.name === 'Yunyun').archived, false);
 
+    const seedNow = (id, seed) => globalThis.NPCStateDelta.setPortraitSeed(id, seed, { chatKey: globalThis.NPCStateDelta.uiStatus().chatKey });
     let resolveStateStale;
     mockState.quietResponder = () => new Promise(resolve => { resolveStateStale = resolve; });
     const stateStaleScan = globalThis.NPCStateDelta.scan();
     await sleep(15);
-    assert.equal(await globalThis.NPCStateDelta.archive(yunyunId), true);
+    assert.equal(await seedNow(yunyunId, 4242), true);
     resolveStateStale(JSON.stringify({ npcs: [{ id: yunyunId, name: 'Yunyun', present: true, mood: 'STALE MODEL MOOD' }] }));
     await stateStaleScan;
     state = globalThis.NPCStateDelta.getState();
-    assert.equal(state.npcs.find(n => n.id === yunyunId).archived, true, 'manual dossier mutation must win over an older in-flight scan');
+    assert.equal(state.npcs.find(n => n.id === yunyunId).portraitSeed, 4242, 'manual dossier mutation must win over an older in-flight scan');
     assert.notEqual(state.npcs.find(n => n.id === yunyunId).mood, 'STALE MODEL MOOD');
-    assert.equal(await globalThis.NPCStateDelta.restore(yunyunId), true);
 
     let resolveQuiet;
     mockState.quietResponder = () => new Promise(resolve => { resolveQuiet = resolve; });
@@ -1451,7 +1446,7 @@ try {
     mockState.extensionSettings.npc_state_delta.fullScanEveryTurn = true;
     mockState.extensionSettings.npc_state_delta.scanEvery = 20;
     mockState.extensionSettings.npc_state_delta.scanDepth = 4;
-    const fullScanTarget = globalThis.NPCStateDelta.getState().npcs.find(n => !n.archived);
+    const fullScanTarget = globalThis.NPCStateDelta.getState().npcs[0];
     assert.ok(fullScanTarget, 'runtime should retain at least one active dossier for full-scan validation');
     const relationshipBeforeFullScan = structuredClone(fullScanTarget.relationship);
     mockState.quietResponder = async (args = {}) => {
@@ -1529,7 +1524,6 @@ try {
     assert.equal(await globalThis.NPCStateDelta.refreshFromChat(sentinelId), true);
     let reviewState = globalThis.NPCStateDelta.getState();
     sentinel = reviewState.npcs.find(npc => npc.id === sentinelId);
-    assert.equal(sentinel.archived, false, 'terminal safety cannot depend on the archive setting');
     assert.equal(sentinel.lifeState, 'deceased');
     assert.equal(sentinel.present, false);
     assert.equal(sentinel.worldActive, false);
@@ -1571,7 +1565,7 @@ try {
     await globalThis.NPCStateDelta.flush();
     Object.assign(mockState.extensionSettings.npc_state_delta, savedReviewSettings);
 
-    const persistenceTarget = globalThis.NPCStateDelta.getState().npcs.find(n => !n.archived);
+    const persistenceTarget = globalThis.NPCStateDelta.getState().npcs[0];
     assert.ok(persistenceTarget, 'runtime should retain an NPC for persistence race validation');
     let releaseUpload;
     let markUploadEntered;
@@ -1581,17 +1575,17 @@ try {
         promise: new Promise(resolve => { releaseUpload = resolve; }),
     };
     const uploadsBeforeRace = mockState.uploadCalls;
-    await globalThis.NPCStateDelta.archive(persistenceTarget.id);
+    await seedNow(persistenceTarget.id, 111);
     await uploadEntered;
     const racingFlush = globalThis.NPCStateDelta.flush();
-    await globalThis.NPCStateDelta.restore(persistenceTarget.id);
+    await seedNow(persistenceTarget.id, 222);
     releaseUpload();
     await racingFlush;
     await globalThis.NPCStateDelta.flush();
     assert.ok(mockState.uploadCalls >= uploadsBeforeRace + 2, 'an in-flight critical mutation should produce a follow-up sidecar write');
     const racePointer = globalThis.NPCStateDelta.dataFile();
     const persistedAfterRace = JSON.parse(mockState.files.get(racePointer.path));
-    assert.equal(persistedAfterRace.state.npcs.find(n => n.id === persistenceTarget.id).archived, false, 'latest in-memory state must win the write race');
+    assert.equal(persistedAfterRace.state.npcs.find(n => n.id === persistenceTarget.id).portraitSeed, 222, 'latest in-memory state must win the write race');
 
     let releaseDeleteUpload;
     let markDeleteUploadEntered;
@@ -1600,7 +1594,7 @@ try {
         entered: markDeleteUploadEntered,
         promise: new Promise(resolve => { releaseDeleteUpload = resolve; }),
     };
-    await globalThis.NPCStateDelta.archive(persistenceTarget.id);
+    await seedNow(persistenceTarget.id, 333);
     const pendingDeleteWrite = globalThis.NPCStateDelta.flush();
     await deleteUploadEntered;
     const deletedPointer = globalThis.NPCStateDelta.dataFile();

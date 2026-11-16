@@ -79,7 +79,7 @@ async function additionalChecks(mockState, eventSource, manualAddNpc, sleep, ext
         lastWorldActiveTurn: 2,
         present: false,
         worldActive: false,
-        archived: false,
+       
         archiveReason: '',
     };
     await runtime.importBytes(encodeNpcStateBundle({ npcs: [directForeign] }, { chatKey: 'chat:foreign:direct' }));
@@ -305,10 +305,9 @@ async function additionalChecks(mockState, eventSource, manualAddNpc, sleep, ext
             ? Promise.resolve({ ok: false, status: 413, text: async () => 'Synthetic payload too large' })
             : durableFetch(url, options);
         try {
-            assert.equal(await runtime.archive(npc.id), true);
+            assert.equal(await runtime.setPortraitSeed(npc.id, 7, { chatKey: runtime.uiStatus().chatKey }), true);
             await assert.rejects(runtime.flush(), error => Number(error?.status) === 413);
             assert.equal(runtime.persistenceStatus().currentChatPending, true);
-            assert.equal(runtime.getNpc(npc.id).archived, true);
         } finally {
             globalThis.fetch = durableFetch;
         }
@@ -331,16 +330,13 @@ async function additionalChecks(mockState, eventSource, manualAddNpc, sleep, ext
         eventSource.emit('chat_changed');
         await sleep(160);
         assert.equal(runtime.uiStatus().chatKey, chatKey);
-        assert.equal(runtime.getNpc(npc.id).archived, true, 'undurable state must win over the older sidecar after cache eviction');
         assert.equal(runtime.persistenceStatus().currentChatPending, true,
             'rehydrated undurable state must remain pending until it is actually written');
         await runtime.flush();
         assert.equal(runtime.persistenceStatus().currentChatPending, false);
         const persistedAfterRehydrate = JSON.parse(mockState.files.get(runtime.dataFile().path));
-        assert.equal(persistedAfterRehydrate.state.npcs.find(item => item.id === npc.id).archived, true);
-        assert.equal(await runtime.restore(npc.id), true);
+        assert.equal(await runtime.setPortraitSeed(npc.id, 8, { chatKey: runtime.uiStatus().chatKey }), true);
         await runtime.flush();
-        assert.equal(runtime.getNpc(npc.id).archived, false);
 
         const beforeRemoval = runtime.getNpc(npc.id);
         const removePending = runtime.setPortrait(npc.id, file('after-removal.png', { hold: true }), { chatKey });

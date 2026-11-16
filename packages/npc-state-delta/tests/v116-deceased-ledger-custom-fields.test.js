@@ -24,7 +24,7 @@ const live = (extra = {}) => normalizeNpcRecord({ id: 'npc_maelis', name: 'Maeli
 
 test('a confirmed-dead NPC named in the story gets one ledger line', () => {
     const text = buildInjection([live(), dead()], 'Maelis speaks about Old Brenn and the fire.', 1, 3);
-    assert.match(text, /DECEASED, REFERENCED ONLY: these NPCs are dead and only mentioned\. Use these facts; never portray them alive, present, or speaking\./);
+    assert.match(text, /DECEASED, REFERENCED ONLY: these people are dead and only being talked about\. Use these facts; never write them alive, present or speaking\. Shown whenever the message or your reply names them by name or alias\./);
     assert.match(text, /- Old Brenn \(deceased; male; ship's mate; bond: Maelis Varn — captain's daughter\): Died in the Heron fire\./);
     assert.doesNotMatch(text, /- Old Brenn: IDENTITY/, 'the dead NPC never gets a dossier block');
     assert.doesNotMatch(buildInjection([live(), dead()], 'Maelis pours a drink.', 1, 3), /Old Brenn/, 'unmentioned dead NPCs are not sent');
@@ -38,7 +38,7 @@ test('the ledger is sent even when nobody is present', () => {
 });
 
 test('only confirmed deaths, at most three, and never at the cost of present NPCs', () => {
-    const inferred = dead({ id: 'npc_inferred', name: 'Ilsa Morn', archived: false, archiveReason: '', lifeStateCertainty: 'inferred' });
+    const inferred = dead({ id: 'npc_inferred', name: 'Ilsa Morn', archiveReason: '', lifeStateCertainty: 'inferred' });
     assert.doesNotMatch(buildInjection([live(), inferred], 'They mention Ilsa Morn.', 1, 3), /Ilsa Morn \(deceased/, 'an uncertain death is not a ledger entry');
     const crowd = ['Arlo Fenn', 'Bria Tull', 'Cass Moor', 'Dane Voss'].map((name, i) => dead({ id: `npc_d${i}`, name }));
     const many = buildInjection([live(), ...crowd], 'Arlo Fenn, Bria Tull, Cass Moor and Dane Voss all died.', 1, 3);

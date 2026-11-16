@@ -6,7 +6,7 @@ import { createHost } from '../../../testkit/index.js';
 
 const bytes = chat => Buffer.byteLength(JSON.stringify(chat));
 const IDS = Array.from({ length: 12 }, (_, i) => `npc_p${i}`);
-const record = (id, i, n) => ({ id, name: `Person ${i}`, look: 'tall, grey eyes, a long coat', habits: ['hums', 'taps the table'], stage: (n + i) % 4, note: i === n % 12 ? `met on reply ${n}` : 'seen', meters: { trust: 10 + ((n + i) % 7) } });
+const record = (id, i, n) => ({ id, name: `Person ${i}`, appearance: 'tall, grey eyes, a long coat', mannerisms: ['hums', 'taps the table'], seenCount: (n + i) % 4, goal: i === n % 12 ? `met on reply ${n}` : 'seen', relationship: { trust: 10 + ((n + i) % 7), affection: 0, desire: 0, tension: 0 } });
 const view = (n, { growing = false } = {}) => ({
     v: 1, order: IDS, npcs: Object.fromEntries(IDS.map((id, i) => [id, record(id, i, n)])),
     candidates: [], dismissed: growing ? Array.from({ length: n }, (_, k) => ({ name: `Gone ${k}`, at: k })) : [], userDismissedGroups: [],

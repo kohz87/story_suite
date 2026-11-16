@@ -8,12 +8,11 @@ import { escapeHtml } from './src/util/html.js';
 
 const text = value => String(value ?? '').trim();
 
-// Lifecycle item inside More: deceased is terminal, archived restores, otherwise archive.
-export function dossierLifecycleActionHtml(npcId, { archived = false, deceased = false } = {}) {
+// Lifecycle item inside More: only a confirmed death has one (correct it by hand); P6: there is no archive any more.
+export function dossierLifecycleActionHtml(npcId, { deceased = false } = {}) {
     const id = escapeHtml(text(npcId));
     if (deceased) return `<button type="button" class="delta-btn npc-state-delta-restore-npc" data-npc-id="${id}">Correct death record</button>`;
-    if (archived) return `<button type="button" class="delta-btn npc-state-delta-restore-npc" data-npc-id="${id}">Restore active</button>`;
-    return `<button type="button" class="delta-btn npc-state-delta-archive-npc" data-npc-id="${id}">Archive dossier</button>`;
+    return '';
 }
 
 // The ⋯ menu for one NPC: Edit and Refresh, then More (Scan, Portrait, Diagnostics, lifecycle).
