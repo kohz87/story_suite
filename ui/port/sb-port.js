@@ -27,8 +27,8 @@ async function guarded(sdk, method, ...args) {
   }
 }
 
-/** Creates the port: `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `reread(index)` is the sdk's. */
-export function createSbPort({ sdk, selectors = {}, prefs = null } = {}) {
+/** Creates the port: `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's. */
+export function createSbPort({ sdk, selectors = {}, prefs = null, onError = null } = {}) {
   const read = makeReader(sdk);
   const port = {
     view(tab, args) {
@@ -37,7 +37,8 @@ export function createSbPort({ sdk, selectors = {}, prefs = null } = {}) {
       try {
         const vm = select(read, args);
         return vm === undefined ? null : vm;
-      } catch {
+      } catch (error) {
+        try { onError?.(tab, error); } catch { /* a broken listener must not break the view */ }
         return null;
       }
     },
