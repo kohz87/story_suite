@@ -38,6 +38,15 @@ test('applyReport: receipts and Problems grouped by module, the failed list besi
     assert.deepEqual(applyReport({ index: 1 }), { byModule: {}, failed: [] });
 });
 
+test('applyReport: a settle receipt is grouped under its kind\'s module; once trimmed, under its own module', () => {
+    const settle = data => ({ type: 'interaction.settle', module: 'story-block', ...(data ? { data } : {}) });
+    const full = settle({ interaction: { module: 'ia-probe', kind: 'probe', changes: [] } });
+    const report = applyReport({ receipts: [full, settle(), { module: 'ia-probe', type: 'ia.grant' }], index: 1 });
+    assert.deepEqual(Object.keys(report.byModule), ['ia-probe', 'story-block']);
+    assert.equal(report.byModule['ia-probe'].receipts.length, 2);
+    assert.equal(report.byModule['story-block'].receipts.length, 1, 'trimmed: no data.interaction, so its own module');
+});
+
 // main's changes card (before this step) for the same input: nothing changed, one refused line. Stored from origin/main's template.
 const MAIN_CARD = "\n\n  \n    \n    \n    \n    \n    \n  \n  \n  \n  \n    \n  \n  \n  Nothing changed in the inventory or the scene.\n  \n    \n      \n      not applied: + item x — no such item\n    \n  \n  \n  \n";
 
