@@ -38,16 +38,18 @@ export function prng(seed) {
 // FUZZ_SEEDS="1-200" (or "3,11,29") runs those seeds; the default is the three below. FUZZ_STEPS sets the steps (default 16).
 export const fuzzSeeds = (spec, fallback) => (spec ? spec.split(',').flatMap(part => { const [a, b] = part.split('-').map(Number); return b ? Array.from({ length: b - a + 1 }, (_, i) => a + i) : [a]; }) : fallback);
 export const PEOPLE = ['Astra', 'Sister Temiwa', 'Brann', 'Cole', 'Dova', 'Esk', 'Finn', 'Gale', 'Hobb', 'Ines', 'Jory', 'Kess', 'Lund', 'Mave'];   // 14: past the bond limit (8) and the ties limit (12)
-// One random line of the notes kinds (lie, know, taste, tie), a gate `via:` meter line, or a plain meter line: every change-line kind NSD owns.
+// One random line of the notes kinds (lie, know, taste, tie), `~ memory` and `~ reveal` (N5; both refused while lines mode is off), a gate `via:` meter line, or a plain meter line: every change-line kind NSD owns.
 export function fuzzLine(r, who) {
     const other = r.pick(PEOPLE);
-    switch (r.int(0, 9)) {
+    switch (r.int(0, 11)) {
         case 0: return `~ lie ${who} | to: ${other} | said: it was not me ${r.int(0, 3)}`;
         case 1: return `~ lie ${who} | to: ${other} | caught: yes`;
         case 2: return `~ know ${who} | about: ${other} | fact: keeps a ledger ${r.int(0, 3)} | how: ${r.pick(['saw', 'heard'])}${r.chance(0.4) ? ' | secret: yes' : ''}`;
         case 3: return `~ know ${who} | about: ${other} | fact: keeps a ledger ${r.int(0, 3)} | told: yes`;
         case 4: return `~ taste ${who} | ${r.pick(['likes', 'dislikes'])}: ${r.pick(['tea', 'toffee', 'rain', 'paperwork'])}${r.chance(0.3) ? ' | why: a change of heart' : ''}`;
         case 5: return `~ tie ${who} | with: ${other} | tag: ${r.pick(['+', '-'])}${r.pick(['ally', 'rival', 'owes'])}${r.chance(0.3) ? `, ${r.pick(['+', '-'])}${r.pick(['ally', 'rival', 'owes'])}` : ''}`;
+        case 10: return `~ memory ${who} | ${r.pick(['Promised', 'Confessed', 'Joked'])} about ${other} ${r.int(0, 4)}.`;
+        case 11: return `~ reveal ${who} | opened: sec_${r.int(0, 3)}00000 | quote: "nothing in this reply matches"`;
         case 6: case 7: return `~ npc ${who} | affection: +${r.int(1, 9)} | trust: ${r.pick(['+', '-'])}${r.int(0, 6)} | via: ${r.pick(['praise', 'gift', 'help', 'flirt', 'threat', 'shared-danger'])} | impact: ${r.pick(['ordinary', 'meaningful', 'major', 'extreme'])}`;
         default: return `~ npc ${who} | trust: +${r.int(1, 9)} | affection: ${r.pick(['+', '-'])}${r.int(0, 6)} | impact: ${r.pick(['ordinary', 'meaningful', 'major', 'extreme'])}`;
     }

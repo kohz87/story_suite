@@ -48,6 +48,7 @@ import { createEditorPart } from './adapter/editor.js';
 import { createNativeDeath } from './adapter/native-death.js';
 import { createPeopleSync } from './adapter/people-sync.js';
 import { peopleView, peopleState, peopleCarry } from './people/view.js';
+import { keepStampContainers } from './people/keep-containers.js';
 import { hashJson } from './storysuite-participant/hash.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './adapter/queries.js';
@@ -211,6 +212,7 @@ export function createStorySuiteV2Adapter({
         chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
         rescan: () => queriesPart.runtime()?.rescanLatest?.(),
         carry: peopleCarry,
+        keep: (built, slice) => (linesMode() ? keepStampContainers(built, slice) : built),   // lines mode only: with the switch off the view is written as it is
         mark: (index, since) => queriesPart.runtime()?.setScanMarker?.(index, since),
     });
     deps.peopleSync = peopleSync;
