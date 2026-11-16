@@ -1,4 +1,4 @@
-// Syntax-checks every shipped module (index.js and everything under src/).
+// Syntax-checks every shipped module (everything under ui/legacy/director/, run from the repo root).
 import { execFileSync } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -10,5 +10,5 @@ function walk(dir) {
     });
 }
 
-for (const file of ['index.js', ...walk('src')]) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
+for (const file of walk(join('ui', 'legacy', 'director'))) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 console.log('syntax ok');

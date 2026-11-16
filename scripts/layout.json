@@ -1,10 +1,28 @@
 {
-  "packageRoots": ["packages"],
-  "sourceRoots": ["core", "ui", "modules", "packs", "testkit"],
+  "packageRoots": [
+    "packages"
+  ],
+  "sourceRoots": [
+    "core",
+    "ui",
+    "modules",
+    "packs",
+    "testkit"
+  ],
   "packageDevMap": "docs/dev/codemap.md",
   "suiteFarm": [
-    { "link": "Story_block", "dir": "packages/story-block" },
-    { "link": "Story_director", "dir": "packages/story-director" },
-    { "link": "npc_state_delta", "dir": "packages/npc-state-delta" }
+    {
+      "link": "Story_block",
+      "dir": "."
+    },
+    {
+      "link": "Story_director",
+      "dir": "ui/legacy/director",
+      "at": "src/v2"
+    },
+    {
+      "link": "npc_state_delta",
+      "dir": "packages/npc-state-delta"
+    }
   ]
 }

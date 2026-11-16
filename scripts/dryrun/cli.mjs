@@ -1,9 +1,9 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { atEitherLayout } from '../release/layout-paths.mjs';
 import { pathToFileURL } from 'node:url';
-import { loadLayout } from '../layout.mjs';
+import { makeFarm } from '../ci/farm.mjs';
 import { loadChat } from './load-chat.mjs';
 import { recordChat } from './record-chat.mjs';
 import { runHistoryOps } from './history-ops.mjs';
@@ -43,14 +43,13 @@ async function runRecord(args) {
   mkdirSync(outDir, { recursive: true });
   const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'story-suite-dryrun-'));
   try {
-    const farm = loadLayout().suiteFarm;
-    for (const { link, dir } of farm) symlinkSync(path.join(repoRoot, dir), path.join(tmpRoot, link));
+    makeFarm(repoRoot, tmpRoot);
     for (const name of ['SUITE_SB', 'SUITE_SD', 'SUITE_NSD']) delete process.env[name];
     process.env.STORY_SUITE_ROOT = tmpRoot;
     process.env.NPC_STATE_DELTA_PATH = path.join(tmpRoot, 'npc_state_delta');
 
     // the suite helper is named as of the old layout; a checkout from after the move has it at its layout-mapped place
-    const suiteUrl = pathToFileURL(path.join(repoRoot, atEitherLayout(repoRoot, path.posix.join(farm.find(f => f.link === 'Story_block').dir, 'tests/v2/break/helpers/suite.js')))).href;
+    const suiteUrl = pathToFileURL(path.join(repoRoot, atEitherLayout(repoRoot, 'packages/story-block/tests/v2/break/helpers/suite.js'))).href;
     const { loadSuite, suiteHost } = await import(suiteUrl);
     const loaded = await loadSuite();
     if (loaded.skip) {

@@ -20,13 +20,13 @@
 ## Commands
 
 ```sh
-npm test              # script tests + all three package suites + cross-package suite tests
-npm run check         # size check + codemap check + package syntax/validate checks
+npm test              # script, core and UI tests + the test:sb, test:sd, test:nsd and test:suite aliases (they run the new test folders)
+npm run check         # size check + codemap check + syntax checks (scripts/core/check.mjs, scripts/director/check.mjs)
 npm run codemap       # regenerate docs/codemap.md and the package maps in docs/codemap/
 npm run verify-import # prove packages/ match the B1 import snapshot
-npm run test:sb       # Story Block tests only
-npm run test:sd       # Story Director tests only
+npm run test:sb       # tests/modules, packs, matrix, bench, authoring-kit + examples/fishing/tests
+npm run test:sd       # tests/director
 npm run test:nsd      # NPC State Delta tests only
-npm run test:suite    # cross-package suite tests (fail on any skip)
+npm run test:suite    # the test:sb folders + tests/suite + tests/people with the sibling farm (scripts/ci/farm.mjs); fails on unlisted skips
 git diff --check      # CI fails on trailing whitespace
 ```

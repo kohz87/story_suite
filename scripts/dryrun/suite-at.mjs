@@ -10,7 +10,8 @@ const SB_DIR = 'packages/story-block';
 export function suiteAt(suite, rel) {
   const sb = suite.roots?.sb;
   if (!sb) return suite.at(rel);
-  const root = path.resolve(sb, '../..');
+  // sb is the package folder on a checkout of the old layout, the repo root on one of the new layout
+  const root = path.basename(sb) === 'story-block' && path.basename(path.dirname(sb)) === 'packages' ? path.resolve(sb, '../..') : sb;
   const old = path.posix.join(SB_DIR, rel);
   const found = atEitherLayout(root, old);
   return found === old ? suite.at(rel) : import(pathToFileURL(path.join(root, found)).href);

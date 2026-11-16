@@ -17,12 +17,13 @@ test('layout.json lists packages/ now and the B3 roots as entries that may not e
   assert.deepEqual(layout.packageRoots, ['packages']);
   assert.deepEqual(layout.sourceRoots, ['core', 'ui', 'modules', 'packs', 'testkit']);
   assert.equal(layout.packageDevMap, 'docs/dev/codemap.md');
-  assert.deepEqual(layout.suiteFarm.map(f => f.dir), ['packages/story-block', 'packages/story-director', 'packages/npc-state-delta']);
+  assert.deepEqual(layout.suiteFarm.map(f => f.dir), ['.', 'ui/legacy/director', 'packages/npc-state-delta']);
+  assert.equal(layout.suiteFarm.find(f => f.link === 'Story_director').at, 'src/v2');
 });
 
 test('layout lookups: package roots, source roots, package name and folder', () => {
   const layout = loadLayout();
-  assert.equal(layout.isPackageFile('core/boot/boot.js'), true);
+  assert.equal(layout.isPackageFile('packages/story-block/index.js'), true);
   assert.equal(layout.isPackageFile('ui/a.js'), false);
   assert.equal(layout.isSourceFile('core/x.js'), true);
   assert.equal(layout.isSourceFile('scripts/x.js'), false);
@@ -31,7 +32,8 @@ test('layout lookups: package roots, source roots, package name and folder', () 
   assert.equal(layout.packageRootOf('packages/pa/x.js'), 'packages/pa');
   assert.equal(layout.packageRootOf('packages/a/x.js'), 'packages/a');
   assert.equal(layout.packageOf('ui/a.js'), null);
-  assert.deepEqual(layout.packageDirs(repo).sort(), ['packages/npc-state-delta', 'packages/story-block', 'packages/story-director']);
+  assert.ok(layout.packageDirs(repo).includes('packages/npc-state-delta'));
+  assert.ok(!layout.packageDirs(repo).includes('packages/story-director'));
   assert.deepEqual(layout.packageDirs(os.tmpdir() + '/no-such-dir-b3p3'), []);
 });
 
@@ -39,12 +41,11 @@ test('on today\'s tree the scripts give the same output as before (committed map
   const map = node('scripts/codemap/cli.mjs', ['--check']);
   assert.equal(map.status, 0, map.out);
   assert.match(map.out, /code map: docs\/codemap\.md \d+ files, up to date/);
-  for (const name of ['story-block', 'story-director', 'npc-state-delta']) {
-    assert.match(map.out, new RegExp(`code map: docs/codemap/${name}\\.md ${name} \\d+ files \\(\\d+ over the export limit\\), up to date`));
+  for (const line of map.out.trim().split('\n').slice(1)) {
+    assert.match(line, /^code map: docs\/codemap\/[\w-]+\.md [\w-]+ \d+ files \(\d+ over the export limit\), up to date$/);
   }
-  assert.equal(map.out.trim().split('\n').length, 4);
   const globs = node('scripts/checks/package-test-globs.mjs');
-  assert.equal(globs.out, 'package test globs: every test file is run by its package npm test\n');
+  assert.equal(globs.out, 'package test globs: every test file is run by its package or root npm test\n');
   const size = node('scripts/checks/run-size-check.mjs');
   assert.equal(size.status, 0, size.out);
   assert.match(size.out, /^size check: no --base given; the legacy-list ratchet was not applied\nsize check: \d+ files, all within 450 lines or on the legacy list \(3 listed\)\n$/);

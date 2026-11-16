@@ -1,25 +1,26 @@
 // Suite harness: Story Block's real testkit host with Story Director and NPC State Delta registered beside it and the
 // Ersveil example pack installed (Lean RPG is Story Block's own part now, so the suite is three repos).
 // Where the checkouts come from: SUITE_SB / SUITE_SD / SUITE_NSD (a folder each) win; else STORY_SUITE_ROOT
-// (<root>/Story_director, <root>/npc_state_delta); else the folders beside this checkout. Story Block is this checkout.
+// (<root>/Story_director, <root>/npc_state_delta); else the tool folders of this repo. Story Block is this repo.
 // No folder found: loadSuite() answers { skip } and the test skips.
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const SB = process.env.SUITE_SB ?? path.resolve(here, '../../../../packages/story-block');
-const ROOTS = [process.env.STORY_SUITE_ROOT, path.resolve(SB, '..')].filter(Boolean);
-// Story Director's module: in its own folder on a checkout from before the layout move, else at ui/legacy/director/ of the repo that folder sits in (packages/<name>/../..).
+const REPO = path.resolve(here, '../../../..');
+const SB = process.env.SUITE_SB ?? REPO;
+const ROOTS = [process.env.STORY_SUITE_ROOT].filter(Boolean);
+// Story Director's module: in a folder shaped like the old package (src/v2/module.js: the farm's Story_director), else at ui/legacy/director/ of the repo.
 const SD_MODULE = 'src/v2/module.js';
 const SD_MOVED = 'ui/legacy/director/module.js';
-export const sdModuleAt = dir => (existsSync(path.join(dir, SD_MODULE)) || !existsSync(dir) ? path.join(dir, SD_MODULE) : path.join(realpathSync(dir), '../..', SD_MOVED));
-const find = (env, name, rel) => [env, ...ROOTS.map(root => path.join(root, name))].filter(Boolean).find(dir => existsSync(path.join(dir, rel)) || (rel === SD_MODULE && existsSync(sdModuleAt(dir))));
+export const sdModuleAt = dir => (existsSync(path.join(dir, SD_MODULE)) ? path.join(dir, SD_MODULE) : path.join(dir, SD_MOVED));
+const find = (env, name, rel, own) => [env, ...ROOTS.map(root => path.join(root, name)), own].filter(Boolean).find(dir => existsSync(path.join(dir, rel)) || (rel === SD_MODULE && existsSync(sdModuleAt(dir))));
 
 export const roots = () => ({
     sb: SB,
-    sd: find(process.env.SUITE_SD, 'Story_director', 'src/v2/module.js'),
-    nsd: find(process.env.SUITE_NSD, 'npc_state_delta', 'src/storysuite-v2.js'),
+    sd: find(process.env.SUITE_SD, 'Story_director', 'src/v2/module.js', REPO),
+    nsd: find(process.env.SUITE_NSD, 'npc_state_delta', 'src/storysuite-v2.js', path.join(REPO, 'packages/npc-state-delta')),
 });
 
 export async function loadSuite() {
@@ -36,7 +37,7 @@ export async function loadSuite() {
 /** A host with the two modules and the Ersveil pack installed before the chat starts. crypto is seeded while it lives. */
 export async function suiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [] } = {}) {
     // Receipt ids, seeds and reply ids follow the seed (the QA helper; its ids differ from the first character, unlike a counter's).
-    const restoreCrypto = (await loaded.at('../../tests/suite/qa/helpers/seeded.js')).seedCrypto(seed);
+    const restoreCrypto = (await loaded.at('tests/suite/qa/helpers/seeded.js')).seedCrypto(seed);
     let sdk = null;
     const sd = loaded.SD.createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) } });
     // NPC State Delta connects the way the page does (adapter.start(): it registers itself with the host and learns the sdk it
