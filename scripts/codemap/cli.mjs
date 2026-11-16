@@ -23,7 +23,7 @@ const readOptional = relPath => (fs.existsSync(abs(relPath)) ? readSource(relPat
 const jobs = JSON.parse(readOptional('docs/codemap/jobs.json') || '{}');
 const built = buildMap({ files: allFiles.filter(p => !p.startsWith('packages/')), readSource, jobs });
 const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource)];
-const outputs = [{ mapPath: 'docs/codemap.md', markdown: renderMap(built.rows), summary: `${built.rows.length} files, ${built.rows.reduce((n, r) => n + r.lines, 0)} lines` }];
+const outputs = [{ mapPath: 'docs/codemap.md', markdown: renderMap(built.rows), summary: `${built.rows.length} files` }];
 for (const out of packageOutputs({ files: allFiles.filter(p => p.startsWith('packages/')), readSource, readOptional })) {
   outputs.push(out);
   problems.push(...out.problems);

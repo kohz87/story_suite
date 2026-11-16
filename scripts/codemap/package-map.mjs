@@ -53,6 +53,5 @@ export function packageMap({ pkg, files, readSource, explicitJobs = {}, devMapTe
     problems: [...built.problems, ...featureOut.problems].sort(),
     backlog: built.overLimit.length,
     rows: rows.length,
-    lines: rows.reduce((n, r) => n + r.lines, 0),
   };
 }

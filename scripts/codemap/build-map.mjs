@@ -1,5 +1,4 @@
 import { isTestFile } from '../checks/code-files.mjs';
-import { countLines } from '../checks/count-lines.mjs';
 import { nulProblem } from '../checks/nul-check.mjs';
 import { exportNames } from './export-names.mjs';
 import { parseModule } from './parse-module.mjs';
@@ -75,7 +74,6 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
       exports: parsed.exports.map(e => e.signature),
       imports,
       importedBy: [],
-      lines: countLines(source),
       tests: [],
     });
   }
