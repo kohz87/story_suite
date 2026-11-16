@@ -133,13 +133,14 @@ test('switch off: a why: saves no memory and a ~ memory line is refused; the peo
 test('the two kinds register with no definition problem, with their heads and no grammar line; the static text shows neither', async () => {
     const s = await suite();
     const kinds = s.host.registry.contexts().find(item => item.moduleId === 'npc-state-delta').kinds;
-    for (const [kind, head] of [['memory', '~ memory'], ['secret', '~ secret']]) {
+    for (const [kind, head] of [['memory', '~ memory'], ['reveal', '~ reveal']]) {
         const entry = kinds.find(item => item.kind === kind);
         assert.deepEqual([...entry.heads], [head]);
         assert.equal(entry.grammar, '');
     }
-    assert.ok(!/~ (memory|secret)/.test(kinds.map(item => item.grammar).join('\n')), 'untaught until N7');
+    assert.ok(!/~ (memory|reveal)/.test(kinds.map(item => item.grammar).join('\n')), 'untaught until N7');
     assert.equal(s.host.registry.refusals().length, 0);
+    for (const owned of ['agenda', 'event', 'clock', 'beat', 'secret']) assert.ok(!kinds.some(item => item.kind === owned), `${owned} belongs to Story Director; Delta must not claim it`);
 });
 
 test('a new person starts with empty memory containers, so a later memory survives a middle delete of an earlier one', async () => {

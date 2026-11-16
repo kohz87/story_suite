@@ -62,12 +62,12 @@ export function createNpcPart(hooks = {}) {
     const linesMode = () => call(hooks.linesMode, false) === true;
     const date = at => (clockDay(at) === null ? '' : call(hooks.startDate, '', at));
     const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note }), { linesMode, date }));
-    // `~ memory` and `~ secret` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
+    // `~ memory` and `~ reveal` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
     const onlyLines = (name, apply) => folded((ctx, line = {}) => (linesMode(ctx) ? apply(ctx, line) : ctx.fail('REFUSED', `${name} lines are not on.`)));
     const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date }));
-    const secretApply = onlyLines('~ secret', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run }));
-    // The host sends every line of the module to the one apply of the `npc` kind: `~ memory` and `~ secret` go to their own, the rest to the change line.
-    const dispatch = (ctx, line = {}) => (line.kind === 'memory' ? memoryApply(ctx, line) : line.kind === 'secret' ? secretApply(ctx, line) : captureLine(ctx, line));
+    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run }));
+    // The host sends every line of the module to the one apply of the `npc` kind: `~ memory` and `~ reveal` go to their own, the rest to the change line.
+    const dispatch = (ctx, line = {}) => (line.kind === 'memory' ? memoryApply(ctx, line) : line.kind === 'reveal' ? secretApply(ctx, line) : captureLine(ctx, line));
     const { queries, ladderView, notesView, sliceOf, presentKeys } = createNpcQueries(shared);
     const { staticText, tail, redact } = createNpcPrompt(shared, { sliceOf, presentKeys });
 
@@ -79,7 +79,7 @@ export function createNpcPart(hooks = {}) {
             [MILESTONE_KIND]: { grammar: '+ milestone Name — the turning point that just happened between you (once, when a bond changes for good; e.g. + milestone Person A — a promise was kept)', apply: captureLine, feature: FEATURE_STAGES, after: ['time'] },
             ...noteKinds(captureLine),
             memory: { grammar: '', heads: ['~ memory'], apply: memoryApply, after: ['time', 'present', 'place', 'npc', 'milestone', 'lie', 'know', 'taste', 'tie'] },
-            secret: { grammar: '', heads: ['~ secret'], apply: secretApply, after: ['time', 'present', 'place', 'npc'] },
+            reveal: { grammar: '', heads: ['~ reveal'], apply: secretApply, after: ['time', 'present', 'place', 'npc'] },
         },
         context: { static: staticText, tail, budget: CONTEXT_BUDGET },
         redact,

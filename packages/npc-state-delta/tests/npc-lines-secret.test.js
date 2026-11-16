@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { suite, dossiers } from './helpers/pacing-suite.js';
 import { normalizeSecrets } from '../src/npc-meters.js';
 
-// N5 secrets (NSD12): `~ secret Name | opened: <note id> | quote: "..."` opens a hidden note whose story event the reply showed; the #361 quote check is the scan's own.
+// N5 secrets (NSD12): `~ reveal Name | opened: <note id> | quote: "..."` opens a hidden note whose story event the reply showed; the #361 quote check is the scan's own.
 const EVENT = 'the duke is exposed as a traitor';
 const records = () => {
     const all = dossiers();
@@ -13,7 +13,7 @@ const records = () => {
 const [DUKE, LIGHT] = normalizeSecrets(records().npc_oren.secrets).map(note => note.id);
 const STORY = 'Sister Temiwa tore the cloth away and the whole hall saw the duke exposed as a traitor before them all.';
 const QUOTE = 'the whole hall saw the duke exposed as a traitor';
-const line = (id = DUKE, quote = QUOTE) => `~ secret Oren | opened: ${id} | quote: "${quote}"`;
+const line = (id = DUKE, quote = QUOTE) => `~ reveal Oren | opened: ${id} | quote: "${quote}"`;
 const opened = s => s.host.head().domains.people.bonds.npcs.npc_oren?.unlocked ?? [];
 const snap = s => JSON.stringify(s.host.head().domains.people);
 const same = (s, why) => { const live = snap(s); s.host.store.rebuild(); assert.equal(snap(s), live, why); };
@@ -33,7 +33,7 @@ test('a quote found in the reply opens the note, once; the line is the note\'s o
 
 test('no quote, a short quote, a quote not in the reply, or one only in the line itself: the note stays closed', async () => {
     const s = await suite({ lines: true, records: records() });
-    await say(s, STORY, [`~ secret Oren | opened: ${DUKE}`, line(DUKE, 'the duke'), line(DUKE, 'the duke fled the city by night')]);
+    await say(s, STORY, [`~ reveal Oren | opened: ${DUKE}`, line(DUKE, 'the duke'), line(DUKE, 'the duke fled the city by night')]);
     assert.deepEqual(opened(s), []);
     await say(s, 'The hall was quiet.', [line(DUKE, 'the duke is exposed as a traitor and fled')]);
     assert.deepEqual(opened(s), [], 'the quote written only in the line finds nothing: the <Changes> block is not the story');
@@ -41,7 +41,7 @@ test('no quote, a short quote, a quote not in the reply, or one only in the line
 
 test('a note that is not theirs, has no event, or is unknown is refused; a person with no record is refused', async () => {
     const s = await suite({ lines: true, records: records() });
-    await say(s, STORY, [line(LIGHT), line('sec_00000000'), line(''), `~ secret Nobody | opened: ${DUKE} | quote: "${QUOTE}"`, `~ secret Sister Temiwa | opened: ${DUKE} | quote: "${QUOTE}"`]);
+    await say(s, STORY, [line(LIGHT), line('sec_00000000'), line(''), `~ reveal Nobody | opened: ${DUKE} | quote: "${QUOTE}"`, `~ reveal Sister Temiwa | opened: ${DUKE} | quote: "${QUOTE}"`]);
     assert.deepEqual(opened(s), []);
 });
 
@@ -75,7 +75,7 @@ test('a swipe closes it and swiping back opens it again; an edited Re-read (grow
     same(s, 'middle delete replay equals live');
 });
 
-test('switch off: a ~ secret line opens nothing', async () => {
+test('switch off: a ~ reveal line opens nothing', async () => {
     const s = await suite({ lines: false, records: records() });
     await say(s, STORY, [line()]);
     assert.deepEqual(opened(s), []);
