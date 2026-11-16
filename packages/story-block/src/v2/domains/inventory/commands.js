@@ -179,7 +179,7 @@ export function createInventoryCommands(env) {
                 if (wantsRepoint(env, inv, stack, payload)) repoint(ctx, inv, stack, payload);
                 else handEdit(ctx, env, inv, stack, payload);
             }
-            if (payload.weight !== undefined || payload.soak !== undefined) numberEdit(ctx, inv, stack, payload);   // the Bag Edit's load weight and soak: any unbound piece, any time
+            const numbers = payload.weight !== undefined || payload.soak !== undefined;   // the Bag Edit's load weight and soak: any unbound piece, any time; set last, on the def the piece ends up on (after the rename's witness and copy)
             const oldName = original.name;
             const decision = typeof payload.name === 'string' ? { witness: renameDecision(inv, stack, payload, true), story: 1 } : null;
             let groupQty;
@@ -201,6 +201,7 @@ export function createInventoryCommands(env) {
                     grantInto(ctx, inv, original, -remove, stack.owner, stack.note);
                 }
                 if (!editPiece) {
+                    if (numbers) numberEdit(ctx, inv, stack, payload);
                     const remaining = inv.stacks[stack.id] ?? Object.values(inv.stacks).find(item => item.def === original.id && item.owner === stack.owner);
                     return { summary: fill(E.itemSet, { detail: fill(E.itemCount, { name: original.name, qty }) }),
                         data: { edit: true, stack: remaining.id, told: TOLD.editKit }, narrate: true };
@@ -240,9 +241,7 @@ export function createInventoryCommands(env) {
                     if (shared || original.id.startsWith('pack.')) {
                         const id = freeId(inv, `story/${slugify(name)}`);
                         const copy = { ...clone(original), id, name };
-                        delete copy.carry;
-                        delete copy.bonus;
-                        delete copy.soak;
+                        delete copy.carry; delete copy.bonus; delete copy.soak;   // the weight stays (a pack's own weight goes with the piece); the reader's soak is set on the copy below
                         storeDef(inv, copy);
                         stack.def = id;
                     } else {
@@ -253,6 +252,7 @@ export function createInventoryCommands(env) {
                 }
             }
             const current = inv.stacks[resultStack];
+            if (numbers) numberEdit(ctx, inv, current, payload);
             const detail = groupQty !== undefined && name !== oldName
                 ? fill(E.itemGroupRenamed, { name: oldName, qty: groupQty, renamed: name })
                 : payload.qty !== undefined ? fill(E.itemCount, { name, qty: groupQty ?? current.qty }) : payload.note !== undefined ? fill(E.itemNote, { name }) : name;

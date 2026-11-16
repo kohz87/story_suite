@@ -66,7 +66,7 @@ test('swipe, swipe back and a middle delete keep the weights equal to a rebuild 
 
 test('rewind to before the reader\'s Edits gives the default weights back, as a rebuild says', async t => {
     const host = await story(t);
-    const entry = host.sdk.receipts().find(each => /inventory\.edit/.test(each.receipt.type ?? '') || /Iron Plate/.test(each.receipt.summary ?? '') && /set|Edit/i.test(each.receipt.summary ?? ''));
+    const entry = host.sdk.receipts().find(each => each.receipt.type === 'inventory.edit');
     assert.ok(entry, 'the Edit was recorded');
     await host.sdk.rewind({ index: entry.index, beforeRev: entry.receipt.rev });
     await same(t, host, 'rewound');
