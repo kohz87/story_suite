@@ -77,8 +77,7 @@ const TEMPLATE = `
       <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
       <span><span class="label">${html(C.appliedCheck)}</span> <span class="raw">{{ w.line }}</span><span class="why" data-if="w.reason"> — {{ w.reason }}</span></span>
     </li>
-  </ul>
-  <ul class="module-failed" data-if="len(moduleFailed) > 0">
+  </ul><ul class="module-failed" data-if="len(moduleFailed) > 0">
     <li class="line" data-each="moduleFailed as m">
       <i class="fa-solid fa-plug-circle-xmark" aria-hidden="true"></i>
       <span>${html(C.moduleFailed, { name: '<span class="label">{{ m.name }}</span>', reason: '<span class="why">{{ m.reason }}</span>' })}</span>

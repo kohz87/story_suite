@@ -5,10 +5,10 @@
 const FAILED_CODES = new Set(['FAILED', 'TIMEOUT']);
 
 /** A Problem that says a module could not finish the reply: it names a module, no change line, and is FAILED or TIMEOUT. */
-const isModuleFailure = item => Boolean(item) && typeof item.module === 'string' && item.module !== '' && !item.line && FAILED_CODES.has(item.code);
+export const isModuleFailure = item => Boolean(item) && typeof item.module === 'string' && item.module !== '' && !item.line && FAILED_CODES.has(item.code);
 
 /**
- * The modules that could not finish reply `index`: [{ module, name, reason }], in the order the Problems were told, one per (module, message).
+ * The modules that could not finish reply `index`: [{ module, name, reason, code }], in the order the Problems were told, one per (module, code, message).
  * `nameOf(id)` gives a module's display name (default: the id). Nothing for a reply with no such Problem.
  */
 export function moduleFailures(problems, index, nameOf = id => id) {
@@ -17,12 +17,12 @@ export function moduleFailures(problems, index, nameOf = id => id) {
     for (const item of Array.isArray(problems) ? problems : []) {
         if (!isModuleFailure(item) || item.index !== index) continue;
         const reason = String(item.message ?? '').trim();
-        const key = `${item.module}\n${reason}`;
+        const key = `${item.module}\n${item.code}\n${reason}`;
         if (seen.has(key)) continue;
         seen.add(key);
         let name = item.module;
         try { name = String(nameOf(item.module) || item.module); } catch { name = item.module; }
-        out.push({ module: item.module, name, reason });
+        out.push({ module: item.module, name, reason, code: item.code });
     }
     return out;
 }

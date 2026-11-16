@@ -18,11 +18,13 @@ const problems = [
 
 test('moduleFailures: this reply\'s FAILED or TIMEOUT Problems that name a module and no line, once each, with the display name', () => {
     assert.deepEqual(moduleFailures(problems, 4, id => id.toUpperCase()), [
-        { module: 'a', name: 'A', reason: 'turn failed: torn' },
-        { module: 'b', name: 'B', reason: 'afterCapture did not answer' },
+        { module: 'a', name: 'A', reason: 'turn failed: torn', code: 'FAILED' },
+        { module: 'b', name: 'B', reason: 'afterCapture did not answer', code: 'TIMEOUT' },
     ]);
     assert.deepEqual(moduleFailures(problems, 9), []);
     assert.deepEqual(moduleFailures(null, 4), []);
+    const same = [{ module: 'a', index: 4, code: 'FAILED', message: 'x' }, { module: 'a', index: 4, code: 'TIMEOUT', message: 'x' }];
+    assert.deepEqual(moduleFailures(same, 4).map(item => item.code), ['FAILED', 'TIMEOUT'], 'same message, two codes: two lines');
 });
 
 test('applyReport: receipts and Problems grouped by module, the failed list beside them', () => {
@@ -36,13 +38,16 @@ test('applyReport: receipts and Problems grouped by module, the failed list besi
     assert.deepEqual(applyReport({ index: 1 }), { byModule: {}, failed: [] });
 });
 
-test('card: the row names the module and reason; with nothing failed (flag off) the card is byte-identical', () => {
+// main's changes card (before this step) for the same input: nothing changed, one refused line. Stored from origin/main's template.
+const MAIN_CARD = "\n\n  \n    \n    \n    \n    \n    \n  \n  \n  \n  \n    \n  \n  \n  Nothing changed in the inventory or the scene.\n  \n    \n      \n      not applied: + item x — no such item\n    \n  \n  \n  \n";
+
+test('card: with nothing failed (flag off) the card is byte-identical to main\'s; the row names the module and reason', () => {
     const module = core();
     const state = stocked(module);
-    const draw = extra => show(changesCardScreen, { state, query: queries(module, state), changes: [], extra });
-    const bare = draw({});
+    const draw = extra => show(changesCardScreen, { state, query: queries(module, state), changes: [], extra: { refused: [{ line: '+ item x', reason: 'no such item' }], ...extra } });
     const empty = draw({ moduleFailed: [] });
-    assert.equal(empty.el.innerHTML, bare.el.innerHTML);
+    assert.equal(empty.el.innerHTML, MAIN_CARD);
+    assert.equal(draw({}).el.innerHTML, MAIN_CARD);
     assert.equal(empty.el.querySelectorAll('.module-failed').length, 0);
     const row = draw({ moduleFailed: [{ module: 'a', name: 'Alpha', reason: 'turn failed: <b>torn</b>' }] });
     assert.deepEqual(row.view.warnings, []);
