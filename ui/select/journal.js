@@ -67,11 +67,10 @@ function dueOf(thread, upcoming) {
 
 // xp and the planned trip are GAPs (nothing stores a quest's XP; the story describes it); steps come from the thread's trail, difficulty from its label.
 const DIFFICULTIES = ['easy', 'normal', 'hard'];
-function questOf(thread, rpg, upcoming) {
+function questOf(thread, rpg, upcoming, trail) {
   const fields = thread.fields ?? {};
   const step = text(fields.step);
-  const trail = strings(thread.steps);
-  const steps = trail.length && step && step.startsWith(trail.at(-1)) ? trail : step ? [step] : [];
+  const steps = trail.length && step ? trail : step ? [step] : [];
   const difficulty = text(fields.difficulty).toLowerCase();
   return {
     id: text(thread.id), title: text(thread.key), summary: text(fields.goal) || text(thread.summary),
@@ -103,10 +102,11 @@ export function selectJournal(read, opts = {}) {
   const months = calendar?.months ?? [];
   const upcoming = upcomingOf(world, months);
   const open = list(read('director.threads', { kind: 'quest', status: 'active', open: true })).filter(t => !isOffer(t));
+  const board = new Map(list(read('quest.board', {})?.active).map(row => [text(row.id), row]));
   const goalId = text(read('director.goal', {})?.id);
   const wanted = text(opts.focusId);
   const focusId = [wanted, goalId].find(id => id && open.some(t => t.id === id)) ?? null;
-  const quests = open.map(t => questOf(t, rpg, upcoming)).sort((a, b) => (b.id === focusId) - (a.id === focusId));
+  const quests = open.map(t => questOf(t, rpg, upcoming, strings(board.get(t.id)?.steps))).sort((a, b) => (b.id === focusId) - (a.id === focusId));
   const closed = list(read('director.threads', { kind: 'quest', status: 'resolved' })).reverse().flatMap(t => {
     const outcome = OUTCOMES[t.ended?.outcome];
     return outcome ? [{ title: text(t.key), outcome, detail: text(t.ended?.reason), paid: null }] : [];
@@ -116,6 +116,7 @@ export function selectJournal(read, opts = {}) {
   const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0)) : [];
   // The story's start: the oldest day the Journal knows (days run newest first).
   const first = days.at(-1);
-  if (calendar && first && first.day > 0) calendar.start = { month: first.month, day: first.day };
+  // Only when it reads as on or before today in the shown year: a day from an earlier year has no year to place it.
+  if (calendar && first && first.day > 0 && (first.month < calendar.today.month || (first.month === calendar.today.month && first.day <= calendar.today.day))) calendar.start = { month: first.month, day: first.day };
   return { rpg, quests, focusId, leads, closed, calendar, days, planned: [], upcoming };
 }

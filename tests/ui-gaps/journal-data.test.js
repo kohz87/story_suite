@@ -111,3 +111,33 @@ test('a very long step is clipped in the trail, the line still applies, and a cl
   const quest = createSbPort({ sdk: host.sdk, selectors: buildSelectors(() => null, host.sdk) }).view('journal').quests[0];
   assert.deepEqual([quest.step, quest.steps], ['', []]);
 });
+
+const dropReply = (h, n) => h.st.deleteMessage(h.st.ctx.chat.map((m, i) => (!m.is_user && String(m.mes).includes('The road.') ? i : -1)).filter(i => i >= 0)[n]);
+const trailOf = h => h.sdk.query('quest.board').active[0]?.steps;
+
+test('replay: a thread made by the offer path keeps a later step when a reply before it is deleted', async t => {
+  t.mock.method(console, 'warn', () => {});
+  const lines = [['+ hook Rats — cellar | goal: clear it | giver: Fenna | step: Find the cellar'], ['~ hook Rats | step: Find the cellar'], ['~ hook Rats | step: Kill the rats']];
+  const a = await told(lines);
+  const fresh = await told([lines[0], lines[2]]);
+  t.after(() => { a.close(); fresh.close(); });
+  await dropReply(a, 1);
+  const view = h => h.sdk.query('director.threads', {}).map(x => x.fields.step);
+  assert.deepEqual(view(a), ['Kill the rats']);
+  assert.deepEqual(view(a), view(fresh));
+  assert.equal(a.sdk.query('director.problems', {}).some(p => /does not exist|skipped/.test(p.text)), false);
+});
+
+test('replay: past 12 steps a deleted reply\'s step stays gone; a step that returns is not doubled', async t => {
+  t.mock.method(console, 'warn', () => {});
+  const long = await told([['+ quest Long — go | giver: A | step: S0'], ...Array.from({ length: 14 }, (_, i) => [`~ quest Long | step: S${i + 1}`])]);
+  t.after(() => long.close());
+  assert.equal(trailOf(long).length, 12);
+  await dropReply(long, 13);
+  assert.equal(trailOf(long).includes('S13'), false);
+  assert.equal(trailOf(long).at(-1), 'S14');
+  const back = await told([['+ quest Back — go | giver: A | step: A'], ['~ quest Back | step: B'], ['~ quest Back | step: A']]);
+  t.after(() => back.close());
+  await dropReply(back, 1);
+  assert.deepEqual(trailOf(back), ['A']);
+});

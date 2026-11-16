@@ -12,7 +12,7 @@ import { beginTurn, readerSaid } from './reply.js';
 import { capSummary, lineText } from './text.js';
 import { droppedProblem, toV1Op, withoutDroppedLabels } from './reading.js';
 import { newId, writeBack } from './thread-store.js';
-import { trailStep } from './step-trail.js';
+import { recordStep } from './step-trail.js';
 
 // Problems are the domain's (domain.js addProblem: each under its own key, never a list position).
 export { addProblem };
@@ -113,7 +113,7 @@ function threadLine(ctx, given) {
         });
     }
     const current = thread ? director.threads[thread] : null;
-    if (current && current.status === 'active') trailStep(current, stepBefore);
+    if (current && current.status === 'active') recordStep(director, ctx, current, stepBefore);
     // An agenda's step progress and place (feature `story-director.pulse`): optional fields the pulse reads, written by code, never the story's.
     if (current?.kind === 'agenda' && current.status === 'active' && pulseActive(ctx)) {
         const patch = agendaProgress(named?.fields ?? null, current.fields ?? {}, { minutes: director.time.minutes, where: placeNamed(ctx.query, current.fields?.now) });

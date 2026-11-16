@@ -57,7 +57,6 @@ function threadErrorsOf(id, thread) {
     // F83: the story said the goal is met; F88 (older chats): the reply an offer was shown from.
     if (thread.ready !== undefined && thread.ready !== null && !(isRecord(thread.ready) && isInt(thread.ready.rev))) errors.push(`${at}.ready must be null or { rev }.`);
     if (thread.shown !== undefined && !(isRecord(thread.shown) && isInt(thread.shown.turn) && thread.shown.turn >= 0)) errors.push(`${at}.shown must be { turn }.`);
-    if (thread.steps !== undefined && !(Array.isArray(thread.steps) && thread.steps.length <= 12 && thread.steps.every(step => typeof step === 'string' && step.length <= 600))) errors.push(`${at}.steps must be up to 12 texts.`);
     if (thread.track !== undefined && !isRecord(thread.track)) errors.push(`${at}.track must be an object.`);
     // Legacy reward history: retained bytes, never an SD payout path.
     const owed = thread.owed;

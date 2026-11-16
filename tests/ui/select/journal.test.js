@@ -180,7 +180,8 @@ describe('selectJournal: steps, difficulty, weekdays, lapse date, start', () => 
   const answers = {
     'director.calendar': CALENDAR,
     'director.time': { ...TIME, weekday: 'Secondday', firstWeekdays: [0, 1, 2, 0, 1, 2, 0, 1] },
-    'director.threads': [thread('th_1', 'Wolf pelts', { goal: 'Thin the pack', step: 'clear the den', difficulty: 'Hard' }, { steps: ['ask at the lodge', 'clear the den'] })],
+    'director.threads': [thread('th_1', 'Wolf pelts', { goal: 'Thin the pack', step: 'clear the den', difficulty: 'Hard' }, {})],
+    'quest.board': { active: [{ id: 'th_1', steps: ['ask at the lodge', 'clear the den'] }], offers: [] },
     'director.world.leads': { rows: [{ name: 'Odd job', where: '', lapses: 'Goldwane 16' }] },
     'director.journal': { on: true, days: [{ date: 'Goldwane 13', short: '' }, { date: 'Seedtime 2', short: '' }] },
   };

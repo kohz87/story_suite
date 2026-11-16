@@ -45,7 +45,7 @@ export const queries = {
         let days = { weekday: '', firstWeekdays: [] };
         try { if (parts) days = weekdaysAt(calendar, minutes, parts.year); } catch { /* a calendar with no week */ }
         // `weekday`: the day's name; `firstWeekdays`: for each month of this year, the index in `director.calendar`'s `week` of its first day.
-        return { minutes, text, parts, ...days };
+        return { minutes, text, parts, ...days, weekday: days.weekday || '' };
     },
     /**
      * The calendar the chat runs on, as plain data (calendar.js normalizeCalendar's shape: `preset`,
