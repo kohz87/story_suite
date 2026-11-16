@@ -44,24 +44,24 @@ function testCommands() {
   return out;
 }
 
-test('every node --test run in CI sets --test-timeout (at least 600000) and --test-force-exit before the test globs', () => {
+test('every node --test run in CI sets --test-timeout=900000, never --test-force-exit, before the test globs', () => {
   const cmds = testCommands();
   assert.ok(cmds.length >= 7, `expected at least 7 node --test commands, found ${cmds.length}`);
   for (const cmd of cmds) {
     const after = cmd.slice(cmd.search(/\s--test(\s|$)/) + 1);
     const m = after.match(/--test-timeout=(\d+)/);
     assert.ok(m, `no --test-timeout on: ${cmd}`);
-    assert.ok(Number(m[1]) >= 600000, `--test-timeout below 600000 on: ${cmd}`);
-    assert.ok(/--test-force-exit(\s|$)/.test(after), `no --test-force-exit on: ${cmd}`);
-    // node ignores flags placed after the globs, so both must come before the first test path.
+    assert.equal(Number(m[1]), 900000, `--test-timeout must be 900000 on: ${cmd}`);
+    assert.ok(!cmd.includes('--test-force-exit'), `--test-force-exit drops tests registered after a top-level await and still exits 0: ${cmd}`);
+    // node ignores flags placed after the globs, so the flag must come before the first test path.
     const firstGlob = after.search(/\s["']?(\$packs|tests\/|\$\{globs)/);
-    assert.ok(firstGlob > after.indexOf('--test-timeout') && firstGlob > after.indexOf('--test-force-exit'), `flags must come before the test globs on: ${cmd}`);
+    assert.ok(firstGlob > after.indexOf('--test-timeout'), `flags must come before the test globs on: ${cmd}`);
   }
 });
 
 // node ignores --test-timeout after the globs, so CI repeats each package test command with the flag in front.
 // These tests keep each repeated command equal to its package.json script, so they cannot drift apart.
-const noFlag = (cmd) => cmd.replace(/ --test-timeout=\d+/g, '').replace(/ --test-force-exit/g, '');
+const noFlag = (cmd) => cmd.replace(/ --test-timeout=\d+/g, '');
 const script = (file, name) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8')).scripts[name];
 const step = (job, name) => {
   const text = jobs().find(([n]) => n === job)?.[1] ?? '';
@@ -90,14 +90,21 @@ test('CI commands equal their package.json scripts plus the timeout flag', () =>
   assert.equal(nsdLines.map(noFlag).join(' && '), script('packages/npc-state-delta/package.json', 'test'));
 });
 
-test('a hung test that holds a live handle is named and fails the run at the timeout', () => {
+test('no CI file uses --test-force-exit', () => {
+  for (const f of ['.github/workflows/ci.yml', 'scripts/ci/suite-tests.sh']) {
+    const lines = fs.readFileSync(path.join(root, f), 'utf8').split('\n').filter((l) => !/^\s*#/.test(l));
+    assert.ok(!lines.some((l) => l.includes('--test-force-exit')), `${f} uses --test-force-exit`);
+  }
+});
+
+test('a hung test is named and fails the run at the timeout', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-timeouts-'));
   try {
-    fs.writeFileSync(path.join(dir, 'hang.test.js'), "import { test } from 'node:test';\ntest('hangs holding a handle', async () => { setInterval(() => {}, 1000); await new Promise(() => {}); });\n");
+    fs.writeFileSync(path.join(dir, 'hang.test.js'), "import { test } from 'node:test';\ntest('hangs forever', async () => { await new Promise(() => {}); });\n");
     fs.writeFileSync(path.join(dir, 'ok.test.js'), "import { test } from 'node:test';\ntest('healthy', () => {});\n");
-    const r = spawnSync(process.execPath, ['--test', '--test-timeout=1500', '--test-force-exit', '--test-reporter=tap', 'hang.test.js', 'ok.test.js'], { cwd: dir, encoding: 'utf8', timeout: 20000, env: { ...process.env, NODE_TEST_CONTEXT: undefined } });
+    const r = spawnSync(process.execPath, ['--test', '--test-timeout=1500', '--test-reporter=tap', 'hang.test.js', 'ok.test.js'], { cwd: dir, encoding: 'utf8', timeout: 20000, env: { ...process.env, NODE_TEST_CONTEXT: undefined } });
     assert.equal(r.status, 1, `expected exit 1, got ${r.status} ${r.signal}`);
-    assert.match(r.stdout, /not ok \d+ - hangs holding a handle/);
+    assert.match(r.stdout, /not ok \d+ - hangs forever/);
     assert.match(r.stdout, /timed out after 1500ms/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
