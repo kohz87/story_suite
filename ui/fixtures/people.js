@@ -103,7 +103,7 @@ export const PEOPLE = Object.freeze({
       followed: false,
       inParty: true,
       mood: 'alert',
-      meters: Object.freeze({ trust: 26, affection: 6, desire: 0, tension: 3 }),
+      meters: Object.freeze({ trust: 30, affection: 18, desire: 0, tension: 0 }),
       where: 'At the Bluewatch stables with the horses',
       doing: 'Tending the dappled mare and grey pony',
       wearing: 'Oiled leather cloak, riding boots',
@@ -232,6 +232,6 @@ export const PEOPLE = Object.freeze({
   fightOverrides: Object.freeze({
     brann: Object.freeze({ mood: 'braced', where: 'at the front, shield up', thought: 'Hounds first, then the men.' }),
     torka: Object.freeze({ mood: 'fierce', where: 'beside you', thought: 'Come on, then.' }),
-    rika: Object.freeze({ mood: 'alert', where: 'by the grey pony', thought: 'Keep the pony behind us.' }),
+    rika: Object.freeze({ mood: 'alert', where: 'by the grey pony', thought: 'Keep the pony behind us.', meters: Object.freeze({ trust: 26, affection: 6, desire: 0, tension: 3 }) }),
   }),
 });
