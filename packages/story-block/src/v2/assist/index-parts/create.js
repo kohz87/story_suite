@@ -17,6 +17,7 @@ import { sdk } from './shared-sdk.js';
  *   grammar() → the kinds' one-line grammars            (default: none; the host passes the registry's)
  *   capture(text, { index, swipe })                     (default: none; the host passes it per reply)
  *   where() → { here, places, time }                    (default: none; the scene's place, the map's places, the story's date and time: where.js)
+ *   skip: { peek() } — whether the next reply goes out with no dice (the lean RPG's start notes; default: never)
  *   moduleId = 'story-block', timeoutMs = 20000, timer, warn(text)
  */
 export function createAssistPart({
@@ -28,6 +29,7 @@ export function createAssistPart({
     grammar = () => [],
     capture = null,
     where = null,
+    skip = undefined,
     moduleId = HOST_MODULE_ID,
     timeoutMs = TIMEOUT_MS,
     timer,
@@ -46,7 +48,7 @@ export function createAssistPart({
     };
     const log = createRunLog();
     const shared = { callModel, log, warn, timeoutMs, timer, chatId };
-    const classifier = createClassifier({ ...shared, settings: read, chat, hasKind });
+    const classifier = createClassifier({ ...shared, settings: read, chat, hasKind, ...(skip ? { skip } : {}) });
     const extractor = createExtractor({ ...shared, settings: () => read(null), grammar, capture, where });
 
     /** assist.status: { classifier: { on, last }, extractor: { on, last }, profile, runs }. */

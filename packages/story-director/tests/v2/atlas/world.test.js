@@ -70,7 +70,11 @@ test('item 4: a visited pack place takes the pack\'s region, not the scene\'s wi
     const wild = arrive(state, 'Lonely Hut');
     assert.equal(placeNamed(wild, 'lonely hut').region, 'River Confederacy');
     // A place saved before this rule (the scene's region stored) is mended on the next visit.
-    const old = command(story(), 'atlas.edit', { place: 'Inspection Quay', region: 'River Confederacy' }, { pack: PACK }).state;
+    const edited = command(story(), 'atlas.edit', { place: 'Inspection Quay', region: 'River Confederacy' }, { pack: PACK }).state;
+    const old = structuredClone(edited);   // as a save without the mark has it
+    for (const place of Object.values(old.domains.atlas.places)) delete place.regionBy;
+    // The reader's edit to the scene's own word is deliberate: it stays.
+    assert.equal(placeNamed(arrive(edited, 'Inspection Quay'), 'inspection quay').region, 'River Confederacy');
     assert.equal(placeNamed(old, 'inspection quay').region, 'River Confederacy');
     assert.equal(placeNamed(arrive(old, 'Inspection Quay'), 'inspection quay').region, 'Bluewatch Village');
     // A reader's own region (not the scene's word) stays.

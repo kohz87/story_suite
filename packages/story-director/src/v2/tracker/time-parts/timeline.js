@@ -48,7 +48,7 @@ export function timeAfter(line, minutes, calendar, { maxJump = MAX_JUMP_DAYS * D
 
 // A move past `maxJump` minutes from the reply's start (`from`, else `minutes`) is held there:
 // `{ minutes, held: { asked } }`. The clock never goes back for it (another rule moved it further).
-function held(minutes, next, maxJump, shown, from) {
+export function held(minutes, next, maxJump, shown, from) {
     const start = Number.isSafeInteger(from) ? from : minutes;
     const limit = Math.max(minutes, start + maxJump);
     if (!(next > limit)) return { minutes: next };
@@ -66,7 +66,7 @@ function held(minutes, next, maxJump, shown, from) {
 // A written clock time no clock shows ("25:99 pm", "13 pm", "0 am"), in words, or ''. The calendar's
 // reader skips such a time and reads the date alone, at its day's start.
 const CLOCKISH = /(?<![\p{L}\d:.])(\d{1,3})(?::(\d{1,3}))?(?:\s*([ap])\.?\s?m\.?)?(?![\p{L}\d])/giu;
-function badClock(words) {
+export function badClock(words) {
     for (const match of words.matchAll(CLOCKISH)) {
         const [, hourText, minuteText, half] = match;
         if (minuteText === undefined && !half) continue;

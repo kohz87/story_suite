@@ -277,7 +277,7 @@ export function expectedClock(chat, times, start) {
         const from = clock;
         for (const step of times.get(message) ?? []) {
             if (step.edit !== undefined) clock = step.edit;
-            else if (step.set) clock = start + SET_AFTER;
+            else if (step.set) clock = Math.max(clock, start + SET_AFTER); // the clockFace rule: a date before the clock is refused, the clock stays
             else clock = Math.min(clock + step.move, Math.max(clock, from + MAX_JUMP));
         }
     }
