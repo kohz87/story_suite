@@ -8,6 +8,7 @@ import { linesMeterText } from '../src/npc-meters-prompt-parts/lines-text.js';
 
 // The unwired one-pass lines builder is pinned at its settings variants (default; layered secrets on; notes and stages off; the held NSD3 mood text on) and a
 // separate meters-paragraph entry per feature combination (NSD2 + the G2 clauses). Each item changes this golden on purpose, in its own reviewed diff.
+// N5: NSD8 (rules) and NSD12 (the context's event paragraph, joined as G8 says).
 // N3: NSD4, NSD5, NSD9 (rules), NSD3 (rules, off by default) and NSD2 (linesMeterText, never in the rules).
 const GOLDEN = new URL('./fixtures/prompt-lines.golden.json', import.meta.url);
 const VARIANTS = {
@@ -15,6 +16,7 @@ const VARIANTS = {
     layered_secrets: { layeredSecrets: true },
     notes_and_stages_off: { notes: false, stages: false },
     mood_word_on: { moodWord: true },
+    event_watch: { eventWatch: [{ key: 'sec_0aaa1111', name: 'Mira', event: 'The duke is exposed as a traitor' }, { key: 'sec_0bbb2222', name: 'Oren', event: 'the seal is shown' }] },
 };
 // G2: default (anti-lever on, so `via:`), anti-lever off, caps on (the same text as default: code enforces the caps), presets with Meter rules.
 const PARAGRAPHS = {
