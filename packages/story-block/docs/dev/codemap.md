@@ -42,7 +42,7 @@ Last checked: 2026-11-07.
 - `src/v2/lean-rpg/levels.js`: level, rank, level-cap and XP-rate helpers plus the RPG rank query.
 - `src/v2/lean-rpg/noroll.js`: replay-only: shows and re-reads the per-reply receipt an old chat's retired roll planner left when it gave no usable plan.
 - `src/v2/lean-rpg/checks/dice.js`: story checks: a reply's three d20 from its recorded seed, the rules, difficulty numbers, practice and bonus table recorded with them (`dicePayload`, `diceOf`) and the `rpg.dice` prelude's handler.
-- `src/v2/lean-rpg/checks/line.js`: story checks: parses a narrator's `? roll Who | skill or stat | difficulty | die` line (a solo party takes an unnamed roll) and validates it against the party, the dice offered and the dice used.
+- `src/v2/lean-rpg/checks/line.js`: story checks: parses a narrator's `? roll Who | skill or stat | difficulty` line (a solo party takes an unnamed roll; an older reply also wrote the die) and validates it against the party and the dice offered and used; under the `diceInOrder` mark code gives each check the next die.
 - `src/v2/lean-rpg/checks/result.js`: story checks: works a validated check (d20 + stat part + level term + rank against the recorded difficulty: success, cost, fail, decisive, one practice use, no XP), a reply's lines in order (`workChecks`) and the bonus table the note tells.
 - `src/v2/lean-rpg/open.js`: checks and fills new foes that the roll planner opens during a fight.
 - `src/v2/lean-rpg/quiet.js`: trims combat and foe prompt grammar on replies where rolls cannot be used.
@@ -288,6 +288,8 @@ Last checked: 2026-11-07.
 - `src/v2/domains/core/kinds.js`: the core change-line kinds and the `~ you` grammar line.
 - `src/v2/domains/core/part.js`: the core part's domains, commands, queries, kinds, context and tabs.
 - `src/v2/domains/core/merge.js`: merging module parts, hooks and settings without changing part order.
+- `src/v2/domains/core/isolate-after.js`: the merged afterCapture hook that, flag `suite.isolatedApply` on, keeps the other parts' steps when one part fails.
+- `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `src/v2/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
 - `src/v2/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
 - `testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
@@ -311,3 +313,4 @@ Last checked: 2026-11-07.
 - `tests/v2/fixtures/combat-corpus/make.mjs`: builds the Standard-rules planner, fight-start, board, noroll and practice chats and writes their goldens.
 - `tests/v2/fixtures/combat-corpus/chats.json`: the ten pinned combat chats and their replay setup.
 - `tests/v2/fixtures/combat-corpus/goldens.json`: the golden state, Problems, cues, battle-log models and Re-read results.
+- `tests/v2/turn/isolation.test.js`: the isolated-apply flag: a failing core part, hook problems and the failed-reply tail, flag off and on.

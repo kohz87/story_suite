@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
@@ -102,4 +102,14 @@ test('record refuses a non-empty --out without --fresh, and --fresh removes only
   rmSync(foreign);
   assert.match(record(chats, out, ['--fresh']).stdout, /synthetic\.jsonl: /);
   assert.ok(existsSync(mine));
+});
+
+test('record --history writes the sequence', t => {
+  const dir = sandbox(t);
+  const chats = chatsFolder(dir);
+  const out = path.join(dir, 'out');
+  const res = record(chats, out, ['--history']);
+  assert.match(res.stdout, /synthetic\.jsonl: /, res.stderr);
+  const written = JSON.parse(readFileSync(path.join(out, 'synthetic.jsonl.json'), 'utf8'));
+  assert.deepEqual(written.history.ops.map(op => op.op), ['swipe', 'deleteMiddle', 'rewind', 'reload']);
 });
