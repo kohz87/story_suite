@@ -96,7 +96,5 @@ export function noteFactsQuery(state, { after: rev = null, through = null, minut
             if (typeof item?.quest === 'string' && item.quest !== thread && said) quests.push({ rev: receipt.rev, thread: item.quest, text: said });
         }
     }
-    // `fresh`: whether any receipt came after the last note at all (the hook's test once a Re-read has made the revisions shorter).
-    const fresh = list.some(item => { const receipt = item?.receipt ?? item; return Boolean(receipt) && (after === null || (Number.isSafeInteger(receipt.rev) && receipt.rev > after)); });
-    return { entries, quests, present: scene, minutes: walk.minutes, rev: revs.length ? Math.max(...revs) : null, settle: walk.settle ? { ...walk.settle } : null, fresh };
+    return { entries, quests, present: scene, minutes: walk.minutes, rev: revs.length ? Math.max(...revs) : null, settle: walk.settle ? { ...walk.settle } : null };
 }

@@ -83,7 +83,8 @@ by revision, never by a reply key (`days-parts/quest-log-order.js`).
 Known limit: an edited reply is never noted again. Its note is a kept block (it replays as stored), so what a Re-read of
 an edited reply adds is not in the day facts, the written digest or the quest history, and what it removed stays; the
 World screen's lists, read from the domains, show the edit. Tests: `tests/v2/chronicle/note-cursor.test.js` (the real
-host, compared with a fresh telling) and `note-cursor-units.test.js`.
+host, compared with a fresh telling), `note-outcome.test.js` (an accepted goal's outcome on the real host) and
+`note-cursor-units.test.js`.
 
 ## Tests
 

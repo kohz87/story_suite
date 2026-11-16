@@ -83,18 +83,14 @@ export function noteCommand(ctx) {
 }
 
 /**
- * The hook's note: `[{ type: chronicle.note }]` when something was committed since the last note. By revision; once a
- * Re-read has left fewer revisions than the last note's, by asking whether any receipt comes after that note.
+ * The hook's note: `[{ type: chronicle.note }]` when something was committed since the last note (by revision: a Re-read
+ * only adds revisions, so after one this may run a note that finds nothing new, which keeps nothing).
  */
 export function noteCommands(view) {
     const chronicle = view?.state?.domains?.chronicle;
     if (!chronicle) return [];
     const rev = view.state.meta?.rev;
     const noted = notedOf(chronicle);
-    if (!isInt(rev)) return [];
-    if (noted && noted.rev >= rev) {
-        const query = typeof view.query === 'function' ? (name, args) => view.query(name, args) : null;
-        if (typeof noted.through !== 'string' || ask(query, 'chronicle.noteFacts', { through: noted.through, after: noted.rev })?.fresh !== true) return [];
-    }
+    if (!isInt(rev) || (noted && noted.rev >= rev)) return [];
     return [{ type: NOTE, payload: {} }];
 }

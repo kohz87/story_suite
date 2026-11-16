@@ -1,6 +1,6 @@
 // The note's cursor and the quest history's keys, unit by unit: `chronicle.noteFacts` reads from the receipt `through`
 // names (in chat order) and falls back to the revision `after` for an older state or a receipt that is gone; the note
-// writes its own receipt ID and passes an older `noted` (no `through`) on by revision; the hook's fallback test; the
+// writes its own receipt ID and passes an older `noted` (no `through`) on by revision; the hook still asks by revision; the
 // validator takes the old and new shapes; `chronicle.threadOutcome` keys its line by reply, keeps its revision, and is
 // never overwritten by the note's line of the same revision.
 
@@ -21,8 +21,7 @@ const texts = plan => plan.quests.map(item => item.text);
 
 test('noteFacts reads after the receipt `through` names, in chat order, whatever the revisions', () => {
     assert.deepEqual(texts(noteFactsQuery({}, { through: 'rc_note', after: 5 }, tools)), ['Director: four']);
-    assert.equal(noteFactsQuery({}, { through: 'rc_note', after: 5 }, tools).fresh, true);
-    assert.equal(noteFactsQuery({}, { through: 'rc_d', after: 11 }, tools).fresh, false);
+    assert.deepEqual(texts(noteFactsQuery({}, { through: 'rc_d', after: 11 }, tools)), []);
 });
 
 test('noteFacts reads by revision for an older state (no `through`) or a receipt that is gone', () => {
@@ -74,14 +73,11 @@ test('a host with no receipt ID: the note writes no `through` and reads by revis
     assert.equal('through' in slotValue(chronicle.noted), false);
 });
 
-test('the hook: by revision; when the revisions are not past the last note, only receipts after that note ask for one', () => {
-    const view = (noted, rev, query) => ({ state: { meta: { rev }, domains: { chronicle: { noted: [noted] } } }, query });
-    const ask = fresh => (name, args) => (name === 'chronicle.noteFacts' && args.through === 'rc_note' ? { fresh } : null);
-    assert.equal(noteCommands(view({ rev: 5 }, 6, null)).length, 1);
-    assert.equal(noteCommands(view({ rev: 5 }, 5, ask(true))).length, 0);
-    assert.equal(noteCommands(view({ rev: 5, through: 'rc_note' }, 5, ask(false))).length, 0);
-    assert.equal(noteCommands(view({ rev: 5, through: 'rc_note' }, 5, ask(true))).length, 1);
-    assert.equal(noteCommands(view({ rev: 5, through: 'rc_note' }, 5, null)).length, 0);
+test('the hook still asks by revision, with or without `through`', () => {
+    const view = noted => ({ state: { meta: { rev: 5 }, domains: { chronicle: { noted: [noted] } } } });
+    assert.equal(noteCommands(view({ rev: 4 })).length, 1);
+    assert.equal(noteCommands(view({ rev: 5, through: 'rc_note' })).length, 0);
+    assert.equal(noteCommands(view({ rev: 4, through: 'rc_note' })).length, 1);
 });
 
 test('the validator takes the older and newer `noted` and quest history shapes, and refuses broken ones', () => {

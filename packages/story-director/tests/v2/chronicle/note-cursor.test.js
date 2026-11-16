@@ -139,3 +139,34 @@ test('the known limit, both ways: a Re-read that drops lines leaves that reply\'
     assert.equal(reloadSame(live), true);
     live.close(); told.close(); unedited.close();
 });
+
+test('Re-reading every later reply after the edit, oldest first, settles to the unedited telling (no step twice)', async t => {
+    quiet(t);
+    const live = await tell(STORY);
+    await editAndReread(live, 'R0', [...STORY[0], ...pad(8)]);
+    for (const tag of ['R1', 'R2', 'R3']) assert.equal((await live.sdk.reread(replyAt(live, tag))).ok, true, tag);
+    await live.send('On.', said('R4.', ['~ quest Q | step: after']));
+    const told = await tell(STORY);
+    await told.send('On.', said('R4.', ['~ quest Q | step: after']));
+    assert.deepEqual(views(live), views(told));
+    assert.deepEqual(duplicates(questLines(live)), []);
+    live.close(); told.close();
+});
+
+test('the day digest written after an edited Re-read is the unedited one (the known limit, where the reader sees it)', async t => {
+    quiet(t);
+    const story = [['~ time June 3, 1200, 06:00 pm', '~ place Harrow', '+ quest Q — go | giver: A', '+ faction Crows — thieves | Harrow | stance: wary'], ['~ quest Q | step: one'], ['! time +1 hour', '~ place Old Weir', '~ quest Q | step: two']];
+    const extra = ['~ place Bluewatch', '+ world Flood — the river rises | state: ongoing | Harrow', '+ quest Lost — find the boy | giver: B'];
+    const strip = value => JSON.stringify(value).replace(/th_[a-z0-9]{8}|pl_[a-z0-9]{8}|"rev":\d+|"revs":\[[\d,]*\]|"src":\[[\d,]*\]|"made":\d+/g, 'X');
+    const live = await tell(story);
+    assert.equal((await editAndReread(live, 'R0', [...story[0], ...extra])).ok, true);
+    const told = await tell(story);
+    for (const host of [live, told]) {
+        await host.send('On.', said('R3.', ['! time +1 day', '~ quest Q | step: three']));
+        await host.send('On.', said('R4.', ['~ quest Q | step: four']));
+    }
+    assert.ok(Object.keys(chronicleOf(live).days ?? {}).length > 0);
+    assert.equal(strip(chronicleOf(live).days), strip(chronicleOf(told).days));
+    assert.deepEqual(views(live), views(told));
+    live.close(); told.close();
+});
