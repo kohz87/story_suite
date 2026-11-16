@@ -61,11 +61,12 @@ test('a dead person keeps their opened secret readable', () => {
   assert.equal(secretsPage({}).length, 1);
 });
 
-test('tieInitial drops a leading "the" and upper-cases', () => {
-  assert.equal(tieInitial({ name: 'the Harbour Master' }), 'H');
+test('tieInitial takes the first letter of the last word, upper-cased', () => {
+  assert.equal(tieInitial({ name: 'Old Sera Vane' }), 'V');
   assert.equal(tieInitial({ name: 'oyla' }), 'O');
   assert.equal(tieInitial({}), '?');
   installFakeDom();
   const page = tiesPage(dossier('temiwa'), {});
-  assert.deepEqual(page.querySelectorAll('.tie .a').map(a => a.textContent), ['T', 'O', 'H']);
+  assert.deepEqual(page.querySelectorAll('.tie .a').map(a => a.textContent), ['T', 'O', '']);
+  assert.equal(page.querySelectorAll('.tie .a').at(-1).querySelectorAll('svg').length, 1, 'a nameless tie shows the person glyph');
 });
