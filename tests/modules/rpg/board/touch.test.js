@@ -107,7 +107,8 @@ async function server() {
             const pathname = new URL(request.url, 'http://localhost').pathname;
             if (pathname === '/') { response.writeHead(200, { 'content-type':'text/html' }); response.end(html); return; }
             const file = resolve(root, `.${decodeURIComponent(pathname)}`);
-            if (!file.startsWith(`${root}${sep}packages${sep}story-block${sep}src${sep}`) && !['core', 'ui', 'modules', 'packs'].some(dir => file.startsWith(`${root}${sep}${dir}${sep}`))) { response.writeHead(404); response.end(); return; }
+            if (!file.startsWith(`${root}${sep}packages${sep}story-block${sep}src${sep}`) && !['core', 'ui', 'modules', 'packs'].some(dir => file.startsWith(`${root}${sep}${dir}${sep}`)) && file !== resolve(root, 'tests/core/helpers/board-port.js'))   // (only the sources and the board-port test helper)
+             { response.writeHead(404); response.end(); return; }
             const content = await readFile(file);
             response.writeHead(200, { 'content-type': extname(file) === '.css' ? 'text/css' : 'text/javascript' }); response.end(content);
         } catch { response.writeHead(404); response.end(); }

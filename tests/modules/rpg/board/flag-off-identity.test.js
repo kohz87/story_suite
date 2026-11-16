@@ -7,7 +7,7 @@ import { createFakeModel, createHost } from '../../../../testkit/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 
-const fixture = name => JSON.parse(readFileSync(new URL(`../../fixtures/${name}.json`, import.meta.url), 'utf8'));
+const fixture = name => JSON.parse(readFileSync(new URL(`../../../core/fixtures/${name}.json`, import.meta.url), 'utf8'));
 const strip = value => JSON.parse(JSON.stringify(value).replace(/;kinds:[^"]*/g, ''));
 
 async function run({ rpg, board }) {

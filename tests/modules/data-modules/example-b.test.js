@@ -30,7 +30,7 @@ const reload = async host => {
 };
 
 async function camp(t, { attachLater = false } = {}) {
-    const SD = await import(pathToFileURL(path.join(SD_DIR, 'src/v2/module.js')).href);
+    const SD = await import(pathToFileURL((await import('../../suite/break/helpers/suite.js')).sdModuleAt(SD_DIR)).href);
     let sdk = null;
     const sd = SD.createModule({ host: { settings: id => sdk?.settings(id) ?? null, substitute: text => sdk?.substitute(text) } });
     const host = await createHost({ modules: [sd] });
