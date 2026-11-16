@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from './vendor/story-block/testkit/index.js';
+import { createHost } from '../../story-block/testkit/index.js';
 import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { inspectNpcStateDataFile, dataFileExists, readNpcStateDataFile, writeNpcStateDataFile } from '../storage.js';
 import { isEmptyScannerAnswer } from '../scanner-routing.js';
