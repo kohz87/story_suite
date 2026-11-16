@@ -19,7 +19,7 @@ export function guardFields(set, dossier, name) {
         const label = LINE_NAME[key] ?? key;
         if (locks.has(key) || (key === 'birthday' && locks.has('birthDate')) || (key === 'age' && locks.has('apparentAge'))) problems.push(`${label} is locked by you; not changed.`);
         else if (dead && frozen.has(key)) problems.push(`${name} has died; ${label} is not changed.`);
-        else out[key] = value;
+        else out[key] = key === 'gender' ? normalizeGender(value) || value : value;   // (stored as male or female when the words read as one; facts.js keeps the line's text as on main when lines mode is off)
     }
     return { set: out, problems };
 }
