@@ -1,7 +1,6 @@
-// The people domain across both packages (J07 step 5): the live Story Block host with the flag on, NPC State Delta's real participant and mirror.
+// The people domain across both packages (J07 step 5, no flag): the live Story Block host, NPC State Delta's real participant and mirror.
 // Equality is claimed at the head once the participant has settled: `head.domains.people` equals `peopleView(Delta's state)`.
-// Delta's own ids (`npc_myla`) are mirrored as they are. A known gap is asserted as it is today, not hidden: a Re-read after a middle delete is
-// refused (J09's).
+// Delta's own ids (`npc_myla`) are mirrored as they are. A Re-read after a middle delete is ok (P1: the people block that no longer applies is skipped).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -22,7 +21,7 @@ function edit(n) {
         if (n % 4 === 3) state.npcs.push(record(`p${n}`, { stage: 1 }));
         state.candidates = n % 2 ? [{ name: `Wren ${n}` }] : [];
         state.socialGraph = n > 2 ? { edges: [{ a: state.npcs[0].id, b: state.npcs[1].id, kind: `kind${n % 3}` }] } : { edges: [] };
-        state.portraitAssets = n > 5 ? { [state.npcs[0].id]: `portrait-${n}.png` } : {};
+        state.portraitAssets = n > 5 ? { [state.npcs[0].id]: { path: `/user/files/portrait-${n}.png`, type: 'image/png', hash: `h${n}` } } : {};
         state.dismissed = n > 8 ? ['someone'] : [];
         state.updatedAt = Date.now();          // clock keys never reach the host
     };
@@ -82,16 +81,15 @@ test('reload and store.rebuild(): the chat read again gives the same people', as
     same(again, 'rebuild');
 });
 
-test('known gap (J09): a Re-read after a middle delete is refused, though the people are equal at the head', async t => {
+test('a Re-read after a middle delete is ok, and the people stay equal at the head', async t => {
     const rig = await peopleRig(t);
     for (let n = 1; n <= 4; n++) await rig.reply(`Turn ${n}.`, edit(n));
     await rig.host.st.deleteMessage(2);
     await sleep(300);
     await settled(rig, 'middle delete');
     const done = await rig.host.turn.reread(rig.host.store.headIndex());
-    assert.equal(done.ok, false, 'today the Re-read is refused');
-    assert.match(done.message, /does not exist \(no "people"\)/);
-    same(rig, 'after the refused Re-read');
+    assert.equal(done.ok, true, done.message);
+    await settled(rig, 'after the Re-read');
 });
 
 test('Delta\'s own ids (npc_myla) are mirrored: all 15 frozen write paths reach equality at the head', async t => {
@@ -119,7 +117,7 @@ test('an id that is not Delta\'s, or is unsafe as a path, is refused and nothing
     await rig.reply('Hello.');
     const before = structuredClone(people(rig));
     for (const bad of ['a/b', 'npc_a~b', 'npc_', 'myla', '__proto__']) {
-        const out = await rig.host.sdk.command('people.mirror', { v: 1, source: (await rig.host.sdk.timeline.head()).source, view: { v: 1, order: [bad], npcs: { [bad]: { id: bad } } } });
+        const out = await rig.host.sdk.command('people.write', { v: 1, source: (await rig.host.sdk.timeline.head()).source, view: { v: 1, order: [bad], npcs: { [bad]: { id: bad } } } });
         assert.equal(out.ok, false, `${bad} refused`);
     }
     assert.deepEqual(people(rig), before);

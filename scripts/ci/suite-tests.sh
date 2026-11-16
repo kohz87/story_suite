@@ -21,7 +21,6 @@ MIN_TESTS=5826
 # The only TODO tests allowed, by exact test name (like the skip reasons). Any other TODO fails the job.
 ALLOWED_TODOS=(
   "C4-2 (open): no chat file is made again under the old name by a save already on its way (needs the server to refuse a save of a renamed chat, or the page to delete that copy)"
-  "Re-read of a reply that carries a mirror block, after a middle delete of an earlier carrier that created the people domain, refuses with \"/domains/people/npcs/p0/stage does not exist (no people)\" (repro: 3 replies each mirrored; delete carriers()[1]; mirror again at the head; host.turn.reread(headIndex) returns ok:false)"
 )
 # The only skips allowed, by reason. Any other skip fails the job.
 ALLOWED_SKIPS=(

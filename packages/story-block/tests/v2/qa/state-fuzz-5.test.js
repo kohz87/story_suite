@@ -1,4 +1,4 @@
-// QA: shard 5 of 5 of the seeded whole-chat fuzz (see helpers/state-fuzz-run.js for what every run checks), with the people domain's flag on (people.mirror in the command mix; no Re-read, a known gap owned by J09).
+// QA: shard 5 of 5 of the seeded whole-chat fuzz (see helpers/state-fuzz-run.js for what every run checks), with people.write in the command mix and Re-read on (the people domain is part of every new chat).
 // The runs are split over five files so node --test runs them in parallel; together they are the same
 // [seed, steps] list as before. QA_FUZZ_SEED / QA_FUZZ_SEEDS / QA_FUZZ_STEPS run their whole list once, in shard 1.
 import test from 'node:test';
@@ -11,7 +11,7 @@ const STEPS = Number(process.env.QA_FUZZ_STEPS) || 90;
 if (!RUNS.length) test('fuzz shard 5: nothing to run (a local override runs in shard 1)', t => t.skip('QA_FUZZ_* override runs in shard 1'));
 
 for (const [seed, steps] of RUNS) {
-    test(`fuzz (people on) seed ${seed}${steps === STEPS ? '' : ` (${steps} steps)`}: replay equals rebuild, rollback is exact, told once, claims once, saves per burst`, async t => {
+    test(`fuzz (people writes) seed ${seed}${steps === STEPS ? '' : ` (${steps} steps)`}: replay equals rebuild, rollback is exact, told once, claims once, saves per burst`, async t => {
         await fuzz(t, seed, steps, { people: true });
         remakes.runs++;
     });
