@@ -18,10 +18,10 @@ export const ROLLED_LINE = 'If [Happened] already shows a check for the reader\'
 /**
  * The classifier. `deps`: { callModel(prompt, { maxTokens, profile }) → text, settings(view) → the
  * module's settings, chat() → SillyTavern's chat array, chatId() → the open chat's id,
- * hasKind(kind) → whether a module keeps that change-line kind, log (createRunLog), warn(text),
+ * hasKind(kind) → whether a module keeps that change-line kind, skip.peek() → whether the reader chose "Send without the RPG for now" (no dice for the next reply), log (createRunLog), warn(text),
  * timeoutMs, timer }. Returns { beforeGenerate(view, info?) }.
  */
-export function createClassifier({ callModel, settings, chat, chatId, hasKind, log, warn, timeoutMs = TIMEOUT_MS, timer }) {
+export function createClassifier({ callModel, settings, chat, chatId, hasKind, log, warn, timeoutMs = TIMEOUT_MS, timer, skip: noDice = { peek: () => false } }) {
     // Messages already asked about in this session (whatever the answer), by chat and key, so a
     // swipe, a regenerate or a failed call never asks again.
     const asked = new Map();
@@ -55,6 +55,12 @@ export function createClassifier({ callModel, settings, chat, chatId, hasKind, l
         const key = `${index}-${hashText(text)}`;
         const memo = `${chatId() ?? ''}|${key}`;
         if (claimed(view?.state, key)) {
+            return null;
+        }
+        // "Send without the RPG for now" promises no dice: no model call and no roll. The message is remembered as asked, so the swipe of that
+        // reply (the flag is gone by then) stays as quiet as the send was.
+        if (type === 'normal' && noDice.peek()) {
+            asked.set(memo, null);
             return null;
         }
         if (!hasKind(CHECK_KIND)) {

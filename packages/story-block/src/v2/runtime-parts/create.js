@@ -5,6 +5,7 @@ import { CORE_MODULE_ID, createCoreModule } from '../domains/index.js';
 import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../packs/card-settings.js';
+import { skipOf } from '../start-notes.js';
 import { XP_RATE_SETTING, xpRateFrom, xpRateOf } from '../lean-rpg/levels.js';
 import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, profileName, stModelCall } from '../model-call.js';
 import { readRecord } from '../persist.js';
@@ -157,6 +158,7 @@ export function createRuntime({
                         // The Chronicle's open world events and factions (Story Director), so the safety net reuses a name.
                         world: { events: ask('chronicle.events', { open: true }) ?? [], factions: ask('chronicle.factions', {}) ?? [] } };
                 },
+                skip: skipOf(() => chatMetadata()),
                 chat: () => ctx.chat,
                 chatId: () => ctx.getCurrentChatId?.() ?? ctx.chatId ?? '',
                 hasKind: kind => {
