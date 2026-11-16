@@ -15,6 +15,16 @@ export function exchangesOf(record, problems = []) {
         if (!isRollReceipt(receipt) || skipped.has(receipt.id)) continue;
         const result = receipt.data?.v2?.result;
         if (!isRecord(result)) continue;
+        // A Combat Rules v1 fight (`board.v1`): its rounds are lists of rows ('attack', who, how, target, …); the exchanges are the ones THIS settle played, the pairs the heroes' blows.
+        if (isRecord(result.board) && result.board.v1 === 1) {
+            const played = list(result.rounds).length, pairs = [];
+            for (const row of list(result.rounds).flat()) {
+                const pair = Array.isArray(row) && row[0] === 'attack' && words(row[1]) && words(row[3]) ? `${words(row[1])} vs ${words(row[3])}` : '';
+                if (pair && !pairs.includes(pair)) pairs.push(pair);
+            }
+            if (played > 0) return { exchanges: played, pairs };
+            continue;
+        }
         const summary = isRecord(result.summary) ? result.summary : result;
         const rounds = list(result.rounds);
         const exchanges = Number.isSafeInteger(summary.exchanges) ? summary.exchanges : rounds.length;

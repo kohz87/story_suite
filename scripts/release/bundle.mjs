@@ -22,7 +22,7 @@ const SERVED = 'http://host/scripts/extensions/third-party';
 //    the entry and loaded on demand in place (a lazily initialised module that starts once, in the same order),
 //    instead of becoming a request of its own. Lazy modules keep a real import() and stay separate chunks.
 // 3. import.meta.url keeps naming the module's original location (see rewrite.mjs), so assets beside it resolve.
-function packagePlugin(pkgDir, repoRoot, lazy, folder, installAt, setDir) {
+function packagePlugin(pkgDir, repoRoot, lazy, folder, installAt, setDir, oldPlaces) {
   const inRepo = abs => !path.relative(repoRoot, abs).startsWith('..');
   const inside = abs => !path.relative(pkgDir, abs).startsWith('..') || (inRepo(abs) && fs.existsSync(abs));
   return { name: 'package', setup(b) {
@@ -45,7 +45,9 @@ function packagePlugin(pkgDir, repoRoot, lazy, folder, installAt, setDir) {
       if (!inside(args.path)) return undefined;
       const source = fs.readFileSync(args.path, 'utf8');
       if (!source.includes('import(') && !source.includes('import.meta')) return undefined;
-      const file = path.relative(pkgDir, args.path).split(path.sep).join('/');
+      let file = path.relative(pkgDir, args.path).split(path.sep).join('/');
+      // Play build only (set.oldPlaces): a file that left the package folder names its OLD place in it, so assets copied beside that place resolve inside the extension.
+      if (oldPlaces && file.startsWith('..') && inRepo(args.path)) file = path.posix.relative(setDir, oldLocation(path.relative(repoRoot, args.path).split(path.sep).join('/')));
       const packKey = spec => {
         const target = path.resolve(path.dirname(args.path), spec);
         const key = path.relative(pkgDir, target).split(path.sep).join('/');
@@ -65,7 +67,7 @@ export async function buildBundleSet(set, outDir, repoRoot) {
   const result = await build({
     absWorkingDir: fs.existsSync(pkgDir) ? pkgDir : repoRoot, entryPoints: set.entries.map(entry => ({ in: path.isAbsolute(entry) ? entry : path.resolve(pkgDir, fromPackage(repoRoot, set.dir, entry)), out: path.basename(entry, '.js') })), outdir: outDir, entryNames: '[name]', chunkNames: '[name]-[hash]',
     bundle: true, splitting: true, format: 'esm', target: 'es2022', sourcemap: true, legalComments: 'none',
-    plugins: [packagePlugin(pkgDir, repoRoot, new Set(set.lazy.map(name => fromPackage(repoRoot, set.dir, name))), set.name, set.installAt ?? set.name, set.dir)], metafile: true, logLevel: 'silent',
+    plugins: [packagePlugin(pkgDir, repoRoot, new Set(set.lazy.map(name => fromPackage(repoRoot, set.dir, name))), set.name, set.installAt ?? set.name, set.dir, Boolean(set.oldPlaces))], metafile: true, logLevel: 'silent',
   });
   return Object.keys(result.metafile.outputs).map(file => path.basename(file)).sort();
 }

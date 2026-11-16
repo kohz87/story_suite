@@ -47,8 +47,8 @@ export async function buildDist({ repo = process.cwd(), commit = 'origin/main', 
     fs.mkdirSync(outDir, { recursive: true });
     for (const set of DIST_SETS) {
       const dir = path.join(outDir, set.name);
-      await buildBundleSet({ ...set, installAt: `${installFolder}/${set.name}` }, dir, sourceDir);
-      copyRuntimeAssets(path.join(sourceDir, set.dir), dir, set);
+      await buildBundleSet({ ...set, oldPlaces: true, installAt: `${installFolder}/${set.name}` }, dir, sourceDir);
+      copyRuntimeAssets(path.join(sourceDir, set.dir), dir, set, sourceDir);
     }
     writeRootFiles(outDir, { commit: full, builtAt: now.toISOString(), sourceDir });
     const sha = write ? commitFolder({ repo, folder: outDir, branch, message: `Play build from ${full}` }) : null;

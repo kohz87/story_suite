@@ -43,7 +43,7 @@ const resumedLine = (members, carried) => {
     return `↺ These foes are as you left them${packed ? '' : `: ${standing} of ${total} standing`}, with their bars from the last fight.`;
 };
 
-export function createBoardView({ doc, headState, meta, save, store, interaction, rules, query, readerName, roleOf, levels, on = () => false, start = null, practice = () => undefined, cap = () => AUTO_CAP.default } = {}) {
+export function createBoardView({ doc, headState, meta, save, store, interaction, rules, query, readerName, roleOf, levels, on = () => false, start = null, practice = () => undefined, rate = () => undefined, cap = () => AUTO_CAP.default } = {}) {
     let logOpen = false, notice = '', autoLine = '', chosen = [], targeting = null, confirm = false, busy = false, generation = 0, activeId = null, keyRoot = null, listening = false, lockedChoices = [];
     const releaseAfterResult = () => {
         const wait = () => setTimeout(() => {
@@ -107,7 +107,7 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         // A fight against the foes a fled or lost fight left starts from that fight's exact bars (resume.js), if the Foes block still reads what the board left.
         const resumed = resumeMembers(store?.receipts?.() ?? [], sheet.foes.filter(foe => foe.filled && foe.hurt > 0).map(foe => foe.slot), sheet.foes);
         // (a fight a pre-check offered opens on the sheet its opening left, and carries the opening's own approach record: interaction/start.js keeps the opening)
-        const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), gear, weapons, practice: practice(), ...(resumed ? { resumed } : {}),
+        const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), gear, weapons, practice: practice(), rate: rate(), ...(resumed ? { resumed } : {}),
             ...(opening ? { opened: approach?.opened ?? [], approach: structuredClone(approach?.checks ?? []), drop: dropOf(approach) } : {}) });
         if (!result?.ok) return false;
         reset();

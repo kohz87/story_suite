@@ -6,10 +6,12 @@ import { readSheet } from '../read.js';
 import { CLAIM, isObject, slotsOf } from './shared-values.js';
 import { groupsOf } from './won.js';
 import { fightWitness } from './witness.js';
+import { holdGuardV1 } from './hold-v1.js';
 
 /** The replay guard of `rpg.fight` (leanRpgGuard routes it here): the step stands while the sheet numbers it used are what the prefix holds. */
 export function fightGuard({ state, hash }, { guard, source, recorded }) {
     const bad = reason => ({ ok: false, reason });
+    if (recorded?.v1 === 1 || guard?.predicate?.v1 === 1) return holdGuardV1({ state, hash }, { guard, source, recorded });
     try {
         const predicate = guard?.predicate;
         if (guard?.version !== 2 || guard.rulesHash !== null || !isObject(predicate) || predicate.kind !== FIGHT || !isObject(recorded)) return bad('Malformed fight guard.');

@@ -3,6 +3,7 @@
 // Dice are the port's own (`dice(seed, offset)`, the fourth argument of `play` and `settle`): never stored, so a swipe, a Re-read, a rewind and a reload draw the same numbers.
 // A fight across replies carries its start (`start`: the exchanges played, the fixed order and the foe rotation) and its foes' bars (`carried`) in the next setup, because a v1 foe has no block field of its own.
 import { PRACTICE, practiceOf } from '../names.js';
+import { xpRateOf } from '../levels.js';
 import { fold, readSheet } from '../read.js';
 import { actorIdOf } from '../roster.js';
 import { fightInputOf, witnessOf } from '../combat/input.js';
@@ -66,7 +67,7 @@ const mapped = (state, setup, played) => fightResultV1(setup, played.record, { s
 function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse };
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }) };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };
 }

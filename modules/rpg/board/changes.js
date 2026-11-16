@@ -1,8 +1,9 @@
 // The fight's writes to the Foes block, as internal commands the settle calls (the kind lists them in its `changes`).
 // They only apply what the kind's own play worked out: the foes a pre-check opened, the foes' new bars, and the groups of an ended fight leaving the block.
-import { BOARD_CLEAR_FOES as CLEAR_FOES, BOARD_HURTS as HURTS, BOARD_OPEN_FOES as OPEN_FOES } from '../names.js';
+import { BOARD_AWARD as AWARD, BOARD_CLEAR_FOES as CLEAR_FOES, BOARD_HURTS as HURTS, BOARD_OPEN_FOES as OPEN_FOES } from '../names.js';
 import { openFoes } from '../open.js';
 import { applyHurts, clearFoes } from './engine.js';
+import { awardCommand } from './v1-award.js';
 
 const whole = value => Number.isFinite(value) && value >= 0;
 const text = value => typeof value === 'string' && value.length > 0 && value.length <= 200;
@@ -16,7 +17,7 @@ const foesOf = payload => (Array.isArray(payload?.groups) && payload.groups.leng
 const entriesOf = payload => (Array.isArray(payload?.open) && payload.open.length > 0 && payload.open.length <= 64 && payload.open.every(entry => text(entry?.name) && Number.isSafeInteger(entry.count)
     && (entry.tier === undefined || text(entry.tier)) && (entry.level === undefined || Number.isSafeInteger(entry.level)) && (entry.class === undefined || Number.isSafeInteger(entry.class))) ? payload.open : null);
 
-/** `{ 'rpg.board.openFoes': { open: [{ name, count, level | class }], fix, stale }, 'rpg.board.hurts': { hurts: [{ module, field, to }] }, 'rpg.board.clearFoes': { groups, foes: [{ slot, module, local, filled }] } }`; all three are internal (no screen calls them). */
+/** `{ 'rpg.board.openFoes': { open: [{ name, count, level | class }], fix, stale }, 'rpg.board.hurts': { hurts: [{ module, field, to }] }, 'rpg.board.clearFoes': { groups, foes: [{ slot, module, local, filled }] } }`; all are internal; `rpg.board.award` is `{ xp: [{ module, xp }], uses: [{ who, skill, n }], perUse }` (v1 fights, board/v1-award.js) (no screen calls them). */
 export function boardChangeCommands() {
     return {
         [OPEN_FOES]: Object.assign((ctx, payload) => {
@@ -31,6 +32,7 @@ export function boardChangeCommands() {
             applyHurts(ctx.draft('dataModules'), hurts);
             return { summary: '', narrate: false, data: { hurts: hurts.length } };
         }, { internal: true }),
+        [AWARD]: Object.assign(awardCommand, { internal: true }),
         [CLEAR_FOES]: Object.assign((ctx, payload) => {
             const checked = foesOf(payload);
             if (!checked) ctx.fail('INVALID', 'The fight\'s ended groups are damaged.');

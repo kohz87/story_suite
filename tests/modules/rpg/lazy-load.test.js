@@ -56,7 +56,8 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
     // (117800: the Combat Rules v1 sheet reader, read-parts/v1-rows.js, and its small names are in the shared `read` helper that the page start reaches: +5,100 bytes, no combat/ file.)
     // (122600: the fight kind's plain members and the fight cue moved into lean-rpg/board/ for the interaction port, +4,700 bytes: kind-static.js and fight-start.js with its two parts; no engine file.)
     // (122700: the layout move wrote the import specifiers of these files with other lengths, +64 bytes; no file was added.)
-    assert.ok(bytes(lean) < 122700, `the shared helpers stay small (${bytes(lean)} bytes)`);
+    // (122900: the fight kind's one more internal write, rpg.board.award, is named in names.js / board-steps.js / kind-static.js, +110 bytes: a name, no engine file.)
+    assert.ok(bytes(lean) < 122900, `the shared helpers stay small (${bytes(lean)} bytes)`);
     // …and what a dynamic import brings in is the whole RPG (the part and its pieces), so the split is real.
     const whole = closure(RPG + 'index.js').filter(file => file.startsWith(RPG));
     assert.ok(bytes(whole) > 4 * bytes(lean), 'the part is most of the RPG\'s code');
