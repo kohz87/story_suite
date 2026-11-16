@@ -58,7 +58,7 @@ const BODIES = { death: deathPage, with: withPage, mood: moodPage, now: nowPage,
 
 /**
  * Builds the dossier for a `dossier` view-model. ctx = { port, prefs, backStack, go(tab, args), onClose(), seeOnMap(id), origin, youName }.
- * Commands: npc.follow, npc.edit, npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice), npc.markAlive, npc.memory.add.
+ * Commands: people.follow (the store's Follow flag; the star goes back if the engine refuses), npc.edit (opens NPC State's editor; no field edit here yet), npc.refresh, npc.portrait, npc.inspect, npc.merge, npc.delete (asks twice), npc.markAlive, npc.memory.add.
  * Returns the root element; `root.close()` takes the dossier down from the back-stack too.
  */
 export function dossierPage(d, ctx = {}) {
@@ -113,7 +113,12 @@ export function dossierPage(d, ctx = {}) {
 
   function hero() {
     const follow = button({ label: state.following ? '★ Following' : '☆ Follow', className: 'fbtn', pressed: state.following, dataset: { act: 'follow' },
-      onClick: () => { state.following = !state.following; cmd('npc.follow', { on: state.following }); drawGrid(); } });
+      onClick: () => {
+        const on = !state.following;
+        state.following = on;
+        Promise.resolve(ctx.port?.command?.('people.follow', { id: d.id, on })).then(result => { if (result?.ok === false && state.following === on) { state.following = !on; drawGrid(); } });
+        drawGrid();
+      } });
     const where = dead ? (d.death?.where ?? '') : (d.now?.where ?? d.now?.lastPlace ?? '');
     return h('section', { class: 'glass dhero' },
       feelingsHero(d, { onProfile: () => openPage('profile') }),

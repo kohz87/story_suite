@@ -59,8 +59,11 @@ const agendaOf = row => ({
   since: text(String(row.steps?.line ?? '').split('· since ')[1]), place: text(row.steps?.place) || text(row.fields?.where),
   next: text(row.fields?.then), why: '', toldThisReply: false,
 });
-// An open secret is told by its name alone (behindThread, queries.js:269); personId is a GAP.
-const secretOf = row => ({ title: text(row.key), text: '', state: 'held', personId: null });
+// An open secret is told by its name alone (behindThread, queries.js:269); the person is whose stored dossier holds a secret of that title (people.secretOwners), else null.
+const secretOf = owners => row => {
+  const owner = owners?.[text(row.key).toLowerCase()];
+  return { title: text(row.key), text: '', state: 'held', personId: owner?.id ?? null, ...(owner?.name ? { person: owner.name } : {}) };
+};
 
 function castOf(counts) {
   if (!counts || typeof counts !== 'object') return { total: 0, met: 0, unmet: 0, lastMoved: null };
@@ -108,7 +111,7 @@ export function selectStory(read, opts = {}) {
     newsOnWay: gate([], shown, x => x), // GAP: no query lists news still on the road
     agendas: gate(list(plan.agendas), shown, agendaOf),
     cast: castOf(read('director.cast.counts', {})),
-    secrets: gate(list(plan.secrets), shown, secretOf),
+    secrets: gate(list(plan.secrets), shown, secretOf(read('people.secretOwners', {}))),
     ripples: gate(sway, shown, row => ({ name: text(row.name), sway: number(row.sway) })),
     ...trackersOf(read),
   };
