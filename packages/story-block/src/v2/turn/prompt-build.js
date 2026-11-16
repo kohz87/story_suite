@@ -17,10 +17,11 @@ import { CORE_MODULE_ID } from '../domains/core/constants.js';
 import { rpgLib } from '../rpg-lazy.js';
 import { readRecord } from '../persist.js';
 import { hashText } from '../assist/common.js';
-import { KEPT_CHARS_MAX, KEPT_LINES_MAX, TIMED_OUT, defuseMacros, keptGiven, firstLine, mapContent, stripBattleMarker, substituteNames, within } from './text.js';
+import { KEPT_CHARS_MAX, KEPT_LINES_MAX, TIMED_OUT, defuseMacros, keptGiven, firstLine, mapContent, substituteNames, within } from './text.js';
 
 export { KEPT_LINES_MAX, KEPT_CHARS_MAX };
 export { KEPT_PRELUDE_TOKENS } from './prelude-run.js';
+import { stripMarkers } from '../interaction/markers.js';
 import { runPreludes } from './prelude-run.js';
 
 export function createPromptBuild(s, deps) {
@@ -116,7 +117,7 @@ export function createPromptBuild(s, deps) {
         for (const command of mine?.commands ?? []) requested.push({ moduleId: CORE_MODULE_ID, type: command.type, payload: command.payload ?? {}, seed: command.seed });
         // Other cues may settle a fight or change a modifier. Preview on the state they leave,
         // which is also the state the generated reply's prelude will start from.
-        const ran = runPreludes({ s, bus, store, problem }, { requested, cues, prechecks, previewState });
+        const ran = runPreludes({ s, bus, store, problem, kindOf: id => registry.interaction?.(id) }, { requested, cues, prechecks, previewState });
         if (ran.blocked) return { blocked: ran.blocked };
         ({ previewState, boardStop } = ran);
         const { keptPrelude } = ran;
@@ -393,8 +394,11 @@ export function createPromptBuild(s, deps) {
     }
     // Only while the RPG is on: with it off a reply's text goes into the prompt as it always did.
     const battleOn = () => registry.featureOn?.(CORE_FEATURE.leanRpg) === true;
+    // The marker words dropped from the history: `[battle]` while the RPG is on (the board's own gate), then each registered interaction kind's word whose marker feature is on.
+    const markers = () => [...(battleOn() ? ['battle'] : []), ...(registry.markerWords?.() ?? [])];
     function stripHistory(chat) {
-        const strip = battleOn() ? text => stripBattleMarker(strippedText(text)) : strippedText;
+        const words = markers();
+        const strip = words.length ? text => stripMarkers(strippedText(text), words) : strippedText;
         for (const message of chat) {
             if (message?.role !== 'assistant') continue;
             const content = mapContent(message.content, strip);
@@ -420,5 +424,5 @@ export function createPromptBuild(s, deps) {
         return marks.length > 0 && !marks.some(holds);
     }
 
-    return { runCues, build, askCanGenerate, runOnBlocked, interceptor, battleOn, stripHistory, backgroundPrompt, foreignPrompt };
+    return { runCues, build, askCanGenerate, runOnBlocked, interceptor, battleOn, markers, stripHistory, backgroundPrompt, foreignPrompt };
 }

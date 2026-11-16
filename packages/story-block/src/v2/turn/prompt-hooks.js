@@ -3,10 +3,11 @@
 // Story Block's text back where the preset dropped it. `createPromptHooks(s, deps)` is given the turn's state holder `s` and the
 // prompt-build parts it calls; it never imports turn.js.
 
-import { QUIET_KEEP, appendClosingCue, closingCue, QUIET_WAIT_MS, contentText, firstLine, mapContent, quietMark, restoreMissing, stripBattleMarker, textPattern } from './text.js';
+import { QUIET_KEEP, appendClosingCue, closingCue, QUIET_WAIT_MS, contentText, firstLine, mapContent, quietMark, restoreMissing, textPattern } from './text.js';
+import { stripMarkers } from '../interaction/markers.js';
 
 export function createPromptHooks(s, deps) {
-    const { ctx, isOwn, battleOn, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType } = deps;
+    const { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType } = deps;
 
     /** GENERATION_STARTED: (type, { quiet_prompt, … }, dryRun). A quiet generation's instruction is remembered (claimQuiet). */
     function onGenerationStarted(type, params, dryRun) {
@@ -73,7 +74,7 @@ export function createPromptHooks(s, deps) {
         const hidden = new RegExp(`\\s*<!--\\s*STORY_SUITE_V2\\b[\\s\\S]*?-->`, 'g');
         eventData.prompt = eventData.prompt.replace(hidden, '');
         if (HAS_LEGACY.test(eventData.prompt)) eventData.prompt = eventData.prompt.replace(LEGACY_IN_PROMPT, '');
-        if (battleOn()) eventData.prompt = stripBattleMarker(eventData.prompt);
+        eventData.prompt = stripMarkers(eventData.prompt, markers());
         if (quietPrompt(mark => eventData.prompt.includes(mark))) {
             for (const pattern of ownPatterns()) eventData.prompt = eventData.prompt.replace(pattern, '');
             return;

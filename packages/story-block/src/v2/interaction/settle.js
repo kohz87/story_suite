@@ -5,10 +5,10 @@ import { hashJson } from '../replay.js';
 import { interactionError, limitsFor } from './contract.js';
 import { deriveSteps } from './derive.js';
 import { dice, preludeDice } from './dice.js';
+import { INTERACTION_NOTE_TOKENS } from './note.js';
 import { isJson } from './preview.js';
 
 const UINT32 = 0xFFFFFFFF;
-const NOTE_TOKENS = 600; // provisional: I5 measures it and moves it to the tail budget
 const HASH = /^[0-9a-f]{64}$/u;
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => typeof value === 'string' && value.length > 0;
@@ -155,7 +155,7 @@ function checked(settled, kind, openingOnly, title) {
 function noteOf(kind, result, setup, title, limits, opening) {
     let lines;
     try {
-        lines = kind.note(result, setup, { tokens: limits.noteTokens ?? NOTE_TOKENS, opening });
+        lines = kind.note(result, setup, { tokens: limits.noteTokens ?? INTERACTION_NOTE_TOKENS, opening });
     } catch (error) {
         return { error: refused(error, title, 'write its note') };
     }
