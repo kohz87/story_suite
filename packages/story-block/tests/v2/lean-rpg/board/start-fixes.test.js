@@ -5,8 +5,8 @@ import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { knownFoeAction } from '../../../../src/v2/lean-rpg/board/action-gate.js';
 import { pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
 import { buildPanel, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { pendingStart } from '../../../../src/v2/turn/fight-start.js';
-import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
+import { pendingStart } from '../../../../src/v2/interaction/start-hold.js';
+import { openBoard } from '../../helpers/board-port.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
@@ -39,7 +39,7 @@ test('F1/B2: a stale event opens nothing, and a message with no fight never pops
     await settle();
     assert.equal(opened(), false, 'still nothing opened');
     assert.equal(doc.querySelector('.rpg-fight-pause'), null);
-    assert.equal(host.ctx.chatMetadata.rpgFightStart, undefined);
+    assert.equal(host.ctx.chatMetadata.storySuiteInteraction?.start, undefined);
 });
 
 test('F1: message A with no fight found leaves no pause and sends the reply', async () => {
@@ -48,7 +48,7 @@ test('F1: message A with no fight found leaves no pause and sends the reply', as
         const sent = await host.send(A, 'The boars pass by.');
         assert.equal(sent.aborted, undefined);
         assert.equal(pendingStart(host.ctx.chatMetadata, host.ctx.chat), null);
-        assert.equal(host.ctx.chatMetadata.rpgFightStart, undefined);
+        assert.equal(host.ctx.chatMetadata.storySuiteInteraction?.start, undefined);
     } finally { host.close(); restore(); }
 });
 
@@ -87,13 +87,13 @@ test('F3: the battle log calls a turn-order lead initiative, and leaves it to th
     }
 });
 
-// A fight narrated with no foes line gets one short tail cue on the next reply (turn/fight-start.js fightCue).
+// A fight narrated with no foes line gets one short tail cue on the next reply (lean-rpg/board/fight-start.js fightCue).
 const FIGHT = 'He struck down the first cutpurse, slashed the second, and the wounded third ran.';
 const dice = '? roll Astra | AGI | normal | 12';
 const mes = (story, ...lines) => ({ mes: `${story}\n<Changes>\n${lines.join('\n')}\n</Changes>` });
 
 test('fightCue: a fight in the prose with a roll and no foes line is told; each missing part stops it', async () => {
-    const { fightCue, FIGHT_CUE } = await import('../../../../src/v2/turn/fight-start.js');
+    const { fightCue, FIGHT_CUE } = await import('../../../../src/v2/lean-rpg/board/fight-start.js');
     assert.equal(fightCue(mes(FIGHT, dice, '+ item Rope')), FIGHT_CUE);
     assert.equal(fightCue(mes(FIGHT, dice, '+ dm foes - Ridge cutpurses x2 | kind: set-slot-1 | level: 3')), null, 'a foes line was written');
     assert.equal(fightCue(mes(FIGHT, dice, '+ dm Ridge cutpurses | kind: set-slot-1 | level: 3')), null, 'a set-slot line was written');
@@ -109,7 +109,7 @@ test('the cue reaches the next reply\'s tail only with the RPG on and no foe set
     const { createHost } = await import('../../../../testkit/index.js');
     const { CORE_FEATURE } = await import('../../../../src/v2/features.js');
     const { TAIL_KEY, STATIC_KEY } = await import('../../../../src/v2/turn.js');
-    const { FIGHT_CUE } = await import('../../../../src/v2/turn/fight-start.js');
+    const { FIGHT_CUE } = await import('../../../../src/v2/lean-rpg/board/fight-start.js');
     const run = async rpg => {
         const host = await createHost();
         t.after(() => host.close());
@@ -130,7 +130,7 @@ test('a swipe of the reply after the fight gets the same cue as the first try', 
     const { createHost } = await import('../../../../testkit/index.js');
     const { CORE_FEATURE } = await import('../../../../src/v2/features.js');
     const { TAIL_KEY } = await import('../../../../src/v2/turn.js');
-    const { FIGHT_CUE } = await import('../../../../src/v2/turn/fight-start.js');
+    const { FIGHT_CUE } = await import('../../../../src/v2/lean-rpg/board/fight-start.js');
     const host = await createHost();
     t.after(() => host.close());
     host.features.set(CORE_FEATURE.leanRpg, true);
@@ -202,8 +202,8 @@ test('stale foes: a pre-check that opens new foes leaves the stale group out of 
     assert.equal(sent.aborted, true);
     assert.equal(calls.length, 1);
     const held = pendingStart(host.ctx.chatMetadata, host.ctx.chat);
-    assert.equal(held?.mode, 'new');
-    const preview = host.turn.fightStartPreview();
+    assert.ok(held?.opening && held.mode !== 'working', 'the new foes are held with their opening');
+    const preview = host.turn.interactionStartPreview();
     assert.deepEqual(standing(preview.state), ['1:Ratsx6'], 'the boars no longer stand, the rats took the freed slot');
     const board = openBoard(host.ctx.chatMetadata, preview.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
     assert.equal(board.session.groups.length, 1, 'the board fights the rats only');

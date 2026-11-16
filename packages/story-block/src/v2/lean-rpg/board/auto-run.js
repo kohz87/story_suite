@@ -1,10 +1,8 @@
-// Plays Auto exchanges on the staged board session, one ordinary exchange at a time.
-// Each pick set goes through stageExchange like a reader's own choice, so replay, the log and XP see nothing special.
+// Plays Auto exchanges on the open fight, one ordinary exchange at a time.
+// Each pick set is staged by the interaction api like a reader's own choice, so replay, the log and XP see nothing special.
 // It stops at the cap, a won or lost fight, or a hero badly hurt, and says why in one plain line.
 
-import { autoPicks, autoStop, hurtHeroes } from './auto.js';
-import { equipmentForBoard, playBoard } from './engine.js';
-import { boardSession, stageExchange } from './session.js';
+import { autoStop, hurtHeroes } from './auto.js';
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
@@ -21,28 +19,23 @@ export function autoNote({ stop, done, who = [], waiting = false } = {}) {
 }
 
 /**
- * runAuto({ meta, state, rules, cap, stage })
- * `cap` is the most exchanges this run may play (Infinity for "until the end"). `state` is the live sheet the staging reads.
+ * runAuto({ api, cap })
+ * `api` is `sdk.interaction`; `cap` is the most exchanges this run may play (Infinity for "until the end").
  * → { done, stop, who, error? }. `stop` is 'won', 'lost', 'hurt', 'cap', 'none' (no pick to make) or 'error'.
  */
-export function runAuto({ meta, state, rules, cap = 3, stage = stageExchange } = {}) {
-    let done = 0, last = null;
+export function runAuto({ api, cap = 3 } = {}) {
+    let done = 0;
     for (;;) {
-        const session = boardSession(meta);
-        if (!session) return { done, stop: 'error', who: [], error: 'There is no fight to play.' };
-        const now = playBoard(state, session.setup, session.exchanges);
-        if (now.error) return { done, stop: 'error', who: [], error: now.error };
-        if (now.result.stop !== 'open') return { done, stop: now.result.stop, who: [] };
+        const now = api?.current?.();
+        if (!now) return { done, stop: 'error', who: [], error: 'There is no fight to play.' };
+        const before = now.view?.result;
+        if (!before) return { done, stop: 'error', who: [], error: 'The fight could not be played.' };
+        if (before.stop !== 'open') return { done, stop: before.stop, who: [] };
         if (done >= cap) return { done, stop: 'cap', who: [] };
-        const gear = session.setup.gear ? equipmentForBoard(now.state, session.setup.gear) : {};
-        const number = session.setup.offset + session.exchanges.length + 1;
-        const picks = autoPicks({ state: now.state, setup: { ...session.setup, ...gear }, members: now.result.members, number }, rules);
-        if (!picks.length) return { done, stop: 'none', who: [] };
-        const staged = stage(meta, state, picks);
-        if (staged.error) return { done, stop: 'error', who: [], error: staged.error };
+        const staged = api.auto(now.id, 1);
+        if (!staged.ok) return { done, stop: /nothing to do/iu.test(String(staged.message)) ? 'none' : 'error', who: [], ...(/nothing to do/iu.test(String(staged.message)) ? {} : { error: staged.message }) };
         done += 1;
-        last = staged.preview.result;
-        const stop = autoStop(last, { cap, done });
+        const last = staged.view?.result, stop = autoStop(last, { cap, done });
         if (stop === 'hurt') return { done, stop, who: hurtHeroes(last) };
         if (stop) return { done, stop, who: [] };
     }

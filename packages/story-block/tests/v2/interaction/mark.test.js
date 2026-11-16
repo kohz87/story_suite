@@ -10,6 +10,8 @@ import { growKind, kindModule } from './helpers/core-kind.js';
 const BEFORE_KINDS = ({ registry, rpg = true }) => `${registry.modules()
     .filter(def => typeof def?.hooks?.replayGuard === 'function' && def.hooks.replayGuard.hostOwned !== true && registry.held?.(def.id) !== true).map(def => `${def.id}@${def.version ?? ''}`).join(',')}${rpg ? '' : ';rpg:missing'}`;
 
+// The core module registers the fight kind (I6), so the real mark always carries its one entry (plan §2.4: the `;kinds:` mark moves once, and is said so in the PR).
+const FIGHT = host => `;kinds:story-block/fight@${host.registry.module('story-block').version}:${host.registry.interaction('story-block/fight').ready() ? 1 : 0}`;
 const realMark = host => createGuards({ registry: host.registry, findQuery: () => null }).guardMark();
 
 // The mark over a registry we can change: the modules, their readiness, and held state.
@@ -18,11 +20,11 @@ function markOf(modules, held = () => false) {
     return createGuards({ registry, findQuery: () => null }).guardMark();
 }
 
-test('no kind registered: the mark is the mark it was, with no suffix', async () => {
+test('only the core\'s fight kind registered: the mark is the mark it was plus that one entry; with no kind at all, no suffix', async () => {
     const host = await createHost();
     try {
-        assert.equal(realMark(host), BEFORE_KINDS({ registry: host.registry }));
-        assert.ok(!realMark(host).includes('kinds'));
+        assert.equal(realMark(host), `${BEFORE_KINDS({ registry: host.registry })}${FIGHT(host)}`);
+        assert.equal(realMark(host).split(';kinds:').length, 2, 'one kinds entry');
     } finally { host.close(); }
     assert.equal(markOf([]), '');
     assert.equal(markOf([{ id: 'plain', version: '1', interactions: {} }]), '');
@@ -34,7 +36,7 @@ test('a module without a kind keeps the real mark when another module registers 
     const kind = await createHost({ modules: [kindModule(growKind())] });
     try {
         const was = realMark(plain);
-        assert.equal(realMark(kind), `${was};kinds:test/probe@1.0.0:1`);
+        assert.equal(realMark(kind), `${was},test/probe@1.0.0:1`);
     } finally { plain.close(); kind.close(); }
 });
 

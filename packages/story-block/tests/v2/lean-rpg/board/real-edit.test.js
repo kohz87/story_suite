@@ -6,8 +6,9 @@ import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
+import { isBoardFight } from './commit.helpers.js';
 
 for (const [label, otherCount] of [['real only', 1], ['mixed', 2]]) test(`NEW5: ${label} commits and replays a live lone-foe edit`, async () => {
     const restore = seedCrypto(81), rules = { ...STANDARD_FORMULA, levelDivisor: 5 };
@@ -56,7 +57,7 @@ for (const [label, otherCount] of [['real only', 1], ['mixed', 2]]) test(`NEW5: 
         assert.equal(move.from, 4);
         const sent = await host.send('Strike again.', 'The bat reels.');
         assert.equal(sent.aborted, undefined);
-        const receipt = host.ctx.chat[sent.index].extra.storySuite.receipts.find(entry => entry.type === 'rpg.resolve' && entry.replan?.payload?.board);
+        const receipt = host.ctx.chat[sent.index].extra.storySuite.receipts.find(isBoardFight);
         const recorded = receipt.data.v2.result.hurts.find(hurt => hurt.id === 'f:1');
         assert.deepEqual([recorded.from, recorded.to], [move.from, move.to]);
         assert.equal(readSheet(host.head()).foes[0].hurt, move.to);

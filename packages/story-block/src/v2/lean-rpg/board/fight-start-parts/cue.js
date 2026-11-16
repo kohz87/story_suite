@@ -1,6 +1,6 @@
 // The next-reply cue for a fight narrated with no foes line.
 
-import { extractBlock, parseChanges, stripBlock } from '../../capture.js';
+import { extractBlock, parseChanges, stripBlock } from '../../../capture.js';
 
 // The next-reply cue for a fight narrated with no Foes line (it would never be fought on the board): the reply before reads as a fight (at least
 // FIGHT_WORDS_MIN different fight words in its story, and a `? roll` line) and wrote no foes line, and no foe is set now. Gated by the caller on the

@@ -52,3 +52,21 @@ test('clearFoes empties the named groups only, by the block\'s own clear kind', 
         assert.equal(foe(host).filled, true, 'the live head is untouched');
     } finally { host.close(); }
 });
+
+test('openFoes is internal, refuses a damaged list whole, and puts a new group into a free slot by the block\'s own kind', async () => {
+    const host = await fxHost();
+    try {
+        const before = JSON.stringify(host.head().domains.dataModules), open = [{ name: 'Marsh Wraith', count: 2, level: 3 }];
+        assert.equal(run(host, 'rpg.board.openFoes', { open }, 'ui').code, 'REFUSED');
+        for (const bad of [null, {}, { open: [] }, { open: 'x' }, { open: [{ name: '', count: 1 }] }, { open: [{ name: 'A', count: 'x' }] }, { open: Array(65).fill(open[0]) }]) {
+            const out = run(host, 'rpg.board.openFoes', bad);
+            assert.equal(out.ok, false, JSON.stringify(bad)?.slice(0, 60));
+            assert.equal(out.code, 'INVALID');
+        }
+        assert.equal(JSON.stringify(host.head().domains.dataModules), before, 'nothing was written');
+        const out = run(host, 'rpg.board.openFoes', { open, fix: 3 });
+        assert.equal(out.ok, true, out.message);
+        assert.ok(readSheet(out.state).foes.some(item => item.filled && item.name === 'Marsh Wraith'), 'the new group stands in the Foes block');
+        assert.equal(out.receipt.data.opened.length, 1);
+    } finally { host.close(); }
+});

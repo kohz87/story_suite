@@ -11,7 +11,8 @@ import { practiceLines } from '../../../../src/v2/lean-rpg/view/changes-lines.js
 import { reply, success } from '../../data-modules/helpers.js';
 import { character, sheetDomain, skillBlock, tailOf } from '../helpers.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
+import { isBoardFight } from '../board/commit.helpers.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { LIMITS } from '../../../../src/v2/lean-rpg/names.js';
 import { rulesOf } from '../../../../src/v2/lean-rpg/checks/dice-parts/shared-checks.js';
@@ -80,7 +81,7 @@ test('a board fight and a separate Obscure check pay the skills actually used an
     const { host } = await boardWorld(t);
     const before = [sheet(host).practice1, sheet(host).practice4];
     await host.send('I hide with Obscure, then engage.', after(host, dice => `Story.\n<Changes>\n? roll Astra | Obscure | normal | ${dice[0]}\n</Changes>`));
-    assert.ok(records(host).receipts.some(receipt => receipt.type === 'rpg.resolve' && receipt.replan?.payload?.board));
+    assert.ok(records(host).receipts.some(receipt => isBoardFight(receipt)));
     assert.ok(diceOf(host));
     assert.match(tailOf(host.st.requests.at(-1)), /the fight board already rolled every exchange/u);
     const fightPractice = records(host).receipts.filter(receipt => receipt.type === 'rpg.practice').flatMap(receipt => receipt.data.v2.result.practice.skills);
@@ -122,17 +123,17 @@ test('an empty continuation and an unlinked cached fight do not carry into later
     assert.equal(boardSession(meta).exchanges.length, 0);
     await host.send('I inspect the tracks.', 'The ground is wet.');
     assert.ok(diceOf(host));
-    assert.equal(records(host).receipts.some(receipt => receipt.type === 'rpg.resolve' && receipt.replan?.payload?.board), false);
+    assert.equal(records(host).receipts.some(receipt => isBoardFight(receipt)), false);
     assert.equal(records(host).receipts.some(receipt => receipt.type === 'rpg.fight'), false);
     const anchor = host.ctx.chat.at(-3).extra.storySuite.sid;
-    meta.rpgFightLast.board.anchor = anchor;
+    meta.storySuiteInteraction.last.anchor = anchor;
     await host.regenerate('The ground is muddy.');
     assert.ok(diceOf(host));
-    assert.equal(records(host).receipts.some(receipt => receipt.type === 'rpg.resolve' && receipt.replan?.payload?.board), false);
+    assert.equal(records(host).receipts.some(receipt => isBoardFight(receipt)), false);
     const next = stageExchange(meta, host.head(), [{ who: 'Astra', kind: 'attack', target: 11 }]);
     assert.equal(next.error, undefined, next.error);
     await host.send('The clash resumes.', 'Another exchange.');
-    assert.ok(records(host).receipts.some(receipt => receipt.type === 'rpg.resolve' && receipt.replan?.payload?.board));
+    assert.ok(records(host).receipts.some(receipt => isBoardFight(receipt)));
 });
 
 test('Rolls Off with Story checks on: the dice and the grammar line both stay (the switch is Story checks alone; Rolls is for fights)', { skip }, async t => {

@@ -7,7 +7,8 @@ import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { autoPicks } from '../../../../src/v2/lean-rpg/board/auto.js';
 import { autoNote, runAuto } from '../../../../src/v2/lean-rpg/board/auto-run.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { toExchanges } from '../../../../src/v2/lean-rpg/board/interaction.js';
+import { boardApi, boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, rollReceipt, setup, sheetDomain } from '../helpers.js';
 
@@ -25,51 +26,51 @@ const fresh = blocks => {
     const meta = {}, state = stateOf(blocks);
     const opened = openBoard(meta, state, { sid: 'sid-auto', rules: RULES });
     assert.equal(opened.error, undefined, opened.error);
-    return { meta, state };
+    return { meta, state, api: boardApi(meta, state, 'sid-auto') };
 };
+// A stand-in for the port with a fixed open fight: `auto` answers what the test hands it.
+const standIn = auto => ({ current: () => ({ id: 'fight', view: { result: { stop: 'open' } } }), auto });
 
 test('Auto stops at the cap: exactly that many exchanges, and a second run plays that many more', () => {
     for (const cap of [1, 2, 3]) {
-        const { meta, state } = fresh(sturdy);
-        const ran = runAuto({ meta, state, rules: RULES, cap });
+        const { meta, api } = fresh(sturdy);
+        const ran = runAuto({ api, cap });
         if (ran.stop === 'cap') assert.equal(boardSession(meta).exchanges.length, cap);
         assert.equal(ran.done, boardSession(meta).exchanges.length);
         assert.ok(['cap', 'hurt', 'won', 'lost'].includes(ran.stop));
         assert.ok(ran.done >= 1 && ran.done <= cap);
     }
-    const { meta, state } = fresh(sturdy);
-    const first = runAuto({ meta, state, rules: RULES, cap: 1 });
+    const { meta, api } = fresh(sturdy);
+    const first = runAuto({ api, cap: 1 });
     assert.equal(first.done, 1);
     if (first.stop === 'cap') {
-        const again = runAuto({ meta, state, rules: RULES, cap: 1 });
+        const again = runAuto({ api, cap: 1 });
         assert.equal(boardSession(meta).exchanges.length, 1 + again.done, 'Auto again continues from the staged exchanges');
     }
 });
 
 test('"Until the end" plays to a won fight and then says so; a finished fight plays nothing more', () => {
-    const { meta, state } = fresh(weak);
-    const ran = runAuto({ meta, state, rules: RULES, cap: Infinity });
+    const { meta, state, api } = fresh(weak);
+    const ran = runAuto({ api, cap: Infinity });
     assert.equal(ran.stop, 'won');
     assert.ok(ran.done >= 1);
-    const again = runAuto({ meta, state, rules: RULES, cap: Infinity });
+    const again = runAuto({ api, cap: Infinity });
     assert.deepEqual([again.done, again.stop], [0, 'won']);
     assert.equal(playBoard(state, boardSession(meta).setup, boardSession(meta).exchanges).result.stop, 'won');
 });
 
 test('a hero hurt by 2 blocks stops Auto and is named; the cap does not hide a won fight', () => {
-    const { meta, state } = fresh(sturdy);
     const heavy = { rounds: [{ lines: [{ kind: 'foe', pc: { who: 'Astra' }, damage: { id: 'c:hero', kind: 'char', from: 5, to: 3, blocks: 2 } }] }], stop: 'open' };
-    const ran = runAuto({ meta, state, rules: RULES, cap: 5, stage: () => ({ preview: { result: heavy } }) });
+    const ran = runAuto({ api: standIn(() => ({ ok: true, view: { result: heavy } })), cap: 5 });
     assert.deepEqual([ran.done, ran.stop, ran.who], [1, 'hurt', ['Astra']]);
-    const won = runAuto({ meta, state, rules: RULES, cap: 1, stage: () => ({ preview: { result: { ...heavy, rounds: [{ lines: [] }], stop: 'won' } } }) });
+    const won = runAuto({ api: standIn(() => ({ ok: true, view: { result: { ...heavy, rounds: [{ lines: [] }], stop: 'won' } } })), cap: 1 });
     assert.equal(won.stop, 'won');
 });
 
 test('a refused exchange ends the run with the board\'s own words', () => {
-    const { meta, state } = fresh(sturdy);
-    const ran = runAuto({ meta, state, rules: RULES, cap: 3, stage: () => ({ error: 'Nope.' }) });
+    const ran = runAuto({ api: standIn(() => ({ ok: false, message: 'Nope.' })), cap: 3 });
     assert.deepEqual([ran.done, ran.stop, ran.error], [0, 'error', 'Nope.']);
-    assert.equal(runAuto({ meta: {}, state, rules: RULES }).stop, 'error');
+    assert.equal(runAuto({ api: boardApi({}, stateOf(sturdy), 'sid-auto') }).stop, 'error', 'no fight is open');
 });
 
 test('the one-line stop note names the reason', () => {
@@ -82,8 +83,8 @@ test('the one-line stop note names the reason', () => {
 });
 
 test('Auto\'s staged exchanges are the same records as picking the same actions by hand', () => {
-    const { meta, state } = fresh(sturdy);
-    const ran = runAuto({ meta, state, rules: RULES, cap: 3 });
+    const { meta, api } = fresh(sturdy);
+    const ran = runAuto({ api, cap: 3 });
     const by = boardSession(meta);
     const hand = { meta: {}, state: stateOf(sturdy) };
     openBoard(hand.meta, hand.state, { sid: 'sid-auto', rules: RULES });
@@ -104,14 +105,14 @@ test('the same seed gives the same Auto exchanges, and the reply that carries th
     try {
         const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());
         assert.equal(openBoard(meta, host.head(), { sid, rules: RULES }).error, undefined);
-        const ran = runAuto({ meta, state: host.head(), rules: RULES, cap: 2 });
+        const ran = runAuto({ api: boardApi(meta, () => host.head(), sid), cap: 2 });
         const staged = structuredClone(boardSession(meta));
         const preview = playBoard(host.head(), staged.setup, staged.exchanges).result;
         assert.ok(ran.done >= 1);
         await host.send('Fight.', 'The fight is told.');
         const result = rollReceipt(host, 2).data.v2.result, rounds = structuredClone(result.rounds);
         assert.deepEqual(rounds, preview.rounds, 'live equals the previewed Auto exchanges');
-        assert.deepEqual(rollReceipt(host, 2).replan.payload.board.exchanges, staged.exchanges);
+        assert.deepEqual(toExchanges(rollReceipt(host, 2).replan.payload.steps), staged.exchanges);
         await host.swipe('Told again.');
         assert.deepEqual(rollReceipt(host, 2).data.v2.result.rounds, rounds, 'a swipe keeps the Auto exchanges');
         assert.equal((await host.sdk.reread(2)).ok, true);

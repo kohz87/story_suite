@@ -9,17 +9,22 @@ import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { memberXp } from '../../../../src/v2/lean-rpg/fight.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { carriedFrom } from '../../../../src/v2/lean-rpg/board/members.js';
-import { boardSession, discardBoard, openBoard, receiveBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../helpers/board-port.js';
+import { interactionPayload } from '../../../../src/v2/interaction/session.js';
+import { receiveSegment } from '../../../../src/v2/interaction/carry.js';
+import { fightKind } from '../../../../src/v2/lean-rpg/board/interaction.js';
+import { toStep } from '../../../../src/v2/lean-rpg/board/steps.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, sheetDomain, skillBlock } from '../helpers.js';
 
 test('more than 40 board skills earn practice once through swipe and Re-read', async () => {
     const restore = seedCrypto(21);
     const blocks = { foes: { role: 'foes', fields: foeBlock([['Rats', 1, 99, 5], ['Bats', 1, 99, 5], ['Spiders', 1, 99, 5], ['Snakes', 1, 99, 5]]) } };
-    for (let i = 0; i < 24; i += 1) {
+    // (a step takes at most 12 inputs on the port: twelve fighters with four skills each still pass 40 distinct skills)
+    for (let i = 0; i < 12; i += 1) {
         const n = String(i).padStart(2, '0'), who = `Fighter ${n}`;
         blocks[`hero${n}`] = { role: 'character', fields: character(who, { str: 3, agi: 20, vit: 20, health: 5, stamina: 4 }) };
-        blocks[`skills${n}`] = { role: 'skills', fields: skillBlock(who, [[`Poke ${n}`, 1, 'str', 'stamina', 'strike one foe'], [`Slash ${n}`, 1, 'str', 'stamina', 'strike one foe']]) };
+        blocks[`skills${n}`] = { role: 'skills', fields: skillBlock(who, ['Poke', 'Slash', 'Jab', 'Hack'].map(name => [`${name} ${n}`, 1, 'str', 'stamina', 'strike one foe'])) };
     }
     const { host, callModel } = await setup({ blocks, board: true });
     try {
@@ -31,7 +36,7 @@ test('more than 40 board skills earn practice once through swipe and Re-read', a
             for (let n = 0; n < 12; n += 1) {
                 const sheet = readSheet(preview?.state ?? state), target = sheet.foes.find(foe => foe.filled && foe.hurt > 0)?.slot;
                 const actions = sheet.characters.filter(actor => actor.alive !== false && actor.health !== 0).map(actor => actor.stamina > 0
-                    ? { who: actor.who, kind: 'skill', skill: actor.skills[n % 2].name, target } : { who: actor.who, kind: 'attack', target });
+                    ? { who: actor.who, kind: 'skill', skill: actor.skills[n % 4].name, target } : { who: actor.who, kind: 'attack', target });
                 staged = stageExchange(meta, state, actions);
                 if (staged.error) break;
                 preview = staged.preview;
@@ -49,7 +54,7 @@ test('more than 40 board skills earn practice once through swipe and Re-read', a
             const awarded = receipts.flatMap(receipt => receipt.data.v2.result.practice.skills);
             assert.equal(awarded.length, uses.length);
             for (const { who, skill, n } of uses) {
-                const actor = who.slice(-2), slot = skill.startsWith('Poke ') ? 1 : 2;
+                const actor = who.slice(-2), slot = ['Poke', 'Slash', 'Jab', 'Hack'].indexOf(skill.split(' ')[0]) + 1;
                 const value = host.head().domains.dataModules.instances[`pack.chat/skills${actor}`].chat.fields[`practice${slot}`];
                 assert.equal(value, Math.min(20, n * 3), `${who}'s ${skill} is paid once`);
             }
@@ -165,9 +170,9 @@ test('A1: a count-three win across replies pays its original-count XP once, with
     try {
         const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex()), rules = { ...STANDARD_FORMULA, levelDivisor: 5 };
         const findWin = (initial, original) => {
-            let state = initial, local = { rpgFightBoard: structuredClone(original) };
+            let state = initial, local = { open: structuredClone(original) };
             for (let i = 0; i < 10; i += 1) {
-                const board = structuredClone(local.rpgFightBoard), before = playBoard(state, board.setup, []);
+                const board = structuredClone(local.open), before = playBoard(state, board.setup, []);
                 const target = before.result?.members?.find(member => member.standing)?.slot;
                 if (!target) return false;
                 const actions = [{ who: 'Astra', kind: 'attack', target }], played = playBoard(state, board.setup, [{ actions }]);
@@ -175,8 +180,8 @@ test('A1: a count-three win across replies pays its original-count XP once, with
                 state = played.state;
                 if (played.result.stop === 'won') return i >= 2;
                 if (played.result.stop !== 'open') return false;
-                board.exchanges = [{ actions }];
-                receiveBoard(local, { key: `b:${i}`, board }, played.result, `reply${i}`, `receipt${i}`, state);
+                const payload = interactionPayload({ ...board, steps: [toStep(state, actions)] });
+                receiveSegment(local, fightKind, payload, played.result, `reply${i}`, `receipt${i}`, state);
             }
             return false;
         };
@@ -184,7 +189,7 @@ test('A1: a count-three win across replies pays its original-count XP once, with
         for (attempt = 0; attempt < 150; attempt += 1) {
             const opened = openBoard(meta, host.head(), { sid, rules });
             assert.equal(opened.error, undefined);
-            if (findWin(host.head(), opened.session)) break;
+            if (findWin(host.head(), meta.storySuiteInteraction.open)) break;
             discardBoard(meta);
         }
         assert.ok(attempt < 150, 'found a multi-reply count-three win');

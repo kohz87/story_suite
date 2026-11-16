@@ -8,6 +8,8 @@ import { receiptCue } from '../../../src/v2/lean-rpg/cue.js';
 import { legacyPlanner } from './legacy-planner.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
 import { FOE_LEVEL } from '../../../src/v2/lean-rpg/foes.js';
+import { fightKind } from '../../../src/v2/lean-rpg/board/interaction.js';
+import { createInteractionCommands, interactionGuardFor } from '../../../src/v2/domains/core/interaction-part.js';
 
 export const OWNER = 'story-block';
 
@@ -103,8 +105,11 @@ export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature
         id: OWNER, name: 'Story Block (RPG test)', version: '0.0.1',
         features: [{ id: LEAN_RPG_FEATURE, label: 'RPG', describe: 'Test.', default: false }, { id: CORE_FEATURE.fightBoard, label: 'Fight board', describe: 'Test.', default: false }],
         domains: { dataModules: { initial: () => sheetDomain(blocks) } },
+        // The fight board is an interaction kind (I6): the module registers it, and the core's `interaction.settle` and its guard stand in for the core module this host does not have.
+        interactions: { fight: fightKind },
         commands: {
             ...part.commands,
+            ...createInteractionCommands({ kindOf: id => host.registry.interaction(id) }),
             'test.set'(ctx, { slug, field, value }) {
                 ctx.draft('dataModules').instances[`pack.chat/${slug}`].chat.fields[field] = value;
                 return { summary: `${slug}.${field} = ${value}`, narrate: false };
@@ -123,7 +128,7 @@ export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature
             // (every variant is a roll planned before the Levels rules: no `lv` in the payload and no `levelDivisor` in its numbers)
             return out?.commands ? { ...out, commands: out.commands.map(({ payload: { dice, flow, lv: _lv, rules: { levelDivisor: _d, ...rules }, ...payload }, ...command }) => ({ ...command,
                 payload: earlier ? { ...payload, rules } : levelless || lvless ? { ...payload, rules, dice, flow } : { ...payload, rules, dice } })) } : out;
-        }) } : {}), replayGuard: part.guard },
+        }) } : {}), replayGuard: (view, info) => (info?.guard?.predicate?.kind === 'interaction' ? interactionGuardFor(id => host.registry.interaction(id))(view, info) : part.guard(view, info)) },
         settings: { defaults: { ...part.settings.defaults } },
     };
     host = await createHost({ core: false, modules: [module], settings: { modules: { [OWNER]: { ...settings } } } });
@@ -134,7 +139,8 @@ export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature
 
 export const tailOf = request => request.chat.filter(message => message.role === 'system').map(message => message.content).join('\n');
 export const recordOf = (host, index) => host.ctx.chat[index].extra.storySuite;
-export const rollReceipt = (host, index) => recordOf(host, index).receipts.find(receipt => receipt.type === 'rpg.resolve');
+// (a fight is an `interaction.settle` of the fight kind since I6; its opening settle is not the roll the tests look for, and a fight from before the port is a board `rpg.resolve`)
+export const rollReceipt = (host, index) => recordOf(host, index).receipts.find(receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight' && receipt.replan.payload.opening !== true) ?? recordOf(host, index).receipts.find(receipt => receipt.type === 'rpg.resolve');
 export { ROLLS_SETTING };
 /** The cue a roll's receipt tells: stage 51 stores no copy of it on the receipt, so it is built from the record (old receipts carry the text). */
 export const cueOf = receipt => receiptCue(receipt);

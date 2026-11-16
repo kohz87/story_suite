@@ -172,7 +172,10 @@ test('send note: a fight hold shows "Open fight board", which opens the board; t
     const r = pageRig();
     r.page.held = true;
     r.press();
-    assert.equal(r.pill().querySelector('.ss-send-note-text').textContent, SEND_NOTE_TEXT.fightHeld);
+    assert.equal(r.pill().querySelector('.ss-send-note-text').textContent, SEND_NOTE_TEXT.interactionHeld);
+    // (the words the reader sees did not move with the generic names: I6, plan 6.2)
+    assert.equal(r.pill().querySelector('.ss-send-note-text').textContent, "Your fight hasn't been sent yet");
+    assert.equal(r.pill().querySelector('.ss-send-note-btn').textContent, 'Open fight board');
     r.pill().querySelector('.ss-send-note-btn').click();
     assert.equal(r.page.boards, 1);
     r.page.held = false;

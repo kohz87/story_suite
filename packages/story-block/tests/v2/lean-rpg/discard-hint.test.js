@@ -3,17 +3,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { boardFailure, restoreHint } from '../../../src/v2/turn/held-board.js';
 
 const WHERE = '(Fight tab, Discard fight)';
-const FILES = ['lean-rpg/precall.js', 'lean-rpg/board/view.js', 'lean-rpg/board/commit.js', 'lean-rpg/board/session.js',
-    'lean-rpg/board/start-controller.js', 'lean-rpg/board/engine.js', 'turn/held-board.js', 'turn/held-board-parts/failure.js', 'turn/held-board-parts/held.js', 'turn/held-board-parts/board-state.js', 'turn/reread.js', 'turn/events.js', 'turn/prompt-build.js'];
+// The held-board helpers are gone; the fight's own notices live in these files now.
+const FILES = ['lean-rpg/precall.js', 'lean-rpg/board/view.js', 'lean-rpg/board/commit.js', 'lean-rpg/board/port-session.js',
+    'lean-rpg/board/start-controller.js', 'lean-rpg/board/engine.js', 'lean-rpg/board/engine-parts/play.js'];
 
-test('discard advice in held-board helpers names the Fight tab button', () => {
-    assert.ok(restoreHint('x').includes(`discard the fight ${WHERE}.`));
-    assert.ok(restoreHint('x', ' before retrying.').includes(`${WHERE} before retrying.`));
-    assert.equal(restoreHint('Discard it and start again'), '');
-    assert.ok(boardFailure('Could not save:', 'sheet moved').endsWith(`discard the fight ${WHERE}.`));
+test('the fight notices that tell the reader to discard name the Fight tab button', () => {
+    const text = readFileSync(new URL('../../../src/v2/lean-rpg/board/commit.js', import.meta.url), 'utf8');
+    assert.ok(text.includes(`discard the fight ${WHERE}.`));
 });
 
 test('no shipped string tells the reader to discard without saying where', () => {

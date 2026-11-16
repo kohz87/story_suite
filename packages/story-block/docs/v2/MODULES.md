@@ -646,8 +646,8 @@ These settle questions agents raised; the host changes they need are made at int
     and a typed attack on a standing foe is held with only those two choices. **Auto** plays up to `rpgAutoCap` exchanges of ordinary attacks and never flees. On the board the reader chooses their own
     character's exchange from lines the code validates: Attack, a usable skill (one target or every foe in reach), or Flee,
     for each standing party member. Automatic defence, foe actions, the dice and every bar change are settled by code, never
-    by a button that asks the narrator to invent a story action. Unsent exchanges live in `chatMetadata.rpgFightBoard`; the
-    first message sent carries them through the reply's one `rpg.resolve`, and an open fight continues. A swipe keeps the
+    by a button that asks the narrator to invent a story action. Unsent exchanges live in the interaction scratch (`chatMetadata.storySuiteInteraction.open`); the
+    first message sent carries them through the reply's one `interaction.settle` of `story-block/fight`, and an open fight continues. A swipe keeps the
     recorded setup, fixed fight seed and actions; exchanges are final and a Discard before sending changes the next seed. Skills may carry the three
     optional flags `target`, `area` and `defence`, defaulted from their wording and stored as reply-owned entries under
     `dataModules.boardFlags` (see DATA_MODULES.md). The board stops only won, lost or fled; a won board fight pays the fight

@@ -31,6 +31,8 @@ export { grownSkills } from './templates.js';
 export { setStartNotes, skipOf, startNotes } from './start.js';
 export { claimed, createPrecall } from './precall.js';
 export { boardInputError } from './board/commit.js';
+export { fightKind } from './board/interaction.js';
+export { rosterOf } from './roster.js';
 export { dropOf } from './ambush.js';
 export { foesOf, rpgBlocks } from './view/party-data.js';   // (the prompt's fight cue reads them through rpgLib: the page start must not load them)
 export { narratedFoeGrammar } from './board/narrated-grammar.js';

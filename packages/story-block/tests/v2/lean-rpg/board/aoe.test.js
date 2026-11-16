@@ -8,7 +8,7 @@ import { autoPicks } from '../../../../src/v2/lean-rpg/board/auto.js';
 import { memberRolls } from '../../../../src/v2/lean-rpg/board/member-rolls.js';
 import { boardFoes, splitFoes } from '../../../../src/v2/lean-rpg/board/members.js';
 import { exchangePlan } from '../../../../src/v2/lean-rpg/board/plan.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
 import { memberGroups } from '../../../../src/v2/lean-rpg/board/view-data.js';
 import { earnedLegend, wearGear } from '../../../../src/v2/lean-rpg/gear.js';

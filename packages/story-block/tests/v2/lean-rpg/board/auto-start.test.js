@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CORE_FEATURE } from '../../../../src/v2/features.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { boardSession } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession } from '../../helpers/board-port.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 

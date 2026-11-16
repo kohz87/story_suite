@@ -9,7 +9,8 @@ import { planGear } from '../../../../src/v2/lean-rpg/gear.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
-import { discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { discardBoard, openBoard, stageExchange } from '../../helpers/board-port.js';
+import { isBoardFight } from './commit.helpers.js';
 
 test('the settled note states the defender verdict and keeps each wear event in its exchange', () => {
     const line = outcome => ({ kind: 'foe', pc: { who: 'Astra' }, foe: { name: 'Rats' }, skill: 'Dodge', outcome });
@@ -138,7 +139,7 @@ test('the carried prompt includes recorded worn and broken gear at their exchang
     }
     assert.ok(found, 'a seeded exchange wears both pieces');
     const sent = await host.send('I strike.', 'A clash.');
-    const receipt = host.ctx.chat.at(-1).extra.storySuite.receipts.find(item => item.type === 'rpg.resolve');
+    const receipt = host.ctx.chat.at(-1).extra.storySuite.receipts.find(isBoardFight);
     assert.ok(receipt.data.v2.result.wear.some(item => item.item === 'Cane Sword' && item.to === 'worn'));
     assert.ok(receipt.data.v2.result.wear.some(item => item.item === 'Coat' && item.to === 'broken'));
     const prompt = sent.request.chat.filter(message => message.role === 'system').map(message => message.content).join('\n');

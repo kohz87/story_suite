@@ -87,7 +87,7 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
                 return commands.length ? { commands } : undefined;
             },
             // Every reply, whatever else answers afterCapture and with or without change lines: the one-time "send without the RPG" flag goes.
-            afterReceive: (view, info) => { precall.afterCapture(view); precall.afterReceive(info, view.state, (name, args) => view.query(name, { ...args, recorded: true })); },
+            afterReceive: view => { precall.afterCapture(view); },
         },
         settings: { defaults: { ...DEFAULT_SETTINGS }, schema: SETTINGS_SCHEMA },
         guard: leanRpgGuard,

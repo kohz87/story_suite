@@ -3,7 +3,7 @@
 
 import { readRecord } from '../../persist.js';
 import { fold, readSheet } from '../read.js';
-import { boardSession } from './session.js';
+import { openFight as boardSession } from './port-session.js';
 import { isRollReceipt } from './results.js';
 import { offerLineData } from './start-view-data.js';
 

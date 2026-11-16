@@ -13,6 +13,8 @@ import { standing } from './plan.js';
 import { hardFightFor } from './flags.js';
 import { boardFlags } from './overrides.js';
 import { BOARD_CLEAR_FOES as CLEAR_FOES, BOARD_HURTS as HURTS } from '../names.js';
+import { FIGHT_STATIC } from './kind-static.js';
+import { openingNote, openingOf, openingSetup, openingWitness } from './opening.js';
 
 const KINDS = ['attack', 'skill', 'flee', 'item'];
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -29,15 +31,17 @@ const real = state => ({ domains: { dataModules: state.domains.dataModules, inve
 const doubled = sheet => sheet.characters.length > 0 && sheet.characters.every(actor => actor.scale === 2);
 const idOf = actor => actorIdOf(actor.module);
 
-function openSetup(state, { anchor, seed, args = {} }) {
+function openSetup(state, { anchor, seed, attempt = 0, args = {} }) {
+    // A pre-check offer's opening (interaction/start.js): no foe stands yet, so the setup is the opening's own (board/opening.js).
+    if (args.opening) return openingSetup({ ...args.opening, anchor });
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.filled && foe.hurt > 0).map(foe => foe.slot);
     if (!sheet.characters.some(actor => actor.alive !== false && actor.health !== 0) || !groups.length) return { error: 'There is no fight to open.' };
     const resumed = args.resumed ?? null, opened = Array.isArray(args.opened) && args.opened.length ? structuredClone(args.opened) : null;
     const hard = sheet.foes.some(foe => foe.filled) && hardFightFor(sheet);
     // (`bars: 2` and `soak: 1` only when every character has the doubled bars; the rest of the marks are the pre-port board's own)
-    const setup = { id: `${anchor}:${args.attempt ?? 0}`, groups, ...(resumed ? { resumed: true } : {}), seed, offset: 0, rules: structuredClone(args.rules),
+    const setup = { id: `${anchor}:${attempt}`, groups, ...(resumed ? { resumed: true } : {}), seed, offset: 0, rules: structuredClone(args.rules),
         practice: practiceOf(args.practice) ?? PRACTICE.perUse, members: 1, aoe: 1, areaAll: 1, foesSix: 1, foesClear: 1, fightLen: 1, ...(hard ? { foesHard: 1 } : {}),
-        ...(doubled(sheet) ? { bars: 2, soak: 1 } : {}), ...(resumed ? { carriedMembers: structuredClone(resumed) } : {}), ...(opened ? { opened } : {}),
+        ...(doubled(sheet) ? { bars: 2, soak: 1 } : {}), ...(resumed ? { carriedMembers: structuredClone(resumed) } : {}), ...(opened ? { opened } : {}), ...(Array.isArray(args.approach) ? { approach: structuredClone(args.approach) } : {}), ...(args.drop ? { drop: structuredClone(args.drop) } : {}),
         flags: boardFlags(real(state)), weapons: structuredClone(args.weapons ?? {}), ...(args.gear ? { gear: structuredClone(args.gear) } : {}) };
     const preview = playBoard(real(state), setup, []);
     return preview.error ? { error: preview.error } : { setup };
@@ -82,13 +86,13 @@ const validate = (state, setup, steps, step) => (step.inputs.every(input => plai
 
 /** The kind definition the module registers as `story-block/fight`. */
 export const fightKind = Object.freeze({
-    version: 1, title: 'Fight', feature: 'story-block.fight-board', screen: 'story-block/fight', limits: {}, ready: () => true,
-    changes: ['gear.wear', 'inventory.consume', HURTS, CLEAR_FOES], marker: { word: 'battle', feature: 'story-block.rpg' }, carry: true,
+    ...FIGHT_STATIC, ready: () => true,
     actors: state => readSheet(real(state)).characters.filter(standing).map(actor => ({ id: idOf(actor), name: actor.who, party: true })),
     open: (state, context) => openSetup(state, context),
-    witness: (state, setup) => ({ board: boardWitness(real(state), setup), bag: bagOf(state) }),
+    opening: (state, setup, dice) => openingOf(real(state), setup, dice),
+    witness: (state, setup) => (setup.opening === true ? openingWitness(real(state)) : { board: boardWitness(real(state), setup), bag: bagOf(state) }),
     validate, play, settle, auto, next,
-    note: (result, setup) => settledNote(result, setup).split(' | '),
+    note: (result, setup, context) => (context?.opening ? openingNote(result) : settledNote(result, setup).split(' | ')),
 });
 
 // The bag's consumables, which a fight may use up: what each holds and restores, so taking back the reply that gave one makes the fight roll again.

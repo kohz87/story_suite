@@ -266,7 +266,7 @@ export function guardHolds(state, guard, span = null) {
     if (predicate?.kind === 'inventory.reader-edit' && predicate.action === 'inventory.add' && predicate.decision !== undefined) {
         return inventoryEditGuard({ state, hash: hashJson }, { guard, source: span?.source, operation: span?.operation }).ok === true;
     }
-    if (String(predicate?.kind ?? '').startsWith('dm.') || predicate?.kind === 'rpg.resolve') return true;
+    if (String(predicate?.kind ?? '').startsWith('dm.') || predicate?.kind === 'rpg.resolve' || predicate?.kind === 'interaction') return true;
     if (predicate?.kind === 'loot.offer') return guard.replyBound === true;
     if (predicate?.kind === 'inventory.reader-edit') {
         if (predicate.action === 'inventory.add') return !predicate.target && !predicate.pieces;

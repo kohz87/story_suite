@@ -35,7 +35,9 @@ function closure(entry) {
     return [...seen].map(file => relative(ROOT, file));
 }
 // The RPG's code proper: everything of src/v2/lean-rpg/ but the small helpers every block uses (names, blocks, formula, read, soul, tail, cue, foes, levels, roster, noroll: the no-rolls record, a small command with no state).
-const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster', 'noroll']);
+const SHARED = new Set(['names', 'blocks', 'formula', 'read', 'soul', 'tail', 'cue', 'foes', 'levels', 'roster', 'noroll',
+    // (the fight kind's plain members and the fight cue, small and engine-free: the core's lazy stand-in and the prompt build read them at page start)
+    'board/kind-static', 'board/fight-start']);
 // A facade's parts (`blocks.js` → `blocks-parts/*.js`) count as the facade's own file.
 const nameOf = file => file.slice('src/v2/lean-rpg/'.length, -3).replace(/-parts\/.*$/, '');
 const rpgFiles = files => files.filter(file => file.startsWith('src/v2/lean-rpg/') && !SHARED.has(nameOf(file)));
@@ -48,7 +50,8 @@ test('the page start (index.js static imports) reaches none of the RPG\'s code, 
     assert.ok(lean.every(file => SHARED.has(nameOf(file))), `only the shared helpers: ${lean.join(', ')}`);
     // (112700, just above the measured 112,685 bytes in 75 files; before the facade splits: 99,910 bytes in 11 files, the rest is parts' header comments and import lists: the facade splits of blocks.js, cue.js, foes.js, formula.js, names.js, levels.js, read.js, roster.js and soul.js add their parts' header comments and imports; 100500: the consumables' one-sentence line in cue.js, shared by the note, the log and the cue; 99000: the harder-foes rule's few lines in foes.js / blocks.js / read.js; 97700: the six foe groups' read.js lines; 97500: the bench card's words in strings/story.js; 97000: the story-check note and grammar words live in cue.js / names.js, shared helpers the page start reaches; party.levels is in read.js / roster.js)
     // (117800: the Combat Rules v1 sheet reader, read-parts/v1-rows.js, and its small names are in the shared `read` helper that the page start reaches: +5,100 bytes, no combat/ file.)
-    assert.ok(bytes(lean) < 117800, `the shared helpers stay small (${bytes(lean)} bytes)`);
+    // (122600: the fight kind's plain members and the fight cue moved into lean-rpg/board/ for the interaction port, +4,700 bytes: kind-static.js and fight-start.js with its two parts; no engine file.)
+    assert.ok(bytes(lean) < 122600, `the shared helpers stay small (${bytes(lean)} bytes)`);
     // …and what a dynamic import brings in is the whole RPG (the part and its pieces), so the split is real.
     const whole = closure('src/v2/lean-rpg/index.js').filter(file => file.startsWith('src/v2/lean-rpg/'));
     assert.ok(bytes(whole) > 4 * bytes(lean), 'the part is most of the RPG\'s code');
@@ -104,6 +107,18 @@ test('holdsRpg: stored rolls, fight XP, practice, a joined companion, a held pla
     assert.equal(holdsRpg([], { storySuite: { rpgStart: { hidden: true } } }), true);
     assert.equal(holdsRpg(null, null), false);
     assert.equal(holdsRpg([null, 5, { extra: 3 }], 7), false, 'junk holds nothing');
+});
+
+// A fight on the port leaves no `rpg.*` receipt when Story checks are off: its settle, its guard and its unsent scratch are what say the RPG's code is needed first (the kind is not ready without it).
+test('holdsRpg: a settle of the fight kind, its guarded span and an unsent fight count; another kind\'s settle does not', () => {
+    const record = (receipts = [], spans = []) => ({ extra: { storySuite: { receipts, spans } } });
+    const settle = kindId => ({ type: 'interaction.settle', replan: { payload: { kindId } } });
+    assert.equal(holdsRpg([record([settle('story-block/fight')])]), true, 'the fight\'s settle receipt');
+    assert.equal(holdsRpg([record([], [{ guard: { predicate: { kind: 'interaction', id: 'story-block/fight' } } }])]), true, 'its guarded span');
+    assert.equal(holdsRpg([record([settle('test/probe')], [{ guard: { predicate: { kind: 'interaction', id: 'test/probe' } } }])]), false, 'another kind');
+    for (const box of [{ open: { kindId: 'story-block/fight' } }, { start: { kindId: 'story-block/fight' } }, { send: { payload: { kindId: 'story-block/fight' } } }, { last: { kindId: 'story-block/fight' } },
+        { held: { sid: { current: { prechecks: [{ payload: { kindId: 'story-block/fight' } }] } } } }]) assert.equal(holdsRpg([], { storySuiteInteraction: box }), true, Object.keys(box)[0]);
+    assert.equal(holdsRpg([], { storySuiteInteraction: { open: { kindId: 'test/probe' } } }), false);
 });
 
 test('the loader fetches once, only when asked for, never throws, and tells a failure', async () => {

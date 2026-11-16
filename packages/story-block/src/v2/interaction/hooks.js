@@ -4,11 +4,11 @@
 
 import { normalizeType } from '../assist/common.js';
 import { readRecord } from '../persist.js';
-import { clearStart, pendingStart } from './start.js';
-import { linkMessage, priorPayload, readSend } from './send.js';
+import { clearStart, pendingStart } from './start-hold.js';
+import { linkMessage, priorPayload } from './send.js';
+import { pickPayload as pick } from './pick.js';
 import { priorOpening } from './prior.js';
 import { receiveSegment } from './carry.js';
-import { interactionPayload } from './session.js';
 import { interactionInputError } from './watch.js';
 
 const KEY = 'storySuiteInteraction';
@@ -20,20 +20,10 @@ const titleOf = (kind, id) => String(kind?.title ?? String(id ?? 'interaction').
 export function createInteractionHooks({ chat, metadata, kindOf, preview = null }) {
     const boxOf = () => { try { const meta = metadata(); return plain(meta?.[KEY]) ? { meta, box: meta[KEY] } : null; } catch { return null; } };
     const nameOf = id => titleOf(kindOf(id), id);
-    const openingOf = (session, copy) => (plain(copy?.opening) ? copy.opening : session && !session.carriedKey && session.offset === 0 && plain(session.opening) ? session.opening : null);
+    // The last payload carries a regenerate only while its kind's feature is on (switched off, the reply is regenerated without it, as before).
+    const lastOn = (box, view) => { const kind = plain(box.last) ? kindOf(box.last.kindId) : null; return !kind || typeof kind.feature !== 'string' || view?.feature?.(kind.feature) !== false; };
 
-    // The payload this send carries, and its opening: the staged session (with its Send copy), else the Send copy, else (regenerate) the last payload the reader's message is linked to.
-    function pick(box, messages, type, last, anchor) {
-        const session = plain(box.open) && box.open.anchor === anchor ? box.open : null, copy = readSend(box, messages);
-        const staged = session?.steps?.length ? session : null;
-        if (staged) return copy && copy.payload.steps.length === staged.steps.length && !staged.invalidated ? { payload: interactionPayload(staged), opening: openingOf(staged, copy), session: staged } : { wait: staged };
-        if (copy) return { payload: structuredClone(copy.payload), opening: openingOf(null, copy), session };
-        const lastOne = box.last;
-        if (type === 'regenerate' && plain(lastOne) && lastOne.anchor === anchor && last?.extra?.storySuiteInteractionLinks?.[lastOne.key]) {
-            return { payload: structuredClone(lastOne), opening: plain(box.lastOpening) && box.lastOpening.payload.anchor === anchor ? box.lastOpening : null, session };
-        }
-        return { session };
-    }
+    const startOn = (held, view) => { const feature = kindOf(held.kindId)?.feature; return typeof feature !== 'string' || view?.feature?.(feature) !== false; };
 
     function canGenerate(view, info = {}) {
         const found = boxOf();
@@ -43,7 +33,11 @@ export function createInteractionHooks({ chat, metadata, kindOf, preview = null 
         let payload = null, opening = null;
         if (last?.is_user) {
             const anchor = sidOf(messages.at(-2)), type = normalizeType(info.type);
-            const pending = pendingStart(meta, messages), picked = pick(box, messages, type, last, anchor);
+            // (a waiting choice of `plain` is released: the reader chose to send the message as it is)
+            // (a waiting choice of a kind whose feature is off is not held either: there is no screen left to clear it)
+            const held = pendingStart(meta, messages), pending = held && held.choice !== 'plain' && startOn(held, view) ? held : null;
+            // (a kind that says `autoSend` carries what is staged with the next message, unless a waiting choice asks for "Send with this …")
+            const picked = pick(box, messages, type, last, anchor, { auto: kindOf(box.open?.kindId)?.autoSend === true && !pending, last: lastOn(box, view) });
             if (info.commit === true && (picked.wait || (pending && !picked.payload))) {
                 const title = picked.wait ? nameOf(picked.wait.kindId) : titleOf(kindOf(pending.kindId), pending.title);
                 return { ok: false, reason: picked.wait?.invalidated ? `The earlier ${title} was taken back. Restore that reply or discard.` : `Play the waiting ${title}.`, action: false, ...(pending ? { interactionStart: true } : {}) };
@@ -51,6 +45,8 @@ export function createInteractionHooks({ chat, metadata, kindOf, preview = null 
             if (picked.wait) return null;
             payload = picked.payload ?? null;
             opening = picked.opening ?? null;
+            // (a kind whose staged steps go with the next message cannot silently leave the story: staged on another reply, the send waits until it is restored or discarded)
+            if (!payload && !picked.session && info.commit === true && plain(box.open) && box.open.steps?.length && kindOf(box.open.kindId)?.autoSend === true) return { ok: false, reason: `The ${nameOf(box.open.kindId)} no longer matches this reply. Restore the reply or discard it.`, action: false };
             if (!payload && picked.session?.steps?.length) return { ok: false, reason: `The ${nameOf(picked.session.kindId)} no longer matches this reply. Restore the reply or discard it.`, action: false };
         } else if (last && !String(last.mes ?? '')) { payload = priorPayload(last); opening = priorOpening(last); }
         if (!payload) return null;
@@ -66,7 +62,7 @@ export function createInteractionHooks({ chat, metadata, kindOf, preview = null 
         const { box } = found, messages = chat() ?? [], index = type === 'swipe' ? messages.length - 2 : messages.length - 1, last = messages[index];
         if (!last?.is_user) return null;
         const anchor = sidOf(messages[index - 1]);
-        const picked = type === 'swipe' ? { payload: priorPayload(messages[index + 1]), opening: priorOpening(messages[index + 1]) } : pick(box, messages, type, last, anchor);
+        const picked = type === 'swipe' ? { payload: priorPayload(messages[index + 1]), opening: priorOpening(messages[index + 1]) } : pick(box, messages, type, last, anchor, { auto: kindOf(box.open?.kindId)?.autoSend === true && !pendingStart(found.meta, messages), last: lastOn(box, view) });
         if (!picked.payload) return null;
         linkMessage(last, picked.payload.key);
         const { opening } = picked;

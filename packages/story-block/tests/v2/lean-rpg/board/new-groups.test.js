@@ -8,7 +8,7 @@ import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { boardReplyGrammar } from '../../../../src/v2/lean-rpg/index.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/index.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { boardSession, openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, openBoard } from '../../helpers/board-port.js';
 import { createFightOffers } from '../../../../src/v2/lean-rpg/board/offers.js';
 
 async function world() {
@@ -90,7 +90,7 @@ test('a board carried on from an earlier fight does not hide the offer of a new 
         await host.send('Scout again.', arrives(2));
         assert.equal(boardSession(meta)?.idle, true, 'the empty session follows the reply without a fight receipt');
         assert.equal(offerIndex(host), host.store.headIndex(), 'the new group arrived after it: it gets its offer');
-        boardSession(meta).exchanges.push({ actions: [] });
+        meta.storySuiteInteraction.open.steps.push({ inputs: [] });   // (the session shim hands out a copy: a staged step goes on the stored fight)
         assert.equal(offerIndex(host), null, 'staged exchanges are never clobbered by an offer');
     } finally { host.close(); }
 });

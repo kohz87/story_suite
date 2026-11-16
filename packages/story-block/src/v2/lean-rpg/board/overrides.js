@@ -12,7 +12,6 @@ import { BOARD_SKILL, BOARD_SKILL_CARRY, LEAN_RPG_FEATURE, ROLLS_QUERY, USE_ITEM
 import { skillKey } from './flags.js';
 import { recoveryWords } from '../cue.js';
 import { recoverPool, recoveryOf } from './rules.js';
-import { boardSession } from './session.js';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const flagsValid = value => object(value) && Object.keys(value).length === 3 && ['target', 'area', 'defence'].every(key => typeof value[key] === 'boolean');
@@ -87,7 +86,8 @@ function useItem(ctx, payload, persona) {
 
 /** `items.useOn`: { [stack]: [{ id }] }: the party's unbound consumables, each with the members it may be used on; {} while a board fight is open (the sheet is held) or there is no one. */
 function usersFor(state, metadata) {
-    if (boardSession(metadata?.())) return {};
+    // (a fight open in the interaction scratch: read straight, so this file does not reach the fight kind)
+    if (metadata?.()?.storySuiteInteraction?.open?.kindId === 'story-block/fight') return {};
     const people = alive(sheetOf(state?.domains?.dataModules)), inv = state?.domains?.inventory;
     if (!people.length || !inv) return {};
     const ids = people.map(person => ({ id: actorIdOf(person.module), via: USE_ITEM }));

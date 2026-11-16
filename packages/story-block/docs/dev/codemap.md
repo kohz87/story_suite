@@ -172,7 +172,7 @@ Last checked: 2026-11-07.
 - `src/v2/ui-host/panel.js`: panel creation, opening, closing and live tab-host access.
 - `src/v2/ui-host/settings.js`: settings overlay, diagnostics and theme inputs.
 - `src/v2/ui-host/events.js`: runtime and chat listeners with their teardown callbacks.
-- `src/v2/ui-host/send-pending.js`: the "Send pending" note's state machine (idle, pending, stalled, fightHeld, sent): one re-send when SillyTavern is free, never a changed or empty text, pure logic with injected page and timers.
+- `src/v2/ui-host/send-pending.js`: the "Send pending" note's state machine (idle, pending, stalled, interactionHeld, sent): one re-send when SillyTavern is free, never a changed or empty text, pure logic with injected page and timers.
 - `src/v2/ui-host/send-note.js`: the "Send pending" note above SillyTavern's message box: sees a Send SillyTavern ignored, draws the five states (role=status), re-sends once through #send_but; UI only, never touches the text, prompt or chat.
 - `src/v2/ui-host/inspector-problems.js`: what the Inspector lists as a reply's problems (skipped blocks, what the turn met, head-selection notices, refused lines).
 - `src/v2/ui-host/card-offer-wiring.js`: the card offer's wiring (lorebook read, "not now" memory, data modules, problems to the turn and the card log).

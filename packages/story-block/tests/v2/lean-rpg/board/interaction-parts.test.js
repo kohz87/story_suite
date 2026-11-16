@@ -5,7 +5,7 @@ import { autoPicks } from '../../../../src/v2/lean-rpg/board/auto.js';
 import { fightSeed } from '../../../../src/v2/lean-rpg/board/dice.js';
 import { equipmentForBoard, playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { fightKind, toAction } from '../../../../src/v2/lean-rpg/board/interaction.js';
-import { boardSession, openBoard, receiveBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { carriedFrom } from '../../../../src/v2/lean-rpg/board/members.js';
 import { hashJson } from '../../../../src/v2/replay.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { ASTRA_ID, RULES, fxHost, stepOf } from './interaction.helpers.js';
@@ -28,21 +28,21 @@ test('Auto: the kind picks what the pre-port Auto picked, for the sheet the step
     } finally { host.close(); restore(); }
 });
 
-test('next: the carried setup is the one the pre-port carry made (offset, order, member bars; the opening-only keys dropped)', async () => {
+test('next: the carried setup moves the offset on, carries the order and member bars, and drops the opening-only keys', async () => {
     const restore = seedCrypto(7), host = await fxHost();
     try {
-        const meta = host.ctx.chatMetadata, sid = anchorOf(host), setup = opened(host), slot = slotOf(host);
-        const actions = [{ who: 'Astra', kind: 'attack', target: slot }];
-        assert.equal(openBoard(meta, host.head(), { sid, rules: RULES }).error, undefined);
-        assert.equal(stageExchange(meta, host.head(), actions).error, undefined);
-        const session = boardSession(meta), played = playBoard(host.head(), session.setup, session.exchanges);
+        const setup = opened(host), slot = slotOf(host);
+        const played = playBoard(host.head(), setup, [{ actions: [{ who: 'Astra', kind: 'attack', target: slot }] }]);
         assert.equal(played.result.stop, 'open', 'the fight goes on');
-        const payload = { id: session.id, anchor: session.anchor, groups: session.groups, setup: session.setup, exchanges: session.exchanges };
-        assert.equal(receiveBoard(meta, { key: 'b:k', board: payload }, played.result, 'next-sid', 'rc_1', host.head(), null), true);
-        const old = boardSession(meta).setup, next = fightKind.next({ ...setup, witness: { offset: 0, hash: 'x' } }, { ...played.result, rounds: played.result.rounds }, host.head());
-        assert.deepEqual(next, { ...old, id: setup.id, groups: setup.groups, practice: setup.practice });
+        const first = { ...setup, witness: { offset: 0, hash: 'x' }, opening: true, approach: [{ x: 1 }], drop: { y: 1 }, opened: [1] };
+        const next = fightKind.next(first, played.result, host.head());
+        assert.equal(next.offset, setup.offset + played.result.rounds.length, 'the offset moves on by the rounds played');
         assert.equal(next.offset, 1);
-        assert.equal(next.witness, undefined);
+        assert.deepEqual(next.order, played.result.order ?? [], 'the order carries');
+        assert.deepEqual(next.carriedMembers, carriedFrom(played.result.members), 'the member bars carry');
+        for (const key of ['witness', 'opening', 'approach', 'drop', 'opened']) assert.equal(Object.hasOwn(next, key), false, `${key} is dropped`);
+        const { offset: _o, order: _r, carriedMembers: _c, ...kept } = next, { offset: _o2, order: _r2, carriedMembers: _c2, ...before } = setup;
+        assert.deepEqual(kept, before, 'everything else of the setup (id, groups, seed, rules, flags) is as it was');
     } finally { host.close(); restore(); }
 });
 

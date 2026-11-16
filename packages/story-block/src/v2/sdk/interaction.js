@@ -170,7 +170,8 @@ export function createInteractionApi({
             const start = plain(before?.start) && before.start.kindId === kindId && before.start.anchor === reply.sid ? before.start : null;
             let opened;
             try {
-                opened = kind.open(stateNow(), { anchor: reply.sid, seed, args: clone(args), query: (name, data) => ask(name, data) });
+                // (a fight a pre-check offered opens on the sheet its opening leaves: the foes it found stand there)
+                opened = kind.open(stateFor({ opening: start?.opening }), { anchor: reply.sid, seed, attempt, args: clone(args), query: (name, data) => ask(name, data) });
             } catch (error) {
                 return interactionError('INVALID', title, `${title} could not open: ${error?.message ?? error}`);
             }

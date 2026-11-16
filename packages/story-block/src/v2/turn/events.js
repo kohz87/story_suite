@@ -9,16 +9,15 @@ import { cutAt } from '../../text.js';
 import { readRecord, swipeLoading } from '../persist.js';
 import { within } from './text.js';
 import { ensureModules } from '../sdk.js';
-import { boardStep, rememberHeld, pruneMissingBoard } from './held-board.js';
-import { clearStart, pendingStart } from './fight-start.js';
+import { FIGHT_CLOSED, dropPrePortFight } from './pre-port-fight.js';
 import { createHeldEvents } from './events-held.js';
 import { rememberHeld as rememberInteractionHeld } from '../interaction/held.js';
 import { settleStep } from '../interaction/watch.js';
 import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
 export function createEvents(s, deps) {
-    const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
-    const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, boardError, interactionError, getOnMessageReceived: () => onMessageReceived });
+    const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
+    const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
     const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate });
 
@@ -33,7 +32,6 @@ export function createEvents(s, deps) {
         clearPrompts();
         const message = ctx?.chat?.[id];
         if (!isCarrier(message)) return null;
-        s.boardCapture = boardStep(current)?.payload.board ?? null;
         const idle = store.saveIdle?.() === true;   // (the turn's save window opens now: the capture's lines are not saved one by one)
         try {
             if (store.headIndex() !== id) store.rebuild();
@@ -107,20 +105,7 @@ export function createEvents(s, deps) {
             return turn;
         } catch (error) {
             const failure = problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });
-            if (error?.code === 'BOARD_PRELUDE') {
-                const staged = metadata()?.rpgFightBoard?.id === s.boardCapture?.id;
-                s.session = current;
-                s.heldBoard = { index: id, message, current, board: s.boardCapture, staged };
-                // Give an otherwise empty reply its stable ID, then save the add-only recovery marker.
-                const record = readRecord(message);
-                if (!record) store.setNarrated(id, []);
-                const sid = store.carrierSid(id);
-                if (rememberHeld(metadata(), sid, current, staged)) {
-                    store.touch?.();
-                    await trySave('after holding the fight');
-                }
-                try { notify?.(error.message, 'story-block'); } catch { /* the problem remains visible */ }
-            } else if (error?.code === 'INTERACTION_PRELUDE') {
+            if (error?.code === 'INTERACTION_PRELUDE') {
                 // The same hold for an interaction reply: kept uncaptured until what its settle read is restored, or discarded.
                 const payload = settleStep(current).payload, staged = metadata()?.storySuiteInteraction?.open?.id === payload.id;
                 s.session = current;
@@ -138,8 +123,6 @@ export function createEvents(s, deps) {
                 try { afterReply(id, current.type, message, []); } catch { /* each hook is already guarded */ }
             }
             return null;
-        } finally {
-            s.boardCapture = null;
         }
     }
 
@@ -147,7 +130,6 @@ export function createEvents(s, deps) {
     async function onChatChanged() {
         // The old chat's session and prompts go at once, before anything is awaited: a generation started while the RPG's code loads is the new chat's.
         s.session = null;
-        s.boardCapture = null;
         s.heldBoard = null;
         s.quiets = [];
         markIdle();
@@ -157,10 +139,10 @@ export function createEvents(s, deps) {
         if (typeof prepare === 'function') { try { await within(prepare(), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         rebuild({ publish: false });
         const meta = metadata();
-        const removedBoard = pruneMissingBoard(meta, ctx?.chat);
-        const removedStart = Boolean(meta?.rpgFightStart && (!pendingStart(meta, ctx.chat)));
-        if (removedStart) clearStart(meta);
-        if (removedBoard || removedStart) {
+        // A fight left open by a build from before the port is closed (turn/pre-port-fight.js); the interaction scratch follows the head by itself (reconcileScratch).
+        const closed = dropPrePortFight(meta);
+        if (closed !== null) {
+            if (closed) problem({ code: 'FIGHT_CLOSED', quiet: true, message: FIGHT_CLOSED });
             try { (ctx.saveMetadata ?? ctx.saveMetadataDebounced)?.call(ctx); } catch { /* saved on the next chat write */ }
         }
         timeline?.settle();

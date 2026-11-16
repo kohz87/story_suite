@@ -185,22 +185,22 @@ test('text emptied during a round never sends', () => {
     assert.equal(sp.state().state, 'idle');
 });
 
-test('a fight start holding the Send -> fightHeld, with an open-board action', () => {
+test('a fight start holding the Send -> interactionHeld, with an open-board action', () => {
     const { sp, page, clock } = rig();
     page.held = true;
-    assert.equal(sp.press(), 'fightHeld');
-    assert.equal(sp.state().state, 'fightHeld');
-    assert.equal(sp.openBoard(), true);
+    assert.equal(sp.press(), 'interactionHeld');
+    assert.equal(sp.state().state, 'interactionHeld');
+    assert.equal(sp.openHeld(), true);
     assert.equal(page.boardOpens, 1);
     clock.advance(10000);
     assert.deepEqual(page.sends, [], 'never sends while the fight holds it');
-    assert.equal(sp.state().state, 'fightHeld');
+    assert.equal(sp.state().state, 'interactionHeld');
 });
 
-test('fightHeld while busy: still held, no send; the hold can clear to idle without a send', () => {
+test('interactionHeld while busy: still held, no send; the hold can clear to idle without a send', () => {
     const { sp, page, clock } = rig();
     page.busy = true; page.held = true;
-    assert.equal(sp.press(), 'fightHeld');
+    assert.equal(sp.press(), 'interactionHeld');
     page.busy = false;
     clock.advance(1000);
     assert.deepEqual(page.sends, []);
@@ -211,20 +211,20 @@ test('fightHeld while busy: still held, no send; the hold can clear to idle with
     assert.equal(clock.pending(), 0);
 });
 
-test('a hold that arrives during a pending round moves it to fightHeld and it never sends', () => {
+test('a hold that arrives during a pending round moves it to interactionHeld and it never sends', () => {
     const { sp, page, clock } = rig();
     page.busy = true; sp.press();
     page.held = true;
     clock.advance(500);
-    assert.equal(sp.state().state, 'fightHeld');
+    assert.equal(sp.state().state, 'interactionHeld');
     page.busy = false; page.held = true;
     clock.advance(10000);
     assert.deepEqual(page.sends, []);
 });
 
-test('openBoard does nothing outside fightHeld', () => {
+test('openHeld does nothing outside interactionHeld', () => {
     const { sp, page } = rig();
-    assert.equal(sp.openBoard(), false);
+    assert.equal(sp.openHeld(), false);
     assert.equal(page.boardOpens, 0);
 });
 

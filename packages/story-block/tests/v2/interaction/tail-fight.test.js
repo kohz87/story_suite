@@ -2,14 +2,16 @@
 // The note joins the leading [Happened] as the board's cue always did, and as a settled interaction's cue does by its receipt type.
 // A second golden (tail-fight-tight) puts the budget under pressure: the note counts inside the tail total, so the optional lines of the other sections drop instead.
 // Both goldens were produced by main's own assemble (the same cue marked `board: true`), not by this code. These tests hand-build the cues given to `assemble`:
-// they pin the assembler's join and the pin, not the cue the prelude produces (no board kind is registered until I6, which tests that path).
+// they pin the assembler's join and the pin; the last test drives the real fight kind's note through the prelude loop (I6) and holds its cue to the same golden.
 // The goldens are regenerated only by the note-wording step (C7): WRITE_GOLDEN=1.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRegistry } from '../../../src/v2/registry.js';
 import { assemble } from '../../../src/v2/prompt.js';
-import { fightNote } from './helpers/fight-note.js';
+import { FIGHT_RESULT, FIGHT_SETUP, fightNote } from './helpers/fight-note.js';
+import { fightKind } from '../../../src/v2/lean-rpg/board/interaction.js';
+import { runPreludes } from '../../../src/v2/turn/prelude-run.js';
 
 const GOLDEN = new URL('./tail-fight.golden.json', import.meta.url);
 const TIGHT = new URL('./tail-fight-tight.golden.json', import.meta.url);
@@ -55,4 +57,28 @@ test('under a tight tail budget the note stays whole inside the total and the op
     assert.deepEqual(port.parts, golden.parts);
     assert.ok(golden.parts.some(part => part.dropped > 0), 'the budget is under pressure: something dropped');
     assert.ok(golden.tailText.includes(fightNote()), 'the note itself is whole');
+});
+
+test('the fight kind\'s own settle note, told by the real prelude loop, joins the tail byte-identically to the golden (the I6 port path)', () => {
+    const summary = fightKind.note(FIGHT_RESULT, FIGHT_SETUP).join(' | ');
+    assert.equal(summary, fightNote(), 'the kind\'s note is the board\'s settled account');
+    const bus = { run: () => ({ ok: true, state: null, receipt: { type: 'interaction.settle', summary, seed: 1, narrate: true, data: { interaction: { stop: 'open' } } } }) };
+    const cues = {}, ran = runPreludes({ s: { session: null }, bus, store: { head: () => null }, problem: () => {}, kindOf: () => fightKind },
+        { requested: [{ moduleId: 'lean-rpg', type: 'interaction.settle', payload: { kindId: 'story-block/fight', key: 'k' } }], cues, prechecks: [], previewState: null });
+    assert.equal(ran.blocked, undefined);
+    assert.deepEqual(cues['lean-rpg'], [{ text: `[Happened]\n${summary}`, keep: true, interaction: true }]);
+    for (const [settings, file] of [[{}, GOLDEN], [{ tailBudget: TIGHT_BUDGET }, TIGHT]]) {
+        const golden = JSON.parse(readFileSync(file, 'utf8')), told = assemble({ registry: registry(), view: {}, settings, untold: [{ id: 'rc_1', narrate: true, summary: 'A bonus is paid.' }], cues });
+        assert.equal(told.tailText, golden.tailText);
+        assert.deepEqual(told.parts, golden.parts);
+    }
+});
+
+test('the story-check dice cue and the fight note give the same tail in either order (a fight reply\'s preludes now run dice first, then the fight)', () => {
+    const dice = { text: 'Story checks: use the three dice for separate attempts.', keep: true }, note = { text: `[Happened]\n${fightNote()}`, keep: true, interaction: true };
+    const told = list => assemble({ registry: registry(), view: {}, settings: {}, untold: [], cues: { 'lean-rpg': list } });
+    const first = told([dice, note]), second = told([note, dice]);
+    assert.equal(first.tailText, second.tailText);
+    assert.deepEqual(first.parts, second.parts);
+    assert.ok(first.tailText.includes(fightNote()) && first.tailText.includes(dice.text));
 });

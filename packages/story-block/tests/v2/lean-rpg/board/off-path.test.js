@@ -2,26 +2,28 @@
 // but a staged fight with exchanges still is (it cannot silently leave the story).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPrecall } from '../../../../src/v2/lean-rpg/index.js';
+import { createInteractionHooks } from '../../../../src/v2/interaction/hooks.js';
+import { fightKind } from '../../../../src/v2/lean-rpg/board/interaction.js';
 import { LEAN_RPG_FEATURE } from '../../../../src/v2/lean-rpg/names.js';
 
+// The fight's hold on a send is the core's hook now (interaction/hooks.js), whatever the board setting says.
 const BOARD = 'story-block.fight-board';
-const remembered = { key: 'b:x:a:0', board: { id: 'x', anchor: 'a', setup: { offset: 0 }, exchanges: [] } };
+const remembered = { key: 'i:x:a:0', anchor: 'a', kindId: 'story-block/fight', steps: [] };
 const make = meta => {
-    const messages = [{ is_user: false, mes: 'The rats close in.' }, { is_user: true, mes: 'I hit the lead rat.', extra: { rpgFightLinks: { [remembered.key]: true } } }];
-    return createPrecall({ chat: () => messages, metadata: () => meta });
+    const messages = [{ is_user: false, mes: 'The rats close in.' }, { is_user: true, mes: 'I hit the lead rat.', extra: { storySuiteInteractionLinks: { [remembered.key]: true } } }];
+    return createInteractionHooks({ chat: () => messages, metadata: () => meta, kindOf: () => fightKind });
 };
 const viewOf = board => ({ feature: id => id === LEAN_RPG_FEATURE || (board && id === BOARD), query: () => null, state: { domains: {} } });
 const regenerate = { commit: true, type: 'regenerate' };
 
 test('board OFF, no staged exchanges: a regenerate is allowed exactly as before the board existed', () => {
-    const precall = make({ rpgFightLast: structuredClone(remembered) });
-    assert.equal(precall.canGenerate(viewOf(false), regenerate), null);
+    const hooks = make({ storySuiteInteraction: { last: structuredClone(remembered) } });
+    assert.equal(hooks.canGenerate(viewOf(false), regenerate), null);
 });
 
 test('board OFF, a live staged fight (exchanges): the regenerate stays blocked', () => {
-    const precall = make({ rpgFightBoard: { id: 'x', anchor: 'zzz', setup: { offset: 0 }, exchanges: [{}] } });
-    const refused = precall.canGenerate(viewOf(false), regenerate);
+    const hooks = make({ storySuiteInteraction: { open: { id: 'zzz:0:story-block/fight', kindId: 'story-block/fight', anchor: 'zzz', attempt: 0, offset: 0, setup: {}, steps: [{ inputs: [] }] } } });
+    const refused = hooks.canGenerate(viewOf(false), regenerate);
     assert.equal(refused?.ok, false);
     assert.match(refused.reason, /fight/i);
 });
