@@ -61,6 +61,7 @@
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
   "tests/scripts/ci-timeouts.test.js": "Checks that every CI job has a timeout and every node --test command sets the per-test timeout and force-exit flags and matches its package script.",
   "tests/suite/nsd-static-part.js": "Writes NPC State Delta's own one-pass static prompt key the way its runtime injection does, and switches its adapter on or off for the suite test.",
+  "tests/suite/redraw-count.bench.test.js": "Pins today's tab-pane redraw and NPC State renderCast counts per reply for the three-module suite (quiet and active scenarios, flag off).",
   "tests/suite/static-prompt.test.js": "Pins the whole static prompt of the three-module suite per scenario against the golden and checks it is byte-identical reply to reply.",
   "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
   "ui/card/card-row.js": "Builds the card's top row: ‹ Chat, time · place · weather with the mock's glyphs (opens the Scene sheet) and ⚙.",
