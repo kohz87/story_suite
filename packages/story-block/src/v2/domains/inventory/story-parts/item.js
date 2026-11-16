@@ -76,7 +76,7 @@ export function captureItem(ctx, line, env) {
         const qty = lineQty(ctx, line, 1);
         if (qty < 1) ctx.fail('INVALID', 'A gained item needs a quantity of at least 1.');
         const note = trimText(labelOf(line, 'note') ?? text, MAX_NOTE);
-        const { def, created } = defineByName(ctx, inv, name, env, { note, owner: 'party', words: { kind: labelOf(line, 'kind'), slot: labelOf(line, 'slot') ?? labelOf(line, 'equipped', 'equip', 'worn'), rarity: labelOf(line, 'rarity', 'quality'), stats: statWords(line, marked(ctx, 'gearOrder')), ordered: marked(ctx, 'gearOrder'), finesse: marked(ctx, 'gearFinesse') } });
+        const { def, created } = defineByName(ctx, inv, name, env, { note, owner: 'party', words: { kind: labelOf(line, 'kind'), slot: labelOf(line, 'slot') ?? labelOf(line, 'equipped', 'equip', 'worn'), rarity: labelOf(line, 'rarity', 'quality'), soak: labelOf(line, 'soak'), stats: statWords(line, marked(ctx, 'gearOrder')), ordered: marked(ctx, 'gearOrder'), finesse: marked(ctx, 'gearFinesse') } });
         const held = storyItems(def, qty);
         // Asked before the stacks change: `add` is weight on top of what is carried now.
         const heavy = storyCarry(ctx, def, held.qty, 'party');
