@@ -221,5 +221,8 @@
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
-  "ui/theme/tokens.js": "Token names and the Glass dark and light values."
+  "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
+  "scripts/codemap/root-jobs.mjs": "Finds job sentences for files under the source roots from package dev-map bullets and opening comments.",
+  "scripts/layout.mjs": "Loads scripts/layout.json and answers which repo paths sit under a package root or a source root.",
+  "tests/scripts/layout.test.js": "Tests the layout file, the layout-driven codemap and size scripts on today's tree."
 }

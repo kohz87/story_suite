@@ -40,12 +40,13 @@ trap 'rm -rf "$tmpdir"; if [ "$made_link" = 1 ]; then rm -f "$legacy_link"; fi' 
 
 suite_root="$tmpdir/suite"
 mkdir -p "$suite_root"
-ln -s "$repo_root/packages/story-block" "$suite_root/Story_block"
-ln -s "$repo_root/packages/story-director" "$suite_root/Story_director"
-ln -s "$repo_root/packages/npc-state-delta" "$suite_root/npc_state_delta"
+# The links and their folders come from scripts/layout.json (suiteFarm).
+while IFS=' ' read -r link dir; do
+  ln -s "$repo_root/$dir" "$suite_root/$link"
+done < <(node -e "for (const f of JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).suiteFarm) console.log(f.link, f.dir)" "$repo_root/scripts/layout.json")
 
 tap_file="$tmpdir/suite.tap"
-cd "$repo_root/packages/story-block"
+cd "$repo_root/$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).suiteFarm.find(f => f.link === 'Story_block').dir)" "$repo_root/scripts/layout.json")"
 export STORY_SUITE_ROOT="$suite_root"
 export NPC_STATE_DELTA_PATH="$suite_root/npc_state_delta"
 export NODE_OPTIONS="--max-old-space-size=4096 ${NODE_OPTIONS:-}"

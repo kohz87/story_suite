@@ -29,8 +29,9 @@ while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     exit 1
   fi
 
-  import_tree="$(git -C "$repo_root" rev-parse "${import_commit}:packages/${folder}")"
-  head_tree="$(git -C "$repo_root" rev-parse "HEAD:packages/${folder}")"
+  pkg_root="$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')).packageRoots[0])" "$repo_root/scripts/layout.json")"
+  import_tree="$(git -C "$repo_root" rev-parse "${import_commit}:${pkg_root}/${folder}")"
+  head_tree="$(git -C "$repo_root" rev-parse "HEAD:${pkg_root}/${folder}")"
 
   if [ "$import_tree" = "$expected_tree" ] && [ "$head_tree" = "$expected_tree" ]; then
     echo "${folder}: identical"
