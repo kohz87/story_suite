@@ -292,7 +292,7 @@ test('not hosted (no Story Block v2): the page API is there but draws nothing, a
 
 test('a present card: the stage is set on its name line, the NPC\'s meters are inside its card, and the text is never markup', async () => {
     const { def, sdk, doc } = await setup();
-    const cast = [{ key: 'mira', name: 'Mira <i>x</i>', present: true, rank: 'Close <b>now</b>', next: '', bars: [{ id: 'trust', label: 'Trust', value: 40, min: -100, max: 100, text: '40', tone: 'info' }], still: [], opened: [], locked: [] }];
+    const cast = [{ key: 'npc_mira', name: 'Mira <i>x</i>', present: true, rank: 'Close <b>now</b>', next: '', bars: [{ id: 'trust', label: 'Trust', value: 40, min: -100, max: 100, text: '40', tone: 'info' }], still: [], opened: [], locked: [] }];
     const query = sdk.query;
     sdk.query = name => (name === 'npc.cast' ? cast : query(name));
     const el = element(doc);

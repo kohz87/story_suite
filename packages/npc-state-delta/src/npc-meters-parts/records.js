@@ -1,6 +1,9 @@
 // Builds and edits one NPC's record: who a change is about, a new entry, problems, meter changes, stages, notes and impact tiers.
 import { RELATIONSHIP_KEYS, applyRelationshipDelta, normalizeRelationshipCaps } from '../../core-mechanics.js';
-import { CUSTOM_RANGE, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, NAME_MAX, clamp, clean, intOr, isInt, isObject, npcKey, slug } from '../npc-meters-config.js';
+import { CUSTOM_RANGE, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, NAME_MAX, clamp, clean, intOr, isInt, isObject, slug } from '../npc-meters-config.js';
+import { makeNpcId } from '../../core-identity.js';
+
+const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 import { findNpcKey, meterValue, settle } from '../npc-meters-slice.js';
 
 /** The record helpers of one npc part, built on its hook readers. */
@@ -12,8 +15,11 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         const dossier = resolve(asked);
         const name = clean(dossier?.name ?? asked, NAME_MAX);
         const labels = [name, asked, ...(Array.isArray(dossier?.aliases) ? dossier.aliases : [])].map(item => clean(item, NAME_MAX)).filter(Boolean);
-        const key = findNpcKey(npcs, labels) ?? npcKey(name);
-        if (!key) return null;
+        // The key is the person's npc_ id: the dossier's own when Delta has one (an entry already under it first, then one found by name, as before), else an
+        // entry found by name, else a new id made as Delta makes dossier ids (so the dossier Delta makes later for that name has the same id).
+        const id = typeof dossier?.id === 'string' && PEOPLE_ID.test(dossier.id) ? dossier.id : null;
+        const key = (id && Object.hasOwn(npcs, id) ? id : null) ?? findNpcKey(npcs, labels) ?? id ?? makeNpcId(name, Object.keys(npcs));
+        if (!key || !PEOPLE_ID.test(key)) return null;
         return { key, name, labels, seed: isObject(dossier?.relationship) ? dossier.relationship : null };
     }
 

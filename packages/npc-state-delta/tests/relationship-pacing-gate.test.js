@@ -47,10 +47,10 @@ for (const seed of fuzzSeeds(process.env.FUZZ_SEEDS, [3, 11, 29])) {
             const label = `seed ${seed} step ${step} (reply ${index})`;
             assert.deepEqual(s.host.store.problems(), [], `${label}: nothing was skipped`);
             const head = JSON.stringify(s.host.head());
-            assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), [], `${label}: the slice validates`);
+            assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), [], `${label}: the slice validates`);
             s.host.store.rebuild();
             assert.equal(JSON.stringify(s.host.head()), head, `${label}: replay equals rebuild`);
-            for (const record of Object.values(s.host.head().domains.npc.npcs)) {
+            for (const record of Object.values(s.host.head().domains.people.bonds.npcs)) {
                 if (!record.impactDay) continue;
                 const { ordinary, meaningful, major, extreme } = newestFlatDay(record.impactDay);
                 assert.ok(major <= 1 && meaningful <= 1 && extreme <= 1 && ordinary <= 3, `${label}: counts stay within the allowance: ${JSON.stringify(record.impactDay)}`);
@@ -75,7 +75,7 @@ test('gate: the same approach to the same person gives less, the third time back
     assert.deepEqual(s.npc('Oren').meters, { trust: -1, affection: 4, desire: 0, tension: 1 }, 'the third: no affection, tension +1, trust −1');
     assert.equal(gateOf(s), 'via praise · 3rd in 1 day · backfired');
     assert.ok(tailOf(s).optional.includes('Oren has noticed the repeated praise; it backfires.'), JSON.stringify(tailOf(s)));
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('gate: another approach, another person and a day outside the window are not repeats', async () => {
@@ -133,7 +133,7 @@ test('gate: feature off and old lines: byte-identical state, no ring, and the st
     const off = await suite({ allowance: null, features: { [FEATURE_GATE]: false } });
     const on = await suite({ allowance: null, features: gateOn });
     for (const s of [off, on]) { await s.setDay(1); for (const set of lines) await s.say(set); }
-    const bare = x => JSON.stringify(x.host.head().domains.npc).replace(/sw_[a-z0-9]+/g, 'sw');
+    const bare = x => JSON.stringify(x.host.head().domains.people?.bonds).replace(/sw_[a-z0-9]+/g, 'sw');
     assert.equal(bare(on), bare(off), 'lines without via: the feature on changes nothing');
     assert.equal(record(on).via, undefined);
     const withVia = await suite({ allowance: null, features: { [FEATURE_GATE]: false } });
@@ -170,7 +170,7 @@ test('gate: replay equals live: rebuild, a swipe, a Re-read, a middle delete and
     s.host.store.rebuild();
     assert.equal(shape(s), live, 'rebuild equals live after the delete');
     assert.deepEqual(s.host.store.problems(), []);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('gate: the swipe and the Re-read count a reply once (a repeat is another reply, never the same one again)', async () => {
@@ -186,7 +186,7 @@ test('gate: the swipe and the Re-read count a reply once (a repeat is another re
 });
 
 test('gate: stored shapes: a bad ring, a bad kind or a gate without its approach is refused', () => {
-    const slice = via => ({ npcs: { mira: { name: 'Mira', meters: { trust: 0, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [], ...via } }, problems: [] });
+    const slice = via => ({ npcs: { npc_mira: { name: 'Mira', meters: { trust: 0, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [], ...via } }, problems: [] });
     assert.deepEqual(validateNpcSlice(slice({ via: JSON.stringify([{ d: 1, r: 'sw_a', v: 'praise' }]) })), []);
     assert.ok(validateNpcSlice(slice({ via: 'not json' })).length);
     assert.ok(validateNpcSlice(slice({ via: JSON.stringify([{ d: 1, r: 'sw_a', v: 'bribe' }]) })).length);

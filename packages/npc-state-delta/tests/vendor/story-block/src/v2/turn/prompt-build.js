@@ -85,7 +85,7 @@ export function createPromptBuild(s, deps) {
                 }
             }
             // A merged hook (domains/index.js mergeParts) keeps the answers of the parts that did answer and reports the others.
-            for (const entry of Array.isArray(out?.problems) ? out.problems : []) problem({ module: moduleId, code: entry.code, message: entry.message });
+            for (const entry of Array.isArray(out?.problems) ? out.problems : []) problem({ module: moduleId, code: entry.code, message: entry.message, ...(entry.quiet === true ? { quiet: true } : {}) });
             const lines = Array.isArray(out) ? out : Array.isArray(out?.lines) ? out.lines : [];
             // The RPG's rolls and its "no rolls" line outrank ordinary tail notes when the tail is trimmed (prompt.js); keptGiven (text.js) pins `{ text, keep: true }` lines.
             const given = keptGiven(lines, NO_ROLLS_LINE);
@@ -379,6 +379,8 @@ export function createPromptBuild(s, deps) {
                 staticText: defuseMacros(built.staticText),
                 tailText: defuseMacros(built.tailText),
                 parts: built.parts,
+                // The change lines are on: the static header names <Changes> (prompt.js), which the closing cue repeats (prompt-hooks.js).
+                changesOn: built.parts.some(part => part.module === 'story-suite' && part.text.includes('<Changes>')),
                 // A Continue's reply was captured before: only blocks the continuation adds to this
                 // text are read (capture.js continuation()).
                 base: kind === 'continue' ? String(chat[last]?.mes ?? '') : null,

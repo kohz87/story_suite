@@ -122,7 +122,7 @@ async function hostedPair(allowance) {
         if (sent) await adapter.adjust({ name: 'Mira', meters: { trust }, start: before.relationship, reply, ...(typeof last.impact === 'string' ? { impact: last.impact } : {}) });
         return { sent, reply };
     };
-    const slice = () => host.head().domains.npc.npcs.mira;
+    const slice = () => host.head().domains.people?.bonds?.npcs?.npc_mira;
     const sliceTrust = () => host.sdk.query('npc.meters', { name: 'Mira' })?.meters.trust;
     const shownTrust = () => adapter.sliceView(state.npcs)[0].relationship.trust;
     return { host, state, adapter, scan, slice, sliceTrust, shownTrust };

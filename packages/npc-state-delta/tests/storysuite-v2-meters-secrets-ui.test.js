@@ -17,7 +17,9 @@ test('secrets: the Secrets view is the notes in order, opened with title, text a
     // No meters yet: every note is hidden, and the view still exists.
     const bare = h.adapter.dossierMeters(Object.values(delta.records));
     assert.deepEqual(bare.npc_mira.secrets.map(note => [note.state, note.opens]), [['hidden', 'Opens at Trust 20'], ['hidden', 'Opens with the story'], ['hidden', 'Opens at Trust 60']]);
-    assert.equal(bare.npc_oren, undefined, 'no notes and no meters: no view');
+    // (people store P4) every stored person is in npc.cast, so a person with no notes and no meter change yet has a view at their starting meters, and no secrets.
+    assert.deepEqual(bare.npc_oren?.secrets ?? [], [], 'no notes: no Secrets rows');
+    assert.ok(Array.isArray(bare.npc_oren?.bars), 'a view at the starting meters');
     h.reply('Nice.', '~ npc Mira | trust: +12');
     const mira = () => h.adapter.dossierMeters(Object.values(delta.records)).npc_mira;
     assert.deepEqual(mira().secrets.map(note => note.state), ['open', 'hidden', 'hidden']);

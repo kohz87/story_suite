@@ -2,6 +2,8 @@
 // preserving part order for hooks, statics, tails, tabs and settings sections.
 
 import { hookTimeout } from '../../turn.js';
+import { FLAGS } from '../../flags.js';
+import { isolatedAfterCapture } from './isolate-after.js';
 
 const TIMED_OUT = Symbol('timed out');
 // `value`, or TIMED_OUT when it is a promise that has not settled within `ms`.
@@ -25,7 +27,7 @@ async function withinLimit(value, ms) {
  * 'diagnostics'`, a fold of its own in Settings → Diagnostics, its id `settings.fold.id` else its title
  * in lowercase: the Events).
  */
-export function mergeParts(parts) {
+export function mergeParts(parts, { flagOn = () => false } = {}) {
     const out = { domains: {}, commands: {}, queries: {}, kinds: {}, cards: {}, hooks: {}, tabs: [], statics: [], tails: [], budget: 0, sections: [], folds: [], defaults: {}, schema: {} };
     const put = (table, name, value, what) => {
         if (Object.hasOwn(out[table], name)) throw new Error(`Story Block: two parts both define the ${what} "${name}".`);
@@ -82,6 +84,7 @@ export function mergeParts(parts) {
                     else {
                         lines.push(...(Array.isArray(answer?.lines) ? answer.lines : []));
                         commands.push(...(Array.isArray(answer?.commands) ? answer.commands : []));
+                        problems.push(...(Array.isArray(answer?.problems) ? answer.problems : []));
                         if (answer?.fightStart) fightStart = answer.fightStart;
                     }
                 }
@@ -89,6 +92,8 @@ export function mergeParts(parts) {
             }, 'timeoutMs', { enumerable: true, get: () => fns.reduce((sum, fn) => sum + hookTimeout(fn), 500) })
             // afterCapture: every part's steps are run, in part order (the data blocks' timers and reply-end steps, then the RPG's fight XP).
             : name === 'afterCapture' ? (...args) => {
+                // Flag `suite.isolatedApply`: each part isolated, a failing part named in the answer's problems.
+                if (flagOn(FLAGS.isolatedApply) === true) return isolatedAfterCapture(fns)(...args);
                 const answers = fns.map(fn => fn(...args));
                 const join = list => {
                     const commands = list.flatMap(answer => (Array.isArray(answer?.commands) ? answer.commands : []));

@@ -31,7 +31,7 @@ test('hosted: a scan\'s relationship change goes to the slice as npc.adjust; the
         assert.deepEqual(sent[0].options, { background: true }, 'sent as Delta\'s own action (cause ui), and as a background change: Story Block saves it in its late window');
         const injectionBefore = api.injectionPreview().text;
         // The slice says otherwise: views and the injection follow it, Delta's own data does not.
-        mockState.sdk.entries = [{ key: 'yunyun', name: 'Yunyun', meters: { trust: 88, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [] }];
+        mockState.sdk.entries = [{ key: 'npc_yunyun', name: 'Yunyun', meters: { trust: 88, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [] }];
         assert.equal(api.getDossierState().npcs.find(npc => npc.name === 'Yunyun').relationship.trust, 88);
         assert.equal(api.getState().npcs.find(npc => npc.name === 'Yunyun').relationship.trust, relationship.trust, 'the sidecar keeps its own numbers');
         api.render();

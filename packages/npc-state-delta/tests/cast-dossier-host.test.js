@@ -66,7 +66,7 @@ test('the meeting is recorded in the slice at the reply it is first seen: the fi
     assert.equal(fenna.meters.trust, 10);
     assert.equal(fenna.meters.loyalty, 30, 'a meter this chat has takes the pack\'s first value');
     assert.equal(s.meters('Sera'), null);
-    const slice = s.host.head().domains.npc;
+    const slice = s.host.head().domains.people?.bonds;
     assert.deepEqual(validateNpcSlice(slice), []);
     assert.ok(slice.problems.some(problem => /nonsense/.test(problem.text)), 'a meter this chat does not have is a problem line, not an error');
     assert.deepEqual(s.synced.length, 1, 'and the dossier is made (once)');
@@ -139,7 +139,7 @@ test('the person\'s own stages work like a ladder: reached by the numbers, only 
 test('with no Story Director the per-reply step and the slice are exactly as before', async () => {
     const s = await suite({ modules: [], features: OLD_DEFAULTS });
     await s.say(['~ npc Ren | trust: +5']);
-    assert.equal(s.host.head().domains.npc.cast, undefined);
+    assert.equal(s.host.head().domains.people?.bonds?.cast, undefined);
     assert.deepEqual(s.synced, []);
     assert.equal(s.meters('Ren').meters.trust, 5);
 });
@@ -188,15 +188,15 @@ test('mood: a person met from the cast starts at the resting mood their pack per
     const calm = await suite({ features: { 'npc-state-delta.mood-pull': true } });
     await calm.world([castRow({ entry: { ...structuredClone(FENNA_ENTRY), personality: 'Calm, confident and unhurried.' } })]);
     await calm.say(['~ meet Fenna']);
-    const raw = Object.values(calm.host.head().domains.npc.npcs).find(record => record.name === 'Fenna')?.mood;
+    const raw = Object.values(calm.host.head().domains.people.bonds.npcs).find(record => record.name === 'Fenna')?.mood;
     const mood = readLeaf(raw);
     assert.equal(typeof raw, 'string', 'stored whole as one text leaf');
     assert.deepEqual([mood?.v, mood?.a, mood?.d, mood?.rest], [0, -2, 1, { v: 0, a: -2, d: 1 }]);
-    assert.deepEqual(validateNpcSlice(calm.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(calm.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     const plain = await suite({ features: { 'npc-state-delta.mood-pull': true } });
     await plain.world([castRow({ entry: { ...structuredClone(FENNA_ENTRY), personality: 'Likes ferries.' } })]);
     await plain.say(['~ meet Fenna']);
-    assert.equal(Object.values(plain.host.head().domains.npc.npcs).find(record => record.name === 'Fenna')?.mood, undefined, 'no temperament words: no mood until an event');
+    assert.equal(Object.values(plain.host.head().domains.people.bonds.npcs).find(record => record.name === 'Fenna')?.mood, undefined, 'no temperament words: no mood until an event');
 });
 
 test('defaults on: a meeting written with gate, mood and pull, and notes off is read again identically after they are switched on (the tick is kept, no tastes, drives or mood are added)', async () => {
@@ -206,7 +206,7 @@ test('defaults on: a meeting written with gate, mood and pull, and notes off is 
     await s.say(['~ meet Fenna']);
     const meeting = s.host.store.headIndex();
     await s.say(['~ npc Fenna | trust: -3 | impact: major']);
-    const bare = () => JSON.stringify(s.host.head().domains.npc).replace(/sw_[a-z0-9]+/g, 'sw');
+    const bare = () => JSON.stringify(s.host.head().domains.people?.bonds).replace(/sw_[a-z0-9]+/g, 'sw');
     const written = bare();
     for (const id of Object.keys(OLD_DEFAULTS)) s.host.features.set(id, true);
     s.host.store.rebuild();

@@ -1,7 +1,8 @@
 // Read-only NPC meter queries and screen views. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
-import { NPC_DOMAIN, MAX_STAGES_PER_METER, SECRET_TITLE_MAX, NAME_MAX, FEATURE_NOTES, isObject, isInt, isReplyId, sameReply, clean, own, bandWord, needMet, thresholdReached, stageAt, clamp, intOr, readLeaf } from './npc-meters-config.js';
-import { initialNpcSlice, findNpcKey, meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
+import { MAX_STAGES_PER_METER, SECRET_TITLE_MAX, NAME_MAX, FEATURE_NOTES, isObject, isInt, isReplyId, sameReply, clean, own, bandWord, needMet, thresholdReached, stageAt, clamp, intOr, readLeaf } from './npc-meters-config.js';
+import { findNpcKey, meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
+import { bondsOf } from './npc-meters-parts/fold.js';
 import { eventLog, readEvent } from './npc-meters-pacing.js';
 import { INSTINCT_KEYS } from '../npc-instincts.js';
 import { moodBars, moodWord, normalizeMood, readMoodLog } from '../npc-mood.js';
@@ -13,7 +14,21 @@ export function createNpcQueries({
 }) {
     // ---- queries ----
 
-    const sliceOf = state => (isObject(state?.domains?.[NPC_DOMAIN]?.npcs) ? state.domains[NPC_DOMAIN] : initialNpcSlice());
+    // The meters are the people domain's `bonds`, keyed by npc_ id (src/npc-meters-parts/fold.js).
+    const sliceOf = state => bondsOf(state);
+    // The store's people as the cast lists them: every dossier in the store's order that is not archived (the same people as npc.known; archived ones,
+    // stale, set aside or deceased, stay out until the record shape cleanup replaces archiving), with its bonds entry, or where that entry would start.
+    const castPeople = (state, npcs, defs) => {
+        const people = state?.domains?.people;
+        if (!isObject(people?.npcs) || !Array.isArray(people.order)) return [];
+        return people.order.map(id => people.npcs[id]).filter(person => isObject(person) && person.archived !== true && typeof person.name === 'string' && person.name).map(person => {
+            const labels = [person.id, person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])].filter(label => typeof label === 'string');
+            const key = findNpcKey(npcs, labels);
+            const seed = isObject(person.relationship) ? person.relationship : {};
+            const record = key ? npcs[key] : { name: person.name, meters: Object.fromEntries(defs.map(def => [def.id, intOr(seed[def.id], null) === null ? def.start : clamp(intOr(seed[def.id], 0), def.min, def.max)])), stages: {}, unlocked: [] };
+            return { id: person.id, key: key ?? person.id, name: person.name, record };
+        });
+    };
     const entryView = (key, record, defs, rungs) => ({
         key,
         name: record.name,
@@ -133,7 +148,8 @@ export function createNpcQueries({
             return delta ? { ...bar, delta } : bar;
         });
     }
-    const presentKeys = npcs => new Set(presentNames().map(name => findNpcKey(npcs, [name, ...(resolve(name)?.aliases ?? [])])).filter(Boolean));
+    // The keys of the people present now: an entry found for the name (its dossier's id first), else the dossier's own id (someone with no meters yet).
+    const presentKeys = npcs => new Set(presentNames().map(name => identify(npcs, name)?.key).filter(Boolean));
 
     // The dossier's mood and pull (feature mood-pull; only a record that has them): `mood` { word, valence, energy, control, bars,
     // cause, day, rest (the resting axes it fades toward), log (the last moves of the axes, newest first: { n, date, v, a, d, why }) } and `pull` { kind, cause, since, days, level (1..3, the top item's score), inst }. Plain data: the UI escapes the text.
@@ -166,7 +182,7 @@ export function createNpcQueries({
             return Object.keys(npcs).sort().map(view);
         },
         /**
-         * npc.cast() → [{ key, name, present, bars, still, rank?, next?, notesOn?, locked, opened }], present
+         * npc.cast() → the store's people (castPeople): [{ key (the npc_ id of its meters), name, present, bars, still, rank?, next?, notesOn?, locked, opened }], present
          * first. `bars`: [{ id, label, value, min, max, stage, text, tone, ceiling?, floor?, ticks?,
          * delta? }] (ss.meter's props; `delta` is the change of the entry's latest reply window),
          * `still`: the same without `delta`. `locked`: the hidden notes still locked, as teasers with no
@@ -179,14 +195,13 @@ export function createNpcQueries({
             const defs = defsFrom(settings);
             const here = presentKeys(npcs);
             const head = isObject(args) && Object.hasOwn(args, 'headReply') ? args.headReply : undefined;
-            return Object.keys(npcs)
-                .map(key => {
-                    const record = npcs[key];
+            return castPeople(state, npcs, defs)
+                .map(({ key, name, record }) => {
                     const list = bars(record, defs, settings, { headReply: head, reply: tools?.reply ?? null });
                     const ladder = ladderView(record, settings, defs);
                     const notes = notesView(record, defs);
                     return {
-                        key, name: record.name, present: here.has(key), bars: list, still: list.map(({ delta, ...bar }) => bar),
+                        key, name, present: here.has(key), bars: list, still: list.map(({ delta, ...bar }) => bar),
                         ...(ladder?.rank ? { rank: ladder.rank } : {}),
                         ...(ladder?.text ? { next: ladder.text } : {}),
                         ...(record.mood || record.pull ? moodPullView(record) : {}),
@@ -201,12 +216,12 @@ export function createNpcQueries({
         },
         /** npc.keyAway → the memory of key people's last absences (see observeKeyAway), {} when none. Read by Delta's dossier, cards and injection. */
         'npc.keyAway'(state) {
-            const memory = state?.domains?.[NPC_DOMAIN]?.keyAway;
+            const memory = sliceOf(state).keyAway;
             return isObject(memory) ? JSON.parse(JSON.stringify(memory)) : {};
         },
         /** npc.castMade → the people Delta made a dossier for from the cast, { [castKey]: { name, rungs? } }, {} when none. */
         'npc.castMade'(state) {
-            const cast = state?.domains?.[NPC_DOMAIN]?.cast;
+            const cast = sliceOf(state).cast;
             return isObject(cast) ? JSON.parse(JSON.stringify(cast)) : {};
         },
         /** npc.next({ name }) → the NPC's ladder from here ({ rank, next, risk, text }), or null. */

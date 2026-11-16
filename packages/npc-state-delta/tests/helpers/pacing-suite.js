@@ -5,6 +5,7 @@ import { createHost } from '../vendor/story-block/testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../../src/storysuite-v2.js';
 import { DEFAULT_RELATIONSHIP_CAPS } from '../../core.js';
 import { fromFlatDay, normalizeAllowance } from '../../src/relationship-pacing.js';
+import { seedPeople } from './seed-people.js';
 
 export const DAY = 1440;
 
@@ -60,6 +61,7 @@ export async function suite({ records = dossiers(), clock = true, allowance, cal
     });
     adapter.start();
     assert.equal(await adapter.settled(), true);
+    await seedPeople(host.sdk, host.store, delta.records);   // the dossiers are the store's people (npc.cast lists them)
     const block = lines => (lines.length ? `\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : '');
     const say = async (lines = []) => { await host.send('And then?', `The story goes on.${block(lines)}`); await adapter.ticked(); return host.store.headIndex(); };
     const swipe = async (lines = []) => { await host.swipe(`Another way.${block(lines)}`); await adapter.ticked(); };
@@ -68,7 +70,7 @@ export async function suite({ records = dossiers(), clock = true, allowance, cal
     const lastSummary = () => host.store.receipts().map(item => item.receipt).filter(item => item.type === 'npc.line' || /^npc\./.test(item.type ?? '')).at(-1)?.summary
         ?? host.store.receipts().map(item => item.receipt).at(-1)?.summary;
     // The stored record is flat (day in every key); the tests read it as { day, reply, counts }.
-    const day = name => newestFlatDay(host.head().domains.npc.npcs[name]?.impactDay) ?? undefined;
+    const day = name => newestFlatDay(host.head().domains.people.bonds.npcs[`npc_${name}`]?.impactDay) ?? undefined;
     return { host, adapter, delta, say, swipe, setDay, npc, lastSummary, day };
 }
 

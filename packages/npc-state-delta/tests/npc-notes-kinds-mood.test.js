@@ -28,11 +28,11 @@ test('notes host: npc.mood sets the three numbers from the scanner\'s word, logs
     const s = await suite({ allowance: null, features: { ...ON, 'npc-state-delta.mood-pull': true } });
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
-    const slice = () => s.host.head().domains.npc;
+    const slice = () => s.host.head().domains.people?.bonds;
     assert.equal((await s.host.sdk.command('npc.mood', { name: 'Oren', word: 'mortified' })).ok, false, 'not from a button');
     const head = s.host.store.headIndex();
     await s.adapter.mood({ name: 'Oren', word: 'mortified and flustered', reason: 'the wardrobe mishap', reply: head });
-    const oren = slice().npcs.oren;
+    const oren = slice().npcs.npc_oren;
     const mood = readLeaf(oren.mood);
     assert.deepEqual([mood.v, mood.a, mood.d], [-2, 2, -3]);
     const log = readLeaf(oren.moodLog).e;
@@ -47,10 +47,10 @@ test('notes host: npc.mood sets the three numbers from the scanner\'s word, logs
     assert.equal(JSON.stringify(slice()), before);
     // a word with no numbers and no known word keeps the numbers and says so (never silently nothing)
     assert.equal((await s.adapter.mood({ name: 'Oren', word: 'xyzzy', reply: head })).ok, true);
-    const kept = readLeaf(slice().npcs.oren.mood);
+    const kept = readLeaf(slice().npcs.npc_oren.mood);
     assert.deepEqual([kept.v, kept.a, kept.d], [-2, 2, -3], 'the previous numbers stay');
     assert.equal(kept.cause, 'now xyzzy — mood word not rated');
-    assert.equal(readLeaf(slice().npcs.oren.moodLog).e.length, 1, 'no movement: no new history row');
+    assert.equal(readLeaf(slice().npcs.npc_oren.moodLog).e.length, 1, 'no movement: no new history row');
     const after = JSON.stringify(slice());
     s.host.store.rebuild();
     assert.equal(JSON.stringify(slice()), after, 'rebuild equals live');
@@ -67,10 +67,10 @@ test('notes host: a caught lie (a trust drop) writes its move on the mood histor
     assert.equal(log.length, 1, 'the trust drop made one entry');
     assert.match(log[0].why, /caught lying to Astra/);
     assert.ok(log[0].v < 0 && log[0].a > 0, 'the axes moved the way the event says');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
-    const live = JSON.stringify(s.host.head().domains.npc);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
+    const live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'rebuild equals live');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'rebuild equals live');
 });
 
 test('notes host: the reason a story line gave is kept on the reply\'s last event and read back by the card summary; a line without one keeps none', async () => {
@@ -81,10 +81,10 @@ test('notes host: the reason a story line gave is kept on the reply\'s last even
     assert.equal(eventSummary(readEvent(oren(s).lastEvent)).why, 'Astra helped her cover up after the mishap');
     await s.say(['~ npc Oren | affection: +1']);
     assert.equal(eventSummary(readEvent(oren(s).lastEvent)).why, undefined, 'no reason given: none kept');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
-    const live = JSON.stringify(s.host.head().domains.npc);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
+    const live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'rebuild equals live');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'rebuild equals live');
 });
 
 test('replay: a Re-read of a reply the older code read writes no mood history and keeps no story reason; a first read and a read the new code made do', async () => {
@@ -106,10 +106,10 @@ test('notes host: the catch-up (again) gives a mood word kept from before the nu
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
     await s.adapter.meet({ name: 'Oren', personality: 'quiet' });
-    const slice = () => s.host.head().domains.npc;
-    assert.deepEqual([readLeaf(slice().npcs.oren.mood).v, readLeaf(slice().npcs.oren.mood).a], [0, 0], 'at rest, no cause');
+    const slice = () => s.host.head().domains.people?.bonds;
+    assert.deepEqual([readLeaf(slice().npcs.npc_oren.mood).v, readLeaf(slice().npcs.npc_oren.mood).a], [0, 0], 'at rest, no cause');
     assert.equal((await s.adapter.mood({ name: 'Oren', word: 'wary', again: true })).ok, true);
-    assert.deepEqual([readLeaf(slice().npcs.oren.mood).v, readLeaf(slice().npcs.oren.mood).a, readLeaf(slice().npcs.oren.mood).d], [-1, 1, 0]);
+    assert.deepEqual([readLeaf(slice().npcs.npc_oren.mood).v, readLeaf(slice().npcs.npc_oren.mood).a, readLeaf(slice().npcs.npc_oren.mood).d], [-1, 1, 0]);
     assert.equal((await s.adapter.mood({ name: 'Oren', word: 'wary', again: true })).ok, false, 'the second catch-up finds a mood that already follows a move');
     assert.deepEqual(validateNpcSlice(slice()), []);
 });
@@ -272,18 +272,18 @@ test('notes host: npc.mood takes the three numbers the scan gave over the word l
     const s = await suite({ allowance: null, features: { ...ON, 'npc-state-delta.mood-pull': true } });
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
-    const slice = () => s.host.head().domains.npc;
+    const slice = () => s.host.head().domains.people?.bonds;
     const head = s.host.store.headIndex();
     // 'Impatient' is on the list too, but the scan's own numbers win
     assert.equal((await s.adapter.mood({ name: 'Oren', word: 'Impatient', vad: { v: 2, a: -2, d: 3 }, reply: head })).ok, true);
-    let mood = readLeaf(slice().npcs.oren.mood);
+    let mood = readLeaf(slice().npcs.npc_oren.mood);
     assert.deepEqual([mood.v, mood.a, mood.d], [2, -2, 3], 'the numbers the scan gave');
-    const row = readLeaf(slice().npcs.oren.moodLog).e[0];
+    const row = readLeaf(slice().npcs.npc_oren.moodLog).e[0];
     assert.equal(row.n, head);
     assert.equal(typeof row.s, 'string', 'the history names the reply by its record id');
     // an unknown word without numbers: the numbers stay and the reason says so
     await s.adapter.mood({ name: 'Oren', word: 'Zonked', reply: head });
-    mood = readLeaf(slice().npcs.oren.mood);
+    mood = readLeaf(slice().npcs.npc_oren.mood);
     assert.deepEqual([mood.v, mood.a, mood.d], [2, -2, 3]);
     assert.match(mood.cause, /mood word not rated/);
     assert.deepEqual(validateNpcSlice(slice()), []);
@@ -293,7 +293,7 @@ test('notes host: npc.mood takes the three numbers the scan gave over the word l
     // the fallback: no numbers, a known word with a negation
     await s.say(['~ npc Oren | trust: +1']);
     await s.adapter.mood({ name: 'Oren', word: 'not angry, wary', reply: s.host.store.headIndex() });
-    mood = readLeaf(slice().npcs.oren.mood);
+    mood = readLeaf(slice().npcs.npc_oren.mood);
     assert.deepEqual([mood.v, mood.a, mood.d], [-1, 1, 0], 'only "wary" counts');
 });
 
@@ -301,10 +301,10 @@ test('notes host: npc.mood for a person the meeting has not made (it was refused
     const s = await suite({ allowance: null, features: { ...ON, 'npc-state-delta.mood-pull': true } });
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
-    const slice = () => s.host.head().domains.npc;
-    assert.equal(slice().npcs.pell, undefined);
+    const slice = () => s.host.head().domains.people?.bonds;
+    assert.equal(slice().npcs.npc_pell, undefined);
     assert.equal((await s.adapter.mood({ name: 'Pell', word: 'Zonked', personality: 'cheerful, warm and kind', about: '', reply: s.host.store.headIndex() })).ok, true);
-    const mood = readLeaf(slice().npcs.pell.mood);
+    const mood = readLeaf(slice().npcs.npc_pell.mood);
     assert.deepEqual([mood.v, mood.a, mood.d], [2, 0, 0], 'the mood sits at the resting mood the words give');
     assert.deepEqual(mood.rest, { v: 2, a: 0, d: 0 }, 'so it fades toward the person\'s calm');
     assert.deepEqual(validateNpcSlice(slice()), []);

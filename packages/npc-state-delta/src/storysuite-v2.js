@@ -209,13 +209,14 @@ export function createStorySuiteV2Adapter({
         chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
         rescan: () => queriesPart.runtime()?.rescanLatest?.(),
         carry: peopleCarry,
+        mark: (index, since) => queriesPart.runtime()?.setScanMarker?.(index, since),
     });
     deps.peopleSync = peopleSync;
     // A death the host confirmed: stored as a people write for the head's reply (see src/adapter/native-death.js).
     const nativeDeath = createNativeDeath({
         sdk: () => session.sdkRef, peopleSync, identity: args => timelinePartRef.timeline.queries['npc.identity'](null, args),
         readState: () => queriesPart.runtime()?.getState?.() ?? null,
-        apply: state => queriesPart.runtime()?.hydratePeople?.(peopleState(peopleView(state))) === true,
+        setRecord: record => queriesPart.runtime()?.setPeopleRecord?.(record) === true,
     });
     const castUiPart = createCastUiPart(session, deps);
     Object.assign(deps, castUiPart);

@@ -9,49 +9,50 @@
 //   cards under replies are the feature `story-block.cards` (each card screen keeps its own switch too).
 // * Features (MODULES §F100): screens, tabs and widgets under a feature the reader turned off are hidden,
 //   whoever restyled them (a pack, the card, the reader); turning one on or off redraws what it touches.
-// * The notes under replies (src/v2/reply-notes.js, MODULES §F40): a reply that came without change lines,
-//   a reply edited since, each with Re-read when the runtime offers one. The changes card gets the reply's
-//   refused lines in its scope as `refused` (§F41).
-// * Choices under replies (src/v2/extras-ui.js, MODULES §F115): the latest reply's choices as buttons
-//   that only fill the message box. Inner chatter is not drawn under replies (World → Now or Scene shows it).
-// * The tab panel: the tab host (src/v2/host-ui.js) with every module tab and every `tab` screen, a
-//   side sheet on wide screens and a bottom sheet on phones. Redrawn from the head on every change.
-// * The reader's tab order (src/v2/view/tab-order.js, Settings → Tabs & Packs → Tabs): one list for the
-//   panel's tabs and the game view's screens, Up/Down, Shown, Reset to default. Hidden ones leave the
-//   tab strip and the game view's navigation; Home is always first and shown.
+// * The notes under replies (src/v2/reply-notes.js, MODULES §F40): a reply that came without change lines, a reply edited since,
+//   each with Re-read when the runtime offers one. The changes card gets the reply's refused lines as `refused` (§F41).
+// * Choices under replies (src/v2/extras-ui.js, MODULES §F115): the latest reply's choices as buttons that only fill the message
+//   box. Inner chatter is not drawn under replies (World → Now or Scene shows it).
+// * The tab panel: the tab host (src/v2/host-ui.js) with every module tab and every `tab` screen, a side sheet on wide screens and a
+//   bottom sheet on phones. Redrawn from the head on every change.
+// * The reader's tab order (src/v2/view/tab-order.js, Settings → Tabs & Packs → Tabs): one list for the panel's tabs and the game
+//   view's screens, Up/Down, Shown, Reset to default; Home is always first and shown.
 // * The Story Block drawer in Extensions: version, modules, the same buttons.
-// * Settings → Diagnostics (src/v2/diagnostics.js): a report to copy or save, made from the runtime's
-//   parts and each module's `hooks.diagnostics`; Story Suite's console errors are caught for it. And
-//   "Show the UI sample" (src/v2/screens/ui-sample.js): every building block of the look, light and dark.
-// * The look (src/v2/view/theme.js): the theme bridge writes Story Suite's tokens (light or dark from
-//   SillyTavern's theme, Settings → Story Suite → Panel style and Font) for every Story Suite root.
+// * Settings → Diagnostics (src/v2/diagnostics.js): a report to copy or save, made from the runtime's parts and each module's
+//   `hooks.diagnostics`; console errors are caught for it. And "Show the UI sample" (src/v2/screens/ui-sample.js).
+// * The look (src/v2/view/theme.js): the theme bridge writes Story Suite's tokens (light or dark from SillyTavern's theme,
+//   Settings → Story Suite → Panel style and Font) for every Story Suite root.
 // * The wand menu: Story Suite (the overlay). The overlay's prompt size counts what the next reply would
 //   be sent (turn.preview) with SillyTavern's tokenizer when there is one; `openSettings({ fold })` opens
 //   it at one fold (Home's "Import a pack" → the Packs fold, while no pack is installed).
-// * The five mounts (SPEC §13.4) over the screen registry, drawn by the layout renderer (and the
-//   template renderer when it is in this checkout), with the standard and module widgets, and the
-//   host's own two that need the store and the chat: `story-block.inspector` (the Inspector screen,
-//   MODULES §F92; feature `story-block.inspector`, off by default) and `story-block.savepoints` (the
-//   save points on Home, §F93; feature `story-block.savepoints`, on).
+// * The five mounts (SPEC §13.4) over the screen registry, drawn by the layout renderer (and the template renderer when it is in this
+//   checkout), with the standard and module widgets, and the host's own two that need the store and the chat: `story-block.inspector`
+//   (MODULES §F92; feature off by default) and `story-block.savepoints` (the save points on Home, §F93; feature on).
+// * The parts of mountUi that stand alone are in src/v2/ui-host/ (inspector-problems, card-offer-wiring, lean-rpg-sync, drawer, host-api, notes-wiring).
 //
 // Every text is set with textContent; nothing a module or a pack wrote becomes markup here. The texts are
 // in src/v2/strings.js.
 
 import { HOME_SCREEN_ID } from './screens/index.js';
-import { createReplyNotes } from './reply-notes.js';
 import { createReplyExtras } from './extras-ui.js';
 import { displayLines } from './extras.js';
 import { fill } from './strings.js';
-import { CORE_FEATURE, GEAR_FEATURE } from './features.js';
-import { createCardOffer, enableDataModules } from './packs/card-offer.js';
+import { CORE_FEATURE } from './features.js';
 import { renderCardOffers } from './packs/card-offer-ui.js';
 import { readCharacterLorebook, saveSettingsNow } from './packs/st-adapter.js';
 import { createReplyCards } from './ui-host/replies.js';
+import { inspectorProblemsFor } from './ui-host/inspector-problems.js';
+import { createCardOfferWiring } from './ui-host/card-offer-wiring.js';
+import { createHostApi } from './ui-host/host-api.js';
+import { createNotesWiring } from './ui-host/notes-wiring.js';
+import { createDrawerUi } from './ui-host/drawer.js';
+import { createLeanRpgSync } from './ui-host/lean-rpg-sync.js';
 import { createUiMounts } from './ui-host/mounts.js';
 import { createUiNavigation } from './ui-host/navigation.js';
 import { createUiSettings } from './ui-host/settings.js';
 import { installUiEvents, createHold } from './ui-host/events.js';
 import { createUiPanel } from './ui-host/panel.js';
+import { createSendNote } from './ui-host/send-note.js';
 import { createHostSetup } from './ui-host/setup.js';
 import { createScreenSync } from './ui-host/screens.js';
 import { IDS, el, iconButton, S, isGameViewKey, hasReplyRecord, hudOn } from './ui-host/shared.js';
@@ -68,59 +69,18 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     const { registry, store, sdk, settings, events } = runtime;
     const { queryAt, widgets, coreOn, blockTemplates, blockWidgets, liveCtx, savePoints, inspector, hostWidgets, renderer,
         screens, tabOrder, extraTabs, navPresent, barDeclared, setSharedTabs } = createHostSetup({
-        runtime, ctx, doc, registry, store, sdk, openSettings, inspectorProblems, getRpg: () => rpg, openScreen: id => mounts?.screen?.open?.(id) ?? false,
+        runtime, ctx, doc, registry, store, sdk, openSettings, inspectorProblems, getRpg: () => leanRpg.getRpg(), openScreen: id => mounts?.screen?.open?.(id) ?? false,
     });
     const { rpgOn, blockPresentation, syncScreens } = createScreenSync({ doc, registry, sdk, screens, setSharedTabs });
 
     const redrawHold = createHold();
-    const api = Object.freeze({
-        command: (type, payload, options) => sdk.command(type, payload, options),
-        preview: (type, payload) => sdk.preview(type, payload),
-        // A form with several steps holds the screens' redraw from `committed` until its plan ends (the returned release), then each held redraw runs once.
-        hold: () => redrawHold.hold(),
-        // A page notice for a result the screen cannot show itself (its form was redrawn away).
-        notify: text => globalThis.toastr?.warning?.(text, 'Story Block'),
-        commit: token => sdk.commit(token),
-        query: (name, args) => sdk.query(name, args),
-        on: (name, fn) => {
-            if (name !== 'committed') return sdk.on(name, fn);
-            const held = (...args) => redrawHold.run(held, () => fn(...args));
-            const off = sdk.on(name, held);
-            return () => { redrawHold.drop(held); if (typeof off === 'function') off(); };
-        },
-        rewind: options => sdk.rewind(options),
-        substitute: text => sdk.substitute(text),
-        dialog: Object.freeze({ open: (screenId, opts) => sdk.dialog.open(screenId, opts), current: () => sdk.dialog.current?.() ?? null }),
-        // A reply card's "open" action: the screen in the game view (window on desktop, full screen on a phone).
-        openScreen: id => mounts?.screen?.open?.(id) ?? false,
-    });
+    const api = createHostApi({ sdk, redrawHold, getMounts: () => mounts });
     const carriers = () => (ctx.chat ?? []).map((message, index) => (message && !message.is_user ? index : -1)).filter(index => index >= 0);
     // Cards go under replies with a story record of their own; never under the greeting (every message
     // before the reader's first one), which holds the chat's start, not a reply's changes.
     const hasCard = index => hasReplyRecord(ctx.chat ?? [], index);
-    // ---- notes under replies, and the refused lines the changes card shows ----------------------
-    const rereadFn = typeof sdk.reread === 'function' ? index => sdk.reread(index)
-        : typeof runtime.turn?.reread === 'function' ? index => runtime.turn.reread(index) : null;
-    const notes = createReplyNotes({
-        ctx,
-        doc,
-        turn: runtime.turn ?? null,
-        events,
-        reread: rereadFn,
-        extractorOn: () => {
-            try { return typeof sdk.feature === 'function' ? sdk.feature(CORE_FEATURE.extractor) : sdk.settings('story-block')?.assistExtractor === true; } catch { return false; }
-        },
-        // The extractor ran on reply `index` (this swipe, this chat) and its call failed: the note shows.
-        extractorFailed: (index, swipe) => {
-            try {
-                const chat = String(ctx.getCurrentChatId?.() ?? ctx.chatId ?? '');
-                const runs = sdk.query('assist.status')?.runs ?? [];
-                const last = runs.findLast(run => run?.helper === 'extractor' && run.index === index && run.swipe === swipe && (run.chat ?? '') === chat);
-                return last?.outcome === 'failed' || last?.outcome === 'timeout';
-            } catch { return false; }
-        },
-        onChanged: index => mounts?.card?.refresh?.(index, { force: true }),
-    });
+    // ---- notes under replies, and the refused lines the changes card shows (ui-host/notes-wiring.js) ----
+    const notes = createNotesWiring({ runtime, ctx, doc, sdk, events, getMounts: () => mounts });
     // Choices under the latest reply (MODULES §F115), read from its own text.
     const extras = createReplyExtras({
         ctx,
@@ -129,29 +89,20 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         display: typeof runtime.display === 'function' ? runtime.display : mes => displayLines(mes, { entryOf: word => registry.capture(word) }),
         featureOn: id => registry.featureOn?.(id) === true,
     });
-    // What the Inspector lists as a reply's problems: blocks its replay skipped, and what the turn met
-    // reading it in this session (change lines not used, with why); the refused lines the notes keep
-    // stand in when the turn's list has nothing for that reply.
-    function inspectorProblems(index) {
-        const out = [];
-        for (const item of store.problems?.() ?? []) if (item.index === index) out.push({ code: item.code ?? 'SKIPPED', message: item.message });
-        const told = (runtime.turn?.problems?.() ?? []).filter(item => item?.index === index);
-        for (const item of told) out.push({ code: item.code ?? '', message: item.line ? `"${item.line}": ${item.message}` : item.message });
-        // The notice that a head selection fell to an earlier saved point is not tied to a reply: the Inspector shows the newest one per module.
-        const fell = new Map();
-        for (const item of runtime.turn?.problems?.() ?? []) if (item?.code === 'SELECTION_FELL' && !Number.isInteger(item.index)) fell.set(item.module, item);
-        for (const item of fell.values()) out.push({ code: item.code, message: item.message });
-        if (!told.length) for (const item of notes.refusedAt(index)) out.push({ code: 'REFUSED', message: item.reason ? `"${item.line}": ${item.reason}` : `"${item.line}"` });
-        return out;
-    }
-    // The RPG's screens (src/v2/lean-rpg/view/): loaded by import() only while its feature is on, taken away when it goes off.
-    let rpg = null, rpgLoading = false, rpgGone = false;
+    // What the Inspector lists as a reply's problems (ui-host/inspector-problems.js).
+    function inspectorProblems(index) { return inspectorProblemsFor(index, { store, runtime, notes }); }
+    // The RPG's screens (ui-host/lean-rpg-sync.js): loaded by import() only while its feature is on, taken away when it goes off.
+    const leanRpg = createLeanRpgSync({
+        loadLeanRpg, doc, ctx, store, events, screens, hostWidgets, registry, runtime, liveCtx, settings, sdk, api, rpgOn,
+        getHeadState: () => headStateNow, getMounts: () => mounts, getOverlay: () => overlay, refresh: () => refresh(), openSettings: options => openSettings(options),
+    });
+    const { syncLeanRpg } = leanRpg;
     const { cardLines, assistedAt, branchNow, replyCardsAt, replyOffs } = createReplyCards({
-        runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg: () => rpg, getMounts: () => mounts,
+        runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg: () => leanRpg.getRpg(), getMounts: () => mounts,
     });
     const mounts = createUiMounts({
         screens, renderer, registry, ctx, store, sdk, queryAt, notes, assistedAt, cardLines, replyCardsAt, branchNow, coreOn,
-        api, events, carriers, hasCard, tabOrder, navPresent, barDeclared, extraTabs, doc, getRpg: () => rpg,
+        api, events, carriers, hasCard, tabOrder, navPresent, barDeclared, extraTabs, doc, getRpg: () => leanRpg.getRpg(),
     });
     runtime.setDialog?.((screenId, opts) => mounts.dialog.open(screenId, opts), () => mounts.dialog.current?.() ?? null);
     const { headStateNow, tabSource, tabsControl } = createUiNavigation({
@@ -167,7 +118,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     let overlay = null;
     const settingsUi = createUiSettings({
         runtime, doc, registry, store, sdk, settings, version, widgets, liveCtx, tabsControl, blockTemplates, blockWidgets,
-        getRpg: () => rpg, getHudAsked: () => hudAsked(), getCardLog: () => cardLog,
+        getRpg: () => leanRpg.getRpg(), getHudAsked: () => hudAsked(), getCardLog: () => cardLog,
         getOverlay: () => overlay, setOverlay: value => { overlay = value; },
     });
     const { theme } = settingsUi;
@@ -187,31 +138,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     offerDot.hidden = true;
     storyButton.appendChild(offerDot);
     const cardLog = [];
-    const cardOffer = runtime.packs?.packs && runtime.cardSettings ? createCardOffer({
-        readLorebook,
-        packs: runtime.packs.packs,
-        cardSettings: runtime.cardSettings,
-        remember: {
-            read: () => ctx.extensionSettings?.storySuite?.cardOffers?.notNow ?? {},
-            write: map => {
-                const es = ctx.extensionSettings ?? {};
-                if (!es.storySuite || typeof es.storySuite !== 'object') es.storySuite = {};
-                if (!es.storySuite.cardOffers || typeof es.storySuite.cardOffers !== 'object') es.storySuite.cardOffers = {};
-                es.storySuite.cardOffers.notNow = map;
-                ctx.saveSettingsDebounced?.();
-            },
-        },
-        single: () => !(liveCtx()?.groupId),
-        enableModules: (packId, options) => enableDataModules({ sdk, packId, save: () => store.saveSoon?.(), ...options }),
-        chatId: () => { try { return String((typeof (liveCtx() ?? ctx).getCurrentChatId === 'function' ? (liveCtx() ?? ctx).getCurrentChatId() : (liveCtx() ?? ctx).chatId) ?? ''); } catch { return ''; } },
-        notify: text => globalThis.toastr?.warning?.(text, 'Story Block'),
-        flushSettings: () => flushSettings(),
-        report: entry => {
-            cardLog.push(entry.message);
-            if (cardLog.length > 30) cardLog.shift();
-            runtime.turn?.report?.({ module: null, code: entry.code, message: entry.message, quiet: true });
-        },
-    }) : null;
+    const cardOffer = createCardOfferWiring({ runtime, ctx, sdk, store, liveCtx, readLorebook, flushSettings, cardLog });
     const showDot = () => {
         const waiting = cardOffer?.waiting() === true;
         offerDot.hidden = !waiting;
@@ -264,53 +191,10 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         else if (!bar.parentNode) doc.body.appendChild(bar);
     };
     placeBar();
+    const sendNote = createSendNote({ doc, ctx, enabled: () => settings().sendPending !== false, busy: () => runtime.turn?.replyBusy?.() === true, held: () => leanRpg.getRpg()?.sendHeld?.() === true, openBoard: () => leanRpg.getRpg()?.openHeldFight?.() === true });
 
-    // ---- the Extensions drawer and the wand menu -------------------------------------------
-    const drawerStatus = el(doc, 'p', 'story-suite-muted');
-    let hudCheck = null;
-    let hudRowNode = null;
-    // The strip's switch is shown only while some screen asks for the strip (a `hud` mount); the stored choice stays either way.
-    const hudAsked = () => screens.list('hud').length > 0;
-    function drawer() {
-        const host = doc.querySelector('#extensions_settings2') ?? doc.querySelector('#extensions_settings');
-        if (!host || doc.querySelector(`#${IDS.drawer}`)) return;
-        const root = el(doc, 'div', 'inline-drawer story-suite-drawer');
-        root.id = IDS.drawer;
-        const toggle = el(doc, 'div', 'inline-drawer-toggle inline-drawer-header');
-        toggle.appendChild(el(doc, 'b', '', S.drawer.title));
-        toggle.appendChild(el(doc, 'div', 'inline-drawer-icon fa-solid fa-circle-chevron-down down'));
-        const content = el(doc, 'div', 'inline-drawer-content');
-        const buttons = el(doc, 'div', 'story-suite-drawer-buttons');
-        const one = iconButton(doc, '', 'fa-sliders', S.drawer.settings);
-        const two = iconButton(doc, '', 'fa-book-open', S.drawer.panel);
-        one.addEventListener('click', () => openSettings());
-        two.addEventListener('click', openPanel);
-        buttons.append(one, two);
-        // The status strip's switch (on by default, MODULES §F54).
-        const hudRow = el(doc, 'label', 'checkbox_label story-suite-hud-toggle');
-        hudRow.title = S.drawer.hudTitle;
-        hudRowNode = hudRow;
-        hudRow.hidden = !hudAsked();
-        hudCheck = el(doc, 'input');
-        hudCheck.type = 'checkbox';
-        hudCheck.setAttribute('type', 'checkbox');
-        hudCheck.checked = hudOn(ctx.extensionSettings);
-        hudCheck.addEventListener('change', () => setHud(hudCheck.checked));
-        hudRow.append(hudCheck, el(doc, 'span', '', S.drawer.hud));
-        content.append(drawerStatus, buttons, hudRow);
-        root.append(toggle, content);
-        host.appendChild(root);
-    }
-    function menu() {
-        const host = doc.querySelector('#extensionsMenu');
-        if (!host || doc.querySelector(`#${IDS.menu}`)) return;
-        const item = el(doc, 'div', 'list-group-item flex-container flexGap5 interactable');
-        item.id = IDS.menu;
-        item.tabIndex = 0;
-        item.append(el(doc, 'div', 'fa-solid fa-sliders extensionsMenuExtensionButton'), el(doc, 'span', '', S.menu.suite));
-        item.addEventListener('click', () => openSettings());
-        host.appendChild(item);
-    }
+    // ---- the Extensions drawer and the wand menu (ui-host/drawer.js) ------------------------
+    const { drawer, menu, drawerStatus, hudAsked, syncHud } = createDrawerUi({ doc, ctx, screens, openSettings, openPanel, setHud });
     drawer();
     menu();
 
@@ -342,8 +226,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         if (!panel.hidden) tabHost?.refresh();
         if (hudOn(ctx.extensionSettings)) mounts.hud.show();
         else mounts.hud.hide();
-        if (hudCheck) hudCheck.checked = hudOn(ctx.extensionSettings);
-        if (hudRowNode) hudRowNode.hidden = !hudAsked();
+        syncHud();
         mounts.screen.update();
         notes.refreshAll();
         extras.refreshAll();
@@ -364,34 +247,6 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         }
         refresh();
         return Boolean(on);
-    }
-    function syncLeanRpg() {
-        if (!rpgOn()) { rpg?.destroy(); rpg = null; return; }
-        if (rpg || rpgLoading) return;
-        rpgLoading = true;
-        Promise.resolve().then(() => loadLeanRpg()).then(view => {
-            rpgLoading = false;
-            if (rpgGone || rpg || !rpgOn()) return;
-            rpg = view.mountLeanRpg({ doc, ctx, store, events, screens, widgets: hostWidgets, headState: headStateNow, featureOn: rpgOn, boardOn: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true,
-                // Settings → RPG holds the gear switch (the feature stays out of the Features list).
-                gear: { on: () => registry.featureOn?.(GEAR_FEATURE) === true, set: value => runtime.features?.set?.(GEAR_FEATURE, Boolean(value)) },
-                boardFeature: { on: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true, set: value => runtime.features?.set?.(CORE_FEATURE.fightBoard, Boolean(value)) },
-                readerName: () => String(liveCtx()?.name1 ?? ctx.name1 ?? ''),
-                // The active persona's description: the one property of SillyTavern's settings this reads (never another persona or setting).
-                readerAbout: () => { try { return String((liveCtx()?.powerUserSettings ?? ctx.powerUserSettings)?.persona_description ?? ''); } catch { return ''; } },
-                // What the chat remembers about the first send (lean-rpg/start.js): in its own metadata, written with the chat.
-                meta: () => { try { return (liveCtx() ?? ctx)?.chatMetadata ?? null; } catch { return null; } },
-                save: () => { try { const c = liveCtx() ?? ctx; (c.saveMetadata ?? c.saveMetadataDebounced)?.call(c); } catch { /* the choice lasts this page only */ } },
-                openDialog: (id, opts) => api.dialog.open(id, opts), openScreen: id => api.openScreen(id), closeView: () => mounts.screen.close(), currentScreen: () => mounts.screen.current?.() ?? null, refresh: () => refresh(), command: (type, payload, options) => sdk.command(type, payload, options), values: () => settings('story-block'),
-                previewStart: () => runtime.turn?.fightStartPreview?.(), generateHeld: () => (liveCtx() ?? ctx)?.generate?.('regenerate'),
-                query: (name, args) => { try { return sdk.query(name, args); } catch { return null; } } });
-            mounts.card?.refreshAll?.({ force: true });
-            // Home draws its "Your character" card from `rpg`, which is only set now: the open screen is drawn again.
-            mounts.screen?.update?.();
-            // The settings window was opened before the screens loaded (the reader just switched the feature on): open it again on the same
-            // page, now with the RPG page in its rail.
-            if (overlay?.isOpen?.()) { const page = overlay.section(); openSettings(); overlay.select(page); }
-        }).catch(error => { rpgLoading = false; console.warn('[Story Suite] the RPG screens could not load', error?.message ?? error); });
     }
     const offs = installUiEvents({
         replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer,
@@ -427,10 +282,8 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         theme,
         cardOffer,
         destroy() {
-            rpgGone = true;
             offerView?.destroy();
-            rpg?.destroy();
-            rpg = null;
+            leanRpg.destroy();
             overlay?.close?.();
             mounts.dialog?.closeAll?.();
             tabHost?.destroy?.();
@@ -440,6 +293,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
             doc.removeEventListener?.('keydown', onKey);
             offs.splice(0).forEach(off => off?.());
             notes.destroy();
+            sendNote.destroy();
             extras.destroy();
         },
     };

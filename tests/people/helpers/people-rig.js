@@ -27,6 +27,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
     t.after(() => host.close());
     const listeners = new Set();
     const rescans = [];      // every time the cache told the runtime to read the latest reply again
+    const marks = [];        // every scan marker the cache took from the store: [index, since]
     const hydrations = [];   // every hydrate the cache took from the store
     const warnings = [];
     const base = wrapSdk(host.sdk);
@@ -43,6 +44,9 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
         writeTimeline: async block => { mine.state = { ...mine.state, timeline: structuredClone(block) }; },
         onNativeChange: fn => { listeners.add(fn); return () => listeners.delete(fn); },
         rescanLatest: () => { rescans.push(1); return true; },
+        // The store's scan marker set on the cache, and one person's record set in place (as the runtime's setScanMarker / setPeopleRecord do).
+        setScanMarker: (index, since) => { marks.push([index, since]); mine.state.lastScannedMessageId = index; if (Number.isInteger(since)) mine.state.assistantSinceScan = since; mine.state.pendingBackfills = []; mine.state.readAhead = []; return true; },
+        setPeopleRecord: record => { const at = mine.state.npcs.findIndex(item => item.id === record.id); if (at < 0) return false; mine.state.npcs[at] = clone(record); return true; },
         scanActive: () => false, scanIdle: async () => true, useMessageGate: gate => { api.gate = gate; }, stateReady: () => true, requestHeaders: () => ({}),
     };
     const doc = { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } };
@@ -66,7 +70,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
     // The head's slice as NPC State reads it: an absent slice (nobody written yet) reads as the empty view.
     const stored = () => { const slice = host.head().domains.people ?? { v: 1, order: [], npcs: {} }; const keys = peopleState(slice); return keys ? peopleView(keys) : null; };
     const out = {
-        host, adapter, doc, live: mine, vault, warnings, sends, hydrations, rescans, expected, stored,
+        host, adapter, doc, live: mine, vault, warnings, sends, hydrations, rescans, marks, expected, stored,
         async settle(ms = 3000) {
             const until = Date.now() + ms;
             for (;;) {

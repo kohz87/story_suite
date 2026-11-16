@@ -1,23 +1,24 @@
 // Story Suite v2: the SillyTavern event handlers, moved out of createTurn unchanged: the reply received (its change lines read, captured and
-// kept, then the afterReply / afterReceive hooks), the safety net's late and assist lines, a chat opened, renamed or rewound (deleted messages,
+// kept, then the afterReply / afterReceive hooks: events-hooks.js), the safety net's late and assist lines (events-late.js), a held fight reply (events-held.js), a chat opened, renamed or rewound (deleted messages,
 // swipes, a deleted swipe), the generation stopped or ended, and install / uninstall of the interceptor and the listeners. `createEvents(s, deps)`
 // is given the turn's state holder `s` and the turn parts it uses; it never imports turn.js.
-
 import {
-    adoptLegacy, continuation, cutLine, defangMarker, extractBlock, hideBlock, markOff, parseChanges, withAssist,
+    adoptLegacy, continuation, cutLine, defangMarker, extractBlock, hideBlock, markOff,
 } from '../capture.js';
 import { cutAt } from '../../text.js';
 import { readRecord, swipeLoading } from '../persist.js';
-import { notWritten } from '../assist/extractor.js';
-import { refusedWhy } from '../assist/safety.js';
 import { within } from './text.js';
 import { ensureModules } from '../sdk.js';
-import { boardStep, heldForMessage, rememberHeld, pruneMissingBoard } from './held-board.js';
+import { boardStep, rememberHeld, pruneMissingBoard } from './held-board.js';
 import { clearStart, pendingStart } from './fight-start.js';
-import { ruleMarksOf } from './rule-marks.js';
-
+import { createHeldEvents } from './events-held.js';
+import { createLateEvents } from './events-late.js';
+import { createReplyHooks } from './events-hooks.js';
 export function createEvents(s, deps) {
-    const { markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi } = deps;
+    const { markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
+    const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, boardError, getOnMessageReceived: () => onMessageReceived });
+    const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
+    const { afterReply, receivedHooks } = createReplyHooks(s, { store, problem, events, registry, view, captureLate });
 
     /** MESSAGE_RECEIVED: (messageId, type). */
     async function onMessageReceived(messageId) {
@@ -31,8 +32,7 @@ export function createEvents(s, deps) {
         const message = ctx?.chat?.[id];
         if (!isCarrier(message)) return null;
         s.boardCapture = boardStep(current)?.payload.board ?? null;
-        // The turn's save window opens now, so the capture's lines are not saved one by one (400 ms each).
-        const idle = store.saveIdle?.() === true;
+        const idle = store.saveIdle?.() === true;   // (the turn's save window opens now: the capture's lines are not saved one by one)
         try {
             if (store.headIndex() !== id) store.rebuild();
             ensureInitial();
@@ -104,7 +104,7 @@ export function createEvents(s, deps) {
             afterReply(id, current.type, message, [...parsed.lines, ...late].map(line => line.raw));
             return turn;
         } catch (error) {
-            problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });
+            const failure = problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });
             if (error?.code === 'BOARD_PRELUDE') {
                 const staged = metadata()?.rpgFightBoard?.id === s.boardCapture?.id;
                 s.session = current;
@@ -118,153 +118,16 @@ export function createEvents(s, deps) {
                     await trySave('after holding the fight');
                 }
                 try { notify?.(error.message, 'story-block'); } catch { /* the problem remains visible */ }
+            } else if (isolated() === true) {
+                // Flag `suite.isolatedApply`: the reply's lines were not kept, but the other modules still learn it arrived and the card says why.
+                try { receivedHooks(id, current.type); } catch { /* each hook is already guarded */ }
+                try { events?.emit('turn', { index: id, type: current.type, receipts: [], steps: [], problems: [failure], told: [] }); } catch { /* a listener's failure is its own */ }
+                try { afterReply(id, current.type, message, []); } catch { /* each hook is already guarded */ }
             }
             return null;
         } finally {
             s.boardCapture = null;
         }
-    }
-
-    // If an input changed after the prompt left, keep the reply uncaptured until the reader restores it.
-    function resumeHeldBoard() {
-        const held = s.heldBoard;
-        if (!held) return;
-        const index = (ctx?.chat ?? []).indexOf(held.message);
-        if (index < 0 || !heldForMessage(metadata(), held.message)) {
-            s.heldBoard = null;
-            if (s.session === held.current) s.session = null;
-            return;
-        }
-        held.index = index;
-        held.current.index = index;
-        const sid = readRecord(held.message)?.sid;
-        if (store.headIndex() !== index || metadata()?.rpgFightHeldDiscarded?.[sid]) return;
-        if (!held.board || boardError(store.head(), held.board)) return;
-        if (held.staged && metadata()?.rpgFightBoard?.id !== held.board.id) return;
-        s.heldBoard = null;
-        Promise.resolve().then(() => onMessageReceived(held.index));
-    }
-
-    function restoreHeldBoard() {
-        if (s.heldBoard || !metadata()?.rpgFightHeld) return;
-        const chat = ctx?.chat ?? [];
-        for (let index = chat.length - 1; index >= 0; index -= 1) {
-            const message = chat[index], saved = heldForMessage(metadata(), message);
-            if (!saved) continue;
-            const current = { ...structuredClone(saved.current), index };
-            const board = boardStep(current).payload.board;
-            s.session = current;
-            s.heldBoard = { index, message, current, board, staged: saved.staged === true };
-            problem({ index, code: 'BOARD_HELD', message: 'The fight reply is still waiting. Restore the sheet or gear, or discard the fight (Fight tab, Discard fight) and regenerate the reply.' });
-            return;
-        }
-    }
-
-    // afterReply (the assist extractor): a reply that came without change lines may get them from a
-    // module after all. Not awaited; a failure is logged. `capture(text, { index, swipe })` runs the
-    // lines as story captures on that reply when it is still the head on the same swipe.
-    // (The Assist safety net runs after every reply; `lines` are the change lines its capture read.) A send
-    // waits for these runs briefly (assistPending, ASSIST_WAIT_MS).
-    function afterReply(index, type, message, lines = []) {
-        const swipe = Number.isInteger(message?.swipe_id) ? message.swipe_id : 0;
-        const runs = [];
-        for (const { moduleId, fn } of registry.hookEntries('afterReply')) {
-            runs.push(Promise.resolve()
-                .then(() => fn({ index, swipe, type, lines: [...lines], mes: String(message?.mes ?? ''), capture: (text, at = { index, swipe }, opts = {}) => captureLate(at, text, opts) }))
-                .catch(error => problem({ module: moduleId, index, code: 'FAILED', message: `afterReply failed: ${error?.message ?? error}` }))
-                // C2-ext: what the hook made of the reply (the extractor read it, or failed to) can change
-                // the reply's note, so the notes are drawn again.
-                .finally(() => { if (store.headIndex() === index) events?.emit('head', { index }); }));
-        }
-        if (!runs.length) return;
-        const all = Promise.allSettled(runs).then(() => { if (s.assistPending === all) s.assistPending = null; });
-        s.assistPending = all;
-    }
-
-    // afterReceive: every reply that arrives, with or without change lines, once its lines have been read and before it is
-    // saved (the RPG lets go of the plan it held for the reply). Nothing is asked of it; a failure is a Problem.
-    function receivedHooks(index, type) {
-        for (const { moduleId, fn } of registry.hookEntries('afterReceive')) {
-            try { fn(view(), { index, type }); } catch (error) {
-                problem({ module: moduleId, index, code: 'FAILED', message: `afterReceive failed: ${error?.message ?? error}` });
-            }
-        }
-    }
-
-    /** Change lines found after the reply (afterReply): captured on it and kept in its hidden block. */
-    async function captureLate({ index, swipe } = {}, text = '', { assist = false, refused = [] } = {}) {
-        const message = ctx?.chat?.[index];
-        if (assist) return captureAssist({ index, swipe }, text, message, refused);
-        if (!isCarrier(message) || store.headIndex() !== index || (Number.isInteger(message.swipe_id) ? message.swipe_id : 0) !== swipe || s.session) {
-            return { receipts: [], problems: ['The reply changed before its late change lines arrived; they were not used.'] };
-        }
-        const parsed = readBlock(index, String(text ?? ''));
-        const problems = [...parsed.problems];
-        const result = await captureLines(index, parsed.lines, String(message.mes ?? ''), 'late');
-        problems.push(...result.problems);
-        if (parsed.lines.length) {
-            // Kept in a hidden block of their own after the reply's, so Re-read finds them too (and what the
-            // reply's comment holds besides its block, the lines left in the story, stays as it was).
-            const base = String(message.mes ?? '');
-            const from = base.trimEnd().length;
-            const mes = withCaps(markOff(hideBlock(`${base}\n\n<Changes>\n${parsed.lines.map(line => line.raw).join('\n')}\n</Changes>`, 'Changes', { from }), result.off, from), from);
-            message.mes = mes;
-            if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = mes;
-        }
-        if (store.dirty()) {
-            if (store.saveIdle?.() !== true) await trySave('after the late change lines');
-        } else if (parsed.lines.length) await saveText();
-        if (parsed.lines.length) redraw(index, message);
-        const turn = { index, type: 'late', receipts: result.receipts, steps: result.steps, problems, told: [] };
-        events?.emit('turn', turn);
-        return turn;
-    }
-
-    /**
-     * The Assist safety net's lines for reply `index` (MODULES §F123). Still the head on the same swipe and
-     * no send begun: run now as story lines marked `assist: 'now'`, after the reply's own, and kept in its
-     * <Changes-assist> section. A send already begun (the brief wait is over): kept on the reply as
-     * <Changes-assist-next>, through the stricter wall, for the next reply to apply after its own lines;
-     * nothing changes now. Anything else (swiped, deleted, the next reply already in): not used.
-     */
-    async function captureAssist({ index, swipe }, text, message, refused = []) {
-        const same = isCarrier(message) && store.headIndex() === index && (Number.isInteger(message.swipe_id) ? message.swipe_id : 0) === swipe;
-        if (!same) return { receipts: [], problems: ['The reply changed before the safety net\'s lines arrived; they were not used.'], dropped: true };
-        // Lines the safety net wrote that code refused (an unknown name for a place the map has, a time with no clock time): a
-        // Problems line each, so the reader sees what was left out and why; they are not applied and not kept on the reply.
-        const refusals = (Array.isArray(refused) ? refused : []).filter(item => typeof item?.line === 'string' && item.line)
-            .map(item => problem({ index, line: item.line, code: 'REFUSED', message: `"${item.line}" was not used: ${String(item.why ?? '').slice(0, 240)}.` }));
-        const heads = changeHeads();
-        const mes = String(message.mes ?? '');
-        const block = extractBlock(mes, 'Changes', null, { heads });
-        // Read the way the reply was captured (its caretWords mark), so a preset's ^ block gives the lines it gave live and on Re-read.
-        const blockLines = block === null ? [] : parseChanges(block, { caret: ruleMarksOf(readRecord(message)?.rules).includes('caretWords') }).lines.map(line => line.raw);
-        const own = [...blockLines, ...lateLines(index, []).map(line => line.raw)];
-        const parsed = parseChanges(String(text ?? '')).lines;
-        const fresh = new Set(notWritten(parsed.map(line => line.raw), own, { scene: blockLines }));
-        const kept = parsed.filter(line => fresh.has(line.raw) && !refusedWhy(line, null, { late: Boolean(s.session || s.replyBusy) }));
-        const store1 = mes2 => {
-            message.mes = mes2;
-            if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = mes2;
-        };
-        if (s.session || s.replyBusy) {
-            if (!kept.length) return { receipts: [], problems: refusals, deferred: true };
-            // Saved with the next reply (its own save writes the chat).
-            store1(withAssist(mes, kept.map(line => line.raw), { next: true }));
-            redraw(index, message);
-            return { receipts: [], problems: refusals, deferred: true, lines: kept.map(line => line.raw) };
-        }
-        if (!kept.length) return { index, type: 'late', receipts: [], steps: [], problems: refusals, told: [] };
-        const used = block === null ? 0 : readBlock(index, block).lines.length;
-        const result = await captureLines(index, [], mes, 'late', { assist: kept, used });
-        store1(withCaps(markOff(withAssist(mes, kept.map(line => line.raw)), result.off, mes.trimEnd().length), mes.trimEnd().length));
-        if (store.dirty()) {
-            if (store.saveIdle?.() !== true) await trySave('after the safety net\'s lines');
-        } else await saveText();
-        redraw(index, message);
-        const turn = { index, type: 'late', receipts: result.receipts, steps: result.steps, problems: [...refusals, ...result.problems], told: [] };
-        events?.emit('turn', turn);
-        return turn;
     }
 
     /** CHAT_CHANGED: a new chat (or the same one reloaded). */
@@ -290,8 +153,7 @@ export function createEvents(s, deps) {
         timeline?.settle();
         // A1-2: read-backs of a write that timed out before a reload of the page go on.
         try { store.resume?.(); } catch { /* only a guard */ }
-        // A cue left for the reply's save (runCues) whose reply will not come here: saved now (into its
-        // own chat's file when this is another chat, the store's rescue).
+        // A cue left for the reply's save (runCues) whose reply will not come here: saved now (the store's rescue, into its own chat's file).
         if (s.deferred) {
             s.deferred = false;
             if (store.dirty?.()) store.scheduleSave?.();
@@ -350,7 +212,9 @@ export function createEvents(s, deps) {
         rebuild({ publish: false });
         resumeHeldBoard();
         restoreHeldBoard();
+        const carry = timeline?.carryBoundaries?.();
         reconcileNow();
+        carry?.();
         timeline?.settle();
         if (timeline?.needsRecovery()) await timeline.recover();
         // one head, after the steps that follow the change are planned again

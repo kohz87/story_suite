@@ -240,8 +240,11 @@
   "scripts/layout.mjs": "Loads scripts/layout.json and answers which repo paths sit under a package root or a source root.",
   "tests/scripts/layout.test.js": "Tests the layout file, the layout-driven codemap and size scripts on today's tree.",
   "tests/people/store-timeline.test.js": "Tests that after every reply, swipe, delete, reload, Re-read and branch Delta's cache, the store's people and the oracle rebuild agree with no publication in between.",
-  "tests/people/native-death.test.js": "Tests that a host-confirmed death is deceased in Delta's dossier and in the store with no participant, is refused for an unknown id or a moved head, and goes with a deleted reply.",
+  "tests/people/native-death.test.js": "Tests that a host-confirmed death is deceased in Delta's dossier and in the store with no participant, is refused for an unknown id or a moved head, and goes with a deleted reply, and keeps changes made while the death is stored.",
   "tests/people/people-fuzz.test.js": "Fuzzes seeded runs of replies, swipes, deletes, reloads and rebuilds and checks the cache, the store and the oracle always agree.",
   "tests/people/helpers/proofs.js": "Checks at the head that Delta's cache equals the store's people, the store equals the oracle rebuild and Delta's queries answer the same people.",
-  "tests/people/store-gates.test.js": "Tests that portrait bytes never make a write invalid, that a rewind over a people block that no longer applies refuses like the inventory, and that no sidecar is written before the host accepts."
+  "tests/people/store-gates.test.js": "Tests that portrait bytes never make a write invalid, that a rewind over a people block that no longer applies refuses like the inventory, and that no sidecar is written before the host accepts.",
+  "tests/people/cast-remake.test.js": "Tests that a person made for a reply, swiped away and made again is held once in the store, Delta's cache, npc.cast and npc.dossier, also after a swipe back.",
+  "tests/people/cast-store.test.js": "Tests that npc.cast lists exactly the store's not-archived people (a line about someone with no dossier keeps meters only) after replies, a swipe, a middle delete and a reload.",
+  "tests/people/scan-marker.test.js": "Tests that NPC State's scan marker is stored with its people write and taken back from the store after a swipe, a swipe back, deletes, a regenerate and a reload, and that a change line never makes the cache re-hydrate."
 }

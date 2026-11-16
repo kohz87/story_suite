@@ -18,8 +18,8 @@ test('mood: a trust drop and a betrayal move the axes by the rules and keep the 
     assert.deepEqual(plain(recordOf(s).mood), { v: -1, a: 1, d: -1, day: 2, cause: 'trust dropped: Astra lied' });
     await s.say(['~ npc Oren | trust: -3 | impact: major | why: the vault']);
     assert.deepEqual(plain(recordOf(s).mood), { v: -3, a: 3, d: -2, day: 2, cause: 'betrayed: the vault' });
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
-    const row = (await s.host.sdk.query('npc.cast', {})).find(item => item.key === 'oren');
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
+    const row = (await s.host.sdk.query('npc.cast', {})).find(item => item.key === 'npc_oren');
     assert.equal(row.mood.word, 'Alarmed');
     assert.deepEqual(row.mood.bars, { energy: 6, control: 1, max: 6 });
     assert.equal(row.mood.cause, 'betrayed: the vault');
@@ -52,7 +52,7 @@ test('mood eases toward rest over story time: per-axis speed, proportional, same
     await s.say([]);
     assert.deepEqual(axes(s), [0, 0, 0], 'days later: at rest, and the three fields are still on the record');
     assert.deepEqual(Object.keys(recordOf(s).mood).filter(key => ['v', 'a', 'd'].includes(key)), ['v', 'a', 'd']);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('mood: new events add on top of what is left; ongoing stress keeps it raised', async () => {
@@ -130,7 +130,7 @@ test('pull: closure from an open thread that names them, after the days it waite
     await world(s, { party: [{ id: 'a', name: 'Oren' }], threads: [] });
     await s.say([]);
     assert.equal(recordOf(s).pull?.cause === 'benched from the party', false, 'back in the party: no longer benched');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('pull: awe at the first arrival at a place they were not at before (the first place seen is only remembered)', async () => {
@@ -143,7 +143,7 @@ test('pull: awe at the first arrival at a place they were not at before (the fir
     assert.deepEqual(recordOf(s).track.places, ['Market', 'Harbor']);
     await s.say(['~ place Market | street | Dunmere']);
     assert.equal(recordOf(s).pull, undefined, 'a place they have seen is no awe');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('pull trace (run 3): a place under a fuller or shorter name is the same place, so no false arrival', async () => {
@@ -221,12 +221,12 @@ test('run-3 shape, tailBudget 550, 1/2/3 present people with a Pull: the cue and
     const record = (name, extra) => ({ name, meters: { trust: 5, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [], turn: { reply: 0, from: {} }, day: 5, ...extra });
     const awe = 'first time at River wall, Highmark Capital';
     const shapes = {
-        1: { oren: record('Oren', { mood: { v: -2, a: 2, d: -2, day: 5, cause: 'x' }, pull: { kind: 'awe', cause: 'first time at Harbor', since: 5 } }) },
-        2: { marda: record('Marda', { pull: { kind: 'awe', cause: awe, since: 5 } }), pell: record('Pell', { pull: { kind: 'awe', cause: awe, since: 5 } }) },
+        1: { npc_oren: record('Oren', { mood: { v: -2, a: 2, d: -2, day: 5, cause: 'x' }, pull: { kind: 'awe', cause: 'first time at Harbor', since: 5 } }) },
+        2: { npc_marda: record('Marda', { pull: { kind: 'awe', cause: awe, since: 5 } }), npc_pell: record('Pell', { pull: { kind: 'awe', cause: awe, since: 5 } }) },
         3: {
-            mira: record('Mira', { mood: { v: -2, a: 2, d: -2, day: 5, cause: 'x' }, pull: { kind: 'closure', cause: 'Dockside Recruitment and the missing ledger of Garvan', since: 1 } }),
-            oren: record('Oren', { mood: { v: 2, a: 0, d: 0, day: 5, cause: '' }, pull: { kind: 'closure', cause: 'The Stolen Letter from the Harbourmaster Office', since: 2 } }),
-            tomas: record('Tomas', { mood: { v: -3, a: 3, d: 0, day: 5, cause: 'x' }, pull: { kind: 'awe', cause: awe, since: 5 } }),
+            npc_mira: record('Mira', { mood: { v: -2, a: 2, d: -2, day: 5, cause: 'x' }, pull: { kind: 'closure', cause: 'Dockside Recruitment and the missing ledger of Garvan', since: 1 } }),
+            npc_oren: record('Oren', { mood: { v: 2, a: 0, d: 0, day: 5, cause: '' }, pull: { kind: 'closure', cause: 'The Stolen Letter from the Harbourmaster Office', since: 2 } }),
+            npc_tomas: record('Tomas', { mood: { v: -3, a: 3, d: 0, day: 5, cause: 'x' }, pull: { kind: 'awe', cause: awe, since: 5 } }),
         },
     };
     const filler = Array.from({ length: 11 }, (_, i) => `Scene note ${i + 1}: ${'the harbour street holds its breath '.repeat(5)}`.trim());
@@ -236,7 +236,7 @@ test('run-3 shape, tailBudget 550, 1/2/3 present people with a Pull: the cue and
         const part = createNpcPart({ settings: () => ({}), present: () => names, feature: () => undefined });
         const nsd = { moduleId: 'npc-state-delta', name: 'NPC State Delta', domains: ['npc'], kinds: [], static: () => '', tail: part.context.tail, budget: part.context.budget };
         const dir = { moduleId: 'story-director', name: 'Story Director', domains: ['director'], kinds: [], tail: () => ({ lines: [{ text: initiative, keep: true }, ...filler], optional: ['Director optional line.'] }) };
-        const view = { state: { domains: { npc: { problems: [], npcs } } }, chat: { length: 1 } };
+        const view = { state: { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs } } } }, chat: { length: 1 } };
         const built = assemble({ registry: { contexts: () => [nsd, dir] }, view, settings: { tailBudget: 550 }, keptTokens: 24 });
         const t = built.tailText;
         const first = Object.values(npcs)[0].name;
@@ -267,10 +267,10 @@ test('pull: a person away (key people) feels left behind; a failing or missing q
     await broken.say([]);
     assert.equal(recordOf(broken).pull, undefined);
     assert.equal(recordOf(broken).mood.day, 6, 'the tick ran (the mood settled to day 6)');
-    assert.deepEqual(validateNpcSlice(broken.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(broken.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     const bare = await suite({ allowance: null, features: MOOD_ON });
     await bare.setDay(3);
     await bare.say(['~ npc Oren | trust: -3 | impact: major']);
     assert.equal(recordOf(bare).pull, undefined, 'no party, threads or key people: no pull');
-    assert.deepEqual(validateNpcSlice(bare.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(bare.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });

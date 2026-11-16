@@ -10,18 +10,18 @@ import { MOOD_ON, moodSuite, noCue, plain, recordOf, toOld, world, worldModule }
 
 test('the tail tells mood and pull for present people only; feature off: the tail and the static line are byte-identical to before', () => {
     const record = (name, extra) => ({ name, meters: { trust: 5, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [], turn: { reply: 2, from: {} }, day: 5, ...extra });
-    const state = { domains: { npc: { problems: [], npcs: {
-        mira: record('Mira', { mood: { v: -2, a: 2, d: -2, day: 5, cause: 'betrayed: Astra lied' }, pull: { kind: 'closure', cause: 'the stolen letter', since: 2 }, inst: { belo: 0, clos: 2, awe: 0 } }),
-        oren: record('Oren', { mood: { v: 2, a: 0, d: 0, day: 5, cause: '' } }),
-        tomas: record('Tomas', { mood: { v: -3, a: 3, d: 0, day: 5, cause: 'x' }, pull: { kind: 'awe', cause: 'first time at the harbor', since: 5 } }),
-    } } } };
+    const state = { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs: {
+        npc_mira: record('Mira', { mood: { v: -2, a: 2, d: -2, day: 5, cause: 'betrayed: Astra lied' }, pull: { kind: 'closure', cause: 'the stolen letter', since: 2 }, inst: { belo: 0, clos: 2, awe: 0 } }),
+        npc_oren: record('Oren', { mood: { v: 2, a: 0, d: 0, day: 5, cause: '' } }),
+        npc_tomas: record('Tomas', { mood: { v: -3, a: 3, d: 0, day: 5, cause: 'x' }, pull: { kind: 'awe', cause: 'first time at the harbor', since: 5 } }),
+    } } } } };
     const make = on => createNpcPart({ settings: () => ({}), present: () => ['Mira', 'Oren'], feature: id => (id === FEATURE_MOOD_PULL ? on : undefined) });
     const view = { state, chat: { length: 3 } };
     const off = make(false);
     const base = off.context.tail(view);
     assert.deepEqual(noCue(base.optional), [], 'off: no mood or pull line at all');
     const bare = JSON.parse(JSON.stringify(view));
-    for (const person of Object.values(bare.state.domains.npc.npcs)) { delete person.mood; delete person.pull; delete person.inst; }
+    for (const person of Object.values(bare.state.domains.people.bonds.npcs)) { delete person.mood; delete person.pull; delete person.inst; }
     assert.equal(JSON.stringify(base), JSON.stringify(off.context.tail(bare)), 'off: the tail does not read mood or pull at all');
     const on = make(true);
     assert.equal(on.context.static(), off.context.static(), 'the static prompt never changes');
@@ -51,7 +51,7 @@ test('mood and pull: replay equals rebuild through swipes, a Re-read, a middle d
         await s.setDay(day);
         await s.say([line]);
         await s.swipe([line]);
-        assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+        assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
         const head = JSON.stringify(s.host.head());
         s.host.store.rebuild();
         assert.equal(JSON.stringify(s.host.head()), head, `day ${day}: replay equals rebuild`);
@@ -59,7 +59,7 @@ test('mood and pull: replay equals rebuild through swipes, a Re-read, a middle d
     const replies = s.host.ctx.chat.map((message, at) => (!message.is_user && at > setup && at < s.host.store.headIndex() ? at : -1)).filter(at => at >= 0);
     await s.host.st.deleteMessage(replies[0]);
     await s.host.st.deleteMessage(replies[0] - 1);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     const head = JSON.stringify(s.host.head());
     s.host.store.rebuild();
     assert.equal(JSON.stringify(s.host.head()), head, 'after the middle delete: replay equals rebuild');
@@ -74,7 +74,7 @@ test('mood and pull: replay equals rebuild through swipes, a Re-read, a middle d
 
 test('validator: a malformed mood, instinct, pull or memory is refused; every old record shape stays valid', () => {
     const base = { name: 'Mira', meters: { trust: 0, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [] };
-    const check = extra => validateNpcSlice({ npcs: { mira: { ...base, ...extra } }, problems: [] });
+    const check = extra => validateNpcSlice({ npcs: { npc_mira: { ...base, ...extra } }, problems: [] });
     assert.deepEqual(check({}), []);
     assert.deepEqual(check({ mood: { v: 1, a: -3, d: 0, day: 4, cause: 'rested' }, inst: { belo: 1, clos: 0, awe: 3 }, pull: { kind: 'closure', cause: 'a letter', since: 2 }, track: { party: 1, join: 3, threads: { th_aaaaaaaa: 2 }, places: ['Harbor'] } }), []);
     for (const bad of [{ mood: { v: 9, a: 0, d: 0, day: 0, cause: '' } }, { mood: { v: 1, a: 0, d: 0 } }, { mood: 'sad' }, { inst: { belo: 4 } }, { inst: { fear: 1 } }, { pull: { kind: 'fear', cause: 'x', since: 1 } },
@@ -102,14 +102,14 @@ test('mood and pull cores: the 3x3 word table, the bars, decay that never passes
 test('defaults on: a chat written with the three features off (a ladder ticking every reply) replays unchanged after they are switched on, and every old reply, a trust drop included, is read again identically', async () => {
     const off = { [FEATURE_GATE]: false, [FEATURE_MOOD_PULL]: false, 'npc-state-delta.notes': false };
     const s = await suite({ allowance: null, features: off, settings: { ladder: [{ name: 'Friend', needs: 'trust 2' }] } });
-    const bare = x => JSON.stringify(x.host.head().domains.npc).replace(/sw_[a-z0-9]+/g, 'sw');
+    const bare = x => JSON.stringify(x.host.head().domains.people?.bonds).replace(/sw_[a-z0-9]+/g, 'sw');
     await s.setDay(1);
     const first = await s.say(['~ npc Oren | trust: +2 | impact: meaningful']);
     const dropAt = await s.say(['~ npc Oren | trust: -3 | impact: major | reason: a broken oath']);
     const calmAt = await s.say(['~ npc Sister Temiwa | affection: +1']);
     const last = await s.say(['~ npc Oren | trust: +4 | impact: major']);
     const written = bare(s);
-    assert.ok(JSON.parse(written).npcs.oren.rank, 'the old chat has a ladder rank (its ticks ran)');
+    assert.ok(JSON.parse(written).npcs.npc_oren.rank, 'the old chat has a ladder rank (its ticks ran)');
     for (const id of Object.keys(off)) s.host.features.set(id, true);
     s.host.store.rebuild();
     assert.equal(bare(s), written, 'rebuild under the new defaults: the stored ops give the same state');
@@ -120,11 +120,11 @@ test('defaults on: a chat written with the three features off (a ladder ticking 
         assert.equal((await s.host.sdk.reread(index)).ok, true);
         assert.equal(bare(s), written, `a Re-read of old reply ${index}: byte-identical`);
     }
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     // A reply written with the feature on keeps its mood on a Re-read (the reply as it stood had one).
     await s.say(['~ npc Oren | trust: -3 | impact: major | reason: a second oath']);
     const fresh = await s.say(['~ npc Oren | trust: -3 | impact: major | reason: a third oath']);
-    assert.ok(JSON.parse(bare(s)).npcs.oren.mood, 'a new reply gets its mood');
+    assert.ok(JSON.parse(bare(s)).npcs.npc_oren.mood, 'a new reply gets its mood');
     const moody = bare(s);
     assert.equal((await s.host.sdk.reread(fresh)).ok, true);
     assert.equal(bare(s), moody, 'and a Re-read of that reply keeps it, as it was');
@@ -142,16 +142,16 @@ test('mood, pull, inst, track are stored whole as one text leaf: a middle delete
     await s.say([]);
     await s.setDay(6);
     await s.say([]);
-    const raw = s.host.head().domains.npc.npcs.oren;
+    const raw = s.host.head().domains.people.bonds.npcs.npc_oren;
     for (const field of ['mood', 'inst', 'pull', 'track']) assert.equal(typeof raw[field], 'string', `${field} is one text leaf`);
     assert.equal(readLeaf(raw.pull).kind, 'closure');
     assert.equal(typeof raw.mood, 'string', 'the mood is one text leaf');
     assert.match(readLeaf(raw.mood).cause, /Astra lied/);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     await s.host.st.deleteMessage(made);
-    const live = JSON.stringify(s.host.head().domains.npc);
+    const live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'rebuild equals live after the delete');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'rebuild equals live after the delete');
     assert.deepEqual(s.host.store.problems(), [], 'nothing was skipped');
     assert.equal(readLeaf('{"a":1}').a, 1);
     assert.deepEqual(readLeaf({ a: 1 }), { a: 1 }, 'an old stored object reads as it is');
@@ -174,17 +174,17 @@ test('an old 1.16.0 chat (object leaves, per-field ops): a Re-read of a middle r
     toOld(chat);
     s.host.store.rebuild();
     assert.deepEqual(s.host.store.problems(), [], 'the rewritten chat is a clean old chat');
-    assert.equal(typeof s.host.head().domains.npc.npcs.oren.mood, 'object', 'the old chat holds the mood as an object');
+    assert.equal(typeof s.host.head().domains.people.bonds.npcs.npc_oren.mood, 'object', 'the old chat holds the mood as an object');
     const opsOf = at => JSON.stringify(chat[at].extra.storySuite.ops);
     for (const at of [made, mid, last]) {
-        const head = JSON.stringify(s.host.head().domains.npc);
+        const head = JSON.stringify(s.host.head().domains.people?.bonds);
         const ops = opsOf(at);
         const out = await s.host.sdk.reread(at);
         assert.equal(out.ok, true, `a Re-read of old reply ${at} is ok: ${JSON.stringify(out)}`);
         assert.equal(opsOf(at), ops, `a Re-read of old reply ${at} stores the same ops`);
-        assert.equal(JSON.stringify(s.host.head().domains.npc), head, `and the same head (reply ${at})`);
+        assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), head, `and the same head (reply ${at})`);
         s.host.store.rebuild();
-        assert.equal(JSON.stringify(s.host.head().domains.npc), head, 'replay equals live');
+        assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), head, 'replay equals live');
         assert.deepEqual(s.host.store.problems(), []);
     }
 });
@@ -216,7 +216,7 @@ test('mood line: the person\'s stored word is printed as is (small numbers never
     const record = (name, mood) => ({ name, meters: { trust: 5, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [], turn: { reply: 2, from: {} }, day: 5, mood });
     const make = names => createNpcPart({ settings: () => ({}), present: () => names, feature: id => (id === FEATURE_MOOD_PULL ? true : undefined) });
     const lineFor = mood => {
-        const state = { domains: { npc: { problems: [], npcs: { hanne: record('Hanne', mood) } } } };
+        const state = { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs: { npc_hanne: record('Hanne', mood) } } } } };
         return make(['Hanne']).context.tail({ state, chat: { length: 3 } }).lines.map(line => line.text).find(text => /^Mood: /.test(text));
     };
     // The same small numbers (+-1, table word "steady"/"calm") with six different stored words: the line follows the word.

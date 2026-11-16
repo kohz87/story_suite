@@ -7,8 +7,8 @@ verification), then `docs/core-contract.md` (the behaviour authority, rules C01â
 NPC State Delta (NSD) is a **standalone SillyTavern extension** with its own storage, scanner, prompts and
 history rules. In Story Suite v2 it is also a module (id `npc-state-delta`): when a Story Block v2 host is on
 the page, `src/storysuite-v2.js` registers read-only queries, the Cast / Dossiers tab and screen, its settings
-section in the Story Suite overlay, and one small per-reply domain, `npc` (meters, stages, unlocked notes;
-`src/npc-meters.js`). Without a v2 host the adapter does nothing and NSD works as before. The other repos:
+section in the Story Suite overlay, and its per-reply meters (meters, stages, unlocked notes; `src/npc-meters.js`),
+kept in Story Block's `people` domain as `bonds` beside the dossiers (people store P4). Without a v2 host the adapter does nothing and NSD works as before. The other repos:
 Story Block (kohz87/Story_block, the host), RPG Battle (kohz87/rpg_battle), Story Director
 (kohz87/Story_director). NSD must work alone and with any of them absent. Work is on `main`.
 

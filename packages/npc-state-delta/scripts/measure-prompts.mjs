@@ -133,10 +133,11 @@ for (const fixture of captureFixtures) {
     const grammar = `${part.kinds.npc.grammar}\n${part.kinds.milestone.grammar}`;
     const staticLine = part.context.static();
     const meters = settings.customMeters ? { trust: 22, affection: 5, desire: 0, tension: -3, lust: 3, respect: 0 } : { trust: 22, affection: 5, desire: 0, tension: -3 };
-    const state = { domains: { npc: { problems: [], npcs: {
-      mira: { name: 'Mira', meters, stages: settings.stages ? { trust: 'Friend' } : {}, unlocked: ['sec_00000001'], turn: { reply: 4, from: {} } },
-      oren: { name: 'Oren', meters: { ...meters, trust: -5 }, stages: {}, unlocked: [], turn: { reply: 4, from: {} } },
-    } } } };
+    // The meters as the store keeps them: the people domain's bonds, keyed by npc_ id.
+    const state = { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs: {
+      npc_mira: { name: 'Mira', meters, stages: settings.stages ? { trust: 'Friend' } : {}, unlocked: ['sec_00000001'], turn: { reply: 4, from: {} } },
+      npc_oren: { name: 'Oren', meters: { ...meters, trust: -5 }, stages: {}, unlocked: [], turn: { reply: 4, from: {} } },
+    } } } } };
     const tail = part.context.tail({ state, chat: { length: 6 } }).lines.join('\n');
     console.log(JSON.stringify({
       name: `v2-npc-meters-${name}`,

@@ -1,6 +1,5 @@
-// Assembles the `npc` part: domain, commands, queries, change-line kinds, prompt context and settings.
-import { NPC_DOMAIN, NPC_KIND, MILESTONE_KIND, CONTEXT_BUDGET, FEATURE_STAGES, FEATURE_DRIFT, FEATURE_MOOD_PULL, FEATURES, isObject } from '../npc-meters-config.js';
-import { initialNpcSlice, validateNpcSlice } from '../npc-meters-slice.js';
+// Assembles the `npc` part: commands (on the people domain's bonds), queries, change-line kinds, prompt context and settings.
+import { NPC_KIND, MILESTONE_KIND, CONTEXT_BUDGET, FEATURE_STAGES, FEATURE_DRIFT, FEATURE_MOOD_PULL, FEATURES, isObject } from '../npc-meters-config.js';
 import { SETTINGS_DEFAULTS, SETTINGS_SCHEMA } from '../npc-meters-schema.js';
 import { createNpcCommands } from '../npc-meters-commands.js';
 import { createNpcQueries } from '../npc-meters-queries.js';
@@ -9,13 +8,14 @@ import { noteKinds } from '../npc-notes-kinds.js';
 import { createNpcReaders } from './readers.js';
 import { createNpcRecords } from './records.js';
 import { createNpcRun } from './run.js';
+import { folded, foldedCommands } from './fold.js';
 
 
 /**
- * The `npc` part (MODULES §A part shape): domain, commands, queries, the `npc` and `milestone`
+ * The `npc` part (MODULES §A part shape): commands, queries (the meters are the people domain's `bonds`, see ./fold.js), the `npc` and `milestone`
  * change-line kinds and the prompt context. Hooks (each optional, each may throw — a throw reads as
  * "nothing known"):
- *   resolve(name)     → Delta's dossier for that name or alias: { name, aliases, relationship } | null
+ *   resolve(name)     → Delta's dossier for that name or alias: { id?, name, aliases, relationship } | null (id: its npc_ id, the key of its meters)
  *   baseline()        → Delta's base relationship values (new NPCs start there)
  *   caps()            → Delta's impact-tier caps { ordinary, meaningful, major, extreme } (a story line's step is held to its tier's)
  *   allowance()       → the reader's events per story day { ordinary, meaningful, major, extreme } (null: no limit; relationship-pacing.js)
@@ -50,12 +50,14 @@ export function createNpcPart(hooks = {}) {
         ownRungs, rungsFor, limitsFor, identify, ensure, note, changesFrom, settleRecord,
         openCloseNotes, tiered, run, hooks,
     };
-    const { captureLine, commands } = createNpcCommands(shared);
+    const built = createNpcCommands(shared);
+    // The meters live in the people domain's `bonds` (./fold.js): every command and change line runs on them as its `npc` slice.
+    const commands = foldedCommands(built.commands);
+    const captureLine = folded(built.captureLine);
     const { queries, ladderView, notesView, sliceOf, presentKeys } = createNpcQueries(shared);
     const { staticText, tail, redact } = createNpcPrompt(shared, { sliceOf, presentKeys });
 
     return {
-        domains: { [NPC_DOMAIN]: { initial: initialNpcSlice, validate: slice => validateNpcSlice(slice) } },
         commands,
         queries,
         kinds: {

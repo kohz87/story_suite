@@ -180,12 +180,12 @@ test('a hosted scan\'s milestone gate and part-points start from the slice, neve
 test('replay: a hosted history replay reads Story Block as of its reply and leaves the slice equal to live; the sidecar is never read', async () => {
     const s = await held();
     try {
-        const live = JSON.stringify(s.host.head().domains.npc);
+        const live = JSON.stringify(s.host.head().domains.people?.bonds);
         s.host.store.rebuild();
-        assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'the slice\'s own ops are the record');
+        assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'the slice\'s own ops are the record');
         await s.host.st.loadChat(s.host.ctx.chat);
         await s.adapter.ticked();
-        assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'also after a cold reload');
+        assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'also after a cold reload');
         assert.equal(Object.values(s.delta.records)[0].relationship.trust, 8, 'the sidecar keeps what Delta stored (it may differ; nothing reads it)');
     } finally { s.host.close(); }
 });

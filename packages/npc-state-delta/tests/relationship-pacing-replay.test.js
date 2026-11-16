@@ -25,7 +25,7 @@ test('middle delete: a later reply keeps the numbers and the day count it record
     assert.deepEqual(impactDayProblems(count), [], 'the count stays whole: never negative, never an unknown field');
     assert.deepEqual(['major', 'meaningful', 'ordinary'].map(tier => count[tier]), [1, 0, 1], 'only the fields the surviving reply changed are replayed: the deleted reply\'s meaningful is not in the count, but the points it gave stay in the recorded trust');
     assert.deepEqual(s.host.store.problems(), []);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     const live = shape(s);
     s.host.store.rebuild();
     assert.equal(shape(s), live, 'rebuild equals live after the delete');
@@ -63,14 +63,14 @@ test('cold reload and rebuild equal live for impactDay, over days, swipes and a 
     const index = await s.say([major(), major('Sister Temiwa')]);
     assert.equal((await s.host.sdk.reread(index)).ok, true);
     const live = shape(s);
-    const counts = JSON.stringify([s.day('oren'), s.day('sister-temiwa')]);
-    assert.ok(s.day('oren') && s.day('sister-temiwa'), 'both people have a count');
+    const counts = JSON.stringify([s.day('oren'), s.day('temiwa')]);
+    assert.ok(s.day('oren') && s.day('temiwa'), 'both people have a count');
     s.host.store.rebuild();
     assert.equal(shape(s), live, 'rebuild equals live');
     await s.host.st.loadChat(s.host.ctx.chat);
     await s.adapter.ticked();
     assert.equal(shape(s), live, 'a cold reload equals live');
-    assert.equal(JSON.stringify([s.day('oren'), s.day('sister-temiwa')]), counts, 'the counts are the same after the reload');
+    assert.equal(JSON.stringify([s.day('oren'), s.day('temiwa')]), counts, 'the counts are the same after the reload');
 });
 
 test('a chat with no story clock has no impactDay anywhere, and replays and reloads byte-identical', async () => {
@@ -89,10 +89,10 @@ test('a chat with no story clock has no impactDay anywhere, and replays and relo
     await s.adapter.ticked();
     assert.equal(shape(s), live, 'a cold reload of an old-style chat equals live');
     assert.equal(JSON.stringify(s.host.ctx.chat), chat, 'reload does not rewrite the stored chat');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
-const keys = (s, name) => Object.keys(s.host.head().domains.npc.npcs[name].impactDay).filter(key => key !== 'reply').sort();
+const keys = (s, name) => Object.keys(s.host.head().domains.people.bonds.npcs[`npc_${name}`].impactDay).filter(key => key !== 'reply').sort();
 
 // Spending and reading use only the day in force. A clock that goes back (a rewound or edited time line) must not pick a newer day's
 // count; the day's keys are the only ones a write leaves.
@@ -125,7 +125,7 @@ test('after deleting a day\'s first event: rebuild == live == cold reload, and a
         await s.host.st.deleteMessage(first);
         await s.host.st.deleteMessage(first - 1);
         assert.deepEqual(s.host.store.problems(), []);
-        assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), [], 'leftover keys (if any) validate');
+        assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), [], 'leftover keys (if any) validate');
         const live = shape(s);
         s.host.store.rebuild();
         assert.equal(shape(s), live, 'rebuild equals live');
