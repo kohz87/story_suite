@@ -20,11 +20,10 @@ import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, sheet
 test('more than 40 board skills earn practice once through swipe and Re-read', async () => {
     const restore = seedCrypto(21);
     const blocks = { foes: { role: 'foes', fields: foeBlock([['Rats', 1, 99, 5], ['Bats', 1, 99, 5], ['Spiders', 1, 99, 5], ['Snakes', 1, 99, 5]]) } };
-    // (a step takes at most 12 inputs on the port: twelve fighters with four skills each still pass 40 distinct skills)
-    for (let i = 0; i < 12; i += 1) {
+    for (let i = 0; i < 24; i += 1) {
         const n = String(i).padStart(2, '0'), who = `Fighter ${n}`;
         blocks[`hero${n}`] = { role: 'character', fields: character(who, { str: 3, agi: 20, vit: 20, health: 5, stamina: 4 }) };
-        blocks[`skills${n}`] = { role: 'skills', fields: skillBlock(who, ['Poke', 'Slash', 'Jab', 'Hack'].map(name => [`${name} ${n}`, 1, 'str', 'stamina', 'strike one foe'])) };
+        blocks[`skills${n}`] = { role: 'skills', fields: skillBlock(who, [[`Poke ${n}`, 1, 'str', 'stamina', 'strike one foe'], [`Slash ${n}`, 1, 'str', 'stamina', 'strike one foe']]) };
     }
     const { host, callModel } = await setup({ blocks, board: true });
     try {
@@ -36,7 +35,7 @@ test('more than 40 board skills earn practice once through swipe and Re-read', a
             for (let n = 0; n < 12; n += 1) {
                 const sheet = readSheet(preview?.state ?? state), target = sheet.foes.find(foe => foe.filled && foe.hurt > 0)?.slot;
                 const actions = sheet.characters.filter(actor => actor.alive !== false && actor.health !== 0).map(actor => actor.stamina > 0
-                    ? { who: actor.who, kind: 'skill', skill: actor.skills[n % 4].name, target } : { who: actor.who, kind: 'attack', target });
+                    ? { who: actor.who, kind: 'skill', skill: actor.skills[n % 2].name, target } : { who: actor.who, kind: 'attack', target });
                 staged = stageExchange(meta, state, actions);
                 if (staged.error) break;
                 preview = staged.preview;
@@ -54,7 +53,7 @@ test('more than 40 board skills earn practice once through swipe and Re-read', a
             const awarded = receipts.flatMap(receipt => receipt.data.v2.result.practice.skills);
             assert.equal(awarded.length, uses.length);
             for (const { who, skill, n } of uses) {
-                const actor = who.slice(-2), slot = ['Poke', 'Slash', 'Jab', 'Hack'].indexOf(skill.split(' ')[0]) + 1;
+                const actor = who.slice(-2), slot = skill.startsWith('Poke ') ? 1 : 2;
                 const value = host.head().domains.dataModules.instances[`pack.chat/skills${actor}`].chat.fields[`practice${slot}`];
                 assert.equal(value, Math.min(20, n * 3), `${who}'s ${skill} is paid once`);
             }

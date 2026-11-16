@@ -16,7 +16,7 @@ A staged fight goes with the reader's next message (`autoSend`); only a waiting 
 Readers of a settled fight ask `board/results.js` (`fightResults`), which accepts both an `interaction.settle` of this kind and a pre-port board `rpg.resolve`.
 Chats made before the port: their settled fights stay readable and re-plannable (`board/commit.js` and the board branch of `rpg.resolve` are kept unchanged until C11); an unsent fight, its Send copy,
 its waiting choice and a held reply from the old metadata keys are dropped on chat load with one quiet Problem (`turn/pre-port-fight.js`: "A fight that was open before the update was closed. Start it again from the Fight tab.");
-a swipe of a reply whose fight was settled before the port is written without the fight, with a quiet Problem (`FIGHT_NOT_CARRIED`); swiping back keeps it.
+a swipe of a reply whose fight was settled before the port is written without the fight, with a quiet Problem (`FIGHT_NOT_CARRIED`); swiping back keeps it. A regenerate of such a reply is written without the fight too, with the same quiet Problem ("This reply's fight was made before the update, so the new reply is written without it."): every pre-port send linked its fight on the reader's message (`extra.rpgFightLinks`), and `precall.js beforeGenerate` reads that link.
 The text below was written for the pre-port session and is kept where it still describes the engine, the view and the rules; where it names `session.js`, `held-board.js`, `rpgFight*` keys or `rpg.resolve` for a new fight, read the paragraph above.
 
 ## Files
@@ -59,11 +59,11 @@ The text below was written for the pre-port session and is kept where it still d
 - `src/v2/turn/prompt-build.js`, `capture-flow.js`, `events.js`, `events-held.js` and `src/v2/commands.js`, with `interaction/held.js` and `watch.js`: preview, protect, capture and recover the prelude.
 - `src/v2/lean-rpg/practice.js` and `fight.js`: award practice and win XP from recorded results.
 
-New board fight records carry a scoped guard witness (`board/commit.js`: the domain with `perReply` emptied; a guard accepts either form) so another reply's scratch cannot drop a later fight; old records keep the old witness. Foe grammar: while a foes block exists and none stands, the tail says a fight starts when you set a foe slot; while foes stand only clear-N kinds are offered.
+(Pre-port.) Board fight records carried a scoped guard witness (`board/commit.js`: the domain with `perReply` emptied) so another reply's scratch could not drop a later fight. Since I6 the guard's witness is the kind's (`board/interaction.js`): the sheet the fight read (`boardWitness`) plus, for a fight that used items, the stacks its item actions named (the replay guard passes the steps as `witness(state, setup, steps)`; the stage-time check passes none, so an unrelated consumable never takes a fight back). Foe grammar: while a foes block exists and none stands, the tail says a fight starts when you set a foe slot; while foes stand only clear-N kinds are offered.
 
 ## Data flow
 
-A fight is marked `bars: 2` (setup, result, guard; `board/session.js`, `engine.js`, `commit.js`) only when every sheet character is pinned at scale 2; the mark changes skill damage (2/3), the area cost (2) and Auto's hurt stop, and an old fight keeps its recorded rules. A pre-check opening is unmarked and its foe `level` is required (`board/precheck.js vetGroups`: missing = the party's top level, held to the cap). Utility skills have no flags, so the board, Auto and the defence pick ignore them (`board/flags.js skillFlags`).
+A fight is marked `bars: 2` (setup, result, guard; `interaction.js`, `engine.js`, `settle-map.js`) only when every sheet character is pinned at scale 2; the mark changes skill damage (2/3), the area cost (2) and Auto's hurt stop, and an old fight keeps its recorded rules. A pre-check opening is unmarked and its foe `level` is required (`board/precheck.js vetGroups`: missing = the party's top level, held to the cap). Utility skills have no flags, so the board, Auto and the defence pick ignore them (`board/flags.js skillFlags`).
 
 A new foe's guessed level (pre-check, vetOpen, the narrator's set-slot line) is held to the party's highest level + 20 (`foes.js foeLevelCap`; a person's Level field passes it, when the foe group's name equals the person's name or an alias exactly: case, surrounding spaces and a leading "the" ignored, so "Ash wolf" or "Vorn's bodyguard" does not take it). A reply captured before that rule has no `foeCap: 20` mark and keeps the + 10 cap on a Re-read; recorded plans and ops are never re-capped.
 
@@ -149,7 +149,7 @@ foes a fled or lost fight left, with the note 'These foes are as you left them: 
 
 ## Where to look when …
 
-- A swipe changes the fight: `priorBoard`, `rpgFightLast` and `reconcileBoard` in `session.js`.
+- A swipe changes the fight: `interaction/pick.js` (which payload a swipe or regenerate carries), `interaction/send.js` `priorPayload`, and `interaction/reconcile.js` / `carry.js reconcileSession`. (Pre-port: `priorBoard`, `rpgFightLast`, `reconcileBoard` in `session.js`.)
 - An exchange changes: `fightSeed`, the session offset, `boardWitness` and `equipmentForBoard`.
 - A middle delete skips the fight: `boardGuard` and the receipt's `replan.payload`.
 - A send is held: `canGenerate` and `beforeGenerate` in `precall.js`, then `prompt-build.js`.
@@ -182,27 +182,26 @@ foes a fled or lost fight left, with the note 'These foes are as you left them: 
 - Tests: `tests/v2/lean-rpg/board/start-fixes.test.js`.
 
 ### Send carries the staged fight (round 16, 6 Nov)
-- "Send with this fight" (`board/start-controller.js` `send`) copies the staged session beside the waiting message (`board/session.js` `markSend`, metadata key `rpgFightSend`: anchor reply, message hash, board payload) and
-  refuses the send with a reason when it cannot (anchor or exchanges missing). `precall.js` `canGenerate`/`beforeGenerate` take the board from the live session, else from this copy (`readSend`), so the
-  a staged fight is never replaced by a no-fight reply; `afterReceive` and Discard clear the copy.
-  Where to look when "the reply ignores my exchanges": `readSend`, `markSend`, the board branch of `beforeGenerate`.
+- "Send with this fight" (`board/start-controller.js` `send`) copies the staged session beside the waiting message (pre-port: `board/session.js` `markSend`, key `rpgFightSend`; now `interaction/send.js` `markSend`, key `chatMetadata.storySuiteInteraction.send`: anchor reply, message hash, payload) and
+  refuses the send with a reason when it cannot (anchor or exchanges missing). (pre-port: `precall.js` `canGenerate`/`beforeGenerate` took the board from the live session, else from this copy (`readSend`, now in `interaction/send.js`), so a staged fight is never replaced by a no-fight reply; `afterReceive` and Discard clear the copy). Now `interaction/hooks.js` does this.
+  Where to look when "the reply ignores my exchanges": `interaction/send.js` (`readSend`, `markSend`) and `interaction/hooks.js` (the pre-port board branch of `precall.js beforeGenerate` is gone).
 - Removed: the planner wait ("Working out the fight…"), the working mode and "Narrate it instead".
 - Tests: `tests/v2/lean-rpg/board/send-board.test.js` (replaces the round-15 F1 close logic; its test and two start-ui tests were changed to the no-pop rule).
 
 ## Send carries every staged exchange (round 17)
 
-- "Send with this fight" generates as a `regenerate`. `precall.js` `beforeGenerate` used to prefer the cached payload (`rpgFightLast`, same anchor) over the
+- "Send with this fight" generates as a `regenerate`. `precall.js` `beforeGenerate` used to prefer the cached payload (pre-port: `rpgFightLast`, same anchor; now `box.last` plus `extra.storySuiteInteractionLinks`, chosen in `interaction/pick.js`) over the
   staged session, so a stale one-exchange payload from an earlier send replaced the reader's 2–4 exchanges (reply, prompt and battle log showed exchange 1 only).
-  Now a staged session with exchanges on this anchor (else the Send copy, `rpgFightSend`) wins over the cache; its key and practice come from the staged
+  Now a staged session with exchanges on this anchor (else the Send copy, `storySuiteInteraction.send`) wins over the cache; its key and practice come from the staged
   fight, not the cache. Swipe still reads its own receipt; Regenerate/Re-read of a captured reply still use the cache. Tests: `send-board.test.js` (path c,
   stale cache ×2), `flow.test.js` (path b ×3).
 
 ## The waiting reply is held until Send (round 17b)
 
 - `precall.js` `canGenerate` held the waiting reply only while the board had no exchange, so the first staged exchange released it: the narrator got "Exchange 1" only
-  while the reader kept playing. Now, with the reader's choice 'board' on this anchor, every commit attempt (regenerate or normal) stays held unless `rpgFightSend`
-  (written by "Send with this fight", `markSend`) holds a copy with as many exchanges as the board now has. Discard follows the normal rules.
-- Where to look when "the reply went out after the first exchange": `canGenerate` (hold) in `precall.js`, `send()` in `board/start-controller.js`, `markSend` in `board/session.js`.
+  while the reader kept playing. Now, with the reader's choice 'board' on this anchor, every commit attempt (regenerate or normal) stays held unless `rpgFightSend` (pre-port; now `storySuiteInteraction.send`)
+  (written by "Send with this fight", `markSend` in `interaction/send.js`) holds a copy with as many exchanges as the board now has. Discard follows the normal rules.
+- Where to look when "the reply went out after the first exchange": `canGenerate` (hold) in `interaction/hooks.js` and `interaction/start-hold.js`, `send()` in `board/start-controller.js`, `markSend` in `interaction/send.js`. (Pre-port: `precall.js` and `board/session.js`.)
 - Test: `send-board.test.js` "one exchange on the board does not release the waiting reply".
 
 - Area rule `areaAll` (owner 10 Nov): a fight opened by `openBoard` carries `setup.areaAll: 1` (with `aoe: 1`; `commit.js` refuses it without `aoe`). One tap on an area skill, no group choice; one contest (against the first standing group's defence, `plan.js`) and every standing group's bars take the same full effect (`standard/roll.js`; the chat battle log tells the contest once and does not repeat "vs" on the other groups' lines). A setup without the mark keeps the main-group rule (full effect on the picked group, one Health block less on the others) and old replies re-read byte-identically.
@@ -210,7 +209,7 @@ foes a fled or lost fight left, with the note 'These foes are as you left them: 
 
 ## Harder foes (`setup.foesHard`)
 
-Like `foesSix`: recorded at open (`session.js hardFoes` → `flags.js hardFightFor`: the party has the doubled bars, every character scale 2, and every foe on the sheet is on a new Foes block, its Health field max 15; `commit.js` also needs `bars: 2` with it), kept in the setup and the result, and shape-checked in `commit.js`. `engine.js` passes `hard` to `exchangePlan` (lone foe attacks, `capAttackers`), `prepareStandard` (foe roll term level / 4, `foeSide` only) and `rollStandard` (foe hit 2 / decisive 4); Auto passes it too, so its odds agree; `flee.js fleeRoll` and the Settings odds (`rules.js oddsFor` / `subjectOdds`, `subject.hard` from `hardFightFor`) use the foe's level / 4 as well, and `members.js attackList` is the one place that makes the foes' attacks (lone foe doubling and the cap), read by both the plan and the board's "N attacks on you" line (`boardFoes` with `hard`, `party`, `round`). A new foe side records `divisor: 4` so the battle log reads ÷ 4. An existing chat keeps the old foes until its Foes block is renewed (new chat, or re-add the block). The Health size is data, not the flag: `blocks.js sizeOf` reads the field's max (`foes.js isHardBar`), so an old block reads as before and `DM_LIMITS.foeStages` allows 16 stages for a foe's Health. Tests: `tests/v2/lean-rpg/board/members-fight.test.js` ("harder foes: ...").
+Like `foesSix`: recorded at open (`board/interaction.js` (`hardFightFor` from `flags.js`): the party has the doubled bars, every character scale 2, and every foe on the sheet is on a new Foes block, its Health field max 15; `commit.js` also needs `bars: 2` with it), kept in the setup and the result, and shape-checked in the fight's settle (pre-port: `commit.js`). `engine.js` passes `hard` to `exchangePlan` (lone foe attacks, `capAttackers`), `prepareStandard` (foe roll term level / 4, `foeSide` only) and `rollStandard` (foe hit 2 / decisive 4); Auto passes it too, so its odds agree; `flee.js fleeRoll` and the Settings odds (`rules.js oddsFor` / `subjectOdds`, `subject.hard` from `hardFightFor`) use the foe's level / 4 as well, and `members.js attackList` is the one place that makes the foes' attacks (lone foe doubling and the cap), read by both the plan and the board's "N attacks on you" line (`boardFoes` with `hard`, `party`, `round`). A new foe side records `divisor: 4` so the battle log reads ÷ 4. An existing chat keeps the old foes until its Foes block is renewed (new chat, or re-add the block). The Health size is data, not the flag: `blocks.js sizeOf` reads the field's max (`foes.js isHardBar`), so an old block reads as before and `DM_LIMITS.foeStages` allows 16 stages for a foe's Health. Tests: `tests/v2/lean-rpg/board/members-fight.test.js` ("harder foes: ...").
 
 ## Use item (owner 14 Nov)
 

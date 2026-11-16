@@ -10,6 +10,7 @@ import { hashJson } from '../../../../src/v2/replay.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { ASTRA_ID, RULES, fxHost, stepOf } from './interaction.helpers.js';
 
+const stackOf = (state, def) => Object.values(state.domains.inventory.stacks).find(item => item.def === def).id;
 const anchorOf = host => host.store.carrierSid(host.store.headIndex());
 const slotOf = host => { for (let slot = 1; slot < 40; slot += 1) if (!playBoard(host.head(), { seed: 1, offset: 0, rules: RULES, members: 1, aoe: 1, areaAll: 1, foesSix: 1, foesClear: 1, fightLen: 1 }, [{ actions: [{ who: 'Astra', kind: 'attack', target: slot }] }]).error) return slot; return 0; };
 const opened = host => { const sid = anchorOf(host), made = fightKind.open(host.head(), { anchor: sid, seed: fightSeed(sid, 0), args: { rules: RULES } }); assert.equal(made.error, undefined, made.error); return made.setup; };
@@ -46,7 +47,7 @@ test('next: the carried setup moves the offset on, carries the order and member 
     } finally { host.close(); restore(); }
 });
 
-test('the witness moves when the sheet or a consumable in the bag does, and not otherwise; the actors are the standing party', async () => {
+test('the witness moves when the sheet or a consumable the steps name does, and not otherwise; the actors are the standing party', async () => {
     const restore = seedCrypto(7), host = await fxHost();
     try {
         const setup = opened(host), now = hashJson(fightKind.witness(host.head(), setup));
@@ -54,7 +55,13 @@ test('the witness moves when the sheet or a consumable in the bag does, and not 
         assert.deepEqual(fightKind.actors(host.head(), setup), [{ id: ASTRA_ID, name: 'Astra', party: true }]);
         const bag = host.bus.run('inventory.consume', { def: 'story/healing-draught', qty: 1 }, { cause: 'system' });
         assert.equal(bag.ok, true, bag.message);
-        assert.notEqual(hashJson(fightKind.witness(bag.state, setup)), now, 'a drink gone from the bag moves it');
+        const stack = stackOf(host.head(), 'story/healing-draught'), named = [stepOf({ who: 'Astra', kind: 'item', stack, target: 'Astra' })], plainStep = [stepOf({ who: 'Astra', kind: 'attack', target: 1 })];
+        const usedNow = hashJson(fightKind.witness(host.head(), setup, named));
+        assert.notEqual(usedNow, now, 'steps naming an item add that stack');
+        assert.notEqual(hashJson(fightKind.witness(bag.state, setup, named)), usedNow, 'a drink gone from the bag moves a fight that used it');
+        assert.equal(hashJson(fightKind.witness(bag.state, setup)), now, 'without steps the bag does not move it');
+        assert.equal(hashJson(fightKind.witness(bag.state, setup, plainStep)), hashJson(fightKind.witness(host.head(), setup, plainStep)), 'steps naming no item leave the bag out');
+        assert.equal(hashJson(fightKind.witness(host.head(), setup, plainStep)), now, 'and add nothing');
         const hurt = host.bus.run('rpg.board.hurts', { hurts: [{ module: 'pack.chat/foes', field: 'hurt1', to: 2 }] }, { cause: 'system' });
         assert.notEqual(hashJson(fightKind.witness(hurt.state, setup)), now, 'a foe\'s bar moved moves it');
         const setupB = { ...setup, seed: setup.seed + 1 };

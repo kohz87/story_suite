@@ -17,7 +17,7 @@ const plain = value => Boolean(value) && typeof value === 'object' && !Array.isA
 const sidOf = message => readRecord(message)?.sid;
 const titleOf = (kind, id) => String(kind?.title ?? String(id ?? 'interaction').split('/').at(-1)).trim() || 'interaction';
 
-export function createInteractionHooks({ chat, metadata, kindOf, preview = null }) {
+export function createInteractionHooks({ chat, metadata, kindOf, featureLabel = null, preview = null }) {
     const boxOf = () => { try { const meta = metadata(); return plain(meta?.[KEY]) ? { meta, box: meta[KEY] } : null; } catch { return null; } };
     const nameOf = id => titleOf(kindOf(id), id);
     // The last payload carries a regenerate only while its kind's feature is on (switched off, the reply is regenerated without it, as before).
@@ -50,7 +50,7 @@ export function createInteractionHooks({ chat, metadata, kindOf, preview = null 
             if (!payload && picked.session?.steps?.length) return { ok: false, reason: `The ${nameOf(picked.session.kindId)} no longer matches this reply. Restore the reply or discard it.`, action: false };
         } else if (last && !String(last.mes ?? '')) { payload = priorPayload(last); opening = priorOpening(last); }
         if (!payload) return null;
-        const error = interactionInputError(view?.state, payload, { kindOf, featureOn, preview, opening });
+        const error = interactionInputError(view?.state, payload, { kindOf, featureOn, featureLabel: featureLabel ?? undefined, preview, opening });
         return error ? { ok: false, reason: error, action: false } : null;
     }
 

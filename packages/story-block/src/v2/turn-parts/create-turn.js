@@ -129,8 +129,9 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     // The state a kind's opening prelude leaves (a preview: nothing is stored), which the segment after it is checked and played on.
     const previewOpening = (payload, seed, state) => { const run = bus.run('interaction.settle', payload, { cause: 'system', state, seed }); return run?.ok ? run.state : null; };
     // The core's hooks for a reply with an interaction (canGenerate, beforeGenerate, afterReceive): called by the turn itself, so they are no part of any module's hook lists.
-    const ia = createInteractionHooks({ chat: () => ctx?.chat ?? [], metadata, kindOf, preview: previewOpening });
-    const watch = createInteractionWatch(s, { store, problem, notify, kindOf, preview: previewOpening, featureOn: id => registry.featureOn?.(id) !== false });
+    const featureLabel = id => registry.feature?.(id)?.label ?? null;
+    const ia = createInteractionHooks({ chat: () => ctx?.chat ?? [], metadata, kindOf, featureLabel, preview: previewOpening });
+    const watch = createInteractionWatch(s, { store, problem, notify, kindOf, featureLabel, preview: previewOpening, featureOn: id => registry.featureOn?.(id) !== false });
     bus.setCommitGuard?.((next, receipt) => watch.commitCheck(next, receipt));
     const stopChangedBoard = () => watch.stopChanged();
     const interactionError = watch.errorOf;

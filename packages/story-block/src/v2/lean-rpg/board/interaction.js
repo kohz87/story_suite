@@ -90,16 +90,20 @@ export const fightKind = Object.freeze({
     actors: state => readSheet(real(state)).characters.filter(standing).map(actor => ({ id: idOf(actor), name: actor.who, party: true })),
     open: (state, context) => openSetup(state, context),
     opening: (state, setup, dice) => openingOf(real(state), setup, dice),
-    witness: (state, setup) => (setup.opening === true ? openingWitness(real(state)) : { board: boardWitness(real(state), setup), bag: bagOf(state) }),
+    witness: (state, setup, steps) => (setup.opening === true ? openingWitness(real(state)) : { board: boardWitness(real(state), setup), ...usedItems(state, steps) }),
     validate, play, settle, auto, next,
     note: (result, setup, context) => (context?.opening ? openingNote(result) : settledNote(result, setup).split(' | ')),
 });
 
-// The bag's consumables, which a fight may use up: what each holds and restores, so taking back the reply that gave one makes the fight roll again.
-function bagOf(state) {
+// The stacks a fight's item actions named (owner 14 Nov): what each holds and restores, so taking back the reply that gave the item makes the fight roll again.
+// A fight with no item action adds nothing, so unrelated bag changes never take it back. `steps` is the replay guard's own argument; the stage-time check has none.
+function usedItems(state, steps) {
+    if (!Array.isArray(steps)) return {};
+    const ids = [...new Set(steps.flatMap(step => (Array.isArray(step?.inputs) ? step.inputs : [])).filter(input => input?.choice === 'item' && plain(input.args)).map(input => String(input.args.stack)))].sort();
+    if (!ids.length) return {};
     const inventory = state?.domains?.inventory;
-    return Object.values(inventory?.stacks ?? {}).filter(stack => inventory.defs?.[stack.def]?.kind === 'consumable').sort((a, b) => (a.id < b.id ? -1 : 1)).map(stack => {
-        const def = inventory.defs[stack.def];
-        return { id: stack.id, def: stack.def, qty: stack.qty, owner: stack.owner ?? null, name: def.name ?? null, rarity: def.rarity ?? null, tags: def.tags ?? null };
-    });
+    return { items: ids.map(id => {
+        const stack = inventory?.stacks?.[id], def = stack ? inventory.defs?.[stack.def] : null;
+        return { id, def: stack?.def ?? null, qty: stack?.qty ?? 0, owner: stack?.owner ?? null, name: def?.name ?? null, rarity: def?.rarity ?? null, tags: def?.tags ?? null };
+    }) };
 }

@@ -1,5 +1,5 @@
 // Chats made before the port (INTERACTION-PLAN 6.4), on the recorded combat corpus: a settled fight stays (the combat-corpus tests pin its replay), an open unsent fight is closed on load with
-// one quiet Problem and its old keys go, a swipe of a reply whose fight was settled before the port is written without it (one quiet Problem) and swiping back keeps it.
+// one quiet Problem and its old keys go, a swipe or a regenerate of a reply whose fight was settled before the port is written without it (one quiet Problem; swiping back keeps it).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -34,12 +34,24 @@ test('an open unsent fight from before the port is closed on load: its old keys 
     } finally { host.close(); restore(); }
 });
 
-test('a chat with only the regenerate cache of a settled fight loses it silently', async () => {
+test('a regenerate of a reply whose fight was settled before the port is written without it, with one quiet Problem; a reply with no old link says nothing', async () => {
     const { host, restore } = await load('board-won');
     try {
-        assert.equal(Object.hasOwn(host.ctx.chatMetadata, 'rpgFightLast'), false);
+        assert.equal(Object.hasOwn(host.ctx.chatMetadata, 'rpgFightLast'), false, 'the old regenerate cache is gone');
         assert.ok(!codes(host).includes('FIGHT_CLOSED'), 'nothing was open, so no Problem');
+        await host.regenerate('Told another way.');
+        const notes = host.turn.problems().filter(problem => problem.code === 'FIGHT_NOT_CARRIED');
+        assert.equal(notes.length, 1, 'a Problem says so');
+        assert.equal(notes[0].quiet, true);
+        assert.equal(notes[0].message, 'This reply\'s fight was made before the update, so the new reply is written without it.');
+        assert.ok(!host.ctx.chat[2].extra.storySuite.receipts.some(receipt => receipt.type === 'interaction.settle' || (receipt.type === 'rpg.resolve' && receipt.replan?.payload?.board)), 'the new reply carries no fight');
     } finally { host.close(); restore(); }
+    const plain = await load('board-won');
+    try {
+        delete plain.host.ctx.chat[1].extra.rpgFightLinks;
+        await plain.host.regenerate('Again.');
+        assert.ok(!codes(plain.host).includes('FIGHT_NOT_CARRIED'), 'no link, no note');
+    } finally { plain.host.close(); plain.restore(); }
 });
 
 test('a swipe of a reply whose fight was settled before the port is written without the fight, with one quiet Problem; swiping back keeps the old record', async () => {

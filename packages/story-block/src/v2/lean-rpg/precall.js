@@ -180,11 +180,20 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
     }
 
     // A swipe of a reply whose fight was settled before the port (a board `rpg.resolve`) is written without the fight: its record cannot be settled again (INTERACTION-PLAN §6.4).
-    // Swiping back keeps it. A quiet Problem says so, beside whatever the swipe is offered.
+    // So is a regenerate of it: every pre-port board send linked its fight on the reader's message (`extra.rpgFightLinks`), and that link is still there.
+    // Swiping back keeps it. A quiet Problem says so, beside whatever the generation is offered.
+    const fightLinked = message => Object.values(message?.extra?.rpgFightLinks ?? {}).some(value => value === true);
+    const NOT_CARRIED = {
+        swipe: 'This reply\'s fight was made before the update, so the new try is written without it. Swipe back to keep it.',
+        regenerate: 'This reply\'s fight was made before the update, so the new reply is written without it.',
+    };
     async function beforeGenerate(view, info = {}) {
         const answer = await offerFor(view, info);
-        if (info?.commit === false || normalizeType(info?.type) !== 'swipe' || view?.feature?.(LEAN_RPG_FEATURE) !== true || !boardOn(view) || !oldFightIn((chat() ?? []).at(-1))) return answer;
-        const note = { code: 'FIGHT_NOT_CARRIED', quiet: true, message: 'This reply\'s fight was made before the update, so the new try is written without it. Swipe back to keep it.' };
+        const type = normalizeType(info?.type);
+        if (info?.commit === false || (type !== 'swipe' && type !== 'regenerate') || view?.feature?.(LEAN_RPG_FEATURE) !== true || !boardOn(view)) return answer;
+        const last = (chat() ?? []).at(-1);
+        if (!(type === 'swipe' ? oldFightIn(last) : fightLinked(last))) return answer;
+        const note = { code: 'FIGHT_NOT_CARRIED', quiet: true, message: NOT_CARRIED[type] };
         return { ...(Array.isArray(answer) ? { lines: answer } : answer ?? {}), problems: [...(answer?.problems ?? []), note] };
     }
 
