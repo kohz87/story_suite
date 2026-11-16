@@ -1,0 +1,15 @@
+{
+  "default": {
+    "rules": "",
+    "context": ""
+  },
+  "layered_secrets": {
+    "rules": "",
+    "context": ""
+  },
+  "notes_and_stages_off": {
+    "rules": "",
+    "context": ""
+  },
+  "metersParagraph": ""
+}

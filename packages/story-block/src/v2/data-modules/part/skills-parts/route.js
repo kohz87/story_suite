@@ -1,7 +1,7 @@
 // Routing a learn or practice line to a skill slot (the typed-pool learn rule included).
 import { fill } from '../../../strings.js';
 import { fold } from '../../../lean-rpg/read.js';
-import { SKILL_SLOTS_BASE, SKILL_SLOTS_EVERY, SKILL_SLOTS_MAX, SKILL_FIELDS_MAX, SLOT_NUMBER, UTILITY_SLOTS, isTypedSkills, skillTypeOf, signatureAt } from '../../../skill-slots.js';
+import { SKILL_SLOTS_BASE, SKILL_SLOTS_EVERY, SKILL_SLOTS_MAX, SKILL_FIELDS_MAX, SLOT_NUMBER, STANCE_TYPES, UTILITY_SLOTS, isTypedSkills, skillTypeOf, signatureAt } from '../../../skill-slots.js';
 import { J } from '../shared.js';
 import { skillsNamed } from './naming.js';
 
@@ -36,6 +36,8 @@ export function skillRoute(fields, kindName, args, reason, room = SKILL_SLOTS_BA
 // A learn line for a new name in a block with types: the line's `type` (utility, else combat) names the pool. A combat skill needs a free one of the slots the level opens (`room`), a
 // utility skill one of the three; the skill goes to the slot the line names if it is empty, else the first empty one (any slot holds either type).
 function typedLearn(slots, learn, args, fields, room) {
+    // Combat Rules v1: an owner holds at most one stance skill (defence, evasion, movement or support). Only a v1 block has those types, so an earlier block never reaches this.
+    if (STANCE_TYPES.includes(args.type) && slots.some(slot => slot.name && STANCE_TYPES.includes(fields[`type${slot.n}`]))) return { refuse: fill(J.stanceHeld, { skill: args.name }) };
     const type = args.type === 'utility' ? 'utility' : 'combat', cap = type === 'utility' ? UTILITY_SLOTS : room;
     const held = slots.filter(slot => slot.name && slot.type === type).length, empty = slots.filter(slot => !slot.name);
     if (held >= cap || !empty.length) {

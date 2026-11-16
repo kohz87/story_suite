@@ -62,7 +62,7 @@ test('Who: the persona\'s name, You or A companion, who they are with its count;
     dialog.close();
 });
 
-test('Stats: steppers under 10 points, a stat down to 3 frees a point and up to 10, with the radar and the summary row following', async t => {
+test('Stats: steppers under 10 points, a stat never goes below 5 and goes up to 10, with the radar and the summary row following', async t => {
     const ctx = await page(t, { persona: 'Wessel' });
     await begin(ctx.host);
     const dialog = await openFrom(ctx, { empty: true });
@@ -79,19 +79,17 @@ test('Stats: steppers under 10 points, a stat down to 3 frees a point and up to 
     for (let n = 0; n < 5; n += 1) step('vit', 'inc').click();
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 0');
     assert.equal(step('agi', 'inc').disabled, true, 'no points left');
-    step('dex', 'dec').click();
-    step('dex', 'dec').click();
-    assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 2', 'DEX 3 frees two');
-    assert.equal(step('dex', 'dec').disabled, true, 'nothing goes below 3');
-    assert.match(wizardOf(dialog).querySelector('.rpg-wiz-sum').textContent, /STR 10 · VIT 10 · AGI 5 · DEX 3/);
+    assert.equal(step('dex', 'dec').disabled, true, 'nothing goes below the start, 5');
+    assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 0', 'a stat at 5 frees no point');
+    assert.match(wizardOf(dialog).querySelector('.rpg-wiz-sum').textContent, /STR 10 · VIT 10 · AGI 5 · DEX 5/);
     // Back and forth keeps them; Reset puts every stat back at 5.
     stats = await goTo(dialog, 'skills');
     stats = await goTo(dialog, 'stats');
-    assert.match(stats.querySelector('.rpg-wiz-sum').textContent, /STR 10 · VIT 10 · AGI 5 · DEX 3/);
+    assert.match(stats.querySelector('.rpg-wiz-sum').textContent, /STR 10 · VIT 10 · AGI 5 · DEX 5/);
     click(stats, 'Reset');
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 10');
     assert.match(wizardOf(dialog).querySelector('.rpg-wiz-sum').textContent, /STR 5 · VIT 5 · AGI 5 · DEX 5/);
-    assert.match(wizardOf(dialog).textContent, /Every stat starts at 5\. Spend 10 points; a stat can go down to 3 to free a point and up to 10 now\./);
+    assert.match(wizardOf(dialog).textContent, /Every stat starts at 5, the minimum\. Spend 10 points; a stat can go up to 10 now\./);
     dialog.close();
 });
 
