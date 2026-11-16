@@ -423,6 +423,24 @@ pure too, but of the prefix as it is at the moment they are read, which is why a
 identity. Nothing new is stored for any of it (the span already holds the boundary), so there is no new replay input: what an owner writes from
 a cursor into its changes or `recorded` is already an input.
 
+## Deferred domains
+
+A deferred domain (LIFECYCLE.md) is not in a chat until a reply writes it, so every later write of it is a leaf change under the
+slice that first reply made. Deleting that reply used to skip every later block that wrote the domain (its parent was gone). The
+rule now (SPEC §2.2 rule g): on replay, an `add` or `replace` strictly under a deferred domain that is not there, the domain not
+written whole earlier in the block, finds it as its `initial()` slice. The store puts the slice there as the block's first change
+(`ops/rebase.js` `seedDeferred`, the one place replay decides a missing parent), so the scratch fitting and rules (a)-(e) see it;
+the block's domains are then validated as any replayed block's are. Nothing is seeded on a live command or for a block of removes
+alone, so a chat that never writes the domain stays byte-identical and holds no slice of it. The store gets the initial slices from
+`registry.deferredInitial(name)` (`createStore({ seed })`); a store built without `seed` (older tests and tools) replays as before.
+The QA oracle (`tests/v2/qa/helpers/oracle.js`) writes the rule on its own with a literal table of the initial slices.
+
+Story Block's `people` is the first user: its `initial()` is `{ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } }`, and
+both its writers start a new slice from it, so NPC State's later meter moves survive deleting the reply that made the slice (and the
+reply of the first move, when a dossier write made the slice). Left as it was: a write under a person only the deleted reply made,
+and a later scan-marker change (`scan` has no empty value, so a later `people.write` whose marker the deleted reply first stored is
+skipped with its block; NPC State's next commit writes the marker and the view again).
+
 ## Decisions where the contract is silent
 
 * Block metadata is written only for blocks whose command called `ctx.replayGuard`; every other span is

@@ -20,7 +20,7 @@ function replayed(host, when = '') {
     });
     const chat = structuredClone(host.ctx.chat);
     const metadata = structuredClone(host.ctx.chatMetadata ?? {});
-    const fresh = createStore({ chat: () => chat, metadata: () => metadata, save: () => {}, validate, scratch: name => registry.scratch(name) });
+    const fresh = createStore({ chat: () => chat, metadata: () => metadata, save: () => {}, validate, scratch: name => registry.scratch(name), seed: name => registry.deferredInitial(name) });
     // As on a real reload, the bus attaches the owners' replay guards before the first store read.
     createCommandBus({ store: fresh, registry, settings: id => host.sdk.settings(id) });
     fresh.ensureInitial(registry.initialState());

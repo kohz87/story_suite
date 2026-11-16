@@ -22,6 +22,8 @@ function viewOf(n) {
     const npcs = Object.fromEntries(ids.map((id, i) => [id, { name: `Person ${i}`, stage: (n + i) % 4, note: n % 2 ? 'met' : 'seen' }]));
     return { v: 1, order: ids, npcs, candidates: n % 2 ? [] : [{ name: 'Wren' }], dismissed: [], userDismissedGroups: [], socialGraph: n > 2 ? { npc_p0: { npc_p1: 'friend' } } : {}, portraitAssets: {}, turn: n };
 }
+// The slice as stored: the first write starts it from people's initial value, so the empty meters (`bonds`, P4) sit beside the view.
+const stored = n => ({ ...viewOf(n), bonds: { npcs: {}, problems: [] } });
 // What the sender does after a reply: write the view for the head's source.
 async function mirror(host, n) {
     const source = host.store.sourceAt(host.store.headIndex());
@@ -48,7 +50,7 @@ function assertReplay(host, label) {
 test('replies: each write lands on its own carrier and the rebuilt state equals live at every carrier', async t => {
     const host = await rig(t);
     for (let n = 1; n <= 6; n++) { await reply(host, n); assertReplay(host, `reply ${n}`); }
-    assert.deepEqual(host.head().domains.people, viewOf(6));
+    assert.deepEqual(host.head().domains.people, stored(6));
     for (const index of carriers(host.ctx.chat).slice(1)) assert.equal(writesOn(host.ctx.chat, index), 1, `carrier ${index} holds its write`);   // (carrier 0 is the greeting)
 });
 
@@ -60,13 +62,13 @@ test('swipes: a new swipe writes on its own carrier, swiping back restores the f
     const first = plain(host.head().domains.people);
     await host.swipe('Another reply.');
     await mirror(host, 7);
-    assert.deepEqual(host.head().domains.people, viewOf(7));
+    assert.deepEqual(host.head().domains.people, stored(7));
     assertReplay(host, 'new swipe');
     await host.st.swipeTo(last, 0);
     assert.deepEqual(plain(host.head().domains.people), first, 'swiping back shows the first swipe\'s people');
     assertReplay(host, 'swiped back');
     await host.st.swipeTo(last, 1);
-    assert.deepEqual(host.head().domains.people, viewOf(7));
+    assert.deepEqual(host.head().domains.people, stored(7));
     assertReplay(host, 'swiped forward');
 });
 
@@ -74,14 +76,14 @@ test('deletes: the last reply, then a middle reply; the rebuild equals live and 
     const host = await rig(t);
     for (let n = 1; n <= 5; n++) await reply(host, n);
     await host.st.deleteMessage(host.ctx.chat.length - 1);
-    assert.deepEqual(host.head().domains.people, viewOf(4), 'the last delete falls back to the reply before');
+    assert.deepEqual(host.head().domains.people, stored(4), 'the last delete falls back to the reply before');
     assertReplay(host, 'last delete');
     const middle = carriers(host.ctx.chat)[2];
     await host.st.deleteMessage(middle);
     assertReplay(host, 'middle delete');
     await reply(host, 8);
     assertReplay(host, 'a reply after the middle delete');
-    assert.deepEqual(host.head().domains.people, viewOf(8));
+    assert.deepEqual(host.head().domains.people, stored(8));
 });
 
 test('Re-read keeps the write blocks of the reply and of the chat; the state is unchanged', async t => {
@@ -122,7 +124,7 @@ test('a mixed run: replies, swipe, delete, Re-read, reload, rebuild in turn; equ
     assertReplay(host, 're-read');
     await host.st.deleteMessage(carriers(host.ctx.chat)[1]); assertReplay(host, 'middle delete');
     await mirror(host, 5); assertReplay(host, 'next write');
-    assert.deepEqual(host.head().domains.people, viewOf(5), 'the next write brings the head back');
+    assert.deepEqual(host.head().domains.people, stored(5), 'the next write brings the head back');
     const again = await host.turn.reread(host.store.headIndex());
     assert.equal(again.ok, true, again.message);
     assertReplay(host, 're-read after the middle delete');
@@ -138,7 +140,7 @@ test('Re-read after a middle delete: a later write whose records an earlier dele
     await mirror(host, 4);
     const done = await host.turn.reread(host.store.headIndex());
     assert.equal(done.ok, true, done.message);
-    assert.deepEqual(host.head().domains.people, viewOf(4));
+    assert.deepEqual(host.head().domains.people, stored(4));
     assertReplay(host, 'Re-read after a middle delete');
 });
 

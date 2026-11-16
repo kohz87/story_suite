@@ -27,7 +27,7 @@ let ids = 0;
 function mk(ch, ck = Number(ckArg) || 5, mode = null) {
   const registry = createRegistry(); registry.register(guardedMod(mode));
   const validate = (state, names) => names.flatMap(n => { const f = registry.validator(n); return typeof f === 'function' ? (f(state?.domains?.[n], state) ?? []) : []; });
-  const store = createStore({ chat: () => ch, save: async () => {}, validate, scratch: n => registry.scratch(n), recordId: () => `sw_${(++ids).toString(16).padStart(12, '0')}`, checkpointEvery: ck, checkpointBytes: 1 << 30 });
+  const store = createStore({ chat: () => ch, save: async () => {}, validate, scratch: n => registry.scratch(n), seed: n => registry.deferredInitial(n), recordId: () => `sw_${(++ids).toString(16).padStart(12, '0')}`, checkpointEvery: ck, checkpointBytes: 1 << 30 });
   const bus = createCommandBus({ store, registry });
   store.ensureInitial(registry.initialState());
   return { registry, store, bus };

@@ -253,7 +253,7 @@ export async function runFuzz({ seed = 1, steps = 40, verbose = false } = {}) {
             try { return (fn(state?.domains?.[name], state) ?? []).map(String); } catch (error) { return [String(error?.message ?? error)]; }
         });
         const cold = chat => {
-            const store = createStore({ chat: () => chat, save: async () => {}, validate: hostValidate, scratch: name => host.registry.scratch(name), checkpointEvery: 100000, checkpointBytes: 1 << 30 });
+            const store = createStore({ chat: () => chat, save: async () => {}, validate: hostValidate, scratch: name => host.registry.scratch(name), seed: name => host.registry.deferredInitial(name), checkpointEvery: 100000, checkpointBytes: 1 << 30 });
             createCommandBus({ store, registry: host.registry, settings: host.settings });
             store.ensureInitial(host.registry.initialState());
             return store;

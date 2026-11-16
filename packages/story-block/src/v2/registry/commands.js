@@ -173,5 +173,12 @@ export function createCommandLookups({ defs, owners, canonical, held, lifecycle,
         return { v: 2, meta: { rev: 0, claims: {} }, domains };
     }
 
-    return { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState };
+    // A deferred domain's initial() slice, the value an absent one replays as (REPLAY.md "Deferred domains"); null for any other domain
+    // (not deferred, no owner) or when initial() fails.
+    function deferredInitial(name) {
+        const owner = owners.domain.get(name);
+        return owner && defs.get(owner)?.domains?.[name]?.deferred === true ? initialSlice(name) : null;
+    }
+
+    return { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial };
 }

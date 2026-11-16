@@ -1,5 +1,5 @@
 // Rebase and scratch fitting for ops: move counter changes onto the values replay found, fit per-reply
-// bookkeeping, and apply the replay rules (c)-(e). Pure.
+// bookkeeping, and apply the replay rules (c)-(e) and (g). Pure.
 
 import { OPS } from './constants.js';
 import { escapeKey, parsePath, valueAt } from './paths.js';
@@ -96,6 +96,30 @@ function throughList(value, keys) {
     return false;
 }
 
+// Rule (g): a deferred domain (LIFECYCLE "Deferred domains") is made by the first reply that writes it, and every later write of it is
+// a leaf change under it. When that first reply is deleted, the domain is not there on replay, and such a later block would fail
+// whole. Instead an add or replace strictly under a deferred domain that is not there (nor written whole earlier in the block) finds
+// the domain as its initial slice: → the `add /domains/<name>` ops that put it there, first. A block of removes alone makes nothing,
+// and nothing is seeded on a live command, so a chat whose replies never write the domain stays as it was.
+function seedDeferred(state, ops, seed) {
+    const domains = state?.domains;
+    if (!isPlainObject(domains)) return [];
+    const whole = new Set();
+    const out = [];
+    for (const op of ops) {
+        let keys;
+        try { keys = typeof op?.path === 'string' ? parsePath(op.path) : []; } catch { keys = []; }
+        if (keys[0] !== 'domains' || keys.length < 2) continue;
+        const name = keys[1];
+        if (keys.length === 2) { whole.add(name); continue; }
+        if ((op.op !== 'add' && op.op !== 'replace') || whole.has(name) || Object.hasOwn(domains, name)) continue;
+        whole.add(name);
+        const initial = seed(name);
+        if (isPlainObject(initial)) out.push({ op: 'add', path: `/domains/${escapeKey(name)}`, value: clone(initial) });
+    }
+    return out;
+}
+
 // The list rule (e) also covers for ops stored without the mark (see heldAlready).
 const UNIQUE_BEFORE_MARK = '/domains/scene/present';
 
@@ -110,9 +134,14 @@ const UNIQUE_BEFORE_MARK = '/domains/scene/present';
  * object key inside a domain that is not there, in an object that is, becomes an `add`: only a deleted reply had added
  * the key, and the value is the one this later reply set. Counted ops (`was`) keep the counter rules
  * above. And (rule d) an op marked `within` a thing (ctx.ifThere) is passed over when that thing is not
- * there. And (rule e) an append marked `unique` (ctx.unique) of an item the list holds already is passed over. Ops are not changed in place.
+ * there. And (rule e) an append marked `unique` (ctx.unique) of an item the list holds already is passed over. And (rule g, with
+ * `seed`: a domain name → its initial slice when it is deferred, else null) an add or replace under a deferred domain that is not
+ * there finds it as its initial slice (seedDeferred, below). Ops are not changed in place.
  */
-export function rebaseOps(state, ops, { scratch = null, replayed = false } = {}) {
+export function rebaseOps(state, ops, { scratch = null, replayed = false, seed = null } = {}) {
+    // Rule (g) goes first, so the scratch fitting and rules (a)-(e) see the slice the block is laid on.
+    const seeded = replayed && typeof seed === 'function' ? seedDeferred(state, ops, seed) : [];
+    if (seeded.length) state = apply(state, seeded);
     const rebased = new Set();
     const moved = path => {
         const keys = parsePath(path);
@@ -124,7 +153,7 @@ export function rebaseOps(state, ops, { scratch = null, replayed = false } = {})
     // The number an earlier counted op of this list left at a path: a second counted change of that count starts from it, not from `state`
     // (5 → 10 then 10 → 15 on a stack now holding 10 is 15 then 20; the second one stood as made and ended at 15).
     const ran = new Map();
-    const out = [];
+    const out = [...seeded];
     for (const op of scratch ? scratchOps(state, ops, scratch) : ops) {
         // Rule (d): an op marked `within` a thing (ctx.ifThere) whose thing is gone is passed over.
         if (replayed && goneHolder(op)) continue;

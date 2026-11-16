@@ -182,8 +182,13 @@ A module that must not touch a chat until the reader chooses declares those
 domains `deferred: true` (a boolean; anything else is a problem). The host then does not add a slice of the
 domain to a new chat, in the module's set-up step, or in the state a chat starts from, and does not count it as a missing domain
 (`ensureModules`, preflight): the module's chat reads as it would without the domain. The slice appears when one of the
-module's commands writes it (`ctx.draft(name)` starts as `{}`: the command fills it). A domain without `deferred` is
-unchanged.
+module's commands writes it (`ctx.draft(name)` starts as `{}`: the command fills it, best from the domain's `initial()`). A domain
+without `deferred` is unchanged.
+
+When the reply that made the slice is deleted, the later replies' writes still apply: on replay a write under a deferred domain
+that is not there finds the domain as its `initial()` slice (SPEC §2.2 rule g, REPLAY.md "Deferred domains"). So `initial()`
+should hold every container a later write goes into. The store is given each deferred domain's initial slice by the registry
+(`registry.deferredInitial(name)`, the store's `seed` option); a chat that never writes the domain is unchanged.
 
 A command, a query or a capture kind (the object in `capture.kinds`) may also carry an `enabled` property, usually a getter.
 While it reads `false` the host acts as if it were not declared: the command is not found, the query is answered by no

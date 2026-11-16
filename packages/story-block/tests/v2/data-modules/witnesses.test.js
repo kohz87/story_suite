@@ -17,7 +17,7 @@ function assertCold(host, check) {
             delete holder.storySuite.checkpoint; delete holder.storySuite.covers; delete holder.storySuite.coverHash;
         }
     }
-    const store = createStore({ chat: () => chat, save: async () => {}, scratch: name => host.registry.scratch(name) });
+    const store = createStore({ chat: () => chat, save: async () => {}, scratch: name => host.registry.scratch(name), seed: name => host.registry.deferredInitial(name) });
     createCommandBus({ store, registry: host.registry, settings: host.settings });
     store.ensureInitial(host.registry.initialState());
     check(store);

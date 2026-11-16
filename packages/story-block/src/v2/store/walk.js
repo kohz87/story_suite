@@ -18,7 +18,7 @@ import {
 import { rebaseOps } from '../ops.js';
 
 export function createWalk(s, deps) {
-    const { apply, receiptKeep, scratch, validate, list, current, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs } = deps;
+    const { apply, receiptKeep, scratch, seed, validate, list, current, blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash, replay, replayBlocks, appliedOf, proofBefore, packOwners, listProofs } = deps;
 
     function stamp(arr, index, record, block, ops, receipt, earlier, offset) {
         const entry = record.source;
@@ -236,13 +236,14 @@ export function createWalk(s, deps) {
     // already there is forgiven. With `replayed` (a stored block replayed,
     // r2-14) every domain the block touches is checked too: a block that leaves one invalid (a stack
     // whose definition a deleted reply made) throws the same way. Only problems the block brings count,
-    // so a chat stored before a validator grew stricter still replays.
+    // so a chat stored before a validator grew stricter still replays. Also with `replayed`, a write under a deferred domain that is
+    // not there finds it as its initial slice (`seed`, rule g: ops.js rebaseOps).
     function step(state, ops, { replayed = false, strict = false } = {}) {
         if (!ops.length) return state;
         // Every change is looked at before any is rebased or passed over: a block with a change that is not one applies nothing.
         const shape = opShapeProblem(ops);
         if (shape) throw new Error(shape);
-        const { ops: rebased, rebased: moved } = rebaseOps(state, ops, { scratch, replayed });
+        const { ops: rebased, rebased: moved } = rebaseOps(state, ops, { scratch, replayed, seed });
         const next = deepFreeze(apply(state, structuredClone(rebased)));
         if (typeof validate !== 'function') return next;
         const names = new Set(moved);

@@ -15,19 +15,23 @@ const clone = value => JSON.parse(JSON.stringify(value));
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 // The keys of the slice the dossier writer does not own: `bonds` (people.bonds) and `scan` (people.write's own `scan` field, never its view).
 const OWN_KEYS = ['bonds', 'scan'];
-const EMPTY = hashJson({ v: 1, order: [], npcs: {} });
+// The slice a chat's first people write starts from, and what an absent people domain replays as (REPLAY.md "Deferred domains"): every
+// container a later reply's leaf writes go into is here, so deleting the reply that made the slice keeps the later meter moves. (`scan`
+// has no empty value; a later marker write after such a delete is skipped with its block, and NPC State's next commit writes it again.)
+const initialPeople = () => ({ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } });
+const withoutOwn = slice => Object.fromEntries(Object.entries(slice).filter(([key]) => !OWN_KEYS.includes(key)));
+const EMPTY = hashJson(withoutOwn(initialPeople()));
 
 // The slice without `bonds` and `scan`, hashed; null when there is no slice or it holds no dossier part beyond the empty one (a slice made by people.bonds alone).
 function dossierHash(slice) {
     if (slice === undefined || slice === null) return null;
-    const rest = Object.fromEntries(Object.entries(slice).filter(([key]) => !OWN_KEYS.includes(key)));
-    const hash = hashJson(rest);
+    const hash = hashJson(withoutOwn(slice));
     return hash === EMPTY ? null : hash;
 }
 
 export function createPeoplePart() {
     return {
-        domains: { [PEOPLE_DOMAIN]: { initial: () => ({ v: 1, order: [], npcs: {} }), deferred: true, snapshot: 'when-present', validate: validatePeople } },
+        domains: { [PEOPLE_DOMAIN]: { initial: initialPeople, deferred: true, snapshot: 'when-present', validate: validatePeople } },
         commands: {
             // Replaces the dossier keys of the people draft with the view, for the reply the view belongs to (`source`: { sid, swipeKey }); the store diffs it
             // into leaf ops. `bonds` stays as stored. `scan` ({ lastSid, swipeKey, since }), when given, replaces the stored scan marker; absent, it stays.
@@ -43,6 +47,7 @@ export function createPeoplePart() {
                         return ctx.fail('STALE', 'The story moved on before the people were stored; nothing was stored.');
                     }
                     const draft = ctx.draft(PEOPLE_DOMAIN);
+                    if (draft.v === undefined) Object.assign(draft, initialPeople());   // (the first write of a chat: the deferred domain starts here)
                     const kept = Object.fromEntries(OWN_KEYS.filter(key => draft[key] !== undefined).map(key => [key, draft[key]]));
                     for (const key of Object.keys(draft)) delete draft[key];
                     Object.assign(draft, clone(view), kept);
@@ -61,7 +66,7 @@ export function createPeoplePart() {
                     if (!isObject(bonds) || validatePeople({ v: 1, order: [], npcs: {}, bonds }).length) return ctx.fail('INVALID', 'The people\'s meters are not sound; nothing was stored.');
                     const draft = ctx.draft(PEOPLE_DOMAIN);
                     if (hashJson(draft.bonds ?? null) === hashJson(bonds)) return { summary: 'People\'s meters unchanged.', narrate: false };
-                    if (draft.v === undefined) Object.assign(draft, { v: 1, order: [], npcs: {} });   // (the first write of a chat: the deferred domain starts here)
+                    if (draft.v === undefined) Object.assign(draft, initialPeople());   // (the first write of a chat: the deferred domain starts here)
                     draft.bonds = clone(bonds);
                     return { summary: 'People\'s meters stored.', narrate: false };
                 },

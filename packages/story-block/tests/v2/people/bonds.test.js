@@ -1,6 +1,6 @@
 // The people domain's second writer (P4): `people.bonds` stores the meters a module's own command made, inside its transaction, and only from a module;
 // `people.write` keeps them; `people.hash { dossiers: true }` leaves out `bonds` and `scan`; the scan marker rides on people.write; replay == live
-// across swipes, deletes, a rebuild and a reload. Also the known limit of a deferred domain: deleting the reply that made it loses the later writes.
+// across swipes, deletes, a rebuild and a reload. Also the deferred-domain rule: deleting the reply that made the slice keeps the later writes (rule g).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
@@ -119,15 +119,50 @@ test('replay == live for bonds and scan: replies, a swipe and back, a middle del
     assert.deepEqual(plain(again.head().domains.people), plain(host.head().domains.people), 'reload');
 });
 
-test('known limit (deferred domain): deleting the reply that made the people slice loses the later writes on it', async t => {
+test('deleting the reply that made the people slice keeps the later meter changes: the absent deferred domain replays as its initial value', async t => {
     const host = await rig(t);
     await host.send('One.', 'First.');
     await move(host, 'npc_ann', 1);
     await host.send('Two.', 'Second.');
     await move(host, 'npc_bo', 2);
+    await host.send('Three.', 'Third.\n\n<Changes>\n~ bond npc_cy | by: 3\n</Changes>');
     await host.st.deleteMessage(carriers(host.ctx.chat)[1]);
-    assert.equal(host.head().domains.people, undefined, 'the store skips writes whose parent is gone; the slice made by the deleted reply is gone with them');
+    assert.equal(trust(host, 'npc_ann'), undefined, 'the deleted reply\'s own move is gone');
+    assert.equal(trust(host, 'npc_bo'), 2, 'a later command\'s move survives');
+    assert.equal(trust(host, 'npc_cy'), 3, 'and a later change line\'s');
+    assert.deepEqual(host.store.problems(), [], 'nothing is skipped');
+    assert.deepEqual(Object.keys(host.head().domains.people).sort(), ['bonds', 'npcs', 'order', 'v'], 'the slice is people\'s initial value with the later writes on it');
+    assert.equal(host.sdk.query('people.hash', { dossiers: true }), null, 'it holds no dossier');
     assertReplay(host, 'after the delete');
+    await host.store.rebuild();
+    assert.equal(trust(host, 'npc_bo'), 2, 'a rebuild keeps it');
+    assertReplay(host, 'rebuild');
+});
+
+test('a people.write slice starts with the initial bonds, so deleting the reply of the first meter move keeps a later new person\'s move', async t => {
+    const host = await rig(t);
+    await host.send('One.', 'First.');
+    await write(host, view());
+    assert.deepEqual(host.head().domains.people.bonds, { npcs: {}, problems: [] }, 'the first dossier write lays down the empty bonds');
+    await host.send('Two.', 'Second.');
+    await move(host, 'npc_ann', 1);
+    await host.send('Three.', 'Third.');
+    await move(host, 'npc_bo', 4);
+    await host.st.deleteMessage(carriers(host.ctx.chat)[2]);   // (carrier 0 is the greeting)
+    assert.equal(trust(host, 'npc_ann'), undefined);
+    assert.equal(trust(host, 'npc_bo'), 4, 'the later move lands on the bonds the dossier write made');
+    assert.deepEqual(host.store.problems(), []);
+    assertReplay(host, 'after the delete');
+});
+
+test('a chat that never writes people has no people slice, live or replayed (the domain is only made by a write)', async t => {
+    const host = await rig(t);
+    await host.send('One.', 'First.');
+    await host.send('Two.', 'Second.');
+    await host.st.deleteMessage(carriers(host.ctx.chat)[0]);
+    await host.store.rebuild();
+    assert.equal(host.head().domains.people, undefined);
+    assertReplay(host, 'no people');
 });
 
 test('rewind: the branch drops a reply\'s later bonds, scan and edit writes from beforeRev on; replay == live on the branch', async t => {

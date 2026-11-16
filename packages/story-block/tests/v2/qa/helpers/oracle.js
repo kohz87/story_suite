@@ -25,6 +25,8 @@
 // is free. A taken name means the one thing of the offer the inventory's own name lookup finds for it (names.js resolveDef,
 // so the oracle folds names exactly as the inventory does); none, two, or one an earlier taken name took, and it does not
 // hold. A guarded block of any other kind does not apply here (the QA chats make none).
+// Rule (g), a deferred domain that is not there: an add or replace under it (the domain not written whole earlier in the block) finds
+// it as its initial slice, written out here on its own (DEFERRED); a block of removes alone makes nothing.
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -33,6 +35,7 @@ import { createStore } from '../../../../src/v2/store.js';
 import { validateInventory } from '../../../../src/v2/domains/inventory.js';
 import { aliasKey, resolveDef } from '../../../../src/v2/domains/names.js';
 import { validateScene } from '../../../../src/v2/domains/scene.js';
+import { validatePeople } from '../../../../src/v2/domains/people/validate.js';
 import { hashJson } from '../../../../src/v2/replay.js';
 import { checkGuard } from '../../../../src/v2/lean-rpg/practice.js';
 import { inventoryEditGuard } from '../../../../src/v2/domains/inventory/edit.js';
@@ -54,7 +57,22 @@ const at = (root, keys) => keys.reduce((node, key) => (node !== null && typeof n
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 // The validators of the domains the QA chats hold (Story Block's core two and the probe's), by domain name.
-const VALIDATORS = Object.freeze({ inventory: validateInventory, scene: validateScene, probe: probeModule().domains.probe.validate });
+const VALIDATORS = Object.freeze({ inventory: validateInventory, scene: validateScene, people: validatePeople, probe: probeModule().domains.probe.validate });
+// The deferred domains the QA chats write and the slice an absent one replays as (rule g; Story Block's `people`).
+const DEFERRED = Object.freeze({ people: () => ({ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } }) });
+// Rule (g): `root` with each deferred domain the block writes under, while it is not there, set to its initial slice.
+function seedDeferred(root, ops) {
+    const whole = new Set();
+    for (const op of ops) {
+        const keys = typeof op?.path === 'string' && op.path.startsWith('/domains/') ? op.path.slice(1).split('/').map(unescape) : [];
+        if (keys.length < 2) continue;
+        if (keys.length === 2) whole.add(keys[1]);
+        else if (['add', 'replace'].includes(op.op) && !whole.has(keys[1]) && record(root?.domains) && !Object.hasOwn(root.domains, keys[1])) {
+            whole.add(keys[1]);
+            if (DEFERRED[keys[1]]) root.domains[keys[1]] = DEFERRED[keys[1]]();
+        }
+    }
+}
 /** The problems of the named domains in `state` (a domain the state lacks has none). */
 export function validateDomains(state, names) {
     return names.flatMap(name => {
@@ -73,6 +91,7 @@ export function strictApply(state, ops) {
         if (name !== null) touched.add(name);
     }
     const startProblems = new Set(validateDomains(root, [...touched]));
+    seedDeferred(root, ops);
     // Paths earlier ops of the block wrote, for rule (d): an op marked `within` a thing is passed over when the thing is not there.
     const wrote = [];
     for (const original of ops) {
@@ -357,7 +376,9 @@ export function checkInvariants(host, label, { trace = [], dumpDir } = {}) {
         const scratch = name => (name === 'inventory' ? ['perReply', 'loot', 'condLog'] : name === 'scene' ? ['weather', 'you', 'mounts'] : []);
         // (one copy, read as the same array every time, as SillyTavern's chat is: a reply-bound block is told by its message)
         const copy = structuredClone(chat);
-        const fresh = createStore({ chat: () => copy, save: async () => {}, validate, scratch });
+        // And the deferred domains' initial slices (rule g), from the oracle's own table.
+        const seed = name => (DEFERRED[name] ? DEFERRED[name]() : null);
+        const fresh = createStore({ chat: () => copy, save: async () => {}, validate, scratch, seed });
         fresh.attachGuard((state, { guard, source, operation, recorded }) => (guardHolds(state, guard, { source, operation, recorded }) ? { ok: true } : { ok: false, reason: 'its guard does not hold' }));
         assert.deepEqual(plain(fresh.head()), plain(store.head()), `${label}: a new store over a copy of the chat agrees with the cached head`);
     }

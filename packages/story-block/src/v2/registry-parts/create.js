@@ -27,7 +27,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
     const featureLookups = createFeatureLookups({ defs, declared, owners, fallbacks, canonical, featureValue, held, steadyHeld: life.steadyHeld, lifecycle });
     const { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
     const commandLookups = createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf: life.nameOf, off, warn });
-    const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState } = commandLookups;
+    const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial } = commandLookups;
     const { register } = createRegistration({ defs, declared, owners, fallbacks, canonical, refusals, hostVersion, warn, needsOf, setPeers: life.setPeers });
 
     return {
@@ -73,6 +73,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
             const list = owner ? defs.get(owner).domains[name].scratch : null;
             return Array.isArray(list) ? [...list] : [];
         },
+        /** A deferred domain's initial() slice (a copy): what an absent one replays as (ops.js rebaseOps); null for any other domain. */
+        deferredInitial,
         /** The number paths a domain keeps as counts (`counters`, ops.js), [] when none. */
         counters(name) {
             const owner = owners.domain.get(name);
