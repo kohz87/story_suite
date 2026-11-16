@@ -5,17 +5,10 @@
 // QA_REREAD_SEEDS=1-100 (or 7, or 3,9,12) and QA_REREAD_STEPS=n run a longer hunt locally; CI runs the fixed list.
 import test from 'node:test';
 import { fuzzReread } from './helpers/reread-fuzz-run.js';
+import { seedList } from './helpers/seed-list.js';
 
 const SEEDS = [1, 2, 3, 4, 5, 6, 7, 8];
 const STEPS = Number(process.env.QA_REREAD_STEPS) || 40;
-
-/** The seeds of a QA_REREAD_SEEDS list: `a-b` ranges and single numbers, comma-separated. */
-function seedList(text) {
-    return text.split(',').flatMap(part => {
-        const [from, to] = part.split('-').map(Number);
-        return Number.isInteger(to) ? Array.from({ length: to - from + 1 }, (_, i) => from + i) : [from];
-    });
-}
 
 const RUNS = process.env.QA_REREAD_SEEDS ? seedList(process.env.QA_REREAD_SEEDS) : SEEDS;
 

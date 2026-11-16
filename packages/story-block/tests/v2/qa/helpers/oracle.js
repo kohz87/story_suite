@@ -285,7 +285,7 @@ export function guardHolds(state, guard, span = null) {
     return items && purse >= predicate.coin;
 }
 
-/** { state, skipped: [{ index, block, revs }] } at carrier `upTo`, rebuilt from the chat alone; state null without a checkpoint. */
+/** { state, skipped: [{ index, block, revs, domains, claims }] } at carrier `upTo`, rebuilt from the chat alone; state null without a checkpoint. */
 export function rebuildAt(chat, upTo, memo = null) {
     const from = startOf(chat, upTo);
     if (from < 0) return { state: null, skipped: [] };
@@ -302,7 +302,7 @@ export function rebuildAt(chat, upTo, memo = null) {
                 state = strictApply(state, ops);
             } catch (error) {
                 const revs = ops.filter(op => op.path === '/meta/rev').map(op => op.value);
-                skipped.push({ index: i, block, revs, why: error?.message });
+                skipped.push({ index: i, block, revs, why: error?.message, claims: ops.map(op => /^\/meta\/claims\/([^/]+)$/.exec(op.path ?? '')?.[1]).filter(Boolean), domains: [...new Set(ops.map(op => /^\/domains\/([^/]+)/.exec(op.path ?? '')?.[1]).filter(Boolean))] });
                 if (revs.length && revs.at(-1) > state.meta.rev) state.meta.rev = revs.at(-1);
             }
         });
@@ -340,12 +340,16 @@ export function checkInvariants(host, label, { trace = [], dumpDir, tolerate = n
         const rebuilt = plain(state);
         const after = JSON.stringify(chat);
         try {
-            // `tolerate: { domain, field, seen }`: a reply whose stored field differs from the rebuild's is passed unchecked and
-            // `seen()` told. The rebuild does not model a scratch field of another module (Story Director's trips): when a later
-            // reply's record is stored for what an edit removed, the rebuild refuses the block and the rest drifts after it.
+            // `tolerate: { domain, field, seen }`: a reply whose stored field differs from the rebuild's is compared with that field
+            // and the domains and claims of the blocks the rebuild skipped left out, and `seen()` told. The rebuild does not model a scratch
+            // field of another module (Story Director's trips): when a later reply's record is stored for what an edit removed,
+            // the rebuild refuses the block and its own domains drift after it; every other domain is still compared.
             const field = state => state?.domains?.[tolerate?.domain]?.[tolerate?.field];
-            if (tolerate && JSON.stringify(field(live)) !== JSON.stringify(field(rebuilt))) tolerate.seen();
-            else assert.deepEqual(live, rebuilt);
+            if (tolerate && JSON.stringify(field(live)) !== JSON.stringify(field(rebuilt))) {
+                tolerate.seen();
+                const omit = state => { const copy = structuredClone(state); delete copy?.domains?.[tolerate.domain]?.[tolerate.field]; for (const { domains, claims } of skipped) { for (const name of domains) delete copy?.domains?.[name]; for (const claim of claims) delete copy?.meta?.claims?.[claim.replace(/~1/g, '/').replace(/~0/g, '~')]; } return copy; };
+                assert.deepEqual(omit(live), omit(rebuilt));
+            } else assert.deepEqual(live, rebuilt);
             if (after !== read) throw new assert.AssertionError({ message: 'the chat changed' });
         } catch (error) {
             const wrote = after !== read ? `${label}: store.at(${index}) changed the chat it only reads (the rebuild saw the text before, the dump shows it)\n` : '';

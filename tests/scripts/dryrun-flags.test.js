@@ -70,7 +70,7 @@ async function playedChat({ suite }) {
   const host = await pageSuiteHost(suite, { seed: 3 });
   try {
     await host.send('We look around.', host.reply('Dust hangs in the lamplight.', ['~ place Bluewatch Village | kind: settlement', '+ item Bedroll | qty: 1']));
-    await host.send('I ask for work.', host.reply('Temiwa nods.', ['+ item Knife | qty: 1']));
+    await host.send('I ask for work.', host.reply('Orsolo nods.', ['+ item Knife | qty: 1']));
     return { header: { user_name: 'Reader', character_name: 'Guide', chat_metadata: structuredClone(host.ctx.chatMetadata) }, messages: structuredClone(host.ctx.chat) };
   } finally {
     host.close();

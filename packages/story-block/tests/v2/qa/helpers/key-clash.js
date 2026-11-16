@@ -10,6 +10,9 @@ import { readRecord } from '../../../../src/v2/persist.js';
 import { carriers, rebuildAt, strictApply } from './oracle.js';
 
 const REV_KEY = /^\d+(?:\.\d+)?$/;
+// An entry keyed by the reply that made it, `<sid>.<n>` or `<sid>:<receipt>.<n>` (Story Director's problems and trips): the pattern
+// is REPLY_KEY in packages/story-director/src/v2/reply-keys.js, copied (a Story Block helper cannot import another package).
+const REPLY_KEY = /^(?:\d{1,12}|[A-Za-z][\w:-]{0,79})\.\d{1,6}$/;
 const unescape = segment => segment.replace(/~1/g, '/').replace(/~0/g, '~');
 // A record's blocks with their spans (as oracle.js reads them): one block of all ops when the spans do not add up.
 function blocks(record) {
@@ -22,7 +25,7 @@ const at = (root, keys) => keys.reduce((node, key) => (node !== null && typeof n
 
 /** What kind of key an add path ends in: 'rev' (an entry `<rev>.<n>` in a domain map), 'claim' or null. */
 function keyKind(keys) {
-    if (keys[0] === 'domains' && keys.length >= 4 && REV_KEY.test(keys.at(-1))) return 'rev';
+    if (keys[0] === 'domains' && keys.length >= 4 && (REV_KEY.test(keys.at(-1)) || REPLY_KEY.test(keys.at(-1)))) return 'rev';
     if (keys[0] === 'meta' && keys[1] === 'claims' && keys.length === 3) return 'claim';
     return null;
 }

@@ -33,11 +33,15 @@ const plain = value => (value === null || value === undefined ? value : JSON.par
 export const defaultHost = () => createHost({ modules: [probeModule()], settings: { features: { 'story-block.gear': true } } });
 
 /**
- * One run of `steps` steps for `seed`. Options: `makeHost` (a host maker for both the live chat and the told
- * one, to fuzz with other modules), `extraLines(r)` (a list of that host's own change lines: the edits draw from it,
- * and each reply gets up to two of them in its block; without it the replies are state-fuzz-gen.js replyText's),
- * `readers` (query names), `told` (false: the key-clash check alone after a Re-read, for a host whose modules the
- * told-again compare is not checked against), `counted` ([{ name, at, path }]: a remaining told-again difference counted by name), `tolerate` ({ domain, field }: one scratch field the replay oracle may differ in, counted), `leave` (domain names left out of the told-again state compare). Returns { counts, edits: { kinds, refused }, later, laterPaths, legacyClaims, stackChoice, conflict } for the stats.
+ * One run of `steps` steps for `seed`. Options:
+ * - `makeHost`: a host maker for both the live chat and the told one, to fuzz with other modules;
+ * - `extraLines(r)`: a list of that host's own change lines (the edits draw from it, and each reply gets up to two in its
+ *   block; without it the replies are state-fuzz-gen.js replyText's);
+ * - `readers`: query names; `leave`: domain names left out of the told-again state compare;
+ * - `told`: false for the key-clash check alone after a Re-read (a host whose modules the told-again compare is not checked against);
+ * - `counted`: [{ name, at, path }], a remaining told-again difference counted by name;
+ * - `tolerate`: { domain, field }, one scratch field the replay oracle may differ in (counted; the other domains are still compared).
+ * Returns { counts, edits: { kinds, refused }, later, laterPaths, legacyClaims, stackChoice, conflict, tolerated, counted } for the stats.
  */
 export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extraLines = null, readers = READERS, told = true, leave = [], tolerate = null, counted = [] } = {}) {
     const restore = seedCrypto(seed);
@@ -91,10 +95,15 @@ export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extra
         if (!diff) return;
         const { copy, refused } = await rereadAll(ctx.chat, makeHost);
         try {
-            if (refused.length) { stats.conflict += 1; return; }
-            const still = await compareTold(copy, makeHost, readers, { leave });
+            // A CONFLICT refusal leaves the copy short of the told story from there on: only the replies before the first one
+            // are compared (they were Re-read, and must match). Any other refusal code is not excused.
+            const conflict = refused.find(entry => entry.code === 'CONFLICT');
+            const before = conflict ? conflict.index : Infinity;
+            if (conflict) stats.conflict += 1;
+            const still = await compareTold(copy, makeHost, readers, { leave, before });
             // (one that goes when the bag is compared by item totals is a stack chosen by ID order, retell.js looseState)
-            const loose = still && await compareTold(copy, makeHost, readers, { loose: true, leave });
+            const loose = still && await compareTold(copy, makeHost, readers, { loose: true, leave, before });
+            if (conflict && !still) return;
             if (still && !loose) { stats.stackChoice += 1; return; }
             // (a host's own counted class: { name, at, path }, matched on the difference that remains)
             const known = still && counted.find(entry => entry.at === still.at && entry.path.test(still.path));

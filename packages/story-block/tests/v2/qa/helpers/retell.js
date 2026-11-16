@@ -28,7 +28,10 @@ export function canon(value) {
     const keys = Object.keys(value).filter(key => key !== 'rev' && !(isLoot && key === 'n'));
     if (keys.length && keys.every(key => REV_KEY.test(key))) return { '#byRev': keys.sort(byRev).map(key => canon(value[key])) };
     if (keys.length && keys.every(key => ID.test(key))) return { '#byId': keys.map(key => canon(value[key])).sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : 1)) };
-    return Object.fromEntries(keys.sort().map(key => [noIds(key), canon(value[key])]));
+    // (two keys that differ only by an ID would collapse into one entry and lose a value: such a map is a sorted list of its values)
+    const named = keys.sort().map(key => [noIds(key), canon(value[key])]);
+    if (new Set(named.map(([key]) => key)).size < named.length) return { '#byName': named.map(([key, entry]) => [key, entry]).sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : 1)) };
+    return Object.fromEntries(named);
 }
 
 // Loose: which of two stacks of one item a line takes or marks follows the stacks' IDs (the first by ID), and a new
@@ -71,9 +74,10 @@ export async function retell(chat, makeHost) {
  * The first difference between the live host and the story told the edited way: the state at every reply
  * (oldest first), then each reader in `readers` (query names, asked with no payload) at the head.
  * { at, path, live, told } (`at`: a reply's index or `reader <name>`), or null when they agree. `loose`: see looseState.
+ * `before`: only the replies below this index are compared, and no reader (the Re-reads stopped there).
  * `leave`: domain names (and `claims:<prefix>`, `path:a/b/c`) left out of the state compare (a host's data the told-again story does not reproduce yet).
  */
-export async function compareTold(live, makeHost, readers = [], { loose = false, leave = [] } = {}) {
+export async function compareTold(live, makeHost, readers = [], { loose = false, leave = [], before = Infinity } = {}) {
     const without = state => {
         if (!leave.length || !state?.domains) return state;
         const copy = { ...state, domains: { ...state.domains } };
@@ -95,12 +99,13 @@ export async function compareTold(live, makeHost, readers = [], { loose = false,
     try {
         const ours = carriers(live.ctx.chat), theirs = carriers(told.ctx.chat);
         if (ours.join() !== theirs.join()) return { at: 'replies', path: '/', live: ours, told: theirs };
-        for (const index of ours) {
+        for (const index of ours.filter(at => at < before)) {
             const diff = firstDiff(canon(view(live.store.at(index))), canon(view(told.store.at(index))));
             if (diff) return { at: index, ...diff };
         }
         // (a reader's list of records is compared as a set: lists sorted by ID, such as the items, come in another order)
         const asSet = value => (Array.isArray(value) && value.every(entry => entry !== null && typeof entry === 'object') ? [...value].sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : 1)) : value);
+        if (before !== Infinity) return null;
         for (const name of readers.filter(reader => !loose || !STACK_READERS.has(reader))) {
             const diff = firstDiff(asSet(canon(await live.sdk.query(name, {}))), asSet(canon(await told.sdk.query(name, {}))));
             if (diff) return { at: `reader ${name}`, ...diff };
