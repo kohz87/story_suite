@@ -18,6 +18,7 @@ import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACT
 // The RPG's code is loaded only when it is needed (rpg-lazy.js): this part answers for it until it is there.
 import { createLazyRpgPart } from '../../rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../interaction/view.js';
+import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
 import { createPeoplePart } from '../people/part.js';
 import { CORE_BUDGET, CORE_FEATURES, CORE_MODULE_ID } from './constants.js';
 import { CORE_KINDS } from './kinds.js';
@@ -42,7 +43,7 @@ const SCREEN_TABS = Object.freeze(['inventory', 'scene']);
  * `flagOn(name)`: the internal rollout flags (off by default).
  * `assist`: the assist part (pre-roll classifier, after-reply extractor; both off by default).
  */
-export function createCoreModule({ hooks = () => [], settings = () => ({}), version = '2.0.0-alpha.1', packs = livePacks, command, query, assist = null, hookEntries = null, problem = null, extras = null, timeline = () => null, dataModules = {}, leanRpg = {}, flagOn = () => false } = {}) {
+export function createCoreModule({ hooks = () => [], settings = () => ({}), version = '2.0.0-alpha.1', packs = livePacks, command, query, assist = null, hookEntries = null, problem = null, extras = null, timeline = () => null, dataModules = {}, leanRpg = {}, flagOn = () => false, interaction = () => null } = {}) {
     const core = createCorePart({ hooks, settings, hookEntries, problem, query, rpgOn: () => { try { return extras?.rpgOn?.() === true; } catch { return false; } }, gearOn: () => { try { return extras?.gearOn?.() === true; } catch { return false; } }, persona: () => extras?.persona?.() ?? '', readers: () => extras?.readers?.() ?? null, greetingOnly: () => extras?.greetingOnly?.() ?? null, chatEmpty: () => extras?.chatEmpty?.() === true, economy: () => (typeof packs.economy === 'function' ? packs.economy() : null), youRank: () => youRankOf(typeof packs.packs?.packs === 'function' ? packs.packs.packs() : []) });
     // The reader's cap on Inner chatter lines a reply (1 to 10; 3 unless set).
     const chatterCapNow = () => { try { return chatterCap(settings()?.chatterMax); } catch { return chatterCap(); } };
@@ -55,10 +56,14 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
     const rpg = createLazyRpgPart({ ...leanRpg, persona: () => extras?.persona?.() ?? '', rosterOn: () => { try { return extras?.rpgOn?.() === true && extras?.gearOn?.() === true; } catch { return false; } } });
     const merged = mergeParts([core, packs.part, events, assist ?? createAssistPart({ settings: () => settings() }), createTimelinePart({ timeline }), dataPart, rpg, createPeoplePart()], { flagOn: name => { try { return flagOn(name) === true; } catch { return false; } } });
     const timelineGuard = merged.hooks.replayGuard;
+    // The interaction kinds modules register (`interaction(kindId)`: the kind or null) and the settle that plays them (interaction/settle.js).
+    const interactionGuard = interactionGuardFor(interaction);
+    const interactionCommands = createInteractionCommands({ kindOf: interaction, receipts: () => extras?.receipts?.() ?? null });
     // One host-owned hook for the host's guarded blocks, by predicate: data modules (`dm.*`), the RPG's rolls
     // (`rpg.resolve`), a loot offer or take (`loot.offer`, `loot.take`, inventory.js), else the timeline's.
     merged.hooks.replayGuard = Object.assign((view, info) => {
         const kind = String(info?.guard?.predicate?.kind ?? '');
+        if (kind === 'interaction') return interactionGuard(view, info);
         if (kind.startsWith('dm.')) return dataModuleGuard(view, info);
         if (kind === RPG_RESOLVE || kind === RPG_FIGHT || kind === RPG_PRACTICE || kind === RPG_CHECK) return rpg.guard(view, info);
         if (kind === INVENTORY_EDIT_GUARD) return inventoryEditGuard(view, info);
@@ -75,7 +80,7 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
         version,
         features: [...CORE_FEATURES, ...INVENTORY_FEATURES].map(feature => ({ ...feature })),
         domains: merged.domains,
-        commands: merged.commands,
+        commands: { ...merged.commands, ...interactionCommands },
         replayQueries: ['dataModules.replayInputs'],
         // The cards under the head reply that blocks declare (data-modules/part.js blockCards).
         cards: merged.cards,
