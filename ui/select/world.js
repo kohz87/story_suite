@@ -74,7 +74,7 @@ function factionsOf(world, places) {
   });
 }
 
-// The heard stamps a news item lists (one derived stamp: its place, when, who it names); kept as strings.
+// The heard stamps a news item lists (where the party was, when, who told them or null); an empty one is dropped.
 const heardOf = raw => list(raw).map(h => ({ where: text(h?.where), when: text(h?.when), from: text(h?.from) || null })).filter(h => h.where || h.when);
 
 // director.world news (known-parts/news.js): '' state is an open event thread (ongoing); place and faction ids and the heard stamp come

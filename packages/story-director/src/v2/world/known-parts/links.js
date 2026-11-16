@@ -33,23 +33,26 @@ function tagsOf(dossier) {
     return ['faction', 'group', 'affiliation'].flatMap(name => [dossier?.[name], custom[name]]).flatMap(tag => text(tag).split(',')).map(tag => keyOf(text(tag).replace(/^(?:the|a|an)\s+/i, ''))).filter(Boolean);
 }
 
-/** The known people whose dossier names the faction (or a name it goes by): `[{ personId, name }]`; none without NPC State Delta. */
-export function factionMembers(tools, faction) {
+/**
+ * Who belongs to which faction: `(faction) => [{ personId, name }]`, from the known people's dossiers read once (faction, group or
+ * affiliation naming the faction or a name it goes by). No one without NPC State Delta.
+ */
+export function memberFinder(tools) {
     const query = queryOf(tools);
     const known = tryQuery(query, 'npc.known', {}, null);
-    if (!Array.isArray(known)) return [];
-    const wanted = new Set([faction.name, ...(faction.aka ?? [])].map(keyOf).filter(Boolean));
-    const out = [];
-    for (const name of known) {
+    const people = [];
+    for (const name of Array.isArray(known) ? known : []) {
         const dossier = tryQuery(query, 'npc.dossier', { name }, null);
-        if (isRecord(dossier) && tagsOf(dossier).some(tag => wanted.has(tag))) out.push({ personId: text(dossier.id) || null, name: cut(name, 80) });
+        if (isRecord(dossier)) people.push({ personId: text(dossier.id) || null, name: cut(name, 80), tags: new Set(tagsOf(dossier)) });
     }
-    return out;
+    return faction => {
+        const wanted = [faction.name, ...(faction.aka ?? [])].map(keyOf).filter(Boolean);
+        return people.filter(person => wanted.some(tag => person.tags.has(tag))).map(({ personId, name }) => ({ personId, name }));
+    };
 }
 
 /** The open quests {{user}} took that name a place: `[{ id, name, place, placeId }]` (an arc planner's or a hidden name is left out). */
-export function placeQuests(state, tools, { hidden }) {
-    const ids = placeIds(tools);
+export function placeQuests(state, { hidden, ids }) {
     const out = [];
     for (const thread of threadsOf(state)) {
         if (thread.kind !== 'quest' || thread.status !== 'active' || thread.ended || thread.offer || planned(thread)) continue;
