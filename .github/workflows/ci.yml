@@ -12,6 +12,7 @@ permissions:
 jobs:
   rules:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,10 +49,12 @@ jobs:
       - name: No tracked node_modules
         run: node scripts/checks/no-tracked-deps.mjs
       - name: Script tests
-        run: npm run test:scripts
+        # Same command as npm run test:scripts, plus a per-test timeout.
+        run: node --test --test-timeout=600000 "tests/scripts/*.test.js"
 
   ui:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       CI: 'true'
     steps:
@@ -66,10 +69,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       # CI=true makes a missing browser a failure, so the rendered sweeps never skip here.
       - name: UI tests
-        run: npm run test:ui
+        # Same command as npm run test:ui, plus a per-test timeout.
+        run: node --test --test-timeout=600000 "tests/ui/**/*.test.js"
 
   story-block:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: packages/story-block
@@ -114,12 +119,14 @@ jobs:
           echo "Also running the tests that read the example packs:"
           printf '%s\n' "$others"
           # shellcheck disable=SC2086
-          node --test $packs $others
+          node --test --test-timeout=600000 $packs $others
       - name: Behavioral tests
         if: steps.scope.outputs.scope != 'packs'
         env:
           FUZZ_DUMP_DIR: ${{ runner.temp }}
-        run: npm test
+        # The same command as Story Block's npm test, plus a per-test timeout (the flag must come before
+        # the file globs, and node refuses it in NODE_OPTIONS, so `npm test -- --test-timeout` cannot be used).
+        run: node --test --test-timeout=600000 "tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js"
       - name: Keep state-fuzz replay dumps
         if: failure()
         uses: actions/upload-artifact@v4
@@ -131,6 +138,7 @@ jobs:
 
   story-director:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: packages/story-director
@@ -144,10 +152,12 @@ jobs:
       - name: Syntax check
         run: npm run check
       - name: Behavioral tests
-        run: npm test
+        # The same command as Story Director's npm test, plus a per-test timeout.
+        run: node --test --test-timeout=600000 "tests/*.test.js" "tests/v2/**/*.test.js"
 
   npc-state-delta:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: packages/npc-state-delta
@@ -172,7 +182,11 @@ jobs:
           }
           NODE
       - name: Full verification
-        run: npm test
+        # The same three commands as this package's npm test; the first runs many tests, so it gets a per-test timeout.
+        run: |
+          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test --test-timeout=600000 tests/*.test.js tests/v2/break/*.test.js
+          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/compatibility-check.js
+          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/runtime-smoke.mjs
       - name: Delta validation and prompt measurement
         run: |
           npm run validate
@@ -231,6 +245,7 @@ jobs:
 
   suite:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:

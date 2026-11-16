@@ -55,7 +55,8 @@ globs=("tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.
 if [ -d "$repo_root/tests/suite" ]; then globs+=("$repo_root/tests/suite/**/*.test.js"); fi
 
 set +e
-node --test --test-reporter=tap "${globs[@]}" | tee "$tap_file"
+# --test-timeout fails a hung test after 10 minutes instead of holding the job (the job has its own timeout too).
+node --test --test-timeout=600000 --test-reporter=tap "${globs[@]}" | tee "$tap_file"
 status=${PIPESTATUS[0]}
 set -e
 
