@@ -15,7 +15,7 @@ import {
     suppressPrimaryRelationshipForFocusedDecisions,
 } from '../src/relationship-pass.js';
 import { runtimeSource } from './helpers/runtime-source.js';
-import { createHost } from './vendor/story-block/testkit/index.js';
+import { createHost } from '../../story-block/testkit/index.js';
 import { newestFlatDay as fromFlatDay } from './helpers/pacing-suite.js';
 import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 

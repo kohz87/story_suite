@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MAX_SECRETS, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../src/npc-meters.js';
 import { normalizeNpcRecord } from '../core.js';
-import { validatePack } from './vendor/story-block/src/v2/packs/validate.js';
-import { contentOf } from './vendor/story-block/src/v2/packs/content.js';
+import { validatePack } from '../../story-block/src/v2/packs/validate.js';
+import { contentOf } from '../../story-block/src/v2/packs/content.js';
 import { castSecrets } from '../src/cast-dossier.js';
 import { ERSVEIL, fakeDelta, handedOver, host, plain } from './storysuite-v2-meters.helpers.js';
 

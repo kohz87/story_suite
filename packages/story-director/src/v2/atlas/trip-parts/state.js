@@ -3,8 +3,22 @@
 import { isRecord } from '../domain.js';
 import { KEY } from '../trip-shape.js';
 import { isInt } from './shared-constants.js';
+import { entryOrder } from '../../reply-keys.js';
 
-const order = (a, b) => a.record.at - b.record.at || a.record.rev - b.record.rev || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
+// The records' order: by story time, then revision, then the key's count (reply-keys.js), never by key: a key names the reply.
+const byRecord = entryOrder(record => [record?.at, record?.rev]);
+const order = (a, b) => byRecord([a.key, a.record], [b.key, b.record]);
+
+// The records in order and the newest go among them (null when none).
+function readTrips(atlas) {
+    const entries = Object.entries(isRecord(atlas?.trips) ? atlas.trips : {}).filter(([key, record]) => KEY.test(key) && isRecord(record))
+        .map(([key, record]) => ({ key, record })).sort(order);
+    const goes = entries.filter(entry => entry.record.kind === 'go' && Array.isArray(entry.record.legs) && entry.record.legs.length);
+    return { entries, go: goes.at(-1) ?? null };
+}
+
+/** The key of the trip's `go` record (the one tripOf reads), or null: a delay names it (`go`), trip-capture.js. */
+export const goKeyOf = atlas => readTrips(atlas).go?.key ?? null;
 
 /**
  * The trip as it stands: the newest `go` record with the delays after it applied, or null. `{ to, by, mode, pace, unit, mount, short,
@@ -12,10 +26,7 @@ const order = (a, b) => a.record.at - b.record.at || a.record.rev - b.record.rev
  * delay moves every arrival still ahead of it: the leg being travelled is held where it is, the later ones start later.
  */
 export function tripOf(atlas) {
-    const entries = Object.entries(isRecord(atlas?.trips) ? atlas.trips : {}).filter(([key, record]) => KEY.test(key) && isRecord(record))
-        .map(([key, record]) => ({ key, record })).sort(order);
-    const goes = entries.filter(entry => entry.record.kind === 'go' && Array.isArray(entry.record.legs) && entry.record.legs.length);
-    const go = goes.at(-1);
+    const { entries, go } = readTrips(atlas);
     if (!go) return null;
     const trip = {
         ...structuredClone({ to: go.record.to, by: go.record.by, mode: go.record.mode, pace: go.record.pace, unit: go.record.unit, mount: go.record.mount, short: go.record.short, setOut: go.record.setOut }),
@@ -24,8 +35,15 @@ export function tripOf(atlas) {
     };
     // A delay written while an earlier hold still runs waits for it: its hold starts where that one ends, so the holds never overlap and
     // the party is held for the sum of the delays (the arrivals have always moved by that sum).
+    // A delay names the go it delays (`go`, its key): that key stays when the go's reply is Re-read with more lines (a go is always
+    // its reply's first record, `<sid>.0`), where its revision moves past a later reply's stored delay's; and a delay an edited
+    // reply left behind for another trip never delays this one. A delay whose go is not a go in the map any more (that reply was
+    // deleted or changed, or an older chat's `<rev>.0` go was Re-read under a new key), and one from an older state (no `go`),
+    // counts when it sorts after the go, by story time then revision.
+    const goKeys = new Set(entries.filter(entry => entry.record.kind === 'go').map(entry => entry.key));
+    const ours = item => (typeof item.record.go === 'string' && goKeys.has(item.record.go) ? item.record.go === go.key : order(go, item) < 0);
     let heldUntil = -Infinity;
-    for (const entry of entries.filter(item => item.record.kind === 'delay' && order(go, item) < 0)) {
+    for (const entry of entries.filter(item => item.record.kind === 'delay' && ours(item))) {
         const { minutes, because } = entry.record;
         if (!isInt(minutes) || minutes < 1 || entry.record.at >= trip.legs.at(-1).arrive) continue;
         const at = Math.max(entry.record.at, heldUntil);

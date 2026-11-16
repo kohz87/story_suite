@@ -7,10 +7,10 @@ import path from 'node:path';
 
 export const NSD_STATIC_KEY = 'story_suite_static_npc_state_delta';
 
-/** A `loaded` suite whose NPC State Delta adapter reports `isEnabled()` from the returned `state.enabled`. */
+/** A `loaded` suite whose NPC State Delta adapter reports `isEnabled()` from the returned `state.enabled`, and the impact-tier caps from `state.caps` (null: the host gives none). */
 export function withNsdSwitch(loaded) {
-    const state = { enabled: true };
-    const NSD = { ...loaded.NSD, createStorySuiteV2Adapter: options => loaded.NSD.createStorySuiteV2Adapter({ ...options, delta: () => ({ isEnabled: () => state.enabled, getNpc: () => null }) }) };
+    const state = { enabled: true, caps: null };
+    const NSD = { ...loaded.NSD, createStorySuiteV2Adapter: options => loaded.NSD.createStorySuiteV2Adapter({ ...options, delta: () => ({ isEnabled: () => state.enabled, getNpc: () => null, relationshipCaps: () => state.caps }) }) };
     return { suite: { ...loaded, NSD }, state };
 }
 

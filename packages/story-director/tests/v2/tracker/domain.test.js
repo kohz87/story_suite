@@ -25,7 +25,7 @@ test('the part has the shape MODULES §A names', () => {
 
 test('initial: an empty director, plain JSON, valid; each call a fresh copy', () => {
     const director = part.domains.director.initial();
-    assert.deepEqual(director, { time: { minutes: null }, threads: {}, keys: {}, writes: {}, problems: {}, turn: { n: 0, now: null }, checked: null, recap: null, initiative: null, pulse: null, pulseQuiet: null });
+    assert.deepEqual(director, { time: { minutes: null }, threads: {}, keys: {}, writes: {}, problems: {}, steps: {}, turn: { n: 0, now: null }, checked: null, recap: null, initiative: null, pulse: null, pulseQuiet: null });
     assert.deepEqual(JSON.parse(JSON.stringify(director)), director);
     assert.deepEqual(validate(director), []);
     director.threads.x = 1;
@@ -106,7 +106,7 @@ test('queries: time, threads by kind, status and offer, one thread by key, alias
     assert.equal(wolf.track, undefined, 'bookkeeping stays inside');
     wolf.fields.step = 'changed';
     assert.equal(state.domains.director.threads[wolf.id].fields.step, 'tracking');
-    assert.deepEqual(part.queries['director.time'](makeState()), { minutes: null, text: '', parts: null });
+    assert.deepEqual(part.queries['director.time'](makeState()), { minutes: null, text: '', parts: null, weekday: '', firstWeekdays: [] });
     assert.deepEqual(part.queries['director.threads'](makeState(), { kind: 'hook' }), []);
 });
 

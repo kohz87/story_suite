@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHost } from './vendor/story-block/testkit/index.js';
+import { createHost } from '../../story-block/testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { seedPeople } from './helpers/seed-people.js';
 import { secretId } from '../src/npc-meters.js';
@@ -12,7 +12,7 @@ import { lastRelationshipChangeHtml, recentChangeRowHtml } from '../dossier-ui-r
 
 // TRS ideas 1-4 on the NPC meters (stage ladders with several needs and milestones, per-NPC ceilings
 // and floors, fuller custom meters with presets and drift, locked-note teasers), against Story
-// Block's whole host from its testkit (tests/vendor/story-block, see its VERSION): real capture, real
+// Block's whole host from its testkit (the live packages/story-block testkit): real capture, real
 // turns and the host's 'turn' event that carries Delta's per-reply step. Delta's runtime is a fake.
 
 export const SECRET = 'She was the lost heir of House Venn.';

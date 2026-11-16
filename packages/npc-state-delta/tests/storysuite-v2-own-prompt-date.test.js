@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from './vendor/story-block/testkit/index.js';
+import { createHost } from '../../story-block/testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import {
     buildNarrationCaptureParts, calendarPromptContext, getActiveCalendarConfig, hostedStoryDate, setActiveCalendarConfig, setStoryClockSource,
@@ -133,7 +133,7 @@ test('prompts: the capture rules stay byte-identical; only the current-date line
     assert.equal(hosted.context.replace(/^Current grounded world date=.*$/m, ''), own.context.replace(/^Current grounded world date=.*$/m, ''), 'nothing else changed');
 });
 
-// ---- the adapter on a whole Story Block host (tests/vendor/story-block, see its VERSION) ----
+// ---- the adapter on a whole Story Block host (the live packages/story-block testkit) ----
 
 // A stand-in for Story Director: only its two time queries (`minutes` null until the story sets it).
 const director = clock => ({

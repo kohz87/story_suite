@@ -6,5 +6,5 @@
 // reply where the time passed, so deleting or swiping that reply takes the closing back.
 // Public face: re-exports its parts.
 export { LAPSED_REASON, SLIPPED_REASON, SLIP_GRACE_DAYS, UNDATED_OFFER_DAYS } from './lapses-parts/constants.js';
-export { lapsedOffers, slippedBeats } from './lapses-parts/detect.js';
+export { lapseTime, lapsedOffers, slippedBeats } from './lapses-parts/detect.js';
 export { lapseLines, lapsesIn } from './lapses-parts/lines.js';

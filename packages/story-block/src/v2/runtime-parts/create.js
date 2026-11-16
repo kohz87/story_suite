@@ -187,7 +187,8 @@ export function createRuntime({
     const store = createStore({ ...saving, validate, scratch: name => registry.scratch(name), seed: name => registry.deferredInitial(name), replayEnv: () => registry.features().map(feature => `${feature.id}${registry.featureOn(feature.id) ? '+' : '-'}`).join(',') + '|' + registry.rulesSignature(), marked: () => { try { return registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg); } catch { return false; } } });
     saveOnUnload(store, page, { fits: saving.keepaliveFits });
     bus = createCommandBus({ store, registry, settings });
-    events = createEvents();
+    // `turn` is built after the events: a module listener's failure is reported through it when it is called.
+    events = createEvents({ flag: name => flagOn(() => ctx.extensionSettings, name), report: entry => turn?.report(entry), problems: id => turn?.problems(id) });
     // The timeline (docs/v2/TIMELINE.md): save points, restores, participants. Its archive is in the open chat's metadata.
     const chatMetadata = () => {
         try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; }

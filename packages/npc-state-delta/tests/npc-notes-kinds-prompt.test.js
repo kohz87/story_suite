@@ -86,7 +86,7 @@ test('notes tail: the cue is sent in a reply with nobody present (a quiet travel
 });
 
 test('notes tail: under a tight tail budget (the run\'s 550 tokens, here 60 with a crowded section) the host still sends the cue (the meters line is the one that goes)', async () => {
-    const { assemble } = await import('./vendor/story-block/src/v2/prompt.js');
+    const { assemble } = await import('../../story-block/src/v2/prompt.js');
     const s = await suite({ allowance: null, features: ON });
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);

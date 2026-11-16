@@ -259,6 +259,6 @@ test('index.js wiring: the picture sync is asked for by the adapter, runs when a
     assert.match(index, /castPortraitDue\(\)\) castSync\(\)/, 'a chat opened gives the picture too');
     assert.match(index, /markCastPortraitRemoved\(npc\)/, 'the reader\'s removal is recorded');
     const adapter = adapterSource();
-    assert.match(adapter, /sdk\.on\('head', portraitFill\)/, 'and so does the host\'s head event');
+    assert.match(adapter, /sdk\.on\('head', portraitFill(, \{ module: MODULE \})?\)/, 'and so does the host\'s head event');
     assert.doesNotMatch(adapter, /sdkRef\.command\(['"]director\./, 'Delta never writes to Story Director');
 });

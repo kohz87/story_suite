@@ -1,17 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from './vendor/story-block/src/v2/registry.js';
-import { createPeoplePart } from './vendor/story-block/src/v2/domains/people/part.js';
-import { createStore } from './vendor/story-block/src/v2/store.js';
-import { createCommandBus } from './vendor/story-block/src/v2/commands.js';
-import { CAPTURE_PREFIX } from './vendor/story-block/src/v2/registry.js';
-import { parseChanges } from './vendor/story-block/src/v2/capture.js';
+import { createRegistry } from '../../story-block/src/v2/registry.js';
+import { createPeoplePart } from '../../story-block/src/v2/domains/people/part.js';
+import { createStore } from '../../story-block/src/v2/store.js';
+import { createCommandBus } from '../../story-block/src/v2/commands.js';
+import { CAPTURE_PREFIX } from '../../story-block/src/v2/registry.js';
+import { parseChanges } from '../../story-block/src/v2/capture.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { PUBLIC_PATHS_OWNER, PUBLIC_PATHS_PREFIX, createPublicPathsDefinition } from '../src/public-paths.js';
 import { secretId } from '../src/npc-meters.js';
 
 // NPC State Delta's public paths (src/public-paths.js; Story Block 2.22.0 sdk.registerPublicPaths), against Story Block's real registry,
-// store and change-line parser (tests/vendor/story-block) with a small sdk that keeps the registration. The host's own side (api.get,
+// store and change-line parser (the live packages/story-block code) with a small sdk that keeps the registration. The host's own side (api.get,
 // paths(), {{sb::…}}, story:changed) is tested in Story Block (tests/v2/public-paths.test.js); here is what Delta offers it.
 
 const SECRET = 'She is the lost heir of House Venn.';

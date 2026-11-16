@@ -78,7 +78,8 @@ test('the edit is a receipt on the head reply: the clock reads it at once, the p
         // Story Block's reply card lists a receipt as the reader's edit by `data.edit`: the tile reads the receipt's own line.
         assert.equal(sets.receipt.data.edit, true);
         assert.deepEqual(replyEdits({ receipts: host.sdk.receipts().filter(entry => entry.index === host.ctx.chat.length - 1).map(entry => entry.receipt) }), [{ text: 'Clock set to March 5, 10:00 am' }]);
-        assert.deepEqual(clock(host), { minutes: sets.receipt.data.minutes, text: 'March 5, 1200, 10:00 am', parts: { year: 1200, month: 3, day: 5, minutes: 600 } });
+        assert.deepEqual(clock(host), { minutes: sets.receipt.data.minutes, text: 'March 5, 1200, 10:00 am', parts: { year: 1200, month: 3, day: 5, minutes: 600 }, weekday: clock(host).weekday, firstWeekdays: clock(host).firstWeekdays });
+        assert.equal(clock(host).firstWeekdays.length, 12);
         // The next reply's note and the story's own moves start from the edited clock.
         await host.send('We walk.', reply('Two hours on foot.', ['! time +2h']));
         assert.equal(clock(host).text, 'March 5, 1200, 12:00 pm');

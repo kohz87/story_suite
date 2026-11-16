@@ -13,6 +13,8 @@ import { castView, findCastPerson, normalizeCast } from './src/cast-dossier.js';
 import { getSettings, setRpgProbe } from './runtime-settings.js';
 import { sheetLevelOf } from './core-record.js';
 import { stage1Refresh } from './dossier-tools-core.js';
+import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
+import { createTastes } from './runtime-hosted-parts/tastes.js';
 
 export function createHostedPart(rt, deps) {
     const { chatHydrationStatus, getChatKey, getChatState, latestMessageId, latestReplyIndex } = deps;
@@ -343,36 +345,8 @@ export function createHostedPart(rt, deps) {
         };
     }
 
-    // (v2 hidden notes) What a targeted pass (backfill, Refresh) is asked about hidden notes: { layered, watch } or null when
-    // nothing is asked (not hosted, or no setting and no event note to look for). `layered`: this dossier is new (a backfill
-    // queued at admission) and has no notes yet. `watch`: this one person's locked event notes, when they are present.
-    // `tastes` (Refresh only): the pass also asks for this person's tastes (the notes feature on) and forwards them (forwardTastesToHost).
-    function hostedTargetNotes(npc, { newDossier = false, messageId = null, tastes = false } = {}) {
-        const adapter = storySuiteV2Meters();
-        if (!adapter || !npc) return null;
-        const layered = newDossier && getSettings().layeredSecrets !== false && !(Array.isArray(npc.secrets) && npc.secrets.length);
-        const watch = hostedEventWatch({ npcs: [npc] }, messageId);
-        const asked = tastes === true && adapter.asksTastes?.() === true;
-        return layered || watch.length || asked ? { layered, watch, ...(asked ? { tastes: true } : {}) } : null;
-    }
-    const targetNoteOptions = notes => ({
-        ...(notes?.layered ? { layeredSecrets: true } : {}),
-        ...(notes?.watch?.length ? { eventWatch: notes.watch } : {}),
-        ...(notes?.tastes ? { askTastes: true } : {}),
-    });
-
-    // A Refresh's answered tastes (the target's row of `rows`: { tastes: [{ sign, item, from }] }) → npc.taste on the head reply the Refresh read, once the
-    // chat is known not to have moved (as forwardSecretEventsToHost). Nothing while replaying.
-    function forwardTastesToHost(npc, rows, head = null) {
-        if (replayScope()) return;
-        const adapter = storySuiteV2Meters();
-        const list = Array.isArray(rows) ? rows : [];
-        const row = list.find(item => String(item?.id || '') === npc?.id || (item?.name && npcMatchesLabel(npc, String(item.name)))) || (list.length === 1 ? list[0] : null);
-        if (!adapter || !npc || !Array.isArray(row?.tastes) || !row.tastes.length) return;
-        if (!chatHeadUnchanged(head)) return;
-        const reply = latestMessageId(true);
-        void adapter.tastes({ name: npc.name, tastes: row.tastes, ...(reply >= 0 ? { reply } : {}) });
-    }
+    const { hostedTargetNotes, targetNoteOptions } = createTargetNotes({ storySuiteV2Meters, hostedEventWatch });
+    const { forwardTastesToHost } = createTastes({ storySuiteV2Meters, chatHeadUnchanged, latestMessageId });
 
     // A committed scan's `secretEvents` (the keys of the watched story events the current exchange showed) open those notes
     // as npc.open (cause ui, recorded on the head reply, so a swipe takes them back). Nothing is sent when the chat moved

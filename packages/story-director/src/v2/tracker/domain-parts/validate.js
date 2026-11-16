@@ -5,6 +5,7 @@ import { lineKey } from '../../../changes.js';
 import { slotValue } from '../../slot.js';
 import { initiativeErrors } from '../initiative.js';
 import { PROBLEM_KEY, PROBLEM_ROOM } from './shared-problem-keys.js';
+import { STEP_CEILING, STEP_KEY } from './shared-step-keys.js';
 import { isInt, isRecord } from './shared-guards.js';
 import { threadErrors } from './thread-errors.js';
 
@@ -37,9 +38,15 @@ export function validateDirector(slice) {
         if (problems.length > PROBLEM_ROOM) errors.push(`director.problems must be a list of at most ${PROBLEM_ROOM}.`);
         else if (problems.some(badProblem)) errors.push('director.problems entries need rev, kind and text.');
     } else if (!isRecord(problems) || Object.keys(problems).length > PROBLEM_CEILING || Object.keys(problems).some(key => !PROBLEM_KEY.test(key))) {
-        errors.push(`director.problems must hold at most ${PROBLEM_CEILING} problems under "<rev>.<n>" keys.`);
+        errors.push(`director.problems must hold at most ${PROBLEM_CEILING} problems under "<sid>.<n>" (or older "<rev>.<n>" keys).`);
     } else if (Object.values(problems).some(badProblem)) {
         errors.push('director.problems entries need rev, kind and text.');
+    }
+    const steps = slice.steps;
+    // Replay can hold more than the writer keeps (shared-step-keys.js STEP_CEILING).
+    if (steps !== undefined && (!isRecord(steps) || Object.keys(steps).length > STEP_CEILING || Object.entries(steps).some(([key, entry]) => !STEP_KEY.test(key)
+        || !isRecord(entry) || typeof entry.thread !== 'string' || typeof entry.text !== 'string' || Array.from(entry.text).length > 600 || !isInt(entry.turn) || entry.turn < 0 || !isInt(entry.place) || entry.place < -1))) {
+        errors.push(`director.steps must hold at most ${STEP_CEILING} { thread, text, turn, place } entries under "<reply>.<n>" keys.`);
     }
     const turn = slice.turn;
     const legacy = isRecord(turn) && !Object.hasOwn(turn, 'now');

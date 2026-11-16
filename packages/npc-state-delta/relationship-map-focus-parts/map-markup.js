@@ -16,8 +16,9 @@ export function bondLine(bond = {}, { bondTone, prefer = '' } = {}) {
     const ids = [prefer, bond.a, bond.b].filter(Boolean);
     const relation = ids.map(id => plain(bond.relation?.[id])).find(Boolean) || '';
     const own = prefer ? bond.tagsBy?.[prefer] : null;
-    const word = tagWord(own) || relationWord(relation);
-    return { word, tone: bondToneOf(word, relation, { bondTone, tags: own || bond.tags }) };
+    const fromTag = tagWord(own);
+    const word = fromTag || relationWord(relation);
+    return { word, fromTag: !!fromTag, tone: bondToneOf(word, relation, { bondTone, tags: own || bond.tags }) };
 }
 
 const RING_VALUES = Object.freeze([75, 25, 0, -50]);
