@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createHost } from './vendor/story-block/testkit/index.js';
+import { createHost } from '../../story-block/testkit/index.js';
 import { buildInjection, createNpcRecord, mergeScanResult } from '../core.js';
 import { keyAwayHtml, keyProjection, projectDossierState } from '../dossier-ui.js';
 import { dossierRowNodes } from '../story-block-tabs.js';

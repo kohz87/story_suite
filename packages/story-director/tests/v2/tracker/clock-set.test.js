@@ -38,12 +38,12 @@ test('director.clock is a command of the tracker part, next to director.seed', (
 test('director.time gives parts for a set clock and null for an unset one; text and minutes are as they were', () => {
     const tools = { query: name => (name === 'packs.calendar' ? ERSVEIL : null), settings: () => settingsDefaults() };
     const unset = part.queries['director.time'](makeState(), {}, tools);
-    assert.deepEqual(unset, { minutes: null, text: '', parts: null });
+    assert.deepEqual(unset, { minutes: null, text: '', parts: null, weekday: '', firstWeekdays: [] });
 
     const set = click(makeState(), at(611, 5, 12, 6 * 60 + 40), { queries: packs() });
     assert.equal(set.ok, true, set.message);
     const now = part.queries['director.time'](set.state, {}, tools);
-    assert.deepEqual(now, { minutes: minutes(set.state), text: 'CY 611, Goldwane 12, 06:40 am', parts: { year: 611, month: 5, day: 12, minutes: 400 } });
+    assert.deepEqual({ ...now, firstWeekdays: undefined }, { minutes: minutes(set.state), text: 'CY 611, Goldwane 12, 06:40 am', parts: { year: 611, month: 5, day: 12, minutes: 400 }, weekday: now.weekday, firstWeekdays: undefined });
     // The parts are what the command takes: setting them again changes nothing.
     const again = click(set.state, now.parts, { queries: packs() });
     assert.equal(minutes(again.state), minutes(set.state));

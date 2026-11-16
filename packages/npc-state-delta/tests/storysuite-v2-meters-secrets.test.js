@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MODULE_ID } from '../src/storysuite-v2.js';
 import { MAX_GENERATED_SECRETS, MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../src/npc-meters.js';
-import { assemble } from './vendor/story-block/src/v2/prompt.js';
+import { assemble } from '../../story-block/src/v2/prompt.js';
 import { buildInjection, buildNarrationCapturePrompt, buildProfileRefreshPrompt, buildScannerPrompt } from '../core.js';
 import { EVENT, EVENT_SECRET, HIDDEN, KNOWN, SECRET, SECRET_TWO, eventNote, fakeDelta, host, noCue, plain } from './storysuite-v2-meters.helpers.js';
 
