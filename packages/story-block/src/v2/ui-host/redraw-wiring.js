@@ -7,20 +7,21 @@ import { createRedraw } from '../shared/redraw.js';
 /**
  * `wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule? })` → { on(), mark(), flushNow(), hold(), destroy() }.
  * `on()` is the flag, read at every call; the scheduler is built at the first call that needs it. `hold()` gives a release function
- * (a no-op while the flag is off). `flushNow()` draws at once even while a hold is open (a chat switch must not show the old chat).
+ * (a no-op while the flag is off). `flushNow({ guard })` draws at once even while a hold is open (a chat switch must not show the old chat); `guard: false` skips the field guard.
  */
 export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule }) {
     // (a draw that throws is logged, then thrown on: the scheduler keeps its own failed list)
     const logged = (name, fn) => () => { try { return fn(); } catch (error) { console.warn(`[Story Suite] the ${name} redraw failed`, error); throw error; } };
     let scheduler = null;
     let epoch = 0;
+    let guarded = true;   // a chat switch draws the new chat's pane even with a field focused (the field is gone with the old chat)
     const own = () => {
         if (scheduler) return scheduler;
         scheduler = createRedraw(schedule ? { schedule } : {});
         scheduler.register('panel', {
             isVisible: () => !getPanel().hidden,
             read: () => ({ epoch, tab: getTabHost()?.active?.() ?? null }),
-            draw: logged('panel', () => { mounts.tab.register(); getTabHost()?.refresh({ guard: true }); }),
+            draw: logged('panel', () => { mounts.tab.register(); getTabHost()?.refresh({ guard: guarded }); }),
         });
         scheduler.register('overlay-size', {
             isVisible: () => true,
@@ -38,7 +39,11 @@ export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, sched
             if (getPanel().hidden) mounts.tab.register();
             own().markDirty();
         },
-        flushNow() { return own().flushNow(); },
+        flushNow({ guard = true } = {}) {
+            const sched = own();
+            guarded = guard !== false;
+            try { return sched.flushNow(); } finally { guarded = true; }
+        },
         hold() { return on() === true ? own().hold() : () => {}; },
         destroy() { scheduler?.destroy(); scheduler = null; },
     };

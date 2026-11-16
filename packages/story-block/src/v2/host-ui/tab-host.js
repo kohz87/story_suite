@@ -19,7 +19,8 @@ import { S } from './text.js';
  */
 export function createTabHost(root, { registry, view, api = null, doc = globalThis.document, active = null, barHost = null, inBar = null, swap = null }) {
     let current = active;
-    let blurWatch = null;     // swap draw: the pane a deferred host redraw is waiting on (a field in it has the focus)
+    let watch = null;         // swap draw: { pane, done, timer } while a deferred host redraw waits on a field in the pane
+    let dead = false;         // destroy() ran: nothing is drawn any more
     let release = null;       // what the last drawing of the pane left behind (a dispose function or { destroy }), taken down on the next draw
     let pane = el(doc, 'div', 'story-suite-pane');
     root.replaceChildren(pane);
@@ -44,6 +45,8 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
     // Flag suite.redrawScheduler (`swap()` true): the pane is drawn apart and swapped in, so the old one stays shown until the new one is
     // ready (no empty moment) and the panel's scroll is kept. Flag off: drawPlain, as it always was.
     function drawSwap() {
+        const top = root.scrollTop;   // (read before the old pane's widgets are taken down: their removal can clamp the scroll)
+        cancelWatch();
         const tabs = registry.tabs();
         if (!tabs.some(tab => tab.id === current)) current = tabs[0]?.id ?? null;
         drawBar(tabs);
@@ -63,7 +66,6 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
                 next.replaceChildren(el(doc, 'p', 'story-suite-muted', `${tab.title} could not be shown: ${error?.message ?? error}`));
             }
         }
-        const top = root.scrollTop;
         // (the swap is one step; the bar may share `root`, so only the old pane is replaced)
         if (pane.parentNode) { pane.parentNode.insertBefore(next, pane); pane.remove(); } else root.prepend(next);
         pane = next;
@@ -74,18 +76,33 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
         const at = doc?.activeElement;
         return Boolean(at && pane.contains?.(at) && (['INPUT', 'TEXTAREA', 'SELECT'].includes(String(at.tagName ?? '').toUpperCase()) || at.isContentEditable === true));
     }
+    function cancelWatch() {
+        if (!watch) return;
+        watch.pane.removeEventListener?.('focusout', watch.done);
+        if (watch.timer !== null) (doc?.defaultView?.clearTimeout ?? clearTimeout)(watch.timer);
+        watch = null;
+    }
+    // (a focus move inside the pane, a field to a field or a button, is not a blur; when the timer runs the guard looks again: a phone's app switch keeps the field focused)
     function waitForBlur() {
-        if (blurWatch === pane) return;
-        const watched = blurWatch = pane;
-        const done = () => {
-            watched.removeEventListener?.('focusout', done);
-            if (blurWatch === watched) blurWatch = null;
-            (doc?.defaultView?.setTimeout ?? setTimeout)(() => { if (pane === watched) draw(); }, 0);   // (a pane already replaced needs nothing)
+        if (watch?.pane === pane) return;
+        cancelWatch();
+        const mine = { pane, timer: null, done: null };
+        mine.done = event => {
+            if (event?.relatedTarget && mine.pane.contains?.(event.relatedTarget)) return;
+            mine.pane.removeEventListener?.('focusout', mine.done);
+            mine.timer = (doc?.defaultView?.setTimeout ?? setTimeout)(() => {
+                if (watch === mine) watch = null;
+                // (a pane already replaced, a closed panel or the flag turned off needs nothing; opening the panel draws it)
+                if (dead || pane !== mine.pane || (barHost ?? root).hidden === true || swap?.() !== true) return;
+                draw({ guard: true });
+            }, 0);
         };
-        watched.addEventListener?.('focusout', done);
+        watch = mine;
+        mine.pane.addEventListener?.('focusout', mine.done);
     }
 
     function draw({ guard = false } = {}) {
+        if (dead) return;
         if (swap?.() === true) {
             if (guard && typingIn()) return waitForBlur();
             return drawSwap();
@@ -121,13 +138,14 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
     }
     draw();
     return {
-        refresh: opts => draw(opts),
+        refresh: opts => draw(opts ?? {}),
         select,
         active: () => current,
         bar,
         /** Takes the open tab's widgets down (its pane disposed, and what its render returned). */
         destroy() {
-            blurWatch = null;
+            dead = true;
+            cancelWatch();
             dispose(pane);
             if (typeof release === 'function') { try { release(); } catch { /* a tab's cleanup failing must not block teardown */ } }
             release = null;
