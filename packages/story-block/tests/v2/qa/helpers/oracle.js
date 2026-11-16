@@ -286,12 +286,14 @@ export function guardHolds(state, guard, span = null) {
 }
 
 /** { state, skipped: [{ index, block, revs }] } at carrier `upTo`, rebuilt from the chat alone; state null without a checkpoint. */
-export function rebuildAt(chat, upTo) {
+export function rebuildAt(chat, upTo, memo = null) {
     const from = startOf(chat, upTo);
     if (from < 0) return { state: null, skipped: [] };
-    let state = structuredClone(readRecord(chat[from]).checkpoint);
-    const skipped = [];
-    for (let i = from; i <= upTo && i < chat.length; i++) {
+    const hit = memo?.get(from);
+    let state, skipped, start;
+    if (hit && hit.done <= upTo + 1) { state = hit.state; skipped = hit.skipped; start = hit.done; }
+    else { state = structuredClone(readRecord(chat[from]).checkpoint); skipped = []; start = from; }
+    for (let i = start; i <= upTo && i < chat.length; i++) {
         const record = readRecord(chat[i]);
         if (!record) continue;
         spannedBlocks(record).forEach(({ ops, span }, block) => {
@@ -305,6 +307,7 @@ export function rebuildAt(chat, upTo) {
             }
         });
     }
+    memo?.set(from, { state, skipped, done: Math.min(upTo, chat.length - 1) + 1 });
     return { state, skipped };
 }
 
@@ -330,8 +333,9 @@ export function checkInvariants(host, label, { trace = [], dumpDir } = {}) {
     // The chat exactly as the rebuild reads it: a store read must leave it alone, and a dump shows this text, never a chat
     // a read has changed since (a dump taken after `store.at` once hid what the rebuild had seen).
     const read = JSON.stringify(chat);
+    const memo = new Map();
     for (const index of indexes) {
-        const { state, skipped } = rebuildAt(chat, index);
+        const { state, skipped } = rebuildAt(chat, index, memo);
         const live = plain(store.at(index));
         const rebuilt = plain(state);
         const after = JSON.stringify(chat);
