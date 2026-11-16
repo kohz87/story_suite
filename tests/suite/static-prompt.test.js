@@ -203,6 +203,8 @@ test('every non-default scenario changes the static prompt', { skip }, () => {
         if (scenario.id === 'default') continue;
         const got = firstStatic[scenario.id];
         assert.ok(got, `${scenario.id}: scenario did not run`);
+        // N7 (G2): the impact caps add no text (code enforces them), so this scenario now reads as the default; it stays to pin exactly that.
+        if (scenario.id === 'npc_caps_on') { assert.deepEqual(got, base, 'npc_caps_on: caps add no text'); continue; }
         assert.notDeepEqual(got, base, `${scenario.id}: static text identical to default`);
     }
 });
