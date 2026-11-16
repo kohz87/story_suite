@@ -1,8 +1,7 @@
-// createHost(): a whole Story Block v2 host on a fake SillyTavern context, the way index.js
-// wires it (registry, settings, store, command bus, sdk, turn), for module tests (docs/v2/SPEC.md
-// §10). The store and the command bus are imported lazily from ../src/v2/, so the testkit loads
-// in a checkout that does not have them yet; `hostAvailable()` says whether they are there, for
-// `test(..., { skip })`. `fakes: true` uses the small stand-ins in fakes.js instead.
+// createHost(): a whole host on a fake SillyTavern context, the way core/boot wires it (registry, settings,
+// store, command bus, sdk, turn), for module tests (docs/v2/SPEC.md §10). The store and the command bus are
+// imported lazily from ../core/, so the testkit loads where they are missing; `hostAvailable()` says whether
+// they are there, for `test(..., { skip })`. `fakes: true` uses the small stand-ins in fakes.js instead.
 
 import { createFakeContext } from './fake-st.js';
 import { createFakeBus, createFakeStore } from './fakes.js';
@@ -67,7 +66,7 @@ export async function createHost(options = {}) {
     st.notices = [];
     const ctx = st.ctx;
 
-    // The same wiring as index.js (src/v2/runtime.js): the core module with its packs part over the
+    // The same wiring as core/boot: the core module with its packs part over the
     // fake extension settings, then the given modules.
     // `storeOptions` (checkpointEvery, receiptKeep, …): the real store's own thresholds, for tests that need checkpoints or trimmed receipts early.
     const makeStore = storeOptions && !fakes ? base => createStore({ ...base, ...storeOptions }) : createStore;

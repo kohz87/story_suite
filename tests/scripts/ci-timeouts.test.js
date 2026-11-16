@@ -73,21 +73,32 @@ const step = (job, name) => {
 const jobNames = () => jobs().map(([n]) => n);
 
 test('CI commands equal their package.json scripts plus the timeout flag', () => {
-  const [rules, ui, sb, sd, nsd] = ['rules', 'ui', 'story-block', 'story-director', 'npc-state-delta'];
-  for (const j of [rules, ui, sb, sd, nsd]) assert.ok(jobNames().includes(j), `job ${j} missing`);
-  assert.equal(noFlag(step(rules, 'Script tests').run), script('package.json', 'test:scripts'));
-  assert.equal(noFlag(step(rules, 'Core tests').run), script('package.json', 'test:core'));
-  assert.equal(noFlag(step(ui, 'UI tests').run), script('package.json', 'test:ui'));
-  assert.equal(noFlag(step(sd, 'Behavioral tests').run), script('package.json', 'test:sd'));
-  // Story Block's script sets the heap through NODE_OPTIONS; the CI step must set the same value in its env.
-  const sbScript = script('package.json', 'test:sb');
-  const heap = sbScript.match(/^NODE_OPTIONS="(--max-old-space-size=\d+) \$NODE_OPTIONS" /);
-  assert.ok(heap, 'the test:sb script no longer sets the heap the expected way');
-  const sbStep = step(sb, 'Behavioral tests');
-  assert.equal(noFlag(sbStep.run), sbScript.replace(heap[0], ''));
-  assert.match(sbStep.env, new RegExp(`^ +NODE_OPTIONS: ${heap[1]}$`, 'm'));
-  // NPC State's one command is the one CI runs with the timeout.
-  assert.equal(noFlag(step(nsd, 'Behavioral tests').run), script('package.json', 'test:nsd'));
+  for (const j of ['rules', 'core', 'ui', 'modules', 'people']) assert.ok(jobNames().includes(j), `job ${j} missing`);
+  assert.equal(noFlag(step('rules', 'Script tests').run), script('package.json', 'test:scripts'));
+  assert.equal(noFlag(step('core', 'Core tests').run), script('package.json', 'test:core'));
+  assert.equal(noFlag(step('ui', 'UI tests').run), script('package.json', 'test:ui'));
+  // The modules script sets the heap through NODE_OPTIONS; the CI step must set the same value in its env.
+  const modulesScript = script('package.json', 'test:modules');
+  const heap = modulesScript.match(/^NODE_OPTIONS="(--max-old-space-size=\d+) \$NODE_OPTIONS" /);
+  assert.ok(heap, 'the test:modules script no longer sets the heap the expected way');
+  const modulesStep = step('modules', 'Behavioral tests');
+  assert.equal(noFlag(modulesStep.run), modulesScript.replace(heap[0], ''));
+  assert.match(modulesStep.env, new RegExp(`^ +NODE_OPTIONS: ${heap[1]}$`, 'm'));
+  // The People job's one command is the one CI runs with the timeout.
+  assert.equal(noFlag(step('people', 'Behavioral tests').run), script('package.json', 'test:people'));
+});
+
+test('the jobs are exactly the final layout and verify needs them all', () => {
+  const names = jobNames().filter(n => n !== 'layout-dry-run');
+  assert.deepEqual([...names].sort(), ['core', 'modules', 'people', 'rules', 'suite', 'ui', 'verify']);
+  const needs = jobs().find(([n]) => n === 'verify')[1].match(/^ {4}needs: \[(.*)\]$/m)[1].split(',').map(s => s.trim());
+  assert.deepEqual([...needs].sort(), ['core', 'modules', 'people', 'rules', 'suite', 'ui']);
+});
+
+test('the root test script runs the same scripts the jobs do, and no old script names are left', () => {
+  const scripts = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts;
+  assert.deepEqual(['test:sb', 'test:sd', 'test:nsd'].filter(n => n in scripts), []);
+  for (const name of ['test:scripts', 'test:core', 'test:ui', 'test:modules', 'test:people', 'test:suite']) assert.ok(scripts.test.includes(`npm run ${name}`), name);
 });
 
 test('no CI file uses --test-force-exit', () => {
