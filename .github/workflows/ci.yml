@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 # One run per branch or pull request: a newer push cancels the run it replaces, so the account's
-# runner slots go to current code. On main, the latest merge's run covers every earlier merge.
+# runner slots go to current code. On main, the latest run tests the combined code; each PR run already checked its own diff.
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
