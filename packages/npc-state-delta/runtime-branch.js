@@ -10,7 +10,7 @@ import { buildQualifiedChatKey, parseQualifiedChatKey } from './identity.js';
 import { getSettings } from './runtime-settings.js';
 
 export function createBranchPart(rt, deps) {
-    const { ensureChatStateLoaded, evictDormantChatStates, freshChatState, getChatKey, getChatState, isCanonicalChatKey, queueStateFileWrite, requestHeaders, setChatState } = deps;
+    const { storeOwnsState = () => false, ensureChatStateLoaded, evictDormantChatStates, freshChatState, getChatKey, getChatState, isCanonicalChatKey, queueStateFileWrite, requestHeaders, setChatState } = deps;
     const { chatStateCache, missingSidecarChats, branchInheritanceChecked, staleHostChats, openingHostChats } = rt;
 
     function commitBranchCheckpoint(state, messageId, reason = 'state') {
@@ -86,6 +86,7 @@ export function createBranchPart(rt, deps) {
         const key = getChatKey();
         const sequence = rt.chatOpenSequence || 0;
         if (key === 'no-chat' || !isCanonicalChatKey(key)) return false;
+        if (storeOwnsState() === 'hosted') return false;   // the store's timeline carries a branch's people: no parent dossiers to inherit
         try {
             await ensureChatStateLoaded(key);
             if (getChatKey() !== key || (rt.chatOpenSequence || 0) !== sequence) return false;

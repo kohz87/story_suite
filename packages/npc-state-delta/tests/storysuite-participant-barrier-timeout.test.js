@@ -68,8 +68,8 @@ test('a reply\'s scan whose barrier wait timed out is kept and runs when the bar
     });
 });
 
-test('a reconcile after a deleted message and the injection of a generation wait too, and run when the barrier is down', () => {
-    runHostScenario('barrier-timeout-reconcile', prelude, async () => {
+test('the injection of a generation waits for the barrier too, and is built when it is down (the hosted reconcile is the store\'s now)', () => {
+    runHostScenario('barrier-timeout-injection', prelude, async () => {
         mockState.gate.pending = true;   // the page was reloaded while the host was still bringing Delta to the selected head
         const api = globalThis.NPCStateDelta;
         assert.equal(await waitFor(() => mockState.sdk.registered.length === 1), true);
@@ -85,19 +85,14 @@ test('a reconcile after a deleted message and the injection of a generation wait
         eventSource.emit('message_received', chat.length - 1);
         assert.equal(await waitFor(() => api.getState().npcs.some(npc => npc.name === 'Vale'), 8000), true);
         assert.equal(await api.scanIdle(5000), true);
-        // A message is deleted while the barrier is up (and stays up past the wait): the reconcile is kept and runs after.
-        const before = api.uiStatus().branchReconciliations.length;
+        // A generation starts while the barrier is up (and stays up past the wait): the injection is kept and built after.
         const prompts = mockState.prompts.length;
         mockState.gate.pending = true;
-        chat.pop();
-        eventSource.emit('message_deleted', chat.length);
         eventSource.emit('generation_after_commands', 'normal', {}, false);
         await sleep(700);
-        assert.equal(api.uiStatus().branchReconciliations.length, before, 'no reconcile yet');
         assert.equal(mockState.prompts.length, prompts, 'no injection yet');
-        assert.equal(api.scanActive(), true, 'both are kept');
+        assert.equal(api.scanActive(), true, 'the injection is kept');
         mockState.gate.pending = false;
-        assert.equal(await waitFor(() => api.uiStatus().branchReconciliations.length > before, 8000), true, 'the reconcile ran');
         assert.equal(await waitFor(() => mockState.prompts.length > prompts, 8000), true, 'the injection was built');
         assert.equal(await api.scanIdle(5000), true);
     });

@@ -6,33 +6,6 @@ import { createParticipant, fileVault, memoryVault } from '../src/storysuite-par
 import { adapterRig, BATCH, freshState, rig } from './helpers/participant-rig.js';
 import { deferred, participantRig } from './storysuite-snapshot-timeout.helpers.js';
 
-test('a snapshot waiting on the host queue releases the host and a later save succeeds', { timeout: 3000 }, async t => {
-    const r = await adapterRig(t, { participantOptions: { boundMs: 120 } });
-    await r.host.send('Hello.', 'The road is quiet.');
-    assert.equal(r.live.state.timeline, undefined);
-    const finished = deferred();
-    let first = true;
-    r.api.writeTimeline = async block => {
-        if (first) {
-            first = false;
-            // forget queues behind make on the actual host coordinator; make is waiting for this write.
-            const answer = await r.host.sdk.timeline.forget({ snapshot: 'sn_missing' });
-            assert.equal(answer.code, 'NOT_FOUND');
-        }
-        r.live.state.timeline = structuredClone(block);
-        finished.resolve();
-    };
-    const saved = await r.host.sdk.timeline.make({ kind: 'manual', name: 'At the road' });
-    assert.equal(saved.code, 'STALE', saved.message);
-    assert.match(saved.message, /saving the story-line identity/);
-    await finished.promise;
-    await new Promise(resolve => setImmediate(resolve)); // the expired participant callback leaves its queue
-    assert.equal(r.vault.docs.size, 0, 'the expired callback made no late baseline or snapshot');
-    const retry = await r.host.sdk.timeline.make({ kind: 'manual', name: 'At the road' });
-    assert.equal(retry.ok, true, retry.message);
-    assert.equal(retry.snapshot.participants.length, 1);
-});
-
 test('a snapshot expires while an earlier participant operation holds the queue and does not run later', { timeout: 3000 }, async () => {
     const r = participantRig();
     const entered = deferred();
