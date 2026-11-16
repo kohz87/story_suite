@@ -17,6 +17,6 @@ test('createCore.isReader answers exactly as interaction/player.js does for the 
 
 test('core.js imports the rule from interaction/player.js and keeps no folding rule of its own', () => {
     const source = readFileSync(new URL('../../../modules/data-modules/part/core.js', import.meta.url), 'utf8');
-    assert.match(source, /from '(\.\.\/){6}core\/interaction\/player\.js'/);
+    assert.match(source, /from '(\.\.\/){3}core\/interaction\/player\.js'/);
     assert.doesNotMatch(source, /lean-rpg\/read\.js|normalize\('NFKC'\)|\.replace\(\/\\s\+\/g/);
 });
