@@ -15,6 +15,9 @@ import { boardFlags } from './overrides.js';
 import { BOARD_CLEAR_FOES as CLEAR_FOES, BOARD_HURTS as HURTS } from '../names.js';
 import { FIGHT_STATIC } from './kind-static.js';
 import { openingNote, openingOf, openingSetup, openingWitness } from './opening.js';
+import { V1, isV1, openV1, playV1, settleV1, v1Sheet } from './v1-kind.js';
+import { openingV1 } from './v1-opening.js';
+import { settledNoteV1 } from '../combat/note.js';
 
 const KINDS = ['attack', 'skill', 'flee', 'item'];
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -33,7 +36,8 @@ const idOf = actor => actorIdOf(actor.module);
 
 function openSetup(state, { anchor, seed, attempt = 0, args = {} }) {
     // A pre-check offer's opening (interaction/start.js): no foe stands yet, so the setup is the opening's own (board/opening.js).
-    if (args.opening) return openingSetup({ ...args.opening, anchor });
+    if (args.opening) { const made = openingSetup({ ...args.opening, anchor }); return v1Sheet(state) && made.setup ? { setup: { ...made.setup, v1: 1 } } : made; }
+    if (v1Sheet(state)) return openV1(state, { anchor, seed, attempt, args });
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.filled && foe.hurt > 0).map(foe => foe.slot);
     if (!sheet.characters.some(actor => actor.alive !== false && actor.health !== 0) || !groups.length) return { error: 'There is no fight to open.' };
     const resumed = args.resumed ?? null, opened = Array.isArray(args.opened) && args.opened.length ? structuredClone(args.opened) : null;
@@ -47,13 +51,15 @@ function openSetup(state, { anchor, seed, attempt = 0, args = {} }) {
     return preview.error ? { error: preview.error } : { setup };
 }
 
-function play(state, setup, steps) {
+function play(state, setup, steps, dice) {
+    if (isV1(setup)) return playV1(state, setup, steps, dice);
     const played = playBoard(real(state), setup, toExchanges(steps));
     if (played.error) return { error: played.error };
     return { view: { result: played.result }, result: fightResult(real(state), setup, played.result), stop: played.result.stop };
 }
 
-function settle(state, setup, steps) {
+function settle(state, setup, steps, dice) {
+    if (isV1(setup)) return settleV1(state, setup, steps, dice);
     const played = playBoard(real(state), setup, toExchanges(steps));
     if (played.error) throw new Error(played.error);
     const result = fightResult(real(state), setup, played.result);
@@ -62,6 +68,7 @@ function settle(state, setup, steps) {
 
 // The Auto button's pick for one actor: the board's own deterministic choice on the sheet the steps so far leave.
 function auto(state, setup, steps, actorId) {
+    if (isV1(setup)) return V1.auto();
     const now = playBoard(real(state), setup, toExchanges(steps));
     if (now.error || now.result.stop !== 'open') throw new Error(now.error ?? 'The fight has ended.');
     const gear = setup.gear ? equipmentForBoard(now.state, setup.gear) : {};
@@ -74,6 +81,7 @@ function auto(state, setup, steps, actorId) {
 
 // The next segment's setup: the offset moves on, the order and member bars carry, and what only the first segment used is dropped (the pre-port carry).
 function next(setup, result, state) {
+    if (isV1(setup)) return V1.next(setup, result);
     const out = { ...structuredClone(setup), offset: setup.offset + result.rounds.length, order: structuredClone(result.order ?? []) };
     const carried = setup.members === 1 ? carriedFrom(result.members) : null;
     if (carried) out.carriedMembers = carried; else delete out.carriedMembers;
@@ -82,17 +90,17 @@ function next(setup, result, state) {
     return out;
 }
 
-const validate = (state, setup, steps, step) => (step.inputs.every(input => plain(input.args) && typeof input.args.who === 'string' && KINDS.includes(input.choice)) ? null : 'Choose an action for each standing member.');
+const validate = (state, setup, steps, step) => (isV1(setup) ? V1.validate(state, setup, steps, step) : step.inputs.every(input => plain(input.args) && typeof input.args.who === 'string' && KINDS.includes(input.choice)) ? null : 'Choose an action for each standing member.');
 
 /** The kind definition the module registers as `story-block/fight`. */
 export const fightKind = Object.freeze({
     ...FIGHT_STATIC, ready: () => true,
-    actors: state => readSheet(real(state)).characters.filter(standing).map(actor => ({ id: idOf(actor), name: actor.who, party: true })),
+    actors: state => (v1Sheet(state) ? V1.actors(state) : readSheet(real(state)).characters.filter(standing).map(actor => ({ id: idOf(actor), name: actor.who, party: true }))),
     open: (state, context) => openSetup(state, context),
-    opening: (state, setup, dice) => openingOf(real(state), setup, dice),
-    witness: (state, setup, steps) => (setup.opening === true ? openingWitness(real(state)) : { board: boardWitness(real(state), setup), ...usedItems(state, steps) }),
+    opening: (state, setup, dice) => (isV1(setup) ? openingV1(real(state), setup, dice) : openingOf(real(state), setup, dice)),
+    witness: (state, setup, steps) => (isV1(setup) && setup.opening !== true ? V1.witness(state, setup) : setup.opening === true ? openingWitness(real(state)) : { board: boardWitness(real(state), setup), ...usedItems(state, steps) }),
     validate, play, settle, auto, next,
-    note: (result, setup, context) => (context?.opening ? openingNote(result) : settledNote(result, setup).split(' | ')),
+    note: (result, setup, context) => (context?.opening ? openingNote(result) : isV1(setup) ? settledNoteV1(result).split(' | ') : settledNote(result, setup).split(' | ')),
 });
 
 // The stacks a fight's item actions named (owner 14 Nov): what each holds and restores, so taking back the reply that gave the item makes the fight roll again.

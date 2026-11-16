@@ -41,11 +41,11 @@ export function openFoes(domain, open, { fix = FIX_VERSION, stale = [] } = {}) {
         const kind = definition?.kinds?.[`set-slot-${n}`];
         if (kind?.effects && definition.state) {
             const evaluation = createEvaluation(definition, instance, { inputs: {}, source: {}, cursor: null, subject: 'chat' });
-            evaluation.effects(kind.effects, { arg: { name: entry.name, count: entry.count, ...argsOf(entry) } });
+            evaluation.effects(kind.effects, { arg: { name: entry.name, count: entry.count, ...argsOf(entry), ...(entry.tier !== undefined ? { tier: entry.tier } : {}) } });
             evaluation.rules();
             evaluation.finish();
         } else Object.assign(instance.fields, { [`foe${n}`]: entry.name, [`count${n}`]: entry.count, ...(entry.level !== undefined ? { [`level${n}`]: entry.level } : { [`class${n}`]: entry.class ?? 1 }), [`hurt${n}`]: 5 });
-        placed.push({ slot: free.slot, module: free.module, name: entry.name, count: entry.count, ...(entry.level !== undefined ? { level: entry.level } : { class: entry.class ?? 1 }) });
+        placed.push({ slot: free.slot, module: free.module, name: entry.name, count: entry.count, ...(entry.level !== undefined ? { level: entry.level } : { class: entry.class ?? 1 }), ...(entry.tier !== undefined ? { tier: entry.tier } : {}) });
     }
     // A new fight has opened: the Down groups left from earlier replies are cleared in the same step (the block's own clear kind, else its four fields), so the Foes
     // block, the log's Status and the prompts show only this fight's foes. Opening happens before this reply's rolls, so a group that goes Down in this reply stays
