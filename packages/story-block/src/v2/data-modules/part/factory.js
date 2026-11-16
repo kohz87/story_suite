@@ -43,16 +43,17 @@ export function createDataModulesPart(opts = {}) {
             'dm.bench': Object.assign(wrap(d.benchParty), { feature: LEAN_RPG_FEATURE }) },
         // `+ party Name | about: … | class: I | best: int` and `- party Name`: under the RPG feature, out of the grammar while Companions who join is Off, and
         // until the story has a Character block (a party line means something only once there is a party).
-        // `? roll Name | skill or stat | difficulty | die`: story checks (lean-rpg/checks; Story Director owns `check`). Here the line is only read and kept; the reply's step after its
+        // `? roll Name | skill or stat | difficulty` (an older reply also wrote the die; the `diceInOrder` mark gives code the die): story checks (lean-rpg/checks; Story Director owns `check`). Here the line is only read and kept; the reply's step after its
         // lines (practice.js checkStep) works it against the dice recorded with the reply and the sheet. Which replies use it is the reply's own rule mark (`checks`, rule-marks.js),
         // not today's switch: Story checks Off takes the grammar line and the dice away from new replies only (Rolls does not matter: it is for fights), and an earlier reply's lines keep their results on a Re-read.
         // The grammar line is constant text: it does not depend on the party.
         kinds: { roll: { grammar: () => (checksOn(settings()) ? CHECK_GRAMMAR : ''), feature: LEAN_RPG_FEATURE,
             apply(ctx, line) {
                 if (!ctx.carrier?.rules?.includes('checks')) return ctx.fail('INVALID', `This reply was written before story checks, so "${line?.raw}" was not used.`);
-                const parsed = rpgLib()?.parseCheckLine(line?.raw) ?? { ok: false, reason: 'the RPG is still loading' };
+                const inOrder = ctx.carrier.rules.includes('diceInOrder');
+                const parsed = rpgLib()?.parseCheckLine(line?.raw, { dieOptional: inOrder }) ?? { ok: false, reason: 'the RPG is still loading' };
                 if (!parsed.ok) return ctx.fail('INVALID', `"${line?.raw}" was not used: ${parsed.reason}.`);
-                return { summary: '', narrate: false, data: { check: { raw: String(line.raw).slice(0, 200) } } };
+                return { summary: '', narrate: false, data: { check: { raw: String(line.raw).slice(0, 200), ...(inOrder ? { inOrder: true } : {}) } } };
             } },
             dm: kind, party: { grammar: hint => { const lib = rpgLib(); return lib === null ? '' : hint?.view?.rule?.('partyFields') ?? true ? lib.joinGrammarOwn(lib.soulNaming(hint?.view?.state ?? state())) : lib.joinGrammar(); }, feature: LEAN_RPG_FEATURE, get enabled() { const lib = rpgLib(); return lib !== null && lib.joinMode(settings()) !== 'off' && lib.partyOf(state()).length > 0; }, apply: wrap(d.party) } },
         queries: { 'dataModules.offers': offers, 'dataModules.view': moduleView, 'dataModules.public': publicView,

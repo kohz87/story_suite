@@ -94,3 +94,23 @@ test('an action in the name place rolls for a solo party and is refused for a pa
     assert.equal(validateCheck(parseCheckLine(lines[1]), { party: [astra], offeredDice, usedDice: [] }).what, 'DEX', 'a stat in upper case is accepted');
     assert.equal(validateCheck(parseCheckLine('? roll Nobody | OBSCURE | normal | 9'), { party: [astra], offeredDice, usedDice: [] }).skill.name, 'Obscure', 'a skill in any case is accepted');
 });
+
+test('dieOptional: three parts are enough, a fourth is tolerated, and a written die is only a hint', () => {
+    const opt = { dieOptional: true };
+    assert.deepEqual(parseCheckLine('? roll Astra | Lie | normal', opt), { ok: true, name: 'Astra', what: 'Lie', difficulty: 'normal', die: undefined });
+    assert.equal(parseCheckLine('? roll Astra | Lie | normal | 9', opt).die, 9);
+    assert.equal(parseCheckLine('? roll Astra | Lie | normal | nine', opt).die, undefined);
+    assert.deepEqual(parseCheckLine('? roll Astra | Lie', opt), { ok: false, reason: 'needs three parts' });
+    assert.deepEqual(parseCheckLine('? roll Astra | Lie | normal | 9 | x', opt), { ok: false, reason: 'needs three parts' });
+    assert.deepEqual(parseCheckLine('? roll Astra | Lie | normal'), { ok: false, reason: 'needs four parts' }, 'without the mark the old rule stands');
+});
+
+test('inOrder: the die is the next one offered; a different written die is reported; none left is refused', () => {
+    const run = (line, used = []) => validateCheck(parseCheckLine(line, { dieOptional: true }), { party, offeredDice, usedDice: used, inOrder: true });
+    assert.equal(run('? roll Astra | Obscure | normal').die, 9);
+    assert.equal(run('? roll Astra | Obscure | normal | 9').wrote, undefined);
+    assert.equal(run('? roll Astra | Obscure | normal | 14').wrote, 14);
+    assert.equal(run('? roll Astra | Obscure | normal | 4', [9, 17]).die, 4, 'a die written out of order is not a refusal');
+    assert.deepEqual(run('? roll Astra | Obscure | normal', [9, 17, 4]), { ok: false, reason: 'more than 3' });
+    assert.deepEqual(validateCheck(parseCheckLine('? roll Astra | Obscure | normal', { dieOptional: true }), { party, offeredDice: [9], usedDice: [9], inOrder: true }), { ok: false, reason: 'no die left this reply' });
+});

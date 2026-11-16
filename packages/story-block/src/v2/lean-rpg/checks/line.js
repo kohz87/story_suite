@@ -1,4 +1,4 @@
-// One narrator check line: "? roll Name | skill or stat | difficulty | die" parsed and checked against a reply's party and dice.
+// One narrator check line: "? roll Name | skill or stat | difficulty" (an older reply also wrote the die) parsed and checked against a reply's party and dice.
 // Pure: names and aliases match a whole folded name only; a refused line carries one short reason and is never rolled.
 
 import { ROLL_KIND, LIMITS, STATS } from '../names.js';
@@ -11,11 +11,20 @@ const refusal = reason => ({ ok: false, reason });
 const clean = value => String(value ?? '').replace(/\s+/gu, ' ').trim();
 const difficultyOf = value => clean(value).toLowerCase().replace(/[-_]+/gu, ' ').replace(/\s+/gu, ' ');
 
-/** Parse one line into { name, what, difficulty, die }, or a refusal. Syntax only; the party and dice are checked by validateCheck. */
-export function parseCheckLine(line) {
+/**
+ * Parse one line into { name, what, difficulty, die }, or a refusal. Syntax only; the party and dice are checked by validateCheck.
+ * `dieOptional` (a reply marked `diceInOrder`): three parts are enough, a fourth is tolerated, and `die` is the whole number it wrote (undefined: none, or not a number); code gives the die.
+ */
+export function parseCheckLine(line, { dieOptional = false } = {}) {
     const match = LINE.exec(String(line ?? ''));
     if (!match) return refusal('not a check line');
     const parts = match[1].split('|').map(clean);
+    if (dieOptional) {
+        if (parts.length < 3 || parts.length > 4 || parts.slice(0, 3).some(part => !part)) return refusal('needs three parts');
+        const [name, what, difficulty, dieText = ''] = parts;
+        const wrote = DIE.test(dieText) && Number.isSafeInteger(Number(dieText)) ? Number(dieText) : undefined;
+        return { ok: true, name, what, difficulty: difficultyOf(difficulty), die: wrote };
+    }
     if (parts.length !== 4 || parts.some(part => !part)) return refusal('needs four parts');
     const [name, what, difficulty, dieText] = parts;
     if (!DIE.test(dieText)) return refusal('die is not a whole number');
@@ -37,9 +46,10 @@ export function memberNamed(party, name) {
 
 /**
  * Validate a parsed check against { party, offeredDice, usedDice }.
- * → { ok, member, skill, stat (null for a skill with none), what, difficulty, dc, die, used } or { ok: false, reason }.
+ * `inOrder` (a reply marked `diceInOrder`): the die is the next one offered, whatever the line wrote; when it wrote a different number, `wrote` carries it.
+ * → { ok, member, skill, stat (null for a skill with none), what, difficulty, dc, die, used, wrote? } or { ok: false, reason }.
  */
-export function validateCheck(parsed, { party = [], offeredDice = [], usedDice = [], dc = LIMITS.dc } = {}) {
+export function validateCheck(parsed, { party = [], offeredDice = [], usedDice = [], dc = LIMITS.dc, inOrder = false } = {}) {
     if (!parsed || parsed.ok !== true) return parsed?.ok === false ? parsed : refusal('not a check line');
     if ((Array.isArray(usedDice) ? usedDice : []).length >= 3) return refusal('more than 3');
 
@@ -60,6 +70,12 @@ export function validateCheck(parsed, { party = [], offeredDice = [], usedDice =
 
     const used = Array.isArray(usedDice) ? usedDice : [];
     const offered = Array.isArray(offeredDice) ? offeredDice : [];
+    if (inOrder) {
+        const next = offered[used.length];
+        if (!Number.isSafeInteger(next)) return refusal('no die left this reply');
+        const wrote = Number.isSafeInteger(parsed.die) && parsed.die !== next ? { wrote: parsed.die } : {};
+        return { ok: true, member, skill, stat, what: skill?.name ?? stat.toUpperCase(), difficulty, dc: dc[difficulty], die: next, used: used.length, ...wrote };
+    }
     const die = parsed.die;
     if (!offered.includes(die)) return refusal('die not offered');
     if (used.filter(value => value === die).length >= offered.filter(value => value === die).length) return refusal('die reused');

@@ -30,7 +30,7 @@ const checkModule = await import('../check.js').catch(() => null);
  * Returns { sdk, events, markReady }:
  * `sdk.ready` resolves to the sdk once the host calls markReady().
  */
-export function createSdk({ store, bus, registry, settings, events = createEvents(), chat = () => [], check = checkModule, onRegister = null, rewind = null, substitute = text => String(text ?? ''), dialog = null, dialogCurrent = null, reread = null, callModel = null, timeline = null, seed = null, cardSettings = createCardSettings(), publicPaths = createPublicPaths() }) {
+export function createSdk({ store, bus, registry, settings, events = createEvents(), chat = () => [], check = checkModule, onRegister = null, rewind = null, substitute = text => String(text ?? ''), dialog = null, dialogCurrent = null, reread = null, callModel = null, timeline = null, seed = null, cardSettings = createCardSettings(), publicPaths = createPublicPaths(), flag = () => false }) {
     let markReady;
     const ready = new Promise(resolve => { markReady = () => resolve(sdk); });
     const refused = message => ({ ok: false, code: 'REFUSED', message });
@@ -205,6 +205,8 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
         registerCardSettings: spec => cardSettings.register(spec),
         check: check ? Object.freeze({ ...check }) : null,
         settings: id => settings(id),
+        /** Whether the internal rollout flag `name` (e.g. `suite.isolatedApply`) is on; read at each call, false for anything unknown. Read-only, for Story Director and Delta. */
+        flag: name => { try { return flag(name) === true; } catch { return false; } },
         /** Whether the reader has feature `id` on (MODULES §F100); false for an id no module declares. */
         feature: id => featureOn(registry, id),
         /** Every declared feature: [{ id, moduleId, moduleName, label, describe, default, prompt, on }]. */
