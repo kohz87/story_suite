@@ -6,3 +6,5 @@ export { rankLabelIn, guildOf, rankAgrees } from './you-parts/rank.js';
 export { setYou, captureYou } from './you-parts/commands.js';
 export { youText, youParts } from './you-parts/text.js';
 export { youNote } from './you-parts/note.js';
+export { lookOf, clearLook } from './you-look.js';
+export { wornWords } from './worn-words.js';
