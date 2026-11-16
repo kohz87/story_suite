@@ -19,9 +19,9 @@ const AGENDAS = [
   ['The hunt for Torka', 'Red Cord', null, 'Three riders follow Torka’s trail from Harrowgate.', 1, 3, 'Goldwane 12', 'coast road, 30 km out', 'reach Bluewatch Goldwane 15, evening (riding, 35 km/day)', 'heading your way', true],
   ['Torka’s deed-hunt', 'Torka', 'torka', 'She means to take the ridge bounty herself.', 1, 2, 'Goldwane 12', 'Guild Office, Bluewatch', 'walks out at dusk today (Varnhold Watch, 31 km on foot, arrives Goldwane 15)', 'in your party', true],
   ['A higher bridge fee', 'Men in Grey', null, 'They mean to double the fee before the harvest fair.', 2, 3, 'Goldwane 11', 'Auvoth bridge', 'double the fee on Goldwane 15', 'on your route', true],
-  ['A quiet fix in the ledger', 'Oyla', 'oyla', 'Means to hide the guild advance he gave you in last month’s ledger.', 0, 2, 'Goldwane 13', 'Guild Office, Bluewatch', 'does it tonight after the office closes', 'here', true],
+  ['A quiet fix in the ledger', 'Oyla', null, 'Means to hide the guild advance he gave you in last month’s ledger.', 0, 2, 'Goldwane 13', 'Guild Office, Bluewatch', 'does it tonight after the office closes', 'here', true],
   ['The stalled loan', 'the Harbour Master', null, 'He stalls the chapel’s loan to force the sale of its harbour plot.', 1, 2, 'Goldwane 10', 'Thousand Sails', 'refuses Temiwa’s letter if it comes after Goldwane 14', 'due Goldwane 14', false],
-  ['Ilse’s cargo', 'Captain Ilse', 'ilse', 'She means to sell her salt in Harrowgate before the price falls.', 0, 2, 'Goldwane 12', 'at sea, bound for Harrowgate', 'arrives Goldwane 15, sells the next day', 'due Goldwane 16', false],
+  ['Ilse’s cargo', 'Captain Ilse', null, 'She means to sell her salt in Harrowgate before the price falls.', 0, 2, 'Goldwane 12', 'at sea, bound for Harrowgate', 'arrives Goldwane 15, sells the next day', 'due Goldwane 16', false],
   ['The toll vote', 'Council of Sails', null, 'The council means to double the river toll.', 1, 2, 'Goldwane 12', 'Thousand Sails', 'votes on Goldwane 20', 'due Goldwane 20', false],
 ].map(([title, who, whoId, text, step, of, since, place, next, why, toldThisReply]) => ({
   title, who, whoId, text, step, of, since, place, next, why, toldThisReply,
@@ -85,7 +85,7 @@ export function buildStory(opts = {}) {
       mode: 'lively',
       quiet: Boolean(opts.quiet),
       // What a roll was and caused is plan-gated; the skip reasons are not spoilers.
-      latest: opts.quiet ? null : { roll: 14, kind: shown ? 'Rumour' : null, cause: shown ? 'It became the news “Bandit tolls on the Auvoth road”.' : null },
+      latest: opts.quiet ? null : { roll: 14, kind: shown ? 'Rumour' : null, cause: shown ? 'A carter at the guild talks about men in grey at the Auvoth bridge. It became the news “Bandit tolls on the Auvoth road”.' : null },
       recent: RECENT.map(r => ({ ...r, kind: shown || r.skipped ? r.kind : 'Rolled', text: shown || r.skipped ? r.text : '', effect: shown ? r.effect : null })),
     },
     arc: {

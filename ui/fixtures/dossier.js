@@ -48,7 +48,7 @@ function base(id, extra) {
 const bars = (feeling, energy, control) => ({ feeling, energy, control });
 
 const temiwa = base('temiwa', {
-  idLine: 'Human · female · 26',
+  idLine: 'Human · female · 26 · Guild chaplain at Bluewatch',
   moodBars: bars(1, 0, -1),
   stage: { now: 'Acquaintance', next: 'Friend', needs: 'Trust 30 and a danger faced together' },
   changes: [
@@ -88,7 +88,7 @@ const temiwa = base('temiwa', {
 });
 
 const torka = base('torka', {
-  idLine: 'Orc · female · 24',
+  idLine: 'Orc · female · 24 · Sellsword, would-be guild hero',
   moodBars: bars(0, 2, 0),
   stage: { now: 'Friend', next: 'Close friend', needs: 'Affection 40 and a promise kept' },
   changes: [{ date: 'Goldwane 13', meter: 'affection', delta: 1, why: 'asked +8 · held back: an ordinary moment moves a feeling at most 1', heldBack: true }],

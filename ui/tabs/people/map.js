@@ -127,6 +127,6 @@ export function castMap({ people = [], ties = [], state = {}, handlers = {}, ctx
         onClick: () => handlers.pick?.(p.personId),
       }, h('span', { class: 'cm' }, portraitDisc(p, 'cm-face'), h('i', { class: `hm ${p.here ? 'here' : 'away'}` })),
       h('b', null, shortName(p)), h('small', null, signed(lensValue(p, lens[0])))))),
-    h('div', { class: 'mleg' }, TIE_LEGEND.map(([cls, text]) => h('span', { class: `leg-${cls}` }, h('i'), text)), h('span', null, '● here  ○ away')),
+    h('div', { class: 'mleg' }, TIE_LEGEND.map(([cls, text]) => h('span', { class: `leg-${cls}` }, h('i'), text)), h('span', null, '● here\u00a0 ○ away')),
     pickedCard(sel, ties, people, ctx, handlers, focus));
 }

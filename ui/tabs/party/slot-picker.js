@@ -22,7 +22,7 @@ const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
  * Opens the sheet frame (dim backdrop, grab bar, title, close button) and returns `{ body, subtitle, close }`.
  * Escape and the backdrop close it; the back-stack gets one `sheet` entry; focus returns to the opener.
  */
-export function openSheet(ctx = {}, { title = '', subtitle = '' } = {}) {
+export function openSheet(ctx = {}, { title = '', subtitle = '', tone = null } = {}) {
   const doc = ctx.doc ?? globalThis.document;
   const opener = doc.activeElement ?? null;
   const sub = h('div', { class: 'ps-s' }, subtitle);
@@ -30,7 +30,7 @@ export function openSheet(ctx = {}, { title = '', subtitle = '' } = {}) {
   const closeBtn = h('button', { type: 'button', class: 'ps-x', 'aria-label': 'Close', dataset: { close: '1' } }, '×');
   const sheet = h(
     'div',
-    { class: 'pty-sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
+    { class: ['pty-sheet', tone], role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
     h('span', { class: 'grab' }),
     h('div', { class: 'ps-h' }, h('div', null, h('div', { class: 'ps-n' }, title), sub), closeBtn),
     body,
@@ -108,7 +108,7 @@ export function slotSheet(member, slotKey, ctx = {}) {
   if (!meta) return null;
   const slot = member.slots.find(s => s.key === slotKey) ?? { key: slotKey, item: null };
   const worn = slot.item;
-  const sheet = openSheet(ctx, { title: `${member.name} · ${meta[1]}`, subtitle: worn ? '' : 'Nothing worn here' });
+  const sheet = openSheet(ctx, { title: `${member.name} · ${meta[1]}`, subtitle: worn ? '' : 'Nothing worn here', tone: 'ps-slot' });
   const items = ctx.port?.view('bag')?.items ?? [];
   const fits = items.filter(it => it.kind === 'gear' && it.glyph === meta[0] && !it.wornBy);
   sheet.body.replaceChildren(...[
