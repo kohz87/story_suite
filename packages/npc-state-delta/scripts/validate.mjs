@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+import { spawn } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
@@ -46,10 +47,30 @@ for (const module of declaredModules) {
   requireCheck(fs.existsSync(full), `active runtime module missing: ${module.path}`);
 }
 
-for (const file of files.filter(file => /\.(?:m?js)$/.test(file))) {
-  const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
-  requireCheck(result.status === 0, `${path.relative(root, file)}: ${result.stderr || result.error || 'syntax check failed'}`);
+// One `node --check` per JS file, run in a bounded pool; results are reported in the original file order.
+function syntaxCheck(file) {
+  return new Promise(resolve => {
+    const child = spawn(process.execPath, ['--check', file], { stdio: ['ignore', 'ignore', 'pipe'] });
+    let stderr = '';
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    child.on('error', error => resolve({ status: null, stderr: '', error }));
+    child.on('close', status => resolve({ status, stderr }));
+  });
 }
+const syntaxFiles = files.filter(file => /\.(?:m?js)$/.test(file));
+const syntaxResults = new Array(syntaxFiles.length);
+let nextSyntaxFile = 0;
+await Promise.all(Array.from({ length: Math.min(os.availableParallelism(), syntaxFiles.length) }, async () => {
+  while (nextSyntaxFile < syntaxFiles.length) {
+    const index = nextSyntaxFile++;
+    syntaxResults[index] = await syntaxCheck(syntaxFiles[index]);
+  }
+}));
+syntaxFiles.forEach((file, index) => {
+  const result = syntaxResults[index];
+  requireCheck(result.status === 0, `${path.relative(root, file)}: ${result.stderr || result.error || 'syntax check failed'}`);
+});
 
 for (const file of [...rootRuntimeFiles, ...declaredSrcModules.filter(name => fs.existsSync(path.join(root, name)))].map(name => path.join(root, name))) {
   const source = fs.readFileSync(file, 'utf8');
