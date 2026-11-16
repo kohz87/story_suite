@@ -16,14 +16,7 @@ function serve() {
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream' });
     res.end(fs.readFileSync(file));
   });
-  return new Promise((resolve, reject) => {
-    const tryPort = port => {
-      if (port > 8999) { reject(new Error('no free port in 8900-8999')); return; }
-      server.once('error', () => tryPort(port + 1));
-      server.listen(port, '127.0.0.1', () => { server.removeAllListeners('error'); resolve({ server, port }); });
-    };
-    tryPort(8900);
-  });
+  return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port })));
 }
 
 let ctx = null;
@@ -60,6 +53,7 @@ for (const theme of ['dark', 'light']) {
       try {
         await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=journal`);
         await page.waitForSelector('#hx-frame .journal-tab .qkv');
+        await page.evaluate(() => document.fonts.ready);
         const q = await read(page, { lk: '.journal-tab .lk', fstar: '.fstar', soon: '.qkv .due.soon', late: '.qkv .due.late', lapse: '.lapse' });
         assert.equal(q.lk.h, 19.5, 'link is a text line, not a 44 px box');
         assert.equal(q.lk.pad, '0px');
@@ -67,9 +61,13 @@ for (const theme of ['dark', 'light']) {
         assert.equal(q.soon.bg, 'rgba(242, 180, 90, 0.16)');
         assert.equal(q.late.bg, 'rgba(229, 72, 77, 0.14)');
         assert.equal(q.lapse?.size ?? '12px', '12px');
+        assert.equal((await read(page, { s: '.lead2 small:not(.lapse)' })).s?.size ?? '12px', '12px', 'lead sub-line is 12 px');
         await page.evaluate(() => document.querySelector('#hx-frame [data-value="cal"]').click());
         await page.waitForSelector('#hx-frame .cd b');
-        assert.equal((await read(page, { n: '.cd b' })).n.size, '15px');
+        const day = await read(page, { n: '.cd:not(.pre) b', t: '.cd.today b' });
+        assert.equal(day.n.size, width >= 620 ? '15px' : '14px', 'day number 14 px narrow, 15 px at the 620 container');
+        assert.equal(day.t.size, day.n.size);
+        assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('#hx-frame .dsec .secl')).marginBottom), '2px', 'day-panel label margin');
         assert.equal((await read(page, { t: '.cd.today' })).t.h, 44, 'calendar cell is 44 px tall at every width');
         assert.equal((await read(page, { u: '.up' })).u.h, 56, 'coming-up row is 56 px tall');
         await page.evaluate(() => document.querySelector('#hx-frame [data-value="quests"]')?.click());

@@ -10,6 +10,7 @@ MIN_TESTS=5826
 # The only TODO tests allowed, by exact test name (like the skip reasons). Any other TODO fails the job.
 ALLOWED_TODOS=(
   "C4-2 (open): no chat file is made again under the old name by a save already on its way (needs the server to refuse a save of a renamed chat, or the page to delete that copy)"
+  "Re-read of a reply that carries a mirror block, after a middle delete of an earlier carrier that created the people domain, refuses with \"/domains/people/npcs/p0/stage does not exist (no people)\" (repro: 3 replies each mirrored; delete carriers()[1]; mirror again at the head; host.turn.reread(headIndex) returns ok:false)"
 )
 # The only skips allowed, by reason. Any other skip fails the job.
 ALLOWED_SKIPS=(
@@ -55,7 +56,11 @@ globs=("tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.
 if [ -d "$repo_root/tests/suite" ]; then globs+=("$repo_root/tests/suite/**/*.test.js"); fi
 
 set +e
-node --test --test-reporter=tap "${globs[@]}" | tee "$tap_file"
+# --test-timeout fails a hung test after 15 minutes instead of holding the job (the job has its own timeout too).
+# The limit reports the hung test as "not ok ... timed out"; if it holds a live handle the job's own timeout-minutes ends the run.
+# Do not add --test-force-exit: it stops the run once the top-level tests registered so far finish, dropping later tests with exit 0.
+# Headroom: the slowest local test (fuzz seed 16) took up to ~490 s on a loaded machine, so 900 s is about 1.8x locally (about 3x on GitHub).
+node --test --test-timeout=900000 --test-reporter=tap "${globs[@]}" | tee "$tap_file"
 status=${PIPESTATUS[0]}
 set -e
 

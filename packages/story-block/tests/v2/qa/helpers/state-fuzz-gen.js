@@ -49,8 +49,17 @@ export function replyText(r, step) {
     return `${story}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 }
 
-// A UI command the reader could press now: [type, payload].
-export function uiCommand(r, host) {
+// A people view as the NSD mirror sends it (people domain, flag on): ids p0..pN, a stage that moves, the turn; draws from `r` (people-on runs only).
+function peopleView(r) {
+    const ids = Array.from({ length: r.int(1, 4) }, (_, i) => `p${i}`);
+    const npcs = Object.fromEntries(ids.map((id, i) => [id, { name: `Person ${i}`, stage: r.int(0, 3), note: r.pick(WORDS) }]));
+    return { v: 1, order: ids, npcs, candidates: r.chance(0.5) ? [] : [{ name: r.pick(PEOPLE) }], dismissed: [], userDismissedGroups: [],
+        socialGraph: ids.length > 1 && r.chance(0.5) ? { p0: { p1: 'friend' } } : {}, portraitAssets: {}, turn: r.int(1, 99) };
+}
+
+// A UI command the reader could press now: [type, payload]. With `people` on, the NSD mirror's command joins the choices (a mirror for the
+// head, one for a head that moved (STALE), one with a bad view (INVALID)); with it off no extra draw is made, so old seeds keep their runs.
+export function uiCommand(r, host, { people = false } = {}) {
     const head = host.head();
     const stacks = Object.values(head?.domains?.inventory?.stacks ?? {})
         .sort((a, b) => (a.def + a.qty + a.note < b.def + b.qty + b.note ? -1 : 1));
@@ -94,6 +103,13 @@ export function uiCommand(r, host) {
     choices.push(['rpg.boardSkillCarry', skill ? { module: actor.module, slot: skill.slot, from: r.pick(['Old Name', skill.name]), name: skill.name } : { module: 'fuzz-hero', slot: 1, from: 'Old Name', name: 'New Name' }]);
     const offers = Object.keys(head?.domains?.inventory?.loot ?? {}).sort();
     if (offers.length) choices.push(['inventory.lootTake', { sid: r.pick(offers), pick: [0, r.int(0, 1)] }]);
+    if (people) {
+        const source = host.store.sourceAt(host.store.headIndex());
+        const own = { sid: source?.sid, swipeKey: source?.swipeKey };
+        choices.push(['people.mirror', { v: 1, source: own, view: peopleView(r) }], ['people.mirror', { v: 1, source: own, view: peopleView(r) }]);
+        if (r.chance(0.2)) choices.push(['people.mirror', { v: 1, source: { sid: 'no-such-reply', swipeKey: own.swipeKey }, view: peopleView(r) }]);
+        if (r.chance(0.2)) choices.push(['people.mirror', { v: 1, source: own, view: { v: 1, order: ['p0'], npcs: {} } }]);
+    }
     return r.pick(choices);
 }
 
