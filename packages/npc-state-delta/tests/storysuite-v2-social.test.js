@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from './vendor/story-block/testkit/index.js';
-import { makeView } from './vendor/story-block/src/v2/sdk.js';
+import { createHost } from '../../story-block/testkit/index.js';
+import { makeView } from '../../story-block/src/v2/sdk.js';
 import { MODULE_ID, QUERY_NAMES, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { BUILT_IN_METERS, BUILT_IN_RANGE, FEATURES, SETTINGS_DEFAULTS, SETTINGS_SCHEMA } from '../src/npc-meters.js';
 import {
@@ -11,7 +11,7 @@ import {
 
 // Social checks against an NPC (feature npc-state-delta.social, src/social-check.js): the read-only
 // query npc.socialModifier({ name, skill }) that a dice module (RPG Battle) reads to change a social
-// check's difficulty. Against Story Block's whole host from its testkit (tests/vendor/story-block),
+// check's difficulty. Against Story Block's whole host from its testkit (the live packages/story-block code),
 // with Story Director and RPG Battle absent; Delta's runtime is a fake with two dossiers.
 
 function dossiers() {

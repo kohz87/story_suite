@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import { makeCalendar } from '../src/calendar.js';
 import { parseChanges } from '../src/changes.js';
-import { LAPSED_REASON, SLIPPED_REASON, SLIP_GRACE_DAYS, UNDATED_OFFER_DAYS, lapseLines, lapsedOffers, lapsesIn, slippedBeats } from '../src/lapses.js';
+import { LAPSED_REASON, SLIPPED_REASON, SLIP_GRACE_DAYS, UNDATED_OFFER_DAYS, lapseLines, lapseTime, lapsedOffers, lapsesIn, slippedBeats } from '../src/lapses.js';
 import { applyOps, emptyTracker, findRecord, isOffer, markSeen, questsDoneIn, replay } from '../src/tracker.js';
 
 const calendar = makeCalendar({ preset: 'custom', months: ['Haywane', 'Goldwane', 'Reapwane'].map(name => ({ name, days: 30 })) });
@@ -195,4 +195,16 @@ test('an offer the reader spoke of gets a beat\'s grace past its date before it 
         { message: 3, ops: null, said: 'Burl, I am in for the wolfhound hunt.' },
     ]).tracker;
     assert.ok(findRecord(replayed, 'Wolfhound Hunt').engaged);
+});
+
+test('lapseTime is the minute lapsedOffers closes at: a deadline, an engaged deadline with grace, an undated offer after its days; none for a beat', () => {
+    const offer = trackerOf('+ hook Wolf pelts — thin the pack | giver: Warden | due: Goldwane 15');
+    const [record] = offer.records;
+    assert.equal(lapseTime(record, { calendar, now: at('Goldwane 10') }), calendar.addDays(at('Goldwane 15'), 1) - 1);
+    assert.equal(lapseTime(trackerOf('+ beat Raid — on: Goldwane 13').records[0], { calendar, now: at('Goldwane 10') }), null);
+    const undated = trackerOf('+ hook Odd job — pays well | reward: 2 silver', 1);
+    undated.records[0].created = { time: at('Goldwane 10') };
+    assert.equal(lapseTime(undated.records[0], { calendar, now: at('Goldwane 10') }), calendar.addDays(at('Goldwane 10'), UNDATED_OFFER_DAYS));
+    const now = at('Goldwane 20');
+    assert.equal(lapsedOffers(offer, { calendar, now }).length, lapseTime(record, { calendar, now }) <= now ? 1 : 0);
 });
