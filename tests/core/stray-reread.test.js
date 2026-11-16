@@ -7,8 +7,8 @@
 // Pure: capture.js alone (the host tests are tests/v2/break/a1-*).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { continuation, extractBlock, grammarHeads, hideBlock, markOff, parseChanges, strayLines, stripBlock } from '../../src/v2/capture.js';
-import { prng } from './qa/helpers/seeded.js';
+import { continuation, extractBlock, grammarHeads, hideBlock, markOff, parseChanges, strayLines, stripBlock } from '../../core/capture.js';
+import { prng } from '../../packages/story-block/tests/v2/qa/helpers/seeded.js';
 
 const HEADS = grammarHeads([
     { kind: 'coin', grammar: '+ coin 30 | from: who (- coin 5 | to: who when paid)' },

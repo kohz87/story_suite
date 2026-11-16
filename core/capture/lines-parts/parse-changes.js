@@ -1,6 +1,6 @@
 // Story Suite v2: parsing a block's text into change lines and problems, line by line.
 
-import { cutAt } from '../../../text.js';
+import { cutAt } from '../../text.js';
 import { MAX_LINE } from './shared-text.js';
 import { parseLine } from './parse-line.js';
 import { stripCaretWords } from './decoration.js';

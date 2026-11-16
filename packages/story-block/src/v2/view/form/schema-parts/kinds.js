@@ -1,6 +1,6 @@
 // Which kind of control a field gets: the kinds the engine draws and the rule that picks one.
 
-import { normalizeField } from '../../../registry.js';
+import { normalizeField } from '../../../../../../../core/registry.js';
 import { optionsOf } from './labels.js';
 
 /** The kinds of control the engine draws (a field's `kind`, `fieldKind`). */

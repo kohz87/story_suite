@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 import { carriers, rebuildAt } from '../qa/helpers/oracle.js';
 
 const plain = value => (value === undefined ? null : JSON.parse(JSON.stringify(value)));

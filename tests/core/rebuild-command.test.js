@@ -3,10 +3,10 @@
 // drops the module's selected checkpoint, lowers the barrier, and records the exact Problem.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createArchive } from '../../src/v2/timeline/archive.js';
+import { createArchive } from '../../core/timeline/archive.js';
 import {
     createRebuild, readPlan, rebuildMessage, replyNumberAt, REBUILD_DEFAULT_REPLIES, REBUILD_READ_ALL, REBUILD_READ_LAST,
-} from '../../src/v2/timeline/coordinator-rebuild.js';
+} from '../../core/timeline/coordinator-rebuild.js';
 
 const MOD = 'npc-state-delta';
 const OTHER = 'other-native';

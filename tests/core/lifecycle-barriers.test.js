@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../testkit/index.js';
-import { ensureModules } from '../../src/v2/sdk.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { ensureModules } from '../../core/sdk.js';
 import { PEER, director, initReceipts, mech, modulesById, requestText, social } from './lifecycle.helpers.js';
 
 test('discovery: a dormant or restore-pending module is not advertised ready, so no fights are asked for', async () => {

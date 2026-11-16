@@ -6,8 +6,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { rebaseOps } from '../../src/v2/ops.js';
-import { createHost } from '../../testkit/index.js';
+import { rebaseOps } from '../../core/ops.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const coin = host => host.head().domains.inventory.wallets.party?.coin ?? 0;

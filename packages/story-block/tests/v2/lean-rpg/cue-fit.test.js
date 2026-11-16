@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
 import { LIMITS, STANDARD_FORMULA as RULES, prepare, readSheet, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
 import { cueTokens } from '../../../src/v2/lean-rpg/cue.js';
-import { assemble } from '../../../src/v2/prompt.js';
+import { assemble } from '../../../../../core/prompt.js';
 import { cueOf, character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock, tailOf } from './helpers.js';
 
 const available = await hostAvailable();

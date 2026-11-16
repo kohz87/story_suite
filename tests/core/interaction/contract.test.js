@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ERROR_CODES, DEFAULT_LIMITS, interactionError, limitsFor } from '../../../src/v2/interaction/contract.js';
-import { ERROR_CODES as FACADE_CODES } from '../../../src/v2/interaction.js';
+import { ERROR_CODES, DEFAULT_LIMITS, interactionError, limitsFor } from '../../../core/interaction/contract.js';
+import { ERROR_CODES as FACADE_CODES } from '../../../core/interaction.js';
 
 test('the contract has the planned codes, plain refusals and the facade re-exports them', () => {
     assert.deepEqual(Object.keys(ERROR_CODES).sort(), [

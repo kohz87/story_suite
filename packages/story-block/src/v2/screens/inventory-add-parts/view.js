@@ -1,6 +1,6 @@
 // The Inventory screen's List | Grid switch, its choice kept per device.
 
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 import { h, shell } from '../../view/widgets/dom.js';
 
 const S = STRINGS.inventory;

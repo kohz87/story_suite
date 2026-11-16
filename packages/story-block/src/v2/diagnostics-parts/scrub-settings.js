@@ -1,5 +1,5 @@
 // A settings object made safe to share: secret keys left out, secret text replaced, long text and lists cut.
-import { cutAt } from '../../text.js';
+import { cutAt } from '../../../../../core/text.js';
 import { LIST_MAX } from './limits.js';
 import { isSecretKey, scrubSecrets } from './secrets.js';
 

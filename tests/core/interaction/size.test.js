@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson } from '../../../src/v2/replay.js';
-import { settleInteraction } from '../../../src/v2/interaction/settle.js';
+import { hashJson } from '../../../core/replay.js';
+import { settleInteraction } from '../../../core/interaction/settle.js';
 
 const LIMIT = 24 * 1024;
 const members = ['Astra', 'Ren', 'Mira', 'Tavi'].map((name, index) => ({

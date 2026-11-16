@@ -9,7 +9,7 @@ import { legacyPlanner, openLinesOf } from './legacy-planner.js';
 import { openFoes, vetOpen, isNamedIn } from '../../../src/v2/lean-rpg/open.js';
 import { readResolve } from '../../../src/v2/lean-rpg/view/battle-log.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { hashJson as hashOf } from '../../../src/v2/replay.js';
+import { hashJson as hashOf } from '../../../../../core/replay.js';
 import { createFakeModel } from '../../../testkit/model.js';
 import { reply, success } from '../data-modules/helpers.js';
 import { cueOf, PARTY, foeBlock, rollReceipt, setup, sheetDomain, tailOf } from './helpers.js';

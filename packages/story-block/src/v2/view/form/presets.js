@@ -11,7 +11,7 @@
 // changes the reader's switches and a key passing over a tile should not. Built with createElement and textContent only.
 
 import { newId } from './fields.js';
-import { PRESET_NAMES } from '../../features.js';
+import { PRESET_NAMES } from '../../../../../../core/features.js';
 
 export const PRESET_TEXT = Object.freeze({
     title: 'How much to track',

@@ -3,7 +3,7 @@
 
 import { isPlainObject, OWNER_RE } from '../common.js';
 import { WALLET_KEY } from '../money.js';
-import { isId } from '../../check.js';
+import { isId } from '../../../../../../core/registry/check.js';
 import { defErrors, isCount, nonBlank, COND_MAX, condLogErrors, keptErrors } from './state.js';
 import { lootErrors } from './loot.js';
 

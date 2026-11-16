@@ -260,7 +260,7 @@ test('the replay guard asks again on the levels the roll recorded: damaged level
     const { host } = await setup({ blocks: empty(), answers: [opens()] });
     await host.send(MESSAGE, 'The silt churns.');
     const { leanRpgGuard } = await import('../../../src/v2/lean-rpg/index.js');
-    const { hashJson } = await import('../../../src/v2/replay.js');
+    const { hashJson } = await import('../../../../../core/replay.js');
     const span = host.ctx.chat[2].extra.storySuite.spans.find(entry => entry.guard?.predicate?.kind === 'rpg.resolve');
     const before = host.store.before(2);
     const ask = (guard, recorded) => leanRpgGuard({ state: before, hash: hashJson }, { guard, source: span.source, recorded });

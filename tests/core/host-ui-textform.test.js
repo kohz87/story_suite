@@ -1,11 +1,11 @@
 // List text form (one item per line, fields split by ":") and legacy slider removal.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { linesToList, listTextFields, listToLines, renderSettingsHost } from '../../src/v2/host-ui.js';
-import { createCoreModule } from '../../src/v2/domains/index.js';
-import { packsFor } from '../../src/v2/runtime.js';
+import { linesToList, listTextFields, listToLines, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { createCoreModule } from '../../packages/story-block/src/v2/domains/index.js';
+import { packsFor } from '../../core/runtime.js';
 import { sourceOf } from '../helpers/split-source.js';
-import { cssOf } from './helpers/css-parts.js';
+import { cssOf } from '../../packages/story-block/tests/v2/helpers/css-parts.js';
 import { change, doc, linesDirector, MONTHS, setup } from './host-ui.helpers.js';
 
 

@@ -1,5 +1,5 @@
 import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../ui-fake-dom.js';
+import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
 import { setupDom } from '../../view/mounts/helpers.js';
 import { BATTLE_ROOT, buildPanel, createBattleLog, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
 import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';

@@ -3,7 +3,7 @@
 // The rank stored here is the one practice has earned; the rank in force also needs the character's level (combat/skills.js rankOf, read by read-parts/v1-rows.js).
 // One stance skill per owner is held where learn lines are routed (canOwn), not in a rule: a learn kind cannot see the other slots. Pure data; not offered by the chooser yet.
 import { CREATION } from '../names.js';
-import { SIGNATURE_FIELD, SKILL_FIELDS_MAX } from '../../skill-slots.js';
+import { SIGNATURE_FIELD, SKILL_FIELDS_MAX } from '../../../../../../core/runtime/skill-slots.js';
 import { RANKS, V1 } from '../combat/numbers.js';
 import { names } from './shared-names.js';
 import { get, int, range, text } from './shared-fields.js';

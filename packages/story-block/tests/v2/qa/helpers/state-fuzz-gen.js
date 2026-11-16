@@ -1,7 +1,7 @@
 // QA fuzz helper: the seeded generators of state-fuzz (item/place/people lists, change lines, reply
 // texts, UI commands) and the bonus-paid counter. Split out of state-fuzz-run.js to keep files small.
 // Not a test file (the test glob does not match helpers/).
-import { readRecord } from '../../../../src/v2/persist.js';
+import { readRecord } from '../../../../../../core/persist.js';
 import { carriers, rebuildAt } from './oracle.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { actorIdOf } from '../../../../src/v2/lean-rpg/roster.js';

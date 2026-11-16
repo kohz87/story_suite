@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { installFakeDom } from '../../ui-fake-dom.js';
-import { createSettings } from '../../../src/v2/sdk.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { createSettings } from '../../../../../core/sdk.js';
 import { renderSettingsForm } from '../../../src/v2/view/form/index.js';
 
 const doc = installFakeDom();

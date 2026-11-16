@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { part } from '../../../src/v2/tracker/index.js';
 import { setPersonaReader } from '../../../src/v2/tracker/initiative.js';
 import { makeState, runCommand, story } from './helpers/fake-ctx.js';
-import { rng } from '../../../../story-block/src/v2/rng.js';
+import { rng } from '../../../../../core/commands/rng.js';
 import { PULSE, QUIET, agendaProgress, meetEntry, modeOf, part as pulsePart, pulseCommand, pulseHook, quietCommand, resultsOf, shiftEntry, weatherFrom, worldLine } from '../../../src/v2/pulse/effects.js';
 import { rumor } from '../../../src/v2/chronicle/capture/world.js';
 import { INTENSITIES, QUIET_FALLBACK, QUIET_SPREAD, TABLES, briefFor, d20Of, flavourLines, intensityOf, resolveKind, tableFor } from '../../../src/v2/pulse/tables.js';

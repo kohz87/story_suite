@@ -1,6 +1,6 @@
 // Connection Manager profiles: a profile name as stored and the list for a dropdown.
 
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 import { MODEL_CALL_TEXT } from './messages.js';
 import { PROFILE_NAME_MAX, CHAT_PROFILE } from './shared-consts.js';
 import { context } from './shared-helpers.js';

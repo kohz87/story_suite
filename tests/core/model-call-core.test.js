@@ -1,13 +1,13 @@
 // sdk.callModel and the `profile` settings field (docs/v2/MODULES.md §G): core call rules, profiles, and testkit model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../ui-fake-dom.js';
-import { createHost, createFakeModel } from '../../testkit/index.js';
-import { MODEL_CALL_TIMEOUT_MS, createModelCalls, listProfiles, safeReason, stModelCall } from '../../src/v2/model-call.js';
-import { PROFILE_TEXT, profileChoices } from '../../src/v2/profile-field.js';
-import { createRegistry, definitionProblems } from '../../src/v2/registry.js';
-import { createSettings, settingValue } from '../../src/v2/sdk.js';
-import { renderSettingsHost } from '../../src/v2/host-ui.js';
+import { installFakeDom } from '../helpers/ui-fake-dom.js';
+import { createHost, createFakeModel } from '../../packages/story-block/testkit/index.js';
+import { MODEL_CALL_TIMEOUT_MS, createModelCalls, listProfiles, safeReason, stModelCall } from '../../core/model-call.js';
+import { PROFILE_TEXT, profileChoices } from '../../core/model-call/profile-field.js';
+import { createRegistry, definitionProblems } from '../../core/registry.js';
+import { createSettings, settingValue } from '../../core/sdk.js';
+import { renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
 import { planner, other, handTimer, fakeSt, withSt } from './model-call.helpers.js';
 
 const doc = installFakeDom();
@@ -161,7 +161,7 @@ test('errors come back as results, never thrown; the log holds module, profile, 
     assert.equal(safeReason({ cause: { message: 'Bearer abcdefghijklmnop1234 refused' } }), '… refused');
     // An sdk with no model call says so.
     const host = await createHost({ modules: [planner()] });
-    const { createSdk } = await import('../../src/v2/sdk.js');
+    const { createSdk } = await import('../../core/sdk.js');
     const bare = createSdk({ store: host.store, bus: host.bus, registry: host.registry, settings: host.settings }).sdk;
     assert.equal((await bare.callModel({ prompt: 'x' })).error, 'UNAVAILABLE');
     const throwing = createSdk({ store: host.store, bus: host.bus, registry: host.registry, settings: host.settings, callModel: () => { throw new Error('boom'); } }).sdk;

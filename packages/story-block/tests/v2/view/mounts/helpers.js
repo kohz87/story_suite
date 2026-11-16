@@ -1,7 +1,7 @@
 // Fakes for the mount tests: v1's fake DOM plus document-level key events, a fake IntersectionObserver,
 // a fake renderer that records what it was asked to draw, a small chat of carriers with their own
 // states, and a fake command api.
-import { installFakeDom, makeMessage } from '../../../ui-fake-dom.js';
+import { installFakeDom, makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
 import { createScreens } from '../../../../src/v2/view/screens.js';
 
 export function setupDom() {

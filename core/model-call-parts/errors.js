@@ -1,6 +1,6 @@
 // The failure a call raises and how an error's words are made safe to show.
 
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 
 // A failure the call itself raised, with a plain sentence (st's own words stay out of it when they
 // may say more than they should: only the first line, cut short, with anything key-like masked).

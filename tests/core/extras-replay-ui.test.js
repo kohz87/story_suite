@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { makeMessage } from '../ui-fake-dom.js';
-import { setupDom } from './view/mounts/helpers.js';
-import { mountUi } from '../../src/v2/ui-host.js';
-import { fillInput } from '../../src/v2/extras-ui.js';
-import { sceneScreen } from '../../src/v2/screens/scene.js';
-import { renderSkip, show } from './screens/helpers.js';
-import { CHATTER_FEATURE, CHOICES_FEATURE, displayLines } from '../../src/v2/extras.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../helpers/ui-fake-dom.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
+import { fillInput } from '../../packages/story-block/src/v2/extras-ui.js';
+import { sceneScreen } from '../../packages/story-block/src/v2/screens/scene.js';
+import { renderSkip, show } from '../../packages/story-block/tests/v2/screens/helpers.js';
+import { CHATTER_FEATURE, CHOICES_FEATURE, displayLines } from '../../packages/story-block/src/v2/extras.js';
 import { BOTH, block, REPLY, lastIndex, extrasOf, fresh } from './extras.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

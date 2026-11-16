@@ -2,8 +2,8 @@
 // an edited Re-read (grown and shrunk), a middle delete, a rewind, a reload and a chat change leave the same summary, and it is told once, with its own reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { activeSettles, iaApi, iaChain, iaKind, iaModule, setText, withLines } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { activeSettles, iaApi, iaChain, iaKind, iaModule, setText, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 const NOTE = '[Happened]\\nProbe round 0: go';   // as it sits in a request's JSON
 const told = host => JSON.stringify(host.st.requests.at(-1)).split(NOTE).length - 1;

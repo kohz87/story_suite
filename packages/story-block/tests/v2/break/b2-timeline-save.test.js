@@ -17,8 +17,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { createStore } from '../../../src/v2/store.js';
-import { IDLE_MS, readRecord } from '../../../src/v2/persist.js';
+import { createStore } from '../../../../../core/store.js';
+import { IDLE_MS, readRecord } from '../../../../../core/persist.js';
 import { serveChats } from '../helpers/st-server.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));

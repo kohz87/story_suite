@@ -1,8 +1,8 @@
 // Story Block's own optional pieces as features, with their preset switches.
 
-import { CORE_FEATURE } from '../../../features.js';
+import { CORE_FEATURE } from '../../../../../../../core/features.js';
 import { FEATURE_TEXT } from '../../../assist/index.js';
-import { STRINGS } from '../../../strings.js';
+import { STRINGS } from '../../../../../../../core/strings.js';
 
 // Story Block's own optional pieces as features (MODULES §F100): the status strip and the cards under
 // replies (on), the two assist helpers (off; each makes an extra model call), the state inspector (off)

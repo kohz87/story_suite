@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
 import { boardGuard } from '../../../../src/v2/lean-rpg/board/commit.js';
-import { hashJson } from '../../../../src/v2/replay.js';
+import { hashJson } from '../../../../../../core/replay.js';
 import { RESOLVE } from '../../../../src/v2/lean-rpg/names.js';
 import { character, foeBlock, setup } from '../helpers.js';
 

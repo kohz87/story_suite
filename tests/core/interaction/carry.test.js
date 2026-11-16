@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson } from '../../../src/v2/replay.js';
-import { receiveSegment, reconcileSession } from '../../../src/v2/interaction/carry.js';
+import { hashJson } from '../../../core/replay.js';
+import { receiveSegment, reconcileSession } from '../../../core/interaction/carry.js';
 
 const payload = {
     v: 1, kindId: 'test/probe', version: 1, key: 'i:reply-1%3A0%3Atest%2Fprobe:reply-1:0',

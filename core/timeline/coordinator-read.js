@@ -5,7 +5,7 @@
 // it is called); it never imports coordinator.js.
 
 import { deriveId, hashJson, isRecordId } from '../replay.js';
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 import { HOST_DOMAIN, epochOf } from './gate.js';
 import { stateHash } from './host-block.js';
 import { boundaryMatches } from './selection-fallback.js';

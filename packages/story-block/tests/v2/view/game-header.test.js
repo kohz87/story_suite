@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cardAvatarUrl, gameHeroProps, headerControlItems, personaAvatarUrl, portraitOf, readHeroContext } from '../../../src/v2/view/game-header.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 
 const STATE = { domains: {} };
 const ren = { id: 'ac_ren00001', name: 'Ren', level: 4, role: 'ranger', hp: { cur: 20, max: 82 }, mp: { cur: 3, max: 10 }, sp: { cur: 0, max: 0 }, conditions: [{ kind: 'poisoned', stacks: 1 }] };

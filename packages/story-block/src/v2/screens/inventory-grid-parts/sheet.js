@@ -1,7 +1,7 @@
 // The bottom sheet for one item: its facts and action buttons, mounted on the host's modal stack.
 
-import { SCREEN_STRINGS } from '../../strings/screens.js';
-import { fill } from '../../strings.js';
+import { SCREEN_STRINGS } from '../../../../../../core/strings/screens.js';
+import { fill } from '../../../../../../core/strings.js';
 import { h } from '../../view/widgets/dom.js';
 import { stackOf } from '../../view/modal-stack.js';
 import { COMMON, slotLabel } from './shared-gear.js';

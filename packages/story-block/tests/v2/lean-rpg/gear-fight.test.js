@@ -13,8 +13,8 @@ import { ENCUMBERED, STAT_MAX, applyGear, earnedLegend, gearOf, gearValid, isDec
 import { readResolve } from '../../../src/v2/lean-rpg/view/battle-log.js';
 import { oddsView } from '../../../src/v2/lean-rpg/view/settings-data.js';
 import { atLimit, condWord, loadLevel } from '../../../src/v2/domains/gear.js';
-import { hashJson } from '../../../src/v2/replay.js';
-import { rng, roll } from '../../../src/v2/rng.js';
+import { hashJson } from '../../../../../core/replay.js';
+import { rng, roll } from '../../../../../core/commands/rng.js';
 import { legacyPlanner } from './legacy-planner.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from './helpers.js';
 

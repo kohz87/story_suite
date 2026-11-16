@@ -5,12 +5,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { makeMessage } from '../../ui-fake-dom.js';
+import { makeMessage } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { mountUi } from '../../../src/v2/ui-host.js';
 import { createTabHost } from '../../../src/v2/host-ui.js';
 import { CHOICES_FEATURE } from '../../../src/v2/extras.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 
 const key = (node, name, init = {}) => node.dispatch('keydown', { key: name, ...init });
 const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

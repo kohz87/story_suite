@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { sourceOf } from '../../helpers/split-source.js';
+import { sourceOf } from '../../../../../tests/helpers/split-source.js';
 
 const FILES = [
     'host-ui.js', 'ui-host.js', 'extras-ui.js', 'reply-notes.js', 'screens/changes-card.js',
@@ -35,7 +35,7 @@ test('the Choices option of hostile text is a button with that text, never an el
     const { createHost } = await import('../../../testkit/index.js');
     const { setupDom } = await import('../view/mounts/helpers.js');
     const { mountUi } = await import('../../../src/v2/ui-host.js');
-    const { makeMessage } = await import('../../ui-fake-dom.js');
+    const { makeMessage } = await import('../../../../../tests/helpers/ui-fake-dom.js');
     const { CHOICES_FEATURE } = await import('../../../src/v2/extras.js');
     t.mock.method(console, 'warn', () => {});
     const doc = setupDom();

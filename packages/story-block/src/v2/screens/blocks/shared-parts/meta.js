@@ -1,5 +1,5 @@
 // The words under a block's name on the Blocks page.
-import { fill } from '../../../strings.js';
+import { fill } from '../../../../../../../core/strings.js';
 import { P, S } from './words.js';
 import { plural } from './format.js';
 

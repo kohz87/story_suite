@@ -2,10 +2,10 @@
 // screens, tabs and widgets hidden, Story Block's status strip and cards under replies.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { featuresFoldOf } from '../../src/v2/host-ui.js';
-import { CORE_FEATURE } from '../../src/v2/features.js';
-import { hudOn } from '../../src/v2/ui-host.js';
-import { THIS_REPLY_ID } from '../../src/v2/reply-cards.js';
+import { featuresFoldOf } from '../../packages/story-block/src/v2/host-ui.js';
+import { CORE_FEATURE } from '../../core/features.js';
+import { hudOn } from '../../packages/story-block/src/v2/ui-host.js';
+import { THIS_REPLY_ID } from '../../packages/story-block/src/v2/reply-cards.js';
 import { hudRow, hudTile, loot, page, plain, texts } from './features-ui.helpers.js';
 
 test('the page: a feature\'s screens, tabs and widgets go when it is turned off and come back when it is on', async () => {

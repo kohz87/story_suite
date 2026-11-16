@@ -9,9 +9,9 @@
 // rows are stored as given: sub-field max / min / max are not applied, nor is a row count.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../../src/v2/registry.js';
-import { createSettings } from '../../../src/v2/sdk.js';
-import { flatName, MAX_NAME } from '../../../src/v2/turn.js';
+import { createRegistry } from '../../../../../core/registry.js';
+import { createSettings } from '../../../../../core/sdk.js';
+import { flatName, MAX_NAME } from '../../../../../core/turn.js';
 import { createHost } from '../../../testkit/index.js';
 
 const wellFormed = text => !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(text);

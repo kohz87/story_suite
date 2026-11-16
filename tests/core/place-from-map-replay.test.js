@@ -2,8 +2,8 @@
 // after an edit of the line, after a delete of an earlier reply and on a rebuild. Marks are recorded with the reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createStore } from '../../src/v2/store.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createStore } from '../../core/store.js';
 
 const PACK = { id: 'places', version: '1.0.0', requires: { storyBlock: '^2' }, content: { places: [
     { name: 'Bluewatch Village', kind: 'settlement', region: 'Lakeshire', x: 1, y: 1 },

@@ -15,8 +15,8 @@
 //
 //   node scripts/fuzz-data-modules.mjs <seed> <steps>      one run; prints { seed, steps, fails }
 import { writeFileSync } from 'node:fs';
-import { createStore } from '../../../../src/v2/store.js';
-import { createCommandBus } from '../../../../src/v2/commands.js';
+import { createStore } from '../../../../../../core/store.js';
+import { createCommandBus } from '../../../../../../core/commands.js';
 import { validateDomain } from '../../../../src/v2/data-modules/part.js';
 import { DM_LIMITS } from '../../../../src/v2/data-modules/schema.js';
 import { createHost } from '../../../../testkit/index.js';

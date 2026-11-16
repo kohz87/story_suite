@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
-import { KEY, readRecord } from '../../../src/v2/persist.js';
-import { CHECKPOINT_BYTES, CHECKPOINT_EVERY } from '../../../src/v2/store.js';
+import { KEY, readRecord } from '../../../../../core/persist.js';
+import { CHECKPOINT_BYTES, CHECKPOINT_EVERY } from '../../../../../core/store.js';
 import {
     PARTY_SIZE, STACKS, THREADS, UI_COMMANDS, UI_EVERY,
     breakdown, changeLines, compactCarrierOps, compactOps, everyCopy, measureLoad, measureSwipe, relayout, runScenario, sameHead,

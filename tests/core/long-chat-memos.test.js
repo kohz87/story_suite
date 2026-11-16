@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { IDLE_MAX_MS } from '../../src/v2/persist.js';
-import { createStore } from '../../src/v2/store.js';
-import { RECENT, createCardMount } from '../../src/v2/view/mounts/card.js';
-import { RECENT_MESSAGES as NOTES_RECENT, createReplyNotes } from '../../src/v2/reply-notes.js';
-import { RECENT_MESSAGES as EXTRAS_RECENT, createReplyExtras } from '../../src/v2/extras-ui.js';
-import { prng, seedCrypto } from './qa/helpers/seeded.js';
-import { checkInvariants } from './qa/helpers/oracle.js';
-import { installFakeDom, makeMessage } from '../ui-fake-dom.js';
-import { fakeChat, fakeObserverClass, fakeQuery, fakeRenderer, screen, screensWith, setupDom } from './view/mounts/helpers.js';
+import { IDLE_MAX_MS } from '../../core/persist.js';
+import { createStore } from '../../core/store.js';
+import { RECENT, createCardMount } from '../../packages/story-block/src/v2/view/mounts/card.js';
+import { RECENT_MESSAGES as NOTES_RECENT, createReplyNotes } from '../../packages/story-block/src/v2/reply-notes.js';
+import { RECENT_MESSAGES as EXTRAS_RECENT, createReplyExtras } from '../../packages/story-block/src/v2/extras-ui.js';
+import { prng, seedCrypto } from '../../packages/story-block/tests/v2/qa/helpers/seeded.js';
+import { checkInvariants } from '../../packages/story-block/tests/v2/qa/helpers/oracle.js';
+import { installFakeDom, makeMessage } from '../helpers/ui-fake-dom.js';
+import { fakeChat, fakeObserverClass, fakeQuery, fakeRenderer, screen, screensWith, setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
 import { plain, filed, chatOf } from './long-chat.helpers.js';
 
 test('store.at: an earlier reply\'s state is replayed once and kept while its messages stay the same', async t => {

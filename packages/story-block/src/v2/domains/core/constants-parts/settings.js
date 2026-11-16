@@ -1,8 +1,8 @@
 // The core module's settings: the currency, coins, money scale and inner-chatter options.
 
 import { DEFAULT_CURRENCY, MAX_COIN_VALUE } from '../../money.js';
-import { CORE_FEATURE } from '../../../features.js';
-import { STRINGS } from '../../../strings.js';
+import { CORE_FEATURE } from '../../../../../../../core/features.js';
+import { STRINGS } from '../../../../../../../core/strings.js';
 import { CHATTER_LIMIT } from '../../../extras.js';
 
 // The chat's one currency (MODULES.md F1): its name (singular) and plural, renamable by the reader,

@@ -3,7 +3,7 @@
 // `createBoardWatch(s, deps)` returns `boardError`, `boardCommitCheck` (the commit guard's answer; interaction/watch.js registers the one guard for both) and
 // `stopChangedBoard`; it never imports turn.js.
 
-import { rpgLib } from '../rpg-lazy.js';
+import { rpgLib } from '../../packages/story-block/src/v2/rpg-lazy.js';
 import { boardStartState, boardStep, restoreHint } from './held-board.js';
 
 export function createBoardWatch(s, { bus, store, problem, notify }) {

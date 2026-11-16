@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createHost } from '../../../../testkit/index.js';
 import { setupDom } from '../../view/mounts/helpers.js';
 import { BATTLE_ROOT, createBattleLog, createFoldStore, markerNodes, placeAtMarker } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { stripBattleMarker } from '../../../../src/v2/turn.js';
+import { stripBattleMarker } from '../../../../../../core/turn.js';
 import { roleOf } from './helpers.js';
 import { kids, mes, message, prose, spot, world } from './battle-log.helpers.js';
 

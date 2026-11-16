@@ -1,5 +1,5 @@
 // The type of a field path, including dynamic path segments.
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 import { fieldType } from './types.js';
 import { BAD, str, int } from './shared-types.js';
 

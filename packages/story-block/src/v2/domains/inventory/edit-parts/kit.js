@@ -2,7 +2,7 @@
 
 import { isPlainObject } from '../../common.js';
 import { GEAR, slotWordOf, placeOf } from '../../gear.js';
-import { fill } from '../../../strings.js';
+import { fill } from '../../../../../../../core/strings.js';
 import { E } from '../stacks.js';
 
 // ---------- hand-set gear: the starting kit (docs/v2/GEAR.md "Your own gear") ----------

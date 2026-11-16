@@ -1,10 +1,10 @@
 // The apply report (turn/apply-report.js), the card's "could not finish" row and the Inspector's grouping (suite.isolatedApply).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyReport, moduleFailures } from '../../../src/v2/turn/apply-report.js';
-import { inspectorProblemsFor } from '../../../src/v2/ui-host/inspector-problems.js';
-import { changesCardScreen } from '../../../src/v2/screens/index.js';
-import { core, queries, show, stocked, text } from '../screens/helpers.js';
+import { applyReport, moduleFailures } from '../../../core/turn/apply-report.js';
+import { inspectorProblemsFor } from '../../../packages/story-block/src/v2/ui-host/inspector-problems.js';
+import { changesCardScreen } from '../../../packages/story-block/src/v2/screens/index.js';
+import { core, queries, show, stocked, text } from '../../../packages/story-block/tests/v2/screens/helpers.js';
 
 const problems = [
     { module: 'a', index: 4, code: 'FAILED', message: 'turn failed: torn' },

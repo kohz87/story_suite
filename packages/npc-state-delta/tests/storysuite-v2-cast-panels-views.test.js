@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createCastPanels } from '../src/adapter/cast-ui/panels.js';
 import { createCastViews } from '../src/adapter/cast-ui/cast-views.js';
 import { createWatchers } from '../src/adapter/cast-ui/watchers.js';
-import { createPanels } from '../../story-block/src/v2/sdk/panels.js';
+import { createPanels } from '../../../core/sdk/panels.js';
 import { wireRedraw } from '../../story-block/src/v2/ui-host/redraw-wiring.js';
 
 // The real hub bound to the real scheduler (frames run by hand); the Cast views draw what `people.now` says.

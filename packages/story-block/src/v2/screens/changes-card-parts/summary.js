@@ -1,7 +1,7 @@
 // Writes the card's collapsed one-line summary from a reply's digest.
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { formatAmount } from '../../domains/money.js';
-import { oneLine } from '../../../text.js';
+import { oneLine } from '../../../../../../core/text.js';
 import { changesDigest } from './digest.js';
 
 const T = STRINGS.summary;

@@ -1,6 +1,6 @@
 // How the store saves: createStore's save options, save stamps and read-back copies, rescue and the save-seq constants (storeSaving).
 
-import { KEEPALIVE_MAX, createChatFile, utf8Bytes } from '../../chat-file.js';
+import { KEEPALIVE_MAX, createChatFile, utf8Bytes } from '../../store/chat-file.js';
 import { carryRecord } from '../../persist.js';
 import { isPlain } from './shared-plain.js';
 import { markUsed } from './page-marks.js';

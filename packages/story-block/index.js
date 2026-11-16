@@ -12,12 +12,12 @@
 //    events, and the v1 prompt keys cleared.
 // 4. The UI (bar, story panel, settings overlay, drawer, mounts), then markReady().
 
-import { createRuntime, VERSION } from './src/v2/runtime.js';
-import { INTERCEPTOR_NAME } from './src/v2/turn.js';
+import { createRuntime, VERSION } from '../../core/runtime.js';
+import { INTERCEPTOR_NAME } from '../../core/turn.js';
 import { mountUi } from './src/v2/ui-host.js';
-import { noteSaveError } from './src/v2/diagnostics.js';
-import { createV1Watch } from './src/v2/v1-copy.js';
-import { registerSbMacro } from './src/v2/sb-macro.js';
+import { noteSaveError } from '../../core/diagnostics.js';
+import { createV1Watch } from '../../core/persist/v1-copy.js';
+import { registerSbMacro } from '../../core/runtime/sb-macro.js';
 import { packs as livePacks, part as livePacksPart, portraits as livePortraits, refreshLore, resolveItem, startState } from './src/v2/packs/index.js';
 
 const LOG = '[Story Block v2]';

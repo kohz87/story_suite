@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RENDERERS, numberField, profileField, selectField, sliderField, switchField, textField } from '../../../../src/v2/view/form/fields.js';
 import { FIELD_KINDS, changeNote, fieldKind, labelOf, matchesSearch, optionsOf } from '../../../../src/v2/view/form/schema.js';
-import { PROFILE_TEXT } from '../../../../src/v2/profile-field.js';
+import { PROFILE_TEXT } from '../../../../../../core/model-call/profile-field.js';
 import { classes, make } from './fields.helpers.js';
 
 test('the renderers by kind, and which kind a schema field gets', () => {

@@ -15,7 +15,7 @@ import { buildCharacterFile, parseCharacterFile } from '../../../src/v2/lean-rpg
 import { joinCard, joinDraft, joinOffers } from '../../../src/v2/lean-rpg/join.js';
 import { validatePack } from '../../../src/v2/packs/validate.js';
 import { castSkillsOf } from '../../../src/v2/packs/cast-skills.js';
-import { UTILITY_SLOTS, SKILL_FIELDS_MAX } from '../../../src/v2/skill-slots.js';
+import { UTILITY_SLOTS, SKILL_FIELDS_MAX } from '../../../../../core/runtime/skill-slots.js';
 import { summaryOf } from '../../../src/v2/data-modules/part/prompt.js';
 import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 import { fakeState } from './view/helpers.js';

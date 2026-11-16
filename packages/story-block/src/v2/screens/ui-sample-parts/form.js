@@ -1,7 +1,7 @@
 // The demo form of the sample: a made-up module's settings schema, drawn by the form engine over an in-memory store.
 
 import { chipsField, newId, renderSettingsForm, sectionBlock } from '../../view/form/index.js';
-import { createSettings } from '../../sdk.js';
+import { createSettings } from '../../../../../../core/sdk.js';
 
 /**
  * The demo form (the form engine, view/form/): a made-up module's settings schema in the registry's own shape,

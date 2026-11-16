@@ -1,9 +1,9 @@
 // §2.2 "regenerate": the staged session, then the Send copy, then the last payload, but only when the reader's message is linked to its key.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { activeSettles, box, iaApi, iaChain, iaModule } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../../core/persist.js';
+import { activeSettles, box, iaApi, iaChain, iaModule } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 test('a regenerate of a linked reply settles the same payload and result again', async () => {
     const host = await createHost({ modules: [iaModule()] });

@@ -1,7 +1,7 @@
 // A cast member's signature gear (`story-block.gear`, docs/v2/GEAR.md "Signature gear"): the pack items a person brings when they join the
 // party, and the one "Gear:" line the narrator's cast entry may carry while they are not in it. Pure: the enabled packs in, plain rows out.
 
-import { foldKey, oneLine } from '../../text.js';
+import { foldKey, oneLine } from '../../../../../core/text.js';
 import { slotWordOf } from '../domains/gear.js';
 
 /**

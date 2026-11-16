@@ -19,8 +19,8 @@
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { aiMessage } from '../../../../testkit/fake-st.js';
-import { readRecord } from '../../../../src/v2/persist.js';
-import { HAPPENED } from '../../../../src/v2/prompt.js';
+import { readRecord } from '../../../../../../core/persist.js';
+import { HAPPENED } from '../../../../../../core/prompt.js';
 import { prng, seedCrypto } from './seeded.js';
 import { BONUS_CLAIM, probeModule } from './probe-module.js';
 import { carriers, checkInvariants, rebuildAt } from './oracle.js';

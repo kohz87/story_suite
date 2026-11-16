@@ -1,7 +1,7 @@
 // The chip, pencil and editor props the block layouts share, with the view words.
 import { h } from '../../view/widgets/dom.js';
 import { editable } from '../../view/widgets/editable.js';
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 
 export const V = STRINGS.blocks.view;
 const TONE_CLASS = { accent: 'accent', active: 'accent', done: 'good', good: 'good', failed: 'bad', bad: 'bad', warn: 'warn', neutral: 'neutral' };

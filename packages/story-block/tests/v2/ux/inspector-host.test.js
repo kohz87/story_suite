@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeContext } from '../../../testkit/fake-st.js';
-import { createRuntime } from '../../../src/v2/runtime.js';
+import { createRuntime } from '../../../../../core/runtime.js';
 import { mountUi } from '../../../src/v2/ui-host.js';
 import { createHudMount } from '../../../src/v2/view/mounts/index.js';
 import { readFileSync } from 'node:fs';

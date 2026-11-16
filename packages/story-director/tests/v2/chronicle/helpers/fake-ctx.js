@@ -5,8 +5,8 @@
 // Story Block's own parser (capture.js parseChanges).
 
 import { part } from '../../../../src/v2/chronicle/index.js';
-import { apply, checkOps, diff } from '../../../../../story-block/src/v2/ops.js';
-import { parseChanges } from '../../../../../story-block/src/v2/capture.js';
+import { apply, checkOps, diff } from '../../../../../../core/ops.js';
+import { parseChanges } from '../../../../../../core/capture.js';
 
 export function deepFreeze(value) {
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {

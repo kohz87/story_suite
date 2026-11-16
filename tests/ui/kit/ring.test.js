@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { feelingsRing, FEELING_KEYS } from '../../../ui/kit/ring.js';
 
 test('feelingsRing draws one arc per non-zero meter and none for zero', () => {

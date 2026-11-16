@@ -2,10 +2,10 @@
 // written through the feature store, with the search, the focus to a group, and the states a feature can be in.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../../tests/helpers/ui-fake-dom.js';
 import { featureGroups, renderFeaturesForm } from '../../../../src/v2/view/form/features.js';
 import { FORM_TEXT } from '../../../../src/v2/view/form/schema.js';
-import { PROMPT_HINT } from '../../../../src/v2/features.js';
+import { PROMPT_HINT } from '../../../../../../core/features.js';
 import { featuresFoldOf } from '../../../../src/v2/host-ui.js';
 
 const doc = installFakeDom();

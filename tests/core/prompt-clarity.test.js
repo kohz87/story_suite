@@ -4,10 +4,10 @@
 // {{user}} is paid or pays. The static part stays byte-identical reply to reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CORE_KINDS } from '../../src/v2/domains/index.js';
-import { TOLD, WALLET_NOTE } from '../../src/v2/domains/inventory.js';
-import { STATIC_KEY, TAIL_KEY } from '../../src/v2/turn.js';
-import { createHost } from '../../testkit/index.js';
+import { CORE_KINDS } from '../../packages/story-block/src/v2/domains/index.js';
+import { TOLD, WALLET_NOTE } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const WALLET = `before this reply`;
 const tailOf = host => host.st.promptLog.filter(entry => entry.key === TAIL_KEY && entry.value).at(-1).value;

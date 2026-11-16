@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
 import { renderDataModules } from '../../../src/v2/data-modules/setup.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 
 const chat = () => readFileSync(new URL('../fixtures/fixture-2.6.1-pinned-ersveil.jsonl', import.meta.url), 'utf8')
     .trim().split('\n').slice(1).map(line => JSON.parse(line));

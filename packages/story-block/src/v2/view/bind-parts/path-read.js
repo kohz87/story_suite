@@ -1,6 +1,6 @@
 // Path read: resolves a parsed path in a scope, names its State pointer or keys, and reads values by key.
 
-import { escapeKey } from '../../ops.js';
+import { escapeKey } from '../../../../../../core/ops.js';
 import { parsePath } from './path-syntax.js';
 import { FORBIDDEN, POINTERS } from './path-names.js';
 

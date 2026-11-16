@@ -3,7 +3,7 @@
 // refusal for a held-back module's action, a domain's initial slice and the state a chat starts with.
 
 import { featureOf } from '../features.js';
-import { CAPTURE_PREFIX, INIT_PREFIX, grammarOf, isObject, jsonProblem } from '../registry-checks.js';
+import { CAPTURE_PREFIX, INIT_PREFIX, grammarOf, isObject, jsonProblem } from './registry-checks.js';
 
 export function createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf, off, warn }) {
     // The refusal for a reader's action on command `type` whose module is held back, else null.

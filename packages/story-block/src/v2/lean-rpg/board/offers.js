@@ -1,7 +1,7 @@
 // Finds the reply that introduced the current foes and remembers the reader's choice per reply.
 // The reply's state is authoritative, so swipes, deletes and branches cannot move an offer to another fight.
 
-import { readRecord } from '../../persist.js';
+import { readRecord } from '../../../../../../core/persist.js';
 import { fold, readSheet } from '../read.js';
 import { boardSession } from './session.js';
 import { offerLineData } from './start-view-data.js';

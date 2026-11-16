@@ -3,7 +3,7 @@
 
 import { LAYOUTS, TONES, exampleValues, statusTones } from '../../data-modules/block-layout.js';
 import { buildBlock, defaultTone } from '../../data-modules/block-builder.js';
-import { fill } from '../../strings.js';
+import { fill } from '../../../../../../core/strings.js';
 import { S, LAYOUT_NAMES, TONE_NAMES } from './constants.js';
 
 export function createLayoutPart({ node, button, control, collect, refresh, draw, setSpot, draft, meta, renderPreview, tabs, used, resolve }) {

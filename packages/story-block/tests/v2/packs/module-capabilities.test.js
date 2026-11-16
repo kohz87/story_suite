@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { MAX_CAPABILITIES, definitionProblems, definitionWarnings } from '../../../src/v2/registry.js';
+import { MAX_CAPABILITIES, definitionProblems, definitionWarnings } from '../../../../../core/registry.js';
 import { stCapabilities } from '../../../src/v2/packs/st-adapter.js';
 import { validatePack } from '../../../src/v2/packs/validate.js';
 

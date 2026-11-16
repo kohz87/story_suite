@@ -1,7 +1,7 @@
 // A saved character file put into the draft, and taken out again.
 
 import { CREATION } from '../../names.js';
-import { SKILL_FIELDS_MAX } from '../../../skill-slots.js';
+import { SKILL_FIELDS_MAX } from '../../../../../../../core/runtime/skill-slots.js';
 import { fold } from '../../read.js';
 import { startStats } from './draft.js';
 import { oneLine } from './shared-helpers.js';

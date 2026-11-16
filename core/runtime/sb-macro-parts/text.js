@@ -1,6 +1,6 @@
 // Turns `{{sb::path|fallback}}` into the text of that path of the public API.
-import { plainText } from '../public-api.js';
-import { defuseMacros } from '../turn.js';
+import { plainText } from '../../public-api.js';
+import { defuseMacros } from '../../turn.js';
 import { cutAt } from '../../text.js';
 import { MACRO_MAX } from './names.js';
 

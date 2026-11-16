@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { MAX_ROWS, MOUNTS_FEATURE, WALK_PACE } from '../../../src/v2/domains/mounts.js';
 import { validateScene } from '../../../src/v2/domains/scene.js';
 import { mountUi } from '../../../src/v2/ui-host.js';

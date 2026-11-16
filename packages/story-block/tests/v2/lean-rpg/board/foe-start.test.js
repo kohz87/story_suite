@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 
 const staticOf = result => result.request.chat[0].content;

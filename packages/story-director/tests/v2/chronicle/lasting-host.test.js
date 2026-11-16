@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../story-block/testkit/index.js';
-import { packsFor } from '../../../../story-block/src/v2/runtime.js';
+import { packsFor } from '../../../../../core/runtime.js';
 import { stCapabilities } from '../../../../story-block/src/v2/packs/st-adapter.js';
 import { createModule } from '../../../src/v2/module.js';
 import { BACKLOG_STATIC } from '../../../src/v2/chronicle/digest.js';

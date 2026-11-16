@@ -3,7 +3,7 @@
 // make the records; `planner: false` is the real hook, which asks no model), and a host that has the RPG part on it.
 import { createHost } from '../../../testkit/index.js';
 import { LEAN_RPG_FEATURE, ROLLS_SETTING, createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { receiptCue } from '../../../src/v2/lean-rpg/cue.js';
 import { legacyPlanner } from './legacy-planner.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';

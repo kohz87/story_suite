@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { buildBlock, editableBlockDraft } from '../../../src/v2/data-modules/block-builder.js';
 import { renderBlockEditor } from '../../../src/v2/screens/blocks-editor.js';
-import { STRINGS } from '../../../src/v2/strings.js';
+import { STRINGS } from '../../../../../core/strings.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { definition, pack, pin, reload, success, view, world } from '../data-modules/helpers.js';
 

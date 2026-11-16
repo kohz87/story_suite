@@ -2,8 +2,8 @@
 // with checkpoints removed. Equality of live/cold alone would miss both original bugs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createStore } from '../../../src/v2/store.js';
-import { createCommandBus } from '../../../src/v2/commands.js';
+import { createStore } from '../../../../../core/store.js';
+import { createCommandBus } from '../../../../../core/commands.js';
 import { definition, int, pack, world, pin, reply, success, inactive, spansOf, directorStub } from './helpers.js';
 
 function assertCold(host, check) {

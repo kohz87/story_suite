@@ -3,7 +3,7 @@
 // no warnings), the filter draft, and the buttons' payloads, which the real command bus accepts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCommandBus } from '../../../src/v2/commands.js';
+import { createCommandBus } from '../../../../../core/commands.js';
 import { homeScreen, inventoryScreen, sceneScreen, changesCardScreen } from '../../../src/v2/screens/index.js';
 import { counterIds, fakeRegistry, fakeStore } from '../helpers/bus-fakes.js';
 import { core, foldOf, openFold, queries, recordingWidgets, renderSkip, sceneState, settle, show, stocked, text } from './helpers.js';

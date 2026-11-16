@@ -7,7 +7,7 @@ import { hasRestButtons } from '../data-modules/recovery.js';
 import { dmNameOf } from '../data-modules/schema.js';
 import { exportBlockPack } from '../data-modules/block-templates.js';
 import { saveTextFile } from '../view/download.js';
-import { STRINGS, fill, refusalText } from '../strings.js';
+import { STRINGS, fill, refusalText } from '../../../../../core/strings.js';
 import { barFields, drawEntries, drawNumberMap, entriesRoles, numberRows } from './block-layouts.js';
 import { createBlocksPage } from './blocks/page.js';
 import { S } from './blocks/shared.js';

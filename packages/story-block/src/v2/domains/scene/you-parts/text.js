@@ -1,6 +1,6 @@
 // Reading a `~ you` line: a part of the look as stored text, and the parts a line gives. Pure.
 
-import { lineBody } from '../../../capture.js';
+import { lineBody } from '../../../../../../../core/capture.js';
 import { cutPoints, flatten } from '../../../extras.js';
 import { YOU_CHARS } from '../constants.js';
 import { HAS_WORD } from '../shared.js';

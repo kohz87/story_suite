@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rng as seeded } from '../../../../src/v2/rng.js';
+import { rng as seeded } from '../../../../../../core/commands/rng.js';
 import { tempoChain } from '../../../../src/v2/lean-rpg/combat/tempo.js';
 import { RANKS } from '../../../../src/v2/lean-rpg/combat/numbers.js';
 import { bonusesOf, tempoWins } from '../v1/oracle.js';

@@ -1,7 +1,7 @@
 // Checking a pack's weather tables and ripples.
 
 import { SLUG, WEATHER_LIMITS, WEATHER_FIELDS, WEATHER_SEASON_FIELDS, CALENDAR_LIMITS, WEATHER_TABLE_FIELDS, RIPPLES_FIELDS, RIPPLES_POWER_FIELDS, RIPPLES_TIERS, RIPPLES_CAPS, RIPPLES_LIMITS } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../text.js';
+import { oneLine, foldKey } from '../../../../../../../core/text.js';
 import { isObject, isText, isInt } from '../core.js';
 
 /*

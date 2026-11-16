@@ -9,13 +9,13 @@
 //   tail gets what the static part and it leave, never below MIN_TAIL_BUDGET. The static part never changes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { DEFAULT_CONTEXT_SHARE, MIN_TAIL_BUDGET, contextFit, estimateTokens } from '../../src/v2/prompt.js';
-import { createRegistry } from '../../src/v2/registry.js';
-import { createSettings } from '../../src/v2/sdk.js';
-import { SENT_FOLD, SETTINGS_TEXT, promptSize, sentText } from '../../src/v2/host-ui.js';
-import { createPromptReader, renderPromptCard } from '../../src/v2/view/settings/prompt.js';
-import { installFakeDom } from '../ui-fake-dom.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { DEFAULT_CONTEXT_SHARE, MIN_TAIL_BUDGET, contextFit, estimateTokens } from '../../core/prompt.js';
+import { createRegistry } from '../../core/registry.js';
+import { createSettings } from '../../core/sdk.js';
+import { SENT_FOLD, SETTINGS_TEXT, promptSize, sentText } from '../../packages/story-block/src/v2/host-ui.js';
+import { createPromptReader, renderPromptCard } from '../../packages/story-block/src/v2/view/settings/prompt.js';
+import { installFakeDom } from '../helpers/ui-fake-dom.js';
 
 const T = SETTINGS_TEXT.sent;
 

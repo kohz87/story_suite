@@ -1,7 +1,7 @@
 // The command bus: dispatch, validation, failures, and sub-commands.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MAX_DEPTH } from '../../src/v2/commands.js';
+import { MAX_DEPTH } from '../../core/commands.js';
 import { STACK, REN, INITIAL, storyBlock, rpgBattle, setup, mod, assertNothingStored } from './commands.helpers.js';
 
 test('command: success runs the handler on drafts, appends ops + receipt, saves and emits', () => {

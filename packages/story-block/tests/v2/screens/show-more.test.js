@@ -3,10 +3,10 @@
 // Home's cards are each as tall as their own content (three to a row from 760px, one on a phone) with the quests list capped. Home has no Packs card any more.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { capToggle, createQuestsLinkWidget, createShowMoreWidget, CAP_CLASS, QUESTS_LINK_WIDGET, QUESTS_SCREEN } from '../../../src/v2/screens/show-more.js';
 import { homeScreen } from '../../../src/v2/screens/home.js';
-import { STRINGS } from '../../../src/v2/strings.js';
+import { STRINGS } from '../../../../../core/strings.js';
 
 test('the toggle: hidden while the list fits, shown when it is taller than the cap, open and shut with aria-expanded', () => {
     const doc = installFakeDom();

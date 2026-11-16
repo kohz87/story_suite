@@ -3,8 +3,8 @@
 // legacy claim families (a once event, wear) are per reply or made by hooks a Re-read never re-runs: nothing changes for them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { probeModule } from './qa/helpers/probe-module.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { probeModule } from '../../packages/story-block/tests/v2/qa/helpers/probe-module.js';
 
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const held = h => h.store.problems().filter(p => p.code === 'REPLAY_PREREQUISITE');

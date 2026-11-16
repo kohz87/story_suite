@@ -2,14 +2,14 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson } from '../../../src/v2/replay.js';
-import { preludeDice } from '../../../src/v2/interaction/dice.js';
-import { rng } from '../../../src/v2/rng.js';
-import { positionalDice } from '../../../src/v2/lean-rpg/resolve/dice.js';
-import { markPlayer } from '../../../src/v2/interaction/player.js';
-import { policyProblem } from '../../../src/v2/interaction/policy.js';
-import { settleInteraction } from '../../../src/v2/interaction/settle.js';
-import { createInteractionApi } from '../../../src/v2/sdk/interaction.js';
+import { hashJson } from '../../../core/replay.js';
+import { preludeDice } from '../../../core/interaction/dice.js';
+import { rng } from '../../../core/commands/rng.js';
+import { positionalDice } from '../../../packages/story-block/src/v2/lean-rpg/resolve/dice.js';
+import { markPlayer } from '../../../core/interaction/player.js';
+import { policyProblem } from '../../../core/interaction/policy.js';
+import { settleInteraction } from '../../../core/interaction/settle.js';
+import { createInteractionApi } from '../../../core/sdk/interaction.js';
 import { PROBE_ID, PROBE_KIND, probeRegistry } from './helpers/probe-kind.js';
 
 const go = { inputs: [{ actor: 'hero', choice: 'go' }] };

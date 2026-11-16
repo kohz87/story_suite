@@ -3,9 +3,9 @@
 // state holder `s` and the turn parts it uses; it never imports turn.js.
 import { extractBlock, hideBlock, markOff, parseChanges, withAssist } from '../capture.js';
 import { readRecord } from '../persist.js';
-import { notWritten } from '../assist/extractor.js';
-import { heldWhy, refusedWhy, waitForBarrier } from '../assist/safety.js';
-import { assistPresentGuard } from '../assist/where.js';
+import { notWritten } from '../../packages/story-block/src/v2/assist/extractor.js';
+import { heldWhy, refusedWhy, waitForBarrier } from '../../packages/story-block/src/v2/assist/safety.js';
+import { assistPresentGuard } from '../../packages/story-block/src/v2/assist/where.js';
 import { ruleMarksOf } from './rule-marks.js';
 
 export function createLateEvents(s, deps) {

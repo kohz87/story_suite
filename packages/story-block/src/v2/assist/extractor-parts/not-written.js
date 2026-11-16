@@ -1,6 +1,6 @@
 // Which lines the reply's own block does not already hold: repeats and scene-kind lines are dropped.
 
-import { parseChanges, sameChangeLine } from '../../capture.js';
+import { parseChanges, sameChangeLine } from '../../../../../../core/capture.js';
 
 // Two lines are one change when C-1 calls them the same line, or when they share op, kind and name
 // (a `- item Pelt` the block wrote is not handed over twice because the extractor added a label).

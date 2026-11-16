@@ -3,37 +3,37 @@
 // test still sees every line the file had before the split. Add a file here when it is split and a test reads its text.
 import { readFileSync } from 'node:fs';
 
-const ROOT = new URL('../../', import.meta.url);
+const ROOT = new URL('../../packages/story-block/', import.meta.url);
 
 /** facade path (from the repository root) → the parts moved out of it, in the order they appear in the folder. */
 export const SPLIT_PARTS = Object.freeze({
-    'src/v2/commands.js': [
-        'src/v2/commands/shared.js', 'src/v2/commands/state.js', 'src/v2/commands/guards.js', 'src/v2/commands/ctx.js', 'src/v2/commands/transact.js',
+    '../../core/commands.js': [
+        '../../core/commands/shared.js', '../../core/commands/state.js', '../../core/commands/guards.js', '../../core/commands/ctx.js', '../../core/commands/transact.js',
     ],
-    'src/v2/store.js': [
-        'src/v2/store/constants.js', 'src/v2/store/digest.js', 'src/v2/store/tombs.js', 'src/v2/store/sources.js', 'src/v2/store/guards.js',
-        'src/v2/store/walk.js', 'src/v2/store/replay-blocks.js', 'src/v2/store/memo.js', 'src/v2/store/read.js',
-        'src/v2/store/write.js', 'src/v2/store/write/saving.js', 'src/v2/store/write/story.js', 'src/v2/store/write/replace.js',
-        'src/v2/store/write/records.js', 'src/v2/store/write/lifecycle.js', 'src/v2/store/chains.js', 'src/v2/store-parts/create.js',
+    '../../core/store.js': [
+        '../../core/store/constants.js', '../../core/store/digest.js', '../../core/store/tombs.js', '../../core/store/sources.js', '../../core/store/guards.js',
+        '../../core/store/walk.js', '../../core/store/replay-blocks.js', '../../core/store/memo.js', '../../core/store/read.js',
+        '../../core/store/write.js', '../../core/store/write/saving.js', '../../core/store/write/story.js', '../../core/store/write/replace.js',
+        '../../core/store/write/records.js', '../../core/store/write/lifecycle.js', '../../core/store/chains.js', '../../core/store-parts/create.js',
     ],
-    'src/v2/timeline/boundary.js': ['src/v2/timeline/boundary-parts/marker.js', 'src/v2/timeline/boundary-parts/write-check.js'],
+    '../../core/timeline/boundary.js': ['../../core/timeline/boundary-parts/marker.js', '../../core/timeline/boundary-parts/write-check.js'],
     'src/v2/ui-host.js': [
         'src/v2/ui-host/shared.js', 'src/v2/ui-host/shared-parts/dom-build.js', 'src/v2/ui-host/shared-parts/game-view-key.js', 'src/v2/ui-host/shared-parts/names.js', 'src/v2/ui-host/shared-parts/reader-settings.js', 'src/v2/ui-host/shared-parts/reply-record.js', 'src/v2/ui-host/setup.js', 'src/v2/ui-host/screens.js',
         'src/v2/ui-host/replies.js', 'src/v2/ui-host/mounts.js', 'src/v2/ui-host/navigation.js',
         'src/v2/ui-host/panel.js', 'src/v2/ui-host/settings.js', 'src/v2/ui-host/events.js',
     ],
-    'src/v2/store/write.js': [
-        'src/v2/store/write/saving.js', 'src/v2/store/write/story.js', 'src/v2/store/write/replace.js',
-        'src/v2/store/write/records.js', 'src/v2/store/write/lifecycle.js',
+    '../../core/store/write.js': [
+        '../../core/store/write/saving.js', '../../core/store/write/story.js', '../../core/store/write/replace.js',
+        '../../core/store/write/records.js', '../../core/store/write/lifecycle.js',
     ],
-    'src/v2/turn.js': [
-        'src/v2/turn/text.js', 'src/v2/turn/text-parts/battle-marker.js', 'src/v2/turn/text-parts/closing-cue.js', 'src/v2/turn/text-parts/content.js', 'src/v2/turn/text-parts/context-room.js', 'src/v2/turn/text-parts/kept-lines.js', 'src/v2/turn/text-parts/names.js', 'src/v2/turn/text-parts/quiet-mark.js', 'src/v2/turn/text-parts/restore-missing.js', 'src/v2/turn/text-parts/timeout.js', 'src/v2/turn/session.js', 'src/v2/turn/reread.js',
-        'src/v2/turn/prompt-build.js', 'src/v2/turn/prompt-hooks.js', 'src/v2/turn/capture-flow.js', 'src/v2/turn/events.js',
-        'src/v2/turn-parts/keys.js', 'src/v2/turn-parts/prompt-limits.js', 'src/v2/turn-parts/hook-time.js', 'src/v2/turn-parts/waits.js', 'src/v2/turn-parts/create-turn.js',
+    '../../core/turn.js': [
+        '../../core/turn/text.js', '../../core/turn/text-parts/battle-marker.js', '../../core/turn/text-parts/closing-cue.js', '../../core/turn/text-parts/content.js', '../../core/turn/text-parts/context-room.js', '../../core/turn/text-parts/kept-lines.js', '../../core/turn/text-parts/names.js', '../../core/turn/text-parts/quiet-mark.js', '../../core/turn/text-parts/restore-missing.js', '../../core/turn/text-parts/timeout.js', '../../core/turn/session.js', '../../core/turn/reread.js',
+        '../../core/turn/prompt-build.js', '../../core/turn/prompt-hooks.js', '../../core/turn/capture-flow.js', '../../core/turn/events.js',
+        '../../core/turn-parts/keys.js', '../../core/turn-parts/prompt-limits.js', '../../core/turn-parts/hook-time.js', '../../core/turn-parts/waits.js', '../../core/turn-parts/create-turn.js',
     ],
-    'src/v2/timeline/coordinator.js': ['src/v2/timeline/coordinator-native.js', 'src/v2/timeline/coordinator-prepare.js', 'src/v2/timeline/coordinator-prepare/finish.js', 'src/v2/timeline/coordinator-read.js', 'src/v2/timeline/coordinator-restore.js'],
-    'src/v2/timeline/selection-fallback.js': [
-        'src/v2/timeline/selection-fallback-parts/boundary.js', 'src/v2/timeline/selection-fallback-parts/chain.js', 'src/v2/timeline/selection-fallback-parts/settled.js',
+    '../../core/timeline/coordinator.js': ['../../core/timeline/coordinator-native.js', '../../core/timeline/coordinator-prepare.js', '../../core/timeline/coordinator-prepare/finish.js', '../../core/timeline/coordinator-read.js', '../../core/timeline/coordinator-restore.js'],
+    '../../core/timeline/selection-fallback.js': [
+        '../../core/timeline/selection-fallback-parts/boundary.js', '../../core/timeline/selection-fallback-parts/chain.js', '../../core/timeline/selection-fallback-parts/settled.js',
     ],
     'src/v2/domains/inventory.js': [
         'src/v2/domains/inventory/state.js', 'src/v2/domains/inventory/validate.js', 'src/v2/domains/inventory/queries.js', 'src/v2/domains/inventory/prompt.js',
@@ -85,13 +85,13 @@ export const SPLIT_PARTS = Object.freeze({
         'src/v2/view/template/render/widgets.js', 'src/v2/view/template/render/dom.js', 'src/v2/view/template/render/page-ids.js',
         'src/v2/view/template/render/dom-parts/access.js', 'src/v2/view/template/render/dom-parts/controls.js', 'src/v2/view/template/render/page-ids-parts/copies.js', 'src/v2/view/template/render/page-ids-parts/prefix.js', 'src/v2/view/template/render/page-ids-parts/value.js',
     ],
-    'src/v2/runtime.js': ['src/v2/runtime-parts/version.js', 'src/v2/runtime-parts/create.js'],
+    '../../core/runtime.js': ['../../core/runtime-parts/version.js', '../../core/runtime-parts/create.js'],
     'src/v2/reply-notes.js': ['src/v2/reply-notes-parts/problems.js', 'src/v2/reply-notes-parts/notes.js'],
-    'src/v2/rewind.js': ['src/v2/rewind-parts/st-branch.js', 'src/v2/rewind-parts/shared-limits.js', 'src/v2/rewind-parts/rewind.js', 'src/v2/rewind-parts/save-points.js'],
+    '../../core/timeline/rewind.js': ['../../core/timeline/rewind-parts/st-branch.js', '../../core/timeline/rewind-parts/shared-limits.js', '../../core/timeline/rewind-parts/rewind.js', '../../core/timeline/rewind-parts/save-points.js'],
     'src/v2/rpg-lazy.js': ['src/v2/rpg-lazy-parts/holds.js', 'src/v2/rpg-lazy-parts/library.js', 'src/v2/rpg-lazy-parts/stand-in.js'],
-    'src/v2/runtime/saving.js': [
-        'src/v2/runtime/saving-parts/shared-plain.js', 'src/v2/runtime/saving-parts/page-marks.js', 'src/v2/runtime/saving-parts/rescue-lookup.js',
-        'src/v2/runtime/saving-parts/unload.js', 'src/v2/runtime/saving-parts/store-saving.js',
+    '../../core/runtime/saving.js': [
+        '../../core/runtime/saving-parts/shared-plain.js', '../../core/runtime/saving-parts/page-marks.js', '../../core/runtime/saving-parts/rescue-lookup.js',
+        '../../core/runtime/saving-parts/unload.js', '../../core/runtime/saving-parts/store-saving.js',
     ],
     'src/v2/view/theme.js': [
         'src/v2/view/theme-parts/bridge.js', 'src/v2/view/theme-parts/colors.js', 'src/v2/view/theme-parts/css.js', 'src/v2/view/theme-parts/defaults.js', 'src/v2/view/theme-parts/fonts.js', 'src/v2/view/theme-parts/glass.js', 'src/v2/view/theme-parts/options.js', 'src/v2/view/theme-parts/palettes.js', 'src/v2/view/theme-parts/roots.js', 'src/v2/view/theme-parts/scheme-choice.js', 'src/v2/view/theme-parts/scheme-tokens.js', 'src/v2/view/theme-parts/sheet-tokens.js', 'src/v2/view/theme-parts/text-size.js', 'src/v2/view/theme-parts/tint.js', 'src/v2/view/theme-parts/tokens.js',

@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 
 const items = h => {
     const inv = h.head()?.domains?.inventory;

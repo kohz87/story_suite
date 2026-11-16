@@ -1,6 +1,6 @@
 // Lists the fields of a definition this host does not know, for logging.
 
-import { featureWarnings } from '../features.js';
+import { featureWarnings } from '../../features.js';
 import { isObject } from './shared-basics.js';
 import { SETTINGS_PLACES } from './lists.js';
 import { FIELD_TYPES, fieldType } from './fields.js';

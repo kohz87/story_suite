@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { DEFAULT_TAIL_BUDGET, estimateTokens } from '../../../src/v2/prompt.js';
+import { DEFAULT_TAIL_BUDGET, estimateTokens } from '../../../../../core/prompt.js';
 import { probeModule } from '../qa/helpers/probe-module.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

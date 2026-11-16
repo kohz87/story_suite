@@ -1,7 +1,7 @@
 // Parses a story line's or a reader action's labels into typed arguments, refusing with plain sentences.
 import { dmInt, dmLabelNames, dmOwn, dmValueOfName } from '../schema.js';
-import { oneLine } from '../../../text.js';
-import { STRINGS } from '../../strings.js';
+import { oneLine } from '../../../../../../core/text.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 import { refuse } from './errors.js';
 
 /** "guild, watch or compact" */

@@ -1,7 +1,7 @@
 // The inventory domain's wallet commands: the reader's purse correction and the story's or a module's payouts,
 // with the wording the narrator is told after an edit. commands.js re-exports these names at their old path.
 import { WALLET_KEY, formatAmount } from '../../money.js';
-import { fill } from '../../../strings.js';
+import { fill } from '../../../../../../../core/strings.js';
 import { E, receiverArg, ownerArg, count, textArg, currencyIn, pay, receive } from '../stacks.js';
 import { isCount } from '../state.js';
 import { receiveStory } from '../story.js';

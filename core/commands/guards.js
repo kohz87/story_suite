@@ -4,7 +4,7 @@
 
 import { clone, deepFreeze, frozenCopy } from '../ops.js';
 import { hashJson } from '../replay.js';
-import { rpgLib } from '../rpg-lazy.js';
+import { rpgLib } from '../../packages/story-block/src/v2/rpg-lazy.js';
 import { isRecord } from './shared.js';
 
 export function createGuards({ registry, findQuery }) {

@@ -4,7 +4,7 @@
 
 import { button, h } from '../../view/widgets/dom.js';
 import { zoomOf } from '../../view/scroll.js';
-import { discardHeld, heldForSid } from '../../turn/held-board.js';
+import { discardHeld, heldForSid } from '../../../../../../core/turn/held-board.js';
 import { readFoes, readParty, stageTone } from '../view/party-data.js';
 import { readSheet } from '../read.js';
 import { planGear } from '../gear.js';

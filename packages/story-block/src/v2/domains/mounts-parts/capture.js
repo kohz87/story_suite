@@ -2,7 +2,7 @@
 
 import { labelOf } from '../common.js';
 import { cleanName } from '../names.js';
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { MAX_NAME, MAX_KIND, MAX_CONDITION, MAX_WHERE } from './caps-text.js';
 import { MAX_COUNT, MAX_PACE } from './caps-count.js';
 import { textOf, whole, paceNumber } from './shared-parse.js';

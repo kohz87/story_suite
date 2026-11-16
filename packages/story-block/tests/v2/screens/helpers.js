@@ -5,7 +5,7 @@ import { resolveData } from '../../../src/v2/view/screens.js';
 import { standardWidgets } from '../../../src/v2/view/widgets/index.js';
 import { createInventoryAddWidget, createInventoryGridWidget, createInventoryViewWidget, createWornFoldWidget, INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from '../../../src/v2/screens/inventory-add.js';
 import { compile, evaluate } from '../../../src/v2/events/index.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { core, stocked } from '../domains/fixtures.js';
 
 async function load(path) {

@@ -1,6 +1,6 @@
 // Tests for hash and record-id shapes, and the id built from a hash.
 
-import { RECORD_ID } from '../check.js';
+import { RECORD_ID } from '../registry/check.js';
 
 const HASH = /^[0-9a-f]{64}$/;
 export const isHash = value => typeof value === 'string' && HASH.test(value);

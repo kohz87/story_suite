@@ -1,7 +1,7 @@
 // Checking item records and resolving item references.
 
 import { ITEM_FIELDS, ITEM_KINDS, RARITIES, RECORD_LIMITS, LIMITS, ITEM_CARRY, ITEM_BONUS, ITEM_SOAK, DEF_ID } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../text.js';
+import { oneLine, foldKey } from '../../../../../../../core/text.js';
 import { isInt, isObject } from '../core.js';
 
 export function checkItem(record, path, label, add) {

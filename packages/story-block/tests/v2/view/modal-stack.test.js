@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { focusablesIn, stackOf } from '../../../src/v2/view/modal-stack.js';
 import { createDialogMount } from '../../../src/v2/view/mounts/dialog.js';
 import { createScreenMount } from '../../../src/v2/view/mounts/screen.js';
-import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screensWith, setupDom } from '../../v2/view/mounts/helpers.js';
+import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screensWith, setupDom } from './mounts/helpers.js';
 
 // A key the way the page gets it: every listener of that type, with the event's own fields.
 function dispatch(doc, type, init = {}) {

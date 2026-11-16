@@ -1,15 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validatePack } from '../../src/v2/packs/validate.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES, grownSkills } from '../../src/v2/lean-rpg/templates.js';
-import { readParty } from '../../src/v2/lean-rpg/view/party-data.js';
-import { summaryOf } from '../../src/v2/data-modules/part.js';
-import { setupDom } from './view/mounts/helpers.js';
-import { fakeState } from './lean-rpg/view/helpers.js';
-import { renderSkills, slotsShown } from '../../src/v2/lean-rpg/view/skills.js';
-import { joinCard, joinDraft, joinOffers } from '../../src/v2/lean-rpg/join.js';
-import { buildDefinitions, readDraft } from '../../src/v2/lean-rpg/view/wizard-data.js';
+import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
+import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES, grownSkills } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
+import { readParty } from '../../packages/story-block/src/v2/lean-rpg/view/party-data.js';
+import { summaryOf } from '../../packages/story-block/src/v2/data-modules/part.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { fakeState } from '../../packages/story-block/tests/v2/lean-rpg/view/helpers.js';
+import { renderSkills, slotsShown } from '../../packages/story-block/src/v2/lean-rpg/view/skills.js';
+import { joinCard, joinDraft, joinOffers } from '../../packages/story-block/src/v2/lean-rpg/join.js';
+import { buildDefinitions, readDraft } from '../../packages/story-block/src/v2/lean-rpg/view/wizard-data.js';
 import { skip, reply, SKILLS, person, world, fieldsOf, receipts, joinReceipt, told, update, bytes, mine } from './cast-skills.helpers.js';
 
 test('replay equals live: rebuild, reload, Re-read, swipe and delete of a join, also after the pack was updated', { skip }, async t => {
@@ -266,7 +266,7 @@ test('Edit first carries the signature skills: the offer records them, the card\
 // ---- Ersveil ----------------------------------------------------------------------------------------------------------------------------
 
 test('Ersveil gives each of its 12 cast members exactly 2 skills (owner list, 10 Nov), and the pack still checks', () => {
-    const raw = readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+    const raw = readFileSync(new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
     const result = validatePack(raw);
     assert.equal(result.ok, true, JSON.stringify(result.errors?.slice(0, 3)));
     const cast = result.pack.content.cast;

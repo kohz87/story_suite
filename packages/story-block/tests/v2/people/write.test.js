@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { hashJson } from '../../../src/v2/replay.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { hashJson } from '../../../../../core/replay.js';
+import { readRecord } from '../../../../../core/persist.js';
 import { replyEdits } from '../../../src/v2/reply-cards.js';
 import { isPeopleView, validatePeople } from '../../../src/v2/domains/people/validate.js';
 

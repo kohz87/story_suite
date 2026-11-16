@@ -1,6 +1,6 @@
 // The reply notes' wording of a refused or warned change line: its reason, and the lists a reply's turn problems make.
 
-import { STRINGS, fill } from '../strings.js';
+import { STRINGS, fill } from '../../../../../core/strings.js';
 
 /**
  * The reason part of a turn problem about a change line (its message without the line itself). Any message gives a readable

@@ -1,6 +1,6 @@
 // Reads what one receipt paid (a coin, with its source) or gained (an item for the party).
 
-import { CAPTURE_PREFIX } from '../../registry-checks.js';
+import { CAPTURE_PREFIX } from '../../registry/registry-checks.js';
 
 // The source of a payment, as the line wrote it: `from Master Vane's saddle-coffer (70 silver…)` → `master vane's saddle-coffer`.
 export const sourceOf = note => String(note ?? '').replace(/^from\s+/iu, '').replace(/\(.*$/u, '').normalize('NFKC').toLowerCase().replace(/\s+/gu, ' ').trim();

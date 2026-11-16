@@ -1,6 +1,6 @@
 // Holds a fight-start choice in chat metadata: read it back, set it, clear it.
 
-import { hashText } from '../../assist/common.js';
+import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
 import { readRecord } from '../../persist.js';
 
 const KEY = 'rpgFightStart';

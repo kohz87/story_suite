@@ -2,10 +2,10 @@
 // stored on the reply with its changes, and the session moves on (carry) or ends. Runs on the real host with the test-only probe module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { STATIC_KEY } from '../../../src/v2/turn.js';
-import { GO, IA_KIND, WAIT, iaApi, iaModule, playSegment } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../../core/persist.js';
+import { STATIC_KEY } from '../../../core/turn.js';
+import { GO, IA_KIND, WAIT, iaApi, iaModule, playSegment } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 const settleOf = (host, index) => readRecord(host.ctx.chat[index]).receipts.filter(receipt => receipt.type === 'interaction.settle');
 

@@ -3,7 +3,7 @@
 // profile's name ('' for the chat's connection). The list is read when the field is drawn
 // (listProfiles: names only, never a profile's address or key). Built with textContent only.
 
-import { listProfiles, profileName } from './model-call.js';
+import { listProfiles, profileName } from '../model-call.js';
 
 export const PROFILE_TEXT = Object.freeze({
     same: 'Same as chat',

@@ -1,8 +1,8 @@
 // The core's side of interactions: the `interaction.settle` prelude command and the guard answer for `predicate.kind === 'interaction'`.
 // The settle and guard logic live in interaction/; this file only wires them to the registry's kinds and the command's ctx.
 
-import { interactionGuard } from '../../interaction/guard.js';
-import { settleInteraction } from '../../interaction/settle.js';
+import { interactionGuard } from '../../../../../../core/interaction/guard.js';
+import { settleInteraction } from '../../../../../../core/interaction/settle.js';
 
 export const SETTLE = 'interaction.settle';
 

@@ -5,12 +5,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../testkit/index.js';
-import { aiMessage } from '../../testkit/fake-st.js';
-import { createRegistry, INIT_PREFIX } from '../../src/v2/registry.js';
-import { ensureModules, missingModules } from '../../src/v2/sdk.js';
-import { HOOK_TIMEOUT_MS } from '../../src/v2/turn.js';
-import { headIndexOf, headState } from '../../src/v2/view/mounts/common.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { aiMessage } from '../../packages/story-block/testkit/fake-st.js';
+import { createRegistry, INIT_PREFIX } from '../../core/registry.js';
+import { ensureModules, missingModules } from '../../core/sdk.js';
+import { HOOK_TIMEOUT_MS } from '../../core/turn.js';
+import { headIndexOf, headState } from '../../packages/story-block/src/v2/view/mounts/common.js';
 
 function captureWarnings() {
     const warnings = [];

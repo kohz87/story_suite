@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createPacksPart, part as livePart, packs as livePacks, resolveItem as liveResolve, startState as liveStart } from '../../../src/v2/packs/index.js';
 import { slugify } from '../../../src/v2/packs/validate.js';
 import { rippleChoice } from '../../../src/v2/packs/content.js';
-import { foldKey } from '../../../src/text.js';
+import { foldKey } from '../../../../../core/text.js';
 import { fakeCtx } from './helpers/fake-ctx.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { installFakeSillyTavern } from './helpers/fake-st.js';
@@ -76,7 +76,7 @@ test('item resolution order seen from inventory capture: inventory, packs, story
 });
 
 test('the settings panel renderer binds to the part\'s own list', async () => {
-    const { installFakeDom } = await import('../../ui-fake-dom.js');
+    const { installFakeDom } = await import('../../../../../tests/helpers/ui-fake-dom.js');
     const doc = installFakeDom();
     const { part, packs } = createPacksPart({ settings: fakeSettings() });
     await packs.install(pack({ id: 'shown', name: 'Shown Pack' }));

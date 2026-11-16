@@ -3,9 +3,9 @@
 // store.changesAt.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { readRecord } from '../../src/v2/persist.js';
-import { allRuleNames } from '../../src/v2/turn/rule-marks.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../core/persist.js';
+import { allRuleNames } from '../../core/turn/rule-marks.js';
 
 // A module that records what its handlers were told.
 function spy(seen) {
@@ -121,8 +121,8 @@ test('store.changesAt(index) lists the JSON Pointers that carrier\'s ops touched
 });
 
 test('mountQuery adapts the mounts\' query(name, args, state) to the registry\'s (state, args, tools)', async () => {
-    const { mountQuery } = await import('../../src/v2/sdk.js');
-    const { createRegistry } = await import('../../src/v2/registry.js');
+    const { mountQuery } = await import('../../core/sdk.js');
+    const { createRegistry } = await import('../../core/registry.js');
     const registry = createRegistry();
     registry.register({
         id: 'q',

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { RPG_START_WIDGET } from '../../../../src/v2/screens/home.js';
 import { setStartNotes, skipOf, startNotes } from '../../../../src/v2/lean-rpg/start.js';
 import { HOLD_SCREEN_ID, HOLD_WIDGET, START_WIDGET, createHoldScreen } from '../../../../src/v2/lean-rpg/view/start.js';

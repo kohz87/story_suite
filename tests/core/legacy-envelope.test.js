@@ -5,8 +5,8 @@
 // code left unread applies its lines. A story line that repeats a line of the reply's block is never told as not used.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { LEGACY_PROBLEM, adoptLegacy, extractBlock, grammarHeads, hasLegacy, hideBlock, legacyRead, parseChanges, stripBlock, stripLegacy } from '../../src/v2/capture.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { LEGACY_PROBLEM, adoptLegacy, extractBlock, grammarHeads, hasLegacy, hideBlock, legacyRead, parseChanges, stripBlock, stripLegacy } from '../../core/capture.js';
 
 const V1 = /STORY_BLOCKS_V1|INVENTORY_BLOCK_V05/;
 const sentText = request => (request.chat ? request.chat.map(message => message.content).join('\n') : request.prompt);

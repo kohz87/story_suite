@@ -16,10 +16,10 @@
 
 import { performance } from 'node:perf_hooks';
 import { MAIN_PROMPT, aiMessage, createHost } from '../../../testkit/index.js';
-import { STATIC_KEY, TAIL_KEY } from '../../../src/v2/turn.js';
-import { createStore } from '../../../src/v2/store.js';
-import { apply as applyOps } from '../../../src/v2/ops.js';
-import { readRecord, isCarrier } from '../../../src/v2/persist.js';
+import { STATIC_KEY, TAIL_KEY } from '../../../../../core/turn.js';
+import { createStore } from '../../../../../core/store.js';
+import { apply as applyOps } from '../../../../../core/ops.js';
+import { readRecord, isCarrier } from '../../../../../core/persist.js';
 
 export const MODULE_ID = 'bench-rpg';
 export const PARTY_SIZE = 4;

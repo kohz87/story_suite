@@ -2,7 +2,7 @@
 // (Story Block's own pinned cues, prompt.js), where an ordinary line of the same module is dropped.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const KEPT = '[Test] This pinned line must reach the narrator.';
 const PLAIN = '[Test] An ordinary line that the budget may drop, padded so that it is long enough to matter for the budget.';
@@ -44,7 +44,7 @@ test('an ordinary string line from a hook still works as before', async () => {
 });
 
 test('a module keeps at most KEPT_LINES_MAX lines and KEPT_CHARS_MAX characters; the rest are ordinary lines the budget may drop', async () => {
-    const { KEPT_LINES_MAX, KEPT_CHARS_MAX } = await import('../../src/v2/turn/prompt-build.js');
+    const { KEPT_LINES_MAX, KEPT_CHARS_MAX } = await import('../../core/turn/prompt-build.js');
     const many = Array.from({ length: 60 }, (_, i) => ({ text: `[Test] kept line ${i} ${'x'.repeat(500)}`, keep: true }));
     const host = await createHost({ modules: [cueModule(many)], settings: { host: { tailBudget: 50 } } });
     try {
@@ -95,7 +95,7 @@ test('a kept tail line with trailing whitespace keeps its pin', async () => {
 });
 
 test('a module keeps at most KEPT_TAIL_LINES tail lines; the rest are ordinary lines the budget drops', async () => {
-    const { KEPT_TAIL_LINES } = await import('../../src/v2/prompt.js');
+    const { KEPT_TAIL_LINES } = await import('../../core/prompt.js');
     const lines = Array.from({ length: KEPT_TAIL_LINES + 2 }, (_, i) => ({ text: `[K] kept ${i}`, keep: true }));
     const tail = await tailWith([tailModule('tl-a', lines)], 1);
     const told = lines.filter(line => tail.includes(line.text));
@@ -104,7 +104,7 @@ test('a module keeps at most KEPT_TAIL_LINES tail lines; the rest are ordinary l
 });
 
 test('kept tail lines share KEPT_TAIL_TOKENS in all, across modules, in tail order', async () => {
-    const { KEPT_TAIL_TOKENS, estimateTokens } = await import('../../src/v2/prompt.js');
+    const { KEPT_TAIL_TOKENS, estimateTokens } = await import('../../core/prompt.js');
     const lines = Array.from({ length: 4 }, (_, i) => `[K${i}] ${'word '.repeat(60)}`.trim());
     const tail = await tailWith(lines.map((text, i) => tailModule(`tl-${i}`, [{ text, keep: true }])), 1);
     const told = lines.filter(text => tail.includes(text));
@@ -113,7 +113,7 @@ test('kept tail lines share KEPT_TAIL_TOKENS in all, across modules, in tail ord
 });
 
 test('kept prelude cues and kept tail lines draw on one cap', async () => {
-    const { KEPT_TAIL_TOKENS, estimateTokens } = await import('../../src/v2/prompt.js');
+    const { KEPT_TAIL_TOKENS, estimateTokens } = await import('../../core/prompt.js');
     const cue = `World: ${'a calm morning '.repeat(5)}`.trim();
     const used = estimateTokens(`[Happened]\n${cue}`);
     const line = `[Director] ${'word '.repeat(Math.ceil((KEPT_TAIL_TOKENS - used) * 4 / 5) + 2)}`.trim();

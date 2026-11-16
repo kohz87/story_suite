@@ -1,6 +1,6 @@
 // Join: the offers on a reply, read from its receipts.
 
-import { oneLine } from '../../../text.js';
+import { oneLine } from '../../../../../../core/text.js';
 import { PARTY_ACTIVE, STATS } from '../names.js';
 import { fold } from '../read.js';
 import { isRecord } from './shared-record.js';

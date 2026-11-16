@@ -1,8 +1,8 @@
 // The Assist safety net on the real host (MODULES §F123): send wait, late lines, within-wait lines, deduplication, and preset ^ blocks.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assistSections, withAssist } from '../../../src/v2/capture.js';
-import { ASSIST_WAIT_MS } from '../../../src/v2/turn.js';
+import { assistSections, withAssist } from '../../../../../core/capture.js';
+import { ASSIST_WAIT_MS } from '../../../../../core/turn.js';
 import { BLUEWATCH, heldModel, hostWith, skip, wait } from './safety-net.helpers.js';
 
 test('a send waits only briefly; late lines are kept on the reply and applied on the next one, marked, without coin or new items', { skip }, async () => {

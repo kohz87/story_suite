@@ -31,8 +31,8 @@
 
 import { FORM_TEXT, SETTINGS_TEXT, fill, matchesSearch } from './schema.js';
 import { newId, sectionBlock, switchField } from './fields.js';
-import { PRESET_NAMES, PROMPT_HINT, applyPreset, inPresets, presetSwitches, selectedPreset } from '../../features.js';
-import { estimateTokens } from '../../prompt.js';
+import { PRESET_NAMES, PROMPT_HINT, applyPreset, inPresets, presetSwitches, selectedPreset } from '../../../../../../core/features.js';
+import { estimateTokens } from '../../../../../../core/prompt.js';
 import { featuresFoldOf } from '../../host-ui.js';
 import { renderPresetPicker } from './presets.js';
 import { focusNode, showAndFocus } from '../scroll.js';

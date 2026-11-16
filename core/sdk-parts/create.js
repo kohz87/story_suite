@@ -3,13 +3,13 @@
 import { INIT_PREFIX, normalizeField } from '../registry.js';
 import { headReply, replyAt } from '../commands.js';
 import { KEY as RECORD_KEY, isCarrier, recordFault } from '../persist.js';
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 import { MODEL_CALL_ERRORS, MODEL_CALL_TEXT, profileName } from '../model-call.js';
-import { RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
-import { receiptCue, entriesWithCue } from '../lean-rpg/cue.js';
-import { createPublicPaths } from '../public-paths.js';
+import { RESOLVE as RPG_RESOLVE } from '../../packages/story-block/src/v2/lean-rpg/names.js';
+import { receiptCue, entriesWithCue } from '../../packages/story-block/src/v2/lean-rpg/cue.js';
+import { createPublicPaths } from '../persist/public-paths.js';
 
-import { createCardSettings } from '../packs/card-settings.js';
+import { createCardSettings } from '../../packages/story-block/src/v2/packs/card-settings.js';
 
 import { isObject } from '../sdk/shared.js';
 import { createEvents } from '../sdk/events.js';
@@ -20,7 +20,7 @@ import { featureOn, makeView, missingModules, runQuery, withCue } from '../sdk/q
 import { announceModules, ensureModules, preflight, rememberTimeline } from '../sdk/lifecycle.js';
 
 // sdk.check comes from check.js (SB-commands); the sdk still loads without it.
-const checkModule = await import('../check.js').catch(() => null);
+const checkModule = await import('../registry/check.js').catch(() => null);
 
 
 /**

@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hudOn, isGameViewKey } from '../../../src/v2/ui-host.js';
 import { THIS_REPLY_ID } from '../../../src/v2/reply-cards.js';
-import { STRINGS } from '../../../src/v2/strings.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { STRINGS } from '../../../../../core/strings.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { cssOf } from '../helpers/css-parts.js';
 import { HUD_MODULE, WITH_LINES, page } from './ux.helpers.js';
 

@@ -2,7 +2,7 @@
 // Combat flavour and manual rules are supplied only in the reply context that can use them.
 import { activeDefinition } from '../../data-modules/adapters.js';
 import { moduleGrammar, referenceOf } from '../../data-modules/grammar.js';
-import { oneLine } from '../../../text.js';
+import { oneLine } from '../../../../../../core/text.js';
 import { CLEAR_ONLY, NEW_GROUPS, NEW_GROUPS_MANUAL, narratedFoeGrammar } from './narrated-grammar.js';
 
 // How a fight starts under the board: the story sets a foe slot, the offer line appears, and code plays the blows.

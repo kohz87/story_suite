@@ -1,7 +1,7 @@
 // Builds the interaction seed and independent positional dice streams, keeping the board's numbers byte-identical.
 
 import { hash } from '../persist.js';
-import { rng } from '../rng.js';
+import { rng } from '../commands/rng.js';
 
 const BOARD_KIND = 'story-block/fight';
 const UINT32 = 0xFFFFFFFF;

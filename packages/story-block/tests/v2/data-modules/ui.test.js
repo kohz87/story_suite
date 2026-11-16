@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeContext } from '../../../testkit/fake-st.js';
-import { createRuntime } from '../../../src/v2/runtime.js';
+import { createRuntime } from '../../../../../core/runtime.js';
 import { mountUi } from '../../../src/v2/ui-host.js';
 import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
 import { setupDom } from '../view/mounts/helpers.js';

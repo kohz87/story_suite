@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { saveOnUnload, storeSaving } from '../../../src/v2/runtime.js';
+import { saveOnUnload, storeSaving } from '../../../../../core/runtime.js';
 
 const settle = async (n = 30) => { for (let i = 0; i < n; i++) await new Promise(resolve => setImmediate(resolve)); };
 

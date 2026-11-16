@@ -4,9 +4,9 @@
 // that uses neither is unchanged.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createRegistry, definitionProblems } from '../../src/v2/registry.js';
-import { staticParts } from '../../src/v2/prompt.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createRegistry, definitionProblems } from '../../core/registry.js';
+import { staticParts } from '../../core/prompt.js';
 
 const ID = 'zz-deferred';
 function module({ gate, deferred = true }) {

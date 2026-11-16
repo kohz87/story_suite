@@ -3,7 +3,7 @@
 // go through the real command bus.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCommandBus } from '../../../src/v2/commands.js';
+import { createCommandBus } from '../../../../../core/commands.js';
 import { changesCardScreen, changesSummary, inventoryScreen } from '../../../src/v2/screens/index.js';
 import { counterIds, fakeRegistry, fakeStore } from '../helpers/bus-fakes.js';
 import { core, foldOf, openFold, queries, renderSkip, settle, show, stocked, text } from './helpers.js';

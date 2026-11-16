@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { randomId } from '../src/id.js';
+import { randomId } from '../../core/id.js';
 
 test('native IDs remain unchanged; HTTP fallback uses random bytes and UUID version/variant', () => {
     assert.equal(randomId({ randomUUID: () => 'native-id' }), 'native-id');

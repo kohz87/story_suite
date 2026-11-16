@@ -1,6 +1,6 @@
 // Story Suite v2: new record ids and finding carriers in a chat.
 
-import { randomId } from '../../../id.js';
+import { randomId } from '../../id.js';
 import { isCarrier } from './identity.js';
 
 export const newRecordId = () => `sw_${randomId().replace(/-/g, '').slice(0, 12)}`;

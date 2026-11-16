@@ -6,7 +6,7 @@ import { createHost } from '../../../testkit/index.js';
 import { mountUi } from '../../../src/v2/ui-host.js';
 import { buildBlock, blockDraft, blockKindCount, editableBlockDraft, parseNames } from '../../../src/v2/data-modules/block-builder.js';
 import { createBlockWidgets } from '../../../src/v2/screens/blocks.js';
-import { STRINGS, fill } from '../../../src/v2/strings.js';
+import { STRINGS, fill } from '../../../../../core/strings.js';
 import { LEAN_RPG_FEATURE } from '../../../src/v2/lean-rpg/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { success } from '../data-modules/helpers.js';

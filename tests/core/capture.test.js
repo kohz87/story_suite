@@ -1,8 +1,8 @@
 // The change-line grammar (docs/v2/SPEC.md §4.4) and the <Changes> block in a reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { strayLines } from '../../src/v2/capture/stray.js';
-import { extractBlock, hideBlock, parseChanges, stripBlock, withoutReasoning } from '../../src/v2/capture.js';
+import { strayLines } from '../../core/capture/stray.js';
+import { extractBlock, hideBlock, parseChanges, stripBlock, withoutReasoning } from '../../core/capture.js';
 
 const one = text => {
     const { lines, problems } = parseChanges(text);

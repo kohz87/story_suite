@@ -1,6 +1,6 @@
 // Story Suite v2: builds the static and tail texts for the next reply, with their parts and the context fit.
 
-import { receiptCue } from '../lean-rpg/cue.js';
+import { receiptCue } from '../../packages/story-block/src/v2/lean-rpg/cue.js';
 import { settleCue, SETTLE_TYPE } from '../interaction/note.js';
 import { HAPPENED } from './markers.js';
 import { DEFAULT_TAIL_BUDGET, KEPT_TAIL_LINES, KEPT_TAIL_TOKENS } from './tail-budget.js';

@@ -1,8 +1,8 @@
 // The settled-note allowance is measured on the longest board fight, never guessed: a change to the number or to the note is a reviewed diff.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { INTERACTION_NOTE_TOKENS, noteLong, settleCue } from '../../../src/v2/interaction/note.js';
-import { estimateTokens } from '../../../src/v2/prompt-parts/shared-helpers.js';
+import { INTERACTION_NOTE_TOKENS, noteLong, settleCue } from '../../../core/interaction/note.js';
+import { estimateTokens } from '../../../core/prompt-parts/shared-helpers.js';
 import { fightNote } from './helpers/fight-note.js';
 
 // The longest board note (4 v 6, 4 exchanges, items and wear) is 798 tokens; the allowance is that plus 20 %, rounded up to ten.

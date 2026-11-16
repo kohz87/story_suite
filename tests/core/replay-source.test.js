@@ -3,12 +3,12 @@
 // and swipe is stable over index shifts, edits and reloads; the shipped sw_<12 hex> ids are not rewritten.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { RECORD_ID } from '../../src/v2/check.js';
-import { newRecordId, readRecord, trimReceipts } from '../../src/v2/persist.js';
-import { deriveId, isMetaSpan } from '../../src/v2/replay.js';
-import { EPOCH, Q1, guarded, harness } from './helpers/guarded.js';
-import { deleteSwipe, newSwipe, reply, showSwipe, user } from './helpers/store-chat.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { RECORD_ID } from '../../core/registry/check.js';
+import { newRecordId, readRecord, trimReceipts } from '../../core/persist.js';
+import { deriveId, isMetaSpan } from '../../core/replay.js';
+import { EPOCH, Q1, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
+import { deleteSwipe, newSwipe, reply, showSwipe, user } from '../../packages/story-block/tests/v2/helpers/store-chat.js';
 
 const questId = n => `th_${n.toString(36).padStart(8, '0')}`;
 

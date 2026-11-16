@@ -2,9 +2,9 @@
 
 import { h, iconNode } from '../../../view/widgets/dom.js';
 import { meter } from '../../../view/widgets/meter.js';
-import { refusalText } from '../../../strings.js';
+import { refusalText } from '../../../../../../../core/strings.js';
 import { LEVEL, FORMULA, RANK_NAMES } from '../../names.js';
-import { UTILITY_SLOTS } from '../../../skill-slots.js';
+import { UTILITY_SLOTS } from '../../../../../../../core/runtime/skill-slots.js';
 import { RPG_STRINGS, fill } from '../../strings.js';
 import { skillFlags, skillKey } from '../../board/flags.js';
 import { drawSkillFlags } from '../../board/skill-editor.js';

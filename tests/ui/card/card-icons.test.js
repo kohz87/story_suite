@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { paceIcon, soakIcon, statusIcon } from '../../../ui/card/card-icons.js';
 
 test('soak and pace glyphs are svg elements with at least one shape', () => {

@@ -5,10 +5,10 @@
 // switching anything.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createRegistry, definitionProblems, definitionWarnings } from '../../src/v2/registry.js';
-import { CORE_FEATURE, PRESET_NAMES, applyPreset, createFeatureStore, presetSwitches, presetValue, selectedPreset } from '../../src/v2/features.js';
-import { estimateTokens, staticTextWith } from '../../src/v2/prompt.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
+import { CORE_FEATURE, PRESET_NAMES, applyPreset, createFeatureStore, presetSwitches, presetValue, selectedPreset } from '../../core/features.js';
+import { estimateTokens, staticTextWith } from '../../core/prompt.js';
 
 // A module with every kind of entry: both keys, one key, outside presets, and (no `presets` at all) a plain default.
 function tracker() {

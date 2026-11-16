@@ -1,6 +1,6 @@
 // Proof evidence payloads, shape: checks that a proof payload is closed and well formed for its kind.
 
-import { isId } from '../../check.js';
+import { isId } from '../../registry/check.js';
 import { CONTROL, LIMITS, STATS, isObject, utf8 } from '../constants.js';
 import { canonicalJson, isRecordId } from '../../replay.js';
 

@@ -9,7 +9,7 @@ import { foeAttacks } from '../../../../src/v2/lean-rpg/combat/foe-turns.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
 import { fightDice } from '../../../../src/v2/lean-rpg/combat/dice.js';
 import { lineOf, lineTexts } from '../../../../src/v2/lean-rpg/combat/record.js';
-import { dice } from '../../../../src/v2/interaction/dice.js';
+import { dice } from '../../../../../../core/interaction/dice.js';
 import { seeded } from './dice.helper.js';
 import { withSkills } from './derived-skills.helper.js';
 

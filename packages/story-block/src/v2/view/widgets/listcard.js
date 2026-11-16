@@ -11,7 +11,7 @@
 import { h, iconNode, runCommand, shell, str } from './dom.js';
 import { defineWidget, resolveProps } from './props.js';
 import { GLASS_TONES, setGlassTone } from './glass.js';
-import { cutAt } from '../../../text.js';
+import { cutAt } from '../../../../../../core/text.js';
 import { focusNode } from '../scroll.js';
 
 export const ROW_MAX = 100;

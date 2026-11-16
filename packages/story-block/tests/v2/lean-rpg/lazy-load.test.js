@@ -8,7 +8,7 @@ import { readFileSync, statSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { LEAN_RPG_FEATURE } from '../../../src/v2/lean-rpg/names.js';
 import { createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';

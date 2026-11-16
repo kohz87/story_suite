@@ -9,7 +9,7 @@
 // without it; tip radios: copy 1 shows none checked, its draft still says "2".
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { compileTemplate, renderTemplate } from '../../../src/v2/view/template/index.js';
 
 const TEMPLATE = '<form data-submit="shop.buy"><input type="checkbox" id="gift" data-draft="gift"><label for="gift">Gift wrap</label><button>Buy</button></form>'

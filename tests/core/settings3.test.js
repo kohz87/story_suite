@@ -2,17 +2,17 @@
 // the assist's connection-profile dropdown, and the Diagnostics fold with its report.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom, texts } from '../ui-fake-dom.js';
-import { createRegistry } from '../../src/v2/registry.js';
-import { createSettings } from '../../src/v2/sdk.js';
-import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, renderSettingsHost } from '../../src/v2/host-ui.js';
-import { createFeatureStore } from '../../src/v2/features.js';
-import { SCHEMA, SETTING, createAssistPart, stCallModel } from '../../src/v2/assist/index.js';
-import { listProfiles } from '../../src/v2/model-call.js';
+import { installFakeDom, texts } from '../helpers/ui-fake-dom.js';
+import { createRegistry } from '../../core/registry.js';
+import { createSettings } from '../../core/sdk.js';
+import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { createFeatureStore } from '../../core/features.js';
+import { SCHEMA, SETTING, createAssistPart, stCallModel } from '../../packages/story-block/src/v2/assist/index.js';
+import { listProfiles } from '../../core/model-call.js';
 import {
     REMOVED, buildReport, captureConsole, caughtSoFar, chatCounts, isSecretKey, noteError, noteSaveError, reportFileName, resetCaught,
     scrubLine, scrubSecrets, scrubSettings,
-} from '../../src/v2/diagnostics.js';
+} from '../../core/diagnostics.js';
 
 const doc = installFakeDom();
 
@@ -91,7 +91,7 @@ test('a panel alone (no schema, no features) is drawn straight into its fold; a 
 });
 
 test('every module\'s controls sit at most two folds deep (Story Block\'s own module too)', async () => {
-    const { createCoreModule } = await import('../../src/v2/domains/index.js');
+    const { createCoreModule } = await import('../../packages/story-block/src/v2/domains/index.js');
     const core = createCoreModule();
     const { registry, settings } = setup(core, delta(), { id: 'rpg-battle', name: 'RPG Battle', settings: { schema: { a: { type: 'bool', label: 'Combat: A' } } } });
     const root = doc.createElement('div');

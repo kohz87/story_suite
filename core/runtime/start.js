@@ -1,9 +1,9 @@
 // The runtime's start helpers (moved out of runtime.js unchanged): the initial state with the packs'
 // start applied, a packs part over extension settings, and Story Block's currency fallback.
 
-import { CORE_MODULE_ID } from '../domains/index.js';
-import { WALLET_KEY } from '../domains/money.js';
-import { applyStart, createPacksPart } from '../packs/index.js';
+import { CORE_MODULE_ID } from '../../packages/story-block/src/v2/domains/index.js';
+import { WALLET_KEY } from '../../packages/story-block/src/v2/domains/money.js';
+import { applyStart, createPacksPart } from '../../packages/story-block/src/v2/packs/index.js';
 import { newId } from '../sdk.js';
 
 /**

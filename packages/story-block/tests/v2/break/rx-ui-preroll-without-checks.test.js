@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { renderSettingsHost } from '../../../src/v2/host-ui.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 
 test('without a module that keeps checks, the pre-roll switch is not a live control', async () => {
     const doc = setupDom();

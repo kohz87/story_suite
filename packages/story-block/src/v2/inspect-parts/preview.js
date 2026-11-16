@@ -1,6 +1,6 @@
 // A value written on one line, cut to size.
 
-import { cutAt, oneLine } from '../../text.js';
+import { cutAt, oneLine } from '../../../../../core/text.js';
 import { LIMITS, isPlain } from './shared.js';
 
 /** A value written on one line, cut at `max` characters: `"text"`, `3`, `{4 keys}`, `[2 items]`. */

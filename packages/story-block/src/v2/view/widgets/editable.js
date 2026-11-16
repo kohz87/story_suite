@@ -1,6 +1,6 @@
 // An inline reader edit. The value is displayed as text; saving sends one ordinary UI command.
 import { formatAmount, parseMixedAmount } from '../../domains/money.js';
-import { STRINGS, fill, refusalText } from '../../strings.js';
+import { STRINGS, fill, refusalText } from '../../../../../../core/strings.js';
 import { h, iconNode, shell } from './dom.js';
 import { defineWidget, resolveProps } from './props.js';
 import { props, cut } from './editable/props.js';

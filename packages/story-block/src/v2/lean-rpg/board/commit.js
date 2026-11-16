@@ -3,7 +3,7 @@
 // Its guard checks the recorded input against the prefix on delete, rewind and reload.
 
 import { condWord } from '../../domains/gear.js';
-import { hashJson } from '../../replay.js';
+import { hashJson } from '../../../../../../core/replay.js';
 import { applyGear, earnedLegend, gearMatches, gearValid, wearGear } from '../gear.js';
 import { LV_VERSION, PRACTICE, RESOLVE, practiceOf } from '../names.js';
 import { readSheet } from '../read.js';

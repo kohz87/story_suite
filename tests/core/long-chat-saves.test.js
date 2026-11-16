@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { FOLLOW_MS, IDLE_MAX_MS, IDLE_MS, LATE_MAX_MS, LATE_MS, createSaver } from '../../src/v2/persist.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { FOLLOW_MS, IDLE_MAX_MS, IDLE_MS, LATE_MAX_MS, LATE_MS, createSaver } from '../../core/persist.js';
 import { settled, plain, present, headOf, filed, host, turn } from './long-chat.helpers.js';
 
 test('turn save: a reply and the reader\'s actions after it are written once, IDLE_MS after the last', async t => {

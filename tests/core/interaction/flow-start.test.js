@@ -2,11 +2,11 @@
 // holds every send until the reader plays (Send). Until the scene host (I8) only the allowed kinds may ask: another kind's answer is dropped with a quiet Problem.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { hashText } from '../../../src/v2/assist/common.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { START_KINDS, pendingStart } from '../../../src/v2/interaction/start.js';
-import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaKind, iaModule, withLines } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
+import { readRecord } from '../../../core/persist.js';
+import { START_KINDS, pendingStart } from '../../../core/interaction/start.js';
+import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaKind, iaModule, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 // A module hook that offers the probe before a typed message goes out (what a rules module's beforeGenerate does with `interactionStart`).
 function offering() {

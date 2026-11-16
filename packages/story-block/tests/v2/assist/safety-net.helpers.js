@@ -51,7 +51,7 @@ export async function barrierHost(answer, { waitMs = 2000 } = {}) {
     const { BARRIER } = await import('../../../src/v2/assist/safety.js');
     const old = { ...BARRIER };
     Object.assign(BARRIER, { waitMs, pollMs: 10 });
-    const { announceModules } = await import('../../../src/v2/sdk/lifecycle.js');
+    const { announceModules } = await import('../../../../../core/sdk/lifecycle.js');
     const { model, release } = heldModel(answer);
     const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: '+ world, + faction' } } } });
     host.features?.set?.('story-block.extractor', true);

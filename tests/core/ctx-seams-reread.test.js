@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { blockIdOf, hashJson } from '../../src/v2/replay.js';
-import { readRecord } from '../../src/v2/persist.js';
+import { blockIdOf, hashJson } from '../../core/replay.js';
+import { readRecord } from '../../core/persist.js';
 import { reply, seams, steps, upgraded, started, blocks, click } from './ctx-seams.helpers.js';
 
 test('a main-written guarded line keeps its seeded id and every stored span byte on reload and unchanged Re-reads', async t => {

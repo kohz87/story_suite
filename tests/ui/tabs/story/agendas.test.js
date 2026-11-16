@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
 import { buildStory } from '../../../../ui/fixtures/story.js';
 import { createPrefs } from '../../../../ui/runtime/prefs.js';
 import { agendasCard } from '../../../../ui/tabs/story/agendas.js';

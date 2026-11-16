@@ -4,7 +4,7 @@
 import { isPlainObject, capitalize, ownerNameIn, clone } from '../common.js';
 import { cleanName, resolveDef, slugify, aliasKey } from '../names.js';
 import { handDef, slotWordOf } from '../gear.js';
-import { fill } from '../../strings.js';
+import { fill } from '../../../../../../core/strings.js';
 import { RPG_MODULE, MAX_NOTE, gearOn, KINDS, RARITIES, MAX_UNSTACKED, condOf, COND_MAX, condWrite, nonBlank, isCount, FEATURE } from './state.js';
 import { itemText, baseSlot } from './validate.js';
 import {

@@ -2,9 +2,9 @@
 // the order and provenance of place/present captures, including delayed safety-net lines.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { withAssist } from '../../src/v2/capture.js';
-import { createStore } from '../../src/v2/store.js';
-import { createHost } from '../../testkit/index.js';
+import { withAssist } from '../../core/capture.js';
+import { createStore } from '../../core/store.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const block = lines => `A reply.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const rebuilt = host => createStore({ chat: () => host.ctx.chat, save: () => {} }).head();

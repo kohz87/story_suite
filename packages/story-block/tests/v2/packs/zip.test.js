@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readZip, ZipProblem } from '../../../src/v2/packs/zip.js';
 import { readPackZip } from '../../../src/v2/packs/bundle.js';
 import { ZIP_LIMITS } from '../../../src/v2/packs/limits.js';
-import { installFakeDom, texts } from '../../ui-fake-dom.js';
+import { installFakeDom, texts } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { renderPacksPanel } from '../../../src/v2/packs/panel.js';
 import { createPacksPart } from '../../../src/v2/packs/index.js';
 import { fakeSettings } from './helpers/fake-settings.js';

@@ -1,10 +1,10 @@
 // Features (MODULES §F100, SPEC §6): a module's optional mechanics as reader switches.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createRegistry, definitionProblems, definitionWarnings } from '../../src/v2/registry.js';
-import { FEATURE_OFF } from '../../src/v2/features.js';
-import { refusedFrom } from '../../src/v2/reply-notes.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
+import { FEATURE_OFF } from '../../core/features.js';
+import { refusedFrom } from '../../packages/story-block/src/v2/reply-notes.js';
 import { BASE_STATIC, WEAR_GRAMMAR, WEAR_STATIC, WEATHER_LINE, gear, statics, tails } from './features.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

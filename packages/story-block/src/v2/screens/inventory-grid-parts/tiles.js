@@ -1,6 +1,6 @@
 // One item as a square tile, and the tile grid of a list of items.
 
-import { SCREEN_STRINGS } from '../../strings/screens.js';
+import { SCREEN_STRINGS } from '../../../../../../core/strings/screens.js';
 import { h } from '../../view/widgets/dom.js';
 import { COMMON, slotLabel } from './shared-gear.js';
 

@@ -2,10 +2,10 @@
 // the host's stamp, identical retries, CONFLICT, parents, reader intent, and a rolled-back root publishing nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RECORD_ID } from '../../src/v2/check.js';
-import { hashJson, isMetaSpan } from '../../src/v2/replay.js';
-import { KINDS, LIMITS, OWNERS } from '../../src/v2/evidence.js';
-import { CHECK, SD, T1, T2, evidenceHarness } from './helpers/evidence.js';
+import { RECORD_ID } from '../../core/registry/check.js';
+import { hashJson, isMetaSpan } from '../../core/replay.js';
+import { KINDS, LIMITS, OWNERS } from '../../core/evidence.js';
+import { CHECK, SD, T1, T2, evidenceHarness } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 
 const ids = made => made.map(each => each.id);
 

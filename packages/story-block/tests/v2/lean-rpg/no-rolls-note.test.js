@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
 import { NOROLL, RESOLVE } from '../../../src/v2/lean-rpg/index.js';
 import { noRoll, noRollOf } from '../../../src/v2/lean-rpg/noroll.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 import { buildNote, noteText } from '../../../src/v2/lean-rpg/view/battle-log.js';
 import { PLAN_ANSWER, setup } from './helpers.js';
 

@@ -4,7 +4,7 @@ import { createHost } from '../../../testkit/index.js';
 import { validateDataModules } from '../../../src/v2/data-modules/check.js';
 import { grammarFor, summaryOf } from '../../../src/v2/data-modules/part.js';
 import { kindGrammar, moduleGrammar } from '../../../src/v2/data-modules/grammar.js';
-import { estimateTokens } from '../../../src/v2/prompt.js';
+import { estimateTokens } from '../../../../../core/prompt.js';
 import { definition, reload, view } from '../data-modules/helpers.js';
 
 const check = input => validateDataModules([input], { packId: 'chat', capabilities: ['data-modules-v1'] });

@@ -2,8 +2,8 @@
 // with the module's name and reason, and changes nothing (it used to throw: heldWhy was not imported).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { withAssist } from '../../src/v2/capture.js';
-import { createHost } from '../../testkit/index.js';
+import { withAssist } from '../../core/capture.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const wounds = () => ({
     id: 'qa-wounds',

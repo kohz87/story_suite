@@ -4,10 +4,10 @@ import { DM_LIMITS as L } from '../schema.js';
 import { validateDataModules, validateDataMigration, dataModuleDefaults, dataModuleHash } from '../check.js';
 import { copy, refuse, atPath, scalarHolds, carryEntries } from '../interpreter.js';
 import { activeDefinition, inputsOf, instanceOf, resolveActor } from '../adapters.js';
-import { hashJson } from '../../replay.js';
-import { fill } from '../../strings.js';
+import { hashJson } from '../../../../../../core/replay.js';
+import { fill } from '../../../../../../core/strings.js';
 import { actorIdOf } from '../../lean-rpg/roster.js';
-import { isTypedSkills } from '../../skill-slots.js';
+import { isTypedSkills } from '../../../../../../core/runtime/skill-slots.js';
 import { E, B, J, partyWitness, partyFull, stateOf, draftOf, activeCount, blockCount, instancePath, checkedTarget, newInstance } from './shared.js';
 
 export function createBlocks(deps) {

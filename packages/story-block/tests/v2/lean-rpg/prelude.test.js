@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { createRegistry, definitionProblems, definitionWarnings } from '../../../src/v2/registry.js';
+import { createRegistry, definitionProblems, definitionWarnings } from '../../../../../core/registry.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

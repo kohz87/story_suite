@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { STATIC_KEY } from '../../../src/v2/turn.js';
+import { STATIC_KEY } from '../../../../../core/turn.js';
 
 const whole = () => ({
     id: 'wy', name: 'Whole Y', version: '0.0.1',

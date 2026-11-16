@@ -1,6 +1,6 @@
 // Reads the money and items sections of the public paths.
 
-import { formatAmount } from '../domains/money.js';
+import { formatAmount } from '../../packages/story-block/src/v2/domains/money.js';
 import { isObject, text, fold } from './shared-basics.js';
 import { put } from './shared-put.js';
 

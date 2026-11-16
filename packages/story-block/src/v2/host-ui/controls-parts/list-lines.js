@@ -1,9 +1,9 @@
 // A list field's text form: which lists have one, a list written as lines, and lines read back into a list.
 
-import { normalizeField } from '../../registry.js';
-import { SETTING_LIST_ROWS } from '../../sdk.js';
-import { fill } from '../../strings.js';
-import { cutAt } from '../../../text.js';
+import { normalizeField } from '../../../../../../core/registry.js';
+import { SETTING_LIST_ROWS } from '../../../../../../core/sdk.js';
+import { fill } from '../../../../../../core/strings.js';
+import { cutAt } from '../../../../../../core/text.js';
 import { SETTINGS_TEXT } from '../text.js';
 import { emptyValue, subLabel } from './values.js';
 

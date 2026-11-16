@@ -4,12 +4,12 @@
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../ui-fake-dom.js';
-import { createRegistry } from '../../src/v2/registry.js';
-import { createSettings } from '../../src/v2/sdk.js';
-import { compatReport, renderCompat } from '../../src/v2/compat.js';
-import { VERSIONS_FOLD, renderSettingsHost } from '../../src/v2/host-ui.js';
-import { cssOf } from './helpers/css-parts.js';
+import { installFakeDom } from '../helpers/ui-fake-dom.js';
+import { createRegistry } from '../../core/registry.js';
+import { createSettings } from '../../core/sdk.js';
+import { compatReport, renderCompat } from '../../core/persist/compat.js';
+import { VERSIONS_FOLD, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { cssOf } from '../../packages/story-block/tests/v2/helpers/css-parts.js';
 
 const doc = installFakeDom();
 const read = path => readFileSync(new URL(`../../src/v2/${path}`, import.meta.url), 'utf8');

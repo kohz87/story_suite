@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createModule, PARTS } from '../../../src/v2/module.js';
-import { presetValue } from '../../../../story-block/src/v2/features.js';
+import { presetValue } from '../../../../../core/features.js';
 import { cueOf, tail, meetingFresh } from '../../../src/v2/cast/note.js';
 import { FEATURE } from '../../../src/v2/cast/domain.js';
 import { TAIL_BUDGET } from '../../../src/v2/cast/settings.js';

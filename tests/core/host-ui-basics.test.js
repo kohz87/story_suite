@@ -1,9 +1,9 @@
 // The settings overlay host and the tab host (docs/v2/SPEC.md §6): module folds, values, lists, sections, tabs, field helpers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../src/v2/registry.js';
-import { OPEN_CLASS, createTabHost, emptyValue, readInt, renderSettingsHost } from '../../src/v2/host-ui.js';
-import { openSettingsWindow as openSettingsOverlay } from '../../src/v2/view/settings/window.js';
+import { createRegistry } from '../../core/registry.js';
+import { OPEN_CLASS, createTabHost, emptyValue, readInt, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { openSettingsWindow as openSettingsOverlay } from '../../packages/story-block/src/v2/view/settings/window.js';
 import { change, doc, foldAt, row, rpg, setup } from './host-ui.helpers.js';
 
 test('a fold per module with settings, after the host\'s own; fields render with their stored values', () => {

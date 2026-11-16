@@ -1,4 +1,4 @@
-import { STATIC_KEY, TAIL_KEY } from '../../src/v2/turn.js';
+import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
 
 export const WEAR_GRAMMAR = '~ wear Item | wear: worn|broken';
 export const WEAR_STATIC = 'Gear wears out: write a wear line when an item is damaged.';

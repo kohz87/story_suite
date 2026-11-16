@@ -1,6 +1,6 @@
 // Builds the module registry: definitions checked at registration and the lookups the host asks.
 
-import { byId, grammarOf, placeOf, headsOf } from '../registry-checks.js';
+import { byId, grammarOf, placeOf, headsOf } from '../registry/registry-checks.js';
 import { createCommandLookups } from '../registry/commands.js';
 import { createFeatureLookups } from '../registry/features.js';
 import { createInteractionLookups } from '../registry/interactions.js';

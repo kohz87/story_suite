@@ -7,7 +7,7 @@ import { COMBAT_V1_TEMPLATES } from '../../../src/v2/lean-rpg/templates-combat.j
 import { readSheet } from '../../../src/v2/lean-rpg/read.js';
 import { rankOf } from '../../../src/v2/lean-rpg/combat/skills.js';
 import { V1 } from '../../../src/v2/lean-rpg/combat/numbers.js';
-import { STANCE_TYPES } from '../../../src/v2/skill-slots.js';
+import { STANCE_TYPES } from '../../../../../core/runtime/skill-slots.js';
 import { reply, success, rebuilt } from '../data-modules/helpers.js';
 
 const sign = kind => (/^(practice-|set-slot)/u.test(kind) ? '+' : '~');

@@ -5,8 +5,8 @@
 // stayed bare for the reader to see. capture.js continuation() finds that place instead.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { continuation, cutLine, extractBlock, hideBlock, parseChanges } from '../../src/v2/capture.js';
-import { createHost } from '../../testkit/index.js';
+import { continuation, cutLine, extractBlock, hideBlock, parseChanges } from '../../core/capture.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const HIDDEN = /<!--\s*STORY_SUITE_V2[\s\S]*?-->/g;
 const bare = mes => /<Changes>/i.test(String(mes).replace(HIDDEN, ''));

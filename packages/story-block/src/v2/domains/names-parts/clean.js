@@ -1,6 +1,6 @@
 // Name cleaning: a written name tidied for display, its alias index key and a note cut to length. Pure.
 
-import { cutAt } from '../../../text.js';
+import { cutAt } from '../../../../../../core/text.js';
 
 const ARTICLES = /^(?:a|an|the|some)\s+/i;
 

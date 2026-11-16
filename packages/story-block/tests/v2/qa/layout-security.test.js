@@ -5,7 +5,7 @@
 // records every attribute set, so a renderer that parsed markup or set a handler fails here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FakeElement, installFakeDom } from '../../ui-fake-dom.js';
+import { FakeElement, installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { renderLayout, validateLayout } from '../../../src/v2/layout/index.js';
 import { evaluateCondition } from '../../../src/v2/events/condition.js';
 import { badge } from '../../../src/v2/view/widgets/badge.js';

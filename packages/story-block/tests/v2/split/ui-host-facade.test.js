@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as facade from '../../../src/v2/ui-host.js';
-import { createRuntime } from '../../../src/v2/runtime.js';
+import { createRuntime } from '../../../../../core/runtime.js';
 import { createFakeContext } from '../../../testkit/fake-st.js';
 import { setupDom } from '../view/mounts/helpers.js';
 

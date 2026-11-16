@@ -2,7 +2,7 @@
 // for its settle (and its opening) as preludes of the reply, afterReceive opens the next segment or closes. A chat that never used an
 // interaction has no metadata box, so every hook answers nothing and the turn is byte-identical to one without the port.
 
-import { normalizeType } from '../assist/common.js';
+import { normalizeType } from '../../packages/story-block/src/v2/assist/common.js';
 import { readRecord } from '../persist.js';
 import { clearStart, pendingStart } from './start.js';
 import { linkMessage, priorPayload, readSend } from './send.js';

@@ -1,6 +1,6 @@
 // The one piece of DOM: a capped list and the Show all / Show less button that opens and shuts it.
 
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 import { CAP_CLASS } from './names.js';
 
 // Which cards are open, by key (`story-block/home:quests`): kept for the page, so a redraw (a new head, a commit) does not fold a

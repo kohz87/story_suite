@@ -2,7 +2,7 @@
 // sees, null-safe (no answer, a promise or a throw is left out), frozen; RPG Battle asks `checkModifiers`.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const asker = seen => ({
     id: 'asker', name: 'Asker', version: '0.0.1',

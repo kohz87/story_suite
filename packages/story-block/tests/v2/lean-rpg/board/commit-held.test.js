@@ -7,7 +7,7 @@ import { character, foeBlock, setup } from '../helpers.js';
 import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { aiMessage } from '../../../../testkit/fake-st.js';
-import { heldForMessage } from '../../../../src/v2/turn/held-board.js';
+import { heldForMessage } from '../../../../../../core/turn/held-board.js';
 import { gearHost, openWithGear } from './commit.helpers.js';
 
 

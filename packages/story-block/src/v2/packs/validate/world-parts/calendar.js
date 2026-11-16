@@ -1,7 +1,7 @@
 // Checking the calendar and its holidays.
 
 import { CALENDAR_FIELDS, CALENDAR_LIMITS, CALENDAR_HOLIDAY_FIELDS, CALENDAR_START_FIELDS } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../text.js';
+import { oneLine, foldKey } from '../../../../../../../core/text.js';
 import { isText, isObject, isInt } from '../core.js';
 
 // The story clock's calendar: an era word, the months in order with their days, and the moment

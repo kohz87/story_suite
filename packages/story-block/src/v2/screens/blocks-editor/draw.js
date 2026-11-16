@@ -7,7 +7,7 @@ import { statusTones } from '../../data-modules/block-layout.js';
 import { BLOCK_STARTERS } from '../../data-modules/block-starters.js';
 import { fullModuleGrammar } from '../../data-modules/grammar.js';
 import { DM_LIMITS } from '../../data-modules/schema.js';
-import { fill } from '../../strings.js';
+import { fill } from '../../../../../../core/strings.js';
 import { S, TYPES, LAYOUT_NAMES, COMPARISONS, ICONS } from './constants.js';
 
 export function createDrawPart({ doc, node, button, control, collect, refresh, draft, meta, root, state, resolve, onCancel, submit,

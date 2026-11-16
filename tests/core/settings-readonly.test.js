@@ -4,10 +4,10 @@
 // while Calendar is `pack`).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../ui-fake-dom.js';
-import { createRegistry, definitionProblems } from '../../src/v2/registry.js';
-import { createSettings } from '../../src/v2/sdk.js';
-import { fieldReadOnly, renderSettingsHost, rowValue } from '../../src/v2/host-ui.js';
+import { installFakeDom } from '../helpers/ui-fake-dom.js';
+import { createRegistry, definitionProblems } from '../../core/registry.js';
+import { createSettings } from '../../core/sdk.js';
+import { fieldReadOnly, renderSettingsHost, rowValue } from '../../packages/story-block/src/v2/host-ui.js';
 
 const doc = installFakeDom();
 

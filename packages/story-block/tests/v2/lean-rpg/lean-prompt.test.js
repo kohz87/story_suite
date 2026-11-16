@@ -10,7 +10,7 @@ import { LEAN_RPG_FEATURE, QUIET_GRAMMAR, fightIsOpen, isQuiet, readSheet } from
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
 import { moduleGrammar } from '../../../src/v2/data-modules/grammar.js';
 import { reply, success } from '../data-modules/helpers.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

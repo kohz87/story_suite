@@ -3,9 +3,9 @@
 // give no proof and decide nothing about another's. And a block with a change that is not a change fails closed.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { pinOf } from '../../src/v2/evidence.js';
-import { SD, T1, T2, director, evidenceHarness, sampleModule, hostModule } from './helpers/evidence.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { pinOf } from '../../core/evidence.js';
+import { SD, T1, T2, director, evidenceHarness, sampleModule, hostModule } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 
 const ids = list => list.map(each => each.id);
 const collisions = h => h.problems().filter(problem => /already belongs to a block that applied/.test(problem.why));

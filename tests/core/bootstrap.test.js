@@ -5,9 +5,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from './view/mounts/helpers.js';
-import { createFakeContext } from '../../testkit/index.js';
-import { hostImports } from './helpers/css-parts.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { createFakeContext } from '../../packages/story-block/testkit/index.js';
+import { hostImports } from '../../packages/story-block/tests/v2/helpers/css-parts.js';
 
 const doc = setupDom();
 doc.head = doc.createElement('head');
@@ -23,14 +23,14 @@ const st = createFakeContext();
 globalThis.SillyTavern = { getContext: () => st.ctx };
 globalThis.toastr = { warning() {}, info() {}, error() {} };
 
-await import('../../index.js');
+await import('../../packages/story-block/index.js');
 const sdk = await globalThis.StoryBlock.ready;
 const texts = (root, selector) => root.querySelectorAll(selector).map(node => node.textContent);
 
 test('the global host and the manifest agree: v2, the interceptor, the CSS, 2.33.0', () => {
-    const manifest = JSON.parse(readFileSync(new URL('../../manifest.json', import.meta.url), 'utf8'));
+    const manifest = JSON.parse(readFileSync(new URL('../../packages/story-block/manifest.json', import.meta.url), 'utf8'));
     assert.equal(manifest.version, '2.33.0');
-    const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+    const pkg = JSON.parse(readFileSync(new URL('../../packages/story-block/package.json', import.meta.url), 'utf8'));
     assert.equal(pkg.version, manifest.version);
     assert.equal(globalThis.StoryBlock.version, manifest.version);
     assert.equal(manifest.css, 'src/v2/view/host.css');
@@ -39,7 +39,7 @@ test('the global host and the manifest agree: v2, the interceptor, the CSS, 2.33
     assert.equal(globalThis.StoryBlock.apiVersion, 2);
     assert.equal(globalThis.StoryBlock.sdk, sdk);
     assert.deepEqual(sdk.modules().map(module => module.id), ['story-block']);
-    assert.ok(!/import[^;]*index\.v1\.js|from '\.\/src\/(?!v2\/)/.test(readFileSync(new URL('../../index.js', import.meta.url), 'utf8')), 'v1 is not loaded');
+    assert.ok(!/import[^;]*index\.v1\.js|from '\.\/src\/(?!v2\/)/.test(readFileSync(new URL('../../packages/story-block/index.js', import.meta.url), 'utf8')), 'v1 is not loaded');
 });
 
 test('the bar sits right above the message box; the drawer and the wand menu are there', () => {

@@ -2,7 +2,7 @@
 
 import { isPlainObject, clone } from '../../common.js';
 import { cleanName, aliasKey } from '../../names.js';
-import { DEF_ID } from '../../../check.js';
+import { DEF_ID } from '../../../../../../../core/registry/check.js';
 import { packBonus, packSoak } from '../../gear.js';
 import { packCarry, defaultDef } from '../state.js';
 import { registerNew } from './def-build.js';

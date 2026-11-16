@@ -9,11 +9,11 @@
 
 import { createFakeContext } from './fake-st.js';
 import { createFakeBus, createFakeStore } from './fakes.js';
-import { createRuntime } from '../src/v2/runtime.js';
+import { createRuntime } from '../../../core/runtime.js';
 import { setRpgLib } from '../src/v2/rpg-lazy.js';
 import * as leanRpg from '../src/v2/lean-rpg/index.js';
 
-const RUNTIME = { store: '../src/v2/store.js', commands: '../src/v2/commands.js' };
+const RUNTIME = { store: '../../../core/store.js', commands: '../../../core/commands.js' };
 
 async function load(path) {
     try { return { module: await import(path) }; } catch (error) {

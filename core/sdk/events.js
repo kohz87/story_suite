@@ -1,7 +1,7 @@
 // The public sdk's event bus: named events, listeners, and a failing listener logged rather than thrown.
 
 import { EVENTS } from './constants.js';
-import { FLAGS } from '../flags.js';
+import { FLAGS } from '../runtime/flags.js';
 import { guardListener } from './listener-guard.js';
 
 const FLAG = FLAGS.isolatedApply;

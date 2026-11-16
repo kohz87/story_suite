@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
 import { fixture } from '../../../../ui/fixtures/index.js';
 import { thisTurnCard } from '../../../../ui/tabs/now/this-turn.js';
 import { makeCtx } from './helpers.js';

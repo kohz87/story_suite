@@ -11,7 +11,7 @@ import { FIGHT, gearHost } from './helpers/gear-ui-state.js';
 import { createScreenRenderer } from '../../src/v2/view/render-screen.js';
 import { resolveData } from '../../src/v2/view/screens.js';
 import { standardWidgets } from '../../src/v2/view/widgets/index.js';
-import { installFakeDom } from '../ui-fake-dom.js';
+import { installFakeDom } from '../../../../tests/helpers/ui-fake-dom.js';
 import { createInventoryAddWidget, createInventoryViewWidget, createWornFoldWidget, WORN_FOLD_WIDGET, INVENTORY_ADD_WIDGET, INVENTORY_VIEW_WIDGET } from '../../src/v2/screens/inventory-add.js';
 import { crewState, draw, fill, gameForm, gearRun, mounted, open, pieces, rowOf, rowsOf, twoSwords } from './gear-ui.helpers.js';
 

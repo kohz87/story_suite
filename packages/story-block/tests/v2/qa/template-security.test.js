@@ -5,7 +5,7 @@
 // innerHTML. Problems found are the test.todo entries, named after what should happen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FakeElement, installFakeDom } from '../../ui-fake-dom.js';
+import { FakeElement, installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { compileTemplate, renderTemplate } from '../../../src/v2/view/template/index.js';
 import { cssVarValue, scopeCss, themeVars, valueProblem } from '../../../src/v2/view/css.js';
 import { evaluateCondition } from '../../../src/v2/events/condition.js';

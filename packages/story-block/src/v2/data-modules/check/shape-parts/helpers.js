@@ -1,6 +1,6 @@
 // The message table and the small copy/list helpers every check section uses.
 import { dmObject } from '../../schema.js';
-import { STRINGS } from '../../../strings.js';
+import { STRINGS } from '../../../../../../../core/strings.js';
 
 export const E = STRINGS.editMessages;
 

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { hashJson } from '../../../src/v2/replay.js';
+import { hashJson } from '../../../../../core/replay.js';
 import { carriers, rebuildAt } from '../qa/helpers/oracle.js';
 
 const plain = value => (value === undefined ? null : JSON.parse(JSON.stringify(value)));

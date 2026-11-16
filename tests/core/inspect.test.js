@@ -3,11 +3,11 @@
 // changed since the reply before, its receipts and problems. Nothing it does writes anything.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createInspectorSource, diffStates, inspectReply, matchPaths, pointer, preview, replyList } from '../../src/v2/inspect.js';
-import { createInspectorWidget, drawTree, inspectorScreen } from '../../src/v2/screens/inspector.js';
-import { validateScreen } from '../../src/v2/view/screens.js';
-import { host as widgetHost, installDom } from './view/widgets/fake-dom.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createInspectorSource, diffStates, inspectReply, matchPaths, pointer, preview, replyList } from '../../packages/story-block/src/v2/inspect.js';
+import { createInspectorWidget, drawTree, inspectorScreen } from '../../packages/story-block/src/v2/screens/inspector.js';
+import { validateScreen } from '../../packages/story-block/src/v2/view/screens.js';
+import { host as widgetHost, installDom } from '../../packages/story-block/tests/v2/view/widgets/fake-dom.js';
 
 async function played() {
     const host = await createHost();

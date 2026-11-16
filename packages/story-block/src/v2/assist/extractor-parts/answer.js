@@ -1,6 +1,6 @@
 // Reading the extractor's answer: the lines the value wall and the scene checks let through, and what was refused.
 
-import { OPS, extractBlock, parseChanges } from '../../capture.js';
+import { OPS, extractBlock, parseChanges } from '../../../../../../core/capture.js';
 import { refusedWhy } from '../safety.js';
 import { whereWhy } from '../where.js';
 

@@ -2,7 +2,7 @@
 // A kind must not rely on a cap this file does not show (INTERACTION-PLAN §1.3 step 6).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { growKind, hostWith, settleOn, settlePayload } from './helpers/core-kind.js';
 
 const run = (host, type, payload, cause = 'system') => host.bus.command(type, payload, { cause });

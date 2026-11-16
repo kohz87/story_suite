@@ -12,7 +12,7 @@ const FILES = {
   'packages/story-block/package.json': '{ "version": "2.33.0" }\n',
   'packages/story-block/manifest.json': '{ "version": "2.33.0" }\n',
   'packages/story-block/testkit/matrix/report.js': "import { readFileSync } from 'node:fs';\nexport const v = readFileSync(new URL('../../package.json', import.meta.url), 'utf8');\n",
-  'packages/story-block/tests/v2/bootstrap.test.js': "import { readFileSync } from 'node:fs';\nexport const v = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));\n",
+  'tests/core/bootstrap.test.js': "import { readFileSync } from 'node:fs';\nexport const v = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));\n",
 };
 
 // Runs the areas in order on a toy repo holding the real rules' files; returns each area's exit code.

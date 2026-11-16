@@ -14,7 +14,7 @@ import { packLevelsOf } from '../../levels.js';
 import { autoCapFrom, practiceFromRollsOnly } from '../../names.js';
 import { planGear } from '../../gear.js';
 import { readSheet } from '../../read.js';
-import { readRecord } from '../../../persist.js';
+import { readRecord } from '../../../../../../../core/persist.js';
 import { createBoardView } from '../../board/view.js';
 import { boardFlags } from '../../board/overrides.js';
 import { createOfferLineView } from '../../board/offer-line.js';

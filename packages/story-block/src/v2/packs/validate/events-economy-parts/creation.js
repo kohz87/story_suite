@@ -1,7 +1,7 @@
 // Checking the character-creation choices and the start section.
 
 import { CHOICE_FIELDS, RECORD_LIMITS, LIMITS, START_FIELDS } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../text.js';
+import { oneLine, foldKey } from '../../../../../../../core/text.js';
 import { isObject, isInt } from '../core.js';
 
 // A race or talent for the character creation wizard: { id?, name, note?, stats?, tags? }.

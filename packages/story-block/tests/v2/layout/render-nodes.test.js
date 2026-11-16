@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderLayout } from '../../../src/v2/layout/index.js';
 import { mount, fakeQuery, layoutOf, one, settle } from './helpers/fake-dom.js';
-import { texts } from '../../ui-fake-dom.js';
+import { texts } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { pc } from './render.helpers.js';
 
 test('containers draw their children with ss-l- classes', () => {

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createDialogMount } from '../../../../src/v2/view/mounts/dialog.js';
-import { createRuntime } from '../../../../src/v2/runtime.js';
+import { createRuntime } from '../../../../../../core/runtime.js';
 import { mountUi } from '../../../../src/v2/ui-host.js';
 import { createFakeContext } from '../../../../testkit/fake-st.js';
 import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screensWith, setupDom } from './helpers.js';

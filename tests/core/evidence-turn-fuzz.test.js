@@ -6,9 +6,9 @@
 // leaves every proof, and so what the reader built on it, exactly as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { prng } from './qa/helpers/seeded.js';
-import { director, sampleModule, hostModule, T1, T2 } from './helpers/evidence.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { prng } from '../../packages/story-block/tests/v2/qa/helpers/seeded.js';
+import { director, sampleModule, hostModule, T1, T2 } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 
 const SEEDS = process.env.QA_FUZZ_SEED ? [Number(process.env.QA_FUZZ_SEED)] : [1, 2, 3, 4, 5, 6];
 const STEPS = Number(process.env.QA_FUZZ_STEPS) || 36;

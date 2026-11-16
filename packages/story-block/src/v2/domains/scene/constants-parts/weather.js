@@ -1,6 +1,6 @@
 // The weather's character caps, its rule mark and its feature name. Pure.
 
-import { CORE_FEATURE } from '../../../features.js';
+import { CORE_FEATURE } from '../../../../../../../core/features.js';
 
 /** A weather text is at most this many code points (cut, an ellipsis in the last place). */
 export const WEATHER_CHARS = 60;

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderLayout, tabFromLayout, part } from '../../../src/v2/layout/index.js';
 import { mount, fakeQuery, layoutOf, one, settle } from './helpers/fake-dom.js';
-import { texts } from '../../ui-fake-dom.js';
+import { texts } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { pc } from './render.helpers.js';
 
 test('failed and missing queries leave parts empty and are listed as problems', () => {

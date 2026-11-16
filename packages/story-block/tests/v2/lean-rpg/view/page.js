@@ -2,10 +2,10 @@
 // feature on, and the real view loader (the definitions' own `role` key is read; nothing is faked about it).
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../ui-fake-dom.js';
+import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
 import { setupDom } from '../../view/mounts/helpers.js';
 import { mountUi } from '../../../../src/v2/ui-host.js';
-import { CORE_FEATURE } from '../../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { STANDARD_TEMPLATES as EARLIER_TEMPLATES } from '../fixtures/templates-2.16.js';
 

@@ -36,12 +36,12 @@
 import { HOME_SCREEN_ID } from './screens/index.js';
 import { createReplyExtras } from './extras-ui.js';
 import { displayLines } from './extras.js';
-import { fill } from './strings.js';
-import { CORE_FEATURE } from './features.js';
+import { fill } from '../../../../core/strings.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
 import { renderCardOffers } from './packs/card-offer-ui.js';
 import { readCharacterLorebook, saveSettingsNow } from './packs/st-adapter.js';
 import { createReplyCards } from './ui-host/replies.js';
-import { FLAGS, flagOn } from './flags.js';
+import { FLAGS, flagOn } from '../../../../core/runtime/flags.js';
 import { inspectorProblemsFor } from './ui-host/inspector-problems.js';
 import { createCardOfferWiring } from './ui-host/card-offer-wiring.js';
 import { createHostApi } from './ui-host/host-api.js';

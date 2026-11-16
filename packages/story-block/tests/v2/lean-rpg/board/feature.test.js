@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CORE_FEATURE } from '../../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { character, foeBlock, rollReceipt, setup } from '../helpers.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';

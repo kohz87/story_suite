@@ -1,7 +1,7 @@
 // Checking skill sets and meter presets.
 
 import { SLUG, TERM_SEPARATORS, LEAN_RPG_LIMITS, SKILL_SET_FIELDS, SKILL_SET_SKILL_FIELDS, METER_PRESET_FIELDS, METER_LIMITS, METER_FIELDS, METER_RESERVED, METER_STAGE_FIELDS } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../text.js';
+import { oneLine, foldKey } from '../../../../../../../core/text.js';
 import { isObject } from '../core.js';
 
 export function checkSkillSet(record, path, label, add) {

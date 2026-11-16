@@ -1,7 +1,7 @@
 // One settings row: the label and help beside the control, disabled when the field is read-only.
 
-import { normalizeField, FIELD_TYPES } from '../../registry.js';
-import { profileNote } from '../../profile-field.js';
+import { normalizeField, FIELD_TYPES } from '../../../../../../core/registry.js';
+import { profileNote } from '../../../../../../core/model-call/profile-field.js';
 import { el, humanize } from './dom.js';
 import { control } from './field-control.js';
 

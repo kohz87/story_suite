@@ -5,13 +5,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { createRegistry } from '../../../src/v2/registry.js';
-import { createSettings } from '../../../src/v2/sdk.js';
+import { createRegistry } from '../../../../../core/registry.js';
+import { createSettings } from '../../../../../core/sdk.js';
 import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { packsFor } from '../../../src/v2/runtime.js';
+import { packsFor } from '../../../../../core/runtime.js';
 import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, EVENTS_FOLD } from '../../../src/v2/host-ui.js';
 import { EVENTS_NOTE } from '../../../src/v2/events/index.js';
-import { REMOVED, buildReport } from '../../../src/v2/diagnostics.js';
+import { REMOVED, buildReport } from '../../../../../core/diagnostics.js';
 import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));

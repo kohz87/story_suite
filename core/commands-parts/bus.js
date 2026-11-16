@@ -1,7 +1,7 @@
 // The command bus: createCommandBus, with its transactions, previews, commits and runs.
 import { apply } from '../ops.js';
 import { operationKey } from '../evidence.js';
-import { seed as freshSeed } from '../rng.js';
+import { seed as freshSeed } from '../commands/rng.js';
 import { MAX_DEPTH, MAX_PREVIEWS, CommandError, asCommandError, fail, headReply, newId, replyAt } from '../commands/shared.js';
 import { createStateTools } from '../commands/state.js';
 import { createGuards } from '../commands/guards.js';

@@ -10,8 +10,8 @@ import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
 import { ASSIST_FOLD, ASSIST_HOST_KEYS, ASSIST_TEXT, assistSchema } from '../../../src/v2/view/settings/assist.js';
 import { DEFAULT_KINDS, KIND_CHOICES, allowedKinds, refusedWhy } from '../../../src/v2/assist/safety.js';
 import { SETTING } from '../../../src/v2/assist/common.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
-import { PROFILE_TEXT } from '../../../src/v2/profile-field.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
+import { PROFILE_TEXT } from '../../../../../core/model-call/profile-field.js';
 import { FORM_TEXT } from '../../../src/v2/view/form/schema.js';
 
 // A module that keeps checks (RPG Battle's `check` kind), so the pre-roll can run.

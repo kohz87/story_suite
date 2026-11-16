@@ -3,9 +3,9 @@
 // edit, delete, swipe and rewind a TOLD reply (never the greeting) and compare with a second host that was told the edited chat from the start.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rebaseOps } from '../../src/v2/ops.js';
-import { anchoredMove, anchoredValue, isAnchored } from '../../src/v2/ops/anchored.js';
-import { createHost } from '../../testkit/index.js';
+import { rebaseOps } from '../../core/ops.js';
+import { anchoredMove, anchoredValue, isAnchored } from '../../core/ops/anchored.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const PATH = '/domains/clock/minutes';
 const op = (value, was, roll = 'same', extra = {}) => ({ op: 'replace', path: PATH, value, was, period: 100, roll, ...extra });

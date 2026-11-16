@@ -4,9 +4,9 @@
 // on the code before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { counterInside, isCounterPath, rebaseOps } from '../../src/v2/ops.js';
-import { createRegistry } from '../../src/v2/registry.js';
-import { createHost } from '../../testkit/index.js';
+import { counterInside, isCounterPath, rebaseOps } from '../../core/ops.js';
+import { createRegistry } from '../../core/registry.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const coin = host => host.head().domains.inventory.wallets.party?.coin ?? 0;

@@ -5,7 +5,7 @@ const { createHost } = await import('../../../testkit/index.js');
 const { createFakeModel } = await import('../../../testkit/model.js');
 const { LEAN_RPG_FEATURE } = await import('../../../src/v2/lean-rpg/index.js');
 const { STANDARD_TEMPLATES, characterV1For } = await import('../../../src/v2/lean-rpg/templates.js');
-const { reply, success } = await import('../../../tests/v2/data-modules/helpers.js');
+const { reply, success } = await import('../data-modules/helpers.js');
 
 const SLOT = '+ dm foes — why | kind: set-slot-1 | name: Mud Crawlers | count: 6 | level: 1';
 const DOWN = '~ dm foes — why | kind: hurt-1 | to: 0';

@@ -8,7 +8,7 @@ import { h } from '../../view/widgets/dom.js';
 import { radar } from '../../view/widgets/radar.js';
 import { stepper } from '../../view/widgets/stepper.js';
 import { RPG_STRINGS, fill } from '../strings.js';
-import { refusalText } from '../../strings.js';
+import { refusalText } from '../../../../../../core/strings.js';
 import { drawStageBars, fieldsPayload } from './bars.js';
 import { growthOf } from '../blocks.js';
 import { growthText } from './party-data.js';

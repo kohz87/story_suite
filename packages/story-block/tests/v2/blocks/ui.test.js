@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { mountUi } from '../../../src/v2/ui-host.js';
 import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
-import { STRINGS, fill } from '../../../src/v2/strings.js';
+import { STRINGS, fill } from '../../../../../core/strings.js';
 import { setupDom } from '../view/mounts/helpers.js';
 
 const S = STRINGS.blocks;

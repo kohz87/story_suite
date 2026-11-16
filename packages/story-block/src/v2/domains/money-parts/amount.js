@@ -1,6 +1,6 @@
 // Reads an amount of money from a coin line or a reader's purse input into the smallest unit.
 
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { DEFAULT_CURRENCY } from './constants.js';
 import { tidy, coinList } from './shared-tidy.js';
 import { baseUnit } from './coins.js';

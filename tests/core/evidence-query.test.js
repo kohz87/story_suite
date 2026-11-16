@@ -3,10 +3,10 @@
 // reloads and swipes; and the bytes pinned.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson, sha256 } from '../../src/v2/replay.js';
-import { LIMITS, merged, pinOf, pinOps, proofPins, recordEntries, visibleProofs } from '../../src/v2/evidence.js';
-import { newSwipe, showSwipe } from './helpers/store-chat.js';
-import { SD, T1, T2, evidenceHarness } from './helpers/evidence.js';
+import { hashJson, sha256 } from '../../core/replay.js';
+import { LIMITS, merged, pinOf, pinOps, proofPins, recordEntries, visibleProofs } from '../../core/evidence.js';
+import { newSwipe, showSwipe } from '../../packages/story-block/tests/v2/helpers/store-chat.js';
+import { SD, T1, T2, evidenceHarness } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 
 const ids = list => list.map(each => each.id);
 

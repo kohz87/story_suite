@@ -2,13 +2,13 @@
 // owner's capture command, with the reply's marks (practice rule, foe cap, rule marks), the safety net's marks, and the money guard.
 // `createCaptureEach(s, deps)` is given the turn's state holder `s` and the turn parts it uses; it never imports turn.js.
 import { extractBlock, stripBlock } from '../capture.js';
-import { cutAt } from '../../text.js';
-import { assistDepartures, assistPlaceConflict } from '../assist/where.js';
-import { readDisplayLine } from '../extras.js';
+import { cutAt } from '../text.js';
+import { assistDepartures, assistPlaceConflict } from '../../packages/story-block/src/v2/assist/where.js';
+import { readDisplayLine } from '../../packages/story-block/src/v2/extras.js';
 import { CAPTURE_PREFIX } from '../registry.js';
 import { occurrenceOf } from '../evidence.js';
 import { readRecord } from '../persist.js';
-import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../lean-rpg/names.js';
+import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../../packages/story-block/src/v2/lean-rpg/names.js';
 import { allRuleNames, foeLine, ruleMarksFor, ruleMarksOf } from './rule-marks.js';
 import { earlierReceipts, moneyWarning } from './money-guard.js';
 import { lineMark, occurrenceFor } from './capture-seeds.js';

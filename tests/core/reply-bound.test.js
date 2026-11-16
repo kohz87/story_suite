@@ -3,9 +3,9 @@
 // the formerly known state forward. A guard without it is carried as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { spanProblem } from '../../src/v2/replay.js';
-import { harness } from './helpers/guarded.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { spanProblem } from '../../core/replay.js';
+import { harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
 
 const OWNER = 'zz-pin';
 const EPOCH = 'ep_00000001';

@@ -3,7 +3,7 @@
 
 import { FORMULA } from '../names.js';
 import { STANDARD } from '../rules.js';
-import { rng as seededRandom } from '../../rng.js';
+import { rng as seededRandom } from '../../../../../../core/commands/rng.js';
 
 /** The version of the rule a reply's exchanges stop by (`flow` in the payload of `rpg.resolve`): 2 = until won, lost, heavy, the cap or the budget (see the top). */
 export const FLOW_VERSION = 2;

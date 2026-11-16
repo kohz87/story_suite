@@ -2,10 +2,10 @@
 // the registration with SillyTavern's macro API (the engine of 1.19 and the old one), and our own prompt text staying protected.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { LEGACY_PATHS, MACRO_MAX, MACRO_NAME, macroText, registerSbMacro } from '../../src/v2/sb-macro.js';
-import { defuseMacros } from '../../src/v2/turn.js';
-import { character, sheetDomain } from './lean-rpg/helpers.js';
+import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { LEGACY_PATHS, MACRO_MAX, MACRO_NAME, macroText, registerSbMacro } from '../../core/runtime/sb-macro.js';
+import { defuseMacros } from '../../core/turn.js';
+import { character, sheetDomain } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

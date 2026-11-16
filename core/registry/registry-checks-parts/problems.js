@@ -1,9 +1,9 @@
 // Checks a module definition and lists what refuses it.
 
-import { parseRange } from '../packs/version.js';
-import { HOST_DOMAIN } from '../timeline/gate.js';
-import { SLUG } from '../packs/limits.js';
-import { featureProblems } from '../features.js';
+import { parseRange } from '../../../packages/story-block/src/v2/packs/version.js';
+import { HOST_DOMAIN } from '../../timeline/gate.js';
+import { SLUG } from '../../../packages/story-block/src/v2/packs/limits.js';
+import { featureProblems } from '../../features.js';
 import { isObject, jsonProblem } from './shared-basics.js';
 import { CAPTURE_PREFIX, HOST_MODULE, STANDARD_PREFIX } from './names.js';
 import { MAX_CAPABILITIES } from './lists.js';

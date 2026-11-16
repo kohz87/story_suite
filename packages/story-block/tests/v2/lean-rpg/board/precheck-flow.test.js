@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { NEVER, character, foeBlock, setup, skillBlock, tailOf } from '../helpers.js';
 import { boardSession, markSend, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { clearStart, holdStart, pendingStart } from '../../../../src/v2/turn/fight-start.js';
+import { clearStart, holdStart, pendingStart } from '../../../../../../core/turn/fight-start.js';
 import { createPauseView } from '../../../../src/v2/lean-rpg/board/pause.js';
 import { createStartController } from '../../../../src/v2/lean-rpg/board/start-controller.js';
 import { pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';

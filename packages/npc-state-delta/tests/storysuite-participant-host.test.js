@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../story-block/testkit/index.js';
-import { hashJson } from '../../story-block/src/v2/replay.js';
+import { hashJson } from '../../../core/replay.js';
 import { MODULE_ID, createParticipant, memoryVault } from '../src/storysuite-participant/index.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 

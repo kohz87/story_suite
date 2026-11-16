@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { sourceOf } from '../../helpers/split-source.js';
+import { sourceOf } from '../../../../../tests/helpers/split-source.js';
 import { cssOf, hostImports as hostSheet } from '../helpers/css-parts.js';
 
 const read = path => readFileSync(new URL(`../../../src/v2/view/${path}`, import.meta.url), 'utf8');

@@ -1,8 +1,8 @@
 // Counts the party from the domain's own blocks and refuses a join when there is no room.
 import { refuse } from '../../interpreter.js';
 import { activeDefinition, instanceOf } from '../../adapters.js';
-import { oneLine } from '../../../../text.js';
-import { fill } from '../../../strings.js';
+import { oneLine } from '../../../../../../../core/text.js';
+import { fill } from '../../../../../../../core/strings.js';
 import { PARTY_ACTIVE, PARTY_MAX } from '../../../lean-rpg/names.js';
 import { B } from './texts.js';
 

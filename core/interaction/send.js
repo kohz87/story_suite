@@ -1,6 +1,6 @@
 // Keeps a byte-for-byte copy of a staged interaction beside the waiting message and links replay payloads to it.
 
-import { hashText } from '../assist/common.js';
+import { hashText } from '../../packages/story-block/src/v2/assist/common.js';
 import { readRecord } from '../persist.js';
 import { interactionPayload } from './session.js';
 

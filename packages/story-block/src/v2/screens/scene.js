@@ -8,7 +8,7 @@
 // chatter thought from the newest reply under their name (`scene.chatter`, MODULES §F115; [] while World is
 // there, null while the chatter is off).
 
-import { STRINGS, html, jsonText } from '../strings.js';
+import { STRINGS, html, jsonText } from '../../../../../core/strings.js';
 import { BASE_CSS } from './style.js';
 
 const S = STRINGS.scene;

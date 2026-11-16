@@ -2,9 +2,9 @@
 // leaving, changing version or changing readiness moves it (so checkpoints made while its blocks were off are checked again).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../../src/v2/registry.js';
-import { createGuards } from '../../../src/v2/commands/guards.js';
-import { createHost } from '../../../testkit/index.js';
+import { createRegistry } from '../../../core/registry.js';
+import { createGuards } from '../../../core/commands/guards.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { growKind, kindModule } from './helpers/core-kind.js';
 
 const BEFORE_KINDS = ({ registry, rpg = true }) => `${registry.modules()

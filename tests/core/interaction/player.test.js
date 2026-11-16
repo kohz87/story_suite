@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { defaultActors, isReader, markPlayer, playerOf } from '../../../src/v2/interaction/player.js';
+import { defaultActors, isReader, markPlayer, playerOf } from '../../../core/interaction/player.js';
 
 test('the persona rule folds case, width, spaces and hyphens', () => {
     assert.equal(isReader('  Iron-Breath ', 'iron breath'), true);

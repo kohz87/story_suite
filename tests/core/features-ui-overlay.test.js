@@ -2,11 +2,11 @@
 // sub-fold per module, a line in each module's fold going there, the prompt hint).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { setupDom } from './view/mounts/helpers.js';
-import { FEATURES_FOLD, FEATURE_TEXT, PACKS_FOLD, VERSIONS_FOLD, featureInputId, featuresFoldOf, renderSettingsHost } from '../../src/v2/host-ui.js';
-import { openSettingsWindow as openSettingsOverlay } from '../../src/v2/view/settings/window.js';
-import { CORE_FEATURE, PROMPT_HINT } from '../../src/v2/features.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { FEATURES_FOLD, FEATURE_TEXT, PACKS_FOLD, VERSIONS_FOLD, featureInputId, featuresFoldOf, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { openSettingsWindow as openSettingsOverlay } from '../../packages/story-block/src/v2/view/settings/window.js';
+import { CORE_FEATURE, PROMPT_HINT } from '../../core/features.js';
 import { countOn, foldOf, loot, overlay, plain, rowsOf, subOf, subsOf, texts } from './features-ui.helpers.js';
 
 test('the overlay: Features has a sub-fold per module ("N of M on"); a module\'s fold has one line going there, no switches', async () => {

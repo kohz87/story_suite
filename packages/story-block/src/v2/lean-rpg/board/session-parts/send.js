@@ -1,6 +1,6 @@
 // Keeps a byte-for-byte copy of the staged fight beside the reader's waiting message.
 import { hashText } from '../../../assist/common.js';
-import { readRecord } from '../../../persist.js';
+import { readRecord } from '../../../../../../../core/persist.js';
 import { SEND, object } from './shared-meta.js';
 import { boardPayload } from './current.js';
 

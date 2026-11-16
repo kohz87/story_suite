@@ -2,7 +2,7 @@
 // The list is the file's export list from before the split (13 names): each must still be there, of the same kind.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as facade from '../../../src/v2/registry.js';
+import * as facade from '../../../../../core/registry.js';
 
 const EXPORTS = {
     CAPTURE_PREFIX: 'string',

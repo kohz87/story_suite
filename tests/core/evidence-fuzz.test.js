@@ -4,10 +4,10 @@
 // that is still there, on the swipe that is shown, on a block the guard lets through, with every parent visible.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prng } from './qa/helpers/seeded.js';
-import { newSwipe, showSwipe } from './helpers/store-chat.js';
-import { pinOf } from '../../src/v2/evidence.js';
-import { T1, T2, evidenceHarness } from './helpers/evidence.js';
+import { prng } from '../../packages/story-block/tests/v2/qa/helpers/seeded.js';
+import { newSwipe, showSwipe } from '../../packages/story-block/tests/v2/helpers/store-chat.js';
+import { pinOf } from '../../core/evidence.js';
+import { T1, T2, evidenceHarness } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 
 const SEEDS = process.env.QA_FUZZ_SEED ? [Number(process.env.QA_FUZZ_SEED)] : [1, 2, 3, 4, 5, 6, 7, 8, 13, 21];
 const STEPS = Number(process.env.QA_FUZZ_STEPS) || 60;

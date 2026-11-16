@@ -1,6 +1,6 @@
-import { hostAvailable } from '../../testkit/index.js';
-import { API_EVENTS } from '../../src/v2/public-api.js';
-import { sheetDomain, character } from './lean-rpg/helpers.js';
+import { hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { API_EVENTS } from '../../core/public-api.js';
+import { sheetDomain, character } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
 
 export const available = await hostAvailable();
 export const skip = available.ok ? false : available.reason;

@@ -8,7 +8,7 @@
 //   capture.js:22  TEXT_DASH /\s*[—–]\s*|\s+-(?:\s+|$)/    capture.js:24  LABELLED (parseLine)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { extractBlock, hideBlock, parseChanges, stripBlock } from '../../../src/v2/capture.js';
+import { extractBlock, hideBlock, parseChanges, stripBlock } from '../../../../../core/capture.js';
 import { createHost } from '../../../testkit/index.js';
 
 const N = 20_000;

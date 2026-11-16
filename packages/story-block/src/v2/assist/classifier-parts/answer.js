@@ -1,6 +1,6 @@
 // Reading the classifier's answer: a check line, none, or a plain-sentence error.
 
-import { extractBlock, parseChanges } from '../../capture.js';
+import { extractBlock, parseChanges } from '../../../../../../core/capture.js';
 import { clip } from '../common.js';
 import { CHECK_KIND } from './names.js';
 import { checkLine } from './check-line.js';

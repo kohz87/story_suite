@@ -1,6 +1,6 @@
 // Choices and Inner chatter: one display line's verdict and what a reply's display lines show.
 
-import { capsOf, extractBlock, lineBody, parseChanges } from '../capture.js';
+import { capsOf, extractBlock, lineBody, parseChanges } from '../../../../../core/capture.js';
 import { flatten } from './text.js';
 import { CHATTER_MAX } from './limits.js';
 

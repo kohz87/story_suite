@@ -17,8 +17,8 @@
 // under the module's line, read-only, and is not "out of step". `outOfStep` counts newer, refused and twice. Pure except renderCompat (textContent only: names and
 // versions come from other extensions).
 
-import { definitionWarnings } from './registry.js';
-import { satisfies } from './packs/version.js';
+import { definitionWarnings } from '../registry.js';
+import { satisfies } from '../../packages/story-block/src/v2/packs/version.js';
 import { cutAt } from '../text.js';
 
 const STATES = Object.freeze({ ok: 'In step', unstated: 'In step', newer: 'Newer than this Story Block', refused: 'Not loaded', twice: 'Installed twice' });

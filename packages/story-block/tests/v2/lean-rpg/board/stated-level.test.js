@@ -10,7 +10,7 @@ import { vetGroups } from '../../../../src/v2/lean-rpg/board/precheck.js';
 import { runPrecheck } from '../../../../src/v2/lean-rpg/board/precheck-run.js';
 import { vetOpen } from '../../../../src/v2/lean-rpg/open.js';
 import { boardSession, markSend, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { pendingStart } from '../../../../src/v2/turn/fight-start.js';
+import { pendingStart } from '../../../../../../core/turn/fight-start.js';
 
 const RANKS = [{ name: 'F', from: 1, to: 9 }, { name: 'E', from: 10, to: 19 }, { name: 'D', from: 20, to: 29 }, { name: 'C', from: 30, to: 49 }, { name: 'S', from: 90, to: 94 }, { name: 'SS', from: 95, to: 99 }];
 const rankAt = level => RANKS.find(rank => level >= rank.from && level <= rank.to) ?? null;

@@ -1,12 +1,12 @@
 // J11 step 3: the old UI's wiring onto the one scheduler (flag suite.redrawScheduler).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../testkit/fake-st.js';
-import { createRuntime } from '../../src/v2/runtime.js';
-import { mountUi } from '../../src/v2/ui-host.js';
-import { createHold } from '../../src/v2/ui-host/events.js';
-import { wireRedraw } from '../../src/v2/ui-host/redraw-wiring.js';
-import { setupDom } from './view/mounts/helpers.js';
+import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
+import { createRuntime } from '../../core/runtime.js';
+import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
+import { createHold } from '../../packages/story-block/src/v2/ui-host/events.js';
+import { wireRedraw } from '../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 5));
 

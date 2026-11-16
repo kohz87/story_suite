@@ -1,7 +1,7 @@
 // Describes a reply's reader edits and the rule lines its fired rules changed.
 
-import { oneLine } from '../../text.js';
-import { STRINGS, fill } from '../strings.js';
+import { oneLine } from '../../../../../core/text.js';
+import { STRINGS, fill } from '../../../../../core/strings.js';
 import { activeDefinition, instanceOf } from '../data-modules/adapters.js';
 import { dmNameOf } from '../data-modules/schema.js';
 

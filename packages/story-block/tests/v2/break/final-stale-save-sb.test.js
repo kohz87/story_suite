@@ -6,8 +6,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { RECHECK_MS, createSaver } from '../../../src/v2/persist.js';
-import { SAVE_SEQ_KEY } from '../../../src/v2/runtime.js';
+import { RECHECK_MS, createSaver } from '../../../../../core/persist.js';
+import { SAVE_SEQ_KEY } from '../../../../../core/runtime.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 async function seconds(t, n) {

@@ -2,11 +2,11 @@
 // the reader's actor), Send releases the held reply, and the settle replays the same on a swipe and on a reload.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { hashText } from '../../../src/v2/assist/common.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { START_KINDS } from '../../../src/v2/interaction/start.js';
-import { IA_KIND, activeSettles, box, iaApi, iaModule, withLines } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
+import { readRecord } from '../../../core/persist.js';
+import { START_KINDS } from '../../../core/interaction/start.js';
+import { IA_KIND, activeSettles, box, iaApi, iaModule, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 const plain = value => JSON.parse(JSON.stringify(value));
 

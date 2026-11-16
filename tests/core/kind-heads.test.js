@@ -2,9 +2,9 @@
 // gets no text for it. Without `heads` a kind with no grammar is still refused, and kinds with a grammar line behave exactly as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../src/v2/registry.js';
-import { staticParts } from '../../src/v2/prompt.js';
-import { extractBlock, grammarHeads, parseChanges } from '../../src/v2/capture.js';
+import { createRegistry } from '../../core/registry.js';
+import { staticParts } from '../../core/prompt.js';
+import { extractBlock, grammarHeads, parseChanges } from '../../core/capture.js';
 
 const mod = (id, kinds) => ({ id, name: id, version: '1.0.0', domains: { [id]: { initial: () => ({}), validate: () => [] } }, capture: { kinds, apply: () => ({}) } });
 const TALLY = { tally: { grammar: '+ tally Name' } };

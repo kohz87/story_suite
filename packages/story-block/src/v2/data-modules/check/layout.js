@@ -1,12 +1,12 @@
 // Data-modules checker, layout part: the block layout keys, the stage-bar fields and the block functions (cards, rules,
 // hidden fields). Pure: no state is read. check.js keeps the public path of each export.
 
-import { oneLine } from '../../../text.js';
+import { oneLine } from '../../../../../../core/text.js';
 import { effects } from './effects.js';
 import { entries, shape, sized } from './shape.js';
 import { conditionType } from '../expressions.js';
 import { DM_DESCRIPTORS as D, DM_LIMITS as L, dmInt, dmKindWritesHidden, dmObject, dmOwn, dmSlug } from '../schema.js';
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 
 // How the host draws a block: `layout` ("cards", "bars" or "fields"), the `roles` a list of cards reads from one List of entries field (`field`, and the
 // sub-fields that are its `title`, `status` and `step`), and the `tones` of the status values. Display only: none of it changes what the story can write.

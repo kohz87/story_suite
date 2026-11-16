@@ -3,7 +3,7 @@ import { DM_LIMITS as L, DM_OLD_ROOM, dmObject } from '../../schema.js';
 import { validateDataMigration } from '../../check.js';
 import { copy, atPath, conditionHolds } from '../../interpreter.js';
 import { activeDefinition, actorsOf, instanceOf, publicView, projectImport } from '../../adapters.js';
-import { hashJson } from '../../../replay.js';
+import { hashJson } from '../../../../../../../core/replay.js';
 import { rpgLib } from '../../../rpg-lazy.js';
 import { PARTY_ACTIVE, PARTY_MAX } from '../../../lean-rpg/names.js';
 import { hashOf, activeCount, blockCount, checkedTarget, partyRoomOf } from '../shared.js';

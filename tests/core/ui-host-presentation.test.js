@@ -3,12 +3,12 @@
 // the stamp at once, so the screens are never left for later (the other listeners of the same event read them) and the last state wins.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { mountUi } from '../../src/v2/ui-host.js';
-import { setupDom } from './view/mounts/helpers.js';
-import { fixture, success } from './data-modules/helpers.js';
-import { buildBlock } from '../../src/v2/data-modules/block-builder.js';
-import { BLOCK_STARTERS } from '../../src/v2/data-modules/block-starters.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
+import { fixture, success } from '../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { buildBlock } from '../../packages/story-block/src/v2/data-modules/block-builder.js';
+import { BLOCK_STARTERS } from '../../packages/story-block/src/v2/data-modules/block-starters.js';
 
 const starter = id => BLOCK_STARTERS.find(item => item.id === id);
 

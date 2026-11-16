@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
 import { DIFFICULTY_SETTING, RESOLVE, ROLLS_QUERY, STANDARD, STANDARD_PRESETS as PRESETS, STANDARD_SETTING, claimKey, leanRpgGuard, prepare, readSheet, rollsOf } from '../../../src/v2/lean-rpg/index.js';
 import { fieldMax } from '../../../src/v2/lean-rpg/resolve.js';
-import { hashJson as hashOf } from '../../../src/v2/replay.js';
+import { hashJson as hashOf } from '../../../../../core/replay.js';
 import { cueOf, OWNER, PARTY, PLAN_ANSWER, foeBlock, rollReceipt, setup, tailOf } from './helpers.js';
 
 const available = await hostAvailable();

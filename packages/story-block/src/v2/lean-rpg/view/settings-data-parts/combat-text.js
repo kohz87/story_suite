@@ -1,6 +1,6 @@
 // The Combat rules text: its limit, its default and a fresh definition carrying it.
 
-import { oneLine } from '../../../../text.js';
+import { oneLine } from '../../../../../../../core/text.js';
 import { COMBAT_PROMPT_STANDARD, STANDARD_TEMPLATES } from '../../templates.js';
 
 /** The most characters the Combat rules text may have (a block's "What it is for", data-modules/schema.js DM_LIMITS.prompt). */

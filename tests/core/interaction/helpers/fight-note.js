@@ -1,5 +1,5 @@
 // The longest board fight the notes are measured on: 4 v 6, 4 exchanges, items and gear wear, the fightLen mark on.
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
+import { settledNote } from '../../../../packages/story-block/src/v2/lean-rpg/board/note.js';
 
 const party = ['Astra', 'Bram', 'Cyra', 'Dov'];
 const foes = ['Rat 1', 'Rat 2', 'Rat 3', 'Rat 4', 'Rat 5', 'Rat 6'];

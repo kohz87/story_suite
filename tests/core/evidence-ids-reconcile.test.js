@@ -1,9 +1,9 @@
 // A proof id belongs to the block that holds it (docs/v2/EVIDENCE.md): reconcile, collisions, and checkpoints.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { pinOf } from '../../src/v2/evidence.js';
-import { T1, director, evidenceHarness, sampleModule, hostModule } from './helpers/evidence.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { pinOf } from '../../core/evidence.js';
+import { T1, director, evidenceHarness, sampleModule, hostModule } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 import { ids, open, rerunOf, steps } from './evidence-ids.helpers.js';
 
 test('an unchanged Re-read keeps every id: a step left at a salted id keeps it when another step of its key is added beside it', async t => {

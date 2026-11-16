@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 import { prng, seedCrypto } from './helpers/seeded.js';
 import { interactionOp } from './helpers/state-fuzz-gen.js';
 import { GO, IA_KIND, WAIT, activeSettles, box, iaApi, iaModule, playSegment, setText, withLines } from './helpers/probe-interaction.js';

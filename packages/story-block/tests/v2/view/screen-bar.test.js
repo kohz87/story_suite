@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { barItems, createScreenBar, stripOrder } from '../../../src/v2/view/screen-bar.js';
-import { STRINGS, fill } from '../../../src/v2/strings.js';
+import { STRINGS, fill } from '../../../../../core/strings.js';
 import { installDom, host } from './widgets/fake-dom.js';
 
 const ITEMS = [

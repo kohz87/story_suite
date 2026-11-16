@@ -1,6 +1,6 @@
 // Rolls a reply's three d20 from its seed and re-exports the note line.
 
-import { rng } from '../../../rng.js';
+import { rng } from '../../../../../../../core/commands/rng.js';
 import { offerLine } from '../../cue.js';
 import { FORMULA } from '../../names.js';
 

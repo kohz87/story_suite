@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rng as seeded } from '../../../../src/v2/rng.js';
+import { rng as seeded } from '../../../../../../core/commands/rng.js';
 import { foeRoll, masteryTerm, playerRoll, rollOutcome } from '../../../../src/v2/lean-rpg/combat/rolls.js';
 import { foeStats } from '../../../../src/v2/lean-rpg/combat/foes.js';
 import { RANKS, TIERS } from '../../../../src/v2/lean-rpg/combat/numbers.js';

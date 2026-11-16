@@ -1,7 +1,7 @@
 // P23 retry and neutral intent fixtures use production helpers and the host's canonical hash.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson } from '../../../../story-block/src/v2/replay.js';
+import { hashJson } from '../../../../../core/replay.js';
 import { neutralAcceptance, prepareThreadWrite, threadProjection, threadWriteEntry } from '../../../src/v2/tracker/thread-writes.js';
 
 const thread = () => ({ id: 'th_00000001', kind: 'hook', key: 'The mill', summary: 'Help the miller',

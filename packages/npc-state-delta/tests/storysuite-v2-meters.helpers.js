@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { CAPTURE_PREFIX, createRegistry } from '../../story-block/src/v2/registry.js';
+import { CAPTURE_PREFIX, createRegistry } from '../../../core/registry.js';
 import { createPeoplePart } from '../../story-block/src/v2/domains/people/part.js';
-import { createStore } from '../../story-block/src/v2/store.js';
-import { createCommandBus } from '../../story-block/src/v2/commands.js';
-import { parseChanges } from '../../story-block/src/v2/capture.js';
+import { createStore } from '../../../core/store.js';
+import { createCommandBus } from '../../../core/commands.js';
+import { parseChanges } from '../../../core/capture.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { secretId } from '../src/npc-meters.js';
 import { seedPeople } from './helpers/seed-people.js';

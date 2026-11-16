@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../testkit/index.js';
-import { INIT_PREFIX, createRegistry } from '../../src/v2/registry.js';
-import { PREFLIGHT_CLASSES, createSdk, preflight } from '../../src/v2/sdk.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { INIT_PREFIX, createRegistry } from '../../core/registry.js';
+import { PREFLIGHT_CLASSES, createSdk, preflight } from '../../core/sdk.js';
 
 const PEER = 'story-director';
 const DOMAINS = ['party', 'effects', 'creation', 'gear', 'combat', 'bestiary', 'trade', 'craft', 'rules', 'progress', 'training', 'death'];

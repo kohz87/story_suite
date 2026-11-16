@@ -1,7 +1,7 @@
 // sdk.flag(name): the read-only internal flag reader for the sibling modules; off by default and when the reader throws.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSdk } from '../../src/v2/sdk.js';
+import { createSdk } from '../../core/sdk.js';
 
 const make = flag => createSdk({ store: {}, bus: {}, registry: { features: () => [] }, settings: () => ({}), ...(flag ? { flag } : {}) }).sdk;
 

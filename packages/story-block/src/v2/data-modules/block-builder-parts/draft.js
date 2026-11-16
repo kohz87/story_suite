@@ -1,7 +1,7 @@
 // Reopening a block in the editor: the draft form of a definition, and only when the form can write it back unchanged.
 import { DM_LIMITS as L } from '../schema.js';
 import { validateDataModules } from '../check.js';
-import { hashJson } from '../../replay.js';
+import { hashJson } from '../../../../../../core/replay.js';
 import { buildBlock } from './build.js';
 
 /** Reopens an editor-built definition without storing a second representation of the block. */

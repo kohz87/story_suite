@@ -1,7 +1,7 @@
 // Installs the page host's event listeners in their original order, and holds the redraw a multi-step form asks for (createHold, below).
 // The panel, overlay and blocked notice remain live until the returned listeners are removed.
 
-import { captureConsole } from '../diagnostics.js';
+import { captureConsole } from '../../../../../core/diagnostics.js';
 
 export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer, blockPresentation, syncScreens, syncLeanRpg, refresh, clearBlocked, getPanel, getTabHost, getOverlay, getBlockedBy, redrawHold, wiring }) {
     const offs = [...replyOffs, ...offs0];

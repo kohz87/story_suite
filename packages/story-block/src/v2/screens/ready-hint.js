@@ -10,7 +10,7 @@
 // `head`, `committed`, `turn` and `feature` events. Setup, not a story action (F95/F96): the button runs
 // no command itself. Text is set with textContent.
 
-import { STRINGS } from '../strings.js';
+import { STRINGS } from '../../../../../core/strings.js';
 
 const S = STRINGS.readyHint;
 

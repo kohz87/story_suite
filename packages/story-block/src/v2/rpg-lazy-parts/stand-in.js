@@ -1,6 +1,6 @@
 // The RPG part's stand-in: the same commands, cards, queries, hooks, settings and guard, handed to the real part once the library is there.
 
-import { CORE_FEATURE } from '../features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, NOROLL, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, RESOLVE, ROLLS, ROLLS_SETTING, USE_ITEM } from '../lean-rpg/names.js';
 import { noRoll } from '../lean-rpg/noroll.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../lean-rpg/levels.js';

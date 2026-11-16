@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STORY_ACTION_POLICY, policyProblem } from '../../../src/v2/interaction/policy.js';
+import { STORY_ACTION_POLICY, policyProblem } from '../../../core/interaction/policy.js';
 
 const actors = [
     { id: 'hero', name: 'Astra', party: true, player: true },

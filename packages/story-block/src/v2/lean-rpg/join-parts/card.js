@@ -1,6 +1,6 @@
 // Join: the card under a reply that offers a companion.
 
-import { oneLine } from '../../../text.js';
+import { oneLine } from '../../../../../../core/text.js';
 import { CLASS_NAMES, PARTY_ACTIVE } from '../names.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { levelOfClass } from '../formula.js';

@@ -7,8 +7,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { createRegistry } from '../../../src/v2/registry.js';
-import { assemble } from '../../../src/v2/prompt.js';
+import { createRegistry } from '../../../core/registry.js';
+import { assemble } from '../../../core/prompt.js';
 import { fightNote } from './helpers/fight-note.js';
 
 const GOLDEN = new URL('./tail-fight.golden.json', import.meta.url);

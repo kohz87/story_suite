@@ -1,6 +1,6 @@
 // The Events fold id, the sub-fold key separator, the key of a module's Features sub-fold, and the shared strings table.
 
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 import { FEATURES_FOLD } from './fold-ids-main.js';
 
 export const S = STRINGS;

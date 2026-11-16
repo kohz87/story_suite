@@ -2,10 +2,10 @@
 // (fix 8a review, blocking 2).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRuntime } from '../../src/v2/runtime.js';
-import { mountUi } from '../../src/v2/ui-host.js';
-import { createFakeContext } from '../../testkit/fake-st.js';
-import { setupDom } from './view/mounts/helpers.js';
+import { createRuntime } from '../../core/runtime.js';
+import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
+import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
 
 async function setup() {
     const doc = setupDom();

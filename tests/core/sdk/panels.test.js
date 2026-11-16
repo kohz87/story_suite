@@ -1,9 +1,9 @@
 // J11 step 5: sdk.panels, the hub modules mark dirty through (flag suite.redrawScheduler).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSdk } from '../../../src/v2/sdk.js';
-import { createPanels } from '../../../src/v2/sdk/panels.js';
-import { wireRedraw } from '../../../src/v2/ui-host/redraw-wiring.js';
+import { createSdk } from '../../../core/sdk.js';
+import { createPanels } from '../../../core/sdk/panels.js';
+import { wireRedraw } from '../../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
 
 // The hub bound to a real wiring (the host's), with frames the test runs by hand.
 function bound({ flag = { on: true } } = {}) {

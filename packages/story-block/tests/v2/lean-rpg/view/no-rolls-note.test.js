@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../ui-fake-dom.js';
+import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
 import { setupDom } from '../../view/mounts/helpers.js';
 import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog } from '../../../../src/v2/lean-rpg/view/battle-log.js';
 import { NOROLL, RESOLVE } from '../../../../src/v2/lean-rpg/index.js';

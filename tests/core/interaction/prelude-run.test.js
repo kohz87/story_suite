@@ -2,7 +2,7 @@
 // a settled opening leaves the state the segment is previewed on (preview == what capture will settle); its summary is told as a [Happened] note.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runPreludes } from '../../../src/v2/turn/prelude-run.js';
+import { runPreludes } from '../../../core/turn/prelude-run.js';
 
 const SETTLE = 'interaction.settle';
 const receipt = summary => ({ seed: 5, summary, narrate: true, data: { v2: { result: {} } } });

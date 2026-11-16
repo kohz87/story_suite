@@ -4,12 +4,12 @@
 // checkpoints, rewind that cannot take back, ctx.carrier.sid).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext, createHost } from '../../testkit/index.js';
-import { createChatFile } from '../../src/v2/chat-file.js';
-import { IDLE_MS, createSaver, markFits, readRecord, swipeMark, writeRecord } from '../../src/v2/persist.js';
-import { createRewind } from '../../src/v2/rewind.js';
-import { createRuntime, saveOnUnload } from '../../src/v2/runtime.js';
-import { serveChats } from './helpers/st-server.js';
+import { createFakeContext, createHost } from '../../packages/story-block/testkit/index.js';
+import { createChatFile } from '../../core/store/chat-file.js';
+import { IDLE_MS, createSaver, markFits, readRecord, swipeMark, writeRecord } from '../../core/persist.js';
+import { createRewind } from '../../core/timeline/rewind.js';
+import { createRuntime, saveOnUnload } from '../../core/runtime.js';
+import { serveChats } from '../../packages/story-block/tests/v2/helpers/st-server.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const settled = async (n = 4) => { for (let i = 0; i < n; i++) await settle(); };

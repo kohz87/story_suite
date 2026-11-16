@@ -6,9 +6,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, sharedPrefix } from '../../../testkit/index.js';
-import { STATIC_KEY, TAIL_KEY, V1_KEYS } from '../../../src/v2/turn.js';
-import { HAPPENED, STATIC_MARKER, assemble } from '../../../src/v2/prompt.js';
-import { makeView } from '../../../src/v2/sdk.js';
+import { STATIC_KEY, TAIL_KEY, V1_KEYS } from '../../../../../core/turn.js';
+import { HAPPENED, STATIC_MARKER, assemble } from '../../../../../core/prompt.js';
+import { makeView } from '../../../../../core/sdk.js';
 import { prng, seedCrypto } from './helpers/seeded.js';
 import { probeModule } from './helpers/probe-module.js';
 

@@ -5,7 +5,7 @@
 // draw, 1.7 s each later one. Pack install accepts such a screen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { compileTemplate, renderTemplate } from '../../../src/v2/view/template/index.js';
 import { createHost } from '../../../testkit/index.js';
 

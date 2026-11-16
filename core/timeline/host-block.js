@@ -8,7 +8,7 @@
 
 import { checkOps } from '../ops.js';
 import { hashJson } from '../replay.js';
-import { seed as freshSeed } from '../rng.js';
+import { seed as freshSeed } from '../commands/rng.js';
 import { epochOf, rulesHashOf } from './gate.js';
 import { HOST, fail, makeId } from './util.js';
 

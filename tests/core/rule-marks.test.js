@@ -3,9 +3,9 @@
 // keeps its old behavior: Re-read never adds marks to it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { parseChanges } from '../../src/v2/capture.js';
-import { RULE_LINES, allRuleNames, ruleMarksFor, ruleMarksOf } from '../../src/v2/turn/rule-marks.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { parseChanges } from '../../core/capture.js';
+import { RULE_LINES, allRuleNames, ruleMarksFor, ruleMarksOf } from '../../core/turn/rule-marks.js';
 
 const ALL = allRuleNames(); // a new reply carries every current rule, sorted
 

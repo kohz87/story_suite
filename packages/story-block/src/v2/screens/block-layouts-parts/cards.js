@@ -2,7 +2,7 @@
 import { h, iconNode } from '../../view/widgets/dom.js';
 import { defaultTone } from '../../data-modules/block-builder.js';
 import { ensureLayoutStyles } from '../../layout/styles.js';
-import { fill } from '../../strings.js';
+import { fill } from '../../../../../../core/strings.js';
 import { V, chip, pencilFor } from './shared-chrome.js';
 
 /** The tone of a status value: the block's `tones` entry, else the editor's default (active, done and failed by their name, any other value neutral and open). */

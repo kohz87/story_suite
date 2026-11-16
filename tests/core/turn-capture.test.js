@@ -1,9 +1,9 @@
 // A turn on a fake SillyTavern (docs/v2/SPEC.md §4, §5): interceptor, prompt slots, capture, static/tail, restoreMissing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sharedPrefix, EXTENSION_PROMPT_TYPES } from '../../testkit/index.js';
-import { STATIC_KEY, TAIL_KEY, V1_KEYS, createTurn, restoreMissing } from '../../src/v2/turn.js';
-import { HAPPENED, STATIC_MARKER } from '../../src/v2/prompt.js';
+import { sharedPrefix, EXTENSION_PROMPT_TYPES } from '../../packages/story-block/testkit/index.js';
+import { STATIC_KEY, TAIL_KEY, V1_KEYS, createTurn, restoreMissing } from '../../core/turn.js';
+import { HAPPENED, STATIC_MARKER } from '../../core/prompt.js';
 import { noCue, fakeHost, stored, items } from './turn.helpers.js';
 
 test('a healthy interceptor does not settle the timeline or move the barrier', async t => {

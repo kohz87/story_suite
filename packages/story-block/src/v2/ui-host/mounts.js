@@ -6,7 +6,7 @@ import { gameHeroProps, headerControlItems, readHeroContext } from '../view/game
 import { formatStoryTime, storyCalendar } from '../view/clock.js';
 import { isHiddenNav, isInBar } from '../view/tab-order.js';
 import { CHANGES_CARD_SCREEN_ID, changesSummary } from '../screens/index.js';
-import { CORE_FEATURE } from '../features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 
 export function createUiMounts({ screens, renderer, registry, ctx, store, sdk, queryAt, notes, assistedAt, cardLines, replyCardsAt, branchNow, coreOn, api, events, carriers, hasCard, tabOrder, navPresent, barDeclared, extraTabs, doc, getRpg }) {
     return createMounts({

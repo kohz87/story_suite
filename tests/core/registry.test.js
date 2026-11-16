@@ -1,7 +1,7 @@
 // The module registry (docs/v2/SPEC.md §6, §12): checking definitions, refusing clashes, lookups.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CAPTURE_PREFIX, INIT_PREFIX, createRegistry, definitionProblems, definitionWarnings } from '../../src/v2/registry.js';
+import { CAPTURE_PREFIX, INIT_PREFIX, createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
 
 const party = () => ({
     id: 'rpg-battle',

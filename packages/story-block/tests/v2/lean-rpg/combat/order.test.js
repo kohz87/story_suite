@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rng as seeded } from '../../../../src/v2/rng.js';
+import { rng as seeded } from '../../../../../../core/commands/rng.js';
 import { initiative } from '../../../../src/v2/lean-rpg/combat/order.js';
 
 const random = seeded(0xC2_0003);

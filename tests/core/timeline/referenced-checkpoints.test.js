@@ -1,8 +1,8 @@
 // Check that the checkpoint inventory reads the available chats and refuses incomplete or unsafe scans.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { referencedCheckpoints } from '../../../src/v2/timeline/referenced.js';
-import { createHost } from '../../../testkit/index.js';
+import { referencedCheckpoints } from '../../../core/timeline/referenced.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const json = value => ({
     ok: true,

@@ -1,6 +1,6 @@
 // What the Grid's tiles and the item sheet share: the default rarity and a piece's slot label.
 
-import { SCREEN_STRINGS } from '../../strings/screens.js';
+import { SCREEN_STRINGS } from '../../../../../../core/strings/screens.js';
 
 const G = SCREEN_STRINGS.inventory.gear;
 export const COMMON = 'common';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { button, chip, toggle, segmented } from '../../../ui/kit/controls.js';
 
 test('button renders variants, icon, pressed state and click handler', () => {

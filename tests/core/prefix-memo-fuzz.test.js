@@ -3,8 +3,8 @@
 // delete, edit, rewind and Re-read. A guarded chat takes the full replay (no one-record steps), and the memo is cleared by a rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { nativeModule, reload, rulesModule, track } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { nativeModule, reload, rulesModule, track } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 
 const cursorsOf = host => host.ctx.chat.flatMap((message, index) => {
     if (message.is_user) return [];

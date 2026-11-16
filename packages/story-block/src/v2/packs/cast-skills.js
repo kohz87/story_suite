@@ -1,7 +1,7 @@
 // A cast member's signature skills (`cast[].skills`, docs/v2/PACKS.md "The cast"): the skills a person brings when they join the party, in the order written.
 // Pure: the enabled packs in, plain rows out. The seeding itself is data-modules/part.js (join and return).
 
-import { foldKey, oneLine } from '../../text.js';
+import { foldKey, oneLine } from '../../../../../core/text.js';
 
 /** The ranks a pack writes, in order (the Skills block's rank numbers 0 to 3). */
 export const CAST_SKILL_RANKS = Object.freeze(['novice', 'adept', 'expert', 'master']);

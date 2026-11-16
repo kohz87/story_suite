@@ -1,10 +1,10 @@
 // What a reply laid out goes away with it (Story Block 2.6.1): timeline deletion, name matching, guard, and receipt ids.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { lootTakeGuard } from '../../src/v2/domains/inventory.js';
-import { hashJson } from '../../src/v2/replay.js';
-import { readRecord } from '../../src/v2/persist.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { lootTakeGuard } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { hashJson } from '../../core/replay.js';
+import { readRecord } from '../../core/persist.js';
 import { agrees, at, claimed, coin, fresh, headSid, offPs, qty, reply, take } from './loot-undo.helpers.js';
 
 // The earliest replies deleted (B-b2-timeline-3): the first reply left starts from the state they ended with, but what a

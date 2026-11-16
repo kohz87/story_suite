@@ -1,10 +1,10 @@
 // Reads the party section of the public paths from the RPG's characters.
 
-import { activeDefinition } from '../data-modules/adapters.js';
-import { readSheet } from '../lean-rpg/read.js';
-import { rosterOf } from '../lean-rpg/roster.js';
-import { STAGES, STATS } from '../lean-rpg/names.js';
-import { barOf, spreadWord, wordsOf } from '../lean-rpg/blocks.js';
+import { activeDefinition } from '../../packages/story-block/src/v2/data-modules/adapters.js';
+import { readSheet } from '../../packages/story-block/src/v2/lean-rpg/read.js';
+import { rosterOf } from '../../packages/story-block/src/v2/lean-rpg/roster.js';
+import { STAGES, STATS } from '../../packages/story-block/src/v2/lean-rpg/names.js';
+import { barOf, spreadWord, wordsOf } from '../../packages/story-block/src/v2/lean-rpg/blocks.js';
 import { fold } from './shared-basics.js';
 import { put } from './shared-put.js';
 

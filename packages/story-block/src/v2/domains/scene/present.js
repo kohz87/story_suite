@@ -2,7 +2,7 @@
 // list editor (`scene.present` with `set`). Pure. The place part (place.js) uses `companions` for who came along.
 
 import { cleanName } from '../names.js';
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { MAX_NAME, MAX_PRESENT } from './constants.js';
 import { nameList, told } from './shared.js';
 

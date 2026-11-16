@@ -1,7 +1,7 @@
 // J11 step 4: the tab host's swap draw (flag suite.redrawScheduler): no blank pane, scroll kept, a field being typed in is not lost.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createTabHost } from '../../src/v2/host-ui.js';
+import { createTabHost } from '../../packages/story-block/src/v2/host-ui.js';
 import { doc, setup } from './host-ui.helpers.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 5));

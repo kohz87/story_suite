@@ -2,7 +2,7 @@
 // extension_settings.storySuite. It copies what it stores and never keeps module state.
 
 import { normalizeField } from '../registry.js';
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 import { profileName } from '../model-call.js';
 import { isObject } from './shared.js';
 import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA, SETTING_LIST_ROWS, SETTING_TEXT_MAX } from './constants.js';

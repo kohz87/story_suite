@@ -1,6 +1,6 @@
 // The value wall: why one extractor line may not run, and the raw lines of a text the wall lets through.
 
-import { parseChanges } from '../../capture.js';
+import { parseChanges } from '../../../../../../core/capture.js';
 
 // Kinds whose `+` line adds value or something only the reader decides, under any setting.
 const ADDS = new Set(['item', 'coin', 'coins', 'money', 'gold', 'loot', 'xp', 'exp', 'level', 'reward', 'join', 'skill', 'craft', 'buy', 'sell', 'grant']);

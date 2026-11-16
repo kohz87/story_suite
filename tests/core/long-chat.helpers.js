@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { IDLE_MS } from '../../src/v2/persist.js';
-import { createStore } from '../../src/v2/store.js';
-import { serveChats } from './helpers/st-server.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { IDLE_MS } from '../../core/persist.js';
+import { createStore } from '../../core/store.js';
+import { serveChats } from '../../packages/story-block/tests/v2/helpers/st-server.js';
 
 export const settle = () => new Promise(resolve => setImmediate(resolve));
 export const settled = async (n = 6) => { for (let i = 0; i < n; i++) await settle(); };

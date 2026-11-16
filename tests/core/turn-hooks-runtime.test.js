@@ -1,10 +1,10 @@
 // A turn on a fake and real runtime: hooks, preview, rebuild, real runtime, closing cue.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { STATIC_KEY } from '../../src/v2/turn.js';
-import { appendClosingCue, closingCue } from '../../src/v2/turn/text.js';
-import { HAPPENED } from '../../src/v2/prompt.js';
+import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { STATIC_KEY } from '../../core/turn.js';
+import { appendClosingCue, closingCue } from '../../core/turn/text.js';
+import { HAPPENED } from '../../core/prompt.js';
 import { noCue, bag, fakeHost, stored, items } from './turn.helpers.js';
 
 test('beforeGenerate: tail lines join the module\'s part; commands are committed as system receipts and told', async () => {

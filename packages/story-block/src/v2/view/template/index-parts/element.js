@@ -3,7 +3,7 @@
 import { compileExpr, isLoopName, parseInterpolation, parsePath, splitPairs } from '../../bind.js';
 import { attrAllowed } from '../sanitize.js';
 import { MAX_JSON_DEPTH, compileJson, jsonDepth } from '../json.js';
-import { STRINGS } from '../../../strings.js';
+import { STRINGS } from '../../../../../../../core/strings.js';
 
 const COMMAND_TYPE = /^[a-z0-9][\w-]*(?:\.[\w-]+)+$/i;
 const DRAFT_TAGS = new Set(['input', 'select', 'textarea', 'button']);

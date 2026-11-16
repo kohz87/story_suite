@@ -7,8 +7,8 @@
 // Invariant 7 (a failed save never drops a turn's state). Drop into Story_block/tests/v2/break/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { storeSaving } from '../../../src/v2/runtime.js';
-import { createStore } from '../../../src/v2/store.js';
+import { storeSaving } from '../../../../../core/runtime.js';
+import { createStore } from '../../../../../core/store.js';
 import { aiMessage } from '../../../testkit/fake-st.js';
 
 const settle = async () => { for (let i = 0; i < 20; i++) await new Promise(resolve => setImmediate(resolve)); };

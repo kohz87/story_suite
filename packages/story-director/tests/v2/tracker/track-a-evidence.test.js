@@ -1,7 +1,7 @@
 // Real SD + SB evidence/ledger component tests. These do not claim full P23 writer integration.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson } from '../../../../story-block/src/v2/replay.js';
+import { hashJson } from '../../../../../core/replay.js';
 import { neutralAcceptance, threadProjection } from '../../../src/v2/tracker/thread-writes.js';
 import { createSdHost, seedNeutralHook, acceptanceReply, TEST_COMMAND } from './helpers/track-a-evidence.js';
 

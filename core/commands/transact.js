@@ -3,8 +3,8 @@
 // runs under. commands.js keeps createCommandBus and stores what this part plans.
 
 import { apply, checkOps, clone, counterInside, deepFreeze, diff, escapeKey, isCounterPath, isDeepFrozen, isJson, valueAt } from '../ops.js';
-import { DM_LIMITS } from '../data-modules/schema.js';
-import { isSeed, rng as makeRng } from '../rng.js';
+import { DM_LIMITS } from '../../packages/story-block/src/v2/data-modules/schema.js';
+import { isSeed, rng as makeRng } from './rng.js';
 import { newRoot, occurrenceOf, receiptEvidence } from '../evidence.js';
 import { isPlainJson } from '../replay.js';
 import { ruleMarksOf } from '../turn/rule-marks.js';

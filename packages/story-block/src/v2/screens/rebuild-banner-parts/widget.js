@@ -1,6 +1,6 @@
 // The `story-block.rebuild-banner` widget: banner, confirmation dialog, progress and done note, with the banner's words.
 
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { REBUILD_READ_LAST, REBUILD_READ_ALL } from './constants.js';
 import { rebuildTarget } from './target.js';
 

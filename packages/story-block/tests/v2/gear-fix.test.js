@@ -10,7 +10,7 @@ import { STANDARD_TEMPLATES } from '../../src/v2/lean-rpg/templates.js';
 import { gearMatches, planGear, sameWho } from '../../src/v2/lean-rpg/gear.js';
 import { actorIdOf } from '../../src/v2/lean-rpg/roster.js';
 import { readSheet } from '../../src/v2/lean-rpg/index.js';
-import { hashJson } from '../../src/v2/replay.js';
+import { hashJson } from '../../../../core/replay.js';
 import { createHarness } from './domains/helpers/fake-ctx.js';
 import { core, stocked } from './domains/fixtures.js';
 import { reply, success } from './data-modules/helpers.js';

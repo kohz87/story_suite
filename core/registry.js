@@ -26,4 +26,4 @@
 // Public face: re-exports its parts.
 
 export { createRegistry } from './registry-parts/create.js';
-export { CAPTURE_PREFIX, INIT_PREFIX, HOST_MODULE, RESTORE_STATES, STANDARD_PREFIX, SETTINGS_PLACES, MAX_CAPABILITIES, FIELD_TYPES, jsonProblem, normalizeField, definitionProblems, definitionWarnings } from './registry-checks.js';
+export { CAPTURE_PREFIX, INIT_PREFIX, HOST_MODULE, RESTORE_STATES, STANDARD_PREFIX, SETTINGS_PLACES, MAX_CAPABILITIES, FIELD_TYPES, jsonProblem, normalizeField, definitionProblems, definitionWarnings } from './registry/registry-checks.js';

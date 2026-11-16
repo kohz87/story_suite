@@ -1,6 +1,6 @@
 // The Prompt card's fold key, host setting keys, words and the budgets' form schema.
 
-import { HOST_SETTINGS_SCHEMA } from '../../../sdk.js';
+import { HOST_SETTINGS_SCHEMA } from '../../../../../../../core/sdk.js';
 
 
 /** The fold key of the whole card (the Story Suite fold's old size block), and the host settings it draws. */

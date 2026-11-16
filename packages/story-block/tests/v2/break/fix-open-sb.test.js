@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { HIDDEN_MARKER, defangMarker, extractBlock, hideBlock, stripBlock } from '../../../src/v2/capture.js';
+import { HIDDEN_MARKER, defangMarker, extractBlock, hideBlock, stripBlock } from '../../../../../core/capture.js';
 import { parseAmount } from '../../../src/v2/domains/money.js';
 
 async function fresh(t, options = {}) {

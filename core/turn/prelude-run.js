@@ -4,8 +4,8 @@
 // `runPreludes` fills the caller's `cues` and `prechecks`; it never imports turn.js.
 
 import { estimateTokens, KEPT_TAIL_TOKENS } from '../prompt.js';
-import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
-import { receiptCue } from '../lean-rpg/cue.js';
+import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../../packages/story-block/src/v2/lean-rpg/names.js';
+import { receiptCue } from '../../packages/story-block/src/v2/lean-rpg/cue.js';
 import { noteLong } from '../interaction/note.js';
 import { kindName } from '../interaction/kind-name.js';
 import { boardFailure, boardStartState } from './held-board.js';

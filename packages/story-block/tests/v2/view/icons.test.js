@@ -7,7 +7,7 @@ import { ICON_SET } from '../../../src/v2/view/icons/set.js';
 import { TAB_ICONS, hasIcon, iconFor, svgIcon, tabIcon } from '../../../src/v2/view/icons/index.js';
 import { SVG_NS, iconNode } from '../../../src/v2/view/widgets/dom.js';
 import { icon } from '../../../src/v2/view/mounts/common.js';
-import { sourceOf } from '../../helpers/split-source.js';
+import { sourceOf } from '../../../../../tests/helpers/split-source.js';
 import { SUITE_NAV, HOME_ID } from '../../../src/v2/view/screens.js';
 import { installDom } from './widgets/fake-dom.js';
 

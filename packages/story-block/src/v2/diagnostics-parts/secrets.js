@@ -1,5 +1,5 @@
 // Removing secrets from text: secret keys, key-like values, quoted words, and a log line made safe.
-import { cutAt } from '../../text.js';
+import { cutAt } from '../../../../../core/text.js';
 
 // A settings key holding any of these words (split at camelCase, _, -, .) is left out whole.
 const SECRET_WORDS = new Set(['key', 'keys', 'apikey', 'secret', 'secrets', 'password', 'passwd', 'pwd', 'pass', 'passphrase', 'token',

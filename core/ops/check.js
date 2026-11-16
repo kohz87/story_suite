@@ -1,7 +1,7 @@
 // checkOps (SPEC §2.5): the generic rules every op must keep before it is saved, as plain sentences.
 // Values are plain JSON, IDs and whole numbers stay valid, and forbidden keys never reach the state. Pure.
 
-import { isId } from '../check.js';
+import { isId } from '../registry/check.js';
 import { OPS } from './constants.js';
 import { escapeKey, parsePath, valueAt } from './paths.js';
 import { isPlainObject, jsonProblem } from './json.js';

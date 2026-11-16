@@ -2,19 +2,19 @@
 // tests/v2/break/ do not pin down on their own. Each test here fails on the code before the fix.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MAX_LINE, cutLine, extractBlock, hideBlock, parseChanges, stripBlock, withoutReasoning } from '../../src/v2/capture.js';
-import { HAPPENED, MIN_HAPPENED, assemble } from '../../src/v2/prompt.js';
-import { createRegistry } from '../../src/v2/registry.js';
-import { MAX_CHANGE_LINES, createSettings, settingValue } from '../../src/v2/sdk.js';
-import { parseAmount } from '../../src/v2/domains/money.js';
-import { cleanName } from '../../src/v2/domains/names.js';
-import { MAX_DEPTH, parseHtml, tooDeep } from '../../src/v2/view/template/html.js';
-import { MAX_AT_DEPTH, cssDepth, scopeCss } from '../../src/v2/view/css.js';
-import { unsafeCss } from '../../src/v2/packs/validate.js';
-import { installFakeDom } from '../ui-fake-dom.js';
-import { renderSettingsHost } from '../../src/v2/host-ui.js';
-import { createHost } from '../../testkit/index.js';
-import { readRecord } from '../../src/v2/persist.js';
+import { MAX_LINE, cutLine, extractBlock, hideBlock, parseChanges, stripBlock, withoutReasoning } from '../../core/capture.js';
+import { HAPPENED, MIN_HAPPENED, assemble } from '../../core/prompt.js';
+import { createRegistry } from '../../core/registry.js';
+import { MAX_CHANGE_LINES, createSettings, settingValue } from '../../core/sdk.js';
+import { parseAmount } from '../../packages/story-block/src/v2/domains/money.js';
+import { cleanName } from '../../packages/story-block/src/v2/domains/names.js';
+import { MAX_DEPTH, parseHtml, tooDeep } from '../../packages/story-block/src/v2/view/template/html.js';
+import { MAX_AT_DEPTH, cssDepth, scopeCss } from '../../packages/story-block/src/v2/view/css.js';
+import { unsafeCss } from '../../packages/story-block/src/v2/packs/validate.js';
+import { installFakeDom } from '../helpers/ui-fake-dom.js';
+import { renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../core/persist.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const coin = host => host.head().domains.inventory.wallets.party?.coin ?? 0;

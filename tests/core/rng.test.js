@@ -1,7 +1,7 @@
 // Seeded randomness: sfc32 from a uint32 seed, crypto seeds, dice expressions.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isSeed, rng, roll, seed } from '../../src/v2/rng.js';
+import { isSeed, rng, roll, seed } from '../../core/commands/rng.js';
 
 test('rng: the same seed gives the same stream, floats in [0, 1)', () => {
     const a = rng(123456789);

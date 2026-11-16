@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createCore } from '../../../src/v2/data-modules/part/core.js';
-import { isReader } from '../../../src/v2/interaction/player.js';
+import { isReader } from '../../../../../core/interaction/player.js';
 
 const CASES = [['Iron-Breath', ' iron breath '], ['ＡＳＴＲＡ', 'Astra'], ['Astra', ''], ['Astra', 'Ren'], ['Astra', undefined], ['Astra', null], ['', '']];
 

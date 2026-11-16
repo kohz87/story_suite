@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { GENESIS_EPOCH, blockIdOf, epochOf, hashJson } from '../../src/v2/replay.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { GENESIS_EPOCH, blockIdOf, epochOf, hashJson } from '../../core/replay.js';
 import { reply, seams, steps, started, marks, blocks, boundaryOf, ident, click, clone } from './ctx-seams.helpers.js';
 
 test('a click reads the cursor its block is stored at: the block\'s first boundary, with the reply\'s canonical pair', async t => {

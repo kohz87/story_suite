@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { glyph, GLYPHS } from '../../../ui/kit/glyphs.js';
 
 const EXPECTED_TABS = ['now', 'party', 'bag', 'people', 'world', 'journal', 'story', 'fight'];

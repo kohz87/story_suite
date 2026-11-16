@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { levelOfClass } from '../../../src/v2/lean-rpg/formula.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { PARTY_MAX } from '../../../src/v2/lean-rpg/names.js';
 import { partyOf } from '../../../src/v2/lean-rpg/join.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';

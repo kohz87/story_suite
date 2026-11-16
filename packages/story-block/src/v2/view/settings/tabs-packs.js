@@ -19,7 +19,7 @@ import { PROMPT_FOLD, createPromptReader, renderPromptCard } from './prompt.js';
 import { renderTabsCard } from './tabs-list.js';
 import { showAndFocus } from '../scroll.js';
 import { renderDataModules } from '../../data-modules/setup.js';
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 
 /** Story Block's module id and its Packs fold. */
 const CORE_ID = 'story-block';

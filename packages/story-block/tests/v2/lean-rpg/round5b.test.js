@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { DIFFICULTY_SETTING, LEAN_RPG_FEATURE, LIMITS, STANDARD_SETTING, createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
 import { cueTokens, shortNames } from '../../../src/v2/lean-rpg/cue.js';
 import { legacyPlanner } from './legacy-planner.js';

@@ -1,7 +1,7 @@
 // Checking skill templates and presets.
 
 import { RECORD_LIMITS, LIMITS, SKILL_FIELDS, SKILL_TYPES, STAT_NAME, SKILL_TARGETS, PRESET_FIELDS } from '../../limits.js';
-import { oneLine } from '../../../../text.js';
+import { oneLine } from '../../../../../../../core/text.js';
 import { isObject, isText, isInt } from '../core.js';
 
 // A skill template describes a skill; its numbers are supplied by the consuming module.

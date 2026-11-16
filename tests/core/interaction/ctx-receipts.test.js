@@ -2,7 +2,7 @@
 // to find the receipt of the segment it was carried from; refused once the command is finished.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 let kept = null;
 const module = { id: 'rc-probe', name: 'RC Probe', version: '0.0.0', commands: { 'rc.count': (ctx) => { kept = ctx; return { summary: String(ctx.receipts().length), narrate: false }; } } };

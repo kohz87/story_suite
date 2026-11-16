@@ -2,11 +2,11 @@
 // (permanent: a Problem at once; transient: tried again on a fixed schedule, then a Problem), and the status and head say why.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { nativeModule, rulesModule, clone, NATIVE } from './helpers/timeline.js';
-import { RETRY_SCHEDULE_MS } from '../../src/v2/timeline/coordinator-block.js';
-import { PARTICIPANT_TIMEOUT_MS } from '../../src/v2/timeline/participants.js';
-import { ensureModules } from '../../src/v2/sdk.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { nativeModule, rulesModule, clone, NATIVE } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { RETRY_SCHEDULE_MS } from '../../core/timeline/coordinator-block.js';
+import { PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';
+import { ensureModules } from '../../core/sdk.js';
 
 // A chat whose selected head needs an older native checkpoint: a native change, then the reply it stood on is deleted.
 async function setup(t, { timers = false, customize = null } = {}) {

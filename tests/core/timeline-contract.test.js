@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createTimelinePart } from '../../src/v2/timeline/part.js';
-import { clockModule } from './helpers/clock.js';
-import { nativeModule } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createTimelinePart } from '../../core/timeline/part.js';
+import { clockModule } from '../../packages/story-block/tests/v2/helpers/clock.js';
+import { nativeModule } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 
 const ready = answer => answer !== null && typeof answer === 'object' && answer.api === 2
     && ['snapshots', 'retainedChatRestore', 'participantsReady'].every(key => answer[key] === true);

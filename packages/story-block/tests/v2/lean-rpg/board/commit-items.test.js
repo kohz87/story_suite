@@ -7,7 +7,7 @@ import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { boardGuard } from '../../../../src/v2/lean-rpg/board/commit.js';
-import { hashJson } from '../../../../src/v2/replay.js';
+import { hashJson } from '../../../../../../core/replay.js';
 import { createBoardPart } from '../../../../src/v2/lean-rpg/board/overrides.js';
 import { ASTRA, DRAUGHT, fieldOf, itemRounds, potionBoard, potionHost, stackOf } from './commit.helpers.js';
 

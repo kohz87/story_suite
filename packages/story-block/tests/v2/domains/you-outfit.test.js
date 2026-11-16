@@ -6,7 +6,7 @@ import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { clearLook, lookOf, wornWords } from '../../../src/v2/domains/scene/you.js';
 import { validateScene } from '../../../src/v2/domains/scene.js';
 import { youGrammar } from '../../../src/v2/domains/index.js';
-import { RULE_LINES } from '../../../src/v2/turn/rule-marks.js';
+import { RULE_LINES } from '../../../../../core/turn/rule-marks.js';
 import { block, lastIndex, look, staticText, tailText } from './you.helpers.js';
 
 const available = await hostAvailable();

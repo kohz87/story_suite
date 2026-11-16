@@ -1,4 +1,4 @@
-import { installFakeDom } from '../../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../../tests/helpers/ui-fake-dom.js';
 import { newId } from '../../../../src/v2/view/form/fields.js';
 
 export const doc = installFakeDom();

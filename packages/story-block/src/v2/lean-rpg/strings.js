@@ -2,7 +2,7 @@
 // "Changed this reply" lines and the Settings → RPG page), in one place like src/v2/strings.js. A text with holes names
 // them in braces and is filled with `fill`. Plain words, no markup.
 
-import { fill } from '../strings.js';
+import { fill } from '../../../../../core/strings.js';
 
 export { fill };
 

@@ -2,9 +2,9 @@
 // there with the same seed; one whose reply is not in the branch is dropped, or set back to what the branch holds.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { GO, activeSettles, box, iaApi, iaChain, iaModule } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../../core/persist.js';
+import { GO, activeSettles, box, iaApi, iaChain, iaModule } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 test('a branch at the first settled reply sets the carried session back to that reply, with the same seed and attempt', async () => {
     const host = await createHost({ modules: [iaModule()] });

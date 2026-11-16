@@ -3,10 +3,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createHost } from '../../testkit/index.js';
-import { nativeModule, rulesModule, clone, reload, restore, pause, NATIVE } from './helpers/timeline.js';
-import { createParticipants } from '../../src/v2/timeline/participants.js';
-import { fellNotice } from '../../src/v2/timeline/selection-fallback.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { nativeModule, rulesModule, clone, reload, restore, pause, NATIVE } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { createParticipants } from '../../core/timeline/participants.js';
+import { fellNotice } from '../../core/timeline/selection-fallback.js';
 
 // Two native changes, then the reply the second one stood on is deleted: the head needs the checkpoint of the first (`after`),
 // and the one before any change is the nearest earlier point.
@@ -168,7 +168,7 @@ test('a completed fallback replays and reloads without changing its journal', as
 
 test('a 2.23 chat with a native journal opens without rewriting the chat or its archive', async t => {
     // This fixture was written by the 2.23.0 origin/main implementation, before fallback existed.
-    const image = JSON.parse(await readFile(new URL('./fixtures/timeline-2.23-native.json', import.meta.url), 'utf8'));
+    const image = JSON.parse(await readFile(new URL('../../packages/story-block/tests/v2/fixtures/timeline-2.23-native.json', import.meta.url), 'utf8'));
     const beforeChat = JSON.stringify(image.chat);
     const beforeArchive = JSON.stringify(image.metadata.storySuite.timeline);
     const native = nativeModule();

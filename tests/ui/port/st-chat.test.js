@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { makeMessage } from '../../../packages/story-block/tests/ui-fake-dom.js';
+import { makeMessage } from '../../helpers/ui-fake-dom.js';
 import { installFakeDom } from '../helpers/dom.js';
 import { messageElement, addMenuEntry, fillInput, chatPrefs } from '../../../ui/port/st-chat.js';
 

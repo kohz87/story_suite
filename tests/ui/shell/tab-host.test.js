@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { createTabHost, visibleTabs } from '../../../ui/shell/tab-host.js';
 
 const ids = (host) => host.el.querySelectorAll('.su-tab').map((n) => n.getAttribute('data-tab'));

@@ -5,8 +5,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { HAPPENED } from '../../../src/v2/prompt.js';
+import { readRecord } from '../../../../../core/persist.js';
+import { HAPPENED } from '../../../../../core/prompt.js';
 import { BONUS, BONUS_CLAIM, probeModule } from './helpers/probe-module.js';
 import { checkInvariants } from './helpers/oracle.js';
 

@@ -1,6 +1,6 @@
 // Names: fills {{user}} / {{char}} in with flat one-line names and defuses other macros.
 
-import { cutAt } from '../../../text.js';
+import { cutAt } from '../../text.js';
 
 // A name filled in for {{user}} / {{char}} is one line of at most this many characters.
 export const MAX_NAME = 80;

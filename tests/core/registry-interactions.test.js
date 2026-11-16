@@ -1,8 +1,8 @@
 // The `interactions` module field: one refusal sentence per bad field, unknown members warned, kinds indexed, sdk.modules() lists them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry, definitionProblems, definitionWarnings } from '../../src/v2/registry.js';
-import { createHost } from '../../testkit/index.js';
+import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 import { PROBE_KIND } from './interaction/helpers/probe-kind.js';
 
 const module = interactions => ({ id: 'test', interactions });

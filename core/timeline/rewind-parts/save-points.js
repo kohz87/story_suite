@@ -1,8 +1,8 @@
 // Save points: named branches of the chat kept in its metadata, listed, made, returned to and forgotten (createSavePoints).
 
-import { newId } from '../sdk.js';
+import { newId } from '../../sdk.js';
 import { oneLine } from '../../text.js';
-import { CORE_FEATURE } from '../features.js';
+import { CORE_FEATURE } from '../../features.js';
 import { stCreateBranch, stReopen } from './st-branch.js';
 import { fail, limited } from './shared-limits.js';
 

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sourceOf } from '../helpers/split-source.js';
-import { boundaryMatches, createSelectionFallback, settledPlan } from '../../src/v2/timeline/selection-fallback.js';
+import { boundaryMatches, createSelectionFallback, settledPlan } from '../../core/timeline/selection-fallback.js';
 
 const MODULE = 'tl-native';
 const descriptor = (checkpoint, schema = 1) => ({ module: MODULE, checkpoint, hash: `hash-${checkpoint}`, schema });
@@ -55,7 +55,7 @@ test('fallback chain: the same journal and chat give the same chain, with no clo
     const second = fallback.fallbackChain(MODULE);
     assert.deepEqual(second, first);
     assert.equal(JSON.stringify(second), JSON.stringify(first));
-    const source = sourceOf('src/v2/timeline/selection-fallback.js');
+    const source = sourceOf('../../core/timeline/selection-fallback.js');
     assert.doesNotMatch(source, /Date\.now\b|Math\.random\b/);
 });
 

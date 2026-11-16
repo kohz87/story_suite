@@ -5,7 +5,7 @@
 // draws the screens; the fake DOM throws on innerHTML and records every attribute.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FakeElement } from '../../ui-fake-dom.js';
+import { FakeElement } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { createMounts, drawScreen } from '../../../src/v2/view/mounts/index.js';
 import { renderLayout } from '../../../src/v2/layout/index.js';
 import { fakeChat, screensWith, setupDom } from '../view/mounts/helpers.js';

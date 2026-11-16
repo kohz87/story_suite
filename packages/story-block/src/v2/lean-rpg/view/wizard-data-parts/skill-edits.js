@@ -1,7 +1,7 @@
 // Changes to the draft's skills: a set put in, a skill added, patched or taken out.
 
 import { CREATION, STATS, USES } from '../../names.js';
-import { UTILITY_SLOTS } from '../../../skill-slots.js';
+import { UTILITY_SLOTS } from '../../../../../../../core/runtime/skill-slots.js';
 import { mayStartAdept } from './adept.js';
 import { combatSlots, draftSlots, utilityCount } from './slots.js';
 import { oneLine } from './shared-helpers.js';

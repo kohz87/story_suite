@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createRegistry, definitionProblems, definitionWarnings } from '../../src/v2/registry.js';
-import { CORE_FEATURE, createFeatureStore } from '../../src/v2/features.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
+import { CORE_FEATURE, createFeatureStore } from '../../core/features.js';
 import { gear, statics } from './features.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

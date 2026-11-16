@@ -1,7 +1,7 @@
 // Inventory and Scene tabs: smoke tests of the minimal plain renderers on the fake DOM.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom, texts } from '../../ui-fake-dom.js';
+import { installFakeDom, texts } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { CROWNS, core, stocked } from './fixtures.js';
 import { createCorePart } from '../../../src/v2/domains/index.js';
 

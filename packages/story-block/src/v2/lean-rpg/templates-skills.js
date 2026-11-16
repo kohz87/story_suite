@@ -2,7 +2,7 @@
 // frozen and has no `type` field) into the new one: three more slots (9 to 11, the utility ones), a `type<n>` field on every slot ("Used for"), the learn lines' optional `type` label
 // (left out: combat) and the matching rank-up rules. A block with no `type1` field is read as all combat and keeps its eight slots; only a block made from this definition carries the
 // types. Pure: no state, no randomness. (It does not import templates.js, which imports it.)
-import { SKILL_FIELDS_MAX, SKILL_TYPES, SIGNATURE_FIELD } from '../skill-slots.js';
+import { SKILL_FIELDS_MAX, SKILL_TYPES, SIGNATURE_FIELD } from '../../../../../core/runtime/skill-slots.js';
 
 const PARTS = ['skill', 'about', 'stat', 'uses', 'rank', 'practice'];
 const FROM_ONE = new RegExp(`"(${PARTS.join('|')})1"`, 'gu');

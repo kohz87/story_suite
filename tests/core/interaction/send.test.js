@@ -2,9 +2,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashText } from '../../../src/v2/assist/common.js';
-import { linkMessage, markSend, priorPayload, readSend } from '../../../src/v2/interaction/send.js';
-import { interactionPayload } from '../../../src/v2/interaction/session.js';
+import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
+import { linkMessage, markSend, priorPayload, readSend } from '../../../core/interaction/send.js';
+import { interactionPayload } from '../../../core/interaction/session.js';
 
 const session = {
     v: 1, id: 'reply-1:0:test/probe', kindId: 'test/probe', version: 1, origin: 'reply-1', anchor: 'reply-1', attempt: 0,

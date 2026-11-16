@@ -1,4 +1,4 @@
-import { INIT_PREFIX } from '../../src/v2/registry.js';
+import { INIT_PREFIX } from '../../core/registry.js';
 
 export const PEER = 'story-director';
 

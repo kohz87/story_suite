@@ -5,12 +5,12 @@
 // swipe picker), so what they read back from `swipe_info` is what SillyTavern would read.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { KEY, RECEIPT_KEEP, readRecord } from '../../src/v2/persist.js';
-import { everyCopy, relayout } from './bench/load.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { KEY, RECEIPT_KEEP, readRecord } from '../../core/persist.js';
+import { everyCopy, relayout } from '../../packages/story-block/tests/v2/bench/load.js';
 import {
     action, fullReplay, greeting, initial, receipt, reply, setup, user,
-} from './helpers/store-chat.js';
+} from '../../packages/story-block/tests/v2/helpers/store-chat.js';
 
 const reply3 = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const json = value => JSON.stringify(value);

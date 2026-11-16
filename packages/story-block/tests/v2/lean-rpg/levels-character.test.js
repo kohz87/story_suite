@@ -11,7 +11,7 @@ import { reply, success, view, rebuilt } from '../data-modules/helpers.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
 import { fakeState } from './view/helpers.js';
 import { hostAvailable } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { seedCrypto } from '../qa/helpers/seeded.js';
 import { PARTY, character, rollReceipt, setup, sheetDomain } from './helpers.js';
 

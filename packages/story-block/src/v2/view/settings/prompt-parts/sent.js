@@ -1,7 +1,7 @@
 // "Show what's sent": the sub-fold under the size that draws every part's exact text by place, with its size and Copy.
 
 import { SETTINGS_TEXT, SENT_FOLD, sentText } from '../../../host-ui.js';
-import { fill } from '../../../strings.js';
+import { fill } from '../../../../../../../core/strings.js';
 import { el, num } from './shared-dom.js';
 
 // "Show what's sent": a sub-fold under the size, every part's exact text by place with its size and Copy (the clipboard, else the

@@ -1,9 +1,9 @@
 // Marker lines: one word per kind, dropped from the prompt history under the kind's own feature; `[battle]` stays byte for byte as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../../src/v2/registry.js';
-import { stripMarkers } from '../../../src/v2/interaction/markers.js';
-import { stripBattleMarker } from '../../../src/v2/turn/text.js';
+import { createRegistry } from '../../../core/registry.js';
+import { stripMarkers } from '../../../core/interaction/markers.js';
+import { stripBattleMarker } from '../../../core/turn/text.js';
 import { PROBE_KIND } from './helpers/probe-kind.js';
 
 const LEGACY = /^[ \t]*\[battle\][ \t]*(?:\r?\n|$)(?:[ \t]*\r?\n)?/gim;
@@ -41,7 +41,7 @@ test('markerWords lists the words of kinds whose marker feature is on', () => {
 });
 
 test('a registered kind\'s marker word leaves the prompt history; with RPG off and no kind the history is untouched', async t => {
-    const { createHost } = await import('../../../testkit/index.js');
+    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
     const seen = async (host, mainApi) => {
         await host.send('One.', 'The quay.\n\n[probe]\n\n[battle]\n\nAfter.');
         const second = await host.send('Two.', 'Reply two.');

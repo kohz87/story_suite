@@ -5,17 +5,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { validatePack } from '../../src/v2/packs/validate.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../src/v2/lean-rpg/templates.js';
-import { skillSlots } from '../../src/v2/skill-slots.js';
-import { partyLines } from '../../src/v2/lean-rpg/view/changes-lines.js';
-import { joinCard, joinDraft, joinOffers } from '../../src/v2/lean-rpg/join.js';
-import { buildDefinitions, draftSlots, readDraft, withImport, withSet, withSkill, withSkillPatch, withoutSkill } from '../../src/v2/lean-rpg/view/wizard-data.js';
-import { buildCharacterFile, parseCharacterFile } from '../../src/v2/lean-rpg/charfile.js';
-import { summaryOf, tailRoom } from '../../src/v2/data-modules/part.js';
-import { DM_LIMITS } from '../../src/v2/data-modules/schema.js';
-import { estimateTokens } from '../../src/v2/prompt.js';
+import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
+import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
+import { skillSlots } from '../../core/runtime/skill-slots.js';
+import { partyLines } from '../../packages/story-block/src/v2/lean-rpg/view/changes-lines.js';
+import { joinCard, joinDraft, joinOffers } from '../../packages/story-block/src/v2/lean-rpg/join.js';
+import { buildDefinitions, draftSlots, readDraft, withImport, withSet, withSkill, withSkillPatch, withoutSkill } from '../../packages/story-block/src/v2/lean-rpg/view/wizard-data.js';
+import { buildCharacterFile, parseCharacterFile } from '../../packages/story-block/src/v2/lean-rpg/charfile.js';
+import { summaryOf, tailRoom } from '../../packages/story-block/src/v2/data-modules/part.js';
+import { DM_LIMITS } from '../../packages/story-block/src/v2/data-modules/schema.js';
+import { estimateTokens } from '../../core/prompt.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -222,7 +222,7 @@ test('F3: the tail reserves room only for skills held past five, and the documen
     };
     const [five, eight] = [await make(5), await make(8)];
     assert.equal(Math.ceil((eight - five) / 3), DM_LIMITS.skillTailTokens, 'the reserve is the measured cost of one skill');
-    for (const file of ['../../CHANGELOG.md', '../../docs/v2/RPG.md']) {
+    for (const file of ['../../packages/story-block/CHANGELOG.md', '../../packages/story-block/docs/v2/RPG.md']) {
         assert.match(readFileSync(new URL(file, import.meta.url), 'utf8'), new RegExp(`${DM_LIMITS.skillTailTokens} tokens`), file);
     }
 });

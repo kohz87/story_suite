@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { canonicalJson } from '../../../src/v2/replay.js';
+import { canonicalJson } from '../../../../../core/replay.js';
 import { LEAN_RPG_FEATURE, readSheet } from '../../../src/v2/lean-rpg/index.js';
 import { vetOpen } from '../../../src/v2/lean-rpg/open.js';
 import { vetGroups } from '../../../src/v2/lean-rpg/board/precheck.js';

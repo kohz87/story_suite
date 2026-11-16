@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { REPLY_KEY, entryOrder, replyKey } from '../../src/v2/reply-keys.js';
-import { newRecordId } from '../../../story-block/src/v2/persist.js';
+import { newRecordId } from '../../../../core/persist.js';
 
 test('a reply\'s own story is keyed by its record ID and a count one past the highest that reply holds', () => {
     const ctx = { cause: 'story', rev: 40, receiptId: 'rc_aaaa1111', carrier: { sid: 'sw_abc123def456' }, reply: { index: 4, sid: 'sw_abc123def456' } };

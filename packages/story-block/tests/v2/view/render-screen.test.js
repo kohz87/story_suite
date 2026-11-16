@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createScreenRenderer, layoutEvaluator } from '../../../src/v2/view/render-screen.js';
 import { createDialogMount } from '../../../src/v2/view/mounts/dialog.js';
-import { createRegistry } from '../../../src/v2/registry.js';
+import { createRegistry } from '../../../../../core/registry.js';
 import { createCoreModule } from '../../../src/v2/domains/index.js';
 import { standardWidgets } from '../../../src/v2/view/widgets/index.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './mounts/helpers.js';

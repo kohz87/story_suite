@@ -2,10 +2,10 @@
 // `dm.set`, timers, reply-end settling, and the afterCapture/beforeGenerate steps they plan.
 import { DM_LIMITS as L, dmOwn, dmObject } from '../schema.js';
 import { copy, refuse, createEvaluation, cleanList, atPath, scalarHolds } from '../interpreter.js';
-import { oneLine } from '../../../text.js';
+import { oneLine } from '../../../../../../core/text.js';
 import { activeDefinition, inputsOf, instanceOf, resolveActor } from '../adapters.js';
-import { hashJson } from '../../replay.js';
-import { fill } from '../../strings.js';
+import { hashJson } from '../../../../../../core/replay.js';
+import { fill } from '../../../../../../core/strings.js';
 import { E, SET_FIELDS, partyFull, partyWitness, draftOf, stateOf, subjectsOf, instancePath, prefixImports } from './shared.js';
 import { shownText } from './prompt.js';
 import { timerDue, SETTLED_TYPES } from './timing.js';

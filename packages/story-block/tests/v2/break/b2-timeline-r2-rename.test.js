@@ -7,9 +7,9 @@
 // a refusal. (Fix: CHAT_RENAMED moves the change to the new name, turn.js onChatRenamed → store.renamed.)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { storeSaving } from '../../../src/v2/runtime.js';
-import { createStore } from '../../../src/v2/store.js';
-import { createTurn } from '../../../src/v2/turn.js';
+import { storeSaving } from '../../../../../core/runtime.js';
+import { createStore } from '../../../../../core/store.js';
+import { createTurn } from '../../../../../core/turn.js';
 import { aiMessage, createEventSource } from '../../../testkit/fake-st.js';
 
 const settle = async () => { for (let i = 0; i < 20; i++) await new Promise(resolve => setImmediate(resolve)); };

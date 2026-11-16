@@ -1,8 +1,8 @@
 // Ops: diff states into JSON Patch, apply them back, and hold them to the generic rules.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { apply, checkOps, clone, deepFreeze, diff, equal, escapeKey, isJson, parsePath, valueAt } from '../../src/v2/ops.js';
-import { rng } from '../../src/v2/rng.js';
+import { apply, checkOps, clone, deepFreeze, diff, equal, escapeKey, isJson, parsePath, valueAt } from '../../core/ops.js';
+import { rng } from '../../core/commands/rng.js';
 
 test('diff: minimal add / replace / remove in sorted key order', () => {
     const before = { b: 1, a: { x: 1, y: 2 }, gone: true };

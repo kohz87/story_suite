@@ -2,7 +2,7 @@
 // The tab list is sent back to the block widgets whenever the presentation changes.
 
 import { TEMPLATES, applyScreenCss } from '../view/render-screen.js';
-import { CORE_FEATURE } from '../features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { mergeTabs } from '../view/tab-merge.js';
 import { ROLES_WITHOUT_TAB } from '../lean-rpg/names.js';
 

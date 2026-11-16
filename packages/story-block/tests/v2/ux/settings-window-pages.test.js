@@ -122,7 +122,7 @@ test('Features: searched with the rest; a feature found by its description or it
 
 // ---- a phone must not be scrolled around the window (hotfix): only the page scroller moves, nothing else is asked to
 test('jumping to a fold scrolls nothing but the page: no scrollIntoView anywhere, every programmatic focus is preventScroll', async () => {
-    const { FakeElement } = await import('../../ui-fake-dom.js');
+    const { FakeElement } = await import('../../../../../tests/helpers/ui-fake-dom.js');
     const scrolled = [];
     const focused = [];
     const proto = FakeElement.prototype;

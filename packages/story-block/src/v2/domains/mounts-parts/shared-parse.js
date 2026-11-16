@@ -2,7 +2,7 @@
 
 import { parseCount } from '../common.js';
 import { trimText } from '../names.js';
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 
 const M = STRINGS.mounts;
 

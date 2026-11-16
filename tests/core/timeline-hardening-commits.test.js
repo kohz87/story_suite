@@ -2,9 +2,9 @@
 // race, and a host domain and participant identities no module can forge.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { crash } from '../../src/v2/timeline/index.js';
-import { BATCH, DEATH, NATIVE, NPC, clone, nativeModule, reload } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { crash } from '../../core/timeline/index.js';
+import { BATCH, DEATH, NATIVE, NPC, clone, nativeModule, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 import { hasReceipt, restoreFrom, world } from './timeline-hardening.helpers.js';
 
 // ---- 1. the commit is durable before anything is switched --------------------------------------------------

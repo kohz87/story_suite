@@ -3,19 +3,19 @@
 // answers `party.actors` itself wins; a 2.18.0 chat replays as it was written; a real `+ party` / `- party` hands out, binds, stows and restores signature gear.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { createFakeModel } from '../../testkit/model.js';
-import { createRegistry } from '../../src/v2/registry.js';
-import { validatePack } from '../../src/v2/packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../src/v2/lean-rpg/templates.js';
-import { actorIdOf, levelsQuery, rosterOf, rosterQueries } from '../../src/v2/lean-rpg/roster.js';
-import { gearMatches, planGear } from '../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../src/v2/lean-rpg/index.js';
-import { hashJson } from '../../src/v2/replay.js';
-import { reply as dmReply, success } from './data-modules/helpers.js';
-import { pack } from './packs/helpers/fixtures.js';
-import { character, sheetDomain } from './lean-rpg/helpers.js';
-import { legacyPlanner } from './lean-rpg/legacy-planner.js';
+import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../packages/story-block/testkit/model.js';
+import { createRegistry } from '../../core/registry.js';
+import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
+import { STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
+import { actorIdOf, levelsQuery, rosterOf, rosterQueries } from '../../packages/story-block/src/v2/lean-rpg/roster.js';
+import { gearMatches, planGear } from '../../packages/story-block/src/v2/lean-rpg/gear.js';
+import { readSheet } from '../../packages/story-block/src/v2/lean-rpg/index.js';
+import { hashJson } from '../../core/replay.js';
+import { reply as dmReply, success } from '../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { pack } from '../../packages/story-block/tests/v2/packs/helpers/fixtures.js';
+import { character, sheetDomain } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
+import { legacyPlanner } from '../../packages/story-block/tests/v2/lean-rpg/legacy-planner.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -39,7 +39,7 @@ const definitionOf = (name, slug = null, who = null) => {
 const define = async (host, definition) => success(await host.sdk.command('dm.define', { definition }));
 
 // (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
-const withPlanner = (model, get) => async () => { const lib = await import('../../src/v2/lean-rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
+const withPlanner = (model, get) => async () => { const lib = await import('../../packages/story-block/src/v2/lean-rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
 
 async function world(t, { user, gear = true, rpg = true, modules = [], withPack = true, model = null } = {}) {
     t.mock.method(console, 'warn', () => {});

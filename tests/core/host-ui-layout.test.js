@@ -1,13 +1,13 @@
 // The settings layout: folds, groups, compact lists, Packs, promptSize, settings window, NodeList compatibility.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../src/v2/registry.js';
-import { PACKS_FOLD, SETTINGS_TEXT, SUB_FOLD, featuresFoldOf, groupFields, promptSize, renderSettingsHost } from '../../src/v2/host-ui.js';
-import { openSettingsWindow as openSettingsOverlay } from '../../src/v2/view/settings/window.js';
-import { createCoreModule } from '../../src/v2/domains/index.js';
-import { packsFor } from '../../src/v2/runtime.js';
-import { estimateTokens } from '../../src/v2/prompt.js';
-import { cssOf } from './helpers/css-parts.js';
+import { createRegistry } from '../../core/registry.js';
+import { PACKS_FOLD, SETTINGS_TEXT, SUB_FOLD, featuresFoldOf, groupFields, promptSize, renderSettingsHost } from '../../packages/story-block/src/v2/host-ui.js';
+import { openSettingsWindow as openSettingsOverlay } from '../../packages/story-block/src/v2/view/settings/window.js';
+import { createCoreModule } from '../../packages/story-block/src/v2/domains/index.js';
+import { packsFor } from '../../core/runtime.js';
+import { estimateTokens } from '../../core/prompt.js';
+import { cssOf } from '../../packages/story-block/tests/v2/helpers/css-parts.js';
 import { change, director, doc, foldAt, rpg, setup, subFolds, topFolds } from './host-ui.helpers.js';
 
 test('folds: the top folds are the root\'s own children, each a summary and a body; sub-folds are another class', () => {

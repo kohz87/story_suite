@@ -2,9 +2,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { guardProblem, hashJson } from '../../../src/v2/replay.js';
-import { settleInteraction } from '../../../src/v2/interaction/settle.js';
-import { INTERACTION_NOTE_TOKENS } from '../../../src/v2/interaction/note.js';
+import { guardProblem, hashJson } from '../../../core/replay.js';
+import { settleInteraction } from '../../../core/interaction/settle.js';
+import { INTERACTION_NOTE_TOKENS } from '../../../core/interaction/note.js';
 
 const state = { room: 1 };
 const setup = { room: 1, rules: { pace: 'normal' }, foes: [{ name: 'Goblin' }] };

@@ -1,6 +1,6 @@
 // The extractor runner: its answer size and the factory that reads each finished reply.
 
-import { extractBlock, parseChanges, stripBlock, withoutReasoning } from '../../capture.js';
+import { extractBlock, parseChanges, stripBlock, withoutReasoning } from '../../../../../../core/capture.js';
 import { BACKGROUND, SETTING, TIMEOUT_MS, estimateTokens, normalizeType, withTimeout } from '../common.js';
 import { DEFAULT_KINDS, allowedKinds } from '../safety.js';
 import { mapPlaces, whereNow, worldKnown } from '../where.js';

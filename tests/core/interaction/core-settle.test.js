@@ -2,7 +2,7 @@
 // and its guard (dispatched by the core's replayGuard on predicate.kind === 'interaction') answers on the state before the block.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createGuards } from '../../../src/v2/commands/guards.js';
+import { createGuards } from '../../../core/commands/guards.js';
 import { KIND_ID, growKind, hostWith, settleOn, settlePayload } from './helpers/core-kind.js';
 
 const guardCheck = host => createGuards({ registry: host.registry, findQuery: name => host.registry.query?.(name) ?? null }).replayGuardCheck;

@@ -1,11 +1,11 @@
 // 2.17.0 final review: a query run from inside a command (Story Director's chronicle.note/digest) sees a roll's cue as its summary, like sdk.receipts().
 import test from 'node:test';
 import assert from 'node:assert/strict';
-const { OWNER, PARTY, PLAN_ANSWER, fakeModel, sheetDomain } = await import('../../../tests/v2/lean-rpg/helpers.js');
+const { OWNER, PARTY, PLAN_ANSWER, fakeModel, sheetDomain } = await import('./helpers.js');
 const { createHost } = await import('../../../testkit/index.js');
 const { LEAN_RPG_FEATURE, RESOLVE, createLeanRpgPart } = await import('../../../src/v2/lean-rpg/index.js');
-const { legacyPlanner } = await import('../../../tests/v2/lean-rpg/legacy-planner.js');
-const { CORE_FEATURE } = await import('../../../src/v2/features.js');
+const { legacyPlanner } = await import('./legacy-planner.js');
+const { CORE_FEATURE } = await import('../../../../../core/features.js');
 
 test('a query run from a command sees the roll cue as the receipt summary, as sdk.query does', async () => {
     const callModel = fakeModel(PLAN_ANSWER);

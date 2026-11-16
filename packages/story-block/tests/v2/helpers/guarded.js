@@ -26,9 +26,9 @@
 //                                  `! quick <id>` is gt.quick as a guarded story line.
 // Hook `replayGuard` answers by `guard.predicate.kind`; `mode` switches it to misbehave (throw, a promise,
 // no reason, nonsense), and `asked` collects what it was given.
-import { createCommandBus } from '../../../src/v2/commands.js';
-import { createRegistry } from '../../../src/v2/registry.js';
-import { createStore } from '../../../src/v2/store.js';
+import { createCommandBus } from '../../../../../core/commands.js';
+import { createRegistry } from '../../../../../core/registry.js';
+import { createStore } from '../../../../../core/store.js';
 import { greeting, initial, reply, user } from './store-chat.js';
 
 export const EPOCH = 'ep_00000001';

@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     action, apply, deleteSwipe, greeting, initial, newSwipe, reply, setup, showSwipe, user,
-} from './helpers/store-chat.js';
+} from '../../packages/story-block/tests/v2/helpers/store-chat.js';
 import { fakeTimers, isDeepFrozen, settle, SHORT, story } from './store.helpers.js';
 
 

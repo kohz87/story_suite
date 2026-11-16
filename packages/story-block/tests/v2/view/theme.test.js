@@ -9,7 +9,7 @@ import {
     ACCENT, DEFAULT_GLASS, FONT_STACKS, GLASS_MAX, GLASS_MIN, PALETTES, PANEL_STYLES, ROOT_SELECTOR, THEME_ROOTS, createThemeBridge, decideScheme, glassAlphas,
     luminance, parseColor, schemeTokens, TEXT_SIZES, textSizeOf, themeChoice, themeCss, themeTokens,
 } from '../../../src/v2/view/theme.js';
-import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA, createSettings } from '../../../src/v2/sdk.js';
+import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA, createSettings } from '../../../../../core/sdk.js';
 import { installDom } from './widgets/fake-dom.js';
 import { cssOf } from '../helpers/css-parts.js';
 

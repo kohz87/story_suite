@@ -5,9 +5,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { DM_LIMITS } from '../../../src/v2/data-modules/schema.js';
-import { refusalText } from '../../../src/v2/strings.js';
+import { refusalText } from '../../../../../core/strings.js';
 import { definition, pack, pin, reload, view, world } from '../data-modules/helpers.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 
 function made() {
     const d = definition();

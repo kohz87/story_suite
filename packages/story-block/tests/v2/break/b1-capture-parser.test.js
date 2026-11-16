@@ -1,7 +1,7 @@
 // Parser findings in src/v2/capture.js (B-b1-capture-7, -8, -9, -10).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { extractBlock, hideBlock, parseChanges, stripBlock } from '../../../src/v2/capture.js';
+import { extractBlock, hideBlock, parseChanges, stripBlock } from '../../../../../core/capture.js';
 
 // B-b1-capture-7: labels are a plain {} (V2_LOG bug 7, "null-prototype labels", has not landed):
 // `| constructor: x` reads as Object itself, a function, and the written value is lost.

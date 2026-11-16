@@ -2,8 +2,8 @@
 // guards are asked in a context that depends on the prefix alone, and quarantine is decided on the record as stored.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { REPLAY_BOOKKEEPING, replayInputsOf } from '../../src/v2/replay.js';
-import { EPOCH, OWNER, Q1, guarded, harness } from './helpers/guarded.js';
+import { REPLAY_BOOKKEEPING, replayInputsOf } from '../../core/replay.js';
+import { EPOCH, OWNER, Q1, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
 
 const SMALL = { checkpointEvery: 3, checkpointBytes: 1 << 30 };
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -358,7 +358,7 @@ test('R: a Re-read does not heal a kept block whose integrity metadata is damage
 });
 
 test('replayQueries is a module field the registry knows: a list of the module\'s own query names, checked', async () => {
-    const { definitionProblems, definitionWarnings } = await import('../../src/v2/registry.js');
+    const { definitionProblems, definitionWarnings } = await import('../../core/registry.js');
     const ok = { id: 'rq-ok', queries: { 'rq.a': () => 1 }, replayQueries: ['rq.a'] };
     assert.deepEqual(definitionWarnings(ok), [], 'no "not a module field" warning');
     assert.deepEqual(definitionProblems(ok), []);

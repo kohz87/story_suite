@@ -1,6 +1,6 @@
 // The settings host's feature switch: one feature's row (switch, label, description, prompt hint) and the id of its switch.
 
-import { PROMPT_HINT } from '../features.js';
+import { PROMPT_HINT } from '../../../../../core/features.js';
 import { el } from '../host-ui/controls.js';
 
 // One feature's row: its switch, label, description and (when it changes the static prompt) the hint.

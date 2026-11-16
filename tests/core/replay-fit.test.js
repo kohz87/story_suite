@@ -3,11 +3,11 @@
 // replayed block that would leave a domain invalid is skipped and reported (r2-14).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { apply, rebaseOps } from '../../src/v2/ops.js';
-import { validateInventory } from '../../src/v2/domains/inventory.js';
-import { createHost } from '../../testkit/index.js';
-import { readRecord } from '../../src/v2/persist.js';
-import { createStore } from '../../src/v2/store.js';
+import { apply, rebaseOps } from '../../core/ops.js';
+import { validateInventory } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../core/persist.js';
+import { createStore } from '../../core/store.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const coin = host => host.head().domains.inventory.wallets.party?.coin ?? 0;

@@ -1,8 +1,8 @@
 // The timeline's rules as principles (docs/v2/TIMELINE.md): recovery readiness, single outstanding change, native change between checkpoint and commit.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { BATCH, DEATH, NATIVE, NPC, clone, reload } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { BATCH, DEATH, NATIVE, NPC, clone, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 import { open, otherChat, world } from './timeline-principles.helpers.js';
 
 // ---- 7. recovery never lets the host look ready on a story its native state has not caught up with -----------------------------
@@ -153,7 +153,7 @@ test('recovery route after a restart: the outstanding event is finished when the
 // ---- 9. a participant's native change between its checkpoint and the commit ------------------------------------------------------
 
 test('a participant whose state changed after its checkpoint holds the commit of a save point: STALE, nothing written, nothing announced; the retry works', async t => {
-    const { hashJson } = await import('../../src/v2/replay.js');
+    const { hashJson } = await import('../../core/replay.js');
     const w = await world(t, { wrap: native => {
         native.def.participant.current = ({ hash }) => ({ ok: true, current: hashJson(native.native.store) === hash });
     } });

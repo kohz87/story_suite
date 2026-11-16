@@ -2,10 +2,10 @@
 // stays uncaptured until what it read is restored or the interaction is discarded; the marker survives a reload; Re-read refuses it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { aiMessage } from '../../../testkit/fake-st.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaModule, withLines } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { aiMessage } from '../../../packages/story-block/testkit/fake-st.js';
+import { readRecord } from '../../../core/persist.js';
+import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaModule, withLines } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 // Stage and Send, build the reply's prompt (the interceptor), and leave the reply in flight.
 async function inFlight(host, api) {

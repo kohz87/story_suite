@@ -1,10 +1,10 @@
 // The public API v1: the events (with replay: a swipe, a Re-read, a delete, a reload), a listener that throws, review fixes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { createPublicApi, createReaders, diffLeaves, plainText } from '../../src/v2/public-api.js';
-import { createEvents } from '../../src/v2/sdk.js';
-import { sheetDomain, character } from './lean-rpg/helpers.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createPublicApi, createReaders, diffLeaves, plainText } from '../../core/public-api.js';
+import { createEvents } from '../../core/sdk.js';
+import { sheetDomain, character } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
 import { skip, reply, settle, record, blocksModule } from './public-api.helpers.js';
 
 // ---- the events ----------------------------------------------------------------------------------------------------------------------------

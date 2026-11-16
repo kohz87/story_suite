@@ -1,6 +1,6 @@
 // Shared names: the strings table and the element ids the page furniture uses.
 
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 
 export const S = STRINGS;
 

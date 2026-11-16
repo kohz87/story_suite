@@ -55,7 +55,7 @@ export function describeTestkit() {
     const here = fileURLToPath(new URL('.', import.meta.url));
     const vendored = fileURLToPath(new URL('../../VERSION', import.meta.url));
     try {
-        if (existsSync(vendored) && existsSync(fileURLToPath(new URL('../../testkit/host.js', import.meta.url)))) {
+        if (existsSync(vendored) && existsSync(fileURLToPath(new URL('../host.js', import.meta.url)))) {
             const lines = readFileSync(vendored, 'utf8').trim().split('\n');
             return `${lines.slice(0, 2).join(', ')} (vendored), matrix ${MATRIX_VERSION}`;
         }

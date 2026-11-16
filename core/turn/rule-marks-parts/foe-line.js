@@ -1,8 +1,8 @@
 // Foe line: tells whether a narrator's set-slot line is a foe line, for the rule marks.
 
-import { activeDefinition } from '../../data-modules/adapters.js';
-import { withKind } from '../../data-modules/part/act.js';
-import { resolveModule } from '../../data-modules/part/views.js';
+import { activeDefinition } from '../../../packages/story-block/src/v2/data-modules/adapters.js';
+import { withKind } from '../../../packages/story-block/src/v2/data-modules/part/act.js';
+import { resolveModule } from '../../../packages/story-block/src/v2/data-modules/part/views.js';
 
 /** A narrator's set-slot line, using normalized labels and the same omitted-kind inference as the handler. */
 export function foeLine(line, state = null) {

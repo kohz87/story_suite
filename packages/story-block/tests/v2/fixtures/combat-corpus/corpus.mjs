@@ -5,7 +5,7 @@
 import { RESOLVE } from '../../../../src/v2/lean-rpg/names.js';
 import { receiptCue } from '../../../../src/v2/lean-rpg/cue.js';
 import { createBattleLog } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { readRecord } from '../../../../src/v2/persist.js';
+import { readRecord } from '../../../../../../core/persist.js';
 
 export const roleOf = definition => definition?.role ?? null;
 const clone = value => JSON.parse(JSON.stringify(value ?? null));

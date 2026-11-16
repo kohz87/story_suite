@@ -1,7 +1,7 @@
 // The job: reading one content list of a pack (unique slugs, each record's own check) and passing open records through.
 
 import { LIMITS, SLUG } from '../../limits.js';
-import { oneLine } from '../../../../text.js';
+import { oneLine } from '../../../../../../../core/text.js';
 import { isObject } from './shapes.js';
 import { slugify, fullId } from './record-ids.js';
 

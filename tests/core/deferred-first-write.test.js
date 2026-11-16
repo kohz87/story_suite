@@ -2,7 +2,7 @@
 // a store built without `seed` cannot apply a change under a slice that is not there, so it keeps the one whole `add` (REPLAY.md "Deferred domains").
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { harness } from './helpers/guarded.js';
+import { harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
 
 const later = {
     id: 'zz-first', name: 'First', version: '0.0.1',

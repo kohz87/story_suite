@@ -6,8 +6,8 @@
 // because keepaliveFits() said it fits. The newest reply's state is lost on close with no warning.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createChatFile, KEEPALIVE_MAX } from '../../../src/v2/chat-file.js';
-import { storeSaving } from '../../../src/v2/runtime.js';
+import { createChatFile, KEEPALIVE_MAX } from '../../../../../core/store/chat-file.js';
+import { storeSaving } from '../../../../../core/runtime.js';
 
 const bytes = text => new TextEncoder().encode(text).length;
 // ~25k CJK characters: about 25k code units, about 75 KB as UTF-8.

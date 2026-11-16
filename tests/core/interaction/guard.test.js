@@ -2,9 +2,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { guardProblem, hashJson } from '../../../src/v2/replay.js';
-import { interactionGuard } from '../../../src/v2/interaction/guard.js';
-import { settleInteraction } from '../../../src/v2/interaction/settle.js';
+import { guardProblem, hashJson } from '../../../core/replay.js';
+import { interactionGuard } from '../../../core/interaction/guard.js';
+import { settleInteraction } from '../../../core/interaction/settle.js';
 
 const state = { room: 1 };
 const setup = { room: 1, foes: [{ name: 'Goblin' }] };

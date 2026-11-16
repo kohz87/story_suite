@@ -1,6 +1,6 @@
 // Works out what changed between two sets of leaves and the text that tells it.
 
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 import { plainText } from './text-of.js';
 
 // The most text the `summary` of `story:reply` holds.

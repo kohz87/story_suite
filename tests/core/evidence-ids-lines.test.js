@@ -1,8 +1,8 @@
 // A proof id belongs to the block that holds it (docs/v2/EVIDENCE.md): legacy occurrences, placement, identical lines, and retries.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { T1, T2, director, evidenceHarness, sampleModule, hostModule } from './helpers/evidence.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { T1, T2, director, evidenceHarness, sampleModule, hostModule } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 import { ids, rerunOf } from './evidence-ids.helpers.js';
 
 test('a store that never gave proof is written as it was: no list of owners, no occurrences', () => {

@@ -2,7 +2,7 @@
 // ops.js (live), the validators run, claims are a real set (a second claim of a key is false), `roll` is the host's seeded die, and the
 // queries other modules answer (rules.sheet, rules.modifier, npc.identity, npc.socialModifier, story.evidence) are given by the test.
 import { checkKind, part } from '../../../src/v2/checks/index.js';
-import { apply, checkOps, diff } from '../../../../story-block/src/v2/ops.js';
+import { apply, checkOps, diff } from '../../../../../core/ops.js';
 import { projection } from '../../../src/v2/checks/domain.js';
 
 export function deepFreeze(value) {

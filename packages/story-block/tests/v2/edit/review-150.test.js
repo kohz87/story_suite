@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { inventoryEditGuard } from '../../../src/v2/domains/inventory.js';
 import { renameDecision } from '../../../src/v2/domains/inventory/edit.js';
-import { hashJson } from '../../../src/v2/replay.js';
+import { hashJson } from '../../../../../core/replay.js';
 import { definition, pack, reload } from '../data-modules/helpers.js';
 
 const change = (...lines) => `Changed.\n<Changes>\n${lines.join('\n')}\n</Changes>`;

@@ -6,7 +6,7 @@
 // written, that later add then overwrites the Re-read's entry (PROBLEMSKEY), which the replay oracle cannot see
 // (it overwrites the same way). This walks the line as the oracle rebuilds it and lists every such add.
 // Not a test file (the test glob does not match helpers/).
-import { readRecord } from '../../../../src/v2/persist.js';
+import { readRecord } from '../../../../../../core/persist.js';
 import { carriers, rebuildAt, strictApply } from './oracle.js';
 
 const REV_KEY = /^\d+(?:\.\d+)?$/;

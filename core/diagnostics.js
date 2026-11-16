@@ -15,13 +15,13 @@
 // Pure apart from `captureConsole` (wraps console.error once) and `noteSaveError`: the report is built
 // from a `source` the settings host gives (ui-host.js).
 // Public face: re-exports its parts.
-export { PROBLEMS_SHOWN, ERRORS_KEPT, HOOK_TIMEOUT_MS } from './diagnostics-parts/limits.js';
-export { isSecretKey, REMOVED, scrubSecrets, scrubLine } from './diagnostics-parts/secrets.js';
-export { scrubSettings } from './diagnostics-parts/scrub-settings.js';
-export { noteError, noteSaveError } from './diagnostics-parts/notes.js';
-export { captureConsole } from './diagnostics-parts/console-capture.js';
-export { caughtSoFar, resetCaught } from './diagnostics-parts/caught-view.js';
-export { chatCounts } from './diagnostics-parts/chat-counts.js';
-export { callsLine } from './diagnostics-parts/calls-line.js';
-export { buildReport } from './diagnostics-parts/build-report.js';
-export { reportFileName } from './diagnostics-parts/report-file-name.js';
+export { PROBLEMS_SHOWN, ERRORS_KEPT, HOOK_TIMEOUT_MS } from '../packages/story-block/src/v2/diagnostics-parts/limits.js';
+export { isSecretKey, REMOVED, scrubSecrets, scrubLine } from '../packages/story-block/src/v2/diagnostics-parts/secrets.js';
+export { scrubSettings } from '../packages/story-block/src/v2/diagnostics-parts/scrub-settings.js';
+export { noteError, noteSaveError } from '../packages/story-block/src/v2/diagnostics-parts/notes.js';
+export { captureConsole } from '../packages/story-block/src/v2/diagnostics-parts/console-capture.js';
+export { caughtSoFar, resetCaught } from '../packages/story-block/src/v2/diagnostics-parts/caught-view.js';
+export { chatCounts } from '../packages/story-block/src/v2/diagnostics-parts/chat-counts.js';
+export { callsLine } from '../packages/story-block/src/v2/diagnostics-parts/calls-line.js';
+export { buildReport } from '../packages/story-block/src/v2/diagnostics-parts/build-report.js';
+export { reportFileName } from '../packages/story-block/src/v2/diagnostics-parts/report-file-name.js';

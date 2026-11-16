@@ -1,6 +1,6 @@
-import { installFakeDom } from '../ui-fake-dom.js';
-import { createRegistry } from '../../src/v2/registry.js';
-import { createSettings } from '../../src/v2/sdk.js';
+import { installFakeDom } from '../helpers/ui-fake-dom.js';
+import { createRegistry } from '../../core/registry.js';
+import { createSettings } from '../../core/sdk.js';
 
 export const doc = installFakeDom();
 

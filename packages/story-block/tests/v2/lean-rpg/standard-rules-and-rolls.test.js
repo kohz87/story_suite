@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { validatePlan } from '../../../src/v2/lean-rpg/index.js';
 import { STANDARD_FORMULA, STANDARD_PRESETS, STANDARD_RULE_KEYS, oddsFor, presetOf, rulesFromSettings, sameRules, subjectOdds, oddsSubject, STANDARD_SETTING, DIFFICULTY_SETTING, normalizeRules } from '../../../src/v2/lean-rpg/rules.js';
 import { judge } from '../../../src/v2/lean-rpg/standard.js';
-import { hashJson } from '../../../src/v2/replay.js';
+import { hashJson } from '../../../../../core/replay.js';
 import { bodies, dice, hit, party, planOf, roll, sheetOf } from './standard.helpers.js';
 
 // ---- the recorded rules -----------------------------------------------------------------------------------------------

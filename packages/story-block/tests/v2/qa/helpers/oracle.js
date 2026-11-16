@@ -32,14 +32,14 @@
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readRecord } from '../../../../src/v2/persist.js';
+import { readRecord } from '../../../../../../core/persist.js';
 import { initial as dmInitial } from '../../../../src/v2/data-modules/part/shared.js';
-import { createStore } from '../../../../src/v2/store.js';
+import { createStore } from '../../../../../../core/store.js';
 import { validateInventory } from '../../../../src/v2/domains/inventory.js';
 import { aliasKey, resolveDef } from '../../../../src/v2/domains/names.js';
 import { validateScene } from '../../../../src/v2/domains/scene.js';
 import { validatePeople } from '../../../../src/v2/domains/people/validate.js';
-import { hashJson } from '../../../../src/v2/replay.js';
+import { hashJson } from '../../../../../../core/replay.js';
 import { checkGuard } from '../../../../src/v2/lean-rpg/practice.js';
 import { inventoryEditGuard } from '../../../../src/v2/domains/inventory/edit.js';
 import { probeModule } from './probe-module.js';

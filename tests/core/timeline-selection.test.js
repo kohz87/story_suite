@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { nativeModule, rulesModule, restore, clone, reload, NATIVE } from './helpers/timeline.js';
-import { hashJson } from '../../src/v2/replay.js';
-import { createParticipants } from '../../src/v2/timeline/participants.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { nativeModule, rulesModule, restore, clone, reload, NATIVE } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { hashJson } from '../../core/replay.js';
+import { createParticipants } from '../../core/timeline/participants.js';
 import { sourceOf } from '../helpers/split-source.js';
-import { director, hostModule } from './helpers/evidence.js';
+import { director, hostModule } from '../../packages/story-block/tests/v2/helpers/evidence.js';
 
 async function setup(t) {
     const native = nativeModule();
@@ -102,8 +102,8 @@ test('swipe back, Continue and checkpoint rebuild keep the selected native check
 
 test('selection rules and durability have one implementation site', async () => {
     const { readFile } = await import('node:fs/promises');
-    const coordinator = sourceOf('src/v2/timeline/coordinator.js');
-    const participants = await readFile(new URL('../../src/v2/timeline/participants.js', import.meta.url), 'utf8');
+    const coordinator = sourceOf('../../core/timeline/coordinator.js');
+    const participants = await readFile(new URL('../../core/timeline/participants.js', import.meta.url), 'utf8');
     assert.equal((coordinator.match(/function selectionPlan\(/g) ?? []).length, 1);
     assert.equal((coordinator.match(/await store\.flush\(/g) ?? []).length, 1);
     assert.equal((participants.match(/timer = setTimeout\(/g) ?? []).length, 1);

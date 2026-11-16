@@ -2,7 +2,7 @@
 // record (the reader's next message, a reply not read yet), nor after a batch writes its records again.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { action, apply, fullReplay, greeting, initial, reply, setup, user } from './helpers/store-chat.js';
+import { action, apply, fullReplay, greeting, initial, reply, setup, user } from '../../packages/story-block/tests/v2/helpers/store-chat.js';
 
 function counted(n) {
     let calls = 0;

@@ -1,7 +1,7 @@
 // The reader of the prompt's size: the turn's parts counted by estimate, then by SillyTavern's tokenizer, and the footer bar's numbers.
 
 import { promptSize, redactSentOf } from '../../../host-ui.js';
-import { DEFAULT_TAIL_BUDGET, estimateTokens } from '../../../prompt.js';
+import { DEFAULT_TAIL_BUDGET, estimateTokens } from '../../../../../../../core/prompt.js';
 
 const ownParts = own => (Array.isArray(own) ? own.filter(part => part && typeof part.text === 'string' && part.text) : []);
 

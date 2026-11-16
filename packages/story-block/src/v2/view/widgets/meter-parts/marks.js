@@ -1,7 +1,7 @@
 // The meter's marks: stage ticks, the stage reached, the critical-band warning and the change text.
 
 import { fmt, str } from '../dom.js';
-import { oneLine } from '../../../../text.js';
+import { oneLine } from '../../../../../../../core/text.js';
 import { meterRatio } from './ratio.js';
 import { numberOr } from './shared-number.js';
 

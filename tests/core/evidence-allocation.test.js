@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const dir = fileURLToPath(new URL('../../src/v2/', import.meta.url));
+const dir = fileURLToPath(new URL('../../packages/story-block/src/v2/', import.meta.url));
 const files = fs.readdirSync(dir, { recursive: true }).filter(name => String(name).endsWith('.js'));
 const source = name => fs.readFileSync(path.join(dir, name), 'utf8').split('\n').filter(line => !/^\s*(\/\/|\*|\/\*)/.test(line)).join('\n');
 

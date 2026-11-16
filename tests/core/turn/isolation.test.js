@@ -3,9 +3,9 @@
 // With it off each of these is exactly as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { mergeParts } from '../../../src/v2/domains/core/merge.js';
-import { FLAGS, flagOn } from '../../../src/v2/flags.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { mergeParts } from '../../../packages/story-block/src/v2/domains/core/merge.js';
+import { FLAGS, flagOn } from '../../../core/runtime/flags.js';
 
 const ON = { flags: { [FLAGS.isolatedApply]: true } };
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

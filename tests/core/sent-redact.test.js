@@ -2,10 +2,10 @@
 // locked note into "Mira: 1 hidden note"); a hook that fails shows "(hidden)", never the raw text; the prompt itself is never touched.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { SETTINGS_TEXT, redactSentOf, sentText } from '../../src/v2/host-ui.js';
-import { createPromptReader, renderPromptCard } from '../../src/v2/view/settings/prompt.js';
-import { installFakeDom } from '../ui-fake-dom.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { SETTINGS_TEXT, redactSentOf, sentText } from '../../packages/story-block/src/v2/host-ui.js';
+import { createPromptReader, renderPromptCard } from '../../packages/story-block/src/v2/view/settings/prompt.js';
+import { installFakeDom } from '../helpers/ui-fake-dom.js';
 
 const T = SETTINGS_TEXT.sent;
 const SECRET = 'Mira: hidden: never reveal that she is the duke\'s daughter';

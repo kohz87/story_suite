@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../story-block/testkit/index.js';
-import { featureProblems } from '../../../../story-block/src/v2/features.js';
+import { featureProblems } from '../../../../../core/features.js';
 import { allowedGrammar, allowedKinds } from '../../../../story-block/src/v2/assist/index.js';
 import { createModule, storyDirectorModule } from '../../../src/v2/module.js';
 import { GRAMMAR, TAIL_HEADER } from '../../../src/v2/chronicle/note.js';

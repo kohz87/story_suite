@@ -2,11 +2,11 @@
 // freezing, and every reason it must replay instead (guards, checkpoints, a staged Re-read or an applying write).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readRecord } from '../../src/v2/persist.js';
-import { hashJson } from '../../src/v2/replay.js';
-import { hasMeta } from '../../src/v2/store/digest.js';
-import { createPrefixMemo, PREFIX_MEMO_MAX } from '../../src/v2/store/prefix-memo.js';
-import { createStore } from '../../src/v2/store.js';
+import { readRecord } from '../../core/persist.js';
+import { hashJson } from '../../core/replay.js';
+import { hasMeta } from '../../core/store/digest.js';
+import { createPrefixMemo, PREFIX_MEMO_MAX } from '../../core/store/prefix-memo.js';
+import { createStore } from '../../core/store.js';
 
 const state = (n, seen = []) => ({ v: 2, meta: { rev: n }, domains: { test: { n, seen } } });
 const user = text => ({ is_user: true, mes: text, extra: {} });
@@ -379,7 +379,7 @@ test('witness memo: the answers kept by prefix stop at the cap, the oldest first
 });
 
 test('prefix memo: the replay rules marker is part of the environment, so a state built under the old rule is replayed again', async () => {
-    const { createRegistry } = await import('../../src/v2/registry-parts/create.js');
+    const { createRegistry } = await import('../../core/registry-parts/create.js');
     const now = createRegistry().rulesSignature();
     assert.match(now, /;rules:h$/, 'the signature names the host\'s replay rule');
     const old = now.replace(/;rules:h$/, '');

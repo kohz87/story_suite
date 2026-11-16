@@ -12,9 +12,9 @@
 // live reply, a Re-read, a swipe, a delete and a reload agree; nothing is kept. Every text is set with
 // textContent; nothing the story wrote becomes markup. The texts are in strings.js.
 
-import { readRecord, swipeOf } from './persist.js';
+import { readRecord, swipeOf } from '../../../../core/persist.js';
 import { CHOICES_FEATURE } from './extras.js';
-import { STRINGS } from './strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 
 const X = STRINGS.extras;
 export const EXTRAS_CLASS = 'story-suite-extras';

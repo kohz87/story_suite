@@ -12,7 +12,7 @@ import { boardSession, markSend, openBoard, stageExchange } from '../../../../sr
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { dropOf } from '../../../../src/v2/lean-rpg/ambush.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { pendingStart } from '../../../../src/v2/turn/fight-start.js';
+import { pendingStart } from '../../../../../../core/turn/fight-start.js';
 import { capture } from './corpus.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

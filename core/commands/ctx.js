@@ -5,7 +5,7 @@
 import { clone, deepFreeze, escapeKey, frozenCopy } from '../ops.js';
 import { deriveId, epochOf, guardProblem, hashJson, isPlainJson } from '../replay.js';
 import { ROLLS } from '../ops/anchored.js';
-import { roll as rollDice } from '../rng.js';
+import { roll as rollDice } from './rng.js';
 import { CLOCK_COMMANDS, markerHash } from '../timeline/boundary.js';
 import { capture as captureSnapshot } from '../timeline/manifest.js';
 import { stateHash } from '../timeline/host-block.js';

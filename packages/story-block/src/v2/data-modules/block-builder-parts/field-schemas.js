@@ -1,8 +1,8 @@
 // Field schemas: a plain field, a List of entries and the three change kinds of a list, from the form.
-import { oneLine } from '../../../text.js';
+import { oneLine } from '../../../../../../core/text.js';
 import { DM_LIMITS as L } from '../schema.js';
 import { cleanList, titlePart } from '../interpreter.js';
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { problem, number } from './shared-basics.js';
 import { parseNames } from './names.js';
 import { partKey } from './slugs.js';

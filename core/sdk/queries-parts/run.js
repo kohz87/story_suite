@@ -1,6 +1,6 @@
 // Runs a registered query on a state with its tools: the answer is a plain copy.
 
-import { entriesWithCue } from '../../lean-rpg/cue.js';
+import { entriesWithCue } from '../../../packages/story-block/src/v2/lean-rpg/cue.js';
 
 /**
  * Runs a registered query on `state`; the answer is a plain copy. Throws for an unknown query.

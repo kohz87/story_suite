@@ -2,8 +2,8 @@
 // tells what happened, then each module in the fixed order, within the budgets.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRegistry } from '../../src/v2/registry.js';
-import { DEFAULT_TAIL_BUDGET, HAPPENED, STATIC_MARKER, assemble, estimateTokens, tailOrder } from '../../src/v2/prompt.js';
+import { createRegistry } from '../../core/registry.js';
+import { DEFAULT_TAIL_BUDGET, HAPPENED, STATIC_MARKER, assemble, estimateTokens, tailOrder } from '../../core/prompt.js';
 
 const freeze = value => Object.freeze(value);
 

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { boardFailure, restoreHint } from '../../../src/v2/turn/held-board.js';
+import { boardFailure, restoreHint } from '../../../../../core/turn/held-board.js';
 
 const WHERE = '(Fight tab, Discard fight)';
 const FILES = ['lean-rpg/precall.js', 'lean-rpg/board/view.js', 'lean-rpg/board/commit.js', 'lean-rpg/board/session.js',

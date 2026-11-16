@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { createStore } from '../../../src/v2/store.js';
+import { createStore } from '../../../../../core/store.js';
 
 const QUESTS = {
     id: 'rv-quests', name: 'rv quests', version: '0.0.0',

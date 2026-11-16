@@ -2,7 +2,7 @@
 // the values they report when the reader makes a choice.
 
 import { FORM_TEXT, fill, readInt } from '../schema.js';
-import { cutAt } from '../../../../text.js';
+import { cutAt } from '../../../../../../../core/text.js';
 import { button, h, named, setDisabled } from './shared.js';
 
 // ---- switch ----------------------------------------------------------------------------------------

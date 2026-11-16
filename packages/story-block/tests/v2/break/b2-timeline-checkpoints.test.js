@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { CHECKPOINT_EVERY } from '../../../src/v2/store.js';
+import { CHECKPOINT_EVERY } from '../../../../../core/store.js';
 
 // Enough replies after the first that a checkpoint comes after it (the rule: every CHECKPOINT_EVERY carriers).
 const LONG = CHECKPOINT_EVERY + 5;

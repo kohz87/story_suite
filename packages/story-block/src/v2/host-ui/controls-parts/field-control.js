@@ -1,10 +1,10 @@
 // One settings control for one field (switch, choice, profile, number, text, or a list of items) and its onChange wiring.
 
-import { normalizeField, FIELD_TYPES } from '../../registry.js';
-import { SETTING_LIST_ROWS } from '../../sdk.js';
-import { fill } from '../../strings.js';
-import { cutAt } from '../../../text.js';
-import { profileSelect } from '../../profile-field.js';
+import { normalizeField, FIELD_TYPES } from '../../../../../../core/registry.js';
+import { SETTING_LIST_ROWS } from '../../../../../../core/sdk.js';
+import { fill } from '../../../../../../core/strings.js';
+import { cutAt } from '../../../../../../core/text.js';
+import { profileSelect } from '../../../../../../core/model-call/profile-field.js';
 import { SETTINGS_TEXT } from '../text.js';
 import { el, button } from './dom.js';
 import { readInt, optionsOf, emptyValue, subLabel } from './values.js';

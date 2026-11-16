@@ -1,6 +1,6 @@
 // Reads of a field as the form engine needs them: its options, a label for its key, and whether a search matches it.
 
-import { normalizeField } from '../../../registry.js';
+import { normalizeField } from '../../../../../../../core/registry.js';
 
 /** A choice's options as [{ value, label }] (strings). */
 export const optionsOf = field => (normalizeField(field)?.options ?? []).map(option => (option && typeof option === 'object' ? { value: String(option.value), label: String(option.label ?? option.value) } : { value: String(option), label: String(option) }));

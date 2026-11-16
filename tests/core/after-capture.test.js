@@ -8,7 +8,7 @@
 // middle delete take it back; rebuild equals live; a hook that fails is a Problem.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const TOWN = '~ place Guild Office | kind: settlement';

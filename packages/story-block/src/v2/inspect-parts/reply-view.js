@@ -1,7 +1,7 @@
 // One reply as the inspector shows it: its state, the state before, the diff, its ops, receipts and problems.
 
-import { readRecord } from '../persist.js';
-import { oneLine } from '../../text.js';
+import { readRecord } from '../../../../../core/persist.js';
+import { oneLine } from '../../../../../core/text.js';
 import { receiptCue } from '../lean-rpg/cue.js';
 import { diffStates } from './diff.js';
 

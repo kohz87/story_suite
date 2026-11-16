@@ -1,7 +1,7 @@
 // Evaluates a checked definition's expressions, conditions, effects, timers, rules and rewards on a disposable instance.
 import { DM_LIMITS as L, dmInt, dmOwn } from '../schema.js';
-import { hashJson } from '../../replay.js';
-import { STRINGS, fill } from '../../strings.js';
+import { hashJson } from '../../../../../../core/replay.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { refuse } from './errors.js';
 import { copy, bytes, atPath } from './values.js';
 import { scalarHolds } from './scalars.js';

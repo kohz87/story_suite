@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { clockModule, paidTraining } from './helpers/clock.js';
-import { hashJson } from '../../src/v2/replay.js';
-import { nativeModule, sealerModule, restore, clone, reload } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { clockModule, paidTraining } from '../../packages/story-block/tests/v2/helpers/clock.js';
+import { hashJson } from '../../core/replay.js';
+import { nativeModule, sealerModule, restore, clone, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 import { sourceOf } from '../helpers/split-source.js';
 
 const advance = (host, minutes, rest = {}) => host.bus.command('director.advance', { minutes, ...rest }, { cause: 'system' });
@@ -134,9 +134,9 @@ test('a marker selects the native prefix at the logical boundary, even when publ
 });
 
 test('clock marker identity, snapshot capture, validation and durability each have one source', async () => {
-    const commands = sourceOf('src/v2/commands.js');
-    const boundary = sourceOf('src/v2/timeline/boundary.js');
-    const coordinator = sourceOf('src/v2/timeline/coordinator.js');
+    const commands = sourceOf('../../core/commands.js');
+    const boundary = sourceOf('../../core/timeline/boundary.js');
+    const coordinator = sourceOf('../../core/timeline/coordinator.js');
     assert.equal((commands.match(/clockBoundary\(input\)/g) ?? []).length, 1);
     assert.equal((commands.match(/`clock:\$\{root.block\}/g) ?? []).length, 1);
     assert.match(commands, /const root = cursorOf\(tx\)/);

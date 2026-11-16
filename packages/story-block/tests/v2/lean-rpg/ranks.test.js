@@ -8,7 +8,7 @@ import { RANK_QUERY, bandsOf, clampLevel, levelLabel, packLevelsOf, playerRankVa
 import { rankQuery } from '../../../src/v2/lean-rpg/levels.js';
 import { fightGuard, fightWitness, foeLevel, memberLevel } from '../../../src/v2/lean-rpg/fight.js';
 import { FIGHT } from '../../../src/v2/lean-rpg/names.js';
-import { hashJson } from '../../../src/v2/replay.js';
+import { hashJson } from '../../../../../core/replay.js';
 import { pack } from '../packs/helpers/fixtures.js';
 import { foeBlock, sheetDomain, PARTY } from './helpers.js';
 

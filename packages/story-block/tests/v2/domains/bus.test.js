@@ -2,7 +2,7 @@
 // validators run, nothing is stored on a rejection, and capture runs through bus.run.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCommandBus } from '../../../src/v2/commands.js';
+import { createCommandBus } from '../../../../../core/commands.js';
 import { counterIds, fakeRegistry, fakeStore } from '../helpers/bus-fakes.js';
 import { initialState, line } from './helpers/fake-ctx.js';
 import { core, stocked } from './fixtures.js';

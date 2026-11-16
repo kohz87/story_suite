@@ -2,7 +2,7 @@
 // from its state and the state before it, with the ops the real command bus writes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCommandBus } from '../../../src/v2/commands.js';
+import { createCommandBus } from '../../../../../core/commands.js';
 import { changesDigest, changesSummary } from '../../../src/v2/screens/index.js';
 import { counterIds, fakeRegistry, fakeStore } from '../helpers/bus-fakes.js';
 import { core, sceneState } from './helpers.js';

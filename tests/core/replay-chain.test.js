@@ -4,9 +4,9 @@
 // reset is absolute, so a reply deleted before it never turns it into a negative change.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { isMetaSpan } from '../../src/v2/replay.js';
-import { EPOCH, Q1, claimKey, guarded, harness } from './helpers/guarded.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { isMetaSpan } from '../../core/replay.js';
+import { EPOCH, Q1, claimKey, guarded, harness } from '../../packages/story-block/tests/v2/helpers/guarded.js';
 
 const SMALL = { checkpointEvery: 3, checkpointBytes: 1 << 30 };
 

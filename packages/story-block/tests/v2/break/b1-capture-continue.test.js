@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { extractBlock } from '../../../src/v2/capture.js';
+import { extractBlock } from '../../../../../core/capture.js';
 
 test('a Continue that adds a second <Changes> block has its lines captured and hidden', async t => {
     t.mock.method(console, 'warn', () => {});

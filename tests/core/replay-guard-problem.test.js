@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { clone, reload } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { clone, reload } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 
 function owner() {
     return { id: 'guard-diagnostic', name: 'Guard diagnostic fixture', version: '1.0.0',
@@ -98,8 +98,8 @@ test('a thrown replacement guard is reported even when the valid old block is ke
 test('thrown guard diagnostics have one formatting and recording site', async () => {
     const {readFile} = await import('node:fs/promises');
     const { sourceOf } = await import('../helpers/split-source.js');
-    const store = sourceOf('src/v2/store.js');
-    const commands = await readFile(new URL('../../src/v2/commands.js', import.meta.url), 'utf8');
+    const store = sourceOf('../../core/store.js');
+    const commands = await readFile(new URL('../../core/commands.js', import.meta.url), 'utf8');
     assert.equal((store.match(/function thrownGuard\(/g) ?? []).length, 1);
     assert.equal((store.match(/return thrownGuard\(/g) ?? []).length, 1);
     assert.equal(commands.includes('replayGuard failed ('), false);

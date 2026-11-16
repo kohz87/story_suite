@@ -1,6 +1,6 @@
 // The reader-only rule for edits, and setting what an item adds to carry capacity.
 
-import { fill } from '../../../strings.js';
+import { fill } from '../../../../../../../core/strings.js';
 import { READER_CARRY_MAX } from '../state.js';
 import { E } from '../stacks.js';
 

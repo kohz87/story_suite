@@ -1,7 +1,7 @@
 // Checking the player's starting record and the RPG settings with its level ranks.
 
 import { YOU_FIELDS, YOU_RANK_FIELDS, YOU_RANK_LABEL_MAX, LEAN_RPG_FIELDS, LEAN_RPG_LIMITS, RPG_FORMULAS, RPG_NUMBER_KEYS, RPG_RANK_LIMITS, RPG_RANK_FIELDS, RPG_PLAYER_RANK_LIMITS, RPG_PLAYER_RANK_FIELDS } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../text.js';
+import { oneLine, foldKey } from '../../../../../../../core/text.js';
 import { isObject, records } from '../core.js';
 import { checkSkillSet } from './skill-sets.js';
 

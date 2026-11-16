@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashJson } from '../../../src/v2/replay.js';
-import { createSession, interactionKey, interactionPayload, stageInteraction } from '../../../src/v2/interaction/session.js';
+import { hashJson } from '../../../core/replay.js';
+import { createSession, interactionKey, interactionPayload, stageInteraction } from '../../../core/interaction/session.js';
 
 const kind = {
     version: 1,

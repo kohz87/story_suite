@@ -14,7 +14,7 @@ import { createHost } from '../../../testkit/index.js';
 import { prng, seedCrypto } from './helpers/seeded.js';
 import { checkInvariants } from './helpers/oracle.js';
 import { displayLines } from '../../../src/v2/extras.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
 import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
 import { memberLevel, memberXp } from '../../../src/v2/lean-rpg/fight.js';

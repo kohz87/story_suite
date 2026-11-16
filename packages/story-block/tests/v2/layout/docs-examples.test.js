@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { renderLayout, validateLayout, tabFromLayout } from '../../../src/v2/layout/index.js';
 import { mount, fakeQuery, one, settle } from './helpers/fake-dom.js';
-import { texts } from '../../ui-fake-dom.js';
+import { texts } from '../../../../../tests/helpers/ui-fake-dom.js';
 
 const doc = readFileSync(new URL('../../../docs/v2/LAYOUTS.md', import.meta.url), 'utf8');
 const example = heading => {

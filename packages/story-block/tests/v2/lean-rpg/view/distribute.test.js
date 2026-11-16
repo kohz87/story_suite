@@ -5,7 +5,7 @@ import { setupDom } from '../../view/mounts/helpers.js';
 import { newSession, renderDistribute, spentOf } from '../../../../src/v2/lean-rpg/view/distribute.js';
 import { readParty } from '../../../../src/v2/lean-rpg/view/party-data.js';
 import { replyEdits } from '../../../../src/v2/reply-cards.js';
-import { readRecord } from '../../../../src/v2/persist.js';
+import { readRecord } from '../../../../../../core/persist.js';
 import { DM_LIMITS } from '../../../../src/v2/data-modules/schema.js';
 import { characterDefinition, defineAll, fakeState, fieldsOf, roleOf, setField } from './helpers.js';
 

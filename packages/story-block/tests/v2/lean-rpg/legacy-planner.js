@@ -7,7 +7,7 @@ import { planIsEmpty, validatePlan } from '../../../src/v2/lean-rpg/plan.js';
 import { FOE_SLOTS, FORMULA, LIMITS, STATS, USES, ROLLS_SETTING, LV_VERSION, PRACTICE, PRACTICE_SETTING, practiceOf } from '../../../src/v2/lean-rpg/names.js';
 import { ROLL_TYPES } from '../../../src/v2/lean-rpg/formula.js';
 import { hashText, normalizeType, withTimeout } from '../../../src/v2/assist/common.js';
-import { stripBlock } from '../../../src/v2/capture.js';
+import { stripBlock } from '../../../../../core/capture.js';
 import { packRulesOf, rulesFromSettings } from '../../../src/v2/lean-rpg/rules.js';
 import { DICE_VERSION, FLOW_VERSION, claimKey, prepare } from '../../../src/v2/lean-rpg/resolve.js';
 import { FIX_VERSION, openFoes, vetOpen } from '../../../src/v2/lean-rpg/open.js';
@@ -17,7 +17,7 @@ import { dropOf } from '../../../src/v2/lean-rpg/ambush.js';
 import { NO_ROLLS_LINE } from '../../../src/v2/lean-rpg/cue.js';
 import { NOROLL } from '../../../src/v2/lean-rpg/names.js';
 import { skipOf } from '../../../src/v2/lean-rpg/start.js';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 
 const TEXT = 60;
 const DIFFICULTIES = Object.freeze(Object.keys(LIMITS.dc));

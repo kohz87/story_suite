@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { countsLine, addsLine } from '../../../src/v2/packs/panel.js';
-import { buildReport } from '../../../src/v2/diagnostics.js';
+import { buildReport } from '../../../../../core/diagnostics.js';
 import { cardPack, cardWorld, goodPortrait, packEntry, portraitsEntry, settingsEntry, settle, tick } from './helpers/card.js';
 
 const nsd = (state = { portraitPromptFormat: 'hybrid' }) => ({

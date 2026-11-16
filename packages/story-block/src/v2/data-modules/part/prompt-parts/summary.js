@@ -1,7 +1,7 @@
 // Writes one module's state, and every active module's, as plain words for the prompt's tail.
 import { dmHidden } from '../../schema.js';
 import { activeDefinition, inputsOf } from '../../adapters.js';
-import { cutAt } from '../../../../text.js';
+import { cutAt } from '../../../../../../../core/text.js';
 import { roleTail } from '../../../lean-rpg/tail.js';
 import { moduleView } from '../views.js';
 import { shownText } from './field-words.js';

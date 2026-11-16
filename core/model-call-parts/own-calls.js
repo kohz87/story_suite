@@ -1,6 +1,6 @@
 // Our own calls on the chat's connection, so the turn can tell their prompt from the reply's.
 
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 
 // The part of a prompt that SillyTavern's macro pass (substituteParams) leaves as it is: its longest
 // stretch between macros, trimmed ('' when there is none worth matching).

@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boardDice, fightSeed as oldFightSeed } from '../../../src/v2/lean-rpg/board/dice.js';
-import { dice, interactionSeed } from '../../../src/v2/interaction/dice.js';
+import { boardDice, fightSeed as oldFightSeed } from '../../../packages/story-block/src/v2/lean-rpg/board/dice.js';
+import { dice, interactionSeed } from '../../../core/interaction/dice.js';
 
 const LANES = { act: 1, foe: 2, check: 3, init: 4, open: 5, flee: 6 };
 

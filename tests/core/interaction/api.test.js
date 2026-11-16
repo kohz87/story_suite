@@ -2,10 +2,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashText } from '../../../src/v2/assist/common.js';
-import { interactionSeed } from '../../../src/v2/interaction/dice.js';
-import { interactionPayload } from '../../../src/v2/interaction/session.js';
-import { createInteractionApi } from '../../../src/v2/sdk/interaction.js';
+import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
+import { interactionSeed } from '../../../core/interaction/dice.js';
+import { interactionPayload } from '../../../core/interaction/session.js';
+import { createInteractionApi } from '../../../core/sdk/interaction.js';
 import { PROBE_ID, PROBE_KIND, probeRegistry } from './helpers/probe-kind.js';
 
 const anchorMessage = { is_user: false, mes: '', extra: { storySuite: { v: 2, ops: [], receipts: [], narrated: [], sid: 'reply-1' } } };

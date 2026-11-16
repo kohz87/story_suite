@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {
     action, greeting, initial, reply, setup, user,
-} from './helpers/store-chat.js';
+} from '../../packages/story-block/tests/v2/helpers/store-chat.js';
 
 export const isDeepFrozen = value => !value || typeof value !== 'object'
     || (Object.isFrozen(value) && Object.values(value).every(isDeepFrozen));

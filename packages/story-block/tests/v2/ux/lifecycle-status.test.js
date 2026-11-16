@@ -4,10 +4,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
-import { createRegistry } from '../../../src/v2/registry.js';
-import { createSettings } from '../../../src/v2/sdk.js';
-import { LIFE_TEXT, compatReport, renderCompat } from '../../../src/v2/compat.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { createRegistry } from '../../../../../core/registry.js';
+import { createSettings } from '../../../../../core/sdk.js';
+import { LIFE_TEXT, compatReport, renderCompat } from '../../../../../core/persist/compat.js';
 import { renderSettingsHost } from '../../../src/v2/host-ui.js';
 import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';
 

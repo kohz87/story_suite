@@ -2,7 +2,7 @@
 // stand-ins: receipts, claims, then-commands and rollback as the host will run them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCommandBus } from '../../../src/v2/commands.js';
+import { createCommandBus } from '../../../../../core/commands.js';
 import { createEventsPart } from '../../../src/v2/events/index.js';
 import { counterIds, fakeRegistry, fakeStore } from '../helpers/bus-fakes.js';
 

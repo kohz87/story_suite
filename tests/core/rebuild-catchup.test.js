@@ -3,11 +3,11 @@
 // (screens/rebuild-banner.js, mockup sections B and D).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { nativeModule, rulesModule, clone, NATIVE } from './helpers/timeline.js';
-import { createParticipants } from '../../src/v2/timeline/participants.js';
-import { createRebuildBannerWidget, REBUILD_TEXT } from '../../src/v2/screens/rebuild-banner.js';
-import { setupDom } from './view/mounts/helpers.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { nativeModule, rulesModule, clone, NATIVE } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { createParticipants } from '../../core/timeline/participants.js';
+import { createRebuildBannerWidget, REBUILD_TEXT } from '../../packages/story-block/src/v2/screens/rebuild-banner.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
 
 const spec = extra => ({ module: 'npc-state-delta', schema: 1, checkpoint() {}, prepare() {}, activate() {}, abort() {}, status() {}, ...extra });
 const idle = { active: false, done: 0, total: 0, older: 0, from: null, reason: '' };

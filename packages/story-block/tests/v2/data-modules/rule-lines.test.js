@@ -2,7 +2,7 @@
 // "<Block> <field>: <new value>", the block by its screen title (else its name), the field by the screen's label (else humanized).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readRecord } from '../../../src/v2/persist.js';
+import { readRecord } from '../../../../../core/persist.js';
 import { replyRules } from '../../../src/v2/reply-cards.js';
 import { changesSummary } from '../../../src/v2/screens/changes-card.js';
 import { world, pin, reply, pack, int, reload } from './helpers.js';

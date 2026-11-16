@@ -2,7 +2,7 @@
 // KEPT_PRELUDE_TOKENS in all per reply; an unmarked prelude cue is an ordinary [Happened] line the budget may drop.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const pulse = (id, summary, keep) => ({
     id, name: id, version: '0.0.0',
@@ -36,8 +36,8 @@ test('with room, pinned and unpinned cues are told alike', async () => {
 });
 
 test('the cap holds: pinned prelude text over KEPT_PRELUDE_TOKENS in all is passed as plain cues', async () => {
-    const { KEPT_PRELUDE_TOKENS } = await import('../../src/v2/turn/prompt-build.js');
-    const { estimateTokens } = await import('../../src/v2/prompt.js');
+    const { KEPT_PRELUDE_TOKENS } = await import('../../core/turn/prompt-build.js');
+    const { estimateTokens } = await import('../../core/prompt.js');
     const lines = Array.from({ length: 6 }, (_, i) => `Line ${i} ${'word '.repeat(60)}`.trim());
     const tail = await run(lines.map((text, i) => pulse(`pin-${i}`, text, true)), 8);
     const told = lines.filter(text => tail.includes(text));

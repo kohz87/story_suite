@@ -3,12 +3,12 @@
 // Battle's opens the character wizard). Story Block alone, or a module that is ready, shows nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../testkit/fake-st.js';
-import { createRuntime } from '../../src/v2/runtime.js';
-import { mountUi } from '../../src/v2/ui-host.js';
-import { createReadyHintWidget, READY_HINT_WIDGET } from '../../src/v2/screens/ready-hint.js';
-import { STRINGS } from '../../src/v2/strings.js';
-import { setupDom } from './view/mounts/helpers.js';
+import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
+import { createRuntime } from '../../core/runtime.js';
+import { mountUi } from '../../packages/story-block/src/v2/ui-host.js';
+import { createReadyHintWidget, READY_HINT_WIDGET } from '../../packages/story-block/src/v2/screens/ready-hint.js';
+import { STRINGS } from '../../core/strings.js';
+import { setupDom } from '../../packages/story-block/tests/v2/view/mounts/helpers.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 

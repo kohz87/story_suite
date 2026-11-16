@@ -2,7 +2,7 @@
 // with no partner never lets chat text through scrubLine.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { REMOVED, scrubLine, scrubSecrets } from '../../src/v2/diagnostics.js';
+import { REMOVED, scrubLine, scrubSecrets } from '../../core/diagnostics.js';
 
 test('key shapes are removed: short sk-/pk- keys, JWTs, long letter-and-digit runs; plain words and ids stay', () => {
     const jwt = ['eyJhbGciOiJIUzI1NiJ9', 'eyJzdWIiOiIxMjM0In0', 'c2lnbmF0dXJlLXZhbHVl'].join('.');

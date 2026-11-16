@@ -2,12 +2,12 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { guardProblem, hashJson } from '../../../src/v2/replay.js';
-import { interactionGuard } from '../../../src/v2/interaction/guard.js';
-import { receiveSegment, reconcileSession } from '../../../src/v2/interaction/carry.js';
-import { interactionPayload } from '../../../src/v2/interaction/session.js';
-import { settleInteraction } from '../../../src/v2/interaction/settle.js';
-import { createInteractionApi } from '../../../src/v2/sdk/interaction.js';
+import { guardProblem, hashJson } from '../../../core/replay.js';
+import { interactionGuard } from '../../../core/interaction/guard.js';
+import { receiveSegment, reconcileSession } from '../../../core/interaction/carry.js';
+import { interactionPayload } from '../../../core/interaction/session.js';
+import { settleInteraction } from '../../../core/interaction/settle.js';
+import { createInteractionApi } from '../../../core/sdk/interaction.js';
 import { PROBE_ID, PROBE_KIND, probeRegistry } from './helpers/probe-kind.js';
 
 const SOURCE = { sid: 'sr_abcdefgh', swipeKey: 'sw_abcdefgh', evidence: 'ev_abcdefgh', ordinal: 0 };

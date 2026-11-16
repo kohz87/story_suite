@@ -1,6 +1,6 @@
 // Settles one interaction segment: checks the recorded payload, derives code-played inputs, plays, claims, guards, applies its changes and returns the receipt.
 
-import { CORE_MODULE_ID } from '../domains/core/constants.js';
+import { CORE_MODULE_ID } from '../../packages/story-block/src/v2/domains/core/constants.js';
 import { hashJson } from '../replay.js';
 import { interactionError, limitsFor } from './contract.js';
 import { deriveSteps } from './derive.js';

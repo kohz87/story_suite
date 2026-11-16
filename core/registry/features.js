@@ -3,7 +3,7 @@
 // `createFeatureLookups` is given the registry's maps and the lifecycle lookups it calls.
 
 import { NEEDS_HINT, featureOf } from '../features.js';
-import { isObject } from '../registry-checks.js';
+import { isObject } from './registry-checks.js';
 
 export function createFeatureLookups({ defs, declared, owners, fallbacks, canonical, featureValue, held, steadyHeld = held, lifecycle }) {
     // `isHeld` is `held` (dormant or the restore barrier) for the real answer, `steadyHeld` (dormant only) for what shows (offShown).

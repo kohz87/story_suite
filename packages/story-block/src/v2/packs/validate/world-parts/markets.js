@@ -1,7 +1,7 @@
 // Checking markets.
 
 import { MARKET_WORD, MARKET_LIMITS, MARKET_FIELDS } from '../../limits.js';
-import { oneLine } from '../../../../text.js';
+import { oneLine } from '../../../../../../../core/text.js';
 import { isNumber, isText, isObject, isInt } from '../core.js';
 
 // Markets (PACKS.md "Markets"): settlement types and environment tags with their price factors.

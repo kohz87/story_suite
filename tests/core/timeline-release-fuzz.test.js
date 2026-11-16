@@ -9,10 +9,10 @@
 // A failing seed replays exactly (QA_FUZZ_SEED=n; QA_FUZZ_SEEDS=n and QA_FUZZ_STEPS=n run a longer hunt).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { prng, seedCrypto } from './qa/helpers/seeded.js';
-import { hashJson } from '../../src/v2/replay.js';
-import { NATIVE, NPC, batchFor, clone, nativeModule, pause, reload, rulesModule, seal } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { prng, seedCrypto } from '../../packages/story-block/tests/v2/qa/helpers/seeded.js';
+import { hashJson } from '../../core/replay.js';
+import { NATIVE, NPC, batchFor, clone, nativeModule, pause, reload, rulesModule, seal } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 
 const SEEDS = process.env.QA_FUZZ_SEED ? [Number(process.env.QA_FUZZ_SEED)]
     : process.env.QA_FUZZ_SEEDS ? Array.from({ length: Number(process.env.QA_FUZZ_SEEDS) }, (_, i) => i + 1) : [1, 2, 3, 4, 5, 6, 7, 8];

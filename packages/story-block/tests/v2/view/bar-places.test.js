@@ -12,7 +12,7 @@ import { createScreenMount } from '../../../src/v2/view/mounts/screen.js';
 import { createScreens } from '../../../src/v2/view/screens.js';
 import { createTabHost } from '../../../src/v2/host-ui.js';
 import { fakeRenderer, setupDom, stateWith } from './mounts/helpers.js';
-import { installFakeDom } from '../../ui-fake-dom.js';
+import { installFakeDom } from '../../../../../tests/helpers/ui-fake-dom.js';
 
 
 // What the fixtures declare: a module's own screens, three of them with `bar: true`.

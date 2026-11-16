@@ -3,10 +3,10 @@
 // participants on the checkpoint of the head that is selected now, and the barrier holds until they confirm it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { nativeModule, rulesModule, batchFor, clone, pause, reload, seal, NATIVE, DEATH } from './helpers/timeline.js';
-import { hashJson } from '../../src/v2/replay.js';
-import { HOST_DOMAIN } from '../../src/v2/timeline/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { nativeModule, rulesModule, batchFor, clone, pause, reload, seal, NATIVE, DEATH } from '../../packages/story-block/tests/v2/helpers/timeline.js';
+import { hashJson } from '../../core/replay.js';
+import { HOST_DOMAIN } from '../../core/timeline/index.js';
 import { sourceOf } from '../helpers/split-source.js';
 
 const BATCH = batchFor('br_batch001');
@@ -119,7 +119,7 @@ test('a restore retracted while its participant acknowledges leaves the barrier 
 });
 
 test('a restore is published for a head only after the head is checked to still hold it (one site, same section)', async () => {
-    const coordinator = sourceOf('src/v2/timeline/coordinator.js');
+    const coordinator = sourceOf('../../core/timeline/coordinator.js');
     assert.equal((coordinator.match(/\bpublishRestore\(/g) ?? []).length, 2, 'its definition and one call');
     assert.equal((coordinator.match(/function restoreHeld\(/g) ?? []).length, 1);
     const at = coordinator.indexOf('publishRestore(entry);');

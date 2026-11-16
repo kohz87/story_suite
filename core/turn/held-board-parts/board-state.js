@@ -1,7 +1,7 @@
 // A staged fight board's session: dropped when its anchor reply is gone, and its opening recreated and checked.
 
 import { readRecord } from '../../persist.js';
-import { rpgLib } from '../../rpg-lazy.js';
+import { rpgLib } from '../../../packages/story-block/src/v2/rpg-lazy.js';
 import { object } from './shared-board.js';
 
 /** A copied chat cannot keep a staged fight if its anchor reply was not copied. */

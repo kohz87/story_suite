@@ -1,6 +1,6 @@
 // Hero editor: the plan, the commands a Save sends for the fields that changed.
 
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 import { CLOCK_KEYS } from './shared-limits.js';
 import { timeMinutes, hereNames, hereText } from './time-here.js';
 

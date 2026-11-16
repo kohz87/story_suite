@@ -3,7 +3,7 @@
 
 import { labelOf } from '../common.js';
 import { cleanName } from '../names.js';
-import { foldKey } from '../../../text.js';
+import { foldKey } from '../../../../../../core/text.js';
 import { MAX_NAME, MAX_PRESENT } from './constants.js';
 import { companions } from './present.js';
 import { clearLook } from './you-look.js';

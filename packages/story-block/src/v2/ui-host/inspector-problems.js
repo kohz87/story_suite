@@ -2,7 +2,7 @@
 // turn met reading it (change lines not used, with why), the newest head-selection notice per module, and the refused lines the notes keep.
 
 // With `isolated` on (suite.isolatedApply), the reply's module failures are listed grouped under the module's name, after the other problems.
-import { isModuleFailure, moduleFailures } from '../turn/apply-report.js';
+import { isModuleFailure, moduleFailures } from '../../../../../core/turn/apply-report.js';
 
 export function inspectorProblemsFor(index, { store, runtime, notes, isolated = () => false, nameOf = id => id }) {
     const out = [];

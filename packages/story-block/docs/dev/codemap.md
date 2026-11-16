@@ -3,13 +3,13 @@ Files already mapped elsewhere are listed in `CLAUDE.md`, `AI-README.md`, `READM
 Last checked: 2026-11-07.
 
 ## src/v2/
-- `src/v2/profile-field.js`: connection-profile picker for module model calls, using stored names and read-only text UI.
-- `src/v2/public-api.js`: frozen read-only `StoryBlock.api` exposing current public story paths and change events.
-- `src/v2/public-paths.js`: registry and guard for public API path prefixes contributed by modules.
+- `../../core/model-call/profile-field.js`: connection-profile picker for module model calls, using stored names and read-only text UI.
+- `../../core/public-api.js`: frozen read-only `StoryBlock.api` exposing current public story paths and change events.
+- `../../core/persist/public-paths.js`: registry and guard for public API path prefixes contributed by modules.
 - `src/v2/rpg-lazy.js`: lazy loader and stand-in part that keeps the optional Lean RPG unloaded until needed.
-- `src/v2/sb-macro.js`: registers the `{{sb::path}}` macro for SillyTavern prompts, scripts and status bars.
-- `src/v2/skill-slots.js`: skill-slot counts and signature-bit helpers kept outside Lean RPG for small startup.
-- `src/v2/v1-copy.js`: detects an old Story Block v1 copy running alongside v2 and reports it once.
+- `../../core/runtime/sb-macro.js`: registers the `{{sb::path}}` macro for SillyTavern prompts, scripts and status bars.
+- `../../core/runtime/skill-slots.js`: skill-slot counts and signature-bit helpers kept outside Lean RPG for small startup.
+- `../../core/persist/v1-copy.js`: detects an old Story Block v1 copy running alongside v2 and reports it once.
 
 ## src/v2/assist/
 - `src/v2/assist/section.js`: read-only Settings Assist section showing helper switches and recent run outcomes.
@@ -91,24 +91,24 @@ Last checked: 2026-11-07.
 - `src/v2/screens/inventory-add.js`: places the inline form for adding an item to the reader's own inventory, the folded "Worn (N)" row of the Inventory tab, and the Grid view's two widgets (the List | Grid switch, the tiles with folds and the item sheet).
 - `src/v2/screens/inventory-grid.js`: pure DOM helpers for the Inventory Grid view: square item tiles, foldable category and per-wearer Worn sections (with their remembered open state), and the bottom sheet for one item calling the same actions as the list rows.
 
-## src/v2/timeline/
-- `src/v2/timeline/boundary.js`: hashes and checks logical clock markers against transactions and captured proofs.
-- `src/v2/timeline/coordinator-rebuild.js`: starts a blocked branch's dossiers again from the chat (last 40 replies or all) through the participant's rebuild.
-- `src/v2/timeline/selection-fallback.js`: matches head prefixes and walks compatible earlier participant checkpoints, newest first, for a head selection; the Inspector note when a selection fell back.
-- `src/v2/timeline/coordinator-block.js`: classifies blocked timeline selections and schedules retries for temporary failures.
-- `src/v2/timeline/referenced.js`: the `timeline.referenced` query: checkpoint ids named by every chat SillyTavern lists (chats of deleted characters are not checked); any listed chat unreadable makes the answer incomplete. Not replay-safe.
-- `src/v2/timeline/util.js`: holds shared timeline ids, error codes, crash and stale-chat helpers.
+## ../../core/timeline/
+- `../../core/timeline/boundary.js`: hashes and checks logical clock markers against transactions and captured proofs.
+- `../../core/timeline/coordinator-rebuild.js`: starts a blocked branch's dossiers again from the chat (last 40 replies or all) through the participant's rebuild.
+- `../../core/timeline/selection-fallback.js`: matches head prefixes and walks compatible earlier participant checkpoints, newest first, for a head selection; the Inspector note when a selection fell back.
+- `../../core/timeline/coordinator-block.js`: classifies blocked timeline selections and schedules retries for temporary failures.
+- `../../core/timeline/referenced.js`: the `timeline.referenced` query: checkpoint ids named by every chat SillyTavern lists (chats of deleted characters are not checked); any listed chat unreadable makes the answer incomplete. Not replay-safe.
+- `../../core/timeline/util.js`: holds shared timeline ids, error codes, crash and stale-chat helpers.
 
-## src/v2/turn/
-- `src/v2/turn/rule-marks.js`: per-reply rule marks (`rules` on the record, `ctx.carrier.rules` for a module); the table of rules and their line tests.
-- `src/v2/turn/money-guard.js`: money guard; warns in Problems (never blocks, writes nothing) on a coin line repeating a recent same-source payment or far above the purse.
-- `src/v2/turn/capture-after.js`: the afterCapture steps: each module's hook commands run as system steps after a reply's story lines (stored live, planned by a Re-read).
-- `src/v2/turn/capture-each.js`: the change lines run one by one as story captures, with the reply's practice, foe cap and rule marks, the safety net's marks and the money guard.
-- `src/v2/turn/capture-held.js`: the held-module check of a Re-read: the first held-back module a reply carries lines, receipts or ops of.
-- `src/v2/turn/capture-seeds.js`: a Re-read's seeds and occurrences: a change line's mark, story and step seeds, the occurrence a block takes.
-- `src/v2/turn/events-held.js`: a fight reply held uncaptured: resumed once the reader restores its inputs, found again after a chat opens.
-- `src/v2/turn/events-late.js`: change lines that come after a reply: late lines kept in a hidden block, the safety net's lines now or for the next reply.
-- `src/v2/turn/events-hooks.js`: the afterReply and afterReceive hooks run on a received reply.
+## ../../core/turn/
+- `../../core/turn/rule-marks.js`: per-reply rule marks (`rules` on the record, `ctx.carrier.rules` for a module); the table of rules and their line tests.
+- `../../core/turn/money-guard.js`: money guard; warns in Problems (never blocks, writes nothing) on a coin line repeating a recent same-source payment or far above the purse.
+- `../../core/turn/capture-after.js`: the afterCapture steps: each module's hook commands run as system steps after a reply's story lines (stored live, planned by a Re-read).
+- `../../core/turn/capture-each.js`: the change lines run one by one as story captures, with the reply's practice, foe cap and rule marks, the safety net's marks and the money guard.
+- `../../core/turn/capture-held.js`: the held-module check of a Re-read: the first held-back module a reply carries lines, receipts or ops of.
+- `../../core/turn/capture-seeds.js`: a Re-read's seeds and occurrences: a change line's mark, story and step seeds, the occurrence a block takes.
+- `../../core/turn/events-held.js`: a fight reply held uncaptured: resumed once the reader restores its inputs, found again after a chat opens.
+- `../../core/turn/events-late.js`: change lines that come after a reply: late lines kept in a hidden block, the safety net's lines now or for the next reply.
+- `../../core/turn/events-hooks.js`: the afterReply and afterReceive hooks run on a received reply.
 
 ## src/v2/ui/
 - `src/v2/ui/inventory-tab.js`: draws a minimal plain Inventory tab with item stacks and command buttons.
@@ -161,8 +161,8 @@ Last checked: 2026-11-07.
 - `docs/dev/codemap.md`: map of `src/` files not already covered by the existing docs.
 
 ## Split files (7 Nov: files over 450 lines split into small parts; each original keeps its path and public exports)
-- `src/v2/store/chains.js`: cached hashes of record bodies, replay chains and checkpoint windows.
-- `src/v2/store/prefix-memo.js`: the incremental prefix memo, a bounded LRU of store states by replayed prefix that steps one new record instead of replaying a window.
+- `../../core/store/chains.js`: cached hashes of record bodies, replay chains and checkpoint windows.
+- `../../core/store/prefix-memo.js`: the incremental prefix memo, a bounded LRU of store states by replayed prefix that steps one new record instead of replaying a window.
 - `src/v2/ui-host/shared.js`: shared DOM helpers, reader choices and public UI checks.
 - `src/v2/ui-host/setup.js`: widgets, renderer and screen-registry setup for the page host.
 - `src/v2/ui-host/screens.js`: synchronization of module, pack and pinned-block screens.
@@ -180,17 +180,17 @@ Last checked: 2026-11-07.
 - `src/v2/ui-host/drawer.js`: the Extensions drawer and the wand menu entry, with the status strip's switch.
 - `src/v2/ui-host/host-api.js`: the api handed to screens (commands, queries, held `committed` handlers, rewinds, dialogs, open screen).
 - `src/v2/ui-host/notes-wiring.js`: the notes under replies, wired to Re-read and the extractor's state.
-- `src/v2/commands/shared.js`: limits, error helpers, reply and ID helpers; `commands.js` re-exports the public names.
-- `src/v2/commands/state.js`: drafts, frozen reads, queries, Source, cursor and proof.
-- `src/v2/commands/guards.js`: replay guards and their mark.
-- `src/v2/commands/ctx.js`: the command handler's context.
-- `src/v2/commands/transact.js`: one transaction.
-- `src/v2/store/write/saving.js`: touch, lifecycle changed and the idle/late saves.
-- `src/v2/store/write/story.js`: append and before.
-- `src/v2/store/people-block.js`: tells a stored block that holds only people writes, so a Re-read can skip it when it no longer applies.
-- `src/v2/store/write/replace.js`: replaceStory and reconcile.
-- `src/v2/store/write/records.js`: narrated, practice rule, receipts, truncate, untold and work.
-- `src/v2/store/write/lifecycle.js`: rebuild, archive, batch and renamed.
+- `../../core/commands/shared.js`: limits, error helpers, reply and ID helpers; `commands.js` re-exports the public names.
+- `../../core/commands/state.js`: drafts, frozen reads, queries, Source, cursor and proof.
+- `../../core/commands/guards.js`: replay guards and their mark.
+- `../../core/commands/ctx.js`: the command handler's context.
+- `../../core/commands/transact.js`: one transaction.
+- `../../core/store/write/saving.js`: touch, lifecycle changed and the idle/late saves.
+- `../../core/store/write/story.js`: append and before.
+- `../../core/store/people-block.js`: tells a stored block that holds only people writes, so a Re-read can skip it when it no longer applies.
+- `../../core/store/write/replace.js`: replaceStory and reconcile.
+- `../../core/store/write/records.js`: narrated, practice rule, receipts, truncate, untold and work.
+- `../../core/store/write/lifecycle.js`: rebuild, archive, batch and renamed.
 - `src/v2/data-modules/part.js` → `data-modules/part/`: `factory.js` wires the data-module part; `core.js` shared lifecycle helpers; `shared.js` state access, caches and checked definitions; `views.js` read-only views; `blocks.js` Setup actions; `fields.js` field and host-step actions; `act.js` story and reader actions; `skills.js` the Skills block's slot rules; `party.js` companions; `prompt.js` prompt tail and reply cards; `timing.js` timer and reply-end costs.
 - `src/v2/domains/gear.js` → `domains/gear/`: `stats.js` slots, rarity, stat budgets and story-made definitions; `conditions.js` condition words and prices; `carry.js` carry rules and the carry query; `views.js` query answers and the screen picture.
 - `src/v2/domains/scene.js` → `domains/scene/`: `constants.js` name, presence, weather and look limits and feature names; `shared.js` the told rule, name lists, the edit mark and the letter test; `present.js` who is present and their changes; `place.js` the place and its moves; `place-known.js` the map's or a pack's record of a place by name or alias; `weather.js` the weather line and the `scene.weather` command; `you.js` {{user}}'s look, its Rank label and the look ask; `you-look.js` the lasting outfit and passing look (read, cut, cleared on a move); `worn-words.js` the words for what {{user}} has equipped.
@@ -198,11 +198,11 @@ Last checked: 2026-11-07.
 - `src/v2/lean-rpg/resolve.js` → `lean-rpg/resolve/dice.js`: the flow version, outcome rule and per-action dice streams shared by the Standard roll and its guard.
 - `src/v2/lean-rpg/strings.js` → `lean-rpg/strings/`: `character.js` sheets, party, gear, skills and the wizard; `story.js` saved characters, companions, first send, bars and the sheet; `fight.js` fights, change lines and RPG settings.
 - `src/v2/lean-rpg/view/wizard.js` → `wizard/`: `who.js` the Who step and import; `stats.js` the Stats step; `skills.js` the Skills step; `review.js` Review and Create.
-- `src/v2/registry.js` → `registry/`: `registration.js` registration checks and ownership; `commands.js` command, capture, context and initial-state lookups; `features.js` feature lookups; `lifecycle.js` peers, cycles and the restore barrier.
-- `src/v2/runtime.js` → `runtime/start.js` start helpers; `runtime/saving.js` saving helpers.
+- `../../core/registry.js` → `registry/`: `registration.js` registration checks and ownership; `commands.js` command, capture, context and initial-state lookups; `features.js` feature lookups; `lifecycle.js` peers, cycles and the restore barrier.
+- `../../core/runtime.js` → `runtime/start.js` start helpers; `runtime/saving.js` saving helpers.
 - `src/v2/screens/blocks-editor.js` → `blocks-editor/`: `constants.js` labels and types; `editor.js` form state and controls; `draw.js` the sections; `layout.js` layout chips, card roles, colours and preview.
 - `src/v2/screens/blocks.js` → `screens/blocks/page.js` the page's list, Show as, row menu and template chooser; `screens/blocks/shared.js` words and format helpers.
-- `src/v2/strings.js` → `strings/messages.js` inline edits and refusals; `strings/page.js` bar, panel, drawer, menu, features and reply cards; `strings/screens.js` Story Block's own screens.
+- `../../core/strings.js` → `strings/messages.js` inline edits and refusals; `strings/page.js` bar, panel, drawer, menu, features and reply cards; `strings/screens.js` Story Block's own screens.
 - `src/v2/view/bind.js` → `view/bind/`: `paths.js` path syntax and reads; `scope.js` scopes; `expressions.js` compiled expressions; `helpers.js` helpers and formatters; `text.js` text and interpolation; `changes.js` change checks.
 - `src/v2/view/css.js` → `view/css/`: `parse.js` limits and tokenizing; `names.js` scope names; `selectors.js` selector scoping; `values.js` value filtering and theme properties; `scoping.js` the scoper.
 - `src/v2/view/widgets/map.js` → `view/widgets/map/data.js`: map data cleaning and layer visibility.
@@ -215,29 +215,29 @@ Last checked: 2026-11-07.
 - `src/v2/data-modules/check/layout.js`: the block layout keys, the stage-bar fields and the block functions (cards, rules, hidden fields).
 - `src/v2/data-modules/check/validate.js`: `validateDataModules`, the entry point that checks a pack's definitions, catalog and capabilities.
 - `src/v2/data-modules/check/hash.js`: the memoised text hash and the hashes of a checked definition and of a whole pack.
-- `src/v2/evidence/constants.js`: proof owners, stat names, structural caps, the stored key list, and the shared readers `isObject`, `whole` and `occurrenceOf`.
-- `src/v2/evidence/payloads.js`: checks that a proof payload is closed and well formed for its kind, its payload key, and the intent check.
-- `src/v2/evidence/stored.js`: whether a stored proof is whole and owned, its pin, the pins written with a block's ops, and the proof write checks.
-- `src/v2/evidence/visible.js`: recorded entries, the visible proofs and the `story.evidence` query.
-- `src/v2/evidence/submit.js`: `newRoot` and `submitProof`, which check a `ctx.proof` call and build its proof.
-- `src/v2/ops/constants.js`: shared op names and JSON Pointer list index.
-- `src/v2/ops/paths.js`: JSON Pointer escaping, parsing and value reads.
-- `src/v2/ops/json.js`: plain-object test, JSON check, defensive copies and deep equality.
-- `src/v2/ops/freeze.js`: deep freezing, frozen checks and frozen copies sharing a base.
-- `src/v2/ops/diff.js`: minimal JSON Patch changes between two states.
-- `src/v2/ops/apply.js`: applying JSON Patch changes to a state without changing it.
-- `src/v2/ops/counters.js`: counter path detection and the pointer inside a counter holder.
-- `src/v2/ops/rebase.js`: counter rebasing, per-reply scratch fitting and replay rules.
-- `src/v2/ops/check.js`: generic op validation and forbidden key rules.
-- `src/v2/sdk/constants.js`: sdk event names, host settings, limits and preflight patterns.
-- `src/v2/sdk/shared.js`: the sdk's shared non-array object test.
-- `src/v2/sdk/ids.js`: crypto-backed ids with a module prefix.
-- `src/v2/sdk/events.js`: the sdk's named event bus.
-- `src/v2/sdk/changed.js`: the sdk's `changed` event: one per reply or out-of-turn change with the domains touched, `['*']` on head moves.
-- `src/v2/sdk/listener-guard.js`: wraps a module's named event listener so its throw or rejection becomes that module's Problem when the isolated-apply flag is on.
-- `src/v2/sdk/settings.js`: schema coercion and settings over extension_settings.storySuite.
-- `src/v2/sdk/queries.js`: query tools, mounted queries, module views and missing-domain checks.
-- `src/v2/sdk/lifecycle.js`: lifecycle announcements, initial domains and read-only preflight.
+- `../../core/evidence/constants.js`: proof owners, stat names, structural caps, the stored key list, and the shared readers `isObject`, `whole` and `occurrenceOf`.
+- `../../core/evidence/payloads.js`: checks that a proof payload is closed and well formed for its kind, its payload key, and the intent check.
+- `../../core/evidence/stored.js`: whether a stored proof is whole and owned, its pin, the pins written with a block's ops, and the proof write checks.
+- `../../core/evidence/visible.js`: recorded entries, the visible proofs and the `story.evidence` query.
+- `../../core/evidence/submit.js`: `newRoot` and `submitProof`, which check a `ctx.proof` call and build its proof.
+- `../../core/ops/constants.js`: shared op names and JSON Pointer list index.
+- `../../core/ops/paths.js`: JSON Pointer escaping, parsing and value reads.
+- `../../core/ops/json.js`: plain-object test, JSON check, defensive copies and deep equality.
+- `../../core/ops/freeze.js`: deep freezing, frozen checks and frozen copies sharing a base.
+- `../../core/ops/diff.js`: minimal JSON Patch changes between two states.
+- `../../core/ops/apply.js`: applying JSON Patch changes to a state without changing it.
+- `../../core/ops/counters.js`: counter path detection and the pointer inside a counter holder.
+- `../../core/ops/rebase.js`: counter rebasing, per-reply scratch fitting and replay rules.
+- `../../core/ops/check.js`: generic op validation and forbidden key rules.
+- `../../core/sdk/constants.js`: sdk event names, host settings, limits and preflight patterns.
+- `../../core/sdk/shared.js`: the sdk's shared non-array object test.
+- `../../core/sdk/ids.js`: crypto-backed ids with a module prefix.
+- `../../core/sdk/events.js`: the sdk's named event bus.
+- `../../core/sdk/changed.js`: the sdk's `changed` event: one per reply or out-of-turn change with the domains touched, `['*']` on head moves.
+- `../../core/sdk/listener-guard.js`: wraps a module's named event listener so its throw or rejection becomes that module's Problem when the isolated-apply flag is on.
+- `../../core/sdk/settings.js`: schema coercion and settings over extension_settings.storySuite.
+- `../../core/sdk/queries.js`: query tools, mounted queries, module views and missing-domain checks.
+- `../../core/sdk/lifecycle.js`: lifecycle announcements, initial domains and read-only preflight.
 - `src/v2/lean-rpg/view/battle-log.js` → `battle-log/constants.js`: battle words, panel ids, marker line and fold/recent constants.
 - `src/v2/lean-rpg/view/battle-log.js` → `battle-log/util.js`: record checks, list reads and word cutting.
 - `src/v2/lean-rpg/view/battle-log.js` → `battle-log/read.js`: Classic and Standard recorded rolls as panel lines, and receipt lookup.
@@ -265,7 +265,7 @@ Last checked: 2026-11-07.
 - `src/v2/view/widgets/editable/props.js`: the editable widget's prop schema and line-cutting helper.
 - `src/v2/view/widgets/editable/fields.js`: the editable widget's field boxes, grouped layout, live refresh and readback.
 - `src/v2/domains/inventory/commands/wallet.js`: the purse commands and the narrator's edit wording.
-- `src/v2/timeline/coordinator-prepare/finish.js`: the participant activation and acknowledgement phase of a committed restore.
+- `../../core/timeline/coordinator-prepare/finish.js`: the participant activation and acknowledgement phase of a committed restore.
 - `src/v2/view/template/render/view.js`: the renderer's view lifecycle, draft scope, element budget and the renderTemplate/destroyTemplate entry points.
 - `src/v2/view/template/render/blocks.js`: the text, if and each blocks and the block factory.
 - `src/v2/view/template/render/elements.js`: the element block for attributes, variables, classes, text, drafts, commands and form submits.
@@ -276,28 +276,28 @@ Last checked: 2026-11-07.
 - `src/v2/view/form/fields/lines.js`: the editable list field in rows or lines form.
 - `src/v2/view/form/fields/page.js`: the settings search box and grouped section block.
 - `src/v2/view/form/fields/renderers.js`: the frozen renderer table by field kind.
-- `src/v2/persist/carrier.js`: carrier identities, record keys and the record shape check.
-- `src/v2/persist/marks.js`: swipe marks, opening hashes and the evidence payload text.
-- `src/v2/persist/copies.js`: the kept `swipe_info` record copy and swipe-delete loading checks.
-- `src/v2/persist/records.js`: reading, restamping and writing the shown swipe's record.
-- `src/v2/persist/receipts.js`: receipt retention and the guarded `data.v2` exception.
-- `src/v2/persist/carry.js`: carrying a rescued record to the same message read from its file.
-- `src/v2/persist/saver/constants.js`: save batching and timed-out-save read-back intervals.
-- `src/v2/persist/saver/io.js`: the save timeout wrapper and one-write-at-a-time gate.
-- `src/v2/persist/saver/suspects.js`: the suspect-chat watch, read-backs, rename and resume.
-- `src/v2/persist/saver/api.js`: the saver's public methods in their original order.
-- `src/v2/persist/saver/core.js`: the saver's live state, timers, save loop and rescue flow.
+- `../../core/persist/carrier.js`: carrier identities, record keys and the record shape check.
+- `../../core/persist/marks.js`: swipe marks, opening hashes and the evidence payload text.
+- `../../core/persist/copies.js`: the kept `swipe_info` record copy and swipe-delete loading checks.
+- `../../core/persist/records.js`: reading, restamping and writing the shown swipe's record.
+- `../../core/persist/receipts.js`: receipt retention and the guarded `data.v2` exception.
+- `../../core/persist/carry.js`: carrying a rescued record to the same message read from its file.
+- `../../core/persist/saver/constants.js`: save batching and timed-out-save read-back intervals.
+- `../../core/persist/saver/io.js`: the save timeout wrapper and one-write-at-a-time gate.
+- `../../core/persist/saver/suspects.js`: the suspect-chat watch, read-backs, rename and resume.
+- `../../core/persist/saver/api.js`: the saver's public methods in their original order.
+- `../../core/persist/saver/core.js`: the saver's live state, timers, save loop and rescue flow.
 - `src/v2/domains/core/constants.js`: the core module id, static text, features, settings and gear grammar.
 - `src/v2/domains/core/kinds.js`: the core change-line kinds and the `~ you` grammar line.
 - `src/v2/domains/core/part.js`: the core part's domains, commands, queries, kinds, context and tabs.
 - `src/v2/domains/core/merge.js`: merging module parts, hooks and settings without changing part order.
 - `src/v2/domains/core/isolate-after.js`: the merged afterCapture hook that, flag `suite.isolatedApply` on, keeps the other parts' steps when one part fails.
-- `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
+- `../../core/runtime/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `src/v2/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
 - `src/v2/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
 - `src/v2/domains/people/part.js`: the core `people` domain part (present from the first reply, no flag): the `people.write` command and the `people.hash` query.
 - `src/v2/domains/people/validate.js`: checks a people view (version, order, plain JSON, records keyed by id, portraits as file references only, socialGraph keys and ids) before it is stored.
-- `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
+- `../../core/runtime/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
 - `testkit/matrix/run/checks.js`: matrix state checks, cold replay, the fresh-host oracle, dormancy and registration.
 - `testkit/matrix/run/basics.js`: the matrix basic row, action, replay, prompt and dormancy cases.
@@ -311,7 +311,7 @@ Last checked: 2026-11-07.
 - `testkit/matrix/rows.js`: the supported Story Suite combinations and the matrix case columns in report order.
 - `testkit/matrix/report.js`: the matrix report: the rows-by-cases Markdown table, details, summary line and testkit description.
 
-## tests/v2/ (combat replay corpus)
+## ../../tests/core/ (combat replay corpus)
 - `tests/v2/qa/combat-corpus.test.js`: replays the D0 combat chats and pins state, Problems, Re-read, cues and battle-log models.
 - `tests/v2/qa/state-fuzz-1..4.test.js`: four balanced shards of the seeded whole-chat fuzz (same seeds and steps as the old single file; a QA_FUZZ_* override runs in shard 1).
 - `tests/v2/qa/helpers/state-fuzz-run.js`: the fuzz run function, the seed lists and the shard split; `state-fuzz-gen.js`: its seeded generators (change lines, replies, UI commands) and the bonus-paid counter.
@@ -319,5 +319,5 @@ Last checked: 2026-11-07.
 - `tests/v2/fixtures/combat-corpus/make.mjs`: builds the Standard-rules planner, fight-start, board, noroll and practice chats and writes their goldens.
 - `tests/v2/fixtures/combat-corpus/chats.json`: the ten pinned combat chats and their replay setup.
 - `tests/v2/fixtures/combat-corpus/goldens.json`: the golden state, Problems, cues, battle-log models and Re-read results.
-- `tests/v2/turn/isolation.test.js`: the isolated-apply flag: a failing core part, hook problems and the failed-reply tail, flag off and on.
-- `tests/v2/sdk-flag.test.js`: `sdk.flag`, the read-only internal flag reader for Story Director and Delta (off by default).
+- `../../tests/core/turn/isolation.test.js`: the isolated-apply flag: a failing core part, hook problems and the failed-reply tail, flag off and on.
+- `../../tests/core/sdk-flag.test.js`: `sdk.flag`, the read-only internal flag reader for Story Director and Delta (off by default).

@@ -7,9 +7,9 @@ import { FIX_VERSION } from '../../../src/v2/lean-rpg/open.js';
 import { RESOLVE, STANDARD_FORMULA, DICE_VERSION, FLOW_VERSION, prepare, readSheet, resolve, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
 import { cueOfResult, receiptCue } from '../../../src/v2/lean-rpg/cue.js';
 import { fieldMax, positionalDice } from '../../../src/v2/lean-rpg/resolve.js';
-import { hashJson } from '../../../src/v2/replay.js';
-import { rng, roll } from '../../../src/v2/rng.js';
-import { assemble } from '../../../src/v2/prompt.js';
+import { hashJson } from '../../../../../core/replay.js';
+import { rng, roll } from '../../../../../core/commands/rng.js';
+import { assemble } from '../../../../../core/prompt.js';
 import { receiptView } from '../../../src/v2/inspect.js';
 import { character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock, tailOf } from './helpers.js';
 

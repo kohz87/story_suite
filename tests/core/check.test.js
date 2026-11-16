@@ -1,7 +1,7 @@
 // sdk.check: small validators that return '' or a short phrase.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { arrayOf, bool, id, int, isId, oneOf, record, str } from '../../src/v2/check.js';
+import { arrayOf, bool, id, int, isId, oneOf, record, str } from '../../core/registry/check.js';
 
 test('int: whole numbers within optional bounds', () => {
     assert.equal(int(3), '');

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CORE_FEATURE } from "../../../src/v2/features.js";
+import { CORE_FEATURE } from "../../../../../core/features.js";
 import { PARTY_MAX } from "../../../src/v2/lean-rpg/names.js";
 import { definition as filler, pack as dmPack } from "../data-modules/helpers.js";
 import { JOIN_ADD, joinDefinitions, partyOf } from "../../../src/v2/lean-rpg/join.js";

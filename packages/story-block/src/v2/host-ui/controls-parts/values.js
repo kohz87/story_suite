@@ -1,6 +1,6 @@
 // Field values: the empty value of a field type, a whole number read from text, a choice's options and a sub-field's label.
 
-import { normalizeField } from '../../registry.js';
+import { normalizeField } from '../../../../../../core/registry.js';
 import { humanize } from './dom.js';
 
 export const optionsOf = field => (field.options ?? []).map(option => (option && typeof option === 'object' ? { value: String(option.value), label: String(option.label ?? option.value) } : { value: String(option), label: String(option) }));

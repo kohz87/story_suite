@@ -11,7 +11,7 @@
 import { button, el, plural } from '../../ui/dom.js';
 import { DM_LIMITS as L } from './schema.js';
 import { kindExample, referenceOf } from './grammar.js';
-import { STRINGS } from '../strings.js';
+import { STRINGS } from '../../../../../core/strings.js';
 import { editable } from '../view/widgets/editable.js';
 
 const boundsOf = schema => schema.type === 'int' ? `${schema.min} to ${schema.max}, starts at ${schema.default}`

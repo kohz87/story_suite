@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { createCommandBus } from '../../src/v2/commands.js';
-import { int, record } from '../../src/v2/check.js';
-import { counterIds, fakeRegistry, fakeStore } from './helpers/bus-fakes.js';
+import { createCommandBus } from '../../core/commands.js';
+import { int, record } from '../../core/registry/check.js';
+import { counterIds, fakeRegistry, fakeStore } from '../../packages/story-block/tests/v2/helpers/bus-fakes.js';
 
 export const STACK = 'it_k3f9a2qz';
 export const REN = 'ac_k3f9a2qz';

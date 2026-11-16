@@ -1,8 +1,8 @@
 // The `story-block.inspector` widget: the picker, search and the reply's changes, receipts, problems and state.
 
-import { STRINGS, fill } from '../../strings.js';
+import { STRINGS, fill } from '../../../../../../core/strings.js';
 import { LIMITS, matchPaths } from '../../inspect.js';
-import { cutAt } from '../../../text.js';
+import { cutAt } from '../../../../../../core/text.js';
 import { rebuildTarget } from '../rebuild-banner.js';
 import { el, button, section } from './shared-dom.js';
 import { drawTree } from './tree.js';

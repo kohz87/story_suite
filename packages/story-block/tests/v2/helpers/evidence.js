@@ -32,8 +32,8 @@
 //                                   refuses at the end.
 //   `! kill <foe> | after: <thread>` (capture)   a kill that builds on the thread's acceptance, given by an earlier line.
 //   demo.many { specs, chain? }       the same for sample-extension.
-import { createEvidenceQuery } from '../../../src/v2/evidence.js';
-import { runQuery } from '../../../src/v2/sdk.js';
+import { createEvidenceQuery } from '../../../../../core/evidence.js';
+import { runQuery } from '../../../../../core/sdk.js';
 import { EPOCH, harness } from './guarded.js';
 
 export const SD = 'story-director';

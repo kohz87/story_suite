@@ -2,10 +2,10 @@
 // docs/v2/TIMELINE.md).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { crash } from '../../src/v2/timeline/index.js';
-import { PARTICIPANT_TIMEOUT_MS } from '../../src/v2/timeline/participants.js';
-import { BATCH, NATIVE, NPC, batchFor, clone, nativeModule, reload, rulesModule, seal, track } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { crash } from '../../core/timeline/index.js';
+import { PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';
+import { BATCH, NATIVE, NPC, batchFor, clone, nativeModule, reload, rulesModule, seal, track } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 

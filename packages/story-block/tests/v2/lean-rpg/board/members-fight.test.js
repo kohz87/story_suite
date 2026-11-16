@@ -15,7 +15,7 @@ import { hardFightFor } from '../../../../src/v2/lean-rpg/board/flags.js';
 import { fleeRoll } from '../../../../src/v2/lean-rpg/board/flee.js';
 import { oddsFor, subjectOdds } from '../../../../src/v2/lean-rpg/rules.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { hashJson } from '../../../../src/v2/replay.js';
+import { hashJson } from '../../../../../../core/replay.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { prepareStandard as prepareMemberStandard, rollStandard as rollMemberStandard } from '../../../../src/v2/lean-rpg/standard.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';

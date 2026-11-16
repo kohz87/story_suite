@@ -1,6 +1,6 @@
 // Gear form: the choice lists (kind, rarity, slot, stat) of its select fields.
 
-import { STRINGS } from '../../strings.js';
+import { STRINGS } from '../../../../../../core/strings.js';
 import { GEAR } from '../../domains/gear.js';
 import { FORM_KINDS } from './shared-limits.js';
 

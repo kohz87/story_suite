@@ -1,5 +1,5 @@
 // The block editor's label words and its field types.
-import { STRINGS } from '../../../strings.js';
+import { STRINGS } from '../../../../../../../core/strings.js';
 
 export const S = STRINGS.blocks;
 export const TYPES = [{ value: 'text', label: S.text }, { value: 'number', label: S.number }, { value: 'choice', label: S.choice }, { value: 'list', label: S.list }, { value: 'entries', label: S.entries }];

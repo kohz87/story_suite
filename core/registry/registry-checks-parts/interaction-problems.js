@@ -1,6 +1,6 @@
 // Checks a module's `interactions` field (INTERACTION-PLAN §1.1): one plain refusal sentence per bad field of each kind.
 
-import { DEFAULT_LIMITS } from '../interaction/contract.js';
+import { DEFAULT_LIMITS } from '../../interaction/contract.js';
 import { isObject } from './shared-basics.js';
 
 const KIND = /^[a-z][a-z0-9_-]*$/;

@@ -1,9 +1,9 @@
 // The turn's wiring (docs/v2/SPEC.md §4, §5): createTurn joins the SillyTavern context, the host parts and the turn's parts into one api.
 
-import { PRECHECK } from '../assist/classifier.js';
+import { PRECHECK } from '../../packages/story-block/src/v2/assist/classifier.js';
 import { makeView } from '../sdk.js';
-import { SLOT_NUMBER } from '../skill-slots.js';
-import { FLAGS, flagOn } from '../flags.js';
+import { SLOT_NUMBER } from '../runtime/skill-slots.js';
+import { FLAGS, flagOn } from '../runtime/flags.js';
 import { contentText, contextRoom } from '../turn/text.js';
 import { createSession } from '../turn/session.js';
 import { createCaptureFlow } from '../turn/capture-flow.js';

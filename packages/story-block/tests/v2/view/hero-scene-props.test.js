@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
 import { mountUi } from '../../../src/v2/ui-host.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { clockProps, gameHeroProps } from '../../../src/v2/view/game-header.js';
 import { setupDom } from './mounts/helpers.js';
 import { cssOf } from '../helpers/css-parts.js';

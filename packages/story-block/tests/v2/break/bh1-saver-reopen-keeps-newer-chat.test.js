@@ -3,7 +3,7 @@
 // the open chat), and C's change, still pending, was overwritten as "the newest change" and never handed to `rescue`: lost.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSaver } from '../../../src/v2/persist.js';
+import { createSaver } from '../../../../../core/persist.js';
 
 test('bh1: reopening the first chat does not drop the change a third chat still has unsaved', async () => {
     let open = 'A';

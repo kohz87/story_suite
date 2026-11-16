@@ -1,6 +1,6 @@
 // Story Suite v2: the Assist extractor's stored output: reading its sections and writing them into a hidden comment.
 
-import { cutAt } from '../../../text.js';
+import { cutAt } from '../../text.js';
 import { withoutReasoning, hiddenPairs, commentParts, sectionTags, HIDDEN_MARKER, commentSafe } from '../blocks.js';
 import { MAX_LINE, trimEnd } from '../lines.js';
 

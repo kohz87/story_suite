@@ -1,6 +1,6 @@
 // Choices and Inner chatter: the chatter of the answered and newest replies, under the people present, and its tail line.
 
-import { foldKey } from '../../text.js';
+import { foldKey } from '../../../../../core/text.js';
 
 /**
  * The reply whose chatter goes back to the story when the reader asks for it (chatterTail): the last

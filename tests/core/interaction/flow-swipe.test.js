@@ -2,9 +2,9 @@
 // is not used and keeps its staged steps; a swipe checks payload.witness again. Real host, test-only probe module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { readRecord } from '../../../src/v2/persist.js';
-import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaChain, iaModule } from '../qa/helpers/probe-interaction.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { readRecord } from '../../../core/persist.js';
+import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaChain, iaModule } from '../../../packages/story-block/tests/v2/qa/helpers/probe-interaction.js';
 
 test('a swipe settles the same seed, steps and result, and the session stays', async () => {
     const host = await createHost({ modules: [iaModule()] });

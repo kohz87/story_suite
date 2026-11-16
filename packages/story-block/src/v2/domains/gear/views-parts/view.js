@@ -1,7 +1,7 @@
 // Builds `gear.view`, the one answer the gear screens (Inventory tab, Party slot card) draw.
 
 import { isPlainObject } from '../../common.js';
-import { STRINGS } from '../../../strings.js';
+import { STRINGS } from '../../../../../../../core/strings.js';
 import { readSheet } from '../../../lean-rpg/read.js';
 import { GEAR } from '../stats.js';
 import { statsFor, soakFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';

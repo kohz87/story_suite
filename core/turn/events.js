@@ -5,7 +5,7 @@
 import {
     adoptLegacy, continuation, cutLine, defangMarker, extractBlock, hideBlock, markOff,
 } from '../capture.js';
-import { cutAt } from '../../text.js';
+import { cutAt } from '../text.js';
 import { readRecord, swipeLoading } from '../persist.js';
 import { within } from './text.js';
 import { ensureModules } from '../sdk.js';

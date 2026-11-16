@@ -1,8 +1,8 @@
 // J11 step 5 review fixes: changed(['*']) is everything, and Diagnostics → Redraw all draws every module section (not skipped by its digest).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPanels } from '../../../src/v2/sdk/panels.js';
-import { wireRedraw } from '../../../src/v2/ui-host/redraw-wiring.js';
+import { createPanels } from '../../../core/sdk/panels.js';
+import { wireRedraw } from '../../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
 
 function bound(flag = { on: true }) {
     const frames = [];

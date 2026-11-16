@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
 import { scaleXp } from '../../../src/v2/lean-rpg/levels.js';
 import { memberXp, fightGuard, outnumberedMultiplier } from '../../../src/v2/lean-rpg/fight.js';

@@ -2,11 +2,11 @@
 // on, the Carried line without where a thing was found (the screens keep the note). Each is a few characters less in every reply's prompt.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { promptNote, inventoryTail } from '../../src/v2/domains/inventory.js';
-import { STATIC_KEY, TAIL_KEY } from '../../src/v2/turn.js';
-import { YOU_FEATURE } from '../../src/v2/domains/scene.js';
-import { MOUNTS_FEATURE } from '../../src/v2/domains/mounts.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { promptNote, inventoryTail } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
+import { YOU_FEATURE } from '../../packages/story-block/src/v2/domains/scene.js';
+import { MOUNTS_FEATURE } from '../../packages/story-block/src/v2/domains/mounts.js';
 
 const staticOf = host => host.st.promptLog.filter(entry => entry.key === STATIC_KEY && entry.value).at(-1).value;
 const tailOf = host => host.st.promptLog.filter(entry => entry.key === TAIL_KEY && entry.value).at(-1).value;

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FIRE, createEventsPart, packEvents, part, renderEventsSection, summaryLine } from '../../../src/v2/events/index.js';
-import { installFakeDom, texts } from '../../ui-fake-dom.js';
+import { installFakeDom, texts } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { baseState, createFakeHost } from './helpers/fake-host.js';
 import { createFireEvent } from '../../../src/v2/events/engine.js';
 

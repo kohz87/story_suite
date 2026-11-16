@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { V1_COPY_CODE, V1_COPY_PROBLEM, createV1Watch, hasV1Settings, isV1Api } from '../../src/v2/v1-copy.js';
+import { V1_COPY_CODE, V1_COPY_PROBLEM, createV1Watch, hasV1Settings, isV1Api } from '../../core/persist/v1-copy.js';
 
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 // v1's public object as its entry file builds it (the parts the check looks at); v1 itself lives on the `v1` branch.
@@ -25,7 +25,7 @@ test('v1\'s signs are the ones its entry file makes (a frozen excerpt of it), an
     for (const id of ['story_block_rescan', 'story_block_display', 'story_block_money']) assert.ok(v1.includes(`id="${id}"`), id);
     const v2 = read('index.js');
     assert.match(v2, /globalThis\.StoryBlock = Object\.freeze\(\{ apiVersion: 2,/);
-    const sources = readdirSync(new URL('../../src/v2/', import.meta.url), { recursive: true }).filter(name => /\.(js|html|css)$/.test(name) && name !== 'v1-copy.js' && !name.startsWith('v1-copy-parts/')).map(name => read(`src/v2/${name}`)).join('\n');
+    const sources = readdirSync(new URL('../../packages/story-block/src/v2/', import.meta.url), { recursive: true }).filter(name => /\.(js|html|css)$/.test(name) && name !== 'v1-copy.js' && !name.startsWith('v1-copy-parts/')).map(name => read(`src/v2/${name}`)).join('\n');
     for (const id of ['story_block_rescan', 'story_block_display', 'story_block_money']) assert.ok(!sources.includes(id), `v2 never uses ${id}`);
 });
 

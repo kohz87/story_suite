@@ -2,9 +2,9 @@
 // by a list kept by hand, and a restore says where each domain came from.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../testkit/index.js';
-import { capture, planRestore, registered } from '../../src/v2/timeline/index.js';
-import { RULES, clone, nativeModule, reload, restore, rulesModule, sealerModule } from './helpers/timeline.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { capture, planRestore, registered } from '../../core/timeline/index.js';
+import { RULES, clone, nativeModule, reload, restore, rulesModule, sealerModule } from '../../packages/story-block/tests/v2/helpers/timeline.js';
 
 const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const image = host => ({ chat: clone(host.ctx.chat), metadata: clone(host.ctx.chatMetadata) });

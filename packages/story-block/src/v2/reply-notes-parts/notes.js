@@ -1,8 +1,8 @@
 // The notes under a reply: drawing, updating and removing them, and the Re-read they offer (createReplyNotes).
 
-import { extractBlock } from '../capture.js';
-import { isCarrier, readRecord, swipeOf } from '../persist.js';
-import { STRINGS, fill } from '../strings.js';
+import { extractBlock } from '../../../../../core/capture.js';
+import { isCarrier, readRecord, swipeOf } from '../../../../../core/persist.js';
+import { STRINGS, fill } from '../../../../../core/strings.js';
 import { refusedFrom, warnedFrom } from './problems.js';
 
 const N = STRINGS.notes;

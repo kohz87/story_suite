@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { deriveStep, deriveSteps } from '../../../src/v2/interaction/derive.js';
-import { dice } from '../../../src/v2/interaction/dice.js';
+import { deriveStep, deriveSteps } from '../../../core/interaction/derive.js';
+import { dice } from '../../../core/interaction/dice.js';
 
 const actors = [
     { id: 'hero', name: 'Astra', party: true, player: true },

@@ -7,7 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { buildReport } from '../../../src/v2/diagnostics.js';
+import { buildReport } from '../../../../../core/diagnostics.js';
 
 const R = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

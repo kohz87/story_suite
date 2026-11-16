@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     carrierIndexes, createSaver, isCarrier, lastCarrier, readRecord, recordFault, swipeOf, writeRecord,
-} from '../../src/v2/persist.js';
+} from '../../core/persist.js';
 
 const record = (fields = {}) => ({ v: 2, sid: 'sw_a', ops: [], receipts: [], narrated: [], spans: [], ...fields });
 

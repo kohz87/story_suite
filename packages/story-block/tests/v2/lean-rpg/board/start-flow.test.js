@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { character, foeBlock, setup } from '../helpers.js';
 import { boardSession, markSend, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { pendingStart } from '../../../../src/v2/turn/fight-start.js';
+import { pendingStart } from '../../../../../../core/turn/fight-start.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

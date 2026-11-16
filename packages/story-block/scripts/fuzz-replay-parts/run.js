@@ -6,12 +6,12 @@ import { newSwipe, showSwipe, delSwipe } from './swipes.js';
 
 const SB = process.env.SB || fileURLToPath(new URL('../..', import.meta.url));
 const imp = p => import(pathToFileURL(`${SB}/${p}`).href);
-const { createStore } = await imp('src/v2/store.js');
-const { createCommandBus } = await imp('src/v2/commands.js');
-const { createRegistry } = await imp('src/v2/registry.js');
+const { createStore } = await imp('../../core/store.js');
+const { createCommandBus } = await imp('../../core/commands.js');
+const { createRegistry } = await imp('../../core/registry.js');
 const { guarded, Q1, Q2, Q5, Q9 } = await imp('tests/v2/helpers/guarded.js');
 const { greeting } = await imp('tests/v2/helpers/store-chat.js');
-const { isMetaSpan } = await imp('src/v2/replay.js');
+const { isMetaSpan } = await imp('../../core/replay.js');
 
 const [seedArg, stepsArg, ckArg] = process.argv.slice(2);
 let s = Number(seedArg) >>> 0 || 1;

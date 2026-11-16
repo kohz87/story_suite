@@ -2,7 +2,7 @@
 // and the resume note. Everything runs on the mounted production UI.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CORE_FEATURE } from '../../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { boardSession } from '../../../../src/v2/lean-rpg/board/session.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';

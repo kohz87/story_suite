@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PEOPLE_WIDGET, createPeopleWidget } from '../../../src/v2/world/index.js';
-import { createPanels } from '../../../../story-block/src/v2/sdk/panels.js';
+import { createPanels } from '../../../../../core/sdk/panels.js';
 import { wireRedraw } from '../../../../story-block/src/v2/ui-host/redraw-wiring.js';
 import { drawWorld, said, squash, worldData, worldHost } from './helpers.js';
 

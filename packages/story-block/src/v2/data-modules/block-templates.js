@@ -2,7 +2,7 @@
 import { byteLength } from '../packs/safety.js';
 import { validateDataModules } from './check.js';
 import { DM_LIMITS as L } from './schema.js';
-import { STRINGS } from '../strings.js';
+import { STRINGS } from '../../../../../core/strings.js';
 
 const B = STRINGS.blocks;
 const copy = value => JSON.parse(JSON.stringify(value));

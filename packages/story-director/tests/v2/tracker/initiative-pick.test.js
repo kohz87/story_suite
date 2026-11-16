@@ -11,7 +11,7 @@ import {
     FEATURE, INITIATIVE, cooldownOf, setPersonaReader, initiativeCandidates, initiativeHook, initiativeLine, initiativeTail, nextPick, pickOf, weightedPick,
 } from '../../../src/v2/tracker/initiative.js';
 import { makeState, runCommand, story } from './helpers/fake-ctx.js';
-import { rng } from '../../../../story-block/src/v2/rng.js';
+import { rng } from '../../../../../core/commands/rng.js';
 import { WORLD, base, withScene } from './initiative.helpers.js';
 
 const command = part.commands[INITIATIVE];

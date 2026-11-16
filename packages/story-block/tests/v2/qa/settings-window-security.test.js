@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { FakeElement } from '../../ui-fake-dom.js';
+import { FakeElement } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { openSettingsWindow } from '../../../src/v2/view/settings/window.js';

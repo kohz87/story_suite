@@ -9,12 +9,12 @@ import { HOME_ID, REST_ORDER, byNavOrder, createScreens, screenOrder, validateSc
 import { hiddenSides, overflowAxis, scrollCue } from '../../../src/v2/view/scroll-cue.js';
 import { calendarFrom, clockText, dateOf, formatStoryTime, storyCalendar, timeFormatter } from '../../../src/v2/view/clock.js';
 import { hasReplyRecord } from '../../../src/v2/ui-host.js';
-import { writeRecord } from '../../../src/v2/persist.js';
+import { writeRecord } from '../../../../../core/persist.js';
 import { createDialogMount, focusablesIn } from '../../../src/v2/view/mounts/dialog.js';
 import { createScreenMount } from '../../../src/v2/view/mounts/screen.js';
 import { LABEL_MIN_PX, labelUnits } from '../../../src/v2/view/widgets/radar.js';
 import { homeScreen } from '../../../src/v2/screens/home.js';
-import { sourceOf } from '../../helpers/split-source.js';
+import { sourceOf } from '../../../../../tests/helpers/split-source.js';
 import { screen, screensWith, setupDom } from '../view/mounts/helpers.js';
 import { cssOf } from '../helpers/css-parts.js';
 

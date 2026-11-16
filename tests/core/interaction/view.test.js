@@ -2,9 +2,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runQuery } from '../../../src/v2/sdk/queries.js';
-import { createInteractionApi } from '../../../src/v2/sdk/interaction.js';
-import { INTERACTION_VIEW, createInteractionView } from '../../../src/v2/interaction/view.js';
+import { runQuery } from '../../../core/sdk/queries.js';
+import { createInteractionApi } from '../../../core/sdk/interaction.js';
+import { INTERACTION_VIEW, createInteractionView } from '../../../core/interaction/view.js';
 import { PROBE_ID, probeRegistry } from './helpers/probe-kind.js';
 
 function host() {

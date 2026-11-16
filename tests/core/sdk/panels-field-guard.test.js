@@ -1,8 +1,8 @@
 // J11 guard: a sdk.panels section that names its `root` is not drawn while a field in it has the focus (flag suite.redrawScheduler).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPanels } from '../../../src/v2/sdk/panels.js';
-import { wireRedraw } from '../../../src/v2/ui-host/redraw-wiring.js';
+import { createPanels } from '../../../core/sdk/panels.js';
+import { wireRedraw } from '../../../packages/story-block/src/v2/ui-host/redraw-wiring.js';
 import { doc } from '../host-ui.helpers.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 5));

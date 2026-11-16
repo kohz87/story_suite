@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
     CHATTER_CHARS, CHATTER_FEATURE, CHOICE_CHARS, CHOICE_KEEP, CHOICES_FEATURE, cutPoints, displayLines, readChatter, readChoice,
-} from '../../src/v2/extras.js';
+} from '../../packages/story-block/src/v2/extras.js';
 import { block, REPLY, lastIndex, extrasOf, staticText, fresh } from './extras.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

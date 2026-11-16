@@ -7,10 +7,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { makeMessage } from '../../ui-fake-dom.js';
+import { makeMessage } from '../../../../../tests/helpers/ui-fake-dom.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { mountUi } from '../../../src/v2/ui-host.js';
-import { CORE_FEATURE } from '../../../src/v2/features.js';
+import { CORE_FEATURE } from '../../../../../core/features.js';
 
 async function page(callModel) {
     const doc = setupDom();

@@ -6,7 +6,7 @@ import { selectField } from '../../view/form/fields.js';
 import { editableBlockDraft } from '../../data-modules/block-builder.js';
 import { exportBlockPack } from '../../data-modules/block-templates.js';
 import { saveTextFile } from '../../view/download.js';
-import { STRINGS, fill, refusalText } from '../../strings.js';
+import { STRINGS, fill, refusalText } from '../../../../../../core/strings.js';
 import { ROLES_WITHOUT_TAB } from '../../lean-rpg/names.js';
 import { renderBlockEditor } from '../blocks-editor.js';
 import { S, P, plural, showValue, metaOf } from './shared.js';

@@ -1,6 +1,6 @@
 // Story Block v2's page furniture: the Lean RPG's screens, moved out of mountUi unchanged: loaded by import() only while its feature is on, mounted with
 // the host's parts, and taken away when the feature goes off. `createLeanRpgSync(deps)` holds the mounted view; mountUi reads it through `getRpg()`.
-import { CORE_FEATURE, GEAR_FEATURE } from '../features.js';
+import { CORE_FEATURE, GEAR_FEATURE } from '../../../../../core/features.js';
 
 export function createLeanRpgSync(deps) {
     const { loadLeanRpg, doc, ctx, store, events, screens, hostWidgets, registry, runtime, liveCtx, settings, sdk, api, rpgOn, getHeadState, getMounts, getOverlay, refresh, openSettings } = deps;
