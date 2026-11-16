@@ -14,7 +14,7 @@ const entries = host => Object.entries(chronicleOf(host).dayFacts ?? {}).sort((a
 // The day facts after the edited reply: its own entries (days 0 of the first three replies' notes) left out.
 const FIRST = 438445;
 const written = host => Object.fromEntries(Object.entries(chronicleOf(host).days ?? {}).map(([day, v]) => [Number(day) - FIRST, (Array.isArray(v) ? v[0] : v)?.line ?? v]));
-// R3 is noted before the edit (its entry stays as noted); the replies sent after the edit are filed on the edited chat's clock and scene.
+// R3 is noted by R4's turn, after the edit: it and every later reply are filed on the edited chat's clock and scene.
 const R3 = ['~ place Frostgate', '~ quest Q | done'];
 const LATER = [['~ place Redmoor', '~ quest Z | step: x'], ['~ place Ashford', '~ quest Z | done']];
 
@@ -30,12 +30,16 @@ for (const [name, extra, scene] of [['a clock change', ['! time +1 day'], false]
         const mine = entries(live);
         const theirs = entries(fresh);
         // The replies after the edit: the same entries, on the same days, with the same people.
-        const tail = list => list.filter(entry => entry.places.some(place => ["Redmoor"].includes(place)));
-        assert.equal(tail(mine).length, 1);
+        const tail = list => list.filter(entry => entry.places.some(place => ['Frostgate', 'Redmoor'].includes(place)));
+        assert.equal(tail(mine).length, 2);
         assert.deepEqual(tail(mine), tail(theirs));
-        // The written digest of the edit's day (June 3) holds nothing the later replies did on June 4; R3's place, noted before the edit, stays.
+        // R3 and the later replies: the same entries on the same days; only R2's own entry may differ.
+        assert.equal(mine.length, theirs.length);
+        assert.deepEqual(mine.filter(entry => !entry.places.includes('Old Weir')), theirs.filter(entry => !entry.places.includes('Old Weir')));
+        // The written digest of the edit's day (June 3) as in a fresh telling: it holds neither R3's Frostgate nor the later replies.
         if (!scene) {
-            assert.doesNotMatch(written(live)[0] ?? '', /Redmoor/);
+            assert.deepEqual(written(live), written(fresh));
+            assert.doesNotMatch(written(live)[0] ?? '', /Frostgate|Redmoor/);
             assert.match(written(live)[0] ?? '', /Old Weir/);
         }
         assert.equal(reloadSame(live), true);
