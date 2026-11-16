@@ -8,7 +8,7 @@ import { queries } from './queries.js';
 import { TOPIC_NAMES } from './words.js';
 
 export { checkKind };
-export const DEFAULTS = Object.freeze({ defaultDc: 15, costMargin: 2, social: true });
+export const DEFAULTS = Object.freeze({ defaultDc: 15, social: true });
 
 export const part = {
     domains: {
@@ -28,7 +28,6 @@ export const part = {
         defaults: { ...DEFAULTS },
         schema: {
             defaultDc: { type: 'int', label: 'Difficulty when none is written', min: 1, max: 40 },
-            costMargin: { type: 'int', label: 'A miss by this much is a success at a cost', min: 0, max: 5 },
             social: { type: 'bool', label: 'Add how a person feels about you (NPC State Delta)' },
         },
     },

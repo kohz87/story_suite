@@ -114,7 +114,6 @@ function checksRoll(ctx, payload) {
     // One use per evidence and meaning: the same request twice is the same check, not a second die.
     const stat = statForCheck(skill, payload.stat);
     const dc = payload.dc ?? (Number.isSafeInteger(settings.defaultDc) ? settings.defaultDc : 15);
-    const margin = Number.isSafeInteger(settings.costMargin) ? settings.costMargin : 2;
     const request = hashJson({ actor: actorId, stat, skill: skill.toLowerCase(), targetNpc: payload.targetNpc ?? null, dc });
     // Assist previews the seed for the prompt and commits on the generated reply before its story lines.
     // Its message claim belongs to that reply too; a swipe retracts it and rolls once on the new source.
@@ -138,7 +137,7 @@ function checksRoll(ctx, payload) {
     const { parts: modifiers, mod } = combine(parts);
     const die = ctx.roll('1d20').total;
     const total = die + mod;
-    const outcome = outcomeOf(die, mod, dc, margin);
+    const outcome = outcomeOf(die, mod, dc);
     const log = draftChecks(ctx).log;
     const id = idFrom(ctx, 'ck', log);
     log[id] = { id, actor: actorId, stat, skill, die, modifiers, mod, total, dc, outcome, source: 'standalone', evidence: payload.evidence };
@@ -146,7 +145,7 @@ function checksRoll(ctx, payload) {
     const result = { check: id, actor: actorId, die, modifiers, mod, total, dc, outcome };
     const sign = mod >= 0 ? `+${mod}` : String(mod);
     return {
-        summary: `${actor ? `${actor.name} tries` : 'You try'} ${skill}: d20 ${die} ${sign} = ${total} against ${dc}, ${{ crit: 'a critical success', critfail: 'a critical fail', success: 'success', cost: 'success at a cost', fail: 'a fail' }[outcome]}.`,
+        summary: `${actor ? `${actor.name} tries` : 'You try'} ${skill}: d20 ${die} ${sign} = ${total} against ${dc}, ${{ crit: 'a critical success', critfail: 'a critical fail', success: 'success', fail: 'a fail' }[outcome]}.`,
         narrate: true,
         data: { v2: { key: `check:${id}`, result } },
     };

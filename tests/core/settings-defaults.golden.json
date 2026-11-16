@@ -159,7 +159,6 @@
       "cast.on": true,
       "cast.profile": "",
       "cast.unmetDie": false,
-      "checks.costMargin": 2,
       "checks.defaultDc": 15,
       "checks.social": true,
       "chronicle.digestDays": 14,

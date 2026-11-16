@@ -4,7 +4,7 @@ import { diceOf, tableOf } from '../checks/dice.js';
 import { isObject } from './shared-values.js';
 import { CHECK_LINES } from './shared-limits.js';
 
-const OUTCOMES = ['success', 'cost', 'fail'];
+const OUTCOMES = ['success', 'fail'];
 
 const keptNumber = value => Number.isSafeInteger(value);
 const keptText = value => typeof value === 'string' && value.length > 0 && [...value].length <= 80;

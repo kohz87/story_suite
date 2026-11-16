@@ -1,6 +1,6 @@
 // Story checks, wired into the real host (checks/ + precall.js, practice.js, the `roll` kind): the dice note rides on replies including fights
 // when the setting is on; a Re-read keeps the reply's dice; each refusal is one Problems line and rolls nothing; the result is recorded
-// with the reply (success, cost, fail, decisive); a skilled check gives its skill 3 practice (a utility skill too) and no XP; a reply from before the rule is untouched.
+// with the reply (success, fail, decisive); a skilled check gives its skill 3 practice (a utility skill too) and no XP; a reply from before the rule is untouched.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../../testkit/index.js';
@@ -10,11 +10,11 @@ import { checkStep, checksHook, checksOf } from '../../../../src/v2/lean-rpg/pra
 import { practiceLines } from '../../../../src/v2/lean-rpg/view/changes-lines.js';
 import { reply, success } from '../../data-modules/helpers.js';
 import { character, sheetDomain, skillBlock, tailOf } from '../helpers.js';
-import { statPart } from '../../../../src/v2/lean-rpg/formula.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { LIMITS } from '../../../../src/v2/lean-rpg/names.js';
+import { rulesOf } from '../../../../src/v2/lean-rpg/checks/dice-parts/shared-checks.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -102,7 +102,7 @@ test('board and story uses of the same skill share the per-reply practice cap', 
     const domain = sheetDomain({ hero: { role: 'character', fields: character('Astra') }, skills: { role: 'skills', fields } });
     const board = { type: 'rpg.resolve', replan: { payload: { board: {} } }, data: { v2: { result: { v: 1, practice: 5,
         rounds: [{ lines: Array.from({ length: 4 }, () => ({ pc: { who: 'Astra' }, skill: 'Iaijutsu' })) }] } } } };
-    const dice = { list: [10, 11, 12], rules: { levelDivisor: 5, classWeight: 2, costMargin: 2, decisiveMargin: 8 }, dc: { ...LIMITS.dc }, perUse: 3 };
+    const dice = { list: [10, 11, 12], rules: rulesOf(), dc: { ...LIMITS.dc }, perUse: 3 };
     const receipts = [board, { type: 'rpg.dice', data: { v2: { dice } } },
         ...['? roll Astra | Iaijutsu | normal | 10', '? roll Astra | Obscure | normal | 11'].map(raw => ({ type: 'capture.roll', data: { check: { raw } } }))];
     const payload = checksHook({ feature: () => true }, { type: 'normal', receipts }).commands[0].payload;
@@ -165,8 +165,8 @@ test('the outcome is the die plus the stat part, against the difficulty; a bad l
     assert.equal(results.length, 3, 'the unknown skill is refused; the other three take the three dice in order');
     assert.deepEqual(results.map(result => result.die), dice);
     assert.equal(results[0].total, dice[0] + results[0].bonus);
-    const total = dice[0] + results[0].bonus;   // (a natural 20 always succeeds and a natural 1 always fails: outcomeOf)
-    assert.equal(results[0].outcome, dice[0] === 20 || (dice[0] !== 1 && total >= 10) ? 'success' : (dice[0] !== 1 && total >= 8 ? 'cost' : 'fail'));
+    const total = dice[0] + results[0].bonus;   // (the v1 roll: a natural 1 always misses; a tie with the number wins; no cost outcome)
+    assert.equal(results[0].outcome, dice[0] !== 1 && total >= 10 ? 'success' : 'fail');
     assert.ok(messages(host).some(text => text.includes('was not used: unknown skill or stat')), 'one note for the unknown skill');
 });
 
@@ -242,7 +242,7 @@ test('the note tells each member\'s exact bonuses, and they are the very numbers
     await host.send('I try.', after(host, () => 'Story.'));
     const note = NOTE.exec(tailOf(host.st.requests.at(-1))) && tailOf(host.st.requests.at(-1));
     const stats = host.head().domains.dataModules.instances['pack.chat/character'].chat.fields;
-    const cha = statPart('check', { cha: stats.cha, dex: stats.dex }, { fittingStat: 'cha' }).value + Math.floor(stats.level / 5);
+    const cha = Math.floor(Number(stats.cha) / 2) + Math.floor(Number(stats.level) / 4);
     assert.ok(note.includes(`CHA+${cha}`), `the note names CHA+${cha}`);
     const obscure = /Obscure\+(\d+)/u.exec(note);
     assert.ok(obscure, 'and the skill');
@@ -374,4 +374,35 @@ test('a skill learned in the reply that checks it rolls with no bonus; a Re-read
     assert.equal(JSON.stringify(checksOf(records(host).receipts)), JSON.stringify(before), 'Re-read: the same result');
     assert.equal(JSON.stringify([step().data.v2.checks, step().replan.payload]), first, 'Re-read: the step and its record are byte-identical');
     assert.ok(Array.isArray(step().replan.payload.table));
+});
+
+test('v1 checks: an edited Re-read (grown, then shrunk), a middle delete and a reload give the state a live reply would', { skip }, async t => {
+    const host = await world(t);
+    await host.send('I bluff.', after(host, dice => `Story.\n<Changes>\n? roll Astra | cha | normal | ${dice[0]}\n</Changes>`));
+    const dice = diceOf(host);
+    const index = host.ctx.chat.length - 1;
+    const line = (what, die) => `? roll Astra | ${what} | normal | ${die}`;
+    const edit = lines => host.st.editMessage(index, `Story.\n<Changes>\n${lines.join('\n')}\n</Changes>`);
+    await edit([line('cha', dice[0]), line('Obscure', dice[1])]);
+    success(await host.turn.reread(index));
+    const grown = checksOf(records(host).receipts);
+    assert.deepEqual(grown.map(result => result.die), [dice[0], dice[1]], 'the grown edit takes the next recorded die');
+    assert.ok(grown.every(result => result.outcome === 'success' || result.outcome === 'fail'), 'no cost outcome');
+    assert.equal(grown[0].bonus, 5 + 5, 'CHA 10 ÷ 2 + level 20 ÷ 4');
+    assert.equal(grown[1].bonus, 6 + 5 + 1, 'DEX 12 ÷ 2 + level 5 + Novice half mastery 1');
+    assert.deepEqual(diceOf(host), dice, 'a Re-read keeps the dice');
+    await edit([line('cha', dice[0])]);
+    success(await host.turn.reread(index));
+    assert.deepEqual(checksOf(records(host).receipts).map(result => result.die), [dice[0]], 'the shrunk edit keeps one');
+    const live = JSON.stringify(host.head());
+    host.store.rebuild();
+    assert.equal(JSON.stringify(host.head()), live, 'a rebuild');
+    await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)));
+    assert.equal(JSON.stringify(host.head()), live, 'a reload');
+    await host.send('Next.', after(host, () => 'Later.'));
+    await host.st.deleteMessage(index);
+    assert.ok(host.head(), 'a middle delete leaves a readable state');
+    const afterDelete = JSON.stringify(host.head());
+    host.store.rebuild();
+    assert.equal(JSON.stringify(host.head()), afterDelete, 'a rebuild after the delete');
 });
