@@ -119,6 +119,12 @@ function withRefusals(result, refusals) {
   return refusals.length ? { ...result, expectedRefusals: refusals } : result;
 }
 
+function withoutCard(reply) {
+  if (!reply || typeof reply !== 'object' || !('card' in reply)) return reply;
+  const { card, ...rest } = reply;
+  return rest;
+}
+
 function compareBody(a, b, differences) {
   if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
     diffValues(a, b, null, '', differences);
@@ -143,7 +149,8 @@ function compareBody(a, b, differences) {
     } else if (!mapB.has(index)) {
       differences.push({ reply: index, field: '(reply)', before: cut(mapA.get(index)), after: 'missing' });
     } else {
-      diffValues(mapA.get(index), mapB.get(index), index, '', differences);
+      // The card text is compared by `compare --cards`; a recording from code without the card must still match one with it.
+      diffValues(withoutCard(mapA.get(index)), withoutCard(mapB.get(index)), index, '', differences);
     }
   }
 }
