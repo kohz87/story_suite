@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
-import { boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
+import { boardApi, boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, rollReceipt, setup, skillBlock } from '../helpers.js';
 
@@ -20,15 +20,19 @@ const roundsAt = (host, index) => fightIn(host, index)?.data?.v2?.result?.rounds
 test('a fight on the port replays as live across swipe, swipe back, edited Re-read, rewind, middle delete, reload and chat change', async () => {
     const restore = seedCrypto(77);
     const { host, callModel } = await setup({ blocks: FIGHT, board: true });
+    // The Fight tab's view (the kind's `view`, what `interaction.view` answers) is the same live, after a rebuild and after a reload.
+    const viewOf = () => (host.ctx.chatMetadata.storySuiteInteraction?.open ? JSON.stringify(boardApi(host.ctx.chatMetadata, () => host.head(), host.store.carrierSid(host.store.headIndex())).current()?.view ?? null) : null);
     const same = async label => {
-        const live = JSON.stringify(host.head());
+        const live = JSON.stringify(host.head()), liveView = viewOf();
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), live, `${label}: live == rebuild`);
+        assert.equal(viewOf(), liveView, `${label}: view live == rebuild`);
         await host.store.flush();
         const chat = structuredClone(host.ctx.chat), meta = structuredClone(host.ctx.chatMetadata);
         await host.st.loadChat(chat, `lifecycle-${label}`);
         host.ctx.chatMetadata = meta;
         assert.equal(JSON.stringify(host.head()), live, `${label}: reload == live`);
+        assert.equal(viewOf(), liveView, `${label}: view reload == live`);
     };
     try {
         // (a reload replaces the chat's metadata object: it is read again each time)

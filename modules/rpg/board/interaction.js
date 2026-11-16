@@ -16,6 +16,7 @@ import { BOARD_CLEAR_FOES as CLEAR_FOES, BOARD_HURTS as HURTS } from '../names.j
 import { FIGHT_STATIC } from './kind-static.js';
 import { openingNote, openingOf, openingSetup, openingWitness } from './opening.js';
 import { V1 } from './v1-kind.js';
+import { fightView } from './fight-view.js';
 import { openingV1 } from './v1-opening.js';
 import { settledNoteV1 } from '../combat/note.js';
 
@@ -100,6 +101,7 @@ export const fightKind = Object.freeze({
     opening: (state, setup, dice) => (V1.isV1(setup) ? openingV1(real(state), setup, dice) : openingOf(real(state), setup, dice)),
     witness: (state, setup, steps) => (V1.isV1(setup) && setup.opening !== true ? V1.witness(state, setup) : setup.opening === true ? openingWitness(real(state)) : { board: boardWitness(real(state), setup), ...usedItems(state, steps) }),
     validate, play, settle, auto, next,
+    view: (state, setup, steps, preview) => fightView(state, setup, steps, preview, toExchanges(steps)),
     note: (result, setup, context) => (context?.opening ? openingNote(result) : V1.isV1(setup) ? settledNoteV1(result).split(' | ') : settledNote(result, setup).split(' | ')),
 });
 

@@ -14,6 +14,7 @@ import { actionSkills, exchangePlan } from './plan.js';
 import { attackStat, bestDefence } from './rules.js';
 import { healingSkill, isUtility, skillFlags, skillKey } from './flags.js';
 import { splitFoes } from './members.js';
+import { hurtHeroesV1 } from './auto-v1.js';
 
 const number = value => (Number.isFinite(Number(value)) ? Number(value) : 0);
 const healthOf = actor => {
@@ -157,6 +158,7 @@ export function autoPicks(boardState, rules) {
 
 // The heroes the last exchange hurt badly (names; the id when a line has none): 2 or more Health blocks, or in a fight with the doubled bars (`result.bars`) a fifth of the bar.
 export function hurtHeroes(result) {
+    if (result?.board?.v1 === 1) return hurtHeroesV1(result);
     const rounds = Array.isArray(result?.rounds) ? result.rounds : (Array.isArray(result) ? result : []);
     const last = rounds.at(-1);
     const lines = last?.lines ?? result?.lines ?? [];
