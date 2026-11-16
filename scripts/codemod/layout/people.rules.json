@@ -72,6 +72,7 @@
     { "from": "packages/npc-state-delta/src/key-people*", "to": "modules/people/cast/key-people*" },
     { "from": "packages/npc-state-delta/src/memory-fact*", "to": "modules/people/memory/memory-fact*" },
     { "from": "packages/npc-state-delta/src/npc-meters*", "to": "modules/people/meters/npc-meters*" },
+    { "from": "packages/npc-state-delta/src/npc-lines-parts", "to": "modules/people/meters/npc-lines-parts" },
     { "from": "packages/npc-state-delta/src/npc-notes*", "to": "modules/people/notes/npc-notes*" },
     { "from": "packages/npc-state-delta/src/portrait-file*", "to": "modules/people/portrait/portrait-file*" },
     { "from": "packages/npc-state-delta/src/relationship-*", "to": "modules/people/legacy/relationship-*" },
