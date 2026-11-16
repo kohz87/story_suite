@@ -1,4 +1,4 @@
-// QA: shard 5 of 5 of the seeded whole-chat fuzz (see helpers/state-fuzz-run.js for what every run checks), with people.write in the command mix and Re-read on (the people domain is part of every new chat).
+// QA: shard 5 of 5 of the seeded whole-chat fuzz (see helpers/state-fuzz-run.js for what every run checks), with the people commands in the mix (people.write, people.bonds through a module, the reader's people edits) and Re-read on (the people domain is part of every new chat).
 // The runs are split over five files so node --test runs them in parallel; together they are the same
 // [seed, steps] list as before. QA_FUZZ_SEED / QA_FUZZ_SEEDS / QA_FUZZ_STEPS run their whole list once, in shard 1.
 import test from 'node:test';

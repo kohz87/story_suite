@@ -40,6 +40,15 @@ export function probeModule({ cues = false } = {}) {
                 if (!ctx.claim(`probe:cue:${n}`)) ctx.fail('CLAIMED', `Cue ${n} was already given.`);
                 return { summary: `Cue ${n}.`, narrate: true };
             },
+            // A meter move kept in the people domain's bonds through the core's people.bonds (as NPC State's change lines do; the people fuzz shard uses it).
+            'probe.bond'(ctx, { id, by }) {
+                const bonds = JSON.parse(JSON.stringify(ctx.read('people')?.bonds ?? { npcs: {}, problems: [] }));
+                const record = bonds.npcs[id] ?? { name: id, meters: { trust: 0 } };
+                record.meters.trust += by;
+                bonds.npcs[id] = record;
+                ctx.call('people.bonds', { bonds });
+                return { summary: `Bond ${id} ${by}.` };
+            },
             // Writes, then refuses: nothing of it may be stored.
             'probe.broken'(ctx) {
                 ctx.draft('probe').n += 100;

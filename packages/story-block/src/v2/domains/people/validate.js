@@ -1,6 +1,8 @@
 // Checks the shape of the people domain's slice and of the view a mirror sends: version, order equals the keys, plain JSON, no positional records,
 // record keys that follow NPC State Delta's own id rule (`npc_` + a name slug, as makeNpcId makes them), safe as JSON-pointer segments,
 // portraits that are file references only ({ path, type, hash }, never image bytes) and a socialGraph whose keys are pointer-safe and whose edge ids are people ids.
+// Also the two keys the dossier writer does not own: `bonds` (the meters, keyed by the same npc_ ids; their inner shape is NPC State's to check) and the
+// scan marker `scan` ({ lastSid, swipeKey, since }: the last reply NPC State read and the replies since).
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const LISTS = ['candidates', 'dismissed', 'userDismissedGroups'];
@@ -36,6 +38,24 @@ function graphProblems(graph) {
     return errors;
 }
 
+// The sentences about `bonds` and `scan`.
+function ownProblems(slice) {
+    const errors = [];
+    const bonds = slice.bonds;
+    if (bonds !== undefined) {
+        if (!isObject(bonds) || !isObject(bonds.npcs)) errors.push('The people bonds are not a map with npcs.');
+        else {
+            if (Object.keys(bonds).some(key => !SAFE_KEY.test(key) || RESERVED.has(key))) errors.push('The people bonds have a key that is not safe to store.');
+            if (Object.keys(bonds.npcs).some(id => !isPeopleId(id))) errors.push('A bond is keyed by something that is not an NPC id (npc_ and a name).');
+            if (Object.values(bonds.npcs).some(record => !isObject(record))) errors.push('A bond is not an object.');
+        }
+    }
+    const scan = slice.scan;
+    if (scan !== undefined && (!isObject(scan) || typeof scan.lastSid !== 'string' || !scan.lastSid || typeof scan.swipeKey !== 'string'
+        || !Number.isInteger(scan.since) || scan.since < 0 || Object.keys(scan).some(key => !['lastSid', 'swipeKey', 'since'].includes(key)))) errors.push('The people scan marker is not { lastSid, swipeKey, since }.');
+    return errors;
+}
+
 function plain(value, depth = 0) {
     if (depth > 40) return false;
     if (value === null || ['string', 'boolean'].includes(typeof value)) return true;
@@ -58,6 +78,7 @@ export function validatePeople(slice) {
     if (isObject(slice.portraitAssets) && Object.values(slice.portraitAssets).some(record => !fileRef(record))) errors.push('A portrait is not a file reference ({ path, type, hash }); image bytes are never stored.');
     if (hasImageBytes(slice)) errors.push('The people domain holds image bytes (a data URL); portraits are kept as files.');
     errors.push(...graphProblems(slice.socialGraph));
+    errors.push(...ownProblems(slice));
     if (isObject(slice.npcs) && Object.keys(slice.npcs).some(id => !isPeopleId(id))) errors.push('A people record is keyed by something that is not an NPC id (npc_ and a name).');
     if (isObject(slice.npcs) && Array.isArray(slice.order)) {
         const keys = Object.keys(slice.npcs);
