@@ -116,7 +116,7 @@ test('inventory.gear: the worn pieces with their stats and condition; a broken p
     const gear = () => host.sdk.query('inventory.gear', { owner: 'party' });
     const slot = place => gear().slots[place];
     assert.deepEqual([slot('weapon'), slot('off-hand'), slot('body')], [
-        { name: 'Iron Sword', stats: { DEX: 3 }, soak: 0, cond: 100, broken: false }, { name: 'Oak Shield', stats: { VIT: 2 }, soak: 2, cond: 100, broken: false }, { name: 'Chain Mail', stats: { VIT: 4 }, soak: 4, cond: 100, broken: false }]);
+        { name: 'Iron Sword', stats: { DEX: 3 }, soak: 0, cond: 100, broken: false }, { name: 'Oak Shield', stats: { VIT: 2 }, soak: 0, cond: 100, broken: false }, { name: 'Chain Mail', stats: { VIT: 4 }, soak: 0, cond: 100, broken: false }]);
     assert.deepEqual(gear().statBonus, { ...zero, DEX: 3, VIT: 6 }, 'summed over what is worn');
     assert.deepEqual(host.sdk.query('inventory.statBonus', { owner: 'party' }), gear().statBonus);
     await host.send('Fight.', reply('A hard blow.', ['~ hit weapon 1']));

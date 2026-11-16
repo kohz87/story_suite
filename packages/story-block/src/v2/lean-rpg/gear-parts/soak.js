@@ -3,7 +3,7 @@ import { isObject } from './shared-helpers.js';
 import { NAME_MAX, ITEMS_MAX } from './shared-caps.js';
 
 /** `{ total, items: [{ name, soak }] }` over the owners `own` (`answerOf(owner)` is the `inventory.gear` answer); torn and broken pieces are already left out by the inventory. */
-export function soakOf(own, answerOf) {
+export function gearSoakRecord(own, answerOf) {
     const items = [];
     for (const owner of own) {
         const pieces = answerOf(owner)?.soak?.pieces;

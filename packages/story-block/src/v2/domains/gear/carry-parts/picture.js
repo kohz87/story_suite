@@ -26,7 +26,8 @@ export function carryPicture(state, { carryOf, mounts = [] }) {
     const load = {}, bags = {}, bonuses = [];
     for (const stack of stacks) {
         const def = defs[stack.def];
-        load[stack.owner] = (load[stack.owner] ?? 0) + stack.qty;
+        // Coins weigh nothing (the unit is "load": a thing is 1 per unit, money 0): `load` and `weights` count the same.
+        load[stack.owner] = (load[stack.owner] ?? 0) + (def.kind === 'money' ? 0 : stack.qty);
         const carry = carryOf(def);
         if (carry) {
             bonuses.push({ stack: stack.id, carry });
@@ -37,8 +38,10 @@ export function carryPicture(state, { carryOf, mounts = [] }) {
     const members = sheet.length ? sheet.map(person => ({ name: person.who, str: person.stats?.str })) : [{ name: 'The reader', str: null }];
     // Mounts and carts that travel with the party add their carry × count to the shared bag.
     const place = state?.domains?.scene?.place?.name ?? '';
-    const rides = (Array.isArray(mounts) ? mounts : []).filter(row => row && travelsWith(row.where, place))
-        .map(row => ({ name: row.name, carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1) }));
+    const animals = (Array.isArray(mounts) ? mounts : []).filter(row => row).map(row => ({
+        name: row.name, carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1), withParty: travelsWith(row.where, place),
+    }));
+    const rides = animals.filter(animal => animal.withParty).map(({ name, carry }) => ({ name, carry }));
     const sources = {
         party: [...members.map(member => ({ name: member.name, carry: capacityFor(member.str) })),
             ...stacks.filter(stack => stack.owner === 'party' && carryOf(defs[stack.def]) && (defs[stack.def].kind !== 'equipment' || stack.equipped !== null)).map(stack => ({ name: defs[stack.def].name, carry: carryOf(defs[stack.def]) })),
@@ -54,15 +57,12 @@ export function carryPicture(state, { carryOf, mounts = [] }) {
         sources[person.id] = [{ name: person.name, carry: capacityFor(actorStr(actors[person.id])) },
             ...stacks.filter(stack => stack.owner === person.id && carryOf(defs[stack.def]) && (defs[stack.def].kind !== 'equipment' || stack.equipped !== null)).map(stack => ({ name: defs[stack.def].name, carry: carryOf(defs[stack.def]) }))];
     }
-    // Load weights (the unit is "load"): each stack's weight, 1 per unit and coins free; and the animals and carts, each with what it adds and whether it travels with the party.
+    // Load weights (the unit is "load"): each stack's weight (1 per unit, coins free, as `load` counts it); and the animals and carts, each with what it adds and whether it travels with the party.
     const weights = Object.fromEntries(stacks.map(stack => [stack.id, defs[stack.def].kind === 'money' ? 0 : stack.qty]));
-    const animals = (Array.isArray(mounts) ? mounts : []).filter(row => row && typeof row.name === 'string').map(row => ({
-        name: row.name, carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1), withParty: travelsWith(row.where, place),
-    }));
     const total = Object.values(load).reduce((sum, n) => sum + n, 0);
     return {
         on: true, people, bag: load.party ?? 0, load: total, capacity: sharedCapacity + people.reduce((sum, person) => sum + person.capacity, 0),
-        shared: { load: load.party ?? 0, capacity: sharedCapacity }, sources, bonuses, unit: 'load', weights, animals,
+        shared: { load: load.party ?? 0, capacity: sharedCapacity }, sources, bonuses, unit: 'load', weights, animals: animals.filter(animal => typeof animal.name === 'string'),
     };
 }
 

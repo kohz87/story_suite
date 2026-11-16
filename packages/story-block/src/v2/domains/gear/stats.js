@@ -9,4 +9,5 @@ export { statsOf, withinBudget, packBonus, gearBudget } from './stats-parts/budg
 export { defaultStat, statsFor } from './stats-parts/stat-choice.js';
 export { handDef } from './stats-parts/hand.js';
 export { gearDefine } from './stats-parts/define.js';
-export { soakFor } from './stats-parts/soak.js';
+export { soakFor, soakCap, packSoak } from './stats-parts/soak.js';
+export { soakTotal } from './stats-parts/soak-total.js';

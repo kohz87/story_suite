@@ -1,27 +1,18 @@
 // Answers what a wearer has on, the stats it gives, and the `inventory.gear` answer with the carry numbers.
 
-import { isPlainObject } from '../../common.js';
-import { GEAR } from '../stats.js';
-import { statsFor, soakFor } from '../stats.js';
+import { GEAR, statsFor, soakFor } from '../stats.js';
 import { soakRecord } from './soak.js';
+import { wornStacks } from './worn.js';
 import { carryPicture, atLimit, capacityFor } from '../carry.js';
-
-const PLACES = GEAR.places;
 
 /** What `owner` has on, by place: { weapon, body, 'off-hand', head, cloak, feet, 'accessory-1', 'accessory-2' } → { name, stats, cond, broken } | null. */
 function wornBy(state, owner, condOf) {
     const inventory = state?.domains?.inventory;
-    const defs = isPlainObject(inventory?.defs) ? inventory.defs : {};
-    const worn = Object.values(isPlainObject(inventory?.stacks) ? inventory.stacks : {})
-        .filter(stack => isPlainObject(stack) && stack.owner === owner && typeof stack.equipped === 'string' && isPlainObject(defs[stack.def]))
-        .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     const out = {};
-    for (const place of PLACES) {
-        const stack = worn.find(other => other.equipped === place);
-        if (!stack) { out[place] = null; continue; }
-        const def = defs[stack.def];
-        const cond = condOf(stack, inventory);
-        out[place] = { name: def.name, stats: cond > 0 ? statsFor(def, stack) : {}, soak: soakFor(def, cond), cond, broken: cond <= 0 };
+    for (const [place, worn] of Object.entries(wornStacks(state, owner))) {
+        if (!worn) { out[place] = null; continue; }
+        const cond = condOf(worn.stack, inventory);
+        out[place] = { name: worn.def.name, stats: cond > 0 ? statsFor(worn.def, worn.stack) : {}, soak: soakFor(worn.def, cond, place), cond, broken: cond <= 0 };
     }
     return out;
 }

@@ -47,7 +47,7 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
             place: worn ? stack.equipped : '', by: worn ? names(stack.owner) : '', byId: worn ? stack.owner : '',
             // The slot the Edit form offers: where it is worn, else the place its own slot names ('' for none: a bag).
             slotKey: worn ? stack.equipped : (def.kind === 'equipment' && slotWordOf(def.slot) ? placeOf(slotWordOf(def.slot)) : ''),
-            fill: FILL[condWord(cond)], soak: def.kind === 'equipment' ? soakFor(def, cond) : 0,
+            fill: FILL[condWord(cond)], soak: soakFor(def, cond),
             // What the reader set for it to add to carrying (0: none), and whether the item's own Edit form offers its Carry field (not a pack's, not money, not a hand-made piece: that form has its own).
             carry: Number.isSafeInteger(def.carry) && !def.id.startsWith('pack.') ? def.carry : 0,
             carryEdit: !def.id.startsWith('pack.') && def.kind !== 'money' && !handDef(inventory, def),
@@ -64,7 +64,7 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
         if (stack.owner !== owner || typeof stack.equipped !== 'string' || !Object.hasOwn(slots, stack.equipped) || slots[stack.equipped]) continue;
         const def = defs[stack.def];
         const cond = condOf(stack, inventory);
-        slots[stack.equipped] = { stack: stack.id, name: def.name, rarity: def.rarity, bonus: bonusText(statsFor(def, stack)), soak: soakFor(def, cond), cond, word: condWord(cond), broken: cond <= 0,
+        slots[stack.equipped] = { stack: stack.id, name: def.name, rarity: def.rarity, bonus: bonusText(statsFor(def, stack)), soak: soakFor(def, cond, stack.equipped), cond, word: condWord(cond), broken: cond <= 0,
             ...(typeof stack.bound === 'string' && stack.bound ? { bound: { who: names(stack.bound) || stack.bound } } : {}) };
     }
     // The bag (the slot card's "Equip from bag"): equipment nobody wears and that is not a cast member's signature piece, with the slot word it fits.

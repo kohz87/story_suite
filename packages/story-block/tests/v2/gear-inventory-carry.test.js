@@ -239,7 +239,7 @@ test('the narrator\'s equipped: word puts a new item on, rarity: and slot: words
     // A common piece gives its one point (every rarity has a budget now).
     const gear = host.sdk.query('inventory.gear', { owner: 'party' });
     assert.deepEqual(gear.slots.weapon, { name: 'Hunting Knife', stats: { STR: 1 }, soak: 0, cond: 100, broken: false }, 'a common piece gives one point');
-    assert.deepEqual(gear.slots.head, { name: 'Wool Cap', stats: { VIT: 1 }, soak: 1, cond: 100, broken: false });
+    assert.deepEqual(gear.slots.head, { name: 'Wool Cap', stats: { VIT: 1 }, soak: 0, cond: 100, broken: false });   // rarity gives no soak: only an item's own soak does
     assert.equal(gear.slots['accessory-1'].name, 'Amber Ring');
     assert.equal(gear.slots['accessory-2'].name, 'Onyx Ring');
     assert.equal(gear.slots.cloak, null);

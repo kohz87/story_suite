@@ -3,7 +3,7 @@
 import { isPlainObject, clone } from '../../common.js';
 import { cleanName, aliasKey } from '../../names.js';
 import { DEF_ID } from '../../../check.js';
-import { packBonus } from '../../gear.js';
+import { packBonus, packSoak } from '../../gear.js';
 import { packCarry, defaultDef } from '../state.js';
 import { registerNew } from './def-build.js';
 
@@ -32,6 +32,8 @@ export function packDef(ctx, inv, name, env, route = true) {
             if (carry !== null) def.carry = carry;
             const bonus = packBonus(def.id, found.bonus);
             if (bonus !== null) def.bonus = bonus;
+            const soak = packSoak(def.id, found.soak);
+            if (soak !== null) def.soak = soak;
             if (def.kind === 'equipment') def.stack = false;   // MODULES.md F6
             registerNew(ctx, inv, def, env, {}, { route, hooks: false, template: def.id });
         }
