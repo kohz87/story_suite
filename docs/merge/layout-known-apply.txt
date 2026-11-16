@@ -40,3 +40,14 @@ stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/lean-rpg/
 stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/lean-rpg/
 stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/lean-rpg/index.js
 stale packages/story-block/tests/v2/lean-rpg/lazy-load.test.js src/v2/lean-rpg/
+stale packages/npc-state-delta/scripts/validate.mjs docs/core-contract.md
+stale packages/npc-state-delta/scripts/validate.mjs docs/WORKPLAN.md
+stale packages/npc-state-delta/scripts/validate.mjs docs/seed-provenance.md
+stale packages/npc-state-delta/scripts/validate.mjs docs/seed-provenance.json
+stale packages/npc-state-delta/tests/package.test.js scripts/validate.mjs
+stale packages/npc-state-delta/tests/package.test.js scripts/package.py
+stale packages/npc-state-delta/tests/package.test.js scripts/validate.mjs
+stale packages/npc-state-delta/tests/package.test.js scripts/package.py
+stale packages/npc-state-delta/tests/package.test.js scripts/validate.mjs
+stale packages/npc-state-delta/tests/stage9-regression.test.js scripts/measure-stage9.mjs
+stale packages/npc-state-delta/tests/v113-audit-fixes.test.js docs/core-contract.md

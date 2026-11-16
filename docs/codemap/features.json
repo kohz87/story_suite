@@ -23,5 +23,6 @@
   { "name": "Lean RPG (rolls, fights, gear)", "entry": "modules/rpg/index.js", "about": "The optional RPG module: checks, the fight board, gear and levels." },
   { "name": "Fight board", "entry": "modules/rpg/board/commit.js", "about": "Commits staged board choices as the reply's one guarded RPG resolution." },
   { "name": "Checks and danger", "entry": "modules/rpg/checks/index.js", "about": "Story checks, danger words and rolls." },
-  { "name": "Data modules and block editor", "entry": "modules/data-modules/block-builder.js", "about": "Builds and edits data-module definitions in the in-chat editor." }
+  { "name": "Data modules and block editor", "entry": "modules/data-modules/block-builder.js", "about": "Builds and edits data-module definitions in the in-chat editor." },
+  { "name": "Extension entry", "entry": "core/boot/boot.js", "about": "What SillyTavern loads: wires the v2 runtime, packs and diagnostics." }
 ]

@@ -119,7 +119,7 @@ test('bounded diagnostic history never retains exception details containing prom
     assert.equal(toolEvents[0].persisted, false);
 });
 test('production request bytes, retry counts, output allowances and flags match the recorded baseline', () => {
-    execFileSync(process.execPath, ['scripts/measure-stage9.mjs'], { cwd: new URL('..', import.meta.url), stdio: 'pipe' });
+    execFileSync(process.execPath, ['scripts/people/measure-stage9.mjs'], { cwd: new URL('../../..', import.meta.url), stdio: 'pipe' });
 });
 
 test('the new hosted features off: the npc static line is the one from before the batch (no via sentence); on adds only the gate sentence', async () => {

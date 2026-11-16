@@ -55,5 +55,5 @@ test('3: every extension class in style.css is used by a shipped module', () => 
 
 test('4: README describes named forms once, and the contract covers later releases', () => {
     assert.equal(read('README.md').split('**named forms**').length - 1, 1);
-    assert.match(read('docs/core-contract.md').split('\n')[2], /every later application release[\s\S]*?carries the same requirement/);
+    assert.match(fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/docs/core-contract.md', import.meta.url), 'utf8').split('\n')[2], /every later application release[\s\S]*?carries the same requirement/);
 });

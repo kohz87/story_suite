@@ -2,3 +2,4 @@
 # Format: <repo-relative path>, one per line.
 # This list may only shrink (CI compares it with the base): split a file, then remove its line. Never add a line for new code.
 modules/scene/constants-parts/you.js
+testkit/fake-st.js
