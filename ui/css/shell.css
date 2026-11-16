@@ -230,7 +230,7 @@
 }
 
 /* Narrow phones: the mock's side padding would shrink taps under 44 px wide, so the bar goes edge to edge. */
-@container (max-width: 399px) {
+@container (max-width: 389px) {
   .su-bar {
     gap: 0;
     width: min(calc(100% - 4px), 560px);
