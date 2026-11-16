@@ -182,18 +182,30 @@ test('flag on: a pane last drawn by a frame (no chat switch at the end) shows th
     const texts = [];
     for (const flag of [false, true]) {
         const { doc, runtime, ui } = await page(flag);
+        let n = 0;
+        await runtime.sdk.registerModule({ id: 'qa-n', name: 'N', version: '2.0.0-alpha.1',
+            tabs: [{ id: 'n', title: 'N', icon: 'fa-hashtag', render(pane) { pane.textContent = `n=${n}`; } }] });
+        ui.refresh();
+        doc.querySelectorAll('.story-suite-tab').find(node => node.getAttribute('data-tab-id') === 'n').click();
+        await tick();
         await runtime.sdk.command('qa-wire.bump', {});
         for (const reason of ['chat', 'swipe', 'delete', 'rewind', 'reread']) runtime.events.emit('head', { index: runtime.store.headIndex(), reason });
-        await runtime.sdk.command('qa-wire.bump', {});
         await tick();
-        texts.push(paneText(doc));
+        const before = paneText(doc);
+        n += 1;
+        runtime.events.emit('committed', {});
+        await tick();
+        const after = paneText(doc);
+        assert.match(after, /n=1/, 'the last state is drawn');
+        assert.notEqual(after, before, 'the frame ran: the pane changed after the last mark');
+        texts.push(after);
         ui.destroy();
     }
     assert.ok(texts[0], 'the panel has text');
     assert.equal(texts[1], texts[0]);
 });
 
-test('flag on: a chat switch while a form holds is drawn at once (exactly one pane draw, no frame); the release then adds the frame', async t => {
+test('flag on: a chat switch while a form holds is drawn at once (exactly one pane draw, no frame); the release draws nothing more: the switch already drew the newest state', async t => {
     t.mock.method(console, 'warn', () => {});
     let frames = [];
     globalThis.requestAnimationFrame = fn => frames.push(fn);
@@ -215,7 +227,8 @@ test('flag on: a chat switch while a form holds is drawn at once (exactly one pa
         assert.equal(frames.length, 0, 'and no frame was needed');
         release();
         frames.splice(0).forEach(fn => fn());
-        assert.ok(got.draws - base <= 2, 'the release adds at most the frame\'s own redraw');
+        assert.equal(frames.length, 0, 'the release draws nothing more: the switch already drew the newest state');
+        assert.equal(got.draws, base + 1, 'the release draws nothing more: the switch already drew the newest state');
         ui.destroy();
     } finally { delete globalThis.requestAnimationFrame; }
 });
@@ -231,14 +244,12 @@ test('a held function that throws still frees the scheduler hold', () => {
 
 test('a redraw that throws is logged with console.warn (and the other section still draws)', t => {
     const warn = t.mock.method(console, 'warn', () => {});
-    const { wiring, calls, runFrames } = fakes();
-    wiring.flushNow();   // builds the scheduler
+    let size = 0;
     const bad = wireRedraw({
         on: () => true, mounts: { tab: { register: () => { throw new Error('nope'); } } }, getPanel: () => ({ hidden: false }),
-        getTabHost: () => null, getOverlay: () => ({ refreshSize: () => { calls.size += 1; } }), schedule: fn => fn(),
+        getTabHost: () => null, getOverlay: () => ({ refreshSize: () => { size += 1; } }), schedule: fn => fn(),
     });
     bad.mark();
     assert.ok(warn.mock.calls.some(c => /panel redraw failed/.test(String(c.arguments[0]))));
-    assert.ok(calls.size >= 1);
-    runFrames();
+    assert.equal(size, 1, 'the overlay drew exactly once after the panel threw');
 });
