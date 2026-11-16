@@ -291,12 +291,12 @@ Queries:
 | `src/v2/checks/` | Check line, `checks.roll`, actors, dice |
 | `src/v2/screens/` | Director, Quests, Reveal, Behind, Status card, view queries |
 | `src/v2/threads.js` | The `story-director.threads` feature's owned kinds |
-| `tests/` | `*.test.js` tests of the pure rules; `tests/v2/<part>/`, `tests/v2/integration/`, `tests/v2/break/` (fuzz and one file per finding); `tests/vendor/story-block/` the vendored Story Block testkit |
+| `tests/` | `*.test.js` tests of the pure rules; `tests/v2/<part>/`, `tests/v2/integration/`, `tests/v2/break/` (fuzz and one file per finding); the tests import `packages/story-block/testkit` and `src/v2` by relative path |
 | `docs/` | `ARCHITECTURE.md` (v1 pure-module contract, older), `DESIGN.md`, `dev/` area notes (`trips.md`, `key-people.md`, `cast.md`, `world.md`, `chronicle.md`, `tracker-and-time.md`, `checks-and-danger.md`), `images/` (the README's pictures) |
 | `CHANGELOG.md`, `CLAUDE.md`, `NOTICE.md`, `LICENSE` | History; rules for coding agents; notices; MIT licence |
 
 Commands: `npm test` (what CI runs), `npm run test:dot`, `npm run check` (syntax of `index.js` and `src/`), `git diff --check`. The suite
-runs against the vendored testkit, not Story Block's head; never edit vendored files. Some tests also use Story Block and NPC State
+runs against the live Story Block testkit (`packages/story-block/testkit`). Some tests also use Story Block and NPC State
 Delta checked out beside this repo.
 
 ## Limits & known follow-ups
@@ -313,5 +313,5 @@ Delta checked out beside this repo.
 
 ## Version
 
-Story Director 2.16.0 (`manifest.json`, `package.json`, `src/v2/module/parts.js` `VERSION`). Tested with the vendored Story Block 2.31.1 testkit
-(`tests/vendor/story-block/VERSION`); ships with Story Block 2.32.1 and NPC State Delta 1.17.0. History: [CHANGELOG.md](CHANGELOG.md).
+Story Director 2.16.0 (`manifest.json`, `package.json`, `src/v2/module/parts.js` `VERSION`). Tested with the live Story Block testkit
+(`packages/story-block/testkit`); ships with Story Block 2.32.1 and NPC State Delta 1.17.0. History: [CHANGELOG.md](CHANGELOG.md).

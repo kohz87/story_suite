@@ -12,7 +12,7 @@ import { CLOCK, clockCommand, clockProblem, heroDate, partsOf } from '../../../s
 import { calendarOf, settingsDefaults } from '../../../src/v2/tracker/time.js';
 import { makeState, reply, runCommand } from './helpers/fake-ctx.js';
 import { statusExtras } from '../../../src/v2/screens/queries.js';
-import { formatStoryTime } from '../../vendor/story-block/src/v2/view/clock.js';
+import { formatStoryTime } from '../../../../story-block/src/v2/view/clock.js';
 
 const MONTHS = ['Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane', 'Emberwane', 'Nightfall', 'Frostfall', 'Deepwinter', 'Icewane', 'Yearsend']
     .map(name => ({ name, days: 30 }));

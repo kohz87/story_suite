@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { makeCalendar, normalizeCalendar, PRESETS } from '../../../src/calendar.js';
 import { TEMPERATE, WEATHER_FEATURE, hashOf, seasonByYear, seasonOf, tableFor, weatherFor, weatherHook, weatherKey } from '../../../src/v2/time/weather.js';

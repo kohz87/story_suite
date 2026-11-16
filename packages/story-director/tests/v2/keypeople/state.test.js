@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { DEFAULT_CAP, DEFAULT_TOKENS, FEATURE, findPin, initialKeyPeople, validateKeyPeople } from '../../../src/v2/keypeople/domain.js';
 import { OPENING, keyHost, pin, said, slice, unpin, validatorErrors } from './helpers.js';

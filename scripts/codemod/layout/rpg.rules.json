@@ -1,0 +1,15 @@
+{
+  "area": "rpg",
+  "scope": ["packages"],
+  "rules": [
+    { "from": "packages/story-block/src/v2/lean-rpg", "to": "modules/rpg" },
+    { "from": "packages/story-block/src/v2/rpg-lazy", "to": "modules/rpg/rpg-lazy", "stem": true },
+    { "from": "packages/story-director/src/v2/checks", "to": "modules/rpg/checks" },
+    { "from": "packages/story-director/src/v2/fights.js", "to": "modules/rpg/fights.js" },
+    { "from": "packages/story-director/src/v2/rare.js", "to": "modules/rpg/rare.js" },
+    { "from": "packages/story-director/src/v2/slot.js", "to": "modules/rpg/slot.js" },
+
+    { "from": "packages/story-block/tests/v2/lean-rpg", "to": "tests/modules/rpg" },
+    { "from": "packages/story-director/tests/v2/checks", "to": "tests/modules/rpg/checks" }
+  ]
+}

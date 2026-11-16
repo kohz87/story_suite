@@ -2,7 +2,7 @@
 // R0-R5 are the replay checks (audit 7.1 rule 3). No rule mark: the code is unchanged, so an old long line and the new short one agree.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../vendor/story-block/testkit/host.js';
+import { createHost } from '../../../../story-block/testkit/host.js';
 import { createModule } from '../../../src/v2/module.js';
 import { part } from '../../../src/v2/tracker/index.js';
 

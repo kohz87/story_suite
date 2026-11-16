@@ -1,4 +1,4 @@
-// A rig for the people domain across both packages, flag `suite.peopleInStore` on: the live Story Block testkit host (packages/story-block, not the
+// A rig for the people domain across both packages (no flag; the domain is the store's own): the live Story Block testkit host (packages/story-block, not the
 // vendored copy), NPC State Delta's real adapter with its participant and its people mirror, over a fake Delta runtime that holds the chat's state.
 // `reload()` starts everything again over what was saved. Tests only; nothing here ships.
 import { createHost } from '../../../packages/story-block/testkit/index.js';
@@ -22,11 +22,13 @@ const freshState = () => ({ npcs: [record('mira', { aliases: ['The Weaver'] }), 
 export async function peopleRig(t, { state = freshState(), vault = memoryVault(), image = null, live = null, wrapSdk = sdk => sdk, sends = [], started = true } = {}) {
     t.mock.method(console, 'warn', () => {});
     const mine = live ?? { chatKey: 'chat:avatar.png:one', state: structuredClone(state) };
-    const host = await createHost({ settings: { flags: { 'suite.peopleInStore': true } } });
+    const host = await createHost();
     t.after(() => host.close());
     const listeners = new Set();
     const warnings = [];
-    const base = wrapSdk(host.sdk);
+    // NPC State's mirror still speaks its old names until P3 rewires it: the rig answers its flag query and maps its `people.mirror` onto the store's `people.write`.
+    const bridged = { ...host.sdk, query: (name, ...rest) => (name === 'people.mirrorOn' ? true : host.sdk.query(name, ...rest)), command: (name, ...rest) => host.sdk.command(name === 'people.mirror' ? 'people.write' : name, ...rest) };
+    const base = wrapSdk(bridged);
     const sdk = { ...base, command: async (name, ...rest) => { const out = await base.command(name, ...rest); if (name === 'people.mirror') sends.push(out.ok ? 'ok' : out.code); return out; } };
     const box = { ready: Promise.resolve(sdk), sdk };
     const api = {

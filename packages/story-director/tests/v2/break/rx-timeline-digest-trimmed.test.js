@@ -14,7 +14,7 @@ import { createModule } from '../../../src/v2/module.js';
 import { orderedDays } from '../../../src/v2/chronicle/days.js';
 
 const dir = process.env.STORY_BLOCK_DIR ? path.resolve(process.env.STORY_BLOCK_DIR) : null;
-const { createHost } = await import(dir ? pathToFileURL(path.join(dir, 'testkit/index.js')).href : '../../vendor/story-block/testkit/index.js');
+const { createHost } = await import(dir ? pathToFileURL(path.join(dir, 'testkit/index.js')).href : '../../../../story-block/testkit/index.js');
 
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { installFakeDom } from '../../ui-fake-dom.js';
-import { createFakeModel, createHost } from '../../vendor/story-block/testkit/index.js';
+import { createFakeModel, createHost } from '../../../../story-block/testkit/index.js';
 import { createModule, storyDirectorModule } from '../../../src/v2/module.js';
 import { createArcController, createArcWidget } from '../../../src/v2/arc/index.js';
 import { browserStore, createReveal } from '../../../src/v2/screens/index.js';

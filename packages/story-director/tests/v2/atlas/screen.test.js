@@ -5,14 +5,14 @@ import { existsSync } from 'node:fs';
 import { part } from '../../../src/v2/atlas/index.js';
 import { MAP_SCREEN_ID, mapScreen } from '../../../src/v2/atlas/screen.js';
 import { MAP_WIDGET, atlasMapWidget, forgetViews } from '../../../src/v2/atlas/widget.js';
-import { validateScreen } from '../../vendor/story-block/src/v2/view/screens.js';
+import { validateScreen } from '../../../../story-block/src/v2/view/screens.js';
 import { installFakeDom } from '../../ui-fake-dom.js';
 import { command, makeState, query } from './helpers/fake-ctx.js';
 
 // Story Block's template renderer (SPEC §13.2), used from a Story Block checkout when there is one.
-const SB = new URL('../../vendor/story-block/src/v2/', import.meta.url).pathname;
+const SB = new URL('../../../../story-block/src/v2/', import.meta.url).pathname;
 const HAVE_TEMPLATES = ['view/template/index.js', 'view/bind.js', 'events/index.js'].every(file => existsSync(`${SB}${file}`));
-const NO_TEMPLATES = HAVE_TEMPLATES ? false : `Story Block's template renderer is not at ${SB}view/template/ (it is not vendored here)`;
+const NO_TEMPLATES = HAVE_TEMPLATES ? false : `Story Block's template renderer is not at ${SB}view/template/`;
 
 const PACK = {
     places: [
