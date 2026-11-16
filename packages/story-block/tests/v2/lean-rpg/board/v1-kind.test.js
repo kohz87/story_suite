@@ -82,3 +82,38 @@ test('the witness follows what the engine reads: a stat edit changes it, an unre
         assert.equal(readSheet(host.head()).characters[0].v1, true);
     } finally { host.close(); }
 });
+
+test('the kind\'s note is the owner-approved note golden, byte for byte, for a v1 setup; an unmarked setup still tells the old board note', async () => {
+    const { readFileSync } = await import('node:fs'), { hard, played, quiet, skirmish, skirmishChoices } = await import('../combat/note.helper.js');
+    const { settledNoteV1 } = await import('../../../../src/v2/lean-rpg/combat/note.js');
+    const { settledNote } = await import('../../../../src/v2/lean-rpg/board/note-parts/settled-note.js');
+    const healing = [{}, {}, { Cy: { kind: 'heal', target: 'Kira' } }, {}, {}, {}];
+    for (const envelope of [played(quiet(), 'a', healing), played(hard(), 'a', 12), played(skirmish(), 'a', skirmishChoices)]) {
+        const told = fightKind.note({ v: 1, ...envelope }, { v1: 1 }).join(' | ');
+        assert.equal(told, settledNoteV1(envelope));
+        assert.ok(readFileSync(new URL('../combat/note.golden.txt', import.meta.url), 'utf8').includes(told.split(' | ').join('\n')), 'it is a paragraph of the approved golden');
+    }
+    const old = { stop: 'won', rounds: [] };
+    assert.equal(fightKind.note(old, { fightLen: 1 }).join(' | '), settledNote(old, { fightLen: 1 }), 'no v1 mark: the old note, untouched');
+});
+
+test('a pre-check opening on a v1 sheet fills a free Foes slot with its tier (no tier reads as standard) and the fight then opens on it', async () => {
+    const { preludeDice } = await import('../../../../src/v2/interaction/dice.js'), { boardChangeCommands } = await import('../../../../src/v2/lean-rpg/board/changes.js');
+    const host = (await v1Host({ count: 0 })).host;
+    try {
+        const args = { opening: { groups: [{ name: 'Wolves', count: 2, level: 6 }, { name: 'Brute', count: 1, level: 9, tier: 'elite' }], key: 'k1', rules: {}, practice: 3 } };
+        const made = fightKind.open(host.head(), { anchor: 'a', seed: 5, args });
+        assert.equal(made.setup.v1, 1);
+        assert.equal(made.setup.opening, true);
+        assert.deepEqual(fightKind.witness(host.head(), made.setup, []), { sheet: fightKind.witness(host.head(), made.setup, []).sheet }, 'an opening witnesses the sheet it reads');
+        const out = fightKind.opening(host.head(), made.setup, preludeDice(5));
+        assert.equal(out.result.v1, 1);
+        assert.deepEqual(out.result.opened.map(placed => [placed.name, placed.count, placed.level, placed.tier]), [['Wolves', 2, 6, 'standard'], ['Brute', 1, 9, 'elite']]);
+        const state = structuredClone(host.head()), handler = boardChangeCommands()[out.changes[0].type];
+        handler({ draft: () => state.domains.dataModules, fail: (code, message) => { throw new Error(`${code} ${message}`); } }, out.changes[0].payload);
+        const foes = readSheet(state).foes.filter(foe => foe.filled).map(foe => [foe.name, foe.count, foe.level, foe.tier]);
+        assert.deepEqual(foes, [['Wolves', 2, 6, 'standard'], ['Brute', 1, 9, 'elite']], 'the Foes block holds the tiers');
+        assert.equal(fightKind.open(state, { anchor: 'a', seed: 5, args: {} }).setup.groups.length, 2, 'and the fight opens on them');
+        assert.deepEqual(fightKind.note(out.result, made.setup, { opening: true }).length, 1);
+    } finally { host.close(); }
+});

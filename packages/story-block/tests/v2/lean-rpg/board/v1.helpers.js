@@ -12,7 +12,8 @@ const stateOf = (definition, fields) => ({ definition, fields: Object.fromEntrie
 
 function block(role, definition, fields) {
     const made = stateOf(definition, fields);
-    return { role, definition, fields: { ...made.fields, ...fields } };
+    // (a block the chat pinned went through dm.define, which gives every list a value)
+    return { role, definition: { rules: [], cards: [], ...definition }, fields: { ...made.fields, ...fields } };
 }
 
 /** `{ character, skills, foes }` blocks: Astra (level 5, 20 HP) with an attack skill, and a group of Rats (`count`, level `level`, tier `tier`). */
