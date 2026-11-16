@@ -110,3 +110,39 @@ test('destroy removes the layer, is repeatable and blocks open', () => {
   assert.equal(doc.body.querySelector('.su-layer'), null);
   assert.equal(suite.open(), false);
 });
+
+function themeDoc(vars) {
+  const doc = installFakeDom();
+  const seen = [];
+  class Fake {
+    constructor(fn) { this.fn = fn; seen.push(this); }
+    observe() {}
+    disconnect() { this.off = true; }
+  }
+  doc.documentElement ??= { id: 'root' };
+  doc.defaultView = { MutationObserver: Fake, getComputedStyle: () => ({ getPropertyValue: name => vars[name] ?? '' }) };
+  return { doc, seen };
+}
+
+test('follow theme: an ST theme change re-applies the skin once; destroy stops watching', () => {
+  const vars = { '--SmartThemeBodyColor': '#eeeeee', '--SmartThemeBlurTintColor': '#101010' };
+  const { doc, seen } = themeDoc(vars);
+  const suite = mountSuite({ port: createFakePort(), doc, theme: 'follow' });
+  assert.equal(seen.length, 1);
+  assert.equal(suite.root.getAttribute('data-scheme'), 'dark');
+  vars['--SmartThemeBodyColor'] = '#111111';
+  vars['--SmartThemeBlurTintColor'] = '#f5f5f5';
+  seen[0].fn();
+  assert.equal(suite.root.getAttribute('data-scheme'), 'light');
+  assert.equal(suite.root.style.getPropertyValue('--su-text'), '#111111');
+  suite.destroy();
+  assert.equal(seen[0].off, true);
+});
+
+test('fixed themes do not watch ST', () => {
+  for (const theme of ['dark', 'light']) {
+    const { doc, seen } = themeDoc({});
+    mountSuite({ port: createFakePort(), doc, theme }).destroy();
+    assert.equal(seen.length, 0);
+  }
+});
