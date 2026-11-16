@@ -67,9 +67,11 @@ test('swap on: a host redraw never replaces the pane while a field in it is focu
     assert.notEqual(after, first);
     assert.equal(after.querySelector('input').value, 'v2', 'drawn once from the newest state');
     assert.equal(state.destroyed, 1);
-    // an explicit redraw (a tab chosen) still draws at once
+    // a tab chosen still draws at once; a plain refresh() is a background one and waits
     after.querySelector('input').focus();
     host.refresh();
+    assert.equal(root.querySelector('.story-suite-pane'), after, 'a plain refresh waits');
+    host.select('w1');
     assert.notEqual(root.querySelector('.story-suite-pane'), after);
     host.destroy();
 });

@@ -280,6 +280,7 @@ export class FakeElement extends FakeNode {
         if (!event.stopped) for (const entry of [...(page?.listeners ?? [])]) if (entry.type === type && !entry.capture) entry.fn.call(page, event);
         return event;
     }
+    dispatchEvent(event) { this.dispatch(event.type); return true; }
     click() { return this.dispatch('click'); }
     focus() { this.ownerDocument.activeElement = this; }
     blur() { if (this.ownerDocument.activeElement === this) this.ownerDocument.activeElement = null; }
