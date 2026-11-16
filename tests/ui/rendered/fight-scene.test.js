@@ -98,7 +98,7 @@ for (const width of [390, 1143, 1280, 1920]) {
           const share = await scene.evaluate(pixelDiff, [x.toString('base64'), y.toString('base64')]);
           assert.ok(share >= 0 && share < 0.05, `${sel} differs in its edges at ${width} ${theme}: ${share}`); // blur at the card rim and sub-pixel edges stay under 5%; a moved line or text is far above that
         }
-        const m = await scene.evaluate(() => { const tab = document.querySelector('#hx-frame .scene-tab'); return { sideways: tab.scrollWidth > tab.clientWidth + 1, heads: document.querySelectorAll('#hx-frame [data-card="fight-head"]').length, discards: document.querySelectorAll('#hx-frame [data-act="discard"], #hx-frame [data-discard]').length }; });
+        const m = await scene.evaluate(() => { const tab = document.querySelector('#hx-frame .scene-tab'); return { sideways: tab.scrollWidth > tab.clientWidth + 1, heads: document.querySelectorAll('#hx-frame [data-card="fight-head"]').length, discards: document.querySelectorAll('#hx-frame [data-discard]').length }; });
         assert.deepEqual(m, { sideways: false, heads: 1, discards: 1 });
         assert.equal(await scene.evaluate(() => [...document.querySelectorAll('#hx-frame .fight-tab > *')].length && [...document.querySelector('#hx-frame .fight-tab').childNodes].some(n => n.nodeType === 3)), false, 'no stray text node in the fight');
         if (SHOTS) {
@@ -129,19 +129,21 @@ for (const size of [{ width: 390, height: 844 }, { width: 360, height: 740 }]) {
       assert.ok(target.h >= 44 && target.ok, `target ${JSON.stringify(target)}`);
       await page.tap(sel('[data-target="Hound 2"]'));
       await page.waitForSelector(sel('.actions-card[data-actor="torka"]'));
-      await page.tap(sel('.actions-card [data-act="flee"]'));
-      await page.waitForSelector(sel('.actions-card[data-actor="rika"]'));
-      assert.equal(await page.evaluate(() => document.querySelectorAll('#hx-frame .actions-card').length), 1);
-      await page.tap(sel('.actions-card [data-act="flee"]'));
-      await page.waitForSelector(sel('.actions-card[data-actor="brann"]'));
+      for (const [act, who, next, foe] of [['brute', 'torka', 'rika', 'Captain'], ['aimed', 'rika', 'brann', 'Captain']]) {
+        await page.tap(sel(`.actions-card [data-act="${act}"]`));
+        await page.tap(sel(`[data-target="${foe}"]`));
+        await page.waitForSelector(sel(`.actions-card[data-actor="${next}"]`));
+        assert.equal(await page.evaluate(() => document.querySelectorAll('#hx-frame .actions-card').length), 1, who);
+      }
       const hasSideways = () => page.evaluate(() => { const tab = document.querySelector('#hx-frame .scene-tab'); return tab.scrollWidth > tab.clientWidth + 1; });
       assert.equal(await hasSideways(), false);
-      const act = await hit('[data-act="discard"]');
+      const act = await hit('[data-discard]');
       assert.ok(act.h >= 44 && act.ok, `discard ${JSON.stringify(act)}`);
-      await page.tap(sel('.actions-card [data-act="flee"]'));
+      await page.tap(sel('.actions-card [data-act="normal"]'));
+      await page.tap(sel('[data-target="Hound 3"]'));
       await page.waitForFunction(() => globalThis.storySuiteHarness.port.recorded.some(r => r.type === 'interaction.stage'));
       const staged = await page.evaluate(() => globalThis.storySuiteHarness.port.recorded.filter(r => r.type === 'interaction.stage').map(r => r.payload.step.inputs.map(i => [i.actor, i.choice])));
-      assert.deepEqual(staged, [[['actor-astra', 'attack'], ['actor-torka', 'flee'], ['actor-rika', 'flee'], ['actor-brann', 'flee']]]);
+      assert.deepEqual(staged, [[['actor-astra', 'attack'], ['actor-torka', 'skill'], ['actor-rika', 'skill'], ['actor-brann', 'attack']]]);
     } finally { await page.close(); }
   });
 }

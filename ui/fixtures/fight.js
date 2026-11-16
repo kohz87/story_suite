@@ -73,7 +73,10 @@ const WHO = { astra: 'Astra', torka: 'Torka', rika: 'Rika', brann: 'Brann' };
 const act = (who, id, label, cost, target, damage, odds = null, pick = {}) => ({
   id, label, cost, target, damage, odds, enabled: true, pick: { choice: pick.choice ?? 'skill', args: { who, ...(pick.args ?? { skill: label }) } },
 });
-const flee = who => act(who, 'flee', 'Flee', 'AGI +5 against the captain’s +9', 'none', null, 'long shot', { choice: 'flee', args: {} });
+const flee = who => {
+  const action = act(who, 'flee', 'Flee', 'AGI +5 against the captain’s +9', 'none', null, 'long shot', { choice: 'flee', args: {} });
+  return { ...action, pick: { ...action.pick, alone: true } };
+};
 const item = who => act(who, 'item', 'Use item', 'Healing draught ×3 · Antidote ×1', 'ally', 'heals 6 · ends poison', null, { choice: 'item', args: { stack: 'healing-draught' } });
 const normal = (who, dmg = '5 damage · 7 if decisive') => act(who, 'normal', 'Normal attack', 'STR damage · free', 'member', dmg, null, { choice: 'attack', args: {} });
 // Each member's actions (Brann's are the ones the Fight board mock shows).
@@ -82,7 +85,7 @@ const GROUPS = {
   torka: who => ({ Attack: [normal(who, '7 damage · 10 if decisive'), act(who, 'brute', 'Brute strike', 'STR · 2 Stamina', 'member', '8 damage · 12 if decisive')], Magic: [], Item: [item(who)], Flee: [flee(who)] }),
   rika: who => ({ Attack: [normal(who, '4 damage · 6 if decisive'), act(who, 'aimed', 'Aimed shot', 'DEX · 2 Stamina', 'member', '7 damage · 10 if decisive')], Magic: [act(who, 'magic', 'Normal magic', 'INT damage · free', 'member', '3 damage · 4 if decisive', null, { choice: 'skill', args: { skill: 'Normal magic' } })], Item: [item(who)], Flee: [flee(who)] }),
   brann: who => ({
-    Attack: [normal(who), act(who, 'heavy', 'Heavy blow', 'STR damage · 1 Stamina', 'member', '6 damage · 9 if decisive'), act(who, 'cleave', 'Cleave', 'area · STR damage · 2 Stamina', 'group', '4 damage each · 6 if decisive · one roll per target')],
+    Attack: [normal(who), act(who, 'heavy', 'Heavy blow', 'STR damage · 1 Stamina', 'member', '6 damage · 9 if decisive'), act(who, 'cleave', 'Cleave', 'area · STR damage · 2 Stamina', 'group', '4 damage each · 6 if decisive · one roll per target', null, { args: { skill: 'Cleave', area: true } })],
     Magic: [act(who, 'magic', 'Normal magic', 'INT damage · free', 'member', '2 damage · 3 if decisive')],
     Item: [item(who)],
     Flee: [flee(who)],
@@ -99,13 +102,14 @@ const actorsOf = party => party.filter(p => p.hp > 0).map(p => ({ id: p.actorId,
 function foeGroups(snap, wide) {
   const hounds = wide ? 4 : 3;
   const groups = [['Grey hounds', 'Hound', hounds, 'Hound'], ...(wide ? [['Men in grey', 'Man', 3, 'Man']] : []), ['Bandit captain', 'Captain', 1, 'Captain']];
+  let slot = 0; // the foes' slots, in order; each group is numbered by its first member's slot (SB board members)
   return groups.map(([name, label, n, key]) => {
-    const info = FOE_INFO[key];
+    const info = FOE_INFO[key], first = slot;
     const members = Array.from({ length: n }, (_, i) => {
       const id = n === 1 ? label : `${label} ${i + 1}`;
-      return { id, name: id, hp: snap.foes[id] ?? info.max, max: info.max };
+      return { id, arg: { target: slot++ }, name: id, hp: snap.foes[id] ?? info.max, max: info.max };
     });
-    return { id: name, name, tier: info.tier, lv: info.lv, odds: { word: info.word }, members };
+    return { id: name, arg: { group: first }, name, tier: info.tier, lv: info.lv, odds: { word: info.word }, members };
   });
 }
 
@@ -114,7 +118,7 @@ function partyStrip(snap, state) {
   return Object.keys(NAMES).map(id => {
     const [hp, hpMax, mp, mpMax, sp, spMax] = snap[id];
     const chosen = picked ? (state === 'after' && id === 'brann' ? 'Normal attack → Hound 3' : PICKS[id] ?? null) : null;
-    return { id, actorId: `actor-${id}`, name: NAMES[id], portrait: id, hp, hpMax, mp, mpMax, sp, spMax, chosen };
+    return { id, arg: { target: NAMES[id] }, actorId: `actor-${id}`, name: NAMES[id], portrait: id, hp, hpMax, mp, mpMax, sp, spMax, chosen };
   });
 }
 

@@ -35,7 +35,7 @@ function memberButton(member, group, pick, onPick) {
       disabled: !can,
       'aria-label': `${member.name}: ${down ? 'down' : `${member.hp} of ${member.max} health`}${can && word ? `, ${word}` : ''}`,
       dataset: can ? { target: member.id } : null,
-      onClick: can ? () => onPick?.({ kind: 'member', id: member.id }) : null,
+      onClick: can ? () => onPick?.({ kind: 'member', id: member.id, arg: member.arg }) : null,
     },
     h('span', { class: 'mn' }, member.name, h('small', null, down ? 'down' : `${member.hp}/${member.max}`)),
     can && word ? h('span', { class: ['todds', oddsClass(word)] }, word) : null,
@@ -54,8 +54,8 @@ function groupBlock(group, pick, onPick) {
     aim && group.odds?.word ? h('span', { class: ['todds', oddsClass(group.odds.word)] }, `${group.odds.word} each`) : null,
   );
   const attrs = aim
-    ? { role: 'button', tabindex: '0', dataset: { target: group.name }, onClick: () => onPick?.({ kind: 'group', id: group.id ?? group.name }),
-        onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') onPick?.({ kind: 'group', id: group.id ?? group.name }); } }
+    ? { role: 'button', tabindex: '0', dataset: { target: group.name }, onClick: () => onPick?.({ kind: 'group', id: group.id ?? group.name, arg: group.arg }),
+        onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') onPick?.({ kind: 'group', id: group.id ?? group.name, arg: group.arg }); } }
     : {};
   return h('div', { class: ['fg', aim ? 'tgt' : null], ...attrs }, head,
     h('div', { class: 'fm2' }, group.members.map(m => memberButton(m, group, pick, onPick))));

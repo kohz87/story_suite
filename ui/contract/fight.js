@@ -13,8 +13,11 @@ const ACTION = {
   odds: { $nullable: { $enum: ODDS } },
   enabled: T.BOOLEAN,
   // The input this action stands for, as the kind stages it: `choice` is the kind's choice id, `args` the rest of the action (`who` and so on).
-  // The renderer adds the target: `args.target` = a foe member id (target 'member'), a foe group id with `area: true` (target 'group'), or a party id (target 'ally').
-  pick: { choice: T.STRING, args: T.ANY },
+  // Targets: 'member' = a single-target foe, adds that member's `arg`; 'group' = an area skill that needs a group, adds that group's `arg`;
+  // 'none' = no target (also an area skill that needs no group); 'ally' = a party member, adds that member's `arg`.
+  // Every area action's `pick.args` carries `area: true` ('group' and 'none' alike): without it the kind treats a group pick as single-target.
+  // `alone` = the pick is staged by itself, at once (Flee is the whole exchange).
+  pick: { choice: T.STRING, args: T.ANY, alone: { $optional: T.BOOLEAN } },
 };
 
 export const FIGHT_SHAPE = {
@@ -25,17 +28,18 @@ export const FIGHT_SHAPE = {
   foeGroups: [
     {
       id: T.STRING,
+      arg: T.ANY, // the args tapping this group adds to a pick (area skill)
       name: T.STRING,
       // tier and the odds word are null while the engine has no source for them (selectFight today); a card with a null shows no tier tag and no odds.
       tier: { $nullable: { $enum: ['Mob', 'Minion', 'Standard', 'Elite', 'Boss', 'Apex'] } },
       lv: T.NUMBER,
       odds: { word: { $nullable: { $enum: ODDS } } },
-      members: [{ id: T.STRING, name: T.STRING, hp: T.NUMBER, max: T.NUMBER }],
+      members: [{ id: T.STRING, arg: T.ANY, name: T.STRING, hp: T.NUMBER, max: T.NUMBER }],
     },
   ],
   party: [
     {
-      id: T.STRING, actorId: T.STRING, name: T.STRING, portrait: { $nullable: T.STRING },
+      id: T.STRING, arg: T.ANY, actorId: T.STRING, name: T.STRING, portrait: { $nullable: T.STRING },
       hp: T.NUMBER, hpMax: T.NUMBER, mp: T.NUMBER, mpMax: T.NUMBER, sp: T.NUMBER, spMax: T.NUMBER,
       chosen: { $nullable: T.STRING },
     },

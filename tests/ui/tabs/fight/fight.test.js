@@ -73,7 +73,7 @@ test('target: picking an attack opens the foes with a banner; tapping a foe stag
   assert.match(tab.querySelector('.banner').textContent, /^Normal attack: tap a foe\./);
   assert.equal(tab.querySelectorAll('.mbx.tgt').length, 3);
   tab.querySelector('[data-target="Hound 3"]').click();
-  assert.deepEqual(sent(ctx), [['rpg.board.stage', { actorId: 'brann', action: 'normal', target: { kind: 'member', id: 'Hound 3' } }]]);
+  assert.deepEqual(sent(ctx), [['rpg.board.stage', { actorId: 'brann', action: 'normal', target: { kind: 'member', id: 'Hound 3', arg: { target: 2 } } }]]);
   assert.equal(tab.dataset.step, 'choose');
 });
 
@@ -89,7 +89,7 @@ test('target: an area skill lights groups; Back returns to choosing without a co
   assert.equal(tab.querySelector('.banner'), null);
   tab.querySelector('[data-act="cleave"]').click();
   tab.querySelector('.fg.tgt').click();
-  assert.deepEqual(sent(ctx), [['rpg.board.stage', { actorId: 'brann', action: 'cleave', target: { kind: 'group', id: 'Grey hounds' } }]]);
+  assert.deepEqual(sent(ctx), [['rpg.board.stage', { actorId: 'brann', action: 'cleave', target: { kind: 'group', id: 'Grey hounds', arg: { group: 0 } } }]]);
 });
 
 test('ally: Use item lights the party first with the heal preview; tapping a member stages it', () => {

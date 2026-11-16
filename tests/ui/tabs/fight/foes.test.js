@@ -34,7 +34,7 @@ test('foes: picking a member lights each standing foe with its odds word; a down
   assert.equal(lit[0].querySelector('.todds').textContent, 'even');
   assert.equal(card.querySelector('.mbx.down').hasAttribute('disabled'), true);
   lit[2].click();
-  assert.deepEqual(picked, [{ kind: 'member', id: 'Captain' }]);
+  assert.deepEqual(picked, [{ kind: 'member', id: 'Captain', arg: { target: 3 } }]);
   assert.equal(card.querySelector('.mbx.tgt .todds.longshot') !== null, true);
 });
 
@@ -50,7 +50,7 @@ test('foes: picking a group lights standing groups only; tap and Enter both pick
   lit[0].click();
   lit[0].dispatch('keydown', { key: 'Enter' });
   lit[0].dispatch('keydown', { key: 'a' });
-  assert.deepEqual(picked, [{ kind: 'group', id: 'Grey hounds' }, { kind: 'group', id: 'Grey hounds' }]);
+  assert.deepEqual(picked, [{ kind: 'group', id: 'Grey hounds', arg: { group: 0 } }, { kind: 'group', id: 'Grey hounds', arg: { group: 0 } }]);
 });
 
 test('foes: the 8-foe worst case lists three groups; empty or missing groups give null', () => {

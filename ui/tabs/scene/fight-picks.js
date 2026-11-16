@@ -1,7 +1,8 @@
-// Holds the fight picks made so far for the open exchange (one per standing member, asked in order), keyed by interaction id and step count.
+// Holds the fight picks made so far for the open exchange (one per standing member, asked in order), keyed by interaction id, step count and who fights whom.
 
 let held = { key: '', list: [] };
-const keyOf = vm => `${vm.id}:${vm.steps}`;
+// An edited Re-read can change who fights or who is a foe without changing the step count, so the key names both.
+const keyOf = vm => `${vm.id}:${vm.steps}:${(vm.view?.actors ?? []).map(a => a.id).join(',')}:${(vm.view?.foeGroups ?? []).flatMap(g => g.members.map(m => m.id)).join(',')}`;
 
 /** The picks held for this exchange, as `[{ actor, input: { actor, choice, args }, text }]`; stale ones (another exchange, a member no longer asked) are dropped. */
 export function heldFor(vm, actors) {

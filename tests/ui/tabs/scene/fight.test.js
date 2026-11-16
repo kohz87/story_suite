@@ -8,6 +8,8 @@ import { createFakePort } from '../../../../ui/port/fake-port.js';
 
 const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 const open = (fight = 'choose', options) => selectScene(fightSceneAnswer(fight, options));
+// A no-target pick that waits for the others: Flee without `alone` (a real Flee stages by itself).
+const quiet = vm => { for (const a of vm.view.actors) for (const x of a.groups.Flee) delete x.pick.alone; return vm; };
 const build = (vm, port = createFakePort()) => ({ port, tab: sceneTab(vm, { port }) });
 const sent = port => port.recorded.map(r => [r.type, r.payload]);
 const tap = (tab, selector) => tab.querySelector(selector).click();
@@ -17,8 +19,8 @@ test('the fight kind draws on the scene host: one header, one Discard, no stance
   const { tab } = build(open('choose'));
   assert.equal(tab.querySelectorAll('[data-card="fight-head"]').length, 1);
   assert.equal(tab.querySelector('[data-card="scene-head"]'), null);
-  assert.equal(tab.querySelectorAll('[data-act="discard"]').length, 1);
-  assert.equal(tab.querySelector('[data-discard]'), null);
+  assert.equal(tab.querySelectorAll('[data-discard]').length, 1);
+  assert.equal(tab.querySelector('[data-act="discard"]'), null);
   assert.equal(tab.querySelector('.stance'), null);
   assert.equal(tab.querySelector('[data-act="send"]'), null);
   assert.equal(tab.querySelector('.fpill').textContent, 'exchange 2');
@@ -43,16 +45,16 @@ test('one pick per standing member, in order, then one stage with all four input
   tap(tab, '[data-target="Grey hounds"]');
   await flush();
   assert.deepEqual(sent(port), [['interaction.stage', { id: vm.id, step: { inputs: [
-    { actor: 'actor-astra', choice: 'attack', args: { who: 'Astra', target: 'Hound 2' } },
-    { actor: 'actor-torka', choice: 'skill', args: { who: 'Torka', skill: 'Brute strike', target: 'Captain' } },
-    { actor: 'actor-rika', choice: 'skill', args: { who: 'Rika', skill: 'Aimed shot', target: 'Captain' } },
-    { actor: 'actor-brann', choice: 'skill', args: { who: 'Brann', skill: 'Cleave', target: 'Grey hounds', area: true } },
+    { actor: 'actor-astra', choice: 'attack', args: { who: 'Astra', target: 1 } },
+    { actor: 'actor-torka', choice: 'skill', args: { who: 'Torka', skill: 'Brute strike', target: 3 } },
+    { actor: 'actor-rika', choice: 'skill', args: { who: 'Rika', skill: 'Aimed shot', target: 3 } },
+    { actor: 'actor-brann', choice: 'skill', args: { who: 'Brann', skill: 'Cleave', area: true, group: 0 } },
   ] } }]]);
 });
 
 test('an action with no target is picked at once; an item asks for an ally; Back takes the last pick back', async () => {
   installFakeDom();
-  const vm = { ...open('choose'), steps: 7 };
+  const vm = quiet({ ...open('choose'), steps: 7 });
   const { tab, port } = build(vm);
   tap(tab, '[data-act="flee"]');
   assert.match(tab.querySelector('.actions-card .ah b').textContent, /^Torka/);
@@ -77,7 +79,7 @@ test('Auto is one auto command for one exchange', async () => {
 
 test('picks are kept for the same interaction and step count, and dropped when the count or the id changes', () => {
   installFakeDom();
-  const vm = { ...open('choose'), id: 'keyed-1', steps: 3 };
+  const vm = quiet({ ...open('choose'), id: 'keyed-1', steps: 3 });
   const first = build(vm);
   tap(first.tab, '[data-act="flee"]');
   const again = build(vm); // a redraw of the same exchange keeps the pick
@@ -89,7 +91,7 @@ test('picks are kept for the same interaction and step count, and dropped when t
 
 test('a held pick for a member no longer asked is dropped', () => {
   installFakeDom();
-  const vm = { ...open('choose'), id: 'keyed-3', steps: 1 };
+  const vm = quiet({ ...open('choose'), id: 'keyed-3', steps: 1 });
   tap(build(vm).tab, '[data-act="flee"]'); // Astra
   const view = structuredClone(vm.view);
   view.actors = view.actors.slice(1); // Astra fell: the first asked is now Torka
@@ -107,7 +109,7 @@ test('a resolved exchange: the after card, Send and Discard on the session id, C
   assert.equal(tab.querySelector('.foes-card').textContent.includes('null'), false);
   tap(tab, '[data-act="send"]');
   await flush();
-  tap(tab, '[data-act="discard"]');
+  tap(tab, '[data-discard]');
   await flush();
   assert.deepEqual(sent(port), [['interaction.send', { id: vm.id }], ['interaction.discard', { id: vm.id }]]);
 });
@@ -121,7 +123,7 @@ test('after a resolved exchange with members to ask, Choose exchange N+1 goes ba
   assert.ok(tab.querySelector('.actions-card'));
 });
 
-test('the end: outcome card without Back or its own Discard, a null XP shows no figure; sent and taken-back scenes ask nothing', () => {
+test('the end: outcome card with the one danger Discard, without Back, a null XP shows no figure; sent and taken-back scenes ask nothing', () => {
   installFakeDom();
   const end = open('end');
   end.view.end.xpEach = null;
@@ -129,7 +131,7 @@ test('the end: outcome card without Back or its own Discard, a null XP shows no 
   assert.equal(tab.querySelector('.endb').dataset.outcome, 'won');
   assert.equal(tab.querySelector('.xpr').textContent.includes('XP'), false);
   assert.equal(tab.querySelector('[data-finish]'), null);
-  assert.equal(tab.querySelectorAll('[data-discard]').length, 0);
+  assert.equal(tab.querySelectorAll('[data-discard]').length, 1);
   const sentTab = build(open('choose', { scene: 'sent' })).tab;
   assert.equal(sentTab.querySelector('.scene-state').textContent, 'Sent. It plays out with the next reply.');
   assert.equal(sentTab.querySelector('.actions-card'), null);
@@ -139,7 +141,7 @@ test('the end: outcome card without Back or its own Discard, a null XP shows no 
 
 test('a refused stage shows the engine message and keeps the picks for a second try', async () => {
   installFakeDom();
-  const vm = { ...open('choose'), id: 'keyed-4', steps: 2 };
+  const vm = quiet({ ...open('choose'), id: 'keyed-4', steps: 2 });
   let calls = 0;
   const port = { command: async () => (calls++ ? { ok: true } : { ok: false, message: 'Choose an action for each standing member.' }) };
   const { tab } = build(vm, port);
@@ -156,6 +158,48 @@ test('a fight view that is missing or has no foes says so and still offers Disca
   installFakeDom();
   const bare = build({ ...open('choose'), view: null }).tab;
   assert.ok(bare.querySelector('.scene-empty'));
-  assert.ok(bare.querySelector('[data-act="discard"]'));
+  assert.equal(bare.querySelectorAll('[data-discard]').length, 1);
   assert.equal(bare.querySelectorAll('[data-card="fight-head"]').length, 1);
+});
+
+test('Discard is drawn once in every state: the actions card, the target step, a sent fight, a taken-back fight, the live after card has none', () => {
+  installFakeDom();
+  const count = vm => build(vm).tab.querySelectorAll('[data-discard]').length;
+  assert.equal(count(open('target')), 1);
+  assert.equal(count({ ...open('choose', { scene: 'sent' }), canDiscard: true }), 1); // as the kind reports a sent fight (preview.js)
+  assert.equal(count(open('choose', { scene: 'invalidated' })), 1);
+  assert.equal(count(open('offer')), 1);
+  const after = open('after');
+  after.view.actors = open('choose').view.actors;
+  assert.equal(count(after), 0); // staged and live: "Choose exchange N+1" carries no Discard (mock v7)
+  after.view.actors = [];
+  assert.equal(count(after), 1);
+  assert.equal(count({ ...open('choose'), canDiscard: false }), 0);
+  const tab = build(open('choose')).tab;
+  assert.equal(tab.querySelector('.actions-card [data-discard]').textContent, 'Discard fight');
+});
+
+test('Flee from the 2nd of 4 members stages exactly that one input, at once', async () => {
+  installFakeDom();
+  const vm = { ...open('choose'), id: 'keyed-5', steps: 1 };
+  const { tab, port } = build(vm);
+  tap(tab, '[data-act="normal"]');
+  tap(tab, '[data-target="Hound 2"]');
+  tap(tab, '[data-act="flee"]'); // Torka
+  await flush();
+  assert.deepEqual(sent(port), [['interaction.stage', { id: vm.id, step: { inputs: [{ actor: 'actor-torka', choice: 'flee', args: { who: 'Torka' } }] } }]]);
+});
+
+test('an edited Re-read that shrinks or grows the foes or the party drops the held picks', () => {
+  installFakeDom();
+  const vm = quiet({ ...open('choose'), id: 'keyed-6', steps: 1 });
+  tap(build(vm).tab, '[data-act="flee"]');
+  assert.match(build(vm).tab.querySelector('.actions-card .ah b').textContent, /^Torka/);
+  const fewer = structuredClone(vm.view);
+  fewer.foeGroups[0].members.pop();
+  assert.match(build({ ...vm, view: fewer }).tab.querySelector('.actions-card .ah b').textContent, /^Astra/);
+  const more = structuredClone(vm.view);
+  more.actors.push(structuredClone(more.actors[0]));
+  more.actors.at(-1).id = 'actor-new';
+  assert.match(build({ ...vm, view: more }).tab.querySelector('.actions-card .ah b').textContent, /^Astra/);
 });

@@ -113,3 +113,53 @@ test('fight tab at 820: header keeps the mock height (subtitle 16, header 64)', 
     assert.equal(m.headH, 64);
   } finally { await page.close(); }
 });
+
+/** Runs in the page at a wide width: the values measured from scratch/design/redo/fight.html (desktop frame) for the same cards. */
+function measureWide() {
+  const root = document.querySelector('#hx-frame'), f = s => root.querySelector(s), cs = e => getComputedStyle(e);
+  const box = e => e.getBoundingClientRect();
+  const card = s => { const e = f(s), c = cs(e); return `${c.padding} | ${c.gap} | ${c.borderRadius}`; };
+  const grid = f('.fgrid'), cols = cs(grid).gridTemplateColumns.split(' ').map(parseFloat);
+  const act = f('.fb .card'), danger = act.querySelector('[data-discard]'), tile = f('.at');
+  return {
+    gap: cs(grid).gap, ratio: Math.round((cols[1] / cols[0]) * 100) / 100,
+    leftX: Math.round(box(f('.fa')).left), logX: Math.round(box(f('.fc')).left), rightX: Math.round(box(f('.fb')).left), colsEqual: Math.round(box(f('.fa')).width) === Math.round(box(f('.fc')).width),
+    head: `${cs(f('.fhead')).padding} | ${Math.round(box(f('.fhead')).height)} | ${Math.round(box(f('.fhead .t small')).height)}`,
+    foes: card('.fa .card:nth-of-type(1)'), party: card('.fa .card:nth-of-type(2)'), act: card('.fb .card'), log: card('.fc .card'),
+    tile: `${Math.round(box(tile).height)} | ${cs(tile).padding}`, tileCols: new Set(cs(tile.parentElement).gridTemplateColumns.split(' ').map(x => Math.round(parseFloat(x)))).size,
+    agrp: cs(f('.agrp')).marginBottom,
+    pill: cs(f('.fpill')).color, elite: cs(f('.tier.Elite')).color, longShot: cs(f('.at .odds.long')).color, area: cs(f('.at.area small')).color,
+    danger: `${cs(danger).color} | ${Math.round(box(danger).height)}`, dangerRight: Math.abs(Math.round(box(act).right - parseFloat(cs(act).borderRightWidth) - 16 - box(danger).right)),
+  };
+}
+
+// Same two-column board as the mock's tablet/desktop frames: left foes, party and log, acting member right, columns 1 : 1.05.
+const WIDE = { head: '12px 14px | 64 | 16', foes: '12px 14px | 8px | 22px', party: '12px 14px | 8px | 22px', act: '14px 16px | 10px | 22px', log: '14px 16px | 10px | 22px', tile: '75 | 8px 10px' };
+for (const width of [1143, 1280, 1920]) {
+  for (const theme of ['dark', 'light']) {
+    test(`fight tab at ${width} in ${theme}: two-column board, header, cards, tiles, tier and odds colours and the danger Discard match the mock`, async (t) => {
+      if (ctx.skip) return t.skip(ctx.skip);
+      const page = await ctx.browser.newPage({ viewport: { width, height: 1000 } });
+      await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+      try {
+        await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&variant=fightOpen&tab=fight`);
+        await page.waitForFunction(() => { const p = document.querySelector('#hx-frame .fpill'); return p && /^rgb\((255, 122, 122|180, 35, 24)\)$/.test(getComputedStyle(p).color); });
+        await page.waitForSelector('#hx-frame .fight-tab .stance .sw');
+        await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+        const m = await page.evaluate(measureWide), e = EXPECT[theme];
+        assert.equal(m.gap, '12px');
+        assert.equal(m.ratio, 1.05);
+        assert.ok(m.leftX === m.logX && m.rightX > m.leftX, 'foes, party and log share the left column; the acting member is on the right');
+        assert.equal(m.colsEqual, true);
+        assert.equal(m.head, WIDE.head);
+        for (const k of ['foes', 'party', 'act', 'log']) assert.equal(m[k], WIDE[k], k);
+        assert.equal(m.tile.slice(0, WIDE.tile.length), WIDE.tile);
+        assert.equal(m.tileCols, 1, 'two equal tile columns');
+        assert.equal(m.agrp, '0px');
+        assert.deepEqual([m.pill, m.elite, m.longShot, m.area], [e.pill, e.elite, e.longShot, e.area]);
+        assert.equal(m.danger, `${theme === 'dark' ? 'rgb(255, 107, 107)' : 'rgb(229, 72, 77)'} | 48`);
+        assert.equal(m.dangerRight, 0, 'the danger Discard sits at the right of the actions bar');
+      } finally { await page.close(); }
+    });
+  }
+}
