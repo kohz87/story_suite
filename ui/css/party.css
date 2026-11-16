@@ -1,4 +1,4 @@
-/* Party tab styles (decision 22, party.html): member row, sheet, equipment doll, stats, skills and the bottom sheets; tokens only. */
+/* Party tab styles (decision 22, party.html): member row, sheet, equipment doll, stats, skills and the bottom sheets; tokens, plus the mock's fixed stance, rarity, mastery and scrim colours in both themes. */
 .party-tab{display:flex;flex-direction:column;gap:12px}
 .party-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .party-tab .slim{padding:10px 12px}

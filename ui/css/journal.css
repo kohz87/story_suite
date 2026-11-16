@@ -1,4 +1,4 @@
-/* Styles for the Journal tab: quest cards, leads, closed list, calendar, day panel, coming up and the edit form; tokens only. */
+/* Styles for the Journal tab: quest cards, leads, closed list, calendar, day panel, coming up and the edit form; tokens, plus the mock's fixed tints and text colours in both themes. */
 .journal-tab{display:flex;flex-direction:column;gap:12px}
 .journal-body{display:flex;flex-direction:column;gap:12px}
 .journal-tab .wseg{display:flex;gap:4px;padding:4px;border-radius:22px}

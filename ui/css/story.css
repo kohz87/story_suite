@@ -1,4 +1,4 @@
-/* Styles for the Story tab: plan bar, Director cards, agendas, secrets, ripples and trackers; tokens only. */
+/* Styles for the Story tab: plan bar, Director cards, agendas, secrets, ripples and trackers; tokens, plus the mock's fixed spoiler-button amber and white switch thumb. */
 .story-tab,.story-body,.story-trackers{display:flex;flex-direction:column;gap:12px;min-width:0}
 .story-tab{font:400 14px/1.5 var(--su-font)}
 .story-tab .card{padding:14px 16px;min-width:0}

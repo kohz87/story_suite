@@ -1,4 +1,4 @@
-// Rendered check: the suite's button reset has zero specificity, so component button rules (tab labels) win over it.
+// Rendered check: the suite's button reset is one class (.su-root :where(button)): component button rules (tab labels) win over it, and a later bare button rule (another extension, SillyTavern) does not.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -68,3 +68,21 @@ for (const theme of ['dark', 'light']) {
     }
   });
 }
+
+test('a bare button rule loaded after the suite (another extension) does not restyle suite buttons', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await ctx.browser.newPage({ viewport: { width: 820, height: 1000 } });
+  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+  try {
+    await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=820&tab=now`);
+    await page.waitForSelector('#hx-frame .su-tab');
+    const got = await page.evaluate(() => {
+      const late = document.createElement('style'); late.textContent = 'button{font-family:serif;font-size:30px;color:rgb(255, 0, 0)}'; document.head.appendChild(late);
+      const root = document.querySelector('.su-root'); const b = document.createElement('button'); root.appendChild(b);
+      const c = getComputedStyle(b); const r = getComputedStyle(root);
+      const out = { f: c.fontFamily === r.fontFamily, s: c.fontSize, red: c.color === 'rgb(255, 0, 0)', tab: getComputedStyle(document.querySelector('.su-tab')).fontWeight };
+      b.remove(); late.remove(); return out;
+    });
+    assert.deepEqual(got, { f: true, s: '14px', red: false, tab: '600' });
+  } finally { await page.close(); }
+});

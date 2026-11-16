@@ -3,10 +3,9 @@ import { h } from '../../kit/dom.js';
 import { feelingsRing } from '../../kit/ring.js';
 import { spoilerSwitch, hiddenValue } from '../../kit/spoiler.js';
 import { glyph } from '../../kit/glyphs.js';
+import { isSafePortraitUrl } from '../../kit/safe-url.js';
 
 const LETTERS = Object.freeze([['trust', 'T'], ['affection', 'A'], ['desire', 'D'], ['tension', 'Tn']]);
-const NO_BREAKOUT = /^[^"'()\\\s]+$/;
-const looksLikeUrl = src => typeof src === 'string' && NO_BREAKOUT.test(src) && (src.includes('/') || src.startsWith('data:image'));
 
 function signed(n) {
   const v = Number(n) || 0;
@@ -15,7 +14,7 @@ function signed(n) {
 
 function portrait(person) {
   const src = person.portrait;
-  const style = looksLikeUrl(src) ? { 'background-image': `url("${src}")` } : null;
+  const style = isSafePortraitUrl(src) ? { 'background-image': `url("${src}")` } : null;
   return h('span', { class: 'ph', style, dataset: { portrait: src ?? null } }, style ? null : person.name.slice(0, 1));
 }
 

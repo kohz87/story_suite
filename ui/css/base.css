@@ -16,8 +16,8 @@
   display: none !important;
 }
 
-/* :where() keeps this reset at zero specificity so any component button rule (one class) wins over it. */
-:where(.su-root) button {
+/* :where() keeps this reset at one class: it beats SillyTavern's bare button rule wherever the links load, and any one-class component button rule loaded later still wins. */
+.su-root :where(button) {
   font: inherit;
   color: inherit;
 }

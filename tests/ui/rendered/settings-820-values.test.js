@@ -63,7 +63,7 @@ for (const theme of ['dark', 'light']) {
       const x = document.querySelector('.shd .x');
       const sw = document.querySelector('.mh .sw');
       return {
-        ttlH: box('.shd .ttl').h, ttlY: box('.shd .ttl').y - head, xY: box('.shd .x').y - head, xW: box('.shd .x').w, xFont: getComputedStyle(x).fontSize,
+        ttlH: box('.shd .ttl').h, ttlY: box('.shd .ttl').y - head, xY: box('.shd .x').y - head, xW: box('.shd .x').w, xFont: getComputedStyle(x).fontSize, xColour: getComputedStyle(x).color, text: getComputedStyle(document.querySelector('.sov')).getPropertyValue('--su-text').trim(),
         mods: [...document.querySelectorAll('.mod')].map(m => Math.round(m.getBoundingClientRect().height)),
         smallLh: getComputedStyle(document.querySelector('.mod .mt small')).lineHeight,
         swMargin: [getComputedStyle(sw).marginLeft, getComputedStyle(sw).marginRight], swW: sw.getBoundingClientRect().width,
@@ -75,6 +75,7 @@ for (const theme of ['dark', 'light']) {
     assert.equal(got.xY, 12);
     assert.equal(got.xW, 44);
     assert.equal(got.xFont, '16px');
+    assert.equal(got.xColour, theme === 'light' ? 'rgb(29, 32, 48)' : 'rgb(238, 238, 246)', 'close × is the text colour, as the mock .x');
     assert.deepEqual(got.mods, [149, 131, 131, 131, 113]);
     assert.equal(got.smallLh, '18px');
     assert.deepEqual(got.swMargin, ['-4px', '-4px']);
