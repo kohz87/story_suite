@@ -109,3 +109,42 @@ test('port.on gives back a no-op when the sdk has no such event (it throws)', ()
   assert.equal(typeof off, 'function');
   off();
 });
+
+function interactionSdk() {
+  const calls = [];
+  const verb = name => (...args) => { calls.push([name, ...args]); return { ok: true, name }; };
+  return { calls, interaction: { open: verb('open'), stage: verb('stage'), auto: verb('auto'), send: verb('send'), discard: verb('discard'), settle: verb('settle') }, command: async () => ({ ok: true, plain: true }) };
+}
+
+test('interaction.<verb> commands reach sdk.interaction with their arguments, and the port announces each', async () => {
+  const sdk = interactionSdk();
+  const port = createSbPort({ sdk });
+  const heard = [];
+  port.on('interaction', answer => heard.push(answer.name));
+  await port.command('interaction.open', { kindId: 'a/b', args: { x: 1 } });
+  await port.command('interaction.stage', { id: 's1', step: { inputs: [] } });
+  await port.command('interaction.auto', { id: 's1', n: 2 });
+  await port.command('interaction.send', { id: 's1' });
+  await port.command('interaction.discard', { id: 's1' });
+  assert.deepEqual(sdk.calls, [['open', 'a/b', { x: 1 }], ['stage', 's1', { inputs: [] }], ['auto', 's1', 2], ['send', 's1'], ['discard', 's1']]);
+  assert.deepEqual(heard, ['open', 'stage', 'auto', 'send', 'discard']);
+});
+
+test('interaction.settle and unknown interaction names are refused and never reach the sdk', async () => {
+  const sdk = interactionSdk();
+  const port = createSbPort({ sdk });
+  for (const type of ['interaction.settle', 'interaction.nope', 'interaction.constructor', 'interaction.']) {
+    const answer = await port.command(type, { id: 's1' });
+    assert.equal(answer.ok, false, type);
+  }
+  assert.deepEqual(sdk.calls, []);
+});
+
+test('an interaction call that throws or has no sdk answers a refusal, and other commands are untouched', async () => {
+  const sdk = interactionSdk();
+  sdk.interaction.send = () => { throw new Error('boom'); };
+  const port = createSbPort({ sdk });
+  assert.deepEqual(await port.command('interaction.send', { id: 'x' }), { ok: false, code: 'FAILED', message: 'boom' });
+  assert.equal((await createSbPort({ sdk: {} }).command('interaction.send', {})).ok, false);
+  assert.deepEqual(await port.command('journal.x', {}), { ok: true, plain: true });
+});
