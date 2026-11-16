@@ -7,6 +7,7 @@
     { "from": "packages/story-block/src/v2/screens", "to": "ui/legacy/screens" },
     { "from": "packages/story-block/src/v2/ui", "to": "ui/legacy/ui" },
     { "from": "packages/story-block/src/v2/ui-host", "to": "ui/legacy/ui-host", "stem": true },
+    { "from": "packages/story-block/src/v2/shared/redraw.js", "to": "ui/legacy/shared/redraw.js" },
     { "from": "packages/story-block/src/v2/host-ui", "to": "ui/legacy/host-ui", "stem": true },
     { "from": "packages/story-block/src/v2/extras*", "to": "ui/legacy/extras*" },
     { "from": "packages/story-block/src/v2/reply-cards", "to": "ui/legacy/reply-cards", "stem": true },
