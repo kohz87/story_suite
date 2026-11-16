@@ -17,12 +17,8 @@ function serve() {
     res.end(fs.readFileSync(file));
   });
   return new Promise((resolve, reject) => {
-    const tryPort = port => {
-      if (port > 8999) { reject(new Error('no free port in 8900-8999')); return; }
-      server.once('error', () => tryPort(port + 1));
-      server.listen(port, '127.0.0.1', () => { server.removeAllListeners('error'); resolve({ server, port }); });
-    };
-    tryPort(8900);
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port }));
   });
 }
 
@@ -37,6 +33,9 @@ function measure() {
     stanceLine: stance.querySelector('small').textContent,
     stanceColor: getComputedStyle(stance.querySelector('.rk')).color,
     lowerGap: css('.lower', 'columnGap'),
+    nameSpacing: css('.shtop .nm', 'letterSpacing'),
+    awayRadius: css('.mb.away', 'borderRadius'),
+    stanceRadius: css('.sk.stance', 'borderRadius'),
     lowerCols: getComputedStyle(q('.lower')).gridTemplateColumns.split(' ').length,
   };
 }
@@ -76,6 +75,12 @@ for (const theme of ['dark', 'light']) {
         assert.equal(got.stanceColor, 'rgb(240, 184, 74)');
         assert.equal(got.lowerGap, '12px');
         assert.equal(got.lowerCols, cols);
+        assert.equal(got.nameSpacing, '0.26px');
+        assert.equal(got.awayRadius, '12px');
+        assert.equal(got.stanceRadius, '12px');
+        await page.evaluate(() => document.querySelector('#hx-frame .sk').click());
+        await page.waitForSelector('.mbar.inline');
+        assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.mbar.inline')).margin), '3px 0px 0px 6px');
       } finally { await page.close(); }
     });
   }
