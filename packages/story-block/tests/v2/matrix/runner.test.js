@@ -1,13 +1,12 @@
 // The combination matrix runner and its command-line wrapper.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { CASES, ROWS, discoverRoots, formatDetails, formatTable, loadModules, runMatrix, summaryLine } from '../../../testkit/matrix/index.js';
-import { syncTestkit } from '../../../scripts/sync-testkit.mjs';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const fixture = name => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
@@ -77,25 +76,5 @@ test('scripts/matrix.mjs: a table and exit 0; --json; unknown option exits 2; --
         assert.equal(run('--root', empty, '--rows', 'SB', '--cases', 'swipe').status, 0);
     } finally {
         rmSync(empty, { recursive: true, force: true });
-    }
-});
-
-test('sync-testkit takes testkit/matrix along, writes its version, and the vendored copy runs a row', async () => {
-    const module = mkdtempSync(join(tmpdir(), 'sb-matrix-sync-'));
-    try {
-        const { target, files, matrix } = syncTestkit({ from: root, to: module });
-        for (const file of ['testkit/matrix/index.js', 'testkit/matrix/run.js', 'testkit/matrix/modules.js', 'testkit/matrix/rows.js', 'testkit/matrix/report.js', 'testkit/matrix/version.js']) {
-            assert.ok(files.includes(file), file);
-        }
-        assert.equal(matrix, 2);
-        assert.match(readFileSync(join(target, 'VERSION'), 'utf8'), /\nmatrix 2\n$/);
-        const vendored = await import(pathToFileURL(join(target, 'testkit', 'matrix', 'index.js')).href);
-        assert.match(vendored.describeTestkit(), /\(vendored\), matrix 2$/);
-        const out = await vendored.runMatrix({ rows: ['SB'], cases: ['register', 'reply', 'replay', 'swipe'] });
-        assert.equal(out.ok, true, vendored.formatDetails(out.results));
-        assert.deepEqual(out.results.map(result => result.id), ['register', 'reply', 'replay', 'swipe']);
-        execFileSync(process.execPath, ['--check', join(target, 'testkit', 'matrix', 'run.js')]);
-    } finally {
-        rmSync(module, { recursive: true, force: true });
     }
 });

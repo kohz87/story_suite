@@ -1106,9 +1106,7 @@ changes `name` and adds an alias; it never changes value, rarity or effects.
 
 * `node --test` in every repo; no network; no real SillyTavern in unit tests.
 * Story Block ships `testkit/` (a fake SillyTavern context: chat array with swipes and extras, `saveChat`,
-  `setExtensionPrompt`, event source, interceptor) plus the real runtime. A module that needs a pinned copy can vendor it into
-  `tests/vendor/story-block/` with `npm run sync-testkit` (copies from a Story Block checkout; records the
-  commit in `tests/vendor/story-block/VERSION`). A module with a committed copy tests against it. `stPurify` (testkit) stands
+  `setExtensionPrompt`, event source, interceptor) plus the real runtime. Modules in the suite import it live (the vendoring script was removed in the single repo). `stPurify` (testkit) stands
   in for SillyTavern's DOMPurify as compileTemplate calls it (`{ sanitize: stPurify }`): it drops controls'
   `type`, as the real one does, so a screen test shows what SillyTavern draws.
 * Required tests per module: commands (success, each rejection, nothing saved on rejection), capture of

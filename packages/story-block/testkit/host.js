@@ -3,9 +3,6 @@
 // §10). The store and the command bus are imported lazily from ../src/v2/, so the testkit loads
 // in a checkout that does not have them yet; `hostAvailable()` says whether they are there, for
 // `test(..., { skip })`. `fakes: true` uses the small stand-ins in fakes.js instead.
-//
-// Vendored into a module's tests/vendor/story-block/ (npm run sync-testkit), the layout is kept:
-// testkit/ next to src/v2/, so the relative imports below work there too.
 
 import { createFakeContext } from './fake-st.js';
 import { createFakeBus, createFakeStore } from './fakes.js';

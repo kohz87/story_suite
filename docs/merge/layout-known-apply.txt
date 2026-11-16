@@ -1,11 +1,6 @@
 # Stale package-relative strings and moved tests that fail after the core area move; each is M1 work (a rule or a fix-up commit).
 # Shrink only: a line goes when M1 fixes it. Lines are added only by the run of the area that first lists them (core's are
 # below); never to cover a problem a later change causes. Format: `stale <file> <value>` or `test <moved test file>:<line>`.
-stale packages/story-block/tests/v2/scripts/sync-testkit.test.js src/v2/runtime.js
-stale packages/story-block/tests/v2/scripts/sync-testkit.test.js src/v2/store.js
-stale packages/story-block/tests/v2/scripts/sync-testkit.test.js src/id.js
-stale packages/story-block/tests/v2/scripts/sync-testkit.test.js src/text.js
-stale packages/story-block/tests/v2/helpers/ops-hooks.mjs /src/v2/store.js
 test tests/core/evidence-allocation.test.js:27
 test tests/core/finish-selection-fallback.test.js:217
 test tests/core/old-cap-chats.test.js:27

@@ -406,12 +406,12 @@ Public read-only API for card authors and scripts (not for modules): `StoryBlock
 | `src/v2/screens/`, `view/` | Default screens; template renderer, widgets, settings window, Game view header, themes |
 | `src/v2/ui-host.js`, `host-ui.js` | Bar, panel, drawer; settings folds |
 | `src/id.js`, `src/text.js`, `src/ui/dom.js` | Helpers the testkit imports. Story Block 1's code and docs live on the `v1` branch |
-| `testkit/` | Fake SillyTavern and a whole host (`createHost`); copied into a module's `tests/vendor` by `sync-testkit.mjs` when needed |
+| `testkit/` | Fake SillyTavern and a whole host (`createHost`); |
 | `tests/`, `tests/v2/` | Tests (about 2,100): `qa/`, `break/`, `domains/`, `packs/`, `view/`, `screens/`, `ux/` |
 | `examples/packs/` | `ersveil` (sample world, lorebook, 12 portraits) and `ersveil.zip` (pack.json + portraits, the one-step import; `node scripts/build-example-zip.mjs` rebuilds it, a test fails if it drifts), `riverside-starter`, `ersveil-factions`, `ersveil-survival` |
 | `examples/fishing/` | A reference activity module |
 | `authoring-kit/` | Prompts, references and the pack checker for drafting packs |
-| `scripts/` | `check.mjs`, `sync-testkit.mjs`, benchmarks, fuzzers |
+| `scripts/` | `check.mjs`, benchmarks, fuzzers |
 | `docs/v2/` | Specs: `SPEC.md`, `MODULES.md`, `PACKS.md`, `GUIDE.md`, `RPG.md`, `TIMELINE.md`, `REPLAY.md`, `PERFORMANCE.md`; `docs/dev/` area notes |
 
 Commands: `npm test`, `npm run check`, `git diff --check`. Rules every change keeps: `CLAUDE.md` (code sets numbers, replay equals live, static

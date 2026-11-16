@@ -38,8 +38,8 @@ modules' `tryQuery` helpers, or an optional command; degrade to a sensible defau
   pure choices in `plan.js`/`rules.js`/`flee.js`, flags in `flags.js`/`overrides.js`, the narrator note in `note.js`, and its
   view, data and styles in `view.js`, `view-data.js` and `board.css`.
 - `src/v2/rewind.js`, `reply-notes.js`, `diagnostics.js`: rewinds and save points, per-reply notes, Diagnostics fold.
-- `testkit/`: fake SillyTavern (`createFakeContext`) and a whole host on it (`createHost`); copied by `sync-testkit.mjs` when a module needs a pinned copy.
-- `scripts/`: `check.mjs` (syntax), `sync-testkit.mjs`, `bench-v2.mjs` / `bench-long.mjs` (PERFORMANCE.md).
+- `testkit/`: fake SillyTavern (`createFakeContext`) and a whole host on it (`createHost`).
+- `scripts/`: `check.mjs` (syntax), `bench-v2.mjs` / `bench-long.mjs` (PERFORMANCE.md).
 - `examples/packs/`: `ersveil` (the open-world pack and lorebook) and `riverside-starter` (small). `examples/fishing/`: reference activity.
 - `tests/*.test.js`: `id.test.js`, `text.test.js` (the helpers kept in `src/`). `tests/v2/`: v2 tests; `qa/` (fuzz, ownership, security, prompt layout),
   `break/` (one file per break finding, named after the finding id), `domains/`, `packs/`, `view/`, `screens/`, `ux/`.
@@ -87,7 +87,7 @@ Full suite: about 2,100 tests, 1.5–3 minutes. Skills in `.claude/skills/`: `ru
 - Branch off `main`, PR into `main`. Agents never merge their own PR; the coordinator reviews and merges.
 - Rebase on `origin/main` before pushing; on conflicts keep both sides, never edit another agent's files.
 - A module that needs a pinned copy vendors this repo's testkit in `tests/vendor/story-block/` (VERSION names the commit). After a
-  change to `testkit/` or `src/v2/`, such a module re-syncs with `scripts/sync-testkit.mjs` and re-runs its tests; the suite's own modules import it live.
+  change to `testkit/` or `src/v2/`, modules in the suite import it live (nothing vendors a copy any more).
 - Each file opens with a comment that says what it does and why; keep that style and plain-words messages.
 - Kill processes by PID, never with a broad `pkill -f`.
 

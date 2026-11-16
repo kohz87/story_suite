@@ -1,11 +1,11 @@
-// Module hook: while src/v2/ops.js has not landed, `./ops.js` imported by store.js resolves to the stub.
+// Module hook: while core/ops.js has not landed, `./ops.js` imported by store.js resolves to the stub.
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const stub = new URL('./ops-stub.js', import.meta.url).href;
 
 export async function resolve(specifier, context, next) {
-    if (specifier === './ops.js' && context.parentURL?.endsWith('/src/v2/store.js')
+    if (specifier === './ops.js' && context.parentURL?.endsWith('/core/store.js')
         && !existsSync(fileURLToPath(new URL(specifier, context.parentURL)))) {
         return { url: stub, shortCircuit: true };
     }
