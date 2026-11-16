@@ -3,14 +3,18 @@
 // Where the checkouts come from: SUITE_SB / SUITE_SD / SUITE_NSD (a folder each) win; else STORY_SUITE_ROOT
 // (<root>/Story_director, <root>/npc_state_delta); else the folders beside this checkout. Story Block is this checkout.
 // No folder found: loadSuite() answers { skip } and the test skips.
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SB = process.env.SUITE_SB ?? path.resolve(here, '../../../..');
 const ROOTS = [process.env.STORY_SUITE_ROOT, path.resolve(SB, '..')].filter(Boolean);
-const find = (env, name, rel) => [env, ...ROOTS.map(root => path.join(root, name))].filter(Boolean).find(dir => existsSync(path.join(dir, rel)));
+// Story Director's module: in its own folder on a checkout from before the layout move, else at ui/legacy/director/ of the repo that folder sits in (packages/<name>/../..).
+const SD_MODULE = 'src/v2/module.js';
+const SD_MOVED = 'ui/legacy/director/module.js';
+export const sdModuleAt = dir => (existsSync(path.join(dir, SD_MODULE)) ? path.join(dir, SD_MODULE) : path.join(realpathSync(dir), '../..', SD_MOVED));
+const find = (env, name, rel) => [env, ...ROOTS.map(root => path.join(root, name))].filter(Boolean).find(dir => existsSync(path.join(dir, rel)) || (rel === SD_MODULE && existsSync(sdModuleAt(dir))));
 
 export const roots = () => ({
     sb: SB,
@@ -25,7 +29,7 @@ export async function loadSuite() {
     // lacks them, and the test would fail on that instead of on Story Block. Skip, and say what to update.
     if (!existsSync(path.join(r.nsd, 'src/npc-notes-kinds.js'))) return { skip: `the npc_state_delta checkout at ${r.nsd} is older than its notes batch (no src/npc-notes-kinds.js): update it, or point SUITE_NSD at a current one`, roots: r };
     const at = (dir, rel) => import(pathToFileURL(path.join(dir, rel)).href);
-    const [kit, SD, NSD] = await Promise.all([at(r.sb, 'testkit/index.js'), at(r.sd, 'src/v2/module.js'), at(r.nsd, 'src/storysuite-v2.js')]);
+    const [kit, SD, NSD] = await Promise.all([at(r.sb, 'testkit/index.js'), import(pathToFileURL(sdModuleAt(r.sd)).href), at(r.nsd, 'src/storysuite-v2.js')]);
     return { roots: r, createHost: kit.createHost, SD, NSD, at: rel => at(r.sb, rel), packText: readFileSync(path.join(r.sb, 'examples/packs/ersveil/pack.json'), 'utf8') };
 }
 
