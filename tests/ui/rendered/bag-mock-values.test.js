@@ -69,6 +69,7 @@ for (const theme of ['dark', 'light']) {
       try {
         await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=bag`);
         await page.waitForSelector('#hx-frame .bag-tab .itm');
+        await page.evaluate(() => document.fonts.ready);
         const m = await page.evaluate(measure);
         assert.deepEqual(m.unit, { fontSize: '14.45px', fontWeight: '700' }, 'purse unit labels are 85% of the 17px amount');
         assert.deepEqual(m.name, { fontSize: '12px', fontWeight: '700', lineHeight: '14.4px', webkitLineClamp: '2' }, 'tile name');
@@ -92,6 +93,20 @@ for (const theme of ['dark', 'light']) {
         assert.deepEqual(sheet.dn, { fs: '20px', fw: '800', fst: 'normal' }, 'item name');
         assert.deepEqual(sheet.desc, { fs: '13.5px', fw: '500', fst: 'italic' }, 'item description');
         assert.match(sheet.from, /^Bought in .+ ›$/, 'the Bought in line is a link line');
+        const x = await page.evaluate(() => {
+          const b = document.querySelector('.ps-x'); const c = getComputedStyle(b); const r = b.getBoundingClientRect();
+          const sh = document.querySelector('.pty-sheet').getBoundingClientRect(); const tl = document.querySelector('.bag-sheet .dh .tl').getBoundingClientRect();
+          return { box: [r.width, r.height], font: [c.fontSize, c.fontWeight], pad: [c.paddingTop, c.paddingLeft], radius: c.borderTopLeftRadius, border: c.borderTopWidth, right: sh.right - r.right, mid: r.top + r.height / 2 - (tl.top + tl.height / 2), title: getComputedStyle(document.querySelector('.ps-h>div')).display, sheetTop: tl.top - sh.top };
+        });
+        assert.deepEqual(x.box, [44, 44], 'close button box');
+        assert.deepEqual(x.font, ['16px', '800'], 'close × font');
+        assert.deepEqual([x.pad, x.radius, x.border], [['1px', '6px'], '10px', '0px'], 'close × padding, radius, no border');
+        assert.equal(x.title, 'none', 'no second title row: the tile row is the header');
+        assert.equal(Math.abs(x.mid) < 0.6, true, `close × centred on the tile row (${x.mid})`);
+        assert.equal(x.right, width > 600 ? 20 + 1 : 18 + 1, 'close × sits at the sheet padding');
+        assert.equal(x.sheetTop, width > 600 ? 18 + 1 : 26 + 1, 'tile row starts right under the sheet padding');
+        const glyphs = await page.evaluate(() => { const t = document.querySelector('.bag-sheet .tl svg'); return t ? t.querySelectorAll('path').length : 0; });
+        assert.equal(glyphs >= 1, true);
         assert.deepEqual(errors, []);
       } finally { await page.close(); }
     });
@@ -132,6 +147,7 @@ test('Story-only Transport rows have no tag, are 55px high, and the pace note is
   try {
     await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=390&tab=bag&variant=rpgOff`);
     await page.waitForSelector('#hx-frame .bag-tab .itm');
+    await page.evaluate(() => document.fonts.ready);
     const r = await page.evaluate(() => {
       const f = document.getElementById('hx-frame');
       if (f.querySelector('.afold').getAttribute('aria-expanded') !== 'true') f.querySelector('.afold').click();
@@ -143,5 +159,48 @@ test('Story-only Transport rows have no tag, are 55px high, and the pace note is
     assert.equal(r.rider, 118, 'rider label keeps the leading nbsp');
     assert.equal(r.pace, 'On foot: not everyone has a riding animal, so everyone walks. Riders lead their animals.');
     assert.deepEqual(errors, []);
+  } finally { await page.close(); }
+});
+
+test('the Sealed letter and Guild writ tiles draw the mock page with three text lines', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await ctx.browser.newPage({ viewport: { width: 820, height: 1180 } });
+  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+  try {
+    await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=820&tab=bag`);
+    await page.waitForSelector('#hx-frame .bag-tab .itm');
+    const q = await page.evaluate(() => [...document.querySelectorAll('#hx-frame .tl[data-glyph="quest"]')].map(el => [...el.querySelectorAll('path')].map(p => p.getAttribute('d'))));
+    assert.equal(q.length >= 2, true, 'quest tiles are there');
+    for (const paths of q) assert.deepEqual(paths, ['M6 3h12a2 2 0 0 1 2 2v3h-3v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z', 'M7.5 9h6M7.5 12.5h6M7.5 16h4']);
+  } finally { await page.close(); }
+});
+
+for (const [theme, over] of [['dark', 'rgb(255, 123, 114)'], ['light', 'rgb(179, 38, 30)']]) {
+  test(`the Over load number is the mock's ${theme} red`, async (t) => {
+    if (ctx.skip) return t.skip(ctx.skip);
+    const page = await ctx.browser.newPage({ viewport: { width: 820, height: 1180 } });
+    await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+    try {
+      await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=820&tab=bag&bag=over`);
+      await page.waitForSelector('#hx-frame .load.over .lr b');
+      assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('#hx-frame .load.over .lr b')).color), over);
+    } finally { await page.close(); }
+  });
+}
+
+test('Bag rules change no other tab: World chips keep no negative margin, Story avatars are not Bag-sized', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await ctx.browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+  try {
+    await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=390&tab=world`);
+    await page.waitForSelector('#hx-frame .world-tab');
+    const w = await page.evaluate(() => [...document.querySelectorAll('#hx-frame .fil')].map(f => getComputedStyle(f).marginLeft));
+    assert.deepEqual(w.filter(m => m !== '0px'), [], 'no World chip row is offset by Bag');
+    const sets = await page.evaluate(() => {
+      const probe = document.createElement('span'); probe.className = 'av'; document.getElementById('hx-frame').appendChild(probe);
+      const cs = getComputedStyle(probe); const r = [cs.width, cs.borderTopLeftRadius]; probe.remove(); return r;
+    });
+    assert.notDeepEqual(sets, ['20px', '50%'], 'a bare .av outside Bag is no longer sized by bag.css');
   } finally { await page.close(); }
 });

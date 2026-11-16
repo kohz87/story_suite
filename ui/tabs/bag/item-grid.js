@@ -1,5 +1,5 @@
 // Builds the Items card: find box, filter chips and the grid of item tiles (rarity, quantity, wearer, new and torn marks).
-import { h } from '../../kit/dom.js';
+import { h, svgEl } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { button } from '../../kit/controls.js';
 
@@ -13,13 +13,23 @@ export function memberName(id, ctx = {}) {
   return ctx.members?.[id] ?? `${id[0].toUpperCase()}${id.slice(1)}`;
 }
 
+const QUEST_PAGE = 'M6 3h12a2 2 0 0 1 2 2v3h-3v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z';
+
+/** The mock's item glyph set draws a quest page with three text lines; the kit's plain page is used for every other name. */
+function tileGlyph(name) {
+  if (name !== 'quest') return glyph(name) ?? glyph('item');
+  return svgEl('svg', { viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': 'true' },
+    svgEl('path', { d: QUEST_PAGE }),
+    svgEl('path', { d: 'M7.5 9h6M7.5 12.5h6M7.5 16h4', fill: 'none', stroke: 'var(--su-panel2)', 'stroke-width': 1.6 }));
+}
+
 /** Builds one item tile; rarity colours, wear and weight marks show only when `rpg` is true. */
 export function itemTile(item, rpg, size = '') {
   const rarity = rpg ? RARITY_CLASS[item.rarity] : null;
   return h(
     'span',
     { class: ['tl', rarity, size], dataset: { glyph: item.glyph } },
-    glyph(item.glyph) ?? glyph('item'),
+    tileGlyph(item.glyph),
     item.qty > 1 ? h('span', { class: 'q' }, `×${item.qty}`) : null,
     item.wornBy ? h('span', { class: 'av wr', dataset: { portrait: item.wornBy } }) : null,
     item.isNew ? h('span', { class: 'nw', title: 'New this turn' }) : null,
