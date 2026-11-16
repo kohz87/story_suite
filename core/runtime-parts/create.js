@@ -27,7 +27,7 @@ import { createPublicApi } from '../public-api.js';
 import { createPublicPaths } from '../persist/public-paths.js';
 import { initialWithStart, packsFor, withPackCurrency } from '../runtime/start.js';
 import { pageStorage, saveOnUnload, storeSaving } from '../runtime/saving.js';
-import { VERSION } from './version.js';
+import { HOST_VERSION } from './version.js';
 
 /**
  * createRuntime({ ctx, packs?, core = true, modules = [], createStore?, createCommandBus?, notify?,
@@ -50,7 +50,7 @@ export function createRuntime({
     let features = null;
     let events = null;
     let guardRefresh = null;   // the UI's redraw for a listener that fails late (setGuardRefresh)
-    const registry = createRegistry({ hostVersion: VERSION, featureValue: id => features?.stored(id) });
+    const registry = createRegistry({ hostVersion: HOST_VERSION, featureValue: id => features?.stored(id) });
     features = createFeatureStore({
         root: () => ctx.extensionSettings,
         registry,
@@ -121,7 +121,7 @@ export function createRuntime({
             // The head reply's index too, for `scene.moved` (the store is made below; asked only later).
             // Whether Story Director's World screen is there (it shows the chatter; else Scene does: `scene.chatter`).
             extras: { interaction: () => sdk?.interaction ?? null, promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
-            version: VERSION,
+            version: HOST_VERSION,
             interaction: kindId => registry.interaction(kindId),
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
             timeline: () => timeline,
@@ -293,7 +293,7 @@ export function createRuntime({
     // The public API (public-api.js, docs/v2/PUBLIC-API.md): the head state read through the queries and readers that exist, events after the store has written.
     const apiPersona = () => { try { return String((live() ?? ctx)?.name1 ?? ''); } catch { return String(ctx?.name1 ?? ''); } };
     const api = createPublicApi({
-        version: VERSION,
+        version: HOST_VERSION,
         hostReady: made.sdk.ready,
         state: () => store.head(),
         before: index => { try { return store.before?.(index) ?? null; } catch { return null; } },

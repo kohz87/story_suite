@@ -21,7 +21,7 @@
 //   turn and do not). A profile's call goes at once.
 // Public face: re-exports its parts.
 
-export { VERSION } from './runtime-parts/version.js';
+export { HOST_VERSION } from './runtime-parts/version.js';
 export { createRuntime } from './runtime-parts/create.js';
 export { initialWithStart, packsFor, withPackCurrency } from './runtime/start.js';
 export { SAVE_SEQ_KEY, MEMO_PREFIX, markUsed, saveOnUnload, storeSaving } from './runtime/saving.js';

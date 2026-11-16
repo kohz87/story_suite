@@ -12,13 +12,15 @@ Story Suite is one SillyTavern extension. It replaces three: Story Block, Story 
 
 1. Open **Extensions → Install extension**.
 2. Paste `https://github.com/kohz87/story_suite` and install it for you (or for all users).
-3. Reload SillyTavern. The browser console prints `Story Suite 0.1.0` once.
+3. Reload SillyTavern. The browser console prints `Story Suite 0.1.0 ready` once, and the Extensions drawer reads `Story Suite 0.1.0`.
+
+This installs the source tree, which SillyTavern loads file by file. The packed build (a handful of files; `npm run release` builds it) is not published yet.
 
 To update later, open **Extensions → Manage extensions** and use the update button; there is nothing else to do.
 
 ## First look
 
-- **Settings → Models** sets the three model connections: Story, Quick helpers, Background. "Same as chat" uses your chat connection.
+- Model connections: in the old view (the default), open **Settings → Assist**, group **Extra calls**: the connection for quick helpers and the one for background work ("Same as chat" uses your chat connection). In the new view the same two are on **Settings → Models**, with the Story connection.
 - Try the example world: **Settings → Tabs & Packs → Import pack file**, pick `examples/packs/ersveil.zip`, then start a new chat.
 - Both views ship. The new view is a preview and is off by default in 0.1.0 (the setting `ui.next`); the old view is the one you see until it is switched on.
 
@@ -30,4 +32,4 @@ To update later, open **Extensions → Manage extensions** and use the update bu
 
 ## For developers
 
-Node 24, no npm dependencies to install for the tests. `npm test`, `npm run check` and `npm run release:check` are described in `CLAUDE.md`.
+Node 24. Run `npm ci` first: the tests and the release build use `acorn`, `acorn-walk`, `esbuild` and `playwright` (dev dependencies). `npm test`, `npm run check` and `npm run release:check` are described in `CLAUDE.md`.

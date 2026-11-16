@@ -32,7 +32,7 @@ export const FEATURE_TEXT = Object.freeze({
     }),
 });
 
-// The overlay's field types. The helpers' calls use the Models page's Quick helpers connection (core/model-call/connection-for.js).
+// The overlay's field types. The roll-check helper calls on the Models page's Quick helpers connection; the safety net (extractor) on the Background one (core/model-call/connection-for.js).
 export const SCHEMA = Object.freeze({
     [SETTING.extractorKinds]: Object.freeze({
         type: 'text',

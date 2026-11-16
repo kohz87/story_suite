@@ -43,3 +43,16 @@ test('other commands are not the Models page\'s: null, and the port hands them t
   await createSbPort({ sdk: own }).command('settings.set', { key: 'models.quick', value: 'Cheap' });
   assert.equal(own.stored.quickConnection, 'Cheap');
 });
+
+test('the Calls group stores through the port: the queue, the fallback kinds (chip labels to op kinds) and the fallback switch', async () => {
+  const s = sdk();
+  const stored = [];
+  s.settings.set = (id, key, value) => { stored.push([id, key, value]); return value; };
+  s.features = { set: (id, on) => { stored.push([id, on]); return on; } };
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.queue', value: true })).ok, true);
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.kinds', value: ['Time set', 'World news'] })).ok, true);
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.fallback', value: true })).ok, true);
+  assert.deepEqual(stored, [[null, 'callQueue', true], ['story-block', 'assistExtractorKinds', '! time, + world'], ['story-block.extractor', true]]);
+  assert.equal((await modelsCommand(sdk(), 'settings.set', { key: 'calls.fallback', value: true })).ok, false, 'no feature store: not saved, said plainly');
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.nope', value: 1 })).ok, false);
+});

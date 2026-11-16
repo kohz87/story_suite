@@ -16,7 +16,7 @@ A SillyTavern extension that keeps the state of your story (items and money, the
 
 ## Commands
 
-Node 24; no npm dependencies to install for the tests.
+Node 24. Run `npm ci` first (dev dependencies: `acorn`, `acorn-walk`, `esbuild`, `playwright`).
 
 - `npm test` — every test folder, then the cross-module suite.
 - `npm run check` — size, codemap and syntax checks.

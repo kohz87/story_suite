@@ -20,3 +20,19 @@ export async function registerIsolated(runtime, mod) {
         return false;
     }
 }
+
+/**
+ * Starts a part that is not a registered module (the People part: it loads by import, not by `register`) with the same isolation:
+ * a throw is logged and put on the Problems list as MODULE_START, and the caller goes on. Resolves true when it started.
+ */
+export async function startIsolated(runtime, { id, name, start }) {
+    try {
+        await start();
+        return true;
+    } catch (error) {
+        const message = `${name ?? id} could not start: ${error?.message ?? error}`;
+        console.error(`${LOG} ${message}`);
+        try { runtime.turn.report({ module: id, code: 'MODULE_START', message }); } catch { /* the list is not there */ }
+        return false;
+    }
+}

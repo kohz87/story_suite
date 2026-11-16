@@ -26,6 +26,12 @@ test('each extension loads in at most ten requests when bundled', () => {
   for (const row of result.rows) assert.ok(row.requests >= 1 && row.requests <= MAX_REQUESTS, `${row.name}: ${row.requests}`);
 });
 
+test('the People part starts with the entry, so it is packed into it and is not a chunk of its own', () => {
+  const files = fs.readdirSync(path.join(outRoot, 'story-suite'));
+  assert.deepEqual(files.filter(file => /^bootstrap-.*\.js$/.test(file)), [], 'no People chunk to fetch at start');
+  assert.match(fs.readFileSync(path.join(outRoot, 'story-suite/index.js'), 'utf8'), /startPeople/);
+});
+
 test('building the real packages twice gives byte-identical files', async () => {
   const again = fs.mkdtempSync(path.join(os.tmpdir(), 'release-check-'));
   try {

@@ -16,7 +16,7 @@ const SERVED = 'http://host/scripts/extensions/third-party/suite';
 //    depth the host expects. A file inside the repo is bundled; only a specifier that leaves the repo stays external.
 // 2. A literal import('./x.js') of a module not listed as lazy is awaited at startup anyway; it is packed into
 //    the entry and loaded on demand in place (a lazily initialised module that starts once, in the same order),
-//    instead of becoming a request of its own. Lazy modules keep a real import() and stay separate chunks.
+//    instead of becoming a request of its own. Lazy and eager modules keep a real import() and stay separate chunks.
 // 3. import.meta.url keeps naming the module's original location (see rewrite.mjs), so assets beside it resolve.
 function packagePlugin(repoRoot, lazy) {
   const inRepo = abs => !path.relative(repoRoot, abs).startsWith('..');
@@ -55,7 +55,7 @@ export async function buildBundleSet(set, outDir, repoRoot) {
   const result = await build({
     absWorkingDir: path.resolve(repoRoot), entryPoints: set.entries.map(entry => ({ in: path.resolve(repoRoot, entry), out: path.basename(entry, '.js') })), outdir: outDir, entryNames: '[name]', chunkNames: '[name]-[hash]',
     bundle: true, splitting: true, format: 'esm', target: 'es2022', sourcemap: true, legalComments: 'none',
-    plugins: [packagePlugin(repoRoot, new Set(set.lazy))], metafile: true, logLevel: 'silent',
+    plugins: [packagePlugin(repoRoot, new Set([...set.lazy, ...(set.eager ?? [])]))], metafile: true, logLevel: 'silent',
   });
   return Object.keys(result.metafile.outputs).map(file => path.basename(file)).sort();
 }

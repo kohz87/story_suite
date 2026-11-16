@@ -1,52 +1,55 @@
 /* NPC State Delta v1.18.0 bootstrap. */
 import { prepareNpcStateHardening } from '../core/hardening.js';
 
-await prepareNpcStateHardening();
-await import('../calls/scanner-routing.js');
-await import('./calendar-settings.js');
-await import('./index.js');
-try {
-    await import('../core/destructive-settlement.js');
-} catch (error) {
-    console.error('[NPC State Delta] destructive history settlement failed to load', error);
-}
-try {
-    await import('./dossier-ui.js');
-} catch (error) {
-    console.error('[NPC State Delta] dossier UI failed to load', error);
-}
-try {
-    await import('./dossier-tools.js');
-} catch (error) {
-    console.error('[NPC State Delta] supporting tools UI failed to load', error);
-}
-try {
-    await import('./launcher-ui.js');
-} catch (error) {
-    console.error('[NPC State Delta] dossier launcher failed to load', error);
-}
-try {
-    await import('./dossier-experience.js');
-} catch (error) {
-    console.error('[NPC State Delta] consolidated dossier experience failed to load', error);
-}
-try {
-    await import('./relationship-map.js');
-} catch (error) {
-    console.error('[NPC State Delta] relationship map failed to load', error);
-}
-try {
-    await import('./story-block-tabs.js');
-} catch (error) {
-    console.error('[NPC State Delta] dossier rows module (story-block-tabs.js) failed to load', error);
-}
-try {
-    await import('./continuity-ui.js');
-} catch (error) {
-    console.error('[NPC State Delta] continuity UI failed to load', error);
-}
-try {
-    await import('./scanner-output-ui.js');
-} catch (error) {
-    console.error('[NPC State Delta] scanner output/UI refinement failed to load', error);
+/** Starts the People part: the hardening, the scanner routing, the settings and the dossier surfaces, in this order (index.js awaits it after every module). */
+export async function startPeople() {
+    await prepareNpcStateHardening();
+    await import('../calls/scanner-routing.js');
+    await import('./calendar-settings.js');
+    await import('./index.js');
+    try {
+        await import('../core/destructive-settlement.js');
+    } catch (error) {
+        console.error('[NPC State Delta] destructive history settlement failed to load', error);
+    }
+    try {
+        await import('./dossier-ui.js');
+    } catch (error) {
+        console.error('[NPC State Delta] dossier UI failed to load', error);
+    }
+    try {
+        await import('./dossier-tools.js');
+    } catch (error) {
+        console.error('[NPC State Delta] supporting tools UI failed to load', error);
+    }
+    try {
+        await import('./launcher-ui.js');
+    } catch (error) {
+        console.error('[NPC State Delta] dossier launcher failed to load', error);
+    }
+    try {
+        await import('./dossier-experience.js');
+    } catch (error) {
+        console.error('[NPC State Delta] consolidated dossier experience failed to load', error);
+    }
+    try {
+        await import('./relationship-map.js');
+    } catch (error) {
+        console.error('[NPC State Delta] relationship map failed to load', error);
+    }
+    try {
+        await import('./story-block-tabs.js');
+    } catch (error) {
+        console.error('[NPC State Delta] dossier rows module (story-block-tabs.js) failed to load', error);
+    }
+    try {
+        await import('./continuity-ui.js');
+    } catch (error) {
+        console.error('[NPC State Delta] continuity UI failed to load', error);
+    }
+    try {
+        await import('./scanner-output-ui.js');
+    } catch (error) {
+        console.error('[NPC State Delta] scanner output/UI refinement failed to load', error);
+    }
 }

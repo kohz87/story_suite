@@ -1,7 +1,7 @@
 // Reads the stray-line heads and grammar line a capture kind declares.
 
 /**
- * `hostVersion`: this Story Block's version (runtime.js VERSION), checked against each module's
+ * `hostVersion`: this Story Block's version (runtime.js HOST_VERSION), checked against each module's
  * `requires.storyBlock`; null skips that check (a registry built outside the host).
  * `warn(message)`: where definition warnings and failed initial() calls go (default console.warn).
  */

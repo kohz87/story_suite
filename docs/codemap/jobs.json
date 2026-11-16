@@ -332,5 +332,6 @@
   "index.js": "The one entry SillyTavern loads: starts the host and its built-in modules, then the people part, then the new view's switch.",
   "suite.css": "The one stylesheet SillyTavern loads: lists the host, people and hide sheets in cascade order.",
   "scripts/checks/one-manifest.mjs": "Refuses a repo with a second manifest.json or no root one.",
+  "scripts/checks/css-imports.mjs": "Fails when a stylesheet @import reachable from the manifest names no file.",
   "tests/scripts/bundle-host-specifiers.test.js": "Pins the host import specifiers of the bundles to the recorded text, and checks the unbundled entry graph resolves each to a file the host has."
 }

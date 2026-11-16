@@ -1,6 +1,9 @@
-// The Models page's two commands for the port: storing a role's connection and the one tiny test call.
+// The Models page's commands for the port: storing a role's connection, the Calls group's settings and the one tiny test call.
 
 import { ROLE_SETTING } from '../../core/model-call/connection-for.js';
+import { KIND_CHOICES } from '../../modules/assist/safety.js';
+
+const FALLBACK = 'story-block.extractor';
 
 const TEST_MS = 20000;
 const roleOf = key => String(key ?? '').split('.')[1];
@@ -8,7 +11,7 @@ const roleOf = key => String(key ?? '').split('.')[1];
 /**
  * `settings.set` with key `models.<role>` stores the role's profile name (Story has none); `settings.action` with key `models.test` and
  * `value` = the role makes one tiny call on that role's connection → { ok: true, seconds } or { ok: false, message }.
- * Any other command is not the Models page's: returns null.
+ * `settings.set` with key `calls.queue`, `calls.kinds` (the chip labels) or `calls.fallback` stores that Calls row. Any other command is not the Models page's: returns null.
  */
 export async function modelsCommand(sdk, type, payload, now = Date.now) {
   const key = String(payload?.key ?? '');
@@ -17,6 +20,14 @@ export async function modelsCommand(sdk, type, payload, now = Date.now) {
     if (!Object.hasOwn(ROLE_SETTING, role)) return { ok: false, code: 'FAILED', message: 'That connection cannot be changed here.' };
     const stored = sdk?.settings?.set?.(null, ROLE_SETTING[role], payload.value);
     return stored === undefined ? { ok: false, code: 'FAILED', message: 'That connection was not saved.' } : { ok: true, value: stored };
+  }
+  if (type === 'settings.set' && key.startsWith('calls.')) {
+    const value = payload.value;
+    const stored = key === 'calls.queue' ? sdk?.settings?.set?.(null, 'callQueue', value === true)
+      : key === 'calls.kinds' && Array.isArray(value) ? sdk?.settings?.set?.('story-block', 'assistExtractorKinds', KIND_CHOICES.filter(k => value.includes(k.label)).map(k => k.value).join(', '))
+      : key === 'calls.fallback' ? sdk?.features?.set?.(FALLBACK, value === true)
+      : undefined;
+    return stored === undefined ? { ok: false, code: 'FAILED', message: 'That setting was not saved.' } : { ok: true, value: stored };
   }
   if (type === 'settings.action' && key === 'models.test') {
     const role = String(payload?.value ?? '');

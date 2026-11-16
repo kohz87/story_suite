@@ -80,7 +80,7 @@ export function createExtractor({ callModel, settings, grammar, capture, chatId,
             const prompt = extractorPrompt(story, lines, written, around);
             let answer;
             try {
-                answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, role: 'quick', helper: 'extractor' }), timeoutMs, timer);
+                answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, role: 'background', helper: 'extractor' }), timeoutMs, timer);
             } catch (error) {
                 note(error?.code === 'TIMEOUT' ? 'timeout' : 'failed', { ...at, message: error?.message ?? String(error) });
                 return null;
