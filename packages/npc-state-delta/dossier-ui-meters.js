@@ -1,6 +1,7 @@
 /* NPC State Delta dossier surface: hosted meters and Secrets section projections and markup. */
 import { escapeHtml } from './src/util/html.js';
 import { plain, stringList } from './dossier-ui-model.js';
+import { TIE_TAGS } from './src/npc-notes-ties.js';
 
 // (v2 meters, hosted) An NPC's Story Suite meters beyond the four axes: custom meters, the stage on
 // the ladder and what the next one needs, milestones, and the hidden notes still locked (their
@@ -80,8 +81,8 @@ function notesProjection(notes) {
     return lies.length || knows.length || tastes.length || ties.length || drives.length || look ? { lies, knows, tastes, ties, drives, look } : null;
 }
 
-// Tie tags toward other people by dossier id ({ id: ['ally', 'rival', 'owes'] }): the relationship map colours its lines with them.
-const TIE_WORDS = new Set(['ally', 'rival', 'owes']);
+// Tie tags toward other people by dossier id ({ id: ['ally', 'rival', 'owes', ...] }): the relationship map colours its lines with them.
+const TIE_WORDS = new Set(TIE_TAGS);
 function tiesProjection(map) {
     if (!map || typeof map !== 'object' || Array.isArray(map)) return null;
     const out = {};

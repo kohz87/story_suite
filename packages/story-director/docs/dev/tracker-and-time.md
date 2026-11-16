@@ -11,7 +11,8 @@ this repo's AI-README "Reply format the model writes" and "Data the model sees" 
   `—` reasons, `| label: value`), plus `time`. A kind's grammar may depend on the module set (no fights
   without a fight module), never on the state, so the static part stays byte-identical.
 - One reply adds at most `NEW_THREADS_PER_REPLY` (16) threads; at most `MAX_OPEN_THREADS` (300) open.
-  Problems are kept under `<rev>.<n>` keys, the newest `PROBLEM_ROOM` (100) kept, `PROBLEM_LIMIT` (50) shown.
+  Problems are kept under `<sid>.<n>` keys (the reply's record ID and a count, `src/v2/reply-keys.js`; older states `<rev>.<n>`),
+  read in reply-count (`turn`), rev, then count order, the newest `PROBLEM_ROOM` (100) kept, `PROBLEM_LIMIT` (50) shown.
 - **Quest step trail** (`director.steps`, `tracker/capture-parts/step-trail.js`, limits in `domain-parts/shared-step-keys.js`): each
   step a thread takes is one add `{ thread, text, turn, place }` under a key of the reply that wrote it, `<carrier sid>.<n>`
   (`r<rev>.<n>` outside a reply's capture, such as an arc plan), so an edited Re-read never lands on a later reply's stored key.

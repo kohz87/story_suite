@@ -52,9 +52,9 @@ Full suite: about 980 tests, about 1–2 minutes. Skills: `.claude/skills/run-te
 
 1. **Code sets numbers; the story proposes.** The clock moves at most
    `tracker.maxJump` days (30) per reply; invalid times refused.
-2. **Per-reply bookkeeping** keyed by carrier `sid` / id (`turn.now` written whole as a slot, problems under
-   their own `<rev>.<n>` key, pruned by key); never positional appends or a `replace` of another reply's
-   fields (Story Block SPEC §2.2).
+2. **Per-reply bookkeeping** keyed by carrier `sid` / id (`turn.now` written whole as a slot, problems and trip
+   records under their own `<sid>.<n>` key, `src/v2/reply-keys.js`, ordered and pruned by what they hold, never
+   by key); never positional appends or a `replace` of another reply's fields (Story Block SPEC §2.2).
 3. **Replay == live** after swipes, middle deletes, rewinds, reloads. `tests/v2/break/fuzz-delete.test.js` and
    `fuzz-delete-days.test.js` must pass; add new kinds and commands to their generator. A set of the clock
    (`~ time <date>`) uses `ctx.absolute`; writes inside a thread that may be gone use `ctx.ifThere`.

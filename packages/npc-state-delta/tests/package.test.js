@@ -62,6 +62,15 @@ test('the package ships the Story Suite v2 adapter beside the runtime modules', 
     const declared = activeRuntimeConfig().modules.map(module => module.path);
     for (const name of srcJs) assert.ok(listed.includes(name) || declared.includes(name), `${name} is packaged`);
     assert.match(script, /assert all\(name in files for name in src_js\)/, 'package.py refuses to leave a src/ module out');
+    // The same holds for every <name>-parts/ folder at the root: a facade imports its parts from the zip.
+    const partsJs = fs.readdirSync(root, { withFileTypes: true })
+        .filter(entry => entry.isDirectory() && /^[a-z0-9-]+-parts$/.test(entry.name))
+        .flatMap(entry => fs.readdirSync(path.join(root, entry.name), { recursive: true })
+            .filter(name => String(name).endsWith('.js'))
+            .map(name => `${entry.name}/${String(name).split(path.sep).join('/')}`));
+    assert.ok(partsJs.length > 50, 'the <name>-parts/ scan finds the part files');
+    for (const name of partsJs) assert.ok(listed.includes(name) || declared.includes(name), `${name} is packaged`);
+    assert.match(script, /assert all\(name in files for name in parts_js\)/, 'package.py refuses to leave a <name>-parts/ module out');
 });
 
 // A scratch copy of the repository without tests, history or build output, so validation and

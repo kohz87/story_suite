@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createHost } from './vendor/story-block/testkit/index.js';
+import { createHost } from '../../story-block/testkit/index.js';
 import { createNpcRecord, normalizeNpcRecord as normalizeProduction } from '../core.js';
 import { normalizeCast, applyCastEntry } from '../src/cast-dossier.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';

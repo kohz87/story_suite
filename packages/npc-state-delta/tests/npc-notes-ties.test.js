@@ -20,7 +20,7 @@ test('readTies: absent, malformed and over-long text read as null; an empty obje
 
 test('readTies: a bad tag, an unsorted or repeated tag list, or a bad key makes the whole leaf unusable', () => {
     assert.deepEqual(readTies('{"astra":["ally","owes"]}'), { astra: ['ally', 'owes'] });
-    assert.equal(readTies('{"astra":["friend"]}'), null);
+    assert.equal(readTies('{"astra":["buddy"]}'), null);
     assert.equal(readTies('{"astra":["owes","ally"]}'), null);
     assert.equal(readTies('{"astra":["ally","ally"]}'), null);
     assert.equal(readTies('{"astra":[]}'), null);
@@ -80,9 +80,9 @@ test('applyTags: the story may tie a person to the user (key "user")', () => {
 });
 
 test('applyTags: bad tag words are ignored and listed; a self tie and a nameless tie are refused', () => {
-    const odd = tie(null, ['+ally', 'ally', '*rival', '+friend']);
+    const odd = tie(null, ['+ally', 'ally', '*rival', '+buddy']);
     assert.deepEqual(odd.ties, { astra: ['ally'] });
-    assert.deepEqual(odd.ignored, ['ally', '*rival', '+friend']);
+    assert.deepEqual(odd.ignored, ['ally', '*rival', '+buddy']);
     const self = applyTags(null, { self: 'Mira', with: 'mira', tags: ['+ally'] });
     assert.equal(self.refused, 'self');
     assert.equal(self.changed, false);

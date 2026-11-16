@@ -27,6 +27,15 @@ export function createTurnPart(session, deps) {
             await madeCastSync();
             return out;
         });
+        // Host flag `suite.isolatedApply` on: the step's answer goes back to the host's listener guard, so a step that was not kept shows as that module's Problem.
+        return isolated() ? session.lastTick.then(notKept) : undefined;
+    }
+    function isolated() {
+        try { return session.sdkRef?.flag?.('suite.isolatedApply') === true; } catch { return false; }
+    }
+    function notKept(out) {
+        if (out && out.ok === false && out.code !== 'REFUSED' && out.code !== 'NOT_FOUND') throw new Error(`the cast step was not kept: ${out.message ?? out.code}`);
+        return out;
     }
     function castWanted() {
         const made = castMade();
