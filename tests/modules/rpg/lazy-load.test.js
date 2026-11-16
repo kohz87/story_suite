@@ -25,10 +25,11 @@ const reply = (...lines) => `The tide turns.\n<Changes>\n${lines.join('\n')}\n</
 
 // ---- what the page fetches at start, from the entry file's static imports ----------------------------------------------------------------
 
+// (`core/modules-list.js` is not followed: the built-in Story Director module is its own part, loaded at start and bringing its own checks code; this measures the host.)
 function closure(entry) {
     const seen = new Set();
     const walk = file => {
-        if (seen.has(file)) return;
+        if (seen.has(file) || file.endsWith('/core/modules-list.js')) return;
         seen.add(file);
         const source = readFileSync(file, 'utf8');
         for (const found of source.matchAll(/(?:^|\n)\s*(?:import|export)\s[^'"`;]*?from\s*['"](\.[^'"]+)['"]|(?:^|\n)\s*import\s*['"](\.[^'"]+)['"]/g)) walk(resolve(dirname(file), found[1] ?? found[2]));

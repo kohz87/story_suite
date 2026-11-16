@@ -104,6 +104,8 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
         async registerModule(def) {
             registry.register(def);
             attachParticipant(def);
+            // A module's own start-up (it runs once the registry holds the module; a throw is the caller's to isolate: core/boot/register-isolated.js).
+            if (typeof def.register === 'function') await def.register(sdk);
             if (typeof onRegister === 'function') {
                 try { onRegister(def); } catch (error) { console.warn('[Story Suite] a module was registered, but the screens could not follow', error); }
             }

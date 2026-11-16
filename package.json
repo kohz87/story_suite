@@ -14,7 +14,7 @@
     "test:modules": "NODE_OPTIONS=\"--max-old-space-size=4096 $NODE_OPTIONS\" node --test \"tests/modules/**/*.test.js\" \"tests/packs/**/*.test.js\" \"tests/matrix/**/*.test.js\" \"tests/bench/*.test.js\" \"tests/authoring-kit/*.test.js\" \"examples/fishing/tests/*.test.js\" \"tests/director/**/*.test.js\" \"tests/testkit/*.test.js\"",
     "test:people": "node --max-old-space-size=4096 --import ./tests/people/active-runtime-test-setup.mjs --test \"tests/people/**/*.test.js\"",
     "test:suite": "bash scripts/ci/suite-tests.sh",
-    "check": "node scripts/checks/no-tracked-deps.mjs && node scripts/checks/removed-exports.mjs && node scripts/sync-redraw-copy.mjs --check && node scripts/checks/run-size-check.mjs && node scripts/codemap/cli.mjs --check && node scripts/core/check.mjs && node scripts/director/check.mjs",
+    "check": "node scripts/checks/no-tracked-deps.mjs && node scripts/checks/one-manifest.mjs && node scripts/checks/removed-exports.mjs && node scripts/sync-redraw-copy.mjs --check && node scripts/checks/run-size-check.mjs && node scripts/codemap/cli.mjs --check && node scripts/core/check.mjs && node scripts/director/check.mjs",
     "release": "node scripts/release.mjs",
     "release:check": "node scripts/release.mjs --check",
     "play:dist": "node scripts/play/dist.mjs",

@@ -1,4 +1,4 @@
-// Finding the host and registering with it (src/storysuite-v2.js): look for a Story Block v2 on the page a bounded number of times,
+// Finding the host and registering with it (storysuite-v2.js): look for the Story Block v2 on the page once,
 // register Delta's module, watch that the host is still the one registered with, and give everything back when it goes.
 //
 // A part of the adapter closure: createConnectPart(session, deps) gets the adapter's shared state (session) and the adapter's options,
@@ -44,7 +44,7 @@ export function createConnectPart(session, deps) {
         if (host() !== from) {
             // Replaced while it was getting ready: look again (still within the bound).
             hostRef = null;
-            if (session.started) schedulePoll(attempt + 1);
+            if (session.started && attempt < attempts) poll(attempt + 1);
             return false;
         }
         if (typeof sdk?.registerModule !== 'function' || session.sdkRef === sdk) return false;
@@ -110,21 +110,11 @@ export function createConnectPart(session, deps) {
             });
     }
 
+    // One look for the host: Story Suite's entry starts this part after the host is up, so there is nothing to wait for.
     function poll(attempt) {
-        session.pollTimer = null;
         if (!session.started || hostRef) return;
         const sb = host();
-        if (isV2Host(sb)) {
-            session.pending = connect(sb, attempt);
-            return;
-        }
-        schedulePoll(attempt + 1);
-    }
-
-    function schedulePoll(attempt) {
-        if (attempt > attempts || session.pollTimer !== null) return;
-        session.pollTimer = timers.setTimeout?.(() => poll(attempt), retryMs) ?? null;
-        session.pollTimer?.unref?.();
+        if (isV2Host(sb)) session.pending = connect(sb, attempt);
     }
 
     // The host went away (or was replaced): everything goes back as it was before hosting.
