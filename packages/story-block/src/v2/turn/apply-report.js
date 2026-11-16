@@ -1,6 +1,6 @@
 // Groups one reply's receipts and Problems by the module that owns them, and lists the modules that could not finish the reply (suite.isolatedApply on).
-// Read-only: it adds nothing to the store. The card's "could not finish" row and the Inspector read it; a settle receipt can be grouped later
-// under the same `byModule` map without changing its shape.
+// Read-only: it adds nothing to the store. The card's "could not finish" row and the Inspector read it. A settle receipt is grouped under the
+// module that owns its interaction kind (`data.interaction.module`); once its display data is trimmed it falls back to its own `module`.
 
 const FAILED_CODES = new Set(['FAILED', 'TIMEOUT']);
 
@@ -27,6 +27,12 @@ export function moduleFailures(problems, index, nameOf = id => id) {
     return out;
 }
 
+/** The module a receipt is grouped under: a settle's kind module, else the receipt's own. */
+const ownerOf = receipt => {
+    const kindModule = receipt?.type === 'interaction.settle' ? receipt.data?.interaction?.module : undefined;
+    return typeof kindModule === 'string' && kindModule !== '' ? kindModule : receipt?.module;
+};
+
 /**
  * `{ byModule: { [moduleId]: { receipts, problems } }, failed }` for reply `index`: its receipts (by their `module`) and its Problems (by their
  * `module`; the ones naming none are left out of the map), and `failed` from moduleFailures. Modules appear in the order they are first met.
@@ -34,7 +40,10 @@ export function moduleFailures(problems, index, nameOf = id => id) {
 export function applyReport({ receipts = [], problems = [], index, nameOf } = {}) {
     const byModule = {};
     const slot = id => (byModule[id] ??= { receipts: [], problems: [] });
-    for (const receipt of Array.isArray(receipts) ? receipts : []) if (typeof receipt?.module === 'string' && receipt.module !== '') slot(receipt.module).receipts.push(receipt);
+    for (const receipt of Array.isArray(receipts) ? receipts : []) {
+        const owner = ownerOf(receipt);
+        if (typeof owner === 'string' && owner !== '') slot(owner).receipts.push(receipt);
+    }
     for (const item of Array.isArray(problems) ? problems : []) if (item?.index === index && typeof item.module === 'string' && item.module !== '') slot(item.module).problems.push(item);
     return { byModule, failed: moduleFailures(problems, index, nameOf) };
 }
