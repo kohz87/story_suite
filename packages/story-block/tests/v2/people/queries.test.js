@@ -3,6 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
+import { peopleQueries } from '../../../src/v2/domains/people/queries.js';
 
 const person = (id, name, extra = {}) => ({ id, name, ...extra });
 const view = {
@@ -60,8 +61,9 @@ test('people.dossier finds by id, name or alias; joins the bonds; leaves the por
 test('people.dossier never carries a secret\'s text or a never-prompt setting', async t => {
     const host = await rig(t);
     const dossier = host.sdk.query('people.dossier', { id: 'npc_ann' });
-    assert.deepEqual(dossier.secrets, [{ id: 's1', title: 'The Second Ledger' }]);
+    assert.equal('secrets' in dossier, false, 'a locked note leaves no title, text or wording (as npc.dossier)');
     assert.equal(JSON.stringify(dossier).includes('hidden'), false);
+    assert.equal(JSON.stringify(dossier).includes('Second Ledger'), false);
     for (const field of ['portraitPromptPositive', 'portraitSeed', 'meterSetup', 'castFrom']) assert.equal(field in dossier, false, field);
 });
 
@@ -78,7 +80,7 @@ test('a portrait path is kept when it is a relative or root path or https, and r
 test('people.ties lists the edges between stored active people; people.secretOwners names whose dossier holds a secret', async t => {
     const host = await rig(t);
     assert.deepEqual(host.sdk.query('people.ties', {}), [{ aId: 'npc_ann', bId: 'npc_bea', aToB: 'sister', bToA: 'sister' }]);
-    assert.deepEqual(host.sdk.query('people.secretOwners', {}), { 'the second ledger': { id: 'npc_ann', name: 'Ann' }, s1: { id: 'npc_ann', name: 'Ann' } });
+    assert.deepEqual(host.sdk.query('people.secretOwners', {}), {}, 'a note that is still locked has no owner by its title');
 });
 
 test('no people slice yet: every query answers null', async t => {
@@ -103,4 +105,14 @@ test('the queries answer the head after a swipe, a swipe back and a middle delet
     await host.st.deleteMessage(host.ctx.chat.length - 1);
     assert.equal(row(host, 'Eve'), undefined, 'the reply that stored Eve is gone');
     assert.equal(row(host, 'Ann').present, true);
+});
+
+test('people.secretOwners keys only opened notes (bonds.unlocked); a locked note\'s title and event wording stay out of both queries', () => {
+    const state = { domains: { people: { v: 1, order: ['npc_ann'], turn: 1, npcs: { npc_ann: person('npc_ann', 'Ann', { secrets: [
+        { id: 's1', title: 'The Second Ledger', meter: 'trust', text: 'x', when: 'she finds the ledger' }, { id: 's2', title: 'The Old Debt', meter: 'trust', text: 'y' }] }) },
+    bonds: { npcs: { npc_ann: { name: 'Ann', meters: { trust: 9 }, unlocked: ['s2'] } } } } } };
+    const queries = peopleQueries('people');
+    assert.deepEqual(queries['people.secretOwners'](state), { 'the old debt': { id: 'npc_ann', name: 'Ann' }, s2: { id: 'npc_ann', name: 'Ann' } });
+    const text = JSON.stringify(queries['people.dossier'](state, { id: 'npc_ann' }));
+    for (const hidden of ['Second Ledger', 'she finds the ledger']) assert.equal(text.includes(hidden), false, hidden);
 });

@@ -1,5 +1,6 @@
-// Reads the People tab's parts and the per-person dossier map from Story Block queries: the people come from the store (people.*); only the ladder,
-// the notes and the mood numbers (npc.next, npc.cast: NPC State's meter rules) and the director's place and news of key people are asked of their own modules.
+// Reads the People tab's parts and the per-person dossier map from Story Block queries: the people come from the store (people.*). Still asked of
+// NPC State for now (P7 moves them): npc.next (the ladder: its rungs are NPC State settings, not in the store), npc.cast (the notes' rules: the store's secrets lose `at`; the mood numbers),
+// npc.meters ({ name }) (Recent changes: derived from the bonds' lastEvent, no store reader yet); and of the Director: the place and news of key people.
 
 import { selectDossier } from './dossier.js';
 
@@ -18,7 +19,7 @@ export function dossierMap(read) {
   for (const row of Array.isArray(parts.list) ? parts.list : []) {
     const dossier = read('people.dossier', { id: row.id });
     const vm = selectDossier({
-      dossier, meters: dossier, next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
+      dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
       portrait: dossier?.portrait, keyPeople: parts.keyPeople, party: parts.party, people: parts.list, place: parts.place,
     });
     if (!vm) continue;

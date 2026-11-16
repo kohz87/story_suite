@@ -10,9 +10,8 @@ const text = value => (typeof value === 'string' && value.trim() ? value.trim() 
 const clone = value => JSON.parse(JSON.stringify(value));
 export const DORMANT_AFTER = 30;
 const AXES = ['trust', 'affection', 'desire', 'tension'];
-// What a dossier answer never carries (NPC State's own rule: hidden notes and never-prompt settings do not leave the dossier): the text of each secret, and these fields.
+// What a dossier answer never carries (NPC State's own rule: hidden notes and never-prompt settings do not leave the dossier): the `secrets` list (titles, text and event wording of hidden notes: a locked note must stay hidden, and the stored rules lose their `at`, see people/view.js VOLATILE), and these fields.
 const HIDDEN_FIELDS = ['portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'portraitSeed', 'meterSetup', 'castFrom'];
-const SECRET_KEYS = ['id', 'meter', 'at', 'when', 'title'];
 
 // A file path that is safe as an image URL, as NPC State's safeImageUrl judges one: a path on the page's own server (relative or from the root; never `//host`,
 // a bare ?query or #hash, a backslash or a control character) or https. Any other scheme is refused.
@@ -74,15 +73,15 @@ export function peopleQueries(domain) {
             const people = slice(state);
             return people ? ids(people).map(id => rowOf(people, id)) : null;
         },
-        // { id, ...the stored dossier fields (the portrait file is `portrait` below; a secret keeps its rule but not its text; never-prompt settings are left out), meters?, stages?, unlocked?, recent?, portrait } of the person { id | name } names, or null.
+        // { id, ...the stored dossier fields (the portrait file is `portrait` below; `secrets` are left out as in npc.dossier; never-prompt settings too), meters?, stages?, unlocked?, recent?, portrait } of the person { id | name } names, or null.
         'people.dossier': (state, args) => {
             const people = slice(state);
             const id = people ? find(people, args) : null;
             if (!id) return null;
             const { portrait: _file, ...record } = clone(people.npcs[id]);
             for (const field of HIDDEN_FIELDS) delete record[field];
-            if (Array.isArray(record.secrets)) record.secrets = record.secrets.filter(isObject).map(secret => Object.fromEntries(SECRET_KEYS.filter(key => secret[key] !== undefined).map(key => [key, secret[key]])));
             const bond = people.bonds?.npcs?.[id];
+            delete record.secrets;
             const meters = metersOf(bond, record);
             return {
                 ...record, id, ...(meters ? { relationship: meters } : {}),
@@ -99,13 +98,15 @@ export function peopleQueries(domain) {
             return edges.filter(edge => isObject(edge) && active(people, edge.aId) && active(people, edge.bId))
                 .map(edge => ({ aId: edge.aId, bId: edge.bId, aToB: String(edge.aToB ?? ''), bToA: String(edge.bToA ?? '') }));
         },
-        // { [lowercase secret title or id]: { id, name } }: whose dossier holds each secret.
+        // { [lowercase secret title or id]: { id, name } }: whose dossier holds each OPENED secret (a locked note's title is never a key).
         'people.secretOwners': state => {
             const people = slice(state);
             if (!people) return null;
             const out = {};
             for (const id of ids(people)) {
+                const unlocked = Array.isArray(people.bonds?.npcs?.[id]?.unlocked) ? people.bonds.npcs[id].unlocked : [];
                 for (const secret of Array.isArray(people.npcs[id].secrets) ? people.npcs[id].secrets : []) {
+                    if (!isObject(secret) || !unlocked.includes(secret.id)) continue;
                     for (const key of [secret?.title, secret?.id]) {
                         const label = text(key)?.toLowerCase();
                         if (label && !Object.hasOwn(out, label)) out[label] = { id, name: String(people.npcs[id].name ?? '') };

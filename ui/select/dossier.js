@@ -54,6 +54,7 @@ function changesOf(meters) {
 }
 
 // npc.cast `opened` / `locked` (notesView, packages/npc-state-delta/src/npc-meters-queries.js:81-104). Opened secret text is a gap (§2.4), so text stays null.
+// Stays on NPC State's query for now (P7): the store's secret rules lose their `at` (the people view strips the key `at` as volatile), so "Opens at Trust 60" cannot be made from the store.
 function secretsOf(row) {
   const opened = Array.isArray(row?.opened) ? row.opened.filter(isRecord) : [];
   const locked = Array.isArray(row?.locked) ? row.locked.filter(isRecord) : [];
@@ -105,7 +106,7 @@ function profileOf(dossier) {
 }
 
 /**
- * Dossier view-model from { dossier: people.dossier, meters?: the rows of recent changes (the dossier itself), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
+ * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
  * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.

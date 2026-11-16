@@ -34,7 +34,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
     const sdk = { ...base, command: async (name, ...rest) => { const out = await base.command(name, ...rest); if (name === 'people.write') sends.push(out.ok ? 'ok' : out.code); return out; } };
     const box = { ready: Promise.resolve(sdk), sdk };
     const api = {
-        gate: null, isEnabled: () => true, relationshipBaseline: () => ({}), chatKey: () => mine.chatKey,
+        gate: null, isEnabled: () => true, relationshipBaseline: () => ({}), relationshipCaps: () => ({ ordinary: 2, meaningful: 3, major: 5, extreme: 8 }), chatKey: () => mine.chatKey,
         getNpc: id => mine.state.npcs.find(item => item.id === id) ?? null,
         getState: () => structuredClone(mine.state),
         timelineStarted: () => Boolean(mine.state.timeline?.lineage),

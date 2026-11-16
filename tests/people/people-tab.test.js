@@ -87,7 +87,7 @@ test('the tab answers from the store while NPC State\'s memory disagrees: a pers
   assert.equal(portOf(rig).view('dossier')[idOf('tom')].name, 'TOM');
 });
 
-test('Follow is the store\'s flag: people.follow shows the star on the card and the dossier, and it follows a swipe and a reload', async t => {
+test('Follow is the store\'s flag: people.follow shows the star on the card and the dossier, and it follows a swipe back and a reload', async t => {
   const rig = await peopleRig(t);
   await rig.reply('One.');
   await rig.reply('Two.');
