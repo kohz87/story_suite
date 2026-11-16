@@ -40,3 +40,16 @@ test('the mapper gives moved, deleted, folder and unchanged paths', () => {
   assert.equal(mapper.map('p/dead/g.js'), null);
   assert.equal(mapper.map('p/keep.js'), 'p/keep.js');
 });
+
+test('a rename chain and a two-file swap are refused at planning', () => {
+  const chain = parseRules({ area: 'k', rules: [{ from: 'p/a.js', to: 'p/b.js' }, { from: 'p/b.js', to: 'p/c.js' }] });
+  const plan = buildPlan(['p/a.js', 'p/b.js'], [chain]);
+  assert.deepEqual(plan.chains, [{ from: 'p/a.js', to: 'p/b.js' }]);
+  assert.match(planProblems(plan).join('\n'), /p\/a\.js moves to p\/b\.js, which is itself moved/);
+  const swap = parseRules({ area: 'k', rules: [{ from: 'p/a.js', to: 'p/b.js' }, { from: 'p/b.js', to: 'p/a.js' }] });
+  const swapped = buildPlan(['p/a.js', 'p/b.js'], [swap]);
+  assert.equal(swapped.chains.length, 2);
+  assert.equal(planProblems(swapped).length, 2);
+  const free = parseRules({ area: 'k', rules: [{ from: 'p/a.js', to: 'p/b.js' }, { from: 'p/b.js', to: null }] });
+  assert.deepEqual(planProblems(buildPlan(['p/a.js', 'p/b.js'], [free])), []);
+});

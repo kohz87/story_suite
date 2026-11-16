@@ -32,7 +32,7 @@ test('a non-stem rule does not take x.js', () => {
   assert.equal(matchPath(plain.rules, 'p/x.js'), null);
 });
 
-test('two different rules at the same length fail the run', () => {
+test('equal-length rules cannot both match: duplicates are refused, near names stay apart', () => {
   const tied = { rules: [{ from: 'p/x', to: 'a', stem: true }, { from: 'p/x', to: 'b' }] };
   assert.throws(() => parseRules({ area: 'c', ...tied }), /duplicate/);
   const near = parseRules({ area: 'c', rules: [{ from: 'p/x', to: 'a' }, { from: 'p/y', to: 'b' }] });

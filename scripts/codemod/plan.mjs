@@ -9,7 +9,8 @@ export function trackedFiles(root) {
 }
 
 /**
- * Builds { moves: [{from,to}], deletes: [path], unmatched: [path], collisions: [{to,sources}], existing: [{from,to}] }.
+ * Builds { moves: [{from,to}], deletes: [path], unmatched: [path], collisions: [{to,sources}], existing: [{from,to}], chains: [{from,to}] }.
+ * A "chain" is a move whose target is another move's source (a rename chain or a swap); `git mv` would fail on it.
  * A file is "unmatched" when no rule covers it and it lies under a rule file's `scope` (any file, when no rule
  * file gives a scope). Files whose target equals their own path are not moves.
  */
@@ -19,19 +20,21 @@ export function buildPlan(files, ruleSets) {
   const everything = scopes.some(scope => scope === null);
   const prefixes = scopes.flatMap(scope => scope ?? []);
   const inScope = file => everything || prefixes.some(prefix => file === prefix || file.startsWith(prefix.endsWith('/') ? prefix : `${prefix}/`));
-  const plan = { moves: [], deletes: [], unmatched: [], collisions: [], existing: [] };
+  const plan = { moves: [], deletes: [], unmatched: [], collisions: [], existing: [], chains: [] };
   for (const file of files) {
     const hit = matchPath(rules, file);
     if (!hit) { if (inScope(file)) plan.unmatched.push(file); continue; }
     if (hit.to === null) plan.deletes.push(file);
     else if (hit.to !== file) plan.moves.push({ from: file, to: hit.to });
   }
-  const sources = new Set([...plan.moves.map(move => move.from), ...plan.deletes]);
+  const moveSources = new Set(plan.moves.map(move => move.from));
+  const sources = new Set([...moveSources, ...plan.deletes]);
   const fileSet = new Set(files);
   const byTarget = new Map();
   for (const move of plan.moves) {
     byTarget.set(move.to, [...(byTarget.get(move.to) ?? []), move.from]);
-    if (fileSet.has(move.to) && !sources.has(move.to)) plan.existing.push(move);
+    if (moveSources.has(move.to)) plan.chains.push(move);
+    else if (fileSet.has(move.to) && !sources.has(move.to)) plan.existing.push(move);
   }
   for (const [to, from] of byTarget) if (from.length > 1) plan.collisions.push({ to, sources: from });
   return plan;
@@ -42,6 +45,7 @@ export function planProblems(plan) {
   return [
     ...plan.unmatched.map(file => `no rule covers ${file}`),
     ...plan.collisions.map(item => `${item.sources.join(', ')} all move to ${item.to}`),
+    ...plan.chains.map(move => `${move.from} moves to ${move.to}, which is itself moved (a rename chain or swap)`),
     ...plan.existing.map(move => `${move.from} would overwrite the existing ${move.to}`),
   ];
 }

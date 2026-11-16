@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildPlan, trackedFiles } from './plan.mjs';
+import { buildPlan, makeMapper, trackedFiles } from './plan.mjs';
 import { resolveSpecifier, scanSpecifiers } from './specifiers.mjs';
 
 /**
@@ -35,7 +35,37 @@ export function verifyTree(root, ruleSets, { codemap = false } = {}) {
 }
 
 // A line with every quoted string emptied, so two lines that differ only in a path compare equal.
-const flatten = line => line.replace(/(['"`])(?:(?!\1)[^\\]|\\.)*\1/g, '$1$1').trim();
+const QUOTED = /(['"`])((?:(?!\1)[^\\]|\\.)*)\1/g;
+const flatten = line => line.replace(QUOTED, '$1$1').trim();
+const quotedValues = line => [...line.matchAll(QUOTED)].map(match => match[2]);
+
+// The files in a commit, from `git ls-tree`.
+const filesAt = (root, ref) => new Set(execFileSync('git', ['ls-tree', '-r', '--name-only', ref], { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 }).split('\n').filter(Boolean));
+
+// Splits "tests/v2/**" or "./a/" into the path part and the tail that is kept as written.
+function pathPart(value) {
+  const stop = value.search(/\*/);
+  const head = stop < 0 ? value : value.slice(0, stop);
+  const bare = head.replace(/\.+$/, '').replace(/\/$/, '');
+  return { bare, tail: value.slice(bare.length) };
+}
+
+// True when a changed string value is a path the mapper produced: the new one is the old one's new place.
+function isMappedPath(oldValue, newValue, oldFile, newFile, ctx) {
+  const relative = value => /^\.{1,2}(\/|$)/.test(value);
+  if (relative(oldValue) !== relative(newValue)) return false;
+  if (relative(oldValue)) {
+    const from = resolveSpecifier(oldFile, oldValue, ctx.baseSet, true);
+    const to = resolveSpecifier(newFile, newValue, ctx.headSet, true);
+    if (from && to && ctx.mapper.map(from.target) === to.target) return true;
+  }
+  const a = pathPart(oldValue);
+  const b = pathPart(newValue);
+  if (a.tail !== b.tail || !a.bare || !b.bare) return false;
+  const abs = relative(oldValue) ? path.posix.normalize(path.posix.join(path.posix.dirname(oldFile), a.bare)) : a.bare;
+  const target = relative(newValue) ? path.posix.normalize(path.posix.join(path.posix.dirname(newFile), b.bare)) : b.bare;
+  return ctx.mapper.map(abs) === target;
+}
 
 function gitDiff(root, args) {
   return execFileSync('git', ['diff', '--no-color', ...args], { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 });
@@ -44,15 +74,21 @@ function gitDiff(root, args) {
 /**
  * The J14 review check, in two steps that match the two commits `applyLayout` makes. (1) base -> movesRef: with
  * `-M100%` every entry must be a pure rename (R100) or a delete. (2) movesRef -> head: with renames off, every JS
- * file's changed lines must come in equal-length removed/added runs that differ only inside quoted strings.
+ * file's changed lines must come in equal-length removed/added runs that differ only inside quoted strings, and
+ * each changed string value must be a path the rule sets' mapper produced (the old value's new place, for a
+ * relative value read from the file's old and new folders), so `'x'` -> `'y'` is reported.
  * Returns { problems, dataEdits }; dataEdits counts changed non-JS files (listed, not judged).
  */
-export function verifyDiff(root, base, movesRef, head = 'HEAD') {
+export function verifyDiff(root, base, movesRef, head = 'HEAD', ruleSets = []) {
   const problems = [];
+  const newToOld = new Map();
   for (const line of gitDiff(root, ['--name-status', '-M100%', base, movesRef]).split('\n').filter(Boolean)) {
     const [status, ...names] = line.split('\t');
     if (status !== 'R100' && status !== 'D') problems.push(`the move commit is not a pure rename: ${status} ${names.join(' -> ')}`);
+    if (status === 'R100') newToOld.set(names[1], names[0]);
   }
+  const baseSet = filesAt(root, base);
+  const ctx = { baseSet, headSet: filesAt(root, head), mapper: makeMapper(buildPlan([...baseSet].sort(), ruleSets), ruleSets) };
   let dataEdits = 0;
   for (const block of gitDiff(root, ['--no-renames', '-U0', movesRef, head]).split(/^diff --git /m).slice(1)) {
     const name = /^\+\+\+ b\/(.+)$/m.exec(block)?.[1] ;
@@ -62,7 +98,14 @@ export function verifyDiff(root, base, movesRef, head = 'HEAD') {
     const added = [];
     const flush = () => {
       if (removed.length !== added.length) problems.push(`${name}: ${removed.length} lines removed but ${added.length} added in one hunk`);
-      else removed.forEach((line, i) => { if (flatten(line) !== flatten(added[i])) problems.push(`${name}: content line changed: ${line.trim().slice(0, 80)}`); });
+      else removed.forEach((line, i) => {
+        if (flatten(line) !== flatten(added[i])) { problems.push(`${name}: content line changed: ${line.trim().slice(0, 80)}`); return; }
+        const was = quotedValues(line);
+        const now = quotedValues(added[i]);
+        was.forEach((value, k) => {
+          if (value !== now[k] && !isMappedPath(value, now[k], newToOld.get(name) ?? name, name, ctx)) problems.push(`${name}: string "${value}" became "${now[k]}", which is not a mapped path`);
+        });
+      });
       removed.length = 0; added.length = 0;
     };
     for (const line of block.split('\n')) {

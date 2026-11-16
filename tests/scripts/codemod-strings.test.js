@@ -58,3 +58,12 @@ test('files outside every site are untouched and unparsable JS is reported', () 
   assert.equal(run('hello packages/sb/tests/v2\n', 'notes.txt').changed, 0);
   assert.ok(run('const = ;', 'x/y.js').error);
 });
+
+test('a root-path literal is rewritten only when the path exists in the tree', () => {
+  const src = "const route = 'packages/sb/tests/v2/summary';\nconst real = 'packages/sb/tests/v2/fixtures/f.json';\nconst dir = 'packages/sb/tests/v2';\n";
+  const out = run(src, 'docs/x.js');
+  assert.match(out.source, /route = 'packages\/sb\/tests\/v2\/summary'/);
+  assert.match(out.source, /real = 'tests\/core\/fixtures\/f\.json'/);
+  assert.match(out.source, /dir = 'tests\/core'/);
+  assert.equal(out.changed, 2);
+});

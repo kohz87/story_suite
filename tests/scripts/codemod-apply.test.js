@@ -19,7 +19,7 @@ test('applyLayout moves files, rewrites imports, commits twice, and the result v
   assert.equal(fs.readFileSync(path.join(root, 'ui/legacy/view.js'), 'utf8').includes("'../../core/store.js'"), true);
   assert.equal(fs.existsSync(path.join(root, 'pkg')), false);
   assert.deepEqual(verifyTree(root, [rules]), []);
-  const diff = verifyDiff(root, base, 'HEAD~1');
+  const diff = verifyDiff(root, base, 'HEAD~1', 'HEAD', [rules]);
   assert.deepEqual(diff.problems, []);
   assert.equal(fs.readFileSync(path.join(root, 'ui/legacy/index.js'), 'utf8'), "export * from '../../core/store.js';\n");
   assert.equal(git(root, 'log', '--format=%s', '-2').trim().split('\n').join('|'), 'layout: rewrite|layout: move');
@@ -69,8 +69,24 @@ test('verifyTree names broken specifiers and leftovers; verifyDiff names a chang
   git(root, 'add', '-A');
   git(root, 'commit', '-q', '-m', 'edit');
   assert.ok(verifyTree(root, [rules]).some(line => line.includes('"../nowhere.js" resolves to no tracked file')));
-  const diff = verifyDiff(root, base, moves);
+  const diff = verifyDiff(root, base, moves, 'HEAD', [rules]);
   assert.ok(diff.problems.some(line => line.startsWith('core/store.js: content line changed')));
   assert.ok(diff.problems.some(line => line.startsWith('core/runtime/run.js')));
   assert.ok(verifyDiff(root, base, 'HEAD').problems.some(line => line.startsWith('the move commit is not a pure rename')));
+});
+
+test('applyLayout refuses a rename chain before touching the tree; verifyDiff reports a string that is not a mapped path', () => {
+  const chain = parseRules({ area: 'k', rules: [{ from: 'p/a.js', to: 'p/b.js' }, { from: 'p/b.js', to: 'p/c.js' }] });
+  const bare = toyRepo({ 'p/a.js': 'export const a = 1;\n', 'p/b.js': 'export const b = 2;\n' });
+  assert.throws(() => applyLayout(bare, [chain]), /plan refused[\s\S]*rename chain/);
+  assert.equal(fs.existsSync(path.join(bare, 'p/a.js')), true);
+  const root = toyRepo({ ...TOY, 'pkg/src/ui/label.js': "export const label = 'x';\nexport const file = '../store.js';\n" });
+  const base = git(root, 'rev-parse', 'HEAD').trim();
+  applyLayout(root, [rules], { commits: { moves: 'm', rewrites: 'r' } });
+  assert.deepEqual(verifyDiff(root, base, 'HEAD~1', 'HEAD', [rules]).problems, []);
+  fs.writeFileSync(path.join(root, 'ui/legacy/label.js'), "export const label = 'y';\nexport const file = '../../core/store.js';\n");
+  git(root, 'add', '-A');
+  git(root, 'commit', '-q', '-m', 'edit');
+  const problems = verifyDiff(root, base, 'HEAD~2', 'HEAD', [rules]).problems;
+  assert.deepEqual(problems.filter(line => line.includes('not a mapped path')), ['ui/legacy/label.js: string "x" became "y", which is not a mapped path']);
 });

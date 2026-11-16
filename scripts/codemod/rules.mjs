@@ -38,19 +38,17 @@ function restAfter(rule, filePath) {
 }
 
 /**
- * Matches a repo path against rules (an array of normalised rule objects). The longest `from` wins; two
- * different rules at the same length throw. Returns { rule, to } (`to` is null for a delete) or null.
+ * Matches a repo path against rules (an array of normalised rule objects). The longest `from` wins. A tie cannot
+ * happen: two rules of one length can only both match a path when their `from` strings are equal, and `parseRules`
+ * refuses duplicates. Returns { rule, to } (`to` is null for a delete) or null.
  */
 export function matchPath(rules, filePath) {
   let best = null;
-  let tied = null;
   for (const rule of rules) {
     const rest = restAfter(rule, filePath);
     if (rest === null) continue;
-    if (!best || rule.from.length > best.rule.from.length) { best = { rule, rest }; tied = null; }
-    else if (rule.from.length === best.rule.from.length) tied = rule;
+    if (!best || rule.from.length > best.rule.from.length) best = { rule, rest };
   }
-  if (tied) throw new Error(`${filePath}: rules "${best.rule.from}" and "${tied.from}" match at the same length`);
   if (!best) return null;
   return { rule: best.rule, to: best.rule.to === null ? null : best.rule.to + best.rest };
 }

@@ -24,7 +24,8 @@ function siteFor(file) {
 }
 
 // Maps one path-like token that may end in a glob ("tests/v2/**") or a full stop; returns it unchanged when nothing moves.
-function mapToken(token, base, mapper) {
+// With `exists(abs)`, a token is rewritten only when the path it names is in the tracked tree.
+function mapToken(token, base, mapper, exists = null) {
   const stop = token.search(/\*/);
   const head = stop < 0 ? token : token.slice(0, stop);
   const dots = /\.+$/.exec(head)?.[0] ?? '';
@@ -33,6 +34,7 @@ function mapToken(token, base, mapper) {
   const sep = bare.endsWith('/') ? '/' : '';
   if (!dirPart) return token;
   const abs = base ? path.posix.join(base, dirPart) : dirPart;
+  if (exists && !exists(abs)) return token;
   const mapped = mapper.map(abs);
   if (mapped === null || mapped === abs) return token;
   const rel = base ? path.posix.relative(base, mapped) : mapped;
@@ -91,7 +93,7 @@ function rewriteJs(source, { oldFile, newFile, files, mapper }) {
         if (!next.startsWith('.')) next = `./${next}`;
         if (value.endsWith('/') && !next.endsWith('/')) next += '/';
       } else {
-        next = mapToken(value, '', mapper);
+        next = mapToken(value, '', mapper, abs => existsInTree(abs, files));
       }
       if (next !== value) edits.push({ start: node.start + 1, end: node.end - 1, text: next });
     },
