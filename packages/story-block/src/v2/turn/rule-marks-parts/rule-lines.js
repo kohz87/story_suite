@@ -9,6 +9,8 @@ const partyJoin = line => (line?.kind === 'party' && line.op === '+') || /^\s*\+
 export const RULE_LINES = Object.freeze({
     // `? roll Name | skill | difficulty | die`: story checks (lean-rpg/checks). A reply with no mark keeps what it did before: the line is not used.
     checks: line => line?.kind === 'roll',
+    // `? roll Name | skill | difficulty`: code gives each check the next die in order (lean-rpg/checks/line.js); a fourth part is tolerated. A reply with no mark keeps the four-part rules and their refusals.
+    diceInOrder: line => line?.kind === 'roll',
     // `- key Name | died`: a death counts for anyone, not only a pinned key person (Story Director keypeople). Same words as its death test.
     // `+ party Name`: the room for a companion's blocks (data-modules dmRoom: 20 own, 28 in all) and the party limit counting only active members. Any `+ party` line counts, however it parsed.
     partyRoom: partyJoin,

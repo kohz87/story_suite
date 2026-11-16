@@ -25,7 +25,7 @@ export function checkStep(ctx, payload = {}) {
     if (!input) ctx.fail('INVALID', 'The check step needs the reply\'s roll lines and its recorded dice.');
     const domain = ctx.read('dataModules'), sheet = readSheet({ domains: { dataModules: domain } });
     const checked = input.practice ? sheetBeforePractice(sheet, domain, ctx.source, input.spent) : sheet;
-    const { results, notes, uses } = workChecks(membersOf({ query: (name, args) => ctx.query(name, args) }, checked), input.lines, input.dice, input.table ?? null);
+    const { results, notes, uses } = workChecks(membersOf({ query: (name, args) => ctx.query(name, args) }, checked), input.lines, input.dice, input.table ?? null, input.inOrder === true);
     const predicate = { kind: CHECK_STEP, input: ctx.hash(input), ...(input.practice ? { uses } : {}) };
     const witness = input.practice ? { members: membersWitness(sheet), practice: witnessOf(domain, ctx.source, uses) } : membersWitness(sheet);
     ctx.replayGuard({ owner: ctx.module, version: 2, epoch: ctx.epoch, rulesHash: null, predicate, inputHash: ctx.hash({ source: ctx.source, predicate, witness }) }, input);

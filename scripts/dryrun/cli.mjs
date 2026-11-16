@@ -4,6 +4,8 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadChat } from './load-chat.mjs';
 import { recordChat } from './record-chat.mjs';
+import { runHistoryOps } from './history-ops.mjs';
+import { historyErrors } from './compare-history.mjs';
 import { compareRecords } from './compare-records.mjs';
 import { prepareOutDir, writeManifest } from './out-guard.mjs';
 
@@ -12,8 +14,8 @@ function parseFlags(args) {
   const positional = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--fresh') {
-      flags.fresh = true;
+    if (arg === '--fresh' || arg === '--history') {
+      flags[arg.slice(2)] = true;
     } else if (arg.startsWith('--')) {
       flags[arg.slice(2)] = args[++i];
     } else {
@@ -29,7 +31,7 @@ async function runRecord(args) {
   const chatsDir = path.resolve(flags.chats ?? '');
   const outDir = path.resolve(flags.out ?? '');
   if (!flags.code || !flags.chats || !flags.out) {
-    throw new Error('Usage: record --code <repo root> --chats <folder> --out <folder> [--fresh]');
+    throw new Error('Usage: record --code <repo root> --chats <folder> --out <folder> [--fresh] [--history]');
   }
   prepareOutDir({ outDir, repoRoot, fresh: flags.fresh === true });
 
@@ -69,6 +71,10 @@ async function runRecord(args) {
       const start = performance.now();
       const chat = loadChat(path.join(chatsDir, file));
       const record = await recordChat({ suite, chat });
+      if (flags.history) {
+        record.history = await runHistoryOps({ suite, chat, chatId: file.replace(/\.jsonl(\.gz)?$/, '') });
+        record.errors.push(...historyErrors(record, 'new').map(item => ({ reply: null, step: item.field, detail: item.before })));
+      }
       const ms = Math.round(performance.now() - start);
       written.push(`${file}.json`);
       writeManifest(outDir, written);
