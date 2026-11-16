@@ -10,13 +10,17 @@ const text = value => (typeof value === 'string' && value.trim() ? value.trim() 
 const clone = value => JSON.parse(JSON.stringify(value));
 export const DORMANT_AFTER = 30;
 const AXES = ['trust', 'affection', 'desire', 'tension'];
+// What a dossier answer never carries (NPC State's own rule: hidden notes and never-prompt settings do not leave the dossier): the text of each secret, and these fields.
+const HIDDEN_FIELDS = ['portraitPromptPositive', 'portraitPromptNegative', 'portraitPromptReplace', 'portraitSeed', 'meterSetup', 'castFrom'];
+const SECRET_KEYS = ['id', 'meter', 'at', 'when', 'title'];
 
-// A file path that is safe as an image URL: a path on the page's own server (never `//host`, a scheme, a backslash or a control character) or https.
+// A file path that is safe as an image URL, as NPC State's safeImageUrl judges one: a path on the page's own server (relative or from the root; never `//host`,
+// a bare ?query or #hash, a backslash or a control character) or https. Any other scheme is refused.
 function safeUrl(value) {
     const url = text(value);
-    if (!url || /[\u0000-\u001f\u007f\\]/.test(url)) return null;
-    if (url.startsWith('/')) return url.startsWith('//') ? null : url;
-    return /^https:\/\/[^/\s]+/i.test(url) ? url : null;
+    if (!url || /[\u0000-\u001f\u007f\\]/.test(url) || /^[?#]/.test(url) || url.startsWith('//')) return null;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(url)) return /^https:\/\/[^/\s]+/i.test(url) ? url : null;
+    return url;
 }
 
 function portraitOf(slice, id, record) {
@@ -70,12 +74,14 @@ export function peopleQueries(domain) {
             const people = slice(state);
             return people ? ids(people).map(id => rowOf(people, id)) : null;
         },
-        // { id, ...the stored dossier fields (portrait left out: it is `portrait` below), meters?, stages?, unlocked?, recent?, portrait } of the person { id | name } names, or null.
+        // { id, ...the stored dossier fields (the portrait file is `portrait` below; a secret keeps its rule but not its text; never-prompt settings are left out), meters?, stages?, unlocked?, recent?, portrait } of the person { id | name } names, or null.
         'people.dossier': (state, args) => {
             const people = slice(state);
             const id = people ? find(people, args) : null;
             if (!id) return null;
             const { portrait: _file, ...record } = clone(people.npcs[id]);
+            for (const field of HIDDEN_FIELDS) delete record[field];
+            if (Array.isArray(record.secrets)) record.secrets = record.secrets.filter(isObject).map(secret => Object.fromEntries(SECRET_KEYS.filter(key => secret[key] !== undefined).map(key => [key, secret[key]])));
             const bond = people.bonds?.npcs?.[id];
             const meters = metersOf(bond, record);
             return {

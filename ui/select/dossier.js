@@ -106,11 +106,11 @@ function profileOf(dossier) {
 
 /**
  * Dossier view-model from { dossier: people.dossier, meters?: the rows of recent changes (the dossier itself), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
- * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, moodTile?: NPC State's moodTile(npc), people?: people.list }; null when the dossier gave no answer.
+ * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, moodTile, people } = {}) {
+export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, moodTile, people, place } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
   const away = (isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
@@ -118,7 +118,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
   const presumed = dead && dossier.lifeStateCertainty === 'inferred';
   const gender = text(dossier.gender)?.toLocaleLowerCase();
   const genderUnknown = gender !== 'male' && gender !== 'female';
-  const isHere = dossier.present === true && !dead;
+  const isHere = !dead && (dossier.present === true || (Boolean(keyOf(place)) && keyOf(dossier.location) === keyOf(place)));   // (as isHere in ./people.js)
   return {
     id: text(dossier.id) ?? key,
     name: String(dossier.name ?? ''),

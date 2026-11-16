@@ -57,6 +57,24 @@ test('people.dossier finds by id, name or alias; joins the bonds; leaves the por
     assert.equal(host.sdk.query('people.dossier', { id: 'npc_ann' }).role, 'smith');
 });
 
+test('people.dossier never carries a secret\'s text or a never-prompt setting', async t => {
+    const host = await rig(t);
+    const dossier = host.sdk.query('people.dossier', { id: 'npc_ann' });
+    assert.deepEqual(dossier.secrets, [{ id: 's1', title: 'The Second Ledger' }]);
+    assert.equal(JSON.stringify(dossier).includes('hidden'), false);
+    for (const field of ['portraitPromptPositive', 'portraitSeed', 'meterSetup', 'castFrom']) assert.equal(field in dossier, false, field);
+});
+
+test('a portrait path is kept when it is a relative or root path or https, and refused otherwise', async t => {
+    const host = await rig(t);
+    const s = host.store.sourceAt(host.store.headIndex());
+    const paths = { npc_ann: 'user/files/a.png', npc_bea: 'javascript:alert(1)', npc_cy: '?x', npc_dee: 'https://img.example/d.png' };
+    const next = { ...view, npcs: Object.fromEntries(Object.entries(view.npcs).map(([id, record]) => [id, { ...record, portrait: undefined }])),
+        portraitAssets: Object.fromEntries(Object.entries(paths).map(([id, path]) => [id, { path, type: 'image/png', hash: 'h' }])) };
+    assert.equal((await host.sdk.command('people.write', { v: 1, source: { sid: s.sid, swipeKey: s.swipeKey }, view: JSON.parse(JSON.stringify(next)) })).ok, true);
+    assert.deepEqual(['Ann', 'Bea', 'Cy', 'Dee'].map(name => row(host, name).portrait), ['user/files/a.png', null, null, 'https://img.example/d.png']);
+});
+
 test('people.ties lists the edges between stored active people; people.secretOwners names whose dossier holds a secret', async t => {
     const host = await rig(t);
     assert.deepEqual(host.sdk.query('people.ties', {}), [{ aId: 'npc_ann', bId: 'npc_bea', aToB: 'sister', bToA: 'sister' }]);

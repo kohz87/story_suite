@@ -68,11 +68,13 @@ test('a rewind shows the earlier people with nothing stale; a Re-read of an edit
   await rig.host.st.editMessage(rig.host.store.headIndex(), 'Two, edited and longer.\n\nWith more words in it than before, to grow the reply.');
   const done = await rig.host.turn.reread(rig.host.store.headIndex());
   assert.equal(done.ok, true, done.message);
-  proveTab(rig, 'Re-read of the grown reply');
+  await rig.publish(state => { state.turn += 1; state.npcs.push(record('cal', { present: true })); state.npcs.push(record('dov')); });   // (the new capture's scan: the cast grows)
+  assert.deepEqual(names(proveTab(rig, 'Re-read of the grown reply').vm), ['ANN', 'CAL', 'DOV', 'MIRA', 'TOM']);
   await rig.host.st.editMessage(rig.host.store.headIndex(), 'Two.');
   const shrunk = await rig.host.turn.reread(rig.host.store.headIndex());
   assert.equal(shrunk.ok, true, shrunk.message);
-  proveTab(rig, 'Re-read of the shrunk reply');
+  await rig.publish(state => { state.turn += 1; state.npcs = state.npcs.filter(person => person.id !== idOf('cal') && person.id !== idOf('dov')); });   // (and shrinks)
+  assert.deepEqual(names(proveTab(rig, 'Re-read of the shrunk reply').vm), ['ANN', 'MIRA', 'TOM']);
 });
 
 test('the tab answers from the store while NPC State\'s memory disagrees: a person only the cache knows is not listed, a stored one the cache lost still is', async t => {
@@ -123,4 +125,46 @@ test('the harness-only fields have real data: Likes, a tie\'s person link and po
   await rig.host.st.deleteMessage(rig.host.ctx.chat.length - 1);
   assert.equal('likes' in mira().profile, false, 'rewound: the Likes of the deleted reply are gone');
   assert.equal(mira().ties.length, 0);
+});
+
+test('a rewind to a receipt (the head reply\'s last people block dropped) shows the earlier people at once', async t => {
+  const rig = await peopleRig(t);
+  await rig.reply('One.');
+  await rig.publish(addAnn);
+  const index = rig.host.store.headIndex();
+  const writes = rig.host.sdk.receipts().filter(entry => entry.index === index && entry.receipt.type === 'people.write');
+  assert.ok(writes.length >= 2, 'two people blocks on the head reply');
+  assert.deepEqual(names(proveTab(rig, 'before').vm), ['ANN', 'MIRA', 'TOM']);
+  const done = await rig.host.sdk.rewind({ index, beforeRev: writes.at(-1).receipt.rev });
+  assert.equal(done.ok, true, done.message);
+  assert.deepEqual(names(proveTab(rig, 'rewound').vm), ['MIRA', 'TOM'], 'Ann is gone at once, with no stale card');
+});
+
+test('a chat change shows the other chat\'s people (none for a new one) and the first chat\'s again when it is reopened', async t => {
+  const rig = await peopleRig(t);
+  await rig.reply('One.');
+  await rig.reply('Two.', addAnn);
+  await rig.host.ctx.saveChat();
+  const first = { chat: JSON.parse(JSON.stringify(rig.host.ctx.chat)), metadata: JSON.parse(JSON.stringify(rig.host.ctx.chatMetadata)) };
+  assert.deepEqual(names(proveTab(rig, 'first chat').vm), ['ANN', 'MIRA', 'TOM']);
+  rig.host.ctx.chatMetadata = {};
+  await rig.host.st.loadChat([], 'second');
+  await new Promise(resolve => setTimeout(resolve, 50));
+  const empty = portOf(rig).view('people');
+  assert.deepEqual(checkShape(empty, PEOPLE_SHAPE), []);
+  assert.deepEqual(names(empty), [], 'a new chat has nobody');
+  assert.deepEqual(portOf(rig).view('dossier'), {});
+  rig.host.ctx.chatMetadata = first.metadata;
+  await rig.host.st.loadChat(first.chat, 'first');
+  await new Promise(resolve => setTimeout(resolve, 50));
+  assert.deepEqual(names(proveTab(rig, 'first chat again').vm), ['ANN', 'MIRA', 'TOM']);
+});
+
+test('the scene\'s place makes a living person here even without the present flag', async t => {
+  const rig = await peopleRig(t);
+  await rig.reply('One.', state => { state.npcs.push(record('ann', { present: false, location: 'The Forge' })); });
+  assert.equal((await rig.host.sdk.command('scene.place', { name: 'the forge' })).ok, true);
+  const vm = portOf(rig).view('people');
+  assert.deepEqual(vm.here.map(card => card.name).sort(), ['ANN', 'MIRA', 'TOM']);
+  assert.deepEqual(portOf(rig).view('now').here.map(row => row.name).sort(), ['ANN', 'MIRA', 'TOM']);
 });

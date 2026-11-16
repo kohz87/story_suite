@@ -25,13 +25,17 @@ function tiesOf(edges) {
   return (Array.isArray(edges) ? edges : []).filter(isRecord).map(edge => ({ a: edge.aId, b: edge.bId, kind: tieKind(edge.aToB, edge.bToA) })).filter(tie => tie.kind);
 }
 
+/** Whether a living person is here (PEOPLE-PLAN P5): named in this reply (the record's `present` flag) or last placed at the scene's place (the same name, any case). */
+export const isHere = (row, place) => row.lifeState !== 'deceased'
+  && (row.present === true || (Boolean(keyOf(place)) && keyOf(row.location) === keyOf(place)));
+
 /**
  * People view-model from { list: people.list (the store's rows), keyPeople?: director.keyPeople.view (place and news of those away), party?: party.actors,
- * ties?: people.ties, filter? }; an empty view while the chat has no people yet (list null). here = present; elsewhere = not present, not dormant;
+ * ties?: people.ties, place?: the scene's place name, filter? }; an empty view while the chat has no people yet (list null). here = isHere; elsewhere = not present, not dormant;
  * dormant (36.12: 30 replies unseen; followed, present and party people never) leaves All and is its own list; the dead are listed with their card.
  * Gaps: `said`, and the death's when and where (the store holds neither).
  */
-export function selectPeople({ list, keyPeople, party, ties, filter } = {}) {
+export function selectPeople({ list, keyPeople, party, ties, place, filter } = {}) {
   const away = new Map((isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).filter(isRecord).map(row => [keyOf(row.name), row]));
   const partyKeys = new Set((Array.isArray(party) ? party : []).filter(isRecord).map(row => keyOf(row.name)));
   const here = [];
@@ -44,7 +48,7 @@ export function selectPeople({ list, keyPeople, party, ties, filter } = {}) {
       deceased.push({ ...card, death: { how: row.lifeStateReason ?? '', when: '', where: null, presumed: row.lifeStateCertainty === 'inferred' } });
       continue;
     }
-    if (row.present === true) { here.push(card); continue; }
+    if (isHere(row, place)) { here.push(card); continue; }
     const kp = away.get(keyOf(row.name));
     const gone = { ...card, lastPlace: cut(kp?.place ?? row.location ?? null, 80), lastSeen: kp?.newsAgo ?? null, said: null };
     (row.dormant === true && !card.inParty ? dormant : elsewhere).push(gone);

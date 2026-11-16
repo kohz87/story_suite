@@ -45,6 +45,15 @@ describe('selectPeople', () => {
     assert.equal(temiwa.role, 'Guild chaplain at Bluewatch');
   });
 
+  it('a living person last placed at the scene\'s place is here too, in any case; the dead and others are not', () => {
+    const list = [row('npc_a', 'A', { location: 'The Forge' }), row('npc_b', 'B', { location: 'the quay' }), row('npc_c', 'C', { location: 'the forge', lifeState: 'deceased' })];
+    const vm = selectPeople({ list, place: 'the forge' });
+    assert.deepEqual(vm.here.map(c => c.name), ['A']);
+    assert.deepEqual(vm.elsewhere.map(c => c.name), ['B']);
+    assert.deepEqual(vm.deceased.map(c => c.name), ['C']);
+    assert.deepEqual(selectPeople({ list }).here, [], 'no place: only the present are here');
+  });
+
   it('followed comes from the row, not from the key people', () => {
     const vm = selectPeople({ ...ARGS, keyPeople: { people: [{ name: 'Torka', place: 'x', newsAgo: 'y' }] } });
     assert.equal(vm.here.find(c => c.name === 'Torka').followed, false);
