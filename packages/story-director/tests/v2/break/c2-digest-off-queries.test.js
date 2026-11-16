@@ -4,7 +4,7 @@
 // feature off `chronicle.days` / `chronicle.day` / `chronicle.dayBoard` / `chronicle.dayFacts` still
 // answer (the kept digests, the Days board, a full receipt walk) to any module or screen that asks.
 // Checked on the merged module definition, the way tests/v2/chronicle/digest.test.js checks the command
-// and the screen (the vendored Story Block in tests/vendor predates features, so the registry's
+// and the screen (the registry's
 // null-answering cannot be driven from here).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 // History replay through the production handler and scanner of the synthetic SillyTavern host (HR3): the controller of
 // src/storysuite-participant/history-replay.js over the runtime's replay boundaries, with a deterministic fake model.
 // Each scenario runs in its own process on a fresh host built from the runtime-smoke setup.
-// Story Block's `restored` and `asOf` (batch/b-p1) are not in the vendored copy: `restored` is driven on the participant directly and the
+// Live Story Block has `restored` and `asOf`; `restored` is driven on the participant directly and the
 // as-of reads are proven on the adapter's `at` and the scoped adapter, not against a host.
 
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
