@@ -1,5 +1,5 @@
-// The note's walk starts from the clock and scene the receipts up to the cursor say (an edit that moved the clock or the
-// scene is followed), from the note's stored ones where those receipts say nothing; and a `gap.through` naming a reply that
+// The note's walk starts from the clock and scene the receipts up to the cursor say (an edit that moved the scene is followed; an edit's clock change
+// is not — see the known limit), from the note's stored ones where those receipts say nothing; and a `gap.through` naming a reply that
 // was deleted falls back to the revision `gap.rev`.
 
 import { test } from 'node:test';

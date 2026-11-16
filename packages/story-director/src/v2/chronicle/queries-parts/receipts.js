@@ -53,7 +53,7 @@ export function dayEventsQuery(_state, { day = null } = {}, tools) {
 // The receipts after the note `through` (a receipt ID), in chat order, with the clock and scene they start from; else those
 // after revision `after`. A note that a Re-read kept keeps its ID and sits after that reply's new receipts, so reading from it
 // never reads again what it kept nor files a reply's receipts under a later note, whatever revisions the Re-read gave. The
-// start is worked out from the receipts up to and including that one (an edit that moved the clock or the scene is followed),
+// start is worked out from the receipts up to and including that one (an edit that moved the scene is followed; an edit's clock change is not — see the known limit),
 // and is the note's stored `minutes` and `present` where those receipts say nothing (data trimmed away). `rev` is for an older
 // state (no `through`) or a note whose receipt is gone.
 function since(list, after, through, minutes, present) {

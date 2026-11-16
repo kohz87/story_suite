@@ -18,24 +18,30 @@ const written = host => Object.fromEntries(Object.entries(chronicleOf(host).days
 const R3 = ['~ place Frostgate', '~ quest Q | done'];
 const LATER = [['~ place Redmoor', '~ quest Z | step: x'], ['~ place Ashford', '~ quest Z | done']];
 
-const edit = async extra => {
+const edit = async (extra, r3 = R3, later = LATER, unedited = false) => {
     const edited = [...STORY[2], ...extra];
-    const live = await tell([...STORY.slice(0, 3), R3]);
+    const live = await tell([...STORY.slice(0, 3), r3]);
     assert.equal((await editAndReread(live, 'R2', edited)).ok, true);
-    for (const [i, lines] of LATER.entries()) await live.send('On.', said(`R${4 + i}.`, lines));
-    const fresh = await tell([...STORY.slice(0, 2), edited, R3, ...LATER]);
-    return { live, fresh };
+    for (const [i, lines] of later.entries()) await live.send('On.', said(`R${4 + i}.`, lines));
+    const fresh = await tell([...STORY.slice(0, 2), edited, r3, ...later]);
+    return { live, fresh, ...(unedited ? { unedited: await tell([...STORY.slice(0, 3), r3, ...later]) } : {}) };
 };
 const dayOf = (host, place) => Object.values(chronicleOf(host).dayFacts ?? {}).find(entry => entry.places.includes(place))?.day - FIRST;
 
-test("an edited Re-read of the cursor's reply that adds a scene change: the next replies are filed as in a fresh telling", async t => {
+// The later reply moves no place and leaves Mira, whom the edit put in the scene: its entry says "Mira leaves." only if the
+// walk started from the edited scene. A fresh telling of the unedited chat has no Mira to leave, so it differs.
+test("an edited Re-read of the cursor's reply that adds a scene change: the next reply is filed as in a fresh telling", async t => {
     quiet(t);
-    const { live, fresh } = await edit(['+ present Mira']);
-    const tail = list => list.filter(entry => entry.places.includes('Redmoor'));
-    assert.equal(tail(entries(live)).length, 1);
-    assert.deepEqual(tail(entries(live)), tail(entries(fresh)));
+    const { live, fresh, unedited } = await edit(['+ present Mira'], ['~ quest Q | done'], [['~ quest Z — x | giver: B', '- present Mira'], ['~ place Redmoor']], true);
+    // The later reply's entry: where a fresh telling of the edited chat has "Mira leaves." (the same place in each chat's list).
+    const at = entries(fresh).findIndex(entry => JSON.stringify(entry).includes('Mira leaves'));
+    assert.ok(at >= 0);
+    const next = host => entries(host)[at];
+    assert.deepEqual(next(live), next(fresh));
+    assert.notDeepEqual(next(live), next(unedited));
+    assert.doesNotMatch(JSON.stringify(next(unedited)), /Mira leaves/);
     assert.equal(reloadSame(live), true);
-    live.close(); fresh.close();
+    live.close(); fresh.close(); unedited.close();
 });
 
 // KNOWN LIMIT (option A, planned follow-up): the cursor does not follow a clock change an edit adds. R3 was told before the
