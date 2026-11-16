@@ -3,8 +3,8 @@
 
 import { BATTLE_MARKER } from '../names.js';
 import { fightLength } from '../board/note-parts/fight-length.js';
-import { noteLine, stanceLine } from './note-lines.js';
-import { hpBefores, lineOf } from './record.js';
+import { nameOf, noteLine, stanceLine } from './note-lines.js';
+import { hpBefores } from './record.js';
 
 const END = { won: 'The fight is won. Code gives the party its XP.', lost: 'The fight is lost.', fled: 'The party fled.', open: 'The fight is still open.' };
 const AFTER = {
@@ -23,12 +23,18 @@ function lengthOf(envelope) {
     });
 }
 
+/** The order line, the real order said once: the side that acts first, then the other (each side in its order). */
+function orderOf([, party = [], foes = [], first]) {
+    const side = (label, names) => `${label} ${(names ?? []).map(nameOf).join(', ')}`;
+    return first === 'party' ? `Order: ${side('the party', party)}; then ${side('the foes', foes)}` : `Order: ${side('the foes', foes)}; then ${side('the party', party)}`;
+}
+
 /** The exchanges of the record as `{ n, parts }`, the parts being the told rows in order (stance changes first as the engine writes them); `opening` is the order line of a first segment. */
 function exchangesOf(envelope) {
     const lines = envelope.lines ?? [], before = hpBefores(lines, envelope.moves ?? []), stances = new Map(), out = [];
     let opening = '';
     lines.forEach((line, at) => {
-        if (line[0] === 'order') opening = lineOf(line).replace(/\.$/u, '');
+        if (line[0] === 'order') opening = orderOf(line);
         else if (line[0] === 'exchange') out.push({ n: line[1], parts: [] });
         else if (out.length) {
             const text = line[0] === 'stance' ? stanceLine(line, stances) : noteLine(line, before[at], stances);

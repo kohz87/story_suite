@@ -56,7 +56,7 @@ test('every HP number the note tells is a move in the record, in order; a miss a
         const moves = envelope.moves.filter(move => move.bar === 'hp');
         assert.equal(told.length, moves.length, 'one HP number per HP move');
         told.forEach((match, at) => { assert.equal(Number(match[3]), moves[at].to); if (match[2] !== undefined) assert.equal(Number(match[2]), moves[at].from); });
-        for (const part of split(note)) if (/: (miss|evaded)/u.test(part)) assert.doesNotMatch(part, /HP/u, `no bar line for: ${part}`);
+        for (const part of split(note)) if (/: (miss|\w[\w ]* evades)/u.test(part)) assert.doesNotMatch(part, /HP/u, `no bar line for: ${part}`);
         assert.doesNotMatch(note, /at a cost|glances|\bcost\b/u, 'no old stage words');
     }
 });
@@ -103,4 +103,26 @@ test('an edited Re-read: a grown or shrunk fight is told as exactly the exchange
     const short = played(quiet(), 'a', 2), long = played(quiet(), 'a', 5);
     assert.ok(exchanges(settledNoteV1(long)).length > exchanges(settledNoteV1(short)).length);
     assert.deepEqual(exchanges(settledNoteV1(long)).slice(0, 2), exchanges(settledNoteV1(short)).slice(0, 2), 'the first exchanges read the same when the fight grows');
+});
+
+test('names are one flat line cut to 40 code points, in every row and in the order line', () => {
+    const long = '🐺'.repeat(50), cut = '🐺'.repeat(40), odd = 'Kira\n  Rose';
+    const rename = envelope => JSON.parse(JSON.stringify(envelope).replaceAll('"Kira"', JSON.stringify(odd)).replaceAll('"Wolf"', JSON.stringify(long)));
+    for (const envelope of [rename(win()), rename(fled())]) {
+        const note = settledNoteV1(envelope);
+        assert.ok(note.includes(cut + ' attacks Kira Rose: '), 'foe row: flattened hero, cut foe');
+        assert.ok(note.includes('Kira Rose attacks ' + cut + ': '), 'hero row');
+        assert.match(note, /Order: the (foes|party) [^|]*Kira Rose/u);
+        assert.doesNotMatch(note.replaceAll(' | ', ''), /\n|  |🐺{41}/u);
+    }
+    assert.match(settledNoteV1(rename(fled())), /Kira Rose flees from 🐺{40} and gets away/u);
+});
+
+test('the wording the narrator reads: the order said once, who fled and who did not, who evaded, no system tags', () => {
+    const note = settledNoteV1(fled()) + settledNoteV1(open()) + settledNoteV1(loss());
+    assert.match(note, /Order: the (foes|party) .+; then the (party|foes) /u);
+    assert.doesNotMatch(note, /act first|\(skill\)|\(tempo\)/u);
+    assert.match(settledNoteV1(fled()), /Cy tries to flee from Wolf and fails \| Kira flees from Wolf and gets away; the whole party escapes/u);
+    assert.match(note, /: \w[\w ]* evades/u);
+    assert.match(note, /acts again/u);
 });

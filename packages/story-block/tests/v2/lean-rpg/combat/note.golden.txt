@@ -4,22 +4,22 @@ Tell the settled fight results in order; do not reroll them.
 Write [battle] on its own line where the fight is told.
 Code has already moved the bars for these results; never set those yourself.
 Tell the fight in at most 250 words, in up to three short paragraphs: the opening, the turning point, the finish; the battle log keeps the blow-by-blow.
-Order: Cy, Kira before Wolf; the party act first.
+Order: the party Cy, Kira; then the foes Wolf.
 Exchange 1: Cy takes the Defence stance
 Kira takes the Defence stance
-Cy attacks Wolf (skill): hit; Wolf HP 30 → 20
-Kira attacks Wolf (skill): miss
+Cy attacks Wolf: hit; Wolf HP 30 → 20
+Kira attacks Wolf: miss
 Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 19 → 16.
-Exchange 2: Cy attacks Wolf (skill): miss
-Kira attacks Wolf (skill): hit; Wolf HP 20 → 7
-Kira acts again (tempo)
-Kira attacks Wolf (skill): miss (natural 1)
+Exchange 2: Cy attacks Wolf: miss
+Kira attacks Wolf: hit; Wolf HP 20 → 7
+Kira acts again
+Kira attacks Wolf: miss (natural 1)
 Wolf attacks Kira: hit, decisive; Kira's Defence stance absorbs 35%; Kira HP 19 → 14.
 Exchange 3: Cy heals Kira: Kira HP 14 → 19
-Kira attacks Wolf (skill): miss
-Wolf attacks Cy: evaded.
-Exchange 4: Cy attacks Wolf (skill): miss
-Kira attacks Wolf (skill): hit; Wolf HP 7 → 0 (down).
+Kira attacks Wolf: miss
+Wolf attacks Cy: Cy evades.
+Exchange 4: Cy attacks Wolf: miss
+Kira attacks Wolf: hit; Wolf HP 7 → 0 (down).
 The fight is won. Code gives the party its XP.
 Then follow the reader’s requested aftermath as the outcome permits.
 
@@ -29,11 +29,11 @@ Tell the settled fight results in order; do not reroll them.
 Write [battle] on its own line where the fight is told.
 Code has already moved the bars for these results; never set those yourself.
 Tell the fight in at most 250 words, in up to three short paragraphs: the opening, the turning point, the finish; the battle log keeps the blow-by-blow.
-Order: Ana before Wolf 2, Wolf 3, Wolf 1; the foes act first.
+Order: the foes Wolf 2, Wolf 3, Wolf 1; then the party Ana.
 Exchange 1: Ana takes the Defence stance
 Wolf 2 attacks Ana: hit; Ana's Defence stance absorbs 19%; Ana HP 8 → 1
-Wolf 3 attacks Ana: evaded
-Ana attacks Wolf 2 (skill): hit; Wolf 2 HP 40 → 30.
+Wolf 3 attacks Ana: Ana evades
+Ana attacks Wolf 2: hit; Wolf 2 HP 40 → 30.
 Exchange 2: Wolf 2 attacks Ana: hit, decisive; Ana's Defence stance absorbs 19%; Ana HP 1 → 0 (down).
 The fight is lost.
 Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.
@@ -44,19 +44,19 @@ Tell the settled fight results in order; do not reroll them.
 Write [battle] on its own line where the fight is told.
 Code has already moved the bars for these results; never set those yourself.
 Tell the fight in at most 250 words, in up to three short paragraphs: the opening, the turning point, the finish; the battle log keeps the blow-by-blow.
-Order: Cy, Kira before Wolf; the party act first.
+Order: the party Cy, Kira; then the foes Wolf.
 Exchange 1: Cy takes the Defence stance
 Kira takes the Defence stance
-Cy attacks Wolf (skill): hit; Wolf HP 30 → 20
-Kira attacks Wolf (skill): miss
+Cy attacks Wolf: hit; Wolf HP 30 → 20
+Kira attacks Wolf: miss
 Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 19 → 16.
-Exchange 2: Cy attacks Wolf (skill): miss
-Kira attacks Wolf (skill): hit; Wolf HP 20 → 7
-Kira acts again (tempo)
-Kira attacks Wolf (skill): miss (natural 1)
+Exchange 2: Cy attacks Wolf: miss
+Kira attacks Wolf: hit; Wolf HP 20 → 7
+Kira acts again
+Kira attacks Wolf: miss (natural 1)
 Wolf attacks Kira: hit, decisive; Kira's Defence stance absorbs 35%; Kira HP 19 → 14.
-Exchange 3: Cy's flee from Wolf fails
-Kira flees from Wolf.
+Exchange 3: Cy tries to flee from Wolf and fails
+Kira flees from Wolf and gets away; the whole party escapes.
 The party fled.
 Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.
 
@@ -66,50 +66,50 @@ Tell the settled fight results in order; do not reroll them.
 Write [battle] on its own line where the fight is told.
 Code has already moved the bars for these results; never set those yourself.
 Tell the fight in about 100 words: how it opened, the deciding moment, how it ended; the battle log keeps the blow-by-blow.
-Order: Rin, Kira, Bo before Rat 2, Rat 3, Rat 1; the party act first.
+Order: the party Rin, Kira, Bo; then the foes Rat 2, Rat 3, Rat 1.
 Exchange 1: Rin takes the Evasion stance
 Kira takes the Defence stance
 Rin attacks Rat 2 (area): hit; Rat 2 HP 30 → 23
 Rin attacks Rat 3 (area): miss
 Rin attacks Rat 1 (area): hit; Rat 1 HP 30 → 23
-Rin acts again (tempo)
+Rin acts again
 Rin attacks Rat 2 (area): miss
 Rin attacks Rat 3 (area): hit; Rat 3 HP 30 → 23
 Rin attacks Rat 1 (area): miss
-Rin acts again (tempo)
+Rin acts again
 Rin attacks Rat 2 (area): hit; Rat 2 HP 23 → 16
 Rin attacks Rat 3 (area): hit; Rat 3 HP 23 → 16
 Rin attacks Rat 1 (area): miss
-Kira attacks Rat 2 (skill): miss
+Kira attacks Rat 2: miss
 Bo attacks Rat 2: hit; Rat 2 HP 16 → 12
-Bo acts again (tempo)
+Bo acts again
 Bo attacks Rat 2: miss
-Rat 2 attacks Rin: evaded
-Rat 3 attacks Kira: evaded
-Rat 1 attacks Bo: evaded.
+Rat 2 attacks Rin: Rin evades
+Rat 3 attacks Kira: Kira evades
+Rat 1 attacks Bo: Bo evades.
 Exchange 2: Kira drops the Defence stance
 Rin attacks Rat 2 (area): miss
 Rin attacks Rat 3 (area): miss
 Rin attacks Rat 1 (area): miss (natural 1)
-Kira attacks Rat 2 (skill): hit; Rat 2 HP 12 → 5
-Kira acts again (tempo)
-Kira attacks Rat 2 (skill): miss (natural 1)
+Kira attacks Rat 2: hit; Rat 2 HP 12 → 5
+Kira acts again
+Kira attacks Rat 2: miss (natural 1)
 Bo attacks Rat 2: hit; Rat 2 HP 5 → 1
 Rat 2 attacks Rin: hit; 12% absorbed; Rin HP 15 → 10
 Rat 3 attacks Kira: hit; 20% absorbed; Kira HP 19 → 15
-Rat 1 attacks Bo: evaded.
+Rat 1 attacks Bo: Bo evades.
 Exchange 3: Kira takes the Defence stance
 Rin attacks Rat 2 (area): miss
 Rin attacks Rat 3 (area): hit; Rat 3 HP 16 → 9
 Rin attacks Rat 1 (area): miss
-Rin acts again (tempo)
+Rin acts again
 Rin attacks Rat 2 (area): miss
 Rin attacks Rat 3 (area): miss (natural 1)
 Rin attacks Rat 1 (area): miss
 Kira heals Rin: Rin HP 10 → 15
 Bo attacks Rat 2: miss
-Rat 2 attacks Rin: evaded
-Rat 3 attacks Kira: evaded
-Rat 1 attacks Bo: evaded.
+Rat 2 attacks Rin: Rin evades
+Rat 3 attacks Kira: Kira evades
+Rat 1 attacks Bo: Bo evades.
 The fight is still open.
 The fight is still in progress; do not tell a post-fight aftermath yet.
