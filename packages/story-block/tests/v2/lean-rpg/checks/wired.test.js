@@ -159,25 +159,25 @@ test('a Re-read keeps the dice and the results; a swipe is a new reply with new 
 
 test('the outcome is the die plus the stat part, against the difficulty; a bad line is refused with one note and no roll', { skip }, async t => {
     const host = await world(t);
-    await host.send('I try three things.', after(host, dice => ['Story.', '<Changes>',
-        `? roll Astra | cha | easy | ${dice[0]}`, `? roll Astra | juggling | easy | ${dice[1]}`, `? roll Astra | cha | hard | ${dice[1]}`, `? roll Astra | cha | normal | ${dice[0]}`, '</Changes>'].join('\n')));
+    await host.send('I try three things.', after(host, () => ['Story.', '<Changes>',
+        '? roll Astra | cha | easy', '? roll Astra | juggling | easy', '? roll Astra | cha | hard', '? roll Astra | cha | normal', '</Changes>'].join('\n')));
     const results = checksOf(records(host).receipts), dice = diceOf(host);
-    assert.equal(results.length, 2, 'the unknown skill is refused; the second use of the first die is refused too');
-    assert.equal(results[0].die, dice[0]);
+    assert.equal(results.length, 3, 'the unknown skill is refused; the other three take the three dice in order');
+    assert.deepEqual(results.map(result => result.die), dice);
     assert.equal(results[0].total, dice[0] + results[0].bonus);
     const total = dice[0] + results[0].bonus;   // (a natural 20 always succeeds and a natural 1 always fails: outcomeOf)
     assert.equal(results[0].outcome, dice[0] === 20 || (dice[0] !== 1 && total >= 10) ? 'success' : (dice[0] !== 1 && total >= 8 ? 'cost' : 'fail'));
-    assert.equal(results[1].die, dice[1], 'the refused line used no die: the next line takes the second');
     assert.ok(messages(host).some(text => text.includes('was not used: unknown skill or stat')), 'one note for the unknown skill');
-    assert.ok(messages(host).some(text => text.includes('die reused') || text.includes('out of order')), 'and one for the die used twice');
 });
 
-test('a die that was not offered, an unknown skill and an unknown difficulty are refused', { skip }, async t => {
+test('a line that writes a die gets the next die in order, and says so; an unknown skill and an unknown difficulty are refused', { skip }, async t => {
     const host = await world(t);
-    await host.send('I try.', after(host, dice => ['Story.', '<Changes>', `? roll Astra | cha | normal | ${dice.includes(7) ? 8 : 7}`, `? roll Astra | juggling | normal | ${dice[0]}`, `? roll Astra | cha | brutal | ${dice[0]}`, '</Changes>'].join('\n')));
-    assert.equal(checksOf(records(host).receipts).length, 0);
+    await host.send('I try.', after(host, dice => ['Story.', '<Changes>', `? roll Astra | cha | normal | ${dice.includes(7) ? 8 : 7}`, '? roll Astra | juggling | normal', '? roll Astra | cha | brutal', '</Changes>'].join('\n')));
+    const [result] = checksOf(records(host).receipts), dice = diceOf(host);
+    assert.equal(checksOf(records(host).receipts).length, 1);
+    assert.equal(result.die, dice[0]);
     const text = messages(host).join(' ');
-    assert.ok(text.includes('die not offered') && text.includes('unknown skill or stat') && text.includes('unknown difficulty'));
+    assert.ok(text.includes(`was worked with ${dice[0]}, the next die in order (the line wrote ${dice.includes(7) ? 8 : 7})`) && text.includes('unknown skill or stat') && text.includes('unknown difficulty'));
 });
 
 test('a utility skill check gives that skill 3 practice and the reader no XP', { skip }, async t => {
@@ -321,12 +321,12 @@ test('a line refused for a skill the sheet lacked is planned again when an earli
     assert.equal(JSON.stringify(host.head()), live, 'the newly paid practice survives a rebuild');
 });
 
-test('replanning moves practice when a newly valid check consumes the next die', { skip }, async t => {
+test('replanning moves practice when a newly valid check takes a die of the reply', { skip }, async t => {
     const host = await world(t);
     await host.send('Learn more.', 'Not yet.');
     const earlier = host.ctx.chat.length - 1;
     const oldSlot = slotOf(host, 'Obscure'), before = sheet(host)[`practice${oldSlot}`];
-    await host.send('Try both.', after(host, dice => `Story.\n<Changes>\n? roll Astra | Shadowcraft | normal | ${dice[0]}\n? roll Astra | Obscure | normal | ${dice[0]}\n</Changes>`));
+    await host.send('Try both.', after(host, () => 'Story.\n<Changes>\n? roll Astra | Shadowcraft | normal\n? roll Astra | Obscure | normal\n</Changes>'));
     const later = host.ctx.chat.length - 1;
     assert.equal(sheet(host)[`practice${oldSlot}`], before + PRACTICE.perUse);
     assert.equal(checksOf(records(host).receipts)[0].what, 'Obscure');
@@ -336,7 +336,8 @@ test('replanning moves practice when a newly valid check consumes the next die',
     assert.ok(shadowSlot, 'the earlier reply now teaches the second skill');
     assert.equal(checksOf(host.ctx.chat[later].extra.storySuite.receipts)[0].what, 'Shadowcraft');
     assert.equal(sheet(host)[`practice${shadowSlot}`], PRACTICE.perUse, 'the newly valid check earns practice');
-    assert.equal(sheet(host)[`practice${oldSlot}`], before, 'the now-refused check no longer earns practice');
+    assert.equal(checksOf(host.ctx.chat[later].extra.storySuite.receipts).map(result => result.what).join(), 'Shadowcraft,Obscure', 'both checks now stand, each with its own die');
+    assert.equal(sheet(host)[`practice${oldSlot}`], before + PRACTICE.perUse, 'the check that stood before still earns its practice');
     const live = JSON.stringify(host.head());
     host.store.rebuild();
     assert.equal(JSON.stringify(host.head()), live);

@@ -17,3 +17,20 @@ test('anything not made only of known coins is refused, never guessed and never 
         assert.match(parseAmount(text, COPPER).error, /more than one number/, text);
     }
 });
+
+test('a coin line may name several coins: "4 silver 5 copper" is 45, "1 gold 2 silver" is 120, "+ coin 35" is 35', () => {
+    assert.deepEqual(parseAmount('4 silver 5 copper', COPPER), { amount: 45 });
+    assert.deepEqual(parseAmount('1 gold 2 silver', COPPER), { amount: 120 });
+    assert.deepEqual(parseAmount('35', COPPER), { amount: 35 });
+});
+
+test('a decimal is refused visibly, alone or among coins', () => {
+    for (const text of ['2.5 silver', '4 silver 2.5 copper', '1.5']) assert.ok(parseAmount(text, COPPER).error, text);
+});
+
+test('custom coin names and ratios add up by their own worth', () => {
+    const custom = { name: 'mark', plural: 'marks', coins: [{ name: 'mark', plural: 'marks', value: 1 }, { name: 'shilling', plural: 'shillings', value: 12 }, { name: 'crown', plural: 'crowns', value: 240 }] };
+    assert.deepEqual(parseAmount('1 crown 2 shillings 5 marks', custom), { amount: 269 });
+    assert.deepEqual(parseAmount('3 shillings and 6 marks', custom), { amount: 42 });
+    assert.ok(parseAmount('3 silver 6 marks', custom).error, 'a coin this chat does not have is refused');
+});
