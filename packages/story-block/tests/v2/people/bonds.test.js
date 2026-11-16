@@ -9,9 +9,19 @@ import { carriers, rebuildAt } from '../qa/helpers/oracle.js';
 
 const plain = value => (value === undefined ? null : JSON.parse(JSON.stringify(value)));
 // A module whose own command moves a meter by calling people.bonds (as NPC State's change lines do).
+function moveBond(ctx, id, by) {
+    const bonds = plain(ctx.read('people')?.bonds) ?? { npcs: {}, problems: [] };
+    const record = bonds.npcs[id] ?? { name: id, meters: { trust: 0 } };
+    record.meters.trust += by;
+    bonds.npcs[id] = record;
+    ctx.call('people.bonds', { bonds });
+    return { summary: `${id} ${by}` };
+}
 const meters = () => ({
     id: 'qa-meters',
     name: 'QA meters',
+    // A change line that moves a bond (as NPC State's `~ npc` lines do): `~ bond npc_ann | by: 3`.
+    capture: { kinds: { bond: { grammar: '~ bond npc_id | by: N' } }, apply: (ctx, line) => moveBond(ctx, line.name, Number(line.labels?.by ?? 1)) },
     commands: {
         'qa.move': {
             handler(ctx, payload) {
@@ -118,4 +128,57 @@ test('known limit (deferred domain): deleting the reply that made the people sli
     await host.st.deleteMessage(carriers(host.ctx.chat)[1]);
     assert.equal(host.head().domains.people, undefined, 'the store skips writes whose parent is gone; the slice made by the deleted reply is gone with them');
     assertReplay(host, 'after the delete');
+});
+
+test('rewind: the branch drops a reply\'s later bonds, scan and edit writes from beforeRev on; replay == live on the branch', async t => {
+    const host = await rig(t);
+    await host.send('Go.', 'The road.\n\n<Changes>\n~ bond npc_ann | by: 1\n</Changes>');
+    assert.equal(trust(host, 'npc_ann'), 1, 'the line moved her');
+    await write(host, view(), { lastSid: sourceOf(host).sid, swipeKey: sourceOf(host).swipeKey, since: 0 });
+    const index = host.store.headIndex();
+    const later = await move(host, 'npc_ann', 5);
+    assert.equal((await host.sdk.command('people.edit', { id: 'npc_ann', fields: { role: 'smith' } })).ok, true);
+    await host.send('On.', 'Later.');
+    const done = await host.sdk.rewind({ index, beforeRev: later.receipt.rev });
+    assert.equal(done.ok, true, done.message);
+    assert.equal(trust(host, 'npc_ann'), 1, 'the later move is gone');
+    assert.equal(host.head().domains.people.npcs.npc_ann.role, undefined, 'and the later edit');
+    assert.equal(host.head().domains.people.scan.lastSid, sourceOf(host).sid, 'the marker written before stays');
+    assertReplay(host, 'rewind');
+});
+
+test('edited Re-read: the reply\'s new line moves the new person, the kept writes stay, replay == live', async t => {
+    const host = await rig(t);
+    await host.send('Go.', 'The road.');
+    await write(host, view());
+    await host.send('On.', 'Ann waves.\n\n<Changes>\n~ bond npc_ann | by: 3\n</Changes>');
+    const at = host.store.headIndex();
+    await write(host, view({ turn: 2 }), { lastSid: sourceOf(host).sid, swipeKey: sourceOf(host).swipeKey, since: 0 });
+    assert.equal((await host.sdk.command('people.follow', { id: 'npc_ann', on: true })).ok, true);
+    host.ctx.chat[at].mes = host.ctx.chat[at].mes.replace('~ bond npc_ann | by: 3', '~ bond npc_bo | by: 4');
+    const done = await host.turn.reread(at);
+    assert.equal(done.ok, true, done.message);
+    assert.equal(trust(host, 'npc_ann'), undefined, 'the old line\'s move is gone');
+    assert.equal(trust(host, 'npc_bo'), 4, 'the edited line moved Bo');
+    assert.equal(host.head().domains.people.npcs.npc_ann.followed, true, 'the reader\'s edit is kept');
+    assert.equal(host.head().domains.people.turn, 2, 'the kept people write stays');
+    assert.equal(host.head().domains.people.scan.lastSid, sourceOf(host).sid, 'and its marker');
+    assertReplay(host, 'edited Re-read');
+});
+
+test('a kept meter write that no longer applies after a middle delete is skipped by a Re-read, as other people-only blocks are (the npc slice refused there before P4)', async t => {
+    const host = await rig(t);
+    await host.send('Go.', 'The road.');
+    await move(host, 'npc_ann', 1);
+    await host.send('On.', 'Bo comes.');
+    await move(host, 'npc_bo', 2);
+    await host.send('Again.', 'Bo stays.');
+    await move(host, 'npc_bo', 5);
+    const last = host.store.headIndex();
+    await host.st.deleteMessage(carriers(host.ctx.chat)[2]);   // the reply that made Bo's entry
+    assert.equal(trust(host, 'npc_bo'), undefined, 'the later move on Bo has no parent and is skipped');
+    const done = await host.turn.reread(last - 1);
+    assert.equal(done.ok, true, `the Re-read is not refused: ${done.message}`);
+    assert.equal(trust(host, 'npc_ann'), 1);
+    assertReplay(host, 'Re-read after a middle delete');
 });
