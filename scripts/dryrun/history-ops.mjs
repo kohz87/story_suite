@@ -3,6 +3,7 @@
 // hash, the queries and a Re-read, the same fields the per-reply recording holds.
 import { createHash } from 'node:crypto';
 import { pageSuiteHost } from './suite-host.mjs';
+import { suiteAt } from './suite-at.mjs';
 import { discoverQueries, runQueriesAt } from './query-steps.mjs';
 import { loadFull, rereadAt } from './reread-step.mjs';
 import { sha256, stableStringify } from './state-hash.mjs';
@@ -62,7 +63,7 @@ export async function runHistoryOps({ suite, chat, chatId }) {
   Date.now = () => FIXED_NOW;
   let host = null;
   try {
-    const [{ prng }, { replyText }] = await Promise.all([suite.at('tests/v2/qa/helpers/seeded.js'), suite.at('tests/v2/qa/helpers/state-fuzz-gen.js')]);
+    const [{ prng }, { replyText }] = await Promise.all([suiteAt(suite, 'tests/v2/qa/helpers/seeded.js'), suiteAt(suite, 'tests/v2/qa/helpers/state-fuzz-gen.js')]);
     const seed = seedOf(chatId);
     const r = prng(seed);
     host = await (suite.pageHost ?? pageSuiteHost)(suite, { seed });

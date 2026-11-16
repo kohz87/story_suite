@@ -3,6 +3,7 @@
 // suiteHost hands Delta an empty stub, so its timeline part sees "no open chat" and holds every Re-read and prompt back.
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { suiteAt } from './suite-at.mjs';
 
 function deltaRuntime(chatKeyOf) {
   const live = { state: { npcs: [] } };
@@ -45,7 +46,7 @@ function withSidecars(participant) {
 }
 
 export async function pageSuiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [] } = {}) {
-  const restoreCrypto = (await loaded.at('tests/v2/qa/helpers/seeded.js')).seedCrypto(seed);
+  const restoreCrypto = (await suiteAt(loaded, 'tests/v2/qa/helpers/seeded.js')).seedCrypto(seed);
   const vaultUrl = pathToFileURL(path.join(loaded.roots.nsd, 'src/storysuite-participant/vault.js')).href;
   const { memoryVault } = await import(vaultUrl);
   let sdk = null;
