@@ -18,13 +18,10 @@ function serve() {
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream' });
     res.end(fs.readFileSync(file));
   });
+  // Port 0: the system picks a free port, so parallel runs never load another run's server.
   return new Promise((resolve, reject) => {
-    const tryPort = port => {
-      if (port > 8899) { reject(new Error('no free port in 8800-8899')); return; }
-      server.once('error', () => tryPort(port + 1));
-      server.listen(port, '127.0.0.1', () => { server.removeAllListeners('error'); resolve({ server, port }); });
-    };
-    tryPort(8800);
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port }));
   });
 }
 

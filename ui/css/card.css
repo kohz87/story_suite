@@ -11,7 +11,8 @@
 .ctop .meta .tm,.ctop .meta .pl2{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .ctop .meta svg{width:15px;height:15px;color:var(--su-muted)}
 .ctop .meta::after{content:'›';align-self:center;font-weight:800;color:var(--su-muted);margin-left:auto;padding-left:4px}
-.ctop .ibtn{flex:none;width:44px;height:44px}
+/* 13.3333px Arial is the browser's default button font, copied from the mock's unstyled settings button. */
+.ctop .ibtn{flex:none;width:44px;height:44px;font:13.3333px Arial}
 
 .ibtn{border-radius:12px;background:var(--su-panel2);border:1px solid var(--su-line2);display:grid;place-items:center;color:var(--su-glyph);cursor:pointer}
 .ibtn svg{width:19px;height:19px}

@@ -37,7 +37,7 @@ test('the static part is byte-identical whatever the tracker holds, and names no
     for (const word of ['Geva', 'Wolf', 'March', 'Bluewatch', '2026']) assert.ok(!empty.includes(word), word);
     // v1's rules, merged (the lean diet, 3 Nov), every one still there: the ops, write only changes, never act for {{user}}, the Pacing rules.
     for (const rule of [/~ only what changed, never the whole list/, /- closes it \(— reason\)/, /! fires a due item \(— what happened\)/, /Never write or decide what \{\{user\}\} does/]) assert.match(empty, rule);
-    for (const rule of [/only where it fits/, /on-screen if \{\{user\}\} is there/, /later as news, signs or aftermath/, /never cut into or bend the scene for a beat/, /off-screen \(!\) or slips \(~ on: later\)/]) assert.match(PACING_TEXT, rule);
+    for (const rule of [/only where it fits/, /on-screen if \{\{user\}\} is there/, /later as news, signs or aftermath/, /never cut into or bend the scene for a beat/, /off-screen \(!\) or waits/]) assert.match(PACING_TEXT, rule);
     assert.ok(STATIC_TEXT.length < CHANGE_INSTRUCTION.length + PACING.length, 'shorter than v1\'s instruction and Pacing');
     assert.doesNotMatch(empty, /offer/);
     // v1's Fields: every field is still named, now in the grammar lines (agenda carries the five thread kinds, hook the hook and quest).
@@ -58,11 +58,11 @@ test('every thread kind has one concrete example line in the static grammar, and
     }
     const hook = part.kinds.hook.grammar;
     assert.match(hook, /Write a hook when someone mentions a job, rumour or trouble \{\{user\}\} could follow, e\.g\. \+ hook Missing boatman — /);
-    assert.match(hook, /once \{\{user\}\} agrees: \+ quest Pest job — clear a cellar \| giver: Person B \| reward: 20 copper/);
+    assert.match(hook, /once \{\{user\}\} agrees: \+ quest Missing boatman \| reward: 20 copper/);
     assert.match(hook, /\+ hook Missing boatman — Person A says he vanished near Place X \| giver: Person A \| goal: ask at the docks; once/);
     assert.doesNotMatch(hook, /\S\|(Missing boatman|Pest job)/);
-    assert.equal(hook.split('Missing boatman').length, 2);
-    assert.equal(hook.split('Pest job').length, 2);
+    assert.equal(hook.split('Missing boatman').length, 3);
+    assert.ok(!hook.includes('Pest job'));
     // One line each (no newline), the same bytes for every reply (no state in them), and small: about 600 characters in all.
     assert.ok(!agenda.includes('\n') && !hook.includes('\n'));
     assert.ok(agenda.length + hook.length < 1350, `${agenda.length + hook.length}`);
@@ -89,7 +89,7 @@ test('each kind has one grammar line for the change instruction, a family on its
     }
     assert.match(part.kinds.agenda.grammar({ fights: true }), /encounter \(the foes, for a fight\)/);
     // A hook is an open thread, no job offer with a giver and a reward; + quest is written once {{user}} accepts.
-    assert.match(part.kinds.hook.grammar, /a hook is an open thread or lead \(a job only offered stays in the story; \+ quest with the same name once \{\{user\}\} accepts it\); a quest is a job \{\{user\}\} accepted, not an errand\. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome \(or - hook Name\)/);
+    assert.match(part.kinds.hook.grammar, /a hook is an open thread or lead \(a job only offered stays in the story; once \{\{user\}\} accepts it, \+ quest with the hook's name alone: code keeps its summary and labels, add only new ones\); a quest is a job \{\{user\}\} accepted, not an errand\. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome \(or - hook Name\)/);
     assert.doesNotMatch(part.kinds.agenda.grammar({ fights: false }), /encounter|fight|foe/);
 });
 

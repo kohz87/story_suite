@@ -30,11 +30,13 @@ function placeErrors(id, place) {
     if (place.parent !== undefined && !(typeof place.parent === 'string' && PLACE_ID.test(place.parent) && place.parent !== id)) errors.push(`${at}.parent must be the id of another place.`);
     // `auto`: the coordinates were placed by the map (parent.js), not set by the reader; a pack's coordinates win over them.
     if (place.auto !== undefined && place.auto !== true) errors.push(`${at}.auto must be true when present.`);
+    // `regionBy`: the region was set on purpose (a landmark line or the reader), so the scene's mend leaves it.
+    if (place.regionBy !== undefined && !['landmark', 'reader'].includes(place.regionBy)) errors.push(`${at}.regionBy must be landmark or reader when present.`);
     if (typeof place.discovered !== 'boolean') errors.push(`${at}.discovered must be true or false.`);
     if (!isInt(place.rev) || place.rev < 0) errors.push(`${at}.rev must be a whole number.`);
     if (place.made !== undefined && !(typeof place.made === 'string' && place.made && place.made.length <= MAX_NAME)) errors.push(`${at}.made must name a reply.`);
     for (const key of Object.keys(place)) {
-        if (!['id', 'name', 'region', 'kind', 'layer', 'x', 'y', 'discovered', 'rev', 'made', 'parent', 'auto'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
+        if (!['id', 'name', 'region', 'kind', 'layer', 'x', 'y', 'discovered', 'rev', 'made', 'parent', 'auto', 'regionBy'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
     }
     return errors;
 }

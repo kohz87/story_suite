@@ -4,6 +4,17 @@
 # packages symlinked under a temporary directory with their legacy names.
 set -euo pipefail
 
+# SUITE_SHARD=i/N runs only shard i of N (node --test-shard: every test file runs in exactly one shard). A shard
+# cannot check the floor alone, so it writes its test count to SUITE_COUNT_FILE and scripts/ci/suite-floor.sh
+# checks the sum over all shards. Skips and todos are still checked per shard.
+shard="${SUITE_SHARD:-}"
+shard_flag=()
+if [ -n "$shard" ]; then
+  case "$shard" in [1-9]/[1-9]) ;; *) echo "error: SUITE_SHARD must look like 1/2, got $shard" >&2; exit 1 ;; esac
+  : "${SUITE_COUNT_FILE:?SUITE_COUNT_FILE must be set when SUITE_SHARD is set (the floor is checked over all shards)}"
+  shard_flag=("--test-shard=$shard")
+fi
+
 # Raise the floor when tests are added. A lower "# tests" count means test-level results were not
 # reported or tests were lost.
 MIN_TESTS=5826
@@ -33,19 +44,24 @@ repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
 # One test looks only for a sibling folder "../../../../Story_director" (packages/Story_director here) and
 # ignores STORY_SUITE_ROOT; B1 must not edit package files, so a temporary symlink stands in for it.
-legacy_link="$repo_root/packages/Story_director"
+layout_json="$repo_root/scripts/layout.json"
+farm="$(node -e "const l = JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')); for (const f of l.suiteFarm) console.log(f.link, f.dir)" "$layout_json")"
+legacy_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_director" { print $2 }')"
+legacy_link="$repo_root/$(dirname "$legacy_dir")/Story_director"
 made_link=0
-if [ ! -e "$legacy_link" ]; then ln -s story-director "$legacy_link"; made_link=1; fi
+if [ ! -e "$legacy_link" ]; then ln -s "$(basename "$legacy_dir")" "$legacy_link"; made_link=1; fi
 trap 'rm -rf "$tmpdir"; if [ "$made_link" = 1 ]; then rm -f "$legacy_link"; fi' EXIT
 
 suite_root="$tmpdir/suite"
 mkdir -p "$suite_root"
-ln -s "$repo_root/packages/story-block" "$suite_root/Story_block"
-ln -s "$repo_root/packages/story-director" "$suite_root/Story_director"
-ln -s "$repo_root/packages/npc-state-delta" "$suite_root/npc_state_delta"
+# The links and their folders come from scripts/layout.json (suiteFarm).
+while IFS=' ' read -r link dir; do
+  ln -s "$repo_root/$dir" "$suite_root/$link"
+done <<< "$farm"
 
 tap_file="$tmpdir/suite.tap"
-cd "$repo_root/packages/story-block"
+block_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_block" { print $2 }')"
+cd "$repo_root/$block_dir"
 export STORY_SUITE_ROOT="$suite_root"
 export NPC_STATE_DELTA_PATH="$suite_root/npc_state_delta"
 export NODE_OPTIONS="--max-old-space-size=4096 ${NODE_OPTIONS:-}"
@@ -59,7 +75,7 @@ set +e
 # The limit reports the hung test as "not ok ... timed out"; if it holds a live handle the job's own timeout-minutes ends the run.
 # Do not add --test-force-exit: it stops the run once the top-level tests registered so far finish, dropping later tests with exit 0.
 # Headroom: the slowest local test (fuzz seed 16) took up to ~490 s on a loaded machine, so 900 s is about 1.8x locally (about 3x on GitHub).
-node --test --test-timeout=900000 --test-reporter=tap "${globs[@]}" | tee "$tap_file"
+node --test --test-timeout=900000 ${shard_flag[@]+"${shard_flag[@]}"} --test-reporter=tap "${globs[@]}" | tee "$tap_file"
 status=${PIPESTATUS[0]}
 set -e
 
@@ -68,7 +84,9 @@ tests="$(count_of tests)"; skipped="$(count_of skipped)"; todo="$(count_of todo)
 echo "suite tests: ${tests:-unknown}, skipped: ${skipped:-unknown}, todo: ${todo:-unknown}"
 
 fail=0
-if [ "${tests:-0}" -lt "$MIN_TESTS" ]; then
+if [ -n "$shard" ]; then
+  echo "${tests:-0}" > "$SUITE_COUNT_FILE"
+elif [ "${tests:-0}" -lt "$MIN_TESTS" ]; then
   echo "error: only ${tests:-0} tests reported, expected at least $MIN_TESTS (siblings missing, results lost or tests deleted)" >&2
   fail=1
 fi

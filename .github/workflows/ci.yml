@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# One run per branch or pull request: a newer push cancels the run it replaces, so the account's
+# runner slots go to current code. On main, the latest run tests the combined code; each PR run already checked its own diff.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   rules:
     runs-on: ubuntu-latest
@@ -75,9 +81,15 @@ jobs:
         # Same command as npm run test:ui, plus a per-test timeout.
         run: node --test --test-timeout=900000 "tests/ui/**/*.test.js" "tests/ui-gaps/*.test.js"
 
+  # Story Block's tests run in three parallel shards (node --test-shard splits the test files round-robin, so
+  # every file runs in exactly one shard). tests/scripts/ci-shards.test.js checks the shard list.
   story-block:
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/3", "2/3", "3/3"]
     defaults:
       run:
         working-directory: packages/story-block
@@ -92,7 +104,8 @@ jobs:
         run: npm run check
       # A pull request whose changed files are all inside the pack area runs only the pack
       # tests. Anything else (other files, a push to main, a manual run, no base to compare,
-      # an empty list) runs the full suite. This stays one job so the job always reports a result.
+      # an empty list) runs the full suite. A pack-only run has few tests: shard 1/3 runs them and the
+      # other shards do nothing, so every shard still reports a result.
       - name: Choose the test set
         id: scope
         env:
@@ -109,7 +122,7 @@ jobs:
           echo "Test set: $scope"
           echo "scope=$scope" >> "$GITHUB_OUTPUT"
       - name: Pack tests (pack-only change)
-        if: steps.scope.outputs.scope == 'packs'
+        if: steps.scope.outputs.scope == 'packs' && matrix.shard == '1/3'
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
@@ -131,12 +144,12 @@ jobs:
         # The same command and heap as Story Block's npm test, plus a per-test timeout (node ignores the flag
         # after the globs and refuses it in NODE_OPTIONS, so `npm test -- --test-timeout` cannot be used;
         # tests/scripts/ci-timeouts.test.js checks this command against package.json).
-        run: node --test --test-timeout=900000 "tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js"
+        run: node --test --test-timeout=900000 --test-shard=${{ matrix.shard }} "tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js"
       - name: Keep state-fuzz replay dumps
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: state-fuzz-replay-${{ github.run_id }}-${{ github.run_attempt }}
+          name: state-fuzz-replay-${{ strategy.job-index }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/state-fuzz-*/mismatch.json
           if-no-files-found: ignore
           retention-days: 7
@@ -248,9 +261,14 @@ jobs:
           retention-days: 3
           if-no-files-found: error
 
+  # The cross-package suite runs in two parallel shards; verify adds up their test counts against the floor.
   suite:
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/2", "2/2"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -264,4 +282,48 @@ jobs:
       - name: Install the browser
         run: npx playwright install --with-deps chromium
       - name: Cross-package suite tests (a skip fails the job)
+        env:
+          SUITE_SHARD: ${{ matrix.shard }}
+          SUITE_COUNT_FILE: ${{ runner.temp }}/suite-count.txt
         run: bash scripts/ci/suite-tests.sh
+      - name: Keep this shard's test count
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-count-${{ strategy.job-index }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/suite-count.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  # The one gate for branch protection: it passes only when every required job passed, and it adds up the
+  # suite shards' test counts against the floor. Add a new required job to `needs` here. Informational jobs
+  # (continue-on-error: true, such as layout-dry-run) stay out of `needs`.
+  verify:
+    if: ${{ always() }}
+    needs: [rules, ui, story-block, story-director, npc-state-delta, suite]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Every required job passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "job results: $RESULTS"
+          for r in $RESULTS; do
+            [ "$r" = success ] || { echo "error: a required job ended as $r" >&2; exit 1; }
+          done
+      - uses: actions/checkout@v4
+      - name: Collect the suite shards' test counts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: suite-count-*
+          path: ${{ runner.temp }}/suite-counts
+          merge-multiple: false
+      - name: Suite test floor over all shards
+        run: |
+          mkdir "$RUNNER_TEMP/counts"
+          # Folders are suite-count-<shard>-<attempt>; a re-run keeps earlier attempts' files, so the newest attempt per shard wins.
+          for d in $(ls -d "$RUNNER_TEMP"/suite-counts/*/ | sort -V); do
+            n="$(basename "$d")"; n="${n#suite-count-}"
+            cp "$d/suite-count.txt" "$RUNNER_TEMP/counts/${n%-*}.txt"
+          done
+          bash scripts/ci/suite-floor.sh 2 "$RUNNER_TEMP/counts"
