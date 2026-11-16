@@ -18,7 +18,7 @@
 // versions come from other extensions).
 
 import { definitionWarnings } from '../registry.js';
-import { satisfies } from '../../packages/story-block/src/v2/packs/version.js';
+import { satisfies } from '../../packs/version.js';
 import { cutAt } from '../text.js';
 
 const STATES = Object.freeze({ ok: 'In step', unstated: 'In step', newer: 'Newer than this Story Block', refused: 'Not loaded', twice: 'Installed twice' });

@@ -1,7 +1,7 @@
 // st-adapter.js readCharacterLorebook: a card's embedded [storysuite:…] entries are read when its linked world lacks them or is missing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readCharacterLorebook, saveSettingsNow } from '../../../src/v2/packs/st-adapter.js';
+import { readCharacterLorebook, saveSettingsNow } from '../../packs/st-adapter.js';
 
 const embedded = (...titles) => ({ name: 'Embedded', entries: titles.map((comment, id) => ({ id, comment, content: `${comment} body`, keys: ['k'] })) });
 const world = (...titles) => ({ entries: Object.fromEntries(titles.map((comment, uid) => [uid, { uid, comment, content: `${comment} world`, key: ['k'] }])) });

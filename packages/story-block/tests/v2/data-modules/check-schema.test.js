@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { contentOf } from '../../../src/v2/packs/content.js';
-import { HOST_CAPABILITIES } from '../../../src/v2/packs/limits.js';
-import { validatePack as oldValidatePack } from '../packs/fixtures/old-host/validate.js';
+import { validatePack } from '../../../../../packs/validate.js';
+import { contentOf } from '../../../../../packs/content.js';
+import { HOST_CAPABILITIES } from '../../../../../packs/limits.js';
+import { validatePack as oldValidatePack } from '../../../../../tests/packs/fixtures/old-host/validate.js';
 import { validateDataModules, dataModuleDefaults, dataModuleHash,
     DM_LIMITS as L, DM_DESCRIPTORS as D, DM_DIAGNOSTICS } from '../../../src/v2/data-modules/check.js';
-import * as packsApi from '../../../src/v2/packs/index.js';
+import * as packsApi from '../../../../../packs/index.js';
 import { read, integer, change, definition, pack, ok, refuse, edit, set, reward, timer, clock } from './check.helpers.js';
 
 for (const name of ['reputation', 'survival']) test(`worked example ${name} is the exact complete JSON from the approved spec`, () => {

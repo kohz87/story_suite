@@ -2,10 +2,10 @@
 // switch on and off, remove, and pack text always shown as text.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom, texts } from '../../../../../tests/helpers/ui-fake-dom.js';
-import { renderPacksPanel, countsLine } from '../../../src/v2/packs/panel.js';
-import { createInstalled } from '../../../src/v2/packs/installed.js';
-import { LIMITS } from '../../../src/v2/packs/limits.js';
+import { installFakeDom, texts } from '../helpers/ui-fake-dom.js';
+import { renderPacksPanel, countsLine } from '../../packs/panel.js';
+import { createInstalled } from '../../packs/installed.js';
+import { LIMITS } from '../../packs/limits.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack, sampleText } from './helpers/fixtures.js';
 

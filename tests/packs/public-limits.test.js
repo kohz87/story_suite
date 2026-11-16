@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RECORD_LIMITS } from '../../../src/v2/packs/limits.js';
-import { validatePack, slugify } from '../../../src/v2/packs/validate.js';
+import { RECORD_LIMITS } from '../../packs/limits.js';
+import { validatePack, slugify } from '../../packs/validate.js';
 
 test('public host record bounds match the validator and derived slugs', () => {
     assert.ok(Object.isFrozen(RECORD_LIMITS));

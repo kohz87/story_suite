@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { LEAN_RPG_FEATURE, createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
 import { CORE_FEATURE } from '../../../../../core/features.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { pack } from '../packs/helpers/fixtures.js';
+import { validatePack } from '../../../../../packs/validate.js';
+import { pack } from '../../../../../tests/packs/helpers/fixtures.js';
 import { OWNER, PARTY, fakeModel, sheetDomain } from './helpers.js';
 import { begin, makeBlocks, page, party, settle } from './view/page.js';
 

@@ -1,7 +1,7 @@
 // The live capability list reads sdk.modules(), whose domains are an array of names.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stCapabilities } from '../../../src/v2/packs/st-adapter.js';
+import { stCapabilities } from '../../packs/st-adapter.js';
 
 test('stCapabilities names the domains sdk.modules() lists', () => {
     const before = globalThis.StoryBlock;

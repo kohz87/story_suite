@@ -1,7 +1,7 @@
 // requires.storyBlock ranges.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRange, parseVersion, satisfies } from '../../../src/v2/packs/version.js';
+import { parseRange, parseVersion, satisfies } from '../../packs/version.js';
 
 test('ranges a pack may give', () => {
     const table = [

@@ -2,8 +2,8 @@
 // it declares (requires.capabilities), else what it holds (places and calendars, races and skills), else "Pack".
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { packTag } from '../../../src/v2/packs/kind.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { packTag } from '../../packs/kind.js';
+import { validatePack } from '../../packs/validate.js';
 
 const content = (lists = {}) => ({ items: [], creatures: [], shops: [], recipes: [], events: [], quests: [], races: [], talents: [], skills: [], presets: [], places: [], routes: [], terms: [], ranks: [], crafts: [], meterPresets: [], markets: [], ...lists });
 const pack = ({ capabilities = [], lists = {}, extra = {} } = {}) => ({ requires: { storyBlock: '^2', capabilities }, content: content(lists), ...extra });

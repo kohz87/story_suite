@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
-import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
+import { validatePack } from '../../packs/validate.js';
 import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
 import { skillSlots } from '../../core/runtime/skill-slots.js';
 import { partyLines } from '../../packages/story-block/src/v2/lean-rpg/view/changes-lines.js';

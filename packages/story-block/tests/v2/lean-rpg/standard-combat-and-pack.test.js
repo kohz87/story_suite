@@ -7,7 +7,7 @@ import { STAGES, positionalDice, prepare, rollPrepared, stageWord } from '../../
 import { STANDARD_FORMULA, STANDARD_PRESETS, packRulesOf, rulesFromSettings } from '../../../src/v2/lean-rpg/rules.js';
 import { packAttacks, splitFoes } from '../../../src/v2/lean-rpg/board/members.js';
 import { exchangePlan } from '../../../src/v2/lean-rpg/board/plan.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../../../../packs/validate.js';
 import { character, levelFoeBlock, setup, skillBlock } from './helpers.js';
 import { dice, hit, party, planOf, prepareStandard, roll, rollStandard, sheetOf, skip, std } from './standard.helpers.js';
 

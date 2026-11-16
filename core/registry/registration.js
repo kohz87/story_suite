@@ -2,7 +2,7 @@
 // refused definition is noted and throws, and a registered one reserves its names and frozen features.
 
 import { affectsStatic, presetsOf } from '../features.js';
-import { satisfies } from '../../packages/story-block/src/v2/packs/version.js';
+import { satisfies } from '../../packs/version.js';
 import { isObject, definitionProblems, neededVersion, definitionWarnings } from './registry-checks.js';
 
 export function createRegistration({ defs, declared, owners, fallbacks, canonical, refusals, hostVersion, warn, needsOf, setPeers }) {

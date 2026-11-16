@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { normalizeEvents } from '../../../../../modules/world/events/engine.js';
-import { createInstalled } from '../../../src/v2/packs/installed.js';
-import { resolveItemIn, contentOf } from '../../../src/v2/packs/content.js';
+import { normalizeEvents } from '../../modules/world/events/engine.js';
+import { createInstalled } from '../../packs/installed.js';
+import { resolveItemIn, contentOf } from '../../packs/content.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { itemsPack, pack, sample, sampleText } from './helpers/fixtures.js';
 
@@ -114,7 +114,7 @@ test('a missing settings list is created; non-list values are replaced', () => {
 });
 
 test('limits on how many packs and how much data are installed', async () => {
-    const { installed } = setup({ limits: { ...(await import('../../../src/v2/packs/limits.js')).LIMITS, installed: 2, installedBytes: 400 } });
+    const { installed } = setup({ limits: { ...(await import('../../packs/limits.js')).LIMITS, installed: 2, installedBytes: 400 } });
     assert.equal((await installed.install(pack({ id: 'a' }))).ok, true);
     assert.equal((await installed.install(pack({ id: 'b' }))).ok, true);
     const third = await installed.install(pack({ id: 'c' }));
@@ -161,7 +161,7 @@ test('listeners hear every change', async () => {
 // ---- 2.11.3: a stored pack is not held to the strict `when` check of install ----
 // A pack installed before the check existed, with one event whose condition the events part cannot read, must keep working.
 const unreadable = () => {
-    const modules = JSON.parse(readFileSync(new URL('../../../authoring-kit/reference/data-modules/faction-standing.pack.json', import.meta.url), 'utf8'));
+    const modules = JSON.parse(readFileSync(new URL('../../packages/story-block/authoring-kit/reference/data-modules/faction-standing.pack.json', import.meta.url), 'utf8'));
     return pack({
         id: modules.id, name: 'Gate Pack', requires: modules.requires,
         content: {

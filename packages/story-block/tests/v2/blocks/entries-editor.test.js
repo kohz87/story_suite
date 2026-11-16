@@ -7,7 +7,7 @@ import { buildBlock, blockDraft, editableBlockDraft, blockKindCount } from '../.
 import { BLOCK_STARTERS } from '../../../src/v2/data-modules/block-starters.js';
 import { layoutShape, cardRoles } from '../../../src/v2/data-modules/block-layout.js';
 import { createBlockTemplates, exportBlockPack } from '../../../src/v2/data-modules/block-templates.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../../../../packs/validate.js';
 import { STRINGS } from '../../../../../core/strings.js';
 import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 

@@ -1,8 +1,8 @@
 // pack.json validation (SPEC §9): what passes, and every reason a pack is refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack, slugify } from '../../../src/v2/packs/validate.js';
-import { LIMITS } from '../../../src/v2/packs/limits.js';
+import { validatePack, slugify } from '../../packs/validate.js';
+import { LIMITS } from '../../packs/limits.js';
 import { pack, sample, sampleText } from './helpers/fixtures.js';
 import { refused, withItem } from './validate.helpers.js';
 

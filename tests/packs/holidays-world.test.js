@@ -7,11 +7,11 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 function directorModule() {
-    const roots = [process.env.STORY_SUITE_ROOT, path.resolve(here, '../../../..')].filter(Boolean);
+    const roots = [process.env.STORY_SUITE_ROOT, path.resolve(here, '../../packages')].filter(Boolean);
     for (const root of roots) {
         const file = path.join(root, 'Story_director', 'src', 'v2', 'module.js');
         if (existsSync(file)) return file;

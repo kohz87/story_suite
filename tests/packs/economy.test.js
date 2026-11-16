@@ -4,13 +4,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { economyOf as packEconomyOf } from '../../../src/v2/packs/content.js';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { ECONOMY_LIMITS, PACK_FIELDS } from '../../../src/v2/packs/limits.js';
-import { createInventoryQueries, economyOf, scaledDefault } from '../../../src/v2/domains/inventory.js';
-import { CORE_SETTINGS } from '../../../src/v2/domains/index.js';
-import { createHost } from '../../../testkit/index.js';
+import { validatePack } from '../../packs/validate.js';
+import { economyOf as packEconomyOf } from '../../packs/content.js';
+import { createPacksPart } from '../../packs/index.js';
+import { ECONOMY_LIMITS, PACK_FIELDS } from '../../packs/limits.js';
+import { createInventoryQueries, economyOf, scaledDefault } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { CORE_SETTINGS } from '../../packages/story-block/src/v2/domains/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 

@@ -2,10 +2,10 @@
 // `packs.content({ kind: 'cast' })` with `pack` and `packVersion`, and a hostile value.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { contentOf } from '../../../src/v2/packs/content.js';
-import { CAST_BEHAVIOUR_LEVERS, CAST_FIELDS, CAST_LIMITS, CONTENT_KINDS, OPTIONAL_KINDS, PORTRAIT_LIMITS } from '../../../src/v2/packs/limits.js';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
+import { validatePack } from '../../packs/validate.js';
+import { contentOf } from '../../packs/content.js';
+import { CAST_BEHAVIOUR_LEVERS, CAST_FIELDS, CAST_LIMITS, CONTENT_KINDS, OPTIONAL_KINDS, PORTRAIT_LIMITS } from '../../packs/limits.js';
+import { createPacksPart } from '../../packs/index.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 

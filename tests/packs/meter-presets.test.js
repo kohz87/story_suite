@@ -3,9 +3,9 @@
 // needs: [{ meter, at }], milestone? }] }`. Validation of every field and rejection, the caps, the query.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { contentOf } from '../../../src/v2/packs/content.js';
-import { CONTENT_KINDS, METER_LIMITS, METER_RESERVED, OPTIONAL_KINDS } from '../../../src/v2/packs/limits.js';
+import { validatePack } from '../../packs/validate.js';
+import { contentOf } from '../../packs/content.js';
+import { CONTENT_KINDS, METER_LIMITS, METER_RESERVED, OPTIONAL_KINDS } from '../../packs/limits.js';
 import { pack } from './helpers/fixtures.js';
 
 const meter = (extra = {}) => ({ id: 'regard', name: 'Regard', min: -100, max: 100, start: 0, ...extra });

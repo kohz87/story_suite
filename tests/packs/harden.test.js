@@ -4,8 +4,8 @@
 // neighbour that must still be accepted.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack, unsafeCss } from '../../../src/v2/packs/validate.js';
-import { unsafeText } from '../../../src/v2/packs/safety.js';
+import { validatePack, unsafeCss } from '../../packs/validate.js';
+import { unsafeText } from '../../packs/safety.js';
 
 const base = (extra = {}) => ({ id: 'harden', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, ...extra });
 const withNote = note => base({ content: { items: [{ name: 'Lure', note }] } });

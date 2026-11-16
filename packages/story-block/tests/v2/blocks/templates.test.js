@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createBlockTemplates, exportBlockPack } from '../../../src/v2/data-modules/block-templates.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../../../../packs/validate.js';
 import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
 import { createHost } from '../../../testkit/index.js';
 

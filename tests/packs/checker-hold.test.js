@@ -3,7 +3,7 @@
 // the checker lands the chat reads normally. seed() and onTimelineChanged wait for the loaders like CHAT_CHANGED does.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
 
 const greeting = () => ({ name: 'Narrator', is_user: false, mes: 'The fire crackles.', extra: {} });
 async function pending(state) {

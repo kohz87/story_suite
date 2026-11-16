@@ -1,8 +1,8 @@
 // Lookups over enabled packs: item resolution precedence, content by kind, start states.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyStart, contentOf, itemDef, mergeStart, resolveItemIn } from '../../../src/v2/packs/content.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { applyStart, contentOf, itemDef, mergeStart, resolveItemIn } from '../../packs/content.js';
+import { validatePack } from '../../packs/validate.js';
 import { itemsPack, pack, sample } from './helpers/fixtures.js';
 
 const normalized = (...packs) => packs.map(input => {

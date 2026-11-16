@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
+import { validatePack } from '../../packs/validate.js';
 import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES, grownSkills } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
 import { readParty } from '../../packages/story-block/src/v2/lean-rpg/view/party-data.js';
 import { summaryOf } from '../../packages/story-block/src/v2/data-modules/part.js';

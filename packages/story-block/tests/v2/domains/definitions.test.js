@@ -4,11 +4,11 @@ import assert from 'node:assert/strict';
 import { createHarness, line } from './helpers/fake-ctx.js';
 import { core, def as defOf, stocked } from './fixtures.js';
 import { DEFINITIONS_MAX_IDS, definitionsOf, defaultDef } from '../../../src/v2/domains/inventory.js';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { itemDefsIn } from '../../../src/v2/packs/content.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { fakeSettings } from '../packs/helpers/fake-settings.js';
-import { itemsPack, sampleText } from '../packs/helpers/fixtures.js';
+import { createPacksPart } from '../../../../../packs/index.js';
+import { itemDefsIn } from '../../../../../packs/content.js';
+import { validatePack } from '../../../../../packs/validate.js';
+import { fakeSettings } from '../../../../../tests/packs/helpers/fake-settings.js';
+import { itemsPack, sampleText } from '../../../../../tests/packs/helpers/fixtures.js';
 
 // ---------- inventory.definitions ----------
 

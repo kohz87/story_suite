@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { validatePack } from '../../../packages/story-block/src/v2/packs/validate.js';
+import { validatePack } from '../../../packs/validate.js';
 import { parseLabels } from '../../../packages/story-block/src/v2/data-modules/interpreter.js';
 import { moduleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
 import { describe } from '../../../packages/story-block/src/v2/data-modules/setup.js';

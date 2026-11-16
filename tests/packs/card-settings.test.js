@@ -2,8 +2,8 @@
 // missing extension, and applying persists the setting exactly as the settings screens do.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { createCardSettings } from '../../../src/v2/packs/card-settings.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createCardSettings } from '../../packs/card-settings.js';
 
 const nsd = (state = { portraitPromptFormat: 'hybrid', scanEvery: 4 }) => ({
     owner: 'npc-state-delta',

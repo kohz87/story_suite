@@ -2,10 +2,10 @@
 // stCapabilities() offers them, and a pack's requires.capabilities is checked against them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { MAX_CAPABILITIES, definitionProblems, definitionWarnings } from '../../../../../core/registry.js';
-import { stCapabilities } from '../../../src/v2/packs/st-adapter.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { createHost } from '../../packages/story-block/testkit/index.js';
+import { MAX_CAPABILITIES, definitionProblems, definitionWarnings } from '../../core/registry.js';
+import { stCapabilities } from '../../packs/st-adapter.js';
+import { validatePack } from '../../packs/validate.js';
 
 const PACK = { id: 'capability-demo', version: '1.0.0', requires: { storyBlock: '^2', capabilities: ['custom-ledger'] }, content: {} };
 const mod = (id, extra = {}) => ({ id, name: id, version: '1.0.0', domains: { [`${id}-state`.replace(/[^a-z-]/g, '')]: { initial: () => ({}) } }, ...extra });

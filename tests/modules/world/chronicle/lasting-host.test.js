@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { packsFor } from '../../../../core/runtime.js';
-import { stCapabilities } from '../../../../packages/story-block/src/v2/packs/st-adapter.js';
+import { stCapabilities } from '../../../../packs/st-adapter.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { BACKLOG_STATIC } from '../../../../modules/world/chronicle/digest.js';
 import { TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';

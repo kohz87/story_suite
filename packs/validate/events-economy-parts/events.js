@@ -1,7 +1,7 @@
 // Checking event records and linking the events of a pack to each other.
 
 import { EVENT_FIELDS, EVENT_LIMITS, SLUG, COMMAND } from '../../limits.js';
-import { compile } from '../../../../../../../modules/world/events/condition.js';
+import { compile } from '../../../modules/world/events/condition.js';
 import { isObject, fullId } from '../core.js';
 
 // Commands the host makes for itself (registry.js CAPTURE_PREFIX, INIT_PREFIX; events/engine.js FIRE):

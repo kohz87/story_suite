@@ -12,7 +12,7 @@ import { CORE_FEATURE } from '../../../../../core/features.js';
 import { LEAN_RPG_FEATURE } from '../../../src/v2/lean-rpg/names.js';
 import { createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { checkerLoaded } from '../../../src/v2/packs/installed.js';
+import { checkerLoaded } from '../../../../../packs/installed.js';
 import { createLazyRpgPart, createRpgLoader, holdsRpg, rpgLib, setRpgLib } from '../../../src/v2/rpg-lazy.js';
 
 const available = await hostAvailable();

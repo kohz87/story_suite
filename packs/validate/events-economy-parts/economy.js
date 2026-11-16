@@ -1,8 +1,8 @@
 // Checking a pack's currency and economy sections.
 
 import { ECONOMY_FIELDS, ECONOMY_LIMITS } from '../../limits.js';
-import { oneLine } from '../../../../../../../core/text.js';
-import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../domains/money.js';
+import { oneLine } from '../../../core/text.js';
+import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../packages/story-block/src/v2/domains/money.js';
 import { isObject, isNumber, isText } from '../core.js';
 
 // A currency the pack suggests (MODULES §F1): one name for the chat's one currency (singular, with an

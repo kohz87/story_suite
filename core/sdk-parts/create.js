@@ -9,7 +9,7 @@ import { RESOLVE as RPG_RESOLVE } from '../../packages/story-block/src/v2/lean-r
 import { receiptCue, entriesWithCue } from '../../packages/story-block/src/v2/lean-rpg/cue.js';
 import { createPublicPaths } from '../persist/public-paths.js';
 
-import { createCardSettings } from '../../packages/story-block/src/v2/packs/card-settings.js';
+import { createCardSettings } from '../../packs/card-settings.js';
 
 import { isObject } from '../sdk/shared.js';
 import { createEvents } from '../sdk/events.js';

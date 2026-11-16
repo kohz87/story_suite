@@ -3,10 +3,10 @@
 // Every rejection, and the queries.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { calendarOf, contentOf } from '../../../src/v2/packs/content.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { countsLine } from '../../../src/v2/packs/panel.js';
+import { createPacksPart } from '../../packs/index.js';
+import { calendarOf, contentOf } from '../../packs/content.js';
+import { validatePack } from '../../packs/validate.js';
+import { countsLine } from '../../packs/panel.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack, sample } from './helpers/fixtures.js';
 

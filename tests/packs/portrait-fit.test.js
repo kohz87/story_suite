@@ -4,10 +4,10 @@
 // tried in a real browser by hand (see the stage 36 report).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { PORTRAIT_LIMITS, ZIP_LIMITS } from '../../../src/v2/packs/limits.js';
-import { FitProblem, MAX_PIXELS, browserImageIo, fitPortrait, imageSize } from '../../../src/v2/packs/portrait-fit.js';
-import { sniffImage } from '../../../src/v2/packs/portraits.js';
+import { createPacksPart } from '../../packs/index.js';
+import { PORTRAIT_LIMITS, ZIP_LIMITS } from '../../packs/limits.js';
+import { FitProblem, MAX_PIXELS, browserImageIo, fitPortrait, imageSize } from '../../packs/portrait-fit.js';
+import { sniffImage } from '../../packs/portraits.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 import { fakeFiles, fakeImageIo, jpg, picked, png, pngOf, webp } from './helpers/portraits.js';

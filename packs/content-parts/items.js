@@ -1,7 +1,7 @@
 // Pack items as inventory defs: all of them, and the one a story name means.
 
 import { slugify } from '../validate/core.js';
-import { foldKey } from '../../../../../../core/text.js';
+import { foldKey } from '../../core/text.js';
 import { copy } from './shared-copy.js';
 
 // The inventory def fields (SPEC §7), in a fixed order.

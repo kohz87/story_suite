@@ -3,10 +3,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { GEAR, statsFor } from '../../../src/v2/domains/gear.js';
+import { validatePack } from '../../packs/validate.js';
+import { GEAR, statsFor } from '../../packages/story-block/src/v2/domains/gear.js';
 
-const text = readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+const text = readFileSync(new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
 const pack = () => JSON.parse(text);
 
 const EXPECTED = [

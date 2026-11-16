@@ -1,8 +1,8 @@
 // What a card carries besides its pack: the `[storysuite:portraits]` and `[storysuite:settings]` entries (lorebook.js tags, card.js formats and limits).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { findPackEntries, findPortraitEntries, findSettingsEntries, isPortraitsTitle, isSettingsTitle } from '../../../src/v2/packs/lorebook.js';
-import { CARD_LIMITS, CARD_SETTING_KEYS, portraitsPackOf, readPortraitsEntry, readSettingsEntry } from '../../../src/v2/packs/card.js';
+import { findPackEntries, findPortraitEntries, findSettingsEntries, isPortraitsTitle, isSettingsTitle } from '../../packs/lorebook.js';
+import { CARD_LIMITS, CARD_SETTING_KEYS, portraitsPackOf, readPortraitsEntry, readSettingsEntry } from '../../packs/card.js';
 import { gif, png, webp, jpg } from './helpers/portraits.js';
 import { cardPack, dataUri } from './helpers/card.js';
 

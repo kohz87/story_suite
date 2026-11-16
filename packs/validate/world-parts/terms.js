@@ -1,7 +1,7 @@
 // Checking terms, ranks and name lists.
 
 import { LIMITS, TERMS_FIELDS, TERMS_LIMITS, TERM_SEPARATORS, TERMS_TIER_FIELDS, TERMS_NUMERALS, RANKS_LIMITS, RANK_FIELDS, RANK_ID, NAMES_FIELDS, NAMES_LIMITS, SLUG } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../../../../core/text.js';
+import { oneLine, foldKey } from '../../../core/text.js';
 import { isObject, slugify, isInt } from '../core.js';
 
 // A record of display terms gets the slug from its `id`, else its name, else `terms`, `terms-2` … in

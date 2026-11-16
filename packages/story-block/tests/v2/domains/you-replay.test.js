@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../../testkit/index.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../../../../packs/validate.js';
 import { YOU_CHARS, YOU_FEATURE, validateScene } from '../../../src/v2/domains/scene.js';
 import { mountUi } from '../../../../../ui/legacy/ui-host.js';
 import { gameHeroProps } from '../../../../../ui/legacy/view/game-header.js';

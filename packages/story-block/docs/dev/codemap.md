@@ -75,12 +75,12 @@ Last checked: 2026-11-07.
 - `src/v2/lean-rpg/view/wizard-data.js`: works out New character drafts, budgets, problems and definitions without touching the DOM.
 - `src/v2/lean-rpg/view/wizard.js`: drives the four-step New character and import dialog, then creates its blocks.
 
-## src/v2/packs/
-- `src/v2/packs/card-offer-ui.js`: draws pack card-offer notices and their actions at the top of the Story panel.
-- `src/v2/packs/cast-gear.js`: reads a named cast member's signature gear from enabled packs for the cast entry line.
-- `src/v2/packs/cast-skills.js`: reads a named cast member's signature skills from enabled packs for party joining.
-- `src/v2/packs/kind.js`: classifies a pack as a World pack, Story Block pack or plain pack from its content.
-- `src/v2/packs/portrait-fit.js`: shrinks and encodes portraits to stored size limits using browser image APIs.
+## ../../packs/
+- `../../packs/card-offer-ui.js`: draws pack card-offer notices and their actions at the top of the Story panel.
+- `../../packs/cast-gear.js`: reads a named cast member's signature gear from enabled packs for the cast entry line.
+- `../../packs/cast-skills.js`: reads a named cast member's signature skills from enabled packs for party joining.
+- `../../packs/kind.js`: classifies a pack as a World pack, Story Block pack or plain pack from its content.
+- `../../packs/portrait-fit.js`: shrinks and encodes portraits to stored size limits using browser image APIs.
 
 ## ../../ui/legacy/screens/
 - `src/v2/screens/block-fields.js`: registers the fields and heading widgets used by data-module screen layouts.

@@ -2,7 +2,7 @@
 // held-back modules, extracted from registry.js. It owns the peer and switch state and returns
 // the lookup and host-control methods registry.js exposes.
 
-import { satisfies } from '../../packages/story-block/src/v2/packs/version.js';
+import { satisfies } from '../../packs/version.js';
 import { HOST_MODULE, RESTORE_STATES } from './registry-checks.js';
 
 export function createLifecycle({ defs }) {

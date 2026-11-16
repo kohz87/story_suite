@@ -4,7 +4,7 @@ import { createCommandBus as realBus } from '../commands.js';
 import { CORE_MODULE_ID, createCoreModule } from '../../packages/story-block/src/v2/domains/index.js';
 import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../packages/story-block/src/v2/assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
-import { createCardSettings } from '../../packages/story-block/src/v2/packs/card-settings.js';
+import { createCardSettings } from '../../packs/card-settings.js';
 import { skipOf } from '../../packages/story-block/src/v2/start-notes.js';
 import { XP_RATE_SETTING, xpRateFrom, xpRateOf } from '../../packages/story-block/src/v2/lean-rpg/levels.js';
 import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, profileName, stModelCall } from '../model-call.js';

@@ -6,14 +6,14 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { checkPack, report } from '../../../authoring-kit/check.mjs';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { findPackEntries } from '../../../src/v2/packs/lorebook.js';
-import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
+import { checkPack, report } from '../../packages/story-block/authoring-kit/check.mjs';
+import { validatePack } from '../../packs/validate.js';
+import { findPackEntries } from '../../packs/lorebook.js';
+import { evaluateCondition } from '../../modules/world/events/condition.js';
 
-const root = fileURLToPath(new URL('../../../', import.meta.url));
-const packPath = new URL('../../../examples/packs/ersveil/pack.json', import.meta.url);
-const lorePath = new URL('../../../examples/packs/ersveil/ersveil-lore.json', import.meta.url);
+const root = fileURLToPath(new URL('../../packages/story-block/', import.meta.url));
+const packPath = new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url);
+const lorePath = new URL('../../packages/story-block/examples/packs/ersveil/ersveil-lore.json', import.meta.url);
 const packText = readFileSync(packPath, 'utf8');
 const pack = () => JSON.parse(packText);
 
@@ -22,8 +22,8 @@ const CAST_IDS = ['temiwa', 'ysmeth', 'nysseth', 'rika', 'harrak', 'torka', 'lot
 
 test('the example folder holds exactly the pack, its lorebook and the cast portraits, and the old example packs are fixtures', () => {
     assert.ok(existsSync(packPath) && existsSync(lorePath));
-    assert.deepEqual(readdirSync(new URL('../../../examples/packs/ersveil/', import.meta.url)).sort(), ['ersveil-lore.json', 'pack.json', 'portraits']);
-    assert.deepEqual(readdirSync(new URL('../../../examples/packs/ersveil/portraits/', import.meta.url)).sort(), CAST_IDS.map(id => `${id}.webp`).sort());
+    assert.deepEqual(readdirSync(new URL('../../packages/story-block/examples/packs/ersveil/', import.meta.url)).sort(), ['ersveil-lore.json', 'pack.json', 'portraits']);
+    assert.deepEqual(readdirSync(new URL('../../packages/story-block/examples/packs/ersveil/portraits/', import.meta.url)).sort(), CAST_IDS.map(id => `${id}.webp`).sort());
     assert.equal(existsSync(new URL('../../../examples/packs/ersveil-bluewatch/', import.meta.url)), false);
 });
 
@@ -72,8 +72,8 @@ test('the pack is Ersveil 2.9.6, the open world: the map, the calendar, the weat
 });
 
 test('the pack, once installed without RPG Battle, reads back as 320 places, 350 routes and the rest ERSVEIL.md quotes', async () => {
-    const { createInstalled } = await import('../../../src/v2/packs/installed.js');
-    const { addsLine } = await import('../../../src/v2/packs/panel.js');
+    const { createInstalled } = await import('../../packs/installed.js');
+    const { addsLine } = await import('../../packs/panel.js');
     const store = {};
     const installed = createInstalled({ settings: { read: () => store, save: async () => {} }, capabilities: () => OPEN });
     const result = await installed.install(packText, { source: 'file', origin: 'pack.json' });

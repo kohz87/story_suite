@@ -2,9 +2,9 @@
 // `packs.portrait`, replaced by a newer import, dropped when the pack stops naming them, removed with the pack.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { PORTRAIT_LIMITS } from '../../../src/v2/packs/limits.js';
-import { sniffImage } from '../../../src/v2/packs/portraits.js';
+import { createPacksPart } from '../../packs/index.js';
+import { PORTRAIT_LIMITS } from '../../packs/limits.js';
+import { sniffImage } from '../../packs/portraits.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 import { fakeFiles, gif, jpg, picked, png, tooBig, webp } from './helpers/portraits.js';

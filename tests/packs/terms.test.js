@@ -4,11 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { contentOf } from '../../../src/v2/packs/content.js';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { createInstalled } from '../../../src/v2/packs/installed.js';
-import { CONTENT_KINDS, OPTIONAL_KINDS, TERMS_LIMITS } from '../../../src/v2/packs/limits.js';
+import { validatePack } from '../../packs/validate.js';
+import { contentOf } from '../../packs/content.js';
+import { createPacksPart } from '../../packs/index.js';
+import { createInstalled } from '../../packs/installed.js';
+import { CONTENT_KINDS, OPTIONAL_KINDS, TERMS_LIMITS } from '../../packs/limits.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack, sampleText } from './helpers/fixtures.js';
 

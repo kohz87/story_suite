@@ -13,15 +13,15 @@ import { bestDefence } from '../../../src/v2/lean-rpg/board/rules.js';
 import { buildDefinitions, combatSlots, draftSlots, newDraft, readDraft, withImport, withSet, withSkill, withSkillPatch } from '../../../src/v2/lean-rpg/view/wizard-data.js';
 import { buildCharacterFile, parseCharacterFile } from '../../../src/v2/lean-rpg/charfile.js';
 import { joinCard, joinDraft, joinOffers } from '../../../src/v2/lean-rpg/join.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { castSkillsOf } from '../../../src/v2/packs/cast-skills.js';
+import { validatePack } from '../../../../../packs/validate.js';
+import { castSkillsOf } from '../../../../../packs/cast-skills.js';
 import { UTILITY_SLOTS, SKILL_FIELDS_MAX } from '../../../../../core/runtime/skill-slots.js';
 import { summaryOf } from '../../../src/v2/data-modules/part/prompt.js';
 import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 import { fakeState } from './view/helpers.js';
 import { readParty } from '../../../src/v2/lean-rpg/view/party-data.js';
 import { tailRoom } from '../../../src/v2/data-modules/part/prompt.js';
-import { pack } from '../packs/helpers/fixtures.js';
+import { pack } from '../../../../../tests/packs/helpers/fixtures.js';
 
 const typedDefinition = () => structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === 'Skills').definition);
 const line = (n, name, type, why = 'learned') => `~ dm skills — ${why} | kind: learn-${n} | name: ${name} | about: Something. | stat: dex | uses: mana${type ? ` | type: ${type}` : ''}`;

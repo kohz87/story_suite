@@ -1,7 +1,7 @@
 // Packs for the tests: the shipped example and small hand-made ones.
 import { readFileSync } from 'node:fs';
 
-const here = new URL('../../../../examples/packs/riverside-starter/pack.json', import.meta.url);
+const here = new URL('../../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url);
 export const sampleText = readFileSync(here, 'utf8');
 export const sample = () => JSON.parse(sampleText);
 

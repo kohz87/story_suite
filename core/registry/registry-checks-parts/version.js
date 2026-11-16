@@ -1,6 +1,6 @@
 // Words the version a refused module needs.
 
-import { parseRange, parseVersion, compareVersions, formatVersion } from '../../../packages/story-block/src/v2/packs/version.js';
+import { parseRange, parseVersion, compareVersions, formatVersion } from '../../../packs/version.js';
 
 // What a refused module needs, for the reader: "≥ 2.1.0" when every alternative of the range starts
 // at a version above `version`, else the range as written ("<2", "^1.4").

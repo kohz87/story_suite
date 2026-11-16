@@ -4,10 +4,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { contentOf } from '../../../src/v2/packs/content.js';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { CONTENT_KINDS, OPTIONAL_KINDS, RANKS_LIMITS } from '../../../src/v2/packs/limits.js';
+import { validatePack } from '../../packs/validate.js';
+import { contentOf } from '../../packs/content.js';
+import { createPacksPart } from '../../packs/index.js';
+import { CONTENT_KINDS, OPTIONAL_KINDS, RANKS_LIMITS } from '../../packs/limits.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 

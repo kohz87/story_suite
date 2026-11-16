@@ -7,7 +7,7 @@ import { renderPacksPanel } from '../panel.js';
 import { HOST_VERSION } from '../validate/core.js';
 import { marketEntries } from '../lorebook.js';
 import { castGearOf, gearLine } from '../cast-gear.js';
-import { readSheet, sameWho } from '../../lean-rpg/read.js';
+import { readSheet, sameWho } from '../../packages/story-block/src/v2/lean-rpg/read.js';
 import { marketsOf } from './markets.js';
 
 /**

@@ -6,8 +6,8 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { CAST_BUILT_IN_METERS, CAST_BUILT_IN_PRESETS, METER_LIMITS, SLUG } from '../../../src/v2/packs/limits.js';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { CAST_BUILT_IN_METERS, CAST_BUILT_IN_PRESETS, METER_LIMITS, SLUG } from '../../packs/limits.js';
+import { validatePack } from '../../packs/validate.js';
 import { pack } from './helpers/fixtures.js';
 
 const person = preset => ({ id: 'fenna', name: 'Fenna', about: 'About.', look: 'Look.', start: { place: 'Docks', goal: 'A goal.' }, meters: { preset } });

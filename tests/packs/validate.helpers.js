@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../packs/validate.js';
 import { pack } from './helpers/fixtures.js';
 
 export const codes = result => (result.ok ? [] : result.errors.map(error => error.code));

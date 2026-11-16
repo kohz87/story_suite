@@ -3,11 +3,11 @@
 // `packs.crafts` query (the default table with the enabled packs' crafts laid over it).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { contentOf, craftsOf } from '../../../src/v2/packs/content.js';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
-import { CONTENT_KINDS, CRAFTS_LIMITS, DEFAULT_CRAFTS, OPTIONAL_KINDS, STATIONS } from '../../../src/v2/packs/limits.js';
-import { countsLine } from '../../../src/v2/packs/panel.js';
+import { validatePack } from '../../packs/validate.js';
+import { contentOf, craftsOf } from '../../packs/content.js';
+import { createPacksPart } from '../../packs/index.js';
+import { CONTENT_KINDS, CRAFTS_LIMITS, DEFAULT_CRAFTS, OPTIONAL_KINDS, STATIONS } from '../../packs/limits.js';
+import { countsLine } from '../../packs/panel.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 

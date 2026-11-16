@@ -17,14 +17,14 @@
 // requires.capabilities is checked for form only).
 
 import { CALENDAR_FIELDS, CALENDAR_HOLIDAY_FIELDS, CALENDAR_LIMITS, CALENDAR_START_FIELDS, CHOICE_FIELDS, CONTENT_KINDS, COMMAND, CRAFT_FIELDS, ECONOMY_FIELDS, ECONOMY_LIMITS, CRAFTS_LIMITS, DEFAULT_CRAFTS, METER_FIELDS, METER_LIMITS, METER_PRESET_FIELDS, METER_RESERVED, METER_STAGE_FIELDS, RECIPE_LIMITS, STAT_SUM, DEF_ID, EVENT_FIELDS, EVENT_LIMITS, ITEM_FIELDS, ITEM_KINDS, LIMITS, MOUNTS, PACK_FIELDS, PACK_ID, PLACE_FIELDS, PRESET_FIELDS, RARITIES, ROUTE_FIELDS, SCREEN_FIELDS, SCREEN_ID, SEMVER, SKILL_FIELDS, SKILL_TARGETS, SKILL_TYPES, SLUG, START_FIELDS, STAT_NAME, RANK_FIELDS, RANK_ID, RANKS_LIMITS, TERM_SEPARATORS, ITEM_CARRY, MARKET_FIELDS, MARKET_LIMITS, MARKET_WORD, TERMS_FIELDS, TERMS_LIMITS, TERMS_NUMERALS, TERMS_TIER_FIELDS, WEATHER_FIELDS, WEATHER_LIMITS, WEATHER_SEASON_FIELDS, WEATHER_TABLE_FIELDS } from './limits.js';
-import { byteLength, checkPlain } from '../../../../../src/v2/packs/safety.js';
-import { parseRange, satisfies } from '../../../../../src/v2/packs/version.js';
-import { foldKey, oneLine } from '../../../../../../../core/text.js';
-import { MAX_DEPTH as MAX_TEMPLATE_DEPTH, tooDeep } from '../../../../../../../ui/legacy/view/template/html.js';
-import { MAX_LOOP_DEPTH, templateShape } from '../../../../../../../ui/legacy/view/template/index.js';
-import { MAX_JSON_DEPTH } from '../../../../../../../ui/legacy/view/template/json.js';
-import { MAX_AT_DEPTH, cssDepth, sheetEscape } from '../../../../../../../ui/legacy/view/css.js';
-import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../../src/v2/domains/money.js';
+import { byteLength, checkPlain } from '../../../../packs/safety.js';
+import { parseRange, satisfies } from '../../../../packs/version.js';
+import { foldKey, oneLine } from '../../../../core/text.js';
+import { MAX_DEPTH as MAX_TEMPLATE_DEPTH, tooDeep } from '../../../../ui/legacy/view/template/html.js';
+import { MAX_LOOP_DEPTH, templateShape } from '../../../../ui/legacy/view/template/index.js';
+import { MAX_JSON_DEPTH } from '../../../../ui/legacy/view/template/json.js';
+import { MAX_AT_DEPTH, cssDepth, sheetEscape } from '../../../../ui/legacy/view/css.js';
+import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../packages/story-block/src/v2/domains/money.js';
 
 export const HOST_VERSION = '2.0.0';
 

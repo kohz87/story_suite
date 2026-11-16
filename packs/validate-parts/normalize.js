@@ -1,9 +1,9 @@
 // The job: normalizing the fields of a pack object, running each content kind's own check and collecting the normalized pack.
 
 import { CONTENT_KINDS, DEFAULT_CRAFTS, METER_LIMITS, PACK_FIELDS, PACK_ID, SEMVER, TERMS_LIMITS } from '../limits.js';
-import { oneLine } from '../../../../../../core/text.js';
-import { validateDataModules } from '../../data-modules/check.js';
-import { STRINGS } from '../../../../../../core/strings.js';
+import { oneLine } from '../../core/text.js';
+import { validateDataModules } from '../../packages/story-block/src/v2/data-modules/check.js';
+import { STRINGS } from '../../core/strings.js';
 import { checkCast } from '../cast.js';
 import { isObject, records, openRecord } from '../validate/core.js';
 import {

@@ -1,6 +1,6 @@
 // The enabled packs' start: merged into one, and written into an initial State.
 
-import { foldKey } from '../../../../../../core/text.js';
+import { foldKey } from '../../core/text.js';
 import { copy } from './shared-copy.js';
 import { itemDef } from './items.js';
 

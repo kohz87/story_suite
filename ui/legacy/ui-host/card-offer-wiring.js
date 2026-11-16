@@ -1,6 +1,6 @@
 // Story Block v2's page furniture: the card offer's wiring, moved out of mountUi unchanged: the offer reads the character's lorebook, remembers "not now",
 // enables the data modules, and tells its problems to the turn's list and the card log (`cardLog`, shown in Diagnostics).
-import { createCardOffer, enableDataModules } from '../../../packages/story-block/src/v2/packs/card-offer.js';
+import { createCardOffer, enableDataModules } from '../../../packs/card-offer.js';
 
 export function createCardOfferWiring({ runtime, ctx, sdk, store, liveCtx, readLorebook, flushSettings, cardLog }) {
     return runtime.packs?.packs && runtime.cardSettings ? createCardOffer({

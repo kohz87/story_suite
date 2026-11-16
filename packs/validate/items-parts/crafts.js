@@ -1,7 +1,7 @@
 // Checking the crafts list that recipes use.
 
 import { SLUG, STAT_NAME, CRAFTS_LIMITS, CRAFT_FIELDS, TERM_SEPARATORS } from '../../limits.js';
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { records, isText } from '../core.js';
 
 const statList = (value, max) => Array.isArray(value) && value.length >= 1 && value.length <= max

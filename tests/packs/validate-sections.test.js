@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
-import { LIMITS, CONTENT_KINDS, OPTIONAL_KINDS } from '../../../src/v2/packs/limits.js';
+import { validatePack } from '../../packs/validate.js';
+import { LIMITS, CONTENT_KINDS, OPTIONAL_KINDS } from '../../packs/limits.js';
 import { pack } from './helpers/fixtures.js';
 import { refused, withItem } from './validate.helpers.js';
 

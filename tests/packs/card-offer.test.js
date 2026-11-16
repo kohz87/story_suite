@@ -2,8 +2,8 @@
 // with one click, never installed without it; the dot on the Story button waits until it is answered.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { countsLine, addsLine } from '../../../src/v2/packs/panel.js';
-import { buildReport } from '../../../../../core/diagnostics.js';
+import { countsLine, addsLine } from '../../packs/panel.js';
+import { buildReport } from '../../core/diagnostics.js';
 import { cardPack, cardWorld, goodPortrait, packEntry, portraitsEntry, settingsEntry, settle, tick } from './helpers/card.js';
 
 const nsd = (state = { portraitPromptFormat: 'hybrid' }) => ({

@@ -3,7 +3,7 @@
 // no content until the checker lands, that answer is never kept, and the turn's wait (ready) is what ends the gap.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createInstalled, checkerLoaded } from '../../../src/v2/packs/installed.js';
+import { createInstalled, checkerLoaded } from '../../packs/installed.js';
 
 const TINY = { id: 'tiny', name: 'Tiny', version: '1.0.0', requires: { storyBlock: '^2' }, content: { items: [{ name: 'Brass key', slot: 'hand' }] } };
 const root = { packs: [{ id: 'tiny', version: '1.0.0', enabled: true, source: 'file', origin: '', pack: TINY }] };

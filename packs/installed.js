@@ -21,7 +21,7 @@ import { HOST_VERSION } from './validate/core.js';
 import { findPackEntries } from './lorebook.js';
 import { byteLength } from './safety.js';
 import { packTag } from './kind.js';
-import { deepFreeze } from '../../../../../core/ops/freeze.js';
+import { deepFreeze } from '../core/ops/freeze.js';
 
 const SOURCES = ['file', 'lorebook'];
 

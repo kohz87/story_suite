@@ -3,19 +3,19 @@
 // come in as one zip that the importer reads.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../packs/validate.js';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { checkCast } from '../../../src/v2/packs/cast.js';
-import { CAST_BEHAVIOUR_LEVELS, CAST_BEHAVIOUR_LEVERS, CAST_LIMITS, METER_LIMITS, PORTRAIT_LIMITS, ZIP_LIMITS } from '../../../src/v2/packs/limits.js';
-import { readPackZip } from '../../../src/v2/packs/bundle.js';
-import { createPacksPart } from '../../../src/v2/packs/index.js';
+import { checkCast } from '../../packs/cast.js';
+import { CAST_BEHAVIOUR_LEVELS, CAST_BEHAVIOUR_LEVERS, CAST_LIMITS, METER_LIMITS, PORTRAIT_LIMITS, ZIP_LIMITS } from '../../packs/limits.js';
+import { readPackZip } from '../../packs/bundle.js';
+import { createPacksPart } from '../../packs/index.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { fakeFiles } from './helpers/portraits.js';
-import { sniffImage } from '../../../src/v2/packs/portraits.js';
+import { sniffImage } from '../../packs/portraits.js';
 import { zip } from './helpers/zip.js';
-import { defaultFlags, healingSkill } from '../../../src/v2/lean-rpg/board/flags.js';
+import { defaultFlags, healingSkill } from '../../packages/story-block/src/v2/lean-rpg/board/flags.js';
 
-const folder = new URL('../../../examples/packs/ersveil/', import.meta.url);
+const folder = new URL('../../packages/story-block/examples/packs/ersveil/', import.meta.url);
 const packText = readFileSync(new URL('pack.json', folder), 'utf8');
 const pack = () => JSON.parse(packText);
 const cast = () => pack().content.cast;

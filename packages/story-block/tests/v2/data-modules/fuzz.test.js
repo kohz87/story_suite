@@ -4,7 +4,7 @@
 // writes the chat at the first failure and the chat before the step). Seeds that once failed stay in RETAINED.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../../../../packs/validate.js';
 import { generate, witnessDefinition, mutate, rng } from './fuzz/generate.js';
 import { runFuzz } from './fuzz/run.js';
 

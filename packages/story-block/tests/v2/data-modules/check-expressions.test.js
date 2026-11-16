@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../src/v2/packs/validate.js';
+import { validatePack } from '../../../../../packs/validate.js';
 import { validateDataMigration } from '../../../src/v2/data-modules/check.js';
 import { integer, change, definition, pack, ok, refuse, edit, reward, timer, clock } from './check.helpers.js';
 

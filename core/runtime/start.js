@@ -3,7 +3,7 @@
 
 import { CORE_MODULE_ID } from '../../packages/story-block/src/v2/domains/index.js';
 import { WALLET_KEY } from '../../packages/story-block/src/v2/domains/money.js';
-import { applyStart, createPacksPart } from '../../packages/story-block/src/v2/packs/index.js';
+import { applyStart, createPacksPart } from '../../packs/index.js';
 import { newId } from '../sdk.js';
 
 /**

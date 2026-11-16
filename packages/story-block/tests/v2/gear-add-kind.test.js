@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../testkit/index.js';
 import { addPlan } from '../../../../ui/legacy/view/gear-form.js';
-import { validatePack } from '../../src/v2/packs/validate.js';
-import { pack } from './packs/helpers/fixtures.js';
+import { validatePack } from '../../../../packs/validate.js';
+import { pack } from '../../../../tests/packs/helpers/fixtures.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

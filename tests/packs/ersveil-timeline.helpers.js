@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { evaluateCondition } from '../../../../../modules/world/events/condition.js';
-import { rippleChoice } from '../../../src/v2/packs/content.js';
+import { evaluateCondition } from '../../modules/world/events/condition.js';
+import { rippleChoice } from '../../packs/content.js';
 
-export const pack = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+export const pack = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 export const OWN = ['bluewatch-guild-board', 'bluewatch-signal-braziers', 'the-turning-611', 'the-turning-612', 'the-turning-613', 'ghost-fleet-waters', 'wailing-battlefield-nights'];
 export const events = pack.content.events;
 export const beats = events.filter(event => !OWN.includes(event.id));

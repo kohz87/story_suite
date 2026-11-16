@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
-import { satisfies } from '../../../../packages/story-block/src/v2/packs/version.js';
+import { satisfies } from '../../../../packs/version.js';
 import { STORY_BLOCK_RANGE, createModule } from '../../../../ui/legacy/director/module.js';
 import { MAX_PLACES, NEW_PER_REPLY, applyLandmarkLine, applyRouteLine } from '../../../../modules/atlas/atlas/capture.js';
 import { initialAtlas } from '../../../../modules/atlas/atlas/domain.js';

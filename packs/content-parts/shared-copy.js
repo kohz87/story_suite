@@ -1,6 +1,6 @@
 // Deep copy and frozen sharing of pack records, used by every lookup over the packs.
 
-import { deepFreeze } from '../../../../../../core/ops/freeze.js';
+import { deepFreeze } from '../../core/ops/freeze.js';
 
 export const copy = value => JSON.parse(JSON.stringify(value));
 

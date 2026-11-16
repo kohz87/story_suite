@@ -1,7 +1,7 @@
 // Checking places and routes on the map.
 
 import { PLACE_FIELDS, LIMITS, RECORD_LIMITS, MARKET_WORD, MARKET_LIMITS, RARITIES, ROUTE_FIELDS } from '../../limits.js';
-import { oneLine, foldKey } from '../../../../../../../core/text.js';
+import { oneLine, foldKey } from '../../../core/text.js';
 import { isNumber, isText, isObject, slugify } from '../core.js';
 
 // A place on the map: a name, coordinates in map units (x east, y north) and what it is.

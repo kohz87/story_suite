@@ -2,10 +2,10 @@
 // queries and hooks as another part reaches them, and the live binding to SillyTavern.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPacksPart, part as livePart, packs as livePacks, resolveItem as liveResolve, startState as liveStart } from '../../../src/v2/packs/index.js';
-import { slugify } from '../../../src/v2/packs/validate.js';
-import { rippleChoice } from '../../../src/v2/packs/content.js';
-import { foldKey } from '../../../../../core/text.js';
+import { createPacksPart, part as livePart, packs as livePacks, resolveItem as liveResolve, startState as liveStart } from '../../packs/index.js';
+import { slugify } from '../../packs/validate.js';
+import { rippleChoice } from '../../packs/content.js';
+import { foldKey } from '../../core/text.js';
 import { fakeCtx } from './helpers/fake-ctx.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { installFakeSillyTavern } from './helpers/fake-st.js';
@@ -76,7 +76,7 @@ test('item resolution order seen from inventory capture: inventory, packs, story
 });
 
 test('the settings panel renderer binds to the part\'s own list', async () => {
-    const { installFakeDom } = await import('../../../../../tests/helpers/ui-fake-dom.js');
+    const { installFakeDom } = await import('../helpers/ui-fake-dom.js');
     const doc = installFakeDom();
     const { part, packs } = createPacksPart({ settings: fakeSettings() });
     await packs.install(pack({ id: 'shown', name: 'Shown Pack' }));
@@ -161,7 +161,7 @@ test('ripple choices check pack provenance, all rows and ids before scoring', ()
 });
 
 test('a real host with no registered Ripples query uses the authored fallback', async t => {
-    const { createHost } = await import('../../../testkit/index.js');
+    const { createHost } = await import('../../packages/story-block/testkit/index.js');
     const host = await createHost();
     t.after(() => host.close());
     const ripples = { powers: ['wendhild', 'corvin', 'hasse'].map((id, i) => ({ id, name: id, base: 40 - i })) };
@@ -173,7 +173,7 @@ test('a name-only pack is counted by culture, with warnings visible but enabled'
     const { packs } = createPacksPart({ settings: fakeSettings() });
     const names = { banned: ['Elara'], river: { regions: ['River'], given: ['Wenna'] } };
     assert.equal((await packs.install(pack({ id: 'names-only', content: { names } }))).ok, true);
-    const { addsLine } = await import('../../../src/v2/packs/panel.js');
+    const { addsLine } = await import('../../packs/panel.js');
     assert.equal(addsLine(packs.list()[0]), '1 name list');
     const bad = await packs.install(pack({ id: 'warn', ripples: [], content: { names, items: [{ name: 'Rope' }] } }));
     assert.equal(bad.ok, true);

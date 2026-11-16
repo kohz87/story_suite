@@ -1,7 +1,7 @@
 // Checking shops and recipes.
 
 import { SLUG, DEFAULT_CRAFTS, RECIPE_LIMITS, STAT_SUM } from '../../limits.js';
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { isInt, isObject, openRecord } from '../core.js';
 
 export function checkShop(record, path, add, ref) {

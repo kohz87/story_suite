@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
-import { castSkillsOf } from '../../packages/story-block/src/v2/packs/cast-skills.js';
-import { CAST_LIMITS, CAST_SKILL_STATS } from '../../packages/story-block/src/v2/packs/limits.js';
+import { validatePack } from '../../packs/validate.js';
+import { castSkillsOf } from '../../packs/cast-skills.js';
+import { CAST_LIMITS, CAST_SKILL_STATS } from '../../packs/limits.js';
 import { STATS } from '../../packages/story-block/src/v2/lean-rpg/names.js';
 import { SKILL_SLOTS_MAX, skillSlots, signatureAt } from '../../core/runtime/skill-slots.js';
 import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';

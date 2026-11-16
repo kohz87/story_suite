@@ -1,5 +1,5 @@
 // Pictures and a file store for the portrait tests.
-import { PORTRAIT_LIMITS } from '../../../../src/v2/packs/limits.js';
+import { PORTRAIT_LIMITS } from '../../../packs/limits.js';
 
 const fill = (head, size, seed = 0) => {
     const bytes = new Uint8Array(size);

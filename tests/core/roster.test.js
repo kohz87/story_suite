@@ -6,14 +6,14 @@ import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
 import { createFakeModel } from '../../packages/story-block/testkit/model.js';
 import { createRegistry } from '../../core/registry.js';
-import { validatePack } from '../../packages/story-block/src/v2/packs/validate.js';
+import { validatePack } from '../../packs/validate.js';
 import { STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
 import { actorIdOf, levelsQuery, rosterOf, rosterQueries } from '../../packages/story-block/src/v2/lean-rpg/roster.js';
 import { gearMatches, planGear } from '../../packages/story-block/src/v2/lean-rpg/gear.js';
 import { readSheet } from '../../packages/story-block/src/v2/lean-rpg/index.js';
 import { hashJson } from '../../core/replay.js';
 import { reply as dmReply, success } from '../../packages/story-block/tests/v2/data-modules/helpers.js';
-import { pack } from '../../packages/story-block/tests/v2/packs/helpers/fixtures.js';
+import { pack } from '../packs/helpers/fixtures.js';
 import { character, sheetDomain } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
 import { legacyPlanner } from '../../packages/story-block/tests/v2/lean-rpg/legacy-planner.js';
 

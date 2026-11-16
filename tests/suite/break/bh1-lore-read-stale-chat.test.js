@@ -3,8 +3,8 @@
 // is open were those of the one before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPacksPart } from '../../../packages/story-block/src/v2/packs/index.js';
-import { fakeSettings } from '../../../packages/story-block/tests/v2/packs/helpers/fake-settings.js';
+import { createPacksPart } from '../../../packs/index.js';
+import { fakeSettings } from '../../packs/helpers/fake-settings.js';
 
 const entry = (title, type) => ({ book: 'World', uid: 1, title, keys: [], content: `market: ${type}` });
 

@@ -2,8 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateDataModules, validateDataMigration } from '../../../src/v2/data-modules/check.js';
-import { checkScreens } from '../../../src/v2/packs/validate.js';
-import { SCREEN_FIELDS } from '../../../src/v2/packs/limits.js';
+import { checkScreens } from '../../../../../packs/validate.js';
+import { SCREEN_FIELDS } from '../../../../../packs/limits.js';
 
 const CAPS = ['data-modules-v1'];
 const record = () => ({ slug: 'quests', name: 'Quests', schema: 1, stateVersion: 1, scope: 'chat', kinds: {},

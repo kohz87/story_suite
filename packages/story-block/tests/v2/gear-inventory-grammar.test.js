@@ -2,12 +2,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GEAR, defaultStat, gearSlotOf, itemCarryOf, kindCarry, statsFor, statsOf, stepUp, withinBudget } from '../../src/v2/domains/gear.js';
-import { validatePack } from '../../src/v2/packs/validate.js';
+import { validatePack } from '../../../../packs/validate.js';
 import { createHost } from '../../testkit/index.js';
 import { createCoreModule } from '../../src/v2/domains/index.js';
 import { createHarness, line } from './domains/helpers/fake-ctx.js';
 import { core, stocked } from './domains/fixtures.js';
-import { pack } from './packs/helpers/fixtures.js';
+import { pack } from '../../../../tests/packs/helpers/fixtures.js';
 import { FIGHT, ITEM_LINE, ON, defNamed, equip, fresh, gearCore, reply, staticOf, tail, wear } from './gear-inventory.helpers.js';
 
 test('stats: the narrator\'s named stats are held to the budget; with none named the kind or name picks; every slot gives them; a pack lists its own', async () => {

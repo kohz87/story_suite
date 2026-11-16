@@ -2,9 +2,9 @@
 // fake world-info API, and installing what was found.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { entryText, findPackEntries, isPackTitle } from '../../../src/v2/packs/lorebook.js';
-import { readCharacterLorebook } from '../../../src/v2/packs/st-adapter.js';
-import { createInstalled } from '../../../src/v2/packs/installed.js';
+import { entryText, findPackEntries, isPackTitle } from '../../packs/lorebook.js';
+import { readCharacterLorebook } from '../../packs/st-adapter.js';
+import { createInstalled } from '../../packs/installed.js';
 import { installFakeSillyTavern, worldInfo } from './helpers/fake-st.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack, sampleText } from './helpers/fixtures.js';

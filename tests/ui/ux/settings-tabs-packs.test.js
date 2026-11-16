@@ -13,7 +13,7 @@ import { estimateTokens } from '../../../core/prompt.js';
 import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 import { PROMPT_FOLD, PROMPT_KEYS, PROMPT_SCHEMA, PROMPT_TEXT, createPromptReader, footerSummary } from '../../../ui/legacy/view/settings/prompt.js';
 import { renderTabsCard } from '../../../ui/legacy/view/settings/tabs-list.js';
-import { sampleText } from '../../../packages/story-block/tests/v2/packs/helpers/fixtures.js';
+import { sampleText } from '../../packs/helpers/fixtures.js';
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 const texts = (root, selector) => root.querySelectorAll(selector).map(node => node.textContent);
