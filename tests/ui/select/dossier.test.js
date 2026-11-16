@@ -132,4 +132,11 @@ describe('selectDossier', () => {
     assert.equal(bare.id, 'nobody');
     assert.deepEqual(checkShape(bare, DOSSIER_SHAPE), []);
   });
+
+  it('leaves the harness-only tie portraits and profile likes out until there is a data source (owner question)', () => {
+    const vm = selectDossier(ALL);
+    assert.equal(vm.ties.length > 0, true);
+    assert.deepEqual(vm.ties.filter(t => 'portrait' in t), []);
+    assert.equal('likes' in vm.profile, false);
+  });
 });
