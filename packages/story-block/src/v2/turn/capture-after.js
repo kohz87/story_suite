@@ -9,7 +9,7 @@ import { occurrenceOf } from '../evidence.js';
 import { occurrenceFor } from './capture-seeds.js';
 
 export function createCaptureAfter(deps) {
-    const { ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, HOOK_TIMEOUT_MS } = deps;
+    const { ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, HOOK_TIMEOUT_MS, isolated = () => false } = deps;
     /**
      * afterCapture (SPEC §4.2 step 3): once the reply's story lines have run, each module's
      * `afterCapture(view, { index, type })` hook may return `{ commands: [{ type, payload }] }` to run as
@@ -48,6 +48,12 @@ export function createCaptureAfter(deps) {
             if (out === TIMED_OUT) {
                 problems.push(problem({ module: moduleId, index, code: 'TIMEOUT', message: `afterCapture did not answer within ${HOOK_TIMEOUT_MS / 1000} s; its steps after the reply's lines were not run.` }));
                 continue;
+            }
+            // Flag `suite.isolatedApply`: the problems a hook answers (a part that failed in a merged hook, a note of its own) are the module's Problems.
+            if (isolated() === true) {
+                for (const item of Array.isArray(out?.problems) ? out.problems : []) {
+                    problems.push(problem({ module: moduleId, index, code: item?.code ?? 'FAILED', message: String(item?.message ?? item ?? 'afterCapture reported a problem') }));
+                }
             }
             for (const command of Array.isArray(out?.commands) ? out.commands : []) {
                 const payload = command?.payload ?? {};

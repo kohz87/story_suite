@@ -22,7 +22,7 @@ export function createCaptureFlow(s, deps) {
     const { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, boardError, PRACTICE_LINE, HOOK_TIMEOUT_MS } = deps;
     const markHistory = createMarkHistory();
     const holdBoard = message => Object.assign(new Error(`${boardFailure('The fight could not be saved:', message)} Once restored, this reply can finish; after discarding, regenerate it.`), { code: 'BOARD_PRELUDE' });
-    const { afterCapture } = createCaptureAfter({ ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, HOOK_TIMEOUT_MS });
+    const { afterCapture } = createCaptureAfter({ ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, HOOK_TIMEOUT_MS, isolated: deps.isolated });
     // Runs the reply's change lines; returns { receipts, problems }.
     // Each line runs on the state the lines before it left (bus.run's `state`), as its owner's
     // capture handler (bus.run's `capture`), and is stored on the reply before the next one runs.
