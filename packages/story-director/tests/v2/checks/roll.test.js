@@ -42,15 +42,15 @@ test('standalone: bonuses[stat] and each matching topic once; the outcome is the
     assert.equal(out.result.narrate, true);
 });
 
-test('outcomes: natural 20 and 1, success, cost within the margin, fail; no dc uses the setting', () => {
+test('outcomes: natural 20 and 1, success at the number, fail one short (no cost outcome); no dc uses the setting', () => {
     const { state } = withActor();
     const outcome = (die, dc, settings) => roll(state, dc ? { dc } : {}, { die, settings }).result.data.v2.result.outcome;
     assert.equal(outcome(20, 40), 'crit');
     assert.equal(outcome(1, 1), 'critfail');
     assert.equal(outcome(10, 10), 'success');
-    assert.equal(outcome(8, 10), 'cost');
-    assert.equal(outcome(7, 10), 'fail');
-    assert.equal(outcome(7, 10, { costMargin: 3 }), 'cost');
+    assert.equal(outcome(9, 10), 'fail');
+    assert.equal(outcome(8, 10), 'fail');
+    assert.equal(outcome(7, 10, { costMargin: 3 }), 'fail', 'an old setting changes nothing');
     assert.equal(roll(state, {}, { die: 14, settings: { defaultDc: 14 } }).result.data.v2.result.outcome, 'success');
     assert.equal(roll(state, {}, { die: 14 }).result.data.v2.result.dc, 15);
 });
@@ -119,7 +119,7 @@ test('no character yet: the check is the player\'s with no bonuses, logged with 
     const out = roll(makeState(), { dc: 12 }, { die: 11 });
     assert.ok(out.ok, out.message);
     const result = out.result.data.v2.result;
-    assert.deepEqual([result.actor, result.die, result.mod, result.total, result.outcome, result.modifiers], [null, 11, 0, 11, 'cost', []]);
+    assert.deepEqual([result.actor, result.die, result.mod, result.total, result.outcome, result.modifiers], [null, 11, 0, 11, 'fail', []]);
     assert.equal(how(out).actor, null);
     assert.match(out.result.summary, /^You try Stealth: d20 11 \+0 = 11 against 12/);
     assert.deepEqual(out.state.domains.checks.policy, makeState().domains.checks.policy, 'no actor is made for the reader');

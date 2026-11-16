@@ -102,7 +102,7 @@ test('the module registers whole: screens instead of tabs, settings fields, capt
         'arc.autoAccept', 'arc.genre', 'arc.keepNote', 'arc.lowThreads', 'arc.maxTokens', 'arc.note', 'arc.profile', 'arc.recent', 'arc.stallDays', 'arc.trigger',
         'atlas.map.east', 'atlas.map.era', 'atlas.map.kmPerUnit', 'atlas.map.north', 'atlas.map.roadFactor',
         'cast.faces', 'cast.on', 'cast.profile', 'cast.unmetDie',
-        'checks.costMargin', 'checks.defaultDc', 'checks.social',
+        'checks.defaultDc', 'checks.social',
         'chronicle.digestDays', 'chronicle.digestKeep', 'chronicle.digestTail', 'keypeople.cap', 'keypeople.tokens', 'names.banned', 'names.suggestions', 'pulse.invents', 'pulse.mode', 'pulse.showUnderReply',
         'screens.hideBehind', 'time.lapses', 'time.recapHours',
         'tracker.calendar.era', 'tracker.calendar.leapYears', 'tracker.calendar.months', 'tracker.calendar.preset', 'tracker.calendar.week',

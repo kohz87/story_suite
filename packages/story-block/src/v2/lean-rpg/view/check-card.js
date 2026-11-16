@@ -4,7 +4,7 @@ import { PRACTICE, RANK_NAMES } from '../names.js';
 import { RPG_STRINGS } from '../strings.js';
 import { fold } from '../read.js';
 
-const OUTCOME = Object.freeze({ success: ['ok', 'Success'], cost: ['cost', 'Success at a cost'], fail: ['fail', 'Fail'] });
+const OUTCOME = Object.freeze({ success: ['ok', 'Success'], fail: ['fail', 'Fail'] });
 
 const el = (doc, tag, className = '', text) => {
     const node = doc.createElement(tag);
