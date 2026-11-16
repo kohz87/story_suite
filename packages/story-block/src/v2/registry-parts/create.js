@@ -6,6 +6,10 @@ import { createFeatureLookups } from '../registry/features.js';
 import { createLifecycle } from '../registry/lifecycle.js';
 import { createRegistration } from '../registry/registration.js';
 
+// The replay rules the host itself applies, by letter (REPLAY.md): a rule that changes what a replay returns gets a new letter here, so memos kept under the old rule are not reused.
+// g: a deferred domain's later writes seed it when its first writer was deleted.
+const REPLAY_RULES = 'rules:g';
+
 export function createRegistry({ hostVersion = null, warn = message => console.warn(`[Story Suite] ${message}`), featureValue = () => undefined } = {}) {
     const defs = new Map();
     // C3-5: each module's features as they were when it registered (module id → [declaration]): a
@@ -46,7 +50,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
             const def = defs.get(id)?.domains?.[name] ?? {};
             const list = value => (Array.isArray(value) ? value.join('+') : '');
             return `${name}@${id}@${defs.get(id)?.version ?? ''}:${typeof def.validate === 'function' ? 'v' : ''}:${list(def.scratch)}:${list(def.counters)}`;
-        }).join(';'),
+        }).join(';') + `;${REPLAY_RULES}`,
         commandOwner,
         captureOwner: kind => captureEntry(kind)?.moduleId ?? null,
         queryOwner: name => owners.query.get(name) ?? null,

@@ -437,9 +437,14 @@ The QA oracle (`tests/v2/qa/helpers/oracle.js`) writes the rule on its own with 
 
 Story Block's `people` is the first user: its `initial()` is `{ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } }`, and
 both its writers start a new slice from it, so NPC State's later meter moves survive deleting the reply that made the slice (and the
-reply of the first move, when a dossier write made the slice). Left as it was: a write under a person only the deleted reply made,
-and a later scan-marker change (`scan` has no empty value, so a later `people.write` whose marker the deleted reply first stored is
-skipped with its block; NPC State's next commit writes the marker and the view again).
+reply of the first move, when a dossier write made the slice). The scan marker is stored as the array `[lastSid, swipeKey, since]`, so
+every marker change is one whole `replace` of `scan` (a diff never splits an array into leaves) and survives deleting the reply that
+first stored it. Left as it was: a write under a person only the deleted reply made.
+
+The replay rules the host applies are named in the registry's `rulesSignature()` (`rules:g` for this rule), which is part of the replay
+environment the store keys its kept answers and prefix memos on: a state kept under an older rule is not reused. Checkpoints saved in a
+chat file are keyed on their prefix hash only (above); one saved under the older rule stays valid until the next reply or rebuild
+rewrites it, which is accepted (the owner's chats were started again, nothing older exists).
 
 ## Decisions where the contract is silent
 
