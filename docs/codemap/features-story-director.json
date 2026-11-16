@@ -1,4 +1,3 @@
 [
-  { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads for Story Director." },
-  { "name": "Checks and danger", "entry": "src/v2/checks/index.js", "about": "Story checks, danger words and rolls." }
+  { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads for Story Director." }
 ]

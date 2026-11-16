@@ -19,5 +19,8 @@
   { "name": "Chronicle", "entry": "modules/world/chronicle/index.js", "about": "The running record of story days and what happened." },
   { "name": "Time and weather", "entry": "modules/time/index.js", "about": "Story clock, days advancing, recaps and weather." },
   { "name": "Layouts and screens", "entry": "ui/legacy/layout/index.js", "about": "Screen layout definitions, validation and rendering." },
-  { "name": "Packs", "entry": "packs/index.js", "about": "Loads story packs and their events, items and rules." }
+  { "name": "Packs", "entry": "packs/index.js", "about": "Loads story packs and their events, items and rules." },
+  { "name": "Lean RPG (rolls, fights, gear)", "entry": "modules/rpg/index.js", "about": "The optional RPG module: checks, the fight board, gear and levels." },
+  { "name": "Fight board", "entry": "modules/rpg/board/commit.js", "about": "Commits staged board choices as the reply's one guarded RPG resolution." },
+  { "name": "Checks and danger", "entry": "modules/rpg/checks/index.js", "about": "Story checks, danger words and rolls." }
 ]
