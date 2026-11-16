@@ -101,3 +101,16 @@ test('an unknown mode prints usage and fails', () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /usage/);
 });
+
+test('docs/codemap/features.json lists feature entry points for files outside the packages: rendered in the root map, a missing file fails', withRepo(dir => {
+  put(dir, 'core/b.js', '// Does b.\nexport const b = 1;\n');
+  put(dir, 'docs/codemap/features.json', '[{"name":"Core b","entry":"core/b.js","about":"The b part."}]\n');
+  assert.equal(run(dir, '--write').status, 0);
+  const root = fs.readFileSync(path.join(dir, 'docs/codemap.md'), 'utf8');
+  assert.match(root, /## Feature entry points[\s\S]*\| Core b \| `core\/b\.js` \| The b part\. \|/);
+  assert.equal(run(dir, '--check').status, 0);
+  put(dir, 'docs/codemap/features.json', '[{"name":"Core b","entry":"core/gone.js","about":"The b part."}]\n');
+  const bad = run(dir, '--check');
+  assert.equal(bad.status, 1);
+  assert.match(bad.out, /docs\/codemap\/features\.json: feature "Core b" points at core\/gone\.js, which is not a file in the map/);
+}));

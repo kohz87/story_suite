@@ -1,0 +1,11 @@
+[
+  { "name": "Runtime start-up", "entry": "core/runtime.js", "about": "Builds the host, registers modules and hooks chat events." },
+  { "name": "Prompt building", "entry": "core/prompt.js", "about": "Assembles the static text and tail Story Block adds to each reply's prompt." },
+  { "name": "Reply capture", "entry": "core/capture.js", "about": "Reads state changes out of a finished reply." },
+  { "name": "Saving and persistence", "entry": "core/persist.js", "about": "Stores story state in the chat and its files." },
+  { "name": "Replay and rewind", "entry": "core/replay.js", "about": "Rebuilds state from the chat after a swipe, edit or delete." },
+  { "name": "Commands", "entry": "core/commands.js", "about": "The command registry every screen and module changes state through." },
+  { "name": "Module registry", "entry": "core/registry.js", "about": "registerModule: how modules add parts, screens, widgets and queries." },
+  { "name": "Public API", "entry": "core/public-api.js", "about": "The frozen read-only StoryBlock.api other extensions use." },
+  { "name": "Model calls", "entry": "core/model-call.js", "about": "Helper model calls and their connection profile." }
+]
