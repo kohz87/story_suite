@@ -52,6 +52,7 @@ import { createUiMounts } from './ui-host/mounts.js';
 import { createUiNavigation } from './ui-host/navigation.js';
 import { createUiSettings } from './ui-host/settings.js';
 import { installUiEvents, createHold } from './ui-host/events.js';
+import { wireRedraw } from './ui-host/redraw-wiring.js';
 import { createUiPanel } from './ui-host/panel.js';
 import { createSendNote } from './ui-host/send-note.js';
 import { createHostSetup } from './ui-host/setup.js';
@@ -74,7 +75,8 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     });
     const { rpgOn, blockPresentation, syncScreens } = createScreenSync({ doc, registry, sdk, screens, setSharedTabs });
 
-    const redrawHold = createHold();
+    let wiring = null;
+    const redrawHold = createHold(() => wiring?.hold());
     const api = createHostApi({ sdk, redrawHold, getMounts: () => mounts });
     const carriers = () => (ctx.chat ?? []).map((message, index) => (message && !message.is_user ? index : -1)).filter(index => index >= 0);
     // Cards go under replies with a story record of their own; never under the greeting (every message
@@ -256,10 +258,11 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         refresh();
         return Boolean(on);
     }
+    wiring = wireRedraw({ on: () => flagOn(() => ctx?.extensionSettings, FLAGS.redrawScheduler), mounts, getPanel: () => panel, getTabHost: () => tabHost, getOverlay: () => overlay });
     const offs = installUiEvents({
         replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer,
         blockPresentation, syncScreens, syncLeanRpg, refresh, clearBlocked, getPanel: () => panel,
-        getTabHost: () => tabHost, getOverlay: () => overlay, getBlockedBy: () => blockedBy, redrawHold,
+        getTabHost: () => tabHost, getOverlay: () => overlay, getBlockedBy: () => blockedBy, redrawHold, wiring,
     });
 
     syncScreens();
@@ -300,6 +303,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
             theme.destroy();
             doc.removeEventListener?.('keydown', onKey);
             offs.splice(0).forEach(off => off?.());
+            wiring.destroy();
             notes.destroy();
             sendNote.destroy();
             extras.destroy();
