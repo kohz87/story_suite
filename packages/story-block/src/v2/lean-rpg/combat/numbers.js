@@ -22,7 +22,12 @@ export const V1 = deep({
     damage: { statDiv: 2, healDiv: 3, min: 1 },
     soak: { stanceStep: 5 },
     tempoStanceBonus: 1,
-    foe: { rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6, damageRound: 0.5, defaultTier: 'standard', groupMax: 6 },
+    foe: {
+        rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6,
+        damageRound: 0.5, defaultTier: 'standard', groupMax: 6, attackCapTimes: 2,
+        loneTiers: ['elite', 'boss', 'apex'],
+    },
+    fight: { maxExchanges: 60, healBelowTimes: 2, areaTargets: 2 },
     cost: { normal: 0, attack: 1, area: 2, heal: 2, stance: 1, utility: 0 },
     skill: {
         defaultType: 'attack', normalType: 'normal', fallbackTypes: ['attack', 'area'],
