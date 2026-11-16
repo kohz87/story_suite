@@ -59,8 +59,8 @@ export function describeTestkit() {
             const lines = readFileSync(vendored, 'utf8').trim().split('\n');
             return `${lines.slice(0, 2).join(', ')} (vendored), matrix ${MATRIX_VERSION}`;
         }
-        const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('../../docs/history/packages/story-block/package.json', import.meta.url)), 'utf8'));
-        return `Story Block ${pkg.version} (checkout), matrix ${MATRIX_VERSION}`;
+        const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8'));
+        return `Story Suite ${pkg.version} (checkout), matrix ${MATRIX_VERSION}`;
     } catch {
         return `matrix ${MATRIX_VERSION} (${here})`;
     }

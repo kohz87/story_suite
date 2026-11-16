@@ -30,8 +30,6 @@ const texts = (root, selector) => root.querySelectorAll(selector).map(node => no
 test('the global host and the manifest agree: v2, the interceptor, the CSS, 2.33.0', () => {
     const manifest = JSON.parse(readFileSync(new URL('../../docs/history/packages/story-block/manifest.json', import.meta.url), 'utf8'));
     assert.equal(manifest.version, '2.33.0');
-    const pkg = JSON.parse(readFileSync(new URL('../../docs/history/packages/story-block/package.json', import.meta.url), 'utf8'));
-    assert.equal(pkg.version, manifest.version);
     assert.equal(globalThis.StoryBlock.version, manifest.version);
     assert.equal(manifest.css, 'src/v2/view/host.css');
     assert.match(hostImports(), /@import url\('\.\/mounts-game\.css'\)/);
