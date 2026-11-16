@@ -11,6 +11,7 @@
     { "from": "packages/story-block/src/v2/capture", "to": "core/capture", "stem": true },
     { "from": "packages/story-block/src/v2/ops", "to": "core/ops", "stem": true },
     { "from": "packages/story-block/src/v2/turn", "to": "core/turn", "stem": true },
+    { "from": "packages/story-block/src/v2/interaction", "to": "core/interaction", "stem": true },
     { "from": "packages/story-block/src/v2/prompt", "to": "core/prompt", "stem": true },
     { "from": "packages/story-block/src/v2/registry", "to": "core/registry", "stem": true },
     { "from": "packages/story-block/src/v2/registry-checks", "to": "core/registry/registry-checks", "stem": true },
