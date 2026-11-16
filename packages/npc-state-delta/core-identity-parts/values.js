@@ -18,17 +18,22 @@ export function normalizeBoolean(value, fallback = false) {
     return Boolean(fallback);
 }
 
-// Gender is male, female or blank (the dossier shows blank as "not stated"). The story's own word is read: male/man/boy/he/him/masculine, female/woman/girl/she/her/feminine
-// (a short phrase such as "a young woman" counts); a word that is neither, or both, or a long sentence, is not stated.
-const MALE_WORDS = new Set(['male', 'man', 'boy', 'he', 'him', 'his', 'masculine', 'gentleman', 'guy']);
-const FEMALE_WORDS = new Set(['female', 'woman', 'girl', 'she', 'her', 'hers', 'feminine', 'lady', 'gal']);
+// Gender is male, female or blank (the dossier shows blank as "not stated"). The story's own word is read, short phrases included ("a young woman", "her brother"):
+// a gendered noun decides (man, woman, brother, sister, queen, "Mr", ...); a pronoun (he, she, ...) decides only when no noun is there; "her brother" is male because the
+// noun wins. Two nouns that disagree, a word that is neither, or a long sentence is not stated. A possessive (his, her, hers) decides only when it is the whole answer.
+const MALE_NOUNS = new Set(['male', 'man', 'boy', 'masculine', 'gentleman', 'guy', 'brother', 'son', 'father', 'dad', 'husband', 'uncle', 'nephew', 'grandfather', 'king', 'prince', 'lord', 'sir', 'mr', 'duke', 'count', 'emperor']);
+const FEMALE_NOUNS = new Set(['female', 'woman', 'girl', 'feminine', 'lady', 'gal', 'sister', 'daughter', 'mother', 'mom', 'wife', 'aunt', 'niece', 'grandmother', 'queen', 'princess', 'madam', 'mrs', 'miss', 'ms', 'duchess', 'countess', 'empress']);
+const MALE_PRONOUNS = new Set(['he', 'him', 'himself']);
+const FEMALE_PRONOUNS = new Set(['she', 'herself']);
 export function normalizeGender(value) {
     const words = normalizeName(value).split(/[^a-z]+/).filter(Boolean);
     if (!words.length || words.length > 3) return '';
-    const male = words.some(word => MALE_WORDS.has(word));
-    const female = words.some(word => FEMALE_WORDS.has(word));
-    if (male === female) return '';
-    return male ? 'male' : 'female';
+    const kinds = (nouns, pronouns) => ({ noun: words.some(word => nouns.has(word)), pronoun: words.some(word => pronouns.has(word)) });
+    const male = kinds(MALE_NOUNS, MALE_PRONOUNS);
+    const female = kinds(FEMALE_NOUNS, FEMALE_PRONOUNS);
+    if (male.noun || female.noun) return male.noun && female.noun ? '' : (male.noun ? 'male' : 'female');
+    if (male.pronoun === female.pronoun) return words.length === 1 && words[0] === 'his' ? 'male' : (words.length === 1 && (words[0] === 'her' || words[0] === 'hers') ? 'female' : '');
+    return male.pronoun ? 'male' : 'female';
 }
 
 export function normalizeDossierSignal(value) {

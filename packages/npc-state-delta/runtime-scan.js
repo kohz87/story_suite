@@ -21,6 +21,7 @@ import { normalizeAllowance } from './src/relationship-pacing.js';
 import { seedNewAdmissions, notifyStaleCleanup } from './runtime-scan-parts/capture-result.js';
 import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from './runtime-narration.js';
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from './src/memory-fact-scan.js';
+import { isTerminalNpcDeath } from './terminal-lifecycle.js';
 export function createScanPart(rt, deps) {
     const { attachGeneratedSecrets, beginScanOperation, castList, clearInlineCardsAtMessage, commitBranchCheckpoint, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyAwayScanOptions, partyLevelList, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordInlineCardsInState, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scanInlineNpcIds, scannerPromptOptions, scanOperationCurrent, scanScenePresent, scenePresentAt, setChatState, storySuiteV2Meters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which
@@ -283,7 +284,7 @@ export function createScanPart(rt, deps) {
             let newNpcRelationshipPass = { decisions: new Map(), used: false, targetCount: 0, responseChars: 0, retried: false };
             // (user decision 5) Hosted, a new NPC starts at the base meter values: no evaluator request.
             if (fullWindowScan && newlyAdmittedIds.length && !hostedMeters()) {
-                const newTargets = merged.state.npcs.filter(npc => newlyAdmittedIds.includes(npc.id) && !npc.archived);
+                const newTargets = merged.state.npcs.filter(npc => newlyAdmittedIds.includes(npc.id) && !npc.archived && !isTerminalNpcDeath(npc));
                 if (newTargets.length) {
                     const combinedDecisions = new Map();
                     let combinedTargetCount = 0;

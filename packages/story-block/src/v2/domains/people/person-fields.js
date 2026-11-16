@@ -6,7 +6,7 @@ export const PERSON_FIELDS = new Set([
     'birthDate', 'birthDateCalendarFingerprint', 'birthDateDisplay', 'birthDatePrecision', 'birthDateReason', 'birthDateSource',
     'birthDateSourceMessageId', 'birthDateYearSource', 'birthday', 'calendarAge', 'castFrom', 'createdAt', 'currentForm', 'currentFormUnknown',
     'customFields', 'deathCorrection', 'fieldChangeDays', 'fieldChangeMessages', 'fieldChanges', 'followed', 'gender', 'goal', 'homeBase', 'id',
-    'identityKind', 'impactDay', 'keyRelationships', 'lastRelationshipChange', 'lastSeenTurn', 'lastWorldActiveTurn', 'lifeState',
+    'identityKind', 'impactDay', 'keyRelationships', 'lastRelationshipChange', 'lookGuess', 'lastSeenTurn', 'lastWorldActiveTurn', 'lifeState',
     'lifeStateCertainty', 'lifeStateReason', 'location', 'mannerisms', 'manualMemories', 'manualProfileFields', 'manualProfileLocksExplicit',
     'memories', 'memoryFacts', 'memoryStamps', 'meterSetup', 'minor', 'mood', 'name', 'overallAppearance', 'personality',
     'personalityDevelopment', 'portrait', 'portraitPromptNegative', 'portraitPromptPositive', 'portraitPromptReplace', 'portraitSeed',

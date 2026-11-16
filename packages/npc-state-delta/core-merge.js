@@ -95,7 +95,7 @@ export function mergeScanResult(state, scanResult, options = {}) {
     const report = { created: [], updated: [], profileUpdated: [], renamed: [], deduplicated: [], candidates: [], promoted: [], expired: expiredCandidates.map(c => c.name), skipped: [], profileUpdateStats: { provided: 0, applied: 0, evidenceAdded: 0 } };
 
     const createFromIncoming = incoming => {
-        if (next.npcs.filter(npc => !npc?.archived).length >= maxNpcs) {
+        if (next.npcs.filter(npc => !npc?.archived && !isTerminalNpcDeath(npc)).length >= maxNpcs) {
             report.skipped.push(incoming.name);
             return null;
         }

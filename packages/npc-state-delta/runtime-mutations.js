@@ -426,7 +426,7 @@ export function createMutationsPart(rt, deps) {
         if (!await ensureFreshMutationBoundary('add an NPC')) return;
         const settings = getSettings();
         const state = getChatState();
-        if (state.npcs.filter(npc => !npc?.archived).length >= settings.maxNpcs) return globalThis.toastr?.warning?.(`NPC State Delta: active roster cap is ${settings.maxNpcs}. Archived dossiers do not count.`);
+        if (state.npcs.filter(npc => !npc?.archived && !isTerminalNpcDeath(npc)).length >= settings.maxNpcs) return globalThis.toastr?.warning?.(`NPC State Delta: active roster cap is ${settings.maxNpcs}. Archived dossiers do not count.`);
         const name = window.prompt('NPC name to add to this chat dossier:')?.trim();
         if (!name) return;
         const result = applyNpcStateCommand(state, { action: 'add', name }, {

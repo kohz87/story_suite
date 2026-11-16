@@ -65,9 +65,25 @@ test('an edited Re-read of the reply that stated the gender, and a rewind of it,
     const live = plain(rig.host.head());
     await rig.host.store.rebuild();
     assert.deepEqual(plain(rig.host.head()), live, 'rebuild equals live after the Re-read');
+    // A shrunk edit (the gender line is gone) takes the gender away; a grown edit (a second person's line added) applies both; replay equals live each time.
+    rig.host.ctx.chat[at].mes = 'Mira nods.';
+    assert.equal((await rig.host.turn.reread(at)).ok, true);
+    await settle();
+    assert.equal(person(rig, 'mira').gender, undefined, 'the shrunk edit: no line, no gender');
+    let now = plain(rig.host.head());
+    await rig.host.store.rebuild();
+    assert.deepEqual(plain(rig.host.head()), now, 'rebuild equals live after the shrunk Re-read');
+    rig.host.ctx.chat[at].mes = `Mira nods.${line('~ npc MIRA | gender: she\n~ npc TOM | gender: he')}`;
+    assert.equal((await rig.host.turn.reread(at)).ok, true);
+    await settle();
+    assert.deepEqual([person(rig, 'mira').gender, person(rig, 'tom').gender], ['female', 'male'], 'the grown edit: both lines apply');
+    now = plain(rig.host.head());
+    await rig.host.store.rebuild();
+    assert.deepEqual(plain(rig.host.head()), now, 'rebuild equals live after the grown Re-read');
     await rig.host.st.deleteMessage(at);
     await settle();
     assert.equal(person(rig, 'mira').gender, undefined, 'a rewind takes the stated gender away; nothing is left behind');
+    assert.equal(person(rig, 'tom').gender, undefined);
 });
 
 test('a swipe, swiping back and a middle delete: the stated gender follows the selected reply, replay equals live', async t => {

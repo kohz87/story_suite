@@ -39,6 +39,21 @@ test('gender is canonical male/female identity metadata with blank unknown', () 
     assert.equal(normalizeGender(''), '');
     assert.equal(normalizeGender('unknown'), '');
     assert.equal(normalizeGender('nonbinary'), '');
+    // The approved one-pass rule's own examples: a gendered noun decides, a pronoun only when no noun is there.
+    assert.equal(normalizeGender('her brother'), 'male');
+    assert.equal(normalizeGender('his sister'), 'female');
+    assert.equal(normalizeGender('her husband'), 'male');
+    assert.equal(normalizeGender('the woman'), 'female');
+    assert.equal(normalizeGender('a young woman'), 'female');
+    assert.equal(normalizeGender('she'), 'female');
+    assert.equal(normalizeGender('she/her'), 'female');
+    assert.equal(normalizeGender('he'), 'male');
+    assert.equal(normalizeGender('brother'), 'male');
+    assert.equal(normalizeGender('Queen'), 'female');
+    assert.equal(normalizeGender('they'), '');
+    assert.equal(normalizeGender('he/she'), '');
+    assert.equal(normalizeGender('brother and sister'), '');
+    assert.equal(normalizeGender('the baker'), '');
 
     assert.equal(createNpcRecord('Unspecified').gender, '');
     assert.equal(normalizeNpcRecord({ name: 'Mira', gender: 'Female' }).gender, 'female');

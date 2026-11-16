@@ -95,6 +95,19 @@ test('import merge can exclude the current player or main card', () => {
 });
 
 
+test('P6: an import roster cap counts only living dossiers: a confirmed death does not take a slot', () => {
+    const deadA = { ...createNpcRecord('Dead Captain'), lifeState: 'deceased', lifeStateCertainty: 'explicit' };
+    const deadB = { ...createNpcRecord('Old Knight'), lifeState: 'deceased', lifeStateCertainty: 'explicit' };
+    const activeA = createNpcRecord('Falia');
+    const activeB = createNpcRecord('Marris');
+    const merged = mergeImportedDossierState({ npcs: [], dismissed: [] }, {
+        npcs: [deadA, deadB, activeA, activeB], dismissed: [],
+    }, { maxNpcs: 1 });
+    assert.ok(merged.npcs.some(npc => npc.name === 'Falia'), 'the first living person is admitted past the dead');
+    assert.ok(merged.npcs.some(npc => npc.name === 'Dead Captain') && merged.npcs.some(npc => npc.name === 'Old Knight'), 'the dead are kept');
+    assert.equal(merged.npcs.some(npc => npc.name === 'Marris'), false, 'the cap still holds for the living');
+});
+
 test('v0.2.11 bundle/import preserves hidden relationship weight progress, milestone audit, and dedupe history', () => {
     const npc = createNpcRecord('Myla');
     npc.relationship = { trust: 95, affection: 40, desire: 0, tension: 0 };
