@@ -62,23 +62,23 @@ export const SPLIT_PARTS = Object.freeze({
         '../../ui/legacy/host-ui/controls-parts/row-value.js',
         '../../ui/legacy/host-ui/controls-parts/values.js',
     ],
-    'src/v2/packs/validate.js': [
-        'src/v2/packs/validate/core.js', 'src/v2/packs/validate/items.js', 'src/v2/packs/validate/events-economy.js', 'src/v2/packs/validate/world.js', 'src/v2/packs/validate/theme.js',
+    '../../packs/validate.js': [
+        '../../packs/validate/core.js', '../../packs/validate/items.js', '../../packs/validate/events-economy.js', '../../packs/validate/world.js', '../../packs/validate/theme.js',
     ],
-    'src/v2/packs/validate/events-economy.js': [
-        'src/v2/packs/validate/events-economy-parts/events.js', 'src/v2/packs/validate/events-economy-parts/economy.js', 'src/v2/packs/validate/events-economy-parts/weather.js',
-        'src/v2/packs/validate/events-economy-parts/creation.js', 'src/v2/packs/validate/events-economy-parts/skills.js',
+    '../../packs/validate/events-economy.js': [
+        '../../packs/validate/events-economy-parts/events.js', '../../packs/validate/events-economy-parts/economy.js', '../../packs/validate/events-economy-parts/weather.js',
+        '../../packs/validate/events-economy-parts/creation.js', '../../packs/validate/events-economy-parts/skills.js',
     ],
-    'src/v2/packs/validate/items.js': [
-        'src/v2/packs/validate/items-parts/items.js', 'src/v2/packs/validate/items-parts/trade.js', 'src/v2/packs/validate/items-parts/crafts.js',
-        'src/v2/packs/validate/items-parts/character.js', 'src/v2/packs/validate/items-parts/skill-sets.js',
+    '../../packs/validate/items.js': [
+        '../../packs/validate/items-parts/items.js', '../../packs/validate/items-parts/trade.js', '../../packs/validate/items-parts/crafts.js',
+        '../../packs/validate/items-parts/character.js', '../../packs/validate/items-parts/skill-sets.js',
     ],
-    'src/v2/packs/validate/world.js': [
-        'src/v2/packs/validate/world-parts/places.js', 'src/v2/packs/validate/world-parts/terms.js',
-        'src/v2/packs/validate/world-parts/markets.js', 'src/v2/packs/validate/world-parts/calendar.js',
+    '../../packs/validate/world.js': [
+        '../../packs/validate/world-parts/places.js', '../../packs/validate/world-parts/terms.js',
+        '../../packs/validate/world-parts/markets.js', '../../packs/validate/world-parts/calendar.js',
     ],
-    'src/v2/packs/version.js': [
-        'src/v2/packs/version-parts/shared-tag.js', 'src/v2/packs/version-parts/single.js', 'src/v2/packs/version-parts/range.js', 'src/v2/packs/version-parts/satisfy.js',
+    '../../packs/version.js': [
+        '../../packs/version-parts/shared-tag.js', '../../packs/version-parts/single.js', '../../packs/version-parts/range.js', '../../packs/version-parts/satisfy.js',
     ],
     '../../ui/legacy/view/template/render.js': [
         '../../ui/legacy/view/template/render/view.js', '../../ui/legacy/view/template/render/blocks.js', '../../ui/legacy/view/template/render/elements.js',

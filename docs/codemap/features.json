@@ -18,5 +18,6 @@
   { "name": "Key people", "entry": "modules/cast/keypeople/index.js", "about": "Key-person tracking and its link to NPC State Delta." },
   { "name": "Chronicle", "entry": "modules/world/chronicle/index.js", "about": "The running record of story days and what happened." },
   { "name": "Time and weather", "entry": "modules/time/index.js", "about": "Story clock, days advancing, recaps and weather." },
-  { "name": "Layouts and screens", "entry": "ui/legacy/layout/index.js", "about": "Screen layout definitions, validation and rendering." }
+  { "name": "Layouts and screens", "entry": "ui/legacy/layout/index.js", "about": "Screen layout definitions, validation and rendering." },
+  { "name": "Packs", "entry": "packs/index.js", "about": "Loads story packs and their events, items and rules." }
 ]

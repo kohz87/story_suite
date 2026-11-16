@@ -1,6 +1,5 @@
 [
   { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads: wires the v2 runtime, packs and diagnostics." },
-  { "name": "Packs", "entry": "src/v2/packs/index.js", "about": "Loads story packs and their events, items and rules." },
   { "name": "Lean RPG (rolls, fights, gear)", "entry": "src/v2/lean-rpg/index.js", "about": "The optional RPG module: checks, the fight board, gear and levels." },
   { "name": "Fight board", "entry": "src/v2/lean-rpg/board/commit.js", "about": "Commits staged board choices as the reply's one guarded RPG resolution." },
   { "name": "Data modules and block editor", "entry": "src/v2/data-modules/block-builder.js", "about": "Builds and edits data-module definitions in the in-chat editor." }
