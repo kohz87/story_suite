@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 
 import { stepClock } from '../../../src/v2/chronicle/days-parts/clock-step.js';
 import { walkDays } from '../../../src/v2/chronicle/days.js';
+import { noteFactsQuery } from '../../../src/v2/chronicle/queries.js';
 
 const DAY = 1440;
 const r = (type, minutes, extra = {}, rev = 1) => ({ type, rev, module: 'story-director', summary: 'x', data: { minutes, ...extra } });
@@ -57,4 +58,21 @@ test('walkDays: the settle jump is the walked clock at the settle before it, to 
     assert.deepEqual(b.settle, { from: 2 * DAY, to: 3 * DAY });
     // The first settle in sight keeps its own `from` (nothing walked before it).
     assert.deepEqual(walkDays([settle(DAY)].map(receipt => ({ receipt }))).settle, { from: 5, to: DAY });
+});
+
+test('noteFacts: the last settle jump starts from the walked clock of the settle before the cursor (since() hands settleAt on)', () => {
+    const rc = (id, type, minutes, extra = {}, rev = 1) => ({ receipt: { id, type, rev, module: 'story-director', summary: 'x', data: { minutes, ...extra } } });
+    // Told at d0 10:00; the second reply moved +1 hour; an edit then added a day to it. The settle of the third reply (stored `from` the
+    // pre-edit clock) and the note's cursor come after; the reply after the cursor moves +1 hour and is settled.
+    const T = 1000;
+    const all = [
+        rc('a', 'capture.time', T, { kind: 'set' }), rc('b', 'time.settle', T, { from: null }, 2),
+        rc('c', 'capture.time', T + 60, { from: T, kind: 'move' }, 3), rc('d', 'capture.time', T + 60 + DAY, { from: T + 60, kind: 'move' }, 3),
+        rc('e', 'time.settle', T + 60, { from: T }, 4), { receipt: { id: 'f', type: 'chronicle.note', rev: 4, summary: '', data: {} } },
+        rc('g', 'capture.time', T + 120, { from: T + 60, kind: 'move' }, 5), rc('h', 'time.settle', T + 120, { from: T + 60 }, 6),
+    ];
+    const out = noteFactsQuery({ domains: {} }, { through: 'f', minutes: 0 }, { receipts: () => all });
+    // Walked: T → +60 → +1 day = T + 60 + DAY at the settle `e`; then +60 more at `h`: the jump is one hour, not the pre-edit day-and-an-hour from the stored `from`.
+    assert.deepEqual(out.settle, { from: T + 60 + DAY, to: T + 120 + DAY });
+    assert.equal(out.minutes, T + 120 + DAY);
 });

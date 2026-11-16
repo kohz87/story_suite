@@ -46,7 +46,15 @@ test('an edit that adds +1 day, a later reply with its own +1 hour: filed, diges
     assert.deepEqual(written(live), written(fresh));
     assert.deepEqual(dayFacts(live), dayFacts(fresh));
     assert.equal(today(live), today(fresh));
+    // The last note's time settle jump (the "While away" skip test reads it): the walked clock at the settle before it, → the clock now.
+    const noted = host => { const n = chronicleOf(host).noted; return strip(Array.isArray(n) ? n.at(-1) : n).settle; };
+    assert.deepEqual(noted(live), noted(fresh));
     assert.equal(reloadSame(live), true);
+    // A chat change (SillyTavern reopens the chat from what was saved): the same chronicle.
+    const before = JSON.stringify(chronicleOf(live));
+    await live.st.loadChat(JSON.parse(JSON.stringify(live.ctx.chat)));
+    assert.equal(JSON.stringify(chronicleOf(live)), before);
+    assert.deepEqual(dayFacts(live), dayFacts(fresh));
     live.close(); fresh.close();
 });
 
