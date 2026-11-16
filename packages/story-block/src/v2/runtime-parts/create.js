@@ -17,6 +17,7 @@ import { createRewind } from '../rewind.js';
 import { createTimeline, withRuleOverlay } from '../timeline/index.js';
 import { createStore as realStore } from '../store.js';
 import { createTurn, substituteNames } from '../turn.js';
+import { flagOn } from '../flags.js';
 import { createRpgLoader } from '../rpg-lazy.js';
 import { createPublicApi } from '../public-api.js';
 import { createPublicPaths } from '../public-paths.js';
@@ -116,6 +117,7 @@ export function createRuntime({
             // Whether Story Director's World screen is there (it shows the chatter; else Scene does: `scene.chatter`).
             extras: { promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
             version: VERSION,
+            flagOn: name => flagOn(() => ctx.extensionSettings, name),
             timeline: () => timeline,
             dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg) && registry.featureOn(CORE_FEATURE.fightBoard), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
             // The RPG's hooks read the chat and its metadata; no model is asked for rolls.
