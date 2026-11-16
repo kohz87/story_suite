@@ -76,8 +76,9 @@ export function createTransact({ store, registry, resolve, internal, internalMes
                 const was = valueAt(tx.head, at);
                 if (!Number.isSafeInteger(was)) continue;
                 const found = changes.find(change => change.path === at && change.op === 'replace' && Number.isSafeInteger(change.value));
-                if (found) Object.assign(found, { was, ...mark });
-                else if (!changes.some(change => change.path === at) && valueAt(draft, at.slice(path.length)) === was) changes.push({ op: 'replace', path: at, value: was, was, ...mark });
+                const kept = value => (mark.to === value ? { period: mark.period, roll: mark.roll } : mark);   // `to` only when the clamp moved it
+                if (found) Object.assign(found, { was, ...kept(found.value) });
+                else if (!changes.some(change => change.path === at) && valueAt(draft, at.slice(path.length)) === was) changes.push({ op: 'replace', path: at, value: was, was, ...kept(was) });
             }
             // Changes inside a thing marked with ctx.ifThere carry it (`within`, rule d).
             for (const change of changes) {
