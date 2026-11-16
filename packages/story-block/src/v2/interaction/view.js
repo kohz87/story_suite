@@ -6,7 +6,7 @@ function copy(value) {
     return value === null || value === undefined ? null : structuredClone(value);
 }
 
-/** Builds the unregistered query handler over an interaction api, made in I2b. */
+/** Builds the query handler over an interaction api (the core module registers it). */
 export function createInteractionView(api) {
     return () => {
         try {

@@ -4,12 +4,13 @@ import { featureWarnings } from '../features.js';
 import { isObject } from './shared-basics.js';
 import { SETTINGS_PLACES } from './lists.js';
 import { FIELD_TYPES, fieldType } from './fields.js';
+import { interactionWarnings } from './interaction-problems.js';
 
 // The settings fields this host knows, and the places a module's settings may ask for (`settings.place`,
 // or a fold's `place`): 'diagnostics' draws it as a sub-fold of Settings → Diagnostics (SPEC §6).
 const SETTINGS_KEYS = ['defaults', 'schema', 'section', 'render', 'folds', 'place', 'rules'];
 
-const KNOWN_KEYS = ['id', 'name', 'version', 'description', 'requires', 'domains', 'commands', 'queries', 'replayQueries', 'capture', 'context', 'hooks', 'settings', 'tabs', 'screens', 'widgets', 'features', 'cards', 'headerControls', 'participant', 'batchResults', 'capabilities'];
+const KNOWN_KEYS = ['id', 'name', 'version', 'description', 'requires', 'domains', 'commands', 'queries', 'replayQueries', 'capture', 'context', 'hooks', 'settings', 'tabs', 'screens', 'widgets', 'features', 'cards', 'headerControls', 'participant', 'batchResults', 'capabilities', 'interactions'];
 const CONTEXT_KEYS = ['static', 'tail', 'budget', 'feature', 'parts'];
 
 // What `requires` may name: the Story Block it needs, and the peers (modules) it needs registered.
@@ -36,6 +37,7 @@ export function definitionWarnings(def) {
     if (isObject(def.context)) {
         for (const key of Object.keys(def.context)) if (!CONTEXT_KEYS.includes(key)) out.push(`"context.${key}" is not a context field this Story Block knows; it is ignored`);
     }
+    out.push(...interactionWarnings(def));
     out.push(...featureWarnings(def));
     if (isObject(def.settings)) {
         for (const key of Object.keys(def.settings)) if (!SETTINGS_KEYS.includes(key)) out.push(`"settings.${key}" is not a settings field this Story Block knows; it is ignored`);
