@@ -58,6 +58,7 @@
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
   "tests/scripts/ci-timeouts.test.js": "Checks that every CI job has a timeout and every node --test command sets the per-test timeout and force-exit flags and matches its package script.",
   "tests/suite/nsd-static-part.js": "Writes NPC State Delta's own one-pass static prompt key the way its runtime injection does, and switches its adapter on or off for the suite test.",
+  "tests/suite/redraw-count.bench.test.js": "Pins today's tab-pane redraw and NPC State renderCast counts per reply for the three-module suite (quiet and active scenarios, flag off).",
   "tests/suite/static-prompt.test.js": "Pins the whole static prompt of the three-module suite per scenario against the golden and checks it is byte-identical reply to reply.",
   "ui/card/card-icons.js": "Draws the card's soak, pace and status glyphs from the mock's shapes, with a shared-set fallback.",
   "ui/card/card-row.js": "Builds the card's top row: ‹ Chat, time · place · weather with the mock's glyphs (opens the Scene sheet) and ⚙.",
@@ -222,5 +223,10 @@
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
-  "ui/theme/tokens.js": "Token names and the Glass dark and light values."
+  "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
+  "scripts/play/git.mjs": "Runs git commands for the play build, with an optional private index file.",
+  "scripts/play/dist.mjs": "Builds the one installable play extension from a commit: bundles the four tools at their installed depth, copies assets, writes root files and commits to the local play branch.",
+  "scripts/play/dist-sets.mjs": "Says what the play extension contains: the four bundled tools, their asset roots and the root manifest, entry and stylesheet.",
+  "scripts/play/dist-assets.mjs": "Copies the CSS, fonts and images the play bundles reach by URL next to their bundle.",
+  "scripts/play/dist-git.mjs": "Extracts a commit's source tree and commits the built play folder as a child of the previous build."
 }
