@@ -47,8 +47,13 @@ export function threadWriteEntry(prepared, result) {
     return { fingerprint: prepared.fingerprint, result: copy(result) };
 }
 
-/** A stable writer key on the caller's Source, kept by the writes ledger across retry/reload. */
+/**
+ * A stable writer key on the caller's Source, kept by the writes ledger across retry/reload. The Source's ordinal is left out: a Re-read gives its blocks fresh ordinals
+ * (so one reply's blocks never share one), and an id made from it would change on every Re-read of a reply that holds a fight or any other guarded block.
+ * The reply's own ids and the writer key (the thread's id, one per thread) already tell the writes apart.
+ */
 export function threadWriteId(ctx, key) {
     if (!ctx.source || typeof ctx.hash !== 'function') return ctx.fail('DEPENDENCY_UNAVAILABLE', 'Thread writes need a host Source.');
-    return `wr_${ctx.hash({ source: ctx.source, writer: key }).slice(0, 8)}`;
+    const { ordinal: _ordinal, ...source } = ctx.source;
+    return `wr_${ctx.hash({ source, writer: key }).slice(0, 8)}`;
 }
