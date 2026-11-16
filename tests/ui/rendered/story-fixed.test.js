@@ -112,7 +112,10 @@ for (const theme of ['dark', 'light']) {
     assert.match(s.showAll, /^Show all \(\d+\)$/);
     assert.ok(s.secretLink.some((t) => t === 'in Sister Temiwa’s dossier ›'), s.secretLink.join(' / '));
     assert.equal(s.fld[0], '13.5px');
-    assert.notEqual(s.fld[1], '13.5px', 'story.css must not reach .fld outside the Story tab');
+    assert.equal(s.fld[1], '13.5px', 'the mock sets .fld to 13.5px everywhere (now.css), so outside the Story tab it matches');
+    const storyCss = fs.readFileSync(path.join(ROOT, 'ui/css/story.css'), 'utf8');
+    const loose = storyCss.split('}').map((r) => r.split('{')[0]).flatMap((sel) => sel.split(',')).map((x) => x.trim()).filter((x) => /\.fld\b/.test(x) && !x.startsWith('.story-tab '));
+    assert.deepEqual(loose, [], 'story.css must not reach .fld outside the Story tab');
   });
 }
 
