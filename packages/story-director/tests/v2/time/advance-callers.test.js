@@ -9,6 +9,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const packages = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
+const core = join(packages, '..', 'core');
 const walk = dir => readdirSync(dir).flatMap(name => {
     const path = join(dir, name);
     return statSync(path).isDirectory() ? walk(path) : path.endsWith('.js') ? [path] : [];
@@ -21,7 +22,8 @@ test('no module calls director.advance through ctx.call or commits it: only the 
         try { if (!statSync(src).isDirectory()) continue; } catch { continue; }
         for (const file of walk(src)) if (/director\.advance|\bADVANCE\b/.test(readFileSync(file, 'utf8'))) named.push(relative(packages, file));
     }
-    const readers = ['story-block/src/v2/timeline/boundary-parts/marker.js', 'story-director/src/v2/chronicle/days-parts/clock-step.js', 'story-director/src/v2/chronicle/days-parts/receipt-classify.js', 'story-director/src/v2/chronicle/days.js', 'story-director/src/v2/tracker/clock-set.js'];
+    for (const file of walk(core)) if (/director\.advance|\bADVANCE\b/.test(readFileSync(file, 'utf8'))) named.push(relative(packages, file));
+    const readers = ['../core/timeline/boundary-parts/marker.js', 'story-director/src/v2/chronicle/days-parts/clock-step.js', 'story-director/src/v2/chronicle/days-parts/receipt-classify.js', 'story-director/src/v2/chronicle/days.js', 'story-director/src/v2/tracker/clock-set.js'];
     const own = named.filter(file => file.startsWith('story-director/src/v2/time/'));
     assert.ok(own.length > 0, 'the time part defines it');
     assert.deepEqual(named.filter(file => !file.startsWith('story-director/src/v2/time/')).sort(), readers.sort());

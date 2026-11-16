@@ -6,8 +6,8 @@ import { readFileSync } from 'node:fs';
 import { boardFailure, restoreHint } from '../../../../../core/turn/held-board.js';
 
 const WHERE = '(Fight tab, Discard fight)';
-const FILES = ['lean-rpg/precall.js', 'lean-rpg/board/view.js', 'lean-rpg/board/commit.js', 'lean-rpg/board/session.js',
-    'lean-rpg/board/start-controller.js', 'lean-rpg/board/engine.js', 'turn/held-board.js', 'turn/held-board-parts/failure.js', 'turn/held-board-parts/held.js', 'turn/held-board-parts/board-state.js', 'turn/reread.js', 'turn/events.js', 'turn/prompt-build.js'];
+const FILES = ['packages/story-block/src/v2/lean-rpg/precall.js', 'packages/story-block/src/v2/lean-rpg/board/view.js', 'packages/story-block/src/v2/lean-rpg/board/commit.js', 'packages/story-block/src/v2/lean-rpg/board/session.js',
+    'packages/story-block/src/v2/lean-rpg/board/start-controller.js', 'packages/story-block/src/v2/lean-rpg/board/engine.js', 'core/turn/held-board.js', 'core/turn/held-board-parts/failure.js', 'core/turn/held-board-parts/held.js', 'core/turn/held-board-parts/board-state.js', 'core/turn/reread.js', 'core/turn/events.js', 'core/turn/prompt-build.js'];
 
 test('discard advice in held-board helpers names the Fight tab button', () => {
     assert.ok(restoreHint('x').includes(`discard the fight ${WHERE}.`));
@@ -18,7 +18,7 @@ test('discard advice in held-board helpers names the Fight tab button', () => {
 
 test('no shipped string tells the reader to discard without saying where', () => {
     for (const file of FILES) {
-        const text = readFileSync(new URL(`../../../src/v2/${file}`, import.meta.url), 'utf8');
+        const text = readFileSync(new URL(`../../../../../${file}`, import.meta.url), 'utf8');
         for (const m of text.matchAll(/[Dd]iscard (the fight|it)(?! \(Fight tab, Discard fight\))[^'`\n]*['`]/g)) {
             assert.fail(`${file}: "${m[0]}" does not say where`);
         }

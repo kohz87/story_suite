@@ -8,10 +8,10 @@ import { readFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(fileURLToPath(new URL('../../../../', import.meta.url)));
+const root = resolve(fileURLToPath(new URL('../../../../../../', import.meta.url)));
 const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="stylesheet" href="/src/v2/view/host.css"><link rel="stylesheet" href="/src/v2/view/size.css">
-<link rel="stylesheet" href="/src/v2/lean-rpg/view/lean-rpg.css"><link rel="stylesheet" href="/src/v2/lean-rpg/board/board.css">
+<link rel="stylesheet" href="/packages/story-block/src/v2/view/host.css"><link rel="stylesheet" href="/packages/story-block/src/v2/view/size.css">
+<link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/view/lean-rpg.css"><link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/board/board.css">
 <style>html,body { margin:0; --ss-font:Arial,sans-serif; } * { box-sizing:border-box; } .ss-gameview-bar { height:50px; }
 .ss-gameview-nav { background:#222; } .ss-gameview-body { padding:12px; }
 .ss-gameview[hidden] { display:none; } .story-suite-sheet-bar { background:#222; }
@@ -24,12 +24,12 @@ const html = `<!doctype html><html><head><meta name="viewport" content="width=de
 <nav class="story-suite-sheet-bar">Party / Inventory / Quests / World / Fight</nav></div>
 <div id="safe" style="padding-bottom:env(safe-area-inset-bottom)"></div>
 <script type="module">
-import { STANDARD_TEMPLATES } from '/src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '/src/v2/lean-rpg/rules.js';
-import { createBoardView } from '/src/v2/lean-rpg/board/view.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '/src/v2/lean-rpg/board/session.js';
-import { playBoard } from '/src/v2/lean-rpg/board/engine.js';
-import { hero } from '/src/v2/view/widgets/hero.js';
+import { STANDARD_TEMPLATES } from '/packages/story-block/src/v2/lean-rpg/templates.js';
+import { STANDARD_FORMULA } from '/packages/story-block/src/v2/lean-rpg/rules.js';
+import { createBoardView } from '/packages/story-block/src/v2/lean-rpg/board/view.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '/packages/story-block/src/v2/lean-rpg/board/session.js';
+import { playBoard } from '/packages/story-block/src/v2/lean-rpg/board/engine.js';
+import { hero } from '/packages/story-block/src/v2/view/widgets/hero.js';
 hero.render(document.querySelector('.ss-gameview-hero'), { name:'Astra', place:'Bluewatch', time:'Day 1', weather:'Rain', compact:true, boardExpandable:true,
     you:{ rank:'F', rankLabel:'Guild Rank', wearing:'A travelling coat', condition:'Tired' },
     bars:[{ kind:'hp', label:'Health', value:4, max:5 }, { kind:'mp', label:'Mana', value:2, max:5 }, { kind:'sp', label:'Stamina', value:3, max:5 }] }, {});
@@ -106,7 +106,7 @@ async function server() {
             const pathname = new URL(request.url, 'http://localhost').pathname;
             if (pathname === '/') { response.writeHead(200, { 'content-type':'text/html' }); response.end(html); return; }
             const file = resolve(root, `.${decodeURIComponent(pathname)}`);
-            if (!file.startsWith(`${root}${sep}src${sep}`)) { response.writeHead(404); response.end(); return; }
+            if (!file.startsWith(`${root}${sep}packages${sep}story-block${sep}src${sep}`) && !file.startsWith(`${root}${sep}core${sep}`)) { response.writeHead(404); response.end(); return; }
             const content = await readFile(file);
             response.writeHead(200, { 'content-type': extname(file) === '.css' ? 'text/css' : 'text/javascript' }); response.end(content);
         } catch { response.writeHead(404); response.end(); }

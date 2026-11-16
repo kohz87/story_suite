@@ -34,7 +34,7 @@ const settingsFor = (list, { join = 'auto', formula = 'standard' } = {}) => {
     return { features: { 'story-block.rpg': true }, modules: { 'story-block': { rpgJoin: join } },
         packs: [{ id: built.pack.id, version: built.pack.version, enabled: true, source: 'file', origin: 'test', pack: raw }] };
 };
-const fixture = name => JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8'));
+const fixture = name => JSON.parse(readFileSync(new URL(`../../packages/story-block/tests/v2/fixtures/${name}`, import.meta.url), 'utf8'));
 // A chat written by 2.21.0, opened here. `skills`: the pack now gives Mara signature skills (it did not when the chat was written).
 async function opened(t, name, { skills = false, formula = 'standard' } = {}) {
     t.mock.method(console, 'warn', () => {});

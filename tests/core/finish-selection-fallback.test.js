@@ -216,7 +216,7 @@ test('register refuses a verify that is not a function and keeps a function', ()
 
 test('only the head selection falls back: restore and save points never import the fallback', async () => {
     for (const file of ['coordinator-restore.js', 'coordinator-prepare.js']) {
-        const source = await readFile(new URL(`../../src/v2/timeline/${file}`, import.meta.url), 'utf8');
+        const source = await readFile(new URL(`../../core/timeline/${file}`, import.meta.url), 'utf8');
         assert.doesNotMatch(source, /selection-fallback|fallBack|walkSelectionFallback/);
     }
 });

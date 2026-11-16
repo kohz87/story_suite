@@ -19,13 +19,13 @@ function watch({ before = null, now = null, doc = docWith([]) } = {}) {
 }
 
 test('v1\'s signs are the ones its entry file makes (a frozen excerpt of it), and v2 makes none of them', () => {
-    const v1 = read('tests/v2/fixtures/v1-index-excerpt.txt');
+    const v1 = read('packages/story-block/tests/v2/fixtures/v1-index-excerpt.txt');
     assert.match(v1, /globalThis\.StoryBlock = Object\.freeze\(\{\s*version: VERSION,\s*apiVersion: 1,/);
     for (const name of ['listBlocks', 'getBlock', 'registerBlock']) assert.match(v1, new RegExp(`\\b${name}\\b`));
     for (const id of ['story_block_rescan', 'story_block_display', 'story_block_money']) assert.ok(v1.includes(`id="${id}"`), id);
-    const v2 = read('index.js');
+    const v2 = read('packages/story-block/index.js');
     assert.match(v2, /globalThis\.StoryBlock = Object\.freeze\(\{ apiVersion: 2,/);
-    const sources = readdirSync(new URL('../../packages/story-block/src/v2/', import.meta.url), { recursive: true }).filter(name => /\.(js|html|css)$/.test(name) && name !== 'v1-copy.js' && !name.startsWith('v1-copy-parts/')).map(name => read(`src/v2/${name}`)).join('\n');
+    const sources = ['core', 'packages/story-block/src/v2'].flatMap(dir => readdirSync(new URL(`../../${dir}/`, import.meta.url), { recursive: true }).filter(name => /\.(js|html|css)$/.test(name) && name !== 'v1-copy.js' && !name.startsWith('v1-copy-parts/') && !name.startsWith('persist/v1-copy')).map(name => read(`${dir}/${name}`))).join('\n');
     for (const id of ['story_block_rescan', 'story_block_display', 'story_block_money']) assert.ok(!sources.includes(id), `v2 never uses ${id}`);
 });
 
