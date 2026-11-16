@@ -71,6 +71,7 @@ function makeItem(row, rpg) {
     wornBy: wornBy || null, isNew: Boolean(isNew),
     wear: rpg && kind === 'gear' ? (torn ? 'torn' : 'good') : null,
     weight: rpg ? weight : 0, worth, soak: rpg ? soak : 0, desc, from,
+    note: '', hand: rpg && name === 'Spare dagger', slot: kind === 'gear' && glyph === 'weapon' ? 'weapon' : null,
   };
 }
 

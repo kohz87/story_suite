@@ -17,6 +17,10 @@ const ITEM = {
   soak: T.NUMBER,
   desc: T.STRING,
   from: T.STRING,
+  // The reader's note, a hand-made piece's flag and its base slot: only what the Edit form needs.
+  note: { $optional: T.STRING },
+  hand: { $optional: T.BOOLEAN },
+  slot: { $optional: { $nullable: T.STRING } },
 };
 
 const ASSET = {

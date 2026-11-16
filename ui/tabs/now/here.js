@@ -2,7 +2,6 @@
 import { h } from '../../kit/dom.js';
 import { feelingsRing } from '../../kit/ring.js';
 import { spoilerSwitch, hiddenValue } from '../../kit/spoiler.js';
-import { glyph } from '../../kit/glyphs.js';
 import { isSafePortraitUrl } from '../../kit/safe-url.js';
 
 const LETTERS = Object.freeze([['trust', 'T'], ['affection', 'A'], ['desire', 'D'], ['tension', 'Tn']]);
@@ -38,8 +37,7 @@ function personRow(person, shown, expanded, ctx, redraw) {
     h('span', { class: 'prg' },
       feelingsRing(person.meters),
       portrait(person),
-      person.followed ? h('span', { class: 'star', title: 'Followed' }, '★') : null,
-      person.inParty ? h('span', { class: 'pty', title: 'In your party' }, glyph('party')) : null),
+      person.followed ? h('span', { class: 'star', title: 'Followed' }, '★') : null),
     h('div', { class: 'hp2-body' },
       h('div', { class: 'nl' },
         h('b', null, person.name),

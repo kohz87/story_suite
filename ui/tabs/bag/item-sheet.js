@@ -2,6 +2,7 @@
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
 import { itemTile, memberName, KIND_LABEL } from './item-grid.js';
+import { itemEditForm } from './item-edit.js';
 
 const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
 const RARITY_CLASS = { uncommon: 'rar-unc', rare: 'rar-rare', epic: 'rar-epic' };
@@ -35,7 +36,7 @@ function details(item, rpg, ctx) {
   );
 }
 
-/** Builds the item sheet body; ctx = { rpg, members, port, close() }. Actions send commands through ctx.port. */
+/** Builds the item sheet body; ctx = { rpg, members, port, close() }. Actions send commands through ctx.port; Edit swaps the body for the form (Save sends inventory.edit). */
 export function itemSheet(item, ctx = {}) {
   const rpg = Boolean(ctx.rpg);
   const names = Object.keys(ctx.members ?? {});
@@ -64,19 +65,33 @@ export function itemSheet(item, ctx = {}) {
   }
   if (item.kind === 'use') actions.push(button({ label: 'Use on…', tone: 'primary', onClick: () => pick('Use on', 'item.use') }));
   const kindLabel = KIND_LABEL[item.kind] + (gear && item.glyph ? ` · ${item.glyph === 'bagslot' ? 'Bag' : item.glyph[0].toUpperCase() + item.glyph.slice(1)}` : '');
-  return h(
-    'div',
-    { class: 'bag-sheet', dataset: { sheet: 'item' } },
-    h('div', { class: 'dh' }, itemTile(item, rpg, 'sm'), h('div', null,
-      h('div', { class: 'dn' }, item.name),
-      h('div', { class: 'chips' },
-        rpg && RARITY_LABEL[item.rarity] ? h('span', { class: ['lvl2', RARITY_CLASS[item.rarity]] }, RARITY_LABEL[item.rarity]) : null,
-        h('span', { class: 'lvl2' }, kindLabel),
-        item.qty > 1 ? h('span', { class: 'lvl2' }, `×${item.qty}`) : null))),
+  const head = withEdit => h('div', { class: 'dh' }, itemTile(item, rpg, 'sm'), h('div', null,
+    h('div', { class: 'dn' }, item.name),
+    h('div', { class: 'chips' },
+      rpg && RARITY_LABEL[item.rarity] ? h('span', { class: ['lvl2', RARITY_CLASS[item.rarity]] }, RARITY_LABEL[item.rarity]) : null,
+      h('span', { class: 'lvl2' }, kindLabel),
+      item.qty > 1 ? h('span', { class: 'lvl2' }, `×${item.qty}`) : null)),
+    withEdit ? h('div', { class: 'bhact' }, button({ label: 'Edit', className: 'edit', onClick: edit }), h('span', { class: 'xgap' })) : null);
+  const root = h('div', { class: 'bag-sheet', dataset: { sheet: 'item' } });
+  const view = [
+    head(true),
     h('p', { class: 'desc' }, item.desc),
     details(item, rpg, ctx),
     h('div', { class: 'brow' }, actions, h('span', { class: 'grow' }),
       button({ label: 'Drop', tone: 'danger', onClick: () => send('inventory.drop', { stack: item.stack }) })),
     picker,
-  );
+  ];
+  function edit() {
+    root.replaceChildren(head(false), itemEditForm(item, {
+      rpg,
+      onCancel: () => root.replaceChildren(...view),
+      onSave: async payload => {
+        const result = await ctx.port?.command('inventory.edit', payload);
+        if (!result || result.ok !== false) ctx.close?.();
+        return result;
+      },
+    }));
+  }
+  root.replaceChildren(...view);
+  return root;
 }

@@ -38,12 +38,10 @@ button.rnr{cursor:pointer}
 .prg{position:relative;width:62px;height:62px}
 .prg>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .prg .ph{position:absolute;inset:7px;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 22px var(--su-font);color:#fff}
-.prg .star,.prg .pty{position:absolute;top:-3px;width:22px;height:22px;border-radius:50%;background:var(--su-panel2);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--su-line2)}
+.prg .star{position:absolute;top:-3px;width:22px;height:22px;border-radius:50%;background:var(--su-panel2);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--su-line2)}
 .prg .star{right:-4px;color:#f0b84a;font:900 13px var(--su-font)}
 [data-scheme="light"] .prg .star{color:#8a5600}
 .now-tab .prg .star{color:var(--pk-gold)}
-.prg .pty{left:-4px;color:var(--su-accent)}
-.prg .pty svg{position:static;width:13px;height:13px}
 .ring-track{stroke:var(--su-line2)}
 .ring-arc.f0{stroke:var(--su-info)}.ring-arc.f1{stroke:#ff7aa8}.ring-arc.f2{stroke:#c08aff}.ring-arc.f3{stroke:var(--su-warn)}
 /* The mock draws the ring arcs in its fixed dark-theme colours in both schemes. */

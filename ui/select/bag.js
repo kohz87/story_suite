@@ -28,6 +28,7 @@ function itemOf(row, ctx) {
     qty: Number.isSafeInteger(row.qty) ? row.qty : 1, wornBy: worn ? wearer ?? null : null, isNew: null,
     wear: kind === 'gear' && word ? (word === 'torn' || word === 'broken' ? 'torn' : 'good') : null,
     weight: null, worth: money(row.value, ctx.currency), soak: null, desc: null, from: typeof row.from === 'string' ? row.from : '',
+    note: typeof row.note === 'string' ? row.note : '', hand: row.hand === true, slot: typeof row.slot === 'string' ? row.slot : null,
   };
 }
 
