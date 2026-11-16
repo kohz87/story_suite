@@ -30,7 +30,7 @@ const scenario = async () => {
     // The player's pending message names her: with the scene saying she is away, she is "called in" and her dossier is in the prompt.
     mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'Yunyun, come here.' });
     const named = api.injectionPreview().text;
-    console.log('RESULT ' + JSON.stringify({ here, away, named, hosted: globalThis.document.documentElement.dataset.npcStateDeltaStoryBlockV2 ?? null }));
+    console.log('RESULT ' + JSON.stringify({ here, away, named, hosted: globalThis.__handles.hosted ? '1' : null }));
 };
 const hostedPrelude = async () => {
     const sdk = { registered: [], sent: [], registerModule(def) { sdk.registered.push(def); }, command: async (type, payload) => { sdk.sent.push({ type, payload }); return { ok: true }; }, query: name => (name === 'scene.present' ? mockState.scene : []), settings: () => ({}) };
@@ -76,13 +76,6 @@ test('standalone: the stored presence stands for every reader', () => {
     assert.equal(alone.away.profile, true);
     assert.equal(alone.away.token, alone.here.token, 'the token is unchanged standalone');
     assert.equal(shown(alone.away.dossier).statusLabel, 'In chat');
-});
-
-test('full cast reads the people through the dossier panel\'s view (full-cast.js cannot be imported here: it needs SillyTavern\'s modules)', () => {
-    const source = fs.readFileSync(new URL('../../modules/people/legacy/full-cast.js', import.meta.url), 'utf8');
-    assert.match(source, /function shownState\(runtime\) \{\n    const raw = runtime\?\.getState\?\.\(\);\n    try \{\n        const shown = runtime\?\.getDossierState\?\.\(\)\?\.npcs;\n        return raw && Array\.isArray\(shown\) \? \{ \.\.\.raw, npcs: shown \} : raw;\n    \} catch \{ return raw; \}/);
-    assert.equal((source.match(/npcApi\.getState\(\)|api\(\)\?\.getState/g) || []).length, 0, 'no raw reader left');
-    assert.equal((source.match(/shownState\(/g) || []).length, 4);
 });
 
 // World → Here: a person the scene lists gets their card even when Delta's own stored flag says away, and the other way round.

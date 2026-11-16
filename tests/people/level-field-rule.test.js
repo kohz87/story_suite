@@ -197,7 +197,7 @@ test('the adapter reads party.levels (null without the query), the dossier marks
 
 // ---- the sheet level holds on every scan path; the mark only when it matches ----
 const hostedPart = async answer => {
-    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } };
+    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } } }; globalThis.__handles.hosted = true;
     const { createHostedPart } = await import(pathToFileURL(path.join(extRoot, 'runtime-hosted.js')).href);
     const rt = { storySuiteV2: { hosted: () => true, partyLevelsAnswer: () => answer } };
     return createHostedPart(rt, { chatHydrationStatus: () => 'ready', getChatKey: () => 'c1', getChatState: () => ({ npcs: [] }), latestMessageId: () => 1, latestReplyIndex: () => 1 });

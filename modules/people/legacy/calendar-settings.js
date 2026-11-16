@@ -1,3 +1,4 @@
+/* LEGACY, kept until the hosted settings fold replaces it (B4 row): the calendar controls in the settings panel the hosted overlay carries; see docs/merge/b4-removals.md. */
 /* NPC State Delta fantasy-calendar settings adapter over the canonical Delta settings object. */
 import { extension_settings, getContext } from '../../../extensions.js';
 import {

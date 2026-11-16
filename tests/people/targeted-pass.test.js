@@ -87,7 +87,7 @@ test('a hosted scan scores relationship changes from the slice\'s numbers and fo
     runEditorHostScenario('hosted-scan-slice', async () => {
         const runtime = globalThis.NPCStateDelta;
         await sleep(400);
-        assert.equal(globalThis.document.documentElement.dataset.npcStateDeltaStoryBlockV2, '1', 'hosted');
+        assert.equal(globalThis.__handles.hosted, true, 'hosted');
         const yunyunRow = extra => ({ name: 'Yunyun', present: true, role: 'adventurer', mood: 'calm', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 }, ...extra });
         let row = yunyunRow();
         mockState.quietResponder = async (args = {}) => {

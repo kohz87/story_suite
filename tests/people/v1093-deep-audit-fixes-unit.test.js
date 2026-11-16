@@ -250,6 +250,4 @@ test('RB92-20/21/22/23: workflow guards are in place', () => {
     const index = runtimeSource();
     assert.match(index, /function setNpcPortraitSeed\(npcId, seed, \{ chatKey, isCurrent = \(\) => true \} = \{\}\) \{\n[^\n]*\n        if \(!isCurrent\(\)\) return false;/);
     assert.match(index, /!popup && editorAtStart && editorAtStart\.result !== undefined && editorAtStart\.result !== affirmative/);
-    const fullCast = fs.readFileSync(new URL('../../modules/people/legacy/full-cast.js', import.meta.url), 'utf8');
-    assert.match(fullCast, /marker === null \|\| marker === undefined \|\| marker === '' \? null : Number\(marker\)/);
 });

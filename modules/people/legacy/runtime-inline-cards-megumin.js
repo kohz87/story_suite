@@ -3,7 +3,7 @@
    unchanged function bodies; the original factory closure is passed in explicitly and the original
    path keeps the public exports. */
 
-export function createInlineCardsMeguminPart({ storyBlockTabsActive, chatElementForInlineObserver }) {
+export function createInlineCardsMeguminPart({ chatElementForInlineObserver }) {
 
     function meguminIntegrationMessageId(node) {
         const value = Number(node?.dataset?.npcStateDeltaMessageId);
@@ -12,8 +12,7 @@ export function createInlineCardsMeguminPart({ storyBlockTabsActive, chatElement
 
     function meguminBlockCardForMessage(message) {
         const card = message?.querySelector?.('.meg-blocks') || null;
-        // Story Block's compatible card already carries Delta's own registered tab.
-        return card && storyBlockTabsActive() && card.classList?.contains?.('story-block-card') ? null : card;
+        return card;
     }
 
     function setClassActive(node, active) {

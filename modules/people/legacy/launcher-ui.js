@@ -1,4 +1,4 @@
-/* NPC State Delta Stage 1 launcher refinement: movable, mobile-safe, UI-only position state. */
+/* NPC State Delta Stage 1 launcher refinement: movable, mobile-safe, UI-only position state. Legacy: kept for the dossier panel's backdrop and chrome until B4 removes the old dossier surface (docs/merge/b4-removals.md); the floating button itself is always hidden. */
 
 const ROOT_ID = 'npc_state_delta_dossier_root';
 const LAUNCHER_ID = 'npc_state_delta_dossier_launcher';
@@ -109,10 +109,6 @@ class DeltaLauncherRefinement {
 body.story-suite-open #${LAUNCHER_ID} { display: none !important; }
 /* Story Block's game view (its root .ss-gameview, in the body) has its close button at the top right: the launcher hides under it. */
 body:has(.ss-gameview) #${LAUNCHER_ID} { display: none !important; }
-/* Story Block's sidebar carries Delta's Present NPCs and Dossiers tabs: the button is redundant there, unless kept. */
-html[data-npc-state-delta-story-block="1"]:not([data-npc-state-delta-launcher="keep"]) #${LAUNCHER_ID} { display: none !important; }
-/* A Story Block v2 host carries Delta (its Cast tab and overlay): the same, with its own keep setting. */
-html[data-npc-state-delta-story-block-v2="1"]:not([data-npc-state-delta-launcher-v2="keep"]) #${LAUNCHER_ID} { display: none !important; }
 #${ROOT_ID} .delta-backdrop {
   position: fixed;
   inset: 0;
@@ -253,6 +249,8 @@ html[data-npc-state-delta-story-block-v2="1"]:not([data-npc-state-delta-launcher
     padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
 }
+/* Story Suite carries Delta (its Dossiers tab and overlay), so the floating button is always hidden; this file stays for the dossier panel chrome above until B4. */
+html #${LAUNCHER_ID} { display: none !important; }
 `;
         document.head.appendChild(style);
     }

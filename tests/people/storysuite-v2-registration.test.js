@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { runtimeSource } from './helpers/runtime-source.js';
 import {
     CAST_TAB_ID,
-    HOSTED_FLAG,
     HOST_RETRY_ATTEMPTS,
     MODULE_ID,
     QUERY_NAMES,
@@ -13,6 +12,7 @@ import {
 } from '../../modules/people/storysuite-v2.js';
 import { announceNpcStateDelta, openSuiteOverlay, storyBlockIsV2, suiteManageAvailable } from '../../modules/people/legacy/suite-handshake.js';
 import { fakeDocument, fakeRegistry, fakeSdk, fakeTimers, hosted, setup, v2Host } from './storysuite-v2.helpers.js';
+import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 // ---- without a host ----
 
@@ -141,38 +141,36 @@ test('the adapter tells the page when it is hosted and when the host goes away; 
     assert.deepEqual(alone.doc.sent, [], 'a v1 host or none: no event');
 });
 
-test('the page flag (data-npc-state-delta-story-block-v2) is set while hosted, before the event, and removed when the host goes away or on stop()', async () => {
-    assert.equal(HOSTED_FLAG, 'npcStateDeltaStoryBlockV2');
+test('the hosted state (pageHandles.hosted) is set while hosted, before the event, and cleared when the host goes away or on stop()', async () => {
     const sdk = fakeSdk();
     const env = setup({ hostValue: v2Host(sdk) });
     const seen = [];
-    env.doc.addEventListener(V2_HOST_EVENT, event => seen.push([event.detail.hosted, env.doc.documentElement.dataset[HOSTED_FLAG]]));
+    env.doc.addEventListener(V2_HOST_EVENT, event => seen.push([event.detail.hosted, pageHandles.hosted]));
     env.adapter.start();
     assert.equal(await env.adapter.settled(), true);
-    assert.equal(env.doc.documentElement.dataset[HOSTED_FLAG], '1');
+    assert.equal(pageHandles.hosted, true);
     env.box.host = undefined;
     env.timers.runIntervals();
-    assert.equal(env.doc.documentElement.dataset[HOSTED_FLAG], undefined);
-    assert.deepEqual(seen, [[true, '1'], [false, undefined]], 'listeners see the flag already in its new state');
+    assert.equal(pageHandles.hosted, false);
+    assert.deepEqual(seen, [[true, true], [false, false]], 'listeners see the state already changed');
 
     const again = await hosted();
-    assert.equal(again.doc.documentElement.dataset[HOSTED_FLAG], '1');
+    assert.equal(pageHandles.hosted, true);
     again.adapter.stop();
-    assert.equal(again.doc.documentElement.dataset[HOSTED_FLAG], undefined);
+    assert.equal(pageHandles.hosted, false);
 
     for (const hostValue of [undefined, { apiVersion: 1, registerTab() {} }]) {
         const alone = setup({ hostValue });
         alone.adapter.start();
         while (alone.timers.runTimeouts());
-        assert.equal(alone.doc.documentElement.dataset[HOSTED_FLAG], undefined, 'never without a v2 host');
+        assert.equal(pageHandles.hosted, false, 'never without a v2 host');
         alone.adapter.stop();
-        assert.deepEqual(alone.doc.documentElement.dataset, {});
     }
 
     const refused = setup({ hostValue: v2Host(fakeSdk({ fail: true })) });
     refused.adapter.start();
     assert.equal(await refused.adapter.settled(), false);
-    assert.equal(refused.doc.documentElement.dataset[HOSTED_FLAG], undefined, 'a refused registration is not hosting');
+    assert.equal(pageHandles.hosted, false, 'a refused registration is not hosting');
 });
 
 test('storyBlockIsV2 is true only for apiVersion 2', () => {

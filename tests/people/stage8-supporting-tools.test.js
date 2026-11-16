@@ -29,12 +29,10 @@ function portraitData(bytes = [1, 2, 3, 4]) {
     return `data:image/png;base64,${Buffer.from(bytes).toString('base64')}`;
 }
 
-test('Diagnostics retains the manual full-cast follow-up action', () => {
+test('Diagnostics has no full-cast scan action (owner decision D dropped the full-cast scan)', () => {
     const source = fs.readFileSync(fileURLToPath(new URL('../../modules/people/legacy/dossier-tools.js', import.meta.url)), 'utf8');
-    assert.match(source, /data-run-full-cast-scan/);
-    assert.match(source, /Full scan current cast/);
-    assert.match(source, /npc-state-delta:request-full-cast-scan/);
-    assert.match(source, /diagnostic-full-cast-scan/);
+    assert.doesNotMatch(source, /full-cast|Full scan current cast/);
+    assert.match(source, /data-export-diagnostics/);
 });
 
 test('supporting tools bind to the accepted Stage 1 dossier root', () => {

@@ -101,7 +101,7 @@ test('hosted: a new chat with no sidecar is looked for once; automatic checks tr
     runHostScenario('sidecar-miss-hosted', v2HostPrelude, async () => {
         const api = globalThis.NPCStateDelta;
         assert.ok(await waitFor(() => mockState.sdk.registered.length === 1), 'Delta registers with the v2 host');
-        assert.equal(globalThis.document.documentElement.dataset.npcStateDeltaStoryBlockV2, '1');
+        assert.equal(globalThis.__handles.hosted, true);
         await sleep(200);
         assert.ok(misses() >= 1, 'the new chat was looked for');
         assert.equal(api.dataFile(), null, 'no sidecar yet');
@@ -151,7 +151,7 @@ test('hosted, then the host goes away: chat events check for the sidecar as befo
         const v2 = await import(pathToFileURL(path.join(extRoot, 'src', 'storysuite-v2.js')).href);
         const adapter = v2.startStorySuiteV2();
         assert.equal(adapter.check(), false);
-        assert.equal(globalThis.document.documentElement.dataset.npcStateDeltaStoryBlockV2, undefined, 'the hosted flag is gone');
+        assert.equal(globalThis.__handles.hosted, false, 'the hosted state is gone');
         const reads = await quietEvents();
         assert.ok(reads.length >= 1 && reads.every(read => read.status === 404), 'unhosted, the missing sidecar is asked for again, as v1 does');
         adapter.stop();
@@ -161,7 +161,7 @@ test('hosted, then the host goes away: chat events check for the sidecar as befo
 test('without a v2 host the sidecar checks are unchanged', () => {
     runHostScenario('sidecar-alone', noHostPrelude, async () => {
         await sleep(300);
-        assert.equal(globalThis.document.documentElement.dataset.npcStateDeltaStoryBlockV2, undefined);
+        assert.equal(globalThis.__handles.hosted, false);
         const first = await quietEvents();
         assert.ok(first.length >= 4 && first.every(read => read.status === 404), `chat events ask for the missing sidecar (${first.length})`);
         const second = await quietEvents();
@@ -169,27 +169,16 @@ test('without a v2 host the sidecar checks are unchanged', () => {
     });
 });
 
-test('hosted: the launcher hides unless kept, and the in-chat cast shows only when the reader chose it; both come back when the host leaves', () => {
+test('hosted: the in-chat cast shows only when the reader chose it; it comes back when the host leaves', () => {
     runHostScenario('launcher-and-cast-hosted', v2HostPrelude, async () => {
         const api = globalThis.NPCStateDelta;
         const settings = mockState.extensionSettings.npc_state_delta;
-        const data = globalThis.document.documentElement.dataset;
         assert.ok(await waitFor(() => mockState.sdk.registered.length === 1));
         await sleep(100);
 
-        // The launcher: CSS hides it while data-npc-state-delta-story-block-v2="1" unless the
-        // reader keeps it (data-npc-state-delta-launcher-v2="keep").
-        assert.equal(data.npcStateDeltaStoryBlockV2, '1');
-        assert.equal(settings.launcherWithStoryBlockV2, false, 'off by default');
-        assert.equal(data.npcStateDeltaLauncherV2, 'auto');
-        const keep = uiHandlers.get('change.npcStateDelta|#npc_state_delta_launcher_with_story_block_v2');
-        assert.equal(typeof keep, 'function', 'the setting is connected');
-        keep.call({ checked: true });
-        assert.equal(settings.launcherWithStoryBlockV2, true);
-        assert.equal(data.npcStateDeltaLauncherV2, 'keep');
-        keep.call({ checked: false });
-        assert.equal(data.npcStateDeltaLauncherV2, 'auto');
-        assert.equal(settings.launcherWithStoryBlock, false, 'v1\'s own setting is untouched');
+        assert.equal(globalThis.__handles.hosted, true);
+        assert.equal('launcherWithStoryBlockV2' in settings || 'launcherWithStoryBlock' in settings, false, 'the launcher settings are gone');
+        assert.equal(uiHandlers.get('change.npcStateDelta|#npc_state_delta_launcher_with_story_block_v2'), undefined, 'and so is their control');
 
         // The in-chat cast: the Cast tab carries it, so the unchosen default stays out of the chat.
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
@@ -214,8 +203,7 @@ test('hosted: the launcher hides unless kept, and the in-chat cast shows only wh
         api.renderInline();
         assert.equal(inChat(), true, 'Compact is always a deliberate choice');
 
-        // The host goes away: the flag goes, so the launcher shows again, and the unchosen default
-        // brings the cards back to the chat.
+        // The host goes away: the unchosen default brings the cards back to the chat.
         settings.presentCastDisplay = 'full';
         settings.presentCastDisplayChosen = false;
         api.renderInline();
@@ -224,18 +212,17 @@ test('hosted: the launcher hides unless kept, and the in-chat cast shows only wh
         const v2 = await import(pathToFileURL(path.join(extRoot, 'src', 'storysuite-v2.js')).href);
         const adapter = v2.startStorySuiteV2();
         assert.equal(adapter.check(), false);
-        assert.equal(data.npcStateDeltaStoryBlockV2, undefined, 'no hosted flag: the launcher CSS no longer hides it');
+        assert.equal(globalThis.__handles.hosted, false, 'no longer hosted');
         assert.ok(await waitFor(inChat), 'the in-chat cast comes back on its own');
         adapter.stop();
     });
 });
 
-test('without a v2 host the launcher and the in-chat cast are as before', () => {
+test('without a v2 host the in-chat cast is as before', () => {
     runHostScenario('launcher-and-cast-alone', noHostPrelude, async () => {
         const api = globalThis.NPCStateDelta;
-        const data = globalThis.document.documentElement.dataset;
         await sleep(200);
-        assert.equal(data.npcStateDeltaStoryBlockV2, undefined);
+        assert.equal(globalThis.__handles.hosted, false);
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
         const id = await turn('Yunyun waves from the gate.');
         await sleep(200);
@@ -244,15 +231,13 @@ test('without a v2 host the launcher and the in-chat cast are as before', () => 
     });
 });
 
-test('the launcher rule, the setting row and its CSS follow the hosted flag', () => {
+test('the floating launcher is always hidden; its settings, the keep flags and the hosted-only rows are gone', () => {
     const launcher = fs.readFileSync(new URL('../../modules/people/legacy/launcher-ui.js', import.meta.url), 'utf8');
-    assert.match(launcher, /html\[data-npc-state-delta-story-block-v2="1"\]:not\(\[data-npc-state-delta-launcher-v2="keep"\]\) #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
-    // v1's rule is unchanged.
-    assert.match(launcher, /html\[data-npc-state-delta-story-block="1"\]:not\(\[data-npc-state-delta-launcher="keep"\]\) #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
+    assert.match(launcher, /html #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
+    assert.doesNotMatch(launcher, /data-npc-state-delta-story-block|data-npc-state-delta-launcher/);
     const index = runtimeSource();
-    assert.match(index, /<div class="npc-state-delta-v2-hosted-only">\$\{settingRow\('npc_state_delta_launcher_with_story_block_v2', 'Show NSD\\'s own launcher with Story Block v2'/);
-    assert.match(index, /launcherWithStoryBlockV2: false,/);
-    const css = styleSource();
-    assert.match(css, /html:not\(\[data-npc-state-delta-story-block-v2="1"\]\) \.npc-state-delta-v2-hosted-only \{ display: none !important; \}/, 'the v2 setting shows only while hosted');
-    assert.match(css, /html\[data-npc-state-delta-story-block-v2="1"\] \.npc-state-delta-v2-hosted-hide \{ display: none !important; \}/, 'v1\'s Story Block launcher setting steps aside while hosted');
+    assert.doesNotMatch(index, /launcherWithStoryBlock|npc_state_delta_launcher_with_story_block|applyLauncherFlag|npcStateDeltaLauncher/);
+    assert.doesNotMatch(index, /npc-state-delta-v2-hosted-only|npc-state-delta-v2-hosted-hide/);
+    assert.match(index, /settingRow\('npc_state_delta_layered_secrets', 'Hidden notes for new people'/, 'the layered-secrets row stays, unwrapped');
+    assert.doesNotMatch(styleSource(), /npc-state-delta-v2-hosted|data-npc-state-delta-story-block/);
 });

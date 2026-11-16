@@ -6,15 +6,15 @@
 // called Cast) that is the dossier browser (and the same Dossiers as a screen in Story Block's game view),
 // and a settings section that carries Delta's own settings panel into the Story Suite overlay. The present
 // cast's cards are on Story Director's World screen (World → Now → Here) when it is there, drawn by Delta
-// through the page API `globalThis.NPCStateDeltaCast` (PAGE_API, below); without Story Director they stay
+// through the cast API handle (runtime/handles.js castApi); without Story Director they stay
 // at the top of Dossiers (Story Block MODULES §F119). It also owns one small domain, `npc` (src/npc-meters.js; F81, F90): each NPC's
 // meters, stages and unlocked hidden notes in the per-reply state, so they swipe and delete back
 // with the replies. While hosted that slice is the truth for meter values: index.js reads it back
 // through sliceView() for the dossier view and the injection, and sends its scanner's relationship
 // changes as `npc.adjust` (adjust()); the `~ npc` change line, an NPC card under each reply and the
 // meters beside the present cast's cards come from here. While hosted, the copy in SillyTavern's extensions drawer is
-// hidden; if the host goes away it comes back exactly where it was. While hosted, <html> also carries
-// HOSTED_FLAG, which index.js and the CSS read (launcher, in-chat cast default, sidecar checks).
+// hidden; if the host goes away it comes back exactly where it was. While hosted, the handle also carries
+// pageHandles.hosted, which index.js reads (in-chat cast default, sidecar checks).
 //
 // Without a v2 host (no Story Block, or a v1 Story Block whose global has no `ready`/`sdk`) this
 // module does nothing: it looks for the host a bounded number of times and then stops. The v1
@@ -50,6 +50,7 @@ import { createPeopleSync } from './adapter/people-sync.js';
 import { peopleView, peopleState, peopleCarry } from './view.js';
 import { keepStampContainers } from './keep-containers.js';
 import { hashJson } from './adapter/hash.js';
+import { pageHandles } from './runtime/handles.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './adapter/queries.js';
 export { meterBarNode } from './adapter/cast-ui.js';
@@ -76,7 +77,7 @@ export const CAST_SCREEN_ORDER = 35;
 /** Story Director's World view: while it is on, the present cast's cards are drawn there, not in Dossiers. */
 export const WORLD_FEATURE = 'story-director.world';
 /**
- * The page API for Story Director's World screen, on `globalThis` while the adapter runs (read-only; it
+ * The cast API for Story Director's World screen, on the in-process handle (runtime/handles.js castApi) while the adapter runs (read-only; it
  * changes nothing in Delta): { version, available(), render(el, { slot }) → number of present cards drawn,
  * onChange(fn) → off }. `render` draws Delta's own present-cast cards and meters into `el` (the markup and
  * classes the Cast tab drew) and, with `slot(name, aliases)` → a node or null, puts that node inside each
@@ -84,7 +85,6 @@ export const WORLD_FEATURE = 'story-director.world';
  * after Delta's cast or state may have changed (a cast drawn, a scan or edit, Delta on or off, hosted or
  * not); the caller redraws then.
  */
-export const PAGE_API = 'NPCStateDeltaCast';
 export const PAGE_SLOT_CLASS = 'npc-state-delta-v2-slot';
 // Story Director's reader-only pin for key people (its feature switch is `story-director.key-people`).
 // Story Block's lean RPG feature (its names.js LEAN_RPG_FEATURE); an extension cannot import Story Block.
@@ -99,13 +99,6 @@ export const PRESET_KIND = 'meterPresets';
 export { METERS_CARD_ID };
 /** Sent on the document with detail { hosted } when Delta registers with a v2 host and when it goes away. */
 export const V2_HOST_EVENT = 'npc-state-delta:v2-host';
-/**
- * Set to '1' on <html> (data-npc-state-delta-story-block-v2) while Delta is registered with a v2
- * host, removed when it goes away. index.js and the CSS read it: the floating launcher hides (unless
- * the reader keeps it), the in-chat cast takes v1's "Only in Story Block" default, and automatic
- * freshness checks trust an already-seen missing sidecar.
- */
-export const HOSTED_FLAG = 'npcStateDeltaStoryBlockV2';
 export const HOST_RETRY_MS = 250;
 export const HOST_RETRY_ATTEMPTS = 40;
 export const HOST_ALIVE_MS = 5000;
@@ -125,7 +118,7 @@ const fallbackEmptyCast = reason => `<div class="npc-state-delta-story-empty-sta
 /**
  * The adapter. Options (all optional except in tests):
  *   suiteApi   Delta's v1 suite api (index.js SUITE_API): npcs() gives { id, name, aliases, present, archived }.
- *   delta      () => Delta's runtime api (window.NPCStateDelta): presentCastHtml, fillPresentCast,
+ *   delta      () => Delta's runtime api (pageHandles.deltaApi): presentCastHtml, fillPresentCast,
  *              castEmptyReason, getNpc, formPortraits, isEnabled, scan, addNpc.
  *   panelId    id of Delta's settings panel in the extensions drawer.
  *   version    Delta's version, for the module definition.
@@ -138,7 +131,7 @@ const fallbackEmptyCast = reason => `<div class="npc-state-delta-story-empty-sta
  */
 export function createStorySuiteV2Adapter({
     suiteApi = null,
-    delta = () => globalThis.NPCStateDelta,
+    delta = () => pageHandles.deltaApi,
     panelId = 'npc_state_delta_settings',
     version = '',
     host = () => globalThis.StoryBlock,
@@ -160,8 +153,6 @@ export function createStorySuiteV2Adapter({
     // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
     loadDossierList = () => Promise.all([import('./legacy/story-block-tabs.js'), import('./legacy/dossier-ui.js')])
         .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
-    // Where the page API (PAGE_API) goes; null for none.
-    page = globalThis,
     // How long Delta waits for the host's head-selection barrier to come down, and how often it looks (messageGate.settled).
     settleMs = HEAD_SETTLE_MS,
     settlePollMs = HEAD_SETTLE_POLL_MS,
@@ -188,10 +179,10 @@ export function createStorySuiteV2Adapter({
     // The parts, in the order the closure declared them: each gets the options and constants (deps) and what the parts before it return.
     const deps = {
         suiteApi, delta, panelId, version, host, headReply, castSync, castPortraitDue, doc, timers, loadEmptyCast, retryMs,
-        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, loadDossierList, page, settleMs,
+        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, loadDossierList, settleMs,
         settlePollMs, cardSettings, MODULE_ID, MODULE_NAME, CAST_TAB_ID, DOSSIERS_TITLE, DOSSIERS_ICON, CAST_SCREEN_ID,
-        CAST_WIDGET, CAST_SCREEN_ORDER, WORLD_FEATURE, PAGE_API, PAGE_SLOT_CLASS, TICK_TURNS, PRESET_KIND,
-        V2_HOST_EVENT, HOSTED_FLAG,
+        CAST_WIDGET, CAST_SCREEN_ORDER, WORLD_FEATURE, PAGE_SLOT_CLASS, TICK_TURNS, PRESET_KIND,
+        V2_HOST_EVENT,
     };
     // The queries part reads the npc.identity query when it is called; the timeline part is built after it.
     let timelinePartRef = null;
@@ -237,7 +228,7 @@ export function createStorySuiteV2Adapter({
         definition,
         /** The catch-up after a fallback and the rebuild: status() for the banner, skip() (not a Story Block command: that would write an op), rebuild({ replies }). */
         catchUp: timelinePart.timeline.catchUp,
-        /** The page API Story Director's World screen uses (PAGE_API). */
+        /** The cast API Story Director's World screen uses (the handle's castApi). */
         pageApi,
         /** While hosted: Delta's scanner changes for one NPC → `npc.adjust` (a promise of the result, or null); `why`: a one-pass block's evidence per meter. */
         adjust: ({ name, meters, start, reply, impact, reason, why, guard } = {}) => send('npc.adjust', { name, meters, ...(start ? { start } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}), ...(typeof impact === 'string' ? { impact } : {}), ...(typeof reason === 'string' && reason.trim() ? { reason } : {}), ...(why && typeof why === 'object' ? { why } : {}) }, { own: true, background: true, guard }),

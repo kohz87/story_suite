@@ -213,7 +213,7 @@ test('without a v2 host the same turns send nothing, and the sidecar and the inj
         console.log('RESULT ' + JSON.stringify({
             relationship,
             sent: mockState.sdk?.sent?.length ?? 0,
-            hosted: globalThis.document.documentElement.dataset.npcStateDeltaStoryBlockV2 ?? null,
+            hosted: globalThis.__handles.hosted ? '1' : null,
             injection: api.injectionPreview().text,
             presentQuery: mockState.sdk?.registered?.[0]?.queries?.['npc.present']?.({}) ?? null,
             castHtml: api.presentCastHtml(),

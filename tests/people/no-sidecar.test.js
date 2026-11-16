@@ -20,7 +20,7 @@ test('no /api/files/upload of a state file while people are stored over a script
     assert.deepEqual(uploads, ['control-state.json'], 'the spy sees an upload (control)');
     uploads.length = 0;
     const rig = await peopleRig(t);
-    assert.equal(rig.doc.documentElement.dataset.npcStateDeltaStoryBlockV2, '1', 'the page flag that gates the sidecar is set');
+    assert.equal(globalThis.__handles.hosted, true, 'the hosted state that gates the sidecar is set');
     assert.equal(rig.adapter.hosted(), true, 'the adapter is hosted: both halves of the gate hold');
     for (let n = 1; n <= 6; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.turn = n + 1; state.npcs[0].seenCount = n; if (n === 3) state.npcs.push(record('vale')); }), true);
     await rig.host.st.deleteMessage(rig.host.ctx.chat.length - 1);

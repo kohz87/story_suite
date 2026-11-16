@@ -48,8 +48,8 @@ export const RUNTIME_SOURCE_PARTS = [
     { file: 'runtime-entry-events.js', before: 'const registerEvents =' },
     { file: 'runtime-entry-card-settings.js', before: 'const nsdCardSettings =' },
     { file: 'runtime-entry-startup.js', before: '$(safeInit);' },
-    { file: 'runtime-entry-public-read.js', before: 'window.NPCStateDelta = Object.freeze({ ...publicReadApi' },
-    { file: 'runtime-entry-public-write.js', before: 'window.NPCStateDelta = Object.freeze({ ...publicReadApi' },
+    { file: 'runtime-entry-public-read.js', before: 'pageHandles.deltaApi = Object.freeze({ ...publicReadApi' },
+    { file: 'runtime-entry-public-write.js', before: 'pageHandles.deltaApi = Object.freeze({ ...publicReadApi' },
 ];
 
 const read = file => oldSource(file);
