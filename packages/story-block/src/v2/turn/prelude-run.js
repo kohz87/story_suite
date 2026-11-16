@@ -5,14 +5,16 @@
 import { estimateTokens, KEPT_TAIL_TOKENS } from '../prompt.js';
 import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
 import { receiptCue } from '../lean-rpg/cue.js';
+import { noteLong } from '../interaction/note.js';
 import { boardFailure, boardStartState } from './held-board.js';
 
 const SETTLE = 'interaction.settle';
+const kindTitle = id => String(id ?? 'interaction').split('/').pop();
 
 // A prelude cue a module marks kept (receipt `data.keep === true`) is pinned too, up to this many tokens in all per reply; the rest are plain cues.
 export const KEPT_PRELUDE_TOKENS = KEPT_TAIL_TOKENS;
 
-export function runPreludes({ s, bus, store, problem }, { requested, cues, prechecks, previewState }) {
+export function runPreludes({ s, bus, store, problem, kindOf = null }, { requested, cues, prechecks, previewState }) {
     let boardStop = null;
 let keptPrelude = 0;
     for (const { moduleId, type: preludeType, payload, seed } of requested) {
@@ -33,9 +35,17 @@ let keptPrelude = 0;
             if (preludeType === RPG_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
             // A prelude that says it is not for the narrator (`narrate: false`, the RPG's no-rolls note) is stored with the reply and told to no one.
             if (result.receipt.narrate === false) continue;
-            const told = `[Happened]\n${receiptCue(result.receipt)}`;
+            const told = `[Happened]\n${preludeType === SETTLE ? String(result.receipt.summary ?? '') : receiptCue(result.receipt)}`;
             // A module may mark its prelude cue kept (`receipt.data.keep === true`): pinned like the RPG's, but only while the pinned
             // prelude text of the reply stays within KEPT_PRELUDE_TOKENS in all, so pinning can never starve the rest of the tail.
+            // A settled interaction's note is pinned by its receipt type, outside that pool (interaction/note.js): never cut, only named when long.
+            if (preludeType === SETTLE) {
+                const kind = kindOf?.(payload?.kindId);
+                const long = noteLong(result.receipt.summary, kind, kind?.title ?? kindTitle(payload?.kindId));
+                if (long) problem({ module: moduleId, ...long });
+                cues[moduleId] = [...(cues[moduleId] ?? []), { text: told, keep: true, interaction: true }];
+                continue;
+            }
             let pin = false;
             if (preludeType !== RPG_RESOLVE && result.receipt.data?.keep === true) {
                 const size = estimateTokens(told);

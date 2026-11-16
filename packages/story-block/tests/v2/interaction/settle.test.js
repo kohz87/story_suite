@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { guardProblem, hashJson } from '../../../src/v2/replay.js';
 import { settleInteraction } from '../../../src/v2/interaction/settle.js';
+import { INTERACTION_NOTE_TOKENS } from '../../../src/v2/interaction/note.js';
 
 const state = { room: 1 };
 const setup = { room: 1, rules: { pace: 'normal' }, foes: [{ name: 'Goblin' }] };
@@ -212,5 +213,5 @@ test('the note is told the interaction note allowance', () => {
     const { kind, log } = kindFor();
     settleInteraction(ctxFor(), payloadFor(kind), kind, { state });
     assert.equal(log.note.length, 1);
-    assert.equal(log.note[0].options.tokens, 600);
+    assert.equal(log.note[0].options.tokens, INTERACTION_NOTE_TOKENS);
 });

@@ -29,5 +29,8 @@ test('the segment is previewed on the state its opening leaves, and each summary
         { requested: [{ moduleId: 'm', type: SETTLE, payload: { n: 1 } }, { moduleId: 'm', type: SETTLE, payload: { n: 2 } }], cues, prechecks: [], previewState: null });
     assert.deepEqual(calls, [null, { after: 1 }], 'the second settle starts from what the first left');
     assert.deepEqual(out.previewState, { after: 2 });
-    assert.deepEqual(cues.m, ['[Happened]\ndone 1', '[Happened]\ndone 2']);
+    assert.deepEqual(cues.m, [
+        { text: '[Happened]\ndone 1', keep: true, interaction: true },
+        { text: '[Happened]\ndone 2', keep: true, interaction: true },
+    ], 'each note is pinned by its receipt type, not by data.keep');
 });
