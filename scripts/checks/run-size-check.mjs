@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { listCodeFiles } from './code-files.mjs';
 import { countLines } from './count-lines.mjs';
+import { checkExportsRatchet, parseExportsList } from './legacy-exports.mjs';
 import { checkLegacyRatchet, decideBase } from './legacy-ratchet.mjs';
 import { loadLayout } from '../layout.mjs';
 import { nulProblem } from './nul-check.mjs';
@@ -48,6 +49,7 @@ function readBase(ref) {
 }
 
 let baseList = null;
+const extraErrors = [];
 if (baseRef) {
   const decision = readBase(baseRef);
   if (decision.error) {
@@ -82,9 +84,18 @@ if (writeLegacy) {
   process.exit(0);
 }
 
+// The exports list has no import-commit history: a base without it means the list is being created now.
+if (baseRef) {
+  let baseExports = null;
+  try { baseExports = parseExportsList(git(['show', `${baseRef}:docs/merge/legacy-exports.txt`])); } catch { baseExports = null; }
+  const exportsPath = path.join(repoRoot, 'docs/merge/legacy-exports.txt');
+  if (baseExports && fs.existsSync(exportsPath)) extraErrors.push(...checkExportsRatchet({ current: parseExportsList(fs.readFileSync(exportsPath, 'utf8')), base: baseExports }).errors);
+}
+
 const legacyText = fs.existsSync(legacyAbsPath) ? fs.readFileSync(legacyAbsPath, 'utf8') : '';
 const legacy = parseLegacyList(legacyText);
 const { errors } = checkSizes({ files, legacy });
+errors.push(...extraErrors);
 for (const [relPath, text] of texts) {
   const problem = nulProblem(relPath, text);
   if (problem) errors.push(problem);

@@ -22,7 +22,7 @@ function resolveInternalImports(filePath, specifiers, fileSet) {
 /**
  * Builds codemap rows and validation problems for a set of repo files.
  */
-export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/jobs.json', legacyPackage = false, isLegacyFile = p => p.startsWith('packages/') }) {
+export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/jobs.json', legacyPackage = false, legacyExports = new Set(), isLegacyFile = p => p.startsWith('packages/') }) {
   const problems = [];
   const overLimit = [];
   const sortedFiles = [];
@@ -84,9 +84,12 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
   for (const filePath of sortedFiles) {
     const { names, unresolved } = exportNames(filePath, parsedByPath, fileSet);
     for (const from of new Set(unresolved)) problems.push(`${filePath}: export * from ${from} cannot be counted; list the names`);
-    if (!isTestFile(filePath) && names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade) {
-      // A legacy package lists its over-limit files as a backlog instead of failing the check.
+    const over = !isTestFile(filePath) && names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade;
+    if (legacyExports.has(filePath) && !over) problems.push(`${filePath}: now within the export limit; remove it from the legacy exports list`);
+    if (over) {
+      // A legacy package lists its over-limit files as a backlog instead of failing the check; so does a moved legacy file on the shrink-only list.
       if (legacyPackage) overLimit.push({ path: filePath, count: names.size });
+      else if (legacyExports.has(filePath)) continue;
       else problems.push(`${filePath}: ${names.size} exports (one job per file allows at most ${MAX_EXPORTS})`);
     }
   }
@@ -107,6 +110,10 @@ export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/job
   for (const row of byPath.values()) {
     row.importedBy.sort();
     row.tests.sort();
+  }
+
+  for (const listed of legacyExports) {
+    if (!fileSet.has(listed)) problems.push(`${listed}: is on the legacy exports list but the file does not exist`);
   }
 
   for (const jobPath of Object.keys(jobs)) {

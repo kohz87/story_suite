@@ -8,6 +8,7 @@
   "scripts/checks/code-files.mjs": "Classifies code and test paths and lists repo code files via git.",
   "scripts/checks/count-lines.mjs": "Counts lines in source text without adding a line for a trailing newline.",
   "scripts/checks/file-size.mjs": "Parses the legacy-oversize list and checks file line counts against the 450-line limit.",
+  "scripts/checks/legacy-exports.mjs": "Reads the shrink-only list of moved legacy files allowed over the export limit and rejects entries added compared with the base list.",
   "scripts/checks/legacy-ratchet.mjs": "Rejects legacy-oversize list entries that were added or raised compared with the base list, and decides which base lists are acceptable.",
   "scripts/checks/no-tracked-deps.mjs": "Fails if git tracks any file, folder or symlink whose path has a node_modules segment.",
   "scripts/checks/nul-check.mjs": "Reports a NUL byte found in a text file.",

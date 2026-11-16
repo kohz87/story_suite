@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { parseExportsList } from '../checks/legacy-exports.mjs';
 import { listCodeFiles, listRepoFiles } from '../checks/code-files.mjs';
 import { packageScopeProblems } from '../checks/package-scope.mjs';
 import { loadLayout } from '../layout.mjs';
@@ -27,7 +28,8 @@ const jobs = JSON.parse(readOptional('docs/codemap/jobs.json') || '{}');
 const layout = loadLayout();
 const rootFiles = allFiles.filter(p => !layout.isPackageFile(p));
 const rootJobs = sourceRootJobs({ files: rootFiles.filter(layout.isSourceFile), readSource, readOptional, layout, repoRoot, explicit: jobs });
-const built = buildMap({ files: rootFiles, readSource, jobs: { ...rootJobs, ...jobs }, isLegacyFile: layout.isPackageFile });
+const legacyExports = parseExportsList(readOptional('docs/merge/legacy-exports.txt'));
+const built = buildMap({ files: rootFiles, readSource, jobs: { ...rootJobs, ...jobs }, legacyExports, isLegacyFile: layout.isPackageFile });
 const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource, layout.isPackageFile)];
 // Feature entry points for files outside the packages (docs/codemap/features.json, repo paths); the packages' own sit in their maps.
 const rootFeatureText = readOptional('docs/codemap/features.json');
