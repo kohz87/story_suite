@@ -91,7 +91,7 @@ export function selectSettings(answers) {
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
-    section('models', 'Setup', 'Models', 'Three connections instead of five pickers: the chat’s own, quick helpers and background work.', [], 'models'),
+    section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', [], 'models'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', rowsOf('Budgets', BUDGETS, host, schema, defaults)),
   ];
   return {
