@@ -80,8 +80,21 @@ export function createGuards({ registry, findQuery }) {
     // (the host's own hook, `hostOwned`, answers from the story alone, whoever is ready: it is no owner whose readiness changes an answer)
     // (The RPG's code is loaded on demand, rpg-lazy.js: while it is missing the stand-in's guard answers for none of its blocks, so a checkpoint made then must not be trusted
     // once the code is there, nor the other way round: the mark says `rpg:missing` while it is; loaded, the mark is what it always was, so the checkpoints of a chat stay trusted.)
+    // The interaction kinds modules define are part of the mark too (the core's guard is hostOwned, so a kind owner registering, leaving, changing version
+    // or turning ready would otherwise move nothing): `;kinds:<kindId>@<module version>:<ready 0|1>,...` by kind id; empty with none, so the mark is what it was.
+    const kindsMark = () => {
+        const out = [];
+        for (const def of registry.modules?.() ?? []) {
+            for (const [name, kind] of Object.entries(def?.interactions ?? {})) {
+                let ready = false;
+                try { ready = registry.held?.(def.id) !== true && typeof kind?.ready === 'function' && kind.ready() === true; } catch { ready = false; }
+                out.push(`${def.id}/${name}@${def.version ?? ''}:${ready ? 1 : 0}`);
+            }
+        }
+        return out.length ? `;kinds:${out.sort().join(',')}` : '';
+    };
     const guardMark = () => `${(registry.modules?.() ?? [])
-        .filter(def => typeof def?.hooks?.replayGuard === 'function' && def.hooks.replayGuard.hostOwned !== true && registry.held?.(def.id) !== true).map(def => `${def.id}@${def.version ?? ''}`).join(',')}${rpgLib() ? '' : ';rpg:missing'}`;
+        .filter(def => typeof def?.hooks?.replayGuard === 'function' && def.hooks.replayGuard.hostOwned !== true && registry.held?.(def.id) !== true).map(def => `${def.id}@${def.version ?? ''}`).join(',')}${rpgLib() ? '' : ';rpg:missing'}${kindsMark()}`;
 
     return { guardHook, replayGuardCheck, guardMark };
 }
