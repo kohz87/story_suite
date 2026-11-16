@@ -21,7 +21,7 @@ const EVENTS = Object.freeze({
 
 export function createTimelinePart(session, deps) {
     const {
-        calendarOwn, CAST_TAB_ID, CAST_WIDGET, castScreen, castStillShown, castWidget, doc, DOSSIERS_ICON, DOSSIERS_TITLE,
+        calendarOwn, CAST_TAB_ID, CAST_WIDGET, castPanels, castScreen, castStillShown, castWidget, doc, DOSSIERS_ICON, DOSSIERS_TITLE,
         enabled, HOSTED_FLAG, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, participantVault, peopleSync, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
         storedSettings, suiteApi, syncDrawer, V2_HOST_EVENT, version, warn,
     } = deps;
@@ -210,6 +210,7 @@ export function createTimelinePart(session, deps) {
             icon: DOSSIERS_ICON,
             render: (el) => {
                 try { renderDossiers(el); } catch (error) { warn('Story Suite v2 Dossiers tab failed', error); }
+                castPanels.pane(el, renderDossiers, castStillShown);   // (flag on: a people section draws it again while it shows this tab)
             },
         }],
     });
@@ -279,7 +280,7 @@ export function createTimelinePart(session, deps) {
             // Story Director's World screen (the page API's subscribers) redraws its cards too.
             notifyChange(coalesce);   // only a render caused by the streaming message's growth is coalesced/held; everything else goes out at once
             redrawCastViews();
-            if (!session.castEl) return;
+            if (!session.castEl || castPanels.paneCovered(session.castEl)) return;   // (a pane the flag's section draws is not drawn here)
             if (!session.castEl.isConnected || !castStillShown(session.castEl)) {
                 session.castEl = null;
                 return;

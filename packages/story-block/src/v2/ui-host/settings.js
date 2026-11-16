@@ -6,7 +6,7 @@ import { CORE_FEATURE, GEAR_FEATURE, withHiddenFeatures } from '../features.js';
 import { buildReport, caughtSoFar, reportFileName } from '../diagnostics.js';
 import { createThemeBridge } from '../view/theme.js';
 
-export function createUiSettings({ runtime, doc, registry, store, sdk, settings, version, widgets, liveCtx, tabsControl, blockTemplates, blockWidgets, getRpg, getHudAsked, getCardLog, getOverlay, setOverlay }) {
+export function createUiSettings({ runtime, doc, registry, store, sdk, settings, version, widgets, liveCtx, tabsControl, blockTemplates, blockWidgets, getRpg, getHudAsked, getCardLog, getOverlay, setOverlay, redrawAll = null, redrawOn = () => false }) {
     // The settings overlay. Its prompt size is what the next ordinary reply would be sent (turn.preview:
     // built on demand, never sent, nothing changed), counted with SillyTavern's tokenizer when the context
     // has one; it is counted again when a feature flips or the story moves while the overlay is open.
@@ -58,6 +58,8 @@ export function createUiSettings({ runtime, doc, registry, store, sdk, settings,
             hooks: () => registry.hookEntries?.('diagnostics') ?? [],
             cardOffers: () => getCardLog().slice(),
         }),
+        // Settings → Diagnostics → Redraw all: the fallback while the redraw scheduler is on (the page offers it only while the flag is on).
+        ...(typeof redrawAll === 'function' ? { redrawAll, redrawOn } : {}),
         fileName: () => reportFileName(),
         // A story Story Block keeps as it is (read-only) can be repaired, only when the reader says so (turn.repair).
         repairActions: () => runtime.turn?.repairActions?.() ?? [],
