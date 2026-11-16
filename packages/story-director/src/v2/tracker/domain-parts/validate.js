@@ -37,7 +37,7 @@ export function validateDirector(slice) {
         if (problems.length > PROBLEM_ROOM) errors.push(`director.problems must be a list of at most ${PROBLEM_ROOM}.`);
         else if (problems.some(badProblem)) errors.push('director.problems entries need rev, kind and text.');
     } else if (!isRecord(problems) || Object.keys(problems).length > PROBLEM_CEILING || Object.keys(problems).some(key => !PROBLEM_KEY.test(key))) {
-        errors.push(`director.problems must hold at most ${PROBLEM_CEILING} problems under "<rev>.<n>" keys.`);
+        errors.push(`director.problems must hold at most ${PROBLEM_CEILING} problems under "<sid>.<n>" (or older "<rev>.<n>" keys).`);
     } else if (Object.values(problems).some(badProblem)) {
         errors.push('director.problems entries need rev, kind and text.');
     }

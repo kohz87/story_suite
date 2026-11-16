@@ -4,7 +4,7 @@
 //   time:    { minutes: null | int },             // story clock on the reader's calendar (a counter: moves keep `was`)
 //   threads: { [id]: thread },                    // MODULES §C1
 //   keys:    { [lineKey(key) or alias]: id },
-//   problems:{ ["<rev>.<n>"]: { rev, turn, kind, text, … } }, // the newest 100 kept, 50 shown
+//   problems:{ ["<sid>.<n>"]: { rev, turn, kind, text, … } }, // the newest 100 kept, 50 shown (older states: "<rev>.<n>")
 //   (a quest thread may also carry `ready: { rev }`, F83, an older chat's offer `shown: { turn }`, F88, and a
 //   legacy reward owed `owed: { text, rev, units?, credit?, total?, paid?: { [rev]: amount } }`, read-only history)
 //   turn:    { n, now: null | [{ reply, index, from, quests, lone, added, vouched, words?, paid, pending?, refused?, intent?, met? }] },
@@ -29,10 +29,10 @@
 // afterCapture step may turn in from where things stand (quests/index.js quest.autoTurnIns), and the quests
 // the story said were met in this reply (`met`, ids: a delivery goal met at the giver is handed in there).
 // Later replies never write inside what an earlier reply wrote (B-b1r2-12): `turn.now` is a slot
-// (../slot.js), written whole at a path that is always there; a problem is added under its own key (the
-// receipt's rev and its number in that receipt) and never changed, and the oldest past PROBLEM_ROOM are
-// removed (Story Block 2.0.0-alpha.2 passes over the removal of a key a deleted reply had made). Readers
-// order problems by rev and number.
+// (../slot.js), written whole at a path that is always there; a problem is added under its own key (its
+// reply's record ID and its number in that reply, ../reply-keys.js) and never changed, and the oldest past
+// PROBLEM_ROOM are removed (Story Block 2.0.0-alpha.2 passes over the removal of a key a deleted reply had
+// made). Readers order problems by what they hold: reply count (`turn`), rev, then number (problemOrder).
 //
 // Public face: re-exports its parts.
 

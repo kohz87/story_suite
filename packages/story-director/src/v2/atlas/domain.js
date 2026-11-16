@@ -11,7 +11,7 @@
 //   danger:       { world: AreaPolicy|null, regions: {rg_: AreaPolicy}, places: {canonical id: AreaPolicy} }
 //   writes:       { [write id]: { fingerprint, result } }           // the retry ledger of the new writers (../writes.js)
 //   tripRest?:    true                                              // set by the first reply generated on a build whose trips rest (atlas.mark); a trip line reads it
-//   trips?:       { [<rev>.<n>]: trip record }                      // the trip (feature story-director.trip): absent until one is made (trip.js, trip-shape.js)
+//   trips?:       { [<sid>.<n>]: trip record }                      // the trip (feature story-director.trip): absent until one is made (trip.js, trip-shape.js)
 // }
 // The last five arrived with contract P24; an older save has none of them and reads them as empty.
 // Places and routes from enabled packs (`packs.content`) are not copied in: they are read live

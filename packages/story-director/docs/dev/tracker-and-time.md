@@ -11,7 +11,8 @@ this repo's AI-README "Reply format the model writes" and "Data the model sees" 
   `—` reasons, `| label: value`), plus `time`. A kind's grammar may depend on the module set (no fights
   without a fight module), never on the state, so the static part stays byte-identical.
 - One reply adds at most `NEW_THREADS_PER_REPLY` (16) threads; at most `MAX_OPEN_THREADS` (300) open.
-  Problems are kept under `<rev>.<n>` keys, the newest `PROBLEM_ROOM` (100) kept, `PROBLEM_LIMIT` (50) shown.
+  Problems are kept under `<sid>.<n>` keys (the reply's record ID and a count, `src/v2/reply-keys.js`; older states `<rev>.<n>`),
+  read in reply-count (`turn`), rev, then count order, the newest `PROBLEM_ROOM` (100) kept, `PROBLEM_LIMIT` (50) shown.
 - **Clock** (`director.time.minutes`, a counter): `~ time +2h` style moves keep `was`; `~ time <date>` is an
   absolute set (`ctx.absolute`). One reply moves the clock at most `maxJump` days (setting, default
   `MAX_JUMP_DAYS` 30), counted from the clock when the reply's first Director line was read; a Continue is the

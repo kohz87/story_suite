@@ -1,10 +1,12 @@
 // Validating the shape and fields of `atlas.trips` records.
 
 import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, MAX_TEXT } from './limits.js';
+import { REPLY_KEY } from '../../reply-keys.js';
 
 const DAY = 1440;
 
-export const KEY = /^[0-9]{1,12}\.[0-9]{1,4}$/;
+/** A trip record's key: `<sid>.<n>` (the reply's record ID), or `<rev>.<n>` in an older state (reply-keys.js). */
+export const KEY = REPLY_KEY;
 const isInt = value => Number.isSafeInteger(value);
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const textOk = (value, max) => typeof value === 'string' && value.length <= max;

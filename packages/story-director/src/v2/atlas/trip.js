@@ -6,7 +6,8 @@
 // story times, so a replay is exact whatever the routes or the mounts become later. Nothing about *where* the
 // party is now is stored: it is worked out from the story time against the legs (`positionOf`).
 //
-// Kept in the atlas domain's `trips`, a record per line, keyed `<rev>.<n>` (per-reply bookkeeping, SPEC §2.2):
+// Kept in the atlas domain's `trips`, a record per line, keyed `<sid>.<n>` (the reply's record ID, ../reply-keys.js; older states
+// `<rev>.<n>`) and read in story-time, then revision order (per-reply bookkeeping, SPEC §2.2):
 //   go    { kind: 'go', at, rev, to, by, mode, pace, unit, mount, short, setOut, legs: [Leg] }
 //   delay { kind: 'delay', at, rev, minutes, because }
 // `Leg` = { from, to, km, kind, days, start, arrive, skip? }: names in the direction of travel, the road's length
