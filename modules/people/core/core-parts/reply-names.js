@@ -10,7 +10,8 @@ export function replyNamesSomeone(text, { npcs = [], userName = '', charName = '
     const prose = String(text ?? '').replace(/<Changes\b[\s\S]*?(?:<\/Changes>|$)/i, '');
     if (!prose.trim()) return false;
     if ((npcs || []).some(npc => npc && npcNamedInText(npc, prose, npcs))) return true;
-    const skip = new Set([userName, charName, ...places].map(name => String(name || '').toLowerCase()).filter(Boolean));
+    // Each word of a name counts (a place "Bluewatch Guild" skips "Bluewatch"; the match is one capitalised word at a time).
+    const skip = new Set([userName, charName, ...places].flatMap(name => String(name || '').toLowerCase().split(/\s+/)).filter(Boolean));
     const known = new Set((npcs || []).flatMap(npc => [npc?.name, ...(npc?.aliases || [])]).flatMap(name => String(name || '').toLowerCase().split(/\s+/)));
     for (const match of prose.matchAll(CAPITAL)) {
         const word = match[0].toLowerCase();

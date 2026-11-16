@@ -25,6 +25,6 @@ test('the people list: 40 dossiers with 30 archived list only the active ones; o
     assert.equal(listedPeople({ existingNpcs: npcs, turn: 100, dormantAfter: 30, namedNpcIds: ['p25'] }).length, 11);
     const text = buildLinesContext({ existingNpcs: npcs, turn: 100, dormantAfter: 30 });
     assert.ok(text.startsWith('People you know about (match by these names):\n[{"id":"p0","name":"Person 0","aliases":[]}'));
-    assert.ok(!text.includes('registryState') || text.includes('no registryState'), 'no registryState in the list');
+    assert.ok(!text.includes('registryState') && !text.includes('active people only'), 'no registryState and no extra line in the list');
     assert.ok(!text.includes('Person 25'));
 });

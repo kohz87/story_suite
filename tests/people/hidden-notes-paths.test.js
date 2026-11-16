@@ -131,7 +131,11 @@ try {
         await emitAll('generation_after_commands', 'normal', {}, false);
         sent.rules = lastPrompt('story_suite_static_npc_state_delta');
         sent.context = lastPrompt('story_suite_tail_5_npc_state_delta_capture');
-        const mes = \`\${text}\\n\\n<!--npc_state_delta\\n\${JSON.stringify(payload)}\\n-->\`;
+        const block = \`\${text}\\n\\n<!--npc_state_delta\\n\${JSON.stringify(payload)}\\n-->\`;
+        // Hosted (N7): the block is no longer asked for or applied; a reply that lists people is one with no <Changes> block that names them (the NSD16 fallback scan).
+        const names = (payload?.npcs || []).map(n => n.name).filter(Boolean);
+        const mes = ${hosted} ? (names.length ? text + ' In the story, ' + names.join(' and ') + ' stand there.' : text) : block;
+        if (${hosted}) globalThis.SCAN_RESULT = payload || null;
         mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes, swipe_id: 0, swipes: [mes] });
         const id = mockState.context.chat.length - 1;
         await emitAll('message_received', id);
@@ -184,6 +188,7 @@ test('hosted: a backfill of a new dossier asks for layered notes and keeps them;
         mockState.quietResponder = async (args = {}) => {
             const system = String(args.systemPrompt || '');
             const prompt = String(args.prompt || '');
+            if (/isolated dossier scanner\./i.test(system) && globalThis.SCAN_RESULT) { const given = globalThis.SCAN_RESULT; globalThis.SCAN_RESULT = null; return JSON.stringify(given); }
             if (/backfill scanner/i.test(system)) {
                 asked.push({ kind: 'backfill', prompt });
                 const name = prompt.match(/^(?:Requested|Target) NPC: (.+?)(?: [(].*)?$/m)?.[1] ?? 'Yunyun';

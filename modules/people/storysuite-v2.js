@@ -46,6 +46,7 @@ import { createConnectPart } from './adapter/connect.js';
 import { createEditorPart } from './adapter/editor.js';
 import { createNativeDeath } from './adapter/native-death.js';
 import { createPeopleSync } from './adapter/people-sync.js';
+import { queueNewStubFills } from './adapter/stub-fills.js';
 import { peopleView, peopleState, peopleCarry } from './view.js';
 import { keepStampContainers } from './keep-containers.js';
 import { hashJson } from './adapter/hash.js';
@@ -196,6 +197,7 @@ export function createStorySuiteV2Adapter({
         ready: () => queriesPart.runtime()?.stateReady?.() !== false,
         chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
         rescan: () => queriesPart.runtime()?.rescanLatest?.(),
+        afterHydrate: at => { if (linesMode()) queueNewStubFills(queriesPart.runtime(), queriesPart.runtime()?.chatKey?.() ?? '', at); },   // the fill-in of a `+ npc` stub (NSD6)
         carry: peopleCarry,
         keep: (built, slice) => (linesMode() ? keepStampContainers(built, slice) : built),   // lines mode only: with the switch off the view is written as it is
         mark: (index, since) => queriesPart.runtime()?.setScanMarker?.(index, since),
@@ -343,6 +345,8 @@ export function createStorySuiteV2Adapter({
         eventWatch,
         /** The record ID of the reply at message `index` (null when the host cannot say): what a reply's own work is keyed by. */
         replySid: index => { try { return session.hosted ? session.sdkRef.query('npc.replySid', { asOf: index }) ?? null : null; } catch { return null; } },
+        /** The place names Story Director's Atlas knows (its `atlas.places` query), [] when it is not there or cannot answer: capitalised words that are places name no one (NSD16). */
+        places: () => { try { const got = session.hosted ? session.sdkRef.query('atlas.places', {}) : null; return (Array.isArray(got) ? got : []).flatMap(place => [place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : [])]).filter(name => typeof name === 'string' && name); } catch { return []; } },
         /** While hosted: a story event the scan saw opens these notes of one NPC → `npc.open` (Delta's own send). */
         openByEvent: ({ name, ids } = {}) => send('npc.open', { name, open: ids, by: 'story' }, { own: true, background: true }),
         /** The notes a scan wrote for someone new, cleaned to 2 to 5 layers (src/npc-meters.js normalizeGeneratedSecrets). */

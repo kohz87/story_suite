@@ -52,6 +52,7 @@ try {
     globalThis.ZERO = { trust: 0, affection: 0, desire: 0, tension: 0 };
     // A backfill finds the NPC it asks for; every other request finds nothing new.
     mockState.quietResponder = async (args = {}) => {
+        if (/isolated dossier scanner\\./i.test(String(args.systemPrompt || '')) && globalThis.SCAN_RESULT) { const given = globalThis.SCAN_RESULT; globalThis.SCAN_RESULT = null; return JSON.stringify(given); }
         const asked = (/backfill scanner/i.test(String(args.systemPrompt || '')) ? String(args.prompt || '').match(/^(?:Requested|Target) NPC: (.+?)(?: [(].*)?$/m)?.[1] : undefined);
         return asked ? JSON.stringify({ npcs: [{ name: asked, present: true, role: 'regular', relationshipImpact: 'none', relationshipDelta: ZERO }] }) : '{"npcs":[]}';
     };
@@ -75,7 +76,11 @@ try {
         await emitAll('message_sent', mockState.context.chat.length - 1);
         await emitAll('generation_after_commands', 'normal', {}, false);
         const raw = typeof payload === 'string' ? payload : JSON.stringify(payload);
-        const mes = payload === null ? text : text + '\\n\\n<!--npc_state_delta\\n' + raw + (unterminated ? '' : '\\n-->');
+        const block = payload === null ? text : text + '\\n\\n<!--npc_state_delta\\n' + raw + (unterminated ? '' : '\\n-->');
+        // Hosted (N7): the block is no longer asked for or applied; a reply that lists people is one with no <Changes> block that names them (the NSD16 fallback scan), answered with the payload.
+        const names = typeof payload === 'object' && payload ? (payload.npcs || []).map(n => n.name).filter(Boolean) : [];
+        const mes = ${hosted} ? (names.length ? text + ' In the story, ' + names.join(' and ') + ' stand there.' : text) : block;
+        if (${hosted}) globalThis.SCAN_RESULT = typeof payload === 'object' && payload ? payload : null;
         mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes, swipe_id: 0, swipes: [mes] });
         const id = mockState.context.chat.length - 1;
         const before = kinds();
@@ -123,8 +128,8 @@ const twoReplies = async ({ reply }) => {
 
 test('hosted one-pass: an ordinary reply makes no extra model call (no relationship pass, no backfill)', () => {
     const hosted = runCalls('hosted-two-replies', true, twoReplies);
-    assert.deepEqual(hosted.first, { scanner: 0, relationship: 0, backfill: 1, refresh: 0 }, 'a new NPC in the block: its one backfill (own cadence, batch D), no evaluator');
-    assert.deepEqual(hosted.second, { scanner: 0, relationship: 0, backfill: 0, refresh: 0 }, 'an open relationship in the block: no evaluator (the story\'s ~ npc lines move the meters)');
+    assert.deepEqual(hosted.first, { scanner: 1, relationship: 0, backfill: 1, refresh: 0 }, 'a new NPC in a reply with no <Changes> block: the one fallback scan, its one backfill, no evaluator');
+    assert.deepEqual(hosted.second, { scanner: 1, relationship: 0, backfill: 0, refresh: 0 }, 'a reply that names a listed person and has no <Changes> block: one fallback scan (NSD16); no evaluator, no backfill (the story\'s ~ npc lines move the meters)');
 });
 
 test('without a host the same replies make the calls they always made; the reply never waits for a backfill', () => {
@@ -321,7 +326,7 @@ test('ONEPASSMISS-1: a fallback result is discarded if its chat changes during t
             if (!/isolated dossier scanner\./i.test(String(args.systemPrompt || ''))) return '{"npcs":[]}';
             return new Promise(resolve => { release = resolve; });
         };
-        const pending = reply('Sieke waves at the gate.', null);
+        const pending = reply('At the gate, Sieke waves.', null);
         for (let i = 0; i < 100 && !release; i += 1) await sleep(10);
         if (!release) throw new Error('the fallback did not start');
         mockState.context.chatId = 'another-chat';

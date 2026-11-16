@@ -114,3 +114,13 @@ test('host: new tags apply once and replay equals live (swipe, Re-read, edited R
     assert.deepEqual(s.host.store.problems(), []);
     assert.deepEqual(validateNpcSlice(s.host.head().domains.people.bonds), [], 'the meters (people.bonds since P4) are sound');
 });
+
+test('mixed tags on one line: adds and drops apply together, in the nine-tag order, and a re-read of the same line changes nothing', () => {
+    const first = tie({ astra: ['rival', 'owes'] }, ['+friend', '-rival', '+serves']);
+    assert.deepEqual(first.ties, { astra: ['friend', 'serves', 'owes'] });
+    assert.equal(first.changed, true);
+    assert.deepEqual(tie(first.ties, ['+friend', '-rival', '+serves']).changed, false, 'the same line again is a no-op (replay equals live)');
+    assert.deepEqual(tie({ astra: ['ally'] }, ['-ally', '+enemy', '+bogus']).ties, { astra: ['enemy'] }, 'a drop and an add, and the unknown tag is ignored');
+    assert.deepEqual(tie({ astra: ['ally'] }, ['-ally', '+enemy', '+bogus']).ignored, ['+bogus']);
+    assert.deepEqual(tie({ astra: ['ally'] }, ['+enemy', '-ally']).ties, tie({ astra: ['ally'] }, ['-ally', '+enemy']).ties, 'the order the tags are written in does not matter');
+});

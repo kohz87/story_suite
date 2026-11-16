@@ -34,7 +34,7 @@ export function createScanPart(rt, deps) {
     const rerunOnce = new Set();
     const { noteCaptureCatchUp, runCaptureCatchUp } = createCatchUpPart(rt, { getChatKey, getChatState, hostedOnePass, isHostSwipeActive, isScanBusy, persist, processPendingBackfills, refreshNpcFromChat });
     const { replyParentKey, sameReplyRewritten, stripLiveSceneFields, chatNeverScanned } = createScanReplyPart({ getChatKey });
-    const { handleAssistantMessageReceivedInner } = createAssistantHandlerPart(rt, deps, { replyParentKey, sameReplyRewritten, scanInner: options => scanNowInner(options) });
+    const { handleAssistantMessageReceivedInner } = createAssistantHandlerPart(rt, deps, { replyParentKey, sameReplyRewritten, scanInner: options => scanNowInner(options), noteCaptureCatchUp, runCaptureCatchUp });
     async function scanNowInner({ manual = false, messageId = null, allowDuringSwipe = false } = {}) {
         const settings = getSettings();
         if (!settings.enabled) return false;
@@ -168,7 +168,7 @@ export function createScanPart(rt, deps) {
             // later reply counts as a second sighting (a manual or full-window scan reads many replies).
             const singleReply = !manual && !fullWindowScan && Number.isInteger(messageId);
             const resolvedParsed = resolveInterimIdentityPromotions(singleReply ? tagScanEvidence(parsed, skippedWindow?.readThrough ?? messageId) : parsed, state.npcs, state.candidates);
-            if (capture) capCaptureAdmissions(resolvedParsed, state.npcs);
+            if (capture || (fallback && hostedOnePass())) capCaptureAdmissions(resolvedParsed, state.npcs);
             profileUpdateCount = Array.isArray(resolvedParsed.profileUpdates) ? resolvedParsed.profileUpdates.length : (Array.isArray(resolvedParsed.profile_updates) ? resolvedParsed.profile_updates.length : 0);
             // Relationship-edge extraction is a separate channel from ordinary NPC delta admission.
             // Add a deterministic fallback for explicit binary statements so a missed lifecycle field
@@ -400,7 +400,7 @@ export function createScanPart(rt, deps) {
             renderDossier();
             updateInjection();
             if (capture && replayScope()) replayRefreshIds = Object.keys(savedCapture.refreshes || {});
-            else if (capture) catchUpIds = noteCaptureCatchUp(scanChatKey, inlineIds);
+            else if (capture && !hostedOnePass()) catchUpIds = noteCaptureCatchUp(scanChatKey, inlineIds);
             notifyGenderConflicts(merged.report);
             if (manual) {
                 const { created, updated, candidates, promoted, skipped, staleArchived = [], stalePruned = [] } = merged.report;

@@ -52,6 +52,7 @@ try {
     globalThis.ZERO = { trust: 0, affection: 0, desire: 0, tension: 0 };
     // A backfill finds the NPC it asks for; every other request finds nothing new.
     mockState.quietResponder = async (args = {}) => {
+        if (/isolated dossier scanner\\./i.test(String(args.systemPrompt || ''))) { const given = globalThis.SCAN_RESULT; globalThis.SCAN_RESULT = null; return JSON.stringify(given || { npcs: [] }); }
         const asked = (/backfill scanner/i.test(String(args.systemPrompt || '')) ? String(args.prompt || '').match(/^(?:Requested|Target) NPC: (.+?)(?: [(].*)?$/m)?.[1] : undefined);
         return asked ? JSON.stringify({ npcs: [{ name: asked, present: true, role: 'regular', relationshipImpact: 'none', relationshipDelta: ZERO }] }) : '{"npcs":[]}';
     };
@@ -74,7 +75,11 @@ try {
         mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'And then?' });
         await emitAll('message_sent', mockState.context.chat.length - 1);
         await emitAll('generation_after_commands', 'normal', {}, false);
-        const mes = \`\${text}\\n\\n<!--npc_state_delta\\n\${JSON.stringify(payload)}\\n-->\`;
+        // N7: the block is no longer asked for or applied. A reply that lists people is a reply with no <Changes> block that names them (the NSD16 fallback scan),
+        // and the scanner answers with the payload.
+        const names = (payload?.npcs || []).map(n => n.name);
+        const mes = names.length ? \`\${text} In the story, \${names.join(' and ')} stand there.\` : text;
+        globalThis.SCAN_RESULT = payload || { npcs: [] };
         mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes, swipe_id: 0, swipes: [mes] });
         const id = mockState.context.chat.length - 1;
         const before = kinds();
@@ -115,7 +120,7 @@ test('hosted, catch-up 8, one new admission: the backfill runs that reply, no Re
         const first = await reply('Yunyun waves.', { npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }] });
         return { first: first.all, held: first.held, queued: globalThis.NPCStateDelta.getState().pendingBackfills.length };
     });
-    assert.deepEqual(r.first, { scanner: 0, relationship: 0, backfill: 1, refresh: 0 });
+    assert.deepEqual(r.first, { scanner: 1, relationship: 0, backfill: 1, refresh: 0 });   // the one scan is the NSD16 fallback (no <Changes> block, names someone)
     assert.equal(r.held.backfill, 0, 'not awaited by the reply');
     assert.equal(r.queued, 0);
 });
@@ -142,7 +147,7 @@ test('hosted, catch-up 1, new admissions: each new NPC gets the Refresh and a ba
         return { one: one.all, two: two.all, three: three.all, queuedAfterTwo, queued: globalThis.NPCStateDelta.getState().pendingBackfills.length };
     });
     // Changed (new-NPC rule): a newly met NPC gets the catch-up's targeted Refresh (it writes the structured appearance) AND its backfill.
-    assert.deepEqual(r.one, { scanner: 0, relationship: 0, backfill: 1, refresh: 1 }, 'the new person: the Refresh and the backfill');
+    assert.deepEqual(r.one, { scanner: 1, relationship: 0, backfill: 1, refresh: 1 }, 'the new person: the Refresh and the backfill');
     // (ONEPASSCAPR2-3) Every new admission gets its one fill in its own reply, none waits for another reply.
     assert.equal(r.two.backfill, 2, 'two new people: each gets its backfill this reply');
     assert.equal(r.two.refresh, 2, 'both people in the reply are new admissions: each gets the Refresh');
@@ -357,6 +362,7 @@ test('FOLLOWREFRESH: a new person\'s follow-up is read like a Refresh (memories,
     const r = runCalls('followrefresh', true, async ({ reply, mockState }) => {
         const prompts = [];
         mockState.quietResponder = async (args = {}) => {
+            if (/isolated dossier scanner\./i.test(String(args.systemPrompt || ''))) { const given = globalThis.SCAN_RESULT; globalThis.SCAN_RESULT = null; return JSON.stringify(given || { npcs: [] }); }
             if (!/backfill scanner/i.test(String(args.systemPrompt || ''))) return '{"npcs":[]}';
             prompts.push(String(args.prompt || ''));
             return JSON.stringify({ npcs: [{ name: 'Yunyun', present: false, mood: 'furious', goal: 'leave town', status: 'asleep', location: 'the cellar', role: 'adventurer',
@@ -384,6 +390,7 @@ test('new-admission follow-up fills a grounded blank background once and refuses
     const r = runCalls('background-gap', true, async ({ reply, mockState }) => {
         const prompts = [];
         mockState.quietResponder = async (args = {}) => {
+            if (/isolated dossier scanner\./i.test(String(args.systemPrompt || ''))) { const given = globalThis.SCAN_RESULT; globalThis.SCAN_RESULT = null; return JSON.stringify(given || { npcs: [] }); }
             if (!/backfill scanner/i.test(String(args.systemPrompt || ''))) return '{"npcs":[]}';
             const prompt = String(args.prompt || '');
             prompts.push(prompt);

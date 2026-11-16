@@ -12,9 +12,9 @@ import { narrationCaptureEnabled, latestMessageId, notify, replayScope } from '.
 import { captureJournalEntry } from '../runtime/runtime-narration.js';
 
 export function createAssistantHandlerPart(rt, deps, helpers) {
-    const { commitBranchCheckpoint, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, updateInjection } = deps;
+    const { commitBranchCheckpoint, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, updateInjection } = deps;
     const { assistantReceipts, narrationCaptures } = rt;
-    const { replyParentKey, sameReplyRewritten, scanInner } = helpers;
+    const { replyParentKey, sameReplyRewritten, scanInner, noteCaptureCatchUp, runCaptureCatchUp } = helpers;
 
     async function handleAssistantMessageReceivedInner(messageId, { bypassSwipeGuard = false, forceBranchRescan = false, detachScan = false } = {}) {
         const settings = getSettings();
@@ -74,7 +74,8 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         // A skipped, busy, failed, or timed-out scan must not make every NPC disappear.
         state.assistantSinceScan = Number(state.assistantSinceScan || 0) + 1;
         const shouldForceBranchScan = forceBranchRescan && settings.branchRescan !== false;
-        const autoScanDue = autoScanDueAfterReply({
+        // NSD16 (hosted one-pass): the story's own lines carry the changes, so no scan by cadence; only the fallback scan (captureDue below) runs.
+        const autoScanDue = !hostedOnePass() && autoScanDueAfterReply({
             autoScan: settings.autoScan,
             full: settings.fullScanEveryTurn,
             sinceScan: state.assistantSinceScan,
@@ -95,6 +96,14 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         renderDossier();
         updateInjection();
 
+        // Hosted one-pass (N7): the catch-up counts every live reply by who is in the scene, whether or not a fallback scan ran (the story's own lines
+        // are no capture to count). Replays keep the scan's journal entry as before.
+        const countCatchUp = () => {
+            if (replay || !hostedOnePass()) return;
+            const present = (getChatState(eventChatKey)?.npcs || []).filter(npc => npc?.present && !npc.archived).map(npc => npc.id);
+            const due = noteCaptureCatchUp(eventChatKey, present);
+            if (due.length) void runCaptureCatchUp(eventChatKey, due);
+        };
         if (scanExpected && detachScan && !replay) {
             // The live MESSAGE_RECEIVED listener: SillyTavern keeps the Send button locked (and the reply undrawn) until every
             // listener returns, and an automatic scan is a model call (seconds). It starts now, in this tick (scanNow counts as
@@ -102,7 +111,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
             // asked for again (scanNowInner), so nothing is lost.
             const chainEnd = () => getChatKey() === eventChatKey && latestMessageId(true) === messageId && sourceStillHere();
             scanNow({ manual: false, messageId, allowDuringSwipe: bypassSwipeGuard })
-                .then(done => { if (done !== false && chainEnd()) scheduleReplyBackfills(eventChatKey, messageId); })
+                .then(done => { if (done !== false && chainEnd()) { countCatchUp(); scheduleReplyBackfills(eventChatKey, messageId); } })
                 .catch(error => console.warn('[NPC State Delta] the scan of a new reply stopped.', error));
             return;
         }
@@ -115,7 +124,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         }
         if (getChatKey() !== eventChatKey || latestMessageId(true) !== messageId || !sourceStillHere()) return;
         if (replay) await replay.backfills(messageId);   // inline, on the copy, at the live per-reply limit
-        else scheduleReplyBackfills(eventChatKey, messageId);
+        else { countCatchUp(); scheduleReplyBackfills(eventChatKey, messageId); }
     }
 
     // (lean) The cheap local check before an automatic scan: a quiet reply (no new name, no tracked NPC, no NPC State line) waits

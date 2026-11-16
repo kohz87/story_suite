@@ -25,6 +25,10 @@ export function createNarrationPart(rt, deps) {
     function hostedMeters() {
         return Boolean(storySuiteV2Meters());
     }
+    // Story Director's places (Atlas), for the capitalised-name test; [] without them.
+    function hostedPlaces() {
+        try { return storySuiteV2Meters()?.places?.() ?? []; } catch { return []; }
+    }
     function hostedOnePass(settings = getSettings()) {
         return hostedMeters() && narrationCaptureEnabled(settings);
     }
@@ -92,7 +96,7 @@ export function createNarrationPart(rt, deps) {
         }
         if (!fallbackEligible || !narrationCaptureEnabled() || !extracted.text.trim() || /<Changes\b/i.test(text)) return;
         const ctx = getContext();
-        if (replyNamesSomeone(extracted.text, { npcs: getChatState(chatKey)?.npcs || [], userName: ctx.name1 || '', charName: ctx.name2 || '' })) rememberCapture(chatKey, messageId, { fallback: true });
+        if (replyNamesSomeone(extracted.text, { npcs: getChatState(chatKey)?.npcs || [], userName: ctx.name1 || '', charName: ctx.name2 || '', places: hostedPlaces() })) rememberCapture(chatKey, messageId, { fallback: true });
     }
     function captureNarrationBlock(chatKey, messageId, message, armed, fallbackEligible, watch = []) {
         if (hostedMeters()) return captureHostedBlock(chatKey, messageId, message, armed, fallbackEligible);
