@@ -35,7 +35,7 @@ test('a told lie (its words as written) and a milestone are memories too; a caug
     same(s, 'replay equals live');
 });
 
-test('storage only appends: six memories, the first reply deleted, only its memory goes and the rest stay; the dossier cap of five applies where a record is read', async () => {
+test('six memories, the first reply deleted, only its memory goes and the rest stay; the dossier cap of five applies where a record is read', async () => {
     const s = await suite({ lines: true });
     const SIX = ['1 Promised the abbot a quiet gate.', '2 Swam the river at night carrying a lantern.', '3 Burned the bridge ledger behind him.', '4 Heard the tower bell ring thirteen times.', '5 Traded a silver comb at the market.', '6 Confessed a forged seal to the cook.'];
     const first = await s.say([`~ memory Oren | ${SIX[0]}`]);

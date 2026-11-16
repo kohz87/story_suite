@@ -1,6 +1,6 @@
 // Memories from the lines (NSD8), only while lines mode is on. The words of a `~ npc` line's why:, of a lie and of a milestone are saved as that person's memory by code
 // (withMemories); `~ memory Name | what happened` is only for a moment no line covers, at most two a reply (memoryLine). Code owns who, the story day and the cap and trim
-// (the dossier's five important memories, applied where a record is read; storage only appends); a memory already stored, or one that only rewords it, is not stored twice. The writes are the reply's own
+// (the dossier's five important memories, applied where a record is read; the runtime's own per-reply write also trims to five, so storage appends only between those writes); a memory already stored, or one that only rewords it, is not stored twice. The writes are the reply's own
 // (`people.memory` in the line's transaction), so a swipe, a middle delete, a Re-read and a reload decide them again the same way.
 import { clean, isInt, slug, REASON_LABELS } from '../npc-meters-config.js';
 import { normalizeName } from '../../core-text.js';

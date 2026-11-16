@@ -17,10 +17,11 @@
  * { sdk() → host sdk | null, view(state) → people view | null, restore(view) → people keys | null, hash(value) → string,
  *   readState() → the cache's state | null, install(keys) → boolean (replaces the cache's people), ready() → boolean, warn(text),
  *   chatKey() → the open chat's key, rescan() (the head's reply replaced one: read it again), carry(keys, state) → keys (the cache's work the store lacks, added),
- *   mark(index | null, since?) (sets the scan marker: the last reply read, by its index in the history) }
+ *   mark(index | null, since?) (sets the scan marker: the last reply read, by its index in the history),
+ *   keep(built, slice) → built (a step on the view before it is written: lines mode keeps a stored empty memory container; the default is the identity) }
  * → { commit(state) → Promise<{ sent, skipped?, stale?, owed? }>, hydrate() → Promise<{ hydrated, source? }>, sync() → Promise<{ hydrated }>, source() → the cache's reply }.
  */
-export function createPeopleSync({ sdk, view, restore, hash, readState = () => null, install = () => false, ready = () => true, warn = () => {}, chatKey = () => '', rescan = () => {}, carry = keys => keys, mark = () => false }) {
+export function createPeopleSync({ sdk, view, restore, hash, readState = () => null, install = () => false, ready = () => true, warn = () => {}, chatKey = () => '', rescan = () => {}, carry = keys => keys, mark = () => false, keep = built => built }) {
     let cache = null;      // { sid, swipeKey } the cache stands on, or null (no reply yet / not hydrated)
     let at = null;         // the reply's place in the story (its index in the host's history) the cache stands on
     let hydrated = false;
@@ -156,6 +157,7 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         }
         const built = view(state, { warn });
         if (!built) return { sent: false };
+        try { keep(built, sliceOf(api)); } catch { /* the view is written as it is */ }
         // The marker is the runtime's as it is now (a remark above, or a snapshot handed in by a death, must not store an older one).
         const scan = await scanFor(api, readState() ?? state);
         const scanSame = scan === undefined || JSON.stringify(scanOf(api)) === JSON.stringify(scan);
