@@ -19,9 +19,29 @@ function recordOf(ctx, domain, id) {
 const nameOf = record => (typeof record?.name === 'string' && record.name ? record.name : 'someone');
 const edited = (summary, data) => ({ summary, data: { ...data, edit: true }, narrate: false });
 
+// people.fields { id, fields }: the dossier fields a story change line states (NPC State's `~ npc` labels); only a module's own command may send it, and only
+// these fields, as short text (null removes one). It is a story change, not a reader edit: the reply card does not list it as one.
+const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday']);
+const LINE_TEXT_MAX = 300;
+
 /** The narrow edit commands of the people domain named `domain`. */
 export function peopleEdits(domain) {
     return {
+        'people.fields': {
+            internal: false,
+            handler(ctx, payload) {
+                if (typeof ctx.caller !== 'string' || !ctx.caller || ctx.caller.startsWith('event:')) return ctx.fail('REFUSED', 'Only a module\'s own command may write a person\'s story fields.');
+                const fields = payload?.fields;
+                const names = isObject(fields) ? Object.keys(fields) : [];
+                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, appearance, gender, age or birthday as short text (or null).');
+                const record = recordOf(ctx, domain, payload.id);
+                for (const name of names) {
+                    if (fields[name] === null || fields[name] === '') delete record[name];
+                    else record[name] = fields[name];
+                }
+                return { summary: `${nameOf(record)}: ${names.join(', ')}.`, data: { id: payload.id, fields: names }, narrate: false };
+            },
+        },
         'people.edit': {
             handler(ctx, payload) {
                 const fields = payload?.fields;
