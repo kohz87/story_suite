@@ -17,7 +17,7 @@ const plain = value => Boolean(value) && typeof value === 'object' && !Array.isA
 const sidOf = message => readRecord(message)?.sid;
 const titleOf = (kind, id) => String(kind?.title ?? String(id ?? 'interaction').split('/').at(-1)).trim() || 'interaction';
 
-export function createInteractionHooks({ chat, metadata, kindOf }) {
+export function createInteractionHooks({ chat, metadata, kindOf, preview = null }) {
     const boxOf = () => { try { const meta = metadata(); return plain(meta?.[KEY]) ? { meta, box: meta[KEY] } : null; } catch { return null; } };
     const nameOf = id => titleOf(kindOf(id), id);
     const openingOf = (session, copy) => (plain(copy?.opening) ? copy.opening : session && !session.carriedKey && session.offset === 0 && plain(session.opening) ? session.opening : null);
@@ -40,7 +40,7 @@ export function createInteractionHooks({ chat, metadata, kindOf }) {
         if (!found) return null;
         const { meta, box } = found, messages = chat() ?? [], last = messages.at(-1);
         const featureOn = id => view?.feature?.(id) !== false;
-        let payload = null;
+        let payload = null, opening = null;
         if (last?.is_user) {
             const anchor = sidOf(messages.at(-2)), type = normalizeType(info.type);
             const pending = pendingStart(meta, messages), picked = pick(box, messages, type, last, anchor);
@@ -50,10 +50,11 @@ export function createInteractionHooks({ chat, metadata, kindOf }) {
             }
             if (picked.wait) return null;
             payload = picked.payload ?? null;
+            opening = picked.opening ?? null;
             if (!payload && picked.session?.steps?.length) return { ok: false, reason: `The ${nameOf(picked.session.kindId)} no longer matches this reply. Restore the reply or discard it.`, action: false };
-        } else if (last && !String(last.mes ?? '')) payload = priorPayload(last);
+        } else if (last && !String(last.mes ?? '')) { payload = priorPayload(last); opening = priorOpening(last); }
         if (!payload) return null;
-        const error = interactionInputError(view?.state, payload, { kindOf, featureOn });
+        const error = interactionInputError(view?.state, payload, { kindOf, featureOn, preview, opening });
         return error ? { ok: false, reason: error, action: false } : null;
     }
 

@@ -140,7 +140,7 @@ export function bonusPaidOnLine(host) {
 // One reader move of the interaction fuzz (delete-fuzz-interaction.test.js): the probe kind's open / stage / auto / send / discard, and the story moves around them.
 // `have`: { open, staged } (is a session open, does it hold a step). The draw depends only on `r` and `have`, so a seed replays.
 export function interactionOp(r, have) {
-    const moves = [['reply', 3], ['segment', 4], ['swipe', 2], ['regenerate', 2], ['deleteMiddle', 2], ['deleteLast', 2], ['reread', 2], ['reload', 1], ['setLamp', 1], ['rereadAnchor', 2]];
+    const moves = [['reply', 3], ['segment', 4], ['swipe', 2], ['regenerate', 2], ['deleteMiddle', 2], ['deleteLast', 2], ['reread', 2], ['reload', 1], ['setLamp', 1], ['rereadAnchor', 2], ['swipeFlip', 2]];
     if (!have.open) moves.push(['open', 3]);
     else moves.push(['stage', 3], ['discard', 1]);
     if (have.open) moves.push(['auto', 2]);

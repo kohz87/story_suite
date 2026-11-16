@@ -3,6 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
+import { readRecord } from '../../../src/v2/persist.js';
 import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaChain, iaModule } from '../qa/helpers/probe-interaction.js';
 
 test('a swipe settles the same seed, steps and result, and the session stays', async () => {
@@ -48,5 +49,24 @@ test('a swipe re-checks the recorded witness: a payload that no longer matches w
         assert.equal(codes(host).includes('NO_LONGER_DONE'), false, 'held by canGenerate, before any prelude was previewed');
         assert.equal(host.head().domains.ia.bag, 0, 'nothing of the swipe was settled');
         assert.equal(IA_KIND, 'ia-probe/probe');
+    } finally { host.close(); }
+});
+
+test('swiping back to an earlier swipe keeps the carried session: the same segment is on the line under another reply and receipt', async () => {
+    const host = await createHost({ modules: [iaModule()] });
+    try {
+        const api = iaApi(host), { s } = await iaChain(host, api, { segments: 1 });
+        const open = structuredClone(box(host).open);
+        await host.swipe('S1, another way.');
+        await host.st.swipeTo(s[0], 0);
+        const now = box(host).open;
+        assert.equal(now.anchor, readRecord(host.ctx.chat[s[0]]).sid, 'it follows the swipe shown');
+        assert.equal(now.invalidated, undefined);
+        assert.deepEqual({ ...now, anchor: 0, carried: 0 }, { ...open, anchor: 0, carried: 0 }, 'offset, setup, seed and carry are those of the live session');
+        assert.equal(api.stage(now.id, GO).ok, true, 'the reader can play on');
+        await host.st.swipeTo(s[0], 1);
+        assert.equal(box(host).open.steps.length, 1, 'a staged step survives a flip to the other swipe too');
+        assert.equal(box(host).open.invalidated, undefined);
+        assert.equal(activeSettles(host).length, 1);
     } finally { host.close(); }
 });

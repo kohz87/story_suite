@@ -3,13 +3,9 @@
 
 import { interactionGuard } from '../../interaction/guard.js';
 import { settleInteraction } from '../../interaction/settle.js';
+import { SETTLED } from '../../interaction/settled.js';
 
 export const SETTLE = 'interaction.settle';
-export const SETTLED = 'interaction.settled';
-
-/** The query a settle asks for a carried segment's earlier receipt: the stored settle receipts of one key, as the transaction sees them (on a re-plan, those before the block). */
-export const settledQuery = (_state, args, tools) => (typeof args?.key === 'string'
-    ? tools.receipts().filter(entry => (entry?.receipt ?? entry)?.type === SETTLE && (entry?.receipt ?? entry)?.replan?.payload?.key === args.key) : []);
 
 // What a kind reads as `state`: the domains as this command sees them (the head with the reply's drafts laid over it), read on demand.
 function stateOf(ctx) {

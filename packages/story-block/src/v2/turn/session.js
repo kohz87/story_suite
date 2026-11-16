@@ -4,7 +4,7 @@
 // `createSession(s, deps)` is given the turn's state holder `s` and the few turn parts it uses; it never imports turn.js.
 
 export function createSession(s, deps) {
-    const { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch = () => {}, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM } = deps;
+    const { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch = () => {}, kindOf = () => null, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM } = deps;
 
     function markBusy() {
         s.replyBusy = true;
@@ -129,7 +129,7 @@ export function createSession(s, deps) {
         }
         // An interaction that no longer fits what it read (or whose earlier segment changed) is taken back: say so by kind.
         if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && typeof receipt.replan?.payload?.kindId === 'string') {
-            const title = String(receipt.replan.payload.kindId).split('/').at(-1);
+            const id = String(receipt.replan.payload.kindId), title = kindOf(id)?.title ?? id.split('/').at(-1);
             problem({ code: 'INTERACTION_TAKEN_BACK', message: `The ${title} was taken back because the story before it changed: ${planned.message ?? 'what it read is not what it was.'}` });
         }
         return planned;

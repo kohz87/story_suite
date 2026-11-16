@@ -17,10 +17,10 @@ import { settleStep } from '../interaction/watch.js';
 import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
 export function createEvents(s, deps) {
-    const { markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
+    const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, boardError, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
     const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, boardError, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
-    const { afterReply, receivedHooks } = createReplyHooks(s, { store, problem, events, registry, view, captureLate });
+    const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate });
 
     /** MESSAGE_RECEIVED: (messageId, type). */
     async function onMessageReceived(messageId) {

@@ -13,6 +13,7 @@ import { RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
 import { NO_ROLLS_LINE } from '../lean-rpg/cue.js';
 import { fightCue, holdStart } from './fight-start.js';
 import { startInteraction } from '../interaction/start.js';
+import { CORE_MODULE_ID } from '../domains/core/constants.js';
 import { rpgLib } from '../rpg-lazy.js';
 import { readRecord } from '../persist.js';
 import { hashText } from '../assist/common.js';
@@ -23,7 +24,7 @@ export { KEPT_PRELUDE_TOKENS } from './prelude-run.js';
 import { runPreludes } from './prelude-run.js';
 
 export function createPromptBuild(s, deps) {
-    const { ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
+    const { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
     let toldRestore = null;
     let recovering = null;
 
@@ -109,6 +110,8 @@ export function createPromptBuild(s, deps) {
                 } else problem({ module: moduleId, code: result?.code ?? 'FAILED', message: `The cue "${command?.type}" was not committed: ${result?.message ?? 'unknown error'}` });
             }
         }
+        // An interaction the reader staged and sent: its opening and its segment settle as preludes of this reply (interaction/hooks.js; null when none).
+        for (const command of ia.beforeGenerate(view(), { type, dryRun, commit, again })?.commands ?? []) requested.push({ moduleId: CORE_MODULE_ID, type: command.type, payload: command.payload ?? {}, seed: command.seed });
         // Other cues may settle a fight or change a modifier. Preview on the state they leave,
         // which is also the state the generated reply's prelude will start from.
         const ran = runPreludes({ s, bus, store, problem }, { requested, cues, prechecks, previewState });
@@ -190,9 +193,10 @@ export function createPromptBuild(s, deps) {
             if (!all) return entry;
             found.push({ ...entry, name: registry.module(HOST_MODULE)?.name ?? HOST_MODULE, action: false, canOpen: false });
         }
-        for (const { moduleId, fn } of registry.hookEntries('canGenerate')) {
+        // (the core's own interaction hold is asked last, directly: it is no module's hook, and answers at once)
+        for (const { moduleId, fn, own = false } of [...registry.hookEntries('canGenerate'), { moduleId: CORE_MODULE_ID, fn: ia.canGenerate, own: true }]) {
             let answer;
-            try { answer = await within(fn(view(), { type, commit: !all }), HOOK_TIMEOUT_MS); } catch (error) {
+            try { answer = own ? fn(view(), { type, commit: !all }) : await within(fn(view(), { type, commit: !all }), HOOK_TIMEOUT_MS); } catch (error) {
                 if (!all) problem({ module: moduleId, code: 'FAILED', message: `canGenerate failed: ${error?.message ?? error}` });
                 continue;
             }

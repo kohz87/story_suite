@@ -14,7 +14,7 @@ const SEEDS = process.env.QA_IA_SEED ? [Number(process.env.QA_IA_SEED)] : [3, 7,
 const MOVES = 24;
 const plain = value => JSON.parse(JSON.stringify(value));
 // What the seeds reached (a fuzz that never settles proves nothing): checked once all the seeds ran.
-const reached = { runs: 0, settles: 0, takenBack: 0, derived: 0, replanned: 0 };
+const reached = { runs: 0, settles: 0, takenBack: 0, derived: 0, replanned: 0, flips: 0 };
 
 async function run(t, seed) {
     seedCrypto(t, seed);
@@ -58,9 +58,19 @@ async function run(t, seed) {
             case 'deleteMiddle': if (list.length > 3) await dropAt(list[r.int(1, list.length - 2)]); break;
             case 'deleteLast': if (list.length > 2 && !host.ctx.chat.at(-1)?.is_user) await dropAt(head); break;
             case 'reread': if (list.length > 1) { const at = r.pick(list.slice(1)); setText(host, at, withLines(`E${step}.`, r.chance(0.5) ? ['! ia luck1'] : [])); await host.turn.reread(at); } break;
+            case 'swipeFlip': if (head > 0 && !host.ctx.chat.at(-1)?.is_user && (host.ctx.chat[head].swipe_id ?? 0) === 0) {
+                // a new swipe, then back to the first: the session is the one live play held (offset, setup, seed, carry), following the swipe shown
+                reached.flips += 1;
+                const was = box(host)?.open ? structuredClone(box(host).open) : null;
+                await host.swipe(`F${step}.`);
+                await host.st.swipeTo(head, 0);
+                const now = box(host)?.open ?? null;
+                // (a session the reader discarded is made again by the swipe of the reply that carried it, as the board's is: nothing to compare then)
+                if (was) assert.deepEqual(now && { ...now, anchor: 0, carried: 0 }, { ...was, anchor: 0, carried: 0 }, `swipe flip keeps the session\n${trace.join('\n')}`);
+            } break;
             case 'rereadAnchor': { const first = list[1]; if (first !== undefined) { setText(host, first, withLines('A.', [`! ia lamp${r.int(1, 2)}`])); await host.turn.reread(first); } break; }
             case 'reload': await host.turn.onChatChanged(); break;
-            case 'setLamp': await host.sdk.command('ia.set', { key: 'luck', value: r.int(0, 3) }); break;
+            case 'setLamp': await host.sdk.command('ia.set', { key: r.pick(['lamp', 'luck']), value: r.int(0, 3) }); break;
             default: break;
         }
         await check(`step ${step} (${move})`);
@@ -79,4 +89,5 @@ test('the interaction fuzz reaches settles, a derived companion, a take-back and
     if (process.env.QA_IA_STATS) console.log(JSON.stringify(reached));
     assert.ok(reached.settles > 0 && reached.derived > 0, 'no seed settled a segment with its derived companion');
     assert.ok(reached.takenBack > 0 && reached.replanned > 0, 'no seed took a block back or planned one again');
+    assert.ok(reached.flips > 0, 'no seed flipped a swipe back');
 });

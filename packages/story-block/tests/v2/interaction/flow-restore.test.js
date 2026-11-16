@@ -31,3 +31,30 @@ test('returning to a save point restores its session and keeps its settle blocks
         assert.equal(host.head().domains.ia.bag, activeSettles(host)[0].result.total);
     } finally { host.close(); }
 });
+
+test('a restored line whose carried segment is not on it sets the session back, and prunes the records of replies that are gone', async () => {
+    const host = await createHost({ modules: [iaModule()] });
+    try {
+        const api = iaApi(host);
+        await iaChain(host, api);
+        host.ctx.saveMetadata = async () => {};
+        box(host).held = { gone: { current: { prechecks: [] }, staged: false } };
+        box(host).start = { anchor: 'gone', message: 'x', mode: 'known' };
+        const branches = {};
+        // The save point is the first settled reply (a branch cut there); the metadata is the chat's own (not swapped), so it still describes the later segment.
+        const first = host.store.receipts().find(entry => entry.receipt.type === 'interaction.settle').index;
+        const points = createSavePoints({ ctx: host.ctx, store: host.store, live: () => host.ctx, now: () => 0,
+            createBranch: async () => { const name = 'chat-1 - Branch #1'; host.st.chats[name] = clone(host.ctx.chat.slice(0, first + 1)); branches[name] = true; return name; },
+            open: async name => host.st.loadChat(host.st.chats[name], name) });
+        const saved = await points.save({ name: 'Early' });
+        assert.equal(saved.ok, true, saved.message);
+        assert.equal(box(host).open.offset, 2);
+        assert.equal((await points.returnTo(saved.point.id)).ok, true);
+        assert.equal(activeSettles(host).length, 1);
+        assert.equal(box(host).open.offset, 1, 'back to the start of segment 2');
+        assert.equal(box(host).open.steps.length, 0);
+        assert.deepEqual(box(host).held, {});
+        assert.equal(box(host).start, undefined);
+        assert.equal(Object.keys(branches).length, 1);
+    } finally { host.close(); }
+});

@@ -6,7 +6,7 @@ import { createHost } from '../../../testkit/index.js';
 import { hashText } from '../../../src/v2/assist/common.js';
 import { readRecord } from '../../../src/v2/persist.js';
 import { START_KINDS, pendingStart } from '../../../src/v2/interaction/start.js';
-import { GO, IA_KIND, activeSettles, box, iaApi, iaModule, withLines } from '../qa/helpers/probe-interaction.js';
+import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaKind, iaModule, withLines } from '../qa/helpers/probe-interaction.js';
 
 // A module hook that offers the probe before a typed message goes out (what a rules module's beforeGenerate does with `interactionStart`).
 function offering() {
@@ -101,5 +101,35 @@ test('a waiting choice is dropped when its message is gone, and discard clears i
         await host.st.deleteMessage(host.ctx.chat.length - 1);
         await host.turn.onChatChanged();
         assert.equal(pendingStart(host.ctx.chatMetadata, host.ctx.chat), null);
+    } finally { START_KINDS.pop(); host.close(); }
+});
+
+// A kind whose opening changes what its own witness reads (a foe group the opening adds, a sheet the segment's witness covers).
+const grounded = () => iaKind({
+    witness: (state, setup) => ({ lamp: state.domains.ia.lamp, bag: state.domains.ia.bag, door: setup.door }),
+    opening: (state, setup, dice) => ({ result: { opened: dice(5, 0, 6)() }, changes: [{ type: 'ia.grant', payload: { n: 1 } }] }),
+});
+
+test('an opening that changes what the witness reads: the segment is staged, checked and played on the state its opening leaves', async () => {
+    START_KINDS.push(IA_KIND);
+    const offer = offering();
+    const host = await createHost({ modules: [iaModule({ kind: grounded(), hooks: offer.hooks })] });
+    try {
+        offer.state.host = host;
+        await host.send('Hello.', withLines('A.', ['! ia lamp1']));
+        offer.state.on = true;
+        host.st.addUser('I go.');
+        assert.equal((await host.st.generate('normal', { reply: '' })).aborted, true);
+        offer.state.on = false;
+        const api = iaApi(host), id = api.open(IA_KIND).id;
+        assert.equal(api.stage(id, GO).ok, true);
+        assert.equal(api.send(id).ok, true);
+        const done = await host.regenerate('He goes.');
+        assert.equal(done.aborted, undefined, 'the reply went out: the witness held on the post-opening state');
+        assert.deepEqual(activeSettles(host).map(item => item.payload.opening === true), [true, false]);
+        assert.equal(host.head().domains.ia.bag, 1 + activeSettles(host)[1].result.total, 'the opening granted 1, then the segment');
+        await host.swipe('He goes, again.');
+        assert.equal(activeSettles(host).length, 2, 'a swipe settles both again');
+        assert.equal(codes(host).includes('NO_LONGER_DONE'), false);
     } finally { START_KINDS.pop(); host.close(); }
 });

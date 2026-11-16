@@ -65,7 +65,9 @@ export function iaApi(host, options = {}) {
     const store = host.store;
     return createInteractionApi({
         registry: host.registry, store, chat: () => host.ctx.chat, meta: () => host.ctx.chatMetadata, save: () => host.ctx.saveMetadata?.(),
-        state: () => store.head(), head: () => ({ sid: store.carrierSid(store.headIndex()) }), persona: () => host.ctx.name1, ...options,
+        state: () => store.head(), head: () => ({ sid: store.carrierSid(store.headIndex()) }), persona: () => host.ctx.name1,
+        // the state a kind's opening prelude leaves, which a session with an opening is played on (as the reply's preludes run)
+        preview: (payload, seed, state) => { const run = host.bus.run('interaction.settle', payload, { cause: 'system', state, seed }); return run?.ok ? run.state : null; }, ...options,
     });
 }
 

@@ -4,7 +4,7 @@
 import { readRecord } from '../persist.js';
 import { boardStep, heldForMessage } from './held-board.js';
 import { heldForMessage as heldInteraction } from '../interaction/held.js';
-import { settleStep } from '../interaction/watch.js';
+import { openingStep, settleStep } from '../interaction/watch.js';
 
 export function createHeldEvents(s, deps) {
     const { ctx, metadata, store, problem, boardError, interactionError = () => null, getOnMessageReceived } = deps;
@@ -24,7 +24,7 @@ export function createHeldEvents(s, deps) {
         held.current.index = index;
         const sid = readRecord(held.message)?.sid;
         if (store.headIndex() !== index || (held.interaction ? box?.heldDiscarded?.[sid] : metadata()?.rpgFightHeldDiscarded?.[sid])) return;
-        if (held.interaction ? interactionError(store.head(), held.interaction) : (!held.board || boardError(store.head(), held.board))) return;
+        if (held.interaction ? interactionError(store.head(), held.interaction, openingStep(held.current)) : (!held.board || boardError(store.head(), held.board))) return;
         if (held.staged && (held.interaction ? box?.open?.id !== held.interaction.id : metadata()?.rpgFightBoard?.id !== held.board.id)) return;
         s.heldBoard = null;
         Promise.resolve().then(() => getOnMessageReceived()(held.index));

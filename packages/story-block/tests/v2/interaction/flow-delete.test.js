@@ -50,7 +50,7 @@ test('a middle delete that changes what the first segment read takes both segmen
         assert.equal(activeSettles(host).length, 0);
         assert.equal(host.head().domains.ia.bag, 0, 'no change of a taken-back block stays');
         assert.equal(codes(host).filter(code => code === 'INTERACTION_TAKEN_BACK').length, 2);
-        assert.match(host.turn.problems().find(item => item.code === 'INTERACTION_TAKEN_BACK').message, /The probe was taken back/);
+        assert.match(host.turn.problems().find(item => item.code === 'INTERACTION_TAKEN_BACK').message, /The Probe was taken back/);
     } finally { host.close(); }
 });
 
@@ -62,5 +62,19 @@ test('a middle delete of segment 1 takes segment 2 back, though segment 2 read n
         assert.equal(activeSettles(host).length, 0);
         assert.match(host.turn.problems().find(item => item.code === 'INTERACTION_TAKEN_BACK').message, /earlier part of the Probe/);
         assert.equal(box(host).open.offset, 0, 'the session is back at the start');
+    } finally { host.close(); }
+});
+
+test('deleting a plain reply an idle session moved onto puts the session back where it was', async () => {
+    const host = await createHost({ modules: [iaModule()] });
+    try {
+        const api = iaApi(host), { s } = await iaChain(host, api, { segments: 1 });
+        const before = structuredClone(box(host).open);
+        await host.send('Something else.', 'A quiet reply.');   // no settle on it: the open session is moved onto it
+        assert.equal(box(host).open.idle, true);
+        assert.notEqual(box(host).open.anchor, before.anchor);
+        await dropLast(host, host.ctx.chat.length - 1);
+        assert.deepEqual(box(host).open, before, 'the interaction is open on the reply it was before');
+        assert.equal(box(host).open.anchor, host.store.carrierSid(s[0]));
     } finally { host.close(); }
 });

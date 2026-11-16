@@ -14,8 +14,17 @@ const titleOf = (kind, kindId) => String(kind?.title ?? String(kindId ?? 'intera
 /** The segment's settle step in a reply's prelude list (an opening-only step is not it), or undefined. */
 export const settleStep = current => current?.prechecks?.find(step => step?.type === SETTLE && plain(step.payload) && step.payload.opening !== true);
 
-/** Why a settle payload cannot be played on `state` now (witness, feature, readiness, derived inputs, play), or null. `kindOf(kindId)` → the kind. */
-export function interactionInputError(state, payload, { kindOf, featureOn = () => true } = {}) {
+/** The opening prelude `{ payload, seed }` a reply's prelude list settles before its segment, or undefined. */
+export const openingStep = current => {
+    const step = current?.prechecks?.find(item => item?.type === SETTLE && plain(item.payload) && item.payload.opening === true);
+    return step ? { payload: step.payload, seed: step.seed } : undefined;
+};
+
+/**
+ * Why a settle payload cannot be played on `state` now (witness, feature, readiness, derived inputs, play), or null. `kindOf(kindId)` → the kind.
+ * The segment is played on the state its opening leaves (`opening`: { payload, seed }; `preview(payload, seed, state)` → that state or null), as the reply's preludes run.
+ */
+export function interactionInputError(state, payload, { kindOf, featureOn = () => true, opening = null, preview = null } = {}) {
     const kindId = String(payload?.kindId ?? '');
     let kind = null;
     try { kind = kindOf(kindId); } catch { kind = null; }
@@ -31,6 +40,10 @@ export function interactionInputError(state, payload, { kindOf, featureOn = () =
     if (shape) return shape.message;
     if (payload.opening === true) return null;
     try {
+        if (plain(opening) && typeof preview === 'function') {
+            state = preview(opening.payload, opening.seed, state);
+            if (!state) return `The ${title} opening could not be prepared.`;
+        }
         if (hashJson(kind.witness(state, payload.setup)) !== payload.witness.hash) return interactionError('CHANGED', title).message;
         const actors = (typeof kind.actors === 'function' ? kind.actors(state, payload.setup) : [{ id: payload.player, name: '', party: true }])
             .filter(plain).map(actor => ({ ...actor, player: String(actor.id ?? '') === payload.player ? true : undefined }));
@@ -49,19 +62,19 @@ export function interactionInputError(state, payload, { kindOf, featureOn = () =
  * The reply's interaction watch. `watch.commitCheck(next, receipt)` is the commit guard's answer for an interaction reply in flight
  * (a reader's edit that changes what the settle read is refused); `watch.stopChanged()` aborts a reply whose inputs changed anyway.
  */
-export function createInteractionWatch(s, { store, problem, notify, kindOf, featureOn }) {
-    const errorOf = (state, payload) => interactionInputError(state, payload, { kindOf, featureOn });
+export function createInteractionWatch(s, { store, problem, notify, kindOf, featureOn, preview }) {
+    const errorOf = (state, payload, opening = null) => interactionInputError(state, payload, { kindOf, featureOn, opening, preview });
     const payloadOf = () => (s.replyBusy ? settleStep(s.session)?.payload ?? null : null);
     const commitCheck = (next, receipt) => {
         if (receipt?.cause !== 'ui') return null;
         const payload = payloadOf();
         if (!payload) return null;
-        return errorOf(next(), payload) ? `Wait for the reply to finish before changing what the ${titleOf(kindOf(payload.kindId), payload.kindId)} used.` : null;
+        return errorOf(next(), payload, openingStep(s.session)) ? `Wait for the reply to finish before changing what the ${titleOf(kindOf(payload.kindId), payload.kindId)} used.` : null;
     };
     const stopChanged = () => {
         const current = s.session, payload = payloadOf();
         if (!payload || current.interactionInvalid) return;
-        const error = errorOf(store.head(), payload);
+        const error = errorOf(store.head(), payload, openingStep(s.session));
         if (!error) return;
         current.interactionInvalid = true;
         const reason = `${error} Restore what it used before retrying, or discard it.`;

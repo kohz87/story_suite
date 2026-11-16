@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { activeSettles, box, codes, iaApi, iaChain, iaModule, playSegment, GO } from '../qa/helpers/probe-interaction.js';
+import { activeSettles, box, codes, iaApi, iaChain, iaModule, playSegment, setText, withLines, GO } from '../qa/helpers/probe-interaction.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
@@ -45,5 +45,26 @@ test('a middle delete that changes result 1 takes segment 2 back, and the sessio
         assert.equal(open.offset, 1);
         assert.equal(open.setup.from, now[0].result.total, 'segment 2 opens on result 1 as it is now');
         assert.equal(two.payload.setup.from, one.result.total);
+    } finally { host.close(); }
+});
+
+test('a session made again from a changed result keeps its base chain, so later deletes still step back one segment at a time', async () => {
+    const host = await createHost({ modules: [iaModule()] });
+    try {
+        const api = iaApi(host);
+        await host.send('Hello.', reply('A.', ['! ia lamp1']));
+        await playSegment(host, api, GO, 'go0', 'S1.', { lines: ['! ia luck2'] });
+        await playSegment(host, api, GO, 'go1', 'S2.');
+        const live = structuredClone(box(host).open.base);
+        // Segment 1's own lines change (luck 2 is gone), so segment 2 comes out again with another total and the session is made again.
+        setText(host, 4, withLines('S1.', []));
+        assert.equal((await host.turn.reread(4)).ok, true);
+        assert.equal(activeSettles(host).length, 2);
+        assert.deepEqual(box(host).open.base, live, 'the base (its own carry fields included) is what it was');
+        await host.st.deleteMessage(6); await host.st.deleteMessage(5);   // segment 2 and its message
+        assert.equal(box(host).open.offset, 1, 'one step back: segment 2 again');
+        await host.st.deleteMessage(4); await host.st.deleteMessage(3);   // segment 1 and its message
+        assert.equal(box(host).open.offset, 0, 'and another: segment 1 again, still open');
+        assert.equal(box(host).open.anchor, host.store.carrierSid(2));
     } finally { host.close(); }
 });
