@@ -83,8 +83,16 @@ by revision, never by a reply key (`days-parts/quest-log-order.js`).
 Known limit: an edited reply is never noted again. Its note is a kept block (it replays as stored), so what a Re-read of
 an edited reply adds is not in the day facts, the written digest or the quest history, and what it removed stays; the
 World screen's lists, read from the domains, show the edit. Tests: `tests/v2/chronicle/note-cursor.test.js` (the real
-host, compared with a fresh telling), `note-outcome.test.js` (an accepted goal's outcome on the real host) and
-`note-cursor-units.test.js`.
+host, compared with a fresh telling), `note-outcome.test.js` (an accepted goal's outcome on the real host),
+`note-cursor-units.test.js`, `note-cursor-clock.test.js` (an edit that adds a clock or scene change, real host) and
+`note-cursor-start.test.js`.
+
+The walk starts from the clock and scene the receipts up to and including the cursor say (`since()` in
+`queries-parts/receipts.js`, shared by the note, its gap path and the Journal's "today so far"), so a clock or scene change
+an edit added is followed by the replies after it; where those receipts say nothing (data trimmed) it starts from the note's
+stored `minutes` and `present`. A `gap.through` naming a reply that was deleted falls back to `gap.rev`. Known limit: a
+thread's outcome line after a grown Re-read of the reply that resolved the goal takes a new revision, so a paid turn-in
+settled later could sort before it in that thread's history, unlike a fresh telling (rare; nothing else reads the order).
 
 ## Tests
 
