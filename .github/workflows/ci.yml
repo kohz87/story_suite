@@ -51,6 +51,9 @@ jobs:
       - name: Script tests
         # Same command as npm run test:scripts, plus a per-test timeout.
         run: node --test --test-timeout=900000 "tests/scripts/*.test.js"
+      - name: Core tests
+        # Same command as npm run test:core, plus a per-test timeout.
+        run: node --test --test-timeout=900000 "tests/core/**/*.test.js"
 
   ui:
     runs-on: ubuntu-latest
@@ -70,7 +73,7 @@ jobs:
       # CI=true makes a missing browser a failure, so the rendered sweeps never skip here.
       - name: UI tests
         # Same command as npm run test:ui, plus a per-test timeout.
-        run: node --test --test-timeout=900000 "tests/ui/**/*.test.js"
+        run: node --test --test-timeout=900000 "tests/ui/**/*.test.js" "tests/ui-gaps/*.test.js"
 
   story-block:
     runs-on: ubuntu-latest
