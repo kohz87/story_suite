@@ -5,7 +5,7 @@
 // before the stale request arrives. Invariant 7 (a saved reply's state is lost on disk).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, aiMessage } from '../../../packages/story-block/testkit/index.js';
+import { createHost, aiMessage } from '../../../testkit/index.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const present = state => [...(state?.domains?.scene?.present ?? [])].sort();

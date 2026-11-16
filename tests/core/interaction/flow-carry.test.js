@@ -2,7 +2,7 @@
 // segment 1 comes out again with another result, segment 2 is taken back, and the open session is made again from the new result.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { activeSettles, box, codes, iaApi, iaChain, iaModule, playSegment, setText, withLines, GO } from '../../suite/qa/helpers/probe-interaction.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

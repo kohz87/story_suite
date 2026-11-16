@@ -2,7 +2,7 @@
 // and a win that leaves the Foes block as it was pays exactly as before. Swipe, Re-read and rebuild keep the pay once.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';

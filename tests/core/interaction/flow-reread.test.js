@@ -2,7 +2,7 @@
 // the stored seed and steps, the stored witness), also when the reply's text was edited longer or shorter; the staged session belongs to the next reply and is kept.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { GO, activeSettles, box, codes, iaApi, iaChain, iaModule, setText, withLines } from '../../suite/qa/helpers/probe-interaction.js';
 
 test('a Re-read plans the settle again from its stored payload: same result, same change, applied once', async () => {

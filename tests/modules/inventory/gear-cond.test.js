@@ -149,7 +149,7 @@ test('the story\'s wear word: to item.wear when a module answers it, else Story 
 });
 
 test('on the real host: a wear line without a gear module wears the piece; swipe takes it back', async t => {
-    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../testkit/index.js');
     t.mock.method(console, 'warn', () => {});
     const host = await createHost();
     t.after(() => host.close());
@@ -181,7 +181,7 @@ const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Chang
 const swordCond = host => host.sdk.query('inventory.condition', { stack: Object.values(host.head().domains.inventory.stacks).find(s => s.def.endsWith('iron-sword')).id }).cond;
 
 async function gearHost(t) {
-    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../testkit/index.js');
     t.mock.method(console, 'warn', () => {});
     const host = await createHost({ modules: [GEAR] });
     t.after(() => host.close());
@@ -266,7 +266,7 @@ test('fuzz: middle deletes around wear and repair: no Problems, the condition is
 });
 
 test('a wear line answered by item.wear with its feature off is a quiet Problem, and Story Block wears nothing', async t => {
-    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../testkit/index.js');
     t.mock.method(console, 'warn', () => {});
     const gear = {
         id: 'zz-gear', name: 'Gear', version: '0.0.0',

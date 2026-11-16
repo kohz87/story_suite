@@ -9,8 +9,8 @@
 // Replays are exact; times are this machine's.
 
 import { performance } from 'node:perf_hooks';
-import { createHost } from '../testkit/index.js';
-import { NATIVE, clone, nativeModule, rulesModule } from '../../../tests/core/helpers/timeline.js';
+import { createHost } from '../../testkit/index.js';
+import { NATIVE, clone, nativeModule, rulesModule } from '../../tests/core/helpers/timeline.js';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {

@@ -1,8 +1,8 @@
 // Whole fights run through the real roll engine with a seeded generator, and the table of them.
-import { blocksFor, foeHealthBlocks } from '../../../../modules/rpg/formula.js';
-import { STANDARD_PRESETS } from '../../../../modules/rpg/rules.js';
-import { positionalDice } from '../../../../modules/rpg/resolve.js';
-import { prepareStandard, rollStandard } from '../../../../modules/rpg/standard.js';
+import { blocksFor, foeHealthBlocks } from '../../../modules/rpg/formula.js';
+import { STANDARD_PRESETS } from '../../../modules/rpg/rules.js';
+import { positionalDice } from '../../../modules/rpg/resolve.js';
+import { prepareStandard, rollStandard } from '../../../modules/rpg/standard.js';
 import { CLASSES, DIFFICULTIES, BUILDS, FIGHTS } from './shared-grid.js';
 import { rankAt, buildAt } from './builds.js';
 

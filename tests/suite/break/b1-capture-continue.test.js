@@ -4,7 +4,7 @@
 // and the bare block stays in the message for the reader to see.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { extractBlock } from '../../../core/capture.js';
 
 test('a Continue that adds a second <Changes> block has its lines captured and hidden', async t => {

@@ -3,7 +3,7 @@
 // hands it back (the party's hand-off runs only for members who leave).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { reply } from './helpers/econ.js';
 
 const partyModule = () => ({

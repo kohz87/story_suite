@@ -1,7 +1,7 @@
 // Features (MODULES §F100, SPEC §6): a module's optional mechanics as reader switches.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
 import { FEATURE_OFF } from '../../core/features.js';
 import { refusedFrom } from '../../ui/legacy/reply-notes.js';

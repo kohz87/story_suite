@@ -2,7 +2,7 @@
 // per-block span metadata, claims applied with their block or not at all, and legacy blocks left alone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { ensureModules } from '../../core/sdk.js';
 import { RECORD_ID } from '../../core/registry/check.js';
 import { claimKeys, hashJson, isMetaSpan, spanProblem } from '../../core/replay.js';

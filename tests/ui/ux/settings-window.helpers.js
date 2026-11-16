@@ -1,5 +1,5 @@
 // Shared fixtures and helpers for the settings-window test suite.
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 

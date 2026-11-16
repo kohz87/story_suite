@@ -1,7 +1,7 @@
 # NPC State Delta Source Codemap
 
 This map covers `src/` files not already named by path or `.js` file name in the repository guides.
-Files already mapped elsewhere are listed in `CLAUDE.md`, `AI-README.md`, `README.md`, and `docs/**/*.md`; this map does not repeat them.
+Files already mapped elsewhere are listed in `CLAUDE.md`, `AI-README.md`, `README.md`, and `../../docs/history/packages/npc-state-delta/docs/**/*.md`; this map does not repeat them.
 Generated 2026-11-07.
 
 ## src/

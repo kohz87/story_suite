@@ -3,7 +3,7 @@
 // character's skills is credited to that skill's slot. Receipts name the skill. live = swipe = Re-read = rebuild = reload.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 

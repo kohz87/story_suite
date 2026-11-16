@@ -1,4 +1,4 @@
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { levelOfClass } from '../../../../modules/rpg/formula.js';
 

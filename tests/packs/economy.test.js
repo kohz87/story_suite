@@ -10,7 +10,7 @@ import { createPacksPart } from '../../packs/index.js';
 import { ECONOMY_LIMITS, PACK_FIELDS } from '../../packs/limits.js';
 import { createInventoryQueries, economyOf, scaledDefault } from '../../modules/inventory/index.js';
 import { CORE_SETTINGS } from '../../modules/scene/domains/index.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
 

@@ -4,7 +4,7 @@ import { openBoard, stageExchange } from '../../../../modules/rpg/board/session.
 import { planGear } from '../../../../modules/rpg/gear.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
-import { createFakeModel, createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createFakeModel, createHost } from '../../../../testkit/index.js';
 import { actorIdOf } from '../../../../modules/rpg/roster.js';
 
 export async function gearHost() {

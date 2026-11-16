@@ -2,7 +2,7 @@
 // more menu; Hidden (no tab and no card, the block still works); no Blocks tab in the game view; a story must be open.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
 import { buildBlock } from '../../../../modules/data-modules/block-builder.js';
 import { validateDataModules } from '../../../../modules/data-modules/check.js';

@@ -3,7 +3,7 @@
 // Health 4 + floor(level / 30), the clamps, and that a roll made before the Levels rules replays as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { LEAN_RPG_FEATURE, readSheet, validatePlan } from '../../../modules/rpg/index.js';
 import { openFoes, openErrors, vetOpen } from '../../../modules/rpg/open.js';
 import { divisorOf } from '../../../modules/rpg/rules.js';

@@ -9,7 +9,7 @@
 // Journal's world lines of the day their event fired, and the reader's edits of them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { fakeCraft } from '../../../modules/time/helpers/fake-craft.js';

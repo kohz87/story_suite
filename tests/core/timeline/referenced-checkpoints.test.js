@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { referencedCheckpoints } from '../../../core/timeline/referenced.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const json = value => ({
     ok: true,

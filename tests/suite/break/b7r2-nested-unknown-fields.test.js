@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const base = extra => ({ id: 'zz-newer', name: 'Newer', version: '2.1.0', queries: { 'zz.ping': () => 'pong' }, ...extra });
 const cases = {

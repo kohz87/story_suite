@@ -3,7 +3,7 @@
 // with the reply (success, fail, decisive); a skilled check gives its skill 3 practice (a utility skill too) and no XP; a reply from before the rule is untouched.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { CHECKS_SETTING, CHECK_GRAMMAR, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, ROLLS_SETTING } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { checkStep, checksHook, checksOf } from '../../../../modules/rpg/practice.js';

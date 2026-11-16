@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { validatePack } from '../../../packs/validate.js';
 import { parseLabels } from '../../../modules/data-modules/interpreter.js';
 import { moduleGrammar } from '../../../modules/data-modules/grammar.js';

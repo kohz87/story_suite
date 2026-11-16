@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { validateNpcSlice } from '../src/npc-meters.js';
 import { applyRelationshipDelta } from '../core-mechanics.js';

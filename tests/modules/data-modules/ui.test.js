@@ -2,7 +2,7 @@
 // brings. Nothing here exists for a chat that uses no data module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../../testkit/fake-st.js';
 import { createRuntime } from '../../../core/runtime.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';

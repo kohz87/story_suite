@@ -6,9 +6,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { coinLine, coinValue, currencyOf, foreignCoin, moneyLine, parseAmount } from '../../../modules/inventory/money.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
-const ERSVEIL = readFileSync(new URL('../../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+const ERSVEIL = readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
 const staticPart = host => host.st.requests.at(-1).chat.find(message => message.role === 'system').content;
 const moneyOf = text => text.split('\n').filter(line => /^Money /.test(line));
 

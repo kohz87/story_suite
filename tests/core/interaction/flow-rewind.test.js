@@ -2,7 +2,7 @@
 // session is reconciled against what is left, and held markers of replies that are gone are pruned.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { activeSettles, box, iaApi, iaChain, iaKind, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 
 const settleEntry = (host, n) => host.store.receipts().filter(entry => entry.receipt.type === 'interaction.settle')[n];

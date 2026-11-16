@@ -1,7 +1,7 @@
 // The timeline's rules as principles (docs/v2/TIMELINE.md): durability, chat-bound operations, reserved savepoints, participants at commit, registration.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
 import { definitionWarnings } from '../../core/registry.js';
 import { BATCH, DEATH, NATIVE, NPC, clone, nativeModule, reload } from './helpers/timeline.js';

@@ -3,7 +3,7 @@
 // preserved record, tombstones with a baseline per chat, and quarantined records.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { Q1, Q2, guarded, harness } from './helpers/guarded.js';
 import { clone, inOrder, receiptRevsOf, revsOf, setStory } from './replay-review3.helpers.js';
 

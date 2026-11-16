@@ -1,7 +1,7 @@
 // RPG fix round 5, engine side (review 158 blockers 2, 3 and 6). Each test is the review's repro.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { validateDataModules } from '../../../modules/data-modules/check.js';
 import { blockCards, settleReserve } from '../../../modules/data-modules/part.js';

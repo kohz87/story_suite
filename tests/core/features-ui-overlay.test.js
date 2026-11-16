@@ -2,7 +2,7 @@
 // sub-fold per module, a line in each module's fold going there, the prompt hint).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 import { FEATURES_FOLD, FEATURE_TEXT, PACKS_FOLD, VERSIONS_FOLD, featureInputId, featuresFoldOf, renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { openSettingsWindow as openSettingsOverlay } from '../../ui/legacy/view/settings/window.js';

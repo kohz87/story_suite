@@ -11,7 +11,7 @@ import { validatePack } from '../../../../packs/validate.js';
 import { createCoreModule } from '../../../../modules/scene/domains/index.js';
 import { changesSummary } from '../../../../ui/legacy/screens/changes-card.js';
 import { linesToList } from '../../../../ui/legacy/host-ui.js';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { pack } from '../../../packs/helpers/fixtures.js';
 
 const COINS = [{ name: 'penny/pennies', value: 1 }, { name: 'silver', value: 10 }, { name: 'gold', value: 100 }];

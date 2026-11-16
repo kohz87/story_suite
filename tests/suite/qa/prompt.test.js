@@ -5,7 +5,7 @@
 // and tell nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, sharedPrefix } from '../../../packages/story-block/testkit/index.js';
+import { createHost, sharedPrefix } from '../../../testkit/index.js';
 import { STATIC_KEY, TAIL_KEY, V1_KEYS } from '../../../core/turn.js';
 import { HAPPENED, STATIC_MARKER, assemble } from '../../../core/prompt.js';
 import { makeView } from '../../../core/sdk.js';

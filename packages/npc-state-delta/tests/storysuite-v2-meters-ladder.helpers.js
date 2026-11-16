@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHost } from '../../story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { seedPeople } from './helpers/seed-people.js';
 import { secretId } from '../src/npc-meters.js';

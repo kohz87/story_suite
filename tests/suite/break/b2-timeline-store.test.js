@@ -4,7 +4,7 @@
 // (b2-timeline-capture) are in their own files.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
 
 const items = h => {

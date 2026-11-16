@@ -33,7 +33,7 @@ test('story-block runs its tests in complete, non-overlapping shards that keep t
   assertCompleteShards('story-block');
   const text = job('story-block');
   assert.match(text, /run: node --test --test-timeout=900000 --test-shard=\$\{\{ matrix\.shard \}\} "tests\/\*\.test\.js" "tests\/v2\/\*\*\/\*\.test\.js" "examples\/fishing\/tests\/\*\.test\.js"$/m);
-  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'packages/story-block/package.json'), 'utf8')).scripts.test;
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'docs/history/packages/story-block/package.json'), 'utf8')).scripts.test;
   for (const glob of ['"tests/*.test.js"', '"tests/v2/**/*.test.js"', '"examples/fishing/tests/*.test.js"']) assert.ok(pkg.includes(glob));
   assert.ok(!text.includes('--test-force-exit'));
 });

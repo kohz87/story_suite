@@ -10,7 +10,7 @@
 // A failing seed replays exactly (QA_DELETE_SEED=n).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { prng, seedCrypto } from './helpers/seeded.js';
 import { checkInvariants } from './helpers/oracle.js';
 import { displayLines } from '../../../ui/legacy/extras.js';

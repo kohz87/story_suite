@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { INIT_PREFIX, createRegistry } from '../../core/registry.js';
 import { PREFLIGHT_CLASSES, createSdk, preflight } from '../../core/sdk.js';
 

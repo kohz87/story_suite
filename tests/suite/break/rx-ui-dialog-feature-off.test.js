@@ -3,7 +3,7 @@
 // Back/Next/Done), and a dialog already open when its feature goes off stays up with working controls.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../../ui/view/mounts/helpers.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 

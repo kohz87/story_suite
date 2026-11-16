@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { LEAN_RPG_FEATURE } from '../../../modules/rpg/names.js';
 import { createLeanRpgPart } from '../../../modules/rpg/index.js';

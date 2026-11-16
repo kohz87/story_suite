@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withAssist } from '../../core/capture.js';
 import { createStore } from '../../core/store.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 
 const block = lines => `A reply.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const rebuilt = host => createStore({ chat: () => host.ctx.chat, save: () => {} }).head();

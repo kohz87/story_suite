@@ -18,7 +18,7 @@ test('with no cast in the packs the prompt is byte for byte what it was without 
     const without = createModule({ parts: PARTS.filter(([id]) => id !== 'cast') });
     const chat = [['Hello.', said('Dawn.', OPENING)], ['Look.', said('Smoke.')], ['Sleep.', said('Morning.', ['~ time June 5, 1200, 08:00 am'])], ['On.', said('Road.', ['~ place Kesh | kind: town', '! time +3h'])], ['Again.', said('Quiet.')]];
     const run = async (modules, { cast = true } = {}) => {
-        const host = cast ? await castHost({ source: castSource([]) }) : await (await import('../../../../packages/story-block/testkit/index.js')).createHost({ modules, settings: { features: { 'story-director.pulse': false } } });
+        const host = cast ? await castHost({ source: castSource([]) }) : await (await import('../../../../testkit/index.js')).createHost({ modules, settings: { features: { 'story-director.pulse': false } } });
         try {
             for (const [text, reply] of chat) await host.send(text, reply);
             return { statics: sent(host, STATIC_KEY), tails: sent(host, TAIL_KEY), steps: host.sdk.receipts().filter(item => item.receipt.type.startsWith('cast.')).length, head: host.head() };
@@ -80,7 +80,7 @@ test('without a model the world still meets by place and nobody moves; a Continu
     // A host whose Story Block has no model call: the module is built without one.
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
-    const { createHost } = await import('../../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../../testkit/index.js');
     host = await createHost({ modules: [module] });
     const source = castSource([entry('brom', { start: { place: 'Harrow', goal: 'forge', routine: '' } }), entry('fenna', { start: { place: 'Kesh', goal: 'x', routine: '' } })]);
     await syncCast(host, source);

@@ -23,7 +23,7 @@ import { TAIL_BUDGET as CAST_BUDGET } from '../../../../modules/cast/cast/settin
 import { PULSE_STATIC, STALE_REPLIES, pulseCommand, pulseHook } from '../../../../modules/world/pulse/effects.js';
 import { foesLeftover, foesSignature, leanFight, pulseResults } from '../../../../modules/cast/cast/entries.js';
 import { slotValue } from '../../../../modules/rpg/slot.js';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { part as namesPart } from '../../../../modules/cast/names/index.js';
 
 // What the host builds from a module's context (Story Block's registry contextOf): its static, then each context part that is on, trimmed,

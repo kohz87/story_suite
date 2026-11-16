@@ -1,7 +1,7 @@
 // The public API v1 (src/v2/public-api.js, docs/v2/PUBLIC-API.md): the frozen surface, each path family, hidden values.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { API_EVENTS, API_VERSION, createPublicApi } from '../../core/public-api.js';
 import { createEvents } from '../../core/sdk.js';
 import { VERSION } from '../../core/runtime.js';

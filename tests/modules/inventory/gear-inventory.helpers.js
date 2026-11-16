@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
 
 export const ON = { extra: { feature: id => id === 'story-block.gear' || id === 'story-block.rpg' } };

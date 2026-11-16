@@ -3,7 +3,7 @@
 // stood on is gone does not announce readiness on the wrong native state.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { nativeModule, rulesModule, pause, clone, reload, NATIVE, NPC } from './helpers/timeline.js';
 import { hashJson } from '../../core/replay.js';
 import { sourceOf } from '../helpers/split-source.js';

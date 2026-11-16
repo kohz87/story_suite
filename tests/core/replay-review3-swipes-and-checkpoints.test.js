@@ -2,7 +2,7 @@
 // checkpoint prefix/window trust, and carried Problems across checkpoints.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { Q1, guarded, harness } from './helpers/guarded.js';
 import { newSwipe, showSwipe } from './helpers/store-chat.js';
 import { SMALL3, clone, cpOf, fullReplay, stDeleteSwipe } from './replay-review3.helpers.js';

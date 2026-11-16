@@ -2,7 +2,7 @@
 // (permanent: a Problem at once; transient: tried again on a fixed schedule, then a Problem), and the status and head say why.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { nativeModule, rulesModule, clone, NATIVE } from './helpers/timeline.js';
 import { RETRY_SCHEDULE_MS } from '../../core/timeline/coordinator-block.js';
 import { PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';

@@ -3,7 +3,7 @@
 // the stamp at once, so the screens are never left for later (the other listeners of the same event read them) and the last state wins.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { mountUi } from '../../ui/legacy/ui-host.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 import { fixture, success } from '../modules/data-modules/helpers.js';

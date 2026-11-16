@@ -3,7 +3,7 @@
 // all the sets. The single form is unchanged.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { DM_LIMITS } from '../../../modules/data-modules/schema.js';
 import { refusalText } from '../../../core/strings.js';
 import { definition, pack, pin, reload, view, world } from '../../modules/data-modules/helpers.js';

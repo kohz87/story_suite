@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
-import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { createFakeModel } from '../../../testkit/model.js';
 import { FIGHT, FLOW_VERSION, LEAN_RPG_FEATURE, STANDARD_FORMULA, prepare, readSheet, rollPrepared } from '../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { success } from '../data-modules/helpers.js';

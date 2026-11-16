@@ -1,7 +1,7 @@
 // A turn on a fake SillyTavern: quiet/generateRaw prompts, text completion, continue/swipe, macros.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, MAIN_PROMPT } from '../../packages/story-block/testkit/index.js';
+import { createHost, MAIN_PROMPT } from '../../testkit/index.js';
 import { STATIC_KEY, TAIL_KEY, createTurn } from '../../core/turn.js';
 import { STATIC_MARKER } from '../../core/prompt.js';
 import { createRegistry } from '../../core/registry.js';

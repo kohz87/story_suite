@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { staticText, GRAMMAR } from '../../../../modules/time/tracker/note.js';
-import { createHost } from '../../../../packages/story-block/testkit/host.js';
+import { createHost } from '../../../../testkit/host.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 
 // Frozen baseline of the non-quest prompt bytes (re-frozen for the lean diet, 3 Nov; before it: main 43c9768): also available in shallow and lone CI clones.

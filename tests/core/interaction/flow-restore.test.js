@@ -2,7 +2,7 @@
 // changed) and stay; the session is the one saved, with no staged step lost.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createSavePoints } from '../../../core/timeline/rewind.js';
 import { GO, activeSettles, box, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 

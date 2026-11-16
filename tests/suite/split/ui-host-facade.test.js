@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as facade from '../../../ui/legacy/ui-host.js';
 import { createRuntime } from '../../../core/runtime.js';
-import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../../testkit/fake-st.js';
 import { setupDom } from '../../ui/view/mounts/helpers.js';
 
 test('ui-host.js retains its original public exports', () => {

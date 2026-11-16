@@ -2,7 +2,7 @@
 // puts the verdict word first, and tells the groups a roll opened.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { prepare, readSheet, rollPrepared, validatePlan } from '../../../modules/rpg/index.js';
 import { parsePlanAnswer } from './legacy-planner.js';
 import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';

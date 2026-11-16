@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../packages/story-block/testkit/host.js';
+import { createHost } from '../../../../testkit/host.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 import { pad, said } from './note-cursor.helpers.js';

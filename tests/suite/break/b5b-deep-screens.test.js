@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compileTemplate } from '../../../ui/legacy/view/template/index.js';
 import { scopeCss } from '../../../ui/legacy/view/css.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const deepTemplate = depth => `${'<div>'.repeat(depth)}x`;
 const deepCss = depth => `${'@media (min-width: 1px) {'.repeat(depth)}.a { color: red }${'}'.repeat(depth)}`;

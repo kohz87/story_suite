@@ -13,7 +13,7 @@ import { MAX_AT_DEPTH, cssDepth, scopeCss } from '../../ui/legacy/view/css.js';
 import { unsafeCss } from '../../packs/validate.js';
 import { installFakeDom } from '../helpers/ui-fake-dom.js';
 import { renderSettingsHost } from '../../ui/legacy/host-ui.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { readRecord } from '../../core/persist.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

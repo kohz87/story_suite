@@ -5,7 +5,7 @@
 // reaches only registered read-only queries.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { CALLS, LIMITS, compile, evaluate, evaluateCondition, parse } from '../../../modules/world/events/condition.js';
 import { probeModule } from './helpers/probe-module.js';
 

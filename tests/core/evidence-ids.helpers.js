@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { T1, director, sampleModule, hostModule } from './helpers/evidence.js';
 
 export const ids = list => list.map(each => each.id);

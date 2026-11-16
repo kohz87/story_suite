@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createStore } from '../../core/store.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 const PLACE = '~ place Bluewatch Salt-and-Ash Yard | kind: settlement | region: River Confederacy';
 const block = l => `The yard.\n\n<Changes>\n${l.join('\n')}\n</Changes>`;
 const rebuilt = host => createStore({ chat: () => host.ctx.chat, save: () => {} }).head();

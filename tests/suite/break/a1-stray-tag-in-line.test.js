@@ -6,7 +6,7 @@
 // taken; hideBlock leaves "+ item Rope" alone in the story, and a Re-read takes it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const items = host => host.sdk.query('inventory.items').map(item => item.name).sort();
 

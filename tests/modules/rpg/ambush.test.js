@@ -2,7 +2,7 @@
 // A success gives the party's round-1 acts +2 (and, Standard, the quick start); a failure gives nothing; with no such check there is no ambush edge.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { prepare, readSheet, rollPrepared, validatePlan } from '../../../modules/rpg/index.js';
 import { parsePlanAnswer } from './legacy-planner.js';
 import { EARLIER_RULES } from '../../../modules/rpg/rules.js';

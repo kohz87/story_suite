@@ -1,7 +1,7 @@
 // The timeline's rules as principles (docs/v2/TIMELINE.md): recovery readiness, single outstanding change, native change between checkpoint and commit.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { BATCH, DEATH, NATIVE, NPC, clone, reload } from './helpers/timeline.js';
 import { open, otherChat, world } from './timeline-principles.helpers.js';
 

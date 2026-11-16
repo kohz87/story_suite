@@ -1,7 +1,7 @@
 // Combat Rules v1 blocks (Character, Skills, Foes, Combat rules): the block checker takes each definition, and the numbers its rules work out are combat/bars.js's and combat/foes.js's.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { COMBAT_V1_TEMPLATES, STATS_V1 } from '../../../modules/rpg/templates-combat.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { barsOf } from '../../../modules/rpg/combat/bars.js';

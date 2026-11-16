@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRuntime } from '../../core/runtime.js';
 import { mountUi } from '../../ui/legacy/ui-host.js';
-import { aiMessage, createFakeContext, userMessage } from '../../packages/story-block/testkit/fake-st.js';
+import { aiMessage, createFakeContext, userMessage } from '../../testkit/fake-st.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 
 async function setup(chat = [aiMessage('Welcome to Bluewatch.'), userMessage('I look around.'), aiMessage('You walk on.')]) {

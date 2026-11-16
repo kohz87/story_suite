@@ -5,7 +5,7 @@
 // display feature was off should show nothing for it (or not be told that it was not used).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { displayLines } from '../../../ui/legacy/extras.js';
 
 test('choices told "not used" while Choices was off are not shown when it is turned on', async t => {

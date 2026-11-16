@@ -2,7 +2,7 @@
 // hidden values, read-only frozen copies, one owner per prefix, our own roots, change events, unregister.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../testkit/index.js';
 import { createPublicApi } from '../../core/public-api.js';
 import { createPublicPaths, OWN_ROOTS } from '../../core/persist/public-paths.js';
 import { createEvents } from '../../core/sdk.js';

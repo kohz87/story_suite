@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { COMBAT_V1_TEMPLATES } from '../../../../modules/rpg/templates-combat.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
 import { fightInputOf, witnessOf } from '../../../../modules/rpg/combat/input.js';

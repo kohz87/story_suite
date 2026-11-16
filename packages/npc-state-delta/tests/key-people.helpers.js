@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createNpcRecord } from '../core.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 

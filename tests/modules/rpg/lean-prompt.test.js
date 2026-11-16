@@ -4,8 +4,8 @@
 // plan parses, and the same reply rebuilt (a swipe that keeps its plan) tells the same prompt.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
-import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { createFakeModel } from '../../../testkit/model.js';
 import { LEAN_RPG_FEATURE, QUIET_GRAMMAR, fightIsOpen, isQuiet, readSheet } from '../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { moduleGrammar } from '../../../modules/data-modules/grammar.js';

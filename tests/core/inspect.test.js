@@ -3,7 +3,7 @@
 // changed since the reply before, its receipts and problems. Nothing it does writes anything.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createInspectorSource, diffStates, inspectReply, matchPaths, pointer, preview, replyList } from '../../ui/legacy/inspect.js';
 import { createInspectorWidget, drawTree, inspectorScreen } from '../../ui/legacy/screens/inspector.js';
 import { validateScreen } from '../../ui/legacy/view/screens.js';

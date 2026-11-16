@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cutLine, extractBlock, hideBlock, stripBlock } from '../../../core/capture.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const ms = fn => {
     const start = process.hrtime.bigint();

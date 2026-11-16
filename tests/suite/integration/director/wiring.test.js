@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { MODULE_ID, createModule } from '../../../../ui/legacy/director/module.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 import { problemList } from '../../../../modules/time/tracker/domain.js';

@@ -2,7 +2,7 @@
 // participants-pending barriers, status timeouts, recover, and guarded blocks.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { RETRY_SCHEDULE_MS } from '../../core/timeline/coordinator-block.js';
 import { PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';
 import { director } from './helpers/evidence.js';

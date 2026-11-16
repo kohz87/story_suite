@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { inventoryScreen } from '../../../ui/legacy/screens/inventory.js';
 import { homeScreen } from '../../../ui/legacy/screens/home.js';
 import { core, stocked, stack as makeStack } from '../../modules/inventory/fixtures.js';

@@ -3,14 +3,14 @@
 // on as for any fight. Swipe, Re-read, delete, rebuild and reload agree; the narrator's own slot line for the same foes does not double them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { LEAN_RPG_FEATURE, OPEN_FIGHT_LINE, NO_ROLLS_LINE, readSheet, validatePlan, leanRpgGuard, RESOLVE } from '../../../modules/rpg/index.js';
 import { legacyPlanner, openLinesOf } from './legacy-planner.js';
 import { openFoes, vetOpen, isNamedIn } from '../../../modules/rpg/open.js';
 import { readResolve } from '../../../modules/rpg/view/battle-log.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { hashJson as hashOf } from '../../../core/replay.js';
-import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { createFakeModel } from '../../../testkit/model.js';
 import { reply, success } from '../data-modules/helpers.js';
 import { cueOf, PARTY, foeBlock, rollReceipt, setup, sheetDomain, tailOf } from './helpers.js';
 

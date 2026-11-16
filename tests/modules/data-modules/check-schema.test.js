@@ -11,7 +11,7 @@ import * as packsApi from '../../../packs/index.js';
 import { read, integer, change, definition, pack, ok, refuse, edit, set, reward, timer, clock } from './check.helpers.js';
 
 for (const name of ['reputation', 'survival']) test(`worked example ${name} is the exact complete JSON from the approved spec`, () => {
-    const doc = readFileSync(new URL('../../../packages/story-block/docs/v2/DATA_MODULES.md', import.meta.url), 'utf8');
+    const doc = readFileSync(new URL('../../../docs/v2/DATA_MODULES.md', import.meta.url), 'utf8');
     const examples = [...doc.matchAll(/```json\n([\s\S]*?)\n```/g)].map(match => JSON.parse(match[1]));
     const input = read(name);
     const installable = readFileSync(new URL(`../../../packages/story-block/examples/packs/${input.id}/pack.json`, import.meta.url), 'utf8');

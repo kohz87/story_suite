@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { CAST_LIMITS } from '../../packs/limits.js';
 
-const pack = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+const pack = JSON.parse(readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const by = id => pack.content.cast.find(person => person.id === id);
 
 test('Ersveil 2.9.1: every look names its height in cm, in the owner\'s numbers, and stays within the look limit', () => {

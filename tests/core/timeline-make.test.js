@@ -1,7 +1,7 @@
 // The timeline: head, make, list, forget, and the public savepoint.make adapter (docs/v2/TIMELINE.md, contract §8).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
 import { isMetaSpan } from '../../core/replay.js';
 import { RECORD_ID } from '../../core/registry/check.js';

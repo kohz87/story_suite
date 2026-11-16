@@ -3,7 +3,7 @@
 // Story Director and the Ersveil Bluewatch pack (trips need its clock), the RPG and the pulse off.
 // Not a test file (the test glob does not match helpers/).
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { probeModule } from '../../../suite/qa/helpers/probe-module.js';
 import { READERS } from '../../../suite/qa/helpers/reread-fuzz-run.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';

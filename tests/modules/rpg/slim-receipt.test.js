@@ -2,7 +2,7 @@
 // byte for byte what the roll made; a receipt stored before still carries its text and reads unchanged.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { FIX_VERSION } from '../../../modules/rpg/open.js';
 import { RESOLVE, STANDARD_FORMULA, DICE_VERSION, FLOW_VERSION, prepare, readSheet, resolve, rollPrepared } from '../../../modules/rpg/index.js';
 import { cueOfResult, receiptCue } from '../../../modules/rpg/cue.js';

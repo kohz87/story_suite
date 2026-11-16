@@ -9,7 +9,7 @@ import { runtimeSource } from './helpers/runtime-source.js';
 const index = runtimeSource();
 const runtimeState = fs.readFileSync(new URL('../runtime-state.js', import.meta.url), 'utf8');
 const identity = partsSource('identity.js');
-const ci = fs.readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
+const ci = fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
 
 function msg(text, isUser = false) { return { mes: text, is_user: isUser, is_system: false, name: isUser ? 'User' : 'Character' }; }
 function stateFor(chat) {

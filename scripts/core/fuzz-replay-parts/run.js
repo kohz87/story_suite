@@ -4,7 +4,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { user, reply } from './messages.js';
 import { newSwipe, showSwipe, delSwipe } from './swipes.js';
 
-const SB = process.env.SB || fileURLToPath(new URL('../..', import.meta.url));
+const SB = process.env.SB || fileURLToPath(new URL('../../../core/boot/boot.js', import.meta.url));
 const imp = p => import(pathToFileURL(`${SB}/${p}`).href);
 const { createStore } = await imp('../../core/store.js');
 const { createCommandBus } = await imp('../../core/commands.js');

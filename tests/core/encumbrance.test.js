@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ENCUMBERED_PENALTY, encumbrance, encumbranceTail } from '../../modules/inventory/index.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createHarness, line } from '../modules/inventory/helpers/fake-ctx.js';
 import { core, stocked } from '../modules/inventory/fixtures.js';
 

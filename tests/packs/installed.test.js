@@ -161,7 +161,7 @@ test('listeners hear every change', async () => {
 // ---- 2.11.3: a stored pack is not held to the strict `when` check of install ----
 // A pack installed before the check existed, with one event whose condition the events part cannot read, must keep working.
 const unreadable = () => {
-    const modules = JSON.parse(readFileSync(new URL('../../packages/story-block/authoring-kit/reference/data-modules/faction-standing.pack.json', import.meta.url), 'utf8'));
+    const modules = JSON.parse(readFileSync(new URL('../../authoring-kit/reference/data-modules/faction-standing.pack.json', import.meta.url), 'utf8'));
     return pack({
         id: modules.id, name: 'Gate Pack', requires: modules.requires,
         content: {

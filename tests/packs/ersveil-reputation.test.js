@@ -11,7 +11,7 @@ import { editableLayout } from '../../modules/data-modules/editable-layout.js';
 import { createFieldsWidgets } from '../../modules/data-modules/screens/block-fields.js';
 import { FIELDS_WIDGET } from '../../modules/data-modules/fields-widget.js';
 
-const ersveil = () => JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+const ersveil = () => JSON.parse(readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const MODULES = ['standing', 'fame', 'guild-membership'];
 async function pinned(t, only = MODULES, input = ersveil()) {
     const host = await world(t, input);
@@ -98,7 +98,7 @@ test('a meter with no maximum takes its field\'s own, and a bare number shows it
 
 test('in the host the three screens are one tab, Reputation, and none of them a tab of its own', async t => {
     const { mountUi } = await import('../../ui/legacy/ui-host.js');
-    const { createHost } = await import('../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../testkit/index.js');
     const doc = setupDom(), form = doc.createElement('div'); form.id = 'send_form'; doc.body.appendChild(form);
     doc.defaultView = { confirm: () => true };
     const host = await createHost(), ui = mountUi({ runtime: host, ctx: host.ctx, doc });

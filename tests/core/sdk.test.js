@@ -1,7 +1,7 @@
 // The public sdk (docs/v2/SPEC.md §3.1, §6) over the testkit's store and bus stand-ins.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { HOST_SETTINGS_DEFAULTS, createEvents, createSdk, createSettings, makeView, missingModules, newId } from '../../core/sdk.js';
 import { createRegistry } from '../../core/registry.js';
 

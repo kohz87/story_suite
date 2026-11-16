@@ -6,14 +6,14 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { checkPack, report } from '../../packages/story-block/authoring-kit/check.mjs';
+import { checkPack, report } from '../../authoring-kit/check.mjs';
 import { validatePack } from '../../packs/validate.js';
 import { findPackEntries } from '../../packs/lorebook.js';
 import { evaluateCondition } from '../../modules/world/events/condition.js';
 
-const root = fileURLToPath(new URL('../../packages/story-block/', import.meta.url));
-const packPath = new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url);
-const lorePath = new URL('../../packages/story-block/examples/packs/ersveil/ersveil-lore.json', import.meta.url);
+const root = fileURLToPath(new URL('../../core/boot/boot.js/', import.meta.url));
+const packPath = new URL('../../examples/packs/ersveil/pack.json', import.meta.url);
+const lorePath = new URL('../../examples/packs/ersveil/ersveil-lore.json', import.meta.url);
 const packText = readFileSync(packPath, 'utf8');
 const pack = () => JSON.parse(packText);
 
@@ -22,8 +22,8 @@ const CAST_IDS = ['temiwa', 'ysmeth', 'nysseth', 'rika', 'harrak', 'torka', 'lot
 
 test('the example folder holds exactly the pack, its lorebook and the cast portraits, and the old example packs are fixtures', () => {
     assert.ok(existsSync(packPath) && existsSync(lorePath));
-    assert.deepEqual(readdirSync(new URL('../../packages/story-block/examples/packs/ersveil/', import.meta.url)).sort(), ['ersveil-lore.json', 'pack.json', 'portraits']);
-    assert.deepEqual(readdirSync(new URL('../../packages/story-block/examples/packs/ersveil/portraits/', import.meta.url)).sort(), CAST_IDS.map(id => `${id}.webp`).sort());
+    assert.deepEqual(readdirSync(new URL('../../examples/packs/ersveil/', import.meta.url)).sort(), ['ersveil-lore.json', 'pack.json', 'portraits']);
+    assert.deepEqual(readdirSync(new URL('../../examples/packs/ersveil/portraits/', import.meta.url)).sort(), CAST_IDS.map(id => `${id}.webp`).sort());
     assert.equal(existsSync(new URL('../../../examples/packs/ersveil-bluewatch/', import.meta.url)), false);
 });
 

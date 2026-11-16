@@ -1,7 +1,7 @@
 // §2.2 "regenerate": the staged session, then the Send copy, then the last payload, but only when the reader's message is linked to its key.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
 import { activeSettles, box, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 

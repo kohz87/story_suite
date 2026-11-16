@@ -3,7 +3,7 @@
 // test still sees every line the file had before the split. Add a file here when it is split and a test reads its text.
 import { readFileSync } from 'node:fs';
 
-const ROOT = new URL('../../packages/story-block/', import.meta.url);
+const ROOT = new URL('../../core/boot/boot.js/', import.meta.url);
 
 /** facade path (from the repository root) → the parts moved out of it, in the order they appear in the folder. */
 export const SPLIT_PARTS = Object.freeze({

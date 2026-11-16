@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { CORE_KINDS } from '../../modules/scene/domains/index.js';
 import { TOLD, WALLET_NOTE } from '../../modules/inventory/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 
 const WALLET = `before this reply`;
 const tailOf = host => host.st.promptLog.filter(entry => entry.key === TAIL_KEY && entry.value).at(-1).value;

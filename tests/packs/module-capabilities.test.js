@@ -2,7 +2,7 @@
 // stCapabilities() offers them, and a pack's requires.capabilities is checked against them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { MAX_CAPABILITIES, definitionProblems, definitionWarnings } from '../../core/registry.js';
 import { stCapabilities } from '../../packs/st-adapter.js';
 import { validatePack } from '../../packs/validate.js';

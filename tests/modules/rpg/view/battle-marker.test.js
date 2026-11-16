@@ -3,7 +3,7 @@
 // text again after the panel was drawn (SillyTavern's updateMessageBlock, which no event follows), the panel comes back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../helpers/ui-fake-dom.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog, hideMarkers, markerNodes } from '../../../../modules/rpg/view/battle-log.js';

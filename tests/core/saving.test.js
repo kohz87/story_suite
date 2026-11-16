@@ -4,7 +4,7 @@
 // checkpoints, rewind that cannot take back, ctx.carrier.sid).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext, createHost } from '../../packages/story-block/testkit/index.js';
+import { createFakeContext, createHost } from '../../testkit/index.js';
 import { createChatFile } from '../../core/store/chat-file.js';
 import { IDLE_MS, createSaver, markFits, readRecord, swipeMark, writeRecord } from '../../core/persist.js';
 import { createRewind } from '../../core/timeline/rewind.js';

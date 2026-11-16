@@ -6,7 +6,7 @@ import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { character, foeBlock, setup } from '../helpers.js';
 import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
-import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
+import { aiMessage } from '../../../../testkit/fake-st.js';
 import { heldForMessage } from '../../../../core/turn/held-board.js';
 import { gearHost, openWithGear } from './commit.helpers.js';
 

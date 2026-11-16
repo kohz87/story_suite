@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createDialogMount } from '../../../../ui/legacy/view/mounts/dialog.js';
 import { createRuntime } from '../../../../core/runtime.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
-import { createFakeContext } from '../../../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../../../testkit/fake-st.js';
 import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screensWith, setupDom } from './helpers.js';
 
 const wizard = {

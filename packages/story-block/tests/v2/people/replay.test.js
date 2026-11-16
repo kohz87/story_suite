@@ -2,7 +2,7 @@
 // a Re-read, a reload and store.rebuild(); at every carrier the oracle's rebuildAt equals the live state, and a Re-read keeps the write blocks.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../../../testkit/index.js';
 import { readRecord } from '../../../../../core/persist.js';
 import { carriers, rebuildAt } from '../../../../../tests/suite/qa/helpers/oracle.js';
 

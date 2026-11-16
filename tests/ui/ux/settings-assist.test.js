@@ -4,7 +4,7 @@
 // no chip is on the wrong side of it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { openSettingsWindow } from '../../../ui/legacy/view/settings/window.js';
 import { ASSIST_FOLD, ASSIST_HOST_KEYS, ASSIST_TEXT, assistSchema } from '../../../ui/legacy/view/settings/assist.js';

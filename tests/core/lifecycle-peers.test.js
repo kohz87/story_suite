@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
 import { ensureModules } from '../../core/sdk.js';
 import { PEER, director, initReceipts, mech, modulesById, requestText, social } from './lifecycle.helpers.js';

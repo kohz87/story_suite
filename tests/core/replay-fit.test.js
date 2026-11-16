@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { apply, rebaseOps } from '../../core/ops.js';
 import { validateInventory } from '../../modules/inventory/index.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { readRecord } from '../../core/persist.js';
 import { createStore } from '../../core/store.js';
 

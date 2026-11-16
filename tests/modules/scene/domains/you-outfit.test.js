@@ -2,7 +2,7 @@
 // are not gear and a passing `look:` that a move clears (each at most 60 characters). R0-R5 of the batch plan.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { clearLook, lookOf, wornWords } from '../../../../modules/scene/you.js';
 import { validateScene } from '../../../../modules/scene/index.js';
 import { youGrammar } from '../../../../modules/scene/domains/index.js';

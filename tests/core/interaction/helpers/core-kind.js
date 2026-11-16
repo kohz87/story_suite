@@ -1,6 +1,6 @@
 // A kind that changes the real inventory, and a host (real core, real bus) that has it registered, for the settle and mark tests.
 
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { hashJson } from '../../../../core/replay.js';
 
 export const KIND_ID = 'test/probe';

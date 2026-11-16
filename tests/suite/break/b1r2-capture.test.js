@@ -1,7 +1,7 @@
 // b1-capture round 2 (Story Block): findings against 2f17c2c.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { assertCaptureTiming, TYPICAL_RATIO, plainCaptureBaseline, timedCapture } from './capture-timing.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

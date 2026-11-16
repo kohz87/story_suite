@@ -1,7 +1,7 @@
 // A turn on a fake and real runtime: hooks, preview, rebuild, real runtime, closing cue.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../testkit/index.js';
 import { STATIC_KEY } from '../../core/turn.js';
 import { appendClosingCue, closingCue } from '../../core/turn/text.js';
 import { HAPPENED } from '../../core/prompt.js';

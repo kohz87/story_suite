@@ -10,9 +10,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
-const GUIDE = new URL('../../../packages/story-block/docs/v2/GUIDE.md', import.meta.url);
+const GUIDE = new URL('../../../docs/v2/GUIDE.md', import.meta.url);
 
 // The guide's "Find Regex" line, as SillyTavern reads it: /pattern/flags.
 function guideRegex() {

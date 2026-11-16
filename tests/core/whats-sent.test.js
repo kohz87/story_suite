@@ -9,7 +9,7 @@
 //   tail gets what the static part and it leave, never below MIN_TAIL_BUDGET. The static part never changes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { DEFAULT_CONTEXT_SHARE, MIN_TAIL_BUDGET, contextFit, estimateTokens } from '../../core/prompt.js';
 import { createRegistry } from '../../core/registry.js';
 import { createSettings } from '../../core/sdk.js';

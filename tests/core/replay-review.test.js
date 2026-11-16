@@ -3,7 +3,7 @@
 // claims already held, stripped metadata, ids that stay with a line, and a command that does not scan the chat.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { isMetaSpan } from '../../core/replay.js';
 import { Q1, Q2, claimKey, guarded, harness } from './helpers/guarded.js';
 

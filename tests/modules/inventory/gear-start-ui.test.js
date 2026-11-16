@@ -3,7 +3,7 @@
 // item gets its hint, bound gear stays as it was. The form data and plans are tested as plain data, then drawn by the real template renderer over a real host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
 import { addFields, addPlan, editFields, editPlan, repointControls } from '../../../ui/legacy/view/gear-form.js';
 import { validatePack } from '../../../packs/validate.js';

@@ -1,6 +1,6 @@
 // World part tests: a real Story Block host (the testkit) with Story Director, and small stand-ins for
 // NPC State Delta (its queries `npc.known`, `npc.dossier`, `npc.meters`) and example fight runner.
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';

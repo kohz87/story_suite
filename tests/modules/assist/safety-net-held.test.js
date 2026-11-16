@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SETTING } from '../../../modules/assist/index.js';
 import { assistSections } from '../../../core/capture.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { OWNER, WORLD_PROBE, assistTypes, heldModel, hostWith, skip, wait } from './safety-net.helpers.js';
 
 // A kind whose module is held back is told as held, not as an unknown kind; a truly unknown kind keeps its text.

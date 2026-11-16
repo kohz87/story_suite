@@ -3,7 +3,7 @@
 // exactly; the restore barrier blocks new data module work while it is up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { rulesModule, restore } from '../../core/helpers/timeline.js';
 import { fixture, reply, success, pin, view } from './helpers.js';
 

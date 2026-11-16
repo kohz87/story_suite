@@ -8,7 +8,7 @@ import { buildQualifiedChatKey } from '../identity.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 const index = runtimeSource().replace(/\r\n/g, '\n');
-const ci = fs.readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
+const ci = fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/.github/workflows/ci.yml', import.meta.url), 'utf8');
 
 function msg(text, isUser = false) { return { mes: text, is_user: isUser, is_system: false, name: isUser ? 'User' : 'Character' }; }
 

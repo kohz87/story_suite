@@ -22,7 +22,7 @@ test('layout.json lists packages/ now and the B3 roots as entries that may not e
 
 test('layout lookups: package roots, source roots, package name and folder', () => {
   const layout = loadLayout();
-  assert.equal(layout.isPackageFile('packages/story-block/index.js'), true);
+  assert.equal(layout.isPackageFile('core/boot/boot.js'), true);
   assert.equal(layout.isPackageFile('ui/a.js'), false);
   assert.equal(layout.isSourceFile('core/x.js'), true);
   assert.equal(layout.isSourceFile('scripts/x.js'), false);

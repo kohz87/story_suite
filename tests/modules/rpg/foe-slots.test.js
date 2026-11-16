@@ -2,8 +2,8 @@
 // the roll's opened slots count as arrived for the fight's XP; a stale Down group is never paid again; Down-only slots are not an open fight for the quiet reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
-import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { createFakeModel } from '../../../testkit/model.js';
 import { FIGHT, LEAN_RPG_FEATURE, RESOLVE, readSheet } from '../../../modules/rpg/index.js';
 import { fightIsOpen } from '../../../modules/rpg/quiet.js';
 import { openFoes, vetOpen } from '../../../modules/rpg/open.js';

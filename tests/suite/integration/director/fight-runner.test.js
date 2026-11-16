@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { fightRunner } from '../../../../ui/legacy/director/module.js';
 
 const entry = (id, commands, status) => ({ id, name: id, version: '1.0.0', domains: [], commands, kinds: [], tabs: [], features: [], ...(status ? { status, reason: status === 'ready' ? null : 'Needs something.' } : {}) });

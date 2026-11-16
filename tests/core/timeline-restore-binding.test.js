@@ -3,7 +3,7 @@
 // participants on the checkpoint of the head that is selected now, and the barrier holds until they confirm it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { nativeModule, rulesModule, batchFor, clone, pause, reload, seal, NATIVE, DEATH } from './helpers/timeline.js';
 import { hashJson } from '../../core/replay.js';
 import { HOST_DOMAIN } from '../../core/timeline/index.js';

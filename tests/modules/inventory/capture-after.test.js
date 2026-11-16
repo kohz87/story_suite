@@ -3,7 +3,7 @@
 // trip is planned from the place and the mounts the same reply sets up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const block = lines => `The road.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

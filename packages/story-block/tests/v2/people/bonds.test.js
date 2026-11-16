@@ -3,7 +3,7 @@
 // across swipes, deletes, a rebuild and a reload. Also the deferred-domain rule: deleting the reply that made the slice keeps the later writes (rule g).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../../../testkit/index.js';
 import { hashJson } from '../../../../../core/replay.js';
 import { carriers, rebuildAt } from '../../../../../tests/suite/qa/helpers/oracle.js';
 

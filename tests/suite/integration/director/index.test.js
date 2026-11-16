@@ -4,11 +4,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 
 globalThis.STORY_DIRECTOR_NO_START = true;
-const { NEEDS_HOST, start, v2Host } = await import('../../../../packages/story-director/index.js');
+const { NEEDS_HOST, start, v2Host } = await import('../../../../ui/legacy/director/index.js');
 
 const noWait = async () => {};
 

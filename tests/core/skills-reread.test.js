@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../testkit/index.js';
 import { validatePack } from '../../packs/validate.js';
 import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
 import { skillSlots } from '../../core/runtime/skill-slots.js';
@@ -222,7 +222,7 @@ test('F3: the tail reserves room only for skills held past five, and the documen
     };
     const [five, eight] = [await make(5), await make(8)];
     assert.equal(Math.ceil((eight - five) / 3), DM_LIMITS.skillTailTokens, 'the reserve is the measured cost of one skill');
-    for (const file of ['../../packages/story-block/CHANGELOG.md', '../../packages/story-block/docs/v2/RPG.md']) {
+    for (const file of ['../../docs/history/packages/story-block/CHANGELOG.md', '../../docs/v2/RPG.md']) {
         assert.match(readFileSync(new URL(file, import.meta.url), 'utf8'), new RegExp(`${DM_LIMITS.skillTailTokens} tokens`), file);
     }
 });

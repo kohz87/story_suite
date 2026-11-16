@@ -3,7 +3,7 @@
 // With it off each of these is exactly as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { mergeParts } from '../../../modules/scene/domains/core/merge.js';
 import { FLAGS, flagOn } from '../../../core/runtime/flags.js';
 

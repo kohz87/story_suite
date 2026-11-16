@@ -1,4 +1,4 @@
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { makeMessage } from '../../helpers/ui-fake-dom.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';

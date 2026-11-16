@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/template/index.js';
 import { fakeEvaluate, installFakeDom } from './helpers.js';
-import { stPurify } from '../../../../packages/story-block/testkit/index.js';
+import { stPurify } from '../../../../testkit/index.js';
 
 function setup(html, scope, options = {}, { sanitize = null } = {}) {
     const doc = installFakeDom();

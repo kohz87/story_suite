@@ -4,7 +4,7 @@
 // that uses neither is unchanged.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createRegistry, definitionProblems } from '../../core/registry.js';
 import { staticParts } from '../../core/prompt.js';
 

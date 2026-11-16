@@ -16,7 +16,7 @@ import { compileTemplate, renderTemplate } from '../../../../ui/legacy/view/temp
 import { conditionEvaluator } from '../../../../ui/legacy/view/bind.js';
 import { compile, evaluate } from '../../../../modules/world/events/index.js';
 import { scopeCss } from '../../../../ui/legacy/view/css.js';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';

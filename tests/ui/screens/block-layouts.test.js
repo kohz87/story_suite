@@ -1,7 +1,7 @@
 // How a block draws its values by their shape (BLOCKS-UI): quest cards, a map of numbers, a record of fields, and an entries field read through roles.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createBlockWidgets, BLOCK_WIDGET } from '../../../modules/data-modules/screens/blocks.js';
 import { createFieldsWidgets } from '../../../modules/data-modules/screens/block-fields.js';
 import { FIELDS_WIDGET } from '../../../modules/data-modules/fields-widget.js';

@@ -3,7 +3,7 @@
 // comment's `cap:chatter=N`), so a later setting changes nothing already read; a reply without a mark was read at 3.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { CHATTER_FEATURE, CHATTER_MAX, chatterCap, chatterGrammar, displayLines } from '../../ui/legacy/extras.js';
 
 const ON = { features: { [CHATTER_FEATURE]: true } };

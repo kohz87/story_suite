@@ -5,7 +5,7 @@
 // are skipped: a late request of the timed-out save that lands after the reload stays in the file. Invariant 7.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, aiMessage } from '../../../packages/story-block/testkit/index.js';
+import { createHost, aiMessage } from '../../../testkit/index.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const present = state => [...(state?.domains?.scene?.present ?? [])].sort();

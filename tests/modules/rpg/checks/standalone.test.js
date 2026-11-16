@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createFakeModel, createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createFakeModel, createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 
 const OLD = JSON.parse(readFileSync(new URL('../../../fixtures/director/checks-2.1.1-chat.json', import.meta.url), 'utf8'));

@@ -3,7 +3,7 @@
 // (screens/rebuild-banner.js, mockup sections B and D).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { nativeModule, rulesModule, clone, NATIVE } from './helpers/timeline.js';
 import { createParticipants } from '../../core/timeline/participants.js';
 import { createRebuildBannerWidget, REBUILD_TEXT } from '../../ui/legacy/screens/rebuild-banner.js';

@@ -3,7 +3,7 @@
 // without the RPG for now, closing puts the text back, asked once per chat), all on the real page with the RPG feature on and nothing held with it off.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { RPG_START_WIDGET } from '../../../../ui/legacy/screens/home.js';
 import { setStartNotes, skipOf, startNotes } from '../../../../modules/rpg/start.js';

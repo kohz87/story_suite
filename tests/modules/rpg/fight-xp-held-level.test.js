@@ -1,8 +1,8 @@
 // 2.17.0 final review: a narrator XP line that raises a level in the reply that wins the fight is held back, and the fight pays at the level before it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-const { createHost } = await import('../../../packages/story-block/testkit/index.js');
-const { createFakeModel } = await import('../../../packages/story-block/testkit/model.js');
+const { createHost } = await import('../../../testkit/index.js');
+const { createFakeModel } = await import('../../../testkit/model.js');
 const { LEAN_RPG_FEATURE } = await import('../../../modules/rpg/index.js');
 const { STANDARD_TEMPLATES, characterV1For } = await import('../../../modules/rpg/templates.js');
 const { reply, success } = await import('../data-modules/helpers.js');

@@ -13,8 +13,8 @@
 // reply (store.work()). Saves, bytes and work are exact (the run is deterministic); times are this machine's.
 
 import { performance } from 'node:perf_hooks';
-import { UI_EVERY, createBenchModule, replyText, sendFast, uiCommands, userText } from '../../../tests/bench/load.js';
-import { createHost } from '../testkit/index.js';
+import { UI_EVERY, createBenchModule, replyText, sendFast, uiCommands, userText } from '../../tests/bench/load.js';
+import { createHost } from '../../testkit/index.js';
 
 const args = process.argv.slice(2);
 const option = name => {

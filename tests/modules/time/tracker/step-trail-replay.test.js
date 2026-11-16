@@ -2,7 +2,7 @@
 // story told that way, for the board and the stored map.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 import { validateDirector } from '../../../../modules/time/tracker/domain-parts/validate.js';

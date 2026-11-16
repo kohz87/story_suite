@@ -1,7 +1,7 @@
 // Exported blocks retain their actual presentation, and editor errors identify the bad effect.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
 import { buildBlock } from '../../../../modules/data-modules/block-builder.js';
 import { renderBlockEditor } from '../../../../modules/data-modules/screens/blocks-editor.js';

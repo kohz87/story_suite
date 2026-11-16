@@ -3,7 +3,7 @@
 // old timeline is kept; the next command commits on the carrier; sdk.receipts() and tools.receipts().
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { stBranch } from '../../core/timeline/rewind.js';
 
 const counter = {

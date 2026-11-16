@@ -6,9 +6,9 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CASES, ROWS, discoverRoots, formatDetails, formatTable, loadModules, runMatrix, summaryLine } from '../../packages/story-block/testkit/matrix/index.js';
+import { CASES, ROWS, discoverRoots, formatDetails, formatTable, loadModules, runMatrix, summaryLine } from '../../testkit/matrix/index.js';
 
-const root = fileURLToPath(new URL('../../packages/story-block/', import.meta.url));
+const root = fileURLToPath(new URL('../../core/boot/boot.js/', import.meta.url));
 const fixture = name => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
 const cell = (out, row, id) => out.results.find(result => result.row === row && result.id === id);
 

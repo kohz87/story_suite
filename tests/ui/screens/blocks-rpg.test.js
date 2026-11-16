@@ -2,7 +2,7 @@
 // fields, a role, cards and reply-end functions, and the "RPG" templates under the chooser.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { buildBlock, blockDraft, blockKindCount, editableBlockDraft, parseNames } from '../../../modules/data-modules/block-builder.js';
 import { createBlockWidgets } from '../../../modules/data-modules/screens/blocks.js';

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { nativeModule, rulesModule, clone, reload, restore, pause, NATIVE } from './helpers/timeline.js';
 import { createParticipants } from '../../core/timeline/participants.js';
 import { fellNotice } from '../../core/timeline/selection-fallback.js';

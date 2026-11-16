@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 
 export const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 export const qty = (host, name) => host.sdk.query('inventory.items').filter(item => item.name === name).reduce((sum, item) => sum + item.qty, 0);
@@ -11,7 +11,7 @@ export const at = (host, start) => host.ctx.chat.findIndex(message => !message.i
 export const claimed = (host, sid) => Object.hasOwn(host.head().meta.claims, `loot:${sid}`);
 export const offPs = host => host.store.problems().filter(problem => problem.code === 'REPLAY_PREREQUISITE');
 export const riverside = () => {
-    const sample = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     return sample;
 };

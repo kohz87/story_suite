@@ -1,7 +1,7 @@
 // A live edit to a lone foe between board segments must be the basis of its next committed move and replay.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeModel, createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createFakeModel, createHost } from '../../../../testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';

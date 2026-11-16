@@ -2,7 +2,7 @@
 // opening a chat never writes over a future version's record or repairs a damaged first record.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { greeting, initial, reply, setup, user } from './helpers/store-chat.js';
 
 const FUTURE = { v: 3, sid: 'sw_future00001', checkpoint: { v: 3, whatever: [1, 2, 3] }, ops: [{ op: 'x' }], receipts: [], narrated: [], rev: 9, extraField: { a: 1 } };

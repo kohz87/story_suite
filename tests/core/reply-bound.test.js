@@ -3,7 +3,7 @@
 // the formerly known state forward. A guard without it is carried as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { spanProblem } from '../../core/replay.js';
 import { harness } from './helpers/guarded.js';
 

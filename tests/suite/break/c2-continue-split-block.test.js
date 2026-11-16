@@ -5,7 +5,7 @@
 // when the open tag itself was cut) is left in the message for the reader to see. No Problem says so.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 async function fresh(t) {
     t.mock.method(console, 'warn', () => {});

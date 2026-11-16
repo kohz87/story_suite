@@ -4,7 +4,7 @@
 // SPEC §6 Features: "Its state is never touched: turning the feature on again brings everything back as it was."
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const ticks = () => ({
     id: 'tk', name: 'Ticks', version: '0.0.1',

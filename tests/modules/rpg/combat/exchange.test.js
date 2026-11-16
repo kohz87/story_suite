@@ -14,7 +14,7 @@ import { seeded } from './dice.helper.js';
 import { withSkills } from './derived-skills.helper.js';
 
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
-const CASES = JSON.parse(readFileSync(new URL('../../../../packages/story-block/scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
+const CASES = JSON.parse(readFileSync(new URL('../../../../scripts/core/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
 const SPECS = new Map(CASES.map(entry => [entry.name, entry.party]));
 const ATTACK_POOL = { Mage: 'mp', Healer: 'mp' };
 const STANCE_POOL = { Mage: 'mp', Healer: 'mp' };

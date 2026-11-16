@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 const { OWNER, PARTY, PLAN_ANSWER, fakeModel, sheetDomain } = await import('./helpers.js');
-const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+const { createHost } = await import('../../../testkit/index.js');
 const { LEAN_RPG_FEATURE, RESOLVE, createLeanRpgPart } = await import('../../../modules/rpg/index.js');
 const { legacyPlanner } = await import('./legacy-planner.js');
 const { CORE_FEATURE } = await import('../../../core/features.js');

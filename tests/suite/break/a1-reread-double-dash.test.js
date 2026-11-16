@@ -7,7 +7,7 @@
 // (#123), which are hidden the same way. SPEC: live, Re-read and the rebuild read the same.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const items = host => host.sdk.query('inventory.items').map(item => ({ name: item.name, note: item.note ?? '' }));
 

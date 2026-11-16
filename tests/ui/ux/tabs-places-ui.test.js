@@ -4,7 +4,7 @@
 // apart in the list ("Notes (2)"). Home's place is locked.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../../testkit/fake-st.js';
 import { createRuntime } from '../../../core/runtime.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { TABS_FOLD, TABS_TEXT } from '../../../ui/legacy/host-ui.js';

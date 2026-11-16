@@ -1,7 +1,7 @@
 // Replay equals live for soak and carry weights (Combat rules v1 C8): swipe and back, middle delete, rewind, reload, Re-read plain, grown and shrunk, chat change; and coins weigh nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { fresh, reply, equip, FIGHT, ON } from './gear-inventory.helpers.js';
 import { reload, clone } from '../../core/helpers/timeline.js';
 

@@ -2,7 +2,7 @@
 // cannot raise Health, Stamina or Mana, and rest / full-rest / heal recover them. An unmarked pin keeps every old rule. Replay == live.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { scaleXp } from '../../../modules/rpg/levels.js';

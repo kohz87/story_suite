@@ -1,4 +1,4 @@
-import { hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../testkit/index.js';
 import { API_EVENTS } from '../../core/public-api.js';
 import { sheetDomain, character } from '../modules/rpg/helpers.js';
 

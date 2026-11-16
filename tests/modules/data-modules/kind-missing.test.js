@@ -5,11 +5,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { reply, success } from './helpers.js';
 
 const ID = 'pack.ersveil/guild-membership';
-const ersveil = () => JSON.parse(readFileSync(new URL('../../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+const ersveil = () => JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const guild = host => host.sdk.query('dataModules.view', { module: ID }).chat;
 const dmProblems = host => host.turn.problems().filter(problem => ['DM_LABEL', 'REFUSED'].includes(problem.code));
 

@@ -1,6 +1,6 @@
 // The stats of a focused or spread build at a Soul Class, and a skill's rank by Soul Class.
-import { STAT_KEYS } from '../../../../modules/rpg/formula.js';
-import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { STAT_KEYS } from '../../../modules/rpg/formula.js';
+import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
 
 // ---- the builds -------------------------------------------------------------------------------------------------------
 

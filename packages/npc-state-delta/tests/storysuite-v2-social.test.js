@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { makeView } from '../../../core/sdk.js';
 import { MODULE_ID, QUERY_NAMES, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { BUILT_IN_METERS, BUILT_IN_RANGE, FEATURES, SETTINGS_DEFAULTS, SETTINGS_SCHEMA } from '../src/npc-meters.js';

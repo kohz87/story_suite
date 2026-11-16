@@ -2,7 +2,7 @@
 // the Custom divisor, the Level cap setting, and that a roll made before levels replays exactly as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { DEFAULT_SETTINGS, EARLIER_RULES, LEVEL, LV_VERSION, STANDARD, STANDARD_FORMULA, classTerm, hasLevels, levelBonus, levelCapFor, levelOfClass, normalizeRules,
     oddsSubject, prepare, readSheet, rollPrepared, rulesFromSettings, subjectOdds } from '../../../modules/rpg/index.js';
 import { buildDefinitions, newDraft } from '../../../modules/rpg/view/wizard-data.js';
@@ -10,7 +10,7 @@ import { readParty } from '../../../modules/rpg/view/party-data.js';
 import { reply, success, view, rebuilt } from '../data-modules/helpers.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { fakeState } from './view/helpers.js';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { seedCrypto } from '../../suite/qa/helpers/seeded.js';
 import { PARTY, character, rollReceipt, setup, sheetDomain } from './helpers.js';

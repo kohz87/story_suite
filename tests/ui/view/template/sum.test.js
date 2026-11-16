@@ -92,7 +92,7 @@ test('sum() is read without the condition language, and through it', () => {
 });
 
 // The "points left" snippet under Example 3 of the templates page.
-const doc = readFileSync(new URL('../../../../packages/story-block/docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
+const doc = readFileSync(new URL('../../../../docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
 const snippet = /\*\*Points left\.\*\*[\s\S]*?```html\n([\s\S]*?)```/.exec(doc)?.[1];
 
 function showPointsLeft(scope) {

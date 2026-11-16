@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { compileTemplate, renderTemplate } from '../../../ui/legacy/view/template/index.js';
 import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const template = depth => `<ss-widget name="ss.badge" data-props='${'{"a":'.repeat(depth)}1${'}'.repeat(depth)}'></ss-widget>`;
 

@@ -106,7 +106,7 @@ test('fightCue: a fight in the prose with a roll and no foes line is told; each 
 });
 
 test('the cue reaches the next reply\'s tail only with the RPG on and no foe set; the static prompt is unchanged', async t => {
-    const { createHost } = await import('../../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../../testkit/index.js');
     const { CORE_FEATURE } = await import('../../../../core/features.js');
     const { TAIL_KEY, STATIC_KEY } = await import('../../../../core/turn.js');
     const { FIGHT_CUE } = await import('../../../../core/turn/fight-start.js');
@@ -127,7 +127,7 @@ test('the cue reaches the next reply\'s tail only with the RPG on and no foe set
 });
 
 test('a swipe of the reply after the fight gets the same cue as the first try', async t => {
-    const { createHost } = await import('../../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../../testkit/index.js');
     const { CORE_FEATURE } = await import('../../../../core/features.js');
     const { TAIL_KEY } = await import('../../../../core/turn.js');
     const { FIGHT_CUE } = await import('../../../../core/turn/fight-start.js');

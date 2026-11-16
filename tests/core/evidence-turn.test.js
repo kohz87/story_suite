@@ -3,7 +3,7 @@
 // built on the old proof, and a reload shows the same.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { director, sampleModule, hostModule, T1, T2 } from './helpers/evidence.js';
 
 const text = (narration, lines) => `${narration}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

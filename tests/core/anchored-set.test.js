@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { rebaseOps } from '../../core/ops.js';
 import { anchoredMove, anchoredValue, isAnchored } from '../../core/ops/anchored.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 
 const PATH = '/domains/clock/minutes';
 const op = (value, was, roll = 'same', extra = {}) => ({ op: 'replace', path: PATH, value, was, period: 100, roll, ...extra });

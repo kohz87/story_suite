@@ -2,8 +2,8 @@
 // stays uncaptured until what it read is restored or the interaction is discarded; the marker survives a reload; Re-read refuses it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { aiMessage } from '../../../packages/story-block/testkit/fake-st.js';
+import { createHost } from '../../../testkit/index.js';
+import { aiMessage } from '../../../testkit/fake-st.js';
 import { readRecord } from '../../../core/persist.js';
 import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaModule, withLines } from '../../suite/qa/helpers/probe-interaction.js';
 

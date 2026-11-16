@@ -5,8 +5,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../packages/story-block/testkit/index.js';
-import { aiMessage } from '../../packages/story-block/testkit/fake-st.js';
+import { createHost } from '../../testkit/index.js';
+import { aiMessage } from '../../testkit/fake-st.js';
 import { createRegistry, INIT_PREFIX } from '../../core/registry.js';
 import { ensureModules, missingModules } from '../../core/sdk.js';
 import { HOOK_TIMEOUT_MS } from '../../core/turn.js';

@@ -9,7 +9,7 @@
 // A failing seed replays exactly (QA_FUZZ_SEED=n; QA_FUZZ_SEEDS=n and QA_FUZZ_STEPS=n run a longer hunt).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { prng, seedCrypto } from '../suite/qa/helpers/seeded.js';
 import { hashJson } from '../../core/replay.js';
 import { NATIVE, NPC, batchFor, clone, nativeModule, pause, reload, rulesModule, seal } from './helpers/timeline.js';

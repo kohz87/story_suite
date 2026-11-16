@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { GENESIS_EPOCH, blockIdOf, epochOf, hashJson } from '../../core/replay.js';
 import { reply, seams, steps, started, marks, blocks, boundaryOf, ident, click, clone } from './ctx-seams.helpers.js';
 

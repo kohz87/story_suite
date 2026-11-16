@@ -3,7 +3,7 @@
 // and a definition that uses none of the new keys is exactly what it was in 2.7.2.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { validateDataModules, dataModuleHash } from '../../../modules/data-modules/check.js';
 import { grammarFor, summaryOf, blockCards, CARD_SLOTS } from '../../../modules/data-modules/part.js';
 import { buildBlock } from '../../../modules/data-modules/block-builder.js';

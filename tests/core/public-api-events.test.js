@@ -1,7 +1,7 @@
 // The public API v1: the events (with replay: a swipe, a Re-read, a delete, a reload), a listener that throws, review fixes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createPublicApi, createReaders, diffLeaves, plainText } from '../../core/public-api.js';
 import { createEvents } from '../../core/sdk.js';
 import { sheetDomain, character } from '../modules/rpg/helpers.js';

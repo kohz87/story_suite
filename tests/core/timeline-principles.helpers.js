@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { BATCH, DEATH, NATIVE, NPC, clone, nativeModule, rulesModule, seal, track } from './helpers/timeline.js';
 
 export const reply = (text, lines = []) => (lines.length ? `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);

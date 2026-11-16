@@ -4,7 +4,7 @@
 // way a page reload is, and the participant's own storage (it is a module with a store of its own) is what it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
 import { BATCH, DEATH, NATIVE, clone, nativeModule, reload, rulesModule, seal, slice, track } from './helpers/timeline.js';
 import { RETRY_SCHEDULE_MS } from '../../core/timeline/coordinator-block.js';

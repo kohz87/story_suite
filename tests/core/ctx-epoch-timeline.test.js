@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { GENESIS_EPOCH } from '../../core/replay.js';
 
 const have = existsSync(new URL('../../core/timeline/index.js', import.meta.url)) && existsSync(new URL('./helpers/timeline.js', import.meta.url));

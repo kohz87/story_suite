@@ -5,7 +5,7 @@ import { GEAR, capacityFor, gearBudget, gearRarityOf, gearSlotOf, slotWordOf, st
 import { validateInventory } from '../../../modules/inventory/index.js';
 import { validatePack } from '../../../packs/validate.js';
 import { itemDef } from '../../../packs/content.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { createHarness, line } from './helpers/fake-ctx.js';
 import { core, def, stack, stocked } from './fixtures.js';

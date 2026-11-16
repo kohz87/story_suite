@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../helpers/ui-fake-dom.js';
-import { createHost, createFakeModel } from '../../packages/story-block/testkit/index.js';
+import { createHost, createFakeModel } from '../../testkit/index.js';
 import { MODEL_CALL_TIMEOUT_MS, createModelCalls, listProfiles, safeReason, stModelCall } from '../../core/model-call.js';
 import { PROFILE_TEXT, profileChoices } from '../../core/model-call/profile-field.js';
 import { createRegistry, definitionProblems } from '../../core/registry.js';

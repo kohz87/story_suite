@@ -2,7 +2,7 @@
 // by a list kept by hand, and a restore says where each domain came from.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { capture, planRestore, registered } from '../../core/timeline/index.js';
 import { RULES, clone, nativeModule, reload, restore, rulesModule, sealerModule } from './helpers/timeline.js';
 

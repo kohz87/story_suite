@@ -2,7 +2,7 @@
 // Versions list: a dormant module says what it waits for, a restore pending says so, a ready one says nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { createRegistry } from '../../../core/registry.js';

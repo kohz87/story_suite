@@ -2,7 +2,7 @@
 // is not used and keeps its staged steps; a swipe checks payload.witness again. Real host, test-only probe module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
 import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 

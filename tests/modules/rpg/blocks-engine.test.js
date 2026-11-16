@@ -4,7 +4,7 @@
 // tail and the sheet reader say it in words, and live = reload = rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES, COMBAT_PROMPT_STANDARD, characterV1For } from '../../../modules/rpg/templates.js';
 import { STAGES } from '../../../modules/rpg/names.js';
 import { readSheet } from '../../../modules/rpg/read.js';

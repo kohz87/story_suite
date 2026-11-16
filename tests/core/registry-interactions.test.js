@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRegistry, definitionProblems, definitionWarnings } from '../../core/registry.js';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { PROBE_KIND } from './interaction/helpers/probe-kind.js';
 
 const module = interactions => ({ id: 'test', interactions });

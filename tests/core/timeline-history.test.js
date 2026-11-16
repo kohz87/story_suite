@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { rulesModule, restore } from './helpers/timeline.js';
 
 test('history excludes the entire intra-reply target, reader messages and the restoring reply from all active readers', async t => {

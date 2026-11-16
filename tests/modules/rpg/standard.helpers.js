@@ -1,4 +1,4 @@
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { prepare, readSheet, rollPrepared } from '../../../modules/rpg/index.js';
 import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
 import { prepareStandard as prepareMemberStandard, rollStandard as rollMemberStandard } from '../../../modules/rpg/standard.js';

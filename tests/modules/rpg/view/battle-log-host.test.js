@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { BATTLE_ROOT, createBattleLog, createFoldStore, markerNodes, placeAtMarker } from '../../../../modules/rpg/view/battle-log.js';
 import { stripBattleMarker } from '../../../../core/turn.js';

@@ -7,9 +7,9 @@
 //   node scripts/build-example-zip.mjs --check   exit 1 if the zip on disk is not what a rebuild gives
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { crc32 } from '../../../packs/zip.js';
+import { crc32 } from '../../packs/zip.js';
 
-const root = new URL('../examples/packs/', import.meta.url);
+const root = new URL('../../examples/packs/', import.meta.url);
 const DOS_DATE = (1 << 5) | 1; // 1980-01-01, time 00:00:00
 const UTF8 = 0x0800;
 

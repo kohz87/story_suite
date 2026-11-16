@@ -1,7 +1,7 @@
 // The real page for the Skills view and the wizard tests: the testkit host with Story Block's UI mounted on a fake DOM, the RPG
 // feature on, and the real view loader (the definitions' own `role` key is read; nothing is faked about it).
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../helpers/ui-fake-dom.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';

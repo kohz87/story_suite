@@ -3,7 +3,7 @@
 // c2-extractor-failed-no-note), on Story Block alone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { HIDDEN_MARKER, defangMarker, extractBlock, hideBlock, stripBlock } from '../../../core/capture.js';
 import { parseAmount } from '../../../modules/inventory/money.js';
 

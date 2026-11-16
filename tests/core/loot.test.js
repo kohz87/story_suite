@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LOOT_ITEMS, LOOT_KEEP, captureLoot } from '../../modules/inventory/index.js';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createHarness, line } from '../modules/inventory/helpers/fake-ctx.js';
 import { core, stocked } from '../modules/inventory/fixtures.js';
 
@@ -39,7 +39,7 @@ test('automatic money allows a loot offer with more than twenty items', async t 
 // With no limit (Automatic) the story decides how many; a thing that does not stack is one stack a piece, so one line (and
 // one offer) gives at most 50 of it, with a problem that says so, and the Take always fits the offer.
 test('automatic money: past 50 of a thing that does not stack, the offer and a + item line hold to 50 and say so', async t => {
-    const sample = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     const host = await fresh(t, { settings: { packs: [{ id: sample.id, version: sample.version, enabled: true, source: 'file', origin: 'test', pack: sample }] } });
     const pieces = name => host.sdk.query('inventory.items').filter(item => item.name === name).length;
@@ -98,7 +98,7 @@ async function takesFifty(t, host, offerText) {
 }
 
 test('a take of more than 50 of a thing that does not stack: a pack enabled after the offer', async t => {
-    const sample = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     const host = await fresh(t, { settings: { packs: [{ id: sample.id, version: sample.version, enabled: false, source: 'file', origin: 'test', pack: sample }] } });
     await host.send('Look.', reply('A rack of rods.', ['? loot Willow Rod x51 — on the rack']));
@@ -108,7 +108,7 @@ test('a take of more than 50 of a thing that does not stack: a pack enabled afte
 
 test('a take of more than 50 of a thing that does not stack: an offer saved by the previous Story Block', async t => {
     t.mock.method(console, 'warn', () => {});
-    const sample = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     const saved = JSON.parse(readFileSync(new URL('../modules/inventory/fixtures/loot-2.6.0-f74bab2-chat.json', import.meta.url), 'utf8'));
     const host = await createHost({ st: { chat: saved.chat }, settings: { packs: [{ id: sample.id, version: sample.version, enabled: true, source: 'file', origin: 'test', pack: sample }] } });
@@ -272,7 +272,7 @@ test('a host with Features: off, the loot grammar leaves the static part and a l
 // goods too: a module that buys things back holds what it pays to their worth at the sell rate, not past
 // the reply's budget. A stack it joins is the story's.
 test('what is taken from a story\'s loot is the story\'s own (story: true), a pack\'s goods and story/ ones', async t => {
-    const sample = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
     const host = await fresh(t, { settings: { packs: [{ id: sample.id, version: sample.version, enabled: true, source: 'file', origin: 'test', pack: sample }] } });
     await host.send('Search the weir.', reply('Things in the reeds.', ['? loot Moonveil Trout x2, Old Boot — in the reeds']));
     const out = await take(host, [0, 1]);

@@ -161,7 +161,7 @@ test('ripple choices check pack provenance, all rows and ids before scoring', ()
 });
 
 test('a real host with no registered Ripples query uses the authored fallback', async t => {
-    const { createHost } = await import('../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../testkit/index.js');
     const host = await createHost();
     t.after(() => host.close());
     const ripples = { powers: ['wendhild', 'corvin', 'hasse'].map((id, i) => ({ id, name: id, base: 40 - i })) };

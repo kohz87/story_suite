@@ -1,7 +1,7 @@
 // Contract: a real Story Block host (one-amount wallet) read through createSbPort + the bag selector fits BAG_SHAPE; selector errors reach onError.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { checkPort } from '../../ui/port/contract.js';
 import { createSbPort } from '../../ui/port/sb-port.js';
 import { buildSelectors } from '../../ui/select/build.js';

@@ -1,4 +1,4 @@
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { rulesModule, clone } from './timeline.js';
 import { seedCrypto } from '../../suite/qa/helpers/seeded.js';
 

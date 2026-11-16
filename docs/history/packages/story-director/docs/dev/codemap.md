@@ -60,8 +60,8 @@ Generated 2026-11-07.
 - `../../modules/time/tracker/quiet.js`: Read-time set of threads that stop counting as open: a beat the Chronicle's quest log shows fired, and a dead person's own agenda (a beat that names them stays) (NPC State Delta `lifeState: deceased`, or the story's recorded death: a pinned person, or anyone on a reply with the `diedAny` rule mark).
 - `../../modules/time/tracker/thread-shape.js`: Validators for thread IDs, metadata, text, hashes, source stamps and replay cursors.
 
-## scripts/
-- `scripts/check.mjs`: Syntax-checks `index.js` and every `.js` file under `src/` (`npm run check`), printing "syntax ok".
+## ../../scripts/director/
+- `../../scripts/director/check.mjs`: Syntax-checks `index.js` and every `.js` file under `src/` (`npm run check`), printing "syntax ok".
 
 ## Split files (7 Nov: files over 450 lines split into small parts; each original keeps its path and public names)
 - `../../modules/atlas/planner.js` → `../../modules/atlas/planner/`: `prompt.js` prompt, summary and messages; `parse.js` answer parsing; `relative.js` relative dates; `validate.js` findings and ops; `auto.js` automatic planning; `note.js` the accepted note; `shared.js` helpers.

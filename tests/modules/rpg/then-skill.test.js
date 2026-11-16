@@ -1,7 +1,7 @@
 // THEN-FIX: `then:` (the skill rounds 2 on use), the spent note naming only the pool that is spent, and a defender's skill only when the message asks for it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { prepare, readSheet, rollPrepared, validatePlan } from '../../../modules/rpg/index.js';
 import { parsePlanAnswer } from './legacy-planner.js';
 import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';

@@ -5,7 +5,7 @@
 // so a Continue's block line that repeats one is its echo (<Changes-echo>), never read again.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const coin = host => host.sdk.query('inventory.wallet', { owner: 'party' }).coin ?? 0;
 const qty = (host, name) => host.sdk.query('inventory.items').filter(item => item.name === name).reduce((sum, item) => sum + item.qty, 0);

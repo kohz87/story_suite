@@ -3,7 +3,7 @@
 // but their prefix.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { dataModuleGuard } from '../../../modules/data-modules/part.js';
 import { dataModuleHash } from '../../../modules/data-modules/check.js';
 import { fixture, reply, int, definition, counterV2, pack, success, world, pin, view, reload, inactive, spansOf, directorStub } from './helpers.js';

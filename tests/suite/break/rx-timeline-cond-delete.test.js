@@ -5,7 +5,7 @@
 // host condition pieceOf prefers. Invariant #2.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 // A rules module that wears a piece by a code number from a story line, as RPG Battle's item.wear does.
 const GEAR = {

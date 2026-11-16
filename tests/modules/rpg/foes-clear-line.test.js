@@ -1,7 +1,7 @@
 // The narrator's natural clear `! dm foes - cleared` (no kind): read as clear-N when exactly one foe group stands, under the `foesClear` rule mark.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { success, view, reply, rebuilt } from '../data-modules/helpers.js';
 

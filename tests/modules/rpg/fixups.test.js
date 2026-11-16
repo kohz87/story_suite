@@ -1,7 +1,7 @@
 // Review F follow-ups on the Standard formula: the tail's bars after the roll and a new fight's order.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { readSheet } from '../../../modules/rpg/read.js';
 import { barFields, stageText } from '../../../modules/rpg/blocks.js';

@@ -41,7 +41,7 @@ test('markerWords lists the words of kinds whose marker feature is on', () => {
 });
 
 test('a registered kind\'s marker word leaves the prompt history; with RPG off and no kind the history is untouched', async t => {
-    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../testkit/index.js');
     const seen = async (host, mainApi) => {
         await host.send('One.', 'The quay.\n\n[probe]\n\n[battle]\n\nAfter.');
         const second = await host.send('Two.', 'Reply two.');

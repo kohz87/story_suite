@@ -1,4 +1,4 @@
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { makeMessage } from '../../../helpers/ui-fake-dom.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { BATTLE_ROOT, buildPanel, createBattleLog, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';

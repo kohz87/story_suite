@@ -1,7 +1,7 @@
 // G4 contract: a real Story Block host answers scene.you.position; the port + Now selector hand it to the Now tab; the feature off hides the card.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { YOU_FEATURE } from '../../../modules/scene/index.js';
 import { checkPort } from '../../../ui/port/contract.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';

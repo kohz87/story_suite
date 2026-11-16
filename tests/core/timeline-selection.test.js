@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { nativeModule, rulesModule, restore, clone, reload, NATIVE } from './helpers/timeline.js';
 import { hashJson } from '../../core/replay.js';
 import { createParticipants } from '../../core/timeline/participants.js';

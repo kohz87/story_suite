@@ -2,7 +2,7 @@
 // rewind.js). B-4: a checkpoint made over a reply since deleted is passed over (store.js chain).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { CHECKPOINT_EVERY } from '../../../core/store.js';
 
 // Enough replies after the first that a checkpoint comes after it (the rule: every CHECKPOINT_EVERY carriers).

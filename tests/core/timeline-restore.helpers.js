@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { director, T1, T2 } from './helpers/evidence.js';
 import { nativeModule, rulesModule, seal, slice } from './helpers/timeline.js';
 

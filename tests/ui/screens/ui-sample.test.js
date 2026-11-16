@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compileTemplate } from '../../../ui/legacy/view/template/index.js';
 import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
-import { stPurify } from '../../../packages/story-block/testkit/index.js';
+import { stPurify } from '../../../testkit/index.js';
 import { UI_SAMPLE_DATA, UI_SAMPLE_ID, openUiSample, uiSampleScreen } from '../../../ui/legacy/screens/ui-sample.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 

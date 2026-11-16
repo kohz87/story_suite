@@ -3,7 +3,7 @@
 // for templates, the Inspector lists a reply's problems; and the status strip's scroll cue on a phone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../../testkit/fake-st.js';
 import { createRuntime } from '../../../core/runtime.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { createHudMount } from '../../../ui/legacy/view/mounts/index.js';

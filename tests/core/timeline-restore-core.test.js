@@ -2,7 +2,7 @@
 // rebuild/reload, forged/unauthorized tokens, prepare validation and manifest, and host commit blocks.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { hashJson } from '../../core/replay.js';
 import { director } from './helpers/evidence.js';
 import { BATCH, DEATH, NATIVE, batchFor, clone, nativeModule, restore, rulesModule, slice } from './helpers/timeline.js';

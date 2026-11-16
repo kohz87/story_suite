@@ -7,7 +7,7 @@
 // line cut short.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { WEATHER_CHARS, WEATHER_FEATURE, WEATHER_TAIL_CHARS, initialScene, sceneTail, validateScene, weatherText } from '../../../../modules/scene/index.js';
 import { homeScreen, sceneScreen } from '../../../../ui/legacy/screens/index.js';
 import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';

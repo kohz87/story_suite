@@ -2,7 +2,7 @@
 // there with the same seed; one whose reply is not in the branch is dropped, or set back to what the branch holds.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
 import { GO, activeSettles, box, iaApi, iaChain, iaModule } from '../../suite/qa/helpers/probe-interaction.js';
 

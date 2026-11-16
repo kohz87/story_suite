@@ -19,7 +19,7 @@ test('rules manifests are rejected and cannot replace an installed pack', async 
 });
 
 test('the open world example remains valid with the supported host capabilities', () => {
-    const input = readFileSync(new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
+    const input = readFileSync(new URL('../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8');
     // Story Director (2.3.0) gives chronicle-lasting, which 2.2.0's world events use.
     const result = validatePack(input, { capabilities: ['scene', 'inventory', 'chronicle-lasting', ...HOST_CAPABILITIES] });
     assert.equal(result.ok, true, JSON.stringify(result.errors));

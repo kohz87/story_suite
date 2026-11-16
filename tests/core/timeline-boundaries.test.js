@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { clockModule, paidTraining } from './helpers/clock.js';
 import { hashJson } from '../../core/replay.js';
 import { nativeModule, sealerModule, restore, clone, reload } from './helpers/timeline.js';

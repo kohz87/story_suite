@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { looseKey, nameForms, portionless, resolveDef } from '../../../../modules/scene/names.js';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 
 const inventory = names => ({
     defs: Object.fromEntries(names.map(([id, name]) => [id, { id, name }])),

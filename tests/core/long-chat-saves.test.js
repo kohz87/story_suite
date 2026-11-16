@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { FOLLOW_MS, IDLE_MAX_MS, IDLE_MS, LATE_MAX_MS, LATE_MS, createSaver } from '../../core/persist.js';
 import { settled, plain, present, headOf, filed, host, turn } from './long-chat.helpers.js';
 

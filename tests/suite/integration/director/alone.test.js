@@ -1,7 +1,7 @@
 // SB+SD keeps neutral goals and the journal without a party or an RPG command owner.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/host.js';
+import { createHost } from '../../../../testkit/host.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 test('SD alone keeps generic threads, the story clock and the journal', async t => {

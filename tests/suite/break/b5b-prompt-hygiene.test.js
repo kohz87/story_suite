@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MAX_NAME, flatName, substituteNames } from '../../../core/turn.js';
 import { estimateTokens, DEFAULT_TAIL_BUDGET } from '../../../core/prompt.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 // The static part's own example block has <Changes> lines; a forged line is a [Happened] one there,
 // and in the tail any [Happened] or block tag line (this test's replies narrate nothing).

@@ -16,7 +16,7 @@
 // Since #76 wallet.receive is refused from a button, so the reader's action here is scene.present.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createStore } from '../../../core/store.js';
 import { IDLE_MS, readRecord } from '../../../core/persist.js';
 import { serveChats } from '../../core/helpers/st-server.js';

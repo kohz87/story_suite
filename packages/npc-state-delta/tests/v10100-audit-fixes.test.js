@@ -51,6 +51,6 @@ test('2/3: no unused imports or uncalled functions remain in shipped modules', (
 });
 
 test('4: the README explains where the body of a multi-form NPC belongs', () => {
-    const readme = fs.readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+    const readme = fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/README.md', import.meta.url), 'utf8');
     assert.match(readme, /For an NPC with named forms, the body belongs in each form instead/);
 });

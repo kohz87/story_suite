@@ -19,7 +19,7 @@ import { createStore } from '../../../../core/store.js';
 import { createCommandBus } from '../../../../core/commands.js';
 import { validateDomain } from '../../../../modules/data-modules/part.js';
 import { DM_LIMITS } from '../../../../modules/data-modules/schema.js';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { fixture, directorStub } from '../helpers.js';
 import { generate, witnessDefinition, rng } from './generate.js';
 

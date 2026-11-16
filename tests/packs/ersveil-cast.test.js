@@ -15,7 +15,7 @@ import { sniffImage } from '../../packs/portraits.js';
 import { zip } from './helpers/zip.js';
 import { defaultFlags, healingSkill } from '../../modules/rpg/board/flags.js';
 
-const folder = new URL('../../packages/story-block/examples/packs/ersveil/', import.meta.url);
+const folder = new URL('../../examples/packs/ersveil/', import.meta.url);
 const packText = readFileSync(new URL('pack.json', folder), 'utf8');
 const pack = () => JSON.parse(packText);
 const cast = () => pack().content.cast;

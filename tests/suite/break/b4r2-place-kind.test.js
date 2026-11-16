@@ -4,7 +4,7 @@
 // gives a place of that name (else none); the same place keeps its own.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const PACK = { id: 'places', version: '1.0.0', requires: { storyBlock: '^2' }, content: { places: [{ name: 'Bluewatch Village', kind: 'settlement', x: 1, y: 1 }] } };
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;

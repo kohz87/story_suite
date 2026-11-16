@@ -1,6 +1,6 @@
 // Shared fixtures and helpers for the join test suite.
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { levelOfClass } from '../../../modules/rpg/formula.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { PARTY_MAX } from '../../../modules/rpg/names.js';

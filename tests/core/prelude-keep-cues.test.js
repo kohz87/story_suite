@@ -2,7 +2,7 @@
 // KEPT_PRELUDE_TOKENS in all per reply; an unmarked prelude cue is an ordinary [Happened] line the budget may drop.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 
 const pulse = (id, summary, keep) => ({
     id, name: id, version: '0.0.0',

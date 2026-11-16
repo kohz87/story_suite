@@ -32,7 +32,7 @@ test('the tab strip built from a hostile title: the title is text, and the strip
 });
 
 test('the Choices option of hostile text is a button with that text, never an element', async t => {
-    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../testkit/index.js');
     const { setupDom } = await import('../../ui/view/mounts/helpers.js');
     const { mountUi } = await import('../../../ui/legacy/ui-host.js');
     const { makeMessage } = await import('../../helpers/ui-fake-dom.js');

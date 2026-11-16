@@ -4,7 +4,7 @@
 // panel's counts. Each test fails on the code before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { changesSummary } from '../../ui/legacy/screens/changes-card.js';
 import { countsLine } from '../../packs/panel.js';
 import { validatePack } from '../../packs/validate.js';

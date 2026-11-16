@@ -8,7 +8,7 @@ import { canOwn, rankOf, skillCost, stanceOf } from '../../../../modules/rpg/com
 import { RANKS, V1 } from '../../../../modules/rpg/combat/numbers.js';
 import { RANK_LADDER } from '../v1/oracle.js';
 
-const CASES = JSON.parse(readFileSync(new URL('../../../../packages/story-block/scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
+const CASES = JSON.parse(readFileSync(new URL('../../../../scripts/core/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
 const MAGIC = new Set(['Mage', 'Healer']);
 const OWNED_STANCE = {

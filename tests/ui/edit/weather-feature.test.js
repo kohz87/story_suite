@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { setupDom } from '../view/mounts/helpers.js';

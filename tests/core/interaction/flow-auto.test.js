@@ -2,7 +2,7 @@
 // the reader's actor), Send releases the held reply, and the settle replays the same on a swipe and on a reload.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { hashText } from '../../../modules/assist/common.js';
 import { readRecord } from '../../../core/persist.js';
 import { START_KINDS } from '../../../core/interaction/start.js';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { createParticipants, PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';
 import { nativeModule, rulesModule, restore, clone, batchFor } from './helpers/timeline.js';
 import { sourceOf } from '../helpers/split-source.js';

@@ -8,8 +8,8 @@
 // such a chat does the same. Drop into Story_block/tests/v2/break/.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { aiMessage } from '../../../packages/story-block/testkit/fake-st.js';
+import { createHost } from '../../../testkit/index.js';
+import { aiMessage } from '../../../testkit/fake-st.js';
 
 // script.js createOrEditCharacter, the pristine-chat branch.
 async function stCardSaved(h) {

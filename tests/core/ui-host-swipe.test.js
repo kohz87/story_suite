@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRuntime } from '../../core/runtime.js';
 import { mountUi } from '../../ui/legacy/ui-host.js';
-import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../testkit/fake-st.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 
 // A reply that carries the story's record (its sid). SillyTavern's new swipe copies the record into the swipe, so the second

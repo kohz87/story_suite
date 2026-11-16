@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { validatePack } from '../../../packs/validate.js';
 import { pack } from '../../packs/helpers/fixtures.js';
 

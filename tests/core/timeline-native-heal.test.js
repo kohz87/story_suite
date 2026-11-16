@@ -3,7 +3,7 @@
 // native event (a confirmed death) is never let go that way: it stays held as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
 import { NATIVE, NPC, clone, nativeModule, reload, rulesModule, track } from './helpers/timeline.js';
 

@@ -4,7 +4,7 @@
 // rolls, every roll holds a claim, nothing is left inactive, and a Re-read leaves the dice as they were.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { NOROLL, RESOLVE, claimKey } from '../../../modules/rpg/index.js';
 import { cueOf, PLAN_ANSWER, rollReceipt, setup } from './helpers.js';
 

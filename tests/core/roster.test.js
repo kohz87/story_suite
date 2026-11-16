@@ -3,8 +3,8 @@
 // answers `party.actors` itself wins; a 2.18.0 chat replays as it was written; a real `+ party` / `- party` hands out, binds, stows and restores signature gear.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
-import { createFakeModel } from '../../packages/story-block/testkit/model.js';
+import { createHost, hostAvailable } from '../../testkit/index.js';
+import { createFakeModel } from '../../testkit/model.js';
 import { createRegistry } from '../../core/registry.js';
 import { validatePack } from '../../packs/validate.js';
 import { STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';

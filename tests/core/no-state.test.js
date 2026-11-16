@@ -5,7 +5,7 @@
 // at all, or no chat open, nothing is written and the action is refused as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 
 const greeting = () => ({ name: 'Narrator', is_user: false, mes: 'The fire crackles.', extra: {} });
 

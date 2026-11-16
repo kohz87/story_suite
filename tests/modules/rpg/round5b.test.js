@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { DIFFICULTY_SETTING, LEAN_RPG_FEATURE, LIMITS, STANDARD_SETTING, createLeanRpgPart } from '../../../modules/rpg/index.js';
 import { cueTokens, shortNames } from '../../../modules/rpg/cue.js';

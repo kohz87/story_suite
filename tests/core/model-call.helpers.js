@@ -1,4 +1,4 @@
-import { EVENT_TYPES, createFakeContext } from '../../packages/story-block/testkit/index.js';
+import { EVENT_TYPES, createFakeContext } from '../../testkit/index.js';
 import { createRuntime } from '../../core/runtime.js';
 
 // A module that plans with its own model call, behind a feature, with a profile setting.

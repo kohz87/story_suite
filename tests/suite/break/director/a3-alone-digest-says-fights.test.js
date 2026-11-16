@@ -6,7 +6,7 @@
 // without a fight runner), as the beat grammar does (GRAMMAR_ALONE).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 
 test('a3-3: Story Director alone: no feature description speaks of fights', async () => {

@@ -6,11 +6,11 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { readPackZip } from '../../packs/bundle.js';
 import { createPacksPart } from '../../packs/index.js';
 import { readZip } from '../../packs/zip.js';
-import { buildErsveilZip } from '../../packages/story-block/scripts/build-example-zip.mjs';
+import { buildErsveilZip } from '../../scripts/core/build-example-zip.mjs';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { fakeFiles } from './helpers/portraits.js';
 
-const packs = new URL('../../packages/story-block/examples/packs/', import.meta.url);
+const packs = new URL('../../examples/packs/', import.meta.url);
 const folder = new URL('ersveil/', packs);
 const zipBytes = () => new Uint8Array(readFileSync(new URL('ersveil.zip', packs)));
 const bytesOf = path => new Uint8Array(readFileSync(new URL(path, folder)));

@@ -1,7 +1,7 @@
 // sdk.on(name, fn, { module }): with suite.isolatedApply on, a listener's throw or rejection becomes that module's Problem on the reply; off, it is as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createEvents } from '../../../core/sdk/events.js';
 import { guardListener } from '../../../core/sdk/listener-guard.js';
 import { FLAGS } from '../../../core/runtime/flags.js';

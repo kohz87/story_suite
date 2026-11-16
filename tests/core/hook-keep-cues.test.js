@@ -2,7 +2,7 @@
 // (Story Block's own pinned cues, prompt.js), where an ordinary line of the same module is dropped.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 
 const KEPT = '[Test] This pinned line must reach the narrator.';
 const PLAIN = '[Test] An ordinary line that the budget may drop, padded so that it is long enough to matter for the budget.';

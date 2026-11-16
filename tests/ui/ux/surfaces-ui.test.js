@@ -4,7 +4,7 @@
 // redraw keeps the reader's choice). The keys and the markup the tests and modules use are the same as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { makeMessage } from '../../helpers/ui-fake-dom.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';

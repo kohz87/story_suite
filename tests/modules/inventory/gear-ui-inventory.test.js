@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { createHarness } from './helpers/fake-ctx.js';
 import { settle, text } from '../../ui/screens/helpers.js';

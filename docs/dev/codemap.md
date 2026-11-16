@@ -1,5 +1,5 @@
 This map covers files under `src/` that are not named by path or file name in the other repository documentation.
-Files already mapped elsewhere are listed in `CLAUDE.md`, `AI-README.md`, `README.md`, and `docs/**/*.md`.
+Files already mapped elsewhere are listed in `CLAUDE.md`, `AI-README.md`, `README.md`, and `../../docs/**/*.md`.
 Last checked: 2026-11-07.
 
 ## src/v2/
@@ -158,7 +158,7 @@ Last checked: 2026-11-07.
 - `../../ui/legacy/view/widgets/stepper.js`: renders a bounded numeric stepper that edits drafts against point budgets.
 
 ## Pointer to add
-- `docs/dev/codemap.md`: map of `src/` files not already covered by the existing docs.
+- `../../docs/dev/codemap.md`: map of `src/` files not already covered by the existing docs.
 
 ## Split files (7 Nov: files over 450 lines split into small parts; each original keeps its path and public exports)
 - `../../core/store/chains.js`: cached hashes of record bodies, replay chains and checkpoint windows.
@@ -298,18 +298,18 @@ Last checked: 2026-11-07.
 - `src/v2/domains/people/part.js`: the core `people` domain part (present from the first reply, no flag): the `people.write` command and the `people.hash` query.
 - `src/v2/domains/people/validate.js`: checks a people view (version, order, plain JSON, records keyed by id, portraits as file references only, socialGraph keys and ids) before it is stored.
 - `../../core/runtime/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
-- `testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
-- `testkit/matrix/run/checks.js`: matrix state checks, cold replay, the fresh-host oracle, dormancy and registration.
-- `testkit/matrix/run/basics.js`: the matrix basic row, action, replay, prompt and dormancy cases.
-- `testkit/matrix/run/cases.js`: the matrix missing-query, malformed, feature, clock, disabled, late and duplicate cases.
-- `testkit/matrix/run/revisions.js`: the matrix swipe, re-read and delete cases.
+- `../../testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
+- `../../testkit/matrix/run/checks.js`: matrix state checks, cold replay, the fresh-host oracle, dormancy and registration.
+- `../../testkit/matrix/run/basics.js`: the matrix basic row, action, replay, prompt and dormancy cases.
+- `../../testkit/matrix/run/cases.js`: the matrix missing-query, malformed, feature, clock, disabled, late and duplicate cases.
+- `../../testkit/matrix/run/revisions.js`: the matrix swipe, re-read and delete cases.
 
-## testkit/ and examples/
-- `examples/fishing/style.css`: styles the Fishing example's water strip, bobber phases, actions, catch log and released or empty rows, using SillyTavern theme variables.
-- `testkit/fake-st.js`: the fake SillyTavern context for unit tests (`createFakeContext`), its event source, chat helpers and prompt constants.
-- `testkit/fakes.js`: small store and command-bus stand-ins for Story Block's own unit tests of the turn and sdk.
-- `testkit/matrix/rows.js`: the supported Story Suite combinations and the matrix case columns in report order.
-- `testkit/matrix/report.js`: the matrix report: the rows-by-cases Markdown table, details, summary line and testkit description.
+## ../../testkit/ and ../../examples/
+- `../../examples/fishing/style.css`: styles the Fishing example's water strip, bobber phases, actions, catch log and released or empty rows, using SillyTavern theme variables.
+- `../../testkit/fake-st.js`: the fake SillyTavern context for unit tests (`createFakeContext`), its event source, chat helpers and prompt constants.
+- `../../testkit/fakes.js`: small store and command-bus stand-ins for Story Block's own unit tests of the turn and sdk.
+- `../../testkit/matrix/rows.js`: the supported Story Suite combinations and the matrix case columns in report order.
+- `../../testkit/matrix/report.js`: the matrix report: the rows-by-cases Markdown table, details, summary line and testkit description.
 
 ## ../../tests/core/ (combat replay corpus)
 - `../../tests/suite/qa/combat-corpus.test.js`: replays the D0 combat chats and pins state, Problems, Re-read, cues and battle-log models.

@@ -2,7 +2,7 @@
 // version, what it does, the line to its features, its own panels, its settings by group), and a small Versions card at the end.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { createRegistry } from '../../../core/registry.js';
 import { createSettings } from '../../../core/sdk.js';

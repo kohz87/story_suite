@@ -2,7 +2,7 @@
 // docs/v2/TIMELINE.md).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { crash } from '../../core/timeline/index.js';
 import { PARTICIPANT_TIMEOUT_MS } from '../../core/timeline/participants.js';
 import { BATCH, NATIVE, NPC, batchFor, clone, nativeModule, reload, rulesModule, seal, track } from './helpers/timeline.js';

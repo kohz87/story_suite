@@ -1,7 +1,7 @@
 // A chat block without `show` stays on the Blocks page of Settings; a pack kind that needs labels is not offered as a bare button.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
 import { STRINGS, fill } from '../../../../core/strings.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';

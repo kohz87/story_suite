@@ -2,7 +2,7 @@
 // the registration with SillyTavern's macro API (the engine of 1.19 and the old one), and our own prompt text staying protected.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../testkit/index.js';
 import { LEGACY_PATHS, MACRO_MAX, MACRO_NAME, macroText, registerSbMacro } from '../../core/runtime/sb-macro.js';
 import { defuseMacros } from '../../core/turn.js';
 import { character, sheetDomain } from '../modules/rpg/helpers.js';

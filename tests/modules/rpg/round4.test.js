@@ -1,7 +1,7 @@
 // RPG fix round 4 (review 155), on the whole host (core module, data-module blocks made from the stock templates, the RPG on).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { success } from '../data-modules/helpers.js';
 

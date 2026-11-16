@@ -8,8 +8,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { aiMessage } from '../../../packages/story-block/testkit/fake-st.js';
+import { createHost } from '../../../testkit/index.js';
+import { aiMessage } from '../../../testkit/fake-st.js';
 
 test('a module whose initial() throws on a new chat does not stop the other modules', async () => {
     let broken = false;

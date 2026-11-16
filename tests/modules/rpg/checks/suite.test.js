@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { checksOf } from '../../../../modules/rpg/practice.js';

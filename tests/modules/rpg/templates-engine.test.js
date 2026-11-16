@@ -3,7 +3,7 @@
 // Down, the end card follows, and live = reload = rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES, SKILL_SETS, characterV1For } from '../../../modules/rpg/templates.js';
 import { LEAN_RPG_FEATURE } from '../../../modules/rpg/index.js';
 import { summaryOf } from '../../../modules/data-modules/part.js';

@@ -2,7 +2,7 @@
 // Reinforcements (a group's count rising, a slot refilled) make the offer under the reply that did it; an unchanged group does not.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { boardReplyGrammar } from '../../../../modules/rpg/index.js';

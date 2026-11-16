@@ -15,7 +15,7 @@
 // tests/v2/bench/smoke.test.js runs a short version in `npm test`; scripts/bench-v2.mjs runs the full one.
 
 import { performance } from 'node:perf_hooks';
-import { MAIN_PROMPT, aiMessage, createHost } from '../../packages/story-block/testkit/index.js';
+import { MAIN_PROMPT, aiMessage, createHost } from '../../testkit/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
 import { createStore } from '../../core/store.js';
 import { apply as applyOps } from '../../core/ops.js';

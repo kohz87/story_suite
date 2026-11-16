@@ -4,7 +4,7 @@
 // failed saves. Problems found are the test.todo entries, named after what should happen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
 import { HAPPENED } from '../../../core/prompt.js';
 import { BONUS, BONUS_CLAIM, probeModule } from './helpers/probe-module.js';

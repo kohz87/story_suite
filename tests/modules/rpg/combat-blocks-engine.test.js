@@ -2,7 +2,7 @@
 // practice sets the rank, a Foes slot takes a tier. Live = reload = cold rebuild after each step; a swipe, a middle delete and a Re-read (also of an edited reply) agree.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { COMBAT_V1_TEMPLATES } from '../../../modules/rpg/templates-combat.js';
 import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 

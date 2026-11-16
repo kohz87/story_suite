@@ -1,7 +1,7 @@
 // sdk.callModel: own calls, chat-connection waiting during replies, and one queue per connection (createCallQueue).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { EVENT_TYPES } from '../../packages/story-block/testkit/index.js';
+import { EVENT_TYPES } from '../../testkit/index.js';
 import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, promptKey } from '../../core/model-call.js';
 import { callsLine } from '../../core/diagnostics.js';
 import { planner, rawHost, tick, heldCalls, later } from './model-call.helpers.js';

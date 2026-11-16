@@ -20,12 +20,12 @@ import { fresh, provider } from './v120-story-suite.helpers.js';
 test('v1.2.0 suite.js and docs/STORY_SUITE.md are the shared copies', () => {
     const suite = fs.readFileSync(new URL('../suite.js', import.meta.url), 'utf8');
     assert.match(suite, /^\/\/ Story Suite handshake, v1\. This file is identical in Story Block, Story Director, NPC State\n/);
-    const doc = fs.readFileSync(new URL('../docs/STORY_SUITE.md', import.meta.url), 'utf8');
+    const doc = fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/docs/STORY_SUITE.md', import.meta.url), 'utf8');
     assert.match(doc, /^# Story Suite: working alone and together/);
     const runtime = JSON.parse(fs.readFileSync(new URL('../runtime-modules.json', import.meta.url), 'utf8'));
     assert.ok(runtime.modules.some(module => module.path === 'suite.js' && module.role === 'story-suite-registry'));
     assert.ok(runtime.modules.some(module => module.path === 'suite-handshake.js' && module.role === 'story-suite-handshake'));
-    assert.match(fs.readFileSync(new URL('../README.md', import.meta.url), 'utf8'), /docs\/STORY_SUITE\.md/);
+    assert.match(fs.readFileSync(new URL('../../../docs/history/packages/npc-state-delta/README.md', import.meta.url), 'utf8'), /docs\/STORY_SUITE\.md/);
 });
 
 test('v1.2.0 registry: announce, owner order, fallback and offering', () => {

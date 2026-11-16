@@ -4,7 +4,7 @@
 // reset is absolute, so a reply deleted before it never turns it into a negative change.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { isMetaSpan } from '../../core/replay.js';
 import { EPOCH, Q1, claimKey, guarded, harness } from './helpers/guarded.js';
 

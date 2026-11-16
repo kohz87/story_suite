@@ -17,8 +17,8 @@
 // - the static prompt is byte-identical in every request of the run.
 // A failing seed replays exactly: the host's crypto IDs and seeds follow the run's seed.
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
-import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
+import { createHost } from '../../../../testkit/index.js';
+import { aiMessage } from '../../../../testkit/fake-st.js';
 import { readRecord } from '../../../../core/persist.js';
 import { HAPPENED } from '../../../../core/prompt.js';
 import { prng, seedCrypto } from './seeded.js';

@@ -2,7 +2,7 @@
 // merged hook limits, and the "send without the RPG" flag. The roll planner is gone; where a test needs a planned roll it uses the test-only legacy planner.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { ROLLS_SETTING, createLeanRpgPart, createPrecall } from '../../../modules/rpg/index.js';
 import { PARTY, PLAN_ANSWER, setup, sheetDomain, tailOf } from './helpers.js';
 import { discardBoard } from '../../../modules/rpg/board/session.js';

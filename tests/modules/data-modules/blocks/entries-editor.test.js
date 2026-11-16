@@ -301,7 +301,7 @@ test('layoutShape names the right suggestion for each shape', () => {
 });
 
 // --- the whole host: define, story lines, redefine, the tab as plain rows, Show as ---
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
 import { dataModuleDefaults, validateDataMigration, validateDataModules } from '../../../../modules/data-modules/check.js';
 

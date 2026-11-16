@@ -3,7 +3,7 @@
 // record through the test-only legacy planner and pin how it replays (reload, rebuild, Re-read, swipe), its command and its words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { hostAvailable } from '../../../testkit/index.js';
 import { NOROLL, RESOLVE } from '../../../modules/rpg/index.js';
 import { noRoll, noRollOf } from '../../../modules/rpg/noroll.js';
 import { readRecord } from '../../../core/persist.js';

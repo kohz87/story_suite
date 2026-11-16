@@ -43,7 +43,7 @@ function directorForDecisions() {
 }
 
 async function decisionHost(t, { deed = 'none', swipes = false, fightAfterWar = false } = {}) {
-    const { createHost } = await import('../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../testkit/index.js');
     const host = await createHost({ modules: [directorForDecisions()] });
     t.after(() => host.close());
     const alternatives = events.filter(event => event.decision).map(({ after, ...event }) => event);
@@ -181,7 +181,7 @@ test('2.9.6: moving between the two old region groups tells the flood news once'
 });
 
 test('2.9.6: a chat that already heard the news keeps its record, and written replies replay as they were', async t => {
-    const { createHost } = await import('../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../testkit/index.js');
     const host = await createHost({});
     t.after(() => host.close());
     const mini = { id: 'ersveil', version: '2.9.6', requires: { storyBlock: '^2.31.0' }, content: { events: events.filter(event => event.id === 'flood-611-news').map(({ after, when, ...event }) => ({ ...event, when: "query('scene.place') != null && region('Valegard', 'Silver Mark')" })) } };
@@ -198,7 +198,7 @@ test('2.9.6: a chat that already heard the news keeps its record, and written re
 
 // The old two-event list (2.9.5): the first group's event and the second group's own event, as the merged one was made from.
 test('2.9.6: a chat that fired only the old second-group news: swap to the merged event, rebuild equals the head, Re-read is byte-identical, the claim stands', async t => {
-    const { createHost } = await import('../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../testkit/index.js');
     const host = await createHost({});
     t.after(() => host.close());
     const [group1, group2] = [NEWS_REGIONS.slice(0, 6), NEWS_REGIONS.slice(6)];

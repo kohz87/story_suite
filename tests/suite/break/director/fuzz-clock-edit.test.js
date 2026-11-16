@@ -7,7 +7,7 @@
 // replay can lose a cap's removal that a deleted digest made, and the next digest trims again, as the other delete fuzz leaves it.)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { PRESETS, makeCalendar } from '../../../../modules/time/calendar.js';
 import { dayOf, orderedDays, writtenOf } from '../../../../modules/world/chronicle/days.js';

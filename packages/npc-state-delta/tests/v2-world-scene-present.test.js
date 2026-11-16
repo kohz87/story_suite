@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { buildScannerPrompt, createNpcRecord } from '../core.js';
 import { scenePresentFocus, withScenePresent } from '../core-mechanics.js';
 import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
-import { createHost } from '../../story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 function npc(name, extra = {}) {

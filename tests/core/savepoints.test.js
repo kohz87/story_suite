@@ -3,7 +3,7 @@
 // runtime through the testkit, with a SillyTavern-like createBranch (makes the branch file, stays put).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { SAVEPOINT_LIMITS, STILL_WAITING_MS, createSavePoints, stCreateBranch } from '../../core/timeline/rewind.js';
 import { createSavePointsWidget, savedAt } from '../../ui/legacy/screens/savepoints.js';
 import { homeScreen } from '../../ui/legacy/screens/home.js';

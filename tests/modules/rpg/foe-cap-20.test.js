@@ -4,7 +4,7 @@
 // a rebuild and a reload. A recorded plan or recorded ops are never re-capped (replay applies stored ops only).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { canonicalJson } from '../../../core/replay.js';
 import { LEAN_RPG_FEATURE, readSheet } from '../../../modules/rpg/index.js';
 import { vetOpen } from '../../../modules/rpg/open.js';

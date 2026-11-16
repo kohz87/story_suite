@@ -2,7 +2,7 @@
 // on, the Carried line without where a thing was found (the screens keep the note). Each is a few characters less in every reply's prompt.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { promptNote, inventoryTail } from '../../modules/inventory/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
 import { YOU_FEATURE } from '../../modules/scene/index.js';

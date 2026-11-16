@@ -1,7 +1,7 @@
 // A proof id belongs to the block that holds it (docs/v2/EVIDENCE.md): reconcile, collisions, and checkpoints.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { pinOf } from '../../core/evidence.js';
 import { T1, director, evidenceHarness, sampleModule, hostModule } from './helpers/evidence.js';
 import { ids, open, rerunOf, steps } from './evidence-ids.helpers.js';

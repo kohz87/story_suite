@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { rulesModule, clone, reload } from './helpers/timeline.js';
 import { historyCompat } from './helpers/history-compat.js';
 import { allRuleNames } from '../../core/turn/rule-marks.js';

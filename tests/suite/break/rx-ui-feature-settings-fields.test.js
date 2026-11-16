@@ -4,7 +4,7 @@
 // off (Story Director's "Day digest: …" fields with story-director.digest off, for one).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../../ui/view/mounts/helpers.js';
 import { renderSettingsHost } from '../../../ui/legacy/host-ui.js';
 

@@ -2,7 +2,7 @@
 // as reader edits (data.edit), refuse an unknown person, an id change and image bytes, and replay like any other write.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../../../testkit/index.js';
 import { readRecord } from '../../../../../core/persist.js';
 import { replyEdits } from '../../../../../ui/legacy/reply-cards.js';
 import { carriers, rebuildAt } from '../../../../../tests/suite/qa/helpers/oracle.js';

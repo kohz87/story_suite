@@ -2,7 +2,7 @@
 // form engine's look (Tabs, Packs, Prompt) in place of Story Suite's fold and the Packs fold, and the footer bar "What's sent each reply".
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { createRegistry } from '../../../core/registry.js';
 import { createSettings } from '../../../core/sdk.js';

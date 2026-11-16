@@ -11,7 +11,7 @@ import { boardSession, discardBoard, openBoard, stageExchange } from '../../../.
 import { page, begin, makeBlocks, settle } from '../view/page.js';
 import { planGear } from '../../../../modules/rpg/gear.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
-import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
+import { aiMessage } from '../../../../testkit/fake-st.js';
 import { defineFoes, showStop } from './view.helpers.js';
 
 test('the board selects a target, keeps its exchange final and confirms discard', async t => {

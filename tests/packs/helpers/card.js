@@ -1,5 +1,5 @@
 // A card on the page for the card-offer tests: the real runtime and UI over a fake SillyTavern, with the card's lorebook entries injected.
-import { createFakeContext } from '../../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../../testkit/fake-st.js';
 import { createRuntime } from '../../../core/runtime.js';
 import { createPacksPart } from '../../../packs/index.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';

@@ -9,7 +9,7 @@
 //
 // Not a security filter: Story Block's own allow-list runs after it, as after the real one.
 
-import { parseHtml, serializeHtml } from '../../../ui/legacy/view/template/html.js';
+import { parseHtml, serializeHtml } from '../ui/legacy/view/template/html.js';
 
 const DROPPED_TAGS = new Set(['script', 'style', 'iframe', 'object', 'embed', 'template']);
 

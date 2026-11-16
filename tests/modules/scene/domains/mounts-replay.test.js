@@ -1,7 +1,7 @@
 // The party's mounts (src/v2/domains/mounts.js, feature `story-block.mounts`): queries, pencil edit, replay and Home.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { MAX_ROWS, MOUNTS_FEATURE, WALK_PACE } from '../../../../modules/scene/mounts.js';
 import { validateScene } from '../../../../modules/scene/index.js';

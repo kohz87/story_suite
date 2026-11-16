@@ -4,7 +4,7 @@
 // actions on the reply (store.js readerSetup); a swipe or a delete of the reply still takes it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { createReplyNotes } from '../../../../ui/legacy/reply-notes.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';

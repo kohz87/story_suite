@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createHost } from "../../../packages/story-block/testkit/index.js";
+import { createHost } from "../../../testkit/index.js";
 import { setupDom } from "../view/mounts/helpers.js";
 import { FEATURES_FOLD, HOST_FOLD, PACKS_FOLD, SENT_FOLD, TABS_FOLD, VERSIONS_FOLD, featuresFoldOf } from "../../../ui/legacy/host-ui.js";
 import { PROMPT_FOLD } from "../../../ui/legacy/view/settings/prompt.js";

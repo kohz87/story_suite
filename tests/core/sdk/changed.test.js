@@ -1,7 +1,7 @@
 // sdk `changed`: one event per reply with the touched domains, ['*'] on head moves, out-of-turn commands as one.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createEvents } from '../../../core/sdk/events.js';
 import { createChangedFeed } from '../../../core/sdk/changed.js';
 import { EVENTS } from '../../../core/sdk.js';

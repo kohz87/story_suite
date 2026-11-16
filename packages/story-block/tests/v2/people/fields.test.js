@@ -2,7 +2,7 @@
 // fields are taken, it is not a reader edit, and an unknown person refuses.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../../../testkit/index.js';
 import { readRecord } from '../../../../../core/persist.js';
 
 const view = { v: 1, order: ['npc_ann'], npcs: { npc_ann: { id: 'npc_ann', name: 'Ann' } }, candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {} };

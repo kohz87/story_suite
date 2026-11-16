@@ -3,7 +3,7 @@
 // claiming the message and making the check through the check kind's capture (Story Director's one checks.roll), and is told to the reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { PRECHECK, ROLLED_LINE, SETTING, claimKey, createAssistPart, hashText, precheck } from '../../../modules/assist/index.js';
 import { fakeModel } from './helpers/fakes.js';
 

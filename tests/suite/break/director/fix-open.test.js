@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { needsDigest } from '../../../../modules/world/chronicle/digest.js';

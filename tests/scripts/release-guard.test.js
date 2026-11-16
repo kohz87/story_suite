@@ -62,7 +62,7 @@ test('the CLI refuses --out packages and --out . before it deletes anything', ()
     assert.match(run.stderr, /release: --out/);
   }
   assert.deepEqual(fs.readdirSync(path.join(repoRoot, 'packages')).sort(), before);
-  assert.ok(fs.existsSync(path.join(repoRoot, 'packages/story-block/index.js')));
+  assert.ok(fs.existsSync(path.join(repoRoot, 'core/boot/boot.js')));
 });
 
 test('host specifiers are resolved as URLs: the same bundle whatever depth the checkout sits at', async () => {

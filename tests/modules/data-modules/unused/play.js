@@ -72,8 +72,8 @@ export const asReply = (text, lines) => (lines.length ? `${text}\n\n<Changes>\n$
 
 /** Runs one seeded chat on the tree at `root`. `pack`: an object to install before the chat starts (null for none). */
 export async function play({ root, seed = 1, steps = 40, siblings = {}, packs = [], libraryOnly = [], detail = false } = {}) {
-    const { createHost } = await at(root, 'packages/story-block/testkit/index.js');
-    const matrix = await at(root, 'packages/story-block/testkit/matrix/index.js');
+    const { createHost } = await at(root, 'testkit/index.js');
+    const matrix = await at(root, 'testkit/matrix/index.js');
     const saved = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
     const { counter, source } = seededCrypto(seed * 7919 + 13);
     Object.defineProperty(globalThis, 'crypto', { value: source, configurable: true, writable: true });
@@ -173,8 +173,8 @@ export async function play({ root, seed = 1, steps = 40, siblings = {}, packs = 
  * Returns { steps, saves, draws } or null when no module is beside.
  */
 export async function playMatrix({ root, siblings = {}, libraryOnly = [], seed = 1 } = {}) {
-    const { createHost } = await at(root, 'packages/story-block/testkit/index.js');
-    const matrix = await at(root, 'packages/story-block/testkit/matrix/index.js');
+    const { createHost } = await at(root, 'testkit/index.js');
+    const matrix = await at(root, 'testkit/matrix/index.js');
     const { loaded } = await matrix.loadModules(Object.fromEntries(Object.entries(siblings).filter(([, folder]) => folder)));
     const keys = ['sd', 'nsd'].filter(key => loaded[key]);
     if (!keys.length) return null;

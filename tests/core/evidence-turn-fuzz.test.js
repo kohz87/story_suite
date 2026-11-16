@@ -6,7 +6,7 @@
 // leaves every proof, and so what the reader built on it, exactly as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { prng } from '../suite/qa/helpers/seeded.js';
 import { director, sampleModule, hostModule, T1, T2 } from './helpers/evidence.js';
 

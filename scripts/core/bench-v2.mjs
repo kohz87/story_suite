@@ -13,7 +13,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
     breakdown, compactOps, everyCopy, measureLoad, measureSwipe, relayout, runScenario, sameHead, stripOldReceipts, v1Size,
-} from '../../../tests/bench/load.js';
+} from '../../tests/bench/load.js';
 
 if (typeof globalThis.gc !== 'function' && !process.execArgv.includes('--expose-gc')) {
     const child = spawnSync(process.execPath, ['--expose-gc', fileURLToPath(import.meta.url), ...process.argv.slice(2)], { stdio: 'inherit' });

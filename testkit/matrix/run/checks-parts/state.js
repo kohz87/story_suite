@@ -1,8 +1,8 @@
 // Store-state checks for the matrix runner: no store problems, a cold rebuild, changed facts and the fresh-host oracle.
 
 import assert from 'node:assert/strict';
-import { createStore } from '../../../../../../core/store.js';
-import { createCommandBus } from '../../../../../../core/commands.js';
+import { createStore } from '../../../../core/store.js';
+import { createCommandBus } from '../../../../core/commands.js';
 import { keysOf, activeOf, label, factsOf, withHost, runSetups, play } from '../host.js';
 
 const noProblems = host => assert.deepEqual(host.store.problems(), [], 'the store reports problems');

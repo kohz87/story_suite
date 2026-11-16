@@ -284,7 +284,7 @@ test('CSS: hud items cannot collapse, the game view is opaque unless Glass, the 
 // ---- through a whole host: real turns, real records ----------------------------------------------
 
 test('a real chat: the greeting gets no cards, a reply with change lines does; a move clears who is here', async () => {
-    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+    const { createHost } = await import('../../../testkit/index.js');
     const host = await createHost();
     try {
         await host.send('We land.', '<Changes>\n~ place Inspection Quay | kind: dock\n+ present Marrit, Fenna\n</Changes>');

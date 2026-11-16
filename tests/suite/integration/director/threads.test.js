@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { featureProblems } from '../../../../core/features.js';
 import { allowedGrammar, allowedKinds } from '../../../../modules/assist/index.js';
 import { createModule, storyDirectorModule } from '../../../../ui/legacy/director/module.js';

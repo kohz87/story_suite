@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { storeSaving } from '../../../core/runtime.js';
 import { createStore } from '../../../core/store.js';
 import { createTurn } from '../../../core/turn.js';
-import { aiMessage, createEventSource } from '../../../packages/story-block/testkit/fake-st.js';
+import { aiMessage, createEventSource } from '../../../testkit/fake-st.js';
 
 const settle = async () => { for (let i = 0; i < 20; i++) await new Promise(resolve => setImmediate(resolve)); };
 

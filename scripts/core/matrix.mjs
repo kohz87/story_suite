@@ -3,7 +3,7 @@
 
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describeTestkit, discoverRoots, formatDetails, formatTable, loadModules, runMatrix, summaryLine } from '../testkit/matrix/index.js';
+import { describeTestkit, discoverRoots, formatDetails, formatTable, loadModules, runMatrix, summaryLine } from '../../testkit/matrix/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const FLAGS = new Set(['--strict', '--json', '--verbose']);

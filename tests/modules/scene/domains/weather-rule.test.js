@@ -7,7 +7,7 @@
 // amount in a coin the chat does not know is refused, never read as that many of its money.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { WEATHER_KEY_CHARS, validateScene } from '../../../../modules/scene/index.js';
 import { currencyOf, foreignCoin, parseAmount } from '../../../../modules/inventory/money.js';
 import { weatherOf } from '../../../../packs/index.js';

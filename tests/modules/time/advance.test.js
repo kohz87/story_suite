@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createModule } from '../../../ui/legacy/director/module.js';
 import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
 import { fakeCraft } from './helpers/fake-craft.js';

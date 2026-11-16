@@ -3,7 +3,7 @@
 // older chat) is all combat and keeps its eight slots byte for byte; replay == live (rebuild, reload).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES, grownSkills, skillsV1For, skillsV2For } from '../../../modules/rpg/templates.js';
 import { validateDataModules } from '../../../modules/data-modules/check.js';
 import { readSheet } from '../../../modules/rpg/read.js';

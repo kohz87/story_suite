@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
 import { createGuards } from '../../core/commands/guards.js';
 

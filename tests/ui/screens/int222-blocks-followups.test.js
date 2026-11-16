@@ -2,7 +2,7 @@
 // and the editor's preview draws the bars and fields layouts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { createBlockWidgets, BLOCK_WIDGET } from '../../../modules/data-modules/screens/blocks.js';
 import { barFields, renderBlockPreview, statusTone } from '../../../modules/data-modules/screens/block-layouts.js';
 import { BLOCK_STARTERS } from '../../../modules/data-modules/block-starters.js';

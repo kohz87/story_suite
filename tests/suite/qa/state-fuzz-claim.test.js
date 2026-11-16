@@ -4,7 +4,7 @@
 // and re-read; after every step the store equals the oracle's rebuild (helpers/oracle.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { prng, seedCrypto } from './helpers/seeded.js';
 import { checkInvariants } from './helpers/oracle.js';
 import { probeModule } from './helpers/probe-module.js';

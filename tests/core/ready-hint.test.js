@@ -3,7 +3,7 @@
 // Battle's opens the character wizard). Story Block alone, or a module that is ready, shows nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeContext } from '../../packages/story-block/testkit/fake-st.js';
+import { createFakeContext } from '../../testkit/fake-st.js';
 import { createRuntime } from '../../core/runtime.js';
 import { mountUi } from '../../ui/legacy/ui-host.js';
 import { createReadyHintWidget, READY_HINT_WIDGET } from '../../ui/legacy/screens/ready-hint.js';

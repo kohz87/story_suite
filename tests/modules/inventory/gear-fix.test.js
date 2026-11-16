@@ -3,8 +3,8 @@
 // asks the same question.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
-import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { createFakeModel } from '../../../testkit/model.js';
 import { validatePack } from '../../../packs/validate.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { gearMatches, planGear, sameWho } from '../../../modules/rpg/gear.js';

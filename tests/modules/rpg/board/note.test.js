@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeModel, createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createFakeModel, createHost } from '../../../../testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { planGear } from '../../../../modules/rpg/gear.js';
 import { readSheet } from '../../../../modules/rpg/read.js';

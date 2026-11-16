@@ -2,7 +2,7 @@
 // stored on the reply with its changes, and the session moves on (carry) or ends. Runs on the real host with the test-only probe module.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { readRecord } from '../../../core/persist.js';
 import { STATIC_KEY } from '../../../core/turn.js';
 import { GO, IA_KIND, WAIT, iaApi, iaModule, playSegment } from '../../suite/qa/helpers/probe-interaction.js';

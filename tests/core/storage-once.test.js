@@ -5,7 +5,7 @@
 // swipe picker), so what they read back from `swipe_info` is what SillyTavern would read.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { KEY, RECEIPT_KEEP, readRecord } from '../../core/persist.js';
 import { everyCopy, relayout } from '../bench/load.js';
 import {

@@ -2,7 +2,7 @@
 // and a marked reply comes out the same after Re-read, swipe, edit, Continue and a rebuild; a refusal is shown on the card.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { checksOf } from '../../../../modules/rpg/practice.js';

@@ -3,7 +3,7 @@
 // and swipe is stable over index shifts, edits and reloads; the shipped sw_<12 hex> ids are not rewritten.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { RECORD_ID } from '../../core/registry/check.js';
 import { newRecordId, readRecord, trimReceipts } from '../../core/persist.js';
 import { deriveId, isMetaSpan } from '../../core/replay.js';

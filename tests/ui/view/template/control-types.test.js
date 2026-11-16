@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compileTemplate } from '../../../../ui/legacy/view/template/index.js';
 import { TYPE_MARK, markControlTypes } from '../../../../ui/legacy/view/template/sanitize.js';
-import { stPurify } from '../../../../packages/story-block/testkit/index.js';
+import { stPurify } from '../../../../testkit/index.js';
 import { inventoryScreen } from '../../../../ui/legacy/screens/inventory.js';
 import { changesCardScreen } from '../../../../ui/legacy/screens/changes-card.js';
 

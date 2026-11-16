@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { reply, fixture, success, view } from './helpers.js';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 

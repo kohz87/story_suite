@@ -2,7 +2,7 @@
 // refused in plain words (Standard is accepted), and a message in a fight makes no model call at all, with the fight board on or off.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { LEAN_RPG_FEATURE, createLeanRpgPart } from '../../../modules/rpg/index.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { validatePack } from '../../../packs/validate.js';

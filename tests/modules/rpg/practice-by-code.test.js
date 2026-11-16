@@ -4,8 +4,8 @@
 // middle delete, a rebuild and a reload agree; a later setting change moves no reply already made; a roll made before has no practice mark and gives none.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
-import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { createFakeModel } from '../../../testkit/model.js';
 import { LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING } from '../../../modules/rpg/index.js';
 import { practiceLines, rpgReplyLines } from '../../../modules/rpg/view/changes-lines.js';
 import { PRACTICE_HELD, usesOf } from '../../../modules/rpg/practice.js';

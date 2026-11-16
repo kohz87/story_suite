@@ -1,7 +1,7 @@
 // scripts/sim-standard.mjs: the numbers the Standard presets were chosen by stay what they were chosen for.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildAt, exactOdds, fight, rankAt, rollTable } from '../../../packages/story-block/scripts/sim-standard.mjs';
+import { buildAt, exactOdds, fight, rankAt, rollTable } from '../../../scripts/core/sim-standard.mjs';
 import { STANDARD_FORMULA, STANDARD_PRESETS } from '../../../modules/rpg/rules.js';
 import { blocksFor, foeBonus } from '../../../modules/rpg/formula.js';
 

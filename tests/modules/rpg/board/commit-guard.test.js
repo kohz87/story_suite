@@ -11,7 +11,7 @@ import { readSheet } from '../../../../modules/rpg/read.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { gearAnswer } from '../../../../modules/inventory/gear.js';
 import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../../../modules/inventory/index.js';
-import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
+import { aiMessage } from '../../../../testkit/fake-st.js';
 import { gearHost, openWithGear } from './commit.helpers.js';
 
 

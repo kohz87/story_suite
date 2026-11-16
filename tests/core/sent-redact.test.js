@@ -2,7 +2,7 @@
 // locked note into "Mira: 1 hidden note"); a hook that fails shows "(hidden)", never the raw text; the prompt itself is never touched.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { SETTINGS_TEXT, redactSentOf, sentText } from '../../ui/legacy/host-ui.js';
 import { createPromptReader, renderPromptCard } from '../../ui/legacy/view/settings/prompt.js';
 import { installFakeDom } from '../helpers/ui-fake-dom.js';

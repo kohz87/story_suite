@@ -2,7 +2,7 @@
 // (a reply that opens foes makes the offer under it: start-ui.test.js and auto-start.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 

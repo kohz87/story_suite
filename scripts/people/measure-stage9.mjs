@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-const root = path.resolve(process.argv[2] || fileURLToPath(new URL('..', import.meta.url)));
+const root = path.resolve(process.argv[2] || fileURLToPath(new URL('../../packages/npc-state-delta', import.meta.url)));
 const core = await import(pathToFileURL(path.join(root, 'core.js')));
 const routing = await import(pathToFileURL(path.join(root, 'scanner-routing.js')));
 // The request owners live in index.js and the parts split out of it (targeted passes, then the reply scan, in the order they stood in index.js).
@@ -68,7 +68,7 @@ report.injection = { chars: injection.length, sha256: hash(injection) };
 report.reasoning = 'No Delta reasoning/thinking parameter; host/profile preset settings remain host-owned and unmeasured.';
 report.providerUsage = 'Unavailable; these are character counts, hashes, options and actual mocked dispatcher invocations, not paid provider usage.';
 if (!process.argv[2]) {
-    const baselinePath = new URL('../tests/fixtures/stage9-budgets.json', import.meta.url);
+    const baselinePath = new URL('../../packages/npc-state-delta/tests/fixtures/stage9-budgets.json', import.meta.url);
     if (fs.existsSync(baselinePath)) assert.deepEqual(report, JSON.parse(fs.readFileSync(baselinePath)), 'Accepted prompt/request budget changed; investigate before publishing.');
 }
 console.log(JSON.stringify(report, null, 2));

@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const STORY_BLOCK = new URL('../../../../../packages/story-block/', import.meta.url);
+const STORY_BLOCK = new URL('../../../../../core/boot/boot.js/', import.meta.url);
 // Story Block's view moved to ui/legacy/view (the events to modules/world/events) when the layout was applied; a
 // STORY_BLOCK_DIR checkout from before that still has them under src/v2, so each file is looked up there first.
 const ROOT = new URL('../../../../../', import.meta.url);

@@ -2,7 +2,7 @@
 // applies and only adds a Problems warning. Shapes are the owner's coffer lines (Master Vane's saddle-coffer, four replies in a row).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { moneyWarning, sourceOf } from '../../../core/turn/money-guard.js';
 
 const COFFER = (amount, note) => `The coffer is opened.\n<Changes>\n+ coin ${amount} | from: ${note}\n</Changes>`;

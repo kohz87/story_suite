@@ -1,7 +1,7 @@
 // P23 runs on the real host: ownership, atomic retry, intent evidence and standalone goals.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/host.js';
+import { createHost } from '../../../../testkit/host.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
 import { withD1 } from '../../../helpers/director/d1.js';
 import { initialDirector, validateDirector } from '../../../../modules/time/tracker/domain.js';

@@ -4,7 +4,7 @@
 // per-reply limit); here the QA probe module's `! probe Word` kind stands in for it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { DEFAULT_TAIL_BUDGET, estimateTokens } from '../../../core/prompt.js';
 import { probeModule } from '../qa/helpers/probe-module.js';
 

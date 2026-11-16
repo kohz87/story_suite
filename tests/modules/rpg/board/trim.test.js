@@ -1,7 +1,7 @@
 // The board trims only stock combat instructions, with a static prompt that does not follow the fight.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { staticTextWith } from '../../../../core/prompt.js';

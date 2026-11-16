@@ -5,7 +5,7 @@
 // list) throw, and its kind lines are lost (invariant 4: nothing throws to the reader).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 
 const ticks = () => ({
     id: 'tk', name: 'Ticks', version: '0.0.1',

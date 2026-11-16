@@ -14,7 +14,7 @@ import { fakeEvaluate, installFakeDom } from './helpers.js';
 // stand-in; both must render them without a single warning.
 const LANGUAGES = [['the condition language', conditionEvaluator({ compile, evaluate })], ['the test stand-in', fakeEvaluate]];
 
-const doc = readFileSync(new URL('../../../../packages/story-block/docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
+const doc = readFileSync(new URL('../../../../docs/v2/TEMPLATES.md', import.meta.url), 'utf8');
 const blocks = {};
 for (const match of doc.matchAll(/```(html|css) ([\w-]+)\n([\s\S]*?)```/g)) (blocks[match[2]] ??= {})[match[1]] = match[3];
 

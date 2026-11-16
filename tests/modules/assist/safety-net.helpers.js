@@ -1,5 +1,5 @@
 import { SETTING } from '../../../modules/assist/index.js';
-import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createHost, hostAvailable } from '../../../testkit/index.js';
 
 const available = await hostAvailable();
 export const skip = available.ok ? false : available.reason;

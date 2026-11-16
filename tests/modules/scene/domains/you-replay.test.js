@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { validatePack } from '../../../../packs/validate.js';
 import { YOU_CHARS, YOU_FEATURE, validateScene } from '../../../../modules/scene/index.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
@@ -229,7 +229,7 @@ test('a pack with content.you.rank gives the Rank its word everywhere; the first
 });
 
 test('the Ersveil example pack gives the Rank the word "Guild rank"; its content.you checks like the rest of a pack', async t => {
-    const ersveil = JSON.parse(readFileSync(new URL('../../../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+    const ersveil = JSON.parse(readFileSync(new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
     assert.deepEqual(ersveil.content.you, { rank: { label: 'Guild rank' } });
     const host = await fresh(t, { rank: false });
     assert.equal((await host.packs.packs.install(ersveil)).ok, true);

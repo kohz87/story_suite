@@ -2,7 +2,7 @@
 // holds every send until the reader plays (Send). Until the scene host (I8) only the allowed kinds may ask: another kind's answer is dropped with a quiet Problem.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { hashText } from '../../../modules/assist/common.js';
 import { readRecord } from '../../../core/persist.js';
 import { START_KINDS, pendingStart } from '../../../core/interaction/start.js';

@@ -1,5 +1,5 @@
 // The markdown report of the roll and fight tables.
-import { STANDARD_PRESETS, STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { STANDARD_PRESETS, STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
 import { CLASSES, DIFFICULTIES, FIGHTS } from './shared-grid.js';
 import { rankAt } from './builds.js';
 

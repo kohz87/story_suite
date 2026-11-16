@@ -1,7 +1,7 @@
 // What a reply laid out goes away with it (Story Block 2.6.1): timeline deletion, name matching, guard, and receipt ids.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
+import { createHost } from '../../testkit/index.js';
 import { lootTakeGuard } from '../../modules/inventory/index.js';
 import { hashJson } from '../../core/replay.js';
 import { readRecord } from '../../core/persist.js';

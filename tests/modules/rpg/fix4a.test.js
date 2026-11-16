@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../testkit/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { LEAN_RPG_FEATURE } from '../../../modules/rpg/index.js';
 import { validateDataModules } from '../../../modules/data-modules/check.js';
@@ -213,7 +213,7 @@ test('B12: cards are ordered end first, then warn, then info, so the death card 
 // --- the replay fuzz script ---------------------------------------------------------------------------------------------------------------
 
 test('the replay fuzz script\'s delete-swipe step runs (it called an undefined function and swallowed the error)', { timeout: 120000 }, () => {
-    const script = fileURLToPath(new URL('../../../packages/story-block/scripts/fuzz-replay.mjs', import.meta.url));
+    const script = fileURLToPath(new URL('../../../scripts/core/fuzz-replay.mjs', import.meta.url));
     const run = spawnSync(process.execPath, [script, '5', '120', '7'], { encoding: 'utf8', env: { ...process.env, TRACE: '1' } });
     if (run.error) return;    // (a sandbox that cannot start a child: nothing to measure)
     const steps = run.stdout.split('\n').filter(row => row.startsWith('delswipe |'));

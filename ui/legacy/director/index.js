@@ -8,9 +8,9 @@
 //
 // The v1 glue is no longer on main; v1 lives on the `v1` branch. The pure rules in src/*.js that v2 reuses stay.
 
-import { MODULE_ID, MODULE_NAME, VERSION, storyDirectorModule } from '../../ui/legacy/director/module.js';
-import { arcController } from '../../modules/arc/index.js';
-import { setPersonaReader } from '../../modules/time/tracker/initiative.js';
+import { MODULE_ID, MODULE_NAME, VERSION, storyDirectorModule } from './module.js';
+import { arcController } from '../../../modules/arc/index.js';
+import { setPersonaReader } from '../../../modules/time/tracker/initiative.js';
 
 export const NEEDS_HOST = 'Story Director 2 needs Story Block v2: install or update Story Block, then reload.';
 const NOTICE_ID = 'story_director_needs_host';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { createHost } from '../../../../testkit/index.js';
 import { buildBlock, blockDraft, uniqueBlockSlug } from '../../../../modules/data-modules/block-builder.js';
 import { directorStub, reload, reply, view } from '../helpers.js';
 
