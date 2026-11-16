@@ -2,7 +2,7 @@
 
 import { MAX_CHANGE_LINES } from './limits.js';
 
-export const HOST_SETTINGS_DEFAULTS = Object.freeze({ tailBudget: 1500, contextShare: 40, maxChangeLines: MAX_CHANGE_LINES, callQueue: true, panelStyle: 'glass', glassStrength: 50, font: 'nunito', textSize: '100', sendPending: true });
+export const HOST_SETTINGS_DEFAULTS = Object.freeze({ tailBudget: 1500, contextShare: 40, maxChangeLines: MAX_CHANGE_LINES, callQueue: true, panelStyle: 'glass', glassStrength: 50, font: 'nunito', textSize: '100', sendPending: true, quickConnection: '', backgroundConnection: '' });
 export const HOST_SETTINGS_SCHEMA = Object.freeze({
     tailBudget: Object.freeze({
         type: 'int', min: 100, max: 20000, label: 'Notes per reply (tokens)',
@@ -19,6 +19,15 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
     callQueue: Object.freeze({
         type: 'bool', label: 'Run extra calls one at a time per connection',
         help: 'Story Suite\'s own model calls (Delta\'s scan, the arc planner, Assist) wait for each other when they use the same connection profile, so a local server that answers one request at a time is never asked twice at once. Calls on different profiles still go side by side.',
+    }),
+    // The Models page's two roles (core/model-call/connection-for.js): '' is the chat's connection. Story is always the chat's.
+    quickConnection: Object.freeze({
+        type: 'profile', label: 'Quick helpers connection',
+        help: 'The connection for the short calls a reply waits on: the check roll before the reply, fight set-up and cast moves. Same as chat: the chat\'s connection.',
+    }),
+    backgroundConnection: Object.freeze({
+        type: 'profile', label: 'Background connection',
+        help: 'The connection for work no reply waits on: arc plans and the NPC State scan. Same as chat: the chat\'s connection.',
     }),
     // Story Suite's look (src/v2/view/theme.js): the panels and the font, for every Story Suite screen.
     panelStyle: Object.freeze({

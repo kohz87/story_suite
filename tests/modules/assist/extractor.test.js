@@ -66,11 +66,11 @@ test('off (the default): nothing, and no call', async () => {
 });
 
 test('a reply without a block: one call, its lines go to the capture for that carrier and swipe', async () => {
-    const { after, callModel, captured, last } = setup({ settings: on({ extractor: true, profile: 'Cheap' }) });
+    const { after, callModel, captured, last } = setup({ settings: on({ extractor: true }) });
     assert.deepEqual(await after(), { receipts: 2 });
     assert.equal(callModel.calls.length, 1);
     assert.equal(callModel.calls[0].prompt, extractorPrompt(STORY, GRAMMAR, []));
-    assert.deepEqual(callModel.calls[0].options, { maxTokens: 400, profile: 'Cheap', helper: 'extractor' });
+    assert.deepEqual(callModel.calls[0].options, { maxTokens: 400, role: 'quick', helper: 'extractor' });
     assert.deepEqual(captured, [{ text: '- item Rope | to: the miller\n~ place The Mill | kind: settlement', index: 2, swipe: 0 }]);
     assert.equal(last().outcome, 'lines');
     assert.equal(last().lines, 2);

@@ -1,5 +1,4 @@
-// The Assist section of the Story Suite settings overlay, below the two switches and the profile
-// name: whether each helper is on and what its last runs did. Read-only; everything is set as text.
+// The Assist section of the Story Suite settings overlay, below the two switches: whether each helper is on and what its last runs did. Read-only; everything is set as text.
 
 const OUTCOMES = Object.freeze({
     check: 'turned the message into a check',
@@ -40,7 +39,6 @@ export function renderAssistSection(target, status) {
         root.textContent = '';
         const onOff = on => (on ? 'on' : 'off');
         root.appendChild(el(doc, 'div', 'ss-assist-state', `Pre-roll checks: ${onOff(value?.classifier?.on)}. Reading forgotten changes: ${onOff(value?.extractor?.on)}.`));
-        if (value?.profile) root.appendChild(el(doc, 'div', 'ss-assist-profile', `Calls go through the profile "${value.profile}".`));
         const runs = Array.isArray(value?.runs) ? value.runs.slice(-8).reverse() : [];
         if (!runs.length) root.appendChild(el(doc, 'div', 'ss-assist-empty', 'No runs yet in this session.'));
         const list = el(doc, 'ul', 'ss-assist-runs');

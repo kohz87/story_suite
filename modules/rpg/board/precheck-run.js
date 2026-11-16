@@ -2,7 +2,7 @@
 // profile once (20 s at most) for the groups, hold them to the Foes rules, and build the opening the old planner's prelude recorded
 // (`rpg.resolve` with `plan.open`), so replay, Re-read and rebuild read the recorded payload and never ask a model again.
 // A timeout, an error, an unreadable answer or no group gives nothing: the send goes on as it does without the pre-check.
-import { SETTING, withTimeout } from '../../assist/common.js';
+import { withTimeout } from '../../assist/common.js';
 import { DICE_VERSION, FLOW_VERSION } from '../resolve.js';
 import { FIX_VERSION, LV_VERSION, PRACTICE, PRECHECK_LIMIT_MS, PRECHECK_SETTING, practiceOf, PRACTICE_SETTING } from '../names.js';
 import { knownLines, rankScale } from './precheck-known.js';
@@ -17,13 +17,13 @@ export const wantsPrecheck = (values, sheet, message) => values?.[PRECHECK_SETTI
 
 /**
  * One Assist call → the vetted groups `[{ name, count, level? }]`, or [] (timeout, failure, nothing readable).
- * `callModel(prompt, { maxTokens, profile, helper, timeoutMs })` is the host's queued Assist call; `query(name, args)` reads the rank scale and the dossiers (optional).
+ * `callModel(prompt, { maxTokens, role, helper, timeoutMs })` is the host's queued Assist call; `query(name, args)` reads the rank scale and the dossiers (optional).
  */
 export async function runPrecheck({ callModel, message, previous = '', sheet, values = {}, limit = PRECHECK_LIMIT_MS, timer, query = null }) {
     if (typeof callModel !== 'function') return [];
     try {
         const prompt = precheckPrompt({ message, previous, sheet, ranks: rankScale(query), known: knownLines(query, message, previous) });
-        const answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, profile: String(values[SETTING.profile] ?? ''), helper: 'precheck', timeoutMs: limit }), limit, timer);
+        const answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, role: 'quick', helper: 'precheck', timeoutMs: limit }), limit, timer);
         return vetGroups(parsePrecheck(answer), { message, previous, sheet, stated: name => statedLevel(query, name), v1: sheet.characters.some(character => character.v1 === true) });
     } catch { return []; }
 }

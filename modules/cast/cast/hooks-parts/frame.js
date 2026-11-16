@@ -2,7 +2,10 @@
 
 import { cutPoints, isInt, keysOfPerson } from '../domain.js';
 import { castOf, partyPlace, presentKeys, ask } from '../entries.js';
+import { connectionFor } from '../../../../core/model-call/connection-for.js';
 import { settingsOf } from '../settings.js';
+
+const hostSettings = view => { try { return view?.model?.settings?.() ?? null; } catch { return null; } };
 
 export const queryOf = view => (typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null);
 
@@ -26,7 +29,8 @@ export function frameOf(view) {
         query, cast, slice, now, pinned,
         present: presentKeys(query, view?.state),
         party: partyPlace(query, view?.state),
-        settings: settingsOf(view?.settings),
+        // The Quick helpers connection (Models page) as `profile`: a named one is waited for before the reply, the chat's is asked after it.
+        settings: { ...settingsOf(view?.settings), profile: connectionFor('quick', hostSettings(view)) },
         calendar: ask(query, 'time.now', {}, null),
     };
 }

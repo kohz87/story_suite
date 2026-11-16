@@ -269,10 +269,8 @@ Look and Features the form engine's, step 3c Money, step 3d Assist, step 3e Tabs
   line is named: `Line 2 ("silver: lots"): …`); `coinProblems(rows)` is its `check` and says what the story will not use (no name, a number
   in a name, a worth outside 1–1,000,000, a name an earlier coin has, a coin past the eighth). There is no card for how much the story may pay: the story decides, and an old saved `storyCoinPerReply` is not in the schema (it is neither drawn nor used). The General group's fold key
   (`MONEY_FOLD`, `story-block::group:General`) opens the Money page with its first field focused (`has`/`open` on the body).
-- **Assist** (`assist.js`, step 3d): Story Block's two optional helpers in the concept's Assist page, four cards: **Extra calls** (the Connection
-  Manager profile both helpers use, `assistProfile`, and the host's "one call at a time per connection" switch `callQueue`, which moved here
-  from the Story Suite fold: `ASSIST_HOST_KEYS` keeps it out of that fold), **Checks** (the pre-roll, "Roll checks before the reply": the check is rolled first, from the reader's message), **Safety net** ("Read changes the reply forgot", its own profile
-  `assistExtractorProfile`, and the allowed kinds `assistExtractorKinds`) and **Recent runs** (the old Assist panel, `renderAssistSection`, with
+- **Assist** (`assist.js`, step 3d): Story Block's two optional helpers in the concept's Assist page, four cards: **Extra calls** (the host settings `quickConnection` and `backgroundConnection`, the Models page's two roles, and the host's "one call at a time per connection" switch `callQueue`, which moved here
+  from the Story Suite fold: `ASSIST_HOST_KEYS` keeps them out of that fold), **Checks** (the pre-roll, "Roll checks before the reply": the check is rolled first, from the reader's message), **Safety net** ("Read changes the reply forgot" and the allowed kinds `assistExtractorKinds`) and **Recent runs** (the old Assist panel, `renderAssistSection`, with
   its Refresh). `assistSchema({ featureOn…})` builds the page's schema; `renderSettingsForm` draws it (`quiet`, `className: 'ss-assist-page'`;
   two columns from 900px with the Safety net card down the right, one column below; fields stacked). **The two switches are Features**
   (`story-block.preroll`, `story-block.extractor`): they live in the form's **`sources`** (below), not in the settings store, so the

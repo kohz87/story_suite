@@ -409,7 +409,7 @@ These settle questions agents raised; the host changes they need are made at int
     titled section shows its title as a heading), then the schema's groups as sub-folds. A panel may have
     folds of its own (Delta's Scanning, Roster…), which are then the second level: never three. A panel that
     brings its own SillyTavern drawer (`.inline-drawer.story-suite-drawer`) has it held open with no header.
-117. **The assist's connection profile is a dropdown** (it was a name typed in a text box). `assistProfile` is
+117. **(Replaced by the Models page: `assistProfile` is gone; the helpers ask as `role: 'quick'`, see `core/model-call/connection-for.js`.) The assist's connection profile is a dropdown** (it was a name typed in a text box). `assistProfile` is
     a `profile` field (§G) in Story Block's group **Assist**: *Same as chat*, then Connection Manager's profiles
     that can make a text call, by name; it stores the name ('' the chat's connection), so a name typed by an
     older version is the same value, and the pre-roll and extractor calls go through it. A stored profile that

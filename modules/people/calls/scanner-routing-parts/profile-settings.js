@@ -5,9 +5,18 @@ export function configuredScannerMaxOutputTokens(ctx) {
     return normalizeScannerMaxOutputTokens(ctx?.extensionSettings?.npc_state_delta?.scannerMaxOutputTokens);
 }
 
+/**
+ * The Connection Manager profile id the scanner uses: the Models page's Background connection (a profile name in the
+ * Story Suite host settings), looked up by name. '' is the current roleplay connection. A name no profile has any more
+ * is returned as it is, so the scan fails closed on a missing profile instead of falling back.
+ */
 export function selectedScannerProfileId(ctx) {
-    const value = ctx?.extensionSettings?.npc_state_delta?.scannerConnectionProfile;
-    return typeof value === 'string' ? value.trim() : '';
+    const value = ctx?.extensionSettings?.storySuite?.host?.backgroundConnection;
+    const name = typeof value === 'string' ? value.trim() : '';
+    if (!name || name.toLowerCase() === 'chat') return '';
+    const profiles = ctx?.extensionSettings?.connectionManager?.profiles;
+    const found = Array.isArray(profiles) ? profiles.find(profile => typeof profile?.id === 'string' && String(profile.name || profile.id) === name) : null;
+    return found ? found.id : name;
 }
 
 export function connectionManagerDisabled(ctx) {

@@ -18,13 +18,13 @@ const intIn = (value, min, max, fallback) => (Number.isFinite(value) && value > 
  * featureModule(id) → the module id that declares it (or null), timeoutMs (MODEL_CALL_TIMEOUT_MS), log(line),
  * timer ({ setTimeout, clearTimeout }), gate?: { whenIdle() → Promise } (a call on the chat's connection
  * waits for it: no reply in progress; a profile's call does not), queue?: createCallQueue() (one call at a time
- * per connection; default: a queue of its own) }.
+ * per connection; default: a queue of its own), roleProfile?(role) → the profile name a Models-page role uses }.
  * Returns { callModel(request), busy(module) }: `callModel({ profile, system, prompt, maxTokens, signal,
  * feature, module, timeoutMs })` → Promise<{ ok: true, text, error: null } | { ok: false, text: '', error
  * (a MODEL_CALL_ERRORS code), message }>, never rejecting. The module is `module`, else the owner of
  * `feature`, else '' (callers that name neither share one slot).
  */
-export function createModelCalls({ call = stModelCall, featureOn = () => true, featureModule = () => null, timeoutMs = MODEL_CALL_TIMEOUT_MS, log = line => console.info(line), timer = globalThis, gate = null, queue = createCallQueue() } = {}) {
+export function createModelCalls({ call = stModelCall, featureOn = () => true, featureModule = () => null, timeoutMs = MODEL_CALL_TIMEOUT_MS, log = line => console.info(line), timer = globalThis, gate = null, queue = createCallQueue(), roleProfile = () => '' } = {}) {
     const inFlight = new Set();
     const defaultTimeout = intIn(timeoutMs, MODEL_CALL_TIMEOUT_MIN, MODEL_CALL_TIMEOUT_MAX, MODEL_CALL_TIMEOUT_MS);
     const fail = (error, message) => ({ ok: false, text: '', error, message });
@@ -42,7 +42,8 @@ export function createModelCalls({ call = stModelCall, featureOn = () => true, f
         const feature = typeof req.feature === 'string' && req.feature.trim() ? req.feature.trim() : null;
         let owner = '';
         try { owner = typeof req.module === 'string' && req.module.trim() ? req.module.trim() : feature ? String(featureModule(feature) ?? '') : ''; } catch { owner = ''; }
-        const profile = profileName(req.profile);
+        // A request names a `profile`, or a Models-page `role` ('quick', 'background') that roleProfile(role) turns into one.
+        const profile = profileName(req.profile) || (typeof req.role === 'string' ? profileName(roleProfile(req.role)) : '');
         const done = (result, outcome = result.ok ? 'ok' : result.error) => {
             tell(owner, profile, started, outcome);
             return result;

@@ -5,7 +5,7 @@
 export function createEventRegistration(rt, deps) {
     const {
         getContext, extension_prompt_types, extension_prompt_roles, migrateLegacyLineage, chatLineage,
-        setScanIndicator, narrationCaptureEnabled, syncScannerProfileControl, getChatKey, ensureChatStateLoaded,
+        setScanIndicator, narrationCaptureEnabled, getChatKey, ensureChatStateLoaded,
         chatHydrationStatus, getChatState, staleHostActive, generationReady, updateInjection,
         noteNarrationCaptureVersion, GENERATION_FRESHNESS_REUSE_MS, NARRATION_CAPTURE_TYPES, CAPTURE_RULES_TYPES,
         disarmNarrationCapture, CAPTURE_RULES_KEY, CAPTURE_PROMPT_KEY, CAPTURE_PROMPT_DEPTH,
@@ -27,10 +27,6 @@ export function createEventRegistration(rt, deps) {
         const source = ctx.eventSource;
         if (!source?.on) return;
         rt.eventsRegistered = true;
-        for (const name of ['CONNECTION_PROFILE_CREATED', 'CONNECTION_PROFILE_UPDATED', 'CONNECTION_PROFILE_DELETED']) {
-            if (events[name]) source.on(events[name], syncScannerProfileControl);
-        }
-
         if (events.MESSAGE_SENT) {
             source.on(events.MESSAGE_SENT, async (messageId) => {
                 rt.replacingReply = null;

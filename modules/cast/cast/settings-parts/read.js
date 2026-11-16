@@ -11,7 +11,6 @@ export function castSettings(values) {
         on: given.on !== false,
         faces: Object.hasOwn(FACES, given.faces) ? given.faces : DEFAULT_FACES,
         unmetDie: given.unmetDie === true,
-        profile: typeof given.profile === 'string' ? given.profile.slice(0, 100).trim() : '',
     };
 }
 

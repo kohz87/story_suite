@@ -194,7 +194,7 @@ test('a plan not asked for after the last reply (a reload): a named connection i
     quiet(t);
     for (const profile of ['Planner', '']) {
         const model = createFakeModel(['~ cast fenna | Elsewhere | the first answer is not used', '~ cast fenna | Ashford | upriver for the guild']);
-        const host = await started({ source: withRoads(castSource([FENNA, SERA])), model, settings: { 'cast.profile': profile } });
+        const host = await started({ source: withRoads(castSource([FENNA, SERA])), model, hostSettings: { quickConnection: profile } });
         try {
             await host.send('Sleep.', said('Morning.', DAY2));
             await settle();

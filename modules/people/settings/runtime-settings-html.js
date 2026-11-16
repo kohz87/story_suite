@@ -2,8 +2,6 @@
    and the controls' sync from the stored settings. Built by index.js once per module instance with the shared runtime
    state and the controller functions it calls. Bodies are moved from index.js without change. */
 
-import { getContext } from '../../../extensions.js';
-import { scannerProfileOptions } from '../calls/scanner-routing.js';
 import { NPC_STATE_VERSION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core/core.js';
 import { SUITE_AREAS } from '../legacy/suite-handshake.js';
 import { escapeHtml } from '../util/html.js';
@@ -39,7 +37,6 @@ export function createSettingsHtmlPart(rt, deps) {
     // (full cast, scanner output, calendar) mount their own controls into the named slots.
     function buildSettingsHtml() {
         const scanning = [
-            settingRow('npc_state_delta_scanner_connection_profile', 'Scanner connection profile', '<select id="npc_state_delta_scanner_connection_profile" class="text_pole"></select>', 'Routes every NPC scan, Refresh, focused pass and retry. Default keeps the current roleplay route; an unavailable profile never falls back silently.<span id="npc_state_delta_scanner_profile_none" class="npc-state-delta-scanner-profile-none" hidden> There is no connection profile yet: make one in SillyTavern\'s Connection Manager and it is listed here.</span>'),
             settingRow('npc_state_delta_full_scan_every_turn', 'Full scan every turn', '<input id="npc_state_delta_full_scan_every_turn" type="checkbox">', 'With Auto scan, reconcile the whole scan context after every reply instead of only the latest exchange. Overrides Scan every; relationship deltas still come only from the newest exchange.'),
             settingRow('npc_state_delta_narration_capture', 'One-pass narration capture (experimental)', '<input id="npc_state_delta_narration_capture" type="checkbox">', 'Works on its own, with Auto scan on or off: the roleplay model ends each reply with a hidden NPC update block that replaces the separate scan request. Adds about 2,000-3,000 tokens to every roleplay prompt plus the block to each reply; a missing or broken block falls back to the normal scan. Not used with Full scan every turn.'),
             settingRow('npc_state_delta_narration_capture_compact', 'Compact one-pass instruction', '<input id="npc_state_delta_narration_capture_compact" type="checkbox">', 'Needs One-pass narration capture. The same rules in fewer words: about 1,500 tokens instead of 2,000 on every asked-for reply. Every field, gate and cap is kept, but check the blocks your model writes before relying on it; off sends the full rules.'),
@@ -283,19 +280,6 @@ export function createSettingsHtmlPart(rt, deps) {
         }, true);
     }
 
-    function syncScannerProfileControl() {
-        const control = $('#npc_state_delta_scanner_connection_profile');
-        if (!control.length) return;
-        const selected = getSettings().scannerConnectionProfile;
-        const html = scannerProfileOptions(getContext(), selected)
-            .map(option => `<option value="${escapeHtml(option.id)}">${escapeHtml(option.name)}</option>`).join('');
-        if (control.html() !== html) control.html(html);
-        control.val(selected);
-        // No profile to pick (only the current connection, or a missing one): say so under the list.
-        const usable = scannerProfileOptions(getContext(), '').length > 1;
-        $('#npc_state_delta_scanner_profile_none').prop('hidden', usable);
-    }
-
     // The Expert fold's first line: whether the calendar in Delta's settings matters. It says the Story Director sentence only
     // while that is true (Story Director's calendar answers and the reader has not kept the calendar here).
     const EXPERT_NOTES = Object.freeze({
@@ -317,7 +301,6 @@ export function createSettingsHtmlPart(rt, deps) {
         const s = getSettings();
         $('#npc_state_delta_enabled').prop('checked', !!s.enabled);
         $('#npc_state_delta_auto').prop('checked', !!s.autoScan);
-        syncScannerProfileControl();
         $('#npc_state_delta_full_scan_every_turn').prop('checked', !!s.fullScanEveryTurn);
         $('#npc_state_delta_narration_capture').prop('checked', !!s.narrationCapture);
         $('#npc_state_delta_narration_capture_compact').prop('checked', !!s.narrationCaptureCompact);
@@ -360,5 +343,5 @@ export function createSettingsHtmlPart(rt, deps) {
         $('#npc_state_delta_behavior_criteria').val(s.behaviorCriteria);
     }
 
-    return { buildSettingsHtml, bindSettingsGroupMemory, syncScannerProfileControl, syncSettingsControls };
+    return { buildSettingsHtml, bindSettingsGroupMemory, syncSettingsControls };
 }

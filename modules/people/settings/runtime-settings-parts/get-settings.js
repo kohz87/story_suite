@@ -71,7 +71,6 @@ export function getSettings() {
     assign('narrationCapture', settings.narrationCapture === true);
     assign('narrationCaptureCompact', settings.narrationCaptureCompact === true);
     assign('narrationCaptureCatchUp', Number.isFinite(Number(settings.narrationCaptureCatchUp)) ? Math.max(0, Math.min(50, Math.round(Number(settings.narrationCaptureCatchUp)))) : 8);
-    assign('scannerConnectionProfile', typeof settings.scannerConnectionProfile === 'string' ? settings.scannerConnectionProfile.trim() : '');
     assign('portraitGenerationEnabled', settings.portraitGenerationEnabled !== false);
     assign('portraitThemePreset', PORTRAIT_THEME_PRESETS[settings.portraitThemePreset] ? settings.portraitThemePreset : 'custom');
     const portraitCustomPresets = portraitCustomPresetLibrary(settings.portraitCustomPresets);

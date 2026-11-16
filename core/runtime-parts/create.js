@@ -7,6 +7,7 @@ import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../../packs/card-settings.js';
 import { skipOf } from '../../modules/rpg/start-notes.js';
 import { XP_RATE_SETTING, xpRateFrom, xpRateOf } from '../../modules/rpg/levels.js';
+import { connectionFor } from '../model-call/connection-for.js';
 import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, profileName, stModelCall } from '../model-call.js';
 import { readRecord } from '../persist.js';
 import { createRegistry } from '../registry.js';
@@ -215,6 +216,7 @@ export function createRuntime({
     const callQueue = createCallQueue({ enabled: () => settings()?.callQueue !== false });
     const modelCalls = createModelCalls({
         queue: callQueue,
+        roleProfile: role => connectionFor(role, settings()),
         call: marked(callModel ?? stModelCall),
         gate: { whenIdle: () => turn?.whenIdle?.() ?? Promise.resolve() },
         featureOn: id => registry.featureOn(id),
@@ -223,8 +225,8 @@ export function createRuntime({
     });
     // The assist helpers' call (assist/index.js: (prompt, { maxTokens, profile, helper }) → text, throwing
     // with a code on failure; an empty answer is '' as before).
-    assistCall = async (prompt, { maxTokens, profile = '', helper = 'pre-roll', timeoutMs } = {}) => {
-        const result = await modelCalls.callModel({ prompt, maxTokens, profile, module: `${CORE_MODULE_ID} (${helper === 'extractor' ? 'safety net' : helper === 'precheck' ? 'fight setup' : helper === 'rolls' ? 'rolls' : 'pre-roll'})`, timeoutMs: (helper === 'rolls' || helper === 'precheck') && Number.isFinite(timeoutMs) ? timeoutMs : ASSIST_TIMEOUT_MS }, { idle: false });
+    assistCall = async (prompt, { maxTokens, profile = '', role = '', helper = 'pre-roll', timeoutMs } = {}) => {
+        const result = await modelCalls.callModel({ prompt, maxTokens, profile, role, module: `${CORE_MODULE_ID} (${helper === 'extractor' ? 'safety net' : helper === 'precheck' ? 'fight setup' : helper === 'rolls' ? 'rolls' : 'pre-roll'})`, timeoutMs: (helper === 'rolls' || helper === 'precheck') && Number.isFinite(timeoutMs) ? timeoutMs : ASSIST_TIMEOUT_MS }, { idle: false });
         if (result.ok) return result.text;
         if (result.error === MODEL_CALL_ERRORS.EMPTY) return '';
         throw Object.assign(new Error(result.message), { code: result.error });
