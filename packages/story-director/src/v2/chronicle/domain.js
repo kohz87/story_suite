@@ -11,8 +11,9 @@
 //   days:     { [day]: [Digest] },              // the day digests (days.js), each day a slot
 //   written:  null | [{ through, days, at, skip }], // where the digests were last written (days.js)
 //   dayFacts: { ["<day>.<rev>"]: entry },        // each reply's facts for the digest, until its day is written
-//   noted:    null | [{ rev, minutes, from, settle }], // where those notes got to (days.js)
-//   questLog: { ["<rev>"]: { thread, text } },  // the quest history lines (quest.details), kept by the note
+//   noted:    null | [{ rev, through?, minutes, from, settle }], // where those notes got to (days.js; `through`: the last note's receipt ID)
+//   questLog: { ["<rev>"]: { thread, text } },  // the quest history lines (quest.details), kept by the note;
+//             { ["<sid>.<n>"]: { thread, text, rev } } a thread's outcome (thread-outcome.js)
 // }
 // An event is a lasting situation of the wider world (a war, a plague, a calamity) the story
 // keeps moving: `state` is looming, ongoing or resolved. `since` and `updated` are story minutes
