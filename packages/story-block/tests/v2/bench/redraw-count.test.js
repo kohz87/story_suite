@@ -28,7 +28,8 @@ const REPLY = [
     '</Changes>',
 ].join('\n');
 
-test('J11-0 baseline: one scripted reply with panel open draws the tab pane 10 times (5+2+1+1+1)', { skip, timeout: 60000 }, async t => {
+// Runs the scripted reply with the panel open; with `scheduler` the flag `suite.redrawScheduler` is on. → { paneDraws, counts }.
+async function scriptedReply(t, scheduler) {
     t.mock.method(console, 'warn', () => {});
     const doc = setupDom();
     let resolveAssist;
@@ -38,6 +39,7 @@ test('J11-0 baseline: one scripted reply with panel open draws the tab pane 10 t
         settings: { modules: { 'story-block': { assistExtractor: true } } },
         callModel: async () => 'none',
     });
+    if (scheduler) host.ctx.extensionSettings.storySuite = { ...host.ctx.extensionSettings.storySuite, flags: { 'suite.redrawScheduler': true } };
     const ui = mountUi({ runtime: host, ctx: host.ctx, doc });
 
     let paneDraws = 0;
@@ -98,17 +100,32 @@ test('J11-0 baseline: one scripted reply with panel open draws the tab pane 10 t
         await within(assistDone, 30000, 'the head event (Assist afterReply)');
         await host.sdk.command('qa-bench.oob', {});
 
+        await new Promise(resolve => setTimeout(resolve, 40));   // (the last frame)
         counting = false;
-
-        console.log(JSON.stringify({ bench: 'sb-redraw-count', flag: false, paneDraws, ...counts }));
-
-        assert.equal(counts.committed, 8, '5 lines + 2 afterCapture steps + 1 out-of-turn command');
-        assert.equal(counts.turn, 1, '1 turn event');
-        assert.equal(counts.head, 1, '1 head event from Assist afterReply');
-        assert.equal(paneDraws, 10, '10 pane draws today (5+2+1+1+1)');
+        return { paneDraws, counts };
     } finally {
         offs.forEach(off => off());
         ui.destroy();
         host.close();
     }
+}
+
+test('J11-0 baseline: one scripted reply with panel open draws the tab pane 10 times (5+2+1+1+1)', { skip, timeout: 60000 }, async t => {
+    const { paneDraws, counts } = await scriptedReply(t, false);
+    console.log(JSON.stringify({ bench: 'sb-redraw-count', flag: false, paneDraws, ...counts }));
+    assert.equal(counts.committed, 8, '5 lines + 2 afterCapture steps + 1 out-of-turn command');
+    assert.equal(counts.turn, 1, '1 turn event');
+    assert.equal(counts.head, 1, '1 head event from Assist afterReply');
+    assert.equal(paneDraws, 10, '10 pane draws today (5+2+1+1+1)');
+});
+
+test('J11-3 flag on: the same reply draws the tab pane at most 3 times (10 today), at least once', { skip, timeout: 60000 }, async t => {
+    // A browser frame (~16 ms) spans a burst of events; the test page has no requestAnimationFrame, so it gets one.
+    globalThis.requestAnimationFrame = fn => setTimeout(fn, 16);
+    let result;
+    try { result = await scriptedReply(t, true); } finally { delete globalThis.requestAnimationFrame; }
+    const { paneDraws, counts } = result;
+    console.log(JSON.stringify({ bench: 'sb-redraw-count', flag: true, paneDraws, ...counts }));
+    assert.deepEqual(counts, { committed: 8, turn: 1, head: 1 }, 'the same events');
+    assert.ok(paneDraws >= 1 && paneDraws <= 3, `${paneDraws} pane draws with the scheduler on (10 today)`);
 });
