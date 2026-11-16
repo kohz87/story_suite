@@ -1,5 +1,5 @@
 // Background refreshes respect the typing guard (flag suite.redrawScheduler on): the host's refresh, feature, pack and HUD paths never replace a pane
-// while a field in it has the focus; a tab select and a chat switch draw at once, and carry the typed text when the same tab's pane is replaced.
+// while a field in it has the focus; a tab select and a chat switch draw at once; a forced draw of the same tab's pane carries the typed text (a chat switch carries nothing).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFakeContext } from '../../testkit/fake-st.js';
@@ -81,6 +81,41 @@ test('nothing is carried without focus in a field; flag off draws plain as befor
     off.host.destroy();
 });
 
+test('the carried text reaches the tab: an input event fires, so a tab that keeps its draft from input events keeps it', () => {
+    const { registry } = setup({ id: 'alpha', tabs: [{ id: 'find', title: 'Find', render(el) {
+        const box = fakeDoc.createElement('input'); box.dataset.name = 'find';
+        el.__draft = '';   // (the draft lives on the pane element, as NPC State's Dossiers search does)
+        box.value = el.__draft;
+        box.addEventListener('input', () => { el.__draft = box.value; });
+        el.appendChild(box);
+    } }] });
+    const root = fakeDoc.createElement('div');
+    const host = createTabHost(root, { registry, view: () => ({}), doc: fakeDoc, swap: () => true });
+    const pane = () => root.querySelector('.story-suite-pane');
+    pane().querySelector('input').focus();
+    pane().querySelector('input').value = 'Ali';
+    host.refresh({ guard: false });
+    assert.equal(pane().querySelector('input').value, 'Ali');
+    assert.equal(pane().__draft, 'Ali', 'the new pane\'s tab heard the carried text');
+    host.destroy();
+});
+
+test('a carry only goes to the same-named field', () => {
+    let named = 'a';
+    const { registry } = setup({ id: 'alpha', tabs: [{ id: 't', title: 't', render(el) {
+        const box = fakeDoc.createElement('input'); box.dataset.name = named; el.appendChild(box);
+    } }] });
+    const root = fakeDoc.createElement('div');
+    const host = createTabHost(root, { registry, view: () => ({}), doc: fakeDoc, swap: () => true });
+    const box = () => root.querySelector('input');
+    box().focus();
+    box().value = 'typed';
+    named = 'b';
+    host.refresh({ guard: false });
+    assert.equal(box().value, '', 'a different field at that place gets nothing');
+    host.destroy();
+});
+
 async function page() {
     const doc = setupDom();
     const st = createFakeContext();
@@ -111,7 +146,7 @@ test('the host\'s background callers (refresh, feature event, HUD, sync) leave a
     ui.refresh();
     runtime.events.emit('feature', {});
     ui.syncScreens();
-    ui.setHud?.(true);
+    ui.setHud(true);
     assert.equal(draws(), base, 'no pane was drawn under the focused box');
     assert.equal(doc.querySelector('input[data-name="q"]'), box);
     assert.equal(box.value, 'typing');

@@ -16,7 +16,7 @@ import { captureField, restoreField } from './field-carry.js';
  * back to the first. The pane scrolls inside `root`; the bar stays where it is.
  * `options`: { registry, view: () => view, api (the sdk), doc?, active?, barHost?, swap? (() => true while the redraw scheduler's flag is on: the pane is drawn apart and swapped in), inBar? (tab → in the bar; the others follow
  * the ones that are, in the same strip) }. Tabs read the head state's view only,
- * never message text. Returns { refresh({ guard?, carry? }), select(id), active(), bar }: refresh() is guarded by default.
+ * never message text. Returns { refresh({ guard?, carry? }), select(id), active(), bar }: refresh() is guarded by default (`carry` is for the host's chat-switch draw: false carries no field text).
  */
 export function createTabHost(root, { registry, view, api = null, doc = globalThis.document, active = null, barHost = null, inBar = null, swap = null }) {
     let current = active;
