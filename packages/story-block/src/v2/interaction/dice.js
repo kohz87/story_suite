@@ -4,7 +4,6 @@ import { hash } from '../persist.js';
 import { rng } from '../rng.js';
 
 const BOARD_KIND = 'story-block/fight';
-const BOARD_LANES = Object.freeze({ act: 1, foe: 2, check: 3, init: 4, open: 5, flee: 6 });
 const UINT32 = 0xFFFFFFFF;
 
 const whole = (value, fallback = 0) => (Number.isSafeInteger(value) && value >= 0 ? value : fallback);
@@ -30,26 +29,10 @@ export function interactionSeed(originSid, attempt = 0, kindId = '') {
     return Number.parseInt(hash(text), 16) >>> 0;
 }
 
-/** The board's former seed, kept as the one board-compatible spelling of `interactionSeed`. */
-export function fightSeed(sid, attempt = 0) {
-    return interactionSeed(sid, attempt, BOARD_KIND);
-}
-
-/** The board's positional stream for one exchange, with its named lanes. */
-export function boardDice(seed, number) {
-    const base = stream(seed, number);
-    const source = (kind, at, sides = 20) => {
-        const lane = BOARD_LANES[kind];
-        if (!lane) throw new RangeError(`Unknown board lane: ${String(kind)}.`);
-        return positional(base)(lane, at, sides);
-    };
-    source.positional = true;
-    return source;
-}
-
-/** The positional source an opening prelude gets: base = the opening's own seed, byte-identical to the host's prelude source for named lanes. */
+/** The positional source an opening prelude gets: the base is the first draw of rng(seed), as the host's command handler draws it. */
 export function preludeDice(seed) {
-    return positional(Number.isSafeInteger(seed) && seed >= 0 && seed <= UINT32 ? seed : 0);
+    const value = Number.isSafeInteger(seed) && seed >= 0 && seed <= UINT32 ? seed : 0;
+    return positional(Math.floor(rng(value)() * 4294967296) >>> 0);
 }
 
 /** `dice(seed, offset)(i)(lane, at, sides)` is step `i`'s independent positional stream. */

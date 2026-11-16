@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hashJson } from '../../../src/v2/replay.js';
 import { preludeDice } from '../../../src/v2/interaction/dice.js';
+import { rng } from '../../../src/v2/rng.js';
 import { positionalDice } from '../../../src/v2/lean-rpg/resolve/dice.js';
 import { markPlayer } from '../../../src/v2/interaction/player.js';
 import { policyProblem } from '../../../src/v2/interaction/policy.js';
@@ -78,12 +79,21 @@ test('a result that is not plain JSON is a refusal, not an exception', () => {
     assert.throws(() => settleInteraction(ctxOf(), segment(), kind, { state: { room: 1 } }), error => error.code === 'INVALID');
 });
 
-test('the opening prelude source equals the host positional source for the same base', () => {
-    const mine = preludeDice(1234), host = positionalDice(1234);
-    for (const [lane, name] of [[1, 'act'], [2, 'foe'], [3, 'check'], [4, 'init'], [5, 'open']]) {
-        for (let at = 0; at < 6; at += 1) {
-            const x = mine(lane, at), y = host(name, at);
-            for (let i = 0; i < 8; i += 1) assert.equal(x(), y());
+test('the opening prelude source is the host positional source on the base drawn from the seed', () => {
+    let differs = 0;
+    for (let seed = 0; seed < 200; seed += 7) {
+        const base = Math.floor(rng(seed)() * 4294967296) >>> 0;
+        const mine = preludeDice(seed), host = positionalDice(base), raw = positionalDice(seed);
+        for (const [lane, name] of [[1, 'act'], [2, 'foe'], [3, 'check'], [4, 'init'], [5, 'open']]) {
+            for (let at = 0; at < 4; at += 1) {
+                const x = mine(lane, at), y = host(name, at), z = raw(name, at);
+                for (let i = 0; i < 6; i += 1) {
+                    const got = x();
+                    assert.equal(got, y());
+                    if (got !== z()) differs += 1;
+                }
+            }
         }
     }
+    assert.ok(differs > 100, 'a raw-seed base would give other numbers');
 });
