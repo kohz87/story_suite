@@ -37,8 +37,11 @@ export function tripOf(atlas) {
     // the party is held for the sum of the delays (the arrivals have always moved by that sum).
     // A delay names the go it delays (`go`, its key): that key stays when the go's reply is Re-read with more lines (a go is always
     // its reply's first record, `<sid>.0`), where its revision moves past a later reply's stored delay's; and a delay an edited
-    // reply left behind for another trip never delays this one. A delay from an older state (no `go`) counts when it sorts after the go.
-    const ours = item => (typeof item.record.go === 'string' ? item.record.go === go.key : order(go, item) < 0);
+    // reply left behind for another trip never delays this one. A delay whose go is not a go in the map any more (that reply was
+    // deleted or changed, or an older chat's `<rev>.0` go was Re-read under a new key), and one from an older state (no `go`),
+    // counts when it sorts after the go, by story time then revision.
+    const goKeys = new Set(entries.filter(entry => entry.record.kind === 'go').map(entry => entry.key));
+    const ours = item => (typeof item.record.go === 'string' && goKeys.has(item.record.go) ? item.record.go === go.key : order(go, item) < 0);
     let heldUntil = -Infinity;
     for (const entry of entries.filter(item => item.record.kind === 'delay' && ours(item))) {
         const { minutes, because } = entry.record;

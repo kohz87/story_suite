@@ -33,7 +33,7 @@ destination the line is refused naming both gaps, and the old trip stands.
 
 `atlas.trips`, absent until a trip is made (an older save reads as none; `scratch: ['trips']` so replay makes the object on the way): one record
 per line under `<sid>.<n>` (the reply's record ID and a count, `src/v2/reply-keys.js`; an older save's `<rev>.<n>` reads the same way), read
-in story-time then revision order: `go` (the plan, as made), `delay` (`at`, `minutes`, `because`, and `go`: the key of the go it delays, which it alone applies to; an older delay without it counts when it sorts after the go). A `go` or a `stop` removes every earlier record; the
+in story-time then revision order: `go` (the plan, as made), `delay` (`at`, `minutes`, `because`, and `go`: the key of the go it delays, which it alone applies to while that go is in the map; a delay whose go is gone, and an older one without `go`, counts when it sorts after the go by story time then revision). A `go` or a `stop` removes every earlier record; the
 trip read back (`tripOf`) is the newest `go` with the delays after it applied: a delay holds the leg being travelled where it is (`holds`) and
 starts the later legs later. Because delays are records of their own, deleting the reply that made the trip leaves a later delay with nothing to
 move, and never a failing block. At most 8 delays a trip.

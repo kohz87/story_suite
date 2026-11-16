@@ -111,6 +111,52 @@ test('a delay names the go it delays', async t => {
     assert.deepEqual(tripsProblems({ ...atlas(host).trips, 'sw_x.0': { kind: 'delay', at: 1, rev: 1, minutes: 5, because: '', go: 'not a key' } }), ['atlas.trips.sw_x.0.go must be a trip record\'s key.']);
 });
 
+// A later trip that had replaced an earlier one is edited away or deleted: the earlier trip stands again, and a delay told after both
+// (naming the later go, gone now) counts for it by story time, as told that way.
+const replaced = [GO, ['~ trip Auvoth | by: foot'], ['! time +1 hour', '~ trip delay: 1 day | because: shoe']];
+for (const [name, edited] of [['to a quest line', ['+ quest Q — x | giver: A']], ['to a delay', ['~ trip delay: 2 hours']]]) {
+    test(`a later trip edited away (${name}): a delay that named it counts for the trip that stands again`, async t => {
+        t.mock.method(console, 'warn', () => {});
+        const host = await told(replaced);
+        t.after(() => host.close());
+        const at = replyAt(host, 'R1');
+        await host.st.editMessage(at, said('R1.', edited));
+        assert.equal((await host.sdk.reread(at)).ok, true);
+        const fresh = await told([GO, edited, replaced[2]]);
+        t.after(() => fresh.close());
+        assert.equal(trip(host).to, 'Wolfmere Outpost');
+        assert.deepEqual(trip(host), trip(fresh), 'the trip read back, as told that way');
+        assert.deepEqual(shown(host), shown(fresh), 'the reader\'s trip');
+        rebuiltSame(host, 'after the Re-read');
+    });
+}
+
+test('a later trip deleted in the middle: a delay that named it counts for the trip that stands again', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await told(replaced);
+    t.after(() => host.close());
+    const at = replyAt(host, 'R1');
+    await host.st.deleteMessage(at);
+    await host.st.deleteMessage(at - 1);
+    const fresh = await told([GO, replaced[2]]);
+    t.after(() => fresh.close());
+    assert.equal(trip(host).delays.length, 1);
+    assert.deepEqual(trip(host), trip(fresh), 'the trip read back, as told that way');
+    rebuiltSame(host, 'after the delete');
+});
+
+test('an older chat\'s go Re-read under a new key: a delay that named its old key still counts', () => {
+    const leg = { from: 'A', to: 'B', km: 20, kind: 'road', days: 1, start: 100, arrive: 1540 };
+    const trips = {
+        'sw_r0.0': { kind: 'go', at: 100, rev: 5, to: 'B', by: 'foot', mode: 'foot', pace: 20, unit: 'day', mount: '', short: false, setOut: 100, legs: [leg] },
+        'sw_r2.0': { kind: 'delay', at: 160, rev: 13, minutes: 1440, because: '', go: '5.0' },
+    };
+    assert.deepEqual(tripsProblems(trips), []);
+    assert.equal(tripOf({ trips }).delays.length, 1);
+    // A delay naming a key that is now another reply's delay (not a go) counts the same way.
+    assert.equal(tripOf({ trips: { ...trips, '5.0': { kind: 'delay', at: 150, rev: 7, minutes: 60, because: '' } } }).delays.length, 2);
+});
+
 test('an older state\'s <rev>.<n> records read as before; a new delay joins them', () => {
     const leg = { from: 'A', to: 'B', km: 20, kind: 'road', days: 1, start: 100, arrive: 1540 };
     const old = {
