@@ -20,6 +20,9 @@ function resolveOptions(variant) {
       empty: key === 'empty',
       notApplied: false,
       focus: 'boat',
+      planShown: false,
+      fightState: 'choose',
+      bagLoad: 0,
     };
   }
   const opts = variant && typeof variant === 'object' ? variant : {};
@@ -29,6 +32,9 @@ function resolveOptions(variant) {
     empty: Boolean(opts.empty),
     notApplied: Boolean(opts.notApplied),
     focus: opts.focus || 'boat',
+    planShown: Boolean(opts.planShown),
+    fightState: opts.fightState || 'choose',
+    bagLoad: Number(opts.bagLoad) || 0,
   };
 }
 
@@ -62,9 +68,13 @@ function buildCard(opts) {
     },
     bars: opts.rpg ? MOMENT.bars.map(b => ({ ...b })) : [],
     exp: opts.rpg ? { ...MOMENT.exp } : null,
-    statuses: opts.rpg ? MOMENT.statuses.map(s => ({ ...s })) : [],
+    // Story-only keeps its status chips (decision 23) but has no stance to report.
+    statuses: MOMENT.statuses.filter(s => opts.rpg || !RPG_ONLY_STATUS.has(s.id)).map(s => ({ ...s })),
   };
 }
+
+// Statuses that exist only with RPG on: stances (the mock hides them as .rpgonly).
+const RPG_ONLY_STATUS = new Set(['shadow-step']);
 
 function buildHereList(opts) {
   if (opts.empty) return [];
@@ -75,7 +85,7 @@ function buildHereList(opts) {
         const over = PEOPLE.fightOverrides[p.personId] || {};
         return {
           ...p,
-          meters: { ...p.meters },
+          meters: { ...(over.meters ?? p.meters) },
           scene: p.scene ? { ...p.scene } : null,
           mood: over.mood ?? p.mood,
           where: over.where ?? p.where,
@@ -245,11 +255,11 @@ export function fixture(variant = 'default') {
     chat: buildChat(opts, hereList, changes, needsYou),
     people: buildPeople(opts, hereList),
     party: opts.rpg ? partyFixture() : null,
-    bag: bagFixture({ rpg: opts.rpg }),
-    fight: opts.fightOpen ? fightFixture('choose') : null,
+    bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),
+    fight: opts.fightOpen ? fightFixture(opts.fightState) : null,
     world: worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
-    story: buildStory({ empty: opts.empty }),
+    story: buildStory({ empty: opts.empty, planShown: opts.planShown }),
     settings: buildSettings({ rpg: opts.rpg }),
     dossier: Object.fromEntries(Object.keys(DOSSIERS).map(id => [id, dossierFor(id)])),
   };
