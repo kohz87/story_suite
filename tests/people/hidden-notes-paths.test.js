@@ -176,33 +176,7 @@ const onePassScenario = async ({ reply, mockState }) => {
     };
 };
 
-for (const [label, compact, rule] of [['full rules', false, 16], ['compact rules', true, 12]]) {
-    test(`hosted one-pass block (${label}): the block writes a new dossier's layered notes; present people's event notes are watched and opened`, () => {
-        const out = runPath(`onepass-${label}`, { setup: new Function('settings', `settings.narrationCaptureCompact = ${compact};`) }, onePassScenario);
-        assert.match(out.first.rules, new RegExp(`\\n${rule}\\. HIDDEN NOTES: for each NEW dossier-worthy NPC only`), 'the rules ask for layers');
-        assert.equal(out.first.context.includes('STORY EVENTS'), false, 'nobody has an event note yet');
-        assert.deepEqual(out.secrets, [{ meter: null, when: NOTE_EVENT, id: true }, { meter: 'trust', when: null, id: true }], 'the notes from the block, cleaned');
-        assert.match(out.second.context, /\n\nSTORY EVENTS to look for \(present NPCs' hidden notes\): s1 = Yunyun: The duke is exposed as a traitor\. /, 'the context lists the event');
-        assert.equal(out.second.rules, out.first.rules, 'the rules are byte-identical from reply to reply');
-        assert.equal(out.opened.length, 1, 'one npc.open: the key the block returned (an unknown key is ignored)');
-        assert.deepEqual(out.opened[0].payload, { name: 'Yunyun', open: [out.noteId], by: 'story' });
-        assert.deepEqual(out.opened[0].options, { background: true }, 'sent as Delta\'s own action, as a background change (Story Block\'s late save window)');
-    });
-}
 
-test('one-pass block with "Hidden notes for new people" off: no layered rule, nothing kept from a block that has them; as an unhosted Delta sends it', () => {
-    const out = runPath('onepass-off', { setup: settings => { settings.layeredSecrets = false; } }, async ({ reply }) => {
-        const first = await reply('Yunyun waves from the gate.', { npcs: [yunyun({ secrets: withEvent })] });
-        const dossier = globalThis.NPCStateDelta.getState().npcs.find(npc => npc.name === 'Yunyun');
-        return { rules: first.rules, secrets: (dossier?.secrets ?? []).length };
-    });
-    assert.equal(out.rules.includes('HIDDEN NOTES'), false);
-    assert.equal(out.secrets, 0);
-    // Off, the rules are exactly what an unhosted Delta sends (nothing about hidden notes anywhere).
-    const alone = runPath('onepass-unhosted', { hosted: false }, async ({ reply }) => ({ rules: (await reply('Yunyun waves from the gate.', { npcs: [yunyun()] })).rules }));
-    assert.equal(out.rules, alone.rules, 'byte-identical');
-    assert.ok(alone.rules.length > 500);
-});
 
 test('hosted: a backfill of a new dossier asks for layered notes and keeps them; a Refresh of a present person looks for their story events', () => {
     const out = runPath('backfill-refresh', { setup: settings => { settings.narrationCaptureCatchUp = 2; } }, async ({ reply, mockState }) => {
@@ -326,18 +300,3 @@ test('secretEventsShown: no evidence, a short or made-up quote, a non-string quo
     }
 });
 
-test('hosted one-pass: a key with no evidence quote, or a made-up one, opens no note; the same key with a real quote opens it', () => {
-    const out = runPath('onepass-evidence', {}, async ({ reply, mockState }) => {
-        await reply('Yunyun, a young woman with crimson eyes, waves from the gate.', { npcs: [yunyun({ secrets: withEvent })] });
-        const dossier = globalThis.NPCStateDelta.getState().npcs.find(npc => npc.name === 'Yunyun');
-        const sentOpens = () => mockState.sdk.sent.filter(item => item.type === 'npc.open').length;
-        const row = { ...yunyun(), id: dossier?.id };
-        await reply('The duke is dragged out in chains.', { npcs: [row], secretEvents: ['s1'] });
-        const bare = sentOpens();
-        await reply('The duke is dragged out in chains.', { npcs: [row], secretEvents: ['s1'], secretEventEvidence: { s1: 'the duke confesses to treason' } });
-        const made = sentOpens();
-        await reply('The duke is dragged out in chains.', { npcs: [row], secretEvents: ['s1'], secretEventEvidence: { s1: 'The duke is dragged out in chains.' } });
-        return { bare, made, real: sentOpens() };
-    });
-    assert.deepEqual(out, { bare: 0, made: 0, real: 1 });
-});

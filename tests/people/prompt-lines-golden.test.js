@@ -36,7 +36,7 @@ test('the lines builder output matches its golden at every settings variant', ()
 
 test('the lines builder is what the runtime sends: runtime-injection imports it and the meters static text is the paragraph', () => {
     const injection = fs.readFileSync(fileURLToPath(new URL('../../modules/people/runtime/runtime-injection.js', import.meta.url)), 'utf8');
-    assert.ok(injection.includes("core-prompts-lines.js") && !injection.includes('buildNarrationCaptureParts'), 'one-pass sends the lines builder, not the JSON prompt');
+    assert.ok(injection.includes("core-prompts-lines.js") && /storySuiteV2Meters\(\)\s*\n?\s*\/\/ Hosted[^\n]*\n\s*\? buildLinesParts/.test(injection), 'hosted one-pass sends the lines builder (the JSON prompt only without a host)');
     const prompt = fs.readFileSync(fileURLToPath(new URL('../../modules/people/meters/npc-meters-prompt.js', import.meta.url)), 'utf8');
     assert.ok(prompt.includes('linesMeterText'), 'staticText returns the NSD2 paragraph');
     assert.ok(built.default.rules.startsWith('NPC CHANGES. Write your complete in-character reply first'), 'the approved NSD1 header opens the rules');

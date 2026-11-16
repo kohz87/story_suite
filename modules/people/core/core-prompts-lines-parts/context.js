@@ -25,6 +25,5 @@ export function buildLinesContext({ eventWatch = null, existingNpcs = [], turn =
         aliases: (npc.aliases || []).slice(0, 8),
         ...(isInterimNpcLabel(npc.name, npc.identityKind) ? { identityKind: 'role_label', role: cleanText(npc.role, 120), location: cleanText(npc.location, 120) } : {}),
     }));
-    if (!existingNpcs.length && !events) return '';
     return `${PEOPLE_HEADER}\n${JSON.stringify(people)}\n${PEOPLE_NOTE}${events}`;
 }

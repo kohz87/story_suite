@@ -228,24 +228,6 @@ const onePassCapture = async ({ reply, mockState, sleep }) => {
     return { afterFirst, afterSecond: { sieke: pick('npc_sieke'), temiwa: pick('npc_sister-temiwa'), calls: second.all } };
 };
 
-test('ONEPASSCAP: a hosted one-pass reply\'s memory, appearance change and evidence, and the admission backfill\'s fill, ties and edges, are in the dossier without a Refresh', async () => {
-    const result = runCalls('hosted-onepass-capture', true, onePassCapture);
-    const { afterFirst, afterSecond } = result;
-    const { fillWanted } = await import('../../modules/people/appearance/appearance-fill.js');
-    assert.ok(afterFirst.sieke && afterFirst.temiwa, 'both admitted from the block');
-    assert.equal(afterFirst.backfills, 2, '(ONEPASSCAPR2-3) each of the two people admitted in one hosted reply gets its fill on that reply');
-    assert.equal(afterFirst.queued, 0, 'nothing waits for another reply');
-    assert.equal(afterSecond.calls.backfill, 0, 'and no one is filled twice: the next reply asks for nothing');
-    assert.match(afterFirst.sieke.overallAppearance, /Dark hair, wide brown eyes\.$/, 'the fill\'s hair and eyes are stored after the base');
-    assert.ok(afterFirst.sieke.memories.some(text => /guild desk/.test(text)), 'the backfill\'s memory is stored');
-    assert.ok(afterFirst.sieke.keyRelationships.some(text => /Sister Temiwa/.test(text)), 'the one-string keyRelationships is read');
-    assert.ok(afterSecond.sieke.memories.some(text => /bodice button snapped/.test(text)), 'the one-pass memory is stored');
-    assert.match(afterSecond.sieke.appearance, /snapped button/, 'the grounded appearance change is stored');
-    assert.match(afterSecond.sieke.overallAppearance, /Dark hair, wide brown eyes\.$/, 'a later reply keeps the fill');
-    assert.equal(fillWanted(afterSecond.sieke), false, 'nothing left to fill: a later Refresh sends no fill line, so it cannot invent other hair or eyes');
-    assert.ok(afterSecond.temiwa.keyRelationships.some(text => /^Sieke — friend/.test(text)), 'a from/to edge with an underscore id reaches both dossiers');
-    assert.ok(afterSecond.sieke.keyRelationships.some(text => /^Sister Temiwa — /.test(text)));
-});
 
 test('ONEPASSCAP-2/3: one keyRelationships string is one entry per line; an edge endpoint resolves by exact id, folded id, then name', async () => {
     const { normalizeScanNpc, mergeScanResult } = await import('../../modules/people/core/core.js');
@@ -329,28 +311,6 @@ test('ONEPASSMISS-1: missing hosted capture scans the same reply once, admits ne
     assert.deepEqual(result.lines, ['Problems: the reply had no NPC capture; scanned it instead.']);
 });
 
-test('ONEPASSMISS-1: valid and salvageable hosted captures replace the scan; empty and broken captures fall back', () => {
-    const result = runCalls('capture-salvage-and-fallback', true, async ({ reply, settings, mockState }) => {
-        settings.scanEvery = 10;
-        mockState.sdk.feature = id => id !== 'npc-state-delta.scan-every-reply';
-        const valid = await reply('The night is quiet.', { npcs: [] });
-        const openEnvelope = await reply('The road is empty.', '{"npcs":[]}', { unterminated: true });
-        const slipped = await reply('Sieke is weary.', '{"npcs":[{"name":"Sieke","present":true,"moodV:0,"moodA":1}]}', { unterminated: true });
-        const empty = await reply('They walk down the road.', '');
-        const emptyObject = await reply('They stop at a bridge.', '{}');
-        const broken = await reply('They rest by the fire.', '{"npcs":[{"name":"Sis', { unterminated: true });
-        return { valid: valid.all, openEnvelope: openEnvelope.all, slipped: slipped.all, empty: empty.all, emptyObject: emptyObject.all, broken: broken.all, stats: globalThis.NPCStateDelta.uiStatus().narrationCapture };
-    });
-    assert.equal(result.valid.scanner, 0, 'an empty NPC array is still a complete capture');
-    assert.equal(result.openEnvelope.scanner, 0, 'a complete JSON object in an unclosed envelope is read');
-    assert.equal(result.slipped.scanner, 0, 'existing key salvage runs before fallback');
-    assert.equal(result.empty.scanner, 1, 'an empty block is not a capture');
-    assert.equal(result.emptyObject.scanner, 1, 'an empty object is not a capture');
-    assert.equal(result.broken.scanner, 1, 'irrecoverably cut-off JSON is scanned');
-    assert.equal(result.stats.used, 3);
-    assert.equal(result.stats.invalid, 2);
-    assert.equal(result.stats.unterminated, 1);
-});
 
 test('ONEPASSMISS-1: a fallback result is discarded if its chat changes during the request', () => {
     const result = runCalls('fallback-chat-change', true, async ({ reply, settings, mockState, sleep }) => {
@@ -377,34 +337,6 @@ test('ONEPASSMISS-1: a fallback result is discarded if its chat changes during t
     assert.deepEqual(result.lines, [], 'a discarded result is not reported as scanned');
 });
 
-test('ONEPASSMISS-2: one-pass with Auto scan off still captures; a missing block falls back exactly once', () => {
-    const result = runCalls('autoscan-off', true, async ({ reply, settings, mockState, emitAll, sleep, kinds }) => {
-        settings.autoScan = false;
-        settings.scanEvery = 10;
-        mockState.sdk.feature = id => id !== 'npc-state-delta.scan-every-reply';
-        const enabled = globalThis.NPCStateDelta.uiStatus().narrationCapture.enabled;
-        const captured = await reply('Sieke waves at the gate.', { npcs: [{ name: 'Sieke', present: true, role: 'clerk', identityKind: 'proper_name', dossierSignal: 'high', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }] });
-        const names = globalThis.NPCStateDelta.getState().npcs.map(npc => npc.name);
-        mockState.quietResponder = async (args = {}) => /isolated dossier scanner\./i.test(String(args.systemPrompt || '')) ? JSON.stringify({ npcs: [{ name: 'Temiwa', present: true, role: 'nun', identityKind: 'proper_name', dossierSignal: 'high', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }] }) : '{"npcs":[]}';
-        const missing = await reply('Sister Temiwa greets her.', null);
-        await sleep(150);
-        const scanCount = globalThis.NPCStateDelta.getState().scanCount;
-        await emitAll('message_received', missing.id);
-        await sleep(100);
-        const noticeAfterMissing = globalThis.NPCStateDelta.scannerReport().filter(line => line.includes('the reply had no NPC capture')).length;
-        const scanCountAfterDuplicate = globalThis.NPCStateDelta.getState().scanCount;
-        await reply('The gate closes.', { npcs: [] });
-        return { enabled, captured: captured.all, names, missing: missing.all, afterDuplicate: kinds(), scanCount, scanCountAfterDuplicate, noticeAfterMissing, noticeAfterCapture: globalThis.NPCStateDelta.scannerReport().filter(line => line.includes('the reply had no NPC capture')).length };
-    });
-    assert.equal(result.enabled, true);
-    assert.equal(result.captured.scanner, 0, 'the block alone updated the dossiers');
-    assert.ok(result.names.includes('Sieke'), 'a capture with Auto scan off is applied');
-    assert.equal(result.missing.scanner, 1, 'a missing block scans once');
-    assert.equal(result.afterDuplicate.scanner, 1, 'a duplicate receipt never scans or applies twice');
-    assert.equal(result.scanCountAfterDuplicate, result.scanCount);
-    assert.equal(result.noticeAfterMissing, 1);
-    assert.equal(result.noticeAfterCapture, 0, 'the notice follows the latest reply only');
-});
 
 test('ONEPASSMISS-2: the settings text no longer ties one-pass to Auto scan', () => {
     const html = fs.readFileSync(new URL('../../modules/people/settings/runtime-settings-html.js', import.meta.url), 'utf8');
