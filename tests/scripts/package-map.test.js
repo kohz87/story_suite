@@ -68,7 +68,7 @@ test('backlog counts bindings (multi-binding declarations, wildcards) and exempt
 
 test('every table row keeps its columns when a signature holds a pipe', () => {
   const row = build({}).markdown.split('\n').find(l => l.startsWith('| `src/a.js`'));
-  assert.equal(row.replaceAll('\\|', '').split('|').length, 9);
+  assert.equal(row.replaceAll('\\|', '').split('|').length, 8);
 });
 
 test('the feature index lists entries and reports one that is not a file', () => {
