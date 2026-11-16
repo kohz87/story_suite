@@ -2,19 +2,15 @@
 import { h } from '../../../kit/dom.js';
 import { glyph } from '../../../kit/glyphs.js';
 import { button } from '../../../kit/controls.js';
+import { tieDisc } from './tie-disc.js';
 import { pageSection } from '../../../kit/page.js';
-
-/** First letter of a tie's name, upper case, without a leading "the" ("the Harbour Master" gives H). */
-export function tieInitial(tie) {
-  return String(tie?.name ?? '?').replace(/^the /i, '').slice(0, 1).toUpperCase();
-}
 
 /** Builds the Ties page: one row per known tie; a tie with a person id opens that dossier through ctx.go. */
 export function tiesPage(d, ctx = {}) {
   const ties = d.ties ?? [];
   if (!ties.length) return h('p', { class: 'fine' }, 'No ties known.');
   return h('div', { class: 'ties' }, ties.map((t) => {
-    const body = [h('span', { class: 'a' }, tieInitial(t)), h('span', { class: 'tt' }, h('b', null, t.name), h('small', null, t.line))];
+    const body = [tieDisc(t), h('span', { class: 'tt' }, h('b', null, t.name), h('small', null, t.line))];
     return t.personId
       ? h('button', { type: 'button', class: 'tie', dataset: { personId: t.personId }, onClick: () => ctx.go?.('people', { personId: t.personId }) }, body)
       : h('div', { class: 'tie' }, body);

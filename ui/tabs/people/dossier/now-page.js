@@ -1,6 +1,7 @@
 // Builds the Right now page (where, doing, wearing, thinking, or last seen) with the shared scene-spoiler switch, and the Mood page.
 import { h } from '../../../kit/dom.js';
 import { kvList, pageSection } from '../../../kit/page.js';
+import { moodMeters } from './mood-meters.js';
 import { spoilerSwitch, hiddenValue } from '../../../kit/spoiler.js';
 
 const quote = text => (text ? h('span', { class: 'q' }, `“${text}”`) : null);
@@ -32,5 +33,5 @@ export function nowPage(d, ctx = {}) {
 
 /** Builds the Mood page: the mood word, or a dash when none is known. */
 export function moodPage(d) {
-  return pageSection(null, h('div', { class: 'bigw' }, d.mood || '—'), d.mood ? null : h('p', { class: 'fine' }, 'No mood has been read yet.'));
+  return pageSection(null, h('div', { class: 'bigw' }, d.mood || '—'), moodMeters(d.moodBars), d.mood ? null : h('p', { class: 'fine' }, 'No mood has been read yet.'));
 }

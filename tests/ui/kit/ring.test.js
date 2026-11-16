@@ -34,3 +34,13 @@ test('feelingsRing copes with empty, bad and oversized values', () => {
   assert.equal(big.getAttribute('d'), small.getAttribute('d'));
   assert.match(big.getAttribute('d'), / 0 0 1 /);
 });
+
+test('feelingsRing pad moves the radius and ticks adds four quarter marks', () => {
+  installFakeDom();
+  const ring = feelingsRing({}, { width: 2.6, pad: 4, ticks: true });
+  assert.equal(ring.querySelector('.ring-track').getAttribute('r'), '44.7');
+  const ticks = ring.querySelectorAll('.ring-tick');
+  assert.equal(ticks.length, 4);
+  assert.equal(ticks[0].getAttribute('d'), 'M50.00 3.00L50.00 -0.50');
+  assert.equal(feelingsRing({}).querySelectorAll('.ring-tick').length, 0);
+});
