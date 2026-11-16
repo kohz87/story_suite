@@ -13,14 +13,15 @@ import { S } from './text.js';
  * row that scrolls sideways, no More. The tabs are `registry.tabs()`, in its order (Story Block's
  * panel gives the module tabs and the tab screens in the reader's order, without the hidden ones). A tab that is gone falls
  * back to the first. The pane scrolls inside `root`; the bar stays where it is.
- * `options`: { registry, view: () => view, api (the sdk), doc?, active?, barHost?, inBar? (tab → in the bar; the others follow
+ * `options`: { registry, view: () => view, api (the sdk), doc?, active?, barHost?, swap? (() => true while the redraw scheduler's flag is on: the pane is drawn apart and swapped in), inBar? (tab → in the bar; the others follow
  * the ones that are, in the same strip) }. Tabs read the head state's view only,
  * never message text. Returns { refresh(), select(id), active(), bar }.
  */
-export function createTabHost(root, { registry, view, api = null, doc = globalThis.document, active = null, barHost = null, inBar = null }) {
+export function createTabHost(root, { registry, view, api = null, doc = globalThis.document, active = null, barHost = null, inBar = null, swap = null }) {
     let current = active;
+    let blurWatch = null;     // swap draw: the pane a deferred host redraw is waiting on (a field in it has the focus)
     let release = null;       // what the last drawing of the pane left behind (a dispose function or { destroy }), taken down on the next draw
-    const pane = el(doc, 'div', 'story-suite-pane');
+    let pane = el(doc, 'div', 'story-suite-pane');
     root.replaceChildren(pane);
     // The panel's own names on each tab's button: `story-suite-tab` and `data-tab-id` (the tests and the
     // modules use them), and the full label as the title (the bar cuts a long one).
@@ -40,7 +41,58 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
             alertText: tab.alertText ?? '', moreOnly: typeof inBar === 'function' && !inBar(tab) })), current: current ?? '' });
     }
 
-    function draw() {
+    // Flag suite.redrawScheduler (`swap()` true): the pane is drawn apart and swapped in, so the old one stays shown until the new one is
+    // ready (no empty moment) and the panel's scroll is kept. Flag off: drawPlain, as it always was.
+    function drawSwap() {
+        const tabs = registry.tabs();
+        if (!tabs.some(tab => tab.id === current)) current = tabs[0]?.id ?? null;
+        drawBar(tabs);
+        dispose(pane);
+        if (typeof release === 'function') { try { release(); } catch { /* a tab's cleanup failing must not block the redraw */ } }
+        release = null;
+        const next = el(doc, 'div', 'story-suite-pane');
+        const tab = tabs.find(item => item.id === current);
+        next.dataset.tabId = tab?.id ?? '';
+        if (!tab) next.appendChild(el(doc, 'p', 'story-suite-muted', 'No module has a tab yet.'));
+        else {
+            try {
+                const out = tab.render(next, view(), api);
+                if (typeof out === 'function') release = out;
+                else if (out && typeof out.destroy === 'function') release = () => out.destroy();
+            } catch (error) {
+                next.replaceChildren(el(doc, 'p', 'story-suite-muted', `${tab.title} could not be shown: ${error?.message ?? error}`));
+            }
+        }
+        const top = root.scrollTop;
+        // (the swap is one step; the bar may share `root`, so only the old pane is replaced)
+        if (pane.parentNode) { pane.parentNode.insertBefore(next, pane); pane.remove(); } else root.prepend(next);
+        pane = next;
+        if (top) root.scrollTop = top;
+    }
+    // A host redraw never takes a field the reader is typing in out from under them: it waits for the field to lose focus, then runs once.
+    function typingIn() {
+        const at = doc?.activeElement;
+        return Boolean(at && pane.contains?.(at) && (['INPUT', 'TEXTAREA', 'SELECT'].includes(String(at.tagName ?? '').toUpperCase()) || at.isContentEditable === true));
+    }
+    function waitForBlur() {
+        if (blurWatch === pane) return;
+        const watched = blurWatch = pane;
+        const done = () => {
+            watched.removeEventListener?.('focusout', done);
+            if (blurWatch === watched) blurWatch = null;
+            (doc?.defaultView?.setTimeout ?? setTimeout)(() => { if (pane === watched) draw(); }, 0);   // (a pane already replaced needs nothing)
+        };
+        watched.addEventListener?.('focusout', done);
+    }
+
+    function draw({ guard = false } = {}) {
+        if (swap?.() === true) {
+            if (guard && typingIn()) return waitForBlur();
+            return drawSwap();
+        }
+        drawPlain();
+    }
+    function drawPlain() {
         const tabs = registry.tabs();
         if (!tabs.some(tab => tab.id === current)) current = tabs[0]?.id ?? null;
         drawBar(tabs);
@@ -69,12 +121,13 @@ export function createTabHost(root, { registry, view, api = null, doc = globalTh
     }
     draw();
     return {
-        refresh: draw,
+        refresh: opts => draw(opts),
         select,
         active: () => current,
         bar,
         /** Takes the open tab's widgets down (its pane disposed, and what its render returned). */
         destroy() {
+            blurWatch = null;
             dispose(pane);
             if (typeof release === 'function') { try { release(); } catch { /* a tab's cleanup failing must not block teardown */ } }
             release = null;

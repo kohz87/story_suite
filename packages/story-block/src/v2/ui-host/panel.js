@@ -5,7 +5,7 @@ import { createTabHost } from '../host-ui.js';
 import { isInBar, navKey } from '../view/tab-order.js';
 import { IDS, el, iconButton, S } from './shared.js';
 
-export function createUiPanel({ doc, sdk, tabSource, tabOrder, barDeclared, mounts, getTabHost, setTabHost }) {
+export function createUiPanel({ doc, sdk, tabSource, tabOrder, barDeclared, mounts, getTabHost, setTabHost, swap = null }) {
     // ---- the panel ---------------------------------------------------------------------------
     const panel = el(doc, 'div', 'story-suite-sheet');
     panel.id = IDS.panel;
@@ -26,7 +26,7 @@ export function createUiPanel({ doc, sdk, tabSource, tabOrder, barDeclared, moun
     function openPanel() {
         panel.hidden = false;
         doc.body.classList.add('story-suite-sheet-open');
-        if (!getTabHost()) setTabHost(createTabHost(panelBody, { registry: tabSource, view: () => sdk.view(), api: sdk, doc, barHost: panel,
+        if (!getTabHost()) setTabHost(createTabHost(panelBody, { registry: tabSource, view: () => sdk.view(), api: sdk, doc, barHost: panel, swap,
             inBar: tab => isInBar(tabOrder.choice(), navKey(tab), barDeclared(navKey(tab))) }));
         else getTabHost().refresh();
     }

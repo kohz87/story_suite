@@ -20,7 +20,7 @@ export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, sched
         scheduler.register('panel', {
             isVisible: () => !getPanel().hidden,
             read: () => ({ epoch, tab: getTabHost()?.active?.() ?? null }),
-            draw: logged('panel', () => { mounts.tab.register(); getTabHost()?.refresh(); }),
+            draw: logged('panel', () => { mounts.tab.register(); getTabHost()?.refresh({ guard: true }); }),
         });
         scheduler.register('overlay-size', {
             isVisible: () => true,

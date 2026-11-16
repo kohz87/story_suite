@@ -123,6 +123,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     let tabHost = null;
     const { panel, offerBox, openPanel, closePanel } = createUiPanel({
         doc, sdk, tabSource, tabOrder, barDeclared, mounts, getTabHost: () => tabHost, setTabHost: value => { tabHost = value; },
+        swap: () => wiring?.on() === true,
     });
 
     let overlay = null;
