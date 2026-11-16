@@ -11,6 +11,8 @@ export const RULE_LINES = Object.freeze({
     checks: line => line?.kind === 'roll',
     // `? roll Name | skill | difficulty`: code gives each check the next die in order (lean-rpg/checks/line.js); a fourth part is tolerated. A reply with no mark keeps the four-part rules and their refusals.
     diceInOrder: line => line?.kind === 'roll',
+    // `~ time 4:45 pm` is the clock now, today, and a clock that would go back is refused with a Problem (Story Director tracker/time-parts/clock-face.js); `! time tomorrow evening` / `! time next morning` skip to the next day. A reply with no mark keeps reading time lines as before (a bare earlier clock face is the next day).
+    clockFace: line => line?.kind === 'time',
     // `- key Name | died`: a death counts for anyone, not only a pinned key person (Story Director keypeople). Same words as its death test.
     // `+ party Name`: the room for a companion's blocks (data-modules dmRoom: 20 own, 28 in all) and the party limit counting only active members. Any `+ party` line counts, however it parsed.
     partyRoom: partyJoin,
