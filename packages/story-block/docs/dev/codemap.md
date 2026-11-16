@@ -292,6 +292,9 @@ Last checked: 2026-11-07.
 - `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `src/v2/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
 - `src/v2/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
+- `src/v2/domains/people/part.js`: the deferred `people` domain part: the `people.mirror` command and the `people.mirrorOn` / `people.hash` queries, off unless the flag is on.
+- `src/v2/domains/people/validate.js`: checks a people view (version, order, plain JSON, records keyed by id) before it is stored.
+- `src/v2/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
 - `testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
 - `testkit/matrix/run/checks.js`: matrix state checks, cold replay, the fresh-host oracle, dormancy and registration.
 - `testkit/matrix/run/basics.js`: the matrix basic row, action, replay, prompt and dormancy cases.

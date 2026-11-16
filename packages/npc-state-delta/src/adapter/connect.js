@@ -13,7 +13,7 @@ export function isV2Host(host) {
 export function createConnectPart(session, deps) {
     const {
         aliveMs, announceHosted, attempts, cardSettings, chatKeyOf, definition, dossiersReady, host, listen, loadDossierList,
-        doc, loadEmptyCast, onTurn: runTurn, portraitFill: fillPortraits, registerCardSettings, registerPublicPaths, retryMs, startTimeline, stopTimeline,
+        doc, loadEmptyCast, mirror, onTurn: runTurn, portraitFill: fillPortraits, registerCardSettings, registerPublicPaths, retryMs, startTimeline, stopTimeline,
         syncDrawer, timers, unmountSection, warn,
     } = deps;
 
@@ -29,6 +29,7 @@ export function createConnectPart(session, deps) {
     let aliveTimer = null;
     let hostRef = null;          // the Story Block global we connected to
     let offTurn = null;          // unsubscribes from the host's 'turn' event
+    let offMirror = null;        // stops the people mirror's own 'head' listener
     let offHead = null;          // unsubscribes from the host's 'head' event
     let offCardSettings = null;  // unregisters Delta's card settings
 
@@ -57,6 +58,8 @@ export function createConnectPart(session, deps) {
             const off = typeof sdk.on === 'function' ? sdk.on('turn', onTurn) : null;
             offTurn = typeof off === 'function' ? off : null;
         } catch (error) { warn('Story Suite v2 turn events are not available', error); }
+        // The people mirror listens to 'head' first: a host that keeps one listener per event leaves the portrait fill its own.
+        offMirror = mirror.start();
         try {
             const off = typeof sdk.on === 'function' ? sdk.on('head', portraitFill) : null;
             offHead = typeof off === 'function' ? off : null;
@@ -118,6 +121,8 @@ export function createConnectPart(session, deps) {
         stopTimeline();
         try { offTurn?.(); } catch { /* the host is gone */ }
         offTurn = null;
+        try { offMirror?.(); } catch { /* the host is gone */ }
+        offMirror = null;
         try { offHead?.(); } catch { /* the host is gone */ }
         offHead = null;
         try { offCardSettings?.(); } catch { /* the host is gone */ }
