@@ -61,7 +61,6 @@
     { "from": "packages/story-block/tests/v2/people", "to": "tests/modules/people" },
     { "from": "packages/npc-state-delta/src/people", "to": "modules/people" },
 
-    { "from": "packages/npc-state-delta/src/storysuite-participant", "to": "modules/people/legacy/storysuite-participant" },
     { "from": "packages/npc-state-delta/src/storysuite-v2.js", "to": "modules/people/storysuite-v2.js" },
     { "from": "packages/npc-state-delta/src/adapter", "to": "modules/people/adapter" },
     { "from": "packages/npc-state-delta/src/fields", "to": "modules/people/fields" },

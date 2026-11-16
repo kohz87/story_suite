@@ -73,8 +73,8 @@ packs. Nothing flows back to Studio.
 - **Sidecar**: Delta's per-chat state file (see Storage).
 - **Checkpoint / rollback journal**: the history Delta keeps so swipes, edits and deletes restore dossiers (`branch.js`,
   `branch-core.js`, `destructive-settlement.js`).
-- **Participant**: Delta's registration with Story Block's timeline (`src/storysuite-participant/`) so save points restore
-  dossiers with the story, and a confirmed death returns to the dossier.
+- **People store**: while hosted, the story's one timeline is Story Block's store (the `people` domain): Delta keeps no checkpoints, vault or
+  participant of its own, and a confirmed death is one people write (`src/adapter/native-death.js`).
 
 ## Reader features
 
@@ -241,7 +241,7 @@ Module id `npc-state-delta`. Registered in `src/storysuite-v2.js` (`QUERY_NAMES`
 
 Page API `globalThis.NPCStateDeltaCast` (version 2) for Story Director's World screen; `busy()` is true until Delta has read the newest reply, and listeners are told once when it is done. Public global `NPCStateDelta` for Delta's own runtime.
 Story Director queries Delta reads: `director.cast`, `director.keyPeople`, `director.calendar`, `director.world.here`.
-Detail: [docs/dev/storysuite-adapter.md](docs/dev/storysuite-adapter.md), [docs/dev/storysuite-participant.md](docs/dev/storysuite-participant.md).
+Detail: [docs/dev/storysuite-adapter.md](docs/dev/storysuite-adapter.md).
 
 ## Storage
 
@@ -254,7 +254,6 @@ Detail: [docs/dev/storysuite-adapter.md](docs/dev/storysuite-adapter.md), [docs/
   stages, milestones, unlocked and held note ids, disposition, `cast`, `keyAway`, `problems`. At most 80 NPCs.
 - **Portraits**: cast portraits are user files `npc-state-delta-portrait-<hash>.<ext>`, written once, never deleted by Delta.
   An uploaded or generated portrait stays in the dossier as before.
-- **Timeline checkpoints**: one user file per checkpoint, one small index per lineage (`src/storysuite-participant/vault.js`).
 - **Settings**: `extension_settings.npc_state_delta`. Floating launcher position is `localStorage` (UI only).
 - Export bundles (`bundle.js`, `native-transfer.js`) carry dossiers and portrait files. Import merges; another chat keeps its own
   lineage. Clearing a chat's dossiers never touches other chats. A UI change never deletes stored state.
@@ -271,7 +270,7 @@ Detail: [docs/dev/storysuite-adapter.md](docs/dev/storysuite-adapter.md), [docs/
   `continuity-ui.js`, `story-block-tabs.js` (only the dossier rows and empty-cast line now), `style.css`, `suite.css`.
 - Suite: `src/storysuite-v2.js` (adapter: registration, queries, commands, screens, page API), `src/npc-meters*.js` (the `npc`
   domain), `src/social-check.js`, `src/key-people.js`, `src/cast-dossier.js`, `src/portrait-file.js`,
-  `src/storysuite-participant/`, `src/fields/registry.js`, `suite.js` and `suite-handshake.js` (the v1 registry; offers nothing to a
+  `src/fields/registry.js`, `suite.js` and `suite-handshake.js` (the v1 registry; offers nothing to a
   v2 host).
 - `runtime-modules.json`: every shipped top-level runtime `.js` file, once, with a role.
 - `scripts/`: `validate.mjs`, `package.mjs` (Python), `measure-prompts.mjs`. `tests/`: about 190 test files plus fixtures; they import the live Story Block testkit by relative path.
