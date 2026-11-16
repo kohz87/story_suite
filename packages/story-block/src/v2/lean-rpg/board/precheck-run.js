@@ -22,9 +22,10 @@ export const wantsPrecheck = (values, sheet, message) => values?.[PRECHECK_SETTI
 export async function runPrecheck({ callModel, message, previous = '', sheet, values = {}, limit = PRECHECK_LIMIT_MS, timer, query = null }) {
     if (typeof callModel !== 'function') return [];
     try {
-        const prompt = precheckPrompt({ message, previous, sheet, ranks: rankScale(query), known: knownLines(query, message, previous) });
+        const v1 = sheet.characters.some(character => character.v1 === true);
+        const prompt = precheckPrompt({ message, previous, sheet, ranks: rankScale(query), known: knownLines(query, message, previous), v1 });
         const answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, profile: String(values[SETTING.profile] ?? ''), helper: 'precheck', timeoutMs: limit }), limit, timer);
-        return vetGroups(parsePrecheck(answer), { message, previous, sheet, stated: name => statedLevel(query, name) });
+        return vetGroups(parsePrecheck(answer), { message, previous, sheet, stated: name => statedLevel(query, name), v1 });
     } catch { return []; }
 }
 

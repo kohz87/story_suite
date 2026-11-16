@@ -6,6 +6,7 @@ import { rpgBlocks, readParty, skillsOf } from '../party-data.js';
 import { words, line } from './shared-line.js';
 import { exchangesOf, rulesOfReply } from './rolls.js';
 import { partyLines, fightLines, practiceLines } from './receipts.js';
+import { v1PaidLines } from './v1-paid.js';
 
 const C = RPG_STRINGS.changes;
 
@@ -26,6 +27,7 @@ export function rpgReplyLines({ state, before = null, record = null, problems = 
     out.push(...partyLines(record, problems));
     out.push(...fightLines(record, problems));
     out.push(...practiceLines(record, problems));
+    out.push(...v1PaidLines(record, problems));
     if (!before) return out;
     const then = new Map(readParty(before, { roleOf }).map(character => [`${character.module}|${character.subject}`, character]));
     for (const character of readParty(state, { roleOf })) {

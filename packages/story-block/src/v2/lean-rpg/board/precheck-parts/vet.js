@@ -2,6 +2,7 @@
 import { FOE_LEVEL, foeLevelCap, partyLevels } from '../../foes.js';
 import { PRECHECK_LIMITS } from './prompt.js';
 import { isObject, nameKey, namedInMessage, oneLine } from './shared-words.js';
+import { sizeGroups, tierWord } from './v1-sizing.js';
 
 const WHOLE = /\d+(?:\.\d+)?/u;
 const limitOf = (limits, keys, fallback, low = 1) => {
@@ -39,9 +40,13 @@ function levelOf(value) {
  * Vets parsed groups for an opening. `limits` may narrow `{ groups, count, name, levelMin, levelMax }`; its defaults are
  * `PRECHECK_LIMITS` and the Foes rules (a count above the Foes block's maximum refuses every group). Name words may come from `message` or `previous`. A level, when given, is held to 1..99 and to the party's highest + 20.
  * `stated(name)` (stated-level.js, read by the caller BEFORE recording) gives a person's own Level: `{ level }` or a rank band `{ rank, from, to }`; it passes the cap and wins over the model's level, and the band is drawn later from the reply's seed.
+
+ * `v1`: the sheet is a Combat Rules v1 one: each group also carries its `tier` (standard when the answer names none or an unknown one) and the groups are cut to the size rule (v1-sizing.js).
  * → `[{ name, count, level? } | { name, count, rank, from, to }]`, in the exact form `openFoes` takes; a missing or invalid level is the party's top level (held to the same cap), never a random draw.
  */
-export function vetGroups(groups, { message = '', previous = '', sheet = null, limits = null, stated = null } = {}) {
+export function vetGroups(groups, { message = '', previous = '', sheet = null, limits = null, stated = null, v1 = false } = {}) {
+    const out = list => (v1 ? sizeGroups(list) : list);   // (a Combat Rules v1 sheet: each group names its tier and the fight is held to the size rule, parts/v1-sizing.js)
+    const tiered = group => (v1 ? { tier: tierWord(group.tier) } : {});
     if (!Array.isArray(groups)) return [];
     const maxGroups = limitOf(limits, ['groups', 'maxGroups'], PRECHECK_LIMITS.groups);
     const maxCount = limitOf(limits, ['count', 'maxCount'], PRECHECK_LIMITS.count);
@@ -66,11 +71,11 @@ export function vetGroups(groups, { message = '', previous = '', sheet = null, l
         let given = null;
         // One person's Level: a group of several ("Vorn's men") is not that person, and keeps the normal rules.
         try { given = count === 1 && typeof stated === 'function' ? stated(name) : null; } catch { given = null; }
-        if (given && Number.isInteger(given.level)) { accepted.push({ name, count, level: Math.max(FOE_LEVEL.min, Math.min(FOE_LEVEL.max, given.level)) }); continue; }
-        if (given && typeof given.rank === 'string' && Number.isInteger(given.from) && Number.isInteger(given.to) && given.from <= given.to) { accepted.push({ name, count, rank: given.rank, from: given.from, to: given.to }); continue; }
+        if (given && Number.isInteger(given.level)) { accepted.push({ name, count, ...tiered(group), level: Math.max(FOE_LEVEL.min, Math.min(FOE_LEVEL.max, given.level)) }); continue; }
+        if (given && typeof given.rank === 'string' && Number.isInteger(given.from) && Number.isInteger(given.to) && given.from <= given.to) { accepted.push({ name, count, ...tiered(group), rank: given.rank, from: given.from, to: given.to }); continue; }
         const rawLevel = levelOf(group.level);
         const level = Math.max(levelMin, Math.min(cap, Number.isInteger(rawLevel) ? rawLevel : topLevel));
-        accepted.push({ name, count, level });
+        accepted.push({ name, count, ...tiered(group), level });
     }
-    return accepted;
+    return out(accepted);
 }

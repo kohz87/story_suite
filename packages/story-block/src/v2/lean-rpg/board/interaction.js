@@ -1,6 +1,7 @@
 // The fight board as an interaction kind (`story-block/fight`): play, settle, witness, actors, Auto and the next segment over today's engine; a setup marked `v1: 1` goes to board/v1-kind.js (the Combat Rules v1 engine).
 // A step is one exchange. `toExchanges(steps)` hands the engine exactly the exchanges the pre-port board kept, so dice and results do not move.
 import { PRACTICE, practiceOf } from '../names.js';
+import { xpRateOf } from '../levels.js';
 import { fold, readSheet } from '../read.js';
 import { carriedFrom } from './members.js';
 import { actorIdOf } from '../roster.js';
@@ -36,7 +37,7 @@ const idOf = actor => actorIdOf(actor.module);
 
 function openSetup(state, { anchor, seed, attempt = 0, args = {} }) {
     // A pre-check offer's opening (interaction/start.js): no foe stands yet, so the setup is the opening's own (board/opening.js).
-    if (args.opening) { const made = openingSetup({ ...args.opening, anchor }); return V1.sheet(state) && made.setup ? { setup: { ...made.setup, v1: 1 } } : made; }
+    if (args.opening) { const made = openingSetup({ ...args.opening, anchor }); return V1.sheet(state) && made.setup ? { setup: { ...made.setup, v1: 1, ...(xpRateOf(args.opening.rate) === null ? {} : { rate: args.opening.rate }) } } : made; }
     if (V1.sheet(state)) return V1.open(state, { anchor, seed, attempt, args });
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.filled && foe.hurt > 0).map(foe => foe.slot);
     if (!sheet.characters.some(actor => actor.alive !== false && actor.health !== 0) || !groups.length) return { error: 'There is no fight to open.' };
