@@ -32,7 +32,7 @@ export function installUiEvents({ replyOffs, offs0, registry, store, events, ctx
         if (wiring?.on()) {
             // (the one scheduler draws the panel and the overlay size once per frame; a chat switch draws at once)
             wiring.mark();
-            if (name === 'head' && payload?.reason === 'chat') wiring.flushNow();
+            if (name === 'head' && payload?.reason === 'chat') wiring.flushNow({ guard: false });
             return;
         }
         // (the panel's redraw waits while a form's plan holds it, and runs once after)

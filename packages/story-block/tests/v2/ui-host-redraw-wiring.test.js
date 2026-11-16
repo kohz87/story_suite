@@ -14,15 +14,16 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 5));
 function fakes({ flag = true, hidden = false } = {}) {
     const calls = { register: 0, refresh: 0, size: 0 };
     const frames = [];
+    const guards = [];
     const panel = { hidden };
-    const tabHost = { active: () => 'now', refresh: () => { calls.refresh += 1; } };
+    const tabHost = { active: () => 'now', refresh: opts => { calls.refresh += 1; guards.push(opts?.guard === true); } };
     const wiring = wireRedraw({
         on: () => flag,
         mounts: { tab: { register: () => { calls.register += 1; } } },
         getPanel: () => panel, getTabHost: () => tabHost, getOverlay: () => ({ refreshSize: () => { calls.size += 1; } }),
         schedule: fn => frames.push(fn),
     });
-    return { wiring, calls, panel, frames, runFrames: () => frames.splice(0).forEach(fn => fn()) };
+    return { wiring, calls, guards, panel, frames, runFrames: () => frames.splice(0).forEach(fn => fn()) };
 }
 
 test('a burst of marks is one frame: one tab registration, one pane redraw, one overlay size', () => {
@@ -35,6 +36,13 @@ test('a burst of marks is one frame: one tab registration, one pane redraw, one 
     wiring.mark();
     runFrames();
     assert.deepEqual(calls, { register: 2, refresh: 2, size: 2 }, 'every section has a read: the second burst is drawn again, not skipped');
+});
+
+test('the frame\'s pane redraw asks for the field guard (a typed-in field is not replaced)', () => {
+    const { wiring, guards, runFrames } = fakes();
+    wiring.mark();
+    runFrames();
+    assert.deepEqual(guards, [true]);
 });
 
 test('a hidden panel: its tabs are registered at once (as before), the pane is not drawn', () => {
