@@ -101,3 +101,13 @@ test('without a story clock or quests the Journal still fits the shape; the fixt
   assert.deepEqual([vm.quests, vm.leads, vm.calendar], [[], [], null]);
   assert.deepEqual(checkShape(buildJournal(), JOURNAL_SHAPE), []);
 });
+
+test('a very long step is clipped in the trail, the line still applies, and a cleared step shows no trail', async t => {
+  t.mock.method(console, 'warn', () => {});
+  const host = await told([TOLD[0], [`~ quest Wolf pelts | step: ${'y'.repeat(700)}`]]);
+  t.after(() => host.close());
+  assert.equal(stepsOf(host).at(-1).length, 600);
+  await host.send('On.', said('Done.', ['~ quest Wolf pelts | step:']));
+  const quest = createSbPort({ sdk: host.sdk, selectors: buildSelectors(() => null, host.sdk) }).view('journal').quests[0];
+  assert.deepEqual([quest.step, quest.steps], ['', []]);
+});

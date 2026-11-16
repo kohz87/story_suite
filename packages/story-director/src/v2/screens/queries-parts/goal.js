@@ -31,7 +31,8 @@ export function currentGoal(state, args, tools) {
 // The steps a quest has been through, the current one last: the thread's trail, else just its current step.
 const stepsOf = thread => {
     const kept = Array.isArray(thread.steps) ? thread.steps.map(text).filter(Boolean) : [];
-    return kept.length ? kept : [text(thread.fields?.step)].filter(Boolean);
+    const step = text(thread.fields?.step);
+    return kept.length && step && step.startsWith(kept.at(-1)) ? kept : [step].filter(Boolean);
 };
 
 /** Story-told quests on the Home screen, using only Director threads: `{ id, key, goal, status, meter, step, steps, reward, difficulty }` (a gap is ''). */

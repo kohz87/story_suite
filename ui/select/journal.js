@@ -71,7 +71,7 @@ function questOf(thread, rpg, upcoming) {
   const fields = thread.fields ?? {};
   const step = text(fields.step);
   const trail = strings(thread.steps);
-  const steps = trail.length ? trail : step ? [step] : [];
+  const steps = trail.length && step && step.startsWith(trail.at(-1)) ? trail : step ? [step] : [];
   const difficulty = text(fields.difficulty).toLowerCase();
   return {
     id: text(thread.id), title: text(thread.key), summary: text(fields.goal) || text(thread.summary),
@@ -116,6 +116,6 @@ export function selectJournal(read, opts = {}) {
   const days = journal?.on === true ? list(journal.days).map(d => dayOf(d, months, calendar?.today.month ?? 0)) : [];
   // The story's start: the oldest day the Journal knows (days run newest first).
   const first = days.at(-1);
-  if (calendar && first) calendar.start = { month: first.month, day: first.day };
+  if (calendar && first && first.day > 0) calendar.start = { month: first.month, day: first.day };
   return { rpg, quests, focusId, leads, closed, calendar, days, planned: [], upcoming };
 }
