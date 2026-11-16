@@ -76,8 +76,8 @@ export function selectNow(answers = {}, opts = {}) {
     // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
     here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),
     thisTurn: thisTurn(answers),
-    // `scene.you` (SB/domains/scene.js:102) answers wearing and condition; null while the feature is off. Position is a gap.
-    you: { look: you ? text(you.wearing) || null : null, position: null, condition: you ? text(you.condition) || null : null },
+    // `scene.you` (SB/domains/scene.js:102) answers wearing, condition and position (null when unset); the answer is null while the feature is off.
+    you: { look: you ? text(you.wearing) || null : null, position: you ? text(you.position) || null : null, condition: you ? text(you.condition) || null : null },
     pinned: pinnedOf(opts.pinned),
   };
 }
