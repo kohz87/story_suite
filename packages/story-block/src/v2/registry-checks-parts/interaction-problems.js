@@ -10,7 +10,7 @@ const TITLE_MAX = 24;
 const FUNCTIONS = ['ready', 'open', 'witness', 'validate', 'play', 'settle', 'note'];
 const OPTIONAL_FUNCTIONS = ['actors', 'auto', 'opening', 'view'];
 /** The members of a kind this host knows (an unknown one is only warned about). */
-export const KIND_KEYS = Object.freeze(['version', 'title', 'feature', 'screen', 'limits', 'changes', ...FUNCTIONS, ...OPTIONAL_FUNCTIONS, 'carry', 'next', 'marker']);
+const KIND_KEYS = Object.freeze(['version', 'title', 'feature', 'screen', 'limits', 'changes', ...FUNCTIONS, ...OPTIONAL_FUNCTIONS, 'carry', 'next', 'marker']);
 
 const whole = value => Number.isSafeInteger(value) && value > 0;
 
@@ -30,7 +30,7 @@ function kindProblems(kind, def) {
     const out = [];
     if (!whole(def.version)) out.push(`${at} version is not a whole number above zero`);
     if (typeof def.title !== 'string' || !def.title.trim()) out.push(`${at} has no title (text)`);
-    else if ([...def.title].length > TITLE_MAX) out.push(`${at} title is longer than ${TITLE_MAX} characters`);
+    else if ([...def.title.trim()].length > TITLE_MAX) out.push(`${at} title is longer than ${TITLE_MAX} characters`);
     if (def.feature === undefined || (def.feature !== null && (typeof def.feature !== 'string' || !def.feature))) out.push(`${at} feature is not a feature id (or null for always on)`);
     if (typeof def.screen !== 'string' || !SCREEN.test(def.screen)) out.push(`${at} screen is not a screen id (like "module/${kind}")`);
     out.push(...limitProblems(def.limits, at));

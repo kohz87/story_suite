@@ -26,7 +26,8 @@ async function scenario() {
         await host.send('I take it.', reply('You take it.', ['+ item Coin']));
         await host.swipe(reply('You take it, slowly.', ['+ item Lamp']));
         await host.turn.onChatChanged();
-        out.metadata = host.ctx.chat_metadata;
+        out.prompts = host.st.promptLog;
+        out.metadata = host.ctx.chatMetadata;
         out.records = host.ctx.chat.map(message => message.extra?.storySuite ?? null);
         out.state = host.head();
     } finally { host.close(); }
@@ -38,7 +39,11 @@ test('no kind registered: prompt, chat metadata, receipts and guard mark equal m
     const got = await scenario();
     if (process.env.WRITE_NO_KIND === '1') { writeFileSync(FIXTURE, `${JSON.stringify(got, null, 1)}\n`); return; }
     const want = JSON.parse(readFileSync(FIXTURE, 'utf8'));
+    assert.ok(want.metadata && typeof want.metadata === 'object', 'the fixture records chat metadata');
+    assert.ok(Array.isArray(want.prompts) && want.prompts.length > 0, 'the fixture records every extension-prompt write');
+    assert.ok(got.metadata && typeof got.metadata === 'object', 'chat metadata is present');
     assert.deepEqual(got.prompt, want.prompt, 'the prompt');
+    assert.deepEqual(got.prompts, want.prompts, 'every extension-prompt write (static and tail text)');
     assert.deepEqual(got.metadata, want.metadata, 'chat metadata');
     assert.deepEqual(got.records, want.records, 'receipts and the guard mark on each reply');
     assert.deepEqual(got.state, want.state, 'the state');
