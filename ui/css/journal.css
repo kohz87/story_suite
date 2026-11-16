@@ -74,7 +74,7 @@
 .journal-tab .tdy{min-height:44px;padding:5px 10px;font-size:12px}
 .cgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;margin:0 -10px}
 .cgrid .wd{text-align:center;font:800 12px var(--su-font);color:var(--su-muted);text-transform:uppercase;padding-bottom:2px}
-.journal-tab .cd{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:7px 0 6px;border-radius:12px;border:1.5px solid transparent;background:var(--su-line2);color:var(--su-text);cursor:pointer;font:inherit;min-height:46px}
+.journal-tab .cd{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:7px 0 6px;border-radius:12px;border:1.5px solid transparent;background:var(--su-line2);color:var(--su-text);cursor:pointer;font:inherit;min-height:44px}
 .journal-tab .cd b{font:800 15px var(--su-font)}
 .journal-tab .cd.past{background:transparent}.cd.past b{color:var(--su-soft)}
 .journal-tab .cd.today{background:var(--su-accent)}.cd.today b{color:#14102a}
@@ -84,7 +84,7 @@
 .journal-tab .cd .ds{display:flex;gap:2px;height:5px}.cd .ds i{width:5px;height:5px;border-radius:50%}
 
 .journal-tab .calcard{padding:14px}
-@container (min-width:620px){.journal-tab .calcard{padding:14px 16px}.cgrid{margin:0}.journal-tab .cd{min-height:58px}}
+@container (min-width:620px){.journal-tab .calcard{padding:14px 16px}.cgrid{margin:0}}
 .clegend{display:flex;flex-wrap:wrap;gap:3px 12px;font:700 12px var(--su-font);color:var(--su-muted)}
 .clegend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
 .ystep{display:flex;align-items:center;justify-content:center;gap:16px}.ystep b{font:800 16px var(--su-font);min-width:80px;text-align:center}
@@ -109,11 +109,11 @@
 /* coming up */
 .journal-tab button.up{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;min-height:44px;padding:9px 0;background:none;border:0;border-top:1px solid var(--su-line2);color:var(--su-text);text-align:left;cursor:pointer;font:inherit}
 .up .ti{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:16px;background:var(--su-line2)}
-.up b{font:800 14px var(--su-font);display:block}.up small{font-size:12px;color:var(--su-muted)}
+.up b{font:800 14px var(--su-font);display:block}.up small{display:block;font-size:12px;color:var(--su-muted)}
 .up .rel{font:800 12px var(--su-font);border-radius:999px;padding:3px 10px;background:var(--su-line2);white-space:nowrap}
 .up .rel.soon{color:var(--su-warn-t);background:rgba(242,180,90,.16)}.up .rel.late{color:var(--su-bad-t);background:rgba(229,72,77,.14)}
 /* edit form */
-.qsheet{display:flex;flex-direction:column;gap:10px}
+.qsheet{display:flex;flex-direction:column;gap:12px}
 .qeh{display:flex;align-items:center;gap:8px}.qeh .dn{flex:1;font:800 20px/1.15 var(--su-font)}
 .qeh .x{width:44px;height:44px;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px}
 .qmore{display:flex;gap:8px;flex-wrap:wrap;padding:8px;border-radius:14px;background:var(--su-line2)}

@@ -70,12 +70,20 @@ for (const theme of ['dark', 'light']) {
         await page.evaluate(() => document.querySelector('#hx-frame [data-value="cal"]').click());
         await page.waitForSelector('#hx-frame .cd b');
         assert.equal((await read(page, { n: '.cd b' })).n.size, '15px');
+        assert.equal((await read(page, { t: '.cd.today' })).t.h, 44, 'calendar cell is 44 px tall at every width');
+        assert.equal((await read(page, { u: '.up' })).u.h, 56, 'coming-up row is 56 px tall');
         await page.evaluate(() => document.querySelector('#hx-frame [data-value="quests"]')?.click());
         await page.waitForSelector('#hx-frame .qedit');
         await page.evaluate(() => document.querySelector('#hx-frame .qedit').click());
         await page.waitForSelector('.qeh .x');
         const x = await page.evaluate(() => { const c = getComputedStyle(document.querySelector('.qeh .x')); return [c.fontSize, c.fontWeight, c.borderRadius]; });
         assert.deepEqual(x, ['16px', '800', '10px']);
+        const sheet = await page.evaluate(() => ({ gap: getComputedStyle(document.querySelector('.qsheet')).rowGap, x: document.querySelector('.qeh .qclose').textContent, more: document.querySelector('.qeh .qmore-btn').textContent }));
+        assert.equal(sheet.gap, '12px', 'quest sheet field gap');
+        assert.equal(sheet.x, '×');
+        assert.equal(sheet.more, '⋯');
+        const pitch = await page.evaluate(() => { const f = [...document.querySelectorAll('.qsheet .ef')]; return f[1].getBoundingClientRect().y - f[0].getBoundingClientRect().y; });
+        assert.equal(pitch, 76, 'field row pitch matches the mock');
       } finally { await page.close(); }
     });
   }
