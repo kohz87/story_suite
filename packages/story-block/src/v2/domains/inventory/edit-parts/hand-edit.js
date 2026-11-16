@@ -1,4 +1,4 @@
-// The reader's Edit of a piece they added by hand: kind, slot, rarity, stats and soak.
+// The reader's Edit of a piece they added by hand: kind, slot, rarity and stats (its soak follows the slot's cap).
 
 import { slotWordOf, handDef, statsFor, statsOf, soakCap } from '../../gear.js';
 import { fill } from '../../../strings.js';
@@ -24,12 +24,8 @@ export function handEdit(ctx, env, inv, stack, payload) {
     const stats = payload.stats === undefined ? null : handStats(ctx, payload.stats);
     const rarityAsked = payload.rarity !== undefined && payload.rarity !== null && (becomes ? payload.rarity !== 'common' : payload.rarity !== def.rarity);
     const statsAsked = stats !== null && (becomes ? Object.keys(stats).length > 0 : !same(stats, statsFor(def)));
-    // Soak (the Bag's Edit): a whole number from 0 up to the slot's cap (body 2, off-hand 2, head 1, the rest 0); like Rarity and Bonus it is the starting kit's.
-    const soakSaid = payload.soak;
-    if (soakSaid !== undefined && !(Number.isSafeInteger(soakSaid) && soakSaid >= 0)) ctx.fail('INVALID', E.handSoak);
-    const soakAsked = soakSaid !== undefined && soakSaid !== (def.soak ?? 0);
-    if ((rarityAsked || statsAsked || soakAsked) && !kitOpen(env)) ctx.fail('REFUSED', E.kitClosed);
-    if (kind !== 'equipment' && (payload.slot || soakSaid > 0 || (stats && Object.keys(stats).length))) ctx.fail('INVALID', E.gearNeedsEquipment);
+    if ((rarityAsked || statsAsked) && !kitOpen(env)) ctx.fail('REFUSED', E.kitClosed);
+    if (kind !== 'equipment' && (payload.slot || (stats && Object.keys(stats).length))) ctx.fail('INVALID', E.gearNeedsEquipment);
     const open = kitOpen(env);
     const rarity = becomes ? (open ? payload.rarity ?? 'common' : 'common') : kind === 'equipment' ? payload.rarity ?? def.rarity : def.rarity;
     const nextStats = kind !== 'equipment' ? {} : becomes ? (open && stats ? stats : {}) : stats ?? statsOf(def.stats);
@@ -53,7 +49,8 @@ export function handEdit(ctx, env, inv, stack, payload) {
     def.slot = slot ? baseSlot(slot) : null;
     def.stats = nextStats;
     def.stack = kind !== 'equipment';
-    const soak = kind !== 'equipment' || !slot ? 0 : Math.min(soakSaid ?? def.soak ?? 0, soakCap(slot));
+    // (a new kind or slot holds the soak the piece had to the new slot's cap: none off equipment or without a slot; the Edit's own soak is numberEdit's)
+    const soak = kind !== 'equipment' || !slot ? 0 : Math.min(def.soak ?? 0, soakCap(slot));
     if (soak > 0) def.soak = soak;
     else delete def.soak;
     // (the def's own stats now speak for every piece: a re-pointing made before is dropped)

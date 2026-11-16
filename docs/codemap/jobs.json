@@ -33,7 +33,10 @@
   "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
   "scripts/codemap/resolve-spec.mjs": "Resolves a relative import specifier to a repo file path.",
   "scripts/codemod/apply.mjs": "Applies a layout plan to a git tree: moves files, backs up deletes, then runs the import and string rewriters.",
-  "scripts/codemod/cli.mjs": "Plans every B3 layout area from the rule files and prints per-area move and delete counts plus the unmatched list.",
+  "scripts/codemod/area-commands.mjs": "Runs the apply, verify and port-branch commands for one layout area and writes a summary with an exit code.",
+  "scripts/codemod/area.mjs": "Narrows a whole-layout plan and path mapper to the moves one area owns, so an area can be applied and verified alone.",
+  "scripts/codemod/cli.mjs": "Parses the layout tool's plan, apply, verify and port-branch commands and prints the per-area plan with the unmatched list.",
+  "scripts/codemod/dry-run.mjs": "Runs one area's moves, rewrites, verify and moved tests in a temp worktree that is always thrown away.",
   "scripts/codemod/plan.mjs": "Turns tracked files plus rule sets into a move/delete plan and refuses unmatched files, collisions and clobbered targets.",
   "scripts/codemod/known.mjs": "Reads the shrink-only list of expected plan problems and splits a problem list into new, listed and stale ones.",
   "scripts/codemod/port-branch.mjs": "Ports a lane branch to the new layout in a temp worktree and merges main so only real conflicts remain.",
@@ -255,5 +258,11 @@
   "tests/people/store-gates.test.js": "Tests that portrait bytes never make a write invalid, that a rewind over a people block that no longer applies refuses like the inventory, and that no sidecar is written before the host accepts.",
   "tests/people/cast-remake.test.js": "Tests that a person made for a reply, swiped away and made again is held once in the store, Delta's cache, npc.cast and npc.dossier, also after a swipe back.",
   "tests/people/cast-store.test.js": "Tests that npc.cast lists exactly the store's not-archived people (a line about someone with no dossier keeps meters only) after replies, a swipe, a middle delete and a reload.",
-  "tests/people/scan-marker.test.js": "Tests that NPC State's scan marker is stored with its people write and taken back from the store after a swipe, a swipe back, deletes, a regenerate and a reload, and that a change line never makes the cache re-hydrate."
+  "tests/people/scan-marker.test.js": "Tests that NPC State's scan marker is stored with its people write and taken back from the store after a swipe, a swipe back, deletes, a regenerate and a reload, and that a change line never makes the cache re-hydrate.",
+  "scripts/codemod/baseline.mjs": "Counts, per file, the relative specifiers that already resolve to nothing in a commit, so a migration is not blamed for them.",
+  "scripts/codemod/quoted.mjs": "Reads the quoted strings of one source line, skipping regex literals, so two lines compare equal when only a path differs.",
+  "scripts/codemod/layout-map.mjs": "Maps a path through the whole layout's rules alone, so a name given as of the old layout is found after earlier areas moved it.",
+  "scripts/codemod/snapshot.mjs": "Reads a tree's files and JS sources from the working tree or from a git ref, with no checkout.",
+  "scripts/codemod/verify-applied.mjs": "Verifies an applied area: the tree judged against what already failed before the move, plus the two-commit diff.",
+  "scripts/codemod/apply-known.mjs": "Splits an apply run's stale strings, verify problems and failing moved tests into new ones and the ones a shrink-only list names."
 }

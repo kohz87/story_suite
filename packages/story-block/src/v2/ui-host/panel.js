@@ -28,7 +28,7 @@ export function createUiPanel({ doc, sdk, tabSource, tabOrder, barDeclared, moun
         doc.body.classList.add('story-suite-sheet-open');
         if (!getTabHost()) setTabHost(createTabHost(panelBody, { registry: tabSource, view: () => sdk.view(), api: sdk, doc, barHost: panel, swap,
             inBar: tab => isInBar(tabOrder.choice(), navKey(tab), barDeclared(navKey(tab))) }));
-        else getTabHost().refresh();
+        else getTabHost().refresh({ guard: false });
     }
     function closePanel() {
         // The dialogs the panel opened go with it (their opener is in the panel, and it is about to be hidden).

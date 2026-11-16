@@ -15,14 +15,14 @@ export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, sched
     const logged = (name, fn) => () => { try { return fn(); } catch (error) { console.warn(`[Story Suite] the ${name} redraw failed`, error); throw error; } };
     let scheduler = null;
     let epoch = 0;
-    let guarded = true;   // a chat switch draws the new chat's pane even with a field focused (the field is gone with the old chat)
+    let guarded = true;   // a chat switch draws the new chat's pane even with a field focused (the field is gone with the old chat, so its text is not carried)
     const own = () => {
         if (scheduler) return scheduler;
         scheduler = createRedraw(schedule ? { schedule } : {});
         scheduler.register('panel', {
             isVisible: () => !getPanel().hidden,
             read: () => ({ epoch, tab: getTabHost()?.active?.() ?? null }),
-            draw: logged('panel', () => { mounts.tab.register(); getTabHost()?.refresh({ guard: guarded }); }),
+            draw: logged('panel', () => { mounts.tab.register(); getTabHost()?.refresh({ guard: guarded, carry: guarded }); }),
         });
         scheduler.register('overlay-size', {
             isVisible: () => true,

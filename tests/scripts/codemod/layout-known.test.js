@@ -65,8 +65,6 @@ test('a listed line that no longer occurs is a warning, not a failure', () => {
   assert.deepEqual(splitKnown(['z'], []), { fresh: ['z'], seen: [], stale: [] });
 });
 
-test('the shipped list holds only the planned M2 problem', () => {
-  const lines = loadKnownProblems(path.resolve(import.meta.dirname, '../../../docs/merge/layout-known-problems.txt'));
-  assert.equal(lines.length, 1);
-  assert.match(lines[0], /^plan deletes packages\/story-block\/package\.json, still imported by /);
+test('the shipped list is empty: no plan problem is expected', () => {
+  assert.deepEqual(loadKnownProblems(path.resolve(import.meta.dirname, '../../../docs/merge/layout-known-problems.txt')), []);
 });
