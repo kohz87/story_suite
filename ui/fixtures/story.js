@@ -27,7 +27,7 @@ const AGENDAS = [
   title, who, whoId, text, step, of, since, place, next, why, toldThisReply,
 }));
 const SECRETS = [
-  { title: 'Temiwa’s second ledger', text: 'The chapel keeps a second ledger of the debts it forgave; the Harbour Master wants it.', state: 'held', personId: 'temiwa' },
+  { title: 'Temiwa’s second ledger', text: 'The chapel keeps a second ledger of the debts it forgave; the Harbour Master wants it.', state: 'held', personId: 'temiwa', person: 'Sister Temiwa' },
   { title: 'Who pays the men in grey', text: 'The Council of Sails pays the bandits to choke Auvoth’s trade.', state: 'held', personId: null },
   { title: 'Hal’s cargo', text: 'Hal’s sunk boat carried the second ledger’s copy.', state: 'held', personId: null },
 ];

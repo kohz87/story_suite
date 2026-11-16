@@ -43,6 +43,14 @@ function read() {
     rowGap: q('.more-list') ? css(q('.more-list')).rowGap : null,
     footTop: q('.more-foot') ? css(q('.more-foot')).marginTop : null,
     gridCols: css(q('.dgrid2')).gridTemplateColumns.split(' ').length,
+    who: (() => { const b = q('.it2 p b'); return b ? css(b).fontWeight : null; })(),
+    av: (() => { const a = q('.it2 p a .av'); return a ? [rect(a), css(a).borderTopLeftRadius, css(a).backgroundSize] : null; })(),
+    fld: (() => {
+      const probe = (host) => { const f = document.createElement('div'); f.className = 'fld'; host.append(f); const size = css(f).fontSize; f.remove(); return size; };
+      return [probe(q('.story-tab')), probe(root)];
+    })(),
+    showAll: q('.more-btn') ? q('.more-btn').textContent : null,
+    secretLink: [...root.querySelectorAll('.it2 .m a')].map((a) => a.textContent),
     castSmall: css(q('.castn small')).lineHeight,
   };
 }
@@ -99,6 +107,12 @@ for (const theme of ['dark', 'light']) {
     assert.deepEqual(s.link, { minHeight: '0px', display: 'inline', hasAvatar: true });
     assert.equal(s.rowGap, '8px');
     assert.equal(s.footTop, '0px');
+    assert.equal(s.who, '800');
+    assert.deepEqual(s.av, [[20, 20], '50%', 'cover']);
+    assert.match(s.showAll, /^Show all \(\d+\)$/);
+    assert.ok(s.secretLink.some((t) => t === 'in Sister Temiwa’s dossier ›'), s.secretLink.join(' / '));
+    assert.equal(s.fld[0], '13.5px');
+    assert.notEqual(s.fld[1], '13.5px', 'story.css must not reach .fld outside the Story tab');
   });
 }
 
