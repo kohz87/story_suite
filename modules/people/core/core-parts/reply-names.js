@@ -6,8 +6,14 @@ import { npcNamedInText } from '../core-merge-names.js';
 const CAPITAL = /(?<![\p{L}\p{N}'’])\p{Lu}[\p{L}'’-]{2,}/gu;   // at least three letters, so "I", "He" and "OK" never count
 const SENTENCE_START = /(?:^|[.!?…:]["'”’)*_\s]*\s|\n|["“*_(]\s*)$/u;
 
+/** True when the reply holds a <Changes> block: raw (NPC State reads it first, before Story Block hides it) or inside the hidden comment Story Block leaves (a later reader). */
+export function hasChangesBlock(text) {
+    return /<Changes\b/i.test(String(text ?? ''));
+}
+
 export function replyNamesSomeone(text, { npcs = [], userName = '', charName = '', places = [] } = {}) {
-    const prose = String(text ?? '').replace(/<Changes\b[\s\S]*?(?:<\/Changes>|$)/i, '');
+    // Story Block's hidden comment (STORY_SUITE_V2 …) is bookkeeping, never prose: its words are not names.
+    const prose = String(text ?? '').replace(/<!--[\s\S]*?(?:-->|$)/g, '').replace(/<Changes\b[\s\S]*?(?:<\/Changes>|$)/i, '');
     if (!prose.trim()) return false;
     if ((npcs || []).some(npc => npc && npcNamedInText(npc, prose, npcs))) return true;
     // Each word of a name counts (a place "Bluewatch Guild" skips "Bluewatch"; the match is one capitalised word at a time).

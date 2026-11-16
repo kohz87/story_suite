@@ -3,7 +3,7 @@
 import { getContext } from '../../../../../../../extensions.js';
 import { extractNarrationCapture, parseNarrationCapture } from '../../core/core.js';
 import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
-import { replyNamesSomeone } from '../../core/core-parts/reply-names.js';
+import { hasChangesBlock, replyNamesSomeone } from '../../core/core-parts/reply-names.js';
 import { getSettings } from '../../settings/runtime-settings.js';
 import { narrationCaptureEnabled } from '../../calls/runtime-scan-helpers.js';
 import { salvageScannerJson } from '../../calls/scanner-request.js';
@@ -94,7 +94,7 @@ export function createNarrationPart(rt, deps) {
             message.mes = extracted.text;
             captureRerenderPending.add(Number(messageId));
         }
-        if (!fallbackEligible || !narrationCaptureEnabled() || !extracted.text.trim() || /<Changes\b/i.test(text)) return;
+        if (!fallbackEligible || !narrationCaptureEnabled() || !extracted.text.trim() || hasChangesBlock(text)) return;
         const ctx = getContext();
         if (replyNamesSomeone(extracted.text, { npcs: getChatState(chatKey)?.npcs || [], userName: ctx.name1 || '', charName: ctx.name2 || '', places: hostedPlaces() })) rememberCapture(chatKey, messageId, { fallback: true });
     }
