@@ -4,6 +4,7 @@ import { MODULE_ID, meterBarNode } from '../src/storysuite-v2.js';
 import { DEFAULT_CHANGE_CAP, MAX_CUSTOM_METERS, normalizeMeterSettings, npcKey, parseMeterValue, stageAt, validateNpcSlice } from '../src/npc-meters.js';
 import { METERS_CARD_ID, metersCardScreen } from '../src/npc-meters-screen.js';
 import { fakeDocument } from './helpers/fake-dom.js';
+import { CHANGED, changedHelper } from './vendor/story-block/src/v2/view/bind-parts/scope-shared.js';
 import { STAGES, fakeDelta, host, plain } from './storysuite-v2-meters.helpers.js';
 
 test('the real registry accepts the definition: meters in the people domain, npc kind, commands, queries, the NPC card screen', async () => {
@@ -16,7 +17,11 @@ test('the real registry accepts the definition: meters in the people domain, npc
     assert.equal(h.def.screens[0].id, METERS_CARD_ID);
     assert.deepEqual(metersCardScreen.mounts, ['card']);
     assert.match(metersCardScreen.template, /<ss-widget name="ss\.meter" data-props='\{"bind":"b"\}'><\/ss-widget>/, 'one ss.meter per bar');
-    assert.match(metersCardScreen.template, /changed\(state\.npc\.npcs\[n\.key\]\)/);
+    assert.match(metersCardScreen.template, /changed\(state\.people\.bonds\.npcs\[n\.key\]\)/, 'the card reads the meters where the store keeps them (people.bonds)');
+    // The card's changed(...) finds a reply's bonds ops for that person, and only theirs.
+    const scope = { n: { key: 'npc_mira' }, [CHANGED]: new Set(['/domains/people/bonds/npcs/npc_mira/meters/trust']) };
+    assert.equal(changedHelper(scope)('state.people.bonds.npcs[n.key]'), true);
+    assert.equal(changedHelper({ ...scope, n: { key: 'npc_oren' } })('state.people.bonds.npcs[n.key]'), false);
 });
 
 // ---- capture ----

@@ -12,17 +12,17 @@ export const METERS_CARD_ID = 'npc-state-delta/meters';
 // the next one needs follow, then the hidden notes still locked: their titles and rules only.
 const TEMPLATE = `
 <div class="nsd-meters">
-  <section class="ss-glass nsd-meters-npc" data-each="q.cast as n" data-if="n.present == true || changed(state.npc.npcs[n.key])" data-class="nsd-meters-new: changed(state.npc.npcs[n.key])">
+  <section class="ss-glass nsd-meters-npc" data-each="q.cast as n" data-if="n.present == true || changed(state.people.bonds.npcs[n.key])" data-class="nsd-meters-new: changed(state.people.bonds.npcs[n.key])">
     <div class="nsd-meters-head">
       <h4 class="nsd-meters-name">{{ n.name }}</h4>
       <span class="ss-pill nsd-meters-rank" data-if="n.rank">{{ n.rank }}</span>
     </div>
-    <div class="nsd-meters-bars" data-if="changed(state.npc.npcs[n.key])">
+    <div class="nsd-meters-bars" data-if="changed(state.people.bonds.npcs[n.key])">
       <div class="nsd-meters-bar" data-each="n.bars as b">
         <ss-widget name="ss.meter" data-props='{"bind":"b"}'></ss-widget>
       </div>
     </div>
-    <div class="nsd-meters-bars" data-if="!changed(state.npc.npcs[n.key])">
+    <div class="nsd-meters-bars" data-if="!changed(state.people.bonds.npcs[n.key])">
       <div class="nsd-meters-bar" data-each="n.still as b">
         <ss-widget name="ss.meter" data-props='{"bind":"b"}'></ss-widget>
       </div>

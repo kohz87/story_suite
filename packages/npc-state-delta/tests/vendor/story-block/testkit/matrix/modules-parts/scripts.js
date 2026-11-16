@@ -70,7 +70,7 @@ export const MODULES = {
         B: ['~ npc Brecht | trust: +2'],
         C: ['~ npc Corin | trust: +4'],
         action: () => ['npc.set', { name: 'Odda', meters: { trust: 40 } }],
-        facts: host => Object.fromEntries(Object.values(asObject(host.head().domains.npc?.npcs)).map(npc => [npc.name, { ...npc.meters }])),
+        facts: host => Object.fromEntries(Object.values(asObject(host.head().domains.people?.bonds?.npcs)).map(npc => [npc.name, { ...npc.meters }])),
     },
 
 };

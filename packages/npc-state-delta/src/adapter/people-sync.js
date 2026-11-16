@@ -148,13 +148,16 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         // The host's head is already on a newer reply and nothing else changed in the store: the change was made for that reply (NPC State saw the reply before the host's turn event).
         const head = await headOf(api);
         if (head?.source && (head.source.sid !== cache.sid || head.source.swipeKey !== cache.swipeKey) && stored(api) === known) {
-            if (await replaced(api, head.source)) rescan();
+            // Same place (a swipe or swipe back caught here first): the marker comes from the store, as in sync.
+            const place = await placeOf(api, head.source);
+            if (place !== null && at !== null && place <= at) await remark(api, place, state);
             cache = { sid: head.source.sid, swipeKey: head.source.swipeKey };
-            at = await placeOf(api, head.source);
+            at = place;
         }
         const built = view(state, { warn });
         if (!built) return { sent: false };
-        const scan = await scanFor(api, state);
+        // The marker is the runtime's as it is now (a remark above, or a snapshot handed in by a death, must not store an older one).
+        const scan = await scanFor(api, readState() ?? state);
         const scanSame = scan === undefined || JSON.stringify(scanOf(api)) === JSON.stringify(scan);
         if (stored(api) === hash(built) && scanSame) { known = stored(api); return { sent: false, skipped: true }; }
         // No people slice in the store yet (the domain is deferred) and nobody to store: nothing is written, so a chat that never has people keeps its bytes.
