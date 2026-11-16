@@ -65,10 +65,14 @@ export function reconcileInteraction(meta, chat, active = null, { kindOf = () =>
             }
         }
         // An idle session was moved onto a reply that said nothing for it: when that reply is gone it goes back to the one it came from.
-        if (session.invalidated !== true && !sids.has(session.anchor) && session.idle === true && sids.has(session.idleFrom)) {
-            session.anchor = session.idleFrom;
-            delete session.idle;
-            delete session.idleFrom;
+        if (session.invalidated !== true && !sids.has(session.anchor) && session.idle === true) {
+            const path = [...(session.idlePath ?? [])];
+            let back = null;
+            while (path.length && back === null) { const sid = path.pop(); if (sids.has(sid)) back = sid; }
+            if (back !== null) {
+                session.anchor = back;
+                if (path.length) { session.idlePath = path; session.idleFrom = path.at(-1); } else for (const key of ['idle', 'idleFrom', 'idlePath']) delete session[key];
+            }
         }
         if (session.invalidated !== true && !sids.has(session.anchor)) drop(box, 'open');
         else if (JSON.stringify(box.open) !== before) changed = true;

@@ -111,7 +111,9 @@ export function createPromptBuild(s, deps) {
             }
         }
         // An interaction the reader staged and sent: its opening and its segment settle as preludes of this reply (interaction/hooks.js; null when none).
-        for (const command of ia.beforeGenerate(view(), { type, dryRun, commit, again })?.commands ?? []) requested.push({ moduleId: CORE_MODULE_ID, type: command.type, payload: command.payload ?? {}, seed: command.seed });
+        let mine = null;
+        try { mine = ia.beforeGenerate(view(), { type, dryRun, commit, again }); } catch (error) { problem({ module: CORE_MODULE_ID, code: 'FAILED', message: `beforeGenerate failed: ${error?.message ?? error}` }); }
+        for (const command of mine?.commands ?? []) requested.push({ moduleId: CORE_MODULE_ID, type: command.type, payload: command.payload ?? {}, seed: command.seed });
         // Other cues may settle a fight or change a modifier. Preview on the state they leave,
         // which is also the state the generated reply's prelude will start from.
         const ran = runPreludes({ s, bus, store, problem }, { requested, cues, prechecks, previewState });

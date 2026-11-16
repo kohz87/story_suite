@@ -46,7 +46,7 @@ export function createCtxTools({
             // command that must find an earlier receipt (an interaction segment carried from another).
             receipts() {
                 open();
-                return queryTools(tx).receipts();
+                return queryTools(tx, null).receipts();   // (the tools' state is not needed here, so none is made)
             },
             cause: tx.cause,
             module: moduleId,

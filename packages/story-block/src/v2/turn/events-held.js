@@ -41,8 +41,8 @@ export function createHeldEvents(s, deps) {
             const current = { ...structuredClone(saved.current), index }, payload = settleStep(current).payload;
             s.session = current;
             s.heldBoard = { index, message, current, interaction: payload, staged: saved.staged === true,
-                hold: 'Restore what the interaction used, or discard it, and regenerate the held reply.' };
-            problem({ index, code: 'INTERACTION_HELD', message: 'The reply is still waiting for its interaction. Restore what it used, or discard it, and regenerate the reply.' });
+                hold: 'Restore what the interaction used, or discard the interaction from its screen, and regenerate the held reply.' };
+            problem({ index, code: 'INTERACTION_HELD', message: 'The reply is still waiting for its interaction. Restore what it used, or discard the interaction from its screen, and regenerate the reply.' });
             return;
         }
     }

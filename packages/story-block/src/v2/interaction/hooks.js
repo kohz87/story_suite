@@ -93,7 +93,11 @@ export function createInteractionHooks({ chat, metadata, kindOf, preview = null 
         if (!record?.sid || !session || session.steps?.length) return;
         const replaced = ['regenerate', 'swipe'].includes(normalizeType(info.type)) && session.idle === true && session.idleFrom === prior;
         if (session.anchor !== prior && !replaced) return;
-        if (kindOf(session.kindId)?.carry === true) { session.anchor = record.sid; session.idle = true; session.idleFrom = prior; } else delete box.open;
+        if (kindOf(session.kindId)?.carry === true) {
+            // (the anchors it passed through are kept, so deleting these replies one by one walks it back the same way)
+            if (!replaced) session.idlePath = [...(session.idlePath ?? []), session.anchor];
+            session.anchor = record.sid; session.idle = true; session.idleFrom = prior;
+        } else delete box.open;
     }
 
     return { canGenerate, beforeGenerate, afterReceive };

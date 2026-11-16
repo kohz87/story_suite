@@ -78,3 +78,20 @@ test('deleting a plain reply an idle session moved onto puts the session back wh
         assert.equal(box(host).open.anchor, host.store.carrierSid(s[0]));
     } finally { host.close(); }
 });
+
+test('two plain replies after a segment: deleting them one at a time walks the session back one reply at a time', async () => {
+    const host = await createHost({ modules: [iaModule()] });
+    try {
+        const api = iaApi(host), { s } = await iaChain(host, api, { segments: 1 });
+        const before = structuredClone(box(host).open);
+        await host.send('Something else.', 'A quiet reply.');
+        const afterB = structuredClone(box(host).open);
+        await host.send('And again.', 'Another quiet reply.');
+        assert.equal(box(host).open.idle, true);
+        await dropLast(host, host.ctx.chat.length - 1);
+        assert.deepEqual(box(host).open, afterB, 'back on the first quiet reply, as it was live');
+        await dropLast(host, host.ctx.chat.length - 1);
+        assert.deepEqual(box(host).open, before, 'and back on the segment reply');
+        assert.equal(box(host).open.anchor, host.store.carrierSid(s[0]));
+    } finally { host.close(); }
+});
