@@ -11,18 +11,18 @@ function git(cwd, args, options = {}) {
 
 /**
  * Checks `branch` out in a temp worktree of `repo`, runs the same layout on its tree, commits "layout: port to <area>",
- * then merges `mainRef`. Returns { worktree, report, merged, conflicts }; the worktree is removed when the merge is
+ * then merges `mainRef`. With `area`, only that area's moves are applied. Returns { worktree, report, merged, conflicts }; the worktree is removed when the merge is
  * clean and kept (so the conflicts can be fixed in it) otherwise. Throws if the plan is refused.
  */
-export function portBranch(repo, branch, ruleSets, { mainRef = 'origin/main', backupDir = null, allowNonLiteral = [] } = {}) {
+export function portBranch(repo, branch, ruleSets, { mainRef = 'origin/main', backupDir = null, allowNonLiteral = [], area = null } = {}) {
   const worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'port-branch-'));
   fs.rmSync(worktree, { recursive: true });
   git(repo, ['worktree', 'add', '-q', worktree, branch]);
   let report;
   try {
-    report = applyLayout(worktree, ruleSets, { backupDir, allowNonLiteral });
+    report = applyLayout(worktree, ruleSets, { backupDir, allowNonLiteral, area });
     git(worktree, ['add', '-A']);
-    git(worktree, ['commit', '-q', '--allow-empty', '-m', `layout: port to ${ruleSets.map(set => set.area).join(', ')}`]);
+    git(worktree, ['commit', '-q', '--allow-empty', '-m', `layout: port to ${area ?? ruleSets.map(set => set.area).join(', ')}`]);
   } catch (error) {
     git(repo, ['worktree', 'remove', '--force', worktree]);
     throw error;

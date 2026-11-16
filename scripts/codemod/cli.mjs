@@ -1,12 +1,17 @@
-// Plans every B3 layout area from the rule files: per-area counts, the unmatched list and dead-rule warnings.
+// Parses the layout tool commands (plan, apply, verify, port-branch) and prints the per-area plan with unmatched files and dead rules.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { loadRules, matchPath, ruleKey } from './rules.mjs';
 import { buildPlan, planProblems } from './plan.mjs';
+import { planForArea } from './area.mjs';
 import { loadKnownProblems, splitKnown } from './known.mjs';
 
+import { runApply, runPort, runVerify } from './area-commands.mjs';
+
 const AREAS = ['core', 'director', 'legacy-ui', 'packs', 'people', 'rpg', 'scene-inventory', 'shared'];
+const DEFAULT_ALLOW = 'docs/merge/layout-nonliteral.txt';
+const DEFAULT_KNOWN_APPLY = 'docs/merge/layout-known-apply.txt';
 const DEFAULT_RULES_DIR = path.join(import.meta.dirname, 'layout');
 
 /** Reads every `*.rules.json` in `rulesDir`, sorted by area, and refuses a folder that lacks one of the eight areas. */
@@ -56,7 +61,14 @@ export function planLayout(files, ruleSets) {
 }
 
 function usage(stream) {
-  stream.write('usage: node scripts/codemod/cli.mjs plan --area <area> | --all [--root <dir>] [--rules <dir>] [--known <file>]\n');
+  stream.write('usage: node scripts/codemod/cli.mjs plan --area <area> | --all [--root <dir>] [--rules <dir>] [--known <file>]\n'
+    + '       node scripts/codemod/cli.mjs apply --area <area> [--dry] [--backup <dir>] [--allow-non-literal <file>] [--known <file>] [--codemap]\n'
+    + '       node scripts/codemod/cli.mjs verify --area <area> [--base <ref>] [--moves <ref>] [--rewrites <ref>] [--tip <ref>] [--no-codemap] [--known <file>]\n'
+    + '       node scripts/codemod/cli.mjs port-branch <branch> --area <area> [--main <ref>] [--backup <dir>] [--allow-non-literal <file>]\n'
+    + '--tip (verify): judge that commit\'s tree, not the working tree. Verify an area at its own tip (its last commit, fix-ups included) once later areas sit on top of it, with --no-codemap.\n'
+    + '--allow-non-literal: one path per line (# comments); default docs/merge/layout-nonliteral.txt when it exists. Shrink only.\n'
+    + '--codemap (apply): also run the code map check, off by default (a moved tree needs a regenerated map and renames first). verify runs it unless --no-codemap.\n'
+    + '--known (apply, verify): lines `stale <file> <value>` and `test <file>`; default docs/merge/layout-known-apply.txt when it exists. Shrink only.\n');
 }
 
 function printRows(stream, counts) {
@@ -83,13 +95,36 @@ export async function main(argv = process.argv.slice(2), options = {}) {
   let root = options.root ?? process.cwd();
   let rulesDir = options.rulesDir ?? DEFAULT_RULES_DIR;
   let knownFile = null;
+  let dry = false;
+  let backupDir = null;
+  let base;
+  let mainRef;
+  let moves;
+  let codemap;
+  let rewrites;
+  let tip;
+  let allowFile = null;
+  const given = new Set();
+  let branch = null;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
+    if (arg.startsWith('--')) given.add(arg);
     if (arg === '--area') area = argv[++index];
     else if (arg === '--all') all = true;
     else if (arg === '--root') root = argv[++index];
     else if (arg === '--rules') rulesDir = argv[++index];
     else if (arg === '--known') knownFile = argv[++index];
+    else if (arg === '--dry') dry = true;
+    else if (arg === '--backup') backupDir = argv[++index];
+    else if (arg === '--base') base = argv[++index];
+    else if (arg === '--main') mainRef = argv[++index];
+    else if (arg === '--codemap') codemap = true;
+    else if (arg === '--no-codemap') codemap = false;
+    else if (arg === '--moves') moves = argv[++index];
+    else if (arg === '--rewrites') rewrites = argv[++index];
+    else if (arg === '--tip') tip = argv[++index];
+    else if (arg === '--allow-non-literal') allowFile = argv[++index];
+    else if (!arg.startsWith('-') && command === 'port-branch' && branch === null) branch = arg;
     else if (!arg.startsWith('-') && command === null) command = arg;
     else {
       stderr.write(`unknown argument: ${arg}\n`);
@@ -97,7 +132,15 @@ export async function main(argv = process.argv.slice(2), options = {}) {
       return 2;
     }
   }
-  if (command !== 'plan' || (Boolean(area) === all)) {
+  const areaCommand = ['apply', 'verify', 'port-branch'].includes(command);
+  if (areaCommand ? (!area || all || (command === 'port-branch') !== (branch !== null)) : (command !== 'plan' || Boolean(area) === all)) {
+    usage(stderr);
+    return 2;
+  }
+  const accepted = { apply: ['--area', '--root', '--rules', '--dry', '--backup', '--allow-non-literal', '--known', '--codemap'], verify: ['--area', '--root', '--rules', '--base', '--moves', '--rewrites', '--tip', '--no-codemap', '--known'], 'port-branch': ['--area', '--root', '--rules', '--main', '--backup', '--allow-non-literal'], plan: ['--area', '--all', '--root', '--rules', '--known'] }[command];
+  const stray = [...given].find(flag => !accepted.includes(flag));
+  if (stray) {
+    stderr.write(`${stray} does not apply to ${command}\n`);
     usage(stderr);
     return 2;
   }
@@ -115,7 +158,31 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     stderr.write(`${error.message}\n`);
     return 1;
   }
-  const { files, counts, plan } = planLayout(listed, ruleSets);
+  let allowNonLiteral = [];
+  if (command === 'apply' || command === 'port-branch') {
+    const file = allowFile ?? (fs.existsSync(path.join(root, DEFAULT_ALLOW)) ? path.join(root, DEFAULT_ALLOW) : null);
+    try {
+      if (file) allowNonLiteral = loadKnownProblems(file);
+    } catch (error) {
+      stderr.write(`cannot read the non-literal allow-list: ${error.message}\n`);
+      return 1;
+    }
+  }
+  let known = [];
+  if (command === 'apply' || command === 'verify') {
+    const file = knownFile ?? (fs.existsSync(path.join(root, DEFAULT_KNOWN_APPLY)) ? path.join(root, DEFAULT_KNOWN_APPLY) : null);
+    try {
+      if (file) known = loadKnownProblems(file);
+    } catch (error) {
+      stderr.write(`cannot read the known list: ${error.message}\n`);
+      return 1;
+    }
+  }
+  if (command === 'apply') return runApply(root, ruleSets, area, { dry, backupDir, allowNonLiteral, known, codemap, stdout, stderr });
+  if (command === 'verify') return runVerify(root, ruleSets, area, { base, moves, rewrites, tip, codemap, known, stdout, stderr });
+  if (command === 'port-branch') return runPort(root, ruleSets, area, branch, { mainRef, backupDir, allowNonLiteral, stdout, stderr });
+  const { files, counts, plan: fullPlan } = planLayout(listed, ruleSets);
+  const plan = area ? planForArea(listed, ruleSets, area).plan : fullPlan;
   if (area) stdout.write(`${area}: ${counts[area].moves} moves, ${counts[area].deletes} deletes\n`);
   else {
     stdout.write(`tracked files: ${files}\n`);
