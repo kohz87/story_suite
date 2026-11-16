@@ -28,7 +28,7 @@ export function setNpcArchived(npc, archived, { reason = 'manual', lifeState = n
     return next;
 }
 
-// A dossier that matters is archived by the stale pass, never deleted, with no count bound: it holds a portrait image (the main one or
+// A dossier that matters is never deleted by the stale pass (no count bound): it holds a portrait image (the main one or
 // a form's, in `formIds`), comes from the cast pack, has a relationship meter off the configured starting value, or its id is in
 // options.keepIds (Story Director's key people and away list). Stored memories alone do not count.
 export function npcMattersForRetention(npc, keepIds = new Set(), formIds = new Set(), baseline = null) {

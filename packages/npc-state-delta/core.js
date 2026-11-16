@@ -2,6 +2,7 @@
 export * from './core-mechanics.js';
 export * from './appearance.js';
 export * from './terminal-lifecycle.js';
+export * from './roster-count.js';
 export * from './calendar.js';
 
 export {

@@ -18,7 +18,7 @@ import { applyStaleLifecycleAfterScan } from './runtime-scan-stale.js';
 import { createScanReplyPart } from './runtime-scan-reply.js';
 import { createAssistantHandlerPart } from './runtime-scan-handler.js';
 import { normalizeAllowance } from './src/relationship-pacing.js';
-import { seedNewAdmissions, notifyStaleCleanup } from './runtime-scan-parts/capture-result.js';
+import { seedNewAdmissions, notifyStaleCleanup, notifyGenderConflicts } from './runtime-scan-parts/capture-result.js';
 import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from './runtime-narration.js';
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from './src/memory-fact-scan.js';
 import { isTerminalNpcDeath } from './terminal-lifecycle.js';
@@ -246,6 +246,7 @@ export function createScanPart(rt, deps) {
             const factOpt = scanMemoryFacts(state, settings, currentLineage, targetMessageId, ctx.name1, { hosted: hostedMeters() });
             const merged = mergeScanResult(mergeBaseState, parsedForMerge, {
                 maxNpcs: settings.maxNpcs,
+                archiveAfter: settings.staleArchiveAfter,
                 excludeNames: [...currentExclusions(), ...(state.dismissed || [])],
                 turn: state.turn,
                 sourceMessageId: targetMessageId,
@@ -402,6 +403,7 @@ export function createScanPart(rt, deps) {
             updateInjection();
             if (capture && replayScope()) replayRefreshIds = Object.keys(savedCapture.refreshes || {});
             else if (capture) catchUpIds = noteCaptureCatchUp(scanChatKey, inlineIds);
+            notifyGenderConflicts(merged.report);
             if (manual) {
                 const { created, updated, candidates, promoted, skipped, staleArchived = [], stalePruned = [] } = merged.report;
                 globalThis.toastr?.success?.(`NPC State Delta scan complete: ${created.length} new, ${updated.length} updated${promoted.length ? `, ${promoted.length} promoted` : ''}${candidates.length ? `, ${candidates.length} candidate${candidates.length === 1 ? '' : 's'} held` : ''}${staleArchived.length ? `, ${staleArchived.length} stale archived` : ''}${stalePruned.length ? `, ${stalePruned.length} stale deleted` : ''}${skipped.length ? `, ${skipped.length} skipped` : ''}.`);

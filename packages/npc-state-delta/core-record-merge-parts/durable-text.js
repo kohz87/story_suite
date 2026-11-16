@@ -23,8 +23,11 @@ export function durableTextAccepted(field, existing, incoming, value, options = 
         const next = normalizeGender(value);
         if (!next) return false;
         if (!prior) return true;
-        if (existing.lifeState === 'deceased' || prior === next) return false;
-        return options.profileUpdate === true || (incoming.genderState === 'correct' && String(incoming.genderReason || '').trim() !== '');
+        if (prior === next) return false;
+        const accepted = existing.lifeState !== 'deceased' && (options.profileUpdate === true || (incoming.genderState === 'correct' && String(incoming.genderReason || '').trim() !== ''));
+        // The story contradicts what is stored and the stored word stays: tell the reader (a dossier warning) instead of overwriting in silence.
+        if (!accepted) options.onGenderConflict?.({ id: existing.id, name: existing.name, kept: prior, story: next, dead: existing.lifeState === 'deceased' });
+        return accepted;
     }
     if (field === 'role') {
         // (card traits win) The source event itself supplies the reason for a bare role; an

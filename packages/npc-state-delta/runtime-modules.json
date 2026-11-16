@@ -149,6 +149,7 @@
     { "path": "appearance-text.js", "role": "appearance-forms-text", "required": true },
     { "path": "appearance-update.js", "role": "appearance-forms-update", "required": true },
     { "path": "terminal-lifecycle.js", "role": "terminal-lifecycle", "required": true },
+    { "path": "roster-count.js", "role": "roster-cap-count", "required": true },
     { "path": "continuity-core.js", "role": "appearance-lifecycle-continuity", "required": true },
     { "path": "calendar.js", "role": "fantasy-calendar-primitives", "required": true },
     { "path": "calendar-settings.js", "role": "fantasy-calendar-settings-adapter", "required": true },

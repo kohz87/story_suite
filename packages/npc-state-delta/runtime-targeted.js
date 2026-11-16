@@ -156,6 +156,7 @@ export function createTargetedPart(rt, deps) {
             const targetMessageId = Number.isInteger(job.messageId) ? job.messageId : latestMessageId(true);
             const merged = mergeScanResult(latest, parsed, {
                 maxNpcs: settings.maxNpcs,
+                archiveAfter: settings.staleArchiveAfter,
                 excludeNames: [...currentExclusions(), ...(latest.dismissed || [])],
                 turn: latest.turn,
                 sourceMessageId: targetMessageId,
