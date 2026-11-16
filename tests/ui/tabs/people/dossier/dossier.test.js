@@ -116,7 +116,7 @@ test('the back button closes through the back-stack and calls onClose with its o
   assert.equal(second.ctx.closed, 1);
 });
 
-test('Follow toggles with the star and sends npc.follow; Edit sends npc.edit; See on map uses the hook', async () => {
+test('Follow toggles with the star and sends people.follow with the person id; Edit sends npc.edit; See on map uses the hook', async () => {
   const seen = [];
   const { el, ctx } = build('rika', { seeOnMap: id => seen.push(id) });
   const follow = () => el.querySelector('[data-act="follow"]');
@@ -129,13 +129,25 @@ test('Follow toggles with the star and sends npc.follow; Edit sends npc.edit; Se
   el.querySelector('[data-act="edit"]').click();
   el.querySelector('[data-act="map"]').click();
   await Promise.resolve();
-  assert.deepEqual(ctx.sent(), [['npc.follow', { personId: 'rika', on: true }], ['npc.follow', { personId: 'rika', on: false }], ['npc.edit', { personId: 'rika' }]]);
+  assert.deepEqual(ctx.sent(), [['people.follow', { id: 'rika', on: true }], ['people.follow', { id: 'rika', on: false }], ['npc.edit', { personId: 'rika' }]]);
   assert.deepEqual(seen, ['rika']);
   const noHook = build('temiwa');
   assert.equal(noHook.el.querySelector('[data-act="follow"]').textContent, '★ Following');
   noHook.el.querySelector('[data-act="map"]').click();
   await Promise.resolve();
   assert.deepEqual(noHook.ctx.sent(), [['people.focus', { personId: 'temiwa' }]]);
+});
+
+test('a Follow the engine refuses puts the star back', async () => {
+  installFakeDom();
+  const port = { command: async () => ({ ok: false, code: 'REFUSED' }) };
+  const el = dossierPage(dossier('rika'), makeCtx({ port, backStack: createBackStack(), youName: 'Astra' }));
+  const follow = () => el.querySelector('[data-act="follow"]');
+  follow().click();
+  assert.equal(follow().textContent, '★ Following');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(follow().textContent, '☆ Follow');
+  assert.equal(follow().getAttribute('aria-pressed'), 'false');
 });
 
 test('a living person with no mood has no Mood card or page', () => {

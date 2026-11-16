@@ -129,9 +129,17 @@ describe('selectStory', () => {
     assert.deepEqual([vm.pulse.mode, vm.cast.total, vm.trackers, vm.trackersHidden, vm.beats.count], ['off', 0, [], 0, 0]);
   });
 
-  it('leaves the harness-only secret person name out until there is a data source (owner question)', () => {
+  it('leaves the secret person out when no stored dossier holds a secret of that title', () => {
     const { secrets } = selectStory(recorded(), { planShown: true });
     assert.equal(secrets.items.length > 0, true);
     for (const s of secrets.items) { assert.equal('person' in s, false); assert.equal(s.personId, null); }
+  });
+
+  it('names the person whose stored dossier holds the secret (people.secretOwners), matched by title in any case, and keeps the contract', () => {
+    const owners = { 'second ledger': { id: 'npc_torka', name: 'Torka' } };
+    const vm = selectStory(recorded({ 'people.secretOwners': owners }), { planShown: true });
+    assert.deepEqual(vm.secrets.items[0], { title: 'Second ledger', text: '', state: 'held', personId: 'npc_torka', person: 'Torka' });
+    assert.deepEqual(checkShape(vm, STORY_SHAPE), []);
+    assert.equal('person' in selectStory(recorded({ 'people.secretOwners': {} }), { planShown: true }).secrets.items[0], false);
   });
 });

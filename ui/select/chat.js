@@ -55,7 +55,7 @@ export function selectDrawer(answers = {}, opts = {}) {
     const found = cast.find(row => row?.name === name);
     const said = chatter.find(row => row?.name === name);
     rows.push({
-      personId: text(found?.key) || name,
+      personId: text(entry?.id) || text(found?.key) || name,
       name,
       portrait: text(portraits[name]) || null,
       meters: metersOf(entry, found),

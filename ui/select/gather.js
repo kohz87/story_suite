@@ -4,23 +4,29 @@ const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather
   'party.terms', 'mounts.pace', 'director.goal', 'director.next', 'director.keyPeople', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
   'inventory.encumbrance', 'npc.cast', 'chatter.head', 'time.overdue', 'reply.digest', 'notes.refusedAt'];
 
-// Asks each query once; `npc.present` carries the meters. A query that is not there is a gap (null), never an error.
+// Who is here, from the store: the present people of `people.list` as [{ id, name, meters, followed, portrait }] (the old `npc.present` answer's shape, still the
+// key the selectors read); null while the chat has no people slice.
+const hereOf = list => (Array.isArray(list)
+  ? list.filter(row => row?.present === true && row.lifeState !== 'deceased').map(row => ({ id: row.id, name: row.name, meters: row.meters, followed: row.followed === true, portrait: row.portrait ?? null }))
+  : null);
+
+// Asks each query once; the people come from the store (`people.list`). A query that is not there is a gap (null), never an error.
 export function gather(read, names = SCENE) {
-  const answers = { 'npc.present': read('npc.present', { meters: true }) };
+  const answers = { 'npc.present': hereOf(read('people.list', {})) };
   for (const name of names) answers[name] = read(name, {});
   return answers;
 }
 
 // What the selectors need beyond the answers: the RPG is on when the party answers; portraits come one name at a time.
 export function optsOf(read, answers, ctx) {
-  const names = [...(answers['npc.present'] ?? []).map(row => (typeof row === 'string' ? row : row?.name))];
   const portraits = {};
-  for (const name of names) if (name) portraits[name] = read('npc.portrait', { name });
+  for (const row of answers['npc.present'] ?? []) if (row?.name) portraits[row.name] = row.portrait ?? null;
   const lead = answers['party.pc']?.name;
+  const leadRow = lead ? (read('people.list', {}) ?? []).find(row => row?.name === lead) : null;
   return {
     rpg: Array.isArray(answers['party.actors']) && answers['party.actors'].length > 0,
     persona: ctx()?.name1 ?? '',
-    portrait: lead ? read('npc.portrait', { name: lead }) : null,
+    portrait: leadRow?.portrait ?? null,
     portraits,
     fightOpen: false,
   };

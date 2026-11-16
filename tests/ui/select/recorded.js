@@ -20,7 +20,7 @@ export const ANSWERS = {
   'inventory.wallet': { coin: 1546 },
   'inventory.currency': { name: 'gold', plural: 'gold', coins: [{ name: 'gold', plural: 'gold', value: 100, short: 'g' }, { name: 'silver', plural: 'silver', value: 10, short: 's' }, { name: 'copper', plural: 'copper', value: 1, short: 'c' }] },
   // NSD/adapter/queries.js:200 (meters: true), NSD/npc-meters-queries.js:176, SB/domains/core/module.js:84
-  'npc.present': [{ name: 'Fenna', meters: { trust: 40, affection: 22, desire: 5, tension: 12 }, stages: {} }],
+  'npc.present': [{ id: 'np_fenna', name: 'Fenna', followed: true, meters: { trust: 40, affection: 22, desire: 5, tension: 12 }, stages: {} }],
   'npc.cast': [{ key: 'np_fenna', name: 'Fenna', present: true, bars: [{ id: 'trust', value: 40 }], mood: { word: 'wary' } }],
   'chatter.head': [{ name: 'Fenna', text: 'He is late again.' }],
   // SD/time/index.js:183, SD/screens/queries.js:72 and :131, SD/keypeople/queries.js:64
