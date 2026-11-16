@@ -61,8 +61,11 @@
 .slist button{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;background:var(--su-line2);border:0;border-radius:14px;padding:11px 12px;color:var(--su-text);cursor:pointer;font:inherit}
 .slist button i{font-style:normal;font-size:17px;text-align:center}
 .slist button b{font:800 14.5px var(--su-font);display:block}.slist button small{font-size:12px;color:var(--su-muted)}
+/* The mock (quirks mode) lays the description out in its own 18px lines, without the 14px row's 21px strut: a block small does the same here. */
+.slist button small{display:block;line-height:1.5}
 @container (max-width:600px){.snav{display:none}.presets,.conn{grid-template-columns:minmax(0,1fr)}.srow{grid-template-columns:minmax(0,1fr)}.srow .ctl{justify-content:flex-start}.brow2{grid-template-columns:110px minmax(0,1fr) 70px}.smain{padding:14px}}
-.phonelist{display:flex;flex-direction:column;gap:10px}
+/* The mock puts the phone list straight in .smain, so its search, labels and lists are 14px apart. */
+.phonelist{display:flex;flex-direction:column;gap:14px}
 @container (min-width:601px){.phonelist{display:none}}
 .fs3{display:none}
 @container (max-width:600px){.fl3{display:none}.fs3{display:inline}.sfoot .mb2{max-width:none}}
