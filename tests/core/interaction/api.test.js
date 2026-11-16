@@ -130,6 +130,7 @@ test('open carries a waiting opening; the probe covers opening, carry and its ma
 test('refusals never throw or leave a half-open session', () => {
     const off = harness({ kind: { ...PROBE_KIND, feature: 'test.probe' }, featureOn: () => false });
     assert.equal(off.api.open(PROBE_ID).code, 'FEATURE_OFF');
+    assert.doesNotMatch(off.api.open(PROBE_ID).message, /test\.probe/, 'the reader is never shown the feature id');
     const lazy = harness({ kind: { ...PROBE_KIND, ready: () => false } });
     assert.equal(lazy.api.open(PROBE_ID).code, 'NOT_READY');
     const noReply = harness({ head: () => null });

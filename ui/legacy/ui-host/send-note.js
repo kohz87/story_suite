@@ -21,20 +21,20 @@ export const SEND_NOTE_TEXT = Object.freeze({
     stalled: 'Not sent yet: the story is still busy',
     again: 'Send again',
     dismiss: 'Dismiss',
-    fightHeld: 'Your fight hasn\'t been sent yet',
-    openBoard: 'Open fight board',
+    interactionHeld: 'Your fight hasn\'t been sent yet',
+    openHeld: 'Open fight board',
     sent: 'Sent',
 });
 // One path per state's icon (the mockup's own).
 const ICONS = Object.freeze({
     pending: 'M12 3a9 9 0 1 1-9 9',
-    fightHeld: 'M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2',
+    interactionHeld: 'M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2',
     sent: 'M5 12.5l4.5 4.5L19 7.5',
 });
 
 function icon(doc, state) {
     const svg = doc.createElementNS(SVG, 'svg');
-    for (const [name, value] of Object.entries({ width: '16', height: '16', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': state === 'fightHeld' ? '2' : '2.4', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' })) svg.setAttribute(name, value);
+    for (const [name, value] of Object.entries({ width: '16', height: '16', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': state === 'interactionHeld' ? '2' : '2.4', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' })) svg.setAttribute(name, value);
     svg.setAttribute('class', `ss-send-note-icon ss-send-note-icon-${state}`);
     const path = doc.createElementNS(SVG, 'path');
     path.setAttribute('d', ICONS[state]);
@@ -43,11 +43,11 @@ function icon(doc, state) {
 }
 
 /**
- * createSendNote({ doc, ctx, enabled, busy, held, openBoard, verifyMs, timers }) → { state(), destroy() }.
+ * createSendNote({ doc, ctx, enabled, busy, held, openHeld, verifyMs, timers }) → { state(), destroy() }.
  * `enabled()` the setting; `busy()` the story's own busy flag (SillyTavern's Stop button is read here); `held()` a fight start holds
- * the Send; `openBoard()` opens the fight board. `ctx` gives the event source (GENERATION_STARTED) the verify step listens to.
+ * the Send; `openHeld()` opens the fight board. `ctx` gives the event source (GENERATION_STARTED) the verify step listens to.
  */
-export function createSendNote({ doc, ctx = null, enabled = () => true, busy = () => false, held = () => false, openBoard = () => false, verifyMs = 1500, timers } = {}) {
+export function createSendNote({ doc, ctx = null, enabled = () => true, busy = () => false, held = () => false, openHeld = () => false, verifyMs = 1500, timers } = {}) {
     const view = doc.defaultView ?? null;
     const box = () => doc.getElementById?.('send_textarea') ?? null;
     const read = () => String(box()?.value ?? '');
@@ -72,8 +72,8 @@ export function createSendNote({ doc, ctx = null, enabled = () => true, busy = (
         clickSend: () => { resending = true; try { doc.getElementById?.('send_but')?.click?.(); } finally { resending = false; } },
         // One guard for every path: a Send already on its way (the reader's Enter or click, not yet started) counts as busy.
         isBusy: () => { if (flying) { quiet = 0; return true; } return calm(); },
-        fightHeld: () => held() === true,
-        openBoard: () => openBoard() === true,
+        interactionHeld: () => held() === true,
+        openHeld: () => openHeld() === true,
         onChange: ({ state }) => { if (state === 'idle') retries = 0; draw(state); if (state === 'sending') checkTaken(); },
         timers: clock,
     });
@@ -107,7 +107,7 @@ export function createSendNote({ doc, ctx = null, enabled = () => true, busy = (
         pill.appendChild(text);
         if (state === 'pending') pill.appendChild(button('✕', SEND_NOTE_TEXT.cancel, false, () => sp.cancel()));
         if (state === 'stalled') pill.append(button(SEND_NOTE_TEXT.again, '', true, () => { retries = 0; sp.press(); }), button('✕', SEND_NOTE_TEXT.dismiss, false, () => sp.cancel()));
-        if (state === 'fightHeld') pill.appendChild(button(SEND_NOTE_TEXT.openBoard, '', true, () => sp.openBoard()));
+        if (state === 'interactionHeld') pill.appendChild(button(SEND_NOTE_TEXT.openHeld, '', true, () => sp.openHeld()));
         root.replaceChildren(pill);
         root.setAttribute('data-state', state);
         if (root.parentNode !== anchor.parentNode || root.nextElementSibling !== anchor) anchor.parentNode.insertBefore(root, anchor);

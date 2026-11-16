@@ -1,19 +1,16 @@
-// The longest board fight the notes are measured on: 4 v 6, 4 exchanges, items and gear wear, the fightLen mark on.
-import { settledNote } from '../../../../modules/rpg/board/note.js';
+// The longest fight the notes are measured on: 4 heroes (a warrior, a skirmisher with an area skill, a healer and a skill-less one) against 6 foes, 4 exchanges, on the v1 engine.
+// The result is the record a v1 settle stores (combat envelope), the setup carries the v1 mark: the kind's own `note` tells it.
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
+import { envelopeOf } from '../../../../modules/rpg/combat/envelope.js';
+import { withSkills } from '../../../modules/rpg/combat/derived-skills.helper.js';
+import { seeded } from '../../../modules/rpg/combat/dice.helper.js';
+import { fightKind } from '../../../../modules/rpg/board/interaction.js';
 
-const party = ['Astra', 'Bram', 'Cyra', 'Dov'];
-const foes = ['Rat 1', 'Rat 2', 'Rat 3', 'Rat 4', 'Rat 5', 'Rat 6'];
-const act = (n, i) => ({ kind: 'act', pc: { who: party[i] }, foe: { name: foes[(n + i) % 6], slot: (n + i) % 6 }, skill: 'Cut', outcome: i % 2 ? 'fail' : 'success',
-    damage: i % 2 ? undefined : { id: `f:${(n + i) % 6}`, name: foes[(n + i) % 6], from: 5, to: 3, size: 5 } });
-const foeLine = (n, i) => ({ kind: 'foe', pc: { who: party[i % 4] }, foe: { name: foes[i] }, skill: 'Dodge', outcome: (n + i) % 3 ? 'success' : 'fail',
-    ...((n + i) % 3 ? {} : { damage: { id: `pc:${i % 4}`, name: party[i % 4], from: 5, to: 4, size: 5 } }) });
-const item = (n, who) => ({ kind: 'act', pc: { who }, target: party[0], item: 'Salve', pool: 'health', gained: 2 });
+const stats = over => ({ str: 10, vit: 12, agi: 10, dex: 10, int: 10, wis: 10, cha: 5, ...over });
+const hero = (label, build, over) => withSkills({ id: label, label, build, level: 12, mastery: 3, stats: stats(over) });
+const rat = n => ({ id: `1.${n}`, label: `Rat ${n}`, tier: 'standard', level: 8, hp: 30, maxHp: 30, damage: 6, roll: 8 });
+const sheet = { party: [hero('Astra', 'Warrior', { str: 20 }), hero('Bram', 'Skirmisher-area', { agi: 18 }), hero('Cyra', 'Healer', { wis: 14 }), hero('Dov', undefined, { agi: 12 })], foes: [1, 2, 3, 4, 5, 6].map(rat) };
 
-export const FIGHT_RESULT = {
-    stop: 'open',
-    order: [...party.map((name, i) => ({ id: `c:${i}`, name, party: true })), ...foes.map((name, i) => ({ id: `f:${i}`, name, party: false }))],
-    rounds: [1, 2, 3, 4].map(n => ({ n, lines: [...party.map((_, i) => act(n, i)), ...foes.map((_, i) => foeLine(n, i)), item(n, party[n % 4])] })),
-    wear: [{ n: 2, who: 'Astra', item: 'Sword', from: 'good', to: 'worn' }, { n: 3, who: 'Bram', item: 'Coat', from: 'torn', to: 'broken' }],
-};
-export const FIGHT_SETUP = { fightLen: 1 };
-export const fightNote = () => settledNote(FIGHT_RESULT, FIGHT_SETUP);
+export const FIGHT_RESULT = { v: 1, ...envelopeOf(playBoard(sheet, seeded({ seed: 56 }), Array.from({ length: 4 }, () => ({}))), { id: 'fight-1', groups: [1] }) };
+export const FIGHT_SETUP = { v1: 1 };
+export const fightNote = () => fightKind.note(FIGHT_RESULT, FIGHT_SETUP).join(' | ');

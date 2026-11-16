@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { hashText } from '../../../modules/assist/common.js';
 import { readRecord } from '../../../core/persist.js';
-import { START_KINDS, pendingStart } from '../../../core/interaction/start.js';
+import { START_KINDS } from '../../../core/interaction/start.js';
+import { pendingStart } from '../../../core/interaction/start-hold.js';
 import { GO, IA_KIND, activeSettles, box, codes, iaApi, iaKind, iaModule, withLines } from '../../suite/qa/helpers/probe-interaction.js';
 
 // A module hook that offers the probe before a typed message goes out (what a rules module's beforeGenerate does with `interactionStart`).

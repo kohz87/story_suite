@@ -3,7 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { playBoard } from '../../../../modules/rpg/board/engine.js';
-import { boardSession } from '../../../../modules/rpg/board/session.js';
+import { interactionPayload } from '../../../../core/interaction/session.js';
+import { boardSession } from '../../../core/helpers/board-port.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 
@@ -44,7 +45,7 @@ async function play(app, count, pick = () => true) {
     }
 }
 
-const roll = (host, index) => host.ctx.chat[index].extra.storySuite.receipts.findLast(item => item.type === 'rpg.resolve' && item.replan?.payload?.board);
+const roll = (host, index) => host.ctx.chat[index].extra.storySuite.receipts.findLast(item => item.type === 'interaction.settle' && item.replan?.payload?.kindId === 'story-block/fight' && item.replan.payload.opening !== true);
 const stagedRounds = host => {
     const session = boardSession(host.ctx.chatMetadata);
     return structuredClone(playBoard(host.head(), session.setup, session.exchanges).result);
@@ -97,7 +98,7 @@ test('a vanished session and waiting choice at Send: the copy made at the press 
     const staged = stagedRounds(host);
     const out = {};
     host.ctx.generate = type => {
-        delete host.ctx.chatMetadata.rpgFightBoard; delete host.ctx.chatMetadata.rpgFightStart;
+        delete host.ctx.chatMetadata.storySuiteInteraction.open; delete host.ctx.chatMetadata.storySuiteInteraction.start;
         out.generation = host.st.generate(type, { reply: 'Told.' }); return out.generation;
     };
     doc.querySelector('.rpg-board-send').click();
@@ -105,7 +106,7 @@ test('a vanished session and waiting choice at Send: the copy made at the press 
     assert.equal(sent.aborted, undefined);
     assert.equal(calls.length, 0, 'no model call');
     assert.deepEqual(roll(host, sent.index).data.v2.result.rounds, staged.rounds);
-    assert.equal(host.ctx.chatMetadata.rpgFightSend, undefined, 'the copy goes once the reply is received');
+    assert.equal(host.ctx.chatMetadata.storySuiteInteraction.send, undefined, 'the copy goes once the reply is received');
 });
 
 test('a fight that cannot be attached refuses the send with a reason and calls nothing', async t => {
@@ -115,7 +116,7 @@ test('a fight that cannot be attached refuses the send with a reason and calls n
     let generated = 0;
     host.ctx.generate = () => { generated += 1; return Promise.resolve({}); };
     const chat = host.ctx.chat.length;
-    host.ctx.chatMetadata.rpgFightBoard.anchor = 'some-other-reply';
+    host.ctx.chatMetadata.storySuiteInteraction.open.anchor = 'some-other-reply';
     doc.querySelector('.rpg-board-send').click();
     await settle();
     assert.equal(generated, 0, 'nothing is sent');
@@ -145,7 +146,7 @@ test('a fled fight is carried the same way: staged == committed, no model call',
     assert.match(JSON.stringify(sent.request ?? ''), /the fight board already rolled every exchange/u);
 });
 
-// Round 17: Send is a 'regenerate'; a stale cached payload (rpgFightLast, same anchor) must never beat the staged session.
+// Round 17: Send is a 'regenerate'; a stale cached payload (`last`, same anchor) must never beat the staged session.
 for (const exchanges of [1, 2]) test(`a stale cached payload with ${exchanges} exchange(s) does not replace the ${'staged'} fight at Send (path c)`, async t => {
     const app = await start(t, 803);
     const { host, doc, calls } = app;
@@ -153,10 +154,9 @@ for (const exchanges of [1, 2]) test(`a stale cached payload with ${exchanges} e
     const session = boardSession(host.ctx.chatMetadata);
     assert.ok(session.exchanges.length >= 4);
     const staged = stagedRounds(host);
-    const stale = structuredClone(session);
-    stale.exchanges = stale.exchanges.slice(0, exchanges);
-    host.ctx.chatMetadata.rpgFightLast = { key: `b:${encodeURIComponent(stale.id)}:${encodeURIComponent(stale.anchor)}:${stale.setup.offset}`,
-        board: { id: stale.id, anchor: stale.anchor, groups: stale.groups, setup: stale.setup, exchanges: stale.exchanges }, practice: 3 };
+    const stale = interactionPayload(host.ctx.chatMetadata.storySuiteInteraction.open);
+    stale.steps = stale.steps.slice(0, exchanges);
+    host.ctx.chatMetadata.storySuiteInteraction.last = stale;
     const out = sender(host);
     doc.querySelector('.rpg-board-send').click();
     const sent = await out.generation;

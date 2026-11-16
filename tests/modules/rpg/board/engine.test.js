@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { playBoard } from '../../../../modules/rpg/board/engine.js';
 import { carriedFrom } from '../../../../modules/rpg/board/members.js';
-import * as sessionApi from '../../../../modules/rpg/board/session.js';
+import * as sessionApi from '../../../core/helpers/board-port.js';
 import { character, foeBlock, levelFoeBlock, setup, sheetDomain, skillBlock } from '../helpers.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

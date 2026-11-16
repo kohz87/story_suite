@@ -8,7 +8,7 @@ import { autoPicks } from '../../../../modules/rpg/board/auto.js';
 import { memberRolls } from '../../../../modules/rpg/board/member-rolls.js';
 import { boardFoes, splitFoes } from '../../../../modules/rpg/board/members.js';
 import { exchangePlan } from '../../../../modules/rpg/board/plan.js';
-import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
 import { settledNote } from '../../../../modules/rpg/board/note.js';
 import { memberGroups } from '../../../../modules/rpg/board/view-data.js';
 import { earnedLegend, wearGear } from '../../../../modules/rpg/gear.js';

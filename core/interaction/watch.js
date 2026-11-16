@@ -24,7 +24,7 @@ export const openingStep = current => {
  * Why a settle payload cannot be played on `state` now (witness, feature, readiness, derived inputs, play), or null. `kindOf(kindId)` → the kind.
  * The segment is played on the state its opening leaves (`opening`: { payload, seed }; `preview(payload, seed, state)` → that state or null), as the reply's preludes run.
  */
-export function interactionInputError(state, payload, { kindOf, featureOn = () => true, opening = null, preview = null } = {}) {
+export function interactionInputError(state, payload, { kindOf, featureOn = () => true, featureLabel = () => null, opening = null, preview = null } = {}) {
     const kindId = String(payload?.kindId ?? '');
     let kind = null;
     try { kind = kindOf(kindId); } catch { kind = null; }
@@ -34,7 +34,12 @@ export function interactionInputError(state, payload, { kindOf, featureOn = () =
     if (typeof kind.feature === 'string' && kind.feature) {
         let on = true;
         try { on = featureOn(kind.feature) !== false; } catch { on = false; }
-        if (!on) return interactionError('FEATURE_OFF', title, kind.feature).message;
+        if (!on) {
+            let label = null;
+            try { label = featureLabel(kind.feature); } catch { label = null; }
+            // (the reader sees the feature's name, never its id; with no name found the way out stays)
+            return interactionError('FEATURE_OFF', title, typeof label === 'string' && label.trim() ? `the ${label.trim()} feature` : 'its feature in the Features').message;
+        }
     }
     const shape = settlePayloadProblem(payload, kind);
     if (shape) return shape.message;
@@ -62,8 +67,8 @@ export function interactionInputError(state, payload, { kindOf, featureOn = () =
  * The reply's interaction watch. `watch.commitCheck(next, receipt)` is the commit guard's answer for an interaction reply in flight
  * (a reader's edit that changes what the settle read is refused); `watch.stopChanged()` aborts a reply whose inputs changed anyway.
  */
-export function createInteractionWatch(s, { store, problem, notify, kindOf, featureOn, preview }) {
-    const errorOf = (state, payload, opening = null) => interactionInputError(state, payload, { kindOf, featureOn, opening, preview });
+export function createInteractionWatch(s, { store, problem, notify, kindOf, featureOn, featureLabel, preview }) {
+    const errorOf = (state, payload, opening = null) => interactionInputError(state, payload, { kindOf, featureOn, featureLabel, opening, preview });
     const payloadOf = () => (s.replyBusy ? settleStep(s.session)?.payload ?? null : null);
     const commitCheck = (next, receipt) => {
         if (receipt?.cause !== 'ui') return null;

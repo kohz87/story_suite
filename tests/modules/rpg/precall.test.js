@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
 import { ROLLS_SETTING, createLeanRpgPart, createPrecall } from '../../../modules/rpg/index.js';
 import { PARTY, PLAN_ANSWER, setup, sheetDomain, tailOf } from './helpers.js';
-import { discardBoard } from '../../../modules/rpg/board/session.js';
+import { discardBoard } from '../../core/helpers/board-port.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -61,14 +61,15 @@ test('skipped dice reasons survive merged hooks quietly on normal sends', async 
 });
 
 test('discarding a fight clears even an older unsent copy', () => {
-    const meta = { rpgFightBoard: { id: 'fight', origin: 'anchor' }, rpgFightSend: { board: { id: 'fight' } } };
+    const open = id => ({ id: `anchor:0:story-block/fight`, kindId: 'story-block/fight', origin: 'anchor', anchor: 'anchor', attempt: 0, setup: { id, groups: [] }, steps: [] });
+    const meta = { storySuiteInteraction: { open: open('fight'), send: { anchor: 'anchor', message: 'm', payload: { id: 'fight' } } } };
     assert.equal(discardBoard(meta), true);
-    assert.equal(meta.rpgFightSend, undefined);
-    assert.equal(meta.rpgFightAttempts.anchor, 1);
-    meta.rpgFightBoard = { id: 'other', origin: 'anchor' };
-    meta.rpgFightSend = { board: { id: 'fight' } };
+    assert.equal(meta.storySuiteInteraction.send, undefined);
+    assert.equal(meta.storySuiteInteraction.attempts.anchor, 1);
+    meta.storySuiteInteraction.open = open('other');
+    meta.storySuiteInteraction.send = { anchor: 'anchor', message: 'm', payload: { id: 'fight' } };
     assert.equal(discardBoard(meta), true);
-    assert.equal(meta.rpgFightSend, undefined);
+    assert.equal(meta.storySuiteInteraction.send, undefined);
 });
 
 // ---- hooks: the part's limit, merged hooks, and the no-dice flag ------------------------------------------------------

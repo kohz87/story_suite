@@ -16,7 +16,7 @@ import { stateHash } from '../../../../core/timeline/host-block.js';
 import { createDataModulesPart, dataModuleGuard } from '../../../data-modules/part.js';
 import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE, RESOLVE as RPG_RESOLVE } from '../../../rpg/names.js';
 // The RPG's code is loaded only when it is needed (rpg-lazy.js): this part answers for it until it is there.
-import { createLazyRpgPart } from '../../../rpg/rpg-lazy.js';
+import { createLazyRpgPart, lazyFightKind } from '../../../rpg/rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../../../core/interaction/view.js';
 import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
 import { createPeoplePart } from '../../../people/domain/part.js';
@@ -81,6 +81,8 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
         features: [...CORE_FEATURES, ...INVENTORY_FEATURES].map(feature => ({ ...feature })),
         domains: merged.domains,
         commands: { ...merged.commands, ...interactionCommands },
+        // The fight board's kind (lean-rpg/board/interaction.js, handed over by the lazy stand-in once the RPG's library is loaded).
+        interactions: { fight: lazyFightKind },
         replayQueries: ['dataModules.replayInputs'],
         // The cards under the head reply that blocks declare (data-modules/part.js blockCards).
         cards: merged.cards,

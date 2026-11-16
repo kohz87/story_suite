@@ -15,6 +15,7 @@ import { isObject } from '../sdk/shared.js';
 import { createEvents } from '../sdk/events.js';
 import { newId } from '../sdk/ids.js';
 import { createPanels } from '../sdk/panels.js';
+import { createInteractionApi } from '../sdk/interaction.js';
 import { createChangedFeed } from '../sdk/changed.js';
 import { featureOn, makeView, missingModules, runQuery, withCue } from '../sdk/queries.js';
 import { announceModules, ensureModules, preflight, rememberTimeline } from '../sdk/lifecycle.js';
@@ -32,7 +33,7 @@ const checkModule = await import('../registry/check.js').catch(() => null);
  * Returns { sdk, events, markReady, bindPanels }: `bindPanels(scheduler)` is the host's (sdk.panels' scheduler, or null to let go).
  * `sdk.ready` resolves to the sdk once the host calls markReady().
  */
-export function createSdk({ store, bus, registry, settings, events = createEvents(), chat = () => [], check = checkModule, onRegister = null, rewind = null, substitute = text => String(text ?? ''), dialog = null, dialogCurrent = null, reread = null, callModel = null, timeline = null, seed = null, cardSettings = createCardSettings(), publicPaths = createPublicPaths(), flag = () => false }) {
+export function createSdk({ store, bus, registry, settings, events = createEvents(), chat = () => [], check = checkModule, onRegister = null, rewind = null, substitute = text => String(text ?? ''), dialog = null, dialogCurrent = null, reread = null, callModel = null, timeline = null, seed = null, cardSettings = createCardSettings(), publicPaths = createPublicPaths(), flag = () => false, interactionDeps = null }) {
     let markReady;
     const panelHub = createPanels({ on: () => flag('suite.redrawScheduler') === true });
     const ready = new Promise(resolve => { markReady = () => resolve(sdk); });
@@ -89,8 +90,15 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
     }
     const viewReader = typeof timeline?.active === 'function' ? timeline.active('view.lastUser') : null;
     const noTimeline = async () => ({ ok: false, code: 'UNSUPPORTED', message: 'This host has no timeline.' });
+    // `sdk.interaction` (sdk/interaction.js): the unsent interaction in chat metadata; the host passes the metadata, its save and the reader's name (`interactionDeps`).
+    // A session with an opening is played on the state its opening leaves, which the preview answers by running the opening's settle on the head.
+    const interaction = interactionDeps ? createInteractionApi({ registry, store, chat, meta: interactionDeps.meta, save: interactionDeps.save, persona: interactionDeps.persona,
+        head: () => { const at = store.headIndex?.(); return at >= 0 ? store.carrierSid?.(at) ?? null : null; },
+        query: (name, args) => sdk.query(name, args),
+        preview: (payload, at, state) => { const run = bus.run('interaction.settle', payload, { cause: 'system', state, seed: at }); return run?.ok ? run.state : null; } }) : null;
     const sdk = Object.freeze({
         apiVersion: 2,
+        ...(interaction ? { interaction } : {}),
         ready,
         /** Registers a module (§6); a module enabled mid-chat gets its initial state now. */
         async registerModule(def) {

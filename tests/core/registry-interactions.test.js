@@ -35,6 +35,7 @@ test('each bad field gives exactly one sentence that names the kind and the fiel
         opening: [{}, 'opening is not a function'],
         view: [1, 'view is not a function'],
         carry: ['yes', 'carry is not true'],
+        autoSend: [false, 'autoSend is not true'],
         marker: [{ word: '' }, 'marker has no word'],
     };
     for (const [field, [value, text]] of Object.entries(bad)) {
@@ -85,12 +86,12 @@ test('the registry refuses a bad definition and indexes kinds by full id; sdk.mo
     } finally { host.close(); }
 });
 
-test('the core module answers interaction.view with null until an interaction api is passed', async () => {
+test('the core module answers interaction.view with null while nothing is open, and lists the fight kind it registers', async () => {
     const host = await createHost();
     try {
         assert.equal(host.registry.queryOwner('interaction.view'), 'story-block');
         assert.equal(host.sdk.query('interaction.view'), null);
-        assert.deepEqual(host.sdk.modules().find(item => item.id === 'story-block').interactions, []);
+        assert.deepEqual(host.sdk.modules().find(item => item.id === 'story-block').interactions, ['story-block/fight']);
     } finally { host.close(); }
 });
 

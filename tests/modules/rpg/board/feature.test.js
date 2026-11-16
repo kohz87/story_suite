@@ -7,7 +7,7 @@ import { CORE_FEATURE } from '../../../../core/features.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, rollReceipt, setup } from '../helpers.js';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
-import { openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { openBoard, stageExchange } from '../../../core/helpers/board-port.js';
 
 const blocks = {
     hero: { role: 'character', fields: character('Astra', { str: 14 }) },

@@ -6,7 +6,7 @@ import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { playBoard } from '../../../../modules/rpg/board/engine.js';
 import { foeChips, partyChips, pendingAwards, resourcesOf } from '../../../../modules/rpg/board/view-data.js';
 import { foeGroupChip, resourceStrip, skillButton } from '../../../../modules/rpg/board/view-chips.js';
-import { boardSession, discardBoard, openBoard } from '../../../../modules/rpg/board/session.js';
+import { boardSession, discardBoard, openBoard } from '../../../core/helpers/board-port.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';

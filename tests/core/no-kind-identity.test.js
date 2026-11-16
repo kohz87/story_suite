@@ -57,7 +57,8 @@ test('no kind registered: prompt, chat metadata, receipts and guard mark equal m
     assert.deepEqual(got.records, want.records, 'receipts and the guard mark on each reply');
     assert.deepEqual(got.state, want.state, 'the state');
     assert.equal(typeof want.guardMark, 'string', 'the fixture records the guard mark');
-    assert.equal(got.guardMark, want.guardMark, 'the guard mark, byte for byte');
-    assert.ok(!got.guardMark.includes('kinds'), 'no kinds suffix');
+    // The core registers the fight kind (I6, plan §2.4): the mark is main's byte for byte plus that one entry, and nothing else moves.
+    assert.match(got.guardMark, /^;kinds:story-block\/fight@[^;,]+:[01]$/u);
+    assert.equal(got.guardMark.replace(/;kinds:story-block\/fight@[^;,]+:[01]$/u, ''), want.guardMark, 'the guard mark, byte for byte, but for the fight kind\'s entry');
     assert.ok(!JSON.stringify(got).includes('interaction'), 'no interaction key appears anywhere');
 });

@@ -1,6 +1,6 @@
 // What the reply's `rpg.resolve` receipt says it rolled ("3 exchanges", who against whom) and the rules numbers it was rolled with.
 
-import { RESOLVE } from '../../index.js';
+import { isRollReceipt } from '../../board/results.js';
 import { STANDARD, normalizeRules } from '../../rules.js';
 import { isRecord, list, words } from './shared-line.js';
 
@@ -12,7 +12,7 @@ import { isRecord, list, words } from './shared-line.js';
 export function exchangesOf(record, problems = []) {
     const skipped = new Set(list(problems).flatMap(problem => list(problem?.receipts)));
     for (const receipt of list(record?.receipts)) {
-        if (receipt?.type !== RESOLVE || skipped.has(receipt.id)) continue;
+        if (!isRollReceipt(receipt) || skipped.has(receipt.id)) continue;
         const result = receipt.data?.v2?.result;
         if (!isRecord(result)) continue;
         const summary = isRecord(result.summary) ? result.summary : result;
@@ -39,7 +39,7 @@ export function exchangesOf(record, problems = []) {
 export function rulesOfReply(record, problems = []) {
     const skipped = new Set(list(problems).flatMap(problem => list(problem?.receipts)));
     for (const receipt of list(record?.receipts)) {
-        if (receipt?.type !== RESOLVE || skipped.has(receipt.id)) continue;
+        if (!isRollReceipt(receipt) || skipped.has(receipt.id)) continue;
         const result = receipt.data?.v2?.result;
         if (isRecord(result)) return result.rules === undefined ? STANDARD : normalizeRules(result.rules);
     }

@@ -4,7 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
-import { boardSession, openBoard, reconcileBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
+import { isBoardFight } from './commit.helpers.js';
 import { playBoard } from '../../../../modules/rpg/board/engine.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, skillBlock } from '../helpers.js';
@@ -51,13 +52,14 @@ test('a narrated swipe, Re-read and reload keep the same open board fight', asyn
         host.ctx.chatMetadata = savedMeta;
         assert.equal(JSON.stringify(host.head()), live, 'the reloaded state is the live state');
         assert.deepEqual(roundsAt(host, 2), before, 'the reload keeps the rounds');
-        assert.deepEqual(boardSession(meta), savedMeta.rpgFightBoard, 'the unsent fight came back with the chat');
+        assert.deepEqual(boardSession(host.ctx.chatMetadata), boardSession(meta), 'the unsent fight came back with the chat');
         assert.equal(callModel.calls.length, 0);
     } finally { host.close(); restore(); }
 });
 
 test('deleting an earlier pair keeps replay lookup and a repeated message gets a distinct claim', async () => {
-    for (const mode of ['swipe', 'regenerate', 'repeat']) {
+    // (the regenerate case last: it is red on the port, see the I6B sweep report)
+    for (const mode of ['swipe', 'repeat', 'regenerate']) {
         const restore = seedCrypto(91);
         const blocks = { hero: { role: 'character', fields: character('Astra', { str: 5 }) }, foes: { role: 'foes', fields: foeBlock([['Rats', 2, 1, 5]]) } };
         const { host, callModel } = await setup({ blocks, board: true });
@@ -69,7 +71,7 @@ test('deleting an earlier pair keeps replay lookup and a repeated message gets a
             assert.equal(stageExchange(meta, host.head(), action).error, undefined);
             await host.send('Strike.', 'Fight.');
             const first = rollReceipt(host, 4), rounds = structuredClone(first.data.v2.result.rounds), key = first.replan.payload.key;
-            assert.equal(host.head().meta.claims[`rpg:resolve:${key}:reply:${recordOf(host, 4).sid}`], true);
+            assert.equal(host.head().meta.claims[`ia:story-block/fight:${key}:reply:${recordOf(host, 4).sid}`], true);
             await host.st.deleteMessage(2);
             await host.st.deleteMessage(1);
             const calls = callModel.calls.length;
@@ -108,12 +110,12 @@ test('rewinding a later segment restores its saved initiative', async () => {
         await host.send('First.', 'Fight.');
         assert.equal(stageExchange(meta, host.head(), action).error, undefined);
         await host.send('Second.', 'Fight again.');
-        const session = boardSession(meta), saved = structuredClone(session.base), receipt = rollReceipt(host, 4);
-        assert.ok(saved.order?.length);
+        // (the segment's saved start is the open fight's `base`: the setup and offset it goes back to)
+        const saved = structuredClone(meta.storySuiteInteraction.open.base), receipt = rollReceipt(host, 4);
+        assert.ok(saved.setup.order?.length);
         assert.equal((await host.sdk.rewind({ index: 4, beforeRev: receipt.rev })).ok, true);
-        const expected = playBoard(host.head(), { ...session.setup, offset: saved.offset, order: saved.order, witness: undefined }, [{ actions: action }]);
-        reconcileBoard(meta, id => host.store.receipts().some(entry => entry.receipt.id === id));
-        assert.deepEqual(session.setup.order, saved.order);
+        const expected = playBoard(host.head(), { ...saved.setup, offset: saved.offset, witness: undefined }, [{ actions: action }]);
+        assert.deepEqual(boardSession(meta).setup.order, saved.setup.order);
         const actual = stageExchange(meta, host.head(), action);
         assert.equal(actual.error, undefined);
         assert.deepEqual(actual.preview.result.rounds, expected.result.rounds);
@@ -134,7 +136,6 @@ test('a rewind cannot reroll an already staged continuation', async () => {
         assert.equal(staged.error, undefined);
         const choices = structuredClone(boardSession(meta).exchanges), offset = boardSession(meta).setup.offset;
         assert.equal((await host.sdk.rewind({ index: 2, beforeRev: receipt.rev })).ok, true);
-        reconcileBoard(meta, id => host.store.receipts().some(entry => entry.receipt.id === id));
         assert.deepEqual(boardSession(meta).exchanges, choices);
         assert.equal(boardSession(meta).setup.offset, offset);
         assert.match(stageExchange(meta, host.head(), action).error, /restore|discard/i);
@@ -177,7 +178,7 @@ test('a middle delete and a rewind keep the fight and replay it again', async ()
         await host.st.deleteMessage(4);
         await host.st.deleteMessage(3);
         assert.deepEqual(roundsAt(host, 4), final, 'the middle delete keeps the later fight result');
-        assert.equal(recordOf(host, 4).receipts.some(receipt => receipt.type === 'rpg.resolve'), true);
+        assert.equal(recordOf(host, 4).receipts.some(receipt => receipt.type === 'interaction.settle' && isBoardFight(receipt)), true);
         assert.deepEqual(host.store.problems(), []);
         const live = JSON.stringify(host.head());
         host.store.rebuild();
@@ -200,8 +201,8 @@ test('K2: an open member fight carries its exact bars through replies, swipe, Re
             staged = stageExchange(meta, host.head(), action);
             const values = staged.preview?.result?.members?.map(member => member.value);
             if (staged.preview?.result?.stop === 'open' && values?.[0] > 0 && values[0] < 4) break;
-            meta.rpgFightAttempts = { ...(meta.rpgFightAttempts ?? {}), [sid]: attempt + 1 };
-            delete meta.rpgFightBoard;
+            meta.storySuiteInteraction.attempts = { ...(meta.storySuiteInteraction.attempts ?? {}), [sid]: attempt + 1 };
+            delete meta.storySuiteInteraction.open;
         }
         assert.deepEqual(staged.preview.result.members.map(member => member.value), [2, 4, 4]);
         const bars = JSON.stringify(staged.preview.result.members);
@@ -242,9 +243,9 @@ test('deleting the reply that changed the sheet takes a later board fight back a
         host.turn.clearProblems();
         await host.st.deleteMessage(2);
         await host.st.deleteMessage(1);
-        const named = host.turn.problems().filter(item => item.code === 'FIGHT_TAKEN_BACK');
+        const named = host.turn.problems().filter(item => item.code === 'INTERACTION_TAKEN_BACK');
         assert.equal(rollReceipt(host, 2), undefined, 'the fight no longer stands');
         assert.equal(named.length, 1, 'one Problem names the fight that was taken back');
-        assert.match(named[0].message, /fight on the board was taken back/u);
+        assert.match(named[0].message, /Fight was taken back because the story before it changed/u);
     } finally { host.close(); restore(); }
 });

@@ -1,5 +1,6 @@
 // Reads which skills a reply's roll record used, and finds the roll that carries a practice per use.
-import { RESOLVE, practiceOf } from '../names.js';
+import { practiceOf } from '../names.js';
+import { isRollReceipt } from '../board/results.js';
 import { fold } from '../read.js';
 import { isObject, text } from './shared-values.js';
 
@@ -25,8 +26,8 @@ export function usesOf(result) {
     return [...count.values()].sort((a, b) => fold(a.who).localeCompare(fold(b.who)) || fold(a.skill).localeCompare(fold(b.skill))).map(({ who, skill, n }) => ({ who, skill, n }));
 }
 
-/** The reply's roll that carries a practice per use: the last `rpg.resolve` receipt among `receipts`, its result, else null. */
+/** The reply's roll that carries a practice per use: the last roll receipt (`rpg.resolve` or a fight settle) among `receipts`, its result, else null. */
 export function rollOf(receipts) {
-    const found = (Array.isArray(receipts) ? receipts : []).findLast(receipt => receipt?.type === RESOLVE && isObject(receipt.data?.v2?.result) && receipt.data.v2.result.v === 1);
+    const found = (Array.isArray(receipts) ? receipts : []).findLast(receipt => isRollReceipt(receipt) && isObject(receipt.data?.v2?.result) && receipt.data.v2.result.v === 1);
     return found && practiceOf(found.data.v2.result.practice) !== null ? found.data.v2.result : null;
 }

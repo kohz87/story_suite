@@ -2,14 +2,12 @@
 
 import { SCENE_STATES } from '../contract/interaction.js';
 
-// The fight board keeps its own Fight tab until the fight renderer is built on the scene host.
-const OWN_TAB = new Set(['story-block/fight']);
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.replace(/\s+/gu, ' ').trim() : '');
 
 /** Scene view-model from `current` (the `interaction.view` answer: { id, kindId, title, state, steps, canSend, canDiscard, view }). */
 export function selectScene(current) {
-  if (!isRecord(current) || !text(current.id) || !text(current.kindId) || OWN_TAB.has(current.kindId)) return null;
+  if (!isRecord(current) || !text(current.id) || !text(current.kindId)) return null;
   return {
     id: current.id,
     kindId: current.kindId,

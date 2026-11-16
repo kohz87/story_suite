@@ -13,7 +13,7 @@ const HOST_HEADERS = Object.freeze(['happened']);
 const FUNCTIONS = ['ready', 'open', 'witness', 'validate', 'play', 'settle', 'note'];
 const OPTIONAL_FUNCTIONS = ['actors', 'auto', 'opening', 'view'];
 /** The members of a kind this host knows (an unknown one is only warned about). */
-const KIND_KEYS = Object.freeze(['version', 'title', 'feature', 'screen', 'limits', 'changes', ...FUNCTIONS, ...OPTIONAL_FUNCTIONS, 'carry', 'next', 'marker']);
+const KIND_KEYS = Object.freeze(['version', 'title', 'feature', 'screen', 'limits', 'changes', ...FUNCTIONS, ...OPTIONAL_FUNCTIONS, 'carry', 'next', 'marker', 'autoSend']);
 
 const whole = value => Number.isSafeInteger(value) && value > 0;
 
@@ -42,6 +42,7 @@ function kindProblems(kind, def) {
         if (def[key] === undefined && OPTIONAL_FUNCTIONS.includes(key)) continue;
         if (typeof def[key] !== 'function') out.push(`${at} ${key} is not a function`);
     }
+    if (def.autoSend !== undefined && def.autoSend !== true) out.push(`${at} autoSend is not true`);
     if ((def.carry === undefined) !== (def.next === undefined)) out.push(`${at} must have both carry and next, or neither`);
     else if (def.carry !== undefined && def.carry !== true) out.push(`${at} carry is not true`);
     else if (def.next !== undefined && typeof def.next !== 'function') out.push(`${at} next is not a function`);

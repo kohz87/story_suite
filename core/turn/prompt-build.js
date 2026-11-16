@@ -9,9 +9,8 @@ import { assemble, contextNotice, estimateTokens } from '../prompt.js';
 import { ensureModules, makeView } from '../sdk.js';
 import { cutAt } from '../text.js';
 import { CORE_FEATURE } from '../features.js';
-import { RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
 import { NO_ROLLS_LINE } from '../../modules/rpg/cue.js';
-import { fightCue, holdStart } from './fight-start.js';
+import { fightCue } from '../../modules/rpg/board/fight-start.js';
 import { startInteraction } from '../interaction/start.js';
 import { CORE_MODULE_ID } from '../../modules/scene/domains/core/constants.js';
 import { rpgLib } from '../../modules/rpg/rpg-lazy.js';
@@ -72,19 +71,6 @@ export function createPromptBuild(s, deps) {
             if (out === TIMED_OUT) {
                 problem({ module: moduleId, code: 'TIMEOUT', message: `beforeGenerate did not answer within ${limit / 1000} s; the reply went on without its notes.` });
                 continue;
-            }
-            // The foe pre-check found new foes (lean-rpg/precall.js): the opening is previewed, recorded as the hold, and the send waits for the reader's choice.
-            // If the opening cannot be prepared, the send goes on as it does without the pre-check (nothing is recorded).
-            if (out?.fightStart?.opening) {
-                const chat = ctx?.chat ?? [], last = chat.at(-1);
-                if (!last?.is_user || readRecord(chat.at(-2))?.sid !== out.fightStart.anchor || hashText(String(last.mes ?? '').trim()) !== out.fightStart.message) {
-                    return { blocked: { moduleId, reason: 'The chat changed while the fight was being prepared.' } };
-                }
-                const result = bus.run(RPG_RESOLVE, out.fightStart.opening, { cause: 'system' });
-                if (result?.ok && result.receipt?.data?.v2?.result?.opened?.length
-                    && holdStart(metadata(), ctx?.chat, { mode: 'new', opening: { payload: out.fightStart.opening, seed: result.receipt.seed }, result: result.receipt.data.v2.result })) {
-                    return { blocked: { moduleId, reason: 'Choose how to play the waiting fight.', fightStart: true } };
-                }
             }
             // A module offers an interaction before the send (interaction/start.js): previewed and held, or dropped with a quiet Problem.
             if (out?.interactionStart) {
@@ -210,7 +196,7 @@ export function createPromptBuild(s, deps) {
             if (answer === false || (answer && typeof answer === 'object' && answer.ok === false)) {
                 const name = registry.module(moduleId)?.name ?? moduleId;
                 const reason = typeof answer?.reason === 'string' && answer.reason.trim() ? answer.reason.trim() : `${name} is not ready for the story to go on yet.`;
-                const entry = { moduleId, reason, ...(answer?.fightStart === true ? { fightStart: true } : {}), ...(answer?.interactionStart === true ? { interactionStart: true } : {}) };
+                const entry = { moduleId, reason, ...(answer?.interactionStart === true ? { interactionStart: true } : {}) };
                 if (all) {
                     // The button's words (a module's `action`, flattened, ≤ 40 code points), or false for none.
                     const action = answer?.action === false ? false
@@ -243,7 +229,7 @@ export function createPromptBuild(s, deps) {
     }
 
     // `keepSession`: the held fight reply's session is put back once the block is told (it is still captured).
-    function block({ moduleId, reason, fightStart = false, interactionStart = false, keepSession = false }, abort) {
+    function block({ moduleId, reason, interactionStart = false, keepSession = false }, abort) {
         const held = keepSession ? s.session : null;
         s.session = null;
         markIdle();
@@ -257,10 +243,10 @@ export function createPromptBuild(s, deps) {
             problem({ code: 'RESTORE_PENDING', message: `The reply was not sent. ${reason}` });
         }
         try { abort?.(true); } catch (error) { console.warn('[Story Suite] the generation could not be stopped', error); }
-        if (fightStart || interactionStart) {
+        if (interactionStart) {
             try { Promise.resolve(ctx?.saveChat?.()).catch(() => {}); } catch { /* the next chat write saves it */ }
             try { (ctx?.saveMetadata ?? ctx?.saveMetadataDebounced)?.call(ctx); } catch { /* the next chat write saves it */ }
-            events?.emit('head', { index: store.headIndex(), reason: interactionStart ? 'interaction-start' : 'fight-start' });
+            events?.emit('head', { index: store.headIndex(), reason: 'interaction-start' });
             return;
         }
         if (!restoring || tell) {
@@ -339,7 +325,7 @@ export function createPromptBuild(s, deps) {
             }
             await ensureModules({ store, bus, registry, events });
             if (s.heldBoard) {
-                block({ moduleId: 'story-block', reason: s.heldBoard.hold ?? 'Restore the fight sheet or gear, or discard the fight (Fight tab, Discard fight) and regenerate the held reply.', keepSession: true }, abort);
+                block({ moduleId: 'story-block', reason: s.heldBoard.hold ?? 'Restore what the interaction used, or discard it from its screen, and regenerate the held reply.', keepSession: true }, abort);
                 return;
             }
             const blocked = await blockedBy(kind);

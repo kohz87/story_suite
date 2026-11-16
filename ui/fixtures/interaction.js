@@ -1,5 +1,6 @@
 // Builds the Scene tab fixtures: one made-up interaction (a choice at the ferry) in each state, as `interaction.view` reports it and as the Scene tab reads it.
 import { selectScene } from '../select/interaction.js';
+import { fightSceneAnswer } from './fight-scene.js';
 
 export const SCENE_FIXTURE_STATES = Object.freeze(['open', 'staged', 'sent', 'invalidated']);
 
@@ -13,8 +14,9 @@ const CHOICES = [
   { id: 'wait', label: 'Wait for the morning boat', actor: 'astra' },
 ];
 
-/** The `interaction.view` answer for `state` (open | staged | sent | invalidated); `{ long: true }` adds a long text and eight choices. */
-export function sceneAnswer(state = 'open', { long = false } = {}) {
+/** The `interaction.view` answer for `state` (open | staged | sent | invalidated); `{ long: true }` adds a long text and eight choices; `{ fight: 'choose' }` is the open fight in that board moment instead (see fight-scene.js). */
+export function sceneAnswer(state = 'open', { long = false, fight = null } = {}) {
+  if (fight) return fightSceneAnswer(fight, { scene: state });
   const staged = state !== 'open';
   const choices = long ? Array.from({ length: 8 }, (_, i) => ({ id: `c${i}`, label: `${CHOICES[i % 3].label} (${i + 1}) and then keep going until the label has to wrap onto a second line`, actor: 'astra' })) : CHOICES;
   const lines = long ? [...LINES, ...LINES, ...LINES] : LINES;

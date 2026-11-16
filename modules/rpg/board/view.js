@@ -4,7 +4,7 @@
 
 import { button, h } from '../../../ui/legacy/view/widgets/dom.js';
 import { zoomOf } from '../../../ui/legacy/view/scroll.js';
-import { discardHeld, heldForSid } from '../../../core/turn/held-board.js';
+import { discardHeld } from '../../../core/interaction/held.js';
 import { readFoes, readParty, stageTone } from '../view/party-data.js';
 import { readSheet } from '../read.js';
 import { planGear } from '../gear.js';
@@ -13,7 +13,10 @@ import { boardFlags } from './overrides.js';
 import { resourceStrip, skillButton, statusChips, targetButton } from './view-chips.js';
 import { allyBars } from './rules.js';
 import { boardChoices, foeChips, groupTarget, memberGroups as groupsOfMembers, memberOrderLine, memberTargetLine, partyChips, stagedLine, pendingAwards, pendingAwardsLine, standingMembers, targetLabel } from './view-data.js';
-import { boardSession, discardBoard, openBoard, reconcileBoard, stageExchange } from './session.js';
+import { FIGHT_KIND, heldFight, openFight } from './port-session.js';
+import { toStep } from './steps.js';
+import { sessionProblem } from './session-check.js';
+import { resumeMembers } from './resume.js';
 import { equipmentForBoard, playBoard } from './engine.js';
 import { labelAreaGroup, labelLine, settledNote } from './note.js';
 import { areaLineGroups } from './order.js';
@@ -40,7 +43,7 @@ const resumedLine = (members, carried) => {
     return `↺ These foes are as you left them${packed ? '' : `: ${standing} of ${total} standing`}, with their bars from the last fight.`;
 };
 
-export function createBoardView({ doc, headState, meta, save, store, rules, query, readerName, roleOf, levels, on = () => false, start = null, cap = () => AUTO_CAP.default } = {}) {
+export function createBoardView({ doc, headState, meta, save, store, interaction, rules, query, readerName, roleOf, levels, on = () => false, start = null, practice = () => undefined, cap = () => AUTO_CAP.default } = {}) {
     let logOpen = false, notice = '', autoLine = '', chosen = [], targeting = null, confirm = false, busy = false, generation = 0, activeId = null, keyRoot = null, listening = false, lockedChoices = [];
     const releaseAfterResult = () => {
         const wait = () => setTimeout(() => {
@@ -52,7 +55,7 @@ export function createBoardView({ doc, headState, meta, save, store, rules, quer
         if (frame) frame(() => frame(wait)); else wait();
     };
     const persist = () => { try { save?.(); } catch { /* staging still works in this page */ } };
-    const current = () => boardSession(meta());
+    const current = () => openFight(meta());
     const reset = () => { logOpen = false; chosen = []; targeting = null; confirm = false; notice = ''; autoLine = ''; };
     const equipment = state => {
         const sheet = readSheet(state), gear = planGear(sheet, (name, args) => query?.(name, args), readerName());
@@ -73,21 +76,20 @@ export function createBoardView({ doc, headState, meta, save, store, rules, quer
     };
     const snapshot = state => {
         if (!on()) return null;
-        reconcileBoard(meta(), id => (store?.receipts?.() ?? []).some(entry => entry?.receipt?.id === id));
         const index = store?.headIndex?.(), sid = store?.carrierSid?.(index);
-        const held = heldForSid(meta(), sid, (store?.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt));
-        const heldBoard = held?.current?.prechecks?.find(step => step.type === 'rpg.resolve' && step.payload?.board)?.payload.board;
-        const session = current() ?? (heldBoard ? { ...heldBoard, origin: heldBoard.id.split(':')[0] } : null);
+        const held = heldFight(meta(), sid, (store?.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt));
+        const session = current() ?? held?.fight ?? null;
         if (!session) return null;
         const matched = session.anchor === sid;
         if (!held && !matched && !session.exchanges.length) return null;
         if (session.id !== activeId) { activeId = session.id; reset(); }
         if (!held) fresh(session, state);
-        const played = held ? { error: meta()?.rpgFightHeldDiscarded?.[sid]
+        const played = held ? { error: held.discarded
             ? 'The fight was discarded. Regenerate the held reply.'
             : 'The fight reply is waiting. Restore the sheet or gear, or discard the fight (Fight tab, Discard fight) and regenerate the reply.' }
             : !matched ? { error: 'The fight no longer matches this reply. Restore the reply or discard the fight (Fight tab, Discard fight).' }
             : !isStandard(rules()) ? { error: 'The fight board needs Standard rules. Switch back to Standard or discard this fight.' }
+            : sessionProblem(session, state) ? { error: sessionProblem(session, state) }
             : playBoard(state, session.setup, session.exchanges);
         return { session, played, heldSid: held ? sid : null };
     };
@@ -96,27 +98,26 @@ export function createBoardView({ doc, headState, meta, save, store, rules, quer
     const kept = () => {
         if (!on()) return false;
         const index = store?.headIndex?.(), sid = store?.carrierSid?.(index), session = current();
-        if (heldForSid(meta(), sid, (store?.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt))) return true;
+        if (heldFight(meta(), sid, (store?.receipts?.() ?? []).filter(entry => entry.index === index).map(entry => entry.receipt))) return true;
         return Boolean(session) && (session.exchanges?.length > 0 || session.anchor === sid);
     };
     const open = ({ state = headState(), opening = null, result: approach = null } = {}) => {
         if (!on() || !isStandard(rules())) return false;
-        const sid = store?.carrierSid?.(store.headIndex?.()), { gear, weapons } = equipment(state);
-        const result = openBoard(meta(), state, { sid, rules: rules(), gear, weapons, records: store?.receipts?.() ?? [] });
-        if (result.error) return false;
-        if (opening) {
-            result.session.setup.opening = structuredClone(opening);
-            result.session.setup.approach = structuredClone(approach?.checks ?? []);
-            result.session.setup.drop = dropOf(approach);
-        }
-        persist(); reset();
-        activeId = result.session.id;   // (the first draw must not reset what Auto says)
+        const { gear, weapons } = equipment(state), sheet = readSheet(state);
+        // A fight against the foes a fled or lost fight left starts from that fight's exact bars (resume.js), if the Foes block still reads what the board left.
+        const resumed = resumeMembers(store?.receipts?.() ?? [], sheet.foes.filter(foe => foe.filled && foe.hurt > 0).map(foe => foe.slot), sheet.foes);
+        // (a fight a pre-check offered opens on the sheet its opening left, and carries the opening's own approach record: interaction/start.js keeps the opening)
+        const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), gear, weapons, practice: practice(), ...(resumed ? { resumed } : {}),
+            ...(opening ? { opened: approach?.opened ?? [], approach: structuredClone(approach?.checks ?? []), drop: dropOf(approach) } : {}) });
+        if (!result?.ok) return false;
+        reset();
+        activeId = current()?.id ?? null;   // (the first draw must not reset what Auto says)
         return true;
     };
     // Auto plays up to the cap's exchanges on the staged fight; every one is an ordinary staged exchange, and the reader may pick by hand after.
     const auto = () => {
         if (busy || !current()) return false;
-        const ran = runAuto({ meta: meta(), state: headState(), rules: rules(), cap: autoExchanges(cap()) });
+        const ran = runAuto({ api: interaction, cap: autoExchanges(cap()) });
         if (ran.error && !ran.done) { notice = ran.error; return false; }
         chosen = []; targeting = null; confirm = false; notice = ran.error ?? '';
         autoLine = autoNote({ ...ran, waiting: Boolean(start?.waiting?.()) });
@@ -141,7 +142,12 @@ export function createBoardView({ doc, headState, meta, save, store, rules, quer
     };
     const render = (root, snapshot, redraw, handles, settings = {}) => {
         const { session, played, heldSid } = snapshot, thisGeneration = ++generation;
-        const discard = () => { discardBoard(meta()); if (heldSid) discardHeld(meta(), heldSid); start?.discard?.(); persist(); reset(); redraw(); };
+        // (a held reply's fight may be open no more: its marker is discarded by the fight's interaction id)
+        const discard = () => {
+            const run = () => { if (interaction?.current?.()) interaction.discard(interaction.current().id); if (heldSid) discardHeld(meta(), session.interactionId); };
+            if (start?.discard) start.discard(run); else run();
+            persist(); reset(); redraw();
+        };
         const confirmDiscard = panel => {
             panel.appendChild(h(doc, 'p', '', 'Discard this fight and its unsent exchanges?'));
             const pair = h(doc, 'div', 'rpg-board-actions rpg-board-confirm-row');   // one row, 8px apart (never stacked)
@@ -270,9 +276,9 @@ export function createBoardView({ doc, headState, meta, save, store, rules, quer
                 else chosen.push({ ...item.action, target: standing[0]?.slot });
                 let rolled = false;
                 if (!targeting && (chosen[0]?.kind === 'flee' || chosen.length === data.actors.length)) {
-                    const result = stageExchange(meta(), headState(), chosen);
+                    const result = interaction?.stage?.(session.interactionId, toStep(headState(), chosen)) ?? { ok: false, message: 'The fight could not be played.' };
                     reset();
-                    if (result.error) notice = result.error;
+                    if (!result.ok) notice = result.message;
                     else { persist(); busy = true; rolled = true; }
                 }
                 redraw();

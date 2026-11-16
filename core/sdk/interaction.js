@@ -111,7 +111,7 @@ function ready(kind, title) {
     return answer === false ? interactionError('NOT_READY', title) : null;
 }
 
-function featureProblem(kind, featureOn, title) {
+function featureProblem(kind, featureOn, title, label = null) {
     if (!text(kind?.feature)) return null;
     let on = true;
     try {
@@ -119,7 +119,8 @@ function featureProblem(kind, featureOn, title) {
     } catch {
         on = false;
     }
-    return on ? null : interactionError('FEATURE_OFF', title, kind.feature);
+    // (the reader sees the feature's name, never its id)
+    return on ? null : interactionError('FEATURE_OFF', title, text(label) ? `the ${label.trim()} feature` : 'its feature in the Features');
 }
 
 function success(current) {
@@ -156,7 +157,7 @@ export function createInteractionApi({
         if (!kind) return interactionError('NOT_READY', 'interaction');
         const title = titleOf(kind);
         try {
-            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title)]) if (problem) return problem;
+            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title, registry?.feature?.(kind.feature)?.label)]) if (problem) return problem;
             if (!readKind(kind)) return failed('DAMAGED', kind);
             const meta = metaOf(readMeta);
             if (!meta) return failed('DAMAGED', kind, `The ${title}'s chat metadata is not available.`);
@@ -170,7 +171,8 @@ export function createInteractionApi({
             const start = plain(before?.start) && before.start.kindId === kindId && before.start.anchor === reply.sid ? before.start : null;
             let opened;
             try {
-                opened = kind.open(stateNow(), { anchor: reply.sid, seed, args: clone(args), query: (name, data) => ask(name, data) });
+                // (a fight a pre-check offered opens on the sheet its opening leaves: the foes it found stand there)
+                opened = kind.open(stateFor({ opening: start?.opening }), { anchor: reply.sid, seed, attempt, args: clone(args), query: (name, data) => ask(name, data) });
             } catch (error) {
                 return interactionError('INVALID', title, `${title} could not open: ${error?.message ?? error}`);
             }
@@ -209,7 +211,7 @@ export function createInteractionApi({
         if (!kind) return failed('NOT_READY', { title: session.kindId });
         const title = titleOf(kind);
         try {
-            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title)]) if (problem) return problem;
+            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title, registry?.feature?.(kind.feature)?.label)]) if (problem) return problem;
             const actors = actorsOf(kind, stateFor(session), session.setup, personaOf(persona), title);
             if (actors.error) return actors.error;
             if (session.steps.length) {
@@ -244,7 +246,7 @@ export function createInteractionApi({
         if (!kind) return failed('NOT_READY', { title: session.kindId });
         const title = titleOf(kind);
         try {
-            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title)]) if (problem) return problem;
+            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title, registry?.feature?.(kind.feature)?.label)]) if (problem) return problem;
             if (typeof kind.auto !== 'function') return interactionError('REFUSED', title);
             let done = 0;
             while (done < n) {
@@ -303,7 +305,7 @@ export function createInteractionApi({
         if (!kind) return failed('NOT_READY', { title: session.kindId });
         const title = titleOf(kind);
         try {
-            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title)]) if (problem) return problem;
+            for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title, registry?.feature?.(kind.feature)?.label)]) if (problem) return problem;
             if (!session.steps.length) return interactionError('NO_INPUT', title);
             if (session.invalidated) return interactionError('CHANGED', title, `The earlier ${title} was taken back. Restore that reply or discard it.`);
             const pending = pendingOf(chat);

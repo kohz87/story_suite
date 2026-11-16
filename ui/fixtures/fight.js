@@ -69,28 +69,47 @@ const BONUS = [
   [null, 'Tempo: win by 3 or more after an action lands → one extra action.'],
 ];
 
-const act = (id, label, cost, target, damage, odds = null) => ({ id, label, cost, target, damage, odds, enabled: true });
+const WHO = { astra: 'Astra', torka: 'Torka', rika: 'Rika', brann: 'Brann' };
+const act = (who, id, label, cost, target, damage, odds = null, pick = {}) => ({
+  id, label, cost, target, damage, odds, enabled: true, pick: { choice: pick.choice ?? 'skill', args: { who, ...(pick.args ?? { skill: label }) } },
+});
+const flee = who => {
+  const action = act(who, 'flee', 'Flee', 'AGI +5 against the captain’s +9', 'none', null, 'long shot', { choice: 'flee', args: {} });
+  return { ...action, pick: { ...action.pick, alone: true } };
+};
+const item = who => act(who, 'item', 'Use item', 'Healing draught ×3 · Antidote ×1', 'ally', 'heals 6 · ends poison', null, { choice: 'item', args: { stack: 'healing-draught' } });
+const normal = (who, dmg = '5 damage · 7 if decisive') => act(who, 'normal', 'Normal attack', 'STR damage · free', 'member', dmg, null, { choice: 'attack', args: {} });
+// Each member's actions (Brann's are the ones the Fight board mock shows).
+const GROUPS = {
+  astra: who => ({ Attack: [normal(who, '6 damage · 9 if decisive'), act(who, 'iai', 'Iaijutsu', 'DEX · 1 Stamina', 'member', '9 damage · 13 if decisive')], Magic: [], Item: [item(who)], Flee: [flee(who)] }),
+  torka: who => ({ Attack: [normal(who, '7 damage · 10 if decisive'), act(who, 'brute', 'Brute strike', 'STR · 2 Stamina', 'member', '8 damage · 12 if decisive')], Magic: [], Item: [item(who)], Flee: [flee(who)] }),
+  rika: who => ({ Attack: [normal(who, '4 damage · 6 if decisive'), act(who, 'aimed', 'Aimed shot', 'DEX · 2 Stamina', 'member', '7 damage · 10 if decisive')], Magic: [act(who, 'magic', 'Normal magic', 'INT damage · free', 'member', '3 damage · 4 if decisive', null, { choice: 'skill', args: { skill: 'Normal magic' } })], Item: [item(who)], Flee: [flee(who)] }),
+  brann: who => ({
+    Attack: [normal(who), act(who, 'heavy', 'Heavy blow', 'STR damage · 1 Stamina', 'member', '6 damage · 9 if decisive'), act(who, 'cleave', 'Cleave', 'area · STR damage · 2 Stamina', 'group', '4 damage each · 6 if decisive · one roll per target', null, { args: { skill: 'Cleave', area: true } })],
+    Magic: [act(who, 'magic', 'Normal magic', 'INT damage · free', 'member', '2 damage · 3 if decisive')],
+    Item: [item(who)],
+    Flee: [flee(who)],
+  }),
+};
 const ACTOR = () => ({
   id: 'brann',
   stance: { name: 'Shield wall', on: true, soakOn: 22, soakOff: 17, paid: [11, 10] },
-  groups: {
-    Attack: [act('normal', 'Normal attack', 'STR damage · free', 'member', '5 damage · 7 if decisive'), act('heavy', 'Heavy blow', 'STR damage · 1 Stamina', 'member', '6 damage · 9 if decisive'), act('cleave', 'Cleave', 'area · STR damage · 2 Stamina', 'group', '4 damage each · 6 if decisive · one roll per target')],
-    Magic: [act('magic', 'Normal magic', 'INT damage · free', 'member', '2 damage · 3 if decisive')],
-    Item: [act('item', 'Use item', 'Healing draught ×3 · Antidote ×1', 'ally', 'heals 6 · ends poison')],
-    Flee: [act('flee', 'Flee', 'AGI +5 against the captain’s +9', 'none', null, 'long shot')],
-  },
+  groups: GROUPS.brann(WHO.brann),
 });
+// Every standing member's actions, as the scene renderer reads them (no stance: the scene hides it).
+const actorsOf = party => party.filter(p => p.hp > 0).map(p => ({ id: p.actorId, groups: GROUPS[p.id](WHO[p.id]) }));
 
 function foeGroups(snap, wide) {
   const hounds = wide ? 4 : 3;
   const groups = [['Grey hounds', 'Hound', hounds, 'Hound'], ...(wide ? [['Men in grey', 'Man', 3, 'Man']] : []), ['Bandit captain', 'Captain', 1, 'Captain']];
+  let slot = 0; // the foes' slots, in order; each group is numbered by its first member's slot (SB board members)
   return groups.map(([name, label, n, key]) => {
-    const info = FOE_INFO[key];
+    const info = FOE_INFO[key], first = slot;
     const members = Array.from({ length: n }, (_, i) => {
       const id = n === 1 ? label : `${label} ${i + 1}`;
-      return { id, name: id, hp: snap.foes[id] ?? info.max, max: info.max };
+      return { id, arg: { target: slot++ }, name: id, hp: snap.foes[id] ?? info.max, max: info.max };
     });
-    return { name, tier: info.tier, lv: info.lv, odds: { word: info.word }, members };
+    return { id: name, arg: { group: first }, name, tier: info.tier, lv: info.lv, odds: { word: info.word }, members };
   });
 }
 
@@ -99,7 +118,7 @@ function partyStrip(snap, state) {
   return Object.keys(NAMES).map(id => {
     const [hp, hpMax, mp, mpMax, sp, spMax] = snap[id];
     const chosen = picked ? (state === 'after' && id === 'brann' ? 'Normal attack → Hound 3' : PICKS[id] ?? null) : null;
-    return { id, name: NAMES[id], portrait: id, hp, hpMax, mp, mpMax, sp, spMax, chosen };
+    return { id, arg: { target: NAMES[id] }, actorId: `actor-${id}`, name: NAMES[id], portrait: id, hp, hpMax, mp, mpMax, sp, spMax, chosen };
   });
 }
 
@@ -118,14 +137,16 @@ export function fightFixture(state = 'choose', { wide = false } = {}) {
   const exchange = { offer: 1, choose: 2, target: 2, ally: 2, after: 2, end: 3 }[state];
   const logged = { offer: 0, choose: 1, target: 1, ally: 1, after: 2, end: 3 }[state];
   const rolled = state !== 'offer';
+  const party = partyStrip(snap, state);
   return {
     state,
     title: 'Fight · Auvoth bridge',
     subtitle: `${wide ? 'Men in grey and their hounds' : 'Grey hounds and their captain'} · Combat Rules v1`,
     exchange,
     foeGroups: foeGroups(snap, wide),
-    party: partyStrip(snap, state),
+    party,
     actor: ['choose', 'target', 'ally'].includes(state) ? ACTOR() : null,
+    actors: ['choose', 'target', 'ally'].includes(state) ? actorsOf(party) : [],
     order: rolled ? [...ORDER] : [],
     bonuses: rolled ? BONUS.map(([label, text]) => ({ label, text })) : null,
     log: LOG.slice(0, logged).map((rows, i) => ({

@@ -9,8 +9,8 @@ import { parseStatedLevel, statedLevel } from '../../../../modules/rpg/board/sta
 import { vetGroups } from '../../../../modules/rpg/board/precheck.js';
 import { runPrecheck } from '../../../../modules/rpg/board/precheck-run.js';
 import { vetOpen } from '../../../../modules/rpg/open.js';
-import { boardSession, markSend, stageExchange } from '../../../../modules/rpg/board/session.js';
-import { pendingStart } from '../../../../core/turn/fight-start.js';
+import { boardSession, markSend, stageExchange } from '../../../core/helpers/board-port.js';
+import { pendingStart } from '../../../../core/interaction/start-hold.js';
 
 const RANKS = [{ name: 'F', from: 1, to: 9 }, { name: 'E', from: 10, to: 19 }, { name: 'D', from: 20, to: 29 }, { name: 'C', from: 30, to: 49 }, { name: 'S', from: 90, to: 94 }, { name: 'SS', from: 95, to: 99 }];
 const rankAt = level => RANKS.find(rank => level >= rank.from && level <= rank.to) ?? null;
@@ -43,6 +43,8 @@ test('the field forms: a number, Lv, level, a rank, two ranks; whole words only'
     assert.equal(parseStatedLevel('C', () => { throw new Error('x'); }), null);
     assert.deepEqual(parseStatedLevel('30', null), { level: 30 }, 'a number needs no ranks');
 });
+// The opening's settle receipt (the fight kind's, with `opening: true`): its result lists the groups it opened.
+const openingSettle = receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.opening === true;
 
 test('field 30 at party level 2: 30 on the pre-check path, it beats the narrator\'s lower level and passes the cap', () => {
     const query = world({ dossiers: [vorn('30')] });
@@ -112,8 +114,8 @@ async function fought(dossiers, seed, answers = [GROUPS]) {
         queries: { 'npc.known': () => dossiers.map(entry => entry.name), 'npc.dossier': (_state, args) => dossiers.find(entry => entry.name === args.name) ?? null,
             'packs.content': () => [{ slug: 'ranks', ranks: RANKS }], 'rpg.rank': (_state, args) => rankAt(args.level) } });
     assert.equal((await host.send('I draw my blade and attack Vorn.', 'Not sent.')).aborted, true);
-    const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.fightStartPreview();
-    const { openBoard } = await import('../../../../modules/rpg/board/session.js');
+    const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.interactionStartPreview();
+    const { openBoard } = await import('../../../core/helpers/board-port.js');
     const { STANDARD_FORMULA } = await import('../../../../modules/rpg/rules.js');
     const { dropOf } = await import('../../../../modules/rpg/ambush.js');
     const open = openBoard(meta, opening.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
@@ -131,7 +133,7 @@ test('field 30 at party level 2 reaches the Foes block as 30; replay == live, al
     const { host, callModel, sent, restore } = await fought(dossiers, 811);
     try {
         assert.equal(foesOf(host).level1, 30);
-        const opening = () => host.ctx.chat.at(-1).extra.storySuite.receipts.filter(receipt => receipt.type === 'rpg.resolve')[0].replan.payload.plan.open;
+        const opening = () => host.ctx.chat.at(-1).extra.storySuite.receipts.find(openingSettle).data.v2.result.opened.map(({ name, count, level }) => ({ name, count, level }));
         assert.deepEqual(opening(), [{ name: 'Vorn', count: 1, level: 30 }], 'the stated level is recorded in the opening');
         const live = JSON.stringify(host.head());
         dossiers[0] = vorn('8');
@@ -170,7 +172,7 @@ test('no Level field: the fight is as before (level 4 stays, a model\'s 25 becom
     const plain = await fought([vorn()], 813);
     try {
         assert.equal(foesOf(plain.host).level1, 4);
-        assert.deepEqual(plain.host.ctx.chat.at(-1).extra.storySuite.receipts.filter(receipt => receipt.type === 'rpg.resolve')[0].replan.payload.plan.open, [{ name: 'Vorn', count: 1, level: 4 }]);
+        assert.deepEqual(plain.host.ctx.chat.at(-1).extra.storySuite.receipts.find(openingSettle).data.v2.result.opened.map(({ name, count, level }) => ({ name, count, level })), [{ name: 'Vorn', count: 1, level: 4 }]);
     } finally { plain.host.close(); plain.restore(); }
     const high = await fought([], 814, [JSON.stringify({ groups: [{ name: 'Vorn', count: 1, level: 25 }] })]);
     try { assert.equal(foesOf(high.host).level1, 22); } finally { high.host.close(); high.restore(); }

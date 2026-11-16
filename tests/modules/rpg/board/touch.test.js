@@ -27,7 +27,7 @@ const html = `<!doctype html><html><head><meta name="viewport" content="width=de
 import { STANDARD_TEMPLATES } from '/modules/rpg/templates.js';
 import { STANDARD_FORMULA } from '/modules/rpg/rules.js';
 import { createBoardView } from '/modules/rpg/board/view.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '/modules/rpg/board/session.js';
+import { boardApi, boardSession, discardBoard, openBoard, stageExchange } from '/tests/core/helpers/board-port.js';
 import { playBoard } from '/modules/rpg/board/engine.js';
 import { hero } from '/ui/legacy/view/widgets/hero.js';
 hero.render(document.querySelector('.ss-gameview-hero'), { name:'Astra', place:'Bluewatch', time:'Day 1', weather:'Rain', compact:true, boardExpandable:true,
@@ -36,6 +36,7 @@ hero.render(document.querySelector('.ss-gameview-hero'), { name:'Astra', place:'
 const domain = { pins:{}, active:{}, instances:{}, perReply:{} };
 for (const role of ['character', 'skills', 'foes']) {
     const definition = structuredClone(STANDARD_TEMPLATES.find(item => item.definition.role === role).definition);
+    definition.rules ??= [];   // the interpreter that settles a finished fight expects every pinned definition to list its rules (a stored definition always does)
     const fields = Object.fromEntries(Object.entries(definition.state).map(([key, value]) => [key, structuredClone(value.default)]));
     if (role === 'character') Object.assign(fields, { who:'Astra', vit:20, health:5 });
     if (role === 'skills') Object.assign(fields, { who:'Astra', skill1:'Cut', about1:'strike a foe', stat1:'str', uses1:'stamina',
@@ -66,7 +67,7 @@ if (location.search.includes('panel')) {
     document.querySelector('.story-suite-sheet').hidden = false;
     document.querySelector('#panel-slot').append(node);
 }
-const view = createBoardView({ doc:document, headState:() => state, meta:() => meta, store, rules:() => ({ ...STANDARD_FORMULA, levelDivisor:5 }),
+const view = createBoardView({ doc:document, headState:() => state, meta:() => meta, store, interaction:boardApi(meta, () => state, 'reply'), rules:() => ({ ...STANDARD_FORMULA, levelDivisor:5 }),
     query:() => null, readerName:() => 'Astra', roleOf:definition => definition.role, levels:() => ({ ranks:[], playerRank:null }), on:() => true,
     start:{ waiting:() => true, sending:() => false, send:() => {} } });
 function draw() { for (const handle of handles.splice(0)) handle.destroy?.(); view.clear(); node.replaceChildren(); node.classList.remove('rpg-board-active');

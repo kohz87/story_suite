@@ -1,7 +1,7 @@
 // Reads a reply's recorded roll (the `rpg.resolve` receipt) into the battle log's lines: old and Standard roll
 // text, breakdowns, gear, costs, moves, turn order and an ambush check. A line that is not whole is left out.
 
-import { RESOLVE } from '../../index.js';
+import { isRollReceipt } from '../../board/results.js';
 import { LEVEL, CLASS_NAMES, RANK_NAMES, STAGES, LIMITS, stageWord } from '../../names.js';
 import { fold } from '../../read.js';
 import { soulShortOf } from '../../soul.js';
@@ -193,9 +193,9 @@ export function readResolve(result, { soulOf = () => null, shape = 0, summary = 
 export function resolveOf(record, problems = [], options = {}) {
     const skipped = new Set(list(problems).flatMap(problem => list(problem?.receipts)));
     const receipts = list(record?.receipts);
-    const board = receipts.findLast(receipt => receipt?.type === RESOLVE && receipt?.data?.v2?.result?.board && !skipped.has(receipt.id));
+    const board = receipts.findLast(receipt => isRollReceipt(receipt) && receipt?.data?.v2?.result?.board && !skipped.has(receipt.id));
     for (const receipt of board ? [board, ...receipts.filter(item => item !== board)] : receipts) {
-        if (receipt?.type !== RESOLVE || skipped.has(receipt.id)) continue;
+        if (!isRollReceipt(receipt) || skipped.has(receipt.id)) continue;
         const read = readResolve(receipt.data?.v2?.result, { ...options, summary: receipt.summary, shape: Number.isSafeInteger(receipt.data?.v2?.shape) ? receipt.data.v2.shape : 0 });
         if (read) return read;
     }

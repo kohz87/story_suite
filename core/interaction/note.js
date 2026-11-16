@@ -3,9 +3,9 @@
 import { estimateTokens } from '../prompt-parts/shared-helpers.js';
 
 export const SETTLE_TYPE = 'interaction.settle';
-// What a kind's `note` is told it may spend (the fight board's longest note measured at 798 tokens, plus 20 %, rounded up to ten; tests/v2/interaction/note-budget.test.js).
+// What a kind's `note` is told it may spend (the fight board's longest v1 note, 4 heroes v 6 foes over 4 exchanges, measured at 1071 tokens over 300 seeds, plus 20 %, rounded up to ten; tests/v2/interaction/note-budget.test.js).
 // The note is never cut: a longer one is still sent whole and only raises the quiet NOTE_LONG Problem.
-export const INTERACTION_NOTE_TOKENS = 960;
+export const INTERACTION_NOTE_TOKENS = 1290;
 
 /** The text a settle receipt tells the narrator: its own `summary`, read directly ('' for anything else). */
 export const settleCue = receipt => (receipt?.type === SETTLE_TYPE && typeof receipt.summary === 'string' ? receipt.summary : '');

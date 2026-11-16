@@ -4,6 +4,7 @@
 // Also the consumables' two outside-the-fight hooks (owner 14 Nov): `items.useOn` (whom the inventory's Use on… offers) and `item.use` (the
 // Use on… button and the story's `- item X | used: yes`): one rule, board/rules.js `recoveryOf`, the same one the fight board's Use item uses.
 
+import { boardChangeCommands } from './changes.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { fold, matchCharacter, readSheet } from '../read.js';
 import { actorIdOf, rosterOf as partyRoster } from '../roster.js';
@@ -11,7 +12,6 @@ import { BOARD_SKILL, BOARD_SKILL_CARRY, LEAN_RPG_FEATURE, ROLLS_QUERY, USE_ITEM
 import { skillKey } from './flags.js';
 import { recoveryWords } from '../cue.js';
 import { recoverPool, recoveryOf } from './rules.js';
-import { boardSession } from './session.js';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const flagsValid = value => object(value) && Object.keys(value).length === 3 && ['target', 'area', 'defence'].every(key => typeof value[key] === 'boolean');
@@ -86,7 +86,8 @@ function useItem(ctx, payload, persona) {
 
 /** `items.useOn`: { [stack]: [{ id }] }: the party's unbound consumables, each with the members it may be used on; {} while a board fight is open (the sheet is held) or there is no one. */
 function usersFor(state, metadata) {
-    if (boardSession(metadata?.())) return {};
+    // (a fight open in the interaction scratch: read straight, so this file does not reach the fight kind)
+    if (metadata?.()?.storySuiteInteraction?.open?.kindId === 'story-block/fight') return {};
     const people = alive(sheetOf(state?.domains?.dataModules)), inv = state?.domains?.inventory;
     if (!people.length || !inv) return {};
     const ids = people.map(person => ({ id: actorIdOf(person.module), via: USE_ITEM }));
@@ -115,7 +116,7 @@ export function createBoardPart({ persona = () => '', metadata = () => null } = 
         return { summary: 'Skill choices carried.', narrate: false };
     };
     const use = Object.assign((ctx, payload) => useItem(ctx, payload, persona), { feature: LEAN_RPG_FEATURE });
-    return { commands: { [BOARD_SKILL]: edit, [BOARD_SKILL_CARRY]: carry, [USE_ITEM]: use },
+    return { commands: { [BOARD_SKILL]: edit, [BOARD_SKILL_CARRY]: carry, [USE_ITEM]: use, ...boardChangeCommands() },
         // (a fallback: a module that answers `items.useOn` itself owns the name and is the one asked, as the party roster's queries are)
         queries: { 'items.useOn': Object.assign((state) => usersFor(state, metadata), { feature: LEAN_RPG_FEATURE, fallback: true }) } };
 }

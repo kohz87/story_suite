@@ -33,8 +33,8 @@ export function rig(opts = {}) {
         readText: () => page.box,
         clickSend: () => page.sends.push(page.box),
         isBusy: () => page.busy,
-        fightHeld: () => page.held,
-        openBoard: () => { page.boardOpens++; return true; },
+        interactionHeld: () => page.held,
+        openHeld: () => { page.boardOpens++; return true; },
         onChange: (s) => page.changes.push(s.state),
         timers: clock.timers,
         ...opts,
@@ -61,7 +61,7 @@ export function pageRig(opts = {}) {
     send.addEventListener('click', () => { page.clicks++; if (!page.ignore) { page.handlers.forEach(fn => fn('normal', {}, false)); box.value = ''; doc.fire('input', {}, box); } });
     const clock = fakeClock();
     const ctx = { eventTypes: { GENERATION_STARTED: 'gs', GENERATION_AFTER_COMMANDS: 'gac' }, eventSource: { on: (n, f) => page.handlers.push(f), removeListener: () => {} } };
-    const note = createSendNote({ doc, ctx, enabled: () => page.on, busy: () => page.busy, held: () => page.held, openBoard: () => { page.boards++; return true; }, timers: clock.timers, ...opts });
+    const note = createSendNote({ doc, ctx, enabled: () => page.on, busy: () => page.busy, held: () => page.held, openHeld: () => { page.boards++; return true; }, timers: clock.timers, ...opts });
     const press = () => doc.fire('click', {}, send);
     const pill = () => doc.body.querySelector('.ss-send-note-pill');
     return { doc, page, note, clock, press, pill, box, form, send, stop };

@@ -49,7 +49,7 @@ describe('selectFight', () => {
   it('groups board members under the real foe and keeps gaps null', () => {
     const vm = selectFight(input());
     assert.deepEqual(vm.foeGroups.map(g => [g.name, g.lv, g.tier, g.odds.word, g.members.length]), [['Grey hound', 6, null, null, 2], ['Bandit captain', 8, null, null, 1]]);
-    assert.deepEqual(vm.foeGroups[0].members[0], { id: '11', name: 'Hound 1', hp: 0, max: 5 });
+    assert.deepEqual(vm.foeGroups[0].members[0], { id: '11', arg: { target: 11 }, name: 'Hound 1', hp: 0, max: 5 });
     assert.equal(vm.bonuses, null);
     assert.equal(vm.narratorTold, null);
     assert.equal(vm.subtitle, null);
@@ -74,7 +74,7 @@ describe('selectFight', () => {
 
   it('builds the party strip from the bars and the staged picks', () => {
     const vm = selectFight(input({ view: { chosen: [{ who: 'Torka', kind: 'skill', skill: 'Brute strike', target: 'Captain' }, { who: 'Astra', kind: 'flee' }] } }));
-    assert.deepEqual(vm.party[0], { id: 'astra', name: 'Astra', portrait: null, hp: 11, hpMax: 14, mp: 14, mpMax: 14, sp: 9, spMax: 15, chosen: 'Flee' });
+    assert.deepEqual(vm.party[0], { id: 'astra', arg: { target: 'Astra' }, actorId: 'astra', name: 'Astra', portrait: null, hp: 11, hpMax: 14, mp: 14, mpMax: 14, sp: 9, spMax: 15, chosen: 'Flee' });
     assert.equal(vm.party[1].chosen, 'Brute strike → Captain');
     assert.equal(selectFight(input()).party[0].chosen, null);
   });
@@ -84,10 +84,13 @@ describe('selectFight', () => {
     assert.equal(actor.id, 'astra');
     assert.equal(actor.stance, null);
     const by = Object.fromEntries(Object.entries(actor.groups).map(([k, list]) => [k, list.map(a => [a.label, a.cost, a.target, a.enabled])]));
-    assert.deepEqual(by.Attack, [['Attack with Katana', 'STR damage · free', 'group', true], ['Iaijutsu → one', 'DEX · 1 Stamina', 'group', true]]);
-    assert.deepEqual(by.Magic, [['Flash', 'INT · 2 Mana', 'none', false], ['Mend → Torka', 'WIS · 1 Mana', 'ally', true]]);
+    assert.deepEqual(by.Attack, [['Attack with Katana', 'STR damage · free', 'member', true], ['Iaijutsu → one', 'DEX · 1 Stamina', 'member', true]]);
+    assert.deepEqual(by.Magic, [['Flash', 'INT · 2 Mana', 'group', false], ['Mend → Torka', 'WIS · 1 Mana', 'ally', true]]);
     assert.deepEqual(by.Item, [['Use item', '1 kinds in the bag', 'ally', true]]);
     assert.deepEqual(by.Flee, [['Flee', 'Escape', 'none', true]]);
+    assert.equal(actor.groups.Magic[0].pick.args.area, true); // an area skill: area on the pick; a group is asked for with two groups
+    assert.equal(actor.groups.Attack[0].pick.args.area, undefined);
+    assert.equal(actor.groups.Flee[0].pick.alone, true);
     assert.equal(actor.groups.Attack[0].damage, null);
     assert.equal(actor.groups.Attack[0].odds, null);
   });
@@ -126,10 +129,13 @@ describe('selectFight', () => {
     assert.equal(vm.exchange, 1);
   });
 
-  it('matches the contract except the gap fields it leaves null', () => {
-    const errors = checkShape(selectFight(input()), FIGHT_SHAPE);
-    const gaps = errors.filter(e => !/tier|odds\.word|stance|bonuses|xpEach/u.test(e) && !/damage|odds:/u.test(e));
-    assert.deepEqual(gaps, []);
-    assert.ok(errors.some(e => /tier/u.test(e)), 'tier is a known gap');
+  it('matches the contract; tier, the odds word and xpEach are null gaps the shape allows', () => {
+    const vm = selectFight(input());
+    const errors = checkShape(vm, FIGHT_SHAPE).filter(e => !/stance|bonuses/u.test(e));
+    assert.deepEqual(errors, []);
+    assert.deepEqual([vm.foeGroups[0].tier, vm.foeGroups[0].odds.word, vm.foeGroups[0].id], [null, null, '1']);
+    assert.deepEqual(vm.actors.map(a => a.id), ['astra']);
+    assert.deepEqual(vm.actors[0].groups.Attack[0].pick, { choice: 'attack', args: { who: 'Astra' } });
+    assert.deepEqual(vm.actors[0].groups.Magic[0].pick.args, { who: 'Astra', skill: 'Flash', area: true });
   });
 });

@@ -7,7 +7,7 @@ import { STAGES, stageWord } from '../../../../modules/rpg/names.js';
 import { usesOf } from '../../../../modules/rpg/practice.js';
 import { playBoard } from '../../../../modules/rpg/board/engine.js';
 import { createBoardView } from '../../../../modules/rpg/board/view.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { boardSession, discardBoard, openBoard, stageExchange, boardApi } from '../../../core/helpers/board-port.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
 import { planGear } from '../../../../modules/rpg/gear.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
@@ -227,9 +227,9 @@ test('a refused exchange keeps its reason on the board after the redraw', async 
     const fight = () => doc.querySelector('[data-ss-screen="story-block/fight"]');
     fight().querySelector('[data-choice="1"]').click();
     await new Promise(resolve => setTimeout(resolve, 500));
-    boardSession(meta).setup.witness.offset += 1;
+    meta.storySuiteInteraction.open.witness.offset += 1;   // the witness is on the open fight itself
     fight().querySelector('[data-choice="1"]').click();
-    assert.match(fight().querySelector('.rpg-board-error')?.textContent ?? '', /cannot be checked/, 'the reason survives the redraw');
+    assert.match(fight().querySelector('.rpg-board-error')?.textContent ?? '', /read has changed.*discard/, 'the reason survives the redraw');
 });
 
 test('the board checks current and saved rules, including a stale offer', async t => {
@@ -239,7 +239,7 @@ test('the board checks current and saved rules, including a stale offer', async 
     await defineFoes(host, [['Rats', 1, 1, 5]]);
     const meta = host.ctx.chatMetadata, standard = { ...STANDARD_FORMULA, levelDivisor: 5 }, classic = { ...standard, formula: 'classic' };
     let current = standard;
-    const board = createBoardView({ doc, headState: () => host.head(), meta: () => meta, store: host.store, rules: () => current,
+    const board = createBoardView({ doc, headState: () => host.head(), meta: () => meta, store: host.store, interaction: boardApi(meta, () => host.head(), host.store.carrierSid(host.store.headIndex())), rules: () => current,
         query: (name, args) => host.sdk.query(name, args), readerName: () => 'Wessel', levels: () => ({}), on: () => true });
     t.after(() => board.destroy());
     const holder = doc.createElement('div');
@@ -265,7 +265,7 @@ test('a staged fight remains discardable when its opening reply no longer matche
     const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());
     openBoard(meta, host.head(), { sid, rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
     stageExchange(meta, host.head(), [{ who: 'Wessel', kind: 'attack', target: 11 }]);
-    boardSession(meta).anchor = 'missing-reply';
+    meta.storySuiteInteraction.open.anchor = 'missing-reply';
     ui.mounts.screen.open('story-block/fight');
     await settle();
     const fight = () => doc.querySelector('[data-ss-screen="story-block/fight"]');
@@ -322,7 +322,7 @@ test('the reloaded board explains a held reply and lets the reader discard it', 
     fight().querySelector('.rpg-board-discard').click();
     fight().querySelector('.rpg-board-confirm').click();
     assert.equal(boardSession(host.ctx.chatMetadata), null);
-    assert.equal(host.ctx.chatMetadata.rpgFightHeldDiscarded[host.store.carrierSid(index)], true);
+    assert.equal(host.ctx.chatMetadata.storySuiteInteraction.heldDiscarded[host.store.carrierSid(index)], true);
     assert.match(fight().textContent, /discarded.*regenerate/i);
     assert.equal((await host.turn.reread(index)).ok, false);
 });

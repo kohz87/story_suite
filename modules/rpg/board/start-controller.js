@@ -3,14 +3,15 @@
 
 import { createPauseView } from './pause.js';
 import { pauseViewData } from './start-view-data.js';
-import { pendingStart } from '../../../core/turn/fight-start.js';
+import { pendingStart } from '../../../core/interaction/start-hold.js';
 import { readSheet } from '../read.js';
-import { boardSession, clearSend, markSend } from './session.js';
 
-export function createStartController({ doc, chat, meta, state, preview, board, on, save, refresh, generate, cap = () => 3, show = () => {}, close = () => {} } = {}) {
+export function createStartController({ doc, chat, meta, state, preview, board, interaction, on, save, refresh, generate, cap = () => 3, show = () => {}, close = () => {} } = {}) {
     const listeners = new Set();
     let sending = false, error = '';
     const current = () => on() ? pendingStart(meta(), chat()) : null;
+    // The Send copy the interaction api made at "Send with this fight" (gone when the choice is made again or the send fails).
+    const clearSend = () => { const box = meta()?.storySuiteInteraction; if (box && typeof box === 'object') delete box.send; };
     const tell = () => { for (const draw of [...listeners]) draw(); refresh?.(); };
     const persist = () => { try { save?.(); } catch { /* kept in this page */ } };
     const begin = (auto = false) => {
@@ -34,9 +35,12 @@ export function createStartController({ doc, chat, meta, state, preview, board, 
         const pending = current();
         if (!pending || sending || pending.mode === 'working') return;
         // The staged fight goes with the send or the send does not happen: it is never replaced by a new roll.
-        if (pending.choice === 'board' && !markSend(meta(), pending, boardSession(meta()))) {
-            error = 'The staged fight cannot be attached to this reply (its anchor reply or exchanges are missing). Discard it (Fight tab, Discard fight) and start the fight again.';
-            tell(); return;
+        if (pending.choice === 'board') {
+            const open = interaction?.current?.(), sent = open ? interaction.send(open.id) : null;
+            if (!sent?.ok) {
+                error = 'The staged fight cannot be attached to this reply (its anchor reply or exchanges are missing). Discard it (Fight tab, Discard fight) and start the fight again.';
+                tell(); return;
+            }
         }
         if (pending.choice === 'board') persist();
         sending = true;
@@ -46,7 +50,7 @@ export function createStartController({ doc, chat, meta, state, preview, board, 
             // The reply has started: close the panel so the reader sees it being written.
             try { close(); } catch { /* the panel stays open */ }
             Promise.resolve(running).finally(() => { sending = false; tell(); }).catch(() => {});
-        } catch { sending = false; clearSend(meta()); tell(); }
+        } catch { sending = false; clearSend(); tell(); }
     };
     // "Send without a fight": the message goes out unchanged and the opening is not recorded (the narrator sets up the foes as it does without the pre-check).
     const plain = () => {
@@ -54,7 +58,7 @@ export function createStartController({ doc, chat, meta, state, preview, board, 
         if (!pending || pending.choice || !pending.opening) return;
         delete pending.opening; delete pending.result;
         pending.choice = 'plain';
-        clearSend(meta());
+        clearSend();
         persist(); tell();
         send();
     };
@@ -99,7 +103,17 @@ export function createStartController({ doc, chat, meta, state, preview, board, 
     return {
         current, holds, openHeld, draw, state: sheetState, send, changed: tell, sending: () => sending,
         waiting: () => current()?.choice === 'board',
-        discard() { const pending = current(); if (pending?.choice === 'board') { pending.choice = null; error = ''; clearSend(meta()); persist(); } },
+        // The fight is discarded (`run`): the interaction api drops the waiting choice with it, so it is put back, as it was before the board was chosen (the pause shows again).
+        discard(run = () => {}) {
+            const pending = current(), keep = pending?.choice === 'board' ? structuredClone(pending) : null;
+            run();
+            error = '';
+            if (!keep) return;
+            keep.choice = null;
+            const box = meta()?.storySuiteInteraction;
+            if (box && typeof box === 'object') box.start = keep;
+            clearSend(); persist();
+        },
         listen(fn) { listeners.add(fn); return () => listeners.delete(fn); },
         clear: () => pause.clear(),
         destroy() { listeners.clear(); doc.removeEventListener?.('click', click, true); doc.removeEventListener?.('keydown', key, true); pause.destroy(); },

@@ -1,14 +1,14 @@
-// The settled-note allowance is measured on the longest board fight, never guessed: a change to the number or to the note is a reviewed diff.
+// The settled-note allowance is measured on the longest v1 fight, never guessed: a change to the number or to the note is a reviewed diff.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { INTERACTION_NOTE_TOKENS, noteLong, settleCue } from '../../../core/interaction/note.js';
 import { estimateTokens } from '../../../core/prompt-parts/shared-helpers.js';
 import { fightNote } from './helpers/fight-note.js';
 
-// The longest board note (4 v 6, 4 exchanges, items and wear) is 798 tokens; the allowance is that plus 20 %, rounded up to ten.
-const MEASURED = 798;
+// The longest v1 fight note (4 v 6, 4 exchanges: seed 56 of 300 tried, the longest) is 1071 tokens; the allowance is that plus 20 %, rounded up to ten.
+const MEASURED = 1071;
 
-test('the allowance is the measured longest board note plus 20 %', () => {
+test('the allowance is the measured longest fight note plus 20 %', () => {
     assert.equal(estimateTokens(fightNote()), MEASURED, 'the fixture note changed: measure again');
     assert.equal(INTERACTION_NOTE_TOKENS, Math.ceil(MEASURED * 1.2 / 10) * 10);
     assert.ok(MEASURED <= INTERACTION_NOTE_TOKENS);

@@ -187,8 +187,8 @@ export function settleInteraction(ctx, payload, kindOrLookup, { state = null, re
     const setup = clone(payload.setup), stored = clone(payload.steps), openingOnly = payload.opening === true;
     const stream = dice(payload.seed, payload.offset);
     const stepDice = index => stream(index);
-    let witnessInput;
-    try { witnessInput = kind.witness(state, setup); } catch (error) {
+    let witnessInput, guardInput;
+    try { witnessInput = kind.witness(state, setup); guardInput = kind.witness(state, setup, stored); } catch (error) {
         ctx.fail('FAILED', refused(error, title, 'read its setup'));
     }
     if (!openingOnly && hashJson(witnessInput) !== payload.witness.hash) {
@@ -238,7 +238,7 @@ export function settleInteraction(ctx, payload, kindOrLookup, { state = null, re
     const predicate = { kind: 'interaction', id: kindId, v: payload.version, key: payload.key, setup: ctx.hash(payload),
         ...(payload.prior ? { prior: payload.prior } : {}) };
     ctx.replayGuard({ owner: CORE_MODULE_ID, version: 2, epoch: ctx.epoch, rulesHash: null, predicate,
-        inputHash: ctx.hash({ source: ctx.source, predicate, witness: witnessInput }) }, clone(payload));
+        inputHash: ctx.hash({ source: ctx.source, predicate, witness: guardInput }) }, clone(payload));
 
     const changes = [];
     for (const change of checkedResult.changes) {

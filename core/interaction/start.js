@@ -1,43 +1,14 @@
-// The waiting choice of an interaction a module asked to open before the reader's message goes out (`interactionStart`): the record in
-// chat metadata, the opening preview, and the hold. Until the old view can choose for any kind, only the allowed kinds may ask.
+// Offers an interaction before the reader's message goes out (`interactionStart`): the opening preview and the hold (interaction/start-hold.js keeps the record).
+// Until the old view can choose for any kind, only the allowed kinds may ask.
 
-import { hashText } from '../../modules/assist/common.js';
-import { readRecord } from '../persist.js';
 import { interactionSeed } from './dice.js';
+import { holdStart, waitingOf } from './start-hold.js';
 
 const KEY = 'storySuiteInteraction';
 const SETTLE = 'interaction.settle';
 // The old view has a chooser for the fight board only (until the scene host, I8): any other kind's answer is dropped with a quiet Problem.
 export const START_KINDS = ['story-block/fight'];
-// A running check is page-local: a reloaded metadata object cannot still have a call in flight.
-const working = new WeakMap();
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-const anchorOf = chat => readRecord(chat?.at(-2))?.sid;
-const keyOf = message => hashText(String(message?.mes ?? '').trim());
-
-export function pendingStart(meta, chat) {
-    const pending = plain(meta?.[KEY]) ? meta[KEY].start : null, last = chat?.at(-1);
-    if (!plain(pending) || !last?.is_user || !pending.anchor || pending.anchor !== anchorOf(chat) || pending.message !== keyOf(last)
-        || (pending.mode === 'working' && working.get(meta) !== pending)) return null;
-    return pending;
-}
-
-export function clearStart(meta, expected = null) {
-    const box = plain(meta?.[KEY]) ? meta[KEY] : null;
-    if (box && box.start && (!expected || box.start === expected)) {
-        working.delete(meta);
-        delete box.start;
-    }
-}
-
-function holdStart(meta, chat, value) {
-    const last = chat?.at(-1), anchor = anchorOf(chat);
-    if (!plain(meta) || !last?.is_user || !anchor || !String(last.mes ?? '').trim()) return null;
-    if (!plain(meta[KEY])) meta[KEY] = {};
-    const pending = { anchor, message: keyOf(last), mode: 'known', choice: null, ...value };
-    meta[KEY].start = pending;
-    return pending;
-}
 
 /**
  * A module answered `interactionStart: { kindId, title, anchor, message, choices, opening?: { args } }`: check the chat is still the one asked about, preview the
@@ -53,7 +24,7 @@ export function startInteraction({ answer, moduleId, chat, metadata, bus, kindOf
         return null;
     }
     const last = chat?.at(-1);
-    if (!last?.is_user || anchorOf(chat) !== ask.anchor || keyOf(last) !== ask.message) {
+    if (!last?.is_user || waitingOf(chat).anchor !== ask.anchor || waitingOf(chat).message !== ask.message) {
         return { blocked: { moduleId, reason: `The chat changed while the ${title} was being prepared.` } };
     }
     const meta = metadata(), anchor = ask.anchor, box = plain(meta?.[KEY]) ? meta[KEY] : null;
@@ -62,7 +33,8 @@ export function startInteraction({ answer, moduleId, chat, metadata, bus, kindOf
     const unready = why => { problem({ module: moduleId, code: 'INTERACTION_START', quiet: true, message: `The ${title} could not be prepared (${why}); the reply went on without it.` }); return null; };
     const attempt = Number.isSafeInteger(meta?.[KEY]?.attempts?.[anchor]) ? meta[KEY].attempts[anchor] : 0;
     const record = { kindId: ask.kindId, title, id: `${anchor}:${attempt}:${ask.kindId}`, choices: Array.isArray(ask.choices) ? ask.choices : [] };
-    if (typeof kind.opening === 'function') {
+    // (only an offer that asks for an opening gets one: a known-foe offer has none, as before)
+    if (typeof kind.opening === 'function' && plain(ask.opening)) {
         let setup;
         try { setup = kind.open(state, { anchor, seed: interactionSeed(anchor, attempt, ask.kindId), args: structuredClone(ask.opening?.args ?? {}), query: () => undefined })?.setup; } catch { setup = null; }
         if (!plain(setup)) return unready('its opening did not start');

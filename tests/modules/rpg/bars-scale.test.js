@@ -21,7 +21,7 @@ import { actionSkills, exchangePlan } from '../../../modules/rpg/board/plan.js';
 import { autoPicks, autoStop, hurtHeroes } from '../../../modules/rpg/board/auto.js';
 import { playBoard } from '../../../modules/rpg/board/engine.js';
 import { boardGuard } from '../../../modules/rpg/board/commit.js';
-import { openBoard } from '../../../modules/rpg/board/session.js';
+import { openBoard } from '../../core/helpers/board-port.js';
 import { boardChoices } from '../../../modules/rpg/board/view-data.js';
 import { settledNote } from '../../../modules/rpg/board/note.js';
 import { barText } from '../../../modules/rpg/board/view-bars.js';

@@ -3,13 +3,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, setup } from '../helpers.js';
-import { boardSession, markSend, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
-import { pendingStart } from '../../../../core/turn/fight-start.js';
+import { boardSession, markSend, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
+import { pendingStart } from '../../../../core/interaction/start-hold.js';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };
 const known = () => ({ hero: { role: 'character', fields: character('Astra') }, foes: { role: 'foes', fields: foeBlock([['Rats', 1, 1, 5]]) } });
-const boardReceipt = (host, index) => host.ctx.chat[index].extra.storySuite.receipts.findLast(receipt => receipt.type === 'rpg.resolve' && receipt.replan?.payload?.board);
+const boardReceipt = (host, index) => host.ctx.chat[index].extra.storySuite.receipts.findLast(receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight' && receipt.replan.payload.opening !== true);
 
 test('known foes: a fight action pauses with no model call', async () => {
     const restore = seedCrypto(501), { host, callModel } = await setup({ blocks: known(), board: true, planner: false });
@@ -29,7 +29,7 @@ test('a non-fight message and the board-off path do not pause', async () => {
         try {
             const sent = await host.send(board ? 'I greet them.' : 'I strike the rats.', 'A reply.');
             assert.equal(sent.aborted, undefined);
-            assert.equal(host.ctx.chatMetadata.rpgFightStart, undefined);
+            assert.equal(host.ctx.chatMetadata.storySuiteInteraction?.start, undefined);
         } finally { host.close(); restore(); }
     }
 });

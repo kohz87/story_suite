@@ -15,7 +15,7 @@ export function legendEarned(tools) {
     const upTo = Number.isInteger(tools?.reply?.index) ? tools.reply.index : Infinity;
     let entries = [];
     try { entries = tools?.receipts?.() ?? []; } catch { entries = []; }
-    if (entries.some(entry => entry?.receipt?.type === 'rpg.resolve' && entry.receipt.data?.v2?.result?.legend === 1 && (!Number.isInteger(entry.index) || entry.index <= upTo))) return true;
+    if (entries.some(entry => (entry?.receipt?.type === 'rpg.resolve' || (entry?.receipt?.type === 'interaction.settle' && entry.receipt.replan?.payload?.kindId === 'story-block/fight')) && entry.receipt.data?.v2?.result?.legend === 1 && (!Number.isInteger(entry.index) || entry.index <= upTo))) return true;
     try {
         const threads = tools?.query?.('director.threads', { kind: 'quest' });
         return Array.isArray(threads) && threads.some(thread => thread?.kind === 'quest' && thread.ended?.outcome === 'done');

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
-import { openBoard } from '../../../../modules/rpg/board/session.js';
+import { openBoard } from '../../../core/helpers/board-port.js';
 import { offerLineData, pauseViewData } from '../../../../modules/rpg/board/start-view-data.js';
 import { character, levelFoeBlock, sheetDomain } from '../helpers.js';
 

@@ -6,7 +6,11 @@ import { playBoard } from '../../../../modules/rpg/board/engine.js';
 import { memberRolls } from '../../../../modules/rpg/board/member-rolls.js';
 import { splitFoes } from '../../../../modules/rpg/board/members.js';
 import { exchangePlan } from '../../../../modules/rpg/board/plan.js';
-import { openBoard, receiveBoard } from '../../../../modules/rpg/board/session.js';
+import { openBoard } from '../../../core/helpers/board-port.js';
+import { interactionPayload } from '../../../../core/interaction/session.js';
+import { receiveSegment } from '../../../../core/interaction/carry.js';
+import { fightKind } from '../../../../modules/rpg/board/interaction.js';
+import { toStep } from '../../../../modules/rpg/board/steps.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { prepareStandard, rollStandard } from '../../../../modules/rpg/standard.js';
@@ -109,10 +113,10 @@ test('new member fights rotate among standing targets, replay and continue witho
     const fresh = playBoard(state, freshSetup, exchanges);
     assert.deepEqual(fresh.result.rounds[0].lines.filter(line => line.kind === 'foe').map(line => line.pc.who), ['Ren', 'Astra', 'Astra']);
     assert.deepEqual(playBoard(state, freshSetup, exchanges), fresh, 'the recorded rule replays the same result');
-    const board = { ...opened.session, setup: freshSetup, exchanges };
+    const payload = interactionPayload({ ...meta.storySuiteInteraction.open, setup: { ...opened.session.setup, ...freshSetup }, steps: [toStep(state, exchanges[0].actions)] });
     assert.equal(fresh.result.stop, 'open');
-    assert.equal(receiveBoard(meta, { key: 'b:origin', board }, fresh.result, 'reply-1', 'receipt-1', fresh.state), true);
-    assert.equal(Object.hasOwn(meta.rpgFightBoard.setup, 'standingTargets'), false, 'the next segment needs no rule flag');
+    assert.equal(receiveSegment(meta.storySuiteInteraction, fightKind, payload, fresh.result, 'reply-1', 'receipt-1', fresh.state), true);
+    assert.equal(Object.hasOwn(meta.storySuiteInteraction.open.setup, 'standingTargets'), false, 'the next segment needs no rule flag');
 });
 
 test('the shared Standard roll engine stays split into small files', () => {

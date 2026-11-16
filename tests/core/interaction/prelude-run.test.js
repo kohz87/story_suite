@@ -49,7 +49,7 @@ test('an over-long note raises the quiet NOTE_LONG with the module and is still 
     const { cues, problems } = runNote(LONG, { kindOf: () => ({ title: 'Bargain' }) });
     assert.equal(problems.length, 1);
     assert.deepEqual({ code: problems[0].code, quiet: problems[0].quiet, module: problems[0].module }, { code: 'NOTE_LONG', quiet: true, module: 'mod' });
-    assert.match(problems[0].message, /^The Bargain note is \d+ tokens, over its 960; it is sent whole\.$/);
+    assert.match(problems[0].message, /^The Bargain note is \d+ tokens, over its 1290; it is sent whole\.$/);
     assert.deepEqual(cues.mod, [{ text: `[Happened]\n${LONG}`, keep: true, interaction: true }]);
 });
 
@@ -61,7 +61,7 @@ test('a kind\'s limits.noteTokens is the allowance; a short note raises nothing'
 });
 
 test('with no kindOf or an unknown kind the shared allowance and the readable kind id are used', () => {
-    assert.match(runNote(LONG).problems[0].message, /^The Hard bargain note is \d+ tokens, over its 960;/);
+    assert.match(runNote(LONG).problems[0].message, /^The Hard bargain note is \d+ tokens, over its 1290;/);
     assert.match(runNote(LONG, { kindOf: () => null }).problems[0].message, /^The Hard bargain note/);
     assert.deepEqual(runNote('Short.').problems, []);
 });

@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
-import { openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { openBoard, stageExchange } from '../../../core/helpers/board-port.js';
 import { planGear } from '../../../../modules/rpg/gear.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
 import { createFakeModel, createHost } from '../../../../testkit/index.js';
+import { isFightReceipt } from '../../../../modules/rpg/board/results.js';
 import { actorIdOf } from '../../../../modules/rpg/roster.js';
 
 export async function gearHost() {
@@ -37,7 +38,9 @@ export async function potionHost({ rpg = true, health = 1 } = {}) {
 export const fieldOf = (host, field) => host.head().domains.dataModules.instances['pack.chat/character'].chat.fields[field];
 export const stackOf = (host, name) => { const inv = host.head().domains.inventory; return Object.values(inv.stacks).find(stack => inv.defs[stack.def].name === name); };
 export const ASTRA = actorIdOf('pack.chat/character');
-export const itemRounds = host => host.ctx.chat.at(-1).extra.storySuite.receipts.find(item => item.type === 'rpg.resolve').data.v2.result;
+// The settled board fight of a reply (a port fight settle, not its opening; or a pre-port board resolve).
+export const isBoardFight = item => isFightReceipt(item) && item.replan?.payload?.opening !== true;
+export const itemRounds = host => host.ctx.chat.at(-1).extra.storySuite.receipts.find(isBoardFight).data.v2.result;
 
 export const potionBoard = (host, actions, more = []) => {
     const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());

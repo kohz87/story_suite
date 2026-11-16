@@ -17,3 +17,4 @@
 export { holdsRpg } from './rpg-lazy-parts/holds.js';
 export { rpgLib, setRpgLib, createRpgLoader } from './rpg-lazy-parts/library.js';
 export { createLazyRpgPart } from './rpg-lazy-parts/stand-in.js';
+export { lazyFightKind } from './rpg-lazy-parts/fight-kind.js';

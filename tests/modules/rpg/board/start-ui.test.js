@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { boardSession, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { boardSession, stageExchange } from '../../../core/helpers/board-port.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 

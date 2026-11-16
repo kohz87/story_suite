@@ -79,7 +79,7 @@ export function actionsCard(actor, member, { sel = '', party = [], onPick, onSta
       button({ label: 'Back', dataset: { back: '1' }, onClick: onBack }),
       button({ label: 'Auto', dataset: { auto: '1' }, onClick: onAuto }),
       h('span', { style: 'flex:1' }),
-      button({ label: 'Discard fight', tone: 'danger', dataset: { discard: '1' }, onClick: onDiscard })),
+      onDiscard ? button({ label: 'Discard fight', tone: 'danger', dataset: { discard: '1' }, onClick: onDiscard }) : null),
   );
   return root;
 }
@@ -92,7 +92,7 @@ export function afterCard({ exchange = 1, note = '', onNext, onAuto } = {}) {
     h('div', { class: 'ah' }, h('b', null, `Exchange ${exchange} resolved`)),
     note ? h('p', { class: 'anote' }, note) : null,
     h('div', { class: 'fbtns' },
-      button({ label: `Choose exchange ${exchange + 1}`, tone: 'primary', dataset: { next: '1' }, onClick: onNext }),
-      button({ label: 'Auto', dataset: { auto: '1' }, onClick: onAuto })),
+      onNext ? button({ label: `Choose exchange ${exchange + 1}`, tone: 'primary', dataset: { next: '1' }, onClick: onNext }) : null,
+      onAuto ? button({ label: 'Auto', dataset: { auto: '1' }, onClick: onAuto }) : null),
   );
 }

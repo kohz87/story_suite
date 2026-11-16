@@ -15,19 +15,19 @@ function setup(search = '') {
 
 test('reads theme, variant, width and tab from the query', () => {
   const { h, frame } = setup('?theme=light&variant=rpgOff&width=820&tab=bag');
-  assert.deepEqual(h.state, { theme: 'light', variant: 'rpgOff', width: 820, tab: 'bag', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false });
+  assert.deepEqual(h.state, { theme: 'light', variant: 'rpgOff', width: 820, tab: 'bag', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, kind: 'ferry' });
   assert.equal(frame.style.width, '820px');
   assert.equal(h.suite().tabHost.current(), 'bag');
 });
 
 test('falls back on unknown query values', () => {
   const { h } = setup('?theme=neon&variant=x&width=abc');
-  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'now', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false });
+  assert.deepEqual(h.state, { theme: 'dark', variant: 'default', width: 390, tab: 'now', plan: 'off', fight: 'choose', bag: 'light', scene: 'off', long: false, kind: 'ferry' });
 });
 
 test('controls remount with the chosen switch', () => {
   const { h, controls, frame } = setup();
-  assert.equal(controls.querySelectorAll('button').length, 27);
+  assert.equal(controls.querySelectorAll('button').length, 29);
   controls.querySelector('[data-key="variant"][data-value="fightOpen"]').click();
   assert.equal(h.state.variant, 'fightOpen');
   assert.equal(h.suite().tabHost.tabs().includes('fight'), true);
@@ -70,4 +70,12 @@ test('the fight switch turns off: variant buttons decide again, a fight button s
   h.apply({ variant: 'rpgOff' });
   assert.equal(h.suite().tabHost.tabs().includes('fight'), false);
   assert.equal(setup('?fight=end&variant=empty').h.state.variant, 'empty');
+});
+
+test('kind=fight puts the open fight on the Scene tab; the kind switch remounts it', () => {
+  const { h, frame, controls } = setup('?tab=scene&scene=open&kind=fight&fight=choose');
+  assert.equal(h.state.kind, 'fight');
+  assert.ok(frame.querySelector('[data-renderer="fight"]'));
+  controls.querySelector('[data-key="kind"][data-value="ferry"]').click();
+  assert.ok(frame.querySelector('[data-renderer="generic"]'));
 });

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { boardSession } from '../../../../modules/rpg/board/session.js';
+import { boardSession } from '../../../core/helpers/board-port.js';
 import { createFightOffers } from '../../../../modules/rpg/board/offers.js';
 import { offerLineData } from '../../../../modules/rpg/board/start-view-data.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
@@ -66,7 +66,7 @@ test('a fight the narrator opens keeps "A fight started" wording', () => {
 
 test('a won fight (no foe up) and a fight left open offer nothing', async t => {
     const { host } = await fought(t, 806, label => !/flee|run|retreat/i.test(label));
-    const result = host.ctx.chat[host.store.headIndex()].extra.storySuite.receipts.findLast(item => item.type === 'rpg.resolve' && item.replan?.payload?.board).data.v2.result;
+    const result = host.ctx.chat[host.store.headIndex()].extra.storySuite.receipts.findLast(item => item.type === 'interaction.settle' && item.replan?.payload?.kindId === 'story-block/fight' && item.replan.payload.opening !== true).data.v2.result;
     assert.notEqual(result.stop, 'fled');
     if (result.stop === 'won') assert.equal(offers(host).find(), null);
     else assert.ok(!offers(host).find()?.fight.standing || result.stop !== 'won');

@@ -9,7 +9,7 @@ import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { fightHook, fightGuard, fightXp, groupsOf, memberXp, openedSlots } from '../../../../modules/rpg/fight.js';
 import { fightLines } from '../../../../modules/rpg/view/changes-lines.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
-import { discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { discardBoard, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, levelFoeBlock, recordOf, sheetDomain } from '../helpers.js';
 
@@ -271,7 +271,7 @@ test('an old marked fight ({was, bars: 2}, no xp) keeps its old sum through rebu
 const promptOf = sent => (sent?.request?.chat ?? []).map(message => message.content).join('\n');
 const SAME = 'Done.\n<Changes>\n+ dm foes — raider | kind: set-slot-1 | name: Tunnel Rat | count: 1 | level: 1\n</Changes>';
 
-test('a marked board win with the stock hero pays, clears the block, names its resolve, and replay == live == Re-read', async () => {
+test('a marked board win with the stock hero pays, clears the block, names its settle, and replay == live == Re-read', async () => {
     const restore = seedCrypto(33), host = await world();
     try {
         const sent = await winWith(host, 'Done.', { marked: true });
@@ -279,7 +279,7 @@ test('a marked board win with the stock hero pays, clears the block, names its r
         assert.equal(readSheet(host.head()).foes.filter(foe => foe.filled).length, 0, 'the won fight left the block');
         const payload = fights(host)[0].replan.payload;
         assert.equal(payload.gone, 1);
-        assert.match(payload.claim, /^rpg:resolve:b:/u);
+        assert.match(payload.claim, /^ia:story-block\/fight:i:.*:reply:/u);
         assert.deepEqual(host.turn.problems().filter(problem => problem.code !== 'DICE_SKIPPED'), []);
         const prompt = promptOf(sent);
         assert.ok(prompt.includes('[COMBAT SYSTEM]'), 'the reply that tells the end keeps the combat rules');

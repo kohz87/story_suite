@@ -8,7 +8,6 @@ import { DICE as RPG_DICE, RESOLVE as RPG_RESOLVE } from '../../modules/rpg/name
 import { receiptCue } from '../../modules/rpg/cue.js';
 import { noteLong } from '../interaction/note.js';
 import { kindName } from '../interaction/kind-name.js';
-import { boardFailure, boardStartState } from './held-board.js';
 
 const SETTLE = 'interaction.settle';
 
@@ -19,18 +18,16 @@ export function runPreludes({ s, bus, store, problem, kindOf = null }, { request
     let boardStop = null;
 let keptPrelude = 0;
     for (const { moduleId, type: preludeType, payload, seed } of requested) {
-        if (preludeType === RPG_RESOLVE && payload?.board?.setup?.opening) {
-            const checked = boardStartState(bus, store.head(), payload.board);
-            if (checked.error) return { blocked: { moduleId, reason: checked.error } };
-        }
         const prior = s.session?.prechecks?.find(step => step.type === preludeType && JSON.stringify(step.payload) === JSON.stringify(payload));
         const result = bus.run(preludeType, payload, { cause: 'system', ...(previewState ? { state: previewState } : {}), ...(prior || seed !== undefined ? { seed: prior?.seed ?? seed } : {}) });
         if (result?.ok) {
             // The RPG's rolls move bars (hits, heals, skill costs): the tail's block lines are read from the state they leave, so they say what the cue says.
             // (An interaction's opening and segment chain the same way: the segment is previewed on the state its opening leaves.)
             if ((preludeType === RPG_RESOLVE || preludeType === SETTLE) && result.state) previewState = result.state;
-            // How the carried board fight ended (won / fled / lost / open): the tail reads it to allow a new foe group only after an ended fight.
+            // How the carried fight ended (won / fled / lost / open): the tail reads it to allow a new foe group only after an ended fight (an opening's own stop is not it).
+            // (a record of a fight made before the port is carried by the same pin: `payload.board`)
             if (preludeType === RPG_RESOLVE && payload?.board) boardStop = result.receipt?.data?.v2?.result?.stop ?? null;
+            if (preludeType === SETTLE && payload?.opening !== true) boardStop = result.receipt?.data?.interaction?.stop ?? null;
             prechecks.push({ type: preludeType, payload, seed: result.receipt.seed });
             // The reply's story-check dice: told as the tail note itself (kept whole, no [Happened] marker), drawn from the receipt's recorded dice.
             if (preludeType === RPG_DICE) { cues[moduleId] = [...(cues[moduleId] ?? []), { text: receiptCue(result.receipt), keep: true }]; continue; }
@@ -55,10 +52,6 @@ let keptPrelude = 0;
                 if (keptPrelude + size <= KEPT_PRELUDE_TOKENS) { keptPrelude += size; pin = true; }
             }
             cues[moduleId] = [...(cues[moduleId] ?? []), preludeType === RPG_RESOLVE ? { text: told, keep: true, ...(payload?.board ? { board: true } : {}) } : pin ? { text: told, keep: true } : told];
-        } else if (preludeType === RPG_RESOLVE && payload?.board) {
-            const reason = boardFailure('The fight could not be prepared:', result?.message);
-            problem({ module: moduleId, code: result?.code ?? 'FAILED', message: reason });
-            return { blocked: { moduleId, reason } };
         } else if (preludeType === SETTLE) {
             // An interaction that cannot be settled (what it read changed) holds the send with the reason; nothing goes out without it.
             const reason = result?.message ?? 'The interaction could not be prepared.';

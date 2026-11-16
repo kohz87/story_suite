@@ -5,10 +5,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
-import { openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { boardApi, boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
 import { runAuto } from '../../../../modules/rpg/board/auto-run.js';
 import { readResolve } from '../../../../modules/rpg/view/battle-log.js';
-import { pendingStart } from '../../../../core/turn/fight-start.js';
+import { pendingStart } from '../../../../core/interaction/start-hold.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
 import { prng, seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { clearFoes } from '../../../../modules/rpg/board/engine.js';
@@ -44,7 +44,7 @@ async function play(seed, definition) {
             if (staged.error || staged.preview.result.stop !== 'open') break;
         }
         // An unusable random skill is not a staged fight; ensure this replay fixture actually has an exchange.
-        if (!session.exchanges.length) assert.equal(stageExchange(meta, host.head(), [{ who: 'Astra', kind: 'attack', target: 11 }]).error, undefined);
+        if (!boardSession(meta).exchanges.length) assert.equal(stageExchange(meta, host.head(), [{ who: 'Astra', kind: 'attack', target: 11 }]).error, undefined);
         await host.send('Strike.', 'The fight.');
         const at = host.ctx.chat.length - 1, record = rollReceipt(host, at).data.v2.result;
         const live = JSON.stringify(host.head()), sheet = sheetOf(host);
@@ -97,7 +97,7 @@ test('a marked Auto heal stages, tells the heal and survives rebuild, Re-read an
     try {
         const meta = host.ctx.chatMetadata;
         open(host);
-        const played = runAuto({ meta, state: host.head(), rules: RULES, cap: 1 });
+        const played = runAuto({ api: boardApi(meta, () => host.head(), host.store.carrierSid(host.store.headIndex())), cap: 1 });
         assert.equal(played.done, 1, played.error);
         await host.send('Heal.', 'A spell is cast.');
         const at = host.ctx.chat.length - 1, receipt = rollReceipt(host, at), record = receipt.data.v2.result;
@@ -166,12 +166,12 @@ test('after a lost fight a typed attack on a new foe goes through createPrecall:
     const { left, after } = await found('lost', { health: 1, after: async (host, callModel) => {
         const stopped = await host.send('A second lone raider steps out. I attack.', 'Not sent.');
         const pending = pendingStart(host.ctx.chatMetadata, host.ctx.chat);
-        return { aborted: stopped.aborted, helpers: callModel.calls.map(call => call.options.helper), mode: pending?.mode, opened: pending?.result?.opened?.map(entry => entry.name) };
+        return { aborted: stopped.aborted, helpers: callModel.calls.map(call => call.options.helper), opening: pending?.opening?.payload?.opening, opened: pending?.result?.opened?.map(entry => entry.name) };
     } });
     assert.equal(left.length, 0);
     assert.equal(after.aborted, true, 'the send is held');
     assert.deepEqual(after.helpers, ['precheck']);
-    assert.equal(after.mode, 'new');
+    assert.equal(after.opening, true, 'the hold carries the opening of a new fight (the port has no `new` mode: an opening says so)');
     assert.deepEqual(after.opened, ['Raider']);
 });
 

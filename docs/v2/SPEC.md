@@ -846,9 +846,10 @@ sdk.registerModule({
     tab's exchange board, on while the RPG is on; MODULES §F129; off rolls no dice before a reply; the cap for Auto is the `rpgAutoCap` setting, 1 to 8 or 9 = until the end, default 3), and `story-block.rpg` (the
     optional Lean RPG, off). The older switches (`storySuite.hud`, the
     `assistClassifier` and `assistExtractor` settings) are the choice until the reader sets the feature.
-  * The fight board's unsent exchanges, discard counts and last payload live in `chatMetadata.rpgFightBoard`,
-    `chatMetadata.rpgFightAttempts` and `chatMetadata.rpgFightLast`; they are not game state and add no prompt text. Its
-    committed rolls are ordinary reply-bound `rpg.resolve` receipts. Explicit skill flags are reserved under the
+  * The fight board is the interaction kind `story-block/fight` (since I6): its unsent exchanges, discard counts, Send copy, waiting
+    choice and last payload live in `chatMetadata.storySuiteInteraction` (`open`, `send`, `start`, `last`, `attempts`, `held`); they are
+    not game state and add no prompt text. Its committed rolls are ordinary reply-bound `interaction.settle` receipts (a fight made
+    before the port is a board `rpg.resolve` receipt, still read and re-planned; the old `rpgFight*` keys are dropped on chat load). Explicit skill flags are reserved under the
     `dataModules.boardFlags` scratch map, keyed by reply `sid`, block, slot and skill name (DATA_MODULES.md). A fight records
     `bars: 2` in its setup and result (like `aoe` and `fix`) only when every sheet character is pinned `scale: 2`; only then
     single-target skills hit 2 (3 decisive), an area skill costs 2 and Auto stops at a fifth of the bar. An unmarked fight and

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { createBoardView } from '../../../../modules/rpg/board/view.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { boardSession, discardBoard, openBoard, stageExchange, boardApi } from '../../../core/helpers/board-port.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
 
 export async function defineFoes(host, entries) {
@@ -21,7 +21,7 @@ export function renderMembers(t, { doc, host, members, order, rounds = [], oldAr
     const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());
     assert.equal(openBoard(meta, host.head(), { sid, rules: { ...STANDARD_FORMULA, levelDivisor: 5 } }).error, undefined);
     if (oldArea) delete boardSession(meta).setup.areaAll;   // a fight staged before `areaAll`: it keeps the main-group choice
-    const board = createBoardView({ doc, headState: () => host.head(), meta: () => meta, store: host.store,
+    const board = createBoardView({ doc, headState: () => host.head(), meta: () => meta, store: host.store, interaction: boardApi(meta, () => host.head(), host.store.carrierSid(host.store.headIndex())),
         rules: () => ({ ...STANDARD_FORMULA, levelDivisor: 5 }), query: (name, args) => host.sdk.query(name, args),
         readerName: () => 'Wessel', levels: () => ({ ranks: [], playerRank: null }), on: () => true });
     const root = doc.createElement('div');

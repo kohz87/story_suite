@@ -9,7 +9,7 @@ import { occurrenceOf } from '../evidence.js';
 import { occurrenceFor } from './capture-seeds.js';
 
 export function createCaptureAfter(deps) {
-    const { ctx, store, bus, registry, settings, events, view, viewReader, problem, holdBoard, holdInteraction, HOOK_TIMEOUT_MS, isolated = () => false } = deps;
+    const { ctx, store, bus, registry, settings, events, view, viewReader, problem, holdInteraction, HOOK_TIMEOUT_MS, isolated = () => false } = deps;
     /**
      * afterCapture (SPEC §4.2 step 3): once the reply's story lines have run, each module's
      * `afterCapture(view, { index, type })` hook may return `{ commands: [{ type, payload }] }` to run as
@@ -62,7 +62,6 @@ export function createCaptureAfter(deps) {
                 const result = bus.run(command?.type, payload, { cause: 'system', state: live ? store.head() : now, ...(reply ? { reply: plan ? { ...reply, ...(taking.span && (plan.preserveSources || occurrenceOf(taking.span) === null) ? { ordinal: taking.span.source.ordinal } : {}), pending: plan.pending, opsBefore: plan.blocks.reduce((sum, piece) => sum + (Number.isInteger(piece.n) ? piece.n : 0), 0) + steps.reduce((sum, step) => sum + (Array.isArray(step.ops) ? step.ops.length : 0), 0) } : reply } : {}), ...(plan ? { planned: planned(), replacing: plan.replacing, reusing: taking.span, ...(Number.isInteger(taking.value) ? { occurrence: taking.value } : {}) } : {}), ...(seed === undefined ? {} : { seed }), ...(kept ? { receiptId: kept } : {}) });
                 if (!result?.ok) {
                     problems.push(problem({ module: moduleId, index, code: result?.code ?? 'FAILED', message: `The step "${command?.type}" after the reply's lines was not run: ${result?.message ?? 'unknown error'}` }));
-                    if (precheck && command?.type === 'rpg.resolve' && payload?.board) throw holdBoard(result?.message);
                     if (precheck && command?.type === 'interaction.settle') throw holdInteraction(result?.message);
                     continue;
                 }

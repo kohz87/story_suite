@@ -4,7 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
-import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
+import { interactionPayload } from '../../../../core/interaction/session.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, rollReceipt, setup, tailOf } from '../helpers.js';
 
@@ -31,7 +32,7 @@ test('send, swipe and continue an open fight without planning it again', async (
         const unsentRounds = structuredClone(unsent.preview.result.rounds);
         await host.swipe('Another telling.');
         assert.deepEqual(rollReceipt(host, 2).data.v2.result.rounds, beforeSwipe.rounds);
-        assert.equal(rollReceipt(host, 2).replan.payload.board.setup.seed, opened.session.setup.seed);
+        assert.equal(rollReceipt(host, 2).replan.payload.setup.seed, opened.session.setup.seed);
         assert.equal(callModel.calls.length, 0);
         const session = boardSession(meta);
         assert.ok(session, 'this seed leaves the fight open');
@@ -62,9 +63,11 @@ for (const count of [1, 2, 4]) test(`path b: ${count} staged exchange(s) are all
         }
         const session = boardSession(meta), want = staged.preview.result.rounds.length;
         assert.ok(want >= Math.min(count, 2) || staged.preview.result.stop !== 'open');
-        const board = structuredClone(session);
-        meta.rpgFightLast = { key: `b:${encodeURIComponent(board.id)}:${encodeURIComponent(board.anchor)}:${board.setup.offset}`,
-            board: { id: board.id, anchor: board.anchor, groups: board.groups, setup: board.setup, exchanges: board.exchanges.slice(0, 1) }, practice: 3 };
+        // (an older cached payload of this fight with one exchange: the staged fight, with every exchange, must win over it)
+        const stale = interactionPayload(meta.storySuiteInteraction.open);
+        stale.steps = stale.steps.slice(0, 1);
+        meta.storySuiteInteraction.last = stale;
+        assert.ok(session.exchanges.length >= 1);
         host.ctx.chat.push({ is_user: true, name: 'You', mes: 'I press on.', extra: {} });
         const sent = await host.st.generate('regenerate', { reply: 'The fight goes on.' });
         assert.equal(sent.aborted, undefined);
