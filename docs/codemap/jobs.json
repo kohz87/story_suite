@@ -27,6 +27,7 @@
   "scripts/codemap/render-map.mjs": "Renders codemap rows into a deterministic markdown document.",
   "scripts/codemap/resolve-spec.mjs": "Resolves a relative import specifier to a repo file path.",
   "scripts/codemod/apply.mjs": "Applies a layout plan to a git tree: moves files, backs up deletes, then runs the import and string rewriters.",
+  "scripts/codemod/cli.mjs": "Plans every B3 layout area from the rule files and prints per-area move and delete counts plus the unmatched list.",
   "scripts/codemod/plan.mjs": "Turns tracked files plus rule sets into a move/delete plan and refuses unmatched files, collisions and clobbered targets.",
   "scripts/codemod/port-branch.mjs": "Ports a lane branch to the new layout in a temp worktree and merges main so only real conflicts remain.",
   "scripts/codemod/rewrite-imports.mjs": "Rewrites a moved file's relative import specifiers: resolved against the old place, written against the new one.",

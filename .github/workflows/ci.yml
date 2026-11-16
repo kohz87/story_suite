@@ -50,7 +50,19 @@ jobs:
         run: node scripts/checks/no-tracked-deps.mjs
       - name: Script tests
         # Same command as npm run test:scripts, plus a per-test timeout.
-        run: node --test --test-timeout=900000 "tests/scripts/*.test.js"
+        run: node --test --test-timeout=900000 "tests/scripts/**/*.test.js"
+
+  # Informational: a file a lane adds without a rule shows up here, and only this job fails.
+  layout-dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Plan every layout area (no writes)
+        run: npm run layout:plan
 
   ui:
     runs-on: ubuntu-latest
