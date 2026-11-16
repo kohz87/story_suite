@@ -86,6 +86,12 @@ test('test files are not held to the export limit', () => {
   assert.deepEqual(problems, []);
 });
 
+test('a test file with its own job sentence keeps it instead of the generated one', () => {
+  const { rows, problems } = buildMap({ files, readSource, jobs: { ...jobs, 'tests/core/pace.test.js': 'Pins the daily pace of each kind.' } });
+  assert.equal(rows.find(r => r.path === 'tests/core/pace.test.js').job, 'Pins the daily pace of each kind.');
+  assert.deepEqual(problems, []);
+});
+
 const runFiles = SRC => {
   const jobs = Object.fromEntries(Object.keys(SRC).filter(p => !p.startsWith('tests/') && /\.(?:m?js|cjs|html|sh|bash|py)$/.test(p)).map(p => [p, 'A job.']));
   return buildMap({ files: Object.keys(SRC), readSource: p => SRC[p], jobs }).problems;
@@ -123,4 +129,13 @@ test('Makefile and Dockerfile outside packages need a job sentence and get a row
   const done = buildMap({ files: Object.keys(src), readSource: p => src[p], jobs: { 'Makefile': 'Runs the tests.', 'tools/Dockerfile': 'Builds the image.' } });
   assert.deepEqual(done.problems, []);
   assert.deepEqual(done.rows.map(r => [r.path, r.exports]), [['Makefile', []], ['tools/Dockerfile', []]]);
+});
+
+test('a legacy package lists over-limit files and may use module/exports as words instead of failing', () => {
+  const src = { 'p/a.js': 'export const a = 1, b = 2, c = 3, d = 4, e = 5;\nconst module = 1;\n', 'p/f.js': "export * from './a.js';\n" };
+  const args = { files: Object.keys(src), readSource: q => src[q], jobs: { 'p/a.js': 'A.', 'p/f.js': 'F.' }, jobsFile: 'jobs-p.json' };
+  assert.equal(buildMap(args).problems.length, 2);
+  const legacy = buildMap({ ...args, legacyPackage: true });
+  assert.deepEqual(legacy.problems, []);
+  assert.deepEqual(legacy.overLimit, [{ path: 'p/a.js', count: 5 }]);
 });

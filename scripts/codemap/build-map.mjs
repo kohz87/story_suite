@@ -23,8 +23,9 @@ function resolveInternalImports(filePath, specifiers, fileSet) {
 /**
  * Builds codemap rows and validation problems for a set of repo files.
  */
-export function buildMap({ files, readSource, jobs }) {
+export function buildMap({ files, readSource, jobs, jobsFile = 'docs/codemap/jobs.json', legacyPackage = false }) {
   const problems = [];
+  const overLimit = [];
   const sortedFiles = [];
   const jsFiles = new Set();
   for (const filePath of files.slice().sort()) {
@@ -57,14 +58,14 @@ export function buildMap({ files, readSource, jobs }) {
       problems.push(`${filePath}: cannot be parsed as an ES module`);
     } else if (filePath.endsWith('.cjs')) {
       problems.push(`${filePath}: CommonJS is not allowed here`);
-    } else if (parsed.commonJs) {
+    } else if (parsed.commonJs && !legacyPackage) {
       problems.push(`${filePath}: uses the name module, exports, require, __filename or __dirname (CommonJS is not allowed here; rename it)`);
     }
 
     if (!isTest) {
       const rawJob = jobs[filePath];
       if (!rawJob || !rawJob.trim()) {
-        problems.push(`${filePath}: no job sentence in docs/codemap/jobs.json`);
+        problems.push(`${filePath}: no job sentence in ${jobsFile}`);
       }
     }
 
@@ -86,14 +87,17 @@ export function buildMap({ files, readSource, jobs }) {
     const { names, unresolved } = exportNames(filePath, parsedByPath, fileSet);
     for (const from of new Set(unresolved)) problems.push(`${filePath}: export * from ${from} cannot be counted; list the names`);
     if (!isTestFile(filePath) && names.size > MAX_EXPORTS && !parsedByPath.get(filePath).facade) {
-      problems.push(`${filePath}: ${names.size} exports (one job per file allows at most ${MAX_EXPORTS})`);
+      // A legacy package lists its over-limit files as a backlog instead of failing the check.
+      if (legacyPackage) overLimit.push({ path: filePath, count: names.size });
+      else problems.push(`${filePath}: ${names.size} exports (one job per file allows at most ${MAX_EXPORTS})`);
     }
   }
 
   for (const row of byPath.values()) {
     const importerIsTest = isTestFile(row.path);
     if (importerIsTest) {
-      row.job = row.imports.length > 0 ? `Tests for ${row.imports.join(', ')}.` : 'Tests.';
+      const own = (jobs[row.path] ?? '').trim();
+      row.job = own || (row.imports.length > 0 ? `Tests for ${row.imports.join(', ')}.` : 'Tests.');
     }
     for (const targetPath of row.imports) {
       const target = byPath.get(targetPath);
@@ -109,10 +113,10 @@ export function buildMap({ files, readSource, jobs }) {
 
   for (const jobPath of Object.keys(jobs)) {
     if (!fileSet.has(jobPath)) {
-      problems.push(`${jobPath}: has a job in docs/codemap/jobs.json but the file does not exist`);
+      problems.push(`${jobPath}: has a job in ${jobsFile} but the file does not exist`);
     }
   }
 
   problems.sort();
-  return { rows: Array.from(byPath.values()), problems };
+  return { rows: Array.from(byPath.values()), problems, overLimit };
 }

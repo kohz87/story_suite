@@ -1,0 +1,15 @@
+[
+  { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads for NPC State Delta." },
+  { "name": "Start-up", "entry": "bootstrap.js", "about": "Starts Delta's runtime and its UI." },
+  { "name": "Core model", "entry": "core.js", "about": "NPC records, prompts, calendar and lifecycle rules." },
+  { "name": "Scanning replies", "entry": "runtime-scan.js", "about": "Scans replies for NPC changes and updates dossiers." },
+  { "name": "Injection into prompts", "entry": "runtime-injection.js", "about": "Adds the present NPCs' notes to the story prompt." },
+  { "name": "Dossier UI", "entry": "dossier-ui.js", "about": "The dossier browser, editor and cards." },
+  { "name": "Social graph and relationships", "entry": "social.js", "about": "Bonds, facts and the relationship map." },
+  { "name": "Storage", "entry": "storage.js", "about": "Per-chat dossier files and their identity." },
+  { "name": "Branches and checkpoints", "entry": "branch.js", "about": "Keeps dossiers right across chat branches and rewinds." },
+  { "name": "Bundles", "entry": "bundle.js", "about": "Exports and imports dossier bundles." },
+  { "name": "Calendar", "entry": "calendar.js", "about": "Story dates, clocks and NPC ages." },
+  { "name": "NPC meters", "entry": "src/npc-meters.js", "about": "The Story Block module for NPC meters and stages." },
+  { "name": "Story Block connection", "entry": "src/adapter/connect.js", "about": "Finds the Story Block host and registers Delta with it." }
+]
