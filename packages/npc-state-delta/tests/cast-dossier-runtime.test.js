@@ -153,7 +153,7 @@ test('runtime: the dossier is made at the first meeting from the pack entry, wit
     assert.equal(hosted.made.assets, false, 'and no second copy in the chat\'s portrait assets');
     assert.equal(hosted.portraitUploads, 1, 'the picture is written once: not again for the swipe, the second meeting or a scan');
     assert.equal(hosted.portraitFiles, 1);
-    assert.equal(hosted.sidecarsSaved, 1);
+    assert.equal(hosted.sidecarsSaved, 0, 'hosted, the store holds the people: no chat state file is written (the sidecar is given up while hosted)');
     assert.equal(hosted.sidecarHoldsImage, false, 'the chat\'s saved state holds no picture');
     assert.equal(hosted.remadePortrait.path, hosted.made.portrait.path, 'met again after the swipe: the same file');
     assert.equal(hosted.made.castFrom.packName, 'Ersveil');
@@ -165,8 +165,10 @@ test('runtime: the dossier is made at the first meeting from the pack entry, wit
     assert.equal(hosted.afterScan.personality, FENNA_ENTRY.personality, 'a later scan leaves what the pack gave unless the story says otherwise');
     assert.equal(hosted.afterScan.speech, FENNA_ENTRY.voice);
     assert.equal(hosted.afterScan.castFrom, true);
-    assert.equal(hosted.afterSwipe, 0, 'a swipe of the reply she was made at takes her back');
-    assert.equal(hosted.remade, 1, 'and she is made again when the new swipe meets her');
+    // The undo of a dossier by a swipe of its reply belongs to the people store while hosted (the journal is bypassed): this scripted host has no people domain,
+    // so the swipe cannot take the dossier back here. The real host's swipe / delete proofs are in tests/people (store-timeline, people-fuzz).
+    assert.equal(hosted.afterSwipe, 1, 'no people store in this scripted host: the swipe does not undo (the store does, in tests/people)');
+    assert.equal(hosted.remade, 1, 'and she is not made twice when the new swipe meets her');
 });
 
 test('runtime: removing the cast dossier is final; a dossier a scan made earlier is not replaced; Delta alone makes none', () => {

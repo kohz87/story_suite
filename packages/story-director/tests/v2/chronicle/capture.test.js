@@ -15,6 +15,7 @@ import { part } from '../../../src/v2/chronicle/index.js';
 import { RUMOUR_DAYS, RUMOUR_OPEN_MAX, seenOf, surfacedOf } from '../../../src/v2/chronicle/domain.js';
 import { eventOut } from '../../../src/v2/chronicle/queries.js';
 import { knownNews } from '../../../src/v2/world/known.js';
+import { heardStamps } from '../../../src/v2/world/known-parts/heard.js';
 
 const DAY = 1440;
 
@@ -289,6 +290,33 @@ test('pulse rumours: at most RUMOUR_OPEN_MAX open, closed after RUMOUR_DAYS or w
     const heard = line(state, '~ world Rumour of Fact 5 — the story tells it').state;
     assert.ok(news(heard).includes('Rumour of Fact 5'));
     assert.equal(eventNamed(heard, 'Rumour of Fact 5').rumour, 'Fact 5', 'still a rumour (it expires)');
+});
+
+test('a bare world line on an unheard pulse rumour is a change: no idle mark, exactly one heard stamp', () => {
+    let state = makeState({ minutes: 2 * DAY, place: 'Harbour' });
+    state = line(state, '+ world Fact 1 — wolves | state: ongoing').state;
+    state = command(state, 'chronicle.rumor', { at: 1, event: { name: 'Rumour of Fact 1', summary: 'fact 1', rumour: 'Fact 1' } }, { cause: 'system' }).state;
+    const first = line(state, '~ world Rumour of Fact 1');
+    assert.equal(first.ok, true);
+    assert.equal(eventNamed(first.state, 'Rumour of Fact 1').heard, true);
+    assert.equal(first.result.data.idle, undefined, 'the rumour becoming heard is a change');
+    const again = line(first.state, '~ world Rumour of Fact 1');
+    assert.equal(again.result.data.idle, true, 'named again, nothing changes');
+    const receipt = run => ({ type: 'capture.world', data: run.result.data });
+    const tools = { receipts: () => [{ type: 'capture.place', data: { name: 'Harbour' } }, receipt(first), receipt(again)] };
+    const id = eventNamed(first.state, 'Rumour of Fact 1').id;
+    assert.equal(heardStamps(tools, null).get(id).length, 1);
+});
+
+test('idle marks: a held locked event with no change and an already-ended event named again are idle', () => {
+    const state = structuredClone(line(makeState({ minutes: DAY }), '+ world Old Truce — peace', {}).state);
+    state.domains.chronicle.events[eventNamed(state, 'Old Truce').id].by = 'event:truce';
+    const held = line(state, '~ world Old Truce | state: resolved');
+    assert.equal(held.ok, true, held.message);
+    assert.deepEqual([held.result.data.held, held.result.data.idle], [true, true]);
+    const ended = line(line(makeState({ minutes: DAY }), '+ world Siege — x').state, '- world Siege — lifted').state;
+    const again = line(ended, '- world Siege');
+    assert.equal(again.result.data.idle, true);
 });
 
 // ---- factions named on a world event become known factions (Story Block's `factionTags` mark) ----

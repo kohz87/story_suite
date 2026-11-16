@@ -1,10 +1,12 @@
 // Validating the shape and fields of `atlas.trips` records.
 
 import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, MAX_TEXT } from './limits.js';
+import { REPLY_KEY } from '../../reply-keys.js';
 
 const DAY = 1440;
 
-export const KEY = /^[0-9]{1,12}\.[0-9]{1,4}$/;
+/** A trip record's key: `<sid>.<n>` (the reply's record ID), or `<rev>.<n>` in an older state (reply-keys.js). */
+export const KEY = REPLY_KEY;
 const isInt = value => Number.isSafeInteger(value);
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const textOk = (value, max) => typeof value === 'string' && value.length <= max;
@@ -38,7 +40,8 @@ export function tripsProblems(trips) {
         if (record.kind === 'delay') {
             if (!isInt(record.minutes) || record.minutes < 1 || record.minutes > MAX_DELAY_DAYS * DAY) errors.push(`${at}.minutes must be 1 to ${MAX_DELAY_DAYS * DAY}.`);
             if (!textOk(record.because, MAX_TEXT)) errors.push(`${at}.because must be text.`);
-            for (const field of Object.keys(record)) if (!['kind', 'at', 'rev', 'minutes', 'because'].includes(field)) errors.push(`${at} has an unknown field "${field}".`);
+            if (record.go !== undefined && !(typeof record.go === 'string' && KEY.test(record.go))) errors.push(`${at}.go must be a trip record's key.`);
+            for (const field of Object.keys(record)) if (!['kind', 'at', 'rev', 'minutes', 'because', 'go'].includes(field)) errors.push(`${at} has an unknown field "${field}".`);
         } else if (record.kind === 'go') {
             if (!named(record.to)) errors.push(`${at}.to must be a place name.`);
             if (!textOk(record.by, 40) || !textOk(record.mode, 20) || !record.mode) errors.push(`${at}.by and .mode must be text.`);

@@ -54,7 +54,8 @@ test('the smoke run on the source does what it should (so the comparison is not 
   assert.deepEqual([fromSource.reply1, fromSource.reply2], ['ok', 'ok']);
   assert.deepEqual(fromSource.sbQueries.items, ['Bedroll x1', 'Bread x2']);
   assert.equal(typeof fromSource.sdQueries.time.minutes, 'number');
-  assert.equal(fromSource.nsdQueries.catchUp.active, false);
+  // P3 (PEOPLE-PLAN.md, line 35 and the P3 section): no timeline participant, so npc.catchUp answers the idle null (adapter/identity.js); a store-backed NPC State has no catch-up to report.
+  assert.equal(fromSource.nsdQueries.catchUp, null);
   assert.equal(fromSource.rpgBefore, false);
   assert.equal(fromSource.rpgLoad, true);
 });

@@ -186,7 +186,7 @@ function sidecarServer() {
     return { files, fetchFn };
 }
 
-function persistRig() {
+function persistRig({ storeOwnsState } = {}) {
     // a chat of its own per test: the storage module keeps its writer locks and retry queue per chat key
     KEY = buildQualifiedChatKey('chat', `A${keySequence += 1}.png`, 'Adventure');
     const state = { npcs: [{ name: 'Aria' }] };
@@ -201,6 +201,7 @@ function persistRig() {
     const part = createPersistPart(rt, {
         assertChatHydratedForWrite: () => {},
         chatHydrationStatus: () => 'ready',
+        ...(storeOwnsState ? { storeOwnsState } : {}),
         getChatKey: () => KEY,
         getChatState: key => rt.chatStateCache.get(key),
         holdRetiredLocalWork: () => null,
@@ -315,5 +316,44 @@ test('upload, then a crash before any settings write: a chat with no pointer at 
         const read = await storage.readNpcStateDataFile(probe, { expectedChatKey: KEY });
         assert.equal(read.state.npcs[0].note, 'only');
         assert.equal(server.files.size, 1);
+    });
+});
+
+test('a chat opened by the merged extension writes no sidecar and no dataFiles key: the store holds the state', async () => {
+    await withServer(async server => {
+        freshSettings();
+        const { part, rt, state } = persistRig({ storeOwnsState: () => 'hosted' });
+        for (let i = 0; i < 3; i += 1) {
+            state.npcs[0].note = `change ${i}`;
+            assert.equal(part.persist(KEY), true);
+            await tick(1500);
+        }
+        assert.equal(await part.flushStateFile(KEY), null);
+        assert.equal(part.persistCritical(KEY), true);
+        assert.equal(await part.persistCriticalDurable(KEY), true);
+        await tick(SETTINGS_LAZY_QUIET_MS);
+        assert.equal(server.files.size, 0, 'no sidecar file was uploaded');
+        assert.equal(getSettings().dataFiles?.[KEY], undefined, 'no dataFiles key');
+        assert.ok(rt.persistedVersions.get(KEY) >= rt.stateVersions.get(KEY) - 0, 'nothing is left dirty');
+    });
+});
+
+test('before the host has accepted the module nothing is written; the state stays dirty and is written if the host refuses', async () => {
+    await withServer(async server => {
+        freshSettings();
+        const box = { owner: 'pending' };
+        const { part, rt, state } = persistRig({ storeOwnsState: () => box.owner });
+        for (let i = 0; i < 3; i += 1) {
+            state.npcs[0].note = `change ${i}`;
+            assert.equal(part.persist(KEY), true);
+            await tick(1500);
+        }
+        assert.equal(await part.flushStateFile(KEY), null);
+        assert.equal(await part.persistCriticalDurable(KEY), true);
+        assert.equal(server.files.size, 0, 'no sidecar file before the host accepts');
+        assert.ok((rt.persistedVersions.get(KEY) ?? -1) < rt.stateVersions.get(KEY), 'the state is still dirty');
+        box.owner = false;   // the host refused
+        await part.flushStateFile(KEY);
+        assert.ok(server.files.size >= 1, 'the state is written once the host has refused');
     });
 });

@@ -114,17 +114,3 @@ test('a new chat that is not a branch mints its line as before', async () => {
     assert.match(live.states[live.chatKey].timeline.lineage, /^lg_[0-9a-z]{8}$/);
     assert.equal(live.writes.length, 1);
 });
-
-test('the adapter wires branchPending() and inheritBranch() to Delta\'s runtime', async t => {
-    const { adapterRig } = await import('./helpers/participant-rig.js');
-    const r = await adapterRig(t, { state: { npcs: [] } });
-    await r.host.send('Hello.', 'One.');
-    let pending = true;
-    let inherits = 0;
-    r.api.branchPending = () => pending;
-    r.api.inheritBranch = async () => { inherits += 1; r.live.state = { ...freshState(), timeline: { v: 1, lineage: 'lg_parent02', identity: { map: {} }, reserved: [], applied: {} } }; pending = false; return true; };
-    const made = await r.host.sdk.command('savepoint.make', {});
-    assert.equal(made.ok, true, made.message);
-    assert.equal(inherits, 1);
-    assert.equal(r.live.state.timeline.lineage, 'lg_parent02');
-});

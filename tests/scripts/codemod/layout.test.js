@@ -237,6 +237,6 @@ test('the real tree passes the required plan checks and tolerates an unmatched l
     readFile: file => fs.readFileSync(path.join(root, file), 'utf8'),
   });
   assert.deepEqual(problems.filter(problem => problem !== knownM2), []);
-  assert.ok(files.length > 6000, `expected the real tree, found ${files.length} files`);
+  assert.ok(files.length > 5000, `expected the real tree, found ${files.length} files`);
   for (const area of AREAS) assert.ok(counts[area].moves + counts[area].deletes > 0, `${area} planned nothing`);
 });

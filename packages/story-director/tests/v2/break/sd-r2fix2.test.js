@@ -17,6 +17,7 @@ import { initialAtlas } from '../../../src/v2/atlas/domain.js';
 import { MAX_OPEN_THREADS } from '../../../src/v2/tracker/capture.js';
 import { PROBLEM_ROOM, problemList, replyTurn } from '../../../src/v2/tracker/domain.js';
 import { IDLE_REPLIES, tailThreads } from '../../../src/v2/tracker/note.js';
+import { REPLY_KEY } from '../../../src/v2/reply-keys.js';
 import { seenOf } from '../../../src/v2/chronicle/domain.js';
 import { slotValue } from '../../../src/v2/slot.js';
 import { fakeFightRunner } from '../integration/helpers/fake-fight-runner.js';
@@ -87,7 +88,7 @@ test('the reply\'s bookkeeping and each problem are written whole, never inside 
     assert.ok(records.length > 0);
     for (const op of ops) {
         const path = op.path.slice('/domains/director/'.length);
-        const ok = /^(threads|keys)\//.test(path) || ['turn/n', 'turn/now', 'time/minutes', 'checked', 'recap', 'pulse'].includes(path) || /^problems\/\d+\.\d+$/.test(path);
+        const ok = /^(threads|keys)\//.test(path) || ['turn/n', 'turn/now', 'time/minutes', 'checked', 'recap', 'pulse'].includes(path) || (path.startsWith('problems/') && REPLY_KEY.test(path.slice('problems/'.length)));
         assert.ok(ok, `${op.op} ${op.path}`);
         if (/^(turn\/now|checked|recap|pulse)$/.test(path)) assert.equal(op.op, 'replace', `${op.path} is written whole`);
         if (path.startsWith('problems/')) assert.equal(op.op, 'add', `${op.path}: a problem is added under its own key`);
@@ -102,7 +103,7 @@ test('the problems keep the newest 100, each under its own key, and show the new
     assert.equal(kept.length, PROBLEM_ROOM);
     assert.equal(kept[0].key, 'Q2x0');
     assert.equal(kept.at(-1).key, 'Q11x9');
-    assert.ok(Object.keys(director(host).problems).every(key => /^\d+\.\d+$/.test(key)));
+    assert.ok(Object.keys(director(host).problems).every(key => REPLY_KEY.test(key)));
     const shown = host.sdk.query('director.problems');
     assert.equal(shown.length, 50);
     assert.match(shown.at(-1).text, /Q11x9/);

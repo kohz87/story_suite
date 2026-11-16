@@ -75,16 +75,3 @@ test('a port without ready() is taken as loaded (the hydrate is unchanged)', asy
     assert.equal(typeof r.port.ready, 'undefined');
     assert.ok(r.live.state.timeline.lineage, 'the line is made as before');
 });
-
-test('the adapter wires ready() to Delta\'s stateReady and load() to its ensureFresh', async t => {
-    const { adapterRig } = await import('./helpers/participant-rig.js');
-    const r = await adapterRig(t);
-    await r.host.send('Hello.', 'One.');
-    let loaded = false;
-    let asked = 0;
-    r.api.stateReady = () => loaded;
-    r.api.ensureFresh = async () => { asked += 1; loaded = true; return true; };
-    const made = await r.host.sdk.command('savepoint.make', {});
-    assert.equal(made.ok, true, made.message);
-    assert.equal(asked, 1, 'the participant asked Delta to load the chat before it read it');
-});
