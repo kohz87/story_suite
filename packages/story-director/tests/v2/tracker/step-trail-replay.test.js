@@ -131,3 +131,32 @@ test('one reply\'s steps stay in count order when a later write carries a lower 
     const receipt = { turn: { n: 3, now: null }, steps: { 'sw_A.0': step('a0', 3, 5), 'sw_A:rc1.0': step('kept', 3, 4), 'sw_B.0': step('b0', 3, 6) } };
     assert.deepEqual(stepsFor(receipt, 'th_x'), ['kept', 'a0', 'b0']);
 });
+
+test('a Re-read gives step lines to a reply that had none, earlier exchanges are deleted, then the later reply is Continued: story order a, b, c, d', async t => {
+    t.mock.method(console, 'warn', () => {});
+    for (const fillers of [1, 2]) {
+        let host = null;
+        const director = withD1(createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } }));
+        host = await createHost({ modules: [director] });
+        t.after(() => host.close());
+        await host.send('On.', said('R0.', ['+ quest Q — go | giver: A | step: a']));
+        for (let i = 0; i < fillers; i += 1) await host.send('Chat.', `F${i}. small talk`);
+        await host.send('On.', 'R1. nothing');
+        await host.send('On.', said('R2.', ['~ quest Q | step: c']));
+        assert.equal((await reread(host, 1, ['~ quest Q | step: b'])).ok, true);
+        for (let i = fillers - 1; i >= 0; i -= 1) {
+            const f = host.st.ctx.chat.findIndex(m => !m.is_user && String(m.mes).startsWith(`F${i}.`));
+            await host.st.deleteMessage(f);
+            await host.st.deleteMessage(f - 1);
+        }
+        await host.cont(`\n${said('More of R2.', ['~ quest Q | step: d'])}`);
+        const map = steps(host);
+        assert.deepEqual(stepOrder(map).map(k => map[k].text), ['a', 'b', 'c', 'd']);
+        assert.deepEqual(board(host).Q, ['a', 'b', 'c', 'd']);
+        assert.equal(stepsFor(host.head().domains.director, Object.values(map)[0].thread).at(-1), 'd');
+        // Any key order of the map gives the same order.
+        const keys = Object.keys(map);
+        const rev = Object.fromEntries(keys.reverse().map(k => [k, map[k]]));
+        assert.deepEqual(stepOrder(rev).map(k => rev[k].text), ['a', 'b', 'c', 'd']);
+    }
+});

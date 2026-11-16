@@ -16,8 +16,12 @@ this repo's AI-README "Reply format the model writes" and "Data the model sees" 
 - **Quest step trail** (`director.steps`, `tracker/capture-parts/step-trail.js`, limits in `domain-parts/shared-step-keys.js`): each
   step a thread takes is one add `{ thread, text, turn, place }` under a key of the reply that wrote it, the shared reply key (`<sid>.<n>`,
   `<sid>:<receipt>.<n>` outside a reply's capture such as an arc plan, `src/v2/reply-keys.js`; older `r<rev>.<n>` / `<rev>.<n>` still read), so an edited Re-read never lands on a later reply's stored key.
-  A trail is read in story order: the writing reply's `turn`, then the earlier `place` (carrier index; two replies share a turn when a
-  Re-read gave Director lines to a reply that had none), then its number within the reply. The reply that makes
+  A trail is read in story order: the writing reply's `turn`, then the reply's place, taken from its first entry (lowest number, a tie by place; `place` is the carrier index when written; two replies
+  share a turn when a Re-read gave Director lines to a reply that had none), then its number within the reply whatever each entry's own
+  place (a Continue after a middle delete carries a lower place). Latent, no path today: a `<sid>.<n>` and a `<sid>:<receipt>.<n>` write
+  count as one reply with separate counters, so two writes outside a capture could tie on count and fall to the random receipt ID.
+  Known limit (also on main): if a reply with a thread line but no step is later Re-read into a step, earlier exchanges are deleted and
+  that reply is Continued with its first step, the trail can read a, d, b and the board shows only the last. The reply that makes
   a thread writes its first step, the offer path (`+ hook … | goal: … | step: …`) included. The newest `STEP_KEPT` (400)
   entries are kept, oldest pruned by key; `quest.board` and the Journal show the newest 12 of a trail. The validator allows
   `STEP_CEILING` (2 × 400): a Re-read can hold more than the live cap, because a later reply's stored prune of a key that is
