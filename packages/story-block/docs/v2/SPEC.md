@@ -217,7 +217,9 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   library, so a chat with the RPG off replays the same). A replay whose party differs fails the guard and the block is skipped, so a deleted earlier leave never
   leaves a ninth active member. A record without the witness (before the mark, or an old pin) replays as it was.
   (g) A deferred domain (LIFECYCLE.md "Deferred domains") is made by the first reply that writes it; every later write of it is
-  a leaf change under it. On replay (never for a live command), an `add` or `replace` strictly under a deferred domain that is
+  a leaf change under it, the first write included: it is diffed against the domain's `initial()` slice, not stored as one whole
+  `add`, so a kept first write replayed onto a slice that is there already (an edited Re-read, where a new capture made the slice
+  first) changes only the keys it wrote. On replay and when stored, an `add` or `replace` strictly under a deferred domain that is
   not there (nor written whole earlier in the block) finds it as its `initial()` slice: the store puts that slice there first
   (`add /domains/<name>`), then the block applies as written, rules (a)-(e) on it. So deleting the reply that made the domain
   keeps the later replies' writes, laid on the initial value (a later `replace` of a key the deleted reply had added is an add,

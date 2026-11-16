@@ -236,3 +236,60 @@ test('deleting the first marker-writing reply keeps a later reply\'s dossier wri
     assert.deepEqual(host.store.problems(), []);
     assertReplay(host, 'delete of the first marker reply');
 });
+
+// A bare chat (no line in the first reply), so the first reply's people.write is what makes the people slice.
+async function bare(t) {
+    t.mock.method(console, 'warn', () => {});
+    const host = await createHost({ modules: [meters()] });
+    t.after(() => host.close());
+    await host.send('Go.', 'Ann is here.');
+    await write(host, view(), { lastSid: sourceOf(host).sid, swipeKey: sourceOf(host).swipeKey, since: 0 });
+    return host;
+}
+const reloaded = async host => { const live = plain(host.head()); await host.store.rebuild(); assert.deepEqual(plain(host.head()), live, 'reload equals live'); };
+
+test('edited Re-read: a meter line added to the reply whose people.write made the slice keeps its move (the first write is stored as leaf ops)', async t => {
+    const host = await bare(t);
+    const at = host.store.headIndex();
+    assert.deepEqual(host.head().domains.people.bonds, { npcs: {}, problems: [] });
+    host.ctx.chat[at].mes += '\n\n<Changes>\n~ bond npc_ann | by: 2\n</Changes>';
+    const done = await host.turn.reread(at);
+    assert.equal(done.ok, true, done.message);
+    assert.equal(trust(host, 'npc_ann'), 2, 'the move stands after the kept write replays');
+    assert.deepEqual(host.head().domains.people.npcs, view().npcs, 'and the dossier');
+    assert.deepEqual(host.store.problems(), []);
+    assertReplay(host, 'edited Re-read, grown');
+    await reloaded(host);
+    // And a later reply after it, then the same line edited to another value and shrunk away.
+    await host.send('On.', 'Later.');
+    const again = await host.turn.reread(at);
+    assert.equal(again.ok, true, again.message);
+    assert.equal(trust(host, 'npc_ann'), 2);
+    host.ctx.chat[at].mes = 'Ann is here.';
+    assert.equal((await host.turn.reread(at)).ok, true);
+    assert.equal(trust(host, 'npc_ann'), undefined, 'the removed line\'s move is gone');
+    assert.deepEqual(host.head().domains.people.npcs, view().npcs, 'the kept write stands');
+    assertReplay(host, 'edited Re-read, shrunk');
+    await reloaded(host);
+});
+
+test('a chat that never writes people has no slice (the deferred domain starts at its first write)', async t => {
+    const quiet = await bare(t);
+    await quiet.st.deleteMessage(carriers(quiet.ctx.chat)[1]);
+    assert.equal(quiet.head().domains.people, undefined);
+    const never = await createHost({ modules: [meters()] });
+    t.after(() => never.close());
+    await never.send('Go.', 'Nothing.');
+    assert.equal(never.head().domains.people, undefined);
+});
+
+test('stated limit: deleting the reply that made the slice skips a later dossier write that changes someone it made (whole write, with a Problem)', async t => {
+    const host = await bare(t);
+    await host.send('On.', 'Bo comes.');
+    const next = view({ order: ['npc_ann', 'npc_bo'], npcs: { npc_ann: { id: 'npc_ann', name: 'Ann', mood: 'wary' }, npc_bo: { id: 'npc_bo', name: 'Bo' } } });
+    await write(host, next, { lastSid: sourceOf(host).sid, swipeKey: sourceOf(host).swipeKey, since: 1 });
+    await host.st.deleteMessage(carriers(host.ctx.chat)[1]);   // (the first reply; [0] is the greeting)
+    assert.equal(host.head().domains.people, undefined, 'Bo and the marker are lost with the write');
+    assert.equal(host.store.problems().length, 1, 'one Problem says so');
+    assertReplay(host, 'limit');
+});

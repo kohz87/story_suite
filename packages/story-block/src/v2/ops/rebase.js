@@ -100,7 +100,7 @@ function throughList(value, keys) {
 // a leaf change under it. When that first reply is deleted, the domain is not there on replay, and such a later block would fail
 // whole. Instead an add or replace strictly under a deferred domain that is not there (nor written whole earlier in the block) finds
 // the domain as its initial slice: → the `add /domains/<name>` ops that put it there, first. A block of removes alone makes nothing,
-// and nothing is seeded on a live command, so a chat whose replies never write the domain stays as it was.
+// and a chat whose replies never write the domain stays as it was. A deferred domain's first write is stored as leaf changes on its initial slice (commands/transact.js), so a kept first write never resets keys it did not touch.
 function seedDeferred(state, ops, seed) {
     const domains = state?.domains;
     if (!isPlainObject(domains)) return [];
@@ -140,7 +140,7 @@ const UNIQUE_BEFORE_MARK = '/domains/scene/present';
  */
 export function rebaseOps(state, ops, { scratch = null, replayed = false, seed = null } = {}) {
     // Rule (g) goes first, so the scratch fitting and rules (a)-(e) see the slice the block is laid on.
-    const seeded = replayed && typeof seed === 'function' ? seedDeferred(state, ops, seed) : [];
+    const seeded = typeof seed === 'function' ? seedDeferred(state, ops, seed) : [];
     if (seeded.length) state = apply(state, seeded);
     const rebased = new Set();
     const moved = path => {

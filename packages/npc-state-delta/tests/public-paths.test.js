@@ -77,7 +77,7 @@ async function host({ settings = {}, delta = fakeDelta(), headReply = () => null
     const registry = createRegistry();
     // The host's people domain (Story Block's core part): NPC State keeps its meters in its `bonds`.
     registry.register({ id: 'story-block', name: 'Story Block', ...createPeoplePart() });
-    const store = createStore({ chat: () => chat, save: async () => {} });
+    const store = createStore({ chat: () => chat, save: async () => {}, seed: name => registry.deferredInitial(name) });
     const moduleSettings = { [MODULE_ID]: structuredClone(settings) };
     const settingsOf = id => ({ ...(registry.module(id)?.settings?.defaults ?? {}), ...structuredClone(moduleSettings[id] ?? {}) });
     const bus = createCommandBus({ store, registry, settings: settingsOf });

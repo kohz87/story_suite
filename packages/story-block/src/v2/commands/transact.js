@@ -33,11 +33,17 @@ export function createTransact({ store, registry, resolve, internal, internalMes
     function opsOf(tx) {
         const ops = [];
         const touched = [];
+        const seeded = {};   // a deferred domain not there yet → its initial slice (the first write is stored as leaf changes on it, rule g)
         for (const name of [...tx.drafts.keys()].sort()) {
             const before = tx.head.domains?.[name];
             const path = `/domains/${escapeKey(name)}`;
             const draft = tx.drafts.get(name);
-            const changes = before === undefined ? [{ op: 'add', path, value: clone(draft) }] : diff(before, draft, path);
+            // A deferred domain's first write is diffed against its initial slice, not stored as one whole `add`: replayed onto a slice that is
+            // there already (an edited Re-read keeps the block after a new capture made it) it changes only the keys it wrote (REPLAY.md "Deferred domains").
+            const initial = before === undefined && typeof registry.deferredInitial === 'function' ? registry.deferredInitial(name) : null;
+            let changes = initial ? diff(initial, draft, path) : null;
+            if (changes && changes.some(change => change.op === 'add' || change.op === 'replace')) seeded[name] = initial;
+            else changes = before === undefined ? [{ op: 'add', path, value: clone(draft) }] : diff(before, draft, path);
             // A count the domain keeps by adding and taking away remembers what it replaced (ops.js
             // counters), so a replay after a deleted reply adds this change instead of writing the number.
             // A thing removed that held a count (an emptied stack) remembers how much it held then.
@@ -76,7 +82,7 @@ export function createTransact({ store, registry, resolve, internal, internalMes
         const meta = tx.head.meta;
         const rev = (Number.isInteger(meta?.rev) ? meta.rev : 0) + 1;
         ops.push({ op: isRecord(meta) && Object.hasOwn(meta, 'rev') ? 'replace' : 'add', path: '/meta/rev', value: rev });
-        return { ops, touched, rev };
+        return { ops, touched, rev, seeded };
     }
 
     // Runs one command against `head` and returns { ok, ops, receipt, state } without storing anything.
@@ -170,7 +176,8 @@ export function createTransact({ store, registry, resolve, internal, internalMes
                 if (proofs.length) data = { ...data, v2: { ...data.v2, evidence: receiptEvidence(proofs) } };
             }
 
-            const { ops, touched, rev } = opsOf(tx);
+            const { ops, touched, rev, seeded } = opsOf(tx);
+            const base = Object.keys(seeded).length ? { ...head, domains: { ...head.domains, ...clone(seeded) } } : head;   // (head with the deferred domains this block starts)
             if (block?.module === 'story-block' && String(block.guard?.predicate?.kind ?? '').startsWith('dm.')) {
                 const setup = block.guard.replyBound === true;
                 // Include the host's durable span envelope, not just receipt display data. The store
@@ -183,11 +190,11 @@ export function createTransact({ store, registry, resolve, internal, internalMes
                     fail('DM_BUDGET', 'Data module patch or durable span storage budget exhausted; nothing applied.');
                 }
             }
-            const problems = checkOps(ops, head);
+            const problems = checkOps(ops, base);
             if (problems.length) fail('INVALID', `This change breaks the state's rules: ${problems.join(' ')}`);
             let next;
             try {
-                next = deepFreeze(apply(head, ops));
+                next = deepFreeze(apply(base, ops));
             } catch (error) {
                 fail('FAILED', `The change could not be applied: ${error.message}`);
             }

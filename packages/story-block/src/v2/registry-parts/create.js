@@ -7,6 +7,7 @@ import { createLifecycle } from '../registry/lifecycle.js';
 import { createRegistration } from '../registry/registration.js';
 
 // The replay rules the host itself applies, by letter (REPLAY.md): a rule that changes what a replay returns gets a new letter here, so memos kept under the old rule are not reused.
+// (Only in-memory keys read this: memos, the head cache and the prefix memo, all emptied by a reload; a chat file's checkpoint is not keyed on it. It stays as a convention for later rules.)
 // g: a deferred domain's later writes seed it when its first writer was deleted.
 const REPLAY_RULES = 'rules:g';
 

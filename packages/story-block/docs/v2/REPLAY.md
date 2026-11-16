@@ -440,8 +440,13 @@ slice that first reply made. Deleting that reply used to skip every later block 
 rule now (SPEC §2.2 rule g): on replay, an `add` or `replace` strictly under a deferred domain that is not there, the domain not
 written whole earlier in the block, finds it as its `initial()` slice. The store puts the slice there as the block's first change
 (`ops/rebase.js` `seedDeferred`, the one place replay decides a missing parent), so the scratch fitting and rules (a)-(e) see it;
-the block's domains are then validated as any replayed block's are. Nothing is seeded on a live command or for a block of removes
-alone, so a chat that never writes the domain stays byte-identical and holds no slice of it. The store gets the initial slices from
+the block's domains are then validated as any replayed block's are. The first write of a deferred domain is stored the same way: the
+command's draft is diffed against the domain's `initial()` slice (`commands/transact.js` `opsOf`), so the block holds leaf changes on it,
+never one whole `add /domains/<name>`, and the live state and the store lay it on that slice. A kept first write replayed onto a slice
+that is there already (an edited Re-read: the new capture made the slice, the kept block replays after it) therefore changes only the
+keys it wrote and cannot reset a meter move. A block of removes alone makes nothing, and a chat that never writes the domain stays
+byte-identical and holds no slice of it. Data modules (`dataModules`, also deferred) follow the same rule, and the QA oracle holds its
+initial slice too. The store gets the initial slices from
 `registry.deferredInitial(name)` (`createStore({ seed })`); a store built without `seed` (older tests and tools) replays as before.
 The QA oracle (`tests/v2/qa/helpers/oracle.js`) writes the rule on its own with a literal table of the initial slices.
 
@@ -449,9 +454,11 @@ Story Block's `people` is the first user: its `initial()` is `{ v: 1, order: [],
 both its writers start a new slice from it, so NPC State's later meter moves survive deleting the reply that made the slice (and the
 reply of the first move, when a dossier write made the slice). The scan marker is stored as the array `[lastSid, swipeKey, since]`, so
 every marker change is one whole `replace` of `scan` (a diff never splits an array into leaves) and survives deleting the reply that
-first stored it. Left as it was: a write under a person only the deleted reply made.
+first stored it. Left as it was (the stated limit): a write under a person only the deleted reply made. When the deleted reply made the
+people slice and a later dossier write changes someone it made, that whole later write (its new people and the marker included) is skipped
+with a Problem; a later write that leaves every earlier person as it was is kept.
 
-The replay rules the host applies are named in the registry's `rulesSignature()` (`rules:g` for this rule), which is part of the replay
+The replay rules the host applies are named in the registry's `rulesSignature()` (`rules:g` for this rule; it only keys in-memory answers, which a reload empties, so it matters to a running store, not to a chat file), which is part of the replay
 environment the store keys its kept answers and prefix memos on: a state kept under an older rule is not reused. Checkpoints saved in a
 chat file are keyed on their prefix hash only (above); one saved under the older rule stays valid until the next reply or rebuild
 rewrites it, which is accepted (the owner's chats were started again, nothing older exists).
