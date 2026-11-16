@@ -3,16 +3,12 @@
 import { CORE_MODULE_ID } from '../domains/core/constants.js';
 import { guardProblem } from '../replay.js';
 import { interactionError } from './contract.js';
+import { kindName } from './kind-name.js';
 import { settlePayloadProblem } from './settle.js';
 
 const HASH = /^[0-9a-f]{64}$/u;
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => typeof value === 'string' && value.length > 0;
-const titlePart = kindId => {
-    const tail = String(kindId ?? 'interaction').split('/').at(-1).replace(/[-_]+/gu, ' ').trim();
-    return tail ? tail[0].toUpperCase() + tail.slice(1) : 'interaction';
-};
-const titleOf = (kind, kindId) => String(kind?.title ?? titlePart(kindId)).trim() || 'interaction';
 const notReady = (title) => ({ ok: false, code: 'NOT_READY', reason: interactionError('NOT_READY', title).message });
 const bad = (title, detail = null, code = 'DAMAGED') => ({ ok: false, code, reason: interactionError(code, title, detail).message });
 
@@ -40,7 +36,7 @@ export function interactionGuard(view, info, kindOf) {
     const kindId = String(predicate?.id ?? payload?.kindId ?? '');
     let kind = null;
     try { kind = typeof kindOf === 'function' ? kindOf(kindId) : kindOf; } catch { kind = null; }
-    const title = titleOf(kind, kindId);
+    const title = kindName(kind, kindId);
     const problem = guardProblem(guard);
     if (problem) return bad(title, `The saved ${title} is damaged: ${problem}.`);
     if (guard.owner !== CORE_MODULE_ID || guard.rulesHash !== null || predicateProblem(predicate)) return bad(title);

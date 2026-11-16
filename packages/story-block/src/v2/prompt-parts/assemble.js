@@ -1,6 +1,7 @@
 // Story Suite v2: builds the static and tail texts for the next reply, with their parts and the context fit.
 
 import { receiptCue } from '../lean-rpg/cue.js';
+import { settleCue, SETTLE_TYPE } from '../interaction/note.js';
 import { HAPPENED } from './markers.js';
 import { DEFAULT_TAIL_BUDGET, KEPT_TAIL_LINES, KEPT_TAIL_TOKENS } from './tail-budget.js';
 import { estimateTokens, attempt } from './shared-helpers.js';
@@ -50,7 +51,7 @@ export function assemble({ registry, view, untold = [], settings = {}, cues = {}
         : Number.isInteger(settings?.tailBudget) && settings.tailBudget > 0 ? settings.tailBudget : DEFAULT_TAIL_BUDGET;
 
     const happened = untold
-        .map(receipt => receipt && receipt.narrate !== false && typeof receipt.summary === 'string' ? { receipt, text: receiptCue(receipt) } : null)
+        .map(receipt => receipt && receipt.narrate !== false && typeof receipt.summary === 'string' ? { receipt, text: receipt.type === SETTLE_TYPE ? settleCue(receipt) : receiptCue(receipt) } : null)
         .filter(entry => entry && entry.text.trim())
         .map(({ receipt, text }) => fill(`${text}${typeof receipt.data?.told === 'string' && receipt.data.told.trim() ? ` (${receipt.data.told.trim()})` : ''}`)
             .trim().split(/\n/).map(part => part.trim()).filter(Boolean).join(' '));
@@ -58,15 +59,15 @@ export function assemble({ registry, view, untold = [], settings = {}, cues = {}
 
     const sections = [];
     for (const context of tailOrder(registry.contexts())) {
-        // A cue may be `{ text, keep: true }`: kept whole, whatever the budget says (the rolls the narrator must tell). One marked `board: true`
-        // (the fight board's own [Happened] note) also joins the leading note; the RPG's ordinary roll cues stay in their section.
+        // A cue may be `{ text, keep: true }`: kept whole, whatever the budget says (the rolls the narrator must tell). One marked `interaction: true` (a settled
+        // interaction's note; `board: true` is the fight board's own, until it moves onto the port) also joins the leading note; the RPG's ordinary roll cues stay in their section.
         const given = Array.isArray(cues?.[context.moduleId]) ? cues[context.moduleId] : [];
         const ordinary = [];
         const pinned = new Set();
         for (const cue of given) {
             const text = typeof cue?.text === 'string' ? cue.text : typeof cue === 'string' ? cue : '';
             if (!text.trim()) continue;
-            const body = cue?.keep === true && cue.board === true ? happenedCue(text) : null;
+            const body = cue?.keep === true && (cue.interaction === true || cue.board === true) ? happenedCue(text) : null;
             if (body !== null) {
                 cueHappened.push(fill(body));
                 continue;
