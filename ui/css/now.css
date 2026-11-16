@@ -83,9 +83,11 @@ button.rnr{cursor:pointer}
 .fold[aria-expanded="true"] i{transform:rotate(90deg)}
 .now-tab .fold h3{margin:0;font:700 19px var(--su-font);flex:none}
 .fold small{flex:1;min-width:0;font:600 12px var(--su-font);color:var(--su-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.you-body{display:contents}
 .you p{margin:0;font-size:13.5px;line-height:1.5}
 .srcl{display:block;font:700 12px var(--su-font);letter-spacing:.06em;text-transform:uppercase;color:var(--su-muted)}
 .kv2{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:13.5px;margin:0}
+.you .kv2{row-gap:8px}
 .kv2 dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}
 .kv2 dd{margin:0}
 .fld{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px}

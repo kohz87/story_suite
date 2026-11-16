@@ -82,6 +82,31 @@ for (const [width, size, gap] of [[390, '13.5px', 8], [820, '14px', 10]]) {
       assert.ok(m.tiles.some(x => x.t === '+') && m.tiles.some(x => x.t === '⛨'));
       assert.equal(m.dueIndent, 0, 'the Due tomorrow row is not indented by the journal due pill');
       assert.equal(m.rowLeft, 30 + gap);
+      const folded = await page.evaluate(() => Math.round(document.querySelector('.you').getBoundingClientRect().height));
+      await page.click('.you .fold');
+      const open = await page.evaluate(() => {
+        const y = sel => document.querySelector(sel).getBoundingClientRect();
+        const card = document.querySelector('.you');
+        return { head: card.querySelector('.fold').textContent, srcl2p: y('.you p').top - y('.you .srcl').bottom, p2kv: y('.you .kv2').top - y('.you p').bottom, row: getComputedStyle(card.querySelector('.kv2')).rowGap };
+      });
+      assert.equal(open.head, '›You', 'the open You header prints no stray text');
+      assert.equal(open.srcl2p, 10);
+      assert.equal(open.p2kv, 10);
+      assert.equal(open.row, '8px');
+      await page.click('.you .fold');
+      assert.equal(await page.evaluate(() => Math.round(document.querySelector('.you').getBoundingClientRect().height)), folded, 'folding again restores the folded card height');
+      assert.equal(folded, 74, 'the folded You card has no empty body gap');
     } finally { await page.close(); }
   });
 }
+
+test('Now late and torn tones match the mock in the light scheme', async t => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await ctx.browser.newPage({ viewport: { width: 390, height: 1200 } });
+  try {
+    await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=light&variant=fightOpen&width=390&tab=now`);
+    await page.waitForSelector('#hx-frame .su-host');
+    const m = await page.evaluate(() => { const e = document.querySelector('.rnr.need-overdue .ti'); return e ? getComputedStyle(e).color : null; });
+    assert.ok(m && m !== 'rgb(255, 122, 122)', 'the late glyph uses the light-scheme bad tone');
+  } finally { await page.close(); }
+});
