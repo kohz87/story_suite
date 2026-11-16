@@ -112,5 +112,5 @@ test('host: new tags apply once and replay equals live (swipe, Re-read, edited R
     s.host.store.rebuild();
     assert.equal(shape(s), live, 'rebuild equals live after the delete');
     assert.deepEqual(s.host.store.problems(), []);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people.bonds), [], 'the meters (people.bonds since P4) are sound');
 });

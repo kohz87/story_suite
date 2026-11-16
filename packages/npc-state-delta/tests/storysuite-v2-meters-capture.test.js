@@ -13,7 +13,7 @@ test('the real registry accepts the definition: meters in the people domain, npc
     assert.equal(h.registry.domainOwner('people'), 'story-block');
     assert.equal(h.registry.captureOwner('npc'), MODULE_ID);
     for (const type of ['npc.adjust', 'npc.set', 'npc.refresh']) assert.equal(h.registry.commandOwner(type), MODULE_ID);
-    assert.equal(h.store.head().domains.people?.bonds, undefined, 'no meters before the first change');
+    assert.deepEqual(Object.keys(h.store.head().domains.people?.bonds?.npcs ?? {}), [], 'no meters before the first change (a dossier write lays down only the empty bonds)');
     assert.equal(h.def.screens[0].id, METERS_CARD_ID);
     assert.deepEqual(metersCardScreen.mounts, ['card']);
     assert.match(metersCardScreen.template, /<ss-widget name="ss\.meter" data-props='\{"bind":"b"\}'><\/ss-widget>/, 'one ss.meter per bar');
