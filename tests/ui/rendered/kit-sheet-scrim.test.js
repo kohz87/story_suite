@@ -64,3 +64,33 @@ for (const theme of ['dark', 'light']) {
     });
   }
 }
+
+for (const theme of ['dark', 'light']) {
+  for (const width of [390, 820]) {
+    test(`Scene sheet at ${width} in ${theme}: mock scrim rgba(6,8,16,.6) + blur 6px, 480px panel when centred, close shows ×`, async (t) => {
+      if (ctx.skip) return t.skip(ctx.skip);
+      const page = await ctx.browser.newPage({ viewport: { width, height: 900 } });
+      await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+      await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&tab=now`);
+      await page.waitForSelector('#hx-frame .ctop .meta');
+      await page.evaluate(() => document.fonts.ready);
+      await page.click('#hx-frame .ctop .meta');
+      await page.waitForSelector('#hx-frame .sh-ov .sh-panel .scsheet');
+      const got = await page.evaluate(() => {
+        const ov = document.querySelector('#hx-frame .sh-ov');
+        const cs = getComputedStyle(ov);
+        const p = ov.querySelector('.sh-panel').getBoundingClientRect();
+        const x = ov.querySelector('.scsheet .x');
+        const xr = x.getBoundingClientRect();
+        return { bg: cs.backgroundColor, blur: cs.backdropFilter, panelW: p.width, panelX: p.x - ov.getBoundingClientRect().x, ovW: ov.getBoundingClientRect().width, glyph: x.textContent, xw: xr.width, xh: xr.height };
+      });
+      await page.close();
+      assert.equal(got.bg, 'rgba(6, 8, 16, 0.6)');
+      assert.equal(got.blur, 'blur(6px)');
+      assert.equal(got.glyph, '×');
+      assert.deepEqual([got.xw, got.xh], [44, 44]);
+      if (width >= 601) { assert.equal(got.panelW, 480); assert.equal(got.panelX, (got.ovW - 480) / 2); }
+      else assert.equal(got.panelW, got.ovW, 'the bottom sheet spans the width on a phone');
+    });
+  }
+}
