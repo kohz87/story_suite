@@ -68,9 +68,13 @@ function buildCard(opts) {
     },
     bars: opts.rpg ? MOMENT.bars.map(b => ({ ...b })) : [],
     exp: opts.rpg ? { ...MOMENT.exp } : null,
-    statuses: MOMENT.statuses.map(s => ({ ...s })),
+    // Story-only keeps its status chips (decision 23) but has no stance to report.
+    statuses: MOMENT.statuses.filter(s => opts.rpg || !RPG_ONLY_STATUS.has(s.id)).map(s => ({ ...s })),
   };
 }
+
+// Statuses that exist only with RPG on: stances (the mock hides them as .rpgonly).
+const RPG_ONLY_STATUS = new Set(['shadow-step']);
 
 function buildHereList(opts) {
   if (opts.empty) return [];

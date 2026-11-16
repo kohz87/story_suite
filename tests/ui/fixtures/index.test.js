@@ -65,6 +65,7 @@ test('fight-open here list keeps the mock fight-state meters for Rika; People ke
   assert.equal(fixture().people.elsewhere.find(p => p.personId === 'rika').meters.trust, 30);
 });
 
-test('Story-only keeps the status chips', () => {
-  assert.ok(fixture('rpgOff').card.statuses.length > 0);
+test('Story-only keeps the status chips but drops the RPG-only stance, as the mock does', () => {
+  assert.deepEqual(fixture('rpgOff').card.statuses.map(s => s.id), ['bleeding', 'winded']);
+  assert.deepEqual(fixture().card.statuses.map(s => s.id), ['shadow-step', 'bleeding', 'winded']);
 });
