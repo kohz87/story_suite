@@ -20,13 +20,15 @@
 ## Commands
 
 ```sh
-npm test              # script, core and UI tests + the test:sb, test:sd, test:nsd and test:suite aliases (they run the new test folders)
+npm test              # script, core, UI, modules, people and suite tests (the test:* scripts below, run in turn)
 npm run check         # size check + codemap check + syntax checks (scripts/core/check.mjs, scripts/director/check.mjs)
 npm run codemap       # regenerate docs/codemap.md and the package maps in docs/codemap/
 npm run verify-import # prove packages/ match the B1 import snapshot
-npm run test:sb       # tests/modules, packs, matrix, bench, authoring-kit + examples/fishing/tests
-npm run test:sd       # tests/director
-npm run test:nsd      # NPC State Delta tests only
-npm run test:suite    # the test:sb folders + tests/suite + tests/people with the sibling farm (scripts/ci/farm.mjs); fails on unlisted skips
+npm run test:scripts  # tests/scripts
+npm run test:core     # tests/core
+npm run test:ui       # tests/ui + tests/ui-gaps
+npm run test:modules  # tests/modules, packs, matrix, bench, authoring-kit, director + examples/fishing/tests (the testkit's matrix runs here)
+npm run test:people   # tests/people (its own job: 4 GB heap and the synthetic host's import hook)
+npm run test:suite    # the test:modules folders (without tests/director) + tests/suite + tests/people with the sibling farm (scripts/ci/farm.mjs); fails on unlisted skips
 git diff --check      # CI fails on trailing whitespace
 ```

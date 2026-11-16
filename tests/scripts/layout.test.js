@@ -44,8 +44,8 @@ test('on today\'s tree the scripts give the same output as before (committed map
   for (const line of map.out.trim().split('\n').slice(1)) {
     assert.match(line, /^code map: docs\/codemap\/[\w-]+\.md [\w-]+ \d+ files \(\d+ over the export limit\), up to date$/);
   }
-  const globs = node('scripts/checks/package-test-globs.mjs');
-  assert.equal(globs.out, 'package test globs: every test file is run by its package or root npm test\n');
+  const globs = node('scripts/checks/test-globs.mjs');
+  assert.equal(globs.out, 'test globs: every test file is run by a root npm test script\n');
   const size = node('scripts/checks/run-size-check.mjs');
   assert.equal(size.status, 0, size.out);
   assert.match(size.out, /^size check: no --base given; the legacy-list ratchet was not applied\nsize check: \d+ files, all within 450 lines or on the legacy list \(3 listed\)\n$/);

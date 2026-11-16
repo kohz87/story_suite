@@ -14,7 +14,7 @@
   "scripts/checks/removed-exports.mjs": "Fails if a tracked source file uses a name from docs/merge/removed-exports.txt, the code removed in a cleanup step.",
   "scripts/checks/nul-check.mjs": "Reports a NUL byte found in a text file.",
   "scripts/checks/package-scope.mjs": "Checks that the root package.json is an ES module and no nested package.json exists outside packages/.",
-  "scripts/checks/package-test-globs.mjs": "Fails when a package test file (by Node default test names) is not run by the files its npm test really passes to node --test.",
+  "scripts/checks/test-globs.mjs": "Fails when a test file (by Node default test names) is not run by the files the root test scripts and the suite script really pass to node --test.",
   "scripts/checks/run-size-check.mjs": "CLI that checks repo file sizes or writes the legacy-oversize allowlist.",
   "scripts/checks/test-command-args.mjs": "Evaluates a node --test command with the shell and returns the test paths and globs it passes, without Node options.",
   "scripts/ci/choose-base.sh": "Chooses the base commits (one per line) for the CI diff and legacy-list ratchet: every parent that has the list, with the import-commit fallback only before the list exists.",

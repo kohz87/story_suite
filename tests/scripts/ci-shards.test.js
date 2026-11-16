@@ -29,12 +29,12 @@ function assertCompleteShards(name) {
   return total;
 }
 
-test('story-block runs its tests in complete, non-overlapping shards that keep the test:sb globs', () => {
-  assertCompleteShards('story-block');
-  const text = job('story-block');
-  const script = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts['test:sb'];
+test('modules runs its tests in complete, non-overlapping shards that keep the test:modules globs', () => {
+  assertCompleteShards('modules');
+  const text = job('modules');
+  const script = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts['test:modules'];
   const globs = script.match(/"[^"]+"/g).slice(1);
-  assert.ok(globs.length >= 5, 'test:sb names its test folders');
+  assert.ok(globs.length >= 5, 'test:modules names its test folders');
   assert.ok(text.includes(`--test-shard=\${{ matrix.shard }} ${globs.join(' ')}\n`));
   assert.ok(!text.includes('--test-force-exit'));
 });
