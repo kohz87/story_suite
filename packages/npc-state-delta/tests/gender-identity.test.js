@@ -20,6 +20,7 @@ import {
     filterDossierIndex,
     projectDossierState,
 } from '../dossier-ui.js';
+import { consolidateAliasLinkedNpcDuplicates } from '../core-merge-aliases.js';
 import { encodeNpcStateBundle, decodeNpcStateBundle } from '../bundle.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { dossierUiSource } from './helpers/dossier-ui-source.js';
@@ -254,4 +255,22 @@ test('native bundle preserves canonical gender without a format bump', () => {
     const bytes = encodeNpcStateBundle({ npcs: [npc] }, { chatKey: 'chat:test' });
     const decoded = decodeNpcStateBundle(bytes);
     assert.equal(decoded.state.npcs[0].gender, 'female');
+});
+
+test('a word that owns something or is negated states no gender ("king\'s mistress", "not male"); a noun of the person still does', () => {
+    for (const text of ["queen's guard", "king's mistress", 'not male', 'non-female', 'never a man']) assert.equal(normalizeGender(text), '', text);
+    assert.equal(normalizeGender('mother superior'), 'female');
+    assert.equal(normalizeGender('her brother'), 'male');
+});
+
+test('merging duplicate records keeps the gender the story stated for a dead person, whichever name became canonical', () => {
+    const dead = normalizeNpcRecord({ id: 'npc_mira', name: 'Mira', aliases: ['Ashka'], gender: 'female', lifeState: 'deceased', lifeStateCertainty: 'explicit', createdAt: 1, updatedAt: 1 });
+    const twin = normalizeNpcRecord({ id: 'npc_voss', name: 'Ashka', aliases: ['Mira'], gender: 'male', createdAt: 2, updatedAt: 2 });
+    for (const npcs of [[dead, twin], [twin, dead]]) {
+        const report = { updated: [] };
+        const next = { npcs: structuredClone(npcs), socialGraph: { version: 1, edges: [], unresolved: [] } };
+        consolidateAliasLinkedNpcDuplicates(next, report);
+        assert.equal(next.npcs.length, 1);
+        assert.equal(next.npcs[0].gender, 'female');
+    }
 });

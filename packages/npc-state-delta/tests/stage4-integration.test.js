@@ -104,7 +104,6 @@ test('Stage 4 clothing-only form change leaves unrelated form anatomy untouched'
 test('Stage 4 archiving preserves death semantics and an explicit user restore is recorded as correction', () => {
     const dead = normalizeNpcRecord({
         ...createNpcRecord('Marris'),
-       
         lifeState: 'deceased',
         lifeStateCertainty: 'explicit',
         lifeStateReason: 'Death was explicitly confirmed.',
@@ -162,7 +161,6 @@ test('Stage 4 native bundle merge cannot implicitly revive an existing terminal 
     }, true, { reason: 'deceased', sourceMessageId: 7 });
     const imported = normalizeNpcRecord({
         ...dead,
-       
         archiveReason: '',
         lifeState: 'alive',
         lifeStateCertainty: 'explicit',

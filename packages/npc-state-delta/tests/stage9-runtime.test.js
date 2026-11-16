@@ -79,7 +79,6 @@ async function additionalChecks(mockState, eventSource, manualAddNpc, sleep, ext
         lastWorldActiveTurn: 2,
         present: false,
         worldActive: false,
-       
         archiveReason: '',
     };
     await runtime.importBytes(encodeNpcStateBundle({ npcs: [directForeign] }, { chatKey: 'chat:foreign:direct' }));

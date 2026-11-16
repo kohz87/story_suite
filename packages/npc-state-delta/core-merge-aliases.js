@@ -167,6 +167,9 @@ function mergeAliasLinkedNpcPair(a, b) {
     merged.lastRelationshipChange = structuredClone(relationshipSource.lastRelationshipChange || merged.lastRelationshipChange);
     const lifecycleSource = Number(a?.updatedAt || 0) >= Number(b?.updatedAt || 0) ? a : b;
     for (const field of ['present','worldActive','lifeState','lifeStateCertainty']) merged[field] = structuredClone(lifecycleSource?.[field]);
+    // A gender the story stated for a person who has died stays as stated, whichever label became canonical (a reader's lock above already wins).
+    const deadStated = lockedGenderSource ? null : [canonicalRecord, a, b].find(record => record?.lifeState === 'deceased' && normalizeGender(record.gender));
+    if (deadStated) merged.gender = normalizeGender(deadStated.gender);
     merged.portrait = portraitHasImage(a?.portrait) ? structuredClone(a.portrait) : (portraitHasImage(b?.portrait) ? structuredClone(b.portrait) : (a?.portrait || b?.portrait || null));
     merged.portraitPromptPositive = cleanText(newer?.portraitPromptPositive || older?.portraitPromptPositive, PORTRAIT_NPC_PROMPT_LIMIT);
     merged.portraitPromptNegative = cleanText(newer?.portraitPromptNegative || older?.portraitPromptNegative, PORTRAIT_NPC_PROMPT_LIMIT);

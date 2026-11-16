@@ -20,14 +20,16 @@ export function normalizeBoolean(value, fallback = false) {
 
 // Gender is male, female or blank (the dossier shows blank as "not stated"). The story's own word is read, short phrases included ("a young woman", "her brother"):
 // a gendered noun decides (man, woman, brother, sister, queen, "Mr", ...); a pronoun (he, she, ...) decides only when no noun is there; "her brother" is male because the
-// noun wins. Two nouns that disagree, a word that is neither, or a long sentence is not stated. A possessive (his, her, hers) decides only when it is the whole answer.
+// noun wins. Two nouns that disagree, a word that is neither, or a long sentence is not stated. A possessive (his, her, hers) decides only when it is the whole answer; a word that owns something ("king's") or a negation ("not male") states nothing.
 const MALE_NOUNS = new Set(['male', 'man', 'boy', 'masculine', 'gentleman', 'guy', 'brother', 'son', 'father', 'dad', 'husband', 'uncle', 'nephew', 'grandfather', 'king', 'prince', 'lord', 'sir', 'mr', 'duke', 'count', 'emperor']);
 const FEMALE_NOUNS = new Set(['female', 'woman', 'girl', 'feminine', 'lady', 'gal', 'sister', 'daughter', 'mother', 'mom', 'wife', 'aunt', 'niece', 'grandmother', 'queen', 'princess', 'madam', 'mrs', 'miss', 'ms', 'duchess', 'countess', 'empress']);
 const MALE_PRONOUNS = new Set(['he', 'him', 'himself']);
 const FEMALE_PRONOUNS = new Set(['she', 'herself']);
+const NEGATIONS = new Set(['not', 'non', 'no', 'never', 'isn']);
 export function normalizeGender(value) {
-    const words = normalizeName(value).split(/[^a-z]+/).filter(Boolean);
-    if (!words.length || words.length > 3) return '';
+    // A word that owns something ("king's mistress", "queen's guard") does not state the person's own gender, and a negated one ("not male") states none.
+    const words = normalizeName(String(value ?? '').replace(/[\p{L}]+['\u2019]s\b/giu, ' ')).split(/[^a-z]+/).filter(Boolean);
+    if (!words.length || words.length > 3 || words.some(word => NEGATIONS.has(word))) return '';
     const kinds = (nouns, pronouns) => ({ noun: words.some(word => nouns.has(word)), pronoun: words.some(word => pronouns.has(word)) });
     const male = kinds(MALE_NOUNS, MALE_PRONOUNS);
     const female = kinds(FEMALE_NOUNS, FEMALE_PRONOUNS);

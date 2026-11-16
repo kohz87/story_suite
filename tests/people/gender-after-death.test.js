@@ -114,6 +114,7 @@ test('the scan paths: a correction after death does not change a stated gender, 
     const scan = (npc, extra) => mergeScanResult(state(npc.gender), { npcs: [{ id: npc.id, name: npc.name, ...extra }] }, { turn: 4, developmentContext: `${npc.name} is a man in the story.` }).state.npcs.find(item => item.id === npc.id);
     const mira = { id: 'npc_mira', name: 'Mira', gender: 'female' };
     assert.equal(scan(mira, { gender: 'male', genderState: 'correct', genderReason: 'The story says he.' }).gender, 'female', 'a correction does not change a stated gender after death');
+    assert.equal(scan({ id: 'npc_liv', name: 'Liv', gender: 'female' }, { gender: 'male', genderState: 'correct', genderReason: 'The story says he.' }).gender, 'male', 'control: the same correction changes it while the person lives');
     assert.equal(scan({ ...mira, gender: '' }, { gender: 'he' }).gender, 'male', 'never stated: filled once, in the story\'s own word');
     const refreshed = (id, name, gender) => mergeScanResult(state('female'), { npcs: [{ id, name }], profileUpdates: [{ id, name, gender }] }, { turn: 4, developmentContext: `${name} is a man.` }).state.npcs.find(item => item.id === id);
     assert.equal(refreshed('npc_liv', 'Liv', 'male').gender, 'male', 'a Refresh replaces a stated gender while the person lives');

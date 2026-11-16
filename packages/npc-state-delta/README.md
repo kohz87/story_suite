@@ -58,7 +58,7 @@ Before you update an existing install, export a backup from **Data & maintenance
 
 - **If someone is missing**, use **Add NPC**. If a dossier looks stale, open it and use **Refresh**. For an NPC with named forms, the body belongs in each form instead; Refresh or edit the form.
 - A confirmed death takes the person off the scene and is final for scans until you correct it by hand (Restore, only for a wrong death).
-- Long-absent people are removed after 50 replies, unless they matter (a portrait, a cast entry, a bond off its start, a key person): those are kept however long they have been away. There is no archive any more. A gender that was never stated shows "not stated"; once someone has died a stated gender no longer changes (you can still change it by hand).
+- Long-absent people are removed after 50 replies, unless they matter (a portrait, a cast entry, a bond off its start, a key person): those are kept however long they have been away. There is no archive any more; a quiet person still holds a roster slot until removed, and the "Archive after" setting no longer does anything. A gender that was never stated shows "not stated"; once someone has died a stated gender no longer changes (you can still change it by hand).
 - **Data & maintenance** has Backup / Export, Restore / Import, Diagnostics, the chat roster and **Clear chat dossier** (this chat only).
 
 ## Settings worth knowing

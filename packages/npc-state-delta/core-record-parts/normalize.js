@@ -12,6 +12,10 @@ import { CAST_APPEARANCE_WIDE, castAppearanceKept, normalizeAppearanceCanon, nor
 import { impactDayProblems } from '../src/relationship-pacing.js';
 import { normalizeCustomFields } from '../core-record-custom-fields.js';
 
+const ALIAS_KEYS = ['sex', 'race', 'ancestry', 'speciesRace', 'species_race', 'home_base', 'usualLocation', 'usual_location', 'whereToFind', 'where_to_find', 'identity_kind',
+    'portrait_prompt_positive', 'portrait_prompt_negative', 'portrait_prompt_replace', 'portrait_seed', 'behavior_profile', 'key_relationships', 'innerCircle', 'inner_circle',
+    'family', 'profile_evidence', 'relationship_progress', 'relationship_milestones', 'relationship_event_history', 'isMinor', 'is_minor', 'hideFromGallery', 'hide_from_gallery'];
+
 export function normalizeNpcRecord(rawInput = {}) {
     const raw = stripRecordCitations(rawInput);
     const npc = { ...raw };
@@ -161,5 +165,7 @@ export function normalizeNpcRecord(rawInput = {}) {
     delete npc.manual;
     // P6: no archive or retention fields any more (the old ones in a stored record are dropped here); a death is lifeState 'deceased'.
     for (const gone of ['archived', 'archiveReason', 'archivedAt', 'archiveSourceMessageId', 'retentionProtected']) delete npc[gone];
+    // The alias spellings are read above and then dropped, so a record holds only the canonical fields (the people store refuses any other key).
+    for (const alias of ALIAS_KEYS) delete npc[alias];
     return npc;
 }
