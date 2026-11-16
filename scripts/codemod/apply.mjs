@@ -41,7 +41,7 @@ export function applyLayout(root, ruleSets, { backupDir = null, commits = null, 
   const before = trackedFiles(root);
   const files = new Set(before);
   const plan = buildPlan(before, ruleSets);
-  const problems = planProblems(plan);
+  const problems = planProblems(plan, { files, readFile: file => fs.readFileSync(path.join(root, file), 'utf8') });
   if (problems.length) throw new Error(`plan refused:\n${problems.join('\n')}`);
   const mapper = makeMapper(plan, ruleSets);
   backUp(root, plan.deletes, backupDir);
