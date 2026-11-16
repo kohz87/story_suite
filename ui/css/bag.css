@@ -1,6 +1,6 @@
-/* Styles for the Bag tab: Purse and load, Assets, item grid and sheets; tokens only, layout follows the container. */
+/* Styles for the Bag tab: Purse and load, Assets, item grid and sheets; tokens only (the two mock tints are fixed in both themes), layout follows the container. */
 .bag-tab{display:flex;flex-direction:column;gap:12px}
-.bag-tab .btop{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
+.bag-tab .btop{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;}
 @container (min-width:620px){.bag-tab .btop{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}}
 .bag-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .bag-tab .ch,.bag-tab .ihead{display:flex;align-items:center;gap:8px}
@@ -23,7 +23,7 @@
 .load.heavy .lr b{color:var(--su-warn-t)}.load.heavy .lbar b{background:var(--su-warn)}
 .load.over .lr b{color:var(--su-bad-t)}.load.over .lbar b{background:var(--su-bad)}
 .hvy,.ovr{font:700 12.5px/1.35 var(--su-font);color:var(--su-warn-t);margin-bottom:8px}
-.ovr{background:color-mix(in srgb,var(--su-warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--su-warn) 35%,transparent);border-radius:12px;padding:7px 10px}
+.ovr{background:rgba(242,180,90,.1);border:1px solid rgba(242,180,90,.35);border-radius:12px;padding:7px 10px}
 .srcs{display:flex;flex-wrap:wrap;gap:6px}
 .src.dim{opacity:.75}
 .rates{display:flex;flex-direction:column}
@@ -51,7 +51,7 @@
 .tr .ti svg{width:21px;height:21px}
 .tr b{font:700 14px var(--su-font);display:block}.tr small{font-size:12px;color:var(--su-muted)}
 .tr .tg{font:800 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:2px 9px;white-space:nowrap}
-.tr .tg.eq{color:var(--su-accent);background:color-mix(in srgb,var(--su-accent) 14%,transparent)}
+.tr .tg.eq{color:var(--su-accent);background:rgba(168,151,255,.14)}
 .bmt{display:flex;flex-wrap:wrap;gap:0 .4em}.bmt>span:not(:last-child)::after{content:" ·"}
 .av{width:20px;height:20px;border-radius:50%;background:var(--su-tile) center 18%/cover;box-shadow:0 0 0 1.5px var(--su-panel2);flex:none;display:inline-block}
 /* Items */
@@ -84,7 +84,7 @@
 .bag-sheet .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 14px;font-size:13.5px;margin:0}
 .bag-sheet .kv dt{font:800 12px var(--su-font);letter-spacing:.08em;text-transform:uppercase;color:var(--su-muted);padding-top:2px}.bag-sheet .kv dd{margin:0;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .bag-sheet .kv .bfrom{color:var(--su-accent)}
-.bag-sheet .wbar{display:inline-flex;gap:3px;margin-right:8px}.bag-sheet .wbar i{width:14px;height:6px;border-radius:3px;background:var(--su-line2)}
+.bag-sheet .wbar{display:inline-flex;gap:2px}.bag-sheet .wbar i{width:14px;height:5px;border-radius:2px;background:var(--su-line2)}
 .bag-sheet .wbar i.on{background:var(--su-ok)}.bag-sheet .wbar.w2 i.on{background:var(--su-warn)}
 .bag-sheet .pick{display:flex;flex-wrap:wrap;gap:8px}.bag-sheet .mb{display:inline-flex;align-items:center;gap:6px;min-height:44px}
 .tr .rg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}

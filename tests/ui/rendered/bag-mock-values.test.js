@@ -17,16 +17,8 @@ function serve() {
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream' });
     res.end(fs.readFileSync(file));
   });
-  return new Promise((resolve, reject) => {
-    const tryPort = port => {
-      if (port > 8999) { reject(new Error('no free port in 8800-8999')); return; }
-      server.once('error', () => tryPort(port + 1));
-      server.listen(port, '127.0.0.1', () => { server.removeAllListeners('error'); resolve({ server, port }); });
-    };
-    tryPort(8900);
-  });
+  return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port })));
 }
-
 
 let ctx = null;
 test.before(async () => {
@@ -89,12 +81,14 @@ for (const theme of ['dark', 'light']) {
         assert.deepEqual(m.lr, { paddingTop: '8px', paddingBottom: '8px', columnGap: '10px' }, 'party load row');
         assert.equal(m.body.display, 'block', 'Assets body stacks with the labels own 4px margin');
         assert.equal(await page.evaluate(() => document.querySelector('#hx-frame .pacebox p').textContent.includes('rowboat')), false, 'pace note is the mock one');
-        await page.evaluate(() => document.querySelector('#hx-frame .itm').click());
-        await page.waitForSelector('.bag-sheet .dn');
+        await page.evaluate(() => [...document.querySelectorAll('#hx-frame .itm')].find(i => i.textContent.includes('Spare dagger')).click());
+        await page.waitForSelector('.bag-sheet .wbar');
         const sheet = await page.evaluate(() => {
           const c = s => { const x = getComputedStyle(document.querySelector(s)); return { fs: x.fontSize, fw: x.fontWeight, fst: x.fontStyle }; };
-          return { dn: c('.bag-sheet .dn'), desc: c('.bag-sheet .desc'), from: document.querySelector('.bag-sheet .bfrom')?.textContent ?? '' };
+          const w = getComputedStyle(document.querySelector('.bag-sheet .wbar')); const wi = getComputedStyle(document.querySelector('.bag-sheet .wbar i'));
+          return { wbar: [w.columnGap, w.marginRight, wi.height, wi.borderTopLeftRadius], dn: c('.bag-sheet .dn'), desc: c('.bag-sheet .desc'), from: document.querySelector('.bag-sheet .bfrom')?.textContent ?? '' };
         });
+        assert.deepEqual(sheet.wbar, ['2px', '0px', '5px', '2px'], 'wear bar: gap 2, no margin, 5px high');
         assert.deepEqual(sheet.dn, { fs: '20px', fw: '800', fst: 'normal' }, 'item name');
         assert.deepEqual(sheet.desc, { fs: '13.5px', fw: '500', fst: 'italic' }, 'item description');
         assert.match(sheet.from, /^Bought in .+ ›$/, 'the Bought in line is a link line');
@@ -103,3 +97,23 @@ for (const theme of ['dark', 'light']) {
     });
   }
 }
+
+test('Story-only Transport rows have no tag, are 55px high, and the pace note is the Story text', async (t) => {
+  if (ctx.skip) return t.skip(ctx.skip);
+  const page = await ctx.browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
+  try {
+    await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=dark&width=390&tab=bag&variant=rpgOff`);
+    await page.waitForSelector('#hx-frame .bag-tab .itm');
+    const r = await page.evaluate(() => {
+      const f = document.getElementById('hx-frame');
+      if (f.querySelector('.afold').getAttribute('aria-expanded') !== 'true') f.querySelector('.afold').click();
+      const rows = [...f.querySelectorAll('.tr')];
+      return { heights: rows.slice(0, 2).map(x => x.getBoundingClientRect().height), tags: rows.slice(0, 2).map(x => x.querySelectorAll('.tg').length), rider: f.querySelector('.rg').getBoundingClientRect().width, pace: f.querySelector('.pacebox p').textContent };
+    });
+    assert.deepEqual(r.tags, [0, 0], 'no equipped tag in Story-only');
+    assert.deepEqual(r.heights, [55, 56], 'rows as high as the mock (the second has the 1px divider)');
+    assert.equal(r.rider, 118, 'rider label keeps the leading nbsp');
+    assert.equal(r.pace, 'On foot: not everyone has a riding animal, so everyone walks. Riders lead their animals.');
+  } finally { await page.close(); }
+});

@@ -5,17 +5,17 @@ import { glyph } from '../../kit/glyphs.js';
 function riderMeta(asset, section) {
   if (section !== 'transport' || !asset.riders.length) return [];
   const who = asset.riders[0];
-  return [h('span', { class: 'rg' }, h('span', { class: 'av', dataset: { portrait: who.toLowerCase() } }), ` ridden by ${asset.riders.join(', ')}`)];
+  return [h('span', { class: 'rg' }, h('span', { class: 'av', dataset: { portrait: who.toLowerCase() } }), `\u00a0ridden by ${asset.riders.join(', ')}`)];
 }
 
 function assetRow(asset, section, rpg, onOpen) {
-  const tag = !rpg && asset.tag === 'equipped' ? 'with you' : asset.tag;
+  const tag = asset.tag === 'equipped' && !rpg ? null : asset.tag; // the mock hides the equipped tag when RPG is off
   return h(
     'button',
     { type: 'button', class: 'tr', dataset: { asset: asset.id }, onClick: () => onOpen?.(asset, section) },
     h('span', { class: 'ti' }, glyph(asset.glyph) ?? glyph('item')),
     h('span', null, h('b', null, asset.name), h('small', { class: 'bmt' }, [...riderMeta(asset, section), ...asset.meta.map(t => h('span', null, t))])),
-    h('span', { class: ['tg', asset.tag === 'equipped' ? 'eq' : null, tag === 'equipped' ? 'rpg' : null] }, tag),
+    tag ? h('span', { class: ['tg', tag === 'equipped' ? 'eq' : null] }, tag) : null,
   );
 }
 
