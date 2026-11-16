@@ -105,7 +105,12 @@ export function createHold(outer = () => null) {
             // (`outer()`: the scheduler's own hold while the flag is on, so head and turn redraws wait too; null otherwise)
             const outerRelease = outer();
             let done = false;
-            return () => { if (done) return; done = true; holds -= 1; if (!holds) flush(); if (typeof outerRelease === 'function') outerRelease(); };
+            return () => {
+                if (done) return;
+                done = true;
+                holds -= 1;
+                try { if (!holds) flush(); } finally { if (typeof outerRelease === 'function') outerRelease(); }
+            };
         },
         /** Runs `fn` now, or after the last release when held. */
         run(key, fn) { if (holds) queued.set(key, fn); else fn(); },

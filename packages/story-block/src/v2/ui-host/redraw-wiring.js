@@ -10,6 +10,8 @@ import { createRedraw } from '../shared/redraw.js';
  * (a no-op while the flag is off). `flushNow()` draws at once even while a hold is open (a chat switch must not show the old chat).
  */
 export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule }) {
+    // (a draw that throws is logged, then thrown on: the scheduler keeps its own failed list)
+    const logged = (name, fn) => () => { try { return fn(); } catch (error) { console.warn(`[Story Suite] the ${name} redraw failed`, error); throw error; } };
     let scheduler = null;
     let epoch = 0;
     const own = () => {
@@ -18,12 +20,12 @@ export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, sched
         scheduler.register('panel', {
             isVisible: () => !getPanel().hidden,
             read: () => ({ epoch, tab: getTabHost()?.active?.() ?? null }),
-            draw: () => { mounts.tab.register(); getTabHost()?.refresh(); },
+            draw: logged('panel', () => { mounts.tab.register(); getTabHost()?.refresh(); }),
         });
         scheduler.register('overlay-size', {
             isVisible: () => true,
             read: () => ({ epoch }),
-            draw: () => getOverlay()?.refreshSize?.(),
+            draw: logged('overlay size', () => getOverlay()?.refreshSize?.()),
         });
         return scheduler;
     };

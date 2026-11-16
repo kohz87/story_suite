@@ -176,3 +176,69 @@ test('flag on: a form hold (the widget api\'s hold) keeps head, committed and tu
         ui.destroy();
     } finally { delete globalThis.requestAnimationFrame; }
 });
+
+test('flag on: a pane last drawn by a frame (no chat switch at the end) shows the same text as with the flag off', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const texts = [];
+    for (const flag of [false, true]) {
+        const { doc, runtime, ui } = await page(flag);
+        await runtime.sdk.command('qa-wire.bump', {});
+        for (const reason of ['chat', 'swipe', 'delete', 'rewind', 'reread']) runtime.events.emit('head', { index: runtime.store.headIndex(), reason });
+        await runtime.sdk.command('qa-wire.bump', {});
+        await tick();
+        texts.push(paneText(doc));
+        ui.destroy();
+    }
+    assert.ok(texts[0], 'the panel has text');
+    assert.equal(texts[1], texts[0]);
+});
+
+test('flag on: a chat switch while a form holds is drawn at once (exactly one pane draw, no frame); the release then adds the frame', async t => {
+    t.mock.method(console, 'warn', () => {});
+    let frames = [];
+    globalThis.requestAnimationFrame = fn => frames.push(fn);
+    try {
+        const { doc, st, runtime, ui } = await page(true);
+        const got = { draws: 0 };
+        const probe = { render: (el, props, api) => { got.draws += 1; got.hold = api.hold; } };
+        await runtime.sdk.registerModule({ id: 'qa-hold2', name: 'Hold', version: '2.0.0-alpha.1', widgets: { 'qa-hold2.probe': probe },
+            screens: [{ id: 'qa-hold2/f', title: 'F', mounts: ['tab'], template: '<p><ss-widget name="qa-hold2.probe"></ss-widget></p>' }] });
+        ui.refresh();
+        doc.querySelectorAll('.story-suite-tab').find(node => node.dataset.tabId === 'qa-hold2/f').click();
+        frames.splice(0).forEach(fn => fn());
+        const release = got.hold();
+        frames = [];
+        const base = got.draws;
+        await st.loadChat([{ name: 'Narrator', is_user: true, mes: 'Other' }], 'chat-b');
+        await runtime.turn.onChatChanged();
+        assert.equal(got.draws, base + 1, 'the chat switch drew exactly once through the hold');
+        assert.equal(frames.length, 0, 'and no frame was needed');
+        release();
+        frames.splice(0).forEach(fn => fn());
+        assert.ok(got.draws - base <= 2, 'the release adds at most the frame\'s own redraw');
+        ui.destroy();
+    } finally { delete globalThis.requestAnimationFrame; }
+});
+
+test('a held function that throws still frees the scheduler hold', () => {
+    let released = 0;
+    const hold = createHold(() => () => { released += 1; });
+    const release = hold.hold();
+    hold.run('k', () => { throw new Error('boom'); });
+    assert.throws(() => release(), /boom/);
+    assert.equal(released, 1);
+});
+
+test('a redraw that throws is logged with console.warn (and the other section still draws)', t => {
+    const warn = t.mock.method(console, 'warn', () => {});
+    const { wiring, calls, runFrames } = fakes();
+    wiring.flushNow();   // builds the scheduler
+    const bad = wireRedraw({
+        on: () => true, mounts: { tab: { register: () => { throw new Error('nope'); } } }, getPanel: () => ({ hidden: false }),
+        getTabHost: () => null, getOverlay: () => ({ refreshSize: () => { calls.size += 1; } }), schedule: fn => fn(),
+    });
+    bad.mark();
+    assert.ok(warn.mock.calls.some(c => /panel redraw failed/.test(String(c.arguments[0]))));
+    assert.ok(calls.size >= 1);
+    runFrames();
+});

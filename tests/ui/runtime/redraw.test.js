@@ -273,4 +273,3 @@ describe('createRedraw carry-overs (J11 step 3)', () => {
     assert.deepEqual(drawn, [5]);
   });
 });
-
