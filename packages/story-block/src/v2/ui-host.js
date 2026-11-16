@@ -260,6 +260,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         return Boolean(on);
     }
     wiring = wireRedraw({ on: () => flagOn(() => ctx?.extensionSettings, FLAGS.redrawScheduler), mounts, getPanel: () => panel, getTabHost: () => tabHost, getOverlay: () => overlay });
+    runtime.bindPanels?.(wiring);   // modules' sdk.panels sections draw through this page's scheduler (inert while the flag is off)
     const offs = installUiEvents({
         replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer,
         blockPresentation, syncScreens, syncLeanRpg, refresh, clearBlocked, getPanel: () => panel,
@@ -304,6 +305,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
             theme.destroy();
             doc.removeEventListener?.('keydown', onKey);
             offs.splice(0).forEach(off => off?.());
+            runtime.bindPanels?.(null);
             wiring.destroy();
             notes.destroy();
             sendNote.destroy();

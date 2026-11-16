@@ -59,7 +59,7 @@ async function within(promise, ms, what) {
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const TIMEOUT = 30000;
 
-async function runScenario(t, { active }) {
+async function runScenario(t, { active, flag = false }) {
     t.mock.method(console, 'warn', () => {});
     const at = (dir, rel) => import(pathToFileURL(path.join(dir, rel)).href);
     const [kit, { mountUi }, { setupDom }, SD, NSD] = await Promise.all([
@@ -103,7 +103,7 @@ async function runScenario(t, { active }) {
     });
 
     const host = await kit.createHost({
-        settings: { modules: { 'story-block': { assistExtractor: true } } },
+        settings: { modules: { 'story-block': { assistExtractor: true } }, ...(flag ? { flags: { 'suite.redrawScheduler': true } } : {}) },
         modules: [sd],
         callModel: async () => 'none',
     });
@@ -189,10 +189,11 @@ async function runScenario(t, { active }) {
             }
         }
         await flush();
+        if (flag) await new Promise(resolve => setTimeout(resolve, 60));   // (the last frame)
 
         counting = false;
 
-        console.log(JSON.stringify({ bench: 'suite-redraw-count', scenario: active ? 'active' : 'quiet', flag: false, paneDraws, renderCastCalls, ...counts, sent }));
+        console.log(JSON.stringify({ bench: 'suite-redraw-count', scenario: active ? 'active' : 'quiet', flag, paneDraws, renderCastCalls, ...counts, sent }));
         return { paneDraws, renderCastCalls, counts };
     } finally {
         offs.forEach(off => off());
@@ -220,4 +221,15 @@ test('J11-0 suite baseline (active NSD): the tick and cast-rendered events add t
     assert.equal(counts.head, 1, '1 head event from Assist afterReply');
     assert.equal(paneDraws, 18, '18 pane draws today (16 committed + 1 turn + 1 head)');
     assert.equal(renderCastCalls, 19, '19 renderCast calls today: one per pane draw + 1 from the 3 cast-rendered events');
+});
+
+test('J11-5 suite flag on (active NSD): the same events render the cast far less than today (19)', { skip, timeout: 60000 }, async t => {
+    // A browser frame (~16 ms) spans a burst of events; the test page has no requestAnimationFrame, so it gets one.
+    globalThis.requestAnimationFrame = fn => setTimeout(fn, 16);
+    let result;
+    try { result = await runScenario(t, { active: true, flag: true }); } finally { delete globalThis.requestAnimationFrame; }
+    const { renderCastCalls, counts } = result;
+    assert.deepEqual({ committed: counts.committed, turn: counts.turn, head: counts.head, tick: counts.tick }, { committed: 16, turn: 1, head: 1, tick: 1 }, 'the same events');
+    // (the flag-on pane is drawn apart and swapped in, so the old pane's replaceChildren count above is not a draw count here: the cast renders are)
+    assert.ok(renderCastCalls >= 1 && renderCastCalls <= 6, `${renderCastCalls} cast renders with the scheduler on (19 today)`);
 });
