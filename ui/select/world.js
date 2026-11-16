@@ -21,6 +21,12 @@ function placesOf(view, tiers) {
     }));
 }
 
+// The open quests that name a place (director.world quests[]), by place id; people per place wait for the people store.
+function withQuests(places, world) {
+  const quests = list(world?.quests).filter(q => text(q?.name) && text(q?.placeId));
+  return places.map(p => ({ ...p, quests: quests.filter(q => q.placeId === p.id).map(q => text(q.name)) }));
+}
+
 // atlas.view routes (map.js:124-127): free-text kinds fold into road or track.
 const routeKind = kind => (/track|trail|path/i.test(text(kind)) ? 'track' : 'road');
 
@@ -54,32 +60,41 @@ function stanceOf(raw) {
   return 'neutral';
 }
 
-// director.world factions (SD/world/known.js:280-293); members and place links are a gap.
+// The people a faction lists (director.world factions[].members); an entry without a name is left out.
+const membersOf = raw => list(raw).filter(m => text(m?.name)).map(m => ({ personId: text(m.personId) || null, name: text(m.name) }));
+
+// director.world factions (SD/world/known-parts/news.js): areaPlaceIds and members come from the answer; an older answer
+// without areaPlaceIds falls back to the area's name matching a place or region.
 function factionsOf(world, places) {
   return list(world?.factions).filter(f => text(f?.id)).map(f => {
     const area = key(f.area);
-    const areaPlaceIds = area ? places.filter(p => key(p.name) === area || key(p.region) === area).map(p => p.id) : [];
-    return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), summary: text(f.summary), areaPlaceIds, members: [] };
+    const named = area ? places.filter(p => key(p.name) === area || key(p.region) === area).map(p => p.id) : [];
+    const given = list(f.areaPlaceIds).filter(id => places.some(p => p.id === id));
+    return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), summary: text(f.summary), areaPlaceIds: given.length ? given : named, members: membersOf(f.members) };
   });
 }
 
-// director.world news (known.js:249-278): '' state is an open event thread (ongoing); heard stamps are a gap.
+// The heard stamps a news item lists (one derived stamp: its place, when, who it names); kept as strings.
+const heardOf = raw => list(raw).map(h => ({ where: text(h?.where), when: text(h?.when), from: text(h?.from) || null })).filter(h => h.where || h.when);
+
+// director.world news (known-parts/news.js): '' state is an open event thread (ongoing); place and faction ids and the heard stamp come
+// from the answer (an older answer falls back to name matching).
 function newsOf(world, places, factions) {
   return list(world?.news).filter(n => text(n?.id)).map(n => {
-    const place = places.find(p => key(p.name) === key(n.place));
+    const place = places.find(p => p.id === n.placeId) ?? places.find(p => key(p.name) === key(n.place));
     const factionText = key(n.factions);
-    const faction = factionText ? factions.find(f => factionText.includes(key(f.name))) : null;
+    const faction = factions.find(f => list(n.factionIds).includes(f.id)) ?? (factionText ? factions.find(f => factionText.includes(key(f.name))) : null);
     const state = ['looming', 'ongoing', 'resolved'].includes(n.state) ? n.state : n.open === false ? 'resolved' : 'ongoing';
     return {
       id: n.id, title: text(n.name), state, summary: text(n.summary),
-      placeId: place?.id ?? null, factionId: faction?.id ?? null, heard: [],
+      placeId: place?.id ?? null, factionId: faction?.id ?? null, heard: heardOf(n.heard),
     };
   });
 }
 
 /** selectWorld({ atlasView, tiers, selected, worldView }) → the world view-model; a missing answer leaves that part empty or null. */
 export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null } = {}) {
-  const places = placesOf(atlasView, tiers);
+  const places = withQuests(placesOf(atlasView, tiers), worldView);
   const ids = new Set(places.map(p => p.id));
   const factions = factionsOf(worldView, places);
   return {
