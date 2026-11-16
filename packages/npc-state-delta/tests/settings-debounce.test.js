@@ -18,6 +18,7 @@ for (const { path: file } of modules) {
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.copyFileSync(path.join(sourceRoot, file), target);
 }
+for (const name of fs.readdirSync(sourceRoot).filter(entry => entry.endsWith('-parts'))) fs.cpSync(path.join(sourceRoot, name), path.join(extRoot, name), { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'public', 'scripts', 'extensions.js'), `
 export const extension_settings = globalThis.__settingsHost.extensionSettings;
 export function getContext() { return globalThis.__settingsHost.context; }

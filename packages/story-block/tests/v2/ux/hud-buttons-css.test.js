@@ -4,10 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { sourceOf } from '../../helpers/split-source.js';
 import { cssOf } from '../helpers/css-parts.js';
 
 const mounts = cssOf('mounts').replace(/\/\*[\s\S]*?\*\//g, '');
-const theme = readFileSync(new URL('../../../src/v2/view/theme.js', import.meta.url), 'utf8');
+const theme = sourceOf('src/v2/view/theme.js');
 
 test('the HUD strip: on a phone (below 760px) its background layers are the Glass token, and the rule is set after the strip\'s own rule', () => {
     const at = mounts.indexOf('@media (max-width: 759.98px) {\n    .ss-hud {');

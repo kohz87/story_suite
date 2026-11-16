@@ -1,40 +1,34 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { nodeTestPaths } from './test-command-args.mjs';
 
-const TEST_FILE = /\.test\.js$/;
+// Node's default test file patterns (the ones `node --test` uses when given no paths), any depth.
+const TEST_NAME = /(\.test|-test|_test)\.(js|mjs|cjs)$|(^|\/)(test-[^/]*|test)\.(js|mjs|cjs)$/;
+const IN_TEST_DIR = /(^|\/)test\/.*\.(js|mjs|cjs)$/;
+const isTestFile = rel => TEST_NAME.test(rel) || IN_TEST_DIR.test(rel);
 
-// Every *.test.js under tests/ and examples/<name>/tests/ (any depth below those), as package-relative posix paths.
+// Every file Node's default patterns would treat as a test under the package's test roots (tests/, test/ and
+// the same folders inside examples/<name>/), as package-relative posix paths.
 function listTestFiles(pkgDir) {
   const found = [];
-  const walk = (rel, underTests) => {
+  const walk = (rel, underRoot) => {
     for (const entry of fs.readdirSync(path.join(pkgDir, rel), { withFileTypes: true })) {
       if (entry.name === 'node_modules') continue;
       const next = `${rel}/${entry.name}`;
-      if (entry.isDirectory()) walk(next, underTests || entry.name === 'tests');
-      else if (entry.isFile() && underTests && TEST_FILE.test(entry.name)) found.push(next);
+      if (entry.isDirectory()) walk(next, underRoot || entry.name === 'tests' || entry.name === 'test');
+      else if (entry.isFile() && underRoot && isTestFile(next)) found.push(next);
     }
   };
-  for (const top of ['tests', 'examples']) {
-    if (fs.existsSync(path.join(pkgDir, top))) walk(top, top === 'tests');
+  for (const top of ['tests', 'test', 'examples']) {
+    if (fs.existsSync(path.join(pkgDir, top))) walk(top, top !== 'examples');
   }
   return found.sort();
 }
 
-// The globs a package's npm test script passes to `node --test`: the words after the --test flag
-// up to the next flag, `&&` or `;`, with quotes removed.
-function testGlobs(script) {
-  const globs = [];
-  for (const command of script.split(/&&|;|\|\|/)) {
-    const words = command.trim().split(/\s+/);
-    const at = words.indexOf('--test');
-    if (at < 0) continue;
-    for (const word of words.slice(at + 1)) {
-      if (word.startsWith('-')) break;
-      globs.push(word.replace(/^["']|["']$/g, ''));
-    }
-  }
-  return globs;
+// The paths and globs the package's npm test script really hands to `node --test`, command by command.
+function testGlobs(script, pkgDir) {
+  return script.split(/&&|;|\|\|/).flatMap(command => nodeTestPaths(command, pkgDir) ?? []);
 }
 
 /**
@@ -42,11 +36,11 @@ function testGlobs(script) {
  */
 export function unrunTests(pkgDir, label = path.basename(pkgDir)) {
   const manifest = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8'));
-  const globs = testGlobs(manifest.scripts?.test ?? '');
+  const globs = testGlobs(manifest.scripts?.test ?? '', pkgDir);
   const errors = [];
   if (globs.length === 0) errors.push(`${label}: its npm test script passes no globs to node --test`);
   for (const file of listTestFiles(pkgDir)) {
-    if (!globs.some(glob => path.posix.matchesGlob(file, glob.replace(/^\.\//, '')))) {
+    if (!globs.some(glob => path.posix.matchesGlob(file, glob))) {
       errors.push(`${label}/${file} is not run by the package's npm test`);
     }
   }

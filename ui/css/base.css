@@ -1,0 +1,54 @@
+/* Base styles: reset, font and focus rules for everything inside the suite root. */
+.su-root,
+.su-root *,
+.su-root *::before,
+.su-root *::after {
+  box-sizing: border-box;
+}
+
+.su-root {
+  font: 400 14px/1.5 var(--su-font, "Nunito", system-ui, sans-serif);
+  color: var(--su-text);
+  -webkit-text-size-adjust: 100%;
+}
+
+.su-root [hidden] {
+  display: none !important;
+}
+
+.su-root button {
+  font: inherit;
+  color: inherit;
+}
+
+.su-root h1,
+.su-root h2,
+.su-root h3,
+.su-root p {
+  margin: 0;
+}
+
+.su-root button:focus-visible,
+.su-root [role="tab"]:focus-visible,
+.su-root a:focus-visible {
+  outline: 2px solid var(--su-accent);
+  outline-offset: 2px;
+}
+
+.su-root small {
+  font-size: max(12px, 0.85em);
+}
+
+.su-root svg {
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .su-root,
+  .su-root *,
+  .su-layer,
+  .su-layer * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

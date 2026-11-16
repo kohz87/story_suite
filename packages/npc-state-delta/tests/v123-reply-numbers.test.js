@@ -1,3 +1,4 @@
+import { partsSource } from './helpers/parts-source.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -94,7 +95,7 @@ test('v1.2.3 relationship events recorded by a scan carry the reply\'s message i
     assert.equal('message' in legacy.lastRelationshipChange, false);
 
     const index = runtimeSource();
-    const relationshipPass = fs.readFileSync(new URL('../src/relationship-pass.js', import.meta.url), 'utf8');
+    const relationshipPass = partsSource(new URL('../src/relationship-pass.js', import.meta.url));
     assert.match(relationshipPass, /turn: Number\.isFinite\(Number\(state\.turn\)\) \? Number\(state\.turn\) : null,\n\s*\.\.\.relationshipEventMessage\(\{ message: sourceMessageId \}\),/, 'focused relationship pass');
     assert.match(index, /\.\.\.relationshipEventMessage\(\{ message: latestReplyIndex\(\) \}\),/, 'manual relationship edit');
 });

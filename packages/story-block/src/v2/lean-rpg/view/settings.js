@@ -13,17 +13,8 @@
 // and number builders; `sections.js` Formula, Rolls, Levels, Companions and Gear; `difficulty.js` Custom numbers and odds;
 // `combat.js` the Combat box and its saves; `page.js` the shared render closure.
 // This file keeps the path, section record and public exports.
-
-import { S, SECTION_ID } from './settings/constants.js';
-import { renderRpgSettings } from './settings/page.js';
+// Public face: re-exports its parts.
 
 export { ROLLS_DEFAULT, ROLLS_KEY, SETTINGS_MODULE, SECTION_ID, rollsOf } from './settings/constants.js';
-export { renderRpgSettings };
-
-/** The section record the settings window adds after Features (window.js `extraSections`). `body(pane, ctx)` draws the page. */
-export function rpgSection({ featureOn = () => true, ...deps } = {}) {
-    return Object.freeze({
-        id: SECTION_ID, label: S.title, icon: 'fa-dice-d20', title: S.title, sub: S.sub, after: 'features', visible: () => featureOn(),
-        body: (pane, ctx) => renderRpgSettings(pane, { settings: ctx.options.settings, doc: ctx.doc, featureOn, onChange: () => ctx.changed?.(), ...deps }),
-    });
-}
+export { renderRpgSettings } from './settings/page.js';
+export { rpgSection } from './settings-parts/section.js';

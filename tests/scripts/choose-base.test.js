@@ -214,3 +214,28 @@ test('a merge where no parent has it but an older ancestor does: that ancestor; 
     assert.equal(baseOf(r), 'HEAD^', 'no ancestor has the list: the B1 bootstrap');
   } finally { fs.rmSync(none.dir, { recursive: true, force: true }); }
 });
+
+test('a merge with an event base: the base and every other parent with the list are all compared', () => {
+  const { dir, first, second } = mergeSetup(true, true);
+  try {
+    const r = choose(dir, { EVENT: 'pull_request', BASE: first });
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(basesOf(r), [first, second]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a merge with an event base that lacks the list: the parent with the list replaces it', () => {
+  const { dir, first, second } = mergeSetup(false, true);
+  try {
+    const r = choose(dir, { EVENT: 'push', BASE: first });
+    assert.deepEqual(basesOf(r), [second]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a merge with an event base and no list anywhere: the event base stands (the first creation)', () => {
+  const { dir, first } = mergeSetup(false, false);
+  try {
+    const r = choose(dir, { EVENT: 'push', BASE: first });
+    assert.deepEqual(basesOf(r), [first]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});

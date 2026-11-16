@@ -15,8 +15,8 @@ const request = await import(pathToFileURL(path.join(root, 'src', 'scanner-reque
 const lengths = Object.fromEntries(Object.entries(request).filter(([name]) => /RESPONSE_LENGTH$/.test(name)));
 const systemPrompts = text => [...text.matchAll(/systemPrompt: "([^"]+)"/g)].map(match => match[1]);
 const systems = systemPrompts(source);
-// The focused relationship pass (systems[3]) lives in src/relationship-pass.js.
-const relationshipPassPath = path.join(root, 'src', 'relationship-pass.js');
+// The focused relationship pass (systems[3]) lives in src/relationship-pass-parts/run.js (facade: src/relationship-pass.js).
+const relationshipPassPath = path.join(root, 'src', 'relationship-pass-parts', 'run.js');
 if (fs.existsSync(relationshipPassPath)) systems.splice(3, 0, ...systemPrompts(fs.readFileSync(relationshipPassPath, 'utf8')));
 assert.equal(systems.length, 5, 'Review measurement fixture when request owners change.');
 const requestOwner = request.generateParsedNpcJson;

@@ -28,7 +28,7 @@
 // The parts live in `battle-log/`: `constants.js` the words and marker; `util.js` small value helpers; `read.js` the
 // recorded rolls as lines; `model.js` arrows, Status rows and Foes; `draw.js` the panel and no-rolls note; `marker.js`
 // finding, hiding and replacing marker lines; `follow.js` the fold store and the live chat controller. This file keeps
-// the path and every public export.
+// the path and every public export. Public face: re-exports its parts.
 
 export { BATTLE_ROOT, BATTLE_ID, MARKER_LINE } from './battle-log/constants.js';
 export { outcomeOf, rollText, readResolve, resolveOf } from './battle-log/read.js';
