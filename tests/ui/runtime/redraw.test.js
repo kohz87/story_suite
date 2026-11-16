@@ -198,3 +198,42 @@ describe('createRedraw', () => {
     assert.deepEqual(redraw.pending(), []);
   });
 });
+
+describe('createRedraw drawn sections and flushNow', () => {
+  it('a drawn section seeds its digest and is not drawn until it changes', () => {
+    const sched = makeManualScheduler();
+    const redraw = createRedraw({ schedule: sched.schedule, initialTab: 'now' });
+    let value = 1;
+    let draws = 0;
+    redraw.register('pane', { tab: 'now', drawn: true, read: () => value, draw: () => { draws += 1; } });
+    assert.deepEqual(redraw.pending(), []);
+    assert.equal(redraw.flush().drawn.length, 0);
+    redraw.changed([]);
+    sched.runAll();
+    assert.equal(draws, 0);
+    value = 2;
+    redraw.changed([]);
+    sched.runAll();
+    assert.equal(draws, 1);
+  });
+
+  it('a section registered without drawn is still drawn once', () => {
+    const redraw = createRedraw({ schedule: () => {}, initialTab: 'now' });
+    let draws = 0;
+    redraw.register('pane', { tab: 'now', read: () => 1, draw: () => { draws += 1; } });
+    redraw.flush();
+    assert.equal(draws, 1);
+  });
+
+  it('flushNow draws pending sections synchronously', () => {
+    const sched = makeManualScheduler();
+    const redraw = createRedraw({ schedule: sched.schedule, initialTab: 'now' });
+    let drawn = 0;
+    redraw.register('pane', { tab: 'now', read: () => 1, draw: () => { drawn += 1; } });
+    const result = redraw.flushNow();
+    assert.deepEqual(result.drawn, ['pane']);
+    assert.equal(drawn, 1);
+    sched.runAll();
+    assert.equal(drawn, 1);
+  });
+});
