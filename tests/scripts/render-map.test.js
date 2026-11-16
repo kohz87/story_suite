@@ -20,10 +20,24 @@ test('renders a generated header, one section per top folder, one table row per 
   assert.ok(md.endsWith('\n'));
 });
 
-test('the totals line counts files and lines', () => {
-  assert.match(renderMap(rows), /3 files, 55 lines\./);
+test('the map has no whole-file totals line', () => {
+  assert.doesNotMatch(renderMap(rows), /\d+ files?, \d+ lines/);
 });
 
 test('rendering is deterministic', () => {
   assert.equal(renderMap(rows), renderMap(rows.slice()));
+});
+
+test('a pipe inside an exported signature is escaped so the row keeps its columns', () => {
+  const md = renderMap([{ path: 'a/x.js', job: 'X.', exports: ['f(re = /^(?:a|b)/)'], imports: [], importedBy: [], lines: 1, tests: [] }]);
+  const row = md.split('\n').find(l => l.startsWith('| `a/x.js`'));
+  assert.ok(row.includes('`f(re = /^(?:a\\|b)/)`'));
+  assert.equal(row.replaceAll('\\|', '').split('|').length, 9);
+});
+
+test('files with no folder are grouped in one section, and title and source can be set', () => {
+  const md = renderMap([{ path: 'index.js', job: 'I.', exports: [], imports: [], importedBy: [], lines: 1, tests: [] }, { path: 'a.js', job: 'A.', exports: [], imports: [], importedBy: [], lines: 1, tests: [] }], { title: 'Code map: packages/x', source: 'the files' });
+  assert.ok(md.startsWith('# Code map: packages/x\n'));
+  assert.match(md, /from the files\./);
+  assert.equal(md.split('## ').length, 2);
 });

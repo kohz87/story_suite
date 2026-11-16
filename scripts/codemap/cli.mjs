@@ -3,9 +3,11 @@ import path from 'node:path';
 import { listCodeFiles, listRepoFiles } from '../checks/code-files.mjs';
 import { packageScopeProblems } from '../checks/package-scope.mjs';
 import { buildMap } from './build-map.mjs';
+import { packageOutputs } from './package-outputs.mjs';
 import { renderMap } from './render-map.mjs';
 
-const repoRoot = path.resolve(import.meta.dirname, '../..');
+// CODEMAP_ROOT lets the tests run this CLI on a small throwaway repo.
+const repoRoot = process.env.CODEMAP_ROOT ?? path.resolve(import.meta.dirname, '../..');
 const mode = process.argv[2];
 
 if (mode !== '--write' && mode !== '--check') {
@@ -13,38 +15,33 @@ if (mode !== '--write' && mode !== '--check') {
   process.exit(1);
 }
 
-const files = listCodeFiles(repoRoot).filter(p => !p.startsWith('packages/'));
-const jobsPath = path.join(repoRoot, 'docs/codemap/jobs.json');
-const jobs = JSON.parse(fs.readFileSync(jobsPath, 'utf8'));
-const readSource = relPath => fs.readFileSync(path.join(repoRoot, relPath), 'utf8');
+const allFiles = listCodeFiles(repoRoot);
+const abs = relPath => path.join(repoRoot, relPath);
+const readSource = relPath => fs.readFileSync(abs(relPath), 'utf8');
+const readOptional = relPath => (fs.existsSync(abs(relPath)) ? readSource(relPath) : '');
 
-const built = buildMap({ files, readSource, jobs });
-const { rows } = built;
-const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource)].sort();
-const rendered = renderMap(rows);
-const mapPath = path.join(repoRoot, 'docs/codemap.md');
+const jobs = JSON.parse(readOptional('docs/codemap/jobs.json') || '{}');
+const built = buildMap({ files: allFiles.filter(p => !p.startsWith('packages/')), readSource, jobs });
+const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource)];
+const outputs = [{ mapPath: 'docs/codemap.md', markdown: renderMap(built.rows), summary: `${built.rows.length} files, ${built.rows.reduce((n, r) => n + r.lines, 0)} lines` }];
+for (const out of packageOutputs({ files: allFiles.filter(p => p.startsWith('packages/')), readSource, readOptional })) {
+  outputs.push(out);
+  problems.push(...out.problems);
+}
+problems.sort();
 
-if (mode === '--write') {
-  fs.mkdirSync(path.dirname(mapPath), { recursive: true });
-  fs.writeFileSync(mapPath, rendered, 'utf8');
-  if (problems.length > 0) {
-    for (const problem of problems) console.error(problem);
-    process.exit(1);
+let failed = problems.length > 0;
+for (const problem of problems) console.error(problem);
+for (const { mapPath, markdown, summary } of outputs) {
+  if (mode === '--write') {
+    fs.mkdirSync(path.dirname(abs(mapPath)), { recursive: true });
+    fs.writeFileSync(abs(mapPath), markdown, 'utf8');
+    console.log(`wrote ${mapPath} (${summary})`);
+  } else if (readOptional(mapPath) !== markdown) {
+    console.error(`${mapPath} is stale: run npm run codemap`);
+    failed = true;
+  } else {
+    console.log(`code map: ${mapPath} ${summary}, up to date`);
   }
-  console.log(`wrote docs/codemap.md (${rows.length} files)`);
-  process.exit(0);
-}
-
-const current = fs.existsSync(mapPath) ? fs.readFileSync(mapPath, 'utf8') : '';
-let failed = false;
-if (current !== rendered) {
-  console.error('docs/codemap.md is stale: run npm run codemap');
-  failed = true;
-}
-if (problems.length > 0) {
-  for (const problem of problems) console.error(problem);
-  failed = true;
 }
 if (failed) process.exit(1);
-
-console.log(`code map: ${rows.length} files, up to date`);

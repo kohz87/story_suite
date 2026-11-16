@@ -1,0 +1,14 @@
+{
+  "branch-core.js": "Branch-safe scan operation registry, lineage comparison, branch snapshots and the user's dismissed-NPC groups.",
+  "core-mechanics.js": "Gathers Delta's core text, identity, record, portrait, prompt and merge parts into one import point.",
+  "core.js": "The core entry: re-exports the mechanics, appearance, lifecycle and calendar parts and holds story-day, stale-NPC and NPC record normalizing.",
+  "destructive-settlement.js": "Browser-side registry that connects the destructive-settlement controller to SillyTavern and Delta's public API.",
+  "hardening-core.js": "Pure settings-key rules for chat and character ownership moves, renames and lifecycle deletes.",
+  "hardening.js": "Applies the settings-key hardening rules in the browser: owner-qualified keys, renames and deleted chats.",
+  "identity.js": "Encodes, decodes and compares the owner-qualified chat keys that Delta files are stored under.",
+  "scripts/browser-stage9.py": "Optional synthetic browser checks of the local UI modules using Playwright and an in-memory host.",
+  "scripts/measure-prompts.mjs": "Builds Delta's scanner, profile, injection and narration prompts for fixed scenes and checks their sizes, without provider calls.",
+  "scripts/package.mjs": "Runs package.py with a Python it finds, to produce and verify the installable package.",
+  "scripts/package.py": "Produces and verifies a deterministic runtime-only installable package of Delta.",
+  "scripts/validate.mjs": "Validates Delta's manifest, module list and source files for the package check."
+}

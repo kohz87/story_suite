@@ -1,3 +1,5 @@
+import { historyErrors } from './compare-history.mjs';
+
 const MAX_DIFFERENCES = 20;
 const MAX_VALUE_CHARS = 200;
 
@@ -100,7 +102,7 @@ function errorDifferences(record, side, expected = new Set()) {
 export function compareRecords(a, b) {
   const refusals = expectedRefusals(a, b);
   const expected = new Set(refusals.map(r => r.reply));
-  const differences = [...errorDifferences(a, 'old', expected), ...errorDifferences(b, 'new', expected)];
+  const differences = [...errorDifferences(a, 'old', expected), ...errorDifferences(b, 'new', expected), ...historyErrors(a, 'old'), ...historyErrors(b, 'new')];
   const hadErrors = differences.length > 0;
   differences.splice(MAX_DIFFERENCES);
   if (hadErrors) {
