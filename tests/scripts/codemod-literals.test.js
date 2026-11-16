@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { applyLayout } from '../../scripts/codemod/apply.mjs';
 import { buildPlan, makeMapper } from '../../scripts/codemod/plan.mjs';
@@ -52,7 +53,7 @@ const FILES = {
 test('apply leaves bare dots alone, reports a stale package string, and the verifier flags it and a hand-made folder path', () => {
   const root = toyRepo(FILES);
   const base = git(root, 'rev-parse', 'HEAD').trim();
-  const report = applyLayout(root, [rules], { commits: { moves: 'm', rewrites: 'r' } });
+  const report = applyLayout(root, [rules], { backupDir: fs.mkdtempSync(path.join(os.tmpdir(), 'bk-')), commits: { moves: 'm', rewrites: 'r' } });
   const text = fs.readFileSync(path.join(root, 'core/store.js'), 'utf8');
   assert.equal(text, FILES['packages/pkg/src/v2/store.js']);
   assert.deepEqual(report.stale, [{ file: 'packages/pkg/src/v2/store.js', value: 'src/v2/store.js' }]);
@@ -69,7 +70,7 @@ test('apply leaves bare dots alone, reports a stale package string, and the veri
 test('verifyDiff flags a JS file deleted in the rewrite commit unless the plan deletes it; verifyTree flags a leftover', () => {
   const root = toyRepo({ ...FILES, 'packages/pkg/src/v2/ui/unused.js': 'export const u = 1;\n' });
   const base = git(root, 'rev-parse', 'HEAD').trim();
-  applyLayout(root, [rules], { commits: { moves: 'm', rewrites: 'r' } });
+  applyLayout(root, [rules], { backupDir: fs.mkdtempSync(path.join(os.tmpdir(), 'bk-')), commits: { moves: 'm', rewrites: 'r' } });
   fs.rmSync(path.join(root, 'packages/pkg/ui/unused.js'));
   git(root, 'add', '-A');
   git(root, 'commit', '-q', '-m', 'drop');

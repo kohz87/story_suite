@@ -8,6 +8,8 @@ export const MESSAGE_STRINGS = {
         gearOff: 'Gear in fights is not switched on.', gearNeedsEquipment: 'Slot, bonus and Equip on are for equipment: set Kind to Equipment.',
         kitClosed: 'Rarity and bonuses come from the story after the first message.',
         handSoak: 'Soak is a whole number from 0 up to the slot\'s cap (body 2, off-hand 2, head 1, the rest 0).',
+        soakOver: '{name} can soak at most {max} here ({slot}); soak is held to the slot\'s cap (body 2, off-hand 2, head 1, the rest 0).',
+        handWeight: 'Weight is a whole number from 0 to {max}.', weightMoney: 'Coins weigh nothing.',
         kitBudget: '{a} {rarity} piece gives at most {max} {points}.', kitNoBonus: 'A common piece gives no bonus.',
         kitStats: 'Choose at most {max} different stats, each worth a whole number of at least 1.',
         kitSlot: 'The slot is one of {slots}.', kitNeedSlot: 'Choose a slot to put it on.', kitNotEquipment: '{name} is not equipment, so it cannot be put on.',

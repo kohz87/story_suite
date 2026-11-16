@@ -4,10 +4,11 @@ import { isPlainObject } from '../../common.js';
 import { STRINGS } from '../../../strings.js';
 import { readSheet } from '../../../lean-rpg/read.js';
 import { GEAR } from '../stats.js';
-import { statsFor, soakFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';
+import { statsFor, soakFor, soakCap, weightFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';
 import { condWord } from '../conditions.js';
 import { carryPicture, travelsWith, kindCarry, loadLevel } from '../carry.js';
 import { soakRecord } from './soak.js';
+import { wornStacks } from './worn.js';
 import { bonusText } from './bonus-text.js';
 
 const PLACES = GEAR.places;
@@ -48,6 +49,8 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
             // The slot the Edit form offers: where it is worn, else the place its own slot names ('' for none: a bag).
             slotKey: worn ? stack.equipped : (def.kind === 'equipment' && slotWordOf(def.slot) ? placeOf(slotWordOf(def.slot)) : ''),
             fill: FILL[condWord(cond)], soak: soakFor(def, cond),
+            // What one unit weighs in load and the soak the piece has of its own (torn or not), with the most its slot allows: the Bag Edit's Weight and Soak (any unbound piece).
+            weight: weightFor(def), soakOwn: def.kind === 'equipment' && Number.isSafeInteger(def.soak) ? Math.min(def.soak, soakCap(def.slot)) : 0, soakMax: def.kind === 'equipment' ? soakCap(def.slot) : 0,
             // What the reader set for it to add to carrying (0: none), and whether the item's own Edit form offers its Carry field (not a pack's, not money, not a hand-made piece: that form has its own).
             carry: Number.isSafeInteger(def.carry) && !def.id.startsWith('pack.') ? def.carry : 0,
             carryEdit: !def.id.startsWith('pack.') && def.kind !== 'money' && !handDef(inventory, def),
@@ -59,14 +62,13 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
             ...(typeof stack.bound === 'string' && stack.bound ? { bound: { who: names(stack.bound) || stack.bound } } : {}),
         };
     }
-    const slots = Object.fromEntries(PLACES.map(place => [place, null]));
-    for (const stack of stacks) {
-        if (stack.owner !== owner || typeof stack.equipped !== 'string' || !Object.hasOwn(slots, stack.equipped) || slots[stack.equipped]) continue;
-        const def = defs[stack.def];
+    const worn = wornStacks(state, owner);
+    const slotOf = ({ stack, def }, place) => {
         const cond = condOf(stack, inventory);
-        slots[stack.equipped] = { stack: stack.id, name: def.name, rarity: def.rarity, bonus: bonusText(statsFor(def, stack)), soak: soakFor(def, cond, stack.equipped), cond, word: condWord(cond), broken: cond <= 0,
+        return { stack: stack.id, name: def.name, rarity: def.rarity, bonus: bonusText(statsFor(def, stack)), soak: soakFor(def, cond, place), cond, word: condWord(cond), broken: cond <= 0,
             ...(typeof stack.bound === 'string' && stack.bound ? { bound: { who: names(stack.bound) || stack.bound } } : {}) };
-    }
+    };
+    const slots = Object.fromEntries(PLACES.map(place => [place, worn[place] ? slotOf(worn[place], place) : null]));
     // The bag (the slot card's "Equip from bag"): equipment nobody wears and that is not a cast member's signature piece, with the slot word it fits.
     const bag = stacks.filter(stack => typeof stack.equipped !== 'string' && !(typeof stack.bound === 'string' && stack.bound) && defs[stack.def].kind === 'equipment' && slotWordOf(defs[stack.def].slot))
         .map(stack => ({ stack: stack.id, name: defs[stack.def].name, rarity: defs[stack.def].rarity, bonus: bonusText(statsFor(defs[stack.def], stack)), soak: soakFor(defs[stack.def], condOf(stack, inventory)), fits: slotWordOf(defs[stack.def].slot) }));

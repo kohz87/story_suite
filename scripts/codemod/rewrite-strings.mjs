@@ -73,6 +73,10 @@ function packageRoot(file) {
   return /^packages\/[^/]+(?=\/)/.exec(file)?.[0] ?? null;
 }
 
+// Files that read their package-relative strings against their own package folder, which stays where it is when they move.
+// For these a string may climb out of the package ("../../core/store.js"); for any other file it is listed as stale.
+export const PACKAGE_BASED = /^packages\/story-block\/(?:scripts\/fuzz-replay-parts\/run\.js|tests\/helpers\/split-source\.js|tests\/v2\/(?:replay-guard-problem|selection-fallback|timeline-(?:boundaries|followups|release|restore-binding|selection))\.test\.js)$/;
+
 // A string that is only dots and slashes ('.', '..', './', '../') is a separator or a bare folder name, never a file reference.
 const BARE_DOTS = /^\.{1,2}\/?$/;
 
@@ -98,7 +102,7 @@ function mapValue(value, { oldFile, newFile, files, mapper }, stale) {
   if (!pkg) return null;
   const next = mapToken(value, pkg, mapper, exists);
   if (next === value) return null;
-  if (packageRoot(newFile) !== pkg || next.startsWith('..')) { stale.push(value); return null; }
+  if ((packageRoot(newFile) !== pkg || next.startsWith('..')) && !PACKAGE_BASED.test(oldFile)) { stale.push(value); return null; }
   return next;
 }
 
@@ -129,8 +133,8 @@ function rewriteJs(source, ctx) {
  * Rewrites the non-import path references of one file (see SITES): codemap `jobs*.json` keys, path lines in
  * the legacy-oversize list, codemap bullets, CI and package.json paths, and path-like string literals in JS.
  * `files` is the tracked set before the move; `mapper.map(path)` gives the new place. A bare `.`/`..`/`./`/`../` string is never rewritten; object keys are visited like values; a package-relative
- * string ("src/v2/x.js", read against `packages/<name>`) is rewritten when it can stay package-relative, else listed in
- * `stale`. Returns { source, changed, stale, error }.
+ * string ("src/v2/x.js", read against `packages/<name>`) is rewritten when it can stay package-relative (or the file is in
+ * PACKAGE_BASED, which keeps reading against the package folder, so it may climb out of it), else listed in `stale`. Returns { source, changed, stale, error }.
  */
 export function rewriteStrings(source, ctx) {
   const site = siteFor(ctx.oldFile);
