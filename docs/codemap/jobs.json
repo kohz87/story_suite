@@ -221,5 +221,10 @@
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
-  "ui/theme/tokens.js": "Token names and the Glass dark and light values."
+  "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
+  "scripts/play/git.mjs": "Runs git commands for the play build, with an optional private index file.",
+  "scripts/play/dist.mjs": "Builds the one installable play extension from a commit: bundles the four tools at their installed depth, copies assets, writes root files and commits to the local play branch.",
+  "scripts/play/dist-sets.mjs": "Says what the play extension contains: the four bundled tools, their asset roots and the root manifest, entry and stylesheet.",
+  "scripts/play/dist-assets.mjs": "Copies the CSS, fonts and images the play bundles reach by URL next to their bundle.",
+  "scripts/play/dist-git.mjs": "Extracts a commit's source tree and commits the built play folder as a child of the previous build."
 }
