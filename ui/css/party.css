@@ -82,11 +82,15 @@
 .ps-h{display:flex;align-items:center;gap:10px}.ps-h>div{flex:1;min-width:0}
 .ps-n{font:800 20px/1.1 var(--su-font);color:var(--su-text)}.ps-n2{font-size:17px}
 .ps-s{font:600 13px var(--su-font);color:var(--su-muted);margin-top:2px}.ps-slot .ps-s:empty{display:none}
-.su-root .ps-x{width:44px;height:44px;border-radius:10px;border:0;background:var(--su-line2);color:var(--su-text);font:800 16px var(--su-font);cursor:pointer;flex:none;padding:1px 6px}
-/* Bag item and asset sheets: the mock has no title row; the × sits in the header row beside the tile (phone y 36, tablet y 28). */
+.su-root .ps-x{width:44px;height:44px;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-line2);color:var(--su-text);font:800 20px var(--su-font);cursor:pointer;flex:none;padding:0}
+/* Bag sheets use the mock's .x (radius 10, no border, 16px glyph, the button's own 1px 6px padding); Party's own sheets keep .ps-x above. */
+.su-root .pty-sheet:has(>.ps-body>.bag-sheet) .ps-x{border-radius:10px;border:0;font-size:16px;padding:1px 6px}
+/* Bag sheets with a .dh header (item, asset, Prices here, money): the mock has no title row; the × sits in the header row, centred on the tile (phone y 36, tablet y 28) or at the top of a tile-less header (phone y 26, tablet y 18). */
 .pty-sheet:has(>.ps-body>.bag-sheet>.dh) .ps-h{position:absolute;top:36px;right:18px;z-index:1;display:block}
 .pty-sheet:has(>.ps-body>.bag-sheet>.dh) .ps-h>div{display:none}
 @container (min-width:601px){.pty-sheet:has(>.ps-body>.bag-sheet>.dh) .ps-h{top:28px;right:20px}}
+.pty-sheet:has(>.ps-body>.bag-sheet>.dh.solo) .ps-h{top:26px}
+@container (min-width:601px){.pty-sheet:has(>.ps-body>.bag-sheet>.dh.solo) .ps-h{top:18px}}
 .ps-i{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center}
 .ps-i .ti,.ps-r .ti{width:44px;height:44px;border-radius:12px;background:var(--su-tile);border:2px solid var(--su-tileline);display:grid;place-items:center;color:var(--su-glyph)}
 .ps-i .ti svg,.ps-r .ti svg{width:24px;height:24px}

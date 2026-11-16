@@ -100,6 +100,7 @@
 /* Sheets */
 .bag-sheet{display:flex;flex-direction:column;gap:12px}
 .bag-sheet .dh{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;padding-right:56px}
+.bag-sheet .dh.solo{grid-template-columns:minmax(0,1fr);min-height:44px}
 .bag-sheet .dn{font:800 20px/1.15 var(--su-font)}
 .bag-sheet .desc{font:italic 500 13.5px/1.4 var(--su-font);color:var(--su-soft);margin:0}
 .bag-sheet .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 14px;font-size:13.5px;margin:0}

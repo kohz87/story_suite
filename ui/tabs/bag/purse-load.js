@@ -38,7 +38,7 @@ export function moneySheet(coins, ctx = {}) {
   return h(
     'div',
     { class: 'bag-sheet', dataset: { sheet: 'money' } },
-    h('div', { class: 'dn' }, 'Edit money'),
+    h('div', { class: 'dh solo' }, h('div', null, h('div', { class: 'dn' }, 'Edit money'))),
     h('div', { class: 'coins' }, inputs.map(i => h('label', { class: 'coin' }, i.dataset.coin, i))),
     h('div', { class: 'brow' }, button({
       label: 'Save', tone: 'primary',

@@ -107,6 +107,21 @@ for (const theme of ['dark', 'light']) {
         assert.equal(x.sheetTop, width > 600 ? 18 + 1 : 26 + 1, 'tile row starts right under the sheet padding');
         const glyphs = await page.evaluate(() => { const t = document.querySelector('.bag-sheet .tl svg'); return t ? t.querySelectorAll('path').length : 0; });
         assert.equal(glyphs >= 1, true);
+        // Prices here and Edit money: the mock's tile-less .dh header (title, the place under it), no second title row, × at the header's top right
+        for (const [open, sub] of [[() => [...document.querySelectorAll('#hx-frame button')].find(b => b.textContent.startsWith('Prices here')).click(), 'Bluewatch · a busy port town'], [() => document.querySelector('#hx-frame [aria-label="Edit money"]').click(), null]]) {
+          await page.keyboard.press('Escape');
+          await page.evaluate(open);
+          await page.waitForSelector('.bag-sheet .dh.solo');
+          const hd = await page.evaluate(() => {
+            const sh = document.querySelector('.pty-sheet').getBoundingClientRect(); const dh = document.querySelector('.bag-sheet .dh').getBoundingClientRect();
+            const b = document.querySelector('.ps-x').getBoundingClientRect(); const dn = document.querySelector('.bag-sheet .dh .dn');
+            return { title: getComputedStyle(document.querySelector('.ps-h>div')).display, dhH: dh.height, dhTop: dh.top - sh.top, xTop: b.top - dh.top, right: sh.right - b.right, gap: b.left - dh.right + 56, dn: getComputedStyle(dn).font.split(' ').slice(0, 2).join(' '), sub: dn.nextElementSibling?.textContent ?? null };
+          });
+          assert.equal(hd.title, 'none', 'no second title row');
+          assert.deepEqual([hd.dhH, hd.dhTop, hd.xTop, hd.right, hd.gap], [44, width > 600 ? 19 : 27, 0, width > 600 ? 21 : 19, 12], 'header is one 44px row under the sheet padding, × at its top right, 12px from the title');
+          assert.equal(hd.dn, '800 20px', 'sheet title');
+          assert.equal(hd.sub, sub, 'the place sits under the title');
+        }
         assert.deepEqual(errors, []);
       } finally { await page.close(); }
     });

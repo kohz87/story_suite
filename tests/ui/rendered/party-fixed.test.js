@@ -81,6 +81,9 @@ for (const theme of ['dark', 'light']) {
         await page.evaluate(() => document.querySelector('#hx-frame .sk').click());
         await page.waitForSelector('.mbar.inline');
         assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.mbar.inline')).margin), '3px 0px 0px 6px');
+        // Party's own sheets keep the mock's .ps-x (radius 12, 1px border, 20px glyph, no padding); only Bag sheets use the smaller .x
+        const psx = () => page.evaluate(() => { const c = getComputedStyle(document.querySelector('.pty-sheet .ps-x')); return [c.borderTopLeftRadius, c.borderTopWidth, c.fontSize, c.fontWeight, c.padding]; });
+        assert.deepEqual(await psx(), ['12px', '1px', '20px', '800', '0px'], 'skill sheet close ×');
         await page.evaluate(() => document.querySelector('.pty-sheet .ps-x').click());
         await page.evaluate(() => document.querySelector('#hx-frame .slot:not(.empty)').click());
         await page.waitForSelector('.ps-slot');
@@ -92,6 +95,7 @@ for (const theme of ['dark', 'light']) {
         });
         assert.equal(title.sub, 'none');
         assert.equal(title.top, (44 - title.h) / 2);
+        assert.deepEqual(await psx(), ['12px', '1px', '20px', '800', '0px'], 'slot sheet close ×');
       } finally { await page.close(); }
     });
   }
