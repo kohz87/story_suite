@@ -1,10 +1,10 @@
 // HP, MP and SP of a hero from stats and level (Combat Rules v1). Each term rounds down.
-// Stats are clamped to 1..30 and the level to 1..99 before use.
+// Stats are clamped to 1..30 and the level to 1..99 before use; a missing stat reads as the start value (V1.stat.start).
 
 import { V1 } from './numbers.js';
 
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, Math.floor(Number(value)) || lo));
-const stat = (stats, key) => clamp(stats?.[key], V1.stat.min, V1.stat.max);
+const stat = (stats, key) => clamp(Number.isFinite(Number(stats?.[key])) && stats[key] !== null && stats[key] !== '' ? stats[key] : V1.stat.start, V1.stat.min, V1.stat.max);
 const levelOf = level => clamp(level, V1.level.min, V1.level.max);
 
 /** Health: 5 + level÷3 + VIT÷2. */

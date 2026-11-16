@@ -45,9 +45,10 @@ test('stat sweep 5..30 at three levels follows the formulas exactly', () => {
     }
 });
 
-test('stats clamp to 1..30, the level to 1..99, and junk reads as the minimum', () => {
+test('stats clamp to 1..30, the level to 1..99, and junk a missing stat reads as 5', () => {
     assert.equal(hpOf({ vit: 99 }, 150), hpOf({ vit: 30 }, 99));
     assert.equal(hpOf({ vit: -4 }, 0), 5 + 0 + 0);
-    assert.equal(mpOf({}, 1), 8 + 0 + 0);
-    assert.equal(spOf(undefined, 'x'), 8);
+    assert.equal(mpOf({}, 1), 8 + 0 + Math.floor(10 / 4));
+    assert.equal(spOf(undefined, 'x'), 10);
+    assert.equal(mpOf({ int: 'x', wis: null }, 1), 10);
 });

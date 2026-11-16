@@ -31,9 +31,16 @@ test('no tier, an unknown tier or a prototype name reads as standard', () => {
     assert.equal(foeStats().level, 1);
 });
 
-test('the tempo-side roll doubles the tier bonus only', () => {
-    const t = tier => foeStats({ level: 30, tier }).tempoRoll;
-    assert.deepEqual([t('mob'), t('minion'), t('standard'), t('elite'), t('boss'), t('apex')], [12, 14, 16, 18, 20, 24]);
+test('one foe roll serves attack, defence and tempo: no separate tempo roll', () => {
+    const f = foeStats({ level: 30, tier: 'elite' });
+    assert.equal(f.roll, 17);                       // 6 + 30/3 + 1, once
+    assert.equal('tempoRoll' in f, false);
+    assert.equal('tempoTierTimes' in V1.foe, false);
+});
+
+test('tier names match case-insensitively', () => {
+    assert.equal(foeStats({ level: 15, tier: 'Elite' }).tier, 'elite');
+    assert.equal(foeStats({ level: 15, tier: 'BOSS' }).roll, 13);
 });
 
 test('damage rounds half up and HP rounds down', () => {
@@ -60,6 +67,7 @@ test('a group becomes numbered members at full HP', () => {
     assert.ok(m.every(x => x.name === 'Ridge hound' && x.hp === x.maxHp && x.hp === 5 && x.damage === 2 && x.roll === 7));
     assert.equal(foeMembers({ level: 3, count: 0 }).length, 1);
     assert.equal(foeMembers({ name: 'Rat', count: 'x' }).length, 1);
+    assert.equal(foeMembers({ name: 'Rat', count: 40 }).length, 6);
 });
 
 test('the number tables are frozen and complete', () => {

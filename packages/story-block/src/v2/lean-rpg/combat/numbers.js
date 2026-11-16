@@ -15,11 +15,11 @@ export const V1 = deep({
     hp: { base: 5, levelDiv: 3, vitDiv: 2 },
     mp: { base: 8, levelDiv: 4, pairDiv: 4 },
     sp: { base: 8, levelDiv: 4, pairDiv: 4 },
-    foe: { rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6, tempoTierTimes: 2 },
+    foe: { rollBase: 6, rollLevelDiv: 3, hpBase: 8, hpLevelDiv: 2, damageBase: 3, damageLevelDiv: 6, damageRound: 0.5, defaultTier: 'standard', groupMax: 6 },
     cost: { attack: 1, area: 2, heal: 2, stance: 1 },
 });
 
-/** Foe tiers: the HP and damage multiplier and the tier's roll bonus. An absent tier is standard. */
+/** Foe tiers: the HP and damage multiplier and the tier's roll bonus. An absent tier is V1.foe.defaultTier. */
 export const TIERS = deep({
     mob: { mult: 0.25, roll: -2 },
     minion: { mult: 0.5, roll: -1 },
