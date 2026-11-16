@@ -1,35 +1,20 @@
-// The result of one validated story check: d20 + stat part + the level (or class) term + rank, against the difficulty number, with the margins recorded with the
-// reply's dice (success, success at a cost, fail; decisive as in fights). `workChecks` runs a reply's lines in order; `bonusTable` is what the narrator is told
+// The result of one validated story check: d20 + stat÷2 + level÷4 (+ half mastery of a utility skill), against the difficulty number, with the margin recorded with the
+// reply's dice (success or fail; decisive as in fights). `workChecks` runs a reply's lines in order; `bonusTable` is what the narrator is told
 // beforehand (the same numbers, for every stat and skill). A skilled check gives its skill one practice use; checks never give XP. Pure: the rules come in.
 
-import { statPart } from '../formula.js';
-import { FORMULA, LIMITS, PARTY_MAX, RANK_NAMES, STATS } from '../names.js';
-import { classTerm, STANDARD } from '../rules.js';
+import { RANKS } from '../combat/numbers.js';
+import { PARTY_MAX, STATS } from '../names.js';
 import { fold } from '../read.js';
-import { outcomeOf } from '../resolve/dice.js';
 import { parseCheckLine, validateCheck } from './line.js';
+import { checkBonus, checkOutcome, checkStat } from './v1-roll.js';
 
 const whole = value => (Number.isInteger(value) ? value : null);
-const statOrNull = value => (STATS.includes(String(value ?? '').trim().toLowerCase()) ? String(value).trim().toLowerCase() : null);
 const cut = value => [...String(value ?? '')].slice(0, 40).join('');
 
-/** The level (or class) term a check adds, when the member carries the numbers it needs. */
-function classBonusOf(member, rules) {
-    if (Number.isInteger(rules?.levelDivisor)) return Number.isInteger(member?.level) ? classTerm(rules, member).classBonus : 0;
-    return Number.isInteger(member?.soul) ? classTerm(rules, member).classBonus : 0;
-}
-
-/** The stat part of a check: a skill's own stat (a skill with none: the type's main stat, as the fight code does) or the plain stat the story named. */
-const partOf = (member, skill, stat) => statPart('check', member.stats, skill ? { skillStat: statOrNull(skill.stat) } : { fittingStat: stat });
-
 /** The bonus code adds to the die, for every stat and skill of each party member: [{ who, stats: [7 numbers in STATS order], skills: [[name, bonus]] }]. */
-export function bonusTable(party, rules = STANDARD) {
-    const numbers = { ...STANDARD, ...(rules && typeof rules === 'object' ? rules : {}) };
-    return (Array.isArray(party) ? party : []).slice(0, PARTY_MAX).map(member => {
-        const level = classBonusOf(member, numbers);
-        return { who: cut(member.name), stats: STATS.map(stat => partOf(member, null, stat).value + level),
-            skills: (Array.isArray(member.skills) ? member.skills : []).slice(0, 11).map(skill => [cut(skill.name), partOf(member, skill, null).value + level + (whole(skill.rank) ?? 0)]) };
-    });
+export function bonusTable(party) {
+    return (Array.isArray(party) ? party : []).slice(0, PARTY_MAX).map(member => ({ who: cut(member.name), stats: STATS.map(stat => checkBonus(member, null, stat)),
+        skills: (Array.isArray(member.skills) ? member.skills : []).slice(0, 11).map(skill => [cut(skill.name), checkBonus(member, skill, null)]) }));
 }
 
 // What the note's table showed for this check: { bonus } (the number it told), or { bonus: 0, unlisted: 'member' | 'skill' } when the table had no such member or skill.
@@ -41,26 +26,22 @@ function shownBonus(table, member, skill, stat) {
 }
 
 /**
- * A validated check (`validateCheck`), its die (the same one) and the rules recorded with the dice.
- * → { who, member, skill, stat, what, difficulty, dc, die, statBonus, classBonus, rank, bonus, total, outcome, decisive, practice }.
+ * A validated check (`validateCheck`) and its die (the same one). With the note's `table` (an array) the check is worked at the bonus the note showed.
+ * → { who, member, skill, stat, what, difficulty, dc, die, rank, bonus, total, outcome, decisive, utility, practice }.
  */
-export function resolveCheck(check, die, rules = STANDARD, table = null) {
-    const numbers = { ...STANDARD, ...(rules && typeof rules === 'object' ? rules : {}) };
+export function resolveCheck(check, die, table = null) {
     const member = check.member;
     const skill = check.skill ?? null;
-    const part = partOf(member, skill, check.stat);
-    const classBonus = classBonusOf(member, numbers);
+    const stat = checkStat(skill, check.stat);
     const rank = whole(skill?.rank) ?? 0;
-    // A reply with the note's table (`table` an array) is worked at the bonuses the note showed; someone or a skill it did not show rolls with no bonus.
-    const shown = table ? shownBonus(table, member, skill, part.main) : null;
-    const bonus = shown ? shown.bonus : part.value + classBonus + rank;
+    // A reply with the note's table is worked at the bonuses the note showed; someone or a skill it did not show rolls with no bonus.
+    const shown = table ? shownBonus(table, member, skill, stat) : null;
+    const bonus = shown ? shown.bonus : checkBonus(member, skill, check.stat);
     const total = die + bonus;
-    const outcome = outcomeOf(die, total, check.dc, numbers);
-    const decisive = outcome !== 'fail' && (die === FORMULA.die || total - check.dc >= (numbers.decisiveMargin ?? LIMITS.decisiveMargin));
     return {
-        who: member.name, member, skill, stat: part.main, what: skill?.name ?? part.main.toUpperCase(), difficulty: check.difficulty, dc: check.dc,
-        die, statBonus: part.value, classBonus, rank, rankName: RANK_NAMES[rank] ?? `Rank ${rank}`, bonus,
-        total, outcome, decisive, utility: skill?.type === 'utility', ...(shown?.unlisted ? { unlisted: shown.unlisted } : {}),
+        who: member.name, member, skill, stat, what: skill?.name ?? stat.toUpperCase(), difficulty: check.difficulty, dc: check.dc,
+        die, rank, rankName: RANKS[rank]?.name ?? `Rank ${rank}`, bonus, total, ...checkOutcome(die, bonus, check.dc),
+        utility: String(skill?.type).toLowerCase() === 'utility', ...(shown?.unlisted ? { unlisted: shown.unlisted } : {}),
         practice: skill ? { who: member.name, skill: skill.name, n: 1 } : null,
     };
 }
@@ -86,7 +67,7 @@ export function workChecks(party, lines, dice, table = null, inOrder = false) {
         if (!check.ok) { notes.push(`"${raw}" was not used: ${check.reason}.`); continue; }
         used.push(check.die);
         if (check.wrote !== undefined) notes.push(`"${raw}" was worked with ${check.die}, the next die in order (the line wrote ${check.wrote}).`);
-        const done = resolveCheck(check, check.die, dice.rules, table);
+        const done = resolveCheck(check, check.die, table);
         if (done.unlisted) notes.push(`${done.who} rolled ${done.what} with no bonus: ${done.unlisted === 'member' ? 'they were' : 'it was'} not in the table the note showed.`);
         results.push(keptResult(done, dice.perUse));
         if (!done.practice) continue;

@@ -163,11 +163,7 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         const values = readSettings(view, moduleId);
         const diceReason = () => type === 'normal' && noDice.peek() ? 'the reader chose to send without the RPG'
             : !sheet.characters.length ? 'there is no active character' : !checksOn(values) ? 'Story checks are off' : null;
-        const makeDice = () => {
-            let records = null;
-            try { records = view.query?.('packs.content', { kind: 'rpg' }); } catch { /* no pack rules */ }
-            return { type: DICE, payload: dicePayload(membersOf(view, sheet), values, records) };
-        };
+        const makeDice = () => ({ type: DICE, payload: dicePayload(membersOf(view, sheet), values) });
         let meta = null;
         try { meta = metadata(); } catch { /* no board without chat metadata */ }
         if (on) {
