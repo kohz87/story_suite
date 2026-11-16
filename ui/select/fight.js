@@ -42,8 +42,8 @@ function groupsOf(members, foes) {
     const name = text(real?.name ?? list[0].name.replace(/ pack \d+$/u, '').replace(/ \d+$/u, ''));
     // tier and the odds word have no source until Combat Rules v1 (plan §2.3): null.
     return {
-      name, tier: null, lv: Number.isFinite(real?.level) ? real.level : 0, odds: { word: null },
-      members: list.map(member => ({ id: String(member.slot), name: text(member.name), hp: whole(member.value), max: Math.max(1, whole(member.size)) })),
+      id: String(group), arg: { group }, name, tier: null, lv: Number.isFinite(real?.level) ? real.level : 0, odds: { word: null },
+      members: list.map(member => ({ id: String(member.slot), arg: { target: Number(member.slot) }, name: text(member.name), hp: whole(member.value), max: Math.max(1, whole(member.size)) })),
     };
   });
 }
@@ -70,7 +70,7 @@ const chosenText = action => {
 };
 
 // board `choices` (view-data.js:17 `boardChoices`) → the four action groups; an unusable choice stays, disabled.
-function groupsOfChoices(choices, foeGroups) {
+function groupsOfChoices(choices, foeGroups, areaAll = false) {
   const groups = { Attack: [], Magic: [], Item: [], Flee: [] };
   (Array.isArray(choices) ? choices : []).forEach((choice, at) => {
     const action = isRecord(choice?.action) ? choice.action : {}, info = isRecord(choice.view) ? choice.view : {};
@@ -80,8 +80,10 @@ function groupsOfChoices(choices, foeGroups) {
         : action.kind === 'item' ? (Array.isArray(choice.items) ? `${choice.items.length} kinds in the bag` : 'from the bag') : 'Escape';
     const group = action.kind === 'flee' ? 'Flee' : action.kind === 'item' ? 'Item' : action.kind === 'skill' && info.uses === 'mana' ? 'Magic' : 'Attack';
     const target = action.kind === 'flee' ? 'none' : action.kind === 'item' || action.support ? 'ally'
-      : info.area ? 'none' : foeGroups.length > 1 ? 'group' : 'member';
-    groups[group].push({ id: `${action.kind}:${at}`, label: text(info.name), cost, target, damage: null, odds: null, enabled: !choice.reason });
+      : info.area ? (foeGroups.length > 1 && !areaAll ? 'group' : 'none') : 'member';
+    const { kind, ...rest } = action;
+    const args = info.area ? { ...rest, area: true } : rest; // the input this action stands for: the board's action object split back into choice and args (SB board/interaction.js `toAction`)
+    groups[group].push({ id: `${action.kind}:${at}`, label: text(info.name), cost, target, damage: null, odds: null, enabled: !choice.reason, pick: { choice: String(kind ?? ''), args, ...(action.kind === 'flee' ? { alone: true } : {}) } });
   });
   return groups;
 }
@@ -108,8 +110,10 @@ export function selectFight({ snapshot, party, foes, choices, view, awards, plac
     state, title: text(place) ? `Fight · ${text(place)}` : 'Fight', subtitle: null,
     exchange: whole(session.setup?.offset) + (Array.isArray(session.exchanges) ? session.exchanges.length : 0) + (ended ? 0 : 1),
     foeGroups,
-    party: members.map(({ id, name, bars, chosen }) => ({ id, name, portrait: null, hp: bars.hp.value, hpMax: bars.hp.max, mp: bars.mp.value, mpMax: bars.mp.max, sp: bars.sp.value, spMax: bars.sp.max, chosen })),
-    actor: actor && !ended ? { id: fold(actor.who), stance: null, groups: groupsOfChoices(choices.choices, foeGroups) } : null,
+    party: members.map(({ id, name, bars, chosen }) => ({ id, arg: { target: name }, actorId: id, name, portrait: null, hp: bars.hp.value, hpMax: bars.hp.max, mp: bars.mp.value, mpMax: bars.mp.max, sp: bars.sp.value, spMax: bars.sp.max, chosen })),
+    actor: actor && !ended ? { id: fold(actor.who), stance: null, groups: groupsOfChoices(choices.choices, foeGroups, session.setup?.areaAll === 1) } : null,
+    // The board answers for one member at a time, so only the acting member is listed (the scene renderer needs all; the kind's view gives them).
+    actors: actor && !ended ? [{ id: fold(actor.who), groups: groupsOfChoices(choices.choices, foeGroups, session.setup?.areaAll === 1) }] : [],
     order: orderOf(result.order, result.members),
     bonuses: null,
     log: rounds.map(round => ({ n: whole(round.n), summary: `${(round.lines ?? []).length} rolls${round.decisive ? ' · decisive' : ''}`, rows: (round.lines ?? []).filter(isRecord).map(rowOf) })),

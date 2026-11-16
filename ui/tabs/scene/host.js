@@ -2,11 +2,12 @@
 import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
 import { genericScene } from './generic.js';
+import { fightScene } from './fight.js';
 
 const PILL = { open: 'open', staged: 'staged', sent: 'sent', invalidated: 'taken back' };
 
-/** Renderers by kind id: `(vm, api) → node`. A kind without one gets the generic renderer. The fight renderer registers here. */
-export const RENDERERS = {};
+/** Renderers by kind id: `(vm, api) → node`. A kind without one gets the generic renderer. A renderer with `ownFrame` draws its own header, note and Send / Discard (api.note, api.send, api.discard). */
+export const RENDERERS = { 'story-block/fight': fightScene };
 
 /** Builds the Scene tab from a `scene` view-model. `ctx` = { port, renderers }. Every action is an `interaction.*` command; a refusal shows its message. */
 export function sceneTab(vm, ctx = {}) {
@@ -28,7 +29,7 @@ export function sceneTab(vm, ctx = {}) {
     note.textContent = failed ? String(answer?.message || 'That could not be done.') : '';
     return answer;
   };
-  const api = { stage: step => run('stage', { step }), auto: n => run('auto', { n }) };
+  const api = { stage: step => run('stage', { step }), auto: n => run('auto', { n }), send: () => run('send', {}), discard: () => run('discard', {}), note, prefs: ctx.prefs };
   const head = h('section', { class: 'glass fhead scene-head', dataset: { card: 'scene-head' } },
     h('span', { class: 't' }, h('b', null, vm.title)),
     h('span', { class: 'fpill scene-pill' }, PILL[vm.state] ?? vm.state));
@@ -37,6 +38,6 @@ export function sceneTab(vm, ctx = {}) {
       vm.canSend ? button({ label: 'Send with this', tone: 'primary', dataset: { act: 'send' }, onClick: () => run('send', {}) }) : null,
       vm.canDiscard ? button({ label: 'Discard', dataset: { act: 'discard' }, onClick: () => run('discard', {}) }) : null)
     : null;
-  root.replaceChildren(head, draw(vm, api), note, foot);
+  root.replaceChildren(...(draw.ownFrame === true ? [draw(vm, api)] : [head, draw(vm, api), note, foot]));
   return root;
 }

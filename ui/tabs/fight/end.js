@@ -42,15 +42,15 @@ export function endCard(end, ctx = {}) {
     h('span', { class: 'big2' }, HEADLINE[end.outcome] ?? end.outcome),
     h('span', { class: 'anote' }, LINE[end.outcome] ?? ''),
     h('div', { class: 'xpr' },
-      h('div', null, h('b', null, `+${end.xpEach} XP`), 'each'),
+      end.xpEach === null ? null : h('div', null, h('b', null, `+${end.xpEach} XP`), 'each'),
       h('div', null, h('b', null, String(end.exchanges)), end.exchanges === 1 ? 'exchange' : 'exchanges'),
       down ? h('div', null, h('b', null, `${down.down} of ${down.total}`), 'foes down') : null),
     h('div', { class: 'endp' }, end.members.map(m => memberRow(m, party.find(p => p.id === m.id)))),
     h('p', { class: 'fine' }, 'Practice: +1 for each use of a skill, +1 for each exchange a stance was up.'),
     h('p', { class: 'fine' }, 'Goes to the story with your next message. The story writes what you find on them.'),
     h('div', { class: 'fbtns' },
-      button({ label: 'Back to the story ›', tone: 'primary', dataset: { finish: '1' }, onClick: onBack }),
+      onBack ? button({ label: 'Back to the story ›', tone: 'primary', dataset: { finish: '1' }, onClick: onBack }) : null,
       h('span', { style: 'flex:1' }),
-      button({ label: 'Discard the fight', tone: 'danger', dataset: { discard: '1' }, onClick: onDiscard })),
+      onDiscard ? button({ label: 'Discard the fight', tone: 'danger', dataset: { discard: '1' }, onClick: onDiscard }) : null),
   );
 }

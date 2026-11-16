@@ -39,10 +39,10 @@ describe('selectScene', () => {
     assert.equal(vm.title, 'The ferry crossing');
   });
 
-  it('answers null for no interaction, a damaged answer and the fight board (the Fight tab keeps it)', () => {
+  it('answers null for no interaction and a damaged answer; the fight board is a scene like any other', () => {
     assert.equal(selectScene(null), null);
     assert.equal(selectScene({ kindId: 'probe/ferry' }), null);
-    assert.equal(selectScene({ ...sceneAnswer('open'), kindId: 'story-block/fight' }), null);
+    assert.equal(selectScene({ ...sceneAnswer('open'), kindId: 'story-block/fight' }).kindId, 'story-block/fight');
   });
 
   it('falls back on the kind name for a title, on open for an unknown state, and drops nothing else', () => {

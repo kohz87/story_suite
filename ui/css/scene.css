@@ -1,13 +1,13 @@
-/* Styles for the Scene tab (the open interaction): header, the generic renderer's lines and choices, Send and Discard; tokens only, sized from the container. */
+/* Styles for the Scene tab (the open interaction): header, the generic renderer's lines and choices, Send and Discard; tokens only, sized from the container. The fight renderer takes its styles from fight.css. */
 .scene-tab{display:flex;flex-direction:column;gap:12px;--fx-ok:#4fd39a;--fx-bad:#ff7a7a}
 .su-root[data-scheme="light"] .scene-tab{--fx-ok:#0b6e45;--fx-bad:#b42318}
 .scene-tab button{min-height:48px}
 .scene-tab .fhead{display:flex;align-items:center;gap:10px;padding:12px 14px}
 .scene-tab .fhead .t{flex:1;min-width:0}
 .scene-tab .fhead .t b{display:block;font:800 16px var(--su-font)}
-.scene-tab .fpill{font:800 12px var(--su-font);border-radius:999px;padding:3px 10px;background:rgba(79,211,154,.14);color:var(--fx-ok);white-space:nowrap}
-.scene-tab[data-state="invalidated"] .fpill{background:rgba(255,107,107,.14);color:var(--fx-bad)}
-.scene-tab .card{padding:14px 16px;gap:10px;display:flex;flex-direction:column;min-width:0}
+.scene-tab .scene-head .fpill{font:800 12px var(--su-font);border-radius:999px;padding:3px 10px;background:rgba(79,211,154,.14);color:var(--fx-ok);white-space:nowrap}
+.scene-tab[data-state="invalidated"] .scene-head .fpill{background:rgba(255,107,107,.14);color:var(--fx-bad)}
+.scene-tab .scene-generic .card{padding:14px 16px;gap:10px;display:flex;flex-direction:column;min-width:0}
 .scene-tab .anote,.scene-tab .fine{margin:0;font:500 13.5px/1.45 var(--su-font);color:var(--su-soft)}
 .scene-tab .fine{font-size:12px;color:var(--su-muted)}
 .scene-tab .scene-note{color:var(--fx-bad)}
