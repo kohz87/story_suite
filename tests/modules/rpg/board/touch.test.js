@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(fileURLToPath(new URL('../../../../', import.meta.url)));
 const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="stylesheet" href="/ui/legacy/view/host.css"><link rel="stylesheet" href="/ui/legacy/view/size.css">
-<link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/view/lean-rpg.css"><link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/board/board.css">
+<link rel="stylesheet" href="/modules/rpg/view/lean-rpg.css"><link rel="stylesheet" href="/modules/rpg/board/board.css">
 <style>html,body { margin:0; --ss-font:Arial,sans-serif; } * { box-sizing:border-box; } .ss-gameview-bar { height:50px; }
 .ss-gameview-nav { background:#222; } .ss-gameview-body { padding:12px; }
 .ss-gameview[hidden] { display:none; } .story-suite-sheet-bar { background:#222; }
@@ -24,11 +24,11 @@ const html = `<!doctype html><html><head><meta name="viewport" content="width=de
 <nav class="story-suite-sheet-bar">Party / Inventory / Quests / World / Fight</nav></div>
 <div id="safe" style="padding-bottom:env(safe-area-inset-bottom)"></div>
 <script type="module">
-import { STANDARD_TEMPLATES } from '/packages/story-block/src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '/packages/story-block/src/v2/lean-rpg/rules.js';
-import { createBoardView } from '/packages/story-block/src/v2/lean-rpg/board/view.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '/packages/story-block/src/v2/lean-rpg/board/session.js';
-import { playBoard } from '/packages/story-block/src/v2/lean-rpg/board/engine.js';
+import { STANDARD_TEMPLATES } from '/modules/rpg/templates.js';
+import { STANDARD_FORMULA } from '/modules/rpg/rules.js';
+import { createBoardView } from '/modules/rpg/board/view.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '/modules/rpg/board/session.js';
+import { playBoard } from '/modules/rpg/board/engine.js';
 import { hero } from '/ui/legacy/view/widgets/hero.js';
 hero.render(document.querySelector('.ss-gameview-hero'), { name:'Astra', place:'Bluewatch', time:'Day 1', weather:'Rain', compact:true, boardExpandable:true,
     you:{ rank:'F', rankLabel:'Guild Rank', wearing:'A travelling coat', condition:'Tired' },

@@ -117,7 +117,7 @@ test('new member fights rotate among standing targets, replay and continue witho
 
 test('the shared Standard roll engine stays split into small files', () => {
     const lines = name => {
-        const source = readFileSync(new URL(`../../../../src/v2/lean-rpg/${name}`, import.meta.url), 'utf8');
+        const source = readFileSync(new URL(`../../../../modules/rpg/${name}`, import.meta.url), 'utf8');
         return source.split('\n').length - (source.endsWith('\n') ? 1 : 0);
     };
     const standard = lines('standard.js');

@@ -18,7 +18,7 @@ test('discard advice in held-board helpers names the Fight tab button', () => {
 
 test('no shipped string tells the reader to discard without saying where', () => {
     for (const file of FILES) {
-        const text = readFileSync(new URL(`../../../../../${file}`, import.meta.url), 'utf8');
+        const text = readFileSync(new URL(`../../../${file}`, import.meta.url), 'utf8');
         for (const m of text.matchAll(/[Dd]iscard (the fight|it)(?! \(Fight tab, Discard fight\))[^'`\n]*['`]/g)) {
             assert.fail(`${file}: "${m[0]}" does not say where`);
         }
