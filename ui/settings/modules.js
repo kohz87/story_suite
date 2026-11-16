@@ -12,6 +12,11 @@ function needsOk(sub, defs, set) {
   return true;
 }
 
+/** The row title; with tags the text sits in its own span so a wrapped tag line is as tall as the tag (see .tagd in settings.css). */
+function labelWithTags(label, tags) {
+  return tags.length ? h('b', { class: 'tagd' }, h('span', { class: 'ln' }, label), tags) : h('b', label);
+}
+
 function featureRow(def, sub, state) {
   const { set, defs, change } = state;
   const ok = needsOk(sub, defs, set);
@@ -19,7 +24,7 @@ function featureRow(def, sub, state) {
   const sw = toggle({ checked: set[def.id].subs[sub.key], label: sub.label, disabled: !on, dataset: { sub: `${def.id}:${sub.key}` }, onChange: v => change(def.id, sub.key, v) });
   const needs = sub.needs ? [' · ', h('span', { class: ok ? 'needok' : 'needbad' }, `needs ${sub.needs}${ok ? '' : ' (off)'}`)] : null;
   const row = h('div', { class: ['srow', 'swrow', 'sub', !on && 'dis'] },
-    h('span', { class: 'lb' }, h('b', sub.label, tagNodes(sub.tags)), h('small', sub.hint, needs)), h('span', { class: 'ctl' }, sw));
+    h('span', { class: 'lb' }, labelWithTags(sub.label, tagNodes(sub.tags)), h('small', sub.hint, needs)), h('span', { class: 'ctl' }, sw));
   row.addEventListener('click', (e) => { if (!e.target.closest('button')) sw.click(); });
   return row;
 }
