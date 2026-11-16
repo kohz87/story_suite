@@ -10,7 +10,7 @@ import { escapeHtml } from '../util/html.js';
 import { PORTRAIT_THEME_PRESETS, getSettings } from './runtime-settings.js';
 
 export function createSettingsHtmlPart(rt, deps) {
-    const { applyLauncherFlag, effectivePresentCastChoice, portraitSettingsSnapshot, syncSuiteControls, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
+    const { effectivePresentCastChoice, portraitSettingsSnapshot, syncSuiteControls, UI_ID, updatePortraitSettingsSaveUi, writePortraitSettingsDraftToUi } = deps;
 
     function settingRow(id, label, control, hint = '') {
         return `<label class="npc-state-delta-setting-row story-suite-row" for="${id}"><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ''}</span>${control}</label>`;
@@ -44,15 +44,12 @@ export function createSettingsHtmlPart(rt, deps) {
             settingRow('npc_state_delta_narration_capture', 'One-pass narration capture (experimental)', '<input id="npc_state_delta_narration_capture" type="checkbox">', 'Works on its own, with Auto scan on or off: the roleplay model ends each reply with a hidden NPC update block that replaces the separate scan request. Adds about 2,000-3,000 tokens to every roleplay prompt plus the block to each reply; a missing or broken block falls back to the normal scan. Not used with Full scan every turn.'),
             settingRow('npc_state_delta_narration_capture_compact', 'Compact one-pass instruction', '<input id="npc_state_delta_narration_capture_compact" type="checkbox">', 'Needs One-pass narration capture. The same rules in fewer words: about 1,500 tokens instead of 2,000 on every asked-for reply. Every field, gate and cap is kept, but check the blocks your model writes before relying on it; off sends the full rules.'),
             settingRow('npc_state_delta_narration_capture_catch_up', 'One-pass catch-up', numberControl('npc_state_delta_narration_capture_catch_up', 0, 50, 'replies'), 'Needs One-pass narration capture. Every this many captured replies the two NPCs most in them get a quiet Refresh (one scanner request each) for mannerisms, levers and memories. 0 turns it off.'),
-            settingsSlot('full-cast'),
             settingRow('npc_state_delta_scan_every', 'Scan every', numberControl('npc_state_delta_scan_every', 1, 20, 'replies'), 'Safety scan cadence when Full scan every turn is off. A reply that names someone new, a tracked person or an NPC State line scans at once; a quiet reply waits for this many replies, and the scan then reads every reply since the last one.'),
             settingRow('npc_state_delta_admission_mode', 'NPC admission', '<select id="npc_state_delta_admission_mode" class="text_pole"><option value="conservative">Conservative</option><option value="balanced">Balanced</option><option value="manual_only">Manual only</option></select>', 'Conservative: proper names immediately, role labels after recurrence. Balanced: also direct or persistent role NPCs. Manual only: every dossier needs Add NPC.'),
         ].join('');
         const roster = `
         <h4 class="delta-settings-subhead story-suite-subhead">In-chat display</h4>
         ${settingRow('npc_state_delta_present_cast_display', 'Present NPCs in chat', '<select id="npc_state_delta_present_cast_display" class="text_pole"><option value="full">Full cards</option><option value="compact">Compact strip</option><option value="storyblock">Only in Story Block</option><option value="off">Off</option></select>', 'Shown under the latest reply (or as a Megumin tab). With Story Block installed, Present NPCs and Dossiers tabs also appear in its sidebar, and until you pick a choice here the chat shows them only there; Only in Story Block keeps the chat clear (full cards without Story Block). Tapping an NPC opens its dossier. Off adds nothing to the chat; presence tracking and injection are unaffected.')}
-        <div class="npc-state-delta-v2-hosted-hide">${settingRow('npc_state_delta_launcher_with_story_block', 'Floating button with Story Block', '<input id="npc_state_delta_launcher_with_story_block" type="checkbox">', 'Story Block\'s sidebar has the Present NPCs and Dossiers tabs, so the floating npc state button hides while it is there. Turn on to keep the button as well.')}</div>
-        <div class="npc-state-delta-v2-hosted-only">${settingRow('npc_state_delta_launcher_with_story_block_v2', 'Show NSD\'s own launcher with Story Block v2', '<input id="npc_state_delta_launcher_with_story_block_v2" type="checkbox">', 'Story Block v2 has Delta\'s Cast tab and its overlay, so the floating npc state button hides while it is there. Turn on to keep the button as well.')}</div>
         <h4 class="delta-settings-subhead story-suite-subhead">Generation injection</h4>
         ${settingRow('npc_state_delta_inject', 'Inject present NPC state', '<input id="npc_state_delta_inject" type="checkbox">', 'Only active NPCs present in the latest scanned scene are injected into generation.')}
         ${settingsSlot('relationship-map')}
@@ -63,7 +60,7 @@ export function createSettingsHtmlPart(rt, deps) {
         ${settingRow('npc_state_delta_max', 'Maximum active NPCs', numberControl('npc_state_delta_max', 1, 100), 'Archived dossiers do not use an active slot.')}
         ${settingRow('npc_state_delta_archive_deaths', 'Archive confirmed deaths', '<input id="npc_state_delta_archive_deaths" type="checkbox">', 'Explicit current-timeline deaths archive instead of deleting. Ambiguous death language is ignored.')}
         ${settingRow('npc_state_delta_reactivate_archived', 'Reactivate on clear return', '<input id="npc_state_delta_reactivate_archived" type="checkbox">', 'Manual archives return when the NPC clearly reappears. Death archives need an explicit living return.')}
-        <div class="npc-state-delta-v2-hosted-only">${settingRow('npc_state_delta_layered_secrets', 'Hidden notes for new people', '<input id="npc_state_delta_layered_secrets" type="checkbox">', 'When a scan builds a new dossier it also writes 2 to 5 layered hidden notes (light to deep; each opens at a rising meter value or on a story event), fitted to the background and fixed once written. The story is told them while the person is present, never to reveal; you see only that a note is hidden until it opens. Off: new people get none (existing notes stay).')}</div>
+        ${settingRow('npc_state_delta_layered_secrets', 'Hidden notes for new people', '<input id="npc_state_delta_layered_secrets" type="checkbox">', 'When a scan builds a new dossier it also writes 2 to 5 layered hidden notes (light to deep; each opens at a rising meter value or on a story event), fitted to the background and fixed once written. The story is told them while the person is present, never to reveal; you see only that a note is hidden until it opens. Off: new people get none (existing notes stay).')}
         <h4 class="delta-settings-subhead story-suite-subhead">Stale cleanup</h4>
         ${settingRow('npc_state_delta_auto_prune_stale', 'Auto-manage stale NPCs', '<input id="npc_state_delta_auto_prune_stale" type="checkbox">', 'Long-absent NPCs auto-archive, then stale auto-archives are deleted later. Manual, death and protected records are kept; deleted names can be rediscovered.')}
         ${settingRow('npc_state_delta_stale_archive_after', 'Dormant after', numberControl('npc_state_delta_stale_archive_after', 10, 999, 'replies'), 'Default 30. Replies since the NPC was last present or active off-screen; after that they stop counting toward the NPC cap (nothing is deleted).')}
@@ -199,7 +196,6 @@ export function createSettingsHtmlPart(rt, deps) {
             <div class="npc-state-delta-actions delta-settings-quick-actions story-suite-actions">
               <button type="button" class="menu_button" data-delta-settings-open-dossiers><i class="fa-solid fa-address-book"></i> Open dossiers</button>
               <div id="npc_state_delta_scan_now" class="menu_button"><i class="fa-solid fa-wand-magic-sparkles"></i> Scan dossier now</div>
-              ${settingsSlot('full-cast-action')}
               <div id="npc_state_delta_add_manual" class="menu_button"><i class="fa-solid fa-user-plus"></i> Add NPC</div>
             </div>
           </div>
@@ -340,9 +336,6 @@ export function createSettingsHtmlPart(rt, deps) {
         $('#npc_state_delta_branch_rescan').prop('checked', s.branchRescan !== false);
         $('#npc_state_delta_mid_delete_rewind').prop('checked', s.midDeleteRewind === true);
         $('#npc_state_delta_present_cast_display').val(effectivePresentCastChoice());
-        $('#npc_state_delta_launcher_with_story_block').prop('checked', s.launcherWithStoryBlock === true);
-        $('#npc_state_delta_launcher_with_story_block_v2').prop('checked', s.launcherWithStoryBlockV2 === true);
-        applyLauncherFlag();
         if (!rt.portraitSettingsDirty) writePortraitSettingsDraftToUi(portraitSettingsSnapshot(s));
         updatePortraitSettingsSaveUi();
         $('#npc_state_delta_base_trust').val(s.relationshipBaseline.trust);

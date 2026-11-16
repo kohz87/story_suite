@@ -18,7 +18,6 @@ export function createInlineCardsPart(rt, deps) {
     inChatCastMode = mode.inChatCastMode;
     const state = createInlineCardsStatePart(deps);
     const megumin = createInlineCardsMeguminPart({
-        storyBlockTabsActive: mode.storyBlockTabsActive,
         chatElementForInlineObserver: present.chatElementForInlineObserver,
     });
     const mount = createInlineCardsMountPart(rt, deps, {

@@ -1,5 +1,5 @@
 /* NPC State Delta - public state, host-integration and manual-mutation API (role: runtime-entry-public-write). The
-   second half of the window.NPCStateDelta surface split from index.js. Built by index.js with the controller closure;
+   second half of the public runtime API surface (pageHandles.deltaApi) split from index.js. Built by index.js with the controller closure;
    index.js still assigns and freezes the combined object in its original property order. */
 
 import { readAheadOf } from '../calls/scan-context.js';

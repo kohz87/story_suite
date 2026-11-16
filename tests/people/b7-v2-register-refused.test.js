@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { HOSTED_FLAG, createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 function fakeDoc() {
     const dataset = {};
@@ -40,7 +40,7 @@ test('a refused v2 registration is handled and leaves Delta unhosted', async () 
         await adapter.settled();
         await new Promise(resolve => setTimeout(resolve, 20));
         assert.equal(adapter.hosted(), false, 'Delta says it is hosted although the host refused it');
-        assert.notEqual(doc.documentElement.dataset[HOSTED_FLAG], '1', 'the page flag hides the launcher and drawer copy of a module that is not registered');
+        assert.equal(globalThis.__handles.hosted, false, 'the hosted state, which hides the drawer copy, is off for a module that is not registered');
         assert.deepEqual(unhandled.map(String), [], 'the refusal escaped as an unhandled rejection');
         adapter.stop();
     } finally {

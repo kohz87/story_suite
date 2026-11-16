@@ -113,8 +113,8 @@ test('Delta\'s page events redraw a shown Cast screen, and the tab pane is still
     const host = { apiVersion: 2, sdk, ready: Promise.resolve(sdk) };
     const hosted = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [] }, delta: () => delta.api, host: () => host, doc, logger: { warn() {} }, retryMs: 1, aliveMs: 100000 });
     hosted.start?.();
-    for (let i = 0; i < 20 && !doc.documentElement.dataset.npcStateDeltaStoryBlockV2; i++) await new Promise(resolve => setTimeout(resolve, 5));
-    assert.equal(doc.documentElement.dataset.npcStateDeltaStoryBlockV2, '1', 'hosted');
+    for (let i = 0; i < 20 && !globalThis.__handles.hosted; i++) await new Promise(resolve => setTimeout(resolve, 5));
+    assert.equal(globalThis.__handles.hosted, true, 'hosted');
     const tabPane = element(doc);
     tabPane.dataset.tabId = CAST_TAB_ID;
     hosted.definition.tabs[0].render(tabPane, {}, {});

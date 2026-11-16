@@ -1,3 +1,4 @@
+/* LEGACY, kept until B4 replaces the old dossier surface: the dossier panel's actions and editor refinements; see docs/merge/b4-removals.md. */
 /* NPC State Delta cohesive dossier experience refinement.
  * Keeps canonical state/runtime owners while refining dossier actions (the header ⋯ menu),
  * adaptive editing, extension-wide settings actions, and explicit manual life-state correction.

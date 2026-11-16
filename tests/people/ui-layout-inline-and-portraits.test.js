@@ -218,7 +218,7 @@ test('opening the dossier never focuses the search box (no phone/tablet keyboard
 });
 
 test('switched off, Delta renders no in-chat cards, and the Enable switch redraws them (BH2, 12 Nov)', async () => {
-    assert.match(index, /function afterEnabledChange\(\) \{[\s\S]*renderDossier\(\);[\s\S]*globalThis\.NPCStateDelta\?\.renderInline\?\.\(\);/);
+    assert.match(index, /function afterEnabledChange\(\) \{[\s\S]*renderDossier\(\);[\s\S]*pageHandles\.deltaApi\?\.renderInline\?\.\(\);/);
     // The real part, beside a stub of the host's extensions.js (as the other runtime-copy tests do).
     const os = await import('node:os');
     const { pathToFileURL } = await import('node:url');

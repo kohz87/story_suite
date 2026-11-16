@@ -1,11 +1,13 @@
 /* Dossier browser start: mounts the dossier UI once the runtime API appears in a browser page. */
 import { mountNpcStateDeltaDossierUi } from '../dossier-ui-mount.js';
 
+import { pageHandles } from '../../runtime/handles.js';
+
 export { mountNpcStateDeltaDossierUi };
 
 function startBrowserUi(attempt = 0) {
     if (typeof document === 'undefined') return;
-    const api = globalThis.NPCStateDelta;
+    const api = pageHandles.deltaApi;
     if (api) {
         mountNpcStateDeltaDossierUi(api);
         return;

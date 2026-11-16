@@ -1,10 +1,11 @@
 import { getContext } from '../../../extensions.js';
 import { createDestructiveSettlementController } from './destructive-settlement-core.js';
+import { pageHandles } from '../runtime/handles.js';
 
 const REGISTRY_KEY = '__NPCStateDeltaDestructiveSettlement';
 
 function npcStateDeltaApi() {
-    return globalThis.NPCStateDelta || globalThis.window?.NPCStateDelta || null;
+    return pageHandles.deltaApi;
 }
 
 function activeChatKey() {

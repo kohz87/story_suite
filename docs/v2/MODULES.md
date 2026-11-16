@@ -435,8 +435,8 @@ These settle questions agents raised; the host changes they need are made at int
     inherit what Cast is doing and include the inner chatter"; "the NSD link doesn't refresh until I change
     tab"). Story Director's World → Now → Here (widget `story-director.people`, bound to
     `director.world.here`) draws, with NPC State Delta installed and on, NSD's own present-cast cards (the now
-    lines, chatter bubbles and meters its Cast tab drew, NSD's markup and classes), through a small page API NSD
-    offers (`globalThis.NPCStateDeltaCast`: `available()`, `render(el, { slot })`, `onChange(fn)` → off);
+    lines, chatter bubbles and meters its Cast tab drew, NSD's markup and classes), through a small in-process API NSD
+    offers (the `castApi` handle in `modules/people/runtime/handles.js`: `available()`, `render(el, { slot })`, `onChange(fn)` → off);
     without it, plain chips. Under each person, their thought from the newest reply's Inner chatter
     (`chatter.head`, F115), matched by name the way the chatter strip links a dossier (`npc.dossier` knows the
     name or alias, else the same name). The cards and dossier links follow NSD's changes (a scan that ends after

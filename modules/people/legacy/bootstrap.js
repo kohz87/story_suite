@@ -11,11 +11,6 @@ try {
     console.error('[NPC State Delta] destructive history settlement failed to load', error);
 }
 try {
-    await import('./full-cast.js');
-} catch (error) {
-    console.error('[NPC State Delta] optional full-cast scanner failed to load', error);
-}
-try {
     await import('./dossier-ui.js');
 } catch (error) {
     console.error('[NPC State Delta] dossier UI failed to load', error);

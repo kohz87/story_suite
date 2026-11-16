@@ -1,4 +1,4 @@
-/* NPC State Delta inline-card display mode: the present-cast choice, launcher flags, Story Block
+/* NPC State Delta inline-card display mode: the present-cast choice, Story Block
    carry rules, Story Block cast HTML and the live entries selected for rendering. Split from
    runtime-inline-cards.js with unchanged function bodies; the original factory closure is passed in
    explicitly and the original path keeps the public exports. */
@@ -13,23 +13,9 @@ export function createInlineCardsModePart(deps, inlineRosterHtml) {
         return normalizePresentCastDisplay(getSettings().presentCastDisplay);
     }
 
-    // The floating launcher hides while Story Block carries Delta's tabs, or a Story Block v2 host
-    // carries Delta (CSS in launcher-ui.js keys on these flags), unless the player keeps it.
-    function applyLauncherFlag() {
-        const data = document?.documentElement?.dataset;
-        if (!data) return;
-        data.npcStateDeltaLauncher = getSettings().launcherWithStoryBlock === true ? 'keep' : 'auto';
-        data.npcStateDeltaLauncherV2 = getSettings().launcherWithStoryBlockV2 === true ? 'keep' : 'auto';
-    }
-
-    // Nothing sets this flag any more (the v1 Present NPCs / Dossiers tab registration was removed): it is always false. Kept as a dead reader.
-    function storyBlockTabsActive() {
-        return document?.documentElement?.dataset?.npcStateDeltaStoryBlock === '1';
-    }
-
-    // Story Block shows Delta's present cast: v1's Present NPCs tab, or a v2 host's Cast tab.
+    // Story Block shows Delta's present cast in a v2 host's Cast tab.
     function storyBlockCarriesCast() {
-        return storyBlockTabsActive() || storyBlockV2Hosted();
+        return storyBlockV2Hosted();
     }
 
     // The choice in effect. Until the player picks one, Full cards becomes "Only in Story Block" while
@@ -77,5 +63,5 @@ export function createInlineCardsModePart(deps, inlineRosterHtml) {
         }];
     }
 
-    return { presentCastDisplayMode, applyLauncherFlag, effectivePresentCastChoice, inChatCastMode, storyBlockTabsActive, storyBlockCastHtml, inlineEntriesForRender };
+    return { presentCastDisplayMode, effectivePresentCastChoice, inChatCastMode, storyBlockCastHtml, inlineEntriesForRender };
 }

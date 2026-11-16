@@ -56,7 +56,7 @@ test('the real adapter wiring: Delta turned off during a generation tells the pa
     const sdk = { registerModule: async () => true, on: () => () => {}, query: () => [], settings: () => ({}), feature: () => false };
     const host = { apiVersion: 2, sdk, ready: Promise.resolve(sdk) };
     const timers = { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} };
-    const adapter = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [npc] }, delta: () => delta, host: () => host, doc, page: {}, timers, logger: { warn() {} }, loadEmptyCast: async () => null });
+    const adapter = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [npc] }, delta: () => delta, host: () => host, doc, timers, logger: { warn() {} }, loadEmptyCast: async () => null });
     adapter.start();
     await adapter.settled();
     assert.equal(adapter.hosted(), true);
@@ -204,7 +204,7 @@ test('inline cards + real adapter + page-API subscriber (the People widget\'s co
     const sdk = { registerModule: async () => true, on: () => () => {}, query: () => [], settings: () => ({}), feature: () => false };
     const host = { apiVersion: 2, sdk, ready: Promise.resolve(sdk) };
     const timers = { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} };
-    const adapter = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [npc] }, delta: () => delta, host: () => host, doc, page: {}, timers, logger: { warn() {} }, loadEmptyCast: async () => null });
+    const adapter = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [npc] }, delta: () => delta, host: () => host, doc, timers, logger: { warn() {} }, loadEmptyCast: async () => null });
     adapter.start();
     await adapter.settled();
     let widgetCalls = 0;

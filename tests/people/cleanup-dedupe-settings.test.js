@@ -45,17 +45,16 @@ test('dead code is gone', () => {
 test('the settings owner declares the settings other modules keep controls for, and the dossier NPC limit has one', () => {
     runEditorHostScenario('settings-owner', async () => {
         const settings = () => mockState.extensionSettings.npc_state_delta;
-        assert.equal(settings().fullCastScanEveryTurn, false);
+        assert.equal('fullCastScanEveryTurn' in settings(), false, 'the full-cast setting is gone');
         assert.equal(settings().scannerMaxOutputTokens, 0);
         assert.deepEqual(settings().relationshipMap, { enabled: true, defaultLens: 'warmth' });
         assert.equal(settings().dossierStyle, 'neutral', 'the Dossier style defaults to Neutral');
         assert.equal(settings().injectLimit, 3);
         assert.equal('calendarConfig' in settings(), false, 'no calendar unless one is saved');
-        Object.assign(settings(), { injectLimit: 40, scannerMaxOutputTokens: 50, fullCastScanEveryTurn: 'yes', relationshipMap: { enabled: false, defaultLens: 'nope' }, dossierStyle: 'Gold', calendarConfig: 'broken' });
+        Object.assign(settings(), { injectLimit: 40, scannerMaxOutputTokens: 50, relationshipMap: { enabled: false, defaultLens: 'nope' }, dossierStyle: 'Gold', calendarConfig: 'broken' });
         globalThis.NPCStateDelta.injectionPreview();
         assert.equal(settings().injectLimit, 12, 'clamped to 1-12');
         assert.equal(settings().scannerMaxOutputTokens, 128, 'the scanner routing normalization');
-        assert.equal(settings().fullCastScanEveryTurn, false);
         assert.deepEqual(settings().relationshipMap, { enabled: false, defaultLens: 'warmth' });
         assert.equal(settings().dossierStyle, 'neutral', 'an unknown look is Neutral');
         settings().dossierStyle = ' Fantasy ';
@@ -67,5 +66,4 @@ test('the settings owner declares the settings other modules keep controls for, 
     assert.match(index, /settingRow\('npc_state_delta_inject_limit', 'NPCs in the dossier', numberControl\('npc_state_delta_inject_limit', 1, 12, 'NPCs'\)/);
     assert.match(index, /bindSettingsNumber\('#npc_state_delta_inject_limit', 'injectLimit', 1, 12, 3, updateInjection\);/);
     assert.match(index, /\$\('#npc_state_delta_inject_limit'\)\.val\(s\.injectLimit\);/);
-    assert.doesNotMatch(sources['full-cast.js'], /root\[FULL_CAST_KEY\] = false/, 'full-cast.js no longer writes its own default');
 });

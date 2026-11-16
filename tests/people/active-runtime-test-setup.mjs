@@ -49,3 +49,15 @@ for (const name of ['readFileSync', 'readdirSync', 'statSync', 'lstatSync']) {
 
 // files that import `{ readFileSync }` by name see the patched functions too
 syncBuiltinESMExports();
+
+// The runtime no longer publishes `globalThis.NPCStateDelta`: its API sits on the in-process handle (modules/people/runtime/handles.js).
+// The synthetic host and the scenarios written against it still reach the API as `globalThis.NPCStateDelta`; here (tests only) that name is
+// an accessor onto the handle, so a scenario reads what index.js published and a test can seed or clear it.
+const { pageHandles } = await import(pathToFileURL(path.join(testsRoot, '..', 'modules', 'people', 'runtime', 'handles.js')).href);
+Object.defineProperty(globalThis, 'NPCStateDelta', {
+    configurable: true,
+    get: () => pageHandles.deltaApi ?? undefined,
+    set: value => { pageHandles.deltaApi = value ?? null; },
+});
+// The same for scenarios that read or seed whether a Story Block v2 host holds the module (pageHandles.hosted).
+globalThis.__handles = pageHandles;

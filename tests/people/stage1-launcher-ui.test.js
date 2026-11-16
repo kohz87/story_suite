@@ -56,13 +56,11 @@ test('launcher hides while Story Block\'s game view is open (its .ss-gameview cl
     assert.match(source, /body:has\(\.ss-gameview\) #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
 });
 
-test('launcher hides while Story Block carries Delta\'s tabs, unless the player keeps it', () => {
-    assert.match(source, /html\[data-npc-state-delta-story-block="1"\]:not\(\[data-npc-state-delta-launcher="keep"\]\) #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
+test('launcher is always hidden (Story Suite carries Delta); the keep setting, its flags and its control are gone', () => {
+    assert.match(source, /html #\$\{LAUNCHER_ID\} \{ display: none !important; \}/);
+    assert.doesNotMatch(source, /data-npc-state-delta-story-block|data-npc-state-delta-launcher/);
     const index = runtimeSource();
-    assert.match(index, /launcherWithStoryBlock: false,/, 'hidden by default');
-    assert.match(index, /data\.npcStateDeltaLauncher = getSettings\(\)\.launcherWithStoryBlock === true \? 'keep' : 'auto'/);
-    assert.match(index, /id="npc_state_delta_launcher_with_story_block" type="checkbox"/);
-    assert.match(index, /bindSettingsCheckbox\('#npc_state_delta_launcher_with_story_block', 'launcherWithStoryBlock', applyLauncherFlag\)/);
+    assert.doesNotMatch(index, /launcherWithStoryBlock|npc_state_delta_launcher_with_story_block|applyLauncherFlag|npcStateDeltaLauncher/);
 });
 
 test('mobile and tablet launcher stays parked at the safe-area-aware side midpoint', () => {

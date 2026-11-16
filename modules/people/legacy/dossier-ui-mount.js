@@ -2,8 +2,9 @@
 import { DeltaDossierUi } from './dossier-ui-controller.js';
 import { OPEN_REQUEST_GUARD, ROOT_ID } from './dossier-ui-constants.js';
 import { plain } from './dossier-ui-model.js';
+import { pageHandles } from '../runtime/handles.js';
 
-export function mountNpcStateDeltaDossierUi(api = globalThis.NPCStateDelta) {
+export function mountNpcStateDeltaDossierUi(api = pageHandles.deltaApi) {
     if (typeof document === 'undefined' || !api) return null;
     const existing = document.getElementById(ROOT_ID);
     if (existing?.__npcStateDeltaStage1Ui) return existing.__npcStateDeltaStage1Ui;

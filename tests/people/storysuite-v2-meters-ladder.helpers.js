@@ -202,7 +202,7 @@ export async function hostedForwardParts() {
         const forward = async (before, after, reply, rows, onePass) => {
             sent.length = 0;
             const prior = globalThis.document;
-            globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } }, getElementById: () => null };   // hosted
+            globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } }, getElementById: () => null }; globalThis.__handles.hosted = true;   // hosted
             try {
                 part.forwardRelationshipChangesToHost(before, after, reply, null, [], rows, onePass);
                 for (let n = 0; n < 5; n += 1) await new Promise(resolve => setImmediate(resolve));

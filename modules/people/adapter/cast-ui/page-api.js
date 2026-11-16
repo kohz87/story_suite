@@ -1,8 +1,11 @@
 // The page API Story Director's World screen uses: render present cards with optional slots, report availability, and
-// subscribe to cast/state changes. The API object and its props remain frozen as before.
+// subscribe to cast/state changes. The API object and its props remain frozen as before. offerPage hands it to the
+// in-process handle (runtime/handles.js) that Story Director's World screen reads.
+
+import { pageHandles } from '../../runtime/handles.js';
 
 export function createPageApi(session, deps, renderCast, watchers, fire) {
-    const { doc, enabled, npcList, page, PAGE_API, PAGE_SLOT_CLASS, runtime, warn } = deps;
+    const { doc, enabled, npcList, PAGE_SLOT_CLASS, runtime, warn } = deps;
 
     // Each `slot(name, aliases)` node inside its present person's card (the card's text, under the now lines).
     function fillSlots(el, slot) {
@@ -69,11 +72,8 @@ export function createPageApi(session, deps, renderCast, watchers, fire) {
         },
     });
     function offerPage(on) {
-        if (!page || (typeof page !== 'object' && typeof page !== 'function')) return;
-        try {
-            if (on) page[PAGE_API] = pageApi;
-            else if (page[PAGE_API] === pageApi) delete page[PAGE_API];
-        } catch (error) { warn('Story Suite v2 page API failed', error); }
+        if (on) pageHandles.castApi = pageApi;
+        else if (pageHandles.castApi === pageApi) pageHandles.castApi = null;
     }
 
     return { pageApi, offerPage, fillSlots };

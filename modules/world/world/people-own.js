@@ -17,8 +17,7 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
     const listeners = new Set();
     let tell = null;             // the page API object whose onChange we follow, and how to let go of it
     // NPC State's own change tell (its people cache refills after a swipe, delete or chat change without a store write): a signal only, nothing is drawn
-    // from it. While `suite.redrawScheduler` is off the own path depends on `NPCStateDeltaCast.onChange` for it, so J15 needs an sdk-side tell (or the
-    // scheduler on) before that global goes. `signal()` is asked again at each render, so a page API that appears after the mount is followed too.
+    // from it. While `suite.redrawScheduler` is off the own path depends on the cast API's `onChange` (pageHandles.castApi) for it. `signal()` is asked again at each render, so a page API that appears after the mount is followed too.
     const follow = () => {
         let page = null;
         try { page = signal() ?? null; } catch { page = null; }

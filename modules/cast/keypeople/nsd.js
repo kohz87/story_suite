@@ -3,7 +3,7 @@
 // list, and the hook before each reply says so in one `keypeople.sync` step (index.js). Pure apart from what it is handed.
 //
 // Two ways to ask, the first that answers wins:
-// - its Story Suite api (`StorySuite.api('npc-state-delta')`, Delta's `npcs()` and `npcProfiles()`): `npcProfiles()` lists the
+// - its Story Suite api (`pageHandles.suiteApi`, Delta's `npcs()` and `npcProfiles()`): `npcProfiles()` lists the
 //   tracked people who are neither archived nor dead, so a pinned person `npcs()` knows who is archived is "archived", and
 //   one it knows who is missing from the profiles is "died";
 // - its queries (the way a Story Block 2 host reaches it): `npc.known` (the people not archived) and `npc.dossier` (whose
@@ -12,13 +12,14 @@
 // An empty answer (Delta off, or its dossiers not loaded yet) says nothing: nobody is released on silence.
 
 import { isRecord, keyOf, keysOfPin, tables } from './domain.js';
+import { pageHandles } from '../../people/runtime/handles.js';
 
 const array = value => (Array.isArray(value) ? value : []);
 
 /** Delta's Story Suite api when it is there and offers both lists, else null. */
 export function suiteApi() {
     try {
-        const api = globalThis.StorySuite?.api?.('npc-state-delta');
+        const api = pageHandles.suiteApi;
         return api && typeof api.npcs === 'function' && typeof api.npcProfiles === 'function' ? api : null;
     } catch {
         return null;
@@ -38,10 +39,10 @@ const safe = (fn, fallback) => {
 const keysOfEntry = entry => [entry?.name, ...array(entry?.aliases)].map(keyOf).filter(Boolean);
 const named = (list, keys) => list.find(entry => isRecord(entry) && keysOfEntry(entry).some(key => keys.includes(key)));
 
-/** Whether Delta has its chat's dossiers loaded (and is on), by its page api; false when it cannot be told. */
+/** Whether Delta has its chat's dossiers loaded (and is on), by its runtime api; false when it cannot be told. */
 export function deltaLoaded() {
     try {
-        const api = globalThis.NPCStateDelta;
+        const api = pageHandles.deltaApi;
         if (typeof api?.uiStatus !== 'function') return false;
         if (typeof api.isEnabled === 'function' && api.isEnabled() === false) return false;
         return api.uiStatus()?.hydrationStatus === 'ready';

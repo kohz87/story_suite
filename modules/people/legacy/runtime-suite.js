@@ -7,6 +7,7 @@ import { extension_settings } from '../../../extensions.js';
 import { recentTranscript } from '../transcript/transcript.js';
 import { NPC_STATE_VERSION, buildNarrationCapturePrompt, setExternalCalendarSource } from '../core/core.js';
 import { storySuite } from './suite.js';
+import { pageHandles } from '../runtime/handles.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { SUITE_AREAS, SUITE_SHOWS, NARRATION_CAPTURE_OUTPUT_ESTIMATE_CHARS, announceNpcStateDelta, areaOwner, buildManageApi, buildNpcProfiles, ensureSuiteStylesheet, replyTokenEstimate, resolveDossierTarget, externalCalendar, normalizeSourceOfTruth, statsOverlapWarning, suiteManageAvailable } from './suite-handshake.js';
 import { EXTENSION_NAME, persistSettings, getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
@@ -127,7 +128,7 @@ export function createSuitePart(rt, deps) {
         updateInjection();
         renderDossier();
         // The in-chat cast leaves with Delta and comes back with it.
-        try { globalThis.NPCStateDelta?.renderInline?.(); } catch { /* the cards follow at the next render */ }
+        try { pageHandles.deltaApi?.renderInline?.(); } catch { /* the cards follow at the next render */ }
         // (1.2.15) The enabled-changed event: Story Suite's own follow-ups listen for it.
         if (typeof CustomEvent === 'function') globalThis.document?.dispatchEvent?.(new CustomEvent('npc-state-delta:enabled-changed', { detail: { enabled: getSettings().enabled !== false } }));
     }

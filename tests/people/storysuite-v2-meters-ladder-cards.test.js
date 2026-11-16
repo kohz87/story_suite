@@ -122,7 +122,7 @@ test('hosted forward: an open dossier panel draws again when each delayed npc.ad
     const refreshes = [];
     let cleanup = null;
     const prior = globalThis.document;
-    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } }, getElementById: id => (id === 'npc_state_delta_dossier_root' ? { __npcStateDeltaStage1Ui: { scheduleRefresh: () => refreshes.push(calls.length) } } : null) };
+    globalThis.document = { documentElement: { dataset: { npcStateDeltaStoryBlockV2: '1' } }, getElementById: id => (id === 'npc_state_delta_dossier_root' ? { __npcStateDeltaStage1Ui: { scheduleRefresh: () => refreshes.push(calls.length) } } : null) }; globalThis.__handles.hosted = true;
     try {
         const rt = { storySuiteV2: { hosted: () => true, adjust: change => { calls.push(change.name); return new Promise(resolve => { release = resolve; }); } } };
         // runtime-hosted.js with its siblings copied beside it; only the SillyTavern-bound helper and settings files are stubs.

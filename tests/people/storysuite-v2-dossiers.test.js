@@ -4,19 +4,20 @@
 // * It is the dossier browser: every dossier (v1's Dossiers list, with search), each opening its dossier.
 // * The present cast's cards move to Story Director's World screen; without Story Director (or with its World
 //   view off) they stay at the top of Dossiers, so nothing is lost.
-// * The page API Story Director draws them with (`globalThis.NPCStateDeltaCast`): render(el, { slot }), the
+// * The page API Story Director draws them with (`pageHandles.castApi`): render(el, { slot }), the
 //   slot node inside each present card, and onChange(fn) after Delta's cast changes, so World follows a scan
 //   that ends after the reply without a tab switch.
 // UI only: no prompt, query answer or stored value changes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    CAST_SCREEN_ID, CAST_TAB_ID, CAST_WIDGET, DOSSIERS_TITLE, PAGE_API, PAGE_SLOT_CLASS, WORLD_FEATURE, createStorySuiteV2Adapter,
+    CAST_SCREEN_ID, CAST_TAB_ID, CAST_WIDGET, DOSSIERS_TITLE, PAGE_SLOT_CLASS, WORLD_FEATURE, createStorySuiteV2Adapter,
 } from '../../modules/people/storysuite-v2.js';
 import { dossierRowNodes } from '../../modules/people/legacy/story-block-tabs.js';
 import { dossierIndexProjection, filterDossierIndex } from '../../modules/people/legacy/dossier-ui.js';
 import { fakeRoot } from './helpers/fake-dom.js';
 import { runtimeSource } from './helpers/runtime-source.js';
+import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 // ---- a small DOM: elements keep their children, classes, attributes and text. A root's innerHTML is the markup it was
 // given plus its children serialised, so a test reads what a reader sees; the present cells it was given are found by
@@ -155,16 +156,15 @@ async function setup({ world = false, hostValue = 'v2', loadDossierList = v1List
     const delta = fakeDelta();
     const sdk = fakeSdk({ world });
     const host = hostValue === 'v2' ? { apiVersion: 2, sdk, ready: Promise.resolve(sdk) } : hostValue;
-    const page = {};
     const adapter = createStorySuiteV2Adapter({
         suiteApi: { npcs: () => NPCS.map(npc => ({ id: npc.id, name: npc.name, aliases: npc.aliases, present: npc.present, archived: npc.archived })) },
-        delta: () => delta.api, host: () => host, doc, page, logger: { warn() {} }, retryMs: 1, attempts: 2, aliveMs: 1e9,
+        delta: () => delta.api, host: () => host, doc, logger: { warn() {} }, retryMs: 1, attempts: 2, aliveMs: 1e9,
         loadEmptyCast: async () => reason => `<p class="npc-state-delta-story-empty">${reason?.text ?? ''}</p>`, loadDossierList,
     });
     adapter.start();
     await adapter.settled();
     await new Promise(resolve => setTimeout(resolve, 0));
-    return { doc, delta, sdk, page, adapter, def: adapter.definition };
+    return { doc, delta, sdk, adapter, def: adapter.definition };
 }
 
 test('the tab and the screen are titled Dossiers; their ids stay cast and npc-state-delta/cast', async () => {
@@ -235,8 +235,8 @@ test('before v1\'s list has loaded (or if it cannot), Dossiers is a plain list o
 });
 
 test('the page API: on the page while the adapter runs; draws the present cards with a slot inside each; gone on stop', async () => {
-    const { doc, page, adapter } = await setup({ world: true });
-    const api = page[PAGE_API];
+    const { doc, adapter } = await setup({ world: true });
+    const api = pageHandles.castApi;
     assert.equal(api, adapter.pageApi);
     assert.equal(api.version, 2);
     assert.equal(api.available(), true);
@@ -257,12 +257,12 @@ test('the page API: on the page while the adapter runs; draws the present cards 
     api.render(el, {});
     assert.equal(el.cells()[0].children[0].children.filter(child => child.classList.contains(PAGE_SLOT_CLASS)).length, 0, 'no slot asked: none left');
     adapter.stop();
-    assert.equal(page[PAGE_API], undefined);
+    assert.equal(pageHandles.castApi, null);
 });
 
 test('onChange: called when Delta draws its cast again (a scan that ends after the reply) and when it is hosted or not', async () => {
-    const { doc, page, adapter } = await setup({ world: true });
-    const api = page[PAGE_API];
+    const { doc, adapter } = await setup({ world: true });
+    const api = adapter.pageApi;
     let calls = 0;
     const off = api.onChange(() => { calls += 1; });
     doc.fire('npc-state-delta:cast-rendered');
@@ -281,8 +281,8 @@ test('onChange: called when Delta draws its cast again (a scan that ends after t
 });
 
 test('not hosted (no Story Block v2): the page API is there but draws nothing, and says so', async () => {
-    const { doc, page, adapter } = await setup({ hostValue: null });
-    const api = page[PAGE_API];
+    const { doc, adapter } = await setup({ hostValue: null });
+    const api = adapter.pageApi;
     assert.equal(api.available(), false);
     const el = element(doc);
     assert.equal(api.render(el, { slot: () => node(doc) }), 0);
@@ -312,8 +312,8 @@ test('a present card: the stage is set on its name line, the NPC\'s meters are i
 const later = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 test('page API busy(): false idle; true for a held reply, a queued scan, a running scan and deferred work; false when done; version 2', async () => {
-    const { page, delta, adapter } = await setup({ world: true });
-    const api = page[PAGE_API];
+    const { delta, adapter } = await setup({ world: true });
+    const api = adapter.pageApi;
     assert.equal(api.version, 2);
     assert.equal(api.busy(), false, 'idle');
     for (const kind of ['received', 'queued', 'running', 'deferred']) {
@@ -332,11 +332,11 @@ test('page API busy(): false idle; true for a held reply, a queued scan, a runni
 test('page API busy(): not hosted or off reads false; onChange fires once when it turns false, with no card changed', async () => {
     const off = await setup({ hostValue: null });
     off.delta.work.running = true;
-    assert.equal(off.page[PAGE_API].busy(), false, 'not hosted');
+    assert.equal(off.adapter.pageApi.busy(), false, 'not hosted');
     off.adapter.stop();
 
-    const { page, delta, adapter } = await setup({ world: true });
-    const api = page[PAGE_API];
+    const { delta, adapter } = await setup({ world: true });
+    const api = adapter.pageApi;
     let calls = 0;
     api.onChange(() => { calls += 1; });
     delta.work.running = true;

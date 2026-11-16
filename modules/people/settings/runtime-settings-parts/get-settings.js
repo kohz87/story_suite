@@ -56,8 +56,6 @@ export function getSettings() {
     assign('admissionMode', normalizeNpcAdmissionMode(settings.admissionMode));
     assign('presentCastDisplay', normalizePresentCastDisplay(settings.presentCastDisplay));
     assign('presentCastDisplayChosen', settings.presentCastDisplayChosen === true);
-    assign('launcherWithStoryBlock', settings.launcherWithStoryBlock === true);
-    assign('launcherWithStoryBlockV2', settings.launcherWithStoryBlockV2 === true);
     // 1.0.70 raised the default budget from 1800 to 4000 tokens. An install still on the old default
     // is moved once; any value the player chose, including a later deliberate 1800, is kept.
     const legacyDefaultBudget = settings.injectBudgetDefaultUpgraded !== true && Number(settings.injectBudgetTokens) === 1800;
@@ -101,7 +99,6 @@ export function getSettings() {
     assign('staleArchiveAfter', archiveAfter);
     assign('staleDeleteAfter', Math.max(archiveAfter + 1, Math.min(1000, Math.round(Number(settings.staleDeleteAfter) || 50))));
     assign('injectLimit', Math.max(1, Math.min(12, Math.round(Number(settings.injectLimit) || 3))));
-    assign('fullCastScanEveryTurn', settings.fullCastScanEveryTurn === true);
     assign('scannerMaxOutputTokens', normalizeScannerMaxOutputTokens(settings.scannerMaxOutputTokens));
     assign('relationshipMap', normalizeRelationshipMapSettings(settings.relationshipMap), sameJson);
     assign('dossierStyle', normalizeDossierSkin(settings.dossierStyle));

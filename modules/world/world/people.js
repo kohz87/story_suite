@@ -3,7 +3,7 @@
 //
 // * With NPC State Delta installed and on, its own present-cast cards (the portraits, now lines, chatter
 //   bubbles and meters its Cast tab drew, in its markup and classes), drawn by Delta through the page API it
-//   offers (`globalThis.NPCStateDeltaCast.render(el, { slot })`); nothing of its markup is copied here. A
+//   offers (`pageHandles.castApi.render(el, { slot })`); nothing of its markup is copied here. A
 //   card opens its dossier (Delta's own click handling). Anyone Story Block lists as here who has no card yet
 //   (no dossier, or Delta has not scanned them) is a chip below the cards, so no one is left out.
 // * Without it (or while it is off or still loading), one chip per person: with NPC State Delta's queries
