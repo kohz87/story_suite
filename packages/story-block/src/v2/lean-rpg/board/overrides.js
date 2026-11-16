@@ -4,6 +4,7 @@
 // Also the consumables' two outside-the-fight hooks (owner 14 Nov): `items.useOn` (whom the inventory's Use on… offers) and `item.use` (the
 // Use on… button and the story's `- item X | used: yes`): one rule, board/rules.js `recoveryOf`, the same one the fight board's Use item uses.
 
+import { boardChangeCommands } from './changes.js';
 import { CORE_FEATURE } from '../../features.js';
 import { fold, matchCharacter, readSheet } from '../read.js';
 import { actorIdOf, rosterOf as partyRoster } from '../roster.js';
@@ -115,7 +116,7 @@ export function createBoardPart({ persona = () => '', metadata = () => null } = 
         return { summary: 'Skill choices carried.', narrate: false };
     };
     const use = Object.assign((ctx, payload) => useItem(ctx, payload, persona), { feature: LEAN_RPG_FEATURE });
-    return { commands: { [BOARD_SKILL]: edit, [BOARD_SKILL_CARRY]: carry, [USE_ITEM]: use },
+    return { commands: { [BOARD_SKILL]: edit, [BOARD_SKILL_CARRY]: carry, [USE_ITEM]: use, ...boardChangeCommands() },
         // (a fallback: a module that answers `items.useOn` itself owns the name and is the one asked, as the party roster's queries are)
         queries: { 'items.useOn': Object.assign((state) => usersFor(state, metadata), { feature: LEAN_RPG_FEATURE, fallback: true }) } };
 }

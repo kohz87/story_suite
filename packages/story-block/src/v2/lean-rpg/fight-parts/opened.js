@@ -1,6 +1,6 @@
 // The groups a roll opened and the groups of a won board fight the block no longer shows.
 
-import { RESOLVE } from '../names.js';
+import { isRollReceipt } from '../board/results.js';
 import { foeLevel } from './levels.js';
 import { isObject, whole } from './shared-values.js';
 
@@ -8,7 +8,7 @@ import { isObject, whole } from './shared-values.js';
 function openedEntries(receipts) {
     const out = new Map();
     for (const receipt of Array.isArray(receipts) ? receipts : []) {
-        const opened = receipt?.type === RESOLVE && isObject(receipt.data?.v2?.result) ? receipt.data.v2.result.opened : null;
+        const opened = isRollReceipt(receipt) && isObject(receipt.data?.v2?.result) ? receipt.data.v2.result.opened : null;
         if (Array.isArray(opened)) for (const entry of opened) if (isObject(entry)) out.set(entry.slot, entry);
     }
     return out;

@@ -1,5 +1,6 @@
 // The part's afterCapture for story checks: asks for the guarded `rpg.check` step from the reply's roll lines.
-import { CHECK_STEP, DICE, LEAN_RPG_FEATURE, PRACTICE, RESOLVE } from '../names.js';
+import { CHECK_STEP, DICE, LEAN_RPG_FEATURE, PRACTICE } from '../names.js';
+import { isFightReceipt } from '../board/results.js';
 import { diceOf, tableOf } from '../checks/dice.js';
 import { isObject } from './shared-values.js';
 import { PAID_TYPES, CHECK_LINES } from './shared-limits.js';
@@ -25,7 +26,7 @@ export function checksHook(view, info) {
     const old = info?.type === 'reread' ? (info.previous ?? []).filter(receipt => receipt?.type === CHECK_STEP).map(receipt => receipt.replan?.payload).find(isObject) : undefined;
     const table = dice && Array.isArray(kept?.table) && (!old || Array.isArray(old.table)) ? tableOf(kept.table) : null;
     // A fight and separate story checks can share a reply. Both use the same per-skill cap; old check steps retain their original inputs.
-    const board = receipts.findLast(receipt => receipt?.type === RESOLVE && receipt.replan?.payload?.board);
+    const board = receipts.findLast(receipt => isFightReceipt(receipt));
     const fight = board && rollOf([board]);
     const spent = fight && (!old || Array.isArray(old.spent)) ? usesOf(fight).map(use => ({ who: use.who, skill: use.skill, amount: Math.min(PRACTICE.max, use.n * fight.practice) })) : [];
     return { commands: [{ type: CHECK_STEP, payload: { lines, dice, practice: true, ...(inOrder ? { inOrder: true } : {}), ...(table ? { table } : {}), ...(spent.length ? { spent } : {}) } }] };

@@ -4,6 +4,7 @@
 import { readRecord } from '../../persist.js';
 import { fold, readSheet } from '../read.js';
 import { boardSession } from './session.js';
+import { isRollReceipt } from './results.js';
 import { offerLineData } from './start-view-data.js';
 
 const standing = state => state ? readSheet(state).foes.filter(foe => foe.filled && foe.hurt > 0) : [];
@@ -23,7 +24,7 @@ function receiptsOf(store, index) {
         if (entry?.index !== index) continue;
         const kind = entry.receipt?.type === 'capture.dm' ? /^set-slot-([1-6])$/u.exec(String(entry.receipt.data?.v2?.result?.kind ?? '')) : null;
         if (kind) slots.add(Number(kind[1]));
-        const result = entry.receipt?.type === 'rpg.resolve' ? entry.receipt.data?.v2?.result : null;
+        const result = isRollReceipt(entry.receipt) ? entry.receipt.data?.v2?.result : null;
         if (result?.board && ['won', 'fled'].includes(result.stop)) ended = result.stop;
     }
     return { slots, ended };
@@ -37,7 +38,7 @@ export function lastFoeTouch(entries) {
     let at = -1;
     for (const entry of Array.isArray(entries) ? entries : []) {
         const type = entry?.receipt?.type, data = entry?.receipt?.data?.v2?.result;
-        const touched = (type === 'capture.dm' && /^set-slot-[1-6]$/u.test(String(data?.kind ?? ''))) || (type === 'rpg.resolve' && Boolean(data?.board));
+        const touched = (type === 'capture.dm' && /^set-slot-[1-6]$/u.test(String(data?.kind ?? ''))) || (isRollReceipt(entry?.receipt) && Boolean(data?.board));
         if (touched && Number.isInteger(entry.index) && entry.index > at) at = entry.index;
     }
     return at;

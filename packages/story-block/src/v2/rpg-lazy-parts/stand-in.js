@@ -1,7 +1,7 @@
 // The RPG part's stand-in: the same commands, cards, queries, hooks, settings and guard, handed to the real part once the library is there.
 
 import { CORE_FEATURE } from '../features.js';
-import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, NOROLL, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, RESOLVE, ROLLS, ROLLS_SETTING, USE_ITEM } from '../lean-rpg/names.js';
+import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_CLEAR_FOES, BOARD_HURTS, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, NOROLL, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, RESOLVE, ROLLS, ROLLS_SETTING, USE_ITEM } from '../lean-rpg/names.js';
 import { noRoll } from '../lean-rpg/noroll.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../lean-rpg/levels.js';
 import { levelsQuery, rosterQueries } from '../lean-rpg/roster.js';
@@ -32,6 +32,9 @@ export function createLazyRpgPart(deps = {}) {
             [BOARD_SKILL_CARRY]: run(BOARD_SKILL_CARRY, ctx => waiting(ctx)),
             // (a consumable's effect, owner 14 Nov: the inventory's Use on… and the story's used line; only while the RPG is on)
             [USE_ITEM]: Object.assign(run(USE_ITEM, ctx => waiting(ctx)), { feature: LEAN_RPG_FEATURE }),
+            // (the fight kind's two writes to the Foes block, board/changes.js: only the settle calls them)
+            [BOARD_HURTS]: Object.assign(run(BOARD_HURTS, ctx => waiting(ctx)), { internal: true }),
+            [BOARD_CLEAR_FOES]: Object.assign(run(BOARD_CLEAR_FOES, ctx => waiting(ctx)), { internal: true }),
             [RESOLVE]: Object.assign(run(RESOLVE, ctx => waiting(ctx)), { prelude: true, internal: true }),
             // (a tiny record with no state, answered at once, the library or not: a stored note replays whatever is loaded)
             [NOROLL]: Object.assign((ctx, payload) => noRoll(ctx, payload), { prelude: true, internal: true }),
