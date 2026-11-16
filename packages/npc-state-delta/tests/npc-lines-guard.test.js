@@ -10,6 +10,7 @@ const records = () => ({
     npc_wren: person('npc_wren', 'Wren', { goal: 'reader goal', location: 'the keep', manualProfileFields: ['goal', 'location'] }),
     npc_mara: person('npc_mara', 'Mara', { goal: 'old goal', status: 'dying', location: 'the crypt', gender: 'female', lifeState: 'deceased', archived: true }),
     npc_kit: person('npc_kit', 'Kit'),
+    npc_ned: person('npc_ned', 'Ned', { lifeState: 'deceased', archived: true }),
 });
 const dossier = (s, id) => s.host.head().domains.people.npcs[id];
 const problems = s => JSON.stringify(s.host.head().domains.people.bonds.problems);
@@ -100,4 +101,34 @@ test('a Re-read that writes + present AFTER the ~ npc where: line still refuses 
     assert.equal((await s.host.sdk.reread(at)).ok, true);
     assert.equal(dossier(s, 'npc_kit').location, 'the quay', 'a place line after the where: line leaves Kit away from the scene, so where applies');
     same(s, 'replay equals live');
+});
+
+test('after death an unstated gender is filled in once; a stated one stays and the card says so; the same on a swipe, an edited Re-read, a rewind and a reload', async () => {
+    const s = await suite({ records: records() });
+    await s.say(['~ npc Mara | gender: male', '~ npc Ned | gender: female']);
+    assert.equal(dossier(s, 'npc_ned').gender, 'female', 'a dead person with no stated gender takes it');
+    assert.equal(dossier(s, 'npc_mara').gender, 'female', 'a stated gender stays frozen');
+    assert.match(problems(s), /gender is already set for this person/);
+    assert.doesNotMatch(problems(s), /Ned has died/);
+    same(s, 'replay equals live');
+    await s.swipe(['~ npc Ned | gender: male']);
+    assert.equal(dossier(s, 'npc_ned').gender, 'male', 'the swipe replaces the first answer');
+    assert.equal(dossier(s, 'npc_mara').gender, 'female');
+    same(s, 'swipe replay equals live');
+    const at = await s.say(['~ npc Ned | gender: female']);
+    assert.equal(dossier(s, 'npc_ned').gender, 'male', 'once filled it stays: a later line does not change it');
+    const edit = lines => { s.host.ctx.chat[at].mes = `The story goes on.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`; };
+    edit(['~ npc Mara | gender: male', '~ npc Ned | gender: female, and tall']);
+    assert.equal((await s.host.sdk.reread(at)).ok, true);
+    assert.equal(dossier(s, 'npc_mara').gender, 'female');
+    same(s, 'edited Re-read (grown) replay equals live');
+    edit([]);
+    assert.equal((await s.host.sdk.reread(at)).ok, true);
+    assert.equal(dossier(s, 'npc_ned').gender, 'male', 'a shrunk Re-read leaves the earlier fill');
+    same(s, 'edited Re-read (shrunk) replay equals live');
+    await s.host.st.deleteMessage(at);
+    await s.host.st.deleteMessage(at - 1);
+    same(s, 'rewind replay equals live');
+    await s.host.turn.onChatChanged();
+    same(s, 'reload equals live');
 });

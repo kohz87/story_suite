@@ -2,9 +2,10 @@
 // Reads the dossier the reply sees (ctx.read('people'), reply-pinned), so a swipe, a Re-read and a replay decide the same way.
 import { lockedFieldKeys } from '../dossier-edit.js';
 import { TERMINAL_FROZEN_FIELDS } from '../fields/registry.js';
+import { unknownWord } from './facts.js';
 
 const LINE_NAME = Object.freeze({ location: 'where', appearance: 'look' });
-const DEAD_ALSO = Object.freeze(['gender']);   // P6: gender no longer changes once a person has died
+// P6: once a person has died a STATED gender no longer changes; one never stated may still be filled in once (the reader can always edit it by hand).
 
 /** → { set, problems }: `set` without the dropped fields (keys are the dossier's own: goal, status, location, appearance, gender, age, birthday). */
 export function guardFields(set, dossier, name) {
@@ -12,7 +13,8 @@ export function guardFields(set, dossier, name) {
     const problems = [];
     const locks = new Set((Array.isArray(dossier?.manualProfileFields) ? dossier.manualProfileFields : []).flatMap(field => [field, ...lockedFieldKeys(field)]));
     const dead = dossier?.lifeState === 'deceased';
-    const frozen = new Set([...TERMINAL_FROZEN_FIELDS, ...DEAD_ALSO]);
+    const stated = String(dossier?.gender ?? '').trim() !== '' && !unknownWord(dossier?.gender);
+    const frozen = new Set(stated ? [...TERMINAL_FROZEN_FIELDS, 'gender'] : TERMINAL_FROZEN_FIELDS);
     for (const [key, value] of Object.entries(set)) {
         const label = LINE_NAME[key] ?? key;
         if (locks.has(key) || (key === 'birthday' && locks.has('birthDate')) || (key === 'age' && locks.has('apparentAge'))) problems.push(`${label} is locked by you; not changed.`);
