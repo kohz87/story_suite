@@ -57,7 +57,8 @@ export async function boot({ late = [] } = {}) {
     const { sdk, api, turn, markReady } = runtime;
     // (An old v1 copy loaded before this one left its own object here: src/v2/v1-copy.js.)
     const before = globalThis.StoryBlock ?? null;
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api });
+    // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
+    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes });
     const v1 = createV1Watch({ before, report: entry => turn.report(entry), problems: () => turn.problems() });
     const lookForV1 = () => { try { v1.check(); } catch { /* never in the way of the story */ } };
 

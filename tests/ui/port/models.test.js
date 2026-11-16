@@ -2,23 +2,25 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { modelsCommand } from '../../../ui/port/models.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
+import { createRuntime } from '../../../core/runtime.js';
+import { createFakeContext } from '../../../testkit/fake-st.js';
 
 function sdk({ answer = { ok: true, text: 'ok' } } = {}) {
   const stored = {};
   const calls = [];
   return {
     stored, calls,
-    settings: { set: (id, key, value) => { stored[key] = value; return value; } },
+    writes: { settings: { set: (id, key, value) => { stored[key] = value; return value; } } },
     callModel: async request => { calls.push(request); return answer; },
   };
 }
 
 test('picking a connection stores the role\'s profile name on the host settings', async () => {
   const s = sdk();
-  assert.deepEqual(await modelsCommand(s, 'settings.set', { key: 'models.quick', value: 'Cheap' }), { ok: true, value: 'Cheap' });
-  await modelsCommand(s, 'settings.set', { key: 'models.background', value: '' });
+  assert.deepEqual(await modelsCommand(s, 'settings.set', { key: 'models.quick', value: 'Cheap' }, Date.now, s.writes), { ok: true, value: 'Cheap' });
+  await modelsCommand(s, 'settings.set', { key: 'models.background', value: '' }, Date.now, s.writes);
   assert.deepEqual(s.stored, { quickConnection: 'Cheap', backgroundConnection: '' });
-  assert.equal((await modelsCommand(s, 'settings.set', { key: 'models.story', value: 'x' })).ok, false, 'Story has no setting');
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'models.story', value: 'x' }, Date.now, s.writes)).ok, false, 'Story has no setting');
 });
 
 test('Test makes one tiny call on the role and answers with the seconds, or the message', async () => {
@@ -40,19 +42,38 @@ test('other commands are not the Models page\'s: null, and the port hands them t
   await port.command('settings.set', { key: 'host.tailBudget', value: 2 });
   assert.deepEqual(calls, [['settings.set', { key: 'host.tailBudget', value: 2 }]]);
   const own = sdk();
-  await createSbPort({ sdk: own }).command('settings.set', { key: 'models.quick', value: 'Cheap' });
+  await createSbPort({ sdk: own, writes: own.writes }).command('settings.set', { key: 'models.quick', value: 'Cheap' });
   assert.equal(own.stored.quickConnection, 'Cheap');
 });
 
-test('the Calls group stores through the port: the queue, the fallback kinds (chip labels to op kinds) and the fallback switch', async () => {
+// The real runtime's public sdk has no settings.set or features.set; the page writes through `runtime.writes` (what StoryBlock.writes is).
+function real() {
+  const st = createFakeContext({ chat: [] });
+  const runtime = createRuntime({ ctx: st.ctx });
+  return { runtime, saved: () => st.ctx.extensionSettings.storySuite, port: createSbPort({ sdk: runtime.sdk, writes: runtime.writes }) };
+}
+
+test('the real sdk has no setter, so the Calls group and the connections save through the host writes', async () => {
+  const { runtime, saved, port } = real();
+  assert.equal(runtime.sdk.settings.set, undefined);
+  assert.equal(runtime.sdk.features.set, undefined);
+  assert.equal((await port.command('settings.set', { key: 'calls.queue', value: false })).ok, true);
+  assert.equal((await port.command('settings.set', { key: 'calls.kinds', value: ['Time set', 'World news'] })).ok, true);
+  assert.equal((await port.command('settings.set', { key: 'calls.fallback', value: true })).ok, true);
+  assert.equal((await port.command('settings.set', { key: 'models.quick', value: 'Cheap' })).ok, true);
+  assert.equal(saved().core.callQueue, false);
+  assert.equal(saved().modules['story-block'].assistExtractorKinds, '! time, + world');
+  assert.equal(saved().features['story-block.extractor'], true);
+  assert.equal(saved().core.quickConnection, 'Cheap');
+  assert.equal(runtime.sdk.settings(null).callQueue, false, 'and the engine reads it back');
+  assert.equal(runtime.sdk.feature('story-block.extractor'), true);
+  assert.equal((await port.command('settings.set', { key: 'calls.queue', value: true })).ok, true);
+  assert.equal(runtime.sdk.settings(null).callQueue, true);
+});
+
+test('without the host writes nothing is claimed saved, and an unknown Calls key is refused', async () => {
   const s = sdk();
-  const stored = [];
-  s.settings.set = (id, key, value) => { stored.push([id, key, value]); return value; };
-  s.features = { set: (id, on) => { stored.push([id, on]); return on; } };
-  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.queue', value: true })).ok, true);
-  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.kinds', value: ['Time set', 'World news'] })).ok, true);
-  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.fallback', value: true })).ok, true);
-  assert.deepEqual(stored, [[null, 'callQueue', true], ['story-block', 'assistExtractorKinds', '! time, + world'], ['story-block.extractor', true]]);
-  assert.equal((await modelsCommand(sdk(), 'settings.set', { key: 'calls.fallback', value: true })).ok, false, 'no feature store: not saved, said plainly');
-  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.nope', value: 1 })).ok, false);
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.fallback', value: true })).ok, false);
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.queue', value: true })).ok, false);
+  assert.equal((await modelsCommand(s, 'settings.set', { key: 'calls.nope', value: 1 }, Date.now, s.writes)).ok, false);
 });

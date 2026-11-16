@@ -98,9 +98,12 @@
 .cn .cdesc{align-self:start}
 .cn .sel2{align-self:center}
 .cn .tst2{margin:0}
+/* the one-line note under the picker (no profiles, Connection Manager off, stored profile gone): a sixth row only while a card has one, so the mock's five rows stay exact */
+.conn:has(.cnote){grid-template-rows:repeat(6,auto)}.conn:has(.cnote) .cn{grid-row:span 6}.conn:has(.cnote) .tst2{grid-row:5}.conn:has(.cnote) .usesw{grid-row:6}
+.cn .cnote{font-size:12px;line-height:1.35;color:var(--su-soft);align-self:start}
 .usesw{display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--su-line2);padding-top:8px}
 .usesw .ul{font:800 10.5px var(--su-font);letter-spacing:.1em;text-transform:uppercase;color:var(--su-muted)}
-@container (max-width:600px){.conn{grid-template-rows:none}.cn{grid-row:auto;grid-template-rows:none}}
+@container (max-width:600px){.conn,.conn:has(.cnote){grid-template-rows:none}.cn,.conn:has(.cnote) .cn{grid-row:auto;grid-template-rows:none}.conn:has(.cnote) .tst2,.conn:has(.cnote) .usesw{grid-row:auto}}
 .srow .lb .tg2{font-size:12px}
 .sgrp>.gt,.snav .grpl{font-size:12px}
 .usesw .ul,.cn .uses span,.mc,.pre em,.tst2 small{font-size:12px}

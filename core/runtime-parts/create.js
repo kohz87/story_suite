@@ -313,5 +313,7 @@ export function createRuntime({
         dialogCurrent = typeof current === 'function' ? current : null;
     };
     const setGuardRefresh = fn => { guardRefresh = typeof fn === 'function' ? fn : null; };
-    return { registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
+    /** `writes`: the reader's own stores for the Story Suite view (the public sdk reads settings and has no setter). */
+    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value) }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
+    return { writes, registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
 }
