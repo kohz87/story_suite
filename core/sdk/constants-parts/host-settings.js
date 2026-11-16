@@ -23,7 +23,7 @@ export const HOST_SETTINGS_SCHEMA = Object.freeze({
     // The Models page's two roles (core/model-call/connection-for.js): '' is the chat's connection. Story is always the chat's.
     quickConnection: Object.freeze({
         type: 'profile', label: 'Quick helpers connection',
-        help: 'The connection for the short calls a reply waits on: the check roll before the reply, fight set-up and cast moves. Same as chat: the chat\'s connection.',
+        help: 'The connection for the short calls a reply waits on: the check roll before the reply, the set-up of a story interaction and cast moves. Same as chat: the chat\'s connection.',
     }),
     backgroundConnection: Object.freeze({
         type: 'profile', label: 'Background connection',
