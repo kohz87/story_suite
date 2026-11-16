@@ -19,7 +19,7 @@ test('a reply gets three whole d20 from its seed, and the same seed gives the sa
 
 test('the note tells the dice, the difficulty numbers, the success rule and each member\'s exact bonus for every stat and skill', () => {
     const record = { list: [9, 17, 4], rules, dc: { ...LIMITS.dc }, perUse: 3, table: bonusTable([astra]) };
-    // stat÷2 + level÷4 (STR 10: 5 + 2); a utility skill adds half its mastery rounded up (Obscure, Adept: 3 + 2 + 1); a skill with no stat leads with STR (Lore, Novice: 5 + 2 + 1)
+    // stat÷2 + level÷4 (STR 10: 5 + 2); a utility skill adds half its mastery rounded up (Obscure, Apprentice: 3 + 2 + 1); a skill with no stat leads with STR (Lore, Novice: 5 + 2 + 1)
     assert.equal(offerLine(record), 'Dice for this reply, in order: 9, 17, 4. Use one for each attempt that can fail (yours or a party member\'s): total = die + bonus, against easy 10 (routine for a trained person), normal 15 (a real chance to fail), hard 20 (a skilled person often fails), very hard 25 (rarely done). Total at the number or over: success; less: fail; a natural 1 always fails. Bonus by stat or skill (level included): Astra: STR+7 VIT+6 AGI+8 DEX+5 INT+9 LUK+6 CHA+7; Obscure+6, Lore+8. The checks take the dice in the order given. The story must follow each result strictly. Tell only what happens: dice, bonuses, totals and difficulty numbers never go in the story text. Report each: ? roll Who | skill or stat | difficulty, where Who is the person rolling (the reader\'s character or a party member, by name), never the action; for example ? roll Astra | Obscure | normal.');
 });
 
