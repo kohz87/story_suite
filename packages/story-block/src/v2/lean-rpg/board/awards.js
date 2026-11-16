@@ -8,6 +8,6 @@ export function boardWin(receipts) {
     const receipt = (Array.isArray(receipts) ? receipts : []).findLast(item => isRollReceipt(item) && item.data?.v2?.result?.board);
     const result = receipt?.data?.v2?.result;
     if (!result) return null;
-    return { won: result.stop === 'won', groups: Array.isArray(result.board.groups) ? result.board.groups : [], bars: result.bars === 2, cleared: Array.isArray(result.cleared) && result.cleared.length > 0,
+    return { won: result.stop === 'won', ...(result.board.v1 === 1 ? { v1: true } : {}), groups: Array.isArray(result.board.groups) ? result.board.groups : [], bars: result.bars === 2, cleared: Array.isArray(result.cleared) && result.cleared.length > 0,
         claim: typeof receipt.data?.v2?.key === 'string' ? receipt.data.v2.key : null };
 }
