@@ -396,7 +396,9 @@ Reject cycles between these imports; each query is read-only and cannot initiali
 Delete/swipe removes the reply's ops, claims, checks, timer advances and rewards. Reply-bound pins
 cannot be carried forward when the earliest reply disappears; dependent blocks go inactive.
 Re-read replaces story actions and asks `afterCapture` again; unchanged lines keep seeds/occurrences
-under REPLAY's rules. A Re-read of the pin's own reply keeps the reader's pin as stored (its guard
+under REPLAY's rules. A later block, guarded or legacy, whose claim an edited Re-read of an earlier reply now
+holds is skipped with one `claim already held` Problem (REPLAY.md rule 4): the first holder wins, nothing is paid
+twice. A Re-read of the pin's own reply keeps the reader's pin as stored (its guard
 asked again); it does not pin again. A text edit alone changes no state. Rebuild applies stored ops only; ordinary replay does
 not re-offer, resettle or call capture/timer hooks. Quarantine, checkpoint prefix trust and savepoint
 epochs stay the host's. Keep frozen interpreter semantics for old pins; never reinterpret v1 as v2.
