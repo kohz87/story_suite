@@ -1,10 +1,11 @@
-// Seeded fuzz over the whole people path (J07 step 5): 20 seeds x 30 steps of reply, native change, new swipe, swipe back, last delete, middle delete,
-// reload and rebuild on the live Story Block host with NPC State Delta's participant and mirror. After every step, once the participant has settled,
-// the head's people equal the view of Delta's state. The failure message names the seed and step. Set PEOPLE_FUZZ_STATS=1 to print each seed's tally.
+// Seeded fuzz over the whole people path (P3, was participant-fuzz): 20 seeds x 30 steps of reply, native change, new swipe, swipe back, last delete, middle delete,
+// reload and rebuild on the live Story Block host with NPC State Delta's real adapter (people sync over a fake runtime). After every step, with NO publication to
+// heal it, the cache equals the store's slice, the slice equals the oracle's rebuild and the Delta queries answer the store's people (helpers/proofs.js).
+// The failure message names the seed and step. Set PEOPLE_FUZZ_STATS=1 to print each seed's tally.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { peopleRig, record } from './helpers/people-rig.js';
-import { hashJson } from '../../packages/npc-state-delta/src/storysuite-participant/hash.js';
+import { proveHead } from './helpers/proofs.js';
 
 const SEEDS = Array.from({ length: 20 }, (_, i) => 101 + i * 37);
 const STEPS = 30;
@@ -20,10 +21,10 @@ function random(seed) {
 function change(r, step) {
     return state => {
         state.turn = step + 1;
-        state.npcs[r.int(state.npcs.length)].trust = r.int(10);
+        if (state.npcs.length) state.npcs[r.int(state.npcs.length)].trust = r.int(10);
         if (r.int(4) === 0 && state.npcs.length < 6) state.npcs.push(record(`f${String(step).padStart(2, "0")}`, { stage: r.int(4) }));
         if (r.int(3) === 0) state.candidates = r.int(2) ? [{ name: `Wren ${step}` }] : [];
-        if (r.int(3) === 0) state.socialGraph = { edges: [{ a: state.npcs[0].id, b: state.npcs[1].id, kind: `k${r.int(3)}` }] };
+        if (r.int(3) === 0) if (state.npcs.length > 1) state.socialGraph = { edges: [{ a: state.npcs[0].id, b: state.npcs[1].id, kind: `k${r.int(3)}` }] };
         if (r.int(5) === 0) state.dismissed = [`d${step}`];
     };
 }
@@ -32,14 +33,13 @@ async function run(t, seed) {
     const r = random(seed);
     let rig = await peopleRig(t);
     await rig.reply('Opening.', change(r, 0));
-    const tally = { heals: 0, reply: 0, change: 0, swipe: 0, back: 0, last: 0, middle: 0, reload: 0, rebuild: 0 };
+    const tally = { reply: 0, change: 0, swipe: 0, back: 0, last: 0, middle: 0, reload: 0, rebuild: 0 };
     for (let step = 1; step <= STEPS; step++) {
         const chat = rig.host.ctx.chat;
         const last = chat[chat.length - 1];
         const can = { swipe: last && !last.is_user, back: last?.swipes?.length > 1, delete: chat.length > 3 };
         const action = r.pick(['reply', 'reply', 'change', 'change', 'swipe', 'back', 'last', 'middle', 'reload', 'rebuild']);
         let name = action;
-        const sent = rig.sends.length;
         if (action === 'reply') await rig.host.send(`Turn ${step}.`, `Reply ${step}.`);
         else if (action === 'change') { /* published below */ }
         else if (action === 'swipe' && can.swipe) await rig.host.swipe(`Swipe ${step}.`);
@@ -51,11 +51,7 @@ async function run(t, seed) {
         else name = 'change';
         tally[name] += 1;
         if (['reply', 'change'].includes(name)) await rig.publish(change(r, step));
-        else await sleep(20);
-        const ok = await rig.settle();
-        if (!['reply', 'change'].includes(name)) tally.heals += rig.sends.length - sent;   // mirrors on a step that published nothing: the head event's heals
-        assert.equal(ok, true, `seed ${seed} step ${step} (${name}): settled`);
-        assert.equal(hashJson(rig.host.head().domains.people), hashJson(rig.expected()), `seed ${seed} step ${step} (${name}): equal at the head`);
+        await proveHead(rig, `seed ${seed} step ${step} (${name})`);
     }
     return { rig, tally, skips: rig.host.store.problems?.() ?? [], told: rig.host.turn.problems?.() ?? [] };
 }

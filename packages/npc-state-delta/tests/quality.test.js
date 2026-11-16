@@ -28,7 +28,11 @@ test('settings migration batches historical changes into one save', () => {
 });
 
 test('sidecar persistence writes immutable snapshots until the latest version is durable', () => {
-    const body = functionBody(index, 'async function flushStateFile', '\n    function persist(');
+    const whole = functionBody(index, 'async function flushStateFile', '\n    function persist(');
+    // The hosted early return (P2: the store holds the state, so nothing is written and the version is only marked) is the one place a version is marked
+    // persisted without a write; the guard below is about the write loop.
+    assert.match(whole, /if \(storeOwnsState\(\)\) \{[\s\S]*?return null;\s*\}/);
+    const body = whole.slice(whole.indexOf('const epoch = ownershipEpoch(key)'));
     assert.match(body, /while \(chatStateCache\.has\(key\) && ownershipEpochCurrent\(key, epoch\)\)/);
     assert.match(body, /const snapshot = structuredClone\(getChatState\(key\)\)/);
     assert.match(body, /persistedVersions\.set\(key, writeVersion\)/);

@@ -84,6 +84,21 @@ test('people view: a malformed view gives null', () => {
 });
 
 test('people view: state round-trips through the view in order', () => {
-    const state = { npcs: [rec('b'), rec('a', { aliases: ['x'] })], candidates: [{ name: 'c' }], dismissed: ['d'], userDismissedGroups: [['g']], socialGraph: { edges: [1] }, portraitAssets: { a: 'f' }, turn: 7 };
+    const state = { npcs: [rec('b'), rec('a', { aliases: ['x'] })], candidates: [{ name: 'c' }], dismissed: ['d'], userDismissedGroups: [['g']], socialGraph: { edges: [1] }, portraitAssets: { a: { path: '/user/files/f.png', type: 'image/png', hash: 'f' } }, turn: 7 };
     assert.deepEqual(peopleState(peopleView(state)), state);
+});
+
+test('image bytes never reach the view: dataUrl keys, data URLs and portraits that are not file references are dropped; file references stay', () => {
+    const bytes = 'data:image/png;base64,iVBORw0KGgo=';
+    const file = { path: '/user/files/p.png', type: 'image/png', hash: 'abc' };
+    const view = peopleView({
+        npcs: [{ id: 'npc_a', name: 'A', portrait: { dataUrl: bytes, type: 'image/png' }, look: bytes, notes: ['x', bytes], forms: { dataUrl: bytes } }, { id: 'npc_b', name: 'B', portrait: file }],
+        portraitAssets: { npc_a: { dataUrl: bytes, type: 'image/png', hash: 'h' }, npc_b: { ...file, dataUrl: undefined }, npc_c: { path: bytes, type: 'image/png', hash: 'h' } },
+    });
+    assert.equal(JSON.stringify(view).includes('base64'), false);
+    assert.equal('dataUrl' in view.npcs.npc_a.portrait, false);
+    assert.deepEqual(view.npcs.npc_a.notes, ['x']);
+    assert.deepEqual(view.npcs.npc_b.portrait, file);
+    assert.deepEqual(Object.keys(view.portraitAssets), ['npc_b']);
+    assert.deepEqual(peopleView(peopleState(view)), view, 'the view reads back exactly');
 });

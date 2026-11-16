@@ -8,7 +8,7 @@ import { writeNpcStateDataFile } from './storage.js';
 import { persistSettings, persistSettingsLazy, getSettings } from './runtime-settings.js';
 
 export function createPersistPart(rt, deps) {
-    const { assertChatHydratedForWrite, chatHydrationStatus, getChatKey, getChatState, holdRetiredLocalWork, isCanonicalChatKey, markStateDirty, ownershipEpoch, ownershipEpochCurrent, reconcileCrossSessionWriteConflict, requestHeaders, requireReadyChatMutation, updateHydratedStateMeta } = deps;
+    const { assertChatHydratedForWrite, chatHydrationStatus, storeOwnsState = () => false, getChatKey, getChatState, holdRetiredLocalWork, isCanonicalChatKey, markStateDirty, ownershipEpoch, ownershipEpochCurrent, reconcileCrossSessionWriteConflict, requestHeaders, requireReadyChatMutation, updateHydratedStateMeta } = deps;
     const { chatStateCache, missingSidecarChats, stateWriteTimers, stateWritePromises, stateVersions, persistedVersions } = rt;
 
     const STATE_WRITE_DELAY = 120;
@@ -20,6 +20,8 @@ export function createPersistPart(rt, deps) {
             return;
         }
         markStateDirty(key);
+        const owner = storeOwnsState();
+        if (owner) { if (owner === 'hosted') persistedVersions.set(key, Number(stateVersions.get(key) || 0)); return; }   // 'pending': kept dirty, written if the host refuses
         if (stateWriteTimers.has(key)) clearTimeout(stateWriteTimers.get(key));
         stateWriteTimers.set(key, setTimeout(() => {
             stateWriteTimers.delete(key);
@@ -32,6 +34,12 @@ export function createPersistPart(rt, deps) {
 
     async function flushStateFile(key = getChatKey()) {
         if (!key || key === 'no-chat' || !isCanonicalChatKey(key) || !chatStateCache.has(key)) return null;
+        // Opened by the merged extension: the Story Block store holds the people, so no sidecar is written and no `dataFiles` pointer is kept.
+        if (storeOwnsState()) {
+            if (stateWriteTimers.has(key)) { clearTimeout(stateWriteTimers.get(key)); stateWriteTimers.delete(key); }
+            if (storeOwnsState() === 'hosted') persistedVersions.set(key, Number(stateVersions.get(key) || 0));   // 'pending': nothing is written yet and the state stays dirty
+            return null;
+        }
         const retired = holdRetiredLocalWork(key);
         if (retired) throw retired;
         assertChatHydratedForWrite(key);

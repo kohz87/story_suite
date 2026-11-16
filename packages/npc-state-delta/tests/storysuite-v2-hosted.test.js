@@ -115,42 +115,30 @@ test('hosted: a new chat with no sidecar is looked for once; automatic checks tr
         assert.equal(await api.ensureFresh(), true);
         assert.deepEqual(mockState.sidecarReads.slice(before).map(read => read.status), [404]);
 
-        // Another session creates the sidecar meanwhile. Automatic checks keep trusting the miss,
-        // but the reader's own action looks first and adopts it instead of overwriting it.
-        const { makeNpcStateDataFileName, encodeStateFilePayload } = await import(pathToFileURL(path.join(extRoot, 'storage.js')).href);
-        const key = api.uiStatus().chatKey;
-        const filePath = `/user/files/${makeNpcStateDataFileName(key)}`;
-        mockState.files.set(filePath, encodeStateFilePayload(key, { npcs: [{ id: 'npc-remote-keeper', name: 'Remote Keeper', present: true }], turn: 4 }, '1.2.19', { revision: 5, writerId: 'other-session' }));
-        assert.deepEqual(await quietEvents(), [], 'automatic checks still trust the miss');
+        // P2: while hosted the store holds the state. A reader's action and a flush write no sidecar file and keep no pointer (`dataFiles`).
+        const { makeNpcStateDataFileName } = await import(pathToFileURL(path.join(extRoot, 'storage.js')).href);
+        const filePath = `/user/files/${makeNpcStateDataFileName(api.uiStatus().chatKey)}`;
         await manualAddNpc('Local Visitor');
         await api.flush();
-        const saved = JSON.parse(mockState.files.get(filePath));
-        assert.ok(saved.revision > 5, 'the save advances from the adopted revision');
-        assert.deepEqual(saved.state.npcs.map(npc => npc.name).sort(), ['Local Visitor', 'Remote Keeper'], 'the other session\'s dossier was kept');
-        assert.equal(api.dataFile()?.path, filePath);
-
-        // With a sidecar, checks use it as before (and never 404).
-        before = mockState.sidecarReads.length;
-        const reads = await quietEvents();
-        assert.ok(reads.length >= 1 && reads.every(read => read.status === 200), 'an existing sidecar is checked as before');
-        assert.equal(mockState.sidecarReads.slice(before).filter(read => read.status === 404).length, 0);
+        assert.equal(mockState.files.has(filePath), false, 'no sidecar file was written');
+        assert.equal(api.dataFile(), null, 'no dataFiles pointer');
+        assert.deepEqual(api.getState().npcs.map(npc => npc.name), ['Local Visitor'], 'the state is still Delta\'s own memory');
     });
 });
 
-test('hosted: the first save still creates the sidecar, with one check before it and no 404 after it', () => {
+test('hosted: the first save writes no sidecar (no file, no dataFiles key); the store holds the state', () => {
     runHostScenario('sidecar-first-save-hosted', v2HostPrelude, async () => {
         const api = globalThis.NPCStateDelta;
         assert.ok(await waitFor(() => mockState.sdk.registered.length === 1));
         await sleep(200);
         mockState.sidecarReads.length = 0;
+        const before = misses();
         await turn('The wind blows over the empty road.');
         await api.flush();
-        assert.ok(api.dataFile()?.path, 'the first save created the sidecar');
-        assert.ok(mockState.files.has(api.dataFile().path));
-        assert.equal(misses(), 1, 'only the save\'s own check (it never overwrites a file another session made) found nothing');
+        assert.equal(api.dataFile(), null, 'no sidecar pointer');
+        assert.equal([...mockState.files.keys()].some(name => /npc[-_]state/i.test(name)), false, 'no state file was uploaded');
         await turn('Still nobody on the road.');
-        await turn('Still nobody on the road.');
-        assert.equal(misses(), 1, 'no 404 after the file exists');
+        assert.equal(misses(), before, 'no further check for a file that is never written');
     });
 });
 
