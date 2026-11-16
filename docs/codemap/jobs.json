@@ -34,6 +34,7 @@
   "scripts/codemod/apply.mjs": "Applies a layout plan to a git tree: moves files, backs up deletes, then runs the import and string rewriters.",
   "scripts/codemod/cli.mjs": "Plans every B3 layout area from the rule files and prints per-area move and delete counts plus the unmatched list.",
   "scripts/codemod/plan.mjs": "Turns tracked files plus rule sets into a move/delete plan and refuses unmatched files, collisions and clobbered targets.",
+  "scripts/codemod/known.mjs": "Reads the shrink-only list of expected plan problems and splits a problem list into new, listed and stale ones.",
   "scripts/codemod/port-branch.mjs": "Ports a lane branch to the new layout in a temp worktree and merges main so only real conflicts remain.",
   "scripts/codemod/rewrite-imports.mjs": "Rewrites a moved file's relative import specifiers: resolved against the old place, written against the new one.",
   "scripts/codemod/rewrite-strings.mjs": "Rewrites the non-import path references (codemap keys, lists, CI globs, path literals) from an explicit table of sites.",
