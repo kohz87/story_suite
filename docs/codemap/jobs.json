@@ -314,7 +314,7 @@
   "scripts/core/sim-standard-parts/shared-grid.js": "The grid the simulation walks: Soul Classes, difficulties, builds and fights per cell.",
   "scripts/core/sim-standard.mjs": "Simulation of the Standard stat formula (no network, no SillyTavern): how often a roll succeeds, succeeds at a cost, fails and is decisive, for a focused and a spread build at Soul Class I, III, V, V\u2026",
   "scripts/core/sim-traces.mjs": "node scripts/sim-traces.mjs <sim.py> [out.json] (or SIM_PY=<sim.py>) Regenerates the combat golden traces: runs the design simulator's scripted-dice mode (`sim.py --trace`, rule set v8.1) over the ca\u2026",
-  "scripts/director/check.mjs": "Syntax-checks every `.js` file under `ui/legacy/director/` (the Story Director folder), printing \"syntax ok\"."syntax ok\".",
+  "scripts/director/check.mjs": "Syntax-checks every `.js` file under `ui/legacy/director/` (the Story Director folder), printing \"syntax ok\".",
   "scripts/people/browser-stage9.py": "Optional synthetic browser checks of the local UI modules using Playwright and an in-memory host.",
   "scripts/people/measure-prompts.mjs": "Builds Delta's scanner, profile, injection and narration prompts for fixed scenes and checks their sizes, without provider calls.",
   "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses."
