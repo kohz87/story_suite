@@ -188,10 +188,10 @@ export function createReplayBlocks(s, deps) {
 
     // Every rerun sees the position the accepted blocks of this plan leave, rather than the old record's offset.
     function rerunBlock(rerun, state, receipt, index, span, earlier, alloc) {
-        // A decision may read fight receipts. Give it the actual staged prefix, including only the
-        // blocks before it on this carrier, never the old suffix or later blocks on the same reply.
+        // A decision may read fight receipts, and an interaction segment the receipt of the segment it was carried from. Give it the
+        // actual staged prefix, including only the blocks before it on this carrier, never the old suffix or later blocks on the same reply.
         let receiptsBefore;
-        if (span.guard?.predicate?.kind === 'events.decision') {
+        if (span.guard?.predicate?.kind === 'events.decision' || span.guard?.predicate?.kind === 'interaction') {
             receiptsBefore = [];
             const arr = list();
             let started = false;
