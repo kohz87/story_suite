@@ -127,7 +127,7 @@ test('keyPeopleReadable: no Story Director module or switched off (null) is read
     assert.equal(createDirectorQueriesPart({ hosted: false }, {}, { hostFeature: () => undefined }).keyPeopleReadable(), true, 'not hosted: nothing to read');
 });
 
-// Director absence is read from the host's modules (the sdk's no-module error has no code): through the vendored Story Block runtime.
+// Director absence is read from the host's modules (the sdk's no-module error has no code): through the live Story Block runtime.
 test('hosted: Story Director not registered reads fine and an incidental stale dossier is deleted; a registered one that throws deletes nothing', async () => {
     const stale = () => [{ ...createNpcRecord('Inc', []), id: 'npc_inc', lastSeenTurn: 1 }];
     const settings = { autoPruneStale: true, maxNpcs: 40, staleArchiveAfter: 30, staleDeleteAfter: 50 };
