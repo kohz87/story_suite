@@ -16,7 +16,8 @@
   display: none !important;
 }
 
-.su-root button {
+/* :where() keeps this reset at zero specificity so any component button rule (one class) wins over it. */
+:where(.su-root) button {
   font: inherit;
   color: inherit;
 }
