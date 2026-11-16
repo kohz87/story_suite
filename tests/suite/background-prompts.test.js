@@ -47,8 +47,17 @@ test('each fixture exercises the rule it is for', () => {
     assert.match(actual.layered_watched.scanner, /HIDDEN NOTES/);
     assert.match(actual.layered_watched.scanner, /STORY EVENTS/);
     assert.match(actual.layered_watched.onePassContext, /The bridge falls/);
-    assert.match(actual.stage4_birthday.scanner, /STAGE 4/);
+    assert.match(actual.stage4_birthday.scanner, /STAGE 4 APPEARANCE/);
     assert.match(actual.stage4_birthday.scanner, /birthday/i);
+    // The fixtures tell the stage-4 branch apart: the detailed text is on wherever a form or a death word is, and off for `bare`.
+    for (const fixture of ['plain', 'layered_watched', 'stage4_birthday', 'custom_level']) {
+        assert.match(actual[fixture].scanner, /STAGE 4 APPEARANCE/, `${fixture} (a person with forms) carries the detailed stage-4 text`);
+        assert.match(actual[fixture].scanner, /STAGE 4 DEATH/, `${fixture} carries the death rule`);
+        assert.match(actual[fixture].refresh, /Established Stage 4 appearance forms/, `${fixture} carries the established forms`);
+    }
+    assert.doesNotMatch(actual.bare.scanner, /STAGE 4 APPEARANCE|STAGE 4 DEATH|Established Stage 4/, 'bare (no forms, no death words) leaves the detailed stage-4 text out');
+    assert.doesNotMatch(actual.bare.refresh, /Established Stage 4/);
+    assert.doesNotMatch(actual.bare.backfill, /Established Stage 4/);
     assert.ok(actual.custom_level.scanner.includes(core.LEVEL_FIELD_RULE));
     assert.ok(actual.custom_level.backfill.includes(core.LEVEL_FIELD_RULE));
     assert.ok(!actual.plain.scanner.includes('HIDDEN NOTES'));
