@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('../../../../../../', import.meta.url)));
 const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="stylesheet" href="/packages/story-block/src/v2/view/host.css"><link rel="stylesheet" href="/packages/story-block/src/v2/view/size.css">
+<link rel="stylesheet" href="/ui/legacy/view/host.css"><link rel="stylesheet" href="/ui/legacy/view/size.css">
 <link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/view/lean-rpg.css"><link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/board/board.css">
 <style>html,body { margin:0; --ss-font:Arial,sans-serif; } * { box-sizing:border-box; } .ss-gameview-bar { height:50px; }
 .ss-gameview-nav { background:#222; } .ss-gameview-body { padding:12px; }
@@ -29,7 +29,7 @@ import { STANDARD_FORMULA } from '/packages/story-block/src/v2/lean-rpg/rules.js
 import { createBoardView } from '/packages/story-block/src/v2/lean-rpg/board/view.js';
 import { boardSession, discardBoard, openBoard, stageExchange } from '/packages/story-block/src/v2/lean-rpg/board/session.js';
 import { playBoard } from '/packages/story-block/src/v2/lean-rpg/board/engine.js';
-import { hero } from '/packages/story-block/src/v2/view/widgets/hero.js';
+import { hero } from '/ui/legacy/view/widgets/hero.js';
 hero.render(document.querySelector('.ss-gameview-hero'), { name:'Astra', place:'Bluewatch', time:'Day 1', weather:'Rain', compact:true, boardExpandable:true,
     you:{ rank:'F', rankLabel:'Guild Rank', wearing:'A travelling coat', condition:'Tired' },
     bars:[{ kind:'hp', label:'Health', value:4, max:5 }, { kind:'mp', label:'Mana', value:2, max:5 }, { kind:'sp', label:'Stamina', value:3, max:5 }] }, {});
@@ -106,7 +106,7 @@ async function server() {
             const pathname = new URL(request.url, 'http://localhost').pathname;
             if (pathname === '/') { response.writeHead(200, { 'content-type':'text/html' }); response.end(html); return; }
             const file = resolve(root, `.${decodeURIComponent(pathname)}`);
-            if (!file.startsWith(`${root}${sep}packages${sep}story-block${sep}src${sep}`) && !file.startsWith(`${root}${sep}core${sep}`)) { response.writeHead(404); response.end(); return; }
+            if (!file.startsWith(`${root}${sep}packages${sep}story-block${sep}src${sep}`) && !['core', 'ui', 'modules', 'packs'].some(dir => file.startsWith(`${root}${sep}${dir}${sep}`))) { response.writeHead(404); response.end(); return; }
             const content = await readFile(file);
             response.writeHead(200, { 'content-type': extname(file) === '.css' ? 'text/css' : 'text/javascript' }); response.end(content);
         } catch { response.writeHead(404); response.end(); }
