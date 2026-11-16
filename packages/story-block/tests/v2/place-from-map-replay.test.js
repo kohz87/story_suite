@@ -56,3 +56,15 @@ test('R1-R5: live, Re-read, swipe, edit, delete and rebuild agree on the place t
     await host.turn.onChatChanged();
     assert.deepEqual(host.head(), rebuilt(host), 'R5: a delete of an earlier reply, then reload, equals a fresh rebuild');
 });
+
+test('R4: a Continue after a marked place reads nothing twice: one place receipt, the same place, the rebuild agrees', async t => {
+    const host = await start(t);
+    await host.send('To town.', said('The village', ['~ place Bluewatch Village']));
+    const before = place(host);
+    await host.cont(' and on.\n<Changes>\n+ coin 1\n</Changes>');
+    assert.deepEqual(place(host), before);
+    assert.deepEqual(before, { name: 'Bluewatch Village', kind: 'settlement', region: 'Lakeshire' });
+    const receipts = host.ctx.chat.at(-1).extra.storySuite.receipts;
+    assert.equal(receipts.filter(receipt => JSON.stringify(receipt).includes('place')).length, 1, 'one place receipt');
+    assert.deepEqual(host.head(), rebuilt(host));
+});

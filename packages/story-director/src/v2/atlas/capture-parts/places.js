@@ -52,6 +52,10 @@ export function ensurePlace(atlas, ctx, pack, name, { discovered = true, region,
                 place.regionBy = 'landmark';
                 changed = true;
             }
+            if (overwrite && field === 'region' && given === '' && place.regionBy) {
+                delete place.regionBy;   // cleared on purpose: not a deliberate region any more
+                changed = true;
+            }
             if (!overwrite && field === 'region' && fromPack?.region && !place.regionBy) {
                 value = fromPack.region;
                 // A region that only repeats the scene's is the scene's word, not the reader's: mend it.

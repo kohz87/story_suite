@@ -2,16 +2,24 @@
 
 import { foldKey } from '../../../text.js';
 
+const ask = (ctx, name, args) => { try { return ctx.query(name, args); } catch { return null; } };
+const rowsOf = (ctx, name, args) => { const rows = ask(ctx, name, args); return Array.isArray(rows) ? rows : []; };
+
 // The map's places (the atlas's, else none; then the packs'), for resolving names and aliases.
 export function knownPlaces(ctx) {
-    const ask = (name, args) => { try { const rows = ctx.query(name, args); return Array.isArray(rows) ? rows : []; } catch { return []; } };
-    return [...ask('atlas.places', {}), ...ask('packs.content', { kind: 'places' })];
+    return [...rowsOf(ctx, 'atlas.places', {}), ...rowsOf(ctx, 'packs.content', { kind: 'places' })];
 }
 
-// The first known place whose name or alias is `name`, or null.
+const named = (place, key) => [place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : [])].some(other => typeof other === 'string' && foldKey(other) === key);
+
+// The place a name or alias is, or null: the atlas's record (`atlas.place` resolves aliases; its list has names only), else a pack's.
+// The atlas's kind and region win (a landmark line or the reader may have changed them on purpose); a pack's row only fills in for a place the atlas lacks.
 export function knownPlace(ctx, name) {
     const key = foldKey(name);
     if (!key) return null;
-    const names = place => [place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : [])];
-    return knownPlaces(ctx).find(place => names(place).some(other => typeof other === 'string' && foldKey(other) === key)) ?? null;
+    const detail = ask(ctx, 'atlas.place', { name });
+    const atlas = detail && typeof detail === 'object' ? detail : rowsOf(ctx, 'atlas.places', {}).find(place => named(place, key)) ?? null;
+    const keys = [key, foldKey(atlas?.name ?? '')].filter(Boolean);
+    const pack = rowsOf(ctx, 'packs.content', { kind: 'places' }).find(place => keys.some(each => named(place, each))) ?? null;
+    return atlas ?? pack;
 }

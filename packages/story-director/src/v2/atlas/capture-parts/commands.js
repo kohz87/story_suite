@@ -85,7 +85,10 @@ export function edit(ctx, payload = {}) {
     }
     for (const field of ['layer', 'region', 'kind']) {
         if (fields[field] === undefined) continue;
-        if (field === 'region' && fields[field]) place.regionBy = 'reader';
+        if (field === 'region') {
+            if (fields[field]) place.regionBy = 'reader';
+            else delete place.regionBy;   // cleared: the pack's region applies again
+        }
         if (fields[field] === place[field]) continue;
         place[field] = fields[field];
         changes.push(fields[field] ? `${field} ${fields[field]}` : `no ${field}`);

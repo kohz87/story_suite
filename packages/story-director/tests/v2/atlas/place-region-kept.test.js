@@ -20,16 +20,19 @@ const said = (state, region) => ({
     place: query(state, 'atlas.place', { name: NAME }, { pack: PACK }).region,
     here: query(at(state, NAME, { kind: 'settlement', region }), 'atlas.here', {}, { pack: PACK }).region,
     map: query(state, 'atlas.places', {}, { pack: PACK }).find(place => place.name === NAME).region,
-    scene: region,
 });
 
 test('a landmark line sets Lakeshire on a pack place: every reading says it and the next beforeGenerate leaves it', () => {
     const { state } = lines(makeState(), `+ landmark ${NAME} — a market town | region: Lakeshire`, { pack: PACK });
-    assert.deepEqual(said(state, 'Lakeshire'), { place: 'Lakeshire', here: 'Lakeshire', map: 'Lakeshire', scene: 'Lakeshire' });
+    assert.deepEqual(said(state, 'Lakeshire'), { place: 'Lakeshire', here: 'Lakeshire', map: 'Lakeshire' });
     const next = generate(state, 'Lakeshire');
     assert.deepEqual(next.sent.map(step => step.payload.region), next.sent.map(() => 'Lakeshire'));
-    assert.deepEqual(said(next.state, 'Lakeshire'), { place: 'Lakeshire', here: 'Lakeshire', map: 'Lakeshire', scene: 'Lakeshire' });
+    assert.deepEqual(said(next.state, 'Lakeshire'), { place: 'Lakeshire', here: 'Lakeshire', map: 'Lakeshire' });
     assert.equal(Object.values(next.state.domains.atlas.places)[0].regionBy, 'landmark');
+    // The landmark already made the place discovered, so beforeGenerate sent no visit: visit it explicitly.
+    const visited = command(state, 'atlas.visit', { name: NAME, region: 'River Confederacy' }, { pack: PACK }).state;
+    assert.equal(said(visited, 'Lakeshire').place, 'Lakeshire', 'the visit does not overwrite the landmark region');
+    assert.equal(Object.values(visited.domains.atlas.places)[0].regionBy, 'landmark');
 });
 
 test('a reader edit sets Lakeshire on a pack place: the next beforeGenerate does not put River back', () => {
@@ -37,7 +40,7 @@ test('a reader edit sets Lakeshire on a pack place: the next beforeGenerate does
     const edited = command(makeState(), 'atlas.edit', { place: id, region: 'Lakeshire' }, { pack: PACK }).state;
     assert.equal(said(edited, 'Lakeshire').place, 'Lakeshire');
     const next = generate(edited, 'Lakeshire');
-    assert.deepEqual(said(next.state, 'Lakeshire'), { place: 'Lakeshire', here: 'Lakeshire', map: 'Lakeshire', scene: 'Lakeshire' });
+    assert.deepEqual(said(next.state, 'Lakeshire'), { place: 'Lakeshire', here: 'Lakeshire', map: 'Lakeshire' });
     assert.equal(Object.values(next.state.domains.atlas.places)[0].regionBy, 'reader');
 });
 
@@ -50,4 +53,18 @@ test('control: a region that only repeats the scene\'s word is still mended to t
     assert.equal(next.sent.length, 1);
     assert.deepEqual(said(next.state, 'Lakeshire').place, 'River');
     assert.equal(Object.values(next.state.domains.atlas.places)[0].regionBy, undefined);
+});
+
+test('a region cleared to empty drops the mark: the next visit gets the pack\'s region, not the scene\'s wider word', () => {
+    const id = query(makeState(), 'atlas.place', { name: NAME }, { pack: PACK }).id;
+    let state = command(makeState(), 'atlas.edit', { place: id, region: 'Lakeshire' }, { pack: PACK }).state;
+    state = command(state, 'atlas.edit', { place: id, region: '' }, { pack: PACK }).state;
+    assert.equal(Object.values(state.domains.atlas.places)[0].regionBy, undefined);
+    assert.equal(said(state, 'River Confederacy').place, 'River');
+    const next = generate(state, 'River Confederacy');
+    assert.equal(said(next.state, 'River Confederacy').place, 'River');
+    // A landmark line with an empty region clears the mark the same way.
+    const marked = lines(makeState(), `+ landmark ${NAME} — a market town | region: Lakeshire`, { pack: PACK }).state;
+    const cleared = lines(marked, `+ landmark ${NAME} — a market town | region:`, { pack: PACK }).state;
+    assert.equal(Object.values(cleared.domains.atlas.places)[0].regionBy, undefined);
 });

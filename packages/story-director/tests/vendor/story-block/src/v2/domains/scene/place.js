@@ -18,7 +18,7 @@ function field(ctx, value, what) {
     return text;
 }
 
-// The kind of a place a pack names (by name or alias, `packs.content({ kind: 'places' })`), or null.
+// The kind of a place a pack names (by name or alias, `packs.content({ kind: 'places' })`), or null. Kept beside `knownPlace` for byte-identical replay of unmarked replies.
 function packPlaceKind(ctx, name) {
     let places;
     try { places = ctx.query('packs.content', { kind: 'places' }); } catch { return null; }
@@ -63,7 +63,7 @@ export function setPlace(ctx, { name, kind, region, with: along }, { keepPresent
     if (present.length > MAX_PRESENT) ctx.fail('INVALID', `At most ${MAX_PRESENT} people can be listed as present.`);
     if (present.length !== scene.present.length || present.some((person, at) => person !== scene.present[at])) scene.present = present;
     const withWho = came.length ? ` with ${came.join(', ')}` : '';
-    const fromTheMap = filled.length ? ` (${[scene.place.kind, scene.place.region].filter(Boolean).join(', ')}, from the map)` : '';
+    const fromTheMap = filled.length ? ` (${filled.map(what => (filled.length > 1 ? '' : `${what} `) + scene.place[what]).join(', ')}, from the map)` : '';
     return {
         summary: moved ? `The scene moves to ${placeName}${fromTheMap}${withWho}.` : `${placeName} is described anew.`,
         data: { ...scene.place, moved, present: [...scene.present], left },
