@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { loadRules, matchPath, ruleKey } from './rules.mjs';
 import { buildPlan, planProblems } from './plan.mjs';
+import { loadKnownProblems, splitKnown } from './known.mjs';
 
 const AREAS = ['core', 'director', 'legacy-ui', 'packs', 'people', 'rpg', 'scene-inventory', 'shared'];
 const DEFAULT_RULES_DIR = path.join(import.meta.dirname, 'layout');
@@ -55,7 +56,7 @@ export function planLayout(files, ruleSets) {
 }
 
 function usage(stream) {
-  stream.write('usage: node scripts/codemod/cli.mjs plan --area <area> | --all [--root <dir>] [--rules <dir>]\n');
+  stream.write('usage: node scripts/codemod/cli.mjs plan --area <area> | --all [--root <dir>] [--rules <dir>] [--known <file>]\n');
 }
 
 function printRows(stream, counts) {
@@ -81,12 +82,14 @@ export async function main(argv = process.argv.slice(2), options = {}) {
   let all = false;
   let root = options.root ?? process.cwd();
   let rulesDir = options.rulesDir ?? DEFAULT_RULES_DIR;
+  let knownFile = null;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === '--area') area = argv[++index];
     else if (arg === '--all') all = true;
     else if (arg === '--root') root = argv[++index];
     else if (arg === '--rules') rulesDir = argv[++index];
+    else if (arg === '--known') knownFile = argv[++index];
     else if (!arg.startsWith('-') && command === null) command = arg;
     else {
       stderr.write(`unknown argument: ${arg}\n`);
@@ -131,11 +134,24 @@ export async function main(argv = process.argv.slice(2), options = {}) {
     stdout.write('dead rules: none\n');
   }
   const warnings = [];
-  const problems = planProblems(plan, {
+  let problems = planProblems(plan, {
     files: new Set(listed),
     readFile: file => fs.readFileSync(path.join(root, file), 'utf8'),
     warnings,
   });
+  if (knownFile) {
+    let known;
+    try {
+      known = loadKnownProblems(knownFile);
+    } catch (error) {
+      stderr.write(`cannot read known problems: ${error.message}\n`);
+      return 1;
+    }
+    const { fresh, seen, stale } = splitKnown(problems, known);
+    for (const line of seen) warnings.push(`known problem (listed in ${knownFile}): ${line}`);
+    for (const line of stale) warnings.push(`stale known-problem line, remove it: ${line}`);
+    problems = fresh;
+  }
   if (warnings.length) {
     stdout.write(`plan warnings (${warnings.length} warning${warnings.length === 1 ? '' : 's'}):\n`);
     for (const warning of warnings) stdout.write(`  ${warning}\n`);
