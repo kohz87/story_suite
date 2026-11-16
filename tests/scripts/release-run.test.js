@@ -40,7 +40,7 @@ before(async () => {
   fs.writeFileSync(kit, KIT);
   SETS[0].entries = [kit];
   for (const set of SETS) await buildBundleSet(set, path.join(out, set.name), repoRoot);
-  fromSource = run(kit, path.join(repoRoot, 'ui/legacy/director/module.js'), path.join(pkg('npc-state-delta'), 'src/storysuite-v2.js'));
+  fromSource = run(kit, path.join(repoRoot, 'ui/legacy/director/module.js'), path.join(repoRoot, 'modules/people/storysuite-v2.js'));
   fromBundle = run(path.join(out, 'story-block/kit.js'), path.join(out, 'story-director/module.js'), path.join(out, 'npc-state-delta/storysuite-v2.js'));
 });
 after(() => fs.rmSync(out, { recursive: true, force: true }));

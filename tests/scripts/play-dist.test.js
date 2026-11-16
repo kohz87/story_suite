@@ -18,9 +18,9 @@ before(() => {
   put(source, 'packages/story-block/assets/font.woff2', 'font');
   put(source, 'packages/story-block/host.css', '@import url(\'./src/look.css\');\n');
   put(source, 'packages/story-director/index.js', 'globalThis.storyDirector = 1;\n');
-  put(source, 'modules/people/legacy/bootstrap.js', "import { getContext } from '../../../extensions.js';\nawait import('./part.js');\nglobalThis.npcState = getContext;\n");
+  put(source, 'packages/npc-state-delta/bootstrap.js', "import { getContext } from '../../../extensions.js';\nawait import('./part.js');\nglobalThis.npcState = getContext;\n");
   put(source, 'packages/npc-state-delta/part.js', "import { getContext } from '../../../../extensions.js';\nglobalThis.npcHost = getContext;\n");
-  put(source, 'modules/people/legacy/style.css', '.npc { color: blue; }\n');
+  put(source, 'packages/npc-state-delta/style.css', '.npc { color: blue; }\n');
   put(source, 'ui/st-entry.js', "globalThis.preview = new URL('./', import.meta.url).href;\n");
   put(source, 'ui/css/next-hide.css', '.next { display: none; }\n');
   out = path.join(source, 'out');

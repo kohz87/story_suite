@@ -54,14 +54,14 @@ test('a folder the build made is rebuilt in place, marker included, and nothing 
   assert.deepEqual(fs.readdirSync(out), [MARKER]);
 });
 
-test('the CLI refuses --out packages and --out . before it deletes anything', () => {
-  const before = fs.readdirSync(path.join(repoRoot, 'packages')).sort();
-  for (const out of ['packages', '.', 'ui', 'packages/story-block']) {
+test('the CLI refuses --out modules and --out . before it deletes anything', () => {
+  const before = fs.readdirSync(path.join(repoRoot, 'modules')).sort();
+  for (const out of ['modules', '.', 'ui', 'modules/people']) {
     const run = spawnSync(process.execPath, ['scripts/release.mjs', '--out', out], { cwd: repoRoot, encoding: 'utf8' });
     assert.equal(run.status, 2, `${out}: ${run.stderr}`);
     assert.match(run.stderr, /release: --out/);
   }
-  assert.deepEqual(fs.readdirSync(path.join(repoRoot, 'packages')).sort(), before);
+  assert.deepEqual(fs.readdirSync(path.join(repoRoot, 'modules')).sort(), before);
   assert.ok(fs.existsSync(path.join(repoRoot, 'core/boot/boot.js')));
 });
 

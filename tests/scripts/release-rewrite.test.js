@@ -71,9 +71,9 @@ function sourceFiles(dir, found = []) {
 }
 // Where a set's runtime modules sit: its old package folder if the checkout has it, plus the new roots (the
 // Story Block set is core, modules, packs and the old UI; the Story Director set is the old UI's director folder).
-const NEW_ROOTS = { 'story-block': ['core', 'modules', 'packs', 'ui/legacy'], 'story-director': ['ui/legacy/director'], 'npc-state-delta': [] };
+const NEW_ROOTS = { 'story-block': ['core', 'modules', 'packs', 'ui/legacy'], 'story-director': ['ui/legacy/director'], 'npc-state-delta': ['modules/people'] };
 const setFiles = set => [set.dir, ...NEW_ROOTS[set.name]].map(dir => path.join(repoRoot, dir)).filter(dir => fs.existsSync(dir))
-  .flatMap(dir => sourceFiles(dir)).filter(file => set.name === 'story-block' ? !file.includes('/ui/legacy/director/') : true);
+  .flatMap(dir => sourceFiles(dir)).filter(file => set.name === 'story-block' ? !file.includes('/ui/legacy/director/') && !file.includes('/modules/people/') : true);
 const metaUsers = files => files.filter(file => {
   let found = false;
   walk.full(acorn.parse(fs.readFileSync(file, 'utf8'), { ecmaVersion: 'latest', sourceType: 'module', allowHashBang: true }), node => { if (node.type === 'MetaProperty') found = true; });
@@ -116,5 +116,5 @@ for (const set of BUNDLE_SETS) {
 
 test('the three packages hold the two known references, so the check above is not empty', () => {
   const all = BUNDLE_SETS.flatMap(set => metaUsers(setFiles(set)).map(file => path.relative(repoRoot, file)));
-  assert.deepEqual(all.sort(), ['modules/rpg/view/index-parts/mount.js', 'modules/people/legacy/suite-handshake-parts/stylesheet.js']);
+  assert.deepEqual(all.sort(), ['modules/people/legacy/suite-handshake-parts/stylesheet.js', 'modules/rpg/view/index-parts/mount.js']);
 });
