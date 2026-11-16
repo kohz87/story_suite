@@ -5,6 +5,7 @@
 import { isObject, revOf, NO_LONGER_DONE, readerSetup } from '../constants.js';
 import { allocator, occurrenceOf, spanOperationKey } from '../../evidence.js';
 import { isMetaSpan } from '../../replay.js';
+import { isPeopleBlock } from '../people-block.js';
 
 export function createReplace(s, deps) {
     const { advanced, asOps, baseFor, carrierAt, forgetMemos, guardHolds, intactReason, isGuardedBlock, list, ORPHAN, ownedAlready, publish, quarantined, receiptsFor, receiptsOf, replay, replayGuarded, replayLegacy, rerunBlock, saver, skipped, spansOf, stamp, stateBefore, step, take, walkSuffix, withSource, writable, write } = deps;
@@ -218,10 +219,11 @@ export function createReplace(s, deps) {
                 try {
                     state = again ? step(state, blockOps) : guarded ? replayGuarded(state, record, blockOps, was, message, receipt) : replayLegacy(state, blockOps);
                 } catch (error) {
-                    if (!guarded || again) throw fail(error);
+                    // (a people block that no longer applies is skipped, and recorded exactly as a rebuild records it: the code only for a guarded block or a prerequisite error; the other kept blocks refuse the Re-read)
+                    if ((!guarded && !isPeopleBlock(blockOps)) || again) throw fail(error);
                     applied = false;
                     state = skipped(state, blockOps);
-                    keptProblems.push({ index, block: storySpans.filter(each => each.n).length + keptSpans.filter(each => each.n).length, receipts: receiptsOf({ receipts: keptReceipts }, block), why: String(error?.message ?? error), code: 'REPLAY_PREREQUISITE' });
+                    keptProblems.push({ index, block: storySpans.filter(each => each.n).length + keptSpans.filter(each => each.n).length, receipts: receiptsOf({ receipts: keptReceipts }, block), why: String(error?.message ?? error), ...(guarded || error?.code === 'REPLAY_PREREQUISITE' ? { code: 'REPLAY_PREREQUISITE' } : {}) });
                 }
                 let span = { n: blockOps.length, story: false };
                 try {

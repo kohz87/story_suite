@@ -49,7 +49,7 @@ const SHARD_RUNS = [
     [[25, LONG_STEPS], [7, STEPS], [27, STEPS], [37, STEPS]],
     [[36, LONG_STEPS], [1, STEPS], [131, STEPS]],
     [[1337, STEPS], [31337, STEPS], [2024, STEPS], [424242, STEPS], [42, STEPS]],
-    // Shard 5: the people domain with its flag on (J07), new seeds only.
+    // Shard 5: people writes in the command mix (the domain is always present), new seeds only.
     [[3, STEPS], [11, STEPS], [58, STEPS], [606, STEPS], [8181, STEPS], [12, LONG_STEPS]],
 ];
 const OVERRIDDEN = Boolean(process.env.QA_FUZZ_SEED || process.env.QA_FUZZ_SEEDS || process.env.QA_FUZZ_STEPS);
@@ -71,7 +71,7 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
     t.mock.timers.enable({ apis: ['setTimeout'] });
     t.mock.method(console, 'warn', () => {});
     const r = prng(seed);
-    const host = await createHost({ modules: [probeModule({ cues: true })], settings: { features: { 'story-block.gear': true, 'story-block.rpg': true }, ...(people ? { flags: { 'suite.peopleInStore': true } } : {}) } });
+    const host = await createHost({ modules: [probeModule({ cues: true })], settings: { features: { 'story-block.gear': true, 'story-block.rpg': true } } });
     // A pack that gives Your look a Rank, so the fuzz's `~ you rank:` lines are read (without one they are refused).
     await host.packs.packs.install({ id: 'guild', version: '1.0.0', requires: { storyBlock: '^2' }, content: { you: { rank: { label: 'Guild rank' } } } });
     t.after(() => host.close());
@@ -287,7 +287,7 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
         else if (roll === 13) action = (ctx.chat.at(-1).swipes?.length ?? 0) > 1 && lastIsCarrier() ? 'swipeTo' : 'ui';
         else if (roll === 14) action = (ctx.chat.at(-1).swipes?.length ?? 0) > 1 && lastIsCarrier() ? 'deleteSwipe' : 'ui';
         else if (roll === 15) action = 'uiFail';
-        else if (roll === 17) action = ctx.chat.length > 1 && !process.env.QA_NO_REREAD && !people ? 'reread' : 'ui';
+        else if (roll === 17) action = ctx.chat.length > 1 && !process.env.QA_NO_REREAD ? 'reread' : 'ui';
         else action = 'ui';
         if (action === 'regenerate' && ctx.chat.length < 2) action = 'send';
         log.push(`seed ${seed} step ${step} ${action}`);

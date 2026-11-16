@@ -1,26 +1,21 @@
-// The core part for the deferred `people` domain: its `people.mirror` command (refused while the flag is off, on a head that moved, or for a bad view)
-// and its `people.mirrorOn` / `people.hash` queries. With the flag off nothing creates, saves or reads the domain.
+// The core part for the `people` domain: a core domain present from the first reply of a new chat, its internal `people.write` command (refused on a head
+// that moved or for a bad view) and its `people.hash` query. The part reads no flag. The command stores the view as leaf ops inside the reply's transaction.
 
 import { hashJson } from '../../replay.js';
-import { FLAGS } from '../../flags.js';
 import { isPeopleView, validatePeople } from './validate.js';
 
 export const PEOPLE_DOMAIN = 'people';
-export const PEOPLE_FLAG = FLAGS.peopleInStore;
 
 const clone = value => JSON.parse(JSON.stringify(value));
 
-/** `flagOn(name)` → boolean: whether a rollout flag is on (read at each call). */
-export function createPeoplePart({ flagOn = () => false } = {}) {
-    const on = () => { try { return flagOn(PEOPLE_FLAG) === true; } catch { return false; } };
+export function createPeoplePart() {
     return {
         domains: { [PEOPLE_DOMAIN]: { initial: () => ({ v: 1, order: [], npcs: {} }), deferred: true, snapshot: 'when-present', validate: validatePeople } },
         commands: {
-            // Replaces the people draft with the view, for the reply the view was published at (`source`: { sid, swipeKey }).
-            'people.mirror': {
-                internal: false,
+            // Replaces the people draft with the view, for the reply the view belongs to (`source`: { sid, swipeKey }); the store diffs it into leaf ops.
+            'people.write': {
+                internal: false,   // (sent through the public sdk by the sender; it is stored on the reply's carrier)
                 handler(ctx, payload) {
-                    if (!on()) return ctx.fail('OFF', 'The people store is off; nothing was stored.');
                     const view = payload?.view;
                     if (!isPeopleView(view)) return ctx.fail('INVALID', 'The people view is not sound; nothing was stored.');
                     const asked = payload?.source;
@@ -36,8 +31,7 @@ export function createPeoplePart({ flagOn = () => false } = {}) {
             },
         },
         queries: {
-            'people.mirrorOn': () => on(),
-            // The hash of the stored people slice (null while the domain is absent), to compare with a view's.
+            // The hash of the stored people slice, to compare with a view's.
             'people.hash': state => (state?.domains?.[PEOPLE_DOMAIN] === undefined ? null : hashJson(state.domains[PEOPLE_DOMAIN])),
         },
     };
