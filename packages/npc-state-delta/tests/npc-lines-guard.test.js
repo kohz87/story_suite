@@ -87,3 +87,17 @@ test('two gender: lines keep the first; a mixed trust: up and trust: +3 line is 
     assert.equal(dossier(s, 'npc_kit').gender, undefined, 'rewind takes the reply\'s fields away');
     same(s, 'replay equals live after the rewind');
 });
+
+test('a Re-read that writes + present AFTER the ~ npc where: line still refuses it (present lines run first, wherever they stand); the place line likewise', async () => {
+    const s = await suite({ records: records() });
+    const at = await s.say(['~ npc Kit | where: the market']);
+    assert.equal(dossier(s, 'npc_kit').location, 'the market');
+    const edit = lines => { s.host.ctx.chat[at].mes = `The story goes on.\n\n<Changes>\n${lines.join('\n')}\n</Changes>`; };
+    edit(['~ npc Kit | where: the pier', '+ present Kit']);
+    assert.equal((await s.host.sdk.reread(at)).ok, true);
+    assert.equal(dossier(s, 'npc_kit').location, undefined, 'the line after + present is refused, as it is when + present stands first');
+    edit(['~ npc Kit | where: the quay', '~ place The quay']);
+    assert.equal((await s.host.sdk.reread(at)).ok, true);
+    assert.equal(dossier(s, 'npc_kit').location, 'the quay', 'a place line after the where: line leaves Kit away from the scene, so where applies');
+    same(s, 'replay equals live');
+});

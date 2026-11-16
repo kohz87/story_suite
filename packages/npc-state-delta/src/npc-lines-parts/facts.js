@@ -6,6 +6,7 @@ const HELD = Object.freeze({ gender: ['gender'], age: ['age', 'apparentAge'], bi
 const MAX = Object.freeze({ gender: 40, age: 40, birthday: 40 });
 export const unknownWord = text => /^(unknown|none|n\/a|unspecified|not stated)\.?$/i.test(String(text ?? '').trim());
 
+// Gender (and birthday/age) are stored as the line's raw text; normalising them (normalizeGender, the calendar and age readers) comes with People P6 / N4.
 /** → { set: { gender?, age?, birthday? }, problems }; `held`: the dossier record's own values. */
 export function factFields(fields, held) {
     const set = {};
