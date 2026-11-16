@@ -1,8 +1,8 @@
 // Where the screens part's tests find Story Block's view runtime.
 //
 // * Story Block's view runtime (validateScreen, resolveData, the template renderer, scoped CSS, the
-//   condition language, the standard widgets and the card mount) is vendored with the testkit in
-//   tests/vendor/story-block/ (npm run sync-testkit in Story Block; see its VERSION), so the
+//   condition language, the standard widgets and the card mount) is imported from the live
+//   packages/story-block by relative path, so the
 //   definitions are checked and the screens rendered in CI too.
 // * STORY_BLOCK_DIR (a Story Block checkout's root) renders against that checkout instead.
 
@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const VENDORED = new URL('../../../vendor/story-block/', import.meta.url);
+const VENDORED = new URL('../../../../../story-block/', import.meta.url);
 const vendored = await import(new URL('src/v2/view/screens.js', VENDORED).href);
 
 const dir = resolve(process.env.STORY_BLOCK_DIR ?? fileURLToPath(VENDORED));

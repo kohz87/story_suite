@@ -29,7 +29,7 @@ Story Director works without NPC State Delta. Read other modules through guarded
 - `src/tracker.js`: records, `applyOps`, `replay` and the queries; the word helpers (`keyWords`, `nearMatches`, name comparisons) live in `src/tracker-words.js` and the "said" helpers (quest over / given up / offers chosen, `waitsForPay`, `looksFinished`, `isOffer`, `overByChange`, `takesOnQuest`) in `src/tracker-said.js`; `tracker.js` re-exports every name it exported before. The helper files never import `tracker.js` (`tracker-said.js` imports `tracker-words.js`).
 - `tests/*.test.js`: tests of the pure rules. `tests/v2/<part>/`: per-part tests; `tests/v2/integration/` (incl.
   `alone.test.js`), `tests/v2/break/` (one file per break finding, `fuzz-delete*.test.js`).
-- `tests/vendor/story-block/`: Story Block's testkit + runtime, vendored (VERSION names the commit).
+- Tests import Story Block's live testkit and runtime from `packages/story-block` by relative path (no vendored copy).
   `tests/v2/screens/vendor/` is an older pinned copy of Story Block's screens registry (or `STORY_BLOCK_DIR`).
 - `docs/`: `ARCHITECTURE.md`, `DESIGN.md`, `STORY_SUITE.md`; `docs/dev/`: short area notes.
 - Additional source files and recent splits: `docs/dev/codemap.md`.
@@ -43,11 +43,10 @@ npm test                                         # what CI runs (with npm run ch
 npm run test:dot                                 # same files, one dot per test, failures listed at the end
 npm run check                                    # syntax check of index.js and src/
 node --test --test-reporter=dot tests/v2/tracker/time.test.js   # one file
-node ../Story_block/scripts/sync-testkit.mjs --to .             # re-vendor the testkit (no npm script here)
 git diff --check origin/main                     # CI fails on trailing whitespace in what the PR adds
 ```
 
-Full suite: about 980 tests, about 1–2 minutes. Skills: `.claude/skills/run-tests`, `sync-testkit`.
+Full suite: about 980 tests, about 1–2 minutes. Skills: `.claude/skills/run-tests`.
 
 ## Non-negotiables (every PR keeps them)
 
@@ -91,8 +90,6 @@ Full suite: about 980 tests, about 1–2 minutes. Skills: `.claude/skills/run-te
 ## Known traps
 
 - Cross-repo tests use Story Block and NPC State Delta alongside this checkout; `STORY_BLOCK_DIR` can point to a host checkout.
-- There is no `sync-testkit` npm script here: call Story Block's script with `--to .`.
-- Tests run against the **vendored** testkit, not Story Block's head; a host change can turn tests red on
-  the next re-sync. Never edit the vendored files.
+- Tests run against the **live** Story Block testkit (`packages/story-block/testkit`), so a host change can turn tests red at once.
 - A Continue is the same reply (by `sid`): `maxJump`, `turn.n` and tallies must hold across it.
 - `tests/v2/integration/alone.test.js` is the standalone Director guard; keep it green.

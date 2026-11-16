@@ -1,5 +1,5 @@
 // Real-host component fixture: extend one real SD definition with proof/ledger test adapters.
-import { createHost } from '../../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../../story-block/testkit/index.js';
 import { createModule } from '../../../../src/v2/module.js';
 import { neutralAcceptance, prepareThreadWrite, threadWriteEntry } from '../../../../src/v2/tracker/thread-writes.js';
 export const TEST_COMMAND = 'director.testAccept';

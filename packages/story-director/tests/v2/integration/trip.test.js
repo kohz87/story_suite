@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { createHost } from '../../vendor/story-block/testkit/index.js';
+import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { TRIP_FEATURE } from '../../../src/v2/atlas/trip.js';
 

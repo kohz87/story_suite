@@ -1,12 +1,12 @@
 // A fake command context (SPEC §3.2) for the chronicle part's tests. Commit works as Story Block's
 // does in outline: the handler runs on drafts, the drafts are diffed into ops with Story Block's
-// own ops.js (vendored in tests/vendor/story-block), the generic op rules and the chronicle's
+// own ops.js (from packages/story-block), the generic op rules and the chronicle's
 // validator run, and a throw or a problem keeps the state as it was. Change lines are read by
 // Story Block's own parser (capture.js parseChanges).
 
 import { part } from '../../../../src/v2/chronicle/index.js';
-import { apply, checkOps, diff } from '../../../vendor/story-block/src/v2/ops.js';
-import { parseChanges } from '../../../vendor/story-block/src/v2/capture.js';
+import { apply, checkOps, diff } from '../../../../../story-block/src/v2/ops.js';
+import { parseChanges } from '../../../../../story-block/src/v2/capture.js';
 
 export function deepFreeze(value) {
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {
