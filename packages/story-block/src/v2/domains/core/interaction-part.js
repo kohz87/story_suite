@@ -3,7 +3,6 @@
 
 import { interactionGuard } from '../../interaction/guard.js';
 import { settleInteraction } from '../../interaction/settle.js';
-import { SETTLED } from '../../interaction/settled.js';
 
 export const SETTLE = 'interaction.settle';
 
@@ -21,8 +20,8 @@ function stateOf(ctx) {
  * `kindOf(kindId)` is the registered kind or null.
  */
 export function createInteractionCommands({ kindOf = () => null } = {}) {
-    // The earlier segment's receipt is read through the transaction (ctx.query), so a re-plan sees the receipts before its block, never the store's stale list.
-    const handler = (ctx, payload) => settleInteraction(ctx, payload, kindOf, { state: stateOf(ctx), receipts: () => ctx.query(SETTLED, { key: payload?.carriedKey }) });
+    // (a carried segment finds the earlier one's receipt through ctx.receipts(): on a re-plan, the receipts before its block)
+    const handler = (ctx, payload) => settleInteraction(ctx, payload, kindOf, { state: stateOf(ctx) });
     return { [SETTLE]: Object.assign(handler, { prelude: true, internal: true }) };
 }
 

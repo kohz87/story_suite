@@ -19,7 +19,6 @@ import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACT
 import { createLazyRpgPart } from '../../rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../interaction/view.js';
 import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
-import { SETTLED, settledQuery } from '../../interaction/settled.js';
 import { createPeoplePart } from '../people/part.js';
 import { CORE_BUDGET, CORE_FEATURES, CORE_MODULE_ID } from './constants.js';
 import { CORE_KINDS } from './kinds.js';
@@ -98,7 +97,6 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
             }, { feature: CORE_FEATURE.chatter }),
             'scene.moved': (_state, _args, tools) => headMoved(tools, extras?.headIndex),
             // The open interaction as the sdk's current() reads it: null until the host passes an interaction api (`extras.interaction`).
-            [SETTLED]: settledQuery,
             [INTERACTION_VIEW]: createInteractionView(() => extras?.interaction?.()?.current?.() ?? null),
             // The active, visible, code-validated proof (contract §6, docs/v2/EVIDENCE.md); the stored proof comes from the store.
             'story.evidence': createEvidenceQuery({ stored: () => extras?.proofs?.() ?? [] }),

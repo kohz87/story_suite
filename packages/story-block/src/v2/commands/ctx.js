@@ -42,6 +42,12 @@ export function createCtxTools({
             standing: tx.standing,
             // The receipts the reply being read again recorded (turn.js), read-only, else null.
             standingReceipts: tx.standingReceipts,
+            // The stored receipts in chat order as this transaction sees them (on a re-plan, those before the block; the same list a query's tools give), for a
+            // command that must find an earlier receipt (an interaction segment carried from another).
+            receipts() {
+                open();
+                return queryTools(tx).receipts();
+            },
             cause: tx.cause,
             module: moduleId,
             caller,
