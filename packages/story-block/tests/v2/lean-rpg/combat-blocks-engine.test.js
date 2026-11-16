@@ -43,6 +43,10 @@ test('Character: the story lowers HP by a stage word and never raises it; a rest
     assert.equal(at(host, 'hp')[0], 1, 'a stage word never raises a bar');
     await host.send('Binding.', reply(line('character', 'heal', ' | amount: 2')));
     assert.equal(at(host, 'hp')[0], 1 + 2 * Math.floor(7 / 4));
+    await host.send('Rest.', reply(line('character', 'set-health', ' | to: 1')));
+    await host.send('Salve.', reply(line('character', 'heal', ' | amount: Half')));
+    assert.equal(at(host, 'hp')[0], 1 + 2 * Math.floor(7 / 4), 'the story says a heal in words (Half = 2 quarters), never a number');
+    assert.deepEqual(Object.values(characterV1.kinds.heal.labels.amount.names), ['A quarter', 'Half', 'Three quarters']);
     await host.send('Night.', reply(line('character', 'full-rest')));
     assert.deepEqual(at(host, 'hp', 'mp', 'sp'), [7, 10, 10]);
     await same(host);

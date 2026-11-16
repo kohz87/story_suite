@@ -5,20 +5,10 @@ import { damageOf, healOf, soakOf, takeHit } from './damage.js';
 import { foeAttacks } from './foe-turns.js';
 import { foeStats } from './foes.js';
 import { V1 } from './numbers.js';
+import { profileOf, skillsOf } from './profile.js';
 import { foeRoll, playerRoll, rollOutcome } from './rolls.js';
 import { skillCost } from './skills.js';
 import { tempoChain } from './tempo.js';
-
-// Sim builds, kept only for parity. C5/C6 must replace this with the sheet's real skills and stats (COMBAT-PLAN "must-settle").
-const PROFILES = {
-    Warrior: { stat: 'str', pool: 'sp', magic: false },
-    Skirmisher: { stat: 'agi', pool: 'sp', magic: false },
-    'Skirmisher-Move': { stat: 'agi', pool: 'sp', magic: false },
-    'Skirmisher-plain': { stat: 'agi', pool: 'sp', magic: false },
-    'Skirmisher-area': { stat: 'agi', pool: 'sp', magic: false, area: true },
-    Mage: { stat: 'int', pool: 'mp', magic: true },
-    Healer: { stat: 'int', pool: 'mp', magic: true, heal: true },
-};
 
 const number = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
 const labelOf = actor => String(actor?.label ?? actor?.name ?? actor?.id ?? '');
@@ -30,26 +20,20 @@ const statsOf = actor => {
 };
 const levelOf = actor => number(actor?.level ?? actor?.lv, V1.level.min);
 const masteryOf = actor => Math.max(0, Math.floor(number(actor?.mastery)));
-const profileOf = actor => {
-    const base = PROFILES[actor?.build] ?? {
-        stat: actor?.attack?.stat ?? 'str', pool: actor?.attack?.pool ?? 'sp', magic: actor?.attack?.magic === true,
-    };
-    return { ...base, area: base.area || actor?.area === true, heal: base.heal || actor?.heal === true };
-};
 const resources = actor => ({ sp: number(actor?.sp), mp: number(actor?.mp) });
 const living = list => list.filter(actor => number(actor?.hp) > 0);
 const refMatch = (actor, ref) => ref !== undefined && ref !== null
     && (ref === actor || String(ref) === idOf(actor) || String(ref) === labelOf(actor));
 
 function cloneActor(actor, index) {
-    const stats = statsOf(actor), level = levelOf(actor);
+    const stats = statsOf(actor), level = levelOf(actor), stance = profileOf(actor).stance;
     return {
         ...actor, id: idOf(actor) || `actor-${index + 1}`, label: labelOf(actor) || `actor-${index + 1}`,
         level, stats, mastery: masteryOf(actor), hp: number(actor?.hp),
         maxHp: number(actor?.maxHp ?? actor?.maxhp ?? actor?.hp), mp: number(actor?.mp),
         maxMp: number(actor?.maxMp ?? actor?.maxmp ?? actor?.mp), sp: number(actor?.sp),
         maxSp: number(actor?.maxSp ?? actor?.maxsp ?? actor?.sp), stance: null,
-        stances: (actor?.stances ?? []).map(item => typeof item === 'string' ? item.toLowerCase() : String(item?.type ?? '').toLowerCase()).filter(Boolean),
+        skills: skillsOf(actor), stances: stance ? [stance.type] : [],
         gearSoak: number(actor?.gearSoak ?? actor?.soak),
     };
 }
@@ -95,13 +79,13 @@ function lowestFoe(state, ref) {
 }
 
 function stanceUpkeep(actor, choice, orderIndex, lines, moves) {
-    const profile = profileOf(actor), owned = actor.stances;
+    const owned = actor.stances, stat = profileOf(actor).stance?.stat;
     const wanted = choice?.stance === undefined ? true : choice.stance;
     let active = null;
     if (wanted !== false && wanted !== 'off' && owned.length) {
         const type = wanted === true ? owned[0] : String(wanted).toLowerCase();
         if (owned.includes(type)) {
-            const price = skillCost({ type, stat: profile.magic ? 'wis' : 'agi' }, resources(actor));
+            const price = skillCost({ type, stat }, resources(actor));
             if (price.affordable && spend(actor, price.pool, price.cost, moves)) active = type;
         }
     }
@@ -110,9 +94,9 @@ function stanceUpkeep(actor, choice, orderIndex, lines, moves) {
     return orderIndex;
 }
 
-function playerAttack(state, actor, foe, base, how, profile, roll, slot, lines, moves) {
+function playerAttack(state, actor, foe, base, how, magic, roll, slot, lines, moves) {
     const die = dieAt(roll, 'act', slot, `${labelOf(actor)} attack`);
-    const bonus = playerRoll(profile.magic ? 'magic' : 'physical', actor.stats, actor.level);
+    const bonus = playerRoll(magic ? 'magic' : 'physical', actor.stats, actor.level);
     const total = die + bonus;
     if (die === V1.roll.naturalMiss) {
         lines.push(['attack', labelOf(actor), how, labelOf(foe), die, total, null, null, 'miss-nat1', 0, number(foe.hp)]);
@@ -130,8 +114,8 @@ function playerAttack(state, actor, foe, base, how, profile, roll, slot, lines, 
     return true;
 }
 
-function skillDamage(actor, profile, area = false) {
-    const single = damageOf('skill', actor.stats, masteryOf(actor), profile.stat);
+function skillDamage(actor, stat, area = false) {
+    const single = damageOf('skill', actor.stats, masteryOf(actor), stat);
     return area ? Math.max(V1.damage.min, Math.floor(single * V1.areaPercent / V1.percent)) : single;
 }
 
@@ -144,10 +128,10 @@ function healTarget(state, choice) {
         || number(ally.hp) / Math.max(1, number(ally.maxHp)) < number(best.hp) / Math.max(1, number(best.maxHp)) ? ally : best), null);
 }
 
-function performHeal(actor, state, choice, lines, moves) {
+function performHeal(actor, state, choice, profile, lines, moves) {
     const target = healTarget(state, choice);
     if (!target) return { paid: false };
-    const price = skillCost({ type: 'heal', stat: 'wis' }, resources(actor));
+    const price = skillCost({ type: 'heal', stat: profile.heal.stat }, resources(actor));
     if (!price.affordable || !spend(actor, price.pool, price.cost, moves)) return { paid: false };
     const amount = healOf(actor.stats, masteryOf(actor)), after = Math.min(number(target.maxHp), number(target.hp) + amount);
     recordMove(target, 'hp', after, moves);
@@ -159,27 +143,28 @@ function performAttack(actor, state, choice, profile, roll, slots, lines, moves)
     const standing = living(state.foes);
     const target = lowestFoe(state, choice?.target);
     if (!target) return { acted: false, target: null };
-    const automatic = !choice?.kind || choice.kind === 'auto';
-    const wantsArea = choice?.kind === 'area' || (automatic && profile.area && standing.length >= V1.fight.areaTargets);
+    const automatic = !choice?.kind || choice.kind === 'auto', { attack, area } = profile;
+    const wantsArea = area && (choice?.kind === 'area' || (automatic && standing.length >= V1.fight.areaTargets));
     if (wantsArea) {
-        const price = skillCost({ type: 'area', stat: profile.stat }, resources(actor));
+        const price = skillCost({ type: 'area', stat: area.stat }, resources(actor));
         if (!price.fallback && spend(actor, price.pool, price.cost, moves)) {
-            const damage = skillDamage(actor, profile, true);
+            const damage = skillDamage(actor, area.stat, true);
             let hit = false;
             standing.forEach((foe, index) => {
-                hit = playerAttack(state, actor, foe, damage, 'area', profile, roll, slots.action + index, lines, moves) || hit;
+                hit = playerAttack(state, actor, foe, damage, 'area', area.magic, roll, slots.action + index, lines, moves) || hit;
             });
             return { acted: hit, target };
         }
     }
-    if (choice?.kind === 'normal') {
-        const damage = damageOf(profile.magic ? 'magic' : 'physical', actor.stats);
-        return { acted: playerAttack(state, actor, target, damage, 'normal', profile, roll, slots.action, lines, moves), target };
+    const magic = attack?.magic === true;
+    if (choice?.kind === 'normal' || !attack) {
+        const damage = damageOf(magic ? 'magic' : 'physical', actor.stats);
+        return { acted: playerAttack(state, actor, target, damage, 'normal', magic, roll, slots.action, lines, moves), target };
     }
-    const price = skillCost({ type: 'attack', stat: profile.stat }, resources(actor));
+    const price = skillCost({ type: 'attack', stat: attack.stat }, resources(actor));
     const fallback = price.fallback || !spend(actor, price.pool, price.cost, moves);
-    const damage = fallback ? damageOf(profile.magic ? 'magic' : 'physical', actor.stats) : skillDamage(actor, profile);
-    return { acted: playerAttack(state, actor, target, damage, fallback ? 'normal' : 'skill', profile, roll, slots.action, lines, moves), target };
+    const damage = fallback ? damageOf(magic ? 'magic' : 'physical', actor.stats) : skillDamage(actor, attack.stat);
+    return { acted: playerAttack(state, actor, target, damage, fallback ? 'normal' : 'skill', magic, roll, slots.action, lines, moves), target };
 }
 
 function performFlee(actor, state, roll, slots, lines) {
@@ -201,10 +186,10 @@ function perform(actor, state, choice, profile, roll, slots, lines, moves) {
     if (kind !== 'auto' && kind !== 'attack' && kind !== 'skill' && kind !== 'area' && kind !== 'normal' && kind !== 'heal') {
         throw new TypeError(`Unknown exchange action: ${kind}`);
     }
-    if (kind === 'heal' || (kind === 'auto' && profile.heal)) {
+    if (profile.heal && (kind === 'heal' || kind === 'auto')) {
         const hurt = living(state.party).some(ally => number(ally.hp) * V1.fight.healBelowTimes < number(ally.maxHp));
         if (kind === 'heal' || hurt) {
-            const healed = performHeal(actor, state, choice, lines, moves);
+            const healed = performHeal(actor, state, choice, profile, lines, moves);
             if (healed.paid) return healed;
         }
     }

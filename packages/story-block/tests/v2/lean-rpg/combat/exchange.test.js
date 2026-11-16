@@ -9,6 +9,7 @@ import { foeAttacks } from '../../../../src/v2/lean-rpg/combat/foe-turns.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
 import { fightDice } from '../../../../src/v2/lean-rpg/combat/dice.js';
 import { lineOf, lineTexts } from '../../../../src/v2/lean-rpg/combat/record.js';
+import { withSkills } from './derived-skills.helper.js';
 
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
 const CASES = JSON.parse(readFileSync(new URL('../../../../scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
@@ -20,7 +21,7 @@ const lower = stats => Object.fromEntries(Object.entries(stats).map(([key, value
 function sheetOf(trace) {
     const spec = SPECS.get(trace.name);
     return {
-        party: trace.sheet.party.map((hero, index) => ({
+        party: trace.sheet.party.map((hero, index) => withSkills({
             ...hero, stats: lower(hero.stats), hp: spec[index].hp ?? hero.hp, mp: spec[index].mp ?? hero.mp,
             sp: spec[index].sp ?? hero.sp,
         })),
@@ -85,10 +86,10 @@ test('all 34 C0 simulator traces replay exactly through the whole-fight engine',
     }
 });
 
-const ACE = {
+const ACE = withSkills({
     label: 'Ace', build: 'Skirmisher-plain', level: 99, mastery: 7, hp: 100, maxHp: 100, mp: 10, sp: 10,
     stats: { str: 30, vit: 30, agi: 30, dex: 30, int: 5, wis: 5 }, stances: [],
-};
+});
 const POST = { label: 'post', tier: 'mob', level: 1, hp: 1000, maxHp: 1000, damage: 1, roll: 1 };
 
 function exchangeWith(dice, choice = {}) {
@@ -182,7 +183,7 @@ test('opening initiative dice are validated like the exchange dice', () => {
 });
 
 test('a heal goes to living wounded allies only; with no target it falls back to the auto attack and spends nothing', () => {
-    const healer = { label: 'Mira', id: 'Mira', build: 'Healer', hp: 30, maxHp: 30, mp: 10, maxMp: 10, sp: 5, maxSp: 5, stats: { str: 5, agi: 5, vit: 5, int: 10, wis: 10, dex: 5, luk: 5 }, level: 5, stances: [] };
+    const healer = withSkills({ label: 'Mira', id: 'Mira', build: 'Healer', hp: 30, maxHp: 30, mp: 10, maxMp: 10, sp: 5, maxSp: 5, stats: { str: 5, agi: 5, vit: 5, int: 10, wis: 10, dex: 5, luk: 5 }, level: 5, stances: [] });
     const downed = { label: 'Dag', id: 'Dag', hp: 0, maxHp: 30, mp: 0, sp: 0, stats: { str: 5, agi: 5, vit: 5 }, level: 5, stances: [] };
     const wounded = { ...downed, label: 'Wen', id: 'Wen', hp: 5 };
     const run = (party, choice) => playExchange({ party, foes: [{ ...POST }] }, { Mira: choice }, { order: { party: party.map(a => a.id), foes: ['post'], first: 'party' }, roll: () => 15, number: 1, rotation: 0 });
