@@ -19,7 +19,7 @@ test('notes host: the record fields are the kinds file\'s NOTE_FIELDS, and a lie
     await s.say(['~ lie Oren | to: Astra | said: I never sold the spell']);
     assert.equal(JSON.parse(oren(s).lies).length, 1);
     assert.ok(optional(s).some(line => /(^|\n)Oren \(hidden\): told Astra "I never sold the spell"/.test(line)), JSON.stringify(optional(s)));
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     assert.equal((await cast(s)).notes.lies[0].said, null, 'the player\'s view of an uncaught lie has no words of it');
 });
 
@@ -33,7 +33,7 @@ test('notes host: only a story line catches a lie: six trust, in the day\'s allo
     assert.match(readLeaf(oren(s).mood).cause, /caught lying to Astra/);
     assert.ok(JSON.parse(oren(s).lies)[0].caught);
     assert.equal((await cast(s)).notes.lies[0].said, 'I never sold the spell', 'a caught lie is shown');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     await s.say(['~ lie Oren | to: Astra | caught: yes']);
     assert.equal(s.npc('Oren').meters.trust, -5, 'no uncaught lie left: the line is refused and nothing moves');
 });
@@ -59,7 +59,7 @@ test('notes host: a taste is fixed (a swap needs why:), an echo of the player\'s
     await s.host.send('I love burnt toffee', 'Fine.\n\n<Changes>\n~ taste Oren | likes: burnt toffee\n</Changes>');
     await s.adapter.ticked();
     assert.equal(JSON.parse(oren(s).tastes)[0].mirrored, true);
-    assert.ok(s.host.head().domains.npc.problems.some(item => /echoes/.test(item.text)));
+    assert.ok(s.host.head().domains.people.bonds.problems.some(item => /echoes/.test(item.text)));
     await s.say(['~ taste Oren | dislikes: stamped paperwork | from: the charter']);
     await s.say(['~ taste Oren | likes: stamped paperwork']);
     assert.equal(JSON.parse(oren(s).tastes).filter(item => item.sign === '+').length, 1, 'refused without why:');
@@ -67,7 +67,7 @@ test('notes host: a taste is fixed (a swap needs why:), an echo of the player\'s
     assert.deepEqual(Object.values(JSON.parse(oren(s).ties)), [['ally', 'owes']]);
     await s.say(['~ tie Oren | with: Sister Temiwa | tag: -ally']);
     assert.deepEqual(Object.values(JSON.parse(oren(s).ties)), [['owes']]);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('notes host: feature off: the note lines write nothing and the static text is the same', async () => {
@@ -101,7 +101,7 @@ test('notes host: replay equals live: rebuild, a swipe, a Re-read, a middle dele
     s.host.store.rebuild();
     assert.equal(shape(s), live, 'rebuild equals live after the delete');
     assert.deepEqual(s.host.store.problems(), []);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('notes host: long taste reasons and items survive Changes, Refresh, display, Re-read and replay', async () => {
@@ -140,7 +140,7 @@ test('notes host: npc.flag stamps the first look once and the reader\'s button i
     assert.deepEqual(oren(s).lookLockedAt, stamp, 'kept once');
     assert.equal(await s.adapter.flag({ name: 'Sister Temiwa', lock: true, reply: s.host.store.headIndex() }), null, 'a person with no meters gets no entry made by a flag');
     assert.equal(s.npc('Sister Temiwa'), null);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('locked look: the scan forwards a refused durable look as a flag (Problem + cue), and nothing when it is accepted or unchanged', async () => {
@@ -184,14 +184,14 @@ test('notes host: a refused look reaches npc.flag as a Problem, written once; th
     const head = () => s.host.store.headIndex();
     const done = await s.adapter.flag({ name: 'Oren', drift, reply: head() });
     assert.ok(done);
-    const problems = s.host.store.problems().concat(s.host.head().domains.npc.problems ?? []);
+    const problems = s.host.store.problems().concat(s.host.head().domains.people.bonds.problems ?? []);
     assert.ok(problems.some(item => /Look drift refused: "Black hair\." does not match the fixed look "Grey hair, grey eyes\."/.test(item?.text ?? item)));
-    const count = () => (s.host.head().domains.npc.problems ?? []).length;
+    const count = () => (s.host.head().domains.people.bonds.problems ?? []).length;
     const once = count();
     await s.adapter.flag({ name: 'Oren', drift, reply: head() });
     assert.equal(count(), once, 'the same text is not written twice');
     assert.equal(await s.adapter.flag({ name: 'Oren', drift: { before: 'Grey hair.', incoming: 'grey hair' }, reply: head() }), null, 'the same look sends nothing');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('notes host (review fixes): npc.cast hides an uncaught lie\'s words and id; the lie tail line carries the (hidden) wording when no locked meter note does; a caught lie held by the day\'s allowance is still recorded as caught', async () => {
@@ -224,11 +224,11 @@ test('notes host (review fix 5/9): a swipe of the reply whose scan sent npc.flag
     await s.adapter.flag({ name: 'Oren', lock: true, reply: head() });
     await s.adapter.flag({ name: 'Oren', drift: { before: 'Grey hair, grey eyes.', incoming: 'Black hair.' }, reply: head() });
     assert.ok(oren(s).lookLockedAt, 'stamped');
-    assert.ok((s.host.head().domains.npc.problems ?? []).some(item => /Look drift refused/.test(item?.text ?? '')), 'flagged');
+    assert.ok((s.host.head().domains.people.bonds.problems ?? []).some(item => /Look drift refused/.test(item?.text ?? '')), 'flagged');
     await s.swipe(['~ npc Oren | trust: +1']);
     assert.equal(oren(s).lookLockedAt, undefined, 'the swiped reply\'s stamp is gone');
-    assert.ok(!(s.host.head().domains.npc.problems ?? []).some(item => /Look drift refused/.test(item?.text ?? '')), 'and its Problem');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.ok(!(s.host.head().domains.people.bonds.problems ?? []).some(item => /Look drift refused/.test(item?.text ?? '')), 'and its Problem');
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('notes host: npc.meet gives a scan-admitted person an entry with the dossier\'s mood and drives; a button, a repeat and a swipe-free rebuild all hold', async () => {
@@ -236,10 +236,10 @@ test('notes host: npc.meet gives a scan-admitted person an entry with the dossie
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
     assert.equal((await s.host.sdk.command('npc.meet', { name: 'Mara' })).ok, false, 'not from a button');
-    const slice = () => s.host.head().domains.npc;
-    assert.equal(slice().npcs.mara, undefined, 'a person the scan admitted has no entry yet');
+    const slice = () => s.host.head().domains.people?.bonds;
+    assert.equal(slice().npcs.npc_mara, undefined, 'a person the scan admitted has no entry yet');
     await s.adapter.meet({ name: 'Mara', personality: 'cheerful, warm and kind; confident and bold', about: 'a caravan guard' });
-    const mara = slice().npcs.mara;
+    const mara = slice().npcs.npc_mara;
     assert.ok(mara && mara.meters, 'the entry exists with meters');
     assert.ok(mara.mood && mara.mood.v > 0 && mara.mood.d > 0, 'a resting mood from the temperament words');
     assert.deepEqual(validateNpcSlice(slice()), []);
@@ -256,12 +256,12 @@ test('notes host: npc.meet gives a scan-admitted person with no temperament word
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
     await s.adapter.meet({ name: 'Corren', personality: 'quiet', about: 'a clerk' });
-    const slice = () => s.host.head().domains.npc;
-    const mood = slice().npcs.corren.mood;
+    const slice = () => s.host.head().domains.people?.bonds;
+    const mood = slice().npcs.npc_corren.mood;
     assert.ok(mood && mood.v === 0 && mood.a === 0 && mood.d === 0, 'a mood with all three fields at rest');
     assert.deepEqual(validateNpcSlice(slice()), []);
     await s.say(['~ npc Oren | trust: +1']);
-    assert.ok(slice().npcs.corren.mood, 'the tick keeps stepping it');
+    assert.ok(slice().npcs.npc_corren.mood, 'the tick keeps stepping it');
     const live = JSON.stringify(slice());
     s.host.store.rebuild();
     assert.equal(JSON.stringify(slice()), live, 'rebuild equals live');
@@ -274,8 +274,8 @@ test('notes host: npc.meet takes the reply the scan read (as npc.adjust does); r
     const older = s.host.store.headIndex();
     await s.say(['~ npc Oren | trust: +1']);
     await s.adapter.meet({ name: 'Mara', personality: 'cheerful, warm and kind', reply: older });   // a scan of the older reply admitted her
-    const slice = () => s.host.head().domains.npc;
-    assert.ok(slice().npcs.mara && slice().npcs.mara.meters, 'met');
+    const slice = () => s.host.head().domains.people?.bonds;
+    assert.ok(slice().npcs.npc_mara && slice().npcs.npc_mara.meters, 'met');
     assert.deepEqual(validateNpcSlice(slice()), []);
     const live = JSON.stringify(slice());
     s.host.store.rebuild();

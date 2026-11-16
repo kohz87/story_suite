@@ -1,18 +1,20 @@
 // NPC meters for Story Suite v2 (Story Block 2, docs/v2/SPEC.md §2, §4, §5; coordinator decisions
 // F81, F90 and TRS ideas 1-4): a small slice of each NPC in v2's per-reply state, so the meters swipe
-// and delete back with the replies. The long prose dossiers stay in Delta's own sidecar; only numbers,
-// stage names, milestone names and the ids of unlocked hidden notes live here.
+// and delete back with the replies. Since people store P4 the slice is the store's `people` domain's
+// `bonds` (src/npc-meters-parts/fold.js), beside the dossiers NPC State writes there; only numbers,
+// stage names, milestone names and the ids of unlocked hidden notes live in it.
 //
-//   npc = {
+//   people.bonds = {
 //     npcs: { [key]: { name, meters: { trust, affection, desire, tension, ...custom }, stages: { meter: name },
 //                      unlocked: [noteId], held?: [noteId], disposition?, turn?: { reply, from: { meter: value } },
 //                      milestones?: { [milestoneKey]: name }, rank?: rungKey, low?: n, day?: n } },
 //     problems: [{ rev, text }],          // the last change lines code could not use in full (last 20)
 //   }
 //
-// * Keys are the NPC's name in lowercase words joined by "-" (`mira`, `jean-luc`), so a line about
-//   someone Delta has no dossier for still finds the same entry next time; a dossier is matched to
-//   its entry by its name, then its aliases.
+// * Keys are the person's npc_ id, the key of their dossier in the same domain (`npc_mira`). A line
+//   about someone Delta has no dossier for gets an id made as Delta makes dossier ids (`npc_` and the
+//   name's slug), so the dossier made later has the same key; an entry is also found by its name.
+//   npc.cast lists the store's people (not archived), each with its entry.
 // * Meters: trust, affection, desire and tension (-100..100, starting from Delta's base values, or
 //   from the dossier's own numbers for someone Delta already knows), plus up to six custom meters
 //   from the reader's settings and the presets in use. Code clamps every value to its range, and the

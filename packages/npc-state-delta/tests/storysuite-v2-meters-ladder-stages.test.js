@@ -138,7 +138,7 @@ test('limits from a preset: the Mentor keeps desire at 0; the NPC\'s own limit w
     assert.equal(s.npc('Oren').meters.desire, 10);
     assert.equal(s.npc('Mira').meters.approval, 25, 'the preset\'s meter, from its start');
     assert.equal(s.npc('Mira').rank, 'Student', 'the preset\'s ladder runs for the NPCs given it');
-    assert.equal(s.host.sdk.query('npc.cast').find(entry => entry.key === 'mira').bars.find(bar => bar.id === 'desire').ceiling, 0);
+    assert.equal(s.host.sdk.query('npc.cast').find(entry => entry.key === 'npc_mira').bars.find(bar => bar.id === 'desire').ceiling, 0);
 });
 
 test('limits as editor lines read back; bad lines are problems', () => {
@@ -159,7 +159,7 @@ test('custom meters: the rule line goes in the static part only while presets an
     assert.match(on, / Meter rules: loyalty rises when you keep promises\.$/);
     assert.equal(off, 'NPC meters: trust, affection, desire, tension (-100..100), loyalty (0..100). When the scene changes how someone feels: ~ npc Name | meter: +N, -N or =N. Code clamps each meter, moves it at most 15 a reply and sets the stages; never write a stage. Add | why: what caused it.');
     assert.equal(on.startsWith(off.slice(0, -1)), true, 'the rule line is added at the end');
-    const state = { domains: { npc: { problems: [], npcs: { mira: { name: 'Mira', meters: { trust: 5, affection: 0, desire: 0, tension: 0, loyalty: 61 }, stages: {}, unlocked: [], turn: { reply: 2, from: {} } } } } } };
+    const state = { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs: { npc_mira: { name: 'Mira', meters: { trust: 5, affection: 0, desire: 0, tension: 0, loyalty: 61 }, stages: {}, unlocked: [], turn: { reply: 2, from: {} } } } } } } };
     assert.deepEqual(make(true).context.tail({ state, chat: { length: 3 } }).lines.filter(line => typeof line === 'string'), ['NPC meters now: Mira trust 5, affection 0, desire 0, tension 0, loyalty devoted.']);
     assert.deepEqual(parseBands('doubtful 25, steady <= 60, devoted, 2bad, steady 99').map(band => [band.upTo, band.word]), [[25, 'doubtful'], [60, 'steady'], [99, 'steady'], [null, 'devoted']]);
     assert.equal(bandWord(parseBands('low 10, high'), 10), 'low');

@@ -39,7 +39,7 @@ test('the dossier editor: hosted, it edits the slice and the hidden notes; alone
     const hosted = scenarioOutput(runHostScenario('meters-editor-hosted', async () => {
         const sdk = {
             registered: [], sent: [],
-            entries: [{ key: 'yunyun', name: 'Yunyun', meters: { trust: 30, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [] }],
+            entries: [{ key: 'npc_yunyun', name: 'Yunyun', meters: { trust: 30, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [] }],
             registerModule(def) { sdk.registered.push(def); },
             command: async (type, payload) => { sdk.sent.push({ type, payload }); return { ok: true, receipt: { summary: '' } }; },
             query: name => (name === 'npc.meters' ? structuredClone(sdk.entries) : null),
@@ -103,7 +103,7 @@ test('the dossier editor (hosted): limits to the dossier, milestones and custom 
     const prelude = async () => {
         const sdk = {
             registered: [], sent: [],
-            entries: [{ key: 'yunyun', name: 'Yunyun', meters: { trust: 30, affection: 0, desire: 0, tension: 0, loyalty: 20 }, stages: {}, unlocked: [], milestones: { 'saved-her-brother': 'saved her brother', 'old-debt': 'old debt' } }],
+            entries: [{ key: 'npc_yunyun', name: 'Yunyun', meters: { trust: 30, affection: 0, desire: 0, tension: 0, loyalty: 20 }, stages: {}, unlocked: [], milestones: { 'saved-her-brother': 'saved her brother', 'old-debt': 'old debt' } }],
             registerModule(def) { sdk.registered.push(def); },
             command: async (type, payload) => { sdk.sent.push({ type, payload }); return { ok: true, receipt: { summary: '' } }; },
             query: name => (name === 'npc.meters' ? structuredClone(sdk.entries) : null),
@@ -213,7 +213,7 @@ test('hosted: the scan watches present people\'s event notes, and a story event 
         await sleep(400);
         const opened = mockState.sdk.sent.slice(sentBefore).filter(item => item.type === 'npc.open');
         // Once the host says it is open (its slice), it is not watched or asked again.
-        mockState.sdk.entries = [{ key: 'yunyun', name: 'Yunyun', meters: { trust: 0, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [noteId] }];
+        mockState.sdk.entries = [{ key: 'npc_yunyun', name: 'Yunyun', meters: { trust: 0, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [noteId] }];
         await turn('The gate is quiet.');
         await sleep(300);
         console.log('RESULT ' + JSON.stringify({

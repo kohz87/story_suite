@@ -233,7 +233,7 @@ test('event card: replay equals live, and the meters match a chat that never had
     await b.say(['~ npc Mira | trust: +1']);
     for (const set of [lines[0], lines[2]]) await b.say(set);
     assert.equal(JSON.stringify(a.npc('Mira').meters), JSON.stringify(b.npc('Mira').meters), 'the meters are the same');
-    assert.deepEqual(validateNpcSlice(a.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(a.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     // The event is the surviving reply's own whole record (the net amounts and the stamp's number are the window's, as on main).
     assert.deepEqual(eventOf(a).events, eventOf(b).events, 'the surviving reply\'s event');
     assert.equal(eventOf(a).date, eventOf(b).date);
@@ -263,7 +263,7 @@ test('event card: a swipe falls back to the earlier reply\'s card; a regenerate 
     await s.host.st.deleteMessage(s.host.store.headIndex());
     await s.host.st.deleteMessage(s.host.store.headIndex());
     assert.deepEqual(s.host.store.problems(), []);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('event card: an older record without a last event (or an unusable one) shows exactly the net card', async () => {
@@ -271,8 +271,8 @@ test('event card: an older record without a last event (or an unusable one) show
     await s.say(['~ npc Mira | trust: +2']);
     const withEvent = cardOf(s).html;
     const part = createNpcPart({});
-    const slice = structuredClone(s.host.head().domains.npc);
-    delete slice.npcs.mira.lastEvent;
+    const slice = structuredClone(s.host.head().domains.people?.bonds);
+    delete slice.npcs.npc_mira.lastEvent;
     assert.deepEqual(validateNpcSlice(slice), [], 'an old record is valid');
     for (const bad of ['{', '{"at":1,"date":"","events":[]}', JSON.stringify({ at: 1, date: 'x'.repeat(41), events: [{ src: 'story', ask: { trust: 1 }, tier: 'ordinary', held: true, note: '' }] }),
         JSON.stringify({ at: 1, date: '', events: [{ src: 'story', ask: { luck: 1 }, tier: 'ordinary', held: true, note: '' }] }),
@@ -280,7 +280,7 @@ test('event card: an older record without a last event (or an unusable one) show
         JSON.stringify({ at: 1, date: '', events: [{ src: 'story', ask: { trust: 1 }, tier: 'huge', held: true, note: '' }] }),
         JSON.stringify({ at: 1, date: '', events: Array.from({ length: 5 }, () => ({ src: 'scan', ask: {}, tier: 'ordinary', held: false, note: '' })) }), 7]) {
         const copy = structuredClone(slice);
-        copy.npcs.mira.lastEvent = bad;
+        copy.npcs.npc_mira.lastEvent = bad;
         assert.equal(validateNpcSlice(copy).length, 1, `unusable: ${String(bad).slice(0, 50)}`);
     }
     assert.ok(part && withEvent.includes('Ordinary'));

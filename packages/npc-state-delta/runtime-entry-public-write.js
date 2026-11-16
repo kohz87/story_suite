@@ -158,6 +158,32 @@ export function createPublicApiStatePart(deps) {
         state.readAhead = [];
         return true;
     },
+    // (the one timeline) The scan marker the store holds for the head (people.scan, src/adapter/people-sync.js): `index` is the last reply read (null: none), `since`
+    // the replies since that scan. In place on the state a running scan holds (pending backfills and read-ahead dropped); nothing is persisted.
+    setScanMarker: (index, since) => {
+        const key = getChatKey();
+        if (!key || key === 'no-chat' || (index !== null && (!Number.isInteger(index) || index < 0))) return false;
+        const state = getChatState(key);
+        if (!state) return false;
+        state.lastScannedMessageId = index;
+        if (Number.isInteger(since) && since >= 0) state.assistantSinceScan = since;
+        state.pendingBackfills = [];
+        state.readAhead = [];
+        return true;
+    },
+    // (the one timeline) One person's record as the store now holds it (a host-confirmed death, src/adapter/native-death.js), set in place on the open chat's
+    // state: every other person, the scan bookkeeping and the running scan's state object stay. Nothing is persisted, no native change is announced.
+    setPeopleRecord: record => {
+        const key = getChatKey();
+        if (!key || key === 'no-chat' || !record || typeof record !== 'object' || typeof record.id !== 'string') return false;
+        const state = getChatState(key);
+        const at = Array.isArray(state?.npcs) ? state.npcs.findIndex(item => item?.id === record.id) : -1;
+        if (at < 0) return false;
+        state.npcs[at] = structuredClone(record);
+        renderDossier();
+        updateInjection();
+        return true;
+    },
     // Told after every durable change of the open chat's state that is not the participant's own; returns the way to stop.
     onNativeChange: listener => {
         if (typeof listener !== 'function') return () => {};

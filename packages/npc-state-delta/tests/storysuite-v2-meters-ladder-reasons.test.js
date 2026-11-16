@@ -36,9 +36,9 @@ test('one-pass + line, same reply: the meters move once (the line\'s), and Recen
     await s.adapter.adjust({ name: 'Sieke', meters: { trust: 1, tension: 2 }, start: { trust: 0, affection: 0, desire: 0, tension: 0 }, reply, impact: 'ordinary', why: { trust: 'other words' } });
     assert.deepEqual(s.npc('Sieke').meters, moved.sieke, 'the meters the line named move once per reply');
     assert.equal(rowOf(s, 'npc_sieke').shown.reason.startsWith('Astra paid'), true, 'a reason once given is kept');
-    const live = JSON.stringify(s.host.head().domains.npc);
+    const live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'replay is the live state');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'replay is the live state');
 });
 
 test('one-pass reason: the line\'s own why wins; without a line, a zero axis, or a plain scan, nothing is written (never invented)', async () => {
@@ -47,12 +47,12 @@ test('one-pass reason: the line\'s own why wins; without a line, a zero axis, or
     for (const change of await ownerForward(s, reply)) await s.adapter.adjust(change);
     assert.equal(rowOf(s, 'npc_sieke').shown.reason, 'the button snapped', 'the line\'s own reason stands');
     // Temiwa had no line on this reply: her evidence is refused, nothing of her is written.
-    assert.equal(s.host.head().domains.npc.npcs['sister-temiwa'], undefined);
+    assert.equal(s.host.head().domains.people.bonds.npcs['npc_sister-temiwa'], undefined);
     const quiet = await s.say([]);
-    const before = JSON.stringify(s.host.head().domains.npc);
+    const before = JSON.stringify(s.host.head().domains.people?.bonds);
     const out = await s.adapter.adjust({ name: 'Sieke', meters: {}, reply: quiet, why: { trust: SIEKE_TRUST } });
     assert.equal(out?.code, 'REFUSED');
-    assert.equal(JSON.stringify(s.host.head().domains.npc), before, 'no line on the reply: no reason, no change');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), before, 'no line on the reply: no reason, no change');
     // Evidence only for an axis the row did not move, and a scan that is not a one-pass block, carry none.
     const zero = [{ id: 'npc_sieke', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 }, relationshipEvidence: { trust: 'words', affection: '', desire: '', tension: '' } }];
     assert.deepEqual(await ownerForward(s, quiet, zero), []);
@@ -60,9 +60,9 @@ test('one-pass reason: the line\'s own why wins; without a line, a zero axis, or
     // An old reply (a line without why, no evidence sent) replays as it was: no reason appears.
     const old = await pacedSuite(LOOSE, { records: ownerRecords() });
     await old.say(OWNER_LINES);
-    const stored = JSON.stringify(old.host.head().domains.npc);
+    const stored = JSON.stringify(old.host.head().domains.people?.bonds);
     old.host.store.rebuild();
-    assert.equal(JSON.stringify(old.host.head().domains.npc), stored);
+    assert.equal(JSON.stringify(old.host.head().domains.people?.bonds), stored);
     assert.equal(rowOf(old, 'npc_sieke').html.includes(NO_REASON), true);
 });
 
@@ -118,9 +118,9 @@ test('reason length: a line\'s own why is kept to 240 (whole when shorter, cut a
     const reply = await e.say(['~ npc Sieke | tension: +1 | impact: ordinary']);
     await e.adapter.adjust({ name: 'Sieke', meters: {}, reply, why: { tension: longer } });
     assert.equal(rowOf(e, 'npc_sieke').shown.reason, cut);
-    const live = JSON.stringify(e.host.head().domains.npc);
+    const live = JSON.stringify(e.host.head().domains.people?.bonds);
     e.host.store.rebuild();
-    assert.equal(JSON.stringify(e.host.head().domains.npc), live, 'replay is the live state');
+    assert.equal(JSON.stringify(e.host.head().domains.people?.bonds), live, 'replay is the live state');
 });
 
 test('reason length (rule mark): a Re-read of a reply whose earlier read stored its reason cut to 80 keeps writing 80; a first read and a wide standing write 240', () => {
@@ -201,7 +201,7 @@ test('last three changes: each reply keeps its event; the list shows the newest 
     assert.match(html, /a broken promise/); assert.match(html, /a long look/); assert.match(html, /a sharp word/);
     assert.doesNotMatch(html, /she was thanked/, 'a fourth change is not listed');
     assert.match(html, /Tension \+1/); assert.match(html, /Desire \+1/); assert.match(html, /Trust −1/);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     const head = JSON.stringify(s.host.head());
     s.host.store.rebuild();
     assert.equal(JSON.stringify(s.host.head()), head, 'replay equals live');

@@ -24,7 +24,7 @@ test('notes grammar: each kind says plainly when to write it and carries one exa
         const stored = await s.say([example]);
         assert.ok(stored !== undefined, kind);
     }
-    const o = Object.values(s.host.head().domains.npc.npcs).find(npc => npc.name === 'Person A');
+    const o = Object.values(s.host.head().domains.people.bonds.npcs).find(npc => npc.name === 'Person A');
     assert.ok(o, 'the examples name a generic person');
     assert.equal(JSON.parse(o.lies).length, 1, 'the lie example wrote a lie leaf');
     assert.equal(JSON.parse(o.knows).length, 1);
@@ -147,16 +147,16 @@ test('notes host: npc.taste records a Refresh\'s tastes on its reply; the narrat
     const before = JSON.stringify(oren(s).tastes);
     await s.adapter.tastes({ name: 'Oren', tastes: [{ sign: '+', item: 'old maps', from: 'again' }], reply: head() });
     assert.equal(JSON.stringify(oren(s).tastes), before, 'a repeat changes nothing');
-    const live = JSON.stringify(s.host.head().domains.npc);
+    const live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'rebuild equals live');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'rebuild equals live');
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     await s.swipe(['~ npc Oren | trust: +1']);
     assert.deepEqual(rows().map(row => row.item), ['tea'], 'a swipe of the reply that ran the Refresh takes its tastes back');
-    const swiped = JSON.stringify(s.host.head().domains.npc);
+    const swiped = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), swiped, 'rebuild equals live after the swipe');
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), swiped, 'rebuild equals live after the swipe');
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });
 
 test('notes host: the Profile placeholders (Tastes, Drives) reach the real dossier chain only with notes ON (adapter.dossierMeters → projectDossierState → Profile)', async () => {
@@ -185,8 +185,8 @@ test('notes host: npc.drives grows a drive on the 2nd different reply with a cue
     const s = await suite({ allowance: null, features: { ...ON } });
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
-    const slice = () => s.host.head().domains.npc;
-    const belonging = () => JSON.parse(slice().npcs.oren.drives ?? '{"belo":2}').belo;
+    const slice = () => s.host.head().domains.people?.bonds;
+    const belonging = () => JSON.parse(slice().npcs.npc_oren.drives ?? '{"belo":2}').belo;
     assert.equal((await s.host.sdk.command('npc.drives', { name: 'Oren', texts: ['a friend'], rule: 1 })).ok, false, 'not from a button');
     assert.equal(await s.adapter.drives({ name: 'Oren', texts: ['made a friend at the inn'] }) !== null, true);
     assert.equal(belonging(), 2, 'one reply with a cue: still normal');
@@ -208,24 +208,24 @@ test('notes host: the same reply twice counts once while the drive is below max 
     const s = await suite({ allowance: null, features: { ...ON } });
     await s.setDay(1);
     await s.say(['~ npc Oren | trust: +1']);
-    const comfort = () => JSON.parse(s.host.head().domains.npc.npcs.oren.drives ?? '{"comf":2}').comf;
+    const comfort = () => JSON.parse(s.host.head().domains.people.bonds.npcs.npc_oren.drives ?? '{"comf":2}').comf;
     await s.adapter.drives({ name: 'Oren', texts: ['found a cozy bed'] });
-    const once = JSON.stringify(s.host.head().domains.npc);
+    const once = JSON.stringify(s.host.head().domains.people?.bonds);
     await s.adapter.drives({ name: 'Oren', texts: ['a warm meal'] });
     assert.equal(comfort(), 2, 'two cues in the SAME reply: still normal');
-    assert.equal(JSON.stringify(s.host.head().domains.npc), once, 'nothing written for the same reply');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), once, 'nothing written for the same reply');
     const second = await s.say(['~ npc Oren | trust: +1']);
     await s.adapter.drives({ name: 'Oren', texts: ['a warm meal'] });
     assert.equal(comfort(), 3, 'the next reply: high');
     await s.say(['~ npc Oren | trust: +1']);
     assert.equal((await s.host.sdk.reread(second)).ok, true);
-    let live = JSON.stringify(s.host.head().domains.npc);
+    let live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'a Re-read of the reply that carried npc.drives replays as stored');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'a Re-read of the reply that carried npc.drives replays as stored');
     assert.equal(comfort(), 3);
     await s.host.st.deleteMessage(second - 1);
-    live = JSON.stringify(s.host.head().domains.npc);
+    live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'rebuild equals live after a middle delete');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'rebuild equals live after a middle delete');
     assert.deepEqual(s.host.store.problems(), []);
 });

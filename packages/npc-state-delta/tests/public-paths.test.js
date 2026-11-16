@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRegistry } from '../../story-block/src/v2/registry.js';
+import { createPeoplePart } from '../../story-block/src/v2/domains/people/part.js';
 import { createStore } from '../../story-block/src/v2/store.js';
 import { createCommandBus } from '../../story-block/src/v2/commands.js';
 import { CAPTURE_PREFIX } from '../../story-block/src/v2/registry.js';
@@ -74,7 +75,9 @@ async function host({ settings = {}, delta = fakeDelta(), headReply = () => null
     const chat = [{ is_user: false, name: 'Narrator', mes: 'The forge is warm.', swipe_id: 0, swipes: ['The forge is warm.'], swipe_info: [{ extra: {} }], extra: {} }];
     chat[0].swipe_info[0].extra = chat[0].extra;
     const registry = createRegistry();
-    const store = createStore({ chat: () => chat, save: async () => {} });
+    // The host's people domain (Story Block's core part): NPC State keeps its meters in its `bonds`.
+    registry.register({ id: 'story-block', name: 'Story Block', ...createPeoplePart() });
+    const store = createStore({ chat: () => chat, save: async () => {}, seed: name => registry.deferredInitial(name) });
     const moduleSettings = { [MODULE_ID]: structuredClone(settings) };
     const settingsOf = id => ({ ...(registry.module(id)?.settings?.defaults ?? {}), ...structuredClone(moduleSettings[id] ?? {}) });
     const bus = createCommandBus({ store, registry, settings: settingsOf });

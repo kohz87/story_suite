@@ -4,18 +4,24 @@ import { MODULE_ID, meterBarNode } from '../src/storysuite-v2.js';
 import { DEFAULT_CHANGE_CAP, MAX_CUSTOM_METERS, normalizeMeterSettings, npcKey, parseMeterValue, stageAt, validateNpcSlice } from '../src/npc-meters.js';
 import { METERS_CARD_ID, metersCardScreen } from '../src/npc-meters-screen.js';
 import { fakeDocument } from './helpers/fake-dom.js';
+import { CHANGED, changedHelper } from '../../story-block/src/v2/view/bind-parts/scope-shared.js';
 import { STAGES, fakeDelta, host, plain } from './storysuite-v2-meters.helpers.js';
 
-test('the real registry accepts the definition: npc domain, npc kind, commands, queries, the NPC card screen', async () => {
+test('the real registry accepts the definition: meters in the people domain, npc kind, commands, queries, the NPC card screen', async () => {
     const h = await host();
-    assert.equal(h.registry.domainOwner('npc'), MODULE_ID);
+    assert.equal(h.registry.domainOwner('npc'), null, 'no domain of its own: the meters are the people domain\'s bonds');
+    assert.equal(h.registry.domainOwner('people'), 'story-block');
     assert.equal(h.registry.captureOwner('npc'), MODULE_ID);
     for (const type of ['npc.adjust', 'npc.set', 'npc.refresh']) assert.equal(h.registry.commandOwner(type), MODULE_ID);
-    assert.deepEqual(h.store.head().domains.npc, { npcs: {}, problems: [] });
+    assert.deepEqual(Object.keys(h.store.head().domains.people?.bonds?.npcs ?? {}), [], 'no meters before the first change (a dossier write lays down only the empty bonds)');
     assert.equal(h.def.screens[0].id, METERS_CARD_ID);
     assert.deepEqual(metersCardScreen.mounts, ['card']);
     assert.match(metersCardScreen.template, /<ss-widget name="ss\.meter" data-props='\{"bind":"b"\}'><\/ss-widget>/, 'one ss.meter per bar');
-    assert.match(metersCardScreen.template, /changed\(state\.npc\.npcs\[n\.key\]\)/);
+    assert.match(metersCardScreen.template, /changed\(state\.people\.bonds\.npcs\[n\.key\]\)/, 'the card reads the meters where the store keeps them (people.bonds)');
+    // The card's changed(...) finds a reply's bonds ops for that person, and only theirs.
+    const scope = { n: { key: 'npc_mira' }, [CHANGED]: new Set(['/domains/people/bonds/npcs/npc_mira/meters/trust']) };
+    assert.equal(changedHelper(scope)('state.people.bonds.npcs[n.key]'), true);
+    assert.equal(changedHelper({ ...scope, n: { key: 'npc_oren' } })('state.people.bonds.npcs[n.key]'), false);
 });
 
 // ---- capture ----
@@ -51,7 +57,7 @@ test('capture: huge and malformed values are problems, not numbers', async () =>
     const { results } = h.reply('Wild.', block);
     assert.ok(results.every(result => result.ok === false && result.code === 'REFUSED'), 'each line names no usable change');
     assert.equal(h.npc('Mira'), null, 'nothing was saved');
-    assert.equal(h.store.head().meta.rev, 0);
+    assert.equal(h.store.head().meta.rev, 1, 'only the fixture\'s people write (rev 1) is stored');
     assert.equal(h.problems.length, 6);
     for (const raw of ['+99999', '1e9', 'Infinity', 'NaN', '1.5', 'lots', '', '+', '=']) assert.equal(parseMeterValue(raw), null, raw);
     // A huge number sent by a command is refused as a meter value, and the range holds anyway.
@@ -69,7 +75,7 @@ test('capture: unknown meters are problems on the slice and the receipt; known o
     assert.equal(results[0].ok, true);
     assert.equal(h.npc('Mira').meters.trust, 12);
     assert.deepEqual(h.npc('Mira').stages, {});
-    const problems = h.store.head().domains.npc.problems.map(item => item.text);
+    const problems = h.store.head().domains.people.bonds.problems.map(item => item.text);
     assert.equal(problems.length, 2);
     assert.match(problems[0], /"charm" is not a meter/);
     assert.match(problems[1], /Stages are set by code/);
@@ -85,14 +91,14 @@ test('capture: someone Delta does not know gets an entry keyed by name, from the
     const h = await host({ delta });
     h.reply('A stranger.', '+ npc Captain Ilse Vorn | trust: +3');
     const entry = h.npc('Captain Ilse Vorn');
-    assert.equal(entry.key, 'captain-ilse-vorn');
+    assert.equal(entry.key, 'npc_captain-ilse-vorn', 'keyed by the id Delta would give her dossier');
     assert.equal(entry.meters.trust, 8);
     assert.equal(delta.records.npc_ilse, undefined, 'Delta\'s own dossiers are not touched');
     h.reply('Again.', '~ npc captain ilse vorn | trust: +1');
     assert.equal(h.npc('Captain Ilse Vorn').meters.trust, 9, 'the same entry by name, whatever the case');
     // An alias of a dossier finds the dossier's entry.
     h.reply('Smith.', '~ npc The Smith | affection: +4');
-    assert.deepEqual(Object.keys(h.store.head().domains.npc.npcs).sort(), ['captain-ilse-vorn', 'mira']);
+    assert.deepEqual(Object.keys(h.store.head().domains.people.bonds.npcs).sort(), ['npc_captain-ilse-vorn', 'npc_mira']);
     assert.equal(h.npc('Mira').meters.affection, 4);
 });
 
@@ -115,16 +121,16 @@ test('hostile NPC and meter names never reach prototypes, keys or markup', async
     ].join('\n');
     const { results } = h.reply('Strange guests.', block);
     assert.ok(results.every(result => result.ok), JSON.stringify(results.map(result => result.message)));
-    const npcs = h.store.head().domains.npc.npcs;
-    assert.deepEqual(Object.keys(npcs).sort(), ['constructor-npc', 'img-src-x-onerror-alert-1', 'mira', 'proto']);
+    const npcs = h.store.head().domains.people.bonds.npcs;
+    assert.deepEqual(Object.keys(npcs).sort(), ['npc_constructor', 'npc_img-src-x-onerror-alert-1', 'npc_mira', 'npc_proto']);
     assert.equal(Object.getPrototypeOf(npcs), Object.prototype);
     assert.equal({}.trust, undefined, 'no prototype pollution');
     assert.equal(Object.prototype.constructor, Object);
-    assert.equal(npcs['img-src-x-onerror-alert-1'].meters['img-src-x-onerror-alert-1'], 7);
-    assert.equal(npcs['constructor-npc'].meters.proto, 5);
-    assert.deepEqual(h.store.head().domains.npc.problems.map(item => item.text), ['"constructor" is not a meter (meters: trust, affection, desire, tension, proto, img-src-x-onerror-alert-1, lust, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, a, b).']);
-    assert.equal(npcs.mira.meters.lust, 13, 'a custom meter starts at its own start');
-    assert.deepEqual(validateNpcSlice(h.store.head().domains.npc), []);
+    assert.equal(npcs['npc_img-src-x-onerror-alert-1'].meters['img-src-x-onerror-alert-1'], 7);
+    assert.equal(npcs.npc_constructor.meters.proto, 5);
+    assert.deepEqual(h.store.head().domains.people.bonds.problems.map(item => item.text), ['"constructor" is not a meter (meters: trust, affection, desire, tension, proto, img-src-x-onerror-alert-1, lust, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, a, b).']);
+    assert.equal(npcs.npc_mira.meters.lust, 13, 'a custom meter starts at its own start');
+    assert.deepEqual(validateNpcSlice(h.store.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     // Markup: names and labels are escaped in the Cast tab bars.
     const bar = meterBarNode(fakeDocument(), { id: '<b>', label: '<img src=x onerror=alert(1)>', min: 0, max: 50, tone: '"><script>' }, 7, '<i>stage</i>').serialize();
     assert.doesNotMatch(bar, /<img|<script|<i>|<b>/);

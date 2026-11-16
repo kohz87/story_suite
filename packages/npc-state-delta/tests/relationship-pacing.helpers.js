@@ -56,7 +56,7 @@ export function fuzzLine(r, who) {
 export const shape = s => JSON.stringify(s.host.head());
 export const gateOn = { [FEATURE_GATE]: true };
 export const praise = (who = 'Oren', by = 3, via = 'praise') => `~ npc ${who} | affection: +${by} | via: ${via} | impact: major`;
-export const record = (s, key = 'oren') => s.host.head().domains.npc.npcs[key];
+export const record = (s, key = 'oren') => s.host.head().domains.people.bonds.npcs[`npc_${key}`];
 export const gateOf = (s, key = 'oren') => eventSummary(readEvent(record(s, key).lastEvent))?.gate;
 export const tailOf = s => s.host.registry.module(MODULE_ID).context.tail({ state: s.host.head(), chat: { length: s.host.ctx.chat.length } });
 export const lowTrust = () => { const records = dossiers(); records.npc_oren.relationship.trust = -50; return records; };
@@ -77,7 +77,7 @@ export const worldModule = {
 export const moodSuite = (extra = {}) => suite({ allowance: null, features: MOOD_ON, modules: [worldModule], ...extra });
 export const world = async (s, patch) => { const out = await s.host.sdk.command('zz.world', patch); assert.equal(out.ok, true, JSON.stringify(out)); };
 // The record as stored, with its text leaves (mood, inst, pull, track) read back as objects.
-export const recordOf = (s, key = 'oren') => { const raw = s.host.head().domains.npc.npcs[key]; return raw && Object.fromEntries(Object.entries(raw).map(([field, value]) => [field, ['mood', 'inst', 'pull', 'track'].includes(field) ? readLeaf(value) : value])); };
+export const recordOf = (s, key = 'oren') => { const raw = s.host.head().domains.people.bonds.npcs[`npc_${key}`]; return raw && Object.fromEntries(Object.entries(raw).map(([field, value]) => [field, ['mood', 'inst', 'pull', 'track'].includes(field) ? readLeaf(value) : value])); };
 export const plain = ({ v, a, d, day, cause }) => ({ v, a, d, day, cause });
 export const clockTo = (s, minutes) => s.host.sdk.command('zz.clock', { minutes });
 export const axes = s => { const m = recordOf(s).mood; return [m.v, m.a, m.d]; };
@@ -85,7 +85,7 @@ export const axes = s => { const m = recordOf(s).mood; return [m.v, m.a, m.d]; }
 // A chat written under 1.16.0 stores mood, inst, pull and track as objects (per-field ops). Rewrite a chat's leaf ops that way.
 export function toOld(chat) {
     const prev = new Map();
-    const LEAF = /^\/domains\/npc\/npcs\/[^/]+\/(mood|inst|pull|track)$/;
+    const LEAF = /^\/domains\/people\/bonds\/npcs\/[^/]+\/(mood|inst|pull|track)$/;
     for (const message of chat) {
         const rec = message.extra?.storySuite;
         if (!rec?.ops) continue;

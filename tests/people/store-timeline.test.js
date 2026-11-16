@@ -131,7 +131,8 @@ test('Delta\'s own ids (npc_myla) are stored: all 15 frozen write paths reach eq
             Object.assign(state, structuredClone(next), { checkpoints: [], lineage: [] });
         });
         assert.equal(done, true, `${key}: settled ${rig.sends.slice(-2)} ${rig.warnings.at(-1)}`);
-        assert.equal(hashJson(people(rig)), hashJson(rig.expected()), `${key}: the head equals the view of Delta's state`);
+        // (the dossier hash, as NPC State's sync compares it: the slice also holds the meters, `bonds`, which the view does not)
+        assert.equal(rig.host.sdk.query('people.hash', { dossiers: true }), hashJson(rig.expected()), `${key}: the head equals the view of Delta's state`);
     }
     assert.equal(rig.sends.includes('INVALID'), false, `no send refused: ${rig.sends}`);
     assert.deepEqual(rig.warnings, []);

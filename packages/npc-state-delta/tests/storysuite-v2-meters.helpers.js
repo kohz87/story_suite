@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { CAPTURE_PREFIX, createRegistry } from '../../story-block/src/v2/registry.js';
+import { createPeoplePart } from '../../story-block/src/v2/domains/people/part.js';
 import { createStore } from '../../story-block/src/v2/store.js';
 import { createCommandBus } from '../../story-block/src/v2/commands.js';
 import { parseChanges } from '../../story-block/src/v2/capture.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { secretId } from '../src/npc-meters.js';
+import { seedPeople } from './helpers/seed-people.js';
 
 export const SECRET = 'She is the lost heir of House Venn.';
 export const SECRET_TWO = 'She keeps a second ledger under the anvil.';
@@ -58,7 +60,9 @@ export async function host({ settings = {}, delta = fakeDelta(), headReply = () 
     const chat = [{ is_user: false, name: 'Narrator', mes: 'The forge is warm.', swipe_id: 0, swipes: ['The forge is warm.'], swipe_info: [{ extra: {} }], extra: {} }];
     chat[0].swipe_info[0].extra = chat[0].extra;
     const registry = createRegistry();
-    const store = createStore({ chat: () => chat, save: async () => {} });
+    // The host's people domain (Story Block's core part): NPC State keeps its meters in its `bonds`.
+    registry.register({ id: 'story-block', name: 'Story Block', ...createPeoplePart() });
+    const store = createStore({ chat: () => chat, save: async () => {}, seed: name => registry.deferredInitial(name) });
     const moduleSettings = { [MODULE_ID]: structuredClone(settings) };
     const settingsOf = id => ({ ...(registry.module(id)?.settings?.defaults ?? {}), ...structuredClone(moduleSettings[id] ?? {}) });
     const bus = createCommandBus({ store, registry, settings: settingsOf });
@@ -90,6 +94,8 @@ export async function host({ settings = {}, delta = fakeDelta(), headReply = () 
     });
     adapter.start();
     assert.equal(await adapter.settled(), true, 'the adapter registers with the host');
+    await seedPeople(sdk, store, delta.records);   // the dossiers are the store's people (npc.cast lists them)
+    sent.length = 0;   // (the seed's people.write is the fixture's, not a send under test)
     const def = registry.module(MODULE_ID);
     const problems = [];
 

@@ -97,8 +97,8 @@ test('tiers: a deep value resists and keeps its part-points; =N is a move toward
     await s.say(['~ npc Oren | trust: =60 | impact: major']);
     const first = trust(s).trust;
     assert.ok(first > 40 && first <= 45, `toward 60, held to 5: ${first}`);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
-    assert.ok(s.host.head().domains.npc.npcs.oren.progress === undefined || typeof s.host.head().domains.npc.npcs.oren.progress.trust === 'number');
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
+    assert.ok(s.host.head().domains.people.bonds.npcs.npc_oren.progress === undefined || typeof s.host.head().domains.people.bonds.npcs.npc_oren.progress.trust === 'number');
     await s.say(['~ npc Oren | trust: +1']);
     await s.say(['~ npc Oren | trust: +1']);
     assert.ok(trust(s).trust >= first, 'ordinary moves at a deep value still add up through the stored part-points');
@@ -132,7 +132,7 @@ test('tiers: the per-reply cap still applies on top', async () => {
 
 test('tiers: swipe, regenerate and a rebuild give identical numbers', async () => {
     const s = await suite();
-    const numbers = () => JSON.stringify(Object.values(s.host.head().domains.npc.npcs).map(item => [item.meters, item.progress ?? null]));
+    const numbers = () => JSON.stringify(Object.values(s.host.head().domains.people.bonds.npcs).map(item => [item.meters, item.progress ?? null]));
     await s.say(['~ npc Oren | trust: +5 | impact: major']);
     const live = numbers();
     await s.swipe(['~ npc Oren | trust: +5 | impact: major']);
@@ -180,10 +180,10 @@ test('day rule: a ~ time line of the same reply puts its meter lines on the new 
         await s.say(['~ npc Oren | trust: +1 | impact: major']);   // day 0: the day's one major
         const held = await s.say(['~ npc Oren | trust: +1 | impact: major']);
         assert.equal(trust(s).trust, 1, 'the same day: held');
-        assert.match(JSON.stringify(s.host.head().domains.npc.npcs.oren.lastEvent), /used/);
+        assert.match(JSON.stringify(s.host.head().domains.people.bonds.npcs.npc_oren.lastEvent), /used/);
         await s.say(lines);
         assert.equal(trust(s).trust, 2, `the new day takes the major (${lines[0]}) after reply ${held}`);
-        const note = JSON.stringify(s.host.head().domains.npc.npcs.oren.lastEvent);
+        const note = JSON.stringify(s.host.head().domains.people.bonds.npcs.npc_oren.lastEvent);
         assert.doesNotMatch(note, /"held":true/);
         assert.ok(s.receipts().some(item => item.data?.dayRule === 1), 'the receipt carries the day rule mark');
     }
@@ -193,7 +193,7 @@ test('day rule: a held line names the story day it used ("used on <date>"); a re
     const s = await suite({ modules: [dayClock()], allowance: { ordinary: 0, meaningful: 0, major: 1, extreme: 0 } });
     await s.say(['~ npc Oren | trust: +1 | impact: major']);
     await s.say(['~ time Day | at: 700', '~ npc Oren | trust: +1 | impact: major']);
-    assert.match(JSON.stringify(s.host.head().domains.npc.npcs.oren.lastEvent), / used on January 1/);
+    assert.match(JSON.stringify(s.host.head().domains.people.bonds.npcs.npc_oren.lastEvent), / used on January 1/);
     const { dayRuleFor } = await import('../src/npc-meters-pacing.js');
     assert.equal(dayRuleFor({ standing: null }, 'oren'), 1, 'a first read');
     assert.equal(dayRuleFor({ standing: {}, standingReceipts: [{ data: { key: 'oren' } }] }, 'oren'), 0, 'a Re-read of a reply read before the rule');
@@ -213,9 +213,9 @@ test('day rule: a Re-read of an old reply written npc-before-time keeps its numb
     assert.equal(/dayRule/.test(JSON.stringify(s.host.store.receipts())), false);
     assert.equal((await s.host.sdk.reread(index)).ok, true);
     const norm = value => JSON.stringify(JSON.parse(JSON.stringify(value), (key, item) => (item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : 1))) : item))).replace(/sw_[0-9a-f]{12}/g, 'R');
-    assert.equal(norm(s.npc('Oren')), '{"event":{"at":"R","date":"January 1","events":[{"ask":{"trust":1},"held":true,"note":"today\'s ordinary, meaningful and major are used","src":"story","tier":"major"}],"n":4,"prev":[{"at":"R","date":"January 1","held":false,"mv":{"trust":1},"n":2}]},"key":"oren","meters":{"affection":0,"desire":0,"tension":0,"trust":1},"name":"Oren","recent":[{"ask":{"trust":1},"at":"R","date":"January 1","held":true,"n":4,"note":"today\'s ordinary, meaningful and major are used"},{"at":"R","date":"January 1","held":false,"mv":{"trust":1},"n":2}],"reply":4,"stages":{},"unlocked":[],"window":{"from":{"affection":0,"desire":0,"tension":0,"trust":1},"story":[]}}', 'the changes card');
-    assert.match(JSON.stringify(s.host.head().domains.npc.npcs.oren.lastEvent), /"date\\":\\"January 1\\".*"held\\":true/, 'the last event: the old day, held');
-    assert.doesNotMatch(JSON.stringify(s.host.head().domains.npc.npcs.oren.lastEvent), / used on /, 'the old text');
+    assert.equal(norm(s.npc('Oren')), '{"event":{"at":"R","date":"January 1","events":[{"ask":{"trust":1},"held":true,"note":"today\'s ordinary, meaningful and major are used","src":"story","tier":"major"}],"n":4,"prev":[{"at":"R","date":"January 1","held":false,"mv":{"trust":1},"n":2}]},"key":"npc_oren","meters":{"affection":0,"desire":0,"tension":0,"trust":1},"name":"Oren","recent":[{"ask":{"trust":1},"at":"R","date":"January 1","held":true,"n":4,"note":"today\'s ordinary, meaningful and major are used"},{"at":"R","date":"January 1","held":false,"mv":{"trust":1},"n":2}],"reply":4,"stages":{},"unlocked":[],"window":{"from":{"affection":0,"desire":0,"tension":0,"trust":1},"story":[]}}', 'the changes card');
+    assert.match(JSON.stringify(s.host.head().domains.people.bonds.npcs.npc_oren.lastEvent), /"date\\":\\"January 1\\".*"held\\":true/, 'the last event: the old day, held');
+    assert.doesNotMatch(JSON.stringify(s.host.head().domains.people.bonds.npcs.npc_oren.lastEvent), / used on /, 'the old text');
     assert.deepEqual(s.host.store.receipts().filter(item => item.index === index).map(item => item.receipt.type).sort(), ['capture.npc', 'capture.time', 'npc.tick']);
 });
 

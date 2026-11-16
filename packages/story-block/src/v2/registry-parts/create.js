@@ -7,6 +7,11 @@ import { createInteractionLookups } from '../registry/interactions.js';
 import { createLifecycle } from '../registry/lifecycle.js';
 import { createRegistration } from '../registry/registration.js';
 
+// The replay rules the host itself applies, by letter (REPLAY.md): a rule that changes what a replay returns gets a new letter here, so memos kept under the old rule are not reused.
+// (Only in-memory keys read this: memos, the head cache and the prefix memo, all emptied by a reload; a chat file's checkpoint is not keyed on it. It stays as a convention for later rules.)
+// g: a deferred domain's later writes seed it when its first writer was deleted.
+const REPLAY_RULES = 'rules:g';
+
 export function createRegistry({ hostVersion = null, warn = message => console.warn(`[Story Suite] ${message}`), featureValue = () => undefined } = {}) {
     const defs = new Map();
     // C3-5: each module's features as they were when it registered (module id → [declaration]): a
@@ -28,7 +33,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
     const featureLookups = createFeatureLookups({ defs, declared, owners, fallbacks, canonical, featureValue, held, steadyHeld: life.steadyHeld, lifecycle });
     const { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
     const commandLookups = createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf: life.nameOf, off, warn });
-    const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState } = commandLookups;
+    const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial } = commandLookups;
     const { interaction, interactionIds } = createInteractionLookups({ defs, held });
     const { register } = createRegistration({ defs, declared, owners, fallbacks, canonical, refusals, hostVersion, warn, needsOf, setPeers: life.setPeers });
 
@@ -48,7 +53,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
             const def = defs.get(id)?.domains?.[name] ?? {};
             const list = value => (Array.isArray(value) ? value.join('+') : '');
             return `${name}@${id}@${defs.get(id)?.version ?? ''}:${typeof def.validate === 'function' ? 'v' : ''}:${list(def.scratch)}:${list(def.counters)}`;
-        }).join(';'),
+        }).join(';') + `;${REPLAY_RULES}`,
         commandOwner,
         /** The interaction kind a full id `<module>/<kind>` names (its KindDef), or null. */
         interaction,
@@ -79,6 +84,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
             const list = owner ? defs.get(owner).domains[name].scratch : null;
             return Array.isArray(list) ? [...list] : [];
         },
+        /** A deferred domain's initial() slice (a copy): what an absent one replays as (ops.js rebaseOps); null for any other domain. */
+        deferredInitial,
         /** The number paths a domain keeps as counts (`counters`, ops.js), [] when none. */
         counters(name) {
             const owner = owners.domain.get(name);

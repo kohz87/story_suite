@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHost } from '../../story-block/testkit/index.js';
 import { MODULE_ID, createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
+import { seedPeople } from './helpers/seed-people.js';
 import { secretId } from '../src/npc-meters.js';
 import { projectDossierState } from '../dossier-ui.js';
 import { lastRelationshipChangeHtml, recentChangeRowHtml } from '../dossier-ui-relationship.js';
@@ -64,6 +65,7 @@ export async function suite({ settings = {}, records = dossiers(), features = nu
     });
     adapter.start();
     assert.equal(await adapter.settled(), true, 'the adapter registers');
+    await seedPeople(host.sdk, host.store, delta.records);   // the dossiers are the store's people (npc.cast lists them)
     const block = lines => (lines.length ? `\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : '');
     /** One reply with these change lines; waits for Delta's per-reply step. → the reply's index. */
     const say = async (lines = [], text = 'The story goes on.') => {
@@ -158,7 +160,7 @@ export const pacedSuite = async (allowance, extra = {}) => {
 };
 export const LOOSE = { ordinary: 99, meaningful: 99, major: 99, extreme: 99 };
 export const SHUT = { ordinary: 0, meaningful: 0, major: 0, extreme: 0 };
-export const eventOf = (s, who = 'Mira') => JSON.parse(s.host.head().domains.npc.npcs[who.toLowerCase()].lastEvent);
+export const eventOf = (s, who = 'Mira') => JSON.parse(s.host.head().domains.people.bonds.npcs[`npc_${who.toLowerCase()}`].lastEvent);
 
 export const OWNER_LINES = ['~ npc Sieke | tension: +2 | trust: +1 | impact: ordinary', '~ npc Sister Temiwa | trust: +1 | impact: ordinary'];
 export const SIEKE_TRUST = 'Astra paid the fifty copper registration fee in silver coin without arguing.';

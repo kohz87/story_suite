@@ -1,3 +1,4 @@
+import { seedPeople } from './helpers/seed-people.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../story-block/testkit/index.js';
@@ -155,6 +156,7 @@ async function suite(t, records = []) {
     adapter.start();
     assert.equal(await adapter.settled(), true);
     t.after(() => adapter.stop());
+    if (records.length) await seedPeople(host.sdk, host.store, records);   // the dossiers are the store's people (npc.cast lists them)
     const cast = () => {
         const el = fakeRoot(undefined, { dataset: {} });
         adapter.definition.tabs[0].render(el);
@@ -163,17 +165,22 @@ async function suite(t, records = []) {
     return { host, adapter, cast };
 }
 
-test('the Cast tab shows meters the change lines set, before any dossier exists, for those in the scene', async t => {
-    const { host, cast } = await suite(t);
+// (people store P4) npc.cast is the store's people: a change line about someone with no stored dossier keeps their meters (in the people domain's bonds), and
+// they join the cast, with those meters, once their dossier is stored. Before P4 the cast listed the meter entries themselves.
+test('the Cast tab lists the store\'s people: meters a line sets before any dossier exists show once the dossier is stored, for those in the scene', async t => {
+    const records = [];
+    const { host, cast } = await suite(t, records);
     await host.send('We walk in.', 'Odda nods at you; Brecht is away at the mill.\n\n<Changes>\n+ present Odda\n~ npc Odda | trust: +10\n~ npc Brecht | trust: +5\n</Changes>');
-    const html = cast();
+    let html = cast();
     assert.match(html, /No NPC has a dossier in this chat yet/, 'Delta\'s own empty-cast line stays');
-    assert.match(html, /<h4>Odda<\/h4>/, 'Odda\'s meters show right away');
-    assert.match(html, /aria-label="Trust"[^>]*aria-valuenow="10"/);
-    assert.doesNotMatch(html, /Brecht/, 'not in the scene: not shown');
-    // Once Brecht arrives, his meters show too.
-    await host.send('Brecht?', 'Brecht comes in from the mill.\n\n<Changes>\n+ present Brecht\n</Changes>');
-    assert.match(cast(), /<h4>Brecht<\/h4>/);
+    assert.doesNotMatch(html, /<h4>Odda<\/h4>/, 'no stored dossier: not in the cast');
+    assert.equal(host.head().domains.people.bonds.npcs.npc_odda.meters.trust, 10, 'the line kept her meters, under the id her dossier will have');
+    records.push({ id: 'npc_odda', name: 'Odda', present: true });
+    await seedPeople(host.sdk, host.store, records);
+    html = cast();
+    assert.match(html, /<h4>Odda<\/h4>/, 'her dossier is stored: her meters show');
+    assert.match(html, /aria-label="Trust"[^>]*aria-valuenow="10"/, 'with the value the line set');
+    assert.doesNotMatch(html, /Brecht/, 'Brecht has meters but no stored dossier: not shown');
 });
 
 test('a person with a dossier keeps the dossier\'s presence: away in the dossier, not drawn from the slice', async t => {
@@ -182,5 +189,6 @@ test('a person with a dossier keeps the dossier\'s presence: away in the dossier
     await host.send('We walk in.', 'Odda waves.\n\n<Changes>\n+ present Odda\n~ npc Odda | trust: +10\n</Changes>');
     assert.doesNotMatch(cast(), /<h4>Odda<\/h4>/, 'her dossier says she is not present; Delta\'s own rule stands');
     records[0].present = true;
+    await seedPeople(host.sdk, host.store, records);   // (the dossier's presence as NPC State stores it)
     assert.match(cast(), /<h4>Odda<\/h4>/);
 });

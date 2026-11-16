@@ -98,7 +98,7 @@ export function createQueriesPart(session, deps) {
     const part = createNpcPart({
         resolve: name => {
             const npc = dossierOf(name);
-            return npc ? { name: npc.name, aliases: Array.isArray(npc.aliases) ? npc.aliases : [], relationship: npc.relationship } : null;
+            return npc ? { ...(typeof npc.id === 'string' ? { id: npc.id } : {}), name: npc.name, aliases: Array.isArray(npc.aliases) ? npc.aliases : [], relationship: npc.relationship } : null;
         },
         baseline: () => runtime()?.relationshipBaseline?.() ?? {},
         caps: () => runtime()?.relationshipCaps?.() ?? null,

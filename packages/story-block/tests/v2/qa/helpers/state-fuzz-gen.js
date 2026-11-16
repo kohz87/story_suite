@@ -109,6 +109,10 @@ export function uiCommand(r, host, { people = false } = {}) {
         choices.push(['people.write', { v: 1, source: own, view: peopleView(r) }], ['people.write', { v: 1, source: own, view: peopleView(r) }]);
         if (r.chance(0.2)) choices.push(['people.write', { v: 1, source: { sid: 'no-such-reply', swipeKey: own.swipeKey }, view: peopleView(r) }]);
         if (r.chance(0.2)) choices.push(['people.write', { v: 1, source: own, view: { v: 1, order: ['npc_p0'], npcs: {} } }]);
+        // The second writer (bonds, from a module's own command) and the reader's narrow edits; an edit of someone not stored is refused.
+        const id = `npc_p${r.int(0, 3)}`;
+        choices.push(['probe.bond', { id, by: r.int(-3, 3) }], ['people.edit', { id, fields: { note: r.pick(WORDS) } }], ['people.follow', { id, on: r.chance(0.5) }]);
+        if (r.chance(0.3)) choices.push(['people.portrait.set', { id, portrait: r.chance(0.8) ? { path: `user/files/${id}.png`, type: 'image/png', hash: `h${r.int(1, 9)}` } : null }]);
     }
     return r.pick(choices);
 }

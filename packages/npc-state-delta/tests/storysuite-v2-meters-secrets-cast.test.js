@@ -88,7 +88,7 @@ test('secrets from the cast: a mixed list (meter, event-only, both) is read, edi
     h.reply('Nice.', '~ npc Mira | trust: +15');
     const meterNotes = given.filter(note => note.meter);
     const eventNotes = given.filter(note => !note.meter);
-    const cast = h.runQuery('npc.cast').find(entry => entry.key === 'mira');
+    const cast = h.runQuery('npc.cast').find(entry => entry.key === 'npc_mira');
     assert.equal(cast.locked.length + cast.opened.length, given.length, 'every note is on the card, event-only ones too');
     assert.deepEqual(cast.locked.filter(note => note.event).map(note => note.opens), eventNotes.map(() => 'Opens with the story'));
     const tail = h.def.context.tail(h.view());
@@ -146,7 +146,7 @@ test('secrets from a pack: a both-rules note shows one wording while hidden, ope
 
     // Hidden: one wording on the card, the event's words not shown; the story is told it as a locked note; the scan watches the event.
     const { h, note } = await make();
-    const hidden = h.runQuery('npc.cast').find(entry => entry.key === 'mira');
+    const hidden = h.runQuery('npc.cast').find(entry => entry.key === 'npc_mira');
     assert.deepEqual(hidden.locked.map(item => [item.id, item.meter, item.at, item.event, item.opens]), [[note.id, 'trust', 90, true, WORDING]]);
     assert.equal(hidden.locked[0].text, 'Hidden note · opens at Trust 90 or with the story');
     assert.equal(JSON.stringify(hidden).includes('the party asks her about the seal'), false, 'the event wording never reaches the card');
@@ -163,7 +163,7 @@ test('secrets from a pack: a both-rules note shows one wording while hidden, ope
     h.reply('Nice.', '~ npc Mira | trust: +15');
     assert.ok(h.npc('Mira').meters.trust >= 90);
     assert.deepEqual(h.npc('Mira').unlocked, [note.id], 'the meter opens it');
-    const byMeter = h.runQuery('npc.cast').find(entry => entry.key === 'mira');
+    const byMeter = h.runQuery('npc.cast').find(entry => entry.key === 'npc_mira');
     assert.deepEqual([byMeter.locked.length, byMeter.opened.map(item => item.text)], [0, ['Opened · Trust 90']]);
     assert.equal(h.adapter.eventWatch(Object.values(h.delta.records)).length, 0, 'once open the scan stops watching');
 
@@ -173,7 +173,7 @@ test('secrets from a pack: a both-rules note shows one wording while hidden, ope
     assert.ok(other.h.npc('Mira').meters.trust < 90);
     assert.equal((await other.h.adapter.openByEvent({ name: 'Mira', ids: [other.note.id] })).ok, true);
     assert.deepEqual(other.h.npc('Mira').unlocked, [other.note.id], 'the event opens it');
-    assert.deepEqual(other.h.runQuery('npc.cast').find(entry => entry.key === 'mira').opened.map(item => item.text), ['Opened · with the story']);
+    assert.deepEqual(other.h.runQuery('npc.cast').find(entry => entry.key === 'npc_mira').opened.map(item => item.text), ['Opened · with the story']);
     other.h.swipe(index, '');
     assert.deepEqual(other.h.npc('Mira').unlocked, []);
 });

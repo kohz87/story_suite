@@ -40,6 +40,8 @@ import { createWrite } from '../store/write.js';
  *   state whose counts were moved by a replay (ops.js rebaseOps), and on every replayed block's touched
  *   domains; a problem the block brings skips that block
  * @param {(domain: string) => string[]} [options.scratch]  a domain's per-reply scratch fields (ops.js)
+ * @param {(domain: string) => object|null} [options.seed]  a deferred domain's initial slice, null for any other: a replayed block
+ *   that writes under an absent deferred domain finds it there as that slice (ops.js rebaseOps, REPLAY.md "Deferred domains")
  * @param {() => object|null} [options.metadata]  the open chat's metadata, saved with the chat: the archive of deleted
  *   source-map ids lives in `storySuite.sourceArchive` (without it the archive is kept in memory only)
  *
@@ -50,7 +52,7 @@ import { createWrite } from '../store/write.js';
 export function createStore({
     chat, save, now = null, apply = applyOps, onSaveError = null, timers = globalThis,
     checkpointEvery = CHECKPOINT_EVERY, checkpointBytes = CHECKPOINT_BYTES, recordId = newRecordId, validate = null,
-    chatId = () => undefined, place = () => null, rescue = null, scratch = null, receiptKeep = RECEIPT_KEEP,
+    chatId = () => undefined, place = () => null, rescue = null, scratch = null, seed = null, receiptKeep = RECEIPT_KEEP,
     confirm = null, memo = null, metadata = () => null, marked = () => false, replayEnv = () => '', witnessPrefixMax = null,
 } = {}) {
     if (typeof chat !== 'function') throw new TypeError('createStore needs a chat() function.');
@@ -260,7 +262,7 @@ export function createStore({
     // The walk and replay parts (store/walk.js, store/replay-blocks.js) call each other: createWalk is given the replay functions it
     // calls as wrappers that look them up when they run, because createReplayBlocks is wired right after it and is given the real ones.
     const { stamp, advanced, walkSuffix, keeps, settleAll, settleBehind, checkpointState, step, chain, problemText, rawSidAt, packProblems, unpackProblems } = createWalk(s, {
-        apply, receiptKeep, scratch, validate, list, current: (...args) => current(...args), blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash,
+        apply, receiptKeep, scratch, seed, validate, list, current: (...args) => current(...args), blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash,
         replay: (...args) => replay(...args), replayBlocks: (...args) => replayBlocks(...args), appliedOf: (...args) => appliedOf(...args),
         proofBefore: (...args) => proofBefore(...args), packOwners: (...args) => packOwners(...args), listProofs: (...args) => listProofs(...args),
     });
@@ -359,6 +361,8 @@ export function createStore({
         dirty() { return saver.dirty(); },
         /** True while saves are failing (until one works again). */
         failing() { return saver.failing(); },
+        /** True when the store was given `seed`: it can lay a deferred domain's first write on its initial slice (commands/transact.js opsOf). */
+        seeds() { return typeof seed === 'function'; },
     };
     // A Re-read and a reconcile plan blocks that are stored only when they are all planned: for their length the proof
     // those blocks give is laid over the stored (store.proofs), so a step planned again, and the guards asked on the

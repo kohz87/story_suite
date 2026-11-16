@@ -7,6 +7,7 @@ import { DEFAULT_CHANGE_CAP, FEATURE_DRIFT, FEATURE_PRESETS, FEATURE_STAGES, cre
 import { metersCardScreen } from '../src/npc-meters-screen.js';
 import { v2MetersHtml, v2MetersProjection, v2SecretsHtml } from '../dossier-ui.js';
 import { fakeRoot, fakeDocument } from './helpers/fake-dom.js';
+import { withoutDossiers } from './helpers/seed-people.js';
 import { DATING_PACK, LADDER, SECRET, dossiers, fuzzSeeds, lastReceipt, prng, suite } from './storysuite-v2-meters-ladder.helpers.js';
 
 // ---- 4. locked-note teasers ----
@@ -15,10 +16,10 @@ test('teasers: a locked note shows only that it is hidden and its rule (no title
     const s = await suite({ settings: { ladder: LADDER } });
     await s.say(['~ npc Mira | trust: +5']);
     const leaks = () => [
-        JSON.stringify(s.host.sdk.query('npc.cast')), JSON.stringify(s.host.head()), s.def.context.static(),
+        JSON.stringify(s.host.sdk.query('npc.cast')), JSON.stringify(withoutDossiers(s.host.head())), s.def.context.static(),
         JSON.stringify(s.adapter.dossierMeters(Object.values(s.delta.records))),
     ].some(text => text.includes('lost heir') || text.includes('Her past'));
-    const mira = () => s.host.sdk.query('npc.cast').find(entry => entry.key === 'mira');
+    const mira = () => s.host.sdk.query('npc.cast').find(entry => entry.key === 'npc_mira');
     assert.deepEqual(mira().locked, [{ id: secretId('trust', 30, SECRET), meter: 'trust', at: 30, event: false, opens: 'Opens at Trust 30', text: 'Hidden note · opens at Trust 30' }]);
     assert.equal(leaks(), false);
     const el = fakeRoot();
@@ -50,7 +51,8 @@ test('the dossier view shows custom meters, the ladder line, milestones and teas
     const s = await suite({ settings: { ladder: LADDER, customMeters: [{ name: '<Awe>', min: 0, max: 50 }] } });
     await s.say(['~ npc Mira | awe: +7 | trust: +12', '+ milestone Mira — saved her brother']);
     const views = s.adapter.dossierMeters(Object.values(s.delta.records));
-    assert.deepEqual(Object.keys(views), ['npc_mira']);
+    // (people store P4) every stored person has a view: npc.cast is the store's people, Oren at the meters he would start at.
+    assert.deepEqual(Object.keys(views), ['npc_mira', 'npc_oren']);
     const projection = v2MetersProjection(views.npc_mira);
     assert.deepEqual(projection.bars.map(bar => [bar.id, bar.value, bar.max]), [['awe', 7, 50]], 'only the meters beyond the four axes');
     assert.equal(projection.rank, 'Friend');
@@ -77,7 +79,7 @@ test('bars carry ceiling, ticks and the latest reply\'s delta; a host whose ss.m
     records.npc_mira.meterSetup = { limits: { trust: { ceiling: 70 } } };
     const s = await suite({ records, settings: { ladder: LADDER, stages: [{ meter: 'trust', at: 50, name: 'Close' }] } });
     await s.say(['~ npc Mira | trust: +12']);
-    const bar = s.host.sdk.query('npc.cast').find(entry => entry.key === 'mira').bars.find(item => item.id === 'trust');
+    const bar = s.host.sdk.query('npc.cast').find(entry => entry.key === 'npc_mira').bars.find(item => item.id === 'trust');
     assert.deepEqual(bar.ticks, [{ at: 20, label: 'Friend' }, { at: 50, label: 'Close' }, { at: 60, label: 'Confidant' }]);
     assert.equal(bar.ceiling, 70);
     assert.equal(bar.delta, 12);
@@ -90,7 +92,7 @@ test('bars carry ceiling, ticks and the latest reply\'s delta; a host whose ss.m
     old.sdk.widgets = () => ({ 'ss.meter': { props: { value: {}, max: {}, min: {}, label: {}, tone: {}, text: {} } } });
     await old.say(['~ npc Mira | trust: +12']);
     const sdkCast = old.adapter.definition.queries['npc.cast'](old.host.head(), {});
-    const folded = sdkCast.find(entry => entry.key === 'mira').bars.find(item => item.id === 'trust');
+    const folded = sdkCast.find(entry => entry.key === 'npc_mira').bars.find(item => item.id === 'trust');
     assert.equal(folded.text, '22 · max 70 ▲12');
     assert.equal('ceiling' in folded || 'delta' in folded || 'ticks' in folded, false);
 });
@@ -133,7 +135,7 @@ test('parsing: needs read several ways; bad parts are left out', () => {
 
 test('validation: the new fields are checked', () => {
     const base = { name: 'A', meters: {}, stages: {}, unlocked: [] };
-    const check = extra => validateNpcSlice({ npcs: { a: { ...base, ...extra } }, problems: [] });
+    const check = extra => validateNpcSlice({ npcs: { npc_a: { ...base, ...extra } }, problems: [] });
     assert.deepEqual(check({ milestones: { 'saved-her': 'saved her' }, rank: 'friend', low: 2, day: 3 }), []);
     assert.ok(check({ milestones: ['x'] }).length);
     assert.ok(check({ milestones: { 'Bad Key': 'x' } }).length);
@@ -195,7 +197,7 @@ for (const seed of fuzzSeeds(process.env.FUZZ_SEEDS, [5, 17, 41])) {
             const label = `seed ${seed} step ${step} (deleted ${gone})`;
             assert.deepEqual(s.host.store.problems(), [], `${label}: nothing was skipped`);
             const head = JSON.stringify(s.host.head());
-            assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), [], `${label}: the slice validates`);
+            assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), [], `${label}: the slice validates`);
             s.host.store.rebuild();
             assert.equal(JSON.stringify(s.host.head()), head, `${label}: replay equals rebuild`);
             // Each remaining reply's own milestones are there; the deleted reply's are gone.

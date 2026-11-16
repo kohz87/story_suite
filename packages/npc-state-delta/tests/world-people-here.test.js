@@ -111,7 +111,7 @@ function fakePage() {
 
 const NPCS = [{ id: 'npc_temiwa', name: 'Sister Temiwa', aliases: [], present: true, archived: false, role: 'Healer' }];
 const CAST = [{
-    key: 'sister temiwa', name: 'Sister Temiwa', present: true, rank: 'Tolerates you',
+    key: 'npc_temiwa', name: 'Sister Temiwa', present: true, rank: 'Tolerates you',
     next: 'Next: Patches you without the sermon - trust 25/45',
     bars: [{ id: 'trust', label: 'Trust', value: 25, min: -100, max: 100, text: '25', tone: 'info' }], still: [],
     opened: [{ id: 'n1', title: 'Why Bluewatch' }], locked: [{ id: 'n2', text: 'Hidden note · opens at Trust 60' }],

@@ -4,6 +4,7 @@ import { MODULE_ID } from '../src/storysuite-v2.js';
 import { MAX_GENERATED_SECRETS, MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../src/npc-meters.js';
 import { assemble } from '../../story-block/src/v2/prompt.js';
 import { buildInjection, buildNarrationCapturePrompt, buildProfileRefreshPrompt, buildScannerPrompt } from '../core.js';
+import { withoutDossiers } from './helpers/seed-people.js';
 import { EVENT, EVENT_SECRET, HIDDEN, KNOWN, SECRET, SECRET_TWO, eventNote, fakeDelta, host, noCue, plain } from './storysuite-v2-meters.helpers.js';
 
 test('secrets: unlocked at the threshold with a receipt; locked ones are sent only as hidden while present; kept unlocked after', async () => {
@@ -11,7 +12,7 @@ test('secrets: unlocked at the threshold with a receipt; locked ones are sent on
     // Where a locked note's text may never be: the static part, the state, the queries and the dossier. It IS in the tail (hidden wording).
     const leaks = () => {
         const statics = h.def.context.static();
-        const state = JSON.stringify(h.store.head());
+        const state = JSON.stringify(withoutDossiers(h.store.head()));   // (the stored dossiers hold their notes since P2; the meters must not)
         const dossier = JSON.stringify(h.runQuery('npc.dossier', { name: 'Mira' }));
         const all = JSON.stringify(h.runQuery('npc.meters', {})) + JSON.stringify(h.runQuery('npc.cast'));
         return [statics, state, dossier, all].some(text => text.includes(SECRET) || text.includes(SECRET_TWO));
@@ -41,7 +42,7 @@ test('secrets: unlocked at the threshold with a receipt; locked ones are sent on
     const id = secretId('trust', 30, SECRET);
     assert.deepEqual(h.npc('Mira').unlocked, [id]);
     assert.match(result.receipt.summary, /Mira: a hidden note opened \(trust 30\)/);
-    assert.equal(JSON.stringify(h.store.head()).includes(SECRET), false, 'the text never enters the state');
+    assert.equal(JSON.stringify(withoutDossiers(h.store.head())).includes(SECRET), false, 'the text never enters the meters or any other part of the state');
     const opened = h.def.context.tail(h.view());
     assert.deepEqual(plain(opened.lines).filter(line => line.includes(SECRET)), [`Mira, known to the player now; may come out: ${SECRET}`]);
     assert.deepEqual(noCue(opened.optional), [hidden(SECRET_TWO, true)], 'the other note is still locked: hidden wording');
@@ -210,8 +211,8 @@ test('secrets: the reader opens or shuts a note by hand; a shut note stays shut 
     const two = secretId('tension', -20, SECRET_TWO);
     await h.sdk.command('npc.open', { name: 'Mira', open: [two] });
     assert.deepEqual(h.npc('Mira').unlocked, [id, two]);
-    assert.deepEqual(h.runQuery('npc.cast').find(entry => entry.key === 'mira').opened.map(note => note.text), ['Opened · Trust 30', 'Opened · by you'], 'a meter past its rule says so; a note opened by hand says "by you"');
-    assert.deepEqual(validateNpcSlice(h.store.head().domains.npc), []);
+    assert.deepEqual(h.runQuery('npc.cast').find(entry => entry.key === 'npc_mira').opened.map(note => note.text), ['Opened · Trust 30', 'Opened · by you'], 'a meter past its rule says so; a note opened by hand says "by you"');
+    assert.deepEqual(validateNpcSlice(h.store.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     const live = JSON.stringify(h.store.head());
     h.store.rebuild();
     assert.equal(JSON.stringify(h.store.head()), live, 'rebuild == live');

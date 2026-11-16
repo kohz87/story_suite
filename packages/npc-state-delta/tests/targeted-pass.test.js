@@ -106,7 +106,7 @@ test('a hosted scan scores relationship changes from the slice\'s numbers and fo
         mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes: 'The guild hall is quiet.' });
         await reply('Who is here?', 'Yunyun, the calm adventurer, waits.');
         // The reader set trust to 30 in the slice; the sidecar still says 0.
-        mockState.sdk.entries = [{ key: 'yunyun', name: 'Yunyun', meters: { trust: 30, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [] }];
+        mockState.sdk.entries = [{ key: 'npc_yunyun', name: 'Yunyun', meters: { trust: 30, affection: 0, desire: 0, tension: 0 }, stages: {}, unlocked: [] }];
         assert.equal(runtime.getState().npcs[0].relationship.trust, 0);
         row = { name: 'Yunyun', present: true };
         mockState.sdk.sent.length = 0;

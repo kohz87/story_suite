@@ -102,3 +102,61 @@ test('deferred must be true or false, and enabled is a key a command entry may c
     registry.register(entry);
     assert.equal(registry.command('zz.entry'), null, 'an entry that says it is off is not found');
 });
+
+// Rule (g) (REPLAY.md "Deferred domains"): the reply that made a deferred domain deleted, a later reply's leaf writes under it land on
+// its initial value instead of being skipped; a later block of removes alone does not make it; replay equals the oracle.
+function tally() {
+    const draft = ctx => {
+        const slice = ctx.draft('later');
+        if (slice.chosen === undefined) Object.assign(slice, { chosen: false, tally: {} });
+        return slice;
+    };
+    return {
+        id: 'zz-tally', name: 'Tally', version: '0.0.1',
+        domains: { later: { initial: () => ({ chosen: false, tally: {} }), deferred: true } },
+        commands: {
+            'zz.tally'(ctx, payload) { const slice = draft(ctx); slice.tally[payload.key] = (slice.tally[payload.key] ?? 0) + 1; return { summary: 'Counted.', narrate: false }; },
+            'zz.untally'(ctx, payload) { delete ctx.draft('later').tally?.[payload.key]; return { summary: 'Dropped.', narrate: false }; },
+        },
+    };
+}
+async function tallyHost(t) {
+    t.mock.method(console, 'warn', () => {});
+    const host = await createHost({ modules: [tally()], core: false });
+    t.after(() => host.close());
+    return host;
+}
+const runs = (host, type, key) => host.bus.command(type, { key }, { cause: 'ui' });
+const lastCarrierBut = (host, back) => host.ctx.chat.map((message, index) => (message.is_user ? -1 : index)).filter(index => index >= 0).at(-1 - back);
+
+test('rule (g): deleting the reply that made a deferred domain keeps a later reply\'s writes on it, laid on its initial value', async t => {
+    const host = await tallyHost(t);
+    await host.send('One.', 'First.');
+    assert.equal((await runs(host, 'zz.tally', 'a')).ok, true);
+    await host.send('Two.', 'Second.');
+    assert.equal((await runs(host, 'zz.tally', 'b')).ok, true);
+    assert.equal((await runs(host, 'zz.tally', 'a')).ok, true);
+    assert.deepEqual(host.head().domains.later, { chosen: false, tally: { a: 2, b: 1 } });
+    await host.st.deleteMessage(lastCarrierBut(host, 1));
+    assert.deepEqual(host.head().domains.later, { chosen: false, tally: { a: 2, b: 1 } }, 'the later writes stand on the initial value (a\'s replace is an add of the value the later reply set, rule c)');
+    assert.deepEqual(host.store.problems(), [], 'nothing is skipped');
+    await host.store.rebuild();
+    assert.deepEqual(host.head().domains.later, { chosen: false, tally: { a: 2, b: 1 } }, 'a rebuild gives the same');
+});
+
+test('rule (g): a later block of removes alone does not make the deferred domain, and a chat that never writes it has none', async t => {
+    const host = await tallyHost(t);
+    await host.send('One.', 'First.');
+    assert.equal((await runs(host, 'zz.tally', 'a')).ok, true);
+    await host.send('Two.', 'Second.');
+    assert.equal((await runs(host, 'zz.untally', 'a')).ok, true);
+    await host.st.deleteMessage(lastCarrierBut(host, 1));
+    assert.equal(host.head().domains.later, undefined, 'the remove is passed over (rule a) and makes nothing');
+    const quiet = await tallyHost(t);
+    await quiet.send('One.', 'First.');
+    await quiet.send('Two.', 'Second.');
+    await quiet.st.deleteMessage(lastCarrierBut(quiet, 1));
+    await quiet.store.rebuild();
+    assert.equal(quiet.head().domains.later, undefined);
+    assert.doesNotMatch(JSON.stringify(quiet.ctx.chat), /domains\/later/, 'nothing about it is stored');
+});

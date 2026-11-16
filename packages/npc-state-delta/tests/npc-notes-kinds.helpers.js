@@ -14,7 +14,7 @@ export function notesSpy() {
 }
 
 export const ON = { [FEATURE_NOTES]: true };
-export const oren = s => s.host.head().domains.npc.npcs.oren;
+export const oren = s => s.host.head().domains.people?.bonds?.npcs?.npc_oren;
 export const cast = async (s, name = 'Oren') => (await s.host.sdk.query('npc.cast', {})).find(item => item.name === name);
 export const optional = s => s.host.registry.module(MODULE_ID).context.tail({ state: s.host.head(), chat: { length: s.host.ctx.chat.length } }).optional;
 export const shape = s => JSON.stringify(s.host.head()).replace(/sw_[a-z0-9]+/g, 'sw');

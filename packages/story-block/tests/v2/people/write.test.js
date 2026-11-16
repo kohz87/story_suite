@@ -17,6 +17,8 @@ const view = (extra = {}) => ({ v: 1, order: ['npc_ann'], npcs: { npc_ann: { nam
 const sourceOf = host => { const s = host.store.sourceAt(host.store.headIndex()); return { sid: s.sid, swipeKey: s.swipeKey }; };
 const send = (host, source, v) => host.sdk.command('people.write', { v: 1, source, view: v });
 const opsOnHead = host => host.store.opsAt(host.store.headIndex());
+// The first write starts the slice from people's initial value, so the stored slice is the view with the empty meters (`bonds`, P4) beside it.
+const stored = v => ({ ...v, bonds: { npcs: {}, problems: [] } });
 
 test('the first write stores the people, and the query hash matches the stored slice (a chat with no people holds no people slice)', async t => {
     const host = await peopleHost(t);
@@ -26,8 +28,9 @@ test('the first write stores the people, and the query hash matches the stored s
     assert.throws(() => host.sdk.query('people.mirrorOn'), /no module answers/, 'no flag query');
     const result = await send(host, sourceOf(host), view());
     assert.equal(result.ok, true, `${result.code}: ${result.message}`);
-    assert.deepEqual(host.head().domains.people, view());
-    assert.equal(host.sdk.query('people.hash'), hashJson(view()));
+    assert.deepEqual(host.head().domains.people, stored(view()));
+    assert.equal(host.sdk.query('people.hash'), hashJson(stored(view())));
+    assert.equal(host.sdk.query('people.hash', { dossiers: true }), hashJson(view()), 'the dossier hash is the view\'s');
 });
 
 test('the next write stores only the changed leaves', async t => {
@@ -39,7 +42,7 @@ test('the next write stores only the changed leaves', async t => {
     assert.equal((await send(host, sourceOf(host), next)).ok, true);
     const fresh = opsOnHead(host).slice(before).map(op => op.path).filter(path => path.startsWith('/domains/people')).sort();
     assert.deepEqual(fresh, ['/domains/people/npcs/npc_ann/stage', '/domains/people/turn']);
-    assert.deepEqual(host.head().domains.people, next);
+    assert.deepEqual(host.head().domains.people, stored(next));
 });
 
 test('a sid that is not the head is STALE, a bad view is INVALID, and neither stores anything', async t => {
@@ -70,8 +73,8 @@ test('an equal hash means the sender has nothing to send (the query is the compa
     const host = await peopleHost(t);
     await host.send('Go.', 'The road.');
     await send(host, sourceOf(host), view());
-    assert.equal(hashJson(view()), host.sdk.query('people.hash'));
-    assert.notEqual(hashJson(view({ turn: 2 })), host.sdk.query('people.hash'));
+    assert.equal(hashJson(view()), host.sdk.query('people.hash', { dossiers: true }));
+    assert.notEqual(hashJson(view({ turn: 2 })), host.sdk.query('people.hash', { dossiers: true }));
 });
 
 test('validate: sound views pass, odd ones say why', () => {

@@ -1,5 +1,8 @@
-// The empty slice, the whole-slice validation (§2.5) and the lookup of an entry key by labels.
-import { FORBIDDEN_KEYS, isInt, isObject, isReplyId, KEY_MAX, MAX_METERS_PER_NPC, MAX_MILESTONES, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, METER_ID_MAX, MILESTONE_MAX, NAME_MAX, npcKey, RECORD_FIELDS, replyKey, CUSTOM_RANGE, DISPOSITION_MAX, STAGE_NAME_MAX, WORDS } from '../npc-meters-config.js';
+// The empty slice, the whole-slice validation (§2.5) and the lookup of an entry key by labels. The slice is the people domain's `bonds` (P4): entries are
+// keyed by the people's npc_ ids (Delta's makeNpcId rule), the same keys as their dossiers.
+// Delta's ids: `npc_` then letters, digits, `-` and `_` (as the people domain checks them).
+const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
+import { FORBIDDEN_KEYS, isInt, isObject, isReplyId, MAX_METERS_PER_NPC, MAX_MILESTONES, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, METER_ID_MAX, MILESTONE_MAX, NAME_MAX, npcKey, RECORD_FIELDS, replyKey, CUSTOM_RANGE, DISPOSITION_MAX, STAGE_NAME_MAX, WORDS } from '../npc-meters-config.js';
 import { RELATIONSHIP_KEYS } from '../../core-mechanics.js';
 import { flatDayProblems } from '../relationship-pacing.js';
 import { readEvent } from '../npc-meters-pacing.js';
@@ -24,7 +27,7 @@ export function validateNpcSlice(slice) {
     for (const key of keys) {
         const record = slice.npcs[key];
         const where = `The NPC entry "${key}"`;
-        if (key.length > KEY_MAX || !WORDS.test(key) || key !== key.toLocaleLowerCase() || FORBIDDEN_KEYS.has(key)) errors.push(`${where} has a key that is not lowercase words joined by "-".`);
+        if (!PEOPLE_ID.test(key) || FORBIDDEN_KEYS.has(key)) errors.push(`${where} has a key that is not an NPC id (npc_ and a name).`);
         if (!isObject(record)) { errors.push(`${where} is not a record.`); continue; }
         if (typeof record.name !== 'string' || !record.name.trim() || record.name.length > NAME_MAX) errors.push(`${where} has no usable name.`);
         if (!isObject(record.meters)) errors.push(`${where} has no meters.`);
@@ -94,11 +97,11 @@ export function validateNpcSlice(slice) {
     return errors;
 }
 
-/** The entry key for `labels` (a name, then aliases) in `npcs`, or null. */
+/** The entry key for `labels` (an npc_ id, or a name then aliases matched to an entry's name, in that order) in `npcs`, or null. */
 export function findNpcKey(npcs, labels = []) {
     if (!isObject(npcs)) return null;
+    for (const label of labels) if (typeof label === 'string' && PEOPLE_ID.test(label) && Object.hasOwn(npcs, label)) return label;
     const wanted = labels.map(npcKey).filter(Boolean);
-    for (const key of wanted) if (Object.hasOwn(npcs, key)) return key;
-    for (const [key, record] of Object.entries(npcs)) if (wanted.includes(npcKey(record?.name))) return key;
+    for (const key of wanted) for (const [id, record] of Object.entries(npcs)) if (npcKey(record?.name) === key) return id;
     return null;
 }

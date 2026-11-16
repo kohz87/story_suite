@@ -84,3 +84,69 @@ test('runtime: hosted, the journal reconcile is the store\'s (no rollback) and n
     }));
     assert.notEqual(alone.action, 'store-owned', 'without a host the old reconcile runs');
 });
+
+// The two P4 hooks on the real runtime: setScanMarker takes the store's marker (and the replies since the scan) in place, dropping only the pending backfills and
+// read-ahead; setPeopleRecord sets one person's record in place (a host-confirmed death) and keeps everything else, the scan bookkeeping included. Neither announces
+// a native change (the store already holds what they set) and both refuse a bad call.
+test('runtime: setScanMarker and setPeopleRecord on the real runtime', () => {
+    const scenario = async () => {
+        const api = globalThis.NPCStateDelta;
+        await sleep(300);
+        const out = {};
+        mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'Hello.' }, { is_user: false, is_system: false, name: 'Megumin', mes: 'Hi there.', swipe_id: 0 });
+        const mechanics = await import(pathToFileURL(path.join(extRoot, 'core-mechanics.js')).href);
+        const state = api.getState();
+        state.npcs = [mechanics.createNpcRecord('Fenna', []), mechanics.createNpcRecord('Oren', [])];
+        state.pendingBackfills = [{ id: 'x' }];
+        state.readAhead = [1];
+        state.lastScannedMessageId = 0;
+        state.assistantSinceScan = 0;
+        state.checkpoints = [{ id: 'keep-me' }];
+        await api.installState(state);
+        out.before = [api.getState().pendingBackfills?.length ?? null, api.getState().readAhead?.length ?? null];
+        let news = 0;
+        api.onNativeChange(() => { news += 1; });
+        // A death record for Oren, set in place: Fenna, the bookkeeping and the other keys stay.
+        const oren = { ...api.getState().npcs[1], lifeState: 'deceased' };
+        out.setRecord = api.setPeopleRecord(oren);
+        const afterRecord = api.getState();
+        out.lives = afterRecord.npcs.map(npc => [npc.name, npc.lifeState]);
+        out.recordBackfills = afterRecord.pendingBackfills.length;
+        out.recordReadAhead = afterRecord.readAhead.length;
+        out.recordCheckpoints = afterRecord.checkpoints.length;
+        out.refusedUnknown = api.setPeopleRecord({ id: 'npc_nobody', name: 'Nobody' });
+        out.refusedBad = api.setPeopleRecord(null);
+        // The store's marker: the latest reply (index 1) was read, one reply since; then none read.
+        out.mark = api.setScanMarker(1, 1);
+        const afterMark = api.getState();
+        out.marker = afterMark.lastScannedMessageId;
+        out.since = afterMark.assistantSinceScan;
+        out.markBackfills = afterMark.pendingBackfills.length;
+        out.markReadAhead = afterMark.readAhead.length;
+        out.markNames = afterMark.npcs.map(npc => npc.name);
+        out.markNull = api.setScanMarker(null);
+        out.markerNull = api.getState().lastScannedMessageId;
+        out.refusedIndex = api.setScanMarker(-2);
+        out.news = news;
+        console.log(`RESULT ${JSON.stringify(out)}`);
+    };
+    const out = scenarioOutput(runHostScenario('people-hooks', () => {}, scenario));
+    assert.equal(out.setRecord, true, JSON.stringify(out));
+    assert.deepEqual(out.lives, [['Fenna', out.lives[0][1]], ['Oren', 'deceased']]);
+    assert.equal(out.before[1], 1, 'the read-ahead is set before the hooks run');
+    assert.equal(out.recordBackfills, out.before[0], 'a death keeps the pending backfills as they were');
+    assert.equal(out.recordReadAhead, 1, 'and the read-ahead');
+    assert.equal(out.recordCheckpoints, 1, 'and every other key');
+    assert.equal(out.refusedUnknown, false);
+    assert.equal(out.refusedBad, false);
+    assert.equal(out.mark, true);
+    assert.equal(out.marker, 1);
+    assert.equal(out.since, 1);
+    assert.equal(out.markBackfills, 0, 'a marker from the store drops the pending backfills');
+    assert.equal(out.markReadAhead, 0);
+    assert.deepEqual(out.markNames, ['Fenna', 'Oren'], 'the people stay');
+    assert.equal(out.markNull, true);
+    assert.equal(out.markerNull, null);
+    assert.equal(out.refusedIndex, false);
+    assert.equal(out.news, 0, 'neither is news for the store');
+});

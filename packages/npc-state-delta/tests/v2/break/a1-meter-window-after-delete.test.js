@@ -17,7 +17,7 @@ test('after a middle delete, a new reply\'s meter change is held to the cap from
     const nsd = createStorySuiteV2Adapter({ suiteApi: { npcs: () => [{ name: 'Fenna' }] }, delta: () => ({ isEnabled: () => true, getNpc: () => null }), doc: null, timers: {}, logger: { warn() {} } }).definition;
     const host = await createHost({ modules: [nsd] });
     t.after(() => host.close());
-    const trust = () => host.head().domains.npc.npcs.fenna.meters.trust;
+    const trust = () => host.head().domains.people.bonds.npcs.npc_fenna.meters.trust;
     await host.send('A.', reply('Fenna is here.', ['+ present Fenna', '~ npc Fenna | trust: +1']));
     await host.send('B.', reply('Rain.', ['~ place Bluewatch Village']));
     await host.send('C.', reply('An insult.', ['~ npc Fenna | trust: -25']));

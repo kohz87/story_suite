@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { seedPeople } from './helpers/seed-people.js';
 import assert from 'node:assert/strict';
 import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
 import { DEFAULT_CHANGE_CAP, MAX_NPCS, meterDefs, validateNpcSlice } from '../src/npc-meters.js';
@@ -82,11 +83,11 @@ test('Delta\'s scanner path: npc.adjust from the adapter, seeded from the dossie
 test('npc.adjust from a button is refused and saves nothing; another module\'s command may send it', async () => {
     const h = await host();
     const rev = h.store.head().meta?.rev;
-    const before = structuredClone(h.store.head().domains.npc);
+    const before = structuredClone(h.store.head().domains.people?.bonds);
     const out = await h.sdk.command('npc.adjust', { name: 'Oren', meters: { trust: 50 }, reply: 7 });
     assert.equal(out.ok, false);
     assert.equal(out.code, 'REFUSED');
-    assert.deepEqual(h.store.head().domains.npc, before, 'nothing saved');
+    assert.deepEqual(h.store.head().domains.people?.bonds, before, 'nothing saved');
     assert.equal(h.store.head().meta?.rev, rev);
     // The same payload through another module's command (ctx.call sets ctx.caller).
     h.registry.register({
@@ -158,17 +159,17 @@ test('validation: the 81st NPC is refused and nothing is saved; a bad slice is r
     const h = await host();
     const block = Array.from({ length: MAX_NPCS }, (_, i) => `+ npc Guard ${i + 1} | trust: +1`).join('\n');
     h.reply('A crowd.', block);
-    assert.equal(Object.keys(h.store.head().domains.npc.npcs).length, MAX_NPCS);
+    assert.equal(Object.keys(h.store.head().domains.people.bonds.npcs).length, MAX_NPCS);
     const rev = h.store.head().meta.rev;
     const { results } = h.reply('One more.', '+ npc Guard 81 | trust: +1');
     assert.equal(results[0].ok, false);
     assert.equal(results[0].code, 'REFUSED');
     assert.equal(h.store.head().meta.rev, rev, 'nothing saved');
     assert.ok(validateNpcSlice({ npcs: { Bad: { name: 'x', meters: {}, stages: {}, unlocked: [] } }, problems: [] }).length > 0);
-    assert.ok(validateNpcSlice({ npcs: { a: { name: 'A', meters: { trust: 1.5 }, stages: {}, unlocked: [] } }, problems: [] }).length > 0);
-    assert.ok(validateNpcSlice({ npcs: { a: { name: 'A', meters: { trust: 5000 }, stages: {}, unlocked: [] } }, problems: [] }).length > 0);
-    assert.ok(validateNpcSlice({ npcs: { a: { name: 'A', meters: {}, stages: {}, unlocked: ['x', 'x'] } }, problems: [] }).length > 0);
-    assert.ok(validateNpcSlice({ npcs: { a: { name: 'A', meters: {}, stages: {}, unlocked: [], secret: 'no' } }, problems: [] }).length > 0, 'no stray fields (a note text could not hide here)');
+    assert.ok(validateNpcSlice({ npcs: { npc_a: { name: 'A', meters: { trust: 1.5 }, stages: {}, unlocked: [] } }, problems: [] }).length > 0);
+    assert.ok(validateNpcSlice({ npcs: { npc_a: { name: 'A', meters: { trust: 5000 }, stages: {}, unlocked: [] } }, problems: [] }).length > 0);
+    assert.ok(validateNpcSlice({ npcs: { npc_a: { name: 'A', meters: {}, stages: {}, unlocked: ['x', 'x'] } }, problems: [] }).length > 0);
+    assert.ok(validateNpcSlice({ npcs: { npc_a: { name: 'A', meters: {}, stages: {}, unlocked: [], secret: 'no' } }, problems: [] }).length > 0, 'no stray fields (a note text could not hide here)');
 });
 
 // ---- the host goes away ----
@@ -217,6 +218,7 @@ test('the Dossiers tab (once Cast) shows a meter bar per shown meter for the pre
     const h = await host({ settings: { stages: STAGES, customMeters: [{ name: 'Lust', show: 'bar' }, { name: 'Secretive', show: 'hidden' }] } });
     h.reply('Warm.', '~ npc Mira | trust: +12 | lust: +3\n~ npc Oren | trust: +1\n+ npc <b>Bold</b> | trust: +1');
     h.delta.records.npc_bold = { id: 'npc_bold', name: '<b>Bold</b>', aliases: [], present: true, archived: false, relationship: {} };
+    await seedPeople(h.sdk, h.store, h.delta.records);   // Bold's new dossier is stored too (npc.cast lists the store's people)
     const el = fakeRoot();
     h.def.tabs[0].render(el);
     // The present cast and its meters, before the dossier list (which names everyone, Oren too).

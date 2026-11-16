@@ -216,6 +216,16 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   (`party: true`), the party it relied on: `[module, left]` for each Character block, read from the data modules' own state (never from the lazily loaded RPG
   library, so a chat with the RPG off replays the same). A replay whose party differs fails the guard and the block is skipped, so a deleted earlier leave never
   leaves a ninth active member. A record without the witness (before the mark, or an old pin) replays as it was.
+  (g) A deferred domain (LIFECYCLE.md "Deferred domains") is made by the first reply that writes it; every later write of it is
+  a leaf change under it, the first write included: it is diffed against the domain's `initial()` slice, not stored as one whole
+  `add`, so a kept first write replayed onto a slice that is there already (an edited Re-read, where a new capture made the slice
+  first) changes only the keys it wrote. On replay and when stored, an `add` or `replace` strictly under a deferred domain that is
+  not there (nor written whole earlier in the block) finds it as its `initial()` slice: the store puts that slice there first
+  (`add /domains/<name>`), then the block applies as written, rules (a)-(e) on it. So deleting the reply that made the domain
+  keeps the later replies' writes, laid on the initial value (a later `replace` of a key the deleted reply had added is an add,
+  rule c). A block of removes alone makes nothing, and a chat whose replies never write the domain holds no slice of it, live or
+  replayed. A deferred domain's `initial()` must hold every container a later reply writes into (the `people` slice: `bonds`
+  with `npcs` and `problems`); a leaf under something only the deleted reply made (a person's own record) still fails its block.
 * **Head state** = state at the last carrier. Actions taken after reply N are appended to reply N's `ops`
   (so deleting or swiping reply N takes them back too).
 * Story Block caches the head state and the most recent checkpoint in memory and rebuilds on chat change,

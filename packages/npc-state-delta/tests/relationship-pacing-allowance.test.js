@@ -124,7 +124,7 @@ test('two majors on one story day: the second counts as meaningful, then ordinar
     await s.say([major()]);
     assert.equal(s.npc('Oren').meters.trust, 8, 'nothing is left: ignored');
     assert.match(JSON.stringify(s.host.store.receipts()), /Oren: nothing changed \(today's ordinary, meaningful and major are used on [^)]*\)/);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
     await s.setDay(4);
     await s.say([major()]);
     assert.equal(s.npc('Oren').meters.trust, 11, 'a new story day brings the allowance back');
@@ -158,7 +158,7 @@ test('time set in the reply puts its NPC lines and a scanner-only event on the n
     const index = await s.say([`~ date ${3 * DAY}`, major(), major('Sister Temiwa')]);
     assert.equal(s.npc('Oren').meters.trust, 6, 'the new day takes its own major');
     assert.equal(s.day('oren').day, 3);
-    assert.equal(s.day('sister-temiwa').day, 3);
+    assert.equal(s.day('temiwa').day, 3);
     assert.equal((await s.host.sdk.reread(index)).ok, true);
     assert.equal(s.day('oren').day, 3, 'a Re-read keeps the rule its first read used (the receipt carries it)');
     assert.equal(s.npc('Oren').meters.trust, 6);
@@ -201,14 +201,14 @@ test('rule NSDFOLLOW-3: a forwarded scanner change carries the scanner\'s reason
     await s.setDay(7);
     const index = await s.say();
     await s.adapter.adjust({ name: 'Oren', meters: { trust: 2 }, reply: index, impact: 'meaningful', reason: 'Astra kept the quay inspector off her back' });
-    const event = () => eventSummary(readEvent(s.host.head().domains.npc.npcs.oren.lastEvent));
+    const event = () => eventSummary(readEvent(s.host.head().domains.people.bonds.npcs.npc_oren.lastEvent));
     assert.equal(event().why, 'Astra kept the quay inspector off her back');
     const next = await s.say();
     await s.adapter.adjust({ name: 'Oren', meters: { affection: 1 }, reply: next, impact: 'ordinary' });
     assert.equal(event().why, undefined, 'a change with no reason keeps none');
-    const live = JSON.stringify(s.host.head().domains.npc);
+    const live = JSON.stringify(s.host.head().domains.people?.bonds);
     s.host.store.rebuild();
-    assert.equal(JSON.stringify(s.host.head().domains.npc), live, 'rebuild equals live');
+    assert.equal(JSON.stringify(s.host.head().domains.people?.bonds), live, 'rebuild equals live');
 });
 
 test('an adjust with no tier, a reader\'s edit and an unknown tier are never held and never counted', async () => {
@@ -334,5 +334,5 @@ test('the recorded start-of-reply days pace Sister Temiwa to 13 / 12 / 5 (it was
     // to the next day, so the 15th is the first line to use a fresh allowance.
     assert.deepEqual([trust, affection, desire], [13, 12, 5]);
     assert.ok(Math.abs(trust - 15) <= 2 && Math.abs(affection - 13) <= 2 && Math.abs(desire - 6) <= 2);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 });

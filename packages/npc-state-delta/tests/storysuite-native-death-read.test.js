@@ -19,9 +19,11 @@ function rig({ failWrite = false } = {}) {
     };
     const readState = () => fake.state;
     const install = keys => { fake.state = { ...fake.state, ...keys }; return true; };
+    // The runtime's setPeopleRecord: one person's record set in place on the cache.
+    const setRecord = record => { const at = fake.state.npcs.findIndex(item => item.id === record.id); if (at < 0) return false; fake.state.npcs[at] = structuredClone(record); return true; };
     const peopleSync = createPeopleSync({ sdk: () => sdk, view: peopleView, restore: peopleState, hash: hashJson, readState, install });
     const { queries } = createIdentity({ readState });
-    const death = createNativeDeath({ sdk: () => sdk, peopleSync, identity: args => queries['npc.identity'](null, args), readState, apply: state => install(peopleState(peopleView(state))), now: () => 5 });
+    const death = createNativeDeath({ sdk: () => sdk, peopleSync, identity: args => queries['npc.identity'](null, args), readState, setRecord, now: () => 5 });
     return { fake, peopleSync, death, id: name => queries['npc.identity'](null, { name }).id };
 }
 

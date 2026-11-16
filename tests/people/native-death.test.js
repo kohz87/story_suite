@@ -60,3 +60,32 @@ test('a death the store refuses leaves the cache as the store says; the retry ch
     assert.equal(rig.host.sdk.query('npc.dossier', { id: who.id }).lifeState, 'deceased');
     assert.deepEqual(rig.host.store.problems(), []);
 });
+
+test('a change NPC State makes while the death is being stored is kept, and so is the scan bookkeeping (no lost update, no whole-state hydrate)', async t => {
+    const box = { during: null };
+    const rig = await peopleRig(t, {
+        wrapSdk: sdk => ({ ...sdk, command: async (name, ...rest) => { const out = await sdk.command(name, ...rest); if (name === 'people.write' && box.during) { const run = box.during; box.during = null; run(); } return out; } }),
+    });
+    await rig.reply('Mira is here.');
+    const who = identityOf(rig, 'MIRA');
+    const hydrations = rig.hydrations.length;
+    rig.live.state.pendingBackfills = [{ id: 'bf1' }];
+    rig.live.state.readAhead = [3];
+    // While the death's write is awaited, a scan adds Wren and moves Mira's trust (its own announcement may come later; the death's last commit stores the cache as it is).
+    box.during = () => {
+        rig.live.state.npcs.push({ id: 'npc_wren', name: 'WREN', aliases: [], archived: false, present: true, lifeState: 'alive', trust: 1 });
+        rig.live.state.npcs.find(item => item.id === 'npc_mira').trust = 9;
+    };
+    const out = await rig.adapter.confirmDeath({ event: 'de_r2', npc: who.id, expectedHead: await headOf(rig) });
+    assert.equal(out.ok, true, out.message);
+    const mira = rig.live.state.npcs.find(item => item.id === 'npc_mira');
+    assert.equal(mira.lifeState, 'deceased', 'the death is on the cache');
+    assert.equal(mira.trust, 9, 'the change made during the commit is on the dead person\'s record too');
+    assert.ok(rig.live.state.npcs.some(item => item.id === 'npc_wren'), 'the person made during the commit is kept');
+    assert.deepEqual(rig.live.state.pendingBackfills, [{ id: 'bf1' }], 'pending backfills stay');
+    assert.deepEqual(rig.live.state.readAhead, [3], 'read-ahead stays');
+    assert.equal(rig.hydrations.length, hydrations, 'no whole-state hydrate');
+    assert.equal(await rig.settle(), true, 'the store gets the cache as it is now');
+    assert.equal(rig.host.head().domains.people.npcs.npc_mira.lifeState, 'deceased');
+    assert.equal(rig.host.head().domains.people.npcs.npc_wren.name, 'WREN');
+});

@@ -377,3 +377,20 @@ test('witness memo: the answers kept by prefix stop at the cap, the oldest first
     assert.equal(asked(cursors.slice(3)), 0, 'the two newest are found');
     assert.equal(asked(cursors.slice(0, 1)), 1, 'the oldest was evicted');
 });
+
+test('prefix memo: the replay rules marker is part of the environment, so a state built under the old rule is replayed again', async () => {
+    const { createRegistry } = await import('../../src/v2/registry-parts/create.js');
+    const now = createRegistry().rulesSignature();
+    assert.match(now, /;rules:g$/, 'the signature names the host\'s replay rule');
+    const old = now.replace(/;rules:g$/, '');
+    assert.notEqual(old, now);
+    const { env, calls, memo } = setup();
+    const arr = [reply('a')];
+    env.features = old;
+    memo.stateAfterPrefix(arr, 0);
+    memo.stateAfterPrefix(arr, 0);
+    assert.equal(calls.replay, 1, 'under the old rule it is kept');
+    env.features = now;
+    memo.stateAfterPrefix(arr, 0);
+    assert.equal(calls.replay, 2, 'the new rule does not take the old rule\'s state');
+});

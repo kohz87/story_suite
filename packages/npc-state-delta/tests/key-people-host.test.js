@@ -66,7 +66,7 @@ test('the memory of the last absence is in the saved slice: the step writes it, 
     assert.deepEqual(Object.keys(memory()), ['ren']);
     assert.deepEqual(memory().ren.away, { doing: 'scouting the north road', since: 'January 12', back: 'January 18', steps: [{ date: 'January 14', text: 'reached Wolfmere Outpost' }] }, 'dates written on the calendar when the step ran');
     assert.equal(memory().ren.returnedAt, null);
-    assert.deepEqual(validateNpcSlice(s.host.head().domains.npc), []);
+    assert.deepEqual(validateNpcSlice(s.host.head().domains.people?.bonds ?? { npcs: {}, problems: [] }), []);
 
     // The reply that brings him back.
     await s.keys([key('Ren', { here: true })]);

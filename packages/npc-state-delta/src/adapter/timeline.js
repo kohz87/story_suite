@@ -170,7 +170,6 @@ export function createTimelinePart(session, deps) {
         requires: Object.freeze({ storyBlock: '>=2.31.1' }),
         // The optional mechanics (MODULES §F100); a host without the Features API warns and ignores.
         features: part.features,
-        domains: part.domains,
         commands: Object.freeze({
             ...part.commands,
             'npc.milestone': Object.freeze({ handler: part.commands['npc.milestone'], feature: FEATURE_STAGES }),
