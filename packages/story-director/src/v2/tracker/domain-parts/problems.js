@@ -1,6 +1,7 @@
 // Story Director v2, tracker part (domain): keeps the Director's problem list: read, add, drop.
 
-import { PROBLEM_ROOM, byKey } from './shared-problem-keys.js';
+import { PROBLEM_ROOM, problemOrder } from './shared-problem-keys.js';
+import { replyKey } from '../../reply-keys.js';
 import { turnNumber } from './turn.js';
 import { isInt, isRecord } from './shared-guards.js';
 
@@ -9,12 +10,13 @@ export function problemList(director) {
     const problems = director?.problems;
     if (Array.isArray(problems)) return problems.filter(isRecord);
     if (!isRecord(problems)) return [];
-    return Object.keys(problems).sort(byKey).map(key => problems[key]).filter(isRecord);
+    return Object.entries(problems).filter(([, problem]) => isRecord(problem)).sort(problemOrder).map(([, problem]) => problem);
 }
 
 /**
- * Adds a problem to the Director's list (a draft): under a key of its own, so it is one `add` that
- * never depends on another reply's; past PROBLEM_ROOM the oldest go. Returns its key.
+ * Adds a problem to the Director's list (a draft): under a key of its own reply's (`<sid>.<n>`, reply-keys.js), so it is one
+ * `add` that never depends on another reply's and that no other reply's stored `add` can land on; past PROBLEM_ROOM the oldest
+ * (problemOrder) go. Returns its key.
  */
 export function addProblem(director, ctx, problem) {
     const rev = Number.isSafeInteger(ctx?.rev) ? ctx.rev : 0;
@@ -25,12 +27,11 @@ export function addProblem(director, ctx, problem) {
         const old = problemList(director).slice(-PROBLEM_ROOM);
         director.problems = Object.fromEntries(old.map((item, n) => [`${isInt(item.rev) ? item.rev : 0}.${n}`, item]));
     }
-    let n = 0;
-    while (Object.hasOwn(director.problems, `${rev}.${n}`)) n += 1;
-    director.problems[`${rev}.${n}`] = entry;
-    const keys = Object.keys(director.problems);
-    if (keys.length > PROBLEM_ROOM) for (const key of keys.sort(byKey).slice(0, keys.length - PROBLEM_ROOM)) delete director.problems[key];
-    return `${rev}.${n}`;
+    const key = replyKey(ctx, director.problems);
+    director.problems[key] = entry;
+    const entries = Object.entries(director.problems);
+    if (entries.length > PROBLEM_ROOM) for (const [old] of entries.sort(problemOrder).slice(0, entries.length - PROBLEM_ROOM)) delete director.problems[old];
+    return key;
 }
 
 /** Removes the problems `drop(problem)` says have gone (a draft). */

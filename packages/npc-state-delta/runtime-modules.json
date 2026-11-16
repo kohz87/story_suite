@@ -120,6 +120,7 @@
     { "path": "core-prompts.js", "role": "scanner-prompt-builders", "required": true },
     { "path": "core-prompts-capture.js", "role": "scanner-prompt-builders-capture", "required": true },
     { "path": "core-prompts-criteria.js", "role": "scanner-prompt-builders-criteria", "required": true },
+    { "path": "core-prompts-lines.js", "role": "scanner-prompt-builders-lines", "required": true },
     { "path": "core-prompts-relationship.js", "role": "scanner-prompt-builders-relationship", "required": true },
     { "path": "core-prompts-scanner.js", "role": "scanner-prompt-builders-scanner", "required": true },
     { "path": "core-prompts-select.js", "role": "scanner-prompt-builders-select", "required": true },

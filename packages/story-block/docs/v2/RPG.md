@@ -88,7 +88,7 @@ Weir-drake d20 9 + 3 + Lv 7 ÷ 5 = 1 = 13 · Weir-drake loses 1 block (5 of 6)")
    box starts empty, switching to **A companion** empties it again while it is still the persona's text, and anything
    you type is yours. The **Starting level** (1 to 99, held to the story's level cap) is set here too.
 2. **Stats.** The same steppers and radar as Spend points. On the **Standard** formula (the default) every stat starts at 5 and you have
-   10 points to spend; a stat can go down to 3 to free a point and up to 10, and a line under the steppers says what the next points
+   10 points to spend; 5 is the minimum (a stat can go up to 10; only a lower Custom minimum adds going down to free a point), and a line under the steppers says what the next points
    buy: `Health 5 blocks (VIT 5, next at 10) · Stamina 4 (AGI 5, next at 10) · Mana 4 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)` (the old-pin sizes; a new chat's Character shows 10 / 10 / 10 at stat 5, 12 at stat 10, see [Doubled bars](#doubled-bars-new-chats)). Points you leave unspent stay on the character for Spend points. Spend
    points shows the same line and keeps it up to date as you move the steppers.
 3. **Skills.** Start from a template (Guild fighter, River scout, Hedge mage, Field medic, Silver tongue, and the sets a

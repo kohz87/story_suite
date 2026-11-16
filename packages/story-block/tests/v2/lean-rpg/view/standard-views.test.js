@@ -1,5 +1,5 @@
 // The Standard stat formula on the screens I own: Settings → RPG (the Stat formula card, Standard's Difficulty and Custom numbers, the odds bar,
-// the Combat text) and the New character wizard's Stats step (start 5, 10 points, 3 to 10, the bar line), and the
+// the Combat text) and the New character wizard's Stats step (start 5, 10 points, 5 to 10, the bar line), and the
 // pure pieces behind them (growth.js, wizard-data.js creation numbers, join.js companions).
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -129,15 +129,15 @@ test('growth (blocks.js, the one line the Party card, the wizard and Spend point
     assert.equal(growthOf({ ...start, vit: 15 }, { statMax: 15 }).health.next, null, 'the stat maximum caps it');
 });
 
-test('creation under Standard: stats start at 5, 10 points, 3 to 10; with no rules given it is the same', () => {
+test('creation under Standard: stats start at 5 and never go below it, 10 points, cap 10; with no rules given it is the same', () => {
     const draft = newDraft({ persona: 'Tamsin', rules: STANDARD_FORMULA });
     assert.deepEqual(draft.stats, Object.fromEntries(STATS.map(stat => [stat, 5])));
     assert.equal(draft.creation.standard, true);
     assert.equal(pointsLeft(draft), 10);
-    assert.deepEqual([statBounds(draft, 'str'), pointsLeft({ ...draft, stats: { ...draft.stats, str: 10, dex: 10 } })], [[3, 10], 0]);
-    assert.equal(pointsLeft({ ...draft, stats: { ...draft.stats, str: 3, vit: 3 } }), 14, 'down to 3 frees a point a step');
+    assert.deepEqual([statBounds(draft, 'str'), pointsLeft({ ...draft, stats: { ...draft.stats, str: 10, dex: 10 } })], [[5, 10], 0]);
+    assert.equal(pointsLeft(readDraft({ ...draft, stats: { ...draft.stats, str: 3, vit: 3 } })), 10, 'a stat below 5 is held at 5 and frees no point');
     const whole = readDraft({ ...draft, stats: { ...draft.stats, str: 99, vit: 1 } });
-    assert.deepEqual([whole.stats.str, whole.stats.vit], [10, 3], 'held to the creation range');
+    assert.deepEqual([whole.stats.str, whole.stats.vit], [10, 5], 'held to the creation range, never below the start');
     assert.deepEqual(startStats(draft), draft.stats);
     // The numbers come from the rules in force; a damaged `creation` is dropped.
     const custom = newDraft({ rules: { ...STANDARD_FORMULA, startStat: 6, createPoints: 8, createMin: 4, createMax: 9 } });
@@ -172,7 +172,7 @@ test('a companion the story adds on the Standard scale: every stat 5, the best 9
 
 // ---- the wizard's Stats step, on the real page ------------------------------------------------------------------------------
 
-test('Stats under Standard: steppers from 5, 10 points to spend, 3 to 10, and the bar line follows them', async t => {
+test('Stats under Standard: steppers from 5, 10 points to spend, 5 to 10, and the bar line follows them', async t => {
     const ctx = await page(t, { persona: 'Wessel' });
     await begin(ctx.host);
     ctx.ui.mounts.screen.open('story-block/party');
@@ -186,7 +186,7 @@ test('Stats under Standard: steppers from 5, 10 points to spend, 3 to 10, and th
     const step = (stat, dir) => root().querySelector(`.rpg-stat-step[data-stat="${stat}"] .ss-w-stepper-${dir}`);
     assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 10');
     assert.match(root().querySelector('.rpg-wiz-sum').textContent, /STR 5 · VIT 5 · AGI 5 · DEX 5 · INT 5 · LUK 5 · CHA 5/);
-    assert.match(root().textContent, /Every stat starts at 5\. Spend 10 points; a stat can go down to 3 to free a point and up to 10 now\. Every third level gives 1 more point, and XP rises on its own\./);
+    assert.match(root().textContent, /Every stat starts at 5, the minimum\. Spend 10 points; a stat can go up to 10 now\. Every third level gives 1 more point, and XP rises on its own\./);
     const line = () => root().querySelector('[data-wiz="growth"]').textContent;
     assert.equal(line(), 'Health 10 blocks (VIT 5, next at 10) · Stamina 10 (AGI 5, next at 10) · Mana 10 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)');
     for (let n = 0; n < 5; n += 1) step('vit', 'inc').click();
@@ -196,9 +196,8 @@ test('Stats under Standard: steppers from 5, 10 points to spend, 3 to 10, and th
     for (let n = 0; n < 4; n += 1) step('luk', 'inc').click();
     assert.match(line(), /Edge −1\.\.\+3 \(next at LUK 11\)$/, 'LUK 9 is still −1..+3');
     assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 1');
-    step('str', 'dec').click(); step('str', 'dec').click(); step('str', 'dec').click();
-    assert.equal(step('str', 'dec').disabled, true, 'nothing goes below 3');
-    assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 3', 'STR 3 frees two');
+    assert.equal(step('str', 'dec').disabled, true, 'nothing goes below the start, 5');
+    assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 1', 'a stat at 5 frees no point');
     dialog.close();
 });
 
