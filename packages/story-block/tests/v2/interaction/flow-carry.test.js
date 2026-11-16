@@ -68,3 +68,23 @@ test('a session made again from a changed result keeps its base chain, so later 
         assert.equal(box(host).open.anchor, host.store.carrierSid(2));
     } finally { host.close(); }
 });
+
+test('a staged session taken back on its own anchor is held with the take-back reason, not "Play the waiting"', async () => {
+    const host = await createHost({ modules: [iaModule()] });
+    try {
+        const api = iaApi(host);
+        await host.send('Hello.', reply('A.', ['! ia lamp1']));
+        await host.send('Next.', reply('B.', ['! ia luck2']));
+        await playSegment(host, api, GO, 'go0', 'S1.');
+        assert.equal(api.stage(box(host).open.id, GO).ok, true, 'a step is staged on segment 2');
+        setText(host, 4, withLines('B.', []));   // luck 2 is gone: segment 1 plans again with another total
+        await host.turn.reread(4);
+        assert.equal(box(host).open.invalidated, true);
+        host.st.addUser('I go.');
+        const held = await host.st.generate('normal', { reply: '' });
+        assert.equal(held.aborted, true);
+        const reason = host.turn.blocked().at(-1).reason;
+        assert.match(reason, /^The earlier Probe was taken back\. Restore that reply or discard\.$/);
+        assert.doesNotMatch(reason, /Play the waiting/);
+    } finally { host.close(); }
+});

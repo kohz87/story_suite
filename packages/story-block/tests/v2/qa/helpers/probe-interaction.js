@@ -31,7 +31,8 @@ export const iaKind = (over = {}) => ({
         return { result, stop, changes: [{ type: 'ia.grant', payload: { n: result.total } }] };
     },
     note: (result, setup, { opening } = {}) => (opening ? [`The probe opens (${result.opened}).`] : [`Probe round ${result.round}: ${result.last}, total ${result.total}.`]),
-    auto: (state, setup, steps, actorId, dice) => ({ choice: 'hum', args: { n: dice(1, 0, 6)() } }),
+    // the reader's own hero gets a valid choice from the dice (go or wait), the companion keeps 'hum'
+    auto: (state, setup, steps, actorId, dice) => ({ choice: actorId === 'hero' ? (dice(1, 0, 1)() ? 'go' : 'wait') : 'hum', args: { n: dice(1, 0, 6)() } }),
     opening: (state, setup, dice) => ({ result: { opened: dice(5, 0, 6)() }, changes: [] }),
     next: (setup, result) => ({ ...setup, round: setup.round + 1, from: result.total }),
     ...over,

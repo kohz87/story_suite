@@ -56,17 +56,20 @@ export function startInteraction({ answer, moduleId, chat, metadata, bus, kindOf
     if (!last?.is_user || anchorOf(chat) !== ask.anchor || keyOf(last) !== ask.message) {
         return { blocked: { moduleId, reason: `The chat changed while the ${title} was being prepared.` } };
     }
-    const meta = metadata(), anchor = ask.anchor;
+    const meta = metadata(), anchor = ask.anchor, box = plain(meta?.[KEY]) ? meta[KEY] : null;
+    // Already played or being played on this reply (a session, a Send copy, or this very hold): the offer is ignored, so a module that asks again on release cannot hold the send for ever.
+    if (box && (box.open?.anchor === anchor || box.send?.anchor === anchor || (box.start?.anchor === anchor && box.start.message === ask.message))) return null;
+    const unready = why => { problem({ module: moduleId, code: 'INTERACTION_START', quiet: true, message: `The ${title} could not be prepared (${why}); the reply went on without it.` }); return null; };
     const attempt = Number.isSafeInteger(meta?.[KEY]?.attempts?.[anchor]) ? meta[KEY].attempts[anchor] : 0;
     const record = { kindId: ask.kindId, title, id: `${anchor}:${attempt}:${ask.kindId}`, choices: Array.isArray(ask.choices) ? ask.choices : [] };
     if (typeof kind.opening === 'function') {
         let setup;
         try { setup = kind.open(state, { anchor, seed: interactionSeed(anchor, attempt, ask.kindId), args: structuredClone(ask.opening?.args ?? {}), query: () => undefined })?.setup; } catch { setup = null; }
-        if (!plain(setup)) return null;
+        if (!plain(setup)) return unready('its opening did not start');
         const id = `${record.id}#open`, seed = interactionSeed(anchor, attempt, `${ask.kindId}#open`);
         const payload = { v: 1, kindId: ask.kindId, version: kind.version, key: `i:${encodeURIComponent(id)}:${encodeURIComponent(anchor)}:0`, id, anchor, seed, offset: 0, setup, steps: [], witness: null, opening: true };
         const preview = bus.run(SETTLE, payload, { cause: 'system', seed });
-        if (!preview?.ok) return null;
+        if (!preview?.ok) return unready('its opening could not be previewed');
         record.opening = { payload, seed };
         record.result = preview.receipt?.data?.v2?.result;
     }

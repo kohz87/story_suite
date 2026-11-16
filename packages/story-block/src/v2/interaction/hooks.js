@@ -46,7 +46,7 @@ export function createInteractionHooks({ chat, metadata, kindOf, preview = null 
             const pending = pendingStart(meta, messages), picked = pick(box, messages, type, last, anchor);
             if (info.commit === true && (picked.wait || (pending && !picked.payload))) {
                 const title = picked.wait ? nameOf(picked.wait.kindId) : titleOf(kindOf(pending.kindId), pending.title);
-                return { ok: false, reason: `Play the waiting ${title}.`, action: false, ...(pending ? { interactionStart: true } : {}) };
+                return { ok: false, reason: picked.wait?.invalidated ? `The earlier ${title} was taken back. Restore that reply or discard.` : `Play the waiting ${title}.`, action: false, ...(pending ? { interactionStart: true } : {}) };
             }
             if (picked.wait) return null;
             payload = picked.payload ?? null;

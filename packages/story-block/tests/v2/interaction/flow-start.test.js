@@ -133,3 +133,38 @@ test('an opening that changes what the witness reads: the segment is staged, che
         assert.equal(codes(host).includes('NO_LONGER_DONE'), false);
     } finally { START_KINDS.pop(); host.close(); }
 });
+
+test('a broken opening is a quiet Problem and the send goes on', async () => {
+    START_KINDS.push(IA_KIND);
+    const offer = offering();
+    const host = await createHost({ modules: [iaModule({ kind: iaKind({ open: () => { throw new Error('no door'); } }), hooks: offer.hooks })] });
+    try {
+        offer.state.host = host;
+        await host.send('Hello.', withLines('A.', ['! ia lamp1']));
+        offer.state.on = true;
+        const out = await host.send('I go.', 'He goes.');
+        assert.equal(out.aborted, undefined, 'the reply went out');
+        const problem = host.turn.problems().find(item => item.code === 'INTERACTION_START');
+        assert.equal(problem.quiet, true);
+        assert.match(problem.message, /could not be prepared/);
+    } finally { START_KINDS.pop(); host.close(); }
+});
+
+test('a module that keeps offering the choice on release does not hold the played send for ever (guards the busy check)', async () => {
+    START_KINDS.push(IA_KIND);
+    const offer = offering();
+    const host = await createHost({ modules: [iaModule({ hooks: offer.hooks })] });
+    try {
+        offer.state.host = host;
+        await host.send('Hello.', withLines('A.', ['! ia lamp1']));
+        offer.state.on = true;   // stays on: the module asks again on every attempt
+        host.st.addUser('I go.');
+        assert.equal((await host.st.generate('normal', { reply: '' })).aborted, true);
+        const api = iaApi(host), id = api.open(IA_KIND).id;
+        api.stage(id, GO);
+        assert.equal(api.send(id).ok, true);
+        const done = await host.regenerate('He goes.');
+        assert.equal(done.aborted, undefined, 'the played send went out');
+        assert.equal(activeSettles(host).length, 2, 'the opening and the segment settled');
+    } finally { START_KINDS.pop(); host.close(); }
+});
