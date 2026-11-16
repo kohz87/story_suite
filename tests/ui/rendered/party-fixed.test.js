@@ -81,6 +81,17 @@ for (const theme of ['dark', 'light']) {
         await page.evaluate(() => document.querySelector('#hx-frame .sk').click());
         await page.waitForSelector('.mbar.inline');
         assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.mbar.inline')).margin), '3px 0px 0px 6px');
+        await page.evaluate(() => document.querySelector('.pty-sheet .ps-x').click());
+        await page.evaluate(() => document.querySelector('#hx-frame .slot:not(.empty)').click());
+        await page.waitForSelector('.ps-slot');
+        // a slot sheet with a worn item has an empty subtitle: it takes no room, so the title sits 11 px below the sheet's header top (centred in the 44 px close button row)
+        const title = await page.evaluate(() => {
+          const n = document.querySelector('.ps-slot .ps-n').getBoundingClientRect();
+          const hd = document.querySelector('.ps-slot .ps-h').getBoundingClientRect();
+          return { sub: getComputedStyle(document.querySelector('.ps-slot .ps-s')).display, top: n.top - hd.top, h: n.height };
+        });
+        assert.equal(title.sub, 'none');
+        assert.equal(title.top, (44 - title.h) / 2);
       } finally { await page.close(); }
     });
   }

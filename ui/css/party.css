@@ -81,7 +81,7 @@
 @container (min-width:601px){.pty-sheet{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:460px;border-radius:24px;padding:18px 20px 20px}.pty-sheet .grab{display:none}}
 .ps-h{display:flex;align-items:center;gap:10px}.ps-h>div{flex:1;min-width:0}
 .ps-n{font:800 20px/1.1 var(--su-font);color:var(--su-text)}.ps-n2{font-size:17px}
-.ps-s{font:600 13px var(--su-font);color:var(--su-muted);margin-top:2px}
+.ps-s{font:600 13px var(--su-font);color:var(--su-muted);margin-top:2px}.ps-slot .ps-s:empty{display:none}
 .su-root .ps-x{width:44px;height:44px;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-line2);color:var(--su-text);font:800 20px var(--su-font);cursor:pointer;flex:none;padding:0}
 .ps-i{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center}
 .ps-i .ti,.ps-r .ti{width:44px;height:44px;border-radius:12px;background:var(--su-tile);border:2px solid var(--su-tileline);display:grid;place-items:center;color:var(--su-glyph)}
