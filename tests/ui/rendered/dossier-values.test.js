@@ -77,7 +77,20 @@ for (const theme of ['dark', 'light']) {
         assert.equal(tile, TILE[theme], 'People tile disc colour');
         await page.evaluate(() => document.querySelector('#hx-frame [data-person-id="temiwa"]').click());
         await page.waitForSelector('#hx-frame .dossier .mood3');
+        await page.waitForFunction(() => getComputedStyle(document.querySelector('#hx-frame .dossier .dscroll')).zIndex === '1');
         const v = await page.evaluate(read);
+        const sky = await page.evaluate(() => {
+          const d = document.querySelector('#hx-frame .dov'); const dc = getComputedStyle(d);
+          const fine = document.createElement('p'); fine.className = 'fine'; d.appendChild(fine);
+          const f = getComputedStyle(fine).fontWeight; fine.remove();
+          return { bg: dc.backgroundImage, glow: getComputedStyle(d, '::before').backgroundImage, shade: getComputedStyle(d, '::after').backgroundImage, shadeH: getComputedStyle(d, '::after').height, scroll: getComputedStyle(d.querySelector('.dscroll')).position, fine: f, box: d.getBoundingClientRect().height };
+        });
+        assert.match(sky.bg, /linear-gradient/, 'dossier backdrop is the mock sky, not the old gradient');
+        assert.match(sky.bg, theme === 'dark' ? /rgb\(44, 63, 102\)/ : /rgb\(143, 178, 224\)/, 'sky first stop');
+        assert.match(sky.glow, /radial-gradient\(.*rgba\(255, 240, 200, 0\.55\)/, 'warm glow');
+        assert.match(sky.shade, theme === 'dark' ? /rgba\(10, 12, 20, 0\.55\)/ : /rgba\(255, 255, 255, 0\.35\)/, 'bottom shade');
+        assert.equal(Math.round(parseFloat(sky.shadeH)), Math.round(sky.box * 0.45), 'shade is 45 % tall');
+        assert.equal(sky.fine, '400', 'dossier .fine weight');
         assert.equal(v.name, '28px');
         assert.equal(v.corner, '17px');
         assert.equal(v.spacing, '1.2px');
@@ -99,6 +112,8 @@ for (const theme of ['dark', 'light']) {
         assert.equal(tie.w, 38);
         assert.match(tie.img, /torka/);
         assert.equal(tie.disc, DISC[theme]);
+        const nameless = await page.evaluate(() => { const a = [...document.querySelectorAll('#hx-frame .dossier .tie .a')].at(-1); const g = a.querySelector('svg.glyph'); return { text: a.textContent, glyph: g ? Math.round(g.getBoundingClientRect().width * 10) / 10 : null }; });
+        assert.deepEqual(nameless, { text: '', glyph: 22.8 }, 'nameless tie shows the person glyph at 60 %');
       } finally { await page.close(); }
     });
   }
@@ -117,10 +132,11 @@ for (const theme of ['dark', 'light']) {
       const v = await page.evaluate(() => {
         const q = s => document.querySelector(`#hx-frame ${s}`); const c = (s, p) => getComputedStyle(q(s))[p];
         return { gap: c('.castmap', 'rowGap'), fw: c('.castmap .fine', 'fontWeight'), lh: c('.castmap .fine', 'lineHeight'), leg: c('.mleg', 'columnGap'),
-          here: c('.hm.here', 'backgroundColor'), hint: c('.mhint', 'fontSize'), hintLh: c('.mhint', 'lineHeight'), legText: q('.mleg').lastElementChild.textContent };
+          here: c('.hm.here', 'backgroundColor'), hint: c('.mhint', 'fontSize'), hintLh: c('.mhint', 'lineHeight'), legText: q('.mleg').lastElementChild.textContent, filMargin: c('.fil', 'margin') };
       });
       assert.equal(v.gap, '12px'); assert.equal(v.fw, '400'); assert.equal(v.lh, '18px'); assert.equal(v.leg, '14px');
       assert.equal(v.here, HERE[theme]); assert.equal(v.hint, '13px'); assert.equal(v.hintLh, '19.5px');
+      assert.equal(v.filMargin, '0px -2px', 'People filter row keeps the mock margin');
       assert.equal(v.legText, '● here\u00a0 ○ away');
     } finally { await page.close(); }
   });

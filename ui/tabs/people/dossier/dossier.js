@@ -50,7 +50,8 @@ function summary(d, id) {
     return h('span', { class: 'secrow' }, h('span', { class: 'sring', style: { '--p': total ? (opened / total) * 100 : 0 } }, `${opened}/${total}`),
       h('span', { class: 'lc' }, next ? `next: ${lower(next.rule)}` : 'all opened'));
   }
-  return h('span', { class: 'lc sm' }, [d.profile?.personality, d.idLine].filter(Boolean).join(' · '));
+  const likes = d.profile?.likes?.length ? `Likes ${d.profile.likes.join(', ')}` : null;
+  return h('span', { class: 'lc sm' }, [d.profile?.personality, likes].filter(Boolean).join(' · '));
 }
 
 const BODIES = { death: deathPage, with: withPage, mood: moodPage, now: nowPage, ties: tiesPage, past: pastPage, secrets: secretsPage, profile: profilePage };

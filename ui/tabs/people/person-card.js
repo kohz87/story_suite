@@ -2,10 +2,9 @@
 import { h } from '../../kit/dom.js';
 import { feelingsRing } from '../../kit/ring.js';
 import { glyph } from '../../kit/glyphs.js';
+import { isSafePortraitUrl } from '../../kit/safe-url.js';
 
-const NO_BREAKOUT = /^[^"'()\\\s]+$/;
 const TITLES = /^(Sister|Captain|Old) /;
-const looksLikeUrl = src => typeof src === 'string' && NO_BREAKOUT.test(src) && (src.includes('/') || src.startsWith('data:image'));
 const lower = text => (text ? text[0].toLowerCase() + text.slice(1) : text);
 
 /** First letter of the name without a title (Sister, Captain, Old), shown when there is no portrait. */
@@ -16,7 +15,7 @@ export function initialOf(person) {
 /** Builds the round portrait: a background image for a safe URL, otherwise the initial. */
 export function portraitDisc(person, className = 'ph') {
   const src = person.portrait;
-  const style = looksLikeUrl(src) ? { 'background-image': `url("${src}")` } : null;
+  const style = isSafePortraitUrl(src) ? { 'background-image': `url("${src}")` } : null;
   return h('span', { class: className, style, dataset: { portrait: src ?? null } }, style ? null : initialOf(person));
 }
 

@@ -31,7 +31,7 @@ test('a living dossier shows the hero and the cards in mock order, Past with its
   assert.equal(el.querySelector('[data-page="with"] .dl').textContent, 'With Astra · last change›');
   assert.equal(el.querySelectorAll('[data-page="past"] .dots i').length, 3);
   assert.equal(el.querySelectorAll('[data-page="past"] .dots b').length, 2);
-  assert.deepEqual(el.querySelectorAll('[data-page="ties"] .a').map(a => a.textContent), ['T', 'O', 'H']);
+  assert.deepEqual(el.querySelectorAll('[data-page="ties"] .a').map(a => a.textContent), ['T', 'O', '']);
   assert.match(el.querySelector('[data-page="secrets"]').textContent, /1\/3.*next: opens at Trust 40/);
   assert.equal(el.querySelectorAll('.ml').length, 4);
   assert.ok(el.querySelector('[data-act="map"]'));
