@@ -28,8 +28,8 @@ export function skipTarget(words, minutes, calendar) {
 }
 
 /**
- * What a `time` line does to the story time `minutes` when its reply carries the `clockFace` mark: `{ minutes, set }`, or
- * `{ error }` in plain words. Durations, and any line while the clock is not set yet, are read as timeAfter reads them.
+ * What a `time` line does to the story time `minutes` when its reply carries the `clockFace` mark: `{ minutes, set, roll? }` (`roll`: 'same' | 'after' for a bare clock face, a skip, a bare `!` time), or
+ * `{ error, face? }` in plain words (`face`: the minute a refused `~` clock face asked for). Durations, and any line while the clock is not set yet, are read as timeAfter reads them.
  * `~`/`+` with a clock face: today's time, never earlier than now. `!`: the next such time after now, or `tomorrow …` / `next morning`.
  * A date is accepted when it is not before now. `options.openDay`: the day a jump landed on, when no time line has read since; a `~` clock face on that day may go earlier than the landing face. A refused line leaves the clock where it was.
  */
@@ -51,8 +51,16 @@ export function clockFaceAfter(line, minutes, calendar, options = {}) {
     const open = bare && line.op !== '!' && openDay === dayKey(minutes) && dayKey(target) === openDay;
     if (target < minutes && !open) {
         const now = calendar.format(minutes);
-        if (bare) return { error: `"~ time ${shown}" is earlier than the story time (${now}); the clock never goes back. If a new day has begun, write "! time ${shown}".` };
+        // `face`: what the refused `~` face asked for, so the caller can keep it anchored (a replay that moves the day reads it again).
+        if (bare) return { error: `"~ time ${shown}" is earlier than the story time (${now}); the clock never goes back. If a new day has begun, write "! time ${shown}".`, face: target };
         return { error: `"${shown}" names a date before the story time (${now}); the clock never goes back, so the line was not used.` };
     }
-    return { ...held(minutes, target, maxJump, shown, from), set: true };
+    // `roll`: how this set follows a clock that moved before it (Story Block's anchored set): a `~` clock face is today's time ('same'),
+    // a skip or a bare `!` clock time is the next such time ('after'). A date, a held jump and an early face on the open day are plain sets.
+    const result = { ...held(minutes, target, maxJump, shown, from), set: true };
+    if (!result.held && !(open && target < minutes)) {
+        if (skip !== null || (bare && line.op === '!')) result.roll = 'after';
+        else if (bare) result.roll = 'same';
+    }
+    return result;
 }

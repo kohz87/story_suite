@@ -27,7 +27,7 @@ export const V1 = deep({
         damageRound: 0.5, defaultTier: 'standard', groupMax: 6, attackCapTimes: 2,
         loneTiers: ['elite', 'boss', 'apex'],
     },
-    fight: { maxExchanges: 60, healBelowTimes: 2, areaTargets: 2 },
+    fight: { maxExchanges: 60, cap: 99, healBelowTimes: 2, areaTargets: 2 },
     cost: { normal: 0, attack: 1, area: 2, heal: 2, stance: 1, utility: 0 },
     skill: {
         defaultType: 'attack', normalType: 'normal', fallbackTypes: ['attack', 'area'],

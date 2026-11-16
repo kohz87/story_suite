@@ -10,7 +10,8 @@ import { createRegistration } from '../registry/registration.js';
 // The replay rules the host itself applies, by letter (REPLAY.md): a rule that changes what a replay returns gets a new letter here, so memos kept under the old rule are not reused.
 // (Only in-memory keys read this: memos, the head cache and the prefix memo, all emptied by a reload; a chat file's checkpoint is not keyed on it. It stays as a convention for later rules.)
 // g: a deferred domain's later writes seed it when its first writer was deleted.
-const REPLAY_RULES = 'rules:g';
+// h: an anchored set (ctx.anchored) replays at its offset from the value before it; Story Director's clock faces and skips are the first to use it.
+const REPLAY_RULES = 'rules:h';
 
 export function createRegistry({ hostVersion = null, warn = message => console.warn(`[Story Suite] ${message}`), featureValue = () => undefined } = {}) {
     const defs = new Map();
@@ -34,7 +35,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
     const { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
     const commandLookups = createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf: life.nameOf, off, warn });
     const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial } = commandLookups;
-    const { interaction, interactionIds } = createInteractionLookups({ defs, held });
+    const { interaction, interactionIds, markerWords } = createInteractionLookups({ defs, held, featureOn });
     const { register } = createRegistration({ defs, declared, owners, fallbacks, canonical, refusals, hostVersion, warn, needsOf, setPeers: life.setPeers });
 
     return {
@@ -59,6 +60,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         interaction,
         /** The full kind ids a module defines, sorted. */
         interactionIds,
+        /** The marker words of the registered kinds whose marker feature is on (what the prompt history drops). */
+        markerWords,
         captureOwner: kind => captureEntry(kind)?.moduleId ?? null,
         queryOwner: name => owners.query.get(name) ?? null,
         /** The handler for a command type (module commands and the registry's own), or null. */

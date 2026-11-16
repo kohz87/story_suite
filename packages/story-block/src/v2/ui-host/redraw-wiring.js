@@ -3,6 +3,7 @@
 // tab host) and `overlay-size` (the overlay's prompt size). A burst of events is one frame that draws the newest state.
 
 import { createRedraw } from '../shared/redraw.js';
+import { guardSection } from './section-guard.js';
 
 /**
  * `wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, schedule? })` → { on(), mark(), flushNow(), hold(), redrawAll(), register(id, section), changed(keys), destroy() }.
@@ -53,7 +54,11 @@ export function wireRedraw({ on, mounts, getPanel, getTabHost, getOverlay, sched
         },
         hold() { return on() === true ? own().hold() : () => {}; },
         /** What sdk.panels needs of the scheduler (bound by mountUi): modules' sections are registered into it, and `changed(keys)` marks them. */
-        register: (id, section) => own().register(id, section),
+        register: (id, section) => {
+            const sched = own();
+            // (a section naming its `root` waits while a field in it has the focus; a chat switch draws it anyway)
+            return sched.register(id, guardSection(section, { guarded: () => guarded, again: keys => { if (scheduler === sched) sched.changed(keys); } }));
+        },
         changed: keys => own().changed(keys),
         destroy() { scheduler?.destroy(); scheduler = null; },
     };

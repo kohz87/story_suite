@@ -43,6 +43,10 @@ test('Character: the story lowers HP by a stage word and never raises it; a rest
     assert.equal(at(host, 'hp')[0], 1, 'a stage word never raises a bar');
     await host.send('Binding.', reply(line('character', 'heal', ' | amount: 2')));
     assert.equal(at(host, 'hp')[0], 1 + 2 * Math.floor(7 / 4));
+    await host.send('Rest.', reply(line('character', 'set-health', ' | to: 1')));
+    await host.send('Salve.', reply(line('character', 'heal', ' | amount: Half')));
+    assert.equal(at(host, 'hp')[0], 1 + 2 * Math.floor(7 / 4), 'the story says a heal in words (Half = 2 quarters), never a number');
+    assert.deepEqual(Object.values(characterV1.kinds.heal.labels.amount.names), ['A quarter', 'Half', 'Three quarters']);
     await host.send('Night.', reply(line('character', 'full-rest')));
     assert.deepEqual(at(host, 'hp', 'mp', 'sp'), [7, 10, 10]);
     await same(host);
@@ -74,6 +78,26 @@ test('Skills: a hundred practice is one rank, up to Legend at 600; a learn line 
     host.ctx.chat[index].mes = reply(line('skills', 'practice-1', ' | amount: 5'));
     assert.equal((await host.turn.reread(index)).ok, true);
     assert.equal(sheet(host, 'skills').rank1, 5, 'the edited Re-read decides on the reply as it now reads');
+    await same(host);
+});
+
+test('Foes: a group with no tier is a standard foe, and a swipe, a Re-read and an edited Re-read agree', async t => {
+    const host = await story(t);
+    const foes = () => sheet(host, 'foes');
+    await host.send('Wolves.', reply(line('foes', 'set-slot-1', ' | name: Wolf | count: 2 | level: 3')));
+    assert.deepEqual([foes().foe1, foes().count1, foes().tier1], ['Wolf', 2, 'standard'], 'no tier reads as standard instead of being refused');
+    await same(host);
+    await host.swipe(reply(line('foes', 'set-slot-1', ' | name: Rat | count: 3 | level: 1')));
+    assert.deepEqual([foes().foe1, foes().tier1], ['Rat', 'standard']);
+    const index = host.ctx.chat.length - 1;
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.deepEqual([foes().foe1, foes().tier1], ['Rat', 'standard'], 'a Re-read keeps it');
+    host.ctx.chat[index].mes = reply(line('foes', 'set-slot-1', ' | name: Rat | count: 3 | level: 1 | tier: boss'));
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.equal(foes().tier1, 'boss', 'an edited Re-read that names a tier takes it');
+    host.ctx.chat[index].mes = reply(line('foes', 'set-slot-1', ' | name: Rat | count: 3 | level: 1'));
+    assert.equal((await host.turn.reread(index)).ok, true);
+    assert.equal(foes().tier1, 'standard', 'and one that drops the tier goes back to standard');
     await same(host);
 });
 

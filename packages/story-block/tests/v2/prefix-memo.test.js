@@ -381,8 +381,8 @@ test('witness memo: the answers kept by prefix stop at the cap, the oldest first
 test('prefix memo: the replay rules marker is part of the environment, so a state built under the old rule is replayed again', async () => {
     const { createRegistry } = await import('../../src/v2/registry-parts/create.js');
     const now = createRegistry().rulesSignature();
-    assert.match(now, /;rules:g$/, 'the signature names the host\'s replay rule');
-    const old = now.replace(/;rules:g$/, '');
+    assert.match(now, /;rules:h$/, 'the signature names the host\'s replay rule');
+    const old = now.replace(/;rules:h$/, '');
     assert.notEqual(old, now);
     const { env, calls, memo } = setup();
     const arr = [reply('a')];

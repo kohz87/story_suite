@@ -12,17 +12,20 @@ import { CORE_FEATURE } from '../features.js';
 import { RESOLVE as RPG_RESOLVE } from '../lean-rpg/names.js';
 import { NO_ROLLS_LINE } from '../lean-rpg/cue.js';
 import { fightCue, holdStart } from './fight-start.js';
+import { startInteraction } from '../interaction/start.js';
+import { CORE_MODULE_ID } from '../domains/core/constants.js';
 import { rpgLib } from '../rpg-lazy.js';
 import { readRecord } from '../persist.js';
 import { hashText } from '../assist/common.js';
-import { KEPT_CHARS_MAX, KEPT_LINES_MAX, TIMED_OUT, defuseMacros, keptGiven, firstLine, mapContent, stripBattleMarker, substituteNames, within } from './text.js';
+import { KEPT_CHARS_MAX, KEPT_LINES_MAX, TIMED_OUT, defuseMacros, keptGiven, firstLine, mapContent, substituteNames, within } from './text.js';
 
 export { KEPT_LINES_MAX, KEPT_CHARS_MAX };
 export { KEPT_PRELUDE_TOKENS } from './prelude-run.js';
+import { stripMarkers } from '../interaction/markers.js';
 import { runPreludes } from './prelude-run.js';
 
 export function createPromptBuild(s, deps) {
-    const { ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
+    const { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet, FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType } = deps;
     let toldRestore = null;
     let recovering = null;
 
@@ -83,6 +86,11 @@ export function createPromptBuild(s, deps) {
                     return { blocked: { moduleId, reason: 'Choose how to play the waiting fight.', fightStart: true } };
                 }
             }
+            // A module offers an interaction before the send (interaction/start.js): previewed and held, or dropped with a quiet Problem.
+            if (out?.interactionStart) {
+                const started = startInteraction({ answer: out, moduleId, chat: ctx?.chat ?? [], metadata, bus, kindOf: id => registry.interaction?.(id), problem, state: store.head() });
+                if (started?.blocked) return started;
+            }
             // A merged hook (domains/index.js mergeParts) keeps the answers of the parts that did answer and reports the others.
             for (const entry of Array.isArray(out?.problems) ? out.problems : []) problem({ module: moduleId, code: entry.code, message: entry.message, ...(entry.quiet === true ? { quiet: true } : {}) });
             const lines = Array.isArray(out) ? out : Array.isArray(out?.lines) ? out.lines : [];
@@ -103,9 +111,13 @@ export function createPromptBuild(s, deps) {
                 } else problem({ module: moduleId, code: result?.code ?? 'FAILED', message: `The cue "${command?.type}" was not committed: ${result?.message ?? 'unknown error'}` });
             }
         }
+        // An interaction the reader staged and sent: its opening and its segment settle as preludes of this reply (interaction/hooks.js; null when none).
+        let mine = null;
+        try { mine = ia.beforeGenerate(view(), { type, dryRun, commit, again }); } catch (error) { problem({ module: CORE_MODULE_ID, code: 'FAILED', message: `beforeGenerate failed: ${error?.message ?? error}` }); }
+        for (const command of mine?.commands ?? []) requested.push({ moduleId: CORE_MODULE_ID, type: command.type, payload: command.payload ?? {}, seed: command.seed });
         // Other cues may settle a fight or change a modifier. Preview on the state they leave,
         // which is also the state the generated reply's prelude will start from.
-        const ran = runPreludes({ s, bus, store, problem }, { requested, cues, prechecks, previewState });
+        const ran = runPreludes({ s, bus, store, problem, kindOf: id => registry.interaction?.(id) }, { requested, cues, prechecks, previewState });
         if (ran.blocked) return { blocked: ran.blocked };
         ({ previewState, boardStop } = ran);
         const { keptPrelude } = ran;
@@ -184,9 +196,10 @@ export function createPromptBuild(s, deps) {
             if (!all) return entry;
             found.push({ ...entry, name: registry.module(HOST_MODULE)?.name ?? HOST_MODULE, action: false, canOpen: false });
         }
-        for (const { moduleId, fn } of registry.hookEntries('canGenerate')) {
+        // (the core's own interaction hold is asked last, directly: it is no module's hook, and answers at once)
+        for (const { moduleId, fn, own = false } of [...registry.hookEntries('canGenerate'), { moduleId: CORE_MODULE_ID, fn: ia.canGenerate, own: true }]) {
             let answer;
-            try { answer = await within(fn(view(), { type, commit: !all }), HOOK_TIMEOUT_MS); } catch (error) {
+            try { answer = own ? fn(view(), { type, commit: !all }) : await within(fn(view(), { type, commit: !all }), HOOK_TIMEOUT_MS); } catch (error) {
                 if (!all) problem({ module: moduleId, code: 'FAILED', message: `canGenerate failed: ${error?.message ?? error}` });
                 continue;
             }
@@ -197,7 +210,7 @@ export function createPromptBuild(s, deps) {
             if (answer === false || (answer && typeof answer === 'object' && answer.ok === false)) {
                 const name = registry.module(moduleId)?.name ?? moduleId;
                 const reason = typeof answer?.reason === 'string' && answer.reason.trim() ? answer.reason.trim() : `${name} is not ready for the story to go on yet.`;
-                const entry = { moduleId, reason, ...(answer?.fightStart === true ? { fightStart: true } : {}) };
+                const entry = { moduleId, reason, ...(answer?.fightStart === true ? { fightStart: true } : {}), ...(answer?.interactionStart === true ? { interactionStart: true } : {}) };
                 if (all) {
                     // The button's words (a module's `action`, flattened, ≤ 40 code points), or false for none.
                     const action = answer?.action === false ? false
@@ -230,7 +243,7 @@ export function createPromptBuild(s, deps) {
     }
 
     // `keepSession`: the held fight reply's session is put back once the block is told (it is still captured).
-    function block({ moduleId, reason, fightStart = false, keepSession = false }, abort) {
+    function block({ moduleId, reason, fightStart = false, interactionStart = false, keepSession = false }, abort) {
         const held = keepSession ? s.session : null;
         s.session = null;
         markIdle();
@@ -244,10 +257,10 @@ export function createPromptBuild(s, deps) {
             problem({ code: 'RESTORE_PENDING', message: `The reply was not sent. ${reason}` });
         }
         try { abort?.(true); } catch (error) { console.warn('[Story Suite] the generation could not be stopped', error); }
-        if (fightStart) {
+        if (fightStart || interactionStart) {
             try { Promise.resolve(ctx?.saveChat?.()).catch(() => {}); } catch { /* the next chat write saves it */ }
             try { (ctx?.saveMetadata ?? ctx?.saveMetadataDebounced)?.call(ctx); } catch { /* the next chat write saves it */ }
-            events?.emit('head', { index: store.headIndex(), reason: 'fight-start' });
+            events?.emit('head', { index: store.headIndex(), reason: interactionStart ? 'interaction-start' : 'fight-start' });
             return;
         }
         if (!restoring || tell) {
@@ -326,7 +339,7 @@ export function createPromptBuild(s, deps) {
             }
             await ensureModules({ store, bus, registry, events });
             if (s.heldBoard) {
-                block({ moduleId: 'story-block', reason: 'Restore the fight sheet or gear, or discard the fight (Fight tab, Discard fight) and regenerate the held reply.', keepSession: true }, abort);
+                block({ moduleId: 'story-block', reason: s.heldBoard.hold ?? 'Restore the fight sheet or gear, or discard the fight (Fight tab, Discard fight) and regenerate the held reply.', keepSession: true }, abort);
                 return;
             }
             const blocked = await blockedBy(kind);
@@ -381,8 +394,11 @@ export function createPromptBuild(s, deps) {
     }
     // Only while the RPG is on: with it off a reply's text goes into the prompt as it always did.
     const battleOn = () => registry.featureOn?.(CORE_FEATURE.leanRpg) === true;
+    // The marker words dropped from the history: `[battle]` while the RPG is on (the board's own gate), then each registered interaction kind's word whose marker feature is on.
+    const markers = () => [...(battleOn() ? ['battle'] : []), ...(registry.markerWords?.() ?? [])];
     function stripHistory(chat) {
-        const strip = battleOn() ? text => stripBattleMarker(strippedText(text)) : strippedText;
+        const words = markers();
+        const strip = words.length ? text => stripMarkers(strippedText(text), words) : strippedText;
         for (const message of chat) {
             if (message?.role !== 'assistant') continue;
             const content = mapContent(message.content, strip);
@@ -408,5 +424,5 @@ export function createPromptBuild(s, deps) {
         return marks.length > 0 && !marks.some(holds);
     }
 
-    return { runCues, build, askCanGenerate, runOnBlocked, interceptor, battleOn, stripHistory, backgroundPrompt, foreignPrompt };
+    return { runCues, build, askCanGenerate, runOnBlocked, interceptor, battleOn, markers, stripHistory, backgroundPrompt, foreignPrompt };
 }

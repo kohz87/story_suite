@@ -4,7 +4,7 @@
 // `createSession(s, deps)` is given the turn's state holder `s` and the few turn parts it uses; it never imports turn.js.
 
 export function createSession(s, deps) {
-    const { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM } = deps;
+    const { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch = () => {}, kindOf = () => null, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM } = deps;
 
     function markBusy() {
         s.replyBusy = true;
@@ -34,6 +34,11 @@ export function createSession(s, deps) {
 
     function problem(entry) {
         const item = { module: null, code: 'PROBLEM', ...entry };
+        // An over-long settle note is named once however often the prompt is built (send, regenerate, dry run): the same words are not listed again.
+        if (item.code === 'NOTE_LONG') {
+            const same = s.problemLog.find(old => old.code === item.code && old.module === item.module && old.message === item.message);
+            if (same) return same;
+        }
         s.problemLog.push(item);
         if (s.problemLog.length > MAX_PROBLEMS) s.problemLog.splice(0, s.problemLog.length - MAX_PROBLEMS);
         // A quiet one (a line of a feature the reader turned off) is listed, not warned about.
@@ -107,6 +112,7 @@ export function createSession(s, deps) {
     // `reason` (repair, ...) rides on the head event for the public API's `story:rebuilt` (public-api.js).
     function rebuild({ publish = true, reason = null } = {}) {
         store.rebuild();
+        reconcileScratch();
         if (hasCarrier()) ensureInitial();
         if (publish) events?.emit('head', { index: store.headIndex(), ...(reason ? { reason } : {}) });
     }
@@ -126,6 +132,11 @@ export function createSession(s, deps) {
         if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && receipt.replan?.payload?.board) {
             problem({ code: 'FIGHT_TAKEN_BACK', message: `A fight on the board was taken back because the story before it changed: ${planned.message ?? 'the sheet or gear is not what it was.'}` });
         }
+        // An interaction that no longer fits what it read (or whose earlier segment changed) is taken back: say so by kind.
+        if (planned?.ok === false && planned.code === 'NO_LONGER_DONE' && typeof receipt.replan?.payload?.kindId === 'string') {
+            const id = String(receipt.replan.payload.kindId), title = kindOf(id)?.title ?? id.split('/').at(-1);
+            problem({ code: 'INTERACTION_TAKEN_BACK', message: `The ${title} was taken back because the story before it changed: ${planned.message ?? 'what it read is not what it was.'}` });
+        }
         return planned;
     }
 
@@ -137,6 +148,7 @@ export function createSession(s, deps) {
         if (!Number.isInteger(from) || store.readOnly?.()) return;
         try {
             const done = store.reconcile(from, { rerun: planAgain });
+            reconcileScratch();     // (a segment taken back moves the open interaction back to its base)
             if (!done.changed) return;
             store.scheduleSave?.();
             const parts = [done.planned ? `${done.planned} planned again` : '', done.removed ? `${done.removed} taken back` : ''].filter(Boolean).join(', ');
