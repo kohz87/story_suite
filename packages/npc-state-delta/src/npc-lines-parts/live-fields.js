@@ -7,6 +7,7 @@ import { applyWord, moodFromWord, restMood, restingMood } from '../../npc-mood.j
 import { sentence, writeMood } from '../npc-meters-slice.js';
 import { factFields, unknownWord } from './facts.js';
 import { lookField } from './look.js';
+import { guardFields } from './guard.js';
 
 const LIVE = Object.freeze({ goal: 300, status: 300, where: 120 });
 
@@ -30,13 +31,18 @@ function applyLive(ctx, { key, name, record, fields, dossier, world }) {
         set[field === 'where' ? 'location' : field] = got.value;
     }
     for (const part of [lookField(fields), factFields(fields, dossier)]) { Object.assign(set, part.set); problems.push(...part.problems); }
+    const guarded = guardFields(set, dossier, name);
+    problems.push(...guarded.problems);
+    for (const key of Object.keys(set)) if (!(key in guarded.set)) delete set[key];
     let wrote = false;
     if (Object.keys(set).length && !dossier) problems.push(`${name} has no dossier yet; ${Object.keys(set).join(', ')} not stored.`);
     else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; }
     if (fields.mood !== undefined) {
         const word = clean(fields.mood, 60);
         const target = world.moodOn && isInt(world.minutes) ? moodFromWord(word) : null;
-        if (!target) problems.push(`mood: "${clean(fields.mood, 40)}" is not a mood word on the list; not used.`);
+        if (!world.moodOn) problems.push('mood is off; not used.');
+        else if (!isInt(world.minutes)) problems.push('mood: there is no story clock; not used.');
+        else if (!target) problems.push(`mood: "${clean(fields.mood, 40)}" is not a mood word on the list; not used.`);
         else {
             const prev = readLeaf(record.mood) ?? restMood(restingMood(), world.minutes);
             const { mood } = applyWord(prev, world.minutes, target, word, '');
@@ -48,10 +54,11 @@ function applyLive(ctx, { key, name, record, fields, dossier, world }) {
 }
 
 /** The line's dossier labels applied after its meters (`out`: the meters' receipt); their problems join the card's and the receipt's. */
-export function labelFields(ctx, out, fields, { at, reply, presentNames, clockMinutes, timeMinutes, clockDay, startDate, moodOn, note }) {
+export function labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMinutes, clockDay, startDate, moodOn, note }) {
     const key = out.data.key;
     const here = ctx.query?.('scene.present', {});
-    const present = new Set((Array.isArray(here) && here.length ? here : presentNames()).map(item => labelKey(typeof item === 'string' ? item : item?.name)).filter(Boolean));
+    // Only this reply's own scene decides who is here (no fallback to NPC State's live flags: a Re-read or swipe must decide the same way).
+    const present = new Set((Array.isArray(here) ? here : []).map(item => labelKey(typeof item === 'string' ? item : item?.name)).filter(Boolean));
     const minutes = clockMinutes(at) ?? timeMinutes(ctx);
     const world = { present, at, reply, minutes, moodOn, date: clockDay(at) === null ? '' : startDate(at) };
     const slice = ctx.draft(NPC_DOMAIN);

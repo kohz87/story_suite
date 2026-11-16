@@ -50,7 +50,7 @@ test('goal, status, where, look and facts go to the dossier; clear removes goal 
 
 test('where for a person in the scene is refused; "Unknown" is never written', async () => {
     const s = await suite({ records: withWren() });
-    await s.say(['~ npc Oren | trust: up | where: the market | goal: Unknown']);
+    await s.say(['+ present Oren', '~ npc Oren | trust: up | where: the market | goal: Unknown']);
     assert.equal(dossier(s, 'npc_oren').location, undefined);
     assert.equal(dossier(s, 'npc_oren').goal, undefined);
     assert.equal(bonds(s).meters.trust, 1, 'the line\'s meters still apply');
