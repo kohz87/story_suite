@@ -121,7 +121,7 @@ function loadedSuite() {
     symlinkSync(path.join(REPO_ROOT, 'packages', 'story-director'), path.join(tmpRoot, 'Story_director'));
     symlinkSync(path.join(REPO_ROOT, 'packages', 'npc-state-delta'), path.join(tmpRoot, 'npc_state_delta'));
     process.env.STORY_SUITE_ROOT = tmpRoot;
-    const suiteUrl = pathToFileURL(path.join(REPO_ROOT, 'packages/story-block/tests/v2/break/helpers/suite.js')).href;
+    const suiteUrl = pathToFileURL(path.join(REPO_ROOT, 'tests/suite/break/helpers/suite.js')).href;
     const { loadSuite, suiteHost } = await import(suiteUrl);
     const loaded = await loadSuite();
     return loaded.skip ? { skip: loaded.skip } : { suite: { ...loaded, suiteHost, pageHost: pageSuiteHost } };

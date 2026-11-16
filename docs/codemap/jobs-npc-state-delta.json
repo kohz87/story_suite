@@ -6,9 +6,5 @@
   "hardening-core.js": "Pure settings-key rules for chat and character ownership moves, renames and lifecycle deletes.",
   "hardening.js": "Applies the settings-key hardening rules in the browser: owner-qualified keys, renames and deleted chats.",
   "identity.js": "Encodes, decodes and compares the owner-qualified chat keys that Delta files are stored under.",
-  "scripts/browser-stage9.py": "Optional synthetic browser checks of the local UI modules using Playwright and an in-memory host.",
-  "scripts/measure-prompts.mjs": "Builds Delta's scanner, profile, injection and narration prompts for fixed scenes and checks their sizes, without provider calls.",
-  "scripts/package.mjs": "Runs package.py with a Python it finds, to produce and verify the installable package.",
-  "scripts/package.py": "Produces and verifies a deterministic runtime-only installable package of Delta.",
-  "scripts/validate.mjs": "Validates Delta's manifest, module list and source files for the package check."
+  "style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules."
 }

@@ -2,14 +2,14 @@
 // Before: the Re-read counted its blocks on from the fight's own ordinals, so the write id changed on each Re-read (same length, a new id). Unedited, grown, shrunk, swipe and back, reload.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
-import { CORE_FEATURE } from '../../packages/story-block/src/v2/features.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '../../packages/story-block/src/v2/lean-rpg/rules.js';
-import { readSheet } from '../../packages/story-block/src/v2/lean-rpg/read.js';
-import { discardBoard, openBoard, stageExchange } from '../../packages/story-block/tests/v2/helpers/board-port.js';
-import { seedCrypto } from '../../packages/story-block/tests/v2/qa/helpers/seeded.js';
-import { createModule } from '../../packages/story-director/src/v2/module.js';
+import { createHost } from '../../testkit/index.js';
+import { CORE_FEATURE } from '../../core/features.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../modules/rpg/templates.js';
+import { STANDARD_FORMULA } from '../../modules/rpg/rules.js';
+import { readSheet } from '../../modules/rpg/read.js';
+import { discardBoard, openBoard, stageExchange } from '../core/helpers/board-port.js';
+import { seedCrypto } from './qa/helpers/seeded.js';
+import { createModule } from '../../ui/legacy/director/module.js';
 
 const STORY = 'Done.\n<Changes>\n~ time June 3, 1200, 08:00 am\n+ hook Lost Letter — Orsa lost a letter | giver: Orsa | goal: Find the letter\n</Changes>';
 

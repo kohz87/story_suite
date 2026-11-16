@@ -4,10 +4,11 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { unrunTests } from '../../scripts/checks/package-test-globs.mjs';
+import { unrunRootTests, unrunTests } from '../../scripts/checks/package-test-globs.mjs';
 
 const repo = path.resolve(import.meta.dirname, '../..');
-const nsdScript = JSON.parse(fs.readFileSync(path.join(repo, 'packages/npc-state-delta/package.json'), 'utf8')).scripts.test;
+// The shape of NPC State's old package test script (its package.json is gone): an unquoted shell glob and one nested level.
+const nsdScript = 'node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test tests/*.test.js tests/v2/break/*.test.js';
 
 function pkg(script, files) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ptg-'));
@@ -20,7 +21,7 @@ function pkg(script, files) {
 }
 
 test('every real package runs all of its test files', () => {
-  for (const name of fs.readdirSync(path.join(repo, 'packages'))) {
+  for (const name of (fs.existsSync(path.join(repo, 'packages')) ? fs.readdirSync(path.join(repo, 'packages')) : []).filter(one => fs.existsSync(path.join(repo, 'packages', one, 'package.json')))) {
     assert.deepEqual(unrunTests(path.join(repo, 'packages', name)), [], name);
   }
 });
@@ -95,4 +96,20 @@ test('Node options between --test and the paths, and option values, are skipped'
   try {
     assert.deepEqual(unrunTests(dir, 'p'), ["p/tests/v2/b.test.js is not run by the package's npm test"]);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the real root runs every test file under tests/ and examples/*/tests through a root script', () => {
+  assert.deepEqual(unrunRootTests(repo), []);
+});
+
+test('a root test file no root script or suite glob matches is named; one under a matched folder is not', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ptg-rootpkg-'));
+  try {
+    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ scripts: { 'test:core': 'node --test "tests/core/**/*.test.js"', check: 'node --test "tests/orphan/*.test.js"' } }));
+    for (const rel of ['tests/core/a.test.js', 'tests/core/deep/b.test.js', 'tests/orphan/c.test.js', 'tests/other/d.test.js']) {
+      fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
+      fs.writeFileSync(path.join(root, rel), '\n');
+    }
+    assert.deepEqual(unrunRootTests(root), ['tests/orphan/c.test.js is not run by any root test script', 'tests/other/d.test.js is not run by any root test script']);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });

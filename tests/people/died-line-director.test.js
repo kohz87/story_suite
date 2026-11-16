@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { peopleRig } from './helpers/people-rig.js';
-import { nsdVerdicts } from '../../packages/story-director/src/v2/keypeople/nsd.js';
+import { nsdVerdicts } from '../../modules/cast/keypeople/nsd.js';
 
 const LETHAL = 'The blade fell.\n\n<Changes>\n~ npc MIRA | died | how: struck down at the gate\n</Changes>';
 const settle = () => new Promise(resolve => setTimeout(resolve, 60));

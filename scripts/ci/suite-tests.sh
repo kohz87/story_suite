@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Runs Story Block's whole test suite with the sibling packages present (so its cross-package tests run
-# instead of skipping), plus every root tests/suite/**/*.test.js. The siblings are the three workspace
-# packages symlinked under a temporary directory with their legacy names.
+# Runs the Story Block test folders with the sibling folders present (so the cross-package tests run instead of
+# skipping), plus tests/suite and tests/people. The siblings are linked under a temporary directory with their legacy names.
 set -euo pipefail
 
 # SUITE_SHARD=i/N runs only shard i of N (node --test-shard: every test file runs in exactly one shard). A shard
@@ -17,7 +16,7 @@ fi
 
 # Raise the floor when tests are added. A lower "# tests" count means test-level results were not
 # reported or tests were lost.
-MIN_TESTS=5850
+MIN_TESTS=7380
 # The only TODO tests allowed, by exact test name (like the skip reasons). Any other TODO fails the job.
 ALLOWED_TODOS=(
   "C4-2 (open): no chat file is made again under the old name by a save already on its way (needs the server to refuse a save of a renamed chat, or the page to delete that copy)"
@@ -33,6 +32,13 @@ BROWSER_SKIPS=(
   "Install the optional browser package to run the rendered"
   "Browser unavailable:"
 )
+# A skip allowed only outside CI: the previous-build test needs the whole git history (CI checks it out, and there the test fails instead).
+LOCAL_SKIPS=(
+  "the previous build is not in this checkout (needs the full git history)"
+)
+if [ "${CI:-}" != "true" ]; then
+  ALLOWED_SKIPS+=("${LOCAL_SKIPS[@]}")
+fi
 browser_installed() {
   node -e "import('playwright').then(m => process.exit(require('fs').existsSync(m.chromium.executablePath()) ? 0 : 1), () => process.exit(1))" 2>/dev/null
 }
@@ -42,33 +48,23 @@ fi
 
 repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
-# One test looks only for a sibling folder "../../../../Story_director" (packages/Story_director here) and
-# ignores STORY_SUITE_ROOT; B1 must not edit package files, so a temporary symlink stands in for it.
-layout_json="$repo_root/scripts/layout.json"
-farm="$(node -e "const l = JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')); for (const f of l.suiteFarm) console.log(f.link, f.dir)" "$layout_json")"
-legacy_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_director" { print $2 }')"
-legacy_link="$repo_root/$(dirname "$legacy_dir")/Story_director"
-made_link=0
-if [ ! -e "$legacy_link" ]; then ln -s "$(basename "$legacy_dir")" "$legacy_link"; made_link=1; fi
-trap 'rm -rf "$tmpdir"; if [ "$made_link" = 1 ]; then rm -f "$legacy_link"; fi' EXIT
+trap 'rm -rf "$tmpdir"' EXIT
 
+# The sibling folders some tests look in (Story_block, Story_director, npc_state_delta under STORY_SUITE_ROOT) come
+# from scripts/layout.json (suiteFarm), built by scripts/ci/farm.mjs.
 suite_root="$tmpdir/suite"
 mkdir -p "$suite_root"
-# The links and their folders come from scripts/layout.json (suiteFarm).
-while IFS=' ' read -r link dir; do
-  ln -s "$repo_root/$dir" "$suite_root/$link"
-done <<< "$farm"
+node "$repo_root/scripts/ci/farm.mjs" "$repo_root" "$suite_root" > /dev/null
 
 tap_file="$tmpdir/suite.tap"
-block_dir="$(printf '%s\n' "$farm" | awk '$1 == "Story_block" { print $2 }')"
-cd "$repo_root/$block_dir"
+cd "$repo_root"
 export STORY_SUITE_ROOT="$suite_root"
 export NPC_STATE_DELTA_PATH="$suite_root/npc_state_delta"
-export NODE_OPTIONS="--max-old-space-size=4096 ${NODE_OPTIONS:-}"
+# the NPC State tests in tests/people need the synthetic host's setup (module hook for the host imports, old file names)
+export NODE_OPTIONS="--max-old-space-size=4096 --import ./tests/people/active-runtime-test-setup.mjs ${NODE_OPTIONS:-}"
 
-# The same globs as Story Block's npm test, plus the root suite tests.
-globs=("tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js")
-if [ -d "$repo_root/tests/suite" ]; then globs+=("$repo_root/tests/suite/**/*.test.js"); fi
+# The same folders as npm run test:sb, plus the cross-package tests (tests/suite, tests/people) that need the siblings present.
+globs=("tests/modules/**/*.test.js" "tests/packs/**/*.test.js" "tests/matrix/**/*.test.js" "tests/bench/*.test.js" "tests/authoring-kit/*.test.js" "examples/fishing/tests/*.test.js" "tests/suite/**/*.test.js" "tests/people/**/*.test.js")
 
 set +e
 # --test-timeout fails a hung test after 15 minutes instead of holding the job (the job has its own timeout too).

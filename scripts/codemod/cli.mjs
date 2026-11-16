@@ -3,29 +3,16 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { loadRules, matchPath, ruleKey } from './rules.mjs';
+import { AREAS, DEFAULT_RULES_DIR, loadLayoutRules } from './load-layout-rules.mjs';
 import { buildPlan, planProblems } from './plan.mjs';
 import { planForArea } from './area.mjs';
 import { loadKnownProblems, splitKnown } from './known.mjs';
-
 import { runApply, runPort, runVerify } from './area-commands.mjs';
 
-const AREAS = ['core', 'director', 'legacy-ui', 'packs', 'people', 'rpg', 'scene-inventory', 'shared'];
+export { loadLayoutRules };
+
 const DEFAULT_ALLOW = 'docs/merge/layout-nonliteral.txt';
 const DEFAULT_KNOWN_APPLY = 'docs/merge/layout-known-apply.txt';
-const DEFAULT_RULES_DIR = path.join(import.meta.dirname, 'layout');
-
-/** Reads every `*.rules.json` in `rulesDir`, sorted by area, and refuses a folder that lacks one of the eight areas. */
-export function loadLayoutRules(rulesDir = DEFAULT_RULES_DIR) {
-  const sets = fs.readdirSync(rulesDir)
-    .filter(name => name.endsWith('.rules.json'))
-    .sort()
-    .map(name => loadRules(path.join(rulesDir, name)));
-  const areas = sets.map(set => set.area).sort();
-  if (JSON.stringify(areas) !== JSON.stringify([...AREAS].sort())) {
-    throw new Error(`layout rule files must cover exactly: ${AREAS.join(', ')} (found: ${areas.join(', ') || 'none'})`);
-  }
-  return sets;
-}
 
 /** Lists tracked files with `git ls-files -z`. A sandbox that reports EPERM after a successful git run still gives stdout. */
 export function listTracked(root) {

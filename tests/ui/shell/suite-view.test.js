@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 import { createSuiteView } from '../../../ui/shell/suite-view.js';
 import { createBackStack } from '../../../ui/runtime/back-stack.js';
 import { GLASS_LIGHT } from '../../../ui/theme/tokens.js';

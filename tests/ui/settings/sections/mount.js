@@ -1,5 +1,5 @@
 // Test helper: opens the Settings overlay with the section hook and returns one section page as the user would see it.
-import { installFakeDom } from '../../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
 import { buildSettings } from '../../../../ui/fixtures/settings.js';
 import { renderSettingsSection } from '../../../../ui/settings/sections/index.js';
 import { createSettingsOverlay } from '../../../../ui/settings/overlay.js';

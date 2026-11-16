@@ -2,7 +2,7 @@
 // bound, so the sidecar is given back instead of being held for the whole session.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createStorySuiteV2Adapter } from '../../packages/npc-state-delta/src/storysuite-v2.js';
+import { createStorySuiteV2Adapter } from '../../modules/people/storysuite-v2.js';
 
 test('a host whose ready never settles: pending first, refused once the bound passes', async t => {
     t.mock.method(console, 'warn', () => {});

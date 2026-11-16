@@ -1,0 +1,10 @@
+# Moved legacy files that keep more than 4 exports because they left packages/ over the limit.
+# Format: <repo-relative path>, one per line.
+# This list may only shrink (CI compares it with the base): split a file, then remove its line. Never add a line for new code.
+modules/scene/constants-parts/you.js
+testkit/fake-st.js
+modules/people/core/core-prompts.js
+modules/people/core/core.js
+modules/people/storage/storage.js
+modules/people/storysuite-v2.js
+modules/people/view.js

@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { loadSuite, suiteHost } from '../../packages/story-block/tests/v2/break/helpers/suite.js';
+import { loadSuite, suiteHost } from './break/helpers/suite.js';
 import { NSD_STATIC_KEY, nsdStaticWriter, withNsdSwitch } from './nsd-static-part.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

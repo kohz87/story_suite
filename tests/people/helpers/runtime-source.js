@@ -1,0 +1,66 @@
+// Source text of the runtime controller together with the parts split out of index.js, for tests that pin source text.
+// Each part's text is placed in index.js right where its code used to stand (before the marker line named here), so that
+// assertions which look from one function to a later one (a span, an order, "nothing after it matches") still see the
+// code in its old order. A part may be made of several split files (`files`), concatenated in that order. The text of
+// every file is unchanged. A part that moves or a marker that goes missing fails loudly; add an entry when more code
+// moves out of index.js.
+import fs from 'node:fs';
+import { oldSource } from './old-source.js';
+
+
+export const RUNTIME_SOURCE_PARTS = [
+    { files: ['runtime-settings-parts/portrait-preset-constants.js', 'runtime-settings-parts/portrait-preset-library.js', 'runtime-settings-parts/portrait-preset-names.js', 'runtime-settings-parts/defaults.js', 'runtime-settings-parts/save-timing.js', 'runtime-settings-parts/save.js', 'runtime-settings-parts/settings-values.js', 'runtime-settings-parts/custom-fields.js', 'runtime-settings-parts/get-settings.js'], before: 'const { getChatKey,' },
+    { file: 'runtime-chat-keys.js', before: 'const { getChatKey,' },
+    { files: ['runtime-scan-helpers-parts/replay-state.js', 'runtime-scan-helpers-parts/replay-reads.js', 'runtime-scan-helpers-parts/scoped-adapter.js', 'runtime-scan-helpers-parts/scan-indicators.js', 'runtime-scan-helpers-parts/state-rules.js', 'runtime-scan-helpers-parts/value-rules.js', 'runtime-scan-helpers-parts/chat-positions.js', 'runtime-scan-helpers-parts/scan-results.js'], before: 'const { getChatKey,' },
+    { file: 'runtime-hydration-state.js', before: 'const { freshChatState,' },
+    { file: 'runtime-hydration-freshness.js', before: 'const { freshChatState,' },
+    { file: 'runtime-hydration-load.js', before: 'const { freshChatState,' },
+    { file: 'runtime-hydration.js', before: 'const { freshChatState,' },
+    { file: 'runtime-persist.js', before: 'const { queueStateFileWrite,' },
+    { file: 'runtime-branch.js', before: 'const { commitBranchCheckpoint,' },
+    { file: 'runtime-scan-ops.js', before: 'const { recordScanDiagnostics,' },
+    { file: 'runtime-reconcile.js', before: 'const { queueSettledSwipeReconcile,' },
+    { file: 'runtime-lifecycle.js', before: 'const { retryCurrentChatHydration,' },
+    { file: 'runtime-lifecycle-delete.js', before: '    const { removeDeletedChatState } = createLifecycleDelete' },
+    { file: 'runtime-targeted-scope.js', before: 'const { prepareCanonicalScanBase,' },
+    { file: 'runtime-targeted.js', before: 'const { prepareCanonicalScanBase,' },
+    { file: 'runtime-targeted-refresh.js', before: 'const { prepareCanonicalScanBase,' },
+    { file: 'runtime-targeted-backfill.js', before: 'const { prepareCanonicalScanBase,' },
+    { file: 'runtime-scan-backfill.js', before: 'const { scanNowInner,' },
+    { file: 'runtime-scan-stale.js', before: 'const { scanNowInner,' },
+    { file: 'runtime-scan-reply.js', before: 'const { scanNowInner,' },
+    { files: ['runtime-scan-parts/capture-result.js', 'runtime-scan.js'], before: 'const { scanNowInner,' },
+    { file: 'runtime-scan-handler.js', before: '    return { scanNowInner, handleAssistantMessageReceivedInner };' },
+    { file: 'runtime-settings-html.js', before: 'const { eventTargetClosest' },
+    { file: 'runtime-entry-ui-events.js', before: 'const { eventTargetClosest' },
+    { files: ['runtime-hosted-parts/target-notes.js', 'runtime-hosted-parts/tastes.js', 'runtime-hosted.js'], before: 'const { storyBlockV2Hosted' },
+    { file: 'runtime-injection.js', before: 'const { liveInjectionText,' },
+    { files: ['runtime-narration-parts/capture-journal.js', 'runtime-narration-parts/capture-text.js', 'runtime-narration-parts/narration-part.js'], before: 'const { narrationCaptureStats,' },
+    { files: ['runtime-inline-cards-state.js', 'runtime-inline-cards-present.js', 'runtime-inline-cards-mode.js', 'runtime-inline-cards-megumin.js', 'runtime-inline-cards-mount.js'], before: 'const { recordInlineCardsInState' },
+    { file: 'runtime-editor.js', before: 'const { editorIsMounted' },
+    { file: 'runtime-editor-save.js', before: '    const { saveNpcEditor } = createEditorSave' },
+    { file: 'runtime-cast-sync.js', before: 'const { castPortraitDue' },
+    { file: 'runtime-mutations.js', before: 'const { updateNpcAppearance' },
+    { file: 'runtime-portrait.js', before: 'const { handlePortraitGeneratorEscape' },
+    { file: 'runtime-suite.js', before: 'const { SUITE_API' },
+    { file: 'runtime-portrait-settings.js', before: 'const { savePortraitSettingsDraft' },
+    { file: 'runtime-settings-bind.js', before: 'const { bindUi,' },
+    { file: 'runtime-entry-events.js', before: 'const registerEvents =' },
+    { file: 'runtime-entry-card-settings.js', before: 'const nsdCardSettings =' },
+    { file: 'runtime-entry-startup.js', before: '$(safeInit);' },
+    { file: 'runtime-entry-public-read.js', before: 'window.NPCStateDelta = Object.freeze({ ...publicReadApi' },
+    { file: 'runtime-entry-public-write.js', before: 'window.NPCStateDelta = Object.freeze({ ...publicReadApi' },
+];
+
+const read = file => oldSource(file);
+
+export function runtimeSource() {
+    let source = read('index.js');
+    for (const { file, files, before } of RUNTIME_SOURCE_PARTS) {
+        const parts = files || [file];
+        const at = source.search(new RegExp(`^${before.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'm'));
+        if (at < 0) throw new Error(`runtime-source: marker "${before}" not found in index.js for ${parts.join(', ')}`);
+        source = `${source.slice(0, at)}${parts.map(read).join('\n')}\n${source.slice(at)}`;
+    }
+    return source;
+}

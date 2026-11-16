@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { peopleRig } from './helpers/people-rig.js';
-import { mergeScanResult, normalizeNpcRecord } from '../../packages/npc-state-delta/core.js';
+import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { selectDossier } from '../../ui/select/dossier.js';
 
 const settle = () => new Promise(resolve => setTimeout(resolve, 60));

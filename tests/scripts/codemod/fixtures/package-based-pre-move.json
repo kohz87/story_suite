@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "from": "packages/story-block/src/v2/store",
+      "to": "core/store",
+      "stem": true
+    },
+    {
+      "from": "packages/story-block/tests/helpers",
+      "to": "tests/helpers"
+    },
+    {
+      "from": "packages/story-block/tests/other",
+      "to": "tests/other"
+    }
+  ],
+  "files": {
+    "packages/story-block/src/v2/store.js": "export const s = 1;\n",
+    "packages/story-block/tests/other/x.js": "export const f = 'src/v2/store.js';\n",
+    "packages/story-block/tests/helpers/split-source.js": "export const f = 'src/v2/store.js';\n"
+  }
+}

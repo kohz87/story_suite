@@ -59,7 +59,7 @@ function loadedSuite() {
       linked.symlinkSync(path.join(REPO_ROOT, 'packages', dir), path.join(tmpRoot, link));
     }
     process.env.STORY_SUITE_ROOT = tmpRoot;
-    const { loadSuite, suiteHost } = await import(pathToFileURL(path.join(REPO_ROOT, 'packages/story-block/tests/v2/break/helpers/suite.js')).href);
+    const { loadSuite, suiteHost } = await import(pathToFileURL(path.join(REPO_ROOT, 'tests/suite/break/helpers/suite.js')).href);
     const loaded = await loadSuite();
     return loaded.skip ? { skip: loaded.skip } : { suite: { ...loaded, suiteHost, pageHost: pageSuiteHost } };
   })();

@@ -9,12 +9,9 @@ import { git, toyRepo } from '../codemod-toy.js';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const rules = parseRules({ area: 'p', scope: ['packages/story-block'], rules: [
-  { from: 'packages/story-block/src/v2/store', to: 'core/store', stem: true },
-  { from: 'packages/story-block/tests/helpers', to: 'tests/helpers' },
-  { from: 'packages/story-block/tests/other', to: 'tests/other' },
-] });
-const files = new Set(['packages/story-block/src/v2/store.js', 'packages/story-block/tests/helpers/split-source.js', 'packages/story-block/tests/other/x.js']);
+const fixture = JSON.parse(fs.readFileSync(new URL('./fixtures/package-based-pre-move.json', import.meta.url), 'utf8'));
+const rules = parseRules({ area: 'p', scope: ['packages/story-block'], rules: fixture.rules });
+const files = new Set(Object.keys(fixture.files));
 const mapper = makeMapper(buildPlan([...files], [rules]), [rules]);
 const run = (oldFile, newFile) => rewriteStrings("export const f = 'src/v2/store.js';\n", { oldFile, newFile, files, mapper });
 
@@ -30,11 +27,7 @@ test('any other file that leaves its package lists the string as stale and leave
   assert.deepEqual(out.stale, ['src/v2/store.js']);
 });
 
-const PKG_FILES = {
-  'packages/story-block/src/v2/store.js': 'export const s = 1;\n',
-  'packages/story-block/tests/other/x.js': "export const f = 'src/v2/store.js';\n",
-  'packages/story-block/tests/helpers/split-source.js': "export const f = 'src/v2/store.js';\n",
-};
+const PKG_FILES = fixture.files;
 
 // Applies the rules, then commits `text` over the moved file as a hand edit and returns verify's mapped-path problems.
 function editedProblems(moved, text) {

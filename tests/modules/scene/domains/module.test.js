@@ -1,0 +1,223 @@
+// The core module definition (§6): shape, queries, the static line and the tail view with its
+// budget split (§5).
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { CORE_BUDGET, CORE_KINDS, CORE_MODULE_ID, CORE_STATIC, createCoreModule, createCorePart } from '../../../../modules/scene/domains/index.js';
+import { currencyOf, moneyLine } from '../../../../modules/inventory/money.js';
+import { youNote } from '../../../../modules/scene/index.js';
+import { createHarness, initialState, line } from '../../inventory/helpers/fake-ctx.js';
+import { WALLET_NOTE } from '../../../../modules/inventory/index.js';
+import { CROWNS, core, def, stack, stocked } from '../../inventory/fixtures.js';
+
+const view = state => ({ state, query: () => null, settings: {}, chat: { length: 1, lastUser: '' } });
+
+test('the definition has the §6 shape (core, packs, events and assist parts merged)', () => {
+    const module = createCoreModule();
+    assert.equal(module.id, CORE_MODULE_ID);
+    assert.deepEqual(Object.keys(module.domains), ['scene', 'inventory', 'dataModules', 'people']);
+    assert.equal(module.domains.dataModules.deferred, true);
+    assert.deepEqual(Object.keys(module.commands).sort(), [
+        'assist.precheck', 'dm.act', 'dm.attach', 'dm.bench', 'dm.capture', 'dm.define', 'dm.join', 'dm.migrate', 'dm.pin', 'dm.redefine', 'dm.remove', 'dm.set', 'dm.settle', 'dm.tick', 'events.fire', 'gear.wear', 'interaction.settle', 'inventory.add', 'inventory.carry', 'inventory.consume', 'inventory.drop', 'inventory.edit', 'inventory.equip', 'inventory.grant', 'inventory.lootTake',
+        'inventory.merge', 'inventory.release', 'inventory.repair', 'inventory.restore', 'inventory.split', 'inventory.stow', 'inventory.transfer', 'inventory.unequip', 'inventory.wear', 'item.equip', 'mounts.edit', 'people.bonds', 'people.died', 'people.edit', 'people.fields', 'people.follow', 'people.memory', 'people.portrait.set', 'people.stub', 'people.write', 'rpg.board.award', 'rpg.board.clearFoes', 'rpg.board.hurts', 'rpg.board.openFoes', 'rpg.boardSkill', 'rpg.boardSkillCarry', 'rpg.check', 'rpg.dice', 'rpg.fight', 'rpg.joinNo', 'rpg.noroll', 'rpg.practice', 'rpg.resolve', 'rpg.useItem', 'savepoint.make', 'savepoint.restore', 'scene.place', 'scene.present', 'scene.weather', 'scene.you', 'wallet.pay', 'wallet.receive', 'wallet.set',
+    ]);
+    assert.deepEqual(Object.keys(module.queries).sort(), ['assist.status', 'chatter.head', 'dataModules.actors', 'dataModules.offers', 'dataModules.presentation', 'dataModules.public', 'dataModules.replayInputs', 'dataModules.setup', 'dataModules.view', 'events.replayState', 'events.status', 'gear.carry', 'gear.view', 'interaction.view', 'inventory.condition', 'inventory.counts', 'inventory.currency', 'inventory.definitions', 'inventory.economy', 'inventory.encumbrance', 'inventory.equipment', 'inventory.find', 'inventory.gear', 'inventory.items', 'inventory.legendEarned', 'inventory.loot', 'inventory.statBonus', 'inventory.storyBudget', 'inventory.wallet', 'items.useOn', 'mounts.list', 'mounts.pace', 'packs.calendar', 'packs.castGear',
+        'packs.content', 'packs.crafts', 'packs.economy', 'packs.item', 'packs.itemDefs', 'packs.list', 'packs.markets', 'packs.portrait', 'packs.rippleChoice', 'packs.ripples', 'packs.start', 'packs.weather', 'packs.youRank', 'party.actors', 'party.levels', 'party.pc', 'people.dossier', 'people.hash', 'people.list', 'people.secretOwners', 'people.ties', 'rpg.foesTouched', 'rpg.joins', 'rpg.rank', 'rpg.rolls', 'savepoint.contract', 'savepoint.list', 'scene.chatter', 'scene.moved', 'scene.place', 'scene.present', 'scene.weather', 'scene.you', 'story.evidence', 'timeline.referenced']);
+    assert.deepEqual(Object.keys(module.hooks).sort(), ['afterCapture', 'afterReceive', 'afterReply', 'beforeGenerate', 'canGenerate', 'item.resolve', 'replayGuard', 'start']);
+    assert.equal(typeof module.settings.render, 'function', 'the Packs and Events panels');
+    assert.deepEqual(Object.keys(module.capture.kinds), ['item', 'coin', 'place', 'present', 'weather', 'you', 'mount', 'loot', 'choice', 'chatter', 'dm', 'party', 'roll']);
+    // Choices and Inner chatter are display kinds under their features (MODULES §F115): no command runs for them.
+    assert.deepEqual(['choice', 'chatter'].map(kind => [module.capture.kinds[kind].feature, Boolean(module.capture.kinds[kind].display)]), [['story-block.choices', true], ['story-block.chatter', true]]);
+    assert.equal(module.capture.kinds.loot.feature, 'story-block.loot');
+    assert.equal(module.commands['inventory.lootTake'].feature, 'story-block.loot');
+    assert.equal(module.queries['inventory.encumbrance'].feature, 'story-block.encumbrance');
+    assert.equal(module.queries['chatter.head'].feature, 'story-block.chatter', 'Inner chatter\'s query, null while it is off');
+    assert.equal(module.queries['scene.chatter'].feature, 'story-block.chatter', 'the Scene screen\'s chatter, null while it is off');
+    // The weather (MODULES §F120): a kind and a query under its feature, on by default.
+    assert.equal(module.capture.kinds.weather.feature, 'story-block.weather');
+    assert.equal(module.queries['scene.weather'].feature, 'story-block.weather');
+    assert.deepEqual(module.domains.scene.scratch, ['weather', 'you', 'mounts']);
+    // Your look (MODULES §F126): a kind, a command and a query under its feature, on by default.
+    assert.equal(module.capture.kinds.you.feature, 'story-block.you');
+    assert.equal(module.commands['scene.you'].feature, 'story-block.you');
+    assert.equal(module.queries['scene.you'].feature, 'story-block.you');
+    // The mounts: a kind, two queries and the pencil's command under their feature, on by default.
+    assert.equal(module.capture.kinds.mount.feature, 'story-block.mounts');
+    for (const name of ['mounts.list', 'mounts.pace']) assert.equal(module.queries[name].feature, 'story-block.mounts', name);
+    assert.equal(module.commands['mounts.edit'].feature, 'story-block.mounts');
+    for (const kind of Object.values(CORE_KINDS)) assert.ok(kind.grammar && !kind.grammar.includes('\n'));
+    assert.equal(module.context.budget, CORE_BUDGET);
+    assert.deepEqual(module.tabs.map(tab => tab.id), [], 'the default screens replace the code tabs');
+    assert.deepEqual(module.screens.map(screen => screen.id), ['story-block/home', 'story-block/inventory', 'story-block/scene', 'story-block/changes-card', 'story-block/inspector']);
+    assert.deepEqual(module.settings.defaults, { currency: 'gold', currencyPlural: '', currencyShort: '', economyScale: '0', coins: [], coinDisplay: 'mixed', chatterInPrompt: false, chatterMax: 3, assistClassifier: false, assistExtractor: false, assistProfile: '', assistExtractorProfile: '', assistExtractorKinds: '! time, ~ time, ~ place, + present, - present, ~ weather, ~ quest, - quest, ~ wound, - item', rpgRolls: 'automatic', rpgPracticePerUse: 3, rpgXpRate: 100, rpgLevelCap: 99, rpgAutoCap: 3, rpgChecks: true, rpgPrecheck: true });
+    assert.deepEqual(Object.keys(module.settings.schema), ['currency', 'currencyPlural', 'currencyShort', 'economyScale', 'coins', 'coinDisplay', 'chatterInPrompt', 'chatterMax', 'assistProfile', 'assistExtractorProfile', 'assistExtractorKinds', 'rpgLevelCap', 'rpgAutoCap', 'rpgPrecheck', 'rpgChecks']);
+    assert.deepEqual(module.features.map(feature => [feature.id, feature.default]), [
+        ['story-block.hud', true], ['story-block.cards', true], ['story-block.preroll', false], ['story-block.extractor', false],
+        ['story-block.inspector', false], ['story-block.savepoints', true], ['story-block.choices', false], ['story-block.chatter', false],
+        ['story-block.weather', true], ['story-block.you', true], ['story-block.mounts', true], ['story-block.rpg', false], ['story-block.fight-board', true], ['story-block.loot', true], ['story-block.encumbrance', true], ['story-block.gear', false],
+    ]);
+    assert.doesNotThrow(() => JSON.stringify(initialState([module])));
+    assert.doesNotThrow(() => createCoreModule({ hooks: () => 'not a list' }).context.tail(view(initialState([module]))));
+});
+
+test('static() is byte-identical whatever the state', () => {
+    const module = core({}, CROWNS);
+    const a = module.context.static();
+    const h = createHarness([module], { state: stocked(module) });
+    h.capture(line('+', 'item', 'Moonveil Trout'));
+    assert.equal(module.context.static(), a);
+    // The money line (money.js moneyLine) names the chat's currency; it is the only addition to CORE_STATIC.
+    assert.equal(a, `${CORE_STATIC}\n${moneyLine(currencyOf(CROWNS))}`);
+    assert.match(a, /\nMoney in this story is crowns \(short: cr\)\. Name amounts in crowns in narration/);
+    assert.ok(!/\d/.test(a.replace('(+ coin 35)', '')), 'no numbers but the example coin line');
+});
+
+test('scene commands', () => {
+    const module = core();
+    const h = createHarness([module]);
+    const placed = h.run('scene.place', { name: 'Bluewatch', kind: 'settlement' });
+    assert.equal(placed.ok, true, placed.message);
+    assert.equal(placed.result.narrate, true);
+    const present = h.run('scene.present', { add: ['Fenna', 'Tam'], remove: [] });
+    assert.deepEqual(present.result.data.present, ['Fenna', 'Tam']);
+    const both = h.run('scene.present', { add: 'Ivo', remove: 'Tam' });
+    assert.equal(both.result.summary, 'Ivo is here; Tam leaves.');
+    const none = h.run('scene.present', {});
+    assert.equal(none.result.narrate, false);
+    // A move leaves behind whoever is not named in `with` (Fenna); Ivo comes along.
+    const moved = h.run('scene.place', { name: 'The Weir', with: ['Ivo'] });
+    assert.equal(moved.ok, true, moved.message);
+    assert.deepEqual(moved.result.data.left, ['Fenna']);
+    assert.deepEqual(h.state.domains.scene.present, ['Ivo']);
+    for (const [type, payload, code] of [
+        ['scene.place', {}, 'INVALID'], ['scene.place', { name: 5 }, 'INVALID'], ['scene.place', { name: 'A', kind: 3 }, 'INVALID'],
+        ['scene.place', { name: 'A', with: [3] }, 'INVALID'],
+        ['scene.present', { remove: 'Nobody' }, 'NOT_FOUND'], ['scene.present', { add: [''] }, 'INVALID'],
+        ['scene.present', { add: ['x'.repeat(81)] }, 'INVALID'], ['scene.present', { remove: [3] }, 'INVALID'],
+    ]) {
+        const before = h.state;
+        assert.equal(h.run(type, payload).code, code, `${type} ${JSON.stringify(payload)}`);
+        assert.equal(h.state, before);
+    }
+});
+
+test('queries return plain copies', () => {
+    const module = core();
+    const state = stocked(module);
+    state.domains.scene = { place: { name: 'Bluewatch', kind: '', region: '' }, present: ['Fenna'] };
+    const h = createHarness([module], { state });
+    const items = h.query('inventory.items', {});
+    assert.equal(items.length, 6);
+    assert.deepEqual(items.map(item => item.stack), ['it_dagg0001', 'it_sword001', 'it_pota0001', 'it_potb0001', 'it_lant0001', 'it_rope0001'],
+        'equipment before consumables and goods; then by name');
+    assert.deepEqual(items[1], {
+        stack: 'it_sword001', def: 'pack.fantasy/iron-sword', name: 'Iron Sword', kind: 'equipment', rarity: 'uncommon', value: 50,
+        slot: 'hand', qty: 1, owner: 'party', equipped: null, note: '', from: '',
+    });
+    assert.deepEqual(h.query('inventory.items', { owner: 'ac_ren00001' }), []);
+    assert.deepEqual(h.query('inventory.wallet', {}), { coin: 125 });
+    assert.deepEqual(h.query('inventory.wallet', { owner: 'ac_ren00001' }), {});
+    const found = h.query('inventory.find', { name: 'minor healing draughts' });
+    assert.equal(found.status, 'found');
+    assert.equal(found.defs[0].id, 'pack.fantasy/potion');
+    assert.deepEqual(found.stacks.map(item => item.stack), ['it_pota0001', 'it_potb0001']);
+    assert.deepEqual(h.query('inventory.find', { name: 'Golden Idol' }), { status: 'none', defs: [], stacks: [] });
+    const place = h.query('scene.place');
+    place.name = 'changed';
+    assert.equal(h.state.domains.scene.place.name, 'Bluewatch', 'a copy, not the state');
+    assert.deepEqual(h.query('scene.present'), ['Fenna']);
+    assert.deepEqual(module.queries['scene.place'](undefined), { name: '', kind: '', region: '' });
+    assert.deepEqual(h.query('inventory.currency'), { name: 'gold', plural: 'gold', short: 'g' });
+    assert.deepEqual(core({}, CROWNS).queries['inventory.currency'](state, {}), { name: 'crowns', plural: 'crowns', short: 'cr' });
+});
+
+test('a handler can use the core queries through ctx.query, drafts included', () => {
+    const module = core();
+    const reader = {
+        id: 'reader',
+        domains: {},
+        commands: {
+            'x.count'(ctx) {
+                ctx.call('inventory.drop', { stack: 'it_rope0001' });
+                return { summary: '', data: { lots: ctx.query('inventory.items', {}).length, wallet: ctx.query('inventory.wallet', {}) } };
+            },
+        },
+    };
+    const h = createHarness([module, reader], { state: stocked(module) });
+    assert.deepEqual(h.run('x.count', {}).result.data, { lots: 5, wallet: { coin: 125 } });
+});
+
+test('createCorePart gives the same pieces in the MODULES.md part shape', () => {
+    const part = createCorePart({ hooks: () => [] });
+    const module = createCoreModule();
+    // (The display kinds, Choices and Inner chatter, run no command, so the part has no handler for them.)
+    assert.deepEqual(Object.keys(part.kinds), Object.keys(module.capture.kinds).filter(kind => kind !== 'dm' && kind !== 'party' && kind !== 'roll' && !module.capture.kinds[kind].display));
+    for (const [name, kind] of Object.entries(part.kinds)) {
+        // `you`'s line is a function: no pack here gives it a Rank, so it is the base line.
+        assert.equal(typeof kind.grammar === 'function' ? kind.grammar() : kind.grammar, CORE_KINDS[name].grammar);
+        assert.equal(typeof kind.apply, 'function');
+    }
+    assert.deepEqual(Object.keys(part.commands), Object.keys(module.commands).filter(name => !/^(events|assist|savepoint|dm|rpg|people|interaction)\./.test(name)));
+    assert.deepEqual(Object.keys(part.queries), Object.keys(module.queries).filter(name => !/^(events|packs|assist|chatter|dataModules|rpg|party|items|people|interaction)\./.test(name) && name !== 'timeline.referenced' && name !== 'scene.moved' && name !== 'scene.chatter' && name !== 'story.evidence' && !/^savepoint\./.test(name)));
+    assert.equal(part.context.budget, CORE_BUDGET);
+});
+
+test('tail: place, present, equipped, wallet and carried items with notes trimmed', () => {
+    const module = core({}, CROWNS);
+    const state = stocked(module);
+    // The look is set (wearing and condition), so no "Your look is not set yet" line is in this tail (you-first.test.js).
+    state.domains.scene = { place: { name: 'Bluewatch Village', kind: 'settlement', region: 'Lakeshire' }, present: ['Fenna', 'Old Tam'], you: { rank: '', wearing: 'a grey cloak', condition: 'rested' } };
+    const inv = state.domains.inventory;
+    inv.wallets = { party: { coin: 38 }, ac_ren00001: { coin: 5 }, ac_zed00001: { coin: 0 } };
+    inv.stacks.it_sword001.equipped = 'hand';
+    inv.stacks.it_dagg0001.owner = 'ac_ren00001';
+    inv.stacks.it_dagg0001.equipped = 'hand';
+    inv.stacks.it_rope0001.note = 'tarred hemp, sixty feet, knotted every yard for climbing the well';
+    state.domains.party = { actors: { ac_ren00001: { name: 'Ren' } } };
+    const tail = module.context.tail(view(state));
+    assert.deepEqual(tail, {
+        lines: [
+            'Place: Bluewatch Village (settlement, Lakeshire)',
+            'Present: Fenna, Old Tam',
+            '{{user}}: wears a grey cloak; condition rested',
+            'Equipped: Iron Sword [hand]',
+            'Equipped (Ren): Dagger [hand]',
+            `Wallet (${WALLET_NOTE}): 38 crowns; Ren 5 crowns`,
+            'Carried: Minor Healing Draught ×2, Minor Healing Draught (cloudy), Lantern, Rope ×3 (tarred hemp, sixty feet, knotted every…)',
+        ],
+        optional: [],
+    });
+});
+
+test('tail: an empty start says so', () => {
+    const module = core();
+    // A new chat has no look yet, so the tail also asks the narrator to set it (the note comes before the inventory lines).
+    assert.deepEqual(module.context.tail(view(initialState([module]))), { lines: [youNote(undefined), `Wallet (${WALLET_NOTE}): 0 gold`, 'Carried: nothing'], optional: [] });
+    const set = initialState([module]);
+    set.domains.scene.you = { rank: '', wearing: 'a coat', condition: 'tired' };
+    assert.deepEqual(module.context.tail(view(set)), { lines: ['{{user}}: wears a coat; condition tired', `Wallet (${WALLET_NOTE}): 0 gold`, 'Carried: nothing'], optional: [] });
+});
+
+test('tail: a long inventory overflows into optional, then into a count, within the budget', () => {
+    const module = core();
+    const state = initialState([module]);
+    state.domains.scene.you = { rank: '', wearing: 'a coat', condition: 'tired' };
+    const inv = state.domains.inventory;
+    for (let i = 0; i < 120; i += 1) {
+        const id = `story/trinket-${String(i).padStart(3, '0')}`;
+        inv.defs[id] = def(id, `Trinket ${String(i).padStart(3, '0')}`);
+        const sid = `it_t${String(i).padStart(7, '0')}`;
+        inv.stacks[sid] = stack(sid, id, 1 + (i % 3), { note: i % 2 ? 'a little chipped at one corner' : '' });
+    }
+    const tail = module.context.tail(view(state));
+    const size = list => list.reduce((sum, item) => sum + item.length + 1, 0);
+    assert.ok(size(tail.lines) <= CORE_BUDGET * 2, `required part ${size(tail.lines)} chars`);
+    assert.ok(size(tail.optional) <= CORE_BUDGET * 2 + 40, `optional part ${size(tail.optional)} chars`);
+    assert.ok(tail.lines.every(item => item.length <= 200) && tail.optional.every(item => item.length <= 200));
+    assert.match(tail.lines[2], /^Carried: Trinket 000, Trinket 001 ×2 \(a little chipped/);
+    assert.match(tail.optional[0], /^Also carried: /);
+    assert.match(tail.optional.at(-1), /^…and \d+ more items\.$/);
+    // Every trinket is either listed once or counted.
+    const listed = [...tail.lines, ...tail.optional].join(' ').match(/Trinket \d{3}/g).length;
+    const counted = Number(tail.optional.at(-1).match(/\d+/)[0]);
+    assert.equal(listed + counted, 120);
+});

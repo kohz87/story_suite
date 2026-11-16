@@ -1,0 +1,137 @@
+// What the model is told: the static rules (byte-identical whatever the state) and the Director
+// note in the tail (v1 note.js: due, relevant, checks), within the part's budget.
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+
+import { CHANGE_INSTRUCTION, PACING } from '../../../../modules/world/note.js';
+import { estimateTokens } from '../../../../modules/atlas/relevance.js';
+import { part } from '../../../../modules/time/tracker/index.js';
+import { GRAMMAR, PACING_TEXT, STATIC_TEXT, TAIL_BUDGET, staticText } from '../../../../modules/time/tracker/note.js';
+import { makeState, story } from './helpers/fake-ctx.js';
+
+const tail = (state, lastUser = '', settings = {}) => part.context.tail({ state, settings, chat: { length: 9, lastUser } });
+
+const BUSY = [
+    { lines: '~ time March 3, 2026, 08:00 am\n+ agenda Senior Listener Geva — plots | now: the court | then: files the warrant | on: March 3, 06:00 pm\n+ secret The Heir — Ren is the lost heir\n+ clock Flood — the levee breaks | due: March 9 | shown: sign' },
+    { lines: '+ hook Wolf Hunt — Kill ridge wolves | giver: Danique | reward: 4 silver | due: March 5', said: 'I take the wolf hunt.' },
+    { lines: '+ hook Herb run — moonleaf for the healer | giver: Mother Ysolde | reward: 5 copper\n! time +12h', said: 'Hello.' },
+];
+
+test('the static part is byte-identical whatever the tracker holds, and names nothing', () => {
+    const empty = part.context.static();
+    const busy = story(BUSY, makeState({ place: 'Bluewatch' }));
+    assert.equal(typeof empty, 'string');
+    assert.equal(part.context.static(), empty);
+    assert.ok(busy.domains.director.threads, 'a full tracker exists');
+    // static() takes no state, only the module set ({ fights }): the same bytes before and after the story moved.
+    assert.equal(part.context.static.length, 1);
+    // The lean diet: the rules no longer differ with a fight runner (the encounter field is in the thread grammar line, below).
+    assert.equal(part.context.static({ fights: true }), empty);
+    assert.equal(part.context.static({ fights: false }), empty);
+    assert.doesNotMatch(empty, /encounter/);
+    // The Pacing paragraph is the world-building threads feature's (the module sends it as a context part under it, right after).
+    assert.equal(empty, staticText({ threads: false }));
+    assert.equal(`${empty}\n${PACING_TEXT}`, STATIC_TEXT);
+    assert.deepEqual(part.context.inline.map(item => [item.feature, item.static()]), [['story-director.threads', PACING_TEXT]]);
+    for (const word of ['Geva', 'Wolf', 'March', 'Bluewatch', '2026']) assert.ok(!empty.includes(word), word);
+    // v1's rules, merged (the lean diet, 3 Nov), every one still there: the ops, write only changes, never act for {{user}}, the Pacing rules.
+    for (const rule of [/~ only what changed, never the whole list/, /- closes it \(— reason\)/, /! fires a due item \(— what happened\)/, /Never write or decide what \{\{user\}\} does/]) assert.match(empty, rule);
+    for (const rule of [/only where it fits/, /on-screen if \{\{user\}\} is there/, /later as news, signs or aftermath/, /never cut into or bend the scene for a beat/, /off-screen \(!\) or waits/]) assert.match(PACING_TEXT, rule);
+    assert.ok(STATIC_TEXT.length < CHANGE_INSTRUCTION.length + PACING.length, 'shorter than v1\'s instruction and Pacing');
+    assert.doesNotMatch(empty, /offer/);
+    // v1's Fields: every field is still named, now in the grammar lines (agenda carries the five thread kinds, hook the hook and quest).
+    const lines = [GRAMMAR.agenda, GRAMMAR.hook].join('\n');
+    for (const field of ['now', 'then', 'on', 'due', 'leg', 'arrive', 'shown', 'encounter', 'reach', 'type', 'giver', 'goal', 'reward', 'step', 'difficulty']) assert.match(lines, new RegExp(`\\b${field}\\b`), field);
+    // The date rule is in the rules, so it is said with the threads feature off too (not in the agenda line).
+    assert.match(empty, /Only on, due and arrive take a date, as <date, clock time>/);
+    assert.doesNotMatch(GRAMMAR.agenda, /take a date/);
+    assert.match(GRAMMAR.hook, /close it in the same reply: - quest Name/);
+});
+
+test('every thread kind has one concrete example line in the static grammar, and says when to write it (flash never wrote them)', () => {
+    const agenda = part.kinds.agenda.grammar({ fights: true });
+    const alone = part.kinds.agenda.grammar({ fights: false });
+    for (const text of [agenda, alone]) {
+        assert.match(text, /Write one whenever the story sets something moving, e\.g\./);
+        for (const kind of ['agenda', 'event', 'clock', 'beat']) assert.match(text, new RegExp(`\\+ ${kind} [A-Z][^;]* — `), kind);
+    }
+    const hook = part.kinds.hook.grammar;
+    assert.match(hook, /Write a hook when someone mentions a job, rumour or trouble \{\{user\}\} could follow, e\.g\. \+ hook Missing boatman — /);
+    assert.match(hook, /once \{\{user\}\} agrees: \+ quest Missing boatman \| reward: 20 copper/);
+    assert.match(hook, /\+ hook Missing boatman — Person A says he vanished near Place X \| giver: Person A \| goal: ask at the docks; once/);
+    assert.doesNotMatch(hook, /\S\|(Missing boatman|Pest job)/);
+    assert.equal(hook.split('Missing boatman').length, 3);
+    assert.ok(!hook.includes('Pest job'));
+    // One line each (no newline), the same bytes for every reply (no state in them), and small: about 600 characters in all.
+    assert.ok(!agenda.includes('\n') && !hook.includes('\n'));
+    assert.ok(agenda.length + hook.length < 1350, `${agenda.length + hook.length}`);
+    assert.equal(part.kinds.agenda.grammar({ fights: true }), agenda);
+    // The examples use generic placeholders (Person A / B, Place X), never a person or place of a world pack.
+    assert.match(agenda + hook, /Person A[\s\S]*Place X/);
+    assert.doesNotMatch(agenda + hook, /\b(Dara|Nell|Hanna|Pell|Temiwa|Astra)\b/);
+});
+
+test('each kind has one grammar line for the change instruction, a family on its carrier', () => {
+    assert.deepEqual(Object.keys(part.kinds), ['agenda', 'event', 'hook', 'quest', 'clock', 'beat', 'secret', 'time']);
+    // The lean diet: agenda carries agenda|event|clock|beat|secret, hook carries hook|quest; the others have no line of their own (the host leaves them out).
+    const carriers = { agenda: 'agenda|event|clock|beat|secret', hook: 'hook|quest', time: 'time' };
+    for (const [kind, entry] of Object.entries(part.kinds)) {
+        // The thread line depends on the module set (a fight runner or none, WAVE rule 11).
+        for (const fights of [true, false]) {
+            const grammar = typeof entry.grammar === 'function' ? entry.grammar({ fights }) : entry.grammar;
+            assert.equal(typeof grammar, 'string', kind);
+            assert.ok(!grammar.includes('\n'), kind);
+            if (carriers[kind]) assert.ok(grammar.includes(` ${carriers[kind]} `) || grammar.startsWith(`~ ${kind} `), kind);
+            else assert.equal(grammar, '', kind);
+        }
+        assert.equal(typeof entry.apply, 'function', kind);
+    }
+    assert.match(part.kinds.agenda.grammar({ fights: true }), /encounter \(the foes, for a fight\)/);
+    // A hook is an open thread, no job offer with a giver and a reward; + quest is written once {{user}} accepts.
+    assert.match(part.kinds.hook.grammar, /a hook is an open thread or lead \(a job only offered stays in the story; once \{\{user\}\} accepts it, \+ quest with the hook's name alone: code keeps its summary and labels, add only new ones\); a quest is a job \{\{user\}\} accepted, not an errand\. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome \(or - hook Name\)/);
+    assert.doesNotMatch(part.kinds.agenda.grammar({ fights: false }), /encounter|fight|foe/);
+});
+
+test('nothing tracked: no tail', () => {
+    assert.deepEqual(tail(makeState()), { lines: [], optional: [] });
+    assert.deepEqual(part.context.tail({ state: { domains: {} } }), { lines: [], optional: [] });
+});
+
+test('the tail: header with time and place, due now, kind lines, secrets by name, the quest checks', () => {
+    const state = story(BUSY, makeState({ place: 'Bluewatch' }));
+    const { lines, optional } = tail(state);
+    assert.deepEqual(optional, []);
+    assert.deepEqual(lines, [
+        '[Story Director · Tuesday, March 3, 2026, 08:00 pm · Bluewatch]',
+        'Due now: Senior Listener Geva — files the warrant (March 3, 06:00 pm)',
+        'Hooks: Wolf Hunt — Kill ridge wolves',
+        'Clocks: Flood — the levee breaks (March 9) · shown: sign',
+        // Not tied to Bluewatch, nobody present, not due soon: named elsewhere only (scene.js).
+        'Elsewhere, not in this scene: Herb run (hook)',
+        'Do not reveal: The Heir',
+    ]);
+    // The reader's message: a job given up, an offer taken on or turned down.
+    // v2 has no offers (#99): the check never asks the story to leave a job as one.
+    assert.ok(!tail(state, 'I accept the herb run.').lines.join('\n').includes('offer'));
+    // A quest whose step reads finished is asked about, never closed for the story.
+    const finished = story([{ lines: '~ hook Wolf Hunt | step: wolves slain, reward collected — waiting on Danique' }], state);
+    assert.equal(finished.domains.director.threads[Object.keys(finished.domains.director.threads)[1]].status, 'active');
+});
+
+test('the tail keeps within the part\'s budget by dropping the least relevant threads', () => {
+    const many = Array.from({ length: 60 }, (_, n) => `+ hook Thread number ${n} — a long description of thread ${n} that goes on and on about what it is`).join('\n');
+    const state = story([{ lines: many }]);
+    const { lines } = tail(state);
+    assert.ok(estimateTokens(lines.join('\n')) <= TAIL_BUDGET, `${estimateTokens(lines.join('\n'))} tokens`);
+    assert.ok(lines.some(line => line.startsWith('Hooks: ')));
+    assert.equal(part.context.budget, TAIL_BUDGET);
+});
+
+test('relevance follows the reader: dormant settings come from the module settings', () => {
+    const lines = Array.from({ length: 20 }, (_, n) => ({ lines: `+ event Filler ${n} — x` }));
+    const state = story([{ lines: '+ hook Old lighthouse — a light at night' }, ...lines]);
+    assert.ok(!tail(state).lines.some(line => line.includes('Old lighthouse')), 'quiet for 15 replies: dormant');
+    assert.ok(tail(state, '', { dormantReplies: 100 }).lines.some(line => line.includes('Old lighthouse')));
+    assert.ok(tail(state, 'I climb to the old lighthouse.').lines.some(line => line.includes('Old lighthouse')), 'the reader names it');
+});

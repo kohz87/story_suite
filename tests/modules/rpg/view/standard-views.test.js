@@ -1,0 +1,338 @@
+// The Standard stat formula on the screens I own: Settings → RPG (the Stat formula card, Standard's Difficulty and Custom numbers, the odds bar,
+// the Combat text) and the New character wizard's Stats step (start 5, 10 points, 5 to 10, the bar line), and the
+// pure pieces behind them (growth.js, wizard-data.js creation numbers, join.js companions).
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { STATS } from '../../../../modules/rpg/index.js';
+import { DIFFICULTY_SETTING, STANDARD_FORMULA, STANDARD_PRESETS, STANDARD_SETTING, rulesFromSettings } from '../../../../modules/rpg/rules.js';
+import { COMBAT_PROMPT_STANDARD, STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { RPG_STRINGS } from '../../../../modules/rpg/strings.js';
+import { growthOf } from '../../../../modules/rpg/blocks.js';
+import { growthText } from '../../../../modules/rpg/view/party-data.js';
+import { joinDefinitions, joinDraft } from '../../../../modules/rpg/join.js';
+import { companionStats, blocksFor } from '../../../../modules/rpg/formula.js';
+import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView } from '../../../../modules/rpg/view/settings-data.js';
+import { buildDefinitions, creationOf, newDraft, pointsLeft, readDraft, startStats, statBounds } from '../../../../modules/rpg/view/wizard-data.js';
+import { begin, makeBlocks, page, party, settle } from './page.js';
+import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
+
+const MOD = 'story-block';
+const combat = () => structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === 'Combat rules').definition);
+
+async function open(t) {
+    const ctx = await page(t, { feature: true, persona: 'Wessel' });
+    await begin(ctx.host);
+    // Wessel as the mockup has him: AGI 10, DEX 6, Soul Class II, Expert Iaijutsu on AGI.
+    await makeBlocks(ctx.host, { who: 'Wessel', character: { str: 10, vit: 10, agi: 10, dex: 6, int: 5, level: 2 }, skills: { skill1: 'Iaijutsu', stat1: 'agi', rank1: 2 } });
+    assert.equal((await ctx.host.sdk.command('dm.define', { definition: combat() })).ok, true);
+    const win = ctx.ui.openSettings();
+    win.select('rpg');
+    await settle();
+    const root = ctx.doc.querySelector('[data-ss-section="rpg"]');
+    const card = name => root.querySelector(`[data-card="${name}"]`);
+    return { ...ctx, win, root, card, stored: () => ctx.host.settings(MOD) };
+}
+const typeInto = (node, value) => { node.value = value; node.dispatch('change'); };
+
+// ---- Settings → RPG ---------------------------------------------------------------------------------------------------
+
+test('the Stat formula card is first: the roll table of Standard (the only formula) and its four numbers, and no chips', async t => {
+    const { root, card } = await open(t);
+    assert.equal(root.querySelectorAll('.rpg-set-card')[0].getAttribute('data-card'), 'formula');
+    assert.equal(card('formula').querySelectorAll('.rpg-chip').length, 0, 'no Standard / Classic choice');
+    assert.deepEqual(card('formula').querySelectorAll('.rpg-formula-table th').map(node => node.textContent), ['Physical', 'Magic', 'Defence', 'Social', 'Checks', 'Turn order']);
+    assert.match(card('formula').querySelector('.rpg-formula-table').textContent, /Magic\s*level ÷ 5 \+ \(INT or the skill's stat \+ DEX\/2\)\/2 \+ rank \+ edge/, 'no INT×2');
+    assert.doesNotMatch(card('formula').textContent, /INT×2|INT x 2/);
+    assert.deepEqual(card('formula').querySelectorAll('.rpg-formula-num').map(node => [node.querySelector('b').textContent, node.querySelector('span').textContent]), [
+        ['5', 'Stats start at'], ['10', 'Points at creation'], ['1 per 3 levels', 'Stat points'], ['4 + level ÷ 5 (÷ 4 on a new Foes block)', 'Foe\'s base'],
+    ]);
+    assert.match(card('formula').textContent, /Level ÷ 5 \(rounded down\) stands where class stood\. LUK is a window on the edge/);
+});
+
+test('Standard\'s Difficulty: Gentle, Standard and Harsh move the foe\'s base (2, 4, 6) in the numbers shown, the odds follow, and the others are compared', async t => {
+    const { card, stored } = await open(t);
+    const oddsText = () => card('difficulty').querySelector('.rpg-odds-legend').textContent;
+    assert.equal(card('difficulty').querySelector('[aria-pressed="true"]').textContent, 'Standard');
+    // Wessel: pair(AGI 10, DEX 6) = 6, Class II 4, Expert 2: +12 against a Class II foe, 4 + 3 × 2 = 10 at Standard.
+    assert.equal(card('difficulty').querySelector('.rpg-odds-title').textContent, 'Wessel (AGI 10 with DEX 6, Level 2, Expert) against a Level 2 foe');
+    const standard = oddsText();
+    assert.match(card('difficulty').querySelector('.rpg-odds-compare').textContent, /^For comparison, same fight: Gentle \d+ \/ \d+ \/ \d+ · Harsh \d+ \/ \d+ \/ \d+\.$/);
+    card('difficulty').querySelector('.rpg-chip[data-value="harsh"]').click();
+    await settle();
+    assert.equal(stored().rpgDifficulty, 'harsh');
+    assert.notEqual(oddsText(), standard);
+    assert.equal(card('formula').querySelectorAll('.rpg-formula-num b')[3].textContent, '6 + level ÷ 5 (÷ 4 on a new Foes block)', 'the numbers follow the difficulty');
+    // The odds bar is the engine's own: the exact chances of that fight.
+    const view = oddsView(host => host, 'Wessel', STANDARD_PRESETS.harsh);
+    assert.equal(view, null, 'no state, no odds');
+});
+
+test('Custom shows Standard\'s thirteen numbers, each held to its range', async t => {
+    const { card, stored, root } = await open(t);
+    card('difficulty').querySelector('.rpg-chip[data-value="custom"]').click();
+    await settle();
+    const inputs = () => card('difficulty').querySelectorAll('[data-rule]');
+    assert.deepEqual(inputs().map(node => node.getAttribute('data-rule')), ['foeBase', 'foeClassWeight', 'levelDivisor', 'costMargin', 'decisiveMargin', 'roundCap', 'quickStartMargin',
+        'startStat', 'createPoints', 'createMin', 'createMax', 'pointsPerSoul', 'statMax']);
+    assert.deepEqual(stored().rpgStandard, { ...STANDARD_FORMULA }, 'started from the numbers in force');
+    const input = key => card('difficulty').querySelector(`[data-rule="${key}"]`);
+    typeInto(input('foeBase'), '9');
+    typeInto(input('quickStartMargin'), '99');
+    typeInto(input('pointsPerSoul'), '-4');
+    typeInto(input('startStat'), 'many');
+    await settle();
+    assert.deepEqual([stored().rpgStandard.foeBase, stored().rpgStandard.quickStartMargin, stored().rpgStandard.pointsPerSoul, stored().rpgStandard.startStat], [9, 30, 0, 5]);
+    assert.equal(input('quickStartMargin').value, '30', 'held to its range');
+    assert.deepEqual(rulesFromSettings(stored()).foeBase, 9);
+    assert.equal(card('formula').querySelectorAll('.rpg-formula-num b')[3].textContent, '9 + level ÷ 5 (÷ 4 on a new Foes block)');
+    assert.equal(root.querySelectorAll('[data-rule]').length, 13);
+});
+
+test('the Combat text is the Standard one (reset, and the block a chat is given)', async t => {
+    const { card, host } = await open(t);
+    typeInto(card('combat').querySelector('textarea'), 'Something else.');
+    await settle();
+    assert.equal(combatBlock(host.head(), {})?.prompt, 'Something else.');
+    card('combat').querySelector('[data-act="combat-reset"]').click();
+    await settle(); await settle();
+    assert.equal(combatBlock(host.head(), {})?.prompt, COMBAT_DEFAULT);
+    assert.ok([...COMBAT_DEFAULT].length <= COMBAT_MAX, 'fits the 1200 characters a block may hold');
+    // (the sentence on the roll types was dropped when the Standard text was shortened: the narrator is told the rolled result, never the mechanics)
+    assert.match(COMBAT_DEFAULT, /Rolls: tell the rolled result as given/);
+    assert.match(COMBAT_DEFAULT, /code moves the bars for hits, heals, skill costs: never set those/);
+    assert.equal(combatTemplate().prompt, COMBAT_PROMPT_STANDARD);
+    assert.equal(combatTemplate().stateVersion, 2, 'the Standard template');
+});
+
+test('the settings give Standard\'s numbers; the odds view is Standard\'s', () => {
+    const values = { [DIFFICULTY_SETTING]: 'harsh' };
+    assert.deepEqual(customOf(values), STANDARD_PRESETS.harsh);
+    assert.deepEqual(customOf({ ...values, [STANDARD_SETTING]: { foeBase: 11 } }), { ...STANDARD_FORMULA, foeBase: 11 });
+    const wessel = { definition: { ...characterDefinition('wessel', 'Wessel'), role: 'character' }, fields: { who: 'Wessel', str: 12, dex: 10, level: 1 } };
+    const skills = { definition: { ...skillsDefinition('wessel-skills', 'Wessel'), role: 'skills' }, fields: { who: 'Wessel', skill1: 'Iron Breath', rank1: 1 } };
+    const view = oddsView(fakeState([wessel, skills]), 'Wessel', STANDARD_FORMULA);
+    assert.equal(view.label.startsWith('Wessel (STR 12 with DEX 10, Level 1, Adept)'), true);
+    assert.deepEqual(view.compare.map(item => item.name), ['gentle', 'harsh']);
+    assert.equal(oddsView(fakeState([wessel]), 'Wessel', STANDARD_FORMULA).label, 'Wessel (STR 12 with DEX 10, Level 1, no skill) against a Level 1 foe');
+});
+
+// ---- the bar line, creation and companions ----------------------------------------------------------------------------------
+
+test('growth (blocks.js, the one line the Party card, the wizard and Spend points share): a block every 5 points of VIT, AGI and INT, the edge window steps every two points of LUK', () => {
+    const text = (stats, max) => growthText(growthOf(stats, { statMax: max }));
+    const stats = { str: 5, vit: 10, agi: 14, dex: 5, int: 5, luk: 12, cha: 5 };
+    assert.equal(text(stats), 'Health 6 blocks (VIT 10, next at 15) · Stamina 5 (AGI 14, next at 15) · Mana 4 (INT 5, next at 10) · Edge 0..+3 (next at LUK 13)');
+    const start = Object.fromEntries(STATS.map(stat => [stat, 5]));
+    assert.equal(text(start), 'Health 5 blocks (VIT 5, next at 10) · Stamina 4 (AGI 5, next at 10) · Mana 4 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)');
+    assert.equal(text({ ...start, vit: 20, luk: 19 }), 'Health 8 blocks (VIT 20) · Stamina 4 (AGI 5, next at 10) · Mana 4 (INT 5, next at 10) · Edge +3..+5');
+    assert.deepEqual([3, 4, 5, 8, 9, 12, 13, 16, 17, 20].map(luk => growthOf({ ...start, luk }).luck.next), [5, 5, 7, 11, 11, 13, 15, 17, 19, null]);
+    assert.equal(growthOf({ ...start, vit: 15 }, { statMax: 15 }).health.next, null, 'the stat maximum caps it');
+});
+
+test('creation under Standard: stats start at 5 and never go below it, 10 points, cap 10; with no rules given it is the same', () => {
+    const draft = newDraft({ persona: 'Tamsin', rules: STANDARD_FORMULA });
+    assert.deepEqual(draft.stats, Object.fromEntries(STATS.map(stat => [stat, 5])));
+    assert.equal(draft.creation.standard, true);
+    assert.equal(pointsLeft(draft), 10);
+    assert.deepEqual([statBounds(draft, 'str'), pointsLeft({ ...draft, stats: { ...draft.stats, str: 10, dex: 10 } })], [[5, 10], 0]);
+    assert.equal(pointsLeft(readDraft({ ...draft, stats: { ...draft.stats, str: 3, vit: 3 } })), 10, 'a stat below 5 is held at 5 and frees no point');
+    const whole = readDraft({ ...draft, stats: { ...draft.stats, str: 99, vit: 1 } });
+    assert.deepEqual([whole.stats.str, whole.stats.vit], [10, 5], 'held to the creation range, never below the start');
+    assert.deepEqual(startStats(draft), draft.stats);
+    // The numbers come from the rules in force; a damaged `creation` is dropped.
+    const custom = newDraft({ rules: { ...STANDARD_FORMULA, startStat: 6, createPoints: 8, createMin: 4, createMax: 9 } });
+    assert.deepEqual([custom.stats.str, pointsLeft(custom), statBounds(custom, 'str')], [6, 8, [4, 9]]);
+    assert.equal('creation' in readDraft({ ...draft, creation: { ...draft.creation, start: 'x' } }), false, 'a damaged creation is dropped');
+    assert.deepEqual(newDraft({ persona: 'x' }).creation, draft.creation, 'no rules: the Standard preset\'s');
+    assert.deepEqual(readDraft(newDraft({ persona: 'x', rules: { foeBase: 5 } })).creation, draft.creation, 'rules with no formula are read as Standard');
+    assert.equal(creationOf(STANDARD_FORMULA).statMax, 20);
+});
+
+test('a new Standard character starts with its bars full: Health, Stamina and Mana at what its stats give, within what the block holds', () => {
+    const draft = { ...newDraft({ persona: 'Tamsin', rules: STANDARD_FORMULA }), name: 'Tamsin' };
+    const stats = { ...draft.stats, vit: 10, agi: 10, int: 10, str: 8 };
+    const { character } = buildDefinitions({ ...draft, stats }, { used: [] });
+    const blocks = blocksFor(stats, 2);
+    // (A Standard template's fields hold 16 blocks each, the doubled sizes; the default always fits the field.)
+    for (const key of ['health', 'stamina', 'mana']) assert.equal(character.state[key].default, Math.min(blocks[key], character.state[key].max), key);
+});
+
+test('a companion the story adds on the Standard scale: every stat 5, the best 9, then the points of each Soul Class', () => {
+    const request = { name: 'Mara', about: 'a hedge-witch', soul: 3, best: 'int' };
+    const draft = joinDraft(request, STANDARD_FORMULA);
+    assert.deepEqual(draft.stats, companionStats('int', 25, STANDARD_FORMULA));
+    assert.equal(draft.stats.int > 9 && draft.stats.dex > 5, true);
+    assert.equal(pointsLeft(draft), 0, 'what they cost is their budget');
+    assert.equal(draft.level, 25, 'Soul Class III stands for level 25');
+    const made = joinDefinitions(request, { used: [], soul: 3, rules: STANDARD_FORMULA });
+    assert.deepEqual(STATS.map(stat => made.character.state[stat].default), STATS.map(stat => draft.stats[stat]));
+    assert.equal(made.character.state.points.default, 0);
+    assert.equal(made.character.state.level.default, 25, 'class III stands for level 25 (2.17.0)');
+});
+
+// ---- the wizard's Stats step, on the real page ------------------------------------------------------------------------------
+
+test('Stats under Standard: steppers from 5, 10 points to spend, 5 to 10, and the bar line follows them', async t => {
+    const ctx = await page(t, { persona: 'Wessel' });
+    await begin(ctx.host);
+    ctx.ui.mounts.screen.open('story-block/party');
+    await settle();
+    party(ctx.doc).querySelector('.rpg-create').click();
+    await settle();
+    const dialog = ctx.ui.mounts.dialog.current();
+    dialog.goTo(1);
+    await settle();
+    const root = () => dialog.root.querySelector('.ss-w-rpg-wizard');
+    const step = (stat, dir) => root().querySelector(`.rpg-stat-step[data-stat="${stat}"] .ss-w-stepper-${dir}`);
+    assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 10');
+    assert.match(root().querySelector('.rpg-wiz-sum').textContent, /STR 5 · VIT 5 · AGI 5 · DEX 5 · INT 5 · LUK 5 · CHA 5/);
+    assert.match(root().textContent, /Every stat starts at 5, the minimum\. Spend 10 points; a stat can go up to 10 now\. Every third level gives 1 more point, and XP rises on its own\./);
+    const line = () => root().querySelector('[data-wiz="growth"]').textContent;
+    assert.equal(line(), 'Health 10 blocks (VIT 5, next at 10) · Stamina 10 (AGI 5, next at 10) · Mana 10 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)');
+    for (let n = 0; n < 5; n += 1) step('vit', 'inc').click();
+    assert.equal(step('vit', 'inc').disabled, true, 'VIT stops at 10');
+    assert.equal(line(), 'Health 12 blocks (VIT 10, next at 15) · Stamina 10 (AGI 5, next at 10) · Mana 10 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)');
+    assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 5');
+    for (let n = 0; n < 4; n += 1) step('luk', 'inc').click();
+    assert.match(line(), /Edge −1\.\.\+3 \(next at LUK 11\)$/, 'LUK 9 is still −1..+3');
+    assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 1');
+    assert.equal(step('str', 'dec').disabled, true, 'nothing goes below the start, 5');
+    assert.equal(root().querySelector('.rpg-wiz-push').textContent, 'Points left: 1', 'a stat at 5 frees no point');
+    dialog.close();
+});
+
+test('Create under Standard writes the stats and full bars as the new blocks\' defaults', async t => {
+    const ctx = await page(t, { persona: 'Wessel' });
+    await begin(ctx.host);
+    ctx.ui.mounts.screen.open('story-block/party');
+    await settle();
+    party(ctx.doc).querySelector('.rpg-create').click();
+    await settle();
+    const dialog = ctx.ui.mounts.dialog.current();
+    const root = () => dialog.root.querySelector('.ss-w-rpg-wizard');
+    root().querySelector('[data-wiz="about"]').value = 'A ferry hand.';
+    root().querySelector('[data-wiz="about"]').dispatch('input');
+    dialog.goTo(1);
+    await settle();
+    for (let n = 0; n < 5; n += 1) root().querySelector('.rpg-stat-step[data-stat="vit"] .ss-w-stepper-inc').click();
+    for (let n = 0; n < 5; n += 1) root().querySelector('.rpg-stat-step[data-stat="str"] .ss-w-stepper-inc').click();
+    dialog.goTo(3);
+    await settle();
+    const create = root().querySelectorAll('button').find(node => /^Create/.test(node.textContent));
+    create.click();
+    await settle(); await settle();
+    const fields = ctx.host.sdk.query('dataModules.view', { module: 'pack.chat/wessel' }).chat;
+    assert.deepEqual([fields.str, fields.vit, fields.agi, fields.points], [10, 10, 5, 0]);
+    // A Standard chat is made from the Standard templates: Health is 2 x (4 + VIT/5) = 12 blocks, full, and the hidden size fields start there too.
+    assert.deepEqual([fields.health, fields['health-blocks'], fields.stamina, fields['stamina-blocks'], fields.mana, fields['mana-blocks']], [12, 12, 10, 10, 10, 10]);
+    const definition = ctx.host.head().domains.dataModules.pins[ctx.host.head().domains.dataModules.active['pack.chat/wessel'].hash].definition;
+    assert.equal(definition.state.health.blocks, 'health', 'the Standard Character block');
+});
+
+// ---- Spend points and the Skills view ----------------------------------------------------------------------------------------
+
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { renderDistribute } from '../../../../modules/rpg/view/distribute.js';
+import { renderSkills, rollOf } from '../../../../modules/rpg/view/skills.js';
+import { readParty } from '../../../../modules/rpg/view/party-data.js';
+
+const hero = (fields = {}) => ({ definition: characterDefinition('wessel', 'Wessel'), fields: { who: 'Wessel', str: 10, vit: 9, agi: 10, dex: 6, int: 5, luk: 8, cha: 5, points: 4, level: 2, xp: 40, health: 3, mana: 4, stamina: 1, ...fields } });
+const heroSkills = () => ({ definition: { ...skillsDefinition('wessel-skills', 'Wessel'), role: 'skills' }, fields: { who: 'Wessel', skill1: 'Iaijutsu', stat1: 'agi', uses1: 'stamina', rank1: 2, skill2: 'Spark', stat2: 'int', uses2: 'mana', rank2: 0 } });
+const stepIn = (root, stat, dir) => root.querySelector(`.rpg-stat-step[data-stat="${stat}"] .ss-w-stepper-${dir}`);
+
+test('Spend points under Standard adds the line of what the next points buy, and it follows the steppers', () => {
+    const doc = setupDom(), host = doc.createElement('div');
+    doc.body.appendChild(host);
+    const state = fakeState([hero()]);
+    const handle = renderDistribute(host, { character: readParty(state, { own: 'Wessel', roleOf })[0], doc, rules: () => STANDARD_FORMULA });
+    const root = host.querySelector('.rpg-sheet'), line = () => root.querySelector('[data-rpg="growth"]').textContent;
+    assert.equal(line(), 'Health 5 blocks (VIT 9, next at 10) · Stamina 5 (AGI 10, next at 15) · Mana 4 (INT 5, next at 10) · Edge −1..+3 (next at LUK 11)');
+    stepIn(root, 'vit', 'inc').click();
+    stepIn(root, 'luk', 'inc').click();
+    assert.equal(line(), 'Health 6 blocks (VIT 10, next at 15) · Stamina 5 (AGI 10, next at 15) · Mana 4 (INT 5, next at 10) · Edge −1..+3 (next at LUK 11)');
+    handle.reset();
+    assert.match(line(), /^Health 5 blocks/);
+    handle.destroy();
+});
+
+test('the roll a skill shows under Standard is the pair: the skill\'s stat with half of DEX, halved, plus rank and level ÷ 5', () => {
+    const state = fakeState([hero(), heroSkills()]);
+    const wessel = readParty(state, { own: 'Wessel', roleOf })[0];
+    const [iaijutsu, spark] = wessel.skills;
+    // AGI 10 and DEX 6: (10 + 3)/2 = 6 → +6; Expert +2; level 2 ÷ 5 +0: d20 +8. Spark: (INT 5 + DEX 3)/2 = 4, Novice 0, +0: d20 +4.
+    assert.deepEqual(rollOf(iaijutsu, wessel, STANDARD_FORMULA), { total: 8, stat: 'AGI', value: 10, half: 6, rank: 2, bonus: 0, second: 'DEX', secondValue: 6 });
+    assert.equal(rollOf(spark, wessel, STANDARD_FORMULA).total, 4);
+    const doc = setupDom(), host = doc.createElement('div');
+    doc.body.appendChild(host);
+    const view = renderSkills(host, { character: wessel, doc, rules: () => STANDARD_FORMULA });
+    const lines = host.querySelectorAll('.rpg-skill-roll').map(node => node.textContent);
+    assert.equal(lines[0], 'Rolls with it: d20 +8 = (AGI 10 + DEX 6/2)/2 → +6 · Expert +2 · Lv 2 ÷ 5 +0');
+    assert.equal(lines[1], 'Rolls with it: d20 +4 = (INT 5 + DEX 6/2)/2 → +4 · Novice +0 · Lv 2 ÷ 5 +0');
+    view.destroy?.();
+});
+
+// ---- a pack's formula and numbers as the default ----------------------------------------------------------------------------
+
+const PACK = rpg => ({ id: 'ersveil-rules', version: '1.0.0', name: 'Ersveil', author: 'Test', description: 'A pack that sets the stat formula.', requires: { storyBlock: '^2' }, content: { rpg } });
+
+async function openWithPack(t, rpg, settings = {}) {
+    const ctx = await page(t, { feature: true, persona: 'Wessel' });
+    assert.equal((await ctx.host.packs.packs.install(PACK(rpg))).ok, true);
+    for (const [key, value] of Object.entries(settings)) ctx.host.settings.set(MOD, key, value);
+    await begin(ctx.host);
+    await makeBlocks(ctx.host, { who: 'Wessel', character: { str: 10, vit: 10, agi: 10, dex: 6, int: 5, level: 2 }, skills: { skill1: 'Iaijutsu', stat1: 'agi', rank1: 2 } });
+    const win = ctx.ui.openSettings();
+    win.select('rpg');
+    await settle();
+    const root = ctx.doc.querySelector('[data-ss-section="rpg"]');
+    return { ...ctx, root, card: name => root.querySelector(`[data-card="${name}"]`) };
+}
+
+test('Settings → RPG shows a pack\'s numbers as the default, named, until the reader chooses; the odds and the numbers follow', async t => {
+    // (page() pins the chat's formula to 'standard'; the pack's numbers still apply to a reader who picked no difficulty.)
+    const { card } = await openWithPack(t, { formula: 'standard', numbers: { foeBase: 6, startStat: 6, createPoints: 8 } });
+    assert.equal(card('formula').querySelector('.rpg-from-pack').textContent, 'From the pack: Ersveil');
+    assert.equal(card('difficulty').querySelector('.rpg-from-pack').textContent, 'From the pack: Ersveil');
+    assert.deepEqual(card('formula').querySelectorAll('.rpg-formula-num b').map(node => node.textContent), ['6', '8', '1 per 3 levels', '6 + level ÷ 5 (÷ 4 on a new Foes block)']);
+    // The reader picks a difficulty: the preset is theirs and the pack's note goes.
+    card('difficulty').querySelector('.rpg-chip[data-value="harsh"]').click();
+    await settle();
+    assert.equal(card('difficulty').querySelector('.rpg-from-pack'), null);
+    assert.equal(card('formula').querySelector('.rpg-from-pack'), null);
+    assert.deepEqual(card('formula').querySelectorAll('.rpg-formula-num b').map(node => node.textContent), ['5', '10', '1 per 3 levels', '6 + level ÷ 5 (÷ 4 on a new Foes block)'], 'Harsh: the preset\'s own foe base');
+});
+
+test('the wizard\'s Stats step starts from a pack\'s numbers and says whose they are', async t => {
+    const ctx = await page(t, { feature: true, persona: 'Wessel' });
+    assert.equal((await ctx.host.packs.packs.install(PACK({ numbers: { startStat: 6, createPoints: 8, createMin: 4, createMax: 9 } }))).ok, true);
+    await begin(ctx.host);
+    ctx.ui.mounts.screen.open('story-block/party');
+    await settle();
+    party(ctx.doc).querySelector('.rpg-create').click();
+    await settle();
+    const dialog = ctx.ui.mounts.dialog.current();
+    dialog.goTo(1);
+    await settle();
+    const root = dialog.root.querySelector('.ss-w-rpg-wizard');
+    assert.match(root.querySelector('.rpg-wiz-sum').textContent, /STR 6 · VIT 6 · AGI 6 · DEX 6 · INT 6 · LUK 6 · CHA 6/);
+    assert.equal(root.querySelector('.rpg-wiz-push').textContent, 'Points left: 8');
+    assert.match(root.textContent, /a stat can go down to 4 to free a point and up to 9 now/);
+    assert.equal(root.querySelector('.rpg-wiz-pack').textContent, 'From the pack: Ersveil');
+    dialog.close();
+});
+
+test('the wizard\'s Skills note says the skill\'s stat takes the main slot of the roll', async t => {
+    const ctx = await page(t, { persona: 'Wessel' });
+    await begin(ctx.host);
+    ctx.ui.mounts.screen.open('story-block/party');
+    await settle();
+    party(ctx.doc).querySelector('.rpg-create').click();
+    await settle();
+    const dialog = ctx.ui.mounts.dialog.current();
+    dialog.goTo(2);
+    await settle();
+    const text = dialog.root.querySelector('.rpg-wiz-add .rpg-wiz-note').textContent;
+    dialog.close();
+    assert.match(text, /Stat is the skill's own stat: it takes the main slot of the roll, with half of DEX added;/);
+    assert.doesNotMatch(text, /half of it/);
+});

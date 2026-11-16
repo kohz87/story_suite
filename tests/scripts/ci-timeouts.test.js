@@ -78,17 +78,16 @@ test('CI commands equal their package.json scripts plus the timeout flag', () =>
   assert.equal(noFlag(step(rules, 'Script tests').run), script('package.json', 'test:scripts'));
   assert.equal(noFlag(step(rules, 'Core tests').run), script('package.json', 'test:core'));
   assert.equal(noFlag(step(ui, 'UI tests').run), script('package.json', 'test:ui'));
-  assert.equal(noFlag(step(sd, 'Behavioral tests').run), script('packages/story-director/package.json', 'test'));
+  assert.equal(noFlag(step(sd, 'Behavioral tests').run), script('package.json', 'test:sd'));
   // Story Block's script sets the heap through NODE_OPTIONS; the CI step must set the same value in its env.
-  const sbScript = script('packages/story-block/package.json', 'test');
+  const sbScript = script('package.json', 'test:sb');
   const heap = sbScript.match(/^NODE_OPTIONS="(--max-old-space-size=\d+) \$NODE_OPTIONS" /);
-  assert.ok(heap, 'Story Block test script no longer sets the heap the expected way');
+  assert.ok(heap, 'the test:sb script no longer sets the heap the expected way');
   const sbStep = step(sb, 'Behavioral tests');
   assert.equal(noFlag(sbStep.run), sbScript.replace(heap[0], ''));
   assert.match(sbStep.env, new RegExp(`^ +NODE_OPTIONS: ${heap[1]}$`, 'm'));
-  // NPC State's first command is the one CI runs with the timeout; the other two must match the script as-is.
-  const nsdLines = step(nsd, 'Full verification').block.trim().split('\n').map((l) => l.trim());
-  assert.equal(nsdLines.map(noFlag).join(' && '), script('packages/npc-state-delta/package.json', 'test'));
+  // NPC State's one command is the one CI runs with the timeout.
+  assert.equal(noFlag(step(nsd, 'Behavioral tests').run), script('package.json', 'test:nsd'));
 });
 
 test('no CI file uses --test-force-exit', () => {

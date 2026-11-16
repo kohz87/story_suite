@@ -11,7 +11,7 @@ import { FIXTURES, PROMPTS } from './background-prompts.fixtures.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GOLDEN_PATH = path.join(HERE, 'background-prompts.golden.json');
-const core = await import(pathToFileURL(path.join(HERE, '../../packages/npc-state-delta/core.js')).href);
+const core = await import(pathToFileURL(path.join(HERE, '../../modules/people/core/core.js')).href);
 
 const actual = {};
 for (const [fixture, options] of Object.entries(FIXTURES(core))) {

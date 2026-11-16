@@ -1,0 +1,323 @@
+This map covers files under `src/` that are not named by path or file name in the other repository documentation.
+Files already mapped elsewhere are listed in `CLAUDE.md`, `AI-README.md`, `README.md`, and `../../docs/**/*.md`.
+Last checked: 2026-11-07.
+
+## src/v2/
+- `../../core/model-call/profile-field.js`: connection-profile picker for module model calls, using stored names and read-only text UI.
+- `../../core/public-api.js`: frozen read-only `StoryBlock.api` exposing current public story paths and change events.
+- `../../core/persist/public-paths.js`: registry and guard for public API path prefixes contributed by modules.
+- `../../modules/rpg/rpg-lazy.js`: lazy loader and stand-in part that keeps the optional Lean RPG unloaded until needed.
+- `../../core/runtime/sb-macro.js`: registers the `{{sb::path}}` macro for SillyTavern prompts, scripts and status bars.
+- `../../core/runtime/skill-slots.js`: skill-slot counts and signature-bit helpers kept outside Lean RPG for small startup.
+- `../../core/persist/v1-copy.js`: detects an old Story Block v1 copy running alongside v2 and reports it once.
+
+## ../../modules/assist/
+- `../../modules/assist/section.js`: read-only Settings Assist section showing helper switches and recent run outcomes.
+
+## ../../modules/data-modules/
+- `../../modules/data-modules/block-builder.js`: builds and edits ordinary data-module definitions for the in-chat block editor.
+- `../../modules/data-modules/block-layout.js`: chooses a preview layout and card roles for the block editor from its field shape.
+- `../../modules/data-modules/block-screen.js`: turns a pinned block's show settings into a host screen or merged tab.
+- `../../modules/data-modules/block-starters.js`: three built-in editable drafts offered at the top of the New block form.
+- `../../modules/data-modules/block-templates.js`: stores reader-owned block templates and exports them as packs.
+- `../../modules/data-modules/editable-layout.js`: adds inline editors to local fields in authored data-module screen layouts.
+- `../../modules/data-modules/fields-widget.js`: defines the fields and heading layout nodes used to show a data module's values.
+- `../../modules/data-modules/hash-basis-v1.js`: frozen interpreter-1 descriptors and limits kept as a historical identity contract.
+- `../../modules/data-modules/recovery.js`: a marked Character's story rules (no narrator XP, bars lowered but never raised by `set-*`, full rest once per 6 story hours), the one recovery line (restLine) and their notes.
+
+## ../../modules/world/events/
+- `../../modules/world/events/calls.js`: allowlisted condition calls that read the before-generate state and queries.
+- `../../modules/world/events/condition.js`: tokenizes, parses and safely evaluates pack-event conditions without JavaScript.
+- `../../modules/world/events/section.js`: read-only Events diagnostics section showing past, due, waiting and invalid events.
+
+## ../../modules/rpg/
+- `../../modules/rpg/ambush.js`: ambush checks and their opening-round edge or surprise rules.
+- `../../modules/rpg/charfile.js`: builds, validates and parses the saved-character file used by Party Import and Export.
+- `../../modules/rpg/cue.js`: writes compact narrator roll cues under the prompt budget.
+- `../../modules/rpg/join.js`: reads party join and leave lines, then builds companion definitions and offer cards.
+- `../../modules/rpg/soak.js`: the VIT soak numbers (S, the soaked test, the Party card's next step) for the fight mark `soak: 1`.
+- `../../modules/rpg/templates-bars.js`: turns the old Character template into the doubled-bars one (`scale: 2`: size expressions, grow rules, bar maximum and default).
+- `../../modules/rpg/templates-recovery.js`: the marked Character's recovery kinds (rest, full-rest, heal, Short rest and Full rest buttons), no narrator `add-xp`, its prompt.
+- `../../modules/rpg/templates-skills.js`: turns the eight-slot Skills template into the typed one (three utility slots 9 to 11, a `type` per slot, the learn line's optional `type` label, matching rank-up rules).
+- `../../modules/rpg/levels.js`: level, rank, level-cap and XP-rate helpers plus the RPG rank query.
+- `../../modules/rpg/noroll.js`: replay-only: shows and re-reads the per-reply receipt an old chat's retired roll planner left when it gave no usable plan.
+- `../../modules/rpg/checks/dice.js`: story checks: a reply's three d20 from its recorded seed, the rules, difficulty numbers, practice and bonus table recorded with them (`dicePayload`, `diceOf`) and the `rpg.dice` prelude's handler.
+- `../../modules/rpg/checks/line.js`: story checks: parses a narrator's `? roll Who | skill or stat | difficulty` line (a solo party takes an unnamed roll; an older reply also wrote the die) and validates it against the party and the dice offered and used; under the `diceInOrder` mark code gives each check the next die.
+- `../../modules/rpg/checks/result.js`: story checks: works a validated check (d20 + stat÷2 + level÷4 (+ half mastery of a utility skill) against the recorded difficulty: success or fail, decisive as in fights, one practice use, no XP), a reply's lines in order (`workChecks`) and the bonus table the note tells.
+- `../../modules/rpg/open.js`: checks and fills new foes that the roll planner opens during a fight.
+- `../../modules/rpg/quiet.js`: trims combat and foe prompt grammar on replies where rolls cannot be used.
+- `../../modules/rpg/board/auto.js`: chooses deterministic Auto-fight actions by the party policy and decides why Auto stops.
+- `../../modules/rpg/board/auto-run.js`: plays Auto exchanges on the staged board fight until the cap, a won or lost fight or a badly hurt hero, and words why it stopped.
+- `../../modules/rpg/board/precheck.js`: pure foe pre-check prompt, tolerant JSON reader, group vetting and typed-attack test for opening a fight from a message.
+- `../../modules/rpg/board/view-bars.js`: the board's Health strip text ("Hurt · 5/10") and meter props.
+- `../../modules/rpg/board/view-chips.js`: the board's status chips (foe group "×N", party), the 4-segment Health mini-bar, the choosing member's Mana/Stamina strip and the skill button with cost and "not enough".
+- `../../modules/rpg/board/precheck-run.js`: the pre-check's one Assist call (20 s limit) and the opening it records for a typed attack on new foes.
+- `../../modules/rpg/board/precheck-known.js`: the pre-check prompt's read-only extras: the pack's rank scale line and short dossier lines for named people.
+- `../../modules/rpg/board/stated-level.js`: a foe's Level field on an NSD dossier, matched by exact name or alias only (number, Lv, rank or two ranks): the parse and the dossier lookup the pre-check reads before it records the opening; passes the party + 20 cap.
+- `../../modules/rpg/board/resume.js`: finds the last ended board fight's exact foe bars when the collapsed Foes block still matches them.
+- `../../modules/rpg/resolve.js`: prepares and rolls planned checks, acts and foe attacks into a replayable RPG receipt.
+- `../../modules/rpg/soul.js`: reads a renamed Soul Class field label and names, with stock fallbacks.
+- `../../modules/rpg/tail.js`: writes compact prompt-tail summaries for RPG role blocks.
+
+## ../../modules/rpg/view/
+- `../../modules/rpg/view/bars.js`: draws shared Health, Mana and Stamina stage bars and their edit payloads.
+- `../../modules/rpg/view/bars.css`: the smooth red, green and blue Health, Stamina and Mana strip, dulled in three steps as it empties.
+- `../../modules/rpg/view/changes-lines.js`: builds RPG lines for the Changed this reply card from receipts and state changes.
+- `../../modules/rpg/view/distribute.js`: draws the Spend points and Stats sheet with bars, stat steppers, radar and one save.
+- `../../modules/rpg/view/export.js`: draws the Export character dialog and creates its saved character file.
+- `../../modules/rpg/view/gear-card.js`: draws the Party Inventory slot card and the gear worn in each place.
+- `../../modules/rpg/view/gear-stats.js`: lays what worn gear adds (the rolls' own `planGear` + `applyGear`) on the Party cards' stats as `eff` and `add`.
+- `../../modules/rpg/view/lean-rpg.css`: styles the RPG Party, sheets, battle log and settings screens responsively.
+- `../../modules/rpg/view/party-data.js`: maps Character, Skills and Foes blocks into plain records and display words for RPG screens.
+- `../../modules/rpg/view/party.js`: draws Party tab cards and opens the spend, skills, gear, wizard and export views.
+- `../../modules/rpg/view/settings-data.js`: prepares combat-rule, odds and planner-prompt data for the RPG settings page.
+- `../../modules/rpg/view/skills.js`: draws the Skills sheet with ranks, mastery, roll previews and editable descriptions.
+- `../../modules/rpg/view/wizard-data.js`: works out New character drafts, budgets, problems and definitions without touching the DOM.
+- `../../modules/rpg/view/wizard.js`: drives the four-step New character and import dialog, then creates its blocks.
+
+## ../../packs/
+- `../../packs/card-offer-ui.js`: draws pack card-offer notices and their actions at the top of the Story panel.
+- `../../packs/cast-gear.js`: reads a named cast member's signature gear from enabled packs for the cast entry line.
+- `../../packs/cast-skills.js`: reads a named cast member's signature skills from enabled packs for party joining.
+- `../../packs/kind.js`: classifies a pack as a World pack, Story Block pack or plain pack from its content.
+- `../../packs/portrait-fit.js`: shrinks and encodes portraits to stored size limits using browser image APIs.
+
+## ../../ui/legacy/screens/
+- `../../modules/data-modules/screens/block-fields.js`: registers the fields and heading widgets used by data-module screen layouts.
+- `../../modules/data-modules/screens/block-layouts.js`: draws block and data-module values as cards, number maps, record cards or previews.
+- `../../modules/data-modules/screens/block-maps.css`: the number-list rows, centre-line bars, fold, Edit-reveal pencils, guild tiles and the Enable all box; overrides host.css's `.ss-b-*` rules.
+- `../../modules/data-modules/screens/blocks-editor.js`: provides the in-chat form for authoring a block from fields, starters, layout and preview.
+- `../../ui/legacy/screens/rebuild-banner.js`: Home's dossier banner: blocked branch, start-from-chat dialog, catching-up progress with Skip, and the done or stopped notes.
+- `../../ui/legacy/screens/inventory-add.js`: places the inline form for adding an item to the reader's own inventory, the folded "Worn (N)" row of the Inventory tab, and the Grid view's two widgets (the List | Grid switch, the tiles with folds and the item sheet).
+- `../../ui/legacy/screens/inventory-grid.js`: pure DOM helpers for the Inventory Grid view: square item tiles, foldable category and per-wearer Worn sections (with their remembered open state), and the bottom sheet for one item calling the same actions as the list rows.
+
+## ../../core/timeline/
+- `../../core/timeline/boundary.js`: hashes and checks logical clock markers against transactions and captured proofs.
+- `../../core/timeline/coordinator-rebuild.js`: starts a blocked branch's dossiers again from the chat (last 40 replies or all) through the participant's rebuild.
+- `../../core/timeline/selection-fallback.js`: matches head prefixes and walks compatible earlier participant checkpoints, newest first, for a head selection; the Inspector note when a selection fell back.
+- `../../core/timeline/coordinator-block.js`: classifies blocked timeline selections and schedules retries for temporary failures.
+- `../../core/timeline/referenced.js`: the `timeline.referenced` query: checkpoint ids named by every chat SillyTavern lists (chats of deleted characters are not checked); any listed chat unreadable makes the answer incomplete. Not replay-safe.
+- `../../core/timeline/util.js`: holds shared timeline ids, error codes, crash and stale-chat helpers.
+
+## ../../core/turn/
+- `../../core/turn/rule-marks.js`: per-reply rule marks (`rules` on the record, `ctx.carrier.rules` for a module); the table of rules and their line tests.
+- `../../core/turn/money-guard.js`: money guard; warns in Problems (never blocks, writes nothing) on a coin line repeating a recent same-source payment or far above the purse.
+- `../../core/turn/capture-after.js`: the afterCapture steps: each module's hook commands run as system steps after a reply's story lines (stored live, planned by a Re-read).
+- `../../core/turn/capture-each.js`: the change lines run one by one as story captures, with the reply's practice, foe cap and rule marks, the safety net's marks and the money guard.
+- `../../core/turn/capture-held.js`: the held-module check of a Re-read: the first held-back module a reply carries lines, receipts or ops of.
+- `../../core/turn/capture-seeds.js`: a Re-read's seeds and occurrences: a change line's mark, story and step seeds, the occurrence a block takes.
+- `../../core/turn/events-held.js`: a fight reply held uncaptured: resumed once the reader restores its inputs, found again after a chat opens.
+- `../../core/turn/events-late.js`: change lines that come after a reply: late lines kept in a hidden block, the safety net's lines now or for the next reply.
+- `../../core/turn/events-hooks.js`: the afterReply and afterReceive hooks run on a received reply.
+
+## ../../ui/legacy/ui/
+- `../../ui/legacy/ui/inventory-tab.js`: draws a minimal plain Inventory tab with item stacks and command buttons.
+- `../../ui/legacy/ui/scene-tab.js`: draws a minimal plain read-only Scene tab with place and present people.
+
+## ../../ui/legacy/view/
+- `../../ui/legacy/view/clock.js`: formats story minutes as calendar dates and times using the best available calendar.
+- `../../ui/legacy/view/download.js`: saves text files through a temporary browser download link.
+- `../../ui/legacy/view/glass-base.css`: the building blocks: variables, section label, icons, pill, progress bar, tones, tile and status badge. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-hero.css`: the hidden rule and the hero block (header, Edit button, editor). Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-scene-lists.css`: the hero's Wearing, Travel and compact lines, the scene on a phone, tiers and list cards. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-screenbar.css`: the screen bar, tabs and navbar, and the Story panel's tab strip. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-modal.css`: the modal of ss.dialog and the UI sample helpers. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-forms.css`: the form engine: grouped section, field rows, text, number, select, switch and slider. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-forms-features.css`: the form engine's chips, segmented, lines and search, and the Features form with its presets. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-pages.css`: the settings pages: select ellipsis, Money, Assist, shared buttons, Tabs & Packs and Prompt. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/glass-pages-modules.css`: the Modules and Diagnostics pages, Versions, finger-sized folds and the UI sample. Part of the split of glass.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/host-furniture.css`: the host furniture: tokens, bar, card offer, Story panel, tab host, settings folds and rows. Part of the split of host.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/host-notes-blocks.css`: notes and Choices under a reply, motion, the Data modules card, block records and the block editor. Part of the split of host.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/send-note.css`: the "Send pending" note: a pill above the message box, right-aligned when its container is wide and full width when narrow (container query), in the Story Suite tokens, light and dark.
+- `../../ui/legacy/view/inv-sheet.css`: styles the Inventory Grid's item sheet dialog contents (`.ss-dialog.inv-sheet`), split out of the mounts sheets.
+- `../../ui/legacy/view/mounts-game.css`: the game view: bottom bar, header, window. Part of the split of mounts.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/mounts-cards-hud.css`: inline cards under replies and the HUD strip. Part of the split of mounts.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/mounts-dialogs.css`: dialogs, cards under replies, tags, tab alerts and the Story panel floor. Part of the split of mounts.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/settings-window.css`: the settings window: shell, side, rail, page and form sections. Part of the split of settings.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/settings-folds.css`: the settings window's old folds and rows, switch, footer bar and desktop window. Part of the split of settings.css, loaded by host.css in the original order.
+- `../../ui/legacy/view/scroll-cue.js`: marks which edge of a scroller has overflow and brings items into view.
+- `../../ui/legacy/view/screenbar-strip.css`: the screen bar as one scrolling strip (edge fades, snapping slots, a centred full row from 1000px), loaded after the mounts and glass sheets.
+- `../../ui/legacy/view/tab-merge.js`: merges screens that share a tab id into one tab with ordered sections.
+
+## ../../ui/legacy/view/mounts/
+- `../../ui/legacy/view/mounts/hud.js`: mounts and refreshes the HUD strip above the message box.
+- `../../ui/legacy/view/mounts/tab.js`: registers screen tabs and renders them from the current head state.
+
+## ../../ui/legacy/view/template/
+- `../../ui/legacy/view/template/json.js`: compiles and fills JSON payloads with escaped template holes and a depth guard.
+
+## ../../ui/legacy/view/widgets/
+- `../../ui/legacy/view/widgets/badge.js`: renders an icon with an optional counter and optional selection command.
+- `../../ui/legacy/view/widgets/editable.js`: renders an inline reader edit for text, choice, number, money or meter values.
+- `../../ui/legacy/view/widgets/map-math.js`: provides pure map viewport, zoom, pan, minimap and automatic node-layout maths.
+- `../../ui/legacy/view/widgets/meter.js`: renders a labelled meter with segments, marks, warnings and spoken value text.
+- `../../ui/legacy/view/widgets/portrait.js`: renders a safe framed portrait with initials when the image cannot load.
+- `../../ui/legacy/view/widgets/props.js`: declares, coerces and validates widget props and creates widget definitions.
+- `../../ui/legacy/view/widgets/radar.js`: renders an SVG radar chart with an optional earlier series and accessible values.
+- `../../ui/legacy/view/widgets/skill-tree.js`: renders skill tiers with connectors, levels, active states and locked states.
+- `../../ui/legacy/view/widgets/stepper.js`: renders a bounded numeric stepper that edits drafts against point budgets.
+
+## Pointer to add
+- `../../docs/dev/codemap.md`: map of `src/` files not already covered by the existing docs.
+
+## Split files (7 Nov: files over 450 lines split into small parts; each original keeps its path and public exports)
+- `../../core/store/chains.js`: cached hashes of record bodies, replay chains and checkpoint windows.
+- `../../core/store/prefix-memo.js`: the incremental prefix memo, a bounded LRU of store states by replayed prefix that steps one new record instead of replaying a window.
+- `../../ui/legacy/ui-host/shared.js`: shared DOM helpers, reader choices and public UI checks.
+- `../../ui/legacy/ui-host/setup.js`: widgets, renderer and screen-registry setup for the page host.
+- `../../ui/legacy/ui-host/screens.js`: synchronization of module, pack and pinned-block screens.
+- `../../ui/legacy/ui-host/replies.js`: reply-card scopes, scans, rendering and actions.
+- `../../ui/legacy/ui-host/mounts.js`: screen, card, HUD and dialog mount wiring.
+- `../../ui/legacy/ui-host/navigation.js`: tab source and Settings navigation controls.
+- `../../ui/legacy/ui-host/panel.js`: panel creation, opening, closing and live tab-host access.
+- `../../ui/legacy/ui-host/settings.js`: settings overlay, diagnostics and theme inputs.
+- `../../ui/legacy/ui-host/events.js`: runtime and chat listeners with their teardown callbacks.
+- `../../ui/legacy/ui-host/send-pending.js`: the "Send pending" note's state machine (idle, pending, stalled, fightHeld, sent): one re-send when SillyTavern is free, never a changed or empty text, pure logic with injected page and timers.
+- `../../ui/legacy/ui-host/send-note.js`: the "Send pending" note above SillyTavern's message box: sees a Send SillyTavern ignored, draws the five states (role=status), re-sends once through #send_but; UI only, never touches the text, prompt or chat.
+- `../../ui/legacy/ui-host/inspector-problems.js`: what the Inspector lists as a reply's problems (skipped blocks, what the turn met, head-selection notices, refused lines).
+- `../../ui/legacy/ui-host/card-offer-wiring.js`: the card offer's wiring (lorebook read, "not now" memory, data modules, problems to the turn and the card log).
+- `../../ui/legacy/ui-host/lean-rpg-sync.js`: loads and mounts the Lean RPG's screens while its feature is on and takes them away when it goes off.
+- `../../ui/legacy/ui-host/drawer.js`: the Extensions drawer and the wand menu entry, with the status strip's switch.
+- `../../ui/legacy/ui-host/host-api.js`: the api handed to screens (commands, queries, held `committed` handlers, rewinds, dialogs, open screen).
+- `../../ui/legacy/ui-host/notes-wiring.js`: the notes under replies, wired to Re-read and the extractor's state.
+- `../../core/commands/shared.js`: limits, error helpers, reply and ID helpers; `commands.js` re-exports the public names.
+- `../../core/commands/state.js`: drafts, frozen reads, queries, Source, cursor and proof.
+- `../../core/commands/guards.js`: replay guards and their mark.
+- `../../core/commands/ctx.js`: the command handler's context.
+- `../../core/commands/transact.js`: one transaction.
+- `../../core/store/write/saving.js`: touch, lifecycle changed and the idle/late saves.
+- `../../core/store/write/story.js`: append and before.
+- `../../core/store/people-block.js`: tells a stored block that holds only people writes, so a Re-read can skip it when it no longer applies.
+- `../../core/store/write/replace.js`: replaceStory and reconcile.
+- `../../core/store/write/records.js`: narrated, practice rule, receipts, truncate, untold and work.
+- `../../core/store/write/lifecycle.js`: rebuild, archive, batch and renamed.
+- `../../modules/data-modules/part.js` → `data-modules/part/`: `factory.js` wires the data-module part; `core.js` shared lifecycle helpers; `shared.js` state access, caches and checked definitions; `views.js` read-only views; `blocks.js` Setup actions; `fields.js` field and host-step actions; `act.js` story and reader actions; `skills.js` the Skills block's slot rules; `party.js` companions; `prompt.js` prompt tail and reply cards; `timing.js` timer and reply-end costs.
+- `../../modules/inventory/gear.js` → `domains/gear/`: `stats.js` slots, rarity, stat budgets and story-made definitions; `conditions.js` condition words and prices; `carry.js` carry rules and the carry query; `views.js` query answers and the screen picture.
+- `../../modules/scene/index.js` → `domains/scene/`: `constants.js` name, presence, weather and look limits and feature names; `shared.js` the told rule, name lists, the edit mark and the letter test; `present.js` who is present and their changes; `place.js` the place and its moves; `place-known.js` the map's or a pack's record of a place by name or alias; `weather.js` the weather line and the `scene.weather` command; `you.js` {{user}}'s look, its Rank label and the look ask; `you-look.js` the lasting outfit and passing look (read, cut, cleared on a move); `worn-words.js` the words for what {{user}} has equipped.
+- `../../modules/world/events/condition.js` → `events/condition-tokenizer.js` the tokenizer; `condition-parser.js` the parser (a frozen AST); `condition-errors.js` size limits and error values.
+- `../../modules/rpg/resolve.js` → `lean-rpg/resolve/dice.js`: the flow version, outcome rule and per-action dice streams shared by the Standard roll and its guard.
+- `../../modules/rpg/strings.js` → `lean-rpg/strings/`: `character.js` sheets, party, gear, skills and the wizard; `story.js` saved characters, companions, first send, bars and the sheet; `fight.js` fights, change lines and RPG settings.
+- `../../modules/rpg/view/wizard.js` → `wizard/`: `who.js` the Who step and import; `stats.js` the Stats step; `skills.js` the Skills step; `review.js` Review and Create.
+- `../../core/registry.js` → `registry/`: `registration.js` registration checks and ownership; `commands.js` command, capture, context and initial-state lookups; `features.js` feature lookups; `lifecycle.js` peers, cycles and the restore barrier.
+- `../../core/runtime.js` → `runtime/start.js` start helpers; `runtime/saving.js` saving helpers.
+- `../../modules/data-modules/screens/blocks-editor.js` → `blocks-editor/`: `constants.js` labels and types; `editor.js` form state and controls; `draw.js` the sections; `layout.js` layout chips, card roles, colours and preview.
+- `../../modules/data-modules/screens/blocks.js` → `screens/blocks/page.js` the page's list, Show as, row menu and template chooser; `screens/blocks/shared.js` words and format helpers.
+- `../../core/strings.js` → `strings/messages.js` inline edits and refusals; `strings/page.js` bar, panel, drawer, menu, features and reply cards; `strings/screens.js` Story Block's own screens.
+- `../../ui/legacy/view/bind.js` → `view/bind/`: `paths.js` path syntax and reads; `scope.js` scopes; `expressions.js` compiled expressions; `helpers.js` helpers and formatters; `text.js` text and interpolation; `changes.js` change checks.
+- `../../ui/legacy/view/css.js` → `view/css/`: `parse.js` limits and tokenizing; `names.js` scope names; `selectors.js` selector scoping; `values.js` value filtering and theme properties; `scoping.js` the scoper.
+- `../../ui/legacy/view/widgets/map.js` → `view/widgets/map/data.js`: map data cleaning and layer visibility.
+- `../../modules/data-modules/check/shape.js`: the message table `E`, the shape validators shared by every section, and the display names of an int field.
+- `../../modules/data-modules/check/names.js`: `dataModuleDefaults`, the defaults a checked definition starts from.
+- `../../modules/data-modules/check/effects.js`: reward types, the line a List of entries field is worked by, and the effects a rule may write.
+- `../../modules/data-modules/check/imports.js`: the imports a definition declares and the offers collected from them.
+- `../../modules/data-modules/check/migration.js`: the migrations a definition declares and `validateDataMigration`.
+- `../../modules/data-modules/check/screens.js`: the presentation a definition declares (editable props, screens, action and template payloads, view paths).
+- `../../modules/data-modules/check/layout.js`: the block layout keys, the stage-bar fields and the block functions (cards, rules, hidden fields).
+- `../../modules/data-modules/check/validate.js`: `validateDataModules`, the entry point that checks a pack's definitions, catalog and capabilities.
+- `../../modules/data-modules/check/hash.js`: the memoised text hash and the hashes of a checked definition and of a whole pack.
+- `../../core/evidence/constants.js`: proof owners, stat names, structural caps, the stored key list, and the shared readers `isObject`, `whole` and `occurrenceOf`.
+- `../../core/evidence/payloads.js`: checks that a proof payload is closed and well formed for its kind, its payload key, and the intent check.
+- `../../core/evidence/stored.js`: whether a stored proof is whole and owned, its pin, the pins written with a block's ops, and the proof write checks.
+- `../../core/evidence/visible.js`: recorded entries, the visible proofs and the `story.evidence` query.
+- `../../core/evidence/submit.js`: `newRoot` and `submitProof`, which check a `ctx.proof` call and build its proof.
+- `../../core/ops/constants.js`: shared op names and JSON Pointer list index.
+- `../../core/ops/paths.js`: JSON Pointer escaping, parsing and value reads.
+- `../../core/ops/json.js`: plain-object test, JSON check, defensive copies and deep equality.
+- `../../core/ops/freeze.js`: deep freezing, frozen checks and frozen copies sharing a base.
+- `../../core/ops/diff.js`: minimal JSON Patch changes between two states.
+- `../../core/ops/apply.js`: applying JSON Patch changes to a state without changing it.
+- `../../core/ops/counters.js`: counter path detection and the pointer inside a counter holder.
+- `../../core/ops/rebase.js`: counter rebasing, per-reply scratch fitting and replay rules.
+- `../../core/ops/check.js`: generic op validation and forbidden key rules.
+- `../../core/sdk/constants.js`: sdk event names, host settings, limits and preflight patterns.
+- `../../core/sdk/shared.js`: the sdk's shared non-array object test.
+- `../../core/sdk/ids.js`: crypto-backed ids with a module prefix.
+- `../../core/sdk/events.js`: the sdk's named event bus.
+- `../../core/sdk/changed.js`: the sdk's `changed` event: one per reply or out-of-turn change with the domains touched, `['*']` on head moves.
+- `../../core/sdk/listener-guard.js`: wraps a module's named event listener so its throw or rejection becomes that module's Problem when the isolated-apply flag is on.
+- `../../core/sdk/settings.js`: schema coercion and settings over extension_settings.storySuite.
+- `../../core/sdk/queries.js`: query tools, mounted queries, module views and missing-domain checks.
+- `../../core/sdk/lifecycle.js`: lifecycle announcements, initial domains and read-only preflight.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/constants.js`: battle words, panel ids, marker line and fold/recent constants.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/util.js`: record checks, list reads and word cutting.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/read.js`: Classic and Standard recorded rolls as panel lines, and receipt lookup.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/model.js`: consequence arrows, turn-order levels, Status rows and the Foes line.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/draw.js`: the panel, its line nodes and the no-rolls note.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/marker.js`: marker finding and hiding, panel release and marker placement.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/follow.js`: the fold store and the live chat controller.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/receipt.js`: the folded Receipt row, with the exact cue text the narrator was told and the rule numbers in force.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/stop.js`: the why-it-ended words for a recorded stop, and the pace and exchange-cap hint.
+- `../../modules/rpg/view/check-card.js`: the Check card under a reply (who, skill or stat, difficulty, the numbers, the outcome pill, practice gained), drawn from `rpg.check` results; `battle-log/follow.js` places it where the log would stand.
+- `../../modules/rpg/view/check-card.css`: the Check card's styling, scoped to `.rpg-check`, theme tokens only.
+- `../../modules/rpg/view/settings.js` → `settings/constants.js`: shared words, ids, card search words and Custom fields.
+- `../../modules/rpg/view/settings.js` → `settings/controls.js`: cards, chips, fields, number rows and pack notes.
+- `../../modules/rpg/view/settings.js` → `settings/sections.js`: Formula, Rolls, Levels, Companions and Gear.
+- `../../modules/rpg/view/settings.js` → `settings/difficulty.js`: Difficulty, Custom numbers and odds.
+- `../../modules/rpg/view/settings.js` → `settings/combat.js`: the Combat box, saves and reset.
+- `../../modules/rpg/view/settings.js` → `settings/page.js`: the live page closure and card order.
+- `../../ui/legacy/view/mounts/card.js` → `card/summary.js`: the closed-line summary helpers and recent-carrier default.
+- `../../ui/legacy/view/mounts/card.js` → `card/context.js`: document lookup, carrier readers, caches, sets and observer.
+- `../../ui/legacy/view/mounts/card.js` → `card/follow.js`: keeping the newest reply's card in view.
+- `../../ui/legacy/view/mounts/card.js` → `card/build.js`: the reply card, its sections, mounts and open state.
+- `../../ui/legacy/view/mounts/card.js` → `card/draw.js`: card drawing, cache reuse, strip sync and carrier passes.
+- `../../ui/legacy/view/mounts/card.js` → `card/events.js`: open/close, story and SillyTavern event wiring.
+- `../../ui/legacy/view/mounts/card.js` → `card/mount.js`: wires the parts into the public controller.
+- `../../ui/legacy/view/widgets/editable/props.js`: the editable widget's prop schema and line-cutting helper.
+- `../../ui/legacy/view/widgets/editable/fields.js`: the editable widget's field boxes, grouped layout, live refresh and readback.
+- `../../modules/inventory/commands/wallet.js`: the purse commands and the narrator's edit wording.
+- `../../core/timeline/coordinator-prepare/finish.js`: the participant activation and acknowledgement phase of a committed restore.
+- `../../ui/legacy/view/template/render/view.js`: the renderer's view lifecycle, draft scope, element budget and the renderTemplate/destroyTemplate entry points.
+- `../../ui/legacy/view/template/render/blocks.js`: the text, if and each blocks and the block factory.
+- `../../ui/legacy/view/template/render/elements.js`: the element block for attributes, variables, classes, text, drafts, commands and form submits.
+- `../../ui/legacy/view/template/render/widgets.js`: the widget block, its props, api and instance cleanup.
+- `../../ui/legacy/view/form/fields/shared.js`: the field renderers' shared element, button, label and disabled helpers and fresh ids.
+- `../../ui/legacy/view/form/fields/basic.js`: the switch, text, number and slider field renderers.
+- `../../ui/legacy/view/form/fields/choice.js`: the select, profile, chips, segmented and chipset field renderers.
+- `../../ui/legacy/view/form/fields/lines.js`: the editable list field in rows or lines form.
+- `../../ui/legacy/view/form/fields/page.js`: the settings search box and grouped section block.
+- `../../ui/legacy/view/form/fields/renderers.js`: the frozen renderer table by field kind.
+- `../../core/persist/carrier.js`: carrier identities, record keys and the record shape check.
+- `../../core/persist/marks.js`: swipe marks, opening hashes and the evidence payload text.
+- `../../core/persist/copies.js`: the kept `swipe_info` record copy and swipe-delete loading checks.
+- `../../core/persist/records.js`: reading, restamping and writing the shown swipe's record.
+- `../../core/persist/receipts.js`: receipt retention and the guarded `data.v2` exception.
+- `../../core/persist/carry.js`: carrying a rescued record to the same message read from its file.
+- `../../core/persist/saver/constants.js`: save batching and timed-out-save read-back intervals.
+- `../../core/persist/saver/io.js`: the save timeout wrapper and one-write-at-a-time gate.
+- `../../core/persist/saver/suspects.js`: the suspect-chat watch, read-backs, rename and resume.
+- `../../core/persist/saver/api.js`: the saver's public methods in their original order.
+- `../../core/persist/saver/core.js`: the saver's live state, timers, save loop and rescue flow.
+- `../../modules/scene/domains/core/constants.js`: the core module id, static text, features, settings and gear grammar.
+- `../../modules/scene/domains/core/kinds.js`: the core change-line kinds and the `~ you` grammar line.
+- `../../modules/scene/domains/core/part.js`: the core part's domains, commands, queries, kinds, context and tabs.
+- `../../modules/scene/domains/core/merge.js`: merging module parts, hooks and settings without changing part order.
+- `../../modules/scene/domains/core/isolate-after.js`: the merged afterCapture hook that, flag `suite.isolatedApply` on, keeps the other parts' steps when one part fails.
+- `../../core/runtime/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
+- `../../modules/scene/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
+- `../../modules/scene/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
+- `src/v2/domains/people/part.js`: the core `people` domain part (present from the first reply, no flag): the `people.write` command and the `people.hash` query.
+- `src/v2/domains/people/validate.js`: checks a people view (version, order, plain JSON, records keyed by id, portraits as file references only, socialGraph keys and ids) before it is stored.
+- `../../core/runtime/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
+- `../../testkit/matrix/run/host.js`: matrix host setup, seeded crypto, module keys, reply text, facts and peer queries.
+- `../../testkit/matrix/run/checks.js`: matrix state checks, cold replay, the fresh-host oracle, dormancy and registration.
+- `../../testkit/matrix/run/basics.js`: the matrix basic row, action, replay, prompt and dormancy cases.
+- `../../testkit/matrix/run/cases.js`: the matrix missing-query, malformed, feature, clock, disabled, late and duplicate cases.
+- `../../testkit/matrix/run/revisions.js`: the matrix swipe, re-read and delete cases.
+
+## ../../testkit/ and ../../examples/
+- `../../examples/fishing/style.css`: styles the Fishing example's water strip, bobber phases, actions, catch log and released or empty rows, using SillyTavern theme variables.
+- `../../testkit/fake-st.js`: the fake SillyTavern context for unit tests (`createFakeContext`), its event source, chat helpers and prompt constants.
+- `../../testkit/fakes.js`: small store and command-bus stand-ins for Story Block's own unit tests of the turn and sdk.
+- `../../testkit/matrix/rows.js`: the supported Story Suite combinations and the matrix case columns in report order.
+- `../../testkit/matrix/report.js`: the matrix report: the rows-by-cases Markdown table, details, summary line and testkit description.
+
+## ../../tests/core/ (combat replay corpus)
+- `../../tests/suite/qa/combat-corpus.test.js`: replays the D0 combat chats and pins state, Problems, Re-read, cues and battle-log models.
+- `../../tests/suite/qa/state-fuzz-1..4.test.js`: four balanced shards of the seeded whole-chat fuzz (same seeds and steps as the old single file; a QA_FUZZ_* override runs in shard 1).
+- `../../tests/suite/qa/helpers/state-fuzz-run.js`: the fuzz run function, the seed lists and the shard split; `state-fuzz-gen.js`: its seeded generators (change lines, replies, UI commands) and the bonus-paid counter.
+- `../../tests/core/fixtures/combat-corpus/corpus.mjs`: captures one combat chat's full-replay golden.
+- `../../tests/core/fixtures/combat-corpus/make.mjs`: builds the Standard-rules planner, fight-start, board, noroll and practice chats and writes their goldens.
+- `../../tests/core/fixtures/combat-corpus/chats.json`: the ten pinned combat chats and their replay setup.
+- `../../tests/core/fixtures/combat-corpus/goldens.json`: the golden state, Problems, cues, battle-log models and Re-read results.
+- `../../tests/core/turn/isolation.test.js`: the isolated-apply flag: a failing core part, hook problems and the failed-reply tail, flag off and on.
+- `../../tests/core/sdk-flag.test.js`: `sdk.flag`, the read-only internal flag reader for Story Director and Delta (off by default).

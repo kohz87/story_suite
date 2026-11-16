@@ -1,0 +1,25 @@
+{
+ "_note": "External host import specifiers of each bundle set, recorded from the release and play builds of origin/main (bcdb9c3f8, the old layout). A moved file keeps the same host text.",
+ "release": {
+  "npc-state-delta": [
+   "../../../../script.js",
+   "../../../extensions.js",
+   "../../../utils.js",
+   "../../shared.js"
+  ],
+  "story-block": [
+   "/script.js"
+  ]
+ },
+ "play": {
+  "npc-state-delta": [
+   "../../../../../script.js",
+   "../../../../extensions.js",
+   "../../../../utils.js",
+   "../../../shared.js"
+  ],
+  "story-block": [
+   "/script.js"
+  ]
+ }
+}

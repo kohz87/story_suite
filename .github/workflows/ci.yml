@@ -109,9 +109,6 @@ jobs:
       fail-fast: false
       matrix:
         shard: ["1/3", "2/3", "3/3"]
-    defaults:
-      run:
-        working-directory: packages/story-block
     steps:
       - uses: actions/checkout@v4
         with:
@@ -120,7 +117,7 @@ jobs:
         with:
           node-version: 24
       - name: Syntax check
-        run: npm run check
+        run: node scripts/core/check.mjs
       # A pull request whose changed files are all inside the pack area runs only the pack
       # tests. Anything else (other files, a push to main, a manual run, no base to compare,
       # an empty list) runs the full suite. A pack-only run has few tests: shard 1/3 runs them and the
@@ -134,7 +131,7 @@ jobs:
           scope=full
           if [ "$EVENT" = "pull_request" ] && [ -n "$BASE" ] && git cat-file -e "$BASE^{commit}" 2>/dev/null; then
             files="$(git diff --name-only --no-renames "$BASE" HEAD)"
-            if [ -n "$files" ] && ! printf '%s\n' "$files" | grep -qvE '^packages/story-block/(examples/packs/|docs/v2/ERSVEIL\.md$|tests/v2/packs/)'; then
+            if [ -n "$files" ] && ! printf '%s\n' "$files" | grep -qvE '^(examples/packs/|docs/v2/ERSVEIL\.md$|tests/packs/)'; then
               scope=packs
             fi
           fi
@@ -145,10 +142,10 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
-          # Tests outside tests/v2/packs also read the example packs and the pack test helpers.
+          # Tests outside tests/packs also read the example packs and the pack test helpers.
           # Both searches are recursive, so a test in a nested pack folder is run (once).
-          packs="$(find tests/v2/packs -name '*.test.js' | sort)"
-          others="$(grep -rliE 'examples/packs|packs/helpers|ersveil' tests --include='*.test.js' | grep -v '^tests/v2/packs/' | sort)"
+          packs="$(find tests/packs -name '*.test.js' | sort)"
+          others="$(grep -rliE 'examples/packs|packs/helpers|ersveil' tests/modules tests/matrix tests/bench tests/authoring-kit examples/fishing/tests --include='*.test.js' | grep -v '^tests/packs/' | sort)"
           echo "Pack tests:"
           printf '%s\n' "$packs"
           echo "Also running the tests that read the example packs:"
@@ -160,10 +157,10 @@ jobs:
         env:
           FUZZ_DUMP_DIR: ${{ runner.temp }}
           NODE_OPTIONS: --max-old-space-size=4096
-        # The same command and heap as Story Block's npm test, plus a per-test timeout (node ignores the flag
+        # The same command and heap as npm run test:sb, plus a per-test timeout (node ignores the flag
         # after the globs and refuses it in NODE_OPTIONS, so `npm test -- --test-timeout` cannot be used;
         # tests/scripts/ci-timeouts.test.js checks this command against package.json).
-        run: node --test --test-timeout=900000 --test-shard=${{ matrix.shard }} "tests/*.test.js" "tests/v2/**/*.test.js" "examples/fishing/tests/*.test.js"
+        run: node --test --test-timeout=900000 --test-shard=${{ matrix.shard }} "tests/modules/**/*.test.js" "tests/packs/**/*.test.js" "tests/matrix/**/*.test.js" "tests/bench/*.test.js" "tests/authoring-kit/*.test.js" "examples/fishing/tests/*.test.js"
       - name: Keep state-fuzz replay dumps
         if: failure()
         uses: actions/upload-artifact@v4
@@ -176,9 +173,6 @@ jobs:
   story-director:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: packages/story-director
     steps:
       - uses: actions/checkout@v4
         with:
@@ -187,17 +181,14 @@ jobs:
         with:
           node-version: 24
       - name: Syntax check
-        run: npm run check
+        run: node scripts/director/check.mjs
       - name: Behavioral tests
-        # The same command as Story Director's npm test, plus a per-test timeout.
-        run: node --test --test-timeout=900000 "tests/*.test.js" "tests/v2/**/*.test.js"
+        # The same command as npm run test:sd, plus a per-test timeout.
+        run: node --test --test-timeout=900000 "tests/director/**/*.test.js"
 
   npc-state-delta:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: packages/npc-state-delta
     steps:
       - uses: actions/checkout@v4
         with:
@@ -206,79 +197,10 @@ jobs:
         with:
           node-version: 24
       - name: Syntax check
-        shell: bash
-        run: |
-          set -euo pipefail
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const config = JSON.parse(fs.readFileSync('runtime-modules.json', 'utf8'));
-          const modules = config.modules.map(item => item.path);
-          if (!modules.length) throw new Error('runtime-modules.json contains no active modules');
-          for (const file of modules) {
-            require('node:child_process').execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
-          }
-          NODE
-      - name: Full verification
-        # The same three commands as this package's npm test; the first runs many tests, so it gets a per-test timeout.
-        run: |
-          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs --test --test-timeout=900000 tests/*.test.js tests/v2/break/*.test.js
-          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/compatibility-check.js
-          node --max-old-space-size=4096 --import ./tests/active-runtime-test-setup.mjs tests/runtime-smoke.mjs
-      - name: Delta validation and prompt measurement
-        run: |
-          npm run validate
-          npm run measure:prompts
-      - name: Verify runtime package
-        run: npm run package
-      - name: Release consistency
-        shell: bash
-        run: |
-          set -euo pipefail
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const runtime = JSON.parse(fs.readFileSync('runtime-modules.json', 'utf8'));
-          const core = fs.readFileSync('core.js', 'utf8');
-          const readme = fs.readFileSync('README.md', 'utf8');
-          const rootJs = fs.readdirSync('.', { withFileTypes: true })
-            .filter(entry => entry.isFile() && entry.name.endsWith('.js'))
-            .map(entry => entry.name)
-            .sort();
-          const configured = runtime.modules.map(item => item.path).filter(item => !item.includes('/')).sort();
-          if (manifest.version !== pkg.version) throw new Error(`version mismatch: manifest=${manifest.version} package=${pkg.version}`);
-          if (runtime.applicationVersion !== manifest.version) throw new Error(`runtime inventory version mismatch: ${runtime.applicationVersion}`);
-          if (runtime.entrypoint !== manifest.js) throw new Error(`runtime inventory entrypoint mismatch: ${runtime.entrypoint}`);
-          if (JSON.stringify(rootJs) !== JSON.stringify(configured)) throw new Error('active runtime inventory does not exactly match root JS modules');
-          if (!core.includes(`NPC_STATE_VERSION = '${manifest.version}'`)) throw new Error('core application version mismatch');
-          if (!core.includes("./core-mechanics.js")) throw new Error('canonical core mechanics owner missing');
-          if (!fs.readFileSync('branch.js', 'utf8').includes("./branch-core.js")) throw new Error('canonical branch core owner missing');
-          if (configured.some(path => /(?:^|[-_.])legacy(?:[-_.]|$)|(?:^|[-_.])v\d{3,}(?:[-_.]|$)/i.test(path))) throw new Error('active runtime inventory contains legacy/version-labelled paths');
-          if (!readme.startsWith(`# NPC State Delta v${manifest.version}`)) throw new Error('README title/version mismatch');
-          if (manifest.js !== 'bootstrap.js' || !fs.readFileSync('bootstrap.js', 'utf8').includes("await import('./index.js')")) throw new Error('entrypoint mismatch');
-          console.log(`Delta ${manifest.version}; ${configured.length} canonical active runtime modules`);
-          NODE
-          test -f "dist/npc_state_delta-$(node -p "require('./manifest.json').version").zip"
-          unzip -l "dist/npc_state_delta-$(node -p "require('./manifest.json').version").zip"
-      - name: Record reproducible verification source
-        if: always()
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p dist
-          git rev-parse HEAD > dist/verification-commit.txt
-          git bundle create dist/verification-source.bundle HEAD
-      - name: Retain verification artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: delta-verification-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            packages/npc-state-delta/dist/verification-commit.txt
-            packages/npc-state-delta/dist/verification-source.bundle
-            packages/npc-state-delta/dist/npc_state_delta-*.zip
-          retention-days: 3
-          if-no-files-found: error
+        run: node scripts/core/check.mjs
+      - name: Behavioral tests
+        # The same command as npm run test:nsd, plus a per-test timeout.
+        run: node --max-old-space-size=4096 --import ./tests/people/active-runtime-test-setup.mjs --test --test-timeout=900000 "tests/people/**/*.test.js"
 
   # The cross-package suite runs in two parallel shards; verify adds up their test counts against the floor.
   suite:

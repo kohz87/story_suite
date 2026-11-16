@@ -1,0 +1,438 @@
+// An independent oracle for SPEC §2.2: the state at carrier N rebuilt from scratch out of the chat
+// alone (latest checkpoint at or before N, then every carrier's ops), with its own strict JSON Patch
+// (RFC 6902 add / replace / remove) instead of src/v2/ops.js. A block of ops (the record's `spans`,
+// one per stored receipt) that does not apply is skipped alone, its /meta/rev still counted, as the
+// store does with a hand-edited chat or a deleted middle reply; a record whose spans do not add up is
+// one block. Which swipe's record counts is the store's documented rule (persist.js readRecord), so
+// that one function is shared.
+// Two rules from the break round, written here on their own: a checkpoint whose `covers` (the record
+// IDs since the checkpoint before it) no longer matches the chat is passed over (B2-4); an op with a
+// numeric `was` on a number that now stands elsewhere adds its change (value − was) instead, and the
+// inventory's own validator must then accept the block (B3-8); a moved `qty` that comes to exactly 0
+// removes the thing that holds it (r2-3); a remove of an object key already gone does nothing, unless it
+// is a counted take (`was`); a list append (`/-`) lands at the end.
+// Two more from SPEC §2.2 the oracle lacked until fix-fuzz150 (the 150-step fuzz found the store right):
+// a counted remove (`was` at `count`, a stack a reply emptied) of a thing that now holds another number
+// takes `was` from it and the rest stays; rule (c), a replace of an object key inside a domain that is
+// not there, in an object that is, is an add. Inside a scratch field, a list is applied as written.
+// A replayed block is checked by the validator of every domain it touches, not the inventory's alone
+// (SPEC §2.2 "Replayed blocks are checked", as the host does in runtime.js): a block that brings a
+// problem its state did not have is skipped. So `+ present Fenna`, `- present Fenna`, `+ present Fenna`
+// with the middle reply deleted keeps Fenna once: the last append would list her twice, which the
+// scene's validator refuses, and that block is skipped.
+// A reader's loot take is a guarded block (docs/v2/REPLAY.md; inventory.js lootTakeGuard): it applies, with its claim,
+// only while the reply's offer it took from is in the state before it and lays out at least what it took, and its claim
+// is free. A taken name means the one thing of the offer the inventory's own name lookup finds for it (names.js resolveDef,
+// so the oracle folds names exactly as the inventory does); none, two, or one an earlier taken name took, and it does not
+// hold. A guarded block of any other kind does not apply here (the QA chats make none).
+// Rule (g), a deferred domain that is not there: an add or replace under it (the domain not written whole earlier in the block) finds
+// it as its initial slice, written out here on its own (DEFERRED: people and dataModules); a block of removes alone makes nothing.
+// A legacy (unguarded) block whose claim (an add under /meta/claims) the state before it already holds is skipped whole, ops and
+// claims alike, as the store's replay does (REPLAY.md rule 4, store/guards.js claimHeld): the first holder wins, one Problem.
+
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readRecord } from '../../../../core/persist.js';
+import { initial as dmInitial } from '../../../../modules/data-modules/part/shared.js';
+import { createStore } from '../../../../core/store.js';
+import { validateInventory } from '../../../../modules/inventory/index.js';
+import { aliasKey, resolveDef } from '../../../../modules/scene/names.js';
+import { validateScene } from '../../../../modules/scene/index.js';
+import { validatePeople } from '../../../../modules/people/domain/validate.js';
+import { hashJson } from '../../../../core/replay.js';
+import { checkGuard } from '../../../../modules/rpg/practice.js';
+import { inventoryEditGuard } from '../../../../modules/inventory/edit.js';
+import { probeModule } from './probe-module.js';
+import { replayFailure } from './replay-diagnostics.js';
+
+const isCarrier = message => Boolean(message) && typeof message === 'object' && !message.is_user;
+
+export const carriers = chat => chat.map((message, index) => (isCarrier(message) ? index : -1)).filter(index => index >= 0);
+
+const unescape = segment => segment.replace(/~1/g, '/').replace(/~0/g, '~');
+
+/** Strict JSON Patch on a deep copy; throws when a path does not fit. Counts with `was` move (above). */
+// The inventory's scratch fields (its domain's `scratch`): the tally, the loot on offer, the condition events;
+// and the scene's weather (one record a later reply writes whole, MODULES §F120) and your look (each part written on its own,
+// MODULES §F126).
+const SCRATCH = ['/domains/inventory/perReply', '/domains/inventory/loot', '/domains/inventory/condLog', '/domains/scene/weather', '/domains/scene/you', '/domains/scene/mounts'];
+const at = (root, keys) => keys.reduce((node, key) => (node !== null && typeof node === 'object' && Object.hasOwn(node, key) ? node[key] : undefined), root);
+const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+// The validators of the domains the QA chats hold (Story Block's core two and the probe's), by domain name.
+const VALIDATORS = Object.freeze({ inventory: validateInventory, scene: validateScene, people: validatePeople, probe: probeModule().domains.probe.validate });
+// The deferred domains the QA chats write and the slice an absent one replays as (rule g; Story Block's `people`).
+const DEFERRED = Object.freeze({ people: () => ({ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } }), dataModules: () => structuredClone(dmInitial()) });
+// Rule (g): `root` with each deferred domain the block writes under, while it is not there, set to its initial slice.
+function seedDeferred(root, ops) {
+    const whole = new Set();
+    for (const op of ops) {
+        const keys = typeof op?.path === 'string' && op.path.startsWith('/domains/') ? op.path.slice(1).split('/').map(unescape) : [];
+        if (keys.length < 2) continue;
+        if (keys.length === 2) whole.add(keys[1]);
+        else if (['add', 'replace'].includes(op.op) && !whole.has(keys[1]) && record(root?.domains) && !Object.hasOwn(root.domains, keys[1])) {
+            whole.add(keys[1]);
+            if (DEFERRED[keys[1]]) root.domains[keys[1]] = DEFERRED[keys[1]]();
+        }
+    }
+}
+/** The problems of the named domains in `state` (a domain the state lacks has none). */
+export function validateDomains(state, names) {
+    return names.flatMap(name => {
+        const fn = VALIDATORS[name];
+        const slice = state?.domains?.[name];
+        return typeof fn === 'function' && slice !== undefined ? fn(slice).map(problem => `${name}: ${problem}`) : [];
+    });
+}
+
+export function strictApply(state, ops) {
+    let root = structuredClone(state);
+    // The domains the block touches (any op under /domains/<name>), checked after it as the host does.
+    const touched = new Set();
+    for (const op of ops) {
+        const name = typeof op?.path === 'string' && /^\/domains\/[^/]/.test(op.path) ? unescape(op.path.split('/')[2]) : null;
+        if (name !== null) touched.add(name);
+    }
+    const startProblems = new Set(validateDomains(root, [...touched]));
+    seedDeferred(root, ops);
+    // Paths earlier ops of the block wrote, for rule (d): an op marked `within` a thing is passed over when the thing is not there.
+    const wrote = [];
+    for (const original of ops) {
+        let op = original;
+        if (typeof op?.within === 'string') {
+            const inside = op.within.slice(1).split('/').map(unescape);
+            const put = wrote.some(path => op.within === path || op.within.startsWith(`${path}/`));
+            if (!(op.op === 'add' && op.path === op.within) && !put && at(root, inside) === undefined) continue;
+        }
+        // Rule (e): an append marked `unique` of an item the list holds already (no earlier op wrote the list) is passed over.
+        // Ops stored before the mark existed (2.11.1 and earlier) get the scene's present list the same way.
+        if ((op?.unique === true || op?.path === '/domains/scene/present/-') && op.op === 'add' && typeof op.path === 'string' && op.path.endsWith('/-')) {
+            const list = op.path.slice(0, -2);
+            const held = at(root, list.slice(1).split('/').map(unescape));
+            const same = item => (typeof op.value === 'string' ? typeof item === 'string' && item.toLowerCase() === op.value.toLowerCase() : JSON.stringify(item) === JSON.stringify(op.value));
+            if (!wrote.some(path => list === path || list.startsWith(`${path}/`)) && Array.isArray(held) && held.some(same)) continue;
+        }
+        if ((op?.op === 'add' || op?.op === 'replace') && typeof op.path === 'string') wrote.push(op.path);
+        // The inventory's per-reply tally (scratch): a drop of something already gone is passed over;
+        // anything else is put in place, making the objects on the way.
+        // A list inside one (an append `/-`, a position) is not fitted: it applies as written below.
+        const inList = keys => keys.at(-1) === '-' || keys.slice(0, -1).some((_, n) => Array.isArray(at(root, keys.slice(0, n + 1))));
+        if (typeof op?.within !== 'string' && typeof op?.path === 'string' && SCRATCH.some(root => op.path.startsWith(`${root}/`)) && !inList(op.path.slice(1).split('/').map(unescape))) {
+            const keys = op.path.slice(1).split('/').map(unescape);
+            if (op.op === 'remove') {
+                if (at(root, keys) === undefined) continue;
+            } else {
+                let node = root;
+                for (const key of keys.slice(0, -1)) {
+                    if (!record(node[key])) node[key] = {};
+                    node = node[key];
+                }
+                node[keys.at(-1)] = structuredClone(op.value);
+                continue;
+            }
+        }
+        // Replayed, a remove of an object key that is not there does nothing (unless it is a counted take).
+        if (op?.op === 'remove' && typeof op.was !== 'number' && typeof op.path === 'string' && op.path.startsWith('/')) {
+            const keys = op.path.slice(1).split('/').map(unescape);
+            let node = root;
+            let gone = false;
+            for (const key of keys) {
+                if (!record(node)) break;
+                if (!Object.hasOwn(node, key)) { gone = true; break; }
+                node = node[key];
+            }
+            if (gone) continue;
+        }
+        // A counted remove (a stack a reply emptied: `was` at `count`) of a thing that now holds another
+        // number takes `was` from it instead; the rest stays (less than `was` goes below zero, refused below).
+        if (op?.op === 'remove' && typeof op.was === 'number' && typeof op.count === 'string' && op.count.startsWith('/') && typeof op.path === 'string') {
+            const now = at(root, `${op.path}${op.count}`.slice(1).split('/').map(unescape));
+            if (typeof now === 'number' && now !== op.was) op = { op: 'replace', path: `${op.path}${op.count}`, value: now - op.was };
+        }
+        // Rule (c): a replace (not counted) of an object key inside a domain that is not there, in an object
+        // that is, is an add (only a deleted reply had added the key).
+        if (op?.op === 'replace' && typeof op.was !== 'number' && typeof op.path === 'string' && op.path.startsWith('/domains/')) {
+            const keys = op.path.slice(1).split('/').map(unescape);
+            const parent = at(root, keys.slice(0, -1));
+            if (keys.length >= 3 && record(parent) && !Object.hasOwn(parent, keys.at(-1))) op = { op: 'add', path: op.path, value: op.value };
+        }
+        if (op?.op === 'replace' && typeof op.was === 'number' && typeof op.value === 'number') {
+            const keys = op.path.slice(1).split('/').map(unescape);
+            const now = at(root, keys);
+            // A count whose holder is gone counts from 0 (a holder that is only that count, a wallet, made again).
+            if (now === undefined && record(at(root, keys.slice(0, -1)))) {
+                op = { op: 'add', path: op.path, value: op.value - op.was };
+            } else if (now === undefined && at(root, keys.slice(0, -1)) === undefined && record(at(root, keys.slice(0, -2)))
+                && Object.values(at(root, keys.slice(0, -2))).every(other => record(other) && Object.keys(other).every(field => field === keys.at(-1)))) {
+                op = { op: 'add', path: op.path.replace(/\/[^/]*$/, ''), value: { [keys.at(-1)]: op.value - op.was } };
+            } else if (typeof now === 'number' && now !== op.was) {
+                op = { ...op, value: now + op.value - op.was };
+                // A moved `qty` at exactly 0 removes the thing holding it (r2-3: no stack is kept at 0).
+                if (op.value === 0 && keys.length > 3 && keys[keys.length - 1] === 'qty') op = { op: 'remove', path: op.path.replace(/\/[^/]*$/, '') };
+            }
+        }
+        if (!op || !['add', 'replace', 'remove'].includes(op.op)) throw new Error(`bad op ${op?.op}`);
+        if (op.path === '') {
+            if (op.op === 'remove') throw new Error('cannot remove the root');
+            root = structuredClone(op.value);
+            continue;
+        }
+        if (!op.path.startsWith('/')) throw new Error(`bad path ${op.path}`);
+        const keys = op.path.slice(1).split('/').map(unescape);
+        const last = keys.pop();
+        let target = root;
+        for (const key of keys) {
+            if (target === null || typeof target !== 'object' || !Object.hasOwn(target, key)) throw new Error(`no ${op.path}`);
+            target = target[key];
+        }
+        if (target === null || typeof target !== 'object') throw new Error(`no container at ${op.path}`);
+        if (Array.isArray(target)) {
+            const index = last === '-' ? target.length : Number(last);
+            if (!Number.isInteger(index) || index < 0) throw new Error(`bad index ${op.path}`);
+            if (op.op === 'add') {
+                if (index > target.length) throw new Error(`index past end ${op.path}`);
+                target.splice(index, 0, structuredClone(op.value));
+            } else {
+                if (index >= target.length) throw new Error(`no ${op.path}`);
+                if (op.op === 'replace') target[index] = structuredClone(op.value);
+                else target.splice(index, 1);
+            }
+        } else if (op.op === 'add') {
+            target[last] = structuredClone(op.value);
+        } else {
+            if (!Object.hasOwn(target, last)) throw new Error(`no ${op.path}`);
+            if (op.op === 'replace') target[last] = structuredClone(op.value);
+            else delete target[last];
+        }
+    }
+    // A replayed block may not leave a domain it touches with a problem it did not have before (r2-14).
+    // (A moved count is always under /domains/inventory, so the inventory is among them then.)
+    if (validateDomains(root, [...touched]).some(problem => !startProblems.has(problem))) {
+        throw new Error('the changes break a domain they touch');
+    }
+    return root;
+}
+
+// The checkpoint carrier to start from for `upTo`: the last one whose `covers` matches the record IDs
+// since the one before it (none: trusted), else the latest one.
+function startOf(chat, upTo) {
+    let from = -1;
+    let latest = -1;
+    let since = [];
+    for (let i = 0; i <= Math.min(upTo, chat.length - 1); i++) {
+        if (!isCarrier(chat[i])) continue;
+        const record = readRecord(chat[i]);
+        if (!record) continue;
+        if (record.checkpoint) {
+            latest = i;
+            const covers = record.covers;
+            if (!Array.isArray(covers) || (from >= 0 && JSON.stringify(covers) === JSON.stringify(since))) {
+                from = i;
+                since = [];
+            }
+        }
+        since.push(record.sid);
+    }
+    return from >= 0 ? from : latest;
+}
+
+// A record's blocks with their spans ([{ ops, span }]); one block with no span when the spans do not add up.
+function spannedBlocks(record) {
+    const spans = Array.isArray(record.spans) ? record.spans : null;
+    const total = spans ? spans.reduce((sum, span) => sum + (Number.isInteger(span?.n) && span.n >= 0 ? span.n : NaN), 0) : NaN;
+    if (total !== record.ops.length) return record.ops.length ? [{ ops: record.ops, span: null }] : [];
+    const out = [];
+    let at = 0;
+    for (const span of spans) {
+        if (span.n) out.push({ ops: record.ops.slice(at, at + span.n), span });
+        at += span.n;
+    }
+    return out;
+}
+
+/** A record's ops as its stored blocks (`spans`), or one block when the spans do not add up. */
+export function blocksOf(record) {
+    return spannedBlocks(record).map(entry => entry.ops);
+}
+
+/** Whether a guarded block may apply on `state` (the state before it): a loot offer (reply-bound, so it stands while its reply
+ * does, and the oracle reads only the replies there are), a loot take whose offer still holds what it took (above), or a
+ * data-modules / RPG block (the host writes those ops; this oracle checks the patch replay, not the guard's input hash). */
+export function guardHolds(state, guard, span = null) {
+    const predicate = guard?.predicate;
+    // A story check's results stand while the party's sheet is what they were worked on, and an add's name decision while the name resolves as it did:
+    // both are witnesses of the real state the oracle has no second copy of, so the owner's own guard function is asked (the oracle rebuilds the state itself).
+    if (predicate?.kind === 'rpg.check') return checkGuard({ state, hash: hashJson }, { guard, source: span?.source, recorded: span?.recorded ?? null }).ok === true;
+    if (predicate?.kind === 'inventory.reader-edit' && predicate.action === 'inventory.add' && predicate.decision !== undefined) {
+        return inventoryEditGuard({ state, hash: hashJson }, { guard, source: span?.source, operation: span?.operation }).ok === true;
+    }
+    if (String(predicate?.kind ?? '').startsWith('dm.') || predicate?.kind === 'rpg.resolve' || predicate?.kind === 'interaction') return true;
+    if (predicate?.kind === 'loot.offer') return guard.replyBound === true;
+    if (predicate?.kind === 'inventory.reader-edit') {
+        if (predicate.action === 'inventory.add') return !predicate.target && !predicate.pieces;
+        if (!['inventory.edit', 'inventory.drop'].includes(predicate.action)) return false;
+        const target = predicate.target, inventory = state?.domains?.inventory;
+        const stack = inventory?.stacks?.[target?.id];
+        if (!stack || stack.def !== target.def || stack.owner !== target.owner || !inventory.defs?.[stack.def]) return false;
+        if (predicate.pieces !== undefined) {
+            if (predicate.action !== 'inventory.edit') return false;
+            const pieces = Object.values(inventory.stacks).filter(item => item.def === target.def && item.owner === target.owner)
+                .map(item => ({ id: item.id, equipped: item.equipped }));
+            const canonical = JSON.stringify(pieces.map(item => ({ equipped: item.equipped, id: item.id })));
+            const digest = createHash('sha256').update(canonical).digest('hex');
+            if (Array.isArray(predicate.pieces) ? JSON.stringify(pieces) !== JSON.stringify(predicate.pieces) : digest !== predicate.pieces) return false;
+        }
+        return true;
+    }
+    if (predicate?.kind !== 'loot.take') return false;
+    const offer = at(state, ['domains', 'inventory', 'loot', String(predicate.sid)]);
+    if (!record(offer) || (offer.claim || `loot:${predicate.sid}`) !== predicate.claim) return false;
+    if (Object.hasOwn(state?.meta?.claims ?? {}, predicate.claim)) return false;
+    const things = Object.values(record(offer.items) ? offer.items : {});
+    const defs = {};
+    const aliases = {};
+    things.forEach((item, n) => {
+        if (item.coin !== undefined) return;
+        defs[n] = { name: item.name };
+        aliases[aliasKey(item.name)] ??= String(n);
+    });
+    const took = new Set();
+    const items = predicate.items.every(want => {
+        const found = resolveDef({ defs, aliases }, want.name);
+        if (found.status !== 'found' || took.has(found.id)) return false;
+        took.add(found.id);
+        return things[Number(found.id)].qty >= want.qty;
+    });
+    const purse = things.find(item => item.coin !== undefined)?.coin ?? 0;
+    return items && purse >= predicate.coin;
+}
+
+/** The first claim key a block's ops add (`/meta/claims/<key>`, or the whole map) that the state before it holds already. */
+function claimHeldBy(state, ops) {
+    const held = state?.meta?.claims;
+    if (!record(held)) return undefined;
+    for (const op of ops) {
+        if (!record(op) || (op.op !== 'add' && op.op !== 'replace') || typeof op.path !== 'string') continue;
+        const keys = op.path === '/meta/claims' ? (record(op.value) ? Object.keys(op.value) : [])
+            : op.path.startsWith('/meta/claims/') && !op.path.slice(13).includes('/') ? [unescape(op.path.slice(13))] : [];
+        const taken = keys.find(key => Object.hasOwn(held, key));
+        if (taken !== undefined) return taken;
+    }
+    return undefined;
+}
+
+/** { state, skipped: [{ index, block, revs, domains, claims }] } at carrier `upTo`, rebuilt from the chat alone; state null without a checkpoint. */
+export function rebuildAt(chat, upTo, memo = null) {
+    const from = startOf(chat, upTo);
+    if (from < 0) return { state: null, skipped: [] };
+    const hit = memo?.get(from);
+    let state, skipped, start;
+    if (hit && hit.done <= upTo + 1) { state = hit.state; skipped = hit.skipped; start = hit.done; }
+    else { state = structuredClone(readRecord(chat[from]).checkpoint); skipped = []; start = from; }
+    for (let i = start; i <= upTo && i < chat.length; i++) {
+        const record = readRecord(chat[i]);
+        if (!record) continue;
+        spannedBlocks(record).forEach(({ ops, span }, block) => {
+            try {
+                if (span?.id && span.guard && !guardHolds(state, span.guard, span)) throw new Error('its guard does not hold');
+                if (!span?.guard && claimHeldBy(state, ops)) throw new Error('claim already held');
+                state = strictApply(state, ops);
+            } catch (error) {
+                const revs = ops.filter(op => op.path === '/meta/rev').map(op => op.value);
+                skipped.push({ index: i, block, revs, why: error?.message, claims: ops.map(op => /^\/meta\/claims\/([^/]+)$/.exec(op.path ?? '')?.[1]).filter(Boolean), domains: [...new Set(ops.map(op => /^\/domains\/([^/]+)/.exec(op.path ?? '')?.[1]).filter(Boolean))] });
+                if (revs.length && revs.at(-1) > state.meta.rev) state.meta.rev = revs.at(-1);
+            }
+        });
+    }
+    memo?.set(from, { state, skipped, done: Math.min(upTo, chat.length - 1) + 1 });
+    return { state, skipped };
+}
+
+/** The records on the current line of history, oldest first: [{ index, record }]. */
+export function lineRecords(chat) {
+    return carriers(chat).map(index => ({ index, record: readRecord(chat[index]) })).filter(entry => entry.record);
+}
+
+const plain = value => (value === null || value === undefined ? value : JSON.parse(JSON.stringify(value)));
+
+/**
+ * Every state invariant at once, against the host (createHost). `label` says which step this is.
+ * - the store's state at every carrier equals the oracle's rebuild from scratch (and a brand-new
+ *   store over a copy of the chat agrees, so no cache can hide a difference);
+ * - a narrated receipt is told at most once on this line, never before it happened, and the
+ *   store's untold list is exactly the ones nobody told;
+ * - no receipt id appears twice on the line.
+ */
+export function checkInvariants(host, label, { trace = [], dumpDir, tolerate = null } = {}) {
+    const chat = host.ctx.chat;
+    const store = host.store;
+    const indexes = carriers(chat);
+    // The chat exactly as the rebuild reads it: a store read must leave it alone, and a dump shows this text, never a chat
+    // a read has changed since (a dump taken after `store.at` once hid what the rebuild had seen).
+    const read = JSON.stringify(chat);
+    const memo = new Map();
+    for (const index of indexes) {
+        const { state, skipped } = rebuildAt(chat, index, memo);
+        const live = plain(store.at(index));
+        const rebuilt = plain(state);
+        const after = JSON.stringify(chat);
+        try {
+            // `tolerate: { domain, field, seen }`: a reply whose stored field differs from the rebuild's is compared with that field
+            // and the domains and claims of the blocks the rebuild skipped left out, and `seen()` told. The rebuild does not model a scratch
+            // field of another module (Story Director's trips): when a later reply's record is stored for what an edit removed,
+            // the rebuild refuses the block and its own domains drift after it; every other domain is still compared.
+            const field = state => state?.domains?.[tolerate?.domain]?.[tolerate?.field];
+            if (tolerate && JSON.stringify(field(live)) !== JSON.stringify(field(rebuilt))) {
+                tolerate.seen();
+                const omit = state => { const copy = structuredClone(state); delete copy?.domains?.[tolerate.domain]?.[tolerate.field]; for (const { domains, claims } of skipped) { for (const name of domains) delete copy?.domains?.[name]; for (const claim of claims) delete copy?.meta?.claims?.[claim.replace(/~1/g, '/').replace(/~0/g, '~')]; } return copy; };
+                assert.deepEqual(omit(live), omit(rebuilt));
+            } else assert.deepEqual(live, rebuilt);
+            if (after !== read) throw new assert.AssertionError({ message: 'the chat changed' });
+        } catch (error) {
+            const wrote = after !== read ? `${label}: store.at(${index}) changed the chat it only reads (the rebuild saw the text before, the dump shows it)\n` : '';
+            error.message = wrote + replayFailure({ label, index, live, rebuilt, chat: JSON.parse(read), skipped, trace, dumpDir });
+            throw error;
+        }
+    }
+    const headIndex = indexes.at(-1) ?? -1;
+    assert.equal(store.headIndex(), headIndex, `${label}: head index`);
+    if (headIndex >= 0) {
+        // With the validators the host passes (runtime.js): a replay that moves counts, or any replayed block, is checked by them.
+        const validate = (state, names) => validateDomains(state, names);
+        // And the inventory's per-reply tally and the scene's weather and look as the scratch they are declared to be (ops.js).
+        const scratch = name => (name === 'inventory' ? ['perReply', 'loot', 'condLog'] : name === 'scene' ? ['weather', 'you', 'mounts'] : name === tolerate?.domain ? [tolerate.field] : []);
+        // (one copy, read as the same array every time, as SillyTavern's chat is: a reply-bound block is told by its message)
+        const copy = structuredClone(chat);
+        // And the deferred domains' initial slices (rule g), from the oracle's own table.
+        const seed = name => (DEFERRED[name] ? DEFERRED[name]() : null);
+        const fresh = createStore({ chat: () => copy, save: async () => {}, validate, scratch, seed });
+        fresh.attachGuard((state, { guard, source, operation, recorded }) => (guardHolds(state, guard, { source, operation, recorded }) ? { ok: true } : { ok: false, reason: 'its guard does not hold' }));
+        assert.deepEqual(plain(fresh.head()), plain(store.head()), `${label}: a new store over a copy of the chat agrees with the cached head`);
+    }
+
+    const records = lineRecords(chat);
+    const owner = new Map();
+    for (const { index, record } of records) {
+        for (const receipt of record.receipts) {
+            assert.ok(!owner.has(receipt.id), `${label}: receipt ${receipt.id} is stored twice on this line (carriers ${owner.get(receipt.id)?.index} and ${index})`);
+            owner.set(receipt.id, { index, receipt });
+        }
+    }
+    const tellers = new Map();
+    for (const { index, record } of records) {
+        for (const id of record.narrated) {
+            if (!tellers.has(id)) tellers.set(id, []);
+            tellers.get(id).push(index);
+        }
+    }
+    const untoldExpected = [];
+    for (const [id, { index, receipt }] of owner) {
+        if (receipt.narrate !== true) continue;
+        const told = tellers.get(id) ?? [];
+        assert.ok(told.length <= 1, `${label}: receipt ${id} ("${receipt.summary}") is told ${told.length} times on this line (carriers ${told.join(', ')})`);
+        if (told.length) assert.ok(told[0] >= index, `${label}: receipt ${id} on carrier ${index} is told by an earlier carrier ${told[0]}`);
+        else untoldExpected.push(id);
+    }
+    assert.deepEqual(store.untold().map(receipt => receipt.id), untoldExpected, `${label}: untold receipts are exactly the ones nobody told, oldest first`);
+    return { records, owner, tellers };
+}

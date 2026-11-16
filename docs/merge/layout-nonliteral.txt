@@ -70,7 +70,6 @@ packages/story-block/tests/v2/packs/cast-presets.test.js
 packages/story-block/tests/v2/packs/holidays-world.test.js
 packages/story-block/tests/v2/screens/helpers.js
 packages/story-block/tests/v2/screens/inventory-folds.test.js
-packages/story-block/tests/v2/scripts/sync-testkit.test.js
 packages/story-block/tests/v2/skills-reread.test.js
 packages/story-block/tests/v2/ux/controls-css.test.js
 packages/story-block/tests/v2/ux/game-view-css.test.js
@@ -102,3 +101,6 @@ tests/suite/background-prompts.test.js
 tests/suite/isolation-each-module.test.js
 tests/suite/nsd-static-part.js
 tests/suite/redraw-count.bench.test.js
+scripts/dryrun/suite-at.mjs
+tests/scripts/dryrun-suite-at.test.js
+tests/modules/cast/keypeople/pin-list.test.js

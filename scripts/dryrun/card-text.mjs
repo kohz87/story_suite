@@ -2,6 +2,8 @@
 // text only. The scope is what the page host builds for that card: the reply's state and changes, the modules' card lines, and (once
 // the code has it) the reply's module failures. Code without the card screen or the renderer answers null: no card field is recorded.
 
+import { suiteAt } from './suite-at.mjs';
+
 const squash = text => String(text ?? '').replace(/\s+/g, ' ').trim();
 
 async function optional(load) {
@@ -12,13 +14,13 @@ async function optional(load) {
 export async function makeCardText(suite) {
   if (typeof suite?.at !== 'function') return null;
   const mods = await optional(() => Promise.all(['src/v2/screens/index.js', 'src/v2/view/screens.js', 'src/v2/view/template/index.js', 'src/v2/view/bind.js',
-    'src/v2/events/index.js', 'src/v2/view/widgets/index.js', 'tests/ui-fake-dom.js'].map(rel => suite.at(rel))));
+    'src/v2/events/index.js', 'src/v2/view/widgets/index.js', 'tests/ui-fake-dom.js'].map(rel => suiteAt(suite, rel))));
   if (!mods) return null;
   const [screens, data, template, bind, events, widgets, fakeDom] = mods;
   const screen = screens.changesCardScreen;
   const compiled = screen && template.compileTemplate(screen.template);
   if (!compiled) return null;
-  const report = await optional(() => suite.at('src/v2/turn/apply-report.js'));
+  const report = await optional(() => suiteAt(suite, 'src/v2/turn/apply-report.js'));
 
   return (host, index) => {
     const state = host.store.at(index);

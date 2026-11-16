@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom } from '../../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
 import { bagFixture } from '../../../../ui/fixtures/bag.js';
 import { itemsCard, itemTile, memberName, KIND_LABEL } from '../../../../ui/tabs/bag/item-grid.js';
 import { makeCtx } from './helpers.js';

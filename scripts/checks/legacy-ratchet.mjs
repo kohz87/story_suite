@@ -1,11 +1,14 @@
 /**
  * Compares the current legacy-oversize list with the base one: the list may only shrink.
- * Both arguments are Maps of path -> line count. Returns { errors } with one message per violation.
+ * Both arguments are Maps of path -> line count. `map` (optional) is the layout's path mapper: the base list's names are sent through it first,
+ * so an entry a layout move renamed (same count) is the same entry. Returns { errors } with one message per violation.
  */
-export function checkLegacyRatchet({ current, base }) {
+export function checkLegacyRatchet({ current, base, map = path => path }) {
   const errors = [];
+  const moved = new Map();
+  for (const [filePath, count] of base) moved.set(map(filePath), count);
   for (const [filePath, count] of current) {
-    const baseCount = base.get(filePath);
+    const baseCount = moved.get(filePath) ?? base.get(filePath);
     if (baseCount === undefined) errors.push(`${filePath}: added to the legacy list`);
     else if (count > baseCount) {
       errors.push(`${filePath}: legacy ceiling raised from ${baseCount} to ${count}`);

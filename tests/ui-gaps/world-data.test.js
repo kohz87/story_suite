@@ -3,9 +3,9 @@
 // feature off or nothing known the card hides or is empty.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { delta, LINES } from '../../packages/story-director/tests/v2/world/links-helpers.js';
-import { said, worldHost } from '../../packages/story-director/tests/v2/world/helpers.js';
-import { FEATURE } from '../../packages/story-director/src/v2/world/index.js';
+import { delta, LINES } from '../modules/world/world/links-helpers.js';
+import { said, worldHost } from '../modules/world/world/helpers.js';
+import { FEATURE } from '../../modules/world/world/index.js';
 import { checkPort } from '../../ui/port/contract.js';
 import { createSbPort } from '../../ui/port/sb-port.js';
 import { buildSelectors } from '../../ui/select/build.js';

@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { loadLayout } from '../layout.mjs';
 
 // Where the release build may write. The output folder is never inside the source and never holds anything the tool
 // did not create: every folder it fills carries a marker file, and only a folder with the marker is ever emptied.
 export const MARKER = '.story-suite-release-output';
-const SOURCE_DIRS = ['packages', 'ui', 'scripts', 'tests'];
+// The source folders: the roots scripts/layout.json lists (core, ui, modules, packs, testkit) and the rest of the repo's own code and docs.
+const SOURCE_DIRS = [...new Set([...loadLayout().sourceRoots, 'packages', 'scripts', 'tests', 'examples', 'authoring-kit', 'docs'])];
 
 // The real path of a folder that may not exist yet: the nearest existing parent, resolved, plus the rest.
 function realish(target) {
@@ -16,7 +18,7 @@ function realish(target) {
 const within = (outer, inner) => { const rel = path.relative(outer, inner); return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel)); };
 
 // Throws unless `out` is a safe place to write: not the repo root or a parent of it, and not equal to, inside or
-// around packages/, ui/, scripts/ or tests/.
+// around a source folder (core/, ui/, modules/, packs/, testkit/, scripts/, tests/ ...).
 export function assertSafeOut(out, repoRoot) {
   const target = realish(out);
   const root = realish(repoRoot);

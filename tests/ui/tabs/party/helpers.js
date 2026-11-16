@@ -1,4 +1,4 @@
-import { installFakeDom } from '../../../../packages/story-block/tests/ui-fake-dom.js';
+import { installFakeDom } from '../../../helpers/ui-fake-dom.js';
 import { partyFixture } from '../../../../ui/fixtures/party.js';
 import { BAG } from '../../../../ui/fixtures/bag.js';
 import { createFakePort } from '../../../../ui/port/fake-port.js';

@@ -2,11 +2,11 @@
 // and every key the field table names must make a view the store accepts (a stray key would make every later people write of the chat INVALID).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, setStoryClockSource } from '../../packages/npc-state-delta/core.js';
-import { FIELDS } from '../../packages/npc-state-delta/src/fields/registry.js';
-import { peopleView } from '../../packages/npc-state-delta/src/people/view.js';
-import { PERSON_FIELDS } from '../../packages/story-block/src/v2/domains/people/person-fields.js';
-import { validatePeople } from '../../packages/story-block/src/v2/domains/people/validate.js';
+import { mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig, setStoryClockSource } from '../../modules/people/core/core.js';
+import { FIELDS } from '../../modules/people/fields/registry.js';
+import { peopleView } from '../../modules/people/view.js';
+import { PERSON_FIELDS } from '../../modules/people/domain/person-fields.js';
+import { validatePeople } from '../../modules/people/domain/validate.js';
 
 const CALENDAR = Object.freeze({ era: 'CR', months: [{ name: 'Redleaf', days: 30 }, { name: 'Sunwane', days: 31 }, { name: 'Frostwane', days: 30 }] });
 test.afterEach(() => { setStoryClockSource(null); setActiveCalendarConfig(null); });

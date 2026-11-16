@@ -58,6 +58,21 @@ test('CommonJS programs are flagged, not silently counted', () => {
     'module.exports.a = 1;',
   ]) assert.equal(parseModule(src).commonJs, true, src);
   assert.equal(parseModule('export const a = 1;').commonJs, false);
+  for (const src of ['const a = require("x");', 'const f = __filename;', 'const d = __dirname;']) assert.equal(parseModule(src).commonJs, true, src);
+});
+
+test('a property access or a local variable named module is not CommonJS', () => {
+  for (const src of [
+    'const receipt = {}; export const m = receipt.module;',
+    'export const r = { module: 1, exports: 2, require: 3 };',
+    'const rows = []; export const m = rows.map(row => row.module);',
+    'const module = {}; export const m = module.x;',
+    'export function f(module) { return module.id; }',
+    'for (const module of []) { void module; }',
+    'const { module } = {}; export const m = module;',
+    'try { x(); } catch (exports) { void exports; }',
+  ]) assert.equal(parseModule(src).commonJs, false, src);
+  assert.equal(parseModule('const receipt = {}; module.exports = receipt.module;').commonJs, true);
 });
 
 test('a file that is not a valid module is one unparsable export', () => {

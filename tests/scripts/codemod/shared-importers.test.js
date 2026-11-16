@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { runApply, runVerify } from '../../../scripts/codemod/area-commands.mjs';
@@ -8,12 +9,7 @@ const sink = () => ({ text: '', write(chunk) { this.text += chunk; } });
 const streams = () => ({ stdout: sink(), stderr: sink() });
 const rules = loadLayoutRules();
 const HOME = 'docs/history/packages/story-block/package.json';
-const FILES = {
-  'packages/story-block/package.json': '{ "version": "2.33.0" }\n',
-  'packages/story-block/manifest.json': '{ "version": "2.33.0" }\n',
-  'packages/story-block/testkit/matrix/report.js': "import { readFileSync } from 'node:fs';\nexport const v = readFileSync(new URL('../../package.json', import.meta.url), 'utf8');\n",
-  'packages/story-block/tests/v2/bootstrap.test.js': "import { readFileSync } from 'node:fs';\nexport const v = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));\n",
-};
+const FILES = JSON.parse(fs.readFileSync(new URL('./fixtures/shared-importers-pre-move.json', import.meta.url), 'utf8')).files;
 
 // Runs the areas in order on a toy repo holding the real rules' files; returns each area's exit code.
 function stack(areas) {

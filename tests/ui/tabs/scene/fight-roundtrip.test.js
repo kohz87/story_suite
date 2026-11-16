@@ -6,11 +6,11 @@ import { sceneTab } from '../../../../ui/tabs/scene/host.js';
 import { selectScene } from '../../../../ui/select/interaction.js';
 import { selectFight } from '../../../../ui/select/fight.js';
 import { createFakePort } from '../../../../ui/port/fake-port.js';
-import { readSheet } from '../../../../packages/story-block/src/v2/lean-rpg/read.js';
-import { splitFoes } from '../../../../packages/story-block/src/v2/lean-rpg/board/members.js';
-import { exchangePlan } from '../../../../packages/story-block/src/v2/lean-rpg/board/plan.js';
-import { toAction } from '../../../../packages/story-block/src/v2/lean-rpg/board/interaction.js';
-import { character, levelFoeBlock, sheetDomain, skillBlock } from '../../../../packages/story-block/tests/v2/lean-rpg/helpers.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { splitFoes } from '../../../../modules/rpg/board/members.js';
+import { exchangePlan } from '../../../../modules/rpg/board/plan.js';
+import { toAction } from '../../../../modules/rpg/board/interaction.js';
+import { character, levelFoeBlock, sheetDomain, skillBlock } from '../../../modules/rpg/helpers.js';
 
 const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 const tap = (tab, selector) => tab.querySelector(selector).click();

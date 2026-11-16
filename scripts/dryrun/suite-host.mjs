@@ -1,6 +1,7 @@
 // The suite host the way the page has it: the testkit's host with Story Director and NPC State Delta, but NPC State Delta
 // gets a runtime (chat key, loaded state, install, save), as the page's Delta has. The package's own
 // suiteHost hands Delta an empty stub, so its timeline part sees "no open chat" and holds every Re-read and prompt back.
+import { suiteAt } from './suite-at.mjs';
 
 function deltaRuntime(chatKeyOf) {
   const live = { state: { npcs: [] } };
@@ -25,7 +26,7 @@ function deltaRuntime(chatKeyOf) {
 }
 
 export async function pageSuiteHost(loaded, { seed = 1, settings = null, nsdNpcs = [] } = {}) {
-  const restoreCrypto = (await loaded.at('tests/v2/qa/helpers/seeded.js')).seedCrypto(seed);
+  const restoreCrypto = (await suiteAt(loaded, 'tests/v2/qa/helpers/seeded.js')).seedCrypto(seed);
   let sdk = null;
   let host = null;
   const runtime = deltaRuntime(() => String(host?.ctx?.chatId ?? ''));

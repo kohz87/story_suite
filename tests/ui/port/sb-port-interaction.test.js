@@ -1,8 +1,8 @@
 // The Scene tab's own step, sent through the Story Block port to the real interaction sdk with the probe kind, then read back as a scene.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createInteractionApi } from '../../../packages/story-block/src/v2/sdk/interaction.js';
-import { PROBE_ID, probeRegistry } from '../../../packages/story-block/tests/v2/interaction/helpers/probe-kind.js';
+import { createInteractionApi } from '../../../core/sdk/interaction.js';
+import { PROBE_ID, probeRegistry } from '../../core/interaction/helpers/probe-kind.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
 import { buildSelectors } from '../../../ui/select/build.js';
 import { checkShape } from '../../../ui/contract/shapes.js';

@@ -1,9 +1,9 @@
 // Contract: a real Story Block host with Story Director (a quest told over three replies, a lead, a story clock) read through createSbPort + the Journal selector fits JOURNAL_SHAPE.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../packages/story-block/testkit/index.js';
-import { createModule } from '../../packages/story-director/src/v2/module.js';
-import { withD1 } from '../../packages/story-director/tests/v2/helpers/d1.js';
+import { createHost } from '../../testkit/index.js';
+import { createModule } from '../../ui/legacy/director/module.js';
+import { withD1 } from '../helpers/director/d1.js';
 import { checkPort } from '../../ui/port/contract.js';
 import { createSbPort } from '../../ui/port/sb-port.js';
 import { buildSelectors } from '../../ui/select/build.js';

@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { registerHooks } from 'node:module';
 import { assembleDefaults } from '../../../core/settings/defaults.js';
-import { HOST_SETTINGS_DEFAULTS } from '../../../packages/story-block/src/v2/sdk/constants.js';
-import { createCoreModule } from '../../../packages/story-block/src/v2/domains/core/module.js';
-import { storyDirectorModule } from '../../../packages/story-director/src/v2/module.js';
-import { SETTINGS_DEFAULTS as NPC_DEFAULTS } from '../../../packages/npc-state-delta/src/npc-meters-schema.js';
+import { HOST_SETTINGS_DEFAULTS } from '../../../core/sdk/constants.js';
+import { createCoreModule } from '../../../modules/scene/domains/core/module.js';
+import { storyDirectorModule } from '../../../ui/legacy/director/module.js';
+import { SETTINGS_DEFAULTS as NPC_DEFAULTS } from '../../../modules/people/meters/npc-meters-schema.js';
 
 registerHooks({
     resolve(specifier, context, nextResolve) {
@@ -18,7 +18,7 @@ registerHooks({
     },
 });
 
-const { DEFAULTS: NSD_RUNTIME_DEFAULTS } = await import('../../../packages/npc-state-delta/runtime-settings-parts/defaults.js');
+const { DEFAULTS: NSD_RUNTIME_DEFAULTS } = await import('../../../modules/people/settings/runtime-settings-parts/defaults.js');
 
 const GOLDEN_PATH = path.resolve(import.meta.dirname, '..', 'settings-defaults.golden.json');
 const WRITE_GOLDEN = process.env.WRITE_GOLDEN === '1';

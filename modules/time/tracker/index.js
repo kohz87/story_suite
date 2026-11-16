@@ -1,0 +1,105 @@
+// Story Director v2, part **tracker** (MODULES §C1): the `director` domain, its change-line
+// kinds, the story clock (set from a pack's start date when the story has not set it), its queries
+// and what the model is told. Its screen is the screens part's `story-director/director`.
+// The module merges this part with the others. Quests are story-told threads; this part
+// retains older quest data read-only and records ordinary thread progress and closure.
+
+import { applyThreadLine, applyTimeLine } from './capture.js';
+import { THREAD_KINDS } from './convert.js';
+import { initialDirector, queries, validateDirector } from './domain.js';
+import { GRAMMAR, GRAMMAR_ALONE, PACING_TEXT, TAIL_BUDGET, directorTail, grammarOf, staticText } from './note.js';
+import { threadCommands, threadReplayGuard } from './writers.js';
+import { intentCommand } from './acceptance.js';
+import { SEED, seedCommand, seedHook } from './seed.js';
+import { CALENDAR_NAMES, CLOCK, calendarNamesCommand, calendarNamesHook, clockCommand } from './clock-set.js';
+import { DEFAULT_COOLDOWN, FEATURE as INITIATIVE_FEATURE, INITIATIVE, INITIATIVE_STATIC, MAX_COOLDOWN, initiativeCommand, initiativeHook } from './initiative.js';
+import { DEFAULT_ELSEWHERE, MAX_ELSEWHERE } from './scene.js';
+import { PRESET_CHOICES, settingsDefaults } from './time.js';
+import { THREADS_FEATURE, ownedKind } from './threads.js';
+
+// A kind Story Director alone words otherwise (GRAMMAR_ALONE) gets its grammar from the module set. The agenda,
+// event, clock, beat and secret kinds belong to the feature `story-director.threads` (src/v2/threads.js): while it
+// is off the host leaves their grammar out and a line of one is a quiet FEATURE_OFF. Quests and hooks stay.
+// The heads of the kinds whose grammar rides on a family line (note.js GRAMMAR): the ops 2.9.3's own lines wrote.
+const HEADS = { event: ['+ event'], clock: ['+ clock'], beat: ['+ beat'], secret: ['+ secret'], quest: ['+ quest'] };
+const kinds = Object.fromEntries(THREAD_KINDS.map(kind => [kind, {
+    ...(HEADS[kind] ? { heads: HEADS[kind] } : {}),
+    grammar: Object.hasOwn(GRAMMAR_ALONE, kind) ? env => grammarOf(kind, env) : GRAMMAR[kind],
+    apply: applyThreadLine,
+    ...(ownedKind(kind) ? { feature: THREADS_FEATURE } : {}),
+}]));
+kinds.time = { grammar: GRAMMAR.time, apply: applyTimeLine };
+
+function beforeGenerate(view) {
+    const outs = [seedHook(view), initiativeHook(view)].filter(Boolean);
+    if (!outs.length) return undefined;
+    return { lines: [], commands: outs.flatMap(out => out.commands ?? []) };
+}
+
+export const part = {
+    domains: {
+        // The story clock is a count (SPEC §2.2 "Counts move"): every move keeps the minutes it replaced
+        // (`was`), so a reply deleted in the middle takes its own move back and later moves add theirs.
+        director: { initial: initialDirector, validate: validateDirector, counters: ['time/minutes'] },
+    },
+    // NPC initiative (initiative.js): a seeded pick by code before each reply, its line in the tail and,
+    // while the feature is on, one static line (a context part under the feature, MODULES §F100).
+    features: [{
+        id: INITIATIVE_FEATURE,
+        label: 'NPC initiative',
+        describe: 'Before each reply, code picks at most one person present or nearby with an open thread to take the first step (approach, interrupt or ask); the Director note names them in one line.',
+        default: true,
+        presets: { lean: false },
+    }, {
+        // The world's own threads (src/v2/threads.js): what the story keeps moving behind the scene.
+        id: THREADS_FEATURE,
+        label: 'World-building threads',
+        describe: 'Agendas, events, clocks, beats and secrets, world events and factions, landmarks and routes: the narrator writes them and the Director, Chronicle and World screens show them. Quests, hooks and time are not part of it.',
+        default: true,
+        presets: { lean: false },
+    }],
+    commands: { [SEED]: seedCommand, [CLOCK]: clockCommand, [CALENDAR_NAMES]: calendarNamesCommand, ...threadCommands, 'threads.intent': intentCommand, [INITIATIVE]: Object.assign((ctx, payload) => initiativeCommand(ctx, payload), { feature: INITIATIVE_FEATURE }) },
+    queries,
+    kinds,
+    context: {
+        // The Pacing paragraph is the threads feature's: the module (module.js) sends it right after this static, in the
+        // same place as before, as a context part under that feature, so a prompt with the feature on is unchanged.
+        static: env => staticText({ ...env, threads: false }),
+        inline: [{ feature: THREADS_FEATURE, static: () => PACING_TEXT }],
+        tail: view => directorTail(view),
+        budget: TAIL_BUDGET,
+        parts: [{ feature: INITIATIVE_FEATURE, static: () => INITIATIVE_STATIC }],
+    },
+    // Seed the clock and choose optional NPC initiative before generation.
+    hooks: { beforeGenerate, afterCapture: Object.assign((view, info) => calendarNamesHook(view, info), { always: true }), replayGuard: threadReplayGuard },
+    settings: {
+        section: 'Calendar',
+        defaults: settingsDefaults(),
+        schema: {
+            calendar: {
+                type: 'group',
+                label: 'Calendar',
+                fields: {
+                    // `pack`: the enabled pack's calendar when one has it, else Gregorian.
+                    preset: { type: 'choice', label: 'Calendar', options: [...PRESET_CHOICES] },
+                    era: { type: 'text', label: 'Era (written before the year)' },
+                    // `form: 'lines'`: Story Block shows the months as text, one "Name: Days" a line (any number
+                    // of months); an older Story Block ignores it and shows rows.
+                    months: { type: 'list', label: 'Months', form: 'lines', of: { name: { type: 'text', label: 'Name' }, days: { type: 'int', label: 'Days', min: 1, max: 400 } } },
+                    leapYears: { type: 'bool', label: 'Leap years' },
+                    week: { type: 'text', label: 'Weekdays (comma separated; empty for none)' },
+                },
+            },
+            dormantReplies: { type: 'int', label: 'Quiet after replies', min: 1, max: 500 },
+            dormantDays: { type: 'int', label: 'Quiet after story days', min: 1, max: 3650 },
+            dueSoonDays: { type: 'int', label: 'Due soon within days', min: 0, max: 365 },
+            // One time line moves the clock forward at most this far; a longer jump is held to it, with a Problem.
+            maxJump: { type: 'int', label: 'Longest time jump (story days)', min: 1, max: 3650 },
+            // The Director note: threads that do not fit the scene, named by one line at most this many (0: none).
+            elsewhere: { type: 'int', label: 'Threads elsewhere named in the note', min: 0, max: MAX_ELSEWHERE },
+            // NPC initiative: replies before the same person may take the initiative again (2: never two running).
+            initiativeCooldown: { type: 'int', label: 'NPC initiative: replies before the same person again', min: DEFAULT_COOLDOWN, max: MAX_COOLDOWN, feature: INITIATIVE_FEATURE },
+        },
+    },
+    tabs: [],
+};

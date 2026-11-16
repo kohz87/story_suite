@@ -1,11 +1,11 @@
 // A rig for the people domain across both packages (no flag; the domain is the store's own): the live Story Block testkit host (packages/story-block),
 // NPC State Delta's real adapter with its participant and its people sync, over a fake Delta runtime that holds the chat's state.
 // `reload()` starts everything again over what was saved. Tests only; nothing here ships.
-import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { createStorySuiteV2Adapter } from '../../../packages/npc-state-delta/src/storysuite-v2.js';
-import { peopleView, peopleState } from '../../../packages/npc-state-delta/src/people/view.js';
-import { isTerminalNpcDeath } from '../../../packages/npc-state-delta/terminal-lifecycle.js';
-import { hashJson } from '../../../packages/npc-state-delta/src/adapter/hash.js';
+import { createHost } from '../../../testkit/index.js';
+import { createStorySuiteV2Adapter } from '../../../modules/people/storysuite-v2.js';
+import { peopleView, peopleState } from '../../../modules/people/view.js';
+import { isTerminalNpcDeath } from '../../../modules/people/core/terminal-lifecycle.js';
+import { hashJson } from '../../../modules/people/adapter/hash.js';
 
 // Ids are Delta's own (`npc_` + a name slug, as makeNpcId makes them): the people domain takes them as they are.
 export const idOf = key => `npc_${key}`;

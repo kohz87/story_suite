@@ -1,0 +1,415 @@
+// QA fuzz helper: the seeded whole-chat fuzz of state-fuzz (run function, seed lists, shards).
+// state-fuzz-1..5.test.js each run one balanced shard of RUNS so the seeds run in parallel files
+// (CI took ~15 min with one file). Not a test file (the test glob does not match helpers/).
+// seeded fuzz of whole chats on the real host (testkit createHost: real store, command bus,
+// turn, Story Block's core module, plus a small probe module). Each run mixes sends, swipes,
+// regenerates, continues, deletes (last and middle), swipe picks and swipe deletes, edits, chat
+// switches and bursts of UI commands between replies. After every step:
+// - the state at every carrier equals an independent rebuild from scratch (helpers/oracle.js);
+// - a carrier that stopped being the head keeps exactly the state it had then, so swipes and
+//   deletes of later replies roll back to it exactly;
+// - a fresh swipe holds only what was committed during that swipe (nothing of the old swipe);
+// - a narrated receipt is told at most once per line of history, and [Happened] tells exactly the
+//   receipts the reply records as told;
+// - the bonus claim pays at most once per line; a rejected command stores and saves nothing;
+// - one save per burst of UI commands, one at the end of a reply (plus the flush of what was
+//   pending), a failed save keeps the state dirty and leaves the chat as it was;
+// - the static prompt is byte-identical in every request of the run.
+// A failing seed replays exactly: the host's crypto IDs and seeds follow the run's seed.
+import assert from 'node:assert/strict';
+import { createHost } from '../../../../testkit/index.js';
+import { aiMessage } from '../../../../testkit/fake-st.js';
+import { readRecord } from '../../../../core/persist.js';
+import { HAPPENED } from '../../../../core/prompt.js';
+import { prng, seedCrypto } from './seeded.js';
+import { BONUS_CLAIM, probeModule } from './probe-module.js';
+import { carriers, checkInvariants, rebuildAt } from './oracle.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { isFightReceipt } from '../../../../modules/rpg/board/results.js';
+import { boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
+import { changeLine, replyText, uiCommand, bonusPaidOnLine } from './state-fuzz-gen.js';
+
+
+// QA_FUZZ_SEEDS=200 QA_FUZZ_STEPS=200 runs a longer hunt locally (QA_FUZZ_SEED=n one seed); CI runs the fixed list.
+const SEEDS = process.env.QA_FUZZ_SEED ? [Number(process.env.QA_FUZZ_SEED)] : process.env.QA_FUZZ_SEEDS ? Array.from({ length: Number(process.env.QA_FUZZ_SEEDS) }, (_, i) => i + 1) : [1, 7, 42, 1337, 2024, 31337, 90210, 424242, 74, 27, 131, 37];   // (74: a receipt on no carrier after a chat reopened, 27: a save checked against a swipe that was deleted, 131: a check and a name decision in the oracle's guards, 37: a count changed twice in one block)
+const STEPS = Number(process.env.QA_FUZZ_STEPS) || 90;
+// CI also runs a few seeds as long chats (LONG_STEPS): some states only come after many steps (someone
+// present, gone, back again, then the middle reply deleted), and 90 steps did not reach them (fix-fuzz150).
+const LONG_SEEDS = [16, 25, 36];
+const LONG_STEPS = 150;
+const RUNS = process.env.QA_FUZZ_SEED || process.env.QA_FUZZ_SEEDS || process.env.QA_FUZZ_STEPS
+    ? SEEDS.map(seed => [seed, STEPS])
+    : [...SEEDS.map(seed => [seed, STEPS]), ...LONG_SEEDS.map(seed => [seed, LONG_STEPS])];
+
+// The balanced shards (CI seconds measured: long 16:149, 25:138, 36:127; short 1:50, 1337:47, 31337:43,
+// 2024:38, 7:37, 424242:35, 90210:27, 42:20). Each long seed has its own shard. Their union is RUNS.
+const SHARD_RUNS = [
+    [[16, LONG_STEPS], [90210, STEPS], [74, STEPS]],
+    [[25, LONG_STEPS], [7, STEPS], [27, STEPS], [37, STEPS]],
+    [[36, LONG_STEPS], [1, STEPS], [131, STEPS]],
+    [[1337, STEPS], [31337, STEPS], [2024, STEPS], [424242, STEPS], [42, STEPS]],
+    // Shard 5: people writes in the command mix (the domain is always present), new seeds only.
+    [[3, STEPS], [11, STEPS], [58, STEPS], [606, STEPS], [8181, STEPS], [12, LONG_STEPS]],
+];
+const OVERRIDDEN = Boolean(process.env.QA_FUZZ_SEED || process.env.QA_FUZZ_SEEDS || process.env.QA_FUZZ_STEPS);
+// Shard n (1..5) of the runs. A local override runs its whole list once, in shard 1; the others skip.
+export const shardRuns = n => (OVERRIDDEN ? (n === 1 ? RUNS : []) : SHARD_RUNS[n - 1]);
+// The remake check needs a shard whose runs reach it: shards 2..4 do (3, 2, 6 remakes); shard 1 (16, 90210) makes none and shard 5 is not checked for it, so it checks only when an override gave it the whole list.
+export const checksRemakes = n => OVERRIDDEN || (n !== 1 && n !== 5);
+
+const plain = value => (value === null || value === undefined ? value : JSON.parse(JSON.stringify(value)));
+const settle = () => new Promise(resolve => setImmediate(resolve));
+
+const tailOf = request => request.chat.filter(message => message.role === 'system').slice(1).map(message => message.content).join('\n');
+
+export const remakes = { count: 0, runs: 0 };
+
+// A settled board fight (a port fight settle or a pre-port board resolve), not the opening settle.
+const isBoardFight = entry => isFightReceipt(entry) && entry.replan?.payload?.opening !== true;
+
+export async function fuzz(t, seed, steps, { people = false } = {}) {
+    const restore = seedCrypto(seed);
+    t.after(restore);
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    t.mock.method(console, 'warn', () => {});
+    const r = prng(seed);
+    const host = await createHost({ modules: [probeModule({ cues: true })], settings: { features: { 'story-block.gear': true, 'story-block.rpg': true } } });
+    // A pack that gives Your look a Rank, so the fuzz's `~ you rank:` lines are read (without one they are refused).
+    await host.packs.packs.install({ id: 'guild', version: '1.0.0', requires: { storyBlock: '^2' }, content: { you: { rank: { label: 'Guild rank' } } } });
+    t.after(() => host.close());
+    const { st, ctx, store } = host;
+    // Saves per burst: what the interceptor flushes before a reply, then the reply's own save. The
+    // flush is recorded because `dirty()` alone cannot say it will write: a Regenerate pops the old
+    // reply first, and a pending reconcile of that reply is "gone" (persist.js), so its flush clears
+    // the mark without a write.
+    const flushes = [];
+    const originalFlush = store.flush.bind(store);
+    store.flush = async () => {
+        const before = { saves: st.saves.length, dirty: store.dirty() };
+        const out = await originalFlush();
+        flushes.push({ ...before, after: { saves: st.saves.length, dirty: store.dirty() } });
+        return out;
+    };
+    let committed = new Set();
+    host.events.on('committed', ({ receipt }) => committed.add(receipt.id));
+    const finals = new Map();          // carrier message → { swipe, state } when it stopped being the head
+    const statics = new Set();
+    let other = null;                   // the second chat for chat switches
+    const log = [];
+    const trace = [];                   // action and command order, included in replay failures
+    let boardFights = 0;
+
+    // Start with a real board fight that later edits, swipes and deletes can replay. It has a count-one foe
+    // and a three-member group, so both the lone-foe and member paths are exercised. An unstaged later
+    // send no longer writes a spurious empty fight. The blocks are pinned before any request.
+    async function startBoardFight() {
+        const definitions = structuredClone(STANDARD_TEMPLATES.filter(entry => ['character', 'foes'].includes(entry.definition.role)).map(entry => entry.definition));
+        const hero = definitions.find(definition => definition.role === 'character'), foes = definitions.find(definition => definition.role === 'foes');
+        hero.slug = 'fuzz-hero'; hero.name = 'Fuzz Hero';
+        Object.assign(hero.state.who, { default: 'Astra' });
+        Object.assign(hero.state.str, { default: 14 }); Object.assign(hero.state.vit, { default: 20 });
+        Object.assign(hero.state.agi, { default: 20 }); Object.assign(hero.state.health, { default: 10 });   // (a full bar of the doubled sizes: the harder foes' first exchange must leave the fight open)
+        Object.assign(hero.state.level, { default: 1 });
+        foes.slug = 'fuzz-foes'; foes.name = 'Fuzz Foes';
+        Object.assign(foes.state.foe1, { default: 'Fuzz Rats' }); Object.assign(foes.state.count1, { default: 1 });
+        Object.assign(foes.state.level1, { default: 99 }); Object.assign(foes.state.hurt1, { default: 15 });
+        Object.assign(foes.state.foe2, { default: 'Fuzz Boars' }); Object.assign(foes.state.count2, { default: 3 });
+        Object.assign(foes.state.level2, { default: 1 }); Object.assign(foes.state.hurt2, { default: 12 });
+        for (const definition of definitions) {
+            const made = await host.sdk.command('dm.define', { definition });
+            assert.equal(made.ok, true, `the board sheet is made: ${made.message}`);
+        }
+        const meta = ctx.chatMetadata, sid = store.carrierSid(store.headIndex());
+        const opened = openBoard(meta, store.head(), { sid, rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
+        assert.equal(opened.error, undefined, `the board opens: ${opened.error}`);
+        assert.equal(stageExchange(meta, store.head(), [{ who: 'Astra', kind: 'attack', target: 21 }]).error, undefined, 'the board exchange stages');
+        const result = await host.send('We stand and fight.', 'The fuzz rats press in.');
+        statics.add(result.request.chat[0].content);
+        const receipt = readRecord(ctx.chat[result.index])?.receipts?.find(isBoardFight);
+        assert.ok(receipt, 'the first reply is a board fight');
+        boardFights += 1;
+        assert.equal(receipt.data?.v2?.result?.stop, 'open', 'the seeded foe group leaves the fight open for the rest of the run');
+        const members = receipt.data.v2.result.members;
+        assert.equal(members.find(member => member.group === 1)?.name, 'Fuzz Rats', 'the lone real foe stays in the mixed fight');
+        assert.deepEqual(members.filter(member => member.group === 2).map(member => member.name), ['Fuzz Boars 1', 'Fuzz Boars 2', 'Fuzz Boars 3'],
+            'the count-three group is split into members');
+        const carried = boardSession(meta)?.setup?.carriedMembers;
+        assert.deepEqual(carried?.counts, { 1: 1, 2: 3 }, 'the continuation records both original counts');
+        assert.equal(carried.values[21], members.find(member => member.group === 2).value, 'the continuation carries the exact first-member bar');
+        checkInvariants(host, 'board fight opens', { trace });
+    }
+
+    // A deleted opening reply takes its board anchor with it. Open a board on the current head if possible;
+    // only a genuinely staged exchange will be carried by a later send.
+    function ensureBoard() {
+        const sid = store.carrierSid(store.headIndex());
+        if (sid && boardSession(ctx.chatMetadata)?.anchor === sid) return;
+        const opened = openBoard(ctx.chatMetadata, store.head(), { sid, rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
+        if (opened.error) return;
+        // A board exchange that uses a consumable from the bag (Use item): staged now and then, so edits, swipes, deletes and rebuilds after it replay the drink and the unit used up; a stack that no longer fits is refused harmlessly.
+        const inventory = store.head().domains?.inventory, bag = Object.values(inventory?.stacks ?? {}).filter(stack => inventory.defs?.[stack.def]?.kind === 'consumable').sort((a, b) => (a.id < b.id ? -1 : 1));
+        if (bag.length && r.chance(0.5)) stageExchange(ctx.chatMetadata, store.head(), [{ who: 'Astra', kind: 'item', stack: r.pick(bag).id, target: 'Astra' }]);
+    }
+
+    await startBoardFight();
+
+    const lastIsCarrier = () => ctx.chat.length > 1 && !ctx.chat.at(-1).is_user;
+
+    async function generation(kind, step, stepTrace) {
+        const reply = replyText(r, step);
+        stepTrace.reply = reply;
+        const dirtyBefore = store.dirty();
+        const idle = store.idleSaves();
+        const flushAt = flushes.length;
+        const savesBefore = st.saves.length;
+        const appends = kind === 'send' || (kind === 'regenerate' && !lastIsCarrier());
+        const previous = store.headIndex();
+        if (kind === 'send') ensureBoard();
+        committed = new Set();
+        let result;
+        if (kind === 'send') result = await host.send(`Message of step ${step}.`, reply);
+        else if (kind === 'swipe') result = await host.swipe(reply);
+        else if (kind === 'regenerate') result = await host.regenerate(reply);
+        else {
+            stepTrace.reply = r.chance(0.5) ? `\nand then\n<Changes>\n${changeLine(r)}\n</Changes>` : ' and then.';
+            result = await host.cont(stepTrace.reply);
+        }
+        assert.ok(result.request, `${log.at(-1)}: the generation was not stopped`);
+        statics.add(result.request.chat[0].content);
+        const index = result.index;
+        stepTrace.index = index;
+        // The carrier before a new reply is final from now on (a cue may have landed on it just before
+        // the request, so it is read after the reply, and checked against the oracle like every state).
+        if (appends && previous >= 0) finals.set(ctx.chat[previous], { swipe: ctx.chat[previous].swipe_id ?? 0, state: plain(store.at(previous)) });
+        const record = readRecord(ctx.chat[index]);
+        assert.ok(record, `${log.at(-1)}: the reply has a record (narrated at least)`);
+        if (record.receipts.some(isBoardFight)) boardFights += 1;
+        if (kind === 'swipe') {
+            for (const receipt of record.receipts) {
+                assert.ok(committed.has(receipt.id), `${log.at(-1)}: the new swipe holds receipt ${receipt.id} ("${receipt.summary}") that was not committed during this swipe`);
+            }
+        }
+        if (kind !== 'continue') {
+            const { owner } = checkInvariants(host, `${log.at(-1)} (told check)`, { trace });
+            const lines = record.narrated.map(id => owner.get(id)?.receipt).filter(receipt => receipt && receipt.summary.trim())
+                // (a receipt's own `data.told` note, such as a reader's correction, follows its line in parentheses: prompt.js)
+                .map(receipt => `${receipt.summary.trim().replace(/\s*\n\s*/g, ' ')}${typeof receipt.data?.told === 'string' && receipt.data.told.trim() ? ` (${receipt.data.told.trim()})` : ''}`);
+            const tail = tailOf(result.request);
+            if (lines.length) assert.ok(tail.startsWith([HAPPENED, ...lines].join('\n')), `${log.at(-1)}: [Happened] tells exactly what the reply records as told\n${tail}`);
+            else assert.ok(!tail.includes(HAPPENED), `${log.at(-1)}: nothing to tell, no [Happened]`);
+        }
+        // A cue committed before the reply is saved with the reply (turn.js runCues): the whole chat file
+        // is written once for both.
+        const saves = st.saves.length - savesBefore;
+        const beforeReply = idle ? null : flushes.slice(flushAt).find(entry => entry.saves === savesBefore);
+        const pending = Boolean(beforeReply) && beforeReply.after.saves > beforeReply.saves;
+        // A pending change the flush did not write must have been "gone" (its reply was popped): anything
+        // else is a change dropped unsaved.
+        if (!idle && dirtyBefore && beforeReply && !pending) assert.equal(beforeReply.after.dirty, false, `${log.at(-1)}: a pending change that was not written is gone, not dropped`);
+        assert.equal(saves, (pending ? 1 : 0) + 1, `${log.at(-1)}: one flush of what was pending, one save at the end of the reply (with any cue; saves ${saves}, dirty before ${dirtyBefore}, dirty after ${store.dirty()}, idle saves ${idle}, saved is chat ${JSON.stringify(st.saved()) === JSON.stringify(plain(ctx.chat))})`);
+        assert.equal(store.dirty(), false, `${log.at(-1)}: saved after the reply`);
+        assert.deepEqual(st.saved(), plain(ctx.chat), `${log.at(-1)}: the saved chat is the chat`);
+    }
+
+    // A reader's action is saved at once, before sdk.command answers (B-b2-timeline-1): one save per
+    // command that went through, none for a refused one. With `failSave` the first of those saves fails:
+    // the state stays unsaved and the chat untouched until the next save, which writes it all.
+    async function uiBurst(failSave, label) {
+        const count = r.int(1, 3);
+        const savesBefore = st.saves.length;
+        const dirtyBefore = store.dirty();
+        let ok = 0;
+        if (failSave) st.failSaves = 1;
+        for (let i = 0; i < count; i++) {
+            const [type, payload] = uiCommand(r, host, { people });
+            const before = JSON.stringify(ctx.chat);
+            const head = plain(store.head());
+            const kindsBefore = Object.fromEntries(Object.values(head?.domains?.inventory?.defs ?? {}).map(def => [def.id, def.kind]));
+            const paidBefore = bonusPaidOnLine(host);
+            const claimed = Object.hasOwn(head?.meta?.claims ?? {}, BONUS_CLAIM);
+            const saves = st.saves.length;
+            const entry = { label, type, payload, status: 'started' };
+            trace.push(entry);
+            const result = await host.sdk.command(type, payload);
+            entry.status = 'finished';
+            entry.result = { ok: result.ok, code: result.code, message: result.message };
+            if (type === 'probe.broken') assert.equal(result.ok, false, `${label}: probe.broken always refuses`);
+            // A skipped block can leave the head's inventory pointing at an item whose creation was
+            // skipped (its reply deleted); the inventory's validator then refuses any change to it
+            // until the reader tidies up, so a free claim may still be refused, as INVALID, then.
+            const brokenInventory = result.code === 'INVALID' && store.problems().length > 0 && /inventory would not be valid/.test(result.message);
+            if (type === 'probe.pay' && !brokenInventory) assert.equal(result.ok, !claimed, `${label}: probe.pay pays only while the claim is free (claimed: ${claimed}): ${result.message ?? 'paid'}`);
+            if (!result.ok) {
+                assert.equal(JSON.stringify(ctx.chat), before, `${label}: ${type} ${JSON.stringify(payload)} was refused (${result.code}) and the chat is untouched`);
+                assert.deepEqual(plain(store.head()), head, `${label}: ${type} refused: the head is unchanged`);
+                assert.equal(st.saves.length, saves, `${label}: a refused command saves nothing`);
+                continue;
+            }
+            ok++;
+            // The remake ran when this add changed a definition that was not equipment to equipment.
+            if (type === 'inventory.add' && payload.kind === 'equipment' && kindsBefore[result.receipt?.data?.def] !== undefined && kindsBefore[result.receipt.data.def] !== 'equipment'
+                && store.head()?.domains?.inventory?.defs?.[result.receipt.data.def]?.kind === 'equipment') remakes.count++;
+            const record = readRecord(ctx.chat[store.headIndex()]);
+            assert.equal(record.receipts.at(-1).id, result.receipt.id, `${label}: ${type}: the receipt is on the head carrier`);
+            assert.ok(bonusPaidOnLine(host) <= 1, `${label}: the bonus is paid at most once on this line`);
+            if (type === 'probe.pay') assert.equal(bonusPaidOnLine(host), paidBefore + 1);
+            if (failSave && ok === 1) {
+                assert.equal(st.saves.length, saves, `${label}: the failed save stored nothing`);
+                assert.equal(store.dirty(), true, `${label}: a failed save keeps the state marked unsaved`);
+            } else {
+                assert.equal(st.saves.length, saves + 1, `${label}: ${type} is saved at once`);
+                assert.equal(store.dirty(), false, `${label}: ${type}: saved`);
+                assert.deepEqual(st.saved(), plain(ctx.chat), `${label}: the saved chat is the chat`);
+            }
+        }
+        if (!ok) assert.equal(store.dirty(), dirtyBefore, `${label}: nothing went through, nothing changed`);
+        assert.equal(st.saves.length - savesBefore, failSave && ok ? ok - 1 : ok, `${label}: one save per command that went through`);
+        st.failSaves = 0;
+        // A save that failed is tried again a moment later (store.js; persist.js createSaver retry).
+        if (failSave && ok === 1) {
+            t.mock.timers.tick(1000);
+            await settle();
+            await settle();
+            assert.equal(store.dirty(), false, `${label}: the failed save is made good by the retry`);
+            assert.deepEqual(st.saved(), plain(ctx.chat), `${label}: and it writes everything`);
+        }
+    }
+
+    for (let step = 0; step < steps; step++) {
+        const roll = r.int(0, 19);
+        let action;
+        if (roll <= 4) action = 'send';
+        else if (roll <= 6) action = lastIsCarrier() ? 'swipe' : 'send';
+        else if (roll === 7) action = 'regenerate';
+        else if (roll === 8) action = lastIsCarrier() ? 'continue' : 'send';
+        else if (roll === 9) action = ctx.chat.length > 1 ? 'deleteLast' : 'send';
+        else if (roll === 10) action = ctx.chat.length > 2 ? 'deleteMiddle' : 'send';
+        else if (roll === 11) action = 'edit';
+        else if (roll === 12) action = 'switchChat';
+        else if (roll === 13) action = (ctx.chat.at(-1).swipes?.length ?? 0) > 1 && lastIsCarrier() ? 'swipeTo' : 'ui';
+        else if (roll === 14) action = (ctx.chat.at(-1).swipes?.length ?? 0) > 1 && lastIsCarrier() ? 'deleteSwipe' : 'ui';
+        else if (roll === 15) action = 'uiFail';
+        else if (roll === 17) action = ctx.chat.length > 1 && !process.env.QA_NO_REREAD ? 'reread' : 'ui';
+        else action = 'ui';
+        if (action === 'regenerate' && ctx.chat.length < 2) action = 'send';
+        log.push(`seed ${seed} step ${step} ${action}`);
+        const label = log.at(-1);
+        const stepTrace = { label, chatLength: ctx.chat.length, status: 'started' };
+        trace.push(stepTrace);
+
+        switch (action) {
+            case 'send': case 'swipe': case 'regenerate': case 'continue':
+                await generation(action, step, stepTrace);
+                break;
+            case 'deleteLast':
+                stepTrace.index = ctx.chat.length - 1;
+                await st.deleteMessage(stepTrace.index);
+                break;
+            case 'deleteMiddle': {
+                const at = r.int(1, ctx.chat.length - 2);
+                stepTrace.index = at;
+                for (const message of ctx.chat.slice(at)) finals.delete(message);
+                await st.deleteMessage(at);
+                // A later reply's change that no longer applies is skipped alone on replay; what was
+                // committed onto that reply before and after it still applies (store.js, block by
+                // block), so the fuzz keeps such carriers and goes on committing onto them.
+                // QA_FUZZ_TIDY=1 deletes from the end until every stored change applies again.
+                if (process.env.QA_FUZZ_TIDY) {
+                    while (store.problems().length && ctx.chat.length > 1) await st.deleteMessage(ctx.chat.length - 1);
+                }
+                break;
+            }
+            case 'edit': {
+                const indexes = carriers(ctx.chat);
+                const at = r.pick(indexes);
+                stepTrace.index = at;
+                const head = plain(store.head());
+                await st.editMessage(at, `${ctx.chat[at].mes}\n(edited)\n<Changes>\n+ item Edited Thing | qty: 5\n</Changes>`);
+                assert.deepEqual(plain(store.head()), head, `${label}: editing a reply's text does not re-capture`);
+                break;
+            }
+            case 'switchChat': {
+                const mine = structuredClone(ctx.chat);
+                const head = plain(store.head());
+                other ??= [aiMessage('Another story.', { name: 'Narrator' })];
+                await st.loadChat(other, 'chat-2');
+                checkInvariants(host, `${label} (in the other chat)`, { trace });
+                await host.sdk.command('probe.tick', {});
+                other = structuredClone(ctx.chat);
+                await st.loadChat(mine, 'chat-1');
+                finals.clear();
+                assert.deepEqual(plain(store.head()), head, `${label}: back in the first chat, its head is as it was`);
+                t.mock.timers.tick(400);
+                await settle();
+                break;
+            }
+            case 'swipeTo': {
+                const last = ctx.chat.length - 1;
+                const message = ctx.chat[last];
+                const choices = message.swipes.map((_, i) => i).filter(i => i !== message.swipe_id);
+                stepTrace.index = last;
+                stepTrace.swipe = r.pick(choices);
+                await st.swipeTo(last, stepTrace.swipe);
+                break;
+            }
+            case 'deleteSwipe': {
+                // SillyTavern's swipe delete: the swipe goes, the one before it (or after) is shown.
+                const last = ctx.chat.length - 1;
+                const message = ctx.chat[last];
+                const gone = message.swipe_id;
+                stepTrace.index = last;
+                stepTrace.swipe = gone;
+                message.swipes.splice(gone, 1);
+                message.swipe_info.splice(gone, 1);
+                message.swipe_id = Math.max(0, gone - 1);
+                message.mes = message.swipes[message.swipe_id];
+                message.extra = structuredClone(message.swipe_info[message.swipe_id]?.extra ?? {});
+                await st.eventSource.emit(st.ctx.eventTypes.MESSAGE_SWIPE_DELETED, last);
+                break;
+            }
+            case 'reread': {
+                // The reader's Re-read of one reply (turn.reread): the reply's own text read again; the live story stays what it was (receipt ids kept: stacks.<id>.from matches live).
+                const replies = carriers(ctx.chat);
+                if (!replies.length) break;
+                const at = r.pick(replies);
+                stepTrace.index = at;
+                // (a Re-read may change what the later replies then see, like a middle delete: their kept states are taken again from here)
+                for (const message of ctx.chat.slice(at)) finals.delete(message);
+                const done = await host.turn.reread(at);
+                stepTrace.reread = { ok: done?.ok, code: done?.code };
+                // QA_FUZZ_REREAD_TWICE=1: reading the same reply again gives the same story, a second Re-read changes nothing (seed 2 step 36: an edited reply's new block lands only on the second Re-read; see the night report). Off by default.
+                if (done?.ok && process.env.QA_FUZZ_REREAD_TWICE) {
+                    const once = plain(store.head());
+                    const again = await host.turn.reread(at);
+                    if (again?.ok) assert.deepEqual(plain(store.head()), once, `${label}: a second Re-read of reply ${at} changes nothing`);
+                }
+                break;
+            }
+            case 'ui': await uiBurst(false, label); break;
+            case 'uiFail': await uiBurst(true, label); break;
+            default: throw new Error(action);
+        }
+
+        stepTrace.status = 'finished';
+        checkInvariants(host, label, { trace });
+        assert.ok(bonusPaidOnLine(host) <= 1, `${label}: the bonus is paid at most once on this line`);
+        for (const [message, final] of finals) {
+            const index = ctx.chat.indexOf(message);
+            if (index < 0 || (message.swipe_id ?? 0) !== final.swipe) continue;
+            assert.deepEqual(plain(store.at(index)), final.state, `${label}: carrier ${index} keeps the state it had when the story moved past it`);
+        }
+        const head = store.headIndex();
+        if (head >= 0) finals.delete(ctx.chat[head]);
+    }
+    if (process.env.QA_FUZZ_STATS) {
+        const counts = {};
+        for (const line of log) { const action = line.split(' ').at(-1); counts[action] = (counts[action] ?? 0) + 1; }
+        const checkpoints = carriers(ctx.chat).filter(index => readRecord(ctx.chat[index])?.checkpoint).length;
+        console.log(JSON.stringify({ seed, carriers: carriers(ctx.chat).length, checkpoints, told: [...ctx.chat].reduce((n, m) => n + (readRecord(m)?.narrated.length ?? 0), 0), counts }));
+    }
+    assert.ok(boardFights > 0, `seed ${seed}: the fuzz ran board fights`);
+    assert.equal(statics.size, 1, `seed ${seed}: the static prompt is byte-identical in every request of the chat`);
+    assert.deepEqual(host.turn.problems().filter(problem => problem.module === null && problem.code === 'FAILED'), [], `seed ${seed}: the host itself never failed`);
+}

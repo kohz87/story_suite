@@ -1,0 +1,319 @@
+// Draws the hero card (portrait, name, level, corner, you rows, editor, bars, statuses) and keeps it up to date.
+
+import { h, iconNode, initials, shell } from '../dom.js';
+import { resolveProps } from '../props.js';
+import { bar, status } from '../glass.js';
+import { editable } from '../editable.js';
+import { STRINGS } from '../../../../../core/strings.js';
+import { svgIcon } from '../../icons/index.js';
+import { focusNode } from '../../scroll.js';
+import { heroEditFields, heroEditPlan } from '../../hero-edit.js';
+import { heroProps } from './props.js';
+import { short } from './shared-short.js';
+import { heroLevel, heroLine } from './lines.js';
+import { heroBars, heroStatuses } from './lists.js';
+import { pictureCandidates } from './picture.js';
+
+// The corner's items in the order drawn: [kind, icon].
+const CORNER = Object.freeze([['time', 'fa-clock'], ['place', 'fa-location-dot'], ['weather', 'fa-cloud-sun'], ['here', 'fa-user-group']]);
+const HERE_MAX = 120;
+const namesOf = list => (Array.isArray(list) ? list : []).map(item => short(typeof item === 'string' ? item : item?.name, 80)).filter(Boolean).slice(0, 12);
+
+export function renderHero(el, input, api) {
+    let p = resolveProps(heroProps, input);
+    let handles = [];
+    return shell(el, 'section', 'hero', ({ doc, root, listen, cleanup }) => {
+        root.classList.add('ss-hero', 'ss-glass');
+        root.setAttribute('role', 'group');
+        const body = h(doc, 'div', 'ss-hero-body');
+        const portrait = h(doc, 'div', 'ss-hero-portrait');
+        portrait.setAttribute('role', 'img');
+        const img = h(doc, 'img', 'ss-hero-img');
+        img.setAttribute('draggable', 'false');
+        img.setAttribute('loading', 'lazy');
+        img.setAttribute('decoding', 'async');
+        img.setAttribute('referrerpolicy', 'no-referrer');
+        const letter = h(doc, 'span', 'ss-hero-initial');
+        letter.setAttribute('aria-hidden', 'true');
+        portrait.append(img, letter);
+        const main = h(doc, 'div', 'ss-hero-main');
+        const who = h(doc, 'div', 'ss-hero-who');
+        // the name, and the one Edit button beside it (a phone) or in the card's top-right corner (CSS)
+        const head = h(doc, 'div', 'ss-hero-head');
+        const name = h(doc, 'h3', 'ss-hero-name');
+        head.appendChild(name);
+        // the line under the name (class · title): plain muted text, it wraps (the class name stays for older styles and tests)
+        const pill = h(doc, 'span', 'ss-hero-pill ss-hero-line');
+        who.append(head, pill);
+        // the level: a badge on the portrait's lower edge, a star and the number; the whole level is said to screen readers
+        const badge = h(doc, 'span', 'ss-hero-level');
+        const star = svgIcon(doc, 'ph-star:fill', { className: 'ss-hero-level-icon' });
+        const levelNumber = h(doc, 'span', 'ss-hero-level-number');
+        levelNumber.setAttribute('aria-hidden', 'true');
+        const levelSaid = h(doc, 'span', 'ss-visually-hidden');
+        badge.append(...(star ? [star] : []), levelNumber, levelSaid);
+        const corner = h(doc, 'ul', 'ss-hero-corner');
+        const statuses = h(doc, 'div', 'ss-hero-statuses');
+        // The corner's items, made when first asked for and kept: a redraw only changes their words.
+        const cornerItems = new Map();
+        let cornerShown = '';
+        function cornerItem(kind, icon) {
+            let entry = cornerItems.get(kind);
+            if (entry) return entry;
+            const item = h(doc, 'li', 'ss-hero-corner-item');
+            item.setAttribute('data-kind', kind);
+            const glyph = iconNode(doc, icon, 'ss-hero-corner-icon');
+            if (glyph) item.appendChild(glyph);
+            const words = h(doc, 'span', 'ss-hero-corner-text');
+            item.appendChild(words);
+            entry = { item, words };
+            cornerItems.set(kind, entry);
+            return entry;
+        }
+        // The Rank, Wearing and Condition rows (`you`): made when first asked for, so a card without them has no trace of them.
+        let youRow = null;
+        let travelRow = null;
+        const youParts = [];
+        const S = STRINGS.scene;
+        function drawYou() {
+            const you = p.you && typeof p.you === 'object' ? p.you : null;
+            if (!you) {
+                if (youRow) youRow.hidden = true;
+                return;
+            }
+            if (!youRow) {
+                youRow = h(doc, 'div', 'ss-hero-you');
+                for (const [part, label] of [['rank', S.rank], ['wearing', S.wearing], ['condition', S.condition]]) {
+                    const item = h(doc, 'span', 'ss-hero-you-part');
+                    item.setAttribute('data-part', part);
+                    const text = h(doc, 'span', 'ss-hero-you-text');
+                    const name = h(doc, 'b', 'ss-hero-you-label', label);
+                    item.append(name, text);
+                    youRow.appendChild(item);
+                    youParts.push({ part, item, name, text });
+                }
+                text.insertBefore(youRow, travelRow ?? statuses);
+            }
+            youRow.hidden = false;
+            for (const entry of youParts) {
+                // The Rank is a part only while the game gives it a word (`rankLabel`, from a pack): the label is that word.
+                const rankLabel = entry.part === 'rank' ? short(you.rankLabel, 30) : '';
+                entry.item.hidden = entry.part === 'rank' && !rankLabel;
+                if (entry.item.hidden) continue;
+                if (rankLabel) entry.name.textContent = rankLabel;
+                const value = typeof you[entry.part] === 'string' ? you[entry.part] : '';
+                entry.text.textContent = value || '\u2014';
+                entry.text.classList.toggle('ss-hero-you-empty', !value);
+            }
+        }
+        // The Travel row (`travel`): made when first asked for, hidden while there is no trip.
+        let travelText = null;
+        function drawTravel() {
+            const said = short(p.travel, 200);
+            if (!said) {
+                if (travelRow) travelRow.hidden = true;
+                return;
+            }
+            if (!travelRow) {
+                travelRow = h(doc, 'div', 'ss-hero-travel');
+                travelText = h(doc, 'span', 'ss-hero-travel-text');
+                travelRow.append(h(doc, 'b', 'ss-hero-you-label', STRINGS.scene.travel), travelText);
+                text.insertBefore(travelRow, statuses);
+            }
+            travelRow.hidden = false;
+            travelText.textContent = said;
+        }
+        // The one editor (`where`): the Edit button beside the name, and the form in the text block, made when first asked for. While it is open the
+        // lines it edits are hidden (CSS, `ss-hero-editing`) and it takes their place; a redraw changes its fields' starting values only for the next opening.
+        let editButton = null;
+        let editor = null;
+        let editing = false;
+        const editorProps = () => ({ kind: 'fields', bare: true, open: editing, label: STRINGS.scene.editAll, help: STRINGS.scene.editHelp, fields: heroEditFields(p), plan: heroEditPlan(p), onClose: closeEditor });
+        function setEditing(on) {
+            editing = on;
+            root.classList.toggle('ss-hero-editing', on);
+            editButton?.setAttribute('aria-expanded', on ? 'true' : 'false');
+        }
+        function closeEditor() {
+            setEditing(false);
+            editor?.handle.update(editorProps());
+            focusNode(editButton);
+        }
+        function openEditor() {
+            if (editing) return;
+            if (!editor) {
+                const slot = h(doc, 'div', 'ss-hero-editor');
+                text.insertBefore(slot, corner);
+                editor = { slot, handle: editable.render(slot, editorProps(), api) };
+            }
+            setEditing(true);
+            editor.handle.update(editorProps());
+        }
+        function drawEdit() {
+            const on = p.where !== null && typeof p.where === 'object';
+            if (!on) {
+                if (editing) setEditing(false);
+                editor?.handle.destroy();
+                editor?.slot.remove();
+                editor = null;
+                editButton?.remove();
+                editButton = null;
+                root.classList.remove('ss-hero-has-edit');
+                return;
+            }
+            root.classList.add('ss-hero-has-edit');
+            if (!editButton) {
+                editButton = h(doc, 'button', 'ss-hero-edit');
+                editButton.setAttribute('type', 'button');
+                editButton.setAttribute('data-ss-hit', '');
+                editButton.setAttribute('aria-label', STRINGS.scene.editAll);
+                editButton.setAttribute('title', STRINGS.scene.editAll);
+                editButton.setAttribute('aria-expanded', editing ? 'true' : 'false');
+                const glyph = iconNode(doc, 'ph-pencil-simple', 'ss-hero-edit-icon');
+                if (glyph) editButton.appendChild(glyph);
+                editButton.appendChild(h(doc, 'span', 'ss-hero-edit-text', STRINGS.scene.editButton));
+                listen(editButton, 'click', openEditor);
+                head.appendChild(editButton);
+            }
+            editor?.handle.update(editorProps());
+        }
+        cleanup(() => editor?.handle.destroy());
+        // the text block: the name, the class line, the place and weather, the statuses: one stacked group, which the portrait is
+        // centred against (grid areas "portrait text", glass-*.css)
+        const text = h(doc, 'div', 'ss-hero-text');
+        text.append(who, corner, statuses);
+        main.append(text);
+        const vitals = h(doc, 'div', 'ss-hero-vitals');
+        // the portrait and its badge in one cell: the badge hangs on the portrait's lower edge, inside the room the cell keeps
+        const face = h(doc, 'div', 'ss-hero-face');
+        face.append(portrait, badge);
+        body.append(face, main, vitals);
+        root.appendChild(body);
+        // CSS exposes this control only when a board is open in the phone game view.
+        const more = h(doc, 'button', 'ss-hero-board-more', 'More');
+        more.setAttribute('type', 'button');
+        more.setAttribute('aria-expanded', 'false');
+        listen(more, 'click', () => {
+            const expanded = !root.classList.contains('ss-hero-board-expanded');
+            root.classList.toggle('ss-hero-board-expanded', expanded);
+            root.classList.toggle('ss-hero-compact', p.compact === true && !expanded);
+            more.setAttribute('aria-expanded', String(expanded));
+            more.textContent = expanded ? 'Less' : 'More';
+        });
+        // The pictures that failed to load (kept for this widget: a redraw does not ask for them again), the candidates for the
+        // current props, and the picture on screen: an error moves on to the next candidate, the initial past the last.
+        const broken = new Set();
+        let shown = [];
+        function showPicture() {
+            const url = shown.find(candidate => !broken.has(candidate)) ?? '';
+            if (url) {
+                if (img.getAttribute('src') !== url) img.setAttribute('src', url);
+                img.hidden = false;
+                letter.hidden = true;
+                portrait.classList.remove('ss-hero-fallback');
+            } else {
+                img.removeAttribute('src');
+                img.hidden = true;
+                letter.hidden = false;
+                portrait.classList.add('ss-hero-fallback');
+            }
+        }
+        listen(img, 'error', () => {
+            const src = img.getAttribute('src') ?? '';
+            if (src) broken.add(src);
+            showPicture();
+        });
+        // The corner: time, place, weather and (with `where`) Here. With `where` an empty place, weather or Here still shows (with a dash or the
+        // place's own empty word); the weather is left out when its feature is off.
+        function drawCorner() {
+            const where = p.where && typeof p.where === 'object' ? p.where : null;
+            const present = namesOf(where?.present);
+            const S = STRINGS.scene;
+            const shown = [];
+            for (const [kind, icon] of CORNER) {
+                let said = '';
+                if (kind === 'time') said = short(p.time, 40);
+                else if (kind === 'place') said = short(p.place, 40);
+                else if (kind === 'weather') said = where && where.weatherOn === false ? '' : short(p.weather, 40);
+                else if (where) said = present.join(', ');
+                const always = where !== null && kind !== 'time' && !(kind === 'weather' && where.weatherOn === false);
+                const empty = !said;
+                if (empty && !always) continue;
+                const entry = cornerItem(kind, icon);
+                const text = kind === 'here' ? `${STRINGS.home.here} ${said ? short(said, HERE_MAX) : '\u2014'}` : said || (kind === 'place' ? S.unnamed : '\u2014');
+                entry.words.textContent = text;
+                entry.item.classList.toggle('ss-hero-corner-empty', empty);
+                shown.push(kind);
+            }
+            // The items are put in order only when the set that shows changes.
+            const key = shown.join(',');
+            if (key !== cornerShown) {
+                corner.replaceChildren(...shown.map(kind => cornerItems.get(kind).item));
+                cornerShown = key;
+            }
+            corner.hidden = !shown.length;
+        }
+        function clear() {
+            for (const handle of handles) handle.destroy();
+            handles = [];
+            vitals.replaceChildren();
+            statuses.replaceChildren();
+        }
+        cleanup(clear);
+        function update() {
+            clear();
+            const label = short(p.name, 60);
+            more.hidden = p.boardExpandable !== true;
+            if (p.boardExpandable) {
+                if (more.parentNode !== root) root.appendChild(more);
+            } else {
+                more.remove();
+                root.classList.remove('ss-hero-board-expanded');
+                more.setAttribute('aria-expanded', 'false');
+                more.textContent = 'More';
+            }
+            root.classList.toggle('ss-hero-compact', p.compact === true && !root.classList.contains('ss-hero-board-expanded'));
+            root.setAttribute('aria-label', label ? `Character: ${label}` : 'Character');
+            name.textContent = label;
+            letter.textContent = initials(label);
+            portrait.setAttribute('aria-label', label ? `Portrait of ${label}` : 'Portrait');
+            img.setAttribute('alt', label ? `Portrait of ${label}` : '');
+            shown = pictureCandidates(p, api);
+            showPicture();
+            const line = heroLine(p);
+            pill.textContent = line;
+            pill.hidden = !line;
+            const level = heroLevel(p);
+            levelNumber.textContent = level.number;
+            levelSaid.textContent = level.label;
+            badge.hidden = !level.number;
+            drawCorner();
+            drawYou();
+            drawEdit();
+            drawTravel();
+            const bars = heroBars(p.bars);
+            const pools = bars.filter(b => b.kind !== 'exp');
+            const growth = bars.filter(b => b.kind === 'exp');
+            const pooled = h(doc, 'div', 'ss-hero-pools');
+            for (const spec of pools) handles.push(bar.render(pooled, spec, null));
+            pooled.hidden = !pools.length;
+            vitals.appendChild(pooled);
+            for (const spec of growth) {
+                const holder = h(doc, 'div', 'ss-hero-exp');
+                handles.push(bar.render(holder, spec, null));
+                vitals.appendChild(holder);
+            }
+            vitals.hidden = !bars.length;
+            const badges = heroStatuses(p.statuses);
+            for (const spec of badges) handles.push(status.render(statuses, spec, null));
+            statuses.hidden = !badges.length;
+        }
+        update();
+        return {
+            update(next) {
+                p = resolveProps(heroProps, next);
+                update();
+            },
+        };
+    });
+}
