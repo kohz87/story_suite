@@ -36,3 +36,11 @@ test('decideBase: fails closed except for the import commit without a list', asy
   assert.match(decideBase({ ref: 'nope', resolved: '', read: { error: 'bad ref' } }).error, /cannot read the base nope/);
   assert.match(decideBase({ ref: IMPORT_COMMIT, resolved: IMPORT_COMMIT, read: { error: 'io' } }).error, /cannot read/);
 });
+
+test('a layout-renamed entry with the same count passes; a real addition and a raised count still fail', () => {
+  const map = path => path.replace(/^tests\/v2\//, 'tests/');
+  const old = new Map([['tests/v2/load.js', 500]]);
+  assert.deepEqual(checkLegacyRatchet({ current: new Map([['tests/load.js', 500]]), base: old, map }).errors, []);
+  assert.deepEqual(checkLegacyRatchet({ current: new Map([['tests/load.js', 500], ['tests/new.js', 460]]), base: old, map }).errors, ['tests/new.js: added to the legacy list']);
+  assert.deepEqual(checkLegacyRatchet({ current: new Map([['tests/load.js', 501]]), base: old, map }).errors, ['tests/load.js: legacy ceiling raised from 500 to 501']);
+});

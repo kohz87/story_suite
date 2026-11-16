@@ -26,7 +26,7 @@ Node 24; no npm dependencies to install for the tests.
 
 ## Code rules
 
-- **File size:** every source and test file is at most 450 lines (aim for 300). Older files over the limit are listed in `docs/merge/legacy-oversize.txt`, which may only shrink.
+- **File size:** every source and test file is at most 450 lines (aim for 300). Older files over the limit are listed in `docs/merge/legacy-oversize.txt`, which may only shrink (the base list's paths go through the layout rules first, so a renamed entry with the same count passes).
 - **One job per file:** each file does one named job with at most 4 exports (a file that only re-exports may list more).
 - **Code map:** [docs/codemap.md](docs/codemap.md) is generated from `docs/codemap/jobs.json` and checked in CI.
 - **Replay equals live:** swipes, middle deletes, rewinds and reloads reproduce the same state.
