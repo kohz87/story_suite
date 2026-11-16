@@ -41,7 +41,9 @@ export function createPanels({ on = () => false } = {}) {
         },
         changed(keys) {
             if (!isOn()) return;
-            const named = Array.isArray(keys) ? keys.filter(key => typeof key === 'string' && key) : [];
+            // ('*' is everything, like no key at all: it moves `all` and the scheduler's target gets no keys)
+            const given = Array.isArray(keys) ? keys.filter(key => typeof key === 'string' && key) : [];
+            const named = given.includes('*') ? [] : given;
             if (named.length === 0) all += 1;
             for (const key of new Set(named)) counts.set(key, (counts.get(key) ?? 0) + 1);
             target?.changed(named);

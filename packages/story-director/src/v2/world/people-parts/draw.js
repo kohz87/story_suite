@@ -6,6 +6,8 @@ import { dossierOpener, castApi } from './delta-api.js';
 
 export const HERE_QUERY = 'director.world.here';
 
+let widgets = 0;   // one section id per widget (two World screens can be alive at once)
+
 const later = typeof queueMicrotask === 'function' ? queueMicrotask : fn => Promise.resolve().then(fn);
 
 export function render(el, props, api, { open = dossierOpener, cast = castApi } = {}) {
@@ -23,7 +25,7 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
     let watched = null;
     let pending = false;
     let gone = false;
-    // Flag `suite.redrawScheduler` on: the widget is a `people` section of sdk.panels (drawn once per frame, with the others) instead of an onChange subscriber.
+    // Flag `suite.redrawScheduler` on: the widget is a `people` section of sdk.panels (drawn once per frame, with the others) (the onChange subscription stays, idle while the flag is on, so the widget keeps updating if the flag is turned off).
     const panels = api?.panels?.on === true ? api.panels : null;
     let offSection = null;
 
@@ -54,7 +56,7 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
 
     // Subscribes to NPC State Delta's changes once its page API is there (it may come after the first draw).
     const watch = page => {
-        if (!page || watched === page || panels) return;
+        if (!page || watched === page) return;
         try { off?.(); } catch { /* gone */ }
         watched = page;
         try { off = page.onChange(refresh) ?? null; } catch { off = null; }
@@ -115,6 +117,7 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
     // NPC State Delta changed: redraw, once.
     function refresh() {
         if (pending || gone) return;
+        if (offSection && api?.panels?.on === true) return;   // (the flag is on: the section draws it; this subscription only works once the flag goes off)
         pending = true;
         later(() => {
             pending = false;
@@ -125,7 +128,7 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
     const hereView = () => { try { return api.query(HERE_QUERY) ?? null; } catch { return null; } };
 
     draw();
-    if (panels) offSection = panels.register('story-director.world-people', { keys: ['people'], drawn: true, isVisible: () => !gone && el.isConnected !== false, read: hereView, draw: redraw });
+    if (panels) offSection = panels.register(`story-director.world-people.${widgets += 1}`, { keys: ['people'], drawn: true, isVisible: () => !gone && el.isConnected !== false, read: hereView, draw: redraw });
     return {
         update(next) { value = next?.value ?? null; draw(); },
         destroy() {

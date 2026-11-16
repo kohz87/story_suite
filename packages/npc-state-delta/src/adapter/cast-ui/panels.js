@@ -12,6 +12,7 @@ export function createCastPanels(session, deps) {
     let paneEl = null;               // the Dossiers pane a section draws (session.castEl)
     let offPane = null;
     let offPanel = null;
+    let views = 0;                   // one section id per Cast view (a second view must not take the first one's section)
 
     /** The sdk's panels while they are on, else null (the old paths run). */
     const panels = () => {
@@ -42,11 +43,12 @@ export function createCastPanels(session, deps) {
             const found = panels();
             if (!found) return null;
             ensurePanel(found);
-            const off = found.register('npc-state-delta.cast-view', { keys: PEOPLE, drawn: true, isVisible: () => box.isConnected !== false, draw });
+            const off = found.register(`npc-state-delta.cast-view.${views += 1}`, { keys: PEOPLE, drawn: true, isVisible: () => box.isConnected !== false, draw });
             covered.add(box);
             return () => { covered.delete(box); off(); };
         },
-        viewCovered: box => covered.has(box),
+        // (the flag turned off while a view is on screen: the old loops draw it again)
+        viewCovered: box => panels() !== null && covered.has(box),
         /** The Dossiers tab pane (`el`) was drawn: `draw(el)` draws it again while `shown(el)` says the pane still holds the Cast tab. */
         pane(el, draw, shown) {
             const found = panels();
@@ -58,6 +60,6 @@ export function createCastPanels(session, deps) {
                 keys: PEOPLE, drawn: true, isVisible: () => el.isConnected !== false && shown(el), draw: () => { try { draw(el); } catch (error) { warn('Story Suite v2 Dossiers tab failed', error); } },
             });
         },
-        paneCovered: el => paneEl !== null && paneEl === el,
+        paneCovered: el => panels() !== null && paneEl !== null && paneEl === el,
     };
 }

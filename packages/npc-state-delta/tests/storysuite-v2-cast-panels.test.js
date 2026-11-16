@@ -50,7 +50,7 @@ test('flag on: touch is changed([people]); a view and the pane register as peopl
     const drawn = [];
     const off = castPanels.view(box, () => drawn.push('view'));
     assert.equal(castPanels.viewCovered(box), true);
-    const view = fake.sections.get('npc-state-delta.cast-view');
+    const view = fake.sections.get('npc-state-delta.cast-view.1');
     assert.deepEqual([view.keys, view.drawn], [['people'], true]);
     const pane = { isConnected: true };
     let shown = true;
@@ -70,7 +70,7 @@ test('flag on: touch is changed([people]); a view and the pane register as peopl
     assert.deepEqual(fake.log.changed, [['people']]);
     off();
     assert.equal(castPanels.viewCovered(box), false);
-    assert.equal(fake.sections.has('npc-state-delta.cast-view'), false);
+    assert.equal(fake.sections.has('npc-state-delta.cast-view.1'), false);
 });
 
 test('every change notice reaches panels.changed(["people"]), the busy end (the page API) included', () => {

@@ -1,4 +1,4 @@
-// J11 step 5: the World people widget is a `people` section of sdk.panels while suite.redrawScheduler is on (instead of an onChange subscriber).
+// J11 step 5: the World people widget is a `people` section of sdk.panels while suite.redrawScheduler is on (its onChange subscription stays idle).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PEOPLE_WIDGET, createPeopleWidget } from '../../../src/v2/world/index.js';
@@ -47,13 +47,13 @@ async function setup({ flag = true } = {}) {
     const widget = createPeopleWidget({ open: () => () => {}, cast: () => cast });
     const api = { query: (name, args) => host.sdk.query(name, args), panels: hub.panels };
     const draw = () => drawWorld(data, { widgets: { [PEOPLE_WIDGET]: { ...widget, render: (node, props) => widget.render(node, props, api) } } });
-    return { host, cast, draw, hub, runFrame: () => frames.splice(0).forEach(fn => fn()) };
+    return { host, cast, draw, hub, state, runFrame: () => frames.splice(0).forEach(fn => fn()) };
 }
 
 test('flag on: NPC State changed([people]) is one people draw in the next frame; no onChange subscription is made', async () => {
     const { host, cast, draw, hub, runFrame } = await setup();
     const { el, view } = draw();
-    assert.equal(cast.listeners.size, 0, 'the section replaces page.onChange');
+    assert.equal(cast.listeners.size, 1, 'the onChange subscription is idle while the section draws');
     assert.equal(cast.renders, 1, 'the first draw');
     hub.panels.changed(['people']);
     hub.panels.changed(['people']);
@@ -97,5 +97,36 @@ test('flag off: the widget subscribes to onChange as before and sdk.panels does 
     assert.equal(cast.renders, 1, 'the panels draw nothing');
     view.destroy();
     assert.equal(cast.listeners.size, 0);
+    host.close();
+});
+
+test('two live widgets: one people change redraws both, and destroying one leaves the other registered', async () => {
+    const { host, cast, draw, hub, runFrame } = await setup();
+    const first = draw();
+    const second = draw();
+    assert.equal(cast.renders, 2);
+    hub.panels.changed(['people']);
+    runFrame();
+    assert.equal(cast.renders, 4, 'both widgets drew');
+    second.view.destroy();
+    hub.panels.changed(['people']);
+    runFrame();
+    assert.equal(cast.renders, 5, 'the first is still a section');
+    first.view.destroy();
+    host.close();
+});
+
+test('the flag turned off while a widget is on screen: its onChange subscription draws it again', async () => {
+    const { host, cast, draw, hub, state } = await setup();
+    draw();
+    const before = cast.renders;
+    hub.panels.changed(['people']);
+    for (const fn of cast.listeners) fn();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    assert.equal(cast.renders, before, 'flag on: the idle subscription draws nothing');
+    state.on = false;
+    for (const fn of cast.listeners) fn();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    assert.equal(cast.renders, before + 1, 'flag off: the subscription draws it');
     host.close();
 });

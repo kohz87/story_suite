@@ -130,7 +130,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     const settingsUi = createUiSettings({
         runtime, doc, registry, store, sdk, settings, version, widgets, liveCtx, tabsControl, blockTemplates, blockWidgets,
         getRpg: () => leanRpg.getRpg(), getHudAsked: () => hudAsked(), getCardLog: () => cardLog,
-        getOverlay: () => overlay, setOverlay: value => { overlay = value; },
+        getOverlay: () => overlay, setOverlay: value => { overlay = value; }, redrawAll: () => wiring?.redrawAll() ?? false, redrawOn: () => wiring?.on() === true,
     });
     const { theme } = settingsUi;
     function openSettings(options = null) { return settingsUi.openSettings(options); }
@@ -259,7 +259,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         refresh();
         return Boolean(on);
     }
-    wiring = wireRedraw({ on: () => flagOn(() => ctx?.extensionSettings, FLAGS.redrawScheduler), mounts, getPanel: () => panel, getTabHost: () => tabHost, getOverlay: () => overlay });
+    wiring = wireRedraw({ on: () => flagOn(() => ctx?.extensionSettings, FLAGS.redrawScheduler), mounts, getPanel: () => panel, getTabHost: () => tabHost, getOverlay: () => overlay, panels: sdk?.panels });
     runtime.bindPanels?.(wiring);   // modules' sdk.panels sections draw through this page's scheduler (inert while the flag is off)
     const offs = installUiEvents({
         replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer,
