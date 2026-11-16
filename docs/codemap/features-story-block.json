@@ -1,4 +1,3 @@
 [
-  { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads: wires the v2 runtime, packs and diagnostics." },
-  { "name": "Data modules and block editor", "entry": "src/v2/data-modules/block-builder.js", "about": "Builds and edits data-module definitions in the in-chat editor." }
+  { "name": "Extension entry", "entry": "index.js", "about": "What SillyTavern loads: wires the v2 runtime, packs and diagnostics." }
 ]

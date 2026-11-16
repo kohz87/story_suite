@@ -22,5 +22,6 @@
   { "name": "Packs", "entry": "packs/index.js", "about": "Loads story packs and their events, items and rules." },
   { "name": "Lean RPG (rolls, fights, gear)", "entry": "modules/rpg/index.js", "about": "The optional RPG module: checks, the fight board, gear and levels." },
   { "name": "Fight board", "entry": "modules/rpg/board/commit.js", "about": "Commits staged board choices as the reply's one guarded RPG resolution." },
-  { "name": "Checks and danger", "entry": "modules/rpg/checks/index.js", "about": "Story checks, danger words and rolls." }
+  { "name": "Checks and danger", "entry": "modules/rpg/checks/index.js", "about": "Story checks, danger words and rolls." },
+  { "name": "Data modules and block editor", "entry": "modules/data-modules/block-builder.js", "about": "Builds and edits data-module definitions in the in-chat editor." }
 ]
