@@ -77,7 +77,7 @@ test('the module list gains the two save-point commands and one query, and nothi
     const core = host.sdk.modules().find(module => module.id === 'story-block');
     assert.equal(core.commands.includes('savepoint.make'), true);
     assert.equal(core.commands.includes('savepoint.restore'), true);
-    assert.deepEqual([...core.domains].sort(), ['dataModules', 'inventory', 'scene']);
+    assert.deepEqual([...core.domains].sort(), ['dataModules', 'inventory', 'people', 'scene']);
     assert.equal(host.head().domains.dataModules, undefined, 'the new deferred domain adds no unused state');
     assert.equal(host.registry.domainOwner('savepoints'), null);
     assert.equal(host.registry.isInternal('savepoint.restore'), true);
