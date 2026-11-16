@@ -9,6 +9,7 @@ import { probeModule } from './qa/helpers/probe-module.js';
 const said = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
 const held = h => h.store.problems().filter(p => p.code === 'REPLAY_PREREQUISITE');
 const claimsOf = h => Object.keys(h.head().meta.claims ?? {}).sort();
+const hasItem = (h, name) => JSON.stringify(h.head().domains.inventory).includes(name);
 const quiet = t => t.mock.method(console, 'warn', () => {});
 
 async function host(t, modules = [probeModule()]) {
@@ -28,7 +29,7 @@ test('NEW-1: an edited Re-read takes a claim a later legacy block holds; the lat
     quiet(t);
     const h = await host(t);
     await h.send('On.', said('R0.', ['+ item Rope']));
-    await h.send('On.', said('R1.', ['! probe frost']));
+    await h.send('On.', said('R1.', ['+ item Lamp', '! probe frost']));
     await h.st.editMessage(2, said('R0.', ['+ item Rope', '! probe frost']));
     const res = await h.sdk.reread(2);
     assert.equal(res.ok, true, res.message);
@@ -42,12 +43,22 @@ test('NEW-1: an edited Re-read takes a claim a later legacy block holds; the lat
     h.store.rebuild();
     assert.deepEqual(h.head().domains.probe.seen, ['frost']);
     oneProblem(h, 'probe:seen:frost', 'capture.probe');
+    assert.ok(hasItem(h, 'Lamp'), 'only the claiming line is skipped: the rest of the reply applies');
     const told = await host(t);
     await told.send('On.', said('R0.', ['+ item Rope', '! probe frost']));
-    await told.send('On.', said('R1.', ['! probe frost']));
+    await told.send('On.', said('R1.', ['+ item Lamp', '! probe frost']));
     assert.deepEqual(told.head().domains.probe, h.head().domains.probe);
     assert.deepEqual(claimsOf(told), claimsOf(h));
     assert.deepEqual(told.head().domains.inventory.counts, h.head().domains.inventory.counts);
+    // Edited back, the earlier reply lets the claim go and the later block applies again: live and rebuilt agree.
+    await h.st.editMessage(2, said('R0.', ['+ item Rope']));
+    assert.equal((await h.sdk.reread(2)).ok, true);
+    assert.deepEqual(h.head().domains.probe.seen, ['frost']);
+    assert.deepEqual(held(h), []);
+    const live = JSON.stringify(h.head().domains);
+    h.store.rebuild();
+    assert.equal(JSON.stringify(h.head().domains), live);
+    assert.deepEqual(held(h), []);
 });
 
 test('a live apply is unchanged: the second claim is refused by its command, and replay has nothing to skip', async t => {
