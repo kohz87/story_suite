@@ -307,3 +307,17 @@ test('the report the page shows and copies never holds a key, an address or chat
         delete doc.defaultView;
     }
 });
+
+test('"Redraw all" is offered only while the redraw scheduler is on, and says what it did', async () => {
+    let calls = 0;
+    const on = await open({ report: async () => 'R', redrawAll: () => { calls += 1; return true; }, redrawOn: () => true });
+    const button = on.page.querySelector('.story-suite-diagnostics-redraw-all');
+    assert.ok(button);
+    button.click();
+    assert.equal(calls, 1);
+    assert.equal(on.page.querySelector('.story-suite-diagnostics-status').textContent, DIAGNOSTICS_TEXT.redrawAllDone);
+    on.host.close();
+    const off = await open({ report: async () => 'R', redrawAll: () => false, redrawOn: () => false });
+    assert.equal(off.page.querySelector('.story-suite-diagnostics-redraw-all'), null);
+    off.host.close();
+});

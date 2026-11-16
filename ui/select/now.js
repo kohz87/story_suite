@@ -67,7 +67,7 @@ function pinnedOf(pinned) {
 }
 
 export function selectNow(answers = {}, opts = {}) {
-  const followed = new Set(list(answers['director.keyPeople']).map(row => text(row?.name)));
+  const followed = new Set(list(answers['npc.present']).filter(row => row?.followed === true).map(row => text(row.name)));   // (the store's Follow flag, as people.list gave it)
   const party = new Set(list(answers['party.actors']).map(row => text(row?.name)));
   const you = isRec(answers['scene.you']) ? answers['scene.you'] : null;
   return {

@@ -6,6 +6,8 @@ import { dossierOpener, castApi } from './delta-api.js';
 
 export const HERE_QUERY = 'director.world.here';
 
+let widgets = 0;   // one section id per widget (two World screens can be alive at once)
+
 const later = typeof queueMicrotask === 'function' ? queueMicrotask : fn => Promise.resolve().then(fn);
 
 export function render(el, props, api, { open = dossierOpener, cast = castApi } = {}) {
@@ -23,6 +25,9 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
     let watched = null;
     let pending = false;
     let gone = false;
+    // Flag `suite.redrawScheduler` on: the widget is a `people` section of sdk.panels (drawn once per frame, with the others) (the onChange subscription stays, idle while the flag is on, so the widget keeps updating if the flag is turned off).
+    const panels = api?.panels?.on === true ? api.panels : null;
+    let offSection = null;
 
     const thoughtNode = (thought, tag = 'span') => {
         const node = make(tag, 'wv-thought');
@@ -98,28 +103,37 @@ export function render(el, props, api, { open = dossierOpener, cast = castApi } 
         root.hidden = root.children?.length === 0 && shown;
     };
 
-    // NPC State Delta changed: ask for the here view again (the dossier flags, the stances) and redraw, once.
+    // The here view again (the dossier flags, the stances), then a redraw.
+    function redraw() {
+        if (gone) return;
+        if (typeof api?.query === 'function') {
+            try {
+                const next = api.query(HERE_QUERY);
+                if (next && typeof next === 'object') value = next;
+            } catch { /* keep the last answer */ }
+        }
+        draw();
+    }
+    // NPC State Delta changed: redraw, once.
     function refresh() {
         if (pending || gone) return;
+        if (offSection && api?.panels?.on === true) return;   // (the flag is on: the section draws it; this subscription only works once the flag goes off)
         pending = true;
         later(() => {
             pending = false;
-            if (gone) return;
-            if (typeof api?.query === 'function') {
-                try {
-                    const next = api.query(HERE_QUERY);
-                    if (next && typeof next === 'object') value = next;
-                } catch { /* keep the last answer */ }
-            }
-            draw();
+            redraw();
         });
     }
+    // What the section shows is the here view; a change NPC State announces (`changed(['people'])`) draws it even when that is the same answer.
+    const hereView = () => { try { return api.query(HERE_QUERY) ?? null; } catch { return null; } };
 
     draw();
+    if (panels) offSection = panels.register(`story-director.world-people.${widgets += 1}`, { keys: ['people'], drawn: true, isVisible: () => !gone && el.isConnected !== false, read: hereView, draw: redraw });
     return {
         update(next) { value = next?.value ?? null; draw(); },
         destroy() {
             gone = true;
+            try { offSection?.(); } catch { /* gone */ }
             try { off?.(); } catch { /* gone */ }
             off = null;
             mark.remove();

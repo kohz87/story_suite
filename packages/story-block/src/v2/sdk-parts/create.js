@@ -14,6 +14,7 @@ import { createCardSettings } from '../packs/card-settings.js';
 import { isObject } from '../sdk/shared.js';
 import { createEvents } from '../sdk/events.js';
 import { newId } from '../sdk/ids.js';
+import { createPanels } from '../sdk/panels.js';
 import { createChangedFeed } from '../sdk/changed.js';
 import { featureOn, makeView, missingModules, runQuery, withCue } from '../sdk/queries.js';
 import { announceModules, ensureModules, preflight, rememberTimeline } from '../sdk/lifecycle.js';
@@ -28,11 +29,12 @@ const checkModule = await import('../check.js').catch(() => null);
  * rewind?({ index, beforeRev }) (src/v2/rewind.js), substitute?(text), dialog?(screenId, opts), dialogCurrent?(), reread?(index) (turn.js),
  * callModel?(request) (model-call.js createModelCalls().callModel), timeline? (timeline/coordinator.js createTimeline: sdk.timeline,
  * savepoint.make, the participants of the modules registered) }.
- * Returns { sdk, events, markReady }:
+ * Returns { sdk, events, markReady, bindPanels }: `bindPanels(scheduler)` is the host's (sdk.panels' scheduler, or null to let go).
  * `sdk.ready` resolves to the sdk once the host calls markReady().
  */
 export function createSdk({ store, bus, registry, settings, events = createEvents(), chat = () => [], check = checkModule, onRegister = null, rewind = null, substitute = text => String(text ?? ''), dialog = null, dialogCurrent = null, reread = null, callModel = null, timeline = null, seed = null, cardSettings = createCardSettings(), publicPaths = createPublicPaths(), flag = () => false }) {
     let markReady;
+    const panelHub = createPanels({ on: () => flag('suite.redrawScheduler') === true });
     const ready = new Promise(resolve => { markReady = () => resolve(sdk); });
     const refused = message => ({ ok: false, code: 'REFUSED', message });
     const committed = result => {
@@ -208,6 +210,8 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
         settings: id => settings(id),
         /** Whether the internal rollout flag `name` (e.g. `suite.isolatedApply`) is on; read at each call, false for anything unknown. Read-only, for Story Director and Delta. */
         flag: name => { try { return flag(name) === true; } catch { return false; } },
+        /** Panels that are marked dirty instead of drawn (`suite.redrawScheduler`): `{ on, register(id, section) → off, changed(keys), hold() }`; inert while the flag is off (sdk/panels.js). */
+        panels: panelHub.panels,
         /** Whether the reader has feature `id` on (MODULES §F100); false for an id no module declares. */
         feature: id => featureOn(registry, id),
         /** Every declared feature: [{ id, moduleId, moduleName, label, describe, default, prompt, on }]. */
@@ -239,5 +243,5 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
         }),
     });
     if (typeof store?.opsAt === 'function' && typeof store?.headIndex === 'function') createChangedFeed({ store, events });
-    return { sdk, events, markReady };
+    return { sdk, events, markReady, bindPanels: panelHub.bind };
 }

@@ -1,7 +1,7 @@
 // The page API Story Director's World screen uses: render present cards with optional slots, report availability, and
 // subscribe to cast/state changes. The API object and its props remain frozen as before.
 
-export function createPageApi(session, deps, renderCast, watchers) {
+export function createPageApi(session, deps, renderCast, watchers, fire) {
     const { doc, enabled, npcList, page, PAGE_API, PAGE_SLOT_CLASS, runtime, warn } = deps;
 
     // Each `slot(name, aliases)` node inside its present person's card (the card's text, under the now lines).
@@ -36,9 +36,7 @@ export function createPageApi(session, deps, renderCast, watchers) {
         busyPoll = setTimeout(() => {
             busyPoll = null;
             if (busyNow()) return watchBusy();
-            for (const fn of [...watchers]) {
-                try { fn(); } catch (error) { warn('Story Suite v2 cast listener failed', error); }
-            }
+            fire();
         }, BUSY_POLL_MS);
         busyPoll?.unref?.();
     }
