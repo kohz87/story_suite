@@ -44,10 +44,13 @@ test('the suite runs in complete shards and verify adds up exactly that many cou
   assert.match(job('verify'), new RegExp(`suite-floor\\.sh ${total} `));
 });
 
-test('verify needs every other job and always runs', () => {
+test('verify needs every job that is not informational and always runs', () => {
   const text = job('verify');
   const needs = text.match(/^ {4}needs: \[(.*)\]$/m)[1].split(',').map((s) => s.trim());
-  assert.deepEqual([...needs].sort(), jobNames().filter((n) => n !== 'verify').sort());
+  // An informational job (continue-on-error: true, e.g. layout-dry-run) must not block the gate.
+  const informational = jobNames().filter((n) => /^ {4}continue-on-error: true$/m.test(job(n)));
+  const required = jobNames().filter((n) => n !== 'verify' && !informational.includes(n));
+  assert.deepEqual([...needs].sort(), required.sort());
   assert.match(text, /^ {4}if: \$\{\{ always\(\) \}\}$/m);
   assert.match(text, /\[ "\$r" = success \]/);
 });
@@ -72,6 +75,12 @@ test('node --test-shard runs every test file once across the shards', () => {
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test('a suite shard with no count file fails instead of skipping the floor', () => {
+  const r = spawnSync('bash', [path.join(root, 'scripts/ci/suite-tests.sh')], { encoding: 'utf8', env: { ...process.env, SUITE_SHARD: '1/2', SUITE_COUNT_FILE: '' } });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /SUITE_COUNT_FILE must be set/);
 });
 
 test('suite-floor.sh sums the shards against the floor in suite-tests.sh', () => {

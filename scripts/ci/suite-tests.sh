@@ -11,6 +11,7 @@ shard="${SUITE_SHARD:-}"
 shard_flag=()
 if [ -n "$shard" ]; then
   case "$shard" in [1-9]/[1-9]) ;; *) echo "error: SUITE_SHARD must look like 1/2, got $shard" >&2; exit 1 ;; esac
+  : "${SUITE_COUNT_FILE:?SUITE_COUNT_FILE must be set when SUITE_SHARD is set (the floor is checked over all shards)}"
   shard_flag=("--test-shard=$shard")
 fi
 
@@ -85,7 +86,7 @@ echo "suite tests: ${tests:-unknown}, skipped: ${skipped:-unknown}, todo: ${todo
 
 fail=0
 if [ -n "$shard" ]; then
-  if [ -n "${SUITE_COUNT_FILE:-}" ]; then echo "${tests:-0}" > "$SUITE_COUNT_FILE"; fi
+  echo "${tests:-0}" > "$SUITE_COUNT_FILE"
 elif [ "${tests:-0}" -lt "$MIN_TESTS" ]; then
   echo "error: only ${tests:-0} tests reported, expected at least $MIN_TESTS (siblings missing, results lost or tests deleted)" >&2
   fail=1

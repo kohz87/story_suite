@@ -82,7 +82,7 @@ jobs:
         run: node --test --test-timeout=900000 "tests/ui/**/*.test.js" "tests/ui-gaps/*.test.js"
 
   # Story Block's tests run in three parallel shards (node --test-shard splits the test files round-robin, so
-  # every file runs in exactly one shard). tests/scripts/ci-timeouts.test.js checks the shard list.
+  # every file runs in exactly one shard). tests/scripts/ci-shards.test.js checks the shard list.
   story-block:
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -289,13 +289,14 @@ jobs:
       - name: Keep this shard's test count
         uses: actions/upload-artifact@v4
         with:
-          name: suite-count-${{ strategy.job-index }}
+          name: suite-count-${{ strategy.job-index }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/suite-count.txt
           if-no-files-found: error
           retention-days: 1
 
   # The one gate for branch protection: it passes only when every required job passed, and it adds up the
-  # suite shards' test counts against the floor. Add a new required job to `needs` here.
+  # suite shards' test counts against the floor. Add a new required job to `needs` here. Informational jobs
+  # (continue-on-error: true, such as layout-dry-run) stay out of `needs`.
   verify:
     if: ${{ always() }}
     needs: [rules, ui, story-block, story-director, npc-state-delta, suite]
@@ -320,5 +321,9 @@ jobs:
       - name: Suite test floor over all shards
         run: |
           mkdir "$RUNNER_TEMP/counts"
-          for d in "$RUNNER_TEMP"/suite-counts/*/; do cp "$d/suite-count.txt" "$RUNNER_TEMP/counts/$(basename "$d").txt"; done
+          # Folders are suite-count-<shard>-<attempt>; a re-run keeps earlier attempts' files, so the newest attempt per shard wins.
+          for d in $(ls -d "$RUNNER_TEMP"/suite-counts/*/ | sort -V); do
+            n="$(basename "$d")"; n="${n#suite-count-}"
+            cp "$d/suite-count.txt" "$RUNNER_TEMP/counts/${n%-*}.txt"
+          done
           bash scripts/ci/suite-floor.sh 2 "$RUNNER_TEMP/counts"
