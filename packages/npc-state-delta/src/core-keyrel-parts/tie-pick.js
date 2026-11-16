@@ -1,5 +1,5 @@
 /* NPC State Delta tie pick: the one tag a list of tie tags stands for, shared by a tie's type (tieType) and its word on the map and in Focus. */
-import { TIE_TAGS } from '../npc-notes-ties-parts/shared-tags.js';
+import { TIE_TAGS } from '../npc-notes-ties-parts/tie-tags.js';
 
 const OLD_TAGS = ['ally', 'rival', 'owes'];
 

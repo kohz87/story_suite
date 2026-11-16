@@ -1,7 +1,7 @@
-// The tie tags and the canonical tag order every ties part shares, with the plain-object test.
-// Nine tags (owner 16 Nov): kin, partner, friend, ally, rival, enemy both ways; mentor, serves, owes read Name to Other.
-// The order keeps the old three (ally, rival, owes) in their old relative order, so a stored tie with an old tag still reads.
-export const TIE_TAGS = ['kin', 'partner', 'friend', 'ally', 'mentor', 'serves', 'rival', 'enemy', 'owes'];
+// The tie tags (from tie-tags.js) and the canonical tag order every ties part shares, with the plain-object test.
+import { TIE_TAGS } from './tie-tags.js';
+
+export { TIE_TAGS };
 export const TIES_MAX_PEOPLE = 12;
 
 export const ordered = tags => TIE_TAGS.filter(tag => tags.includes(tag));
