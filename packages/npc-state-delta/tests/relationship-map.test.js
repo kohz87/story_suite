@@ -236,6 +236,11 @@ test('the map card: ties without Focus, the numbers line, a portrait or initials
     };
     assert.match(wording(['partner'], 'temiwa'), /partner of temiwa/i, 'partner reads "of"');
     assert.match(wording(['mentor'], 'temiwa'), /mentor to temiwa/i, 'a one-way mentor tie reads "mentor to"');
+    assert.match(wording(['kin', 'enemy'], 'temiwa'), /enemy of temiwa/i, 'the card word picks hostile first, as the tone does');
+    assert.match(wording(['mentor', 'enemy'], 'temiwa'), /enemy of temiwa/i);
+    assert.doesNotMatch(wording(['mentor', 'enemy'], 'temiwa'), /mentor to/i);
+    const relMentor = buildMapModel({ npcs: [npc('rika', { name: 'Rika', keyRelationships: ['Temiwa: her mentor'] }), npc('temiwa', { name: 'Temiwa' })], turn: 1 }, { selectedId: 'rika' });
+    assert.doesNotMatch(mapCardHtml(relMentor, buildFocusModel({ npcs }, relMentor, ''), 'Astra', {}), /mentor to/i, 'a relation-text mentor carries no direction');
     assert.match(wording(['serves'], 'temiwa'), /serves temiwa/i, 'serves stays as it was');
     assert.deepEqual(selectedTies(map).map(t => [t.name, t.word, t.tone]), [['Bregje', 'rival', 'bad'], ['Temiwa', 'friend', 'good']], 'the ties of the selected person need no focus');
     assert.equal(cardNumbersLine(map.selected), 'Warmth +11 · Trust +11 · Tension +13', 'the mockup\'s three numbers (the dial carries all four)');
@@ -281,6 +286,8 @@ test('round 2 fix 5: a tie tag names the tie, the card says "Her ties" by gender
     assert.deepEqual(['female', 'Female', 'male', 'nonbinary', ''].map(possessiveWord), ['Her', 'Her', 'His', 'Their', 'Their']);
     assert.equal(tagWord(['ally']), 'ally');
     assert.equal(tagWord(['rival', 'owes']), 'owes');
+    assert.equal(tagWord(['ally', 'rival']), 'ally');
+    assert.equal(tagWord(['kin', 'enemy']), 'enemy');
     const npcs = [npc('rika', { keyRelationships: ['Temiwa: friend | saved her'], v2Meters: { ties: { temiwa: ['ally'] } } }), npc('temiwa')];
     const map = buildMapModel({ npcs, turn: 1 }, { selectedId: 'rika' });
     const tie = buildFocusModel({ npcs }, map, 'rika').ties[0];

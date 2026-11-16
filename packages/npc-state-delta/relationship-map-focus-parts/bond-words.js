@@ -2,6 +2,7 @@
 
 import { plain } from '../relationship-map-core.js';
 import { KNOWN_SOCIAL_RELATION_FAMILIES, socialRelationFamily } from '../social-relations.js';
+import { pickTieTag } from '../src/core-keyrel-parts/tie-pick.js';
 import { tieTone } from '../dossier-ui-bond-tone.js';
 import { FOCUS_TONES } from './focus-constants.js';
 
@@ -38,8 +39,8 @@ export function relationWord(relation = '') {
     return text.split(/\s+/).slice(0, 2).join(' ').slice(0, 18);
 }
 
-// The word a tie tag gives (the Ties section's rule: owes first, else the first tag), or '' without tags.
-export const tagWord = tags => { const list = Array.isArray(tags) ? tags : []; return list.includes('owes') ? 'owes' : (list[0] || ''); };
+// The word a tie tag gives (the same pick as a tie's type, so word and tone agree), or '' without tags.
+export const tagWord = tags => pickTieTag(tags);
 
 // The local tone rule, keyed by the relation word. Anything not listed is grey.
 export function localBondTone(word = '') {

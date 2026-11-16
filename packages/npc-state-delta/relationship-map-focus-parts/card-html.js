@@ -12,7 +12,7 @@ function compactLine(sel, ties, shortOf) {
     const warmth = cardNumbersLine(sel).split(' · ')[0].toLocaleLowerCase();
     const tied = ties.map(t => {
         const who = shortOf.get(t.id) || t.name;
-        if (t.word === 'mentor') return `mentor to ${who}`;
+        if (t.fromTag && t.word === 'mentor') return `mentor to ${who}`;
         return /^(?:ally|rival|friend|enemy|kin|partner)$/.test(t.word) ? `${t.word} of ${who}` : `${t.word || 'tied to'} ${who}`;
     });
     return [warmth, ...tied].join(' · ');

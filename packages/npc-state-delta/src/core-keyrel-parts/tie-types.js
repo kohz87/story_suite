@@ -1,4 +1,5 @@
 /* NPC State Delta tie types: the five tie kinds, their priority ranks, fade days and the keyword reading of a relation text. */
+import { pickTieTag } from './tie-pick.js';
 // ---- Tie types, fading and priority (owner decisions 12 Nov). All pure; no model call. ----
 // A tie's type is one of five broad kinds, read from the stored relation text with the fixed keyword table below (first matching row
 // wins, in this order); no match, or a weak/one-time word, is Passing. A type set by a pack or the player (a `~ tie` tag) wins over the words.
@@ -16,15 +17,10 @@ const TIE_KEYWORDS = [
 // "owed by" / "debtor": the OTHER person owes, so it is not an Owes tie for this one (owes is one-way); it falls through to the other rows.
 const OWED_BY = /\b(?:owed by|owed to by|debtor)\b/i;
 
-const HOSTILE_ORDER = ['enemy', 'rival'];
-
 /** The type of one tie: `tags` (a pack/player tie tag list: any of the nine tie tags) wins, else the keyword table on the relation text. */
 export function tieType(relation, tags = []) {
-    const set = Array.isArray(tags) ? tags : [];
-    // Hostile tags first (so the type agrees with tieTone), then owes, then the rest in tag order.
-    for (const tag of HOSTILE_ORDER) if (set.includes(tag)) return tag;
-    if (set.includes('owes')) return 'owes';
-    for (const tag of set) if (Object.hasOwn(TIE_TYPE_RANK, tag) && TIE_TYPE_RANK[tag] === 0) return tag;
+    const picked = pickTieTag(tags);
+    if (picked) return picked;
     const text = String(relation ?? '').replace(OWED_BY, ' ');
     for (const [type, pattern] of TIE_KEYWORDS) if (pattern.test(text)) return type;
     return 'passing';
