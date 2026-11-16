@@ -44,6 +44,14 @@ test('every import() in the bundle resolves, and host specifiers stay as the hos
   assert.deepEqual(graph.host, ['../../../extensions.js', '/script.js']);
 });
 
+test('a host import from a nested tool folder resolves to the right ../ depth', async () => {
+  const out = path.join(root, 'out-nested');
+  await buildBundleSet({ ...SET, installAt: 'story_suite/demo' }, out, root);
+  const graph = walkBundle(out, 'boot.js');
+  // written for third-party/demo (-> /scripts/extensions.js), installed one folder deeper: one more ../
+  assert.deepEqual(graph.host, ['../../../../extensions.js', '/script.js']);
+});
+
 test('two builds of the same source are byte-identical', async () => {
   const a = path.join(root, 'det-a');
   const b = path.join(root, 'det-b');
