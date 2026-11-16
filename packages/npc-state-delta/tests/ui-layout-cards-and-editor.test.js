@@ -108,10 +108,10 @@ test('present-only behavior injection and manual dossier editor controls are exp
 });
 
 
-test('archive lifecycle controls stay reversible while settings roster exposes confirmed hard delete', () => {
+test('the settings roster has no archive control; restore (a death correction) and confirmed hard delete stay', () => {
     assert.match(index, /Archive confirmed deaths/);
     assert.match(index, /Reactivate on clear return/);
-    assert.match(index, /npc-state-delta-archive-npc/);
+    assert.doesNotMatch(index, /npc-state-delta-archive-npc/);
     assert.match(index, /npc-state-delta-restore-npc/);
     assert.match(index, /npc-state-delta-roster-delete npc-state-delta-delete-npc/);
     assert.match(index, /Delete \${escapeHtml\(npc\.name\)} dossier/);
