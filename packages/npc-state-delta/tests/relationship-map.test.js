@@ -230,6 +230,13 @@ test('the map card: ties without Focus, the numbers line, a portrait or initials
         npc('temiwa', { name: 'Temiwa' }), npc('bregje', { name: 'Bregje' }),
     ];
     const map = buildMapModel({ npcs, turn: 1 }, { selectedId: 'rika' });
+    const wording = (tags, other) => {
+        const m = buildMapModel({ npcs: [npc('rika', { name: 'Rika', keyRelationships: [`${other}: tied`], v2Meters: { ties: { [other]: tags } } }), npc(other, { name: other })], turn: 1 }, { selectedId: 'rika' });
+        return mapCardHtml(m, buildFocusModel({ npcs }, m, ''), 'Astra', {});
+    };
+    assert.match(wording(['partner'], 'temiwa'), /partner of temiwa/i, 'partner reads "of"');
+    assert.match(wording(['mentor'], 'temiwa'), /mentor to temiwa/i, 'a one-way mentor tie reads "mentor to"');
+    assert.match(wording(['serves'], 'temiwa'), /serves temiwa/i, 'serves stays as it was');
     assert.deepEqual(selectedTies(map).map(t => [t.name, t.word, t.tone]), [['Bregje', 'rival', 'bad'], ['Temiwa', 'friend', 'good']], 'the ties of the selected person need no focus');
     assert.equal(cardNumbersLine(map.selected), 'Warmth +11 · Trust +11 · Tension +13', 'the mockup\'s three numbers (the dial carries all four)');
     assert.deepEqual(cardNumberItems(map.selected), ['Warmth +11', 'Trust +11', 'Tension +13'], 'whole items, so a narrow card wraps between them, not inside one');

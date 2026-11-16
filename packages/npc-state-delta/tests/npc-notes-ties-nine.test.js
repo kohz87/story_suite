@@ -58,7 +58,11 @@ test('relation text maps as before: partner, kin and mentor words give ally or n
     assert.equal(tieType('older sister'), 'ally');
     assert.equal(tieType('mentor'), 'ally');
     assert.equal(tieType('stranger', ['kin']), 'kin');
-    assert.equal(tieType('stranger', ['mentor', 'enemy']), 'mentor');
+    assert.equal(tieType('stranger', ['mentor', 'enemy']), 'enemy');
+    assert.equal(tieType('stranger', ['kin', 'enemy']), 'enemy');
+    assert.equal(tieType('stranger', ['ally', 'rival']), 'rival');
+    assert.equal(tieType('stranger', ['kin', 'owes']), 'owes');
+    assert.equal(tieType('stranger', ['kin', 'mentor']), 'kin');
     assert.equal(tieType('friend', ['ally', 'owes']), 'owes');
 });
 
