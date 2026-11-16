@@ -9,7 +9,7 @@
 // Kept in the atlas domain's `trips`, a record per line, keyed `<sid>.<n>` (the reply's record ID, ../reply-keys.js; older states
 // `<rev>.<n>`) and read in story-time, then revision order (per-reply bookkeeping, SPEC §2.2):
 //   go    { kind: 'go', at, rev, to, by, mode, pace, unit, mount, short, setOut, legs: [Leg] }
-//   delay { kind: 'delay', at, rev, minutes, because }
+//   delay { kind: 'delay', at, rev, minutes, because, go? }   (`go`: the key of the go it delays; older delays have none)
 // `Leg` = { from, to, km, kind, days, start, arrive, skip? }: names in the direction of travel, the road's length
 // `km`, `skip` km of it already behind the traveller when the leg starts (a trip begun mid-road), `days` what the
 // planner counted for the part still to go, `start` and `arrive` story minutes. A new trip or a stop takes every
@@ -21,7 +21,7 @@
 export { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, TRIP_FEATURE } from './trip-parts/feature.js';
 export { basePace, modeOf, modeWords } from './trip-parts/modes.js';
 export { planTrip } from './trip-parts/plan.js';
-export { nodesOf, positionOf, tripOf } from './trip-parts/state.js';
+export { goKeyOf, nodesOf, positionOf, tripOf } from './trip-parts/state.js';
 export { isOver, startOf } from './trip-parts/status.js';
 export { calendarOf, dateText, legTime, paceText } from './trip-parts/format.js';
 export { tripLines, tripView } from './trip-parts/view.js';

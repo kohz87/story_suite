@@ -84,6 +84,33 @@ test('a delay told at the go\'s own story minute still counts after the go\'s re
     sameAsTold(host, fresh, 'same minute');
 });
 
+test('a delay an edited earlier reply now writes, for the trip of its time, does not delay a later reply\'s new trip', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const story = [GO, ['+ quest Q — x | giver: A'], ['~ trip Auvoth | by: foot']];
+    const host = await told(story);
+    t.after(() => host.close());
+    const at = replyAt(host, 'R1');
+    await host.st.editMessage(at, said('R1.', ['~ trip delay: 1 day | because: shoe']));
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    const fresh = await told([GO, ['~ trip delay: 1 day | because: shoe'], story[2]]);
+    t.after(() => fresh.close());
+    assert.equal(trip(host).to, 'Auvoth');
+    assert.deepEqual(trip(host), trip(fresh), 'the trip read back, as told that way: no delay');
+    assert.deepEqual(shown(host), shown(fresh), 'the reader\'s trip');
+    rebuiltSame(host, 'after the Re-read');
+});
+
+test('a delay names the go it delays', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await told([GO, ['! time +1 hour', '~ trip delay: 1 day']]);
+    t.after(() => host.close());
+    const records = Object.entries(atlas(host).trips);
+    const go = records.find(([, record]) => record.kind === 'go')[0];
+    assert.match(go, /\.0$/, 'a go is its reply\'s first record');
+    assert.equal(records.find(([, record]) => record.kind === 'delay')[1].go, go);
+    assert.deepEqual(tripsProblems({ ...atlas(host).trips, 'sw_x.0': { kind: 'delay', at: 1, rev: 1, minutes: 5, because: '', go: 'not a key' } }), ['atlas.trips.sw_x.0.go must be a trip record\'s key.']);
+});
+
 test('an older state\'s <rev>.<n> records read as before; a new delay joins them', () => {
     const leg = { from: 'A', to: 'B', km: 20, kind: 'road', days: 1, start: 100, arrive: 1540 };
     const old = {

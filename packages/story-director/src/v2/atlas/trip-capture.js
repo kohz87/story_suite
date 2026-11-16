@@ -11,7 +11,7 @@
 
 import { DEFAULT_MAP, DEFAULT_PACES, mapSettings, parseLocation } from '../../places.js';
 import { MAX_NAME, cleanName, revOf } from './domain.js';
-import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
+import { MAX_DELAYS, MAX_DELAY_DAYS, MAX_LEGS, basePace, goKeyOf, modeOf, modeWords, planTrip, positionOf, startOf, tripOf } from './trip.js';
 import { packWorld, worldOf } from './world.js';
 import { replyKey } from '../reply-keys.js';
 
@@ -84,7 +84,7 @@ function delayTrip(ctx, line, text) {
     if (trip.delays.length >= MAX_DELAYS) return ctx.fail('REFUSED', `This trip is already delayed ${MAX_DELAYS} times. Stop it with ~ trip stop and start again.`);
     const because = cleanName(line?.labels?.because ?? line?.labels?.why ?? '').slice(0, MAX_NAME);
     const trips = (atlas.trips ??= {});
-    trips[replyKey(ctx, trips)] = { kind: 'delay', at: now, rev: Math.max(0, revOf(ctx)), minutes, because };
+    trips[replyKey(ctx, trips)] = { kind: 'delay', at: now, rev: Math.max(0, revOf(ctx)), minutes, because, go: goKeyOf(atlas) };
     const hours = minutes % DAY === 0 ? `${minutes / DAY} day${minutes === DAY ? '' : 's'}` : minutes % 60 === 0 ? `${minutes / 60} hour${minutes === 60 ? '' : 's'}` : `${minutes} minutes`;
     return { summary: `The trip to ${trip.to} is delayed ${hours}${because ? ` (${because})` : ''}: every arrival ahead moves later.`, narrate: false, data: { delayed: minutes } };
 }

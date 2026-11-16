@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { REPLY_KEY, entryOrder, replyKey } from '../../src/v2/reply-keys.js';
+import { newRecordId } from '../../../story-block/src/v2/persist.js';
 
 test('a reply\'s own story is keyed by its record ID and a count one past the highest that reply holds', () => {
     const ctx = { cause: 'story', rev: 40, receiptId: 'rc_aaaa1111', carrier: { sid: 'sw_abc123def456' }, reply: { index: 4, sid: 'sw_abc123def456' } };
@@ -22,6 +23,14 @@ test('a write that is not the reply\'s own story is keyed by the reply and its r
     assert.equal(replyKey({ cause: 'system', rev: 9, reply: { index: 4, sid: 'sw_head' } }, {}), 'sw_head:r9.0');
     // An arc plan's lines run with a carrier of their own (`plan:<arc>`), shared by every reply: the reply and receipt are used instead.
     assert.equal(replyKey({ cause: 'ui', rev: 9, receiptId: 'rc_f00d', carrier: { sid: 'plan:ar_x1' }, reply: { index: 6, sid: 'sw_late' } }, {}), 'sw_late:rc_f00d.0');
+});
+
+test('Story Block\'s record IDs are used as they are (never the older fallback)', () => {
+    for (let i = 0; i < 20; i += 1) {
+        const sid = newRecordId();
+        assert.equal(replyKey({ cause: 'story', rev: 3, carrier: { sid } }, {}), `${sid}.0`);
+        assert.equal(replyKey({ cause: 'ui', rev: 3, receiptId: 'rc_a1b2c3d4', reply: { sid } }, {}), `${sid}:rc_a1b2c3d4.0`);
+    }
 });
 
 test('without a record ID the older <rev>.<n> form is used, the first free count', () => {

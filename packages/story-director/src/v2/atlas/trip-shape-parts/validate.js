@@ -40,7 +40,8 @@ export function tripsProblems(trips) {
         if (record.kind === 'delay') {
             if (!isInt(record.minutes) || record.minutes < 1 || record.minutes > MAX_DELAY_DAYS * DAY) errors.push(`${at}.minutes must be 1 to ${MAX_DELAY_DAYS * DAY}.`);
             if (!textOk(record.because, MAX_TEXT)) errors.push(`${at}.because must be text.`);
-            for (const field of Object.keys(record)) if (!['kind', 'at', 'rev', 'minutes', 'because'].includes(field)) errors.push(`${at} has an unknown field "${field}".`);
+            if (record.go !== undefined && !(typeof record.go === 'string' && KEY.test(record.go))) errors.push(`${at}.go must be a trip record's key.`);
+            for (const field of Object.keys(record)) if (!['kind', 'at', 'rev', 'minutes', 'because', 'go'].includes(field)) errors.push(`${at} has an unknown field "${field}".`);
         } else if (record.kind === 'go') {
             if (!named(record.to)) errors.push(`${at}.to must be a place name.`);
             if (!textOk(record.by, 40) || !textOk(record.mode, 20) || !record.mode) errors.push(`${at}.by and .mode must be text.`);
