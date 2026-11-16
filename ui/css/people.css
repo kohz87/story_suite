@@ -1,4 +1,4 @@
-/* Styles for the People tab: tiles, filters, search and the cast map; tokens only. */
+/* Styles for the People tab: tiles, filters, search and the cast map; tokens, plus the mock's fixed disc and legend colours. */
 .people-tab{--pk-disc:#3a3c52}
 [data-scheme="light"] .people-tab{--pk-disc:#4a4d68}
 .people-tab .card{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -13,7 +13,7 @@
 .fil button[aria-pressed="true"] small{color:var(--su-accent)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;font:700 12px var(--su-font);color:var(--su-muted)}
 .legend i{display:inline-block;width:10px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
-.legend .f0 i{background:var(--su-info)}.legend .f1 i{background:#ff7aa8}.legend .f2 i{background:#c08aff}.legend .f3 i{background:var(--su-warn)}
+.legend .f0 i{background:#5aa0ff}.legend .f1 i{background:#ff7aa8}.legend .f2 i{background:#c08aff}.legend .f3 i{background:#f0b84a}
 .people-body{display:flex;flex-direction:column;gap:12px}
 .psec{display:flex;flex-direction:column;gap:12px}
 .secl2{font:800 12px var(--su-font);letter-spacing:.12em;text-transform:uppercase;color:var(--su-muted);margin:4px 0 -2px}
@@ -23,7 +23,8 @@
 .people-tab .prg>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .people-tab .prg .ph{position:absolute;inset:9px;border-radius:50%;background:var(--pk-disc) center 18%/cover;display:grid;place-items:center;font:800 22px var(--su-font);color:#fff}
 [data-scheme="light"] .people-tab .prg .ph{background-color:#dcdcea;color:#1d2030}
-.people-tab .prg .star{right:-4px;color:var(--su-warn-t)}
+.people-tab .prg .star{right:-4px;color:#f0b84a}
+[data-scheme="light"] .people-tab .prg .star{color:#8a5600}
 .pc .nm2{font:800 13.5px/1.15 var(--su-font);margin-top:3px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .pc .md2{font:700 12px var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:999px;padding:1px 8px}
 .pc .wh{font:600 12px/1.25 var(--su-font);color:var(--su-muted);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
@@ -54,8 +55,9 @@
 .cmw[data-dim="1"]{opacity:.35}
 .cmw.away .cm{opacity:.75}
 .mleg{display:flex;flex-wrap:wrap;gap:4px 12px;font:700 12px var(--su-font);color:var(--su-muted)}
-.mleg i{display:inline-block;width:12px;height:3px;margin-right:5px;vertical-align:middle;border-radius:2px;background:currentColor}
-.mleg .leg-ok i{color:var(--su-ok)}.mleg .leg-bad i{color:var(--su-bad)}.mleg .leg-gold i{color:var(--su-warn)}
+.mleg i{display:inline-block;width:14px;height:0;margin-right:5px;vertical-align:middle;border-top:2px dashed currentColor}
+.mleg .leg-ok i{color:var(--su-ok-t)}.mleg .leg-bad i{color:var(--su-bad-t)}.mleg .leg-gold i{color:#f0b84a}
+[data-scheme="light"] .mleg .leg-gold i{color:#8a5a00}[data-scheme="light"] .mleg .leg-ok i{color:#0b6e49}
 .mcard{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:16px;background:var(--su-line2)}
 .mcard .who{display:flex;align-items:center;gap:10px}
 .mcard .who b{font:800 14px var(--su-font)}
@@ -65,8 +67,7 @@
 .people-tab .seg2{display:inline-flex;flex-wrap:wrap;background:var(--su-line2);border:0;border-radius:12px;padding:3px;gap:2px;overflow:visible}
 .people-tab .seg2 button{min-width:44px;min-height:44px;border:0;background:transparent;color:var(--su-soft);font:700 12.5px var(--su-font);padding:5px 10px;border-radius:9px}
 .people-tab .seg2 button[aria-pressed="true"]{background:var(--su-panel2);color:var(--su-text)}
-/* map: the lens switch spans the row, the outer-ring word sits on the ring, the empty hint reads as body text */
-.mapctl .seg2{flex:1 1 100%}.mapctl .seg2 button{flex:1}
+/* map: the outer-ring word sits on the ring, the empty hint reads as body text */
 .cmap .rw{position:absolute;transform:translate(-50%,-50%);font:700 12px var(--su-font);color:var(--su-muted);background:var(--su-panel);border-radius:999px;padding:0 6px;white-space:nowrap}
 .mcard .mhint{font:400 14px/1.5 var(--su-font);color:var(--su-text)}
 .fchip{display:inline-flex;align-items:center;gap:6px;color:var(--su-text);background:var(--su-panel2)}

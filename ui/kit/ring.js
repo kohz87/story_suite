@@ -16,8 +16,8 @@ function arcPath(r, from, to) {
 }
 
 /** Builds the SVG ring for a meters object; a meter of 0 (or a missing one) draws no arc, a negative one is dashed. */
-export function feelingsRing(meters = {}, { width = 6 } = {}) {
-  const r = 50 - width / 2 - 1;
+export function feelingsRing(meters = {}, { width = 6, pad = 1 } = {}) {
+  const r = 50 - width / 2 - pad;
   const svg = svgEl(
     'svg',
     { viewBox: '0 0 100 100', class: 'ring', 'aria-hidden': 'true' },

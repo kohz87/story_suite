@@ -20,13 +20,8 @@ function serve() {
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream' });
     res.end(fs.readFileSync(file));
   });
-  return new Promise((resolve, reject) => {
-    const tryPort = port => {
-      if (port > 8899) { reject(new Error('no free port in 8800-8899')); return; }
-      server.once('error', () => tryPort(port + 1));
-      server.listen(port, '127.0.0.1', () => { server.removeAllListeners('error'); resolve({ server, port }); });
-    };
-    tryPort(8800);
+  return new Promise(resolve => {
+    server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port }));
   });
 }
 
@@ -59,6 +54,9 @@ function read() {
     name: css('.dossier .dname', 'fontSize'), corner: css('.dossier .ml b', 'fontSize'), spacing: css('.dossier .ml', 'letterSpacing'),
     follow: css('.dossier .fbtn', 'color'), moodRows: rows, here: [...document.querySelectorAll('#hx-frame .dossier .idl')].map(e => e.textContent).at(-1),
     trust: css('.dossier .ml.f0', 'color'),
+    ring: ['.bigring .ring-track', '.bigring .ring-arc'].map(s => [q(s).getAttribute('stroke-width'), q(s).getAttribute('r') ?? 'arc']),
+    idLh: css('.dossier .idl', 'lineHeight'), bk: css('.dossier .bk2', 'paddingLeft'),
+    ph: (() => { const a = q('.bigph').getBoundingClientRect(); const b = q('.bigring').getBoundingClientRect(); return Math.round((a.left - b.left) / b.width * 100); })(),
   };
 }
 
@@ -81,6 +79,11 @@ for (const theme of ['dark', 'light']) {
         assert.equal(v.spacing, '1.2px');
         assert.equal(v.follow, GOLD[theme]);
         assert.equal(v.here, 'Here');
+        assert.deepEqual(v.ring[0], ['2.6', '44.7'], 'hero ring track');
+        assert.equal(v.ring[1][0], '2.6');
+        assert.equal(v.idLh, '19.5px');
+        assert.equal(v.bk, '12px');
+        assert.equal(v.ph, 17, 'hero portrait inset');
         assert.deepEqual(v.moodRows, ['Feeling', '', '+1', 'Energy', '', '0', 'Control', '', '-1']);
         await page.evaluate(() => document.querySelector('#hx-frame .dossier [data-page="ties"]').click());
         await page.waitForSelector('#hx-frame .dossier .tie');
