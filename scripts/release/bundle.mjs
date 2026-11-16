@@ -1,19 +1,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { build } from 'esbuild';
-
-const LITERAL_IMPORT = /\bimport\(\s*(['"])([^'"\n]+)\1\s*\)/g;
+import { PACK_MODULE, PACK_SOURCE, rewriteSource } from './rewrite.mjs';
 
 // The two things the bundler is told about this package, as one plugin:
 // 1. What belongs to SillyTavern stays as written: an absolute path ('/script.js') or a relative one that
 //    leaves the package ('../../../extensions.js'). The relative form is rewritten from the package folder,
 //    where the chunks sit, so it keeps the depth the host expects.
 // 2. A literal import('./x.js') of a module not listed as lazy is awaited at startup anyway; it is packed into
-//    the entry and loaded on demand in place (a lazily initialised module, the same order and the same promise),
+//    the entry and loaded on demand in place (a lazily initialised module that starts once, in the same order),
 //    instead of becoming a request of its own. Lazy modules keep a real import() and stay separate chunks.
+// 3. import.meta.url keeps naming the module's original location (see rewrite.mjs), so assets beside it resolve.
 function packagePlugin(pkgDir, repoRoot, lazy) {
   const inside = abs => !path.relative(pkgDir, abs).startsWith('..');
   return { name: 'package', setup(b) {
+    b.onResolve({ filter: /^release:pack$/ }, () => ({ path: PACK_MODULE, namespace: 'release' }));
+    b.onLoad({ filter: /.*/, namespace: 'release' }, () => ({ contents: PACK_SOURCE, loader: 'js' }));
     b.onResolve({ filter: /^(\.|\/)/ }, args => {
       if (args.kind === 'entry-point') return undefined;
       if (args.path.startsWith('/')) return args.path.startsWith(repoRoot) ? undefined : { path: args.path, external: true };
@@ -23,14 +25,13 @@ function packagePlugin(pkgDir, repoRoot, lazy) {
     b.onLoad({ filter: /\.js$/ }, args => {
       if (!inside(args.path)) return undefined;
       const source = fs.readFileSync(args.path, 'utf8');
-      if (!source.includes('import(')) return undefined;
-      const contents = source.replace(LITERAL_IMPORT, (whole, quote, spec) => {
-        if (!spec.startsWith('.')) return whole;
-        const abs = path.resolve(path.dirname(args.path), spec);
-        if (!inside(abs) || lazy.has(path.relative(pkgDir, abs))) return whole;
-        return `Promise.resolve().then(() => require(${quote}${spec}${quote}))`;
-      });
-      return { contents, loader: 'js' };
+      if (!source.includes('import(') && !source.includes('import.meta')) return undefined;
+      const file = path.relative(pkgDir, args.path).split(path.sep).join('/');
+      const packKey = spec => {
+        const key = path.relative(pkgDir, path.resolve(path.dirname(args.path), spec));
+        return !key.startsWith('..') && !lazy.has(key) ? key.split(path.sep).join('/') : null;
+      };
+      return { contents: rewriteSource(source, file, packKey), loader: 'js' };
     });
   } };
 }

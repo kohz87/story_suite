@@ -10,9 +10,18 @@ const repoRoot = path.resolve(import.meta.dirname, '..');
 const args = process.argv.slice(2);
 const checkOnly = args.includes('--check');
 const outFlag = args.indexOf('--out');
+if (outFlag >= 0 && (!args[outFlag + 1] || args[outFlag + 1].startsWith('--'))) {
+  console.error('release: --out needs a folder, for example --out dist/release');
+  process.exit(2);
+}
 const outRoot = checkOnly ? path.join(os.tmpdir(), `story-suite-release-${process.pid}`) : path.resolve(outFlag >= 0 ? args[outFlag + 1] : path.join(repoRoot, 'dist/release'));
-const { problems, rows } = await checkRelease({ repoRoot, outRoot });
+let result;
+try {
+  result = await checkRelease({ repoRoot, outRoot });
+} finally {
+  if (checkOnly) fs.rmSync(outRoot, { recursive: true, force: true });
+}
+const { problems, rows } = result;
 for (const row of rows) console.log(`${row.name}: ${(row.bytes / 1024).toFixed(0)} KiB, ${row.requests} requests at load, ${row.lazy} lazy chunks`);
-if (checkOnly) fs.rmSync(outRoot, { recursive: true, force: true });
 for (const problem of problems) console.error(`release: ${problem}`);
 process.exit(problems.length ? 1 : 0);
