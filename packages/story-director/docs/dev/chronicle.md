@@ -89,10 +89,7 @@ host, compared with a fresh telling), `note-outcome.test.js` (an accepted goal's
 
 The walk starts from the clock and scene the receipts up to and including the cursor say (`since()` in
 `queries-parts/receipts.js`, shared by the note, its gap path and the Journal's "today so far"), so a clock or scene change
-an edit added is followed by the replies after it. `walkDays` (`days-parts/walk-days.js`, so also `dayFacts` and `dayEvents`) does not let a kept
-`time.settle` receipt override a clock line the same chat message's edit added: a Re-read keeps that settle with its pre-edit minutes after the new
-`capture.time`, so a settle whose minutes differ from the clock a non-settle receipt set earlier in the same message is stale and skipped (its
-`settle` jump still reports the live clock). Nothing a Re-read keeps in Story Block changed. Where those receipts say nothing (data trimmed) it starts from the note's
+an edit added is followed by the replies after it; where those receipts say nothing (data trimmed) it starts from the note's
 stored `minutes` and `present`. A `gap.through` naming a reply that was deleted falls back to `gap.rev`. Known limit: a
 thread's outcome line after a grown Re-read of the reply that resolved the goal takes a new revision, so a paid turn-in
 settled later could sort before it in that thread's history, unlike a fresh telling (rare; nothing else reads the order).
