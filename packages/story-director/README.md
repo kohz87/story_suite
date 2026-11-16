@@ -84,7 +84,7 @@ Open the settings with the **Suite** button above the message box. Story Directo
 - **Key people.** How many (10) and how many tokens the narrator spends on them each reply (300).
 - **The cast.** On or off, new faces at most (1 a day, 2 a day, 1 a week), whether the unmet can die off-screen (off), and which model connection plans their moves.
 - **Arc planning.** Which model connection plans, plan by hand or by itself, accept automatically (off), a genre and a note for the planner.
-- **Checks.** The difficulty used when none is written (15), and whether a miss by a little is a success at a cost (2).
+- **Checks.** The difficulty used when none is written (15).
 
 ## How the four fit together
 

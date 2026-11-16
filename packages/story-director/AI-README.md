@@ -140,7 +140,6 @@ Feature switches are Story Block's (**Features**). Presets: Lean turns off `init
 | `arc.recent`, `arc.maxTokens` | Messages the planner reads (4 to 200); longest plan (300 to 8000) | 40, 1500 |
 | `arc.stallDays`, `arc.lowThreads` | Stalled after days without a beat; running low below N open threads (0 never) | 7, 3 |
 | `checks.defaultDc` | Difficulty when none is written (1 to 40) | 15 |
-| `checks.costMargin` | A miss by this much is a success at a cost (0 to 5) | 2 |
 | `checks.social` | Add NPC State Delta's social modifier | on |
 | `screens.hideBehind` | Hide agendas, beats, clocks and secrets until Reveal | on |
 

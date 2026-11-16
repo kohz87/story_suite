@@ -260,7 +260,7 @@ never an author regex or a second `<Changes>` parser. The narrator sees text ins
 **Checks.** A kind may declare `check: {skill,stat,dc}` (literal skill/stat, DC 1–40).
 The trusted SB capture adapter calls SD `checks.roll` once, with the resolved actor and this Source's
 evidence; no author die, modifier or outcome. It records actor, skill/stat, DC, policy/modifiers,
-die, total and outcome; `check.outcome` is `crit|success|cost|fail|critfail`. Conditions/effects can
+die, total and outcome; `check.outcome` is `success` or `fail`, with a `decisive` flag set as in fights (a natural 20 that succeeds, or a lead of 8). Conditions/effects can
 read that result. Re-read keeps the old seed for an unchanged line; ordinary replay never rolls.
 The check, practice consequences, module fields and claims must be one atomic root transaction.
 SD currently restricts issuers and nested transactions allow only one root guard: use SB's trusted
