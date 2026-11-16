@@ -80,7 +80,7 @@ export function createCorePart({ hooks = () => [], settings = () => ({}), hookEn
             place: kind(CORE_KINDS.place.grammar, (ctx, line) => capturePlace(ctx, line)),
             present: kind(CORE_KINDS.present.grammar, (ctx, line) => capturePresent(ctx, line)),
             weather: { ...kind(CORE_KINDS.weather.grammar, (ctx, line) => captureWeather(ctx, line)), feature: CORE_FEATURE.weather },
-            you: { ...kind(() => youGrammar(env.youRank()?.label ?? ''), (ctx, line) => captureYou(ctx, line)), feature: CORE_FEATURE.you },
+            you: { ...kind(() => youGrammar(env.youRank()?.label ?? '', env.gearOn()), (ctx, line) => captureYou(ctx, line)), feature: CORE_FEATURE.you },
             mount: { ...kind(CORE_KINDS.mount.grammar, (ctx, line) => captureMount(ctx, line)), feature: MOUNTS_FEATURE },
             loot: { ...kind(CORE_KINDS.loot.grammar, (ctx, line) => captureLoot(ctx, line, env)), feature: FEATURE.loot },
         },
@@ -91,7 +91,7 @@ export function createCorePart({ hooks = () => [], settings = () => ({}), hookEn
             tail(view) {
                 const chars = CORE_BUDGET * 4;
                 const mounts = featureOn(view, MOUNTS_FEATURE) ? mountsTail(view?.state) : null;
-                const scene = [...sceneTail(view?.state, { weather: featureOn(view, CORE_FEATURE.weather), you: featureOn(view, CORE_FEATURE.you), rankLabel: featureOn(view, CORE_FEATURE.you) ? youRankLabel(view) : '', askLook: firstReader(view) }), ...(mounts ? [mounts] : [])];
+                const scene = [...sceneTail(view?.state, { weather: featureOn(view, CORE_FEATURE.weather), you: featureOn(view, CORE_FEATURE.you), rankLabel: featureOn(view, CORE_FEATURE.you) ? youRankLabel(view) : '', askLook: firstReader(view), gear: gearOn(view) }), ...(mounts ? [mounts] : [])];
                 // The encumbered condition, when the carry module reports it (one short line).
                 // Asked through the query, which a host with Features answers with null while it is off.
                 let found = null;
