@@ -12,6 +12,7 @@ import { folded, foldedCommands } from './fold.js';
 import { withStubs } from '../npc-lines-parts/stub.js';
 import { withMemories, memoryLine } from '../npc-lines-parts/memory.js';
 import { secretLine } from '../npc-lines-parts/secret.js';
+import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
 
 
 /**
@@ -67,7 +68,9 @@ export function createNpcPart(hooks = {}) {
     const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date }));
     const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run }));
     // The host sends every line of the module to the one apply of the `npc` kind: `~ memory` and `~ reveal` go to their own, the rest to the change line.
-    const dispatch = (ctx, line = {}) => (line.kind === 'memory' ? memoryApply(ctx, line) : line.kind === 'reveal' ? secretApply(ctx, line) : captureLine(ctx, line));
+    // A death line (NSD13, `~ npc Name | died | how: …`) is its own op, in lines mode only; off, it is an ordinary `~ npc` line, byte for byte.
+    const diedApply = folded((ctx, line = {}) => diedLine(ctx, line));
+    const dispatch = (ctx, line = {}) => (line.kind === 'memory' ? memoryApply(ctx, line) : line.kind === 'reveal' ? secretApply(ctx, line) : isDiedLine(line) && linesMode(ctx) ? diedApply(ctx, line) : captureLine(ctx, line));
     const { queries, ladderView, notesView, sliceOf, presentKeys } = createNpcQueries(shared);
     const { staticText, tail, redact } = createNpcPrompt(shared, { sliceOf, presentKeys });
 

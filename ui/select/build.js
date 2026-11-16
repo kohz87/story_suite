@@ -10,6 +10,7 @@ import { selectWorld } from './world.js';
 import { selectJournal } from './journal.js';
 import { selectStory } from './story.js';
 import { selectSettings } from './settings.js';
+import { selectScene } from './interaction.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 
@@ -43,6 +44,8 @@ export function buildSelectors(ctx = () => null, sdk = null) {
     world: read => selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null }),
     journal: read => selectJournal(read),
     story: read => selectStory(read),
+    // The open interaction (the fight board keeps its own Fight tab until C9): `interaction.view`, null when none is open.
+    scene: read => selectScene(read('interaction.view', {})),
     // The fight board is not a query yet (UI-PLAN §2.3): no view, so the Fight tab stays hidden.
     fight: () => null,
     settings: () => selectSettings({

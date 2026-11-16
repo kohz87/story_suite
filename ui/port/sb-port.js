@@ -27,9 +27,32 @@ async function guarded(sdk, method, ...args) {
   }
 }
 
+// `command('interaction.<verb>', payload)` is `sdk.interaction.<verb>(...)`; only these verbs (never `settle`, which is the core's own).
+const INTERACTION = {
+  open: p => [p?.kindId, p?.args],
+  stage: p => [p?.id, p?.step],
+  auto: p => [p?.id, p?.n],
+  send: p => [p?.id],
+  discard: p => [p?.id],
+};
+
 /** Creates the port: `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's. */
 export function createSbPort({ sdk, selectors = {}, prefs = null, onError = null } = {}) {
   const read = makeReader(sdk);
+  const heard = new Set();
+  // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
+  const interact = async (verb, payload) => {
+    const call = sdk?.interaction?.[verb];
+    if (typeof call !== 'function') return { ...FAILED, message: 'The engine has no interactions.' };
+    let answer;
+    try {
+      answer = await call.apply(sdk.interaction, INTERACTION[verb](payload));
+    } catch (error) {
+      answer = failure(error);
+    }
+    for (const fn of [...heard]) { try { fn(answer); } catch { /* a broken listener must not break the call */ } }
+    return answer;
+  };
   const port = {
     view(tab, args) {
       const select = Object.hasOwn(selectors, tab) ? selectors[tab] : null;
@@ -42,12 +65,19 @@ export function createSbPort({ sdk, selectors = {}, prefs = null, onError = null
         return null;
       }
     },
-    command: (type, payload, options) => guarded(sdk, 'command', type, payload, options),
+    command(type, payload, options) {
+      if (typeof type === 'string' && type.startsWith('interaction.')) {
+        const verb = type.slice('interaction.'.length);
+        return Object.hasOwn(INTERACTION, verb) ? interact(verb, payload) : Promise.resolve({ ...FAILED, message: `The engine does not take ${type}.` });
+      }
+      return guarded(sdk, 'command', type, payload, options);
+    },
     preview: (type, payload) => guarded(sdk, 'preview', type, payload),
     commit: token => guarded(sdk, 'commit', token),
     reread: index => guarded(sdk, 'reread', index),
     on(event, fn) {
       if (typeof fn !== 'function') throw new TypeError('port.on listener must be a function');
+      if (event === 'interaction') { heard.add(fn); return () => heard.delete(fn); }
       let off = null;
       try {
         off = sdk?.on?.(event, fn);
