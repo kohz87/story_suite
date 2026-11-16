@@ -1,4 +1,4 @@
-// The owner's rule for story-action buttons (CLAUDE.md non-negotiable 6). Change it here, nowhere else.
+// The owner's rule for story-action buttons (CLAUDE.md non-negotiable 9). Change it here, nowhere else.
 
 const own = Object.freeze(['story-block/fight']);
 
