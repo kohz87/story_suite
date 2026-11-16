@@ -10,7 +10,7 @@ import { getSettings } from './runtime-settings.js';
 import { textCapture } from './runtime-narration.js';
 
 export function createReconcilePart(rt, deps) {
-    const { branchInheritancePending, cancelScanOperation, deferUntilSettled, drainPendingAutoScan, ensureChatStateLoaded, getChatKey, getChatState, handleAssistantMessageReceived, hostChatComplete, hostedOnePass, narrationCaptureKey, isHostSwipeActive, isScanBusy, maybeInheritKnownBranch, persist, queuePendingAutoScan, renderDossier, scanNow, seedBranchTracking, setChatState, staleHostPrefix, updateInjection } = deps;
+    const { storeOwnsState = () => false, branchInheritancePending, cancelScanOperation, deferUntilSettled, drainPendingAutoScan, ensureChatStateLoaded, getChatKey, getChatState, handleAssistantMessageReceived, hostChatComplete, hostedOnePass, narrationCaptureKey, isHostSwipeActive, isScanBusy, maybeInheritKnownBranch, persist, queuePendingAutoScan, renderDossier, scanNow, seedBranchTracking, setChatState, staleHostPrefix, updateInjection } = deps;
     const { branchReconciliationEvents, assistantReceipts } = rt;
 
     const BRANCH_RECONCILIATION_EVENT_LIMIT = 16;
@@ -288,6 +288,7 @@ export function createReconcilePart(rt, deps) {
         if ((rt.chatOpenSequence || 0) !== sequence) return null;
         await ensureChatStateLoaded(key);
         if (getChatKey() !== key || (rt.chatOpenSequence || 0) !== sequence) return null;
+        if (storeOwnsState() === 'hosted') { clearLoadingRetry(key); await deliverLoadingReceipts(key, sequence); return { state: getChatState(key), divergence: -1, lineageRelation: 'store-timeline', recoveryOperation: operation, recoveryAction: 'store-owned', requiresRescan: false, invalidated: false, exactRestored: true, failClosed: false }; }   // the store's timeline moved the people with the head (the adapter hydrates the cache): no journal rollback
         if (branchInheritancePending(key)) {
             const inherited = await maybeInheritKnownBranch();
             if (getChatKey() !== key || (rt.chatOpenSequence || 0) !== sequence) return null;

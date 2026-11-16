@@ -12,6 +12,7 @@ import { beginTurn, readerSaid } from './reply.js';
 import { capSummary, lineText } from './text.js';
 import { droppedProblem, toV1Op, withoutDroppedLabels } from './reading.js';
 import { newId, writeBack } from './thread-store.js';
+import { recordStep } from './step-trail.js';
 
 // Problems are the domain's (domain.js addProblem: each under its own key, never a list position).
 export { addProblem };
@@ -58,6 +59,8 @@ function threadLine(ctx, given) {
         const id = newId(ctx, new Set(Object.keys(director.threads)));
         ctx.call('threads.offer', { write: threadWriteId(ctx, `offer:${id}`), thread: id, kind: 'hook', key: op.key,
             summary: capSummary(line.text ?? ''), fields: Object.fromEntries(Object.entries(line.labels ?? {}).filter(([key]) => ['goal', 'giver', 'step', 'progress', 'due', 'place', 'people', 'now', 'then', 'on', 'type', 'reward', 'difficulty'].includes(key))), expectedHash: null });
+        // The offer's starting step belongs to the reply that made it (the same draft: the writer ran in this command).
+        if (director.threads[id]?.status === 'active') recordStep(director, ctx, director.threads[id]);
         return { summary: `Director: ${raw}`, narrate: false, data: { thread: id } };
     }
     if (named?.offer) acceptIntent(ctx, named);
@@ -111,6 +114,7 @@ function threadLine(ctx, given) {
         });
     }
     const current = thread ? director.threads[thread] : null;
+    if (current && current.status === 'active') recordStep(director, ctx, current);
     // An agenda's step progress and place (feature `story-director.pulse`): optional fields the pulse reads, written by code, never the story's.
     if (current?.kind === 'agenda' && current.status === 'active' && pulseActive(ctx)) {
         const patch = agendaProgress(named?.fields ?? null, current.fields ?? {}, { minutes: director.time.minutes, where: placeNamed(ctx.query, current.fields?.now) });

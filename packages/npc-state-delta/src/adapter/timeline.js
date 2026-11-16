@@ -9,7 +9,8 @@ import { resolveDossierTarget } from '../../suite-handshake.js';
 import { FEATURE_STAGES, MILESTONE_KIND, NPC_KIND } from '../npc-meters.js';
 import { metersCardScreen } from '../npc-meters-screen.js';
 import { createPublicPathsDefinition } from '../public-paths.js';
-import { createParticipant, fileVault } from '../storysuite-participant/index.js';
+import { fileVault } from '../storysuite-participant/index.js';
+import { createIdentity } from './identity.js';
 import { createStorageRow, REFERENCED_QUERY } from '../storysuite-participant/storage-row.js';
 
 const EVENTS = Object.freeze({
@@ -21,8 +22,7 @@ const EVENTS = Object.freeze({
 export function createTimelinePart(session, deps) {
     const {
         calendarOwn, CAST_TAB_ID, CAST_WIDGET, castScreen, castStillShown, castWidget, doc, DOSSIERS_ICON, DOSSIERS_TITLE,
-        enabled, HOSTED_FLAG, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, participantOptions,
-        participantVault, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
+        enabled, HOSTED_FLAG, MODULE_ID, MODULE_NAME, mountSection, notifyChange, npcList, part, participantVault, peopleSync, presetsBlock, queries, redrawCastViews, renderDossiers, runtime, settleMs, settlePollMs,
         storedSettings, suiteApi, syncDrawer, V2_HOST_EVENT, version, warn,
     } = deps;
 
@@ -96,11 +96,9 @@ export function createTimelinePart(session, deps) {
 
     // ---- the module definition ----
 
-    // The timeline participant (Story Block docs/v2/TIMELINE.md, contract §8): Delta's native state takes part in save points and restores, and
-    // `npc.identity` names a person by an np_ id. It needs Delta's runtime for the open chat's key, its state and an absolute install. Nothing of it
-    // runs for a chat until the chat uses the timeline or asks `npc.identity` (participant.js `started`): registering, opening a chat, a reply or a
-    // scan hydrate nothing, write nothing and publish nothing.
-    //
+    // The story's one timeline is Story Block's store: Delta registers no timeline participant (no checkpoints, no vault writes, no line of its own). Its
+    // working copy of the people is a cache of the store's `people` slice (src/adapter/people-sync.js hydrates it on a head change and commits to it);
+    // `npc.identity` is answered from the cache without storing anything (adapter/identity.js).
     // Which of the chat's messages the story stands on: Story Block's one active-history filter, `sdk.timeline.history()`, one entry per message of the
     // chat as it stands when asked (`active: false` for a faded one). Delta asks before it builds any prompt from the chat (src/transcript.js), and
     // after a restore the host hides the faded replies with SillyTavern's own flag as well. Never cached here: a delete or a swipe moves the indexes.
@@ -141,52 +139,19 @@ export function createTimelinePart(session, deps) {
     let offNativeChange = null;
     const vault = participantVault ?? fileVault({ headers: () => runtime()?.requestHeaders?.() ?? {} });
     // The Storage row of the settings panel (clean-up of old dossier files; report and confirmed removal only). Hosted only: Story Block answers
-    // which checkpoint files every chat uses.
+    // which checkpoint files every chat uses. Nothing here writes to the vault.
     const storageRow = createStorageRow({
         doc, vault, warn,
-        // The participant's own exclusive queue (checkpoint writes run in it); `timeline` is made just below, before any click can happen.
-        exclusive: fn => timeline.exclusive(fn),
+        exclusive: fn => fn(),
         ask: async () => session.sdkRef.query(REFERENCED_QUERY, {}),
         live: () => { try { return runtime()?.getState?.() ?? null; } catch { return null; } },
     });
-    const timeline = createParticipant({
-        port: {
-            chatKey: () => String(runtime()?.chatKey?.() ?? ''),
-            readState: () => runtime()?.getState?.() ?? { npcs: [] },
-            started: () => runtime()?.timelineStarted?.() === true,
-            chatLineage: () => { try { return runtime()?.chatLineage?.() ?? null; } catch { return null; } },
-            scanEvery: () => { try { return runtime()?.scanEvery?.() ?? null; } catch { return null; } },
-            // Whether Delta has loaded the open chat's state, and its load: the participant reads nothing before it (a reload's recovery comes early).
-            ready: () => (runtime()?.timelineReady?.() ?? runtime()?.stateReady?.()) === true,
-            // Delta tried to load the chat's state and could not: waiting for it would only hold the host's callback.
-            // Whether a load of the chat's state is running now (an answered load with nothing running will not make the state ready by itself).
-            loading: () => runtime()?.stateLoading?.() === true,
-            loadFailed: () => runtime()?.stateFailed?.() === true,
-            load: () => runtime()?.ensureFresh?.(),
-            // The state as Delta keeps it once installed (the participant's look after an install compares it so).
-            normalize: state => (typeof runtime()?.normalizeState === 'function' ? runtime().normalizeState(state) : state),
-            // A branch waiting for its parent's dossiers is left to Delta's branch inheritance (asked to run now) before a line is minted.
-            branchPending: () => runtime()?.branchPending?.() === true,
-            inheritBranch: () => runtime()?.inheritBranch?.(),
-            installState: state => runtime().installState(state),
-            writeTimeline: block => runtime().writeTimeline(block),
-            busy: () => runtime()?.scanActive?.() === true,
-            idle: ms => (typeof runtime()?.scanIdle === 'function' ? runtime().scanIdle(ms) : Promise.resolve(true)),
-            // History replay (the catch-up after a fallback, the rebuild): the runtime's boundaries, Delta's switch, the one publication after an install.
-            enabled: () => enabled() && Boolean(runtime()?.replay),
-            live: () => runtime()?.replay,
-            changed: () => notifyChange(),
-            // Story Block calls `restored` while its barrier is still up; the dossiers are read as of each reply only once it is down.
-            settled: () => headSettled(),
-            warn: text => warn(text),
-        },
-        vault,
-        ...participantOptions,
-    });
+    const timeline = createIdentity({ readState: () => runtime()?.getState?.() ?? null });
     function startTimeline() {
         const api = runtime();
         offNativeChange?.();
-        offNativeChange = typeof api?.onNativeChange === 'function' ? api.onNativeChange(() => timeline.noteChange()) : null;
+        // Every change of Delta's own state goes to the store at once (one `people.write` for the reply the cache stands on); nothing waits for a save point.
+        offNativeChange = typeof api?.onNativeChange === 'function' ? api.onNativeChange(() => { void peopleSync.commit(); }) : null;
         try { api?.useMessageGate?.(messageGate); } catch { /* an older runtime */ }
     }
     function stopTimeline() {
@@ -211,7 +176,6 @@ export function createTimelinePart(session, deps) {
             'npc.milestone': Object.freeze({ handler: part.commands['npc.milestone'], feature: FEATURE_STAGES }),
         }),
         queries: Object.freeze({ ...queries, ...timeline.queries }),
-        participant: timeline.participant,
         capture: {
             kinds: {
                 [NPC_KIND]: { grammar: part.kinds[NPC_KIND].grammar, after: part.kinds[NPC_KIND].after },
@@ -238,7 +202,7 @@ export function createTimelinePart(session, deps) {
         // "Show what's sent": the text of this module's tail with each locked note's line as "Name: 1 hidden note"
         // (a host that does not call it shows the raw text; SillyTavern's own prompt view always does).
         // canGenerate: sending waits while the dossiers catch up after a fallback (history-replay.js).
-        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => part.redact(text), canGenerate: () => timeline.catchUp.canGenerate() }),
+        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => part.redact(text), canGenerate: () => true }),
         screens: [metersCardScreen, castScreen],
         widgets: { [CAST_WIDGET]: castWidget },
         tabs: [{
@@ -310,7 +274,7 @@ export function createTimelinePart(session, deps) {
             try {
                 const key = chatKeyOf();
                 if (key !== session.baselineKey) {
-                    if (dossiersReady()) { session.baselineKey = key; rebaselinePublicPaths(); void timeline.catchUp.resume(); }
+                    if (dossiersReady()) { session.baselineKey = key; rebaselinePublicPaths(); void peopleSync.hydrate(); }
                 } else session.offPublicPaths?.changed?.();
             } catch (error) { warn('Story Block public paths change failed', error); }
             // Story Director's World screen (the page API's subscribers) redraws its cards too.

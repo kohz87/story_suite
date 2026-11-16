@@ -13,6 +13,18 @@ this repo's AI-README "Reply format the model writes" and "Data the model sees" 
 - One reply adds at most `NEW_THREADS_PER_REPLY` (16) threads; at most `MAX_OPEN_THREADS` (300) open.
   Problems are kept under `<sid>.<n>` keys (the reply's record ID and a count, `src/v2/reply-keys.js`; older states `<rev>.<n>`),
   read in reply-count (`turn`), rev, then count order, the newest `PROBLEM_ROOM` (100) kept, `PROBLEM_LIMIT` (50) shown.
+- **Quest step trail** (`director.steps`, `tracker/capture-parts/step-trail.js`, limits in `domain-parts/shared-step-keys.js`): each
+  step a thread takes is one add `{ thread, text, turn, place }` under a key of the reply that wrote it, `<carrier sid>.<n>`
+  (`r<rev>.<n>` outside a reply's capture, such as an arc plan), so an edited Re-read never lands on a later reply's stored key.
+  A trail is read in story order: the writing reply's `turn`, then its number within the reply, and between two replies on one
+  turn (a Re-read that gave Director lines to a reply that had none) the earlier `place` (carrier index). The reply that makes
+  a thread writes its first step, the offer path (`+ hook … | goal: … | step: …`) included. The newest `STEP_KEPT` (400)
+  entries are kept, oldest pruned by key; `quest.board` and the Journal show the newest 12 of a trail. The validator allows
+  `STEP_CEILING` (2 × 400): a Re-read can hold more than the live cap, because a later reply's stored prune of a key that is
+  gone is skipped while its adds still go in. Accepted trade-off (the same as problems): after a middle delete at the cap,
+  later replies' stored prunes still run, so replay can hold fewer entries than the story told without that reply (390 where
+  live would hold 400), and the oldest steps of a long trail can go earlier; it never holds more, and a reload gives the same
+  state.
 - **Clock** (`director.time.minutes`, a counter): `~ time +2h` style moves keep `was`; `~ time <date>` is an
   absolute set (`ctx.absolute`). One reply moves the clock at most `maxJump` days (setting, default
   `MAX_JUMP_DAYS` 30), counted from the clock when the reply's first Director line was read; a Continue is the

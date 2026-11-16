@@ -4,6 +4,7 @@
 //   time:    { minutes: null | int },             // story clock on the reader's calendar (a counter: moves keep `was`)
 //   threads: { [id]: thread },                    // MODULES §C1
 //   keys:    { [lineKey(key) or alias]: id },
+//   steps:   { ["<reply sid>.<n>"]: { thread, text, turn, place } }, // the steps threads have been through, newest 400 kept (capture-parts/step-trail.js)
 //   problems:{ ["<sid>.<n>"]: { rev, turn, kind, text, … } }, // the newest 100 kept, 50 shown (older states: "<rev>.<n>")
 //   (a quest thread may also carry `ready: { rev }`, F83, an older chat's offer `shown: { turn }`, F88, and a
 //   legacy reward owed `owed: { text, rev, units?, credit?, total?, paid?: { [rev]: amount } }`, read-only history)
