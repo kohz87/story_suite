@@ -1,12 +1,13 @@
 /* NPC State Delta: the scanner settings read from the host and the profile choices offered. */
 import { normalizeScannerMaxOutputTokens } from './shared-limits.js';
+import { npcBucket } from '../../settings/bucket.js';
 
 export function configuredScannerMaxOutputTokens(ctx) {
-    return normalizeScannerMaxOutputTokens(ctx?.extensionSettings?.npc_state_delta?.scannerMaxOutputTokens);
+    return normalizeScannerMaxOutputTokens(npcBucket(ctx?.extensionSettings)?.scannerMaxOutputTokens);
 }
 
 export function selectedScannerProfileId(ctx) {
-    const value = ctx?.extensionSettings?.npc_state_delta?.scannerConnectionProfile;
+    const value = npcBucket(ctx?.extensionSettings)?.scannerConnectionProfile;
     return typeof value === 'string' ? value.trim() : '';
 }
 

@@ -191,7 +191,7 @@ test('runtime: getDossierState copies no portrait picture; dossierViewToken hold
         out.status = api.dossierViewStatus();
         const first = api.dossierViewToken();
         out.tokenStable = api.dossierViewToken() === first && (api.getDossierState(), api.uiStatus(), api.dossierViewToken()) === first;
-        globalThis.__npcMock.extensionSettings.npc_state_delta.customFieldNames = ['Level'];
+        globalThis.__npcMock.extensionSettings.storySuite.modules['npc-state-delta'].customFieldNames = ['Level'];
         const afterSettings = api.dossierViewToken();
         out.tokenMovesOnSettings = afterSettings !== first;
         const next = api.getState();

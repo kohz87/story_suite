@@ -51,23 +51,23 @@ export function settingValue(field, value) {
 /**
  * Settings under `root().storySuite` (`root`: () => SillyTavern's extension_settings):
  * `settings(id)` → the module's values over its defaults (a plain copy); `settings()` → the
- * host's ({ tailBudget, maxChangeLines }). `settings.set(id, key, value)` stores one value (id null:
- * the host's) as its schema field allows it (settingValue: text cut at `max`, numbers inside min/max;
+ * core's ({ tailBudget, maxChangeLines }). `settings.set(id, key, value)` stores one value (id null:
+ * the core bucket) as its schema field allows it (settingValue: text cut at `max`, numbers inside min/max;
  * a value the field cannot take is not stored) and calls `save` (saveSettingsDebounced). Returns the
  * value stored, or undefined. `settings.stored(id)` is the stored object itself.
  */
 export function createSettings({ root, registry, save = () => {} }) {
     function bucket() {
         const es = root?.();
-        if (!isObject(es)) return { host: {}, modules: {} };
+        if (!isObject(es)) return { core: {}, modules: {} };
         if (!isObject(es.storySuite)) es.storySuite = {};
         if (!isObject(es.storySuite.modules)) es.storySuite.modules = {};
-        if (!isObject(es.storySuite.host)) es.storySuite.host = {};
+        if (!isObject(es.storySuite.core)) es.storySuite.core = {};
         return es.storySuite;
     }
     function stored(id) {
         const all = bucket();
-        if (id === undefined || id === null) return all.host;
+        if (id === undefined || id === null) return all.core;
         if (!isObject(all.modules[id])) all.modules[id] = {};
         return all.modules[id];
     }

@@ -150,7 +150,7 @@ test('id(prefix): the prefix, an underscore and 8 base36 characters', () => {
     assert.throws(() => newId(''), /lowercase/);
 });
 
-test('settings: module values over defaults under extension_settings.storySuite.modules[id]; the host\'s own', () => {
+test('settings: module values over defaults under extension_settings.storySuite.modules[id]; the core bucket', () => {
     const registry = createRegistry();
     registry.register(counter());
     const es = {};
@@ -160,7 +160,7 @@ test('settings: module values over defaults under extension_settings.storySuite.
     assert.deepEqual(settings(), { ...HOST_SETTINGS_DEFAULTS });
     settings.set('counter', 'step', 5);
     settings.set(null, 'tailBudget', 900);
-    assert.deepEqual(es.storySuite, { modules: { counter: { step: 5 } }, host: { tailBudget: 900 } });
+    assert.deepEqual(es.storySuite, { modules: { counter: { step: 5 } }, core: { tailBudget: 900 } });
     assert.deepEqual(settings('counter'), { step: 5, label: 'Tally' });
     assert.equal(settings().tailBudget, 900);
     assert.equal(saves, 2);

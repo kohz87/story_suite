@@ -8,6 +8,6 @@ export { portraitCustomPreset, portraitCustomPresetLibrary, portraitCustomPreset
 export { portraitCustomPresetNameTaken, uniquePortraitCustomPresetName } from './runtime-settings-parts/portrait-preset-names.js';
 export { SETTINGS_LAZY_QUIET_MS, SETTINGS_LAZY_MAX_MS } from './runtime-settings-parts/save-timing.js';
 export { persistSettings, persistSettingsLazy, flushPendingSettingsSave } from './runtime-settings-parts/save.js';
-export { EXTENSION_NAME, injectDepthOf, normalizePresentCastDisplay } from './runtime-settings-parts/settings-values.js';
+export { injectDepthOf, normalizePresentCastDisplay } from './runtime-settings-parts/settings-values.js';
 export { setRpgProbe, effectiveCustomFieldNames } from './runtime-settings-parts/custom-fields.js';
 export { getSettings } from './runtime-settings-parts/get-settings.js';

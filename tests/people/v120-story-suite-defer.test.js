@@ -144,7 +144,7 @@ test('v1.2.0 calendar deferred: Story Director\'s months and era replace Delta\'
 test('v1.2.0 the runtime announces itself, follows Enable and defers the scene to Story Block', () => {
     runHostScenario('announce-and-defer', async () => {
         const suite = globalThis.StorySuite;
-        const settings = mockState.extensionSettings.npc_state_delta;
+        const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
         assert.ok(suite, 'the runtime creates the shared registry');
         const own = suite.providers().find(item => item.id === 'npc-state-delta');
         assert.deepEqual(own.owns, ['npc', 'calendar', 'scene', 'stats']);
@@ -187,7 +187,7 @@ test('v1.2.0 the runtime announces itself, follows Enable and defers the scene t
 test('v1.2.1 the runtime shares its panel and api.manage, and shows Manage all in Story Suite', () => {
     runHostScenario('overlay-manage', async () => {
         const suite = globalThis.StorySuite;
-        const settings = mockState.extensionSettings.npc_state_delta;
+        const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
         // Record what the runtime writes into its own controls.
         const baseQuery = globalThis.$;
         const writes = [];

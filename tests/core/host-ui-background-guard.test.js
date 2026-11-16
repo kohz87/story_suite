@@ -119,7 +119,7 @@ test('a carry only goes to the same-named field', () => {
 async function page() {
     const doc = setupDom();
     const st = createFakeContext();
-    st.ctx.extensionSettings.storySuite = { ...st.ctx.extensionSettings.storySuite, flags: { 'suite.redrawScheduler': true } };
+    st.ctx.extensionSettings.storySuite = { schema: 1, ...st.ctx.extensionSettings.storySuite, flags: { 'suite.redrawScheduler': true } };
     let ui = null;
     const runtime = createRuntime({ ctx: st.ctx, onRegister: () => ui?.syncScreens() });
     ui = mountUi({ runtime, ctx: st.ctx, doc });

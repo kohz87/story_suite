@@ -318,7 +318,7 @@ test('8/9 on the host: a first-day chat sends no [Earlier days] and no sentence;
 });
 
 test('8/9 on the host: under a tail budget far too small, the [Earlier days] cue (sentence and block) is still sent, as it was never the cut\'s to make', async () => {
-    const host = await newHost({}, { host: { tailBudget: 20 } });
+    const host = await newHost({}, { core: { tailBudget: 20 } });
     try {
         await host.send('Start.', reply('Evening.', ['~ time June 3, 1200, 08:00 pm', '~ place Harrow', '+ coin 40']));
         await host.send('Sleep.', reply('A long sleep.', ['! time +14h']));
@@ -334,7 +334,7 @@ test('8/9 on the host: under a tail budget far too small, the [Earlier days] cue
 
 test('8/9 on the host: with a realistic competing tail (Story Block lines about 540 tokens, tailBudget 550) the pinned cue is at most 320 characters and the current-state lines survive', async () => {
     const run = async budget => {
-        const host = await newHost({}, { host: { tailBudget: budget } });
+        const host = await newHost({}, { core: { tailBudget: budget } });
         try {
             const items = Array.from({ length: 14 }, (_, i) => `+ item Trail ration number ${i} (salted strips of venison wrapped in waxed cloth for the road)`);
             await host.send('Start.', reply('Evening.', ['~ time June 3, 1200, 08:00 pm', '~ place Harrow', '+ coin 40', ...items, '+ present Maren Galt']));

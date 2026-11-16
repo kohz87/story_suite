@@ -250,7 +250,7 @@ const CROWD = Array.from({ length: 14 }, (_, n) => `+ hook Crowd ${n} — a long
 
 test('kept lines: under tailBudget 550 with a crowded tail the Initiative line and the world pulse line still reach the prompt', async t => {
     t.mock.method(console, 'warn', () => {});
-    const host = await newHost([], { host: { tailBudget: 550 }, features: { 'story-director.pulse': true } });
+    const host = await newHost([], { core: { tailBudget: 550 }, features: { 'story-director.pulse': true } });
     try {
         await host.send('Hello.', reply('Harrow at dawn.', [...OPENING, ...CROWD]));
         await host.send('I look around.', reply('Elula waves.', ['~ time June 3, 1200, 08:10 am']));

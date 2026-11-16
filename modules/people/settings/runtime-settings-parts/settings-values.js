@@ -1,6 +1,4 @@
-// Small settings values: the settings key, the injection depth clamp and the present-cast display normalizer.
-
-export const EXTENSION_NAME = 'npc_state_delta';
+// Small settings values: the injection depth clamp and the present-cast display normalizer.
 
 // The dossier's depth: 0 to 20, 0 kept (it is the default since 1.2.16).
 export function injectDepthOf(settings) {

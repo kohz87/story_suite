@@ -172,7 +172,7 @@ test('without a v2 host the sidecar checks are unchanged', () => {
 test('hosted: the in-chat cast shows only when the reader chose it; it comes back when the host leaves', () => {
     runHostScenario('launcher-and-cast-hosted', v2HostPrelude, async () => {
         const api = globalThis.NPCStateDelta;
-        const settings = mockState.extensionSettings.npc_state_delta;
+        const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
         assert.ok(await waitFor(() => mockState.sdk.registered.length === 1));
         await sleep(100);
 

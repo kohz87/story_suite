@@ -51,7 +51,7 @@ async function helpers(mockState, eventSource, sleep) {
     const fail = message => { throw new Error(message); };
     const check = (condition, message) => { if (!condition) fail(message); };
     const runtime = globalThis.NPCStateDelta;
-    const settings = mockState.extensionSettings.npc_state_delta;
+    const settings = mockState.extensionSettings.storySuite.modules['npc-state-delta'];
     settings.scanEvery = 1;
     const scannerCalls = () => mockState.rawCalls.map(call => call?.[0] || {}).filter(args => /isolated dossier scanner\./i.test(String(args.systemPrompt || '')));
     const emitAsync = async (event, ...args) => {

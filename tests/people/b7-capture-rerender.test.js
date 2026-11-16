@@ -65,7 +65,7 @@ test('an edit of only the hidden Changes block is not a branch rollback; a prose
         if (!real || real.action === 'content-unchanged') throw new Error('a prose edit was not reconciled: ' + JSON.stringify(real));
         // The rebuild after a real edit re-reads the reply's one-pass block from its text (valid and complete only), as the live capture did.
         const narration = await import(pathToFileURL(path.join(extRoot, 'runtime-narration.js')).href);
-        mockState.extensionSettings.npc_state_delta.narrationCapture = true;
+        mockState.extensionSettings.storySuite.modules['npc-state-delta'].narrationCapture = true;
         const block = '<!--npc_state_delta {"npcs":[{"name":"Fenna","present":true,"role":"innkeeper"}]} -->';
         chat[1].mes = `Fenna bows low.\n${block}\n${hidden('~ npc Fenna trust +1')}`;
         const found = narration.textCapture(chat[1]);

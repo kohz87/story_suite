@@ -6,6 +6,7 @@
 import { createFakeContext } from './fake-st.js';
 import { createFakeBus, createFakeStore } from './fakes.js';
 import { createRuntime } from '../core/runtime.js';
+import { SETTINGS_SCHEMA } from '../core/settings/schema.js';
 import { setRpgLib } from '../modules/rpg/rpg-lazy.js';
 import * as leanRpg from '../modules/rpg/index.js';
 
@@ -38,7 +39,7 @@ export async function hostAvailable() {
  * Builds a host. `options`: { modules?: def[] (registered after the core ones), core?: true
  * (register Story Block's core module: scene, inventory, packs, events, assist), callModel?(prompt, opts)
  * (the model behind sdk.callModel and the assist helpers; createFakeModel in model.js scripts one), storeOptions?: the real store's thresholds, fakes?: false (use fakes.js), st?: options for
- * createFakeContext (plus onBlocked?), settings?: initial extension_settings.storySuite, timelineFaults?: { at(phase) } (the
+ * createFakeContext (plus onBlocked?), settings?: initial extension_settings.storySuite (a partial tree is taken as the current schema; its core bucket is `core`), timelineFaults?: { at(phase) } (the
  * timeline calls it at every phase; a test makes it throw to stop there), lazyRpg?: true (the RPG's code is NOT handed to the host: it is
  * imported by `rpgLoad?()` (default: lean-rpg/index.js) only when the feature is on or the chat holds the RPG's records, as in the real page; by
  * default the host has it at once, so a test may switch the feature on and use the RPG without waiting) }.
@@ -60,7 +61,8 @@ export async function createHost(options = {}) {
         ({ createCommandBus } = await import(RUNTIME.commands));
     }
     const extensionSettings = stOptions.extensionSettings ?? {};
-    if (initialSettings) extensionSettings.storySuite = structuredClone(initialSettings);
+    // A partial tree is the current schema (a tree without one is an old shape, and the first load would set it aside).
+    if (initialSettings) extensionSettings.storySuite = { schema: SETTINGS_SCHEMA, ...structuredClone(initialSettings) };
     const st = createFakeContext({ ...stOptions, extensionSettings });
     // What the reader was told when a generation was held back (a toastr warning live).
     st.notices = [];

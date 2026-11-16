@@ -16,7 +16,7 @@ const read = path => readFileSync(new URL(`../../../ui/legacy/${path}`, import.m
 // `features`: the reader's stored switches (extension_settings.storySuite.features).
 function setup({ features = null } = {}) {
     const doc = setupDom();
-    const st = createFakeContext({ extensionSettings: features ? { storySuite: { features } } : {} });
+    const st = createFakeContext({ extensionSettings: features ? { storySuite: { schema: 1, features } } : {} });
     const runtime = createRuntime({ ctx: st.ctx });
     const ui = mountUi({ runtime, ctx: st.ctx, doc });
     runtime.markReady();

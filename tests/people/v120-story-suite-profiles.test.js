@@ -107,7 +107,7 @@ test('v1.2.2 the runtime shares npcProfiles() beside the unchanged npcs(), with 
         const suite = globalThis.StorySuite;
         const api = suite.api('npc-state-delta');
         assert.deepEqual(api.npcProfiles(), [], 'empty until the chat\'s dossiers load');
-        mockState.extensionSettings.npc_state_delta.customFieldNames = ['Abilities'];
+        mockState.extensionSettings.storySuite.modules['npc-state-delta'].customFieldNames = ['Abilities'];
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', species: 'human', personality: 'Shy, earnest and fiercely loyal to her rival.', customFields: { Abilities: 'advanced magic' }, mood: 'nervous, eager', identityKind: 'proper_name', dossierSignal: 'high', dossierReason: 'named companion', directInteraction: true, relationshipImpact: 'none', relationshipDelta: { trust: 0, affection: 0, desire: 0, tension: 0 } }] });
         mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'Who is at the gate?' });
         mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes: 'Yunyun, the shy human adventurer who casts advanced magic, waves nervously from the gate.', swipe_id: 0, swipes: ['Yunyun, the shy human adventurer who casts advanced magic, waves nervously from the gate.'] });
