@@ -19,7 +19,7 @@ test('Standard carries its formula and numbers in the rules; Gentle, Standard an
     assert.deepEqual(rules('standard'), { ...STANDARD_FORMULA, levelDivisor: 5 });
     // formula.js's own numbers are the starting point: only the preset's foeBase differs from them.
     assert.deepEqual({ ...rules('standard'), foeBase: 3, levelDivisor: undefined }, { formula: 'standard', foeBase: 3, foeClassWeight: 3, classWeight: 2, costMargin: 2, decisiveMargin: 8, roundCap: 8,
-        startStat: 5, createPoints: 10, createMin: 3, createMax: 10, pointsPerSoul: 4, statMax: 20, quickStartMargin: 10, levelDivisor: undefined });
+        startStat: 5, createPoints: 10, createMin: 5, createMax: 10, pointsPerSoul: 4, statMax: 20, quickStartMargin: 10, levelDivisor: undefined });
 });
 
 test('Custom Standard numbers are each held to their range, and the creation numbers must agree', () => {
@@ -28,7 +28,7 @@ test('Custom Standard numbers are each held to their range, and the creation num
     assert.equal(custom({ foeBase: 99 }).foeBase, STANDARD_FORMULA.foeBase, 'out of range: the preset\'s');
     assert.equal(custom({ foeClassWeight: 0 }).foeClassWeight, STANDARD_FORMULA.foeClassWeight);
     assert.equal(custom({ foeBase: 'x' }).foeBase, STANDARD_FORMULA.foeBase);
-    assert.equal(custom({ createMin: 9, startStat: 5 }).createMin, 3, 'a lowest stat above the start is not kept');
+    assert.equal(custom({ createMin: 9, startStat: 5 }).createMin, 5, 'a lowest stat above the start is not kept: the floor is the start, 5');
     assert.deepEqual(custom(undefined), { ...STANDARD_FORMULA, levelDivisor: 5 });
     assert.equal(custom({ formula: 'classic' }).formula, 'standard');
 });
