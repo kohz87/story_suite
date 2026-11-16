@@ -1,0 +1,61 @@
+## A quiet fight, won (about 100 words asked)
+
+Tell the settled fight results in order; do not reroll them.
+Write [battle] on its own line where the fight is told.
+Code has already moved the bars for these results; never set those yourself.
+Tell the fight in about 100 words: how it opened, the deciding moment, how it ended; the battle log keeps the blow-by-blow.
+Order: Cy, Kira before Wolf; the party act first.
+Exchange 1: Cy takes the Defence stance
+Kira takes the Defence stance
+Cy attacks Wolf (skill): hit; Wolf HP 30 → 20
+Kira attacks Wolf (skill): miss
+Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 19 → 16.
+Exchange 2: Cy attacks Wolf (skill): miss
+Kira attacks Wolf (skill): hit; Wolf HP 20 → 7
+Kira acts again (tempo)
+Kira attacks Wolf (skill): miss (natural 1)
+Wolf attacks Kira: hit, decisive; Kira's Defence stance absorbs 35%; Kira HP 19 → 14.
+Exchange 3: Cy heals Kira: Kira HP 14 → 19
+Kira attacks Wolf (skill): miss
+Wolf attacks Cy: evaded.
+Exchange 4: Cy attacks Wolf (skill): miss
+Kira attacks Wolf (skill): hit; Wolf HP 7 → 0 (down).
+The fight is won. Code gives the party its XP.
+Then follow the reader’s requested aftermath as the outcome permits.
+
+## A hard fight, lost (at most 250 words asked)
+
+Tell the settled fight results in order; do not reroll them.
+Write [battle] on its own line where the fight is told.
+Code has already moved the bars for these results; never set those yourself.
+Tell the fight in at most 250 words, in up to three short paragraphs: the opening, the turning point, the finish; the battle log keeps the blow-by-blow.
+Order: Ana before Wolf 2, Wolf 3, Wolf 1; the foes act first.
+Exchange 1: Ana takes the Defence stance
+Wolf 2 attacks Ana: hit; Ana's Defence stance absorbs 19%; Ana HP 8 → 1
+Wolf 3 attacks Ana: evaded
+Ana attacks Wolf 2 (skill): hit; Wolf 2 HP 40 → 30.
+Exchange 2: Wolf 2 attacks Ana: hit, decisive; Ana's Defence stance absorbs 19%; Ana HP 1 → 0 (down).
+The fight is lost.
+Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.
+
+## A fight the party flees (about 250 words asked)
+
+Tell the settled fight results in order; do not reroll them.
+Write [battle] on its own line where the fight is told.
+Code has already moved the bars for these results; never set those yourself.
+Tell the fight in at most 250 words, in up to three short paragraphs: the opening, the turning point, the finish; the battle log keeps the blow-by-blow.
+Order: Cy, Kira before Wolf; the party act first.
+Exchange 1: Cy takes the Defence stance
+Kira takes the Defence stance
+Cy attacks Wolf (skill): hit; Wolf HP 30 → 20
+Kira attacks Wolf (skill): miss
+Wolf attacks Cy: hit; Cy's Defence stance absorbs 35%; Cy HP 19 → 16.
+Exchange 2: Cy attacks Wolf (skill): miss
+Kira attacks Wolf (skill): hit; Wolf HP 20 → 7
+Kira acts again (tempo)
+Kira attacks Wolf (skill): miss (natural 1)
+Wolf attacks Kira: hit, decisive; Kira's Defence stance absorbs 35%; Kira HP 19 → 14.
+Exchange 3: Cy's flee from Wolf fails
+Kira flees from Wolf.
+The party fled.
+Then follow the reader’s requested aftermath only as the outcome permits; do not assume the foes or their possessions are accessible or looting succeeds.
