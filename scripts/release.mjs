@@ -3,12 +3,20 @@ import os from 'node:os';
 import path from 'node:path';
 import { checkRelease } from './release/check.mjs';
 import { assertSafeOut } from './release/outdir.mjs';
+import { writeVersions } from './release/versions.mjs';
 
 // node scripts/release.mjs [--check] [--out <folder>]
 // Builds the bundles of every extension into <folder> (default dist/release, git-ignored) and runs the release gate.
+// node scripts/release.mjs <version> writes that version into every place that carries it (see release/versions.mjs) and builds nothing.
 // --check builds into a temporary folder and leaves nothing behind. The source tree is never changed.
 const repoRoot = path.resolve(import.meta.dirname, '..');
 const args = process.argv.slice(2);
+const bump = args.find((arg, at) => !arg.startsWith('--') && args[at - 1] !== '--out');
+if (bump) {
+  try { writeVersions(repoRoot, bump); } catch (error) { console.error(error.message); process.exit(2); }
+  console.log(`release: version ${bump} written; run release:check`);
+  process.exit(0);
+}
 const checkOnly = args.includes('--check');
 const outFlag = args.indexOf('--out');
 if (outFlag >= 0 && (!args[outFlag + 1] || args[outFlag + 1].startsWith('--'))) {

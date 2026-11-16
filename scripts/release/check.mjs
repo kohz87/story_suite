@@ -6,11 +6,12 @@ import { buildBundleSet } from './bundle.mjs';
 import { walkBundle } from './graph.mjs';
 import { strayImportMeta } from './rewrite.mjs';
 import { assertSafeOut } from './outdir.mjs';
+import { versionProblems } from './versions.mjs';
 
 export const RELEASE_VERSION = '0.1.0';
 export const MAX_REQUESTS = 10;
 
-// The release gate: the version is 0.1.0, nothing is tagged for it, and each bundle set builds, keeps its
+// The release gate: the version is 0.1.0 and every place that carries it agrees, nothing is tagged for it, and each bundle set builds, keeps its
 // source maps, resolves every import() it contains, keeps import.meta.url pointing at the source location and loads in at most MAX_REQUESTS files. Returns
 // { problems, rows }, one row per bundle set (name, bytes, requests, lazy chunks).
 export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS }) {
@@ -18,8 +19,7 @@ export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS }) {
   const problems = [];
   const version = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8')).version;
   if (version !== RELEASE_VERSION) problems.push(`package.json version is ${version}, the release is ${RELEASE_VERSION}`);
-  const lockVersion = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package-lock.json'), 'utf8')).version;
-  if (lockVersion !== version) problems.push(`package-lock.json version is ${lockVersion}, package.json says ${version}`);
+  problems.push(...versionProblems(repoRoot, version));
   const tags = execFileSync('git', ['tag', '--list'], { cwd: repoRoot, encoding: 'utf8' }).split('\n').filter(tag => tag.replace(/^[a-z-]*v?/i, '') === RELEASE_VERSION);
   if (tags.length) problems.push(`releases are not tagged; found tag ${tags.join(', ')}`);
   const rows = [];

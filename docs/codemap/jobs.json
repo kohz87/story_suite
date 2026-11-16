@@ -321,5 +321,8 @@
   "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses.",
   "modules/people/core/destructive-settlement.js": "Browser-side registry that connects the destructive-settlement controller to SillyTavern and Delta's public API.",
   "modules/people/core/hardening.js": "Applies the settings-key hardening rules in the browser: owner-qualified keys, renames and deleted chats.",
-  "modules/people/legacy/style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules."
+  "modules/people/legacy/style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules.",
+  "core/version.js": "Holds the suite's one release number, rewritten by scripts/release.mjs with the other places that carry it.",
+  "scripts/release/versions.mjs": "Lists the places that carry the suite's version, reports the ones that disagree and rewrites them all to one number.",
+  "tests/scripts/release-versions.test.js": "Tests the version places: agreement on the real tree, a disagreeing place named, the release gate failing on it, and a rewrite touching only the version lines."
 }
