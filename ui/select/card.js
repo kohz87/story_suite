@@ -23,8 +23,8 @@ function sceneOf(answers) {
   const weather = isRec(answers['scene.weather']) ? text(answers['scene.weather'].text) : '';
   return {
     date,
-    // No query gives the weekday (the calendar has it, SD calendar.js:234): a gap.
-    weekday: null,
+    // director.time answers the weekday's name ('' while there is no clock or no week).
+    weekday: orNull(isRec(answers['director.time']) ? text(answers['director.time'].weekday) : ''),
     time,
     place: text(status.place) || text(place.name),
     region: orNull(status.region) || orNull(place.region),

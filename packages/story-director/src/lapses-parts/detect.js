@@ -37,15 +37,22 @@ export function slippedBeats(tracker, { calendar, now, graceDays = SLIP_GRACE_DA
 // An offer with no deadline written at all (a deadline that cannot be read stays as it was).
 const isUndated = record => !String(record?.fields?.due ?? '').trim();
 
-// An undated offer lapses `days` story days after the latest of when it was offered
-// (`created.time`), when the story last mentioned it (`seen.time`: every line that touches
-// the record sets it) and when the reader first spoke of it (`engaged.time`). No known time for
-// any: it never lapses (nothing to count from).
-function undatedLapse(record, { calendar, now, days }) {
-    const span = Number(days) >= 0 ? Number(days) : UNDATED_OFFER_DAYS;
-    const times = [record.created?.time, record.seen?.time, record.engaged?.time].filter(isNumber);
-    if (!times.length) return false;
-    return calendar.addDays(Math.max(...times), span) <= now;
+/**
+ * The story minute an offer (tracker.isOffer) closes as lapsed, or null: it is no offer, or its deadline cannot be read, or it has
+ * no time to count from. The same rule lapsedOffers closes by, so a date shown is the date it closes (`now` only resolves a
+ * year-less date).
+ */
+export function lapseTime(record, { calendar, now, graceDays = SLIP_GRACE_DAYS, undatedDays = UNDATED_OFFER_DAYS } = {}) {
+    if (!calendar || !isNumber(now) || !isOffer(record)) return null;
+    const grace = Number(graceDays) >= 0 ? Number(graceDays) : SLIP_GRACE_DAYS;
+    if (isUndated(record)) {
+        const span = Number(undatedDays) >= 0 ? Number(undatedDays) : UNDATED_OFFER_DAYS;
+        const times = [record.created?.time, record.seen?.time, record.engaged?.time].filter(isNumber);
+        return times.length ? calendar.addDays(Math.max(...times), span) : null;
+    }
+    const end = dateEnd(record, 'due', { calendar, now });
+    if (end === null) return null;
+    return record.engaged ? calendar.addDays(end, grace) : end;
 }
 
 /**
@@ -58,12 +65,8 @@ function undatedLapse(record, { calendar, now, days }) {
  */
 export function lapsedOffers(tracker, { calendar, now, graceDays = SLIP_GRACE_DAYS, undatedDays = UNDATED_OFFER_DAYS } = {}) {
     if (!calendar || !isNumber(now)) return [];
-    const grace = Number(graceDays) >= 0 ? Number(graceDays) : SLIP_GRACE_DAYS;
     return (tracker?.records ?? []).filter(record => {
-        if (!isOffer(record)) return false;
-        if (isUndated(record)) return undatedLapse(record, { calendar, now, days: undatedDays });
-        const end = dateEnd(record, 'due', { calendar, now });
-        if (end === null) return false;
-        return (record.engaged ? calendar.addDays(end, grace) : end) <= now;
+        const at = lapseTime(record, { calendar, now, graceDays, undatedDays });
+        return at !== null && at <= now;
     });
 }

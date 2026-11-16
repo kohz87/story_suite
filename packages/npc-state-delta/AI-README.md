@@ -274,8 +274,7 @@ Detail: [docs/dev/storysuite-adapter.md](docs/dev/storysuite-adapter.md), [docs/
   `src/storysuite-participant/`, `src/fields/registry.js`, `suite.js` and `suite-handshake.js` (the v1 registry; offers nothing to a
   v2 host).
 - `runtime-modules.json`: every shipped top-level runtime `.js` file, once, with a role.
-- `scripts/`: `validate.mjs`, `package.mjs` (Python), `measure-prompts.mjs`. `tests/`: about 190 test files plus fixtures and a
-  vendored Story Block testkit (`tests/vendor/story-block/`).
+- `scripts/`: `validate.mjs`, `package.mjs` (Python), `measure-prompts.mjs`. `tests/`: about 190 test files plus fixtures; they import the live Story Block testkit by relative path.
 - `docs/`: `core-contract.md` (behavior authority), `STORY_SUITE.md`, `dev/`, `history/` (evidence only), stage reviews,
   `images/` (README screenshots, not shipped). `CHANGELOG.md`, `DEVELOPMENT.md`, `AGENTS.md`, `CLAUDE.md`.
 
