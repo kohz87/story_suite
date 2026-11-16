@@ -4,6 +4,8 @@ import { CHANGES_CARD_SCREEN_ID, replyCardLines } from '../screens/index.js';
 import { mergeRpgLines } from '../screens/changes-card.js';
 import { readRecord } from '../persist.js';
 import { laterStore, replyEdits, replyRules, scanReplyCards } from '../reply-cards.js';
+import { moduleFailures } from '../turn/apply-report.js';
+import { FLAGS, flagOn } from '../flags.js';
 import { drawReplyCard } from '../view/reply-cards-ui.js';
 
 export function createReplyCards({ runtime, ctx, doc, store, registry, events, queryAt, renderer, notes, screens, api, getRpg, getMounts }) {
@@ -19,6 +21,12 @@ export function createReplyCards({ runtime, ctx, doc, store, registry, events, q
         // The RPG's own lines (rolls, class and rank rises), only while its screens are mounted.
         return getRpg() ? mergeRpgLines(lines, getRpg().cardLines({ state, before, record: recordAt(index), problems: (store.problems?.() ?? []).filter(item => item?.index === index) })) : lines;
     };
+    // `moduleFailed` (suite.isolatedApply on; always empty with it off): the modules that could not finish that reply, from the turn's Problems.
+    const moduleFailedAt = index => {
+        if (!flagOn(() => ctx?.extensionSettings, FLAGS.isolatedApply)) return [];
+        const nameOf = id => registry.modules?.().find(def => def.id === id)?.name ?? id;
+        return moduleFailures(runtime.turn?.problems?.() ?? [], index, nameOf);
+    };
     const drawScreen = renderer.render;
     // …and `assisted`: the lines the Assist safety net applied on it (its receipts marked `assist`).
     const assistedAt = index => {
@@ -28,7 +36,7 @@ export function createReplyCards({ runtime, ctx, doc, store, registry, events, q
         } catch { return []; }
     };
     renderer.render = (el, screen, scope) => drawScreen(el, screen, scope?.mount === 'card'
-        ? { ...scope, refused: notes.refusedAt(scope.index), warned: notes.warnedAt?.(scope.index) ?? [], assisted: assistedAt(scope.index), ...(screen?.id === CHANGES_CARD_SCREEN_ID ? { moduleLines: cardLines(scope.index, scope.state, scope.changes, scope.before), edits: editsAt(scope.index), editableHead: scope.index === store.headIndex() } : {}) }
+        ? { ...scope, refused: notes.refusedAt(scope.index), warned: notes.warnedAt?.(scope.index) ?? [], assisted: assistedAt(scope.index), ...(screen?.id === CHANGES_CARD_SCREEN_ID ? { moduleLines: cardLines(scope.index, scope.state, scope.changes, scope.before), edits: editsAt(scope.index), moduleFailed: moduleFailedAt(scope.index), editableHead: scope.index === store.headIndex() } : {}) }
         : scope);
     // The story head a dialog was opened on (mounts/dialog.js): the head's index and record. Which swipe is shown is not part of
     // it: a swipe that keeps the head record is not a move (the chat's id is checked on its own).

@@ -123,6 +123,7 @@ export const PAGE_STRINGS = {
         nobodyNow: 'No one else is here now',
         nothing: 'Nothing changed in the inventory or the scene.',
         notApplied: 'not applied:',
+        moduleFailed: '{name} could not finish this reply: {reason}',
         appliedCheck: 'applied, check:',
         assist: '(assist)',
         assistLate: '(assist, from the previous reply)',

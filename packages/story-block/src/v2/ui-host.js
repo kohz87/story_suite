@@ -41,6 +41,7 @@ import { CORE_FEATURE } from './features.js';
 import { renderCardOffers } from './packs/card-offer-ui.js';
 import { readCharacterLorebook, saveSettingsNow } from './packs/st-adapter.js';
 import { createReplyCards } from './ui-host/replies.js';
+import { FLAGS, flagOn } from './flags.js';
 import { inspectorProblemsFor } from './ui-host/inspector-problems.js';
 import { createCardOfferWiring } from './ui-host/card-offer-wiring.js';
 import { createHostApi } from './ui-host/host-api.js';
@@ -90,7 +91,13 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         featureOn: id => registry.featureOn?.(id) === true,
     });
     // What the Inspector lists as a reply's problems (ui-host/inspector-problems.js).
-    function inspectorProblems(index) { return inspectorProblemsFor(index, { store, runtime, notes }); }
+    function inspectorProblems(index) {
+        return inspectorProblemsFor(index, {
+            store, runtime, notes,
+            isolated: () => flagOn(() => ctx?.extensionSettings, FLAGS.isolatedApply),
+            nameOf: id => registry.modules?.().find(def => def.id === id)?.name ?? id,
+        });
+    }
     // The RPG's screens (ui-host/lean-rpg-sync.js): loaded by import() only while its feature is on, taken away when it goes off.
     const leanRpg = createLeanRpgSync({
         loadLeanRpg, doc, ctx, store, events, screens, hostWidgets, registry, runtime, liveCtx, settings, sdk, api, rpgOn,
