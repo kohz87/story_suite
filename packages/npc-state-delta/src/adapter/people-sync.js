@@ -8,7 +8,7 @@
 // Three more rules. A head whose reply replaced one (a delete or swipe, then a new reply at the same place) tells the runtime to read that reply again (`rescan`), whatever the people
 // are. A change made before the first hydrate is owed: the first hydrate carries it over the store's people (`carry`) and commits it. A change that finds the head already on a
 // newer reply than the cache stands on (the store's people unchanged) belongs to that reply: the cache stands on it first.
-// The scan marker lives in the store (people.scan = { lastSid, swipeKey, since }, written with each commit, never part of the people hash): a hydrate, and a head
+// The scan marker lives in the store (people.scan = [lastSid, swipeKey, since], written with each commit, never part of the people hash): a hydrate, and a head
 // that moved back or to the same place (a swipe, swipe back, delete, regenerate), set NPC State's marker from it (`mark`), so a swipe back to a read swipe is not
 // read again and a reply that replaced one is. An unknown sid (its reply was deleted) means "read the latest"; with no marker stored the old rules hold (rescan, clamp).
 // The people hash compared is `people.hash { dossiers: true }`: the meters (`bonds`, written by the reply's own change lines) and the marker are not the cache's.
@@ -46,7 +46,7 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         const at = messages ? messages.findIndex(message => message?.sid === source.sid) : -1;
         return at >= 0 ? at : null;
     };
-    const scanOf = api => { const scan = sliceOf(api)?.scan; return scan && typeof scan === 'object' && typeof scan.lastSid === 'string' ? scan : null; };
+    const scanOf = api => { const scan = sliceOf(api)?.scan; return Array.isArray(scan) && typeof scan[0] === 'string' ? { lastSid: scan[0], swipeKey: scan[1], since: scan[2] } : null; };   // (the store keeps it as [lastSid, swipeKey, since])
     // The store's marker as NPC State's index at a head whose place is `place`: the reply it names when that reply is still there on the same swipe; the one before
     // when it is there on another swipe (that swipe was not read); "read the latest" when its sid is gone. Never past the head.
     const markFrom = async (api, scan, place) => {

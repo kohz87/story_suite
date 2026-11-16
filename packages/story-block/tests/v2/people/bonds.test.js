@@ -85,11 +85,11 @@ test('the scan marker rides on people.write, stays when a write leaves it out, a
     await host.send('Go.', 'The road.');
     const scan = { lastSid: sourceOf(host).sid, swipeKey: sourceOf(host).swipeKey, since: 0 };
     assert.equal((await write(host, view(), scan)).ok, true);
-    assert.deepEqual(host.head().domains.people.scan, scan);
+    assert.deepEqual(host.head().domains.people.scan, [scan.lastSid, scan.swipeKey, scan.since]);
     assert.equal(host.sdk.query('people.hash', { dossiers: true }), hashJson(view()));
     await host.send('On.', 'Further.');
     assert.equal((await write(host, view({ turn: 2 }))).ok, true);
-    assert.deepEqual(host.head().domains.people.scan, scan, 'a write without a marker keeps the stored one');
+    assert.deepEqual(host.head().domains.people.scan, [scan.lastSid, scan.swipeKey, scan.since], 'a write without a marker keeps the stored one');
 });
 
 test('replay == live for bonds and scan: replies, a swipe and back, a middle delete, a rebuild, a reload', async t => {
@@ -178,7 +178,7 @@ test('rewind: the branch drops a reply\'s later bonds, scan and edit writes from
     assert.equal(done.ok, true, done.message);
     assert.equal(trust(host, 'npc_ann'), 1, 'the later move is gone');
     assert.equal(host.head().domains.people.npcs.npc_ann.role, undefined, 'and the later edit');
-    assert.equal(host.head().domains.people.scan.lastSid, sourceOf(host).sid, 'the marker written before stays');
+    assert.equal(host.head().domains.people.scan[0], sourceOf(host).sid, 'the marker written before stays');
     assertReplay(host, 'rewind');
 });
 
@@ -197,7 +197,7 @@ test('edited Re-read: the reply\'s new line moves the new person, the kept write
     assert.equal(trust(host, 'npc_bo'), 4, 'the edited line moved Bo');
     assert.equal(host.head().domains.people.npcs.npc_ann.followed, true, 'the reader\'s edit is kept');
     assert.equal(host.head().domains.people.turn, 2, 'the kept people write stays');
-    assert.equal(host.head().domains.people.scan.lastSid, sourceOf(host).sid, 'and its marker');
+    assert.equal(host.head().domains.people.scan[0], sourceOf(host).sid, 'and its marker');
     assertReplay(host, 'edited Re-read');
 });
 
@@ -216,4 +216,23 @@ test('a kept meter write that no longer applies after a middle delete is skipped
     assert.equal(done.ok, true, `the Re-read is not refused: ${done.message}`);
     assert.equal(trust(host, 'npc_ann'), 1);
     assertReplay(host, 'Re-read after a middle delete');
+});
+
+test('deleting the first marker-writing reply keeps a later reply\'s dossier write and marker; no Problem; reload equals live', async t => {
+    const host = await rig(t);
+    await host.send('Go.', 'The road.');
+    await write(host, view(), { lastSid: sourceOf(host).sid, swipeKey: sourceOf(host).swipeKey, since: 0 });
+    await host.send('On.', 'Bo comes.');
+    const bo = view({ order: ['npc_ann', 'npc_bo'], npcs: { npc_ann: { id: 'npc_ann', name: 'Ann' }, npc_bo: { id: 'npc_bo', name: 'Bo' } } });
+    await write(host, bo, { lastSid: sourceOf(host).sid, swipeKey: sourceOf(host).swipeKey, since: 1 });
+    const later = sourceOf(host);
+    await host.st.deleteMessage(carriers(host.ctx.chat)[1]);   // the reply that first stored the marker
+    assert.deepEqual(host.store.problems(), []);
+    assert.ok(host.head().domains.people?.npcs?.npc_bo, 'the later dossier stays');
+    assert.equal(host.head().domains.people.scan[0], later.sid, 'with its marker');
+    const live = plain(host.head());
+    await host.store.rebuild();
+    assert.deepEqual(plain(host.head()), live, 'reload equals live');
+    assert.deepEqual(host.store.problems(), []);
+    assertReplay(host, 'delete of the first marker reply');
 });

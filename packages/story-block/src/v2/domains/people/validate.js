@@ -2,7 +2,7 @@
 // record keys that follow NPC State Delta's own id rule (`npc_` + a name slug, as makeNpcId makes them), safe as JSON-pointer segments,
 // portraits that are file references only ({ path, type, hash }, never image bytes) and a socialGraph whose keys are pointer-safe and whose edge ids are people ids.
 // Also the two keys the dossier writer does not own: `bonds` (the meters, keyed by the same npc_ ids; their inner shape is NPC State's to check) and the
-// scan marker `scan` ({ lastSid, swipeKey, since }: the last reply NPC State read and the replies since).
+// scan marker `scan` ([lastSid, swipeKey, since]: the last reply NPC State read and the replies since).
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const LISTS = ['candidates', 'dismissed', 'userDismissedGroups'];
@@ -50,9 +50,9 @@ function ownProblems(slice) {
             if (Object.values(bonds.npcs).some(record => !isObject(record))) errors.push('A bond is not an object.');
         }
     }
-    const scan = slice.scan;
-    if (scan !== undefined && (!isObject(scan) || typeof scan.lastSid !== 'string' || !scan.lastSid || typeof scan.swipeKey !== 'string'
-        || !Number.isInteger(scan.since) || scan.since < 0 || Object.keys(scan).some(key => !['lastSid', 'swipeKey', 'since'].includes(key)))) errors.push('The people scan marker is not { lastSid, swipeKey, since }.');
+    const scan = slice.scan;   // stored as the array [lastSid, swipeKey, since]: a change of it replaces the whole marker, never one leaf (REPLAY.md "Deferred domains")
+    if (scan !== undefined && (!Array.isArray(scan) || scan.length !== 3 || typeof scan[0] !== 'string' || !scan[0] || typeof scan[1] !== 'string'
+        || !Number.isInteger(scan[2]) || scan[2] < 0)) errors.push('The people scan marker is not [lastSid, swipeKey, since].');
     return errors;
 }
 

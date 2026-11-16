@@ -1,4 +1,4 @@
-// The scan marker in the store (people store P4): NPC State's commit stores the last reply it read (`people.scan` = { lastSid, swipeKey, since }), outside the
+// The scan marker in the store (people store P4): NPC State's commit stores the last reply it read (`people.scan` = [lastSid, swipeKey, since]), outside the
 // people hash; a swipe, a swipe back, a middle delete, a last delete then a regenerate, and a reload take NPC State's marker from the store, so a reply
 // already read is not read again and a reply that replaced one is.
 import test from 'node:test';
@@ -7,7 +7,7 @@ import { peopleRig } from './helpers/people-rig.js';
 
 const history = async rig => (await rig.host.sdk.timeline.history({})).messages;
 const headAt = rig => rig.host.store.headIndex();
-const scanOf = rig => rig.host.head().domains.people?.scan;
+const scanOf = rig => { const scan = rig.host.head().domains.people?.scan; return scan ? { lastSid: scan[0], swipeKey: scan[1], since: scan[2] } : scan; };   // (stored as [lastSid, swipeKey, since])
 const dossierHash = rig => rig.host.sdk.query('people.hash', { dossiers: true });
 const lastMark = rig => rig.marks.at(-1);
 const settleSync = () => new Promise(resolve => setTimeout(resolve, 30));

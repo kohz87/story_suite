@@ -17,7 +17,7 @@ const isObject = value => Boolean(value) && typeof value === 'object' && !Array.
 const OWN_KEYS = ['bonds', 'scan'];
 // The slice a chat's first people write starts from, and what an absent people domain replays as (REPLAY.md "Deferred domains"): every
 // container a later reply's leaf writes go into is here, so deleting the reply that made the slice keeps the later meter moves. (`scan`
-// has no empty value; a later marker write after such a delete is skipped with its block, and NPC State's next commit writes it again.)
+// is stored as an array [lastSid, swipeKey, since], so every marker write is one whole replace and survives such a delete.)
 const initialPeople = () => ({ v: 1, order: [], npcs: {}, bonds: { npcs: {}, problems: [] } });
 const withoutOwn = slice => Object.fromEntries(Object.entries(slice).filter(([key]) => !OWN_KEYS.includes(key)));
 const EMPTY = hashJson(withoutOwn(initialPeople()));
@@ -40,7 +40,9 @@ export function createPeoplePart() {
                 handler(ctx, payload) {
                     const view = payload?.view;
                     if (!isPeopleView(view) || OWN_KEYS.some(key => Object.hasOwn(view, key))) return ctx.fail('INVALID', 'The people view is not sound; nothing was stored.');
-                    if (payload.scan !== undefined && validatePeople({ ...view, scan: payload.scan }).length) return ctx.fail('INVALID', 'The scan marker is not sound; nothing was stored.');
+                    const scan = payload.scan;
+                    const marker = isObject(scan) ? [scan.lastSid, scan.swipeKey, scan.since] : null;   // (stored as an array: a diff replaces it whole)
+                    if (scan !== undefined && (!marker || Object.keys(scan).length !== 3 || validatePeople({ ...view, scan: marker }).length)) return ctx.fail('INVALID', 'The scan marker is not sound; nothing was stored.');
                     const asked = payload?.source;
                     const here = ctx.source;
                     if (!here || !asked || asked.sid !== here.sid || (asked.swipeKey !== undefined && asked.swipeKey !== here.swipeKey)) {
@@ -51,7 +53,7 @@ export function createPeoplePart() {
                     const kept = Object.fromEntries(OWN_KEYS.filter(key => draft[key] !== undefined).map(key => [key, draft[key]]));
                     for (const key of Object.keys(draft)) delete draft[key];
                     Object.assign(draft, clone(view), kept);
-                    if (payload.scan !== undefined) draft.scan = clone(payload.scan);
+                    if (marker) draft.scan = marker;
                     return { summary: 'People stored.', narrate: false };
                 },
             },
@@ -65,7 +67,7 @@ export function createPeoplePart() {
                     const bonds = payload?.bonds;
                     if (!isObject(bonds) || validatePeople({ v: 1, order: [], npcs: {}, bonds }).length) return ctx.fail('INVALID', 'The people\'s meters are not sound; nothing was stored.');
                     const draft = ctx.draft(PEOPLE_DOMAIN);
-                    if (hashJson(draft.bonds ?? null) === hashJson(bonds)) return { summary: 'People\'s meters unchanged.', narrate: false };
+                    if (hashJson(draft.bonds ?? initialPeople().bonds) === hashJson(bonds)) return { summary: 'People\'s meters unchanged.', narrate: false };
                     if (draft.v === undefined) Object.assign(draft, initialPeople());   // (the first write of a chat: the deferred domain starts here)
                     draft.bonds = clone(bonds);
                     return { summary: 'People\'s meters stored.', narrate: false };
