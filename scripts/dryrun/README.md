@@ -2,8 +2,16 @@
 
 Records chat exports against a suite checkout and compares two recording folders (old code vs new code).
 
-    node scripts/dryrun/cli.mjs record --code <repo> --chats <folder> --out <folder> [--fresh] [--history]
+    node scripts/dryrun/cli.mjs record --code <repo> --chats <folder> --out <folder> [--fresh] [--history] [--flags name=value,...]
     node scripts/dryrun/cli.mjs compare <dirA> <dirB>
+    node scripts/dryrun/cli.mjs compare --cards <dirA> <dirB>
+
+## Flags and cards
+
+`--flags a=true,b=false` sets settings flags (`extension_settings.storySuite.flags`) on the host before each chat loads; the record
+then carries a `flags` field (absent when none are given). Each reply also records `card`: the text of its "Changed this reply" card
+as the old view renders it (omitted for code with no card screen). `compare` ignores `card`; `compare --cards` lists, per chat, the
+replies whose card text differs, and fails if a record has no card text.
 
 ## Scope
 

@@ -55,7 +55,7 @@ export { meterBarNode } from './adapter/cast-ui.js';
 export { isV2Host } from './adapter/connect.js';
 
 export const MODULE_ID = 'npc-state-delta';
-export const MODULE_NAME = 'NPC State Delta';
+export const MODULE_NAME = 'NPC State';
 // The tab's id stays `cast` (and the screen's `npc-state-delta/cast`) so a reader's saved tab order still
 // finds it; its title is Dossiers (MODULES §F119).
 export const CAST_TAB_ID = 'cast';

@@ -1,7 +1,7 @@
 // The order of a reply's lines does not matter to a trip: `~ trip` declares `after: ['place', 'mount']`, so Story Block (2.11.1 and later)
 // runs it behind the reply's `~ place` and `+ mount` lines and plans from the place and the mount pace they set up. An older host reads
 // the lines as written (the trip then plans from where the scene was). The host part runs against a Story Block checkout named by
-// STORY_BLOCK_DIR (the vendored copy is older and does not reorder).
+// STORY_BLOCK_DIR (Story Block 2.11.1 and later reorder; an older checkout does not).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

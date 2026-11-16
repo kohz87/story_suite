@@ -839,7 +839,7 @@ sdk.registerModule({
     a module that must run there checks `sdk.feature?.(id) ?? true` and keeps its core text in
     `context.static` / `context.tail`.
 * **Tabs** render into Story Block's tab bar from the head state; they never read message text.
-* **Events**: `sdk.on('committed' | 'head' | 'turn' | 'feature', fn, { module }?)` (`module`: with the internal flag `suite.isolatedApply` on, a throw or rejection of `fn` is a Problem of that module; `sdk/listener-guard.js`); `head` fires after any rebuild.
+* **Events**: `sdk.on('committed' | 'head' | 'turn' | 'feature' | 'modules' | 'changed', fn, { module }?)` (`module`: with the internal flag `suite.isolatedApply` on, a throw or rejection of `fn` is a Problem of that module; `sdk/listener-guard.js`); `head` fires after any rebuild; `changed` ({ keys, index, reason }) fires once per reply (or Re-read, or out-of-turn change, or system commit outside a reply such as a module set up mid-chat) with the domains touched, and again after any head move; `keys` is never empty (a change that stored nothing is not told) and `['*']` means everything; `index` is the head carrier when it is sent (`null` if the store fails); `reason` is `turn`, `command`, or the `head` event's reason (`sdk/changed.js`).
 * `sdk.query(name, args)`, `sdk.modules()`, `sdk.id(prefix)`, `sdk.check`, `sdk.settings(id)`, `sdk.feature(id)`,
   `sdk.features()`.
 * **Model calls** (MODULES §G): `sdk.callModel({ profile, system, prompt, maxTokens, signal, feature })` →
@@ -1087,9 +1087,9 @@ changes `name` and adds an alias; it never changes value, rarity or effects.
 
 * `node --test` in every repo; no network; no real SillyTavern in unit tests.
 * Story Block ships `testkit/` (a fake SillyTavern context: chat array with swipes and extras, `saveChat`,
-  `setExtensionPrompt`, event source, interceptor) plus the real runtime. Modules vendor it into
+  `setExtensionPrompt`, event source, interceptor) plus the real runtime. A module that needs a pinned copy can vendor it into
   `tests/vendor/story-block/` with `npm run sync-testkit` (copies from a Story Block checkout; records the
-  commit in `tests/vendor/story-block/VERSION`). CI uses the committed copy. `stPurify` (testkit) stands
+  commit in `tests/vendor/story-block/VERSION`). A module with a committed copy tests against it. `stPurify` (testkit) stands
   in for SillyTavern's DOMPurify as compileTemplate calls it (`{ sanitize: stPurify }`): it drops controls'
   `type`, as the real one does, so a screen test shows what SillyTavern draws.
 * Required tests per module: commands (success, each rejection, nothing saved on rejection), capture of

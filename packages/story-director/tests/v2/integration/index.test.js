@@ -36,7 +36,7 @@ test('with Story Block v2 the module registers once, and its chat state is set u
 
 test('with a host that has the header slot the module registers its Quiet scene toggle; an older host gets the module without the field', async () => {
     const host = await createHost({ modules: [fakeFightRunner()] });
-    assert.ok(host.sdk.modules().every(entry => Array.isArray(entry.headerControls)), 'the vendored host has the slot');
+    assert.ok(host.sdk.modules().every(entry => Array.isArray(entry.headerControls)), 'the host has the slot');
     const root = { StoryBlock: { apiVersion: 2, ready: Promise.resolve(host.sdk), sdk: host.sdk } };
     assert.equal((await start({ root, doc: fakeDocument(), wait: noWait, tries: 0 })).registered, true);
     assert.deepEqual(host.registry.headerControls().map(control => [control.key, control.label, control.query, control.command]), [['story-director/quiet', 'Quiet scene', 'pulse.quiet', 'director.pulse.quiet']]);

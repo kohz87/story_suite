@@ -1,4 +1,4 @@
-// b1-capture round 2 (Story Director): findings against 1303ac9 on its vendored host (moved here as
+// b1-capture round 2 (Story Director): findings against 1303ac9 on its then-vendored host (moved here as
 // written; B-b1r2-9 was fixed by #86, B-b1r2-14 was Story Block's, #86).
 import test from 'node:test';
 import assert from 'node:assert/strict';

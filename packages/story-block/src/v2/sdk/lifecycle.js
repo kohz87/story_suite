@@ -66,7 +66,7 @@ export async function ensureModules({ store, bus, registry, events = null }) {
     const results = [];
     for (const { def, missing } of missingModules(registry, store.head())) {
         const result = await bus.command(`${INIT_PREFIX}${def.id}`, { domains: missing }, { cause: 'system' });
-        if (result?.ok) events?.emit('committed', { receipt: result.receipt });
+        if (result?.ok) events?.emit('committed', { receipt: result.receipt, standalone: true });
         else {
             const message = `${def.name ?? def.id} could not be set up in this chat: ${result?.message ?? 'unknown error'}`;
             if (!told.has(message)) console.warn(`[Story Suite] ${message}`);
