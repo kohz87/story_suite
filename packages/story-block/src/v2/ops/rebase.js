@@ -1,10 +1,11 @@
 // Rebase and scratch fitting for ops: move counter changes onto the values replay found, fit per-reply
-// bookkeeping, and apply the replay rules (c)-(e) and (g). Pure.
+// bookkeeping, and apply the replay rules (c)-(e), (g) and (h). Pure.
 
 import { OPS } from './constants.js';
 import { escapeKey, parsePath, valueAt } from './paths.js';
 import { clone, equal, isPlainObject } from './json.js';
 import { apply } from './apply.js';
+import { anchoredMove, isAnchored } from './anchored.js';
 
 // ---------- per-reply scratch ----------
 //
@@ -136,7 +137,9 @@ const UNIQUE_BEFORE_MARK = '/domains/scene/present';
  * above. And (rule d) an op marked `within` a thing (ctx.ifThere) is passed over when that thing is not
  * there. And (rule e) an append marked `unique` (ctx.unique) of an item the list holds already is passed over. And (rule g, with
  * `seed`: a domain name → its initial slice when it is deferred, else null) an add or replace under a deferred domain that is not
- * there finds it as its initial slice (seedDeferred, below). Ops are not changed in place.
+ * there finds it as its initial slice (seedDeferred, below).
+ * And (rule h) an anchored set (`period`, `roll`, maybe `to`: commands/transact.js `ctx.anchored`) lands where its offset in whole
+ * periods from `was` puts it on the value now there (ops/anchored.js). Ops are not changed in place.
  */
 export function rebaseOps(state, ops, { scratch = null, replayed = false, seed = null } = {}) {
     // Rule (g) goes first, so the scratch fitting and rules (a)-(e) see the slice the block is laid on.
@@ -251,6 +254,13 @@ export function rebaseOps(state, ops, { scratch = null, replayed = false, seed =
             // the domain's validator refuses (the block is skipped), as a take of more than is held is.
             moved(op.path);
             return { op: 'replace', path: at, value: now - op.was, was: now };
+        }
+        // Rule (h): an anchored set is not a move; it is checked before the counter rule below reads its `was` as one.
+        if (isAnchored(op)) {
+            const at = earlier !== undefined ? earlier : valueAt(state, op.path);
+            if (!Number.isSafeInteger(at) || at === op.was) return op;
+            moved(op.path);
+            return anchoredMove(op, at);
         }
         if (op?.op !== 'replace' || typeof op.was !== 'number' || typeof op.value !== 'number') return op;
         const now = earlier !== undefined ? earlier : valueAt(state, op.path);
