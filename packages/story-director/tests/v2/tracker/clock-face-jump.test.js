@@ -71,7 +71,7 @@ async function newHost() {
 }
 const say = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
-test('swipe, delete and Re-read of the jump reply replay the same', async t => {
+test('Re-read of the jump reply, and swipe and delete of the reply after it, replay the same', async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await newHost();
     t.after(() => host.close());
@@ -97,4 +97,40 @@ test('swipe, delete and Re-read of the jump reply replay the same', async t => {
     assert.equal(clock(), 'March 6, 1200, 06:00 am');
     host.store.rebuild();
     assert.equal(clock(), 'March 6, 1200, 06:00 am');
+});
+
+test('swiping the jump reply to a no-jump variant closes the day; swiping back reopens it', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await newHost();
+    t.after(() => host.close());
+    const clock = () => host.sdk.query('director.time').text;
+    await host.send('Begin.', say('The road.', ['~ time March 3, 1200, 05:30 pm']));
+    await host.send('Days pass.', say('Three days on.', ['! time +3d']));
+    await host.swipe(say('An hour on.', ['! time +1h']));
+    assert.equal(clock(), 'March 3, 1200, 06:30 pm');
+    await host.st.swipeTo(host.ctx.chat.length - 1, 0);
+    assert.equal(clock(), 'March 6, 1200, 05:30 pm');
+    await host.send('Dawn.', say('Morning.', ['~ time 6:00 am']));
+    assert.equal(clock(), 'March 6, 1200, 06:00 am');
+    const live = JSON.stringify(host.head());
+    host.store.rebuild();
+    assert.equal(JSON.stringify(host.head()), live);
+});
+
+test('deleting the jump reply closes the day: a later ~ 6:00 am is refused, and rebuild matches live', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const host = await newHost();
+    t.after(() => host.close());
+    const clock = () => host.sdk.query('director.time').text;
+    await host.send('Begin.', say('The road.', ['~ time March 3, 1200, 05:30 pm']));
+    await host.send('Days pass.', say('Three days on.', ['! time +3d']));
+    await host.st.deleteMessage(4);
+    await host.st.deleteMessage(3);
+    await host.turn.onChatChanged();
+    assert.equal(clock(), 'March 3, 1200, 05:30 pm');
+    await host.send('Dawn.', say('Morning.', ['~ time 6:00 am']));
+    assert.equal(clock(), 'March 3, 1200, 05:30 pm');
+    const live = JSON.stringify(host.head());
+    host.store.rebuild();
+    assert.equal(JSON.stringify(host.head()), live);
 });
