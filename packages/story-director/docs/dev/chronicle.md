@@ -97,14 +97,14 @@ as Story Block replays it (`days-parts/clock-step.js`, the one stepper `walkDays
 `director.advance`; receipt `data.kind` `move`, with `data.from` the clock before the command) adds `minutes - from` to the clock walked so
 far; a **set** (a date, a clock face, a skip, the reader's `director.clock`, the seed; `data.kind` `set`) takes its stored `minutes`; a
 `time.settle` only starts a clock that is not started and moves nothing after that. A line "(not used)" moves nothing. A receipt with no
-`kind` (told before) is a set, as it was read before. The time part's settle jump (`walk.settle`) is the walked clock at the settle before it
+`kind` (told before) is a set, as it was read before. **Older-chat limit:** in a chat told before this update, after an edit or delete that moved the clock, later durations can stay a day off until the next set line (a settle no longer resets the walk); F1 and F3 are right there, the mixed case is not (pinned in `tests/v2/chronicle/walk-older-chat.test.js`). A fresh chat has no kind-less receipts. The time part's settle jump (`walk.settle`) is the walked clock at the settle before it
 to the walked clock now, and `since()` hands on the walked clock of the last settle in the prefix (`settleAt`), so the "While away" skip test in the
 digest command reads the same clock. A joined line (`~ time <date> · ! time +2h`) writes one clock op, so its one receipt has `from` the clock
 before the command and `kind` `set` if any part set it. **Known limits (F4/F6 of the CHRONCLOCK plan):** a set is taken as Story Block replays it (stored, never read again),
 so after an edit that moves the clock a `~ time 9:30 pm` clock face or a `! time next morning` skip told after it leaves the head clock itself a day
 off from a fresh telling; and what the notes already stored, and digests already written, for replies between the edited reply and the newest one keep their day (re-filing them
 is the planned notes follow-up). A kept `time.settle` also still gives one extra settle after an edit (state, harmless to the chronicle). The walk mirrors an op only where a
-receipt does: a `director.advance` a module calls through `ctx.call` has no receipt (none does today). Also: a thread's outcome line after
+receipt does: a `director.advance` a module calls through `ctx.call` has no receipt (none does today), and Story Block's restore (a same-chat restore installs every domain absolutely, including `director.time.minutes`, and leaves no Story Director clock receipt; nothing calls a restore today, so it is dormant) is the same kind of clock write without a receipt. Also: a thread's outcome line after
 a grown Re-read of the reply that resolved the goal takes a new revision, so a paid turn-in settled later could sort before
 it in that thread's history, unlike a fresh telling (rare; nothing else reads the order).
 
