@@ -172,7 +172,7 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
          * `options`: { module, rulesVersion?, domains?, peers? }. Nothing is set up, repaired or saved.
          */
         preflight: options => preflight({ store, registry, chat, apiVersion: 2 }, options),
-        on: (name, fn) => events.on(name, fn),
+        on: (name, fn, opts) => events.on(name, fn, opts),
         /**
          * Public paths from a module (docs/v2/PUBLIC-API.md "Paths from modules"): `({ owner, prefix, paths() → [path], get(path) → value,
          * hidden(path) → bool, values()? → { path: value } })` → `unregister()` (call `unregister.changed()` when the values moved). One owner per prefix; the prefix may not
