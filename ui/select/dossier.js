@@ -13,6 +13,18 @@ function metersOf(dossier) {
   return Object.fromEntries(AXES.map(axis => [axis, Number.isFinite(Number(found?.[axis])) ? Number(found[axis]) : 0]));
 }
 
+// Mood meters on the -3..+3 scale: NPC State's moodTile rows ({ key: v|a|d, value }) first, else the cast row's mood numbers (valence / energy / control).
+// Absent (undefined) unless all three are whole numbers within -3..+3, so a person without mood numbers shows no bars.
+function moodBarsOf(tile, cast) {
+  const rows = Array.isArray(tile?.rows) ? tile.rows.filter(isRecord) : [];
+  const fromRows = key => rows.find(row => row.key === key)?.value;
+  const mood = isRecord(cast?.mood) ? cast.mood : {};
+  const tileKnown = isRecord(tile) && tile.known !== false && rows.length > 0;
+  const raw = tileKnown ? [fromRows('v'), fromRows('a'), fromRows('d')] : [mood.valence, mood.energy, mood.control];
+  const ok = raw.every(value => typeof value === 'number' && Number.isInteger(value) && value >= -3 && value <= 3);
+  return ok ? { feeling: raw[0], energy: raw[1], control: raw[2] } : undefined;
+}
+
 // "Species · gender · age"; an unknown gender reads "gender unknown" (26).
 function idLineOf(dossier, genderUnknown) {
   const gender = text(dossier.gender)?.toLocaleLowerCase();
@@ -78,10 +90,10 @@ function profileOf(dossier) {
 
 /**
  * Dossier view-model from { dossier: npc.dossier, meters?: npc.meters({name}), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
- * keyPeople?: director.keyPeople.view, party?: party.actors }; null when npc.dossier gave no answer.
+ * keyPeople?: director.keyPeople.view, party?: party.actors, moodTile?: NPC State's moodTile(npc) }; null when npc.dossier gave no answer.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party } = {}) {
+export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, moodTile } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
   const away = (isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
@@ -103,6 +115,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
     stage: stageOf(next),
     changes: changesOf(meters),
     mood: text(dossier.mood) ?? text(cast?.mood?.word),
+    ...(moodBarsOf(moodTile, cast) ? { moodBars: moodBarsOf(moodTile, cast) } : {}),
     now: isHere
       ? { where: text(dossier.location), doing: text(dossier.status), wearing: null, thought: null }
       : { lastPlace: text(away?.place) ?? text(dossier.location), lastSeen: text(away?.newsAgo), said: null },

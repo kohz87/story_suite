@@ -39,3 +39,15 @@ test('change delta must be a number and heldBack a boolean', () => {
   assert.ok(errors.some(e => e.startsWith('changes[0].delta')));
   assert.ok(errors.some(e => e.startsWith('changes[1].heldBack')));
 });
+
+test('moodBars is optional, whole numbers -3..+3 per axis', () => {
+  const d = dossierFor('temiwa');
+  delete d.moodBars;
+  assert.deepEqual(checkShape(d, DOSSIER_SHAPE), []);
+  d.moodBars = { feeling: -3, energy: 0, control: 3 };
+  assert.deepEqual(checkShape(d, DOSSIER_SHAPE), []);
+  for (const bad of [{ feeling: 4, energy: 0, control: 0 }, { feeling: 0.5, energy: 0, control: 0 }, { feeling: 0, energy: 0 }]) {
+    d.moodBars = bad;
+    assert.ok(checkShape(d, DOSSIER_SHAPE).some(e => e.startsWith('moodBars')), JSON.stringify(bad));
+  }
+});
