@@ -20,6 +20,9 @@ function resolveOptions(variant) {
       empty: key === 'empty',
       notApplied: false,
       focus: 'boat',
+      planShown: false,
+      fightState: 'choose',
+      bagLoad: 0,
     };
   }
   const opts = variant && typeof variant === 'object' ? variant : {};
@@ -29,6 +32,9 @@ function resolveOptions(variant) {
     empty: Boolean(opts.empty),
     notApplied: Boolean(opts.notApplied),
     focus: opts.focus || 'boat',
+    planShown: Boolean(opts.planShown),
+    fightState: opts.fightState || 'choose',
+    bagLoad: Number(opts.bagLoad) || 0,
   };
 }
 
@@ -245,11 +251,11 @@ export function fixture(variant = 'default') {
     chat: buildChat(opts, hereList, changes, needsYou),
     people: buildPeople(opts, hereList),
     party: opts.rpg ? partyFixture() : null,
-    bag: bagFixture({ rpg: opts.rpg }),
-    fight: opts.fightOpen ? fightFixture('choose') : null,
+    bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),
+    fight: opts.fightOpen ? fightFixture(opts.fightState) : null,
     world: worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
-    story: buildStory({ empty: opts.empty }),
+    story: buildStory({ empty: opts.empty, planShown: opts.planShown }),
     settings: buildSettings({ rpg: opts.rpg }),
     dossier: Object.fromEntries(Object.keys(DOSSIERS).map(id => [id, dossierFor(id)])),
   };

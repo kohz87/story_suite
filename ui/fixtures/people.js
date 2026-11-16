@@ -103,7 +103,7 @@ export const PEOPLE = Object.freeze({
       followed: false,
       inParty: true,
       mood: 'alert',
-      meters: Object.freeze({ trust: 26, affection: 6, desire: 0, tension: 3 }),
+      meters: Object.freeze({ trust: 30, affection: 18, desire: 0, tension: 0 }),
       where: 'At the Bluewatch stables with the horses',
       doing: 'Tending the dappled mare and grey pony',
       wearing: 'Oiled leather cloak, riding boots',
