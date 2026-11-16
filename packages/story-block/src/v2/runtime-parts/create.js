@@ -305,5 +305,5 @@ export function createRuntime({
         dialogCurrent = typeof current === 'function' ? current : null;
     };
     const setGuardRefresh = fn => { guardRefresh = typeof fn === 'function' ? fn : null; };
-    return { registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
+    return { registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
 }

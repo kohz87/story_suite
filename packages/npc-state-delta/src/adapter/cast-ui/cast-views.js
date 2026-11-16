@@ -1,7 +1,7 @@
 // The game view's Cast screen: the drawn-view registry, tab-pane ownership check, redraw listener helpers, and the frozen
 // widget/screen definitions mounted by Story Block. Redraws delegate to the cast render part and keep the same view lifecycle.
 
-export function createCastViews(session, deps, { bindCastActions, renderDossiers }) {
+export function createCastViews(session, deps, { bindCastActions, renderDossiers }, castPanels) {
     const {
         CAST_SCREEN_ID, CAST_SCREEN_ORDER, CAST_TAB_ID, CAST_WIDGET, doc, DOSSIERS_ICON, DOSSIERS_TITLE, warn,
     } = deps;
@@ -27,6 +27,7 @@ export function createCastViews(session, deps, { bindCastActions, renderDossiers
                 castViews.delete(box);
                 continue;
             }
+            if (castPanels.viewCovered(box)) continue;   // (the flag's people section draws it)
             try { renderDossiers(box, { track: false }); } catch (error) { warn('Story Suite v2 Dossiers screen failed', error); }
         }
     }
@@ -48,9 +49,11 @@ export function createCastViews(session, deps, { bindCastActions, renderDossiers
                 try { renderDossiers(box, { track: false }); } catch (error) { warn('Story Suite v2 Dossiers screen failed', error); }
             };
             draw();
+            const off = castPanels.view(box, draw);   // (flag on: a people section draws it again, once per frame)
             return {
                 update: draw,
                 destroy() {
+                    off?.();
                     castViews.delete(box);
                     box.remove?.();
                 },

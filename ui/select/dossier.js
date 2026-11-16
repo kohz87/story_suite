@@ -54,6 +54,7 @@ function changesOf(meters) {
 }
 
 // npc.cast `opened` / `locked` (notesView, packages/npc-state-delta/src/npc-meters-queries.js:81-104). Opened secret text is a gap (§2.4), so text stays null.
+// Stays on NPC State's query for now (P7): the store's secret rules lose their `at` (the people view strips the key `at` as volatile), so "Opens at Trust 60" cannot be made from the store.
 function secretsOf(row) {
   const opened = Array.isArray(row?.opened) ? row.opened.filter(isRecord) : [];
   const locked = Array.isArray(row?.locked) ? row.locked.filter(isRecord) : [];
@@ -64,12 +65,27 @@ function secretsOf(row) {
   return { opened: opened.length, total: items.length, items };
 }
 
-// keyRelationships lines ("Name — their role | durable dynamic") → ties; a line without the dash is all name. Ids are not linked yet (§12.4 gap), so personId is null.
-function tiesOf(lines) {
+// keyRelationships lines ("Name — their role | durable dynamic") → ties; a line without the dash is all name. A name (or alias) that is a stored person links
+// to them (personId) and brings their portrait; anyone else stays plain text with no portrait key.
+function tiesOf(lines, people) {
+  const byName = new Map();
+  for (const row of Array.isArray(people) ? people.filter(isRecord) : []) for (const label of [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])]) if (keyOf(label) && !byName.has(keyOf(label))) byName.set(keyOf(label), row);
   return strings(lines).map(line => {
     const [name, ...rest] = line.split(' — ');
-    return { personId: null, name: name.trim(), line: rest.join(' — ').split('|').map(part => part.trim()).filter(Boolean).join(' · ') };
+    const who = byName.get(keyOf(name));
+    return {
+      personId: who?.id ?? null, name: name.trim(), line: rest.join(' — ').split('|').map(part => part.trim()).filter(Boolean).join(' · '),
+      ...(who?.portrait ? { portrait: who.portrait } : {}),
+    };
   });
+}
+
+// What the person likes: the dossier's `likes` list, else its custom field "Likes" split at commas, semicolons or line breaks; empty when neither is there.
+function likesOf(dossier) {
+  if (Array.isArray(dossier.likes)) return strings(dossier.likes);
+  const fields = isRecord(dossier.customFields) ? dossier.customFields : {};
+  const label = Object.keys(fields).find(name => keyOf(name) === 'likes');
+  return label && typeof fields[label] === 'string' ? fields[label].split(/[,;\n]/).map(part => part.trim()).filter(Boolean) : [];
 }
 
 // Memory dates and day links are a gap (§2.4): date stays empty.
@@ -85,15 +101,17 @@ function profileOf(dossier) {
     looks: text(dossier.appearance), personality: text(dossier.personality), speech: text(dossier.speech), background: text(dossier.background),
     // Behaviour is merged into Habits (decision 26).
     habits: [...new Set([...strings(dossier.mannerisms), ...strings(dossier.behaviorProfile)])],
+    ...(likesOf(dossier).length ? { likes: likesOf(dossier) } : {}),
   };
 }
 
 /**
- * Dossier view-model from { dossier: npc.dossier, meters?: npc.meters({name}), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
- * keyPeople?: director.keyPeople.view, party?: party.actors, moodTile?: NPC State's moodTile(npc) }; null when npc.dossier gave no answer.
+ * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
+ * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
+ * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, moodTile } = {}) {
+export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, moodTile, people, place } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
   const away = (isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
@@ -101,7 +119,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
   const presumed = dead && dossier.lifeStateCertainty === 'inferred';
   const gender = text(dossier.gender)?.toLocaleLowerCase();
   const genderUnknown = gender !== 'male' && gender !== 'female';
-  const isHere = dossier.present === true && !dead;
+  const isHere = !dead && (dossier.present === true || (Boolean(keyOf(place)) && keyOf(dossier.location) === keyOf(place)));   // (as isHere in ./people.js)
   return {
     id: text(dossier.id) ?? key,
     name: String(dossier.name ?? ''),
@@ -109,7 +127,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
     idLine: idLineOf(dossier, genderUnknown),
     life: presumed ? 'presumed' : dead ? 'deceased' : 'alive',
     genderUnknown,
-    following: Boolean(away),
+    following: dossier.followed === true,
     inParty: (Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key),
     meters: metersOf(dossier),
     stage: stageOf(next),
@@ -120,7 +138,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
       ? { where: text(dossier.location), doing: text(dossier.status), wearing: null, thought: null }
       : { lastPlace: text(away?.place) ?? text(dossier.location), lastSeen: text(away?.newsAgo), said: null },
     scene: null,
-    ties: tiesOf(dossier.keyRelationships),
+    ties: tiesOf(dossier.keyRelationships, people),
     past: pastOf(dossier.memories),
     secrets: secretsOf(cast),
     profile: profileOf(dossier),

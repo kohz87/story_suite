@@ -7,6 +7,8 @@ export function createHostApi({ sdk, redrawHold, getMounts }) {
         preview: (type, payload) => sdk.preview(type, payload),
         // A form with several steps holds the screens' redraw from `committed` until its plan ends (the returned release), then each held redraw runs once.
         hold: () => redrawHold.hold(),
+        // Panels marked dirty instead of drawn (sdk.panels; inert while `suite.redrawScheduler` is off).
+        panels: sdk.panels,
         // A page notice for a result the screen cannot show itself (its form was redrawn away).
         notify: text => globalThis.toastr?.warning?.(text, 'Story Block'),
         commit: token => sdk.commit(token),

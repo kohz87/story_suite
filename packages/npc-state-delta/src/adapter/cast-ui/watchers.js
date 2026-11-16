@@ -9,7 +9,7 @@ const COALESCE_MS = 250;
 const RECHECK_MS = 700;
 const MAX_HOLD_MS = 200000;
 
-export function createWatchers({ warn, delta = null }) {
+export function createWatchers({ warn, delta = null, touch = null }) {
     const watchers = new Set();  // the page API's onChange subscribers
     let last = 0;                // when the listeners last ran
     let timer = null;            // the trailing call waiting
@@ -17,12 +17,17 @@ export function createWatchers({ warn, delta = null }) {
     const generating = () => {
         try { return delta?.()?.generationActive?.() === true; } catch { return false; }
     };
-    function run() {
-        last = Date.now();
-        heldSince = 0;
+    // Every subscriber, then the people sections of sdk.panels (`touch`; nothing while that flag is off).
+    function fire() {
         for (const fn of [...watchers]) {
             try { fn(); } catch (error) { warn('Story Suite v2 cast listener failed', error); }
         }
+        try { touch?.(); } catch (error) { warn('Story Suite v2 cast panels failed', error); }
+    }
+    function run() {
+        last = Date.now();
+        heldSince = 0;
+        fire();
     }
     function later(wait) {
         timer = setTimeout(() => { timer = null; notifyChange(true); }, wait);
@@ -43,5 +48,5 @@ export function createWatchers({ warn, delta = null }) {
         if (wait > 0) { later(wait); return; }
         run();
     }
-    return { watchers, notifyChange };
+    return { watchers, notifyChange, fire };
 }
