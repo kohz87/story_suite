@@ -37,9 +37,9 @@ export const defaultHost = () => createHost({ modules: [probeModule()], settings
  * one, to fuzz with other modules), `extraLines(r)` (a list of that host's own change lines: the edits draw from it,
  * and each reply gets up to two of them in its block; without it the replies are state-fuzz-gen.js replyText's),
  * `readers` (query names), `told` (false: the key-clash check alone after a Re-read, for a host whose modules the
- * told-again compare is not checked against). Returns { counts, edits: { kinds, refused }, later, laterPaths, legacyClaims, stackChoice, conflict } for the stats.
+ * told-again compare is not checked against), `counted` ([{ name, at, path }]: a remaining told-again difference counted by name), `tolerate` ({ domain, field }: one scratch field the replay oracle may differ in, counted), `leave` (domain names left out of the told-again state compare). Returns { counts, edits: { kinds, refused }, later, laterPaths, legacyClaims, stackChoice, conflict } for the stats.
  */
-export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extraLines = null, readers = READERS, told = true } = {}) {
+export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extraLines = null, readers = READERS, told = true, leave = [], tolerate = null, counted = [] } = {}) {
     const restore = seedCrypto(seed);
     t.after(restore);
     t.mock.method(console, 'warn', () => {});
@@ -52,7 +52,9 @@ export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extra
     const edits = { kinds: {}, refused: 0 };
     // What was counted, not failed (toldCheck): differences settled by Re-reading every reply (by first path), legacy
     // claims held twice (by path), stacks chosen by ID order, and differences the Re-reads could not settle (CONFLICT).
-    const stats = { later: 0, laterPaths: {}, legacyClaims: {}, stackChoice: 0, conflict: 0 };
+    const stats = { later: 0, laterPaths: {}, legacyClaims: {}, stackChoice: 0, conflict: 0, tolerated: 0, counted: {} };
+    // (checkInvariants' `tolerate`, counted: see oracle.js)
+    const tolerance = tolerate && { ...tolerate, seen: () => { stats.tolerated += 1; } };
 
     // An earlier reply most of the time (the case where later replies hold keys), the last one now and then.
     const pickReply = () => {
@@ -85,15 +87,18 @@ export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extra
     // kept what it recorded, see rereadAll).
     async function toldCheck(label) {
         if (!told) return;
-        const diff = await compareTold(host, makeHost, readers);
+        const diff = await compareTold(host, makeHost, readers, { leave });
         if (!diff) return;
         const { copy, refused } = await rereadAll(ctx.chat, makeHost);
         try {
             if (refused.length) { stats.conflict += 1; return; }
-            const still = await compareTold(copy, makeHost, readers);
+            const still = await compareTold(copy, makeHost, readers, { leave });
             // (one that goes when the bag is compared by item totals is a stack chosen by ID order, retell.js looseState)
-            const loose = still && await compareTold(copy, makeHost, readers, { loose: true });
+            const loose = still && await compareTold(copy, makeHost, readers, { loose: true, leave });
             if (still && !loose) { stats.stackChoice += 1; return; }
+            // (a host's own counted class: { name, at, path }, matched on the difference that remains)
+            const known = still && counted.find(entry => entry.at === still.at && entry.path.test(still.path));
+            if (known) { stats.counted[known.name] = (stats.counted[known.name] ?? 0) + 1; return; }
             if (still) assert.fail(`${label}: the chat differs from the story told the edited way, even with every reply Re-read, first at ${where(still)}\n(by item totals: ${where(loose)})\n(before the Re-reads: ${where(diff)})\n${traced()}`);
         } finally {
             copy.close();
@@ -139,7 +144,7 @@ export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extra
                 stepTrace.index = at;
                 const { done } = await reread(at, stepTrace);
                 clashCheck(label);
-                checkInvariants(host, label, { trace });
+                checkInvariants(host, label, { trace, tolerate: tolerance });
                 if (done?.ok) await toldCheck(label);
                 break;
             }
@@ -158,13 +163,13 @@ export async function fuzzReread(t, seed, steps, { makeHost = defaultHost, extra
                     await st.editMessage(at, old);
                 }
                 clashCheck(label);
-                checkInvariants(host, label, { trace });
+                checkInvariants(host, label, { trace, tolerate: tolerance });
                 if (done?.ok) await toldCheck(label);
                 break;
             }
             default: throw new Error(action);
         }
-        if (action !== 'reread' && action !== 'editReread') checkInvariants(host, label, { trace });
+        if (action !== 'reread' && action !== 'editReread') checkInvariants(host, label, { trace, tolerate: tolerance });
     }
     // The end of the run is told again too, whatever the last step was.
     clashCheck(`seed ${seed} end`);

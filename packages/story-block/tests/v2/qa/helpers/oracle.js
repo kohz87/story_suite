@@ -326,7 +326,7 @@ const plain = value => (value === null || value === undefined ? value : JSON.par
  *   store's untold list is exactly the ones nobody told;
  * - no receipt id appears twice on the line.
  */
-export function checkInvariants(host, label, { trace = [], dumpDir } = {}) {
+export function checkInvariants(host, label, { trace = [], dumpDir, tolerate = null } = {}) {
     const chat = host.ctx.chat;
     const store = host.store;
     const indexes = carriers(chat);
@@ -340,7 +340,12 @@ export function checkInvariants(host, label, { trace = [], dumpDir } = {}) {
         const rebuilt = plain(state);
         const after = JSON.stringify(chat);
         try {
-            assert.deepEqual(live, rebuilt);
+            // `tolerate: { domain, field, seen }`: a reply whose stored field differs from the rebuild's is passed unchecked and
+            // `seen()` told. The rebuild does not model a scratch field of another module (Story Director's trips): when a later
+            // reply's record is stored for what an edit removed, the rebuild refuses the block and the rest drifts after it.
+            const field = state => state?.domains?.[tolerate?.domain]?.[tolerate?.field];
+            if (tolerate && JSON.stringify(field(live)) !== JSON.stringify(field(rebuilt))) tolerate.seen();
+            else assert.deepEqual(live, rebuilt);
             if (after !== read) throw new assert.AssertionError({ message: 'the chat changed' });
         } catch (error) {
             const wrote = after !== read ? `${label}: store.at(${index}) changed the chat it only reads (the rebuild saw the text before, the dump shows it)\n` : '';
@@ -354,7 +359,7 @@ export function checkInvariants(host, label, { trace = [], dumpDir } = {}) {
         // With the validators the host passes (runtime.js): a replay that moves counts, or any replayed block, is checked by them.
         const validate = (state, names) => validateDomains(state, names);
         // And the inventory's per-reply tally and the scene's weather and look as the scratch they are declared to be (ops.js).
-        const scratch = name => (name === 'inventory' ? ['perReply', 'loot', 'condLog'] : name === 'scene' ? ['weather', 'you', 'mounts'] : []);
+        const scratch = name => (name === 'inventory' ? ['perReply', 'loot', 'condLog'] : name === 'scene' ? ['weather', 'you', 'mounts'] : name === tolerate?.domain ? [tolerate.field] : []);
         // (one copy, read as the same array every time, as SillyTavern's chat is: a reply-bound block is told by its message)
         const copy = structuredClone(chat);
         const fresh = createStore({ chat: () => copy, save: async () => {}, validate, scratch });

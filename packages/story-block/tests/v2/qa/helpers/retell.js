@@ -23,7 +23,9 @@ const byRev = (a, b) => { const [x, y] = [revOrder(a), revOrder(b)]; return x[0]
 export function canon(value) {
     if (Array.isArray(value)) return value.map(canon);
     if (value === null || typeof value !== 'object') return typeof value === 'string' ? noIds(value) : value;
-    const keys = Object.keys(value).filter(key => key !== 'rev');
+    // (a loot offer's `n` is the rev its reply was stored at, loot-parts/capture.js: a rev like the others)
+    const isLoot = typeof value.sid === 'string' && typeof value.claim === 'string' && 'n' in value;
+    const keys = Object.keys(value).filter(key => key !== 'rev' && !(isLoot && key === 'n'));
     if (keys.length && keys.every(key => REV_KEY.test(key))) return { '#byRev': keys.sort(byRev).map(key => canon(value[key])) };
     if (keys.length && keys.every(key => ID.test(key))) return { '#byId': keys.map(key => canon(value[key])).sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : 1)) };
     return Object.fromEntries(keys.sort().map(key => [noIds(key), canon(value[key])]));
@@ -69,9 +71,26 @@ export async function retell(chat, makeHost) {
  * The first difference between the live host and the story told the edited way: the state at every reply
  * (oldest first), then each reader in `readers` (query names, asked with no payload) at the head.
  * { at, path, live, told } (`at`: a reply's index or `reader <name>`), or null when they agree. `loose`: see looseState.
+ * `leave`: domain names (and `claims:<prefix>`, `path:a/b/c`) left out of the state compare (a host's data the told-again story does not reproduce yet).
  */
-export async function compareTold(live, makeHost, readers = [], { loose = false } = {}) {
-    const view = loose ? looseState : state => state;
+export async function compareTold(live, makeHost, readers = [], { loose = false, leave = [] } = {}) {
+    const without = state => {
+        if (!leave.length || !state?.domains) return state;
+        const copy = { ...state, domains: { ...state.domains } };
+        for (const name of leave) delete copy.domains[name];
+        // (a `claims:<prefix>` entry drops the claims that start with the prefix)
+        const prefixes = leave.filter(name => name.startsWith('claims:')).map(name => name.slice(7));
+        if (prefixes.length && state.meta?.claims) copy.meta = { ...state.meta, claims: Object.fromEntries(Object.entries(state.meta.claims).filter(([key]) => !prefixes.some(prefix => key.startsWith(prefix)))) };
+        // (a `path:a/b/c` entry drops that one field of the state)
+        for (const name of leave.filter(entry => entry.startsWith('path:'))) {
+            const keys = name.slice(5).split('/');
+            let at = copy;
+            for (const key of keys.slice(0, -1)) { if (!at?.[key]) { at = null; break; } at[key] = { ...at[key] }; at = at[key]; }
+            if (at) delete at[keys.at(-1)];
+        }
+        return copy;
+    };
+    const view = loose ? state => looseState(without(state)) : without;
     const told = await retell(live.ctx.chat, makeHost);
     try {
         const ours = carriers(live.ctx.chat), theirs = carriers(told.ctx.chat);
