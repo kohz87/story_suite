@@ -53,15 +53,16 @@ export function dayEventsQuery(_state, { day = null } = {}, tools) {
 // The receipts after the note `through` (a receipt ID), in chat order, with the clock and scene they start from; else those
 // after revision `after`. A note that a Re-read kept keeps its ID and sits after that reply's new receipts, so reading from it
 // never reads again what it kept nor files a reply's receipts under a later note, whatever revisions the Re-read gave. The
-// start is worked out from the receipts up to and including that one (an edit that moved the scene is followed; an edit's clock
-// change is not — see the known limit), and is the note's stored `minutes` and `present` where those receipts say nothing (data
+// start is worked out from the receipts up to and including that one (an edit that moved the scene or the clock is followed: moves and
+// settles, as Story Block replays them; a set is taken as stored), with the clock at the last settle among them (`settleAt`), and is the note's stored `minutes` and `present` where those receipts say nothing (data
 // trimmed away). `rev` is for an older state (no `through`) or a note whose receipt is gone.
 function since(list, after, through, minutes, present) {
     const at = typeof through === 'string' && through ? list.findIndex(item => (item?.receipt ?? item)?.id === through) : -1;
     if (at < 0) return { list, after: Number.isSafeInteger(after) ? after : null, minutes, present };
     const prefix = list.slice(0, at + 1);
-    const clock = walkDays(prefix).minutes;
-    return { list: list.slice(at + 1), after: null, minutes: Number.isSafeInteger(clock) ? clock : minutes, present: sceneOf(prefix.map(item => item?.receipt ?? item), present) };
+    const walked = walkDays(prefix);
+    const clock = walked.minutes;
+    return { list: list.slice(at + 1), after: null, settleAt: walked.settleAt, minutes: Number.isSafeInteger(clock) ? clock : minutes, present: sceneOf(prefix.map(item => item?.receipt ?? item), present) };
 }
 
 /**
@@ -76,7 +77,7 @@ export function noteFactsQuery(state, { after: rev = null, through = null, minut
     try { all = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { all = []; }
     const start = since(Array.isArray(all) ? all : [], rev, through, minutes, Array.isArray(present) ? present : []);
     const { list, after } = start;
-    const walk = walkDays(list, { after, minutes: start.minutes });
+    const walk = walkDays(list, { after, minutes: start.minutes, settleAt: start.settleAt });
     const lasting = lastingByRev(state);
     // Who was in the scene: the note's own (`present`, where the last note left it), moved on day by day through the present receipts.
     let scene = start.present;

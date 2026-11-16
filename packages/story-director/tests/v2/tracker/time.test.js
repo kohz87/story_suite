@@ -26,7 +26,7 @@ test('~ time sets the clock; ! time moves it on; ctx.time() reads it', () => {
     assert.equal(minutes(state), gregorian.parse('March 3, 2026, 08:00 am').abs);
     const run = runCommand(state, part.kinds.time.apply, readLine('! time +2h'));
     assert.equal(run.ctx.time(), minutes(state) + 120);
-    assert.deepEqual(run.result.data, { minutes: minutes(state) + 120, from: minutes(state) });
+    assert.deepEqual(run.result.data, { minutes: minutes(state) + 120, from: minutes(state), kind: 'move' });
     assert.equal(run.result.summary, 'Story time: March 3, 2026, 10:00 am.');
     assert.equal(run.result.narrate, false);
     state = run.state;
@@ -95,4 +95,25 @@ test('a date in angle brackets is read, with or without a leading zero; a real n
     const bad = reply(makeState(), '~ time <soonish>', { settings: CUSTOM });
     assert.equal(minutes(bad.state), null);
     assert.ok(lastProblems(bad.state).length > 0);
+});
+
+test('a joined line "~ time <date> · ! time +2h" gives one receipt for its one clock op: from the clock before the command, a set', () => {
+    const state = reply(makeState(), '~ time March 3, 2026, 08:00 am').state;
+    const before = minutes(state);
+    const apply = (line, absolute = () => {}) => runCommand(state, (ctx, input) => part.kinds.time.apply({ ...ctx, absolute }, input), readLine(line));
+    const joined = apply('~ time March 3, 2026, 06:00 pm · ! time +2h');
+    assert.equal(joined.result.data.from, before, 'the clock before the command, not before its last part');
+    assert.equal(joined.result.data.kind, 'set');
+    assert.equal(joined.result.data.minutes, minutes(joined.state));
+    const moves = apply('! time +1h · ! time +2h');
+    assert.deepEqual([moves.result.data.from, moves.result.data.kind], [before, 'move']);
+    // A line "(not used)" is a move of nothing.
+    const bad = apply('~ time March 3, 2026, 25:99 pm');
+    assert.deepEqual([bad.result.data.kind, bad.result.data.from], ['move', undefined]);
+});
+
+test('without Story Block\'s ctx.absolute a date is stored as a move, and its receipt says a move', () => {
+    const state = reply(makeState(), '~ time March 3, 2026, 08:00 am').state;
+    const run = runCommand(state, part.kinds.time.apply, readLine('~ time March 3, 2026, 06:00 pm'));
+    assert.equal(run.result.data.kind, 'move');
 });

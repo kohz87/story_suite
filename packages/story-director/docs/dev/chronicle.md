@@ -84,18 +84,27 @@ Known limit: an edited reply is never noted again. Its note is a kept block (it 
 an edited reply adds is not in the day facts, the written digest or the quest history, and what it removed stays; the
 World screen's lists, read from the domains, show the edit. Tests: `tests/v2/chronicle/note-cursor.test.js` (the real
 host, compared with a fresh telling), `note-outcome.test.js` (an accepted goal's outcome on the real host),
-`note-cursor-units.test.js`, `note-cursor-clock.test.js` (an edit that adds a scene change, and the clock-change known limit, real host) and
+`note-cursor-units.test.js`, `note-cursor-clock.test.js` (an edit that adds a scene change, and one that adds a clock change, real host),
+`note-cursor-clock-moves.test.js` (an edit that adds or removes a day, a middle delete, a swipe, a rewind and the "heard" stamps, each compared with a fresh telling), `clock-step.test.js` (the stepper) and
 `note-cursor-start.test.js`.
 
 The walk starts from the scene the receipts up to and including the cursor say (`since()` in `queries-parts/receipts.js`,
 shared by the note, its gap path and the Journal's "today so far"), so a scene change an edit added is followed by the
 replies after it; where those receipts say nothing (data trimmed) it starts from the note's stored `minutes` and `present`.
 A `gap.through` naming a reply that was deleted falls back to `gap.rev`. The cursor never re-notes, and survives trimming,
-swipes, deletes and Continue. **Known limit (planned follow-up):** a clock change an edit adds is NOT followed. Replies told
-before the edit keep their pre-edit absolute times, so later replies, up to their own time line, can be filed under the day
-before the edit, and that day's written digest keeps them; a fresh telling files them a day later. This is not the same as a
-fresh telling, and no rule in the day walk can make it so while those receipts keep their old times
-(`note-cursor-clock.test.js` pins today's behaviour so a later fix flips it on purpose). Also: a thread's outcome line after
+swipes, deletes and Continue. The walk follows a clock change an edit or delete makes
+as Story Block replays it (`days-parts/clock-step.js`, the one stepper `walkDays` and the World screen's `heard.js` share): a **move** (a duration,
+`director.advance`; receipt `data.kind` `move`, with `data.from` the clock before the command) adds `minutes - from` to the clock walked so
+far; a **set** (a date, a clock face, a skip, the reader's `director.clock`, the seed; `data.kind` `set`) takes its stored `minutes`; a
+`time.settle` only starts a clock that is not started and moves nothing after that. A line "(not used)" moves nothing. A receipt with no
+`kind` (told before) is a set, as it was read before. The time part's settle jump (`walk.settle`) is the walked clock at the settle before it
+to the walked clock now, and `since()` hands on the walked clock of the last settle in the prefix (`settleAt`), so the "While away" skip test in the
+digest command reads the same clock. A joined line (`~ time <date> · ! time +2h`) writes one clock op, so its one receipt has `from` the clock
+before the command and `kind` `set` if any part set it. **Known limits (F4/F6 of the CHRONCLOCK plan):** a set is taken as Story Block replays it (stored, never read again),
+so after an edit that moves the clock a `~ time 9:30 pm` clock face or a `! time next morning` skip told after it leaves the head clock itself a day
+off from a fresh telling; and what the notes already stored, and digests already written, for replies between the edited reply and the newest one keep their day (re-filing them
+is the planned notes follow-up). A kept `time.settle` also still gives one extra settle after an edit (state, harmless to the chronicle). The walk mirrors an op only where a
+receipt does: a `director.advance` a module calls through `ctx.call` has no receipt (none does today). Also: a thread's outcome line after
 a grown Re-read of the reply that resolved the goal takes a new revision, so a paid turn-in settled later could sort before
 it in that thread's history, unlike a fresh telling (rare; nothing else reads the order).
 
