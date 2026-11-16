@@ -2,7 +2,7 @@ import { createParticipant, memoryVault } from '../src/storysuite-participant/in
 import { buildCheckpoint } from '../src/storysuite-participant/index.js';
 import { hashJson } from '../src/storysuite-participant/hash.js';
 
-export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });
+export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], present: true, lifeState: 'alive', trust: 3, ...extra });
 export const freshState = () => ({
     npcs: [npc('npc_mira', 'Mira', { aliases: ['The Weaver'] }), npc('npc_tom', 'Old Tom')],
     socialGraph: { edges: [{ a: 'npc_mira', b: 'npc_tom', kind: 'friends' }] },

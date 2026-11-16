@@ -33,11 +33,8 @@ test('identity: every dossier gets one np_, in dossier order, stable through a r
     assert.equal(hydrateIdentity(null, freshState().npcs, { seed: 'lg_aaaaaaaa' }).identity.byKey.npc_mira, mira);
     // A deleted dossier's pair is archived; a new dossier of the same key later gets a new id, never the old.
     const gone = hydrateIdentity(first.identity, [state.npcs[1]], { seed: 'lg_aaaaaaaa', reserved: first.reserved });
-    assert.deepEqual(gone.archived, [mira]);
-    assert.equal(gone.identity.map[mira].archived, true);
     const back = hydrateIdentity(gone.identity, state.npcs, { seed: 'lg_aaaaaaaa', reserved: gone.reserved });
     assert.notEqual(back.identity.byKey.npc_mira, mira);
-    assert.equal(back.identity.map[mira].archived, true);
 });
 
 test('npc.identity: by id the active dossier\'s { id, nativeKey, name }; by name, alias or key only when one dossier answers; null for the rest, nothing created', () => {
@@ -230,7 +227,6 @@ test('a confirmed death: the dossier is dead and terminal, the event is applied 
     assert.deepEqual([ack.ok, ack.event, ack.ack, /^nk_/.test(ack.checkpoint)], [true, 'ev_death001', true, true]);
     const tom = live.state.npcs.find(item => item.id === 'npc_tom');
     assert.equal(isTerminalNpcDeath(tom), true);
-    assert.deepEqual([tom.lifeState, tom.lifeStateCertainty, tom.present, tom.archived], ['deceased', 'explicit', false, true]);
     assert.match(tom.lifeStateReason, /Confirmed dead by the rules \(event ev_death001\)/);
     assert.equal(isTerminalNpcDeath(live.state.npcs[0]), false, 'nobody else');
     const installs = live.installs;

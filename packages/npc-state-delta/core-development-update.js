@@ -236,7 +236,7 @@ export function applyDurableProfileUpdate(npc, raw = {}, options = {}) {
         if (manualFields.has(field)) continue;
         const value = typeof incoming[field] === 'string' ? incoming[field].trim() : '';
         if (!value || value === String(npc[field] ?? '').trim()) continue;
-        if (!durableTextAccepted(field, npc, incoming, value, options)) continue;
+        if (!durableTextAccepted(field, npc, incoming, value, { ...options, profileUpdate: true })) continue;
         npc[field] = value;
         changed = true;
     }

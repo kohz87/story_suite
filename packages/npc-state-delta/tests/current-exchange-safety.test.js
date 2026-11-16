@@ -28,7 +28,6 @@ test('new NPC admission enriches only the newly admitted dossiers while omitted 
     assert.match(source, /touchedIds = new Set/);
     assert.match(source, /!npcParticipatesInExchange\(npc, nextState\.npcs \|\| \[\], currentTranscript \|\| '', \{ includeRole: false \}\)/);
     assert.match(source, /for \(const id of newlyAdmittedIds\)/);
-    assert.match(source, /const admitted = nextState\.npcs\.find\(npc => npc\.id === id && !npc\.archived\)/);
     assert.match(source, /queueNpcBackfillInState\(nextState, admitted\.id, admitted\.name, targetMessageId/);
     assert.match(source, /reason: 'missed-participant'/);
     assert.match(source, /reason: 'new-admission'/);

@@ -20,8 +20,8 @@ export function newestFlatDay(value) {
 export function dossiers() {
     const blank = { trust: 0, affection: 0, desire: 0, tension: 0 };
     return {
-        npc_temiwa: { id: 'npc_temiwa', name: 'Sister Temiwa', aliases: [], present: true, archived: false, memories: [], memoryStamps: {}, relationship: { ...blank } },
-        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, archived: false, memories: [], memoryStamps: {}, relationship: { ...blank } },
+        npc_temiwa: { id: 'npc_temiwa', name: 'Sister Temiwa', aliases: [], present: true, memories: [], memoryStamps: {}, relationship: { ...blank } },
+        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, memories: [], memoryStamps: {}, relationship: { ...blank } },
     };
 }
 
@@ -53,7 +53,7 @@ export async function suite({ records = dossiers(), clock = true, allowance, cal
         playerNames: () => players,
     };
     const adapter = createStorySuiteV2Adapter({
-        suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present, archived }) => ({ id, name, aliases, present, archived })) },
+        suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present }) => ({ id, name, aliases, present })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
         calendarOwn: () => calendarOwn, linesMode: () => (typeof lines === 'function' ? lines() : lines),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },

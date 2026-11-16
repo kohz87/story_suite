@@ -6,7 +6,7 @@ import { hashJson } from '../../../story-block/src/v2/replay.js';
 import { crash } from '../../../story-block/src/v2/timeline/index.js';
 import { MODULE_ID, createParticipant, memoryVault } from '../../src/storysuite-participant/index.js';
 
-export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });
+export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], present: true, lifeState: 'alive', trust: 3, ...extra });
 export const BATCH = { id: 'br_batch001', hash: hashJson({ batch: 'br_batch001', outcome: 'dead' }) };
 export const clone = value => JSON.parse(JSON.stringify(value));
 export { MODULE_ID, crash, hashJson };

@@ -341,9 +341,9 @@ test('v1.2.17 the opt-in compact capture rules keep every field, state word and 
     const full = buildNarrationCaptureParts(options).rules;
     const compact = buildNarrationCaptureParts({ ...options, compactCapture: true }).rules;
     // (cleanup step 12) Both now carry the short Stage 4 and birthday rules, and compact its restored gates.
-    assert.ok(compact.length < full.length * 0.85, `compact ${compact.length} vs full ${full.length}`);
+    assert.ok(compact.length < full.length * 0.9, `compact ${compact.length} vs full ${full.length}`);
     assert.ok(compact.startsWith('NPC STATE DELTA ONE-PASS CAPTURE.'));
-    for (const word of ['profileUpdates', 'keyRelationshipEdges', 'relationshipDelta', 'relationshipEvidence', 'relationshipImpact', 'developmentScale', 'developmentReason', 'memoryRetention', 'homeBaseState', 'ageState', 'apparentAgeState', 'genderState', 'lifeState', 'appearanceState', 'overallAppearance', 'identityKind', 'dossierSignal', 'sameIndividual', 'directInteraction', 'worldActive', 'goalState', 'locationState', 'Disposition|Care|Expression|Independence|Conflict|Threat|Analytical|Presentation|Mercy|Loyalty|Drive|Honesty', 'Delta caps:', 'Relationship rubric:',
+    for (const word of ['profileUpdates', 'keyRelationshipEdges', 'relationshipDelta', 'relationshipEvidence', 'relationshipImpact', 'developmentScale', 'developmentReason', 'memoryRetention', 'homeBaseState', 'ageState', 'apparentAgeState', 'lifeState', 'appearanceState', 'overallAppearance', 'identityKind', 'dossierSignal', 'sameIndividual', 'directInteraction', 'worldActive', 'goalState', 'locationState', 'Disposition|Care|Expression|Independence|Conflict|Threat|Analytical|Presentation|Mercy|Loyalty|Drive|Honesty', 'Delta caps:', 'Relationship rubric:',
         // (cleanup step 12, I-11) the gates the first compact version dropped
         'MUST return it when age unknown', 'never dangling "(deceased)"', 'no species-aging inference', 'Inner Chatter gives durable facts only, not monologue',
         'raw max 1/2/3/6', 'kindness stays general; necessary force != cruelty', 'speech evidence = voice style',

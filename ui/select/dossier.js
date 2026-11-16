@@ -25,10 +25,10 @@ function moodBarsOf(tile, cast) {
   return ok ? { feeling: raw[0], energy: raw[1], control: raw[2] } : undefined;
 }
 
-// "Species · gender · age"; an unknown gender reads "gender unknown" (26).
+// "Species · gender · age"; an unstated gender reads "gender not stated" (26).
 function idLineOf(dossier, genderUnknown) {
   const gender = text(dossier.gender)?.toLocaleLowerCase();
-  return [text(dossier.species), genderUnknown ? 'gender unknown' : gender, text(dossier.age)].filter(Boolean).join(' · ');
+  return [text(dossier.species), genderUnknown ? 'gender not stated' : gender, text(dossier.age)].filter(Boolean).join(' · ');
 }
 
 // npc.next (packages/npc-state-delta/src/npc-meters-queries.js:47-77 (ladderView), served by npc.next :213): { rank, next: { name, needs: [{ label, at, below, met }], milestone }, risk, text }; null without a ladder.

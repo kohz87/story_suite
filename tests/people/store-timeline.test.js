@@ -11,13 +11,13 @@ import { hashJson } from '../../packages/npc-state-delta/src/storysuite-particip
 const people = rig => rig.host.head().domains.people ?? null;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-// What Delta changes at reply n: a new person at 3, 7 and 11, a moving stage and trust, a candidate, an edge, a portrait, a dismissal.
+// What Delta changes at reply n: a new person at 3, 7 and 11, a moving seen count, a candidate, an edge, a portrait, a dismissal.
 function edit(n) {
     return state => {
         state.turn = n + 1;
-        state.npcs[0].trust = n;
-        state.npcs[1].stage = n % 4;
-        if (n % 4 === 3) state.npcs.push(record(`p${n}`, { stage: 1 }));
+        state.npcs[0].seenCount = n;
+        state.npcs[1].seenCount = n % 4;
+        if (n % 4 === 3) state.npcs.push(record(`p${n}`, { seenCount: 1 }));
         state.candidates = n % 2 ? [{ name: `Wren ${n}` }] : [];
         state.socialGraph = n > 2 ? { edges: [{ a: state.npcs[0].id, b: state.npcs[1].id, kind: `kind${n % 3}` }] } : { edges: [] };
         state.portraitAssets = n > 5 ? { [state.npcs[0].id]: { path: `/user/files/portrait-${n}.png`, type: 'image/png', hash: `h${n}` } } : {};
@@ -32,7 +32,7 @@ test('a 12-reply script: after every reply the head, the cache and the oracle ag
         assert.equal(await rig.reply(`Turn ${n}.`, edit(n)), true, `reply ${n} settled`);
         await proveHead(rig, `reply ${n}`);
     }
-    assert.equal(rig.host.head().domains.people.npcs[idOf('mira')].trust, 12);
+    assert.equal(rig.host.head().domains.people.npcs[idOf('mira')].seenCount, 12);
     assert.equal(JSON.stringify(people(rig)).includes('updatedAt'), false);
     assert.deepEqual(rig.warnings, []);
     assert.ok(rig.sends.length >= 12 && rig.sends.every(code => code === 'ok'), `every send was accepted: ${rig.sends}`);
@@ -53,9 +53,9 @@ test('a head swipe and swiping back: the people follow the selected swipe, with 
     const first = structuredClone(people(rig));
     await rig.host.swipe('Another reply.');
     await proveHead(rig, 'new swipe (carries the people of before it)');
-    await rig.publish(state => { state.npcs[0].trust = 99; state.turn = 40; });
+    await rig.publish(state => { state.npcs[0].seenCount = 99; state.turn = 40; });
     await proveHead(rig, 'second swipe changed');
-    assert.equal(people(rig).npcs[idOf('mira')].trust, 99);
+    assert.equal(people(rig).npcs[idOf('mira')].seenCount, 99);
     await rig.host.st.swipeTo(rig.host.store.headIndex(), 0);
     await proveHead(rig, 'swipe back');
     assert.deepEqual(people(rig), first, 'the first swipe brings its people back');

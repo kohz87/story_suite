@@ -9,7 +9,7 @@ import { peopleView, peopleState } from '../src/people/view.js';
 import { hashJson } from '../src/storysuite-participant/hash.js';
 
 function rig({ failWrite = false } = {}) {
-    const fake = { state: { npcs: [{ id: 'npc_mira', name: 'Mira', aliases: [], archived: false, lifeState: 'alive' }, { id: 'npc_tom', name: 'Tom', aliases: [], archived: false, lifeState: 'alive' }], candidates: [], socialGraph: {}, turn: 1 }, head: 'h1', writes: 0 };
+    const fake = { state: { npcs: [{ id: 'npc_mira', name: 'Mira', aliases: [], lifeState: 'alive' }, { id: 'npc_tom', name: 'Tom', aliases: [], lifeState: 'alive' }], candidates: [], socialGraph: {}, turn: 1 }, head: 'h1', writes: 0 };
     fake.slice = peopleView(fake.state);
     const sdk = {
         query: name => (name === 'people.hash' ? hashJson(fake.slice) : undefined),

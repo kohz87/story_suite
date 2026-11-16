@@ -35,7 +35,7 @@ async function hotfixChecks(mockState, eventSource, manualAddNpc, sleep, extRoot
         return new Promise(resolve => { release = () => resolve({ ok: false, status: 413, text: async () => 'synthetic size rejection' }); });
     };
     try {
-        assert.equal(await runtime.archive(npc.id), true);
+        assert.equal(await runtime.setPortraitSeed(npc.id, 7, { chatKey: key }), true);
         const save = runtime.flush();
         await waitUntil(() => release);
         assert.equal(await runtime.updateAppearance(npc.id, { currentForm: 'Human', formsText: 'Human | Newer accepted blue coat.' }, { chatKey: key, lockAppearance: true }), true);
@@ -50,7 +50,6 @@ async function hotfixChecks(mockState, eventSource, manualAddNpc, sleep, extRoot
     for (let i = 0; i < 8; i++) await open(`v110-eviction-${i}`);
     await open('v110-persistence');
     assert.equal(runtime.persistenceStatus().currentChatPending, true);
-    assert.equal(runtime.getNpc(npc.id).archived, true);
     assert.match(runtime.getNpc(npc.id).appearance, /blue coat/);
     await runtime.flush();
     assert.equal(runtime.persistenceStatus().currentChatPending, false);

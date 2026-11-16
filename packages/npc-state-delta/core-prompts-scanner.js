@@ -104,7 +104,6 @@ export function buildScannerPrompt({
             worldActive: Boolean(npc.worldActive),
             ...(lifeState !== 'unknown' ? { lifeState } : {}),
             ...(lifeStateCertainty ? { lifeStateCertainty } : {}),
-            ...(npc.archived ? { archived: true, archiveReason: npc.archiveReason || '' } : {}),
             ...(age ? { age } : {}),
             ...(apparentAge ? { apparentAge } : {}),
             ...(goal ? { goal } : {}),

@@ -7,16 +7,15 @@ import { peopleQueries } from '../../../src/v2/domains/people/queries.js';
 
 const person = (id, name, extra = {}) => ({ id, name, ...extra });
 const view = {
-    v: 1, order: ['npc_ann', 'npc_bea', 'npc_cy', 'npc_dee', 'npc_old'],
+    v: 1, order: ['npc_ann', 'npc_bea', 'npc_cy', 'npc_dee'],
     npcs: {
         npc_ann: person('npc_ann', 'Ann', { aliases: ['The Smith'], present: true, role: 'smith', mood: 'calm', location: 'the forge', secrets: [{ id: 's1', title: 'The Second Ledger', text: 'hidden' }] }),
         npc_bea: person('npc_bea', 'Bea', { followed: true, lastSeenTurn: 1, relationship: { trust: 4, affection: 1, desire: 0, tension: 0 } }),
         npc_cy: person('npc_cy', 'Cy', { lastSeenTurn: 1 }),
         npc_dee: person('npc_dee', 'Dee', { lastSeenTurn: 40, portrait: { path: '/user/files/dee.webp', type: 'image/webp', hash: 'h' } }),
-        npc_old: person('npc_old', 'Old', { archived: true }),
     },
     candidates: [], dismissed: [], userDismissedGroups: [], turn: 40,
-    socialGraph: { edges: [{ aId: 'npc_ann', bId: 'npc_bea', aToB: 'sister', bToA: 'sister' }, { aId: 'npc_ann', bId: 'npc_old', aToB: 'friend', bToA: '' }] },
+    socialGraph: { edges: [{ aId: 'npc_ann', bId: 'npc_bea', aToB: 'sister', bToA: 'sister' }] },
     portraitAssets: { npc_ann: { path: '/user/files/ann.webp', type: 'image/webp', hash: 'a' }, npc_cy: { path: '//evil.example/x.png', type: 'image/png', hash: 'c' } },
 };
 
@@ -31,7 +30,7 @@ async function rig(t) {
 }
 const row = (host, name) => host.sdk.query('people.list', {}).find(item => item.name === name);
 
-test('people.list: stored, not archived people in order, with here, followed, dormant, the bonds\' or the record\'s meters and a safe portrait', async t => {
+test('people.list: stored people in order, with here, followed, dormant, the bonds\' or the record\'s meters and a safe portrait', async t => {
     const host = await rig(t);
     const list = host.sdk.query('people.list', {});
     assert.deepEqual(list.map(item => item.name), ['Ann', 'Bea', 'Cy', 'Dee']);
@@ -50,7 +49,6 @@ test('people.list: stored, not archived people in order, with here, followed, do
 test('people.dossier finds by id, name or alias; joins the bonds; leaves the portrait file out of the fields', async t => {
     const host = await rig(t);
     for (const args of [{ id: 'npc_ann' }, { name: 'ann' }, { name: 'the smith' }]) assert.equal(host.sdk.query('people.dossier', args).id, 'npc_ann', JSON.stringify(args));
-    assert.equal(host.sdk.query('people.dossier', { name: 'Old' }), null, 'an archived person is not listed');
     assert.equal(host.sdk.query('people.dossier', { name: 'Nobody' }), null);
     const dossier = host.sdk.query('people.dossier', { id: 'npc_dee' });
     assert.equal(dossier.portrait, '/user/files/dee.webp');

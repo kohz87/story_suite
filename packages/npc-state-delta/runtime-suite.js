@@ -7,6 +7,7 @@ import { extension_settings } from '../../../extensions.js';
 import { recentTranscript } from './src/transcript.js';
 import { NPC_STATE_VERSION, buildNarrationCapturePrompt, setExternalCalendarSource } from './core.js';
 import { storySuite } from './suite.js';
+import { isTerminalNpcDeath } from './terminal-lifecycle.js';
 import { SUITE_AREAS, SUITE_SHOWS, NARRATION_CAPTURE_OUTPUT_ESTIMATE_CHARS, announceNpcStateDelta, areaOwner, buildManageApi, buildNpcProfiles, ensureSuiteStylesheet, replyTokenEstimate, resolveDossierTarget, externalCalendar, normalizeSourceOfTruth, statsOverlapWarning, suiteManageAvailable } from './suite-handshake.js';
 import { EXTENSION_NAME, persistSettings, getSettings, effectiveCustomFieldNames } from './runtime-settings.js';
 
@@ -26,7 +27,7 @@ export function createSuitePart(rt, deps) {
                 name: String(npc?.name || ''),
                 aliases: [...(npc?.aliases || [])],
                 present: Boolean(npc?.present && !npc?.archived),
-                archived: Boolean(npc?.archived),
+                archived: Boolean(npc?.archived) || isTerminalNpcDeath(npc),   // P6: no archive flag; a confirmed death is out of the cast list as the death archive was
             }));
         },
         /** The tracked, non-archived, not-deceased NPCs' { id, name, aliases, present, role, summary } (frozen copies; empty until the chat's dossiers load). */

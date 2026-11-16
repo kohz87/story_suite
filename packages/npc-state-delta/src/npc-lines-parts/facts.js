@@ -17,7 +17,7 @@ const READ = Object.freeze({
 });
 const NOT = Object.freeze({ gender: 'is not male or female', age: 'is not a story age', birthday: 'is not a date' });
 
-/** → { set: { gender?, age?, birthday? }, problems }; `held`: the dossier record's own values; `read`: true (lines mode) reads each fact as above, off keeps the line's text as written. */
+/** → { set: { gender?, age?, birthday? }, problems }; `held`: the dossier record's own values; `read`: true (lines mode) reads each fact as above, off keeps the line's text as written (as on main). */
 export function factFields(fields, held, read = true) {
     const set = {};
     const problems = [];
@@ -27,7 +27,7 @@ export function factFields(fields, held, read = true) {
         if (!text || unknownWord(text)) problems.push(`${name}: "${clean(fields[name], 40)}" says nothing; not used.`);
         else if (HELD[name].some(key => String(held?.[key] ?? '').trim())) problems.push(`${name} is already set for this person; a line does not change it.`);
         else if (!read) set[name] = text;
-        else if (READ[name](text) === null) problems.push(`${name}: "${clean(fields[name], 40)}" ${NOT[name]}; not used.`);
+        else if (READ[name](text) === null) problems.push(`${name}: "${clean(fields[name], 40)}" ${NOT[name]}; not used${name === 'gender' ? ' (gender stays not stated)' : ''}.`);
         else set[name] = READ[name](text);
     }
     return { set, problems };

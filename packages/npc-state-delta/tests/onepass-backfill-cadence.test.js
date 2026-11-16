@@ -223,7 +223,7 @@ test('catch-up: every due NPC is held from the reply backfill; a newly met NPC k
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
     const key = 'chat-x';
     const state = {
-        npcs: [{ id: 'new1', archived: false, overallAppearance: 'Young human woman' }, { id: 'old1', archived: false }],
+        npcs: [{ id: 'new1', overallAppearance: 'Young human woman' }, { id: 'old1' }],
         pendingBackfills: [
             { npcId: 'new1', reason: 'new-admission', attempts: 0 },
             { npcId: 'old1', reason: 'missed-participant', attempts: 0 },

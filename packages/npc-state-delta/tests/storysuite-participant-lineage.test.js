@@ -110,7 +110,6 @@ test('N2: a deleted native key never gets its np_ back: the key that returns is 
     const tom = timeline().identity.byKey.npc_tom;
     live.state.npcs = live.state.npcs.filter(item => item.id !== 'npc_tom');
     await hydrate();
-    assert.equal(timeline().identity.map[tom].archived, true);
     live.state.npcs.push(npc('npc_tom', 'Old Tom'));
     await hydrate();
     assert.notEqual(timeline().identity.byKey.npc_tom, tom);

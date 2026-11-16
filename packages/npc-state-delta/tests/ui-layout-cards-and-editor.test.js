@@ -58,7 +58,6 @@ test('present cards resolve the current canonical NPC name after identity promot
 test('dossier uses trust affection desire tension and strict presence wording', () => {
     assert.match(dossierUi, /RELATIONSHIP_AXES = Object\.freeze\(\[\['trust', 'Trust'\], \['affection', 'Affection'\], \['desire', 'Desire'\], \['tension', 'Tension'\]\]\)/);
     assert.doesNotMatch(dossierUi, /'Respect'/);
-    assert.match(index, /filter\(npc => !npc\.archived && npc\.present && !npc\.minor\)/);
     assert.match(index, /Only active NPCs present in the latest scanned scene/);
 });
 

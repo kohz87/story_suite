@@ -37,8 +37,6 @@ test('binary bundle round-trips dossiers and raw portrait bytes', () => {
     assert.equal(decoded.metadata.sourceChatKey, 'chat:test');
     assert.equal(decoded.state.npcs[0].name, 'Yunyun');
     assert.equal(decoded.state.npcs[0].role, 'Crimson Demon adventurer');
-    assert.equal(decoded.state.npcs[0].archived, true);
-    assert.equal(decoded.state.npcs[0].archiveReason, 'manual');
     assert.equal(decoded.state.npcs[0].portrait.mime, 'image/webp');
     assert.equal(decoded.state.npcs[0].portrait.sourceName, 'yunyun.webp');
     assert.deepEqual(
@@ -97,23 +95,17 @@ test('import merge can exclude the current player or main card', () => {
 });
 
 
-test('v0.2.7 import roster cap counts only active dossiers and preserves archives', () => {
-    const archivedA = createNpcRecord('Old Knight');
-    archivedA.archived = true;
-    archivedA.archiveReason = 'stale';
-    const archivedB = createNpcRecord('Dead Captain');
-    archivedB.archived = true;
-    archivedB.archiveReason = 'deceased';
+test('P6: an import roster cap counts only living dossiers: a confirmed death does not take a slot', () => {
+    const deadA = { ...createNpcRecord('Dead Captain'), lifeState: 'deceased', lifeStateCertainty: 'explicit' };
+    const deadB = { ...createNpcRecord('Old Knight'), lifeState: 'deceased', lifeStateCertainty: 'explicit' };
     const activeA = createNpcRecord('Falia');
     const activeB = createNpcRecord('Marris');
-
     const merged = mergeImportedDossierState({ npcs: [], dismissed: [] }, {
-        npcs: [archivedA, archivedB, activeA, activeB], dismissed: [],
+        npcs: [deadA, deadB, activeA, activeB], dismissed: [],
     }, { maxNpcs: 1 });
-
-    assert.equal(merged.npcs.filter(npc => npc.archived).length, 2, 'archives must not consume the active roster cap');
-    assert.equal(merged.npcs.filter(npc => !npc.archived).length, 1);
-    assert.ok(merged.npcs.some(npc => npc.name === 'Falia'));
+    assert.ok(merged.npcs.some(npc => npc.name === 'Falia'), 'the first living person is admitted past the dead');
+    assert.ok(merged.npcs.some(npc => npc.name === 'Dead Captain') && merged.npcs.some(npc => npc.name === 'Old Knight'), 'the dead are kept');
+    assert.equal(merged.npcs.some(npc => npc.name === 'Marris'), false, 'the cap still holds for the living');
 });
 
 test('v0.2.11 bundle/import preserves hidden relationship weight progress, milestone audit, and dedupe history', () => {

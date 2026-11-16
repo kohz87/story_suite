@@ -55,7 +55,6 @@ test('branch metadata restore prefers exact id and refuses ambiguous homonym lab
   const result=reconcileBranchState(state,changed,{explicitDivergence:1});
   const restored=result.state.npcs.find(n=>n.id==='npc_new');
   assert.equal(Object.prototype.hasOwnProperty.call(restored,'importance'),false);
-  assert.equal(restored.retentionProtected,false);
 });
 
 test('same-name different-id explicit add/import does not clear a modern deletion tombstone',()=>{
@@ -76,7 +75,6 @@ test('metadata restore still supports a unique label fallback when an id legitim
   const result=preserveUserNpcMetadata([restored],[current]);
   assert.equal(Object.prototype.hasOwnProperty.call(result[0],'importance'),false);
   assert.equal(Object.prototype.hasOwnProperty.call(result[0],'manual'),false);
-  assert.equal(result[0].retentionProtected,true);
 });
 
 

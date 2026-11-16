@@ -42,10 +42,6 @@ export function setNpcArchived(npc, archived, options = {}) {
     if (correcting) {
         const correctionReason = String(options.lifeStateReason || 'Manual correction: the prior death record was marked erroneous.').trim().slice(0, 500);
         Object.assign(next, {
-            archived: false,
-            archiveReason: '',
-            archivedAt: null,
-            archiveSourceMessageId: null,
             lifeState: 'alive',
             lifeStateCertainty: 'explicit',
             lifeStateReason: correctionReason,
@@ -55,7 +51,6 @@ export function setNpcArchived(npc, archived, options = {}) {
                 reason: correctionReason,
                 correctedAt: Date.now(),
                 sourceMessageId: Number.isInteger(options.sourceMessageId) ? options.sourceMessageId : null,
-                previousDeathSourceMessageId: Number.isInteger(current.archiveSourceMessageId) ? current.archiveSourceMessageId : null,
                 previousDeathReason: String(current.lifeStateReason || '').trim().slice(0, 500),
             },
         });
@@ -70,6 +65,6 @@ export function applyNpcStateCommand(state, command, options = {}) {
         const protectedNpc = mechanics.matchingNpcRecords(npc, prior)[0];
         return protectedNpc ? protectTerminalNpc(protectedNpc, applyModel(npc)) : applyModel(npc);
     });
-    if (result.report?.status === 'restored' && prior.some(npc => String(npc.id) === String(result.report.npcId))) result.report.status = 'terminal-death';
+    if (['restored', 'exists'].includes(result.report?.status) && prior.some(npc => String(npc.id) === String(result.report.npcId))) result.report.status = 'terminal-death';
     return result;
 }

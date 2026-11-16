@@ -30,7 +30,7 @@ Before you update an existing install, export a backup from **Data & maintenance
 
 - **Dossiers.** Story Block's Game view has a **Dossiers** screen (and the Story panel a Dossiers tab). It lists every dossier with a search box, the stage and the meters. Tap one to open it. Without Story Block, the floating button or **Open dossiers** in Delta's settings opens the same dossier view.
 - **The dossier.** A portrait, badges, then sections you can jump to: Player, Identity, Current, Profile, Dynamic, Bonds & memories, History and Secrets. **Map** puts the people around you, nearer or farther by warmth, trust, affection, desire or tension. **Dossier library** at the bottom lists everyone.
-- **Edit, Refresh, More.** **Edit** changes any field by hand. Tick "Protect edited stable profile fields" and scans leave those fields alone. **Refresh** re-reads the recent story for that one person. **More** has Scan dossier, Portrait, Diagnostics and Archive. **Add NPC** (in Delta's settings) adds someone the scan missed.
+- **Edit, Refresh, More.** **Edit** changes any field by hand. Tick "Protect edited stable profile fields" and scans leave those fields alone. **Refresh** re-reads the recent story for that one person. **More** has Scan dossier, Portrait and Diagnostics. **Add NPC** (in Delta's settings) adds someone the scan missed.
 - **The reply card.** Under each reply, Story Block's card shows the meters of the people who are here and what that reply changed.
 - **People here.** With Story Director, the World screen draws a card for each person present: portrait, name, standing and one line about them. Tap it to open the dossier. Without Story Director, those cards sit at the top of Dossiers.
 - **Cast.** When you meet someone from a pack's cast, their dossier appears on that same reply, already written from the pack. A badge such as "Ersveil cast" shows where you first met them. Delta never overwrites a dossier that already exists.
@@ -57,8 +57,8 @@ Before you update an existing install, export a backup from **Data & maintenance
 ## Looking after a dossier
 
 - **If someone is missing**, use **Add NPC**. If a dossier looks stale, open it and use **Refresh**. For an NPC with named forms, the body belongs in each form instead; Refresh or edit the form.
-- A confirmed death archives the dossier. Deceased is final for scans until you correct it by hand.
-- Long-absent people are archived after 30 replies, and those auto-archives are deleted after 50. Manual archives and deaths are kept.
+- A confirmed death takes the person off the scene and is final for scans until you correct it by hand (Restore, only for a wrong death).
+- Long-absent people are removed after 50 replies, unless they matter (a portrait, a cast entry, a bond off its start, a key person): those are kept however long they have been away. There is no archive any more; a person unseen for 30 replies (the "Archive after" setting) is dormant: nothing is deleted or hidden, they stop counting toward the roster cap so a newcomer gets a slot, and they count again when the story brings them back (the dead never count). A story that contradicts a stored gender raises a warning and changes nothing. A gender that was never stated shows "not stated"; once someone has died a stated gender no longer changes (you can still change it by hand).
 - **Data & maintenance** has Backup / Export, Restore / Import, Diagnostics, the chat roster and **Clear chat dossier** (this chat only).
 
 ## Settings worth knowing

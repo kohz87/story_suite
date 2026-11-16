@@ -59,7 +59,7 @@ test('a presumed death is badged, and unknown gender is flagged under the name',
   const badge = el.querySelector('.deadb');
   assert.equal(badge.textContent, 'Presumed dead');
   assert.ok(badge.classList.contains('pres'));
-  assert.match(el.querySelector('.idl .gflag').textContent, /gender unknown/);
+  assert.match(el.querySelector('.idl .gflag').textContent, /gender not stated/);
 });
 
 test('opening a card shows its page with the pager and hides the hero on a phone through the paged class', () => {

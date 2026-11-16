@@ -67,7 +67,7 @@ function fakeDoc() {
 test('the module definition offers hooks.diagnostics: the scanner report, the dossier counts, hosted or not', () => {
     const report = ['Scanner route: the current roleplay connection.'];
     const a = createStorySuiteV2Adapter({
-        suiteApi: { npcs: () => [{ id: '1', name: 'Fenna', present: true, archived: false }, { id: '2', name: 'Bram', present: false, archived: true }] },
+        suiteApi: { npcs: () => [{ id: '1', name: 'Fenna', present: true }, { id: '2', name: 'Bram', present: false, archived: true }] },
         delta: () => ({ isEnabled: () => true, scannerReport: () => report }),
         host: () => null, doc: fakeDoc(), logger: { warn() {} },
     });

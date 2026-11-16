@@ -71,16 +71,16 @@ test('a change NPC State makes while the death is being stored is kept, and so i
     const hydrations = rig.hydrations.length;
     rig.live.state.pendingBackfills = [{ id: 'bf1' }];
     rig.live.state.readAhead = [3];
-    // While the death's write is awaited, a scan adds Wren and moves Mira's trust (its own announcement may come later; the death's last commit stores the cache as it is).
+    // While the death's write is awaited, a scan adds Wren and moves Mira's mood (its own announcement may come later; the death's last commit stores the cache as it is).
     box.during = () => {
-        rig.live.state.npcs.push({ id: 'npc_wren', name: 'WREN', aliases: [], archived: false, present: true, lifeState: 'alive', trust: 1 });
-        rig.live.state.npcs.find(item => item.id === 'npc_mira').trust = 9;
+        rig.live.state.npcs.push({ id: 'npc_wren', name: 'WREN', aliases: [], present: true, lifeState: 'alive' });
+        rig.live.state.npcs.find(item => item.id === 'npc_mira').mood = 'shaken';
     };
     const out = await rig.adapter.confirmDeath({ event: 'de_r2', npc: who.id, expectedHead: await headOf(rig) });
     assert.equal(out.ok, true, out.message);
     const mira = rig.live.state.npcs.find(item => item.id === 'npc_mira');
     assert.equal(mira.lifeState, 'deceased', 'the death is on the cache');
-    assert.equal(mira.trust, 9, 'the change made during the commit is on the dead person\'s record too');
+    assert.equal(mira.mood, 'shaken', 'the change made during the commit is on the dead person\'s record too');
     assert.ok(rig.live.state.npcs.some(item => item.id === 'npc_wren'), 'the person made during the commit is kept');
     assert.deepEqual(rig.live.state.pendingBackfills, [{ id: 'bf1' }], 'pending backfills stay');
     assert.deepEqual(rig.live.state.readAhead, [3], 'read-ahead stays');

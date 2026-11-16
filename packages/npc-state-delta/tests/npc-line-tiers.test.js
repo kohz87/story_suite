@@ -12,10 +12,10 @@ import { applyRelationshipDelta } from '../core-mechanics.js';
 function dossiers() {
     return {
         npc_mira: {
-            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true, archived: false,
+            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true,
             relationship: { trust: 10, affection: 0, desire: 0, tension: 0 },
         },
-        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, archived: false, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
+        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: true, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
     };
 }
 

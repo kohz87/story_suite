@@ -33,7 +33,7 @@ function applyLive(ctx, { key, name, record, fields, dossier, world, lines }) {
     for (const part of [lookField(fields), factFields(fields, dossier, lines)]) { Object.assign(set, part.set); problems.push(...part.problems); }
     const guarded = guardFields(set, dossier, name);
     problems.push(...guarded.problems);
-    for (const key of Object.keys(set)) if (!(key in guarded.set)) delete set[key];
+    for (const key of Object.keys(set)) { if (key in guarded.set) set[key] = guarded.set[key]; else delete set[key]; }
     let wrote = false;
     if (Object.keys(set).length && !dossier) problems.push(`${name} has no dossier yet; ${Object.keys(set).join(', ')} not stored.`);
     else if (Object.keys(set).length) { ctx.call('people.fields', { id: key, fields: set }); wrote = true; }

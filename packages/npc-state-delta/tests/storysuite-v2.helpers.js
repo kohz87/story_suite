@@ -158,18 +158,18 @@ export function fakeSdk({ fail = false } = {}) {
 }
 
 export const NPCS = [
-    { id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true, archived: false },
-    { id: 'npc_oren', name: 'Oren', aliases: [], present: false, archived: false },
+    { id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true },
+    { id: 'npc_oren', name: 'Oren', aliases: [], present: false },
     { id: 'npc_kael', name: 'Kael', aliases: [], present: false, archived: true },
 ];
 export const RECORDS = {
     npc_mira: {
         id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], role: 'Blacksmith', species: 'Human', personality: 'Blunt',
         memories: ['Forged the gate'], customFields: { Rank: 'Master' }, relationship: { trust: 12, affection: 3, desire: 0, tension: -4 },
-        present: true, archived: false, lifeState: 'alive',
+        present: true, lifeState: 'alive',
         portraitPromptPositive: 'secret prompt', profileEvidence: { role: ['x'] }, updatedAt: 99, manualProfileFields: ['role'],
     },
-    npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], role: 'Guard', present: false, archived: false },
+    npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], role: 'Guard', present: false },
 };
 export const PNG = 'data:image/png;base64,iVBORw0KGgo=';
 export const WEBP = 'data:image/webp;base64,UklGRg==';

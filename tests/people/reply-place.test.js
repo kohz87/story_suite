@@ -6,26 +6,26 @@ import { peopleRig } from './helpers/people-rig.js';
 
 test('a plain new reply calls no rescan (every reply has block ordinal 0 in the real host)', async t => {
     const rig = await peopleRig(t);
-    for (let n = 1; n <= 4; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.npcs[0].trust = n; }), true);
+    for (let n = 1; n <= 4; n++) assert.equal(await rig.reply(`Turn ${n}.`, state => { state.npcs[0].seenCount = n; }), true);
     assert.equal((await rig.host.sdk.timeline.head({})).source.ordinal, 0, 'the block ordinal is not a reply position');
     assert.equal(rig.rescans.length, 0);
 });
 
 test('a last delete then a new reply rescans nothing the cache already stood on: only the new reply is read', async t => {
     const rig = await peopleRig(t);
-    await rig.reply('One.', state => { state.npcs[0].trust = 1; });
-    await rig.reply('Two.', state => { state.npcs[0].trust = 2; });
+    await rig.reply('One.', state => { state.npcs[0].seenCount = 1; });
+    await rig.reply('Two.', state => { state.npcs[0].seenCount = 2; });
     await rig.host.st.deleteMessage(rig.host.ctx.chat.length - 1);
     assert.equal(await rig.settle(), true);
     assert.equal(rig.rescans.length, 0, 'a delete reads nothing again');
-    await rig.reply('Three.', state => { state.npcs[0].trust = 3; });
+    await rig.reply('Three.', state => { state.npcs[0].seenCount = 3; });
     assert.equal(rig.rescans.length, 0, 'the clamp holds the marker; the new reply is read by the ordinary scan');
 });
 
 test('a swipe is seen as a replaced reply', async t => {
     const rig = await peopleRig(t);
-    await rig.reply('One.', state => { state.npcs[0].trust = 1; });
-    await rig.reply('Two.', state => { state.npcs[0].trust = 2; });
+    await rig.reply('One.', state => { state.npcs[0].seenCount = 1; });
+    await rig.reply('Two.', state => { state.npcs[0].seenCount = 2; });
     const before = rig.rescans.length;
     await rig.host.swipe('Another take, with more in it.');
     for (let i = 0; i < 100 && rig.rescans.length === before; i += 1) await new Promise(resolve => setTimeout(resolve, 10));

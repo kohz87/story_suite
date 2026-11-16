@@ -1,7 +1,7 @@
 // A minimal fake Delta runtime port for createParticipant tests that need no synthetic host: a state held in memory with write counters.
 import { createParticipant, buildCheckpoint, memoryVault, storedTimeline, timelineOf } from '../../src/storysuite-participant/index.js';
 
-export const npc = (id, name) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive' });
+export const npc = (id, name) => ({ id, name, aliases: [], present: true, lifeState: 'alive' });
 export const clone = value => JSON.parse(JSON.stringify(value));
 
 export function seeded(seed = 5) {

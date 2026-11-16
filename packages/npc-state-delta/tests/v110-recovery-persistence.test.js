@@ -213,17 +213,16 @@ test('production receipt checkpoint survives deleting a later user, then reverse
 
 for (const lifecycle of [mechanicsLifecycle, applyStaleNpcLifecycle]) test(`terminal death survives 30/50 cleanup through ${lifecycle === mechanicsLifecycle ? 'mechanics' : 'facade'}`, () => {
     const make = (name, overrides) => ({ ...createNpcRecord(name), manual: false, present: false, worldActive: false, lastSeenTurn: 0, lastWorldActiveTurn: 0, ...overrides });
-    const dead = make('Dead', { lifeState: 'deceased', lifeStateCertainty: 'explicit', archived: false, memories: ['Remembered'] });
+    const dead = make('Dead', { lifeState: 'deceased', lifeStateCertainty: 'explicit', memories: ['Remembered'] });
     const living = make('Living', { lifeState: 'alive' });
-    const protectedNpcs = [dead, make('Manual', { archived: true, archiveReason: 'manual' }), make('Death archive', { archived: true, archiveReason: 'deceased' }), make('Protected', { retentionProtected: true }), make('Present', { present: true }), make('Active', { worldActive: true }), make('Referenced', {})];
+    const protectedNpcs = [dead, make('Present', { present: true }), make('Active', { worldActive: true }), make('Referenced', {})];
     let state = { npcs: [...protectedNpcs, living] };
     for (const turn of [30, 50]) {
         const result = lifecycle(state, { turn, protectedIds: [protectedNpcs.at(-1).id] });
         state = result.state;
         for (const npc of protectedNpcs) assert.ok(state.npcs.some(item => item.id === npc.id));
-        assert.equal(state.npcs.find(npc => npc.id === dead.id).archived, false);
         assert.deepEqual(state.npcs.find(npc => npc.id === dead.id).memories, ['Remembered']);
-        if (turn === 30) assert.deepEqual(result.archived.map(npc => npc.id), [living.id]);
+        if (turn === 30) assert.deepEqual(result.removed.map(npc => npc.id), []);
         else assert.deepEqual(result.removed.map(npc => npc.id), [living.id]);
     }
 });

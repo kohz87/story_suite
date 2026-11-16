@@ -123,7 +123,7 @@ const marro = base('marro', {
 });
 
 const dren = base('dren', {
-  idLine: 'Human · gender unknown',
+  idLine: 'Human · gender not stated',
   life: 'presumed',
   genderUnknown: true,
   mood: null,

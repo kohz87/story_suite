@@ -19,10 +19,6 @@ test('normalizes names across punctuation and casing', () => {
     assert.equal(normalizeName('  Lady Éris!! '), 'lady éris');
 });
 
-test('archive reason contract includes automatic stale archives', () => {
-    for (const reason of ['', 'manual', 'deceased', 'stale']) assert.equal(normalizeNpcRecord({ name: 'Mira', archiveReason: reason }).archiveReason, reason);
-    assert.equal(normalizeNpcRecord({ name: 'Mira', archiveReason: 'forgotten' }).archiveReason, '');
-});
 
 
 test('minor NPC flag survives normalization and does not disable present-state generation injection', () => {

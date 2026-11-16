@@ -21,8 +21,8 @@ function random(seed) {
 function change(r, step) {
     return state => {
         state.turn = step + 1;
-        if (state.npcs.length) state.npcs[r.int(state.npcs.length)].trust = r.int(10);
-        if (r.int(4) === 0 && state.npcs.length < 6) state.npcs.push(record(`f${String(step).padStart(2, "0")}`, { stage: r.int(4) }));
+        if (state.npcs.length) state.npcs[r.int(state.npcs.length)].seenCount = r.int(10);
+        if (r.int(4) === 0 && state.npcs.length < 6) state.npcs.push(record(`f${String(step).padStart(2, "0")}`, { seenCount: r.int(4) }));
         if (r.int(3) === 0) state.candidates = r.int(2) ? [{ name: `Wren ${step}` }] : [];
         if (r.int(3) === 0) if (state.npcs.length > 1) state.socialGraph = { edges: [{ a: state.npcs[0].id, b: state.npcs[1].id, kind: `k${r.int(3)}` }] };
         if (r.int(5) === 0) state.dismissed = [`d${step}`];

@@ -12,6 +12,10 @@ import { CAST_APPEARANCE_WIDE, castAppearanceKept, normalizeAppearanceCanon, nor
 import { impactDayProblems } from '../src/relationship-pacing.js';
 import { normalizeCustomFields } from '../core-record-custom-fields.js';
 
+const ALIAS_KEYS = ['sex', 'race', 'ancestry', 'speciesRace', 'species_race', 'home_base', 'usualLocation', 'usual_location', 'whereToFind', 'where_to_find', 'identity_kind',
+    'portrait_prompt_positive', 'portrait_prompt_negative', 'portrait_prompt_replace', 'portrait_seed', 'behavior_profile', 'key_relationships', 'innerCircle', 'inner_circle',
+    'family', 'profile_evidence', 'relationship_progress', 'relationship_milestones', 'relationship_event_history', 'isMinor', 'is_minor', 'hideFromGallery', 'hide_from_gallery'];
+
 export function normalizeNpcRecord(rawInput = {}) {
     const raw = stripRecordCitations(rawInput);
     const npc = { ...raw };
@@ -151,12 +155,7 @@ export function normalizeNpcRecord(rawInput = {}) {
     npc.lifeState = normalizeLifeState(raw.lifeState);
     npc.lifeStateCertainty = normalizeLifeStateCertainty(raw.lifeStateCertainty);
     npc.lifeStateReason = cleanText(raw.lifeStateReason, 500);
-    npc.archived = normalizeBoolean(raw.archived);
-    npc.archiveReason = raw.archiveReason === 'deceased' ? 'deceased' : (raw.archiveReason === 'stale' ? 'stale' : (raw.archiveReason === 'manual' ? 'manual' : ''));
     npc.minor = normalizeBoolean(raw.minor ?? raw.isMinor ?? raw.is_minor ?? raw.hideFromGallery ?? raw.hide_from_gallery);
-    npc.archivedAt = Number.isFinite(Number(raw.archivedAt)) ? Number(raw.archivedAt) : null;
-    npc.archiveSourceMessageId = Number.isInteger(raw.archiveSourceMessageId) ? raw.archiveSourceMessageId : null;
-    npc.retentionProtected = normalizeBoolean(raw.retentionProtected ?? raw.retention_protected ?? raw.keepFromStaleCleanup ?? raw.keep_from_stale_cleanup);
     npc.lastSeenTurn = Math.max(0, Math.round(Number(raw.lastSeenTurn) || 0));
     npc.lastWorldActiveTurn = Math.max(0, Math.round(Number(raw.lastWorldActiveTurn) || 0));
     npc.seenCount = Math.max(0, Math.round(Number(raw.seenCount) || 0));
@@ -164,6 +163,9 @@ export function normalizeNpcRecord(rawInput = {}) {
     npc.updatedAt = Number.isFinite(Number(raw.updatedAt)) ? Number(raw.updatedAt) : npc.createdAt;
     delete npc.importance;
     delete npc.manual;
-    if (npc.archived) { npc.present = false; npc.worldActive = false; }
+    // P6: no archive or retention fields any more (the old ones in a stored record are dropped here); a death is lifeState 'deceased'.
+    for (const gone of ['archived', 'archiveReason', 'archivedAt', 'archiveSourceMessageId', 'retentionProtected']) delete npc[gone];
+    // The alias spellings are read above and then dropped, so a record holds only the canonical fields (the people store refuses any other key).
+    for (const alias of ALIAS_KEYS) delete npc[alias];
     return npc;
 }

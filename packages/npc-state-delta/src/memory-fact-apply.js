@@ -3,6 +3,7 @@
 import { mergeImportantMemories } from '../core-record-merge.js';
 import { mergeFactMemories } from './memory-fact-store.js';
 import { metFact, moveFact } from './memory-fact-events.js';
+import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 
 // Sets target.memories (and, on the fact path, manualMemories and memoryFacts) from `existing` plus the model's ordinary memories and code-derived candidates.
 export function applyNpcMemories(target, existing, incoming, { limit = 3, sameReply = {}, locked = false, candidates = [] } = {}) {
@@ -33,7 +34,7 @@ export function scanFactCandidates(existing, relationshipUpdate, { facts, R, pla
 // before (`seenCount` moves only on presence, a manual add or a cast dossier made earlier has 0). Created, promoted, seeded and cast alike; a
 // person only mentioned is never present, and an older dossier that was present before carries a count, so it never gets "first met".
 export function firstMeetingCandidates(existing, merged, { facts, R, player } = {}) {
-    if (!facts?.source || !merged?.present || merged.archived || Number(existing?.seenCount) > 0) return [];
+    if (!facts?.source || !merged?.present || merged.archived || isTerminalNpcDeath(merged) || Number(existing?.seenCount) > 0) return [];
     const fact = metFact({ npcId: merged.id, R, source: facts.source, player, place: merged.location });
     return fact ? [fact] : [];
 }

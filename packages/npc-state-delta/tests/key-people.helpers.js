@@ -26,8 +26,8 @@ export const director = () => ({
 
 export async function suite({ settings = {}, features = null, modules = [director()] } = {}) {
     const records = {
-        npc_ren: { id: 'npc_ren', name: 'Ren', aliases: [], present: true, archived: false, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
-        npc_mira: { id: 'npc_mira', name: 'Mira', aliases: [], present: true, archived: false, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
+        npc_ren: { id: 'npc_ren', name: 'Ren', aliases: [], present: true, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
+        npc_mira: { id: 'npc_mira', name: 'Mira', aliases: [], present: true, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
     };
     const host = await createHost({ settings: { modules: { [MODULE_ID]: structuredClone(settings) }, ...(features ? { features: { ...features } } : {}) }, modules });
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };

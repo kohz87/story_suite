@@ -110,7 +110,7 @@ test('a stub made from a title is promoted in place when the story gives a name:
 
 test('a slug collision: the stub takes the next free id for the dossier AND its meter entry (one id for both)', async () => {
     const blank = { trust: 0, affection: 0, desire: 0, tension: 0 };
-    const records = { npc_marta: { id: 'npc_marta', name: 'M\u00e4rta', aliases: [], present: false, archived: false, relationship: { ...blank } } };
+    const records = { npc_marta: { id: 'npc_marta', name: 'M\u00e4rta', aliases: [], present: false, relationship: { ...blank } } };
     const s = await suite({ lines: true, records });
     await s.say(['+ npc Marta | clerk | a braid']);
     const ids = Object.keys(people(s).npcs).sort();

@@ -4,7 +4,7 @@
    Bodies are moved from index.js without change. */
 
 import { currentExclusions } from './src/transcript.js';
-import { NPC_STATE_VERSION, applyNpcStateCommand, isTerminalNpcDeath, manualLifeStateRecord, normalizeName, normalizeNpcRecord, setNpcArchived, normalizePortraitSeed, appearanceDraftRecord, appearanceFingerprint, formPortraitKey, normalizeFormPortraitAssets } from './core.js';
+import { NPC_STATE_VERSION, rosterCount, capMessage, applyNpcStateCommand, isTerminalNpcDeath, manualLifeStateRecord, normalizeName, normalizeNpcRecord, setNpcArchived, normalizePortraitSeed, appearanceDraftRecord, appearanceFingerprint, formPortraitKey, normalizeFormPortraitAssets } from './core.js';
 import { encodeNpcStateBundle, mergeImportedDossierState } from './bundle.js';
 import { decodeDeltaNativeBundle, nativeStateForTarget } from './native-transfer.js';
 import { addUserDismissedGroup } from './branch.js';
@@ -253,13 +253,14 @@ export function createMutationsPart(rt, deps) {
     }
 
     function setNpcArchiveStateById(npcId, archived, { reason = 'manual', confirmAction = true } = {}) {
-        if (!requireReadyChatMutation(archived ? 'archive a dossier' : 'restore a dossier')) return false;
+        if (archived) return false; // P6: a dossier has no archive state any more (P7 removes the button); only a restore, i.e. a death correction, remains
+        if (!requireReadyChatMutation('restore a dossier')) return false;
         const state = getChatState();
         const index = state.npcs.findIndex(item => item.id === npcId);
         if (index < 0) return false;
         const current = state.npcs[index];
         const correctingDeath = !archived && isTerminalNpcDeath(current);
-        if (Boolean(current.archived) === Boolean(archived) && !correctingDeath) return false;
+        if (!correctingDeath) return false;
         if (confirmAction) {
             const message = archived
                 ? `Archive ${current.name}? The dossier, portrait, history, and relationship state will be preserved, but it will stop receiving inline cards and prompt injection until restored or clearly returned in the story.`
@@ -425,17 +426,17 @@ export function createMutationsPart(rt, deps) {
         if (!await ensureFreshMutationBoundary('add an NPC')) return;
         const settings = getSettings();
         const state = getChatState();
-        if (state.npcs.filter(npc => !npc?.archived).length >= settings.maxNpcs) return globalThis.toastr?.warning?.(`NPC State Delta: active roster cap is ${settings.maxNpcs}. Archived dossiers do not count.`);
+        if (rosterCount(state.npcs, state.turn, settings.staleArchiveAfter) >= settings.maxNpcs) return globalThis.toastr?.warning?.(capMessage(settings.maxNpcs));
         const name = window.prompt('NPC name to add to this chat dossier:')?.trim();
         if (!name) return;
         const result = applyNpcStateCommand(state, { action: 'add', name }, {
-            maxNpcs: settings.maxNpcs,
+            maxNpcs: settings.maxNpcs, archiveAfter: settings.staleArchiveAfter,
             excludeNames: currentExclusions(),
             turn: state.turn,
             relationshipBaseline: settings.relationshipBaseline,
         });
         if (result.report.status === 'excluded') return globalThis.toastr?.warning?.('NPC State Delta: player/main character cannot be added as an NPC.');
-        if (result.report.status === 'full') return globalThis.toastr?.warning?.(`NPC State Delta: active roster cap is ${settings.maxNpcs}. Archived dossiers do not count.`);
+        if (result.report.status === 'full') return globalThis.toastr?.warning?.(capMessage(settings.maxNpcs));
         if (['added', 'exists', 'restored'].includes(result.report.status)) clearUserDismissedSuppression(result.state, name);
         const targetMessageId = latestMessageId(false);
         if (targetMessageId >= 0) commitBranchCheckpoint(result.state, targetMessageId, 'manual-add');

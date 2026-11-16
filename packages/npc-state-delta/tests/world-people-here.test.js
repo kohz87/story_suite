@@ -109,7 +109,7 @@ function fakePage() {
     return doc;
 }
 
-const NPCS = [{ id: 'npc_temiwa', name: 'Sister Temiwa', aliases: [], present: true, archived: false, role: 'Healer' }];
+const NPCS = [{ id: 'npc_temiwa', name: 'Sister Temiwa', aliases: [], present: true, role: 'Healer' }];
 const CAST = [{
     key: 'npc_temiwa', name: 'Sister Temiwa', present: true, rank: 'Tolerates you',
     next: 'Next: Patches you without the sermon - trust 25/45',

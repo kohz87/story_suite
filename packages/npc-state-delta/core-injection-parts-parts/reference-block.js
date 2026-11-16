@@ -10,7 +10,7 @@ import { truncateInjectionText } from './truncate.js';
 const REFERENCE_LINE_LIMIT = 4;
 const REFERENCE_LINE_CHARS = 240;
 const MENTIONED_HEADER = 'MENTIONED, NOT PRESENT: NPCs the recent story names. Use these established facts if they come up or arrive; do not bring them on-screen unprompted.';
-const DECEASED_HEADER = 'DECEASED, REFERENCED ONLY: these NPCs are dead and only mentioned. Use these facts; never portray them alive, present, or speaking.';
+const DECEASED_HEADER = 'DECEASED, REFERENCED ONLY: these people are dead and only being talked about. Use these facts; never write them alive, present or speaking. Shown whenever the message or your reply names them by name or alias.';
 
 // NPCs the recent story names who are not in the injected cast get one compact line each: a living
 // off-screen (or archived) NPC its established facts, a confirmed-dead NPC who they were and how they

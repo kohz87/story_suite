@@ -20,14 +20,14 @@ const SECRET_TWO = 'She keeps a second ledger under the anvil.';
 function dossiers() {
     return {
         npc_mira: {
-            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true, archived: false,
+            id: 'npc_mira', name: 'Mira', aliases: ['The Smith'], present: true,
             relationship: { trust: 10, affection: 0, desire: 0, tension: 0 },
             secrets: [
                 { id: secretId('trust', 30, SECRET), meter: 'trust', at: 30, text: SECRET },
                 { id: secretId('tension', -20, SECRET_TWO), meter: 'tension', at: -20, text: SECRET_TWO },
             ],
         },
-        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: false, archived: false, relationship: { trust: -5, affection: 2, desire: 0, tension: 1 } },
+        npc_oren: { id: 'npc_oren', name: 'Oren', aliases: [], present: false, relationship: { trust: -5, affection: 2, desire: 0, tension: 1 } },
     };
 }
 
@@ -205,7 +205,7 @@ test('get follows a meter change: the next read has the new value', async () => 
 
 test('names are matched whole and folded, never split at dots: a name with dots reads by its last segment', async () => {
     const delta = fakeDelta();
-    delta.records.npc_fox = { id: 'npc_fox', name: 'Mr. Fox Jr.', aliases: [], present: false, archived: false, relationship: { trust: 3, affection: 0, desire: 0, tension: 0 } };
+    delta.records.npc_fox = { id: 'npc_fox', name: 'Mr. Fox Jr.', aliases: [], present: false, relationship: { trust: 3, affection: 0, desire: 0, tension: 0 } };
     const h = await host({ delta });
     h.reply('Mr. Fox Jr. bows.', '~ npc Mr. Fox Jr. | trust: +1');
     const d = live(h);
