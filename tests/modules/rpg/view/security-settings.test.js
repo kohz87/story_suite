@@ -3,16 +3,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
-import { buildPanel, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { ROLLS_DEFAULT, rollsOf } from '../../../../src/v2/lean-rpg/view/settings.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
+import { buildPanel, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
+import { ROLLS_DEFAULT, rollsOf } from '../../../../modules/rpg/view/settings.js';
 import { characterDefinition, fakeState, foesDefinition, roleOf, skillsDefinition } from './helpers.js';
 
 const MARK = '<img src=x onerror="globalThis.pwned=1"><b>bold</b>';
 
 test('the view sources use no markup, script or random APIs; only the stylesheet link sets an address', () => {
-    const dir = new URL('../../../../src/v2/lean-rpg/view/', import.meta.url);
+    const dir = new URL('../../../../modules/rpg/view/', import.meta.url);
     const files = readdirSync(dir).filter(file => file.endsWith('.js'));
     assert.deepEqual(files.sort(), ['bars.js', 'battle-log.js', 'changes-lines.js', 'check-card.js', 'distribute.js', 'export.js', 'fight.js', 'gear-card.js', 'gear-stats.js', 'hero-data.js', 'index.js', 'party-data.js', 'party.js', 'settings-data.js', 'settings.js', 'skills.js', 'start.js', 'wizard-data.js', 'wizard.js']);
     for (const file of [...files, '../strings.js']) {

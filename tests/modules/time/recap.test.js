@@ -15,7 +15,7 @@ import { part } from '../../../modules/time/index.js';
 import { AWAY_ARRIVAL_V2, AWAY_DEADLINE_V2, AWAY_RECORD_V2, RECAP_BUDGET, buildRecap, v2Asks } from '../../../modules/time/recap.js';
 import { standing } from '../../../modules/time/settle.js';
 import { CALENDAR, Chat, SETTINGS, thread } from './helpers/fake-ctx.js';
-import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../../modules/rpg/slot.js';
 
 const calendar = makeCalendar(CALENDAR);
 const at = text => calendar.parse(text).abs;

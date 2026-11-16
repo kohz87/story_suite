@@ -5,16 +5,16 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHost, hostAvailable } from '../../../../testkit/index.js';
-import { LEAN_RPG_FEATURE } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { checksOf } from '../../../../src/v2/lean-rpg/practice.js';
-import { success } from '../../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { checksOf } from '../../../../modules/rpg/practice.js';
+import { success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { tailOf } from '../helpers.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const file = [process.env.STORY_SUITE_ROOT, path.resolve(here, '../../../../..')].filter(Boolean).map(root => path.join(root, 'Story_director', 'src', 'v2', 'module.js')).find(existsSync);
+const file = [process.env.STORY_SUITE_ROOT, path.resolve(here, '../../../../packages')].filter(Boolean).map(root => path.join(root, 'Story_director', 'src', 'v2', 'module.js')).find(existsSync);
 let SD = null;
 if (file) { try { SD = await import(pathToFileURL(file).href); } catch { SD = null; } }
 const available = await hostAvailable();

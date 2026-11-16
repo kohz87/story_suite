@@ -1,13 +1,13 @@
 // The New character wizard (src/v2/lean-rpg/view/wizard.js and wizard-data.js, mockup 41-wizard): the data: draft, budget, skills, sets, problems, definitions, room, screen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DM_OLD_ROOM } from '../../../../src/v2/data-modules/schema.js';
-import { validateDataModules } from '../../../../src/v2/data-modules/check.js';
-import { STATS } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES, SKILL_SETS } from '../../../../src/v2/lean-rpg/templates.js';
-import { createWizardScreen, WIZARD_SCREEN_ID, WIZARD_WIDGET } from '../../../../src/v2/lean-rpg/view/wizard.js';
+import { DM_OLD_ROOM } from '../../../../packages/story-block/src/v2/data-modules/schema.js';
+import { validateDataModules } from '../../../../packages/story-block/src/v2/data-modules/check.js';
+import { STATS } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES, SKILL_SETS } from '../../../../modules/rpg/templates.js';
+import { createWizardScreen, WIZARD_SCREEN_ID, WIZARD_WIDGET } from '../../../../modules/rpg/view/wizard.js';
 import { adeptCount, blockNames, buildDefinitions, hasRoom, mayStartAdept, newDraft, pointsLeft, problemsOf, readDraft, setLine, skillSetsOf, statsLine, withSet, withSkill,
-    withSkillPatch, withoutSkill } from '../../../../src/v2/lean-rpg/view/wizard-data.js';
+    withSkillPatch, withoutSkill } from '../../../../modules/rpg/view/wizard-data.js';
 import { CHECK, FIGHTER } from './wizard.helpers.js';
 
 // ---- the data: draft, budget, skills, sets, problems, definitions --------------------------------------------------------------

@@ -10,7 +10,7 @@ import { part as cast } from '../../../../../modules/cast/cast/index.js';
 import { part as names } from '../../../../../modules/cast/names/index.js';
 import { part as pulse } from '../../../../../modules/world/pulse/effects.js';
 import { part as arc } from '../../../../../modules/arc/index.js';
-import { part as checks } from '../../../../../packages/story-director/src/v2/checks/index.js';
+import { part as checks } from '../../../../../modules/rpg/checks/index.js';
 import { part as ripples } from '../../../../../modules/world/ripples/index.js';
 import { part as screens } from '../../screens/index.js';
 

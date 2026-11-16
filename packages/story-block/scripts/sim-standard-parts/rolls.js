@@ -1,8 +1,8 @@
 // The exact odds of one roll over all 400 pairs of dice, and the table of them by difficulty, build and Soul Class.
-import { foeBonus, pair } from '../../src/v2/lean-rpg/formula.js';
-import { STANDARD_PRESETS } from '../../src/v2/lean-rpg/rules.js';
-import { FORMULA } from '../../src/v2/lean-rpg/index.js';
-import { judge } from '../../src/v2/lean-rpg/standard.js';
+import { foeBonus, pair } from '../../../../modules/rpg/formula.js';
+import { STANDARD_PRESETS } from '../../../../modules/rpg/rules.js';
+import { FORMULA } from '../../../../modules/rpg/index.js';
+import { judge } from '../../../../modules/rpg/standard.js';
 import { CLASSES, DIFFICULTIES, BUILDS } from './shared-grid.js';
 import { rankAt, buildAt } from './builds.js';
 

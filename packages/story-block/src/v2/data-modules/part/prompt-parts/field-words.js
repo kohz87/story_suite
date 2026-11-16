@@ -1,7 +1,7 @@
 // Words one field value for the prompt tail: plain values, Lists of entries, display names and bars.
 import { DM_LIMITS as L, dmNameOf, dmDefaultTone } from '../../schema.js';
 import { titlePart } from '../../interpreter.js';
-import { barOf, sizeOf as barSizeOf, spreadWord, wordsOf } from '../../../lean-rpg/blocks.js';
+import { barOf, sizeOf as barSizeOf, spreadWord, wordsOf } from '../../../../../../../modules/rpg/blocks.js';
 import { oneLine } from '../../../../../../../core/text.js';
 
 const valueText = value => (typeof value === 'string' ? JSON.stringify(oneLine(value)) : Array.isArray(value) ? `${value.length} ${value.length === 1 ? 'entry' : 'entries'}` : String(value));

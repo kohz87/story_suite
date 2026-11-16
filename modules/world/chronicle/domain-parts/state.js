@@ -1,6 +1,6 @@
 // Chronicle's empty shape and the reads and edits of its per-reply pick bookkeeping.
 
-import { slotValue, toSlot } from '../../../../packages/story-director/src/v2/slot.js';
+import { slotValue, toSlot } from '../../../rpg/slot.js';
 import { isRecord } from './shared-basics.js';
 
 export function initialChronicle() {

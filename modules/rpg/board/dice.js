@@ -2,8 +2,8 @@
 // Opening and replay ask for the same stream without advancing shared state.
 // The seeded generator is the host's existing dice source.
 
-import { rng } from '../../../../../../core/commands/rng.js';
-import { hash } from '../../../../../../core/persist.js';
+import { rng } from '../../../core/commands/rng.js';
+import { hash } from '../../../core/persist.js';
 
 /** A fight opened on this carrier gets the same seed until the reader discards it. */
 export function fightSeed(sid, attempt = 0) {

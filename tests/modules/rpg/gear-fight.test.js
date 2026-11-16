@@ -3,18 +3,18 @@
 // without gear (or with the switch off) is exactly what it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { createFakeModel } from '../../../testkit/model.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { reply, success } from '../data-modules/helpers.js';
-import { STANDARD_FORMULA, DICE_VERSION, FLOW_VERSION, LV_VERSION, leanRpgGuard, readSheet, resolve } from '../../../src/v2/lean-rpg/index.js';
-import { cueOfResult, cueTokens, entriesWithCue, fitCue, wearLine } from '../../../src/v2/lean-rpg/cue.js';
-import { ENCUMBERED, STAT_MAX, applyGear, earnedLegend, gearOf, gearValid, isDecisive, noteGear, planGear } from '../../../src/v2/lean-rpg/gear.js';
-import { readResolve } from '../../../src/v2/lean-rpg/view/battle-log.js';
-import { oddsView } from '../../../src/v2/lean-rpg/view/settings-data.js';
-import { atLimit, condWord, loadLevel } from '../../../src/v2/domains/gear.js';
-import { hashJson } from '../../../../../core/replay.js';
-import { rng, roll } from '../../../../../core/commands/rng.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { STANDARD_FORMULA, DICE_VERSION, FLOW_VERSION, LV_VERSION, leanRpgGuard, readSheet, resolve } from '../../../modules/rpg/index.js';
+import { cueOfResult, cueTokens, entriesWithCue, fitCue, wearLine } from '../../../modules/rpg/cue.js';
+import { ENCUMBERED, STAT_MAX, applyGear, earnedLegend, gearOf, gearValid, isDecisive, noteGear, planGear } from '../../../modules/rpg/gear.js';
+import { readResolve } from '../../../modules/rpg/view/battle-log.js';
+import { oddsView } from '../../../modules/rpg/view/settings-data.js';
+import { atLimit, condWord, loadLevel } from '../../../packages/story-block/src/v2/domains/gear.js';
+import { hashJson } from '../../../core/replay.js';
+import { rng, roll } from '../../../core/commands/rng.js';
 import { legacyPlanner } from './legacy-planner.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from './helpers.js';
 
@@ -267,7 +267,7 @@ async function world(t, { gear = true, fields = { level: 5 }, foeLevel = 60, qui
     const plan = quiet ? 'none' : PLAN_TEXT.replace('act Astra |', 'act Astra | type: physical |');
     const model = createFakeModel(Array(40).fill(plan));
     // (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
-    const rpgLoad = async () => { const lib = await import('../../../src/v2/lean-rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => host.ctx.chat, metadata: () => host.ctx.chatMetadata ?? null }); return part; } }; };
+    const rpgLoad = async () => { const lib = await import('../../../modules/rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => host.ctx.chat, metadata: () => host.ctx.chatMetadata ?? null }); return part; } }; };
     const host = await createHost({ callModel: model, lazyRpg: true, rpgLoad, settings: { features: gear ? { 'story-block.gear': true } : {} } });
     t.after(() => host.close());
     host.features.set('story-block.rpg', true);

@@ -2,11 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView, withPrompt } from '../../../../src/v2/lean-rpg/view/settings-data.js';
-import { reload } from '../../data-modules/helpers.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
+import { reload } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { settle } from './page.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 import { open, promptOf, typeInto } from './settings.helpers.js';
@@ -131,7 +131,7 @@ test('settings-data: the odds view for a state with and without a character', ()
 });
 
 test('the page\'s stylesheet: the odds bar is solid, three tones; the numbers wrap to two columns on a phone; theme tokens only', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-set-nums \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
     assert.match(css, /@media \(max-width: 600px\) \{ \.rpg-set-nums \{ grid-template-columns: 1fr 1fr; \} \}/);
     assert.match(css, /\.rpg-odds-success \{ background: var\(--ss-good\)/);
@@ -150,7 +150,7 @@ test('B17 (views): a refused save because the chat holds as many block versions 
     assert.equal(root.querySelector('.rpg-set-status').textContent, 'This chat has kept as many block versions as it can. Reset to the default, or try again after your next message.');
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'nothing changed');
     // The words are the helper's, so the other screens say it too (the wizard's Create, a block edit).
-    const { refusalText } = await import('../../../../../../core/strings.js');
+    const { refusalText } = await import('../../../../core/strings.js');
     assert.equal(refusalText({ ok: false, code: 'DM_BUDGET', message: 'x: Retained pin budget exhausted; nothing applied.' }), 'This chat has kept as many block versions as it can. Try again after your next message.');
     assert.match(refusalText({ ok: false, code: 'DM_BUDGET', message: 'Data module reply budget exhausted.' }), /^This reply already holds as many changes/);
     // Reset to the default is the text already pinned, and goes through.

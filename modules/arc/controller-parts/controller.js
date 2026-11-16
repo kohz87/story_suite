@@ -6,7 +6,7 @@ import { ACCEPT, END, UPDATE } from '../commands.js';
 import { FEATURE, arcQuery, currentArc, threadsWithArc } from '../domain.js';
 import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, trackerSummary } from '../plan.js';
 import { arcSettings } from '../settings.js';
-import { fightsAmong } from '../../../packages/story-director/src/v2/fights.js';
+import { fightsAmong } from '../../rpg/fights.js';
 import { MODULE_ID, NEEDS_TEXT, PLANNER_TIMEOUT_MS } from './constants.js';
 import { recentStory } from './story.js';
 import { isCarrier, liveSdk, stChat, toast } from './shared-host.js';

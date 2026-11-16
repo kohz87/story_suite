@@ -1,11 +1,11 @@
 // 2.17.0 final review: a narrator XP line that raises a level in the reply that wins the fight is held back, and the fight pays at the level before it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-const { createHost } = await import('../../../testkit/index.js');
-const { createFakeModel } = await import('../../../testkit/model.js');
-const { LEAN_RPG_FEATURE } = await import('../../../src/v2/lean-rpg/index.js');
-const { STANDARD_TEMPLATES, characterV1For } = await import('../../../src/v2/lean-rpg/templates.js');
-const { reply, success } = await import('../data-modules/helpers.js');
+const { createHost } = await import('../../../packages/story-block/testkit/index.js');
+const { createFakeModel } = await import('../../../packages/story-block/testkit/model.js');
+const { LEAN_RPG_FEATURE } = await import('../../../modules/rpg/index.js');
+const { STANDARD_TEMPLATES, characterV1For } = await import('../../../modules/rpg/templates.js');
+const { reply, success } = await import('../../../packages/story-block/tests/v2/data-modules/helpers.js');
 
 const SLOT = '+ dm foes — why | kind: set-slot-1 | name: Mud Crawlers | count: 6 | level: 1';
 const DOWN = '~ dm foes — why | kind: hurt-1 | to: 0';

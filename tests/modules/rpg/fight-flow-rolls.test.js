@@ -3,7 +3,7 @@
 //   - past rolls: a payload with no `flow` stops exactly as it did (Re-read keeps the record).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FLOW_VERSION, LIMITS, STANDARD_FORMULA } from '../../../src/v2/lean-rpg/index.js';
+import { FLOW_VERSION, LIMITS, STANDARD_FORMULA } from '../../../modules/rpg/index.js';
 import { character, foeBlock, rollReceipt, setup, skillBlock } from './helpers.js';
 import { ANSWER, blocksStd, dice, hit, party, planOf, reloads, resultOf, roll, same, skip, std } from './fight-flow.helpers.js';
 

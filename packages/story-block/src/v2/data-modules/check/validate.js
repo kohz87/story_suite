@@ -12,7 +12,7 @@ import { array, copy, defId, distinct, entries, named, normalizedKeys, scalar, s
 import { conditionType, fieldType } from '../expressions.js';
 import { fullModuleGrammar } from '../grammar.js';
 import { DATA_MODULES_CAPABILITY, DM_DESCRIPTORS as D, DM_LIMITS as L, dmInt, dmObject, dmOwn, dmSlug } from '../schema.js';
-import { ROLES } from '../../lean-rpg/names.js';
+import { ROLES } from '../../../../../../modules/rpg/names.js';
 import { LIMITS as PACK_LIMITS, TAB_ID } from '../../../../../../packs/limits.js';
 import { byteLength, checkPlain } from '../../../../../../packs/safety.js';
 import { STRINGS } from '../../../../../../core/strings.js';

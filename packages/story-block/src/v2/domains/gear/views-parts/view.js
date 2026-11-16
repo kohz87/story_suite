@@ -2,7 +2,7 @@
 
 import { isPlainObject } from '../../common.js';
 import { STRINGS } from '../../../../../../../core/strings.js';
-import { readSheet } from '../../../lean-rpg/read.js';
+import { readSheet } from '../../../../../../../modules/rpg/read.js';
 import { GEAR } from '../stats.js';
 import { statsFor, soakFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';
 import { condWord } from '../conditions.js';

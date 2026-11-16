@@ -3,15 +3,15 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../../src/v2/lean-rpg/templates.js';
-import { openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { runAuto } from '../../../../src/v2/lean-rpg/board/auto-run.js';
-import { readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { pendingStart } from '../../../../../../core/turn/fight-start.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { prng, seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { clearFoes } from '../../../../src/v2/lean-rpg/board/engine.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
+import { openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { runAuto } from '../../../../modules/rpg/board/auto-run.js';
+import { readResolve } from '../../../../modules/rpg/view/battle-log.js';
+import { pendingStart } from '../../../../core/turn/fight-start.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { prng, seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { clearFoes } from '../../../../modules/rpg/board/engine.js';
 import { character, levelFoeBlock, rollReceipt, setup, sheetDomain, skillBlock } from '../helpers.js';
 
 const RULES = { ...STANDARD_FORMULA, levelDivisor: 5 };

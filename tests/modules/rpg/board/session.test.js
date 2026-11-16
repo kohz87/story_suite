@@ -2,10 +2,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
-import { boardPayload, boardSession, openBoard, receiveBoard, reconcileBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { settledNote } from '../../../../modules/rpg/board/note.js';
+import { boardPayload, boardSession, openBoard, receiveBoard, reconcileBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { character, foeBlock, sheetDomain } from '../helpers.js';
 
 const RULES = { ...STANDARD_FORMULA, levelDivisor: 5 };

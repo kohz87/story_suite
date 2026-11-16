@@ -3,11 +3,11 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
-import { boardGuard } from '../../../../src/v2/lean-rpg/board/commit.js';
-import { hashJson } from '../../../../../../core/replay.js';
-import { RESOLVE } from '../../../../src/v2/lean-rpg/names.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { openBoard } from '../../../../modules/rpg/board/session.js';
+import { boardGuard } from '../../../../modules/rpg/board/commit.js';
+import { hashJson } from '../../../../core/replay.js';
+import { RESOLVE } from '../../../../modules/rpg/names.js';
 import { character, foeBlock, setup } from '../helpers.js';
 
 const BLOCKS = { hero: { role: 'character', fields: character('Astra', { str: 5 }) }, foes: { role: 'foes', fields: foeBlock([['Rats', 2, 1, 5]]) } };

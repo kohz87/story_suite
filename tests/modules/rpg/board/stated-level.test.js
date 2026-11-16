@@ -3,14 +3,14 @@
 // and the replay rules: the stated level is read BEFORE the opening is recorded, so rebuild, Re-read, reload and swipe agree even after the field changes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, setup, skillBlock } from '../helpers.js';
-import { parseStatedLevel, statedLevel } from '../../../../src/v2/lean-rpg/board/stated-level.js';
-import { vetGroups } from '../../../../src/v2/lean-rpg/board/precheck.js';
-import { runPrecheck } from '../../../../src/v2/lean-rpg/board/precheck-run.js';
-import { vetOpen } from '../../../../src/v2/lean-rpg/open.js';
-import { boardSession, markSend, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { pendingStart } from '../../../../../../core/turn/fight-start.js';
+import { parseStatedLevel, statedLevel } from '../../../../modules/rpg/board/stated-level.js';
+import { vetGroups } from '../../../../modules/rpg/board/precheck.js';
+import { runPrecheck } from '../../../../modules/rpg/board/precheck-run.js';
+import { vetOpen } from '../../../../modules/rpg/open.js';
+import { boardSession, markSend, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { pendingStart } from '../../../../core/turn/fight-start.js';
 
 const RANKS = [{ name: 'F', from: 1, to: 9 }, { name: 'E', from: 10, to: 19 }, { name: 'D', from: 20, to: 29 }, { name: 'C', from: 30, to: 49 }, { name: 'S', from: 90, to: 94 }, { name: 'SS', from: 95, to: 99 }];
 const rankAt = level => RANKS.find(rank => level >= rank.from && level <= rank.to) ?? null;
@@ -113,9 +113,9 @@ async function fought(dossiers, seed, answers = [GROUPS]) {
             'packs.content': () => [{ slug: 'ranks', ranks: RANKS }], 'rpg.rank': (_state, args) => rankAt(args.level) } });
     assert.equal((await host.send('I draw my blade and attack Vorn.', 'Not sent.')).aborted, true);
     const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.fightStartPreview();
-    const { openBoard } = await import('../../../../src/v2/lean-rpg/board/session.js');
-    const { STANDARD_FORMULA } = await import('../../../../src/v2/lean-rpg/rules.js');
-    const { dropOf } = await import('../../../../src/v2/lean-rpg/ambush.js');
+    const { openBoard } = await import('../../../../modules/rpg/board/session.js');
+    const { STANDARD_FORMULA } = await import('../../../../modules/rpg/rules.js');
+    const { dropOf } = await import('../../../../modules/rpg/ambush.js');
     const open = openBoard(meta, opening.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
     assert.equal(open.error, undefined, open.error);
     Object.assign(open.session.setup, { opening: structuredClone(pending.opening), approach: structuredClone(opening.result.checks ?? []), drop: dropOf(opening.result) });

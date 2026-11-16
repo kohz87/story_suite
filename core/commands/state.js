@@ -5,7 +5,7 @@
 import { clone, deepFreeze, frozenCopy } from '../ops.js';
 import { blockIdOf } from '../replay.js';
 import { submitProof } from '../evidence.js';
-import { entriesWithCue } from '../../packages/story-block/src/v2/lean-rpg/cue.js';
+import { entriesWithCue } from '../../modules/rpg/cue.js';
 import { isRecord } from './shared.js';
 
 export function createStateTools({ store, findQuery, fail, originOf }) {

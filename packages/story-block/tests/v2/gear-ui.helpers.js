@@ -5,7 +5,7 @@ import { createHarness } from './domains/helpers/fake-ctx.js';
 import { stocked } from './domains/fixtures.js';
 import { destroyTemplate } from '../../../../ui/legacy/view/template/render.js';
 import { show, settle } from '../../../../tests/ui/screens/helpers.js';
-import { page } from './lean-rpg/view/page.js';
+import { page } from '../../../../tests/modules/rpg/view/page.js';
 import { reply } from '../../../../tests/core/helpers/gear-ui-state.js';
 import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../../ui/legacy/screens/inventory-add.js';
 

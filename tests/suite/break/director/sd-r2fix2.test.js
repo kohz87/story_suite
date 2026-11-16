@@ -19,7 +19,7 @@ import { PROBLEM_ROOM, problemList, replyTurn } from '../../../../modules/time/t
 import { IDLE_REPLIES, tailThreads } from '../../../../modules/time/tracker/note.js';
 import { REPLY_KEY } from '../../../../modules/world/reply-keys.js';
 import { seenOf } from '../../../../modules/world/chronicle/domain.js';
-import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../../../modules/rpg/slot.js';
 import { fakeFightRunner } from '../../integration/director/helpers/fake-fight-runner.js';
 import { makeState, reply as trackerReply } from '../../../modules/time/tracker/helpers/fake-ctx.js';
 

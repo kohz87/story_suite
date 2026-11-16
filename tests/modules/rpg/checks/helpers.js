@@ -1,9 +1,9 @@
 // A command context for the checks part (SPEC §3.2) in outline: the handler runs on drafts, the drafts are diffed with Story Block's own
 // ops.js (live), the validators run, claims are a real set (a second claim of a key is false), `roll` is the host's seeded die, and the
 // queries other modules answer (rules.sheet, rules.modifier, npc.identity, npc.socialModifier, story.evidence) are given by the test.
-import { checkKind, part } from '../../../src/v2/checks/index.js';
-import { apply, checkOps, diff } from '../../../../../core/ops.js';
-import { projection } from '../../../src/v2/checks/domain.js';
+import { checkKind, part } from '../../../../modules/rpg/checks/index.js';
+import { apply, checkOps, diff } from '../../../../core/ops.js';
+import { projection } from '../../../../modules/rpg/checks/domain.js';
 
 export function deepFreeze(value) {
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -98,7 +98,7 @@ export const replay = (initial, runs) => runs.reduce((state, one) => apply(state
 let writes = 0;
 export const write = () => `wr_${(writes += 1).toString(36).padStart(8, '0')}`;
 
-import { PARTS, createModule } from '../../../../../ui/legacy/director/module.js';
+import { PARTS, createModule } from '../../../../ui/legacy/director/module.js';
 
 /**
  * Story Director's module with the checks part registered, as the flip release will register it. The module as shipped does not register it

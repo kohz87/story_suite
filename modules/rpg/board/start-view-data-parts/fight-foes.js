@@ -2,7 +2,7 @@
 import { foeLabel } from '../../foes.js';
 import { STAGES, stageWord } from '../../names.js';
 import { readSheet } from '../../read.js';
-import { text as sentence } from '../../../../../../../ui/legacy/view/widgets/dom.js';
+import { text as sentence } from '../../../../ui/legacy/view/widgets/dom.js';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 export const list = value => (Array.isArray(value) ? value : []);

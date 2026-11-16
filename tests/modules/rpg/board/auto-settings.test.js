@@ -2,11 +2,11 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { AUTO_CAP, AUTO_CAP_SETTING, autoCapFrom, autoExchanges } from '../../../../src/v2/lean-rpg/names.js';
-import { SETTINGS_SCHEMA } from '../../../../src/v2/lean-rpg/levels.js';
-import { DEFAULT_SETTINGS } from '../../../../src/v2/lean-rpg/index.js';
-import { boardSetting, capSetting, capWords } from '../../../../src/v2/lean-rpg/board/settings.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { AUTO_CAP, AUTO_CAP_SETTING, autoCapFrom, autoExchanges } from '../../../../modules/rpg/names.js';
+import { SETTINGS_SCHEMA } from '../../../../modules/rpg/levels.js';
+import { DEFAULT_SETTINGS } from '../../../../modules/rpg/index.js';
+import { boardSetting, capSetting, capWords } from '../../../../modules/rpg/board/settings.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 test('the cap reads 1 to 9, defaults to 3, and 9 means until the end', () => {
     assert.equal(autoCapFrom({}), 3);

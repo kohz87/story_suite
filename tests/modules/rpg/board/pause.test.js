@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createPauseView } from '../../../../src/v2/lean-rpg/board/pause.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { createPauseView } from '../../../../modules/rpg/board/pause.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 const foe = { name: 'Rat Swarms', label: 'Rat Swarms · Lv 3', health: 'Unhurt' };
 const known = {
@@ -40,7 +40,7 @@ test('the pause has only the two choices: no narration, no planner wait', () => 
 });
 
 test('the pause actions keep the board\'s 44px/48px touch targets and stack on phones', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/board/fight-start.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/board/fight-start.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-fight-pause-actions > button[\s\S]*?min-height: 44px/);
     assert.match(css, /\.rpg-fight-pause-actions > button[\s\S]*?touch-action: manipulation/);
     assert.match(css, /\.rpg-fight-pause-actions \{ flex-direction: column; \}/);

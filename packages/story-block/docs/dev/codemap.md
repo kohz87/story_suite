@@ -6,7 +6,7 @@ Last checked: 2026-11-07.
 - `../../core/model-call/profile-field.js`: connection-profile picker for module model calls, using stored names and read-only text UI.
 - `../../core/public-api.js`: frozen read-only `StoryBlock.api` exposing current public story paths and change events.
 - `../../core/persist/public-paths.js`: registry and guard for public API path prefixes contributed by modules.
-- `src/v2/rpg-lazy.js`: lazy loader and stand-in part that keeps the optional Lean RPG unloaded until needed.
+- `../../modules/rpg/rpg-lazy.js`: lazy loader and stand-in part that keeps the optional Lean RPG unloaded until needed.
 - `../../core/runtime/sb-macro.js`: registers the `{{sb::path}}` macro for SillyTavern prompts, scripts and status bars.
 - `../../core/runtime/skill-slots.js`: skill-slot counts and signature-bit helpers kept outside Lean RPG for small startup.
 - `../../core/persist/v1-copy.js`: detects an old Story Block v1 copy running alongside v2 and reports it once.
@@ -30,50 +30,50 @@ Last checked: 2026-11-07.
 - `../../modules/world/events/condition.js`: tokenizes, parses and safely evaluates pack-event conditions without JavaScript.
 - `../../modules/world/events/section.js`: read-only Events diagnostics section showing past, due, waiting and invalid events.
 
-## src/v2/lean-rpg/
-- `src/v2/lean-rpg/ambush.js`: ambush checks and their opening-round edge or surprise rules.
-- `src/v2/lean-rpg/charfile.js`: builds, validates and parses the saved-character file used by Party Import and Export.
-- `src/v2/lean-rpg/cue.js`: writes compact narrator roll cues under the prompt budget.
-- `src/v2/lean-rpg/join.js`: reads party join and leave lines, then builds companion definitions and offer cards.
-- `src/v2/lean-rpg/soak.js`: the VIT soak numbers (S, the soaked test, the Party card's next step) for the fight mark `soak: 1`.
-- `src/v2/lean-rpg/templates-bars.js`: turns the old Character template into the doubled-bars one (`scale: 2`: size expressions, grow rules, bar maximum and default).
-- `src/v2/lean-rpg/templates-recovery.js`: the marked Character's recovery kinds (rest, full-rest, heal, Short rest and Full rest buttons), no narrator `add-xp`, its prompt.
-- `src/v2/lean-rpg/templates-skills.js`: turns the eight-slot Skills template into the typed one (three utility slots 9 to 11, a `type` per slot, the learn line's optional `type` label, matching rank-up rules).
-- `src/v2/lean-rpg/levels.js`: level, rank, level-cap and XP-rate helpers plus the RPG rank query.
-- `src/v2/lean-rpg/noroll.js`: replay-only: shows and re-reads the per-reply receipt an old chat's retired roll planner left when it gave no usable plan.
-- `src/v2/lean-rpg/checks/dice.js`: story checks: a reply's three d20 from its recorded seed, the rules, difficulty numbers, practice and bonus table recorded with them (`dicePayload`, `diceOf`) and the `rpg.dice` prelude's handler.
-- `src/v2/lean-rpg/checks/line.js`: story checks: parses a narrator's `? roll Who | skill or stat | difficulty` line (a solo party takes an unnamed roll; an older reply also wrote the die) and validates it against the party and the dice offered and used; under the `diceInOrder` mark code gives each check the next die.
-- `src/v2/lean-rpg/checks/result.js`: story checks: works a validated check (d20 + stat÷2 + level÷4 (+ half mastery of a utility skill) against the recorded difficulty: success or fail, decisive as in fights, one practice use, no XP), a reply's lines in order (`workChecks`) and the bonus table the note tells.
-- `src/v2/lean-rpg/open.js`: checks and fills new foes that the roll planner opens during a fight.
-- `src/v2/lean-rpg/quiet.js`: trims combat and foe prompt grammar on replies where rolls cannot be used.
-- `src/v2/lean-rpg/board/auto.js`: chooses deterministic Auto-fight actions by the party policy and decides why Auto stops.
-- `src/v2/lean-rpg/board/auto-run.js`: plays Auto exchanges on the staged board fight until the cap, a won or lost fight or a badly hurt hero, and words why it stopped.
-- `src/v2/lean-rpg/board/precheck.js`: pure foe pre-check prompt, tolerant JSON reader, group vetting and typed-attack test for opening a fight from a message.
-- `src/v2/lean-rpg/board/view-bars.js`: the board's Health strip text ("Hurt · 5/10") and meter props.
-- `src/v2/lean-rpg/board/view-chips.js`: the board's status chips (foe group "×N", party), the 4-segment Health mini-bar, the choosing member's Mana/Stamina strip and the skill button with cost and "not enough".
-- `src/v2/lean-rpg/board/precheck-run.js`: the pre-check's one Assist call (20 s limit) and the opening it records for a typed attack on new foes.
-- `src/v2/lean-rpg/board/precheck-known.js`: the pre-check prompt's read-only extras: the pack's rank scale line and short dossier lines for named people.
-- `src/v2/lean-rpg/board/stated-level.js`: a foe's Level field on an NSD dossier, matched by exact name or alias only (number, Lv, rank or two ranks): the parse and the dossier lookup the pre-check reads before it records the opening; passes the party + 20 cap.
-- `src/v2/lean-rpg/board/resume.js`: finds the last ended board fight's exact foe bars when the collapsed Foes block still matches them.
-- `src/v2/lean-rpg/resolve.js`: prepares and rolls planned checks, acts and foe attacks into a replayable RPG receipt.
-- `src/v2/lean-rpg/soul.js`: reads a renamed Soul Class field label and names, with stock fallbacks.
-- `src/v2/lean-rpg/tail.js`: writes compact prompt-tail summaries for RPG role blocks.
+## ../../modules/rpg/
+- `../../modules/rpg/ambush.js`: ambush checks and their opening-round edge or surprise rules.
+- `../../modules/rpg/charfile.js`: builds, validates and parses the saved-character file used by Party Import and Export.
+- `../../modules/rpg/cue.js`: writes compact narrator roll cues under the prompt budget.
+- `../../modules/rpg/join.js`: reads party join and leave lines, then builds companion definitions and offer cards.
+- `../../modules/rpg/soak.js`: the VIT soak numbers (S, the soaked test, the Party card's next step) for the fight mark `soak: 1`.
+- `../../modules/rpg/templates-bars.js`: turns the old Character template into the doubled-bars one (`scale: 2`: size expressions, grow rules, bar maximum and default).
+- `../../modules/rpg/templates-recovery.js`: the marked Character's recovery kinds (rest, full-rest, heal, Short rest and Full rest buttons), no narrator `add-xp`, its prompt.
+- `../../modules/rpg/templates-skills.js`: turns the eight-slot Skills template into the typed one (three utility slots 9 to 11, a `type` per slot, the learn line's optional `type` label, matching rank-up rules).
+- `../../modules/rpg/levels.js`: level, rank, level-cap and XP-rate helpers plus the RPG rank query.
+- `../../modules/rpg/noroll.js`: replay-only: shows and re-reads the per-reply receipt an old chat's retired roll planner left when it gave no usable plan.
+- `../../modules/rpg/checks/dice.js`: story checks: a reply's three d20 from its recorded seed, the rules, difficulty numbers, practice and bonus table recorded with them (`dicePayload`, `diceOf`) and the `rpg.dice` prelude's handler.
+- `../../modules/rpg/checks/line.js`: story checks: parses a narrator's `? roll Who | skill or stat | difficulty` line (a solo party takes an unnamed roll; an older reply also wrote the die) and validates it against the party and the dice offered and used; under the `diceInOrder` mark code gives each check the next die.
+- `../../modules/rpg/checks/result.js`: story checks: works a validated check (d20 + stat÷2 + level÷4 (+ half mastery of a utility skill) against the recorded difficulty: success or fail, decisive as in fights, one practice use, no XP), a reply's lines in order (`workChecks`) and the bonus table the note tells.
+- `../../modules/rpg/open.js`: checks and fills new foes that the roll planner opens during a fight.
+- `../../modules/rpg/quiet.js`: trims combat and foe prompt grammar on replies where rolls cannot be used.
+- `../../modules/rpg/board/auto.js`: chooses deterministic Auto-fight actions by the party policy and decides why Auto stops.
+- `../../modules/rpg/board/auto-run.js`: plays Auto exchanges on the staged board fight until the cap, a won or lost fight or a badly hurt hero, and words why it stopped.
+- `../../modules/rpg/board/precheck.js`: pure foe pre-check prompt, tolerant JSON reader, group vetting and typed-attack test for opening a fight from a message.
+- `../../modules/rpg/board/view-bars.js`: the board's Health strip text ("Hurt · 5/10") and meter props.
+- `../../modules/rpg/board/view-chips.js`: the board's status chips (foe group "×N", party), the 4-segment Health mini-bar, the choosing member's Mana/Stamina strip and the skill button with cost and "not enough".
+- `../../modules/rpg/board/precheck-run.js`: the pre-check's one Assist call (20 s limit) and the opening it records for a typed attack on new foes.
+- `../../modules/rpg/board/precheck-known.js`: the pre-check prompt's read-only extras: the pack's rank scale line and short dossier lines for named people.
+- `../../modules/rpg/board/stated-level.js`: a foe's Level field on an NSD dossier, matched by exact name or alias only (number, Lv, rank or two ranks): the parse and the dossier lookup the pre-check reads before it records the opening; passes the party + 20 cap.
+- `../../modules/rpg/board/resume.js`: finds the last ended board fight's exact foe bars when the collapsed Foes block still matches them.
+- `../../modules/rpg/resolve.js`: prepares and rolls planned checks, acts and foe attacks into a replayable RPG receipt.
+- `../../modules/rpg/soul.js`: reads a renamed Soul Class field label and names, with stock fallbacks.
+- `../../modules/rpg/tail.js`: writes compact prompt-tail summaries for RPG role blocks.
 
-## src/v2/lean-rpg/view/
-- `src/v2/lean-rpg/view/bars.js`: draws shared Health, Mana and Stamina stage bars and their edit payloads.
-- `src/v2/lean-rpg/view/bars.css`: the smooth red, green and blue Health, Stamina and Mana strip, dulled in three steps as it empties.
-- `src/v2/lean-rpg/view/changes-lines.js`: builds RPG lines for the Changed this reply card from receipts and state changes.
-- `src/v2/lean-rpg/view/distribute.js`: draws the Spend points and Stats sheet with bars, stat steppers, radar and one save.
-- `src/v2/lean-rpg/view/export.js`: draws the Export character dialog and creates its saved character file.
-- `src/v2/lean-rpg/view/gear-card.js`: draws the Party Inventory slot card and the gear worn in each place.
-- `src/v2/lean-rpg/view/gear-stats.js`: lays what worn gear adds (the rolls' own `planGear` + `applyGear`) on the Party cards' stats as `eff` and `add`.
-- `src/v2/lean-rpg/view/lean-rpg.css`: styles the RPG Party, sheets, battle log and settings screens responsively.
-- `src/v2/lean-rpg/view/party-data.js`: maps Character, Skills and Foes blocks into plain records and display words for RPG screens.
-- `src/v2/lean-rpg/view/party.js`: draws Party tab cards and opens the spend, skills, gear, wizard and export views.
-- `src/v2/lean-rpg/view/settings-data.js`: prepares combat-rule, odds and planner-prompt data for the RPG settings page.
-- `src/v2/lean-rpg/view/skills.js`: draws the Skills sheet with ranks, mastery, roll previews and editable descriptions.
-- `src/v2/lean-rpg/view/wizard-data.js`: works out New character drafts, budgets, problems and definitions without touching the DOM.
-- `src/v2/lean-rpg/view/wizard.js`: drives the four-step New character and import dialog, then creates its blocks.
+## ../../modules/rpg/view/
+- `../../modules/rpg/view/bars.js`: draws shared Health, Mana and Stamina stage bars and their edit payloads.
+- `../../modules/rpg/view/bars.css`: the smooth red, green and blue Health, Stamina and Mana strip, dulled in three steps as it empties.
+- `../../modules/rpg/view/changes-lines.js`: builds RPG lines for the Changed this reply card from receipts and state changes.
+- `../../modules/rpg/view/distribute.js`: draws the Spend points and Stats sheet with bars, stat steppers, radar and one save.
+- `../../modules/rpg/view/export.js`: draws the Export character dialog and creates its saved character file.
+- `../../modules/rpg/view/gear-card.js`: draws the Party Inventory slot card and the gear worn in each place.
+- `../../modules/rpg/view/gear-stats.js`: lays what worn gear adds (the rolls' own `planGear` + `applyGear`) on the Party cards' stats as `eff` and `add`.
+- `../../modules/rpg/view/lean-rpg.css`: styles the RPG Party, sheets, battle log and settings screens responsively.
+- `../../modules/rpg/view/party-data.js`: maps Character, Skills and Foes blocks into plain records and display words for RPG screens.
+- `../../modules/rpg/view/party.js`: draws Party tab cards and opens the spend, skills, gear, wizard and export views.
+- `../../modules/rpg/view/settings-data.js`: prepares combat-rule, odds and planner-prompt data for the RPG settings page.
+- `../../modules/rpg/view/skills.js`: draws the Skills sheet with ranks, mastery, roll previews and editable descriptions.
+- `../../modules/rpg/view/wizard-data.js`: works out New character drafts, budgets, problems and definitions without touching the DOM.
+- `../../modules/rpg/view/wizard.js`: drives the four-step New character and import dialog, then creates its blocks.
 
 ## ../../packs/
 - `../../packs/card-offer-ui.js`: draws pack card-offer notices and their actions at the top of the Story panel.
@@ -195,9 +195,9 @@ Last checked: 2026-11-07.
 - `src/v2/domains/gear.js` → `domains/gear/`: `stats.js` slots, rarity, stat budgets and story-made definitions; `conditions.js` condition words and prices; `carry.js` carry rules and the carry query; `views.js` query answers and the screen picture.
 - `src/v2/domains/scene.js` → `domains/scene/`: `constants.js` name, presence, weather and look limits and feature names; `shared.js` the told rule, name lists, the edit mark and the letter test; `present.js` who is present and their changes; `place.js` the place and its moves; `place-known.js` the map's or a pack's record of a place by name or alias; `weather.js` the weather line and the `scene.weather` command; `you.js` {{user}}'s look, its Rank label and the look ask; `you-look.js` the lasting outfit and passing look (read, cut, cleared on a move); `worn-words.js` the words for what {{user}} has equipped.
 - `../../modules/world/events/condition.js` → `events/condition-tokenizer.js` the tokenizer; `condition-parser.js` the parser (a frozen AST); `condition-errors.js` size limits and error values.
-- `src/v2/lean-rpg/resolve.js` → `lean-rpg/resolve/dice.js`: the flow version, outcome rule and per-action dice streams shared by the Standard roll and its guard.
-- `src/v2/lean-rpg/strings.js` → `lean-rpg/strings/`: `character.js` sheets, party, gear, skills and the wizard; `story.js` saved characters, companions, first send, bars and the sheet; `fight.js` fights, change lines and RPG settings.
-- `src/v2/lean-rpg/view/wizard.js` → `wizard/`: `who.js` the Who step and import; `stats.js` the Stats step; `skills.js` the Skills step; `review.js` Review and Create.
+- `../../modules/rpg/resolve.js` → `lean-rpg/resolve/dice.js`: the flow version, outcome rule and per-action dice streams shared by the Standard roll and its guard.
+- `../../modules/rpg/strings.js` → `lean-rpg/strings/`: `character.js` sheets, party, gear, skills and the wizard; `story.js` saved characters, companions, first send, bars and the sheet; `fight.js` fights, change lines and RPG settings.
+- `../../modules/rpg/view/wizard.js` → `wizard/`: `who.js` the Who step and import; `stats.js` the Stats step; `skills.js` the Skills step; `review.js` Review and Create.
 - `../../core/registry.js` → `registry/`: `registration.js` registration checks and ownership; `commands.js` command, capture, context and initial-state lookups; `features.js` feature lookups; `lifecycle.js` peers, cycles and the restore barrier.
 - `../../core/runtime.js` → `runtime/start.js` start helpers; `runtime/saving.js` saving helpers.
 - `src/v2/screens/blocks-editor.js` → `blocks-editor/`: `constants.js` labels and types; `editor.js` form state and controls; `draw.js` the sections; `layout.js` layout chips, card roles, colours and preview.
@@ -238,23 +238,23 @@ Last checked: 2026-11-07.
 - `../../core/sdk/settings.js`: schema coercion and settings over extension_settings.storySuite.
 - `../../core/sdk/queries.js`: query tools, mounted queries, module views and missing-domain checks.
 - `../../core/sdk/lifecycle.js`: lifecycle announcements, initial domains and read-only preflight.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/constants.js`: battle words, panel ids, marker line and fold/recent constants.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/util.js`: record checks, list reads and word cutting.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/read.js`: Classic and Standard recorded rolls as panel lines, and receipt lookup.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/model.js`: consequence arrows, turn-order levels, Status rows and the Foes line.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/draw.js`: the panel, its line nodes and the no-rolls note.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/marker.js`: marker finding and hiding, panel release and marker placement.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/follow.js`: the fold store and the live chat controller.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/receipt.js`: the folded Receipt row, with the exact cue text the narrator was told and the rule numbers in force.
-- `src/v2/lean-rpg/view/battle-log.js` → `battle-log/stop.js`: the why-it-ended words for a recorded stop, and the pace and exchange-cap hint.
-- `src/v2/lean-rpg/view/check-card.js`: the Check card under a reply (who, skill or stat, difficulty, the numbers, the outcome pill, practice gained), drawn from `rpg.check` results; `battle-log/follow.js` places it where the log would stand.
-- `src/v2/lean-rpg/view/check-card.css`: the Check card's styling, scoped to `.rpg-check`, theme tokens only.
-- `src/v2/lean-rpg/view/settings.js` → `settings/constants.js`: shared words, ids, card search words and Custom fields.
-- `src/v2/lean-rpg/view/settings.js` → `settings/controls.js`: cards, chips, fields, number rows and pack notes.
-- `src/v2/lean-rpg/view/settings.js` → `settings/sections.js`: Formula, Rolls, Levels, Companions and Gear.
-- `src/v2/lean-rpg/view/settings.js` → `settings/difficulty.js`: Difficulty, Custom numbers and odds.
-- `src/v2/lean-rpg/view/settings.js` → `settings/combat.js`: the Combat box, saves and reset.
-- `src/v2/lean-rpg/view/settings.js` → `settings/page.js`: the live page closure and card order.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/constants.js`: battle words, panel ids, marker line and fold/recent constants.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/util.js`: record checks, list reads and word cutting.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/read.js`: Classic and Standard recorded rolls as panel lines, and receipt lookup.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/model.js`: consequence arrows, turn-order levels, Status rows and the Foes line.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/draw.js`: the panel, its line nodes and the no-rolls note.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/marker.js`: marker finding and hiding, panel release and marker placement.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/follow.js`: the fold store and the live chat controller.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/receipt.js`: the folded Receipt row, with the exact cue text the narrator was told and the rule numbers in force.
+- `../../modules/rpg/view/battle-log.js` → `battle-log/stop.js`: the why-it-ended words for a recorded stop, and the pace and exchange-cap hint.
+- `../../modules/rpg/view/check-card.js`: the Check card under a reply (who, skill or stat, difficulty, the numbers, the outcome pill, practice gained), drawn from `rpg.check` results; `battle-log/follow.js` places it where the log would stand.
+- `../../modules/rpg/view/check-card.css`: the Check card's styling, scoped to `.rpg-check`, theme tokens only.
+- `../../modules/rpg/view/settings.js` → `settings/constants.js`: shared words, ids, card search words and Custom fields.
+- `../../modules/rpg/view/settings.js` → `settings/controls.js`: cards, chips, fields, number rows and pack notes.
+- `../../modules/rpg/view/settings.js` → `settings/sections.js`: Formula, Rolls, Levels, Companions and Gear.
+- `../../modules/rpg/view/settings.js` → `settings/difficulty.js`: Difficulty, Custom numbers and odds.
+- `../../modules/rpg/view/settings.js` → `settings/combat.js`: the Combat box, saves and reset.
+- `../../modules/rpg/view/settings.js` → `settings/page.js`: the live page closure and card order.
 - `../../ui/legacy/view/mounts/card.js` → `card/summary.js`: the closed-line summary helpers and recent-carrier default.
 - `../../ui/legacy/view/mounts/card.js` → `card/context.js`: document lookup, carrier readers, caches, sets and observer.
 - `../../ui/legacy/view/mounts/card.js` → `card/follow.js`: keeping the newest reply's card in view.

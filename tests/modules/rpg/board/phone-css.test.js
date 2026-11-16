@@ -3,9 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cssOf } from '../../../../../../tests/core/helpers/css-parts.js';
+import { cssOf } from '../../../core/helpers/css-parts.js';
 
-const css = readFileSync(new URL('../../../../src/v2/lean-rpg/board/board.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+const css = readFileSync(new URL('../../../../modules/rpg/board/board.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 const hostCss = cssOf('host').replace(/\/\*[\s\S]*?\*\//g, '');
 const rule = (text, selector) => {
     const lines = text.split('\n');

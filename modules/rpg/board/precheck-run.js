@@ -2,7 +2,7 @@
 // profile once (20 s at most) for the groups, hold them to the Foes rules, and build the opening the old planner's prelude recorded
 // (`rpg.resolve` with `plan.open`), so replay, Re-read and rebuild read the recorded payload and never ask a model again.
 // A timeout, an error, an unreadable answer or no group gives nothing: the send goes on as it does without the pre-check.
-import { SETTING, withTimeout } from '../../assist/common.js';
+import { SETTING, withTimeout } from '../../../packages/story-block/src/v2/assist/common.js';
 import { DICE_VERSION, FLOW_VERSION } from '../resolve.js';
 import { FIX_VERSION, LV_VERSION, PRACTICE, PRECHECK_LIMIT_MS, PRECHECK_SETTING, practiceOf, PRACTICE_SETTING } from '../names.js';
 import { knownLines, rankScale } from './precheck-known.js';

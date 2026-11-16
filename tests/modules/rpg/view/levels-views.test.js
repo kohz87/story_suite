@@ -4,13 +4,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
-import { createFightWidget, readFight } from '../../../../src/v2/lean-rpg/view/fight.js';
-import { buildPanel, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { heroLead } from '../../../../src/v2/lean-rpg/view/hero-data.js';
-import { readFoes, readParty } from '../../../../src/v2/lean-rpg/view/party-data.js';
-import { levelLabel, packLevelsOf } from '../../../../src/v2/lean-rpg/levels.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
+import { createFightWidget, readFight } from '../../../../modules/rpg/view/fight.js';
+import { buildPanel, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
+import { heroLead } from '../../../../modules/rpg/view/hero-data.js';
+import { readFoes, readParty } from '../../../../modules/rpg/view/party-data.js';
+import { levelLabel, packLevelsOf } from '../../../../modules/rpg/levels.js';
 import { characterDefinition, fakeState, foesDefinition, roleOf } from './helpers.js';
 
 const RANKS = [{ name: 'F', from: 1, to: 9 }, { name: 'E', from: 10, to: 19 }, { name: 'D', from: 20, to: 29 }, { name: 'SSS', from: 30, to: 99 }];
@@ -126,7 +126,7 @@ test('a record without the Levels mark replays as recorded: "Class II 4", and th
 });
 
 test('the level pill is the app\'s small pill at 12px text and 20px tall, and the starting level field is narrow', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-level-pill \{[^}]*font-size: 12px;[^}]*height: 20px;/);
     assert.match(css, /\.rpg-wiz-level \{[^}]*width: 76px;/);
 });

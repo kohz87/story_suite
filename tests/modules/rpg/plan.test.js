@@ -1,7 +1,7 @@
 // The plan (src/v2/lean-rpg/plan.js): its shape check, kept for replaying stored plans.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planIsEmpty, validatePlan } from '../../../src/v2/lean-rpg/index.js';
+import { planIsEmpty, validatePlan } from '../../../modules/rpg/index.js';
 
 const good = () => ({
     pace: 'normal',

@@ -8,7 +8,7 @@ import { readFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(fileURLToPath(new URL('../../../../../../', import.meta.url)));
+const root = resolve(fileURLToPath(new URL('../../../../', import.meta.url)));
 const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="stylesheet" href="/ui/legacy/view/host.css"><link rel="stylesheet" href="/ui/legacy/view/size.css">
 <link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/view/lean-rpg.css"><link rel="stylesheet" href="/packages/story-block/src/v2/lean-rpg/board/board.css">

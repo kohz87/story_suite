@@ -2,17 +2,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { foeChips, partyChips, pendingAwards, resourcesOf } from '../../../../src/v2/lean-rpg/board/view-data.js';
-import { foeGroupChip, resourceStrip, skillButton } from '../../../../src/v2/lean-rpg/board/view-chips.js';
-import { boardSession, discardBoard, openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { foeChips, partyChips, pendingAwards, resourcesOf } from '../../../../modules/rpg/board/view-data.js';
+import { foeGroupChip, resourceStrip, skillButton } from '../../../../modules/rpg/board/view-chips.js';
+import { boardSession, discardBoard, openBoard } from '../../../../modules/rpg/board/session.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { AREA_MEMBERS, AREA_ORDER, areaBoard, defineFoes, renderMembers } from './view.helpers.js';
 
-const BOARD_CSS = readFileSync(new URL('../../../../src/v2/lean-rpg/board/board.css', import.meta.url), 'utf8');
+const BOARD_CSS = readFileSync(new URL('../../../../modules/rpg/board/board.css', import.meta.url), 'utf8');
 
 
 test('chips group the foes (×N, Health only), and a single target opens the group, then its members', async t => {

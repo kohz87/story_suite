@@ -1,13 +1,13 @@
 // A live edit to a lone foe between board segments must be the basis of its next committed move and replay.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeModel, createHost } from '../../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { createFakeModel, createHost } from '../../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 
 for (const [label, otherCount] of [['real only', 1], ['mixed', 2]]) test(`NEW5: ${label} commits and replays a live lone-foe edit`, async () => {
     const restore = seedCrypto(81), rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rng as seeded } from '../../../../../../core/commands/rng.js';
-import { initiative } from '../../../../src/v2/lean-rpg/combat/order.js';
+import { rng as seeded } from '../../../../core/commands/rng.js';
+import { initiative } from '../../../../modules/rpg/combat/order.js';
 
 const random = seeded(0xC2_0003);
 const between = (lo, hi) => lo + Math.floor(random() * (hi - lo + 1));

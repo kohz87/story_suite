@@ -21,12 +21,12 @@
 // The draft lives here, in the wizard's session (the dialog's own draft is not used); each step is a widget of this file drawing from
 // it, so Back and Next keep what was typed. Every node is built with createElement and textContent.
 
-import { DM_LIMITS } from '../../data-modules/schema.js';
-import { h, shell } from '../../../../../../ui/legacy/view/widgets/dom.js';
-import { radar } from '../../../../../../ui/legacy/view/widgets/radar.js';
-import { stepper } from '../../../../../../ui/legacy/view/widgets/stepper.js';
-import { refusalText } from '../../../../../../core/strings.js';
-import { DEFAULT_CURRENCY } from '../../domains/money.js';
+import { DM_LIMITS } from '../../../packages/story-block/src/v2/data-modules/schema.js';
+import { h, shell } from '../../../ui/legacy/view/widgets/dom.js';
+import { radar } from '../../../ui/legacy/view/widgets/radar.js';
+import { stepper } from '../../../ui/legacy/view/widgets/stepper.js';
+import { refusalText } from '../../../core/strings.js';
+import { DEFAULT_CURRENCY } from '../../../packages/story-block/src/v2/domains/money.js';
 import { FILE_LIMITS, moneyText, parseCharacterFile, skillLine, thingsWord } from '../charfile.js';
 import { LEVEL, CREATION, PARTY_ACTIVE, RANK_NAMES, STATS, USES } from '../names.js';
 import { fold } from '../read.js';

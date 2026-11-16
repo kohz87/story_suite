@@ -2,7 +2,7 @@
 
 import { makeCalendar } from '../calendar.js';
 import { calendarOf, timeSettings } from '../records.js';
-import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../rpg/slot.js';
 import { isInt } from './shared-int.js';
 
 const copy = value => structuredClone(value);

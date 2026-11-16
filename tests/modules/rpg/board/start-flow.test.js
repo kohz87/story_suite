@@ -1,11 +1,11 @@
 // A held fight starts before the narrator reply; the opening and board exchanges replay together.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, setup } from '../helpers.js';
-import { boardSession, markSend, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { pendingStart } from '../../../../../../core/turn/fight-start.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
+import { boardSession, markSend, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { pendingStart } from '../../../../core/turn/fight-start.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };
 const known = () => ({ hero: { role: 'character', fields: character('Astra') }, foes: { role: 'foes', fields: foeBlock([['Rats', 1, 1, 5]]) } });

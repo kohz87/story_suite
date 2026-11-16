@@ -2,22 +2,22 @@
 // exercise REPLAY of planner rolls (swipe, delete, Re-read, rebuild, guard) still produce the exact records the planner used to make: it
 // reads a scripted answer (`fakeModel` in helpers.js) into a plan, builds the `rpg.resolve` payload as the old pre-call did and returns the same
 // commands. Nothing in src/ calls it. The reader of the answer is the old plan.js parser, kept here word for word.
-import { matchCharacter, matchFoe, matchSkill, readSheet } from '../../../src/v2/lean-rpg/read.js';
-import { planIsEmpty, validatePlan } from '../../../src/v2/lean-rpg/plan.js';
-import { FOE_SLOTS, FORMULA, LIMITS, STATS, USES, ROLLS_SETTING, LV_VERSION, PRACTICE, PRACTICE_SETTING, practiceOf } from '../../../src/v2/lean-rpg/names.js';
-import { ROLL_TYPES } from '../../../src/v2/lean-rpg/formula.js';
-import { hashText, normalizeType, withTimeout } from '../../../src/v2/assist/common.js';
-import { stripBlock } from '../../../../../core/capture.js';
-import { packRulesOf, rulesFromSettings } from '../../../src/v2/lean-rpg/rules.js';
-import { DICE_VERSION, FLOW_VERSION, claimKey, prepare } from '../../../src/v2/lean-rpg/resolve.js';
-import { FIX_VERSION, openFoes, vetOpen } from '../../../src/v2/lean-rpg/open.js';
-import { averageLevel, foeRandom, partyLevels, pickLevel } from '../../../src/v2/lean-rpg/foes.js';
-import { GEAR_VERSION, gearIsOn, gearMarkOf } from '../../../src/v2/lean-rpg/gear.js';
-import { dropOf } from '../../../src/v2/lean-rpg/ambush.js';
-import { NO_ROLLS_LINE } from '../../../src/v2/lean-rpg/cue.js';
-import { NOROLL } from '../../../src/v2/lean-rpg/names.js';
-import { skipOf } from '../../../src/v2/lean-rpg/start.js';
-import { readRecord } from '../../../../../core/persist.js';
+import { matchCharacter, matchFoe, matchSkill, readSheet } from '../../../modules/rpg/read.js';
+import { planIsEmpty, validatePlan } from '../../../modules/rpg/plan.js';
+import { FOE_SLOTS, FORMULA, LIMITS, STATS, USES, ROLLS_SETTING, LV_VERSION, PRACTICE, PRACTICE_SETTING, practiceOf } from '../../../modules/rpg/names.js';
+import { ROLL_TYPES } from '../../../modules/rpg/formula.js';
+import { hashText, normalizeType, withTimeout } from '../../../packages/story-block/src/v2/assist/common.js';
+import { stripBlock } from '../../../core/capture.js';
+import { packRulesOf, rulesFromSettings } from '../../../modules/rpg/rules.js';
+import { DICE_VERSION, FLOW_VERSION, claimKey, prepare } from '../../../modules/rpg/resolve.js';
+import { FIX_VERSION, openFoes, vetOpen } from '../../../modules/rpg/open.js';
+import { averageLevel, foeRandom, partyLevels, pickLevel } from '../../../modules/rpg/foes.js';
+import { GEAR_VERSION, gearIsOn, gearMarkOf } from '../../../modules/rpg/gear.js';
+import { dropOf } from '../../../modules/rpg/ambush.js';
+import { NO_ROLLS_LINE } from '../../../modules/rpg/cue.js';
+import { NOROLL } from '../../../modules/rpg/names.js';
+import { skipOf } from '../../../modules/rpg/start.js';
+import { readRecord } from '../../../core/persist.js';
 
 const TEXT = 60;
 const DIFFICULTIES = Object.freeze(Object.keys(LIMITS.dc));

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { replyDice, offerLine, dicePayload, diceOf, diceRecord } from '../../../../src/v2/lean-rpg/checks/dice.js';
-import { bonusTable } from '../../../../src/v2/lean-rpg/checks/result.js';
-import { LIMITS } from '../../../../src/v2/lean-rpg/names.js';
-import { rulesOf } from '../../../../src/v2/lean-rpg/checks/dice-parts/shared-checks.js';
+import { replyDice, offerLine, dicePayload, diceOf, diceRecord } from '../../../../modules/rpg/checks/dice.js';
+import { bonusTable } from '../../../../modules/rpg/checks/result.js';
+import { LIMITS } from '../../../../modules/rpg/names.js';
+import { rulesOf } from '../../../../modules/rpg/checks/dice-parts/shared-checks.js';
 
 const astra = { name: 'Astra', aliases: [], stats: { str: 10, vit: 8, agi: 12, dex: 6, int: 14, luk: 9, cha: 10 }, level: 10, soul: 1,
     skills: [{ name: 'Obscure', stat: 'dex', rank: 1, type: 'utility' }, { name: 'Lore', stat: null, rank: 0, type: 'utility' }] };

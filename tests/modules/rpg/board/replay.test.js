@@ -3,10 +3,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { boardSession, openBoard, reconcileBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { boardSession, openBoard, reconcileBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, skillBlock } from '../helpers.js';
 
 const FIGHT = {

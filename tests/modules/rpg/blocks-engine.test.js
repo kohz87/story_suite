@@ -4,16 +4,16 @@
 // tail and the sheet reader say it in words, and live = reload = rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES, COMBAT_PROMPT_STANDARD, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
-import { STAGES } from '../../../src/v2/lean-rpg/names.js';
-import { readSheet } from '../../../src/v2/lean-rpg/read.js';
-import { blocksFor } from '../../../src/v2/lean-rpg/formula.js';
-import { hardBlocksByLevel } from '../../../src/v2/lean-rpg/foes.js';
-import { summaryOf } from '../../../src/v2/data-modules/part.js';
-import { validateDataModules, DM_LIMITS as L } from '../../../src/v2/data-modules/check.js';
-import { fullModuleGrammar } from '../../../src/v2/data-modules/grammar.js';
-import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES, COMBAT_PROMPT_STANDARD, characterV1For } from '../../../modules/rpg/templates.js';
+import { STAGES } from '../../../modules/rpg/names.js';
+import { readSheet } from '../../../modules/rpg/read.js';
+import { blocksFor } from '../../../modules/rpg/formula.js';
+import { hardBlocksByLevel } from '../../../modules/rpg/foes.js';
+import { summaryOf } from '../../../packages/story-block/src/v2/data-modules/part.js';
+import { validateDataModules, DM_LIMITS as L } from '../../../packages/story-block/src/v2/data-modules/check.js';
+import { fullModuleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
+import { reply, success, view, rebuilt, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const CHECK = { packId: 'chat', capabilities: ['data-modules-v1', 'story-director'] };
 const standard = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));

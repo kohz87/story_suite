@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseCharacterFile } from "../../../../src/v2/lean-rpg/charfile.js";
-import { EXPORT_WIDGET } from "../../../../src/v2/lean-rpg/view/export.js";
-import { reload } from "../../data-modules/helpers.js";
+import { parseCharacterFile } from "../../../../modules/rpg/charfile.js";
+import { EXPORT_WIDGET } from "../../../../modules/rpg/view/export.js";
+import { reload } from "../../../../packages/story-block/tests/v2/data-modules/helpers.js";
 import { begin, fieldsOf, fillBlocks, makeBlocks, page, settle } from "./page.js";
-import { cssOf } from "../../../../../../tests/core/helpers/css-parts.js";
+import { cssOf } from "../../../core/helpers/css-parts.js";
 import { PARTY_STUB, REN, SAVED, click, companion, createRen, exportDialog, exportOf, goTo, importInto, names, newcomer, oldSkillsBlock, purseOf, carried, saveFrom, story, type, without, wizardOf, wizardWith } from "./char-export.helpers.js";
 
 test('a You takes the things to the bag, a companion with a party actor to that actor', async t => {
@@ -132,7 +132,7 @@ test('inventory.add with a kind and rarity: a new item has them, one the chat al
 // ---- the dialogs are opaque -----------------------------------------------------------------------------------------------------------
 
 test('the RPG\'s dialogs are opaque: the party cards behind the New character window must not show through it', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     const rule = /\.ss-dialog:has\(([^)]*)\) \{([^}]*)\}/.exec(css);
     assert.ok(rule, 'a rule for the dialogs that hold the RPG widgets');
     for (const widget of ['.ss-w-rpg-wizard', '.ss-w-rpg-export', '.ss-w-rpg-hold']) assert.ok(rule[1].includes(widget), `${widget} dialogs`);

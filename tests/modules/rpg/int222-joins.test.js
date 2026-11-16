@@ -3,14 +3,14 @@
 //  - 2.21.0 FIGHT-FIX (a spent skill falls back) x 2.22.0 extra slots: a skill in slot 6-8 that runs out falls back to its `else:` skill, else to a plain attack.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { createFakeModel } from '../../../testkit/model.js';
-import { LEAN_RPG_FEATURE, prepare, readSheet, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
-import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { LEAN_RPG_FEATURE, prepare, readSheet, rollPrepared } from '../../../modules/rpg/index.js';
+import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
 import { parsePlanAnswer } from './legacy-planner.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { reply } from '../data-modules/helpers.js';
-import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { reply } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { usesOf } from '../../../modules/rpg/practice.js';
 import { character, foeBlock, sheetDomain } from './helpers.js';
 
 const available = await hostAvailable();

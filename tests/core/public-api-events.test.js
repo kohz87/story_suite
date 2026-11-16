@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 import { createPublicApi, createReaders, diffLeaves, plainText } from '../../core/public-api.js';
 import { createEvents } from '../../core/sdk.js';
-import { sheetDomain, character } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
+import { sheetDomain, character } from '../modules/rpg/helpers.js';
 import { skip, reply, settle, record, blocksModule } from './public-api.helpers.js';
 
 // ---- the events ----------------------------------------------------------------------------------------------------------------------------

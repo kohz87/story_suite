@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import {
     CLASS_NAMES, DIFFICULTIES, DIFFICULTY_SETTING, EARLIER_RULES, STANDARD, STANDARD_PRESETS, STANDARD_RANGES, STANDARD_RULE_KEYS, STANDARD_SETTING, RANK_NAMES,
     difficultyOf, fold, normalizeRules, oddsFor, oddsSubject, outcomeOf, prepare, presetOf, readSheet, rollPrepared, rulesFromSettings, sameRules, subjectOdds,
-} from '../../../src/v2/lean-rpg/index.js';
-import { foeBonus } from '../../../src/v2/lean-rpg/formula.js';
+} from '../../../modules/rpg/index.js';
+import { foeBonus } from '../../../modules/rpg/formula.js';
 import { PARTY, character, sheetDomain, skillBlock } from './helpers.js';
 
 const sheetOf = (blocks = PARTY()) => readSheet({ domains: { dataModules: sheetDomain(blocks) } });

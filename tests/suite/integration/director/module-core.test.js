@@ -13,7 +13,7 @@ import { chronicleScreen } from '../../../../modules/world/chronicle/screen.js';
 import { daysScreen, worldScreen } from '../../../../modules/world/world/index.js';
 import { STATIC_TEXT as CHRONICLE_STATIC, TAIL_BUDGET as CHRONICLE_BUDGET } from '../../../../modules/world/chronicle/note.js';
 import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET } from '../../../../modules/world/chronicle/digest.js';
-import { part as checksPart } from '../../../../packages/story-director/src/v2/checks/index.js';
+import { part as checksPart } from '../../../../modules/rpg/checks/index.js';
 import { part as chroniclePart } from '../../../../modules/world/chronicle/index.js';
 import { part as keyPeoplePart } from '../../../../modules/cast/keypeople/index.js';
 import { DEFAULT_TOKENS as KEY_PEOPLE_TOKENS } from '../../../../modules/cast/keypeople/domain.js';
@@ -22,7 +22,7 @@ import { ARC_TAIL_BUDGET } from '../../../../modules/arc/domain.js';
 import { TAIL_BUDGET as CAST_BUDGET } from '../../../../modules/cast/cast/settings.js';
 import { PULSE_STATIC, STALE_REPLIES, pulseCommand, pulseHook } from '../../../../modules/world/pulse/effects.js';
 import { foesLeftover, foesSignature, leanFight, pulseResults } from '../../../../modules/cast/cast/entries.js';
-import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../../../modules/rpg/slot.js';
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { part as namesPart } from '../../../../modules/cast/names/index.js';
 

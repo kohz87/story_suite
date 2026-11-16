@@ -1,8 +1,8 @@
-import { hostAvailable } from '../../../testkit/index.js';
-import { prepare, readSheet, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
-import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
-import { prepareStandard as prepareMemberStandard, rollStandard as rollMemberStandard } from '../../../src/v2/lean-rpg/standard.js';
-import { memberRolls } from '../../../src/v2/lean-rpg/board/member-rolls.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { prepare, readSheet, rollPrepared } from '../../../modules/rpg/index.js';
+import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
+import { prepareStandard as prepareMemberStandard, rollStandard as rollMemberStandard } from '../../../modules/rpg/standard.js';
+import { memberRolls } from '../../../modules/rpg/board/member-rolls.js';
 import { character, foeBlock, sheetDomain, skillBlock } from './helpers.js';
 
 export const available = await hostAvailable();

@@ -1,16 +1,16 @@
 // Round 15: fight-start bugs from real play (the bristle-boar contract).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { knownFoeAction } from '../../../../src/v2/lean-rpg/board/action-gate.js';
-import { pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
-import { buildPanel, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { pendingStart } from '../../../../../../core/turn/fight-start.js';
-import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { knownFoeAction } from '../../../../modules/rpg/board/action-gate.js';
+import { pauseViewData } from '../../../../modules/rpg/board/start-view-data.js';
+import { buildPanel, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
+import { pendingStart } from '../../../../core/turn/fight-start.js';
+import { openBoard } from '../../../../modules/rpg/board/session.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 import { character, foeBlock, setup, skillBlock } from '../helpers.js';
 
@@ -93,7 +93,7 @@ const dice = '? roll Astra | AGI | normal | 12';
 const mes = (story, ...lines) => ({ mes: `${story}\n<Changes>\n${lines.join('\n')}\n</Changes>` });
 
 test('fightCue: a fight in the prose with a roll and no foes line is told; each missing part stops it', async () => {
-    const { fightCue, FIGHT_CUE } = await import('../../../../../../core/turn/fight-start.js');
+    const { fightCue, FIGHT_CUE } = await import('../../../../core/turn/fight-start.js');
     assert.equal(fightCue(mes(FIGHT, dice, '+ item Rope')), FIGHT_CUE);
     assert.equal(fightCue(mes(FIGHT, dice, '+ dm foes - Ridge cutpurses x2 | kind: set-slot-1 | level: 3')), null, 'a foes line was written');
     assert.equal(fightCue(mes(FIGHT, dice, '+ dm Ridge cutpurses | kind: set-slot-1 | level: 3')), null, 'a set-slot line was written');
@@ -106,10 +106,10 @@ test('fightCue: a fight in the prose with a roll and no foes line is told; each 
 });
 
 test('the cue reaches the next reply\'s tail only with the RPG on and no foe set; the static prompt is unchanged', async t => {
-    const { createHost } = await import('../../../../testkit/index.js');
-    const { CORE_FEATURE } = await import('../../../../../../core/features.js');
-    const { TAIL_KEY, STATIC_KEY } = await import('../../../../../../core/turn.js');
-    const { FIGHT_CUE } = await import('../../../../../../core/turn/fight-start.js');
+    const { createHost } = await import('../../../../packages/story-block/testkit/index.js');
+    const { CORE_FEATURE } = await import('../../../../core/features.js');
+    const { TAIL_KEY, STATIC_KEY } = await import('../../../../core/turn.js');
+    const { FIGHT_CUE } = await import('../../../../core/turn/fight-start.js');
     const run = async rpg => {
         const host = await createHost();
         t.after(() => host.close());
@@ -127,10 +127,10 @@ test('the cue reaches the next reply\'s tail only with the RPG on and no foe set
 });
 
 test('a swipe of the reply after the fight gets the same cue as the first try', async t => {
-    const { createHost } = await import('../../../../testkit/index.js');
-    const { CORE_FEATURE } = await import('../../../../../../core/features.js');
-    const { TAIL_KEY } = await import('../../../../../../core/turn.js');
-    const { FIGHT_CUE } = await import('../../../../../../core/turn/fight-start.js');
+    const { createHost } = await import('../../../../packages/story-block/testkit/index.js');
+    const { CORE_FEATURE } = await import('../../../../core/features.js');
+    const { TAIL_KEY } = await import('../../../../core/turn.js');
+    const { FIGHT_CUE } = await import('../../../../core/turn/fight-start.js');
     const host = await createHost();
     t.after(() => host.close());
     host.features.set(CORE_FEATURE.leanRpg, true);
@@ -210,7 +210,7 @@ test('stale foes: a pre-check that opens new foes leaves the stale group out of 
 });
 
 test('stale foes: the tail does not say "No foes are set" while old Foes are listed', async t => {
-    const { TAIL_KEY } = await import('../../../../../../core/turn.js');
+    const { TAIL_KEY } = await import('../../../../core/turn.js');
     const { host } = await staleChat(t, 717, 5);
     await host.send('I look around.', 'Quiet.');
     const tail = host.st.promptLog.filter(entry => entry.key === TAIL_KEY && entry.value).at(-1)?.value ?? '';
@@ -219,7 +219,7 @@ test('stale foes: the tail does not say "No foes are set" while old Foes are lis
 });
 
 test('stale foes: a swipe counts the replies the first try did (the 3/4 boundary)', async t => {
-    const { TAIL_KEY } = await import('../../../../../../core/turn.js');
+    const { TAIL_KEY } = await import('../../../../core/turn.js');
     const { host } = await staleChat(t, 718, 3);
     const tail = () => host.st.promptLog.filter(entry => entry.key === TAIL_KEY && entry.value).at(-1)?.value ?? '';
     await host.send('I look around.', 'Quiet.');

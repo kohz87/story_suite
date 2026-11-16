@@ -1,6 +1,6 @@
 // Shared fixtures and helpers for the char-export test suite.
 import assert from 'node:assert/strict';
-import { CHAR_FILE } from '../../../../src/v2/lean-rpg/charfile.js';
+import { CHAR_FILE } from '../../../../modules/rpg/charfile.js';
 import { begin, makeBlocks, page, party, settle } from './page.js';
 import { characterDefinition, skillsDefinition } from './helpers.js';
 

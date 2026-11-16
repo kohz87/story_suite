@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { createPartyScreen, createPartyWidget, PARTY_SCREEN_ID, PARTY_WIDGET } from '../../../../src/v2/lean-rpg/view/party.js';
-import { hasCharacters, readParty, stageTone, stageWord } from '../../../../src/v2/lean-rpg/view/party-data.js';
-import { activeNow } from '../../../../../../ui/legacy/view/mounts/common.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { createPartyScreen, createPartyWidget, PARTY_SCREEN_ID, PARTY_WIDGET } from '../../../../modules/rpg/view/party.js';
+import { hasCharacters, readParty, stageTone, stageWord } from '../../../../modules/rpg/view/party-data.js';
+import { activeNow } from '../../../../ui/legacy/view/mounts/common.js';
 import { characterDefinition, fakeState, foesDefinition, roleOf, skillsDefinition } from './helpers.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 
 const wessel = { definition: characterDefinition('wessel', 'Wessel'), fields: { health: 3, mana: 4, stamina: 1, str: 14, vit: 12, agi: 11, dex: 10, int: 8, luk: 9, cha: 10, points: 3, level: 2, xp: 40 } };
 const ren = { definition: characterDefinition('ren', 'Ren'), fields: { health: 5, mana: 2, stamina: 3, str: 7, vit: 9, agi: 10, dex: 11, int: 15, luk: 10, cha: 12, level: 1, xp: 85 } };
@@ -149,7 +149,7 @@ test('the widget is named rpg.party and the screen draws it', () => {
 });
 
 test('the stylesheet: cards side by side on a wide screen, stacked on a phone, theme tokens only, nothing fixed', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-cards \{[^}]*grid-template-columns: repeat\(auto-fill, minmax\(min\(100%, 300px\), 1fr\)\)/);
     assert.doesNotMatch(css, /position:\s*fixed/);
     assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/, 'no colour of its own');
@@ -206,7 +206,7 @@ test('nobody left: no fold row, and the header says "N active" alone', () => {
 });
 
 test('Long names in the left row are cut with an ellipsis', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-main \{[^}]*grid-template-columns: minmax\(0, 1fr\)/, 'the one column may shrink below its content');
     assert.match(css, /\.rpg-left-fold \{[^}]*min-width: 0[^}]*overflow: hidden/);
     assert.match(css, /\.rpg-left-fold b \{[^}]*white-space: nowrap[^}]*flex: none/);

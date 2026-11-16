@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { FIGHT_SCREEN_ID, FIGHT_WIDGET, createFightScreen, createFightWidget, hasFoes, readFight } from '../../../../src/v2/lean-rpg/view/fight.js';
-import { panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { ROLES_WITHOUT_TAB } from '../../../../src/v2/lean-rpg/names.js';
-import { activeNow } from '../../../../../../ui/legacy/view/mounts/common.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { FIGHT_SCREEN_ID, FIGHT_WIDGET, createFightScreen, createFightWidget, hasFoes, readFight } from '../../../../modules/rpg/view/fight.js';
+import { panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
+import { ROLES_WITHOUT_TAB } from '../../../../modules/rpg/names.js';
+import { activeNow } from '../../../../ui/legacy/view/mounts/common.js';
 import { characterDefinition, fakeState, foesDefinition, roleOf } from './helpers.js';
 
 const wessel = { definition: characterDefinition('wessel', 'Wessel'), fields: { health: 3, mana: 4, stamina: 1 } };
@@ -164,7 +164,7 @@ test('the view redraws from the state on update, and destroy takes it away', () 
 });
 
 test('the stylesheet: a grid on a wide screen, one column on a phone, a Down foe greyed', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-foes \{[^}]*grid-template-columns: repeat\(auto-fill, minmax\(min\(100%, 280px\), 1fr\)\)/);
     assert.match(css, /\.rpg-fight-party \{[^}]*grid-template-columns: repeat\(auto-fill, minmax\(min\(100%, 300px\), 1fr\)\)/);
     assert.match(css, /\.rpg-down \{[^}]*grayscale/);

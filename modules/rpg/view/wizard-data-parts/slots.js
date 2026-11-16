@@ -1,6 +1,6 @@
 // How many skill slots a draft may fill and how many are kept or utility.
 
-import { SKILL_SLOTS_MAX, UTILITY_SLOTS, skillSlots } from '../../../../../../../core/runtime/skill-slots.js';
+import { SKILL_SLOTS_MAX, UTILITY_SLOTS, skillSlots } from '../../../../core/runtime/skill-slots.js';
 import { draftLevel } from './creation.js';
 import { isRecord } from './shared-helpers.js';
 

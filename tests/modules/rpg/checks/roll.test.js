@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hashOf, makeState, run, write } from './helpers.js';
-import { combine, socialParts, standaloneParts } from '../../../src/v2/checks/roll.js';
-import { statForCheck, topicsOf } from '../../../src/v2/checks/words.js';
+import { combine, socialParts, standaloneParts } from '../../../../modules/rpg/checks/roll.js';
+import { statForCheck, topicsOf } from '../../../../modules/rpg/checks/words.js';
 
 const EVIDENCE = 'ev_00000001';
 const known = { 'story.evidence': () => [{ id: EVIDENCE }] };

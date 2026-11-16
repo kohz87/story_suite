@@ -4,12 +4,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { damageOf, healOf, soakOf, takeHit } from '../../../../src/v2/lean-rpg/combat/damage.js';
-import { foeStats } from '../../../../src/v2/lean-rpg/combat/foes.js';
-import { V1 } from '../../../../src/v2/lean-rpg/combat/numbers.js';
-import { initiative } from '../../../../src/v2/lean-rpg/combat/order.js';
-import { foeRoll, playerRoll, rollOutcome } from '../../../../src/v2/lean-rpg/combat/rolls.js';
-import { tempoChain } from '../../../../src/v2/lean-rpg/combat/tempo.js';
+import { damageOf, healOf, soakOf, takeHit } from '../../../../modules/rpg/combat/damage.js';
+import { foeStats } from '../../../../modules/rpg/combat/foes.js';
+import { V1 } from '../../../../modules/rpg/combat/numbers.js';
+import { initiative } from '../../../../modules/rpg/combat/order.js';
+import { foeRoll, playerRoll, rollOutcome } from '../../../../modules/rpg/combat/rolls.js';
+import { tempoChain } from '../../../../modules/rpg/combat/tempo.js';
 import { bonusesOf } from '../v1/oracle.js';
 
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));

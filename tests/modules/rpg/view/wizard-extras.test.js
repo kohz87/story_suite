@@ -2,10 +2,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { STATS } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { RPG_EXTRAS, buildDefinitions, extraDefinitions, extrasPlan, missingBlocks, newDraft, problemsOf, readDraft } from '../../../../src/v2/lean-rpg/view/wizard-data.js';
-import { reload } from '../../data-modules/helpers.js';
+import { STATS } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { RPG_EXTRAS, buildDefinitions, extraDefinitions, extrasPlan, missingBlocks, newDraft, problemsOf, readDraft } from '../../../../modules/rpg/view/wizard-data.js';
+import { reload } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { begin, fillBlocks, makeBlocks, page, settle } from './page.js';
 import { click, companion, createFrom, ctxDialog, goTo, names, openFrom, rolesOf, type, usedReply, wizardOf } from './wizard.helpers.js';
 
@@ -206,7 +206,7 @@ test('2.9.2: after a + or a − the Stats step still shows no "Points left" unde
 });
 
 test('2.9.3: the wizard\'s own root gets the grid and the 12px gap, so the summary row and the step below are spaced apart', async t => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /(^|\n)\.ss-w-rpg-wizard \{ display: grid; gap: 12px; min-width: 0; \}/, 'the rule names the class the root really has');
     assert.doesNotMatch(css, /(^|\n)\.rpg-wizard \{/, 'no rule for a class nothing carries');
     const ctx = await page(t, { persona: 'Wessel' });
@@ -220,7 +220,7 @@ test('2.9.3: the wizard\'s own root gets the grid and the 12px gap, so the summa
 });
 
 test('2.9.1: the Stats card\'s stylesheet: padding in the card, an even grid beside the radar centred, two columns then the radar below on a phone; the Spend points view is untouched', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-wiz-stats-card \{[^}]*padding: 14px 16px;[^}]*background: var\(--ss-tile\)/);
     assert.match(css, /\.rpg-wiz-stats-body \{[^}]*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 300px\);[^}]*align-items: center;/);
     assert.match(css, /\.rpg-wiz-steppers \{[^}]*grid-template-columns: repeat\(auto-fill, minmax\(112px, 1fr\)\);/);

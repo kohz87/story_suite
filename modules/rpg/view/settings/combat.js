@@ -1,11 +1,11 @@
 // Draws the RPG settings Combat card: the chat's Combat rules text in a bounded box, saved as an edit of that block
 // when the box is left, reset, hidden with the page, or the window closes; one save waits for the one before it.
 
-import { h } from '../../../../../../../ui/legacy/view/widgets/dom.js';
-import { refusalText } from '../../../../../../../core/strings.js';
+import { h } from '../../../../ui/legacy/view/widgets/dom.js';
+import { refusalText } from '../../../../core/strings.js';
 import { fill } from '../../strings.js';
 import { COMBAT_MAX, COMBAT_DEFAULT, combatBlock, combatTemplate, withPrompt } from '../settings-data.js';
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../../core/text.js';
 import { S } from './constants.js';
 
 export function createCombatSection({ doc, root, card, values, pack, roleOf, command, headState, onChange, redraw, isAlive, state }) {

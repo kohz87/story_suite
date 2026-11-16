@@ -3,13 +3,13 @@
 // Down, the end card follows, and live = reload = rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES, SKILL_SETS, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
-import { LEAN_RPG_FEATURE } from '../../../src/v2/lean-rpg/index.js';
-import { summaryOf } from '../../../src/v2/data-modules/part.js';
-import { DM_LIMITS } from '../../../src/v2/data-modules/schema.js';
-import { estimateTokens } from '../../../src/v2/assist/common.js';
-import { reply, success, view, rebuilt } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES, SKILL_SETS, characterV1For } from '../../../modules/rpg/templates.js';
+import { LEAN_RPG_FEATURE } from '../../../modules/rpg/index.js';
+import { summaryOf } from '../../../packages/story-block/src/v2/data-modules/part.js';
+import { DM_LIMITS } from '../../../packages/story-block/src/v2/data-modules/schema.js';
+import { estimateTokens } from '../../../packages/story-block/src/v2/assist/common.js';
+import { reply, success, view, rebuilt } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const definition = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));
 // A line's sign is its kind's op: `+` for the add kinds (add-xp, practice-N), `~` for the set kinds.
@@ -115,7 +115,7 @@ test('Skills: a learn line with a stat or resource that is not one of the words 
 });
 
 test('the rolls read a sheet made from the templates: the character by its Who, its skills by theirs', async t => {
-    const { readSheet } = await import('../../../src/v2/lean-rpg/read.js');
+    const { readSheet } = await import('../../../modules/rpg/read.js');
     const host = await story(t, 'Character', 'Skills');
     success(await host.sdk.command('dm.set', { module: 'pack.chat/character', field: 'who', value: 'Wessel' }));
     success(await host.sdk.command('dm.set', { module: 'pack.chat/skills', field: 'who', value: 'Wessel' }));

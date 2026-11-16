@@ -1,8 +1,8 @@
 // The export dialog: the options window drawn by the export widget, reading the story afresh each time, and saving the character file.
 
-import { h, shell } from '../../../../../../../ui/legacy/view/widgets/dom.js';
-import { saveTextFile } from '../../../../../../../ui/legacy/view/download.js';
-import { DEFAULT_CURRENCY } from '../../../domains/money.js';
+import { h, shell } from '../../../../ui/legacy/view/widgets/dom.js';
+import { saveTextFile } from '../../../../ui/legacy/view/download.js';
+import { DEFAULT_CURRENCY } from '../../../../packages/story-block/src/v2/domains/money.js';
 import { FILE_LIMITS, buildCharacterFile, fileNameOf, fileText, itemLine, itemsForFile, moneyText, skillLine, thingsWord } from '../../charfile.js';
 import { fold } from '../../read.js';
 import { RPG_STRINGS, fill } from '../../strings.js';

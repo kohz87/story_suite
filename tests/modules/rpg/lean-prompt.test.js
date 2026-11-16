@@ -4,13 +4,13 @@
 // plan parses, and the same reply rebuilt (a swipe that keeps its plan) tells the same prompt.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { createFakeModel } from '../../../testkit/model.js';
-import { LEAN_RPG_FEATURE, QUIET_GRAMMAR, fightIsOpen, isQuiet, readSheet } from '../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { moduleGrammar } from '../../../src/v2/data-modules/grammar.js';
-import { reply, success } from '../data-modules/helpers.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { LEAN_RPG_FEATURE, QUIET_GRAMMAR, fightIsOpen, isQuiet, readSheet } from '../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { moduleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
+import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

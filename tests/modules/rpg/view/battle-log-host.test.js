@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../../testkit/index.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { BATTLE_ROOT, createBattleLog, createFoldStore, markerNodes, placeAtMarker } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { stripBattleMarker } from '../../../../../../core/turn.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { BATTLE_ROOT, createBattleLog, createFoldStore, markerNodes, placeAtMarker } from '../../../../modules/rpg/view/battle-log.js';
+import { stripBattleMarker } from '../../../../core/turn.js';
 import { roleOf } from './helpers.js';
 import { kids, mes, message, prose, spot, world } from './battle-log.helpers.js';
 
@@ -167,7 +167,7 @@ test('the history strip runs only while the feature is on: chat completion and t
 });
 
 test('the stylesheet: a dark monospace panel from tokens, the status bars aligned, a tap row 44px tall', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-battle \{[^}]*monospace/);
     assert.match(css, /\.rpg-bl-head \{[^}]*min-height: 44px/);
     assert.match(css, /\.rpg-bl-stat \{[^}]*grid-template-columns: 4\.6em minmax\(36px, 1fr\) 8\.5em/, 'label, bar and word in fixed columns, so the bars line up');

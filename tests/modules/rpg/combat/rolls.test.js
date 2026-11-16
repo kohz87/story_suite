@@ -3,10 +3,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rng as seeded } from '../../../../../../core/commands/rng.js';
-import { foeRoll, masteryTerm, playerRoll, rollOutcome } from '../../../../src/v2/lean-rpg/combat/rolls.js';
-import { foeStats } from '../../../../src/v2/lean-rpg/combat/foes.js';
-import { RANKS, TIERS } from '../../../../src/v2/lean-rpg/combat/numbers.js';
+import { rng as seeded } from '../../../../core/commands/rng.js';
+import { foeRoll, masteryTerm, playerRoll, rollOutcome } from '../../../../modules/rpg/combat/rolls.js';
+import { foeStats } from '../../../../modules/rpg/combat/foes.js';
+import { RANKS, TIERS } from '../../../../modules/rpg/combat/numbers.js';
 import { bonusesOf, foeOf, playerHit, foeHit, rollMastery } from '../v1/oracle.js';
 
 const KINDS = ['physical', 'magic', 'evasion', 'tempo', 'order', 'flee'];

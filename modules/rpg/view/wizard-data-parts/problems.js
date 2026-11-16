@@ -1,6 +1,6 @@
 // What holds Create up, and the block actions a reply has left for it.
 
-import { DM_LIMITS } from '../../../data-modules/schema.js';
+import { DM_LIMITS } from '../../../../packages/story-block/src/v2/data-modules/schema.js';
 import { PARTY_ACTIVE } from '../../names.js';
 import { fold } from '../../read.js';
 import { RPG_STRINGS, fill } from '../../strings.js';

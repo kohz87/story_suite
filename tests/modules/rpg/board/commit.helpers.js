@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { planGear } from '../../../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../../src/v2/lean-rpg/templates.js';
-import { createFakeModel, createHost } from '../../../../testkit/index.js';
-import { actorIdOf } from '../../../../src/v2/lean-rpg/roster.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { planGear } from '../../../../modules/rpg/gear.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
+import { createFakeModel, createHost } from '../../../../packages/story-block/testkit/index.js';
+import { actorIdOf } from '../../../../modules/rpg/roster.js';
 
 export async function gearHost() {
     const host = await createHost({ callModel: createFakeModel(Array(10).fill('')), settings: { features: { 'story-block.gear': true }, modules: { 'story-block': { rpgFormula: 'standard' } } } });

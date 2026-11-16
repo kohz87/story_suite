@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
 import { seeded } from './dice.helper.js';
 import { withSkills } from './derived-skills.helper.js';
 

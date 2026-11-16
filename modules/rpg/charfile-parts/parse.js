@@ -1,7 +1,7 @@
 // Reads a character file's text into a clean file or a plain-words refusal.
 
 import { STATS } from '../names.js';
-import { SKILL_FIELDS_MAX, SKILL_SLOTS_MAX, UTILITY_SLOTS } from '../../../../../../core/runtime/skill-slots.js';
+import { SKILL_FIELDS_MAX, SKILL_SLOTS_MAX, UTILITY_SLOTS } from '../../../core/runtime/skill-slots.js';
 import { classOfLevel, levelOfClass } from '../formula.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { CHAR_FILE, CHAR_VERSION, FILE_LIMITS } from './limits.js';

@@ -2,9 +2,9 @@
 // rebuilt from each roll record, the battle log model/note per reply, and the Re-read result.
 // make.mjs writes the fixtures from this tree; combat-corpus.test.js replays the same chats and compares.
 
-import { RESOLVE } from '../../../../packages/story-block/src/v2/lean-rpg/names.js';
-import { receiptCue } from '../../../../packages/story-block/src/v2/lean-rpg/cue.js';
-import { createBattleLog } from '../../../../packages/story-block/src/v2/lean-rpg/view/battle-log.js';
+import { RESOLVE } from '../../../../modules/rpg/names.js';
+import { receiptCue } from '../../../../modules/rpg/cue.js';
+import { createBattleLog } from '../../../../modules/rpg/view/battle-log.js';
 import { readRecord } from '../../../../core/persist.js';
 
 export const roleOf = definition => definition?.role ?? null;

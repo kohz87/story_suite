@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { CONDITION, KIND_CARRY, carryPicture, condMark, condWord, gearBudget, itemCarryOf, kindCarry, statsFor, travelsWith, valueByCond } from '../../src/v2/domains/gear.js';
 import { validateInventory } from '../../src/v2/domains/inventory.js';
 import { createHost } from '../../testkit/index.js';
-import { page, settle } from './lean-rpg/view/page.js';
+import { page, settle } from '../../../../tests/modules/rpg/view/page.js';
 import { createHarness, line } from './domains/helpers/fake-ctx.js';
 import { core, stocked } from './domains/fixtures.js';
 import { FIGHT, OFF, ON, defNamed, equip, fresh, gearCore, reply, tail, wear } from './gear-inventory.helpers.js';

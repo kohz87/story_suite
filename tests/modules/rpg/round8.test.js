@@ -1,20 +1,20 @@
 // RPG round 8: a skill can count when you defend (B) and the Soul Class field's own name (C). (A, "Stat adds: full above 10", went with the Classic rules.)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
-import { STANDARD, prepare, readSheet, rollPrepared, validatePlan } from '../../../src/v2/lean-rpg/index.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { STANDARD, prepare, readSheet, rollPrepared, validatePlan } from '../../../modules/rpg/index.js';
 // (The Character block here is one made before levels, 2.17.0: it has the Soul Class field a pack may rename.)
 import { STANDARD_TEMPLATES } from './fixtures/templates-2.16.js';
-import { readJoin, soulNaming, joinCard } from '../../../src/v2/lean-rpg/join.js';
-import { soulReading } from '../../../src/v2/lean-rpg/soul.js';
-import { readParty } from '../../../src/v2/lean-rpg/view/party-data.js';
-import { createPartyWidget } from '../../../src/v2/lean-rpg/view/party.js';
-import { renderRpgSettings } from '../../../src/v2/lean-rpg/view/settings.js';
-import { renderSkills } from '../../../src/v2/lean-rpg/view/skills.js';
-import { rpgReplyLines } from '../../../src/v2/lean-rpg/view/changes-lines.js';
-import { buildPanel, panelModel, readResolve } from '../../../src/v2/lean-rpg/view/battle-log.js';
-import { oddsView, soulLabelFor } from '../../../src/v2/lean-rpg/view/settings-data.js';
+import { readJoin, soulNaming, joinCard } from '../../../modules/rpg/join.js';
+import { soulReading } from '../../../modules/rpg/soul.js';
+import { readParty } from '../../../modules/rpg/view/party-data.js';
+import { createPartyWidget } from '../../../modules/rpg/view/party.js';
+import { renderRpgSettings } from '../../../modules/rpg/view/settings.js';
+import { renderSkills } from '../../../modules/rpg/view/skills.js';
+import { rpgReplyLines } from '../../../modules/rpg/view/changes-lines.js';
+import { buildPanel, panelModel, readResolve } from '../../../modules/rpg/view/battle-log.js';
+import { oddsView, soulLabelFor } from '../../../modules/rpg/view/settings-data.js';
 import { cueOf, PARTY, PLAN_ANSWER, character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock } from './helpers.js';
 import { fakeState, roleOf as viewRoleOf } from './view/helpers.js';
 

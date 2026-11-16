@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { foeMembers, foeStats } from '../../../../src/v2/lean-rpg/combat/foes.js';
-import { RANKS, TEMPO_CAPS, TIERS, V1 } from '../../../../src/v2/lean-rpg/combat/numbers.js';
+import { foeMembers, foeStats } from '../../../../modules/rpg/combat/foes.js';
+import { RANKS, TEMPO_CAPS, TIERS, V1 } from '../../../../modules/rpg/combat/numbers.js';
 
 const LEVELS = [1, 15, 30, 60, 99];
 const TABLE = {

@@ -1,13 +1,13 @@
 // RPG fix round 5, engine side (review 158 blockers 2, 3 and 6). Each test is the review's repro.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
-import { validateDataModules } from '../../../src/v2/data-modules/check.js';
-import { blockCards, settleReserve } from '../../../src/v2/data-modules/part.js';
-import { ROLES } from '../../../src/v2/lean-rpg/index.js';
-import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { pack, reload, rebuilt, reply, success, view } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
+import { validateDataModules } from '../../../packages/story-block/src/v2/data-modules/check.js';
+import { blockCards, settleReserve } from '../../../packages/story-block/src/v2/data-modules/part.js';
+import { ROLES } from '../../../modules/rpg/index.js';
+import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { pack, reload, rebuilt, reply, success, view } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const template = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));
 const check = definition => validateDataModules([definition], { packId: 'chat', capabilities: ['data-modules-v1'] });

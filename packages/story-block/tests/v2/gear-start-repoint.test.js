@@ -17,7 +17,7 @@ test('replay equals live: the state the add left is what a rebuild of the chat g
 });
 
 test('a saved character keeps a hand-set piece exactly: the file carries its slot and bonus, and importing it back gives the same piece', { skip }, async t => {
-    const { itemsForFile, parseCharacterFile, buildCharacterFile, fileText } = await import('../../src/v2/lean-rpg/charfile.js');
+    const { itemsForFile, parseCharacterFile, buildCharacterFile, fileText } = await import('../../../../modules/rpg/charfile.js');
     const host = await world(t);
     await add(host, { name: 'Wolfskin Cap', kind: 'equipment', slot: 'head', rarity: 'rare', stats: { VIT: 1, AGI: 1 } });
     await add(host, { name: 'Lucky Bone', kind: 'equipment', slot: 'accessory-2', rarity: 'common' });

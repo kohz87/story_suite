@@ -1,7 +1,7 @@
 // Reads one skill and one item entry of a character file into clean copies.
 
-import { KINDS, RARITIES } from '../../domains/inventory.js';
-import { GEAR, slotWordOf } from '../../domains/gear.js';
+import { KINDS, RARITIES } from '../../../packages/story-block/src/v2/domains/inventory.js';
+import { GEAR, slotWordOf } from '../../../packages/story-block/src/v2/domains/gear.js';
 import { CREATION, STATS, USES } from '../names.js';
 import { FILE_LIMITS } from './limits.js';
 import { isRecord, line, whole } from './shared-reading.js';

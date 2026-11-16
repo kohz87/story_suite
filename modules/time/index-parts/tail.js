@@ -4,7 +4,7 @@ import { estimateTokens } from '../../atlas/relevance.js';
 import { RECAP_BUDGET, buildRecap } from '../recap.js';
 import { calendarOf, timeSettings } from '../records.js';
 import { recapStale } from '../settle.js';
-import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../rpg/slot.js';
 import { ownedKind, threadsOn, withoutOwnedThreads } from '../tracker/threads.js';
 import { isInt } from './shared-int.js';
 

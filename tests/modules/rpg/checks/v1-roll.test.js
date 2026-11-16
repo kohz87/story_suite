@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { checkBonus, checkOutcome, masteryOf } from '../../../../src/v2/lean-rpg/checks/v1-roll.js';
+import { checkBonus, checkOutcome, masteryOf } from '../../../../modules/rpg/checks/v1-roll.js';
 
 const who = (stat, level) => ({ level, stats: { str: stat, dex: stat, int: stat, wis: stat } });
 const utility = rank => ({ name: 'Lore', stat: 'int', rank, type: 'utility' });

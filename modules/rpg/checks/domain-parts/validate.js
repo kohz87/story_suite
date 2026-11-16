@@ -1,6 +1,6 @@
 // The checks validator (SPEC §2.5) and the check of a bonus key.
 
-import { ledgerProblems } from '../../../../../../modules/world/writes.js';
+import { ledgerProblems } from '../../../world/writes.js';
 import { STATS } from '../words.js';
 import { ACTOR_ID, CHECK_ID, MAX_NAME } from './shared-ids.js';
 import { BONUS_LIMIT, MAX_ACTORS, MAX_BONUSES, MAX_LOG } from './shared-limits.js';

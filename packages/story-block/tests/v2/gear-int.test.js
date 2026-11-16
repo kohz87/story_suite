@@ -6,9 +6,9 @@ import { createCoreModule } from '../../src/v2/domains/index.js';
 import { createHarness } from './domains/helpers/fake-ctx.js';
 import { stocked } from './domains/fixtures.js';
 import { encumbrance, legendEarned } from '../../src/v2/domains/inventory.js';
-import { planGear, sameWho } from '../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../src/v2/lean-rpg/index.js';
-import { character, sheetDomain } from './lean-rpg/helpers.js';
+import { planGear, sameWho } from '../../../../modules/rpg/gear.js';
+import { readSheet } from '../../../../modules/rpg/index.js';
+import { character, sheetDomain } from '../../../../tests/modules/rpg/helpers.js';
 
 const sheetOf = b => readSheet({ domains: { dataModules: sheetDomain(b) } });
 const gearAnswer = piece => ({ on: true, slots: piece ? { weapon: { name: piece, stats: { STR: 1 }, broken: false } } : {}, statBonus: piece ? { STR: 1 } : {}, carry: { encumbered: false, penalty: 0 } });

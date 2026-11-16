@@ -2,17 +2,17 @@
 // the Custom divisor, the Level cap setting, and that a roll made before levels replays exactly as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { DEFAULT_SETTINGS, EARLIER_RULES, LEVEL, LV_VERSION, STANDARD, STANDARD_FORMULA, classTerm, hasLevels, levelBonus, levelCapFor, levelOfClass, normalizeRules,
-    oddsSubject, prepare, readSheet, rollPrepared, rulesFromSettings, subjectOdds } from '../../../src/v2/lean-rpg/index.js';
-import { buildDefinitions, newDraft } from '../../../src/v2/lean-rpg/view/wizard-data.js';
-import { readParty } from '../../../src/v2/lean-rpg/view/party-data.js';
-import { reply, success, view, rebuilt } from '../data-modules/helpers.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
+    oddsSubject, prepare, readSheet, rollPrepared, rulesFromSettings, subjectOdds } from '../../../modules/rpg/index.js';
+import { buildDefinitions, newDraft } from '../../../modules/rpg/view/wizard-data.js';
+import { readParty } from '../../../modules/rpg/view/party-data.js';
+import { reply, success, view, rebuilt } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { fakeState } from './view/helpers.js';
-import { hostAvailable } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { seedCrypto } from '../../../../../tests/suite/qa/helpers/seeded.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { seedCrypto } from '../../suite/qa/helpers/seeded.js';
 import { PARTY, character, rollReceipt, setup, sheetDomain } from './helpers.js';
 
 // (the narrator's XP line belongs to the Character made before the marked one, which keeps it: these tests run on that block)
@@ -184,7 +184,7 @@ test('the Level cap setting: a default of 99, a schema row, pack first then sett
 });
 
 test('the part registers the setting with its schema (int 1..99)', async t => {
-    const { createLeanRpgPart } = await import('../../../src/v2/lean-rpg/index.js');
+    const { createLeanRpgPart } = await import('../../../modules/rpg/index.js');
     const part = createLeanRpgPart({ callModel: async () => '', chat: () => [], chatId: () => 'c', metadata: () => null, problem: () => {}, moduleId: 'story-block' });
     assert.equal(part.settings.defaults.rpgLevelCap, 99);
     assert.deepEqual([part.settings.schema.rpgLevelCap.type, part.settings.schema.rpgLevelCap.min, part.settings.schema.rpgLevelCap.max], ['int', 1, 99]);
@@ -271,7 +271,7 @@ test('a roll made before levels (no lv, numbers with no divisor) replays exactly
 });
 
 test('the roll line on a skill card follows the level: floor(level / divisor) under levelled numbers, 2 × Soul Class under earlier ones', async () => {
-    const { rollOf } = await import('../../../src/v2/lean-rpg/view/skills.js');
+    const { rollOf } = await import('../../../modules/rpg/view/skills.js');
     const hero = { soul: 2, level: 40, stats: [{ key: 'str', label: 'STR', value: 14 }] };
     const skill = { stat: 'str', rank: 1, uses: 'stamina' };
     assert.equal(rollOf(skill, hero, { ...STANDARD, levelDivisor: 5 }).bonus, 8);
@@ -280,7 +280,7 @@ test('the roll line on a skill card follows the level: floor(level / divisor) un
 });
 
 test('the battle log names the term "Level 40" for a block with a Level field, and keeps "Class II" / the renamed word for an earlier block', async () => {
-    const { characterReading } = await import('../../../src/v2/lean-rpg/soul.js');
+    const { characterReading } = await import('../../../modules/rpg/soul.js');
     const level = characterReading({ state: { level: { type: 'int', label: 'Level' } } });
     assert.deepEqual([level.label, level.word(40), level.word(3)], ['Level', '40', '3']);
     const earlier = characterReading({ state: { soul: { type: 'int', label: 'Soul Class', names: { 3: 'III' } } } });
@@ -289,7 +289,7 @@ test('the battle log names the term "Level 40" for a block with a Level field, a
 });
 
 test('B13: the pack\'s level cap (its ranks record) is the cap of a new character; the setting is the fallback, then 99', async () => {
-    const { packLevelsOf } = await import('../../../src/v2/lean-rpg/levels.js');
+    const { packLevelsOf } = await import('../../../modules/rpg/levels.js');
     const records = [{ slug: 'formula', formula: 'standard' }, { slug: 'ranks', ranks: [{ name: 'F', from: 1, to: 40 }], levelCap: 40 }];
     const fromPack = packLevelsOf(records).levelCap;
     assert.equal(fromPack, 40);

@@ -1,11 +1,11 @@
 // Shared fixtures and helpers for the join test suite.
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { levelOfClass } from '../../../src/v2/lean-rpg/formula.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { PARTY_MAX } from '../../../src/v2/lean-rpg/names.js';
-import { partyOf } from '../../../src/v2/lean-rpg/join.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { levelOfClass } from '../../../modules/rpg/formula.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { PARTY_MAX } from '../../../modules/rpg/names.js';
+import { partyOf } from '../../../modules/rpg/join.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 
 export const available = await hostAvailable();
 export const skip = available.ok ? false : available.reason;

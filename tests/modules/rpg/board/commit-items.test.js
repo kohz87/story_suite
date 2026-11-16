@@ -1,14 +1,14 @@
 // Consumables: Use on…, story used line, and board Use item on the real host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { boardGuard } from '../../../../src/v2/lean-rpg/board/commit.js';
-import { hashJson } from '../../../../../../core/replay.js';
-import { createBoardPart } from '../../../../src/v2/lean-rpg/board/overrides.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { settledNote } from '../../../../modules/rpg/board/note.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { boardGuard } from '../../../../modules/rpg/board/commit.js';
+import { hashJson } from '../../../../core/replay.js';
+import { createBoardPart } from '../../../../modules/rpg/board/overrides.js';
 import { ASTRA, DRAUGHT, fieldOf, itemRounds, potionBoard, potionHost, stackOf } from './commit.helpers.js';
 
 

@@ -2,9 +2,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rng as seeded } from '../../../../../../core/commands/rng.js';
-import { tempoChain } from '../../../../src/v2/lean-rpg/combat/tempo.js';
-import { RANKS } from '../../../../src/v2/lean-rpg/combat/numbers.js';
+import { rng as seeded } from '../../../../core/commands/rng.js';
+import { tempoChain } from '../../../../modules/rpg/combat/tempo.js';
+import { RANKS } from '../../../../modules/rpg/combat/numbers.js';
 import { bonusesOf, tempoWins } from '../v1/oracle.js';
 
 const random = seeded(0xC2_0002);

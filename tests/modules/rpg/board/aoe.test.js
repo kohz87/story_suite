@@ -3,21 +3,21 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { autoPicks } from '../../../../src/v2/lean-rpg/board/auto.js';
-import { memberRolls } from '../../../../src/v2/lean-rpg/board/member-rolls.js';
-import { boardFoes, splitFoes } from '../../../../src/v2/lean-rpg/board/members.js';
-import { exchangePlan } from '../../../../src/v2/lean-rpg/board/plan.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
-import { memberGroups } from '../../../../src/v2/lean-rpg/board/view-data.js';
-import { earnedLegend, wearGear } from '../../../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { prepareStandard, rollStandard } from '../../../../src/v2/lean-rpg/standard.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { buildPanel, panelModel, readResolve, resolveOf } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { autoPicks } from '../../../../modules/rpg/board/auto.js';
+import { memberRolls } from '../../../../modules/rpg/board/member-rolls.js';
+import { boardFoes, splitFoes } from '../../../../modules/rpg/board/members.js';
+import { exchangePlan } from '../../../../modules/rpg/board/plan.js';
+import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { settledNote } from '../../../../modules/rpg/board/note.js';
+import { memberGroups } from '../../../../modules/rpg/board/view-data.js';
+import { earnedLegend, wearGear } from '../../../../modules/rpg/gear.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { prepareStandard, rollStandard } from '../../../../modules/rpg/standard.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { buildPanel, panelModel, readResolve, resolveOf } from '../../../../modules/rpg/view/battle-log.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { character, levelFoeBlock, rollReceipt, setup, sheetDomain, skillBlock, tailOf } from '../helpers.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

@@ -2,14 +2,14 @@
 // and the guard of an older fight record (a receipt made before the level, with a class on its groups, still stands).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../../../packs/validate.js';
-import { LEAN_RPG_FIELDS, RPG_RANK_LIMITS } from '../../../../../packs/limits.js';
-import { RANK_QUERY, bandsOf, clampLevel, levelLabel, packLevelsOf, playerRankValue, rankNamed, rankOf, readSheet } from '../../../src/v2/lean-rpg/index.js';
-import { rankQuery } from '../../../src/v2/lean-rpg/levels.js';
-import { fightGuard, fightWitness, foeLevel, memberLevel } from '../../../src/v2/lean-rpg/fight.js';
-import { FIGHT } from '../../../src/v2/lean-rpg/names.js';
-import { hashJson } from '../../../../../core/replay.js';
-import { pack } from '../../../../../tests/packs/helpers/fixtures.js';
+import { validatePack } from '../../../packs/validate.js';
+import { LEAN_RPG_FIELDS, RPG_RANK_LIMITS } from '../../../packs/limits.js';
+import { RANK_QUERY, bandsOf, clampLevel, levelLabel, packLevelsOf, playerRankValue, rankNamed, rankOf, readSheet } from '../../../modules/rpg/index.js';
+import { rankQuery } from '../../../modules/rpg/levels.js';
+import { fightGuard, fightWitness, foeLevel, memberLevel } from '../../../modules/rpg/fight.js';
+import { FIGHT } from '../../../modules/rpg/names.js';
+import { hashJson } from '../../../core/replay.js';
+import { pack } from '../../packs/helpers/fixtures.js';
 import { foeBlock, sheetDomain, PARTY } from './helpers.js';
 
 const ERSVEIL = [['F', 1, 9], ['E', 10, 19], ['D', 20, 29], ['C', 30, 39], ['B', 40, 49], ['A', 50, 59], ['S', 60, 69], ['SS', 70, 79], ['SSS', 80, 99]].map(([name, from, to]) => ({ name, from, to }));

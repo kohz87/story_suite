@@ -18,7 +18,7 @@ export function setRpgLib(lib) { library = lib && typeof lib === 'object' ? lib 
  *   problem(entry)  → the Problems list, for a load that failed (the RPG then stays out of the way: its stored rolls cannot replay until it loads)
  * `ensure({ scan: false })` looks at the feature only (the per-reply check: no pass over the chat).
  */
-export function createRpgLoader({ load = () => import('../lean-rpg/index.js'), featureOn = () => false, chat = () => null, metadata = () => null, problem = null } = {}) {
+export function createRpgLoader({ load = () => import('../index.js'), featureOn = () => false, chat = () => null, metadata = () => null, problem = null } = {}) {
     let pending = null;
     const needed = scan => {
         let on = false;

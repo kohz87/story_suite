@@ -1,9 +1,9 @@
 // scripts/sim-standard.mjs: the numbers the Standard presets were chosen by stay what they were chosen for.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildAt, exactOdds, fight, rankAt, rollTable } from '../../../scripts/sim-standard.mjs';
-import { STANDARD_FORMULA, STANDARD_PRESETS } from '../../../src/v2/lean-rpg/rules.js';
-import { blocksFor, foeBonus } from '../../../src/v2/lean-rpg/formula.js';
+import { buildAt, exactOdds, fight, rankAt, rollTable } from '../../../packages/story-block/scripts/sim-standard.mjs';
+import { STANDARD_FORMULA, STANDARD_PRESETS } from '../../../modules/rpg/rules.js';
+import { blocksFor, foeBonus } from '../../../modules/rpg/formula.js';
 
 test('the builds follow the creation and Soul Class rules: focused puts STR and DEX at 10 then 3 + 1 a class, spread keeps every stat within 1 of the rest', () => {
     const focused = buildAt('focused', 1), spread = buildAt('spread', 1);

@@ -3,7 +3,7 @@ import { installFakeDom } from '../../../helpers/director/ui-fake-dom.js';
 import { resolveData, runtime, skipReason } from './helpers/runtime.js';
 import { calendar, makeQueries, makeRunner } from './helpers/fixtures.js';
 import { screens } from '../../../../ui/legacy/director/screens/index.js';
-import { toSlot } from '../../../../packages/story-director/src/v2/slot.js';
+import { toSlot } from '../../../../modules/rpg/slot.js';
 import { headState } from './helpers/fixtures.js';
 
 export const skip = runtime ? false : skipReason;

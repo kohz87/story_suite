@@ -1,5 +1,5 @@
 // How many skill slots a character's level opens: the ones the block has open, and the ones the level wants.
-import { fold, readSheet } from '../../../lean-rpg/read.js';
+import { fold, readSheet } from '../../../../../../../modules/rpg/read.js';
 import { SKILL_SLOTS_MAX, skillSlots } from '../../../../../../../core/runtime/skill-slots.js';
 
 // How many skill slots a Skills block has open: the slots it has, as far as its character's level opens them (names.js skillSlots); a Skills block no Character names is read at level 1.

@@ -1,6 +1,6 @@
 // Join: the narrator's party line (grammar, class words) read and checked.
 
-import { oneLine } from '../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { CLASS_NAMES, CREATION, JOINS, STATS } from '../names.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { newSoul } from '../view/wizard-data.js';

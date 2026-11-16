@@ -3,12 +3,12 @@
 // without the RPG for now, closing puts the text back, asked once per chat), all on the real page with the RPG feature on and nothing held with it off.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { RPG_START_WIDGET } from '../../../../../../ui/legacy/screens/home.js';
-import { setStartNotes, skipOf, startNotes } from '../../../../src/v2/lean-rpg/start.js';
-import { HOLD_SCREEN_ID, HOLD_WIDGET, START_WIDGET, createHoldScreen } from '../../../../src/v2/lean-rpg/view/start.js';
-import { WIZARD_SCREEN_ID } from '../../../../src/v2/lean-rpg/view/wizard.js';
+import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { RPG_START_WIDGET } from '../../../../ui/legacy/screens/home.js';
+import { setStartNotes, skipOf, startNotes } from '../../../../modules/rpg/start.js';
+import { HOLD_SCREEN_ID, HOLD_WIDGET, START_WIDGET, createHoldScreen } from '../../../../modules/rpg/view/start.js';
+import { WIZARD_SCREEN_ID } from '../../../../modules/rpg/view/wizard.js';
 import { begin, makeBlocks, page, party, settle } from './page.js';
 
 const available = await hostAvailable();

@@ -1,7 +1,7 @@
 // The whole carry picture from a state, and the carry query's answer.
 
 import { isPlainObject } from '../../common.js';
-import { readSheet } from '../../../lean-rpg/read.js';
+import { readSheet } from '../../../../../../../modules/rpg/read.js';
 import { kindCarry } from './mount-kinds.js';
 import { travelsWith } from './mount-travel.js';
 import { capacityFor } from './load.js';

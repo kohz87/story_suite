@@ -1,7 +1,7 @@
 // Builds a saved character file from a character and words its text and file name.
 
 import { STATS } from '../names.js';
-import { SKILL_FIELDS_MAX } from '../../../../../../core/runtime/skill-slots.js';
+import { SKILL_FIELDS_MAX } from '../../../core/runtime/skill-slots.js';
 import { classOfLevel, levelOfClass } from '../formula.js';
 import { CHAR_FILE, CHAR_VERSION, FILE_LIMITS } from './limits.js';
 import { whole } from './shared-reading.js';

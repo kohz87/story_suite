@@ -2,8 +2,8 @@
 // Edit first (the New character window, filled in) and No; the Party tab's card for someone who left (greyed, "Left"); the Changed-this-reply lines.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../../testkit/index.js';
-import { WIZARD_SCREEN_ID } from '../../../../src/v2/lean-rpg/view/wizard.js';
+import { hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { WIZARD_SCREEN_ID } from '../../../../modules/rpg/view/wizard.js';
 import { begin, makeBlocks, page, party, settle } from './page.js';
 
 const available = await hostAvailable();

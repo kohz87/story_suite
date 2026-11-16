@@ -4,18 +4,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { createHost } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
-import { LEAN_RPG_FEATURE } from '../../../src/v2/lean-rpg/index.js';
-import { validateDataModules } from '../../../src/v2/data-modules/check.js';
-import { blockCards, summaryOf } from '../../../src/v2/data-modules/part.js';
-import { activeDefinition } from '../../../src/v2/data-modules/adapters.js';
-import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { readParty, stageMax } from '../../../src/v2/lean-rpg/view/party-data.js';
-import { createPartyWidget } from '../../../src/v2/lean-rpg/view/party.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
+import { LEAN_RPG_FEATURE } from '../../../modules/rpg/index.js';
+import { validateDataModules } from '../../../packages/story-block/src/v2/data-modules/check.js';
+import { blockCards, summaryOf } from '../../../packages/story-block/src/v2/data-modules/part.js';
+import { activeDefinition } from '../../../packages/story-block/src/v2/data-modules/adapters.js';
+import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { readParty, stageMax } from '../../../modules/rpg/view/party-data.js';
+import { createPartyWidget } from '../../../modules/rpg/view/party.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
 import { characterDefinition, fakeState, roleOf } from './view/helpers.js';
-import { reload, rebuilt, reply, success, view } from '../data-modules/helpers.js';
+import { reload, rebuilt, reply, success, view } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const template = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));
 const check = definition => validateDataModules([definition], { packId: 'chat', capabilities: ['data-modules-v1'] });
@@ -213,7 +213,7 @@ test('B12: cards are ordered end first, then warn, then info, so the death card 
 // --- the replay fuzz script ---------------------------------------------------------------------------------------------------------------
 
 test('the replay fuzz script\'s delete-swipe step runs (it called an undefined function and swallowed the error)', { timeout: 120000 }, () => {
-    const script = fileURLToPath(new URL('../../../scripts/fuzz-replay.mjs', import.meta.url));
+    const script = fileURLToPath(new URL('../../../packages/story-block/scripts/fuzz-replay.mjs', import.meta.url));
     const run = spawnSync(process.execPath, [script, '5', '120', '7'], { encoding: 'utf8', env: { ...process.env, TRACE: '1' } });
     if (run.error) return;    // (a sandbox that cannot start a child: nothing to measure)
     const steps = run.stdout.split('\n').filter(row => row.startsWith('delswipe |'));

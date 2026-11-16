@@ -3,8 +3,8 @@
 // roll keeps the formula and numbers it was made with whatever the settings say now.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { RESOLVE, ROLLS_QUERY, STANDARD_FORMULA, STANDARD_PRESETS, DIFFICULTY_SETTING } from '../../../src/v2/lean-rpg/index.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { RESOLVE, ROLLS_QUERY, STANDARD_FORMULA, STANDARD_PRESETS, DIFFICULTY_SETTING } from '../../../modules/rpg/index.js';
 import { cueOf, OWNER, character, foeBlock, rollReceipt, setup, skillBlock, tailOf } from './helpers.js';
 
 const available = await hostAvailable();

@@ -3,21 +3,21 @@
 // on as for any fight. Swipe, Re-read, delete, rebuild and reload agree; the narrator's own slot line for the same foes does not double them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { LEAN_RPG_FEATURE, OPEN_FIGHT_LINE, NO_ROLLS_LINE, readSheet, validatePlan, leanRpgGuard, RESOLVE } from '../../../src/v2/lean-rpg/index.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { LEAN_RPG_FEATURE, OPEN_FIGHT_LINE, NO_ROLLS_LINE, readSheet, validatePlan, leanRpgGuard, RESOLVE } from '../../../modules/rpg/index.js';
 import { legacyPlanner, openLinesOf } from './legacy-planner.js';
-import { openFoes, vetOpen, isNamedIn } from '../../../src/v2/lean-rpg/open.js';
-import { readResolve } from '../../../src/v2/lean-rpg/view/battle-log.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { hashJson as hashOf } from '../../../../../core/replay.js';
-import { createFakeModel } from '../../../testkit/model.js';
-import { reply, success } from '../data-modules/helpers.js';
+import { openFoes, vetOpen, isNamedIn } from '../../../modules/rpg/open.js';
+import { readResolve } from '../../../modules/rpg/view/battle-log.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { hashJson as hashOf } from '../../../core/replay.js';
+import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { cueOf, PARTY, foeBlock, rollReceipt, setup, sheetDomain, tailOf } from './helpers.js';
 
 // The RPG library is cached for the whole process, so the test-only legacy planner reads the world of the test now running.
 const live = { host: null, model: null };
 const planned = async () => {
-    const lib = await import('../../../src/v2/lean-rpg/index.js');
+    const lib = await import('../../../modules/rpg/index.js');
     return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: (...args) => live.model(...args), chat: () => live.host.ctx.chat, metadata: () => live.host.ctx.chatMetadata ?? null }); return part; } };
 };
 const available = await hostAvailable();

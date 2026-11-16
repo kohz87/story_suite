@@ -2,13 +2,13 @@
 // and a marked reply comes out the same after Re-read, swipe, edit, Continue and a rebuild; a refusal is shown on the card.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../testkit/index.js';
-import { LEAN_RPG_FEATURE } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { checksOf } from '../../../../src/v2/lean-rpg/practice.js';
-import { reply, success } from '../../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { checksOf } from '../../../../modules/rpg/practice.js';
+import { reply, success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { tailOf } from '../helpers.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

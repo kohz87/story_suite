@@ -1,6 +1,6 @@
 // Story Director v2: stand-alone fight-runner detection.
 
-import { fightsAmong } from '../../../../packages/story-director/src/v2/fights.js';
+import { fightsAmong } from '../../../../modules/rpg/fights.js';
 import { MODULE_ID } from './parts.js';
 import { liveSdk, tryLive } from './shared.js';
 

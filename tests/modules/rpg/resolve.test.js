@@ -2,8 +2,8 @@
 // their stop rules, the cue and its budget, and what is refused. Pure: a sheet read from state, scripted dice.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FORMULA, LIMITS, outcomeOf, positionalDice, prepare, readSheet, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
-import { cueTokens } from '../../../src/v2/lean-rpg/cue.js';
+import { FORMULA, LIMITS, outcomeOf, positionalDice, prepare, readSheet, rollPrepared } from '../../../modules/rpg/index.js';
+import { cueTokens } from '../../../modules/rpg/cue.js';
 import { PARTY, character, foeBlock, sheetDomain, skillBlock } from './helpers.js';
 
 const sheetOf = (blocks = PARTY()) => readSheet({ domains: { dataModules: sheetDomain(blocks) } });

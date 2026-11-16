@@ -24,10 +24,10 @@ import { HAPPENED } from '../../../../core/prompt.js';
 import { prng, seedCrypto } from './seeded.js';
 import { BONUS_CLAIM, probeModule } from './probe-module.js';
 import { carriers, checkInvariants, rebuildAt } from './oracle.js';
-import { STANDARD_TEMPLATES } from '../../../../packages/story-block/src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '../../../../packages/story-block/src/v2/lean-rpg/rules.js';
-import { readSheet } from '../../../../packages/story-block/src/v2/lean-rpg/read.js';
-import { boardSession, openBoard, stageExchange } from '../../../../packages/story-block/src/v2/lean-rpg/board/session.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
 import { changeLine, replyText, uiCommand, bonusPaidOnLine } from './state-fuzz-gen.js';
 
 

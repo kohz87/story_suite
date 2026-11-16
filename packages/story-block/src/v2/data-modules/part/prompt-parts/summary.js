@@ -2,7 +2,7 @@
 import { dmHidden } from '../../schema.js';
 import { activeDefinition, inputsOf } from '../../adapters.js';
 import { cutAt } from '../../../../../../../core/text.js';
-import { roleTail } from '../../../lean-rpg/tail.js';
+import { roleTail } from '../../../../../../../modules/rpg/tail.js';
 import { moduleView } from '../views.js';
 import { shownText } from './field-words.js';
 import { fieldText, fieldsText } from './field-lines.js';

@@ -3,7 +3,7 @@ import { refuse } from '../../interpreter.js';
 import { activeDefinition, instanceOf } from '../../adapters.js';
 import { oneLine } from '../../../../../../../core/text.js';
 import { fill } from '../../../../../../../core/strings.js';
-import { PARTY_ACTIVE, PARTY_MAX } from '../../../lean-rpg/names.js';
+import { PARTY_ACTIVE, PARTY_MAX } from '../../../../../../../modules/rpg/names.js';
 import { B } from './texts.js';
 
 // (the party is read from this domain's own blocks, never from the lazy RPG library: a chat with the RPG off must replay the same witness; it is lean-rpg/join.js partyOf's

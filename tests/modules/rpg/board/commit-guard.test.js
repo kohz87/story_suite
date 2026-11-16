@@ -1,17 +1,17 @@
 // Staged fight resolution and in-flight edit/gear guards on a test host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boardWitness, equipmentForBoard, playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
+import { boardWitness, equipmentForBoard, playBoard } from '../../../../modules/rpg/board/engine.js';
+import { settledNote } from '../../../../modules/rpg/board/note.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { character, foeBlock, setup } from '../helpers.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { planGear } from '../../../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { gearAnswer } from '../../../../src/v2/domains/gear.js';
-import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../../../src/v2/domains/inventory.js';
-import { aiMessage } from '../../../../testkit/fake-st.js';
+import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { planGear } from '../../../../modules/rpg/gear.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { gearAnswer } from '../../../../packages/story-block/src/v2/domains/gear.js';
+import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../../../packages/story-block/src/v2/domains/inventory.js';
+import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
 import { gearHost, openWithGear } from './commit.helpers.js';
 
 

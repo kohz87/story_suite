@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { barsOf, hpOf, mpOf, spOf } from '../../../../src/v2/lean-rpg/combat/bars.js';
+import { barsOf, hpOf, mpOf, spOf } from '../../../../modules/rpg/combat/bars.js';
 import { BUILDS, statsAt } from './builds.helpers.js';
 
 const LEVELS = [1, 15, 30, 50, 99];

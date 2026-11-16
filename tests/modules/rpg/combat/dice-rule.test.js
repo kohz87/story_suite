@@ -2,9 +2,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MAX_SLOT, fightDice } from '../../../../src/v2/lean-rpg/combat/dice.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
-import { dice } from '../../../../../../core/interaction/dice.js';
+import { MAX_SLOT, fightDice } from '../../../../modules/rpg/combat/dice.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
+import { dice } from '../../../../core/interaction/dice.js';
 import { seeded } from './dice.helper.js';
 import { withSkills } from './derived-skills.helper.js';
 

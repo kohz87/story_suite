@@ -1,6 +1,6 @@
 // Joins a block's fields into tail lines: one field, all of a block's fields, and the named fields a root changed.
 import { dmHidden } from '../../schema.js';
-import { barOf } from '../../../lean-rpg/blocks.js';
+import { barOf } from '../../../../../../../modules/rpg/blocks.js';
 import { valueText, entriesText, shownText } from './field-words.js';
 
 // A hidden field (`prompt: false`) is left out: the story is never told it.

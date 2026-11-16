@@ -1,6 +1,6 @@
 // Story Director v2, tracker part (initiative): the initiative step, its beforeGenerate hook and its tail line.
 
-import { toSlot } from '../../../../packages/story-director/src/v2/slot.js';
+import { toSlot } from '../../../rpg/slot.js';
 import { INITIATIVE } from './config.js';
 import { isInt } from './shared-guards.js';
 import { cooldownOf, initiativeOn, settingsOf } from './settings.js';

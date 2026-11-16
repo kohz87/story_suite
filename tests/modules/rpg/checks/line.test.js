@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { memberNamed, parseCheckLine, validateCheck } from '../../../../src/v2/lean-rpg/checks/line.js';
+import { memberNamed, parseCheckLine, validateCheck } from '../../../../modules/rpg/checks/line.js';
 
 const astra = { name: 'Astra Vayne', aliases: ['Astra'], stats: { str: 8, vit: 9, agi: 12, dex: 10, int: 11, luk: 9, cha: 14 },
     skills: [{ name: 'Obscure', stat: 'dex', rank: 1, type: 'utility' }, { name: 'Iron Breath', stat: 'str', rank: 2, type: 'combat' }] };

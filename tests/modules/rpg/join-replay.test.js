@@ -1,10 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CORE_FEATURE } from "../../../../../core/features.js";
-import { PARTY_MAX } from "../../../src/v2/lean-rpg/names.js";
-import { definition as filler, pack as dmPack } from "../data-modules/helpers.js";
-import { JOIN_ADD, joinDefinitions, partyOf } from "../../../src/v2/lean-rpg/join.js";
-import { rpgLib, setRpgLib } from "../../../src/v2/rpg-lazy.js";
+import { CORE_FEATURE } from "../../../core/features.js";
+import { PARTY_MAX } from "../../../modules/rpg/names.js";
+import { definition as filler, pack as dmPack } from "../../../packages/story-block/tests/v2/data-modules/helpers.js";
+import { JOIN_ADD, joinDefinitions, partyOf } from "../../../modules/rpg/join.js";
+import { rpgLib, setRpgLib } from "../../../modules/rpg/rpg-lazy.js";
 import { MARA, NAMES, active, blocks, fields, lastAt, make, packed, packedAsk, prng, problems, rebuilt, reply, settled, skip, templateCharacter, world } from "./join.helpers.js";
 
 // (The reply that holds the reader's own Wessel blocks, message 2, is left alone: deleting it takes those blocks away, which is the

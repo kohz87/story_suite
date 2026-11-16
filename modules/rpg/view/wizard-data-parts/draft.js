@@ -1,7 +1,7 @@
 // The draft itself: a fresh one, one read whole from the dialog, and the stats a Reset returns to.
 
 import { LEVEL, CREATION, STATS, USES } from '../../names.js';
-import { UTILITY_SLOTS, skillSlots } from '../../../../../../../core/runtime/skill-slots.js';
+import { UTILITY_SLOTS, skillSlots } from '../../../../core/runtime/skill-slots.js';
 import { levelOfClass } from '../../formula.js';
 import { FILE_LIMITS } from '../../charfile.js';
 import { creationOf, draftCreation, readCreation } from './creation.js';

@@ -3,8 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createOfferLineView } from '../../../../src/v2/lean-rpg/board/offer-line.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { createOfferLineView } from '../../../../modules/rpg/board/offer-line.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 const data = {
     visible: true, text: 'A fight started: Sluice Rats.', label: 'Fight offer: Sluice Rats',
@@ -43,7 +43,7 @@ test('the offer text is text, never markup', () => {
 });
 
 test('the offer buttons are at least 44px touch targets at once and 48px before phone zoom', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/board/fight-start.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/board/fight-start.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-fight-offer-actions > button[\s\S]*?min-height: 44px/);
     assert.match(css, /touch-action: manipulation/);
     assert.match(css, /min-height: calc\(48px \/ var\(--ss-zoomed, 1\)\)/);

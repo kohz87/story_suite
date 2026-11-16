@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { buildPanel, headerText, outcomeOf, panelModel, readResolve, resolveOf, rollText } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { buildPanel, headerText, outcomeOf, panelModel, readResolve, resolveOf, rollText } from '../../../../modules/rpg/view/battle-log.js';
+import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { roleOf } from './helpers.js';
 import { after, before, foe, panel, pc, result, state } from './battle-log.helpers.js';
 
@@ -116,7 +116,7 @@ test('a foe\'s attack says Hit, Grazed or Blocked in the outcome\'s colour, the 
         'Wessel uses Iron Breath on Sluice Rat A — Fail (9 vs 14)',
     ]);
     assert.deepEqual(node.querySelectorAll('.rpg-out').map(word => word.className), ['rpg-out rpg-out-fail', 'rpg-out rpg-out-cost', 'rpg-out rpg-out-success', 'rpg-out rpg-out-fail']);
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-out-fail \{[^}]*--ss-bad/);
     assert.match(css, /\.rpg-out-cost \{[^}]*--ss-warn/);
     assert.match(css, /\.rpg-out-success \{[^}]*--ss-good/);
@@ -135,7 +135,7 @@ test('the Status bars use the same resource colours and dulling as the Party bar
     assert.deepEqual(tones(bad.status[0].rows), [['health', 'bad'], ['mana', 'bad'], ['stamina', 'good']]);
     const low = buildPanel(setupDom(), bad).querySelectorAll('.rpg-bl-who[data-who="Wessel"] .rpg-bl-stat');
     assert.deepEqual(low.map(cell => cell.className.split(' ').find(name => name.startsWith('rpg-bl-step-'))), ['rpg-bl-step-low', 'rpg-bl-step-low', 'rpg-bl-step-full']);
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/bars.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/bars.css', import.meta.url), 'utf8');
     for (const [bar, token] of [['health', 'hp'], ['mana', 'mp'], ['stamina', 'sp']]) assert.match(css, new RegExp(`\\.rpg-bl-${bar} \\{ --rpg-bar: var\\(--ss-${token}\\)`));
     for (const step of ['full', 'mid', 'low']) assert.match(css, new RegExp(`\\.rpg-bl-step-${step} \\.rpg-bl-fill`));
     assert.match(css, /:is\(\.ss-bar-hp, \.ss-bar-sp, \.ss-bar-mp\) \.ss-bar-head/);

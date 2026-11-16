@@ -7,7 +7,7 @@ import {
 } from './helpers/fixtures.js';
 import { calendarSetting, createScreensPart, readerWords } from '../../../../ui/legacy/director/screens/index.js';
 import { agendaSteps } from '../../../../ui/legacy/director/screens/queries.js';
-import { toSlot } from '../../../../packages/story-director/src/v2/slot.js';
+import { toSlot } from '../../../../modules/rpg/slot.js';
 
 const { run } = makeRunner();
 

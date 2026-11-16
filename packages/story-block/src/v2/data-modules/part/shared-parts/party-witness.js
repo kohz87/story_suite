@@ -1,6 +1,6 @@
 // The party witness a join records and the active limit it stands for.
 import { DM_OLD_ROOM, dmRoom } from '../../schema.js';
-import { PARTY_ACTIVE, PARTY_MAX } from '../../../lean-rpg/names.js';
+import { PARTY_ACTIVE, PARTY_MAX } from '../../../../../../../modules/rpg/names.js';
 
 // Every way a Character joins or comes back (a story `+ party` / `- party` line, the reader's Add to party, the wizard's and the template's Character) records the
 // party it relied on and keeps the active limit (4, or 8 on a reply with only the `partyRoom` mark): `partyWitness` says a guard records it (a story reply from before the `partyRoom` mark does not), `partyFull` refuses live.

@@ -1,6 +1,6 @@
 // Reads the recorded pulse results from the director slot.
 
-import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../../rpg/slot.js';
 import { isRecord } from './shared-guards.js';
 
 export const RESULTS_MAX = 6;

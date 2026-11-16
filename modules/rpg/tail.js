@@ -12,8 +12,8 @@
 
 import { barOf, characterBars, sizeOf, spreadWord, wordsOf } from './blocks.js';
 import { STATS } from './names.js';
-import { skillFieldSlots, skillTypeOf } from '../../../../../core/runtime/skill-slots.js';
-import { oneLine } from '../../../../../core/text.js';
+import { skillFieldSlots, skillTypeOf } from '../../core/runtime/skill-slots.js';
+import { oneLine } from '../../core/text.js';
 
 const SLOTS = Object.freeze({ foes: 6 });
 const word = value => (typeof value === 'string' ? oneLine(value) : '');

@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const css = readFileSync(new URL('../../../../src/v2/lean-rpg/board/fight-start.css', import.meta.url), 'utf8')
+const css = readFileSync(new URL('../../../../modules/rpg/board/fight-start.css', import.meta.url), 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, '');
 const rule = selector => {
     const at = css.indexOf(selector);

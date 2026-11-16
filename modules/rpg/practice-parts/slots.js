@@ -1,5 +1,5 @@
 // Finds the Skills block slots the used skills sit in, what the story lines kept of them, and the witness of both.
-import { skillFieldSlots } from '../../../../../../core/runtime/skill-slots.js';
+import { skillFieldSlots } from '../../../core/runtime/skill-slots.js';
 import { fold } from '../read.js';
 import { isObject, whole, text, pairKey } from './shared-values.js';
 

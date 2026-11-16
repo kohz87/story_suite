@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
 import { LEGACY_PATHS, MACRO_MAX, MACRO_NAME, macroText, registerSbMacro } from '../../core/runtime/sb-macro.js';
 import { defuseMacros } from '../../core/turn.js';
-import { character, sheetDomain } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
+import { character, sheetDomain } from '../modules/rpg/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

@@ -3,13 +3,13 @@
 // draws and the "Changed this reply" card carries the RPG lines.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { mountUi } from '../../../../../../ui/legacy/ui-host.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { THIS_REPLY_ID } from '../../../../../../ui/legacy/reply-cards.js';
-import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../../helpers/ui-fake-dom.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { THIS_REPLY_ID } from '../../../../ui/legacy/reply-cards.js';
+import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, defineAll, fieldsOf, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';
 
 const settle = async () => { for (let n = 0; n < 6; n += 1) await new Promise(resolve => setImmediate(resolve)); };
@@ -22,7 +22,7 @@ async function page(t, { feature = false } = {}) {
     if (feature) host.features.set(CORE_FEATURE.leanRpg, true);
     const loads = [];
     // The real loader, with the block engine's `role` read from the slug while that key is not in the schema yet.
-    const loadLeanRpg = () => { loads.push(1); return import('../../../../src/v2/lean-rpg/view/index.js').then(view => ({ ...view, mountLeanRpg: deps => view.mountLeanRpg({ ...deps, roleOf }) })); };
+    const loadLeanRpg = () => { loads.push(1); return import('../../../../modules/rpg/view/index.js').then(view => ({ ...view, mountLeanRpg: deps => view.mountLeanRpg({ ...deps, roleOf }) })); };
     const runtime = { registry: host.registry, store: host.store, sdk: host.sdk, settings: host.settings, events: host.events, turn: host.turn, features: host.features };
     const ui = mountUi({ runtime, ctx: host.ctx, doc, loadLeanRpg });
     t.after(() => { ui.destroy(); host.close(); });

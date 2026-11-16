@@ -2,11 +2,11 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { runAuto } from '../../../../src/v2/lean-rpg/board/auto-run.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { runAuto } from '../../../../modules/rpg/board/auto-run.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, levelFoeBlock, rollReceipt, setup } from '../helpers.js';
 
 const RULES = { ...STANDARD_FORMULA, levelDivisor: 5 };

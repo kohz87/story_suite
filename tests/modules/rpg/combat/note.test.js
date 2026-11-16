@@ -4,10 +4,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { settledNoteV1 } from '../../../../src/v2/lean-rpg/combat/note.js';
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note-parts/settled-note.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
-import { envelopeOf } from '../../../../src/v2/lean-rpg/combat/envelope.js';
+import { settledNoteV1 } from '../../../../modules/rpg/combat/note.js';
+import { settledNote } from '../../../../modules/rpg/board/note-parts/settled-note.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
+import { envelopeOf } from '../../../../modules/rpg/combat/envelope.js';
 import { seeded } from './dice.helper.js';
 import { hard, played, quiet, skirmish, skirmishChoices, turns } from './note.helper.js';
 

@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PARTY_MAX } from "../../../src/v2/lean-rpg/names.js";
-import { definition as filler } from "../data-modules/helpers.js";
-import { DM_OLD_ROOM } from "../../../src/v2/data-modules/schema.js";
-import { JOIN_ADD, checkJoin, partyOf } from "../../../src/v2/lean-rpg/join.js";
-import { setRpgLib } from "../../../src/v2/rpg-lazy.js";
-import * as leanRpg from "../../../src/v2/lean-rpg/index.js";
-import { partyLines } from "../../../src/v2/lean-rpg/view/changes-lines.js";
+import { PARTY_MAX } from "../../../modules/rpg/names.js";
+import { definition as filler } from "../../../packages/story-block/tests/v2/data-modules/helpers.js";
+import { DM_OLD_ROOM } from "../../../packages/story-block/src/v2/data-modules/schema.js";
+import { JOIN_ADD, checkJoin, partyOf } from "../../../modules/rpg/join.js";
+import { setRpgLib } from "../../../modules/rpg/rpg-lazy.js";
+import * as leanRpg from "../../../modules/rpg/index.js";
+import { partyLines } from "../../../modules/rpg/view/changes-lines.js";
 import { MARA, active, blocks, fields, lastAt, lastReceipts, make, packed, packedAsk, problems, rebuilt, reply, settled, skip, templateCharacter, world } from "./join.helpers.js";
 
 // ---- Automatically ------------------------------------------------------------------------------------------------------------------

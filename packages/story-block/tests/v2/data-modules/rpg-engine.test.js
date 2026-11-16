@@ -7,7 +7,7 @@ import { createHost } from '../../../testkit/index.js';
 import { validateDataModules, dataModuleHash } from '../../../src/v2/data-modules/check.js';
 import { grammarFor, summaryOf, blockCards, CARD_SLOTS } from '../../../src/v2/data-modules/part.js';
 import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
-import { ROLES } from '../../../src/v2/lean-rpg/index.js';
+import { ROLES } from '../../../../../modules/rpg/index.js';
 import { fixture, reload, rebuilt, reply, view, success } from './helpers.js';
 
 const check = input => validateDataModules([input], { packId: 'chat', capabilities: ['data-modules-v1'] });

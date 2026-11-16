@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
+import { STANDARD_TEMPLATES } from '../../../../../modules/rpg/templates.js';
 import { createReplyNotes } from '../../../../../ui/legacy/reply-notes.js';
 import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 

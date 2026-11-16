@@ -3,11 +3,11 @@
 // text again after the panel was drawn (SillyTavern's updateMessageBlock, which no event follows), the panel comes back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog, hideMarkers, markerNodes } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../../helpers/ui-fake-dom.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog, hideMarkers, markerNodes } from '../../../../modules/rpg/view/battle-log.js';
+import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, defineAll, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';
 
 const pc = (who, stat, extra = {}) => ({ who, die: 10, stat, statBonus: 5, classValue: 2, classBonus: 4, rank: 0, edge: 0, total: 19, ...extra });

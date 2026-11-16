@@ -1,11 +1,11 @@
 // Combat Rules v1 blocks (Character, Skills, Foes, Combat rules): the block checker takes each definition, and the numbers its rules work out are combat/bars.js's and combat/foes.js's.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { COMBAT_V1_TEMPLATES, STATS_V1 } from '../../../src/v2/lean-rpg/templates-combat.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { barsOf } from '../../../src/v2/lean-rpg/combat/bars.js';
-import { success } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { COMBAT_V1_TEMPLATES, STATS_V1 } from '../../../modules/rpg/templates-combat.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { barsOf } from '../../../modules/rpg/combat/bars.js';
+import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const characterV1 = COMBAT_V1_TEMPLATES[0].definition;
 test('the checker takes all four v1 definitions, and each says its own role', async t => {

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/check-card.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//gu, '');
+const css = readFileSync(new URL('../../../../modules/rpg/view/check-card.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//gu, '');
 
 test('every Check card rule is scoped to its own root', () => {
     const selectors = [...css.matchAll(/(?:^|\})\s*([^{}@]+)\{/gu)].flatMap(match => match[1].split(',')).map(part => part.trim()).filter(Boolean);

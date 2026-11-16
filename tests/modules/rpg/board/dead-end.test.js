@@ -4,11 +4,11 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPrecall } from '../../../../src/v2/lean-rpg/index.js';
-import { LEAN_RPG_FEATURE } from '../../../../src/v2/lean-rpg/names.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { createPrecall } from '../../../../modules/rpg/index.js';
+import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/names.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 
 const BOARD = 'story-block.fight-board';

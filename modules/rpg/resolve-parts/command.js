@@ -7,7 +7,7 @@ import { readSheet } from '../read.js';
 import { validatePlan } from '../plan.js';
 import { openFoes } from '../open.js';
 import { applyGear, earnedLegend, gearMarkOf, noteGear, planGear, wearGear } from '../gear.js';
-import { condWord, stepDown } from '../../domains/gear.js';
+import { condWord, stepDown } from '../../../packages/story-block/src/v2/domains/gear.js';
 import { partyLevels, averageLevel, settleOpen } from '../foes.js';
 import { carriedFrom } from '../ambush.js';
 import { FLOW_VERSION, positionalDice } from '../resolve/dice.js';

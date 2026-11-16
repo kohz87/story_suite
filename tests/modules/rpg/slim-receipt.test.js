@@ -2,15 +2,15 @@
 // byte for byte what the roll made; a receipt stored before still carries its text and reads unchanged.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { FIX_VERSION } from '../../../src/v2/lean-rpg/open.js';
-import { RESOLVE, STANDARD_FORMULA, DICE_VERSION, FLOW_VERSION, prepare, readSheet, resolve, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
-import { cueOfResult, receiptCue } from '../../../src/v2/lean-rpg/cue.js';
-import { fieldMax, positionalDice } from '../../../src/v2/lean-rpg/resolve.js';
-import { hashJson } from '../../../../../core/replay.js';
-import { rng, roll } from '../../../../../core/commands/rng.js';
-import { assemble } from '../../../../../core/prompt.js';
-import { receiptView } from '../../../../../ui/legacy/inspect.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { FIX_VERSION } from '../../../modules/rpg/open.js';
+import { RESOLVE, STANDARD_FORMULA, DICE_VERSION, FLOW_VERSION, prepare, readSheet, resolve, rollPrepared } from '../../../modules/rpg/index.js';
+import { cueOfResult, receiptCue } from '../../../modules/rpg/cue.js';
+import { fieldMax, positionalDice } from '../../../modules/rpg/resolve.js';
+import { hashJson } from '../../../core/replay.js';
+import { rng, roll } from '../../../core/commands/rng.js';
+import { assemble } from '../../../core/prompt.js';
+import { receiptView } from '../../../ui/legacy/inspect.js';
 import { character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock, tailOf } from './helpers.js';
 
 const available = await hostAvailable();

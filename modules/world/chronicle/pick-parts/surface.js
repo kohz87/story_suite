@@ -1,7 +1,7 @@
 // Story Director v2, chronicle pick: chronicle.surface command and beforeGenerate hook.
 
 import { isOpen, isRecord, orderedEvents, surfacedOf } from '../domain.js';
-import { toSlot } from '../../../../packages/story-director/src/v2/slot.js';
+import { toSlot } from '../../../rpg/slot.js';
 import { nearness, scenePlaceOf } from './nearness.js';
 import { TAIL_EVENTS, pickEvents } from './scoring.js';
 import { pickFresh } from './tail-pick.js';

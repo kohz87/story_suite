@@ -2,7 +2,7 @@
 // beforeGenerate carries a staged board fight as `rpg.resolve` and offers separate dice for story checks; with no fight to carry it tells
 // the narrator how to open one (noFight). canGenerate holds a send until a waiting fight is played or chosen. Old chats keep their planner
 // rolls as records (resolve.js replays them); nothing here asks a model for a plan.
-import { hashText, normalizeType } from '../assist/common.js';
+import { hashText, normalizeType } from '../../packages/story-block/src/v2/assist/common.js';
 import { DICE, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, RESOLVE, ROLLS_SETTING, checksOn, practiceOf } from './names.js';
 import { OPEN_FIGHT_LINE } from './cue.js';
 import { claimKey } from './resolve.js';
@@ -10,11 +10,11 @@ import { readSheet } from './read.js';
 import { dicePayload } from './checks/dice.js';
 import { membersOf } from './practice.js';
 import { knownFoeAction } from './board/action-gate.js';
-import { readRecord } from '../../../../../core/persist.js';
+import { readRecord } from '../../core/persist.js';
 import { boardKey, boardPayload, boardSession, clearSend, lastBoard, linkBoard, priorBoard, readSend, receiveBoard, reconcileBoard } from './board/session.js';
 import { boardInputError } from './board/commit.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { clearStart, holdStart, pendingStart } from '../../../../../core/turn/fight-start.js';
+import { CORE_FEATURE } from '../../core/features.js';
+import { clearStart, holdStart, pendingStart } from '../../core/turn/fight-start.js';
 import { isStandard, packRulesOf, rulesFromSettings } from './rules.js';
 import { FOES_FRESH_REPLIES } from './board/offers.js';
 import { FOES_TOUCH_QUERY } from './names.js';

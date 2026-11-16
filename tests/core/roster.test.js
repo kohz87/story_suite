@@ -7,15 +7,15 @@ import { createHost, hostAvailable } from '../../packages/story-block/testkit/in
 import { createFakeModel } from '../../packages/story-block/testkit/model.js';
 import { createRegistry } from '../../core/registry.js';
 import { validatePack } from '../../packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
-import { actorIdOf, levelsQuery, rosterOf, rosterQueries } from '../../packages/story-block/src/v2/lean-rpg/roster.js';
-import { gearMatches, planGear } from '../../packages/story-block/src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../packages/story-block/src/v2/lean-rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
+import { actorIdOf, levelsQuery, rosterOf, rosterQueries } from '../../modules/rpg/roster.js';
+import { gearMatches, planGear } from '../../modules/rpg/gear.js';
+import { readSheet } from '../../modules/rpg/index.js';
 import { hashJson } from '../../core/replay.js';
 import { reply as dmReply, success } from '../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { pack } from '../packs/helpers/fixtures.js';
-import { character, sheetDomain } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
-import { legacyPlanner } from '../../packages/story-block/tests/v2/lean-rpg/legacy-planner.js';
+import { character, sheetDomain } from '../modules/rpg/helpers.js';
+import { legacyPlanner } from '../modules/rpg/legacy-planner.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -39,7 +39,7 @@ const definitionOf = (name, slug = null, who = null) => {
 const define = async (host, definition) => success(await host.sdk.command('dm.define', { definition }));
 
 // (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
-const withPlanner = (model, get) => async () => { const lib = await import('../../packages/story-block/src/v2/lean-rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
+const withPlanner = (model, get) => async () => { const lib = await import('../../modules/rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
 
 async function world(t, { user, gear = true, rpg = true, modules = [], withPack = true, model = null } = {}) {
     t.mock.method(console, 'warn', () => {});

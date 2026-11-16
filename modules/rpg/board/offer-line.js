@@ -1,7 +1,7 @@
 // The small fight offer under a narrator reply that set foes (the Fight tab's alert is the badge in view/fight.js).
 // It draws only from offerLineData and hands the two choices (Fight on the board, Auto-fight) back to the caller; it keeps no fight state itself.
 
-import { button, h, text } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { button, h, text } from '../../../ui/legacy/view/widgets/dom.js';
 
 export const OFFER_LINE_ROOT = 'rpg-fight-offer';
 

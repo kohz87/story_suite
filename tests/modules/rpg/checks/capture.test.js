@@ -2,8 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hashOf, makeState, run, write } from './helpers.js';
-import { dcOf } from '../../../src/v2/checks/words.js';
-import { checkKind, part } from '../../../src/v2/checks/index.js';
+import { dcOf } from '../../../../modules/rpg/checks/words.js';
+import { checkKind, part } from '../../../../modules/rpg/checks/index.js';
 
 const SOURCE = { sid: 'sr_00000001', swipeKey: 'sw_00000001', evidence: 'ev_00000001', ordinal: 1 };
 function ready() {

@@ -8,7 +8,7 @@ import { readDisplayLine } from '../../ui/legacy/extras.js';
 import { CAPTURE_PREFIX } from '../registry.js';
 import { occurrenceOf } from '../evidence.js';
 import { readRecord } from '../persist.js';
-import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../../packages/story-block/src/v2/lean-rpg/names.js';
+import { LEAN_RPG_FEATURE, practiceFromRollsOnly } from '../../modules/rpg/names.js';
 import { allRuleNames, foeLine, ruleMarksFor, ruleMarksOf } from './rule-marks.js';
 import { earlierReceipts, moneyWarning } from './money-guard.js';
 import { lineMark, occurrenceFor } from './capture-seeds.js';

@@ -3,10 +3,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { exchangePlan } from '../../../../src/v2/lean-rpg/board/plan.js';
-import { autoPicks, autoStop } from '../../../../src/v2/lean-rpg/board/auto.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { exchangePlan } from '../../../../modules/rpg/board/plan.js';
+import { autoPicks, autoStop } from '../../../../modules/rpg/board/auto.js';
 import { character, foeBlock, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';
 
 const RULES = { ...STANDARD_FORMULA, levelDivisor: 5 };

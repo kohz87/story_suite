@@ -1,9 +1,9 @@
 // RPG fix round 4 (review 155), on the whole host (core module, data-module blocks made from the stock templates, the RPG on).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { success } from '../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -32,9 +32,9 @@ test('B13: a foe name with count 0 is empty for Fight and for the sheet alike', 
     const { host } = await game(t, { foes: [] });
     success(await host.sdk.command('dm.set', { module: 'pack.chat/foes', field: 'foe1', value: 'Rat' }));
     const state = host.head();
-    const { readSheet } = await import('../../../src/v2/lean-rpg/index.js');
-    const { hasFoes } = await import('../../../src/v2/lean-rpg/view/fight.js');
-    const { readFoes } = await import('../../../src/v2/lean-rpg/view/party-data.js');
+    const { readSheet } = await import('../../../modules/rpg/index.js');
+    const { hasFoes } = await import('../../../modules/rpg/view/fight.js');
+    const { readFoes } = await import('../../../modules/rpg/view/party-data.js');
     assert.equal(readSheet(state).foes[0].filled, false, 'the sheet: empty');
     assert.equal(hasFoes(state), false, 'Fight: no foe');
     assert.deepEqual(readFoes(state), []);
@@ -49,8 +49,8 @@ test('B13: every Foes block is read by the RPG, as Fight reads them: slots count
     second.slug = 'foes-two'; second.name = 'More foes';
     second.state.foe2.default = 'Gutter Serpent'; second.state.count2.default = 2;
     success(await host.sdk.command('dm.define', { definition: second }));
-    const { readSheet, matchFoe } = await import('../../../src/v2/lean-rpg/index.js');
-    const { readFoes } = await import('../../../src/v2/lean-rpg/view/party-data.js');
+    const { readSheet, matchFoe } = await import('../../../modules/rpg/index.js');
+    const { readFoes } = await import('../../../modules/rpg/view/party-data.js');
     const sheet = readSheet(host.head());
     assert.deepEqual(readFoes(host.head()).map(foe => foe.name), ['Gutter Serpent'], 'Fight shows the second block\'s foe');
     assert.deepEqual(sheet.foes.filter(foe => foe.filled).map(foe => [foe.name, foe.slot]), [['Gutter Serpent', 8]], 'and so does the sheet (a block of six groups: 7–12 are the second block\'s)');

@@ -7,8 +7,8 @@
 import { createFakeContext } from './fake-st.js';
 import { createFakeBus, createFakeStore } from './fakes.js';
 import { createRuntime } from '../../../core/runtime.js';
-import { setRpgLib } from '../src/v2/rpg-lazy.js';
-import * as leanRpg from '../src/v2/lean-rpg/index.js';
+import { setRpgLib } from '../../../modules/rpg/rpg-lazy.js';
+import * as leanRpg from '../../../modules/rpg/index.js';
 
 const RUNTIME = { store: '../../../core/store.js', commands: '../../../core/commands.js' };
 

@@ -3,7 +3,7 @@
 
 import { createPauseView } from './pause.js';
 import { pauseViewData } from './start-view-data.js';
-import { pendingStart } from '../../../../../../core/turn/fight-start.js';
+import { pendingStart } from '../../../core/turn/fight-start.js';
 import { readSheet } from '../read.js';
 import { boardSession, clearSend, markSend } from './session.js';
 

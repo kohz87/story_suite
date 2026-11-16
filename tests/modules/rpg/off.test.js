@@ -8,10 +8,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { LEAN_RPG_FEATURE, createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
-import { MOUNTS_FEATURE } from '../../../src/v2/domains/mounts.js';
-import { YOU_FEATURE } from '../../../src/v2/domains/scene.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { LEAN_RPG_FEATURE, createLeanRpgPart } from '../../../modules/rpg/index.js';
+import { MOUNTS_FEATURE } from '../../../packages/story-block/src/v2/domains/mounts.js';
+import { YOU_FEATURE } from '../../../packages/story-block/src/v2/domains/scene.js';
 import { fingerprint } from './off-flow.js';
 
 const available = await hostAvailable();

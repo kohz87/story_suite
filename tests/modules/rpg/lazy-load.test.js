@@ -7,17 +7,17 @@ import assert from 'node:assert/strict';
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { LEAN_RPG_FEATURE } from '../../../src/v2/lean-rpg/names.js';
-import { createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { checkerLoaded } from '../../../../../packs/installed.js';
-import { createLazyRpgPart, createRpgLoader, holdsRpg, rpgLib, setRpgLib } from '../../../src/v2/rpg-lazy.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { LEAN_RPG_FEATURE } from '../../../modules/rpg/names.js';
+import { createLeanRpgPart } from '../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { checkerLoaded } from '../../../packs/installed.js';
+import { createLazyRpgPart, createRpgLoader, holdsRpg, rpgLib, setRpgLib } from '../../../modules/rpg/rpg-lazy.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../../packages/story-block');
 const MARA = '+ party Mara | about: a hedge-witch from Kvildal | class: IV | best: int';
 const reply = (...lines) => `The tide turns.\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 
@@ -171,7 +171,7 @@ async function make(host, who, soul = 1) {
 }
 const counted = () => {
     const state = { loads: 0 };
-    state.load = () => { state.loads += 1; return import('../../../src/v2/lean-rpg/index.js'); };
+    state.load = () => { state.loads += 1; return import('../../../modules/rpg/index.js'); };
     return state;
 };
 const settled = host => host.rpgLoader?.ensure({ scan: false });
@@ -255,7 +255,7 @@ test('B9 and B11: a stalled import never holds a chat open, the chat shows what 
 
     let release;
     const gate = new Promise(resolve => { release = resolve; });
-    const second = await createHost({ lazyRpg: true, rpgLoad: () => gate.then(() => import('../../../src/v2/lean-rpg/index.js')) });
+    const second = await createHost({ lazyRpg: true, rpgLoad: () => gate.then(() => import('../../../modules/rpg/index.js')) });
     t.after(() => second.close());
     const started = Date.now();
     await second.st.loadChat(chat);          // returns although the import has not: the wait is bounded

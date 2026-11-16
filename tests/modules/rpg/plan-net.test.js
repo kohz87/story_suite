@@ -1,10 +1,10 @@
 // PLAN-NET: a skill on a foe line earns practice when a stored plan is rolled (the plan is built by the test-only legacy planner).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepare, readSheet, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
+import { prepare, readSheet, rollPrepared } from '../../../modules/rpg/index.js';
 import { parsePlanAnswer } from './legacy-planner.js';
-import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
-import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
+import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
+import { usesOf } from '../../../modules/rpg/practice.js';
 import { character, foeBlock, sheetDomain, skillBlock } from './helpers.js';
 
 const sheet = () => readSheet({ domains: { dataModules: sheetDomain({

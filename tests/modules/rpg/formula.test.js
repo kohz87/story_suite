@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
     pair, statPart, luckWindow, edgeWithLuck, blocksFor, foeHealthBlocks, foeBonus, initiativeBonus, foeInitiativeBonus,
     quickStart, turnOrder, companionStats, STANDARD_NUMBERS,
-} from '../../../src/v2/lean-rpg/formula.js';
+} from '../../../modules/rpg/formula.js';
 
 const wessel = { str: 10, vit: 10, agi: 10, dex: 6, int: 5, luk: 3, cha: 5 };
 

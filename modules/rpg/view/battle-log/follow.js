@@ -1,7 +1,7 @@
 // Keeps the battle log following the chat: reads each reply's record and state, draws, reuses or removes its panel,
 // places a card under the reply when no marker is present, watches redraws and SillyTavern events, and stores the fold.
 
-import { readRecord } from '../../../../../../../core/persist.js';
+import { readRecord } from '../../../../core/persist.js';
 import { fold } from '../../read.js';
 import { characterReading, soulShortOf } from '../../soul.js';
 import { noRollOf } from '../../noroll.js';

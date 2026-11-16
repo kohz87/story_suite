@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boardChoices, memberGroups, memberOrderLine, memberPackLine, memberTargetLine, pendingAwardsLine } from '../../../../src/v2/lean-rpg/board/view-data.js';
+import { boardChoices, memberGroups, memberOrderLine, memberPackLine, memberTargetLine, pendingAwardsLine } from '../../../../modules/rpg/board/view-data.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';
 
 const member = (slot, n, value, over = {}) => ({ slot, group: 1, n, name: `Bristle-boar ${n}`, value, size: 4, pack: false, count: 1,

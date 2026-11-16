@@ -2,12 +2,12 @@
 // puts the verdict word first, and tells the groups a roll opened.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { prepare, readSheet, rollPrepared, validatePlan } from '../../../src/v2/lean-rpg/index.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { prepare, readSheet, rollPrepared, validatePlan } from '../../../modules/rpg/index.js';
 import { parsePlanAnswer } from './legacy-planner.js';
-import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
-import { cueOfResult, cueText, lineText } from '../../../src/v2/lean-rpg/cue.js';
-import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
+import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
+import { cueOfResult, cueText, lineText } from '../../../modules/rpg/cue.js';
+import { usesOf } from '../../../modules/rpg/practice.js';
 import { character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock } from './helpers.js';
 
 const available = await hostAvailable();

@@ -13,7 +13,7 @@ import { fakeSettings } from './helpers/fake-settings.js';
 import { fakeFiles } from './helpers/portraits.js';
 import { sniffImage } from '../../packs/portraits.js';
 import { zip } from './helpers/zip.js';
-import { defaultFlags, healingSkill } from '../../packages/story-block/src/v2/lean-rpg/board/flags.js';
+import { defaultFlags, healingSkill } from '../../modules/rpg/board/flags.js';
 
 const folder = new URL('../../packages/story-block/examples/packs/ersveil/', import.meta.url);
 const packText = readFileSync(new URL('pack.json', folder), 'utf8');

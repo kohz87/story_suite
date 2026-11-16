@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { exchangesOf, rpgReplyLines } from '../../../../src/v2/lean-rpg/view/changes-lines.js';
-import { mergeRpgLines, changesSummary, replyCardLines } from '../../../../../../ui/legacy/screens/changes-card.js';
-import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
+import { exchangesOf, rpgReplyLines } from '../../../../modules/rpg/view/changes-lines.js';
+import { mergeRpgLines, changesSummary, replyCardLines } from '../../../../ui/legacy/screens/changes-card.js';
+import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 
 const skillsShow = { tab: true, card: false, tabName: 'Skills', icon: 'ph-star' };

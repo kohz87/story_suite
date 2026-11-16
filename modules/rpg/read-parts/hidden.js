@@ -1,5 +1,5 @@
 // Finds a block's definition, fields and the fields its pack hides.
-import { dmHidden } from '../../data-modules/schema.js';
+import { dmHidden } from '../../../packages/story-block/src/v2/data-modules/schema.js';
 import { isObject, TEXT_KEY } from './shared-plain.js';
 
 export const definitionOf = (domain, id) => {

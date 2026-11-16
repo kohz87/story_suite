@@ -3,14 +3,14 @@
 // Health 4 + floor(level / 30), the clamps, and that a roll made before the Levels rules replays as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { LEAN_RPG_FEATURE, readSheet, validatePlan } from '../../../src/v2/lean-rpg/index.js';
-import { openFoes, openErrors, vetOpen } from '../../../src/v2/lean-rpg/open.js';
-import { divisorOf } from '../../../src/v2/lean-rpg/rules.js';
-import { FOE_LEVEL, LV_VERSION, averageLevel, bandOfRank, classOfLevel, foeBlocksByLevel, foeLabel, foeRandom, levelBonus, foeLevelCap, levelOf, levelOfClass, partyLevels, pickLevel, settleOpen } from '../../../src/v2/lean-rpg/foes.js';
-import { sizeOf } from '../../../src/v2/lean-rpg/blocks.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { success, reply } from '../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { LEAN_RPG_FEATURE, readSheet, validatePlan } from '../../../modules/rpg/index.js';
+import { openFoes, openErrors, vetOpen } from '../../../modules/rpg/open.js';
+import { divisorOf } from '../../../modules/rpg/rules.js';
+import { FOE_LEVEL, LV_VERSION, averageLevel, bandOfRank, classOfLevel, foeBlocksByLevel, foeLabel, foeRandom, levelBonus, foeLevelCap, levelOf, levelOfClass, partyLevels, pickLevel, settleOpen } from '../../../modules/rpg/foes.js';
+import { sizeOf } from '../../../modules/rpg/blocks.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { success, reply } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { PARTY, foeBlock, levelFoeBlock, rollReceipt, setup } from './helpers.js';
 
 const available = await hostAvailable();
@@ -259,8 +259,8 @@ test('a swipe is a new seed: the level is drawn anew, within the same window', {
 test('the replay guard asks again on the levels the roll recorded: damaged levels or a damaged mark are refused', { skip }, async () => {
     const { host } = await setup({ blocks: empty(), answers: [opens()] });
     await host.send(MESSAGE, 'The silt churns.');
-    const { leanRpgGuard } = await import('../../../src/v2/lean-rpg/index.js');
-    const { hashJson } = await import('../../../../../core/replay.js');
+    const { leanRpgGuard } = await import('../../../modules/rpg/index.js');
+    const { hashJson } = await import('../../../core/replay.js');
     const span = host.ctx.chat[2].extra.storySuite.spans.find(entry => entry.guard?.predicate?.kind === 'rpg.resolve');
     const before = host.store.before(2);
     const ask = (guard, recorded) => leanRpgGuard({ state: before, hash: hashJson }, { guard, source: span.source, recorded });

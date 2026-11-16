@@ -1,6 +1,6 @@
 // Finding the RPG blocks in the head state, and whether a Character block exists.
 
-import { activeDefinition, instanceOf } from '../../../data-modules/adapters.js';
+import { activeDefinition, instanceOf } from '../../../../packages/story-block/src/v2/data-modules/adapters.js';
 import { isRecord } from './shared-basics.js';
 
 /**

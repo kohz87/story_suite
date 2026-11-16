@@ -2,7 +2,7 @@
 // the in-place Formula and odds updates. Section drawing lives in the sibling part files; this file keeps
 // the shared render closure and the order in which the cards are made.
 
-import { h } from '../../../../../../../ui/legacy/view/widgets/dom.js';
+import { h } from '../../../../ui/legacy/view/widgets/dom.js';
 import { combatBlock } from '../settings-data.js';
 import { CARD_WORDS, SETTINGS_MODULE } from './constants.js';
 import { createControls } from './controls.js';

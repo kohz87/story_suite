@@ -1,6 +1,6 @@
 // The Rank of {{user}}'s look: the label a pack gives, the Guild standing and whether a rank text agrees with it. Pure.
 
-import { packLevelsOf } from '../../../lean-rpg/levels.js';
+import { packLevelsOf } from '../../../../../../../modules/rpg/levels.js';
 
 // The Rank's label the first enabled pack that declares one gives ('' when no pack does: this story has no Rank).
 export function rankLabelIn(query) {

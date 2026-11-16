@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CHAR_FILE, parseCharacterFile } from "../../../../src/v2/lean-rpg/charfile.js";
-import { STATS } from "../../../../src/v2/lean-rpg/index.js";
-import { EXPORT_SCREEN_ID, EXPORT_WIDGET } from "../../../../src/v2/lean-rpg/view/export.js";
-import { WIZARD_SCREEN_ID } from "../../../../src/v2/lean-rpg/view/wizard.js";
+import { CHAR_FILE, parseCharacterFile } from "../../../../modules/rpg/charfile.js";
+import { STATS } from "../../../../modules/rpg/index.js";
+import { EXPORT_SCREEN_ID, EXPORT_WIDGET } from "../../../../modules/rpg/view/export.js";
+import { WIZARD_SCREEN_ID } from "../../../../modules/rpg/view/wizard.js";
 import { begin, makeBlocks, page, party, settle } from "./page.js";
 import { PARTY_STUB, REN, SAVED, WESSEL, WESSEL_SKILLS, captureSaves, click, companion, exportDialog, exportOf, goTo, importInto, newcomer, saveFrom, story, type, wizardOf, wizardWith } from "./char-export.helpers.js";
 

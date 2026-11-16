@@ -2,12 +2,12 @@
 // pack formula settings, skill resource costs, R3 pack/rotation rules, and B1 levelled foe group sizes.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { foeHealthBlocks } from '../../../src/v2/lean-rpg/formula.js';
-import { STAGES, positionalDice, prepare, rollPrepared, stageWord } from '../../../src/v2/lean-rpg/index.js';
-import { STANDARD_FORMULA, STANDARD_PRESETS, packRulesOf, rulesFromSettings } from '../../../src/v2/lean-rpg/rules.js';
-import { packAttacks, splitFoes } from '../../../src/v2/lean-rpg/board/members.js';
-import { exchangePlan } from '../../../src/v2/lean-rpg/board/plan.js';
-import { validatePack } from '../../../../../packs/validate.js';
+import { foeHealthBlocks } from '../../../modules/rpg/formula.js';
+import { STAGES, positionalDice, prepare, rollPrepared, stageWord } from '../../../modules/rpg/index.js';
+import { STANDARD_FORMULA, STANDARD_PRESETS, packRulesOf, rulesFromSettings } from '../../../modules/rpg/rules.js';
+import { packAttacks, splitFoes } from '../../../modules/rpg/board/members.js';
+import { exchangePlan } from '../../../modules/rpg/board/plan.js';
+import { validatePack } from '../../../packs/validate.js';
 import { character, levelFoeBlock, setup, skillBlock } from './helpers.js';
 import { dice, hit, party, planOf, prepareStandard, roll, rollStandard, sheetOf, skip, std } from './standard.helpers.js';
 

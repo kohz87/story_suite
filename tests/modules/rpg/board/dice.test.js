@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boardDice, fightSeed } from '../../../../src/v2/lean-rpg/board/dice.js';
+import { boardDice, fightSeed } from '../../../../modules/rpg/board/dice.js';
 
 test('the same opening and choices give the same dice, while discard changes the seed', () => {
     const seed = fightSeed('reply-id', 0);

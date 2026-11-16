@@ -3,13 +3,13 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFakeModel, createHost } from '../../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { planGear } from '../../../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
-import { discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { createFakeModel, createHost } from '../../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { planGear } from '../../../../modules/rpg/gear.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { settledNote } from '../../../../modules/rpg/board/note.js';
+import { discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
 
 test('the settled note states the defender verdict and keeps each wear event in its exchange', () => {
     const line = outcome => ({ kind: 'foe', pc: { who: 'Astra' }, foe: { name: 'Rats' }, skill: 'Dodge', outcome });

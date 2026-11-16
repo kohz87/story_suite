@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { STANDARD } from "../../../src/v2/lean-rpg/rules.js";
-import { PARTY_MAX, JOINS, JOIN_SETTING, LEAN_RPG_FEATURE } from "../../../src/v2/lean-rpg/names.js";
-import { DM_OLD_ROOM } from "../../../src/v2/data-modules/schema.js";
-import { JOIN_ADD, JOIN_NO, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinMode, joinOffers, partyCap, partyOf, readJoin, soulOf } from "../../../src/v2/lean-rpg/join.js";
-import { STANDARD_TEMPLATES } from "../../../src/v2/lean-rpg/templates.js";
-import { partyLines } from "../../../src/v2/lean-rpg/view/changes-lines.js";
+import { STANDARD } from "../../../modules/rpg/rules.js";
+import { PARTY_MAX, JOINS, JOIN_SETTING, LEAN_RPG_FEATURE } from "../../../modules/rpg/names.js";
+import { DM_OLD_ROOM } from "../../../packages/story-block/src/v2/data-modules/schema.js";
+import { JOIN_ADD, JOIN_NO, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinMode, joinOffers, partyCap, partyOf, readJoin, soulOf } from "../../../modules/rpg/join.js";
+import { STANDARD_TEMPLATES } from "../../../modules/rpg/templates.js";
+import { partyLines } from "../../../modules/rpg/view/changes-lines.js";
 import { fakeState, characterDefinition, skillsDefinition } from "./view/helpers.js";
 import { MARA, blocks, fields, grammar, lastReceipts, make, problems, rebuilt, reply, skip, statics, world } from "./join.helpers.js";
 
@@ -186,7 +186,7 @@ test('- party Name marks the companion as Left (kept, never deleted), out of the
     assert.equal(lastReceipts(host).find(entry => entry.type === 'capture.party').summary, 'Mara left the party.');
     assert.deepEqual(partyLines(host.ctx.chat.at(-1).extra.storySuite).map(line => line.text), ['Mara left the party']);
     // Not on the sheet the dice are rolled for, and the narrator is told she left.
-    const { readSheet } = await import('../../../src/v2/lean-rpg/read.js');
+    const { readSheet } = await import('../../../modules/rpg/read.js');
     assert.deepEqual(readSheet(host.head()).characters.map(character => character.who), ['Wessel']);
     const { request } = await host.send('Who is here?', 'Only Wessel.');
     assert.match(request.chat.map(message => message.content).join('\n'), /Mara — .*left true/);

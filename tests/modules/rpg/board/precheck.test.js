@@ -1,9 +1,9 @@
 // The foe pre-check reads the reader's typed attack into openFoes' group form, without a model call here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FOE_COUNT_MAX } from '../../../../src/v2/lean-rpg/templates.js';
-import { knownLines, rankScale } from '../../../../src/v2/lean-rpg/board/precheck-known.js';
-import { looksLikeAttack, parsePrecheck, precheckPrompt, vetGroups } from '../../../../src/v2/lean-rpg/board/precheck.js';
+import { FOE_COUNT_MAX } from '../../../../modules/rpg/templates.js';
+import { knownLines, rankScale } from '../../../../modules/rpg/board/precheck-known.js';
+import { looksLikeAttack, parsePrecheck, precheckPrompt, vetGroups } from '../../../../modules/rpg/board/precheck.js';
 
 const MESSAGE = 'I creep down the culvert and attack the six Gorged Grey-Tooth Tunnel Rats with 4 scores of Bilge-Rat Offspring.';
 const ANSWER = 'The foes are:\n```json\n{"groups":[{"name":"Gorged Grey-Tooth Tunnel Rats","count":6},{"name":"Bilge-Rat Offspring","count":80}]}\n```';
@@ -135,7 +135,7 @@ test('a question, a quote, a cart or a non-fight phrasal is not an attack word a
 });
 
 test('the standing-foe hold stays strict on the subject and judges every attack word', async () => {
-    const { knownFoeAction } = await import('../../../../src/v2/lean-rpg/board/action-gate.js');
+    const { knownFoeAction } = await import('../../../../modules/rpg/board/action-gate.js');
     const foes = { foes: [{ name: 'Bog Boar', filled: true, hurt: 2 }] };
     for (const text of ['Without a word I charge the boars, cane raised.', 'My cane lashes out at the boar\'s throat.', 'I drive the iron ferrule into the boar\'s skull.',
         'I slip in from the shadows to take the boars by surprise.']) assert.equal(knownFoeAction(text, foes), true, text);
@@ -178,7 +178,7 @@ test('the prompt requires a level; a missing or invalid level is the party\'s to
 });
 
 test('an old recorded opening with no level still replays as it was: resolve draws near the party average', async () => {
-    const { settleOpen } = await import('../../../../src/v2/lean-rpg/foes.js');
+    const { settleOpen } = await import('../../../../modules/rpg/foes.js');
     const old = [{ name: 'Rats', count: 2 }];
     assert.deepEqual(settleOpen(old, 5, 12345), settleOpen(old, 5, 12345), 'the same seed gives the same level');
     const level = settleOpen(old, 5, 12345)[0].level;
@@ -233,7 +233,7 @@ test('the cap stays: 25 at party level 2 comes out 22, 1 stays 1, an invalid lev
 });
 
 test('the Vorn prompt end to end through runPrecheck reads ranks and the dossier from the query', async () => {
-    const { runPrecheck } = await import('../../../../src/v2/lean-rpg/board/precheck-run.js');
+    const { runPrecheck } = await import('../../../../modules/rpg/board/precheck-run.js');
     const party = { characters: [{ who: 'Astra', level: 2, alive: true }], foes: [] };
     let seen = '';
     const groups = await runPrecheck({ message: 'I attack Branch Master Vorn.', previous: 'Vorn sneers.', sheet: party, query: worldQuery(),

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { hashJson } from '../../../core/replay.js';
 import { preludeDice } from '../../../core/interaction/dice.js';
 import { rng } from '../../../core/commands/rng.js';
-import { positionalDice } from '../../../packages/story-block/src/v2/lean-rpg/resolve/dice.js';
+import { positionalDice } from '../../../modules/rpg/resolve/dice.js';
 import { markPlayer } from '../../../core/interaction/player.js';
 import { policyProblem } from '../../../core/interaction/policy.js';
 import { settleInteraction } from '../../../core/interaction/settle.js';

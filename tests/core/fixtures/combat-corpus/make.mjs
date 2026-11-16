@@ -7,11 +7,11 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
-import { character, foeBlock, levelFoeBlock, PARTY, setup, skillBlock } from '../../../../packages/story-block/tests/v2/lean-rpg/helpers.js';
-import { boardSession, markSend, openBoard, stageExchange } from '../../../../packages/story-block/src/v2/lean-rpg/board/session.js';
-import { STANDARD_FORMULA } from '../../../../packages/story-block/src/v2/lean-rpg/rules.js';
-import { dropOf } from '../../../../packages/story-block/src/v2/lean-rpg/ambush.js';
-import { STANDARD_TEMPLATES } from '../../../../packages/story-block/src/v2/lean-rpg/templates.js';
+import { character, foeBlock, levelFoeBlock, PARTY, setup, skillBlock } from '../../../modules/rpg/helpers.js';
+import { boardSession, markSend, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { dropOf } from '../../../../modules/rpg/ambush.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { pendingStart } from '../../../../core/turn/fight-start.js';
 import { capture } from './corpus.mjs';
 

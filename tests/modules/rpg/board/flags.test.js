@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { defaultFlags, skillFlags, skillKey } from '../../../../src/v2/lean-rpg/board/flags.js';
+import { defaultFlags, skillFlags, skillKey } from '../../../../modules/rpg/board/flags.js';
 
 test('skill wording supplies target, area and defence defaults independently', () => {
     assert.deepEqual(defaultFlags({ name: 'Iaijutsu', about: 'draw-cut from the sheath' }), { target: true, area: false, defence: false });

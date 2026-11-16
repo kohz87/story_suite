@@ -2,7 +2,7 @@
 // as the player calls them, the policy and its hash, the probe, a rebuild.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../story-block/testkit/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { moduleWithChecks } from './helpers.js';
 
 const newHost = () => createHost({ modules: [moduleWithChecks()] });
@@ -67,7 +67,7 @@ test('director.contract: SD alone answers true for what it owns, and not for the
 
 // After the flip example fight runner's checks part is gone and this module owns the `checks` domain, the `check` kind and the `checks.*` names.
 test('flip: the module registers the checks domain, the check kind, the commands and the settings', async () => {
-    const { createModule } = await import('../../../../../ui/legacy/director/module.js');
+    const { createModule } = await import('../../../../ui/legacy/director/module.js');
     const def = createModule();
     assert.equal(Object.hasOwn(def.domains, 'checks'), true);
     assert.deepEqual(Object.keys(def.commands).filter(name => name.startsWith('checks.')).sort(), ['checks.actor', 'checks.roll']);

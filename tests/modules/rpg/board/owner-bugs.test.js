@@ -1,12 +1,12 @@
 // The saved two-boar fight: shared initiative, recorded member damage and the timing of stamina costs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
-import { memberOrderLine } from '../../../../src/v2/lean-rpg/board/view-data.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { buildPanel, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { settledNote } from '../../../../modules/rpg/board/note.js';
+import { memberOrderLine } from '../../../../modules/rpg/board/view-data.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { buildPanel, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { character, levelFoeBlock, skillBlock } from '../helpers.js';
 import { characterDefinition, fakeState, foesDefinition, skillsDefinition } from '../view/helpers.js';
 

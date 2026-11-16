@@ -4,17 +4,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
-import { readParty } from '../../../../src/v2/lean-rpg/view/party-data.js';
-import { renderSkills, rollOf } from '../../../../src/v2/lean-rpg/view/skills.js';
-import { applyGear, planGear } from '../../../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { createCoreModule } from '../../../../src/v2/domains/index.js';
-import { createHarness } from '../../domains/helpers/fake-ctx.js';
-import { stocked } from '../../domains/fixtures.js';
-import { dump } from '../../../../../../tests/core/helpers/gear-ui-state.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
+import { readParty } from '../../../../modules/rpg/view/party-data.js';
+import { renderSkills, rollOf } from '../../../../modules/rpg/view/skills.js';
+import { applyGear, planGear } from '../../../../modules/rpg/gear.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { createCoreModule } from '../../../../packages/story-block/src/v2/domains/index.js';
+import { createHarness } from '../../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
+import { stocked } from '../../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { dump } from '../../../core/helpers/gear-ui-state.js';
 import { fakeState } from './helpers.js';
 
 const template = role => structuredClone(STANDARD_TEMPLATES.find(entry => entry.definition.role === role).definition);
@@ -143,12 +143,12 @@ test('the Skills sheet\'s roll line uses the effective stat and the same total a
     assert.deepEqual([rollOf(blade, dressed).total, rollOf(blade, dressed).value], [5 + 1, 11]);
     assert.equal(rollOf({ ...blade, stat: 'agi' }, { ...dressed, stats: dressed.stats.map(stat => (stat.key === 'agi' ? { ...stat, eff: 12 } : stat)) }).total, 6 + 1);
     // the Stats (points) screen reads the block's numbers
-    const src = readFileSync(new URL('../../../../src/v2/lean-rpg/view/distribute.js', import.meta.url), 'utf8');
+    const src = readFileSync(new URL('../../../../modules/rpg/view/distribute.js', import.meta.url), 'utf8');
     assert.doesNotMatch(src, /\.eff\b|gear-stats/);
 });
 
 test('the colours are theme tokens, never literals', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     for (const name of ['rpg-stat-up', 'rpg-stat-down']) assert.match(new RegExp(`\\.${name} \\{ color: var\\(--ss-[a-z]+\\); \\}`).exec(css)?.[0] ?? '', /var\(--ss-/);
     assert.doesNotMatch(/\.rpg-stat-(up|down|add)[^}]*\}/.exec(css)[0], /#[0-9a-f]{3,6}|rgb/i);
 });

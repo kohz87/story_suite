@@ -1,7 +1,7 @@
 // The classifier runner: its answer size, the tail line that goes with a pre-roll and the factory that asks the model.
 
-import { LEAN_RPG_FEATURE } from '../../lean-rpg/names.js';
-import { readSheet } from '../../lean-rpg/read.js';
+import { LEAN_RPG_FEATURE } from '../../../../../../modules/rpg/names.js';
+import { readSheet } from '../../../../../../modules/rpg/read.js';
 import { BACKGROUND, SETTING, TIMEOUT_MS, estimateTokens, hashText, normalizeType, withTimeout } from '../common.js';
 import { CHECK_KIND, PRECHECK } from './names.js';
 import { classifierPrompt } from './prompt.js';

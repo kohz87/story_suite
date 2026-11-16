@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GEAR, KIND_CARRY, kindCarry, condWord, soakFor, soakCap, soakTotal, soakRecord } from '../../src/v2/domains/gear.js';
-import { gearSoakRecord } from '../../src/v2/lean-rpg/gear.js';
+import { gearSoakRecord } from '../../../../modules/rpg/gear.js';
 import { createHarness } from './domains/helpers/fake-ctx.js';
 import { def, stack } from './domains/fixtures.js';
 import { crewState } from './gear-ui.helpers.js';

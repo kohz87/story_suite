@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resumeMembers } from '../../../../src/v2/lean-rpg/board/resume.js';
+import { resumeMembers } from '../../../../modules/rpg/board/resume.js';
 
 const foe = (over = {}) => ({
     slot: 1, module: 'foes', name: 'Bristle-boar', count: 3, class: 1, level: 1, levelled: true,

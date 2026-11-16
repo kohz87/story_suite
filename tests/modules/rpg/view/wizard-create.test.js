@@ -2,11 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CREATION } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { WIZARD_SCREEN_ID } from '../../../../src/v2/lean-rpg/view/wizard.js';
-import { hasRoom, newDraft, problemsOf } from '../../../../src/v2/lean-rpg/view/wizard-data.js';
-import { reload } from '../../data-modules/helpers.js';
+import { CREATION } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { WIZARD_SCREEN_ID } from '../../../../modules/rpg/view/wizard.js';
+import { hasRoom, newDraft, problemsOf } from '../../../../modules/rpg/view/wizard-data.js';
+import { reload } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { begin, fieldsOf, fillBlocks, makeBlocks, page, party, settle } from './page.js';
 import { PACK, click, goTo, names, openFrom, type, wizardOf } from './wizard.helpers.js';
 
@@ -223,7 +223,7 @@ test('feature off: no wizard screen, no button, nothing of it loaded', async t =
 });
 
 test('the stylesheet: the summary row, the template cards in three columns, rows that stack on a phone, theme tokens only', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-wiz-grid \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
     assert.match(css, /\.rpg-wiz-row \{[^}]*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1\.7fr\) 78px 104px 104px 104px 36px/);
     const phone = css.slice(css.indexOf('@media (max-width: 600px) {\n    .rpg-wiz-grid'));

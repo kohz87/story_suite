@@ -1,6 +1,6 @@
 // Story Director v2, part time: whether a recap is stale and whether a settle has anything to do.
 
-import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../rpg/slot.js';
 import { isInt } from './shared-int.js';
 import { standing } from './standing.js';
 

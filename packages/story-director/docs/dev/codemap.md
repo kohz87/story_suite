@@ -5,10 +5,10 @@ also maps the broader source directories.
 Generated 2026-11-07.
 
 ## src/v2/
-- `src/v2/fights.js`: Detects whether another module registers combat commands, requiring it to be ready when lifecycle status is available.
+- `../../modules/rpg/fights.js`: Detects whether another module registers combat commands, requiring it to be ready when lifecycle status is available.
 - `../../modules/world/hash.js`: Pure SHA-256 and canonical JSON helpers used for contract hashes and policy fingerprints.
-- `src/v2/rare.js`: Decides which rare Chronicle, route and map grammar the story currently needs.
-- `src/v2/slot.js`: Slot helpers that store rewrite-prone bookkeeping whole to avoid breaking later replay when a reply is deleted.
+- `../../modules/rpg/rare.js`: Decides which rare Chronicle, route and map grammar the story currently needs.
+- `../../modules/rpg/slot.js`: Slot helpers that store rewrite-prone bookkeeping whole to avoid breaking later replay when a reply is deleted.
 
 ## ../../modules/arc/
 - `../../modules/arc/commands.js`: Arc reader commands: accept a reviewed plan, update tracked threads, and end the current arc.
@@ -23,9 +23,9 @@ Generated 2026-11-07.
 ## ../../modules/cast/cast/
 - `../../modules/cast/cast/apply.js`: Applies cast sync, advance, meet, withdraw and rumor steps to the cast draft; notes why people moved.
 
-## src/v2/checks/
-- `src/v2/checks/commands.js`: Standalone check actor settings and evidence-backed d20 rolls with modifiers and outcome logging.
-- `src/v2/checks/roll.js`: Builds and caps standalone and NPC social modifiers for checks.
+## ../../modules/rpg/checks/
+- `../../modules/rpg/checks/commands.js`: Standalone check actor settings and evidence-backed d20 rolls with modifiers and outcome logging.
+- `../../modules/rpg/checks/roll.js`: Builds and caps standalone and NPC social modifiers for checks.
 
 ## ../../modules/world/chronicle/
 - `../../modules/world/chronicle/digest.js`: Note and digest commands that turn fresh change receipts into daily Chronicle facts and tail lines.

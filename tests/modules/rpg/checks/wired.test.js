@@ -3,18 +3,18 @@
 // with the reply (success, fail, decisive); a skilled check gives its skill 3 practice (a utility skill too) and no XP; a reply from before the rule is untouched.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../testkit/index.js';
-import { CHECKS_SETTING, CHECK_GRAMMAR, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, ROLLS_SETTING } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { checkStep, checksHook, checksOf } from '../../../../src/v2/lean-rpg/practice.js';
-import { practiceLines } from '../../../../src/v2/lean-rpg/view/changes-lines.js';
-import { reply, success } from '../../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { CHECKS_SETTING, CHECK_GRAMMAR, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, ROLLS_SETTING } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { checkStep, checksHook, checksOf } from '../../../../modules/rpg/practice.js';
+import { practiceLines } from '../../../../modules/rpg/view/changes-lines.js';
+import { reply, success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { character, sheetDomain, skillBlock, tailOf } from '../helpers.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { LIMITS } from '../../../../src/v2/lean-rpg/names.js';
-import { rulesOf } from '../../../../src/v2/lean-rpg/checks/dice-parts/shared-checks.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { LIMITS } from '../../../../modules/rpg/names.js';
+import { rulesOf } from '../../../../modules/rpg/checks/dice-parts/shared-checks.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

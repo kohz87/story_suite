@@ -1,7 +1,7 @@
 // Story Director v2, part time: settles the story clock on a draft (closings, recap, check) and summarises the closings.
 
 import { buildRecap, lapseSummary } from '../recap.js';
-import { slotValue, toSlot } from '../../../packages/story-director/src/v2/slot.js';
+import { slotValue, toSlot } from '../../rpg/slot.js';
 import { LAPSE_OUTCOME, REASONS, claimKey } from './constants.js';
 import { isInt } from './shared-int.js';
 import { recapStale } from './needs.js';

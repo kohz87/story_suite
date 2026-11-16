@@ -3,8 +3,8 @@
 // Not a test file (the test glob does not match helpers/).
 import { readRecord } from '../../../../core/persist.js';
 import { carriers, rebuildAt } from './oracle.js';
-import { readSheet } from '../../../../packages/story-block/src/v2/lean-rpg/read.js';
-import { actorIdOf } from '../../../../packages/story-block/src/v2/lean-rpg/roster.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { actorIdOf } from '../../../../modules/rpg/roster.js';
 
 const ITEMS = ['Rope', 'Lamp', 'Moonveil Trout', 'Iron Key', 'Apple', 'Torch'];
 const PLACES = ['Bluewatch Village', 'The Weir', 'Old Mill'];

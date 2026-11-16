@@ -2,15 +2,15 @@
 // and a win that leaves the Foes block as it was pays exactly as before. Swipe, Re-read and rebuild keep the pay once.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../../src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { fightHook, fightGuard, fightXp, groupsOf, memberXp, openedSlots } from '../../../../src/v2/lean-rpg/fight.js';
-import { fightLines } from '../../../../src/v2/lean-rpg/view/changes-lines.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../../modules/rpg/templates.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { fightHook, fightGuard, fightXp, groupsOf, memberXp, openedSlots } from '../../../../modules/rpg/fight.js';
+import { fightLines } from '../../../../modules/rpg/view/changes-lines.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, levelFoeBlock, recordOf, sheetDomain } from '../helpers.js';
 
 async function world({ old = false, level = 1, health = 5, foeLevel = level } = {}) {

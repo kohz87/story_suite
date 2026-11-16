@@ -2,14 +2,14 @@
 // Reinforcements (a group's count rising, a slot refilled) make the offer under the reply that did it; an unchanged group does not.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { boardReplyGrammar } from '../../../../src/v2/lean-rpg/index.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { boardSession, openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
-import { createFightOffers } from '../../../../src/v2/lean-rpg/board/offers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { boardReplyGrammar } from '../../../../modules/rpg/index.js';
+import { readSheet } from '../../../../modules/rpg/index.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { boardSession, openBoard } from '../../../../modules/rpg/board/session.js';
+import { createFightOffers } from '../../../../modules/rpg/board/offers.js';
 
 async function world() {
     const host = await createHost({ callModel: async () => 'none', settings: { modules: { 'story-block': { rpgFormula: 'standard' } } } });

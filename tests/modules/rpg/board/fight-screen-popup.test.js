@@ -2,9 +2,9 @@
 // fight leaves no screen open, a ready hold opens it, and a screen the reader opened is never closed by the code.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clearStart, holdStart } from '../../../../../../core/turn/fight-start.js';
+import { clearStart, holdStart } from '../../../../core/turn/fight-start.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 
 async function ready(t) {
     const app = await page(t, { formula: 'standard' });

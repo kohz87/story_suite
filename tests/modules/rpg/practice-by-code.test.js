@@ -4,20 +4,20 @@
 // middle delete, a rebuild and a reload agree; a later setting change moves no reply already made; a roll made before has no practice mark and gives none.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { createFakeModel } from '../../../testkit/model.js';
-import { LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING } from '../../../src/v2/lean-rpg/index.js';
-import { practiceLines, rpgReplyLines } from '../../../src/v2/lean-rpg/view/changes-lines.js';
-import { PRACTICE_HELD, usesOf } from '../../../src/v2/lean-rpg/practice.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING } from '../../../modules/rpg/index.js';
+import { practiceLines, rpgReplyLines } from '../../../modules/rpg/view/changes-lines.js';
+import { PRACTICE_HELD, usesOf } from '../../../modules/rpg/practice.js';
 import { legacyPlanner } from './legacy-planner.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { reply, success } from '../data-modules/helpers.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { rollReceipt } from './helpers.js';
 
 // The RPG library is cached for the whole process, so the test-only legacy planner reads the world of the test now running.
 const live = { host: null, model: null };
 const planned = async () => {
-    const lib = await import('../../../src/v2/lean-rpg/index.js');
+    const lib = await import('../../../modules/rpg/index.js');
     return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: (...args) => live.model(...args), chat: () => live.host.ctx.chat, metadata: () => live.host.ctx.chatMetadata ?? null }); return part; } };
 };
 const available = await hostAvailable();
@@ -112,7 +112,7 @@ test('the setting out of range or missing is 3; the payload mark is the value, s
     const record = rollReceipt(host, host.ctx.chat.length - 1);
     assert.equal(record.data.v2.result.practice, PRACTICE.perUse);
     // A roll recorded before (no `practice` in it) is read by the hook as giving nothing.
-    const { rollOf } = await import('../../../src/v2/lean-rpg/practice.js');
+    const { rollOf } = await import('../../../modules/rpg/practice.js');
     const old = structuredClone(record);
     delete old.data.v2.result.practice;
     assert.equal(rollOf([old]), null);
@@ -227,7 +227,7 @@ test('a roll made before practice by code has no mark and gives nothing, byte fo
     const at = host.ctx.chat.length - 1;
     const record = host.ctx.chat[at].extra.storySuite;
     // Strip the mark from the payload the way a payload made on an older build lacks it, and run the hook's reading of it.
-    const { rollOf, usesOf: uses } = await import('../../../src/v2/lean-rpg/practice.js');
+    const { rollOf, usesOf: uses } = await import('../../../modules/rpg/practice.js');
     const result = structuredClone(rollReceipt(host, at).data.v2.result);
     assert.ok(uses(result).length > 0);
     delete result.practice;

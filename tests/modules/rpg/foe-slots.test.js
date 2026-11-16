@@ -2,14 +2,14 @@
 // the roll's opened slots count as arrived for the fight's XP; a stale Down group is never paid again; Down-only slots are not an open fight for the quiet reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { createFakeModel } from '../../../testkit/model.js';
-import { FIGHT, LEAN_RPG_FEATURE, RESOLVE, readSheet } from '../../../src/v2/lean-rpg/index.js';
-import { fightIsOpen } from '../../../src/v2/lean-rpg/quiet.js';
-import { openFoes, vetOpen } from '../../../src/v2/lean-rpg/open.js';
-import { openedSlots, fightHook } from '../../../src/v2/lean-rpg/fight.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { FIGHT, LEAN_RPG_FEATURE, RESOLVE, readSheet } from '../../../modules/rpg/index.js';
+import { fightIsOpen } from '../../../modules/rpg/quiet.js';
+import { openFoes, vetOpen } from '../../../modules/rpg/open.js';
+import { openedSlots, fightHook } from '../../../modules/rpg/fight.js';
 import { legacyPlanner } from './legacy-planner.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { PARTY, foeBlock, sheetDomain, oldFoesDefinition } from './helpers.js';
 
 const available = await hostAvailable();
@@ -21,7 +21,7 @@ async function world(t) {
     const model = createFakeModel([]);
     // (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
     const rpgLoad = async () => {
-        const lib = await import('../../../src/v2/lean-rpg/index.js');
+        const lib = await import('../../../modules/rpg/index.js');
         return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => host.ctx.chat, metadata: () => host.ctx.chatMetadata ?? null }); return part; } };
     };
     const host = await createHost({ callModel: model, lazyRpg: true, rpgLoad });
@@ -152,8 +152,8 @@ test('a new fight clears the Down groups of earlier replies: after the gnashers 
     assert.match(prompt, /Foes: rats ×4/u);
     assert.ok(xpAfterFirst > 0);
     // the log's Status: only the groups that rolled in this reply
-    const { buildPanel, panelModel, readResolve } = await import('../../../src/v2/lean-rpg/view/battle-log.js');
-    const { setupDom } = await import('../../../../../tests/ui/view/mounts/helpers.js');
+    const { buildPanel, panelModel, readResolve } = await import('../../../modules/rpg/view/battle-log.js');
+    const { setupDom } = await import('../../ui/view/mounts/helpers.js');
     const model2 = panelModel({ resolve: readResolve(rats.roll.data.v2.result), state: host.store.at(rats.index), before: host.store.at(rats.index - 1), roleOf: definition => definition.role ?? null });
     assert.deepEqual(model2.foes.map(foe => foe.text.split(' ')[0]), ['rats']);
     // the gnasher reply keeps its own fight: its state still has the gnashers, and a Re-read, a rebuild and a reload agree

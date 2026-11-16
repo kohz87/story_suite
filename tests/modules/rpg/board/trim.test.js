@@ -1,11 +1,11 @@
 // The board trims only stock combat instructions, with a static prompt that does not follow the fight.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { staticTextWith } from '../../../../../../core/prompt.js';
-import { rpgLib, setRpgLib } from '../../../../src/v2/rpg-lazy.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { staticTextWith } from '../../../../core/prompt.js';
+import { rpgLib, setRpgLib } from '../../../../modules/rpg/rpg-lazy.js';
 
 const staticOf = result => result.request.chat[0].content;
 const tailOf = result => result.request.chat.filter(message => message.role === 'system').slice(1).map(message => message.content).join('\n');

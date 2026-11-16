@@ -1,6 +1,6 @@
 // Whether a chat and its metadata hold anything the RPG wrote (holdsRpg), so its code is fetched before the chat is replayed.
 
-import { CHECK_STEP, DICE, FIGHT, PRACTICE_STEP, RESOLVE } from '../lean-rpg/names.js';
+import { CHECK_STEP, DICE, FIGHT, PRACTICE_STEP, RESOLVE } from '../names.js';
 
 // (`capture.party` is the receipt of a `+ party` line; the guarded block it makes is `dm.join`.)
 const GUARD_KINDS = new Set([RESOLVE, FIGHT, PRACTICE_STEP, CHECK_STEP, DICE, 'dm.join', 'capture.party', 'capture.roll']);

@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CHAR_FILE, parseCharacterFile } from "../../../../src/v2/lean-rpg/charfile.js";
-import { TOLD } from "../../../../src/v2/domains/inventory.js";
-import { STATS } from "../../../../src/v2/lean-rpg/index.js";
-import { reload } from "../../data-modules/helpers.js";
+import { CHAR_FILE, parseCharacterFile } from "../../../../modules/rpg/charfile.js";
+import { TOLD } from "../../../../packages/story-block/src/v2/domains/inventory.js";
+import { STATS } from "../../../../modules/rpg/index.js";
+import { reload } from "../../../../packages/story-block/tests/v2/data-modules/helpers.js";
 import { fieldsOf, page, party, settle } from "./page.js";
 import { GEAR_FILE, SAVED, carried, click, companion, createRen, defsOf, exportDialog, exportOf, goTo, importInto, names, newcomer, purseOf, receiptTypes, saveFrom, story, type, without, wizardOf, wizardWith } from "./char-export.helpers.js";
 
@@ -238,7 +238,7 @@ test('Create keeps every imported piece\'s slot and stats exactly, with Gear off
     assert.equal(def('Traveler\'s Slingbag').carry, 12, 'the carry the file kept is set as the reader\'s');
     assert.equal(def('Cane Sword').carry, undefined);
     // Written out again, the file carries the same things (stats, slots and the carry).
-    const { itemsForFile } = await import('../../../../src/v2/lean-rpg/charfile.js');
+    const { itemsForFile } = await import('../../../../modules/rpg/charfile.js');
     const out = itemsForFile(ctx.host.sdk.query('inventory.items', {}));
     assert.deepEqual(out.find(item => item.name === 'Cane Sword'), { name: 'Cane Sword', qty: 1, note: 'Hidden blade inside a walking cane', kind: 'equipment', rarity: 'common', slot: 'weapon', stats: { AGI: 1 } });
     assert.equal(out.find(item => item.name === 'Traveler\'s Slingbag').carry, 12);

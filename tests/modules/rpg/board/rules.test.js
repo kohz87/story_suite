@@ -3,8 +3,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { attackStat, bestDefence, consumablesIn, recoverBar, recoveryOf } from '../../../../src/v2/lean-rpg/board/rules.js';
-import { itemLineText } from '../../../../src/v2/lean-rpg/cue.js';
+import { attackStat, bestDefence, consumablesIn, recoverBar, recoveryOf } from '../../../../modules/rpg/board/rules.js';
+import { itemLineText } from '../../../../modules/rpg/cue.js';
 
 test('a plain weapon uses strength, or the best eligible stat for finesse', () => {
     const hero = { stats: { str: 8, agi: 14, dex: 12 } };

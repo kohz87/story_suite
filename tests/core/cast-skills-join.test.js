@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { validatePack } from '../../packs/validate.js';
 import { castSkillsOf } from '../../packs/cast-skills.js';
 import { CAST_LIMITS, CAST_SKILL_STATS } from '../../packs/limits.js';
-import { STATS } from '../../packages/story-block/src/v2/lean-rpg/names.js';
+import { STATS } from '../../modules/rpg/names.js';
 import { SKILL_SLOTS_MAX, skillSlots, signatureAt } from '../../core/runtime/skill-slots.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
-import { partyLines } from '../../packages/story-block/src/v2/lean-rpg/view/changes-lines.js';
-import { readParty } from '../../packages/story-block/src/v2/lean-rpg/view/party-data.js';
-import { buildCharacterFile, parseCharacterFile } from '../../packages/story-block/src/v2/lean-rpg/charfile.js';
+import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
+import { partyLines } from '../../modules/rpg/view/changes-lines.js';
+import { readParty } from '../../modules/rpg/view/party-data.js';
+import { buildCharacterFile, parseCharacterFile } from '../../modules/rpg/charfile.js';
 import { skip, reply, SKILLS, person, withCast, refused, world, fieldsOf, receipts, joinReceipt, told, update, mine } from './cast-skills.helpers.js';
 
 test('skills: kept as written, with uses stamina and rank novice by default; nothing is added when the key is left out', () => {

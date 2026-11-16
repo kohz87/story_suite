@@ -3,11 +3,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { boardFailure, restoreHint } from '../../../../../core/turn/held-board.js';
+import { boardFailure, restoreHint } from '../../../core/turn/held-board.js';
 
 const WHERE = '(Fight tab, Discard fight)';
-const FILES = ['packages/story-block/src/v2/lean-rpg/precall.js', 'packages/story-block/src/v2/lean-rpg/board/view.js', 'packages/story-block/src/v2/lean-rpg/board/commit.js', 'packages/story-block/src/v2/lean-rpg/board/session.js',
-    'packages/story-block/src/v2/lean-rpg/board/start-controller.js', 'packages/story-block/src/v2/lean-rpg/board/engine.js', 'core/turn/held-board.js', 'core/turn/held-board-parts/failure.js', 'core/turn/held-board-parts/held.js', 'core/turn/held-board-parts/board-state.js', 'core/turn/reread.js', 'core/turn/events.js', 'core/turn/prompt-build.js'];
+const FILES = ['modules/rpg/precall.js', 'modules/rpg/board/view.js', 'modules/rpg/board/commit.js', 'modules/rpg/board/session.js',
+    'modules/rpg/board/start-controller.js', 'modules/rpg/board/engine.js', 'core/turn/held-board.js', 'core/turn/held-board-parts/failure.js', 'core/turn/held-board-parts/held.js', 'core/turn/held-board-parts/board-state.js', 'core/turn/reread.js', 'core/turn/events.js', 'core/turn/prompt-build.js'];
 
 test('discard advice in held-board helpers names the Fight tab button', () => {
     assert.ok(restoreHint('x').includes(`discard the fight ${WHERE}.`));

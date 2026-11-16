@@ -2,7 +2,7 @@
 
 import { readRecord } from '../../../core/persist.js';
 import { oneLine } from '../../../core/text.js';
-import { receiptCue } from '../../../packages/story-block/src/v2/lean-rpg/cue.js';
+import { receiptCue } from '../../../modules/rpg/cue.js';
 import { diffStates } from './diff.js';
 
 export const receiptView = receipt => ({

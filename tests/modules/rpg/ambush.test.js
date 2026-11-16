@@ -2,16 +2,16 @@
 // A success gives the party's round-1 acts +2 (and, Standard, the quick start); a failure gives nothing; with no such check there is no ambush edge.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { prepare, readSheet, rollPrepared, validatePlan } from '../../../src/v2/lean-rpg/index.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { prepare, readSheet, rollPrepared, validatePlan } from '../../../modules/rpg/index.js';
 import { parsePlanAnswer } from './legacy-planner.js';
-import { EARLIER_RULES } from '../../../src/v2/lean-rpg/rules.js';
-import { STANDARD_FORMULA as STANDARD } from '../../../src/v2/lean-rpg/rules.js';
-import { carriedFrom, dropOf } from '../../../src/v2/lean-rpg/ambush.js';
-import { cueOfResult } from '../../../src/v2/lean-rpg/cue.js';
-import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
-import { buildPanel, panelModel, readResolve } from '../../../src/v2/lean-rpg/view/battle-log.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { EARLIER_RULES } from '../../../modules/rpg/rules.js';
+import { STANDARD_FORMULA as STANDARD } from '../../../modules/rpg/rules.js';
+import { carriedFrom, dropOf } from '../../../modules/rpg/ambush.js';
+import { cueOfResult } from '../../../modules/rpg/cue.js';
+import { usesOf } from '../../../modules/rpg/practice.js';
+import { buildPanel, panelModel, readResolve } from '../../../modules/rpg/view/battle-log.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
 import { PARTY, character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock } from './helpers.js';
 
 const available = await hostAvailable();

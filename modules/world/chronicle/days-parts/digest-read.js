@@ -1,6 +1,6 @@
 // Story Director v2, chronicle part: reading and re-deriving stored day digests. Pure.
 
-import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../../rpg/slot.js';
 import { entriesByDay, rangeDays } from './day-entries.js';
 import { factsOf } from './facts-fold.js';
 import { isInt, isRecord } from './shared-values.js';

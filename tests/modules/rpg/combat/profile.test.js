@@ -2,8 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { playExchange } from '../../../../src/v2/lean-rpg/combat/exchange.js';
-import { profileOf, skillsOf } from '../../../../src/v2/lean-rpg/combat/profile.js';
+import { playExchange } from '../../../../modules/rpg/combat/exchange.js';
+import { profileOf, skillsOf } from '../../../../modules/rpg/combat/profile.js';
 import { skillsFor } from './derived-skills.helper.js';
 
 const stats = { str: 10, vit: 10, agi: 10, dex: 10, int: 10, wis: 10, cha: 5 };

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hashOf, makeState, replay, run, write } from './helpers.js';
-import { part } from '../../../src/v2/checks/index.js';
+import { part } from '../../../../modules/rpg/checks/index.js';
 
 function actor(state, extra = {}, options = {}) {
     return run(state, 'checks.actor', { write: write(), name: 'Mara', expectedHash: hashOf(state), ...extra }, options);

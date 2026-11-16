@@ -67,7 +67,7 @@ export { isGameViewKey, hasReplyRecord, hudOn } from './ui-host/shared.js';
  * setHidden(id, hidden), reset(), isDefault()), syncScreens(), destroy() }.
  * Re-read uses `sdk.reread(index)` (or `runtime.turn.reread(index)`) when the runtime has one.
  */
-export function mountUi({ runtime, ctx, doc = globalThis.document, version = '', loadLeanRpg = () => import('../../packages/story-block/src/v2/lean-rpg/view/index.js'), readLorebook = readCharacterLorebook, flushSettings = saveSettingsNow }) {
+export function mountUi({ runtime, ctx, doc = globalThis.document, version = '', loadLeanRpg = () => import('../../modules/rpg/view/index.js'), readLorebook = readCharacterLorebook, flushSettings = saveSettingsNow }) {
     const { registry, store, sdk, settings, events } = runtime;
     const { queryAt, widgets, coreOn, blockTemplates, blockWidgets, liveCtx, savePoints, inspector, hostWidgets, renderer,
         screens, tabOrder, extraTabs, navPresent, barDeclared, setSharedTabs } = createHostSetup({

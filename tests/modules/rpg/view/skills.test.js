@@ -3,12 +3,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { readParty } from '../../../../src/v2/lean-rpg/view/party-data.js';
-import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
-import { RANK_TONES, masteryOf, renderSkills, rollOf } from '../../../../src/v2/lean-rpg/view/skills.js';
-import { reply, rebuilt } from '../../data-modules/helpers.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { readParty } from '../../../../modules/rpg/view/party-data.js';
+import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
+import { RANK_TONES, masteryOf, renderSkills, rollOf } from '../../../../modules/rpg/view/skills.js';
+import { reply, rebuilt } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { fakeState } from './helpers.js';
 import { begin, fieldsOf, makeBlocks, page, party, settle } from './page.js';
 
@@ -242,7 +242,7 @@ test('the Party widget opens the view in place of the cards and a story change k
 });
 
 test('the stylesheet: the rank tones, a two-column list on a wide container, theme tokens only', () => {
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     for (const tone of ['info', 'accent', 'good']) assert.match(css, new RegExp(`\\.rpg-tone-${tone} \\{[^}]*var\\(--ss-${tone}\\)`));
     assert.match(css, /\.rpg-skill-empty \{[^}]*dashed/);
     assert.match(css, /@container \(min-width: 760px\) \{\s*\.rpg-skill-list \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/);

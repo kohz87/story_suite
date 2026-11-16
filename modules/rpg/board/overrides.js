@@ -4,7 +4,7 @@
 // Also the consumables' two outside-the-fight hooks (owner 14 Nov): `items.useOn` (whom the inventory's Use on… offers) and `item.use` (the
 // Use on… button and the story's `- item X | used: yes`): one rule, board/rules.js `recoveryOf`, the same one the fight board's Use item uses.
 
-import { CORE_FEATURE } from '../../../../../../core/features.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 import { fold, matchCharacter, readSheet } from '../read.js';
 import { actorIdOf, rosterOf as partyRoster } from '../roster.js';
 import { BOARD_SKILL, BOARD_SKILL_CARRY, LEAN_RPG_FEATURE, ROLLS_QUERY, USE_ITEM } from '../names.js';

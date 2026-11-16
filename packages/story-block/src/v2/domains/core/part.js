@@ -11,7 +11,7 @@ import { moneyLine, resolveCurrency } from '../money.js';
 import { renderInventoryTab } from '../../../../../../ui/legacy/ui/inventory-tab.js';
 import { renderSceneTab } from '../../../../../../ui/legacy/ui/scene-tab.js';
 import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { rpgLib } from '../../rpg-lazy.js';
+import { rpgLib } from '../../../../../../modules/rpg/rpg-lazy.js';
 import { CORE_BUDGET, CORE_SETTINGS, CORE_STATIC, GEAR_ITEM_GRAMMAR } from './constants.js';
 import { CORE_KINDS, youGrammar } from './kinds.js';
 

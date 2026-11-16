@@ -2,9 +2,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
-import { offerLineData, pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { openBoard } from '../../../../modules/rpg/board/session.js';
+import { offerLineData, pauseViewData } from '../../../../modules/rpg/board/start-view-data.js';
 import { character, levelFoeBlock, sheetDomain } from '../helpers.js';
 
 function state() {

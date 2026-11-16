@@ -1,5 +1,5 @@
 // The Mana and Stamina strip, skill buttons and target buttons of the choosing member.
-import { h, text } from '../../../../../../../ui/legacy/view/widgets/dom.js';
+import { h, text } from '../../../../ui/legacy/view/widgets/dom.js';
 import { healthMiniBar } from './bars.js';
 import { hasValue, numberOr } from './shared-values.js';
 

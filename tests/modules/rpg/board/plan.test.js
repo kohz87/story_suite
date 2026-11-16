@@ -3,9 +3,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { splitFoes } from '../../../../src/v2/lean-rpg/board/members.js';
-import { actionSkills, exchangePlan } from '../../../../src/v2/lean-rpg/board/plan.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { splitFoes } from '../../../../modules/rpg/board/members.js';
+import { actionSkills, exchangePlan } from '../../../../modules/rpg/board/plan.js';
 import { character, foeBlock, levelFoeBlock, setup, sheetDomain, skillBlock } from '../helpers.js';
 
 const stateOf = blocks => ({ domains: { dataModules: sheetDomain(blocks) } });

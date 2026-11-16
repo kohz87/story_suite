@@ -1,8 +1,8 @@
 // The New character wizard (src/v2/lean-rpg/view/wizard.js and wizard-data.js, mockup 41-wizard): the dialog on the real page — opening, Who, Stats, Skills, Review.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STATS } from '../../../../src/v2/lean-rpg/index.js';
-import { WIZARD_SCREEN_ID } from '../../../../src/v2/lean-rpg/view/wizard.js';
+import { STATS } from '../../../../modules/rpg/index.js';
+import { WIZARD_SCREEN_ID } from '../../../../modules/rpg/view/wizard.js';
 import { begin, makeBlocks, page, party } from './page.js';
 import { FIGHTER, PACK, click, goTo, openFrom, type, wizardOf } from './wizard.helpers.js';
 

@@ -2,10 +2,10 @@
 // and the resume note. Everything runs on the mounted production UI.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { boardSession } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { boardSession } from '../../../../modules/rpg/board/session.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 
 const SEED = 1; // the dice are seeded so the weak hero's draw is the same every run

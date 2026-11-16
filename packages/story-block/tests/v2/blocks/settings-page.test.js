@@ -7,7 +7,7 @@ import { mountUi } from '../../../../../ui/legacy/ui-host.js';
 import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
 import { validateDataModules } from '../../../src/v2/data-modules/check.js';
 import { STRINGS, fill } from '../../../../../core/strings.js';
-import { LEAN_RPG_FEATURE } from '../../../src/v2/lean-rpg/index.js';
+import { LEAN_RPG_FEATURE } from '../../../../../modules/rpg/index.js';
 import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
 
 const S = STRINGS.blocks;

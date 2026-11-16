@@ -2,7 +2,7 @@
 
 import { CALENDAR_KEYS, calendarRule, liveCalendarSettings } from '../../../../modules/time/tracker/calendar-settings.js';
 import { calendarOf, packCalendarOf, settingsFrom } from '../../../../modules/time/tracker/time.js';
-import { rareKindsUsed } from '../../../../packages/story-director/src/v2/rare.js';
+import { rareKindsUsed } from '../../../../modules/rpg/rare.js';
 import { MODULE_ID, MODULE_NAME, PARTS, STORY_BLOCK_RANGE, VERSION } from './parts.js';
 import { LIVE_HOST, isObject, liveSdk, tryLive } from './shared.js';
 import { fightRunner } from './host.js';

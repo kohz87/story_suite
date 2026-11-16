@@ -1,17 +1,17 @@
 // The Fight tab board: target selection, end cards, defence labels, choice lock, rules/stale/held checks, broken weapon.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { STAGES, stageWord } from '../../../../src/v2/lean-rpg/names.js';
-import { usesOf } from '../../../../src/v2/lean-rpg/practice.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { createBoardView } from '../../../../src/v2/lean-rpg/board/view.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { STAGES, stageWord } from '../../../../modules/rpg/names.js';
+import { usesOf } from '../../../../modules/rpg/practice.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { createBoardView } from '../../../../modules/rpg/board/view.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
-import { planGear } from '../../../../src/v2/lean-rpg/gear.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { aiMessage } from '../../../../testkit/fake-st.js';
+import { planGear } from '../../../../modules/rpg/gear.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
 import { defineFoes, showStop } from './view.helpers.js';
 
 test('the board selects a target, keeps its exchange final and confirms discard', async t => {

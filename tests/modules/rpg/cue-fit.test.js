@@ -1,10 +1,10 @@
 // Fix round 4, B4: the [Rolls] cue is held to its token cap by shortening and is never dropped from the prompt.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { LIMITS, STANDARD_FORMULA as RULES, prepare, readSheet, rollPrepared } from '../../../src/v2/lean-rpg/index.js';
-import { cueTokens } from '../../../src/v2/lean-rpg/cue.js';
-import { assemble } from '../../../../../core/prompt.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { LIMITS, STANDARD_FORMULA as RULES, prepare, readSheet, rollPrepared } from '../../../modules/rpg/index.js';
+import { cueTokens } from '../../../modules/rpg/cue.js';
+import { assemble } from '../../../core/prompt.js';
 import { cueOf, character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock, tailOf } from './helpers.js';
 
 const available = await hostAvailable();

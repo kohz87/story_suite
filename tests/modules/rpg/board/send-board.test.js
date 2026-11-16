@@ -1,10 +1,10 @@
 // Round 16: the staged board fight is what the reply carries at Send (never a planner re-roll).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { boardSession } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { boardSession } from '../../../../modules/rpg/board/session.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 
 const MSG = 'I attack the boar.';

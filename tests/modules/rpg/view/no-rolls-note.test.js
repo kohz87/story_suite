@@ -3,11 +3,11 @@
 // has rolls, gone with the feature, the same after a redraw.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { NOROLL, RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../../helpers/ui-fake-dom.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { BATTLE_ROOT, MARKER_HIDDEN, createBattleLog } from '../../../../modules/rpg/view/battle-log.js';
+import { NOROLL, RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, defineAll, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';
 import { begin, makeBlocks, page, settle } from './page.js';
 
@@ -110,7 +110,7 @@ test('no note without the receipt, on a message of the reader\'s, or with the fe
 
 test('the note\'s stylesheet: a dashed warn note, theme tokens only', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-battle\.rpg-norolls \{[^}]*border: 1px dashed var\(--ss-warn/);
     assert.match(css, /\.rpg-norolls-dot \{[^}]*background: var\(--ss-warn/);
 });

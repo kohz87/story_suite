@@ -1,13 +1,13 @@
 // THEN-FIX: `then:` (the skill rounds 2 on use), the spent note naming only the pool that is spent, and a defender's skill only when the message asks for it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { prepare, readSheet, rollPrepared, validatePlan } from '../../../src/v2/lean-rpg/index.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { prepare, readSheet, rollPrepared, validatePlan } from '../../../modules/rpg/index.js';
 import { parsePlanAnswer } from './legacy-planner.js';
-import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
-import { FIX_VERSION } from '../../../src/v2/lean-rpg/names.js';
-import { cueOfResult, lineText } from '../../../src/v2/lean-rpg/cue.js';
-import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
+import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
+import { FIX_VERSION } from '../../../modules/rpg/names.js';
+import { cueOfResult, lineText } from '../../../modules/rpg/cue.js';
+import { usesOf } from '../../../modules/rpg/practice.js';
 import { character, foeBlock, rollReceipt, setup, sheetDomain, skillBlock } from './helpers.js';
 
 const available = await hostAvailable();

@@ -40,7 +40,7 @@ import { aliasKey, resolveDef } from '../../../../packages/story-block/src/v2/do
 import { validateScene } from '../../../../packages/story-block/src/v2/domains/scene.js';
 import { validatePeople } from '../../../../packages/story-block/src/v2/domains/people/validate.js';
 import { hashJson } from '../../../../core/replay.js';
-import { checkGuard } from '../../../../packages/story-block/src/v2/lean-rpg/practice.js';
+import { checkGuard } from '../../../../modules/rpg/practice.js';
 import { inventoryEditGuard } from '../../../../packages/story-block/src/v2/domains/inventory/edit.js';
 import { probeModule } from './probe-module.js';
 import { replayFailure } from './replay-diagnostics.js';

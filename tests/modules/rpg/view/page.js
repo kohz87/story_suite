@@ -1,12 +1,12 @@
 // The real page for the Skills view and the wizard tests: the testkit host with Story Block's UI mounted on a fake DOM, the RPG
 // feature on, and the real view loader (the definitions' own `role` key is read; nothing is faked about it).
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { mountUi } from '../../../../../../ui/legacy/ui-host.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../../helpers/ui-fake-dom.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { STANDARD_TEMPLATES as EARLIER_TEMPLATES } from '../fixtures/templates-2.16.js';
 
 export const settle = async () => { for (let n = 0; n < 8; n += 1) await new Promise(resolve => setImmediate(resolve)); };
@@ -22,7 +22,7 @@ export async function page(t, { feature = true, persona = null, wrap = null, mod
     if (persona !== null) host.ctx.name1 = persona;
     if (feature) host.features.set(CORE_FEATURE.leanRpg, true);
     const loads = [];
-    const loadLeanRpg = () => { loads.push(1); return import('../../../../src/v2/lean-rpg/view/index.js'); };
+    const loadLeanRpg = () => { loads.push(1); return import('../../../../modules/rpg/view/index.js'); };
     // The testkit host has no dialog opener (runtime.setDialog is the page's to plug in): the same plug, over the host's own sdk.
     let opener = null, topmost = null;
     // `wrap(type, payload, options, run)` may answer a command itself (a test makes one fail); `run` is the real one.

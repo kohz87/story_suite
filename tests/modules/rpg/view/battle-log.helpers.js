@@ -1,8 +1,8 @@
-import { createHost } from '../../../../testkit/index.js';
-import { makeMessage } from '../../../../../../tests/helpers/ui-fake-dom.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { BATTLE_ROOT, buildPanel, createBattleLog, panelModel, readResolve } from '../../../../src/v2/lean-rpg/view/battle-log.js';
-import { RESOLVE } from '../../../../src/v2/lean-rpg/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { makeMessage } from '../../../helpers/ui-fake-dom.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { BATTLE_ROOT, buildPanel, createBattleLog, panelModel, readResolve } from '../../../../modules/rpg/view/battle-log.js';
+import { RESOLVE } from '../../../../modules/rpg/index.js';
 import { characterDefinition, defineAll, fakeState, foesDefinition, roleOf, setField, skillsDefinition } from './helpers.js';
 
 export const settle = () => new Promise(resolve => setImmediate(resolve));

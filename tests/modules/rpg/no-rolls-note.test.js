@@ -3,11 +3,11 @@
 // record through the test-only legacy planner and pin how it replays (reload, rebuild, Re-read, swipe), its command and its words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostAvailable } from '../../../testkit/index.js';
-import { NOROLL, RESOLVE } from '../../../src/v2/lean-rpg/index.js';
-import { noRoll, noRollOf } from '../../../src/v2/lean-rpg/noroll.js';
-import { readRecord } from '../../../../../core/persist.js';
-import { buildNote, noteText } from '../../../src/v2/lean-rpg/view/battle-log.js';
+import { hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { NOROLL, RESOLVE } from '../../../modules/rpg/index.js';
+import { noRoll, noRollOf } from '../../../modules/rpg/noroll.js';
+import { readRecord } from '../../../core/persist.js';
+import { buildNote, noteText } from '../../../modules/rpg/view/battle-log.js';
 import { PLAN_ANSWER, setup } from './helpers.js';
 
 const available = await hostAvailable();

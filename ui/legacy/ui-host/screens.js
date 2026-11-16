@@ -4,7 +4,7 @@
 import { TEMPLATES, applyScreenCss } from '../view/render-screen.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { mergeTabs } from '../view/tab-merge.js';
-import { ROLES_WITHOUT_TAB } from '../../../packages/story-block/src/v2/lean-rpg/names.js';
+import { ROLES_WITHOUT_TAB } from '../../../modules/rpg/names.js';
 
 export function createScreenSync({ doc, registry, sdk, screens, setSharedTabs }) {
     // ---- screens from the modules and the packs ----------------------------------------------

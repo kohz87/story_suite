@@ -2,10 +2,10 @@
 // class, the "next block / next luck" numbers, and the words a story writes turned into blocks (the same rounding the templates use).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STAGES } from '../../../src/v2/lean-rpg/names.js';
-import { blocksFor, foeHealthBlocks } from '../../../src/v2/lean-rpg/formula.js';
-import { barFields, barOf, barReading, characterBars, growthOf, sizeOf, spreadIndex, spreadWord, stageText, wordToBlocks, wordsOf } from '../../../src/v2/lean-rpg/blocks.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
+import { STAGES } from '../../../modules/rpg/names.js';
+import { blocksFor, foeHealthBlocks } from '../../../modules/rpg/formula.js';
+import { barFields, barOf, barReading, characterBars, growthOf, sizeOf, spreadIndex, spreadWord, stageText, wordToBlocks, wordsOf } from '../../../modules/rpg/blocks.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 
 const standard = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));
 const wessel = { str: 10, vit: 10, agi: 10, dex: 6, int: 5, luk: 3, cha: 5 };

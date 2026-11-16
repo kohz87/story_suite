@@ -3,14 +3,14 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { practiceHook, practiceStep, usesOf } from '../../../../src/v2/lean-rpg/practice.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { memberXp } from '../../../../src/v2/lean-rpg/fight.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { carriedFrom } from '../../../../src/v2/lean-rpg/board/members.js';
-import { boardSession, discardBoard, openBoard, receiveBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { practiceHook, practiceStep, usesOf } from '../../../../modules/rpg/practice.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { memberXp } from '../../../../modules/rpg/fight.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { carriedFrom } from '../../../../modules/rpg/board/members.js';
+import { boardSession, discardBoard, openBoard, receiveBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, sheetDomain, skillBlock } from '../helpers.js';
 
 test('more than 40 board skills earn practice once through swipe and Re-read', async () => {

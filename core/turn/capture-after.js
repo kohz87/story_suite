@@ -2,7 +2,7 @@
 // may return commands that run as system steps on the scene the reply ended up in (stored live, or planned by a Re-read).
 // `createCaptureAfter(deps)` is given the turn parts it uses; it never imports turn.js.
 import { makeView } from '../sdk.js';
-import { receiptWithCue } from '../../packages/story-block/src/v2/lean-rpg/cue.js';
+import { receiptWithCue } from '../../modules/rpg/cue.js';
 import { HOST_MODULE } from '../registry.js';
 import { within, TIMED_OUT } from './text.js';
 import { occurrenceOf } from '../evidence.js';

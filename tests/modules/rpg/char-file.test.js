@@ -2,9 +2,9 @@
 // may hold (the RPG's own limits), every refusal in plain words, and what the draft takes from a good file (wizard-data.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CHAR_FILE, FILE_LIMITS, buildCharacterFile, fileNameOf, fileText, itemLine, itemsForFile, parseCharacterFile, skillLine, thingsWord } from '../../../src/v2/lean-rpg/charfile.js';
-import { CREATION, STATS } from '../../../src/v2/lean-rpg/index.js';
-import { buildDefinitions, newDraft, pointsLeft, problemsOf, readDraft, startStats, statBounds, withImport, withoutImport, withSkillPatch, adeptCount } from '../../../src/v2/lean-rpg/view/wizard-data.js';
+import { CHAR_FILE, FILE_LIMITS, buildCharacterFile, fileNameOf, fileText, itemLine, itemsForFile, parseCharacterFile, skillLine, thingsWord } from '../../../modules/rpg/charfile.js';
+import { CREATION, STATS } from '../../../modules/rpg/index.js';
+import { buildDefinitions, newDraft, pointsLeft, problemsOf, readDraft, startStats, statBounds, withImport, withoutImport, withSkillPatch, adeptCount } from '../../../modules/rpg/view/wizard-data.js';
 
 const STAT_VALUES = { str: 14, vit: 12, agi: 11, dex: 10, int: 8, luk: 9, cha: 10 };
 const SKILLS = [

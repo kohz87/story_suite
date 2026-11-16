@@ -1,6 +1,6 @@
 // How many skill slots a character has and how its skills split into combat and utility pools.
 
-import { UTILITY_SLOTS, skillSlots } from '../../../../../../../core/runtime/skill-slots.js';
+import { UTILITY_SLOTS, skillSlots } from '../../../../core/runtime/skill-slots.js';
 
 /** How many slots the character's skills card shows: the slots the level opens (names.js skillSlots; a Skills block made before them is extended when the story first needs it, data-modules/part.js growSkills), never fewer than the skills it holds. */
 export const slotsShown = character => Math.max(character.skills.length, skillSlots(character.level));

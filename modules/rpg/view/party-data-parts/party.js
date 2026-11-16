@@ -3,7 +3,7 @@
 import { STATS } from '../../index.js';
 import { STANDARD_NUMBERS, levelOfClass } from '../../formula.js';
 import { characterBars, growthOf, scaleOf, statsOfFields } from '../../blocks.js';
-import { actorsOf } from '../../../data-modules/adapters.js';
+import { actorsOf } from '../../../../packages/story-block/src/v2/data-modules/adapters.js';
 import { LEVEL } from '../../names.js';
 import { soulLabelOf } from '../../soul.js';
 import { rpgBlocks } from './blocks.js';

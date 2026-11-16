@@ -1,8 +1,8 @@
 // Keeps the board's fixed grammar as small as a quiet reply's grammar.
 // Combat flavour and manual rules are supplied only in the reply context that can use them.
-import { activeDefinition } from '../../data-modules/adapters.js';
-import { moduleGrammar, referenceOf } from '../../data-modules/grammar.js';
-import { oneLine } from '../../../../../../core/text.js';
+import { activeDefinition } from '../../../packages/story-block/src/v2/data-modules/adapters.js';
+import { moduleGrammar, referenceOf } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
+import { oneLine } from '../../../core/text.js';
 import { CLEAR_ONLY, NEW_GROUPS, NEW_GROUPS_MANUAL, narratedFoeGrammar } from './narrated-grammar.js';
 
 // How a fight starts under the board: the story sets a foe slot, the offer line appears, and code plays the blows.
@@ -11,7 +11,7 @@ const START = 'A fight starts when you set a foe slot; the reader plays it on th
 // After the carried fight has ended (won / fled / lost): a group that arrives later is a new fight on the board.
 const START_AFTER = 'If a new group arrives after this fight, set a foe slot; a new fight starts on the board, so tell no blows.';
 
-export { boardGrammar, boardXpGuide } from '../../data-modules/board-static.js';
+export { boardGrammar, boardXpGuide } from '../../../packages/story-block/src/v2/data-modules/board-static.js';
 
 export function boardReplyGrammar(state, { fight = false, ended = false, manual = false, practice = false } = {}) {
     const ids = Object.keys(state?.domains?.dataModules?.active ?? {});

@@ -5,8 +5,8 @@ import { headReply, replyAt } from '../commands.js';
 import { KEY as RECORD_KEY, isCarrier, recordFault } from '../persist.js';
 import { cutAt } from '../text.js';
 import { MODEL_CALL_ERRORS, MODEL_CALL_TEXT, profileName } from '../model-call.js';
-import { RESOLVE as RPG_RESOLVE } from '../../packages/story-block/src/v2/lean-rpg/names.js';
-import { receiptCue, entriesWithCue } from '../../packages/story-block/src/v2/lean-rpg/cue.js';
+import { RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
+import { receiptCue, entriesWithCue } from '../../modules/rpg/cue.js';
 import { createPublicPaths } from '../persist/public-paths.js';
 
 import { createCardSettings } from '../../packs/card-settings.js';

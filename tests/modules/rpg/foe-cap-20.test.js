@@ -4,14 +4,14 @@
 // a rebuild and a reload. A recorded plan or recorded ops are never re-capped (replay applies stored ops only).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { canonicalJson } from '../../../../../core/replay.js';
-import { LEAN_RPG_FEATURE, readSheet } from '../../../src/v2/lean-rpg/index.js';
-import { vetOpen } from '../../../src/v2/lean-rpg/open.js';
-import { vetGroups } from '../../../src/v2/lean-rpg/board/precheck.js';
-import { FOE_LEVEL, foeLevelCap } from '../../../src/v2/lean-rpg/foes.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { success, reply } from '../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { canonicalJson } from '../../../core/replay.js';
+import { LEAN_RPG_FEATURE, readSheet } from '../../../modules/rpg/index.js';
+import { vetOpen } from '../../../modules/rpg/open.js';
+import { vetGroups } from '../../../modules/rpg/board/precheck.js';
+import { FOE_LEVEL, foeLevelCap } from '../../../modules/rpg/foes.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { success, reply } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

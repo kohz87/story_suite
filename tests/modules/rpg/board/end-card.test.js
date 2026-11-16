@@ -3,9 +3,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { pressButton } from '../../../../src/v2/lean-rpg/board/view.js';
-import { barMovement } from '../../../../src/v2/lean-rpg/board/note.js';
-import { STAGES, stageWord } from '../../../../src/v2/lean-rpg/names.js';
+import { pressButton } from '../../../../modules/rpg/board/view.js';
+import { barMovement } from '../../../../modules/rpg/board/note.js';
+import { STAGES, stageWord } from '../../../../modules/rpg/names.js';
 
 const stubDoc = () => ({
     createElement: tag => {

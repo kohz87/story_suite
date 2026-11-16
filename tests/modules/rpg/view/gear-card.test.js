@@ -2,12 +2,12 @@
 // no carry on the card; off, the card is as it was.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { createPartyWidget } from '../../../../src/v2/lean-rpg/view/party.js';
-import { SLOT_ORDER } from '../../../../src/v2/lean-rpg/view/gear-card.js';
-import { createCoreModule } from '../../../../src/v2/domains/index.js';
-import { createHarness } from '../../domains/helpers/fake-ctx.js';
-import { stocked } from '../../domains/fixtures.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
+import { SLOT_ORDER } from '../../../../modules/rpg/view/gear-card.js';
+import { createCoreModule } from '../../../../packages/story-block/src/v2/domains/index.js';
+import { createHarness } from '../../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
+import { stocked } from '../../../../packages/story-block/tests/v2/domains/fixtures.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 
 const wessel = { definition: characterDefinition('wessel', 'Wessel'), fields: { health: 3, mana: 4, stamina: 1, str: 14, soul: 2, xp: 40 } };
@@ -120,7 +120,7 @@ test('a companion\'s slot card shows what they wear; switching gear off while it
 // USER-approved Fix A (4 Nov, Party Export overflow): the quarters rule (`flex: 1 1 0; min-width: 0`) cut "Export" off at 1440; the buttons now grow from their own text and wrap.
 test('the card buttons keep the width of their text and wrap to a second row instead of overflowing', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     const rule = /\.rpg-card-actions-gear \.ss-button \{([^}]*)\}/.exec(css)?.[1] ?? '';
     assert.match(rule, /flex: 1 1 auto;/);
     assert.match(rule, /min-width: fit-content;/);

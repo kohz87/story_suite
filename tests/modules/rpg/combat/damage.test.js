@@ -3,9 +3,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rng as seeded } from '../../../../../../core/commands/rng.js';
-import { damageOf, healOf, soakOf, takeHit } from '../../../../src/v2/lean-rpg/combat/damage.js';
-import { RANKS, V1 } from '../../../../src/v2/lean-rpg/combat/numbers.js';
+import { rng as seeded } from '../../../../core/commands/rng.js';
+import { damageOf, healOf, soakOf, takeHit } from '../../../../modules/rpg/combat/damage.js';
+import { RANKS, V1 } from '../../../../modules/rpg/combat/numbers.js';
 import { damages, decisiveDmg, soakOf as oracleSoak, takeSoak } from '../v1/oracle.js';
 
 const STATS = ['str', 'vit', 'agi', 'dex', 'int', 'wis'];

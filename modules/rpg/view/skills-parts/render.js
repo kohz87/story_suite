@@ -1,10 +1,10 @@
 // The Skills view itself: its session record and the screen that draws, edits and saves a character's skills.
 
-import { h, iconNode } from '../../../../../../../ui/legacy/view/widgets/dom.js';
-import { meter } from '../../../../../../../ui/legacy/view/widgets/meter.js';
-import { refusalText } from '../../../../../../../core/strings.js';
+import { h, iconNode } from '../../../../ui/legacy/view/widgets/dom.js';
+import { meter } from '../../../../ui/legacy/view/widgets/meter.js';
+import { refusalText } from '../../../../core/strings.js';
 import { LEVEL, FORMULA, RANK_NAMES } from '../../names.js';
-import { UTILITY_SLOTS } from '../../../../../../../core/runtime/skill-slots.js';
+import { UTILITY_SLOTS } from '../../../../core/runtime/skill-slots.js';
 import { RPG_STRINGS, fill } from '../../strings.js';
 import { skillFlags, skillKey } from '../../board/flags.js';
 import { drawSkillFlags } from '../../board/skill-editor.js';

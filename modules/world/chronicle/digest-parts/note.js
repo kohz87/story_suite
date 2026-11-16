@@ -2,7 +2,7 @@
 
 import { FOLD_AT, QUEST_LOG_KEPT, QUEST_LOG_TEXT, cut, dayOf, entriesByDay, foldEntries, notedOf } from '../days.js';
 import { questLogOrder } from '../days-parts/quest-log-order.js';
-import { toSlot } from '../../../../packages/story-director/src/v2/slot.js';
+import { toSlot } from '../../../rpg/slot.js';
 import { ask, digestOn, isInt, minutesFrom } from './shared-ask.js';
 
 export const NOTE = 'chronicle.note';

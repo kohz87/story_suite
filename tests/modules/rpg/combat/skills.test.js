@@ -4,11 +4,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { canOwn, rankOf, skillCost, stanceOf } from '../../../../src/v2/lean-rpg/combat/skills.js';
-import { RANKS, V1 } from '../../../../src/v2/lean-rpg/combat/numbers.js';
+import { canOwn, rankOf, skillCost, stanceOf } from '../../../../modules/rpg/combat/skills.js';
+import { RANKS, V1 } from '../../../../modules/rpg/combat/numbers.js';
 import { RANK_LADDER } from '../v1/oracle.js';
 
-const CASES = JSON.parse(readFileSync(new URL('../../../../scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
+const CASES = JSON.parse(readFileSync(new URL('../../../../packages/story-block/scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
 const MAGIC = new Set(['Mage', 'Healer']);
 const OWNED_STANCE = {

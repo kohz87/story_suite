@@ -14,9 +14,9 @@ import { createPacksPart, packs as liveInstalled, part as livePart, resolveItem 
 import { createTimelinePart } from '../../../../../../core/timeline/part.js';
 import { stateHash } from '../../../../../../core/timeline/host-block.js';
 import { createDataModulesPart, dataModuleGuard } from '../../data-modules/part.js';
-import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE, RESOLVE as RPG_RESOLVE } from '../../lean-rpg/names.js';
+import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE, RESOLVE as RPG_RESOLVE } from '../../../../../../modules/rpg/names.js';
 // The RPG's code is loaded only when it is needed (rpg-lazy.js): this part answers for it until it is there.
-import { createLazyRpgPart } from '../../rpg-lazy.js';
+import { createLazyRpgPart } from '../../../../../../modules/rpg/rpg-lazy.js';
 import { INTERACTION_VIEW, createInteractionView } from '../../../../../../core/interaction/view.js';
 import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
 import { createPeoplePart } from '../people/part.js';

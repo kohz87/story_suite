@@ -2,7 +2,7 @@
 // (no Short rest or Full rest button; a pin made with them keeps them for replay, shown nowhere), and the story gets `rest`, `full-rest` (not twice within 6 story hours: data-modules/part/act.js
 // asks recovery.js) and `heal` (amount 1 to 3, one line per reply). Raising a bar by `set-*` is refused in act.js, not here (a size expression nests too deep).
 // Pure: it only reshapes the definition it is given. A hidden field keeps the story minute of the last full rest.
-import { RESTED_FIELD, RESTED_KNOWN } from '../data-modules/recovery.js';
+import { RESTED_FIELD, RESTED_KNOWN } from '../../packages/story-block/src/v2/data-modules/recovery.js';
 
 const get = field => ['get', [field]];
 const refill = bars => bars.map(bar => ({ op: 'set', path: [bar], value: get(`${bar}-blocks`) }));

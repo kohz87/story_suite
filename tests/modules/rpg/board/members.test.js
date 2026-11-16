@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {
     MEMBER_CAP, MEMBER_CAP_SIX, PACK_MAX_ATTACKS, PACK_MAX_ATTACKS_SIX, PACK_MAX_SIZE, boardFoes, carriedFrom, collapseFoes, memberSize,
     packAreaBlocks, packAttacks, packCounts, packFullAttacks, packLeft, packSize, splitFoes, virtualSlot,
-} from '../../../../src/v2/lean-rpg/board/members.js';
+} from '../../../../modules/rpg/board/members.js';
 
 const realFoe = (over = {}) => ({
     slot: 1, module: 'foes', name: 'Bristle-boar', count: 3, class: 1, level: 1, levelled: true, hurt: 4, filled: true, ...over,

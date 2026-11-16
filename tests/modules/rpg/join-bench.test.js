@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PARTY_ACTIVE } from "../../../src/v2/lean-rpg/names.js";
-import { JOIN_ADD, JOIN_BENCH, JOIN_NO, benchable, checkJoin, joinCard, joinGrammar, joinGrammarOwn, partyOf } from "../../../src/v2/lean-rpg/join.js";
+import { PARTY_ACTIVE } from "../../../modules/rpg/names.js";
+import { JOIN_ADD, JOIN_BENCH, JOIN_NO, benchable, checkJoin, joinCard, joinGrammar, joinGrammarOwn, partyOf } from "../../../modules/rpg/join.js";
 import { LEAN_RPG_TEMPLATES } from "./fixtures/templates-2.16.js";
-import * as leanRpg from "../../../src/v2/lean-rpg/index.js";
+import * as leanRpg from "../../../modules/rpg/index.js";
 import { fakeState, characterDefinition } from "./view/helpers.js";
 import { TORKA, active, four, joinCardOf, lastReceipts, names, problems, rebuilt, reply, settled, skip, world } from "./join.helpers.js";
 

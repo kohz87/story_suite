@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { DIFFICULTY_SETTING, LEAN_RPG_FEATURE, LIMITS, STANDARD_SETTING, createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
-import { cueTokens, shortNames } from '../../../src/v2/lean-rpg/cue.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { DIFFICULTY_SETTING, LEAN_RPG_FEATURE, LIMITS, STANDARD_SETTING, createLeanRpgPart } from '../../../modules/rpg/index.js';
+import { cueTokens, shortNames } from '../../../modules/rpg/cue.js';
 import { legacyPlanner } from './legacy-planner.js';
 import { OWNER, cueOf, character, fakeModel, foeBlock, rollReceipt, setup, sheetDomain, skillBlock } from './helpers.js';
 
@@ -60,7 +60,7 @@ test('B1: a foe whose name is prompt: false is "Foe 1" to the plan, the cue and 
 });
 
 test('B1: a hidden skill name, stat and who are not offered by the sheet; the death flag still counts', { skip }, async t => {
-    const { readSheet } = await import('../../../src/v2/lean-rpg/index.js');
+    const { readSheet } = await import('../../../modules/rpg/index.js');
     const { host } = await game(t, { extra: { shy: { role: 'character', fields: character('Secret Name', { str: 10 }) } }, hidden: { shy: ['who', 'str'] }, names: { shy: 'Shy hero' } });
     const sheet = readSheet(host.head());
     const shy = sheet.characters.find(entry => entry.module === 'pack.chat/shy');
@@ -73,7 +73,7 @@ test('B1: a hidden skill name, stat and who are not offered by the sheet; the de
 // --- review 160: hidden numbers still count for the rules ---------------------------------------------------------------
 
 test('review 160 a: a hidden health of 0 is still Down and a hidden Level still counts', { skip }, async t => {
-    const { readSheet } = await import('../../../src/v2/lean-rpg/index.js');
+    const { readSheet } = await import('../../../modules/rpg/index.js');
     const down = await game(t, { who: [], extra: { wessel: { role: 'character', fields: character('Wessel', { health: 0, level: 25 }) } }, hidden: { wessel: ['health', 'level'] } });
     const sheet = readSheet(down.host.head());
     const wessel = sheet.characters.find(entry => entry.who === 'Wessel');
@@ -85,7 +85,7 @@ test('review 160 a: a hidden health of 0 is still Down and a hidden Level still 
 });
 
 test('review 160 b: a hidden foe count of 0 is still an empty slot', { skip }, async t => {
-    const { readSheet } = await import('../../../src/v2/lean-rpg/index.js');
+    const { readSheet } = await import('../../../modules/rpg/index.js');
     const { host } = await game(t, { foes: [['Rat', 0]], hidden: { foes: ['count1'] } });
     const sheet = readSheet(host.head());
     assert.equal(sheet.foes[0].filled, false, 'count 0 is empty even when the count is hidden');
@@ -140,7 +140,7 @@ test('review 163 c: an untrained check on a hidden best stat does not name it', 
 // --- review 164: whether a stat is hidden never changes the dice, the witness or the rounds told; a refusal never names it --
 
 test('review 164 a: the witness of a roll on a hidden skill stat has no visibility flag', { skip }, async t => {
-    const { prepare, readSheet } = await import('../../../src/v2/lean-rpg/index.js');
+    const { prepare, readSheet } = await import('../../../modules/rpg/index.js');
     const { host } = await sneak(t, { hide: 'stat1' });
     const prepared = prepare({ formula: 'standard', checks: [{ who: 'Wessel', skill: 'Silent Trick', difficulty: 'normal' }] }, readSheet(host.head()));
     assert.equal(prepared.checks[0].pc.statHidden, true, 'the cue is told the stat is hidden');
@@ -149,7 +149,7 @@ test('review 164 a: the witness of a roll on a hidden skill stat has no visibili
 });
 
 test('review 164 b: a hidden stat never changes how many rounds or which shape the cue fits', { skip }, async t => {
-    const { fitCue } = await import('../../../src/v2/lean-rpg/cue.js');
+    const { fitCue } = await import('../../../modules/rpg/cue.js');
     const { line } = await sneak(t, { hide: 'stat1' });
     assert.equal(line?.pc.statHidden, true);
     const plainLine = { ...line, pc: { ...line.pc } };
@@ -177,8 +177,8 @@ test('review 164 c: a check whose hidden skill stat is missing from the sheet is
 // --- review 166: a refusal said without a hidden stat or resource never changes how many rounds are told ----------------
 
 test('review 166: hidden refusal wordings are measured as the shown ones, and never longer', { skip }, async t => {
-    const { prepare, readSheet } = await import('../../../src/v2/lean-rpg/index.js');
-    const { fitCue } = await import('../../../src/v2/lean-rpg/cue.js');
+    const { prepare, readSheet } = await import('../../../modules/rpg/index.js');
+    const { fitCue } = await import('../../../modules/rpg/cue.js');
     const plan = { formula: 'standard', acts: [], foes: [], checks: ['Silent Trick', 'Spark'].map(skill => ({ who: 'Wessel', skill, difficulty: 'normal' })) };
     const sheetOf = async hide => {
         const { luk: _, ...fields } = character('Wessel', { str: 17, mana: 0 });

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { SKILL_SETS } from '../../../../src/v2/lean-rpg/templates.js';
+import { SKILL_SETS } from '../../../../modules/rpg/templates.js';
 import { begin, makeBlocks, page, party, settle } from './page.js';
 
 export const PACK = JSON.parse(readFileSync(new URL('../fixtures/skill-sets-pack.json', import.meta.url), 'utf8'));

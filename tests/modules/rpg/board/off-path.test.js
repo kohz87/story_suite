@@ -2,8 +2,8 @@
 // but a staged fight with exchanges still is (it cannot silently leave the story).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPrecall } from '../../../../src/v2/lean-rpg/index.js';
-import { LEAN_RPG_FEATURE } from '../../../../src/v2/lean-rpg/names.js';
+import { createPrecall } from '../../../../modules/rpg/index.js';
+import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/names.js';
 
 const BOARD = 'story-block.fight-board';
 const remembered = { key: 'b:x:a:0', board: { id: 'x', anchor: 'a', setup: { offset: 0 }, exchanges: [] } };

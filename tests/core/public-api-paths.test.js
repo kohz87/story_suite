@@ -5,7 +5,7 @@ import { createHost } from '../../packages/story-block/testkit/index.js';
 import { API_EVENTS, API_VERSION, createPublicApi } from '../../core/public-api.js';
 import { createEvents } from '../../core/sdk.js';
 import { VERSION } from '../../core/runtime.js';
-import { character } from '../../packages/story-block/tests/v2/lean-rpg/helpers.js';
+import { character } from '../modules/rpg/helpers.js';
 import { skip, reply, blocksModule, PARTY, TRACKER } from './public-api.helpers.js';
 
 // ---- the surface ---------------------------------------------------------------------------------------------------------------------------

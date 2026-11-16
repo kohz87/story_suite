@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../packages/story-block/testkit/index.js';
 import { validatePack } from '../../packs/validate.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../packages/story-block/src/v2/lean-rpg/templates.js';
+import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
 import { pack } from '../packs/helpers/fixtures.js';
 
 export const available = await hostAvailable();

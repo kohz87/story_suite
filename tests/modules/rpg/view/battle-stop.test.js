@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readResolve } from '../../../../src/v2/lean-rpg/view/battle-log/read.js';
-import { stopHint, stopLine } from '../../../../src/v2/lean-rpg/view/battle-log/stop.js';
+import { readResolve } from '../../../../modules/rpg/view/battle-log/read.js';
+import { stopHint, stopLine } from '../../../../modules/rpg/view/battle-log/stop.js';
 
 const model = (stop, extra = {}) => ({ stop, pace: 'normal', flow: 2, cap: 8, board: false, rules: { roundCap: 8, decisiveMargin: 10 }, ...extra });
 

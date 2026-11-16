@@ -2,7 +2,7 @@
 // The seed and draw order are exactly sim.py's, so a matching engine reproduces its 3000-run row rather than merely nearing it.
 
 import { crc32 } from 'node:zlib';
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
 import { BANDS, CELLS } from '../v1/band.fixture.js';
 import { withSkills } from './derived-skills.helper.js';
 

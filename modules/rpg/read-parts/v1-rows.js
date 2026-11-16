@@ -3,7 +3,7 @@
 import { fold } from './match.js';
 import { int, text, TEXT_KEY } from './shared-plain.js';
 import { LEVEL, STATS_V1 } from '../names.js';
-import { SKILL_FIELDS_MAX } from '../../../../../../core/runtime/skill-slots.js';
+import { SKILL_FIELDS_MAX } from '../../../core/runtime/skill-slots.js';
 
 // (Kept free of combat/: the page start reaches this file, and the values a v1 block holds are already held to their bounds by the block checker. What a skill's rank is worth, and a
 // foe's tier, are the combat files' to say: combat/skills.js rankOf(practice, level) and combat/foes.js foeStats.)

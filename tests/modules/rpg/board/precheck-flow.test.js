@@ -3,17 +3,17 @@
 // replay / Re-read / rebuild read the recorded opening and never ask a model.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { NEVER, character, foeBlock, setup, skillBlock, tailOf } from '../helpers.js';
-import { boardSession, markSend, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { clearStart, holdStart, pendingStart } from '../../../../../../core/turn/fight-start.js';
-import { createPauseView } from '../../../../src/v2/lean-rpg/board/pause.js';
-import { createStartController } from '../../../../src/v2/lean-rpg/board/start-controller.js';
-import { pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { PRECHECK_SETTING } from '../../../../src/v2/lean-rpg/names.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { validateDataModules } from '../../../../src/v2/data-modules/check.js';
+import { boardSession, markSend, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { clearStart, holdStart, pendingStart } from '../../../../core/turn/fight-start.js';
+import { createPauseView } from '../../../../modules/rpg/board/pause.js';
+import { createStartController } from '../../../../modules/rpg/board/start-controller.js';
+import { pauseViewData } from '../../../../modules/rpg/board/start-view-data.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { PRECHECK_SETTING } from '../../../../modules/rpg/names.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { validateDataModules } from '../../../../packages/story-block/src/v2/data-modules/check.js';
 
 const empty = () => ({ ...foeBlock([]), count1: 0, count2: 0, count3: 0, count4: 0 });
 const blocks = () => ({
@@ -59,9 +59,9 @@ test('the held opening plays on the board and one reply carries it; Re-read and 
     try {
         assert.equal((await host.send(ATTACK, 'Not sent.')).aborted, true);
         const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.fightStartPreview();
-        const { openBoard } = await import('../../../../src/v2/lean-rpg/board/session.js');
-        const { STANDARD_FORMULA } = await import('../../../../src/v2/lean-rpg/rules.js');
-        const { dropOf } = await import('../../../../src/v2/lean-rpg/ambush.js');
+        const { openBoard } = await import('../../../../modules/rpg/board/session.js');
+        const { STANDARD_FORMULA } = await import('../../../../modules/rpg/rules.js');
+        const { dropOf } = await import('../../../../modules/rpg/ambush.js');
         const open = openBoard(meta, opening.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
         assert.equal(open.error, undefined, open.error);
         Object.assign(open.session.setup, { opening: structuredClone(pending.opening), approach: structuredClone(opening.result.checks ?? []), drop: dropOf(opening.result) });
@@ -149,8 +149,8 @@ test('the stock Foes block opens and plays the example with 80 foes as packs', a
         const meta = host.ctx.chatMetadata, preview = host.turn.fightStartPreview();
         const opened = preview.state.domains.dataModules.instances['pack.chat/foes'].chat.fields;
         assert.deepEqual([opened.count1, opened.count2], [6, 80]);
-        const { openBoard } = await import('../../../../src/v2/lean-rpg/board/session.js');
-        const { STANDARD_FORMULA } = await import('../../../../src/v2/lean-rpg/rules.js');
+        const { openBoard } = await import('../../../../modules/rpg/board/session.js');
+        const { STANDARD_FORMULA } = await import('../../../../modules/rpg/rules.js');
         const board = openBoard(meta, preview.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
         assert.equal(board.error, undefined, board.error);
         const played = stageExchange(meta, preview.state, [{ who: 'Astra', kind: 'attack', target: 21 }]);
@@ -269,9 +269,9 @@ test('a pre-check opening five groups keeps the reply\'s changes: live, rebuild,
     try {
         assert.equal((await host.send('I attack the ants, bees, cats, dogs and eels.', 'Not sent.')).aborted, true);
         const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.fightStartPreview();
-        const { openBoard } = await import('../../../../src/v2/lean-rpg/board/session.js');
-        const { STANDARD_FORMULA } = await import('../../../../src/v2/lean-rpg/rules.js');
-        const { dropOf } = await import('../../../../src/v2/lean-rpg/ambush.js');
+        const { openBoard } = await import('../../../../modules/rpg/board/session.js');
+        const { STANDARD_FORMULA } = await import('../../../../modules/rpg/rules.js');
+        const { dropOf } = await import('../../../../modules/rpg/ambush.js');
         const open = openBoard(meta, opening.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
         assert.equal(open.error, undefined, open.error);
         Object.assign(open.session.setup, { opening: structuredClone(pending.opening), approach: structuredClone(opening.result.checks ?? []), drop: dropOf(opening.result) });

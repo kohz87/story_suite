@@ -2,13 +2,13 @@
 // rule where learn lines are routed; and an earlier block is read exactly as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { COMBAT_V1_TEMPLATES } from '../../../src/v2/lean-rpg/templates-combat.js';
-import { readSheet } from '../../../src/v2/lean-rpg/read.js';
-import { rankOf } from '../../../src/v2/lean-rpg/combat/skills.js';
-import { V1 } from '../../../src/v2/lean-rpg/combat/numbers.js';
-import { STANCE_TYPES } from '../../../../../core/runtime/skill-slots.js';
-import { reply, success, rebuilt } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { COMBAT_V1_TEMPLATES } from '../../../modules/rpg/templates-combat.js';
+import { readSheet } from '../../../modules/rpg/read.js';
+import { rankOf } from '../../../modules/rpg/combat/skills.js';
+import { V1 } from '../../../modules/rpg/combat/numbers.js';
+import { STANCE_TYPES } from '../../../core/runtime/skill-slots.js';
+import { reply, success, rebuilt } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const sign = kind => (/^(practice-|set-slot)/u.test(kind) ? '+' : '~');
 const line = (slug, kind, extra = '') => `${sign(kind)} dm ${slug} — why | kind: ${kind}${extra}`;

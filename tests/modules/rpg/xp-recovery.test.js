@@ -2,16 +2,16 @@
 // cannot raise Health, Stamina or Mana, and rest / full-rest / heal recover them. An unmarked pin keeps every old rule. Replay == live.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
-import { scaleXp } from '../../../src/v2/lean-rpg/levels.js';
-import { memberXp, fightGuard, outnumberedMultiplier } from '../../../src/v2/lean-rpg/fight.js';
-import { hasRestButtons, isMarkedCharacter, fullRestTooSoon, recoveryNote } from '../../../src/v2/data-modules/recovery.js';
-import { directorStub, reload } from '../data-modules/helpers.js';
-import { cueOfResult } from '../../../src/v2/lean-rpg/cue.js';
-import { grammarFor } from '../../../src/v2/data-modules/part/views.js';
-import { moduleGrammar } from '../../../src/v2/data-modules/grammar.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
+import { scaleXp } from '../../../modules/rpg/levels.js';
+import { memberXp, fightGuard, outnumberedMultiplier } from '../../../modules/rpg/fight.js';
+import { hasRestButtons, isMarkedCharacter, fullRestTooSoon, recoveryNote } from '../../../packages/story-block/src/v2/data-modules/recovery.js';
+import { directorStub, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { cueOfResult } from '../../../modules/rpg/cue.js';
+import { grammarFor } from '../../../packages/story-block/src/v2/data-modules/part/views.js';
+import { moduleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
 
 async function world({ old = false, clock = false, minute = 1000 } = {}) {
     const host = await createHost({ callModel: async () => 'none', settings: { modules: { 'story-block': { rpgFormula: 'standard' } } },

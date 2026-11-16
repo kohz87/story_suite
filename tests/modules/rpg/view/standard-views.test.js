@@ -3,16 +3,16 @@
 // pure pieces behind them (growth.js, wizard-data.js creation numbers, join.js companions).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STATS } from '../../../../src/v2/lean-rpg/index.js';
-import { DIFFICULTY_SETTING, STANDARD_FORMULA, STANDARD_PRESETS, STANDARD_SETTING, rulesFromSettings } from '../../../../src/v2/lean-rpg/rules.js';
-import { COMBAT_PROMPT_STANDARD, STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { RPG_STRINGS } from '../../../../src/v2/lean-rpg/strings.js';
-import { growthOf } from '../../../../src/v2/lean-rpg/blocks.js';
-import { growthText } from '../../../../src/v2/lean-rpg/view/party-data.js';
-import { joinDefinitions, joinDraft } from '../../../../src/v2/lean-rpg/join.js';
-import { companionStats, blocksFor } from '../../../../src/v2/lean-rpg/formula.js';
-import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView } from '../../../../src/v2/lean-rpg/view/settings-data.js';
-import { buildDefinitions, creationOf, newDraft, pointsLeft, readDraft, startStats, statBounds } from '../../../../src/v2/lean-rpg/view/wizard-data.js';
+import { STATS } from '../../../../modules/rpg/index.js';
+import { DIFFICULTY_SETTING, STANDARD_FORMULA, STANDARD_PRESETS, STANDARD_SETTING, rulesFromSettings } from '../../../../modules/rpg/rules.js';
+import { COMBAT_PROMPT_STANDARD, STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { RPG_STRINGS } from '../../../../modules/rpg/strings.js';
+import { growthOf } from '../../../../modules/rpg/blocks.js';
+import { growthText } from '../../../../modules/rpg/view/party-data.js';
+import { joinDefinitions, joinDraft } from '../../../../modules/rpg/join.js';
+import { companionStats, blocksFor } from '../../../../modules/rpg/formula.js';
+import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView } from '../../../../modules/rpg/view/settings-data.js';
+import { buildDefinitions, creationOf, newDraft, pointsLeft, readDraft, startStats, statBounds } from '../../../../modules/rpg/view/wizard-data.js';
 import { begin, makeBlocks, page, party, settle } from './page.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 
@@ -231,10 +231,10 @@ test('Create under Standard writes the stats and full bars as the new blocks\' d
 
 // ---- Spend points and the Skills view ----------------------------------------------------------------------------------------
 
-import { setupDom } from '../../../../../../tests/ui/view/mounts/helpers.js';
-import { renderDistribute } from '../../../../src/v2/lean-rpg/view/distribute.js';
-import { renderSkills, rollOf } from '../../../../src/v2/lean-rpg/view/skills.js';
-import { readParty } from '../../../../src/v2/lean-rpg/view/party-data.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
+import { renderDistribute } from '../../../../modules/rpg/view/distribute.js';
+import { renderSkills, rollOf } from '../../../../modules/rpg/view/skills.js';
+import { readParty } from '../../../../modules/rpg/view/party-data.js';
 
 const hero = (fields = {}) => ({ definition: characterDefinition('wessel', 'Wessel'), fields: { who: 'Wessel', str: 10, vit: 9, agi: 10, dex: 6, int: 5, luk: 8, cha: 5, points: 4, level: 2, xp: 40, health: 3, mana: 4, stamina: 1, ...fields } });
 const heroSkills = () => ({ definition: { ...skillsDefinition('wessel-skills', 'Wessel'), role: 'skills' }, fields: { who: 'Wessel', skill1: 'Iaijutsu', stat1: 'agi', uses1: 'stamina', rank1: 2, skill2: 'Spark', stat2: 'int', uses2: 'mana', rank2: 0 } });

@@ -3,14 +3,14 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../../testkit/index.js';
-import { COMBAT_V1_TEMPLATES } from '../../../../src/v2/lean-rpg/templates-combat.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { fightInputOf, witnessOf } from '../../../../src/v2/lean-rpg/combat/input.js';
-import { envelopeOf, hurtsOf } from '../../../../src/v2/lean-rpg/combat/envelope.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { COMBAT_V1_TEMPLATES } from '../../../../modules/rpg/templates-combat.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { fightInputOf, witnessOf } from '../../../../modules/rpg/combat/input.js';
+import { envelopeOf, hurtsOf } from '../../../../modules/rpg/combat/envelope.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
 import { seeded } from './dice.helper.js';
-import { reply, success } from '../../data-modules/helpers.js';
+import { reply, success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const sign = kind => (/^(practice-|set-slot)/u.test(kind) ? '+' : '~');
 const line = (slug, kind, extra = '') => `${sign(kind)} dm ${slug} — why | kind: ${kind}${extra}`;

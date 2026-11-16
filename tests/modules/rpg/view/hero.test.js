@@ -3,8 +3,8 @@
 // reads its pools from a party module's `party.pc`, which the RPG does not have). Off means off: no RPG, no bars.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { heroLead } from '../../../../src/v2/lean-rpg/view/hero-data.js';
-import { gameHeroProps } from '../../../../../../ui/legacy/view/game-header.js';
+import { heroLead } from '../../../../modules/rpg/view/hero-data.js';
+import { gameHeroProps } from '../../../../ui/legacy/view/game-header.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 import { begin, fieldsOf, makeBlocks, page, settle } from './page.js';
 

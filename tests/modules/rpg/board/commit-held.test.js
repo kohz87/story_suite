@@ -1,13 +1,13 @@
 // Held board replies across reload/discard and weapon breaking across replies.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { character, foeBlock, setup } from '../helpers.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { aiMessage } from '../../../../testkit/fake-st.js';
-import { heldForMessage } from '../../../../../../core/turn/held-board.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { aiMessage } from '../../../../packages/story-block/testkit/fake-st.js';
+import { heldForMessage } from '../../../../core/turn/held-board.js';
 import { gearHost, openWithGear } from './commit.helpers.js';
 
 

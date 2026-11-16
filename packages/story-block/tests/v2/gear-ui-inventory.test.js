@@ -7,7 +7,7 @@ import { createHost } from '../../testkit/index.js';
 import { createCoreModule } from '../../src/v2/domains/index.js';
 import { createHarness } from './domains/helpers/fake-ctx.js';
 import { settle, text } from '../../../../tests/ui/screens/helpers.js';
-import { page } from './lean-rpg/view/page.js';
+import { page } from '../../../../tests/modules/rpg/view/page.js';
 import { FIGHT, dump, gearHost } from '../../../../tests/core/helpers/gear-ui-state.js';
 import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../../ui/legacy/screens/inventory-add.js';
 import { BAG, buttonsOf, crewState, draw, foldWidgets, groupRows, headings, memory, names, rowOf } from './gear-ui.helpers.js';

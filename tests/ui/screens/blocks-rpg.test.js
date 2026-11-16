@@ -7,7 +7,7 @@ import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { buildBlock, blockDraft, blockKindCount, editableBlockDraft, parseNames } from '../../../packages/story-block/src/v2/data-modules/block-builder.js';
 import { createBlockWidgets } from '../../../packages/story-block/src/v2/screens/blocks.js';
 import { STRINGS, fill } from '../../../core/strings.js';
-import { LEAN_RPG_FEATURE } from '../../../packages/story-block/src/v2/lean-rpg/index.js';
+import { LEAN_RPG_FEATURE } from '../../../modules/rpg/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 

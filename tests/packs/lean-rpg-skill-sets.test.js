@@ -7,7 +7,7 @@ import { validatePack } from '../../packs/validate.js';
 import { contentOf } from '../../packs/content.js';
 import { countsLine } from '../../packs/panel.js';
 import { CONTENT_KINDS, LEAN_RPG_LIMITS, OPTIONAL_KINDS } from '../../packs/limits.js';
-import { CREATION, STATS, USES } from '../../packages/story-block/src/v2/lean-rpg/names.js';
+import { CREATION, STATS, USES } from '../../modules/rpg/names.js';
 import { pack } from './helpers/fixtures.js';
 
 const skill = (extra = {}) => ({ name: 'Spear', about: 'Holding a line with a long spear.', stat: 'str', ...extra });
@@ -56,7 +56,7 @@ test('a set keeps its skills, with the stat in lower case and the resource stami
 });
 
 test('the shipped test fixture pack is valid and its set comes out of the query with its pack', () => {
-    const fixture = JSON.parse(readFileSync(new URL('../../packages/story-block/tests/v2/lean-rpg/fixtures/skill-sets-pack.json', import.meta.url), 'utf8'));
+    const fixture = JSON.parse(readFileSync(new URL('../modules/rpg/fixtures/skill-sets-pack.json', import.meta.url), 'utf8'));
     const made = ok(fixture);
     const found = contentOf([made], 'rpg');
     assert.equal(found.length, 1);

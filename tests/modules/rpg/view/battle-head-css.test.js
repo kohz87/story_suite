@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const css = readFileSync(new URL('../../../../src/v2/lean-rpg/view/lean-rpg.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
 // Specificity of a simple selector list item: [ids, classes/attributes/pseudo-classes, types].
 const specificity = selector => {
     const s = selector.replace(/::?[a-z-]+\([^)]*\)/g, ' ');

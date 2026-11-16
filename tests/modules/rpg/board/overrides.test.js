@@ -3,10 +3,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boardFlags } from '../../../../src/v2/lean-rpg/board/overrides.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { skillFlags, skillKey } from '../../../../src/v2/lean-rpg/board/flags.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
+import { boardFlags } from '../../../../modules/rpg/board/overrides.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { skillFlags, skillKey } from '../../../../modules/rpg/board/flags.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
 import { page, begin, makeBlocks, party, settle } from '../view/page.js';
 
 test('renaming a skill carries explicit flags and deleting the rename restores the old skill', async t => {

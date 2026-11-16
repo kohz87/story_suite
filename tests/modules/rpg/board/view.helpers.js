@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { createBoardView } from '../../../../src/v2/lean-rpg/board/view.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { createBoardView } from '../../../../modules/rpg/board/view.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
 
 export async function defineFoes(host, entries) {

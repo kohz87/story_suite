@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseCheckLine, validateCheck } from '../../../../src/v2/lean-rpg/checks/line.js';
-import { bonusTable, resolveCheck, workChecks } from '../../../../src/v2/lean-rpg/checks/result.js';
-import { rulesOf } from '../../../../src/v2/lean-rpg/checks/dice-parts/shared-checks.js';
+import { parseCheckLine, validateCheck } from '../../../../modules/rpg/checks/line.js';
+import { bonusTable, resolveCheck, workChecks } from '../../../../modules/rpg/checks/result.js';
+import { rulesOf } from '../../../../modules/rpg/checks/dice-parts/shared-checks.js';
 
 const member = { name: 'Astra', aliases: [], stats: { str: 10, vit: 8, agi: 12, dex: 6, int: 14, luk: 9, cha: 10 },
     skills: [{ name: 'Obscure', stat: 'dex', rank: 1, type: 'utility' }, { name: 'Iron Breath', stat: 'str', rank: 3, type: 'combat' }] };

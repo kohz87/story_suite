@@ -1,7 +1,7 @@
 // The known-foe hold requires a clear attack; all ambiguous phrases use the usual send path.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { knownFoeAction } from '../../../../src/v2/lean-rpg/board/action-gate.js';
+import { knownFoeAction } from '../../../../modules/rpg/board/action-gate.js';
 import { character, foeBlock, setup, skillBlock } from '../helpers.js';
 
 const sheet = { foes: [{ name: 'Rat swarms', filled: true, hurt: 4 }], characters: [{ skills: [

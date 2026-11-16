@@ -1,6 +1,6 @@
 // Chronicle's validator: what a saved chronicle slice must look like.
 
-import { slotValue } from '../../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../../rpg/slot.js';
 import { validateDays } from '../days.js';
 import { MAX_EVENTS, MAX_FACTIONS, MAX_RESOLVED } from './limits-caps.js';
 import { EVENT_ID, FACTION_ID, STATES } from './limits-ids.js';

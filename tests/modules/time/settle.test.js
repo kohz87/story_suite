@@ -11,7 +11,7 @@ import { SETTLE, part } from '../../../modules/time/index.js';
 import { calendarOf, timeSettings } from '../../../modules/time/records.js';
 import { DEADLINE_REASON, claimKey } from '../../../modules/time/settle.js';
 import { CALENDAR, Chat, SETTINGS, makeState, reply, runCommand, thread } from './helpers/fake-ctx.js';
-import { slotValue } from '../../../packages/story-director/src/v2/slot.js';
+import { slotValue } from '../../../modules/rpg/slot.js';
 
 const calendar = makeCalendar(CALENDAR);
 const at = text => calendar.parse(text).abs;

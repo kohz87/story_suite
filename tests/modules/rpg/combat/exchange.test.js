@@ -4,17 +4,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { playExchange } from '../../../../src/v2/lean-rpg/combat/exchange.js';
-import { foeAttacks } from '../../../../src/v2/lean-rpg/combat/foe-turns.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
-import { fightDice } from '../../../../src/v2/lean-rpg/combat/dice.js';
-import { lineOf, lineTexts } from '../../../../src/v2/lean-rpg/combat/record.js';
-import { dice } from '../../../../../../core/interaction/dice.js';
+import { playExchange } from '../../../../modules/rpg/combat/exchange.js';
+import { foeAttacks } from '../../../../modules/rpg/combat/foe-turns.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
+import { fightDice } from '../../../../modules/rpg/combat/dice.js';
+import { lineOf, lineTexts } from '../../../../modules/rpg/combat/record.js';
+import { dice } from '../../../../core/interaction/dice.js';
 import { seeded } from './dice.helper.js';
 import { withSkills } from './derived-skills.helper.js';
 
 const FIXTURE = JSON.parse(readFileSync(new URL('../v1/fixtures/sim-traces.json', import.meta.url), 'utf8'));
-const CASES = JSON.parse(readFileSync(new URL('../../../../scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
+const CASES = JSON.parse(readFileSync(new URL('../../../../packages/story-block/scripts/sim-trace-cases.json', import.meta.url), 'utf8')).cases;
 const SPECS = new Map(CASES.map(entry => [entry.name, entry.party]));
 const ATTACK_POOL = { Mage: 'mp', Healer: 'mp' };
 const STANCE_POOL = { Mage: 'mp', Healer: 'mp' };

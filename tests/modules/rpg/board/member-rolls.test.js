@@ -2,14 +2,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
-import { memberRolls } from '../../../../src/v2/lean-rpg/board/member-rolls.js';
-import { splitFoes } from '../../../../src/v2/lean-rpg/board/members.js';
-import { exchangePlan } from '../../../../src/v2/lean-rpg/board/plan.js';
-import { openBoard, receiveBoard } from '../../../../src/v2/lean-rpg/board/session.js';
-import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { prepareStandard, rollStandard } from '../../../../src/v2/lean-rpg/standard.js';
+import { playBoard } from '../../../../modules/rpg/board/engine.js';
+import { memberRolls } from '../../../../modules/rpg/board/member-rolls.js';
+import { splitFoes } from '../../../../modules/rpg/board/members.js';
+import { exchangePlan } from '../../../../modules/rpg/board/plan.js';
+import { openBoard, receiveBoard } from '../../../../modules/rpg/board/session.js';
+import { readSheet } from '../../../../modules/rpg/read.js';
+import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
+import { prepareStandard, rollStandard } from '../../../../modules/rpg/standard.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';
 
 test('a pack takes area blocks and only its current number of attacks', () => {

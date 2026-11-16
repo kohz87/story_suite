@@ -1,11 +1,11 @@
 // Review F follow-ups on the Standard formula: the tail's bars after the roll and a new fight's order.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES, characterV1For } from '../../../src/v2/lean-rpg/templates.js';
-import { readSheet } from '../../../src/v2/lean-rpg/read.js';
-import { barFields, stageText } from '../../../src/v2/lean-rpg/blocks.js';
-import { success } from '../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
+import { readSheet } from '../../../modules/rpg/read.js';
+import { barFields, stageText } from '../../../modules/rpg/blocks.js';
+import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { tailOf } from './helpers.js';
 import { legacyPlanner } from './legacy-planner.js';
 
@@ -19,7 +19,7 @@ async function game(t, { answers, settings = {}, foes = [['Weir-drake', 1, 35]] 
     const callModel = async () => (answers.length > 1 ? answers.shift() : answers[0]);
     let host = null;
     // (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
-    const rpgLoad = async () => { const lib = await import('../../../src/v2/lean-rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel, chat: () => host.ctx.chat, metadata: () => host.ctx.chatMetadata ?? null }); return part; } }; };
+    const rpgLoad = async () => { const lib = await import('../../../modules/rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel, chat: () => host.ctx.chat, metadata: () => host.ctx.chatMetadata ?? null }); return part; } }; };
     host = await createHost({ callModel, lazyRpg: true, rpgLoad, settings: { modules: { 'story-block': settings } } });
     t.after(() => host.close());
     host.features.set('story-block.rpg', true);
@@ -56,7 +56,7 @@ test('1: the tail\'s block lines are the sheet after this reply\'s roll, the sam
 
 // ---- 6: a new group after a fight that ended ---------------------------------------------------------------------------------
 
-import { prepare, rollPrepared, readSheet as readSheetOf, STANDARD_FORMULA as RULES } from '../../../src/v2/lean-rpg/index.js';
+import { prepare, rollPrepared, readSheet as readSheetOf, STANDARD_FORMULA as RULES } from '../../../modules/rpg/index.js';
 import { character, foeBlock, sheetDomain, skillBlock } from './helpers.js';
 
 const rats = (hurt, extra = {}) => ({

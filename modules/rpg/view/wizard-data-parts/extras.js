@@ -1,7 +1,7 @@
 // The story's room for blocks and which extra blocks (rules, foes) Create adds beside a character.
 
-import { DM_LIMITS } from '../../../data-modules/schema.js';
-import { activeDefinition } from '../../../data-modules/adapters.js';
+import { DM_LIMITS } from '../../../../packages/story-block/src/v2/data-modules/schema.js';
+import { activeDefinition } from '../../../../packages/story-block/src/v2/data-modules/adapters.js';
 import { isRecord } from './shared-helpers.js';
 
 // How many blocks the story has: its own (chat) blocks, which the story limit counts, and every active block, which the pin limit counts.

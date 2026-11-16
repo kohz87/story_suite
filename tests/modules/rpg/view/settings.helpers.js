@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { combatBlock } from '../../../../src/v2/lean-rpg/view/settings-data.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { combatBlock } from '../../../../modules/rpg/view/settings-data.js';
 import { begin, makeBlocks, page, settle } from './page.js';
 
 export const MOD = 'story-block';

@@ -1,7 +1,7 @@
 // The RPG settings page's small builders: a card section, choice chips, a labelled field, a bounded number row and
 // the note naming a value the story's pack decides. They write into the page's live card map and root.
 
-import { h } from '../../../../../../../ui/legacy/view/widgets/dom.js';
+import { h } from '../../../../ui/legacy/view/widgets/dom.js';
 import { packInForce } from '../../rules.js';
 import { fill } from '../../strings.js';
 import { S } from './constants.js';

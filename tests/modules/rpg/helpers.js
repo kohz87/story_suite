@@ -1,13 +1,13 @@
 // Stand-ins for the RPG tests: a party sheet written straight into the data-module state (the Character, Skills
 // and Foes blocks as the RPG reads them), a scripted stand-in for the retired roll planner (legacy-planner.js: tests that replay planner rolls use it to
 // make the records; `planner: false` is the real hook, which asks no model), and a host that has the RPG part on it.
-import { createHost } from '../../../testkit/index.js';
-import { LEAN_RPG_FEATURE, ROLLS_SETTING, createLeanRpgPart } from '../../../src/v2/lean-rpg/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { receiptCue } from '../../../src/v2/lean-rpg/cue.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { LEAN_RPG_FEATURE, ROLLS_SETTING, createLeanRpgPart } from '../../../modules/rpg/index.js';
+import { CORE_FEATURE } from '../../../core/features.js';
+import { receiptCue } from '../../../modules/rpg/cue.js';
 import { legacyPlanner } from './legacy-planner.js';
-import { STANDARD_TEMPLATES } from '../../../src/v2/lean-rpg/templates.js';
-import { FOE_LEVEL } from '../../../src/v2/lean-rpg/foes.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { FOE_LEVEL } from '../../../modules/rpg/foes.js';
 
 export const OWNER = 'story-block';
 

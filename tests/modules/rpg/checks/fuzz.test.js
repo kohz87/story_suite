@@ -4,12 +4,12 @@
 // draws new dice; a utility skill's practice is never moved by a reply that is gone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../../../testkit/index.js';
-import { LEAN_RPG_FEATURE } from '../../../../src/v2/lean-rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { checksOf } from '../../../../src/v2/lean-rpg/practice.js';
-import { seedCrypto } from '../../../../../../tests/suite/qa/helpers/seeded.js';
-import { reply, success } from '../../data-modules/helpers.js';
+import { createHost, hostAvailable } from '../../../../packages/story-block/testkit/index.js';
+import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { checksOf } from '../../../../modules/rpg/practice.js';
+import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
+import { reply, success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
 import { tailOf } from '../helpers.js';
 
 const available = await hostAvailable();

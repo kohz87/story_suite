@@ -3,8 +3,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fightInputOf } from '../../../../src/v2/lean-rpg/combat/input.js';
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
+import { fightInputOf } from '../../../../modules/rpg/combat/input.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
 import { seeded } from './dice.helper.js';
 
 const stats = (extra = {}) => ({ str: 14, vit: 12, agi: 9, dex: 9, int: 8, wis: 8, cha: 5, ...extra });

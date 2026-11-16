@@ -8,7 +8,7 @@ import { createHarness } from './domains/helpers/fake-ctx.js';
 import { stocked } from './domains/fixtures.js';
 import { show, settle, text } from '../../../../tests/ui/screens/helpers.js';
 import { setupDom } from '../../../../tests/ui/view/mounts/helpers.js';
-import { renderGearCard } from '../../src/v2/lean-rpg/view/gear-card.js';
+import { renderGearCard } from '../../../../modules/rpg/view/gear-card.js';
 
 const rowOf = (el, name) => el.querySelectorAll('li.item').find(item => item.querySelector('.name')?.textContent === name);
 const featureOn = id => id === 'story-block.gear' || id === 'story-block.rpg';

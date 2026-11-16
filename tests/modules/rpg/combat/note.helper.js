@@ -1,7 +1,7 @@
 // Test-only: the three fights (quiet, hard, skirmish) the note tests and the drafted golden tell, and the envelope of a played fight.
 
-import { playBoard } from '../../../../src/v2/lean-rpg/combat/play.js';
-import { envelopeOf } from '../../../../src/v2/lean-rpg/combat/envelope.js';
+import { playBoard } from '../../../../modules/rpg/combat/play.js';
+import { envelopeOf } from '../../../../modules/rpg/combat/envelope.js';
 import { seeded } from './dice.helper.js';
 import { withSkills } from './derived-skills.helper.js';
 

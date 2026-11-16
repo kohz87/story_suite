@@ -7,8 +7,8 @@
 // wizard (wizard.js). Each card also has Export (export.js: a file of the character to import in another chat, with or without what they carry). The tab shows while the feature is on, with or without a Character block.
 // Every node is built with createElement and textContent.
 
-import { shell, h, s } from '../../../../../../ui/legacy/view/widgets/dom.js';
-import { meter } from '../../../../../../ui/legacy/view/widgets/meter.js';
+import { shell, h, s } from '../../../ui/legacy/view/widgets/dom.js';
+import { meter } from '../../../ui/legacy/view/widgets/meter.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { drawStageBars } from './bars.js';
 import { newSession, renderDistribute } from './distribute.js';

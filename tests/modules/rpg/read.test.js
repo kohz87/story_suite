@@ -1,7 +1,7 @@
 // Reading the sheet (src/v2/lean-rpg/read.js): blocks by role, the field keys, and how a name is matched.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fold, matchCharacter, matchFoe, matchName, matchSkill, readSheet } from '../../../src/v2/lean-rpg/index.js';
+import { fold, matchCharacter, matchFoe, matchName, matchSkill, readSheet } from '../../../modules/rpg/index.js';
 import { PARTY, character, foeBlock, sheetDomain, skillBlock } from './helpers.js';
 
 const read = blocks => readSheet({ domains: { dataModules: sheetDomain(blocks) } });

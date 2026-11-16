@@ -2,7 +2,7 @@
 // It renders pauseViewData only; the choices (Fight on the board, Auto-fight, and for foes the pre-check found Send without a fight) are callbacks so the send
 // flow keeps ownership of the fight. While the pre-check reads, the same box shows one quiet line with a spinner and no choice.
 
-import { button, h, text } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { button, h, text } from '../../../ui/legacy/view/widgets/dom.js';
 
 export const PAUSE_ROOT = 'rpg-fight-pause';
 

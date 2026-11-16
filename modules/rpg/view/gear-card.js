@@ -5,7 +5,7 @@
 // which lists the bag pieces that fit that place (item.equip for this member; a piece they or a companion carry is handed over with it).
 // No carry and no list of carried things here: those are the Inventory tab's. Every node is built with createElement and textContent.
 
-import { h, iconNode } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { h, iconNode } from '../../../ui/legacy/view/widgets/dom.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 
 const G = RPG_STRINGS.gear;

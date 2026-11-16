@@ -1,6 +1,6 @@
 // The `rpg.fight` step: pays the party for a won fight and records the awards.
 
-import { createEvaluation } from '../../data-modules/interpreter.js';
+import { createEvaluation } from '../../../packages/story-block/src/v2/data-modules/interpreter.js';
 import { FIGHT } from '../names.js';
 import { XP_RATE, clampLevel, scaleXp, xpRateOf } from '../levels.js';
 import { levelOfClass } from '../formula.js';

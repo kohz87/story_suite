@@ -2,9 +2,9 @@
 // practice sets the rank, a Foes slot takes a tier. Live = reload = cold rebuild after each step; a swipe, a middle delete and a Re-read (also of an edited reply) agree.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { COMBAT_V1_TEMPLATES } from '../../../src/v2/lean-rpg/templates-combat.js';
-import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { COMBAT_V1_TEMPLATES } from '../../../modules/rpg/templates-combat.js';
+import { reply, success, view, rebuilt, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
 
 const sign = kind => (/^(practice-|set-slot)/u.test(kind) ? '+' : /^clear-/u.test(kind) ? '-' : '~');
 const line = (slug, kind, extra = '') => `${sign(kind)} dm ${slug} — why | kind: ${kind}${extra}`;

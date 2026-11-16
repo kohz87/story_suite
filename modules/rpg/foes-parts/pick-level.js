@@ -1,5 +1,5 @@
 // Settles a foe's level: a given level, a rank's band or a seeded draw near the party, with one seeded stream per foe.
-import { rng as seeded } from '../../../../../../core/commands/rng.js';
+import { rng as seeded } from '../../../core/commands/rng.js';
 import { FOE_LEVEL, levelOf } from './level-basics.js';
 
 /**

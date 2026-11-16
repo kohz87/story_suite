@@ -1,5 +1,5 @@
 // The lean RPG part: its default settings, the joins query name and createLeanRpgPart, the part merged into Story Block's core module.
-import { stChat } from '../../assist/st-adapter.js';
+import { stChat } from '../../../packages/story-block/src/v2/assist/st-adapter.js';
 import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_SKILL, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, NOROLL, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, RESOLVE, ROLLS, ROLLS_QUERY, ROLLS_SETTING } from '../names.js';
 import { noRoll } from '../noroll.js';
 import { fightHook, fightXp } from '../fight.js';
