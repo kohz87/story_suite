@@ -5,7 +5,7 @@ import { dataModuleHash, dataModulesPackHash } from '../check.js';
 import { copy, bytes, refuse, DataModuleError } from '../interpreter.js';
 import { activeDefinition, publicView } from '../adapters.js';
 import { hashJson } from '../../replay.js';
-import { fold } from '../../lean-rpg/read.js';
+import { isReader as isPersona } from '../../interaction/player.js';
 import { B, draftOf, pairKey } from './shared.js';
 import { replayInputs } from './views.js';
 import { settleReserve } from './timing.js';
@@ -15,9 +15,7 @@ export function createCore({ packs, state: head = () => null, lifecycle = () => 
     const state = () => { try { return head(); } catch { return null; } };
     // Whether a name is the reader's own (the persona's): the Party tab shows that character as You.
     const isReader = name => {
-        let who = '';
-        try { who = String(persona() ?? '').replace(/\s+/g, ' ').trim(); } catch { who = ''; }
-        return Boolean(who) && fold(name) === fold(who);
+        try { return isPersona(name, persona()); } catch { return false; }
     };
     function offers() {
         const where = new Map();

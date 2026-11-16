@@ -17,6 +17,7 @@ import { createDataModulesPart, dataModuleGuard } from '../../data-modules/part.
 import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE, RESOLVE as RPG_RESOLVE } from '../../lean-rpg/names.js';
 // The RPG's code is loaded only when it is needed (rpg-lazy.js): this part answers for it until it is there.
 import { createLazyRpgPart } from '../../rpg-lazy.js';
+import { INTERACTION_VIEW, createInteractionView } from '../../interaction/view.js';
 import { createPeoplePart } from '../people/part.js';
 import { CORE_BUDGET, CORE_FEATURES, CORE_MODULE_ID } from './constants.js';
 import { CORE_KINDS } from './kinds.js';
@@ -90,6 +91,8 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
                 return world ? [] : sceneChatter(state?.domains?.scene?.present, headChatter(extras?.sceneChat?.(), extras?.display));
             }, { feature: CORE_FEATURE.chatter }),
             'scene.moved': (_state, _args, tools) => headMoved(tools, extras?.headIndex),
+            // The open interaction as the sdk's current() reads it: null until the host passes an interaction api (`extras.interaction`).
+            [INTERACTION_VIEW]: createInteractionView(() => extras?.interaction?.()?.current?.() ?? null),
             // The active, visible, code-validated proof (contract §6, docs/v2/EVIDENCE.md); the stored proof comes from the store.
             'story.evidence': createEvidenceQuery({ stored: () => extras?.proofs?.() ?? [] }),
         },
