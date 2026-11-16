@@ -1,18 +1,18 @@
-// The narration capture part: arming, receiving, holding, stripping and taking the one-pass block per reply, plus the capture statistics.
+// The narration capture part (N7): arming, receiving and stripping a reply's block, and the fallback scan's one-time entitlement per reply (keyed by the
+// reply's sid). The JSON block is no longer asked for; a stray one is stripped and nothing from it is applied or held.
 
 import { getContext } from '../../../../../../../extensions.js';
-import { extractNarrationCapture, parseNarrationCapture } from '../../core/core.js';
-import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
+import { extractNarrationCapture } from '../../core/core.js';
+import { replyNamesSomeone } from '../../core/core-parts/reply-names.js';
 import { getSettings } from '../../settings/runtime-settings.js';
 import { narrationCaptureEnabled } from '../../calls/runtime-scan-helpers.js';
-import { salvageScannerJson } from '../../calls/scanner-request.js';
 
 export function createNarrationPart(rt, deps) {
-    const { getChatKey, storySuiteV2Meters, updateInjection } = deps;
+    const { getChatKey, getChatState, storySuiteV2Meters, updateInjection } = deps;
     const { narrationCaptures, captureRerenderPending, stateVersions } = rt;
 
     const NARRATION_CAPTURE_LIMIT = 8;
-    const narrationCaptureStats = { requested: 0, used: 0, missing: 0, invalid: 0, unterminated: 0, outdated: 0 };
+    const narrationCaptureStats = { requested: 0, used: 0, missing: 0, invalid: 0, unterminated: 0, outdated: 0, stripped: 0 };
 
     let narrationCaptureVersion = null;
 
@@ -28,12 +28,10 @@ export function createNarrationPart(rt, deps) {
         return hostedMeters() && narrationCaptureEnabled(settings);
     }
 
-    // Bound to the reply's position and the lineage before it, not to the reply's own text: other
-    // extensions may rewrite a reply on arrival (wrapping their blocks, for example). Editing an earlier
-    // message changes the key; editing, deleting or swiping a message drops every held capture.
+    // Bound to the reply's own ID (its sid), which survives a swipe back, a middle delete and a reload; a reply with no ID yet has no entitlement.
     function narrationCaptureKey(chatKey, messageId) {
-        const parent = messageId > 0 ? lineageCheckpointKey(chatLineage(getContext().chat || []), messageId - 1) : 'root';
-        return `${chatKey}|${messageId}|${parent}`;
+        const sid = storySuiteV2Meters()?.replySid?.(Number(messageId)) ?? null;
+        return sid ? `${chatKey}|${sid}` : `${chatKey}|#${messageId}`;
     }
     function dropNarrationCaptures() {
         narrationCaptures.clear();
@@ -71,44 +69,35 @@ export function createNarrationPart(rt, deps) {
         narrationCaptures.set(narrationCaptureKey(chatKey, messageId), value);
         while (narrationCaptures.size > NARRATION_CAPTURE_LIMIT) narrationCaptures.delete(narrationCaptures.keys().next().value);
     }
-    function captureNarrationBlock(chatKey, messageId, message, armed, fallbackEligible, watch = []) {
-        const extracted = extractNarrationCapture(message.mes, { lenient: armed });
-        stripNarrationSwipes(message, armed);
+    // NSD16: the fallback scan runs only when the reply has no <Changes> block at all and names someone (a bad line is refused alone, never rescued).
+    function fallbackWanted(message, text) {
+        if (/<Changes\b/i.test(String(message?.mes ?? ''))) return false;
+        const ctx = getContext();
+        return replyNamesSomeone(text, { npcs: getChatState(getChatKey())?.npcs || [], userName: ctx.name1 || '', charName: ctx.name2 || '' });
+    }
+    function captureNarrationBlock(chatKey, messageId, message, armed, fallbackEligible) {
+        const wanted = fallbackEligible && fallbackWanted(message, message.mes);
+        const extracted = extractNarrationCapture(message.mes, { lenient: true });
+        stripNarrationSwipes(message, true);
         if (extracted.status === 'none') {
             if (armed) narrationCaptureStats.missing += 1;
-            if (fallbackEligible && extracted.text.trim()) rememberCapture(chatKey, messageId, { fallback: true });
-            return;
+        } else {
+            // A stray block (from an older prompt, a card, another extension) is removed and never applied.
+            message.mes = extracted.text;
+            captureRerenderPending.add(Number(messageId));
+            narrationCaptureStats.stripped += 1;
         }
-        message.mes = extracted.text;
-        captureRerenderPending.add(Number(messageId));
-        // Only a reply written under the instruction may stand in for a scan; a block in any other
-        // message (sendas, card text, another extension) is removed and ignored.
-        if ((!armed && !fallbackEligible) || !narrationCaptureEnabled() || !extracted.text.trim()) return;
-        // An unclosed envelope can still contain a complete JSON object; try the scanner's
-        // normal parser and key repair before paying for a replacement scan.
-        const maySalvage = fallbackEligible || extracted.status === 'found';
-        const emptyObject = fallbackEligible && /^(?:```(?:json)?\s*)?\{\s*\}(?:\s*```)?$/i.test(extracted.raw.trim());
-        const parsed = maySalvage && !emptyObject ? (parseNarrationCapture(extracted.raw) || (fallbackEligible ? salvageScannerJson(extracted.raw)?.parsed : null)) : null;
-        if (!parsed) {
-            if (armed) narrationCaptureStats[extracted.status === 'found' ? 'invalid' : 'unterminated'] += 1;
-            if (fallbackEligible) rememberCapture(chatKey, messageId, { fallback: true });
-            return;
-        }
-        if (!armed) return; // A valid but outdated capture still follows the ordinary schedule.
-        rememberCapture(chatKey, messageId, { parsed, raw: extracted.raw, watch });
-        // Only its size is kept, for the tokens() output estimate; never the block itself.
-        rt.lastCaptureBlockChars = String(extracted.raw ?? '').length;
+        if (wanted && extracted.text.trim() && narrationCaptureEnabled()) rememberCapture(chatKey, messageId, { fallback: true });
     }
     function receiveNarrationBlock(messageId) {
         const chatKey = getChatKey();
         const armedHere = Boolean(rt.narrationCaptureArmed) && rt.narrationCaptureArmed === chatKey;
         const current = armedHere && Number(stateVersions.get(chatKey) || 0) === narrationCaptureVersion;
-        const watched = armedHere ? rt.narrationCaptureWatch : [];
         disarmNarrationCapture();
         const message = Number.isInteger(messageId) ? getContext().chat?.[messageId] : null;
         if (!getSettings().enabled || chatKey === 'no-chat' || !message || message.is_user || message.is_system) return;
         if (armedHere) narrationCaptureStats[current ? 'requested' : 'outdated'] += 1;
-        captureNarrationBlock(chatKey, messageId, message, current, armedHere && hostedOnePass(), watched);
+        captureNarrationBlock(chatKey, messageId, message, current, armedHere && hostedOnePass());
     }
     // Swiping to a stored sibling must not bring back a block another reply path left in it.
     function stripSwipedNarrationBlock(messageId) {

@@ -78,7 +78,7 @@ export function createNpcPart(hooks = {}) {
         commands,
         queries,
         kinds: {
-            [NPC_KIND]: { grammar: '~ npc Name | trust: +N | affection: -N', heads: ['~ npc', '+ npc'], apply: dispatch, after: ['time', 'present', 'place'] },
+            [NPC_KIND]: { grammar: '', heads: ['~ npc', '+ npc'], apply: dispatch, after: ['time', 'present', 'place'] },
             [MILESTONE_KIND]: { grammar: '+ milestone Name — the turning point that just happened between you (once, when a bond changes for good; e.g. + milestone Person A — a promise was kept)', apply: captureLine, feature: FEATURE_STAGES, after: ['time'] },
             ...noteKinds(captureLine),
             memory: { grammar: '', heads: ['~ memory'], apply: memoryApply, after: ['time', 'present', 'place', 'npc', 'milestone', 'lie', 'know', 'taste', 'tie'] },

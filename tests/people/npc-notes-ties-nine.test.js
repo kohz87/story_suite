@@ -81,8 +81,8 @@ test('tie types and tones: a label and top rank for each tag; hostile, duty and 
     assert.equal(tieTone([]), null);
 });
 
-test('the model-visible `~ tie` grammar line is unchanged (the teaching line ships later)', () => {
-    assert.equal(noteKinds(null).tie.grammar, '~ tie Name | with: Other | tag: +ally, +rival or +owes (-tag drops it; write it when two people ally, rival or owe; e.g. ~ tie Person A | with: Person B | tag: +owes)');
+test('the model-visible `~ tie` grammar line is the owner-approved nine-tag line (16 Nov, shipped in N7)', () => {
+    assert.equal(noteKinds(null).tie.grammar, '~ tie Name | with: Other | tag: +kin, +partner, +friend, +ally, +mentor, +serves, +rival, +enemy or +owes (-tag drops it; write it when a bond between two people starts or ends; mentor, serves and owes read Name to Other; e.g. ~ tie Person A | with: Person B | tag: +serves)');
 });
 
 test('host: new tags apply once and replay equals live (swipe, Re-read, edited Re-read, middle delete, reload)', async () => {

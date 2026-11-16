@@ -147,7 +147,7 @@ export function createStorySuiteV2Adapter({
     logger = console,
     // True while the reader keeps the calendar in Delta (Source of truth: calendar "mine"): no story clock.
     calendarOwn = () => false,
-    // True while the one-pass lines switch is on (N7 wires the real setting): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
+    // True while the one-pass lines switch is on (N7: the production start-up passes true): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
     linesMode = () => false,
     // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
     loadDossierList = () => Promise.all([import('./legacy/story-block-tabs.js'), import('./legacy/dossier-ui.js')])
@@ -341,6 +341,8 @@ export function createStorySuiteV2Adapter({
         dossierMeters,
         /** The story events of present people's locked notes the scan should look for (see eventWatch); [] when none. */
         eventWatch,
+        /** The record ID of the reply at message `index` (null when the host cannot say): what a reply's own work is keyed by. */
+        replySid: index => { try { return session.hosted ? session.sdkRef.query('npc.replySid', { asOf: index }) ?? null : null; } catch { return null; } },
         /** While hosted: a story event the scan saw opens these notes of one NPC → `npc.open` (Delta's own send). */
         openByEvent: ({ name, ids } = {}) => send('npc.open', { name, open: ids, by: 'story' }, { own: true, background: true }),
         /** The notes a scan wrote for someone new, cleaned to 2 to 5 layers (src/npc-meters.js normalizeGeneratedSecrets). */

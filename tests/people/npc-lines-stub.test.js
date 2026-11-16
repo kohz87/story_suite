@@ -19,12 +19,12 @@ async function warned(run) {
 }
 const LOOK = 'a grey braid pinned with a brass nib, ink-stained cuffs, and a limp from the left leg that she hides'.slice(0, 100);
 
-test('the registered npc kind carries both heads, its grammar line is unchanged and the static text never shows + npc', async () => {
+test('the registered npc kind carries both heads, its grammar line is empty and the static text never shows + npc', async () => {
     const s = await suite();
     const kinds = s.host.registry.contexts().find(item => item.moduleId === 'npc-state-delta').kinds;
     const kind = kinds.find(item => item.kind === 'npc');
     assert.deepEqual([...kind.heads].sort(), ['+ npc', '~ npc']);
-    assert.equal(kind.grammar, '~ npc Name | trust: +N | affection: -N');
+    assert.equal(kind.grammar, '', 'the grammar is empty since N7; the relationships paragraph teaches the line');
     assert.ok(!/\+ npc/.test(kinds.map(item => item.grammar).join('\n')), 'no + npc teaching text');
     assert.equal(s.host.registry.refusals().length, 0, 'registers with no definition problem');
 });

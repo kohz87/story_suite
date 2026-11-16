@@ -238,7 +238,7 @@ test('standalone: with Story Block alone, a pack\'s meter preset gives a dating 
     // The reader turns the preset on (the settings block) and gives it to Mira (the dossier editor).
     s.setSettings({ presets: [presets[0].id] });
     records.npc_mira.meterSetup = { track: presets[0].id };
-    assert.match(s.def.context.static(), /regard \(-100\.\.100\), nerves \(0\.\.100\)/);
+    assert.doesNotMatch(s.def.context.static(), /nerves/, 'a custom meter is named in no text (G2)');
     assert.match(s.def.context.static(), /Meter rules: regard How much they think of you after a date/);
     await s.say(['~ npc Mira | regard: +15 | trust: +15']);
     await s.say(['~ npc Mira | regard: +10']);
