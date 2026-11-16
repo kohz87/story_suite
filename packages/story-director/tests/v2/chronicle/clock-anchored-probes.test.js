@@ -54,3 +54,16 @@ test('the day a jump opened (`openDay`) is replayed as stored: a `~` face earlie
     assert.equal(snap(fresh).at, 'd2@420');
     assert.equal(snap(live).at, 'd2@540', 'known limit: pinned so a fix flips it on purpose');
 });
+
+test('the day a jump opened (`openDay`), the other direction: a later `~` face an edit let land clears it in a fresh telling only, so the next early face moves the clock back (stated limit)', async t => {
+    quiet(t);
+    const r3 = ['~ time 9:30 pm', '~ place Frostgate'];
+    const r4 = ['~ time 7:00 am', '~ place Redmoor'];
+    const live = await tell([...STORY.slice(0, 3), r3]);
+    assert.equal((await editAndReread(live, 'R2', grown)).ok, true);
+    await send(live, 4, [r4]);
+    const fresh = await tell([...STORY.slice(0, 2), grown, r3, r4]);
+    // A fresh telling of R3 clears `openDay` (the face is later than the jump's landing); the live replay writes nothing, so day 1 is still open and 7 am is accepted.
+    assert.equal(snap(fresh).at, 'd1@1290', 'a fresh telling refuses the early face');
+    assert.equal(snap(live).at, 'd1@420', 'known limit: pinned so a fix flips it on purpose');
+});

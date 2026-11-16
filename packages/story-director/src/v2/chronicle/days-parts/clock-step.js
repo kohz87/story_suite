@@ -6,6 +6,7 @@ import { DAY_MINUTES } from './digest-constants.js';
 import { isInt } from './shared-values.js';
 
 const ROLLS = new Set(['same', 'after']);
+const CLOCK_KINDS = new Set(['move', ...ROLLS]);
 
 /**
  * An anchored set (`kind` 'same' | 'after': a `~` clock face, a skip) as Story Block replays it (ops/anchored.js, the same arithmetic) on a clock
@@ -27,7 +28,7 @@ function anchoredMinutes({ minutes, from, kind, to }, now) {
 function clockKind(receipt) {
     if (receipt.type === 'time.settle') return 'settle';
     if (receipt.type === 'director.advance') return 'move';
-    if (receipt.type === 'capture.time') return ['move', 'same', 'after'].includes(receipt.data?.kind) ? receipt.data.kind : 'set';
+    if (receipt.type === 'capture.time') return CLOCK_KINDS.has(receipt.data?.kind) ? receipt.data.kind : 'set';
     return 'set';
 }
 
