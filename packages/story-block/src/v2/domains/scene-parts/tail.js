@@ -24,7 +24,7 @@ export function sceneTail(state, { weather = false, you = false, rankLabel = '',
     if (you) {
         const text = part => (typeof scene?.you?.[part] === 'string' ? scene.you[part] : '');
         const wears = gear ? [wornWords(state), text('outfit'), text('wearing')].filter(Boolean).join(', ') : text('wearing');
-        const said = [...(rankLabel ? [[rankLabel, text('rank')]] : []), ['wears', wears], ...(gear ? [['looks', text('look')]] : []), ['condition', text('condition')]].filter(([, words]) => words);
+        const said = [...(rankLabel ? [[rankLabel, text('rank')]] : []), ['wears', wears], ...(gear ? [['looks', text('look')]] : []), ['condition', text('condition')], ['position', text('position')]].filter(([, words]) => words);
         // "{{user}}: Guild rank …; wears …; condition …" (the pack's word for the Rank, only with a pack that gives one), only the parts that are set.
         if (said.length) lines.push(`{{user}}: ${said.map(([word, text]) => `${word} ${text}`).join('; ')}`);
         // (Prompt diet: the ask for the look is made once per chat, on the reader's first message (`askLook` false after it), not on every reply until it is set.)

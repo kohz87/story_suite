@@ -12,7 +12,7 @@ export const sceneQueries = {
         const text = state?.domains?.scene?.weather?.text;
         return typeof text === 'string' && text ? { text } : null;
     }, { feature: WEATHER_FEATURE }),
-    // What {{user}} wears and their condition, `{ wearing, condition }` ('' for what no reply said; null while `story-block.you` is off).
+    // What {{user}} wears and their condition, `{ wearing, condition, position }` ('' for a wearing or condition no reply said, no `position` key until one is set; null while `story-block.you` is off).
     // With a pack that gives a Rank (`packs.youRank`), also `rank` and `rankLabel` (the pack's word for it); without one the stored rank is
     // kept but not answered.
     'scene.you': Object.assign((state, _args, tools) => {
@@ -21,6 +21,6 @@ export const sceneQueries = {
         const label = typeof tools?.query === 'function' ? rankLabelIn(tools.query) : '';
         // With gear on (B1.4) also `outfit` and `look` once set, and `gear`: the words for what is equipped.
         const extra = Object.fromEntries([['outfit', text('outfit')], ['look', text('look')], ['gear', wornWords(state)]].filter(([, words]) => words));
-        return { ...(label ? { rank: text('rank'), rankLabel: label } : {}), wearing: text('wearing'), condition: text('condition'), ...extra };
+        return { ...(label ? { rank: text('rank'), rankLabel: label } : {}), wearing: text('wearing'), condition: text('condition'), ...extra, ...(text('position') ? { position: text('position') } : {}) };
     }, { feature: YOU_FEATURE }),
 };
