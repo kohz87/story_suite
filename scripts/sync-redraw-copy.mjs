@@ -1,8 +1,9 @@
 // Writes the generated Story Block copy of the one redraw scheduler; with --check, fails on drift.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-export const HEADER = '// generated from ui/runtime/redraw.js; do not edit\n';
+export const HEADER = '// generated from ui/runtime/redraw.js; do not edit.\n';
 
 export function expectedCopy(root) {
   return HEADER + fs.readFileSync(path.join(root, 'ui/runtime/redraw.js'), 'utf8');
@@ -20,7 +21,7 @@ export function syncRedrawCopy(root, check) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = process.env.SYNC_REDRAW_ROOT || path.resolve(import.meta.dirname, '..');
   const check = process.argv.includes('--check');
   const code = syncRedrawCopy(root, check);

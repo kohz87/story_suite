@@ -1,4 +1,4 @@
-// generated from ui/runtime/redraw.js; do not edit
+// generated from ui/runtime/redraw.js; do not edit.
 // Coalesces change events into one frame and redraws only changed sections.
 
 const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];

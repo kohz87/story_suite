@@ -28,7 +28,7 @@ test('a fresh copy passes and has the header', () => {
   assert.equal(run(dir), 0);
   assert.equal(run(dir, '--check'), 0);
   const text = fs.readFileSync(copy(dir), 'utf8');
-  assert.ok(text.startsWith('// generated from ui/runtime/redraw.js; do not edit\n'));
+  assert.ok(text.startsWith('// generated from ui/runtime/redraw.js; do not edit.\n'));
 });
 
 test('a hand edit or a changed source fails the check', () => {
