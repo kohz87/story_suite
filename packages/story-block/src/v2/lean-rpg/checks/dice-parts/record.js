@@ -12,6 +12,6 @@ import { rulesOf } from './shared-checks.js';
 export function diceRecord(ctx, payload = {}) {
     if (ctx.cause !== 'system' || ctx.caller !== null) ctx.fail('REFUSED', 'The dice are rolled by Story Block before a reply, not by an action.');
     const list = replyDice(Math.floor(ctx.rng() * 4294967296) >>> 0);
-    const kept = diceOf({ list, rules: payload?.rules, dc: payload?.dc, perUse: payload?.perUse }) ?? diceOf({ list, rules: rulesOf(null), dc: { ...LIMITS.dc }, perUse: PRACTICE.perUse });
+    const kept = diceOf({ list, rules: payload?.rules, dc: payload?.dc, perUse: payload?.perUse }) ?? diceOf({ list, rules: rulesOf(), dc: { ...LIMITS.dc }, perUse: PRACTICE.perUse });
     return { summary: '', narrate: false, replan: true, data: { v2: { dice: { v: 1, ...kept, table: tableOf(payload?.table) } } } };
 }
