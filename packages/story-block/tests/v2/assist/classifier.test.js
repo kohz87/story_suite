@@ -11,7 +11,7 @@ import { NEVER, fakeModel, flush, manualTimer, on, reply, user, view } from './h
 const ACTION = 'I slip past the gate guard while he looks at the cart.';
 const CHECK = '? check stealth — slipping past the gate guard | dc: hard';
 
-function setup({ answers = [CHECK], settings = on({ classifier: true }), chat = [reply('The gate.'), user(ACTION)], kinds = ['check'], timer, timeoutMs } = {}) {
+function setup({ answers = [CHECK], settings = on({ classifier: true }), chat = [reply('The gate.'), user(ACTION)], kinds = ['check'], timer, timeoutMs, skip } = {}) {
     const callModel = fakeModel(...answers);
     const warnings = [];
     const state = { chat, settings, chatId: 'chat-1' };
@@ -22,6 +22,7 @@ function setup({ answers = [CHECK], settings = on({ classifier: true }), chat = 
         chatId: () => state.chatId,
         hasKind: kind => kinds.includes(kind),
         warn: text => warnings.push(text),
+        ...(skip ? { skip } : {}),
         ...(timer ? { timer } : {}),
         ...(timeoutMs ? { timeoutMs } : {}),
     });
@@ -183,5 +184,30 @@ test('a successful classification survives a live claim, then prepares one new r
     const claims = { [claimKey(keyOf(1, ACTION))]: true };
     assert.equal(await before(view({ claims })), null);
     assert.deepEqual(await before(view(), { type: 'regenerate' }), first);
+    assert.equal(callModel.calls.length, 1);
+});
+
+test('"Send without the RPG for now": no classifier call and no pre-roll, and the swipe of that reply stays quiet (replay == live)', async () => {
+    const flag = { on: true, peek: () => flag.on };
+    const { before, callModel, state } = setup({ skip: flag });
+    assert.equal(await before(view(), { type: 'normal' }), null, 'no pre-roll command');
+    assert.equal(callModel.calls.length, 0, 'no classifier call');
+    // The reply is captured: the flag goes. A swipe of that reply is still not asked about.
+    flag.on = false;
+    state.chat = [...state.chat, reply('He does not look.')];
+    assert.equal(await before(view(), { type: 'swipe' }), null, 'the swipe matches the send');
+    assert.equal(callModel.calls.length, 0);
+    // The next message is classified as usual.
+    state.chat = [...state.chat, user('I pick the lock quietly.')];
+    assert.ok(await before(view(), { type: 'normal' }), 'asked again once the flag is gone');
+    assert.equal(callModel.calls.length, 1);
+});
+
+test('without the skip flag nothing changes: asked, rolled, and a swipe reuses the answer', async () => {
+    const { before, callModel, state } = setup({ skip: { peek: () => false } });
+    const live = await before(view(), { type: 'normal' });
+    assert.equal(callModel.calls.length, 1);
+    state.chat = [...state.chat, reply('He does not look.')];
+    assert.deepEqual(await before(view(), { type: 'swipe' }), live, 'a swipe prepares the same roll');
     assert.equal(callModel.calls.length, 1);
 });

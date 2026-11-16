@@ -77,7 +77,7 @@ function fixture() {
         player: 'pc-1', policy: { choosers: 'party', party: true },
     };
     const ctx = {
-        module: 'story-block', epoch: 'ep_k3f9a2qz', hash: hashJson,
+        module: 'story-block', cause: 'system', caller: null, epoch: 'ep_k3f9a2qz', hash: hashJson,
         source: { sid: 'sr_abcdefgh', swipeKey: 'sw_abcdefgh', evidence: 'ev_abcdefgh', ordinal: 0 },
         reply: { sid: 'sw_reply2' },
         fail(code, message) { const error = new Error(message); error.code = code; throw error; },

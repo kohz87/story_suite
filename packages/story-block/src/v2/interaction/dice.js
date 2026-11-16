@@ -47,6 +47,11 @@ export function boardDice(seed, number) {
     return source;
 }
 
+/** The positional source an opening prelude gets: base = the opening's own seed, byte-identical to the host's prelude source for named lanes. */
+export function preludeDice(seed) {
+    return positional(Number.isSafeInteger(seed) && seed >= 0 && seed <= UINT32 ? seed : 0);
+}
+
 /** `dice(seed, offset)(i)(lane, at, sides)` is step `i`'s independent positional stream. */
 export function dice(seed, offset = 0) {
     const first = whole(offset);

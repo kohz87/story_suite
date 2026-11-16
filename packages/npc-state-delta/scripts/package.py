@@ -3,7 +3,9 @@ from pathlib import Path
 import hashlib
 import json
 import re
+import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 import zipfile
 
 root = Path(__file__).resolve().parent.parent
@@ -59,11 +61,16 @@ with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslev
 with zipfile.ZipFile(archive) as bundle:
     assert bundle.testzip() is None, 'archive CRC failure'
     assert sorted(bundle.namelist()) == sorted(f'npc_state_delta/{name}' for name in files)
+    js_checks = []
     for name in files:
         data = bundle.read(f'npc_state_delta/{name}')
         assert data == (root / name).read_bytes(), f'packaged bytes differ: {name}'
         if name.endswith('.js'):
-            subprocess.run(['node', '--input-type=module', '--check'], input=data, check=True, capture_output=True)
+            js_checks.append(data)
+# Syntax checks run in a bounded pool; the first failure in file order is raised, as before.
+with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
+    for future in [pool.submit(subprocess.run, ['node', '--input-type=module', '--check'], input=data, check=True, capture_output=True) for data in js_checks]:
+        future.result()
 digest = hashlib.sha256(archive.read_bytes()).hexdigest()
 archive.with_suffix('.zip.sha256').write_text(f'{digest}  {archive.name}\n')
 print(json.dumps({'archive': archive.name, 'runtimeFiles': len(runtime_files), 'bytes': archive.stat().st_size, 'sha256': digest, 'contentsAndSyntaxVerified': True, 'runtimeInventoryVerified': True}))

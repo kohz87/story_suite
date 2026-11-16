@@ -18,7 +18,8 @@ export function defaultActors(persona) {
 
 /** Marks exactly the actor whose name matches the persona; a missing roster gets the default actor. */
 export function markPlayer(actors, persona) {
-    const list = Array.isArray(actors) ? actors : defaultActors(persona);
+    if (!Array.isArray(actors)) return defaultActors(persona);
+    const list = actors;
     let marked = false;
     return list.filter(actor => actor && typeof actor === 'object').map(actor => {
         const copy = { ...actor };

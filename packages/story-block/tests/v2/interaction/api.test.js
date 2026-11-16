@@ -121,7 +121,7 @@ test('open carries a waiting opening; the probe covers opening, carry and its ma
     const opened = h.api.open(PROBE_ID);
     assert.equal(opened.ok, true, opened.message);
     assert.deepEqual(h.meta.storySuiteInteraction.open.opening, { payload: { opened: 3 }, seed: 77 });
-    assert.deepEqual(PROBE_KIND.opening({ room: 1 }, {}, (lane, at) => lane + at), { result: { opened: 5 }, changes: [] });
+    assert.deepEqual(PROBE_KIND.opening({ room: 1 }, {}, (lane, at) => () => lane + at), { result: { opened: 5 }, changes: [] });
     assert.deepEqual(PROBE_KIND.next(h.meta.storySuiteInteraction.open.setup, { steps: 2 }, h.state),
         { ...h.meta.storySuiteInteraction.open.setup, room: 2, carried: 2 });
     assert.deepEqual(PROBE_KIND.marker, { word: 'probe' });

@@ -2,10 +2,9 @@
 
 import { interactionError, limitsFor } from '../interaction/contract.js';
 import { dice, interactionSeed } from '../interaction/dice.js';
-import { deriveSteps } from '../interaction/derive.js';
-import { defaultActors, markPlayer } from '../interaction/player.js';
 import { STORY_ACTION_POLICY, policyProblem } from '../interaction/policy.js';
 import { markSend } from '../interaction/send.js';
+import { actorsOf, currentFor, playPreview } from '../interaction/preview.js';
 import { createSession, stageInteraction } from '../interaction/session.js';
 import { hashJson } from '../replay.js';
 import { hashText } from '../assist/common.js';
@@ -96,7 +95,8 @@ function stateOf(state) {
 function readKind(kind) {
     return Boolean(kind) && Number.isSafeInteger(kind.version) && kind.version > 0
         && typeof kind.open === 'function' && typeof kind.witness === 'function' && typeof kind.validate === 'function'
-        && typeof kind.play === 'function' && typeof kind.settle === 'function' && typeof kind.note === 'function';
+        && typeof kind.play === 'function' && typeof kind.settle === 'function' && typeof kind.note === 'function'
+        && typeof kind.ready === 'function' && typeof kind.title === 'string' && Array.isArray(kind.changes);
 }
 
 function ready(kind, title) {
@@ -119,70 +119,6 @@ function featureProblem(kind, featureOn, title) {
         on = false;
     }
     return on ? null : interactionError('FEATURE_OFF', title, kind.feature);
-}
-
-function actorsOf(kind, state, setup, persona, title) {
-    let actors;
-    try {
-        actors = typeof kind?.actors === 'function' ? kind.actors(state, setup) : defaultActors(persona);
-    } catch (error) {
-        return { error: interactionError('INVALID', title, `${title} could not read its actors: ${error?.message ?? error}`) };
-    }
-    return { actors: markPlayer(actors, persona) };
-}
-
-function playPreview(kind, state, session, persona, title) {
-    const actors = actorsOf(kind, state, session.setup, persona, title);
-    if (actors.error) return actors;
-    const livePolicy = session.policy ?? STORY_ACTION_POLICY;
-    const completed = deriveSteps({
-        kind,
-        kindId: session.kindId,
-        state,
-        setup: session.setup,
-        steps: session.steps,
-        actors: actors.actors,
-        policy: livePolicy,
-        dice: index => dice(session.seed, session.offset)(index),
-    });
-    if (completed.error) return completed;
-    try {
-        const preview = kind.play(state, session.setup, completed.steps, dice(session.seed, session.offset));
-        if (!plain(preview)) return { error: interactionError('INVALID', title, `${title} returned no preview.`) };
-        if (plain(preview.error)) return { error: preview.error };
-        if (typeof preview.error === 'string') return { error: interactionError('INVALID', title, preview.error) };
-        return { preview, steps: completed.steps };
-    } catch (error) {
-        return { error: interactionError('INVALID', title, `${title} could not play that step: ${error?.message ?? error}`) };
-    }
-}
-
-function currentFor(box, kindId, kind, state, persona, title) {
-    const session = plain(box?.open) && box.open.kindId === kindId ? box.open : null;
-    if (!session) return null;
-    const played = playPreview(kind, state, session, persona, title);
-    let view = null;
-    if (!played.error) {
-        try {
-            view = typeof kind.view === 'function'
-                ? kind.view(state, session.setup, played.steps, played.preview)
-                : played.preview?.view ?? null;
-        } catch {
-            view = played.preview?.view ?? null;
-        }
-    }
-    const sent = plain(box?.send) && box.send.anchor === session.anchor;
-    const invalidated = session.invalidated === true;
-    return {
-        id: session.id,
-        kindId: session.kindId,
-        title,
-        state: invalidated ? 'invalidated' : sent ? 'sent' : session.steps.length ? 'staged' : 'open',
-        steps: clone(session.steps),
-        canSend: !invalidated && !sent && session.steps.length > 0,
-        canDiscard: true,
-        view: view === undefined ? null : clone(view),
-    };
 }
 
 function success(current) {
@@ -268,6 +204,10 @@ export function createInteractionApi({
             for (const problem of [ready(kind, title), featureProblem(kind, featureOn, title)]) if (problem) return problem;
             const actors = actorsOf(kind, stateNow(), session.setup, personaOf(persona), title);
             if (actors.error) return actors.error;
+            if (session.steps.length) {
+                const now = playPreview(kind, stateNow(), session, personaOf(persona), title);
+                if (!now.error && now.preview.stop !== 'open') return interactionError('ENDED', title);
+            }
             const next = stageInteraction({
                 session,
                 step,
@@ -415,5 +355,10 @@ export function createInteractionApi({
         }
     }
 
-    return Object.freeze({ version: 1, open, stage, auto, send, discard, current });
+    // Every refusal carries ok:false (§1.2).
+    const refusing = fn => (...args) => {
+        const answer = fn(...args);
+        return plain(answer) && answer.ok === undefined && text(answer.code) ? { ok: false, ...answer } : answer;
+    };
+    return Object.freeze({ version: 1, open: refusing(open), stage: refusing(stage), auto: refusing(auto), send: refusing(send), discard: refusing(discard), current });
 }

@@ -5,6 +5,7 @@ import { policyProblem } from './policy.js';
 
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const clone = value => structuredClone(value);
+// Derived actors share one stream per step: lane 63, position = the actor's index, so the engine's lane/at are ignored.
 const namedAutoDice = (source, actorIndex) => (lane, at, sides = 20) => source(63, actorIndex, sides);
 
 const titleOf = kind => String(kind?.title ?? 'interaction').trim() || 'interaction';

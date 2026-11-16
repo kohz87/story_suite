@@ -4,10 +4,11 @@ import { CORE_MODULE_ID } from '../domains/core/constants.js';
 import { hashJson } from '../replay.js';
 import { interactionError, limitsFor } from './contract.js';
 import { deriveSteps } from './derive.js';
-import { dice } from './dice.js';
+import { dice, preludeDice } from './dice.js';
+import { isJson } from './preview.js';
 
 const UINT32 = 0xFFFFFFFF;
-const NOTE_TOKENS = 600;
+const NOTE_TOKENS = 600; // provisional: I5 measures it and moves it to the tail budget
 const HASH = /^[0-9a-f]{64}$/u;
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => typeof value === 'string' && value.length > 0;
@@ -138,6 +139,7 @@ function checked(settled, kind, openingOnly, title) {
         if (!plain(change) || !text(change.type) || !plain(change.payload)) return { error: `${title} returned a damaged change.` };
         if (!allowed.includes(change.type)) return { error: `${title} tried to change something it does not own.` };
     }
+    if (!isJson(result) || !changes.every(change => isJson(change?.payload))) return { error: `${title} returned a result that is not plain JSON.` };
     const limits = limitsFor(kind);
     if (changes.length > limits.changes) return { error: `${title} returned too many changes.`, tooBig: true };
     try {
@@ -150,10 +152,10 @@ function checked(settled, kind, openingOnly, title) {
     return { result: clone(result), changes: clone(changes), stop };
 }
 
-function noteOf(kind, result, setup, title, limits) {
+function noteOf(kind, result, setup, title, limits, opening) {
     let lines;
     try {
-        lines = kind.note(result, setup, { tokens: limits.noteTokens ?? NOTE_TOKENS });
+        lines = kind.note(result, setup, { tokens: limits.noteTokens ?? NOTE_TOKENS, opening });
     } catch (error) {
         return { error: refused(error, title, 'write its note') };
     }
@@ -166,6 +168,7 @@ function noteOf(kind, result, setup, title, limits) {
  * transaction state the kind reads; `receipts` answers the store's receipts for a carried segment.
  */
 export function settleInteraction(ctx, payload, kindOrLookup, { state = null, receipts = null } = {}) {
+    if (ctx.cause !== 'system' || ctx.caller !== null) ctx.fail('REFUSED', 'The interaction is settled before the reply, not called by another command.');
     const kindId = String(payload?.kindId ?? '');
     let kind = null;
     try { kind = typeof kindOrLookup === 'function' ? kindOrLookup(kindId) : kindOrLookup; } catch { kind = null; }
@@ -216,7 +219,7 @@ export function settleInteraction(ctx, payload, kindOrLookup, { state = null, re
 
     let settled;
     try {
-        settled = openingOnly ? kind.opening(state, setup, stepDice) : kind.settle(state, setup, completed.steps, stepDice);
+        settled = openingOnly ? kind.opening(state, setup, preludeDice(payload.seed)) : kind.settle(state, setup, completed.steps, stepDice);
     } catch (error) {
         ctx.fail('FAILED', refused(error, title, 'settle'));
     }
@@ -224,7 +227,7 @@ export function settleInteraction(ctx, payload, kindOrLookup, { state = null, re
     if (checkedResult.error) ctx.fail(checkedResult.tooBig ? 'TOO_BIG' : 'INVALID', interactionError(checkedResult.tooBig ? 'TOO_BIG' : 'INVALID', title, checkedResult.error).message);
 
     const limits = limitsFor(kind);
-    const note = noteOf(kind, checkedResult.result, setup, title, limits);
+    const note = noteOf(kind, checkedResult.result, setup, title, limits, openingOnly);
     if (note.error) ctx.fail('FAILED', note.error);
 
     const sid = ctx.reply?.sid;

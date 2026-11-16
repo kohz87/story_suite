@@ -25,7 +25,7 @@ export const PROBE_KIND = Object.freeze({
     play: (state, setup, steps, dice) => {
         const lines = steps.map(step => step.inputs.map(input => `${input.actor}:${input.choice}`).join(','));
         const companion = steps.at(-1)?.inputs.find(input => input.actor === 'mate')?.choice ?? null;
-        const roll = dice(steps.length ? steps.length - 1 : 0)(7, 0, 6);
+        const roll = dice(steps.length ? steps.length - 1 : 0)(7, 0, 6)();
         return {
             view: { lines, choices: [{ id: 'go', label: 'Go on', actor: 'hero' }] },
             result: { steps: steps.length, lines, companion, roll, stop: 'open' },
@@ -36,12 +36,12 @@ export const PROBE_KIND = Object.freeze({
         const preview = PROBE_KIND.play(state, setup, steps, dice);
         return { result: preview.result, changes: [], stop: preview.stop };
     },
-    note: (result, setup, { tokens } = {}) => [`Probe room ${setup?.room ?? 1}: ${result.lines.length} step.`,
-        `Probe roll ${result.roll} (${tokens ?? 'default'} tokens).`],
+    note: (result, setup, { tokens, opening } = {}) => (opening ? [`Probe room ${setup?.room ?? 1} opens (${result.opened}).`] : [`Probe room ${setup?.room ?? 1}: ${result.lines.length} step.`,
+        `Probe roll ${result.roll} (${tokens ?? 'default'} tokens).`]),
     auto: (state, setup, steps, actorId, dice) => (actorId === 'mate'
         ? { choice: 'hum', args: { roll: dice(1, 0, 6)() } }
         : { choice: 'go', args: { roll: dice(0, 0, 6)() } }),
-    opening: (state, setup, dice) => ({ result: { opened: dice(5, 0, 6) }, changes: [] }),
+    opening: (state, setup, dice) => ({ result: { opened: dice(5, 0, 6)() }, changes: [] }),
     next: (setup, result) => ({ ...setup, room: setup.room + 1, carried: result.steps }),
     view: (state, setup, steps, preview) => ({ ...preview.view, room: setup.room }),
 });

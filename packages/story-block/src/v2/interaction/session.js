@@ -13,7 +13,7 @@ const whole = value => Number.isSafeInteger(value) && value >= 0;
 const clone = value => structuredClone(value);
 const titleOf = kind => String(kind?.title ?? 'interaction').trim() || 'interaction';
 const bytes = value => new TextEncoder().encode(JSON.stringify(value)).length;
-const partyOf = (policy, kindId) => policy?.party === true || (Array.isArray(policy?.partyKinds) && policy.partyKinds.includes(kindId));
+const partyOf = (policy, kindId) => policy?.party === true || policy?.choosers === 'party' || (Array.isArray(policy?.partyKinds) && policy.partyKinds.includes(kindId));
 
 function cleanStep(step, limits, title) {
     if (!plain(step) || !Array.isArray(step.inputs) || step.inputs.length < 1) {

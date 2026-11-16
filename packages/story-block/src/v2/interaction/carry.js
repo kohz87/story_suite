@@ -26,10 +26,28 @@ export function receiveSegment(meta, kind, payload, result, sid, receiptId = nul
     try { setup = kind.next(clone(payload.setup), clone(result), state); } catch { return false; }
     if (!plain(setup)) return false;
     const current = plain(meta.open) ? meta.open : null;
+    const prior = hashJson(result);
+    const offset = payload.offset + payload.steps.length;
+    const same = current && current.id === payload.id && current.carriedKey === payload.key && current.seed === payload.seed
+        && current.offset === offset && current.prior === prior && plain(current.base) && current.base.offset === payload.offset
+        && hashJson(current.setup) === hashJson(setup);
+    if (same) {
+        // The same segment received again (a swipe or regenerate): only re-anchor, keep the staged steps.
+        current.anchor = sid;
+        if (typeof receiptId === 'string' && receiptId) current.carried = receiptId;
+        else delete current.carried;
+        delete current.invalidated;
+        return true;
+    }
     const parts = namedParts(payload.id);
-    const base = plain(current?.base)
-        ? clone(current.base)
-        : { offset: payload.offset, anchor: payload.anchor, setup: clone(payload.setup) };
+    // The base is the segment just settled: its offset, anchor, setup, opening and its own carry fields.
+    const settled = current && current.id === payload.id && current.offset === payload.offset ? current : null;
+    const base = { offset: payload.offset, anchor: payload.anchor, setup: clone(payload.setup) };
+    if (plain(settled?.opening)) base.opening = clone(settled.opening);
+    if (text(payload.carriedKey)) base.carriedKey = payload.carriedKey;
+    if (text(payload.prior)) base.prior = payload.prior;
+    if (text(settled?.carried)) base.carried = settled.carried;
+    if (plain(settled?.base)) base.base = clone(settled.base);
     const next = {
         v: 1,
         id: payload.id,
@@ -39,12 +57,12 @@ export function receiveSegment(meta, kind, payload, result, sid, receiptId = nul
         anchor: sid,
         attempt: Number.isSafeInteger(current?.attempt) ? current.attempt : parts.attempt,
         seed: payload.seed,
-        offset: payload.offset + payload.steps.length,
+        offset,
         setup,
         steps: [],
         base,
         carriedKey: payload.key,
-        prior: hashJson(result),
+        prior,
     };
     if (typeof receiptId === 'string' && receiptId) next.carried = receiptId;
     if (text(payload.player)) next.player = payload.player;
@@ -76,9 +94,11 @@ export function reconcileSession(meta, hasReceipt) {
     session.steps = [];
     delete session.invalidated;
     delete session.witness;
-    delete session.carried;
-    delete session.carriedKey;
-    delete session.prior;
-    delete session.base;
+    for (const key of ['carried', 'carriedKey', 'prior']) {
+        if (text(base[key])) session[key] = base[key];
+        else delete session[key];
+    }
+    if (plain(base.base)) session.base = clone(base.base);
+    else delete session.base;
     return session;
 }

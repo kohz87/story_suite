@@ -24,7 +24,7 @@ export function policyProblem(policy, kindId, actors, input) {
     const wanted = String(input?.actor ?? '');
     const actor = list.find(item => String(item?.id ?? '') === wanted) ?? null;
     if (!actor) return refusal(kindId, `That actor is not on the ${title}.`);
-    const party = policy?.party === true || (Array.isArray(policy?.partyKinds) && policy.partyKinds.includes(kindId));
+    const party = policy?.party === true || policy?.choosers === 'party' || (Array.isArray(policy?.partyKinds) && policy.partyKinds.includes(kindId));
     if (party ? actor.party !== true : actor.player !== true) {
         return refusal(kindId, party
             ? `You can only choose for your party in the ${title}.`
