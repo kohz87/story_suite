@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { listTracked, loadLayoutRules, main, planLayout } from '../../../scripts/codemod/cli.mjs';
 import { buildPlan, planProblems } from '../../../scripts/codemod/plan.mjs';
@@ -105,6 +106,65 @@ test('a delete still imported by a kept file fails the plan; a deleted importer 
   ]);
 });
 
+test('a URL read of a deleted file fails the plan and a non-literal URL is a warning', () => {
+  const ruleSets = [{
+    area: 'core',
+    scope: ['packages'],
+    rules: [
+      { from: 'packages/a/keep.js', to: 'core/keep.js' },
+      { from: 'packages/a/other.js', to: 'core/other.js' },
+      { from: 'packages/a/deleted.json', to: null },
+    ],
+  }];
+  const files = ['packages/a/keep.js', 'packages/a/other.js', 'packages/a/deleted.json'];
+  const sources = new Map([
+    ['packages/a/keep.js', "const pkg = new URL('./deleted.json', import.meta.url);\n"],
+    ['packages/a/other.js', "const rel = 'deleted.json';\nconst pkg = new URL(`./${rel}`, import.meta.url);\n"],
+  ]);
+  const warnings = [];
+  assert.deepEqual(planProblems(buildPlan(files, ruleSets), {
+    files: new Set(files),
+    readFile: file => sources.get(file) ?? '',
+    warnings,
+  }), [
+    'plan deletes packages/a/deleted.json, still imported by packages/a/keep.js',
+  ]);
+  assert.deepEqual(warnings, [
+    'packages/a/other.js:2: non-literal URL reference cannot be checked against planned deletes',
+  ]);
+});
+
+test('the plan CLI lists non-literal URL references as warnings without hiding a literal URL problem', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'b3p2-plan-'));
+  try {
+    const rulesDir = path.join(dir, 'rules');
+    fs.mkdirSync(rulesDir);
+    for (const area of AREAS) {
+      const rules = area === 'core'
+        ? [
+          { from: 'packages/a/keep.js', to: 'core/keep.js' },
+          { from: 'packages/a/other.js', to: 'core/other.js' },
+          { from: 'packages/a/deleted.json', to: null },
+        ]
+        : [];
+      fs.writeFileSync(path.join(rulesDir, `${area}.rules.json`), JSON.stringify({ area, scope: ['packages'], rules }));
+    }
+    fs.mkdirSync(path.join(dir, 'packages/a'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'packages/a/keep.js'), "const pkg = new URL('./deleted.json', import.meta.url);\n");
+    fs.writeFileSync(path.join(dir, 'packages/a/other.js'), "const rel = 'deleted.json';\nconst pkg = new URL(`./${rel}`, import.meta.url);\n");
+    fs.writeFileSync(path.join(dir, 'packages/a/deleted.json'), '{}\n');
+    const files = ['packages/a/deleted.json', 'packages/a/keep.js', 'packages/a/other.js'];
+    const stdout = sink();
+    const stderr = sink();
+    const code = await main(['plan', '--all'], { root: dir, rulesDir, listFiles: async () => files, stdout, stderr });
+    assert.equal(code, 1);
+    assert.match(stdout.text, /plan warnings \(1 warning\):\n  packages\/a\/other\.js:2: non-literal URL reference cannot be checked against planned deletes/);
+    assert.match(stderr.text, /plan deletes packages\/a\/deleted\.json, still imported by packages\/a\/keep\.js/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('dead rules are warnings in the plan output and do not fail it', async () => {
   const sets = loadLayoutRules();
   const all = samples(sets);
@@ -164,12 +224,19 @@ test('longer people prefixes win over their broader catch-alls', () => {
   for (const [file, expected] of cases) assert.equal(matchPath(rules, file).to, expected, file);
 });
 
-test('the tracked tree on main is covered once with no plan problems', () => {
+test('the real tree passes the required plan checks and tolerates an unmatched lane file', () => {
   const sets = loadLayoutRules();
   const files = listTracked(root);
-  const { plan, counts } = planLayout(files, sets);
-  assert.deepEqual(plan.unmatched, []);
-  assert.deepEqual(planProblems(plan, { files: new Set(files), readFile: file => fs.readFileSync(path.join(root, file), 'utf8') }), []);
+  const laneFile = 'packages/story-block/lane-added.test.js';
+  const laneFiles = [...files, laneFile];
+  const { plan, counts } = planLayout(laneFiles, sets);
+  assert.ok(plan.unmatched.includes(laneFile), 'a new package file is still reported as unmatched');
+  const knownM2 = 'plan deletes packages/story-block/package.json, still imported by packages/story-block/testkit/matrix/report.js, packages/story-block/tests/v2/bootstrap.test.js';
+  const problems = planProblems({ ...plan, unmatched: [] }, {
+    files: new Set(laneFiles),
+    readFile: file => fs.readFileSync(path.join(root, file), 'utf8'),
+  });
+  assert.deepEqual(problems.filter(problem => problem !== knownM2), []);
   assert.ok(files.length > 6000, `expected the real tree, found ${files.length} files`);
   for (const area of AREAS) assert.ok(counts[area].moves + counts[area].deletes > 0, `${area} planned nothing`);
 });

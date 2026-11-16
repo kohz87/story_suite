@@ -54,25 +54,29 @@ export function buildPlan(files, ruleSets) {
 
 /**
  * Lists what is wrong with a plan, as sentences; an empty list means it may be applied. With `{ files, readFile }`,
- * also refuses a delete that a kept JS file still imports. A planned-delete importer is ignored: its tests go with it.
+ * also refuses a delete that a kept JS file still imports or reads with `new URL(..., import.meta.url)`. A
+ * planned-delete importer is ignored: its tests go with it. Non-literal URL reads go into `warnings` when supplied.
  */
-export function planProblems(plan, { files = null, readFile = null } = {}) {
+export function planProblems(plan, { files = null, readFile = null, warnings = null } = {}) {
+  const references = deletedReferences(plan, files, readFile);
+  if (warnings) warnings.push(...references.warnings);
   return [
     ...plan.duplicates.map(item => `rule "${item.key}" is given by more than one rule file (${item.areas.join(', ')})`),
     ...plan.unmatched.map(file => `no rule covers ${file}`),
     ...plan.collisions.map(item => `${item.sources.join(', ')} all move to ${item.to}`),
     ...plan.chains.map(move => `${move.from} moves to ${move.to}, which is itself moved (a rename chain or swap)`),
     ...plan.existing.map(move => `${move.from} would overwrite the existing ${move.to}`),
-    ...deletedImportProblems(plan, files, readFile),
+    ...references.problems,
   ];
 }
 
-/** Finds imports of a deleted file in files the plan keeps, grouped by the deleted target. */
-function deletedImportProblems(plan, files, readFile) {
-  if (!files || !readFile || !plan.deletes.length) return [];
+/** Finds imports and URL reads of a deleted file in kept files, grouped by the deleted target. */
+function deletedReferences(plan, files, readFile) {
+  if (!files || !readFile || !plan.deletes.length) return { problems: [], warnings: [] };
   const allFiles = new Set(files);
   const deleted = new Set(plan.deletes);
   const importers = new Map();
+  const warnings = new Set();
   for (const file of files) {
     if (deleted.has(file) || !/\.(?:mjs|js)$/.test(file)) continue;
     let source;
@@ -80,15 +84,18 @@ function deletedImportProblems(plan, files, readFile) {
     const scan = scanSpecifiers(source);
     if (scan.error) continue;
     for (const item of scan.specs) {
-      if (item.kind === 'url') continue;
-      const hit = resolveSpecifier(file, item.spec, allFiles);
+      const hit = resolveSpecifier(file, item.spec, allFiles, item.kind === 'url');
       if (!hit || !deleted.has(hit.target)) continue;
       importers.set(hit.target, [...(importers.get(hit.target) ?? []), file]);
     }
+    for (const item of scan.nonLiteral) {
+      if (item.kind === 'url') warnings.add(`${file}:${item.line}: non-literal URL reference cannot be checked against planned deletes`);
+    }
   }
-  return [...importers]
+  const problems = [...importers]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([target, from]) => `plan deletes ${target}, still imported by ${[...new Set(from)].sort().join(', ')}`);
+  return { problems, warnings: [...warnings].sort() };
 }
 
 /**

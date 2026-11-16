@@ -130,7 +130,16 @@ export async function main(argv = process.argv.slice(2), options = {}) {
   } else {
     stdout.write('dead rules: none\n');
   }
-  const problems = planProblems(plan, { files: new Set(listed), readFile: file => fs.readFileSync(path.join(root, file), 'utf8') });
+  const warnings = [];
+  const problems = planProblems(plan, {
+    files: new Set(listed),
+    readFile: file => fs.readFileSync(path.join(root, file), 'utf8'),
+    warnings,
+  });
+  if (warnings.length) {
+    stdout.write(`plan warnings (${warnings.length} warning${warnings.length === 1 ? '' : 's'}):\n`);
+    for (const warning of warnings) stdout.write(`  ${warning}\n`);
+  }
   if (problems.length) {
     stderr.write(`plan problems (${problems.length}):\n`);
     for (const problem of problems) stderr.write(`  ${problem}\n`);
