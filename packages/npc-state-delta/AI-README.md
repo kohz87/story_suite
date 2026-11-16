@@ -128,7 +128,7 @@ Extensions, or in Story Suite settings when hosted. Hosted settings (the `npc` p
 | `injectDepth` | Depth of the block (0 is the cache-friendly tail). | 0 |
 | `layeredSecrets` (Hidden notes for new people) | A scan that builds a new dossier writes 2 to 5 notes. Hosted only. | on |
 | `autoArchiveDeaths`, `autoReactivateArchived` | Archive confirmed deaths; reactivate on a clear return. | on, on |
-| `autoPruneStale`, `staleArchiveAfter`, `staleDeleteAfter` | Auto-archive after 30 replies away, delete stale auto-archives after 50. | on, 30, 50 |
+| `autoPruneStale`, `staleArchiveAfter`, `staleDeleteAfter` | Dormant after 30 replies away (stops counting toward the NPC cap; the key is still staleArchiveAfter), removed after 50 unless they matter. | on, 30, 50 |
 | `midDeleteRewind` | On: deleting a middle message rewinds every dossier to just before it. Off: undo only that message's changes. | off |
 | `branchRescan` | Rescan the surviving branch after a swipe, edit or middle delete. | on |
 | `customFieldNames` | Up to 6 custom field names on every dossier. | none |

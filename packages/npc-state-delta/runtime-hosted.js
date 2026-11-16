@@ -149,7 +149,7 @@ export function createHostedPart(rt, deps) {
         let changed = false;
         const out = npcs.map(npc => {
             // (C-1) The scene cannot bring a confirmed-dead NPC back on stage.
-            const present = Boolean(npc?.id) && here.has(String(npc.id)) && !npc.archived && !isTerminalNpcDeath(npc);
+            const present = Boolean(npc?.id) && here.has(String(npc.id)) && !isTerminalNpcDeath(npc);
             if (Boolean(npc?.present) === present) return npc;
             changed = true;
             return { ...npc, present, worldActive: present ? false : Boolean(npc.worldActive) };

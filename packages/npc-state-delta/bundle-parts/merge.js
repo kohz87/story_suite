@@ -8,7 +8,7 @@ import {
 } from '../bundle-import-helpers.js';
 
 // P6: no archive flag; the roster cap counts neither an old archived record nor a confirmed death (as the death archive did).
-const offRoster = npc => Boolean(npc?.archived) || isTerminalNpcDeath(npc);
+const offRoster = npc => isTerminalNpcDeath(npc);
 
 export function mergeImportedDossierState(currentState, importedState, { maxNpcs = 40, excludeNames = [], report = null, foreignOwnership = false } = {}) {
     const current = currentState && typeof currentState === 'object' ? currentState : {};

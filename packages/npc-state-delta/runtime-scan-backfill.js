@@ -69,7 +69,7 @@ export function queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed
     for (const raw of Array.isArray(resolvedParsed?.profileUpdates) ? resolvedParsed.profileUpdates : []) markBroadScanTarget(raw);
     const missedParticipants = [];
     for (const npc of nextState.npcs || []) {
-        if (npc.archived || isTerminalNpcDeath(npc) || touchedIds.has(npc.id) || !npcParticipatesInExchange(npc, nextState.npcs || [], currentTranscript || '', { includeRole: false })) continue;
+        if (isTerminalNpcDeath(npc) || touchedIds.has(npc.id) || !npcParticipatesInExchange(npc, nextState.npcs || [], currentTranscript || '', { includeRole: false })) continue;
         missedParticipants.push(npc);
     }
     if (missedParticipants.length <= AUTOMATIC_MISSED_PARTICIPANT_REPAIR_LIMIT) {
@@ -91,7 +91,7 @@ export function queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed
     // first pass provides. Repair only those new/promoted dossiers; admitting one NPC must
     // never fan out into targeted model calls for unrelated established cast members.
     for (const id of newlyAdmittedIds) {
-        const admitted = nextState.npcs.find(npc => npc.id === id && !npc.archived && !isTerminalNpcDeath(npc));
+        const admitted = nextState.npcs.find(npc => npc.id === id && !isTerminalNpcDeath(npc));
         if (!admitted) continue;
         queueNpcBackfillInState(nextState, admitted.id, admitted.name, targetMessageId, {
             reason: 'new-admission',
