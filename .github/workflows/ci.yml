@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# One run per branch or pull request: a newer push cancels the run it replaces, so the account's
+# runner slots go to current code. On main, the latest merge's run covers every earlier merge.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   rules:
     runs-on: ubuntu-latest
