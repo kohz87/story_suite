@@ -3,6 +3,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GRAMMAR } from '../../../src/v2/tracker/note.js';
 
-test('the time grammar line gives a clock-time example', () => {
-    assert.match(GRAMMAR.time, /^~ time <date, clock time such as 9:30 am> \(the scene's time\) or ! time \+2h \(time passes\), never both for one stretch/);
+test('the time grammar line gives a clock-time example and says the clock never goes back', () => {
+    assert.match(GRAMMAR.time, /^~ time 9:30 am \(the clock now, today; never a date, never earlier than the story time\) or ! time \+2h \/ ! time next morning \(time passes; the only way into a later day\), never both for one stretch/);
 });

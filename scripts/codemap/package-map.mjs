@@ -23,8 +23,7 @@ const stripAll = (prefix, list) => list.map(p => p.slice(prefix.length));
  * index and the one-job-per-file backlog. `files` are repo paths under packages/<pkg>/; the rendered
  * paths are relative to the package. Returns the markdown, the problems and the backlog count.
  */
-export function packageMap({ pkg, files, readSource, explicitJobs = {}, devMapText = '', features = [] }) {
-  const prefix = `packages/${pkg}/`;
+export function packageMap({ pkg, prefix = `packages/${pkg}/`, files, readSource, explicitJobs = {}, devMapText = '', features = [] }) {
   const jobsFile = `docs/codemap/jobs-${pkg}.json`;
   const jobs = resolveJobs({ prefix, files, readSource, explicit: explicitJobs, devMap: devMapJobs(devMapText) });
   for (const rel of Object.keys(explicitJobs)) jobs[prefix + rel] = explicitJobs[rel];
@@ -45,7 +44,7 @@ export function packageMap({ pkg, files, readSource, explicitJobs = {}, devMapTe
   if (built.overLimit.length > 0) backlog.push('');
   for (const { path: p, count } of built.overLimit) backlog.push(`- \`${p.slice(prefix.length)}\`: ${count} exports`);
   const header = renderMap(rows, {
-    title: `Code map: packages/${pkg}`,
+    title: `Code map: ${prefix.slice(0, -1)}`,
     source: `each file's job sentence (${jobsFile}, the package's docs/dev/codemap.md, or the file's opening comment) and the source`,
   });
   return {
@@ -53,6 +52,5 @@ export function packageMap({ pkg, files, readSource, explicitJobs = {}, devMapTe
     problems: [...built.problems, ...featureOut.problems].sort(),
     backlog: built.overLimit.length,
     rows: rows.length,
-    lines: rows.reduce((n, r) => n + r.lines, 0),
   };
 }

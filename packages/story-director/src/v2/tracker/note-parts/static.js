@@ -8,7 +8,7 @@ const RULES = [
 ];
 
 // Pacing, shortened: the "never decide what {{user}} does" rule is in the line above.
-const PACING_V2 = 'Pacing: a due item comes in only where it fits (on-screen if {{user}} is there, else later as news, signs or aftermath); never cut into or bend the scene for a beat. What cannot fit yet happens off-screen (!) or slips (~ on: later).';
+const PACING_V2 = 'Pacing: a due item comes in only where it fits (on-screen if {{user}} is there, else later as news, signs or aftermath); never cut into or bend the scene for a beat. What cannot fit yet happens off-screen (!) or waits.';
 
 /**
  * The Director's part of the static prompt: no names, counts, times or dice. The same bytes for one

@@ -68,6 +68,8 @@ Generated 2026-11-07.
 - `src/npc-notes-drives.js`: NPC drives (instinct strengths 0..3, default 2): the JSON leaf reader and writer, the first-time seed from a cast pack entry or the first description, the strength multiplier the pull applies and the dossier rows (pure).
 - `src/adapter/queries-dossier.js`: Dossier field copies and portrait URL safety helpers split from `src/adapter/queries.js`.
 - `src/adapter/queries-director.js`: Story Director and pack lookups split from `src/adapter/queries.js`.
+- `src/adapter/people-mirror.js`: Sends the published state to the host's `people` read-model (one `people.mirror` per publication, off unless the host answers `people.mirrorOn`) and heals the head after moves.
+- `src/people/view.js`: Turns a sidecar state into the clock-free `people` view and back, without NSD's history keys (pure).
 - `src/adapter/cast-ui/cast-render.js`: Action binding, key-person pin, present-cast and dossier-list rendering.
 - `src/adapter/cast-ui/cast-views.js`: Game-view Cast screen registry, tab ownership check, widget and screen definitions.
 - `src/adapter/cast-ui/dom.js`: Text-only DOM helpers, shared pane/drawer constants and the meter bar node.

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadLayout } from '../layout.mjs';
 import { nodeTestPaths } from './test-command-args.mjs';
 
 // Node's default test file patterns (the ones `node --test` uses when given no paths), any depth.
@@ -49,10 +50,9 @@ export function unrunTests(pkgDir, label = path.basename(pkgDir)) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? path.join(import.meta.dirname, '../..'));
-  const packagesDir = path.join(root, 'packages');
-  const errors = fs.readdirSync(packagesDir, { withFileTypes: true })
-    .filter(entry => entry.isDirectory() && fs.existsSync(path.join(packagesDir, entry.name, 'package.json')))
-    .flatMap(entry => unrunTests(path.join(packagesDir, entry.name)));
+  const errors = loadLayout().packageDirs(root)
+    .filter(dir => fs.existsSync(path.join(root, dir, 'package.json')))
+    .flatMap(dir => unrunTests(path.join(root, dir)));
   if (errors.length > 0) {
     for (const error of errors) console.error(error);
     process.exit(1);

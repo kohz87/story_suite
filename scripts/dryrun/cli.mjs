@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync,
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { loadLayout } from '../layout.mjs';
 import { loadChat } from './load-chat.mjs';
 import { recordChat } from './record-chat.mjs';
 import { runHistoryOps } from './history-ops.mjs';
@@ -38,14 +39,13 @@ async function runRecord(args) {
   mkdirSync(outDir, { recursive: true });
   const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'story-suite-dryrun-'));
   try {
-    symlinkSync(path.join(repoRoot, 'packages', 'story-block'), path.join(tmpRoot, 'Story_block'));
-    symlinkSync(path.join(repoRoot, 'packages', 'story-director'), path.join(tmpRoot, 'Story_director'));
-    symlinkSync(path.join(repoRoot, 'packages', 'npc-state-delta'), path.join(tmpRoot, 'npc_state_delta'));
+    const farm = loadLayout().suiteFarm;
+    for (const { link, dir } of farm) symlinkSync(path.join(repoRoot, dir), path.join(tmpRoot, link));
     for (const name of ['SUITE_SB', 'SUITE_SD', 'SUITE_NSD']) delete process.env[name];
     process.env.STORY_SUITE_ROOT = tmpRoot;
     process.env.NPC_STATE_DELTA_PATH = path.join(tmpRoot, 'npc_state_delta');
 
-    const suiteUrl = pathToFileURL(path.join(repoRoot, 'packages/story-block/tests/v2/break/helpers/suite.js')).href;
+    const suiteUrl = pathToFileURL(path.join(repoRoot, farm.find(f => f.link === 'Story_block').dir, 'tests/v2/break/helpers/suite.js')).href;
     const { loadSuite, suiteHost } = await import(suiteUrl);
     const loaded = await loadSuite();
     if (loaded.skip) {
