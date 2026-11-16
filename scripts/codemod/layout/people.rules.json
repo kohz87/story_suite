@@ -14,6 +14,7 @@
     { "from": "packages/npc-state-delta/continuity-ui*", "to": "modules/people/legacy/continuity-ui*" },
     { "from": "packages/npc-state-delta/core-portrait*", "to": "modules/people/portrait/core-portrait*" },
     { "from": "packages/npc-state-delta/core*", "to": "modules/people/core/core*" },
+    { "from": "packages/npc-state-delta/roster-count.js", "to": "modules/people/core/roster-count.js" },
     { "from": "packages/npc-state-delta/destructive-settlement*", "to": "modules/people/core/destructive-settlement*" },
     { "from": "packages/npc-state-delta/diagnostics-core*", "to": "modules/people/core/diagnostics-core*" },
     { "from": "packages/npc-state-delta/dossier*", "to": "modules/people/legacy/dossier*" },
