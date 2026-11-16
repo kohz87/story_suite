@@ -22,7 +22,9 @@ const DAY = 1440;
 export function knownNews(state, tools, { hidden = hiddenNames(state), calendar = null, now = null, ids = placeIds(tools) } = {}) {
     const query = queryOf(tools);
     const out = [];
-    const stamps = calendar ? heardStamps(tools, calendar) : new Map();
+    // Read lazily, once, when the first event needs it.
+    let stamps = null;
+    const stampsOf = id => (stamps ??= heardStamps(tools, calendar)).get(id) ?? [];
     const events = tryQuery(query, 'chronicle.events', {}, null);
     for (const event of Array.isArray(events) ? events : []) {
         // A pulse rumour is unknown to {{user}} until the story's own world line named it (`heard`).
@@ -32,7 +34,7 @@ export function knownNews(state, tools, { hidden = hiddenNames(state), calendar 
             state: text(event.state), open: event.open === true, when: text(event.updatedText), ago: text(event.updatedAgo),
             place: cut(event.place, 80), factions: cut(event.factionsText, 160),
             placeId: placeIdOf(ids, event.place), factionIds: (Array.isArray(event.factions) ? event.factions : []).map(entry => text(entry?.id)).filter(Boolean),
-            heard: stamps.get(text(event.id)) ?? [],
+            heard: stampsOf(text(event.id)),
             at: isInt(event.updated) ? event.updated : null, rev: isInt(event.rev) ? event.rev : 0,
         });
     }

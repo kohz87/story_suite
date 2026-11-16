@@ -16,7 +16,7 @@ const jobs = {
   'core/pace/party-pace.js': 'The party pace from members and transport.',
 };
 
-test('rows: one per file, sorted, with job, exports, internal imports, imported-by, lines and tests', () => {
+test('rows: one per file, sorted, with job, exports, internal imports, imported-by and tests', () => {
   const { rows, problems } = buildMap({ files, readSource, jobs });
   assert.deepEqual(problems, []);
   assert.deepEqual(rows.map(r => r.path), files.slice().sort());
@@ -25,7 +25,7 @@ test('rows: one per file, sorted, with job, exports, internal imports, imported-
   assert.deepEqual(kind.exports, ['WALK_PACE', 'kindPace(kind)']);
   assert.deepEqual(kind.imports, []);
   assert.deepEqual(kind.importedBy, ['core/pace/index.js', 'core/pace/party-pace.js', 'tests/core/pace.test.js']);
-  assert.equal(kind.lines, 4);
+  assert.equal('lines' in kind, false);
   assert.deepEqual(kind.tests, ['tests/core/pace.test.js']);
   const party = rows.find(r => r.path === 'core/pace/party-pace.js');
   assert.deepEqual(party.imports, ['core/pace/kind-pace.js']);
@@ -33,11 +33,6 @@ test('rows: one per file, sorted, with job, exports, internal imports, imported-
   const idx = rows.find(r => r.path === 'core/pace/index.js');
   assert.deepEqual(idx.imports, ['core/pace/kind-pace.js', 'core/pace/party-pace.js']);
   assert.deepEqual(idx.tests, ['tests/core/pace.test.js']);
-});
-
-test('lines counts a file without a final newline the same way', () => {
-  const { rows } = buildMap({ files: ['a.js'], readSource: () => 'const a = 1;\nconst b = 2;', jobs: { 'a.js': 'x' } });
-  assert.equal(rows[0].lines, 2);
 });
 
 test('test files need no job; their job reads "Tests for" what they import', () => {

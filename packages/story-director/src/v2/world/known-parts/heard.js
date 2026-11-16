@@ -9,7 +9,7 @@ const PLACE_TYPES = new Set(['capture.place', 'scene.place']);
 const MAX_STAMPS = 5;
 
 /**
- * `Map(event id → [{ where, when, from }])`: one stamp per reply whose world line wrote or changed the event, oldest first (the last
+ * `Map(event id → [{ where, when, from }])`: one stamp per reply whose world line changed the event (a receipt marked `idle`: held, unchanged or already ended, gives none), oldest first (the last
  * `MAX_STAMPS`): `where` "in <the scene's place then>" ('' before any place), `when` the story date then ('' while the clock was unset),
  * `from` null; a reply with neither gives none. Empty without receipts.
  */
@@ -24,7 +24,7 @@ export function heardStamps(tools, calendar) {
         if (!receipt) continue;
         if (clockSet(receipt)) minutes = receipt.data.minutes;
         if (PLACE_TYPES.has(receipt.type) && text(receipt.data?.name)) place = cut(receipt.data.name, 80);
-        const id = receipt.type === 'capture.world' && isRecord(receipt.data) ? text(receipt.data.event) : '';
+        const id = receipt.type === 'capture.world' && isRecord(receipt.data) && receipt.data.idle !== true ? text(receipt.data.event) : '';
         if (!id) continue;
         const stamp = { where: place ? `in ${place}` : '', when: isInt(minutes) ? dateText(calendar, minutes, { time: false }) : '', from: null };
         if (!stamp.where && !stamp.when) continue;

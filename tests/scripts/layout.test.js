@@ -38,9 +38,9 @@ test('layout lookups: package roots, source roots, package name and folder', () 
 test('on today\'s tree the scripts give the same output as before (committed maps, same messages)', () => {
   const map = node('scripts/codemap/cli.mjs', ['--check']);
   assert.equal(map.status, 0, map.out);
-  assert.match(map.out, /code map: docs\/codemap\.md \d+ files, \d+ lines, up to date/);
+  assert.match(map.out, /code map: docs\/codemap\.md \d+ files, up to date/);
   for (const name of ['story-block', 'story-director', 'npc-state-delta']) {
-    assert.match(map.out, new RegExp(`code map: docs/codemap/${name}\\.md ${name} \\d+ files, \\d+ lines \\(\\d+ over the export limit\\), up to date`));
+    assert.match(map.out, new RegExp(`code map: docs/codemap/${name}\\.md ${name} \\d+ files \\(\\d+ over the export limit\\), up to date`));
   }
   assert.equal(map.out.trim().split('\n').length, 4);
   const globs = node('scripts/checks/package-test-globs.mjs');

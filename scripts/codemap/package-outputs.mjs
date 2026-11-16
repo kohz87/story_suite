@@ -25,7 +25,7 @@ export function packageOutputs({ files, readSource, readOptional, layout }) {
       mapPath: `docs/codemap/${pkg}.md`,
       markdown: result.markdown,
       problems: result.problems,
-      summary: `${pkg} ${result.rows} files, ${result.lines} lines (${result.backlog} over the export limit)`,
+      summary: `${pkg} ${result.rows} files (${result.backlog} over the export limit)`,
     };
   });
 }

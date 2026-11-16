@@ -1,6 +1,10 @@
 // Test stand-ins for the world links tests: NPC State Delta with faction dossiers, and the reply lines that write the data.
 
-export const DOSSIERS = { Mira: { faction: 'Guild' }, Brecht: { customFields: { affiliation: 'the guild, Chapel' } }, Wynn: { faction: 'Chapel' } };
+// The real npc.dossier shape: DOSSIER_FIELDS only (id, name, …, customFields as the owner typed the names); no faction field.
+export const DOSSIERS = {
+    Mira: { id: 'np_1', customFields: { Faction: 'Guild' } }, Brecht: { id: 'np_2', customFields: { Affiliation: 'the guild, Chapel' } },
+    Wynn: { id: 'np_3', customFields: { GROUP: 'Chapel' } }, Olo: { id: 'np_4', faction: 'Guild' },
+};
 export const delta = () => ({
     id: 'npc-state-delta', name: 'NPC State Delta (test stand-in)', version: '0.0.0-test', domains: {}, commands: {},
     queries: {

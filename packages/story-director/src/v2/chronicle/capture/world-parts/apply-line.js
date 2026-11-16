@@ -72,8 +72,8 @@ export function applyWorldLine(ctx, line) {
         const changes = changeEvent(chronicle, event, fields, { now, rev });
         const made = tagFactions(ctx, chronicle, fresh, event);
         prune(chronicle);
-        if (held) return { summary: heldSummary(event, changes) + madeText(made), narrate: false, data: { event: event.id, state: event.state, held: true } };
-        return { summary: (changes.length ? sentence(eventSummary(event, false)) : `World: ${event.name} had already ended.`) + madeText(made), narrate: false, data: { event: event.id, state: event.state } };
+        if (held) return { summary: heldSummary(event, changes) + madeText(made), narrate: false, data: { event: event.id, state: event.state, held: true, ...(changes.length ? {} : { idle: true }) } };
+        return { summary: (changes.length ? sentence(eventSummary(event, false)) : `World: ${event.name} had already ended.`) + madeText(made), narrate: false, data: { event: event.id, state: event.state, ...(changes.length ? {} : { idle: true }) } };
     }
 
     if (!found) {
@@ -100,7 +100,7 @@ export function applyWorldLine(ctx, line) {
     const changes = changeEvent(chronicle, event, fields, { now, rev });
     const made = tagFactions(ctx, chronicle, fresh, event);
     const gone = prune(chronicle);
-    if (held) return { summary: heldSummary(event, changes) + madeText(made), narrate: false, data: { event: event.id, state: event.state, held: true, ...(gone.length ? { pruned: gone } : {}) } };
-    if (!changes.length) return { summary: `World: ${event.name} is unchanged.${madeText(made)}`, narrate: false, data: { event: event.id, state: event.state } };
+    if (held) return { summary: heldSummary(event, changes) + madeText(made), narrate: false, data: { event: event.id, state: event.state, held: true, ...(changes.length ? {} : { idle: true }), ...(gone.length ? { pruned: gone } : {}) } };
+    if (!changes.length) return { summary: `World: ${event.name} is unchanged.${madeText(made)}`, narrate: false, data: { event: event.id, state: event.state, idle: true } };
     return { summary: sentence(eventSummary(event, false)) + madeText(made), narrate: false, data: { event: event.id, state: event.state, ...(gone.length ? { pruned: gone } : {}) } };
 }

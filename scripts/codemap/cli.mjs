@@ -28,7 +28,7 @@ const rootFiles = allFiles.filter(p => !layout.isPackageFile(p));
 const rootJobs = sourceRootJobs({ files: rootFiles.filter(layout.isSourceFile), readSource, readOptional, layout, repoRoot, explicit: jobs });
 const built = buildMap({ files: rootFiles, readSource, jobs: { ...rootJobs, ...jobs }, isLegacyFile: layout.isPackageFile });
 const problems = [...built.problems, ...packageScopeProblems(listRepoFiles(repoRoot), readSource, layout.isPackageFile)];
-const outputs = [{ mapPath: 'docs/codemap.md', markdown: renderMap(built.rows), summary: `${built.rows.length} files, ${built.rows.reduce((n, r) => n + r.lines, 0)} lines` }];
+const outputs = [{ mapPath: 'docs/codemap.md', markdown: renderMap(built.rows), summary: `${built.rows.length} files` }];
 for (const out of packageOutputs({ files: allFiles.filter(layout.isPackageFile), readSource, readOptional, layout })) {
   outputs.push(out);
   problems.push(...out.problems);

@@ -58,6 +58,14 @@ test('a later reply adds a stamp at its own place and time; deleting it takes th
     assert.equal(JSON.stringify(host.sdk.query('director.world')), after);
 });
 
+test('a reply that leaves the event unchanged gives no stamp', async t => {
+    const host = await worldHost({ extra: [delta()] });
+    t.after(() => host.close());
+    await host.send('Begin.', said('The harbour.', LINES));
+    await host.send('Then.', said('The market.', ['~ time June 4, 1200, 09:00 am', '~ place Market', '~ world Red Plague | state: ongoing']));
+    assert.deepEqual(host.sdk.query('director.world').news.find(n => n.name === 'Red Plague').heard.map(h => h.where), ['in Harbour']);
+});
+
 test('without NPC State Delta and without the atlas places the links are empty, not missing', async t => {
     const host = await worldHost();
     t.after(() => host.close());
