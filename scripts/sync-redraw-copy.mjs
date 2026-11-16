@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atEitherLayout } from './release/layout-paths.mjs';
 
 export const HEADER = '// generated from ui/runtime/redraw.js; do not edit.\n';
 
@@ -12,7 +13,8 @@ export function expectedCopy(root) {
 }
 
 export function syncRedrawCopy(root, check) {
-  const target = path.join(root, 'packages/story-block/src/v2/shared/redraw.js');
+  // named as of the old layout; found where the checkout has it (a missing copy is looked for in both places)
+  const target = path.join(root, atEitherLayout(root, 'packages/story-block/src/v2/shared/redraw.js'));
   const want = expectedCopy(root);
   if (check) {
     const have = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null;

@@ -40,3 +40,16 @@ test('a hand edit or a changed source fails the check', () => {
   fs.writeFileSync(path.join(dir, 'ui/runtime/redraw.js'), 'export const a = 2;\n');
   assert.equal(run(dir, '--check'), 1);
 });
+
+test('a checkout that has the copy at its layout-mapped home is checked there, and a stale one fails', () => {
+  const dir = makeRoot();
+  const moved = path.join(dir, 'ui/legacy/shared/redraw.js');
+  fs.mkdirSync(path.dirname(moved), { recursive: true });
+  fs.writeFileSync(moved, '// generated from ui/runtime/redraw.js; do not edit.\nexport const a = 1;\n');
+  assert.equal(run(dir, '--check'), 0);
+  fs.writeFileSync(moved, 'export const a = 2;\n');
+  assert.equal(run(dir, '--check'), 1);
+  assert.equal(run(dir), 0);
+  assert.equal(fs.existsSync(copy(dir)), false);
+  assert.equal(run(dir, '--check'), 0);
+});
