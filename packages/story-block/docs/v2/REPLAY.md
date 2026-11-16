@@ -433,6 +433,13 @@ pure too, but of the prefix as it is at the moment they are read, which is why a
 identity. Nothing new is stored for any of it (the span already holds the boundary), so there is no new replay input: what an owner writes from
 a cursor into its changes or `recorded` is already an input.
 
+## Anchored sets
+
+A set that depends on the number before it (SPEC §2.2 rule h, `ctx.anchored`) is stored as a `replace` with `was`, `period` and `roll`. Replay, in `ops/rebase.js` `fit` ahead of the
+counter rule, applies it as stored while the count holds `was` (so a reload, a swipe and an unchanged Re-read give what was live), and otherwise at its offset in whole periods from `was`
+(`ops/anchored.js`), clamped by `roll`. The result depends only on the stored op and the replayed value, so a reload after an edit, a middle delete or an edited Re-read equals live. A date
+is not anchored (`ctx.absolute`) and stays exact. The rule is not named in `rulesSignature()` yet: no stored op carries the mark, so no kept answer differs; the module that first uses it adds it.
+
 ## Deferred domains
 
 A deferred domain (LIFECYCLE.md) is not in a chat until a reply writes it, so every later write of it is a leaf change under the
