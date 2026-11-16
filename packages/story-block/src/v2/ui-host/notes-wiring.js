@@ -3,7 +3,7 @@
 import { createReplyNotes } from '../reply-notes.js';
 import { CORE_FEATURE } from '../features.js';
 
-export function createNotesWiring({ runtime, ctx, doc, sdk, events, getMounts }) {
+export function createNotesWiring({ runtime, ctx, doc, sdk, events, getMounts, onForget }) {
     const rereadFn = typeof sdk.reread === 'function' ? index => sdk.reread(index)
         : typeof runtime.turn?.reread === 'function' ? index => runtime.turn.reread(index) : null;
     const notes = createReplyNotes({
@@ -24,6 +24,7 @@ export function createNotesWiring({ runtime, ctx, doc, sdk, events, getMounts })
                 return last?.outcome === 'failed' || last?.outcome === 'timeout';
             } catch { return false; }
         },
+        onForget,
         onChanged: index => getMounts()?.card?.refresh?.(index, { force: true }),
     });
     return notes;
