@@ -15,6 +15,7 @@ import { packPlace } from '../world.js';
  * region wins over the given one: the scene's region is the wider area the story is in ("River
  * Confederacy"), the pack's is where the place is ("Bluewatch Village"). A region that only
  * repeats the given one gives way to the pack's, so a place saved before this rule is mended.
+ * A region set on purpose (a landmark line's, here; the reader's, commands.js) is marked `regionBy` on the place, and the mend leaves it.
  */
 export function ensurePlace(atlas, ctx, pack, name, { discovered = true, region, kind, layer, coords = null, aliases = [], overwrite = false } = {}) {
     const given = cleanName(name);
@@ -29,7 +30,7 @@ export function ensurePlace(atlas, ctx, pack, name, { discovered = true, region,
         const first = (given, packs) => (overwrite && given !== undefined ? given : given || packs || '');
         place = {
             id, name: display, region: overwrite ? first(region, fromPack?.region) : fromPack?.region || region || '',
-            kind: first(kind, fromPack?.kind), layer: first(layer, fromPack?.layer), discovered, rev,
+            ...(overwrite && region ? { regionBy: 'landmark' } : {}), kind: first(kind, fromPack?.kind), layer: first(layer, fromPack?.layer), discovered, rev,
         };
         if (coords && !fromPack) Object.assign(place, { x: Math.round(coords.x), y: Math.round(coords.y) });
         atlas.places[id] = place;
@@ -47,7 +48,15 @@ export function ensurePlace(atlas, ctx, pack, name, { discovered = true, region,
         }
         for (const [field, given] of [['region', region], ['kind', kind], ['layer', layer]]) {
             let value = given;
-            if (!overwrite && field === 'region' && fromPack?.region) {
+            if (overwrite && field === 'region' && given && place.regionBy !== 'landmark' && place.regionBy !== 'reader') {
+                place.regionBy = 'landmark';
+                changed = true;
+            }
+            if (overwrite && field === 'region' && given === '' && place.regionBy) {
+                delete place.regionBy;   // cleared on purpose: not a deliberate region any more
+                changed = true;
+            }
+            if (!overwrite && field === 'region' && fromPack?.region && !place.regionBy) {
                 value = fromPack.region;
                 // A region that only repeats the scene's is the scene's word, not the reader's: mend it.
                 if (place.region && place.region === given && place.region !== value) {

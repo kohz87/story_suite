@@ -52,6 +52,5 @@ export function packageMap({ pkg, prefix = `packages/${pkg}/`, files, readSource
     problems: [...built.problems, ...featureOut.problems].sort(),
     backlog: built.overLimit.length,
     rows: rows.length,
-    lines: rows.reduce((n, r) => n + r.lines, 0),
   };
 }

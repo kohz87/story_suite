@@ -16,7 +16,7 @@ export function youGrammar(label = '', gear = false) {
 export const CORE_KINDS = Object.freeze({
     item: Object.freeze({ grammar: '+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)' }),
     coin: Object.freeze({ grammar: '+ coin 30 | from: who (- coin 5 | to: who when paid; whenever {{user}} is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.' }),
-    place: Object.freeze({ grammar: '~ place Name | kind: settlement|wild|dungeon|… | region: wider area | with: who came along (the rest stay behind)' }),
+    place: Object.freeze({ grammar: '~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)' }),
     // `after: ['place']`: a move leaves behind everyone it does not bring (scene.js setPlace), so a reply's present lines run behind its place line,
     // whatever order they were written in (registry captureEntry, capture-flow linesInOrder): the people the story adds at the new place stay.
     present: Object.freeze({ grammar: '+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)', after: Object.freeze(['place']) }),
