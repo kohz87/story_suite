@@ -86,8 +86,14 @@ test('test files are not held to the export limit', () => {
   assert.deepEqual(problems, []);
 });
 
+test('a test file with its own job sentence keeps it instead of the generated one', () => {
+  const { rows, problems } = buildMap({ files, readSource, jobs: { ...jobs, 'tests/core/pace.test.js': 'Pins the daily pace of each kind.' } });
+  assert.equal(rows.find(r => r.path === 'tests/core/pace.test.js').job, 'Pins the daily pace of each kind.');
+  assert.deepEqual(problems, []);
+});
+
 const runFiles = SRC => {
-  const jobs = Object.fromEntries(Object.keys(SRC).filter(p => !p.startsWith('tests/') && /\.(?:m?js|cjs|sh|bash|py)$/.test(p)).map(p => [p, 'A job.']));
+  const jobs = Object.fromEntries(Object.keys(SRC).filter(p => !p.startsWith('tests/') && /\.(?:m?js|cjs|html|sh|bash|py)$/.test(p)).map(p => [p, 'A job.']));
   return buildMap({ files: Object.keys(SRC), readSource: p => SRC[p], jobs }).problems;
 };
 
@@ -103,7 +109,7 @@ test('a source file in an unused language is a problem; allowed scripts and plai
     'scripts/y.rb: this language is not used in this repo',
   ]);
   assert.deepEqual(runFiles({ 'scripts/run': '#!/bin/sh\necho\n' }), ['scripts/run: files need an extension here']);
-  const ok = { 'scripts/a.sh': 'echo 1\n', 'scripts/b.bash': 'echo 1\n', 'scripts/c.py': 'print(1)\n', '.gitignore': 'x\n' };
+  const ok = { 'scripts/a.sh': 'echo 1\n', 'scripts/b.bash': 'echo 1\n', 'scripts/c.py': 'print(1)\n', 'ui/dev/h.html': '<p>x</p>\n', '.gitignore': 'x\n' };
   assert.deepEqual(runFiles(ok), []);
 });
 

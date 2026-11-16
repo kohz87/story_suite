@@ -45,8 +45,28 @@ jobs:
         run: node scripts/codemap/cli.mjs --check
       - name: Every package test file is run by its npm test
         run: node scripts/checks/package-test-globs.mjs
+      - name: No tracked node_modules
+        run: node scripts/checks/no-tracked-deps.mjs
       - name: Script tests
         run: npm run test:scripts
+
+  ui:
+    runs-on: ubuntu-latest
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install root dev dependencies
+        run: npm ci
+      - name: Install the browser for the rendered checks
+        run: npx playwright install --with-deps chromium
+      # CI=true makes a missing browser a failure, so the rendered sweeps never skip here.
+      - name: UI tests
+        run: npm run test:ui
 
   story-block:
     runs-on: ubuntu-latest
@@ -218,5 +238,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      # Story Block's rendered tests import "playwright"; Node finds it in the root node_modules.
+      - name: Install the root packages (the browser package)
+        run: npm ci
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
       - name: Cross-package suite tests (a skip fails the job)
         run: bash scripts/ci/suite-tests.sh

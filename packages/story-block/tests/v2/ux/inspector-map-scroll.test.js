@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 const SOURCES = [
     '../../../src/v2/screens/inspector.js',
     '../../../src/v2/view/widgets/map.js',
+    '../../../src/v2/view/widgets/map-parts/widget.js',
     '../../../src/v2/view/widgets/listcard.js',
     '../../../src/v2/view/widgets/dialog.js',
 ];

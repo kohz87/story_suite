@@ -1,6 +1,7 @@
 // Story Suite v2: the held-module check of a Re-read, moved out of createCaptureFlow unchanged: the first module held back (dormant, or a restore in
 // progress) that the reply carries lines, receipts or ops of.
 import { readRecord } from '../persist.js';
+import { heldWhy } from '../assist/safety.js';
 
 /**
  * Re-read (F40): reads reply `index`'s <Changes> block again, as its shown swipe has it now, and

@@ -64,3 +64,35 @@ test('the command exits 1 and names the file on a fixture root', () => {
     assert.match(r.stderr, /nsd\/tests\/v2\/break\/nested\/new\.test\.js is not run/);
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
+
+test('Node default test names (.mjs, .cjs, -test, _test, test-*, test.js, files under test/) are all enumerated', () => {
+  const script = 'node --test "tests/*.test.js"';
+  const files = ['tests/new.test.mjs', 'tests/a.test.cjs', 'tests/x-test.js', 'tests/y_test.mjs', 'tests/test-z.js', 'tests/test.js', 'test/any.js', 'tests/helper.js', 'tests/data.json'];
+  const dir = pkg(script, files);
+  try {
+    assert.deepEqual(unrunTests(dir, 'p').map(e => e.split(' ')[0]),
+      ['p/test/any.js', 'p/tests/a.test.cjs', 'p/tests/new.test.mjs', 'p/tests/test-z.js', 'p/tests/test.js', 'p/tests/x-test.js', 'p/tests/y_test.mjs']);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('an unquoted ** is expanded by the shell like one level; a nested test is then unrun, a shallow one is run', () => {
+  const dir = pkg('node --test tests/*.test.js tests/v2/**/*.test.js', ['tests/a.test.js', 'tests/v2/break/b.test.js', 'tests/v2/break/nested/new.test.js']);
+  try {
+    assert.deepEqual(unrunTests(dir, 'p'), ["p/tests/v2/break/nested/new.test.js is not run by the package's npm test"]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a quoted ** stays a recursive glob for Node', () => {
+  const dir = pkg('node --test "tests/**/*.test.js"', ['tests/a.test.js', 'tests/v2/break/nested/new.test.js']);
+  try {
+    assert.deepEqual(unrunTests(dir, 'p'), []);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('Node options between --test and the paths, and option values, are skipped', () => {
+  const script = 'node --import ./setup.mjs --test --test-reporter=dot --test-reporter dot --import ./other.mjs "tests/*.test.js"';
+  const dir = pkg(script, ['tests/a.test.js', 'tests/v2/b.test.js']);
+  try {
+    assert.deepEqual(unrunTests(dir, 'p'), ["p/tests/v2/b.test.js is not run by the package's npm test"]);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});

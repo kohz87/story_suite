@@ -24,7 +24,7 @@ test('install folder has SillyTavern-discoverable one-level layout', () => {
     assert.deepEqual(configured, rootJs, 'active runtime inventory must match every root JS module exactly');
     for (const name of configured) assert.ok(fs.existsSync(path.join(root, name)), `${name} must be directly inside npc_state_delta/`);
     for (const name of config.modules.map(module => module.path).filter(file => file.includes('/'))) {
-        assert.match(name, /^src\//, `${name}: a nested runtime module lives under src/`);
+        assert.match(name, /^(?:src|[a-z0-9-]+-parts)\//, `${name}: a nested runtime module lives under src/ or a root file's <name>-parts/`);
         assert.ok(fs.existsSync(path.join(root, name)), `${name} must exist`);
     }
     for (const name of ['manifest.json', 'runtime-modules.json', 'style.css', 'README.md', 'CHANGELOG.md']) {
@@ -109,8 +109,8 @@ test('validation and packaging accept runtime modules declared under src/', () =
 
 test('validation and packaging still refuse runtime modules outside the top level and src/', () => {
     for (const [entry, expected] of [
-        [{ path: 'lib/stray.js', role: 'stray', required: true }, /only top-level or src\/ JS modules/],
-        [{ path: 'src/../stray.js', role: 'stray', required: true }, /only top-level or src\/ JS modules/],
+        [{ path: 'lib/stray.js', role: 'stray', required: true }, /only top-level, src\/ or <name>-parts\/ JS modules/],
+        [{ path: 'src/../stray.js', role: 'stray', required: true }, /only top-level, src\/ or <name>-parts\/ JS modules/],
         [{ path: 'src/missing.js', role: 'missing', required: true }, /active runtime module missing: src\/missing\.js/],
     ]) {
         const copy = scratchRepository();

@@ -16,8 +16,6 @@
 // The implementation is split under src/v2/ops/: paths, plain-JSON helpers, freezing, diff, apply,
 // counters, rebase and checkOps. This file keeps its path and re-exports every public name.
 
-import { isId } from './check.js';
-
 export { escapeKey, parsePath, valueAt } from './ops/paths.js';
 export { isJson, clone, equal } from './ops/json.js';
 export { deepFreeze, isDeepFrozen, frozenCopy } from './ops/freeze.js';

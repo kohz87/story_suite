@@ -7,8 +7,8 @@ import { resolveSpecifier } from './resolve-spec.mjs';
 
 export const MAX_EXPORTS = 4;
 const MODULE_EXT = /\.(?:m?js|cjs)$/;
-// Parsed (or refused) languages, plus style and the allowed script types, which are listed but not parsed.
-const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|sh|bash|py|ya?ml)$/;
+// Parsed (or refused) languages, plus style, the UI harness page (html) and the allowed script types, which are listed but not parsed.
+const MAPPED_EXT = /\.(?:m?js|cjs|jsx|tsx|ts|mts|cts|css|html|sh|bash|py|ya?ml)$/;
 const REFUSED_EXT = /\.(?:jsx|tsx|ts|mts|cts)$/;
 // Makefile and Dockerfile hold build commands: they get a job row (no exports parsed). The rest are only size-checked.
 const BUILD_FILES = new Set(['Makefile', 'Dockerfile']);
@@ -93,7 +93,8 @@ export function buildMap({ files, readSource, jobs }) {
   for (const row of byPath.values()) {
     const importerIsTest = isTestFile(row.path);
     if (importerIsTest) {
-      row.job = row.imports.length > 0 ? `Tests for ${row.imports.join(', ')}.` : 'Tests.';
+      const own = (jobs[row.path] ?? '').trim();
+      row.job = own || (row.imports.length > 0 ? `Tests for ${row.imports.join(', ')}.` : 'Tests.');
     }
     for (const targetPath of row.imports) {
       const target = byPath.get(targetPath);
