@@ -38,6 +38,7 @@ const ITEMS = [
   ['Sealed letter', 'quest', 'quest', '', 1, '', 1, 0, 0, '—', 0, 'Addressed to the Harbour Master, sealed in blue wax. Do not open.', 'From the guild clerk this turn · quest “Word to the harbour”'],
   ['Guild writ', 'quest', 'quest', '', 1, '', 0, 0, 0, '—', 0, 'Permits the party to take guild contracts in Bluewatch.', 'Guild Office · Goldwane 13'],
 ];
+const SACK = ['Sack of grain', 'goods', 'goods', '', 1, '', 1, 0, 8, '5 silver', 0, 'A sack of grain for the road.', 'Bought at the east quay · this turn'];
 const ANVIL = ['Smith’s anvil', 'goods', 'goods', '', 1, '', 1, 0, 50, '8 silver', 0, 'A small travelling anvil, far too heavy.', 'Taken from the guild smith · this turn'];
 const FILTERS = ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'];
 const ASSETS = {
@@ -90,8 +91,9 @@ function makeLoad(items, limit) {
   return { value, limit, level, breakdown };
 }
 
-export function bagFixture({ rpg = true, over = false } = {}) {
-  const rows = over ? [...ITEMS, ANVIL] : ITEMS;
+// load: 0 light, 1 over (the anvil), 2 heavy (the sack); `over` is the older flag for load 1.
+export function bagFixture({ rpg = true, over = false, load: loadStep = 0 } = {}) {
+  const rows = over || loadStep === 1 ? [...ITEMS, ANVIL] : loadStep === 2 ? [...ITEMS, SACK] : ITEMS;
   const items = rows.map(r => makeItem(r, rpg));
   const inFilter = (it, key) => (key === 'worn' ? Boolean(it.wornBy) : !it.wornBy && (key === 'all' || it.kind === key));
   const load = rpg ? makeLoad(items, 192) : null;

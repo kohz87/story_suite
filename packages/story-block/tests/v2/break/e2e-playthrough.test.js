@@ -33,7 +33,7 @@ const EXPECTED = { LIMITED: [17, 18] };   // the names check refuses Elara (over
 
 // One reply each: [player text, story, change lines]. Steps are numbered from 1.
 const STEPS = [
-    ['We look around the guild office.', 'Dust hangs in the lamplight of the Guild office. A bell rings over the door.', ['~ you rank: unregistered | wearing: oilskin coat, boots | condition: rested', '+ item Bedroll | qty: 1', '+ item Knife | qty: 1', '+ present Sister Temiwa']],
+    ['We look around the guild office.', 'Dust hangs in the lamplight of the Guild office. A bell rings over the door.', ['~ you rank: unregistered | outfit: oilskin coat, boots | condition: rested', '+ item Bedroll | qty: 1', '+ item Knife | qty: 1', '+ present Sister Temiwa']],
     ['I sign the ledger.', 'Temiwa watches as Astra signs the Guild ledger in a careful hand.', [DM('guild-membership', 'signed the ledger', 'register'), '~ npc Temiwa | trust: +3 | via: help']],
     ['I ask what she needs.', 'The clerk wants the cellar cleared of rats.', ['+ quest Granary Rats — the granary cellar is overrun | goal: clear the cellar | giver: Sir Lothar | reward: 5 silver | step: take the key']],
     ['We take the key.', 'The key is cold and heavy.', ['~ quest Granary Rats | step: go down to the cellar', '- item Knife | qty: 1', '+ item Rusty Knife | qty: 1', '~ place Bluewatch Village | kind: settlement']],

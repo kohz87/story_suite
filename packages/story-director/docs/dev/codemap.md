@@ -73,3 +73,6 @@ Generated 2026-11-07.
 - `src/v2/chronicle/days.js` → `src/v2/chronicle/days/`: `shared.js` constants and text; `state.js` state, settings and receipts; `facts.js` day facts; `summary.js` summary lines and output; `validate.js` validation.
 - `src/v2/world/events-widget.js`: The Journal's "Show all N events" button (widget `story-director.journal-events`): loads one day's whole event list on tap, folds on the next.
 - `src/v2/world/elsewhere.js`: the World screen's Leads data (heard hooks) and the shared section fold (widget `story-director.fold`: chevron, count, open state remembered per chat on this device).
+
+## tests/v2/module/
+- `tests/v2/module/merge-isolation.test.js`: the merged beforeGenerate and afterCapture hooks keep the other parts' answers when one part throws, flag `suite.isolatedApply` on; off, they reject as before.
