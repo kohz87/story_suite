@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import path from 'node:path';
 import { listTracked, loadLayoutRules, main, planLayout } from '../../../scripts/codemod/cli.mjs';
-import { planProblems } from '../../../scripts/codemod/plan.mjs';
-import { ruleKey } from '../../../scripts/codemod/rules.mjs';
+import { buildPlan, planProblems } from '../../../scripts/codemod/plan.mjs';
+import { matchPath, ruleKey } from '../../../scripts/codemod/rules.mjs';
 
 const root = path.resolve(import.meta.dirname, '../../..');
 const AREAS = ['core', 'director', 'legacy-ui', 'packs', 'people', 'rpg', 'scene-inventory', 'shared'];
@@ -81,12 +82,94 @@ test('plan --area prints that area and still reports a file no rule covers', asy
   assert.match(badErrors.text, /no rule covers packages\/unknown\/file\.js/);
 });
 
+test('a delete still imported by a kept file fails the plan; a deleted importer does not', () => {
+  const ruleSets = [{
+    area: 'core',
+    scope: ['packages'],
+    rules: [
+      { from: 'packages/a/keep.js', to: 'core/keep.js' },
+      { from: 'packages/a/also-kept.js', to: 'core/also-kept.js' },
+      { from: 'packages/a/deleted.js', to: null },
+      { from: 'packages/a/dropped.test.js', to: null },
+    ],
+  }];
+  const files = ['packages/a/keep.js', 'packages/a/also-kept.js', 'packages/a/deleted.js', 'packages/a/dropped.test.js'];
+  const sources = new Map([
+    ['packages/a/keep.js', "import { value } from './deleted.js';\n"],
+    ['packages/a/also-kept.js', "export { value } from './deleted.js';\n"],
+    ['packages/a/dropped.test.js', "import { value } from './deleted.js';\n"],
+  ]);
+  const plan = buildPlan(files, ruleSets);
+  assert.deepEqual(planProblems(plan, { files: new Set(files), readFile: file => sources.get(file) ?? '' }), [
+    'plan deletes packages/a/deleted.js, still imported by packages/a/also-kept.js, packages/a/keep.js',
+  ]);
+});
+
+test('dead rules are warnings in the plan output and do not fail it', async () => {
+  const sets = loadLayoutRules();
+  const all = samples(sets);
+  const dead = sets.find(set => set.area === 'core').rules[0];
+  const omitted = sample(dead, 'core-0');
+  const stdout = sink();
+  const stderr = sink();
+  const code = await main(['plan', '--all'], {
+    listFiles: async () => all.filter(file => file !== omitted),
+    stdout,
+    stderr,
+  });
+  assert.equal(code, 0, stderr.text);
+  assert.match(stdout.text, /dead rules \(1 warning\):\n  core: packages\/story-block\/src\/v2\/runtime matches no tracked file/);
+});
+
+test('the rules delete only manifests dead at the move PR and keep later removals movable', () => {
+  const rules = loadLayoutRules().flatMap(set => set.rules);
+  const deletes = rules.filter(rule => rule.to === null).map(rule => rule.from).sort();
+  assert.deepEqual(deletes, [
+    'packages/npc-state-delta/package.json',
+    'packages/story-block/package.json',
+    'packages/story-director/package.json',
+  ]);
+  const target = file => matchPath(rules, file).to;
+  assert.equal(target('packages/story-block/index.js'), 'core/boot/boot.js');
+  assert.equal(target('packages/story-director/index.js'), 'ui/legacy/director/index.js');
+  assert.equal(target('packages/story-director/src/v2/module/shared.js'), 'ui/legacy/director/module/shared.js');
+  assert.equal(target('packages/story-director/tests/vendor/story-block/src/v2/store.js'), 'tests/director/vendor/story-block/src/v2/store.js');
+  assert.equal(target('packages/npc-state-delta/tests/vendor/story-block/src/v2/store.js'), 'tests/people/vendor/story-block/src/v2/store.js');
+  for (const file of [
+    'packages/npc-state-delta/story-block-tabs.js',
+    'packages/npc-state-delta/runtime-suite.js',
+    'packages/npc-state-delta/suite.js',
+    'packages/npc-state-delta/suite-handshake.js',
+    'packages/npc-state-delta/branch-core.js',
+    'packages/npc-state-delta/checkpoint-pack.js',
+    'packages/npc-state-delta/runtime-persist.js',
+    'packages/npc-state-delta/runtime-branch.js',
+    'packages/npc-state-delta/runtime-reconcile.js',
+    'packages/npc-state-delta/src/storysuite-participant/timeline.js',
+  ]) assert.match(target(file), /^modules\/people\/legacy\//, `${file} must move to legacy`);
+});
+
+test('longer people prefixes win over their broader catch-alls', () => {
+  const rules = loadLayoutRules().flatMap(set => set.rules);
+  const cases = [
+    ['packages/npc-state-delta/core-portrait.js', 'modules/people/portrait/core-portrait.js'],
+    ['packages/npc-state-delta/core-mechanics.js', 'modules/people/core/core-mechanics.js'],
+    ['packages/npc-state-delta/identity.js', 'modules/people/core/identity.js'],
+    ['packages/npc-state-delta/style-settings.css', 'modules/people/legacy/style-settings.css'],
+    ['packages/npc-state-delta/runtime-scan-helpers.js', 'modules/people/calls/runtime-scan-helpers.js'],
+    ['packages/npc-state-delta/runtime-entry.js', 'modules/people/runtime/runtime-entry.js'],
+    ['packages/npc-state-delta/story-block-tabs.js', 'modules/people/legacy/story-block-tabs.js'],
+    ['packages/npc-state-delta/branch-core.js', 'modules/people/legacy/branch-core.js'],
+  ];
+  for (const [file, expected] of cases) assert.equal(matchPath(rules, file).to, expected, file);
+});
+
 test('the tracked tree on main is covered once with no plan problems', () => {
   const sets = loadLayoutRules();
   const files = listTracked(root);
   const { plan, counts } = planLayout(files, sets);
   assert.deepEqual(plan.unmatched, []);
-  assert.deepEqual(planProblems(plan), []);
+  assert.deepEqual(planProblems(plan, { files: new Set(files), readFile: file => fs.readFileSync(path.join(root, file), 'utf8') }), []);
   assert.ok(files.length > 6000, `expected the real tree, found ${files.length} files`);
   for (const area of AREAS) assert.ok(counts[area].moves + counts[area].deletes > 0, `${area} planned nothing`);
 });

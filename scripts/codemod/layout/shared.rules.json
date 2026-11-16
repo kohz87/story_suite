@@ -51,8 +51,6 @@
     { "from": "packages/npc-state-delta/package.json", "to": null },
 
     { "from": "packages/story-block/index.js", "to": "core/boot/boot.js" },
-    { "from": "packages/story-director/index.js", "to": null },
-    { "from": "packages/story-director/tests/vendor", "to": null },
-    { "from": "packages/npc-state-delta/tests/vendor", "to": null }
+    { "from": "packages/story-director/index.js", "to": "ui/legacy/director/index.js" }
   ]
 }

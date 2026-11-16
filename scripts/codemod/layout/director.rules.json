@@ -30,9 +30,9 @@
     { "from": "packages/story-director/src/v2/arc", "to": "modules/arc" },
     { "from": "packages/story-director/src/v2/threads*", "to": "modules/time/tracker/threads*" },
     { "from": "packages/story-director/src/v2/screens", "to": "ui/legacy/director/screens" },
-    { "from": "packages/story-director/src/v2/module", "to": null },
-    { "from": "packages/story-director/src/v2/module-parts", "to": null },
-    { "from": "packages/story-director/src/v2/module.js", "to": null },
+    { "from": "packages/story-director/src/v2/module", "to": "ui/legacy/director/module" },
+    { "from": "packages/story-director/src/v2/module-parts", "to": "ui/legacy/director/module-parts" },
+    { "from": "packages/story-director/src/v2/module.js", "to": "ui/legacy/director/module.js" },
 
     { "from": "packages/story-director/tests/v2/tracker", "to": "tests/modules/time/tracker" },
     { "from": "packages/story-director/tests/v2/time", "to": "tests/modules/time" },

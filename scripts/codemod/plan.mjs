@@ -1,6 +1,7 @@
-// Turns tracked files plus rule sets into a move/delete plan and refuses unmatched files, collisions and clobbered targets.
+// Turns tracked files plus rule sets into a move/delete plan and refuses unmatched files, collisions, clobbered targets and live imports of deletes.
 import { execFileSync } from 'node:child_process';
 import { matchPath, ruleKey } from './rules.mjs';
+import { resolveSpecifier, scanSpecifiers } from './specifiers.mjs';
 
 /** Lists the repo's tracked files (sorted) with `git ls-files`. */
 export function trackedFiles(root) {
@@ -9,11 +10,12 @@ export function trackedFiles(root) {
 }
 
 /**
- * Builds { moves: [{from,to}], deletes: [path], unmatched: [path], collisions: [{to,sources}], existing: [{from,to}], chains: [{from,to}], duplicates: [{key,areas}] }.
+ * Builds { moves: [{from,to}], deletes: [path], unmatched: [path], deadRules: [{area,from}], collisions: [{to,sources}], existing: [{from,to}], chains: [{from,to}], duplicates: [{key,areas}] }.
  * A "duplicate" is one rule name (`from`, a trailing * ignored) given by two rule sets; order never decides, so it fails the plan.
  * A "chain" is a move whose target is another move's source (a rename chain or a swap); `git mv` would fail on it.
  * A file is "unmatched" when no rule covers it and it lies under a rule file's `scope` (any file, when no rule
- * file gives a scope). Files whose target equals their own path are not moves.
+ * file gives a scope). A "dead rule" matches no tracked file; it is a warning, not a failure. Files whose target
+ * equals their own path are not moves.
  */
 export function buildPlan(files, ruleSets) {
   const rules = ruleSets.flatMap(set => set.rules);
@@ -21,11 +23,16 @@ export function buildPlan(files, ruleSets) {
   const everything = scopes.some(scope => scope === null);
   const prefixes = scopes.flatMap(scope => scope ?? []);
   const inScope = file => everything || prefixes.some(prefix => file === prefix || file.startsWith(prefix.endsWith('/') ? prefix : `${prefix}/`));
-  const plan = { moves: [], deletes: [], unmatched: [], collisions: [], existing: [], chains: [], duplicates: [] };
+  const plan = { moves: [], deletes: [], unmatched: [], deadRules: [], collisions: [], existing: [], chains: [], duplicates: [] };
   const owners = new Map();
   for (const set of ruleSets) for (const key of new Set(set.rules.map(ruleKey))) owners.set(key, [...(owners.get(key) ?? []), set.area]);
   for (const [key, areas] of owners) if (areas.length > 1) plan.duplicates.push({ key, areas });
   if (plan.duplicates.length) return plan;
+  for (const set of ruleSets) {
+    for (const rule of set.rules) {
+      if (!files.some(file => matchPath([rule], file))) plan.deadRules.push({ area: set.area, from: rule.from });
+    }
+  }
   for (const file of files) {
     const hit = matchPath(rules, file);
     if (!hit) { if (inScope(file)) plan.unmatched.push(file); continue; }
@@ -45,15 +52,43 @@ export function buildPlan(files, ruleSets) {
   return plan;
 }
 
-/** Lists what is wrong with a plan, as sentences; an empty list means it may be applied. */
-export function planProblems(plan) {
+/**
+ * Lists what is wrong with a plan, as sentences; an empty list means it may be applied. With `{ files, readFile }`,
+ * also refuses a delete that a kept JS file still imports. A planned-delete importer is ignored: its tests go with it.
+ */
+export function planProblems(plan, { files = null, readFile = null } = {}) {
   return [
     ...plan.duplicates.map(item => `rule "${item.key}" is given by more than one rule file (${item.areas.join(', ')})`),
     ...plan.unmatched.map(file => `no rule covers ${file}`),
     ...plan.collisions.map(item => `${item.sources.join(', ')} all move to ${item.to}`),
     ...plan.chains.map(move => `${move.from} moves to ${move.to}, which is itself moved (a rename chain or swap)`),
     ...plan.existing.map(move => `${move.from} would overwrite the existing ${move.to}`),
+    ...deletedImportProblems(plan, files, readFile),
   ];
+}
+
+/** Finds imports of a deleted file in files the plan keeps, grouped by the deleted target. */
+function deletedImportProblems(plan, files, readFile) {
+  if (!files || !readFile || !plan.deletes.length) return [];
+  const allFiles = new Set(files);
+  const deleted = new Set(plan.deletes);
+  const importers = new Map();
+  for (const file of files) {
+    if (deleted.has(file) || !/\.(?:mjs|js)$/.test(file)) continue;
+    let source;
+    try { source = readFile(file); } catch { continue; }
+    const scan = scanSpecifiers(source);
+    if (scan.error) continue;
+    for (const item of scan.specs) {
+      if (item.kind === 'url') continue;
+      const hit = resolveSpecifier(file, item.spec, allFiles);
+      if (!hit || !deleted.has(hit.target)) continue;
+      importers.set(hit.target, [...(importers.get(hit.target) ?? []), file]);
+    }
+  }
+  return [...importers]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([target, from]) => `plan deletes ${target}, still imported by ${[...new Set(from)].sort().join(', ')}`);
 }
 
 /**

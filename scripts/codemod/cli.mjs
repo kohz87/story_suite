@@ -1,4 +1,4 @@
-// Plans every B3 layout area from the rule files: prints per-area move/delete counts and the unmatched list.
+// Plans every B3 layout area from the rule files: per-area counts, the unmatched list and dead-rule warnings.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -124,7 +124,13 @@ export async function main(argv = process.argv.slice(2), options = {}) {
   } else {
     stdout.write('unmatched: none\n');
   }
-  const problems = planProblems(plan);
+  if (plan.deadRules.length) {
+    stdout.write(`dead rules (${plan.deadRules.length} warning${plan.deadRules.length === 1 ? '' : 's'}):\n`);
+    for (const rule of plan.deadRules) stdout.write(`  ${rule.area}: ${rule.from} matches no tracked file\n`);
+  } else {
+    stdout.write('dead rules: none\n');
+  }
+  const problems = planProblems(plan, { files: new Set(listed), readFile: file => fs.readFileSync(path.join(root, file), 'utf8') });
   if (problems.length) {
     stderr.write(`plan problems (${problems.length}):\n`);
     for (const problem of problems) stderr.write(`  ${problem}\n`);
