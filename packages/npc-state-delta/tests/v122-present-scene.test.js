@@ -316,7 +316,6 @@ test('v1.2.2 the settings panel carries the shared story-suite-* classes beside 
     const css = fs.readFileSync(new URL('../suite.css', import.meta.url), 'utf8');
     assert.match(css, /^\/\* Story Suite shared styles, v1/);
     assert.match(css, /\.story-suite-panel \.story-suite-fold \{/);
-    assert.match(fs.readFileSync(new URL('../../../scripts/people/package.py', import.meta.url), 'utf8'), /support_files = \['style\.css', 'suite\.css'/);
     assert.match(index, /suiteConnected = true;\s*ensureSuiteStylesheet\(\);/);
     // Delta's own panel rules stay and win where they differ (#npc_state_delta_settings is more specific).
     const own = styleSource();

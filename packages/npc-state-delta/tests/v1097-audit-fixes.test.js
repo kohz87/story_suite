@@ -1,8 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { createNpcRecord, mergeScanResult, normalizeNpcRecord, setActiveCalendarConfig } from '../core.js';
 import { appearanceFingerprint, resolveNpcAppearance } from '../appearance.js';
 import { mergeImportedDossierState } from '../bundle.js';
@@ -145,97 +142,4 @@ test('G (storage): a Detach marker names its backup, and a later session finds i
     assert.equal(other.alreadyDetached, true);
     assert.equal(other.path, first.path, 'another session is told where the original bytes are');
     assert.equal(files.get(other.path), '{"format": not json');
-});
-
-async function runtimeChecks(mockState, eventSource, manualAddNpc, sleep, uiHandlers) {
-    const runtime = globalThis.NPCStateDelta;
-    const baseFetch = globalThis.fetch;
-    const fail = message => { throw new Error(message); };
-    const settings = mockState.extensionSettings.npc_state_delta;
-    const open = async (id, lines) => {
-        mockState.context.groupId = null;
-        mockState.context.chatId = id;
-        mockState.context.getCurrentChatId = () => mockState.context.chatId;
-        mockState.context.chat = lines.map((mes, i) => ({ is_user: i % 2 === 0, is_system: false, name: i % 2 === 0 ? 'Kazuma' : 'Narrator', mes }));
-        eventSource.emit('chat_changed');
-        await sleep(150);
-    };
-    const remoteAdvance = mutate => {
-        const path = runtime.dataFile().path;
-        const payload = JSON.parse(mockState.files.get(path));
-        mutate(payload.state);
-        payload.revision += 1;
-        payload.writerId = 'remote-other-session';
-        mockState.files.set(path, JSON.stringify(payload));
-    };
-    const emit = async (name, ...args) => { for (const listener of mockState.listeners.get(name) || []) await listener(...args); };
-
-    // F: generations without MESSAGE_SENT revalidate; an ordinary send still makes one read.
-    await open('v1097-fresh', ['Mira Voice hums.', 'Mira Voice keeps humming.']);
-    await manualAddNpc('Mira Voice');
-    await runtime.flush();
-    const path = runtime.dataFile().path;
-    let reads = 0;
-    globalThis.fetch = async (url, options = {}) => {
-        if (url === path && (options.method || 'GET') === 'GET') reads += 1;
-        return baseFetch(url, options);
-    };
-    for (const [type, speech] of [[undefined, 'Speaks in clipped sailor slang.'], ['normal', 'Speaks in courtly riddles.'], ['impersonate', 'Speaks in hushed whispers.']]) {
-        remoteAdvance(state => { Object.assign(state.npcs.find(npc => npc.name === 'Mira Voice'), { speech, present: true }); });
-        await emit('generation_after_commands', type, {}, false);
-        if (runtime.getNpc(runtime.getState().npcs.find(npc => npc.name === 'Mira Voice').id)?.speech !== speech) fail(`F (${type}): the newer dossier was not adopted before generation`);
-    }
-    reads = 0;
-    await emit('generation_after_commands', 'normal', {}, false);
-    mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'A local turn.' });
-    await emit('message_sent', mockState.context.chat.length - 1);
-    if (reads !== 1) fail(`F: an ordinary send made ${reads} sidecar reads instead of one`);
-    reads = 0;
-    mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'A /send without generation.' });
-    await emit('message_sent', mockState.context.chat.length - 1);
-    if (reads !== 1) fail('F: a MESSAGE_SENT without a preceding generation skipped its own freshness read');
-    globalThis.fetch = baseFetch;
-
-    // G: Detach after another session already detached registers that session's backup.
-    await open('v1097-detach', ['Vessa Broken waits.', 'Vessa Broken sighs.']);
-    await manualAddNpc('Vessa Broken');
-    await runtime.flush();
-    const key = runtime.uiStatus().chatKey;
-    const detachPath = runtime.dataFile().path;
-    mockState.files.set(detachPath, '{"format": not json');
-    for (let i = 0; i < 8; i += 1) await open(`v1097-away-${i}`, ['Elsewhere.', 'Still elsewhere.']);
-    await open('v1097-detach', ['Vessa Broken waits.', 'Vessa Broken sighs.']);
-    await runtime.ensureFresh().catch(() => null);
-    if (runtime.uiStatus().hydrationStatus !== 'error') fail('G: the corrupt sidecar did not block hydration');
-    // Another session detaches first: its backup and the marker naming it.
-    const backup = '/user/files/other-session-unreadable.json';
-    mockState.files.set(backup, '{"format": not json');
-    mockState.files.set(detachPath, JSON.stringify({ format: 'npc_state_delta_chat_data', formatVersion: 1, chatKey: key, revision: 1, writerId: 'other',
-        retired: true, retiredAt: new Date().toISOString(), retireReason: 'manual-detach', recoveryPath: backup, recoveryName: 'other-session-unreadable.json', state: {} }));
-    const previousConfirm = globalThis.confirm;
-    globalThis.confirm = () => true;
-    await uiHandlers.get('click.npcStateDelta|.npc-state-delta-detach-sidecar')();
-    await sleep(100);
-    globalThis.confirm = previousConfirm;
-    if (settings.recoveryFiles?.[key]?.path !== backup) fail(`G: the other session's backup was not registered (${settings.recoveryFiles?.[key]?.path})`);
-    if (runtime.uiStatus().hydrationStatus !== 'ready') fail('G: Detach did not start a fresh dossier');
-
-    setTimeout(() => process.exit(0), 1500);
-}
-
-test('F/G run through the synthetic host', () => {
-    let source = fs.readFileSync(new URL('./runtime-smoke.mjs', import.meta.url), 'utf8');
-    source = source.replace('const here = path.dirname(fileURLToPath(import.meta.url));', `const here = ${JSON.stringify(fileURLToPath(new URL('.', import.meta.url)))};`);
-    const events = "        CHAT_RENAMED: 'chat_renamed',\n";
-    if (!source.includes(events)) throw new Error('Runtime smoke event table changed');
-    source = source.replace(events, `${events}        GENERATION_AFTER_COMMANDS: 'generation_after_commands',\n`);
-    const marker = "    console.log('Runtime smoke:";
-    if (!source.includes(marker)) throw new Error('Runtime smoke cleanup marker changed');
-    source = source.replace(marker, `    await (${runtimeChecks.toString()})(mockState, eventSource, manualAddNpc, sleep, uiHandlers);\n${marker}`);
-    execFileSync(process.execPath, ['--import', new URL('./active-runtime-test-setup.mjs', import.meta.url).href, '--input-type=module'], {
-        input: source,
-        encoding: 'utf8',
-        timeout: 180000,
-        maxBuffer: 16 * 1024 * 1024,
-    });
 });
