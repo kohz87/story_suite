@@ -60,7 +60,7 @@ test('flag on: one card per present person in npc.present order, with portrait o
     assert.equal(el.querySelector('.npc-state-delta-present-roster-head small').textContent, '2 shown');
 });
 
-test('flag on: a click on a card opens that dossier by name', () => {
+test('flag on: a click on a card opens that dossier by name (the fallback; with NPC State loaded its own handler opens by id)', () => {
     const opened = [];
     const { el } = draw(world(PEOPLE()), { opened });
     rows(el)[1].querySelector('button').click();
@@ -119,4 +119,27 @@ test('flag on: destroy lets go of the subscription', () => {
     const { view } = draw(api);
     view.destroy();
     assert.equal(api.listeners.size, 0);
+});
+
+test('flag on: a page API that appears after the mount is followed at the next draw, and destroy lets go of it', async () => {
+    const people = PEOPLE();
+    const api = world(people);
+    const fns = new Set();
+    let page = null;
+    const doc = installFakeDom();
+    const el = doc.createElement('div');
+    doc.body.appendChild(el);
+    const widget = createPeopleWidget({ open: () => null, cast: () => page, flag: () => true });
+    const view = widget.render(el, { value: VALUE }, api);
+    page = { onChange: fn => { fns.add(fn); return () => fns.delete(fn); } };
+    assert.equal(fns.size, 0);
+    api.change();
+    await tick();
+    assert.equal(fns.size, 1, 'the redraw found the page API');
+    delete people['Old Tom'];
+    fns.forEach(fn => fn());
+    await tick();
+    assert.equal(rows(el).length, 1);
+    view.destroy();
+    assert.equal(fns.size, 0);
 });

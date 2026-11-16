@@ -20,7 +20,7 @@ export function createPeopleWidget({ open = dossierOpener, cast = castApi, flag 
         primary: 'value',
         feature: FEATURE,
         validate: props => (props?.value !== undefined && props.value !== null && typeof props.value !== 'object' ? ['value must be the director.world.here data.'] : []),
-        // Flag `suite.worldPeopleOwn` (read at each render): the cards are drawn from NPC State's queries instead of its page API.
+        // Flag `suite.worldPeopleOwn` (read each time the widget is rendered into a pane, not at its later redraws): the cards are drawn from NPC State's queries instead of its page API.
         render: (el, props, api) => {
             let own = false;
             try { own = flag() === true; } catch { own = false; }

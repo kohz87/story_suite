@@ -14,6 +14,20 @@ const text = value => (typeof value === 'string' ? value.trim() : '');
 
 export function createOwnCast(api, { open = () => null, signal = () => null } = {}) {
     const who = new WeakMap();   // a cell → { name, aliases }
+    const listeners = new Set();
+    let tell = null;             // the page API object whose onChange we follow, and how to let go of it
+    // NPC State's own change tell (its people cache refills after a swipe, delete or chat change without a store write): a signal only, nothing is drawn
+    // from it. While `suite.redrawScheduler` is off the own path depends on `NPCStateDeltaCast.onChange` for it, so J15 needs an sdk-side tell (or the
+    // scheduler on) before that global goes. `signal()` is asked again at each render, so a page API that appears after the mount is followed too.
+    const follow = () => {
+        let page = null;
+        try { page = signal() ?? null; } catch { page = null; }
+        if (page === (tell?.page ?? null)) return;
+        try { tell?.off?.(); } catch { /* gone */ }
+        tell = null;
+        if (!page || !listeners.size) return;
+        try { tell = { page, off: page.onChange?.(() => listeners.forEach(fn => fn())) }; } catch { tell = null; }
+    };
     const ask = (name, args) => { try { return api?.query?.(name, args) ?? null; } catch { return null; } };
     const names = () => {
         const list = ask('npc.present', {});
@@ -99,6 +113,7 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
         render(el, { slot = null } = {}) {
             const list = names();
             const doc = el?.ownerDocument ?? globalThis.document;
+            follow();
             if (!el || !list || !doc) return 0;
             bind(el);
             const keys = keyKeys();
@@ -129,11 +144,15 @@ export function createOwnCast(api, { open = () => null, signal = () => null } = 
         // A change the store tells (`changed`): the same moments the section would draw on; the widget redraws once per task.
         onChange(fn) {
             if (typeof fn !== 'function') return () => {};
-            const offs = [];
-            try { if (typeof api?.on === 'function') offs.push(api.on('changed', () => fn())); } catch { /* no store events */ }
-            // NPC State's own change tell (its people cache refills after a swipe, delete or chat change without a store write): a signal only, nothing is drawn from it.
-            try { offs.push(signal()?.onChange?.(fn)); } catch { /* no page API */ }
-            return () => offs.forEach(off => { try { off?.(); } catch { /* gone */ } });
+            let off = () => {};
+            try { if (typeof api?.on === 'function') off = api.on('changed', () => fn()) ?? off; } catch { /* no store events */ }
+            listeners.add(fn);
+            follow();
+            return () => {
+                try { off(); } catch { /* gone */ }
+                listeners.delete(fn);
+                if (!listeners.size) { try { tell?.off?.(); } catch { /* gone */ } tell = null; }
+            };
         },
     });
 }
