@@ -26,7 +26,7 @@ Story Block (kohz87/Story_block, the host), RPG Battle (kohz87/rpg_battle), Stor
 - `suite.js`, `suite-handshake.js`: the v1 Story Block handshake (offers nothing to a v2 host). `story-block-tabs.js` keeps only the dossier list rows and the empty-cast line the v2 adapter loads (the v1 tab registration was removed).
 - `tests/*.test.js` (synthetic host, regression and adapter tests `storysuite-v2-*.test.js`), `tests/v2/break/`,
   `tests/compatibility-check.js`, `tests/runtime-smoke.mjs`, `tests/fixtures/` (golden files, Stage 9 budgets).
-- The adapter tests import the live Story Block testkit and `src/v2` by relative path (`../story-block/testkit`, `../story-block/src/v2/...`); there is no vendored copy.
+- The adapter tests import the live Story Block testkit and `src/v2` by relative path (`../story-block/testkit`, `../story-block/src/v2/...`).
 - `scripts/`: `validate.mjs`, `measure-prompts.mjs`, `measure-stage9.mjs`, `package.mjs`, `browser-stage9.py`.
 - `docs/`: `core-contract.md`, `WORKPLAN.md`, `STORY_SUITE.md`, reviews and history (evidence only); `docs/dev/`: area notes.
 - Every other source file: `docs/dev/codemap.md` (one line each).
@@ -47,7 +47,7 @@ node --import ./tests/active-runtime-test-setup.mjs --test --test-reporter=dot t
 git diff --check origin/main
 ```
 
-Full suite: about 1,430 tests, about 3 minutes. Skills: `.claude/skills/run-tests`, `sync-testkit`.
+Full suite: about 1,430 tests, about 3 minutes. Skills: `.claude/skills/run-tests`.
 Every test file needs `--import ./tests/active-runtime-test-setup.mjs` (source-era import aliases).
 
 ## Non-negotiables (every PR keeps them)
@@ -74,7 +74,7 @@ Every test file needs `--import ./tests/active-runtime-test-setup.mjs` (source-e
 - A version bump changes `manifest.json`, `package.json`, `runtime-modules.json`, `core.js`
   (`NPC_STATE_VERSION`), the `bootstrap.js` banner, README title and CHANGELOG head together, and only for an
   authorized release.
-- Re-sync the Story Block testkit before the final push of a PR that needs host changes; name the commit.
+- Run the module tests against the live Story Block before the final push of a PR that needs host changes; name the Story Block commit.
 - Kill processes by PID, never with a broad `pkill -f`.
 
 ## Specs

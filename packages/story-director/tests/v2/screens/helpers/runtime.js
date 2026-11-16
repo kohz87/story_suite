@@ -10,10 +10,10 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const VENDORED = new URL('../../../../../story-block/', import.meta.url);
-const vendored = await import(new URL('src/v2/view/screens.js', VENDORED).href);
+const STORY_BLOCK = new URL('../../../../../story-block/', import.meta.url);
+const live = await import(new URL('src/v2/view/screens.js', STORY_BLOCK).href);
 
-const dir = resolve(process.env.STORY_BLOCK_DIR ?? fileURLToPath(VENDORED));
+const dir = resolve(process.env.STORY_BLOCK_DIR ?? fileURLToPath(STORY_BLOCK));
 const file = rel => pathToFileURL(join(dir, rel)).href;
 
 async function loadRenderer() {
@@ -45,5 +45,5 @@ async function loadRenderer() {
     }
 }
 
-export const { validateScreen, resolveData, createScreens: vendoredScreens, CSS_LIMIT } = vendored;
+export const { validateScreen, resolveData, createScreens: liveScreens, CSS_LIMIT } = live;
 export const { runtime, reason: skipReason } = await loadRenderer();

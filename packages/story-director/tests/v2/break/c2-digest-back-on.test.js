@@ -4,7 +4,7 @@
 // clock has moved since the time part last settled (`needsDigest`'s `settledDay`), so the Days screen
 // stays empty until the story crosses yet another day. Live (p1-c2-off probe): Goldwane 12 and 13 ended
 // with the digest off, digest on + a reply → chronicle.days [] and the Days tab "no days".
-// The vendored Story Block predates features, so the reader's switch is played by giving the module's
+// The test plays the reader's switch by giving the module's
 // hook a view whose `feature()` says off/on (exactly what Story Block's sdk view carries, F100).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

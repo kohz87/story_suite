@@ -1,5 +1,5 @@
-// A rig for the people domain across both packages (no flag; the domain is the store's own): the live Story Block testkit host (packages/story-block, not the
-// vendored copy), NPC State Delta's real adapter with its participant and its people sync, over a fake Delta runtime that holds the chat's state.
+// A rig for the people domain across both packages (no flag; the domain is the store's own): the live Story Block testkit host (packages/story-block),
+// NPC State Delta's real adapter with its participant and its people sync, over a fake Delta runtime that holds the chat's state.
 // `reload()` starts everything again over what was saved. Tests only; nothing here ships.
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { memoryVault } from '../../../packages/npc-state-delta/src/storysuite-participant/index.js';

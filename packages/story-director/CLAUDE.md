@@ -29,8 +29,7 @@ Story Director works without NPC State Delta. Read other modules through guarded
 - `src/tracker.js`: records, `applyOps`, `replay` and the queries; the word helpers (`keyWords`, `nearMatches`, name comparisons) live in `src/tracker-words.js` and the "said" helpers (quest over / given up / offers chosen, `waitsForPay`, `looksFinished`, `isOffer`, `overByChange`, `takesOnQuest`) in `src/tracker-said.js`; `tracker.js` re-exports every name it exported before. The helper files never import `tracker.js` (`tracker-said.js` imports `tracker-words.js`).
 - `tests/*.test.js`: tests of the pure rules. `tests/v2/<part>/`: per-part tests; `tests/v2/integration/` (incl.
   `alone.test.js`), `tests/v2/break/` (one file per break finding, `fuzz-delete*.test.js`).
-- Tests import Story Block's live testkit and runtime from `packages/story-block` by relative path (no vendored copy).
-  `tests/v2/screens/vendor/` is an older pinned copy of Story Block's screens registry (or `STORY_BLOCK_DIR`).
+- Tests import Story Block's live testkit and runtime from `packages/story-block` by relative path.
 - `docs/`: `ARCHITECTURE.md`, `DESIGN.md`, `STORY_SUITE.md`; `docs/dev/`: short area notes.
 - Additional source files and recent splits: `docs/dev/codemap.md`.
 
@@ -71,7 +70,7 @@ Full suite: about 980 tests, about 1–2 minutes. Skills: `.claude/skills/run-te
 
 - No model names anywhere in the repo. Commit trailers and PR attribution: the lines the session gives.
 - Branch off `main`, PR into `main`; agents never merge their own PR. Rebase on `origin/main` before pushing.
-- Re-sync the Story Block testkit before the final push of a PR that needs host changes; name the commit.
+- Run the module tests against the live Story Block before the final push of a PR that needs host changes; name the Story Block commit.
 - Parts never import each other; they talk through commands and queries (`ctx.call`, `ctx.query`).
 - World / Journal views are derived on read: never store what can be worked out (so replay cannot drift).
 - Kill processes by PID, never with a broad `pkill -f`.

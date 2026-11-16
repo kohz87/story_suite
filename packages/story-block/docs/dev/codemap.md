@@ -233,6 +233,7 @@ Last checked: 2026-11-07.
 - `src/v2/sdk/shared.js`: the sdk's shared non-array object test.
 - `src/v2/sdk/ids.js`: crypto-backed ids with a module prefix.
 - `src/v2/sdk/events.js`: the sdk's named event bus.
+- `src/v2/sdk/changed.js`: the sdk's `changed` event: one per reply or out-of-turn change with the domains touched, `['*']` on head moves.
 - `src/v2/sdk/listener-guard.js`: wraps a module's named event listener so its throw or rejection becomes that module's Problem when the isolated-apply flag is on.
 - `src/v2/sdk/settings.js`: schema coercion and settings over extension_settings.storySuite.
 - `src/v2/sdk/queries.js`: query tools, mounted queries, module views and missing-domain checks.

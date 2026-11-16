@@ -27,7 +27,7 @@ async function setUp(t, { waitsFor = 'nobody-yet', beforeModule = null } = {}) {
     const probe = await createHost({ modules: [] });
     const capable = typeof probe.sdk.preflight === 'function';
     probe.close();
-    if (!capable) { t.skip('the vendored Story Block has no module lifecycle yet'); return null; }
+    if (!capable) { t.skip('the Story Block host has no module lifecycle yet'); return null; }
     t.mock.method(console, 'warn', () => {});
     t.mock.method(console, 'info', () => {});
     const model = createFakeModel([PLAN]);
@@ -87,7 +87,7 @@ test('the module\'s first prompt starts from the fight runner\'s status, not fro
     const probe = await createHost({ modules: [] });
     const capable = typeof probe.sdk.preflight === 'function';
     probe.close();
-    if (!capable) { t.skip('the vendored Story Block has no module lifecycle yet'); return; }
+    if (!capable) { t.skip('the Story Block host has no module lifecycle yet'); return; }
     const staticOf = async waitsFor => {
         const host = await createHost({ modules: [] });
         globalThis.StoryBlock = { sdk: host.sdk };

@@ -1,4 +1,4 @@
-// The time part on the real Story Block v2 host (the vendored runtime and testkit), merged into
+// The time part on the real Story Block v2 host (the live runtime and testkit), merged into
 // the module with the other parts the way module.js does: replies with <Changes> blocks, the
 // interceptor's beforeGenerate, swipes. The reader's calendar is the default (Gregorian) here.
 

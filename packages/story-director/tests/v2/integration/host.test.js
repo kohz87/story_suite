@@ -1,4 +1,4 @@
-// Story Director on the real Story Block v2 host (the vendored runtime and testkit in
+// Story Director on the real Story Block v2 host (the live runtime and testkit in
 // packages/story-block): Story Block's core module, a stand-in example fight runner and this module,
 // driven the way SillyTavern drives them (messages, replies with <Changes> blocks, swipes,
 // deletes, UI commands).

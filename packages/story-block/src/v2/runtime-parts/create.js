@@ -131,7 +131,7 @@ export function createRuntime({
                 if (!bus) return { ok: false, code: 'FAILED', message: 'Story Block is not ready.' };
                 const result = bus.command(type, payload, options);
                 const tell = value => {
-                    if (value?.ok) events.emit('committed', { receipt: value.receipt });
+                    if (value?.ok) events.emit('committed', { receipt: value.receipt, standalone: true });
                     return value;
                 };
                 return typeof result?.then === 'function' ? result.then(tell) : tell(result);
@@ -204,7 +204,7 @@ export function createRuntime({
             registry.setRestore(state, reason);
             announceModules(registry, events);
         },
-        announce: receipt => events.emit('committed', { receipt }),
+        announce: receipt => events.emit('committed', { receipt, standalone: true }),
     });
     chatterReaders = { prompt: timeline.active('prompt.chatter'), head: timeline.active('query.chatter.head'), scene: timeline.active('query.scene.chatter') };
     const rewind = createRewind({ ctx, store, events, ...(branch ? { branch } : {}) });
