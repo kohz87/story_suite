@@ -34,6 +34,7 @@ test('a v1 fight on the port replays as live across swipe, swipe back, edited Re
         assert.equal(fightIn(host, 2).data.v2.result.board.v1, 1, 'the v1 engine played it');
         assert.equal(fightIn(host, 2).data.v2.result.exchanges, 1);
         const hp = () => host.head().domains.dataModules.instances['pack.chat/character'].chat.fields.hp;
+        assert.ok(fightIn(host, 2).data.v2.result.hurts.length > 0, 'the first segment moved the party\'s bars (else the next check proves nothing)');
         assert.equal(hp(), fightIn(host, 2).data.v2.result.party[0].hp, 'the Character block holds the bar the fight left (not just the record)');
         await same('first reply');
 

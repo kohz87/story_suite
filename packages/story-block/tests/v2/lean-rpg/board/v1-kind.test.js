@@ -71,7 +71,7 @@ test('a fight split into two segments equals the same fight played whole (dice, 
     } finally { host.close(); }
 });
 
-test('the witness follows what the engine reads: a stat edit changes it, an unrelated edit does not, and a gear change changes soak', async () => {
+test('the witness follows what the engine reads: a stat edit changes it, the HP it starts from changes it, an unrelated edit does not (gear is v1-soak.test.js)', async () => {
     const host = (await v1Host()).host;
     try {
         const { setup } = open(host), base = hashJson(fightKind.witness(host.head(), setup, []));

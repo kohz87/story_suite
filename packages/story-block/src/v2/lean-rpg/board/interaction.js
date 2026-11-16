@@ -1,4 +1,4 @@
-// The fight board as an interaction kind (`story-block/fight`) over today's engine: play, settle, witness, actors, Auto and the next segment.
+// The fight board as an interaction kind (`story-block/fight`): play, settle, witness, actors, Auto and the next segment over today's engine; a setup marked `v1: 1` goes to board/v1-kind.js (the Combat Rules v1 engine).
 // A step is one exchange. `toExchanges(steps)` hands the engine exactly the exchanges the pre-port board kept, so dice and results do not move.
 import { PRACTICE, practiceOf } from '../names.js';
 import { fold, readSheet } from '../read.js';

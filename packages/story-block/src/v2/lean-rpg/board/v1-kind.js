@@ -22,7 +22,7 @@ const isV1 = setup => setup?.v1 === 1;
 /** True when the sheet is a Combat Rules v1 one: a v1 Character stands (the old engine cannot read it). */
 const v1Sheet = state => readSheet(real(state)).characters.some(character => character.v1 === true);
 
-// What each hero's worn pieces soak (the Bag's `inventory.gear` answers; the first hero also holds the party's shared bag). Soak is read live by the witness and fixed into the setup at open.
+// What each hero's worn pieces soak (the Bag's `inventory.gear` answers; the first hero also holds the party's shared bag). Soak is read live, by the engine's input and by the witness.
 function soakOf(state, sheet) {
     const query = gearQuery(real(state)), out = {};
     sheet.characters.filter(character => character.v1 === true).forEach((character, at) => {
@@ -35,7 +35,7 @@ function soakOf(state, sheet) {
 /** The engine's input and the heroes' module ids for `setup` on `state`'s sheet. */
 function inputOf(state, setup) {
     const sheet = readSheet(real(state)), input = fightInputOf(sheet, { carried: setup.carried ?? null });
-    const soak = setup.soak ?? {};
+    const soak = soakOf(state, sheet);   // (read live: a piece worn between two replies reaches the next segment, and the witness holds the same number)
     input.party = input.party.map(hero => ({ ...hero, gearSoak: Number(soak[hero.id]) || 0 }));
     return { sheet, input };
 }
@@ -66,8 +66,7 @@ const mapped = (state, setup, played) => fightResultV1(setup, played.record, { s
 function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
-    const soak = soakOf(state, sheet);
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(Object.keys(soak).length ? { soak } : {}) };
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };
 }

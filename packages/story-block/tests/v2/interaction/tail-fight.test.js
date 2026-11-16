@@ -15,7 +15,7 @@ import { runPreludes } from '../../../src/v2/turn/prelude-run.js';
 
 const GOLDEN = new URL('./tail-fight.golden.json', import.meta.url);
 const TIGHT = new URL('./tail-fight-tight.golden.json', import.meta.url);
-const TIGHT_BUDGET = 850;   // under the 1203 tokens the whole tail measures, so the optional lines of People and the RPG drop
+const TIGHT_BUDGET = 1130;   // under the 1203 tokens the whole tail measures, as 850 was under 876: People's lines and the RPG's optional line drop, its [Party] and [Foes] lines stay (the shape the old golden had)
 
 function registry() {
     const reg = createRegistry();
@@ -56,6 +56,7 @@ test('under a tight tail budget the note stays whole inside the total and the op
     assert.equal(port.tailText, golden.tailText);
     assert.deepEqual(port.parts, golden.parts);
     assert.ok(golden.parts.some(part => part.dropped > 0), 'the budget is under pressure: something dropped');
+    assert.ok(golden.tailText.includes('[Party] Astra') && golden.tailText.includes('[Foes] Rat 1'), 'only the optional lines drop: the RPG\'s required lines stay');
     assert.ok(golden.tailText.includes(fightNote()), 'the note itself is whole');
 });
 
