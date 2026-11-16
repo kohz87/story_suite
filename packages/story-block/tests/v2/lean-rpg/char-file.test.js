@@ -191,10 +191,10 @@ test('an import fills the stats, the unspent points, the Soul Class and the skil
     assert.deepEqual(before, typed(), 'the draft that was given is not changed');
 });
 
-test('the usual rules still hold after an import: points are spent from the file\'s pool, a stat stays within 3 to 10 or where it came from, ranks do not move', () => {
+test('the usual rules still hold after an import: points are spent from the file\'s pool, a stat stays within 5 to 10 or where it came from, ranks do not move', () => {
     const file = good(sample({ stats: { ...STAT_VALUES, str: 18, cha: 3 } }));
     const { draft } = withImport(typed(), file);
-    assert.deepEqual([statBounds(draft, 'str'), statBounds(draft, 'cha'), statBounds(draft, 'vit'), statBounds(newDraft(), 'vit')], [[3, 18], [3, 10], [3, 12], [3, 10]]);
+    assert.deepEqual([statBounds(draft, 'str'), statBounds(draft, 'cha'), statBounds(draft, 'vit'), statBounds(newDraft(), 'vit')], [[5, 18], [3, 10], [5, 12], [5, 10]]);   // (the floor is the start, 5; a stat the file had below it stays where it came from)
     const spent = readDraft({ ...draft, stats: { ...draft.stats, int: 10, luk: 10, dex: 8 } });
     assert.equal(pointsLeft(spent), 3 - 3 + 2, 'INT +2, LUK +1 and DEX -2');
     assert.equal(readDraft({ ...draft, stats: { ...draft.stats, vit: 15 } }).stats.vit, 12, 'a stat the file had at 12 does not go above it');

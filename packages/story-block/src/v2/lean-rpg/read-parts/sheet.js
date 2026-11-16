@@ -3,6 +3,7 @@ import { fold } from './match.js';
 import { definitionOf, fieldsOf, hiddenOf, shownFields } from './hidden.js';
 import { character, skillsOf, foesOf } from './rows.js';
 import { isObject, int, text } from './shared-plain.js';
+import { characterV1, skillsV1, foesV1, v1Of } from './v1-rows.js';
 
 /**
  * The chat's RPG blocks: `{ characters, foes, problems }`.
@@ -32,22 +33,23 @@ export function readSheet(state, { withLeft = false } = {}) {
             // (`withLeft`, for `party.levels`: read too, `left: true`; `sheetLevel` is the stated level or null.)
             const gone = fields.left === true;
             if (gone && !withLeft) continue;
-            const found = character(id, fields, hidden.has('who') || withLeft ? definition.name : '', hidden, definition);   // (`withLeft`: a blank Name uses the block's name, as the Party card does)
+            const found = v1Of(fields) === 'character' ? characterV1(id, fields, hidden.has('who') || withLeft ? definition.name : '', hidden)
+                : character(id, fields, hidden.has('who') || withLeft ? definition.name : '', hidden, definition);   // (`withLeft`: a blank Name uses the block's name, as the Party card does)
             if (found && withLeft) Object.assign(found, { left: gone, sheetLevel: int(fields.level) !== null || Object.hasOwn(fields, 'soul') ? found.level : null });   // (the level the card shows: clamped 1–99)
             if (!found) sheet.problems.push(`The Character block "${id}" has no name in its Who field, so it is left out.`);
             else if (!withLeft && sheet.characters.some(other => other.key === found.key)) sheet.problems.push(`Two Character blocks are called ${found.who}; only the first is used.`);
             else sheet.characters.push(found);
         } else if (role === 'skills') {
             const who = text(fields.who) || (hidden.has('who') ? text(definition.name) : '');
-            if (who) skills.push({ who, list: skillsOf(fields, hidden) });
+            if (who) skills.push({ who, list: skillsOf(fields, hidden), ...(v1Of(fields) === 'skills' ? { v1: { fields, hidden } } : {}) });
             else sheet.problems.push(`The Skills block "${id}" has no name in its Who field, so it is left out.`);
         } else if (role === 'foes') {
-            sheet.foes.push(...foesOf(id, raw, sheet.foes.length, hidden, isObject(definition.state) ? definition.state : null));
+            sheet.foes.push(...(v1Of(raw) === 'foes' ? foesV1(id, raw, sheet.foes.length, hidden) : foesOf(id, raw, sheet.foes.length, hidden, isObject(definition.state) ? definition.state : null)));
         }
     }
     for (const block of skills) {
         const owner = sheet.characters.find(entry => entry.key === fold(block.who));
-        if (owner && !owner.skills.length) owner.skills = block.list;
+        if (owner && !owner.skills.length) owner.skills = block.v1 && owner.v1 ? skillsV1(block.v1.fields, block.v1.hidden) : block.list;
     }
     return sheet;
 }

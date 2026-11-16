@@ -10,7 +10,7 @@ export const ROLL_TYPES = Object.freeze(['physical', 'magic', 'defence', 'social
 export const STANDARD_NUMBERS = Object.freeze({
     startStat: 5,          // every stat at creation
     createPoints: 10,      // points to spend at creation
-    createMin: 3,          // lowest a stat may go at creation
+    createMin: 5,          // lowest a stat may go at creation (the start: Combat Rules v1 never lets a stat go below it, decision 39.3)
     createMax: 10,         // highest a stat may go at creation
     pointsPerSoul: 4,      // points with each Soul Class rise
     statMax: 20,           // highest a stat may ever be
