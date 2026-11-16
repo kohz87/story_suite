@@ -50,19 +50,36 @@ export function dayEventsQuery(_state, { day = null } = {}, tools) {
     return { day: wanted, events: eventsOf(walkDays(entries).days.get(wanted) ?? []) };
 }
 
+// The receipts after the note `through` (a receipt ID), in chat order, with the clock and scene they start from; else those
+// after revision `after`. A note that a Re-read kept keeps its ID and sits after that reply's new receipts, so reading from it
+// never reads again what it kept nor files a reply's receipts under a later note, whatever revisions the Re-read gave. The
+// start is worked out from the receipts up to and including that one (an edit that moved the scene is followed; an edit's clock
+// change is not — see the known limit), and is the note's stored `minutes` and `present` where those receipts say nothing (data
+// trimmed away). `rev` is for an older state (no `through`) or a note whose receipt is gone.
+function since(list, after, through, minutes, present) {
+    const at = typeof through === 'string' && through ? list.findIndex(item => (item?.receipt ?? item)?.id === through) : -1;
+    if (at < 0) return { list, after: Number.isSafeInteger(after) ? after : null, minutes, present };
+    const prefix = list.slice(0, at + 1);
+    const clock = walkDays(prefix).minutes;
+    return { list: list.slice(at + 1), after: null, minutes: Number.isSafeInteger(clock) ? clock : minutes, present: sceneOf(prefix.map(item => item?.receipt ?? item), present) };
+}
+
 /**
- * `chronicle.noteFacts { after, minutes, present }`: what the receipts committed after revision `after` hold
+ * `chronicle.noteFacts { after, through, minutes, present }`: what the receipts committed after the note `through` (a
+ * receipt ID; else after revision `after`) hold
  * (fresh: Story Block still keeps their data), by story day, the clock at `minutes` before them:
  * `{ entries: [{ day, entry }], minutes, rev, settle }` (the clock and the last revision after them,
  * and the last time settle's jump among them; `present`: the scene they leave, from where the last note left it). The note command keeps the entries (digest.js).
  */
-export function noteFactsQuery(state, { after = null, minutes = null, present = null } = {}, tools) {
-    let list = [];
-    try { list = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { list = []; }
-    const walk = walkDays(list, { after: Number.isSafeInteger(after) ? after : null, minutes });
+export function noteFactsQuery(state, { after: rev = null, through = null, minutes = null, present = null } = {}, tools) {
+    let all = [];
+    try { all = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { all = []; }
+    const start = since(Array.isArray(all) ? all : [], rev, through, minutes, Array.isArray(present) ? present : []);
+    const { list, after } = start;
+    const walk = walkDays(list, { after, minutes: start.minutes });
     const lasting = lastingByRev(state);
     // Who was in the scene: the note's own (`present`, where the last note left it), moved on day by day through the present receipts.
-    let scene = Array.isArray(present) ? present : [];
+    let scene = start.present;
     const entries = [...walk.days.keys()].sort((a, b) => a - b).map(day => {
         const receipts = walk.days.get(day);
         const entry = entryOf(receipts, day, { lasting, present: scene });
@@ -73,9 +90,9 @@ export function noteFactsQuery(state, { after = null, minutes = null, present = 
     // The receipts that touched a quest or thread (their own commands' `data.quest`, their lines'
     // `data.thread`), for the quest history (quest.details), kept by the note before the trim.
     const quests = [];
-    for (const item of Array.isArray(list) ? list : []) {
+    for (const item of list) {
         const receipt = item?.receipt ?? item;
-        if (!receipt || !Number.isSafeInteger(receipt.rev) || (Number.isSafeInteger(after) && receipt.rev <= after)) continue;
+        if (!receipt || !Number.isSafeInteger(receipt.rev) || (after !== null && receipt.rev <= after)) continue;
         const thread = typeof receipt.data?.quest === 'string' ? receipt.data.quest : typeof receipt.data?.thread === 'string' ? receipt.data.thread : null;
         const said = typeof receipt.summary === 'string' ? receipt.summary.trim() : '';
         if (thread && said) quests.push({ rev: receipt.rev, thread, text: said });

@@ -5,11 +5,14 @@ import { FOLD_AT, FULL_CEILING, KEEP_CEILING } from './digest-ceilings.js';
 import { MAX_HAPPENED, MAX_NPCS, MAX_PLACES, MAX_QUESTS } from './digest-caps.js';
 import { ENTRY_HAPPENED, MAX_MET, MAX_NAME, MAX_WHO } from './entry-caps.js';
 import { ENTRY_KEY, QUEST_LOG_TEXT } from './log-constants.js';
+import { QUEST_LOG_KEY } from './quest-log-order.js';
 import { codePoints, isInt, isRecord } from './shared-values.js';
 import { MAX_DATE, MAX_ITEM, MAX_LINE, MAX_WORLD } from './text-caps.js';
 
 const QUEST_LOG_CEILING = 3000;
 const THREAD_REF = /^[A-Za-z0-9_.:-]{1,64}$/;
+// A receipt's ID (Story Block's `rc_…`): the note that `chronicle.noted.through` names.
+const RECEIPT_ID = /^[A-Za-z][\w-]{0,63}$/;
 const ENTRY_CEILING = 4000;
 const TAG_MAX = 130;
 const NAMEISH = /^[A-Za-z0-9_.:-]{1,64}$/;
@@ -76,15 +79,18 @@ function digestErrors(key, stored) {
 // first): the digest follows them (daysOf), so a reply of that day deleted later takes its facts out
 // of the digest and its time-skip line. They are removed by key when the day goes short or past
 // FOLLOW_MAX (its digest then stays as it was, `src` cleared), and at once for a day not written from
-// them. `chronicle.noted = [{ rev, minutes, from, settle, gap?, present? }]` is where the
-// notes got to: the revision and the clock after the last one, the day notes began (`from`), the
+// them. `chronicle.noted = [{ rev, through?, minutes, from, settle, gap?, present? }]` is where the
+// notes got to: the revision and the clock after the last one (`through`: the last note's own receipt ID, where
+// the next one starts reading in chat order; `rev` is read only when it is missing or that receipt is gone), the day notes began (`from`), the
 // time part's last settle jump seen (`settle`), who was in the scene then (`present`, the next note's start), and, while the digest feature is off, where the day
-// facts stopped (`gap: { rev, minutes }`): the first note with the feature back on reads the receipts
+// facts stopped (`gap: { rev, minutes, through? }`): the first note with the feature back on reads the receipts
 // from there, so the days that ended while it was off are written too (B-c2-3).
 
 // The quest history (quest.details, F84) is read from receipts too: `chronicle.questLog["<rev>"] =
 // { thread, text }` keeps, per receipt revision, the summary of each receipt that touched a quest or
 // thread, written by the note on the reply it belongs to; the newest QUEST_LOG_KEPT per thread stay.
+// A thread's outcome (chronicle.threadOutcome) is kept under its reply key with its revision:
+// `chronicle.questLog["<sid>.<n>"] = { thread, text, rev }` (quest-log-order.js).
 
 function entryErrors(key, entry) {
     const at = `chronicle.dayFacts.${key}`;
@@ -129,20 +135,26 @@ export function validateDays(slice) {
         if (!isRecord(slice.questLog)) errors.push('chronicle.questLog is not an object.');
         else {
             const entries = Object.entries(slice.questLog);
-            if (entries.some(([key, entry]) => !/^\d{1,15}$/.test(key) || !isRecord(entry) || !THREAD_REF.test(entry.thread ?? '') || !textOk(entry.text, QUEST_LOG_TEXT)
-                || Object.keys(entry).some(field => field !== 'thread' && field !== 'text'))) errors.push('chronicle.questLog entries must be { thread, text } under a revision.');
+            // A note's line under its receipt's revision: { thread, text }; a thread's outcome under its reply key: { thread, text, rev }.
+            const byRev = key => /^\d{1,15}$/.test(key);
+            if (entries.some(([key, entry]) => !QUEST_LOG_KEY(key) || !isRecord(entry) || !THREAD_REF.test(entry.thread ?? '') || !textOk(entry.text, QUEST_LOG_TEXT)
+                || (!byRev(key) && !countOk(entry.rev)) || Object.keys(entry).some(field => field !== 'thread' && field !== 'text' && (byRev(key) || field !== 'rev')))) {
+                errors.push('chronicle.questLog entries must be { thread, text } under a revision, or { thread, text, rev } under a reply key.');
+            }
             if (entries.length > QUEST_LOG_CEILING) errors.push(`The chronicle keeps at most ${QUEST_LOG_CEILING} quest history lines.`);
         }
     }
     if (slice.noted !== undefined && slice.noted !== null) {
         const noted = slotValue(slice.noted);
+        const throughOk = value => value === undefined || (typeof value === 'string' && RECEIPT_ID.test(value));
         const settleOk = value => value === null || (isRecord(value) && (value.from === null || isInt(value.from)) && isInt(value.to));
         const gapOk = value => value === undefined || (isRecord(value) && (value.rev === null || countOk(value.rev))
-            && (value.minutes === null || isInt(value.minutes)) && Object.keys(value).every(key => key === 'rev' || key === 'minutes'));
+            && (value.minutes === null || isInt(value.minutes)) && throughOk(value.through) && Object.keys(value).every(key => ['rev', 'minutes', 'through'].includes(key)));
         if (!noted || !Array.isArray(slice.noted) || slice.noted.length !== 1 || !countOk(noted.rev)
             || !(noted.minutes === null || isInt(noted.minutes)) || !(noted.from === null || isInt(noted.from)) || !settleOk(noted.settle)
-            || !gapOk(noted.gap) || !(noted.present === undefined || textsOk(noted.present, MAX_WHO, MAX_NAME)) || Object.keys(noted).some(key => !['rev', 'minutes', 'from', 'settle', 'gap', 'present'].includes(key))) {
-            errors.push('chronicle.noted must be null or { rev, minutes, from, settle, gap?, present? }.');
+            || !gapOk(noted.gap) || !throughOk(noted.through) || !(noted.present === undefined || textsOk(noted.present, MAX_WHO, MAX_NAME))
+            || Object.keys(noted).some(key => !['rev', 'through', 'minutes', 'from', 'settle', 'gap', 'present'].includes(key))) {
+            errors.push('chronicle.noted must be null or { rev, through?, minutes, from, settle, gap?, present? }.');
         }
     }
     if (slice.days !== undefined) {
