@@ -1,5 +1,5 @@
 // QA fuzz helper: the seeded whole-chat fuzz of state-fuzz (run function, seed lists, shards).
-// state-fuzz-1..4.test.js each run one balanced shard of RUNS so the seeds run in parallel files
+// state-fuzz-1..5.test.js each run one balanced shard of RUNS so the seeds run in parallel files
 // (CI took ~15 min with one file). Not a test file (the test glob does not match helpers/).
 // seeded fuzz of whole chats on the real host (testkit createHost: real store, command bus,
 // turn, Story Block's core module, plus a small probe module). Each run mixes sends, swipes,
@@ -49,12 +49,14 @@ const SHARD_RUNS = [
     [[25, LONG_STEPS], [7, STEPS], [27, STEPS], [37, STEPS]],
     [[36, LONG_STEPS], [1, STEPS], [131, STEPS]],
     [[1337, STEPS], [31337, STEPS], [2024, STEPS], [424242, STEPS], [42, STEPS]],
+    // Shard 5: the people domain with its flag on (J07), new seeds only.
+    [[3, STEPS], [11, STEPS], [58, STEPS], [606, STEPS], [8181, STEPS], [12, LONG_STEPS]],
 ];
 const OVERRIDDEN = Boolean(process.env.QA_FUZZ_SEED || process.env.QA_FUZZ_SEEDS || process.env.QA_FUZZ_STEPS);
-// Shard n (1..4) of the runs. A local override runs its whole list once, in shard 1; the others skip.
+// Shard n (1..5) of the runs. A local override runs its whole list once, in shard 1; the others skip.
 export const shardRuns = n => (OVERRIDDEN ? (n === 1 ? RUNS : []) : SHARD_RUNS[n - 1]);
-// The remake check needs a shard whose runs reach it: shards 2..4 do (3, 2, 6 remakes); shard 1 (16, 90210) makes none, so it checks only when an override gave it the whole list.
-export const checksRemakes = n => OVERRIDDEN || n !== 1;
+// The remake check needs a shard whose runs reach it: shards 2..4 do (3, 2, 6 remakes); shard 1 (16, 90210) makes none and shard 5 is not checked for it, so it checks only when an override gave it the whole list.
+export const checksRemakes = n => OVERRIDDEN || (n !== 1 && n !== 5);
 
 const plain = value => (value === null || value === undefined ? value : JSON.parse(JSON.stringify(value)));
 const settle = () => new Promise(resolve => setImmediate(resolve));
@@ -63,13 +65,13 @@ const tailOf = request => request.chat.filter(message => message.role === 'syste
 
 export const remakes = { count: 0, runs: 0 };
 
-export async function fuzz(t, seed, steps) {
+export async function fuzz(t, seed, steps, { people = false } = {}) {
     const restore = seedCrypto(seed);
     t.after(restore);
     t.mock.timers.enable({ apis: ['setTimeout'] });
     t.mock.method(console, 'warn', () => {});
     const r = prng(seed);
-    const host = await createHost({ modules: [probeModule({ cues: true })], settings: { features: { 'story-block.gear': true, 'story-block.rpg': true } } });
+    const host = await createHost({ modules: [probeModule({ cues: true })], settings: { features: { 'story-block.gear': true, 'story-block.rpg': true }, ...(people ? { flags: { 'suite.peopleInStore': true } } : {}) } });
     // A pack that gives Your look a Rank, so the fuzz's `~ you rank:` lines are read (without one they are refused).
     await host.packs.packs.install({ id: 'guild', version: '1.0.0', requires: { storyBlock: '^2' }, content: { you: { rank: { label: 'Guild rank' } } } });
     t.after(() => host.close());
@@ -217,7 +219,7 @@ export async function fuzz(t, seed, steps) {
         let ok = 0;
         if (failSave) st.failSaves = 1;
         for (let i = 0; i < count; i++) {
-            const [type, payload] = uiCommand(r, host);
+            const [type, payload] = uiCommand(r, host, { people });
             const before = JSON.stringify(ctx.chat);
             const head = plain(store.head());
             const kindsBefore = Object.fromEntries(Object.values(head?.domains?.inventory?.defs ?? {}).map(def => [def.id, def.kind]));
@@ -285,7 +287,7 @@ export async function fuzz(t, seed, steps) {
         else if (roll === 13) action = (ctx.chat.at(-1).swipes?.length ?? 0) > 1 && lastIsCarrier() ? 'swipeTo' : 'ui';
         else if (roll === 14) action = (ctx.chat.at(-1).swipes?.length ?? 0) > 1 && lastIsCarrier() ? 'deleteSwipe' : 'ui';
         else if (roll === 15) action = 'uiFail';
-        else if (roll === 17) action = ctx.chat.length > 1 && !process.env.QA_NO_REREAD ? 'reread' : 'ui';
+        else if (roll === 17) action = ctx.chat.length > 1 && !process.env.QA_NO_REREAD && !people ? 'reread' : 'ui';
         else action = 'ui';
         if (action === 'regenerate' && ctx.chat.length < 2) action = 'send';
         log.push(`seed ${seed} step ${step} ${action}`);

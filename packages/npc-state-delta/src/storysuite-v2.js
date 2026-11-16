@@ -45,6 +45,9 @@ import { createCastUiPart } from './adapter/cast-ui.js';
 import { createTimelinePart } from './adapter/timeline.js';
 import { createConnectPart } from './adapter/connect.js';
 import { createEditorPart } from './adapter/editor.js';
+import { createPeopleMirror } from './adapter/people-mirror.js';
+import { peopleView } from './people/view.js';
+import { hashJson } from './storysuite-participant/hash.js';
 
 export { dossierFields, safeImageUrl, portraitUrl } from './adapter/queries.js';
 export { meterBarNode } from './adapter/cast-ui.js';
@@ -194,6 +197,15 @@ export function createStorySuiteV2Adapter({
     deps.timeline = { get queries() { return timelinePartRef.timeline.queries; }, get catchUp() { return timelinePartRef.timeline.catchUp; } };
     const queriesPart = createQueriesPart(session, deps);
     Object.assign(deps, queriesPart);
+    // The people mirror (flag `suite.peopleInStore`, off unless the host answers `people.mirrorOn`): fed by the participant's publications.
+    const mirror = createPeopleMirror({
+        sdk: () => session.sdkRef, view: peopleView, hash: hashJson, readState: () => queriesPart.runtime()?.getState?.() ?? null,
+        warn: text => queriesPart.warn(text), idle: ms => queriesPart.runtime()?.scanIdle?.(ms) ?? true,
+        settled: () => timelinePartRef.headSettled(), catchUp: () => deps.timeline.catchUp?.status?.()?.running === true,
+        schedule: (fn, ms) => timers.setTimeout?.(fn, ms),
+    });
+    deps.mirror = mirror;
+    deps.participantOptions = { ...participantOptions, onPublished: published => mirror.onPublished(published) };
     const castUiPart = createCastUiPart(session, deps);
     Object.assign(deps, castUiPart);
     const timelinePart = createTimelinePart(session, deps);
