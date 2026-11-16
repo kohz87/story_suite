@@ -3,9 +3,9 @@
 // set the line is gone and the tail is as it was (prompt diet, stage 59: it is asked once per chat, on the reply to the reader's first message, not on every reply until set); the Rank is asked only when a pack gives a rank word and it is empty; off changes nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { CORE_BUDGET, createCoreModule } from '../../../src/v2/domains/index.js';
-import { YOU_FEATURE, initialScene, sceneTail, youNote } from '../../../src/v2/domains/scene.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { CORE_BUDGET, createCoreModule } from '../../../../modules/scene/domains/index.js';
+import { YOU_FEATURE, initialScene, sceneTail, youNote } from '../../../../modules/scene/index.js';
 
 const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const staticText = host => host.st.requests.at(-1)?.chat?.[0]?.content ?? '';

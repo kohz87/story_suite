@@ -6,7 +6,7 @@ import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { createRegistry } from '../../../core/registry.js';
 import { createSettings } from '../../../core/sdk.js';
-import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { packsFor } from '../../../core/runtime.js';
 import { HOST_FOLD, PACKS_FOLD, SENT_FOLD, SETTINGS_TEXT, TABS_FOLD, TABS_TEXT, promptSize } from '../../../ui/legacy/host-ui.js';
 import { estimateTokens } from '../../../core/prompt.js';

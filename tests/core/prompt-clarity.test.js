@@ -4,8 +4,8 @@
 // {{user}} is paid or pays. The static part stays byte-identical reply to reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CORE_KINDS } from '../../packages/story-block/src/v2/domains/index.js';
-import { TOLD, WALLET_NOTE } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { CORE_KINDS } from '../../modules/scene/domains/index.js';
+import { TOLD, WALLET_NOTE } from '../../modules/inventory/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
 import { createHost } from '../../packages/story-block/testkit/index.js';
 

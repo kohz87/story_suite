@@ -3,7 +3,7 @@
 
 import { stable } from './shape.js';
 import { HASH_BASIS_V1 } from '../hash-basis-v1.js';
-import { sha256Hex as sha256 } from '../../domains/digest.js';
+import { sha256Hex as sha256 } from '../../scene/domains/digest.js';
 
 // SHA-256 of a text, remembered by the text itself (a hash is a pure function of it, so a hit is always the same answer). The settings
 // window asks for every installed pack's hash each time it opens; the packs' text is the same until a pack changes, and the new text misses.

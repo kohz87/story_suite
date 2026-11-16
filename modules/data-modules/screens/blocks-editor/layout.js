@@ -1,9 +1,9 @@
 // The block editor's layout chips, card-role controls, status colours and preview (moved out of
 // screens/blocks-editor.js; editor.js calls this part).
 
-import { LAYOUTS, TONES, exampleValues, statusTones } from '../../data-modules/block-layout.js';
-import { buildBlock, defaultTone } from '../../data-modules/block-builder.js';
-import { fill } from '../../../../../../core/strings.js';
+import { LAYOUTS, TONES, exampleValues, statusTones } from '../../block-layout.js';
+import { buildBlock, defaultTone } from '../../block-builder.js';
+import { fill } from '../../../../core/strings.js';
 import { S, LAYOUT_NAMES, TONE_NAMES } from './constants.js';
 
 export function createLayoutPart({ node, button, control, collect, refresh, draw, setSpot, draft, meta, renderPreview, tabs, used, resolve }) {

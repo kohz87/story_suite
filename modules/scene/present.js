@@ -1,8 +1,8 @@
 // Who is present in the scene: the names that come along to a place, the `+ present` and `- present` changes, and the reader's
 // list editor (`scene.present` with `set`). Pure. The place part (place.js) uses `companions` for who came along.
 
-import { cleanName } from '../names.js';
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { cleanName } from './names.js';
+import { STRINGS, fill } from '../../core/strings.js';
 import { MAX_NAME, MAX_PRESENT } from './constants.js';
 import { nameList, told } from './shared.js';
 

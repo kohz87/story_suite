@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { dataModulesPackHash, dataModuleHash, hashMemoSize } from '../../../src/v2/data-modules/check.js';
+import { dataModulesPackHash, dataModuleHash, hashMemoSize } from '../../../modules/data-modules/check.js';
 
 const pack = name => ({ content: { dataModules: [] }, id: 'p1', name, version: '1.0.0' });
 const direct = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');

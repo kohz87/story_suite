@@ -1,7 +1,7 @@
 // The bound-gear guards: who a stack is bound to and refusing or skipping bound stacks.
 
-import { ownerNameIn } from '../../common.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { ownerNameIn } from '../../scene/domains/common.js';
+import { fill } from '../../../core/strings.js';
 import { gearOn } from '../state.js';
 import { E } from './common-ctx.js';
 

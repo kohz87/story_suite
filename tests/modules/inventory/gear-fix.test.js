@@ -3,21 +3,21 @@
 // asks the same question.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { createFakeModel } from '../../testkit/model.js';
-import { validatePack } from '../../../../packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { gearMatches, planGear, sameWho } from '../../../../modules/rpg/gear.js';
-import { actorIdOf } from '../../../../modules/rpg/roster.js';
-import { readSheet } from '../../../../modules/rpg/index.js';
-import { hashJson } from '../../../../core/replay.js';
-import { createHarness } from './domains/helpers/fake-ctx.js';
-import { core, stocked } from './domains/fixtures.js';
-import { reply, success } from './data-modules/helpers.js';
-import { pack } from '../../../../tests/packs/helpers/fixtures.js';
-import { character, sheetDomain } from '../../../../tests/modules/rpg/helpers.js';
-import { legacyPlanner } from '../../../../tests/modules/rpg/legacy-planner.js';
-import { seedCrypto } from '../../../../tests/suite/qa/helpers/seeded.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
+import { validatePack } from '../../../packs/validate.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { gearMatches, planGear, sameWho } from '../../../modules/rpg/gear.js';
+import { actorIdOf } from '../../../modules/rpg/roster.js';
+import { readSheet } from '../../../modules/rpg/index.js';
+import { hashJson } from '../../../core/replay.js';
+import { createHarness } from './helpers/fake-ctx.js';
+import { core, stocked } from './fixtures.js';
+import { reply, success } from '../data-modules/helpers.js';
+import { pack } from '../../packs/helpers/fixtures.js';
+import { character, sheetDomain } from '../rpg/helpers.js';
+import { legacyPlanner } from '../rpg/legacy-planner.js';
+import { seedCrypto } from '../../suite/qa/helpers/seeded.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -31,7 +31,7 @@ const GEAR_LINES = ['+ item Cane Sword | kind: weapon | rarity: rare | DEX: +2 |
 const resultAt = (host, index) => host.ctx.chat[index].extra?.storySuite?.receipts?.find(entry => entry.type === 'rpg.resolve')?.data?.v2?.result;
 const payloadAt = (host, index) => host.ctx.chat[index].extra?.storySuite?.receipts?.find(entry => entry.type === 'rpg.resolve')?.replan?.payload;
 // (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
-const withPlanner = (model, get) => async () => { const lib = await import('../../../../modules/rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
+const withPlanner = (model, get) => async () => { const lib = await import('../../../modules/rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
 const stable = host => JSON.stringify(host.head());
 
 async function fightWorld(t, { gear = true } = {}) {

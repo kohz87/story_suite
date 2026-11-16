@@ -1,13 +1,13 @@
 // Gear in fights, inventory side (`story-block.gear`, off by default; docs/v2/GEAR.md): stats, repair, rarity limits, grammar words, compound names, reread itemIds.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GEAR, defaultStat, gearSlotOf, itemCarryOf, kindCarry, statsFor, statsOf, stepUp, withinBudget } from '../../src/v2/domains/gear.js';
-import { validatePack } from '../../../../packs/validate.js';
-import { createHost } from '../../testkit/index.js';
-import { createCoreModule } from '../../src/v2/domains/index.js';
-import { createHarness, line } from './domains/helpers/fake-ctx.js';
-import { core, stocked } from './domains/fixtures.js';
-import { pack } from '../../../../tests/packs/helpers/fixtures.js';
+import { GEAR, defaultStat, gearSlotOf, itemCarryOf, kindCarry, statsFor, statsOf, stepUp, withinBudget } from '../../../modules/inventory/gear.js';
+import { validatePack } from '../../../packs/validate.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
+import { createHarness, line } from './helpers/fake-ctx.js';
+import { core, stocked } from './fixtures.js';
+import { pack } from '../../packs/helpers/fixtures.js';
 import { FIGHT, ITEM_LINE, ON, defNamed, equip, fresh, gearCore, reply, staticOf, tail, wear } from './gear-inventory.helpers.js';
 
 test('stats: the narrator\'s named stats are held to the budget; with none named the kind or name picks; every slot gives them; a pack lists its own', async () => {

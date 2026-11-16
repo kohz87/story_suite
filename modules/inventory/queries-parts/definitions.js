@@ -1,7 +1,7 @@
 // The answer of `inventory.definitions` from an inventory slice.
 
-import { isPlainObject, clone } from '../../common.js';
-import { DEF_ID } from '../../../../../../../core/registry/check.js';
+import { isPlainObject, clone } from '../../scene/domains/common.js';
+import { DEF_ID } from '../../../core/registry/check.js';
 
 // The most definitions one `inventory.definitions` call may ask for by ID.
 export const DEFINITIONS_MAX_IDS = 1000;

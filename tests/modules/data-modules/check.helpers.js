@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validatePack } from '../../../../../packs/validate.js';
+import { validatePack } from '../../../packs/validate.js';
 
 export const read = name => JSON.parse(readFileSync(new URL(`fixtures/${name}.json`, import.meta.url), 'utf8'));
 export const integer = (min = 0, max = 100, value = 0) => ({ type: 'int', min, max, default: value });

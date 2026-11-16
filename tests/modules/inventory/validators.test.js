@@ -1,8 +1,8 @@
 // Domain validators (§2.5) and initial slices (§2.6).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateInventory, initialInventory } from '../../../src/v2/domains/inventory.js';
-import { validateScene, initialScene } from '../../../src/v2/domains/scene.js';
+import { validateInventory, initialInventory } from '../../../modules/inventory/index.js';
+import { validateScene, initialScene } from '../../../modules/scene/index.js';
 import { stocked } from './fixtures.js';
 
 const fresh = () => structuredClone(stocked().domains.inventory);

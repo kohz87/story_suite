@@ -3,10 +3,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { promptNote, inventoryTail } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { promptNote, inventoryTail } from '../../modules/inventory/index.js';
 import { STATIC_KEY, TAIL_KEY } from '../../core/turn.js';
-import { YOU_FEATURE } from '../../packages/story-block/src/v2/domains/scene.js';
-import { MOUNTS_FEATURE } from '../../packages/story-block/src/v2/domains/mounts.js';
+import { YOU_FEATURE } from '../../modules/scene/index.js';
+import { MOUNTS_FEATURE } from '../../modules/scene/mounts.js';
 
 const staticOf = host => host.st.promptLog.filter(entry => entry.key === STATIC_KEY && entry.value).at(-1).value;
 const tailOf = host => host.st.promptLog.filter(entry => entry.key === TAIL_KEY && entry.value).at(-1).value;

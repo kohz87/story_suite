@@ -7,7 +7,7 @@ import { createRegistry } from '../../core/registry.js';
 import { createSettings } from '../../core/sdk.js';
 import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { createFeatureStore } from '../../core/features.js';
-import { SCHEMA, SETTING, createAssistPart, stCallModel } from '../../packages/story-block/src/v2/assist/index.js';
+import { SCHEMA, SETTING, createAssistPart, stCallModel } from '../../modules/assist/index.js';
 import { listProfiles } from '../../core/model-call.js';
 import {
     REMOVED, buildReport, captureConsole, caughtSoFar, chatCounts, isSecretKey, noteError, noteSaveError, reportFileName, resetCaught,
@@ -91,7 +91,7 @@ test('a panel alone (no schema, no features) is drawn straight into its fold; a 
 });
 
 test('every module\'s controls sit at most two folds deep (Story Block\'s own module too)', async () => {
-    const { createCoreModule } = await import('../../packages/story-block/src/v2/domains/index.js');
+    const { createCoreModule } = await import('../../modules/scene/domains/index.js');
     const core = createCoreModule();
     const { registry, settings } = setup(core, delta(), { id: 'rpg-battle', name: 'RPG Battle', settings: { schema: { a: { type: 'bool', label: 'Combat: A' } } } });
     const root = doc.createElement('div');

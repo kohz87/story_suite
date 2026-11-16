@@ -160,7 +160,7 @@ test('50 of 51 Willow Rods taken on a later reply: an unchanged Re-read (now off
 test('the offer saved by f74bab2: a take on its own reply goes with an edit and Re-read of that reply', async t => {
     t.mock.method(console, 'warn', () => {});
     const sample = riverside();
-    const saved = JSON.parse(readFileSync(new URL('../../packages/story-block/tests/v2/domains/fixtures/loot-2.6.0-f74bab2-chat.json', import.meta.url), 'utf8'));
+    const saved = JSON.parse(readFileSync(new URL('../modules/inventory/fixtures/loot-2.6.0-f74bab2-chat.json', import.meta.url), 'utf8'));
     const host = await createHost({ st: { chat: saved.chat }, settings: { packs: [packEntry(sample, true)] } });
     t.after(() => host.close());
     const sid = headSid(host);
@@ -179,7 +179,7 @@ test('the offer saved by f74bab2: a take on its own reply goes with an edit and 
 // made on it is guarded.
 test('a chat saved by 2.6.0 with loot taken opens as it was; its takes replay as stored; a new take is guarded', async t => {
     t.mock.method(console, 'warn', () => {});
-    const saved = JSON.parse(readFileSync(new URL('../../packages/story-block/tests/v2/domains/fixtures/loot-take-2.6.0-chat.json', import.meta.url), 'utf8'));
+    const saved = JSON.parse(readFileSync(new URL('../modules/inventory/fixtures/loot-take-2.6.0-chat.json', import.meta.url), 'utf8'));
     const host = await createHost({ st: { chat: structuredClone(saved.chat) } });
     t.after(() => host.close());
     assert.deepEqual(host.head().domains.inventory, saved.inventory);

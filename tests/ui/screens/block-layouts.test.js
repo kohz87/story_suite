@@ -2,11 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { createBlockWidgets, BLOCK_WIDGET } from '../../../packages/story-block/src/v2/screens/blocks.js';
-import { createFieldsWidgets } from '../../../packages/story-block/src/v2/screens/block-fields.js';
-import { FIELDS_WIDGET } from '../../../packages/story-block/src/v2/data-modules/fields-widget.js';
+import { createBlockWidgets, BLOCK_WIDGET } from '../../../modules/data-modules/screens/blocks.js';
+import { createFieldsWidgets } from '../../../modules/data-modules/screens/block-fields.js';
+import { FIELDS_WIDGET } from '../../../modules/data-modules/fields-widget.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { success } from '../../modules/data-modules/helpers.js';
 import { readFileSync } from 'node:fs';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));
@@ -173,7 +173,7 @@ test('a block that says show.into is a section of that tab beside the pack scree
 });
 
 test('the editor preview draws entries in a layout with no editors (renderPreview)', async t => {
-    const { renderBlockPreview } = await import('../../../packages/story-block/src/v2/screens/block-layouts.js');
+    const { renderBlockPreview } = await import('../../../modules/data-modules/screens/block-layouts.js');
     const { doc } = await world(t);
     const definition = entriesFixture();
     const parent = doc.createElement('div');
@@ -312,7 +312,7 @@ test('the pencils stay hidden until the section\'s Edit button is pressed, for t
 });
 
 test('number lists CSS: no hairline beside Edit, no bullet indent under the Enable all button', () => {
-    const css = readFileSync(new URL('../../../packages/story-block/src/v2/screens/block-maps.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../modules/data-modules/screens/block-maps.css', import.meta.url), 'utf8');
     assert.match(css, /\.ss-rm-head > \.ss-section-label::after \{ display: none; \}/, 'the heading with Edit has no hairline (it would count in the label\'s width and push Edit down)');
     assert.match(css, /\.ss-dm-list-rows \{ list-style: none; margin: 0; padding: 0; \}/);
 });

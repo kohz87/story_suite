@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { DM_LIMITS } from '../../../packages/story-block/src/v2/data-modules/schema.js';
+import { DM_LIMITS } from '../../../modules/data-modules/schema.js';
 import { refusalText } from '../../../core/strings.js';
-import { definition, pack, pin, reload, view, world } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { definition, pack, pin, reload, view, world } from '../../modules/data-modules/helpers.js';
 import { readRecord } from '../../../core/persist.js';
 
 function made() {

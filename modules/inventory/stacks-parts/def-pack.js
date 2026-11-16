@@ -1,9 +1,9 @@
 // Taking a pack's def for a name the inventory does not know yet.
 
-import { isPlainObject, clone } from '../../common.js';
-import { cleanName, aliasKey } from '../../names.js';
-import { DEF_ID } from '../../../../../../../core/registry/check.js';
-import { packBonus, packSoak } from '../../gear.js';
+import { isPlainObject, clone } from '../../scene/domains/common.js';
+import { cleanName, aliasKey } from '../../scene/names.js';
+import { DEF_ID } from '../../../core/registry/check.js';
+import { packBonus, packSoak } from '../gear.js';
 import { packCarry, defaultDef } from '../state.js';
 import { registerNew } from './def-build.js';
 

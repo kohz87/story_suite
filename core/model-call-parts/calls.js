@@ -1,6 +1,6 @@
 // The rules around a model call: one in flight per module, a time limit, the feature switch and the queue.
 
-import { answerText } from '../../packages/story-block/src/v2/assist/st-adapter.js';
+import { answerText } from '../../modules/assist/st-adapter.js';
 import { MODEL_CALL_TIMEOUT_MS, MODEL_CALL_TIMEOUT_MIN, MODEL_CALL_TIMEOUT_MAX, MODEL_CALL_TOKENS } from './limits.js';
 import { MODEL_CALL_TOKENS_MAX } from './shared-consts.js';
 import { MODEL_CALL_ERRORS, MODEL_CALL_TEXT } from './messages.js';

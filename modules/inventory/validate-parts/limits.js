@@ -1,6 +1,6 @@
 // Reads the slot counts in force (accessory and worn) from the `items.slots` query.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { MANY_SLOTS, MAX_MANY } from './slots.js';
 import { asking } from './shared-asking.js';
 

@@ -1,6 +1,6 @@
-import { createHost } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../../../modules/rpg/templates.js';
-import { levelOfClass } from '../../../../../modules/rpg/formula.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { levelOfClass } from '../../../../modules/rpg/formula.js';
 
 export const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 export const staticText = host => host.st.requests.at(-1)?.chat?.[0]?.content ?? '';

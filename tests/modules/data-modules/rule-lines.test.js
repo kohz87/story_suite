@@ -2,9 +2,9 @@
 // "<Block> <field>: <new value>", the block by its screen title (else its name), the field by the screen's label (else humanized).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readRecord } from '../../../../../core/persist.js';
-import { replyRules } from '../../../../../ui/legacy/reply-cards.js';
-import { changesSummary } from '../../../../../ui/legacy/screens/changes-card.js';
+import { readRecord } from '../../../core/persist.js';
+import { replyRules } from '../../../ui/legacy/reply-cards.js';
+import { changesSummary } from '../../../ui/legacy/screens/changes-card.js';
 import { world, pin, reply, pack, int, reload } from './helpers.js';
 
 const bind = (module, path) => ({ query: 'dataModules.view', args: { module }, path });

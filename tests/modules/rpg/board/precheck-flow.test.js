@@ -13,7 +13,7 @@ import { pauseViewData } from '../../../../modules/rpg/board/start-view-data.js'
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { PRECHECK_SETTING } from '../../../../modules/rpg/names.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { validateDataModules } from '../../../../packages/story-block/src/v2/data-modules/check.js';
+import { validateDataModules } from '../../../../modules/data-modules/check.js';
 
 const empty = () => ({ ...foeBlock([]), count1: 0, count2: 0, count3: 0, count4: 0 });
 const blocks = () => ({

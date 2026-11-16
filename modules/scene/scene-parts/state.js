@@ -1,9 +1,9 @@
 // The scene slice's starting record and its validator. Pure.
 
-import { isPlainObject } from '../common.js';
+import { isPlainObject } from '../domains/common.js';
 import { trimText } from '../names.js';
 import { validateMounts } from '../mounts.js';
-import { MAX_NAME, MAX_PRESENT, WEATHER_CHARS, WEATHER_KEY_CHARS, YOU_CHARS, YOU_PARTS, YOU_SHORT, YOU_SHORT_CHARS } from '../scene/constants.js';
+import { MAX_NAME, MAX_PRESENT, WEATHER_CHARS, WEATHER_KEY_CHARS, YOU_CHARS, YOU_PARTS, YOU_SHORT, YOU_SHORT_CHARS } from '../constants.js';
 
 export function initialScene() {
     return { place: { name: '', kind: '', region: '' }, present: [] };

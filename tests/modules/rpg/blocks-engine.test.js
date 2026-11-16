@@ -10,10 +10,10 @@ import { STAGES } from '../../../modules/rpg/names.js';
 import { readSheet } from '../../../modules/rpg/read.js';
 import { blocksFor } from '../../../modules/rpg/formula.js';
 import { hardBlocksByLevel } from '../../../modules/rpg/foes.js';
-import { summaryOf } from '../../../packages/story-block/src/v2/data-modules/part.js';
-import { validateDataModules, DM_LIMITS as L } from '../../../packages/story-block/src/v2/data-modules/check.js';
-import { fullModuleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
-import { reply, success, view, rebuilt, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { summaryOf } from '../../../modules/data-modules/part.js';
+import { validateDataModules, DM_LIMITS as L } from '../../../modules/data-modules/check.js';
+import { fullModuleGrammar } from '../../../modules/data-modules/grammar.js';
+import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 
 const CHECK = { packId: 'chat', capabilities: ['data-modules-v1', 'story-director'] };
 const standard = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));

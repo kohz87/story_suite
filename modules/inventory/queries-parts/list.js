@@ -1,6 +1,6 @@
 // The inventory's stacks joined with their defs as one sorted list.
 
-import { valueByCond, handDef, statsFor } from '../../gear.js';
+import { valueByCond, handDef, statsFor } from '../gear.js';
 import { KIND_ORDER, condOf, COND_MAX, packCarry } from '../state.js';
 import { defCarry } from './carry.js';
 

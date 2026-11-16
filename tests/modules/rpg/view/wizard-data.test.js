@@ -1,8 +1,8 @@
 // The New character wizard (src/v2/lean-rpg/view/wizard.js and wizard-data.js, mockup 41-wizard): the data: draft, budget, skills, sets, problems, definitions, room, screen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DM_OLD_ROOM } from '../../../../packages/story-block/src/v2/data-modules/schema.js';
-import { validateDataModules } from '../../../../packages/story-block/src/v2/data-modules/check.js';
+import { DM_OLD_ROOM } from '../../../../modules/data-modules/schema.js';
+import { validateDataModules } from '../../../../modules/data-modules/check.js';
 import { STATS } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES, SKILL_SETS } from '../../../../modules/rpg/templates.js';
 import { createWizardScreen, WIZARD_SCREEN_ID, WIZARD_WIDGET } from '../../../../modules/rpg/view/wizard.js';

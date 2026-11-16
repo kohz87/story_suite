@@ -5,7 +5,7 @@
 // if any member is, at the lowest `order` of its members, on the mounts the members share between them (never a card). Each section is its screen's
 // layout under a header with the screen's title; a section whose layout is a story-block.fields node or a block widget draws its own header.
 // A screen that has a template (not a layout), or only a card mount, stays as it is: it cannot be a section.
-import { FIELDS_WIDGET, HEADING_WIDGET } from '../../../packages/story-block/src/v2/data-modules/fields-widget.js';
+import { FIELDS_WIDGET, HEADING_WIDGET } from '../../../modules/data-modules/fields-widget.js';
 
 export const MERGED_PREFIX = 'story-block/tab/';
 const SELF_HEADED = new Set([FIELDS_WIDGET, 'story-block.block']);

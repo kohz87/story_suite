@@ -2,8 +2,8 @@
 
 import { oneLine } from '../../../core/text.js';
 import { STRINGS, fill } from '../../../core/strings.js';
-import { activeDefinition, instanceOf } from '../../../packages/story-block/src/v2/data-modules/adapters.js';
-import { dmNameOf } from '../../../packages/story-block/src/v2/data-modules/schema.js';
+import { activeDefinition, instanceOf } from '../../../modules/data-modules/adapters.js';
+import { dmNameOf } from '../../../modules/data-modules/schema.js';
 
 /** Applied reader edits on one reply, in receipt order. Skipped replay blocks do not describe changes. */
 export function replyEdits(record, problems = [], index = null) {

@@ -1,5 +1,5 @@
 // Display labels for values: the names text of a number field and the default tone of a status value.
-import { oneLine } from '../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { dmDefaultTone } from '../schema.js';
 
 /** The tone a status value has unless the author changed it. */

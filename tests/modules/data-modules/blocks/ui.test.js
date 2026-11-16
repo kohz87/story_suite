@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { mountUi } from '../../../../../ui/legacy/ui-host.js';
-import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
-import { STRINGS, fill } from '../../../../../core/strings.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { buildBlock } from '../../../../modules/data-modules/block-builder.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 const S = STRINGS.blocks;
 const P = S.page;

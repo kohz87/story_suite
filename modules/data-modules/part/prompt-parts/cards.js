@@ -1,7 +1,7 @@
 // Derives the cards shown under the head reply from the active blocks and fills the reply-cards slots.
 import { activeDefinition, instanceOf } from '../../adapters.js';
 import { createEvaluation } from '../../interpreter.js';
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../../core/text.js';
 import { kept } from '../shared.js';
 
 // --- Cards under the head reply -------------------------------------------------------------------------------------------------

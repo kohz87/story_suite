@@ -2,7 +2,7 @@
 
 import { CONTENT_KINDS, DEFAULT_CRAFTS, METER_LIMITS, PACK_FIELDS, PACK_ID, SEMVER, TERMS_LIMITS } from '../limits.js';
 import { oneLine } from '../../core/text.js';
-import { validateDataModules } from '../../packages/story-block/src/v2/data-modules/check.js';
+import { validateDataModules } from '../../modules/data-modules/check.js';
 import { STRINGS } from '../../core/strings.js';
 import { checkCast } from '../cast.js';
 import { isObject, records, openRecord } from '../validate/core.js';

@@ -12,7 +12,7 @@ import { actorIdOf, levelsQuery, rosterOf, rosterQueries } from '../../modules/r
 import { gearMatches, planGear } from '../../modules/rpg/gear.js';
 import { readSheet } from '../../modules/rpg/index.js';
 import { hashJson } from '../../core/replay.js';
-import { reply as dmReply, success } from '../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply as dmReply, success } from '../modules/data-modules/helpers.js';
 import { pack } from '../packs/helpers/fixtures.js';
 import { character, sheetDomain } from '../modules/rpg/helpers.js';
 import { legacyPlanner } from '../modules/rpg/legacy-planner.js';

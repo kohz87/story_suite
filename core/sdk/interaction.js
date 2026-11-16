@@ -8,7 +8,7 @@ import { discardHeld } from '../interaction/held.js';
 import { actorsOf, currentFor, playPreview } from '../interaction/preview.js';
 import { createSession, stageInteraction } from '../interaction/session.js';
 import { hashJson } from '../replay.js';
-import { hashText } from '../../packages/story-block/src/v2/assist/common.js';
+import { hashText } from '../../modules/assist/common.js';
 import { readRecord } from '../persist.js';
 
 const META_KEY = 'storySuiteInteraction';

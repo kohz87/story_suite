@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { mountUi } from '../../../../../ui/legacy/ui-host.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 test('standalone Studio layouts become tabs and leave when their pack is disabled', async t => {
     const doc = setupDom(), host = await createHost();

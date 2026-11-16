@@ -1,5 +1,5 @@
 // The block editor's comparison and icon choices.
-import { hasIcon } from '../../../../../../../ui/legacy/view/icons/index.js';
+import { hasIcon } from '../../../../../ui/legacy/view/icons/index.js';
 import { S } from './types.js';
 
 export const COMPARISONS = [{ value: 'eq', label: S.is }, { value: 'ne', label: S.isNot }, { value: 'lt', label: S.below },

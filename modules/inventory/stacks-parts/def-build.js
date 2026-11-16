@@ -1,8 +1,8 @@
 // Building a new def through the `item.define` hooks and storing it.
 
-import { isPlainObject, clone } from '../../common.js';
-import { aliasKey } from '../../names.js';
-import { gearDefine, packBonus, soakCap, itemCarryOf } from '../../gear.js';
+import { isPlainObject, clone } from '../../scene/domains/common.js';
+import { aliasKey } from '../../scene/names.js';
+import { gearDefine, packBonus, soakCap, itemCarryOf } from '../gear.js';
 import { gearOn, RARITIES, STORY_KIND, packCarry } from '../state.js';
 import { legendaryEarned } from '../validate.js';
 import { economyOf } from './economy.js';

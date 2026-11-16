@@ -2,13 +2,13 @@
 // no Drop; its Edit locks everything but the note; its slot tile carries a lock. Off: today's screens (the fixture test in gear-ui.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inventoryScreen } from '../../../../ui/legacy/screens/index.js';
-import { createCoreModule } from '../../src/v2/domains/index.js';
-import { createHarness } from './domains/helpers/fake-ctx.js';
-import { stocked } from './domains/fixtures.js';
-import { show, settle, text } from '../../../../tests/ui/screens/helpers.js';
-import { setupDom } from '../../../../tests/ui/view/mounts/helpers.js';
-import { renderGearCard } from '../../../../modules/rpg/view/gear-card.js';
+import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
+import { createHarness } from './helpers/fake-ctx.js';
+import { stocked } from './fixtures.js';
+import { show, settle, text } from '../../ui/screens/helpers.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { renderGearCard } from '../../../modules/rpg/view/gear-card.js';
 
 const rowOf = (el, name) => el.querySelectorAll('li.item').find(item => item.querySelector('.name')?.textContent === name);
 const featureOn = id => id === 'story-block.gear' || id === 'story-block.rpg';

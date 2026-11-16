@@ -1,6 +1,6 @@
 // Adding stacks: a new stack, a loose stack to join and putting a quantity with an owner.
 
-import { newId } from '../../common.js';
+import { newId } from '../../scene/domains/common.js';
 import { MAX_UNSTACKED, COND_MAX, condOf } from '../state.js';
 import { byId } from './shared-order.js';
 

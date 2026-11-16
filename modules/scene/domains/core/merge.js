@@ -1,8 +1,8 @@
 // Story Block's part merger: one module definition from the core, packs, events and optional parts,
 // preserving part order for hooks, statics, tails, tabs and settings sections.
 
-import { hookTimeout } from '../../../../../../core/turn.js';
-import { FLAGS } from '../../../../../../core/runtime/flags.js';
+import { hookTimeout } from '../../../../core/turn.js';
+import { FLAGS } from '../../../../core/runtime/flags.js';
 import { isolatedAfterCapture } from './isolate-after.js';
 
 const TIMED_OUT = Symbol('timed out');

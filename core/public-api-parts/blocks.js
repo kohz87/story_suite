@@ -1,7 +1,7 @@
 // Reads the blocks section of the public paths from the pinned data-module blocks.
 
-import { activeDefinition, actorsOf, instanceOf } from '../../packages/story-block/src/v2/data-modules/adapters.js';
-import { dmHidden } from '../../packages/story-block/src/v2/data-modules/schema.js';
+import { activeDefinition, actorsOf, instanceOf } from '../../modules/data-modules/adapters.js';
+import { dmHidden } from '../../modules/data-modules/schema.js';
 import { isObject, text, fold } from './shared-basics.js';
 import { put } from './shared-put.js';
 

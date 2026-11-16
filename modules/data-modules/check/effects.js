@@ -4,7 +4,7 @@
 import { E, array, entries, named, same, shape, sized } from './shape.js';
 import { compatible, expressionType, fieldType, pathType } from '../expressions.js';
 import { DM_DESCRIPTORS as D, DM_ENTRY_EFFECTS, DM_LIMITS as L, dmInt, dmObject, dmOwn, dmSlug } from '../schema.js';
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../core/strings.js';
 
 export function rewardTypes(reward, path, add) {
     const out = {};

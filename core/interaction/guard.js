@@ -1,6 +1,6 @@
 // Checks an interaction settle's replay guard against the state before its block; features do not turn it off.
 
-import { CORE_MODULE_ID } from '../../packages/story-block/src/v2/domains/core/constants.js';
+import { CORE_MODULE_ID } from '../../modules/scene/domains/core/constants.js';
 import { guardProblem } from '../replay.js';
 import { interactionError } from './contract.js';
 import { kindName } from './kind-name.js';

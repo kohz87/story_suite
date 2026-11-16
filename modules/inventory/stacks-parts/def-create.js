@@ -1,9 +1,9 @@
 // Creating the def a name or a given definition means.
 
-import { clone } from '../../common.js';
-import { cleanName, resolveDef, slugify } from '../../names.js';
-import { DEF_ID } from '../../../../../../../core/registry/check.js';
-import { packBonus, packSoak } from '../../gear.js';
+import { clone } from '../../scene/domains/common.js';
+import { cleanName, resolveDef, slugify } from '../../scene/names.js';
+import { DEF_ID } from '../../../core/registry/check.js';
+import { packBonus, packSoak } from '../gear.js';
 import { MAX_NAME, defaultDef, packCarry } from '../state.js';
 import { ambiguous, freeId } from './lookup.js';
 import { packDef } from './def-pack.js';

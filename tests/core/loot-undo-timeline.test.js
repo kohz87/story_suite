@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { lootTakeGuard } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { lootTakeGuard } from '../../modules/inventory/index.js';
 import { hashJson } from '../../core/replay.js';
 import { readRecord } from '../../core/persist.js';
 import { agrees, at, claimed, coin, fresh, headSid, offPs, qty, reply, take } from './loot-undo.helpers.js';

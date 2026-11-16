@@ -1,6 +1,6 @@
 // {{user}}'s look (`~ you`): its character cap, feature name and the parts a look has (position is optional: kneeling, riding, in bed). Pure.
 
-import { CORE_FEATURE } from '../../../../../../../core/features.js';
+import { CORE_FEATURE } from '../../../core/features.js';
 
 /** What {{user}} wears and their condition (`~ you`): each at most this many code points (cut, an ellipsis in the last place). */
 export const YOU_CHARS = 120;

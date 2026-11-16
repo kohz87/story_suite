@@ -1,6 +1,6 @@
 // The paces a party travels at: on foot, by default, and by kind of mount.
 
-import { foldKey } from '../../../../../../core/text.js';
+import { foldKey } from '../../../core/text.js';
 
 /** What a party without enough mounts does: km per day on foot. */
 export const WALK_PACE = 20;

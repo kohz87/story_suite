@@ -6,7 +6,7 @@ import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
 import { createInventoryAddWidget, createInventoryGridWidget, createInventoryViewWidget, createWornFoldWidget, INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from '../../../ui/legacy/screens/inventory-add.js';
 import { compile, evaluate } from '../../../modules/world/events/index.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { core, stocked } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { core, stocked } from '../../modules/inventory/fixtures.js';
 
 async function load(path) {
     try {

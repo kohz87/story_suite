@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createBlockTemplates, exportBlockPack } from '../../../src/v2/data-modules/block-templates.js';
-import { validatePack } from '../../../../../packs/validate.js';
-import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
-import { createHost } from '../../../testkit/index.js';
+import { createBlockTemplates, exportBlockPack } from '../../../../modules/data-modules/block-templates.js';
+import { validatePack } from '../../../../packs/validate.js';
+import { buildBlock } from '../../../../modules/data-modules/block-builder.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
 
 const draft = (name = 'Notes') => ({ name, fields: [{ name: 'Mood', type: 'text', max: 30, default: 'calm' }], functions: [], prompt: '',
     show: { tab: true, card: true, tabName: 'Notes', icon: 'ph-bookmark-simple' } });

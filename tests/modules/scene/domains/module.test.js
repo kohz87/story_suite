@@ -2,12 +2,12 @@
 // budget split (§5).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CORE_BUDGET, CORE_KINDS, CORE_MODULE_ID, CORE_STATIC, createCoreModule, createCorePart } from '../../../src/v2/domains/index.js';
-import { currencyOf, moneyLine } from '../../../src/v2/domains/money.js';
-import { youNote } from '../../../src/v2/domains/scene.js';
-import { createHarness, initialState, line } from './helpers/fake-ctx.js';
-import { WALLET_NOTE } from '../../../src/v2/domains/inventory.js';
-import { CROWNS, core, def, stack, stocked } from './fixtures.js';
+import { CORE_BUDGET, CORE_KINDS, CORE_MODULE_ID, CORE_STATIC, createCoreModule, createCorePart } from '../../../../modules/scene/domains/index.js';
+import { currencyOf, moneyLine } from '../../../../modules/inventory/money.js';
+import { youNote } from '../../../../modules/scene/index.js';
+import { createHarness, initialState, line } from '../../inventory/helpers/fake-ctx.js';
+import { WALLET_NOTE } from '../../../../modules/inventory/index.js';
+import { CROWNS, core, def, stack, stocked } from '../../inventory/fixtures.js';
 
 const view = state => ({ state, query: () => null, settings: {}, chat: { length: 1, lastUser: '' } });
 

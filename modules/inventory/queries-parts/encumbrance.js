@@ -1,8 +1,8 @@
 // The encumbered condition derived from the load a carry module reports, and its tail line.
 
-import { isPlainObject } from '../../common.js';
-import { trimText } from '../../names.js';
-import { atLimit } from '../../gear.js';
+import { isPlainObject } from '../../scene/domains/common.js';
+import { trimText } from '../../scene/names.js';
+import { atLimit } from '../gear.js';
 import { carryAnswer } from './carry.js';
 import { asker } from './shared-ask.js';
 

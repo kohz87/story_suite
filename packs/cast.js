@@ -9,7 +9,7 @@
 
 import { CAST_BEHAVIOUR_LEVELS, CAST_BEHAVIOUR_LEVERS, CAST_BUILT_IN_METERS, CAST_FIELDS, CAST_SKILL_FIELDS, CAST_SKILL_RANK_WORDS, CAST_SKILL_STATS, CAST_SKILL_TYPES, CAST_SKILL_USES, CAST_LIMITS, CAST_SECRET_FIELDS, CAST_START_FIELDS, METER_LIMITS, METER_RESERVED, METER_STAGE_FIELDS, PORTRAIT_LIMITS, PORTRAIT_NAME, SLUG } from './limits.js';
 import { foldKey, oneLine } from '../core/text.js';
-import { slotWordOf } from '../packages/story-block/src/v2/domains/gear.js';
+import { slotWordOf } from '../modules/inventory/gear.js';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 // Markup and brace characters never belong in a person's text; `|` splits a change line, so the short lines refuse it too.

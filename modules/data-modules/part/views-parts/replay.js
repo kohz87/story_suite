@@ -3,9 +3,9 @@ import { DM_LIMITS as L, DM_OLD_ROOM, dmObject } from '../../schema.js';
 import { validateDataMigration } from '../../check.js';
 import { copy, atPath, conditionHolds } from '../../interpreter.js';
 import { activeDefinition, actorsOf, instanceOf, publicView, projectImport } from '../../adapters.js';
-import { hashJson } from '../../../../../../../core/replay.js';
-import { rpgLib } from '../../../../../../../modules/rpg/rpg-lazy.js';
-import { PARTY_ACTIVE, PARTY_MAX } from '../../../../../../../modules/rpg/names.js';
+import { hashJson } from '../../../../core/replay.js';
+import { rpgLib } from '../../../rpg/rpg-lazy.js';
+import { PARTY_ACTIVE, PARTY_MAX } from '../../../rpg/names.js';
 import { hashOf, activeCount, blockCount, checkedTarget, partyRoomOf } from '../shared.js';
 
 // Witnesses contain only relevant local paths. A guard never interprets effects or asks live

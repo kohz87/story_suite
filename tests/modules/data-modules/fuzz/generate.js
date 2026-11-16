@@ -1,7 +1,7 @@
 // Random data module definitions for the replay fuzz, and their malformed cousins. Valid ones are built from small safe
 // pieces (the checker is the judge: `generate` retries with fewer pieces until validateDataModules accepts it), malformed ones
 // by mutating a valid definition at random so that the checker must refuse or accept without ever throwing.
-import { validateDataModules } from '../../../../src/v2/data-modules/check.js';
+import { validateDataModules } from '../../../../modules/data-modules/check.js';
 
 export const rng = seed => {
     let a = seed >>> 0;

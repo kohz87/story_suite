@@ -3,12 +3,12 @@
 // replay is equal, and gear off knows nothing of it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { validatePack } from '../../../../packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { pack } from '../../../../tests/packs/helpers/fixtures.js';
-import { createHarness } from './domains/helpers/fake-ctx.js';
-import { core, stocked } from './domains/fixtures.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { validatePack } from '../../../packs/validate.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { pack } from '../../packs/helpers/fixtures.js';
+import { createHarness } from './helpers/fake-ctx.js';
+import { core, stocked } from './fixtures.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

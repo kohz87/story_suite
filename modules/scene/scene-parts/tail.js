@@ -1,8 +1,8 @@
 // The scene's tail lines for the prompt: place, who is present, the weather and {{user}}'s look. Pure.
 
-import { cutPoints } from '../../../../../../ui/legacy/extras.js';
-import { WEATHER_TAIL_CHARS } from '../scene/constants.js';
-import { youNote, wornWords } from '../scene/you.js';
+import { cutPoints } from '../../../ui/legacy/extras.js';
+import { WEATHER_TAIL_CHARS } from '../constants.js';
+import { youNote, wornWords } from '../you.js';
 
 /**
  * The scene's tail lines: the place and who is present (nothing when both are empty). With `weather`

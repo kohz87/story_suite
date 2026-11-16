@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { validateDataModules } from '../../../src/v2/data-modules/check.js';
-import { grammarFor, summaryOf } from '../../../src/v2/data-modules/part.js';
-import { kindGrammar, moduleGrammar } from '../../../src/v2/data-modules/grammar.js';
-import { estimateTokens } from '../../../../../core/prompt.js';
-import { definition, reload, view } from '../data-modules/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { validateDataModules } from '../../../../modules/data-modules/check.js';
+import { grammarFor, summaryOf } from '../../../../modules/data-modules/part.js';
+import { kindGrammar, moduleGrammar } from '../../../../modules/data-modules/grammar.js';
+import { estimateTokens } from '../../../../core/prompt.js';
+import { definition, reload, view } from '../helpers.js';
 
 const check = input => validateDataModules([input], { packId: 'chat', capabilities: ['data-modules-v1'] });
 const block = () => ({ ...definition(), slug: 'notes', name: 'Notes', state: {

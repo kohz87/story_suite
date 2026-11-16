@@ -9,7 +9,7 @@ import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { checksOf } from '../../../../modules/rpg/practice.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
-import { reply, success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success } from '../../data-modules/helpers.js';
 import { tailOf } from '../helpers.js';
 
 const available = await hostAvailable();

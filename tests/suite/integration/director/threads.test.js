@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { featureProblems } from '../../../../core/features.js';
-import { allowedGrammar, allowedKinds } from '../../../../packages/story-block/src/v2/assist/index.js';
+import { allowedGrammar, allowedKinds } from '../../../../modules/assist/index.js';
 import { createModule, storyDirectorModule } from '../../../../ui/legacy/director/module.js';
 import { GRAMMAR, TAIL_HEADER } from '../../../../modules/world/chronicle/note.js';
 import { PACING_TEXT, staticText } from '../../../../modules/time/tracker/note.js';

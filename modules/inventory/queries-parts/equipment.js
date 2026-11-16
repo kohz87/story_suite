@@ -1,6 +1,6 @@
 // What the Inventory screen's Equipped section and pickers need.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { membersOf, pcOf, slotLimits, canWear, asking } from '../validate.js';
 import { listItems } from './list.js';
 import { asker } from './shared-ask.js';

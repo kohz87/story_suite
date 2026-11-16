@@ -1,8 +1,8 @@
 // The shape checks for an item definition and for a member's kept gear.
 
-import { isPlainObject, OWNER_RE } from '../../common.js';
-import { DEF_ID } from '../../../../../../../core/registry/check.js';
-import { GEAR } from '../../gear.js';
+import { isPlainObject, OWNER_RE } from '../../scene/domains/common.js';
+import { DEF_ID } from '../../../core/registry/check.js';
+import { GEAR } from '../gear.js';
 import { KINDS, RARITIES } from './kinds.js';
 import { MAX_NAME } from './limits.js';
 import { isCount, nonBlank } from './shape.js';

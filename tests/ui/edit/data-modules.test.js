@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { validatePack } from '../../../packs/validate.js';
-import { parseLabels } from '../../../packages/story-block/src/v2/data-modules/interpreter.js';
-import { moduleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
-import { describe } from '../../../packages/story-block/src/v2/data-modules/setup.js';
-import { definition, pack, pin, view, world } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { parseLabels } from '../../../modules/data-modules/interpreter.js';
+import { moduleGrammar } from '../../../modules/data-modules/grammar.js';
+import { describe } from '../../../modules/data-modules/setup.js';
+import { definition, pack, pin, view, world } from '../../modules/data-modules/helpers.js';
 
 function made() {
     const d = definition();
@@ -162,7 +162,7 @@ test('data-module template editables may address only their own editable fields'
 });
 
 test('a pinned layout puts pencils beside displayed editable fields', async t => {
-    const { fixture } = await import('../../../packages/story-block/tests/v2/data-modules/helpers.js');
+    const { fixture } = await import('../../modules/data-modules/helpers.js');
     const { renderLayout } = await import('../../../ui/legacy/layout/index.js');
     const { standardWidgets } = await import('../../../ui/legacy/view/widgets/index.js');
     const { setupDom } = await import('../view/mounts/helpers.js');
@@ -190,7 +190,7 @@ test('a pinned layout puts pencils beside displayed editable fields', async t =>
 });
 
 test('character meters edit the field for the character shown in that row', async t => {
-    const { fixture, directorStub } = await import('../../../packages/story-block/tests/v2/data-modules/helpers.js');
+    const { fixture, directorStub } = await import('../../modules/data-modules/helpers.js');
     const { renderLayout } = await import('../../../ui/legacy/layout/index.js');
     const { setupDom } = await import('../view/mounts/helpers.js');
     const host = await world(t, fixture('survival'), [directorStub()]);

@@ -9,7 +9,7 @@ import { LEAN_RPG_FEATURE, prepare, readSheet, rollPrepared } from '../../../mod
 import { STANDARD_FORMULA } from '../../../modules/rpg/rules.js';
 import { parsePlanAnswer } from './legacy-planner.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { reply } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply } from '../data-modules/helpers.js';
 import { usesOf } from '../../../modules/rpg/practice.js';
 import { character, foeBlock, sheetDomain } from './helpers.js';
 

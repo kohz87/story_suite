@@ -2,9 +2,9 @@
 // lines. These tests run the whole host (pack, pin, story lines, replay); the editor and the draft are in tests/v2/blocks/entries-editor.test.js.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateDataModules } from '../../../src/v2/data-modules/check.js';
-import { fullModuleGrammar } from '../../../src/v2/data-modules/grammar.js';
-import { summaryOf } from '../../../src/v2/data-modules/part.js';
+import { validateDataModules } from '../../../modules/data-modules/check.js';
+import { fullModuleGrammar } from '../../../modules/data-modules/grammar.js';
+import { summaryOf } from '../../../modules/data-modules/part.js';
 import { world, pin, reply, pack, view, reload, rebuilt } from './helpers.js';
 
 const text = (max, label) => ({ type: 'text', max, default: '', ...(label ? { label } : {}) });
@@ -165,7 +165,7 @@ test('a block with no entries field reads and behaves as before', async t => {
 });
 
 // --- review 222 fixes (BE-FIX222) ---
-import { createEvaluation } from '../../../src/v2/data-modules/interpreter.js';
+import { createEvaluation } from '../../../modules/data-modules/interpreter.js';
 
 const titles = host => quest(host).map(entry => entry.title);
 const ADD = title => `+ dm quests — x | kind: add-quests | title: ${title}`;

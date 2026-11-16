@@ -1,9 +1,9 @@
 // Money (one currency, amounts) and item names (aliases, plurals, slugs).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_CURRENCY, currencyOf, formatAmount, formatWallet, isCurrencyName, parseAmount, pluralOf } from '../../../src/v2/domains/money.js';
-import { aliasKey, cleanName, nameForms, resolveDef, slugify, trimText } from '../../../src/v2/domains/names.js';
-import { DEF_ID } from '../../../../../core/registry/check.js';
+import { DEFAULT_CURRENCY, currencyOf, formatAmount, formatWallet, isCurrencyName, parseAmount, pluralOf } from '../../../modules/inventory/money.js';
+import { aliasKey, cleanName, nameForms, resolveDef, slugify, trimText } from '../../../modules/scene/names.js';
+import { DEF_ID } from '../../../core/registry/check.js';
 
 test('currency: one name from settings, default gold', () => {
     assert.deepEqual(currencyOf(undefined), DEFAULT_CURRENCY);

@@ -1,7 +1,7 @@
 // The Assist page's body: the form, the recent-runs card and the search and focus handles.
 
-import { SETTING } from '../../../../../packages/story-block/src/v2/assist/common.js';
-import { renderAssistSection } from '../../../../../packages/story-block/src/v2/assist/section.js';
+import { SETTING } from '../../../../../modules/assist/common.js';
+import { renderAssistSection } from '../../../../../modules/assist/section.js';
 import { renderSettingsForm } from '../../form/form.js';
 import { matchesSearch } from '../../form/schema.js';
 import { sectionBlock } from '../../form/fields.js';

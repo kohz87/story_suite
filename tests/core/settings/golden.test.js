@@ -5,7 +5,7 @@ import path from 'node:path';
 import { registerHooks } from 'node:module';
 import { assembleDefaults } from '../../../core/settings/defaults.js';
 import { HOST_SETTINGS_DEFAULTS } from '../../../core/sdk/constants.js';
-import { createCoreModule } from '../../../packages/story-block/src/v2/domains/core/module.js';
+import { createCoreModule } from '../../../modules/scene/domains/core/module.js';
 import { storyDirectorModule } from '../../../ui/legacy/director/module.js';
 import { SETTINGS_DEFAULTS as NPC_DEFAULTS } from '../../../packages/npc-state-delta/src/npc-meters-schema.js';
 

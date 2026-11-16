@@ -6,10 +6,10 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { STANDARD_TEMPLATES, SKILL_SETS, characterV1For } from '../../../modules/rpg/templates.js';
 import { LEAN_RPG_FEATURE } from '../../../modules/rpg/index.js';
-import { summaryOf } from '../../../packages/story-block/src/v2/data-modules/part.js';
-import { DM_LIMITS } from '../../../packages/story-block/src/v2/data-modules/schema.js';
-import { estimateTokens } from '../../../packages/story-block/src/v2/assist/common.js';
-import { reply, success, view, rebuilt } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { summaryOf } from '../../../modules/data-modules/part.js';
+import { DM_LIMITS } from '../../../modules/data-modules/schema.js';
+import { estimateTokens } from '../../../modules/assist/common.js';
+import { reply, success, view, rebuilt } from '../data-modules/helpers.js';
 
 const definition = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));
 // A line's sign is its kind's op: `+` for the add kinds (add-xp, practice-N), `~` for the set kinds.

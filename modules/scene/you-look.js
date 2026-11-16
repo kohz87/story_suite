@@ -1,6 +1,6 @@
 // The passing look note and the lasting outfit of {{user}} (gear on, rule mark `youLook`): read, cut, cleared on a move. Pure.
 
-import { cutPoints } from '../../../../../../ui/legacy/extras.js';
+import { cutPoints } from '../../ui/legacy/extras.js';
 import { YOU_SHORT, YOU_SHORT_CHARS } from './constants.js';
 
 export const WEARING_REFUSED = 'What you wear comes from your equipped gear; write outfit: for clothes that are not gear and look: for how you look now.';

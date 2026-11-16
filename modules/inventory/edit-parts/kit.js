@@ -1,8 +1,8 @@
 // The starting kit: whether it is open, and the stats, budget and slot a reader sets by hand.
 
-import { isPlainObject } from '../../common.js';
-import { GEAR, slotWordOf, placeOf } from '../../gear.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { isPlainObject } from '../../scene/domains/common.js';
+import { GEAR, slotWordOf, placeOf } from '../gear.js';
+import { fill } from '../../../core/strings.js';
 import { E } from '../stacks.js';
 
 // ---------- hand-set gear: the starting kit (docs/v2/GEAR.md "Your own gear") ----------

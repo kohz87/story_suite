@@ -1,5 +1,5 @@
 // The editor and block message tables, and the most fields one multi-field `dm.set` takes.
-import { STRINGS } from '../../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 
 const E = STRINGS.editMessages;
 const B = STRINGS.blocks;

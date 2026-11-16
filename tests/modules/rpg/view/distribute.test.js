@@ -6,7 +6,7 @@ import { newSession, renderDistribute, spentOf } from '../../../../modules/rpg/v
 import { readParty } from '../../../../modules/rpg/view/party-data.js';
 import { replyEdits } from '../../../../ui/legacy/reply-cards.js';
 import { readRecord } from '../../../../core/persist.js';
-import { DM_LIMITS } from '../../../../packages/story-block/src/v2/data-modules/schema.js';
+import { DM_LIMITS } from '../../../../modules/data-modules/schema.js';
 import { characterDefinition, defineAll, fakeState, fieldsOf, roleOf, setField } from './helpers.js';
 
 const settle = () => new Promise(resolve => setImmediate(resolve));

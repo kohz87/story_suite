@@ -1,8 +1,8 @@
 // B1.9: a marked `~ place Name` takes the kind and region the line leaves out from the map or a pack; unmarked replies keep today's rule.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHarness, line } from './helpers/fake-ctx.js';
-import { core, stocked } from './fixtures.js';
+import { createHarness, line } from '../../inventory/helpers/fake-ctx.js';
+import { core, stocked } from '../../inventory/fixtures.js';
 
 // The rows are Story Director's `atlas.places` rows (`placeOut`: no aliases) and `atlas.place` (`placeDetail`: with aliases, resolves a name or alias).
 const out = { id: 'a1', name: 'Bluewatch Village', region: 'Lakeshire', kind: 'settlement', layer: 'surface', x: 1, y: 1, discovered: true, source: 'story' };
@@ -20,7 +20,7 @@ function setup() {
 const place = h => h.state.domains.scene.place;
 
 test('SB12: the place grammar asks for kind and region only for a new place', async () => {
-    const { CORE_KINDS } = await import('../../../src/v2/domains/core/kinds.js');
+    const { CORE_KINDS } = await import('../../../../modules/scene/domains/core/kinds.js');
     assert.match(CORE_KINDS.place.grammar, /kind and region only for a place not yet on the map/);
 });
 

@@ -13,7 +13,7 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { probeModule } from './helpers/probe-module.js';
 import { carriers, checkInvariants, rebuildAt, strictApply } from './helpers/oracle.js';
-import { initialScene } from '../../../packages/story-block/src/v2/domains/scene.js';
+import { initialScene } from '../../../modules/scene/index.js';
 
 const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 

@@ -1,13 +1,13 @@
 // The block editor's sections: name and Show as, starters, fields and entries, functions and effects, and the
 // footer (extracted from screens/blocks-editor.js; editor.js calls this part).
 
-import { iconNode } from '../../../../../../ui/legacy/view/widgets/dom.js';
-import { blockKindCount, buildBlock, namesText } from '../../data-modules/block-builder.js';
-import { statusTones } from '../../data-modules/block-layout.js';
-import { BLOCK_STARTERS } from '../../data-modules/block-starters.js';
-import { fullModuleGrammar } from '../../data-modules/grammar.js';
-import { DM_LIMITS } from '../../data-modules/schema.js';
-import { fill } from '../../../../../../core/strings.js';
+import { iconNode } from '../../../../ui/legacy/view/widgets/dom.js';
+import { blockKindCount, buildBlock, namesText } from '../../block-builder.js';
+import { statusTones } from '../../block-layout.js';
+import { BLOCK_STARTERS } from '../../block-starters.js';
+import { fullModuleGrammar } from '../../grammar.js';
+import { DM_LIMITS } from '../../schema.js';
+import { fill } from '../../../../core/strings.js';
 import { S, TYPES, LAYOUT_NAMES, COMPARISONS, ICONS } from './constants.js';
 
 export function createDrawPart({ doc, node, button, control, collect, refresh, draft, meta, root, state, resolve, onCancel, submit,

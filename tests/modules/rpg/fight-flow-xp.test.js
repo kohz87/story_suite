@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULT_SETTINGS, FIGHT, FIGHT_XP, FIGHT_XP_HELD, LEAN_RPG_FEATURE, fightOf, memberXp, readSheet, scaleXp, xpRateFrom, xpRateOf } from '../../../modules/rpg/index.js';
 import { fightLines } from '../../../modules/rpg/view/changes-lines.js';
-import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success } from '../data-modules/helpers.js';
 import { character, cueOf, levelFoeBlock, rollReceipt, setup, sheetDomain } from './helpers.js';
 import { DOWN, ONE_SIDED, SLOT, XP, fields, fieldsOf, fightReceipts, party, reloads, resultOf, same, skip, world, xpOf } from './fight-flow.helpers.js';
 

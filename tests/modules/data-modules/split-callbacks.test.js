@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateDataModules } from '../../../src/v2/data-modules/check.js';
-import { createDataModulesPart } from '../../../src/v2/data-modules/part.js';
+import { validateDataModules } from '../../../modules/data-modules/check.js';
+import { createDataModulesPart } from '../../../modules/data-modules/part.js';
 
 test('block edits call the supplied restore reader without a receiver', () => {
     const receivers = [];

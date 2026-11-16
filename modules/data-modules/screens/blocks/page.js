@@ -1,13 +1,13 @@
 // Settings -> Blocks: the page's list, Show as controls, row menu and template chooser (extracted from
 // screens/blocks.js; createBlockWidgets returns this page). The card view and editor stay shared.
 
-import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
-import { selectField } from '../../../../../../ui/legacy/view/form/fields.js';
-import { editableBlockDraft } from '../../data-modules/block-builder.js';
-import { exportBlockPack } from '../../data-modules/block-templates.js';
-import { saveTextFile } from '../../../../../../ui/legacy/view/download.js';
-import { STRINGS, fill, refusalText } from '../../../../../../core/strings.js';
-import { ROLES_WITHOUT_TAB } from '../../../../../../modules/rpg/names.js';
+import { h } from '../../../../ui/legacy/view/widgets/dom.js';
+import { selectField } from '../../../../ui/legacy/view/form/fields.js';
+import { editableBlockDraft } from '../../block-builder.js';
+import { exportBlockPack } from '../../block-templates.js';
+import { saveTextFile } from '../../../../ui/legacy/view/download.js';
+import { STRINGS, fill, refusalText } from '../../../../core/strings.js';
+import { ROLES_WITHOUT_TAB } from '../../../rpg/names.js';
 import { renderBlockEditor } from '../blocks-editor.js';
 import { S, P, plural, showValue, metaOf } from './shared.js';
 

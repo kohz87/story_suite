@@ -1,9 +1,9 @@
 // The inventory domain's whole-slice validator (moved out of domains/inventory.js unchanged; inventory.js re-exports it). It sits above loot.js
 // (it checks the loot offers), so it cannot live in validate.js, which loot.js imports.
 
-import { isPlainObject, OWNER_RE } from '../common.js';
-import { WALLET_KEY } from '../money.js';
-import { isId } from '../../../../../../core/registry/check.js';
+import { isPlainObject, OWNER_RE } from '../scene/domains/common.js';
+import { WALLET_KEY } from './money.js';
+import { isId } from '../../core/registry/check.js';
 import { defErrors, isCount, nonBlank, COND_MAX, condLogErrors, keptErrors } from './state.js';
 import { lootErrors } from './loot.js';
 

@@ -1,6 +1,6 @@
 // Reads the party section of the public paths from the RPG's characters.
 
-import { activeDefinition } from '../../packages/story-block/src/v2/data-modules/adapters.js';
+import { activeDefinition } from '../../modules/data-modules/adapters.js';
 import { readSheet } from '../../modules/rpg/read.js';
 import { rosterOf } from '../../modules/rpg/roster.js';
 import { STAGES, STATS } from '../../modules/rpg/names.js';

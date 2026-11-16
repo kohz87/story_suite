@@ -3,11 +3,11 @@
 // are refused with a Problems line on the reply and never applied. Pure checks first, then the extractor, then the real host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseChanges } from '../../../../../core/capture.js';
-import { EXTRACTOR_FOOT, MAX_NEAR, SETTING, WHERE_HEAD, WORLD_FOOT, footFor, createAssistPart, extractorPrompt, hasClockTime, knownPlace, mapPlaces, parseExtractorAnswer, whereLines, whereNow, whereWhy } from '../../../src/v2/assist/index.js';
-import { assistPlaceConflict, worldKnown } from '../../../src/v2/assist/where.js';
-import { refusedFrom } from '../../../../../ui/legacy/reply-notes.js';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { parseChanges } from '../../../core/capture.js';
+import { EXTRACTOR_FOOT, MAX_NEAR, SETTING, WHERE_HEAD, WORLD_FOOT, footFor, createAssistPart, extractorPrompt, hasClockTime, knownPlace, mapPlaces, parseExtractorAnswer, whereLines, whereNow, whereWhy } from '../../../modules/assist/index.js';
+import { assistPlaceConflict, worldKnown } from '../../../modules/assist/where.js';
+import { refusedFrom } from '../../../ui/legacy/reply-notes.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
 import { fakeModel, on } from './helpers/fakes.js';
 
 const available = await hostAvailable();

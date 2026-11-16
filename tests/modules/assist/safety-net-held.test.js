@@ -1,9 +1,9 @@
 // The Assist safety net on the real host (MODULES §F123): held/dormant modules, restore barriers, replacement replies, cap, and afterCapture hooks.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SETTING } from '../../../src/v2/assist/index.js';
-import { assistSections } from '../../../../../core/capture.js';
-import { createHost } from '../../../testkit/index.js';
+import { SETTING } from '../../../modules/assist/index.js';
+import { assistSections } from '../../../core/capture.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { OWNER, WORLD_PROBE, assistTypes, heldModel, hostWith, skip, wait } from './safety-net.helpers.js';
 
 // A kind whose module is held back is told as held, not as an unknown kind; a truly unknown kind keeps its text.
@@ -17,7 +17,7 @@ test('a line of a kind whose module is dormant is a MODULE_HELD Problem (with a 
         const found = host.turn.problems().filter(item => item.index === index);
         assert.deepEqual(found.map(item => item.code), ['MODULE_HELD', 'UNKNOWN_KIND']);
         assert.match(found[0].message, /^"\+ zed One" was not used: held-probe is held back/);
-        const { refusedFrom } = await import('../../../../../ui/legacy/reply-notes.js');
+        const { refusedFrom } = await import('../../../ui/legacy/reply-notes.js');
         assert.deepEqual(refusedFrom(found, index).map(item => item.reason), ['held-probe is held back right now (dormant, or a restore is in progress).', 'no module keeps "nope"']);
     } finally { host.close(); }
 });
@@ -26,7 +26,7 @@ test('a line of a kind whose module is dormant is a MODULE_HELD Problem (with a 
 // or delete; or dormant) when the safety net's answer arrived. Its world/faction lines are refused visibly, never applied later.
 
 test('a restore barrier when the safety net answers refuses each held line and releasing it never applies them', { skip }, async () => {
-    const { announceModules } = await import('../../../../../core/sdk/lifecycle.js');
+    const { announceModules } = await import('../../../core/sdk/lifecycle.js');
     const { model, release, calls: asked } = heldModel(OWNER.join('\n'));
     const calls = () => asked.length;
     const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: '~ time, + world, ~ world, + faction, ~ faction' } } } });
@@ -77,7 +77,7 @@ test('a dormant module held when an answer arrives during the next send reports 
         assert.ok(problems.every(item => /world-probe was held back \(Not ready\.\)/.test(item.message)));
         assert.deepEqual(assistSections(host.ctx.chat[first.index].mes), { now: [], next: [] });
         host.registry.setEnabled('world-probe', true);
-        const { announceModules } = await import('../../../../../core/sdk/lifecycle.js');
+        const { announceModules } = await import('../../../core/sdk/lifecycle.js');
         announceModules(host.registry, host.events);
         await wait(80);
         assert.deepEqual(host.head().domains.worldProbe.said, []);
@@ -153,7 +153,7 @@ test('the cap counts the previous reply\'s late line and this reply\'s safety-ne
 });
 
 test('a held module with an afterCapture hook refuses the safety net\'s lines before any hook runs, with a visible reason, and Re-read agrees', { skip }, async () => {
-    const { announceModules } = await import('../../../../../core/sdk/lifecycle.js');
+    const { announceModules } = await import('../../../core/sdk/lifecycle.js');
     const probe = { id: 'hook-probe', version: '1.0.0', domains: { hookProbe: { initial: () => ({ n: 0 }) } }, hooks: { afterCapture: () => ({ commands: [] }) } };
     const { model, release } = heldModel('~ weather rain');
     const host = await createHost({ modules: [probe], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true } } } });

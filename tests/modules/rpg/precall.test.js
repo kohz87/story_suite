@@ -18,9 +18,9 @@ test('Rolls is automatic until the reader turns it off', () => {
 });
 
 test('Assist\'s pre-roll steps aside while the RPG is on and the chat has a Character block, and not otherwise', async () => {
-    const { createClassifier } = await import('../../../packages/story-block/src/v2/assist/classifier.js');
-    const { SETTING } = await import('../../../packages/story-block/src/v2/assist/common.js');
-    const { fakeModel } = await import('../../../packages/story-block/tests/v2/assist/helpers/fakes.js');
+    const { createClassifier } = await import('../../../modules/assist/classifier.js');
+    const { SETTING } = await import('../../../modules/assist/common.js');
+    const { fakeModel } = await import('../assist/helpers/fakes.js');
     const sheetState = blocks => ({ v: 2, meta: { rev: 0, claims: {} }, domains: { dataModules: sheetDomain(blocks) } });
     const ask = async ({ feature, blocks }) => {
         const callModel = fakeModel('none');
@@ -46,7 +46,7 @@ test('with the feature off none of the RPG settings is read: no note, no numbers
 });
 
 test('skipped dice reasons survive merged hooks quietly on normal sends', async () => {
-    const { mergeParts } = await import('../../../packages/story-block/src/v2/domains/index.js');
+    const { mergeParts } = await import('../../../modules/scene/domains/index.js');
     const messages = [{ is_user: false, mes: 'Before.' }, { is_user: true, mes: 'I wait.' }];
     const state = { meta: { claims: {} }, domains: { dataModules: sheetDomain({}) } };
     const view = { state, feature: id => id === 'story-block.rpg', settings: () => ({}) };
@@ -74,7 +74,7 @@ test('discarding a fight clears even an older unsent copy', () => {
 // ---- hooks: the part's limit, merged hooks, and the no-dice flag ------------------------------------------------------
 
 test('B3: merged beforeGenerate hooks each keep their own limit: a slow part is reported and the others\' lines and commands stay', async () => {
-    const { mergeParts } = await import('../../../packages/story-block/src/v2/domains/index.js');
+    const { mergeParts } = await import('../../../modules/scene/domains/index.js');
     const slow = Object.assign(() => new Promise(() => {}), { timeoutMs: 60 });
     const merged = mergeParts([
         { hooks: { beforeGenerate: () => ['first'] } },

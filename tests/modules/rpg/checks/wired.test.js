@@ -8,7 +8,7 @@ import { CHECKS_SETTING, CHECK_GRAMMAR, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SET
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { checkStep, checksHook, checksOf } from '../../../../modules/rpg/practice.js';
 import { practiceLines } from '../../../../modules/rpg/view/changes-lines.js';
-import { reply, success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success } from '../../data-modules/helpers.js';
 import { character, sheetDomain, skillBlock, tailOf } from '../helpers.js';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { boardSession, openBoard, stageExchange } from '../../../../modules/rpg/board/session.js';

@@ -1,5 +1,5 @@
 // Fills free foe slots of the Foes blocks for each opened foe, and clears the Down groups left from earlier replies.
-import { createEvaluation } from '../../../packages/story-block/src/v2/data-modules/interpreter.js';
+import { createEvaluation } from '../../data-modules/interpreter.js';
 import { FIX_VERSION } from '../names.js';
 import { classOfLevel, levelOfClass } from '../foes.js';
 import { fold, readSheet } from '../read.js';

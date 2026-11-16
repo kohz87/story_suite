@@ -1,7 +1,7 @@
 // Character scope, actors, absent peers and recorded imports (DATA_MODULES.md sections 2, 3 and 4).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { refusedFrom } from '../../../../../ui/legacy/reply-notes.js';
+import { refusedFrom } from '../../../ui/legacy/reply-notes.js';
 import { fixture, reply, int, definition, pack, success, world, pin, view, rebuilt, inactive, directorStub } from './helpers.js';
 
 const MEAL = who => `! dm survival — ate | kind: meal | who: ${who}`;

@@ -3,8 +3,8 @@
 // hands them to the host's capture marked as its.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_KINDS, EXTRACTOR_HEAD, MAX_LINES, SETTING, allowedKinds, createAssistPart, extractorPrompt, grammarKind, notWritten, parseExtractorAnswer, refusedWhy } from '../../../src/v2/assist/index.js';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { DEFAULT_KINDS, EXTRACTOR_HEAD, MAX_LINES, SETTING, allowedKinds, createAssistPart, extractorPrompt, grammarKind, notWritten, parseExtractorAnswer, refusedWhy } from '../../../modules/assist/index.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
 import { NEVER, fakeModel, flush, manualTimer, on } from './helpers/fakes.js';
 
 const GRAMMAR = [

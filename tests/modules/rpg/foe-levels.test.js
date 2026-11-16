@@ -10,7 +10,7 @@ import { divisorOf } from '../../../modules/rpg/rules.js';
 import { FOE_LEVEL, LV_VERSION, averageLevel, bandOfRank, classOfLevel, foeBlocksByLevel, foeLabel, foeRandom, levelBonus, foeLevelCap, levelOf, levelOfClass, partyLevels, pickLevel, settleOpen } from '../../../modules/rpg/foes.js';
 import { sizeOf } from '../../../modules/rpg/blocks.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { success, reply } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { success, reply } from '../data-modules/helpers.js';
 import { PARTY, foeBlock, levelFoeBlock, rollReceipt, setup } from './helpers.js';
 
 const available = await hostAvailable();

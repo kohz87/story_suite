@@ -1,6 +1,6 @@
 // The quantity a story line gives: what one line can give of an item, and the quantity written on a line.
 
-import { labelOf, parseCount } from '../../common.js';
+import { labelOf, parseCount } from '../../scene/domains/common.js';
 import { MAX_UNSTACKED } from '../state.js';
 import { itemText } from '../validate.js';
 

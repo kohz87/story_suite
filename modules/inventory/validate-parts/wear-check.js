@@ -1,6 +1,6 @@
 // Decides whether an actor can wear a piece of equipment in its slot.
 
-import { isPlainObject, capitalize } from '../../common.js';
+import { isPlainObject, capitalize } from '../../scene/domains/common.js';
 import { nonBlank } from '../state.js';
 import { baseSlot, MANY_SLOTS } from './slots.js';
 import { asking } from './shared-asking.js';

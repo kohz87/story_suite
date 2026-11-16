@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { STANDARD_TEMPLATES, SKILL_SETS, characterV1For, skillsV2For } from '../../../modules/rpg/templates.js';
 import { CREATION, ROLES, STATS, USES } from '../../../modules/rpg/index.js';
-import { validateDataModules, DM_LIMITS as L } from '../../../packages/story-block/src/v2/data-modules/check.js';
+import { validateDataModules, DM_LIMITS as L } from '../../../modules/data-modules/check.js';
 
 const party = JSON.parse(readFileSync(new URL('fixtures/party.json', import.meta.url), 'utf8'));
 const template = name => STANDARD_TEMPLATES.find(entry => entry.name === name).definition;

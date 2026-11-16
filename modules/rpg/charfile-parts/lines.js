@@ -1,7 +1,7 @@
 // Words one item, one skill, an amount of money and a count of things for the dialogs.
 
 import { RANK_NAMES } from '../names.js';
-import { formatAmount } from '../../../packages/story-block/src/v2/domains/money.js';
+import { formatAmount } from '../../inventory/money.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 
 /** "Torch ×2", "Oilskin Coat (waxed, a little too big)": one thing as the dialogs list it. */

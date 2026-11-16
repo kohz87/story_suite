@@ -1,12 +1,12 @@
 // Gear in fights, inventory side (`story-block.gear`, off by default; docs/v2/GEAR.md): replay, condition words/value, mounts & carts, settings switch, equipped.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CONDITION, KIND_CARRY, carryPicture, condMark, condWord, gearBudget, itemCarryOf, kindCarry, statsFor, travelsWith, valueByCond } from '../../src/v2/domains/gear.js';
-import { validateInventory } from '../../src/v2/domains/inventory.js';
-import { createHost } from '../../testkit/index.js';
-import { page, settle } from '../../../../tests/modules/rpg/view/page.js';
-import { createHarness, line } from './domains/helpers/fake-ctx.js';
-import { core, stocked } from './domains/fixtures.js';
+import { CONDITION, KIND_CARRY, carryPicture, condMark, condWord, gearBudget, itemCarryOf, kindCarry, statsFor, travelsWith, valueByCond } from '../../../modules/inventory/gear.js';
+import { validateInventory } from '../../../modules/inventory/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { page, settle } from '../rpg/view/page.js';
+import { createHarness, line } from './helpers/fake-ctx.js';
+import { core, stocked } from './fixtures.js';
 import { FIGHT, OFF, ON, defNamed, equip, fresh, gearCore, reply, tail, wear } from './gear-inventory.helpers.js';
 
 test('replay equals live after a swipe, a Re-read, a delete, a rebuild and a reload', async t => {

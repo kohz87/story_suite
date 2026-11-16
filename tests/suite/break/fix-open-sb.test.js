@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { HIDDEN_MARKER, defangMarker, extractBlock, hideBlock, stripBlock } from '../../../core/capture.js';
-import { parseAmount } from '../../../packages/story-block/src/v2/domains/money.js';
+import { parseAmount } from '../../../modules/inventory/money.js';
 
 async function fresh(t, options = {}) {
     t.mock.method(console, 'warn', () => {});

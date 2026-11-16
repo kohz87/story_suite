@@ -1,6 +1,6 @@
 // Reading a stack's condition: its events in order and the condition they fold to.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { COND_MAX, clampCond } from './shared-cond.js';
 
 /** A stack's condition events in the order they apply: [{ key, d, n }]. */

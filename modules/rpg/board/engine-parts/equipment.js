@@ -1,7 +1,7 @@
 // Rebuilds the recorded owners' gear on the private copy and wears it down.
 import { dressOf, wearGear } from '../../gear.js';
-import { condWord, stepDown } from '../../../../packages/story-block/src/v2/domains/gear.js';
-import { condOf } from '../../../../packages/story-block/src/v2/domains/inventory.js';
+import { condWord, stepDown } from '../../../inventory/gear.js';
+import { condOf } from '../../../inventory/index.js';
 import { byId, gearQuery } from './shared-gear.js';
 
 /** Rebuild the recorded owners' bonuses and weapons from the private, worn-down inventory. */

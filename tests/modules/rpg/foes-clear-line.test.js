@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
-import { success, view, reply, rebuilt } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { success, view, reply, rebuilt } from '../data-modules/helpers.js';
 
 const standard = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));
 const foes = host => view(host, 'pack.chat/foes').chat;

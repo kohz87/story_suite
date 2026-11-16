@@ -2,14 +2,14 @@
 // block (builder, editable hash, templates, export). The editor is drawn on its own here; the data side is in tests/v2/data-modules/entries.test.js.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderBlockEditor } from '../../../src/v2/screens/blocks-editor.js';
-import { buildBlock, blockDraft, editableBlockDraft, blockKindCount } from '../../../src/v2/data-modules/block-builder.js';
-import { BLOCK_STARTERS } from '../../../src/v2/data-modules/block-starters.js';
-import { layoutShape, cardRoles } from '../../../src/v2/data-modules/block-layout.js';
-import { createBlockTemplates, exportBlockPack } from '../../../src/v2/data-modules/block-templates.js';
-import { validatePack } from '../../../../../packs/validate.js';
-import { STRINGS } from '../../../../../core/strings.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { renderBlockEditor } from '../../../../modules/data-modules/screens/blocks-editor.js';
+import { buildBlock, blockDraft, editableBlockDraft, blockKindCount } from '../../../../modules/data-modules/block-builder.js';
+import { BLOCK_STARTERS } from '../../../../modules/data-modules/block-starters.js';
+import { layoutShape, cardRoles } from '../../../../modules/data-modules/block-layout.js';
+import { createBlockTemplates, exportBlockPack } from '../../../../modules/data-modules/block-templates.js';
+import { validatePack } from '../../../../packs/validate.js';
+import { STRINGS } from '../../../../core/strings.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 const S = STRINGS.blocks;
 const newDraft = () => ({ name: '', fields: [], functions: [], prompt: '', show: { tab: true, card: false, tabName: '', icon: 'ph-bookmark-simple' } });
@@ -301,9 +301,9 @@ test('layoutShape names the right suggestion for each shape', () => {
 });
 
 // --- the whole host: define, story lines, redefine, the tab as plain rows, Show as ---
-import { createHost } from '../../../testkit/index.js';
-import { mountUi } from '../../../../../ui/legacy/ui-host.js';
-import { dataModuleDefaults, validateDataMigration, validateDataModules } from '../../../src/v2/data-modules/check.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { dataModuleDefaults, validateDataMigration, validateDataModules } from '../../../../modules/data-modules/check.js';
 
 async function hostWith(t, draft = starter('quest-log').draft()) {
     const doc = setupDom(), form = doc.createElement('div'); form.id = 'send_form'; doc.body.appendChild(form);
@@ -361,8 +361,8 @@ test('a migration may add a List of entries field; it starts empty', () => {
 });
 
 // --- review 222 fixes (BE-FIX222) ---
-import { summaryOf } from '../../../src/v2/data-modules/part.js';
-import { entriesTooBig } from '../../../src/v2/data-modules/block-builder.js';
+import { summaryOf } from '../../../../modules/data-modules/part.js';
+import { entriesTooBig } from '../../../../modules/data-modules/block-builder.js';
 const questView = host => host.sdk.query('dataModules.view', { module: 'pack.chat/quest-log' }).chat.quests;
 
 test('B2: adding, removing or renaming a part carries the list over part by part; the new part starts at its default', async t => {

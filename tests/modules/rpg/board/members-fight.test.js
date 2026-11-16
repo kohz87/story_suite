@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { FOE_LEVEL, foeBlocksByLevel, hardBlocksByLevel } from '../../../../modules/rpg/foes.js';
-import { DM_LIMITS } from '../../../../packages/story-block/src/v2/data-modules/schema.js';
+import { DM_LIMITS } from '../../../../modules/data-modules/schema.js';
 import { openBoard } from '../../../../modules/rpg/board/session.js';
 import { playBoard } from '../../../../modules/rpg/board/engine.js';
 import { capAttackers, carriedFrom, collapseFoes, packAreaBlocks, splitFoes } from '../../../../modules/rpg/board/members.js';

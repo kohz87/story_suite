@@ -1,5 +1,5 @@
-import { SETTING } from '../../../src/v2/assist/index.js';
-import { createHost, hostAvailable } from '../../../testkit/index.js';
+import { SETTING } from '../../../modules/assist/index.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
 
 const available = await hostAvailable();
 export const skip = available.ok ? false : available.reason;
@@ -48,10 +48,10 @@ export const settleTurn = host => new Promise(resolve => host.sdk.on('turn', ite
 
 export const NATIVE = 'A native change is finishing; every part must agree before the story goes on.';
 export async function barrierHost(answer, { waitMs = 2000 } = {}) {
-    const { BARRIER } = await import('../../../src/v2/assist/safety.js');
+    const { BARRIER } = await import('../../../modules/assist/safety.js');
     const old = { ...BARRIER };
     Object.assign(BARRIER, { waitMs, pollMs: 10 });
-    const { announceModules } = await import('../../../../../core/sdk/lifecycle.js');
+    const { announceModules } = await import('../../../core/sdk/lifecycle.js');
     const { model, release } = heldModel(answer);
     const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: '+ world, + faction' } } } });
     host.features?.set?.('story-block.extractor', true);

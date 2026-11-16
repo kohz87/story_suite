@@ -1,9 +1,9 @@
 // {{user}}'s position (`~ you position: …`): parsing, validation, the query's null and the tail line.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialScene, validateScene, youParts } from '../../../src/v2/domains/scene.js';
-import { YOU_PARTS } from '../../../src/v2/domains/scene/constants.js';
-import { sceneQueries } from '../../../src/v2/domains/scene-parts/queries.js';
+import { initialScene, validateScene, youParts } from '../../../../modules/scene/index.js';
+import { YOU_PARTS } from '../../../../modules/scene/constants.js';
+import { sceneQueries } from '../../../../modules/scene/scene-parts/queries.js';
 
 test('position is a part of the look, with a few other words for it', () => {
     assert.ok(YOU_PARTS.includes('position'));

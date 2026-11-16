@@ -6,7 +6,7 @@ import { CORE_FEATURE } from '../../../../core/features.js';
 import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
-import { reload } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reload } from '../../data-modules/helpers.js';
 import { settle } from './page.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 import { open, promptOf, typeInto } from './settings.helpers.js';

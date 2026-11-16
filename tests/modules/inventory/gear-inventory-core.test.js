@@ -1,15 +1,15 @@
 // Gear in fights, inventory side (`story-block.gear`, off by default; docs/v2/GEAR.md): budgets, slots, rarity, wear, carry, and off-by-default parity.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GEAR, capacityFor, gearBudget, gearRarityOf, gearSlotOf, slotWordOf, stepDown } from '../../src/v2/domains/gear.js';
-import { validateInventory } from '../../src/v2/domains/inventory.js';
-import { validatePack } from '../../../../packs/validate.js';
-import { itemDef } from '../../../../packs/content.js';
-import { createHost } from '../../testkit/index.js';
-import { createCoreModule } from '../../src/v2/domains/index.js';
-import { createHarness, line } from './domains/helpers/fake-ctx.js';
-import { core, def, stack, stocked } from './domains/fixtures.js';
-import { pack } from '../../../../tests/packs/helpers/fixtures.js';
+import { GEAR, capacityFor, gearBudget, gearRarityOf, gearSlotOf, slotWordOf, stepDown } from '../../../modules/inventory/gear.js';
+import { validateInventory } from '../../../modules/inventory/index.js';
+import { validatePack } from '../../../packs/validate.js';
+import { itemDef } from '../../../packs/content.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
+import { createHarness, line } from './helpers/fake-ctx.js';
+import { core, def, stack, stocked } from './fixtures.js';
+import { pack } from '../../packs/helpers/fixtures.js';
 import { OFF, ON, defNamed, equip, fresh, reply, tail, wear } from './gear-inventory.helpers.js';
 
 test('the stat budget is by rarity (1, 2, 3, 4, 5); a pack item may set its own 0…6; the story never does', () => {

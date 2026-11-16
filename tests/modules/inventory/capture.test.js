@@ -291,7 +291,7 @@ test('+ present / - present', () => {
 });
 
 test('2.9.4: the present grammar tells the narrator to swap the old word for a newly learned name, and the swap works on one reply', async () => {
-    const { CORE_KINDS } = await import('../../../src/v2/domains/index.js');
+    const { CORE_KINDS } = await import('../../../modules/scene/domains/index.js');
     assert.match(CORE_KINDS.present.grammar, /^\+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and \+ present the name \(- present clerk, \+ present Nelje\)$/);
     assert.ok(!CORE_KINDS.present.grammar.includes('\n'), 'one line');
     const h = setup();

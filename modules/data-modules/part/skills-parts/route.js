@@ -1,7 +1,7 @@
 // Routing a learn or practice line to a skill slot (the typed-pool learn rule included).
-import { fill } from '../../../../../../../core/strings.js';
-import { fold } from '../../../../../../../modules/rpg/read.js';
-import { SKILL_SLOTS_BASE, SKILL_SLOTS_EVERY, SKILL_SLOTS_MAX, SKILL_FIELDS_MAX, SLOT_NUMBER, STANCE_TYPES, UTILITY_SLOTS, isTypedSkills, skillTypeOf, signatureAt } from '../../../../../../../core/runtime/skill-slots.js';
+import { fill } from '../../../../core/strings.js';
+import { fold } from '../../../rpg/read.js';
+import { SKILL_SLOTS_BASE, SKILL_SLOTS_EVERY, SKILL_SLOTS_MAX, SKILL_FIELDS_MAX, SLOT_NUMBER, STANCE_TYPES, UTILITY_SLOTS, isTypedSkills, skillTypeOf, signatureAt } from '../../../../core/runtime/skill-slots.js';
 import { J } from '../shared.js';
 import { skillsNamed } from './naming.js';
 

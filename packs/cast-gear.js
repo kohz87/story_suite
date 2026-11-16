@@ -2,7 +2,7 @@
 // party, and the one "Gear:" line the narrator's cast entry may carry while they are not in it. Pure: the enabled packs in, plain rows out.
 
 import { foldKey, oneLine } from '../core/text.js';
-import { slotWordOf } from '../packages/story-block/src/v2/domains/gear.js';
+import { slotWordOf } from '../modules/inventory/gear.js';
 
 /**
  * The cast entry a name means (its name or an alias, folded) and the pack items of its `gear`, in the order written:

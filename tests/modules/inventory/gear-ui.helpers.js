@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
-import { inventoryScreen } from '../../../../ui/legacy/screens/index.js';
-import { createCoreModule } from '../../src/v2/domains/index.js';
-import { createHarness } from './domains/helpers/fake-ctx.js';
-import { stocked } from './domains/fixtures.js';
-import { destroyTemplate } from '../../../../ui/legacy/view/template/render.js';
-import { show, settle } from '../../../../tests/ui/screens/helpers.js';
-import { page } from '../../../../tests/modules/rpg/view/page.js';
-import { reply } from '../../../../tests/core/helpers/gear-ui-state.js';
-import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../../ui/legacy/screens/inventory-add.js';
+import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
+import { createHarness } from './helpers/fake-ctx.js';
+import { stocked } from './fixtures.js';
+import { destroyTemplate } from '../../../ui/legacy/view/template/render.js';
+import { show, settle } from '../../ui/screens/helpers.js';
+import { page } from '../rpg/view/page.js';
+import { reply } from '../../core/helpers/gear-ui-state.js';
+import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../ui/legacy/screens/inventory-add.js';
 
 export const draw = (host, options = {}) => show(inventoryScreen, { state: host.head(), query: host.sdk.query, draft: { wornOpen: '1' }, command: (type, payload, opts) => host.sdk.command(type, payload, opts), ...options });   // (Worn opened: every piece has its row)
 export const rowOf = (el, name) => el.querySelectorAll('li.item').find(item => item.querySelector('.name')?.textContent === name);

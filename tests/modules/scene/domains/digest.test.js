@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { hashOf, isHash, normalizedJson, sha256Hex } from '../../../src/v2/domains/digest.js';
+import { hashOf, isHash, normalizedJson, sha256Hex } from '../../../../modules/scene/domains/digest.js';
 
 test('SHA-256 agrees with the reference on short, block-edge, long and non-ASCII input', () => {
     assert.equal(sha256Hex(''), 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');

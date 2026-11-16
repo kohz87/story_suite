@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {
     CLASSIFIER_HEAD, MESSAGE_LIMIT, PRECHECK, PROMPT_BUDGET, ROLLED_LINE, checkLine, claimKey, classifierPrompt,
     createAssistPart, estimateTokens, hashText, normalizeDc, parseClassifierAnswer,
-} from '../../../src/v2/assist/index.js';
+} from '../../../modules/assist/index.js';
 import { NEVER, fakeModel, flush, manualTimer, on, reply, user, view } from './helpers/fakes.js';
 
 const ACTION = 'I slip past the gate guard while he looks at the cart.';

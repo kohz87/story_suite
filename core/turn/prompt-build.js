@@ -13,10 +13,10 @@ import { RESOLVE as RPG_RESOLVE } from '../../modules/rpg/names.js';
 import { NO_ROLLS_LINE } from '../../modules/rpg/cue.js';
 import { fightCue, holdStart } from './fight-start.js';
 import { startInteraction } from '../interaction/start.js';
-import { CORE_MODULE_ID } from '../../packages/story-block/src/v2/domains/core/constants.js';
+import { CORE_MODULE_ID } from '../../modules/scene/domains/core/constants.js';
 import { rpgLib } from '../../modules/rpg/rpg-lazy.js';
 import { readRecord } from '../persist.js';
-import { hashText } from '../../packages/story-block/src/v2/assist/common.js';
+import { hashText } from '../../modules/assist/common.js';
 import { KEPT_CHARS_MAX, KEPT_LINES_MAX, TIMED_OUT, defuseMacros, keptGiven, firstLine, mapContent, substituteNames, within } from './text.js';
 
 export { KEPT_LINES_MAX, KEPT_CHARS_MAX };

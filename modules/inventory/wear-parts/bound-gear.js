@@ -1,6 +1,6 @@
 // Sets a member's bound gear aside when they leave, brings it back, or releases it to the party's bag.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { COND_MAX, condOf, RPG_MODULE } from '../state.js';
 import { ownerArg, boundName, addStack } from '../stacks.js';
 

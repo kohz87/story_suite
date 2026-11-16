@@ -8,8 +8,8 @@ import { createHost, hostAvailable } from '../../../packages/story-block/testkit
 import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
 import { LEAN_RPG_FEATURE, QUIET_GRAMMAR, fightIsOpen, isQuiet, readSheet } from '../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { moduleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
-import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { moduleGrammar } from '../../../modules/data-modules/grammar.js';
+import { reply, success } from '../data-modules/helpers.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 
 const available = await hostAvailable();

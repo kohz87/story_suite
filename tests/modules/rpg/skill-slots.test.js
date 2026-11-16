@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { reply, success, view, rebuilt, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 
 const IAI = ' | name: Iaijutsu | about: Drawing cuts. | stat: dex | uses: stamina';
 const SHADOW = ' | name: Shadow Cut | about: A cut from the dark. | stat: agi | uses: mana';

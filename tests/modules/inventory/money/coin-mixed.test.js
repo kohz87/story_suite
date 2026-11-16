@@ -2,7 +2,7 @@
 // a known coin adds them up in the smallest unit, live and on Re-read/rebuild alike; bare or unknown parts stay refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseAmount } from '../../../src/v2/domains/money.js';
+import { parseAmount } from '../../../../modules/inventory/money.js';
 
 const COPPER = { name: 'copper', plural: 'copper', coins: [{ name: 'copper', plural: 'copper', value: 1 }, { name: 'silver', plural: 'silver', value: 10 }, { name: 'gold', plural: 'gold', value: 100 }] };
 

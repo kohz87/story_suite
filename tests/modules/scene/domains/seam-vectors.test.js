@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { hashOf, normalizedJson, sha256Hex } from '../../../src/v2/domains/digest.js';
+import { hashOf, normalizedJson, sha256Hex } from '../../../../modules/scene/domains/digest.js';
 import { NORMALIZED_JSON_CASES } from './fixtures/rules-seam-vectors.js';
 
 test('normalized JSON and its hash match the literal vectors', () => {

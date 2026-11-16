@@ -1,25 +1,25 @@
 // Story Block's module definition: merges the core part with packs, events, assist, timeline, data
 // modules and the optional Lean RPG, then adds the host's guards, capture dispatcher and queries.
 
-import { createAssistPart } from '../../assist/index.js';
-import { INVENTORY_FEATURES, INVENTORY_EDIT_GUARD, LOOT_KINDS, inventoryEditGuard, lootTakeGuard } from '../inventory.js';
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { chatterCap, chatterGrammar, headChatter, sceneChatter } from '../../../../../../ui/legacy/extras.js';
-import { createEvidenceQuery } from '../../../../../../core/evidence.js';
-import { createEventsPart } from '../../../../../../modules/world/events/index.js';
-import { standardWidgets } from '../../../../../../ui/legacy/view/widgets/index.js';
-import { screens as defaultScreens } from '../../../../../../ui/legacy/screens/index.js';
-import { youRankOf } from '../../../../../../packs/content.js';
-import { createPacksPart, packs as liveInstalled, part as livePart, resolveItem as liveResolve, startState as liveStart } from '../../../../../../packs/index.js';
-import { createTimelinePart } from '../../../../../../core/timeline/part.js';
-import { stateHash } from '../../../../../../core/timeline/host-block.js';
-import { createDataModulesPart, dataModuleGuard } from '../../data-modules/part.js';
-import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE, RESOLVE as RPG_RESOLVE } from '../../../../../../modules/rpg/names.js';
+import { createAssistPart } from '../../../assist/index.js';
+import { INVENTORY_FEATURES, INVENTORY_EDIT_GUARD, LOOT_KINDS, inventoryEditGuard, lootTakeGuard } from '../../../inventory/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { chatterCap, chatterGrammar, headChatter, sceneChatter } from '../../../../ui/legacy/extras.js';
+import { createEvidenceQuery } from '../../../../core/evidence.js';
+import { createEventsPart } from '../../../world/events/index.js';
+import { standardWidgets } from '../../../../ui/legacy/view/widgets/index.js';
+import { screens as defaultScreens } from '../../../../ui/legacy/screens/index.js';
+import { youRankOf } from '../../../../packs/content.js';
+import { createPacksPart, packs as liveInstalled, part as livePart, resolveItem as liveResolve, startState as liveStart } from '../../../../packs/index.js';
+import { createTimelinePart } from '../../../../core/timeline/part.js';
+import { stateHash } from '../../../../core/timeline/host-block.js';
+import { createDataModulesPart, dataModuleGuard } from '../../../data-modules/part.js';
+import { CHECK_STEP as RPG_CHECK, FIGHT as RPG_FIGHT, PRACTICE_STEP as RPG_PRACTICE, RESOLVE as RPG_RESOLVE } from '../../../rpg/names.js';
 // The RPG's code is loaded only when it is needed (rpg-lazy.js): this part answers for it until it is there.
-import { createLazyRpgPart } from '../../../../../../modules/rpg/rpg-lazy.js';
-import { INTERACTION_VIEW, createInteractionView } from '../../../../../../core/interaction/view.js';
+import { createLazyRpgPart } from '../../../rpg/rpg-lazy.js';
+import { INTERACTION_VIEW, createInteractionView } from '../../../../core/interaction/view.js';
 import { createInteractionCommands, interactionGuardFor } from './interaction-part.js';
-import { createPeoplePart } from '../people/part.js';
+import { createPeoplePart } from '../../../../packages/story-block/src/v2/domains/people/part.js';
 import { CORE_BUDGET, CORE_FEATURES, CORE_MODULE_ID } from './constants.js';
 import { CORE_KINDS } from './kinds.js';
 import { createCorePart } from './part.js';

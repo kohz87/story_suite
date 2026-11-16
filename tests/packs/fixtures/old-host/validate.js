@@ -24,7 +24,7 @@ import { MAX_DEPTH as MAX_TEMPLATE_DEPTH, tooDeep } from '../../../../ui/legacy/
 import { MAX_LOOP_DEPTH, templateShape } from '../../../../ui/legacy/view/template/index.js';
 import { MAX_JSON_DEPTH } from '../../../../ui/legacy/view/template/json.js';
 import { MAX_AT_DEPTH, cssDepth, sheetEscape } from '../../../../ui/legacy/view/css.js';
-import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../packages/story-block/src/v2/domains/money.js';
+import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../modules/inventory/money.js';
 
 export const HOST_VERSION = '2.0.0';
 

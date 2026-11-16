@@ -1,6 +1,6 @@
 // Putting {{user}}'s look parts into the scene draft, the Rank checked against the pack and the Guild record. Pure.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../domains/common.js';
 import { YOU_PARTS, YOU_SHORT } from '../constants.js';
 import { guildOf, rankAgrees, rankLabelIn } from './rank.js';
 

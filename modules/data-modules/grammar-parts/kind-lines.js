@@ -1,6 +1,6 @@
 // Writes one grammar line (and one example line) for a single kind of a module.
 import { DM_LIMITS as L, dmLabelNames } from '../schema.js';
-import { oneLine } from '../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 
 // A number with display names: when every whole value has one, the names in order and then the range ("Down|Hurt|Unhurt (0..2)");
 // else the range and the names it has ("1..9 (1=I, 2=II)"). The narrator may write either the name or the number.

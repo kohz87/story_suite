@@ -1,5 +1,5 @@
 // The closed descriptor tables of a data module definition, the entry effects and the block bars.
-import { OPS } from '../../../../../../core/capture.js';
+import { OPS } from '../../../core/capture.js';
 import { freeze } from './shared-freeze.js';
 
 export const DM_DESCRIPTORS = freeze({

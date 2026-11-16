@@ -1,11 +1,11 @@
 // The scene's commands: place, present, weather and {{user}}'s look. Pure.
 
-import { WEATHER_FEATURE, YOU_FEATURE } from '../scene/constants.js';
-import { markEdit } from '../scene/shared.js';
-import { changePresent, setPresent } from '../scene/present.js';
-import { setPlace } from '../scene/place.js';
-import { setWeather } from '../scene/weather.js';
-import { setYou } from '../scene/you.js';
+import { WEATHER_FEATURE, YOU_FEATURE } from '../constants.js';
+import { markEdit } from '../shared.js';
+import { changePresent, setPresent } from '../present.js';
+import { setPlace } from '../place.js';
+import { setWeather } from '../weather.js';
+import { setYou } from '../you.js';
 
 export const sceneCommands = {
     // { name, kind?, region?, with?: name | name[] } (a move leaves behind everyone not named in `with`)

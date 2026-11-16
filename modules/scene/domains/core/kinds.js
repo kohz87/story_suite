@@ -1,10 +1,10 @@
 // Story Block's core change-line kinds and the `~ you` grammar line. They are static grammar text plus
 // feature flags; the capture handlers that apply them live with the scene and inventory domains.
 
-import { CORE_FEATURE } from '../../../../../../core/features.js';
-import { EXTRA_KINDS } from '../../../../../../ui/legacy/extras.js';
-import { FEATURE } from '../inventory.js';
-import { WEATHER_CHARS, YOU_CHARS, YOU_SHORT_CHARS } from '../scene.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { EXTRA_KINDS } from '../../../../ui/legacy/extras.js';
+import { FEATURE } from '../../../inventory/index.js';
+import { WEATHER_CHARS, YOU_CHARS, YOU_SHORT_CHARS } from '../../index.js';
 
 /** The `~ you` grammar line: wearing and condition (with gear on, outfit, look and condition), and a rank under the pack's own word for it (`label`) when a pack gives one. */
 export function youGrammar(label = '', gear = false) {

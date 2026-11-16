@@ -2,7 +2,7 @@
 // The engine replays the recorded setup and seed; only the resulting bars and gear wear are written.
 // Its guard checks the recorded input against the prefix on delete, rewind and reload.
 
-import { condWord } from '../../../packages/story-block/src/v2/domains/gear.js';
+import { condWord } from '../../inventory/gear.js';
 import { hashJson } from '../../../core/replay.js';
 import { applyGear, earnedLegend, gearMatches, gearValid, wearGear } from '../gear.js';
 import { LV_VERSION, PRACTICE, RESOLVE, practiceOf } from '../names.js';

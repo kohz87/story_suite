@@ -1,6 +1,6 @@
 // The Money page's schema: the General fields regrouped into cards and the check on the coins.
 
-import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../../packages/story-block/src/v2/domains/money.js';
+import { MAX_COINS, MAX_COIN_VALUE, coinsOf } from '../../../../../modules/inventory/money.js';
 import { cutAt } from '../../../../../core/text.js';
 import { SETTINGS_TEXT, groupFields } from '../../form/schema.js';
 import { MONEY_CARDS } from './names.js';

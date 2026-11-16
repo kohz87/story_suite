@@ -28,7 +28,7 @@ import { barText } from '../../../modules/rpg/board/view-bars.js';
 import { growthText } from '../../../modules/rpg/view/party-data.js';
 import { buildDefinitions, newDraft } from '../../../modules/rpg/view/wizard-data.js';
 import { joinScale } from '../../../modules/rpg/join.js';
-import { validateDataModules, DM_LIMITS as L } from '../../../packages/story-block/src/v2/data-modules/check.js';
+import { validateDataModules, DM_LIMITS as L } from '../../../modules/data-modules/check.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from './helpers.js';
 
 const rules = { ...STANDARD_FORMULA, levelDivisor: 5 };

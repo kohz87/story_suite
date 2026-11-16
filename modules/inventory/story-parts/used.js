@@ -1,6 +1,6 @@
 // Reads whether a `- item` line says the thing was used, and hands a used consumable to the module that answers `item.use`.
 
-import { labelOf, isPlainObject, clone } from '../../common.js';
+import { labelOf, isPlainObject, clone } from '../../scene/domains/common.js';
 import { itemText } from '../validate.js';
 import { marked } from './shared-marked.js';
 

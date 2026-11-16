@@ -1,6 +1,6 @@
 // Join: who is in the story's party, from the character blocks.
 
-import { activeDefinition, instanceOf } from '../../../packages/story-block/src/v2/data-modules/adapters.js';
+import { activeDefinition, instanceOf } from '../../data-modules/adapters.js';
 import { oneLine } from '../../../core/text.js';
 import { newSoul } from '../view/wizard-data.js';
 import { classOfLevel, levelOfClass } from '../formula.js';

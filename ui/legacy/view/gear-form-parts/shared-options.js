@@ -1,7 +1,7 @@
 // Gear form: the choice lists (kind, rarity, slot, stat) of its select fields.
 
 import { STRINGS } from '../../../../core/strings.js';
-import { GEAR } from '../../../../packages/story-block/src/v2/domains/gear.js';
+import { GEAR } from '../../../../modules/inventory/gear.js';
 import { FORM_KINDS } from './shared-limits.js';
 
 const F = STRINGS.inventory.gear.form;

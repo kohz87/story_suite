@@ -1,6 +1,6 @@
 // Writes the card's collapsed one-line summary from a reply's digest.
 import { STRINGS, fill } from '../../../../core/strings.js';
-import { formatAmount } from '../../../../packages/story-block/src/v2/domains/money.js';
+import { formatAmount } from '../../../../modules/inventory/money.js';
 import { oneLine } from '../../../../core/text.js';
 import { changesDigest } from './digest.js';
 

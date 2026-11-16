@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { YOU_FEATURE } from '../../../packages/story-block/src/v2/domains/scene.js';
+import { YOU_FEATURE } from '../../../modules/scene/index.js';
 import { checkPort } from '../../../ui/port/contract.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
 import { createFakePort } from '../../../ui/port/fake-port.js';

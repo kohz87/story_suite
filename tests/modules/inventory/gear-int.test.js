@@ -2,13 +2,13 @@
 // on, a lasting legendary flag, the first-name / alias member match, and the item Edit that hands over and wears in one command.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCoreModule } from '../../src/v2/domains/index.js';
-import { createHarness } from './domains/helpers/fake-ctx.js';
-import { stocked } from './domains/fixtures.js';
-import { encumbrance, legendEarned } from '../../src/v2/domains/inventory.js';
-import { planGear, sameWho } from '../../../../modules/rpg/gear.js';
-import { readSheet } from '../../../../modules/rpg/index.js';
-import { character, sheetDomain } from '../../../../tests/modules/rpg/helpers.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
+import { createHarness } from './helpers/fake-ctx.js';
+import { stocked } from './fixtures.js';
+import { encumbrance, legendEarned } from '../../../modules/inventory/index.js';
+import { planGear, sameWho } from '../../../modules/rpg/gear.js';
+import { readSheet } from '../../../modules/rpg/index.js';
+import { character, sheetDomain } from '../rpg/helpers.js';
 
 const sheetOf = b => readSheet({ domains: { dataModules: sheetDomain(b) } });
 const gearAnswer = piece => ({ on: true, slots: piece ? { weapon: { name: piece, stats: { STR: 1 }, broken: false } } : {}, statBonus: piece ? { STR: 1 } : {}, carry: { encumbered: false, penalty: 0 } });

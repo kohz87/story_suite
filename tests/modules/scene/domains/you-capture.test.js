@@ -1,8 +1,8 @@
 // Your look (MODULES §F126, src/v2/domains/scene.js): parsing, validation, capture and feature/tail.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { YOU_CHARS, YOU_FEATURE, captureYou, initialScene, sceneTail, validateScene, youNote, youParts, youText } from '../../../src/v2/domains/scene.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
+import { YOU_CHARS, YOU_FEATURE, captureYou, initialScene, sceneTail, validateScene, youNote, youParts, youText } from '../../../../modules/scene/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
 import { NONE, block, fresh, lastIndex, look, staticText, tailText } from './you.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

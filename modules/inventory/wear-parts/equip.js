@@ -1,7 +1,7 @@
 // Equips a stack into a slot for its owner (`item.equip`).
 
-import { ownerNameIn } from '../../common.js';
-import { slotWordOf, GEAR, placeOf } from '../../gear.js';
+import { ownerNameIn } from '../../scene/domains/common.js';
+import { slotWordOf, GEAR, placeOf } from '../gear.js';
 import { gearOn } from '../state.js';
 import { baseSlot } from '../validate.js';
 import { stackIn, refuseBound } from '../stacks.js';

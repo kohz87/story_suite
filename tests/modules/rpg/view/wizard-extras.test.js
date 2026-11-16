@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { STATS } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { RPG_EXTRAS, buildDefinitions, extraDefinitions, extrasPlan, missingBlocks, newDraft, problemsOf, readDraft } from '../../../../modules/rpg/view/wizard-data.js';
-import { reload } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reload } from '../../data-modules/helpers.js';
 import { begin, fillBlocks, makeBlocks, page, settle } from './page.js';
 import { click, companion, createFrom, ctxDialog, goTo, names, openFrom, rolesOf, type, usedReply, wizardOf } from './wizard.helpers.js';
 

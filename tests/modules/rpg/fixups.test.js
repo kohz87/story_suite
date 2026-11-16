@@ -5,7 +5,7 @@ import { createHost, hostAvailable } from '../../../packages/story-block/testkit
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { readSheet } from '../../../modules/rpg/read.js';
 import { barFields, stageText } from '../../../modules/rpg/blocks.js';
-import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { success } from '../data-modules/helpers.js';
 import { tailOf } from './helpers.js';
 import { legacyPlanner } from './legacy-planner.js';
 

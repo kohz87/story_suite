@@ -33,15 +33,15 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readRecord } from '../../../../core/persist.js';
-import { initial as dmInitial } from '../../../../packages/story-block/src/v2/data-modules/part/shared.js';
+import { initial as dmInitial } from '../../../../modules/data-modules/part/shared.js';
 import { createStore } from '../../../../core/store.js';
-import { validateInventory } from '../../../../packages/story-block/src/v2/domains/inventory.js';
-import { aliasKey, resolveDef } from '../../../../packages/story-block/src/v2/domains/names.js';
-import { validateScene } from '../../../../packages/story-block/src/v2/domains/scene.js';
+import { validateInventory } from '../../../../modules/inventory/index.js';
+import { aliasKey, resolveDef } from '../../../../modules/scene/names.js';
+import { validateScene } from '../../../../modules/scene/index.js';
 import { validatePeople } from '../../../../packages/story-block/src/v2/domains/people/validate.js';
 import { hashJson } from '../../../../core/replay.js';
 import { checkGuard } from '../../../../modules/rpg/practice.js';
-import { inventoryEditGuard } from '../../../../packages/story-block/src/v2/domains/inventory/edit.js';
+import { inventoryEditGuard } from '../../../../modules/inventory/edit.js';
 import { probeModule } from './probe-module.js';
 import { replayFailure } from './replay-diagnostics.js';
 

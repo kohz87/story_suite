@@ -4,14 +4,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { reply, fixture, success, view } from './helpers.js';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 let SD_DIR = null;
 let skip = false;
 try {
-    SD_DIR = (await import('../../../../../tests/suite/break/helpers/suite.js')).roots().sd ?? null;
+    SD_DIR = (await import('../../suite/break/helpers/suite.js')).roots().sd ?? null;
     if (!SD_DIR) skip = 'no Story_director checkout beside this one (STORY_SUITE_ROOT, SUITE_SD)';
 } catch (error) { skip = `the suite helper did not load: ${error.message}`; }
 

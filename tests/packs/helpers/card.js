@@ -4,7 +4,7 @@ import { createRuntime } from '../../../core/runtime.js';
 import { createPacksPart } from '../../../packs/index.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { setupDom } from '../../ui/view/mounts/helpers.js';
-import { fixture } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { fixture } from '../../modules/data-modules/helpers.js';
 import { fakeFiles, webp } from './portraits.js';
 
 export const tick = () => new Promise(resolve => setTimeout(resolve, 0));

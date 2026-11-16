@@ -3,7 +3,7 @@
 // were, and a refusal (decimal, unknown coin, overspend) stays visible and leaves the wallet alone.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
 
 const COINS = [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }, { name: 'gold', value: 100 }];
 const reply = (prose, ...lines) => `${prose}\n<Changes>\n${lines.join('\n')}\n</Changes>`;

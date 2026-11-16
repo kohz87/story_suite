@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { validatePack } from '../../packs/validate.js';
 import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES, grownSkills } from '../../modules/rpg/templates.js';
 import { readParty } from '../../modules/rpg/view/party-data.js';
-import { summaryOf } from '../../packages/story-block/src/v2/data-modules/part.js';
+import { summaryOf } from '../../modules/data-modules/part.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
 import { fakeState } from '../modules/rpg/view/helpers.js';
 import { renderSkills, slotsShown } from '../../modules/rpg/view/skills.js';

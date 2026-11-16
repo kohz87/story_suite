@@ -1,6 +1,6 @@
 // The SillyTavern call behind sdk.callModel, on the chat's connection or a profile.
 
-import { answerText, findProfile } from '../../packages/story-block/src/v2/assist/st-adapter.js';
+import { answerText, findProfile } from '../../modules/assist/st-adapter.js';
 import { MODEL_CALL_TOKENS } from './limits.js';
 import { MODEL_CALL_ERRORS, MODEL_CALL_TEXT } from './messages.js';
 import { CallError } from './errors.js';

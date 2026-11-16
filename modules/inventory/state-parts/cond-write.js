@@ -1,6 +1,6 @@
 // Writing a condition event to a stack and checking the condition log.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { COND_MAX, COND_LOG_MAX, clampCond } from './shared-cond.js';
 import { condOf } from './cond-read.js';
 

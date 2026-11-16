@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { currencyOf, parseMixedAmount } from '../../../packages/story-block/src/v2/domains/money.js';
-import { TOLD } from '../../../packages/story-block/src/v2/domains/inventory.js';
+import { currencyOf, parseMixedAmount } from '../../../modules/inventory/money.js';
+import { TOLD } from '../../../modules/inventory/index.js';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { core, stocked } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
-import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
+import { core, stocked } from '../../modules/inventory/fixtures.js';
+import { createHarness } from '../../modules/inventory/helpers/fake-ctx.js';
 
 const currency = currencyOf({ coins: [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }, { name: 'gold', value: 100 }] });
 

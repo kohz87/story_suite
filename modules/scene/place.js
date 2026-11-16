@@ -1,9 +1,9 @@
 // The scene's place: `~ place Name | kind | region | with: …` and the `scene.place` command. A move takes the place's kind from a
 // pack when one names it (on a reply marked `placeFromMap`, its kind and region from the map or a pack), keeps who came along, and leaves the rest behind. Pure.
 
-import { labelOf } from '../common.js';
-import { cleanName } from '../names.js';
-import { foldKey } from '../../../../../../core/text.js';
+import { labelOf } from './domains/common.js';
+import { cleanName } from './names.js';
+import { foldKey } from '../../core/text.js';
 import { MAX_NAME, MAX_PRESENT } from './constants.js';
 import { companions } from './present.js';
 import { clearLook } from './you-look.js';

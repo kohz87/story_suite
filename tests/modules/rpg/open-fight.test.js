@@ -11,7 +11,7 @@ import { readResolve } from '../../../modules/rpg/view/battle-log.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { hashJson as hashOf } from '../../../core/replay.js';
 import { createFakeModel } from '../../../packages/story-block/testkit/model.js';
-import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success } from '../data-modules/helpers.js';
 import { cueOf, PARTY, foeBlock, rollReceipt, setup, sheetDomain, tailOf } from './helpers.js';
 
 // The RPG library is cached for the whole process, so the test-only legacy planner reads the world of the test now running.

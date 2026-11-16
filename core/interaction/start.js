@@ -1,7 +1,7 @@
 // The waiting choice of an interaction a module asked to open before the reader's message goes out (`interactionStart`): the record in
 // chat metadata, the opening preview, and the hold. Until the old view can choose for any kind, only the allowed kinds may ask.
 
-import { hashText } from '../../packages/story-block/src/v2/assist/common.js';
+import { hashText } from '../../modules/assist/common.js';
 import { readRecord } from '../persist.js';
 import { interactionSeed } from './dice.js';
 

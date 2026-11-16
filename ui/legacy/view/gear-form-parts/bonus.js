@@ -1,7 +1,7 @@
 // Gear form: the two Bonus lines (stat and points boxes, live points line) and reading them back into a stats object.
 
 import { STRINGS } from '../../../../core/strings.js';
-import { GEAR } from '../../../../packages/story-block/src/v2/domains/gear.js';
+import { GEAR } from '../../../../modules/inventory/gear.js';
 import { SHOWN } from './shared-limits.js';
 import { statOptions } from './shared-options.js';
 

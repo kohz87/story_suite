@@ -3,11 +3,11 @@
 // and a definition that uses none of the new keys is exactly what it was in 2.7.2.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { validateDataModules, dataModuleHash } from '../../../src/v2/data-modules/check.js';
-import { grammarFor, summaryOf, blockCards, CARD_SLOTS } from '../../../src/v2/data-modules/part.js';
-import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
-import { ROLES } from '../../../../../modules/rpg/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { validateDataModules, dataModuleHash } from '../../../modules/data-modules/check.js';
+import { grammarFor, summaryOf, blockCards, CARD_SLOTS } from '../../../modules/data-modules/part.js';
+import { buildBlock } from '../../../modules/data-modules/block-builder.js';
+import { ROLES } from '../../../modules/rpg/index.js';
 import { fixture, reload, rebuilt, reply, view, success } from './helpers.js';
 
 const check = input => validateDataModules([input], { packId: 'chat', capabilities: ['data-modules-v1'] });
@@ -427,7 +427,7 @@ test('a block with no cards, no reply-end functions and no hidden fields stores 
 });
 
 test('the tail lists a character sheet before the pack blocks (a tight tail is cut from its end, so Health outlasts the counters)', async () => {
-    const { tailLines } = await import('../../../src/v2/data-modules/part/prompt.js');
+    const { tailLines } = await import('../../../modules/data-modules/part/prompt.js');
     const [sheet] = check(hero()).definitions;
     const [ledger] = check({ slug: 'ledger', name: 'Ledger', schema: 1, stateVersion: 1, scope: 'chat', state: { gold: int(0, 99, 0, { label: 'Gold' }) }, kinds: { 'set-gold': setKind('gold', int(0, 99, 0)) } }).definitions;
     const slot = definition => ({ hash: `h-${definition.slug}`, generation: 1, subjects: ['chat'] });

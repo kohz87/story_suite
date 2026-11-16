@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { CHAR_FILE, parseCharacterFile } from "../../../../modules/rpg/charfile.js";
-import { TOLD } from "../../../../packages/story-block/src/v2/domains/inventory.js";
+import { TOLD } from "../../../../modules/inventory/index.js";
 import { STATS } from "../../../../modules/rpg/index.js";
-import { reload } from "../../../../packages/story-block/tests/v2/data-modules/helpers.js";
+import { reload } from "../../data-modules/helpers.js";
 import { fieldsOf, page, party, settle } from "./page.js";
 import { GEAR_FILE, SAVED, carried, click, companion, createRen, defsOf, exportDialog, exportOf, goTo, importInto, names, newcomer, purseOf, receiptTypes, saveFrom, story, type, without, wizardOf, wizardWith } from "./char-export.helpers.js";
 

@@ -3,12 +3,12 @@
 // item gets its hint, bound gear stays as it was. The form data and plans are tested as plain data, then drawn by the real template renderer over a real host.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { inventoryScreen } from '../../../../ui/legacy/screens/index.js';
-import { addFields, addPlan, editFields, editPlan, repointControls } from '../../../../ui/legacy/view/gear-form.js';
-import { validatePack } from '../../../../packs/validate.js';
-import { pack } from '../../../../tests/packs/helpers/fixtures.js';
-import { show, settle, text } from '../../../../tests/ui/screens/helpers.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { addFields, addPlan, editFields, editPlan, repointControls } from '../../../ui/legacy/view/gear-form.js';
+import { validatePack } from '../../../packs/validate.js';
+import { pack } from '../../packs/helpers/fixtures.js';
+import { show, settle, text } from '../../ui/screens/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
@@ -306,7 +306,7 @@ test('the 32 px control rule is only for a roomy screen with a fine pointer; a p
 
 test('controls inside a form group carry no host margin, so the Bonus select and its points box start on one line', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync(new URL('../../../../ui/legacy/view/widgets/styles.js', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../../ui/legacy/view/widgets/styles.js', import.meta.url), 'utf8');
     assert.match(css, /^\.ss-w-editable-group input, \.ss-w-editable-group select \{ margin: 0; \}$/m);
 });
 

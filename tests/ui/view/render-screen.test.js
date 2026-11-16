@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { createScreenRenderer, layoutEvaluator } from '../../../ui/legacy/view/render-screen.js';
 import { createDialogMount } from '../../../ui/legacy/view/mounts/dialog.js';
 import { createRegistry } from '../../../core/registry.js';
-import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { standardWidgets } from '../../../ui/legacy/view/widgets/index.js';
 import { fakeApi, fakeChat, fakeQuery, screensWith, setupDom } from './mounts/helpers.js';
 

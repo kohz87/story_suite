@@ -1,6 +1,6 @@
 // Shared states for the core domain tests.
-import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { defaultDef } from '../../../src/v2/domains/inventory.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
+import { defaultDef } from '../../../modules/inventory/index.js';
 import { initialState } from './helpers/fake-ctx.js';
 
 // Story Block's settings with the chat's currency renamed.

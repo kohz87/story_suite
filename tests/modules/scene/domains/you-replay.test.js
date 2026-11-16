@@ -2,13 +2,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../testkit/index.js';
-import { validatePack } from '../../../../../packs/validate.js';
-import { YOU_CHARS, YOU_FEATURE, validateScene } from '../../../src/v2/domains/scene.js';
-import { mountUi } from '../../../../../ui/legacy/ui-host.js';
-import { gameHeroProps } from '../../../../../ui/legacy/view/game-header.js';
-import { checkInvariants } from '../../../../../tests/suite/qa/helpers/oracle.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { validatePack } from '../../../../packs/validate.js';
+import { YOU_CHARS, YOU_FEATURE, validateScene } from '../../../../modules/scene/index.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { gameHeroProps } from '../../../../ui/legacy/view/game-header.js';
+import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { NONE, block, fresh, lastIndex, look, rankPack, settle, staticText, tailText } from './you.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ test('scene.you from the reader: each part replaces its own, empty clears, long 
     assert.deepEqual(validateScene(host.head().domains.scene), []);
     // A module's call is the same command; the story itself writes `~ you` and is refused the command.
     const ctxFail = [];
-    const { sceneCommands } = await import('../../../src/v2/domains/scene.js');
+    const { sceneCommands } = await import('../../../../modules/scene/index.js');
     const refused = (() => {
         try { sceneCommands['scene.you']({ cause: 'story', fail: (code, message) => { ctxFail.push(code); throw new Error(message); }, draft: () => ({}) }, { wearing: 'x' }); } catch (error) { return error.message; }
         return '';
@@ -229,7 +229,7 @@ test('a pack with content.you.rank gives the Rank its word everywhere; the first
 });
 
 test('the Ersveil example pack gives the Rank the word "Guild rank"; its content.you checks like the rest of a pack', async t => {
-    const ersveil = JSON.parse(readFileSync(new URL('../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
+    const ersveil = JSON.parse(readFileSync(new URL('../../../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
     assert.deepEqual(ersveil.content.you, { rank: { label: 'Guild rank' } });
     const host = await fresh(t, { rank: false });
     assert.equal((await host.packs.packs.install(ersveil)).ok, true);

@@ -1,7 +1,7 @@
 // The scene's queries: place, present, weather and {{user}}'s look. Pure.
 
-import { WEATHER_FEATURE, YOU_FEATURE } from '../scene/constants.js';
-import { rankLabelIn, wornWords } from '../scene/you.js';
+import { WEATHER_FEATURE, YOU_FEATURE } from '../constants.js';
+import { rankLabelIn, wornWords } from '../you.js';
 import { initialScene } from './state.js';
 
 export const sceneQueries = {

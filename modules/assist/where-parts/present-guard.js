@@ -1,7 +1,7 @@
 // The safety net's place guards: an arrival located elsewhere, explicit departures, and which arrivals the reply names.
 
-import { stripBlock, withoutReasoning } from '../../../../../../core/capture.js';
-import { cleanName } from '../../domains/names.js';
+import { stripBlock, withoutReasoning } from '../../../core/capture.js';
+import { cleanName } from '../../scene/names.js';
 import { fold } from './shared-text.js';
 import { knownPlace, mapPlaces } from './places.js';
 

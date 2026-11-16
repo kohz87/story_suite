@@ -1,6 +1,6 @@
 // What a reader edit witnesses for replay: the target stack, its pieces, and the add and rename decisions.
 
-import { cleanName, trimText, resolveDef, slugify } from '../../names.js';
+import { cleanName, trimText, resolveDef, slugify } from '../../scene/names.js';
 import { condOf, MAX_NOTE } from '../state.js';
 import { looseMatch, stacksOf, freeId } from '../stacks.js';
 

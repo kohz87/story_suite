@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { success } from '../data-modules/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

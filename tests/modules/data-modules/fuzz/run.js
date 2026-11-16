@@ -15,11 +15,11 @@
 //
 //   node scripts/fuzz-data-modules.mjs <seed> <steps>      one run; prints { seed, steps, fails }
 import { writeFileSync } from 'node:fs';
-import { createStore } from '../../../../../../core/store.js';
-import { createCommandBus } from '../../../../../../core/commands.js';
-import { validateDomain } from '../../../../src/v2/data-modules/part.js';
-import { DM_LIMITS } from '../../../../src/v2/data-modules/schema.js';
-import { createHost } from '../../../../testkit/index.js';
+import { createStore } from '../../../../core/store.js';
+import { createCommandBus } from '../../../../core/commands.js';
+import { validateDomain } from '../../../../modules/data-modules/part.js';
+import { DM_LIMITS } from '../../../../modules/data-modules/schema.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
 import { fixture, directorStub } from '../helpers.js';
 import { generate, witnessDefinition, rng } from './generate.js';
 

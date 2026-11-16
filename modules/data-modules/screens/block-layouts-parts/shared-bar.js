@@ -1,5 +1,5 @@
 // Draws the one bar track (a plain range or a signed one from a centre line) that the entries and the number map both use.
-import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
+import { h } from '../../../../ui/legacy/view/widgets/dom.js';
 
 export function barNode(doc, value, min, max) {
     const track = h(doc, 'div', 'ss-bar-track');

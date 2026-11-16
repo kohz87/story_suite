@@ -1,7 +1,7 @@
 // The inventory's tail: what is worn, the wallet and the carried items that fit.
 
-import { ownerName } from '../../common.js';
-import { formatWallet } from '../../money.js';
+import { ownerName } from '../../scene/domains/common.js';
+import { formatWallet } from '../money.js';
 import { itemText } from '../validate.js';
 import { listItems } from '../queries.js';
 import { condText, itemPhrase, owners } from './phrases.js';

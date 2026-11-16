@@ -4,7 +4,7 @@
 // "+ coin .5" (half a coin) pays 5. Within the per-reply budget, but more (or other) than was written.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseAmount } from '../../../packages/story-block/src/v2/domains/money.js';
+import { parseAmount } from '../../../modules/inventory/money.js';
 
 for (const written of ['‐30', '‑30', '‒30', '⁻30', '₋30', '﹣30', '－30']) {
     test(`"+ coin ${written}" is refused like "+ coin -30" (a sign is not written on the amount)`, () => {

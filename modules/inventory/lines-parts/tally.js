@@ -1,6 +1,6 @@
 // A story reply's money tally: what it gave, what clicks paid, and counting a line's money.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { isCount } from '../state.js';
 
 export const tallied = value => (isCount(value, 0) ? value : 0);

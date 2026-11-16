@@ -11,19 +11,19 @@ Last checked: 2026-11-07.
 - `../../core/runtime/skill-slots.js`: skill-slot counts and signature-bit helpers kept outside Lean RPG for small startup.
 - `../../core/persist/v1-copy.js`: detects an old Story Block v1 copy running alongside v2 and reports it once.
 
-## src/v2/assist/
-- `src/v2/assist/section.js`: read-only Settings Assist section showing helper switches and recent run outcomes.
+## ../../modules/assist/
+- `../../modules/assist/section.js`: read-only Settings Assist section showing helper switches and recent run outcomes.
 
-## src/v2/data-modules/
-- `src/v2/data-modules/block-builder.js`: builds and edits ordinary data-module definitions for the in-chat block editor.
-- `src/v2/data-modules/block-layout.js`: chooses a preview layout and card roles for the block editor from its field shape.
-- `src/v2/data-modules/block-screen.js`: turns a pinned block's show settings into a host screen or merged tab.
-- `src/v2/data-modules/block-starters.js`: three built-in editable drafts offered at the top of the New block form.
-- `src/v2/data-modules/block-templates.js`: stores reader-owned block templates and exports them as packs.
-- `src/v2/data-modules/editable-layout.js`: adds inline editors to local fields in authored data-module screen layouts.
-- `src/v2/data-modules/fields-widget.js`: defines the fields and heading layout nodes used to show a data module's values.
-- `src/v2/data-modules/hash-basis-v1.js`: frozen interpreter-1 descriptors and limits kept as a historical identity contract.
-- `src/v2/data-modules/recovery.js`: a marked Character's story rules (no narrator XP, bars lowered but never raised by `set-*`, full rest once per 6 story hours), the one recovery line (restLine) and their notes.
+## ../../modules/data-modules/
+- `../../modules/data-modules/block-builder.js`: builds and edits ordinary data-module definitions for the in-chat block editor.
+- `../../modules/data-modules/block-layout.js`: chooses a preview layout and card roles for the block editor from its field shape.
+- `../../modules/data-modules/block-screen.js`: turns a pinned block's show settings into a host screen or merged tab.
+- `../../modules/data-modules/block-starters.js`: three built-in editable drafts offered at the top of the New block form.
+- `../../modules/data-modules/block-templates.js`: stores reader-owned block templates and exports them as packs.
+- `../../modules/data-modules/editable-layout.js`: adds inline editors to local fields in authored data-module screen layouts.
+- `../../modules/data-modules/fields-widget.js`: defines the fields and heading layout nodes used to show a data module's values.
+- `../../modules/data-modules/hash-basis-v1.js`: frozen interpreter-1 descriptors and limits kept as a historical identity contract.
+- `../../modules/data-modules/recovery.js`: a marked Character's story rules (no narrator XP, bars lowered but never raised by `set-*`, full rest once per 6 story hours), the one recovery line (restLine) and their notes.
 
 ## ../../modules/world/events/
 - `../../modules/world/events/calls.js`: allowlisted condition calls that read the before-generate state and queries.
@@ -83,10 +83,10 @@ Last checked: 2026-11-07.
 - `../../packs/portrait-fit.js`: shrinks and encodes portraits to stored size limits using browser image APIs.
 
 ## ../../ui/legacy/screens/
-- `src/v2/screens/block-fields.js`: registers the fields and heading widgets used by data-module screen layouts.
-- `src/v2/screens/block-layouts.js`: draws block and data-module values as cards, number maps, record cards or previews.
-- `src/v2/screens/block-maps.css`: the number-list rows, centre-line bars, fold, Edit-reveal pencils, guild tiles and the Enable all box; overrides host.css's `.ss-b-*` rules.
-- `src/v2/screens/blocks-editor.js`: provides the in-chat form for authoring a block from fields, starters, layout and preview.
+- `../../modules/data-modules/screens/block-fields.js`: registers the fields and heading widgets used by data-module screen layouts.
+- `../../modules/data-modules/screens/block-layouts.js`: draws block and data-module values as cards, number maps, record cards or previews.
+- `../../modules/data-modules/screens/block-maps.css`: the number-list rows, centre-line bars, fold, Edit-reveal pencils, guild tiles and the Enable all box; overrides host.css's `.ss-b-*` rules.
+- `../../modules/data-modules/screens/blocks-editor.js`: provides the in-chat form for authoring a block from fields, starters, layout and preview.
 - `../../ui/legacy/screens/rebuild-banner.js`: Home's dossier banner: blocked branch, start-from-chat dialog, catching-up progress with Skip, and the done or stopped notes.
 - `../../ui/legacy/screens/inventory-add.js`: places the inline form for adding an item to the reader's own inventory, the folded "Worn (N)" row of the Inventory tab, and the Grid view's two widgets (the List | Grid switch, the tiles with folds and the item sheet).
 - `../../ui/legacy/screens/inventory-grid.js`: pure DOM helpers for the Inventory Grid view: square item tiles, foldable category and per-wearer Worn sections (with their remembered open state), and the bottom sheet for one item calling the same actions as the list rows.
@@ -191,30 +191,30 @@ Last checked: 2026-11-07.
 - `../../core/store/write/replace.js`: replaceStory and reconcile.
 - `../../core/store/write/records.js`: narrated, practice rule, receipts, truncate, untold and work.
 - `../../core/store/write/lifecycle.js`: rebuild, archive, batch and renamed.
-- `src/v2/data-modules/part.js` → `data-modules/part/`: `factory.js` wires the data-module part; `core.js` shared lifecycle helpers; `shared.js` state access, caches and checked definitions; `views.js` read-only views; `blocks.js` Setup actions; `fields.js` field and host-step actions; `act.js` story and reader actions; `skills.js` the Skills block's slot rules; `party.js` companions; `prompt.js` prompt tail and reply cards; `timing.js` timer and reply-end costs.
-- `src/v2/domains/gear.js` → `domains/gear/`: `stats.js` slots, rarity, stat budgets and story-made definitions; `conditions.js` condition words and prices; `carry.js` carry rules and the carry query; `views.js` query answers and the screen picture.
-- `src/v2/domains/scene.js` → `domains/scene/`: `constants.js` name, presence, weather and look limits and feature names; `shared.js` the told rule, name lists, the edit mark and the letter test; `present.js` who is present and their changes; `place.js` the place and its moves; `place-known.js` the map's or a pack's record of a place by name or alias; `weather.js` the weather line and the `scene.weather` command; `you.js` {{user}}'s look, its Rank label and the look ask; `you-look.js` the lasting outfit and passing look (read, cut, cleared on a move); `worn-words.js` the words for what {{user}} has equipped.
+- `../../modules/data-modules/part.js` → `data-modules/part/`: `factory.js` wires the data-module part; `core.js` shared lifecycle helpers; `shared.js` state access, caches and checked definitions; `views.js` read-only views; `blocks.js` Setup actions; `fields.js` field and host-step actions; `act.js` story and reader actions; `skills.js` the Skills block's slot rules; `party.js` companions; `prompt.js` prompt tail and reply cards; `timing.js` timer and reply-end costs.
+- `../../modules/inventory/gear.js` → `domains/gear/`: `stats.js` slots, rarity, stat budgets and story-made definitions; `conditions.js` condition words and prices; `carry.js` carry rules and the carry query; `views.js` query answers and the screen picture.
+- `../../modules/scene/index.js` → `domains/scene/`: `constants.js` name, presence, weather and look limits and feature names; `shared.js` the told rule, name lists, the edit mark and the letter test; `present.js` who is present and their changes; `place.js` the place and its moves; `place-known.js` the map's or a pack's record of a place by name or alias; `weather.js` the weather line and the `scene.weather` command; `you.js` {{user}}'s look, its Rank label and the look ask; `you-look.js` the lasting outfit and passing look (read, cut, cleared on a move); `worn-words.js` the words for what {{user}} has equipped.
 - `../../modules/world/events/condition.js` → `events/condition-tokenizer.js` the tokenizer; `condition-parser.js` the parser (a frozen AST); `condition-errors.js` size limits and error values.
 - `../../modules/rpg/resolve.js` → `lean-rpg/resolve/dice.js`: the flow version, outcome rule and per-action dice streams shared by the Standard roll and its guard.
 - `../../modules/rpg/strings.js` → `lean-rpg/strings/`: `character.js` sheets, party, gear, skills and the wizard; `story.js` saved characters, companions, first send, bars and the sheet; `fight.js` fights, change lines and RPG settings.
 - `../../modules/rpg/view/wizard.js` → `wizard/`: `who.js` the Who step and import; `stats.js` the Stats step; `skills.js` the Skills step; `review.js` Review and Create.
 - `../../core/registry.js` → `registry/`: `registration.js` registration checks and ownership; `commands.js` command, capture, context and initial-state lookups; `features.js` feature lookups; `lifecycle.js` peers, cycles and the restore barrier.
 - `../../core/runtime.js` → `runtime/start.js` start helpers; `runtime/saving.js` saving helpers.
-- `src/v2/screens/blocks-editor.js` → `blocks-editor/`: `constants.js` labels and types; `editor.js` form state and controls; `draw.js` the sections; `layout.js` layout chips, card roles, colours and preview.
-- `src/v2/screens/blocks.js` → `screens/blocks/page.js` the page's list, Show as, row menu and template chooser; `screens/blocks/shared.js` words and format helpers.
+- `../../modules/data-modules/screens/blocks-editor.js` → `blocks-editor/`: `constants.js` labels and types; `editor.js` form state and controls; `draw.js` the sections; `layout.js` layout chips, card roles, colours and preview.
+- `../../modules/data-modules/screens/blocks.js` → `screens/blocks/page.js` the page's list, Show as, row menu and template chooser; `screens/blocks/shared.js` words and format helpers.
 - `../../core/strings.js` → `strings/messages.js` inline edits and refusals; `strings/page.js` bar, panel, drawer, menu, features and reply cards; `strings/screens.js` Story Block's own screens.
 - `../../ui/legacy/view/bind.js` → `view/bind/`: `paths.js` path syntax and reads; `scope.js` scopes; `expressions.js` compiled expressions; `helpers.js` helpers and formatters; `text.js` text and interpolation; `changes.js` change checks.
 - `../../ui/legacy/view/css.js` → `view/css/`: `parse.js` limits and tokenizing; `names.js` scope names; `selectors.js` selector scoping; `values.js` value filtering and theme properties; `scoping.js` the scoper.
 - `../../ui/legacy/view/widgets/map.js` → `view/widgets/map/data.js`: map data cleaning and layer visibility.
-- `src/v2/data-modules/check/shape.js`: the message table `E`, the shape validators shared by every section, and the display names of an int field.
-- `src/v2/data-modules/check/names.js`: `dataModuleDefaults`, the defaults a checked definition starts from.
-- `src/v2/data-modules/check/effects.js`: reward types, the line a List of entries field is worked by, and the effects a rule may write.
-- `src/v2/data-modules/check/imports.js`: the imports a definition declares and the offers collected from them.
-- `src/v2/data-modules/check/migration.js`: the migrations a definition declares and `validateDataMigration`.
-- `src/v2/data-modules/check/screens.js`: the presentation a definition declares (editable props, screens, action and template payloads, view paths).
-- `src/v2/data-modules/check/layout.js`: the block layout keys, the stage-bar fields and the block functions (cards, rules, hidden fields).
-- `src/v2/data-modules/check/validate.js`: `validateDataModules`, the entry point that checks a pack's definitions, catalog and capabilities.
-- `src/v2/data-modules/check/hash.js`: the memoised text hash and the hashes of a checked definition and of a whole pack.
+- `../../modules/data-modules/check/shape.js`: the message table `E`, the shape validators shared by every section, and the display names of an int field.
+- `../../modules/data-modules/check/names.js`: `dataModuleDefaults`, the defaults a checked definition starts from.
+- `../../modules/data-modules/check/effects.js`: reward types, the line a List of entries field is worked by, and the effects a rule may write.
+- `../../modules/data-modules/check/imports.js`: the imports a definition declares and the offers collected from them.
+- `../../modules/data-modules/check/migration.js`: the migrations a definition declares and `validateDataMigration`.
+- `../../modules/data-modules/check/screens.js`: the presentation a definition declares (editable props, screens, action and template payloads, view paths).
+- `../../modules/data-modules/check/layout.js`: the block layout keys, the stage-bar fields and the block functions (cards, rules, hidden fields).
+- `../../modules/data-modules/check/validate.js`: `validateDataModules`, the entry point that checks a pack's definitions, catalog and capabilities.
+- `../../modules/data-modules/check/hash.js`: the memoised text hash and the hashes of a checked definition and of a whole pack.
 - `../../core/evidence/constants.js`: proof owners, stat names, structural caps, the stored key list, and the shared readers `isObject`, `whole` and `occurrenceOf`.
 - `../../core/evidence/payloads.js`: checks that a proof payload is closed and well formed for its kind, its payload key, and the intent check.
 - `../../core/evidence/stored.js`: whether a stored proof is whole and owned, its pin, the pins written with a block's ops, and the proof write checks.
@@ -264,7 +264,7 @@ Last checked: 2026-11-07.
 - `../../ui/legacy/view/mounts/card.js` → `card/mount.js`: wires the parts into the public controller.
 - `../../ui/legacy/view/widgets/editable/props.js`: the editable widget's prop schema and line-cutting helper.
 - `../../ui/legacy/view/widgets/editable/fields.js`: the editable widget's field boxes, grouped layout, live refresh and readback.
-- `src/v2/domains/inventory/commands/wallet.js`: the purse commands and the narrator's edit wording.
+- `../../modules/inventory/commands/wallet.js`: the purse commands and the narrator's edit wording.
 - `../../core/timeline/coordinator-prepare/finish.js`: the participant activation and acknowledgement phase of a committed restore.
 - `../../ui/legacy/view/template/render/view.js`: the renderer's view lifecycle, draft scope, element budget and the renderTemplate/destroyTemplate entry points.
 - `../../ui/legacy/view/template/render/blocks.js`: the text, if and each blocks and the block factory.
@@ -287,14 +287,14 @@ Last checked: 2026-11-07.
 - `../../core/persist/saver/suspects.js`: the suspect-chat watch, read-backs, rename and resume.
 - `../../core/persist/saver/api.js`: the saver's public methods in their original order.
 - `../../core/persist/saver/core.js`: the saver's live state, timers, save loop and rescue flow.
-- `src/v2/domains/core/constants.js`: the core module id, static text, features, settings and gear grammar.
-- `src/v2/domains/core/kinds.js`: the core change-line kinds and the `~ you` grammar line.
-- `src/v2/domains/core/part.js`: the core part's domains, commands, queries, kinds, context and tabs.
-- `src/v2/domains/core/merge.js`: merging module parts, hooks and settings without changing part order.
-- `src/v2/domains/core/isolate-after.js`: the merged afterCapture hook that, flag `suite.isolatedApply` on, keeps the other parts' steps when one part fails.
+- `../../modules/scene/domains/core/constants.js`: the core module id, static text, features, settings and gear grammar.
+- `../../modules/scene/domains/core/kinds.js`: the core change-line kinds and the `~ you` grammar line.
+- `../../modules/scene/domains/core/part.js`: the core part's domains, commands, queries, kinds, context and tabs.
+- `../../modules/scene/domains/core/merge.js`: merging module parts, hooks and settings without changing part order.
+- `../../modules/scene/domains/core/isolate-after.js`: the merged afterCapture hook that, flag `suite.isolatedApply` on, keeps the other parts' steps when one part fails.
 - `../../core/runtime/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).
-- `src/v2/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
-- `src/v2/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
+- `../../modules/scene/domains/core/extra.js`: the Inner chatter tail and `scene.moved` helpers.
+- `../../modules/scene/domains/core/module.js`: the core module assembly, host-owned replay guard and queries.
 - `src/v2/domains/people/part.js`: the core `people` domain part (present from the first reply, no flag): the `people.write` command and the `people.hash` query.
 - `src/v2/domains/people/validate.js`: checks a people view (version, order, plain JSON, records keyed by id, portraits as file references only, socialGraph keys and ids) before it is stored.
 - `../../core/runtime/flags.js`: reads internal rollout flags from `extension_settings.storySuite.flags` at every call (only a stored `true` is on).

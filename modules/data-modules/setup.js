@@ -8,11 +8,11 @@
 //
 // Pack-written text (names, versions, reasons) goes in through textContent only. `api`: { query(name, args),
 // command(type, payload) } or { sdk }. Returns { refresh() }.
-import { button, el, plural } from '../../../../../ui/legacy/ui/dom.js';
+import { button, el, plural } from '../../ui/legacy/ui/dom.js';
 import { DM_LIMITS as L } from './schema.js';
 import { kindExample, referenceOf } from './grammar.js';
-import { STRINGS } from '../../../../../core/strings.js';
-import { editable } from '../../../../../ui/legacy/view/widgets/editable.js';
+import { STRINGS } from '../../core/strings.js';
+import { editable } from '../../ui/legacy/view/widgets/editable.js';
 
 const boundsOf = schema => schema.type === 'int' ? `${schema.min} to ${schema.max}, starts at ${schema.default}`
     : schema.type === 'bool' ? `true or false, starts ${schema.default}`

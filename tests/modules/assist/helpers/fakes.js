@@ -1,6 +1,6 @@
 // Stand-ins for the assist tests: a scripted model, a hand-driven timer, a chat and the settings.
 
-import { SETTING } from '../../../../src/v2/assist/common.js';
+import { SETTING } from '../../../../modules/assist/common.js';
 
 /**
  * fakeModel(answers): a callModel that answers from `answers` in order (a string, an Error to throw,

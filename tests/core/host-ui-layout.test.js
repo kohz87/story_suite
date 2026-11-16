@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createRegistry } from '../../core/registry.js';
 import { PACKS_FOLD, SETTINGS_TEXT, SUB_FOLD, featuresFoldOf, groupFields, promptSize, renderSettingsHost } from '../../ui/legacy/host-ui.js';
 import { openSettingsWindow as openSettingsOverlay } from '../../ui/legacy/view/settings/window.js';
-import { createCoreModule } from '../../packages/story-block/src/v2/domains/index.js';
+import { createCoreModule } from '../../modules/scene/domains/index.js';
 import { packsFor } from '../../core/runtime.js';
 import { estimateTokens } from '../../core/prompt.js';
 import { cssOf } from './helpers/css-parts.js';

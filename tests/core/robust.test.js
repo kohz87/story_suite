@@ -6,8 +6,8 @@ import { MAX_LINE, cutLine, extractBlock, hideBlock, parseChanges, stripBlock, w
 import { HAPPENED, MIN_HAPPENED, assemble } from '../../core/prompt.js';
 import { createRegistry } from '../../core/registry.js';
 import { MAX_CHANGE_LINES, createSettings, settingValue } from '../../core/sdk.js';
-import { parseAmount } from '../../packages/story-block/src/v2/domains/money.js';
-import { cleanName } from '../../packages/story-block/src/v2/domains/names.js';
+import { parseAmount } from '../../modules/inventory/money.js';
+import { cleanName } from '../../modules/scene/names.js';
 import { MAX_DEPTH, parseHtml, tooDeep } from '../../ui/legacy/view/template/html.js';
 import { MAX_AT_DEPTH, cssDepth, scopeCss } from '../../ui/legacy/view/css.js';
 import { unsafeCss } from '../../packs/validate.js';

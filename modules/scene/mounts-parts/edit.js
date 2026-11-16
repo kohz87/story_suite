@@ -1,8 +1,8 @@
 // The reader's pencil on a mount row (`mounts.edit`) and its command table.
 
-import { parseCount } from '../common.js';
+import { parseCount } from '../domains/common.js';
 import { cleanName, trimText } from '../names.js';
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../core/strings.js';
 import { MOUNTS_FEATURE } from './feature.js';
 import { MAX_NAME, MAX_KIND, MAX_CONDITION, MAX_WHERE } from './caps-text.js';
 import { MAX_COUNT, MAX_PACE, MAX_CARRY } from './caps-count.js';

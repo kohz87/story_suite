@@ -1,6 +1,6 @@
 // Join: the setting's mode and what a `+ party` line may do in this story.
 
-import { DM_LIMITS, DM_OLD_ROOM } from '../../../packages/story-block/src/v2/data-modules/schema.js';
+import { DM_LIMITS, DM_OLD_ROOM } from '../../data-modules/schema.js';
 import { JOINS, JOIN_SETTING, PARTY_MAX } from '../names.js';
 import { fold } from '../read.js';
 import { RPG_STRINGS, fill } from '../strings.js';

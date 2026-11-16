@@ -1,9 +1,9 @@
 // Captures the story's `+ item` / `- item` / `~ item` lines: gains, losses, renames, notes, counts, wear and repair.
 
-import { labelOf } from '../../common.js';
-import { cleanName, trimText, aliasKey } from '../../names.js';
-import { isCurrencyName, countedMoney } from '../../money.js';
-import { GEAR, slotWordOf, placeOf } from '../../gear.js';
+import { labelOf } from '../../scene/domains/common.js';
+import { cleanName, trimText, aliasKey } from '../../scene/names.js';
+import { isCurrencyName, countedMoney } from '../money.js';
+import { GEAR, slotWordOf, placeOf } from '../gear.js';
 import { featureOn, FEATURE, MAX_NOTE, gearOn, MAX_NAME } from '../state.js';
 import { itemText, baseSlot } from '../validate.js';
 import {

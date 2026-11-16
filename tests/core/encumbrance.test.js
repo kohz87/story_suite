@@ -5,10 +5,10 @@
 // is refused with the carry module's reason (F39).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ENCUMBERED_PENALTY, encumbrance, encumbranceTail } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { ENCUMBERED_PENALTY, encumbrance, encumbranceTail } from '../../modules/inventory/index.js';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { createHarness, line } from '../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
-import { core, stocked } from '../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness, line } from '../modules/inventory/helpers/fake-ctx.js';
+import { core, stocked } from '../modules/inventory/fixtures.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const qty = (host, name) => host.sdk.query('inventory.items').filter(item => item.name === name).reduce((sum, item) => sum + item.qty, 0);

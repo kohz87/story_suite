@@ -1,7 +1,7 @@
 // Wears the piece an owner has in a gear slot by condition steps (`gear.wear`).
 
-import { OWNER_RE, capitalize, ownerNameIn } from '../../common.js';
-import { stepDown } from '../../gear.js';
+import { OWNER_RE, capitalize, ownerNameIn } from '../../scene/domains/common.js';
+import { stepDown } from '../gear.js';
 import { condOf, condWrite, RPG_MODULE, gearOn } from '../state.js';
 
 // `gear.wear { owner, slot, steps }` (`story-block.gear`): the system's or another module's call (a fight's rules), never a button or a

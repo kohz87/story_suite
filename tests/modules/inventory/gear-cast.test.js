@@ -3,10 +3,10 @@
 // a second join without duplicates, replay equality, and the narrator's "Gear:" line (query `packs.castGear`).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost, hostAvailable } from '../../testkit/index.js';
-import { validatePack } from '../../../../packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { pack } from '../../../../tests/packs/helpers/fixtures.js';
+import { createHost, hostAvailable } from '../../../packages/story-block/testkit/index.js';
+import { validatePack } from '../../../packs/validate.js';
+import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { pack } from '../../packs/helpers/fixtures.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

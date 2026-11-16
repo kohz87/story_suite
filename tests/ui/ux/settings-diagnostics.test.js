@@ -7,7 +7,7 @@ import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { createRegistry } from '../../../core/registry.js';
 import { createSettings } from '../../../core/sdk.js';
-import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { packsFor } from '../../../core/runtime.js';
 import { DIAGNOSTICS_FOLD, DIAGNOSTICS_TEXT, EVENTS_FOLD } from '../../../ui/legacy/host-ui.js';
 import { EVENTS_NOTE } from '../../../modules/world/events/index.js';

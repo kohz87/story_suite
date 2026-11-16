@@ -1,9 +1,9 @@
 // What a member's gear gives: the pieces and load worked out from the inventory's answers, and the guard's check that a record still matches the state.
 import { readSheet } from '../read.js';
 import { actorIdOf } from '../roster.js';
-import { gearAnswer } from '../../../packages/story-block/src/v2/domains/gear.js';
-import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../../packages/story-block/src/v2/domains/inventory.js';
-import { mountRows } from '../../../packages/story-block/src/v2/domains/mounts.js';
+import { gearAnswer } from '../../inventory/gear.js';
+import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../inventory/index.js';
+import { mountRows } from '../../scene/mounts.js';
 import { ENCUMBERED } from './shared-marks.js';
 import { ITEMS_MAX, NAME_MAX } from './shared-caps.js';
 import { isObject, lower } from './shared-helpers.js';

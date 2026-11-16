@@ -3,9 +3,9 @@
 // but their prefix.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { dataModuleGuard } from '../../../src/v2/data-modules/part.js';
-import { dataModuleHash } from '../../../src/v2/data-modules/check.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
+import { dataModuleGuard } from '../../../modules/data-modules/part.js';
+import { dataModuleHash } from '../../../modules/data-modules/check.js';
 import { fixture, reply, int, definition, counterV2, pack, success, world, pin, view, reload, inactive, spansOf, directorStub } from './helpers.js';
 
 const COUNT = reason => `+ dm counter — ${reason} | kind: bump | n: 1`;
@@ -163,7 +163,7 @@ test('a damaged or future-interpreter pin is inspected read-only: Unsupported in
     const offer = await pin(host, ['ca_wessel01']);
     const state = structuredClone(host.head());
     state.domains.dataModules.pins[offer.hash].interpreter = 2;
-    const { grammarFor, summaryOf, createDataModulesPart } = await import('../../../src/v2/data-modules/part.js');
+    const { grammarFor, summaryOf, createDataModulesPart } = await import('../../../modules/data-modules/part.js');
     const part = createDataModulesPart({ packs: host.packs.packs, state: () => state, lifecycle: id => host.registry.lifecycle(id) });
     const [row] = part.queries['dataModules.setup'](state);
     assert.equal(row.status, 'Unsupported');

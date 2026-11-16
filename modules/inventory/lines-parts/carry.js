@@ -1,6 +1,6 @@
 // The carry limit: whether a take fits, and the reader's own takes refused over it.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { gearOn } from '../state.js';
 import { carryAnswer } from '../queries.js';
 

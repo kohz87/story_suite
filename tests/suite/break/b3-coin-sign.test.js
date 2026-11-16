@@ -2,7 +2,7 @@
 // with a sign) is read as the party RECEIVING 50.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseAmount } from '../../../packages/story-block/src/v2/domains/money.js';
+import { parseAmount } from '../../../modules/inventory/money.js';
 import { coreHost, coin, reply } from './helpers/econ.js';
 
 test('parseAmount refuses a negative amount instead of reading its digits', () => {

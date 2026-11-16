@@ -1,7 +1,7 @@
 // Remaking a piece as equipment, where an accessory goes, and moving a piece's stat points.
 
-import { gearSlotOf, handDef, gearBudget } from '../../gear.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { gearSlotOf, handDef, gearBudget } from '../gear.js';
+import { fill } from '../../../core/strings.js';
 import { gearOn } from '../state.js';
 import { baseSlot } from '../validate.js';
 import { E, refuseBound, boundId } from '../stacks.js';

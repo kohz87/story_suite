@@ -1,6 +1,6 @@
 // The shape check of the loot on offer and reading an offer's things in order.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { nonBlank, MAX_NAME, isCount } from '../state.js';
 import { LOOT_ITEMS } from './limits.js';
 

@@ -4,8 +4,8 @@
 // (piece)" is the "Sulfur Alloy" the party holds. An exact alias or name always wins.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { looseKey, nameForms, portionless, resolveDef } from '../../../src/v2/domains/names.js';
-import { createHost } from '../../../testkit/index.js';
+import { looseKey, nameForms, portionless, resolveDef } from '../../../../modules/scene/names.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
 
 const inventory = names => ({
     defs: Object.fromEntries(names.map(([id, name]) => [id, { id, name }])),

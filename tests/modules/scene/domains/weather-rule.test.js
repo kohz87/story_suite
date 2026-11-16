@@ -7,12 +7,12 @@
 // amount in a coin the chat does not know is refused, never read as that many of its money.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { WEATHER_KEY_CHARS, validateScene } from '../../../src/v2/domains/scene.js';
-import { currencyOf, foreignCoin, parseAmount } from '../../../src/v2/domains/money.js';
-import { weatherOf } from '../../../../../packs/index.js';
-import { validatePack } from '../../../../../packs/validate.js';
-import { checkInvariants } from '../../../../../tests/suite/qa/helpers/oracle.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { WEATHER_KEY_CHARS, validateScene } from '../../../../modules/scene/index.js';
+import { currencyOf, foreignCoin, parseAmount } from '../../../../modules/inventory/money.js';
+import { weatherOf } from '../../../../packs/index.js';
+import { validatePack } from '../../../../packs/validate.js';
+import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';
 
 const block = (story, lines) => `${story}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const lastIndex = host => host.ctx.chat.length - 1;

@@ -1,15 +1,15 @@
 // The party's mounts (src/v2/domains/mounts.js, feature `story-block.mounts`): queries, pencil edit, replay and Home.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { CORE_FEATURE } from '../../../../../core/features.js';
-import { MAX_ROWS, MOUNTS_FEATURE, WALK_PACE } from '../../../src/v2/domains/mounts.js';
-import { validateScene } from '../../../src/v2/domains/scene.js';
-import { mountUi } from '../../../../../ui/legacy/ui-host.js';
-import { homeScreen } from '../../../../../ui/legacy/screens/index.js';
-import { checkInvariants } from '../../../../../tests/suite/qa/helpers/oracle.js';
-import { recordingWidgets, renderSkip, show, text } from '../../../../../tests/ui/screens/helpers.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { CORE_FEATURE } from '../../../../core/features.js';
+import { MAX_ROWS, MOUNTS_FEATURE, WALK_PACE } from '../../../../modules/scene/mounts.js';
+import { validateScene } from '../../../../modules/scene/index.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { homeScreen } from '../../../../ui/legacy/screens/index.js';
+import { checkInvariants } from '../../../suite/qa/helpers/oracle.js';
+import { recordingWidgets, renderSkip, show, text } from '../../../ui/screens/helpers.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { MARE, block, character, fresh, lastIndex, names, problems } from './mounts.helpers.js';
 
 // ---------------------------------------------------------------------------------------------------

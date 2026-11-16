@@ -1,6 +1,6 @@
 // Reads the story's repair word for a piece and mends or restores it.
 
-import { stepUp } from '../../gear.js';
+import { stepUp } from '../gear.js';
 import { condOf, condWrite } from '../state.js';
 import { stacksOf } from '../stacks.js';
 

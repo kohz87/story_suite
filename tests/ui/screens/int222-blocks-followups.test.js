@@ -3,12 +3,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { createBlockWidgets, BLOCK_WIDGET } from '../../../packages/story-block/src/v2/screens/blocks.js';
-import { barFields, renderBlockPreview, statusTone } from '../../../packages/story-block/src/v2/screens/block-layouts.js';
-import { BLOCK_STARTERS } from '../../../packages/story-block/src/v2/data-modules/block-starters.js';
-import { buildBlock } from '../../../packages/story-block/src/v2/data-modules/block-builder.js';
+import { createBlockWidgets, BLOCK_WIDGET } from '../../../modules/data-modules/screens/blocks.js';
+import { barFields, renderBlockPreview, statusTone } from '../../../modules/data-modules/screens/block-layouts.js';
+import { BLOCK_STARTERS } from '../../../modules/data-modules/block-starters.js';
+import { buildBlock } from '../../../modules/data-modules/block-builder.js';
 import { setupDom } from '../view/mounts/helpers.js';
-import { success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { success } from '../../modules/data-modules/helpers.js';
 
 async function world(t) {
     const doc = setupDom();

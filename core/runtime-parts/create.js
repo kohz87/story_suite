@@ -1,8 +1,8 @@
 // Builds Story Block v2's runtime once: registry, settings, store, command bus, sdk, turn and the public API wired together (createRuntime).
 
 import { createCommandBus as realBus } from '../commands.js';
-import { CORE_MODULE_ID, createCoreModule } from '../../packages/story-block/src/v2/domains/index.js';
-import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../packages/story-block/src/v2/assist/index.js';
+import { CORE_MODULE_ID, createCoreModule } from '../../modules/scene/domains/index.js';
+import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../modules/assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
 import { createCardSettings } from '../../packs/card-settings.js';
 import { skipOf } from '../../modules/rpg/start-notes.js';

@@ -6,7 +6,7 @@ import { CREATION } from '../../../../modules/rpg/index.js';
 import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { WIZARD_SCREEN_ID } from '../../../../modules/rpg/view/wizard.js';
 import { hasRoom, newDraft, problemsOf } from '../../../../modules/rpg/view/wizard-data.js';
-import { reload } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reload } from '../../data-modules/helpers.js';
 import { begin, fieldsOf, fillBlocks, makeBlocks, page, party, settle } from './page.js';
 import { PACK, click, goTo, names, openFrom, type, wizardOf } from './wizard.helpers.js';
 

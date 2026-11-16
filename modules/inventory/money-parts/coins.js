@@ -1,6 +1,6 @@
 // Cleans a list of coins, builds the currency from settings, and names its smallest unit.
 
-import { cutAt } from '../../../../../../core/text.js';
+import { cutAt } from '../../../core/text.js';
 import { DEFAULT_CURRENCY, MAX_COINS, MAX_COIN_VALUE } from './constants.js';
 import { tidy, MAX_NAME, MAX_SHORT, coinList } from './shared-tidy.js';
 import { pluralOf, coinPlural } from './names.js';

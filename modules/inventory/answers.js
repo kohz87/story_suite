@@ -1,10 +1,10 @@
 // The inventory domain's query table (moved out of domains/inventory.js unchanged; inventory.js re-exports it): the answers other modules ask
 // for. It reads loot, the kit and the story tally, so it sits above queries.js, whose helpers it uses, and below nothing but the facade.
 
-import { clone, isPlainObject } from '../common.js';
-import { resolveDef } from '../names.js';
-import { resolveCurrency } from '../money.js';
-import { createGearQueries } from '../gear.js';
+import { clone, isPlainObject } from '../scene/domains/common.js';
+import { resolveDef } from '../scene/names.js';
+import { resolveCurrency } from './money.js';
+import { createGearQueries } from './gear.js';
 import { FEATURE, condOf, condEvents } from './state.js';
 import { legendEarned } from './validate.js';
 import {

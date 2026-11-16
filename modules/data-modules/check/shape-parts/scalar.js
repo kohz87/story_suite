@@ -1,7 +1,7 @@
 // Validates one field or label schema (int, bool, enum, text, map, List of entries).
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../../core/text.js';
 import { DM_BLOCK_BARS, DM_DESCRIPTORS as D, DM_LIMITS as L, dmInt, dmObject, dmOwn } from '../../schema.js';
-import { STRINGS, fill } from '../../../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
 import { E, array } from './helpers.js';
 import { shape, sized, distinct } from './structure.js';
 import { names } from './names.js';

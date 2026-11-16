@@ -1,6 +1,6 @@
 // Small text helpers: a token estimate, a short stable hash and a word-aware cut.
 
-import { cutAt } from '../../../../../../core/text.js';
+import { cutAt } from '../../../core/text.js';
 
 /** Tokens as the prompt budget counts them (§5): about four characters each. */
 export const estimateTokens = text => Math.ceil(String(text ?? '').length / 4);

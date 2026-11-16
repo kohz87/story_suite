@@ -1,6 +1,6 @@
 // Gives a story-made item its numbers (slot, rarity, stats) from what its line says, within the rarity ceiling.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../../scene/domains/common.js';
 import { GEAR } from './constants.js';
 import { gearSlotOf } from './slots.js';
 import { gearRarityOf } from './rarity.js';

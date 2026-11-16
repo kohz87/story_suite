@@ -1,6 +1,6 @@
 // Gear's stat budgets: reading a record's stats, holding them to a budget, and the points a def or pack item may give.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../../scene/domains/common.js';
 import { GEAR } from './constants.js';
 
 /** The seven stats a record names with a positive whole number: { STR: 2 } (keys in any case; the rest is left out). */

@@ -7,11 +7,11 @@ import { CORE_FEATURE } from '../../../core/features.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { scaleXp } from '../../../modules/rpg/levels.js';
 import { memberXp, fightGuard, outnumberedMultiplier } from '../../../modules/rpg/fight.js';
-import { hasRestButtons, isMarkedCharacter, fullRestTooSoon, recoveryNote } from '../../../packages/story-block/src/v2/data-modules/recovery.js';
-import { directorStub, reload } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { hasRestButtons, isMarkedCharacter, fullRestTooSoon, recoveryNote } from '../../../modules/data-modules/recovery.js';
+import { directorStub, reload } from '../data-modules/helpers.js';
 import { cueOfResult } from '../../../modules/rpg/cue.js';
-import { grammarFor } from '../../../packages/story-block/src/v2/data-modules/part/views.js';
-import { moduleGrammar } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
+import { grammarFor } from '../../../modules/data-modules/part/views.js';
+import { moduleGrammar } from '../../../modules/data-modules/grammar.js';
 
 async function world({ old = false, clock = false, minute = 1000 } = {}) {
     const host = await createHost({ callModel: async () => 'none', settings: { modules: { 'story-block': { rpgFormula: 'standard' } } },

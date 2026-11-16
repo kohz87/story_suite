@@ -1,6 +1,6 @@
 // Draws a record of fields as one card of label and value lines.
-import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
-import { dmNameOf } from '../../data-modules/schema.js';
+import { h } from '../../../../ui/legacy/view/widgets/dom.js';
+import { dmNameOf } from '../../schema.js';
 import { chip, pencilFor, editorProps } from './shared-chrome.js';
 
 // ---- a record of fields ------------------------------------------------------------------------------------------------------------------

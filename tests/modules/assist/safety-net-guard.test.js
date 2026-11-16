@@ -1,7 +1,7 @@
 // The Assist safety net on the real host (MODULES §F123): final-paragraph arrival guard (assistPresent) and momentary restore barriers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assistSections } from '../../../../../core/capture.js';
+import { assistSections } from '../../../core/capture.js';
 import { AT_VILLAGE, ERRAND_REPLY, OWNER, SAME_VILLAGE, assistTypes, barrierHost, heldModel, heldProblems, hostWith, settleTurn, skip, wait } from './safety-net.helpers.js';
 
 test('a same-place safety-net answer cannot add someone met on the way; the final scene survives Re-read and reload', { skip }, async () => {

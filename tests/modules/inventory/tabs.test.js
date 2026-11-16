@@ -1,9 +1,9 @@
 // Inventory and Scene tabs: smoke tests of the minimal plain renderers on the fake DOM.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installFakeDom, texts } from '../../../../../tests/helpers/ui-fake-dom.js';
+import { installFakeDom, texts } from '../../helpers/ui-fake-dom.js';
 import { CROWNS, core, stocked } from './fixtures.js';
-import { createCorePart } from '../../../src/v2/domains/index.js';
+import { createCorePart } from '../../../modules/scene/domains/index.js';
 
 // The code tabs are the core part's; the module shows the default screens instead (src/v2/screens/).
 const codeTabs = settings => createCorePart({ settings: () => settings }).tabs;

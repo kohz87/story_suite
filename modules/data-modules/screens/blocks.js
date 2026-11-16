@@ -1,13 +1,13 @@
 // The shared view for a block's tab or Home card, and the Blocks page of Settings (the page lives in
 // screens/blocks/page.js; view/settings/blocks.js puts it in the settings window). The game view has no Blocks tab.
-import { h, shell } from '../../../../../ui/legacy/view/widgets/dom.js';
-import { editable } from '../../../../../ui/legacy/view/widgets/editable.js';
-import { editableBlockDraft, uniqueBlockSlug } from '../data-modules/block-builder.js';
-import { hasRestButtons } from '../data-modules/recovery.js';
-import { dmNameOf } from '../data-modules/schema.js';
-import { exportBlockPack } from '../data-modules/block-templates.js';
-import { saveTextFile } from '../../../../../ui/legacy/view/download.js';
-import { STRINGS, fill, refusalText } from '../../../../../core/strings.js';
+import { h, shell } from '../../../ui/legacy/view/widgets/dom.js';
+import { editable } from '../../../ui/legacy/view/widgets/editable.js';
+import { editableBlockDraft, uniqueBlockSlug } from '../block-builder.js';
+import { hasRestButtons } from '../recovery.js';
+import { dmNameOf } from '../schema.js';
+import { exportBlockPack } from '../block-templates.js';
+import { saveTextFile } from '../../../ui/legacy/view/download.js';
+import { STRINGS, fill, refusalText } from '../../../core/strings.js';
 import { barFields, drawEntries, drawNumberMap, entriesRoles, numberRows } from './block-layouts.js';
 import { createBlocksPage } from './blocks/page.js';
 import { S } from './blocks/shared.js';
@@ -26,7 +26,7 @@ const fullyNamed = scalar => {
 // `tabs()`: the tabs this chat has, [{ id, title }], for Show in tab (empty until the host can merge a block into a tab). `renderPreview(parent, { definition,
 // values, layout })`: the host's drawing of a block in the new layouts, used by the editor's preview (a plain sketch without it).
 export function createBlockWidgets({ templates, directorOn = () => true, leanRpgOn = () => false, navigate = () => {}, tabs = () => [], renderPreview = null,
-    loadRpgTemplates = () => import('../../../../../modules/rpg/templates.js').then(loaded => loaded.STANDARD_TEMPLATES) } = {}) {
+    loadRpgTemplates = () => import('../../rpg/templates.js').then(loaded => loaded.STANDARD_TEMPLATES) } = {}) {
     const shared = { mode: 'list', draft: null, module: null, note: '', meta: {}, starters: false };
     // The RPG templates are read (a dynamic import) only when the feature is on and the chooser is open.
     const rpg = { templates: null, loading: false };

@@ -1,6 +1,6 @@
 // Which stack of `owner`'s is worn at each place: the one lookup `inventory.gear` slots and the soak record share.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../../scene/domains/common.js';
 import { GEAR } from '../stats.js';
 
 /** `{ [place]: { stack, def } | null }` for every GEAR.places key: the lowest-id stack of `owner` worn there whose def exists. */

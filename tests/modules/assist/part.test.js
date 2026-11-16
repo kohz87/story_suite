@@ -6,9 +6,9 @@ import {
     DEFAULT_KINDS,
     DEFAULTS, PRECHECK, SCHEMA, SETTING, STATUS_QUERY, answerText, createAssistPart, findProfile, part, renderAssistSection,
     runLine, sdkHasKind, stCallModel, stChat, stChatId, withTimeout,
-} from '../../../src/v2/assist/index.js';
-import { createRegistry, definitionProblems } from '../../../../../core/registry.js';
-import { installFakeDom, texts } from '../../../../../tests/helpers/ui-fake-dom.js';
+} from '../../../modules/assist/index.js';
+import { createRegistry, definitionProblems } from '../../../core/registry.js';
+import { installFakeDom, texts } from '../../helpers/ui-fake-dom.js';
 import { fakeModel, on, user, view } from './helpers/fakes.js';
 
 test('the part: one command, one query, two hooks, an Assist settings section, no domain', () => {

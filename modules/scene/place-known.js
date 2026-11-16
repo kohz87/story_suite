@@ -1,6 +1,6 @@
 // The map's or a pack's record of a place by name or alias, for the kind and region a move leaves out. Pure.
 
-import { foldKey } from '../../../../../../core/text.js';
+import { foldKey } from '../../core/text.js';
 
 const ask = (ctx, name, args) => { try { return ctx.query(name, args); } catch { return null; } };
 const rowsOf = (ctx, name, args) => { const rows = ask(ctx, name, args); return Array.isArray(rows) ? rows : []; };

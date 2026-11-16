@@ -3,13 +3,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { setupDom } from '../ui/view/mounts/helpers.js';
-import { world, pin, success } from '../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { world, pin, success } from '../modules/data-modules/helpers.js';
 import { mergeTabs } from '../../ui/legacy/view/tab-merge.js';
-import { grammarFor, summaryOf } from '../../packages/story-block/src/v2/data-modules/part.js';
+import { grammarFor, summaryOf } from '../../modules/data-modules/part.js';
 import { renderLayout } from '../../ui/legacy/layout/render.js';
-import { editableLayout } from '../../packages/story-block/src/v2/data-modules/editable-layout.js';
-import { createFieldsWidgets } from '../../packages/story-block/src/v2/screens/block-fields.js';
-import { FIELDS_WIDGET } from '../../packages/story-block/src/v2/data-modules/fields-widget.js';
+import { editableLayout } from '../../modules/data-modules/editable-layout.js';
+import { createFieldsWidgets } from '../../modules/data-modules/screens/block-fields.js';
+import { FIELDS_WIDGET } from '../../modules/data-modules/fields-widget.js';
 
 const ersveil = () => JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const MODULES = ['standing', 'fame', 'guild-membership'];

@@ -4,10 +4,10 @@
 // actions on the reply (store.js readerSetup); a swipe or a delete of the reply still takes it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../../../modules/rpg/templates.js';
-import { createReplyNotes } from '../../../../../ui/legacy/reply-notes.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { createReplyNotes } from '../../../../ui/legacy/reply-notes.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 test('a Re-read of the opening reply, from its note, keeps the blocks the reader made on it: live, after a reload and after a later reply', async t => {
     const host = await createHost({ settings: { features: { 'story-block.rpg': true }, modules: { 'story-block': { rpgJoin: 'auto', rpgFormula: 'classic' } } } });

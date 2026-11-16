@@ -6,7 +6,7 @@ import { matchCharacter, matchFoe, matchSkill, readSheet } from '../../../module
 import { planIsEmpty, validatePlan } from '../../../modules/rpg/plan.js';
 import { FOE_SLOTS, FORMULA, LIMITS, STATS, USES, ROLLS_SETTING, LV_VERSION, PRACTICE, PRACTICE_SETTING, practiceOf } from '../../../modules/rpg/names.js';
 import { ROLL_TYPES } from '../../../modules/rpg/formula.js';
-import { hashText, normalizeType, withTimeout } from '../../../packages/story-block/src/v2/assist/common.js';
+import { hashText, normalizeType, withTimeout } from '../../../modules/assist/common.js';
 import { stripBlock } from '../../../core/capture.js';
 import { packRulesOf, rulesFromSettings } from '../../../modules/rpg/rules.js';
 import { DICE_VERSION, FLOW_VERSION, claimKey, prepare } from '../../../modules/rpg/resolve.js';

@@ -1,7 +1,7 @@
 // The replay guard of the loot blocks: whether the offer still holds what a take took.
 
-import { isPlainObject } from '../../common.js';
-import { resolveDef, aliasKey } from '../../names.js';
+import { isPlainObject } from '../../scene/domains/common.js';
+import { resolveDef, aliasKey } from '../../scene/names.js';
 import { nonBlank, isCount } from '../state.js';
 import { itemText } from '../validate.js';
 import { joinNames } from '../wear.js';

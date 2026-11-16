@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { buildBlock, blockDraft, uniqueBlockSlug } from '../../../src/v2/data-modules/block-builder.js';
-import { directorStub, reload, reply, view } from '../data-modules/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { buildBlock, blockDraft, uniqueBlockSlug } from '../../../../modules/data-modules/block-builder.js';
+import { directorStub, reload, reply, view } from '../helpers.js';
 
 const draft = () => ({ name: "Wessel's Notes", fields: [
     { name: 'Mood', type: 'text', max: 30, default: 'calm' },

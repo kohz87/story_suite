@@ -4,7 +4,7 @@
 // item is money, as #139 ruled: coin, coins, the currency's own name and its plural, with qty (MODULES §F108).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { coinValue, currencyOf, parseAmount } from '../../../packages/story-block/src/v2/domains/money.js';
+import { coinValue, currencyOf, parseAmount } from '../../../modules/inventory/money.js';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 const COINS = [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }, { name: 'gold', value: 100 }];

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { linesToList, listTextFields, listToLines, renderSettingsHost } from '../../ui/legacy/host-ui.js';
-import { createCoreModule } from '../../packages/story-block/src/v2/domains/index.js';
+import { createCoreModule } from '../../modules/scene/domains/index.js';
 import { packsFor } from '../../core/runtime.js';
 import { sourceOf } from '../helpers/split-source.js';
 import { cssOf } from './helpers/css-parts.js';

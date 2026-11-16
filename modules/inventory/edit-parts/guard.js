@@ -1,6 +1,6 @@
 // The replay guard of a reader edit: recording it and judging it again on a Re-read.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { E } from '../stacks.js';
 import { editPieces, addDecision, renameDecision } from './witness.js';
 

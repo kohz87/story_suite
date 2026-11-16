@@ -1,5 +1,5 @@
 // Applies practice to the found slots and undoes the narrator's own practice on them.
-import { createEvaluation } from '../../../packages/story-block/src/v2/data-modules/interpreter.js';
+import { createEvaluation } from '../../data-modules/interpreter.js';
 import { PRACTICE } from '../names.js';
 import { fold } from '../read.js';
 import { isObject, whole } from './shared-values.js';

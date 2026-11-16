@@ -1,6 +1,6 @@
 // How much of the prompt tail one module may take, in tokens.
 import { DM_LIMITS as L } from '../../schema.js';
-import { SKILL_SLOTS_BASE, skillFieldSlots } from '../../../../../../../core/runtime/skill-slots.js';
+import { SKILL_SLOTS_BASE, skillFieldSlots } from '../../../../core/runtime/skill-slots.js';
 
 // What a module may take of the prompt's tail: 100 tokens, 300 for a block with a `role` (the RPG's sheets carry text the story reads).
 // `rpg` is whether the RPG feature is on: a block with a role is the RPG's to write only then; with it off the block is told like any other.

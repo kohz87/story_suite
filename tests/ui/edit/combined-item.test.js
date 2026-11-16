@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { inventoryScreen } from '../../../ui/legacy/screens/inventory.js';
 import { homeScreen } from '../../../ui/legacy/screens/home.js';
-import { core, stocked, stack as makeStack } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
-import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
+import { core, stocked, stack as makeStack } from '../../modules/inventory/fixtures.js';
+import { createHarness } from '../../modules/inventory/helpers/fake-ctx.js';
 import { queries, show, settle, text } from '../screens/helpers.js';
 
 test('the single item form validates, cancels and saves only changed fields', async () => {

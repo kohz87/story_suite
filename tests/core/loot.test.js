@@ -5,11 +5,11 @@
 // take it back with the reply.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LOOT_ITEMS, LOOT_KEEP, captureLoot } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { LOOT_ITEMS, LOOT_KEEP, captureLoot } from '../../modules/inventory/index.js';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { createHarness, line } from '../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
-import { core, stocked } from '../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness, line } from '../modules/inventory/helpers/fake-ctx.js';
+import { core, stocked } from '../modules/inventory/fixtures.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const qty = (host, name) => host.sdk.query('inventory.items').filter(item => item.name === name).reduce((sum, item) => sum + item.qty, 0);
@@ -110,7 +110,7 @@ test('a take of more than 50 of a thing that does not stack: an offer saved by t
     t.mock.method(console, 'warn', () => {});
     const sample = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
-    const saved = JSON.parse(readFileSync(new URL('../../packages/story-block/tests/v2/domains/fixtures/loot-2.6.0-f74bab2-chat.json', import.meta.url), 'utf8'));
+    const saved = JSON.parse(readFileSync(new URL('../modules/inventory/fixtures/loot-2.6.0-f74bab2-chat.json', import.meta.url), 'utf8'));
     const host = await createHost({ st: { chat: saved.chat }, settings: { packs: [{ id: sample.id, version: sample.version, enabled: true, source: 'file', origin: 'test', pack: sample }] } });
     t.after(() => host.close());
     assert.deepEqual(host.store.problems(), []);

@@ -1,6 +1,6 @@
 // Names an entry of a List of entries: its title part, the `at` a story line writes, and title equality.
 import { dmOwn } from '../schema.js';
-import { oneLine } from '../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 
 /**
  * The part of a List of entries that names an entry (its title): the one the block's roles call the title, else the first text part. null when the entry has no

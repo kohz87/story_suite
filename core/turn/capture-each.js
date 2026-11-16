@@ -3,7 +3,7 @@
 // `createCaptureEach(s, deps)` is given the turn's state holder `s` and the turn parts it uses; it never imports turn.js.
 import { extractBlock, stripBlock } from '../capture.js';
 import { cutAt } from '../text.js';
-import { assistDepartures, assistPlaceConflict } from '../../packages/story-block/src/v2/assist/where.js';
+import { assistDepartures, assistPlaceConflict } from '../../modules/assist/where.js';
 import { readDisplayLine } from '../../ui/legacy/extras.js';
 import { CAPTURE_PREFIX } from '../registry.js';
 import { occurrenceOf } from '../evidence.js';

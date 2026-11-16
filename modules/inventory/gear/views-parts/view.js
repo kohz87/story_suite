@@ -1,8 +1,8 @@
 // Builds `gear.view`, the one answer the gear screens (Inventory tab, Party slot card) draw.
 
-import { isPlainObject } from '../../common.js';
-import { STRINGS } from '../../../../../../../core/strings.js';
-import { readSheet } from '../../../../../../../modules/rpg/read.js';
+import { isPlainObject } from '../../../scene/domains/common.js';
+import { STRINGS } from '../../../../core/strings.js';
+import { readSheet } from '../../../rpg/read.js';
 import { GEAR } from '../stats.js';
 import { statsFor, soakFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';
 import { condWord } from '../conditions.js';

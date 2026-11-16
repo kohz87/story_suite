@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createHost } from '../../../testkit/index.js';
+import { createHost } from '../../../packages/story-block/testkit/index.js';
 
 export const fixture = name => JSON.parse(readFileSync(new URL(`fixtures/${name}.json`, import.meta.url), 'utf8'));
 export const reply = (...lines) => `The story.\n<Changes>\n${lines.join('\n')}\n</Changes>`;

@@ -1,6 +1,6 @@
 // Whether the party already carries the item a name means.
 
-import { resolveDef } from '../../names.js';
+import { resolveDef } from '../../scene/names.js';
 
 /** Whether the party (anyone in it) already carries the item a name means, by the tolerant lookup. */
 export function owned(inv, name) {

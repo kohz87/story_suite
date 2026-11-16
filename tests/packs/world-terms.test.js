@@ -9,12 +9,12 @@ import { itemDef } from '../../packs/content.js';
 import { createPacksPart, marketsOf } from '../../packs/index.js';
 import { marketEntries, readMarketLine } from '../../packs/lorebook.js';
 import { CONTENT_KINDS, OPTIONAL_KINDS, RANKS_LIMITS } from '../../packs/limits.js';
-import { createCoreModule } from '../../packages/story-block/src/v2/domains/index.js';
+import { createCoreModule } from '../../modules/scene/domains/index.js';
 import { linesToList, listToLines } from '../../ui/legacy/host-ui.js';
 import { fakeSettings } from './helpers/fake-settings.js';
 import { pack } from './helpers/fixtures.js';
-import { createHarness, line } from '../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
-import { stocked } from '../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createHarness, line } from '../modules/inventory/helpers/fake-ctx.js';
+import { stocked } from '../modules/inventory/fixtures.js';
 
 const SOUL = ['Soul Class I', 'Soul Class II', 'Soul Class III', 'Soul Class IV', 'Soul Class V', 'Soul Class VI', 'Soul Class VII', 'Soul Class VIII', 'Soul Class IX'];
 const LETTERS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];

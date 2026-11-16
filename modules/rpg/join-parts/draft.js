@@ -1,6 +1,6 @@
 // Join: the wizard draft, definitions and scale of a joining companion.
 
-import { activeDefinition } from '../../../packages/story-block/src/v2/data-modules/adapters.js';
+import { activeDefinition } from '../../data-modules/adapters.js';
 import { STATS } from '../names.js';
 import { buildDefinitions, creationOf, readDraft } from '../view/wizard-data.js';
 import { companionStats, levelOfClass } from '../formula.js';

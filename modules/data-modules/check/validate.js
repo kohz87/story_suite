@@ -1,7 +1,7 @@
 // Data-modules checker, validate part: validateDataModules, the entry point that checks a pack's definitions, catalog and
 // capabilities. Pure: no state is read. check.js keeps the public path of each export.
 
-import { oneLine } from '../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { effects, rewardTypes } from './effects.js';
 import { collectOffers, imports } from './imports.js';
 import { blockFunctions, layoutKeys, stageFields } from './layout.js';
@@ -12,12 +12,12 @@ import { array, copy, defId, distinct, entries, named, normalizedKeys, scalar, s
 import { conditionType, fieldType } from '../expressions.js';
 import { fullModuleGrammar } from '../grammar.js';
 import { DATA_MODULES_CAPABILITY, DM_DESCRIPTORS as D, DM_LIMITS as L, dmInt, dmObject, dmOwn, dmSlug } from '../schema.js';
-import { ROLES } from '../../../../../../modules/rpg/names.js';
-import { LIMITS as PACK_LIMITS, TAB_ID } from '../../../../../../packs/limits.js';
-import { byteLength, checkPlain } from '../../../../../../packs/safety.js';
-import { STRINGS } from '../../../../../../core/strings.js';
-import { hasIcon } from '../../../../../../ui/legacy/view/icons/index.js';
-import { isTypedSkills } from '../../../../../../core/runtime/skill-slots.js';
+import { ROLES } from '../../rpg/names.js';
+import { LIMITS as PACK_LIMITS, TAB_ID } from '../../../packs/limits.js';
+import { byteLength, checkPlain } from '../../../packs/safety.js';
+import { STRINGS } from '../../../core/strings.js';
+import { hasIcon } from '../../../ui/legacy/view/icons/index.js';
+import { isTypedSkills } from '../../../core/runtime/skill-slots.js';
 
 /** Checked definitions plus an optional catalog for imports from other packs. No state is read. */
 export function validateDataModules(value, { packId, capabilities = [], definitions = [] } = {}) {

@@ -13,8 +13,8 @@ import { partyLines } from '../../modules/rpg/view/changes-lines.js';
 import { joinCard, joinDraft, joinOffers } from '../../modules/rpg/join.js';
 import { buildDefinitions, draftSlots, readDraft, withImport, withSet, withSkill, withSkillPatch, withoutSkill } from '../../modules/rpg/view/wizard-data.js';
 import { buildCharacterFile, parseCharacterFile } from '../../modules/rpg/charfile.js';
-import { summaryOf, tailRoom } from '../../packages/story-block/src/v2/data-modules/part.js';
-import { DM_LIMITS } from '../../packages/story-block/src/v2/data-modules/schema.js';
+import { summaryOf, tailRoom } from '../../modules/data-modules/part.js';
+import { DM_LIMITS } from '../../modules/data-modules/schema.js';
 import { estimateTokens } from '../../core/prompt.js';
 
 const available = await hostAvailable();

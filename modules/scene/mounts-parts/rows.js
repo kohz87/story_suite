@@ -1,6 +1,6 @@
 // Reads the mount rows, the party's pace and the narrator's mounts line from the state.
 
-import { isPlainObject } from '../common.js';
+import { isPlainObject } from '../domains/common.js';
 import { DEFAULT_PACE, WALK_PACE } from './pace.js';
 
 /** The rows as copies in story order: [{ name, kind, count, pace, condition, where }]. */

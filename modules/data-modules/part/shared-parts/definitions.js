@@ -2,7 +2,7 @@
 import { validateDataModules, dataModuleDefaults } from '../../check.js';
 import { refuse } from '../../interpreter.js';
 import { activeDefinition } from '../../adapters.js';
-import { hashJson } from '../../../../../../../core/replay.js';
+import { hashJson } from '../../../../core/replay.js';
 
 const rawDefinition = definition => Object.fromEntries(Object.entries(definition).filter(([key]) => !['id', 'pack'].includes(key)));
 // Clock/actor identities and inputs used for eligibility are live prerequisites even when the

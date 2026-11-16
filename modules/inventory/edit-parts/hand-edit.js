@@ -1,7 +1,7 @@
 // The reader's Edit of a piece they added by hand: kind, slot, rarity, stats and soak.
 
-import { slotWordOf, handDef, statsFor, statsOf, soakCap } from '../../gear.js';
-import { fill } from '../../../../../../../core/strings.js';
+import { slotWordOf, handDef, statsFor, statsOf, soakCap } from '../gear.js';
+import { fill } from '../../../core/strings.js';
 import { gearOn, KINDS, RARITIES, MAX_UNSTACKED } from '../state.js';
 import { baseSlot } from '../validate.js';
 import { E, refuseBound, addStack } from '../stacks.js';

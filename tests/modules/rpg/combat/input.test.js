@@ -10,7 +10,7 @@ import { fightInputOf, witnessOf } from '../../../../modules/rpg/combat/input.js
 import { envelopeOf, hurtsOf } from '../../../../modules/rpg/combat/envelope.js';
 import { playBoard } from '../../../../modules/rpg/combat/play.js';
 import { seeded } from './dice.helper.js';
-import { reply, success } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success } from '../../data-modules/helpers.js';
 
 const sign = kind => (/^(practice-|set-slot)/u.test(kind) ? '+' : '~');
 const line = (slug, kind, extra = '') => `${sign(kind)} dm ${slug} — why | kind: ${kind}${extra}`;

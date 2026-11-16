@@ -1,6 +1,6 @@
 // The block definitions Create makes: the extras, the names and the Character and Skills blocks.
 
-import { uniqueBlockSlug } from '../../../../packages/story-block/src/v2/data-modules/block-builder.js';
+import { uniqueBlockSlug } from '../../../data-modules/block-builder.js';
 import { STATS } from '../../names.js';
 import { classOfLevel, levelOfClass } from '../../formula.js';
 import { characterV1For, skillsV1For, skillsV2For } from '../../templates.js';

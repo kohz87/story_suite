@@ -2,7 +2,7 @@
 // beforeGenerate carries a staged board fight as `rpg.resolve` and offers separate dice for story checks; with no fight to carry it tells
 // the narrator how to open one (noFight). canGenerate holds a send until a waiting fight is played or chosen. Old chats keep their planner
 // rolls as records (resolve.js replays them); nothing here asks a model for a plan.
-import { hashText, normalizeType } from '../../packages/story-block/src/v2/assist/common.js';
+import { hashText, normalizeType } from '../assist/common.js';
 import { DICE, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, RESOLVE, ROLLS_SETTING, checksOn, practiceOf } from './names.js';
 import { OPEN_FIGHT_LINE } from './cue.js';
 import { claimKey } from './resolve.js';

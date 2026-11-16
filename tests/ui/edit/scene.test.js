@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { core, stocked } from '../../../packages/story-block/tests/v2/domains/fixtures.js';
-import { createHarness } from '../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
+import { core, stocked } from '../../modules/inventory/fixtures.js';
+import { createHarness } from '../../modules/inventory/helpers/fake-ctx.js';
 
 test('reader scene actions mark edits; system scene actions retain their old receipts', () => {
     const module = core();

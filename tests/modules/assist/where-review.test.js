@@ -2,7 +2,7 @@
 // name one exact time. Those now pass; an invented name for a mapped place is still refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mapPlaces, whereWhy } from '../../../src/v2/assist/where.js';
+import { mapPlaces, whereWhy } from '../../../modules/assist/where.js';
 
 const places = mapPlaces([
     { name: 'Bluewatch Village / Guild Office', aliases: ['Guild Hall'] },

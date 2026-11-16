@@ -1,6 +1,6 @@
 // Inventory shows the wallet, items, loot and bag actions.
 
-import { KIND_ORDER, RARITIES } from '../../../packages/story-block/src/v2/domains/inventory.js';
+import { KIND_ORDER, RARITIES } from '../../../modules/inventory/index.js';
 import { STRINGS, html, jsonText } from '../../../core/strings.js';
 import { INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from './inventory-add.js';
 import { GRID_CSS } from './inventory-grid.js';

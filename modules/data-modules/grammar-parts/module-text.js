@@ -1,6 +1,6 @@
 // Builds a module's complete grammar text and its budget-cut version for the static prompt part.
 import { DM_LIMITS as L, dmKindWritesHidden } from '../schema.js';
-import { oneLine } from '../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { familyLines } from './family-lines.js';
 
 // A kind that writes a hidden field (`prompt: false`) is the reader's: the narrator is not offered it.

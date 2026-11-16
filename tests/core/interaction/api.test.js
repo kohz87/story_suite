@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
+import { hashText } from '../../../modules/assist/common.js';
 import { interactionSeed } from '../../../core/interaction/dice.js';
 import { interactionPayload } from '../../../core/interaction/session.js';
 import { createInteractionApi } from '../../../core/sdk/interaction.js';

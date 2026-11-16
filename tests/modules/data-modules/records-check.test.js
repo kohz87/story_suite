@@ -1,9 +1,9 @@
 // The block keys of the layouts (BLOCKS-UI): `show.into`, and a pack screen's `tab`, `tabTitle` and `order`.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateDataModules, validateDataMigration } from '../../../src/v2/data-modules/check.js';
-import { checkScreens } from '../../../../../packs/validate.js';
-import { SCREEN_FIELDS } from '../../../../../packs/limits.js';
+import { validateDataModules, validateDataMigration } from '../../../modules/data-modules/check.js';
+import { checkScreens } from '../../../packs/validate.js';
+import { SCREEN_FIELDS } from '../../../packs/limits.js';
 
 const CAPS = ['data-modules-v1'];
 const record = () => ({ slug: 'quests', name: 'Quests', schema: 1, stateVersion: 1, scope: 'chat', kinds: {},

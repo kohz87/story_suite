@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseChanges } from '../../../../../core/capture.js';
-import { refusedFrom } from '../../../../../ui/legacy/reply-notes.js';
-import { validatePack } from '../../../../../packs/validate.js';
-import { createEvaluation, DataModuleError } from '../../../src/v2/data-modules/interpreter.js';
-import { dataModuleDefaults } from '../../../src/v2/data-modules/check.js';
-import { DM_LIMITS as L } from '../../../src/v2/data-modules/schema.js';
+import { parseChanges } from '../../../core/capture.js';
+import { refusedFrom } from '../../../ui/legacy/reply-notes.js';
+import { validatePack } from '../../../packs/validate.js';
+import { createEvaluation, DataModuleError } from '../../../modules/data-modules/interpreter.js';
+import { dataModuleDefaults } from '../../../modules/data-modules/check.js';
+import { DM_LIMITS as L } from '../../../modules/data-modules/schema.js';
 import { fixture, reply, int, definition, pack, success, world, pin, view, rebuilt, directorStub } from './helpers.js';
 
 test('reputation: fields, immediate midpoint reward, ordered rules, latch and durable decisions', async t => {

@@ -1,5 +1,5 @@
 // Which of the three layouts fit the draft's fields, which one to suggest and why.
-import { fill, STRINGS } from '../../../../../../core/strings.js';
+import { fill, STRINGS } from '../../../core/strings.js';
 import { entriesOf } from './shared-entries.js';
 
 const B = STRINGS.blocks;

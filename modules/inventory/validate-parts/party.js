@@ -1,7 +1,7 @@
 // Reads the party's members and its main character for the wear rules.
 
-import { isPlainObject, OWNER_RE } from '../../common.js';
-import { trimText } from '../../names.js';
+import { isPlainObject, OWNER_RE } from '../../scene/domains/common.js';
+import { trimText } from '../../scene/names.js';
 import { asking } from './shared-asking.js';
 
 // The party's members, in the party module's order: `party.actors` when a module answers it, else the

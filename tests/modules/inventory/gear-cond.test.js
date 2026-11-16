@@ -6,7 +6,7 @@
 // module answers it (and Story Block then writes nothing).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { COND_LOG_MAX, COND_MAX, STORY_WEAR, condEvents, condOf, listItems, validateInventory, wearWord } from '../../../src/v2/domains/inventory.js';
+import { COND_LOG_MAX, COND_MAX, STORY_WEAR, condEvents, condOf, listItems, validateInventory, wearWord } from '../../../modules/inventory/index.js';
 import { createHarness, line } from './helpers/fake-ctx.js';
 import { core, stocked } from './fixtures.js';
 
@@ -149,7 +149,7 @@ test('the story\'s wear word: to item.wear when a module answers it, else Story 
 });
 
 test('on the real host: a wear line without a gear module wears the piece; swipe takes it back', async t => {
-    const { createHost } = await import('../../../testkit/index.js');
+    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
     t.mock.method(console, 'warn', () => {});
     const host = await createHost();
     t.after(() => host.close());
@@ -181,7 +181,7 @@ const reply = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Chang
 const swordCond = host => host.sdk.query('inventory.condition', { stack: Object.values(host.head().domains.inventory.stacks).find(s => s.def.endsWith('iron-sword')).id }).cond;
 
 async function gearHost(t) {
-    const { createHost } = await import('../../../testkit/index.js');
+    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
     t.mock.method(console, 'warn', () => {});
     const host = await createHost({ modules: [GEAR] });
     t.after(() => host.close());
@@ -230,8 +230,8 @@ test('RX-TL-2: a deleted repair is gone, and a repair after a deleted wear stays
 const fold = log => [...log.values()].reduce((cond, d) => Math.max(0, Math.min(100, cond + d)), 100);
 
 test('fuzz: middle deletes around wear and repair: no Problems, the condition is what the kept replies leave, rebuild equals live', async t => {
-    const { prng } = await import('../../../../../tests/suite/qa/helpers/seeded.js');
-    const { checkInvariants } = await import('../../../../../tests/suite/qa/helpers/oracle.js');
+    const { prng } = await import('../../suite/qa/helpers/seeded.js');
+    const { checkInvariants } = await import('../../suite/qa/helpers/oracle.js');
     for (const seed of [5, 23, 91, 140]) {
         const r = prng(seed);
         const host = await gearHost(t);
@@ -266,7 +266,7 @@ test('fuzz: middle deletes around wear and repair: no Problems, the condition is
 });
 
 test('a wear line answered by item.wear with its feature off is a quiet Problem, and Story Block wears nothing', async t => {
-    const { createHost } = await import('../../../testkit/index.js');
+    const { createHost } = await import('../../../packages/story-block/testkit/index.js');
     t.mock.method(console, 'warn', () => {});
     const gear = {
         id: 'zz-gear', name: 'Gear', version: '0.0.0',

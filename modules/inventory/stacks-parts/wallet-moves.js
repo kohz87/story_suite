@@ -1,7 +1,7 @@
 // The money receive and pay handlers.
 
-import { ownerNameIn, capitalize } from '../../common.js';
-import { WALLET_KEY, formatAmount } from '../../money.js';
+import { ownerNameIn, capitalize } from '../../scene/domains/common.js';
+import { WALLET_KEY, formatAmount } from '../money.js';
 import { currencyIn, told } from './common-ctx.js';
 
 export function receive(ctx, env, { owner, amount, note }) {

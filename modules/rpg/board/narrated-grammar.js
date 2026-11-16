@@ -1,8 +1,8 @@
 // Rolls off lets the narrator move foe health; under the board the story only starts a fight (set-slot, in the fixed grammar) and
 // ends one by clearing a group that left. These per-reply lines restore the foe kinds while the board's fixed grammar stays trimmed.
 
-import { activeDefinition } from '../../../packages/story-block/src/v2/data-modules/adapters.js';
-import { moduleGrammar, referenceOf } from '../../../packages/story-block/src/v2/data-modules/grammar.js';
+import { activeDefinition } from '../../data-modules/adapters.js';
+import { moduleGrammar, referenceOf } from '../../data-modules/grammar.js';
 
 /** The foe kinds the story may still write beside the board: only the clears (a group fled, yielded or went away). */
 export const CLEAR_ONLY = /^clear-\d+$/u;

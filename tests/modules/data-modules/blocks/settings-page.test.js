@@ -2,13 +2,13 @@
 // more menu; Hidden (no tab and no card, the block still works); no Blocks tab in the game view; a story must be open.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHost } from '../../../testkit/index.js';
-import { mountUi } from '../../../../../ui/legacy/ui-host.js';
-import { buildBlock } from '../../../src/v2/data-modules/block-builder.js';
-import { validateDataModules } from '../../../src/v2/data-modules/check.js';
-import { STRINGS, fill } from '../../../../../core/strings.js';
-import { LEAN_RPG_FEATURE } from '../../../../../modules/rpg/index.js';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { mountUi } from '../../../../ui/legacy/ui-host.js';
+import { buildBlock } from '../../../../modules/data-modules/block-builder.js';
+import { validateDataModules } from '../../../../modules/data-modules/check.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
+import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
+import { setupDom } from '../../../ui/view/mounts/helpers.js';
 
 const S = STRINGS.blocks;
 const P = S.page;

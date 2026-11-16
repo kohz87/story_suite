@@ -1,6 +1,6 @@
 // Picks the stats a worn piece gives: a name's default stat and the stats of a def or one piece of it.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../../scene/domains/common.js';
 import { GEAR } from './constants.js';
 import { words, singular } from './shared-words.js';
 import { statsOf, withinBudget, gearBudget } from './budget.js';

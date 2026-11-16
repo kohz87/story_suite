@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hashText } from '../../../packages/story-block/src/v2/assist/common.js';
+import { hashText } from '../../../modules/assist/common.js';
 import { linkMessage, markSend, priorPayload, readSend } from '../../../core/interaction/send.js';
 import { interactionPayload } from '../../../core/interaction/session.js';
 

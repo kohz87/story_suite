@@ -7,7 +7,7 @@ import { createHost } from '../../packages/story-block/testkit/index.js';
 import { SAVEPOINT_LIMITS, STILL_WAITING_MS, createSavePoints, stCreateBranch } from '../../core/timeline/rewind.js';
 import { createSavePointsWidget, savedAt } from '../../ui/legacy/screens/savepoints.js';
 import { homeScreen } from '../../ui/legacy/screens/home.js';
-import { CORE_FEATURES } from '../../packages/story-block/src/v2/domains/index.js';
+import { CORE_FEATURES } from '../../modules/scene/domains/index.js';
 import { host as widgetHost, installDom } from '../ui/view/widgets/fake-dom.js';
 
 const clone = value => structuredClone(value);

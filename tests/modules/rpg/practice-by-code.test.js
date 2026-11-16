@@ -11,7 +11,7 @@ import { practiceLines, rpgReplyLines } from '../../../modules/rpg/view/changes-
 import { PRACTICE_HELD, usesOf } from '../../../modules/rpg/practice.js';
 import { legacyPlanner } from './legacy-planner.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { reply, success } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success } from '../data-modules/helpers.js';
 import { rollReceipt } from './helpers.js';
 
 // The RPG library is cached for the whole process, so the test-only legacy planner reads the world of the test now running.

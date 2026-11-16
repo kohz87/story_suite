@@ -1,5 +1,5 @@
 // Writes foe hurts and clears ended fights' groups on the Foes block, and collapses member moves.
-import { createEvaluation } from '../../../../packages/story-block/src/v2/data-modules/interpreter.js';
+import { createEvaluation } from '../../../data-modules/interpreter.js';
 import { memberSize } from '../members.js';
 
 export function applyHurts(domain, hurts) {

@@ -1,7 +1,7 @@
 // Draws a map of numbers as value-and-bar rows (top known, the rest folded) and builds those rows from a definition.
-import { h, humanize } from '../../../../../../ui/legacy/view/widgets/dom.js';
-import { dmNameOf } from '../../data-modules/schema.js';
-import { fill } from '../../../../../../core/strings.js';
+import { h, humanize } from '../../../../ui/legacy/view/widgets/dom.js';
+import { dmNameOf } from '../../schema.js';
+import { fill } from '../../../../core/strings.js';
 import { V, pencilFor } from './shared-chrome.js';
 import { barNode } from './shared-bar.js';
 

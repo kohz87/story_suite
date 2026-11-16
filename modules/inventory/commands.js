@@ -1,10 +1,10 @@
 // The inventory domain's commands (moved out of domains/inventory.js unchanged; inventory.js re-exports every public name): the command
 // table and the guard of the commands that make something out of nothing. commands/wallet.js holds the purse commands and TOLD.
 
-import { isPlainObject, capitalize, ownerNameIn, clone } from '../common.js';
-import { cleanName, resolveDef, slugify, aliasKey } from '../names.js';
-import { handDef, slotWordOf } from '../gear.js';
-import { fill } from '../../../../../../core/strings.js';
+import { isPlainObject, capitalize, ownerNameIn, clone } from '../scene/domains/common.js';
+import { cleanName, resolveDef, slugify, aliasKey } from '../scene/names.js';
+import { handDef, slotWordOf } from './gear.js';
+import { fill } from '../../core/strings.js';
 import { RPG_MODULE, MAX_NOTE, gearOn, KINDS, RARITIES, MAX_UNSTACKED, condOf, COND_MAX, condWrite, nonBlank, isCount, FEATURE } from './state.js';
 import { itemText, baseSlot } from './validate.js';
 import {

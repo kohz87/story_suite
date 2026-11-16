@@ -1,5 +1,5 @@
 // The witness hash of the sheet and equipped gear a board segment was rolled on.
-import { condOf } from '../../../../packages/story-block/src/v2/domains/inventory.js';
+import { condOf } from '../../../inventory/index.js';
 import { hashJson } from '../../../../core/replay.js';
 import { readSheet } from '../../read.js';
 import { byId, gearQuery } from './shared-gear.js';

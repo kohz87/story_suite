@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost } from '../../packages/story-block/testkit/index.js';
-import { mergeParts } from '../../packages/story-block/src/v2/domains/index.js';
+import { mergeParts } from '../../modules/scene/domains/index.js';
 
 const sample = JSON.parse(readFileSync(new URL('../../packages/story-block/examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
 const installed = (pack, extra = {}) => ({ packs: [{ id: pack.id, version: pack.version, enabled: true, source: 'file', origin: 'test', pack }], ...extra });

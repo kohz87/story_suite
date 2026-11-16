@@ -1,15 +1,15 @@
 // Gear soak per item (Combat rules v1 C8): each piece's own soak held to its slot's cap, torn and broken give none, the mock's four heroes, story lines and Edit cannot mint it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GEAR, KIND_CARRY, kindCarry, condWord, soakFor, soakCap, soakTotal, soakRecord } from '../../src/v2/domains/gear.js';
-import { gearSoakRecord } from '../../../../modules/rpg/gear.js';
-import { createHarness } from './domains/helpers/fake-ctx.js';
-import { def, stack } from './domains/fixtures.js';
+import { GEAR, KIND_CARRY, kindCarry, condWord, soakFor, soakCap, soakTotal, soakRecord } from '../../../modules/inventory/gear.js';
+import { gearSoakRecord } from '../../../modules/rpg/gear.js';
+import { createHarness } from './helpers/fake-ctx.js';
+import { def, stack } from './fixtures.js';
 import { crewState } from './gear-ui.helpers.js';
 import { fresh, reply, equip, defNamed } from './gear-inventory.helpers.js';
 import { world, defOf } from './gear-start.helpers.js';
-import { validatePack } from '../../../../packs/validate.js';
-import { pack } from '../../../../tests/packs/helpers/fixtures.js';
+import { validatePack } from '../../../packs/validate.js';
+import { pack } from '../../packs/helpers/fixtures.js';
 
 const piece = (slot, soak = 2, rarity = 'rare') => ({ id: 'x', kind: 'equipment', slot, rarity, soak });
 

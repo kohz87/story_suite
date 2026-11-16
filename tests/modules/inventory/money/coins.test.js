@@ -5,14 +5,14 @@
 // static prompt names the coins in one line that changes only with them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { baseUnit, coinLine, coinPlural, coinValue, coinsOf, currencyOf, formatAmount, isCurrencyName, parseAmount } from '../../../src/v2/domains/money.js';
-import { withPackCurrency } from '../../../../../core/runtime.js';
-import { validatePack } from '../../../../../packs/validate.js';
-import { createCoreModule } from '../../../src/v2/domains/index.js';
-import { changesSummary } from '../../../../../ui/legacy/screens/changes-card.js';
-import { linesToList } from '../../../../../ui/legacy/host-ui.js';
-import { createHost } from '../../../testkit/index.js';
-import { pack } from '../../../../../tests/packs/helpers/fixtures.js';
+import { baseUnit, coinLine, coinPlural, coinValue, coinsOf, currencyOf, formatAmount, isCurrencyName, parseAmount } from '../../../../modules/inventory/money.js';
+import { withPackCurrency } from '../../../../core/runtime.js';
+import { validatePack } from '../../../../packs/validate.js';
+import { createCoreModule } from '../../../../modules/scene/domains/index.js';
+import { changesSummary } from '../../../../ui/legacy/screens/changes-card.js';
+import { linesToList } from '../../../../ui/legacy/host-ui.js';
+import { createHost } from '../../../../packages/story-block/testkit/index.js';
+import { pack } from '../../../packs/helpers/fixtures.js';
 
 const COINS = [{ name: 'penny/pennies', value: 1 }, { name: 'silver', value: 10 }, { name: 'gold', value: 100 }];
 const PENNY = currencyOf({ currency: 'penny', currencyPlural: 'pennies', coins: COINS });

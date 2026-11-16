@@ -1,8 +1,8 @@
 // Reading a `? loot` line and laying the offer out on the reply.
 
-import { isPlainObject, clone } from '../../common.js';
-import { cleanName, resolveDef, aliasKey, trimText } from '../../names.js';
-import { isCurrencyName, coinValue, formatAmount } from '../../money.js';
+import { isPlainObject, clone } from '../../scene/domains/common.js';
+import { cleanName, resolveDef, aliasKey, trimText } from '../../scene/names.js';
+import { isCurrencyName, coinValue, formatAmount } from '../money.js';
 import { MAX_NAME, featureOn, FEATURE } from '../state.js';
 import { itemText } from '../validate.js';
 import { currencyIn, defineByName } from '../stacks.js';

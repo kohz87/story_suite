@@ -1,6 +1,6 @@
 // Finding the def a name means and a free def id.
 
-import { resolveDef } from '../../names.js';
+import { resolveDef } from '../../scene/names.js';
 
 export function ambiguous(inv, name, ids) {
     const names = ids.map(id => `${inv.defs[id].name} (${id})`);

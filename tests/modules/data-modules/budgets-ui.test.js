@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setupDom } from '../../../../../tests/ui/view/mounts/helpers.js';
-import { renderDataModules } from '../../../src/v2/data-modules/setup.js';
-import { renderLayout } from '../../../../../ui/legacy/layout/render.js';
-import { DM_LIMITS as L } from '../../../src/v2/data-modules/schema.js';
+import { setupDom } from '../../ui/view/mounts/helpers.js';
+import { renderDataModules } from '../../../modules/data-modules/setup.js';
+import { renderLayout } from '../../../ui/legacy/layout/render.js';
+import { DM_LIMITS as L } from '../../../modules/data-modules/schema.js';
 import { world, pack, definition, pin, success, view, reply, rebuilt, fixture, directorStub } from './helpers.js';
 
 test('reply roots include reader actions and Continues; budget failure leaves the claim free', async t => {

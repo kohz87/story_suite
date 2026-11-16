@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { mergeParts } from '../../../packages/story-block/src/v2/domains/core/merge.js';
+import { mergeParts } from '../../../modules/scene/domains/core/merge.js';
 import { FLAGS, flagOn } from '../../../core/runtime/flags.js';
 
 const ON = { flags: { [FLAGS.isolatedApply]: true } };

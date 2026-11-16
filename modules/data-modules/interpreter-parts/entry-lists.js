@@ -1,6 +1,6 @@
 // Decides whether an entry can be added to a list, and carries a list over to a changed definition.
 import { DM_LIMITS as L, dmOwn } from '../schema.js';
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../core/strings.js';
 import { scalarHolds } from './scalars.js';
 import { titlePart, sameTitle } from './entry-names.js';
 

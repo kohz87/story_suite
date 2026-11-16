@@ -5,9 +5,9 @@ import assert from 'node:assert/strict';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
 import { SLOT_ORDER } from '../../../../modules/rpg/view/gear-card.js';
-import { createCoreModule } from '../../../../packages/story-block/src/v2/domains/index.js';
-import { createHarness } from '../../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
-import { stocked } from '../../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createCoreModule } from '../../../../modules/scene/domains/index.js';
+import { createHarness } from '../../inventory/helpers/fake-ctx.js';
+import { stocked } from '../../inventory/fixtures.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
 
 const wessel = { definition: characterDefinition('wessel', 'Wessel'), fields: { health: 3, mana: 4, stamina: 1, str: 14, soul: 2, xp: 40 } };

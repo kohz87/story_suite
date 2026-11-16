@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PARTY_MAX } from "../../../modules/rpg/names.js";
-import { definition as filler } from "../../../packages/story-block/tests/v2/data-modules/helpers.js";
-import { DM_OLD_ROOM } from "../../../packages/story-block/src/v2/data-modules/schema.js";
+import { definition as filler } from "../data-modules/helpers.js";
+import { DM_OLD_ROOM } from "../../../modules/data-modules/schema.js";
 import { JOIN_ADD, checkJoin, partyOf } from "../../../modules/rpg/join.js";
 import { setRpgLib } from "../../../modules/rpg/rpg-lazy.js";
 import * as leanRpg from "../../../modules/rpg/index.js";

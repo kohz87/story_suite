@@ -1,8 +1,8 @@
 // Reads a mount line's text fields and whole numbers, for the capture and the pencil.
 
-import { parseCount } from '../common.js';
+import { parseCount } from '../domains/common.js';
 import { trimText } from '../names.js';
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../core/strings.js';
 
 const M = STRINGS.mounts;
 

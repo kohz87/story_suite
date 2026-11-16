@@ -3,7 +3,7 @@
 // has the party), and each runs `item.use { stack, target }`. Bag management (rule 6), like Equip on…. Without a module answering `items.useOn` (Story Block alone) there is no picker.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { equipmentView } from '../../../packages/story-block/src/v2/domains/inventory.js';
+import { equipmentView } from '../../../modules/inventory/index.js';
 import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
 import { core, foldOf, openFold, queries, renderSkip, settle, show, stocked, text } from './helpers.js';
 

@@ -1,6 +1,6 @@
 // Checks the scene's mounts record (the §2.5 validator).
 
-import { isPlainObject } from '../common.js';
+import { isPlainObject } from '../domains/common.js';
 import { trimText } from '../names.js';
 import { nameKey } from './shared-keys.js';
 import { MAX_ROWS, MAX_COUNT, MAX_PACE, MAX_CARRY } from './caps-count.js';

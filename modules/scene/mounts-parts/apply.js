@@ -1,7 +1,7 @@
 // Adds, changes or removes one mount row in the scene draft.
 
-import { STRINGS, fill } from '../../../../../../core/strings.js';
-import { escapeKey } from '../../../../../../core/ops.js';
+import { STRINGS, fill } from '../../../core/strings.js';
+import { escapeKey } from '../../../core/ops.js';
 import { MAX_ROWS } from './caps-count.js';
 import { paceOfKind } from './pace.js';
 import { nameKey, rowKey } from './shared-keys.js';

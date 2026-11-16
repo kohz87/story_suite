@@ -8,7 +8,7 @@ import { createHost } from '../../packages/story-block/testkit/index.js';
 import { changesSummary } from '../../ui/legacy/screens/changes-card.js';
 import { countsLine } from '../../packs/panel.js';
 import { validatePack } from '../../packs/validate.js';
-import { USED_WORDS, usedByLine } from '../../packages/story-block/src/v2/domains/inventory.js';
+import { USED_WORDS, usedByLine } from '../../modules/inventory/index.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const names = host => host.sdk.query('inventory.items').map(item => `${item.name}×${item.qty}`).sort();

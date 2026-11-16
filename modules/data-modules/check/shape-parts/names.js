@@ -1,7 +1,7 @@
 // The display names of an int field.
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../../core/text.js';
 import { DM_LIMITS as L, dmInt, dmObject } from '../../schema.js';
-import { STRINGS } from '../../../../../../../core/strings.js';
+import { STRINGS } from '../../../../core/strings.js';
 
 const foldedName = text => String(text).normalize('NFKC').toLowerCase();
 // Display names for an int field: { "<value>": "<name>" }, whole values inside min..max, short distinct names that are not numbers.

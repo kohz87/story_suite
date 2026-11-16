@@ -1,6 +1,6 @@
 // What the carried gear adds: the carry answer, the carry bonuses by stack and a def's own capacity.
 
-import { isPlainObject } from '../../common.js';
+import { isPlainObject } from '../../scene/domains/common.js';
 import { isCount, CARRY_MAX } from '../state.js';
 import { asker } from './shared-ask.js';
 

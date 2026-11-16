@@ -1,6 +1,6 @@
 // The words for what {{user}} has equipped, each with its wear word: "oilskin coat (torn), shortsword". Pure.
 
-import { condMark } from '../gear.js';
+import { condMark } from '../inventory/gear.js';
 import { listItems } from '../inventory/queries.js';
 
 // Clothes first, then what is carried in the hands.

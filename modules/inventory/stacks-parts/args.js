@@ -1,7 +1,7 @@
 // Reading and checking the quantity, owner and text arguments of a stack command.
 
-import { OWNER_RE, isPlainObject } from '../../common.js';
-import { trimText } from '../../names.js';
+import { OWNER_RE, isPlainObject } from '../../scene/domains/common.js';
+import { trimText } from '../../scene/names.js';
 import { isCount } from '../state.js';
 
 export function count(ctx, value, fallback, what = 'quantity') {

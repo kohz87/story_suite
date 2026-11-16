@@ -3,11 +3,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
-import { validateDataModules } from '../../../packages/story-block/src/v2/data-modules/check.js';
-import { blockCards, settleReserve } from '../../../packages/story-block/src/v2/data-modules/part.js';
+import { validateDataModules } from '../../../modules/data-modules/check.js';
+import { blockCards, settleReserve } from '../../../modules/data-modules/part.js';
 import { ROLES } from '../../../modules/rpg/index.js';
-import { createCoreModule } from '../../../packages/story-block/src/v2/domains/index.js';
-import { pack, reload, rebuilt, reply, success, view } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { createCoreModule } from '../../../modules/scene/domains/index.js';
+import { pack, reload, rebuilt, reply, success, view } from '../data-modules/helpers.js';
 
 const template = name => (name === 'Character' ? characterV1For() : structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition));
 const check = definition => validateDataModules([definition], { packId: 'chat', capabilities: ['data-modules-v1'] });

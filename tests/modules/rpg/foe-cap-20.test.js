@@ -11,7 +11,7 @@ import { vetOpen } from '../../../modules/rpg/open.js';
 import { vetGroups } from '../../../modules/rpg/board/precheck.js';
 import { FOE_LEVEL, foeLevelCap } from '../../../modules/rpg/foes.js';
 import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { success, reply } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { success, reply } from '../data-modules/helpers.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;

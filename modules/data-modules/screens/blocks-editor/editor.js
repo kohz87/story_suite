@@ -2,14 +2,14 @@
 // re-exports renderBlockEditor): the draft's fields, starters, effects, save and error placement. The drawing of
 // the layout/preview and the form's sections live in layout.js and draw.js.
 
-import { textField, numberField, selectField } from '../../../../../../ui/legacy/view/form/fields.js';
-import { h } from '../../../../../../ui/legacy/view/widgets/dom.js';
-import { buildBlock, partKey } from '../../data-modules/block-builder.js';
-import { BLOCK_STARTERS } from '../../data-modules/block-starters.js';
-import { cardRoles, layoutShape } from '../../data-modules/block-layout.js';
-import { DM_LIMITS } from '../../data-modules/schema.js';
-import { slugify } from '../../../../../../packs/validate/core.js';
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { textField, numberField, selectField } from '../../../../ui/legacy/view/form/fields.js';
+import { h } from '../../../../ui/legacy/view/widgets/dom.js';
+import { buildBlock, partKey } from '../../block-builder.js';
+import { BLOCK_STARTERS } from '../../block-starters.js';
+import { cardRoles, layoutShape } from '../../block-layout.js';
+import { DM_LIMITS } from '../../schema.js';
+import { slugify } from '../../../../packs/validate/core.js';
+import { STRINGS, fill } from '../../../../core/strings.js';
 import { S, PART_TYPES, PART_NAMES, LAYOUT_NAMES } from './constants.js';
 import { createLayoutPart } from './layout.js';
 import { createDrawPart } from './draw.js';

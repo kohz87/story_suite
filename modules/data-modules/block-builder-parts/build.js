@@ -1,8 +1,8 @@
 // Building a data-module definition from the editor's draft form.
-import { oneLine } from '../../../../../../core/text.js';
+import { oneLine } from '../../../core/text.js';
 import { DM_LIMITS as L } from '../schema.js';
 import { validateDataModules } from '../check.js';
-import { STRINGS, fill } from '../../../../../../core/strings.js';
+import { STRINGS, fill } from '../../../core/strings.js';
 import { problem, keyFor, number } from './shared-basics.js';
 import { defaultTone } from './names.js';
 import { uniqueBlockSlug } from './slugs.js';

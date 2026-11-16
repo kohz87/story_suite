@@ -1,8 +1,8 @@
 // Turns the story's `+ coin` / `- coin` lines, and an item named as money, into wallet receipts and payments.
 
-import { labelOf } from '../../common.js';
-import { cleanName, trimText } from '../../names.js';
-import { countedMoney, coinValue, parseAmount } from '../../money.js';
+import { labelOf } from '../../scene/domains/common.js';
+import { cleanName, trimText } from '../../scene/names.js';
+import { countedMoney, coinValue, parseAmount } from '../money.js';
 import { currencyIn, receive, pay } from '../stacks.js';
 import { lineQty, storyCoin } from '../lines.js';
 

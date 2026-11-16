@@ -1,6 +1,6 @@
 // Infers the type of an expression and checks that a condition is boolean.
 import { DM_DESCRIPTORS as D, DM_LIMITS as L, dmOwn, dmInt } from '../schema.js';
-import { STRINGS } from '../../../../../../core/strings.js';
+import { STRINGS } from '../../../core/strings.js';
 import { fieldType } from './types.js';
 import { pathType } from './path.js';
 import { BAD, bool, str, int } from './shared-types.js';

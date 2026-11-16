@@ -7,7 +7,7 @@ import { DEFAULT_SETTINGS, EARLIER_RULES, LEVEL, LV_VERSION, STANDARD, STANDARD_
     oddsSubject, prepare, readSheet, rollPrepared, rulesFromSettings, subjectOdds } from '../../../modules/rpg/index.js';
 import { buildDefinitions, newDraft } from '../../../modules/rpg/view/wizard-data.js';
 import { readParty } from '../../../modules/rpg/view/party-data.js';
-import { reply, success, view, rebuilt } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, success, view, rebuilt } from '../data-modules/helpers.js';
 import { STANDARD_TEMPLATES, characterV1For } from '../../../modules/rpg/templates.js';
 import { fakeState } from './view/helpers.js';
 import { hostAvailable } from '../../../packages/story-block/testkit/index.js';

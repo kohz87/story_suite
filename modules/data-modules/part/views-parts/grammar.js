@@ -1,7 +1,7 @@
 // The static prompt lines for the pinned modules.
 import { activeDefinition } from '../../adapters.js';
 import { moduleGrammar, referenceOf } from '../../grammar.js';
-import { oneLine } from '../../../../../../../core/text.js';
+import { oneLine } from '../../../../core/text.js';
 import { boardGrammar, boardXpGuide } from '../../board-static.js';
 import { isMarkedCharacter, restLine } from '../../recovery.js';
 

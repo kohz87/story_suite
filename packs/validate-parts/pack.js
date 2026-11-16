@@ -2,7 +2,7 @@
 
 import { LIMITS } from '../limits.js';
 import { byteLength, checkPlain } from '../safety.js';
-import { dataModulesPackHash } from '../../packages/story-block/src/v2/data-modules/check.js';
+import { dataModulesPackHash } from '../../modules/data-modules/check.js';
 import { HOST_VERSION, fail, isObject } from '../validate/core.js';
 import { normalize } from './normalize.js';
 

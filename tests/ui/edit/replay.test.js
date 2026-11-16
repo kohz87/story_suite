@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../packages/story-block/testkit/index.js';
-import { definition, pack } from '../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { definition, pack } from '../../modules/data-modules/helpers.js';
 
 const edits = [
     ['inventory.add', () => ({ name: 'Rope', qty: 2, note: 'dry' })],

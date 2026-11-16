@@ -1,7 +1,7 @@
 // How a story note, an item and a group of owners read in the tail.
 
-import { trimText } from '../../names.js';
-import { condMark } from '../../gear.js';
+import { trimText } from '../../scene/names.js';
+import { condMark } from '../gear.js';
 import { itemText } from '../validate.js';
 
 // With gear on, an item below Good shows its condition word after the name: "Cane Sword (worn)".

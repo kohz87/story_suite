@@ -11,9 +11,9 @@ import { readParty } from '../../../../modules/rpg/view/party-data.js';
 import { renderSkills, rollOf } from '../../../../modules/rpg/view/skills.js';
 import { applyGear, planGear } from '../../../../modules/rpg/gear.js';
 import { readSheet } from '../../../../modules/rpg/read.js';
-import { createCoreModule } from '../../../../packages/story-block/src/v2/domains/index.js';
-import { createHarness } from '../../../../packages/story-block/tests/v2/domains/helpers/fake-ctx.js';
-import { stocked } from '../../../../packages/story-block/tests/v2/domains/fixtures.js';
+import { createCoreModule } from '../../../../modules/scene/domains/index.js';
+import { createHarness } from '../../inventory/helpers/fake-ctx.js';
+import { stocked } from '../../inventory/fixtures.js';
 import { dump } from '../../../core/helpers/gear-ui-state.js';
 import { fakeState } from './helpers.js';
 

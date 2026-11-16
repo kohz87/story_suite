@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { STANDARD } from "../../../modules/rpg/rules.js";
 import { PARTY_MAX, JOINS, JOIN_SETTING, LEAN_RPG_FEATURE } from "../../../modules/rpg/names.js";
-import { DM_OLD_ROOM } from "../../../packages/story-block/src/v2/data-modules/schema.js";
+import { DM_OLD_ROOM } from "../../../modules/data-modules/schema.js";
 import { JOIN_ADD, JOIN_NO, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinMode, joinOffers, partyCap, partyOf, readJoin, soulOf } from "../../../modules/rpg/join.js";
 import { STANDARD_TEMPLATES } from "../../../modules/rpg/templates.js";
 import { partyLines } from "../../../modules/rpg/view/changes-lines.js";

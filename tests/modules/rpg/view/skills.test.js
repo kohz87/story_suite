@@ -8,7 +8,7 @@ import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../../../modu
 import { readParty } from '../../../../modules/rpg/view/party-data.js';
 import { createPartyWidget } from '../../../../modules/rpg/view/party.js';
 import { RANK_TONES, masteryOf, renderSkills, rollOf } from '../../../../modules/rpg/view/skills.js';
-import { reply, rebuilt } from '../../../../packages/story-block/tests/v2/data-modules/helpers.js';
+import { reply, rebuilt } from '../../data-modules/helpers.js';
 import { fakeState } from './helpers.js';
 import { begin, fieldsOf, makeBlocks, page, party, settle } from './page.js';
 
