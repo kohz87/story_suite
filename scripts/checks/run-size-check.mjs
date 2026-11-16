@@ -4,6 +4,7 @@ import path from 'node:path';
 import { listCodeFiles } from './code-files.mjs';
 import { countLines } from './count-lines.mjs';
 import { checkLegacyRatchet, decideBase } from './legacy-ratchet.mjs';
+import { loadLayout } from '../layout.mjs';
 import { nulProblem } from './nul-check.mjs';
 import { LINE_LIMIT, checkSizes, parseLegacyList } from './file-size.mjs';
 
@@ -72,7 +73,7 @@ if (writeLegacy) {
   const header = [
     '# Legacy files over 450 lines imported from the three old repos at B1.',
     '# Format: <repo-relative path> <line count>.',
-    '# This list may only shrink — split a file when it moves out of packages/.',
+    `# This list may only shrink — split a file when it moves out of ${loadLayout().packageRoots[0]}/.`,
   ];
   const body = oversize.map(f => `${f.path} ${f.lines}`);
   fs.mkdirSync(path.dirname(legacyAbsPath), { recursive: true });
