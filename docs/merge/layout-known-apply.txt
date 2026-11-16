@@ -127,3 +127,5 @@ stale packages/npc-state-delta/tests/prompt-lines-golden.test.js src/npc-meters-
 stale packages/npc-state-delta/tests/prompt-lines-golden.test.js tests/
 stale packages/npc-state-delta/tests/world-present-card.test.js present-scene-parts/scene-model.js
 stale packages/npc-state-delta/tests/world-present-card.test.js src/adapter/cast-ui/cast-render.js
+# Ruling 17 Nov (B3FIX): the people area's verify still reports one problem it cannot list as `stale`: tests/people/helpers/shipped-modules.js,
+# string "../.." became "../../../packages/npc-state-delta". The rewrite commit wrote it; the file at the tip uses oldPath() and is correct. Accepted, not a defect of the move.

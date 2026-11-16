@@ -67,7 +67,7 @@
   "scripts/dryrun/suite-host.mjs": "Builds the suite host with the page's Delta runtime, a checkpoint vault and stand-in restores for exports without dossier files.",
   "scripts/release.mjs": "CLI that builds every extension's bundles and runs the release gate (--check builds into a temporary folder).",
   "scripts/release/bundle.mjs": "Packs one extension into a few ES-module bundles with source maps, lazy parts kept as separate chunks.",
-  "scripts/release/layout-paths.mjs": "Finds a file named as of the old layout on a checkout of either layout, through the layout rules.",
+  "scripts/release/layout-paths.mjs": "Finds a file named as of the old layout on a checkout of either layout, and the old name of a moved file, through the layout rules and a frozen list of old files.",
   "scripts/release/check.mjs": "Runs the release gate: version 0.1.0, no tag, each bundle set builds, resolves its imports, keeps import.meta.url rewritten and loads in at most ten requests.",
   "scripts/release/entries.mjs": "Lists what the release build packs: the entry files and lazy modules of each extension.",
   "scripts/release/outdir.mjs": "Decides where the release build may write: refuses the source and the repo root, and empties only folders carrying its own marker file.",
@@ -75,6 +75,7 @@
   "scripts/release/graph.mjs": "Walks a bundle folder's import graph to list the files of the load, the lazy chunks and any missing import.",
   "scripts/verify-import.sh": "Proves the imported package trees match the recorded source snapshots by comparing git tree hashes.",
   "tests/scripts/ci-timeouts.test.js": "Checks that every CI job has a timeout and every node --test command sets the per-test timeout and force-exit flags and matches its package script.",
+  "tests/scripts/layout-paths.test.js": "Tests for scripts/release/layout-paths.mjs.",
   "tests/suite/nsd-static-part.js": "Writes NPC State Delta's own one-pass static prompt key the way its runtime injection does, and switches its adapter on or off for the suite test.",
   "tests/suite/redraw-count.bench.test.js": "Pins today's tab-pane redraw and NPC State renderCast counts per reply for the three-module suite (quiet and active scenarios, flag off).",
   "tests/suite/static-prompt.test.js": "Pins the whole static prompt of the three-module suite per scenario against the golden and checks it is byte-identical reply to reply.",
@@ -270,6 +271,7 @@
   "scripts/codemod/snapshot.mjs": "Reads a tree's files and JS sources from the working tree or from a git ref, with no checkout.",
   "scripts/codemod/verify-applied.mjs": "Verifies an applied area: the tree judged against what already failed before the move, plus the two-commit diff.",
   "scripts/codemod/apply-known.mjs": "Splits an apply run's stale strings, verify problems and failing moved tests into new ones and the ones a shrink-only list names.",
+  "scripts/codemod/load-layout-rules.mjs": "Reads the layout rule files of the eight areas.",
   "authoring-kit/check.mjs": "Check a pack using the same validator as Story Block.",
   "authoring-kit/scripts/limits.mjs": "Prints the host's limits for packs and data modules.",
   "authoring-kit/scripts/sb-root.mjs": "Where the kit finds Story Block's own code (the pack checker and its limits).",
@@ -321,5 +323,6 @@
   "scripts/people/measure-stage9.mjs": "Executes production builders, retry construction and both dispatcher routes with synthetic responses.",
   "modules/people/core/destructive-settlement.js": "Browser-side registry that connects the destructive-settlement controller to SillyTavern and Delta's public API.",
   "modules/people/core/hardening.js": "Applies the settings-key hardening rules in the browser: owner-qualified keys, renames and deleted chats.",
-  "modules/people/legacy/style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules."
+  "modules/people/legacy/style-editor.css": "Settings roster, relationship tuning, native dossier editor, archive, mobile hardening, popup editor and Megumin rules.",
+  "tests/scripts/bundle-host-specifiers.test.js": "Pins each bundle set's external host import specifiers to the text main's release and play builds wrote."
 }

@@ -1,9 +1,8 @@
 // Finds a file named as of the old layout on a checkout of either layout: where the name says, else where the layout rules put it.
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadLayoutRules } from '../codemod/cli.mjs';
+import { loadLayoutRules } from '../codemod/load-layout-rules.mjs';
 import { layoutMapper } from '../codemod/layout-map.mjs';
-import { ruleKey } from '../codemod/rules.mjs';
 
 let mapper = null;
 
@@ -21,26 +20,28 @@ export function fromPackage(root, dir, name) {
   return path.posix.relative(dir, rel);
 }
 
+const OLD_FILES = path.join(import.meta.dirname, '../../docs/merge/layout-old-files.txt');
 let reverse = null;
-const found = new Map();
+
+/** New path → the one old path the frozen list (every file of main before the move that the rules move) sends there; throws if two do. */
+function oldNames() {
+  if (reverse) return reverse;
+  mapper ??= layoutMapper(loadLayoutRules());
+  reverse = new Map();
+  for (const line of fs.readFileSync(OLD_FILES, 'utf8').split('\n')) {
+    if (!line || line.startsWith('#')) continue;
+    const moved = mapper(line);
+    if (reverse.has(moved)) throw new Error(`layout-paths: ${reverse.get(moved)} and ${line} both move to ${moved}`);
+    reverse.set(moved, line);
+  }
+  return reverse;
+}
 
 /**
- * Repo-relative `rel` (posix, as the layout has it now) → the name that file had in the old layout, found by running the rules
- * backwards and keeping the candidate the rules really send to `rel` (the longest matching rule wins). A file no rule moved keeps its name.
+ * Repo-relative `rel` (posix, as the layout has it now) → the name that file had in the old layout, read from the frozen list of old files.
+ * A file the list does not send to `rel` (no rule moved it, or it was added after the move) keeps its name. Host-import depth in a bundle
+ * is counted from this OLD location, because the host specifiers were not rewritten.
  */
 export function oldLocation(rel) {
-  if (found.has(rel)) return found.get(rel);
-  const sets = loadLayoutRules();
-  mapper ??= layoutMapper(sets);
-  reverse ??= sets.flatMap(set => set.rules).filter(rule => rule.to !== null);
-  let best = null;
-  for (const rule of reverse) {
-    const to = rule.to.replace(/\*$/, '');
-    if (!(rule.from.endsWith('*') ? rel.startsWith(to) : rel === to || rel.startsWith(`${to}/`))) continue;
-    const candidate = ruleKey(rule) + rel.slice(to.length);
-    if (mapper(candidate) === rel && (!best || to.length > best.to.length)) best = { to, candidate };
-  }
-  const old = best ? best.candidate : rel;
-  found.set(rel, old);
-  return old;
+  return oldNames().get(rel) ?? rel;
 }

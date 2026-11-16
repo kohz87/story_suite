@@ -27,3 +27,9 @@ test('the ratchet refuses a path the base list does not have, and allows shrinki
   assert.deepEqual(checkExportsRatchet({ current: new Set(['a']), base: new Set(['a', 'b']) }).errors, []);
   assert.deepEqual(checkExportsRatchet({ current: new Set(['a', 'c']), base: new Set(['a']) }).errors, ['c: added to the legacy exports list']);
 });
+
+test('a layout-renamed entry is not an addition, with the base names sent through the mapper', () => {
+  const map = path => path.replace(/^old\//, 'new/');
+  assert.deepEqual(checkExportsRatchet({ current: new Set(['new/a.js']), base: new Set(['old/a.js']), map }).errors, []);
+  assert.deepEqual(checkExportsRatchet({ current: new Set(['new/a.js', 'new/b.js']), base: new Set(['old/a.js']), map }).errors, ['new/b.js: added to the legacy exports list']);
+});

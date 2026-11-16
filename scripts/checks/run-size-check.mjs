@@ -6,6 +6,8 @@ import { countLines } from './count-lines.mjs';
 import { checkExportsRatchet, parseExportsList } from './legacy-exports.mjs';
 import { checkLegacyRatchet, decideBase } from './legacy-ratchet.mjs';
 import { loadLayout } from '../layout.mjs';
+import { loadLayoutRules } from '../codemod/load-layout-rules.mjs';
+import { layoutMapper } from '../codemod/layout-map.mjs';
 import { nulProblem } from './nul-check.mjs';
 import { LINE_LIMIT, checkSizes, parseLegacyList } from './file-size.mjs';
 
@@ -89,7 +91,7 @@ if (baseRef) {
   let baseExports = null;
   try { baseExports = parseExportsList(git(['show', `${baseRef}:docs/merge/legacy-exports.txt`])); } catch { baseExports = null; }
   const exportsPath = path.join(repoRoot, 'docs/merge/legacy-exports.txt');
-  if (baseExports && fs.existsSync(exportsPath)) extraErrors.push(...checkExportsRatchet({ current: parseExportsList(fs.readFileSync(exportsPath, 'utf8')), base: baseExports }).errors);
+  if (baseExports && fs.existsSync(exportsPath)) extraErrors.push(...checkExportsRatchet({ current: parseExportsList(fs.readFileSync(exportsPath, 'utf8')), base: baseExports, map: layoutMapper(loadLayoutRules()) }).errors);
 }
 
 const legacyText = fs.existsSync(legacyAbsPath) ? fs.readFileSync(legacyAbsPath, 'utf8') : '';
@@ -100,7 +102,7 @@ for (const [relPath, text] of texts) {
   const problem = nulProblem(relPath, text);
   if (problem) errors.push(problem);
 }
-if (baseList) errors.push(...checkLegacyRatchet({ current: legacy, base: baseList }).errors);
+if (baseList) errors.push(...checkLegacyRatchet({ current: legacy, base: baseList, map: layoutMapper(loadLayoutRules()) }).errors);
 else if (!baseRef) console.log('size check: no --base given; the legacy-list ratchet was not applied');
 else console.log(`size check: ${baseRef} is the import commit, which has no list; ratchet skipped`);
 
