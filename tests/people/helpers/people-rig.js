@@ -17,11 +17,12 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const freshState = () => ({ npcs: [], candidates: [], socialGraph: { edges: [] }, checkpoints: [], lineage: [], turn: 1 });
 
 /**
- * peopleRig(t, { state?, vault?, image?, live?, wrapSdk?, sends?, started? }) → { host, adapter, live, vault, warnings, sends, expected(), settle(), publish(edit), reply(text, edit), reload() }
+ * peopleRig(t, { state?, vault?, image?, live?, wrapSdk?, sends?, started?, linesMode? }) → { host, adapter, live, vault, warnings, sends, expected(), settle(), publish(edit), reply(text, edit), reload() }
  *   live: the fake Delta runtime's chat state ({ chatKey, state }); sends: the `people.write` answers the host gave (code or 'ok').
+ *   linesMode: the one-pass lines switch (default off): with it on, `~ npc Name | died` is a death line.
  *   settle(): waits until the head's people equal the view of live state (true) or the wait ran out (false).
  */
-export async function peopleRig(t, { state = freshState(), vault = memoryVault(), image = null, live = null, wrapSdk = sdk => sdk, sends = [], started = true } = {}) {
+export async function peopleRig(t, { state = freshState(), vault = memoryVault(), image = null, live = null, wrapSdk = sdk => sdk, sends = [], started = true, linesMode = false } = {}) {
     t.mock.method(console, 'warn', () => {});
     const mine = live ?? { chatKey: 'chat:avatar.png:one', state: structuredClone(state) };
     const host = await createHost();
@@ -57,7 +58,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
         doc,
         timers: { setTimeout: (fn, ms) => { const id = setTimeout(fn, ms); id.unref?.(); return id; }, clearTimeout, setInterval: () => ({ unref() {} }), clearInterval() {} },
         logger: { warn: (...args) => warnings.push(args.join(' ')) }, loadEmptyCast: async () => null,
-        participantVault: vault, participantOptions: { debounceMs: 1, retryMs: 5 },
+        participantVault: vault, participantOptions: { debounceMs: 1, retryMs: 5 }, linesMode: () => linesMode,
     });
     adapter.start();
     if (await adapter.settled() !== true) throw new Error(`the adapter did not register: ${warnings.join(' / ')}`);
@@ -89,7 +90,7 @@ export async function peopleRig(t, { state = freshState(), vault = memoryVault()
         /** One reply in the story, then Delta's change for it (a native change at that reply). */
         async reply(text, edit) { await host.send(text, `${text} reply.`); return out.publish(edit ?? (() => {})); },
         // A real reload loses NPC State's memory (no sidecar): the cache starts empty and is hydrated from the store.
-        reload() { return peopleRig(t, { vault, image: clone(disk.image), live: { chatKey: mine.chatKey, state: freshState() }, wrapSdk, sends, started }); },
+        reload() { return peopleRig(t, { vault, image: clone(disk.image), live: { chatKey: mine.chatKey, state: freshState() }, wrapSdk, sends, started, linesMode }); },
     };
     return out;
 }

@@ -51,7 +51,7 @@ test('a second died, an unknown person, and a not-listed name are refused; nothi
     await say(s, ['~ npc Oren | died | how: again', '~ npc Nobody | died | how: gone']);
     assert.equal(person(s).lifeStateReason.includes('again'), false);
     assert.equal(Object.keys(s.host.head().domains.people.npcs).some(id => /nobody/.test(id)), false);
-    assert.notEqual(snap(s), '', before);
+    assert.equal(snap(s), before, 'a second died and an unknown name change nothing');
     same(s, 'replay equals live');
 });
 
@@ -105,7 +105,7 @@ test('switch off: died is an ordinary ~ npc line and kills nobody (byte-identica
     assert.equal(person(s).archived, false);
 });
 
-test('With Story Director\'s own `- key | died` untouched: the lines-mode kind list gains no other writer', async () => {
+test('only the bare word died (optionally with a full stop) is a death line; died with more text is an ordinary ~ npc line', async () => {
     const s = await suite({ lines: true, records: records() });
     await say(s, ['~ npc Oren | trust: +1', '~ npc Oren | died not really']);
     assert.equal(dead(person(s)), false, 'only the one word died is a death');

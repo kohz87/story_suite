@@ -2,6 +2,7 @@
 // untaught until N7. The death is the reply's own write (`people.died` in the line's transaction, stamped with the reply's sid, never a clock), so a swipe,
 // a middle delete, a Re-read, a rewind and a reload decide it again the same way. A death is final: the same record then refuses `where:` and the other frozen fields
 // (./guard.js), and a person already dead, or with no record, is refused. The Director's read (`npc.known`, `npc.dossier`) sees `deceased` from the stored record.
+// Any other label on a death line (`trust:`, `where:`) is ignored, whatever its position.
 import { clean } from '../npc-meters-config.js';
 import { knownPerson } from './stub.js';
 
