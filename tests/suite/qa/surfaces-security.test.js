@@ -16,7 +16,7 @@ const FORBIDDEN = /innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval
 
 test('no innerHTML, outerHTML, insertAdjacentHTML, document.write, eval or randomness in the surfaces\' sources', () => {
     for (const file of FILES) {
-        const source = sourceOf(`src/v2/${file}`);
+        const source = sourceOf(`../../ui/legacy/${file}`);
         const code = source.split('\n').filter(line => !line.trim().startsWith('//')).join('\n');
         assert.doesNotMatch(code, FORBIDDEN, file);
     }

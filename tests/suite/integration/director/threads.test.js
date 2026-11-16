@@ -22,7 +22,7 @@ import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 const TAIL_KEY = 'story_suite_tail_1';
 const sent = (host, key) => host.st.promptLog.filter(entry => entry.key === key && entry.value).map(entry => entry.value);
 const reply = (text, lines = []) => (lines.length ? `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>` : text);
-const fixture = name => JSON.parse(readFileSync(new URL(`../../fixtures/${name}`, import.meta.url), 'utf8'));
+const fixture = name => JSON.parse(readFileSync(new URL(`../../../fixtures/director/${name}`, import.meta.url), 'utf8'));
 const OWNED_KINDS = ['agenda', 'event', 'clock', 'beat', 'secret', 'world', 'faction', 'route', 'landmark'];
 
 async function newHost({ features = {}, modules = [] } = {}) {

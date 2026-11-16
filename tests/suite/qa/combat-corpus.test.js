@@ -12,7 +12,7 @@ import { firstDifference } from './helpers/replay-diagnostics.js';
 import { capture } from '../../core/fixtures/combat-corpus/corpus.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(HERE, '..', 'fixtures', 'combat-corpus');
+const ROOT = join(HERE, '..', '..', 'core', 'fixtures', 'combat-corpus');
 const chats = JSON.parse(readFileSync(join(ROOT, 'chats.json'), 'utf8'));
 const goldens = JSON.parse(readFileSync(join(ROOT, 'goldens.json'), 'utf8'));
 const names = Object.keys(chats).sort();
