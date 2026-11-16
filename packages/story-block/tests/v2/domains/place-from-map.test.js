@@ -4,9 +4,12 @@ import assert from 'node:assert/strict';
 import { createHarness, line } from './helpers/fake-ctx.js';
 import { core, stocked } from './fixtures.js';
 
-const ATLAS = [{ name: 'Bluewatch Village', aliases: ['Bluewatch'], kind: 'settlement', region: 'Lakeshire' }];
+// The rows are Story Director's `atlas.places` rows (`placeOut`: no aliases) and `atlas.place` (`placeDetail`: with aliases, resolves a name or alias).
+const out = { id: 'a1', name: 'Bluewatch Village', region: 'Lakeshire', kind: 'settlement', layer: 'surface', x: 1, y: 1, discovered: true, source: 'story' };
+const ATLAS = [out];
+const detail = (_state, { name }) => (['bluewatch village', 'bluewatch'].includes(String(name).toLowerCase()) ? { ...out, aliases: ['Bluewatch'], parent: null, here: false, trip: null, routes: [] } : null);
 const PACK = [{ name: 'Cold Ford', aliases: ['Ford Crossing'], kind: 'wild' }];
-const queries = { 'atlas.places': () => ATLAS, 'packs.content': (_state, { kind }) => (kind === 'places' ? PACK : []) };
+const queries = { 'atlas.places': () => ATLAS, 'atlas.place': detail, 'packs.content': (_state, { kind }) => (kind === 'places' ? PACK : []) };
 const MARK = { extra: { carrier: { rules: ['placeFromMap'] } } };
 
 function setup() {
@@ -68,4 +71,24 @@ test('staying put keeps the stored labels (no fill on the same place)', () => {
     h.capture(line('~', 'place', 'Bluewatch Village'), MARK);
     h.capture(line('~', 'place', 'Bluewatch Village', { with: 'Wessel' }), MARK);
     assert.deepEqual(place(h), { name: 'Bluewatch Village', kind: 'settlement', region: 'Lakeshire' });
+});
+
+test('a pack that gives the place another region than the atlas does keeps the pack\'s region (a landmark would be mended back otherwise)', () => {
+    const h = setup();
+    h.capture(line('~', 'place', 'Old Quay', { kind: 'dock', region: 'River' }));
+    Object.assign(queries, { 'packs.content': (_state, { kind }) => (kind === 'places' ? [...PACK, { name: 'Bluewatch Village', kind: 'town', region: 'River' }] : []) });
+    try {
+        const h2 = setup();
+        h2.capture(line('~', 'place', 'Bluewatch'), MARK);
+        assert.deepEqual(place(h2), { name: 'Bluewatch', kind: 'settlement', region: 'River' });
+    } finally {
+        Object.assign(queries, { 'packs.content': (_state, { kind }) => (kind === 'places' ? PACK : []) });
+    }
+});
+
+test('a line with one label: only the filled one is said to come from the map', () => {
+    const h = setup();
+    const result = h.capture(line('~', 'place', 'Bluewatch Village', { region: 'The Marches' }), MARK);
+    assert.match(result.result.summary, /\(kind settlement, from the map\)/);
+    assert.doesNotMatch(result.result.summary, /Marches/);
 });
