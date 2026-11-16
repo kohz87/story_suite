@@ -3,13 +3,14 @@ import { partyTab } from '../tabs/party/party.js';
 import { openSheet } from '../tabs/party/slot-picker.js';
 import { bagTab } from '../tabs/bag/bag.js';
 import { fightTab } from '../tabs/fight/fight.js';
+import { sceneTab } from '../tabs/scene/host.js';
 import { peopleTab } from '../tabs/people/people.js';
 import { worldTab } from '../tabs/world/world.js';
 import { journalTab } from '../tabs/journal/journal.js';
 import { openQuestEditor } from '../tabs/journal/quest-editor.js';
 import { storyTab } from '../tabs/story/story.js';
 
-const BUILDERS = { party: partyTab, bag: bagTab, fight: fightTab, people: peopleTab, world: worldTab, journal: journalTab, story: storyTab };
+const BUILDERS = { party: partyTab, bag: bagTab, fight: fightTab, scene: sceneTab, people: peopleTab, world: worldTab, journal: journalTab, story: storyTab };
 
 /** Returns the tab ids that have a built renderer. */
 export const BUILT_TABS = Object.freeze(Object.keys(BUILDERS));

@@ -8,7 +8,7 @@ import { replyMenuButton, replySheet } from '../chat/reply-menu.js';
 import { buildSelectors } from '../select/build.js';
 
 const BODY_CLASS = 'ss-ui-next';
-const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'people', 'dossier', 'world', 'journal', 'story', 'settings'];
+const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings'];
 const EVENTS = ['head', 'committed', 'turn', 'feature'];
 
 function addStyles(doc, base) {

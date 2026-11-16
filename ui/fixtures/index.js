@@ -10,6 +10,7 @@ import { buildJournal } from './journal.js';
 import { buildStory } from './story.js';
 import { buildSettings } from './settings.js';
 import { DOSSIERS, dossierFor } from './dossier.js';
+import { sceneFixture } from './interaction.js';
 
 function resolveOptions(variant) {
   if (typeof variant === 'string') {
@@ -23,6 +24,7 @@ function resolveOptions(variant) {
       planShown: false,
       fightState: 'choose',
       bagLoad: 0,
+      scene: null,
     };
   }
   const opts = variant && typeof variant === 'object' ? variant : {};
@@ -35,6 +37,8 @@ function resolveOptions(variant) {
     planShown: Boolean(opts.planShown),
     fightState: opts.fightState || 'choose',
     bagLoad: Number(opts.bagLoad) || 0,
+    scene: opts.scene || null,
+    sceneLong: Boolean(opts.sceneLong),
   };
 }
 
@@ -250,6 +254,8 @@ export function fixture(variant = 'default') {
   const needsYou = buildNeedsYou(opts);
 
   return {
+    // The open interaction (the Scene tab): present only when asked for, so every other fixture is as it was.
+    ...(opts.scene ? { scene: sceneFixture(opts.scene, { long: opts.sceneLong }) } : {}),
     card: buildCard(opts),
     now: buildNow(opts, hereList, changes, needsYou),
     chat: buildChat(opts, hereList, changes, needsYou),

@@ -30,6 +30,7 @@ function readFlags(port, override) {
   return {
     rpg: override?.rpg ?? card?.rpg !== false,
     fightOpen: override?.fightOpen ?? Boolean(chat?.inlineRow?.fightOpen),
+    sceneOpen: override?.sceneOpen ?? Boolean(port.view('scene')),
   };
 }
 
@@ -122,6 +123,8 @@ export function mountSuite(options = {}) {
     if (tabHost.current() !== before) showTab(tabHost.current());
   }
   for (const event of PORT_EVENTS) offs.push(port.on(event, refreshFlags));
+  // An interaction call changes chat metadata only, so the engine says nothing: the port does (`interaction`), and the open tab and the tab strip redraw.
+  offs.push(port.on('interaction', () => { redraw.markDirty(); refreshFlags(); }));
 
   if (theme === 'follow') {
     offs.push(watchSt(doc, () => {
