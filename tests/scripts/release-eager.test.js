@@ -37,4 +37,3 @@ test('a chunk listed as lazy is fetched later and not counted; the same chunk li
   assert.equal(lazy.row.lazy, 1);
   assert.equal(eager.row.lazy, 0);
 });
-
