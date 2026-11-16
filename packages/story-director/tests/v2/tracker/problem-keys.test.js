@@ -5,12 +5,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import { createHost } from '../../../../story-block/testkit/index.js';
 import { createModule } from '../../../src/v2/module.js';
 import { addProblem, problemList, validateDirector } from '../../../src/v2/tracker/domain.js';
 import { withD1 } from '../helpers/d1.js';
 
+const ERSVEIL = readFileSync(new URL('../../fixtures/ersveil-bluewatch.pack.json', import.meta.url), 'utf8');
 const said = (text, lines) => `${text}\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const bad = (tag, n) => Array.from({ length: n }, (_, i) => `~ quest ${tag}${i} | step:`);
 
@@ -82,23 +84,23 @@ test('the same count of lines (1 → 1) is unchanged by a Re-read', async t => {
 test('an older state\'s <rev>.<n> problems read in order, and a new problem joins after them', () => {
     const director = { turn: { n: 3 }, problems: { '12.0': { rev: 12, turn: 2, kind: 'x', text: 'b' }, '9.1': { rev: 9, turn: 1, kind: 'x', text: 'a1' }, '9.0': { rev: 9, turn: 1, kind: 'x', text: 'a0' } } };
     assert.deepEqual(problemList(director).map(problem => problem.text), ['a0', 'a1', 'b']);
-    const key = addProblem(director, { rev: 15, carrier: { sid: 'sw_new' } }, { kind: 'x', text: 'c' });
+    const key = addProblem(director, { cause: 'story', rev: 15, carrier: { sid: 'sw_new' } }, { kind: 'x', text: 'c' });
     assert.equal(key, 'sw_new.0');
     assert.deepEqual(problemList(director).map(problem => problem.text), ['a0', 'a1', 'b', 'c']);
     assert.deepEqual(validateDirector({ ...director, time: { minutes: null }, threads: {}, keys: {}, turn: { n: 3, now: null } }), []);
     // An older list (an array) is keyed once, as before.
     const legacy = { problems: [{ rev: 4, kind: 'x', text: 'old' }] };
-    addProblem(legacy, { rev: 6, carrier: { sid: 'sw_new' } }, { kind: 'x', text: 'new' });
+    addProblem(legacy, { cause: 'story', rev: 6, carrier: { sid: 'sw_new' } }, { kind: 'x', text: 'new' });
     assert.deepEqual(Object.keys(legacy.problems), ['4.0', 'sw_new.0']);
     assert.deepEqual(problemList(legacy).map(problem => problem.text), ['old', 'new']);
 });
 
 test('past the room the oldest problems go, in the list\'s order, whatever their keys', () => {
     const director = { turn: { n: 1 }, problems: {} };
-    for (let i = 0; i < 100; i += 1) addProblem(director, { rev: 200 + i, carrier: { sid: 'sw_late' } }, { kind: 'x', text: `late${i}` });
+    for (let i = 0; i < 100; i += 1) addProblem(director, { cause: 'story', rev: 200 + i, carrier: { sid: 'sw_late' } }, { kind: 'x', text: `late${i}` });
     // An older key with a lower turn is the oldest, though its rev is the highest.
     director.problems['999.0'] = { rev: 999, turn: 0, kind: 'x', text: 'oldest' };
-    addProblem(director, { rev: 400, carrier: { sid: 'sw_late' } }, { kind: 'x', text: 'late100' });
+    addProblem(director, { cause: 'story', rev: 400, carrier: { sid: 'sw_late' } }, { kind: 'x', text: 'late100' });
     const list = problemList(director).map(problem => problem.text);
     assert.equal(list.length, 100);
     assert.ok(!list.includes('oldest') && !list.includes('late0'));
@@ -137,4 +139,29 @@ test('a swipe, a middle delete, a rewind and a reload give what the story told t
     assert.ok(!kept(host).some(line => line.endsWith(':d0')), 'the rewound reply\'s problem is gone');
     assert.deepEqual(seen(host), seen(deleted), 'after the rewind: as before the reply');
     rebuiltSame(host, 'after the rewind');
+});
+
+test('a step\'s problem kept on a reply (calendar names) is not overwritten when that reply is Re-read with more lines', async t => {
+    t.mock.method(console, 'warn', () => {});
+    const tell = async second => {
+        let host = null;
+        const director = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), chat: () => host?.ctx.chat ?? [] } });
+        host = await createHost({ modules: [director] });
+        assert.equal((await host.packs.packs.install(ERSVEIL, { origin: 'pack.json' })).ok, true);
+        await host.send('Hi.', said('It is Goldwane 14.', ['~ time Goldwane 15, 611, 08:00 am', '+ quest Q — go | giver: A']));
+        await host.send('Who?', said('R1. The ditch boy from Tuesday waved.', second));
+        await host.send('On.', said('R2.', bad('b', 1)));
+        return host;
+    };
+    const host = await tell(bad('a', 1));
+    t.after(() => host.close());
+    assert.equal(Object.values(stored(host)).filter(problem => problem.kind === 'calendar-names').length, 1);
+    const at = replyAt(host, 'R1');
+    await host.st.editMessage(at, said('R1. The ditch boy from Tuesday waved.', bad('a', 4)));
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    const fresh = await tell(bad('a', 4));
+    t.after(() => fresh.close());
+    const kinds = h => problemList(h.head().domains.director).map(problem => `${problem.kind}:${problem.key}`).sort();
+    assert.deepEqual(kinds(host), kinds(fresh), 'the same problems as told that way, none lost');
+    rebuiltSame(host, 'after the Re-read');
 });

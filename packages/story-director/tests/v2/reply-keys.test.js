@@ -6,16 +6,22 @@ import assert from 'node:assert/strict';
 
 import { REPLY_KEY, entryOrder, replyKey } from '../../src/v2/reply-keys.js';
 
-test('a key is the reply\'s record ID and a count one past the highest that reply holds', () => {
-    const ctx = { rev: 40, carrier: { sid: 'sw_abc123def456' } };
+test('a reply\'s own story is keyed by its record ID and a count one past the highest that reply holds', () => {
+    const ctx = { cause: 'story', rev: 40, receiptId: 'rc_aaaa1111', carrier: { sid: 'sw_abc123def456' }, reply: { index: 4, sid: 'sw_abc123def456' } };
     assert.equal(replyKey(ctx, {}), 'sw_abc123def456.0');
-    assert.equal(replyKey(ctx, { 'sw_abc123def456.0': {}, '40.0': {}, 'sw_other.7': {} }), 'sw_abc123def456.1');
+    assert.equal(replyKey(ctx, { 'sw_abc123def456.0': {}, '40.0': {}, 'sw_other.7': {}, 'sw_abc123def456:rc_x.4': {} }), 'sw_abc123def456.1');
     // An entry pruned from the front: its count is not used again (it would sort first).
     assert.equal(replyKey(ctx, { 'sw_abc123def456.2': {} }), 'sw_abc123def456.3');
-    // A command that is not a capture: the reply its changes are stored on.
-    assert.equal(replyKey({ rev: 9, reply: { index: 4, sid: 'sw_head' } }, {}), 'sw_head.0');
-    // An arc plan's lines run as a reply of their own.
-    assert.equal(replyKey({ rev: 9, carrier: { sid: 'plan:ar_x1' } }, { 'plan:ar_x1.0': {} }), 'plan:ar_x1.1');
+});
+
+test('a write that is not the reply\'s own story is keyed by the reply and its receipt, apart from the reply\'s own keys', () => {
+    // A click or a step kept on reply S: a Re-read of S writes S.0, S.1, … again and keeps this one as stored, so it must not be S.<n>.
+    const click = { cause: 'ui', rev: 9, receiptId: 'rc_b2c3d4e5', reply: { index: 4, sid: 'sw_head' } };
+    assert.equal(replyKey(click, { 'sw_head.0': {}, 'sw_head.1': {} }), 'sw_head:rc_b2c3d4e5.0');
+    assert.equal(replyKey(click, { 'sw_head:rc_b2c3d4e5.0': {} }), 'sw_head:rc_b2c3d4e5.1');
+    assert.equal(replyKey({ cause: 'system', rev: 9, reply: { index: 4, sid: 'sw_head' } }, {}), 'sw_head:r9.0');
+    // An arc plan's lines run with a carrier of their own (`plan:<arc>`), shared by every reply: the reply and receipt are used instead.
+    assert.equal(replyKey({ cause: 'ui', rev: 9, receiptId: 'rc_f00d', carrier: { sid: 'plan:ar_x1' }, reply: { index: 6, sid: 'sw_late' } }, {}), 'sw_late:rc_f00d.0');
 });
 
 test('without a record ID the older <rev>.<n> form is used, the first free count', () => {
@@ -26,7 +32,7 @@ test('without a record ID the older <rev>.<n> form is used, the first free count
 });
 
 test('both key forms pass the key rule; nothing else does', () => {
-    for (const key of ['12.0', '0.3', 'sw_abc123def456.0', 'plan:ar_x1.12']) assert.ok(REPLY_KEY.test(key), key);
+    for (const key of ['12.0', '0.3', 'sw_abc123def456.0', 'sw_head:rc_b2c3d4e5.12']) assert.ok(REPLY_KEY.test(key), key);
     for (const key of ['x', '12', '.0', 'sw_a.', 'sw_a.b', '_a.0', '1x.0', 'a b.0', `${'a'.repeat(81)}.0`]) assert.ok(!REPLY_KEY.test(key), key);
 });
 
