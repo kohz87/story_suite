@@ -61,7 +61,7 @@ test('a win against a foe 10 levels above the party earns the legend; 9 above do
     } finally { restore(); }
 });
 
-test('the pay is the same after a swipe, swipe back, edited Re-read, rewind, middle delete and reload (never paid twice, never lost)', async () => {
+test('the pay is the same after a swipe, swipe back, edited Re-read, rewind and reload (never paid twice, never lost)', async () => {
     const restore = seedCrypto(9);
     const { host } = await won({ count: 1, level: 5, tier: 'standard' });
     try {
@@ -94,10 +94,37 @@ test('the pay is the same after a swipe, swipe back, edited Re-read, rewind, mid
         const entry = host.store.receipts().filter(item => item.index === 2).find(item => item.receipt.type === 'interaction.settle');
         assert.equal((await host.sdk.rewind({ index: entry.index, beforeRev: entry.receipt.rev })).ok, true);
         assert.deepEqual(mine(host), { xp: 0, practice: 100 }, 'rewind: nothing paid, as before the fight');
-        const back = await won({ count: 1, level: 5, tier: 'standard' });
-        await back.host.st.deleteMessage(2);
-        await back.host.st.deleteMessage(1);
-        assert.deepEqual(mine(back.host), { xp: 0, practice: 100 }, 'middle delete: the pay goes with the fight');
-        back.host.close();
     } finally { host.close(); restore(); }
+});
+
+test('a middle delete (a later reply stays) takes the pay with the fight; live == rebuild == reload on the whole state', async () => {
+    const restore = seedCrypto(10);
+    const { host } = await won({ count: 1, level: 5, tier: 'standard' });
+    try {
+        await host.send('Later.', 'A later reply.');
+        assert.equal(mine(host).xp, 15);
+        await host.st.deleteMessage(2);
+        await host.st.deleteMessage(1);
+        assert.deepEqual(mine(host), { xp: 0, practice: 100 }, 'the pair with the fight is gone, so is its pay');
+        const live = JSON.stringify(host.head());
+        host.store.rebuild();
+        assert.equal(JSON.stringify(host.head()), live, 'live == rebuild');
+        await host.store.flush();
+        const chat = structuredClone(host.ctx.chat), meta = structuredClone(host.ctx.chatMetadata);
+        await host.st.loadChat(chat, 'pay-delete');
+        host.ctx.chatMetadata = meta;
+        assert.equal(JSON.stringify(host.head()), live, 'reload == live');
+    } finally { host.close(); restore(); }
+});
+
+test('the highest pay still passes the award\'s own check: 60 XP at the 300 % rate, and a use count clamped to 99', async () => {
+    const { paidOf, awardCommand } = await import('../../../../src/v2/lean-rpg/board/v1-award.js');
+    const foes = Array.from({ length: 6 }, (_, at) => ({ id: `1.${at + 1}`, level: 99, tier: 'apex' }));
+    const skills = [{ name: 'Cut', type: 'attack', stat: 'str' }];
+    const rounds = Array.from({ length: 120 }, () => [['attack', 'Astra', 'skill', 'x', 10, 12, 5, 8, 'hit', 3, 4]]);
+    const pay = paidOf({ result: 'win', foes, party: [{ id: 'astra', label: 'Astra', level: 1, skills }], rounds }, { rate: 300, practice: 3 }, { modules: { astra: 'm' }, alive: new Set(['astra']) });
+    assert.equal(pay.xp[0].xp, 180, '60 held, x3');
+    assert.equal(pay.uses[0].n, 99);
+    const ctx = { fail: (code, message) => { throw new Error(`${code}: ${message}`); }, draft: () => ({ instances: {} }), read: () => ({}), source: {} };
+    assert.doesNotThrow(() => awardCommand(ctx, { xp: pay.xp, uses: pay.uses, perUse: pay.perUse }));
 });

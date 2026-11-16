@@ -1,5 +1,5 @@
-// The pre-check on a Combat Rules v1 sheet: each group names its tier, the fight is held to the size rule (an even fight is at most 4 standard foes, a group of elites at most 3), and the prompt says so.
-// A sheet that is not v1 is untouched: the prompt and the vetted groups are byte-identical to what they were.
+// The pre-check on a Combat Rules v1 sheet: a group's tier (when the answer names one; else standard) is kept and the fight is held to the size rule (an even fight is at most 4 standard foes, a group of elites at most 3).
+// The prompt is NOT changed (new model-facing wording waits for the owner's approval, scratch/batch/SMALL/night/C6FIN-precheck-prompt-proposal.patch); a sheet that is not v1 vets exactly as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { precheckPrompt, vetGroups } from '../../../../src/v2/lean-rpg/board/precheck.js';
@@ -25,13 +25,9 @@ test('without v1 the answer is vetted exactly as before (no tier, no size rule)'
     assert.equal(got.some(group => 'tier' in group), false);
 });
 
-test('the v1 prompt names the tier and the size rule; the old prompt does not', () => {
-    const old = precheckPrompt({ message, previous, sheet }), v1 = precheckPrompt({ message, previous, sheet, v1: true });
-    assert.equal(/tier/.test(old), false);
-    assert.match(v1, /- tier is required, one of: mob, minion, standard, elite, boss, apex\./);
-    assert.match(v1, /An even fight is at most 4 standard foes; a group of elites is at most 3\./);
-    assert.match(v1, /"tier":"standard"/);
-    assert.equal(v1.replace(/\n- tier is required[^\n]*\n- An even fight[^\n]*/, '').replace(',"tier":"standard"', ''), old, 'the v1 prompt is the old one plus exactly those lines');
+test('the pre-check prompt on a v1 sheet is byte-identical to the old one (the tier wording is proposed to the owner, not shipped)', () => {
+    assert.equal(precheckPrompt({ message, previous, sheet, v1: true }), precheckPrompt({ message, previous, sheet }));
+    assert.equal(/tier/.test(precheckPrompt({ message, previous, sheet: { ...sheet } })), false);
 });
 
 test('runPrecheck on a v1 sheet asks the v1 prompt and returns sized, tiered groups; on an old sheet the old prompt and untiered groups', async () => {
@@ -42,8 +38,7 @@ test('runPrecheck on a v1 sheet asks the v1 prompt and returns sized, tiered gro
         return { prompt: seen[0], groups };
     };
     const v1 = await run({ who: 'Astra', level: 5, v1: true }), old = await run({ who: 'Astra', level: 5 });
-    assert.match(v1.prompt, /tier is required/);
+    assert.equal(v1.prompt, old.prompt, 'the same prompt on both sheets');
     assert.deepEqual(v1.groups.map(group => [group.count, group.tier]), [[4, 'standard'], [5, 'minion'], [3, 'elite']]);
-    assert.equal(/tier/.test(old.prompt), false);
     assert.equal(old.groups.some(group => 'tier' in group), false);
 });

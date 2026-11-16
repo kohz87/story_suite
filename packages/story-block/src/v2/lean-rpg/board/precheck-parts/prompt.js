@@ -19,18 +19,12 @@ function partyLine(sheet, roster) {
     return (people.length ? people : fallback).map(person => `${person.name}${Number.isInteger(person.level) ? ` (level ${person.level})` : ''}`).join(', ');
 }
 
-// The lines a Combat Rules v1 sheet adds (a v1 sheet is reachable only after the chooser switch; the wording is the owner's to approve first).
-const V1_RULES = Object.freeze([
-    '- tier is required, one of: mob, minion, standard, elite, boss, apex. A rat or a beggar is a mob or a minion, a trained guard or a bandit is standard, a veteran, officer or champion is elite, a named leader is a boss, a dragon or a titan is an apex. When unsure, standard.',
-    '- An even fight is at most 4 standard foes; a group of elites is at most 3. Give a bigger crowd as several groups, or leave the extra foes out.',
-]);
-
 /**
  * The short Assist prompt: the reader's message, the foes already on the sheet, and the party, with the story's rank scale (`ranks`, one line or '')
  * and what is known of named people (`known`, short lines; both from precheck-known.js and only input to the one Assist call, never recorded). It asks only for JSON
- * groups: `{"groups":[{"name":"...","count":1,"level":2}]}` (`level` required); with `v1` (a Combat Rules v1 sheet) each group also names its `tier` and the prompt says the size rule (V1_RULES). Dice, actions and outcomes are not asked.
+ * groups: `{"groups":[{"name":"...","count":1,"level":2}]}` (`level` required). Dice, actions and outcomes are not asked.
  */
-export function precheckPrompt({ message = '', previous = '', sheet = null, roster = null, ranks = '', known = [], v1 = false } = {}) {
+export function precheckPrompt({ message = '', previous = '', sheet = null, roster = null, ranks = '', known = [] } = {}) {
     const text = oneLine(message).slice(0, 1200);
     const before = oneLine(previous).slice(-PREVIOUS_CHARS);
     const foes = [...new Set((sheet?.foes ?? []).map(foe => oneLine(foe?.name)).filter(Boolean))];
@@ -56,9 +50,8 @@ export function precheckPrompt({ message = '', previous = '', sheet = null, rost
         `- count is the whole number of foes in that group, from 1 to ${PRECHECK_LIMITS.count}. Resolve amounts: "six" = 6, "a dozen" = 12, "4 scores" = 80.`,
         '- The count is the number the reader\'s message gives. If the message gives none, use the number the reply just before it gives for that group ("two massive bog-boars" = 2). Only if neither says, use 1.',
         '- level is required (a whole number): judge each group by who they are in the story (role, experience, reputation, numbers), not by the party\'s level. Never lower or raise a foe to match the party: rank-and-file thugs can be low, a veteran, officer or leader sits well above a beginner.',
-        ...(v1 ? V1_RULES : []),
         '',
         'Reply with JSON only, in this shape:',
-        v1 ? '{"groups":[{"name":"...","count":1,"level":2,"tier":"standard"}]}' : '{"groups":[{"name":"...","count":1,"level":2}]}',
+        '{"groups":[{"name":"...","count":1,"level":2}]}',
     ].join('\n');
 }

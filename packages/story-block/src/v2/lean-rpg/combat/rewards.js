@@ -4,8 +4,8 @@ import { FIGHT_XP } from '../names-parts/fight-xp.js';
 import { TIERS } from './numbers.js';
 import { skillCost } from './skills.js';
 
-/** How many levels above the party's highest a foe group must stand for a win to earn a legendary find (the old rule's gap). */
-export const LEGEND_GAP = 10;
+// How many levels above the party's highest a foe group must stand for a win to earn a legendary find (the old rule's gap).
+const LEGEND_GAP = 10;
 
 /** The foe groups of a record's `foes`: `[{ slot, count, level, tier }]`, by slot (a member's id is `<slot>.<n>`). */
 export function foeGroupsOf(record) {
