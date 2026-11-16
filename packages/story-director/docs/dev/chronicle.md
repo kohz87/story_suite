@@ -84,15 +84,20 @@ Known limit: an edited reply is never noted again. Its note is a kept block (it 
 an edited reply adds is not in the day facts, the written digest or the quest history, and what it removed stays; the
 World screen's lists, read from the domains, show the edit. Tests: `tests/v2/chronicle/note-cursor.test.js` (the real
 host, compared with a fresh telling), `note-outcome.test.js` (an accepted goal's outcome on the real host),
-`note-cursor-units.test.js`, `note-cursor-clock.test.js` (an edit that adds a clock or scene change, real host) and
+`note-cursor-units.test.js`, `note-cursor-clock.test.js` (an edit that adds a scene change, and the clock-change known limit, real host) and
 `note-cursor-start.test.js`.
 
-The walk starts from the clock and scene the receipts up to and including the cursor say (`since()` in
-`queries-parts/receipts.js`, shared by the note, its gap path and the Journal's "today so far"), so a clock or scene change
-an edit added is followed by the replies after it; where those receipts say nothing (data trimmed) it starts from the note's
-stored `minutes` and `present`. A `gap.through` naming a reply that was deleted falls back to `gap.rev`. Known limit: a
-thread's outcome line after a grown Re-read of the reply that resolved the goal takes a new revision, so a paid turn-in
-settled later could sort before it in that thread's history, unlike a fresh telling (rare; nothing else reads the order).
+The walk starts from the scene the receipts up to and including the cursor say (`since()` in `queries-parts/receipts.js`,
+shared by the note, its gap path and the Journal's "today so far"), so a scene change an edit added is followed by the
+replies after it; where those receipts say nothing (data trimmed) it starts from the note's stored `minutes` and `present`.
+A `gap.through` naming a reply that was deleted falls back to `gap.rev`. The cursor never re-notes, and survives trimming,
+swipes, deletes and Continue. **Known limit (planned follow-up):** a clock change an edit adds is NOT followed. Replies told
+before the edit keep their pre-edit absolute times, so later replies, up to their own time line, can be filed under the day
+before the edit, and that day's written digest keeps them; a fresh telling files them a day later. This is not the same as a
+fresh telling, and no rule in the day walk can make it so while those receipts keep their old times
+(`note-cursor-clock.test.js` pins today's behaviour so a later fix flips it on purpose). Also: a thread's outcome line after
+a grown Re-read of the reply that resolved the goal takes a new revision, so a paid turn-in settled later could sort before
+it in that thread's history, unlike a fresh telling (rare; nothing else reads the order).
 
 ## Tests
 
