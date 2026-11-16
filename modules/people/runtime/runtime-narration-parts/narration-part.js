@@ -2,7 +2,8 @@
 
 import { getContext } from '../../../../../../../extensions.js';
 import { extractNarrationCapture, parseNarrationCapture } from '../../core/core.js';
-import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
+import { frozenLineageKey } from './journal-lineage.js';
+import { useReplySids } from './journal-keys.js';
 import { hasChangesBlock, replyNamesSomeone } from '../../core/core-parts/reply-names.js';
 import { getSettings } from '../../settings/runtime-settings.js';
 import { narrationCaptureEnabled } from '../../calls/runtime-scan-helpers.js';
@@ -29,6 +30,8 @@ export function createNarrationPart(rt, deps) {
     function hostedPlaces() {
         try { return storySuiteV2Meters()?.places?.() ?? []; } catch { return []; }
     }
+    // The capture journal finds a hosted reply by its sid (journal-keys.js).
+    useReplySids(index => (hostedMeters() ? storySuiteV2Meters().replySid?.(index) ?? null : null));
     function hostedOnePass(settings = getSettings()) {
         return hostedMeters() && narrationCaptureEnabled(settings);
     }
@@ -43,7 +46,7 @@ export function createNarrationPart(rt, deps) {
             const sid = storySuiteV2Meters().replySid?.(Number(messageId)) ?? null;
             return sid ? `${chatKey}|${sid}` : `${chatKey}|#${messageId}`;
         }
-        const parent = messageId > 0 ? lineageCheckpointKey(chatLineage(getContext().chat || []), messageId - 1) : 'root';
+        const parent = messageId > 0 ? frozenLineageKey(getContext().chat || [], messageId - 1) : 'root';
         return `${chatKey}|${messageId}|${parent}`;
     }
     function dropNarrationCaptures() {

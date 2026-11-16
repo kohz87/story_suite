@@ -9,12 +9,12 @@ import { markLiveReply, memoryFactsOn } from '../memory/memory-fact-marks.js';
 import { chatLineage, lineageCheckpointKey, ensureBranchParentAnchor, migrateLegacyLineage } from '../legacy/branch.js';
 import { getSettings } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, latestMessageId, notify, replayScope } from './runtime-scan-helpers.js';
-import { captureJournalEntry } from '../runtime/runtime-narration.js';
+import { captureJournalEntry, recordReadMark } from '../runtime/runtime-narration.js';
 
 export function createAssistantHandlerPart(rt, deps, helpers) {
     const { commitBranchCheckpoint, ensureChatStateLoaded, getChatKey, getChatState, isHostSwipeActive, narrationCaptureKey, persist, queueSettledSwipeReconcile, hostedOnePass, renderDossier, scanAfterEveryReply, scheduleReplyBackfills, scanNow, staleHostActive, updateInjection } = deps;
     const { assistantReceipts, narrationCaptures } = rt;
-    const { replyParentKey, sameReplyRewritten, scanInner, noteCaptureCatchUp, runCaptureCatchUp } = helpers;
+    const { replyParentKey, sameReplyRewritten, scanInner, noteCaptureCatchUp, runCaptureCatchUp, replayCatchUp } = helpers;
 
     async function handleAssistantMessageReceivedInner(messageId, { bypassSwipeGuard = false, forceBranchRescan = false, detachScan = false } = {}) {
         const settings = getSettings();
@@ -86,7 +86,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         });
         // A complete capture block is a scan already paid for, so it merges whatever Scan every says.
         // ONEPASSMISS-1: a hosted missing-capture marker and a paid-for block both own this reply, irrespective of cadence.
-        const captureDue = replay ? Boolean(captureJournalEntry(replay, getContext().chat || [], messageId)?.parsed)
+        const captureDue = replay ? Boolean((e => e?.parsed || e?.fallbackParsed)(captureJournalEntry(replay, getContext().chat || [], messageId)))
             : narrationCaptureEnabled(settings) && narrationCaptures.has(narrationCaptureKey(eventChatKey, messageId));
         const scanExpected = shouldForceBranchScan || autoScanDue || captureDue;
         // Receipt state belongs to this assistant even if scanning fails, skips or is busy.
@@ -97,12 +97,17 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
         updateInjection();
 
         // Hosted one-pass (N7): the catch-up counts every live reply by who is in the scene, whether or not a fallback scan ran (the story's own lines
-        // are no capture to count). Replays keep the scan's journal entry as before.
+        // are no capture to count). The reply gets its journal entry (read live under today's rules) and keeps who the catch-up took (`catchUp`) and what the
+        // Refreshes answered, so a replay repeats the same Refreshes and skips the same backfills (replayCatchUp).
         const countCatchUp = () => {
             if (replay || !hostedOnePass()) return;
-            const present = (getChatState(eventChatKey)?.npcs || []).filter(npc => npc?.present && !npc.archived).map(npc => npc.id);
+            const live = getChatState(eventChatKey);
+            const present = (live?.npcs || []).filter(npc => npc?.present && !npc.archived).map(npc => npc.id);
+            const entry = live ? recordReadMark(live, getContext().chat || [], messageId) : null;
             const due = noteCaptureCatchUp(eventChatKey, present);
-            if (due.length) void runCaptureCatchUp(eventChatKey, due);
+            if (due.length && entry) entry.catchUp = [...due];
+            if (entry) persist();
+            if (due.length) void runCaptureCatchUp(eventChatKey, due, 0, messageId);
         };
         if (scanExpected && detachScan && !replay) {
             // The live MESSAGE_RECEIVED listener: SillyTavern keeps the Send button locked (and the reply undrawn) until every
@@ -123,7 +128,10 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
             }
         }
         if (getChatKey() !== eventChatKey || latestMessageId(true) !== messageId || !sourceStillHere()) return;
-        if (replay) await replay.backfills(messageId);   // inline, on the copy, at the live per-reply limit
+        if (replay) {   // inline, on the copy, at the live per-reply limit; a hosted reply's catch-up Refreshes are repeated first and its taken people skipped, as live
+            const entry = hostedOnePass() ? captureJournalEntry(replay, getContext().chat || [], messageId) : null;
+            await replay.backfills(messageId, entry?.catchUp ? await replayCatchUp(entry, messageId, Boolean(entry.parsed)) : []);
+        }
         else { countCatchUp(); scheduleReplyBackfills(eventChatKey, messageId); }
     }
 

@@ -197,7 +197,10 @@ export function createStorySuiteV2Adapter({
         ready: () => queriesPart.runtime()?.stateReady?.() !== false,
         chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
         rescan: () => queriesPart.runtime()?.rescanLatest?.(),
-        afterHydrate: at => { if (linesMode()) queueNewStubFills(queriesPart.runtime(), queriesPart.runtime()?.chatKey?.() ?? '', at); },   // the fill-in of a `+ npc` stub (NSD6)
+        afterHydrate: at => {
+            try { queriesPart.runtime()?.convertCaptureJournal?.(); } catch (error) { logger.warn?.('[NPC State] the capture journal could not be moved to reply IDs.', error); }   // N7: once, before anything reads it
+            if (linesMode()) queueNewStubFills(queriesPart.runtime(), queriesPart.runtime()?.chatKey?.() ?? '', at);
+        },   // the fill-in of a `+ npc` stub (NSD6)
         carry: peopleCarry,
         keep: (built, slice) => (linesMode() ? keepStampContainers(built, slice) : built),   // lines mode only: with the switch off the view is written as it is
         mark: (index, since) => queriesPart.runtime()?.setScanMarker?.(index, since),

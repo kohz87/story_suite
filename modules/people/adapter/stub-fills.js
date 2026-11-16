@@ -1,7 +1,7 @@
 /* NPC State: the fill-in of a new person (NSD6), started after the reply's hydrate. A `+ npc` line makes a stub in the people store (the reply's own work); once the
    cache has read it, each stub of that reply that has no background yet is queued for one fill-in (queueFills, reason new-person) and the queue is started: it runs after
    the reply is shown, never before Send. One job: find the stubs and queue them. A stub is a person stamped with the reply's place (createdAt = index + 1; a scan makes
-   people stamped with a clock). Each (chat, reply, swipe, person) is queued once a session, so a failed fill is not asked for again on every look; a reload asks once more. */
+   people stamped with a clock). Each (chat, reply, swipe, person) is queued once a session, so a failed fill is not asked for again on every look; the reply's journal entry keeps the same mark (queueFills), so a reload does not ask again for a fill live dropped. */
 
 const seen = new Set();
 

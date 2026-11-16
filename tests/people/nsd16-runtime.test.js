@@ -168,3 +168,55 @@ test('NSD16: a capitalised word that is a place Story Director knows is not a pe
     assert.equal(r.known, 0);
     assert.equal(r.unknown, 1);
 });
+
+test('N7: a hosted reply is journaled under its own sid, with the people the catch-up took, and its fill-in is asked once', () => {
+    const r = runCalls('journal', true, async ({ reply, settings, mockState, sleep }) => {
+        mockState.sdk.query = (name, args) => (name === 'npc.replySid' ? `sid-${args?.asOf}` : null);
+        settings.narrationCaptureCatchUp = 1;
+        const run = await reply('At the gate stood Orsen, arms folded.', PAYLOAD);
+        await sleep(600);
+        const state = globalThis.NPCStateDelta.getState();
+        const stubs = [{ id: 'npc_orsen', name: 'Orsen' }];
+        const first = globalThis.NPCStateDelta.queueFills(stubs, run.id);
+        const again = globalThis.NPCStateDelta.queueFills(stubs, run.id);
+        const journal = globalThis.NPCStateDelta.getState().captureJournal || [];
+        return { keys: journal.map(item => item.key), catchUp: journal.map(item => item.catchUp || null), asked: journal.map(item => item.asked || null), first, again, names: state.npcs.map(n => n.name) };
+    });
+    assert.deepEqual(r.keys.length, 1);
+    assert.match(r.keys[0], /^sid:sid-\d+$/);
+    assert.equal(r.first, true);
+    assert.equal(r.again, false, 'the second ask finds the mark in the reply\'s entry');
+    assert.deepEqual(r.asked[0], ['npc_orsen']);
+    assert.ok(Array.isArray(r.catchUp[0]) && r.catchUp[0].length >= 1, 'the catch-up that ran for this reply is kept with it');
+});
+
+test('N7: replay == live for a hosted reply the catch-up took: the replay repeats the Refresh from the journal and ends in the live state', () => {
+    const r = runCalls('replay', true, async ({ reply, settings, mockState, sleep, kinds }) => {
+        mockState.sdk.query = (name, args) => (name === 'npc.replySid' ? `sid-${args?.asOf}` : null);
+        settings.narrationCaptureCatchUp = 1;
+        const refreshed = { npcs: [{ name: 'Orsen', present: true, role: 'adventurer', personality: 'Wary and watchful.', speech: 'Short, curt sentences.', relationshipImpact: 'none', relationshipDelta: ZERO }] };
+        mockState.quietResponder = async (args = {}) => {
+            const system = String(args.systemPrompt || '');
+            if (/isolated dossier scanner\./i.test(system)) { const given = globalThis.SCAN_RESULT; globalThis.SCAN_RESULT = null; return JSON.stringify(given || { npcs: [] }); }
+            if (/reconciliation scanner/i.test(system)) return JSON.stringify(refreshed);
+            return '{"npcs":[]}';
+        };
+        const run = await reply('At the gate stood Orsen, arms folded.', PAYLOAD);
+        await sleep(800);
+        const api = globalThis.NPCStateDelta;
+        const live = api.getState();
+        const entry = (live.captureJournal || [])[0] || {};
+        const before = kinds();
+        const copy = api.replay.empty();   // a state that has read nothing yet, with the journal live kept
+        const out = await api.replay.reply(copy, run.id, { toast() {}, write() {} }, api.uiStatus().chatKey);
+        const model = kinds();
+        return { journaled: Object.keys(entry.refreshes || {}), catchUp: entry.catchUp || null, out: out ?? null, calls: { refresh: model.refresh - before.refresh, scanner: model.scanner - before.scanner }, livePersonality: (live.npcs.find(n => n.name === 'Orsen') || {}).personality, replayed: copy.npcs.find(n => n.name === 'Orsen') || null, liveOrsen: live.npcs.find(n => n.name === 'Orsen') || null };
+    });
+    assert.deepEqual(r.catchUp, ['npc_orsen'], 'live kept who the catch-up took');
+    assert.deepEqual(r.journaled, ['npc_orsen'], 'and what its Refresh answered');
+    assert.equal(r.out, null, 'the replay of the reply finished');
+    assert.deepEqual(r.calls, { refresh: 0, scanner: 0 }, 'the replay asks the model for nothing: every answer comes from the journal');
+    const strip = npc => npc && Object.fromEntries(Object.entries(npc).filter(([key]) => !/At$|^updated|^seen|^last|^first|^memor/i.test(key)));
+    assert.equal(r.livePersonality, 'Wary and watchful.', 'the live Refresh wrote the dossier text a replay must repeat');
+    assert.deepEqual(strip(r.replayed), strip(r.liveOrsen), 'the person is the same on the replay as live');
+});

@@ -8,7 +8,7 @@ import { getSettings } from '../settings/runtime-settings.js';
 import { latestMessageId } from './runtime-scan-helpers.js';
 
 export function createCatchUpPart(rt, deps) {
-    const { getChatKey, getChatState, isHostSwipeActive, isScanBusy, persist, processPendingBackfills, refreshNpcFromChat } = deps;
+    const { getChatKey, getChatState, isHostSwipeActive, isScanBusy, persist, processPendingBackfills, refreshNpcFromChat, readSettings = getSettings } = deps;
     const captureCatchUp = rt.captureCatchUp;
     // chat key -> ids the catch-up has in hand for the current reply (memory only); scheduleReplyBackfills skips them.
     const taken = rt.catchUpTaken ?? (rt.catchUpTaken = new Map());
@@ -28,7 +28,7 @@ export function createCatchUpPart(rt, deps) {
 
     /** Counts one captured reply and the NPCs in it; the NPC ids due a catch-up now, or []. */
     function noteCaptureCatchUp(chatKey, npcIds = []) {
-        const every = Math.max(0, Math.round(Number(getSettings().narrationCaptureCatchUp) || 0));
+        const every = Math.max(0, Math.round(Number(readSettings().narrationCaptureCatchUp) || 0));
         if (!every) return [];
         const entry = captureCatchUp.get(chatKey) ?? { count: 0, seen: new Map() };
         entry.count += 1;
@@ -43,10 +43,10 @@ export function createCatchUpPart(rt, deps) {
         return due;
     }
 
-    async function runCaptureCatchUp(chatKey, ids, tries = 0) {
+    async function runCaptureCatchUp(chatKey, ids, tries = 0, at = null) {
         if (!ids.length || getChatKey() !== chatKey) { taken.delete(chatKey); return; }
         if (isScanBusy(chatKey) || isHostSwipeActive()) {
-            if (tries < CATCH_UP_RETRIES) setTimeout(() => void runCaptureCatchUp(chatKey, ids, tries + 1), CATCH_UP_RETRY_MS);
+            if (tries < CATCH_UP_RETRIES) setTimeout(() => void runCaptureCatchUp(chatKey, ids, tries + 1, at), CATCH_UP_RETRY_MS);
             else taken.delete(chatKey);
             return;
         }
@@ -57,7 +57,7 @@ export function createCatchUpPart(rt, deps) {
                 if (!getChatState(chatKey).npcs.some(npc => npc.id === id && !npc.archived)) continue;
                 const fresh = newlyMet(chatKey, id);
                 if (!fresh) established.push(id);
-                const refreshed = await refreshNpcFromChat(id, { automatic: true, fillLooks: false }); // (ONEPASSCAPR2-3) the admission backfill owns the single fill
+                const refreshed = await refreshNpcFromChat(id, { automatic: true, fillLooks: false, ...(Number.isInteger(at) ? { at } : {}) }); // (ONEPASSCAPR2-3) the admission backfill owns the single fill
                 // A Refresh that worked has covered an established person; the queued repair would only repeat it. A newly met one keeps its backfill.
                 if (refreshed && !fresh && getChatKey() === chatKey) {
                     const latest = getChatState(chatKey);
@@ -72,5 +72,23 @@ export function createCatchUpPart(rt, deps) {
         if (getChatKey() === chatKey) await processPendingBackfills(latestMessageId(true), { limit: 0, skipNpcIds: established, admissions: true }); // (ONEPASSCAPR2-3) drain admissions queued during any refresh
     }
 
-    return { noteCaptureCatchUp, runCaptureCatchUp };
+    /** A replayed hosted reply (N7): what the live catch-up did for it is in the reply's journal entry (`catchUp`: the people it took; `refreshes`: the answers it kept).
+     *  Repeats the Refreshes from those answers (the scan's own replay does it for a reply that had a scan) and returns the ids the reply's backfill skips, as live. */
+    async function replayCatchUp(entry, at, scanned) {
+        const chatKey = getChatKey();
+        const skip = [];
+        for (const id of Array.isArray(entry?.catchUp) ? entry.catchUp : []) {
+            if (!getChatState(chatKey).npcs.some(npc => npc.id === id && !npc.archived)) continue;
+            const fresh = newlyMet(chatKey, id);
+            if (!fresh) skip.push(id);
+            if (scanned || !entry.refreshes?.[id]) continue;
+            if (await refreshNpcFromChat(id, { automatic: true, fillLooks: false, at }) && !fresh) {
+                const latest = getChatState(chatKey);
+                latest.pendingBackfills = (latest.pendingBackfills || []).filter(item => item?.npcId !== id);
+            }
+        }
+        return skip;
+    }
+
+    return { noteCaptureCatchUp, runCaptureCatchUp, replayCatchUp };
 }

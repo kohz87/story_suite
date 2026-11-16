@@ -45,6 +45,7 @@ test('diagnostics renders the selected relationship view without changing the st
     fs.writeFileSync(path.join(temp, 'src/transcript.js'), 'export const activeReplyIds = () => [];');
     fs.writeFileSync(path.join(temp, 'runtime-scan-helpers.js'), 'export const chatContext = () => ({}); export const inReplay = () => {};');
     fs.writeFileSync(path.join(temp, 'src/relationship-pacing.js'), 'export const normalizeAllowance = x => x;');
+    fs.writeFileSync(path.join(temp, 'runtime-narration.js'), 'export const convertJournal = () => ({}); export const recordReadMark = () => null;');
     fs.writeFileSync(path.join(temp, 'runtime-settings.js'), 'export const effectiveCustomFieldNames = () => [];');
     const { createPublicApiStatePart } = await import(pathToFileURL(path.join(temp, 'runtime-entry-public-write.js')).href);
     const api = createPublicApiStatePart({
