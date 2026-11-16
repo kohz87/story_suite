@@ -5,6 +5,9 @@ import { isAway, labelKey, labelsOf, normalizeKeyPeople } from './key-people.js'
 import { normalizeCast } from './cast-dossier.js';
 import { normalizeApproachKind } from '../npc-meters-gate.js';
 import { NPC_DOMAIN, BUILT_IN_METERS, FEATURE_GATE, FEATURE_MOOD_PULL, FEATURE_NOTES, MILESTONE_KIND, DAY_MINUTES, MILESTONE_MAX, DISPOSITION_MAX, REASON_LABELS, FEATURE_STAGES, FEATURE_DRIFT, KEY_PEOPLE_QUERY, isObject, isInt, isReplyId, readLeaf, replyKey, clamp, clean, slug, wordKey, tierOf, parseMeterValue } from './npc-meters-config.js';
+import { readLabels } from './npc-lines-parts/labels.js';
+import { wordChanges } from './npc-lines-parts/direction.js';
+import { labelFields } from './npc-lines-parts/live-fields.js';
 import { stepPull } from '../npc-instincts.js';
 import { growDrives, DRIVE_RULE } from './npc-notes-drives.js';
 import { mergeRefreshTastes } from './npc-notes-tastes.js';
@@ -61,31 +64,20 @@ export function createNpcCommands({
         const settings = normalized(ctx.settings(), ctx);
         const defs = defsFrom(settings);
         const byLabel = new Map(defs.flatMap(def => [[def.id, def], [slug(def.label), def]]));
-        const problems = [];
-        const changes = [];
-        let disposition;
-        let tier = 'ordinary';
-        let via = null;
-        let reason = '';
-        for (const [label, raw] of Object.entries(isObject(line.labels) ? line.labels : {})) {
-            const key = slug(label);
-            if (REASON_LABELS.has(key)) { reason ||= clean(raw, 500); continue; }   // 240 at a word where it is kept (reasonKept)
-            if (key === 'impact' && !byLabel.has(key)) { tier = tierOf(raw); continue; }
-            // The anti-lever approach label (a feature, off: "not a meter" as before); an unknown word is no approach, quietly.
-            if (key === 'via' && !byLabel.has(key) && featureOn(FEATURE_GATE, ctx)) { via = normalizeApproachKind(String(raw ?? '').trim().toLowerCase()); continue; }
-            if (key === 'stage' || key === 'stages') { problems.push(`Stages are set by code from the meters; "stage: ${clean(raw, 60)}" was not used.`); continue; }
-            if (key === 'disposition') { disposition = clean(raw, DISPOSITION_MAX); continue; }
-            const def = byLabel.get(key);
-            if (!def) { problems.push(`"${clean(label, 40)}" is not a meter (meters: ${defs.map(item => item.id).join(', ')}).`); continue; }
-            const parsed = parseMeterValue(raw);
-            if (!parsed) { problems.push(`${def.label}: "${clean(raw, 40)}" is not +N, -N or =N.`); continue; }
-            changes.push({ meter: def.id, ...parsed });
-        }
+        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx) });
+        const { problems, tier, via, reason, disposition, fields } = read;
+        const changes = [...read.changes, ...wordChanges(read.words, tier, tierCaps())];
         // B-a1-15: the window is the reply's by its record ID, so after a middle delete a new reply at an
         // index an older one had is its own reply, with its own cap.
         const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;
         const reply = replyKey(ctx.carrier?.sid, at);
-        return run(ctx, { label: line.name, changes, problems, limit: true, reply, at, disposition, via, allowEmpty: line.op === '+', impact: tierCaps() ? { tier, caps: tierCaps() } : null, story: true, reason });
+        // Dossier labels alone make no bond record: only someone with a bond or a dossier already (N4's stub makes the dossier, not this line).
+        const labelled = Object.keys(fields).length > 0;
+        const who = labelled && !changes.length ? identify(ctx.read(NPC_DOMAIN)?.npcs ?? {}, line.name) : null;
+        const known = Boolean(who && (Object.hasOwn(ctx.read(NPC_DOMAIN)?.npcs ?? {}, who.key) || ctx.read('people')?.npcs?.[who.key]));
+        if (labelled && !changes.length && !known && line.op !== '+') problems.push(`${clean(line.name, 40)} has no record yet; ${Object.keys(fields).join(', ')} not stored.`);
+        const out = run(ctx, { label: line.name, changes, problems, limit: true, reply, at, disposition, via, allowEmpty: line.op === '+' || (labelled && known), impact: tierCaps() ? { tier, caps: tierCaps() } : null, story: true, reason });
+        return labelled ? labelFields(ctx, out, fields, { at, reply, clockMinutes, timeMinutes, clockDay, startDate: day => call(hooks.startDate, '', day), moodOn: featureOn(FEATURE_MOOD_PULL, ctx), note }) : out;
     }
 
     // ---- commands (cause ui from Delta itself; capture is the story's) ----
