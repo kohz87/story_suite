@@ -21,7 +21,7 @@ import { actionSkills, exchangePlan } from '../../../src/v2/lean-rpg/board/plan.
 import { autoPicks, autoStop, hurtHeroes } from '../../../src/v2/lean-rpg/board/auto.js';
 import { playBoard } from '../../../src/v2/lean-rpg/board/engine.js';
 import { boardGuard } from '../../../src/v2/lean-rpg/board/commit.js';
-import { openBoard } from '../../../src/v2/lean-rpg/board/session.js';
+import { openBoard } from '../helpers/board-port.js';
 import { boardChoices } from '../../../src/v2/lean-rpg/board/view-data.js';
 import { settledNote } from '../../../src/v2/lean-rpg/board/note.js';
 import { barText } from '../../../src/v2/lean-rpg/board/view-bars.js';

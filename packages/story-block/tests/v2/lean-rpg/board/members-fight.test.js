@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { FOE_LEVEL, foeBlocksByLevel, hardBlocksByLevel } from '../../../../src/v2/lean-rpg/foes.js';
 import { DM_LIMITS } from '../../../../src/v2/data-modules/schema.js';
-import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
+import { openBoard } from '../../helpers/board-port.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { capAttackers, carriedFrom, collapseFoes, packAreaBlocks, splitFoes } from '../../../../src/v2/lean-rpg/board/members.js';
 import { memberRolls } from '../../../../src/v2/lean-rpg/board/member-rolls.js';

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
+import { openBoard } from '../../helpers/board-port.js';
 import { boardGuard } from '../../../../src/v2/lean-rpg/board/commit.js';
 import { hashJson } from '../../../../src/v2/replay.js';
 import { RESOLVE } from '../../../../src/v2/lean-rpg/names.js';

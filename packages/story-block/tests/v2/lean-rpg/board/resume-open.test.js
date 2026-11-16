@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardApi, boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { runAuto } from '../../../../src/v2/lean-rpg/board/auto-run.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
@@ -71,7 +71,7 @@ test('a resumed Auto fight replays as live: a swipe and Re-read keep its rounds 
         await fledFight(host);
         const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());
         assert.equal(openBoard(meta, host.head(), { sid, rules: RULES, records: records(host) }).session.resumed, true);
-        assert.ok(runAuto({ meta, state: host.head(), rules: RULES, cap: 2 }).done >= 1);
+        assert.ok(runAuto({ api: boardApi(meta, () => host.head(), sid), cap: 2 }).done >= 1);
         const staged = boardSession(meta), preview = playBoard(host.head(), staged.setup, staged.exchanges).result;
         await host.send('Again.', 'They fight on.');
         const result = rollReceipt(host, 4).data.v2.result, rounds = structuredClone(result.rounds), members = structuredClone(result.members ?? null);

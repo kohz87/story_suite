@@ -8,18 +8,19 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, PARTY, setup, skillBlock } from '../../lean-rpg/helpers.js';
-import { boardSession, markSend, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, discardBoard, markSend, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { dropOf } from '../../../../src/v2/lean-rpg/ambush.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { pendingStart } from '../../../../src/v2/turn/fight-start.js';
+import { pendingStart } from '../../../../src/v2/interaction/start-hold.js';
+import { isFightReceipt } from '../../../../src/v2/lean-rpg/board/results.js';
 import { capture } from './corpus.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RULES = { ...STANDARD_FORMULA, levelDivisor: 5 };
 const STANDARD = { rpgFormula: 'standard' };
 const clone = value => JSON.parse(JSON.stringify(value));
-const rollAt = (host, index) => host.ctx.chat[index].extra.storySuite.receipts.findLast(receipt => receipt.type === 'rpg.resolve');
+const rollAt = (host, index) => host.ctx.chat[index].extra.storySuite.receipts.findLast(receipt => isFightReceipt(receipt) && receipt.replan?.payload?.opening !== true);
 const emptyFoeFields = () => ({ ...foeBlock([]), count1: 0, count2: 0, count3: 0, count4: 0 });
 const opts = (blocks, board, settings = {}) => ({ blocks: clone(blocks), board, settings: clone(settings) });
 
@@ -80,14 +81,15 @@ async function fightStartBoard(seed) {
         foes: { role: 'foes', fields: emptyFoeFields() },
     };
     const options = opts(blocks, true);
-    const answer = ['foe Cellar Rats | new | count: 1 | level: 1', 'act Astra | target: Cellar Rats | type: physical', 'foe Cellar Rats | target: Astra'].join('\n');
-    const { host } = await setup({ ...options, answers: [answer] });
+    // (the waiting fight comes from the pre-check, which names the groups the message attacks; it replaced the planner's `new` foe lines)
+    const groups = JSON.stringify({ groups: [{ name: 'Cellar Rats', count: 1 }] });
+    const { host } = await setup({ ...options, planner: false, precheck: true, answers: [groups] });
     try {
         const stopped = await host.send('I attack the cellar rats.', 'Not sent.');
         assert.equal(stopped.aborted, true);
         const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat);
-        assert.equal(pending?.mode, 'new');
-        const opening = host.turn.fightStartPreview();
+        assert.ok(pending?.opening && pending.mode !== 'working', 'the pre-check holds the found group with its opening');
+        const opening = host.turn.interactionStartPreview();
         const open = openBoard(meta, opening.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: RULES });
         assert.equal(open.error, undefined, open.error);
         Object.assign(open.session.setup, { opening: clone(pending.opening), approach: clone(opening.result.checks ?? []), drop: dropOf(opening.result) });
@@ -108,12 +110,13 @@ async function fightStartHeld(seed) {
         foes: { role: 'foes', fields: emptyFoeFields() },
     };
     const options = opts(blocks, true);
-    const answer = ['foe Cellar Rats | new | count: 1 | level: 1', 'act Astra | target: Cellar Rats | type: physical', 'foe Cellar Rats | target: Astra'].join('\n');
-    const { host } = await setup({ ...options, answers: [answer] });
+    // (the waiting fight comes from the pre-check, which names the groups the message attacks; it replaced the planner's `new` foe lines)
+    const groups = JSON.stringify({ groups: [{ name: 'Cellar Rats', count: 1 }] });
+    const { host } = await setup({ ...options, planner: false, precheck: true, answers: [groups] });
     try {
         const stopped = await host.send('I attack the cellar rats.', 'Not sent.');
         assert.equal(stopped.aborted, true);
-        assert.equal(pendingStart(host.ctx.chatMetadata, host.ctx.chat)?.mode, 'new');
+        { const waiting = pendingStart(host.ctx.chatMetadata, host.ctx.chat); assert.ok(waiting?.opening && waiting.mode !== 'working', 'the pre-check holds the found group with its opening'); }
         return await take(host, 0, seed, options);
     } finally { host.close(); }
 }
@@ -162,8 +165,7 @@ async function boardFled(seed) {
         const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());
         let staged = null;
         for (let attempt = 0; attempt < 100; attempt += 1) {
-            delete meta.rpgFightBoard;
-            meta.rpgFightAttempts = { ...(meta.rpgFightAttempts ?? {}), [sid]: attempt };
+            if (attempt) discardBoard(meta);   // (a discarded fight counts as an attempt: the next one rolls its own dice)
             const opened = openBoard(meta, host.head(), { sid, rules: RULES });
             assert.equal(opened.error, undefined, opened.error);
             staged = stageExchange(meta, host.head(), [{ who: 'Astra', kind: 'flee' }]);

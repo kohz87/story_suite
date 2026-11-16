@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
+import { openBoard } from '../../helpers/board-port.js';
 import { offerLineData, pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
 import { character, levelFoeBlock, sheetDomain } from '../helpers.js';
 

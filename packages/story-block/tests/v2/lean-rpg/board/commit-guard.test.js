@@ -5,14 +5,14 @@ import { boardWitness, equipmentForBoard, playBoard } from '../../../../src/v2/l
 import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { character, foeBlock, setup } from '../helpers.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { planGear } from '../../../../src/v2/lean-rpg/gear.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { gearAnswer } from '../../../../src/v2/domains/gear.js';
 import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../../../src/v2/domains/inventory.js';
 import { aiMessage } from '../../../../testkit/fake-st.js';
-import { gearHost, openWithGear } from './commit.helpers.js';
+import { gearHost, isBoardFight, openWithGear } from './commit.helpers.js';
 
 
 test('the reply resolver commits exactly the staged exchange and refuses a duplicate claim', async () => {
@@ -81,7 +81,7 @@ test('editing a staged sheet holds generation until the original input is restor
         assert.equal((await host.sdk.command('test.set', { slug: 'hero', field: 'str', value: 5 })).ok, true);
         const sent = await host.st.generate('normal', { reply: 'The fight continues.' });
         assert.notEqual(sent.aborted, true);
-        const receipt = host.ctx.chat.at(-1).extra.storySuite.receipts.find(item => item.type === 'rpg.resolve');
+        const receipt = host.ctx.chat.at(-1).extra.storySuite.receipts.find(isBoardFight);
         assert.deepEqual(receipt.data.v2.result.rounds, staged.preview.result.rounds);
     } finally { host.close(); restore(); }
 });
@@ -109,11 +109,11 @@ test('unequipping staged gear holds generation and restoring it keeps the rolls'
         assert.equal((await host.sdk.command('inventory.unequip', { stack: stack.id })).ok, true);
         const blocked = await host.send('I strike.', 'Should not be sent.');
         assert.equal(blocked.aborted, true);
-        assert.match(host.st.notices.at(-1).reason, /gear.*restore|gear.*discard/i);
+        assert.match(host.st.notices.at(-1).reason, /fight read has changed.*discard/i);
         assert.equal((await host.sdk.command('item.equip', { stack: stack.id, slot: 'weapon' })).ok, true);
         const sent = await host.st.generate('normal', { reply: 'The fight continues.' });
         assert.notEqual(sent.aborted, true);
-        const receipt = host.ctx.chat.at(-1).extra.storySuite.receipts.find(item => item.type === 'rpg.resolve');
+        const receipt = host.ctx.chat.at(-1).extra.storySuite.receipts.find(isBoardFight);
         assert.deepEqual(receipt.data.v2.result.rounds, staged.preview.result.rounds);
     } finally { host.close(); restore(); }
 });
@@ -132,7 +132,7 @@ test('a board prelude refused after another cue stops generation with a reason',
         const sent = await host.send('I strike.', 'This should not be sent.');
         assert.equal(sent.aborted, true);
         assert.equal(sent.request, null);
-        assert.match(host.st.notices.at(-1).reason, /fight could not be prepared.*restore.*discard/i);
+        assert.match(host.st.notices.at(-1).reason, /fight read has changed.*discard/i);
         assert.equal(boardSession(meta).exchanges.length, 1);
         assert.equal(callModel.calls.length, 0);
     } finally { host.close(); restore(); }
@@ -155,12 +155,12 @@ test('sheet edits and preview commits cannot change board inputs while the reply
         assert.equal(aborted, false);
         const edit = await host.sdk.command('test.set', payload);
         assert.equal(edit.code, 'REPLY_BUSY');
-        assert.match(edit.message, /wait.*reply.*sheet or gear/i);
+        assert.match(edit.message, /wait.*reply.*changing what the fight used/i);
         assert.equal(host.bus.commit(preview.token).code, 'REPLY_BUSY');
         assert.equal(host.head().domains.dataModules.instances['pack.chat/hero'].chat.fields.str, 5);
         const index = host.st.addMessage(aiMessage('The fight continues.'));
         await host.turn.onMessageReceived(index);
-        const receipt = host.ctx.chat[index].extra.storySuite.receipts.find(item => item.type === 'rpg.resolve');
+        const receipt = host.ctx.chat[index].extra.storySuite.receipts.find(isBoardFight);
         assert.deepEqual(receipt.data.v2.result.rounds, staged.preview.result.rounds);
         const live = JSON.stringify(host.head());
         host.store.rebuild();
@@ -197,10 +197,10 @@ test('gear cannot be unequipped while a board reply is in flight', async () => {
         await host.turn.interceptor([], 8192, () => assert.fail('the board should preflight'), 'normal');
         const edit = await host.sdk.command('inventory.unequip', { stack: stack.id });
         assert.equal(edit.code, 'REPLY_BUSY');
-        assert.match(edit.message, /wait.*reply.*gear/i);
+        assert.match(edit.message, /wait.*reply.*changing what the fight used/i);
         const index = host.st.addMessage(aiMessage('The fight continues.'));
         await host.turn.onMessageReceived(index);
-        const receipt = host.ctx.chat[index].extra.storySuite.receipts.find(item => item.type === 'rpg.resolve');
+        const receipt = host.ctx.chat[index].extra.storySuite.receipts.find(isBoardFight);
         assert.deepEqual(receipt.data.v2.result.rounds, staged.preview.result.rounds);
         const live = JSON.stringify(host.head());
         host.store.rebuild();
@@ -224,12 +224,12 @@ test('a rebuilt sheet that changes during a reply invokes the stop callback and 
         host.store.append({ ops: edit.ops, receipt: edit.receipt });
         host.events.emit('head', { reason: 'edit' });
         assert.equal(aborted, true);
-        assert.match(host.st.notices.at(-1).reason, /sheet or gear changed.*restore.*discard/i);
+        assert.match(host.st.notices.at(-1).reason, /fight read has changed.*restore.*discard/i);
         assert.equal(boardSession(meta).exchanges.length, 1);
         assert.equal((await host.sdk.command('test.set', { slug: 'hero', field: 'str', value: 5 })).ok, true);
         host.turn.onGenerationEnded();
         const sent = await host.st.generate('normal', { reply: 'The fight continues.' });
-        const receipt = host.ctx.chat[sent.index].extra.storySuite.receipts.find(item => item.type === 'rpg.resolve');
+        const receipt = host.ctx.chat[sent.index].extra.storySuite.receipts.find(isBoardFight);
         assert.deepEqual(receipt.data.v2.result.rounds, staged.preview.result.rounds);
     } finally { host.close(); restore(); }
 });

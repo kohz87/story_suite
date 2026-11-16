@@ -8,7 +8,7 @@ import { createPrecall } from '../../../../src/v2/lean-rpg/index.js';
 import { LEAN_RPG_FEATURE } from '../../../../src/v2/lean-rpg/names.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { begin, makeBlocks, page, settle } from '../view/page.js';
 
 const BOARD = 'story-block.fight-board';
@@ -23,7 +23,7 @@ test('two user messages in a row with no fight session: canGenerate and beforeGe
     }
 });
 
-test('a staged fight whose reply was deleted keeps the Fight tab; Discard fight clears the hold and a send goes through', async t => {
+test('a staged fight whose reply was deleted goes with it: no hold, no tab, and a send goes through', async t => {
     const { doc, host, ui } = await page(t, { formula: 'standard' });
     await begin(host);
     await makeBlocks(host, { character: { agi: 20 }, skills: { skill1: 'Cut', stat1: 'str', about1: 'cut one foe' } });
@@ -38,26 +38,15 @@ test('a staged fight whose reply was deleted keeps the Fight tab; Discard fight 
     const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());
     assert.equal(openBoard(meta, host.head(), { sid, rules: { ...STANDARD_FORMULA, levelDivisor: 5 } }).error, undefined);
     assert.equal(stageExchange(meta, host.head(), [{ who: 'Wessel', kind: 'attack', target: 11 }]).error, undefined);
-    // The reply the fight hangs on is deleted, and with it the foes.
+    // The reply the fight hangs on is deleted, and with it the foes. On the port the staged fight hangs on that reply too: it goes with it, so no hold and no
+    // "Discard fight" advice is left with no tab.
     await host.st.deleteMessage(2);
     await settle();
-    assert.ok(boardSession(meta)?.exchanges.length, 'the staged fight is still kept');
-    const held = await host.send('I press on.', 'The story goes on.');
-    assert.equal(held.aborted, true, 'the send is held');
-    assert.equal(host.ctx.chat.at(-1).is_user, true);
+    assert.equal(boardSession(meta), null, 'the staged fight went with its reply');
     const fightScreen = () => ui.screens.list('tab').find(entry => entry.id === 'story-block/fight')?.screen;
-    assert.equal(fightScreen().active(host.head(), {}).on, true, 'the Fight tab is listed with no foe on the sheet');
-    ui.mounts.screen.open('story-block/fight');
-    await settle();
-    const fight = () => doc.querySelector('[data-ss-screen="story-block/fight"]');
-    assert.ok(fight(), 'the Fight screen opens');
-    assert.ok(fight().querySelector('.rpg-board-discard'), 'Discard fight is there');
-    fight().querySelector('.rpg-board-discard').click();
-    fight().querySelector('.rpg-board-confirm').click();
-    assert.equal(boardSession(meta), null, 'the fight is discarded');
-    assert.equal(fightScreen().active(host.head(), {}).on, false, 'with nothing kept and no foe the tab leaves again');
-    const again = await host.send('I press on.', 'The story goes on.');
-    assert.equal(again.aborted, undefined, 'the hold is gone');
+    assert.equal(fightScreen().active(host.head(), {}).on, false, 'with nothing kept and no foe the tab is not listed');
+    const sent = await host.send('I press on.', 'The story goes on.');
+    assert.equal(sent.aborted, undefined, 'the send is not held');
     assert.equal(host.ctx.chat.at(-1).is_user, false);
 });
 
@@ -68,8 +57,9 @@ test('a held reply\'s fight keeps the Fight tab even after Discard fight, until 
     const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex());
     const fightScreen = () => ui.screens.list('tab').find(entry => entry.id === 'story-block/fight')?.screen;
     assert.equal(fightScreen().active(host.head(), {}).on, false, 'no foe, nothing held: no tab');
-    meta.rpgFightHeld = { [sid]: { current: { type: 'normal', prechecks: [{ type: 'rpg.resolve', payload: { key: 'b:x:y:0', board: { id: 'x:0', anchor: 'y' } } }] }, staged: {} } };
+    const payload = { kindId: 'story-block/fight', id: 'y:0:story-block/fight', key: 'i:y:0:story-block/fight:y:0', anchor: 'y', setup: { id: 'y:0', groups: [] }, steps: [] };
+    meta.storySuiteInteraction = { held: { [sid]: { current: { type: 'normal', prechecks: [{ type: 'interaction.settle', payload }] }, staged: {} } } };
     assert.equal(fightScreen().active(host.head(), {}).on, true, 'a held fight lists the tab');
-    meta.rpgFightHeldDiscarded = { [sid]: true };
+    meta.storySuiteInteraction.heldDiscarded = { [sid]: true };
     assert.equal(fightScreen().active(host.head(), {}).on, true, 'the held reply still says "Regenerate the held reply" there');
 });

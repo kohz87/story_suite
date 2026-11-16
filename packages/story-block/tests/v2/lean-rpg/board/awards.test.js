@@ -9,7 +9,11 @@ import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
 import { memberXp } from '../../../../src/v2/lean-rpg/fight.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { carriedFrom } from '../../../../src/v2/lean-rpg/board/members.js';
-import { boardSession, discardBoard, openBoard, receiveBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../../helpers/board-port.js';
+import { interactionPayload } from '../../../../src/v2/interaction/session.js';
+import { receiveSegment } from '../../../../src/v2/interaction/carry.js';
+import { fightKind } from '../../../../src/v2/lean-rpg/board/interaction.js';
+import { toStep } from '../../../../src/v2/lean-rpg/board/steps.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { character, foeBlock, levelFoeBlock, recordOf, rollReceipt, setup, sheetDomain, skillBlock } from '../helpers.js';
 
@@ -165,9 +169,9 @@ test('A1: a count-three win across replies pays its original-count XP once, with
     try {
         const meta = host.ctx.chatMetadata, sid = host.store.carrierSid(host.store.headIndex()), rules = { ...STANDARD_FORMULA, levelDivisor: 5 };
         const findWin = (initial, original) => {
-            let state = initial, local = { rpgFightBoard: structuredClone(original) };
+            let state = initial, local = { open: structuredClone(original) };
             for (let i = 0; i < 10; i += 1) {
-                const board = structuredClone(local.rpgFightBoard), before = playBoard(state, board.setup, []);
+                const board = structuredClone(local.open), before = playBoard(state, board.setup, []);
                 const target = before.result?.members?.find(member => member.standing)?.slot;
                 if (!target) return false;
                 const actions = [{ who: 'Astra', kind: 'attack', target }], played = playBoard(state, board.setup, [{ actions }]);
@@ -175,8 +179,8 @@ test('A1: a count-three win across replies pays its original-count XP once, with
                 state = played.state;
                 if (played.result.stop === 'won') return i >= 2;
                 if (played.result.stop !== 'open') return false;
-                board.exchanges = [{ actions }];
-                receiveBoard(local, { key: `b:${i}`, board }, played.result, `reply${i}`, `receipt${i}`, state);
+                const payload = interactionPayload({ ...board, steps: [toStep(state, actions)] });
+                receiveSegment(local, fightKind, payload, played.result, `reply${i}`, `receipt${i}`, state);
             }
             return false;
         };
@@ -184,7 +188,7 @@ test('A1: a count-three win across replies pays its original-count XP once, with
         for (attempt = 0; attempt < 150; attempt += 1) {
             const opened = openBoard(meta, host.head(), { sid, rules });
             assert.equal(opened.error, undefined);
-            if (findWin(host.head(), opened.session)) break;
+            if (findWin(host.head(), meta.storySuiteInteraction.open)) break;
             discardBoard(meta);
         }
         assert.ok(attempt < 150, 'found a multi-reply count-three win');

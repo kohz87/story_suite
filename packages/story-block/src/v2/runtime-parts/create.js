@@ -19,7 +19,7 @@ import { createTimeline, withRuleOverlay } from '../timeline/index.js';
 import { createStore as realStore } from '../store.js';
 import { createTurn, substituteNames } from '../turn.js';
 import { flagOn } from '../flags.js';
-import { createRpgLoader } from '../rpg-lazy.js';
+import { createRpgLoader, rpgLib } from '../rpg-lazy.js';
 import { createPublicApi } from '../public-api.js';
 import { createPublicPaths } from '../public-paths.js';
 import { initialWithStart, packsFor, withPackCurrency } from '../runtime/start.js';
@@ -117,7 +117,7 @@ export function createRuntime({
             // The chatter the reader may send back to the story (its setting): the replies and how to read one.
             // The head reply's index too, for `scene.moved` (the store is made below; asked only later).
             // Whether Story Director's World screen is there (it shows the chatter; else Scene does: `scene.chatter`).
-            extras: { promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
+            extras: { interaction: () => sdk?.interaction ?? null, promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
             version: VERSION,
             interaction: kindId => registry.interaction(kindId),
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
@@ -233,7 +233,9 @@ export function createRuntime({
     const made = createSdk({ publicPaths, store, bus, registry, settings, events, chat: () => ctx.chat, onRegister: def => onRegister?.(def), rewind,
         substitute: text => substituteNames(text, ctx), dialog: (screenId, opts) => dialogOpener?.(screenId, opts) ?? null,
         dialogCurrent: () => dialogCurrent?.() ?? null, reread: index => turn?.reread(index), callModel: modelCalls.callModel, timeline, seed: () => turn?.seed(), cardSettings,
-        flag: name => flagOn(() => ctx.extensionSettings, name) });
+        flag: name => flagOn(() => ctx.extensionSettings, name),
+        interactionDeps: { meta: () => { try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; } }, save: () => { try { const c = live() ?? ctx; (c.saveMetadata ?? c.saveMetadataDebounced)?.call(c); } catch { /* the choice lasts this page only */ } }, // (the reader as the party roster finds them: the Character named like the persona, else the only Character, else the first one (as the rolls do), so a persona that is not a Character's name still plays its fight)
+            persona: () => { let name = ''; try { name = String((live() ?? ctx)?.name1 ?? ''); } catch { name = String(ctx?.name1 ?? ''); } try { const actors = rpgLib()?.rosterOf(store.head(), name)?.actors ?? []; return (actors.find(actor => actor.pc) ?? actors[0])?.name ?? name; } catch { return name; } } } });
     sdk = made.sdk;
     registerOwnCardSettings();
     // Story Block's own owner of card settings: the RPG, Gear in fights and the XP rate. Applying persists exactly as Settings → RPG does

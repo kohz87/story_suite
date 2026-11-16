@@ -5,8 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
 import { NEVER, character, foeBlock, setup, skillBlock, tailOf } from '../helpers.js';
-import { boardSession, markSend, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
-import { clearStart, holdStart, pendingStart } from '../../../../src/v2/turn/fight-start.js';
+import { boardSession, markSend, stageExchange } from '../../helpers/board-port.js';
+import { clearStart, holdStart, pendingStart } from '../../../../src/v2/interaction/start-hold.js';
 import { createPauseView } from '../../../../src/v2/lean-rpg/board/pause.js';
 import { createStartController } from '../../../../src/v2/lean-rpg/board/start-controller.js';
 import { pauseViewData } from '../../../../src/v2/lean-rpg/board/start-view-data.js';
@@ -32,6 +32,10 @@ const stockFoes = () => {
     return checked.definitions[0];
 };
 
+// The fight's settle receipts of a reply (the opening first, then the board fight) and the groups an opening opened.
+const fightSettle = receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight';
+const openedOf = receipt => receipt.data.v2.result.opened;
+
 test('found groups hold the send, the board plays them, and one reply tells the result', async () => {
     const restore = seedCrypto(701), { host, callModel } = await make();
     try {
@@ -41,7 +45,7 @@ test('found groups hold the send, the board plays them, and one reply tells the 
         assert.equal(callModel.calls[0].options.helper, 'precheck');
         assert.equal(callModel.calls[0].options.timeoutMs, 20000);
         const pending = pendingStart(host.ctx.chatMetadata, host.ctx.chat);
-        assert.equal(pending.mode, 'new');
+        assert.ok(pending.opening && pending.mode !== 'working', 'the found groups are held with their opening');
         assert.deepEqual(pending.result.opened.map(entry => [entry.name, entry.count]), [['Gorged Grey-Tooth Tunnel Rats', 6], ['Bilge-Rat Offspring', 80]]);
         // The opening is only previewed: the sheet has no foe yet.
         assert.equal(plainFoes(host).count1, 0);
@@ -49,7 +53,7 @@ test('found groups hold the send, the board plays them, and one reply tells the 
         assert.equal(data.title, 'This is an attack on Gorged Grey-Tooth Tunnel Rats (6), Bilge-Rat Offspring (80)');
         assert.equal(data.sendLabel, 'Send without a fight');
         assert.equal(data.autoLabel, 'Auto-fight (up to 3 exchanges)');
-        const opening = host.turn.fightStartPreview();
+        const opening = host.turn.interactionStartPreview();
         assert.equal(opening.result.opened.length, 2);
     } finally { host.close(); restore(); }
 });
@@ -58,8 +62,8 @@ test('the held opening plays on the board and one reply carries it; Re-read and 
     const restore = seedCrypto(702), { host, callModel } = await make();
     try {
         assert.equal((await host.send(ATTACK, 'Not sent.')).aborted, true);
-        const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.fightStartPreview();
-        const { openBoard } = await import('../../../../src/v2/lean-rpg/board/session.js');
+        const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.interactionStartPreview();
+        const { openBoard } = await import('../../helpers/board-port.js');
         const { STANDARD_FORMULA } = await import('../../../../src/v2/lean-rpg/rules.js');
         const { dropOf } = await import('../../../../src/v2/lean-rpg/ambush.js');
         const open = openBoard(meta, opening.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
@@ -71,9 +75,9 @@ test('the held opening plays on the board and one reply carries it; Re-read and 
         const sent = await host.st.generate('regenerate', { reply: 'The rats break.' });
         assert.equal(sent.aborted, undefined);
         assert.equal(callModel.calls.length, 1, 'no second call for the reply');
-        const receipts = host.ctx.chat[sent.index].extra.storySuite.receipts.filter(receipt => receipt.type === 'rpg.resolve');
+        const receipts = host.ctx.chat[sent.index].extra.storySuite.receipts.filter(fightSettle);
         assert.equal(receipts.length, 2, 'the recorded opening and the board fight');
-        assert.equal(receipts[0].replan.payload.plan.open.length, 2);
+        assert.equal(openedOf(receipts[0]).length, 2);
         const live = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), live);
@@ -83,8 +87,8 @@ test('the held opening plays on the board and one reply carries it; Re-read and 
         await host.st.loadChat(structuredClone(host.ctx.chat), 'precheck-opening');
         assert.equal(JSON.stringify(host.head()), live, 'reload reads the recorded opening');
         assert.equal((await host.swipe('Another telling.')).aborted, undefined);
-        const swiped = host.ctx.chat.at(-1).extra.storySuite.receipts.filter(receipt => receipt.type === 'rpg.resolve');
-        assert.deepEqual(swiped[0].replan.payload.plan.open, receipts[0].replan.payload.plan.open);
+        const swiped = host.ctx.chat.at(-1).extra.storySuite.receipts.filter(fightSettle);
+        assert.deepEqual(openedOf(swiped[0]), openedOf(receipts[0]));
         await host.cont(' The story continues.');
         assert.equal(callModel.calls.length, 1, 'reload, swipe and Continue do not ask again');
     } finally { host.close(); restore(); }
@@ -98,7 +102,7 @@ test('a timeout, an error, an unreadable answer or no group sends as today, with
             assert.equal(sent.aborted, undefined);
             assert.equal(callModel.calls.length, 1);
             assert.equal(pendingStart(host.ctx.chatMetadata, host.ctx.chat), null);
-            assert.equal(host.ctx.chatMetadata.rpgFightStart, undefined);
+            assert.equal(host.ctx.chatMetadata.storySuiteInteraction?.start, undefined);
         } finally { host.close(); restore(); }
     }
 });
@@ -110,7 +114,7 @@ test('a line the loose gate passes (a third party attacking) with Assist {"group
         assert.equal(sent.aborted, undefined);
         assert.equal(callModel.calls.length, 1);
         assert.equal(pendingStart(host.ctx.chatMetadata, host.ctx.chat), null);
-        assert.equal(host.ctx.chatMetadata.rpgFightStart, undefined);
+        assert.equal(host.ctx.chatMetadata.storySuiteInteraction?.start, undefined);
     } finally { host.close(); restore(); }
 });
 
@@ -124,7 +128,8 @@ test('a working hold is active only in the page that started it and cannot clear
         assert.equal(pendingStart(meta, chat), working);
         assert.equal(pendingStart(structuredClone(meta), chat), null, 'a reload has no call still running');
         const view = { state: host.head(), feature: () => true, settings: () => ({}), query: () => null };
-        assert.equal(part.hooks.canGenerate(view, { type: 'normal', commit: true }).ok, false, 'another live send waits for the active call');
+        // The core's hook (interaction/hooks.js, tested in tests/v2/interaction) holds a send while a start waits; this part only stays out of its way.
+        assert.equal(part.hooks.canGenerate(view, { type: 'normal', commit: true }), null, 'the part adds no second hold on a waiting start');
         clearStart(meta, working);
         await part.hooks.beforeGenerate(view, { type: 'normal', commit: true, again: true });
         assert.equal(callModel.calls.length, 1, 'a new message gets a check despite an earlier unfinished session');
@@ -134,7 +139,7 @@ test('a working hold is active only in the page that started it and cannot clear
         await part.hooks.beforeGenerate(view, { type: 'normal', commit: true, again: true });
         assert.equal(callModel.calls.length, 2, 'an edited message gets its own check');
         const next = holdStart(meta, chat, { mode: 'working' });
-        const choice = holdStart(meta, chat, { mode: 'new' });
+        const choice = holdStart(meta, chat, { kindId: 'story-block/fight', title: 'Fight', mode: 'known' });
         clearStart(meta, next);
         assert.equal(pendingStart(meta, chat), choice, 'a late cleanup cannot remove a newer hold');
     } finally { host.close(); restore(); }
@@ -146,10 +151,10 @@ test('the stock Foes block opens and plays the example with 80 foes as packs', a
     const restore = seedCrypto(710), { host } = await make({ blocks: { ...blocks(), foes: { role: 'foes', fields, definition } } });
     try {
         assert.equal((await host.send(ATTACK, 'Not sent.')).aborted, true);
-        const meta = host.ctx.chatMetadata, preview = host.turn.fightStartPreview();
+        const meta = host.ctx.chatMetadata, preview = host.turn.interactionStartPreview();
         const opened = preview.state.domains.dataModules.instances['pack.chat/foes'].chat.fields;
         assert.deepEqual([opened.count1, opened.count2], [6, 80]);
-        const { openBoard } = await import('../../../../src/v2/lean-rpg/board/session.js');
+        const { openBoard } = await import('../../helpers/board-port.js');
         const { STANDARD_FORMULA } = await import('../../../../src/v2/lean-rpg/rules.js');
         const board = openBoard(meta, preview.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
         assert.equal(board.error, undefined, board.error);
@@ -174,7 +179,7 @@ test('a count above the Foes block maximum sends plainly with the normal approac
         assert.equal(callModel.calls.length, 1);
         assert.match(tailOf(sent.request), /end at the moment of engagement/i);
         assert.equal(pendingStart(host.ctx.chatMetadata, host.ctx.chat), null);
-        assert.equal(host.ctx.chat.at(-1).extra.storySuite.receipts.some(receipt => receipt.type === 'rpg.resolve'), false);
+        assert.equal(host.ctx.chat.at(-1).extra.storySuite.receipts.some(fightSettle), false);
     } finally { host.close(); restore(); }
 });
 
@@ -210,7 +215,7 @@ test('Send without a fight: the message goes out unchanged and no opening is rec
         assert.equal(sent.aborted, undefined);
         assert.equal(callModel.calls.length, 1);
         assert.equal(host.ctx.chat[sent.index - 1].mes, ATTACK);
-        assert.equal(host.ctx.chat[sent.index].extra.storySuite.receipts.some(receipt => receipt.type === 'rpg.resolve'), false);
+        assert.equal(host.ctx.chat[sent.index].extra.storySuite.receipts.some(fightSettle), false);
     } finally { host.close(); restore(); }
 });
 
@@ -268,8 +273,8 @@ test('a pre-check opening five groups keeps the reply\'s changes: live, rebuild,
     });
     try {
         assert.equal((await host.send('I attack the ants, bees, cats, dogs and eels.', 'Not sent.')).aborted, true);
-        const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.fightStartPreview();
-        const { openBoard } = await import('../../../../src/v2/lean-rpg/board/session.js');
+        const meta = host.ctx.chatMetadata, pending = pendingStart(meta, host.ctx.chat), opening = host.turn.interactionStartPreview();
+        const { openBoard } = await import('../../helpers/board-port.js');
         const { STANDARD_FORMULA } = await import('../../../../src/v2/lean-rpg/rules.js');
         const { dropOf } = await import('../../../../src/v2/lean-rpg/ambush.js');
         const open = openBoard(meta, opening.state, { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
@@ -281,8 +286,8 @@ test('a pre-check opening five groups keeps the reply\'s changes: live, rebuild,
         const sent = await host.st.generate('regenerate', { reply: 'They break.' });
         const reply = host.ctx.chat[sent.index];
         assert.ok(!/could not be kept/.test(JSON.stringify(host.ctx.chat)), 'the reply\'s changes are kept');
-        const receipts = reply.extra.storySuite.receipts.filter(receipt => receipt.type === 'rpg.resolve');
-        assert.equal(receipts[0].replan.payload.plan.open.length, 5);
+        const receipts = reply.extra.storySuite.receipts.filter(fightSettle);
+        assert.equal(openedOf(receipts[0]).length, 5);
         const live = JSON.stringify(host.head());
         host.store.rebuild();
         assert.equal(JSON.stringify(host.head()), live, 'rebuild');

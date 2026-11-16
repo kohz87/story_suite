@@ -27,7 +27,8 @@ import { carriers, checkInvariants, rebuildAt } from './oracle.js';
 import { STANDARD_TEMPLATES } from '../../../../src/v2/lean-rpg/templates.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { readSheet } from '../../../../src/v2/lean-rpg/read.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { isFightReceipt } from '../../../../src/v2/lean-rpg/board/results.js';
+import { boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { changeLine, replyText, uiCommand, bonusPaidOnLine } from './state-fuzz-gen.js';
 
 
@@ -64,6 +65,9 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
 const tailOf = request => request.chat.filter(message => message.role === 'system').slice(1).map(message => message.content).join('\n');
 
 export const remakes = { count: 0, runs: 0 };
+
+// A settled board fight (a port fight settle or a pre-port board resolve), not the opening settle.
+const isBoardFight = entry => isFightReceipt(entry) && entry.replan?.payload?.opening !== true;
 
 export async function fuzz(t, seed, steps, { people = false } = {}) {
     const restore = seedCrypto(seed);
@@ -123,7 +127,7 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
         assert.equal(stageExchange(meta, store.head(), [{ who: 'Astra', kind: 'attack', target: 21 }]).error, undefined, 'the board exchange stages');
         const result = await host.send('We stand and fight.', 'The fuzz rats press in.');
         statics.add(result.request.chat[0].content);
-        const receipt = readRecord(ctx.chat[result.index])?.receipts?.find(entry => entry.type === 'rpg.resolve' && entry.replan?.payload?.board);
+        const receipt = readRecord(ctx.chat[result.index])?.receipts?.find(isBoardFight);
         assert.ok(receipt, 'the first reply is a board fight');
         boardFights += 1;
         assert.equal(receipt.data?.v2?.result?.stop, 'open', 'the seeded foe group leaves the fight open for the rest of the run');
@@ -181,7 +185,7 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
         if (appends && previous >= 0) finals.set(ctx.chat[previous], { swipe: ctx.chat[previous].swipe_id ?? 0, state: plain(store.at(previous)) });
         const record = readRecord(ctx.chat[index]);
         assert.ok(record, `${log.at(-1)}: the reply has a record (narrated at least)`);
-        if (record.receipts.some(entry => entry.type === 'rpg.resolve' && entry.replan?.payload?.board)) boardFights += 1;
+        if (record.receipts.some(isBoardFight)) boardFights += 1;
         if (kind === 'swipe') {
             for (const receipt of record.receipts) {
                 assert.ok(committed.has(receipt.id), `${log.at(-1)}: the new swipe holds receipt ${receipt.id} ("${receipt.summary}") that was not committed during this swipe`);

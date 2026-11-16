@@ -20,7 +20,7 @@
 .ss-send-note-stalled {
     --note: color-mix(in srgb, var(--ss-text, #dcdcd2) 30%, transparent); --note-text: var(--ss-text, inherit);
 }
-.ss-send-note-fightHeld { --note: var(--ss-warn, #e8b04b); --note-text: var(--ss-warn-text, inherit); flex-wrap: wrap; padding-block: 6px; }
+.ss-send-note-interactionHeld { --note: var(--ss-warn, #e8b04b); --note-text: var(--ss-warn-text, inherit); flex-wrap: wrap; padding-block: 6px; }
 .ss-send-note-sent { --note: var(--ss-good, #4caf6e); --note-text: var(--ss-good, inherit); padding-right: 14px; }
 .ss-send-note-icon { flex: none; }
 .ss-send-note-text { flex: 1 1 8em; min-width: 0; overflow-wrap: anywhere; padding-block: 6px; }

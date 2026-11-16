@@ -25,7 +25,7 @@ export function createLeanRpgSync(deps) {
                 meta: () => { try { return (liveCtx() ?? ctx)?.chatMetadata ?? null; } catch { return null; } },
                 save: () => { try { const c = liveCtx() ?? ctx; (c.saveMetadata ?? c.saveMetadataDebounced)?.call(c); } catch { /* the choice lasts this page only */ } },
                 openDialog: (id, opts) => api.dialog.open(id, opts), openScreen: id => api.openScreen(id), closeView: () => mounts.screen.close(), currentScreen: () => mounts.screen.current?.() ?? null, refresh: () => refresh(), command: (type, payload, options) => sdk.command(type, payload, options), values: () => settings('story-block'),
-                previewStart: () => runtime.turn?.fightStartPreview?.(), generateHeld: () => (liveCtx() ?? ctx)?.generate?.('regenerate'),
+                previewStart: () => runtime.turn?.interactionStartPreview?.(), interaction: sdk.interaction ?? null, generateHeld: () => (liveCtx() ?? ctx)?.generate?.('regenerate'),
                 query: (name, args) => { try { return sdk.query(name, args); } catch { return null; } } });
             mounts.card?.refreshAll?.({ force: true });
             // Home draws its "Your character" card from `rpg`, which is only set now: the open screen is drawn again.

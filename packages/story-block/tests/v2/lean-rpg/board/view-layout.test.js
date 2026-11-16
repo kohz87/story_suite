@@ -6,7 +6,7 @@ import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { foeChips, partyChips, pendingAwards, resourcesOf } from '../../../../src/v2/lean-rpg/board/view-data.js';
 import { foeGroupChip, resourceStrip, skillButton } from '../../../../src/v2/lean-rpg/board/view-chips.js';
-import { boardSession, discardBoard, openBoard } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, discardBoard, openBoard } from '../../helpers/board-port.js';
 import { character, levelFoeBlock, sheetDomain, skillBlock } from '../helpers.js';
 import { page, begin, makeBlocks, settle } from '../view/page.js';
 import { setupDom } from '../../view/mounts/helpers.js';

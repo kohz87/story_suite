@@ -103,6 +103,8 @@ test('a guarded chat that never uses the timeline keeps its checkpoint metadata:
     for (let n = 0; n < 105; n += 1) await host.send('Go.', reply(`Reply ${n}.`, ['+ coin 1']));
     const marks = host.ctx.chat.map(message => message.extra?.storySuite).filter(record => record?.checkpoint).map(record => record.guardEnv).filter(mark => mark !== undefined);
     assert.equal(marks.length >= 1, true, 'the chat has a checkpoint over a guarded block');
-    assert.deepEqual([...new Set(marks)], ['tl-rules@0.0.1'], 'only the module that guards is an owner');
+    const FIGHT = /;kinds:story-block\/fight@[^;,]+:[01]$/u;   // (the fight kind's identity rides on the mark; its version moves on every bump)
+    assert.ok(marks.every(mark => FIGHT.test(mark)), 'every mark carries the fight kind');
+    assert.deepEqual([...new Set(marks.map(mark => mark.replace(FIGHT, '')))], ['tl-rules@0.0.1'], 'only the module that guards is an owner');
     assert.deepEqual(host.store.problems(), []);
 });

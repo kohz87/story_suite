@@ -21,9 +21,10 @@ export function equipmentForBoard(state, recorded, liveQuery = null) {
 }
 
 // Only this private copy is mutated: the real event is written later by gear.wear on the reply.
-export function stagingWear(state, gear, options) {
+export function stagingWear(state, gear, options, record = null) {
     const query = gearQuery(state), inventory = state.domains.inventory;
     const ctx = { query, call(_type, { owner, slot, steps }) {
+        if (record) record.push({ type: 'gear.wear', payload: { owner, slot, steps, recorded: true } });   // (the port's settle calls what this only previews)
         const stacks = Object.values(inventory?.stacks ?? {}).filter(stack => stack.owner === owner);
         const at = place => stacks.filter(stack => stack.equipped === place).sort(byId)[0];
         const stack = at(slot === 'defence' ? (at('body') ? 'body' : 'off-hand') : slot);

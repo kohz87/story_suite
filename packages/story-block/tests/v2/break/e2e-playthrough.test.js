@@ -83,7 +83,7 @@ async function playFight(host, hero) {
 // Open a board segment on the current head and stage the hero's attack (as the fuzz does before each send of a fight).
 async function stageBoard(host, hero) {
     const { STANDARD_FORMULA } = await loaded.at('src/v2/lean-rpg/rules.js');
-    const { openBoard, stageExchange } = await loaded.at('src/v2/lean-rpg/board/session.js');
+    const { openBoard, stageExchange } = await import('../helpers/board-port.js');
     const opened = openBoard(host.ctx.chatMetadata, host.store.head(), { sid: host.store.carrierSid(host.store.headIndex()), rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
     assert.equal(opened.error, undefined, `the board opens: ${opened.error}`);
     assert.equal(stageExchange(host.ctx.chatMetadata, host.store.head(), [{ who: hero, kind: 'attack', target: 21 }]).error, undefined, 'the exchange stages');
@@ -126,9 +126,9 @@ test('E2E: a 30-reply Ersveil playthrough keeps live, rebuild, reload, Re-read, 
     for (const [n, [player, story, lines]] of STEPS.map((step, i) => [i + 1, step])) {
         const label = `reply ${n}`;
         if (n === 26) await playFight(host, 'Astra');
-        if (n === 27) (await loaded.at('src/v2/lean-rpg/board/session.js')).discardBoard(host.ctx.chatMetadata);   // the reader leaves the fight
+        if (n === 27) (await import('../helpers/board-port.js')).discardBoard(host.ctx.chatMetadata);   // the reader leaves the fight
         const result = await host.send(player, host.reply(story, lines.filter(line => line !== '! encounter')));
-        if (n === 26) await soft(label, () => assert.ok(host.ctx.chat[result.index]?.extra?.storySuite?.receipts?.some(r => r.type === 'rpg.resolve' && r.replan?.payload?.board), 'the fight reply carries a board resolve receipt'));
+        if (n === 26) await soft(label, () => assert.ok(host.ctx.chat[result.index]?.extra?.storySuite?.receipts?.some(r => r.type === 'interaction.settle' && r.replan?.payload?.kindId === 'story-block/fight' && r.replan.payload.opening !== true), 'the fight reply carries a fight settle receipt (the port\'s, since I6)'));
         if (!(result.index >= 0)) {
             failures.push(`${label}: no reply was written (index ${result.index}); notices: ${JSON.stringify(host.st.notices.slice(-2))}; ${Object.keys(result).join(',')}`);
             continue;

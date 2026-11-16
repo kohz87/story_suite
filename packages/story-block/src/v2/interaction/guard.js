@@ -1,4 +1,4 @@
-// Checks an interaction settle's replay guard against the state before its block; features do not turn it off.
+// Checks an interaction settle's replay guard against the state before its block; features do not turn it off. The kind's `witness(state, setup, steps)` takes the stored steps here (the replay guard) and none at stage time.
 
 import { CORE_MODULE_ID } from '../domains/core/constants.js';
 import { guardProblem } from '../replay.js';
@@ -52,7 +52,7 @@ export function interactionGuard(view, info, kindOf) {
     if (predicate.setup !== view.hash(payload)) return bad(title);
 
     let witness;
-    try { witness = kind.witness(view.state, payload.setup); } catch { return bad(title); }
+    try { witness = kind.witness(view.state, payload.setup, payload.steps); } catch { return bad(title); }
     if (view.hash({ source: info?.source, predicate, witness }) !== guard.inputHash) {
         return bad(title, interactionError('CHANGED', title).message, 'CHANGED');
     }

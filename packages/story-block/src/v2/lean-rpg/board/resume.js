@@ -3,7 +3,7 @@
 // survive in that reply's rpg.resolve receipt. This module is pure: it reads only the records, foe
 // slots and Foes-block entries passed in.
 
-import { RESOLVE } from '../names.js';
+import { isRollReceipt } from './results.js';
 import { carriedFrom, collapseFoes } from './members.js';
 
 const ENDED = new Set(['won', 'lost', 'fled']);
@@ -32,7 +32,7 @@ function receiptsOf(records) {
 function lastCovering(receipts, slots) {
     for (let at = receipts.length - 1; at >= 0; at -= 1) {
         const receipt = receipts[at]?.receipt ?? receipts[at];
-        if (receipt?.type !== RESOLVE) continue;
+        if (!isRollReceipt(receipt)) continue;
         const result = receipt.data?.v2?.result;
         if (!ENDED.has(result?.stop) || !isObject(result?.board) || !Array.isArray(result.members)) continue;
         const groups = new Set(result.members.map(groupOf));

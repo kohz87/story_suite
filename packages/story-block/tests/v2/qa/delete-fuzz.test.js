@@ -20,7 +20,8 @@ import { STANDARD_FORMULA } from '../../../src/v2/lean-rpg/rules.js';
 import { memberLevel, memberXp } from '../../../src/v2/lean-rpg/fight.js';
 import { readSheet } from '../../../src/v2/lean-rpg/read.js';
 import { usesOf } from '../../../src/v2/lean-rpg/practice.js';
-import { boardSession, discardBoard, openBoard, stageExchange } from '../../../src/v2/lean-rpg/board/session.js';
+import { isFightReceipt } from '../../../src/v2/lean-rpg/board/results.js';
+import { boardSession, discardBoard, openBoard, stageExchange } from '../helpers/board-port.js';
 
 const SEEDS = process.env.QA_DELETE_SEED ? [Number(process.env.QA_DELETE_SEED)] : [3, 6, 9, 11, 19, 22, 27, 29, 101];
 const REPLIES = 20;
@@ -125,6 +126,9 @@ function validators(host) {
         return typeof fn === 'function' ? fn(state.domains[name], state).map(problem => `${name}: ${problem}`) : [];
     });
 }
+
+// The settled board fight (a port fight settle or a pre-port board resolve), not the opening settle.
+const isBoardFight = entry => isFightReceipt(entry) && entry.replan?.payload?.opening !== true;
 
 // The shared patch oracle accepts RPG rolls but does not yet recognise their award guards.
 // On a copy, give those guards the same patch-only treatment; the live store still checks
@@ -251,7 +255,7 @@ for (const seed of SEEDS) {
             assert.deepEqual(host.turn.problems().filter(problem => problem.index === index && !/^Possible repeat/u.test(problem.message)), [], `seed ${seed} step ${step}: the lines are clean`);
             if (staged) {
                 const receipts = readRecord(host.ctx.chat[index]).receipts;
-                const roll = receipts.find(entry => entry.type === 'rpg.resolve' && entry.replan?.payload?.board);
+                const roll = receipts.find(isBoardFight);
                 const practice = receipts.filter(entry => entry.type === 'rpg.practice').flatMap(entry => entry.data.v2.result.practice.skills);
                 const awards = receipts.filter(entry => entry.type === 'rpg.fight').flatMap(entry => entry.data.v2.result.fight.awards);
                 assert.ok(roll, `seed ${seed} step ${step}: the board fight is committed`);
@@ -310,7 +314,7 @@ for (const seed of SEEDS) {
                 const board = message.is_user ? null : done.get(host.store.carrierSid(at))?.board;
                 if (!board) continue;
                 const receipts = readRecord(message).receipts;
-                const roll = receipts.find(entry => entry.type === 'rpg.resolve' && entry.replan?.payload?.board);
+                const roll = receipts.find(isBoardFight);
                 if (process.env.QA_DELETE_DEBUG && !roll) console.log('DEBUG', label, 'step', done.get(host.store.carrierSid(at)).step, 'six', board.six, JSON.stringify(host.store.problems()).slice(0, 600), 'steps kept', kept.map(m => m.step).join(','), 'RECEIPTS', JSON.stringify(receipts.map(e => [e.type, e.ok, e.summary, e.skipped])).slice(0, 800), 'FIGHT-BEFORE', JSON.stringify(board.rounds?.length));
                 assert.ok(roll, `${label}: surviving board receipt is present at ${at}`);
                 assert.deepEqual(roll.data.v2.result.rounds, board.rounds, `${label}: surviving board rounds replay`);

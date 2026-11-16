@@ -34,7 +34,7 @@ modules' `tryQuery` helpers, or an optional command; degrade to a sensible defau
 - `src/v2/ui-host.js`, `src/v2/host-ui.js`: page furniture (bar, panel, drawer) and the settings folds (`src/v2/host-ui/`: field controls, wording, sent-size figures, tab host; host-ui.js keeps its exports); `src/v2/view/settings/`: the settings window (shell, sections, search).
 - `src/v2/extras.js`, `extras-ui.js`: display kinds `? choice` and `~ chatter`.
 - `src/v2/lean-rpg/`: the optional Lean RPG, its sheet readers, planner, rolls, views and templates. `lean-rpg/board/` is the
-  reader-controlled fight board: staging and replay in `session.js`, preview/replay in `engine.js`, guards in `commit.js`,
+  reader-controlled fight board, an interaction kind (`interaction.js`, `settle-map.js`, `opening.js`; the unsent session, Send copy, waiting choice and held reply are the core's, `src/v2/interaction/`): preview/replay in `engine.js`, the pre-port guard kept in `commit.js` for old chats,
   pure choices in `plan.js`/`rules.js`/`flee.js`, flags in `flags.js`/`overrides.js`, the narrator note in `note.js`, and its
   view, data and styles in `view.js`, `view-data.js` and `board.css`.
 - `src/v2/rewind.js`, `reply-notes.js`, `diagnostics.js`: rewinds and save points, per-reply notes, Diagnostics fold.

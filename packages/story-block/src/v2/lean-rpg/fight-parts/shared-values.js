@@ -1,7 +1,8 @@
 // Small readers and the claim pattern shared by the fight's parts.
 
 // The claim of a board resolve (board/commit.js claim): a cleared fight's step names it.
-export const CLAIM = /^rpg:resolve:[^\s]{1,450}$/u;
+// (the claim of the resolve that settled a fight: a board `rpg.resolve` from before the port, or the fight kind's settle)
+export const CLAIM = /^(?:rpg:resolve|ia:story-block\/fight):[^\s]{1,450}$/u;
 
 export const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 export const whole = value => Number.isSafeInteger(value);

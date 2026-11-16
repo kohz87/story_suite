@@ -4,12 +4,13 @@ import assert from 'node:assert/strict';
 import { playBoard } from '../../../../src/v2/lean-rpg/board/engine.js';
 import { settledNote } from '../../../../src/v2/lean-rpg/board/note.js';
 import { STANDARD_FORMULA } from '../../../../src/v2/lean-rpg/rules.js';
-import { boardSession, openBoard, stageExchange } from '../../../../src/v2/lean-rpg/board/session.js';
+import { boardSession, openBoard, stageExchange } from '../../helpers/board-port.js';
 import { seedCrypto } from '../../qa/helpers/seeded.js';
-import { boardGuard } from '../../../../src/v2/lean-rpg/board/commit.js';
+import { interactionGuard } from '../../../../src/v2/interaction/guard.js';
+import { fightKind } from '../../../../src/v2/lean-rpg/board/interaction.js';
 import { hashJson } from '../../../../src/v2/replay.js';
 import { createBoardPart } from '../../../../src/v2/lean-rpg/board/overrides.js';
-import { ASTRA, DRAUGHT, fieldOf, itemRounds, potionBoard, potionHost, stackOf } from './commit.helpers.js';
+import { ASTRA, DRAUGHT, fieldOf, isBoardFight, itemRounds, potionBoard, potionHost, stackOf } from './commit.helpers.js';
 
 
 test('Use on…: items.useOn offers the party\'s consumables, and rpg.useItem restores the pool by rarity and uses one unit up', async () => {
@@ -154,9 +155,9 @@ test('board: a fight that used an item holds its replay guard to that stack, and
         potionBoard(host, [DRAUGHT(host)]);
         const before = structuredClone(host.head());
         await host.send('I drink.', 'She drinks.');
-        const guarded = host.ctx.chat.at(-1).extra.storySuite.spans.find(span => span.guard?.predicate?.kind === 'rpg.resolve');
-        assert.equal(guarded.guard.predicate.items, 1, 'the predicate says items were used');
-        const check = state => boardGuard({ state, hash: hashJson }, { guard: guarded.guard, source: guarded.source, recorded: guarded.recorded });
+        const guarded = host.ctx.chat.at(-1).extra.storySuite.spans.find(span => span.guard?.predicate?.kind === 'interaction');
+        assert.equal(guarded.guard.predicate.id, 'story-block/fight', 'the fight holds the port guard');
+        const check = state => interactionGuard({ state, hash: hashJson }, { guard: guarded.guard, source: guarded.source, recorded: guarded.recorded }, () => fightKind);
         const earlier = structuredClone(before);
         // (the state this reply began on: the bag still held the dose; the guard must say so, and must say no when the bag no longer does)
         assert.equal(check(earlier).ok, true, JSON.stringify(check(earlier)));
@@ -169,9 +170,9 @@ test('board: a fight that used an item holds its replay guard to that stack, and
         try {
             potionBoard(plain, [{ who: 'Astra', kind: 'attack', target: 11 }]);
             await plain.send('I strike.', 'She strikes.');
-            const span = plain.ctx.chat.at(-1).extra.storySuite.spans.find(item => item.guard?.predicate?.kind === 'rpg.resolve');
-            assert.equal('items' in span.guard.predicate, false, 'a fight with no item has the predicate it always had');
-            assert.equal('items' in plain.ctx.chat.at(-1).extra.storySuite.receipts.find(item => item.type === 'rpg.resolve').data.v2.result, false);
+            const span = plain.ctx.chat.at(-1).extra.storySuite.spans.find(item => item.guard?.predicate?.kind === 'interaction');
+            assert.equal(span.guard.predicate.id, 'story-block/fight', 'a fight with no item holds the same port guard');
+            assert.equal('items' in plain.ctx.chat.at(-1).extra.storySuite.receipts.find(isBoardFight).data.v2.result, false);
         } finally { plain.close(); }
     } finally { host.close(); restore(); }
 });

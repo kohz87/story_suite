@@ -202,7 +202,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         else if (!bar.parentNode) doc.body.appendChild(bar);
     };
     placeBar();
-    const sendNote = createSendNote({ doc, ctx, enabled: () => settings().sendPending !== false, busy: () => runtime.turn?.replyBusy?.() === true, held: () => leanRpg.getRpg()?.sendHeld?.() === true, openBoard: () => leanRpg.getRpg()?.openHeldFight?.() === true });
+    const sendNote = createSendNote({ doc, ctx, enabled: () => settings().sendPending !== false, busy: () => runtime.turn?.replyBusy?.() === true, held: () => leanRpg.getRpg()?.sendHeld?.() === true, openHeld: () => leanRpg.getRpg()?.openHeld?.() === true });
 
     // ---- the Extensions drawer and the wand menu (ui-host/drawer.js) ------------------------
     const { drawer, menu, drawerStatus, hudAsked, syncHud } = createDrawerUi({ doc, ctx, screens, openSettings, openPanel, setHud });
