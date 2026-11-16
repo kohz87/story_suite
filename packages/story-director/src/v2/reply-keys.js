@@ -15,7 +15,7 @@ export const REPLY_KEY = /^(?:\d{1,12}|[A-Za-z][\w:-]{0,79})\.\d{1,6}$/;
 const SID = /^[A-Za-z][\w:-]{0,47}$/;
 
 // The count part of a key (`<…>.<n>`), -1 for a key not of either form.
-const countOf = key => (REPLY_KEY.test(key) ? Number(key.slice(key.lastIndexOf('.') + 1)) : -1);
+export const countOf = key => (REPLY_KEY.test(key) ? Number(key.slice(key.lastIndexOf('.') + 1)) : -1);
 
 const ID = /^[A-Za-z][\w-]{0,30}$/;
 
