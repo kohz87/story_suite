@@ -7,7 +7,6 @@ import { DICE, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, ROLLS_SETTING, chec
 import { OPEN_FIGHT_LINE } from './cue.js';
 import { claimKey } from './resolve.js';
 import { readSheet } from './read.js';
-import { xpRateFrom } from './levels.js';
 import { dicePayload } from './checks/dice.js';
 import { membersOf } from './practice.js';
 import { knownFoeAction } from './board/action-gate.js';
@@ -109,7 +108,7 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         }
         if (!groups.length) return null;
         const practice = practiceOf(values[PRACTICE_SETTING]) ?? PRACTICE.perUse;
-        return { interactionStart: { kindId: FIGHT_KIND, title: 'Fight', anchor: startAnchor, message: hashText(text), choices: CHOICES, opening: { args: { opening: { groups, key, rules, practice, stale, ...(sheet.characters.some(character => character.v1 === true) ? { rate: xpRateFrom(values) } : {}) } } } } };
+        return { interactionStart: { kindId: FIGHT_KIND, title: 'Fight', anchor: startAnchor, message: hashText(text), choices: CHOICES, opening: { args: { opening: { groups, key, rules, practice, stale } } } } };
     }
 
     // A known standing foe and a typed attack hold the send for the reader's choice (the pause); a waiting choice or a carried fight is the core's hold, not this one.

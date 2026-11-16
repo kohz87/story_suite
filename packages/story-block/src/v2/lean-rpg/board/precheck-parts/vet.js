@@ -40,7 +40,7 @@ function levelOf(value) {
  * Vets parsed groups for an opening. `limits` may narrow `{ groups, count, name, levelMin, levelMax }`; its defaults are
  * `PRECHECK_LIMITS` and the Foes rules (a count above the Foes block's maximum refuses every group). Name words may come from `message` or `previous`. A level, when given, is held to 1..99 and to the party's highest + 20.
  * `stated(name)` (stated-level.js, read by the caller BEFORE recording) gives a person's own Level: `{ level }` or a rank band `{ rank, from, to }`; it passes the cap and wins over the model's level, and the band is drawn later from the reply's seed.
-
+ *
  * `v1`: the sheet is a Combat Rules v1 one: each group also carries its `tier` (standard when the answer names none or an unknown one) and the groups are cut to the size rule (v1-sizing.js).
  * → `[{ name, count, level? } | { name, count, rank, from, to }]`, in the exact form `openFoes` takes; a missing or invalid level is the party's top level (held to the same cap), never a random draw.
  */
