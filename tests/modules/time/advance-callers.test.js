@@ -8,8 +8,8 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const packages = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
-const core = join(packages, '..', 'core');
+const repo = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const packages = join(repo, 'packages');
 const walk = dir => readdirSync(dir).flatMap(name => {
     const path = join(dir, name);
     return statSync(path).isDirectory() ? walk(path) : path.endsWith('.js') ? [path] : [];
@@ -17,14 +17,15 @@ const walk = dir => readdirSync(dir).flatMap(name => {
 
 test('no module calls director.advance through ctx.call or commits it: only the time part and the receipt readers name it', () => {
     const named = [];
+    const scan = dir => { for (const file of walk(dir)) if (/director\.advance|\bADVANCE\b/.test(readFileSync(file, 'utf8'))) named.push(relative(repo, file)); };
     for (const pack of readdirSync(packages)) {
         const src = join(packages, pack, 'src');
         try { if (!statSync(src).isDirectory()) continue; } catch { continue; }
-        for (const file of walk(src)) if (/director\.advance|\bADVANCE\b/.test(readFileSync(file, 'utf8'))) named.push(relative(packages, file));
+        scan(src);
     }
-    for (const file of walk(core)) if (/director\.advance|\bADVANCE\b/.test(readFileSync(file, 'utf8'))) named.push(relative(packages, file));
-    const readers = ['../core/timeline/boundary-parts/marker.js', 'story-director/src/v2/chronicle/days-parts/clock-step.js', 'story-director/src/v2/chronicle/days-parts/receipt-classify.js', 'story-director/src/v2/chronicle/days.js', 'story-director/src/v2/tracker/clock-set.js'];
-    const own = named.filter(file => file.startsWith('story-director/src/v2/time/'));
-    assert.ok(own.length > 0, 'the time part defines it');
-    assert.deepEqual(named.filter(file => !file.startsWith('story-director/src/v2/time/')).sort(), readers.sort());
+    for (const root of ['core', 'modules', 'ui']) scan(join(repo, root));
+    const readers = ['core/timeline/boundary-parts/marker.js', 'modules/world/chronicle/days-parts/clock-step.js', 'modules/world/chronicle/days-parts/receipt-classify.js', 'modules/world/chronicle/days.js', 'modules/time/tracker/clock-set.js'];
+    const isOwn = file => file.startsWith('modules/time/') && !file.startsWith('modules/time/tracker/');
+    assert.ok(named.filter(isOwn).length > 0, 'the time part defines it');
+    assert.deepEqual(named.filter(file => !isOwn(file)).sort(), readers.sort());
 });

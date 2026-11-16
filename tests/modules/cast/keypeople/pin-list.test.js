@@ -112,7 +112,8 @@ test('the Pin list: a max height that follows the screen (32vh, at most 260px), 
 test('Story Director never scrolls with scrollIntoView and never calls a bare focus()', () => {
     const files = [];
     const walk = dir => { for (const name of readdirSync(dir)) { const path = join(dir, name); if (statSync(path).isDirectory()) walk(path); else if (name.endsWith('.js')) files.push(path); } };
-    walk(new URL('../../../../packages/story-director/src', import.meta.url).pathname);
+    // Story Director's code now sits in these folders of the repo (the director area of the layout).
+    for (const dir of ['modules/arc', 'modules/atlas', 'modules/cast', 'modules/time', 'modules/world', 'ui/legacy/director']) walk(new URL(`../../../../${dir}`, import.meta.url).pathname);
     assert.ok(files.length > 50);
     for (const file of files) {
         const code = readFileSync(file, 'utf8').split('\n').filter(line => !line.trim().startsWith('//') && !line.trim().startsWith('*')).join('\n');
