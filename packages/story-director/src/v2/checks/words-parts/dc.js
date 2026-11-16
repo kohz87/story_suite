@@ -1,11 +1,10 @@
 // Outcome of a die roll against a difficulty, and the difficulty words a change line may write.
 
-export function outcomeOf(die, mod, dc, margin = 2) {
-    if (die === 20) return 'crit';
+export function outcomeOf(die, mod, dc) {
+    const meets = die + mod >= dc;
+    if (die === 20 && meets) return 'crit';
     if (die === 1) return 'critfail';
-    const total = die + mod;
-    if (total >= dc) return 'success';
-    return total >= dc - margin ? 'cost' : 'fail';
+    return meets ? 'success' : 'fail';
 }
 
 export const DC_WORDS = Object.freeze({
