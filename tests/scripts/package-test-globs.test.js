@@ -21,7 +21,7 @@ function pkg(script, files) {
 }
 
 test('every real package runs all of its test files', () => {
-  for (const name of fs.readdirSync(path.join(repo, 'packages')).filter(one => fs.existsSync(path.join(repo, 'packages', one, 'package.json')))) {
+  for (const name of (fs.existsSync(path.join(repo, 'packages')) ? fs.readdirSync(path.join(repo, 'packages')) : []).filter(one => fs.existsSync(path.join(repo, 'packages', one, 'package.json')))) {
     assert.deepEqual(unrunTests(path.join(repo, 'packages', name)), [], name);
   }
 });

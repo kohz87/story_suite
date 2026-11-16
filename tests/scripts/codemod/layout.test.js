@@ -195,30 +195,30 @@ test('the rules delete only manifests dead at the move PR and keep later removal
   assert.equal(target('packages/story-director/index.js'), 'ui/legacy/director/index.js');
   assert.equal(target('packages/story-director/src/v2/module/shared.js'), 'ui/legacy/director/module/shared.js');
   for (const file of [
-    'modules/people/legacy/story-block-tabs.js',
-    'modules/people/legacy/runtime-suite.js',
-    'modules/people/legacy/suite.js',
-    'modules/people/legacy/suite-handshake.js',
-    'modules/people/legacy/branch-core.js',
-    'modules/people/legacy/checkpoint-pack.js',
-    'modules/people/legacy/runtime-persist.js',
-    'modules/people/legacy/runtime-branch.js',
-    'modules/people/legacy/runtime-reconcile.js',
-    'modules/people/legacy/storysuite-participant/timeline.js',
+    'packages/npc-state-delta/story-block-tabs.js',
+    'packages/npc-state-delta/runtime-suite.js',
+    'packages/npc-state-delta/suite.js',
+    'packages/npc-state-delta/suite-handshake.js',
+    'packages/npc-state-delta/branch-core.js',
+    'packages/npc-state-delta/checkpoint-pack.js',
+    'packages/npc-state-delta/runtime-persist.js',
+    'packages/npc-state-delta/runtime-branch.js',
+    'packages/npc-state-delta/runtime-reconcile.js',
+    'packages/npc-state-delta/src/storysuite-participant/timeline.js',
   ]) assert.match(target(file), /^modules\/people\/legacy\//, `${file} must move to legacy`);
 });
 
 test('longer people prefixes win over their broader catch-alls', () => {
   const rules = loadLayoutRules().flatMap(set => set.rules);
   const cases = [
-    ['modules/people/portrait/core-portrait.js', 'modules/people/portrait/core-portrait.js'],
-    ['modules/people/core/core-mechanics.js', 'modules/people/core/core-mechanics.js'],
-    ['modules/people/core/identity.js', 'modules/people/core/identity.js'],
+    ['packages/npc-state-delta/core-portrait.js', 'modules/people/portrait/core-portrait.js'],
+    ['packages/npc-state-delta/core-mechanics.js', 'modules/people/core/core-mechanics.js'],
+    ['packages/npc-state-delta/identity.js', 'modules/people/core/identity.js'],
     ['packages/npc-state-delta/style-settings.css', 'modules/people/legacy/style-settings.css'],
-    ['modules/people/calls/runtime-scan-helpers.js', 'modules/people/calls/runtime-scan-helpers.js'],
+    ['packages/npc-state-delta/runtime-scan-helpers.js', 'modules/people/calls/runtime-scan-helpers.js'],
     ['packages/npc-state-delta/runtime-entry.js', 'modules/people/runtime/runtime-entry.js'],
-    ['modules/people/legacy/story-block-tabs.js', 'modules/people/legacy/story-block-tabs.js'],
-    ['modules/people/legacy/branch-core.js', 'modules/people/legacy/branch-core.js'],
+    ['packages/npc-state-delta/story-block-tabs.js', 'modules/people/legacy/story-block-tabs.js'],
+    ['packages/npc-state-delta/branch-core.js', 'modules/people/legacy/branch-core.js'],
   ];
   for (const [file, expected] of cases) assert.equal(matchPath(rules, file).to, expected, file);
 });

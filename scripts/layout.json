@@ -24,7 +24,8 @@
       "link": "npc_state_delta",
       "files": {
         "src/storysuite-v2.js": "modules/people/storysuite-v2.js",
-        "src/npc-notes-kinds.js": "modules/people/notes/npc-notes-kinds.js"
+        "src/npc-notes-kinds.js": "modules/people/notes/npc-notes-kinds.js",
+        "src/storysuite-participant/vault.js": "modules/people/legacy/storysuite-participant/vault.js"
       }
     }
   ]

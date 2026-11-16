@@ -17,7 +17,7 @@ test('layout.json lists packages/ now and the B3 roots as entries that may not e
   assert.deepEqual(layout.packageRoots, ['packages']);
   assert.deepEqual(layout.sourceRoots, ['core', 'ui', 'modules', 'packs', 'testkit']);
   assert.equal(layout.packageDevMap, 'docs/dev/codemap.md');
-  assert.deepEqual(layout.suiteFarm.map(f => f.dir ?? Object.keys(f.files).join()), ['.', 'ui/legacy/director', 'src/storysuite-v2.js,src/npc-notes-kinds.js']);
+  assert.deepEqual(layout.suiteFarm.map(f => f.dir ?? Object.keys(f.files).join()), ['.', 'ui/legacy/director', 'src/storysuite-v2.js,src/npc-notes-kinds.js,src/storysuite-participant/vault.js']);
   assert.equal(layout.suiteFarm.find(f => f.link === 'Story_director').at, 'src/v2');
 });
 
@@ -32,7 +32,7 @@ test('layout lookups: package roots, source roots, package name and folder', () 
   assert.equal(layout.packageRootOf('packages/pa/x.js'), 'packages/pa');
   assert.equal(layout.packageRootOf('packages/a/x.js'), 'packages/a');
   assert.equal(layout.packageOf('ui/a.js'), null);
-  assert.ok(layout.packageDirs(repo).includes('packages/npc-state-delta'));
+  assert.deepEqual(layout.packageDirs(repo), []);
   assert.ok(!layout.packageDirs(repo).includes('packages/story-director'));
   assert.deepEqual(layout.packageDirs(os.tmpdir() + '/no-such-dir-b3p3'), []);
 });
