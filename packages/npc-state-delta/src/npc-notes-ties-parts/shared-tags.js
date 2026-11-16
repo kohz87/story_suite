@@ -1,5 +1,7 @@
-// The tie tags and the canonical tag order every ties part shares, with the plain-object test.
-export const TIE_TAGS = ['ally', 'rival', 'owes'];
+// The tie tags (from tie-tags.js) and the canonical tag order every ties part shares, with the plain-object test.
+import { TIE_TAGS } from './tie-tags.js';
+
+export { TIE_TAGS };
 export const TIES_MAX_PEOPLE = 12;
 
 export const ordered = tags => TIE_TAGS.filter(tag => tags.includes(tag));

@@ -10,9 +10,9 @@ export function selectedTies(model) {
     const names = new Map((model.nodes || []).map(node => [node.id, node.name]));
     return (model.lines || []).filter(line => line.a === id || line.b === id).map(line => {
         const other = line.a === id ? line.b : line.a;
-        const { word, tone } = bondLine(line, { prefer: id });
+        const { word, tone, fromTag } = bondLine(line, { prefer: id });
         const relation = plain(line.relation?.[id]) || plain(line.relation?.[other]);
-        return { id: other, name: names.get(other) || '', word, tone, relation, dynamic: plain(line.dynamic?.[id]) || plain(line.dynamic?.[other]) };
+        return { id: other, name: names.get(other) || '', word, fromTag, tone, relation, dynamic: plain(line.dynamic?.[id]) || plain(line.dynamic?.[other]) };
     }).sort((a, b) => a.name.localeCompare(b.name) || String(a.id).localeCompare(String(b.id)));
 }
 
