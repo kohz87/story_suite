@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { buildScannerPrompt, createNpcRecord } from '../core.js';
 import { scenePresentFocus, withScenePresent } from '../core-mechanics.js';
 import { createStorySuiteV2Adapter } from '../src/storysuite-v2.js';
-import { createHost } from './vendor/story-block/testkit/index.js';
+import { createHost } from '../../story-block/testkit/index.js';
 import { runtimeSource } from './helpers/runtime-source.js';
 
 function npc(name, extra = {}) {
@@ -115,7 +115,7 @@ test('index.js: the scan passes the scene list only for the head reply while Sto
     assert.match(fn, /adapter\.presentNow/);
 });
 
-// ---- on Story Block's whole host (tests/vendor/story-block), with and without Story Director ----
+// ---- on Story Block's whole host (the live packages/story-block code), with and without Story Director ----
 
 
 async function onHost({ modules = [] } = {}) {

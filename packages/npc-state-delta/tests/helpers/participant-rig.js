@@ -1,9 +1,9 @@
-// A rig for the timeline participant on the real Story Block host (the vendored testkit): Delta's chat state and its checkpoint vault are
+// A rig for the timeline participant on the real Story Block host (the live testkit): Delta's chat state and its checkpoint vault are
 // the rig's, the host is the real one, and `reload()` starts everything again over what was saved (the chat file and its metadata, Delta's
 // state, the vault), the way a page reload does. Tests only; nothing here ships.
-import { createHost } from '../vendor/story-block/testkit/index.js';
-import { hashJson } from '../vendor/story-block/src/v2/replay.js';
-import { crash } from '../vendor/story-block/src/v2/timeline/index.js';
+import { createHost } from '../../../story-block/testkit/index.js';
+import { hashJson } from '../../../story-block/src/v2/replay.js';
+import { crash } from '../../../story-block/src/v2/timeline/index.js';
 import { MODULE_ID, createParticipant, memoryVault } from '../../src/storysuite-participant/index.js';
 
 export const npc = (id, name, extra = {}) => ({ id, name, aliases: [], archived: false, present: true, lifeState: 'alive', trust: 3, ...extra });

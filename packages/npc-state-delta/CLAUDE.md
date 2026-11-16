@@ -26,7 +26,7 @@ Story Block (kohz87/Story_block, the host), RPG Battle (kohz87/rpg_battle), Stor
 - `suite.js`, `suite-handshake.js`: the v1 Story Block handshake (offers nothing to a v2 host). `story-block-tabs.js` keeps only the dossier list rows and the empty-cast line the v2 adapter loads (the v1 tab registration was removed).
 - `tests/*.test.js` (synthetic host, regression and adapter tests `storysuite-v2-*.test.js`), `tests/v2/break/`,
   `tests/compatibility-check.js`, `tests/runtime-smoke.mjs`, `tests/fixtures/` (golden files, Stage 9 budgets).
-- `tests/vendor/story-block/`: Story Block's testkit + runtime, vendored for the adapter tests (VERSION names the commit).
+- The adapter tests import the live Story Block testkit and `src/v2` by relative path (`../story-block/testkit`, `../story-block/src/v2/...`); there is no vendored copy.
 - `scripts/`: `validate.mjs`, `measure-prompts.mjs`, `measure-stage9.mjs`, `package.mjs`, `browser-stage9.py`.
 - `docs/`: `core-contract.md`, `WORKPLAN.md`, `STORY_SUITE.md`, reviews and history (evidence only); `docs/dev/`: area notes.
 - Every other source file: `docs/dev/codemap.md` (one line each).
@@ -44,7 +44,6 @@ npm run measure:prompts     # prompt sizes from production builders on fixed fix
 node scripts/measure-stage9.mjs   # exact scanner request bytes; fails if they differ from tests/fixtures/stage9-budgets.json
 npm run package             # dist/npc_state_delta-<version>.zip, verified (dist/ is gitignored)
 node --import ./tests/active-runtime-test-setup.mjs --test --test-reporter=dot tests/storysuite-v2.test.js  # one file
-node ../Story_block/scripts/sync-testkit.mjs --to .             # re-vendor the Story Block testkit
 git diff --check origin/main
 ```
 
@@ -93,7 +92,7 @@ Every test file needs `--import ./tests/active-runtime-test-setup.mjs` (source-e
 - CI fails when a root `.js` file is not in `runtime-modules.json` (or the reverse), or versions disagree.
 - `runtime-modules.json` does not list `src/storysuite-v2.js`, so `tests/runtime-smoke.mjs` runs without the
   adapter (it is caught and logged); real installs load it. Known, after beta.
-- The adapter tests use the vendored Story Block; suite-wide tests in the other repos import
+- The adapter tests run against the live Story Block code in the same repo; suite-wide tests in the other repos import
   `src/storysuite-v2.js` from a sibling `npc_state_delta` checkout, so a change here can turn them red.
 - Synthetic-host timing tests have been flaky when several repos' suites run in parallel: run NSD alone.
 - `tests/field-paths-golden.test.js` freezes the field paths; an intended change regenerates it with
