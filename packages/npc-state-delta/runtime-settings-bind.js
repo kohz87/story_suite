@@ -348,11 +348,6 @@ export function createSettingsBindPart(rt, deps) {
         $(document).on('click.npcStateDelta', '.npc-state-delta-portrait-run', function (event) { event.preventDefault?.(); void generatePortraitFromDialog(); });
         if (!portraitFileListening) { portraitFileListening = true; document.addEventListener?.('error', portraitFileFailed, true); }
         $(document).on('click.npcStateDelta', '.npc-state-delta-portrait-use', function (event) { event.preventDefault?.(); void useGeneratedPortrait(); });
-        $(document).on('click.npcStateDelta', '.npc-state-delta-archive-npc', async function () {
-            const key = getChatKey();
-            if (!await ensureFreshMutationBoundary('archive a dossier', key)) return;
-            setNpcArchiveStateById(this.dataset.npcId, true, { reason: 'manual' });
-        });
         $(document).on('click.npcStateDelta', '.npc-state-delta-restore-npc', async function () {
             const key = getChatKey();
             if (!await ensureFreshMutationBoundary('restore a dossier', key)) return;

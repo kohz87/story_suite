@@ -204,7 +204,6 @@ test('the rules delete only manifests dead at the move PR and keep later removal
     'packages/npc-state-delta/runtime-persist.js',
     'packages/npc-state-delta/runtime-branch.js',
     'packages/npc-state-delta/runtime-reconcile.js',
-    'packages/npc-state-delta/src/storysuite-participant/timeline.js',
   ]) assert.match(target(file), /^modules\/people\/legacy\//, `${file} must move to legacy`);
 });
 

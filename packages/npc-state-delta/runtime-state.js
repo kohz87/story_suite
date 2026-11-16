@@ -94,7 +94,7 @@ export function createRuntimeState() {
         // chat must stay blocked: retrying Scan would otherwise revive the retired dossier from the stale
         // host narration. Reopening the chat (CHAT_CHANGED) is the host lifecycle that releases it.
         retiredInSessionChats: new Map(),
-        // (timeline participant, src/storysuite-participant/) Every durable write of a chat's state ends in markStateDirty (persist, persistCritical,
+        // (read by the runtime's own callers; the timeline participant was removed in P7) Every durable write of a chat's state ends in markStateDirty (persist, persistCritical,
         // persistCriticalDurable), whatever made it: a scan, a targeted pass, a branch reconcile, a manual add or delete or edit, an import, the
         // canonical server state, a rename, the v2 meter sync. The participant is told, and publishes the change to the timeline as a native mutation.
         // The participant's own writes (an install, its block) are not changes: they carry a count **per chat**, so one chat's install never hides another's change.

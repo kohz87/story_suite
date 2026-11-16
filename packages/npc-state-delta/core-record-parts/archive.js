@@ -6,7 +6,7 @@ import { portraitHasImage } from '../src/portrait-file.js';
 import { normalizeNpcRecord } from './normalize.js';
 
 // P6: a record no longer carries archive fields. "Archived" now only decides the life state and presence: archiving for a death marks the person
-// deceased; archiving otherwise just takes them off the scene; un-archiving revives a dead person unless a life state is given. (P7 deletes callers.)
+// deceased; archiving otherwise just takes them off the scene; un-archiving revives a dead person unless a life state is given. (Only the un-archive call, a death correction, is made now; the archive branch has no caller and stays until a later cleanup.)
 export function setNpcArchived(npc, archived, { reason = 'manual', lifeState = null, now = null } = {}) {
     // `now` is the caller's clock (the replay clock while a history is replayed); without it, the real one (live, manual).
     const at = Number.isFinite(now) ? now : Date.now();

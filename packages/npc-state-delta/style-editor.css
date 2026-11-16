@@ -92,17 +92,13 @@
   .npc-state-delta-editor-lock { flex-wrap: wrap; }
 }
 
-/* Archive lifecycle */
+/* Roster */
 .npc-state-delta-roster-block { margin-top: 7px; }
-.npc-state-delta-roster-block > b,
-.npc-state-delta-archived-roster > summary b { color: var(--npc-gold); font-size: .82rem; }
-.npc-state-delta-archived-roster { margin-top: 9px; padding-top: 7px; border-top: 1px solid var(--npc-line); }
-.npc-state-delta-archived-roster > summary { cursor: pointer; }
+.npc-state-delta-roster-block > b { color: var(--npc-gold); font-size: .82rem; }
 .npc-state-delta-roster-entry { display: inline-flex; align-items: center; gap: 4px; }
 .npc-state-delta-roster-entry .menu_button { min-width: 28px; padding: 3px 7px; margin: 0; }
 .npc-state-delta-roster-delete { opacity: .72; }
 .npc-state-delta-roster-delete:hover { opacity: 1; }
-.npc-state-delta-roster-entry-archived { opacity: .78; }
 .npc-state-delta-editor-lifecycle {
   display: grid;
   grid-template-columns: auto 1fr;

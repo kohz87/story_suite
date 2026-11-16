@@ -72,12 +72,12 @@ test('the fill is deterministic: the same inputs make the same record (replay ==
     assert.equal(JSON.stringify({ ...a, id: 0, lastScannedAt: 0, createdAt: 0, updatedAt: 0 }), JSON.stringify({ ...b, id: 0, lastScannedAt: 0, createdAt: 0, updatedAt: 0 }));
 });
 
-test('who qualifies: blank, alive, not archived, no named forms, no appearance lock', () => {
+test('who qualifies: blank, alive, no named forms, no appearance lock', () => {
     assert.deepEqual(blankLookFields(person()), ['overallAppearance', 'appearance']);
     assert.deepEqual(blankLookFields(person({ overallAppearance: 'Tall, dark.' })), ['appearance']);
     assert.deepEqual(blankLookFields(person({ overallAppearance: FULL, appearance: 'A coat.' })), []);
     assert.deepEqual(blankLookFields(person({ lifeState: 'deceased' })), []);
-    assert.deepEqual(blankLookFields(person({ archived: true })), []);
+    assert.deepEqual(blankLookFields(person({ lifeState: 'deceased', lifeStateCertainty: 'explicit' })), []);
     assert.deepEqual(blankLookFields(person({ appearanceForms: [{ name: 'Wolf', appearance: 'Grey fur.' }] })), []);
     assert.deepEqual(blankLookFields(person({ manualProfileFields: ['appearance'] })), []);
 });
@@ -92,7 +92,7 @@ test('the Refresh prompt gets one tail line only on a fill call; the prefix and 
     assert.match(line, /no quoted evidence needed/);
     assert.match(line, /Never contradict or repeat anything stated/);
     assert.doesNotMatch(line, /sex|nude|breast|body shape/i);
-    for (const npc of [person({ lifeState: 'deceased' }), person({ archived: true }), person({ overallAppearance: FULL, appearance: 'A coat.' })]) {
+    for (const npc of [person({ lifeState: 'deceased' }), person({ lifeState: 'deceased', lifeStateCertainty: 'explicit' }), person({ overallAppearance: FULL, appearance: 'A coat.' })]) {
         assert.equal(buildProfileRefreshPrompt({ transcript: story, targetNpc: npc, fillLooks: true }), buildProfileRefreshPrompt({ transcript: story, targetNpc: npc }));
     }
     console.log(`fill line adds ${line.length} chars (both fields blank); one field blank: ${fillLooksLine(person({ overallAppearance: FULL })).length}`);
@@ -214,8 +214,8 @@ test('without the allowance (scanner, capture, ordinary Refresh) an invented add
     assert.equal(run(partial(), { overallAppearance: ADDED }, story).overallAppearance, PARTIAL);
 });
 
-test('the partial fill is excluded for dead, archived, named-form and locked records, and clothes stay blank-only', () => {
-    for (const extra of [{ lifeState: 'deceased' }, { archived: true }, { appearanceForms: [{ name: 'Wolf', appearance: 'Grey fur.' }] }, { manualProfileFields: ['appearance'] }]) {
+test('the partial fill is excluded for dead, named-form and locked records, and clothes stay blank-only', () => {
+    for (const extra of [{ lifeState: 'deceased' }, { lifeState: 'deceased', lifeStateCertainty: 'explicit' }, { appearanceForms: [{ name: 'Wolf', appearance: 'Grey fur.' }] }, { manualProfileFields: ['appearance'] }]) {
         assert.equal(fillWanted(partial(extra)), false, JSON.stringify(extra));
     }
     const saved = run(partial(), { overallAppearance: ADDED, appearance: 'A scarlet gown, silver rings.' }, story, FILL);

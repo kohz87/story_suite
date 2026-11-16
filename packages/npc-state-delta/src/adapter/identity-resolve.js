@@ -1,9 +1,11 @@
-// Resolving an np_ id or a name to the active dossier.
+// Resolving an np_ id or a name to a live dossier (the `npc.identity` query, src/adapter/identity.js).
 
-import { NP_ID, nameKey, isRecord } from './shared-basics.js';
-
+const NP_ID = /^np_[0-9a-z]{8}$/;
 const NAME_MAX = 80;
 
+const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+/** The key a name is found by: invisible marks dropped, NFKC, apostrophes dropped, spaces folded, lowercase. */
+const nameKey = value => String(value ?? '').replace(/\p{Cf}+/gu, '').normalize('NFKC').replace(/['’‘`]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 const nameOf = npc => String(npc?.name ?? '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
 
 /**

@@ -2,8 +2,8 @@
 // by an `np_` id that is derived from the dossier's own id (`npc_<slug>`), so it is the same after a reload, a swipe or a rewind and is never written
 // anywhere. Story Director and the host's native-death route ask it; unknown, ambiguous or malformed is null (see resolveIdentity).
 
-import { sha256 } from '../storysuite-participant/hash.js';
-import { resolveIdentity } from '../storysuite-participant/identity.js';
+import { sha256 } from './hash.js';
+import { resolveIdentity } from './identity-resolve.js';
 
 const BASE36 = '0123456789abcdefghijklmnopqrstuvwxyz';
 

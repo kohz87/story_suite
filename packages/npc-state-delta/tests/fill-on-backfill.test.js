@@ -61,7 +61,7 @@ test('the reader\'s own character, by name or alias, never qualifies; the Refres
     assert.equal(fillAllowed(person(), 'Kazuma'), true);
     assert.equal(fillAllowed(person(), ''), true);
     assert.equal(fillAllowed(person({ lifeState: 'deceased' }), 'Kazuma'), false);
-    assert.equal(fillAllowed(person({ archived: true }), 'Kazuma'), false);
+    assert.equal(fillAllowed(person({ lifeState: 'deceased', lifeStateCertainty: 'explicit' }), 'Kazuma'), false);
     assert.equal(fillAllowed(person({ manualProfileFields: ['appearance'] }), 'Kazuma'), false);
 });
 

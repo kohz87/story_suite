@@ -253,7 +253,7 @@ export function createMutationsPart(rt, deps) {
     }
 
     function setNpcArchiveStateById(npcId, archived, { reason = 'manual', confirmAction = true } = {}) {
-        if (archived) return false; // P6: a dossier has no archive state any more (P7 removes the button); only a restore, i.e. a death correction, remains
+        if (archived) return false; // a dossier has no archive state and no archive button; only a restore, i.e. a death correction, remains
         if (!requireReadyChatMutation('restore a dossier')) return false;
         const state = getChatState();
         const index = state.npcs.findIndex(item => item.id === npcId);

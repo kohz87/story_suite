@@ -22,7 +22,7 @@ export function scenePresentFocus(existingNpcs = [], sceneNames = null) {
         if (names.length >= 12) break;
     }
     if (!names.length) return null;
-    const npcs = (Array.isArray(existingNpcs) ? existingNpcs : []).filter(npc => npc && !npc.archived && !isTerminalNpcDeath(npc)
+    const npcs = (Array.isArray(existingNpcs) ? existingNpcs : []).filter(npc => npc && !isTerminalNpcDeath(npc)
         && [npc.name, ...(npc.aliases || [])].map(normalizeName).some(label => label && seen.has(label)));
     return { names, ids: new Set(npcs.map(npc => npc.id)), npcs };
 }
@@ -58,7 +58,7 @@ export function selectScannerContextNpcs(existingNpcs = [], transcript = '', lim
     // with two unrelated full dossiers as older releases did.
     if (!selected.length) {
         const recent = scored
-            .filter(item => !item.npc?.archived && !isTerminalNpcDeath(item.npc))
+            .filter(item => !isTerminalNpcDeath(item.npc))
             .sort((a, b) => Number(b.npc?.lastSeenTurn || 0) - Number(a.npc?.lastSeenTurn || 0)
                 || Number(b.npc?.seenCount || 0) - Number(a.npc?.seenCount || 0));
         if (recent.length) selected.push(recent[0]);
@@ -74,7 +74,7 @@ export function selectScannerProfileContextNpcs(existingNpcs = [], transcript = 
         .sort((a, b) => b.score - a.score || a.index - b.index);
     if (!scored.length) {
         const fallback = [...(Array.isArray(existingNpcs) ? existingNpcs : [])]
-            .filter(npc => !npc?.archived && !isTerminalNpcDeath(npc))
+            .filter(npc => !isTerminalNpcDeath(npc))
             .sort((a, b) => Number(Boolean(b?.present)) - Number(Boolean(a?.present))
                 || Number(Boolean(b?.worldActive)) - Number(Boolean(a?.worldActive))
                 || Number(b?.lastSeenTurn || 0) - Number(a?.lastSeenTurn || 0));

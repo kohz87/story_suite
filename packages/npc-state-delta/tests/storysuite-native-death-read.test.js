@@ -6,7 +6,7 @@ import { createPeopleSync } from '../src/adapter/people-sync.js';
 import { createNativeDeath } from '../src/adapter/native-death.js';
 import { createIdentity } from '../src/adapter/identity.js';
 import { peopleView, peopleState } from '../src/people/view.js';
-import { hashJson } from '../src/storysuite-participant/hash.js';
+import { hashJson } from '../src/adapter/hash.js';
 
 function rig({ failWrite = false } = {}) {
     const fake = { state: { npcs: [{ id: 'npc_mira', name: 'Mira', aliases: [], lifeState: 'alive' }, { id: 'npc_tom', name: 'Tom', aliases: [], lifeState: 'alive' }], candidates: [], socialGraph: {}, turn: 1 }, head: 'h1', writes: 0 };

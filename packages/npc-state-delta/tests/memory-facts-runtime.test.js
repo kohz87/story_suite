@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 // Memory facts through the production handler and scanner of the synthetic SillyTavern host: the live-eligibility mark at receipt, the fact an applied
 // relationship move leaves, the MEMORY FACTS paragraph only for a call whose own window holds the fact's reply, the phrasing taken at commit, and an old
 // (unmarked) chat staying exactly as before. Deterministic fake model; no provider. Each scenario runs in its own process (runtime-smoke setup).
-const REPLAY_URL = new URL('../src/storysuite-participant/history-replay.js', import.meta.url).href;
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
 
 function runScenario(name, scenario) {
@@ -25,7 +24,7 @@ try {
     eventSource.emit('app_ready');
     eventSource.emit('extension_settings_loaded');
     await sleep(30);
-    const helpers = await (${helpers.toString()})(mockState, eventSource, sleep, ${JSON.stringify(REPLAY_URL)});
+    const helpers = await (${helpers.toString()})(mockState, eventSource, sleep);
     await (${scenario.toString()})(helpers);
     console.log('memory facts scenario ${name} passed');
 } finally {
@@ -48,8 +47,7 @@ try {
 
 
 // Runs inside the synthetic host.
-async function helpers(mockState, eventSource, sleep, replayUrl) {
-    const { createCatchUp } = await import(replayUrl);
+async function helpers(mockState, eventSource, sleep) {
     const fail = message => { throw new Error(message); };
     const check = (condition, message) => { if (!condition) fail(message); };
     const runtime = globalThis.NPCStateDelta;
@@ -93,9 +91,8 @@ async function helpers(mockState, eventSource, sleep, replayUrl) {
     };
     const state = () => runtime.getState();
     const yunyun = () => state().npcs.find(npc => npc.name === 'Yunyun');
-    const controller = () => createCatchUp({ chatKey: () => runtime.chatKey(), enabled: () => true, live: () => runtime.replay, changed() {}, publish: async () => {}, warn() {} });
     const facts = () => { const npc = state().npcs.find(item => item.name === 'Yunyun'); return JSON.stringify([npc?.memories, npc?.memoryFacts, npc?.memoryStamps]); };
-    return { fail, check, controller, facts, runtime, settings, mockState, sleep, turn, scannerCalls, state, yunyun, reply, emitAsync };
+    return { fail, check, facts, runtime, settings, mockState, sleep, turn, scannerCalls, state, yunyun, reply, emitAsync };
 }
 
 test('memory facts live: a new live reply is marked, an applied major move leaves one dated fallback memory, later calls never repeat it', () => {
@@ -160,42 +157,13 @@ test('memory facts live: the focused relationship pass (where most real moves ar
     });
 });
 
-test('memory facts live: parity - a rebuild from the chat gives the same memories, facts and stamps as the live run', () => {
-    runScenario('parity-facts', async h => {
-        await h.turn('We meet.', 'Yunyun greets Kazuma, mark-1.');
-        h.mockState.focusedOn = 'mark-2';
-        await h.turn('Guards!', 'Yunyun saves Kazuma from the guards, mark-2.');
-        h.mockState.focusedOn = null;
-        await h.turn('On.', 'Yunyun walks on, mark-3.');
-        const live = h.facts();
-        h.check(h.yunyun().memories.filter(text => !/first met/.test(text)).length === 1 && h.yunyun().memories.length === 2, 'the live run made the move fact beside the first meeting');
-        const marks = JSON.stringify(h.state().memoryFactMarks.keys);
-        const catchUp = h.controller();
-        h.mockState.focusedOn = 'mark-2';
-        catchUp.rebuild({ replies: null });
-        while (catchUp.status().active) await h.sleep(5);
-        await catchUp.idle();
-        h.check(catchUp.status().outcome === 'done', 'the rebuild finished');
-        h.check(h.facts() === live, `replay == live for memories/facts/stamps:\n${live}\n${h.facts()}`);
-        h.check(JSON.stringify(h.state().memoryFactMarks.keys) === marks, 'marks kept');
-    });
-});
-
-test('memory facts live: a rebuild never marks or derives for replies read before the rule was on; rule off derives nothing live', () => {
-    runScenario('old-and-off', async h => {
+test('memory facts live: rule off derives nothing live and writes no mark', () => {
+    runScenario('rule-off', async h => {
         h.settings.memoryFacts = false;
         await h.turn('We meet.', 'Yunyun greets Kazuma, mark-1.');
         h.mockState.focusedOn = 'mark-2';
         await h.turn('Guards!', 'Yunyun saves Kazuma from the guards, mark-2.');
         h.check(!h.state().memoryFactMarks, 'rule off: no mark written');
         h.check(h.yunyun().relationship.trust > 0 && !h.yunyun().memoryFacts && h.yunyun().memories.length === 0, 'rule off: the move applied, no fact');
-        h.settings.memoryFacts = true;
-        const catchUp = h.controller();
-        catchUp.rebuild({ replies: null });
-        while (catchUp.status().active) await h.sleep(5);
-        await catchUp.idle();
-        h.check(catchUp.status().outcome === 'done', 'the rebuild finished');
-        h.check(!h.state().memoryFactMarks, 'a rebuild never marks');
-        h.check(!h.yunyun().memoryFacts && h.yunyun().memories.length === 0, 'an unmarked reply read again gains no fact');
     });
 });
