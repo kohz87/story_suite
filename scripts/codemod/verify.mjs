@@ -77,6 +77,9 @@ function isMappedPath(oldValue, newValue, oldFile, newFile, ctx, line = '') {
     const from = resolveSpecifier(oldFile, oldValue, ctx.baseSet, true);
     const to = resolveSpecifier(newFile, newValue, ctx.headSet, true);
     if (from && to && ctx.mapper.map(from.target) === to.target) return true;
+    // A folder named in a string: `..` finds the folder's own index.js first, which may have moved away, so compare the folders.
+    const folder = hit => (hit?.dir ? hit.target : hit?.added === '/index.js' ? hit.target.slice(0, -'/index.js'.length) : null);
+    if (folder(from) && ctx.mapper.map(folder(from)) === folder(to)) return true;
   }
   const a = pathPart(oldValue);
   const b = pathPart(newValue);

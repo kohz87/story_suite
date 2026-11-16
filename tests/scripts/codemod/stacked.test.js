@@ -95,3 +95,14 @@ test('R3: a stale line is looked for at the file\'s place after earlier areas mo
   const lines = ['stale pkg/src/store.js ./runtime/run.js', 'stale pkg/src/store.js nowhere'];
   assert.deepEqual([...occurringStale(root, TWO, lines)], [lines[0]]);
 });
+
+test('a folder named by a plain string (\'../..\') whose index.js moves with it: the rewriter and verify agree', () => {
+  const B = parseRules({ area: 'b', scope: ['pkg'], rules: [...SET_B.rules, { from: 'pkg/src/index.js', to: 'ui/legacy/root-index.js' }] });
+  const root = toyRepo({ ...FILES, 'pkg/src/index.js': 'export const i = 1;\n', 'pkg/src/ui/deep/helper.js': "export const root = ['x', '../..'];\n" });
+  const base = head(root);
+  const run = streams();
+  assert.equal(runApply(root, [A, B], 'b', { dry: false, allowNonLiteral: ALLOW, ...run }), 0, run.stderr.text);
+  assert.match(git(root, 'show', 'HEAD:ui/legacy/deep/helper.js'), /'\.\.\/\.\.\/\.\.\/pkg\/src'/);
+  const io = streams();
+  assert.equal(runVerify(root, [A, B], 'b', { base, codemap: false, ...io }), 0, io.stderr.text);
+});
