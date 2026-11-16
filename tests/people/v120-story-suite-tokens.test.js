@@ -106,7 +106,10 @@ test('v1.2.2 the runtime: tokens() measures the live injection, shows: chatter, 
         mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes: reply, swipe_id: 0, swipes: [reply] });
         const id = mockState.context.chat.length - 1;
         await Promise.all((mockState.listeners.get('message_received') || []).map(fn => fn(id)));
-        await sleep(200);
+        // Wait on the real conditions (the tail prompt is sent, the in-chat cards mounted on their debounce), not on time.
+        const tailSent = () => mockState.prompts.some(args => args[0] === 'story_suite_tail_4_npc_state_delta');
+        const bubblesMounted = () => /npc-state-delta-present-cell-chatter/.test(inlineAnchors[0]?.innerHTML || '');
+        assert.ok(await waitFor(() => tailSent() && bubblesMounted(), { timeout: 20000 }), 'tail prompt sent and bubbles mounted');
 
         // tokens(): the same injection Delta sends, split by section; no request is made for it.
         const requests = mockState.rawCalls.length;
@@ -137,8 +140,9 @@ test('v1.2.2 the runtime: tokens() measures the live injection, shows: chatter, 
 
         // Story Block keeps the scene: the now line comes from its World State.
         suite.announce({ id: 'story-block', name: 'Story Block', version: '0.9.1', owns: ['scene'] });
-        await sleep(10);
-        assert.match(globalThis.NPCStateDelta.presentCastHtml(), /npc-state-delta-present-now npc-state-delta-present-now-world/);
+        const worldNow = () => /npc-state-delta-present-now npc-state-delta-present-now-world/.test(globalThis.NPCStateDelta.presentCastHtml());
+        await waitFor(worldNow, { timeout: 20000 });
+        assert.ok(worldNow(), 'the now line comes from Story Block');
         assert.equal(mockState.rawCalls.length, requests, 'display only: still no request');
         const state = JSON.stringify(globalThis.NPCStateDelta.getState());
         globalThis.NPCStateDelta.presentCastHtml();
