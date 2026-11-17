@@ -172,3 +172,29 @@ test('on the host: a chat that had the switch on, then off: a Re-read with threa
     assert.equal(JSON.stringify(host.head().domains), live);
     host.close();
 });
+
+test('on the host (test 7, the world line\'s side): a clear on a day is not undone by a later world line that day; swiping the clear frees it; replay == live', async () => {
+    const host = await newHost(true);
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Look.', reply('The square fills.', [RIOT]));
+    await host.send('Calm.', reply('The crowds go home.', ['! time +30m', '+ world Bread Riots — calm | state: over | place: Highmark | conditions: -unrest']));
+    const clearing = host.ctx.chat.length - 1;
+    await host.send('Again.', reply('Shouts again.', ['! time +30m', '+ world New Riot — shouts | state: ongoing | place: Highmark | conditions: +unrest']));
+    assert.deepEqual(keys(host), ['grain-dear@The March'], 'cleared earlier today: not set again');
+    assert.match(summaries(host), /Not used: "unrest": unrest was cleared on Highmark today/);
+    assert.deepEqual(host.head().domains.chronicle.ledger[0].tomb.keys, ['unrest@Highmark']);
+    await agrees(host, 'tomb');
+    const later = host.ctx.chat.length - 1;
+    // An edited Re-read of the clearing reply without the clear: unrest stays and no clear is kept for today; the later reply keeps what
+    // it recorded (its line was refused then; history is not rewritten).
+    await host.st.editMessage(clearing, reply('The crowds stay.', ['! time +30m', '+ world Bread Riots — still | state: ongoing | place: Highmark']));
+    assert.equal((await host.sdk.reread(clearing)).ok, true);
+    assert.equal(host.head().domains.chronicle.ledger?.[0]?.tomb, undefined, 'no clear today any more');
+    assert.deepEqual(keys(host), ['grain-dear@The March', 'unrest@Highmark']);
+    await agrees(host, 'Re-read of the clear');
+    await host.st.deleteMessage(clearing);
+    assert.deepEqual(host.store.problems(), []);
+    await agrees(host, 'middle delete');
+    assert.ok(later > clearing);
+    host.close();
+});
