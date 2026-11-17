@@ -1,5 +1,6 @@
 /* NPC State Delta dossier sections part: the Mood section: the mood word, its meter rows, Recent changes and the Pull. */
 import { escapeHtml } from '../../util/html.js';
+import { showSourceTag } from '../../../../ui/kit/source-tag.js';
 import { changeStamp, wholeNumber } from '../dossier-ui-model.js';
 import { changeRowHtml, NO_REASON } from '../dossier-ui-relationship.js';
 import { MOOD_AXES, moodDescriptors, moodTile, possessiveWord, pullTile } from '../dossier-ui-view-model.js';
@@ -27,7 +28,7 @@ function moodHistoryHtml(npc, mood, reply) {
     const quiet = mood.quiet && !moodChangedAt(npc, reply) ? [changeRowHtml(`<span class="delta-chg-when">${mark(now)}</span>`, `<span class="delta-chg-d" data-good="muted">${mood.atRest ? 'no mood change this reply' : `no change \u00b7 fading toward ${escapeHtml(possessiveWord(npc.gender, { lower: true }))} calm`}</span>`, [])] : [];
     const moves = mood.log.map(row => {
         const heads = MOOD_AXES.filter(([key]) => row[key]).map(([key, label]) => `<span class="delta-chg-d" data-good="${row[key] > 0 ? 'yes' : 'no'}">${escapeHtml(label)} ${escapeHtml(signedText(row[key]))}</span>`).join(' \u00b7 ');
-        return changeRowHtml(`<span class="delta-chg-when">${[row.date ? escapeHtml(row.date) : '', mark(row.n)].filter(Boolean).join('<br>')}</span>`, heads, [row.why || NO_REASON]);
+        return changeRowHtml(`<span class="delta-chg-when">${[row.date ? escapeHtml(row.date) : '', mark(row.n)].filter(Boolean).join('<br>')}</span>`, heads, [showSourceTag(row.why) || NO_REASON]);
     });
     // A chat from before the history existed has only the last cause (no numbers, date or reply were kept): it is never a row of its own;
     // it joins the text of the oldest row on show, or stands as one muted line when there is no row.
