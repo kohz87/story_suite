@@ -7,7 +7,7 @@ import { EVENTS_WIDGET, eventsWidget } from '../events-widget.js';
 import { stChatId } from '../../../../ui/legacy/director/screens/reveal.js';
 import { FOLD_WIDGET, foldWidget, leadsOf } from '../elsewhere.js';
 import { daysScreen, worldScreen } from '../screen.js';
-import { heardHere, newsAt } from '../news.js';
+import { cueToday, heardHere, newsAt } from '../news.js';
 import { WORLD_EVENTS } from '../news-switch.js';
 import { COURIER_KM_PER_DAY } from '../../../atlas/atlas/courier.js';
 
@@ -35,6 +35,7 @@ export const part = {
         // News arrival over the routes (news.js): null with the world-events switch off.
         'world.newsAt': (state, args, tools) => newsAt(state, args, tools),
         'world.heardHere': (state, args, tools) => heardHere(state, args, tools),
+        'world.cueToday': (state, args, tools) => cueToday(state, args, tools),
         'director.journal': tagged((state, args, tools) => journalView(state, args, tools)),
         'director.journal.events': tagged((state, args, tools) => journalEvents(state, args, tools)),
         // Not feature-tagged: other modules' recap works whether or not the World screen or the digest is on (contract P: journal.day).

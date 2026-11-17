@@ -64,15 +64,11 @@ test('world.heardHere (a world line\'s entries): heard at once, fact at their ow
     assert.equal(heardHere(early, {}, hostFor(early, { on: false })), null);
 });
 
-test('the narrator\'s tail: entries not yet heard are left out with the switch on (a world line\'s are heard at once, as rumour); with it off the tail is as it was', () => {
-    const names = view => chronicleTail(view).lines.slice(1).map(text => /^- ([^(:.]+?)(?: \(|:|\.)/.exec(text)[1]);
+test('the narrator\'s [World] tail is the same bytes whatever the switch (with it on the world note takes its place, hooks.js)', () => {
     for (const day of [1, 3, 8, 11]) {
         const state = worldAt({ events: EVENTS, day });
-        const off = names(viewFor(state, { on: false }));
-        assert.equal(off.length, 3, 'off: the pick of three, whatever the switch');
-        assert.deepEqual(chronicleTail(viewFor(state, { on: false })), chronicleTail({ ...viewFor(state), feature: undefined }), 'off is the same bytes as a host without the switch');
-        const heard = new Set(heardHere(state, {}, hostFor(state)).map(entry => entry.name));
-        assert.deepEqual(names(viewFor(state)), off.filter(name => heard.has(name)), `day ${day}: the same pick, minus what has not arrived`);
+        assert.deepEqual(chronicleTail(viewFor(state)), chronicleTail({ ...viewFor(state), feature: undefined }));
+        assert.deepEqual(chronicleTail(viewFor(state, { on: false })), chronicleTail({ ...viewFor(state), feature: undefined }));
     }
 });
 

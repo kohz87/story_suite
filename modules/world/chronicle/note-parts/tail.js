@@ -4,7 +4,6 @@ import { isOpen } from '../domain.js';
 import { nearness, scenePlaceOf, tailPick } from '../pick.js';
 import { agoText, nowFrom } from '../queries.js';
 import { TAIL_BUDGET } from './static-prompt.js';
-import { worldEventsOn } from '../../world/news-switch.js';
 
 // Characters the lines may take: Story Block estimates tokens as characters / 4.
 const MAX_CHARS = TAIL_BUDGET * 4;
@@ -32,13 +31,8 @@ export function chronicleTail(view) {
     const near = nearness(query, scenePlaceOf(query, view.state));
     const at = Number.isSafeInteger(view?.chat?.length) ? view.chat.length : null;
     const rev = Number.isSafeInteger(view?.state?.meta?.rev) ? view.state.meta.rev : 0;
-    // With the world-events switch on, only entries whose news has reached the scene's place (world.heardHere); the pick itself is as it was.
-    let heard = null;
-    if (worldEventsOn(view)) {
-        try { heard = queryOf(view)?.('world.heardHere', {}) ?? null; } catch { heard = null; }
-    }
-    const reached = Array.isArray(heard) ? new Set(heard.map(event => event.id)) : null;
-    const ids = tailPick(chronicle, { at, rev, near }).filter(id => !reached || reached.has(id));
+    // With the world-events switch on these lines are not sent: the world note takes their place (index-parts/hooks.js, seam audit E23).
+    const ids = tailPick(chronicle, { at, rev, near });
     const now = nowFrom(query, view.state);
     const lines = [TAIL_HEADER];
     let used = TAIL_HEADER.length;

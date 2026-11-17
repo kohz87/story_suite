@@ -3,7 +3,7 @@
 import { conditionsSettleCommands } from '../conditions/settle.js';
 import { backlogCue, backlogOlder, digestCommands, digestTailLine, noteCommands } from '../digest.js';
 import { chronicleTail } from '../note.js';
-import { worldNote } from '../world-note.js';
+import { worldEventsOn, worldNote } from '../world-note.js';
 import { beforeGenerate as surfaceHook } from '../pick.js';
 import { threadsOn } from '../../../time/tracker/threads.js';
 import { worldSeedCommands } from '../world-daily/seed.js';
@@ -18,12 +18,15 @@ export function beforeGenerate(view) {
     return commands.length || lines.length ? { ...(commands.length ? { commands } : {}), ...(lines.length ? { lines } : {}) } : undefined;
 }
 
-/** `context.tail(view)`: the [World] lines (while the threads feature is on) and the last day's line after a time skip (optional). The [Earlier days] cue is pinned (beforeGenerate); its older day lines are optional. */
+/**
+ * `context.tail(view)`: the [World] lines (while the threads feature is on) and the last day's line after a time skip (optional). The [Earlier days] cue is pinned (beforeGenerate); its older day lines are optional.
+ * With the world-events switch on the world note takes the [World] lines' place (seam audit E23: the same news, pinned first); off adds nothing.
+ */
 export function tail(view) {
-    const base = threadsOn(view) ? chronicleTail(view) : { lines: [], optional: [] };
-    // The world note (feature `story-director.world-events`, default off) sits beside the [World] lines; off adds nothing.
-    const note = worldNote(view);
-    const out = note.length ? { ...base, lines: [...base.lines, ...note] } : base;
+    const on = worldEventsOn(view);
+    const base = threadsOn(view) && !on ? chronicleTail(view) : { lines: [], optional: [] };
+    const note = on ? worldNote(view) : [];
+    const out = note.length ? { ...base, lines: [...note, ...base.lines] } : base;
     const optional = [...out.optional, digestTailLine(view), ...backlogOlder(view)].filter(Boolean);
     return optional.length ? { lines: out.lines, optional } : out;
 }

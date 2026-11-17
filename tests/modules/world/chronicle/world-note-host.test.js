@@ -17,8 +17,9 @@ const PACK = JSON.stringify({
             { name: 'Far Keep', region: 'The Wilds', x: 90, y: 90 },
         ],
         routes: [{ from: 'Highmark', to: 'Bluewatch', kind: 'road', km: 600 }],
+        items: [{ name: 'Rye Bread', tags: ['grain'] }],
         conditions: [
-            { name: 'grain-dear', scope: 'region', fades: '10 days', means: 'Bread costs more.' },
+            { name: 'grain-dear', scope: 'region', fades: '10 days', means: 'Bread costs more.', effects: { prices: { grain: '×2', all: '×1.3' } } },
             { name: 'unrest', scope: 'place', fades: 'until cleared', means: 'Crowds in the streets.' },
             { name: 'roads-closed', scope: 'route', fades: 'until cleared', means: 'Nobody passes.' },
         ],
@@ -46,19 +47,28 @@ async function play(host) {
     await host.send('Wait.', reply('Evening.'));
 }
 
-test('on the host: the note shows the place, region and route conditions and only the news that has reached the scene', async () => {
+test('on the host: the note takes the [World] lines\' place and shows the place, route and region conditions with what they mean and their told prices, and the news heard here', async () => {
     const host = await newHost(true);
     await play(host);
     assert.equal(host.sdk.query('chronicle.conditions').length, 3, JSON.stringify(host.head().domains.chronicle.conditions));
     const note = told(host);
-    assert.match(note, /Conditions here: .*unrest at Highmark/);
-    assert.match(note, /grain-dear at The March/);
-    assert.match(note, /roads-closed at Highmark-Bluewatch/, 'a route condition is kept as "From-To"; the note finds the scene\'s routes by it');
+    assert.doesNotMatch(note, /\[World\] Under way off-screen/, 'E23: the overlapping [World] lines are retired while the switch is on');
+    assert.match(note, /Conditions here: unrest at Highmark: Crowds in the streets/);
+    assert.match(note, /roads-closed at Highmark-Bluewatch: Nobody passes/, 'a route from the scene\'s place');
+    assert.match(note, /grain-dear at The March: Bread costs more \(all goods ×1\.3, grain ×2\)/, 'test 58: prices told by category');
     assert.match(note, /News that has reached here: .*Bread Riots/);
     // A world line about a far place is heard at once as rumour; fact follows at courier time (ten days away by reach step).
     assert.match(note, /Keep Siege \(rumour\)/);
-    const heard = host.sdk.query('world.heardHere', { place: 'Highmark' });
-    assert.equal(heard.find(entry => entry.name === 'Keep Siege').tag, 'rumour');
+    assert.equal(host.sdk.query('world.heardHere', { place: 'Highmark' }).find(entry => entry.name === 'Keep Siege').tag, 'rumour');
+    host.close();
+});
+
+test('on the host (E23): with the tightest tail budget the note\'s first lines are kept (pinned), not cut first', async () => {
+    const host = await newHost(true);
+    host.settings.set(null, 'tailBudget', 100);
+    await play(host);
+    const note = told(host);
+    assert.match(note, /\[World now\]\nConditions here: unrest at Highmark/);
     host.close();
 });
 
