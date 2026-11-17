@@ -18,6 +18,12 @@ const MODULES = [
 const byKey = (rows, key) => rows.find(r => r.key === key);
 
 describe('selectAddons', () => {
+  it('leaves a hidden module (the people module) out of the installed list', () => {
+    const row = byKey(selectAddons([...MODULES, { id: 'people-hidden', name: 'NPC State', version: '1.0.0', status: 'ready', reason: null, hidden: true }]), 'addons.installedModules');
+    assert.equal(row.value, 'People 1.4.0, RPG 2.0.1 · waiting for a module it needs, World · a restore is running');
+    assert.equal(byKey(selectAddons([{ id: 'people', name: 'NPC State', hidden: true }]), 'addons.installedModules').value, 'none yet');
+  });
+
   it('lists the installed modules live, with versions and why one is not running', () => {
     const row = byKey(selectAddons(MODULES), 'addons.installedModules');
     assert.equal(row.value, 'People 1.4.0, RPG 2.0.1 · waiting for a module it needs, World · a restore is running');
