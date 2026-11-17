@@ -95,7 +95,7 @@ export function query(state, name, args, options = {}) {
  * `{ ok: false, code, message, state }` with the state untouched. `time`: what `ctx.time()`
  * answers (a function of the state; default: none, so the clock is read through `director.time`).
  */
-export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined } = {}) {
+export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined, features = null, call = null, answers = null } = {}) {
     const rev = state.meta.rev + 1;
     const drafts = {};
     const random = sfc32(seed);
@@ -113,11 +113,12 @@ export function runCommand(state, handler, payload, { seed = 7, cause = 'story',
             drafts[domain] ??= structuredClone(state.domains[domain]);
             return drafts[domain];
         },
-        call: type => { throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); },
+        ...(features ? { feature: id => features.includes(id) } : {}),
+        call: call ?? (type => { throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); }),
         claim: () => true,
         rng: random,
         fail: (code, message) => { throw new Rejected(code, message); },
-        query: (name, args) => deepFreeze(ask(current(), name, args)),
+        query: (name, args) => (answers && Object.hasOwn(answers, name) ? deepFreeze(structuredClone(answers[name])) : deepFreeze(ask(current(), name, args))),
     };
     if (time !== undefined) ctx.time = () => time(current());
     let result;

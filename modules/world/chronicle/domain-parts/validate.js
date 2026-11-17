@@ -120,8 +120,12 @@ export function validateChronicle(slice) {
     }
     // A chronicle from before the day digest has no `days` or `written`.
     errors.push(...validateDays(slice));
+    // `worldLine` (switch story-director.world-events): the replies that wrote their one world line, by record ID.
+    if (slice.worldLine !== undefined && (!isRecord(slice.worldLine) || Object.keys(slice.worldLine).length > 64 || Object.values(slice.worldLine).some(v => v !== true))) {
+        errors.push('chronicle.worldLine must be { [reply]: true }, at most 64.');
+    }
     for (const key of Object.keys(slice)) {
-        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
+        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog', 'worldLine'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
     }
     return errors;
 }

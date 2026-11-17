@@ -10,6 +10,7 @@ import { SURFACE, surface } from '../pick.js';
 import { queries } from '../queries.js';
 import { chronicleScreen } from '../screen.js';
 import { THREADS_FEATURE } from '../../../time/tracker/threads.js';
+import { WORLD_EVENTS, WORLD_TEACHING } from '../capture/world-parts/switch.js';
 import { beforeGenerate, tail } from './hooks.js';
 
 /** The chronicle's optional mechanics (MODULES §F100). */
@@ -19,6 +20,12 @@ export const features = Object.freeze([
         label: 'Day digest',
         describe: 'When a story day ends, code writes what it held (places, quests, money, NPC stages, world news and the day\'s other events) from the receipts, for the Journal on the World screen and a one-line reminder after a time skip.',
         default: true,
+    }),
+    Object.freeze({
+        id: WORLD_EVENTS,
+        label: 'World events',
+        describe: 'A reply may carry one world line, and its conditions field sets and lifts the world\'s named conditions (the pack lists them). Off: world lines work as before.',
+        default: false,
     }),
 ]);
 
@@ -38,7 +45,7 @@ export const part = {
     domains: {
         // `dayFacts` and `seenAt` are per-reply bookkeeping (SPEC §2.2 scratch): an entry whose holder a deleted reply made is replayed all the same.
         // `round` counts the picks: a deleted pick takes its +1 away, later picks add theirs (counters, `was`).
-        chronicle: { initial: initialChronicle, validate: validateChronicle, scratch: ['dayFacts', 'questLog', 'seenAt'], counters: ['round'] },
+        chronicle: { initial: initialChronicle, validate: validateChronicle, scratch: ['dayFacts', 'questLog', 'seenAt', 'worldLine'], counters: ['round'] },
     },
     commands: {
         'chronicle.threadOutcome': threadOutcome,
@@ -61,6 +68,8 @@ export const part = {
         // Both paragraphs (World lines, Under [World]) are the threads feature's: the module sends them as a context part under it.
         static: env => (env?.chronicle ? STATIC_TEXT : ''),
         staticFeature: THREADS_FEATURE,
+        // The conditions field and the one-line rule (new text, the owner's approval pending): only with the world-events switch on.
+        parts: [{ feature: WORLD_EVENTS, static: () => WORLD_TEACHING }],
         tail: view => tail(view),
         budget: TAIL_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET,
     },
