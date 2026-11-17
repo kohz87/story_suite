@@ -214,7 +214,7 @@
   "ui/dev/portraits.js": "Dev harness only: puts the mock's portrait photos on data-portrait elements, keeping the letter circle as the fallback.",
   "ui/entry/drawer-buttons.js": "Adds the new view's Settings and Open Story Suite buttons to the Story Suite drawer in SillyTavern's Extensions panel.",
   "ui/entry/flag.js": "Reads and writes this device's \"Use the old view\" choice in localStorage, safe with no storage; names the new view's body class.",
-  "ui/entry/start.js": "Starts the view: mounts the new view once Story Block is ready, or leaves the old view and draws the way back when this device chose it; switches between them.",
+  "ui/entry/start.js": "Starts the view: hides the old furniture before boot unless this device chose the old view, mounts the new view once Story Block is ready or draws the way back, and switches between them.",
   "ui/entry/switch.js": "Draws the way back to the new view: a ticked \"use the old view\" row in SillyTavern's extension settings, shown only while this device uses the old view.",
   "ui/entry/turn-on.js": "Mounts the new view on the Story Block port (styles, body class, menu entry, drawer buttons, chat surfaces, listeners) and returns the function that removes it all.",
   "ui/fixtures/bag.js": "Builds the shared Bag fixture: items, purse, load, party pace and assets (default, story-only, over the limit).",

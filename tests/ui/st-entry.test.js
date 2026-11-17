@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { installFakeDom } from './helpers/dom.js';
-import { startView } from '../../ui/entry/start.js';
+import { startView, firstPaint } from '../../ui/entry/start.js';
 import { buildSelectors } from '../../ui/select/build.js';
 import { readOldView, writeOldView, OLD_VIEW_KEY } from '../../ui/entry/flag.js';
 
@@ -97,6 +97,18 @@ test('by default the new view mounts: body class, styles, the "Story Suite" menu
   assert.equal(/preview/i.test(doc.body.textContent), false);
 });
 
+test('firstPaint hides the old furniture before boot unless this device chose the old view; index.js calls it before boot and startView after', () => {
+  const doc = page();
+  assert.equal(firstPaint(doc, fakeStorage()), true);
+  assert.ok(doc.body.classList.contains('ss-ui-next'));
+  const old = page();
+  assert.equal(firstPaint(old, fakeStorage(true)), false);
+  assert.equal(old.body.classList.contains('ss-ui-next'), false);
+  const entry = fs.readFileSync(new URL('../../index.js', import.meta.url), 'utf8');
+  assert.ok(entry.indexOf('firstPaint();') > 0 && entry.indexOf('firstPaint();') < entry.indexOf('boot({ late })'), 'firstPaint runs before boot');
+  assert.match(entry, /if \(started\) await startView\(\);/);
+});
+
 test('a stored ui.next false (the old preview switch) does not bring the old view back', async () => {
   const doc = page();
   const api = await start(doc, fakeCtx(false), fakeStorage());
@@ -165,6 +177,11 @@ test('the choice guards a device with no storage: read says new view, write says
   assert.equal(api.isOn(), true);
   await api.useOldView(true);
   assert.equal(api.isOn(), false);
+  const row = doc.querySelector('#story-suite-old-view');
+  assert.ok(row, 'the way back is drawn even with nothing stored');
+  row.querySelector('input').checked = false;
+  row.querySelector('input').dispatchEvent(new Event('change'));
+  assert.equal(api.isOn(), true);
 });
 
 test('the Story Suite drawer gets the new view\'s Settings and Open buttons after its status line; they go with the view', async () => {
