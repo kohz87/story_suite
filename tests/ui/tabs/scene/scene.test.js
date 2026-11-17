@@ -5,6 +5,7 @@ import { sceneTab } from '../../../../ui/tabs/scene/host.js';
 import { choicesOf, linesOf } from '../../../../ui/tabs/scene/generic.js';
 import { sceneFixture } from '../../../../ui/fixtures/interaction.js';
 import { h } from '../../../../ui/kit/dom.js';
+import { selectScene } from '../../../../ui/select/interaction.js';
 import { createFakePort } from '../../../../ui/port/fake-port.js';
 
 const ctxOf = (port = createFakePort()) => ({ port, renderers: {} });
@@ -89,4 +90,20 @@ test('lines and choices are read defensively and capped; an empty view says so; 
   const empty = sceneTab({ ...sceneFixture('open'), view: null }, ctxOf());
   assert.ok(empty.querySelector('.scene-empty'));
   assert.equal(sceneTab(null, ctxOf()), null);
+});
+
+test('a kind with no renderer shows the basic-view note; one with its own renderer does not', () => {
+  installFakeDom();
+  const plain = sceneTab(sceneFixture('open'), ctxOf());
+  assert.equal(plain.querySelector('[data-note="basic-view"]').textContent, 'Basic view: this activity has no view of its own.');
+  const own = sceneTab(sceneFixture('open'), { port: createFakePort(), renderers: { 'probe/ferry': () => h('div', { class: 'mine' }) } });
+  assert.equal(own.querySelector('[data-note="basic-view"]'), null);
+  assert.ok(own.querySelector('.mine'));
+});
+
+test('an interaction with no title is called Activity, never Scene', () => {
+  const vm = sceneFixture('open');
+  assert.equal(selectScene({ id: 'a', kindId: 'x/y', view: null }).title, 'Activity');
+  assert.equal(selectScene({ id: 'a', kindId: 'x/y', title: ' Fishing  trip ' }).title, 'Fishing trip');
+  assert.equal(vm.title, 'The ferry crossing');
 });

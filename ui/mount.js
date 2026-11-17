@@ -12,6 +12,7 @@ import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
+import { DEVELOPER_KEY } from './settings/developer.js';
 
 const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];
 
@@ -31,6 +32,7 @@ function readFlags(port, override) {
     rpg: override?.rpg ?? card?.rpg !== false,
     fightOpen: override?.fightOpen ?? Boolean(chat?.inlineRow?.fightOpen),
     sceneOpen: override?.sceneOpen ?? Boolean(port.view('scene')),
+    sceneTitle: override?.sceneTitle ?? port.view('scene')?.title ?? '',
   };
 }
 
@@ -60,8 +62,8 @@ export function mountSuite(options = {}) {
     if (!settings || destroyed) return port.command('suite.settings', {});
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
-      doc, host: view.root, settings, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
-      onChange: (key, value) => port.command('settings.set', { key, value }),
+      doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : port.command('settings.set', { key, value })),
       onAction: (key, value) => port.command('settings.action', { key, value }),
     });
     settingsOverlay.open();
