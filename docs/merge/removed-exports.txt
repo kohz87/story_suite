@@ -88,3 +88,19 @@ standardFoes
 standingMembers
 targetButton
 withRecovery
+# B4-2: the v1 Story Suite handshake (suite.js, suite-handshake*, runtime-suite.js).
+createSuitePart
+connectStorySuite
+announceNpcStateDelta
+buildManageApi
+openSuiteOverlay
+suiteManageAvailable
+normalizeSourceOfTruth
+applySourceOfTruth
+syncSuiteControls
+isSourceOfTruth
+areaOwner
+defersArea
+externalCalendar
+statsOverlapWarning
+ensureSuiteStylesheet

@@ -1,6 +1,6 @@
 // Resolves the dossier id openDossier(value) should open from an id, name or alias.
-import { plainText } from './shared-text.js';
-import { isTerminalNpcDeath } from '../../core/terminal-lifecycle.js';
+import { plainText } from './text.js';
+import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 // P6: no archive flag; a confirmed-dead person is out of reach exactly as an archived (death-archived) one was.
 const gone = npc => Boolean(npc?.archived) || isTerminalNpcDeath(npc);
 function nameKey(value) {

@@ -134,7 +134,7 @@ test('an empty Cast tab uses the v1 tab\'s empty line and Scan button; Delta off
     el.dataset.tabId = CAST_TAB_ID;
     def.tabs[0].render(el, {}, {});
     assert.match(el.innerHTML, /The latest scan found no NPC in the scene\./);
-    assert.match(el.innerHTML, /data-npc-state-delta-action="scan"/, 'emptyCastHtml from story-block-tabs.js');
+    assert.match(el.innerHTML, /data-npc-state-delta-action="scan"/, 'emptyCastHtml from dossier-rows.js');
     const scan = { dataset: { npcStateDeltaAction: 'scan' } };
     el.listeners.click[0]({ target: { closest: () => scan } });
     assert.equal(delta.scans, 1);

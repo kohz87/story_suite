@@ -28,7 +28,6 @@ try {
     eventSource.emit('app_ready');
     eventSource.emit('extension_settings_loaded');
     await sleep(30);
-    await import(pathToFileURL(path.join(extRoot, 'story-block-tabs.js')).href);
     await sleep(30);
     await (${scenario.toString()})();
     console.log('story suite v2 scenario ${name} passed');
@@ -65,7 +64,7 @@ test('with a Story Block v2 host, Delta registers through the sdk only, answers 
         assert.deepEqual(Object.keys(def.queries).sort(), ['npc.cast', 'npc.castMade', 'npc.catchUp', 'npc.dossier', 'npc.identity', 'npc.keyAway', 'npc.known', 'npc.meters', 'npc.next', 'npc.portrait', 'npc.present', 'npc.socialModifier']);
         assert.deepEqual(mockState.storyBlockTabs, [], 'no v1 Present NPCs / Dossiers tabs');
         assert.equal(globalThis.document.documentElement.dataset.npcStateDeltaStoryBlock, undefined);
-        assert.equal(globalThis.StorySuite?.has?.('npc-state-delta') ?? false, false, 'not announced to v1\'s Story Suite registry');
+        assert.equal(globalThis.StorySuite, undefined, 'the v1 Story Suite registry is gone: NPC State never creates it');
 
         // A portrait attached in Delta (the same upload path as the dossier's) is what npc.portrait returns.
         await manualAddNpc('Mira');
@@ -101,12 +100,12 @@ test('with a Story Block v2 host, Delta registers through the sdk only, answers 
         }
         assert.equal(def.queries['npc.portrait']({}, { name: 'Nobody' }), null);
 
-        // The host goes away and a v1 Story Block takes its place: v1's announcement comes back (the v1 tabs were removed).
+        // The host goes away and a v1 Story Block takes its place: still no v1 registry.
         globalThis.StoryBlock = { apiVersion: 1, registerTab: tab => mockState.storyBlockTabs.push(tab), unregisterTab() {}, refresh() {} };
         const v2 = await import(pathToFileURL(path.join(extRoot, 'src', 'storysuite-v2.js')).href);
         const adapter = v2.startStorySuiteV2();
         assert.equal(adapter.check(), false);
-        assert.equal(globalThis.StorySuite.has('npc-state-delta'), true, 'announced to v1\'s registry again');
+        assert.equal(globalThis.StorySuite, undefined, 'no v1 registry with a v1 host either');
         adapter.stop();
     });
 });

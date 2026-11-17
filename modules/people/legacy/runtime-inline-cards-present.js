@@ -6,10 +6,8 @@
 import { chatContext as getContext } from '../calls/runtime-scan-helpers.js';
 import { currentPresentationText, formPortraitFor } from '../core/core.js';
 import { portraitSrc } from '../portrait/portrait-file.js';
-import { areaOwner } from './suite-handshake.js';
 import { chatterSlotsHtml, matchPresentCard, nowSlotHtml, othersSlotsHtml, presentSceneModel, rememberPresentScene, sceneAttr, speakerChatterHtml, speakerGroups, storyBlockTags, worldStatePeople } from './present-scene.js';
 import { escapeHtml } from '../util/html.js';
-import { getSettings } from '../settings/runtime-settings.js';
 
 export function createInlineCardsPresentPart(deps, inChatCastMode) {
     const { getChatState, isKeyNpc, scenePresenceView } = deps;
@@ -133,9 +131,8 @@ export function createInlineCardsPresentPart(deps, inChatCastMode) {
     // them. World State is used for the now line only while Story Block keeps the scene.
     function presentSceneFor(visible, messageId) {
         try {
-            const settings = getSettings();
             const blocks = typeof globalThis.StoryBlock?.listBlocks === 'function' ? globalThis.StoryBlock.listBlocks() : [];
-            const sceneOwned = areaOwner('scene', settings.sourceOfTruth)?.id === 'story-block';
+            const sceneOwned = false;   // the v1 registry that named Story Block the scene's owner is gone; the present-cast cards go with B4-6
             const sceneText = sceneOwned ? storyBlockTextForLatestReply(storyBlockTags(blocks, 'scene'), messageId) : '';
             // Only enabled chatter blocks (Story Block's default one is tagged NPC_Inner_Chatter).
             const chatterText = storyBlockTextForLatestReply(storyBlockTags(blocks, 'chatter'), messageId);

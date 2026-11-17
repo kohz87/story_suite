@@ -1,6 +1,6 @@
 // The present scene model: card matching, now lines, bubble kind and the shaped model with its signature.
 import { normalizeName, npcNamedInText } from '../../core/core-mechanics.js';
-import { trimAtWord } from '../suite-handshake.js';
+import { trimAtWord } from '../../npc-api/text.js';
 import { parseChatterLines } from './chatter-parse.js';
 import { DOSSIER_LOOK_LABEL, NOW_PARTS, NOW_PART_MAX, NOW_TITLE_MAX } from './now-constants.js';
 import { plain } from './shared-text.js';

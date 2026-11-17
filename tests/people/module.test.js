@@ -6,7 +6,6 @@ import { registerIsolated } from '../../core/boot/register-isolated.js';
 import { BUILTIN_MODULES } from '../../core/modules-list.js';
 import { PEOPLE_MODULE_ID, createPeopleModule, peopleModule } from '../../modules/people/module.js';
 import * as rows from '../../modules/people/dossier-rows.js';
-import * as legacyRows from '../../modules/people/legacy/story-block-tabs.js';
 
 const runtimeOf = host => ({ sdk: host.sdk, turn: host.turn, registry: host.registry });
 
@@ -41,12 +40,6 @@ test('the real start does nothing outside SillyTavern', async () => {
 
 test('the people module is the last built-in module', () => {
   assert.equal(BUILTIN_MODULES.at(-1), peopleModule);
-});
-
-test('the dossier rows moved: the old path is the same code', () => {
-  assert.equal(legacyRows.dossierRowNodes, rows.dossierRowNodes);
-  assert.equal(legacyRows.emptyCastHtml, rows.emptyCastHtml);
-  assert.equal(legacyRows.DOSSIER_BAR_MAX, rows.DOSSIER_BAR_MAX);
 });
 
 test('the people module is hidden from the Add-ons list: sdk.modules() says so, and no other module carries the key', async () => {
