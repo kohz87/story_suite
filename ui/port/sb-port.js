@@ -38,8 +38,20 @@ const INTERACTION = {
   discard: p => [p?.id],
 };
 
-/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's. */
-export function createSbPort({ sdk, writes = null, selectors = {}, prefs = null, onError = null } = {}) {
+// The card offer's three answers, the same calls the old panel makes: Install or Update (with the "Also apply" tick), Not now, Dismiss.
+async function offerCommand(controller, payload) {
+  if (!controller) return { ...FAILED, message: 'No card offer is open.' };
+  const id = String(payload?.id ?? '');
+  try {
+    if (payload?.op === 'install') { const done = await controller.install(id, { settings: payload.settings === true }); return done ? { ok: done.ok, message: done.text } : { ...FAILED, message: 'That offer cannot be installed now.' }; }
+    if (payload?.op === 'notNow') { controller.notNow(id); return { ok: true }; }
+    if (payload?.op === 'dismiss') { controller.dismiss(id); return { ok: true }; }
+  } catch (error) { return failure(error); }
+  return { ...FAILED, message: 'The engine does not take that offer answer.' };
+}
+
+/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach. */
+export function createSbPort({ sdk, writes = null, selectors = {}, prefs = null, onError = null, offer = null } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -74,6 +86,7 @@ export function createSbPort({ sdk, writes = null, selectors = {}, prefs = null,
         try { answer = await modelsCommand(sdk, type, payload, Date.now, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;
       }
+      if (type === 'packs.offer') return offerCommand(offer?.(), payload);
       if (typeof type === 'string' && type.startsWith('interaction.')) {
         const verb = type.slice('interaction.'.length);
         return Object.hasOwn(INTERACTION, verb) ? interact(verb, payload) : Promise.resolve({ ...FAILED, message: `The engine does not take ${type}.` });
@@ -85,6 +98,7 @@ export function createSbPort({ sdk, writes = null, selectors = {}, prefs = null,
     reread: index => guarded(sdk, 'reread', index),
     on(event, fn) {
       if (typeof fn !== 'function') throw new TypeError('port.on listener must be a function');
+      if (event === 'offer') { const off = offer?.()?.subscribe?.(fn); return typeof off === 'function' ? off : () => {}; }
       if (event === 'interaction') { heard.add(fn); return () => heard.delete(fn); }
       let off = null;
       try {

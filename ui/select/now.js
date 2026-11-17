@@ -72,6 +72,8 @@ export function selectNow(answers = {}, opts = {}) {
   const you = isRec(answers['scene.you']) ? answers['scene.you'] : null;
   return {
     needsYou: needsYou(answers, opts),
+    // The card's pack offers (select/offers.js rows), told next to the actions; [] when the card offers none.
+    offers: list(opts.offers),
     today: { focus: focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
     // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
     here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),

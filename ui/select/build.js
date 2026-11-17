@@ -13,6 +13,8 @@ import { listProfiles } from '../../core/model-call.js';
 import { selectSettings } from './settings.js';
 import { selectScene } from './interaction.js';
 import { gather, optsOf, gearOf } from './gather.js';
+import { offerRows } from './offers.js';
+import { liveOffer } from '../port/live-offer.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
@@ -22,7 +24,7 @@ const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.m
 export function buildSelectors(ctx = () => null, sdk = null) {
   const scene = read => {
     const answers = gather(read);
-    return { answers, opts: optsOf(read, answers, ctx) };
+    return { answers, opts: { ...optsOf(read, answers, ctx), offers: offerRows(liveOffer()) } };
   };
   return {
     card: read => { const s = scene(read); return selectCard(s.answers, s.opts); },

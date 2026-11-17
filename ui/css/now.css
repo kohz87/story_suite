@@ -118,3 +118,9 @@ button.rnr{cursor:pointer}
 .su-root .dossier-link,.su-root .more2{background:none;border:0;font:800 13px var(--su-font);color:var(--su-accent);cursor:pointer;min-height:44px;padding:0 6px}
 .su-root .more2{padding:0 4px}
 .rnr.focus .ti{color:var(--su-accent)}
+/* Card pack offer inside Needs you: no mock row exists; built from the mock's .rnr row and its .offer button column (mock line 777). */
+.rnr.need-pack{align-items:start}
+.rnr.need-pack .offer{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.rnr.need-pack .offer .btn2{padding:11px 14px;font-size:14px;text-align:center}
+.rnr.need-pack .rnr-tick{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--su-muted);margin-top:6px}
+.rnr.need-pack .rnr-note{display:block;margin-top:4px}

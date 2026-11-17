@@ -6,10 +6,11 @@ import { addMenuEntry, chatPrefs } from '../port/st-chat.js';
 import { createChatSurfaces } from '../chat/chat-surfaces.js';
 import { replyMenuButton, replySheet } from '../chat/reply-menu.js';
 import { buildSelectors } from '../select/build.js';
+import { liveOffer } from '../port/live-offer.js';
 
 const BODY_CLASS = 'ss-ui-next';
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings'];
-const EVENTS = ['head', 'committed', 'turn', 'feature'];
+const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 
 function addStyles(doc, base) {
   return STYLES.map(name => {
@@ -27,7 +28,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const links = addStyles(doc, base);
   doc.body.classList.add(BODY_CLASS);
   const prefs = { chat: chatPrefs(ctx) };
-  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, selectors: buildSelectors(ctx, StoryBlock.sdk), prefs, onError: (tab, error) => console.warn(`[Story Suite preview] the ${tab} view could not be built`, error) });
+  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, selectors: buildSelectors(ctx, StoryBlock.sdk), prefs, offer: liveOffer, onError: (tab, error) => console.warn(`[Story Suite preview] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow' });
   const entry = addMenuEntry(doc, { label: 'Story Suite (preview)', onClick: () => suite.open('now') });
   const drawerHost = doc.createElement('div');
@@ -36,7 +37,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   if (form?.parentNode) form.parentNode.insertBefore(drawerHost, form);
   const surfaces = createChatSurfaces({
     messagesEl: doc.querySelector('#chat'), drawerHost, isNarrow: () => (globalThis.innerWidth ?? 1000) < 600,
-    handlers: { onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open('journal'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
+    handlers: { onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
   });
   let button = null;
   let sheet = null;

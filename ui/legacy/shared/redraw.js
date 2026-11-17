@@ -1,7 +1,7 @@
 // generated from ui/runtime/redraw.js; do not edit.
 // Coalesces change events into one frame and redraws only changed sections.
 
-const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];
+const PORT_EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 
 function stableStringify(value) {
   if (value === null || typeof value !== 'object') {
