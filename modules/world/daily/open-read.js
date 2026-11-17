@@ -54,7 +54,8 @@ const fallbackOf = raw => (isRecord(raw) ? { sets: list(raw.sets), clears: list(
 /** `per`: "<region|place|realm> per <duration>" (one slot per that scope in that time); the default is one slot per region per season. */
 function perOf(raw) {
     const match = raw === undefined ? ['', 'region', '1 season'] : /^(region|place|realm) per (.+)$/.exec(String(raw).trim());
-    const days = match ? durationDays(match[2]) : undefined;
+    // "region per season" (a bare unit) is one of it, as the install check reads it.
+    const days = match ? durationDays(/^(day|week|month|season|year)s?$/i.test(match[2].trim()) ? `1 ${match[2].trim()}` : match[2]) : undefined;
     return match && days ? { by: match[1], days } : null;
 }
 

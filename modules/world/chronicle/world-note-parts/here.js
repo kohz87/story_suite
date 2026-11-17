@@ -2,6 +2,7 @@
 
 import { ask } from '../queries-parts/shared-ask.js';
 import { hostGeo } from '../conditions/known-refs.js';
+import { regionLabel } from '../../daily/region-label.js';
 
 const low = text => String(text ?? '').trim().toLowerCase();
 
@@ -20,5 +21,5 @@ export function hereConditions(query, scene) {
     const onRoutes = routes.flatMap(route => ask(query, 'chronicle.conditions', { at: route }) ?? []).map(entry => ({ ...entry, level: 0.5 }));
     const seen = new Set();
     return [...at, ...onRoutes].sort((a, b) => a.level - b.level).filter(entry => !seen.has(entry.key) && seen.add(entry.key))
-        .map(entry => ({ ...entry, declared: declared.get(entry.name) ?? {} }));
+        .map(entry => ({ ...entry, ...(entry.scope === 'region' ? { ref: regionLabel(geo, entry.ref) } : {}), declared: declared.get(entry.name) ?? {} }));
 }

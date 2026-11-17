@@ -9,8 +9,8 @@ import { conditionHolds } from './holds-read.js';
 const DAY = 1440;
 const low = text => String(text ?? '').trim().toLowerCase();
 
-/** The binding of a picked place: `{ place, region, realm }` (names), for @place, @region and @realm. */
-export const bindOf = place => ({ place: place.name, region: place.region || null, realm: place.realm });
+/** The binding of a picked place: `{ place, region, realm }` (names), for @place, @region and @realm (`regionName`: the region's display name when content.regions gives one). */
+export const bindOf = place => ({ place: place.name, region: place.region || null, realm: place.realm, ...(place.regionName && place.regionName !== place.region ? { regionName: place.regionName } : {}) });
 
 /** Whether a placeStatus condition (fallen, evacuated, abandoned) holds on the place today: on it, or on the place it sits under (B12). */
 export function masked(ws, place, day) {

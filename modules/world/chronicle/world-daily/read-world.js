@@ -18,7 +18,7 @@ export function overrideWorld(fn) {
     return () => { override = null; };
 }
 
-/** `readWorld(query)` → `{ places, routes, realms, placeKinds, routeKinds, conditions, events, templates, powers, scores, cast, lore }`. */
+/** `readWorld(query)` → `{ places, routes, realms, placeKinds, routeKinds, conditions, events, templates, powers, scores, cast, lore, regions, startWorld? }`. */
 export function readWorld(query) {
     const events = [...rows(query, 'worldEvents'), ...rows(query, 'events').filter(specShaped)];
     const world = {
@@ -26,6 +26,10 @@ export function readWorld(query) {
         placeKinds: merged(rows(query, 'placeKinds')), routeKinds: merged(rows(query, 'routeKinds')),
         conditions: rows(query, 'conditions'), events, templates: rows(query, 'templates'),
         powers: rows(query, 'powers'), scores: rows(query, 'scores'), cast: rows(query, 'cast'), lore: rows(query, 'lore'),
+        regions: rows(query, 'regions'),
     };
+    // The packs' `start.world` (v0.14.10), applied by the step when a chat's first step runs.
+    const begin = ask(query, 'packs.start', {});
+    if (begin?.world && typeof begin.world === 'object') world.startWorld = { set: Array.isArray(begin.world.set) ? begin.world.set : [], facts: Array.isArray(begin.world.facts) ? begin.world.facts : [] };
     return override ? override(world) : world;
 }

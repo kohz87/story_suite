@@ -19,10 +19,18 @@ export function recordAnchor(anchors, key, day) {
     anchors[key] = next.length > KEEP ? [next[0], ...next.slice(-(KEEP - 1))] : next;
 }
 
-/** The days an anchor happened, oldest first. `stage:<id>` is `fired:<id>`; `start` is the step's first day; a season is not kept (none). */
+/** A season anchor holds while the calendar is in that season (the offset, tempo-scaled, shifts it later); its day is the stretch's start. */
+function seasonStart(ws, anchor, day) {
+    if (!ws.cal || !Number.isInteger(day)) return null;
+    const back = day - (anchor.offset ? scaleDays(anchor.offset, ws.tempo) : 0);
+    return ws.cal.seasonOf(back) === anchor.id ? ws.cal.stretch(back).start + (day - back) : null;
+}
+
+/** The days an anchor happened, oldest first. `stage:<id>` is `fired:<id>`; `start` is the step's first day; a fixed date is its calendar day; a season is not kept (anchorDay and anchorHolds read it from the calendar). */
 export function occurrences(ws, anchor) {
     if (anchor.kind === 'start') return Number.isInteger(ws.startDay) ? [ws.startDay] : [];
     if (anchor.kind === 'season') return [];
+    if (anchor.kind === 'date') { const at = ws.cal?.dateDay(anchor.id) ?? null; return at === null ? [] : [at]; }
     const kind = anchor.kind === 'stage' ? 'fired' : anchor.kind;
     const days = [...(ws.anchors[`${kind}:${anchor.id}`] ?? [])];
     if (kind === 'set') {
@@ -41,6 +49,7 @@ export function occurrences(ws, anchor) {
 export function anchorDay(ws, text, mode = 'first') {
     const anchor = typeof text === 'string' ? anchorString(text) : text;
     if (!anchor) return null;
+    if (anchor.kind === 'season') return seasonStart(ws, anchor, ws.day);
     const days = occurrences(ws, anchor);
     if (!days.length) return null;
     const base = mode === 'each' ? days[days.length - 1] : days[0];
@@ -49,6 +58,8 @@ export function anchorDay(ws, text, mode = 'first') {
 
 /** Whether an anchor text holds on `day`: it happened (and its offset has passed) by then. */
 export function anchorHolds(ws, text, day) {
+    const anchor = typeof text === 'string' ? anchorString(text) : text;
+    if (anchor?.kind === 'season') return seasonStart(ws, anchor, day) !== null;
     const at = anchorDay(ws, text, 'first');
     return at !== null && at <= day;
 }

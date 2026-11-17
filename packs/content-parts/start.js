@@ -15,6 +15,7 @@ import { itemDef } from './items.js';
  * * `money`: added up, a whole number of the chat's one currency.
  * * `currency`: the first enabled pack's suggested `{ name, short }`, or null. The host uses it only
  *   when the reader has not named the currency.
+ * * `world`: `{ set, facts }` of the packs' `start.world`, only when one has it (the daily step applies it on the first step).
  * * `packs`: the ids of the packs that gave something.
  */
 export function mergeStart(packs) {
@@ -51,6 +52,13 @@ export function mergeStart(packs) {
         if (start.inventory.money) {
             gave = true;
             out.inventory.money += start.inventory.money;
+        }
+        // `start.world` (v0.14.10): the beginning world state, every pack's conditions and facts once, in pack order.
+        if (start.world && (start.world.set?.length || start.world.facts?.length)) {
+            gave = true;
+            out.world ??= { set: [], facts: [] };
+            for (const text of start.world.set ?? []) if (!out.world.set.includes(text)) out.world.set.push(text);
+            for (const id of start.world.facts ?? []) if (!out.world.facts.includes(id)) out.world.facts.push(id);
         }
         if (gave) out.packs.push(pack.id);
     }

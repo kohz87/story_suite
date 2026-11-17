@@ -50,19 +50,21 @@ export function readEvent(raw) {
     const bad = why => ({ why: `The event "${id ?? '?'}" is not run by the world: ${why}` });
     if (!id) return bad('it has no id.');
     const kind = KINDS.includes(raw.kind) ? raw.kind : 'one-off';
-    const certainty = CERTAINTY.includes(raw.certainty) ? raw.certainty : 'possible';
+    const certainty = typeof raw.on === 'string' ? 'set-in-motion' : CERTAINTY.includes(raw.certainty) ? raw.certainty : 'possible';
     const ends = endsOf(raw.ends_when);
     if (!ends) return bad('ends_when must be "instant" or { for, any_of }.');
     const requires = list(raw.requires);
     const requiresAny = list(raw.requires_any);
-    const why = thresholdWhy([...requires, ...requiresAny, ...ends.anyOf]);
+    const why = thresholdWhy([...requires, ...requiresAny, ...ends.anyOf, ...Object.keys(isRecord(raw.likelier_if) ? raw.likelier_if : {}), ...Object.keys(isRecord(raw.less_if) ? raw.less_if : {})]);
     if (why) return bad(why);
     if (!entriesOk(requires, true) || !entriesOk(requiresAny, true)) return bad('a requires entry is neither a condition "<name>@<ref>", an anchor nor a threshold.');
-    if ([...list(raw.pre_empted_by), ...Object.keys(isRecord(raw.likelier_if) ? raw.likelier_if : {}), ...Object.keys(isRecord(raw.less_if) ? raw.less_if : {})].some(isThreshold)) {
-        return bad('a threshold (power: / score:) is allowed only in requires, requires_any and ends_when.any_of.');
-    }
+    if (list(raw.pre_empted_by).some(isThreshold)) return bad('a threshold (power: / score:) is allowed only in requires, requires_any, likelier_if, less_if and ends_when.any_of.');
     let window = null;
-    if (raw.window !== undefined) {
+    // `on: "date:Y-M-D"` (ruling 29): window { after: that date, within: 1 day } at set-in-motion 100%; a calendar day, so tempo does not stretch it.
+    const on = typeof raw.on === 'string' ? anchorString(raw.on) : null;
+    if (raw.on !== undefined && on?.kind !== 'date') return bad('on must be a fixed date such as "date:612-07-30".');
+    if (on) window = { after: raw.on.trim(), within: 1, fixed: true };
+    else if (raw.window !== undefined) {
         const within = durationDays(raw.window?.within);
         if (!within) return bad('window.within must be a duration such as "40 days".');
         if (raw.window.after !== undefined && !anchorString(raw.window.after)) return bad('window.after must be an anchor.');
@@ -100,6 +102,14 @@ export function readTemplate(raw) {
     if (!id) return { why: 'A template has no name ("template").' };
     const needs = list(raw.needs);
     if (!entriesOk(needs)) return { why: `The template "${id}" is not run: a needs entry is neither a condition nor an anchor.` };
+    const requires = list(raw.requires);
+    const requiresAny = list(raw.requiresAny ?? raw.requires_any);
+    if (!entriesOk(requires, true) || !entriesOk(requiresAny, true)) return { why: `The template "${id}" is not run: a requires entry is neither a condition, an anchor nor a threshold.` };
+    const likelier = modifiers(raw.likelier_if);
+    const less = modifiers(raw.less_if);
+    if (!likelier || !less) return { why: `The template "${id}" is not run: likelier_if / less_if values are ×N.` };
+    const why = thresholdWhy([...requires, ...requiresAny, ...likelier.map(row => row.key), ...less.map(row => row.key)]);
+    if (why) return { why: `The template "${id}" is not run: ${why}` };
     const match = raw.cooldown === undefined ? null : /^(.+?)( per place)?$/.exec(String(raw.cooldown).trim());
     const days = match ? durationDays(match[1]) : null;
     if (raw.cooldown !== undefined && !days) return { why: `The template "${id}" is not run: its cooldown is not a duration.` };
@@ -109,7 +119,7 @@ export function readTemplate(raw) {
         def: {
             ...(open.none ? {} : { open: open.open, fallback: open.fallback, per: open.per }),
             id, template: true, severity: raw.severity === 'major' ? 'major' : 'minor', scope: raw.scope ?? 'place', reach: raw.reach ?? 'local',
-            needs, sets: list(raw.sets), clears: list(raw.clears), chance: raw.chance === undefined ? null : chanceOf(raw.chance),
+            needs: [...needs, ...requires], requiresAny, likelier: [...likelier, ...less], sets: list(raw.sets), clears: list(raw.clears), chance: raw.chance === undefined ? null : chanceOf(raw.chance),
             cooldown: days ? { days, perPlace: Boolean(match[2]) } : null, summary: typeof raw.summary === 'string' ? raw.summary : id,
             where: isRecord(raw.where) ? { kinds: list(raw.where.kinds) } : null,
         },
@@ -125,7 +135,7 @@ export function readDefs(world = {}) {
         const out = readEvent(raw);
         if (out.why) { warnings.push(out.why); continue; }
         // A threshold must name a power or score id of this world, with N in its range (v0.13).
-        const problem = [...out.def.requires, ...out.def.requiresAny, ...out.def.ends.anyOf].filter(isThreshold).map(text => thresholdProblem(thresholdString(text), world)).find(Boolean);
+        const problem = [...out.def.requires, ...out.def.requiresAny, ...out.def.ends.anyOf, ...out.def.likelier.map(row => row.key)].filter(isThreshold).map(text => thresholdProblem(thresholdString(text), world)).find(Boolean);
         if (problem) { warnings.push(`The event "${out.def.id}" is not run by the world: ${problem}`); continue; }
         if (seen.has(out.def.id)) continue;
         seen.add(out.def.id);

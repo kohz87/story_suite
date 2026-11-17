@@ -40,7 +40,7 @@ export function anchorString(text) {
     if (cut <= 0) return null;
     const kind = head.slice(0, cut);
     const id = head.slice(cut + 1).trim();
-    if (!['set', 'cleared', 'fired', 'ended', 'lapsed', 'died', 'departed', 'fact', 'stage', 'learned'].includes(kind) || !id) return null;
+    if (!['set', 'cleared', 'fired', 'ended', 'lapsed', 'died', 'departed', 'fact', 'stage', 'learned', 'date'].includes(kind) || !id) return null;
     return { kind, id, offset };
 }
 

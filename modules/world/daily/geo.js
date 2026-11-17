@@ -13,6 +13,13 @@ const text = value => (typeof value === 'string' && value.trim() ? value.trim() 
 /** The map of a world `{ places, routes, realms, placeKinds }` → lookups used by every other part of the step. */
 export function buildGeo(world = {}) {
     const placeKinds = world.placeKinds && typeof world.placeKinds === 'object' ? world.placeKinds : {};
+    // `content.regions` (spec ruling 42): a region's display name by its id, name or alias. A place's `region` stays as the pack wrote it (an id); only the words shown use the name.
+    const regionNames = new Map();
+    for (const region of Array.isArray(world.regions) ? world.regions : []) {
+        const name = text(region?.name);
+        if (!name) continue;
+        for (const key of [region.id, name, ...(Array.isArray(region.aliases) ? region.aliases : [])]) if (text(key)) regionNames.set(low(key), name);
+    }
     const regionRealm = new Map();
     const realms = new Map();
     const regions = new Map();
@@ -36,7 +43,7 @@ export function buildGeo(world = {}) {
         const kind = text(raw.kind);
         const klass = CLASSES.includes(placeKinds[kind]) ? placeKinds[kind] : CLASSES.includes(kind) ? kind : 'town';
         const place = {
-            name, id: text(raw.id) || name, region, kind, klass,
+            name, id: text(raw.id) || name, region, regionName: regionNames.get(low(region)) ?? region, kind, klass,
             realm: region ? regionRealm.get(low(region)) ?? WILDS : WILDS,
             weight: Number.isFinite(raw.weight) && raw.weight >= 0 ? raw.weight : null,
             x: Number.isFinite(raw.x) ? raw.x : 0, y: Number.isFinite(raw.y) ? raw.y : 0,
@@ -62,7 +69,7 @@ export function buildGeo(world = {}) {
         const route = { name, from, to };
         for (const key of [name, `${from}-${to}`, `${from}–${to}`, text(raw.corridor)]) if (key) routes.set(low(key), route);
     }
-    return { places, byName, regions, regionRealm, realms, routes };
+    return { places, byName, regions, regionRealm, regionNames, realms, routes };
 }
 
 /** What a ref names: `{ kind: 'place'|'region'|'realm'|'route', name, place? }`, or null. Place → region → realm, most specific first. */

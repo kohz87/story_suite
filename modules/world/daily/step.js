@@ -15,6 +15,8 @@ import { applyDeferred } from './cast-defer.js';
 import { templatesDay } from './templates-day.js';
 import { authoredReads } from './open-reads.js';
 import { settleOpen } from './open-day.js';
+import { makeStepCalendar } from './cal.js';
+import { applyStartWorld } from './start-world.js';
 
 const DAY = 1440;
 // A step over more days than this shows the long-skip note (seam audit E16: 14, or the reader's longest jump when that is lower; the host passes it).
@@ -59,7 +61,7 @@ function standingsOf(world, saved, names) {
  * The step's working state (`ws`) for a stored state, a world and a clock day: used by `runDays` and, for the open templates' asking side,
  * to check a Director's answer with the same rules the step applies. Returns `{ ws, defs, tombOf }`.
  */
-export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null }) {
+export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null, calendar = null }) {
     const campaign = typeof state?.seed === 'string' ? state.seed : String(seed ?? '');
     const paced = Number.isFinite(tempo) && tempo >= 0.25 && tempo <= 4;
     const defs = readDefs(world);
@@ -71,7 +73,7 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
         standingNames: new Map(), facts: { ...record(state?.facts) }, minors: list(state?.minors).map(entry => ({ ...entry })),
         cooldowns: { ...record(state?.cooldowns) }, startDay: Number.isInteger(state?.start) ? state.start : today,
         draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings, ...(paced ? [] : [`Tempo ${tempo} is outside 0.25-4; tempo 1 is used.`])], log: [], journal: [], tomb: new Set(), day: today,
-        withYou: new Set(list(withYou)), pos: structuredClone(record(positions)), moves: [], released: [], deaths: [],
+        cal: makeStepCalendar(calendar), withYou: new Set(list(withYou)), pos: structuredClone(record(positions)), moves: [], released: [], deaths: [],
     };
     // Open templates (spec §5, §9): the stored answers (read only), the slots rolled and the ones still waiting.
     ws.campaign = campaign;
@@ -101,18 +103,19 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
  * the ledger (chronicle.ledger: anchors world lines made, taken into the state's anchors; the conditions cleared on `tomb.day`, which
  * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger.
  */
-export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false }) {
+export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false, calendar = null }) {
     if (!Number.isInteger(today)) return null;
     const prior = Number.isInteger(state?.day) ? state.day : null;
     // `settle`: no new day, only the open slots whose answers are stored since (open templates, open-day.js).
     if (prior !== null && today <= prior && !(settle && list(state?.pending).length)) return null;
     if (prior !== null && today < prior) today = prior;
-    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens });
+    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens, calendar });
     const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);
     if (prior !== null && first > prior + 1) ws.warnings.push(`${first - prior - 1} days before the last ${MAX_DAYS} were not simulated.`);
     // A hold whose event is not Active here (its step's reply was deleted, or the step's state was lost) would never end: released now.
     const orphans = new Set(Object.values(ws.table).flatMap(entry => entry.holds ?? []).filter(id => ws.events[id]?.state !== 'active'));
     for (const id of [...orphans].sort()) releaseHolds(ws, id, first * DAY);
+    if (prior === null && world.startWorld) { ws.day = first; ws.tomb = tombOf(first); applyStartWorld(ws, world.startWorld, first); }
     for (let day = first; day <= today; day += 1) {
         ws.day = day;
         ws.tomb = tombOf(day);
