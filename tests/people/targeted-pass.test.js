@@ -131,12 +131,11 @@ test('a hosted scan scores relationship changes from the slice\'s numbers and fo
 
 // (owner, 12 Nov) "Refresh failed for Sieke: the scan was cancelled or its chat/dossier source changed; ... then it wiped out everything from Sieke".
 // A Refresh that ends cancelled or discarded changes nothing: the chat's dossier state is byte-identical to before it was asked for, and the host is
-// told nothing (its tastes and story events are sent only with an accepted result).
+// told nothing (its story events are sent only with an accepted result).
 test('a Refresh cancelled or discarded mid-flight leaves the dossier state byte-identical (all or nothing)', () => {
     const runner = index.slice(index.indexOf('async function runTargetedDossierPass'), index.indexOf('function scopeTargetedChannels'));
     const at = text => runner.indexOf(text);
-    assert.ok(at('forwardTastesToHost(') > at('const forwardNotes = () =>'), 'tastes only inside forwardNotes');
-    assert.equal(runner.split('forwardTastesToHost(').length, 2, 'one tastes forward');
+    assert.equal(runner.split('forwardTastesToHost(').length, 1, 'no tastes forward (NSD11)');
     assert.equal(runner.split('forwardSecretEventsToHost(').length, 2, 'one story-event forward');
     assert.ok(runner.lastIndexOf('forwardNotes();') > at('job.onLateStale?.();'), 'notes go to the host after the final commit check');
     assert.ok(at('forwardNotes();') > at('if (scoped.noChange) {'), 'or with an accepted no-change result');

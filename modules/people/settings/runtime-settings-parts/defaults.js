@@ -16,7 +16,7 @@ export const DEFAULTS = Object.freeze({
     narrationCapture: false,
     // (1.2.11) With one-pass capture: a quiet Refresh of the NPCs most in the last N captured
     // replies (0 = never), for the slow fields a block beside the story tends to leave thin.
-    narrationCaptureCatchUp: 8,
+    narrationCaptureCatchUp: 4,
     // (1.2.17) Opt-in: the one-pass rules in fewer words (about 500 tokens less per armed reply).
     narrationCaptureCompact: false,
     portraitGenerationEnabled: true,

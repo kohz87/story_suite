@@ -29,7 +29,7 @@
 // Public face: re-exports its parts.
 export { FIELDS } from './registry-parts/table.js';
 export { RETURN_KEYS } from './registry-parts/return-keys.js';
-export { RETURN_SHAPES } from './registry-parts/return-shapes.js';
+export { RETURN_SHAPES, REFRESH_KEYS } from './registry-parts/return-shapes.js';
 export { ALIAS_MERGE_TEXT_FIELDS, PROFILE_EVIDENCE_FIELDS, REFRESH_CHANGED_FIELDS, TEXT_FIELDS } from './registry-parts/lists-scan.js';
 export { CHANGE_TRACKED_FIELDS, DAY_TRACKED_FIELDS, DOSSIER_FIELDS } from './registry-parts/lists-tracking.js';
 export { BRANCH_USER_METADATA_FIELDS, EDITOR_LOCKABLE_FIELDS, LOCKED_FIELD_KEYS } from './registry-parts/lists-locks.js';

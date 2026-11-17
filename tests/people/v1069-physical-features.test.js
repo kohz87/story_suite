@@ -59,7 +59,8 @@ test('scanner, Refresh, backfill and import prompts separate enduring body from 
     const npc = createNpcRecord('Elin');
     const PHYS = /overallAppearance \(no named forms\)=readable: kind, apparent age, build, hair, eyes, then unmistakable marks; appearance=clothes and their state/;
     assert.match(buildScannerPrompt({ transcript: 'Elin works.', existingNpcs: [npc], userName: 'Ari', charName: 'N' }), PHYS);
-    assert.match(buildProfileRefreshPrompt({ transcript: '[m1] Elin works.', targetNpc: npc, userName: 'Ari', charName: 'N' }), PHYS);
+    // (NSD11) Refresh's rule 5 words it as "overallAppearance=kind, apparent age, build, hair, eyes, marks; appearance=clothes and their state".
+    assert.match(buildProfileRefreshPrompt({ transcript: '[m1] Elin works.', targetNpc: npc, userName: 'Ari', charName: 'N' }), /overallAppearance=kind, apparent age, build, hair, eyes, marks; appearance=clothes and their state/);
     const backfill = buildBackfillPrompt({ transcript: 'Elin works.', targetName: 'Elin', existingNpc: npc });
     assert.match(backfill, PHYS);
     // (cleanup step 13) The rule above defines both; the generated shape lists the keys.

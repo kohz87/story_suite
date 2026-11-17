@@ -7,6 +7,7 @@ import { DEFAULT_RELATIONSHIP, relationshipSummaryConsistent, calibrateRelations
 import { setNpcChatRefreshIndicator, relationshipNumber, latestMessageId } from './runtime-scan-helpers.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
+import { fillFailureNote } from '../meters/npc-lines-parts/fill-in.js';
 import { fillAllowed, FILL_MERGE_OPTION } from '../appearance/appearance-fill.js';
 
 const { profileRowBindsToTarget, rowContradictsTarget, soleRowMayBeTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
@@ -201,7 +202,9 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
             },
             onError: error => {
                 console.error('[NPC State Delta] targeted chat refresh failed', error);
-                notify('warning', `NPC State Delta refresh failed for ${existing.name}: ${error?.message || error}`);
+                // (NSD11) A failed catch-up shows the same note as a failed fill-in; nothing was written (the call failed before the merge).
+                if (automatic) globalThis.toastr?.warning?.(fillFailureNote(existing.name));
+                else notify('warning', `NPC State Delta refresh failed for ${existing.name}: ${error?.message || error}`);
                 return false;
             },
         });

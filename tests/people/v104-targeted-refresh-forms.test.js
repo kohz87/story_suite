@@ -36,9 +36,9 @@ test('v1.0.4 targeted Refresh declares appearance-form output and natural transi
 
     assert.match(prompt, /REFRESH: visible anatomy changes are form evidence/i);
     // (cleanup step 13) The form keys are in the registry's Refresh shape, not patched in afterwards.
-    assert.match(prompt, /appearance,appearanceState:refine\|change,overallAppearance,overallAppearanceState:keep\|refine\|change,/);
+    assert.match(prompt, /appearance,appearanceState:refine\|change,overallAppearance,overallAppearanceState:refine\|change,/);
     assert.match(prompt, /appearanceForms:\[\{name,appearance,state:refine\|change,reason\}\]/);
-    assert.match(prompt, /currentForm,currentFormState:keep\|select\|unknown/);
+    assert.match(prompt, /currentForm,currentFormState:select\|unknown/);
     assert.match(prompt, /Established Stage 4 appearance forms/);
     assert.match(prompt, /"name":"Chimeric"/);
 });

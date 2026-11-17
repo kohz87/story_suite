@@ -17,7 +17,7 @@ export function createCatchUpPart(rt, deps) {
     // scenes, and a block written beside the story tends to leave them thin, while a Refresh (which
     // reads a window of scenes) fills them. So every `narrationCaptureCatchUp` captured replies, the
     // NPCs most in them get a quiet Refresh. Counted per chat in this session only; nothing is saved.
-    const CATCH_UP_TARGETS = 2;
+    const CATCH_UP_TARGETS = 3;
     const CATCH_UP_RETRY_MS = 3000;
     const CATCH_UP_RETRIES = 20;
 
