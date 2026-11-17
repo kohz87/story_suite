@@ -9,4 +9,3 @@ export const STATIC_TEXT = 'Key people are the people {{user}} follows. When one
 export const GRAMMAR = Object.freeze({
     away: '+ away Name — what they are doing | back: date (~ away Name to change it; ! away Name — where they got to; - away Name when they are back)',
 });
-
