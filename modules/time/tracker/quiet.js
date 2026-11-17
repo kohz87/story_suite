@@ -5,8 +5,8 @@
 //   its last line that mattered was a `!`; a line that writes its date again (`+`, `on:`, `due:`) makes it live (v1's lapses.js rule);
 // * a dead person's own agenda (the key is their name or an alias). A beat whose key names them ("Vorn's Return") stays: it is a
 //   valid beat that can still be played (an avenging, a burial). Dead = NPC State Delta's `npc.dossier` says `lifeState: 'deceased'` (by name or alias, and by the np_ id
-//   a pinned person carries, which also answers for an archived dossier), or the story's own "- key Name | died" for a pinned person
-//   (the `gone` record). Without NPC State Delta, and with nobody dead, nothing is quiet. Secrets, hooks, quests, clocks, events
+//   a pinned person carries, which also answers for an archived dossier), or a gone record with reason died (NPC State's release of a pinned person, or an old reply's "- key Name | died" on replay).
+//   A dead person is found by name, or by id through `npc.identity` when Delta hides a dead dossier by name. Without NPC State Delta, and with nobody dead, nothing is quiet. Secrets, hooks, quests, clocks, events
 //   and any thread that merely mentions someone are never touched. If Delta stops saying deceased the threads are back.
 //
 // `quietThreads` → Set of thread ids; `dropThreads(director, ids)` → the same director without them (the same object when none).
@@ -63,7 +63,13 @@ function deadPeople(query, director, state) {
             if (!key || asked.has(key) || probes >= MAX_PROBES) continue;
             asked.add(key);
             probes += 1;
-            const dossier = ask(query, 'npc.dossier', { name }, null);
+            let dossier = ask(query, 'npc.dossier', { name }, null);
+            if (!isRecord(dossier) && probes < MAX_PROBES) {
+                // Delta hides a dead person from the by-name answer; the id it still gives for the name finds the dossier.
+                probes += 1;
+                const identity = ask(query, 'npc.identity', { name }, null);
+                if (isRecord(identity) && typeof identity.id === 'string' && NP_ID.test(identity.id)) dossier = ask(query, 'npc.dossier', { id: identity.id }, null);
+            }
             // Exact only: the answer must go by the very name asked for.
             if (isRecord(dossier) && namesOf(dossier).some(own => lineKey(own) === key)) take(dossier);
         }
@@ -78,7 +84,7 @@ function deadPeople(query, director, state) {
     return dead;
 }
 
-// The story's own "- key Name | died" for a pinned person.
+// A gone record with reason died: NPC State's release of a pinned person, or an old reply's "- key Name | died".
 function storyDead(state) {
     const gone = isRecord(state?.domains?.keypeople?.gone) ? Object.values(state.domains.keypeople.gone) : [];
     return gone.filter(entry => isRecord(entry) && entry.reason === 'died').map(entry => ({ names: [cutPoints(entry.name, 80)].filter(name => name.length >= 3) })).filter(person => person.names.length);
