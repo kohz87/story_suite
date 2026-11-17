@@ -55,7 +55,10 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     }
     // No clock yet (no pack start): a line with no date reads from the calendar's default start and sets the clock there (clockToRead).
     const base = clockToRead(calendar, director.time, line);
-    const fromNow = next === null ? read(line, base.from, calendar, options) : null;
+    // A stretch ("! time +5m") of the same reply after the world's fallback hour counts from before it: the fallback minutes were untold, and the story's own stretch replaces them (a clock face already goes back over them).
+    const own = soft > 0 && typeof fallback.sid === 'string' && fallback.sid === (ctx.carrier?.sid ?? ctx.reply?.sid) && Number.isSafeInteger(fallback.own) ? Math.min(fallback.own, soft) : 0;
+    const origin = stretch !== null && own > 0 && Number.isSafeInteger(base.from) ? base.from - own : base.from;
+    const fromNow = next === null ? read(line, origin, calendar, options) : null;
     next ??= fromNow;
     if (base.set && fromNow !== null && !fromNow.error) next = { ...fromNow, set: true, held: undefined, problem: undefined };
     if (!next.error && Number.isSafeInteger(next.minutes)) {

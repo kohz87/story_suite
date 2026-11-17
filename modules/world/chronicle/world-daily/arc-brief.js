@@ -19,7 +19,7 @@ import { readWorld } from './read-world.js';
 export const WORLD_EVENT_THEN = 'outcome decided by the world';
 const MAX = 8;
 const DONE = new Set(['active', 'ended', 'lapsed', 'replaced']);
-const fill = (text, outcome, bind) => String(text ?? '').replace(/\{outcome\}/g, outcome ?? '').replace(/\{place\}/g, bind?.place ?? '').replace(/\{region\}/g, bind?.region ?? bind?.place ?? '').replace(/\{realm\}/g, bind?.realm ?? '').replace(/\s+/g, ' ').trim();
+const fill = (text, outcome, bind) => String(text ?? '').replace(/\{outcome\}/g, outcome ?? '').replace(/\{place\}/g, bind?.place ?? '').replace(/\{region\}/g, bind?.regionName ?? bind?.region ?? bind?.place ?? '').replace(/\{realm\}/g, bind?.realm ?? '').replace(/\s+/g, ' ').trim();
 
 /** `{ threads: [{ kind, key, now, then }], toCome: [title], conditions: [text], guard: [{ id, title, outcomes: [name] }] }` (guard: the Active events, for the planner's code guard; then `secrets`, `protectedCast` and `hidden` (lore titles) when there are any, for the planner and the Director judge) from the step's state, the conditions and the world. */
 export function arcBrief({ daily = null, table = {}, world = {}, place = '', minute = null, people = null } = {}) {

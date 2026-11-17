@@ -69,7 +69,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     dossier: read => dossierMap(read),
     world: read => {
       const worldEvents = sdk?.features?.()?.find?.(f => f?.id === 'story-director.world-events')?.on === true;
-      return selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null, worldEvents, conditionsHere: worldEvents ? read('chronicle.conditionsHere', {}) : null });
+      return selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null, worldEvents, conditionsHere: worldEvents ? read('chronicle.conditionsHere', {}) : null, regionNames: worldEvents ? read('chronicle.regionNames', {}) : null });
     },
     journal: read => selectJournal(read),
     story: read => selectStory(read),

@@ -11,14 +11,14 @@ import { text } from './known-parts/shared-text.js';
 
 const low = value => String(value ?? '').trim().toLowerCase();
 
-/** `{ name, group, region, realm, hidden }` of a place name (the packs' map, else the atlas), or null when neither knows it. */
+/** `{ name, group, region, regionName, realm, hidden }` (`regionName`: the region's display name, else its id) of a place name (the packs' map, else the atlas), or null when neither knows it. */
 export function placeInfo(geo, tools, name) {
     const own = geo.byName.get(low(name));
-    if (own) return { name: own.name, group: own.parent ?? own.name, region: own.region, realm: own.realm === WILDS ? '' : own.realm, hidden: own.hidden === true };
+    if (own) return { name: own.name, group: own.parent ?? own.name, region: own.region, regionName: own.regionName, realm: own.realm === WILDS ? '' : own.realm, hidden: own.hidden === true };
     const atlas = tryQuery(queryOf(tools), 'atlas.place', { name }, null);
     if (!atlas) return null;
     const region = text(atlas.region);
-    return { name: text(atlas.name) || name, group: text(atlas.name) || name, region, realm: region ? geo.regionRealm.get(low(region)) ?? '' : '', hidden: false };
+    return { name: text(atlas.name) || name, group: text(atlas.name) || name, region, regionName: geo.regionNames?.get(low(region)) ?? region, realm: region ? geo.regionRealm.get(low(region)) ?? '' : '', hidden: false };
 }
 
 /** Whether news of `reach` from `origin` reaches `here` (place infos; an unknown one is not held back). */
@@ -35,5 +35,5 @@ export function shownPlace(origin, tools, written) {
     if (!origin?.hidden) return written;
     const shown = tryQuery(queryOf(tools), 'atlas.places', {}, []);
     const found = (Array.isArray(shown) ? shown : []).some(place => lineKey(place?.name) === lineKey(origin.name));
-    return found ? written : origin.region || written;
+    return found ? written : origin.regionName || origin.region || written;
 }

@@ -20,7 +20,7 @@ export function perHolds(ws, def, place, day) {
 }
 
 function record(ws, slot, fields) {
-    ws.slots[slot.key] = { ...ws.slots[slot.key], day: slot.day, template: slot.template, region: slot.region, realm: slot.realm, place: slot.place, ...fields };
+    ws.slots[slot.key] = { ...ws.slots[slot.key], day: slot.day, template: slot.template, region: slot.region, ...(slot.regionName ? { regionName: slot.regionName } : {}), realm: slot.realm, place: slot.place, ...fields };
     const keys = Object.keys(ws.slots);
     for (const key of keys.slice(0, Math.max(0, keys.length - KEEP))) delete ws.slots[key];
 }
@@ -30,7 +30,7 @@ function fixed(ws, def, slot, day, outcome, why) {
     const source = { kind: 'template', id: def.id, title: def.id, held: false };
     if (def.fallback && (def.fallback.sets.length || def.fallback.clears.length)) {
         applyEffects(ws, { clear: def.fallback.clears, set: def.fallback.sets }, source, day, bind);
-        const text = String(def.summary).replace(/\{place\}/g, slot.place).replace(/\{region\}/g, slot.region).replace(/\{realm\}/g, slot.realm);
+        const text = String(def.summary).replace(/\{place\}/g, slot.place).replace(/\{region\}/g, slot.regionName || slot.region).replace(/\{realm\}/g, slot.realm);
         ws.journal.push({ day, text, by: `template:${def.id}`, place: slot.place, reach: def.reach });
         record(ws, slot, { resolved: day, outcome });
     } else record(ws, slot, { resolved: day, outcome: 'nothing' });
@@ -54,7 +54,7 @@ function resolveSlot(ws, def, slot, result, day, why = 'the Director did not ans
 /** A slot rolled on `day` at `place`: applied from its stored result, to its fallback (beyond the batch), or left waiting. */
 export function rollOpen(ws, def, place, day) {
     const bind = bindOf(place);
-    const slot = { key: slotKey(ws.campaign, day, def.id, place.id), day, template: def.id, place: place.name, region: bind.region ?? '', realm: place.realm };
+    const slot = { key: slotKey(ws.campaign, day, def.id, place.id), day, template: def.id, place: place.name, region: bind.region ?? '', ...(bind.regionName ? { regionName: bind.regionName } : {}), realm: place.realm };
     ws.rolled += 1;
     if (ws.rolled > BATCH) return fixed(ws, def, slot, day, 'fallback', 'more than 4 open slots in one step');
     const result = ws.opens.results[slot.key];

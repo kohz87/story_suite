@@ -60,7 +60,11 @@ export function advanceCommand(ctx, payload = {}) {
         const prior = slotValue(director.time.soft);
         const kept = prior?.at === before && isInt(prior.minutes) ? prior.minutes : 0;
         // A slot, written whole: a middle delete of an earlier fallback never leaves a later one changing a field that is gone.
-        director.time.soft = toSlot({ at: next, minutes: kept + minutes });
+        // `sid` and `own`: the reply that wrote them and how many of the minutes are its own (a stretch line of the same reply, e.g. the repair's, counts from before
+        // its own minutes; the untold minutes of earlier replies stay).
+        const sid = [ctx.carrier?.sid, ctx.reply?.sid].find(value => typeof value === 'string' && value) ?? null;
+        const own = sid && prior?.at === before && prior.sid === sid && isInt(prior.own) ? prior.own + minutes : minutes;
+        director.time.soft = toSlot({ at: next, minutes: kept + minutes, ...(sid ? { sid, own } : {}) });
     }
     const held = minutes < asked;
     return {

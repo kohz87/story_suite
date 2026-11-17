@@ -11,12 +11,15 @@ function dangerOf(tier) {
   return tier <= 5 ? 'risky' : 'dangerous';
 }
 
+const regionName = (region, names) => (names && typeof names === 'object' && typeof names[key(region)] === 'string' ? names[key(region)] : text(region));
+
 // atlas.view places (SD/atlas/map.js:113-122); a place without coordinates cannot be drawn and is left out.
-function placesOf(view, tiers) {
+// `names`: chronicle.regionNames (World events on): the region's name by its id, name or alias; the id itself when the pack names none.
+function placesOf(view, tiers, names) {
   return list(view?.places)
     .filter(p => Number.isFinite(p?.x) && Number.isFinite(p?.y) && text(p.id))
     .map(p => ({
-      id: p.id, name: text(p.name), kind: text(p.kind), region: text(p.region) || null,
+      id: p.id, name: text(p.name), kind: text(p.kind), region: regionName(p.region, names) || null,
       x: p.x, y: p.y, visited: p.visited === true, here: p.here === true, danger: dangerOf(tiers?.[p.id]),
     }));
 }
@@ -106,9 +109,9 @@ function conditionsOf(raw) {
   return { place: text(raw.place), rows };
 }
 
-/** selectWorld({ atlasView, tiers, selected, worldView, worldEvents, conditionsHere }) → the world view-model; a missing answer leaves that part empty or null; `conditions` only with `worldEvents` on. */
-export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null, worldEvents = false, conditionsHere = null } = {}) {
-  const places = withQuests(placesOf(atlasView, tiers), worldView);
+/** selectWorld({ atlasView, tiers, selected, worldView, worldEvents, conditionsHere, regionNames }) → the world view-model; a missing answer leaves that part empty or null; `conditions` only with `worldEvents` on. */
+export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null, worldEvents = false, conditionsHere = null, regionNames = null } = {}) {
+  const places = withQuests(placesOf(atlasView, tiers, regionNames), worldView);
   const ids = new Set(places.map(p => p.id));
   const factions = factionsOf(worldView, places);
   return {

@@ -31,6 +31,8 @@ export const conditionQueries = {
             .filter(entry => entry.holds?.length || !(isInt(env.now) && isInt(entry.fadesAt) && entry.fadesAt <= env.now))
             .filter(entry => (ref === null || lower(entry.ref) === lower(ref)) && (scope === null || entry.scope === scope) && (name === null || entry.name === name));
     }),
+    /** The regions' display names (`content.regions`, by id, name or alias, lower case) → name; `{}` when the packs give none. The World tab shows names, never ids. */
+    'chronicle.regionNames': tagged((_state, _args, tools) => Object.fromEntries(hostGeo(toolsQuery(tools)).regionNames ?? [])),
     /** The pack's declared list: `[{ name, scope, fades, means }]`. */
     'chronicle.conditionNames': tagged((_state, _args, tools) => declaredConditions(toolsQuery(tools))),
 };
