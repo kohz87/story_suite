@@ -213,19 +213,19 @@ test('an ended fight draws "Back to the story ›", and pressing it goes to the 
 });
 
 // A stance in the view (as the v1 engine writes it): the switch is drawn, and turning it off stages an input that says so.
-const withStance = (stance = { name: 'Shield work', on: true, soakOn: 22, soakOff: 12, paid: null }) => {
+const withStance = (stance = { name: 'Shield work', on: true, soakOn: 22, soakOff: 12, pool: 'Stamina', cost: 1, paid: null }) => {
   const vm = open('choose');
   vm.view.actors[0].stance = stance;
   return vm;
 };
 
-test('a stance in the view draws the switch and the soak now, with no cost note', () => {
+test('a stance in the view draws the switch, the soak now and the name with its cost', () => {
   installFakeDom();
   const { tab } = build(withStance());
   assert.equal(tab.querySelectorAll('.stance').length, 1);
   assert.equal(tab.querySelector('.stance .t').textContent.startsWith('Shield work'), true);
   assert.equal(tab.querySelector('.stance .now').textContent, 'now: soak 22%');
-  assert.equal(tab.querySelector('.stance small'), null);
+  assert.equal(tab.querySelector('.stance small').textContent, 'Shield work: soak 12% + 10% · 1 Stamina each exchange, paid at its start; off when Stamina runs out');
   assert.equal(tab.querySelector('[data-stance]').getAttribute('aria-checked'), 'true');
 });
 
@@ -234,7 +234,8 @@ test('turning the stance off, then picking, stages an input with args.stance ===
   const first = build(withStance());
   tap(first.tab, '[data-stance]');
   assert.equal(first.tab.querySelector('[data-stance]').getAttribute('aria-checked'), 'false');
-  assert.equal(first.tab.querySelector('.stance .now').textContent, 'now: soak 12%');
+  assert.equal(first.tab.querySelector('.stance .now'), null, 'off: the note names the soak');
+  assert.equal(first.tab.querySelector('.stance small').textContent, 'Off: soak 12%. No Stamina from this exchange on.');
   tap(first.tab, '[data-act="flee"]');
   await flush();
   assert.equal(first.port.recorded[0].payload.step.inputs[0].args.stance, false);

@@ -24,6 +24,7 @@ test('the view carries the stance: on at the first exchange, with the soak with 
         assert.equal(stance.name, 'Shield work');
         assert.equal(stance.on, true);
         assert.equal(stance.paid, null);
+        assert.deepEqual([stance.pool, stance.cost], ['Stamina', 1], 'a defence stance on STR takes 1 Stamina');
         assert.ok(stance.soakOn > stance.soakOff && stance.soakOff === 10, `vit 10 soaks 10%; the stance adds its mastery (${JSON.stringify(stance)})`);
         assert.deepEqual(view(host).actor.stance, stance);
     } finally { restore(); }
@@ -98,5 +99,21 @@ test('a stance switched off for an exchange stays off, and nothing is spent, aft
             host.ctx.chatMetadata = meta;
             assert.equal(spOf(host), wanted, 'reload');
         }
+    } finally { restore(); }
+});
+
+test('a stance on INT takes Mana, not Stamina, and has no soak', async () => {
+    const restore = seedCrypto(5);
+    try {
+        const blocks = v1Blocks({ count: 3, level: 5 });
+        blocks.skills.fields = { ...blocks.skills.fields, skill2: 'Ward', stat2: 'int', type2: 'evasion', practice2: 100, rank2: 1 };
+        const host = (await setup({ blocks, board: true, planner: false })).host;
+        assert.equal(openFight(host).ok, true);
+        const { stance } = view(host).actors[0];
+        assert.deepEqual([stance.name, stance.pool, stance.cost, stance.soakOn, stance.soakOff], ['Ward', 'Mana', 1, null, null]);
+        // the same view after a rebuild
+        const live = JSON.stringify(view(host));
+        host.store.rebuild();
+        assert.equal(JSON.stringify(view(host)), live);
     } finally { restore(); }
 });

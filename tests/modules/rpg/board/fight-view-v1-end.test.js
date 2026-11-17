@@ -15,6 +15,7 @@ test('a won one-hero fight that used a skill: the end card names the XP and the 
         const end = endOf(host);
         assert.equal(end.outcome, 'won');
         assert.equal(end.xpEach, 15, 'a level 5 standard foe pays 15');
+        assert.equal(end.members[0].xp, 15, 'the member row carries its own XP');
         assert.equal(end.members[0].practice.length > 0, true);
         assert.deepEqual(end.members[0].practice[0].skill, 'Cut');
         assert.ok(end.members[0].practice[0].gain >= 1);
@@ -38,6 +39,7 @@ test('a lost fight shows no XP figure (XP is for a win)', async () => {
         const end = endOf(host);
         assert.equal(end.outcome, 'lost');
         assert.equal(end.xpEach, null);
+        assert.equal(end.members[0].xp, null, 'a lost fight pays no member');
     } finally { host.close(); restore(); }
 });
 

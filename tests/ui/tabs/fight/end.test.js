@@ -25,7 +25,7 @@ test('end: won shows XP, exchanges, foes down, and each member with health and p
   assert.deepEqual(card.querySelectorAll('.xpr div').map(d => d.textContent), ['+45 XP' + 'each', '3exchanges', '4 of 4foes down']);
   const rows = card.querySelectorAll('.endr');
   assert.equal(rows.length, 4);
-  assert.match(rows[0].textContent, /AstraHealth 11\/14 · Stamina 6\/15 · Mana 14\/14Iaijutsu \+3Shadow Step \+3/);
+  assert.match(rows[0].textContent, /AstraHealth 11\/14 · Stamina 6\/15 · Mana 14\/14 · \+45 XPIaijutsu \+3Shadow Step \+3/);
   assert.equal(card.querySelectorAll('.prc i').length, 7);
 });
 
@@ -47,4 +47,12 @@ test('end: fled and lost have their own headline; an unknown member shows its id
   assert.equal(endCard(end).querySelector('.endr b').textContent, 'astra');
   assert.equal(endCard(end).querySelectorAll('.xpr div').length, 2);
   assert.equal(endCard(null), null);
+});
+
+test('end: each member row shows that member\'s own +N XP, none when the fight paid that member nothing', () => {
+  installFakeDom();
+  const vm = fightFixture('end');
+  const end = { ...vm.end, xpEach: null, members: vm.end.members.map((m, at) => ({ ...m, xp: [30, 45, null, 12][at] })) };
+  const rows = endCard(end, { party: vm.party }).querySelectorAll('.endr');
+  assert.deepEqual(rows.map(r => r.querySelector('.xp')?.textContent ?? null), [' · +30 XP', ' · +45 XP', null, ' · +12 XP']);
 });

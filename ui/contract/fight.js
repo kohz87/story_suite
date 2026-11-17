@@ -20,8 +20,9 @@ const ACTION = {
   pick: { choice: T.STRING, args: T.ANY, alone: { $optional: T.BOOLEAN } },
 };
 
-// The stance the acting member owns: `on` is whether it was up in the last exchange (the switch's start), `soakOn` / `soakOff` the soak with and without it (null for a stance that does not soak), `paid` the Stamina move the mock's note names (null from the engine).
-const STANCE = { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: { $nullable: T.NUMBER }, soakOff: { $nullable: T.NUMBER }, paid: { $nullable: [T.NUMBER] } } };
+// The stance the acting member owns: `on` is whether it was up in the last exchange (the switch's start), `soakOn` / `soakOff` the soak with and without it (null for a stance that does not soak),
+// `pool` / `cost` what it takes each exchange (Stamina, or Mana for a magic stance), `paid` the pool's move the mock's note adds (null from the engine).
+const STANCE = { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: { $nullable: T.NUMBER }, soakOff: { $nullable: T.NUMBER }, pool: { $enum: ['Stamina', 'Mana'] }, cost: T.NUMBER, paid: { $nullable: [T.NUMBER] } } };
 
 export const FIGHT_SHAPE = {
   state: { $enum: ['offer', 'choose', 'target', 'ally', 'after', 'end'] },
@@ -69,9 +70,9 @@ export const FIGHT_SHAPE = {
   end: {
     $nullable: {
       outcome: { $enum: ['won', 'fled', 'lost'] },
-      xpEach: { $nullable: T.NUMBER }, // the one figure when every paid hero got the same, else null (v1 pays by each hero's level); the end card then shows no XP figure
+      xpEach: { $nullable: T.NUMBER }, // the one figure when every paid hero got the same, else null (v1 pays by each hero's level); each member row carries its own `xp`
       exchanges: T.NUMBER,
-      members: [{ id: T.STRING, hp: T.NUMBER, hpMax: T.NUMBER, practice: [{ skill: T.STRING, gain: T.NUMBER }] }],
+      members: [{ id: T.STRING, hp: T.NUMBER, hpMax: T.NUMBER, xp: { $nullable: T.NUMBER }, practice: [{ skill: T.STRING, gain: T.NUMBER }] }],
     },
   },
 };
