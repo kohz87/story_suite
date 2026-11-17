@@ -8,6 +8,7 @@ import { SUMMARY_POINTS } from './shared-limits.js';
 import { heardStamps } from './heard.js';
 import { memberFinder, placeIdOf, placeIds } from './links.js';
 import { queryOf, tryQuery } from './query.js';
+import { worldEventsOn } from '../news-switch.js';
 import { threadsOf, planned } from './shared-threads.js';
 import { isRecord, isInt, text, cut } from './shared-text.js';
 
@@ -26,7 +27,11 @@ export function knownNews(state, tools, { hidden = hiddenNames(state), calendar 
     let stamps = null;
     const stampsOf = id => (stamps ??= heardStamps(tools, calendar)).get(id) ?? [];
     const events = tryQuery(query, 'chronicle.events', {}, null);
+    // With the world-events switch on, only the entries whose news has reached the scene's place (world.heardHere, news.js).
+    const heardList = worldEventsOn(tools) ? tryQuery(query, 'world.heardHere', {}, null) : null;
+    const reached = Array.isArray(heardList) ? new Set(heardList.map(item => item?.id)) : null;
     for (const event of Array.isArray(events) ? events : []) {
+        if (reached && !reached.has(event?.id)) continue;
         // A pulse rumour is unknown to {{user}} until the story's own world line named it (`heard`).
         if (!isRecord(event) || hidden.words.has(lineKey(text(event.name))) || (event.rumour !== undefined && event.heard !== true)) continue;
         out.push({

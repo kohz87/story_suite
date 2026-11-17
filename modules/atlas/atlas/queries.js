@@ -8,6 +8,7 @@
 import { mapSettings, parseLocation } from '../places.js';
 import { findPlace, keyOf } from './domain.js';
 import { ensurePlace } from './capture.js';
+import { courierDays } from './courier.js';
 import { atlasView, mapProps } from './map.js';
 import { scenePlace } from './note.js';
 import { placeLine, tidyPlaces } from './parent.js';
@@ -133,6 +134,8 @@ export const queries = {
         const world = worldFrom(state, tools);
         return placeDetail(world, world.find(focus) ? focus : focus.replace(/^pack:/, ''), mapSettings({}));
     },
+    /** The courier's time between two places over the routes (courier.js): `{ days, km, hops }`, or null when no chain of routes joins them. `kmPerDay` is the courier's pace. */
+    'atlas.courier': (state, { from = null, to = null, kmPerDay = undefined } = {}, tools) => courierDays(worldFrom(state, tools), from, to, { kmPerDay }),
     /** The trip between two places (travel.js `travelTime`), or null. */
     'atlas.travel': (state, { from = null, to = null, mode = null, map = null } = {}, tools) => travelTime(worldFrom(state, tools), from, to, { map: mapSettings(map ?? {}), mode }),
 };
