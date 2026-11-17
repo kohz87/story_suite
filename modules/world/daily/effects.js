@@ -75,7 +75,8 @@ export function applyEffects(ws, block, source, day, bind = {}, evac = null) {
         recordAnchor(ws.anchors, `fact:${fact.id}`, day);
         ws.journal.push({ day, text: String(fact.text ?? fact.id).slice(0, 200), by: source.id });
     }
-    if (list(block.cast).length) applyCast(ws, list(block.cast), source, day);
+    // The event's place statuses so far (this block's and, for an event, its other block's): a move into one's group with no until lasts while it holds.
+    if (list(block.cast).length) applyCast(ws, list(block.cast), { ...source, statuses: evac ?? own }, day);
     runEvacuations(ws, own);
 }
 

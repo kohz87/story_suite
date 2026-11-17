@@ -162,3 +162,17 @@ test('tests 125-128: died with from — kills there, skips elsewhere; without fr
     cue.to(1);
     assert.equal(row(cue, 'oren').dying, undefined, '128: with even_in_party, from is checked at the tick');
 });
+
+test('test 122 with an instant event: a named move into the group of the status it sets (no until) holds while the status holds, after the event is over', () => {
+    const fall = ev('fall', { set: ['fallen@Oakhollow: until cleared'], cast: [{ who: 'temiwa', from: 'Oakhollow', location: 'Oakhollow / Mill Ward', routine: 'searches the records' }] }, { ends_when: 'instant' });
+    const run = make([fall]);
+    run.to(1);
+    assert.equal(run.row('fall').state, 'ended', 'the event is over on its day');
+    assert.deepEqual([row(run, 'temiwa').displaced.to, row(run, 'temiwa').displaced.until], ['Oakhollow / Mill Ward', 'cleared:fallen@Oakhollow'], 'tied to the status, not to the event');
+    run.to(6);
+    assert.equal(row(run, 'temiwa').displaced.to, 'Oakhollow / Mill Ward', 'still there while fallen holds');
+    run.clear('fallen', 'Oakhollow');
+    run.to(7);
+    assert.equal(row(run, 'temiwa').displaced, undefined, 'released when the status clears');
+    assert.ok(run.reports.at(-1).released.some(item => item.id === 'temiwa'), 'reported for the host (the base it set is cleared)');
+});

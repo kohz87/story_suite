@@ -48,3 +48,9 @@ test('tests 100-101: an event requiring the learned anchor is Dormant before it,
     const again = step(step(null, 1).daily, 2, null);
     assert.notEqual(again.daily.events.war?.state, 'ended', 'without the reveal: still not eligible');
 });
+
+test('a bonds record keyed apart from the dossier (made before it) is found by the person\'s name', () => {
+    const state = people({});
+    state.bonds.npcs = { npc_other: { name: 'Temiwa', unlocked: ['sec_aaaaaaaa'] } };
+    assert.deepEqual(learnedAnchors(state, cast), ['learned:temiwa/page', 'fact:last-rite-proof']);
+});

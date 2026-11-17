@@ -27,7 +27,8 @@ function people(world) {
         if (typeof person?.id !== 'string') continue;
         const start = person.start && typeof person.start === 'object' ? person.start.place : person.start;
         // canDieUnmet: only an explicit true lets an unmet person die (seam audit E6: absent counts as false).
-        out.set(person.id, { id: person.id, name: person.name ?? person.id, protected: person.protected === true, canDieUnmet: person.canDieUnmet === true, home: person.homeBase ?? start ?? null });
+        // `home`: where play begins for them (spec §8 start.place; the cast store starts them there too), else their homeBase.
+        out.set(person.id, { id: person.id, name: person.name ?? person.id, protected: person.protected === true, canDieUnmet: person.canDieUnmet === true, home: start ?? person.homeBase ?? null });
     }
     return out;
 }

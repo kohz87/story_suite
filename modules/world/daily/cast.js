@@ -45,6 +45,16 @@ function fromAllows(ws, person, from, by) {
     return ws.cast[person.id]?.displaced?.by === by;
 }
 
+// A named move with no `until` into the group of a place status the same event sets lasts while that status holds (spec §8 staying
+// behind, v0.14.8: "she stays at the Terrace for as long as fallen@auvoth holds"), not only while the event is Active.
+function statusUntil(ws, source, to) {
+    for (const status of Array.isArray(source.statuses) ? source.statuses : []) {
+        const place = resolveRef(ws.geo, status.ref);
+        if (place?.kind === 'place' && inGroup(ws, to, place.name)) return `cleared:${status.name}@${place.name}`;
+    }
+    return '';
+}
+
 function skip(ws, person, source, day, why) {
     ws.log.push({ kind: 'cast-skipped', key: person.id, by: source.id, day, why });
 }
@@ -83,7 +93,7 @@ export function applyCast(ws, entries, source, day) {
         if (location) {
             if (!fromAllows(ws, person, from, source.id)) { skip(ws, person, source, day, from ? `not in ${from}` : 'moved from their start since'); continue; }
             const to = resolveRef(ws.geo, location)?.name ?? location;
-            const move = { until: text(entry.until) || 'end', routine: text(entry.routine), title: source.title };
+            const move = { until: text(entry.until) || statusUntil(ws, source, to) || 'end', routine: text(entry.routine), title: source.title };
             if (ws.withYou.has(person.id)) {
                 // With You: not moved; the move waits until they part from You (cast-defer.js), `from` checked again then.
                 ws.cast[person.id] = { ...(ws.cast[person.id] ?? {}), deferred: { to, by: source.id, until: move.until, title: source.title, ...(move.routine ? { routine: move.routine } : {}), ...(from ? { from } : {}) } };

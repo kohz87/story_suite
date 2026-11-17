@@ -91,8 +91,8 @@ export function worldNote(view) {
     const heard = place ? heardLines(view, place, now) : [];
     const cue = ask(view, 'world.cueToday', { now, ...(place ? { place } : {}) });
     const cueText = clip(typeof cue === 'string' ? cue : cue?.text, 140);
-    // A must-happen death (ruling 34, daily/cues.js) leads the pinned head: "<name> dies here: <summary>".
-    const dying = pendingCues(slotValue(view.state.domains.chronicle.daily)).map(item => `Must happen in this reply: ${clip(item.text, 140)}.`);
+    // A must-happen death (ruling 34, daily/cues.js) leads the pinned head, in the spec's words: "<name> dies here: <summary>".
+    const dying = pendingCues(slotValue(view.state.domains.chronicle.daily)).map(item => `${clip(item.text, 140)}.`);
     const here = [
         ...dying,
         status.length ? `Status here: ${status.map(entry => `${entry.ref} is ${entry.name}${entry.declared.means ? ` (${clip(entry.declared.means, 60)})` : ''}`).join('; ')}.` : '',

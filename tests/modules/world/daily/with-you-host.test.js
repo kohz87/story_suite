@@ -55,7 +55,7 @@ test('tests 109-110 (host): even_in_party → the must-happen line in the world 
         assert.equal(daily(host).cast.lothar.dying.text, 'Lothar dies here: The duel at Gwenmar.');
         assert.equal(daily(host).cast.lothar.died, undefined, 'not applied at the tick');
         await host.send('Fight.', said('Steel rings.'));
-        assert.match(sent(host, TAIL_KEY).at(-1) ?? '', /Must happen in this reply: Lothar dies here: The duel at Gwenmar\./, 'the cue was in the note of the reply after the tick');
+        assert.match(sent(host, TAIL_KEY).at(-1) ?? '', /\[World now\]\nLothar dies here: The duel at Gwenmar\./, 'the cue was in the note of the reply after the tick');
         assert.equal(daily(host).cast.lothar.dying.replies, 1);
         // A swipe of a counting reply counts it once (the state is a slot written whole).
         await host.swipe(said('Steel rings again.'));

@@ -29,7 +29,9 @@ export function learnedAnchors(people, cast, known = new Set()) {
     for (const id of Object.keys(dossiers).sort()) {
         const dossier = dossiers[id];
         const entry = (Array.isArray(cast) ? cast : []).find(person => person?.id === dossier?.castFrom?.id);
-        const opened = new Set(Array.isArray(bonds[id]?.unlocked) ? bonds[id].unlocked : []);
+        // The bonds record is keyed by the dossier's id; one NPC State made before the dossier is found by its name (as its own queries do).
+        const record = bonds[id] ?? Object.values(bonds).find(item => flat(item?.name) && flat(item?.name) === flat(dossier?.name));
+        const opened = new Set(Array.isArray(record?.unlocked) ? record.unlocked : []);
         if (!entry || !opened.size) continue;
         const notes = (Array.isArray(dossier.secrets) ? dossier.secrets : []).filter(note => opened.has(note?.id));
         for (const secret of Array.isArray(entry.secrets) ? entry.secrets : []) {
