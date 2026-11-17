@@ -63,11 +63,13 @@ export function mountSuite(options = {}) {
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
       onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : port.command('settings.set', { key, value })),
-      onAction: (key, value) => port.command('settings.action', { key, value }), onView: (name, args) => port.view(name, args),
+      onAction: (key, value) => (key === 'trackers.open' ? openTrackers() : port.command('settings.action', { key, value })), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});
   };
+  // Settings › Packs and trackers: a tracker is made and edited on Story › Trackers, so the buttons there close Settings and go to it.
+  const openTrackers = () => { settingsOverlay?.close(); prefs.setFold('story.trackers', true); showTab('story'); return { ok: true }; };
   const views = defaultViews({
     port, prefs, backStack, doc, tabHost: () => tabHost, onSettings: openSettings,
     onChat: () => view.close(), refresh: () => showTab(tabHost.current()), width: () => tabHost.panel.clientWidth,

@@ -36,9 +36,9 @@ export const SETTINGS_SHAPE = {
   },
   removed: [T.STRING],
   packs: {
-    packs: [{ name: T.STRING, desc: T.STRING, on: T.BOOLEAN }],
-    modules: [{ name: T.STRING, desc: T.STRING, on: T.BOOLEAN }],
-    trackers: { cap: T.NUMBER, items: [{ name: T.STRING, desc: T.STRING }] },
+    packs: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, problem: { $optional: T.STRING } }],
+    modules: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING, on: T.BOOLEAN, locked: { $optional: T.BOOLEAN } }],
+    trackers: { cap: T.NUMBER, items: [{ id: { $optional: T.STRING }, name: T.STRING, desc: T.STRING }] },
   },
   sections: [
     {

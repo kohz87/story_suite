@@ -3,6 +3,7 @@
 import { selectConnections } from './connections.js';
 import { selectCalls } from './calls.js';
 import { selectProblems, selectSent } from './tools.js';
+import { selectPacks } from './packs.js';
 
 const LOOK = ['panelStyle', 'glassStrength', 'font', 'textSize', 'sendPending'];
 const BUDGETS = ['tailBudget', 'contextShare', 'maxChangeLines'];   // callQueue is in the Models page's Calls group
@@ -97,13 +98,14 @@ export function selectSettings(answers) {
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
+    section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
   return {
     subtitle: typeof a.subtitle === 'string' ? a.subtitle : null,
     sent,
     removed: [],
-    packs: { packs: [], modules: [], trackers: { cap: 0, items: [] } },
+    packs: selectPacks(a.packsAnswers),
     sections,
     modules: { scope: 'chat', chat: set, newChats: {}, preset: hasFeatures ? presetOf(a.features) : null, presets: [], defs: defList },
     connections: selectConnections(host, isObj(a.profiles) ? a.profiles : null),

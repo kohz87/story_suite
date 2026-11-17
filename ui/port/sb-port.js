@@ -3,6 +3,7 @@
 import { modelsCommand } from './models.js';
 import { toolsCommand } from './tools.js';
 import { trackerCommand } from './trackers.js';
+import { packsCommand } from './packs.js';
 
 /** The page event `port.open` sends and the host answers (ui/legacy/ui-host/lean-rpg-sync.js). */
 export const OPEN_EVENT = 'story-suite:open';
@@ -54,8 +55,8 @@ async function offerCommand(controller, payload) {
   return { ...FAILED, message: 'The engine does not take that offer answer.' };
 }
 
-/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach. */
-export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null } = {}) {
+/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `packs` is the Packs page's handle ({ packs, readLorebook, lore }); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach. */
+export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, packs = null } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -91,6 +92,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         try { answer = await modelsCommand(sdk, type, payload, Date.now, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
+        try { answer = await packsCommand(packs, sdk, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
       }
       if (typeof type === 'string' && type.startsWith('tracker.')) {
