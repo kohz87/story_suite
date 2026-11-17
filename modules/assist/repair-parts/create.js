@@ -13,7 +13,7 @@ export const REPAIR_TOKENS = 600;
  * The repairer. `deps`: the extractor's (callModel, settings, grammar, capture, chatId, log, warn, timeoutMs, timer, where) and `state()` → the story's
  * state lines before the reply (Place, Present, Wallet, Carried …). Returns { afterReply(reply) }.
  */
-export function createRepairer({ callModel, settings, grammar, capture, chatId, log, warn, timeoutMs = TIMEOUT_MS, timer, where = null, state = () => [] }) {
+export function createRepairer({ callModel, settings, grammar, capture, chatId, log, warn, timeoutMs = TIMEOUT_MS, timer, where = null, state = () => [], persona = () => '' }) {
     const done = new Set();
 
     function note(outcome, entry = {}) {
@@ -31,6 +31,7 @@ export function createRepairer({ callModel, settings, grammar, capture, chatId, 
      */
     async function afterReply(reply = {}) {
         const skip = { attempted: false };
+        let key = null;
         try {
             if (settings()?.[SETTING.repair] !== true || reply.missing !== true) return skip;
             const type = normalizeType(reply.type);
@@ -43,7 +44,7 @@ export function createRepairer({ callModel, settings, grammar, capture, chatId, 
             if (!story || extractBlock(mes) !== null) return skip;
             const stored = assistSections(mes);
             if (stored.now.length || stored.next.length) return skip;
-            const key = `${chatId() ?? ''}|${index}|${swipe}|${reply.sid ?? ''}`;
+            key = `${chatId() ?? ''}|${index}|${swipe}|${reply.sid ?? ''}`;
             if (done.has(key)) return skip;
             done.add(key);
             const at = { index, swipe };
@@ -61,13 +62,16 @@ export function createRepairer({ callModel, settings, grammar, capture, chatId, 
             const around = whereNow({ here: seen?.here, places, time: seen?.time });
             let facts = [];
             try { facts = state() ?? []; } catch { facts = []; }
-            const prompt = repairPrompt(story, lines, facts, around);
+            let who = '';
+            try { who = String(persona?.() ?? ''); } catch { who = ''; }
+            const prompt = repairPrompt(story, lines, facts, around, who);
             let answer;
             try {
                 answer = await withTimeout(() => callModel(prompt, { maxTokens: REPAIR_TOKENS, role: 'quick', helper: 'repair' }), timeoutMs, timer);
             } catch (error) {
                 const message = error?.message ?? String(error);
                 note(error?.code === 'TIMEOUT' ? 'timeout' : 'failed', { ...at, message });
+                done.delete(key);   // a failed ask is asked again by Re-read; an answer (lines or nothing) is not
                 return { attempted: true, repair: 'failed', message };
             }
             const parsed = parseExtractorAnswer(answer, [...new Set(lines.map(grammarKind))], allow, { places, here: around.here?.name ?? '' }, { repair: true });
@@ -82,6 +86,7 @@ export function createRepairer({ callModel, settings, grammar, capture, chatId, 
             note(missing.length ? 'lines' : 'nothing', { ...at, ...(missing.length ? { lines: missing.length } : {}), dropped: parsed.dropped, tokens: estimateTokens(prompt) });
             return { attempted: true, repair: missing.length ? 'ok' : 'nothing', result: result ?? null };
         } catch (error) {
+            if (key) done.delete(key);
             const message = error?.message ?? String(error);
             note('failed', { index: reply?.index ?? null, swipe: reply?.swipe ?? null, message });
             return { attempted: true, repair: 'failed', message };

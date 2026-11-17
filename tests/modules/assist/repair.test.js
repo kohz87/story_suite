@@ -135,7 +135,7 @@ test('an empty answer is no lines, with a "found nothing" row; a coin line that 
     broke.close();
 });
 
-test('the repairer asks the Quick role, once per carrier, with a 20 s time-out that is a failure, never a second call for the same swipe', async () => {
+test('the repairer asks the Quick role, once per carrier, with a 20 s time-out that is a failure, a timed-out call is asked again, a second call for an answered swipe never', async () => {
     const calls = [];
     const log = createRunLog();
     const hang = createRepairer({ callModel: (prompt, options) => { calls.push(options); return new Promise(() => {}); }, settings: () => ({ [SETTING.repair]: true }), grammar: () => ['+ item Name'], capture: async () => null,
@@ -147,8 +147,11 @@ test('the repairer asks the Quick role, once per carrier, with a 20 s time-out t
     assert.equal(log.last('repair').outcome, 'timeout');
     assert.equal(calls[0].role, 'quick');
     assert.equal(calls[0].helper, 'repair');
-    assert.equal((await hang.afterReply(reply)).attempted, false, 'once per carrier and swipe');
-    assert.equal(calls.length, 1);
+    assert.equal((await hang.afterReply(reply)).attempted, true, 'a timed-out ask is asked again (Re-read)');
+    assert.equal(calls.length, 2);
+    const answers = createRepairer({ callModel: async () => '<Changes></Changes>', settings: () => ({ [SETTING.repair]: true }), grammar: () => ['+ item Name'], capture: async () => null, chatId: () => 'c', log, warn: () => {} });
+    assert.equal((await answers.afterReply(reply)).attempted, true);
+    assert.equal((await answers.afterReply(reply)).attempted, false, 'once per carrier and swipe once it answered');
     for (const skipped of [{ ...reply, sid: 'b', missing: false }, { ...reply, sid: 'c', type: 'continue' }, { ...reply, sid: 'd', type: 'quiet' }, { ...reply, sid: 'e', mes: '' }]) {
         assert.equal((await hang.afterReply(skipped)).attempted, false);
     }

@@ -165,6 +165,7 @@ export function createRuntime({
                         world: { events: ask('chronicle.events', { open: true }) ?? [], factions: ask('chronicle.factions', {}) ?? [] } };
                 },
                 // The story's Place, Present, Wallet and Carried lines as the narrator was given them (for the repair of a reply with no block).
+                persona: () => { try { return String((live() ?? ctx)?.name1 ?? ''); } catch { return String(ctx?.name1 ?? ''); } },
                 state: () => stateLinesOf(registry, () => makeView({ store, registry, settings, chat: ctx.chat })),
                 skip: skipOf(() => chatMetadata()),
                 chat: () => ctx.chat,

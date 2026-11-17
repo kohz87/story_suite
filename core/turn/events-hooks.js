@@ -28,8 +28,12 @@ export function createReplyHooks(s, deps) {
             // A reply with no block and nothing stored for it (no repair, or it failed or found nothing) is a Problems row, once.
             if (missing === true && ctxSame(index, message, sid)) {
                 const item = missingProblem(index, message.mes, repairOutcome(results));
-                // (once per reply: a Re-read of the same reply asks again, and the row stays one)
-                if (item && !s.problemLog.some(old => old.code === item.code && old.index === index && old.sid === sid && old.message === item.message)) problem({ ...item, sid, quiet: true });
+                // (one row per reply: a Re-read that asked again makes the row's text the latest outcome; one that did not ask leaves it)
+                if (item) {
+                    const old = s.problemLog.find(row => row.code === item.code && row.index === index && row.sid === sid);
+                    if (old) { if (repairOutcome(results) !== 'off') old.message = item.message; }
+                    else problem({ ...item, sid, quiet: true });
+                }
             }
         });
         if (!runs.length && missing !== true) return;

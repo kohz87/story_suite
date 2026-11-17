@@ -17,6 +17,7 @@ import { sdk } from './shared-sdk.js';
  *   hasKind(kind) → boolean                             (default: the sdk's module list)
  *   grammar() → the kinds' one-line grammars            (default: none; the host passes the registry's)
  *   capture(text, { index, swipe })                     (default: none; the host passes it per reply)
+ *   persona() → the player character's name, for {{user}} in the repair's grammar lines (default: none)
  *   state() → the story's state lines before a reply (Place, Present, Wallet, Carried …), for the repair (default: none)
  *   where() → { here, places, time }                    (default: none; the scene's place, the map's places, the story's date and time: where.js)
  *   skip: { peek() } — whether the next reply goes out with no dice (the lean RPG's start notes; default: never)
@@ -32,6 +33,7 @@ export function createAssistPart({
     capture = null,
     where = null,
     state = () => [],
+    persona = () => '',
     skip = undefined,
     moduleId = HOST_MODULE_ID,
     timeoutMs = TIMEOUT_MS,
@@ -53,7 +55,7 @@ export function createAssistPart({
     const shared = { callModel, log, warn, timeoutMs, timer, chatId };
     const classifier = createClassifier({ ...shared, settings: read, chat, hasKind, ...(skip ? { skip } : {}) });
     const extractor = createExtractor({ ...shared, settings: () => read(null), grammar, capture, where });
-    const repairer = createRepairer({ ...shared, settings: () => read(null), grammar, capture, where, state });
+    const repairer = createRepairer({ ...shared, settings: () => read(null), grammar, capture, where, state, persona });
 
     /** assist.status: { classifier: { on, last }, extractor: { on, last }, repair: { on, last }, runs }. */
     function status() {
