@@ -15,6 +15,7 @@ import { resetCommand } from './resets.js';
 import { moduleCardCommand } from './module-cards.js';
 import { ALIAS_NAMES, aliasCommand } from './aliases.js';
 import { OWN_NAMES } from './own-names.js';
+import { refreshCommand } from './people-refresh.js';
 
 /** The page event `port.open` sends and the host answers (ui/legacy/ui-host/lean-rpg-sync.js). */
 export const OPEN_EVENT = 'story-suite:open';
@@ -137,6 +138,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       }
       if (ALIAS_NAMES.includes(type)) { const answer = await aliasCommand(sdk, type, payload).catch(failure); announce(answer); return answer; }
       if (type === 'packs.offer') return offerCommand(offer?.(), payload);
+      // The dossier's Refresh re-reads the story with NPC State's Refresh (the engine's `npc.refresh` only works the stages out again).
+      if (type === 'npc.refresh' && payload?.name !== undefined) return refreshCommand(payload);
       // The waiting fight's answers (board, auto, plain, send, discard): the pause's own, so the old view and this one write the same; the view redraws after.
       if (type === 'interaction.choose') {
         let answer = hold ? null : { ...FAILED, message: 'No fight is waiting.' };
