@@ -3,6 +3,7 @@
 import { isPlainObject } from '../../../scene/domains/common.js';
 import { STRINGS } from '../../../../core/strings.js';
 import { readSheet } from '../../../rpg/read.js';
+import { ridersOf } from '../../../scene/mounts-parts/riders.js';
 import { GEAR } from '../stats.js';
 import { statsFor, soakFor, soakCap, weightFor, handDef, slotWordOf, placeOf, gearBudget } from '../stats.js';
 import { condWord } from '../conditions.js';
@@ -81,12 +82,17 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
     const memberCount = Math.max(1, readSheet(state).characters.length);
     // "Strength 25 · Sling Bag +10 · Horse +40 (with the party)": each member's strength, then what each item and mount adds.
     const rideNames = new Set((Array.isArray(mounts) ? mounts : []).filter(row => row && travelsWith(row.where, place)).map(row => row.name));
-    const breakdown = (picture.sources.party ?? []).map((entry, at) => (at < memberCount ? (memberCount === 1 ? `${S.strength} ${entry.carry}` : `${entry.name} ${S.strength.toLowerCase()} ${entry.carry}`)
-        : `${entry.name} +${entry.carry}${rideNames.has(entry.name) ? ` ${S.withParty}` : ''}`)).join(' · ');
-    const away = (Array.isArray(mounts) ? mounts : []).filter(row => row && !travelsWith(row.where, place)).map(row => {
-        const carry = (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1);
-        return `${row.name} +${carry} · ${String(row.where).trim()}, not with you`;
-    });
+    const shown = (picture.sources.party ?? []).map((entry, at) => ({ label: entry.name, value: entry.carry, dim: false,
+        text: at < memberCount ? (memberCount === 1 ? `${S.strength} ${entry.carry}` : `${entry.name} ${S.strength.toLowerCase()} ${entry.carry}`)
+            : `${entry.name} +${entry.carry}${rideNames.has(entry.name) ? ` ${S.withParty}` : ''}` }));
+    const breakdown = shown.map(part => part.text).join(' · ');
+    const heldBags = stacks.filter(stack => carryOf(defs[stack.def]) && stack.owner === 'party' && (defs[stack.def].kind !== 'equipment' || stack.equipped !== null));
+    const mountRowsOf = (Array.isArray(mounts) ? mounts : []).filter(row => row).map(row => ({
+        name: row.name, withParty: travelsWith(row.where, place), riders: ridersOf(row.where),
+        carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1), where: String(row.where).trim(),
+    }));
+    const awayRows = mountRowsOf.filter(row => !row.withParty).map(row => ({ ...row, text: `${row.name} +${row.carry} · ${row.where}, not with you` }));
+    const away = awayRows.map(row => row.text);
     return {
         on: true, owner, owners: list, rows, slots, bag, wearers, soak: soakRecord(state, owner, condOf),
         // The starting kit (the chat has no message from the reader yet): Rarity and Bonus may be set by hand.
@@ -94,6 +100,10 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, names,
         carry: {
             load: shared.load, capacity: shared.capacity, pct: shared.capacity > 0 ? Math.round(shared.load * 100 / shared.capacity) : 0,
             level: loadLevel(shared.load, shared.capacity), lose: Math.abs(penalty), breakdown, away,
+            // The same breakdown as rows ({ label, value, text, dim }: dim for what is left behind), for the Bag's load chips.
+            parts: [...shown, ...awayRows.map(({ name, carry, text }) => ({ label: name, value: carry, text, dim: true }))],
         },
+        // What carries the load: the mounts (with the party or left behind) and the party's carrying items, (`riders`: the names its `where` says ride or lead it), so the Bag can link a mount or a bag to its slot.
+        carriers: { mounts: mountRowsOf.map(({ name, carry, withParty, riders }) => ({ name, carry, withParty, riders })), bags: heldBags.map(stack => ({ stack: stack.id, name: defs[stack.def].name, carry: carryOf(defs[stack.def]) })) },
     };
 }
