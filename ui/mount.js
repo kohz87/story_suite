@@ -14,7 +14,7 @@ import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
 import { DEVELOPER_KEY } from './settings/developer.js';
 
-const PORT_EVENTS = ['head', 'committed', 'turn', 'feature'];
+const PORT_EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 
 function resolveTheme(theme, doc) {
   if (theme === 'light') return { tokens: GLASS_LIGHT, scheme: 'light' };

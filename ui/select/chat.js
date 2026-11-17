@@ -90,7 +90,9 @@ export function selectInlineRow(answers = {}, opts = {}) {
   const { scene } = selectCard(answers, opts);
   const lines = replyLines(answers) ?? [];
   const overdue = list(answers['time.overdue']?.overdue);
-  const needsYou = overdue.length ? { n: overdue.length, title: `${overdue.length} overdue` } : null;
+  const offers = list(opts.offers).filter(row => row?.state === 'offer' || row?.state === 'working').length;
+  const parts = [overdue.length ? `${overdue.length} overdue` : '', offers ? `${offers} pack ${offers === 1 ? 'offer' : 'offers'}` : ''].filter(Boolean);
+  const needsYou = parts.length ? { n: overdue.length + offers, title: parts.join(' · ') } : null;
   return {
     date: scene.date,
     time: scene.time,

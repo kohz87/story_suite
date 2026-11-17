@@ -1,6 +1,7 @@
 // Builds the two "Right now" cards: Needs you (actions only) and Today (focus, trip, due soon, torn gear).
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
+import { offerBlocks } from './card-offer.js';
 
 const GO_LABEL = Object.freeze({ fight: 'Fight ›', party: 'Party ›', world: 'Map ›', bag: 'Bag ›' });
 const NEED_GLYPH = Object.freeze({ fight: 'fight', overdue: '!', points: '+' });
@@ -85,9 +86,11 @@ function todayRows(today, ctx) {
 /** Returns the Needs you and Today cards; an empty card is left out, so the result may have 0, 1 or 2 elements. */
 export function rightNow(now = {}, ctx = {}) {
   const needs = Array.isArray(now.needsYou) ? now.needsYou : [];
+  const offers = Array.isArray(now.offers) ? now.offers : [];
+  const waiting = offers.filter(o => o.state === 'offer' || o.state === 'working').length;
   const todayList = now.today ? todayRows(now.today, ctx) : [];
   const out = [];
-  if (needs.length) out.push(card('Needs you', needs.length, needsRows(needs, ctx), 'needs'));
+  if (needs.length || offers.length) out.push(card('Needs you', needs.length + waiting, [needsRows(needs, ctx), offerBlocks(offers, ctx)], 'needs'));
   if (todayList.length) out.push(card('Today', 0, todayList, 'today'));
   return out;
 }

@@ -14,6 +14,8 @@ import { selectSettings } from './settings.js';
 import { selectProblems, selectSent, selectInspector } from './tools.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { gather, optsOf, gearOf } from './gather.js';
+import { offerRows } from './offers.js';
+import { liveOffer } from '../port/live-offer.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
@@ -24,7 +26,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null) {
   const problemsNow = () => ({ problems: tools?.problems?.() ?? [], blocked: tools?.blocked?.() ?? null, nameOf: tools?.nameOf });
   const scene = read => {
     const answers = gather(read);
-    const opts = optsOf(read, answers, ctx);
+    const opts = { ...optsOf(read, answers, ctx), offers: offerRows(liveOffer()) };
     const fight = selectFightScene(read('interaction.view', {})); // the open fight, if one is: the inline chip and the Now card read it
     return { answers, opts: fight ? { ...opts, fightOpen: true, fight: needsOf(fight) } : opts };
   };
