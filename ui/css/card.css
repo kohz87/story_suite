@@ -4,7 +4,7 @@
 
 .ctop{display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--su-line2)}
 .ctop .bk{font:800 13px var(--su-font);color:var(--su-text);background:var(--su-panel2);border:1px solid var(--su-line2);border-radius:999px;padding:6px 12px;cursor:pointer;flex:none}
-@container (max-width:600px){.ctop .bk{min-height:44px}}
+@media (max-width:900px){.ctop .bk{min-height:44px}}   /* the mock: 44 px when the window is 900 px wide or less, 32 px above (the window, not the suite panel) */
 .ctop .meta{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--su-soft);cursor:pointer;min-height:44px;align-content:center;align-items:center;border-radius:10px}
 .ctop .meta:hover{background:var(--su-line2)}
 .ctop .meta:focus-visible{outline:2px solid var(--su-accent);outline-offset:2px}

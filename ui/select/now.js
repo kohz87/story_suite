@@ -12,7 +12,7 @@ const list = value => (Array.isArray(value) ? value : []);
 // `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. An open fight has no query (UI-PLAN §2.1); points to spend come from `rpg.sheet` (SB/lean-rpg/sheet-query.js: per member `points`).
 function needsYou(answers, opts) {
   const out = [];
-  if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: 'A fight is open', detail: null, go: 'fight' });
+  if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: opts.fight.offer ? 'Foes are standing' : 'A fight is open', detail: opts.fight.offer ? list(opts.fight.names).join(', ') || null : null, go: 'fight' });
   const owing = list(answers['rpg.sheet']).filter(row => isRec(row) && Number.isFinite(row.points) && row.points > 0);
   if (owing.length) {
     const total = owing.reduce((sum, row) => sum + row.points, 0);

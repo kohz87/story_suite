@@ -7,7 +7,7 @@ import { partyCard } from '../fight/party-strip.js';
 const joinNames = list => (list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`);
 // (mock v7 writes the count as a word: "Four foes block the bridge."; the place's own verb is the story's, so the line says they stand in your way)
 const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
-const foeLine = n => `${WORDS[n] ?? n} ${n === 1 ? 'foe stands' : 'foes stand'} in your way. Choose each exchange on the board, let the code fight it out, or keep telling the story.`;
+const foeLine = (n, offer) => `${WORDS[n] ?? n} ${n === 1 ? 'foe stands' : 'foes stand'} in your way. Choose each exchange on the board, let the code fight it out${offer ? '.' : ', or keep telling the story.'}`;   // (foes left standing: nothing is held back, so there is no story button to name)
 
 /**
  * Builds the offer for the waiting fight `vm` (ui/select/hold.js: `vm.hold`, `vm.view` with foe groups and party). `api.choose(choice)` answers the pause
@@ -24,7 +24,7 @@ export function fightOffer(vm, api = {}) {
   const all = hold.count || view.foeGroups.reduce((n, g) => n + g.members.length, 0);   // every foe, a group bigger than the shown members too
   const choose = choice => () => api.choose?.(choice);
   const offer = h('section', { class: 'card glass offer', dataset: { card: 'offer' } },
-    h('p', { class: 'otext' }, hold.working ? hold.line : foeLine(all)),
+    h('p', { class: 'otext' }, hold.working ? hold.line : foeLine(all, hold.offer)),
     hold.working ? null : h('div', { class: 'brow3' },
       button({ label: 'Fight on the board', tone: 'primary', dataset: { offer: 'board' }, onClick: choose('board') }),
       button({ label: 'Auto-fight', dataset: { offer: 'auto' }, onClick: choose('auto') }),

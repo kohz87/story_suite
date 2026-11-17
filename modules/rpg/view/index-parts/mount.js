@@ -102,11 +102,11 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
     const fightStart = createStartController({ doc, chat: () => ctx?.chat ?? [], meta, state: headState, preview: previewStart, interaction,
         board: () => board, on: () => featureOn(), save, refresh, generate: generateHeld, cap: () => autoCapFrom(values()), show: () => openScreen(FIGHT_SCREEN_ID), close: () => closeView?.() });
     board = createBoardView({ doc, headState: () => fightStart.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rate: () => xpRateFrom(values()), rules, query, readerName, roleOf, levels, on: featureOn, start: fightStart, cap: () => autoCapFrom(values()) });
-    const offHold = attachHoldBridge({ doc, start: fightStart, discard: () => { if (interaction?.current?.()) interaction.discard(interaction.current().id); } });
     let offers;
     const offerView = createOfferLineView({ doc, onFight: data => offers.choose(data, 'board'), onAuto: data => offers.choose(data, 'auto') });
     offers = createFightOffers({ ctx, doc, store, meta, on: () => featureOn() && isStandard(rulesFromSettings(values(), packOnce())), view: offerView,
         open: ({ auto = false } = {}) => { if (!board.open()) return false; if (auto) board.auto(); openScreen(FIGHT_SCREEN_ID); return true; }, save, refresh });
+    const offHold = attachHoldBridge({ doc, start: fightStart, offers, discard: () => { if (interaction?.current?.()) interaction.discard(interaction.current().id); } });
     const battleLog = createBattleLog({ ctx, doc, store, events, featureOn, roleOf, readerName, levels, offer: offers });
     widgets[FIGHT_WIDGET] = createFightWidget({ headState, readerName, roleOf, battleLog, closeView, levels, board, start: fightStart });
     screens.setPack(PACK, [createPartyScreen(), createFightScreen({ roleOf, offer: () => Boolean(offers.find()), waiting: () => Boolean(fightStart.current()), kept: () => board.kept() }), wizard.screen, exporter.screen, start.holdScreen]);

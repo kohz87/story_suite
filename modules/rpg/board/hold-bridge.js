@@ -11,6 +11,12 @@ export const SCREEN_EVENT = 'story-suite:screen';
 
 const OPS = ['board', 'auto', 'plain', 'send', 'discard'];
 
+/** Tells the page the waiting choice (the pause or the standing-foes offer) changed or can now be read. */
+function notifyHold(doc) {
+    if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return;
+    try { doc.dispatchEvent(new globalThis.CustomEvent(HOLD_EVENT, { detail: { op: 'changed' } })); } catch { /* a listener that throws is the page's */ }
+}
+
 /** Asks the page whether another view shows screen `id` (it sets `handled`). True when one did. */
 export function claimScreen(doc, id) {
     if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return false;
@@ -22,15 +28,18 @@ export function claimScreen(doc, id) {
 /**
  * Answers HOLD_EVENT on `doc` from the pause controller `start` (board/start-controller.js). `discard()` throws the open fight away the way the
  * board's Discard fight does (the controller puts the waiting choice back). Each foe group of the view carries its full health (`hp`, Combat Rules v1).
- * Returns the function that stops answering.
+ * `offers` (board/offers.js) is the offer for foes left standing without the reader's attack: with no pause waiting the view is that offer's
+ * (`offer: true`) and 'board' / 'auto' answer it, as the old line's two buttons do. Returns the function that stops answering.
  */
-export function attachHoldBridge({ doc, start, discard = () => {} }) {
+export function attachHoldBridge({ doc, start, discard = () => {}, offers = null }) {
     const view = () => {
-        const info = start.info();
+        const info = start.info() ?? offers?.info?.() ?? null;
         return info ? { ...info, foes: (info.foes ?? []).map(foe => ({ ...foe, hp: foeStats(foe).hp })) } : null;
     };
     const run = op => {
-        if (op === 'board') start.board();
+        const offered = (op === 'board' || op === 'auto') && !start.info() && offers?.info?.();
+        if (offered) offers.answer(op);
+        else if (op === 'board') start.board();
         else if (op === 'auto') start.auto();
         else if (op === 'plain') start.plain();
         else if (op === 'send') start.send();
@@ -50,12 +59,9 @@ export function attachHoldBridge({ doc, start, discard = () => {} }) {
         }
     };
     // (a view mounted before the RPG screens loaded, or a reload into a waiting fight, reads the pause again when it can be read)
-    const changed = () => {
-        if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return;
-        try { doc.dispatchEvent(new globalThis.CustomEvent(HOLD_EVENT, { detail: { op: 'changed' } })); } catch { /* a listener that throws is the page's */ }
-    };
+    const changed = () => notifyHold(doc);
     doc?.addEventListener?.(HOLD_EVENT, answer);
-    const unlisten = start.listen?.(changed);
+    const unlisten = start.listen?.(changed), unoffer = offers?.listen?.(changed);
     changed();
-    return () => { doc?.removeEventListener?.(HOLD_EVENT, answer); unlisten?.(); changed(); };
+    return () => { doc?.removeEventListener?.(HOLD_EVENT, answer); unlisten?.(); unoffer?.(); changed(); };
 }
