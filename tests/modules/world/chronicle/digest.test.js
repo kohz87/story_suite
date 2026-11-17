@@ -225,7 +225,7 @@ function viewOn({ feature, minutes, written, recap = null }) {
 }
 
 test('the feature: declared on by default; off, the hook writes nothing and the tail says nothing', () => {
-    assert.deepEqual(features.map(feature => [feature.id, feature.default]), [[DIGEST_FEATURE, true]]);
+    assert.deepEqual(features.map(feature => [feature.id, feature.default]), [[DIGEST_FEATURE, true], ['story-director.world-events', false]]);
     assert.equal(part.commands[DIGEST].feature, DIGEST_FEATURE);
     // B-rxui-3: the three digest settings show only while the feature is on (Story Block's schema-field `feature`).
     for (const key of ['digestDays', 'digestKeep', 'digestTail']) assert.equal(part.settings.schema[key].feature, DIGEST_FEATURE, key);

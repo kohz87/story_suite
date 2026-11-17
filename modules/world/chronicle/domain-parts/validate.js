@@ -2,6 +2,7 @@
 
 import { slotValue } from '../../../rpg/slot.js';
 import { validateDays } from '../days.js';
+import { validateConditions } from '../conditions/validate.js';
 import { MAX_EVENTS, MAX_FACTIONS, MAX_RESOLVED } from './limits-caps.js';
 import { EVENT_ID, FACTION_ID, STATES } from './limits-ids.js';
 import { LASTING_BY } from './limits-lasting.js';
@@ -120,8 +121,10 @@ export function validateChronicle(slice) {
     }
     // A chronicle from before the day digest has no `days` or `written`.
     errors.push(...validateDays(slice));
+    // The world conditions (conditions/): optional, so a chat that never set one has no field.
+    errors.push(...validateConditions(slice.conditions));
     for (const key of Object.keys(slice)) {
-        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
+        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog', 'conditions'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
     }
     return errors;
 }

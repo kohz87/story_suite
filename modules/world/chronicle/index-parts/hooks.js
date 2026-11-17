@@ -1,5 +1,6 @@
 // Story Director v2, chronicle part: beforeGenerate and tail context hooks.
 
+import { conditionsSettleCommands } from '../conditions/settle.js';
 import { backlogCue, backlogOlder, digestCommands, digestTailLine, noteCommands } from '../digest.js';
 import { chronicleTail } from '../note.js';
 import { beforeGenerate as surfaceHook } from '../pick.js';
@@ -10,7 +11,7 @@ import { threadsOn } from '../../../time/tracker/threads.js';
  * and the [Earlier days] block as a pinned cue (it is kept whatever the tail budget says, and its sentence goes with it).
  */
 export function beforeGenerate(view) {
-    const commands = [...noteCommands(view), ...digestCommands(view), ...(threadsOn(view) ? surfaceHook(view)?.commands ?? [] : [])];
+    const commands = [...noteCommands(view), ...digestCommands(view), ...conditionsSettleCommands(view), ...(threadsOn(view) ? surfaceHook(view)?.commands ?? [] : [])];
     const lines = backlogCue(view);
     return commands.length || lines.length ? { ...(commands.length ? { commands } : {}), ...(lines.length ? { lines } : {}) } : undefined;
 }
