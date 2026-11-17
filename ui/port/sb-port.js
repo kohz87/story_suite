@@ -83,10 +83,10 @@ export function createSbPort({ sdk, writes = null, selectors = {}, prefs = null,
       return guarded(sdk, 'command', type, payload, options);
     },
     // Opens a screen the host owns (the New character window, filled in from `payload`): the host answers the `story-suite:open` event on the page; no engine command, nothing recorded.
-    async open(id, payload) {
+    async open(id, payload, { onEnd } = {}) {
       const doc = globalThis.document;
       if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return { ...FAILED, message: 'There is no page to open it on.' };
-      const detail = { id, payload: payload ?? null, handled: false };
+      const detail = { id, payload: payload ?? null, handled: false, onEnd: typeof onEnd === 'function' ? onEnd : null };
       doc.dispatchEvent(new globalThis.CustomEvent(OPEN_EVENT, { detail }));
       return detail.handled ? { ok: true } : { ...FAILED, message: 'That window is not available now.' };
     },

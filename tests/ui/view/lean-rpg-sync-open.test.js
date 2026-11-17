@@ -9,13 +9,13 @@ function build() {
     addEventListener: (type, fn) => listeners.set(type, fn),
     removeEventListener: (type, fn) => { if (listeners.get(type) === fn) listeners.delete(type); },
   };
-  const opened = [];
-  const view = { wizard: { open: payload => { opened.push(payload); return {}; } }, destroy() {} };
+  const opened = [], ends = [];
+  const view = { wizard: { open: (payload, options) => { opened.push(payload); ends.push(options?.onEnd ?? null); return {}; } }, destroy() {} };
   const mounts = { card: null, screen: null };
   const deps = { loadLeanRpg: async () => ({ mountLeanRpg: () => view }), doc, ctx: {}, store: {}, events: {}, screens: {}, hostWidgets: {}, registry: {}, runtime: {}, liveCtx: () => null, settings: () => ({}),
     sdk: {}, api: {}, rpgOn: () => true, getHeadState: () => null, getMounts: () => mounts, getOverlay: () => null, refresh() {}, openSettings() {} };
   const fire = detail => { const event = { detail }; listeners.get('story-suite:open')?.(event); return event.detail; };
-  return { sync: createLeanRpgSync(deps), fire, opened, listeners };
+  return { sync: createLeanRpgSync(deps), fire, opened, ends, listeners };
 }
 
 test('the open event opens the wizard with the payload once the RPG screens are loaded; other screens and a missing wizard are not handled; destroy removes the listener', async () => {
@@ -28,4 +28,14 @@ test('the open event opens the wizard with the payload once the RPG screens are 
   assert.equal(fire({ id: 'other/screen', payload: {}, handled: false }).handled, false);
   sync.destroy();
   assert.equal(listeners.has('story-suite:open'), false);
+});
+
+test('the open event passes the caller\'s onEnd on to wizard.open', async () => {
+  const { sync, fire, ends } = build();
+  sync.syncLeanRpg();
+  await new Promise(r => setTimeout(r, 0));
+  const onEnd = () => {};
+  fire({ id: 'story-block/new-character', payload: { name: 'Mara' }, handled: false, onEnd });
+  fire({ id: 'story-block/new-character', payload: { name: 'Mara' }, handled: false });
+  assert.deepEqual(ends, [onEnd, null]);
 });

@@ -150,17 +150,21 @@ test('an interaction call that throws or has no sdk answers a refusal, and other
 });
 
 test('port.open sends the page event the host answers and says whether it was handled', async () => {
-  const seen = [];
+  const seen = [], details = [];
   const listeners = [];
   const prior = [globalThis.document, globalThis.CustomEvent];
   globalThis.CustomEvent = class { constructor(type, init) { this.type = type; this.detail = init?.detail; } };
-  globalThis.document = { dispatchEvent: event => { seen.push([event.type, event.detail.id, event.detail.payload]); listeners.forEach(fn => fn(event)); return true; } };
+  globalThis.document = { dispatchEvent: event => { seen.push([event.type, event.detail.id, event.detail.payload]); details.push(event.detail); listeners.forEach(fn => fn(event)); return true; } };
   try {
     const port = createSbPort({ sdk: fakeSdk() });
     assert.equal((await port.open('story-block/new-character', { name: 'Mara' })).ok, false, 'nobody answered');
     listeners.push(event => { event.detail.handled = true; });
     assert.deepEqual(await port.open('story-block/new-character', { name: 'Mara' }), { ok: true });
     assert.deepEqual(seen[1], ['story-suite:open', 'story-block/new-character', { name: 'Mara' }]);
+    assert.equal(details[1].onEnd, null);
+    const onEnd = () => {};
+    await port.open('story-block/new-character', { name: 'Mara' }, { onEnd });
+    assert.equal(details[2].onEnd, onEnd, 'onEnd rides on the event detail');
   } finally {
     [globalThis.document, globalThis.CustomEvent] = prior;
   }

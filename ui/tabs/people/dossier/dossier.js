@@ -129,7 +129,8 @@ export function dossierPage(d, ctx = {}) {
         : follow),
       h('div', { class: 'idl' }, d.idLine, d.genderUnknown ? h('span', { class: 'gflag' }, ' · gender not stated') : null),
       h('div', { class: 'idl' }, [dead ? where : (d.now && Object.hasOwn(d.now, 'where') ? 'Here' : where), d.inParty ? 'in your party' : null].filter(Boolean).join(' · ')),
-      dead ? null : partyAddButton(d, { ...ctx, onAdded: () => { d.partyAdd = null; d.inParty = true; drawGrid(); } }),
+      dead ? null : partyAddButton(d, { ...ctx, onAdded: () => { d.partyAdd = null; d.inParty = true; drawGrid(); },
+        onEdited: () => { const fresh = ctx.port?.view?.('dossier')?.[d.id]; if (fresh) { d.partyAdd = fresh.partyAdd ?? null; d.inParty = fresh.inParty; } drawGrid(); } }),
       dead ? null : button({ label: 'See on map', dataset: { act: 'map' }, onClick: () => { if (ctx.seeOnMap) ctx.seeOnMap(d.id); else cmd('people.focus'); } }));
   }
 

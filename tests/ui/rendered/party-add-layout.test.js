@@ -63,10 +63,16 @@ for (const theme of ['dark', 'light']) {
       const got = await page.evaluate(() => {
         const p = document.querySelector('#hx-frame [data-sheet="party-add"] .sh-panel').getBoundingClientRect();
         const buttons = [...document.querySelectorAll('#hx-frame [data-sheet="party-add"] .pa-acts button')].map(b => { const r = b.getBoundingClientRect(); return { label: b.textContent, h: r.height, in: r.left >= p.left - 0.5 && r.right <= p.right + 0.5, clipped: b.scrollWidth > b.clientWidth }; });
-        return { buttons, panel: { l: p.left, r: p.right, b: p.bottom }, vw: window.innerWidth, vh: window.innerHeight };
+        const note = document.querySelector('#hx-frame [data-sheet="party-add"] .pa-note');
+        note.textContent = 'The party is full.';
+        const probe = document.createElement('i'); probe.style.color = 'var(--su-warn-t)'; note.after(probe);
+        const warnColor = getComputedStyle(probe).color; probe.remove();
+        const noteColor = getComputedStyle(note).color, rowColor = getComputedStyle(document.querySelector('#hx-frame [data-sheet="party-add"] .pa-row')).color;
+        return { noteColor, rowColor, warnColor, buttons, panel: { l: p.left, r: p.right, b: p.bottom }, vw: window.innerWidth, vh: window.innerHeight };
       });
       if (process.env.PARTYADD_SHOTS) await page.screenshot({ path: `${process.env.PARTYADD_SHOTS}/card-${width}-${theme}.png` });
       await page.close();
+      assert.ok(got.noteColor && got.noteColor === got.warnColor && got.noteColor !== got.rowColor, `the refusal note is in the warning colour, not the text colour (${got.noteColor})`);
       assert.deepEqual(got.buttons.map(b => b.label), ['Add to party', 'Edit first', 'Not now']);
       for (const b of got.buttons) { assert.ok(b.h >= 44, `${b.label} ${b.h}`); assert.equal(b.in, true, `${b.label} inside the panel`); assert.equal(b.clipped, false, `${b.label} not clipped`); }
       assert.ok(got.panel.l >= 0 && got.panel.r <= got.vw && got.panel.b <= got.vh + 1, 'panel inside the screen');

@@ -1,12 +1,12 @@
-// Builds "Add to party" on a person's page: the button, and the join card it opens (the card a `+ party` line gives: Add as is, Edit first, Not now).
+// Builds "Add to party" on a person's page: the button, and the join card it opens (the card a `+ party` line gives: Add to party, Edit first, Not now).
 import { h } from '../../../kit/dom.js';
 import { button } from '../../../kit/controls.js';
 import { openSheet } from '../../../kit/sheet.js';
 
 /**
- * Opens the join card for `join` (the dossier's `partyAdd`). Add as is sends the engine's own reader action with `cause: 'ui'`, as the card under a reply does;
+ * Opens the join card for `join` (the dossier's `partyAdd`). Add to party sends the engine's own reader action with `cause: 'ui'`, as the card under a reply does;
  * Edit first asks the port to open the New character window filled in (`port.open`); Not now only closes the card: it answers nothing to the story.
- * ctx = { port, doc?, backStack?, sheetHost?, onAdded? }; `onAdded()` is called once the engine took the add. Buttons are off while a command runs. Returns the sheet.
+ * ctx = { port, doc?, backStack?, sheetHost?, onAdded?, onEdited? }; `onAdded()` is called once the engine took the add; `onEdited()` once the New character window (Edit first) closes with the companion created. Buttons are off while a command runs. Returns the sheet.
  */
 export function openJoinCard(join, ctx = {}) {
   const sheet = openSheet(ctx, { title: join.title, id: 'party-add' });
@@ -22,7 +22,7 @@ export function openJoinCard(join, ctx = {}) {
       if (result?.ok === false) { note.textContent = result.message || 'The party could not take them.'; lock(false); return; }
       ctx.onAdded?.();
     } else if (action.open) {
-      const result = await ctx.port?.open?.(action.open, action.payload);
+      const result = await ctx.port?.open?.(action.open, action.payload, { onEnd: created => { if (created) ctx.onEdited?.(); } });
       if (result?.ok === false) { note.textContent = result.message || 'The window could not open.'; lock(false); return; }
     }
     sheet.close();

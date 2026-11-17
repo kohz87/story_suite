@@ -69,3 +69,22 @@ test('a taken add redraws the page (no button, "in your party") and a double tap
   assert.equal(act(root, 'party-add'), null, 'the button is gone');
   assert.match(root.querySelector('.dhero').textContent, /in your party/);
 });
+
+test('Edit first: when the window closes with the companion created the page redraws (no button, "in your party"); closed without Create it stays as it was', async () => {
+  for (const created of [true, false]) {
+    installFakeDom();
+    let end = null;
+    const ctx = makeCtx();
+    const view = dossier('temiwa');
+    ctx.port.open = async (id, payload, options) => { end = options?.onEnd; return { ok: true }; };
+    ctx.port.view = () => ({ temiwa: created ? { ...view, partyAdd: null, inParty: true } : view });
+    const root = dossierPage(view, ctx);
+    act(root, 'party-add').click();
+    act(sheetOf(), 'edit').click();
+    await new Promise(r => setTimeout(r, 0));
+    assert.equal(typeof end, 'function', 'the port gets an onEnd');
+    end(created);
+    assert.equal(act(root, 'party-add') === null, created, created ? 'the button is gone' : 'the button stays');
+    assert.equal(/in your party/.test(root.querySelector('.dhero').textContent), created);
+  }
+});
