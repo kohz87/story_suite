@@ -2,11 +2,14 @@
 
 import { selectConnections } from './connections.js';
 import { selectCalls } from './calls.js';
+import { selectDirector } from './settings-director.js';
 import { selectProblems, selectSent } from './tools.js';
 import { peopleRows } from './people-settings/index.js';
 import { selectRpgRows } from './rpg-rows.js';
 import { worldRows } from './settings-world.js';
 
+// The Settings page a module's feature switches belong to, when it is not the module's own id.
+const SECTION_OF = { 'npc-state-delta': 'people', 'story-director': 'director' };
 const LOOK = ['panelStyle', 'glassStrength', 'font', 'textSize', 'sendPending'];
 const BUDGETS = ['tailBudget', 'contextShare', 'maxChangeLines'];   // callQueue is in the Models page's Calls group
 // Skin "Solid" is dropped (decision 36.15), so it is never offered.
@@ -67,7 +70,7 @@ function moduleParts(features) {
   for (const f of features) {
     if (!isObj(f) || typeof f.id !== 'string') continue;
     const id = String(f.moduleId ?? 'story-block');
-    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: id === 'npc-state-delta' ? 'people' : id, desc: '', off: '', tokens: 0, subs: [] });
+    if (!defs.has(id)) defs.set(id, { id, name: String(f.moduleName ?? id), icon: '', section: SECTION_OF[id] ?? id, desc: '', off: '', tokens: 0, subs: [] });
     const sub = { key: f.id, label: String(f.label ?? f.id), hint: String(f.describe ?? ''), on: f.on === true };
     if (f.available === false && typeof f.why === 'string') sub.needs = f.why;
     defs.get(id).subs.push(sub);
@@ -80,7 +83,7 @@ function moduleParts(features) {
 
 /**
  * `answers`: { host: settings() (SB sdk/settings.js:74, stored over defaults), defaults: HOST_SETTINGS_DEFAULTS (sdk/constants.js:10),
- * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
+ * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
  * → the settings view-model (contract/settings.js), or null when neither host settings nor a feature list was read.
  * Gaps (packs, presets, per-chat module sets) are empty or null.
  */
@@ -102,6 +105,7 @@ export function selectSettings(answers) {
     section('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', peopleRows(a.people)),
     section('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', selectRpgRows(a.rpg)),
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [])),
+    ...[selectDirector(a.directorPage)].filter(Boolean),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
