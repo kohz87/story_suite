@@ -68,7 +68,8 @@ test('on the host: an event sets a condition, it is active, queries see it, and 
     assert.equal(host.sdk.query('chronicle.conditions', { name: 'grain-dear' }).length, 0, 'lapsed: not active');
     await host.send('Then.', reply('Quiet.'));
     assert.deepEqual(names(host), ['unrest@Highmark'], 'settled: removed');
-    assert.ok(host.sdk.receipts().some(entry => entry.receipt.type === 'chronicle.conditions.settle' && /Faded: grain-dear on The March/.test(entry.receipt.summary)));
+    // The fade is told on a card: the settle's, or (the world's daily step owns fades while it steps the days, job C) the daily step's.
+    assert.ok(host.sdk.receipts().some(entry => ['chronicle.conditions.settle', 'chronicle.world.daily'].includes(entry.receipt.type) && /Faded: grain-dear on The March/.test(entry.receipt.summary)));
     await agrees(host, 'fade');
     host.close();
 });
@@ -96,8 +97,9 @@ test('on the host: swipe, a middle delete, a rewind and an edited Re-read (grown
     await host.st.editMessage(at, reply('Days go.', ['! time +3d']));
     assert.equal((await host.sdk.reread(at)).ok, true);
     assert.equal(snap(host), before, 'edited back: as it was');
-    // The later reply's settle is a kept system step: it removed grain-dear on the old clock and replays as recorded (see WEINT.REPORT.md).
-    assert.deepEqual(shrunk, ['unrest@Highmark']);
+    // The daily step (job C) fades conditions on the reply that crossed the days, as an afterCapture step that a Re-read runs again:
+    // shrunk to +1h no day is crossed, so grain-dear has not faded (WEINT.REPORT.md's open point, where a later reply's kept settle removed it).
+    assert.deepEqual(shrunk, ['grain-dear@The March', 'unrest@Highmark']);
     // A middle delete: the day's reply goes, the later ones replay without it.
     await host.st.deleteMessage(at);
     await agrees(host, 'middle delete');

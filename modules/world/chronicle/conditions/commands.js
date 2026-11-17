@@ -14,6 +14,18 @@ import { WORLD_EVENTS_FEATURE } from './feature.js';
 
 const BY = /^(?:narrator|director|code)$/;
 
+/**
+ * The end of a condition set again (spec §2 Holders): the longer remaining time is kept ("until cleared" is longest), and the
+ * daily step's event holds (`holds`, `open`) stay. A condition set for the first time ends `minutes` from now (null: never).
+ */
+function lifetime(old, minutes, now) {
+    const end = minutes === null ? null : now + minutes;
+    if (!old) return { fadesAt: end };
+    if (old.holds?.length) return { fadesAt: end === null ? old.fadesAt : old.fadesAt === null ? end : Math.max(old.fadesAt, end), holds: old.holds, ...(old.open || end === null ? { open: true } : {}) };
+    if (old.fadesAt === null || end === null) return { fadesAt: null };
+    return { fadesAt: old.fadesAt > now ? Math.max(old.fadesAt, end) : end };
+}
+
 // Who wrote it: `event:<id>`, "narrator", "director" or "code".
 function readBy(ctx, payload, type) {
     if (typeof payload.by !== 'string' || !(BY.test(payload.by) || LASTING_BY.test(payload.by))) {
@@ -32,7 +44,7 @@ function declaredOf(ctx, name) {
  * `chronicle.condition.set { name, scope?, ref, fades?, why, by }`: the condition is active on `ref`. `fades` is how long it lasts
  * ("10 days", "1 season", "until cleared", null = until cleared); left out, the pack's own. Refused with a note when the name is
  * not declared by the pack, the scope is not the declared one, the ref is not a known place, route, region or realm, or a cap is full.
- * Setting one that is active again keeps when it began and moves the end.
+ * Setting one that is active again keeps when it began and the longer end.
  */
 function condition(ctx, payload) {
     if (ctx.cause === 'ui') return ctx.fail('REFUSED', 'Conditions are set by the story, not by a click.');
@@ -57,7 +69,7 @@ function condition(ctx, payload) {
     if (!old && Object.values(table).filter(entry => entry.ref === ref).length >= MAX_PER_REF) return ctx.fail('REFUSED', `${ref} already carries ${MAX_PER_REF} conditions.`);
     const why = cleanSummary(typeof payload.why === 'string' ? payload.why : '').slice(0, 200);
     chronicle.conditions = table;
-    chronicle.conditions[key] = { name, scope: declared.scope, ref, since: old?.since ?? now, fadesAt: minutes === null ? null : now + minutes, why, by, rev: revOf(ctx) };
+    chronicle.conditions[key] = { name, scope: declared.scope, ref, since: old?.since ?? now, ...lifetime(old, minutes, now), why, by, rev: revOf(ctx) };
     return { summary: `${old ? 'Still' : 'Now'}: ${name} on ${ref}${why ? ` (${why})` : ''}.`, narrate: false, data: { key, created: !old } };
 }
 

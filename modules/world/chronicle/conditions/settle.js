@@ -8,7 +8,8 @@ import { WORLD_EVENTS_FEATURE, worldEventsOn } from './feature.js';
 export const CONDITIONS_SETTLE = 'chronicle.conditions.settle';
 
 /** The keys whose end has come at `now` (fadesAt <= now), in key order. */
-export const dueKeys = (table, now) => (isInt(now) && table ? Object.keys(table).filter(key => isInt(table[key]?.fadesAt) && table[key].fadesAt <= now).sort() : []);
+// An entry the daily step holds for an Active event (`holds`, world-events switch) is not due whatever its timer says.
+export const dueKeys = (table, now) => (isInt(now) && table ? Object.keys(table).filter(key => isInt(table[key]?.fadesAt) && table[key].fadesAt <= now && !table[key].holds?.length).sort() : []);
 
 function settleCommand(ctx) {
     const now = clockOf(ctx);

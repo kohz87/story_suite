@@ -1,6 +1,6 @@
 // World events, the daily step: one day of authored events (spec v0.10 §3 Lifecycle, Certainty, Caps). In the fixed same-day
 // order (set-in-motion, chain stages, one-offs, recurring; by id within each) every event that is not finished is checked:
-// Active → does it end; pre-empted → Replaced; a dead chain path → the cascade; the window (lapse at the first tick after its last
+// Active → does it end; pre-empted → Replaced; the window (lapse at the first tick after its last
 // day); requirements (Eligible ↔ Dormant); then today's chance, the seeded roll and the caps. Pure (on `ws`).
 
 import { anchorHolds } from './anchors.js';
@@ -61,8 +61,6 @@ function oneEvent(ws, def, day) {
         return;
     }
     if (preEmpted(ws, def, day)) return closeEvent(ws, def, day, 'replaced', 'pre-empted');
-    const dead = cascadeState(ws, def);
-    if (dead) return closeEvent(ws, def, day, dead, 'its only path is gone');
     const win = windowed(ws, def, row, day);
     if (win.lapse) {
         if (def.certainty === 'set-in-motion') ws.warnings.push(`The set-in-motion event "${def.id}" lapsed: its requirements did not hold on its last day.`);
@@ -95,7 +93,7 @@ function recurring(ws, def, day) {
     attempt(ws, def, day, dailyChance(def, { days: seasonDays(ws.tempo), left: 1, m: modifierProduct(ws, def, day, bind) }), bind);
 }
 
-/** Every authored event, one day, in the fixed order; then the cascade again until nothing more falls (same day). */
+/** Every authored event, one day, in the fixed order; then the cascade (a dead chain path) until nothing more falls, the same day. */
 export function eventsDay(ws, events, day) {
     for (const def of events) {
         ws.events[def.id] ??= { state: 'dormant' };

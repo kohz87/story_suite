@@ -47,15 +47,16 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     const prior = Number.isInteger(state?.day) ? state.day : null;
     if (prior !== null && today <= prior) return null;
     const campaign = typeof state?.seed === 'string' ? state.seed : String(seed ?? '');
+    const paced = Number.isFinite(tempo) && tempo >= 0.25 && tempo <= 4;
     const defs = readDefs(world);
     const ws = {
-        geo: buildGeo(world), people: people(world), met: new Set(met), tempo, rev,
+        geo: buildGeo(world), people: people(world), met: new Set(met), tempo: paced ? tempo : 1, rev,
         declared: new Map(list(world.conditions).filter(row => typeof row?.name === 'string').map(row => [row.name, { name: row.name, scope: row.scope, fades: row.fades ?? null, placeStatus: row.placeStatus === true }])),
         table: { ...record(table) }, masks: { ...record(state?.masks) }, anchors: structuredClone(record(state?.anchors)),
         events: structuredClone(record(state?.events)), lastMajor: { ...record(state?.lastMajor) }, cast: structuredClone(record(state?.cast)),
         standings: standingsOf(world, state?.standings), facts: { ...record(state?.facts) }, minors: list(state?.minors).map(entry => ({ ...entry })),
         cooldowns: { ...record(state?.cooldowns) }, startDay: Number.isInteger(state?.start) ? state.start : today,
-        draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings], log: [], journal: [], tomb: new Set(), day: today,
+        draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings, ...(paced ? [] : [`Tempo ${tempo} is outside 0.25-4; tempo 1 is used.`])], log: [], journal: [], tomb: new Set(), day: today,
     };
     ws.anchor = key => recordAnchor(ws.anchors, key, ws.day);
     const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);

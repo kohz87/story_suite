@@ -8,6 +8,8 @@ import { conditionCommands } from '../conditions/commands.js';
 import { worldEventsFeature } from '../conditions/feature.js';
 import { conditionQueries } from '../conditions/queries.js';
 import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
+import { DAILY, dailyCommand } from '../world-daily/command.js';
+import { dailyAfterCapture } from '../world-daily/hook.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
 import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
@@ -55,6 +57,7 @@ export const part = {
         'chronicle.rumor': rumor,
         ...conditionCommands,
         [CONDITIONS_SETTLE]: settleConditions,
+        [DAILY]: dailyCommand,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,
@@ -74,7 +77,8 @@ export const part = {
         tail: view => tail(view),
         budget: TAIL_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET,
     },
-    hooks: { beforeGenerate },
+    // afterCapture: the world's clock fallback and daily step (switch story-director.world-events; nothing while it is off).
+    hooks: { beforeGenerate, afterCapture: dailyAfterCapture },
     settings: {
         section: 'Chronicle',
         defaults: { ...DIGEST_DEFAULTS },

@@ -3,6 +3,7 @@
 import { slotValue } from '../../../rpg/slot.js';
 import { validateDays } from '../days.js';
 import { validateConditions } from '../conditions/validate.js';
+import { validateDaily } from '../world-daily/validate.js';
 import { MAX_EVENTS, MAX_FACTIONS, MAX_RESOLVED } from './limits-caps.js';
 import { EVENT_ID, FACTION_ID, STATES } from './limits-ids.js';
 import { LASTING_BY } from './limits-lasting.js';
@@ -123,12 +124,14 @@ export function validateChronicle(slice) {
     errors.push(...validateDays(slice));
     // The world conditions (conditions/): optional, so a chat that never set one has no field.
     errors.push(...validateConditions(slice.conditions));
+    // `daily` (switch story-director.world-events): the daily step's state; optional, absent until the first step.
+    errors.push(...validateDaily(slice.daily));
     // `worldLine` (switch story-director.world-events): the replies that wrote their one world line, by record ID.
     if (slice.worldLine !== undefined && (!isRecord(slice.worldLine) || Object.keys(slice.worldLine).length > 64 || Object.values(slice.worldLine).some(v => v !== true))) {
         errors.push('chronicle.worldLine must be { [reply]: true }, at most 64.');
     }
     for (const key of Object.keys(slice)) {
-        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog', 'conditions', 'worldLine'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
+        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog', 'conditions', 'worldLine', 'daily'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
     }
     return errors;
 }
