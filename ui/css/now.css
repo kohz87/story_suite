@@ -22,7 +22,7 @@ button.rnr{cursor:pointer}
 .rnr .ti svg{width:16px;height:16px}
 .rnr-text{display:flex;flex-direction:column;min-width:0}
 .rnr b{font:800 14px var(--su-font);display:block}
-.rnr small{display:block;line-height:normal;font-size:12px;color:var(--su-muted)}
+.rnr small{font-size:12px;color:var(--su-muted)}
 .rnr .go{font:800 13px var(--su-font);color:var(--su-muted);white-space:nowrap}
 @container (max-width:400px){.rnr{column-gap:8px}.rnr b{font-size:13.5px}.rnr .go{font-size:12.5px}}
 .rnr.torn .ti{color:#f0b84a}
@@ -82,7 +82,7 @@ button.rnr{cursor:pointer}
 .cr .crm{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-width:0}
 .cr .crx{flex:1;min-width:0;display:flex;flex-direction:column}
 .cr b{font:700 14px var(--su-font);color:var(--su-text)}
-.cr small{display:block;line-height:normal;font-size:12px;color:var(--su-muted)}
+.cr small{font-size:12px;color:var(--su-muted)}
 .cr.w{background:var(--su-warn-t);border:1px solid var(--su-warn);border-radius:12px;padding:7px 8px;margin-top:4px}
 .cr.w .ti{color:var(--su-warn)}.cr.w b{color:var(--su-warn)}
 .cr .why{min-height:44px;min-width:44px;font:800 12px var(--su-font);border:1px solid var(--su-line2);background:var(--su-panel2);color:var(--su-text);border-radius:8px;padding:4px 10px;margin-left:6px;cursor:pointer}

@@ -61,7 +61,7 @@ for (const width of [390, 820]) {
         assert.equal(m.gapText, '5px');
         assert.equal(m.iconToText, 5);
         assert.equal(m.svg, 15);
-        assert.equal(m.ibtn.font, '800 13.3333px Arial');
+        assert.equal(m.ibtn.font, '13.3333px Arial');
         assert.equal(m.ibtn.w, 44);
         assert.equal(m.ibtn.h, 44);
       } finally { await page.close(); }
