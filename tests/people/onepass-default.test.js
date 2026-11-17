@@ -22,3 +22,22 @@ test('the number box keeps a typed 0 where 0 is allowed, and a blank or junk box
     assert.equal(cutSettingNumber('0', 1, 12, 3), 3, 'where 0 is not allowed it is still the fallback, as before');
     assert.equal(cutSettingNumber('-5', 1, 12, 3), 1);
 });
+
+test('one-time switch: a profile with no marker and false turns on once; with the marker a false stays; fresh gets both; reload is idempotent', () => {
+    const ext = globalThis.__npcMock.extensionSettings;
+    const bucket = npcBucket(ext, { create: true });
+    for (const k of Object.keys(bucket)) delete bucket[k];
+    Object.assign(bucket, { scanEvery: 1, narrationCapture: false });
+    assert.equal(getSettings().narrationCapture, true, 'old profile (no marker) false -> true');
+    assert.equal(npcBucket(ext).npcStateSettingsVersion, DEFAULTS.npcStateSettingsVersion);
+    npcBucket(ext).narrationCapture = false;
+    assert.equal(getSettings().narrationCapture, false, 'own off kept after the marker');
+    assert.equal(getSettings().narrationCapture, false, 'reload idempotent');
+    npcBucket(ext).npcStateSettingsVersion = 0;
+    npcBucket(ext).narrationCapture = false;
+    assert.equal(getSettings().narrationCapture, true, 'a lower marker moves once too');
+    for (const k of Object.keys(npcBucket(ext))) delete npcBucket(ext)[k];
+    const fresh = getSettings();
+    assert.equal(fresh.narrationCapture, true);
+    assert.equal(fresh.npcStateSettingsVersion, DEFAULTS.npcStateSettingsVersion);
+});
