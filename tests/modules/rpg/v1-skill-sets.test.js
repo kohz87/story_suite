@@ -5,6 +5,7 @@ import { SKILL_SETS } from '../../../modules/rpg/templates.js';
 import { SKILL_TYPE_NAMES } from '../../../modules/rpg/templates-combat.js';
 import { STANCE_TYPES } from '../../../core/runtime/skill-slots.js';
 import { withSet } from '../../../modules/rpg/view/wizard-data.js';
+import { skillCost } from '../../../modules/rpg/combat/skills.js';
 import { vetGroups } from '../../../modules/rpg/board/precheck.js';
 import { openingSetup } from '../../../modules/rpg/board/opening.js';
 import { openingV1 } from '../../../modules/rpg/board/v1-opening.js';
@@ -58,4 +59,13 @@ test('choosing a second set replaces the first set\'s utility skills; a utility 
     const first = withSet({ level: 1, skills: [own] }, fighter), second = withSet(first, scout);
     assert.deepEqual(second.skills.map(skill => skill.name), ['Cooking', 'Rope work', 'Swimming', 'Tracking']);
     assert.equal(second.skills.length, 1 + scout.skills.length);
+});
+
+test('every built-in set skill shows the pool it costs (Mending is Mana: a heal always draws MP)', () => {
+    for (const set of SKILL_SETS) {
+        for (const { name, type, stat, uses } of set.skills) {
+            const { pool } = skillCost({ type, stat });
+            if (pool !== null) assert.equal({ stamina: 'sp', mana: 'mp' }[uses], pool, `${set.name} / ${name}: uses ${uses}, costs ${pool}`);
+        }
+    }
 });

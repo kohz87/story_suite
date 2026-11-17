@@ -86,10 +86,17 @@ function settleV1(state, setup, steps, dice) {
     return { result, stop: result.stop, changes: fightChangesV1(result, played.sheet) };
 }
 
+// Auto is the engine's own policy for that hero, and a stance the hero's last exchange had switched off stays off (read from the steps before: a swipe, a Re-read, a rewind and a reload give the same input).
+function autoInput(state, setup, steps = [], actor = '') {
+    const last = steps.at(-1)?.inputs?.find(input => input?.actor === actor);
+    return { choice: 'auto', args: last?.args?.stance === false ? { stance: false } : {} };
+}
+
 /** Everything the kind's hooks use for a v1 fight (`isV1`/`sheet` tell whether a setup or a state is one): Auto is the engine's own automatic policy for that hero; the next setup carries the start and the foes' bars; the witness is what the engine reads. */
 export const V1 = Object.freeze({
     isV1, sheet: v1Sheet, open: openV1, play: playV1, settle: settleV1,
-    auto: () => ({ choice: 'auto', args: {} }),
+    auto: autoInput,
+    soak: soakOf,
     next(setup, result) {
         const out = structuredClone(setup), exchanges = Number(result.exchanges);
         if (Number.isInteger(exchanges) && exchanges >= 1) {

@@ -30,7 +30,7 @@ export function sceneTab(vm, ctx = {}) {
     note.textContent = failed ? String(answer?.message || 'That could not be done.') : '';
     return answer;
   };
-  const api = { stage: step => run('stage', { step }), auto: n => run('auto', { n }), send: () => run('send', {}), discard: () => run('discard', {}), note, prefs: ctx.prefs };
+  const api = { stage: step => run('stage', { step }), auto: n => run('auto', { n }), send: () => run('send', {}), discard: () => run('discard', {}), back: () => ctx.go?.('chat'), note, prefs: ctx.prefs };
   const head = h('section', { class: 'glass fhead scene-head', dataset: { card: 'scene-head' } },
     h('span', { class: 't' }, h('b', null, vm.title)),
     h('span', { class: 'fpill scene-pill' }, PILL[vm.state] ?? vm.state));

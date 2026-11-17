@@ -10,7 +10,7 @@ const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 const open = (fight = 'choose', options) => selectScene(fightSceneAnswer(fight, options));
 // A no-target pick that waits for the others: Flee without `alone` (a real Flee stages by itself).
 const quiet = vm => { for (const a of vm.view.actors) for (const x of a.groups.Flee) delete x.pick.alone; return vm; };
-const build = (vm, port = createFakePort()) => ({ port, tab: sceneTab(vm, { port }) });
+const build = (vm, port = createFakePort(), go = undefined) => ({ port, tab: sceneTab(vm, { port, go }) });
 const sent = port => port.recorded.map(r => [r.type, r.payload]);
 const tap = (tab, selector) => tab.querySelector(selector).click();
 
@@ -123,14 +123,13 @@ test('after a resolved exchange with members to ask, Choose exchange N+1 goes ba
   assert.ok(tab.querySelector('.actions-card'));
 });
 
-test('the end: outcome card with the one danger Discard, without Back, a null XP shows no figure; sent and taken-back scenes ask nothing', () => {
+test('the end: outcome card with the one danger Discard, Back to the story, a null XP shows no figure; sent and taken-back scenes ask nothing', () => {
   installFakeDom();
   const end = open('end');
   end.view.end.xpEach = null;
   const { tab } = build(end);
   assert.equal(tab.querySelector('.endb').dataset.outcome, 'won');
   assert.equal(tab.querySelector('.xpr').textContent.includes('XP'), false);
-  assert.equal(tab.querySelector('[data-finish]'), null);
   assert.equal(tab.querySelectorAll('[data-discard]').length, 1);
   const sentTab = build(open('choose', { scene: 'sent' })).tab;
   assert.equal(sentTab.querySelector('.scene-state').textContent, 'Sent. It plays out with the next reply.');
@@ -202,4 +201,55 @@ test('an edited Re-read that shrinks or grows the foes or the party drops the he
   more.actors.push(structuredClone(more.actors[0]));
   more.actors.at(-1).id = 'actor-new';
   assert.match(build({ ...vm, view: more }).tab.querySelector('.actions-card .ah b').textContent, /^Astra/);
+});
+
+test('an ended fight draws "Back to the story ›", and pressing it goes to the chat', () => {
+  installFakeDom();
+  const went = [];
+  const { tab } = build(open('end'), createFakePort(), (...where) => went.push(where));
+  assert.equal(tab.querySelectorAll('[data-finish]').length, 1);
+  tap(tab, '[data-finish]');
+  assert.deepEqual(went, [['chat']]);
+});
+
+// A stance in the view (as the v1 engine writes it): the switch is drawn, and turning it off stages an input that says so.
+const withStance = (stance = { name: 'Shield work', on: true, soakOn: 22, soakOff: 12, pool: 'Stamina', cost: 1, paid: null }) => {
+  const vm = open('choose');
+  vm.view.actors[0].stance = stance;
+  return vm;
+};
+
+test('a stance in the view draws the switch, the soak now and the name with its cost', () => {
+  installFakeDom();
+  const { tab } = build(withStance());
+  assert.equal(tab.querySelectorAll('.stance').length, 1);
+  assert.equal(tab.querySelector('.stance .t').textContent.startsWith('Shield work'), true);
+  assert.equal(tab.querySelector('.stance .now').textContent, 'now: soak 22%');
+  assert.equal(tab.querySelector('.stance small').textContent, 'Shield work: soak 12% + 10% · 1 Stamina each exchange, paid at its start; off when Stamina runs out');
+  assert.equal(tab.querySelector('[data-stance]').getAttribute('aria-checked'), 'true');
+});
+
+test('turning the stance off, then picking, stages an input with args.stance === false; left on, the input has no stance key', async () => {
+  installFakeDom();
+  const first = build(withStance());
+  tap(first.tab, '[data-stance]');
+  assert.equal(first.tab.querySelector('[data-stance]').getAttribute('aria-checked'), 'false');
+  assert.equal(first.tab.querySelector('.stance .now'), null, 'off: the note names the soak');
+  assert.equal(first.tab.querySelector('.stance small').textContent, 'Off: soak 12%. No Stamina from this exchange on.');
+  tap(first.tab, '[data-act="flee"]');
+  await flush();
+  assert.equal(first.port.recorded[0].payload.step.inputs[0].args.stance, false);
+  const second = build(withStance());
+  tap(second.tab, '[data-act="flee"]');
+  await flush();
+  assert.equal('stance' in second.port.recorded[0].payload.step.inputs[0].args, false);
+});
+
+test('a stance the last exchange had off starts off, and the next pick carries it', async () => {
+  installFakeDom();
+  const { tab, port } = build(withStance({ name: 'Shield work', on: false, soakOn: 22, soakOff: 12, paid: null }));
+  assert.equal(tab.querySelector('[data-stance]').getAttribute('aria-checked'), 'false');
+  tap(tab, '[data-act="flee"]');
+  await flush();
+  assert.equal(port.recorded[0].payload.step.inputs[0].args.stance, false);
 });
