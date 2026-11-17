@@ -3,6 +3,7 @@
 
 import { EVENT_CERTAINTY, EVENT_KINDS, EVENT_REACH, SLUG, WORLD_EVENT_FIELDS, WORLD_LIMITS } from '../../limits.js';
 import { durationDays } from '../../../modules/world/daily/durations.js';
+import { foldKey } from '../../../core/text.js';
 import { isObject, isText } from '../core.js';
 import { checkAnchorText, checkEntry } from './entries.js';
 import { checkEffects } from './effects.js';
@@ -71,6 +72,22 @@ function endsWhen(value, ctx) {
     }
 }
 
+// Ruling 38 (v0.14.7): a named move without `from` applies only while the person is still at their start group, so one whose start is
+// not within the event's `where` (the place, its region or its realm) gets a warning; with `from` (a place or "anywhere") it gets none.
+function fromWarnings(record, ctx) {
+    const where = Array.isArray(record.where) ? record.where : [];
+    const entries = [record.effects?.cast, ...(Array.isArray(record.outcomes) ? record.outcomes.map(outcome => outcome?.effects?.cast) : [])].flatMap(list => (Array.isArray(list) ? list : []));
+    for (const entry of entries) {
+        if (!isObject(entry) || entry.location === undefined || entry.from !== undefined || entry.died === true) continue;
+        const person = ctx.index.person(entry.who);
+        const start = person ? person.start?.place ?? person.homeBase : null;
+        const home = typeof start === 'string' ? ctx.index.placeByRef(start) : null;
+        if (!home) continue;
+        const near = where.some(ref => ctx.index.placeByRef(ref) === home || (home.region && (foldKey(String(ref)) === foldKey(home.region) || ctx.index.realmHolds(ref, home.region))));
+        if (!near) ctx.collect.warnings.push([`${record.id}.effects.cast`, `the move of "${entry.who}" has no from and their start (${start}) is not where the event happens; it applies only while they are still at their start. Add "from": "<place id>" or "anywhere".`]);
+    }
+}
+
 /** Checks one event; returns a plain copy of it, or null (the problems went to `ctx.say`). `ctx.ok()` says whether any came. */
 export function checkWorldEvent(record, ctx) {
     const { say } = ctx;
@@ -115,6 +132,8 @@ export function checkWorldEvent(record, ctx) {
     if (record.anchor_mode !== undefined && record.anchor_mode !== 'first' && record.anchor_mode !== 'each') say('anchor_mode', 'anchor_mode must be "first" or "each".');
     if (record.outcomes !== undefined) outcomes(record.outcomes, ctx);
     if (record.effects !== undefined) checkEffects(record.effects, ctx, 'effects');
+    if (record.even_in_party !== undefined && typeof record.even_in_party !== 'boolean') say('even_in_party', 'even_in_party must be true or false.');
+    fromWarnings(record, ctx);
     endsWhen(record.ends_when, ctx);
     return JSON.parse(JSON.stringify(record));
 }

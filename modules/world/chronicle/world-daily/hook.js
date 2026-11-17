@@ -4,12 +4,15 @@
 //   the clock fallback (spec v0.10 §9 Clock): the reply moved no clock (no time line) → `director.advance` by an hour
 //   the daily step: the story day is now past the last stepped one → `chronicle.world.daily` (the reply that crossed the day)
 //   the death cue: an earlier reply left a must-happen death pending → `chronicle.world.cue` (written now, counted, or applied)
+//   learned secrets: NPC State opened a pack secret not yet recorded → `chronicle.world.learned` (after the step: it holds from the next one)
 
 import { isInt } from '../domain-parts/shared-basics.js';
 import { worldEventsOn } from '../conditions/feature.js';
 import { DAILY } from './command.js';
 import { CUE } from './cue-command.js';
 import { pendingCues } from '../../daily/cues.js';
+import { LEARNED, knownAnchors, learnedAnchors } from './learned.js';
+import { readWorld } from './read-world.js';
 import { slotValue } from '../../../rpg/slot.js';
 
 const DAY = 1440;
@@ -42,7 +45,17 @@ function afterCapture(view, info = {}) {
     const before = rereadFired(view, info);
     if (!state || Math.floor(now / DAY) > state.day || before) commands.push({ type: DAILY, payload: before ? { before } : {} });
     if (state && pendingCues(state).length) commands.push({ type: CUE, payload: {} });
+    if (opened(view)) commands.push({ type: LEARNED, payload: {} });
     return commands.length ? { commands } : undefined;
+}
+
+/** Whether NPC State holds an opened pack secret the world has not recorded (only read when someone has an opened note). */
+function opened(view) {
+    const people = view?.state?.domains?.people;
+    const bonds = people?.bonds?.npcs;
+    if (!bonds || !Object.values(bonds).some(record => Array.isArray(record?.unlocked) && record.unlocked.length)) return false;
+    const query = typeof view.query === 'function' ? (name, args) => view.query(name, args) : () => null;
+    return learnedAnchors(people, readWorld(query).cast, knownAnchors(view.state.domains.chronicle)).length > 0;
 }
 
 /** In a Re-read with later messages: `{ fired }`, what the reply's old step fired or had lost, when there is any; else null. */

@@ -10,6 +10,7 @@ import { conditionQueries } from '../conditions/queries.js';
 import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { DAILY, dailyCommand } from '../world-daily/command.js';
 import { CUE, cueCommand } from '../world-daily/cue-command.js';
+import { LEARNED, learnedCommand } from '../world-daily/learned.js';
 import { dailyAfterCapture } from '../world-daily/hook.js';
 import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
@@ -61,6 +62,7 @@ export const part = {
         [CONDITIONS_SETTLE]: settleConditions,
         [DAILY]: dailyCommand,
         [CUE]: cueCommand,
+        [LEARNED]: learnedCommand,
         [WORLD_SEED]: worldSeedCommand,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,

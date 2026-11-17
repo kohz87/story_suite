@@ -1,6 +1,6 @@
 // World events, the daily step: the spec's condition and anchor strings as the step reads them (world-pack-spec v0.10 §2, §3). Pure.
 //   conditions  "<condition>@<ref>[: <duration>]" (one string syntax everywhere; no object form)
-//   anchors     "fired:<event>[ + <duration>]", "set:<condition>[@ref]", "start", … (§3 Anchors)
+//   anchors     "fired:<event>[ + <duration>]", "set:<condition>[@ref]", "learned:<cast id>/<secret id>", "start", … (§3 Anchors)
 
 import { durationDays } from './durations.js';
 
@@ -40,7 +40,7 @@ export function anchorString(text) {
     if (cut <= 0) return null;
     const kind = head.slice(0, cut);
     const id = head.slice(cut + 1).trim();
-    if (!['set', 'cleared', 'fired', 'ended', 'lapsed', 'died', 'departed', 'fact', 'stage'].includes(kind) || !id) return null;
+    if (!['set', 'cleared', 'fired', 'ended', 'lapsed', 'died', 'departed', 'fact', 'stage', 'learned'].includes(kind) || !id) return null;
     return { kind, id, offset };
 }
 

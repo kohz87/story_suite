@@ -4,7 +4,7 @@
 import { durationDays } from '../../../modules/world/daily/durations.js';
 
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const ANCHOR_KINDS = Object.freeze(['set', 'cleared', 'fired', 'ended', 'lapsed', 'died', 'departed', 'fact', 'stage']);
+const ANCHOR_KINDS = Object.freeze(['set', 'cleared', 'fired', 'ended', 'lapsed', 'died', 'departed', 'fact', 'stage', 'learned']);
 const PLACEHOLDERS = Object.freeze(['place', 'region', 'route', 'realm']);
 
 /** "<condition>@<ref>[: <duration>]" → { name, ref, placeholder, duration }. `duration` 'forbid' refuses one (clear, likelier_if, needs). */
@@ -53,7 +53,7 @@ export function parseAnchor(text) {
     }
     if (head === 'start') return { kind: 'start', id: '', offset };
     const cut = head.indexOf(':');
-    if (cut < 0) return NAME.test(head) ? { kind: 'season', id: head, offset } : { error: `"${raw}" is not an anchor (set:, cleared:, fired:, ended:, lapsed:, died:, departed:, fact:, stage:, a season or start).` };
+    if (cut < 0) return NAME.test(head) ? { kind: 'season', id: head, offset } : { error: `"${raw}" is not an anchor (set:, cleared:, fired:, ended:, lapsed:, died:, departed:, fact:, stage:, learned:, a season or start).` };
     const kind = head.slice(0, cut);
     const id = head.slice(cut + 1).trim();
     if (!ANCHOR_KINDS.includes(kind)) return { error: `"${raw}": "${kind}:" is not an anchor kind (${ANCHOR_KINDS.join(', ')}).` };
@@ -69,7 +69,7 @@ export function parseEntry(text) {
         const anchor = parseAnchor(raw.replace(/@.*?(?= \+ |$)/, ''));
         return anchor.error ? { type: 'anchor', ...anchor } : { type: 'anchor', ...anchor, ref: raw.slice(raw.indexOf('@') + 1).replace(/ \+ .*$/, '') };
     }
-    if (/^(set|cleared|fired|ended|lapsed|died|departed|fact|stage):|^start\b/.test(raw)) return { type: 'anchor', ...parseAnchor(raw) };
+    if (/^(set|cleared|fired|ended|lapsed|died|departed|fact|stage|learned):|^start\b/.test(raw)) return { type: 'anchor', ...parseAnchor(raw) };
     if (raw.includes('@')) return { type: 'condition', ...parseCondition(raw, { duration: 'forbid' }) };
     return { type: 'anchor', ...parseAnchor(raw) };
 }

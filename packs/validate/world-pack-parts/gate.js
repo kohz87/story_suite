@@ -5,8 +5,8 @@ import { CAST_BUILT_IN_METERS, STANDING } from '../../limits.js';
 import { checkAnchorText } from './entries.js';
 import { parseAnchor } from './grammar.js';
 
-const JOIN = /\s+(?:and|or)\s+(?=(?:fired|ended|set|cleared|lapsed|died|departed|fact|place|quote):|stage\b|meter\b)/;
-const ANCHORS = ['fired', 'ended', 'set', 'cleared', 'lapsed', 'died', 'departed', 'fact'];
+const JOIN = /\s+(?:and|or)\s+(?=(?:fired|ended|set|cleared|lapsed|died|departed|fact|learned|place|quote):|stage\b|meter\b)/;
+const ANCHORS = ['fired', 'ended', 'set', 'cleared', 'lapsed', 'died', 'departed', 'fact', 'learned'];
 
 function personFor(of, owner, ctx, field, text) {
     if (owner && (of === undefined || of === owner.id)) return owner;
@@ -50,7 +50,7 @@ export function checkGate(gate, ctx, field, owner = null) {
         else if (term.startsWith('stage') || term.startsWith('meter')) ctx.say(field, `"${term}" is not a stage or meter test: write stage >= "Trusted" or meter trust >= 40 (">=" only).`);
         else {
             const anchor = parseAnchor(term);
-            if (anchor.error || !ANCHORS.includes(anchor.kind) || anchor.offset) ctx.say(field, `"${term}" is not a gate term (fired:, ended:, set:, cleared:, lapsed:, died:, departed:, fact:, place:, quote:, stage, meter).`);
+            if (anchor.error || !ANCHORS.includes(anchor.kind) || anchor.offset) ctx.say(field, `"${term}" is not a gate term (fired:, ended:, set:, cleared:, lapsed:, died:, departed:, fact:, learned:, place:, quote:, stage, meter).`);
             else checkAnchorText(term, ctx, field);
         }
     }

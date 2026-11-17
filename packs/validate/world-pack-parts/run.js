@@ -68,7 +68,8 @@ export function checkWorldPack({ given, content, packId, weather, ripples, add, 
         checkHours(routes, routeKinds, warn);
     }
     const base = { places, routes, realms, conditions: content.conditions ?? [], items: content.items ?? [], markets: content.markets ?? [], weather, placeKinds,
-        worldEvents: Array.isArray(given.worldEvents) ? given.worldEvents.filter(record => isObject(record) && typeof record.id === 'string') : [], legacyEvents: content.events ?? [] };
+        worldEvents: Array.isArray(given.worldEvents) ? given.worldEvents.filter(record => isObject(record) && typeof record.id === 'string') : [], legacyEvents: content.events ?? [],
+        lore: Array.isArray(given.lore) ? given.lore.filter(isObject) : [] };
     const resolvePlace = text => buildIndex(base).placeByRef(text);
     const ripplesNames = new Set((ripples?.powers ?? []).map(power => foldKey(power.name ?? '')));
     const powers = given.powers === undefined ? [] : checkPowers(given.powers, resolvePlace, ripplesNames, add, warn);
@@ -83,6 +84,9 @@ export function checkWorldPack({ given, content, packId, weather, ripples, add, 
     if (worldCast) kept.cast = cast;
     const index = buildIndex({ ...base, powers, scores, cast, refused: crossed.refused });
     const makeCtx = contextFactory(index, add, collect);
+    // A fact a secret or a hidden lore entry writes when learned counts as written by the pack (spec v0.14.4 writes_fact).
+    for (const person of cast) for (const secret of person.secrets ?? []) if (typeof secret.writes_fact === 'string') collect.facts.add(secret.writes_fact);
+    for (const entry of base.lore) if (entry.hidden === true && typeof entry.writes_fact === 'string') collect.facts.add(entry.writes_fact);
 
     const seenIds = new Set();
     if (given.worldEvents !== undefined) {
