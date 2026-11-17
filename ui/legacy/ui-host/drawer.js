@@ -1,8 +1,9 @@
 // Story Block v2's page furniture: the Extensions drawer and the wand menu entry, moved out of mountUi unchanged: version, modules, the same buttons, and the
 // status strip's switch (shown only while some screen asks for the strip). `createDrawerUi(deps)` gives mountUi the two builders and what refresh() sets.
 import { IDS, el, iconButton, S, hudOn } from './shared.js';
+import { fill } from '../../../core/strings.js';
 
-export function createDrawerUi({ doc, ctx, screens, openSettings, openPanel, setHud }) {
+export function createDrawerUi({ doc, ctx, screens, openSettings, openPanel, setHud, version = '' }) {
     const drawerStatus = el(doc, 'p', 'story-suite-muted');
     let hudCheck = null;
     let hudRowNode = null;
@@ -14,7 +15,7 @@ export function createDrawerUi({ doc, ctx, screens, openSettings, openPanel, set
         const root = el(doc, 'div', 'inline-drawer story-suite-drawer');
         root.id = IDS.drawer;
         const toggle = el(doc, 'div', 'inline-drawer-toggle inline-drawer-header');
-        toggle.appendChild(el(doc, 'b', '', S.drawer.title));
+        toggle.appendChild(el(doc, 'b', '', fill(S.drawer.title, { version }).trim()));
         toggle.appendChild(el(doc, 'div', 'inline-drawer-icon fa-solid fa-circle-chevron-down down'));
         const content = el(doc, 'div', 'inline-drawer-content');
         const buttons = el(doc, 'div', 'story-suite-drawer-buttons');
@@ -37,6 +38,9 @@ export function createDrawerUi({ doc, ctx, screens, openSettings, openPanel, set
         content.append(drawerStatus, buttons, hudRow);
         root.append(toggle, content);
         host.appendChild(root);
+        // NPC State's settings are a section of this one drawer; if it mounted first, it moves in now.
+        const npc = doc.querySelector('#npc_state_delta_settings');
+        if (npc && !content.contains(npc)) content.appendChild(npc);
     }
     function menu() {
         const host = doc.querySelector('#extensionsMenu');
