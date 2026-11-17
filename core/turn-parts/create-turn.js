@@ -12,6 +12,7 @@ import { createDiscard } from '../turn/discard.js';
 import { createPromptBuild } from '../turn/prompt-build.js';
 import { createPromptHooks } from '../turn/prompt-hooks.js';
 import { createEvents } from '../turn/events.js';
+import { keepProblems } from '../turn/problem-keep.js';
 import { createInteractionWatch } from '../interaction/watch.js';
 import { createInteractionHooks } from '../interaction/hooks.js';
 import { reconcileInteraction } from '../interaction/reconcile.js';
@@ -125,7 +126,15 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
         try { changed = reconcileInteraction(metadata(), ctx?.chat, () => store.receipts?.() ?? [], { kindOf: id => registry.interaction?.(id) ?? null, stateAt: index => store.at(index) }); } catch { changed = false; }
         if (changed) { try { (ctx?.saveMetadata ?? ctx?.saveMetadataDebounced)?.call(ctx); } catch { /* saved on the next chat write */ } }
     };
-    const { markBusy, markIdle, setPrompt, setPrompts, clearPrompts, problem, trySave, ensureInitial, held, repairActions, repair, startOver, rebuild, planAgain, reconcileNow } = createSession(s, { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch, kindOf, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM });
+    // The Problems list is kept with the chat's metadata, so a reload shows the same rows (turn/problem-keep.js).
+    const keepLog = () => {
+        try {
+            const live_ = liveContext();
+            if (keepProblems(live_?.chatMetadata, s.problemLog)) (live_.saveMetadata ?? live_.saveMetadataDebounced)?.call(live_);
+        } catch { /* kept on the next change */ }
+    };
+    s.keepLog = keepLog;
+    const { markBusy, markIdle, setPrompt, setPrompts, clearPrompts, problem, trySave, ensureInitial, held, repairActions, repair, startOver, rebuild, planAgain, reconcileNow } = createSession(s, { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch, kindOf, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM, keepLog });
     // One commit guard and one stop for what a reply in flight read: an interaction's (the fight board's too).
     // The state a kind's opening prelude leaves (a preview: nothing is stored), which the segment after it is checked and played on.
     const previewOpening = (payload, seed, state) => { const run = bus.run('interaction.settle', payload, { cause: 'system', state, seed }); return run?.ok ? run.state : null; };
@@ -186,7 +195,7 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
         },
         /** The Problems list, oldest first; `moduleId` narrows it (null: the host's own). */
         problems: moduleId => s.problemLog.filter(item => moduleId === undefined || item.module === moduleId).map(item => ({ ...item })),
-        clearProblems: () => { s.problemLog.length = 0; },
+        clearProblems: () => { s.problemLog.length = 0; keepLog(); },
         /** Generations a canGenerate hook stopped: [{ moduleId, reason }], oldest first. */
         blocked: () => s.blocks.map(item => ({ ...item })),
         /**

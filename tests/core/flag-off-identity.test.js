@@ -10,6 +10,7 @@ import { seedCrypto } from '../suite/qa/helpers/seeded.js';
 const fixture = name => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8'));
 const strip = value => JSON.parse(JSON.stringify(value).replace(/;kinds:[^"]*/g, ''));
 
+// (the Problems list kept with the chat, storySuiteProblems, is no part of what C11 left unchanged: the problems are compared below)
 async function run(rpg) {
     const restore = seedCrypto(42);
     const host = await createHost({ callModel: createFakeModel(Array(12).fill('')), settings: { features: { 'story-block.gear': true } } });
@@ -25,7 +26,7 @@ async function run(rpg) {
         await sendOne('I look around.', 'Nothing else moves.');
         await host.swipe('Another telling of the quiet.');
         await sendOne('I rest.', 'You rest.');
-        return strip({ sends, meta: host.ctx.chatMetadata, records: host.ctx.chat.map(m => m.extra?.storySuite ?? null), text: host.ctx.chat.map(m => m.mes), problems: (host.turn?.problems?.() ?? []).filter(item => item.code !== 'NO_CHANGES') });
+        return strip({ sends, meta: Object.fromEntries(Object.entries(host.ctx.chatMetadata).filter(([key]) => key !== 'storySuiteProblems')), records: host.ctx.chat.map(m => m.extra?.storySuite ?? null), text: host.ctx.chat.map(m => m.mes), problems: (host.turn?.problems?.() ?? []).filter(item => item.code !== 'NO_CHANGES') });
     } finally { host.close(); restore(); }
 }
 

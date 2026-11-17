@@ -15,11 +15,12 @@ import { rememberHeld as rememberInteractionHeld } from '../interaction/held.js'
 import { settleStep } from '../interaction/watch.js';
 import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
+import { keptProblems } from './problem-keep.js';
 export function createEvents(s, deps) {
     const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
     const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
-    const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate });
+    const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate, keepLog: () => s.keepLog?.() });
     s.afterReply = afterReply;   // (Re-read asks it for a repair of a reply that still has no block: reread.js)
 
     /** MESSAGE_RECEIVED: (messageId, type). */
@@ -142,6 +143,8 @@ export function createEvents(s, deps) {
         if (typeof prepare === 'function') { try { await within(prepare(), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
         rebuild({ publish: false });
         const meta = metadata();
+        // The chat's own Problems list comes back with it (a reload keeps it; another chat has its own).
+        s.problemLog.splice(0, s.problemLog.length, ...keptProblems(meta));
         // A fight left open by a build from before the port is closed (turn/pre-port-fight.js); the interaction scratch follows the head by itself (reconcileScratch).
         const closed = dropPrePortFight(meta);
         if (closed !== null) {

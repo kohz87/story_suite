@@ -1,6 +1,7 @@
 // Story Suite v2: finding the <tag>…</tag> blocks in a reply, trimming a block's body, and cutting off an unfinished last line.
 
 import { escapeRe, MAX_LINE, NOTHING, parseLine } from '../lines.js';
+import { maskCode } from './code.js';
 
 // An open or a close tag. Attributes stay on the tag's own line and are short, so a tag cut off
 // mid-way never reaches far ahead (and no tag costs more than its own few characters to read).
@@ -46,7 +47,9 @@ function blankAfter(text, at) {
 // `openAt` (a Continue of a reply cut off inside its block, see continuation()): the search starts
 // there, inside a block already open (its `start` and body start there).
 export function findBlocks(mes, tag, openAt = -1) {
-    const text = String(mes ?? '');
+    const body = String(mes ?? '');
+    // LR1-2: a tag named inside inline code or a closed fenced code block is a mention, never a block (the tags are looked for in the masked text, the bodies read from the real one).
+    const text = maskCode(body);
     const blocks = [];
     const re = tagRe(tag);
     let depth = 0;
@@ -78,9 +81,9 @@ export function findBlocks(mes, tag, openAt = -1) {
         // line, so the block's later lines stay in it.
         if (!blankBefore(text, match.index) && !(blankAfter(text, re.lastIndex) && wholeBefore(text, match.index, bodyStart))) continue;
         depth -= 1;
-        if (!depth) blocks.push({ start, end: re.lastIndex, body: text.slice(bodyStart, match.index) });
+        if (!depth) blocks.push({ start, end: re.lastIndex, body: body.slice(bodyStart, match.index) });
     }
-    if (depth) blocks.push({ start, end: text.length, body: text.slice(bodyStart), open: true });
+    if (depth) blocks.push({ start, end: text.length, body: body.slice(bodyStart), open: true });
     return blocks;
 }
 

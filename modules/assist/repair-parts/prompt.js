@@ -16,7 +16,7 @@ function storyTime(text) {
 }
 
 export const REPAIR_REPLY_LIMIT = 6000;
-export const STATE_LIMIT = 1500;
+export const STATE_LIMIT = 2500;
 
 /**
  * The repair prompt for `reply` (the story text, block removed), the kinds' grammar lines, the state lines before the reply (`state`: Place,
