@@ -304,4 +304,3 @@ test('secretEventsShown: no evidence, a short or made-up quote, a non-string quo
         console.debug = original;
     }
 });
-
