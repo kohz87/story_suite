@@ -59,19 +59,26 @@ function skip(ws, person, source, day, why) {
     ws.log.push({ kind: 'cast-skipped', key: person.id, by: source.id, day, why });
 }
 
+// A death that is not applied: the outcome's line says so ("(<name> survived)", ruling 49) and the Problems note says why (the caller's warning).
+function survives(ws, person, source, why) {
+    ws.warnings.push(`${source.kind === 'event' ? 'The event' : 'The template'} "${source.id}" would kill ${person.id}, ${why}; ${person.name} survived.`);
+    if (Array.isArray(source.survived) && !source.survived.includes(person.name)) source.survived.push(person.name);
+}
+
 function die(ws, person, entry, source, day) {
     const row = ws.cast[person.id] ?? {};
     const from = text(entry.from);
+    // Ruling 48: a protected person is killed only by an authored event that names them in its effects.cast, never by a template, an open template or the Director.
+    if (person.protected && (source.kind !== 'event' || source.open === true)) return survives(ws, person, source, 'who is protected; refused (only an authored event naming them may kill them)');
     if (ws.withYou.has(person.id)) {
-        if (source.evenInParty !== true) { ws.warnings.push(`The event "${source.id}" would kill ${person.id}, who is with You; refused (no even_in_party).`); return; }
+        if (source.evenInParty !== true) return survives(ws, person, source, 'who is with You; refused (no even_in_party)');
         if (from && from !== 'anywhere' && !inGroup(ws, placeOf(ws, person.id), from)) return skip(ws, person, source, day, `not in ${from}`);
         ws.cast[person.id] = { ...row, dying: { by: source.id, text: `${person.name} dies here: ${source.summary || source.title}`, day, rev: ws.rev, replies: 0 } };
         ws.log.push({ kind: 'dying', key: person.id, by: source.id, day });
         return;
     }
     if (!ws.met.has(person.id) && person.canDieUnmet === false) {
-        ws.warnings.push(`The event "${source.id}" would kill ${person.id}, who cannot die before you meet them; skipped.`);
-        return;
+        return survives(ws, person, source, 'who cannot die before you meet them; skipped');
     }
     if (from && from !== 'anywhere' && !inGroup(ws, placeOf(ws, person.id), from)) return skip(ws, person, source, day, `not in ${from}`);
     const where = placeOf(ws, person.id);

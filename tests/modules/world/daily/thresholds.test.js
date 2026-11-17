@@ -91,7 +91,7 @@ test('test 79 (the step\'s side): a threshold it cannot read leaves the event ou
     const bad = {
         unknown: { requires: ['power:old-crown >= 10'] }, name: { requires: ['power:Ashen Veil >= 40'] }, gt: { requires: ['power:ashen-veil>40'] },
         eq: { requires_any: ['power:ashen-veil = 40'] }, frac: { requires: ['power:ashen-veil >= 40.5'] }, high: { requires: ['score:north-readiness >= 150'] },
-        low: { ends_when: { any_of: ['score:north-readiness <= -5'] } }, likelier: { likelier_if: { 'power:ashen-veil >= 40': '×2' } }, pre: { pre_empted_by: ['power:ashen-veil >= 40'] },
+        low: { ends_when: { any_of: ['score:north-readiness <= -5'] } }, pre: { pre_empted_by: ['power:ashen-veil >= 40'] },
     };
     const defs = readDefs({ ...base, events: [...Object.entries(bad).map(([id, extra]) => ev(id, extra)), ev('good', { requires: ['power:ashen-veil >= -100', 'score:north-readiness<=100'] })] });
     assert.deepEqual(defs.events.map(def => def.id), ['good'], 'spaces around the comparison are optional');

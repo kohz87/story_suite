@@ -16,6 +16,7 @@ import { readWorld } from './read-world.js';
 import { tempoOf } from './tempo.js';
 import { dailySummary } from './summary.js';
 import { isWorldSeed } from './seed.js';
+import { ask } from '../queries-parts/shared-ask.js';
 import { ledgerOf, markLedger } from '../conditions/ledger.js';
 import { writeHappenings } from './news-entries.js';
 import { buildGeo } from '../../daily/geo.js';
@@ -93,7 +94,7 @@ function daily(ctx, payload = {}) {
     // Who is with You, where each pack person is and who has been met, from the cast store, the party and the scene (cast-tie.js).
     const cast = draftCast(ctx);
     const tie = tickInputs(ctx, cast, world.cast);
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions, opens, settle: settling });
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions, opens, settle: settling, calendar: ask(query, 'director.calendar', {}) });
     if (!out) return kept();
     if (cast) mirrorCast(ctx, cast, out.report, tie.keys, now);
     writeConditions(ctx, chronicle, out.conditions);
