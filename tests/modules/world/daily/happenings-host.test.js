@@ -4,23 +4,27 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { agrees, chronicle, newHost, reply } from './daily-host.helpers.js';
+import { SPEC, agrees, chronicle, newHost, reply } from './daily-host.helpers.js';
 
 const DAY = 1440;
+// The levy fires exactly on the second day (its window opens a day after the start and lasts one day), so the reply that crosses
+// into that day is the one that writes it, whatever the seed.
+const LEVY = { id: 'levy', kind: 'one-off', certainty: 'set-in-motion', where: ['Highmark'], window: { after: 'start + 1 day', within: '1 day' }, ends_when: { for: '3 days' }, effects: { set: ['unrest@Highmark'] }, summary: 'The lord calls a levy.' };
+const ONLY_LEVY = { ...SPEC, events: [LEVY] };
 const levies = host => Object.values(chronicle(host).events).filter(event => event.by === 'event:world.levy');
 const firedDay = host => chronicle(host).daily?.[0]?.events?.levy?.fired ?? null;
 
 test('E33/E34: the levy fires and ends as one entry (fixed id, its day, its reach); swipes, Re-reads, a middle delete, a rewind and a reload keep one', async () => {
-    const host = await newHost();
+    const host = await newHost(true, ONLY_LEVY);
     await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    const start = chronicle(host).daily[0].start;
     await host.send('Day.', reply('Dawn.', ['! time +1d']));
-    // The levy is set in motion over two days: it has fired by the second day, whatever the seed.
     const fired = firedDay(host);
-    assert.ok(Number.isInteger(fired));
+    assert.equal(fired, start + 1, 'fired on the second day, by the reply that crossed into it');
     const [entry] = levies(host);
     assert.equal(levies(host).length, 1);
     assert.deepEqual([entry.state, entry.reach, entry.place, entry.since, entry.updated], ['ongoing', 'regional', 'Highmark', fired * DAY, fired * DAY]);
-    assert.match(entry.name, /^The lord calls a levy · June [34], 1200$/);
+    assert.match(entry.name, /^The lord calls a levy · June 4, 1200$/);
     assert.match(entry.id, /^ev_[0-9a-z]{8}$/);
     await agrees(host, 'fired');
     const middle = host.ctx.chat.length - 1;
@@ -36,11 +40,13 @@ test('E33/E34: the levy fires and ends as one entry (fixed id, its day, its reac
     assert.deepEqual([ended.id, ended.state, ended.since], [entry.id, 'resolved', fired * DAY], 'the end resolves the same entry');
     assert.equal(ended.updated, (fired + 3) * DAY, 'ends_when for 3 days: the end is dated on its own day');
     await agrees(host, 'ended');
-    // An edited Re-read of the middle reply, grown (+2d) then shrunk (+1h): the later reply keeps what it recorded; never two entries.
+    // An edited Re-read of the middle reply, grown (+2d: it fires the levy on the same day again, so the same entry; the later
+    // reply's recorded end replays onto it) then shrunk (+1h: it no longer crosses the day; the later reply keeps its record).
     for (const [text, line] of [['Dawn, later.', '! time +2d'], ['Dawn, soon.', '! time +1h']]) {
         await host.st.editMessage(middle, reply(text, [line]));
         assert.equal((await host.sdk.reread(middle)).ok, true, `Re-read (${line})`);
         assert.ok(levies(host).length <= 1, `Re-read (${line}): at most one levy entry`);
+        if (line === '! time +2d') assert.deepEqual(levies(host).map(event => [event.id, event.state]), [[entry.id, 'resolved']]);
         assert.deepEqual(host.store.problems(), []);
         await agrees(host, `Re-read ${line}`);
     }
@@ -54,12 +60,12 @@ test('E33/E34: the levy fires and ends as one entry (fixed id, its day, its reac
 });
 
 test('E33/E34: with the switch off no entry is written; the heard news of an entry is fact at its own place', async () => {
-    const off = await newHost(false);
+    const off = await newHost(false, ONLY_LEVY);
     await off.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
     await off.send('Day.', reply('Dawn.', ['! time +1d']));
     assert.deepEqual(levies(off), []);
     off.done();
-    const host = await newHost();
+    const host = await newHost(true, ONLY_LEVY);
     await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
     await host.send('Day.', reply('Dawn.', ['! time +1d']));
     const heard = host.sdk.query('world.heardHere', { place: 'Highmark' }).filter(event => event.by === 'event:world.levy');

@@ -21,7 +21,8 @@ test('test 71: fallen@Shackles City masks its districts (no templates) and evacu
     ];
     const riot = { template: 'riot', severity: 'minor', where: { kinds: ['site', 'city'] }, sets: ['unrest@place: 1 day'], chance: '50% per season', summary: 'Riot in {place}.' };
     const w = world({ places, cast, templates: [riot], events: [ev('sack', { effects: { set: ['fallen@Shackles City: until cleared'] } })] });
-    const run = runner(w, { draw: drawWith({ values: { 'template:riot': day => (day === 2 ? 0 : 0.999999), 'template:riot#place': () => 0 } }) }).to(1);
+    // The place draw 0.99 takes the last place in id order: a district (Shackles City / Veil Market) if the mask let one through.
+    const run = runner(w, { draw: drawWith({ values: { 'template:riot': day => (day === 2 ? 0 : 0.999999), 'template:riot#place': () => 0.99 } }) }).to(1);
     for (const id of ['trader', 'docker', 'mayor']) assert.equal(run.state.cast[id].displaced.to, 'Fenmouth', `${id}: the nearest place outside the group (Fenmouth), never a sibling district`);
     assert.ok(run.journal().some(entry => /Trader fled Shackles City \/ Veil Market for Fenmouth/.test(entry.text)));
     run.to(2);
