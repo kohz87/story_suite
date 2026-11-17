@@ -51,12 +51,12 @@ export function skillsV1(fields, hidden = new Set()) {
     return out;
 }
 
-/** The slots of a v1 Foes block (six): `{ slot, local, module, name, count, level, tier, filled, v1, hidden }`; `slot` counts on across blocks, as rows.js foesOf's does. */
+/** The slots of a v1 Foes block (six): `{ slot, local, module, name, count, level, tier, filled, v1, hurt, hidden }`; `hurt` is 1 for a filled slot, else 0 (the fight keeps each foe's HP). */
 export function foesV1(id, fields, offset = 0, hidden = new Set()) {
     return [1, 2, 3, 4, 5, 6].filter(n => Object.hasOwn(fields, `foe${n}`)).map(n => {
         const name = hidden.has(`foe${n}`) ? (text(fields[`foe${n}`]) ? `Foe ${offset + n}` : '') : text(fields[`foe${n}`]);
         const count = int(fields[`count${n}`]) ?? 0, tier = text(fields[`tier${n}`]).toLowerCase();
         return { slot: offset + n, local: n, module: id, name, count, level: held(fields[`level${n}`], LEVEL.min, LEVEL.max, 1), tier,
-            filled: Boolean(name && count > 0), v1: true, hidden: ['count', 'level', 'tier'].filter(part => hidden.has(`${part}${n}`)) };
+            filled: Boolean(name && count > 0), v1: true, hurt: name && count > 0 ? 1 : 0, hidden: ['count', 'level', 'tier'].filter(part => hidden.has(`${part}${n}`)) };
     });
 }

@@ -2,14 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { unrunRootTests } from '../../scripts/checks/test-globs.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repo = path.resolve(import.meta.dirname, '../..');
 // A fixture root whose package.json has one test script and which holds the given files.
 function root(script, files) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ptg-'));
+  const dir = tempDir('ptg-');
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ scripts: { test: script } }));
   for (const rel of files) {
     fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
@@ -71,7 +71,7 @@ test('the real root runs every test file under tests/ and examples/*/tests throu
 });
 
 test('a root test file no root script or suite glob matches is named; one under a matched folder is not', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ptg-rootpkg-'));
+  const root = tempDir('ptg-rootpkg-');
   try {
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ scripts: { 'test:core': 'node --test "tests/core/**/*.test.js"', check: 'node --test "tests/orphan/*.test.js"' } }));
     for (const rel of ['tests/core/a.test.js', 'tests/core/deep/b.test.js', 'tests/orphan/c.test.js', 'tests/other/d.test.js']) {

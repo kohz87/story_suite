@@ -24,7 +24,7 @@ the three stage bars, the seven stats in a row and the skills with their ranks. 
 points, the card offers **Spend points**, which opens the stat view with steppers under the point budget. **Stats**
 opens the same view for the stats alone, and **Skills** opens the character's [Skills view](#the-skills-view). **Export**
 saves the character to a file (see [Export / Import a character](#export--import-a-character)). **+ New
-character** in the header opens the wizard; with no character yet the tab says so and offers **Create your character**.
+character** in the header (shown only while the story has no You) opens the wizard; with no character yet the tab says so and offers **Create your character**.
 
 A companion who left the party (see [Companions who join](#companions-who-join)) keeps their card, greyed, with a **Left** tag.
 
@@ -42,7 +42,7 @@ reply that was rolled. **See it in the story** closes the game view and scrolls 
 
 ### The fight board
 
-The board is on by default and is offered under the Standard rules. Its switch is in
+The board is on by default; Combat Rules v1 is the only rules a chat is made with. Its switch is in
 **Settings → RPG** and **Settings → Features**. When a reply introduces foes, a line beneath it offers **Fight on the board** or
 **Auto-fight**, and a dot marks the Fight tab while the offer is open. The board remains available in the Fight tab.
 
@@ -79,14 +79,11 @@ Weir-drake d20 9 + 3 + Lv 7 ÷ 5 = 1 = 13 · Weir-drake loses 1 block (5 of 6)")
 
 **+ New character** opens a window with four steps and a summary of the character so far on top.
 
-1. **Who.** The name (your persona's by default), whether this character is **You** or **A companion**, and who they
-   are (up to 240 characters, which the narrator reads on every reply). A story has one You: the party shows you as the
-   character named like your persona, so You takes that name and a companion cannot. A You also starts with your active
-   persona's description in **Who they are** (its first 240 characters, never splitting a character), with the note
-   "From your persona's description (the first 240 characters). Change it freely: this is what the AI reads." Only the
-   active persona's description is read, never another persona or any other setting. It is only a start: a companion's
-   box starts empty, switching to **A companion** empties it again while it is still the persona's text, and anything
-   you type is yours. The **Starting level** (1 to 99, held to the story's level cap) is set here too.
+1. **Who.** The name, which is your persona's (the window makes **You** only: there is no choice between You and a companion, and no
+   "Who they are" box). A story has one You: the party shows you as the character named like your persona, so the **+ New
+   character** button is there only while the story has no You. Companions are made only through the join card
+   (**Add to party**, or **Edit first**, which opens this window filled in from the join). The **Starting level** (1 to 99,
+   held to the story's level cap) is set here too.
 2. **Stats.** The same steppers and radar as Spend points. On the **Standard** formula (the default) every stat starts at 5 and you have
    10 points to spend; 5 is the minimum (a stat can go up to 10; only a lower Custom minimum adds going down to free a point), and a line under the steppers says what the next points
    buy: `Health 5 blocks (VIT 5, next at 10) · Stamina 4 (AGI 5, next at 10) · Mana 4 (INT 5, next at 10) · Edge −2..+3 (next at LUK 7)` (the old-pin sizes; a new chat's Character shows 10 / 10 / 10 at stat 5, 12 at stat 10, see [Doubled bars](#doubled-bars-new-chats)). Points you leave unspent stay on the character for Spend points. Spend
@@ -117,7 +114,7 @@ two columns of steppers and the radar below on a phone. The points left show onc
 
 A character can travel between chats as a file. It carries only what a new character can start from: the level, unspent
 points, the seven stats, the skills (and, if you leave them on, the things the character carries and the money).
-It never carries the name, whether they are You or a companion, who they are, XP, Health, Mana or Stamina, skill practice, or
+It never carries the name, whether they are You or a companion, XP, Health, Mana or Stamina, skill practice, or
 anything about the story. Both buttons exist only while the RPG is on.
 
 **Export.** **Export** on a character's card, next to **Spend points** and **Skills**, opens **Export <name>**:
@@ -155,7 +152,7 @@ step shows "Imported from wessel.character.json: stats, 3 unspent points, Lv 14 
   and Skills steps show them and keep the usual rules: a stat can go down to 8 to free a point and up to 15 (a saved stat outside that stays
   where it was), a skill can be renamed or changed, a skill can be added or removed. Picking a skill template while imported skills are there asks "Replace the imported skills? Their ranks will be lost." with **Replace** / **Keep**. A skill the file gave with no stat shows an empty **Stat**, and the Review's "Fix this first" asks for it ("Iron Breath needs a stat."), like a missing "what it does" line. A skill's **rank** comes from the file and cannot
   be changed here; practice starts at 0.
-- The **name**, **You or A companion** and **who they are** are not touched. XP is 0 and Health, Mana and Stamina start full.
+- The **name** is not touched. XP is 0 and Health, Mana and Stamina start full.
 - **Undo import** puts back what was there before the file (what was typed since stays). Closing the window without Create leaves nothing behind.
 - The Review adds "Also adds: 3 things to the party's bag · 5 silver to the purse. One swipe of this reply takes it all back." for what the
   file had (the money in this chat's coins, with thousands separators, e.g. "10,000,000 gold"). It says "3 things carried by Ren" only when a party actor of that name will hold them.
@@ -201,12 +198,12 @@ When the story says someone joins the party for good, the narrator writes one li
 **Settings → RPG → Companions who join** says what it does with it: **Ask** (the default), **Automatically** or **Off**.
 
 ```
-+ party Mara | about: a hedge-witch from Kvildal | class: I | best: int
++ party Mara | class: I | best: int
 - party Mara
 ```
 
-`about` is up to 240 characters, `class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1) and `best` is one of str, vit, agi, dex, int, luk, cha;
-the last two are optional. The line is in the narrator's instructions only while the RPG is on, the story has a Character block
+`class` is a Soul Class word from I to IX (still read: a companion starts at the level that class stands for, II at 15 up to IX at 85, I at 1) and `best` is one of str, vit, agi, dex, int, luk, cha;
+the last two are optional (a line that still carries `about:` is accepted and the text ignored; a chat that still holds an earlier-rules Character reads it, as before). The line is in the narrator's instructions only while the RPG is on, the story has a Character block
 and the setting is not Off; with the RPG off, nothing is told and nothing changes.
 
 - **What is made.** A Character block (a companion) and an empty Skills block for that name, as one action of the reply: every
@@ -216,7 +213,7 @@ and the setting is not Off; with the RPG off, nothing is told and nothing change
   LUK and STR, so no point is left over. The skills fill in when the story has them learn something, as for
   anyone.
 - **Ask.** The line makes nothing. The reply gets a card, "Mara joins the party", with **Add to party** (makes them as above),
-  **Edit first** (opens the New character window filled in: name, about, class, the best stat raised to 14; you spend the
+  **Edit first** (opens the New character window filled in: name, class, the best stat raised to 14, every field editable; you spend the
   rest) and **No** (dismisses it). The card is read from the reply's own record, so a swipe or a delete takes it away and nothing
   is kept in the game for it.
 - **Automatically.** They are made at once and listed in "Changed this reply" ("Mara joined the party"). Like every other line of
@@ -324,7 +321,7 @@ label may carry its own `names`, which is how the story's words reach a value it
 
 ### Doubled bars (new chats)
 
-A Character made in a new chat (the chooser, the wizard, an import, a first companion) is pinned with `scale: 2` on its three bars (`templates-bars.js scaledCharacter`; the frozen old Character is `characterV1For()`). Each bar is twice as long, and the stored value counts blocks left:
+**Since Combat Rules v1 became the only rules, a Character made in a new chat (the chooser, the wizard, an import, a first companion) is the v1 one (`templates-parts/v1-character.js`: HP, MP and SP as numbers, WIS, stats to 30); what follows describes the earlier Character, which a chat made under the earlier rules still holds.** The earlier Character made in a new chat was pinned with `scale: 2` on its three bars (`templates-bars.js scaledCharacter`; the frozen old Character is `characterV1For()`). Each bar is twice as long, and the stored value counts blocks left:
 **Health 2 x (4 + VIT/5), Stamina 2 x (4 + AGI/5), Mana 2 x (4 + INT/5)**, the stat divided and rounded down (`formula.js blocksFor(stats, scale)`). A character made fresh starts at 10 / 10 / 10; the most is 16 each, at a base stat of 20. Bars read the base stats: gear never grows a bar. Pack-defined characters keep their own sizes; a pinned bar with no mark keeps the old sizes, byte for byte. Rules and prompts name stage words only, never a block count.
 
 Look: every Health, Stamina and Mana bar (old pins too) is one smooth strip, red, green and blue, with the word and the number ("Hurt · 5/10"). The strip shortens with the value and dulls at 3/4 and at 1/3 (`view/widgets/dom.js barStep`, `lean-rpg/view/bars.css`; Stamina's green is `--ss-sp`, the same token as `--ss-tick`). Old stage bars get the number too.
@@ -523,7 +520,7 @@ with the pencils on the block.
 
 | Template | What it holds |
 |---|---|
-| **Character** | Name, who they are, Health, Mana, Stamina, the seven stats (1 to 20), points (1 more every third level), level, cap, XP, Alive, Left. The narrator sets Health, Mana, Stamina, XP and Alive; Left is set by a `- party` line; the reader sets stats and points. Rest refills Stamina and Mana. This row is the old pin; the new Character (`scale: 2`) has no narrator XP and gains the story's rest, full-rest and heal (no buttons), see [Recovery and XP on a new Character](#recovery-and-xp-on-a-new-character). The Standard formula's Character (`STANDARD_TEMPLATES`, `templatesFor`) keeps the blocks left in Health 0 to 8, Stamina 0 to 7 and Mana 0 to 7, stats start at 5 and a level-up gives points as above; see [Standard formula: bars of blocks](#standard-formula-bars-of-blocks). |
+| **Character** | Name, Health, Mana, Stamina, the seven stats (1 to 20), points (1 more every third level), level, cap, XP, Alive, Left. The narrator sets Health, Mana, Stamina, XP and Alive; Left is set by a `- party` line; the reader sets stats and points. Rest refills Stamina and Mana. This row is the old pin; the new Character (`scale: 2`) has no narrator XP and gains the story's rest, full-rest and heal (no buttons), see [Recovery and XP on a new Character](#recovery-and-xp-on-a-new-character). The Standard formula's Character (`STANDARD_TEMPLATES`, `templatesFor`) keeps the blocks left in Health 0 to 8, Stamina 0 to 7 and Mana 0 to 7, stats start at 5 and a level-up gives points as above; see [Standard formula: bars of blocks](#standard-formula-bars-of-blocks). |
 | **Skills** | Up to five skills (a new chat's typed block: eleven slots, each combat or utility, see [Skill slots](#skill-slots)), each with a name, what it does, the stat it rolls with, what it uses (stamina or mana), a rank and practice. The narrator names a skill with a learn line (name, what it does, stat, uses) and adds practice. Rank and practice cannot be typed in. |
 | **Foes** | Up to four foe groups, one slot each (`level1` to `level4` for the level, which replaces `class1` to `class4`): the name, how many are left (0 means the slot is empty), the level and the group's health (Standard: 0 to 8 blocks, `4 + floor(level/30)` when the group arrives; a Foes block of the harder-foes rule: 0 to 15 blocks, `12 + floor(level/30)`, see [Harder foes](#harder-foes-new-chats)). |
 | **Combat rules** | The combat text, which the narrator reads on every reply, and the XP guidance. It has no fields. |

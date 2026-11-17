@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { buildDist } from '../../scripts/play/dist.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // Every import specifier that leaves a bundle (a host file: starts with `/` or `../`) is what the host SillyTavern resolves, so it must be the text
 // recorded in fixtures/host-specifiers.json. A host import that lost or gained a `../` stops the extension from loading. The repo root is the extension
@@ -32,7 +32,7 @@ function hostSpecifiers(dir) {
   return [...found].sort();
 }
 
-const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'host-specs-'));
+const tmp = () => tempDir('host-specs-');
 
 test('the release bundle imports exactly the recorded host specifiers', async () => {
   const out = tmp();

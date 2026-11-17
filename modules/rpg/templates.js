@@ -9,5 +9,6 @@ export { characterV1For } from './templates-parts/character.js';
 export { skillsV1For, skillsV2For, grownSkills } from './templates-parts/skills.js';
 export { FOE_COUNT_MAX } from './templates-parts/foes.js';
 export { COMBAT_PROMPT_STANDARD } from './templates-parts/combat.js';
+export { COMBAT_PROMPT_V1 } from './templates-parts/v1-rules.js';
 export { SKILL_SETS } from './templates-parts/skill-sets.js';
-export { STANDARD_TEMPLATES, STANDARD_TEMPLATES_EIGHT } from './templates-parts/catalogue.js';
+export { CHOOSER_TEMPLATES, STANDARD_TEMPLATES, STANDARD_TEMPLATES_EIGHT } from './templates-parts/catalogue.js';

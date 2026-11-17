@@ -1,6 +1,6 @@
 // Reads a character file's text into a clean file or a plain-words refusal.
 
-import { STATS } from '../names.js';
+import { STATS_V1 } from '../names.js';
 import { SKILL_FIELDS_MAX, SKILL_SLOTS_MAX, UTILITY_SLOTS } from '../../../core/runtime/skill-slots.js';
 import { classOfLevel, levelOfClass } from '../formula.js';
 import { RPG_STRINGS, fill } from '../strings.js';
@@ -29,9 +29,11 @@ export function parseCharacterFile(text) {
         if (!whole(data.points, 0, FILE_LIMITS.points)) return bad(fill(F.points, { max: FILE_LIMITS.points }));
         if (!isRecord(data.stats)) return bad(F.stats);
         const stats = {};
-        for (const stat of STATS) {
-            if (!whole(data.stats[stat], ...FILE_LIMITS.stat)) return bad(fill(F.stat, { stat: stat.toUpperCase() }));
-            stats[stat] = data.stats[stat];
+        // (a file written before Combat Rules v1 has LUK and no WIS: its LUK is read as the WIS, so no point of it is lost)
+        for (const stat of STATS_V1) {
+            const value = whole(data.stats[stat], ...FILE_LIMITS.stat) || stat !== 'wis' || Object.hasOwn(data.stats, 'wis') ? data.stats[stat] : data.stats.luk;
+            if (!whole(value, ...FILE_LIMITS.stat)) return bad(fill(F.stat, { stat: stat.toUpperCase() }));
+            stats[stat] = value;
         }
         const rawSkills = data.skills ?? [];
         if (!Array.isArray(rawSkills) || rawSkills.length > SKILL_FIELDS_MAX) return bad(fill(F.skills, { max: SKILL_FIELDS_MAX }));

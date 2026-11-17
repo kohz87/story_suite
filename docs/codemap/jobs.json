@@ -54,6 +54,7 @@
   "scripts/checks/test-globs.mjs": "Fails when a test file (by Node default test names) is not run by the files the root test scripts and the suite script really pass to node --test.",
   "scripts/ci/choose-base.sh": "Chooses the base commits (one per line) for the CI diff and legacy-list ratchet: every parent that has the list, with the import-commit fallback only before the list exists.",
   "scripts/ci/farm.mjs": "Makes the sibling-folder farm (Story_block, Story_director, npc_state_delta) that cross-package tests look in, from the suiteFarm list in scripts/layout.json.",
+  "scripts/temp-dir.mjs": "Makes temporary folders for scripts and tests and removes them when the process ends, including on an error, Ctrl-C or kill.",
   "scripts/ci/suite-floor.sh": "Adds up the cross-package suite shards' test counts and fails when the sum is below the floor kept in suite-tests.sh.",
   "scripts/ci/suite-tests.sh": "Runs the Story Block test folders with the sibling folders present plus tests/suite and tests/people, failing on unlisted skips, extra todos or a test count below the floor.",
   "scripts/codemap/build-map.mjs": "Builds sorted codemap rows and validates jobs and export limits; a legacy package lists over-limit files as a backlog.",

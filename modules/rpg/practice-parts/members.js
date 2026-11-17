@@ -14,7 +14,7 @@ export function membersOf(host, sheet) {
         const named = actors.find(actor => actor.id === actorIdOf(character.module)) ?? actors.find(actor => fold(actor.name) === character.key)
             ?? actors.find(actor => sameWho(character, actor.name, actor.aliases, sheet.characters));
         const aliases = [...(named ? [named.name, ...(Array.isArray(named.aliases) ? named.aliases : [])] : [])].filter(value => typeof value === 'string' && value.trim());
-        return { name: character.who, aliases, stats: character.stats, level: character.level, soul: character.soul,
+        return { name: character.who, aliases, stats: character.stats, level: character.level, ...(character.soul !== undefined ? { soul: character.soul } : {}),
             skills: character.skills.map(skill => ({ name: skill.name, stat: skill.stat, rank: skill.rank, type: skill.type ?? 'combat' })) };
     });
 }
@@ -22,4 +22,4 @@ export function membersOf(host, sheet) {
 // What the results were worked from: every member of the party as the sheet now holds them (stats, level or class, every skill's stat, rank and type), so a line the step
 // refused ("unknown skill", "unknown person") is planned again too when an earlier reply adds what it named. The replay guard asks it again. (A name the party module
 // knows a member by, `party.actors`, is not something a guard may ask: an alias change alone does not plan the step again.)
-export const membersWitness = sheet => sheet.characters.map(found => ({ who: found.who, stats: found.stats, level: found.level, soul: found.soul, skills: found.skills.map(skill => [skill.name, skill.stat, skill.rank, skill.type ?? 'combat']) }));
+export const membersWitness = sheet => sheet.characters.map(found => ({ who: found.who, stats: found.stats, level: found.level, ...(found.soul !== undefined ? { soul: found.soul } : {}), skills: found.skills.map(skill => [skill.name, skill.stat, skill.rank, skill.type ?? 'combat']) }));

@@ -7,10 +7,10 @@
 
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempDir } from '../temp-dir.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CASES = join(HERE, 'sim-trace-cases.json');
@@ -23,7 +23,7 @@ if (!sim) {
 }
 const simPath = resolve(sim);
 const out = resolve(process.argv[3] ?? FIXTURE);
-const dir = mkdtempSync(join(tmpdir(), 'sim-traces-'));
+const dir = tempDir('sim-traces-');
 try {
     const raw = join(dir, 'raw.json');
     // -I: isolated mode, so nothing next to the script or in the cwd is imported.

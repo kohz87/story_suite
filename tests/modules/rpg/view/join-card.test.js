@@ -31,7 +31,7 @@ test('Ask: the card sits under the newest reply with the words of the mockup and
     const card = cardOf(ctx);
     assert.ok(card, 'the card');
     assert.match(card.textContent, /Mara joins the party/);
-    assert.match(card.textContent, /a hedge-witch from Kvildal/);
+    assert.doesNotMatch(card.textContent, /hedge-witch/, 'the line\'s about is ignored');
     assert.match(card.textContent, /Level 35/, 'F12: the card says the level the class stands for (class IV: 35), not a Soul Class');
     assert.doesNotMatch(card.textContent, /Soul Class/);
     assert.deepEqual(card.querySelectorAll('button').map(node => node.textContent.trim()).filter(Boolean), ['Add to party', 'Edit first', 'No']);
@@ -53,7 +53,7 @@ test('Add to party makes the Character and Skills blocks and the card goes', { s
     assert.equal(party(ctx.doc).querySelectorAll('.rpg-card')[1].querySelector('.rpg-sub').textContent, 'companion');
 });
 
-test('Edit first opens the New character window filled in: name, about, class, the best stat raised; Create makes the companion and the card goes', { skip }, async t => {
+test('Edit first opens the New character window filled in: name, class, the best stat raised; Create makes the companion and the card goes', { skip }, async t => {
     const ctx = await asked(t);
     cardOf(ctx).querySelectorAll('button').find(node => node.textContent.trim() === 'Edit first').click();
     await settle();
@@ -61,19 +61,19 @@ test('Edit first opens the New character window filled in: name, about, class, t
     assert.equal(dialog.screenId, WIZARD_SCREEN_ID);
     const who = wizardOf(dialog);
     assert.equal(who.querySelector('[data-wiz="name"]').value, 'Mara');
-    assert.equal(who.querySelector('[data-wiz="about"]').value, 'a hedge-witch from Kvildal');
+    assert.equal(who.querySelector('[data-wiz="about"]'), null, 'no Who they are');
+    assert.equal(who.querySelector('.rpg-wiz-seg'), null, 'no You or companion choice: a join card makes a companion');
     assert.match(who.querySelector('.rpg-wiz-sub').textContent, /^Companion · Lv 35$/);
-    assert.match(who.querySelector('.rpg-wiz-sum').textContent, /INT 15/);
+    assert.match(who.querySelector('.rpg-wiz-sum').textContent, /INT 26/);
     assert.equal(who.querySelector('.rpg-wiz-push').textContent, 'Points left: 0');
     assert.match(who.textContent, /Starts at Lv 35 with 0 XP/);
-    assert.equal(who.querySelector('[data-wiz="persona-note"]').hidden, true);
     dialog.goTo(3);
     await settle();
     assert.match(wizardOf(dialog).textContent, /Starts at Lv 35, 0 XP, full Health, Mana and Stamina\./);
     wizardOf(dialog).querySelector('.rpg-wiz-create').click();
     await settle();
     const mara = ctx.host.sdk.query('dataModules.view', { module: 'pack.chat/mara' }).chat;
-    assert.deepEqual([mara.who, mara.level, mara.int, mara.points], ['Mara', 35, 15, 0], 'the Standard companion: the best stat and the points for the level are spent, the class as written');
+    assert.deepEqual([mara.who, mara.level, mara.int, mara.points], ['Mara', 35, 26, 0], 'the v1 companion: the best stat and the points for the level (one a level) are spent, the class as written');
     ctx.ui.mounts.card.refresh(ctx.host.ctx.chat.length - 1, { force: true });
     await settle();
     assert.equal(cardOf(ctx), null, 'in the party: nothing to offer');

@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { standInTree } from './helpers/temp-tree.js';
@@ -13,6 +12,7 @@ import { lastRelationshipChangeHtml, relationshipHistoryHtml } from '../../modul
 import { storyMinuteText } from '../../modules/people/legacy/calendar.js';
 import { eventSummary } from '../../modules/people/meters/npc-meters-pacing.js';
 import { LOOSE, SHUT, STORED, cardOf, eventOf, pacedSuite, suite } from './storysuite-v2-meters-ladder.helpers.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // ---- 7. the dossier's "Last relationship change" is the meters' own net change (hosted; read time only) ----
 
@@ -126,7 +126,7 @@ test('hosted forward: an open dossier panel draws again when each delayed npc.ad
     try {
         const rt = { storySuiteV2: { hosted: () => true, adjust: change => { calls.push(change.name); return new Promise(resolve => { release = resolve; }); } } };
         // runtime-hosted.js with its siblings copied beside it; only the SillyTavern-bound helper and settings files are stubs.
-        const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-hosted-forward-'));
+        const temp = tempDir('delta-hosted-forward-');
         globalThis.__npcMock ??= { extensionSettings: {}, context: { chat: [] }, saveSettingsCalls: 0 };   // the shared host stubs read it
         standInTree(temp);   // every file under its old name, a stand-in for the real one; runtime-hosted.js itself is a copy with its imports written the old way
         fs.writeFileSync(path.join(temp, 'runtime-hosted.js'), oldSource('runtime-hosted.js'));

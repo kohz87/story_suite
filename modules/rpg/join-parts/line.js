@@ -1,7 +1,7 @@
 // Join: the narrator's party line (grammar, class words) read and checked.
 
 import { oneLine } from '../../../core/text.js';
-import { CLASS_NAMES, CREATION, JOINS, STATS } from '../names.js';
+import { CLASS_NAMES, CREATION, JOINS, STATS_EARLIER as STATS, STATS_V1 } from '../names.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { newSoul } from '../view/wizard-data.js';
 import { isRecord } from './shared-record.js';
@@ -27,10 +27,9 @@ export function soulOf(text, soul = null) {
 }
 
 /**
- * A party line read: `{ op: '+' | '-', name, about, soul, best }` or `{ error }` (plain words). `about` is cut at 240 characters (whole
- * characters), `soul` is 1 when the line has no class, `best` is one of the seven stats or '' when the line names none.
+ * A party line read: `{ op: '+' | '-', name, soul, best }` or `{ error }` (plain words); a line that still carries `about:` is accepted and the text ignored (only a chat made under the earlier rules, `rules` 'standard', keeps it as `about`, cut at 240 characters, so its blocks are built as before). `soul` is 1 when the line has no class, `best` is one of the seven stats (Combat Rules v1's, or the earlier rules' when `rules` is 'standard') or '' when the line names none.
  */
-export function readJoin(line, naming = null) {
+export function readJoin(line, naming = null, rules = 'v1') {
     const op = line?.op;
     if (op !== '+' && op !== '-') return { error: fill(J.wrongOp, { op: op ?? '' }) };
     const name = oneLine(line?.name);
@@ -38,7 +37,7 @@ export function readJoin(line, naming = null) {
     if ([...name].length > CREATION.name) return { error: fill(J.nameLong, { max: CREATION.name }) };
     if (op === '-') return { op, name };
     const labels = isRecord(line?.labels) ? line.labels : {};
-    const about = [...oneLine(labels.about ?? line?.text)].slice(0, CREATION.about).join('');
+    const about = rules === 'standard' ? [...oneLine(labels.about ?? line?.text)].slice(0, CREATION.about).join('') : '';
     let soul = 1;
     if (oneLine(labels.class)) {
         soul = soulOf(labels.class, naming);
@@ -47,9 +46,11 @@ export function readJoin(line, naming = null) {
     let best = '';
     if (oneLine(labels.best)) {
         best = oneLine(labels.best).toLowerCase();
-        if (!STATS.includes(best)) return { error: fill(J.badBest, { stats: STATS.join(', ') }) };
+        const stats = rules === 'standard' ? STATS : STATS_V1;
+        if (!stats.includes(best)) return { error: fill(J.badBest, { stats: stats.join(', ') }) };
     }
-    return { op, name, about, soul, best };
+    // (the earlier rules read the line's about, so a chat made under them builds the same block, byte for byte; Combat Rules v1 has no about and ignores it)
+    return rules === 'standard' ? { op, name, about, soul, best } : { op, name, soul, best };
 }
 
 /** What the Soul Class is called, as the refusal and the card say it: { label, first, last, word } (soul.js). The default is the template's. */

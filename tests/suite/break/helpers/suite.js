@@ -3,11 +3,11 @@
 // Where the checkouts come from: SUITE_SB / SUITE_SD / SUITE_NSD (a folder each) win; else STORY_SUITE_ROOT
 // (<root>/Story_director, <root>/npc_state_delta); else the tool folders of this repo. Story Block is this repo.
 // No folder found: loadSuite() answers { skip } and the test skips.
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readFileSync } from 'node:fs';
 import { makeFarm } from '../../../../scripts/ci/farm.mjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
+import { tempDir } from '../../../../scripts/temp-dir.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(here, '../../../..');
@@ -21,7 +21,7 @@ const find = (env, name, rel, own) => [env, ...ROOTS.map(root => path.join(root,
 
 // No farm given: the repo's own folders in the old shape, built once in a temporary folder.
 let farm = null;
-const fallbackFarm = name => path.join(farm ??= makeFarm(REPO, mkdtempSync(path.join(tmpdir(), 'suite-farm-'))), name);
+const fallbackFarm = name => path.join(farm ??= makeFarm(REPO, tempDir('suite-farm-')), name);
 
 export const roots = () => ({
     sb: SB,

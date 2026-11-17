@@ -12,6 +12,8 @@ import { refusalText } from '../../../core/strings.js';
 import { drawStageBars, fieldsPayload } from './bars.js';
 import { growthOf } from '../blocks.js';
 import { growthText } from './party-data.js';
+import { barsOf } from '../combat/bars.js';
+import { V1 } from '../combat/numbers.js';
 import { isStandard } from '../rules.js';
 
 const S = RPG_STRINGS.sheet;
@@ -47,6 +49,9 @@ export function renderDistribute(parent, { character, session = null, api = {}, 
     if (staleFor(run, character)) Object.assign(run, newSession(character), { message: run.message });
     let alive = true;
     let handles = [], steppers = [], radarHandle = null, pill = null, saveButton = null, resetButton = null, note = null, growth = null;
+    // (a Combat Rules v1 Character: stats to 30, and the line under the steppers gives HP, MP and SP for the stats being set; the earlier one has its blocks and luck line)
+    const statCap = character.v1 ? V1.stat.max : 20;
+    const growthLine = () => (character.v1 ? fill(S.barsLine, { ...barsOf(run.draft, character.level), level: character.level }) : growthText(growthOf(run.draft, { statMax: standard()?.statMax, scale: character.scale })));
     const standard = () => { try { const now = typeof rules === 'function' ? rules() : rules; return isStandard(now) ? now : null; } catch { return null; } };
 
     const clear = () => { for (const handle of handles) handle.destroy?.(); handles = []; steppers = []; radarHandle = null; root.replaceChildren(); };
@@ -61,12 +66,12 @@ export function renderDistribute(parent, { character, session = null, api = {}, 
         const left = pointsLeft();
         if (pill) pill.textContent = pillText(left);
         character.stats.forEach((stat, at) => steppers[at]?.update({ name: stat.key, value: run.draft[stat.key], min: run.start[stat.key], max: stat.max, budget: left, label: stat.label, budgetLabel: S.budgetLabel, disabled: run.busy }));
-        radarHandle?.update({ axes: axes(), max: 20, label: fill(S.radar, { name: character.name }), tone: 'accent' });
+        radarHandle?.update({ axes: axes(), max: statCap, label: fill(S.radar, { name: character.name }), tone: 'accent' });
         const changed = changedStats().length > 0;
         if (saveButton) saveButton.disabled = run.busy || !changed;
         if (resetButton) resetButton.disabled = run.busy || !changed;
         if (note) note.textContent = words();
-        if (growth) growth.textContent = growthText(growthOf(run.draft, { statMax: standard()?.statMax, scale: character.scale }));
+        if (growth) growth.textContent = growthLine();
     }
 
     function draw() {
@@ -96,12 +101,12 @@ export function renderDistribute(parent, { character, session = null, api = {}, 
             steppers.push(handle);
         }
         const chart = h(doc, 'div', 'rpg-radar');
-        radarHandle = radar.render(chart, { axes: axes(), max: 20, label: fill(S.radar, { name: character.name }), tone: 'accent' }, {});
+        radarHandle = radar.render(chart, { axes: axes(), max: statCap, label: fill(S.radar, { name: character.name }), tone: 'accent' }, {});
         handles.push(radarHandle);
         body.append(grid, chart);
         root.appendChild(body);
         // Standard: Health, Stamina and Mana grow with VIT, AGI and INT and luck with LUK; the line says what the next point buys.
-        growth = standard() ? h(doc, 'p', 'rpg-sheet-growth') : null;
+        growth = standard() || character.v1 ? h(doc, 'p', 'rpg-sheet-growth') : null;
         if (growth) { growth.setAttribute('data-rpg', 'growth'); root.appendChild(growth); }
         const actions = h(doc, 'div', 'rpg-actions');
         const button = (text, cls, fn) => {

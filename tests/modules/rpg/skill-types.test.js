@@ -134,7 +134,7 @@ test('the wizard: a draft holds the level\'s combat skills and three utility one
     assert.equal(loose.skills.filter(skill => skill.type === 'utility').length, 3, 'a draft with every skill utility keeps three');
     const made = buildDefinitions(draft, { used: [] });
     assert.equal(made.skills.state.type6.default, 'utility');
-    assert.equal(made.skills.state.type1.default, 'combat');
+    assert.equal(made.skills.state.type1.default, 'attack', 'a combat skill is an attack skill under v1');
     assert.equal(made.skills.state.skill8.default, 'Skill 8');
     assert.equal(validateDataModules([made.character, made.skills], { packId: 'chat', capabilities: ['data-modules-v1'] }).ok, true);
     const earlier = buildDefinitions(readDraft(newDraft({ persona: 'Astra' })), { used: [], typed: false });
@@ -142,7 +142,7 @@ test('the wizard: a draft holds the level\'s combat skills and three utility one
 });
 
 test('a character file keeps the type and carries up to eleven skills', () => {
-    const file = buildCharacterFile({ level: 1, points: 0, stats: { str: 8, vit: 8, agi: 8, dex: 8, int: 8, luk: 8, cha: 8 }, skills: [
+    const file = buildCharacterFile({ level: 1, points: 0, stats: { str: 8, vit: 8, agi: 8, dex: 8, int: 8, wis: 8, cha: 8 }, skills: [
         { name: 'Cut', about: 'x', stat: 'str', uses: 'stamina', rank: 0 }, { name: 'Obscure', about: 'y', stat: 'dex', uses: 'mana', rank: 1, type: 'utility' }] });
     assert.deepEqual(file.skills.map(skill => skill.type), [undefined, 'utility']);
     const read = parseCharacterFile(JSON.stringify(file));
@@ -153,14 +153,14 @@ test('a character file keeps the type and carries up to eleven skills', () => {
 
 test('the wizard preserves imported combat skills without counting imported utility skills as combat room', () => {
     const skill = (n, type) => ({ name: `S${n}`, about: 'x', stat: 'str', uses: 'stamina', rank: 0, ...(type ? { type } : {}) });
-    const stats = Object.fromEntries(['str', 'vit', 'agi', 'dex', 'int', 'luk', 'cha'].map(stat => [stat, 8]));
+    const stats = Object.fromEntries(['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha'].map(stat => [stat, 8]));
     for (const count of [5, 8]) {
         const file = { level: 1, points: 0, stats, skills: [...Array.from({ length: count }, (_, n) => skill(n)), ...Array.from({ length: 3 }, (_, n) => skill(n + 20, 'utility'))] };
         const draft = readDraft(withImport(newDraft({ persona: 'Astra' }), file).draft);
         assert.equal(combatSlots(draft), count);
         assert.equal(draftSlots(draft), count + 3);
         assert.equal(withSkill(draft), draft, 'neither pool can grow');
-        assert.equal(Object.keys(buildDefinitions(draft).skills.state).length, 79, 'the full import fits its definition');
+        assert.equal(Object.keys(buildDefinitions(draft).skills.state).length, 68, 'the full import fits its definition (eleven slots of name, about, stat, type, rank and practice, who and the signature mark)');
     }
     const raw = readDraft({ skills: Array.from({ length: 6 }, (_, n) => skill(n, 'utility')) });
     assert.deepEqual(raw.skills.map(skill => skill.type), ['utility', 'utility', 'utility'], 'extra utility skills are not silently turned into combat skills');

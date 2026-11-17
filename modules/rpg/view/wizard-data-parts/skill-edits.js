@@ -1,6 +1,7 @@
 // Changes to the draft's skills: a set put in, a skill added, patched or taken out.
 
-import { CREATION, STATS, USES } from '../../names.js';
+import { CREATION, STATS_V1 as STATS, USES } from '../../names.js';
+import { SKILL_TYPE_NAMES } from '../../templates-combat.js';
 import { UTILITY_SLOTS } from '../../../../core/runtime/skill-slots.js';
 import { mayStartAdept } from './adept.js';
 import { combatSlots, draftSlots, utilityCount } from './slots.js';
@@ -14,7 +15,7 @@ export function withSet(draft, set) {
     const signed = draft.skills.filter(skill => skill.sig === true);
     const skills = (set?.skills ?? []).slice(0, Math.max(0, combatSlots(draft) - signed.filter(skill => skill.type !== 'utility').length)).map(skill => ({
         name: oneLine(skill.name, CREATION.skillName), about: oneLine(skill.about, CREATION.skillAbout),
-        stat: STATS.includes(skill.stat) ? skill.stat : STATS[0], uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: 0,
+        stat: STATS.includes(skill.stat) ? skill.stat : skill.stat === 'luk' ? 'wis' : STATS[0], uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: 0,
     }));
     return { ...draft, skills: [...signed, ...draft.skills.filter(skill => skill.type === 'utility' && skill.sig !== true && skill.name), ...skills], set: String(set?.id ?? '') };
 }
@@ -31,12 +32,12 @@ export function withSkillPatch(draft, index, patch) {
     if (!draft.skills[index]) return draft;
     const only = draft.skills[index].sig === true ? { ...(patch.name !== undefined ? { name: patch.name } : {}), ...(patch.about !== undefined ? { about: patch.about } : {}) } : patch;
     const next = { ...draft.skills[index], ...only };
-    // (`type`: combat or utility; a pool that is full refuses it)
+    // (`type`: one of the eight skill types, utility being the story-only one; a pool that is full refuses it)
     if (patch.type !== undefined && draft.skills[index].sig !== true) {
         const { type: _type, ...rest } = next, others = utilityCount(draft, index);
         const fits = patch.type === 'utility' ? others < UTILITY_SLOTS : draft.skills.length - others - 1 < combatSlots(draft);
         if (!fits) return draft;
-        return { ...draft, skills: draft.skills.map((skill, at) => (at === index ? { ...rest, ...(patch.type === 'utility' ? { type: 'utility' } : {}) } : skill)) };
+        return { ...draft, skills: draft.skills.map((skill, at) => (at === index ? { ...rest, ...(SKILL_TYPE_NAMES.includes(patch.type) && patch.type !== 'attack' ? { type: patch.type } : {}) } : skill)) };
     }
     if (next.start === 1 && !mayStartAdept(draft, index)) next.start = 0;
     return { ...draft, skills: draft.skills.map((skill, at) => (at === index ? next : skill)) };

@@ -43,18 +43,17 @@ function addStyle(doc, file) {
 }
 
 /**
- * mountLeanRpg({ doc, ctx, store, events, screens, widgets, headState, readerName, readerAbout, roleOf, featureOn, openDialog, closeView, refresh, command, values, meta, save })
+ * mountLeanRpg({ doc, ctx, store, events, screens, widgets, headState, readerName, roleOf, featureOn, openDialog, closeView, refresh, command, values, meta, save })
  * → { cardLines({ index, state, before, record, problems }), settingsSections(), heroLead(state), battleLog, wizard, start, destroy() }.
  * `heroLead(state)` is the reader's own character as the game view's header draws it ({ name, bars }, hero-data.js), or null.
  * `screens` is the screen registry (`setPack`, `removePack`); `widgets` the host's own widget table (the Party and wizard widgets are
  * added to it); `headState()` the head state; `featureOn()` whether the feature is on now; `openDialog(screenId, { draft, onClose })` the
- * host's dialog mount (the New character wizard opens through it; without it the Party tab has no button for it); `readerAbout()` the active
- * persona's description (a You's Who they are starts with it); `meta()` the open chat's metadata and `save()` its write (what Home's card and the first-send
+ * host's dialog mount (the New character wizard opens through it; without it the Party tab has no button for it); `meta()` the open chat's metadata and `save()` its write (what Home's card and the first-send
  * dialog remember per chat, ../start.js); `values()` Story Block's settings, `command(type, payload)` the host's
  * commands (the settings page saves the Combat rules text through `dm.redefine`); `closeView()` closes the game view
  * ("See it in the story" on the Fight tab); `refresh()` redraws the tabs.
  */
-export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets, headState, readerName = () => '', readerAbout = () => '', meta = () => null, save = () => {}, roleOf, featureOn = () => true, currentScreen = null, boardOn = () => false, boardFeature = null, gear = null, openDialog = null, openScreen = () => false, closeView = () => {}, refresh = () => {}, command = null, values = () => ({}), query = null, previewStart = () => null, generateHeld = () => {}, interaction = null }) {
+export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets, headState, readerName = () => '', meta = () => null, save = () => {}, roleOf, featureOn = () => true, currentScreen = null, boardOn = () => false, boardFeature = null, gear = null, openDialog = null, openScreen = () => false, closeView = () => {}, refresh = () => {}, command = null, values = () => ({}), query = null, previewStart = () => null, generateHeld = () => {}, interaction = null }) {
     const links = STYLE_FILES.map(file => addStyle(doc, file)).filter(Boolean);
     // The numbers a roll would be made with now (Settings → RPG): the roll line on a skill and a class-up note state them.
     // What the story's pack asks for (its formula and numbers), with the pack's name: the default of a reader who has chosen nothing.
@@ -87,7 +86,7 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
         const source = readRecord(ctx?.chat?.[store?.headIndex?.()])?.source;
         return source?.logical && source?.swipeKey ? `${source.logical}/${source.swipeKey}` : '';
     };
-    const wizard = createWizard({ headState, readerName, readerAbout, roleOf, openDialog, replyKey, rules, packNote, levels, levelCap });
+    const wizard = createWizard({ headState, readerName, roleOf, openDialog, replyKey, rules, packNote, levels, levelCap });
     const exporter = createExporter({ headState, readerName, roleOf, openDialog });
     const start = createStart({ doc, headState, readerName, featureOn, roleOf, openDialog, wizard, meta, save, redraw: () => refresh() });
     widgets[PARTY_WIDGET] = createPartyWidget({ chatKey: () => String(ctx?.getCurrentChatId?.() ?? ctx?.chatId ?? ''), headState, readerName, roleOf, openWizard: openDialog ? wizard.open : null, exportCharacter: openDialog ? exporter.open : null, rules, rolled: () => practiceFromRollsOnly(true, values()), levels, board: { on: boardOn, flags: () => boardFlags(headState()) },

@@ -2,16 +2,16 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
 import { checkRelease } from '../../scripts/release/check.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const dirs = [];
 after(() => { for (const dir of dirs) fs.rmSync(dir, { recursive: true, force: true }); });
 
 function fixture() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-eager-'));
+  const root = tempDir('release-eager-');
   dirs.push(root);
   const put = (file, text) => { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); };
   put('package.json', JSON.stringify({ version: '0.1.0' }));

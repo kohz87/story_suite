@@ -1,17 +1,17 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { walkBundle } from '../../scripts/release/graph.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 let root;
 const write = (file, text) => { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); };
 const SET = { name: 'demo', entries: ['boot.js'], lazy: ['lazy.js'] };
 
 before(() => {
-  root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-bundle-'));
+  root = tempDir('release-bundle-');
   write('boot.js', [
     "import { shared } from './shared.js';",
     "import { host } from '../../../extensions.js';",

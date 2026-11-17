@@ -8,7 +8,8 @@ export { BOARD_HURTS, BOARD_CLEAR_FOES, BOARD_OPEN_FOES, BOARD_AWARD } from './n
 export { ROLL_KIND, CHECKS_SETTING, checksOn, CHECK_GRAMMAR } from './names-parts/checks.js';
 export { FOES_TOUCH_QUERY, FIGHT, PRACTICE_STEP, ROLLS_QUERY } from './names-parts/queries.js';
 export { PRACTICE, PRACTICE_SETTING, practiceOf, practiceFromRollsOnly } from './names-parts/practice.js';
-export { ROLES, ROLES_WITHOUT_TAB, STATS, STATS_V1 } from './names-parts/roles.js';
+export { ROLES, ROLES_WITHOUT_TAB } from './names-parts/roles.js';
+export { STATS, STATS_V1, STATS_EARLIER, STATS_ANY } from './names-parts/stats.js';
 export { STAGES, stageWord } from './names-parts/stages.js';
 export { FORMULA, PACE, FOE_SLOTS, LIMITS } from './names-parts/rules.js';
 export { ROLLS_SETTING, ROLLS, NOROLL_LIMIT_MAX, FIX_VERSION } from './names-parts/rolls.js';

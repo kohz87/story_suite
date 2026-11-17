@@ -5,7 +5,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { buildInjection, buildScannerPrompt, normalizeNpcRecord } from '../../modules/people/core/core.js';
@@ -15,6 +14,7 @@ import { oldSource } from './helpers/old-source.js';
 import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
 import { applyFocusedRelationshipDecisions } from '../../modules/people/legacy/relationship-pass.js';
 import { suite, major } from './helpers/pacing-suite.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const milestone25 = { axis: 'trust', polarity: 1, threshold: 25, reason: 'earned on the sidecar', sourceMessageId: 1, turn: 1, inferred: false };
 const sidecarMira = (trust, extra = {}) => normalizeNpcRecord({
@@ -37,7 +37,7 @@ const viewOf = s => s.adapter.sliceView(Object.values(s.delta.records))[0];
 
 test('diagnostics renders the selected relationship view without changing the stored dossier', async () => {
     const s = await held();
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-diagnostic-view-'));
+    const temp = tempDir('delta-diagnostic-view-');
     fs.mkdirSync(path.join(temp, 'src'));
     fs.writeFileSync(path.join(temp, 'package.json'), '{"type":"module"}');
     fs.writeFileSync(path.join(temp, 'runtime-entry-public-write.js'), oldSource('runtime-entry-public-write.js'));

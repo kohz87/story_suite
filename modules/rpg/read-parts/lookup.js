@@ -1,5 +1,5 @@
 // Looks up a Character or a foe slot on a read sheet from a phrase, and finds a character's best stat.
-import { STATS } from '../names.js';
+import { STATS_ANY as STATS } from '../names.js';
 import { fold, matchName } from './match.js';
 
 const FOE_NUMBER = /^(?:foe|slot|#)?\s*(\d{1,2})$/i;

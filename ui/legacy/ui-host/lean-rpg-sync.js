@@ -19,8 +19,6 @@ export function createLeanRpgSync(deps) {
                 gear: { on: () => registry.featureOn?.(GEAR_FEATURE) === true, set: value => runtime.features?.set?.(GEAR_FEATURE, Boolean(value)) },
                 boardFeature: { on: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true, set: value => runtime.features?.set?.(CORE_FEATURE.fightBoard, Boolean(value)) },
                 readerName: () => String(liveCtx()?.name1 ?? ctx.name1 ?? ''),
-                // The active persona's description: the one property of SillyTavern's settings this reads (never another persona or setting).
-                readerAbout: () => { try { return String((liveCtx()?.powerUserSettings ?? ctx.powerUserSettings)?.persona_description ?? ''); } catch { return ''; } },
                 // What the chat remembers about the first send (lean-rpg/start.js): in its own metadata, written with the chat.
                 meta: () => { try { return (liveCtx() ?? ctx)?.chatMetadata ?? null; } catch { return null; } },
                 save: () => { try { const c = liveCtx() ?? ctx; (c.saveMetadata ?? c.saveMetadataDebounced)?.call(c); } catch { /* the choice lasts this page only */ } },

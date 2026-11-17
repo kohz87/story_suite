@@ -157,7 +157,7 @@ export function createPartyWidget({ headState = () => null, readerName = () => '
                 const away = party.filter(character => character.left), here = party.filter(character => !character.left);
                 const count = h(doc, 'div', 'rpg-pills');
                 count.appendChild(h(doc, 'span', 'ss-pill rpg-count', fill(P.active, { n: here.length }) + (away.length ? fill(P.leftCount, { n: away.length }) : '')));
-                if (party.length && openWizard) button(count, P.newCharacter, 'ss-button rpg-new', newCharacter);
+                if (party.length && openWizard && !party.some(character => character.own)) button(count, P.newCharacter, 'ss-button rpg-new', newCharacter);
                 head.appendChild(count);
                 main.appendChild(head);
                 if (!party.length) {

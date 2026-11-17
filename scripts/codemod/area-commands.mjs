@@ -1,7 +1,6 @@
 // The `apply`, `verify` and `port-branch` CLI commands: each takes an area, runs it and writes a summary. Returns an exit code.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { applyLayout } from './apply.mjs';
 import { dropKnownProblems, occurringStale, splitApplyKnown } from './apply-known.mjs';
@@ -10,6 +9,7 @@ import { verifyApplied } from './verify-applied.mjs';
 import { portBranch } from './port-branch.mjs';
 import { trackedFiles } from './plan.mjs';
 import { planForArea } from './area.mjs';
+import { tempDir } from '../temp-dir.mjs';
 
 const head = root => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const entry = item => (typeof item === 'string' ? item : `${item.file}${item.line ? `:${item.line}` : ''} ${item.spec ?? item.value ?? item.kind ?? ''}`.trim());
@@ -45,7 +45,7 @@ function showTests(stdout, ran, split) {
   if (!ran) return;
   if (ran.status === 0) { stdout.write(`tests: ${ran.count} moved test files, passed\n`); return; }
   if (!split.tests.length) { stdout.write(`tests: ${ran.count} moved test files, all failures named in the known list (not judged)\n`); return; }
-  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'codemod-tests-')), 'output.txt');
+  const file = path.join(tempDir('codemod-tests-'), 'output.txt');
   fs.writeFileSync(file, ran.output);
   stdout.write(`tests: ${ran.count} moved test files, FAILED (exit ${ran.status}); full output in ${file}; last lines:\n${ran.output.split('\n').slice(-60).join('\n')}\n`);
 }

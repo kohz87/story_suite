@@ -5,6 +5,7 @@ import { standInTree } from './helpers/temp-tree.js';
 import { snapshotNpc } from '../../modules/people/fields/registry.js';
 import path from 'node:path';
 import { root, index, css, dossierUi } from './ui-layout.helpers.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 test('inline card truth follows merged presence and settings roster editor uses direct mobile-safe binding', () => {
     assert.match(index, /function scanInlineNpcIds\(_parsed, merged\)/);
@@ -222,7 +223,7 @@ test('switched off, Delta renders no in-chat cards, and the Enable switch redraw
     // The real part, beside a stub of the host's extensions.js (as the other runtime-copy tests do).
     const os = await import('node:os');
     const { pathToFileURL } = await import('node:url');
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'delta-enabled-cards-'));
+    const temp = tempDir('delta-enabled-cards-');
     const ext = path.join(temp, 'a', 'b', 'ext');
     fs.mkdirSync(ext, { recursive: true });
     standInTree(ext);   // old names, stand-ins for the real files; the host's extensions.js is the shared stub reading __npcMock

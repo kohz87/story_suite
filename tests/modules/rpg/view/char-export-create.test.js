@@ -174,7 +174,7 @@ test('the Review asks for the stat of an imported skill that has none, like the 
     const skills = await goTo(dialog, 'skills');
     const rows = skills.querySelectorAll('.rpg-wiz-row[data-skill]');
     assert.deepEqual(rows.map(row => row.querySelector('[data-field="stat"]').value), ['', ''], 'an empty Stat, not STR');
-    assert.deepEqual(rows[0].querySelector('[data-field="stat"]').querySelectorAll('option').map(node => node.textContent), ['—', 'STR', 'VIT', 'AGI', 'DEX', 'INT', 'LUK', 'CHA']);
+    assert.deepEqual(rows[0].querySelector('[data-field="stat"]').querySelectorAll('option').map(node => node.textContent), ['—', 'STR', 'VIT', 'AGI', 'DEX', 'INT', 'WIS', 'CHA']);
     let review = await goTo(dialog, 'review');
     assert.deepEqual(review.querySelectorAll('.rpg-wiz-problems li').map(node => node.textContent),
         ['Fix this first:', 'Iron Breath needs a line about what it does.', 'Iron Breath needs a stat.', 'Short blade needs a stat.']);

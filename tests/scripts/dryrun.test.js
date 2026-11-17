@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import os from 'node:os';
+import { rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
@@ -10,11 +9,12 @@ import { loadChat } from '../../scripts/dryrun/load-chat.mjs';
 import { compareRecords } from '../../scripts/dryrun/compare-records.mjs';
 import { recordChat } from '../../scripts/dryrun/record-chat.mjs';
 import { pageSuiteHost } from '../../scripts/dryrun/suite-host.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('loadChat reads .jsonl and .jsonl.gz exports', t => {
-  const dir = mkdtempSync(path.join(os.tmpdir(), 'dryrun-load-'));
+  const dir = tempDir('dryrun-load-');
   t.after(() => rmSync(dir, { recursive: true, force: true }));
 
   const header = { user_name: 'Reader', character_name: 'Guide', chat_metadata: {} };
@@ -115,7 +115,7 @@ test('compareRecords keeps one-sided, different, thrown, empty-prompt and held-b
 let suiteLoad = null;
 function loadedSuite() {
   suiteLoad ??= (async () => {
-    const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'dryrun-suite-'));
+    const tmpRoot = tempDir('dryrun-suite-');
     process.on('exit', () => rmSync(tmpRoot, { recursive: true, force: true }));
     symlinkSync(path.join(REPO_ROOT, 'packages', 'story-block'), path.join(tmpRoot, 'Story_block'));
     symlinkSync(path.join(REPO_ROOT, 'packages', 'story-director'), path.join(tmpRoot, 'Story_director'));

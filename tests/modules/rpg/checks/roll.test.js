@@ -19,11 +19,11 @@ function withActor(bonuses = {}) {
 const how = out => out.state.domains.checks.log[out.result.data.v2.result.check];
 const roll = (state, payload, options = {}) => run(state, 'checks.roll', { skill: 'Stealth', evidence: EVIDENCE, ...payload }, { cause: 'capture', queries: known, ...options });
 
-test('the words: an explicit stat first, then the skill word, unknown is luck; topics are the table\'s', () => {
+test('the words: an explicit stat first, then the skill word, unknown is WIS; topics are the table\'s', () => {
     assert.equal(statForCheck('stealth'), 'DEX');
     assert.equal(statForCheck('stealth', 'str'), 'STR');
     assert.equal(statForCheck('persuade the guard'), 'CHA');
-    assert.equal(statForCheck('mumble'), 'LUK');
+    assert.equal(statForCheck('mumble'), 'WIS');
     assert.deepEqual(topicsOf('sneak past'), ['stealth']);
     assert.deepEqual(topicsOf('pick the lock'), ['lock']);
 });

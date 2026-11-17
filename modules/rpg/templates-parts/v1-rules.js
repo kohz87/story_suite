@@ -1,5 +1,5 @@
 // The Combat rules block of Combat Rules v1 (data only): the narration rules in words, no numbers. Fights are played on the fight board (Standard + fight board only),
-// so the text says the result is told as given and that code, not the story, moves HP, MP and SP. Not offered by the chooser yet.
+// so the text says the result is told as given and that code, not the story, moves HP, MP and SP.
 
 /** The v1 Combat rules text (the block's prompt holds at most 1200 characters). */
 export const COMBAT_PROMPT_V1 = [

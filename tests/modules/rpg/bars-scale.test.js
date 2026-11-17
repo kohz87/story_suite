@@ -264,7 +264,8 @@ test('the Party card\'s growth line and the wizard follow the new numbers, and a
     assert.match(growthText(growthOf(stats, { scale: 2 })), /^Health 10 blocks \(VIT 5, next at 10\) · Stamina 12 \(AGI 10, next at 15\) · Mana 10 \(INT 5, next at 10\)/);
     assert.match(growthText(growthOf(stats)), /^Health 5 blocks \(VIT 5, next at 10\) · Stamina 5 \(AGI 10/);
     const draft = newDraft({ persona: 'Astra' });
-    assert.equal(buildDefinitions(draft, { used: [] }).character.state.health.scale, 2);
+    assert.equal(buildDefinitions(draft, { used: [], rules: 'standard' }).character.state.health.scale, 2, 'an earlier chat\'s join is built as the earlier rules built it');
+    assert.equal(buildDefinitions(draft, { used: [] }).character.state.health, undefined, 'a new one is Combat Rules v1: HP, not Health');
     assert.equal(buildDefinitions(draft, { used: [], scale: 1 }).character.state.health.scale, undefined, 'a companion of an old chat is made on the old definition');
     assert.deepEqual(buildDefinitions(draft, { used: [], scale: 1 }).character, { ...buildDefinitions(draft, { used: [], scale: 1 }).character, state: buildDefinitions(draft, { used: [], scale: 1 }).character.state });
     assert.equal(barText('Hurt', 5, 10), 'Hurt · 5/10');

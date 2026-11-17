@@ -17,7 +17,7 @@ test('Automatically: a + party line makes the Character and an empty Skills bloc
     await host.send('Mara walks in.', reply(MARA));
     assert.deepEqual(blocks(host), ['pack.chat/mara', 'pack.chat/mara-skills', 'pack.chat/wessel', 'pack.chat/wessel-skills']);
     const mara = fields(host, 'mara');
-    assert.deepEqual([mara.who, mara.about, mara.str, mara.vit, mara.agi, mara.dex, mara.int, mara.luk, mara.cha], ['Mara', 'a hedge-witch from Kvildal', 5, 5, 5, 9, 13, 5, 5]);
+    assert.deepEqual([mara.who, mara.str, mara.vit, mara.agi, mara.dex, mara.int, mara.luk, mara.cha], ['Mara', 5, 5, 5, 9, 13, 5, 5]);
     assert.deepEqual([mara.level, mara.points, mara.xp, mara.health, mara.mana, mara.stamina, mara.alive, mara.left], [25, 0, 0, 10, 12, 10, true, false], 'class IV asked, the party\'s highest is III; bars full (the doubled sizes)');
     const skills = fields(host, 'mara-skills');
     assert.deepEqual([skills.who, skills.skill1, skills.rank1, skills.practice1, skills.skill5], ['Mara', '', 0, 0, '']);
@@ -293,7 +293,7 @@ test('a Re-read keeps the old pin of a first companion even when the prefix has 
     t.after(() => { setRpgLib(leanRpg); host.close(); });
     // Permit a historical first-join line through the current grammar gate and capture it with the old scale.
     // The gate reads the live head; planning reads a prefix object without meta, so the first-join setup stays real.
-    setRpgLib({ ...leanRpg, joinScale: () => 1, partyOf: state => {
+    setRpgLib({ ...leanRpg, joinScale: () => 1, joinRules: () => 'standard', partyOf: state => {
         const party = leanRpg.partyOf(state);
         return !party.length && state?.meta ? [{ name: 'Gate' }] : party;
     } });

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { CHAR_FILE } from '../../../../modules/rpg/charfile.js';
 import { begin, makeBlocks, page, party, settle } from './page.js';
 import { characterDefinition, skillsDefinition } from './helpers.js';
+import { asCompanion, openFrom } from './wizard.helpers.js';
 
 export const goTo = async (dialog, step) => { dialog.goTo(['who', 'stats', 'skills', 'review'].indexOf(step)); await settle(); return dialog.root.querySelector('.ss-w-rpg-wizard'); };
 export const wizardOf = dialog => dialog.root.querySelector('.ss-w-rpg-wizard');
@@ -60,13 +61,7 @@ export async function saveFrom(ctx, who = 'Wessel') {
     assert.equal(saves.length, 1, 'one file saved');
     return { text: saves[0].blob.text, name: saves[0].name, type: saves[0].blob.type, dialog };
 }
-export async function wizardWith(ctx, { empty = false } = {}) {
-    ctx.ui.mounts.screen.open('story-block/party');
-    await settle();
-    party(ctx.doc).querySelector(empty ? '.rpg-create' : '.rpg-new').click();
-    await settle();
-    return ctx.ui.mounts.dialog.current();
-}
+export const wizardWith = openFrom;
 export async function importInto(dialog, text, name = 'wessel.character.json') {
     const input = wizardOf(dialog).querySelector('.rpg-import-file');
     input.files = [file(name, text)];
@@ -98,11 +93,7 @@ export async function newcomer(t, options = {}) {
     await settle();
     return ctx;
 }
-export const companion = async (dialog, name = 'Ren', about = 'A ferry hand from Low Quay.') => {
-    click(wizardOf(dialog), 'A companion');
-    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), name);
-    type(wizardOf(dialog).querySelector('[data-wiz="about"]'), about);
-};
+export const companion = (dialog, name = 'Ren') => asCompanion(dialog, name);
 
 export async function createRen(ctx, text = SAVED) {
     const dialog = await wizardWith(ctx);

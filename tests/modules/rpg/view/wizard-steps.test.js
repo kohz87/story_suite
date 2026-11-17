@@ -32,33 +32,24 @@ test('"Create your character" in the empty state and "+ New character" in the he
     assert.equal(some.ui.mounts.dialog.current(), null);
 });
 
-test('Who: the persona\'s name, You or A companion, who they are with its count; Back and Next keep what was typed', async t => {
+test('Who: the persona\'s name for a You (no You or companion choice, no Who they are); Back and Next keep what was typed', async t => {
     const ctx = await page(t, { persona: 'Wessel' });
     await begin(ctx.host);
     const dialog = await openFrom(ctx, { empty: true });
     const who = wizardOf(dialog);
     assert.equal(who.querySelector('[data-wiz="name"]').value, 'Wessel');
     assert.match(who.textContent, /From your persona\. You can change it here\./);
-    assert.deepEqual(who.querySelectorAll('.rpg-wiz-seg button').map(node => [node.textContent, node.getAttribute('aria-pressed')]), [['You', 'true'], ['A companion', 'false']]);
+    assert.equal(who.querySelector('.rpg-wiz-seg'), null, 'no You or companion choice');
+    assert.equal(who.querySelector('[data-wiz="about"]'), null, 'no Who they are');
     assert.equal(who.querySelector('.rpg-wiz-sum .rpg-wiz-name').textContent, 'Wessel');
     assert.match(who.querySelector('.rpg-wiz-sub').textContent, /^You · Lv 1$/);
     assert.equal(who.querySelector('.rpg-wiz-push').textContent, 'Points left: 10');
-    const about = who.querySelector('[data-wiz="about"]');
-    assert.equal(about.getAttribute('maxlength'), '240');
-    type(about, 'A drill-yard washout from Bluewatch.');
-    assert.equal(who.querySelector('.rpg-wiz-count').textContent, '36 / 240');
     type(who.querySelector('[data-wiz="name"]'), 'Wess');
     assert.equal(who.querySelector('.rpg-wiz-sum .rpg-wiz-name').textContent, 'Wess', 'the summary row follows');
     const stats = await goTo(dialog, 'stats');
     assert.ok(stats);
     const again = await goTo(dialog, 'who');
     assert.equal(again.querySelector('[data-wiz="name"]').value, 'Wess');
-    assert.equal(again.querySelector('[data-wiz="about"]').value, 'A drill-yard washout from Bluewatch.');
-    click(again, 'A companion');
-    assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-sub').textContent, 'Companion · Lv 1');
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="name"]').value, 'Wess');
-    click(wizardOf(dialog), 'You');
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="name"]').value, 'Wessel', 'You takes the persona\'s name');
     dialog.close();
 });
 
@@ -93,7 +84,7 @@ test('Stats: steppers under 10 points, a stat never goes below 5 and goes up to 
     dialog.close();
 });
 
-test('Skills: the five built-in sets and a pack\'s, rows with Stat, Uses and Starts at, one Adept at most, up to five, remove, never a rank to type', async t => {
+test('Skills: the five built-in sets and a pack\'s, rows with Stat, Type and Starts at, one Adept at most, up to five, remove, never a rank to type', async t => {
     const ctx = await page(t, { persona: 'Wessel' });
     assert.equal((await ctx.host.packs.packs.install(PACK)).ok, true);
     await begin(ctx.host);
@@ -105,7 +96,7 @@ test('Skills: the five built-in sets and a pack\'s, rows with Stat, Uses and Sta
     assert.equal(cards()[2].querySelector('.rpg-wiz-card-skills').textContent, 'Spark (INT, mana) · Ward (INT, mana) · Lore (INT)');
     assert.equal(cards()[5].querySelector('.rpg-wiz-card-skills').textContent, 'Spear (STR) · Ward-reading (INT, mana) · Gatecraft (VIT)');
     assert.deepEqual(cards().map(card => card.getAttribute('aria-pressed')), ['false', 'false', 'false', 'false', 'false', 'false']);
-    assert.match(skills.textContent, /Up to 8 skills, each with what it does, the stat it rolls with and what it uses\. Up to three can be utility skills, for the story only: they stay off the fight board and take no combat slot\. One may start at Adept, the rest are Novice\./);
+    assert.match(skills.textContent, /Up to 8 skills, each with what it does, the stat it rolls with and a type \(attack, area, defence, evasion, movement, heal, support or utility\)\. Up to three can be utility skills, for the story only: they stay off the fight board and take no combat slot\. One may start at Adept, the rest are Novice\. Only one stance skill \(defence, evasion, movement or support\) may be kept\./);
     cards()[0].click();
     skills = wizardOf(dialog);
     assert.deepEqual(cards().map(card => card.getAttribute('aria-pressed')), ['true', 'false', 'false', 'false', 'false', 'false']);
@@ -114,18 +105,19 @@ test('Skills: the five built-in sets and a pack\'s, rows with Stat, Uses and Sta
     assert.equal(rows().length, 3);
     assert.deepEqual(rows().map(row => row.querySelector('[data-field="name"]').value), ['Short blade', 'Iron Breath', 'Shield work']);
     assert.equal(rows()[0].querySelector('[data-field="about"]').value, FIGHTER.skills[0].about);
-    assert.deepEqual(rows().map(row => [row.querySelector('[data-field="stat"]').value, row.querySelector('[data-field="uses"]').value, row.querySelector('[data-field="start"]').value]),
-        [['agi', 'stamina', '0'], ['vit', 'stamina', '0'], ['str', 'stamina', '0']]);
-    assert.deepEqual(rows()[0].querySelector('[data-field="stat"]').querySelectorAll('option').map(node => node.textContent), ['STR', 'VIT', 'AGI', 'DEX', 'INT', 'LUK', 'CHA']);
-    assert.deepEqual(rows()[0].querySelector('[data-field="uses"]').querySelectorAll('option').map(node => node.textContent), ['Stamina', 'Mana']);
+    assert.deepEqual(rows().map(row => [row.querySelector('[data-field="stat"]').value, row.querySelector('[data-field="type"]').value, row.querySelector('[data-field="start"]').value]),
+        [['agi', 'attack', '0'], ['vit', 'attack', '0'], ['str', 'attack', '0']]);
+    assert.deepEqual(rows()[0].querySelector('[data-field="stat"]').querySelectorAll('option').map(node => node.textContent), ['STR', 'VIT', 'AGI', 'DEX', 'INT', 'WIS', 'CHA']);
+    assert.deepEqual(rows()[0].querySelector('[data-field="type"]').querySelectorAll('option').map(node => node.textContent), ['Attack', 'Area attack', 'Defence', 'Evasion', 'Movement', 'Heal', 'Support', 'Utility']);
     assert.deepEqual(rows()[0].querySelector('[data-field="start"]').querySelectorAll('option').map(node => node.textContent), ['Novice', 'Adept']);
     assert.equal(wizardOf(dialog).querySelectorAll('input, select, textarea').filter(node => /rank|practice/i.test(`${node.getAttribute('data-field')} ${node.getAttribute('aria-label')}`)).length, 0, 'rank and practice are never typed');
     // Edit a row, change its stat and resource: the summary row follows.
     type(rows()[0].querySelector('[data-field="name"]'), 'Blade work');
     rows()[1].querySelector('[data-field="stat"]').value = 'int';
     rows()[1].querySelector('[data-field="stat"]').dispatch('change');
-    rows()[1].querySelector('[data-field="uses"]').value = 'mana';
-    rows()[1].querySelector('[data-field="uses"]').dispatch('change');
+    rows()[1].querySelector('[data-field="type"]').value = 'heal';
+    rows()[1].querySelector('[data-field="type"]').dispatch('change');
+    assert.equal(rows()[1].querySelector('[data-field="type"]').value, 'heal', 'a combat skill may be any of the combat types');
     assert.match(wizardOf(dialog).querySelector('.rpg-wiz-sum').textContent, /Blade work, Iron Breath, Shield work/);
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, '3 of 8 skills');
     // One Adept: the others' Adept option is off once one is taken.
@@ -149,7 +141,7 @@ test('Skills: the five built-in sets and a pack\'s, rows with Stat, Uses and Sta
     // A pack set replaces the rows.
     cards()[5].click();
     assert.deepEqual(rows().map(row => row.querySelector('[data-field="name"]').value), ['Spear', 'Ward-reading', 'Gatecraft']);
-    assert.equal(rows()[1].querySelector('[data-field="uses"]').value, 'mana');
+    assert.equal(rows()[1].querySelector('[data-field="type"]').value, 'attack', 'a set\'s skill is an attack skill until the reader picks another type');
     assert.equal(cards()[5].querySelector('.rpg-wiz-tag').textContent, 'Used');
     dialog.close();
 });

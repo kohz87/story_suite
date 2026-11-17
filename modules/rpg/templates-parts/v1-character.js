@@ -1,8 +1,8 @@
 // The Character block of Combat Rules v1: seven stats 1 to 30 (WIS, no LUK), HP / MP / SP as plain numbers whose largest value a rule works out from the stats and
 // the level (hidden `hp-max`, `mp-max`, `sp-max`; the formulas are combat/bars.js's), one point to spend per level, the death latch, and the recovery kinds.
 // The story sets HP, MP and SP by a stage word (a share of the largest value) and can only lower them; a rest, a full rest or a heal raises them.
-// Its fields are `hp`, `mp`, `sp`, so the stage-bar layout of the earlier Character (`health`, `mana`, `stamina`) never applies. Pure data; not offered by the chooser yet.
-import { CREATION, LEVEL, STAGES } from '../names.js';
+// Its fields are `hp`, `mp`, `sp`, so the stage-bar layout of the earlier Character (`health`, `mana`, `stamina`) never applies. Pure data.
+import { LEVEL, STAGES } from '../names.js';
 import { V1 } from '../combat/numbers.js';
 import { names } from './shared-names.js';
 import { get, int, text } from './shared-fields.js';
@@ -44,12 +44,11 @@ const refill = bars => bars.map(bar => ({ op: 'set', path: [bar], value: get(`${
 
 export const characterV1 = {
     slug: 'character', name: 'Character', role: 'character', schema: 1, stateVersion: 3, scope: 'chat',
-    prompt: 'One character: who they are, seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, '
+    prompt: 'One character: seven stats 1 to 30 (STR VIT AGI DEX INT WIS CHA), HP, MP and SP (numbers; the narrator never writes a number: it lowers one with a health, mana or stamina stage word and a rest, '
         + 'full-rest or heal raises it), points, Level 1 to 99 and XP. They die only when Down before a reply and still Down at its end. The reader sets stats and spends points; every Level gives one point.',
     show: { tab: true, card: false, tabName: 'Character', icon: 'ph-user' },
     state: {
         who: text('Name'),
-        about: text('Who they are', CREATION.about),
         hp: int('HP', 0, BAR_MAX_V1.hp, BAR_START_V1.hp),
         mp: int('MP', 0, BAR_MAX_V1.mp, BAR_START_V1.mp),
         sp: int('SP', 0, BAR_MAX_V1.sp, BAR_START_V1.sp),

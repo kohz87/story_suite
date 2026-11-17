@@ -2,16 +2,16 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { walkBundle } from '../../scripts/release/graph.mjs';
 import { MARKER, assertSafeOut, claimOutDir } from '../../scripts/release/outdir.mjs';
 import { strayImportMeta } from '../../scripts/release/rewrite.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 let temp;
-before(() => { temp = fs.mkdtempSync(path.join(os.tmpdir(), 'release-guard-')); });
+before(() => { temp = tempDir('release-guard-'); });
 after(() => fs.rmSync(temp, { recursive: true, force: true }));
 
 function makeRepo(parts) {

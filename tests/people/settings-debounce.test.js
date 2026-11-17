@@ -3,13 +3,13 @@
 import test, { mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { standInTree } from './helpers/temp-tree.js';
 import { npcBucket } from '../../modules/people/settings/bucket.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
-const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'npc-settings-debounce-'));
+const tempRoot = tempDir('npc-settings-debounce-');
 const extRoot = path.join(tempRoot, 'public', 'scripts', 'extensions', 'third-party', 'npc_state_delta');
 fs.mkdirSync(extRoot, { recursive: true });
 fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'module' }));
