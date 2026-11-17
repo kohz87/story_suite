@@ -11,7 +11,7 @@ export function mountSettings(extra = {}, hooks = {}) {
   const calls = [];
   const ov = createSettingsOverlay({
     doc, settings, renderSection: renderSettingsSection,
-    onChange: (k, v) => calls.push(['c', k, v]), onAction: hooks.onAction ?? ((k, l) => { calls.push(['a', k, l]); }),
+    onChange: (k, v) => calls.push(['c', k, v]), onAction: hooks.onAction ?? ((k, l) => { calls.push(['a', k, l]); }), ...(hooks.onView ? { onView: hooks.onView } : {}),
   });
   ov.open();
   const sec = id => settings.sections.find(s => s.id === id);

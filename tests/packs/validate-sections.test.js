@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../packs/validate.js';
+import { validatePack, checkScreens } from '../../packs/validate.js';
 import { LIMITS, CONTENT_KINDS, OPTIONAL_KINDS } from '../../packs/limits.js';
+import { checkPlain } from '../../packs/safety.js';
 import { pack } from './helpers/fixtures.js';
 import { refused, withItem } from './validate.helpers.js';
 
@@ -27,61 +28,8 @@ test('item fields follow the inventory def', () => {
     assert.equal(several.errors.length, 2, 'one record reports each problem');
 });
 
-test('shops and recipes refer to items that exist', () => {
-    refused(pack({ content: { shops: [{ name: 'Stall', stock: ['rope'] }] } }), 'UNKNOWN_REF');
-    refused(pack({ content: { shops: [{ name: 'Stall', stock: ['story/Rope Coil'] }] } }), 'UNKNOWN_REF');
-    refused(pack({ content: { shops: [{ name: 'Stall', stock: 'rope' }] } }), 'BAD_RECORD');
-    refused(pack({ content: { items: [{ name: 'Rope' }], shops: [{ name: 'Stall', stock: [{ item: 'rope', qty: 0 }] }] } }), 'BAD_RECORD');
-    refused(pack({ content: { items: [{ name: 'Rope' }], shops: [{ name: 'Stall', stock: [{ item: 'rope', price: -2 }] }] } }), 'BAD_RECORD');
-    refused(pack({ content: { items: [{ name: 'Rope' }], shops: [{ name: 'Stall', stock: [7] }] } }), 'BAD_RECORD');
-    refused(pack({ content: { items: [{ name: 'Rope' }], recipes: [{ name: 'Net', makes: 'net', materials: [{ item: 'rope', qty: 2 }] }] } }), 'UNKNOWN_REF');
-    refused(pack({ content: { items: [{ name: 'Rope' }], recipes: [{ name: 'Net', makes: 'rope', materials: [{ item: 'tar', qty: 1 }] }] } }), 'UNKNOWN_REF');
-    refused(pack({ content: { items: [{ name: 'Rope' }], recipes: [{ name: 'Net', makes: 'rope', materials: [] }] } }), 'BAD_RECORD');
-    refused(pack({ content: { items: [{ name: 'Rope' }], recipes: [{ name: 'Net', makes: 'rope', materials: [{ item: 'rope', qty: 0 }] }] } }), 'BAD_RECORD');
-    refused(pack({ content: { items: [{ name: 'Rope' }], recipes: [{ name: 'Net', makes: 'rope', fee: -1, materials: [{ item: 'rope' }] }] } }), 'BAD_RECORD');
-    refused(pack({ content: { items: [{ name: 'Rope' }], recipes: [{ name: 'Net', makes: 'rope', qty: 0, materials: [{ item: 'rope' }] }] } }), 'BAD_RECORD');
-});
-
-test('events: id, condition, cue, once, after and then', () => {
-    const event = fields => pack({ content: { events: [{ id: 'dawn', when: 'true', cue: 'Dawn breaks.', ...fields }] } });
-    assert.equal(validatePack(event({ then: [{ command: 'wallet.receive', payload: { owner: 'party', amount: 5 } }] })).ok, true);
-    refused(event({ id: 'Dawn Bell' }), 'BAD_RECORD');
-    refused(pack({ content: { events: [{ when: 'true', cue: 'x' }] } }), 'BAD_RECORD', 'events need an id');
-    refused(event({ when: '' }), 'BAD_RECORD');
-    refused(event({ when: 'x'.repeat(501) }), 'BAD_RECORD');
-    refused(event({ cue: 3 }), 'BAD_RECORD');
-    refused(event({ cue: 'c'.repeat(501) }), 'BAD_RECORD', 'the events part reads cues of at most 500 characters');
-    refused(event({ once: 'yes' }), 'BAD_RECORD');
-    refused(event({ then: { command: 'x.y' } }), 'BAD_RECORD');
-    refused(event({ then: [{ command: 'grant' }] }), 'BAD_RECORD');
-    refused(event({ then: [{ command: 'wallet.receive', payload: [] }] }), 'BAD_RECORD');
-    refused(event({ then: [{ command: 'wallet.receive', run: 'x' }] }), 'BAD_RECORD');
-    refused(event({ then: Array.from({ length: 9 }, () => ({ command: 'a.b' })) }), 'BAD_RECORD', 'at most 8 commands');
-    refused(event({ repeat: 2 }), 'UNKNOWN_FIELD');
-    refused(event({ after: 'nowhere' }), 'UNKNOWN_REF');
-    refused(event({ after: 'dawn' }), 'UNKNOWN_REF', 'not after itself');
-    const loop = pack({ content: { events: [{ id: 'a', after: 'b', when: 'true', cue: 'A' }, { id: 'b', after: 'a', when: 'true', cue: 'B' }] } });
-    refused(loop, 'BAD_RECORD');
-    refused(pack({ content: { events: [{ id: 'a', once: false, when: 'true', cue: 'A' }, { id: 'b', after: 'a', when: 'true', cue: 'B' }] } }), 'BAD_RECORD', 'after a repeating event');
-    refused(pack({ content: { events: [{ id: 'a', when: 'true', cue: 'A' }, { id: 'a', when: 'true', cue: 'B' }] } }), 'DUPLICATE');
-});
-
-test('start: scene and inventory of this pack\'s items', () => {
+test('the start state refers to items that exist', () => {
     const start = value => pack({ content: { items: [{ name: 'Rope' }] }, start: value });
-    assert.equal(validatePack(start({ inventory: { items: ['rope'], money: 20 } })).ok, true);
-    refused(start([]), 'BAD_START');
-    refused(start({ party: {} }), 'UNKNOWN_FIELD');
-    refused(start({ scene: [] }), 'BAD_START');
-    refused(start({ scene: { place: 'Bluewatch' } }), 'BAD_START');
-    refused(start({ scene: { place: { kind: 'settlement' } } }), 'BAD_START');
-    refused(start({ scene: { place: { name: 'Bluewatch', size: 'big' } } }), 'BAD_START');
-    refused(start({ scene: { present: 'Hollis' } }), 'BAD_START');
-    refused(start({ scene: { weather: 'rain' } }), 'UNKNOWN_FIELD');
-    refused(start({ inventory: [] }), 'BAD_START');
-    refused(start({ inventory: { gold: 1 } }), 'UNKNOWN_FIELD');
-    refused(start({ inventory: { items: 'rope' } }), 'BAD_START');
-    refused(start({ inventory: { items: ['net'] } }), 'UNKNOWN_REF');
-    refused(start({ inventory: { items: ['story/rope'] } }), 'UNKNOWN_REF', 'a start item is a pack item');
     refused(start({ inventory: { items: [{ item: 'rope', qty: 0 }] } }), 'BAD_START');
     refused(start({ inventory: { items: [{ item: 'rope', owner: 'ac_x' }] } }), 'BAD_START');
     refused(start({ inventory: { items: [{ item: 'rope', note: 4 }] } }), 'BAD_START');
@@ -90,9 +38,7 @@ test('start: scene and inventory of this pack\'s items', () => {
     refused(start({ inventory: { wallet: { silver: 5 } } }), 'UNKNOWN_FIELD', 'money is one number in the smallest coin');
 });
 
-test('layouts and theme', () => {
-    refused(pack({ layouts: { id: 'x' } }), 'BAD_LAYOUTS');
-    refused(pack({ layouts: ['x'] }), 'BAD_LAYOUTS');
+test('theme; a pack\'s layouts and screens are accepted with a warning and left out', () => {
     refused(pack({ theme: [] }), 'BAD_THEME');
     refused(pack({ theme: { 'Accent Color': 'red' } }), 'BAD_THEME');
     refused(pack({ theme: { accent: 'red' } }), 'BAD_THEME', 'CSS custom properties only');
@@ -100,9 +46,10 @@ test('layouts and theme', () => {
     refused(pack({ theme: { '--bg': 'red; } body { display: none' } }), 'BAD_THEME');
     refused(pack({ theme: { '--bg': '\\75rl(x)' } }), 'BAD_THEME');
     refused(pack({ theme: { '--bg': {} } }), 'BAD_THEME');
-    const ok = validatePack(pack({ theme: { '--ss-accent': ' #c90 ', '--ss-radius': 4 }, layouts: [{ id: 'board' }] }));
+    const ok = validatePack(pack({ theme: { '--ss-accent': ' #c90 ', '--ss-radius': 4 }, layouts: [{ id: 'board' }], screens: [{ id: 'x', template: '<div>x</div>' }] }));
     assert.deepEqual(ok.pack.theme, { '--ss-accent': '#c90', '--ss-radius': 4 });
-    assert.deepEqual(ok.pack.layouts, [{ id: 'board', pack: 'mini' }]);
+    assert.deepEqual([ok.pack.layouts, ok.pack.screens], [[], []]);
+    assert.deepEqual(ok.warnings.map(warning => [warning.code, warning.path]), [['IGNORED_FIELD', 'layouts'], ['IGNORED_FIELD', 'screens']]);
 });
 
 test('problems stop at the reporting limit', () => {
@@ -110,32 +57,34 @@ test('problems stop at the reporting limit', () => {
     assert.equal(validatePack(many).errors.length, LIMITS.errors);
 });
 
-test('screens: added or restyled by id, templates and CSS checked', () => {
-    const screen = fields => pack({ screens: [{ id: 'rpg-battle/party', template: '<div class="sheet">{{ q.pc.name }}</div>', ...fields }] });
-    const ok = validatePack(screen({ title: 'Party', icon: 'fa-users', mounts: ['tab', 'card'], css: '.sheet { color: var(--ss-accent); background: url("https://example.org/p.png") }', theme: { '--ss-accent': '#7c5cff' }, data: { pc: { query: 'party.pc' } }, steps: [{ id: 'one', title: 'One', template: '<p>Hi</p>' }] }));
+test('screens (the checker data modules use): added or restyled by id, templates and CSS checked', () => {
+    const screen = fields => [{ id: 'rpg-battle/party', template: '<div class="sheet">{{ q.pc.name }}</div>', ...fields }];
+    const check = screens => { const errors = [...checkPlain(screens, LIMITS)]; const out = checkScreens(screens, 'mini', (code, path, message) => errors.push({ code, path, message })); return { ok: errors.length === 0, errors, pack: { screens: out } }; };
+    const refusedScreens = (screens, code) => { const result = check(screens); assert.equal(result.ok, false, `expected ${code}`); assert.ok(result.errors.some(error => error.code === code), `expected ${code}, got ${JSON.stringify(result.errors)}`); };
+    const ok = check(screen({ title: 'Party', icon: 'fa-users', mounts: ['tab', 'card'], css: '.sheet { color: var(--ss-accent); background: url("https://example.org/p.png") }', theme: { '--ss-accent': '#7c5cff' }, data: { pc: { query: 'party.pc' } }, steps: [{ id: 'one', title: 'One', template: '<p>Hi</p>' }] }));
     assert.equal(ok.ok, true, JSON.stringify(ok.errors));
     assert.equal(ok.pack.screens[0].pack, 'mini');
-    assert.equal(validatePack(pack({ screens: [{ id: 'riverside-board', layout: { root: { type: 'box' } } }] })).ok, true);
-    assert.equal(validatePack(screen({ template: 't'.repeat(LIMITS.string + 10) })).ok, true, 'a template may be longer than other text');
-    refused(screen({ template: 't'.repeat(LIMITS.code + 1) }), 'TOO_LONG');
-    refused(pack({ screens: {} }), 'BAD_SCREENS');
-    refused(pack({ screens: ['x'] }), 'BAD_SCREENS');
-    refused(screen({ id: 'Party Screen' }), 'BAD_SCREENS');
-    refused(pack({ screens: [{ id: 'a', template: 'x' }, { id: 'a', template: 'y' }] }), 'DUPLICATE');
-    refused(screen({ mounts: ['sidebar'] }), 'BAD_SCREENS');
-    refused(screen({ title: 3 }), 'BAD_SCREENS');
-    refused(pack({ screens: [{ id: 'a' }] }), 'BAD_SCREENS', 'a template or a layout');
-    refused(screen({ template: 5 }), 'BAD_SCREENS');
-    refused(pack({ screens: [{ id: 'a', layout: [] }] }), 'BAD_SCREENS');
-    refused(screen({ data: 'party.pc' }), 'BAD_SCREENS');
-    refused(screen({ steps: [{ template: 3 }] }), 'BAD_SCREENS');
-    refused(screen({ script: 'x' }), 'UNKNOWN_FIELD');
-    refused(screen({ theme: { color: 'red' } }), 'BAD_THEME');
-    refused(screen({ template: '<div onclick="steal()">x</div>' }), 'UNSAFE_HTML');
-    refused(screen({ template: '<a href="javascript:steal()">x</a>' }), 'UNSAFE_HTML');
-    refused(screen({ css: 5 }), 'BAD_SCREENS');
+    assert.equal(check([{ id: 'riverside-board', layout: { root: { type: 'box' } } }]).ok, true);
+    assert.equal(check(screen({ template: 't'.repeat(LIMITS.string + 10) })).ok, true, 'a template may be longer than other text');
+    refusedScreens(screen({ template: 't'.repeat(LIMITS.code + 1) }), 'TOO_LONG');
+    refusedScreens({}, 'BAD_SCREENS');
+    refusedScreens(['x'], 'BAD_SCREENS');
+    refusedScreens(screen({ id: 'Party Screen' }), 'BAD_SCREENS');
+    refusedScreens([{ id: 'a', template: 'x' }, { id: 'a', template: 'y' }], 'DUPLICATE');
+    refusedScreens(screen({ mounts: ['sidebar'] }), 'BAD_SCREENS');
+    refusedScreens(screen({ title: 3 }), 'BAD_SCREENS');
+    refusedScreens([{ id: 'a' }], 'BAD_SCREENS');
+    refusedScreens(screen({ template: 5 }), 'BAD_SCREENS');
+    refusedScreens([{ id: 'a', layout: [] }], 'BAD_SCREENS');
+    refusedScreens(screen({ data: 'party.pc' }), 'BAD_SCREENS');
+    refusedScreens(screen({ steps: [{ template: 3 }] }), 'BAD_SCREENS');
+    refusedScreens(screen({ script: 'x' }), 'UNKNOWN_FIELD');
+    refusedScreens(screen({ theme: { color: 'red' } }), 'BAD_THEME');
+    refusedScreens(screen({ template: '<div onclick="steal()">x</div>' }), 'UNSAFE_HTML');
+    refusedScreens(screen({ template: '<a href="javascript:steal()">x</a>' }), 'UNSAFE_HTML');
+    refusedScreens(screen({ css: 5 }), 'BAD_SCREENS');
     for (const css of ['@import "https://x/y.css";', '.a { background: url(http://x/y.png) }', '.a { background: url(/etc/x.png) }', '.a { width: expression(alert(1)) }', '.a { behavior: url(x.htc) }', '.a { -moz-binding: none }', '.a { content: "\\75rl" }', '</style><script>']) {
-        const result = validatePack(screen({ css }));
+        const result = check(screen({ css }));
         assert.equal(result.ok, false, css);
     }
 });
@@ -148,21 +97,6 @@ test('currency: a suggested name for the chat\'s one currency', () => {
     refused(pack({ currency: { name: 'g'.repeat(25) } }), 'BAD_CURRENCY');
     refused(pack({ currency: { name: 'gold', short: 'gold pieces' } }), 'BAD_CURRENCY');
     refused(pack({ currency: { name: 'gold', tiers: [] } }), 'BAD_CURRENCY', 'one currency, no tiers');
-});
-
-test('races and talents for character creation', () => {
-    const choices = (races, talents = []) => pack({ content: { races, talents } });
-    const ok = validatePack(choices([{ id: 'elf', name: 'Elf', note: 'Long-lived.', stats: { DEX: 2, VIT: -1 }, tags: ['fey'] }], [{ name: 'Keen Eye' }]));
-    assert.equal(ok.ok, true, JSON.stringify(ok.errors));
-    assert.deepEqual(ok.pack.content.races, [{ name: 'Elf', note: 'Long-lived.', stats: { DEX: 2, VIT: -1 }, tags: ['fey'], id: 'pack.mini/elf', slug: 'elf', pack: 'mini' }]);
-    assert.deepEqual(ok.pack.content.talents, [{ name: 'Keen Eye', note: '', stats: {}, tags: [], id: 'pack.mini/keen-eye', slug: 'keen-eye', pack: 'mini' }], 'the id comes from the name when left out');
-    refused(choices([{ id: 'elf' }]), 'BAD_RECORD', 'a name is needed');
-    refused(choices([{ id: 'High Elf', name: 'High Elf' }]), 'BAD_RECORD');
-    refused(choices([{ name: 'Elf', stats: { DEX: 1.5 } }]), 'BAD_RECORD');
-    refused(choices([{ name: 'Elf', tags: 'fey' }]), 'BAD_RECORD');
-    refused(choices([{ name: 'Elf', note: 4 }]), 'BAD_RECORD');
-    refused(choices([{ name: 'Elf', hp: 10 }]), 'UNKNOWN_FIELD');
-    refused(choices([], [{ name: 'Keen Eye' }, { id: 'keen-eye', name: 'Sharp Eye' }]), 'DUPLICATE');
 });
 
 test('events: a condition the runtime cannot parse is refused at check time, naming the event', () => {

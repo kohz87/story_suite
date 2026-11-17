@@ -69,7 +69,7 @@ const chosenText = action => {
   return `${what}${action.target ? ` → ${text(action.target)}` : ''}`;
 };
 
-// board `choices` (view-data.js:17 `boardChoices`) → the four action groups; an unusable choice stays, disabled.
+// board `choices` (the board's choices) → the four action groups; an unusable choice stays, disabled.
 function groupsOfChoices(choices, foeGroups, areaAll = false) {
   const groups = { Attack: [], Magic: [], Item: [], Flee: [] };
   (Array.isArray(choices) ? choices : []).forEach((choice, at) => {
@@ -90,8 +90,8 @@ function groupsOfChoices(choices, foeGroups, areaAll = false) {
 
 /**
  * Fight view-model from { snapshot (board snapshot { session, played }, view.js:72), party (readParty records, party-data.js:169),
- * foes (readFoes real foes, party-data.js:205), choices (boardChoices answer), view ({ chosen: [action], targeting: 'foe'|'ally'|null }),
- * awards (pendingAwards answer, view-data.js:108), place }; null when no fight is open or the board reports an error.
+ * foes (readFoes real foes, party-data.js:205), choices (the board's answer), view ({ chosen: [action], targeting: 'foe'|'ally'|null }),
+ * awards (the pending XP and practice), place }; null when no fight is open or the board reports an error.
  */
 export function selectFight({ snapshot, party, foes, choices, view, awards, place } = {}) {
   const session = snapshot?.session, result = snapshot?.played?.result;
@@ -105,7 +105,7 @@ export function selectFight({ snapshot, party, foes, choices, view, awards, plac
     const pick = picked.find(action => fold(action.who) === id);
     return { id, name: text(person.name), bars: { hp: bar('health'), mp: bar('mana'), sp: bar('stamina') }, chosen: pick ? chosenText(pick) : null };
   });
-  const xp = Array.isArray(awards?.xp) ? awards.xp : [], practice = Array.isArray(awards?.practice) ? awards.practice : [];
+  const xp = Array.isArray(awards?.xp) ? awards.xp : [], xpOf = id => { const own = xp.find(use => fold(use.who) === id); return own ? whole(own.amount) : null; }, practice = Array.isArray(awards?.practice) ? awards.practice : [];
   return {
     state, title: text(place) ? `Fight · ${text(place)}` : 'Fight', subtitle: null,
     exchange: whole(session.setup?.offset) + (Array.isArray(session.exchanges) ? session.exchanges.length : 0) + (ended ? 0 : 1),
@@ -120,7 +120,7 @@ export function selectFight({ snapshot, party, foes, choices, view, awards, plac
     narratorTold: null,
     end: ended ? {
       outcome: result.stop, xpEach: xp.length ? whole(xp[0].amount) : null, exchanges: rounds.length,
-      members: members.map(person => ({ id: person.id, hp: person.bars.hp.value, hpMax: person.bars.hp.max,
+      members: members.map(person => ({ id: person.id, hp: person.bars.hp.value, hpMax: person.bars.hp.max, xp: xpOf(person.id),
         practice: practice.filter(use => fold(use.who) === person.id).map(use => ({ skill: text(use.skill), gain: whole(use.amount) })) })),
     } : null,
   };

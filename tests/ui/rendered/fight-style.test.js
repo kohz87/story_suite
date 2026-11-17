@@ -43,7 +43,6 @@ test.after(async () => {
 function measure() {
   const q = s => document.querySelector(`#hx-frame ${s}`);
   const cs = (s, k) => getComputedStyle(q(s))[k];
-  const sw = q('.stance .sw').getBoundingClientRect();
   const rows = [...document.querySelectorAll('#hx-frame .foes-card .fline')].map(e => e.getBoundingClientRect());
   return {
     smallH: Math.round(q('.fight-tab .fhead .t small').getBoundingClientRect().height),
@@ -52,32 +51,27 @@ function measure() {
     pill: cs('.fpill', 'color'),
     elite: cs('.tier.Elite', 'color'),
     longShot: cs('.at .odds.long', 'color'),
-    area: cs('.at.area small', 'color'),
     agrp: cs('.agrp', 'marginBottom'),
     foldFont: cs('.fold', 'fontSize') + ' ' + cs('.fold', 'lineHeight'),
-    swW: sw.width,
-    swTrack: getComputedStyle(q('.stance .sw'), '::before').width,
-    swTrackH: getComputedStyle(q('.stance .sw'), '::before').height,
-    swTrackTop: getComputedStyle(q('.stance .sw'), '::before').top,
     foeRowGap: rows.length > 1 ? Math.round(rows[1].top - rows[0].bottom) : null,
     foldPad: cs('.party-card', 'paddingTop'),
   };
 }
 
 const EXPECT = {
-  dark: { pill: 'rgb(255, 122, 122)', elite: 'rgb(240, 184, 74)', longShot: 'rgb(255, 154, 122)', area: 'rgb(240, 184, 74)' },
-  light: { pill: 'rgb(180, 35, 24)', elite: 'rgb(138, 83, 0)', longShot: 'rgb(168, 54, 26)', area: 'rgb(138, 83, 0)' },
+  dark: { pill: 'rgb(255, 122, 122)', elite: 'rgb(240, 184, 74)', longShot: 'rgb(255, 154, 122)' },
+  light: { pill: 'rgb(180, 35, 24)', elite: 'rgb(138, 83, 0)', longShot: 'rgb(168, 54, 26)' },
 };
 
 for (const theme of ['dark', 'light']) {
-  test(`fight tab at 390 in ${theme}: header, tier and odds colours, switch, fold and gaps match the mock`, async (t) => {
+  test(`fight tab at 390 in ${theme}: header, tier and odds colours, fold and gaps match the mock`, async (t) => {
     if (ctx.skip) return t.skip(ctx.skip);
     const page = await ctx.browser.newPage({ viewport: { width: 390, height: 844 } });
     await page.route('**/*', route => (route.request().url().startsWith(`http://127.0.0.1:${ctx.port}/`) ? route.continue() : route.abort()));
     try {
       await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=390&variant=fightOpen&tab=fight`);
       await page.waitForFunction(() => { const p = document.querySelector('#hx-frame .fpill'); return p && /^rgb\((255, 122, 122|180, 35, 24)\)$/.test(getComputedStyle(p).color); });
-      await page.waitForSelector('#hx-frame .fight-tab .stance .sw');
+      await page.waitForSelector('#hx-frame .fight-tab .at');
       await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
       const m = await page.evaluate(measure);
       const e = EXPECT[theme];
@@ -87,13 +81,8 @@ for (const theme of ['dark', 'light']) {
       assert.equal(m.pill, e.pill);
       assert.equal(m.elite, e.elite);
       assert.equal(m.longShot, e.longShot);
-      assert.equal(m.area, e.area);
       assert.equal(m.agrp, '0px');
       assert.equal(m.foldFont, '14px normal');
-      assert.equal(m.swW, 54);
-      assert.equal(m.swTrack, '54px');
-      assert.equal(m.swTrackH, '26px');
-      assert.equal(m.swTrackTop, '11px');
       assert.equal(m.foeRowGap, 8);
       assert.equal(m.foldPad, '8px');
     } finally { await page.close(); }
@@ -128,7 +117,7 @@ function measureWide() {
     foes: card('.fa .card:nth-of-type(1)'), party: card('.fa .card:nth-of-type(2)'), act: card('.fb .card'), log: card('.fc .card'),
     tile: `${Math.round(box(tile).height)} | ${cs(tile).padding}`, tileCols: new Set(cs(tile.parentElement).gridTemplateColumns.split(' ').map(x => Math.round(parseFloat(x)))).size,
     agrp: cs(f('.agrp')).marginBottom,
-    pill: cs(f('.fpill')).color, elite: cs(f('.tier.Elite')).color, longShot: cs(f('.at .odds.long')).color, area: cs(f('.at.area small')).color,
+    pill: cs(f('.fpill')).color, elite: cs(f('.tier.Elite')).color, longShot: cs(f('.at .odds.long')).color,
     danger: `${cs(danger).color} | ${Math.round(box(danger).height)}`, dangerRight: Math.abs(Math.round(box(act).right - parseFloat(cs(act).borderRightWidth) - 16 - box(danger).right)),
   };
 }
@@ -144,7 +133,7 @@ for (const width of [1143, 1280, 1920]) {
       try {
         await page.goto(`http://127.0.0.1:${ctx.port}/ui/dev/harness.html?theme=${theme}&width=${width}&variant=fightOpen&tab=fight`);
         await page.waitForFunction(() => { const p = document.querySelector('#hx-frame .fpill'); return p && /^rgb\((255, 122, 122|180, 35, 24)\)$/.test(getComputedStyle(p).color); });
-        await page.waitForSelector('#hx-frame .fight-tab .stance .sw');
+        await page.waitForSelector('#hx-frame .fight-tab .at');
         await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
         const m = await page.evaluate(measureWide), e = EXPECT[theme];
         assert.equal(m.gap, '12px');
@@ -156,7 +145,7 @@ for (const width of [1143, 1280, 1920]) {
         assert.equal(m.tile.slice(0, WIDE.tile.length), WIDE.tile);
         assert.equal(m.tileCols, 1, 'two equal tile columns');
         assert.equal(m.agrp, '0px');
-        assert.deepEqual([m.pill, m.elite, m.longShot, m.area], [e.pill, e.elite, e.longShot, e.area]);
+        assert.deepEqual([m.pill, m.elite, m.longShot], [e.pill, e.elite, e.longShot]);
         assert.equal(m.danger, `${theme === 'dark' ? 'rgb(255, 107, 107)' : 'rgb(229, 72, 77)'} | 48`);
         assert.equal(m.dangerRight, 0, 'the danger Discard sits at the right of the actions bar');
       } finally { await page.close(); }

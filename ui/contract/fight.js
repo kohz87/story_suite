@@ -20,6 +20,10 @@ const ACTION = {
   pick: { choice: T.STRING, args: T.ANY, alone: { $optional: T.BOOLEAN } },
 };
 
+// The stance the acting member owns: `on` is whether it was up in the last exchange (the switch's start), `soakOn` / `soakOff` the soak with and without it (null for a stance that does not soak),
+// `pool` / `cost` what it takes each exchange (Stamina, or Mana for a magic stance), `paid` the pool's move the mock's note adds (null from the engine).
+const STANCE = { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: { $nullable: T.NUMBER }, soakOff: { $nullable: T.NUMBER }, pool: { $enum: ['Stamina', 'Mana'] }, cost: T.NUMBER, paid: { $nullable: [T.NUMBER] } } };
+
 export const FIGHT_SHAPE = {
   state: { $enum: ['offer', 'choose', 'target', 'ally', 'after', 'end'] },
   title: T.STRING,
@@ -30,7 +34,7 @@ export const FIGHT_SHAPE = {
       id: T.STRING,
       arg: T.ANY, // the args tapping this group adds to a pick (area skill)
       name: T.STRING,
-      // tier and the odds word are null while the engine has no source for them (selectFight today); a card with a null shows no tier tag and no odds.
+      // the odds word is null while the v1 engine has no source for it (open owner question); a card with a null shows no odds. (tier is the foe group's own tier word.)
       tier: { $nullable: { $enum: ['Mob', 'Minion', 'Standard', 'Elite', 'Boss', 'Apex'] } },
       lv: T.NUMBER,
       odds: { word: { $nullable: { $enum: ODDS } } },
@@ -47,12 +51,12 @@ export const FIGHT_SHAPE = {
   actor: {
     $nullable: {
       id: T.STRING,
-      stance: { $nullable: { name: T.STRING, on: T.BOOLEAN, soakOn: T.NUMBER, soakOff: T.NUMBER, paid: { $nullable: [T.NUMBER] } } },
+      stance: STANCE,
       groups: { Attack: [ACTION], Magic: [ACTION], Item: [ACTION], Flee: [ACTION] },
     },
   },
-  // Every standing member's actions, in the order the picks are asked; `id` is the party member's `actorId` (the input's `actor`). The scene renderer reads these, not `actor`.
-  actors: [{ id: T.STRING, groups: { Attack: [ACTION], Magic: [ACTION], Item: [ACTION], Flee: [ACTION] } }],
+  // Every standing member's actions, in the order the picks are asked; `id` is the party member's `actorId` (the input's `actor`). The scene renderer reads these, not `actor`; a member's `stance` (when they own one) rides on each.
+  actors: [{ id: T.STRING, stance: { $optional: STANCE }, groups: { Attack: [ACTION], Magic: [ACTION], Item: [ACTION], Flee: [ACTION] } }],
   order: [T.STRING],
   bonuses: { $nullable: [{ label: { $nullable: T.STRING }, text: T.STRING }] },
   log: [
@@ -66,9 +70,9 @@ export const FIGHT_SHAPE = {
   end: {
     $nullable: {
       outcome: { $enum: ['won', 'fled', 'lost'] },
-      xpEach: { $nullable: T.NUMBER }, // null until the awards are known (selectFight today); the end card then shows no XP figure
+      xpEach: { $nullable: T.NUMBER }, // the one figure when every paid hero got the same, else null (v1 pays by each hero's level); each member row carries its own `xp`
       exchanges: T.NUMBER,
-      members: [{ id: T.STRING, hp: T.NUMBER, hpMax: T.NUMBER, practice: [{ skill: T.STRING, gain: T.NUMBER }] }],
+      members: [{ id: T.STRING, hp: T.NUMBER, hpMax: T.NUMBER, xp: { $nullable: T.NUMBER }, practice: [{ skill: T.STRING, gain: T.NUMBER }] }],
     },
   },
 };

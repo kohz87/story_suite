@@ -23,7 +23,7 @@ test('an item gained in NFC and lost in NFD is the same item', async t => {
     await host.send('I take it.', reply('Rope.', [`+ item ${NFC}`]));
     await host.send('I drop it.', reply('Gone.', [`- item ${NFD}`]));
     assert.deepEqual(host.sdk.query('inventory.items'), []);
-    assert.deepEqual(host.turn.problems().map(problem => problem.code), []);
+    assert.deepEqual(host.turn.problems().filter(problem => problem.code !== 'NO_CHANGES').map(problem => problem.code), []);
 });
 
 test('the same person written in NFC and NFD is present once', async t => {

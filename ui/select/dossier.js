@@ -1,5 +1,6 @@
 // Turns the recorded dossier, meters, ladder and notes query answers into one person's Dossier view-model (DOSSIER_SHAPE), leaving gaps null or empty.
 import { showSourceTag } from '../kit/source-tag.js';
+import { isHere as isHereIn } from './people.js';
 
 const AXES = ['trust', 'affection', 'desire', 'tension'];
 
@@ -106,13 +107,21 @@ function profileOf(dossier) {
   };
 }
 
+// The engine's "Add to party" card (rpg.partyAdd: { name, soul, best, card }) → what the dossier draws: the card's title, rows and buttons, with each button's command or screen as the card gives it. Null without one.
+function partyAddOf(answer) {
+  const card = isRecord(answer) && isRecord(answer.card) ? answer.card : null;
+  if (!card || !Array.isArray(card.actions)) return null;
+  const action = item => ({ id: String(item.id), label: String(item.label), ...(item.primary ? { primary: true } : {}), ...(item.command ? { command: String(item.command) } : {}), ...(item.open ? { open: String(item.open) } : {}), payload: item.payload ?? {} });
+  return { title: String(card.title ?? ''), rows: (Array.isArray(card.rows) ? card.rows : []).map(row => ({ text: String(row?.text ?? '') })), actions: card.actions.filter(isRecord).map(action) };
+}
+
 /**
  * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
- * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
+ * keyPeople?: director.keyPeople.view (place and news of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), memory dates, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, moodTile, people, place } = {}) {
+export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople, party, join, moodTile, people, place, present } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
   const away = (isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
@@ -120,7 +129,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
   const presumed = dead && dossier.lifeStateCertainty === 'inferred';
   const gender = text(dossier.gender)?.toLocaleLowerCase();
   const genderUnknown = gender !== 'male' && gender !== 'female';
-  const isHere = !dead && (dossier.present === true || (Boolean(keyOf(place)) && keyOf(dossier.location) === keyOf(place)));   // (as isHere in ./people.js)
+  const isHere = isHereIn(dossier, place, present);   // (the one rule, ./people.js)
   return {
     id: text(dossier.id) ?? key,
     name: String(dossier.name ?? ''),
@@ -130,6 +139,8 @@ export function selectDossier({ dossier, meters, next, cast, portrait, keyPeople
     genderUnknown,
     following: dossier.followed === true,
     inParty: (Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key),
+    // (the join card is offered to the living who are not in the party; the engine's answer holds the rest: RPG on, not You, room, a person the party does not know)
+    partyAdd: !dead && !(Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key) ? partyAddOf(join) : null,
     meters: metersOf(dossier),
     stage: stageOf(next),
     changes: changesOf(meters),

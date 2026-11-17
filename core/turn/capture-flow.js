@@ -97,7 +97,8 @@ export function createCaptureFlow(s, deps) {
     function nowLines(mes, own = [], block = own) {
         const stored = assistSections(String(mes ?? '')).now;
         if (!stored.length) return [];
-        const parsed = parseChanges(stored.join('\n')).lines.filter(line => !refusedWhy(line, null));
+        // (a repair's coin and item lines were walled when it wrote them: stored in the section, they run the same on every replay)
+        const parsed = parseChanges(stored.join('\n')).lines.filter(line => !refusedWhy(line, null, { repair: true }));
         const keep = new Set(notWritten(parsed.map(line => line.raw), own, { scene: block }));
         return parsed.filter(line => keep.has(line.raw));
     }

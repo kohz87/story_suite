@@ -486,9 +486,10 @@ is added to ordinary PACKS content. This scope tracks the chat's shared standing
 ```json
 {
   "id": "ersveil-factions",
-  "version": "1.0.0",
+  "format": 3,
+  "version": "2.0.0",
   "name": "Ersveil faction standing",
-  "requires": { "storyBlock": "^2", "capabilities": ["data-modules-v1"] },
+  "requires": { "suite": "^0.1", "capabilities": ["data-modules-v1"] },
   "content": { "dataModules": [{
     "slug": "reputation", "name": "Reputation", "schema": 1, "stateVersion": 1,
     "scope": "chat",
@@ -566,9 +567,10 @@ only the published fields listed in `projection`; `.view` flattens instance fiel
 ```json
 {
   "id": "ersveil-survival",
-  "version": "1.0.0",
+  "format": 3,
+  "version": "2.0.0",
   "name": "Ersveil survival meters",
-  "requires": { "storyBlock": "^2", "capabilities": ["data-modules-v1", "story-director"] },
+  "requires": { "suite": "^0.1", "capabilities": ["data-modules-v1", "director"] },
   "content": { "dataModules": [{
     "slug": "survival", "name": "Survival", "schema": 1, "stateVersion": 1,
     "scope": "character",

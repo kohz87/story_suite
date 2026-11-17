@@ -164,7 +164,7 @@ test('2.9.6: one flood-news event covers both old region groups and the split ev
     for (const region of NEWS_REGIONS) assert.equal(at(region), true, region);
     for (const region of ['River Confederacy: Bluewatch', 'Shornmarch', 'Auvoth Compact', 'Ardelian Empire and Southmarch', '']) assert.equal(at(region), false, region);
     assert.equal(at('Valegard', 316974720 + 100), false, 'not before the news has had its days to travel');
-    assert.equal(pack.version, '2.9.6');
+    assert.equal(pack.version, '3.0.0');
 });
 
 test('2.9.6: moving between the two old region groups tells the flood news once', () => {

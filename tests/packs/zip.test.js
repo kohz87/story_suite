@@ -119,7 +119,7 @@ function mount(portraitIo = null) {
     const made = createPacksPart({ settings: fakeSettings(), portraitFiles: files, portraitIo });
     const root = doc.createElement('div');
     renderPacksPanel(root, { packs: made.packs, readLorebook: async () => ({ character: '', entries: [], problem: '' }), doc });
-    const pick = async list => { const input = root.querySelector('.ss-packs-file'); input.files = list; input.dispatch('change'); for (let n = 0; n < 200 && !texts(root, '.ss-packs-message')[0]; n += 1) await tick(); };
+    const pick = async list => { const input = root.querySelector('.ss-packs-file'); input.files = list; input.dispatch('change'); await tick(); for (let n = 0; n < 200 && !texts(root, '.ss-packs-message')[0]; n += 1) await tick(); };
     return { files, made, root, pick };
 }
 

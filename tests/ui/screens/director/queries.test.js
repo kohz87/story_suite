@@ -122,6 +122,17 @@ test('director.problems: a Problem about a missing goal goes once that is no lon
     assert.equal(result.length, 2);
 });
 
+test('director.plan: an agenda written in this reply (its thread changed on the Director\'s current turn) is told; an older one carries no flag', () => {
+    const now = thread('th_bregje01', 'agenda', 'Bregje', { now: 'at the pump', stepAt: '2', stepOf: '3' }, { track: { order: 1, changed: { turn: 3, time: 5 } } });
+    const old = thread('th_joren001', 'agenda', 'Joren', { now: 'on the road' }, { track: { order: 2, changed: { turn: 2, time: 4 } } });
+    const bare = thread('th_mara0001', 'agenda', 'Mara', { now: 'asleep' });
+    const [a, b, c] = run(makeState({ threads: [now, old, bare] }), 'director.plan').agendas;
+    assert.equal(a.told, true);
+    // Not told: no `told` key at all, so the answer reads as it did before.
+    assert.equal(Object.hasOwn(b, 'told'), false);
+    assert.equal(Object.hasOwn(c, 'told'), false);
+});
+
 test('director.plan: an agenda carries its step progress, place and "arriving within the hour"; one without the pulse\'s fields carries none', () => {
     const fields = { now: 'at the pump', then: 'a; b; c', stepAt: '3', stepOf: '4', stepSince: String(at('June 10, 2025, 9:00 am')), where: 'Bluewatch Village', arrive: 'June 11, 2025, 9:30 am' };
     const agenda = thread('th_bregje01', 'agenda', 'Bregje', fields, { summary: 'manage the desk alone' });

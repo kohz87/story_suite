@@ -5,5 +5,5 @@
 export { checkEvent, linkEvents } from './events-economy-parts/events.js';
 export { checkCurrency, checkEconomy } from './events-economy-parts/economy.js';
 export { checkWeather, checkRipples } from './events-economy-parts/weather.js';
-export { checkChoice, checkStart, choiceRefs } from './events-economy-parts/creation.js';
-export { checkSkill, checkPreset } from './events-economy-parts/skills.js';
+export { checkStart } from './events-economy-parts/creation.js';
+export { checkSkill } from './events-economy-parts/skills.js';

@@ -28,11 +28,11 @@ function memberRow(m, who) {
   return h('div', { class: 'endr', dataset: { member: m.id } },
     h('span', { class: 'a', dataset: { portrait: who?.portrait || m.id }, 'aria-hidden': 'true' }, String(name).charAt(0).toUpperCase()),
     h('b', null, name),
-    h('span', null, `Health ${m.hp}/${m.hpMax}${stats}`,
+    h('span', null, `Health ${m.hp}/${m.hpMax}${stats}`, m.xp === null || m.xp === undefined ? null : h('b', { class: 'xp' }, ` · +${m.xp} XP`),
       m.practice.length ? h('span', { class: 'prc' }, m.practice.map(p => h('i', null, `${p.skill} +${p.gain}`))) : null));
 }
 
-/** Builds the end card from `end` ({ outcome, xpEach, exchanges, members }); `ctx` = { party (the fight's party strip, for names, Stamina and Mana), down: { down, total }, onBack, onDiscard }. */
+/** Builds the end card from `end` ({ outcome, xpEach, exchanges, members: [{ id, hp, hpMax, xp, practice }] }); `ctx` = { party (the fight's party strip, for names, Stamina and Mana), down: { down, total }, onBack, onDiscard }. */
 export function endCard(end, ctx = {}) {
   if (!end) return null;
   const { party = [], down = null, onBack, onDiscard } = ctx;

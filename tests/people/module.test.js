@@ -48,3 +48,14 @@ test('the dossier rows moved: the old path is the same code', () => {
   assert.equal(legacyRows.emptyCastHtml, rows.emptyCastHtml);
   assert.equal(legacyRows.DOSSIER_BAR_MAX, rows.DOSSIER_BAR_MAX);
 });
+
+test('the people module is hidden from the Add-ons list: sdk.modules() says so, and no other module carries the key', async () => {
+  const host = await createHost({ modules: [] });
+  await registerIsolated(runtimeOf(host), createPeopleModule({ start: async () => {} }));
+  const mine = host.sdk.modules().find(item => item.id === PEOPLE_MODULE_ID);
+  assert.equal(mine.hidden, true);
+  host.close();
+  const plain = await createHost({ modules: [{ id: 'plain', name: 'Plain', version: '1.0.0', register: async () => {} }] });
+  assert.equal(Object.hasOwn(plain.sdk.modules().find(item => item.id === 'plain'), 'hidden'), false, 'a normal module entry is unchanged');
+  plain.close();
+});

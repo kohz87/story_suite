@@ -23,7 +23,7 @@ export function receiveSegment(meta, kind, payload, result, sid, receiptId = nul
         return true;
     }
     let setup;
-    try { setup = kind.next(clone(payload.setup), clone(result), state); } catch { return false; }
+    try { setup = kind.next(clone(payload.setup), clone(result), state, clone(payload.steps)); } catch { return false; }
     if (!plain(setup)) return false;
     const current = plain(meta.open) ? meta.open : null;
     const prior = hashJson(result);

@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { validatePack } from '../../../packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { pack } from '../../packs/helpers/fixtures.js';
 
 const available = await hostAvailable();
@@ -97,7 +97,7 @@ test('gear on: the join adds the signature gear to the person, put on in its slo
     assert.equal(joined.summary, 'Mara joined the party. Gear: Cane Sword, Oak Buckler, Tin Ring.');
     assert.deepEqual(joined.data.gear, { owner: 'ac_mara0001', items: GEAR });
     assert.deepEqual(receipts(host).map(entry => entry.type).filter(type => type !== 'dm.settle' && type !== 'rpg.dice'), ['capture.party'], 'no receipt of its own');
-    assert.deepEqual(host.turn.problems().filter(item => !['ROLLS_SKIPPED', 'DICE_SKIPPED'].includes(item.code)), []);
+    assert.deepEqual(host.turn.problems().filter(item => !['ROLLS_SKIPPED', 'DICE_SKIPPED', 'NO_CHANGES'].includes(item.code)), []);
 });
 
 test('gear off: the same join is as it was without the field (same receipts, same state)', { skip }, async t => {

@@ -15,6 +15,7 @@
 // - one save per burst of UI commands, one at the end of a reply (plus the flush of what was
 //   pending), a failed save keeps the state dirty and leaves the chat as it was;
 // - the static prompt is byte-identical in every request of the run.
+// (The run plays no fight: a fight's replay is pinned by board/v1-lifecycle.test.js, v1-resume-lifecycle.test.js and v1-hold.test.js; the earlier harness staged board fights on the earlier engine.)
 // A failing seed replays exactly: the host's crypto IDs and seeds follow the run's seed.
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
@@ -24,11 +25,6 @@ import { HAPPENED } from '../../../../core/prompt.js';
 import { prng, seedCrypto } from './seeded.js';
 import { BONUS_CLAIM, probeModule } from './probe-module.js';
 import { carriers, checkInvariants, rebuildAt } from './oracle.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
-import { readSheet } from '../../../../modules/rpg/read.js';
-import { isFightReceipt } from '../../../../modules/rpg/board/results.js';
-import { boardSession, openBoard, stageExchange } from '../../../core/helpers/board-port.js';
 import { changeLine, replyText, uiCommand, bonusPaidOnLine } from './state-fuzz-gen.js';
 
 
@@ -67,7 +63,6 @@ const tailOf = request => request.chat.filter(message => message.role === 'syste
 export const remakes = { count: 0, runs: 0 };
 
 // A settled board fight (a port fight settle or a pre-port board resolve), not the opening settle.
-const isBoardFight = entry => isFightReceipt(entry) && entry.replan?.payload?.opening !== true;
 
 export async function fuzz(t, seed, steps, { people = false } = {}) {
     const restore = seedCrypto(seed);
@@ -99,61 +94,7 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
     let other = null;                   // the second chat for chat switches
     const log = [];
     const trace = [];                   // action and command order, included in replay failures
-    let boardFights = 0;
 
-    // Start with a real board fight that later edits, swipes and deletes can replay. It has a count-one foe
-    // and a three-member group, so both the lone-foe and member paths are exercised. An unstaged later
-    // send no longer writes a spurious empty fight. The blocks are pinned before any request.
-    async function startBoardFight() {
-        const definitions = structuredClone(STANDARD_TEMPLATES.filter(entry => ['character', 'foes'].includes(entry.definition.role)).map(entry => entry.definition));
-        const hero = definitions.find(definition => definition.role === 'character'), foes = definitions.find(definition => definition.role === 'foes');
-        hero.slug = 'fuzz-hero'; hero.name = 'Fuzz Hero';
-        Object.assign(hero.state.who, { default: 'Astra' });
-        Object.assign(hero.state.str, { default: 14 }); Object.assign(hero.state.vit, { default: 20 });
-        Object.assign(hero.state.agi, { default: 20 }); Object.assign(hero.state.health, { default: 10 });   // (a full bar of the doubled sizes: the harder foes' first exchange must leave the fight open)
-        Object.assign(hero.state.level, { default: 1 });
-        foes.slug = 'fuzz-foes'; foes.name = 'Fuzz Foes';
-        Object.assign(foes.state.foe1, { default: 'Fuzz Rats' }); Object.assign(foes.state.count1, { default: 1 });
-        Object.assign(foes.state.level1, { default: 99 }); Object.assign(foes.state.hurt1, { default: 15 });
-        Object.assign(foes.state.foe2, { default: 'Fuzz Boars' }); Object.assign(foes.state.count2, { default: 3 });
-        Object.assign(foes.state.level2, { default: 1 }); Object.assign(foes.state.hurt2, { default: 12 });
-        for (const definition of definitions) {
-            const made = await host.sdk.command('dm.define', { definition });
-            assert.equal(made.ok, true, `the board sheet is made: ${made.message}`);
-        }
-        const meta = ctx.chatMetadata, sid = store.carrierSid(store.headIndex());
-        const opened = openBoard(meta, store.head(), { sid, rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
-        assert.equal(opened.error, undefined, `the board opens: ${opened.error}`);
-        assert.equal(stageExchange(meta, store.head(), [{ who: 'Astra', kind: 'attack', target: 21 }]).error, undefined, 'the board exchange stages');
-        const result = await host.send('We stand and fight.', 'The fuzz rats press in.');
-        statics.add(result.request.chat[0].content);
-        const receipt = readRecord(ctx.chat[result.index])?.receipts?.find(isBoardFight);
-        assert.ok(receipt, 'the first reply is a board fight');
-        boardFights += 1;
-        assert.equal(receipt.data?.v2?.result?.stop, 'open', 'the seeded foe group leaves the fight open for the rest of the run');
-        const members = receipt.data.v2.result.members;
-        assert.equal(members.find(member => member.group === 1)?.name, 'Fuzz Rats', 'the lone real foe stays in the mixed fight');
-        assert.deepEqual(members.filter(member => member.group === 2).map(member => member.name), ['Fuzz Boars 1', 'Fuzz Boars 2', 'Fuzz Boars 3'],
-            'the count-three group is split into members');
-        const carried = boardSession(meta)?.setup?.carriedMembers;
-        assert.deepEqual(carried?.counts, { 1: 1, 2: 3 }, 'the continuation records both original counts');
-        assert.equal(carried.values[21], members.find(member => member.group === 2).value, 'the continuation carries the exact first-member bar');
-        checkInvariants(host, 'board fight opens', { trace });
-    }
-
-    // A deleted opening reply takes its board anchor with it. Open a board on the current head if possible;
-    // only a genuinely staged exchange will be carried by a later send.
-    function ensureBoard() {
-        const sid = store.carrierSid(store.headIndex());
-        if (sid && boardSession(ctx.chatMetadata)?.anchor === sid) return;
-        const opened = openBoard(ctx.chatMetadata, store.head(), { sid, rules: { ...STANDARD_FORMULA, levelDivisor: 5 } });
-        if (opened.error) return;
-        // A board exchange that uses a consumable from the bag (Use item): staged now and then, so edits, swipes, deletes and rebuilds after it replay the drink and the unit used up; a stack that no longer fits is refused harmlessly.
-        const inventory = store.head().domains?.inventory, bag = Object.values(inventory?.stacks ?? {}).filter(stack => inventory.defs?.[stack.def]?.kind === 'consumable').sort((a, b) => (a.id < b.id ? -1 : 1));
-        if (bag.length && r.chance(0.5)) stageExchange(ctx.chatMetadata, store.head(), [{ who: 'Astra', kind: 'item', stack: r.pick(bag).id, target: 'Astra' }]);
-    }
-
-    await startBoardFight();
 
     const lastIsCarrier = () => ctx.chat.length > 1 && !ctx.chat.at(-1).is_user;
 
@@ -166,7 +107,6 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
         const savesBefore = st.saves.length;
         const appends = kind === 'send' || (kind === 'regenerate' && !lastIsCarrier());
         const previous = store.headIndex();
-        if (kind === 'send') ensureBoard();
         committed = new Set();
         let result;
         if (kind === 'send') result = await host.send(`Message of step ${step}.`, reply);
@@ -185,7 +125,6 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
         if (appends && previous >= 0) finals.set(ctx.chat[previous], { swipe: ctx.chat[previous].swipe_id ?? 0, state: plain(store.at(previous)) });
         const record = readRecord(ctx.chat[index]);
         assert.ok(record, `${log.at(-1)}: the reply has a record (narrated at least)`);
-        if (record.receipts.some(isBoardFight)) boardFights += 1;
         if (kind === 'swipe') {
             for (const receipt of record.receipts) {
                 assert.ok(committed.has(receipt.id), `${log.at(-1)}: the new swipe holds receipt ${receipt.id} ("${receipt.summary}") that was not committed during this swipe`);
@@ -409,7 +348,6 @@ export async function fuzz(t, seed, steps, { people = false } = {}) {
         const checkpoints = carriers(ctx.chat).filter(index => readRecord(ctx.chat[index])?.checkpoint).length;
         console.log(JSON.stringify({ seed, carriers: carriers(ctx.chat).length, checkpoints, told: [...ctx.chat].reduce((n, m) => n + (readRecord(m)?.narrated.length ?? 0), 0), counts }));
     }
-    assert.ok(boardFights > 0, `seed ${seed}: the fuzz ran board fights`);
     assert.equal(statics.size, 1, `seed ${seed}: the static prompt is byte-identical in every request of the chat`);
     assert.deepEqual(host.turn.problems().filter(problem => problem.module === null && problem.code === 'FAILED'), [], `seed ${seed}: the host itself never failed`);
 }

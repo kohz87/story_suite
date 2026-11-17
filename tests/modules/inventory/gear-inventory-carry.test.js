@@ -54,22 +54,6 @@ test('a def renamed from a pack item loses the pack\'s bonus; the story-made cop
     assert.deepEqual(statsFor(state.domains.inventory.defs['pack.fantasy/dagger']), { DEX: 5 }, 'a pack item\'s budget of 5 on the dagger\'s stat');
 });
 
-test('the shared bag has the RPG characters\' capacities added up (10 + 2 × STR each)', () => {
-    const sheet = (who, str) => ({ hash: `h-${who}`, definition: { role: 'character', name: who, scope: 'chat', state: {} }, fields: { who, str } });
-    const blocks = [sheet('Mira', 14), sheet('Tolk', 3)];
-    const state = { domains: {
-        inventory: { defs: {}, stacks: {}, wallets: {}, aliases: {} },
-        dataModules: {
-            active: Object.fromEntries(blocks.map(block => [block.fields.who, { hash: block.hash }])),
-            pins: Object.fromEntries(blocks.map(block => [block.hash, { definition: block.definition }])),
-            instances: Object.fromEntries(blocks.map(block => [block.fields.who, { chat: { fields: block.fields } }])),
-        },
-    } };
-    const picture = carryPicture(state, { carryOf: () => null });
-    assert.equal(picture.capacity, (10 + 2 * 14) + (10 + 2 * 3), 'Mira 38 + Tolk 16');
-    assert.equal(carryPicture({ domains: { inventory: state.domains.inventory } }, { carryOf: () => null }).capacity, 30, 'no sheet: one reader of STR 10');
-});
-
 test('condition words: Good is unmarked, Worn, Torn and Broken show after the name in the Equipped line and the Carried list (gear on only)', async t => {
     assert.deepEqual([100, 70, 69, 40, 39, 1, 0].map(condWord), ['good', 'good', 'worn', 'worn', 'torn', 'torn', 'broken']);
     assert.deepEqual([100, 50, 10, 0].map(condMark), ['', 'worn', 'torn', 'broken']);

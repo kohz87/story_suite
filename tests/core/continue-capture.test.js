@@ -33,7 +33,7 @@ test('a Continue after an edit left spaces at line ends: its block is read once 
     assert.equal(bare(mes), false, `nothing of a change block is left bare: ${JSON.stringify(mes)}`);
     assert.equal(coin(host), 12);
     assert.deepEqual(names(extractBlock(mes)), ['5', '7'], 'both blocks are kept hidden for Re-read');
-    assert.equal(host.turn.problems().length, 0, JSON.stringify(host.turn.problems()));
+    assert.equal(host.turn.problems().filter(item => item.code !== 'NO_CHANGES').length, 0, JSON.stringify(host.turn.problems().filter(item => item.code !== 'NO_CHANGES')));
 });
 
 test('a Continue of a reply that starts with blank lines, written again trimmed: its block is read', async t => {

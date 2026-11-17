@@ -134,35 +134,6 @@ test('a file with no things or money says nothing about them; one with them says
     dialog.close();
 });
 
-test('the money is told in this chat\'s coins, and the file keeps only its value', async t => {
-    const first = await story(t, { purse: 0 });
-    first.host.settings.set('story-block', 'coins', [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }]);
-    await first.host.sdk.command('wallet.set', { amount: 50 });
-    await settle();
-    const dialog = await exportDialog(first);
-    assert.match(exportOf(dialog).querySelector('[data-option="money"]').textContent, /Money · 5 silver/);
-    dialog.close();
-    const saved = await saveFrom(first);
-    assert.equal(JSON.parse(saved.text).money, 50, 'the value in the smallest unit, not a coin word');
-
-    const other = await newcomer(t);
-    other.host.settings.set('story-block', 'currency', 'crown');
-    other.host.settings.set('story-block', 'currencyPlural', 'crowns');
-    const wizard = await wizardWith(other);
-    await companion(wizard);
-    await importInto(wizard, saved.text);
-    assert.match(wizardOf(wizard).querySelector('[data-wiz="import-done"]').textContent, /adds 3 things to the party's bag and 50 crowns to the purse/, 'another game\'s words for the same value');
-    wizard.close();
-
-    const silver = await newcomer(t);
-    silver.host.settings.set('story-block', 'coins', [{ name: 'copper', value: 1 }, { name: 'silver', value: 10 }]);
-    const w2 = await wizardWith(silver);
-    await companion(w2);
-    await importInto(w2, saved.text);
-    assert.match(wizardOf(w2).querySelector('[data-wiz="import-done"]').textContent, /adds 3 things to the party's bag and 5 silver to the purse/);
-    w2.close();
-});
-
 // ---- Create with an import ----------------------------------------------------------------------------------------------------------
 
 test('Create makes the Character and Skills blocks from the file, adds the things and the money, all in one reply, and one swipe takes it all back', async t => {

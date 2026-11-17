@@ -12,7 +12,7 @@ const standardPreset = foeBase => {
 };
 
 /**
- * Standard's three presets: only the foe's base moves (simulation, scripts/sim-standard.mjs: a focused build against a foe of its own
+ * Standard's three presets: only the foe's base moves (simulation, the earlier simulation: a focused build against a foe of its own
  * Soul Class succeeds about 65 to 80 times in a hundred across Soul Classes I to IX at Standard, a spread build 45 to 60).
  */
 export const STANDARD_PRESETS = Object.freeze({

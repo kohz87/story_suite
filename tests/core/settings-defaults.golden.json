@@ -42,10 +42,11 @@
       "memoryCriteria": "Store only durable, story-relevant events the NPC would reasonably recall in a later scene and that could affect future decisions, attitude, relationship, goals, obligations, fears, knowledge, or circumstances. Prefer concrete events such as promises, betrayals, rescues, confessions, consequential discoveries, major conflicts, meaningful gifts or favors, losses, or commitments. Do not store routine dialogue, ordinary transactions, repeated summaries of existing dossier facts, transient emotions, moment-to-moment NPC Inner Chatter, or trivial scene details. A memory should say what happened and why it matters in one short grounded sentence. Avoid duplicates or near-duplicates of memories already stored for that NPC.",
       "memoryFacts": true,
       "midDeleteRewind": false,
-      "narrationCapture": false,
+      "narrationCapture": true,
       "narrationCaptureCatchUp": 4,
       "narrationCaptureCatchUpPeople": 1,
       "narrationCaptureCompact": false,
+      "npcStateSettingsVersion": 1,
       "portraitComposition": "solo character portrait, upper body, centered composition, face clearly visible, portrait orientation",
       "portraitCustomPresetId": "custom-default",
       "portraitCustomPresets": [
@@ -119,6 +120,7 @@
       "assistClassifier": false,
       "assistExtractor": false,
       "assistExtractorKinds": "! time, ~ time, ~ place, + present, - present, ~ weather, ~ quest, - quest, ~ wound, - item",
+      "assistRepair": true,
       "chatterInPrompt": false,
       "chatterMax": 3,
       "coinDisplay": "mixed",
@@ -132,7 +134,6 @@
       "rpgLevelCap": 99,
       "rpgPracticePerUse": 3,
       "rpgPrecheck": true,
-      "rpgRolls": "automatic",
       "rpgXpRate": 100
     },
     "story-director": {

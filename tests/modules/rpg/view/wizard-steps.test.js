@@ -106,7 +106,7 @@ test('Skills: the five built-in sets and a pack\'s, rows with Stat, Type and Sta
     assert.deepEqual(rows().map(row => row.querySelector('[data-field="name"]').value), ['Short blade', 'Iron Breath', 'Shield work']);
     assert.equal(rows()[0].querySelector('[data-field="about"]').value, FIGHTER.skills[0].about);
     assert.deepEqual(rows().map(row => [row.querySelector('[data-field="stat"]').value, row.querySelector('[data-field="type"]').value, row.querySelector('[data-field="start"]').value]),
-        [['agi', 'attack', '0'], ['vit', 'attack', '0'], ['str', 'attack', '0']]);
+        [['agi', 'attack', '0'], ['vit', 'utility', '0'], ['str', 'defence', '0']]);
     assert.deepEqual(rows()[0].querySelector('[data-field="stat"]').querySelectorAll('option').map(node => node.textContent), ['STR', 'VIT', 'AGI', 'DEX', 'INT', 'WIS', 'CHA']);
     assert.deepEqual(rows()[0].querySelector('[data-field="type"]').querySelectorAll('option').map(node => node.textContent), ['Attack', 'Area attack', 'Defence', 'Evasion', 'Movement', 'Heal', 'Support', 'Utility']);
     assert.deepEqual(rows()[0].querySelector('[data-field="start"]').querySelectorAll('option').map(node => node.textContent), ['Novice', 'Adept']);

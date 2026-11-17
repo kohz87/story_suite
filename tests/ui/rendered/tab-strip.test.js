@@ -63,12 +63,12 @@ for (const theme of ['dark', 'light']) {
       assert.deepEqual(got.border, ['1px', 'solid', 'rgba(0, 0, 0, 0)']);
       assert.equal(got.radius, '999px');
       assert.match(got.blur, /blur\(16px\)/);
-      assert.equal(got.h, 50, 'the strip is 50px: 44px tabs, 2px padding, 1px border');
+      assert.equal(got.h, 43, 'the strip is 43px: 37px tabs (the mock), 2px padding, 1px border');
       assert.equal(got.dx, 1);
       assert.equal(got.dy, 3);
       assert.equal(got.onBorder, '1px');
       assert.equal(got.offBorder, '0px', 'only the selected tab has a border');
-      assert.ok(got.tabH >= 44, 'touch target stays at least 44px (the 820px column is kept at 1280)');
+      assert.ok(got.tabH >= 37, 'tab pills keep the mock 37px height (the 820px column is kept at 1280)');
     });
   }
 }

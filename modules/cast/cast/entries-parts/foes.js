@@ -26,9 +26,11 @@ export function foesSignature(state) {
         const definition = domain.pins?.[domain.active[id]?.hash]?.definition;
         const fields = domain.instances?.[id]?.chat?.fields;
         if (!isRecord(definition) || definition.role !== 'foes' || !isRecord(fields)) continue;
-        for (let slot = 1; slot <= 4; slot += 1) {
+        for (let slot = 1; slot <= 6; slot += 1) {
+            // (a Combat Rules v1 group has a `tier` and no `hurt` field: the fight keeps each foe's HP, so a filled slot stands until a fight clears it)
+            const hurt = Object.hasOwn(fields, `hurt${slot}`) ? fields[`hurt${slot}`] : Object.hasOwn(fields, `tier${slot}`) ? 1 : undefined;
             if (typeof fields[`foe${slot}`] === 'string' && fields[`foe${slot}`].trim() && Number.isSafeInteger(fields[`count${slot}`]) && fields[`count${slot}`] > 0
-                && Number.isSafeInteger(fields[`hurt${slot}`]) && fields[`hurt${slot}`] > 0) live.push(`${slot}:${fields[`foe${slot}`].trim()}:${fields[`count${slot}`]}:${fields[`hurt${slot}`]}`);
+                && Number.isSafeInteger(hurt) && hurt > 0) live.push(`${slot}:${fields[`foe${slot}`].trim()}:${fields[`count${slot}`]}:${hurt}`);
         }
     }
     return live.join('|');

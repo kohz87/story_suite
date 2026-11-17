@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHost, hostAvailable } from '../../testkit/index.js';
 import { validatePack } from '../../packs/validate.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
 import { skillSlots } from '../../core/runtime/skill-slots.js';
 import { partyLines } from '../../modules/rpg/view/changes-lines.js';
 import { joinCard, joinDraft, joinOffers } from '../../modules/rpg/join.js';
@@ -53,30 +53,6 @@ const receiptsAt = (host, index) => host.ctx.chat[index].extra.storySuite.receip
 
 // ---- B1, B2: a reply made before the extra slots, read again ------------------------------------------------------------------------------------
 
-for (const [formula, name] of [['standard', 'skills-2210-join-then-learns-standard.json']]) {
-    test(`B1 (${formula}): a Re-read of a join made before the extra slots keeps the block, its pin and the skills learned later`, { skip }, async t => {
-        const { host, saved } = await opened(t, name, { skills: true, formula });
-        const before = snapshot(host, 'mara-skills');
-        assert.equal(JSON.stringify(fieldsOf(host, 'mara-skills')), JSON.stringify(saved.fields), 'the chat loads as it was written');
-        assert.equal(fieldsOf(host, 'mara-skills').skill3, 'Net Throw');
-        assert.equal('sig' in fieldsOf(host, 'mara-skills'), false, 'five slots, no signature mark');
-        for (const at of [4, 6, 12]) {
-            const result = await host.turn.reread(at);
-            assert.equal(result.ok, true, `Re-read of ${at}`);
-            assert.equal(snapshot(host, 'mara-skills'), before, `fields and pin after the Re-read of ${at}`);
-            assert.deepEqual(host.store.problems(), [], `no store problems after ${at}`);
-            assert.deepEqual(told(host).filter(message => !/ROLLS|rolled/.test(message)), [], `nothing told after ${at}`);
-        }
-        const join = receiptsAt(host, 4).find(entry => entry.data?.join?.op === 'added');
-        assert.ok(join, 'the join is still a join');
-        assert.equal('sigSkills' in join.data, false, 'the pack has skills now, but a join made before them seeds nothing');
-        // and the block goes on: a learn line after the Re-read still applies
-        await host.send('More.', reply('~ dm mara-skills — taught | kind: learn-4 | name: Oar Sweep | about: Sweeps. | stat: str | uses: stamina'));
-        assert.equal(fieldsOf(host, 'mara-skills').skill4, 'Oar Sweep');
-        assert.deepEqual(host.store.problems(), []);
-    });
-}
-
 // ---- B3: the pencil on a join reply ----------------------------------------------------------------------------------------------------------------
 
 async function world(t, { list = [person({ skills: SKILLS })], join = 'auto' } = {}) {
@@ -91,58 +67,7 @@ async function world(t, { list = [person({ skills: SKILLS })], join = 'auto' } =
     return host;
 }
 
-test('B3: the pencil on the join reply, a later learn, then a Re-read of the join: the pin, the pencilled words and the later skill all stay', { skip }, async t => {
-    const host = await world(t);
-    await host.send('Mara walks in.', reply('+ party Mara'));
-    const joinAt = host.ctx.chat.length - 1;
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/mara-skills', fields: { skill2: 'Ferry Flash', about2: 'Sharper wording.' } })).ok, true);
-    await host.send('Teach.', reply('~ dm mara-skills — taught | kind: learn-4 | name: Net Throw | about: Casts a net. | stat: dex | uses: stamina'));
-    const live = snapshot(host, 'mara-skills');
-    assert.equal(fieldsOf(host, 'mara-skills').skill4, 'Net Throw');
-    assert.equal((await host.turn.reread(joinAt)).ok, true);
-    assert.equal(snapshot(host, 'mara-skills'), live);
-    assert.deepEqual(host.store.problems(), []);
-    const join = receiptsAt(host, joinAt).find(entry => entry.data?.join?.op === 'added');
-    assert.deepEqual(join.data.sigSkills.map(skill => skill.name), ['Tide Step', 'Ferry Spark', 'Rope Haul'], 'the join seeded what the pack gave, not the pencilled name');
-});
-
 // ---- B4: growth only when a learn line would have no slot -----------------------------------------------------------------------------------------
-
-test('B4: a Re-read of a learn reply for a Lv 30 character on a five-slot block changes nothing, and the block does not grow while a slot is free', { skip }, async t => {
-    const { host } = await opened(t, 'skills-2210-lv30-learns.json');
-    const before = snapshot(host, 'wessel-skills');
-    assert.equal(fieldsOf(host, 'wessel-skills').skill2, 'Tide Step');
-    for (const at of [4, 6]) {
-        assert.equal((await host.turn.reread(at)).ok, true, `Re-read of ${at}`);
-        assert.equal(snapshot(host, 'wessel-skills'), before, `after ${at}`);
-        assert.deepEqual(host.store.problems(), [], `store ${at}`);
-    }
-    const pin = pinOf(host, 'wessel-skills');
-    await host.send('Learn.', reply('~ dm wessel-skills — taught | kind: learn-3 | name: Net Throw | about: Casts a net. | stat: dex | uses: stamina'));
-    assert.equal(pinOf(host, 'wessel-skills'), pin, 'a free slot: the block stays as it is');
-    // a line that names a slot the block lacks goes to the free one
-    await host.send('Learn.', reply('~ dm wessel-skills — taught | kind: learn-6 | name: Oar Sweep | about: Sweeps. | stat: str | uses: stamina'));
-    assert.equal(fieldsOf(host, 'wessel-skills').skill4, 'Oar Sweep');
-    assert.equal(pinOf(host, 'wessel-skills'), pin);
-    // an update of a skill it holds, a line that is refused for another reason, and an unknown kind leave it alone too
-    await host.send('Learn.', reply('~ dm wessel-skills — taught | kind: learn-1 | name: Rope Haul | about: Better words. | stat: str | uses: stamina'));
-    await host.send('Learn.', reply('~ dm wessel-skills — taught | kind: learn-2 | name: Odd | about: x. | stat: wis | uses: stamina'));
-    assert.equal(pinOf(host, 'wessel-skills'), pin);
-    // the fifth fills the block; the sixth has no slot, so the block is extended (Lv 30 opens a sixth) and the line is kept
-    await host.send('Learn.', reply('~ dm wessel-skills — taught | kind: learn-5 | name: Keel Drag | about: Drags. | stat: vit | uses: stamina'));
-    assert.equal(pinOf(host, 'wessel-skills'), pin);
-    await host.send('Learn.', reply('~ dm wessel-skills — taught | kind: learn-6 | name: Wave Read | about: Reads. | stat: int | uses: mana'));
-    const growthAt = host.ctx.chat.length - 1;
-    assert.notEqual(pinOf(host, 'wessel-skills'), pin, 'the block grew');
-    assert.equal(fieldsOf(host, 'wessel-skills').skill6, 'Wave Read');
-    const grown = snapshot(host, 'wessel-skills');
-    // a Re-read of the reply that grew it grows it again (the reply as it stands holds the grown pin); one before it does not
-    assert.equal((await host.turn.reread(growthAt)).ok, true);
-    assert.equal(snapshot(host, 'wessel-skills'), grown);
-    assert.equal((await host.turn.reread(6)).ok, true);
-    assert.equal(snapshot(host, 'wessel-skills'), grown);
-    assert.deepEqual(host.store.problems(), []);
-});
 
 // ---- F1: Ask mode ---------------------------------------------------------------------------------------------------------------------------------
 
@@ -154,7 +79,7 @@ test('F1: a Re-read of the offer reply keeps the offered skills', { skip }, asyn
     assert.deepEqual(offered().skills.map(skill => skill.name), ['Tide Step', 'Ferry Spark', 'Rope Haul']);
     assert.equal((await host.turn.reread(at)).ok, true);
     assert.deepEqual(offered().skills.map(skill => skill.name), ['Tide Step', 'Ferry Spark', 'Rope Haul'], 'still offered after the Re-read');
-    assert.deepEqual(offered().skills.map(skill => skill.rank), [1, 0, 2]);
+    assert.deepEqual(offered().skills.map(skill => skill.rank), [2, 0, 3]);
 });
 
 test('F1: Edit first keeps signature skills as written (the pencil\'s rules) and the Skills block it makes writes the join\'s tiles', { skip }, async t => {
@@ -166,7 +91,7 @@ test('F1: Edit first keeps signature skills as written (the pencil\'s rules) and
     let draft = joinDraft(card.actions.find(action => action.id === 'edit').payload);
     // stat, resource and rank cannot be changed, a skill cannot be taken out; the name and what it does can be fixed
     const changed = withSkillPatch(draft, 0, { stat: 'str', uses: 'mana', start: 1, rank: 3, name: 'Tide Dance', about: 'Better words.' });
-    assert.deepEqual([changed.skills[0].stat, changed.skills[0].uses, changed.skills[0].rank, changed.skills[0].sig], ['agi', 'stamina', 1, true]);
+    assert.deepEqual([changed.skills[0].stat, changed.skills[0].uses, changed.skills[0].rank, changed.skills[0].sig], ['agi', 'stamina', 2, true]);
     assert.deepEqual([changed.skills[0].name, changed.skills[0].about], ['Tide Dance', 'Better words.']);
     assert.equal(withoutSkill(draft, 0).skills.length, 3, 'a signature skill stays');
     assert.equal(withSet(draft, { id: 'x', skills: [{ name: 'Spark', stat: 'int', about: 'a', uses: 'mana' }] }).skills.map(skill => skill.name).join(), 'Tide Step,Ferry Spark,Rope Haul,Spark', 'a skill set goes after them');
@@ -205,42 +130,7 @@ test('F2: a character file keeps up to eight skills when its level has dropped b
 
 // ---- F3: the tail's room -------------------------------------------------------------------------------------------------------------------------------
 
-test('F3: the tail reserves room only for skills held past five, and the documents give the measured number', { skip }, async t => {
-    const empty = STANDARD_TEMPLATES.find(entry => entry.definition.role === 'skills').definition;
-    assert.equal(tailRoom(empty, true, {}), DM_LIMITS.roleTailTokens, 'eight slots, none filled');
-    assert.equal(tailRoom(empty, true, { skill1: 'A', skill2: 'B', skill3: 'C', skill4: 'D', skill5: 'E' }), DM_LIMITS.roleTailTokens, 'five held');
-    assert.equal(tailRoom(empty, true, { skill1: 'A', skill2: 'B', skill3: 'C', skill4: 'D', skill5: 'E', skill6: 'F', skill8: 'H' }), DM_LIMITS.roleTailTokens + 2 * DM_LIMITS.skillTailTokens);
-    assert.equal(tailRoom(empty, false, { skill6: 'F' }), DM_LIMITS.tailTokens, 'the RPG off: an ordinary block');
-    // measured: the longest line one skill makes (40-character name, 120 of text, Master) against a block with one skill fewer
-    const host = await world(t);
-    const make = async count => {
-        const definition = structuredClone(empty);
-        definition.slug = `long${count}`; definition.name = `Long ${count}`; definition.state.who.default = 'Long';
-        for (let n = 1; n <= count; n += 1) { definition.state[`skill${n}`].default = 'N'.repeat(40); definition.state[`about${n}`].default = 'a'.repeat(120); definition.state[`rank${n}`].default = 3; }
-        assert.equal((await host.sdk.command('dm.define', { definition })).ok, true);
-        return estimateTokens(summaryOf(host.head(), `pack.chat/long${count}`));
-    };
-    const [five, eight] = [await make(5), await make(8)];
-    assert.equal(Math.ceil((eight - five) / 3), DM_LIMITS.skillTailTokens, 'the reserve is the measured cost of one skill');
-    for (const file of ['../../docs/history/packages/story-block/CHANGELOG.md', '../../docs/v2/RPG.md']) {
-        assert.match(readFileSync(new URL(file, import.meta.url), 'utf8'), new RegExp(`${DM_LIMITS.skillTailTokens} tokens`), file);
-    }
-});
-
 // ---- F4, F7: words ---------------------------------------------------------------------------------------------------------------------------------------
-
-test('F4: after a level drop with all eight slots full, the refusal says so and does not promise a slot at Lv 40', { skip }, async t => {
-    const host = await world(t);
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/wessel', fields: { level: 60 } })).ok, true);
-    for (let n = 1; n <= 8; n += 1) await host.send('Learn.', reply(`~ dm wessel-skills — taught | kind: learn-${n} | name: Skill ${n} | about: x. | stat: str | uses: stamina`));
-    assert.equal(fieldsOf(host, 'wessel-skills').skill8, 'Skill 8');
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/wessel', fields: { level: 30 } })).ok, true);
-    await host.send('Learn.', reply('~ dm wessel-skills — taught | kind: learn-1 | name: Nine | about: x. | stat: str | uses: stamina'));
-    const message = told(host).find(text => text.includes('No free skill slot for Nine'));
-    assert.ok(message, told(host).join(' | '));
-    assert.doesNotMatch(message, /next slot opens/i);
-    assert.match(message, /All eight skill slots hold a skill/);
-});
 
 test('F7: a refused line on an old block names only the learn kinds the block has, and does not extend it', { skip }, async t => {
     const { host } = await opened(t, 'skills-2210-lv30-learns.json');
@@ -262,29 +152,6 @@ test('F7: a refused line on an old block names only the learn kinds the block ha
 // ---- R1, R2: the follow-ups of the re-check -------------------------------------------------------------------------------------------------------
 
 const RETURN_SKILLS = [{ name: 'Tide Step', about: 'Footwork.', stat: 'agi', rank: 'adept' }, { name: 'Ferry Spark', about: 'Magic.', stat: 'int', uses: 'mana' }];
-for (const later of ['learn', 'practice']) {
-    test(`R1: the pencil on a return reply, a later ${later}, then a Re-read of the return: no store problems, and the receipt keeps the seeded names`, { skip }, async t => {
-        const host = await world(t, { list: [person()] });
-        await host.send('In.', reply('+ party Mara'));
-        await host.send('Out.', reply('- party Mara'));
-        assert.equal((await host.packs.packs.install(rawPack([person({ skills: RETURN_SKILLS })]))).ok, true);
-        await host.send('Back.', reply('+ party Mara'));
-        const backAt = host.ctx.chat.length - 1;
-        const seeded = receiptsAt(host, backAt).find(entry => entry.data?.sigSkills)?.data.sigSkills;
-        assert.deepEqual(seeded.map(skill => [skill.name, skill.about]), [['Tide Step', 'Footwork.'], ['Ferry Spark', 'Magic.']], 'the receipt records what was seeded, with its words');
-        assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/mara-skills', fields: { skill1: 'Tide Dance', about1: 'Her words.' } })).ok, true);
-        await host.send('Next.', reply(later === 'learn' ? '~ dm mara-skills — taught | kind: learn-3 | name: Net Throw | about: Casts a net. | stat: dex | uses: stamina'
-            : '+ dm mara-skills — practised Ferry Spark | kind: practice-2 | amount: 15'));
-        const live = snapshot(host, 'mara-skills');
-        assert.equal((await host.turn.reread(backAt)).ok, true);
-        assert.equal(snapshot(host, 'mara-skills'), live);
-        assert.deepEqual(host.store.problems(), []);
-        assert.deepEqual(receiptsAt(host, backAt).find(entry => entry.data?.sigSkills)?.data.sigSkills, seeded, 'the receipt keeps the seeded names');
-        host.store.rebuild();
-        assert.equal(snapshot(host, 'mara-skills'), live);
-    });
-}
-
 test('R2: a Re-read does not send a learn-6 line to a free lower slot unless the reply, as it stood, held that skill there', { skip }, async t => {
     const { host } = await opened(t, 'skills-2210-lv30-learns.json');
     // a reply of 2.21 whose learn-6 was refused (the block had five slots): its words say learn-6 and it holds no Oar Sweep

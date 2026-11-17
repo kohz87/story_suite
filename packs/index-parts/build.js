@@ -80,7 +80,7 @@ export function createPacksPart({ settings, readLorebook = async () => ({ charac
             'packs.rippleChoice': (_state, args, tools) => rippleChoice(packs.packs(), args, tools),
             // The Rank the first enabled pack that declares one gives {{user}}'s look, `{ pack, label }`, or null (no Rank in this story).
             'packs.youRank': () => youRankOf(packs.packs()),
-            'packs.crafts': () => craftsOf(packs.packs()),
+            'packs.crafts': () => craftsOf(),
             'packs.economy': () => economy(),
             'packs.markets': () => markets(),
             // The URL of a cast portrait (see above): a file name the installed pack names and has a stored picture for, else null.

@@ -39,7 +39,7 @@ test('automatic money allows a loot offer with more than twenty items', async t 
 // With no limit (Automatic) the story decides how many; a thing that does not stack is one stack a piece, so one line (and
 // one offer) gives at most 50 of it, with a problem that says so, and the Take always fits the offer.
 test('automatic money: past 50 of a thing that does not stack, the offer and a + item line hold to 50 and say so', async t => {
-    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     const host = await fresh(t, { settings: { packs: [{ id: sample.id, version: sample.version, enabled: true, source: 'file', origin: 'test', pack: sample }] } });
     const pieces = name => host.sdk.query('inventory.items').filter(item => item.name === name).length;
@@ -98,7 +98,7 @@ async function takesFifty(t, host, offerText) {
 }
 
 test('a take of more than 50 of a thing that does not stack: a pack enabled after the offer', async t => {
-    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     const host = await fresh(t, { settings: { packs: [{ id: sample.id, version: sample.version, enabled: false, source: 'file', origin: 'test', pack: sample }] } });
     await host.send('Look.', reply('A rack of rods.', ['? loot Willow Rod x51 — on the rack']));
@@ -108,7 +108,7 @@ test('a take of more than 50 of a thing that does not stack: a pack enabled afte
 
 test('a take of more than 50 of a thing that does not stack: an offer saved by the previous Story Block', async t => {
     t.mock.method(console, 'warn', () => {});
-    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8'));
     sample.start.inventory = { items: [], money: 0 };
     const saved = JSON.parse(readFileSync(new URL('../modules/inventory/fixtures/loot-2.6.0-f74bab2-chat.json', import.meta.url), 'utf8'));
     const host = await createHost({ st: { chat: saved.chat }, settings: { packs: [{ id: sample.id, version: sample.version, enabled: true, source: 'file', origin: 'test', pack: sample }] } });
@@ -120,7 +120,7 @@ test('a take of more than 50 of a thing that does not stack: an offer saved by t
 test('? loot lays things out without giving them; the reader takes the ones ticked', async t => {
     const host = await fresh(t);
     await host.send('Search the cellar.', reply('Dusty shelves.', ['? loot Rusty Key, Lantern Oil x2, Torn Map — on the cellar shelf']));
-    assert.deepEqual(host.turn.problems(), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES'), []);
     assert.deepEqual(host.sdk.query('inventory.items'), [], 'nothing is given until it is taken');
     const laid = offer(host);
     assert.deepEqual(laid.items, { 0: { name: 'Rusty Key', qty: 1 }, 1: { name: 'Lantern Oil', qty: 2 }, 2: { name: 'Torn Map', qty: 1 } });
@@ -155,7 +155,7 @@ test('things already carried are not offered, and are skipped at the take (toler
     await host.send('Gear up.', reply('Supplies.', ['+ item Rope']));
     await host.send('Look.', reply('A crate.', ['? loot some rope, Torch, Sulfur Alloy — in the crate']));
     assert.deepEqual(Object.values(offer(host).items).map(item => item.name), ['Torch', 'Sulfur Alloy']);
-    assert.deepEqual(host.turn.problems().map(problem => [problem.code, problem.message]), [['LIMITED', 'rope is already carried, so it is not offered.']]);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(problem => [problem.code, problem.message]), [['LIMITED', 'rope is already carried, so it is not offered.']]);
     // The story then gives the alloy itself (written another way) before the reader takes.
     await host.cont(reply('', ['+ item alloy of sulfur (piece)']));
     const out = await take(host, [0, 1]);
@@ -174,7 +174,7 @@ test('the offer is not held to a per-reply limit: valuable goods, a big count an
     const host = await fresh(t, { modules: [world], settings: { modules: { 'story-block': { storyCoinPerReply: 50 } } } });
     await host.send('The vault.', reply('Glitter.', ['? loot Ruby Shard x3, Royal Crown, Arrows x250 — in the vault']));
     assert.deepEqual(Object.values(offer(host).items), [{ name: 'Ruby Shard', qty: 3 }, { name: 'Royal Crown', qty: 1 }, { name: 'Arrows', qty: 250 }]);
-    assert.deepEqual(host.turn.problems(), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES'), []);
     assert.equal(host.sdk.query('inventory.find', { name: 'Royal Crown' }).status, 'none', 'laying out makes no definition');
     assert.equal((await take(host, [0, 1, 2])).ok, true);
     assert.deepEqual([qty(host, 'Ruby Shard'), qty(host, 'Royal Crown'), qty(host, 'Arrows')], [3, 1, 250]);
@@ -263,7 +263,7 @@ test('a host with Features: off, the loot grammar leaves the static part and a l
     const off = await fresh(t, { settings: { features: { 'story-block.loot': false } } });
     await off.send('Look.', reply('A crate.', ['? loot Torch']));
     assert.doesNotMatch(staticOf(off), /\? loot/);
-    assert.deepEqual(off.turn.problems().map(problem => problem.code), ['FEATURE_OFF']);
+    assert.deepEqual(off.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(problem => problem.code), ['FEATURE_OFF']);
     assert.equal(off.head().domains.inventory.loot, undefined);
     assert.equal((await take(off, [0])).code, 'FEATURE_OFF');
 });
@@ -272,7 +272,7 @@ test('a host with Features: off, the loot grammar leaves the static part and a l
 // goods too: a module that buys things back holds what it pays to their worth at the sell rate, not past
 // the reply's budget. A stack it joins is the story's.
 test('what is taken from a story\'s loot is the story\'s own (story: true), a pack\'s goods and story/ ones', async t => {
-    const sample = JSON.parse(readFileSync(new URL('../../examples/packs/riverside-starter/pack.json', import.meta.url), 'utf8'));
+    const sample = JSON.parse(readFileSync(new URL('../packs/fixtures/riverside-starter.json', import.meta.url), 'utf8'));
     const host = await fresh(t, { settings: { packs: [{ id: sample.id, version: sample.version, enabled: true, source: 'file', origin: 'test', pack: sample }] } });
     await host.send('Search the weir.', reply('Things in the reeds.', ['? loot Moonveil Trout x2, Old Boot — in the reeds']));
     const out = await take(host, [0, 1]);

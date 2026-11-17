@@ -13,6 +13,9 @@ export const SCENE_SHAPE = {
   canSend: T.BOOLEAN,
   canDiscard: T.BOOLEAN,
   view: { $nullable: T.ANY },
+  // A fight the reader's waiting message goes with (its Send and Discard answer the pause), and the waiting fight's offer (ui/select/hold.js): the fight renderer reads them.
+  held: { $optional: T.BOOLEAN },
+  hold: { $optional: T.ANY },
 };
 
 // What the generic renderer reads from `view` (both fields optional; anything else in `view` is the kind's own and is ignored). A choice names its actor: a step without one is refused.

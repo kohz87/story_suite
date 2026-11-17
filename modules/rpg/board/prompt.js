@@ -1,9 +1,8 @@
 // Keeps the board's fixed grammar as small as a quiet reply's grammar.
-// Combat flavour and manual rules are supplied only in the reply context that can use them.
+// Combat flavour is supplied only in the reply context that can use them.
 import { activeDefinition } from '../../data-modules/adapters.js';
-import { moduleGrammar, referenceOf } from '../../data-modules/grammar.js';
 import { oneLine } from '../../../core/text.js';
-import { CLEAR_ONLY, NEW_GROUPS, NEW_GROUPS_MANUAL, narratedFoeGrammar } from './narrated-grammar.js';
+import { CLEAR_ONLY, NEW_GROUPS, narratedFoeGrammar } from './narrated-grammar.js';
 
 // How a fight starts under the board: the story sets a foe slot, the offer line appears, and code plays the blows.
 const START = 'A fight starts when you set a foe slot; the reader plays it on the board, so tell no blows yourself.';
@@ -13,7 +12,7 @@ const START_AFTER = 'If a new group arrives after this fight, set a foe slot; a 
 
 export { boardGrammar, boardXpGuide } from '../../data-modules/board-static.js';
 
-export function boardReplyGrammar(state, { fight = false, ended = false, manual = false, practice = false } = {}) {
+export function boardReplyGrammar(state, { fight = false, ended = false } = {}) {
     const ids = Object.keys(state?.domains?.dataModules?.active ?? {});
     const lines = ids.flatMap(id => {
         const definition = activeDefinition(state, id);
@@ -29,15 +28,11 @@ export function boardReplyGrammar(state, { fight = false, ended = false, manual 
             const prompt = String(definition.prompt ?? '').replace(/The narrator sets a slot when a group arrives, hurts it as the fight goes and clears it when the group is down, gone, fled, captured or (?:has )?yielded\./u, 'The narrator sets a slot when a group arrives.');
             return prompt ? [oneLine(prompt)] : [];
         }
-        if (definition.role === 'skills' && practice) {
-            const lines = moduleGrammar(definition, referenceOf(ids, id), { prompt: false, only: /^practice-\d+$/u });
-            return lines ? ['Practice a skill 5 to 20 per use.', lines] : [];
-        }
         return [];
     });
     if (!fight) { if (ids.some(id => activeDefinition(state, id)?.role === 'foes')) lines.push(START); }
     else {
-        lines.push(...narratedFoeGrammar(state, ended ? (manual ? NEW_GROUPS_MANUAL : NEW_GROUPS) : manual ? undefined : CLEAR_ONLY));
+        lines.push(...narratedFoeGrammar(state, ended ? NEW_GROUPS : CLEAR_ONLY));
         if (ended && ids.some(id => activeDefinition(state, id)?.role === 'foes')) lines.push(START_AFTER);
     }
     return lines;

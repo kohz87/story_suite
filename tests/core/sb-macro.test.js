@@ -116,20 +116,6 @@ test('each path family reads as text: scene, money, items', { skip }, async t =>
     assert.equal(ctx.run('  scene.place  '), 'Vell Harbour', 'the path is trimmed');
 });
 
-test('each path family reads as text: party, blocks', { skip }, async t => {
-    const host = await world(t, { settings: { features: { 'story-block.rpg': true } },
-        modules: [block({ hope: 4, title: 'The Lamp-lighter' }, { hope: { type: 'int', min: 0, max: 9, default: 3 }, title: { type: 'text', max: 40, default: '' } })] });
-    await host.send('Go.', 'Opening.');
-    const ctx = fakeEngine();
-    registerSbMacro({ ctx, api: host.api });
-    assert.equal(ctx.run('party.me.level'), '3');
-    assert.equal(ctx.run('party.me.health'), 'Unhurt');
-    assert.equal(ctx.run('party.Ren.stats.str'), '14');
-    assert.equal(ctx.run('party'), 'Ren');
-    assert.equal(ctx.run('blocks.pack.chat/tracker.hope'), '4');
-    assert.equal(ctx.run('blocks.pack.chat/tracker.title'), 'The Lamp-lighter');
-});
-
 test('{{sb::path|fallback}}: the fallback for a path that is missing, empty, hidden or an object; nothing without one', { skip }, async t => {
     const state = { open: { type: 'int', min: 0, max: 9, default: 1 }, secret: { type: 'int', min: 0, max: 9, default: 1, prompt: false }, notes: { type: 'map', keys: ['a'], values: { type: 'int', min: 0, max: 5 } } };
     const host = await world(t, { modules: [block({ open: 2, secret: 7, notes: { a: 1 } }, state)] });

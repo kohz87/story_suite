@@ -1,36 +1,36 @@
 {
- "prompts": [
-  "346f2eee2fa35d49300707994f79e663d9ebbde1ebbd02003a095a26b729f811",
-  "20d1b3f2c7da02b535c41e14c663264c7125b4b15a98e607328715bfa1fb2605",
-  "20d1b3f2c7da02b535c41e14c663264c7125b4b15a98e607328715bfa1fb2605",
-  "20d1b3f2c7da02b535c41e14c663264c7125b4b15a98e607328715bfa1fb2605"
- ],
- "draws": 6,
- "drawn": "d2e913cd577b811059bd255fe4e28891cd74852699f74c25bd856131e65c2104",
- "calls": 0,
- "receipts": [
-  [],
-  [],
-  [
-   [
-    "capture.place",
-    "story",
-    false,
-    "The scene moves to Drain."
-   ],
-   [
-    "capture.present",
-    "story",
-    false,
-    "Ren is here."
-   ]
+  "prompts": [
+    "cec44feeecfc29c8355878db51a2aee8053c886a05491cc68cc4fc8aecd50497",
+    "4c1f365482fe41ab8ca6db6238890dc155bc53187877edeb05ee5813298bbf21",
+    "4c1f365482fe41ab8ca6db6238890dc155bc53187877edeb05ee5813298bbf21",
+    "4c1f365482fe41ab8ca6db6238890dc155bc53187877edeb05ee5813298bbf21"
   ],
-  [],
-  []
- ],
- "domains": [
-  "inventory",
-  "scene"
- ],
- "rev": 2
+  "draws": 6,
+  "drawn": "d2e913cd577b811059bd255fe4e28891cd74852699f74c25bd856131e65c2104",
+  "calls": 0,
+  "receipts": [
+    [],
+    [],
+    [
+      [
+        "capture.place",
+        "story",
+        false,
+        "The scene moves to Drain."
+      ],
+      [
+        "capture.present",
+        "story",
+        false,
+        "Ren is here."
+      ]
+    ],
+    [],
+    []
+  ],
+  "domains": [
+    "inventory",
+    "scene"
+  ],
+  "rev": 2
 }

@@ -1,6 +1,6 @@
 # Playing v2 in Ersveil
 
-This page sets up a v2 chat in the Ersveil world with the **Ersveil example pack 2.9.6, the open world**
+This page sets up a v2 chat in the Ersveil world with the **Ersveil example pack 3.0.0, the open world** (pack format 3)
 ([`examples/packs/ersveil/pack.json`](../../examples/packs/ersveil/pack.json)) and its lorebook
 ([`examples/packs/ersveil/ersveil-lore.json`](../../examples/packs/ersveil/ersveil-lore.json)). A new
 story begins in Bluewatch Village, at the Adventurer Guild office, with four silver.
@@ -10,7 +10,7 @@ The pack holds the world's structure: the map (320 places, 350 routes), the cale
 jobs, classes or rules**: the narrator makes those up in the story from the lore, and Story Block keeps
 what the story hands out (the bag, the purse, the place). The lorebook holds what only the narrator uses.
 
-The pack needs Story Block 2.31.1 or newer and Story Director with the `chronicle-lasting` capability. NPC State Delta is optional. The names suggestions require a Director release that includes its names part.
+The pack is pack format 3 and needs Story Suite 0.1 (`requires.suite: "^0.1"`) and the `chronicle-lasting` capability. NPC State is optional.
 
 ## 1. Extensions
 
@@ -32,9 +32,10 @@ SillyTavern profile.
    1 skill set, 12 cast members, 14 name lists, start state, 4 coins, a calendar, 84 weather tables". The 3 data modules are not in that line; they
    stay off until you enable them (§5). Without Story Director 2.3.0 the pack is refused: it needs the
    `chronicle-lasting` capability.
-2. Switch off any other pack with a start state or a currency (for example `riverside-starter`).
+2. Switch off any other pack with a start state or a currency (for example another world pack).
 3. Start a **new chat**. A chat takes the pack it begins with and keeps that copy.
 
+3.0.0 (the first release in pack format 3, a minimal conversion: no lore, cast text, place or event was rewritten) puts the pack in `format: 3` with `requires.suite: "^0.1"` and `rpg.formula: "v1"`. Every cast and skill-set skill now carries an explicit Combat Rules v1 `type`, and the cast skills' `uses` are `sp` or `mp`. The two items with LUK (Rain-Veil Hood and Three Walnut Shells) now give DEX instead, because gear still raises the earlier seven stats and has no WIS. Ranks keep their words (novice to master); `adept` now means v1's Adept (rank 2), where before it seeded rank 1. The add-ons `ersveil-factions` and `ersveil-survival` are 2.0.0: format 3, `requires.suite`, and survival's `story-director` capability is now `director`. `riverside-starter` is no longer a shipped example (it is a test fixture).
 2.9.6 (needs Story Block 2.31.1) merges the split flood news into one event with the `region(...)` condition, so the bulletin is told once however the player moves between the regions that hear it; a chat that already heard the first group's news keeps that, while one that heard it only in Aurelion, Silver Mark, Startrace Tower or Ironanvil may hear it once more.
 2.9.5 (content only, with the throne following your deeds) adds `content.names`: given names (30 to 45) and family names (20 to 27) for fourteen peoples and regions (Highmark, the River Confederacy and Shornmarch, the Flame Lands, the Border and Valegard, the Frostbound, the dwarves, the Chieftainates, Ardelia, the Emerald Coast, the Tidebound, Atlantis, the Verdantleaf elves, the Fairy Court and Ashkar), written in the sound of Names: Human Cultures and Names: Other Peoples and sharing no name with the cast or the lorebook's examples, and a short banned list of overused fantasy names. A Story Director release with its names part can offer them for new people met in a matching region. The pack requires Story Block 2.31.0 or newer, so an older host refuses the whole pack on its version check.
 2.9.5 restores the throne branches. Director's Ripples can score matching completed quests and victories against the named groups; Ersveil has no directed world events or claimant standing, and NPC trust is not scored. When Ripples is absent or cannot safely identify Ersveil's table, Hasse is broken and Wendhild is crowned over Corvin. A chat already crowned keeps its reign. A decision is kept as it was while the story before it is unchanged, even when the scoring later changes (a Director update, a swipe or delete of a later reply, a Re-read after the crown); only changing an earlier deed or reply reselects it at that point in the story. Version 2.9.3 removed Court favour; chats that enabled it keep the block and its values.
@@ -51,7 +52,7 @@ SillyTavern profile.
 and 56 notable people to the lorebook. Re-import the lorebook too.
 2.1.0 changes only lore and names: Auvoth is the Guild's city, its Depths sealed by Veyr the Unbound in CY 384; the Guild Grand Hall ward is Sealcrown (was Delver's Crown) and Rimeglass Delve is the Rimeglass Galleries. The old names stay as aliases, so a chat already at one of those places still finds it, and the data modules are unchanged. Re-import the lorebook too.
 
-Importing 2.9.6 replaces an installed pack with the same id. Start a new chat to use its starting state.
+Importing 3.0.0 replaces an installed pack with the same id. Start a new chat to use its starting state.
 
 ## 3. Import the lorebook
 
@@ -133,6 +134,39 @@ Starting levels (rank band): Temiwa 4 (F), Torka 6 (F), Rika 8 (F), Barney 14 (E
 
 The eleven who can be romanced use NPC State Delta's companion meters (Trust, Affection, Desire, Tension); Barney uses the mentor's, with no Desire. Everyone starts at 0 on every meter: a relationship is built in play, not given at the first meeting.
 
+### Signature skills
+
+Each person has two skills (`content.cast[].skills`), each with a Combat Rules v1 type and a pool (`sp` or `mp`; a skill that rolls INT or WIS draws on MP):
+
+| Person | Skill | Stat | Pool | Rank | Type |
+|---|---|---|---|---|---|
+| Sister Temiwa | Mending Prayer | INT | MP | Novice | heal |
+| Sister Temiwa | Gentle Word | CHA | SP | Novice | utility |
+| Ysmeth | Lockwork | DEX | SP | Expert | utility |
+| Ysmeth | Binding Rune | INT | MP | Expert | support |
+| Nysseth | Grinder's Knives | DEX | SP | Expert | attack |
+| Nysseth | Chain Cell Craft | INT | SP | Expert | utility |
+| Rika | Raw Bolt | INT | MP | Adept | attack |
+| Rika | Wild Surge | INT | MP | Novice | area |
+| Harrak | Long Watch Cleave | STR | SP | Expert | area |
+| Harrak | Hold the Line | VIT | SP | Master | defence |
+| Torka | Berserker Rush | STR | SP | Novice | attack |
+| Torka | Maul Swing | STR | SP | Novice | area |
+| Sir Lothar | Iron Guard Cut | DEX | SP | Expert | attack |
+| Sir Lothar | Shield of the Princess | VIT | SP | Adept | defence |
+| Gorm Kettlebright | Hammer Rune | STR | SP | Adept | attack |
+| Gorm Kettlebright | Toast and Tell | CHA | SP | Adept | utility |
+| Nerissa | Pilot's Hand | DEX | SP | Adept | utility |
+| Nerissa | Harpoon Dive | AGI | SP | Adept | attack |
+| Hush | Silver Rain Veil | INT | MP | Expert | utility |
+| Hush | Mother's Hand | VIT | SP | Adept | utility |
+| Asphodel | Flower-Speech | INT | MP | Adept | utility |
+| Asphodel | Quiet Step | AGI | SP | Adept | utility |
+| Barney Thimblewick | Silver Patter | CHA | SP | Adept | utility |
+| Barney Thimblewick | Dirty Trick | DEX | SP | Adept | attack |
+
+The "Sealwarden recruit" skill set (`rpg.skillSets`): Gate spear (attack), Ward-reading (utility, MP), Lamp-keeping (utility), Breach drill (movement), Gate challenge (utility).
+
 ### Signature gear
 
 `content.items` holds sixteen pieces of equipment the cast are known for, each worn from the owner's `wears` text. Their numbers follow
@@ -144,7 +178,7 @@ legendary 5; the listed numbers were set at the older, lower budgets and are kep
 | Long Watch Great Axe | Harrak | weapon | legendary | STR +2, VIT +2 |
 | White-Fur Watch Cloak | Harrak | cloak | rare | VIT +2 |
 | Carved Beacon-Horn | Harrak | accessory | uncommon | CHA +1 |
-| Rain-Veil Hood | Hush | cloak | epic | AGI +2, LUK +1 |
+| Rain-Veil Hood | Hush | cloak | epic | AGI +2, DEX +1 |
 | Cell-Runner's Knives | Nysseth | weapon | epic | DEX +2, AGI +1 |
 | Rune-Collar Hammer | Ysmeth | weapon | rare | STR +1, INT +1 |
 | Iron Guard Plate | Sir Lothar | body | rare | VIT +2 |
@@ -155,7 +189,7 @@ legendary 5; the listed numbers were set at the older, lower budgets and are kep
 | Huge Spiked Iron Maul | Torka | weapon | uncommon | STR +1 |
 | Fang Charm | Torka | accessory | common | none |
 | Startrace Travelling Coat | Rika | body | uncommon | INT +1 |
-| Three Walnut Shells | Barney Thimblewick | accessory | uncommon | LUK +1 |
+| Three Walnut Shells | Barney Thimblewick | accessory | uncommon | DEX +1 |
 | Flame-Cross Pendant | Sister Temiwa | accessory | uncommon | CHA +1 |
 
 ## 7. Updating the pack

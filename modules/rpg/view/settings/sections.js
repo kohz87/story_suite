@@ -9,9 +9,9 @@ import { joinMode } from '../../join.js';
 import { rulesFromSettings } from '../../rules.js';
 import { XP_RATE, XP_RATE_SETTING, xpRateOf } from '../../levels.js';
 import { fill } from '../../strings.js';
-import { S, ROLLS_KEY, rollsOf } from './constants.js';
+import { S } from './constants.js';
 
-export function createBasicSections({ doc, card, chips, field, numberRow, packNote, values, settings, put, pack, boardFeature, gear, onChange }) {
+export function createBasicSections({ doc, card, chips, field, numberRow, packNote, values, settings, put, pack, gear, onChange }) {
     // ---- The stat formula: how its rolls are made, and its four main numbers (Standard is the only formula)
     function drawFormula() {
         const rules = rulesFromSettings(values(), pack());
@@ -46,8 +46,6 @@ export function createBasicSections({ doc, card, chips, field, numberRow, packNo
     // ---- Rolls
     function drawRolls() {
         const box = card('rolls', S.rolls);
-        chips(box, S.rolls, [['automatic', S.automatic], ['off', S.off]], rollsOf(settings), value => put(ROLLS_KEY, value));
-        box.appendChild(h(doc, 'p', 'rpg-set-help', S.rollsHelp));
         const row = h(doc, 'div', 'rpg-board-setting');
         row.setAttribute('data-card', 'checks');
         const copy = h(doc, 'div', 'rpg-board-setting-copy');
@@ -55,7 +53,7 @@ export function createBasicSections({ doc, card, chips, field, numberRow, packNo
         const toggle = switchField({ doc, ariaLabel: S.checks, value: checksOn(values()), onChange: value => put(CHECKS_SETTING, value) });
         row.append(copy, toggle.el);
         box.appendChild(row);
-        if (boardFeature) box.appendChild(boardSetting(doc, boardFeature, onChange, { value: autoCapFrom(values()), set: v => put(AUTO_CAP_SETTING, v) }, { value: precheckOn(values()), set: v => put(PRECHECK_SETTING, v === true) }));
+        box.appendChild(boardSetting(doc, { value: autoCapFrom(values()), set: v => put(AUTO_CAP_SETTING, v) }, { value: precheckOn(values()), set: v => put(PRECHECK_SETTING, v === true) }));
     }
 
     // ---- Levels and practice: the level cap, the practice a skill use gives, the XP rate

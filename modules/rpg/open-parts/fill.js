@@ -1,6 +1,5 @@
 // Fills free foe slots of the Foes blocks for each opened foe, and clears the Down groups left from earlier replies.
 import { createEvaluation } from '../../data-modules/interpreter.js';
-import { FIX_VERSION } from '../names.js';
 import { classOfLevel, levelOfClass } from '../foes.js';
 import { fold, readSheet } from '../read.js';
 
@@ -9,7 +8,8 @@ const argsOf = entry => (entry.level !== undefined
     ? { level: entry.level, class: classOfLevel(entry.level) }
     : { class: entry.class ?? 1, level: levelOfClass(entry.class) ?? 1 });
 
-export { FIX_VERSION };
+/** The foe-slot rules mark an opening is made with (2: stage 65, 3: `then:`). */
+export const FIX_VERSION = 3;
 
 /**
  * Fills a free slot (empty or Down) of the Foes blocks in `domain` (the data-module domain) for each entry of `open`, in order, through the block's

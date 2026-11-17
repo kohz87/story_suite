@@ -1,12 +1,13 @@
 {
   "id": "ersveil-survival",
-  "version": "1.0.0",
+  "format": 3,
+  "version": "2.0.0",
   "name": "Ersveil survival meters",
   "requires": {
-    "storyBlock": "^2",
+    "suite": "^0.1",
     "capabilities": [
       "data-modules-v1",
-      "story-director"
+      "director"
     ]
   },
   "content": {

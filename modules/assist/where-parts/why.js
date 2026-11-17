@@ -33,7 +33,7 @@ export function whereWhy(line, { places = [], here = '' } = {}) {
     if (kind === 'time' && ['~', '!', '+'].includes(line?.op)) {
         const said = [line?.name, line?.text].filter(part => typeof part === 'string' && part.trim()).join(' ').trim();
         if (STRETCH.test(said) || hasClockTime(said)) return '';
-        return `"${clip(said, 60) || 'time'}" has no clock time; write a time like "~ time Goldwane 12, 9:30 am" or "! time +2h" ("midday" and "mid-morning" are not times)`;
+        return `"${clip(said, 60) || 'time'}" has no clock time; write a time like "~ time 9:30 am" or "! time +2h" ("midday" and "mid-morning" are not times)`;
     }
     if (kind === 'place' && places.length) {
         const name = String(line?.name ?? '').replace(/\s+/g, ' ').trim();

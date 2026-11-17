@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { createReplyNotes } from '../../../../ui/legacy/reply-notes.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 

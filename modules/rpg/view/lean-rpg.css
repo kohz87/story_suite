@@ -263,15 +263,6 @@
 .rpg-set-unit { font-size: 12.5px; color: var(--ss-muted); }
 .rpg-set-input, .rpg-set-area { box-sizing: border-box; width: 100%; padding: 7px 9px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--ss-text) 20%, transparent); background: var(--ss-field); color: inherit; font: inherit; font-size: 13px; }
 .rpg-set-area { font: 12.5px/1.45 ui-monospace, Menlo, monospace; resize: vertical; }
-.rpg-odds { display: grid; gap: 6px; }
-.rpg-odds-title { font-size: 13px; }
-.rpg-odds-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; }
-.rpg-odds-bar span { display: block; flex: 0 0 calc(var(--rpg-odds, 0) * 1%); }
-.rpg-odds-success { background: var(--ss-good); }
-.rpg-odds-cost { background: var(--ss-warn); }
-.rpg-odds-fail { background: var(--ss-bad); }
-.rpg-odds-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; }
-.rpg-odds-key i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
 .rpg-set-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .rpg-set-button { white-space: nowrap; flex: 0 0 auto; }
 .rpg-set-count { font-size: 11.5px; color: var(--ss-muted); margin-left: auto; }

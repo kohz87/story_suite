@@ -1,6 +1,6 @@
 // The notes under a reply: drawing, updating and removing them, and the Re-read they offer (createReplyNotes).
 
-import { extractBlock } from '../../../core/capture.js';
+import { assistSections, extractBlock } from '../../../core/capture.js';
 import { isCarrier, readRecord, swipeOf } from '../../../core/persist.js';
 import { STRINGS, fill } from '../../../core/strings.js';
 import { refusedFrom, warnedFrom } from './problems.js';
@@ -48,7 +48,8 @@ export function createReplyNotes({
         if (extractor) {
             try { extractor = extractorFailed(index, swipeOf(message)) !== true; } catch { /* still on */ }
         }
-        if (!extractor && extractBlock(String(message.mes ?? '')) === null) return 'missing';
+        // (a repair's stored lines, the safety net's, are the reply's changes: nothing is missing)
+        if (!extractor && extractBlock(String(message.mes ?? '')) === null && !assistSections(String(message.mes ?? '')).now.length) return 'missing';
         if (canReread && edited.has(keyOf(index))) return 'edited';
         return null;
     }

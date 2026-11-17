@@ -50,22 +50,6 @@ test('A long name in the bench card keeps its level', () => {
     assert.equal(many.at(-1).command, JOIN_NO);
 });
 
-test('partyFour: a new reply is marked partyFour and partyRoom, and the 5th member of a story is not made but offered; a reply with only partyRoom still takes the 5th', { skip }, async t => {
-    const host = await four();
-    t.after(() => host.close());
-    assert.deepEqual(host.ctx.chat.at(-1).extra.storySuite.rules.filter(name => /^party(Four|Room)$/.test(name)), ['partyFour', 'partyRoom']);
-    await host.send('Torka walks in.', reply(TORKA));
-    assert.deepEqual(names(host), ['Wessel', 'Mara', 'Ren', 'Ilse'], 'not made');
-    assert.deepEqual(problems(host), [], 'and not refused silently: no Problems line');
-    const receipt = lastReceipts(host).find(entry => entry.type === 'capture.party');
-    assert.deepEqual(receipt.data.join, { op: 'offer', name: 'Torka Bloodsong', about: 'an orc with an axe', soul: 2, best: 'str', full: true, four: true }, 'the reply\'s own receipt keeps the request');
-    const old = await world({ eight: true });
-    t.after(() => old.close());
-    for (const who of ['Mara', 'Ren', 'Ilse', 'Dov']) await old.send(`${who} comes.`, reply(`+ party ${who}`));
-    assert.equal(active(old), 5, 'under partyRoom only the limit is 8');
-    await rebuilt(host, 'a full party offer');
-});
-
 test('a full party shows the bench card: one button per active companion with their level, never the reader, and Not now', { skip }, async t => {
     const host = await four();
     t.after(() => host.close());

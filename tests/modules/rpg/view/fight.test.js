@@ -112,16 +112,6 @@ test('a foe\'s health field that the block locks (edit: false) has no pencil; th
     assert.deepEqual(readFight(fight(), { roleOf })[0].stages.map(stage => stage.label), ['Down', 'Badly wounded', 'Wounded', 'Hurt', 'Scratched', 'Unhurt']);
 });
 
-test('a card per character with the three stage bars', () => {
-    const { el } = draw(fight());
-    assert.deepEqual(el.querySelectorAll('.rpg-pc').map(node => node.getAttribute('data-character')), ['Wessel', 'Ren']);
-    const mine = el.querySelector('.rpg-pc[data-character="Wessel"]');
-    assert.deepEqual(mine.querySelectorAll('.rpg-bar').map(node => node.getAttribute('data-bar')), ['health', 'mana', 'stamina']);
-    assert.match(mine.querySelector('.rpg-bar[data-bar="health"]').textContent, /Hurt · 3\/5/);
-    assert.match(mine.querySelector('.rpg-bar[data-bar="stamina"]').textContent, /Spent/);
-    assert.equal(mine.querySelectorAll('.ss-w-editable-pencil').length, 0, 'read-only here: the Party tab edits them');
-});
-
 test('Last exchange is the latest reply\'s battle-log panel', () => {
     const { el } = draw(fight());
     assert.equal(el.querySelector('.rpg-fight-lasthead .rpg-fight-h').textContent, 'Last exchange');

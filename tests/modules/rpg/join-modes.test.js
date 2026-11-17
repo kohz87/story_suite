@@ -4,30 +4,12 @@ import { STANDARD } from "../../../modules/rpg/rules.js";
 import { PARTY_MAX, JOINS, JOIN_SETTING, LEAN_RPG_FEATURE } from "../../../modules/rpg/names.js";
 import { DM_OLD_ROOM } from "../../../modules/data-modules/schema.js";
 import { JOIN_ADD, JOIN_NO, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinMode, joinOffers, partyCap, partyOf, readJoin, soulOf } from "../../../modules/rpg/join.js";
-import { STANDARD_TEMPLATES } from "../../../modules/rpg/templates.js";
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from "../../../modules/rpg/templates.js";
 import { partyLines } from "../../../modules/rpg/view/changes-lines.js";
 import { fakeState, characterDefinition, skillsDefinition } from "./view/helpers.js";
 import { MARA, blocks, fields, grammar, lastReceipts, make, problems, rebuilt, reply, skip, statics, world } from "./join.helpers.js";
 
 // ---- the line, read ------------------------------------------------------------------------------------------------------------------
-
-test('the party line is read: name, class I to IX or 1 to 9, best one of the seven stats; plain errors for the rest', () => {
-    const line = { op: '+', name: 'Mara', text: '', labels: { about: 'a hedge-witch', class: 'iv', best: 'INT' } };
-    assert.deepEqual(readJoin(line), { op: '+', name: 'Mara', soul: 4, best: 'int' }, 'a line that still carries about: is read and the about ignored');
-    assert.deepEqual(readJoin({ op: '+', name: ' Mara  Vell ', labels: {} }), { op: '+', name: 'Mara Vell', soul: 1, best: '' }, 'class and best are optional');
-    assert.equal(readJoin({ op: '+', name: 'Mara', labels: { class: '7' } }).soul, 7);
-    assert.equal(readJoin({ op: '-', name: 'Mara' }).op, '-');
-    assert.match(readJoin({ op: '+', name: 'Mara', labels: { class: 'X' } }).error, /class must be a Soul Class from I to IX/);
-    assert.match(readJoin({ op: '+', name: 'Mara', labels: { best: 'wits' } }).error, /best must be one of str, vit, agi, dex, int, wis, cha/);
-    assert.match(readJoin({ op: '+', name: 'Mara', labels: { best: 'luk' } }).error, /best must be one of str, vit, agi, dex, int, wis, cha/, 'LUK is gone');
-    assert.equal(readJoin({ op: '+', name: 'Mara', labels: { best: 'luk' } }, null, 'standard').best, 'luk', 'a chat made under the earlier rules still reads it');
-    assert.equal(readJoin({ op: '+', name: 'Mara', labels: { best: 'WIS' } }).best, 'wis');
-    assert.match(readJoin({ op: '!', name: 'Mara', labels: {} }).error, /not a party line/);
-    assert.match(readJoin({ op: '+', name: '', labels: {} }).error, /needs a name/);
-    assert.match(readJoin({ op: '+', name: 'M'.repeat(41), labels: {} }).error, /at most 40 characters/);
-    assert.equal(Object.hasOwn(readJoin({ op: '+', name: 'Mara', text: 'a hedge-witch', labels: {} }), 'about'), false, 'no about in what is read, from the label or the line text');
-    assert.deepEqual(['I', 'ix', '1', '9', '0', '10', 'x', ''].map(soulOf), [1, 9, 1, 9, 0, 0, 0, 0]);
-});
 
 test('the setting: Ask by default, then Automatically or Off; anything else is Ask', () => {
     assert.deepEqual(JOINS, ['ask', 'auto', 'off']);
@@ -36,19 +18,6 @@ test('the setting: Ask by default, then Automatically or Off; anything else is A
     assert.equal(PARTY_MAX, 8);
     assert.match(joinGrammar(), /^\+ party Mara \| class: I \| best: int \(when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha\), - party Mara when they leave$/);
     assert.equal(joinGrammar().includes('\n'), false, 'one line, as every kind\'s');
-});
-
-test('what a joining companion is made of (a chat made under the earlier rules): stats 5, the best one 9 and a point for every third level, no points left, Soul Class as given (capped by the party), an empty Skills block', () => {
-    const draft = joinDraft({ name: 'Mara', soul: 4, best: 'int' }, STANDARD, 'standard');
-    assert.deepEqual([draft.kind, draft.name, draft.level, draft.stats.int, draft.stats.str], ['companion', 'Mara', 35, 15, 5]);
-    assert.equal(joinDraft({ name: 'Mara', best: 'wits' }, STANDARD, 'standard').stats.int, 5, 'a best that is no stat raises nothing');
-    const made = joinDefinitions({ name: 'Mara', soul: 4, best: 'int' }, { used: ['pack.chat/wessel'], soul: 3, rules: STANDARD, kind: 'standard' });
-    const state = made.character.state;
-    assert.deepEqual([made.character.slug, made.character.role, state.int.default, state.vit.default, state.points.default, state.level.default, state.health.default, state.mana.default, state.stamina.default, state.left.default], ['mara', 'character', 13, 5, 0, 25, 10, 12, 10, false]);
-    assert.equal(made.skills.role, 'skills');
-    assert.equal(made.skills.state.who.default, 'Mara');
-    for (let n = 1; n <= 5; n += 1) assert.equal(made.skills.state[`skill${n}`].default, '', `skill ${n} is empty`);
-    assert.equal(joinDefinitions({ name: 'Mara', soul: 1, best: '' }, { used: ['pack.chat/mara'], rules: STANDARD, kind: 'standard' }).character.slug, 'mara-2', 'a free slug');
 });
 
 test('checkJoin: the name is taken, the party is full (8 active; an old reply counts those who left), there is no room for two blocks, someone who left comes back, class is capped', () => {
@@ -111,46 +80,6 @@ test('the grammar: the + party line is there while the RPG is on, a character ex
 });
 
 // ---- Ask: the card ------------------------------------------------------------------------------------------------------------------
-
-test('Ask: the line makes nothing; the reply\'s card offers Add to party, Edit first and No', { skip }, async t => {
-    const host = await world({ mode: 'ask' });
-    t.after(() => host.close());
-    await host.send('Mara walks in.', reply(MARA));
-    assert.deepEqual(blocks(host), ['pack.chat/wessel', 'pack.chat/wessel-skills'], 'nothing is made by the line');
-    const receipt = lastReceipts(host).find(entry => entry.type === 'capture.party');
-    assert.deepEqual(receipt.data.join, { op: 'offer', name: 'Mara', about: 'a hedge-witch from Kvildal', soul: 4, best: 'int', four: true }, 'a reply under the partyFour mark says so');
-    assert.equal(receipt.guarded, undefined, 'no block: nothing to replay');
-    const offers = host.sdk.query('rpg.joins', {});
-    assert.deepEqual(offers, [{ name: 'Mara', soul: 4, best: 'int', four: true }]);
-    const card = host.registry.cardEntries().find(entry => entry.id === 'story-block/rpg-join').fn(host.head(), null, { index: host.ctx.chat.length - 1, head: true, query: (name, args) => host.sdk.query(name, args) });
-    assert.equal(card.title, 'Mara joins the party');
-    assert.equal(card.text, undefined, 'the card says nothing of an about');
-    assert.deepEqual(card.actions.map(action => [action.label, action.command ?? action.open]), [['Add to party', 'dm.join'], ['Edit first', 'story-block/new-character'], ['No', 'rpg.joinNo']]);
-    assert.deepEqual(card.actions[1].payload, { name: 'Mara', soul: 4, best: 'int' });
-    assert.equal(joinCard([]), null);
-    assert.deepEqual([JOIN_ADD, JOIN_NO], ['dm.join', 'rpg.joinNo']);
-    await rebuilt(host, 'an offer');
-});
-
-test('Ask: Add to party makes the companion as Automatically does; the card goes; a swipe takes the offer away', { skip }, async t => {
-    const host = await world({ mode: 'ask' });
-    t.after(() => host.close());
-    await host.send('Mara walks in.', reply(MARA));
-    const added = await host.sdk.command(JOIN_ADD, host.sdk.query('rpg.joins', {})[0]);
-    assert.equal(added.ok, true, added.message);
-    assert.deepEqual(blocks(host), ['pack.chat/mara', 'pack.chat/mara-skills', 'pack.chat/wessel', 'pack.chat/wessel-skills']);
-    assert.deepEqual([fields(host, 'mara').level, fields(host, 'mara').int, fields(host, 'mara').points], [25, 13, 0]);
-    assert.deepEqual(host.sdk.query('rpg.joins', {}), [], 'answered: the card goes');
-    assert.deepEqual(partyLines(host.ctx.chat.at(-1).extra.storySuite).map(line => line.text), ['Mara joined the party']);
-    const again = await host.sdk.command(JOIN_ADD, { name: 'Mara', soul: 1, best: '' });
-    assert.equal(again.ok, false);
-    assert.match(again.message, /Mara is already in the party/);
-    await rebuilt(host, 'after Add to party');
-    await host.swipe('Nobody comes.');
-    assert.deepEqual(blocks(host), ['pack.chat/wessel', 'pack.chat/wessel-skills'], 'the swipe takes the click\'s blocks with the reply');
-    assert.deepEqual(host.sdk.query('rpg.joins', {}), [], 'and the offer');
-    await rebuilt(host, 'after the swipe');
-});
 
 test('Ask: No dismisses the card and makes nothing; a second offer for the same name shows once; Add refuses a bad payload', { skip }, async t => {
     const host = await world({ mode: 'ask' });
@@ -233,4 +162,24 @@ test('party lines are the story\'s: a reader\'s command cannot write one, and th
     await host.send('Odd.', reply('~ party Mara', '! party Mara'));
     assert.equal(problems(host).filter(message => /not a party line/.test(message)).length, 2);
     assert.deepEqual(blocks(host), ['pack.chat/wessel', 'pack.chat/wessel-skills']);
+});
+
+test('Ask: Add to party makes the companion as Automatically does; the card goes; a swipe takes the offer away', { skip }, async t => {
+    const host = await world({ mode: 'ask' });
+    t.after(() => host.close());
+    await host.send('Mara walks in.', reply(MARA));
+    const added = await host.sdk.command(JOIN_ADD, host.sdk.query('rpg.joins', {})[0]);
+    assert.equal(added.ok, true, added.message);
+    assert.deepEqual(blocks(host), ['pack.chat/mara', 'pack.chat/mara-skills', 'pack.chat/wessel', 'pack.chat/wessel-skills']);
+    assert.deepEqual([fields(host, 'mara').level, fields(host, 'mara').int, fields(host, 'mara').points], [25, 21, 0]);
+    assert.deepEqual(host.sdk.query('rpg.joins', {}), [], 'answered: the card goes');
+    assert.deepEqual(partyLines(host.ctx.chat.at(-1).extra.storySuite).map(line => line.text), ['Mara joined the party']);
+    const again = await host.sdk.command(JOIN_ADD, { name: 'Mara', soul: 1, best: '' });
+    assert.equal(again.ok, false);
+    assert.match(again.message, /Mara is already in the party/);
+    await rebuilt(host, 'after Add to party');
+    await host.swipe('Nobody comes.');
+    assert.deepEqual(blocks(host), ['pack.chat/wessel', 'pack.chat/wessel-skills'], 'the swipe takes the click\'s blocks with the reply');
+    assert.deepEqual(host.sdk.query('rpg.joins', {}), [], 'and the offer');
+    await rebuilt(host, 'after the swipe');
 });

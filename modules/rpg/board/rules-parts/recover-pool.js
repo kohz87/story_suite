@@ -1,5 +1,5 @@
 // Restores a character's pool on the data domain and lists the bag's consumables and the allies they can go to.
-import { charId, rosterOf } from '../../standard/roster.js';
+import { charId, rosterOf } from './pool-roster.js';
 import { recoverBar, recoveryOf } from './recovery.js';
 
 /** The most a block's own field holds (a block of an older definition holds at most 5): `maxOf(domain)(module, field)`, Infinity when the pins do not say. */

@@ -1,6 +1,7 @@
 // Builds the Now-tab view-model from recorded query answers; gaps come back as null or empty lists.
 
 import { selectDrawer, replyLines } from './chat.js';
+import { selectCard } from './card.js';
 
 // answers: { [queryName]: answer } as the port read them. opts: as selectDrawer, plus `fight` (a `fight.board` answer, not a query yet),
 // `torn` (`gear.view` answer) and `pinned` ([{ id, name, view }]: each pinned block's `dataModules.view` answer, SB/data-modules/part/views.js:51).
@@ -9,10 +10,15 @@ const isRec = value => value !== null && typeof value === 'object' && !Array.isA
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const list = value => (Array.isArray(value) ? value : []);
 
-// `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. Points to spend and an open fight have no query (UI-PLAN §2.1).
+// `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. An open fight has no query (UI-PLAN §2.1); points to spend come from `rpg.sheet` (SB/lean-rpg/sheet-query.js: per member `points`).
 function needsYou(answers, opts) {
   const out = [];
-  if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: 'A fight is open', detail: null, go: 'fight' });
+  if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: opts.fight.offer ? 'Foes are standing' : 'A fight is open', detail: opts.fight.offer ? list(opts.fight.names).join(', ') || null : null, go: 'fight' });
+  const owing = list(answers['rpg.sheet']).filter(row => isRec(row) && Number.isFinite(row.points) && row.points > 0);
+  if (owing.length) {
+    const total = owing.reduce((sum, row) => sum + row.points, 0);
+    out.push({ kind: 'points', title: `${total} ${total === 1 ? 'point' : 'points'} to spend`, detail: owing.map(row => text(row.name)).filter(Boolean).join(', ') || null, go: 'party' });
+  }
   const overdue = list(answers['time.overdue']?.overdue);
   if (overdue.length) {
     const names = overdue.map(row => text(row.key)).filter(Boolean).join(', ');
@@ -21,10 +27,11 @@ function needsYou(answers, opts) {
   return out;
 }
 
-// `atlas.trip` (SD/atlas/trip-query.js:74 over tripView trip.js:363): phase road | arrived, `to`, `row`, `leg`, `legCount`, `fraction` (of the leg).
-// "planned" is a gap (UI-PLAN §2.2), so a trip not yet started is not shown.
+// `atlas.trip` (SD/atlas/trip-query.js:74 over tripView trip.js:363): phase planned | road | arrived, `to`, `row`, `leg`, `legCount`, `fraction` (of the leg).
+// phase `planned` (before the first leg starts) is a trip not begun: 0 percent, the detail says when it leaves.
 function tripOf(trip) {
-  if (!isRec(trip) || trip.on !== true || !['road', 'arrived'].includes(trip.phase)) return null;
+  if (!isRec(trip) || trip.on !== true || !['planned', 'road', 'arrived'].includes(trip.phase)) return null;
+  if (trip.phase === 'planned') return { state: 'planned', title: text(trip.to), detail: [text(trip.row), text(trip.departs) && `leaves ${text(trip.departs)}`].filter(Boolean).join(' · '), progressPct: 0 };
   const done = trip.phase === 'arrived' ? 1 : ((trip.leg - 1) + (trip.fraction || 0)) / trip.legCount;
   return { state: trip.phase, title: text(trip.to), detail: text(trip.row), progressPct: Number.isFinite(done) ? Math.round(done * 100) : null };
 }
@@ -58,6 +65,14 @@ function thisTurn(answers) {
   return { count: items.length, items };
 }
 
+// Where and when, from what the store already has (the place, the clock): drawn before the first reply too. null when it holds neither.
+function whereOf(answers, opts) {
+  const { scene } = selectCard(answers, opts);
+  const when = [scene.date, scene.time, scene.weather].map(text).filter(Boolean).join(' · ');
+  const title = text(scene.place) || when;
+  return title ? { title, detail: text(scene.place) && when ? when : null } : null;
+}
+
 function pinnedOf(pinned) {
   return list(pinned).filter(item => isRec(item) && isRec(item.view?.chat)).map(item => ({
     trackerId: text(item.id),
@@ -72,7 +87,9 @@ export function selectNow(answers = {}, opts = {}) {
   const you = isRec(answers['scene.you']) ? answers['scene.you'] : null;
   return {
     needsYou: needsYou(answers, opts),
-    today: { focus: focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
+    // The card's pack offers (select/offers.js rows), told next to the actions; [] when the card offers none.
+    offers: list(opts.offers),
+    today: { where: whereOf(answers, opts), focus: focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
     // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
     here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),
     thisTurn: thisTurn(answers),

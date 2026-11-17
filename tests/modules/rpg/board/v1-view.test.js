@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { seedCrypto } from '../../../suite/qa/helpers/seeded.js';
 import { setup } from '../helpers.js';
 import { runAuto } from '../../../../modules/rpg/board/auto-run.js';
-import { hurtHeroesV1 } from '../../../../modules/rpg/board/auto-v1.js';
+import { hurtHeroes } from '../../../../modules/rpg/board/auto-stop.js';
 import { api, HERO_ID, openFight, v1Blocks } from './v1.helpers.js';
 
 const withSkills = () => {
@@ -78,7 +78,7 @@ test('Auto plays a v1 fight (it stopped at once before: the record has no `stop`
 
 test('the hurt rule reads the last exchange: two fifths of the maximum HP', () => {
     const record = { party: [{ label: 'Astra', maxHp: 20 }, { label: 'Bo', maxHp: 20 }], rounds: [[['foe-attack', 'Rat', 'Astra', 1, 1, 1, 1, 'hit', 0, 8, 12], ['foe-attack', 'Rat', 'Bo', 1, 1, 1, 1, 'hit', 0, 7, 13]], [['foe-attack', 'Rat', 'Astra', 1, 1, 1, 1, 'hit', 0, 5, 7], ['foe-attack', 'Rat', 'Astra', 1, 1, 1, 1, 'hit', 0, 3, 4], ['foe-attack', 'Rat', 'Bo', 1, 1, 1, 1, 'evaded', 0, 0, 13]]] };
-    assert.deepEqual(hurtHeroesV1(record), ['Astra']);
-    assert.deepEqual(hurtHeroesV1({ ...record, rounds: [record.rounds[0]] }), ['Astra'], 'exactly 8 of 20 counts');
-    assert.deepEqual(hurtHeroesV1({ ...record, rounds: [record.rounds[0].slice(1)] }), []);
+    assert.deepEqual(hurtHeroes(record), ['Astra']);
+    assert.deepEqual(hurtHeroes({ ...record, rounds: [record.rounds[0]] }), ['Astra'], 'exactly 8 of 20 counts');
+    assert.deepEqual(hurtHeroes({ ...record, rounds: [record.rounds[0].slice(1)] }), []);
 });

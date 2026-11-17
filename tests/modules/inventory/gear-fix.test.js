@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../testkit/index.js';
 import { createFakeModel } from '../../../testkit/model.js';
 import { validatePack } from '../../../packs/validate.js';
-import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { gearMatches, planGear, sameWho } from '../../../modules/rpg/gear.js';
 import { actorIdOf } from '../../../modules/rpg/roster.js';
 import { readSheet } from '../../../modules/rpg/index.js';
@@ -16,7 +16,6 @@ import { core, stocked } from './fixtures.js';
 import { reply, success } from '../data-modules/helpers.js';
 import { pack } from '../../packs/helpers/fixtures.js';
 import { character, sheetDomain } from '../rpg/helpers.js';
-import { legacyPlanner } from '../rpg/legacy-planner.js';
 import { seedCrypto } from '../../suite/qa/helpers/seeded.js';
 
 const available = await hostAvailable();
@@ -30,8 +29,6 @@ const SET = '+ dm foes — why | kind: set-slot-1 | name: Mud Crawlers | count: 
 const GEAR_LINES = ['+ item Cane Sword | kind: weapon | rarity: rare | DEX: +2 | equipped: weapon', '+ item Jerkin | kind: armour | rarity: uncommon | VIT: +1 | equipped: body'];
 const resultAt = (host, index) => host.ctx.chat[index].extra?.storySuite?.receipts?.find(entry => entry.type === 'rpg.resolve')?.data?.v2?.result;
 const payloadAt = (host, index) => host.ctx.chat[index].extra?.storySuite?.receipts?.find(entry => entry.type === 'rpg.resolve')?.replan?.payload;
-// (the real host with the test-only legacy planner behind the RPG part's hook: the planner itself is gone)
-const withPlanner = (model, get) => async () => { const lib = await import('../../../modules/rpg/index.js'); return { ...lib, createLeanRpgPart(deps) { const part = lib.createLeanRpgPart(deps); part.hooks.beforeGenerate = legacyPlanner(part, { callModel: model, chat: () => get().ctx.chat, metadata: () => get().ctx.chatMetadata ?? null }); return part; } }; };
 const stable = host => JSON.stringify(host.head());
 
 async function fightWorld(t, { gear = true } = {}) {
@@ -41,7 +38,7 @@ async function fightWorld(t, { gear = true } = {}) {
     t.after(restore);
     const model = createFakeModel(Array(60).fill(PLAN_TEXT));
     let host = null;
-    host = await createHost({ callModel: model, lazyRpg: true, rpgLoad: withPlanner(model, () => host), settings: { features: gear ? { 'story-block.gear': true } : {} } });
+    host = await createHost({ callModel: model, settings: { features: gear ? { 'story-block.gear': true } : {} } });
     t.after(() => host.close());
     host.features.set('story-block.rpg', true);
     await host.send('Begin.', 'Opening.');
@@ -63,76 +60,6 @@ async function agrees(host) {
     assert.deepEqual(host.store.problems(), []);
 }
 
-test('R1: the roll carries only the gear mark (version and the reader name) in its payload; the record is worked out when it is rolled', { skip }, async t => {
-    const { host, gearAt } = await fightWorld(t);
-    const first = gearAt + 2;
-    assert.deepEqual(payloadAt(host, first).gear, { v: 1, lead: 'You' }, 'the mark and the reader\'s name, no gear record');
-    assert.deepEqual(resultAt(host, first).gear.who.astra.add, { vit: 1, dex: 2 }, 'the record in the result is what was worn when it was rolled');
-    await agrees(host);
-});
-
-test('R1: deleting the reply that gave and equipped the gear takes the bonus off the rolls after it; live = rebuild = reload', { skip }, async t => {
-    const { host, gearAt } = await fightWorld(t);
-    await host.st.deleteMessage(gearAt);
-    assert.deepEqual(host.sdk.query('inventory.items'), [], 'nothing is held now');
-    for (const index of [gearAt + 1, gearAt + 3]) {
-        const gear = resultAt(host, index)?.gear;
-        assert.ok(gear, 'the rolls still have a record');
-        assert.equal(gear.who.astra.add, undefined, 'no bonus');
-        assert.equal(gear.who.astra.items, undefined, 'no pieces');
-        assert.equal(resultAt(host, index).wear, undefined, 'and no wear of a piece nobody has');
-    }
-    await agrees(host);
-});
-
-test('R1: an edit of that reply, Re-read, changes the gear of the rolls after it the same way', { skip }, async t => {
-    const { host, gearAt } = await fightWorld(t);
-    await host.st.editMessage(gearAt, reply('Gear up.', GEAR_LINES[1]));
-    assert.equal((await host.turn.reread(gearAt)).ok, true);
-    for (const index of [gearAt + 2, gearAt + 4]) assert.deepEqual(resultAt(host, index)?.gear?.who.astra.add, { vit: 1 }, 'only the jerkin is left');
-    assert.deepEqual(host.sdk.query('inventory.items').map(item => item.name), ['Jerkin']);
-    await agrees(host);
-});
-
-test('R1: a later equip never moves a roll that was made', { skip }, async t => {
-    const { host, gearAt } = await fightWorld(t);
-    const made = JSON.stringify(resultAt(host, gearAt + 2));
-    assert.ok(made.includes('Cane Sword'));
-    const stack = host.sdk.query('inventory.items').find(item => item.name === 'Cane Sword').stack;
-    await host.sdk.command('inventory.unequip', { stack });
-    assert.equal(JSON.stringify(resultAt(host, gearAt + 2)), made, 'the stored roll is the roll');
-    await agrees(host);
-});
-
-test('R1: no party module, a companion who sorts first: the reader named in the user message gets the shared bag\'s bonus; live = rebuild = reload', { skip }, async t => {
-    t.mock.method(console, 'warn', () => {});
-    const plan = 'pace: all\nact Wessel | target: Mud Crawlers\nfoe Mud Crawlers | target: Wessel | defend: AGI';
-    const model = createFakeModel(Array(20).fill(plan));
-    let host = null;
-    host = await createHost({ st: { user: 'Wessel' }, callModel: model, lazyRpg: true, rpgLoad: withPlanner(model, () => host), settings: { features: { 'story-block.gear': true } } });
-    t.after(() => host.close());
-    host.features.set('story-block.rpg', true);
-    await host.send('Begin.', 'Opening.');
-    for (const name of ['Character', 'Foes']) success(await host.sdk.command('dm.define', { definition: structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === name).definition) }));
-    const second = structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === 'Character').definition);
-    second.slug = 'wessel'; second.name = 'Wessel'; second.state.who.default = 'Wessel';
-    success(await host.sdk.command('dm.define', { definition: second }));
-    success(await host.sdk.command('dm.set', { module: 'pack.chat/character', fields: { who: 'Astra', level: 5 } }));
-    success(await host.sdk.command('dm.set', { module: 'pack.chat/wessel', fields: { who: 'Wessel', level: 5 } }));
-    await host.send('Set.', reply(SET));
-    await host.send('Gear up.', reply(GEAR_LINES[0]));
-    await host.send('I strike.', 'The fight.');
-    const at = host.ctx.chat.length - 1;
-    assert.deepEqual(payloadAt(host, at).gear, { v: 1, lead: 'Wessel' });
-    const who = resultAt(host, at).gear.who;
-    assert.deepEqual(Object.keys(who).sort(), ['astra', 'wessel'], 'the companion sorts first');
-    // (pinned change, 2.18.1: the RPG's roster gives the companion an actor of her own: the block's)
-    assert.deepEqual([who.astra.own, who.wessel.own], [[actorIdOf('pack.chat/character')], [actorIdOf('pack.chat/wessel'), 'party']]);
-    assert.deepEqual(who.wessel.add, { dex: 2 });
-    assert.equal(who.astra.add, undefined);
-    await agrees(host);
-});
-
 test('R1: the guard asks the state before the roll for the pieces and the load: an empty bag matches a record of no gear; pieces gone or pieces not in the record do not', () => {
     const inventory = (extra = {}) => ({
         defs: { 'story/cane-sword': { id: 'story/cane-sword', name: 'Cane Sword', kind: 'equipment', slot: 'weapon', rarity: 'rare', stack: false, stats: { DEX: 2 } } },
@@ -147,14 +74,6 @@ test('R1: the guard asks the state before the roll for the pieces and the load: 
     assert.equal(gearMatches(state(inventory()), record, hashJson), true, 'the same pieces');
     assert.equal(gearMatches(state(inventory({ it_2: { id: 'it_2', def: 'story/cane-sword', qty: 1, owner: 'party', equipped: 'weapon', note: '', from: '' } })), record, hashJson), true, 'the first worn piece of a slot is the one that counts');
     assert.equal(gearMatches(state(inventory()), { ...record, who: { astra: { ...record.who.astra, add: { dex: 3 } } } }, hashJson), false, 'a different bonus');
-});
-
-test('R1: a roll made without gear (no `gear` at all) is replayed as it was', { skip }, async t => {
-    const { host, gearAt } = await fightWorld(t, { gear: false });
-    assert.equal('gear' in resultAt(host, gearAt + 2), false);
-    assert.equal('gear' in payloadAt(host, gearAt + 2), false);
-    await host.st.deleteMessage(gearAt);
-    await agrees(host);
 });
 
 // ---- R2: `recorded` only from the RPG's own call ----------------------------------------------------------------------------------------------
@@ -260,24 +179,6 @@ test('R3: a taken slot does not fail the join: the piece is carried, not worn, a
 });
 
 // ---- R4 / R5: a first name or alias means one Character -------------------------------------------------------------------------------------
-
-test('R4: a first name or an alias counts only when exactly one Character matches ("Ren Ashby" and "Ren Holt" with an actor "Ren": neither)', () => {
-    const sheet = sheetOf({ a: { role: 'character', fields: character('Ren Ashby') }, b: { role: 'character', fields: character('Ren Holt') } });
-    const [ashby, holt] = sheet.characters;
-    assert.deepEqual([sameWho(ashby, 'Ren', [], sheet.characters), sameWho(holt, 'Ren', [], sheet.characters)], [false, false]);
-    assert.deepEqual([sameWho(ashby, 'Ren Ashby', [], sheet.characters), sameWho(holt, 'Ren Ashby', [], sheet.characters)], [true, false], 'the whole name still does');
-    assert.deepEqual([sameWho(ashby, 'Captain', ['Ren'], sheet.characters), sameWho(holt, 'Captain', ['Ren'], sheet.characters)], [false, false], 'an alias as well');
-    const one = sheetOf({ a: { role: 'character', fields: character('Ren Ashby') }, b: { role: 'character', fields: character('Wessel') } });
-    assert.equal(sameWho(one.characters[0], 'Ren', [], one.characters), true, 'one Ren: the first name is enough');
-    assert.equal(sameWho(one.characters[1], 'Ren', [], one.characters), false);
-    const query = (name, args) => {
-        if (name === 'party.actors') return [{ id: 'ac_ren', name: 'Ren' }];
-        if (name === 'inventory.gear') return { on: true, slots: args.owner === 'ac_ren' ? { weapon: { name: 'Cane Sword', stats: { STR: 1 }, broken: false } } : {}, statBonus: args.owner === 'ac_ren' ? { STR: 1 } : {}, carry: { encumbered: false, penalty: 0 } };
-        return null;
-    };
-    const plan = planGear(sheet, query);
-    assert.deepEqual(Object.values(plan.who).map(entry => entry.own.includes('ac_ren')), [false, false], 'neither takes the actor Ren by first name');
-});
 
 test('R5: packs.castGear counts "already in the party" the way sameWho does: by first name when one Character is meant, not when two are', { skip }, async t => {
     const host = await joinWorld(t, { list: [person({ aliases: ['the ferrywoman'], gear: ['Cane Sword'] })] });

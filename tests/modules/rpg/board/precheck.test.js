@@ -1,7 +1,7 @@
 // The foe pre-check reads the reader's typed attack into openFoes' group form, without a model call here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FOE_COUNT_MAX } from '../../../../modules/rpg/templates.js';
+import { OPEN_RECORD_MAX_COUNT as FOE_COUNT_MAX } from '../../../../modules/rpg/open.js';
 import { knownLines, rankScale } from '../../../../modules/rpg/board/precheck-known.js';
 import { looksLikeAttack, parsePrecheck, precheckPrompt, vetGroups } from '../../../../modules/rpg/board/precheck.js';
 

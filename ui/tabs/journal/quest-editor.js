@@ -1,6 +1,7 @@
 // Opens the quest editor in a sheet and sends the changed fields (or give up, or delete) to the port.
 import { openSheet } from '../../kit/sheet.js';
 import { questSheet } from './quest-sheet.js';
+import { can } from '../../runtime/can.js';
 
 /**
  * Opens the editor for `quest`; ctx = { port | command, doc, backStack, refresh }; opts.rpg is false for tasks. Returns the sheet handle.
@@ -20,6 +21,7 @@ export function openQuestEditor(ctx = {}, quest, { rpg = true } = {}) {
     onGiveUp: () => finish('quest.giveup', { id: quest.id }),
     onDelete: () => finish('quest.delete', { id: quest.id }),
     onClose: () => sheet.close(),
+    allow: { edit: can(ctx, 'quest.edit'), giveUp: can(ctx, 'quest.giveup'), del: can(ctx, 'quest.delete') },
   }));
   return sheet;
 }

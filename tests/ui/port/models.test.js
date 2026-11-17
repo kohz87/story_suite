@@ -35,12 +35,12 @@ test('Test makes one tiny call on the role and answers with the seconds, or the 
 });
 
 test('other commands are not the Models page\'s: null, and the port hands them to the sdk', async () => {
-  assert.equal(await modelsCommand(sdk(), 'settings.set', { key: 'host.tailBudget', value: 1 }), null);
+  assert.equal(await modelsCommand(sdk(), 'settings.set', { key: 'look.nothing', value: 1 }), null);
   assert.equal(await modelsCommand(sdk(), 'suite.go', {}), null);
   const calls = [];
   const port = createSbPort({ sdk: { ...sdk(), command: async (type, payload) => { calls.push([type, payload]); return { ok: true }; } } });
-  await port.command('settings.set', { key: 'host.tailBudget', value: 2 });
-  assert.deepEqual(calls, [['settings.set', { key: 'host.tailBudget', value: 2 }]]);
+  await port.command('settings.set', { key: 'look.nothing', value: 2 });
+  assert.deepEqual(calls, [['settings.set', { key: 'look.nothing', value: 2 }]]);
   const own = sdk();
   await createSbPort({ sdk: own, writes: own.writes }).command('settings.set', { key: 'models.quick', value: 'Cheap' });
   assert.equal(own.stored.quickConnection, 'Cheap');
@@ -60,10 +60,12 @@ test('the real sdk has no setter, so the Calls group and the connections save th
   assert.equal((await port.command('settings.set', { key: 'calls.queue', value: false })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'calls.kinds', value: ['Time set', 'World news'] })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'calls.fallback', value: true })).ok, true);
+  assert.equal((await port.command('settings.set', { key: 'calls.repair', value: true })).ok, true);
   assert.equal((await port.command('settings.set', { key: 'models.quick', value: 'Cheap' })).ok, true);
   assert.equal(saved().core.callQueue, false);
   assert.equal(saved().modules['story-block'].assistExtractorKinds, '! time, + world');
   assert.equal(saved().features['story-block.extractor'], true);
+  assert.equal(saved().modules['story-block'].assistRepair, true, 'Repair a reply’s missing changes is stored on Story Block');
   assert.equal(saved().core.quickConnection, 'Cheap');
   assert.equal(runtime.sdk.settings(null).callQueue, false, 'and the engine reads it back');
   assert.equal(runtime.sdk.feature('story-block.extractor'), true);
