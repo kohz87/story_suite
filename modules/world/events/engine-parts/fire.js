@@ -7,6 +7,7 @@ import { normalizeEvents } from './normalize.js';
 import { inspect } from './inspect.js';
 import { worldEnv } from './world-env.js';
 import { worldOn } from '../world-calls.js';
+import { worldOptions } from './world-refs.js';
 
 /**
  * The `events.fire` handler (SPEC §3.2), for the event definitions `events(view)` gives (the enabled
@@ -35,7 +36,7 @@ export function createFireEvent(events = () => []) {
         let list;
         try { list = events(view); } catch { list = []; }
         const world = worldOn(view);
-        const defs = normalizeEvents(Array.isArray(list) ? list : [], { world }).defs;
+        const defs = normalizeEvents(Array.isArray(list) ? list : [], worldOptions(view)).defs;
         let def = defs.find(entry => entry.id === payload.id);
         if (!def) ctx.fail('REFUSED', `No enabled pack has an event "${payload.id}".`);
         if (def.decision) {

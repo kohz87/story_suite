@@ -6,6 +6,7 @@ import { isRecord } from './shared-check.js';
 import { normalizeEvents } from './normalize.js';
 import { worldEnv } from './world-env.js';
 import { worldOn } from '../world-calls.js';
+import { worldOptions } from './world-refs.js';
 
 function claimed(state, id) {
     const claims = state?.meta?.claims;
@@ -19,7 +20,7 @@ function claimed(state, id) {
  */
 export function inspect(view, list, problems = []) {
     const world = worldOn(view);
-    const { defs, invalid } = normalizeEvents(list, { world });
+    const { defs, invalid } = normalizeEvents(list, worldOptions(view));
     const state = view?.state;
     const base = { state, query: view?.query };
     const known = new Set(defs.map(def => def.id));

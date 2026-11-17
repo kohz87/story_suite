@@ -1,14 +1,13 @@
 // World events, the condition language's extra calls (feature `story-director.world-events`, default off):
 //   condition('name')          is this world condition active at the event's `where` (anywhere, with no `where`)?
 //   condition('name', 'ref')   is it active at this place, route, region or realm?
-//   active('event-id')         did this pack event happen on this line of the story and has it not ended (its `ends_when`)?
+//   active('event-id')         did this pack event happen on this line of the story and has it not ended (an `ends_when.any_of` of `fired:` or `set:` anchors)?
 //   fact('text')               does a Journal record mention this text (any case)?
 // Conditions are read only through the chronicle's `chronicle.conditions` query (the world-engine contract),
 // facts through `director.journal`. With the feature off nothing here is wired in: the parser does not know
 // these names, so a pack that uses one is refused exactly as before.
 
 import { claimKey } from './engine-parts/shared-keys.js';
-import { evaluateCondition } from './condition.js';
 
 export const WORLD_FEATURE = 'story-director.world-events';
 
@@ -44,10 +43,9 @@ function strings(value, out, depth = 0) {
 
 /**
  * The extra calls for one evaluation. `env` is the view `{ state, query }`; `where` the event's own place
- * (a ref name or null); `events` a Map of normalized definitions by id (for `ends_when`); `depth` stops
- * an `ends_when` that asks about itself.
+ * (a ref name or null); `events` a Map of normalized definitions by id (for `ends_when`).
  */
-export function worldCalls(env, { where = null, events = new Map(), depth = 0 } = {}) {
+export function worldCalls(env, { where = null, events = new Map() } = {}) {
     return {
         condition(name, ref) {
             const wanted = text(name, 'condition()');
@@ -59,11 +57,10 @@ export function worldCalls(env, { where = null, events = new Map(), depth = 0 } 
             const key = text(id, 'active()');
             const claims = env?.state?.meta?.claims;
             if (!isRecord(claims)) return false;
-            const happened = claims[claimKey(key)] === true || Object.keys(claims).some(claim => claim.startsWith(`${claimKey(key)}:`) && claims[claim] === true);
-            if (!happened) return false;
-            const ends = events.get(key)?.ends_when;
-            if (typeof ends !== 'string' || depth >= 3) return true;
-            return !endedBy(ends, env, { where, events, depth: depth + 1 });
+            const happened = happenedOf(claims);
+            if (!happened(key)) return false;
+            const any = events.get(key)?.ends_when?.any_of;
+            return !(Array.isArray(any) && any.some(anchor => anchorMet(anchor, env, happened)));
         },
         fact(needle) {
             const wanted = lower(text(needle, 'fact()'));
@@ -75,7 +72,16 @@ export function worldCalls(env, { where = null, events = new Map(), depth = 0 } 
     };
 }
 
-// `ends_when` is a condition when it parses as one; free text ("40 days, or cleared by: coronation") never ends anything yet (job C reads it).
-function endedBy(source, env, options) {
-    return evaluateCondition(source, { ...env, parseCalls: WORLD_ARITY, calls: worldCalls(env, options) }).met === true;
+/** Did this event happen (a claim `event:<id>` or `event:<id>:<at>`)? */
+const happenedOf = claims => id => claims[claimKey(id)] === true || Object.keys(claims).some(claim => claim.startsWith(`${claimKey(id)}:`) && claims[claim] === true);
+
+// An `ends_when.any_of` anchor, as far as the store tells: `fired:<event>` (its claim) and `set:<condition>[@ref]` (it is active).
+// `ended:`, `cleared:` and the rest need the daily trigger's history (a later job), so they end nothing here.
+function anchorMet(anchor, env, happened) {
+    const [head, rest = ''] = String(anchor).split(/:(.*)/s);
+    if (head === 'fired') return happened(rest);
+    if (head !== 'set') return false;
+    const [name, ref] = rest.split('@');
+    const rows = ask(env, 'chronicle.conditions', { name, ...(ref ? { ref } : {}) });
+    return Array.isArray(rows) && rows.some(row => isRecord(row) && row.name === name && (!ref || row.ref === ref));
 }

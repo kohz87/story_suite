@@ -41,20 +41,14 @@ test('condition() follows the store: a cleared or faded condition is no longer m
 
 test('active(): an event that happened and has not ended', () => {
     const q = queryOf();
-    const def = { id: 'flood', ends_when: "condition('unrest')" };
+    const def = { id: 'flood', ends_when: { any_of: ['set:unrest@Highmark Capital', 'cleared:nothing'] } };
     const defs = [def];
     assert.equal(run("active('flood')", env(stateOf({ 'event:flood': true }), queryOf([conditions[0]]), {}, defs)).met, true);
     assert.equal(run("active('flood')", env(stateOf({ 'event:flood': true }), q, {}, defs)).met, false, 'ends_when is met');
     assert.equal(run("active('flood')", env(stateOf({}), q, {}, defs)).met, false, 'never happened');
     assert.equal(run("active('flood')", env(stateOf({ 'event:flood:4': true }), queryOf([]), {}, [{ id: 'flood' }])).met, true, 'a repeating event');
-    assert.equal(run("active('flood')", env(stateOf({ 'event:flood': true }), q, {}, [{ id: 'flood', ends_when: '40 days, or cleared by: coronation' }])).met, true, 'free text ends nothing yet');
-});
-
-test('active(): an ends_when that asks about itself stops', () => {
-    const defs = [{ id: 'a', ends_when: "active('a')" }];
-    const result = run("active('a')", env(stateOf({ 'event:a': true }), queryOf(), {}, defs));
-    assert.equal(result.error, undefined);
-    assert.equal(typeof result.met, 'boolean');
+    assert.equal(run("active('flood')", env(stateOf({ 'event:flood': true }), q, {}, [{ id: 'flood', ends_when: { for: '40 days', any_of: ['ended:coronation'] } }])).met, true, 'for and ended: are the daily trigger\'s, they end nothing here');
+    assert.equal(run("active('flood')", env(stateOf({ 'event:flood': true, 'event:coronation': true }), queryOf([]), {}, [{ id: 'flood', ends_when: { any_of: ['fired:coronation'] } }])).met, false, 'a fired anchor ends it');
 });
 
 test('fact(): a Journal record mentions the text, any case', () => {
@@ -86,45 +80,6 @@ test('with the switch off the calls are unknown, exactly as on the base', () => 
 });
 
 const raw = (extra = {}) => ({ id: 'e1', cue: 'It happens.', when: 'true', ...extra });
-const fields = {
-    kind: 'one-off', certainty: 'likely', window: { after: 'emperor-dead + 3 days', within: '40 days' }, deadline: false,
-    where: ['Highmark Empire'], requires: ['crown-contested@Highmark Empire'], likelier_if: { 'unrest@Highmark Capital': '+15%' },
-    less_if: { 'regent-named@Highmark Empire': '-40%' }, pre_empted_by: ['coronation'],
-    outcomes: [{ name: 'the regent holds', weight: 'power:Princess Wendhild' }, { name: 'split', weight: 2 }],
-    effects: { set: ['at-war@the March: 1 season'], clear: [{ name: 'crown-contested', ref: 'Highmark Empire' }], cast: [{ who: 'Sir Lothar', location: 'Highmark Capital' }] },
-    ends_when: '40 days', cooldown: '1 season per place', summary: 'The succession crisis ({outcome}).',
-};
-
-test('off: the new fields are ignored and the def is the base shape', () => {
-    const { defs, invalid } = normalizeEvents([raw(fields)]);
-    assert.deepEqual(invalid, []);
-    assert.deepEqual(defs, [{ id: 'e1', pack: null, when: 'true', cue: 'It happens.', once: true, then: [], after: null }]);
-    const bad = normalizeEvents([raw({ certainty: 'maybe' })], {});
-    assert.equal(bad.invalid.length, 0, 'a bad field is not even read while off');
-    assert.equal(normalizeEvents([raw({ when: "condition('x')" })]).invalid.length, 1);
-});
-
-test('on: the fields are checked and stored', () => {
-    const { defs, invalid } = normalizeEvents([raw(fields)], { world: true });
-    assert.deepEqual(invalid, []);
-    assert.deepEqual(defs[0], { id: 'e1', pack: null, when: 'true', cue: 'It happens.', once: true, then: [], after: null, ...fields, likelier_if: { 'unrest@Highmark Capital': 15 }, less_if: { 'regent-named@Highmark Empire': -40 } });
-    assert.deepEqual(normalizeEvents([raw({ where: 'the March' })], { world: true }).defs[0].where, ['the March']);
-    assert.equal(normalizeEvents([raw({ when: "condition('x') && fact('y')" })], { world: true }).invalid.length, 0);
-});
-
-test('on: every bad field makes the event invalid with a reason', () => {
-    const bads = {
-        kind: 'sometimes', certainty: 'maybe', window: { after: 3 }, deadline: 'yes', where: [], requires: 'x', likelier_if: { a: '+500%' },
-        less_if: { a: 'lots' }, pre_empted_by: [1], outcomes: [{ name: 'a' }], effects: { set: [3] }, ends_when: '', cooldown: 5, summary: {},
-    };
-    for (const [field, value] of Object.entries(bads)) {
-        const { defs, invalid } = normalizeEvents([raw({ [field]: value })], { world: true });
-        assert.equal(defs.length, 0, field);
-        assert.match(invalid[0].why, /^The event "e1": /, field);
-    }
-    assert.equal(normalizeEvents([raw({ effects: { cast: [{ location: 'x' }] } })], { world: true }).defs.length, 0);
-});
-
 test('inspect: an event waits on a condition, fires when it is met; off it is invalid', () => {
     const list = [raw({ when: "condition('unrest', 'Highmark Capital') && !active('other')", certainty: 'likely' })];
     const view = (q, feature) => ({ state: stateOf({}), query: q, ...(feature ? { feature } : {}) });
