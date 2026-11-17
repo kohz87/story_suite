@@ -176,6 +176,42 @@ test('hosted one-pass: the backfill runs on the reply, the catch-up Refresh on i
     assert.equal(result.queued, 0);
 });
 
+// (N8) A failed automatic catch-up Refresh shows the fill-in note once and writes nothing; a cancelled one stays silent.
+async function failedCatchUp({ reply, settings, mockState, sleep }) {
+    const mode = globalThis.CATCHUP_MODE;
+    settings.narrationCaptureCatchUp = 2;
+    const row = { npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }] };
+    await reply('Yunyun waves from the gate.', row);
+    const id = globalThis.NPCStateDelta.getState().npcs.find(npc => npc.name === 'Yunyun').id;
+    const slow = npc => JSON.stringify([npc.personality, npc.speech, npc.mannerisms, npc.behaviorProfile, npc.background, npc.appearance, npc.overallAppearance]);
+    const before = slow(globalThis.NPCStateDelta.getNpc(id));
+    const warned = [];
+    globalThis.toastr = { warning: text => warned.push(String(text)), error() {}, success() {}, info() {} };
+    const inner = mockState.quietResponder;
+    mockState.quietResponder = async args => {
+        if (!/reconciliation scanner/i.test(String(args?.systemPrompt || ''))) return inner(args);
+        if (mode === 'cancel') { globalThis.NPCStateDelta.cancelScan(); await sleep(50); return '{"npcs":[]}'; }
+        throw new Error('upstream exploded');
+    };
+    await reply('Yunyun smiles at Kazuma.', { npcs: [{ name: 'Yunyun', present: true, relationshipImpact: 'none', relationshipDelta: ZERO }] });
+    return { warned: warned.filter(text => /could not be filled in/.test(text)), same: slow(globalThis.NPCStateDelta.getNpc(id)) === before };
+}
+// The scenario runs in the child process: its source is sent with the mode written in.
+const withMode = mode => ({ toString: () => `(async (args) => { globalThis.CATCHUP_MODE = ${JSON.stringify(mode)}; return (${failedCatchUp.toString()})(args); })` });
+
+test('hosted one-pass: a failed catch-up Refresh shows the fill-in note once and writes nothing', () => {
+    const result = runCalls('hosted-catch-up-error', true, withMode('error'));
+    assert.equal(result.warned.length, 1, 'one note');
+    assert.match(result.warned[0], /the profile for Yunyun could not be filled in\./);
+    assert.equal(result.same, true, 'the record is unchanged');
+});
+
+test('hosted one-pass: a cancelled catch-up Refresh shows no note', () => {
+    const result = runCalls('hosted-catch-up-cancel', true, withMode('cancel'));
+    assert.deepEqual(result.warned, []);
+    assert.equal(result.same, true);
+});
+
 // (ONEPASSCAP) The owner's hosted one-pass chat (12 Nov, payloads main-reply-1755 and nsd-scans-1840): Sieke and Sister Temiwa first appear
 // in a reply whose block admits them (no memories, profileUpdates keyed by ids the model guessed); Sieke's new-admission backfill answers with
 // a looks fill, ONE keyRelationships string and from/to edges with an underscore id; the next reply's block (the 1755 shape: existing ids,

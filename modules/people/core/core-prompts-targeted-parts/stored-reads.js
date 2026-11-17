@@ -2,7 +2,7 @@
 const TASTE_LIMIT = 12;
 const word = value => String(value ?? '').replace(/\s+/g, ' ').trim();
 
-/** `notes` is the hosted dossier view's notes ({ tastes: [{ sign, item }], ties: [{ name, tags, owes }] }); null when it holds neither. */
+/** `notes` is the hosted dossier view's notes ({ tastes: [{ sign, item }], ties: [{ name, tags, owedBy }] }); null when it holds neither. */
 export function storedReads(notes) {
     const rows = (Array.isArray(notes?.tastes) ? notes.tastes : []).filter(row => word(row?.item)).slice(0, TASTE_LIMIT);
     const likes = rows.filter(row => row.sign !== '-').map(row => word(row.item));

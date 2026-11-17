@@ -203,7 +203,8 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
             onError: error => {
                 console.error('[NPC State Delta] targeted chat refresh failed', error);
                 // (NSD11) A failed catch-up shows the same note as a failed fill-in; nothing was written (the call failed before the merge).
-                if (automatic) globalThis.toastr?.warning?.(fillFailureNote(existing.name));
+                // A cancelled or discarded call (chat change, cancel, scope no longer current) failed nothing, so it stays silent; an error or a timeout shows the note.
+                if (automatic) { if (error?.code !== 'NPC_SCANNER_ROUTE_CANCELLED') globalThis.toastr?.warning?.(fillFailureNote(existing.name)); }
                 else notify('warning', `NPC State Delta refresh failed for ${existing.name}: ${error?.message || error}`);
                 return false;
             },

@@ -73,7 +73,7 @@ test('the default is every 4 replies and a failed catch-up shows the fill-in not
     assert.match(read('modules/people/settings/runtime-settings-parts/defaults.js'), /narrationCaptureCatchUp: 4,/);
     assert.match(read('modules/people/settings/runtime-settings-parts/get-settings.js'), /narrationCaptureCatchUp\)\)\)[^\n]*: 4\)/);
     const source = read('modules/people/calls/runtime-targeted-refresh.js');
-    assert.match(source, /if \(automatic\) globalThis\.toastr\?\.warning\?\.\(fillFailureNote\(existing\.name\)\);/);
+    assert.match(source, /if \(automatic\) \{ if \(error\?\.code !== 'NPC_SCANNER_ROUTE_CANCELLED'\) globalThis\.toastr\?\.warning\?\.\(fillFailureNote\(existing\.name\)\); \}/);
     assert.match(fillFailureNote('Myla'), /the profile for Myla could not be filled in\./);
     assert.doesNotMatch(source.slice(source.indexOf('onError:'), source.indexOf('onError:') + 600), /commit|setChatState/, 'the error path writes nothing');
 });
