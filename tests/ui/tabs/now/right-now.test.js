@@ -57,3 +57,10 @@ test('empty cards are left out; rows without a target are not buttons', () => {
   assert.equal(rows.length, 3);
   rows[0].click();
 });
+
+test('the Today card draws the where row from today.where (the first-turn Now is not empty)', () => {
+  const cards = rightNow({ needsYou: [], today: { where: { title: 'The Mill', detail: 'Goldwane 12 · 6:40 am' }, focus: null, trip: null, dueSoon: null, torn: [] } }, makeCtx());
+  assert.equal(cards.length, 1);
+  assert.match(cards[0].textContent, /The Mill/);
+  assert.match(cards[0].textContent, /6:40 am/);
+});
