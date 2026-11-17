@@ -7,6 +7,7 @@ import { DAY_MINUTES } from '../time-parts/limits.js';
 import { KEY_CHARS } from './limits.js';
 import { beginTurn } from './reply.js';
 import { lineText } from './text.js';
+import { slotValue } from '../../../rpg/slot.js';
 
 /** `apply(ctx, line)` for `time` lines: `~ time <date, clock time>`, `! time +2h`. */
 export function applyTimeLine(ctx, line) {
@@ -35,7 +36,10 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     const faced = Array.isArray(ctx.carrier?.rules) && ctx.carrier.rules.includes('clockFace');
     const read = faced ? clockFaceAfter : timeAfter;
     // `openDay`: the day a jump landed on (stored, so a replay reads the same); the next time line on it may set any clock time there.
-    const options = { maxJump: maxJumpMinutes(settings), from, ...(faced ? { openDay: director.time.openDay ?? null } : {}) };
+    // `soft`: the fallback minutes the clock still stands on (world events); a clock face may go back over them.
+    const fallback = slotValue(director.time.soft);
+    const soft = fallback?.at === director.time.minutes && Number.isSafeInteger(fallback.minutes) ? fallback.minutes : 0;
+    const options = { maxJump: maxJumpMinutes(settings), from, ...(faced ? { openDay: director.time.openDay ?? null, ...(soft > 0 ? { soft } : {}) } : {}) };
     const stretch = lineStretch(line);
     // The same stretch of time counts once: a date and a "+X" within 15 minutes of the gap from where
     // the reply began, in either order, are one stretch, and the date is the one that is used.
@@ -70,6 +74,8 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     }
     const before = director.time.minutes;
     if (next.minutes !== before) director.time.minutes = next.minutes;
+    // A time line the story told ends the fallback's soft minutes (written only by the world's clock fallback).
+    if (director.time.soft !== undefined) delete director.time.soft;
     // A date sets the clock: stored as a set (Story Block's ctx.absolute, SPEC §2.2), so it stays exact
     // when an earlier reply that moved the clock is deleted, and later moves add on top. An older Story
     // Block without it stores the set as a move.

@@ -58,7 +58,8 @@ test('on the host: the step is recorded on the reply that crossed the day, and r
     // An edited Re-read of the crossing reply: shrunk (no day crossed: no step on it), grown (+5d: more days stepped), back.
     await host.st.editMessage(crossing, reply('Dawn.', ['! time +1h']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
-    assert.equal(dailyReceipts(host).some(entry => entry.index === crossing), false, 'shrunk: no day crossed, no step on it');
+    // No day is stepped on it; when its old step had fired something, a step with no days stays to say so (E21's warning).
+    assert.equal(dailyReceipts(host).some(entry => entry.index === crossing && entry.receipt.data.days !== 0), false, 'shrunk: no day crossed, no step on it');
     await agrees(host, 'shrunk Re-read');
     await host.st.editMessage(crossing, reply('Dawn.', ['! time +5d']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
@@ -96,7 +97,7 @@ test('test 10 (the replay part): a prose edit of an earlier reply re-captures on
     host.done();
 });
 
-test('test 11 and 16 (skip): a skip steps every day once (one step, rolls and fades per day) and over 30 days says "N world days simulated"', async () => {
+test('test 11 and 16 (skip): a skip steps every day once (one step, rolls and fades per day) and over 14 days says "N world days simulated"', async () => {
     const host = await newHost();
     await play(host);
     const day = dailyOf(host).day;

@@ -16,6 +16,9 @@
 //
 // Refused from a click (cause `ui`: the reader moves the clock through the story) and while the story
 // time is not set.
+//
+// `soft: true` (only the world's clock fallback sends it): the minutes are untold, kept in `director.time.soft` so a `~ time`
+// clock face read while the clock still stands there may set it back over them (tracker/time-parts/clock-face.js).
 // Public face: re-exports its parts.
 
 export { spanText, advanceClaim } from './advance-parts/helpers.js';

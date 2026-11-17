@@ -11,13 +11,15 @@ import { scaleDays, seasonDays } from './durations.js';
 import { bindOf, placesFor, weightedPick } from './placement.js';
 import { modifierProduct, requiresHold } from './requires.js';
 import { cascadeState, preEmpted, windowAnchor } from './cascade.js';
+import { isThreshold, thresholdHolds } from './threshold.js';
 
 const FINISHED = new Set(['ended', 'lapsed', 'replaced']);
 
 function endsToday(ws, def, row, day) {
     if (day <= row.fired) return false;
     if (Number.isFinite(def.ends.for) && day >= row.fired + scaleDays(def.ends.for, ws.tempo)) return true;
-    return def.ends.anyOf.some(text => anchorHolds(ws, text, day));
+    // A threshold in any_of ends the event on the first day it holds (a later fall-back does not un-end it: the event is over).
+    return def.ends.anyOf.some(text => (isThreshold(text) ? thresholdHolds(ws, text) : anchorHolds(ws, text, day)));
 }
 
 /** Roll and, on a hit, fire when the caps allow (set-in-motion fires over them). */

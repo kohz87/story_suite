@@ -5,6 +5,7 @@
 import { anchorHolds } from './anchors.js';
 import { conditionString, isConditionEntry } from './grammar.js';
 import { conditionHolds } from './holds-read.js';
+import { isThreshold, thresholdHolds } from './threshold.js';
 
 const DAY = 1440;
 
@@ -14,8 +15,9 @@ export function boundRef(parsed, bind = {}) {
     return bind[parsed.placeholder] ?? null;
 }
 
-/** One requirement entry (a condition string or an anchor) on `day`. */
+/** One requirement entry (a threshold, a condition string or an anchor) on `day`. */
 export function entryHolds(ws, text, day, bind) {
+    if (isThreshold(text)) return thresholdHolds(ws, text);
     if (isConditionEntry(text)) {
         const parsed = conditionString(text);
         const ref = parsed && boundRef(parsed, bind);

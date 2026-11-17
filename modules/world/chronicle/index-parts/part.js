@@ -10,6 +10,7 @@ import { conditionQueries } from '../conditions/queries.js';
 import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { DAILY, dailyCommand } from '../world-daily/command.js';
 import { dailyAfterCapture } from '../world-daily/hook.js';
+import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
 import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
@@ -58,6 +59,7 @@ export const part = {
         ...conditionCommands,
         [CONDITIONS_SETTLE]: settleConditions,
         [DAILY]: dailyCommand,
+        [WORLD_SEED]: worldSeedCommand,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,
@@ -83,7 +85,8 @@ export const part = {
         section: 'Chronicle',
         defaults: { ...DIGEST_DEFAULTS },
         // The While away threshold is the time part's: a jump that long is a time skip.
-        reads: { recapHours: 'time.recapHours' },
+        // The longest jump is the tracker's: the world's long-skip note shows above it when it is under 14 days (world-daily/command.js).
+        reads: { recapHours: 'time.recapHours', maxJump: 'tracker.maxJump' },
         schema: {
             // Shown only while the feature is on (Story Block 2 settings fields' `feature`, B-rxui-3).
             digestDays: { type: 'int', label: 'Day digest: whole days kept', min: 1, max: FULL_MAX, feature: DIGEST_FEATURE },

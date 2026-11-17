@@ -8,11 +8,11 @@ import { releaseDisplaced } from './cast.js';
 
 const DAY = 1440;
 
-/** Outcome weight: a number (≥ 0), or `power:<name>` / `score:<name>` → the live standing + 100, clamped to at least 0. */
+/** Outcome weight: a number (≥ 0), or `power:<id or name>` / `score:<id or name>` → the live standing + 100, clamped to at least 0. */
 function weightOf(ws, weight) {
     if (typeof weight === 'number') return Math.max(0, weight);
     const match = typeof weight === 'string' ? /^(power|score):(.+)$/.exec(weight.trim()) : null;
-    const value = match ? ws.standings[`${match[1]}:${match[2].trim()}`] : undefined;
+    const value = match ? ws.standings[ws.standingKey(match[1], match[2].trim())] : undefined;
     return Number.isFinite(value) ? Math.max(0, value + 100) : 0;
 }
 

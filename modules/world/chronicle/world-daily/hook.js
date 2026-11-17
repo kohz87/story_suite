@@ -24,10 +24,24 @@ export function dailyAfterCapture(view, info = {}) {
     let receipts = [];
     try { receipts = Array.isArray(info?.receipts) ? info.receipts : []; } catch { receipts = []; }
     if (!receipts.some(receipt => MOVES.has(receipt?.type))) {
-        commands.push({ type: 'director.advance', payload: { minutes: FALLBACK_MINUTES, cause: FALLBACK_CAUSE, reason: 'no time line in the reply' } });
+        commands.push({ type: 'director.advance', payload: { minutes: FALLBACK_MINUTES, cause: FALLBACK_CAUSE, reason: 'no time line in the reply', soft: true } });
         now += FALLBACK_MINUTES;
     }
     const state = slotValue(view.state.domains.chronicle?.daily);
-    if (!state || Math.floor(now / DAY) > state.day) commands.push({ type: DAILY, payload: {} });
+    // A Re-read of a reply that is not the last (seam audit E21): the events its old step fired go with the step, so the step can say
+    // which of them it no longer fires; the later replies keep what they recorded (history is not rewritten), so that is a warning.
+    const before = rereadFired(view, info);
+    if (!state || Math.floor(now / DAY) > state.day || before) commands.push({ type: DAILY, payload: before ? { before } : {} });
     return commands.length ? { commands } : undefined;
+}
+
+/** In a Re-read with later messages: `{ fired }`, what the reply's old step fired or had lost, when there is any; else null. */
+function rereadFired(view, info) {
+    if (info?.type !== 'reread' || !Number.isInteger(info.index) || !(view?.chat?.length > info.index + 1)) return null;
+    let old = [];
+    try { old = Array.isArray(info.previous) ? info.previous : []; } catch { old = []; }
+    // What the old step fired, and what an earlier Re-read of this reply had already lost (still a lost cause).
+    const ids = list => (Array.isArray(list) ? list : []);
+    const fired = old.filter(receipt => receipt?.type === DAILY).flatMap(receipt => [...ids(receipt.data?.fired), ...ids(receipt.data?.lost)]).filter(id => typeof id === 'string');
+    return fired.length ? { fired: [...new Set(fired)].sort() } : null;
 }

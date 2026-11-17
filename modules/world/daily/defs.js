@@ -3,6 +3,7 @@
 
 import { anchorString, conditionString, isConditionEntry } from './grammar.js';
 import { durationDays } from './durations.js';
+import { isThreshold, thresholdProblem, thresholdString } from './threshold.js';
 
 const KINDS = ['one-off', 'chain-stage', 'recurring'];
 const CERTAINTY = ['set-in-motion', 'likely', 'possible'];
@@ -25,9 +26,13 @@ function modifiers(raw) {
     return out;
 }
 
-function entriesOk(entries) {
-    return entries.every(item => (isConditionEntry(item) ? conditionString(item) : anchorString(item)));
+// A threshold (`power:<id> >= N`, v0.13) is allowed only where `thresholds` is true: requires, requires_any, ends_when.any_of.
+function entriesOk(entries, thresholds = false) {
+    return entries.every(item => (isThreshold(item) ? thresholds && !thresholdString(item).why : isConditionEntry(item) ? conditionString(item) : anchorString(item)));
 }
+
+/** The first threshold in `entries` that is written wrongly → why, else ''. */
+const thresholdWhy = entries => entries.filter(isThreshold).map(item => thresholdString(item).why).find(Boolean) ?? '';
 
 /** `ends_when`: "instant" → { instant }; { for?, any_of? } → { for: days, anyOf }; anything else null. */
 function endsOf(raw) {
@@ -49,7 +54,12 @@ export function readEvent(raw) {
     if (!ends) return bad('ends_when must be "instant" or { for, any_of }.');
     const requires = list(raw.requires);
     const requiresAny = list(raw.requires_any);
-    if (!entriesOk(requires) || !entriesOk(requiresAny)) return bad('a requires entry is neither a condition "<name>@<ref>" nor an anchor.');
+    const why = thresholdWhy([...requires, ...requiresAny, ...ends.anyOf]);
+    if (why) return bad(why);
+    if (!entriesOk(requires, true) || !entriesOk(requiresAny, true)) return bad('a requires entry is neither a condition "<name>@<ref>", an anchor nor a threshold.');
+    if ([...list(raw.pre_empted_by), ...Object.keys(isRecord(raw.likelier_if) ? raw.likelier_if : {}), ...Object.keys(isRecord(raw.less_if) ? raw.less_if : {})].some(isThreshold)) {
+        return bad('a threshold (power: / score:) is allowed only in requires, requires_any and ends_when.any_of.');
+    }
     let window = null;
     if (raw.window !== undefined) {
         const within = durationDays(raw.window?.within);
@@ -109,6 +119,9 @@ export function readDefs(world = {}) {
     for (const raw of list(world.events)) {
         const out = readEvent(raw);
         if (out.why) { warnings.push(out.why); continue; }
+        // A threshold must name a power or score id of this world, with N in its range (v0.13).
+        const problem = [...out.def.requires, ...out.def.requiresAny, ...out.def.ends.anyOf].filter(isThreshold).map(text => thresholdProblem(thresholdString(text), world)).find(Boolean);
+        if (problem) { warnings.push(`The event "${out.def.id}" is not run by the world: ${problem}`); continue; }
         if (seen.has(out.def.id)) continue;
         seen.add(out.def.id);
         events.push(out.def);
