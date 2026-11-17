@@ -10,6 +10,7 @@ import { selectRpgRows } from './rpg-rows.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
+import { selectAddons } from './addons.js';
 
 // The Settings page a module's feature switches belong to, when it is not the module's own id.
 const SECTION_OF = { 'npc-state-delta': 'people', 'story-director': 'director' };
@@ -86,7 +87,7 @@ function moduleParts(features) {
 
 /**
  * `answers`: { host: settings() (SB sdk/settings.js:74, stored over defaults), defaults: HOST_SETTINGS_DEFAULTS (sdk/constants.js:10),
- * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
+ * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), modules?: sdk.modules() (the Add-ons page's installed list), subtitle?, people?: the NPC State settings (sdk.settings('npc-state-delta')), director?: settings('story-director') (the World page's values), directorPage?: { values: settings per module id, features } (the Director page), tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
  * → the settings view-model (contract/settings.js), or null when neither host settings nor a feature list was read.
  * Gaps (packs, presets, per-chat module sets) are empty or null.
  */
@@ -113,6 +114,7 @@ export function selectSettings(answers) {
     section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', extrasRows(a.extras)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
+    section('addons', 'Setup', 'Add-ons', 'Modules, custom views and skins from packs.', selectAddons(a.modules)),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
   return {
