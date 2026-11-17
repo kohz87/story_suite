@@ -4,6 +4,7 @@ import { BUILTIN_MODULES } from '../../core/modules-list.js';
 import { SETTINGS_DEFAULTS as NPC_DEFAULTS } from '../../modules/people/meters/npc-meters-schema.js';
 import { CORE_SETTINGS } from '../../modules/scene/domains/core/constants-parts/settings.js';
 import { DEFAULT_KINDS } from '../../modules/assist/safety.js';
+import { DEFAULTS as ASSIST_DEFAULTS, SETTING as ASSIST_SETTING } from '../../modules/assist/common.js';
 import { DIRECTOR_ROWS } from '../select/director-rows.js';
 import { EXTRAS_FEATURES, EXTRAS_MODULE, EXTRAS_SETTINGS } from '../select/extras-keys.js';
 import { BUDGETS, LOOK } from '../select/host-keys.js';
@@ -28,7 +29,7 @@ const PAGES = {
   [resetLabel('Director')]: () => ({ settings: DIRECTOR_ROWS.map(r => [r.module, r.field, MODULE_DEFAULTS[r.module]?.[r.field]]), features: [] }),
   [resetLabel('Chat extras')]: () => ({ settings: Object.values(EXTRAS_SETTINGS).map(n => [EXTRAS_MODULE, n, MODULE_DEFAULTS[EXTRAS_MODULE][n]]), features: Object.values(EXTRAS_FEATURES) }),
   [resetLabel('Models')]: () => ({
-    settings: [...hostPairs(['quickConnection', 'backgroundConnection', 'callQueue']), [EXTRAS_MODULE, 'assistExtractorKinds', DEFAULT_KINDS], [EXTRAS_MODULE, 'assistRepair', false]],
+    settings: [...hostPairs(['quickConnection', 'backgroundConnection', 'callQueue']), [EXTRAS_MODULE, 'assistExtractorKinds', DEFAULT_KINDS], [EXTRAS_MODULE, ASSIST_SETTING.repair, ASSIST_DEFAULTS[ASSIST_SETTING.repair]]],
     features: [FALLBACK],
   }),
 };

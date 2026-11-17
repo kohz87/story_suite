@@ -1,6 +1,7 @@
 // Builds the Models page's "Calls" group: the queue switch, the priority note, the fallback call and what it may write, and the People call's output limit.
 
 import { KIND_CHOICES, allowedKinds } from '../../modules/assist/safety.js';
+import { FEATURE_TEXT } from '../../modules/assist/common.js';
 
 const GROUP = 'Calls';
 const FALLBACK = 'story-block.extractor';
@@ -16,7 +17,7 @@ export function selectCalls(calls, features) {
   return [
     row('calls.queue', 'sw', 'One call at a time per connection', calls?.queue === true, { hint: 'A local server is never asked twice at once' }),
     row('calls.priority', 'info', 'Calls the reply waits on go first', 'always on', { hint: 'A priority queue: pre-roll checks, fight set-up and cast moves go ahead of planner work on the same connection, and arc plans never start while a reply is being sent' }),
-    row('calls.repair', 'sw', 'Repair a reply’s missing changes', calls?.repair === true, { hint: 'One call on the Quick connection, only when a reply came with no change block: it writes the block from the story, coin and items too, kept as Assist lines you can undo', tags: ['cost:model call'] }),
+    row('calls.repair', 'sw', FEATURE_TEXT.repair.label, calls?.repair === true, { hint: 'One call on the Quick connection, only when a reply came with no change block: it writes the block from the story, coin and items too, kept as Assist lines you can undo', tags: ['cost:model call'] }),
     row('calls.fallback', 'sw', 'Fallback when a reply forgot its lines', fallback?.on === true, { hint: 'One extra call, only when the whole change block is missing', tags: ['cost:model call'] }),
     row('calls.maxOutput', 'info', 'Most output per People call', Number.isFinite(calls?.maxOutput) && calls.maxOutput > 0 ? `${calls.maxOutput} tokens` : 'built-in limits', { hint: '0 keeps the built-in limits; the planner has its own (Director). Set in the old view’s NPC State settings' }),
     row('calls.kinds', 'chips', 'The fallback may write', KIND_CHOICES.filter(k => kinds.has(k.value)).map(k => k.label), { hint: 'The ten kinds on by default; world news and faction lines are optional', options: KIND_CHOICES.map(k => k.label), wide: true }),

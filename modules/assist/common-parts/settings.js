@@ -30,7 +30,7 @@ export const FEATURE_TEXT = Object.freeze({
         needs: 'Needs a module that keeps checks, like Story Director.',
     }),
     repair: Object.freeze({
-        label: 'Repair a reply\'s missing changes',
+        label: 'Repair a reply’s missing changes',
         describe: 'One cheap extra model call, only when a reply came with no change block: it writes the block from the story, kept as "assist" lines. It may write coin and items. Without it, such a reply gets a warning and Re-read.',
     }),
     extractor: Object.freeze({

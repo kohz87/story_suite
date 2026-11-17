@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { assistSections } from '../../../core/capture.js';
 import { SETTING, refusedWhy } from '../../../modules/assist/index.js';
 import { createRepairer, createRunLog } from '../../../modules/assist/index.js';
+import { readRecord } from '../../../core/persist.js';
 import { createHost } from '../../../testkit/index.js';
 import { skip, wait } from './safety-net.helpers.js';
 
@@ -172,5 +173,68 @@ test('Re-read of a reply that still has no block asks the repair once; the secon
     await wait(50);
     assert.equal(host.calls.length, 1, 'no second call');
     assert.equal(wallet(host), 30);
+    host.close();
+});
+
+test('a block written as one line, empty, is a block: no repair call, no warning; a head-only Re-read asks the repair, an older reply never does', { skip }, async () => {
+    const host = await repairHost({ repair: false });
+    const one = await host.send('I look.', 'A quiet room.\n<Changes></Changes>');
+    const two = await host.send('I wait.', 'The same room, later.\n<Changes>\n</Changes>');
+    const miss = await host.send('I pay.', BLOCKLESS);
+    await wait(30);
+    assert.equal(host.calls.length, 0);
+    assert.deepEqual(noChanges(host).map(item => item.index), [miss.index], 'only the reply with no block is warned');
+    assert.equal(host.ctx.chat[one.index].mes.includes('`'), false);
+    host.ctx.extensionSettings.storySuite.modules['story-block'][SETTING.repair] = true;
+    await host.send('Then.', 'A last quiet word.\n<Changes></Changes>');
+    assert.equal((await host.sdk.reread(miss.index)).ok, true);
+    await wait(50);
+    assert.equal(host.calls.length, 0, 'not the head any more: a Re-read of an older reply makes no call');
+    assert.equal(two.index < miss.index, true);
+    host.close();
+});
+
+test('A repaired, B and C with blocks: delete B (middle), swipe C blockless then back, switch chats and back, rewind: one call for the swipe, the same state everywhere', { skip }, async () => {
+    const host = await repairHost();
+    const a = await host.send('I pay.', BLOCKLESS);
+    await wait(30);
+    const b = await host.send('Lamp.', 'A lamp.\n<Changes>\n+ item Lamp\n</Changes>');
+    const c = await host.send('Look.', 'Dust.\n<Changes>\n</Changes>');
+    assert.equal(host.calls.length, 1);
+    const state = () => [wallet(host), ropes(host), (host.sdk.query('inventory.items') ?? []).filter(item => item.name === 'Lamp').length, host.sdk.query('scene.place')?.name];
+    assert.deepEqual(state(), [30, 1, 1, 'Old Mill']);
+    // A blockless swipe of C: its own call (nothing to repair in it: empty answer), then back to C's first swipe through the swiped event only.
+    const swipeCall = host.calls.length;
+    host.calls.length = 0;
+    await host.swipe('Only dust again, no block.');
+    await wait(40);
+    assert.equal(host.calls.length, 1, 'the new swipe is a miss: one call');
+    await host.st.swipeTo(c.index, 0);
+    await wait(40);
+    assert.equal(host.calls.length, 1, 'swipe back: no further call');
+    assert.deepEqual(state(), [30, 1, 1, 'Old Mill'], 'swipe back, no reload');
+    const savedBeforeRewind = structuredClone(host.ctx.chat);
+    // Rewind: back to before B's change (A's repaired coin and rope stay, the lamp goes).
+    const rev = readRecord(host.ctx.chat[b.index]).receipts[0].rev;
+    const back = await host.sdk.rewind({ index: b.index, beforeRev: rev });
+    assert.equal(back.ok, true, JSON.stringify(back));
+    await wait(30);
+    assert.deepEqual(state(), [30, 1, 0, 'Old Mill'], 'rewind');
+    assert.equal(host.calls.length, 1, 'rewind: no call');
+    await host.st.loadChat(structuredClone(savedBeforeRewind), 'main');
+    await wait(30);
+    // Middle delete: B goes.
+    await host.st.deleteMessage(b.index);
+    await wait(30);
+    assert.equal(host.calls.length, 1);
+    assert.deepEqual([wallet(host), ropes(host), host.sdk.query('scene.place')?.name], [30, 1, 'Old Mill'], 'A still stands after B is deleted');
+    // Chat change: another chat and back.
+    const saved = structuredClone(host.ctx.chat);
+    await host.st.loadChat([{ is_user: false, name: 'N', mes: 'Elsewhere.' }], 'other');
+    await host.st.loadChat(saved, 'main');
+    await wait(30);
+    assert.deepEqual([wallet(host), ropes(host)], [30, 1], 'chat change and back');
+    assert.equal(host.calls.length, 1, 'no new call');
+    assert.equal(swipeCall, 1);
     host.close();
 });

@@ -95,7 +95,7 @@ test('the static instruction asks for <Changes> only, never a state block', asyn
     const text = host.st.prompt(STATIC_KEY);
     assert.match(text, /This is the only block you write: no state, inventory or party blocks/);
     assert.equal([...new Set(text.match(/<[A-Z][A-Za-z_]*>/g))].join(','), '<Changes>', 'no other block tag is named');
-    assert.match(text, /leave out what did not change; when nothing changed, still write the block, empty: `<Changes><\/Changes>`\./);
+    assert.match(text, /leave out what did not change; when nothing changed, still write the block, empty: <Changes><\/Changes>\./);
     host.close();
 });
 
@@ -174,13 +174,13 @@ test('a redraw that fails at MESSAGE_RECEIVED (the reply is not drawn yet) does 
 
 test('closing cue: the last text of a reply\'s prompt, fixed, one-pass wording only when NPC State Delta captures, never on quiet prompts', async () => {
     const host = await fakeHost();
-    const cue = 'End every reply with the `<Changes>` block, after the story and outside your thinking; when nothing changed, write `<Changes></Changes>`.';
+    const cue = 'End every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>.';
     assert.equal(closingCue(false), cue);
     assert.equal(closingCue(true), cue, 'one wording: the npc_state_delta clause is gone (owner approval 18 Nov 01:55)');
     assert.ok(closingCue(true).length < 160, 'under 40 tokens');
     const sent = await host.send('Hello.', 'Hi.');
     assert.ok(sent.request.chat.at(-1).content.endsWith(`\n\n${cue}`), 'the very last text, after the tail');
-    assert.equal(sent.request.chat.filter(message => String(message.content).includes('write `<Changes></Changes>`.')).length, 1);
+    assert.equal(sent.request.chat.filter(message => String(message.content).includes('write <Changes></Changes>.')).length, 1);
     // After a preset's own depth-0 block and before a prefill.
     const chat = [{ role: 'user', content: 'Hi\n<thinking_guide>plan</thinking_guide>' }, { role: 'assistant', content: 'Prefill' }];
     assert.equal(appendClosingCue(chat, cue), true);
@@ -194,8 +194,8 @@ test('closing cue: the last text of a reply\'s prompt, fixed, one-pass wording o
     host.ctx.extensionPrompts = {};
     // A quiet prompt and an impersonation carry no cue.
     const quiet = await host.quiet('x');
-    assert.ok(!JSON.stringify(quiet.request).includes('write `<Changes></Changes>`.'));
+    assert.ok(!JSON.stringify(quiet.request).includes('write <Changes></Changes>.'));
     const impersonated = await host.st.generate('impersonate', { reply: 'I say hi.' });
-    assert.ok(!JSON.stringify(impersonated.request).includes('write `<Changes></Changes>`.'));
+    assert.ok(!JSON.stringify(impersonated.request).includes('write <Changes></Changes>.'));
     host.close();
 });

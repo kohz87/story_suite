@@ -58,7 +58,7 @@ test('notes grammar: the static text is the same bytes every time and the added 
          `added ${added} chars`);
 });
 
-const CUE = /^Whenever anything changed, write it in the `<Changes>` block at the very end of the reply; a lie, secret, taste, tie or turning point gets its own line\./;
+const CUE = /^Whenever anything changed, write it in the <Changes> block at the very end of the reply; a lie, secret, taste, tie or turning point gets its own line\./;
 const tailOf = s => s.host.registry.module(MODULE_ID).context.tail({ state: s.host.head(), chat: { length: s.host.ctx.chat.length } });
 const cueLines = tail => tail.lines.filter(line => CUE.test(typeof line === 'string' ? line : line?.text));
 

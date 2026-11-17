@@ -34,7 +34,7 @@ function needsChip(needs, on) {
 function unrecordedChip(row, on) {
   if (row.unrecorded !== true) return null;
   const title = 'The reply came with no change block, so nothing in it was kept. Add its lines to the reply, then Re-read.';
-  const inside = [h('span', { class: 'bang', 'aria-hidden': 'true' }, '!'), h('span', { class: 'lb' }, on.onReread ? 'No changes recorded — Re-read' : 'No changes recorded')];
+  const inside = [h('span', { class: 'bang', 'aria-hidden': 'true' }, '!'), h('span', 'No changes recorded' + (on.onReread ? ' — Re-read' : ''))];
   return on.onReread
     ? h('button', { type: 'button', class: 'ssbtn need', title, dataset: { unrecorded: '1' }, onClick: () => on.onReread() }, inside)
     : h('span', { class: 'ssbtn need', role: 'note', title, dataset: { unrecorded: '1' } }, inside);
@@ -97,10 +97,11 @@ export function inlineRow(row, handlers = {}) {
     vm.fightOpen
       ? h('button', { type: 'button', class: 'ssbtn fight', 'aria-label': 'Fight open, open the Fight tab', onClick: () => on.onFight?.() }, '⚔ Fight open ›')
       : null,
-    unrecordedChip(vm, on),
     needsChip(vm.needsYou, on),
     chip,
     suiteButton(vm, on),
   );
-  return h('div', { class: ['ssrow', vm.fightOpen ? 'fo' : null], dataset: { ssRow: '1' } }, line1, line2, list);
+  // (the badge has a line of its own: its words are long, and the phone row hides its chips' labels)
+  const unrecorded = unrecordedChip(vm, on);
+  return h('div', { class: ['ssrow', vm.fightOpen ? 'fo' : null], dataset: { ssRow: '1' } }, line1, line2, unrecorded ? h('div', { class: 'ssl3' }, unrecorded) : null, list);
 }

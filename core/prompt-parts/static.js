@@ -13,7 +13,7 @@ const CHANGES_HEADER = [
     '<Changes>',
     'op kind Name — what happened | label: value',
     '</Changes>',
-    'op: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: `<Changes></Changes>`.',
+    'op: + new or gained, - gone or lost, ~ changed, ! happened, ? asks code to decide (a check, a roll). One change per line, only the kinds below; leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>.',
     'This is the only block you write: no state, inventory or party blocks.',
     'Kinds:',
 ].join('\n');
