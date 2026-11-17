@@ -128,6 +128,7 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     };
     // The Problems list is kept with the chat's metadata, so a reload shows the same rows (turn/problem-keep.js).
     const keepLog = () => {
+        if (s.problemsLoading) return;   // a chat change is reading the new chat's rows (events.js onChatChanged)
         try {
             const live_ = liveContext();
             if (keepProblems(live_?.chatMetadata, s.problemLog)) (live_.saveMetadata ?? live_.saveMetadataDebounced)?.call(live_);

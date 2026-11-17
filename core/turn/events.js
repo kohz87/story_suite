@@ -135,16 +135,21 @@ export function createEvents(s, deps) {
         // The old chat's session and prompts go at once, before anything is awaited: a generation started while the RPG's code loads is the new chat's.
         s.session = null;
         s.heldBoard = null;
+        // The old chat's Problems rows go with it, and none is written to the new chat's metadata until its own rows are read (a late problem of the old chat meets an empty list).
+        s.problemLog.length = 0;
+        s.problemsLoading = true;
         s.quiets = [];
         markIdle();
         clearPrompts();
         // The RPG's code, when this chat needs it (the feature is on, or it holds the RPG's records), before anything is replayed (rpg-lazy.js); a stalled
         // import is waited for only RPG_LOAD_WAIT_MS (the guard mark then says the code is missing, so a later load makes the chat look again).
         if (typeof prepare === 'function') { try { await within(prepare(), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
-        rebuild({ publish: false });
+        try { rebuild({ publish: false }); } catch (error) { s.problemsLoading = false; throw error; }
         const meta = metadata();
         // The chat's own Problems list comes back with it (a reload keeps it; another chat has its own).
-        s.problemLog.splice(0, s.problemLog.length, ...keptProblems(meta));
+        s.problemLog.unshift(...keptProblems(meta));
+        s.problemsLoading = false;
+        s.keepLog?.();
         // A fight left open by a build from before the port is closed (turn/pre-port-fight.js); the interaction scratch follows the head by itself (reconcileScratch).
         const closed = dropPrePortFight(meta);
         if (closed !== null) {

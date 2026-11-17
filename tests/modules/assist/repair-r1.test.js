@@ -4,6 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { extractBlock, hideBlock, parseChanges } from '../../../core/capture.js';
+import { findBlocks } from '../../../core/capture/blocks-parts/find.js';
+import { fitState } from '../../../modules/assist/repair-parts/state-fit.js';
 import { openThreadLines } from '../../../core/runtime-parts/open-threads.js';
 import { REPAIR_FOOT, repairPrompt, whereWhy, refusedWhy } from '../../../modules/assist/index.js';
 import { createModule } from '../../../ui/legacy/director/module.js';
@@ -26,7 +28,7 @@ const rows = host => host.turn.problems().map(({ code, message }) => `${code}:${
 test('LR1-2: a tag named inside inline code or a fenced code block is not a block; a real block still is', () => {
     assert.equal(extractBlock(T10), null);
     assert.equal(hideBlock(T10), T10, 'nothing hidden, no open mark');
-    const fenced = 'Use it like this:\n\n```\n<Changes>\n+ item Rope\n</Changes>\n```\n\nThat is all.';
+    const fenced = 'Use it like this:\n\n```\nwrite <Changes> and then lines\n```\n\nThat is all.';
     assert.equal(extractBlock(fenced), null);
     assert.equal(hideBlock(fenced), fenced);
     assert.equal(/open/.test(hideBlock('Write `<Changes>` and `</Changes>` yourself.')), false);
@@ -35,7 +37,7 @@ test('LR1-2: a tag named inside inline code or a fenced code block is not a bloc
     // Only a reply that ENDS inside a really opened block is cut off.
     assert.match(hideBlock('Quiet.\n<Changes>\n+ item Rope | qty: 1\n'), /STORY_SUITE_V2 open/);
     assert.equal(/STORY_SUITE_V2 open/.test(hideBlock('A `<Changes>` word.\nQuiet.\n<Changes>\n+ item Rope\n</Changes>')), false);
-    assert.equal(/STORY_SUITE_V2 open/.test(hideBlock('Quiet.\n\n```\n<Changes>\n```\n')), false, 'an opening inside a fence is no cut-off block');
+    assert.equal(/STORY_SUITE_V2 open/.test(hideBlock('Quiet.\n\n```\nthe <Changes> tag\n```\n')), false, 'an opening inside a fence is no cut-off block');
 });
 
 test('LR1-2: the recorded T10 reply (live-replies n=10) holds no block', { skip: !fs.existsSync(LOG) }, () => {
@@ -121,4 +123,108 @@ test('LR1-5: the Problems list is kept with the chat and comes back after a relo
     await host.turn.onChatChanged();
     assert.deepEqual(host.turn.problems(), [], 'a chat with none');
     host.close();
+});
+
+test('F1: a block a model wraps in a code fence is still a block (replies 48, 143, 144 of the 200), as on main', () => {
+    const replies = JSON.parse(fs.readFileSync(new URL('../../suite/break/helpers/replies-200.json', import.meta.url), 'utf8'));
+    for (const n of [48, 143, 144]) assert.equal(findBlocks(replies[n], 'Changes').length, 1, `reply ${n}`);
+    const fenced = 'Quiet.\n\n```\n<Changes>\n+ item Rope\n</Changes>\n```\n';
+    assert.deepEqual(extractBlock(fenced).split('\n').filter(Boolean), ['+ item Rope']);
+});
+
+test('F1: a fenced block cut off and then continued reads as the same one block', () => {
+    const cut = 'Quiet.\n```\n<Changes>\n+ item A\n';
+    const blocks = findBlocks(cut, 'Changes');
+    assert.equal(blocks.length, 1);
+    assert.equal(blocks[0].open, true);
+    const joined = `${cut}+ item B\n</Changes>\n\`\`\`\n`;
+    const done = findBlocks(joined, 'Changes');
+    assert.equal(done.length, 1);
+    assert.equal(done[0].open, undefined);
+    assert.match(done[0].body, /item A[\s\S]*item B/);
+});
+
+test('F1: a stray fence does not hide a later block; a mention in a fence or in inline code still is no block', () => {
+    assert.equal(findBlocks('a\n```\nb\n<Changes>\n+ item A\n</Changes>\nc\n```\n', 'Changes').length, 1);
+    assert.equal(findBlocks('a\n```\nb\nQuiet.\n<Changes>\n+ item A\n</Changes>\n', 'Changes').length, 1);
+    assert.equal(findBlocks('Use:\n```\nwrite <Changes> here\n```\nDone.', 'Changes').length, 0);
+    assert.equal(findBlocks(T10, 'Changes').length, 0);
+});
+
+test('F2: the open lines are the newest 20, capped by length, before Carried, and the prompt limit never cuts them', () => {
+    const threads = {};
+    for (let i = 0; i < 30; i += 1) threads[`h${i}`] = { kind: 'hook', status: 'active', key: `Hook number ${i}` };
+    const lines = openThreadLines({ state: { domains: { director: { threads } } } });
+    assert.match(lines[0], /^Open hooks: Hook number 10; /);
+    assert.match(lines[0], /Hook number 29$/);
+    assert.equal(lines[0].split('; ').length, 20);
+    const long = {};
+    for (let i = 0; i < 20; i += 1) long[`q${i}`] = { kind: 'quest', status: 'active', key: `${i} ${'x'.repeat(58)}` };
+    const quests = openThreadLines({ state: { domains: { director: { threads: long } } } })[0];
+    assert.equal(quests.length <= 620, true);
+    assert.match(quests, /19 x+$/, 'the newest stay');
+    const state = ['Place: Mill', 'Wallet: 8', 'Open hooks: Rats', `Carried: ${'rope, '.repeat(800)}`];
+    const fit = fitState(state, 2500);
+    assert.equal(fit.length <= 2500, true);
+    assert.match(fit, /Open hooks: Rats\n/);
+    assert.equal(fit.includes('Carried:'), true);
+    const prompt = repairPrompt('Walk.', [], [...state.slice(0, 3), `Carried: ${'rope, '.repeat(800)}`], null, 'A');
+    assert.match(prompt, /Open hooks: Rats\n/);
+});
+
+test('F2: the state lines put the open lines before Carried', { skip }, async () => {
+    const prompts = [];
+    const host = await directorHost(async prompt => { prompts.push(prompt); return '<Changes></Changes>'; });
+    await host.send('Hello.', 'A board.\n<Changes>\n+ hook Grain rats — rats\n+ item Rope\n</Changes>');
+    await host.send('Read.', 'You walk on.');
+    await wait(60);
+    assert.match(prompts[0], /\nOpen hooks: Grain rats\nCarried: Rope\n/);
+    host.close();
+});
+
+test('F3: a problem raised after the chat changed never copies the old chat\'s rows into the new chat', { skip }, async () => {
+    const host = await directorHost(async () => 'none');
+    host.turn.report({ code: 'PROBLEM', message: 'old chat row', quiet: true });
+    assert.equal(host.ctx.chatMetadata.storySuiteProblems.length, 1);
+    // The next chat: its own metadata (none kept), a late problem of the old chat arrives while the chat is still loading.
+    host.ctx.chatMetadata = {};
+    const changing = host.turn.onChatChanged();
+    host.turn.report({ code: 'PROBLEM', message: 'late', quiet: true });
+    await changing;
+    assert.equal(rows(host).some(row => /old chat row/.test(row)), false, 'the old rows are gone');
+    assert.equal((host.ctx.chatMetadata.storySuiteProblems ?? []).some(row => /old chat row/.test(row.message)), false);
+    host.close();
+});
+
+test('F3: a problem raised while a chat loads does not overwrite that chat\'s kept rows, and both are listed', { skip }, async () => {
+    const host = await directorHost(async () => 'none');
+    host.ctx.chatMetadata = { storySuiteProblems: [{ code: 'PROBLEM', message: 'kept', quiet: true, at: 1 }] };
+    const changing = host.turn.onChatChanged();
+    host.turn.report({ code: 'PROBLEM', message: 'during', quiet: true });
+    await changing;
+    assert.deepEqual(host.turn.problems().map(row => row.message), ['kept', 'during']);
+    assert.deepEqual(host.ctx.chatMetadata.storySuiteProblems.map(row => row.message), ['kept', 'during']);
+    host.close();
+});
+
+test('F4: the Problems rows kept with the chat follow a Re-read that drops the row (events-hooks keepLog)', { skip }, async () => {
+    let n = 0;
+    const host = await directorHost(async () => { n += 1; if (n < 2) throw new Error('no connection'); return '<Changes>\n+ item Rope | qty: 1\n</Changes>'; });
+    const turn = await host.send('Hello.', 'You take a rope.');
+    await wait(80);
+    assert.equal((host.ctx.chatMetadata.storySuiteProblems ?? []).some(row => row.code === 'NO_CHANGES'), true, 'the row is kept');
+    await host.sdk.reread(turn.index);
+    await wait(80);
+    assert.equal(host.turn.problems().some(row => row.code === 'NO_CHANGES'), false);
+    assert.equal((host.ctx.chatMetadata.storySuiteProblems ?? []).some(row => row.code === 'NO_CHANGES'), false, 'the dropped row is dropped from the kept list too');
+    host.close();
+});
+
+test('F4: the repair prompt holds a state longer than 1500 characters, and keeps an open line that follows a long one', () => {
+    const state = [`Place: ${'a'.repeat(1800)}`, 'Open hooks: Rats'];
+    const prompt = repairPrompt('Walk.', [], state, null, 'A');
+    assert.match(prompt, /Place: a{1800}\n/);
+    assert.match(prompt, /\nOpen hooks: Rats\n/);
+    const huge = repairPrompt('Walk.', [], [`Place: ${'a'.repeat(5000)}`, 'Open hooks: Rats'], null, 'A');
+    assert.match(huge, /\nOpen hooks: Rats\n/, 'never cut');
 });

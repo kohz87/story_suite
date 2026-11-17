@@ -48,8 +48,8 @@ function blankAfter(text, at) {
 // there, inside a block already open (its `start` and body start there).
 export function findBlocks(mes, tag, openAt = -1) {
     const body = String(mes ?? '');
-    // LR1-2: a tag named inside inline code or a closed fenced code block is a mention, never a block (the tags are looked for in the masked text, the bodies read from the real one).
-    const text = maskCode(body);
+    // LR1-2: a tag named inside inline code or a closed fenced code block is a mention, never a block (a fence that holds a line starting with the tag is a wrapped real block: read) (the tags are looked for in the masked text, the bodies read from the real one).
+    const text = maskCode(body, tag);
     const blocks = [];
     const re = tagRe(tag);
     let depth = 0;
