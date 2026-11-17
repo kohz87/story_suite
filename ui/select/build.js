@@ -11,7 +11,7 @@ import { selectJournal } from './journal.js';
 import { selectStory } from './story.js';
 import { listProfiles } from '../../core/model-call.js';
 import { selectSettings } from './settings.js';
-import { selectProblems, selectSent, selectInspector } from './tools.js';
+import { selectProblems, selectSent, selectInspector, selectSavePoints } from './tools.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
@@ -81,6 +81,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).
     problems: () => (tools ? selectProblems(problemsNow()) : null),
     sent: () => (tools ? selectSent(tools.sent(), selectProblems(problemsNow())) : null),
+    savepoints: () => (tools ? selectSavePoints(tools.savePoints()) : null),
     inspector: (_read, args) => (tools ? selectInspector({ replies: tools.replies(), reply: i => tools.reply(i) }, args?.index) : null),
   };
 }

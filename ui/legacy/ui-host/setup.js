@@ -24,7 +24,7 @@ import { createQuestsLinkWidget, createShowMoreWidget, QUESTS_LINK_WIDGET, SHOW_
 import { createInventoryAddWidget, createInventoryGridWidget, createInventoryViewWidget, createWornFoldWidget, INVENTORY_ADD_WIDGET, INVENTORY_GRID_WIDGET, INVENTORY_VIEW_WIDGET, WORN_FOLD_WIDGET } from '../screens/inventory-add.js';
 import { readerStore, S } from './shared.js';
 
-export function createHostSetup({ runtime, ctx, doc, registry, store, sdk, openSettings, inspectorProblems, getRpg, openScreen = () => false }) {
+export function createHostSetup({ runtime, ctx, doc, registry, store, sdk, openSettings, inspectorProblems, savePoints: givenPoints = null, getRpg, openScreen = () => false }) {
     // A screen asking a query no module answers (an optional module that is not installed, like NSD's
     // npc.portrait) gets null, not a problem line.
     const runAt = mountQuery(registry, () => store.receipts());
@@ -57,7 +57,7 @@ export function createHostSetup({ runtime, ctx, doc, registry, store, sdk, openS
         navigate: () => { openSettings().select('blocks'); return true; } });
     // The host's own widgets: the Inspector (over the store's replay) and the save points (over the chat).
     const liveCtx = () => globalThis.SillyTavern?.getContext?.() ?? ctx;
-    const savePoints = createSavePoints({ ctx, store, live: liveCtx, ...(runtime.createBranch ? { createBranch: runtime.createBranch } : {}) });
+    const savePoints = givenPoints ?? createSavePoints({ ctx, store, live: liveCtx, ...(runtime.createBranch ? { createBranch: runtime.createBranch } : {}) });
     const inspector = createInspectorSource({
         store,
         chat: () => ctx.chat ?? [],
