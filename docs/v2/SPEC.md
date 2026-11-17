@@ -923,7 +923,7 @@ stored kind, and a move to another place takes the kind a pack gives a place of 
 gives one. Only an explicit empty value (`kind:` with nothing after it) clears one. After a move only those
 named in `with:` are present. Exception: an Assist place on a reply with the `assistPlace` mark keeps the
 people present, and explicit departures take precedence over its `with:` names (MODULES §F123). Queries `scene.place`, `scene.present` and `scene.moved` (true while the head
-reply's receipts moved the place; MODULES §F119).
+reply's receipts moved the place; MODULES §F119). Query `reply.changes({ index? })` answers `{ lines: [{ glyph, line, detail, applied }], refused, stateThen: { place, weather } }` for one reply (the head by default; `{ asOf, index }` for an earlier one), built from that reply's receipts only (items, net coin, a move, who arrived or left; the reader's own `ui` edits are left out), or null when it has none. `refused` is always `[]`: a refused line is told once by the turn and is not stored.
 Capture kind `weather` (`~ weather cold drizzle, low fog`, feature `story-block.weather`, on; MODULES §F120):
 the text flattened, without markup, cut at 60 code points; `rev` the `meta.rev` of the receipt that wrote it;
 the same text again changes nothing. Descriptive only: no mechanic reads it. `weather` is a `scratch` field

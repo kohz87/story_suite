@@ -27,8 +27,10 @@ export function buildSelectors(ctx = () => null, sdk = null) {
   return {
     card: read => { const s = scene(read); return selectCard(s.answers, s.opts); },
     now: read => { const s = scene(read); return selectNow(s.answers, s.opts); },
-    chat: read => {
-      const s = scene(read);
+    // `args.index` asks for that reply's own changes (its state, not the head's); without it the head reply.
+    chat: (read, args) => {
+      const at = Number.isInteger(args?.index) && args.index >= 0 ? args.index : null;
+      const s = scene(at === null ? read : (name, a) => read(name, name === 'reply.changes' ? { asOf: at, index: at } : a));
       return { inlineRow: selectInlineRow(s.answers, s.opts), drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, s.opts) };
     },
     party: read => {
