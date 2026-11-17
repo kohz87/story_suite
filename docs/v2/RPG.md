@@ -570,6 +570,10 @@ and text of up to 240 characters. The narrator is told up to 100 tokens of each 
 with a `role` is told compactly: a value at its default is left out, a Skills block is one line per skill with the empty
 slots left out, and a Foes block lists only the groups in the fight.
 
+### Built-in skill sets
+
+The five built-in sets (`modules/rpg/templates-parts/skill-sets.js`) give each skill a Combat Rules v1 `type`, and the wizard writes it into the draft (attack is the unwritten default). A set holds at most one stance skill (defence, evasion, movement or support); a test checks every built-in set. A set's utility skills fill the utility slots and its other skills the combat slots. Pack sets have no `type` field, so their skills are attacks until the reader changes them.
+
 ### Skill sets in a pack
 
 A pack can add skill sets to the New character window. They sit under `content.rpg.skillSets`, up to 12 sets, each with

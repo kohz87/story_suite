@@ -56,7 +56,7 @@ export function readDraft(raw) {
             name: oneLine(skill.name, CREATION.skillName), about: oneLine(skill.about, CREATION.skillAbout),
             // An imported skill may have no stat (''): the reader picks one, and Create waits for it.
             stat: STATS.includes(skill.stat) ? skill.stat : (skill.stat === 'luk' ? 'wis' : ranked ? '' : STATS[0]), uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: wantsAdept ? 1 : 0,
-            ...(ranked ? { rank: clamp(skill.rank, 0, FILE_LIMITS.rank) } : {}), ...(skill.sig === true ? { sig: true } : {}),
+            ...(ranked ? { rank: clamp(skill.rank, 0, FILE_LIMITS.rank) } : {}), ...(skill.sig === true ? { sig: true } : {}), ...(skill.fromSet === true ? { fromSet: true } : {}),
             // (a utility skill is for the story only: three of them, a signature one too; a fourth is left out, as a ninth combat skill is)
             ...(SKILL_TYPE_NAMES.includes(skill.type) && skill.type !== 'attack' ? { type: skill.type } : {}),
         };

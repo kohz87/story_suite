@@ -46,7 +46,8 @@ function levelOf(value) {
  */
 export function vetGroups(groups, { message = '', previous = '', sheet = null, limits = null, stated = null, v1 = false } = {}) {
     const out = list => (v1 ? sizeGroups(list) : list);   // (a Combat Rules v1 sheet: each group names its tier and the fight is held to the size rule, parts/v1-sizing.js)
-    const tiered = group => (v1 ? { tier: tierWord(group.tier) } : {});
+    // `tierSaid` is the pre-check's raw tier answer (diagnostic only: kept in the record's setup, never shown or sent), so a "standard" it chose differs from the fallback (null).
+    const tiered = group => (v1 ? { tier: tierWord(group.tier), tierSaid: typeof group.tier === 'string' && group.tier.trim() ? group.tier.trim().slice(0, 40) : null } : {});
     if (!Array.isArray(groups)) return [];
     const maxGroups = limitOf(limits, ['groups', 'maxGroups'], PRECHECK_LIMITS.groups);
     const maxCount = limitOf(limits, ['count', 'maxCount'], PRECHECK_LIMITS.count);

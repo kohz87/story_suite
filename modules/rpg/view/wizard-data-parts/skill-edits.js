@@ -11,13 +11,22 @@ const blankSkill = type => ({ name: '', about: '', stat: STATS[0], uses: USES[0]
 
 /** A skill set put into the draft: its skills (up to the draft's slots), every one at Novice. */
 export function withSet(draft, set) {
-    // (signature skills stay in front; the set fills the slots after them)
+    // (signature skills stay in front; the set fills the slots after them: its combat skills the combat slots left, its utility skills the utility slots left)
     const signed = draft.skills.filter(skill => skill.sig === true);
-    const skills = (set?.skills ?? []).slice(0, Math.max(0, combatSlots(draft) - signed.filter(skill => skill.type !== 'utility').length)).map(skill => ({
+    const kept = draft.skills.filter(skill => skill.type === 'utility' && skill.sig !== true && skill.fromSet !== true && skill.name);   // (a utility skill the reader made, not one a set put in earlier)
+    const room = { combat: Math.max(0, combatSlots(draft) - signed.filter(skill => skill.type !== 'utility').length), utility: Math.max(0, UTILITY_SLOTS - signed.filter(skill => skill.type === 'utility').length - kept.length) };
+    const skills = (set?.skills ?? []).filter(skill => {
+        const pool = skill.type === 'utility' ? 'utility' : 'combat';
+        if (room[pool] <= 0) return false;
+        room[pool] -= 1;
+        return true;
+    }).map(skill => ({
         name: oneLine(skill.name, CREATION.skillName), about: oneLine(skill.about, CREATION.skillAbout),
-        stat: STATS.includes(skill.stat) ? skill.stat : skill.stat === 'luk' ? 'wis' : STATS[0], uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: 0,
+        stat: STATS.includes(skill.stat) ? skill.stat : skill.stat === 'luk' ? 'wis' : STATS[0], uses: USES.includes(skill.uses) ? skill.uses : USES[0], start: 0, fromSet: true,
+        // (the set's own type, as a skill the reader adds by hand keeps one: attack is the default and is not written)
+        ...(SKILL_TYPE_NAMES.includes(skill.type) && skill.type !== 'attack' ? { type: skill.type } : {}),
     }));
-    return { ...draft, skills: [...signed, ...draft.skills.filter(skill => skill.type === 'utility' && skill.sig !== true && skill.name), ...skills], set: String(set?.id ?? '') };
+    return { ...draft, skills: [...signed, ...kept, ...skills], set: String(set?.id ?? '') };
 }
 
 /** A new blank skill added to the draft, when there is room. */
@@ -34,7 +43,7 @@ export function withSkillPatch(draft, index, patch) {
     const next = { ...draft.skills[index], ...only };
     // (`type`: one of the eight skill types, utility being the story-only one; a pool that is full refuses it)
     if (patch.type !== undefined && draft.skills[index].sig !== true) {
-        const { type: _type, ...rest } = next, others = utilityCount(draft, index);
+        const { type: _type, fromSet: _from, ...rest } = next, others = utilityCount(draft, index);
         const fits = patch.type === 'utility' ? others < UTILITY_SLOTS : draft.skills.length - others - 1 < combatSlots(draft);
         if (!fits) return draft;
         return { ...draft, skills: draft.skills.map((skill, at) => (at === index ? { ...rest, ...(SKILL_TYPE_NAMES.includes(patch.type) && patch.type !== 'attack' ? { type: patch.type } : {}) } : skill)) };
