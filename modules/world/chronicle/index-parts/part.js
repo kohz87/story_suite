@@ -7,6 +7,7 @@ import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET, NOTE, digestCommand, noteCommand } 
 import { initialChronicle, validateChronicle } from '../domain.js';
 import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
+import { WORLD_EVENTS_FEATURE } from '../world-note.js';
 import { queries } from '../queries.js';
 import { chronicleScreen } from '../screen.js';
 import { THREADS_FEATURE } from '../../../time/tracker/threads.js';
@@ -19,6 +20,12 @@ export const features = Object.freeze([
         label: 'Day digest',
         describe: 'When a story day ends, code writes what it held (places, quests, money, NPC stages, world news and the day\'s other events) from the receipts, for the Journal on the World screen and a one-line reminder after a time skip.',
         default: true,
+    }),
+    Object.freeze({
+        id: WORLD_EVENTS_FEATURE,
+        label: 'World events',
+        describe: 'The world keeps conditions (a closed pass, a plague) and news that travels. While on, a short World note beside the [World] lines tells the story the conditions at the scene, the news that has reached it and the day\'s cue. Off by default.',
+        default: false,
     }),
 ]);
 

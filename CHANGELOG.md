@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (after 0.1.0)
+
+- **World note (world events, job F; the feature `story-director.world-events`, off by default).** While the feature is on, code adds a short **[World now]** block beside the [World] lines of the reply's tail, about 160 tokens at most: the conditions active at the scene (its place, then its route, region and realm), the two newest world entries whose news has reached the scene's place, and the day's authored cue when a pack has one. It reads `chronicle.conditions`, `world.heardHere` and `world.cueToday` only (the first two are the world engine's other jobs; with none of them in the host the note is empty), keeps nothing of its own, and so a swipe, a middle delete, a rewind, a reload and an edited Re-read give the note the state gives. With the feature off no line is added and the tail is the base's, byte for byte. The wording is new model-facing text and waits for the owner's approval (`modules/world/chronicle/world-note-parts/build.js`). `world.cueToday` is not in the contract yet (the daily trigger is a later job); until it exists the Today line never appears.
+
 ## 0.1.0
 
 First release of Story Suite as one extension. It brings together what was Story Block, Story Director and NPC State Delta (now called NPC State). Their own changelogs, with every earlier version, are kept in `docs/history/packages/`.
