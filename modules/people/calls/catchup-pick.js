@@ -20,10 +20,11 @@ export function pickRolling(history, every, people) {
     const used = before.reduce((sum, reply) => sum + new Set(reply?.took || []).size, 0);
     const slots = Math.min(per, per * Math.max(1, waits - 1) - used);
     if (slots <= 0) return [];
-    // Replies since the person's last Refresh; one never refreshed (as far as the history reaches) waits since before its first reply.
+    // Replies since the person's last Refresh; one never refreshed (as far as the history reaches) waits since the first reply they were seen in (that reply counts).
     const waited = id => {
         for (let at = now - 1; at >= 0; at -= 1) if ((list[at]?.took || []).includes(id) || (list[at]?.manual || []).includes(id)) return now - at;
-        return list.length;
+        const first = list.findIndex(reply => (reply?.seen || []).includes(id));
+        return first < 0 ? 0 : now - first + 1;
     };
     const rows = [...seen].map(([id, count]) => ({ id, count, waited: waited(id) })).filter(row => row.waited >= waits);
     const overdue = row => row.waited >= 3 * waits;

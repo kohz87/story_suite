@@ -158,6 +158,8 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 parsed.keyRelationshipEdges = [...modelEdges, ...localEdges];
                 if (!parsed.npcs.length && !(parsed.profileUpdates || []).length && !parsed.keyRelationshipEdges.length) {
                     notify('info', `NPC State Delta: no grounded dossier changes found for ${existing.name} in the last ${settings.scanDepth} messages.`);
+                    // The reader's own Refresh counts as the last Refresh whether or not it changed anything.
+                    if (!automatic && getChatKey() === chatKey && noteManualRefresh(getChatState(chatKey), getContext().chat || [], id)) persist();
                     return { ok: false, noChange: true, result: true, localEdges };
                 }
                 if (!liveBefore) return { ok: false, result: false };

@@ -13,6 +13,7 @@ const chat = [
     msg('Narrator', 'Myla leads the way.'),                                // m4
     msg('Narrator', 'A reply of the dead timeline.', { is_system: true }),   // m5: faded by the story gate (it hides with the same flag)
     msg('You', 'We follow.'),                                              // m6
+    msg('SillyTavern System', 'TOOL: Called WeatherTool', { is_system: true, force_avatar: 'img/five.png', extra: { isSmallSys: true, tool_invocations: [{ name: 'WeatherTool' }] } }),   // m7: a tool-call record (no extra.type)
 ];
 useTranscriptSource({ context: () => ({ chat, name1: 'You', name2: 'Narrator' }), scanDepth: () => 10 });
 useMessageGate({ refresh: async () => chat.map((_, at) => at !== 5) });
@@ -30,6 +31,7 @@ test('SillyTavern system notes and our faded replies are not read', () => {
     const text = recentTranscript(10, { messageIds: true, hidden: true });
     assert.doesNotMatch(text, /Rules: stay near the wall/);
     assert.doesNotMatch(text, /dead timeline/);
+    assert.doesNotMatch(text, /WeatherTool/, 'a tool-call record is not story');
 });
 
 test('the narrator prompt, the reply scans and every other read still skip hidden messages (byte for byte as before)', () => {

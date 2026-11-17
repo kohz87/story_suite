@@ -52,11 +52,13 @@ test('pick: a person not seen in the last N replies is never taken, and one seen
 
 test('pick: overdue (3N replies, 12 at the default) jumps the queue, longest-waiting first, ahead of the most seen', () => {
     const quiet = Array.from({ length: 14 }, () => ({ seen: ['busy'], took: [], manual: [] }));
+    quiet[0].seen = ['busy', 'rare'];
     quiet[9].took = ['busy'];   // busy: last Refreshed 5 replies ago (eligible, not overdue); `rare` never (waited 15)
     const history = [...quiet, { seen: ['busy', 'rare'], took: [], manual: [] }];
     assert.deepEqual(pickRolling(history, 4, 1), ['rare'], 'overdue first although busy was seen 4 times');
     assert.deepEqual(pickRolling(history, 4, 2), ['rare', 'busy']);
     const two = [...Array.from({ length: 14 }, () => ({ seen: [], took: [], manual: [] })), { seen: ['x', 'y'], took: [], manual: [] }];
+    two[0].seen = ['x', 'y'];
     two[1].manual = ['y'];   // both overdue; x has waited longer (never) than y (14)
     assert.deepEqual(pickRolling(two, 4, 1), ['x'], 'longest-waiting first');
 });
@@ -67,6 +69,7 @@ test('pick: otherwise the most seen in the last N replies; ties go to the one re
     h[2].took = ['b']; h[1].took = ['c'];   // b 4 ago... c 5 ago (they are the only ones refreshed)
     h[3].seen = ['a', 'b', 'c', 'm']; h[4].seen = ['a', 'b', 'c', 'm']; h[5].seen = ['a', 'b', 'c', 'm', 'z'];
     h[2].seen = ['m'];
+    h[0].seen = ['a', 'b', 'c', 'm'];   // present from the first reply, never Refreshed (m, a: waited 6)
     // seen in the last 4 replies (idx 2-5): m 4, a 3, b 3, c 3, z 1. m has waited 6 (never), a 6, b 3 (not eligible), c 4 (eligible).
     assert.deepEqual(pickRolling(h, 4, 1), ['m'], 'most seen');
     const tie = h.map(item => ({ ...item, seen: [...item.seen].filter(id => id !== 'm') }));
@@ -134,4 +137,14 @@ test('rewind: replies cut from the end are forgotten, so the picks after them ar
     assert.equal(cut.length, 2);
     const again = r.next(['a', 'b', 'c']);
     assert.deepEqual(again, first[5], 'the new 6th reply decides what the old 6th did');
+});
+
+test('a newcomer in a long chat waits N replies from their first reply, not overdue and not ahead of the others (N=4, K=1)', () => {
+    const history = Array.from({ length: 30 }, () => ({ seen: ['b'], took: [], manual: [] }));
+    history[20].took = ['b'];   // b: Refreshed 10 replies ago, due and not overdue
+    history.push({ seen: ['z', 'b'], took: [], manual: [] });
+    assert.deepEqual(pickRolling(history, 4, 1), ['b'], 'z has been seen for one reply');
+    const later = [...history, ...Array.from({ length: 3 }, () => ({ seen: ['z'], took: [], manual: [] }))];
+    assert.ok(pickRolling(later, 4, 3).includes('z'), 'after N replies seen, z is due like anyone');
+    assert.ok(!pickRolling(history.slice(0, 31).concat({ seen: ['z'], took: [], manual: [] }), 4, 3).includes('z'), 'two replies seen: not yet');
 });

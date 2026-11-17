@@ -38,3 +38,11 @@ test('background evidence is stored like the other slow fields: same caps, merge
     const { state } = mergeScanResult({ npcs: [base], candidates: [], turn: 1 }, { npcs: [], profileUpdates: [{ id: 'myla', name: 'Myla Venn', evidence: { background: ['[m3] grew up in the salt flats'] } }] }, { skipRelationshipUpdate: true, preservePresence: true });
     assert.deepEqual(state.npcs.find(npc => npc.id === 'myla').profileEvidence.background, ['[m3] grew up in the salt flats']);
 });
+
+test('a profile row carries no background either when no grounded quote backs it', () => {
+    const profile = { id: 'myla', background: 'A former smuggler.', backgroundState: 'update', backgroundReason: 'told', mood: 'calm' };
+    const ruled = applyBackgroundRule(row, profile, window);
+    assert.deepEqual(Object.keys(ruled.profile), ['id', 'mood']);
+    const kept = applyBackgroundRule(row, { ...profile, evidence: { background: ['[m3] salt flats'] } }, window);
+    assert.equal(kept.profile.background, 'A former smuggler.', 'a grounded quote keeps it');
+});

@@ -5,7 +5,8 @@ import { activeChat } from './gate.js';
 import { readContext } from './source.js';
 
 // A faded reply is a copy in the active chat (gate.js), so `active[at] !== message` tells it from one /hide hid.
-const hiddenStory = (message, faded) => Boolean(message?.is_system) && !faded && !(typeof message.extra?.type === 'string' && message.extra.type);
+const hiddenStory = (message, faded) => Boolean(message?.is_system) && !faded && !(typeof message.extra?.type === 'string' && message.extra.type)
+    && !message.extra?.tool_invocations && message.force_avatar !== 'img/five.png';   // a tool-call record carries no type but these two marks
 
 /** The chat with each hidden story message read as an ordinary one (same indices), or the chat the story stands on when `hidden` is off. */
 export function windowChat(hidden = false) {

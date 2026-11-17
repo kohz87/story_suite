@@ -21,6 +21,8 @@ export function groundedBackgroundQuotes(profile, transcript) {
 export function applyBackgroundRule(row, profile, transcript) {
     const quotes = groundedBackgroundQuotes(profile, transcript);
     const nextRow = row && !quotes.length ? Object.fromEntries(Object.entries(row).filter(([key]) => !BACKGROUND_KEYS.includes(key))) : row;
+    const strip = item => (item && !quotes.length ? Object.fromEntries(Object.entries(item).filter(([key]) => !BACKGROUND_KEYS.includes(key))) : item);
+    profile = strip(profile);
     if (!profile) return { row: nextRow, profile };
     const raw = profile.evidence ?? profile.profileEvidence ?? profile.profile_evidence ?? profile.observations;
     if (!raw || typeof raw !== 'object') return { row: nextRow, profile };
