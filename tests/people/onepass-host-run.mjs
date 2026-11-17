@@ -106,4 +106,3 @@ try {
     assert.ok(line, `scenario ${name} printed its result`);
     return JSON.parse(line.slice(7));
 }
-
