@@ -97,7 +97,7 @@ export function query(state, name, args, options = {}) {
  * `{ ok: false, code, message, state }` with the state untouched. `time`: what `ctx.time()`
  * answers (a function of the state; default: none, so the clock is read through `director.time`).
  */
-export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined, packs = null, features = null } = {}) {
+export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined, packs = null, features = null, call = null, answers = null } = {}) {
     const rev = state.meta.rev + 1;
     const drafts = {};
     const random = sfc32(seed);
@@ -115,13 +115,15 @@ export function runCommand(state, handler, payload, { seed = 7, cause = 'story',
             drafts[domain] ??= structuredClone(state.domains[domain]);
             return drafts[domain];
         },
-        call: type => { throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); },
+        // `features`: a list of the ids that are on (world line tests) or { id: true } (conditions tests).
+        ...(features ? { feature: id => (Array.isArray(features) ? features.includes(id) : features[id] === true) } : {}),
+        // `call(type, payload, ctx)`: the test's sub-command, on this same command's drafts (as the host's ctx.call).
+        call: call ? (type, payload) => call(type, payload, ctx) : (type => { throw new Rejected('UNKNOWN_COMMAND', `No command ${type} in this test.`); }),
         claim: () => true,
         rng: random,
         fail: (code, message) => { throw new Rejected(code, message); },
-        query: (name, args) => deepFreeze(ask(current(), name, args)),
+        query: (name, args) => (answers && Object.hasOwn(answers, name) ? deepFreeze(structuredClone(answers[name])) : deepFreeze(ask(current(), name, args))),
     };
-    if (features) ctx.feature = id => features[id] === true;
     if (time !== undefined) ctx.time = () => time(current());
     let result;
     try {

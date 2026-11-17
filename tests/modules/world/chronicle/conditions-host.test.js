@@ -84,16 +84,20 @@ test('on the host: swipe, a middle delete, a rewind and an edited Re-read (grown
     await host.swipe(reply('Quiet, but different.'));
     assert.equal(snap(host), before);
     await agrees(host, 'swipe');
-    // An edited Re-read of the skip reply: shrunk (+3d → +1d, so grain-dear lapses later), then grown (+9d).
+    // An edited Re-read of the skip reply: shrunk (+3d → +1h, so grain-dear has not lapsed), then grown (+9d).
     const at = host.ctx.chat.findIndex(message => /Days go\./.test(message.mes));
-    await host.st.editMessage(at, reply('Days go.', ['! time +1d']));
+    await host.st.editMessage(at, reply('Days go.', ['! time +1h']));
+    assert.equal((await host.sdk.reread(at)).ok, true);
     await agrees(host, 'shrunk Re-read');
     const shrunk = names(host);
     await host.st.editMessage(at, reply('Days go.', ['! time +9d']));
+    assert.equal((await host.sdk.reread(at)).ok, true);
     await agrees(host, 'grown Re-read');
     await host.st.editMessage(at, reply('Days go.', ['! time +3d']));
+    assert.equal((await host.sdk.reread(at)).ok, true);
     assert.equal(snap(host), before, 'edited back: as it was');
-    assert.ok(shrunk.length >= 1);
+    // The later reply's settle is a kept system step: it removed grain-dear on the old clock and replays as recorded (see WEINT.REPORT.md).
+    assert.deepEqual(shrunk, ['unrest@Highmark']);
     // A middle delete: the day's reply goes, the later ones replay without it.
     await host.st.deleteMessage(at);
     await agrees(host, 'middle delete');

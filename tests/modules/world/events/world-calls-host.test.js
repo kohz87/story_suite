@@ -33,7 +33,7 @@ async function newHost(on) {
 }
 // The view an event's condition is read on: the head state and the host's own queries (job A's chronicle.conditions, the Journal).
 const met = (host, source, def = {}, defs = []) => {
-    const view = { state: host.head(), query: (name, args) => host.sdk.query(name, args), feature: id => host.sdk.features.isOn(id) };
+    const view = { state: host.head(), query: (name, args) => host.sdk.query(name, args), feature: id => host.features.on(id) };
     const out = evaluateCondition(source, worldEnv(view, def, defs));
     assert.equal(out.error ?? null, null, String(out.error?.message ?? ''));
     return out.met;
