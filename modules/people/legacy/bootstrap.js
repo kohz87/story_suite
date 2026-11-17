@@ -38,11 +38,6 @@ export async function startPeople() {
         console.error('[NPC State Delta] relationship map failed to load', error);
     }
     try {
-        await import('./story-block-tabs.js');
-    } catch (error) {
-        console.error('[NPC State Delta] dossier rows module (story-block-tabs.js) failed to load', error);
-    }
-    try {
         await import('./continuity-ui.js');
     } catch (error) {
         console.error('[NPC State Delta] continuity UI failed to load', error);

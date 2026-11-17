@@ -7,7 +7,8 @@ import { chatContext as getContext, markStands, refusedLooks, worth, relationshi
 import { replyScanned } from '../calls/scan-context.js';
 import { tieDayAt } from '../transcript/transcript.js';
 import { normalizeRelationshipBaseline, isTerminalNpcDeath, npcMatchesLabel, storyMinuteText } from '../core/core.js';
-import { defersArea, resolveDossierTarget } from '../legacy/suite-handshake.js';
+import { storyBlockIsV2 } from '../npc-api/host-probe.js';
+import { resolveDossierTarget } from '../npc-api/dossier-target.js';
 import { awayNpcIds, findKeyEntry, isKey, keyView, normalizeKeyPeople, returnNote } from '../cast/key-people.js';
 import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
@@ -141,7 +142,7 @@ export function createHostedPart(rt, deps) {
     // changed. Without a host, or when the scene cannot answer, Delta's own presence stands.
     function scenePresenceView(npcs) {
         const adapter = storySuiteV2Meters();
-        if (!adapter || !Array.isArray(npcs) || !defersArea('scene', getSettings().sourceOfTruth)) return npcs;
+        if (!adapter || !Array.isArray(npcs) || !storyBlockIsV2()) return npcs;
         let names = null;
         try { names = adapter.scenePresent?.(); } catch { names = null; }
         if (!Array.isArray(names)) return npcs;
@@ -162,7 +163,7 @@ export function createHostedPart(rt, deps) {
     // null otherwise, and the scanner prompt is then exactly as before.
     function scanScenePresent(messageId) {
         const adapter = storySuiteV2Meters();
-        if (!adapter || !defersArea('scene', getSettings().sourceOfTruth)) return null;
+        if (!adapter || !storyBlockIsV2()) return null;
         if (Number.isInteger(messageId) && messageId !== latestMessageId(true)) return null;
         try {
             const names = adapter.presentNow?.();

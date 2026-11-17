@@ -51,7 +51,7 @@ test('the settings owner declares the settings other modules keep controls for, 
         assert.equal(settings().dossierStyle, 'neutral', 'the Dossier style defaults to Neutral');
         assert.equal(settings().injectLimit, 3);
         assert.equal('calendarConfig' in settings(), false, 'no calendar unless one is saved');
-        Object.assign(settings(), { injectLimit: 40, scannerMaxOutputTokens: 50, relationshipMap: { enabled: false, defaultLens: 'nope' }, dossierStyle: 'Gold', calendarConfig: 'broken' });
+        Object.assign(settings(), { injectLimit: 40, scannerMaxOutputTokens: 50, relationshipMap: { enabled: false, defaultLens: 'nope' }, dossierStyle: 'Gold', calendarConfig: 'broken', sourceOfTruth: { scene: 'mine' } });
         globalThis.NPCStateDelta.injectionPreview();
         assert.equal(settings().injectLimit, 12, 'clamped to 1-12');
         assert.equal(settings().scannerMaxOutputTokens, 128, 'the scanner routing normalization');
@@ -61,6 +61,7 @@ test('the settings owner declares the settings other modules keep controls for, 
         globalThis.NPCStateDelta.injectionPreview();
         assert.equal(settings().dossierStyle, 'fantasy', 'a stored look is trimmed and lower-cased');
         assert.equal('calendarConfig' in settings(), false, 'a stored non-object is not a calendar');
+        assert.equal('sourceOfTruth' in settings(), false, 'the v1 handshake choice is dropped from a saved settings object');
     });
     const index = runtimeSource();
     assert.match(index, /settingRow\('npc_state_delta_inject_limit', 'NPCs in the dossier', numberControl\('npc_state_delta_inject_limit', 1, 12, 'NPCs'\)/);
