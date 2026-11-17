@@ -63,7 +63,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null) {
     // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE); null when no fight is open.
     fight: read => selectFightScene(read('interaction.view', {})),
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], profiles: listProfiles(), calls: callsOf(ctx),
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, money: sdk?.settings?.('story-block') ?? {}, features: sdk?.features?.() ?? [], profiles: listProfiles(), calls: callsOf(ctx),
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null,
     }),
     // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).

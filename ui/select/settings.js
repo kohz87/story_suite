@@ -2,6 +2,7 @@
 
 import { selectConnections } from './connections.js';
 import { selectCalls } from './calls.js';
+import { selectMoneyRows } from './money-rows.js';
 import { selectProblems, selectSent } from './tools.js';
 
 const LOOK = ['panelStyle', 'glassStrength', 'font', 'textSize', 'sendPending'];
@@ -96,6 +97,7 @@ export function selectSettings(answers) {
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
+    section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
