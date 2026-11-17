@@ -71,10 +71,11 @@ test('sent from the new view, the fight\'s reply equals the old pause\'s; swipe,
   assert.equal(JSON.stringify(viaOld.host.head()), JSON.stringify(host.head()), 'the same state as the old pause gives');
   await same(host, 'first');
 
-  const live = JSON.stringify(host.head());
+  const live = JSON.stringify(host.head()), stored = JSON.stringify(host.ctx.chat[at].extra.storySuite);
   await host.swipe('Another telling.');
   await host.st.swipeTo(at, 0);
   assert.equal(JSON.stringify(host.head()), live, 'swipe back: as before');
+  assert.equal(JSON.stringify(host.ctx.chat[at].extra.storySuite), stored, 'swipe back: the reply\'s stored record as before');
   await same(host, 'swipe');
   const text = host.ctx.chat[at].mes;
   await host.st.editMessage(at, `${text} She wipes the blade and looks around the yard.`);

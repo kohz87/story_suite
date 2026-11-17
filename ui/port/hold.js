@@ -9,7 +9,7 @@ const ask = (doc, op) => {
   return detail;
 };
 
-/** `{ view(), choose(op) }` on `doc`: `view()` → the waiting choice (null when none waits or the RPG screens are not loaded); `choose(op)` → `{ ok, view }` or `{ ok: false, message }`. */
+/** `{ view(), choose(op), subscribe(fn) }` on `doc`: `view()` → the waiting choice (null when none waits or the RPG screens are not loaded); `choose(op)` → `{ ok, view }` or `{ ok: false, message }`; `subscribe(fn)` hears the bridge say the pause changed (or can now be read) and returns its off. */
 export function createHold(doc = globalThis.document) {
   return Object.freeze({
     view: () => ask(doc, 'view')?.answer ?? null,
@@ -18,6 +18,11 @@ export function createHold(doc = globalThis.document) {
       if (!detail?.handled) return { ok: false, code: 'FAILED', message: 'The waiting fight cannot be reached.' };
       if (detail.error) return { ok: false, code: 'FAILED', message: detail.error };
       return { ok: true, view: detail.answer };
+    },
+    subscribe(fn) {
+      const on = event => { if (event?.detail?.op === 'changed') fn(); };
+      doc?.addEventListener?.(HOLD_EVENT, on);
+      return () => doc?.removeEventListener?.(HOLD_EVENT, on);
     },
   });
 }

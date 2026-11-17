@@ -12,11 +12,11 @@ import { turnOn } from '../../../ui/entry/turn-on.js';
 
 export { settle };
 
-/** `{ doc, host, ui, rpg, replied() }`. `generate(type)` stands for SillyTavern's (default: the fake page's own, with `reply`). */
-export async function livePage(t, { next = true, seed = 4401, reply = 'Astra cuts the rat down.' } = {}) {
+/** `{ doc, host, ui, rpg, replied() }`. SillyTavern's `generate(type)` is the fake page's own, answering `reply`; `callModel` is the host's model (the pre-check asks it). */
+export async function livePage(t, { next = true, seed = 4401, reply = 'Astra cuts the rat down.', callModel = null } = {}) {
   const restore = seedCrypto(seed);
   t.after(restore);
-  const got = await page(t, { formula: 'standard' });
+  const got = await page(t, { formula: 'standard', ...(callModel ? { callModel } : {}) });
   const { doc, host } = got;
   // the page's own event dispatch with the event object (the fake DOM's carries only the type), and SillyTavern's elements the view looks for
   doc.dispatchEvent = event => { for (const entry of [...doc.listeners]) if (entry.type === event.type) entry.fn(event); return true; };

@@ -4,7 +4,7 @@
 
 import { foeStats } from '../combat/foes.js';
 
-/** `{ op, answer }`: op 'view' answers the waiting choice; 'board', 'auto', 'plain', 'send' and 'discard' run the reader's answer and give the new view. */
+/** `{ op, answer }`: op 'view' answers the waiting choice; 'board', 'auto', 'plain', 'send' and 'discard' run the reader's answer and give the new view. The bridge itself sends op 'changed' when it starts or stops answering and when the pause changes. */
 export const HOLD_EVENT = 'story-suite:fight-hold';
 /** `{ id, handled }`: a screen the old view is about to open; a view that shows it itself sets `handled`. */
 export const SCREEN_EVENT = 'story-suite:screen';
@@ -49,6 +49,13 @@ export function attachHoldBridge({ doc, start, discard = () => {} }) {
             detail.error = String(error?.message ?? error);
         }
     };
+    // (a view mounted before the RPG screens loaded, or a reload into a waiting fight, reads the pause again when it can be read)
+    const changed = () => {
+        if (typeof doc?.dispatchEvent !== 'function' || typeof globalThis.CustomEvent !== 'function') return;
+        try { doc.dispatchEvent(new globalThis.CustomEvent(HOLD_EVENT, { detail: { op: 'changed' } })); } catch { /* a listener that throws is the page's */ }
+    };
     doc?.addEventListener?.(HOLD_EVENT, answer);
-    return () => doc?.removeEventListener?.(HOLD_EVENT, answer);
+    const unlisten = start.listen?.(changed);
+    changed();
+    return () => { doc?.removeEventListener?.(HOLD_EVENT, answer); unlisten?.(); changed(); };
 }

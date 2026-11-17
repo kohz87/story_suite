@@ -162,7 +162,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
     on(event, fn) {
       if (typeof fn !== 'function') throw new TypeError('port.on listener must be a function');
       if (event === 'offer') { const off = offer?.()?.subscribe?.(fn); return typeof off === 'function' ? off : () => {}; }
-      if (event === 'interaction') { heard.add(fn); return () => heard.delete(fn); }
+      // (the waiting fight changes outside the engine too: the hold's own word redraws the view as an interaction call does)
+      if (event === 'interaction') { heard.add(fn); const off = hold?.subscribe?.(() => fn(null)); return () => { heard.delete(fn); off?.(); }; }
       let off = null;
       try {
         off = sdk?.on?.(event, fn);
