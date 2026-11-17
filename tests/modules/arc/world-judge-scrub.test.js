@@ -8,6 +8,8 @@ import { SECRET_REASON, scrubJudge, sharesSecret } from '../../../modules/arc/ju
 import { JUDGE_SYSTEM } from '../../../modules/arc/judge/prompt.js';
 import { judgePlan } from '../../../modules/arc/judge/run.js';
 import { readPlan } from '../../../modules/arc/plan.js';
+import { createModule } from '../../../ui/legacy/director/module.js';
+import { createHost } from '../../../testkit/index.js';
 import { OPENING, PLAN, TAIL_KEY, sent, said, setUp } from './world-judge.helpers.js';
 
 const SECRET = 'She forged the Pontiff\'s seal on the writ.';
@@ -21,6 +23,13 @@ test('sharesSecret: a quoted or re-punctuated clause matches; the name alone, co
     assert.equal(sharesSecret('Temiwa watches the writ on the altar.', texts), false);
     assert.equal(sharesSecret('the seal on the gate', texts), false, 'one long word in the run is not enough');
     assert.equal(sharesSecret('forged the Pontiff\'s seal', []), false);
+    // Secrets of short words: four words in a row match whatever their length, and a secret under four words matches whole.
+    for (const secret of ['He killed his own son.', 'It was him all along, not her.', 'She is a spy.', 'He lied.']) {
+        assert.equal(sharesSecret(`The story must not contradict that ${secret.toLowerCase()}`, [secret]), true, secret);
+    }
+    assert.equal(sharesSecret('He lied about the tolls.', ['He lied.']), true, 'a short secret whole, inside a longer text');
+    assert.equal(sharesSecret('Helied is a name.', ['He lied.']), false, 'whole words only');
+    assert.equal(sharesSecret('He is here with his son.', ['He killed his own son.']), false);
 });
 
 test('scrubJudge: NOTE dropped, reasons fixed, reshapes emptied; clean answers and the event refusal stay as they are', () => {
@@ -55,9 +64,26 @@ test('host: a NOTE and a reason quoting a secret never reach the narrator or the
         assert.equal(accepted.ok, true);
         assert.match(accepted.receipt.summary, new RegExp(`Refused: this beat was left out: ${SECRET_REASON}\\.`));
         assert.equal(/forged/i.test(accepted.receipt.summary), false);
+        const arcOf = host => JSON.stringify(Object.values(host.head().domains.arc.arcs)[0]);
+        const record = arcOf(t.host);
+        assert.equal(record.includes('"world"') || /forged/i.test(record), false, 'no world note, no secret in the stored arc');
+        // The plan's reply swiped and back, a rebuild and a fresh load: the same stored arc, never a second judge call.
+        const holder = t.host.ctx.chat.length - 1;
+        await t.host.swipe(said('Dawn, again.'));
+        await t.host.st.swipeTo(holder, 0);
+        assert.equal(arcOf(t.host), record, 'swipe and back');
         await t.host.send('Next.', said('The square.', ['+ hook Square Talk — crowds']));
         const tail = sent(t.host, TAIL_KEY).at(-1);
         assert.match(tail, /^Arc: Succession/m);
         assert.equal(/Arc and the world:|forged/i.test(tail), false);
+        const live = JSON.stringify(t.host.head());
+        t.host.store.rebuild();
+        assert.equal(JSON.stringify(t.host.head()), live, 'rebuild == live');
+        const again = await createHost({ modules: [createModule()] });
+        try {
+            await again.st.loadChat(structuredClone(t.host.ctx.chat));
+            assert.equal(arcOf(again), record, 'a fresh load: the same arc and refusal, no note');
+        } finally { again.close(); }
+        assert.equal(t.judged.length, 1);
     } finally { t.done(); }
 });

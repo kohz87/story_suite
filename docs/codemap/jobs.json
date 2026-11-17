@@ -387,5 +387,9 @@
   "modules/world/chronicle/conditions/here-query.js": "The chronicle.conditionsHere query: the world conditions in force where the party is, with date, reason, meaning and told effects, for the World tab.",
   "modules/world/chronicle/world-daily/tempo.js": "Reads the world tempo setting (chronicle.tempo, text) as the number the daily step runs at.",
   "modules/world/chronicle/world-note-parts/here.js": "Reads the world conditions that hold where the scene is (place, routes from it, region, realm) with what the pack declares for each; the note's and the World tab's one reading.",
-  "ui/fixtures/world-events.js": "Harness fixture for World events on: the World tab's conditions and how the news came, and the World events rows of the World and time page."
+  "ui/fixtures/world-events.js": "Harness fixture for World events on: the World tab's conditions and how the news came, and the World events rows of the World and time page.",
+  "tests/people/npc-secret-ready-cap.test.js": "Tests: the cap on NPC State's \"(may come out)\" lines (one a person, two in all) and a gate's \"of <id>\" naming the owner.",
+  "tests/modules/arc/world-judge-scrub.test.js": "Tests: the Director judge's NOTE, refusal reasons and reshaped lines keep the unlearned secrets out (scrub, judgePlan, the host).",
+  "tests/modules/world/open/open-tempo.test.js": "Tests: the open-template look-ahead at tempo 2 asks only for slots the daily step makes.",
+  "tests/modules/world/daily/wefinal-anchor.test.js": "Tests: an ends_when anchor that recurs (fired:, with an offset, a season) ends the event when it happens after the firing."
 }

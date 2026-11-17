@@ -83,14 +83,16 @@ test('test 120: a named move without from for someone whose start is not where t
 });
 
 test('final review L3: a major with a kinds where and no region or realm warns (the pack loads); with a realm or region, or minor, none', () => {
-    const kinds = (extra = {}, severity = 'major') => variant(content => { const crisis = event(content, 'succession-crisis'); crisis.severity = severity; crisis.where = { kinds: ['town'], ...extra }; });
+    const kinds = (extra = {}, severity = 'major') => variant(content => { const crisis = event(content, 'succession-crisis'); if (severity === undefined) delete crisis.severity; else crisis.severity = severity; crisis.where = { kinds: ['town'], ...extra }; });
     const warned = kinds();
     assert.equal(warned.ok, true, errorsOf(warned));
-    assert.match(warningsOf(warned), /succession-crisis\.where: a major event with a kinds "where" and no region or realm counts against the major-event caps of every realm that has such a place/);
+    assert.match(warningsOf(warned), /succession-crisis\.where: a major event \(severity major, or none given\) with a kinds "where" and no region or realm counts against the major-event caps of every realm that has such a place: unless set in motion it fires only when all of them are under their caps, and its firing holds back new major events in all of them for 45 days \(times the tempo\)\. Add "region" or "realm" to narrow it\./);
+    assert.match(warningsOf(kinds({}, undefined)), /succession-crisis\.where: a major event/, 'no severity is major');
     const realm = sample.content.realms[0].id;
     for (const [label, result] of [['realm', kinds({ realm })], ['minor', kinds({}, 'minor')]]) {
         assert.equal(result.ok, true, `${label}: ${errorsOf(result)}`);
-        assert.doesNotMatch(warningsOf(result), /kinds "where" and no region or realm/, label);
+        assert.doesNotMatch(warningsOf(result), /succession-crisis\.where: a major event/, label);
     }
-    assert.doesNotMatch(warningsOf(variant()), /kinds "where" and no region or realm/, 'the sample as it is');
+    assert.doesNotMatch(warningsOf(variant()), /succession-crisis\.where: a major event/, 'the sample as it is');
+    assert.match(warningsOf(variant()), /dungeon-break\.where: a major event \(severity major, or none given\)/, 'the sample\'s recurring dungeon-break gives no severity, so the engine reads it as major');
 });

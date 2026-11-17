@@ -23,6 +23,8 @@ test('one "(may come out)" line a person, the first open one in pack order, and 
     const h = await host({ delta: delta(), features: ON, answers });
     h.reply('Nice.', '~ npc Mira | trust: +1\n~ npc Oren | trust: +1\n~ npc Zed | trust: +1');
     assert.deepEqual(ready(h), [`${ONCE}\nMira (may come out): Mira secret A.`, 'Oren (may come out): Oren secret A.'], 'Zed, third in key order, gets none');
+    const watched = h.adapter.eventWatch(Object.values(h.delta.records)).map(item => `${item.name}: ${item.event}`);
+    assert.deepEqual(watched, ['Mira: the secret "Mira secret A." comes out', 'Oren: the secret "Oren secret A." comes out'], 'the reveal watch lists only the offered ones');
     answers['chronicle.world.anchors'] = ['fact:c', 'fact:e'];
     assert.deepEqual(ready(h), [`${ONCE}\nMira (may come out): Mira secret C.`], 'the first OPEN one; Oren and Zed have none open');
     answers['chronicle.world.anchors'] = [];

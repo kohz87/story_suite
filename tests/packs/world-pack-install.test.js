@@ -38,10 +38,12 @@ test('the engine reads the parts through packs.content as it expects: kind maps 
     assert.equal(contentOf(packs, 'powers')[0].id, 'ashen-veil');
 });
 
-test('only the two unwritten facts are said (as Problems); the pack installs', () => {
+test('only the two unwritten facts and the unbounded major are said (as Problems); the pack installs', () => {
     const result = check(sample);
-    assert.deepEqual(result.warnings.map(warning => warning.code), ['UNWRITTEN_FACT', 'UNWRITTEN_FACT']);
+    assert.deepEqual(result.warnings.map(warning => warning.code), ['UNWRITTEN_FACT', 'UNWRITTEN_FACT', 'WORLD_WARNING']);
     assert.match(result.warnings[0].message, /letter-found/);
+    // Final review L3: dungeon-break gives no severity (read as major) and a kinds where with no region or realm.
+    assert.match(result.warnings[2].message, /^dungeon-break\.where: a major event \(severity major, or none given\) with a kinds "where"/);
 });
 
 test('a pack without the world parts keeps its old normalized form: no new key appears', () => {
