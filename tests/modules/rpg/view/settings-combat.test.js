@@ -189,32 +189,40 @@ test('F1: the page going out of sight saves what is typed, once; leaving the box
 
 // Fix round 5, B8: the Combat text's saves are serialised, and the last action the reader took is the one that is kept.
 test('B8: Reset clicked while the first Combat save is still running is saved after it, and the default wins', async t => {
-    const slow = { on: true };
+    // The host holds the first save until the test lets it go (the SDK can wait on one before it applies it), so the page does not know yet.
+    let release; let entered;
+    const held = new Promise(resolve => { release = resolve; });
+    const reached = new Promise(resolve => { entered = resolve; });
+    let first = true;
     const wrap = async (type, payload, options, run) => {
-        // the host holds a save before it answers (the SDK can wait on one before it applies it), so the page does not know yet
-        if (type === 'dm.redefine' && slow.on) await new Promise(resolve => setTimeout(resolve, 150));
+        if (type === 'dm.redefine' && first) { first = false; entered(); await held; }
         return run(type, payload, options);
     };
+    // Waits for the real outcome, not a fixed delay; a hang fails with the message below instead of passing by luck.
+    const until = async (done, what) => { for (let n = 0; n < 2000 && !done(); n += 1) await new Promise(resolve => setTimeout(resolve, 5)); assert.ok(done(), what); };
     const { host, root, card } = await open(t, { rules: true, wrap });
+    const redefines = () => host.ctx.chat[host.store.headIndex()].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length;
     const area = card('combat').querySelector('textarea');
     area.value = 'Unsaved edit';
     area.dispatch('focusout');
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await reached;
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'the first save is still waiting');
     root.querySelector('[data-act="combat-reset"]').click();
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await settle();
+    assert.equal(promptOf(host), COMBAT_DEFAULT, 'the reset waits behind the first save');
+    release();
+    await until(() => redefines() === 2, 'both saves were recorded');
     await settle();
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'the default is what the story holds');
     assert.equal(root.querySelector('[data-field="combat"]').value, COMBAT_DEFAULT, 'and what the box shows');
-    const head = host.store.headIndex();
-    assert.equal(host.ctx.chat[head].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length, 2, 'two saves, one after the other');
+    assert.equal(redefines(), 2, 'two saves, one after the other');
     // and the other way round: the same text asked twice while it is being saved is saved once
     const again = root.querySelector('[data-field="combat"]');
     again.value = 'Second edit';
     again.dispatch('focusout');
     again.dispatch('change');
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await until(() => promptOf(host) === 'Second edit', 'the second edit was saved');
     await settle();
     assert.equal(promptOf(host), 'Second edit');
-    assert.equal(host.ctx.chat[head].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length, 3);
+    assert.equal(redefines(), 3);
 });

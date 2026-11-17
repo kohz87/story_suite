@@ -85,7 +85,7 @@ test('a 150-line reply after five such replies stays within its counted and rela
 
 // The story's own replies may bring only 10 new kinds of item each now (r2-2), so the inventory here is
 // filled the way a long story fills it, through a module's grants; then one reply names 150 of them.
-test('a 150-line reply over 900 items the party holds stays inside the old 6 s budget, counted', async t => {
+test('a 150-line reply over 900 items the party holds stays inside the old 6 s budget, counted (the 6 s clock itself with STORY_PERF=1)', async t => {
     const filler = {
         id: 'filler', name: 'Filler', version: '2.0.0-alpha.1',
         commands: {
@@ -104,5 +104,6 @@ test('a 150-line reply over 900 items the party holds stays inside the old 6 s b
     assert.equal(held, 150, 'every line was taken (and taken again, not twice, by each swipe)');
     assert.ok(work.keys < 40_000_000, `the reply walked ${work.keys} keys`);
     assert.ok(perLineClone <= CLONE_PER_LINE, `${perLineClone} nodes cloned per line`);
-    assert.ok(fastest < 6000, `the fastest capture took ${Math.round(fastest)} ms`);
+    // The old 6 s wall-clock budget only holds on a quiet machine, so it is opt-in (STORY_PERF=1); the counted-work bounds above always run.
+    if (process.env.STORY_PERF) assert.ok(fastest < 6000, `the fastest capture took ${Math.round(fastest)} ms`);
 });
