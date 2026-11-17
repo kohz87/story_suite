@@ -10,6 +10,7 @@ import { SURFACE, surface } from '../pick.js';
 import { queries } from '../queries.js';
 import { chronicleScreen } from '../screen.js';
 import { THREADS_FEATURE } from '../../../time/tracker/threads.js';
+import { WORLD_EVENTS } from '../../world/news-switch.js';
 import { beforeGenerate, tail } from './hooks.js';
 
 /** The chronicle's optional mechanics (MODULES §F100). */
@@ -19,6 +20,12 @@ export const features = Object.freeze([
         label: 'Day digest',
         describe: 'When a story day ends, code writes what it held (places, quests, money, NPC stages, world news and the day\'s other events) from the receipts, for the Journal on the World screen and a one-line reminder after a time skip.',
         default: true,
+    }),
+    Object.freeze({
+        id: WORLD_EVENTS,
+        label: 'World events',
+        describe: 'News of the world\'s events reaches each place after the courier\'s time over the routes (or by region), so the Journal\'s news and the narrator\'s [World] lines hold only what has reached where you are.',
+        default: false,
     }),
 ]);
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **World events: news arrives over the routes (job E; switch `story-director.world-events`, off by default).** With the switch on, news of a chronicle entry reaches each place after a delay worked out from the entry's start (`since`) and its place: the courier's time along the shortest chain of routes (new `atlas.courier` query, `modules/atlas/atlas/courier.js`; a route that gives hours takes those, else its km at the courier's pace, **Settings › World: news travels this many km a day by courier**, default 60), and where no chain of routes joins the two places, tiers: the same place at once, the same region 1 day, the same realm 4 days (a place carries a realm only when the atlas gives one), anywhere else 10. Two new queries, `world.newsAt { entryId, place }` → `{ arrivesAt, via: 'route' | 'tier', km?, days? }` and `world.heardHere { place, now }` → the entries whose news has reached the place (default: the scene's place and the Director's clock), answer null with the switch off. Used by the Journal's news (the World screen's News list) and by the narrator's [World] lines (the pick is as it was; entries not yet heard are left out). Nothing is stored: a swipe, an edited Re-read, a middle delete, a rewind or a reload gives the same answer from the same story and clock. A rumour (the World pulse's) is never held back, and an entry with no place or no start time is heard at once. Not built: the Journal's per-day lines (the day digest) are not filtered, and the world note (job F) is not part of this change. Nothing the model is told changes with the switch off (the model-facing text is unchanged either way).
+
 ## 0.1.0
 
 First release of Story Suite as one extension. It brings together what was Story Block, Story Director and NPC State Delta (now called NPC State). Their own changelogs, with every earlier version, are kept in `docs/history/packages/`.

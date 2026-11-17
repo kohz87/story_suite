@@ -107,7 +107,7 @@ test('the module registers whole: screens instead of tabs, settings fields, capt
         'screens.hideBehind', 'time.lapses', 'time.recapHours',
         'tracker.calendar.era', 'tracker.calendar.leapYears', 'tracker.calendar.months', 'tracker.calendar.preset', 'tracker.calendar.week',
         'tracker.dormantDays', 'tracker.dormantReplies', 'tracker.dueSoonDays', 'tracker.elsewhere', 'tracker.initiativeCooldown', 'tracker.maxJump',
-        'world.upcomingDays',
+        'world.courierKmPerDay', 'world.upcomingDays',
     ]);
     assert.equal(defs.schema['tracker.calendar.preset'].label, 'Calendar: Calendar');
     assert.deepEqual(defs.schema['tracker.calendar.preset'].options, ['pack', 'gregorian', 'custom']);
