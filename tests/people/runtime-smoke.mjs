@@ -21,7 +21,7 @@ fs.writeFileSync(path.join(tempRoot, 'package.json'), JSON.stringify({ type: 'mo
 // The host scenarios were written for a scan after every reply; the shipped default is now a safety scan every 5 replies
 // (a reply that names someone still scans at once), so the synthetic host keeps Scan every at 1. tests/lean-scan-cadence.test.js covers the default.
 const mockState = {
-    extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': { scanEvery: 1 } } } },
+    extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': { scanEvery: 1, narrationCapture: false } } } },
     prompts: [],
     listeners: new Map(),
     quietResponder: null,

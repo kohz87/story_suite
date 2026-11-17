@@ -13,7 +13,7 @@ export const DEFAULTS = Object.freeze({
     enabled: true,
     autoScan: true,
     fullScanEveryTurn: false,
-    narrationCapture: false,
+    narrationCapture: true,
     // (1.2.11) With one-pass capture: a quiet Refresh of the NPCs most in the last N captured
     // replies (0 = never), for the slow fields a block beside the story tends to leave thin.
     narrationCaptureCatchUp: 4,

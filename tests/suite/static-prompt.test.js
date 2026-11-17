@@ -25,13 +25,14 @@ const REPLIES = [
 ];
 
 // Scenarios:
-// - default: suiteHost(loaded, { seed: 1 }) with default settings (note: story-block.rpg defaults to false).
+// - default: suiteHost(loaded, { seed: 1 }) with default settings (NPC State's one-pass capture is on by default since 17 Nov, so the NSD key is sent; its own scenario below switches it off) (note: story-block.rpg defaults to false).
 // - lean_rpg_on: sets 'story-block.rpg' = true (CORE_FEATURE.leanRpg in src/v2/features.js;
 //   LEAN_RPG_FEATURE in src/v2/lean-rpg/names.js; gear-inventory.test.js turns it on the same way). Off is the default.
 // - story_director_off: turns off all 'story-director.*' features from host.sdk.features()
 //   (defined in packages/story-director/src/v2/*/index.js; suiteHost always registers SD with no module-off flag).
-// - npc_state_delta_one_pass: NPC State Delta's one-pass capture on, so its own key (story_suite_static_npc_state_delta) is sent.
+// - (the old npc_state_delta_one_pass scenario is the default now: one-pass capture is on by default, so the default sends NSD's own key story_suite_static_npc_state_delta.)
 // - npc_state_delta_off: NSD itself off (the adapter's isEnabled() false) with one-pass still set: no NSD part at all.
+// - npc_state_delta_one_pass_off: one-pass capture switched off in Settings › People: no NSD part, the rest as default.
 // - npc_caps_on: the host gives impact-tier caps, so the meter paragraph's impact clause is pinned (none of the others has it).
 // - key_people_on: one pinned key person, so the away grammar line and the Key people paragraph are pinned (the `- key` grammar line and the paragraph's death sentence left in B1.7).
 const SCENARIOS = [
@@ -41,9 +42,9 @@ const SCENARIOS = [
         configure: () => {},
     },
     {
-        id: 'npc_state_delta_one_pass',
-        title: 'NPC State Delta one-pass capture on',
-        onePass: true,
+        id: 'npc_state_delta_one_pass_off',
+        title: 'NPC State Delta one-pass capture switched off (background scans): no NSD part',
+        onePass: false,
         configure: () => {},
     },
     {
@@ -162,7 +163,7 @@ for (const scenario of SCENARIOS) {
         const host = await suiteHost(suite, { seed: 1 });
         t.after(() => host.close());
         await scenario.configure(host);
-        const nsd = { enabled: state.enabled, onePass: scenario.onePass === true };
+        const nsd = { enabled: state.enabled, onePass: scenario.onePass !== false };
 
         // The static keys are read at the moment the request is built (Story Block clears its key again after the reply).
         const atRequest = [];

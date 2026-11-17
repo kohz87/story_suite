@@ -17,8 +17,9 @@ const mapRow = (row, field, make, show) => ({ ...row, store: 'relationshipMap', 
 /** Returns the rows of Refresh and the narrator, Portraits and Map. */
 export function runRows() {
   return [
-    zeroOff(intRow('Refresh and the narrator', 'refreshEvery', 'Refresh every', 'narrationCaptureCatchUp', 4, { min: 0, max: 50, unit: 'replies', tags: ['replaced:D13', 'cost:model call'], hint: 'Re-reads the recent story for the people seen most; replaces the event scan and the every-5 safety scan' })),
-    intRow('Refresh and the narrator', 'npcsRefreshedPerReply', 'NPCs refreshed per reply', 'narrationCaptureCatchUpPeople', 1, { min: 1, max: 3, unit: 'people', tags: ['cost:model call'], hint: 'The most people one reply may Refresh (1 to 3); nobody is taken twice inside the wait' }),
+    swRow('Refresh and the narrator', 'onePassCapture', 'One-pass capture', 'narrationCapture', true, { hint: 'The narrator writes NPC State’s changes in its reply; off = background scans' }),
+    zeroOff(intRow('Refresh and the narrator', 'refreshEvery', 'Refresh every', 'narrationCaptureCatchUp', 4, { min: 0, max: 50, unit: 'replies', tags: ['replaced:D13', 'cost:model call'], hint: 'Applies when one-pass capture is on. Re-reads the recent story for the people seen most; replaces the event scan and the every-5 safety scan' })),
+    intRow('Refresh and the narrator', 'npcsRefreshedPerReply', 'NPCs refreshed per reply', 'narrationCaptureCatchUpPeople', 1, { min: 1, max: 3, unit: 'people', tags: ['cost:model call'], hint: 'Applies when one-pass capture is on. The most people one reply may Refresh (1 to 3); nobody is taken twice inside the wait' }),
     intRow('Refresh and the narrator', 'refreshReadsBack', 'Refresh reads back', 'scanDepth', 6, { min: 2, max: 30, unit: 'messages', hint: 'How much recent story each Refresh reads' }),
     swRow('Refresh and the narrator', 'shortOnePassInstruction', 'Short one-pass instruction', 'narrationCaptureCompact', false),
     intRow('Refresh and the narrator', 'peopleTheNarratorIsToldA', 'People the narrator is told about', 'injectLimit', 3, { min: 1, max: 12, tags: ['cost:tokens'], hint: 'Most present people in the prompt each reply' }),
