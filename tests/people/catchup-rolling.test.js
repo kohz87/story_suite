@@ -59,7 +59,7 @@ test('pick: overdue (3N replies, 12 at the default) jumps the queue, longest-wai
     assert.deepEqual(pickRolling(history, 4, 2), ['rare', 'busy']);
     const two = [...Array.from({ length: 14 }, () => ({ seen: [], took: [], manual: [] })), { seen: ['x', 'y'], took: [], manual: [] }];
     two[0].seen = ['x', 'y'];
-    two[1].manual = ['y'];   // both overdue; x has waited longer (never) than y (14)
+    two[1].manual = ['y'];   // both overdue; x has waited longer (never) than y (13)
     assert.deepEqual(pickRolling(two, 4, 1), ['x'], 'longest-waiting first');
 });
 

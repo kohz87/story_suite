@@ -44,6 +44,30 @@ test('a Refresh answer with a background and no grounded quote does not store it
     assert.equal(result.mood, 'warm', 'the rest of the answer still applies');
 });
 
+test('a hidden user turn grounds a mannerism development in the Refresh merge (the user-turn read keeps hidden: true)', () => {
+    const result = runCalls('refresh-hidden-user-wiring', true, async ({ reply, mockState }) => {
+        const YUNYUN = { npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }] };
+        await reply('Yunyun waves from the gate. She always hums quietly.', YUNYUN);
+        const id = globalThis.NPCStateDelta.getState().npcs.find(item => item.name === 'Yunyun').id;
+        const inner = mockState.quietResponder;
+        const answer = (globalThis.ANSWERS = []);
+        mockState.quietResponder = async args => (/reconciliation scanner/i.test(String(args?.systemPrompt || '')) ? JSON.stringify(answer.shift()) : inner(args));
+        const seed = 'hums quietly';
+        answer.push({ npcs: [{ name: 'Yunyun' }], profileUpdates: [{ name: 'Yunyun', mannerisms: [seed], mannerismState: 'refine', evidence: { mannerisms: ['She always hums quietly.'] } }] });
+        await globalThis.NPCStateDelta.refreshFromChat('Yunyun');   // a blank list takes a seed with no user turn
+        const seeded = globalThis.NPCStateDelta.getNpc(id).mannerisms;
+        // Now a development of a filled list: only a user turn can ground it, and the only one that says so is hidden (/hide).
+        mockState.context.chat.splice(1, 0, { is_user: true, is_system: true, name: 'You', mes: 'Yunyun has become a habitual nail biter whenever she is nervous.', swipe_id: 0, swipes: [] });
+        const why = 'she has become a habitual nail biter whenever she is nervous';
+        const grown = { name: 'Yunyun', mannerisms: [seed, 'bites her nails whenever she is nervous'], mannerismState: 'evolve', mannerismReason: why, developmentScale: 'explicit', developmentReason: why, evidence: { mannerisms: ['a habitual nail biter whenever she is nervous'] } };
+        answer.push({ npcs: [grown], profileUpdates: [grown] });
+        await globalThis.NPCStateDelta.refreshFromChat('Yunyun');
+        return { seeded, mannerisms: globalThis.NPCStateDelta.getNpc(id).mannerisms };
+    });
+    assert.deepEqual(result.seeded, ['hums quietly']);
+    assert.deepEqual(result.mannerisms, ['hums quietly', 'bites her nails whenever she is nervous']);
+});
+
 async function manualThenReply({ reply, settings, mockState }) {
     settings.narrationCaptureCatchUp = 2;
     const YUNYUN = { npcs: [{ name: 'Yunyun', present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }] };

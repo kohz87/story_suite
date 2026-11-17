@@ -14,6 +14,8 @@ const chat = [
     msg('Narrator', 'A reply of the dead timeline.', { is_system: true }),   // m5: faded by the story gate (it hides with the same flag)
     msg('You', 'We follow.'),                                              // m6
     msg('SillyTavern System', 'TOOL: Called WeatherTool', { is_system: true, force_avatar: 'img/five.png', extra: { isSmallSys: true, tool_invocations: [{ name: 'WeatherTool' }] } }),   // m7: a tool-call record (no extra.type)
+    msg('Megumin', '[Megumin sends a picture that contains: 1girl, red eyes, eyepatch].', { is_system: true, extra: { media: [{ source: 'generated', url: 'a.png' }], inline_image: true } }),   // m8: an image-generation message (no extra.type)
+    msg('Megumin', '{{be shy}}', { is_system: true, extra: { bias: '{{be shy}}' } }),   // m9: a bias-only /sendas
 ];
 useTranscriptSource({ context: () => ({ chat, name1: 'You', name2: 'Narrator' }), scanDepth: () => 10 });
 useMessageGate({ refresh: async () => chat.map((_, at) => at !== 5) });
@@ -32,6 +34,8 @@ test('SillyTavern system notes and our faded replies are not read', () => {
     assert.doesNotMatch(text, /Rules: stay near the wall/);
     assert.doesNotMatch(text, /dead timeline/);
     assert.doesNotMatch(text, /WeatherTool/, 'a tool-call record is not story');
+    assert.doesNotMatch(text, /sends a picture/, 'a generated image message is not story');
+    assert.doesNotMatch(text, /be shy/, 'a bias-only /sendas is not story');
 });
 
 test('the narrator prompt, the reply scans and every other read still skip hidden messages (byte for byte as before)', () => {
