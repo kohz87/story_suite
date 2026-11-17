@@ -69,7 +69,8 @@ test('switch on: the real pack sets its condition; swipe, swipe back, edited Re-
     await host.send('Next.', reply('Noon.', ['! time +2h']));
     await host.st.editMessage(crossing, reply('Dawn.', ['! time +1h']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
-    assert.equal(dailyReceipts(host).some(entry => entry.index === crossing), false, 'shrunk: no day crossed');
+    // A shrunk Re-read steps no day; when the old step had fired something, a 0-day step stays to carry the "no longer fired" warning (WEC2, E21).
+    assert.equal(dailyReceipts(host).some(entry => entry.index === crossing && entry.receipt.data.days > 0), false, 'shrunk: no day stepped');
     await agrees(host, SMALL, true, 'shrunk Re-read');
     await host.st.editMessage(crossing, reply('Dawn.', ['! time +6d']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
