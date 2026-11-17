@@ -3,6 +3,7 @@
 
 import { parseAnchor, parseCondition, parseEntry, parseThreshold } from './grammar.js';
 import { STANDING } from '../../limits.js';
+import { arcEndedKnown, checkDate } from './date-anchor.js';
 
 /** A condition string: its name is declared, its ref names a place, route, region or realm of the condition's scope (or a placeholder of that scope). */
 export function checkConditionText(text, ctx, field, { duration = 'allow' } = {}) {
@@ -47,6 +48,8 @@ function checkAnchorRecord(anchor, text, ctx, field) {
     } else if (kind === 'died' || kind === 'departed') {
         if (ctx.index.refused.has(id)) ctx.collect.warnings.push([field, `"${text}": "${id}" was refused (see the cast Problems); the step skips what names them.`]);
         else if (!ctx.index.person(id)) return ctx.say(field, `"${text}": "${id}" is not a cast id; a person pointed at by id must be a cast entry.`, 'UNKNOWN_REF'), null;
+    } else if (kind === 'date') { if (!checkDate(id, text, ctx, field)) return null;
+    } else if (kind === 'arc-ended') { if (!arcEndedKnown(id, text, ctx, field)) return null;
     } else if (kind === 'learned') {
         if (!learnedKnown(id, text, ctx, field)) return null;
     } else if (kind === 'fact') ctx.collect.factRefs.add(id);

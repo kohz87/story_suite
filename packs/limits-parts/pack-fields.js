@@ -7,4 +7,4 @@ export const PACK_FIELDS = Object.freeze(['id', 'format', 'version', 'name', 'au
 // this pack's currency is in use; numbers the pack writes itself (ranks, item values, prices) stay as written.
 export const ECONOMY_FIELDS = Object.freeze(['scale', 'note']);
 export const ECONOMY_LIMITS = Object.freeze({ min: 0.001, max: 1000, note: 500 });
-export const START_FIELDS = Object.freeze(['scene', 'inventory']);
+export const START_FIELDS = Object.freeze(['scene', 'inventory', 'world']);

@@ -17,6 +17,8 @@ function oneEntry(record, say) {
     const out = { kind: record.kind, id: record.id };
     for (const [field, max] of Object.entries(TEXTS)) {
         if (record[field] === undefined) { if (field === 'name') say('name', 'name is required.'); continue; }
+        // `age` is a number or text (spec v0.14.10): a number is kept as its digits, like the text NPC State stores.
+        if (field === 'age' && typeof record.age === 'number') { if (Number.isInteger(record.age) && record.age >= 0 && record.age <= 99999) out.age = String(record.age); else say('age', 'age as a number must be a whole number from 0 to 99999 (or write text: "about 300", "ageless").'); continue; }
         if (!plain(record[field], max)) say(field, `${field} must be plain text of 1 to ${max} characters (no < > { }).`);
         else out[field] = oneLine(record[field]);
     }
