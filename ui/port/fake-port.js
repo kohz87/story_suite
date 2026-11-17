@@ -25,6 +25,8 @@ export function createFakePort(options = {}) {
       return structuredClone(currentViews[tab]);
     },
 
+    can: () => true,
+
     async command(type, payload, cmdOptions) {
       const entry = record({
         kind: 'command',

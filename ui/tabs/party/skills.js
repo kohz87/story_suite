@@ -2,6 +2,7 @@
 import { h } from '../../kit/dom.js';
 import { glyph } from '../../kit/glyphs.js';
 import { openSheet } from './slot-picker.js';
+import { can } from '../../runtime/can.js';
 
 const KIND_LABEL = { attack: 'Attack', area: 'Area attack', magic: 'Magic attack', heal: 'Heal', stance: 'Stance' };
 const KIND_GLYPH = { attack: 'atk', area: 'area', magic: 'bolt', heal: 'heal', stance: 'stance' };
@@ -31,7 +32,7 @@ export function skillSheet(member, skill, ctx = {}) {
       h('span', { class: 'ti' }, glyph(glyphOf(skill))),
       h('div', null, h('div', { class: 'ps-n ps-n2' }, KIND_LABEL[skill.kind] ?? skill.kind), h('div', { class: 'ps-s' }, `${skill.stat} · ${costText(skill)}`))),
     h('dl', { class: 'ps-kv' }, h('dt', null, 'Rank'), h('dd', null, `${skill.rank}, mastery ${skill.mastery} of 7 `, masteryBar(skill.mastery, 'inline'))),
-    h('div', { class: 'ps-row' }, edit),
+    can(ctx, 'rpg.skill.edit') ? h('div', { class: 'ps-row' }, edit) : null,
   );
   return sheet;
 }
@@ -58,7 +59,7 @@ export function skillsCard(member, ctx = {}) {
   return h(
     'div',
     { class: 'skills-col' },
-    h('div', { class: 'secl' }, `Skills · ${skills.length}`, edit),
+    h('div', { class: 'secl' }, `Skills · ${skills.length}`, can(ctx, 'rpg.skill.edit') ? edit : null),
     h('div', { class: 'skl' }, skills.map(s => skillRow(member, s, ctx))),
   );
 }

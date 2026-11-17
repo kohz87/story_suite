@@ -2,6 +2,7 @@
 import { h } from '../../kit/dom.js';
 import { memberSheet } from './sheet.js';
 import { portraitEl } from './slots.js';
+import { can } from '../../runtime/can.js';
 
 const picked = new WeakMap();
 
@@ -26,7 +27,7 @@ function memberButton(member, active, onPick) {
 export function partyTab(party, ctx = {}) {
   const members = party?.members ?? [];
   const rootAttrs = { class: 'party-tab', dataset: { tab: 'party' } };
-  const showInvite = Boolean(party?.canInvite) && members.length < (party?.max ?? 4);
+  const showInvite = Boolean(party?.canInvite) && members.length < (party?.max ?? 4) && can(ctx, 'party.invite');
   if (!members.length && !showInvite) return h('div', rootAttrs);
   const strip = h('div', { class: 'mem' });
   const invite = showInvite

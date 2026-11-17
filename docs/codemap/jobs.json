@@ -343,5 +343,11 @@
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
-  "ui/theme/tokens.js": "Token names and the Glass dark and light values."
+  "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
+  "ui/port/aliases.js": "The new view's command names that the engine registers under another name or as one dm.set: Quiet scene, End this arc and Spend points.",
+  "ui/port/own-names.js": "The command names the port answers itself, not the engine: the settings page and the card offer.",
+  "ui/runtime/can.js": "Says whether a control that sends a command should be drawn: false only when the port has nobody to answer it.",
+  "tests/ui/port/aliases.test.js": "Tests for ui/port/aliases.js: Spend points as one dm.set, Quiet scene and End this arc, and the port's can.",
+  "tests/ui/gates.test.js": "Tests that a control whose command the live port cannot answer is not drawn, and that the card's ‹ Chat closes the suite.",
+  "tests/ui-gaps/live-commands.test.js": "Contract test: every command the new view can send (source scan) is answered by the port or registered, or its control is gated by port.can."
 }

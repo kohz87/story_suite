@@ -3,6 +3,8 @@
 import { modelsCommand } from './models.js';
 import { toolsCommand } from './tools.js';
 import { trackerCommand } from './trackers.js';
+import { ALIAS_NAMES, aliasCommand } from './aliases.js';
+import { OWN_NAMES } from './own-names.js';
 
 /** The page event `port.open` sends and the host answers (ui/legacy/ui-host/lean-rpg-sync.js). */
 export const OPEN_EVENT = 'story-suite:open';
@@ -84,6 +86,12 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         return null;
       }
     },
+    // Whether a control that sends `type` can work: the port answers it itself, or a registered module has the command. The view hides a control that cannot.
+    can(type) {
+      if (typeof type !== 'string') return false;
+      if (OWN_NAMES.includes(type) || ALIAS_NAMES.includes(type) || type.startsWith('tracker.') || type.startsWith('interaction.')) return true;
+      try { return (sdk?.modules?.() ?? []).some((def) => Array.isArray(def?.commands) && def.commands.includes(type)); } catch { return false; }
+    },
     async command(type, payload, options) {
       // The Models page's pick and test (port/models.js) are answered here; every other command goes to the sdk.
       if (type === 'settings.set' || type === 'settings.action') {
@@ -97,6 +105,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         const answer = await trackerCommand(sdk, type, payload).catch(failure);
         if (answer) { announce(answer); return answer; }
       }
+      if (ALIAS_NAMES.includes(type)) { const answer = await aliasCommand(sdk, type, payload).catch(failure); announce(answer); return answer; }
       if (type === 'packs.offer') return offerCommand(offer?.(), payload);
       if (typeof type === 'string' && type.startsWith('interaction.')) {
         const verb = type.slice('interaction.'.length);
