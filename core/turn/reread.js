@@ -125,6 +125,8 @@ export function createReread(s, deps) {
             if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = hidden;
             redraw(index, message);
         }
+        // The text is final: the blocks' boundary hashes are stamped from it, so none is stale.
+        store.restampHashes?.(index);
         timeline?.settle();
         if (timeline?.needsRecovery()) await timeline.recover();
         if (sceneBefore) logSceneReread(store, index, sceneBefore, receipts, late.length);
