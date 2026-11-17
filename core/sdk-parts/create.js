@@ -12,6 +12,7 @@ import { createPublicPaths } from '../persist/public-paths.js';
 import { createCardSettings } from '../../packs/card-settings.js';
 
 import { isObject } from '../sdk/shared.js';
+import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA } from '../sdk/constants.js';
 import { createEvents } from '../sdk/events.js';
 import { newId } from '../sdk/ids.js';
 import { createPanels } from '../sdk/panels.js';
@@ -217,7 +218,8 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
          */
         registerCardSettings: spec => cardSettings.register(spec),
         check: check ? Object.freeze({ ...check }) : null,
-        settings: id => settings(id),
+        /** `settings(id)` reads a module's (no id: the host's) settings; `settings.defaults` and `settings.schema` are the host's frozen defaults and schema (the Settings page draws its rows from them). */
+        settings: Object.assign(id => settings(id), { defaults: HOST_SETTINGS_DEFAULTS, schema: HOST_SETTINGS_SCHEMA }),
         /** Whether the internal rollout flag `name` (e.g. `suite.isolatedApply`) is on; read at each call, false for anything unknown. Read-only, for Story Director and Delta. */
         flag: name => { try { return flag(name) === true; } catch { return false; } },
         /** Panels that are marked dirty instead of drawn (`suite.redrawScheduler`): `{ on, register(id, section) → off, changed(keys), hold() }`; inert while the flag is off (sdk/panels.js). */
