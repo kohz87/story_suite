@@ -36,7 +36,7 @@ export function selectHold(info, { sheet = null, place = null } = {}) {
   if (!working && !foeGroups.length) return null;
   return {
     id: text(info.id) || `hold:${FIGHT_KIND}`, kindId: FIGHT_KIND, title: 'Fight', state: 'open', steps: 0, canSend: false, canDiscard: false,
-    hold: { working, count: working ? 0 : (info.foes ?? []).reduce((n, foe) => n + Math.max(1, whole(foe?.count)), 0), plain: !working && Boolean(text(info.sendLabel)), line: working ? text(info.title) : '', error: text(info.error) },
+    hold: { working, count: working ? 0 : (info.foes ?? []).reduce((n, foe) => n + Math.max(1, whole(foe?.count)), 0), plain: !working && Boolean(text(info.sendLabel)), offer: info.offer === true, standing: info.standing === true, line: working ? text(info.title) : '', error: text(info.error) },
     view: { state: 'offer', title: text(place) ? `Fight · ${text(place)}` : 'Fight', subtitle: null, exchange: 1, foeGroups, party: partyOf(sheet), actors: [], log: [], order: [], end: null },
   };
 }

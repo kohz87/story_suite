@@ -6,6 +6,7 @@ import { fold, readSheet } from '../read.js';
 import { openFight as boardSession } from './port-session.js';
 import { isRollReceipt } from './results.js';
 import { offerLineData } from './start-view-data.js';
+import { fightFoes } from './start-view-data-parts/fight-foes.js';
 
 const standing = state => state ? readSheet(state).foes.filter(foe => foe.filled && foe.hurt > 0) : [];
 const identity = foe => `${foe.slot}:${fold(foe.name)}`;
@@ -93,9 +94,19 @@ function hideFightOffer(meta, sid) {
 }
 
 export function createFightOffers({ ctx, doc, store, meta, on, view, open, save, refresh } = {}) {
+    const listeners = new Set();
     const find = () => findFightOffer(ctx?.chat, store, meta(), on);
+    // What the new view draws for the same offer (hold-bridge.js): the fight's pause shape, `offer: true`; null when no offer stands.
+    const info = () => {
+        const offer = find();
+        let foes = [];
+        try { foes = offer ? fightFoes(offer.fight, store.head()) : []; } catch { /* no sheet to read */ }
+        return foes.length ? { id: `offer:${offer.sid}`, kindId: 'story-block/fight', mode: 'ready', choice: null, offer: true, standing: offer.fight.standing === true, title: 'Fight', sid: offer.sid, foes: foes.map(({ name, count, level }) => ({ name, count, level })) } : null;
+    };
+    let told = null;
     const update = () => {
         const offer = find();
+        if ((offer?.sid ?? null) !== told) { told = offer?.sid ?? null; for (const tell of [...listeners]) { try { tell(); } catch { /* a listener that throws is the page's */ } } }
         const message = offer && doc.querySelector?.(`.mes[mesid="${offer.index}"]`);
         if (!message) { view.clear(); return offer; }
         const data = offerLineData(offer.fight, { state: store.head() });
@@ -112,5 +123,8 @@ export function createFightOffers({ ctx, doc, store, meta, on, view, open, save,
         update();
         refresh?.();
     };
-    return { find, update, choose };
+    // The new view's answer: `how` 'board' or 'auto' on the offer that stands now (the same choose the old line's buttons call).
+    const answer = how => { const offer = find(); if (offer) choose({ sid: offer.sid }, how); };
+    const listen = fn => { listeners.add(fn); return () => listeners.delete(fn); };
+    return { find, update, choose, info, answer, listen };
 }
