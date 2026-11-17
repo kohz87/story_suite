@@ -4,9 +4,10 @@ import { contentText } from './content.js';
 
 // The closing cue: one short fixed line sent as the very last text of a reply's prompt (after the preset's own depth-0 blocks), so a
 // reply's <Changes> block is not forgotten when the preset's thinking guide stops naming it. Fixed text, so the cache keeps it.
-export const CLOSING_CUE_TAIL = 'Changes worked out only in thinking are lost.';
-export function closingCue(onePass) {
-    return `After the story, write the <Changes> block${onePass ? ', then the hidden npc_state_delta block' : ''}. ${CLOSING_CUE_TAIL}`;
+export const CLOSING_CUE_TAIL = 'when nothing changed, write `<Changes></Changes>`.';
+// (`onePass` is kept for the callers: the cue no longer names the npc_state_delta block, owner approval 18 Nov 01:55.)
+export function closingCue() {
+    return `End every reply with the \`<Changes>\` block, after the story and outside your thinking; ${CLOSING_CUE_TAIL}`;
 }
 // Put `cue` last in a chat-completion message list: appended to the final message that is not an assistant prefill (one message, so a
 // provider that wants the last turn from the user still gets it, and Semi-strict has nothing to merge); true when added (not twice).

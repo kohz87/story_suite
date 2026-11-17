@@ -28,7 +28,7 @@ const PAGES = {
   [resetLabel('Director')]: () => ({ settings: DIRECTOR_ROWS.map(r => [r.module, r.field, MODULE_DEFAULTS[r.module]?.[r.field]]), features: [] }),
   [resetLabel('Chat extras')]: () => ({ settings: Object.values(EXTRAS_SETTINGS).map(n => [EXTRAS_MODULE, n, MODULE_DEFAULTS[EXTRAS_MODULE][n]]), features: Object.values(EXTRAS_FEATURES) }),
   [resetLabel('Models')]: () => ({
-    settings: [...hostPairs(['quickConnection', 'backgroundConnection', 'callQueue']), [EXTRAS_MODULE, 'assistExtractorKinds', DEFAULT_KINDS]],
+    settings: [...hostPairs(['quickConnection', 'backgroundConnection', 'callQueue']), [EXTRAS_MODULE, 'assistExtractorKinds', DEFAULT_KINDS], [EXTRAS_MODULE, 'assistRepair', false]],
     features: [FALLBACK],
   }),
 };

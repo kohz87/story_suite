@@ -245,7 +245,7 @@ test('settings default to the sdk\'s when no view is given', async () => {
         globalThis.StoryBlock = { sdk: { settings: id => { asked.push(id); return { [SETTING.extractor]: false }; } } };
         const part = createAssistPart({ callModel: fakeModel(ANSWER), grammar: () => GRAMMAR, chatId: () => 'c', warn: () => {} });
         assert.equal(await part.hooks.afterReply({ index: 1, mes: STORY }), null);
-        assert.deepEqual(asked, ['story-block']);
+        assert.deepEqual(asked, ['story-block', 'story-block'], 'the repair and the extractor each read the settings');
     } finally {
         globalThis.StoryBlock = previous;
     }

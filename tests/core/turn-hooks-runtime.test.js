@@ -94,7 +94,8 @@ test('the static instruction asks for <Changes> only, never a state block', asyn
     await host.turn.interceptor([], 8192, () => {}, 'normal');
     const text = host.st.prompt(STATIC_KEY);
     assert.match(text, /This is the only block you write: no state, inventory or party blocks/);
-    assert.equal(text.match(/<[A-Z][A-Za-z_]*>/g).join(','), '<Changes>', 'no other block tag is named');
+    assert.equal([...new Set(text.match(/<[A-Z][A-Za-z_]*>/g))].join(','), '<Changes>', 'no other block tag is named');
+    assert.match(text, /leave out what did not change; when nothing changed, still write the block, empty: `<Changes><\/Changes>`\./);
     host.close();
 });
 
@@ -173,28 +174,28 @@ test('a redraw that fails at MESSAGE_RECEIVED (the reply is not drawn yet) does 
 
 test('closing cue: the last text of a reply\'s prompt, fixed, one-pass wording only when NPC State Delta captures, never on quiet prompts', async () => {
     const host = await fakeHost();
-    const cue = 'After the story, write the <Changes> block. Changes worked out only in thinking are lost.';
+    const cue = 'End every reply with the `<Changes>` block, after the story and outside your thinking; when nothing changed, write `<Changes></Changes>`.';
     assert.equal(closingCue(false), cue);
-    assert.equal(closingCue(true), 'After the story, write the <Changes> block, then the hidden npc_state_delta block. Changes worked out only in thinking are lost.');
+    assert.equal(closingCue(true), cue, 'one wording: the npc_state_delta clause is gone (owner approval 18 Nov 01:55)');
     assert.ok(closingCue(true).length < 160, 'under 40 tokens');
     const sent = await host.send('Hello.', 'Hi.');
     assert.ok(sent.request.chat.at(-1).content.endsWith(`\n\n${cue}`), 'the very last text, after the tail');
-    assert.equal(sent.request.chat.filter(message => String(message.content).includes('lost.')).length, 1);
+    assert.equal(sent.request.chat.filter(message => String(message.content).includes('write `<Changes></Changes>`.')).length, 1);
     // After a preset's own depth-0 block and before a prefill.
     const chat = [{ role: 'user', content: 'Hi\n<thinking_guide>plan</thinking_guide>' }, { role: 'assistant', content: 'Prefill' }];
     assert.equal(appendClosingCue(chat, cue), true);
     assert.deepEqual(chat.map(message => message.role), ['user', 'assistant']);
     assert.ok(chat[0].content.endsWith(`</thinking_guide>\n\n${cue}`));
     assert.equal(appendClosingCue(chat, cue), false, 'never twice');
-    // NPC State Delta's one-pass capture rules sit in its extension prompt: the cue then names its hidden block too.
+    // NPC State Delta's one-pass capture rules sit in its extension prompt: the cue is the same.
     host.ctx.extensionPrompts = { story_suite_static_npc_state_delta: { value: 'capture rules' } };   // SillyTavern's own map; the fake keeps its own
     const onePass = await host.send('Again.', 'Ok.');
     assert.ok(onePass.request.chat.at(-1).content.endsWith(`\n\n${closingCue(true)}`));
     host.ctx.extensionPrompts = {};
     // A quiet prompt and an impersonation carry no cue.
     const quiet = await host.quiet('x');
-    assert.ok(!JSON.stringify(quiet.request).includes('lost.'));
+    assert.ok(!JSON.stringify(quiet.request).includes('write `<Changes></Changes>`.'));
     const impersonated = await host.st.generate('impersonate', { reply: 'I say hi.' });
-    assert.ok(!JSON.stringify(impersonated.request).includes('lost.'));
+    assert.ok(!JSON.stringify(impersonated.request).includes('write `<Changes></Changes>`.'));
     host.close();
 });

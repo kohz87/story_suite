@@ -14,15 +14,18 @@ const MONEY_WORD = /\b(?:coins?|gold|silver|copper|pennies|penny|crowns?|marks?|
 /**
  * Why `line` (a parsed change line: { op, kind, name, labels }) may not run as an extractor line, or ''
  * when it may. `allow`: allowedKinds(). `late`: the line was read after the reader had sent (stricter). `allow` null: the wall alone.
+ * `repair`: the line is a repair's (repair.js, a reply that came with no block): `+ coin`, `- coin`, `+ item` and `- item` pass as well
+ * (never XP, loot, rewards, heals or rolls); a late line keeps the strict wall, repair or not.
  */
-export function refusedWhy(line, allow, { late = false } = {}) {
+export function refusedWhy(line, allow, { late = false, repair = false } = {}) {
     const op = String(line?.op ?? '');
     const kind = String(line?.kind ?? '').toLowerCase();
     const labels = line?.labels && typeof line.labels === 'object' ? Object.keys(line.labels).map(key => key.toLowerCase()) : [];
-    if (NEVER.has(kind)) return 'the safety net never writes coin, loot or XP';
-    if (op === '+' && ADDS.has(kind)) return 'the safety net never adds items, coin or rewards';
+    const own = repair && !late && (kind === 'coin' || kind === 'item') && (op === '+' || op === '-');
+    if (!own && NEVER.has(kind)) return 'the safety net never writes coin, loot or XP';
+    if (!own && op === '+' && ADDS.has(kind)) return 'the safety net never adds items, coin or rewards';
     if (op === '?') return 'the safety net never asks for rolls or loot';
-    if (labels.some(label => VALUE_LABELS.includes(label))) return 'the safety net never heals or pays';
+    if (labels.some(label => VALUE_LABELS.includes(label) && !(own && kind === 'coin' && label !== 'reward'))) return 'the safety net never heals or pays';
     if (late) {
         if (op === '+' && kind !== 'present') return 'a line read after you sent never adds anything';
         if (kind === 'quest' && op === '-') return 'a turn-in read after you sent is left to the next reply';

@@ -30,6 +30,16 @@ function needsChip(needs, on) {
   );
 }
 
+// The "no changes recorded" badge: the reply came with no change block and nothing was stored for it; the badge is the Re-read button when the page can.
+function unrecordedChip(row, on) {
+  if (row.unrecorded !== true) return null;
+  const title = 'The reply came with no change block, so nothing in it was kept. Add its lines to the reply, then Re-read.';
+  const inside = [h('span', { class: 'bang', 'aria-hidden': 'true' }, '!'), h('span', { class: 'lb' }, on.onReread ? 'No changes recorded — Re-read' : 'No changes recorded')];
+  return on.onReread
+    ? h('button', { type: 'button', class: 'ssbtn need', title, dataset: { unrecorded: '1' }, onClick: () => on.onReread() }, inside)
+    : h('span', { class: 'ssbtn need', role: 'note', title, dataset: { unrecorded: '1' } }, inside);
+}
+
 function choicesPart(choices, on) {
   if (!Array.isArray(choices) || !choices.length) return { chip: null, list: null };
   const list = h(
@@ -87,6 +97,7 @@ export function inlineRow(row, handlers = {}) {
     vm.fightOpen
       ? h('button', { type: 'button', class: 'ssbtn fight', 'aria-label': 'Fight open, open the Fight tab', onClick: () => on.onFight?.() }, '⚔ Fight open ›')
       : null,
+    unrecordedChip(vm, on),
     needsChip(vm.needsYou, on),
     chip,
     suiteButton(vm, on),

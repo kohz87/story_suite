@@ -4,6 +4,10 @@
 // conditions (no heal), and an item handed over or used up (`- item`: only what the party holds).
 export const DEFAULT_KINDS = '! time, ~ time, ~ place, + present, - present, ~ weather, ~ quest, - quest, ~ wound, - item';
 
+// What a repair (a reply that came with no change block, repair.js) may write: the default kinds, coin and items in both directions,
+// and the quest, hook and people lines. The wall (wall.js) still stops XP, loot, rewards, heals and rolls.
+export const REPAIR_KINDS = `${DEFAULT_KINDS}, + coin, - coin, + item, + quest, + hook, ~ hook, - hook, ~ npc, + npc, + milestone`;
+
 // The kinds the settings page offers as chips: the default allow-list in order, followed by optional kinds the wall
 // lets through. Coin, new items, XP, loot, heals and rewards have no chip: the wall never writes them, whatever is stored
 // (a test keeps every chip on the right side of it).

@@ -24,7 +24,7 @@ test('the part: one command, one query, two hooks, an Assist settings section, n
 });
 
 test('settings: both helpers off by default, fields the overlay knows, the module registers', () => {
-    assert.deepEqual(part.settings.defaults, { assistClassifier: false, assistExtractor: false, assistExtractorKinds: DEFAULT_KINDS });
+    assert.deepEqual(part.settings.defaults, { assistClassifier: false, assistExtractor: false, assistExtractorKinds: DEFAULT_KINDS, assistRepair: false });
     assert.deepEqual(DEFAULTS, part.settings.defaults);
     // The two switches are Story Block's features now (MODULES §F100); only the kinds are a settings field (the helpers' calls use the Models page's Quick helpers connection).
     assert.deepEqual(Object.fromEntries(Object.entries(SCHEMA).map(([key, field]) => [key, field.type])), { assistExtractorKinds: 'text' });
@@ -40,7 +40,7 @@ test('assist.status: on/off from the settings, the runs newest last', async () =
     let settings = on({ classifier: true });
     const assist = createAssistPart({ callModel: fakeModel('none'), settings: () => settings, chat: () => [user('I climb.')], chatId: () => 'c', hasKind: () => true, warn: () => {} });
     const status = assist.queries[STATUS_QUERY];
-    assert.deepEqual(status(null), { classifier: { on: true, last: null }, extractor: { on: false, last: null }, runs: [] });
+    assert.deepEqual(status(null), { classifier: { on: true, last: null }, extractor: { on: false, last: null }, repair: { on: false, last: null }, runs: [] });
     await assist.hooks.beforeGenerate(view());
     const after = status(null, undefined, { query: () => null });
     assert.equal(after.classifier.last.outcome, 'none');

@@ -16,11 +16,12 @@ import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
+import { unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 
 // The two stored values the Calls group shows that the host settings do not hold: the fallback's kinds (Story Block's bucket) and People's output limit.
-const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
+const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, repair: modules?.['story-block']?.assistRepair, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
 
 const directorAnswers = sdk => ({ values: Object.fromEntries(['story-director', 'npc-state-delta'].map(id => [id, sdk?.settings?.(id) ?? null])), features: sdk?.features?.() ?? [] });
 // One engine query for the Packs page; a build without it (or a query that throws) gives an empty page.
@@ -48,7 +49,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     chat: (read, args) => {
       const at = Number.isInteger(args?.index) && args.index >= 0 ? args.index : null;
       const s = scene(at === null ? read : (name, a) => read(name, name === 'reply.changes' ? { asOf: at, index: at } : a));
-      return { inlineRow: selectInlineRow(s.answers, s.opts), drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, s.opts) };
+      return { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, s.opts) };
     },
     party: read => {
       const actors = read('party.actors', {});

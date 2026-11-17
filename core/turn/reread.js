@@ -132,6 +132,8 @@ export function createReread(s, deps) {
         for (const receipt of [...receipts, ...steps.map(step => step.receipt)]) events?.emit('committed', { receipt });
         events?.emit('head', { index: store.headIndex(), reason: 'reread' });
         events?.emit('turn', { index, type: 'reread', receipts, steps: steps.map(step => step.receipt), problems, told: [] });
+        // A reply that still has no block asks for its repair (once per reply: the hook skips one that already holds a stored repair), or is told as a Problem.
+        if (block === null) { try { s.afterReply?.(index, 'reread', message, [], true); } catch { /* each hook is already guarded */ } }
         return { ok: true, receipts, steps: steps.map(step => step.receipt), problems };
     }
 

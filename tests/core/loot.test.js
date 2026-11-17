@@ -120,7 +120,7 @@ test('a take of more than 50 of a thing that does not stack: an offer saved by t
 test('? loot lays things out without giving them; the reader takes the ones ticked', async t => {
     const host = await fresh(t);
     await host.send('Search the cellar.', reply('Dusty shelves.', ['? loot Rusty Key, Lantern Oil x2, Torn Map — on the cellar shelf']));
-    assert.deepEqual(host.turn.problems(), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES'), []);
     assert.deepEqual(host.sdk.query('inventory.items'), [], 'nothing is given until it is taken');
     const laid = offer(host);
     assert.deepEqual(laid.items, { 0: { name: 'Rusty Key', qty: 1 }, 1: { name: 'Lantern Oil', qty: 2 }, 2: { name: 'Torn Map', qty: 1 } });
@@ -155,7 +155,7 @@ test('things already carried are not offered, and are skipped at the take (toler
     await host.send('Gear up.', reply('Supplies.', ['+ item Rope']));
     await host.send('Look.', reply('A crate.', ['? loot some rope, Torch, Sulfur Alloy — in the crate']));
     assert.deepEqual(Object.values(offer(host).items).map(item => item.name), ['Torch', 'Sulfur Alloy']);
-    assert.deepEqual(host.turn.problems().map(problem => [problem.code, problem.message]), [['LIMITED', 'rope is already carried, so it is not offered.']]);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(problem => [problem.code, problem.message]), [['LIMITED', 'rope is already carried, so it is not offered.']]);
     // The story then gives the alloy itself (written another way) before the reader takes.
     await host.cont(reply('', ['+ item alloy of sulfur (piece)']));
     const out = await take(host, [0, 1]);
@@ -174,7 +174,7 @@ test('the offer is not held to a per-reply limit: valuable goods, a big count an
     const host = await fresh(t, { modules: [world], settings: { modules: { 'story-block': { storyCoinPerReply: 50 } } } });
     await host.send('The vault.', reply('Glitter.', ['? loot Ruby Shard x3, Royal Crown, Arrows x250 — in the vault']));
     assert.deepEqual(Object.values(offer(host).items), [{ name: 'Ruby Shard', qty: 3 }, { name: 'Royal Crown', qty: 1 }, { name: 'Arrows', qty: 250 }]);
-    assert.deepEqual(host.turn.problems(), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES'), []);
     assert.equal(host.sdk.query('inventory.find', { name: 'Royal Crown' }).status, 'none', 'laying out makes no definition');
     assert.equal((await take(host, [0, 1, 2])).ok, true);
     assert.deepEqual([qty(host, 'Ruby Shard'), qty(host, 'Royal Crown'), qty(host, 'Arrows')], [3, 1, 250]);
@@ -263,7 +263,7 @@ test('a host with Features: off, the loot grammar leaves the static part and a l
     const off = await fresh(t, { settings: { features: { 'story-block.loot': false } } });
     await off.send('Look.', reply('A crate.', ['? loot Torch']));
     assert.doesNotMatch(staticOf(off), /\? loot/);
-    assert.deepEqual(off.turn.problems().map(problem => problem.code), ['FEATURE_OFF']);
+    assert.deepEqual(off.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(problem => problem.code), ['FEATURE_OFF']);
     assert.equal(off.head().domains.inventory.loot, undefined);
     assert.equal((await take(off, [0])).code, 'FEATURE_OFF');
 });

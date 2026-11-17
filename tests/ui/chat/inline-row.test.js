@@ -82,3 +82,17 @@ test('missing pieces are left out and markup is plain text', () => {
   assert.equal(row.querySelectorAll('.ms').length, 0);
   assert.equal(inlineRow(undefined).querySelectorAll('.ssbtn').length, 1);
 });
+
+test('a reply with no changes recorded gets a small badge that is the Re-read button, and a plain one without a handler', () => {
+  installFakeDom();
+  let reread = 0;
+  const vm = { date: 'D', time: 't', place: 'p', changes: 0, notApplied: 0, unrecorded: true };
+  assert.deepEqual(checkShape(vm, { ...CHAT_SHAPE.inlineRow, fightOpen: { $optional: 'boolean' }, money: { $optional: { $nullable: 'any' } }, weather: { $optional: { $nullable: 'string' } }, needsYou: { $optional: { $nullable: 'any' } } }), []);
+  const row = inlineRow(vm, { onReread: () => { reread += 1; } });
+  const badge = row.querySelector('[data-unrecorded]');
+  assert.match(badge.textContent, /No changes recorded — Re-read/);
+  badge.click();
+  assert.equal(reread, 1);
+  assert.match(inlineRow(vm).querySelector('[data-unrecorded]').textContent, /^!?No changes recorded$/);
+  assert.equal(inlineRow({ ...vm, unrecorded: false }, { onReread: () => {} }).querySelector('[data-unrecorded]'), null);
+});

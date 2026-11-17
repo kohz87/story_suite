@@ -8,12 +8,15 @@ export const SETTING = Object.freeze({
     classifier: 'assistClassifier',
     extractor: 'assistExtractor',
     extractorKinds: 'assistExtractorKinds',
+    // Repair on a miss (repair.js): off until the owner approves the repair prompt's text, then on by default.
+    repair: 'assistRepair',
 });
 
 export const DEFAULTS = Object.freeze({
     [SETTING.classifier]: false,
     [SETTING.extractor]: false,
     [SETTING.extractorKinds]: DEFAULT_KINDS,
+    [SETTING.repair]: false,
 });
 
 // The two switches are features of Story Block (MODULES §F100, Settings → Features): their texts are
@@ -25,6 +28,10 @@ export const FEATURE_TEXT = Object.freeze({
         label: 'Roll checks before the reply',
         describe: 'One small extra model call per message: when you try something risky, the check is rolled first and the reply tells how it went.',
         needs: 'Needs a module that keeps checks, like Story Director.',
+    }),
+    repair: Object.freeze({
+        label: 'Repair a reply\'s missing changes',
+        describe: 'One cheap extra model call, only when a reply came with no change block: it writes the block from the story, kept as "assist" lines. It may write coin and items. Without it, such a reply gets a warning and Re-read.',
     }),
     extractor: Object.freeze({
         label: 'Safety net: read changes the reply forgot',

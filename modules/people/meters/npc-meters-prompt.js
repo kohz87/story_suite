@@ -46,7 +46,7 @@ export function createNpcPrompt({
     // shared cap (120 tokens): Story Director's pulse and Initiative lines (counted first) and its pinned hook cues ([Earlier days], [Names]) and
     // Story Block's own cues are never displaced, this section comes after them. The cue comes first, what the cap leaves goes to Pull and Mood; a kept
     // line that no longer fits is an ordinary line (the first of this section's lines dropped). Needs Story Block 2.31.1+ (older hosts drop object lines).
-    const CHANGES_CUE = 'Whenever anything changed, write the <Changes> block (just before <Blocks>, which still ends the reply), even if <Blocks> is empty; a lie, secret, taste, tie or turning point gets its own line.';
+    const CHANGES_CUE = 'Whenever anything changed, write it in the `<Changes>` block at the very end of the reply; a lie, secret, taste, tie or turning point gets its own line.';
     const HIDDEN_LINE = new RegExp(`^(.+?)(?:, ${HIDDEN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}| \\(hidden\\)): .*$`, 'gm');
 
     // Mood and pull for present people (feature mood-pull): "Mood: Mira alarmed, cornered; Tomas wary." and

@@ -9,6 +9,7 @@ import { buildSelectors } from '../select/build.js';
 import { liveOffer } from '../port/live-offer.js';
 import { packs as livePacks, refreshLore } from '../../packs/index.js';
 import { readCharacterLorebook } from '../../packs/st-adapter.js';
+import { isCarrier } from '../../core/persist.js';
 import { NEW_VIEW_CLASS } from './flag.js';
 import { addDrawerButtons, DRAWER_ROW_ID } from './drawer-buttons.js';
 import { createHold, showScreens } from '../port/hold.js';
@@ -47,7 +48,7 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
   if (form?.parentNode) form.parentNode.insertBefore(drawerHost, form);
   const surfaces = createChatSurfaces({
     messagesEl: doc.querySelector('#chat'), drawerHost, isNarrow: () => (globalThis.innerWidth ?? 1000) < 600,
-    handlers: { onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
+    handlers: { onReread: () => { const at = (ctx()?.chat ?? []).findLastIndex(isCarrier); if (at >= 0) port.reread(at); }, onOpenSuite: tab => suite.open(tab), onNeedsYou: () => suite.open(port.view('now')?.needsYou?.some(row => row.kind === 'overdue') ? 'journal' : 'now'), onFight: () => suite.open('fight'), onOpenPerson: id => { suite.open('people'); port.command('suite.go', { tab: 'people', personId: id }); } },
   });
   let button = null;
   let sheet = null;

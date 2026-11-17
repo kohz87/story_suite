@@ -211,7 +211,7 @@ test('feature off, nothing of the RPG in the chat: a whole session loads none of
     assert.equal(count.loads, 0, 'the RPG was not fetched');
     assert.equal(rpgLib(), null);
     assert.equal(host.registry.featureOn(CORE_FEATURE.leanRpg), false);
-    assert.deepEqual(host.turn.problems().map(entry => entry.code), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(entry => entry.code), []);
 });
 
 test('switching the feature on loads it once, and the RPG then works (a companion joins)', { skip }, async t => {
@@ -226,7 +226,7 @@ test('switching the feature on loads it once, and the RPG then works (a companio
     assert.equal(count.loads, 1);
     assert.ok(rpgLib(), 'the library is there');
     await host.send('We go on.', reply(MARA));
-    assert.deepEqual(host.turn.problems().filter(entry => entry.code !== 'ROLLS_SKIPPED').map(entry => entry.message), []);
+    assert.deepEqual(host.turn.problems().filter(entry => !['ROLLS_SKIPPED', 'NO_CHANGES'].includes(entry.code)).map(entry => entry.message), []);
     assert.ok(Object.keys(host.head().domains.dataModules.active).includes('pack.chat/mara'), 'Mara joined');
     await settled(host);
     assert.equal(count.loads, 1, 'still one load');

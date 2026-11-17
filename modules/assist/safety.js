@@ -7,6 +7,6 @@
 // that adds. Pure: no DOM, no state.
 // Public face: re-exports its parts.
 
-export { DEFAULT_KINDS, KIND_CHOICES, allowedKinds } from './safety-parts/kinds.js';
+export { DEFAULT_KINDS, KIND_CHOICES, REPAIR_KINDS, allowedKinds } from './safety-parts/kinds.js';
 export { refusedWhy, safeLines } from './safety-parts/wall.js';
 export { BARRIER, heldWhy, momentaryHold, waitForBarrier } from './safety-parts/holds.js';

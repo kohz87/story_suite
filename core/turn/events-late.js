@@ -12,9 +12,9 @@ export function createLateEvents(s, deps) {
     const { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus } = deps;
 
     /** Change lines found after the reply (afterReply): captured on it and kept in its hidden block. */
-    async function captureLate({ index, swipe, sid, message: from } = {}, text = '', { assist = false, refused = [], placeLines = [] } = {}) {
+    async function captureLate({ index, swipe, sid, message: from } = {}, text = '', { assist = false, repair = false, refused = [], placeLines = [] } = {}) {
         const message = ctx?.chat?.[index];
-        if (assist) return captureAssist({ index, swipe, sid, from }, text, message, refused, placeLines);
+        if (assist) return captureAssist({ index, swipe, sid, from }, text, message, refused, placeLines, repair);
         if (!isCarrier(message) || store.headIndex() !== index || (Number.isInteger(message.swipe_id) ? message.swipe_id : 0) !== swipe || s.session) {
             return { receipts: [], problems: ['The reply changed before its late change lines arrived; they were not used.'] };
         }
@@ -45,7 +45,7 @@ export function createLateEvents(s, deps) {
      * (`assist: 'now'`, after the reply's own) and kept in its <Changes-assist> section. A send already begun: kept as
      * <Changes-assist-next> through the stricter wall, for the next reply to apply; nothing changes now. Else (swiped, deleted): not used.
      */
-    async function captureAssist({ index, swipe, sid, from }, text, message, refused = [], placeLines = []) {
+    async function captureAssist({ index, swipe, sid, from }, text, message, refused = [], placeLines = [], repair = false) {
         // The same reply the answer was asked for (its record ID, else the message itself): an index and swipe are reused by a replacement.
         const same = () => isCarrier(message) && store.headIndex() === index && (Number.isInteger(message.swipe_id) ? message.swipe_id : 0) === swipe
             && (sid ? store.carrierSid?.(index) === sid : !from || message === from);
@@ -68,7 +68,7 @@ export function createLateEvents(s, deps) {
         let kept = parsed.filter(line => {
             const held = fresh.has(line.raw) ? heldWhy(registry, line) : null;
             if (held) refusals.push(problem({ module: held.module, index, line: line.raw, code: 'MODULE_HELD', assist: 'now', message: held.message }));
-            return fresh.has(line.raw) && !held && !refusedWhy(line, null, { late: Boolean(s.session || s.replyBusy) });
+            return fresh.has(line.raw) && !held && !refusedWhy(line, null, { late: Boolean(s.session || s.replyBusy), repair });
         });
         if (marks.includes('assistPresent')) {   // arrivals judged against the end of the reply (only replies that carry the mark)
             const guarded = assistPresentGuard({ lines: kept, places: parseChanges((placeLines.length ? placeLines : parsed.filter(line => line.kind === 'place').map(line => line.raw)).join('\n')).lines, text: mes, heads: changeHeads(), own: parseChanges(blockLines.join('\n')).lines, state: store.head(), marks, registry, bus, index, sid: record?.sid, receipts: record?.receipts ?? [] });
