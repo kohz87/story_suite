@@ -13,7 +13,6 @@ import { createHost } from '../../../testkit/index.js';
 import { skip, wait } from './safety-net.helpers.js';
 
 const T10 = 'Story Suite maintains persistent records through `<Changes>` entries (`+ quest` with `due:`, `+ clock`, and `+ beat` or `+ world`) while keeping narrative replies free of separate inline state. I will log any active deadlines in `<Changes>` as they happen.\n\n**Current status — 07:00 am, Bluewatch Village**\n* **Raiders seen so far:** 0.\n\nWhenever you are ready, let me know what Astra does next.';
-const LOG = '/home/raven/story_suite/scratch/batch/SMALL/night/liver1/driver/logs/live-replies.jsonl';
 
 // A host with the Director (hooks, quests and the clock) and the repair on, as the page has it.
 async function directorHost(callModel) {
@@ -38,12 +37,6 @@ test('LR1-2: a tag named inside inline code or a fenced code block is not a bloc
     assert.match(hideBlock('Quiet.\n<Changes>\n+ item Rope | qty: 1\n'), /STORY_SUITE_V2 open/);
     assert.equal(/STORY_SUITE_V2 open/.test(hideBlock('A `<Changes>` word.\nQuiet.\n<Changes>\n+ item Rope\n</Changes>')), false);
     assert.equal(/STORY_SUITE_V2 open/.test(hideBlock('Quiet.\n\n```\nthe <Changes> tag\n```\n')), false, 'an opening inside a fence is no cut-off block');
-});
-
-test('LR1-2: the recorded T10 reply (live-replies n=10) holds no block', { skip: !fs.existsSync(LOG) }, () => {
-    const text = fs.readFileSync(LOG, 'utf8').trim().split('\n').map(JSON.parse).find(row => row.n === 10).mes.split('\n\n<!-- STORY')[0];
-    assert.equal(extractBlock(text), null);
-    assert.equal(/STORY_SUITE_V2 open/.test(hideBlock(text)), false);
 });
 
 test('LR1-2: a reply that names the tag in code and writes no block is repaired', { skip }, async () => {
