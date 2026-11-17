@@ -35,7 +35,7 @@ export function learnedAnchors(people, cast, known = new Set()) {
         if (!entry || !opened.size) continue;
         const notes = (Array.isArray(dossier.secrets) ? dossier.secrets : []).filter(note => opened.has(note?.id));
         for (const secret of Array.isArray(entry.secrets) ? entry.secrets : []) {
-            if (typeof secret?.id !== 'string' || !notes.some(note => note.id === secret.id || flat(note.text) === flat(secret.text))) continue;
+            if (typeof secret?.id !== 'string' || !notes.some(note => note.packId === secret.id || note.id === secret.id || flat(note.text) === flat(secret.text))) continue;
             const key = `learned:${entry.id}/${secret.id}`;
             if (known.has(key)) continue;
             out.push(key);

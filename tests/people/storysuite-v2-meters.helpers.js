@@ -56,7 +56,7 @@ export const timers = {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {},
 };
 
-export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null } = {}) {
+export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null, features = null, answers = {} } = {}) {
     const chat = [{ is_user: false, name: 'Narrator', mes: 'The forge is warm.', swipe_id: 0, swipes: ['The forge is warm.'], swipe_info: [{ extra: {} }], extra: {} }];
     chat[0].swipe_info[0].extra = chat[0].extra;
     const registry = createRegistry();
@@ -83,8 +83,9 @@ export async function host({ settings = {}, delta = fakeDelta(), headReply = () 
             sent.push({ type, payload: structuredClone(payload), options });
             return bus.command(type, payload, { cause: 'ui' });
         },
-        query: (name, args) => runQuery(name, args),
+        query: (name, args) => (Object.hasOwn(answers, name) ? structuredClone(answers[name]) : runQuery(name, args)),
         settings: id => settingsOf(id),
+        ...(features ? { feature: id => features[id] } : {}),
     };
     const box = { host: { ready: Promise.resolve(sdk), sdk } };
     const warnings = [];

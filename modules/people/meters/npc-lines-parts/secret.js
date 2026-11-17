@@ -5,12 +5,15 @@
 import { NPC_DOMAIN, clean, slug } from '../npc-meters-config.js';
 import { secretEventsShown } from '../../core/core-prompts-capture.js';
 import { knownPerson } from './stub.js';
+import { gateOpen } from '../npc-meters-secrets-parts/revealable.js';
+
+const fold = value => String(value ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
 
 /** The line's labels as { opened, quote } (by slugged label). */
 const labelsOf = line => Object.fromEntries(Object.entries(line?.labels ?? {}).map(([label, raw]) => [slug(label), String(raw ?? '')]));
 
 /** Runs one `~ reveal` line. `deps`: { identify, rulesFor, run } (the part's record helpers and its run). → the run's receipt. */
-export function secretLine(ctx, line, { identify, rulesFor, run }) {
+export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({}), hooks = {}, defs = () => [] }) {
     const name = clean(line?.name, 40);
     const { opened = '', quote = '' } = labelsOf(line);
     const found = knownPerson(ctx, line?.name);
@@ -23,7 +26,16 @@ export function secretLine(ctx, line, { identify, rulesFor, run }) {
     const who = identify(slice.npcs ?? {}, line.name);
     const record = who ? slice.npcs?.[who.key] : null;
     const rule = rulesFor(who?.name ?? found.record?.name ?? line.name, who?.labels ?? []).find(item => item?.id === id);
-    if (!rule?.when) ctx.fail('REFUSED', `~ reveal ${name}: ${clean(id, 40)} is not one of their hidden notes with a story event.`);
+    if (!rule?.when && typeof rule?.gate !== 'string') ctx.fail('REFUSED', `~ reveal ${name}: ${clean(id, 40)} is not one of their hidden notes with a story event.`);
+    // A pack secret with a gate (world-events switch) may be revealed only while its gate is open; the quote check above still applies.
+    const gated = !rule.when && typeof rule.gate === 'string';
+    if (gated) {
+        // Anchors and place come from the transaction's own state (ctx.query), never the head: a Re-read of an earlier reply reads the world as it was then.
+        const ask = (query, fallback) => { try { const answer = ctx.query?.(query, {}); return answer === undefined || answer === null ? fallback : answer; } catch { return fallback; } };
+        const here = ask('scene.place', '');
+        const inputs = { ...call(hooks.gateInputs, {}, who?.name ?? name), anchors: ask('chronicle.world.anchors', []), place: typeof here === 'string' ? here : here?.name ?? '', quote: wanted => fold(text).includes(fold(wanted)) };
+        if (!gateOpen(rule, record ?? {}, new Map(defs().map(def => [def.id, def])), inputs)) ctx.fail('REFUSED', `~ reveal ${name}: ${clean(id, 40)} is not ready to come out yet; the note stays closed.`);
+    }
     if (Array.isArray(record?.unlocked) && record.unlocked.includes(id)) ctx.fail('REFUSED', `~ reveal ${name}: that note is already open.`);
-    return run(ctx, { label: line.name, changes: [], problems: [], limit: false, reply: null, allowEmpty: true, notes: { open: [id], close: [], story: true } });
+    return run(ctx, { label: line.name, changes: [], problems: [], limit: false, reply: null, allowEmpty: true, notes: { open: [id], close: [], story: true, ...(gated ? { gated: true } : {}) } });
 }

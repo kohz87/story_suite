@@ -375,5 +375,11 @@
   "ui/port/world-keys.js": "Translates the World and time page's row keys and shown words to Story Director's namespaced settings and the weather feature, and back.",
   "ui/port/world-settings.js": "The port's World and time writes: a `world.*` settings.set stores the setting the old page stores.",
   "ui/select/settings-world.js": "Builds the World and time page's rows from Story Director's stored settings and the feature list.",
-  "tests/ui/settings/world-live.test.js": "Tests the World and time page on a live host: values read, writes match the old page's keys, bad values refused."
+  "tests/ui/settings/world-live.test.js": "Tests the World and time page on a live host: values read, writes match the old page's keys, bad values refused.",
+  "modules/people/dossier/cast-dossier-parts/entry-gated.js": "A pack entry's spec-form secrets ({ id, gate, text }) cleaned for the dossier, added only with the world-events switch on.",
+  "modules/people/meters/npc-meters-secrets-parts/gate-eval.js": "Reads a pack secret's reveal gate (stage, meter, anchors, place, quote; and binds tighter than or) against what is known.",
+  "modules/people/meters/npc-meters-secrets-parts/revealable.js": "Whether a pack secret's gate is open for one person, from their record, pack stages, recorded anchors and place.",
+  "modules/world/chronicle/world-daily/anchors-query.js": "The query chronicle.world.anchors: the anchors the world has recorded, for NPC State's secret gates (world-events switch).",
+  "tests/people/npc-lines-secret-gated.test.js": "Tests: a pack's gated secret is refused while its gate is closed and revealed by a quoted ~ reveal line once open, with replay equal to live.",
+  "tests/people/npc-secret-gated-tail.test.js": "Tests: a pack's gated secret in the prompt tail, the seeding, the learned match and the Director's never-hint block."
 }

@@ -9,6 +9,7 @@ import {
 } from '../meters/npc-meters.js';
 import { eventSummary } from '../meters/npc-meters-pacing.js';
 import { escapeHtml } from '../util/html.js';
+import { gateOpen } from '../meters/npc-meters-secrets-parts/revealable.js';
 import { tieRows, owedBy, foldTies, aliasCanon } from '../notes/npc-notes-kinds.js';
 
 // The scan's short list of story events to watch for: this many people, this many events each.
@@ -19,7 +20,7 @@ const BAR_WIDTHS = Object.freeze([62, 48, 56, 70]);
 
 export function createEditorPart(session, deps) {
     const {
-        catalog, entryFor, headReply, part, setupOf, sliceEntries,
+        catalog, entryFor, headReply, part, setupOf, sliceEntries, gateInputs, worldSecretsOn,
     } = deps;
 
     // ---- the dossier editor and the dossier view (hosted only) ----
@@ -35,7 +36,7 @@ export function createEditorPart(session, deps) {
     const milestoneLines = entry => Object.values(entry?.milestones ?? {}).join('\n');
 
     // Whether the dossier editor may show a note's title, text and event: it is the reader's (no `from`: a pack or a scan wrote the others), or it is opened (the player knows it).
-    const editorShows = (note, opened) => !note.from || opened.has(note.id);
+    const editorShows = (note, opened) => !note.from || (opened.has(note.id) && !note.gate);   // a pack's gated secret is never in the text box
 
     /**
      * The editor's v2 controls for one dossier, as markup ('' without a host): the hidden notes (with
@@ -65,7 +66,7 @@ export function createEditorPart(session, deps) {
                 if (editorShows(note, opened)) return `<label>${escapeHtml(note.title || note.text.slice(0, 40))}${control(note.title || 'Note')}</label>`;
                 hiddenCount += 1;
                 const name = `Hidden note ${hiddenCount}`;
-                const opens = rules.get(note.id) ?? 'Opens with the story';
+                const opens = rules.get(note.id) ?? (note.gate ? 'Opens when the story earns it' : 'Opens with the story');
                 return `<div class="npc-state-delta-v2-editor-hidden"><span>${escapeHtml(`${name} · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}`)}</span>${control(name)}</div>`;
             });
             html += `
@@ -282,10 +283,17 @@ export function createEditorPart(session, deps) {
             if (!npc?.id || !npc.present || npc.archived) continue;
             const slice = entryFor(entries, npc);
             const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
-            const events = normalizeSecrets(npc.secrets).filter(note => note.when && !done.has(note.id)).slice(0, EVENT_WATCH_EACH);
+            const notes = normalizeSecrets(npc.secrets).filter(note => !done.has(note.id));
+            const events = notes.filter(note => note.when).slice(0, EVENT_WATCH_EACH).map(note => ({ note, event: note.when }));
+            // A pack secret whose gate is open (world-events switch) may come out: the same watch, so the model can write its `~ reveal` line.
+            if (worldSecretsOn?.() && events.length < EVENT_WATCH_EACH) {
+                const byId = new Map(part.defs().map(def => [def.id, def]));
+                const inputs = gateInputs(npc.name);
+                for (const note of notes.filter(item => item.gate)) if (events.length < EVENT_WATCH_EACH && gateOpen(note, slice ?? {}, byId, inputs)) events.push({ note, event: `the secret "${note.text.slice(0, 60)}" comes out` });
+            }
             if (!events.length) continue;
             people += 1;
-            for (const note of events) out.push({ key: `s${out.length + 1}`, id: npc.id, name: npc.name, note: note.id, event: note.when });
+            for (const { note, event } of events) out.push({ key: `s${out.length + 1}`, id: npc.id, name: npc.name, note: note.id, event });
         }
         return out;
     }

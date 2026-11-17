@@ -6,6 +6,8 @@
 import { WORLD_EVENT_RULE } from './world-rule.js';
 import { DESC_POINTS, KEY_POINTS, PART_POINTS, flat } from '../shared.js';
 
+const SECRETS_RULE = 'Secrets not yet learned (never surface or hint at them in a beat, clock or agenda; they come out only when the story earns it):';
+
 /** The block's text (the react-not-resolve rule first), or '' when there is no brief (the switch is off). */
 export function worldBriefText(brief) {
     if (!brief || typeof brief !== 'object') return '';
@@ -20,5 +22,8 @@ export function worldBriefText(brief) {
     if (toCome.length) lines.push('Still to come:', ...toCome.map(title => `- ${flat(title, KEY_POINTS)}`));
     const conditions = list(brief.conditions).filter(text => typeof text === 'string' && text.trim());
     if (conditions.length) lines.push('Conditions in this realm:', ...conditions.map(text => `- ${flat(text, DESC_POINTS)}`));
+    // Pack secrets not yet learned (NPC State holds them; the narrator is told none until its gate opens): the planner sees them, never to surface or hint.
+    const secrets = list(brief.secrets).filter(item => item && typeof item.name === 'string' && typeof item.text === 'string' && item.text.trim());
+    if (secrets.length) lines.push(SECRETS_RULE, ...secrets.map(item => `- ${flat(item.name, KEY_POINTS)}: ${flat(item.text, DESC_POINTS)}`));
     return lines.join('\n');
 }

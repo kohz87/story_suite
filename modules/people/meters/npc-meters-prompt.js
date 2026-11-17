@@ -7,6 +7,7 @@ import { readEvent } from './npc-meters-pacing.js';
 import { moodWord, normalizeMood, storedMoodWord } from './npc-mood.js';
 import { linesMeterText } from './npc-meters-prompt-parts/lines-text.js';
 import { notesTail } from '../notes/npc-notes-kinds.js';
+import { gateOpen } from './npc-meters-secrets-parts/revealable.js';
 
 export function createNpcPrompt({
     call, hooks, storedSettings, tierCaps, tierAllowance, featureOn, defsFrom, setupFor, rungsFor, rulesFor,
@@ -40,6 +41,8 @@ export function createNpcPrompt({
     const HIDDEN = 'hidden: never state or reveal; let it shape how they act';
     // (lean) The wording is said once, on the nearest locked note, and each note then reads "Name (hidden): text".
     const HIDDEN_ONCE = 'Lines marked (hidden) are secrets: never state or reveal them; let them shape how that person acts.';
+    // A pack secret whose gate is open (world-events switch): the story may now bring it out. A closed one sends nothing at all.
+    const READY_ONCE = 'Lines marked (may come out) are secrets the story has now earned: you may let one come out in this reply, once, only if it fits the scene; never force it.';
     // One short cue, with the notes feature on (whoever is in the scene): the block is written, just before <Blocks>, even when <Blocks> is empty.
     // Sent as a kept line ({ text, keep: true }): the host's tail budget (the run used 550 tokens) drops this module's optional lines first,
     // and its section is last, so as an optional line the cue never reached a prompt. The host counts kept lines in tail order against one
@@ -47,7 +50,7 @@ export function createNpcPrompt({
     // Story Block's own cues are never displaced, this section comes after them. The cue comes first, what the cap leaves goes to Pull and Mood; a kept
     // line that no longer fits is an ordinary line (the first of this section's lines dropped). Needs Story Block 2.31.1+ (older hosts drop object lines).
     const CHANGES_CUE = 'Whenever anything changed, write the <Changes> block (just before <Blocks>, which still ends the reply), even if <Blocks> is empty; a lie, secret, taste, tie or turning point gets its own line.';
-    const HIDDEN_LINE = new RegExp(`^(.+?)(?:, ${HIDDEN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}| \\(hidden\\)): .*$`, 'gm');
+    const HIDDEN_LINE = new RegExp(`^(.+?)(?:, ${HIDDEN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}| \\(hidden\\)| \\(may come out\\)): .*$`, 'gm');
 
     // Mood and pull for present people (feature mood-pull): "Mood: Mira alarmed, cornered; Tomas wary." and
     // "Pull: Mira wants closure (the stolen letter, 3 days)". At most PULL_PEOPLE people each; sent as kept lines (see tail()). A mood of all zeros says nothing.
@@ -104,6 +107,7 @@ export function createNpcPrompt({
         const moved = [];
         const notes = [];
         const hidden = [];
+        const ready = [];
         const cues = [];
         let order = 0;
         for (const key of Object.keys(npcs).sort()) {
@@ -131,11 +135,14 @@ export function createNpcPrompt({
             const given = call(hooks.secretTexts, [], record.name, rules.map(rule => rule.id));
             const textOf = new Map((Array.isArray(given) ? given : []).map(item => [item?.id, clean(item?.text, SECRET_TEXT_MAX)]));
             let known = 0;
+            const gateIn = rules.some(rule => rule.gate && !opened.has(rule.id)) ? call(hooks.gateInputs, {}, record.name) : {};
             for (const rule of rules) {
                 const text = textOf.get(rule.id);
                 if (!text) continue;
                 if (opened.has(rule.id)) {
                     if (known < TAIL_SECRETS_PER_NPC) { notes.push(`${record.name}, ${KNOWN}: ${text}`); known += 1; }
+                } else if (rule.gate) {
+                    if (gateOpen(rule, record, byId, gateIn)) ready.push(`${record.name} (may come out): ${text}`);
                 } else {
                     hidden.push({ distance: openingDistance(rule, record, byId), order: order += 1, short: `${record.name} (hidden): ${text}` });
                 }
@@ -145,7 +152,7 @@ export function createNpcPrompt({
         if (moved.length) lines.push(`NPC meters now: ${moved.join('; ')}.`);
         hidden.sort((a, b) => a.distance - b.distance || a.order - b.order);
         // The wording rides on the nearest note (the host drops the farthest first, so it stays while any note does).
-        const optional = [...cues, ...hidden.map((item, i) => (i ? item.short : `${HIDDEN_ONCE}\n${item.short}`))];
+        const optional = [...cues, ...hidden.map((item, i) => (i ? item.short : `${HIDDEN_ONCE}\n${item.short}`)), ...ready.map((line, i) => (i ? line : `${READY_ONCE}\n${line}`))];
         // Notes (npc-notes-kinds.js): at most two lines a person and four in all, after the meters and opened notes (optional).
         if (featureOn(FEATURE_NOTES)) {
             const noted = notesTail(npcs, { present: Object.keys(npcs).sort().filter(key => here.has(key)) });

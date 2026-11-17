@@ -19,7 +19,16 @@ export function normalizeSecrets(list, max = MAX_SECRETS) {
         const text = clean(entry.text, SECRET_TEXT_MAX);
         const when = clean(entry.when, SECRET_WHEN_MAX);
         const byMeter = Boolean(meter) && at !== null;
-        if (!text || (!byMeter && !when)) continue;
+        // A pack's spec secret ({ id, gate, text }, kept as `packId` + `gate`, from 'pack' only) opens by its gate, never by a meter or event (world-events switch).
+        const gated = entry.from === 'pack' && typeof entry.gate === 'string' && entry.gate.trim() !== '' && typeof entry.packId === 'string' && entry.packId !== '' && !byMeter && !when;
+        if (!text || (!byMeter && !when && !gated)) continue;
+        if (gated) {
+            const gatedId = typeof entry.id === 'string' && /^[a-z][a-z0-9]*_[0-9a-z]{8}$/.test(entry.id) ? entry.id : secretId('', 0, text, `gate:${entry.packId}`);
+            if (out.some(other => other.id === gatedId)) continue;
+            const gatedTitle = clean(entry.title, SECRET_TITLE_MAX);
+            out.push({ id: gatedId, gate: clean(entry.gate, SECRET_WHEN_MAX * 2), packId: clean(entry.packId, 80), text, ...(gatedTitle ? { title: gatedTitle } : {}), from: 'pack' });
+            continue;
+        }
         const id = typeof entry.id === 'string' && /^[a-z][a-z0-9]*_[0-9a-z]{8}$/.test(entry.id) ? entry.id : secretId(byMeter ? meter : '', byMeter ? at : 0, text, when);
         if (out.some(other => other.id === id)) continue;
         const title = clean(entry.title, SECRET_TITLE_MAX);

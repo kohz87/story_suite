@@ -224,7 +224,7 @@ export function createStorySuiteV2Adapter({
     const editorPart = createEditorPart(session, deps);
     Object.assign(deps, editorPart);
     const { watchers, pageApi, offerPage } = castUiPart;
-    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, packPortraitUrl, castGearLine, directorCalendar, keyPeople, send, sliceView } = queriesPart;
+    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, keyPeopleAnswer, keyPeopleReadable, keyAwayMemory, castAnswer, castPeople, castMade, packNames, packPortraitUrl, castGearLine, directorCalendar, keyPeople, send, sliceView, worldSecretsOn } = queriesPart;
     const { ownPrompt, storyClock, calendarLink, definition, scenePresentNames } = timelinePart;
     const { poll, unhost, check } = connectPart;
     const { editorHtml, readEditor, dossierMeters, eventWatch } = editorPart;
@@ -293,6 +293,7 @@ export function createStorySuiteV2Adapter({
         castMade,
         /** While hosted: packs' names by id. */
         packNames,
+        worldSecretsOn,
         /** While hosted: a pack portrait's safe image URL, or null. */
         packPortraitUrl,
         /** While hosted: a pack cast member's "Gear: A, B" line for the narrator's entry, or ''. */
