@@ -5,6 +5,9 @@ import { ARC_TAIL_BUDGET, FEATURE, arcQuery, arcTail, initialArc, validateArc } 
 import { ARC_NEEDS_STORY_BLOCK, NEEDS_TEXT } from '../controller.js';
 import { DEFAULTS, SCHEMA, promptSection } from '../settings.js';
 import { ARC_WIDGET, arcWidget } from '../widget.js';
+import { createLoreDigestPart } from '../lore-digest/part.js';
+
+const lore = createLoreDigestPart();
 
 function liveSdk() {
     try {
@@ -30,15 +33,15 @@ export const part = {
         default: true,
         // Lean leaves the world-building threads off, and a plan makes exactly those threads: Lean must not create what it cannot show.
         presets: { lean: false },
-    }],
+    }, ...lore.features],
     domains: {
         arc: { initial: initialArc, validate: validateArc },
     },
     commands,
-    queries: { 'director.arc': Object.assign(state => arcQuery(state), { feature: FEATURE }) },
+    queries: { 'director.arc': Object.assign(state => arcQuery(state), { feature: FEATURE }), ...lore.queries },
     kinds: {},
     context: { static: () => '', tail, budget: ARC_TAIL_BUDGET },
-    hooks: {},
+    hooks: { ...lore.hooks },
     settings: { defaults: { ...DEFAULTS }, schema: { ...SCHEMA }, section },
     widgets: { [ARC_WIDGET]: arcWidget },
     tabs: [],
