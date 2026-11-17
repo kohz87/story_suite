@@ -8,6 +8,7 @@ import { selectProblems, selectSent } from './tools.js';
 import { peopleRows } from './people-settings/index.js';
 import { selectRpgRows } from './rpg-rows.js';
 import { worldRows } from './settings-world.js';
+import { extrasRows, withExtras } from './settings-extras.js';
 
 // The Settings page a module's feature switches belong to, when it is not the module's own id.
 const SECTION_OF = { 'npc-state-delta': 'people', 'story-director': 'director' };
@@ -99,7 +100,7 @@ export function selectSettings(answers) {
   const budgetRows = rowsOf('Budgets', BUDGETS, host, schema, defaults);
   const t = isObj(a.tools) ? a.tools : {};
   const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
-  const { defList, set } = moduleParts(hasFeatures ? a.features : []);
+  const { defList, set } = withExtras(moduleParts(hasFeatures ? a.features : []), hasFeatures ? a.features : []);
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
@@ -108,6 +109,7 @@ export function selectSettings(answers) {
     section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [])),
     ...[selectDirector(a.directorPage)].filter(Boolean),
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
+    section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', extrasRows(a.extras)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
