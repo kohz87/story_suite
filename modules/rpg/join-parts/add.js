@@ -7,7 +7,6 @@ import { PARTY_ACTIVE } from '../names.js';
 import { checkJoin } from './check.js';
 import { joinCard } from './card.js';
 import { readJoin } from './line.js';
-import { joinRules } from './draft.js';
 import { soulNaming } from './party.js';
 
 /**
@@ -16,7 +15,7 @@ import { soulNaming } from './party.js';
  * party already or one who left (that is a return, the party's business), no room for 4 active, or no room for the two blocks.
  */
 export function partyAdd(state, name, isMe = () => false, cast = []) {
-    const read = readJoin({ op: '+', name, labels: {} }, soulNaming(state), joinRules(state));
+    const read = readJoin({ op: '+', name, labels: {} }, soulNaming(state));
     if (read.error || isMe(read.name)) return null;
     const check = checkJoin(state, read, DM_LIMITS, PARTY_ACTIVE);
     if (!check.ok || check.returning) return null;
