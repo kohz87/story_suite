@@ -7,18 +7,18 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { createModule } from '../../../../ui/legacy/director/module.js';
-import { FEATURE, agrees, reply } from './daily-host.helpers.js';
+import { FEATURE, agrees, dailyOf, dailyReceipts, reply, world } from './daily-host.helpers.js';
 
 const minutes = host => host.head().domains.director.time.minutes;
 const settle = () => new Promise(resolve => setTimeout(resolve, 60));
 
 /** A host whose repair answers `answer.line` (null: the model says nothing); `on`: the world-events switch. */
-async function started(answer, on = true) {
+async function started(answer, on = true, begin = 'June 3, 1200, 08:00 pm') {
     let host = null;
     const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), feature: id => host?.features.on(id) } });
     host = await createHost({ modules: [module], callModel: async () => answer.line ?? 'Nothing to add.' });
     if (on) host.features.set(FEATURE, true);
-    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Begin.', reply('Dust.', [`~ time ${begin}`]));
     host.features.set(CORE_FEATURE.extractor, true);
     return host;
 }
@@ -99,5 +99,58 @@ test('LAB-1: with the switch off a repaired reply moves the clock by its own lin
     await host.send('Walk.', 'You walk on.');
     await settle();
     assert.equal(minutes(host), start + 5);
+    host.close();
+});
+
+const domains = host => JSON.stringify(host.head().domains);
+
+test('LAB-1: an unedited Re-read of a repaired reply, a rewind and a chat change all equal live', async () => {
+    const answer = { line: '! time +5m' };
+    const host = await started(answer);
+    const start = minutes(host);
+    await host.send('Walk.', reply('You walk on.'));
+    await settle();
+    await host.send('Next.', reply('Next.', ['! time +10m']));
+    const live = domains(host);
+    assert.equal(minutes(host), start + 15);
+    const r = await host.sdk.reread(4);
+    assert.equal(r.ok, true, JSON.stringify(r));
+    await settle();
+    assert.equal(domains(host), live, 'a plain Re-read of the repaired reply changes nothing');
+    await agrees(host, 'unedited Re-read');
+    // A rewind: the last exchange is taken away (delete the reply and the message before it).
+    const chat = structuredClone(host.ctx.chat);
+    await host.st.deleteMessage(host.ctx.chat.length - 1);
+    await host.st.deleteMessage(host.ctx.chat.length - 1);
+    assert.equal(minutes(host), start + 5);
+    await agrees(host, 'rewind');
+    // A chat change: another chat, then back to this one.
+    await host.st.loadChat([], 'other-chat');
+    await host.st.loadChat(chat, host.ctx.chatId === 'other-chat' ? 'chat-1' : host.ctx.chatId);
+    await settle();
+    assert.equal(minutes(host), start + 15);
+    await agrees(host, 'chat change');
+    host.close();
+});
+
+test('LAB-1, known limit (E14): the fallback hour crossing midnight stepped the new day; the repair takes the clock back and the stepped day stays (nothing is undone); a Re-read of the reply drops the step', async () => {
+    const answer = { line: '! time +5m' };
+    const host = await started(answer, true, 'June 3, 1200, 11:30 pm');
+    const start = minutes(host);
+    const day = dailyOf(host).day;
+    await host.send('Walk.', reply('You walk on.'));
+    await settle();
+    assert.equal(minutes(host), start + 5, 'the repair\'s five minutes: the clock is still on the story\'s day');
+    assert.equal(dailyOf(host).day, day + 1, 'live: the world stepped the new day when the fallback hour crossed midnight, as E14 pins it');
+    assert.equal(dailyReceipts(host).filter(entry => entry.index === 4).length, 1);
+    await agrees(host, 'live midnight');
+    // A Re-read of the reply reads its repaired line inline: no fallback hour, so no day step for it. It is the more exact world.
+    const r = await host.sdk.reread(4);
+    assert.equal(r.ok, true, JSON.stringify(r));
+    await settle();
+    assert.equal(minutes(host), start + 5);
+    assert.equal(dailyOf(host).day, day, 'after the Re-read the world is on the story\'s day');
+    assert.deepEqual(dailyReceipts(host).filter(entry => entry.index === 4), []);
+    await agrees(host, 'midnight after Re-read');
     host.close();
 });

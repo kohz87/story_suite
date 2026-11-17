@@ -38,11 +38,14 @@ test('LAB-5: news of a hidden place the atlas does not show is named by its regi
     assert.equal(shownPlace({ ...origin, regionName: undefined }, { query: () => [] }, 'Hidden Vale'), 'bluewatch-reach', 'no name: the id');
 });
 
-test('LAB-5: chronicle.regionNames answers the names by id, name and alias with World events on, and nothing with it off', async () => {
-    const on = await newHost(true, { ...SPEC, regions: REGIONS });
-    assert.deepEqual(on.sdk.query('chronicle.regionNames', {}), { 'bluewatch-reach': 'Bluewatch Reach', 'bluewatch reach': 'Bluewatch Reach', 'the reach': 'Bluewatch Reach' });
-    on.done();
-    const off = await newHost(false, { ...SPEC, regions: REGIONS });
-    assert.equal(off.sdk.query('chronicle.regionNames', {}) ?? null, null);
-    off.done();
+test('LAB-5: chronicle.regionNames answers the names by id, name and alias, with World events on or off; {} for a pack with no regions', async () => {
+    const expected = { 'bluewatch-reach': 'Bluewatch Reach', 'bluewatch reach': 'Bluewatch Reach', 'the reach': 'Bluewatch Reach' };
+    for (const on of [true, false]) {
+        const host = await newHost(on, { ...SPEC, regions: REGIONS });
+        assert.deepEqual(host.sdk.query('chronicle.regionNames', {}), expected, `switch ${on}`);
+        host.done();
+    }
+    const bare = await newHost(false);
+    assert.deepEqual(bare.sdk.query('chronicle.regionNames', {}), {});
+    bare.done();
 });

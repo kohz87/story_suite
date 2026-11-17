@@ -18,3 +18,14 @@ test('no names (World events off, or no answer): the region is the id, as before
   assert.deepEqual(selectWorld({ atlasView }).places.map(p => p.region), ['bluewatch-reach', 'highmark-empire', 'the-barrens']);
   assert.deepEqual(selectWorld({ atlasView, worldEvents: true, regionNames: null }), selectWorld({ atlasView, worldEvents: true }));
 });
+
+test('a faction whose area is the region id or the region name still finds its places', () => {
+  const worldView = { factions: [{ id: 'f1', name: 'Wardens', area: 'bluewatch-reach' }, { id: 'f2', name: 'Guild', area: 'Highmark Empire' }] };
+  const view = selectWorld({ atlasView, worldView, regionNames: names });
+  assert.deepEqual(view.factions.map(f => f.areaPlaceIds), [['p1'], ['p2']]);
+});
+
+test('with World events off the names are still shown (they are display only); a pack with no regions reads as before', () => {
+  assert.deepEqual(selectWorld({ atlasView, worldEvents: false, regionNames: names }).places.map(p => p.region), ['Bluewatch Reach', 'Highmark Empire', 'the-barrens']);
+  assert.deepEqual(selectWorld({ atlasView, regionNames: {} }), selectWorld({ atlasView }));
+});

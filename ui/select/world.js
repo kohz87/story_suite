@@ -14,7 +14,7 @@ function dangerOf(tier) {
 const regionName = (region, names) => (names && typeof names === 'object' && typeof names[key(region)] === 'string' ? names[key(region)] : text(region));
 
 // atlas.view places (SD/atlas/map.js:113-122); a place without coordinates cannot be drawn and is left out.
-// `names`: chronicle.regionNames (World events on): the region's name by its id, name or alias; the id itself when the pack names none.
+// `names`: chronicle.regionNames (the pack's `content.regions`, with or without World events): the region's name by its id, name or alias; the id itself when the pack names none.
 function placesOf(view, tiers, names) {
   return list(view?.places)
     .filter(p => Number.isFinite(p?.x) && Number.isFinite(p?.y) && text(p.id))
@@ -68,10 +68,11 @@ const membersOf = raw => list(raw).filter(m => text(m?.name)).map(m => ({ person
 
 // director.world factions (SD/world/known-parts/news.js): areaPlaceIds and members come from the answer; an older answer
 // without areaPlaceIds falls back to the area's name matching a place or region.
-function factionsOf(world, places) {
+// `ids`: a place's region id as the atlas has it (its `region` is the name now); an area text is matched against the name and the id.
+function factionsOf(world, places, ids) {
   return list(world?.factions).filter(f => text(f?.id)).map(f => {
     const area = key(f.area);
-    const named = area ? places.filter(p => key(p.name) === area || key(p.region) === area).map(p => p.id) : [];
+    const named = area ? places.filter(p => key(p.name) === area || key(p.region) === area || key(ids.get(p.id)) === area).map(p => p.id) : [];
     const given = list(f.areaPlaceIds).filter(id => places.some(p => p.id === id));
     return { id: f.id, name: text(f.name), stance: stanceOf(f.stance), summary: text(f.summary), areaPlaceIds: given.length ? given : named, members: membersOf(f.members) };
   });
@@ -113,7 +114,7 @@ function conditionsOf(raw) {
 export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null, worldEvents = false, conditionsHere = null, regionNames = null } = {}) {
   const places = withQuests(placesOf(atlasView, tiers, regionNames), worldView);
   const ids = new Set(places.map(p => p.id));
-  const factions = factionsOf(worldView, places);
+  const factions = factionsOf(worldView, places, new Map(list(atlasView?.places).map(p => [p?.id, text(p?.region)])));
   return {
     places,
     routes: routesOf(atlasView, ids),
