@@ -25,6 +25,7 @@ import { CORE_KINDS } from './kinds.js';
 import { createCorePart } from './part.js';
 import { mergeParts } from './merge.js';
 import { chatterBack, headMoved } from './extra.js';
+import { replyChanges } from './reply-changes.js';
 
 // The packs part bound to SillyTavern (src/v2/packs/index.js), in createPacksPart()'s shape.
 const livePacks = Object.freeze({ part: livePart, packs: liveInstalled, resolveItem: liveResolve, startState: liveStart });
@@ -98,6 +99,8 @@ export function createCoreModule({ hooks = () => [], settings = () => ({}), vers
                 return world ? [] : sceneChatter(state?.domains?.scene?.present, headChatter(extras?.sceneChat?.(), extras?.display));
             }, { feature: CORE_FEATURE.chatter }),
             'scene.moved': (_state, _args, tools) => headMoved(tools, extras?.headIndex),
+            // One reply's changes from its receipts, for the reply menu and the inline row (null when it has none).
+            'reply.changes': (state, args, tools) => replyChanges(state, args, tools, extras?.headIndex),
             // The open interaction as the sdk's current() reads it: null until the host passes an interaction api (`extras.interaction`).
             [INTERACTION_VIEW]: createInteractionView(() => extras?.interaction?.()?.current?.() ?? null),
             // The active, visible, code-validated proof (contract §6, docs/v2/EVIDENCE.md); the stored proof comes from the store.

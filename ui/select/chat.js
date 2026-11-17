@@ -67,22 +67,13 @@ export function selectDrawer(answers = {}, opts = {}) {
   return rows;
 }
 
-// A reply's lines from `changesDigest` (SB/screens/changes-card.js:234; { gained, lost, coin, place, arrived, left }) and from
-// `notes.refusedAt` (SB/reply-notes.js:51; [{ line, reason }]). null when neither is there: one `reply.changes(index)` is a gap (UI-PLAN §2.1).
+// A reply's lines from `reply.changes` (SB core: { lines: [{ glyph, line, detail, applied }], refused: [{ line, reason }], stateThen }).
+// null when the reply has no receipts (nothing to show).
 export function replyLines(answers = {}) {
-  const digest = isRec(answers['reply.digest']) ? answers['reply.digest'] : null;
-  const refused = Array.isArray(answers['notes.refusedAt']) ? answers['notes.refusedAt'] : null;
-  if (!digest && !refused) return null;
-  const lines = [];
-  const add = (glyph, line, detail = null) => lines.push({ glyph, line, detail, applied: true });
-  for (const sign of [['gained', '+'], ['lost', '−']]) {
-    for (const item of list(digest?.[sign[0]])) add('item', `${sign[1]}${item.qty} ${item.name}`);
-  }
-  if (Number.isFinite(digest?.coin) && digest.coin !== 0) add('coin', `${digest.coin > 0 ? '+' : '−'}${Math.abs(digest.coin)}`);
-  if (text(digest?.place)) add('road', `To ${text(digest.place)}`);
-  for (const name of list(digest?.arrived)) add('people', `${name} arrived`);
-  for (const name of list(digest?.left)) add('people', `${name} left`);
-  for (const miss of list(refused)) lines.push({ glyph: 'warn', line: text(miss?.line), detail: text(miss?.reason) || null, applied: false });
+  const answer = isRec(answers['reply.changes']) ? answers['reply.changes'] : null;
+  if (!answer) return null;
+  const lines = list(answer.lines).filter(isRec).map(row => ({ glyph: text(row.glyph), line: text(row.line), detail: text(row.detail) || null, applied: row.applied !== false }));
+  for (const miss of list(answer.refused)) lines.push({ glyph: 'warn', line: text(miss?.line), detail: text(miss?.reason) || null, applied: false });
   return lines;
 }
 
@@ -110,13 +101,12 @@ export function selectReplyMenu(answers = {}, opts = {}) {
   const lines = replyLines(answers);
   if (!lines) return null;
   const notApplied = lines.filter(line => !line.applied).length;
-  const place = isRec(answers['scene.place']) ? answers['scene.place'] : {};
-  const weather = isRec(answers['scene.weather']) ? text(answers['scene.weather'].text) : '';
-  // `stateThen` asks the same queries with { asOf } (SB/sdk.js:139); the port passes those answers in.
+  // `stateThen` is the place and weather of the state the reply query was asked on (`{ asOf }` for an earlier reply).
+  const then = isRec(answers['reply.changes']?.stateThen) ? answers['reply.changes'].stateThen : {};
   return {
     at: text(opts.at),
     lines,
     counts: { changes: lines.length - notApplied, heldBack: notApplied, notApplied },
-    stateThen: { place: text(place.name), weather: weather || null },
+    stateThen: { place: text(then.place), weather: text(then.weather) || null },
   };
 }
