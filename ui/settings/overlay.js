@@ -28,9 +28,9 @@ export function createSettingsOverlay(options = {}) {
   const { doc = globalThis.document, host = doc.body, settings = {}, backStack = null } = options;
   const subtitle = settings.subtitle ?? options.subtitle ?? '';
   const sent = options.sent ?? settings.sent ?? null;
-  const { renderSection = null, onChange, onAction, onClose } = options;
+  const { renderSection = null, onChange, onAction, onClose, onView = null } = options;
   const sections = settings.sections ?? [];
-  const ctx = { doc, settings, onChange, onAction, go: id => show(id) };
+  const ctx = { doc, settings, onChange, onAction, view: onView, backStack, go: id => show(id) };
 
   let current = sections[0]?.id ?? null;
   let query = '';

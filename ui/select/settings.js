@@ -2,6 +2,7 @@
 
 import { selectConnections } from './connections.js';
 import { selectCalls } from './calls.js';
+import { selectProblems, selectSent } from './tools.js';
 
 const LOOK = ['panelStyle', 'glassStrength', 'font', 'textSize', 'sendPending'];
 const BUDGETS = ['tailBudget', 'contextShare', 'maxChangeLines'];   // callQueue is in the Models page's Calls group
@@ -76,9 +77,9 @@ function moduleParts(features) {
 
 /**
  * `answers`: { host: settings() (SB sdk/settings.js:74, stored over defaults), defaults: HOST_SETTINGS_DEFAULTS (sdk/constants.js:10),
- * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), subtitle? }.
+ * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), subtitle?, tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
  * → the settings view-model (contract/settings.js), or null when neither host settings nor a feature list was read.
- * Gaps (packs, sent, presets, per-chat module sets) are empty or null.
+ * Gaps (packs, presets, per-chat module sets) are empty or null.
  */
 export function selectSettings(answers) {
   const a = isObj(answers) ? answers : {};
@@ -88,16 +89,19 @@ export function selectSettings(answers) {
   const host = hasHost ? a.host : {};
   const schema = hasHost ? a.schema : {};
   const defaults = isObj(a.defaults) ? a.defaults : {};
+  const budgetRows = rowsOf('Budgets', BUDGETS, host, schema, defaults);
+  const t = isObj(a.tools) ? a.tools : {};
+  const sent = selectSent(t.sent ?? null, selectProblems(t), budgetRows);
   const { defList, set } = moduleParts(hasFeatures ? a.features : []);
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
-    section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', rowsOf('Budgets', BUDGETS, host, schema, defaults)),
+    section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows),
   ];
   return {
     subtitle: typeof a.subtitle === 'string' ? a.subtitle : null,
-    sent: null,
+    sent,
     removed: [],
     packs: { packs: [], modules: [], trackers: { cap: 0, items: [] } },
     sections,

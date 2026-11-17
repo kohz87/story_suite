@@ -64,7 +64,7 @@ export function mountSuite(options = {}) {
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
       onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : port.command('settings.set', { key, value })),
-      onAction: (key, value) => port.command('settings.action', { key, value }),
+      onAction: (key, value) => port.command('settings.action', { key, value }), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
     return port.command('suite.settings', {});

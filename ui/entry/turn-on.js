@@ -27,7 +27,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const links = addStyles(doc, base);
   doc.body.classList.add(BODY_CLASS);
   const prefs = { chat: chatPrefs(ctx) };
-  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, selectors: buildSelectors(ctx, StoryBlock.sdk), prefs, onError: (tab, error) => console.warn(`[Story Suite preview] the ${tab} view could not be built`, error) });
+  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools), prefs, onError: (tab, error) => console.warn(`[Story Suite preview] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow' });
   const entry = addMenuEntry(doc, { label: 'Story Suite (preview)', onClick: () => suite.open('now') });
   const drawerHost = doc.createElement('div');

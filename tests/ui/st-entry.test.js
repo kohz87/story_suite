@@ -46,9 +46,9 @@ function fakeCtx(next) {
 
 test('buildSelectors has one selector per tab and never throws on empty answers', () => {
   const selectors = buildSelectors(() => null, null);
-  assert.deepEqual(Object.keys(selectors).sort(), [...TABS].sort());
+  assert.deepEqual(Object.keys(selectors).sort(), [...TABS, 'inspector', 'problems', 'sent'].sort());   // the Tools page's own live reads follow the tabs
   const read = () => null;
-  for (const tab of TABS) assert.doesNotThrow(() => selectors[tab](read), tab);
+  for (const tab of [...TABS, 'inspector', 'problems', 'sent']) assert.doesNotThrow(() => selectors[tab](read), tab);
   assert.equal(selectors.fight(read), null);
 });
 
