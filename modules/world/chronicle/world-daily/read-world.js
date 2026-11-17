@@ -8,8 +8,8 @@ const rows = (query, kind) => { const out = ask(query, 'packs.content', { kind }
 const merged = list => Object.assign({}, ...list.filter(item => item && typeof item === 'object' && !Array.isArray(item)));
 const specShaped = event => event && typeof event === 'object' && event.when === undefined && event.ends_when !== undefined;
 
-// Tests only: the install check refuses the spec's kinds until the pack-format job lands (night/WEINT.REPORT.md item 1), so a
-// host test hands the world in here. Nothing in the suite sets it.
+// Tests only: a test that wants a world no pack carries hands it in here (the install check accepts the spec's kinds now).
+// Nothing in the suite sets it outside tests.
 let override = null;
 
 /** Tests only: the world is `fn(world read from the packs)` until the returned function is called. */

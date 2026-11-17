@@ -10,6 +10,7 @@ import { checkCurrency, checkEconomy, checkWeather, checkRipples, checkEvent, li
 import { checkCalendar, checkPlace, placeRefs, checkRoute, routeSlug, checkMarkets, checkNames, checkCondition } from '../validate/world.js';
 import { checkItem, itemRefs, checkFoe, checkMeterPreset, checkRpg, checkYou } from '../validate/items.js';
 import { checkTheme } from '../validate/theme.js';
+import { checkWorldCast, checkWorldPack, WORLD_KINDS } from '../validate/world-pack.js';
 import { checkRequires } from './requires.js';
 
 export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilities, limits, dataModuleDefinitions, readableConditions }) {
@@ -47,7 +48,8 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     linkEvents(content.events, packId, add);
     // Kinds added later are kept only when given, so older packs normalize as they always did.
     if (given.skills !== undefined) content.skills = records(given.skills, 'skills', { add, packId, check: (record, path, label) => checkSkill(record, path, label, add) });
-    if (given.places !== undefined) content.places = records(given.places, 'places', { add, packId, check: (record, path, label) => checkPlace(record, path, label, add) });
+    // A world pack names a place by `id` (spec §1); the store keeps it as the place's slug.
+    if (given.places !== undefined) content.places = records(Array.isArray(given.places) ? given.places.map(place => (isObject(place) && place.id !== undefined && place.slug === undefined ? { ...place, slug: place.id } : place)) : given.places, 'places', { add, packId, check: (record, path, label) => checkPlace(record, path, label, add) });
     if (given.routes !== undefined) {
         const place = placeRefs(content.places ?? []);
         content.routes = records(given.routes, 'routes', { add, packId, check: (record, path) => checkRoute(record, path, add, place), named: false, autoSlug: routeSlug });
@@ -68,7 +70,9 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
     }
     if (given.rpg !== undefined) content.rpg = checkRpg(given.rpg, packId, add, warn);
     // The cast (cast.js): kept only when given, so older packs normalize as they always did.
-    if (given.cast !== undefined) content.cast = checkCast(given.cast, packId, add, items, calendar);
+    // A cast with `kind` on its entries is the world pack's (spec §8): one bad person is refused alone, the rest load.
+    const worldCast = Array.isArray(given.cast) && given.cast.some(person => isObject(person) && person.kind !== undefined);
+    if (given.cast !== undefined) content.cast = worldCast ? checkWorldCast(given.cast, packId, add, warn) : checkCast(given.cast, packId, add, items, calendar);
     // The name lists: one object (not a list), kept only when given and when every part checks.
     if (given.names !== undefined) {
         const names = checkNames(given.names, warn);
@@ -79,6 +83,10 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
         const you = checkYou(given.you, add);
         if (you) content.you = you;
     }
+
+    // The world pack (spec v0.13): realms, kind maps, powers, scores, events, templates, lore; and the cross checks over the places, conditions and cast.
+    const world = WORLD_KINDS.some(kind => given[kind] !== undefined);
+    if (world || worldCast || given.conditions !== undefined) Object.assign(content, checkWorldPack({ given, content, packId, weather, ripples, add, warn, world, worldCast }));
 
     const start = raw.start === undefined ? null : checkStart(raw.start, add, ref);
     for (const field of IGNORED_TOP_FIELDS) if (raw[field] !== undefined) warn('IGNORED_FIELD', field, `${field} is not read any more (pack format ${PACK_FORMAT}); it was left out.`);

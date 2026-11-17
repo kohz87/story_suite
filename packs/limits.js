@@ -34,5 +34,11 @@ export { SCREEN_FIELDS, TAB_ID, TAB_TITLE_MAX, MOUNTS } from './limits-parts/scr
 export { PACK_FORMAT, PACK_FORMAT_DEFAULT, IGNORED_KINDS, IGNORED_TOP_FIELDS } from './limits-parts/format.js';
 export { SKILL_TYPES_V1, SKILL_RANKS_V1, SKILL_USES_V1, SKILL_TYPE_ALIASES } from './limits-parts/skill-words.js';
 export { FOE_FIELDS, FOE_TIERS, FOE_LIMITS } from './limits-parts/foes.js';
+export { PLACE_CLASSES, ROUTE_CLASSES, STANDING, WORLD_LIMITS } from './limits-parts/world-classes.js';
+export { EVENT_KINDS, EVENT_CERTAINTY, EVENT_REACH, WORLD_EVENT_FIELDS } from './limits-parts/world-events.js';
+export { EFFECT_FIELDS, CAST_EFFECT_FIELDS, TEMPLATE_FIELDS, CONDITION_EFFECT_FIELDS } from './limits-parts/world-effects.js';
+export { POWER_FIELDS, SCORE_FIELDS, REALM_FIELDS, LORE_FIELDS } from './limits-parts/world-records.js';
+export { LORE_LOGIC } from './limits-parts/world-lore.js';
+export { WORLD_CAST_FIELDS, CAST_KINDS, TIE_TAGS, WORLD_CAST_LIMITS } from './limits-parts/world-cast.js';
 export { PACK_ID, SLUG, SEMVER, COMMAND } from './limits-parts/ids.js';
 export { DEF_ID, SCREEN_ID } from './limits-parts/refs.js';
