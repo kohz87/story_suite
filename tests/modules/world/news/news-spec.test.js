@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { knownNews } from '../../../../modules/world/world/known.js';
-import { heardHere, newsAt } from '../../../../modules/world/world/news.js';
+import { cueToday, heardHere, newsAt } from '../../../../modules/world/world/news.js';
 import { shownPlace } from '../../../../modules/world/world/news-reach.js';
 import { DAY, hostFor } from './helpers.js';
 import { clockAt, makeState, sceneAt } from '../chronicle/helpers/fake-ctx.js';
@@ -130,4 +130,14 @@ test('rumour vs fact: a world happening is never heard before its courier and is
     // With the switch off the same state shows the entry as any other (no arrival, no stamp).
     const off = knownNews(before, hostFor(before, { pack: PACK, on: false }));
     assert.deepEqual([off.length, off[0].heard], [1, []]);
+});
+
+test('world.cueToday: the world happening fired today in the scene\'s region is today\'s cue; another day, another region, no place, or the switch off give none', () => {
+    const today = (options, ask = {}) => { const st = world({ day: 10, ...options }); return cueToday(st, ask, hostFor(st, { pack: PACK, on: options.on ?? true })); };
+    assert.deepEqual(today({}), { text: 'The lords call the levy.', name: 'The Levy · day 10' }, 'fired today at Ledgerford, the scene at Highmark (same region)');
+    assert.equal(today({ at: 'Seagate' }), null, 'another region');
+    assert.equal(today({ place: '' }), null, 'a happening with no place is no cue anywhere');
+    assert.equal(today({ on: false }), null);
+    const st = world({ day: 10 });
+    assert.equal(cueToday(st, { now: 11 * DAY + 60 }, tools(st)), null, 'the next day it is no longer today');
 });

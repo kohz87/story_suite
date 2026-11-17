@@ -11,6 +11,7 @@ import { cleanName, cleanSummary, findIn, prune } from '../domain.js';
 import { sha256 } from '../../hash.js';
 import { CLASS_WEIGHT, resolveRef } from '../../daily/geo.js';
 import { MAX_NAME } from '../domain-parts/limits-text.js';
+import { MAX_EVENTS } from '../domain-parts/limits-caps.js';
 
 const DAY = 1440;
 const MAX_SUMMARY = 240;
@@ -50,10 +51,11 @@ function nameOf(events, text, date, id) {
 
 /**
  * Writes `journal` (the step's report) into `chronicle.events` on the draft: an entry per firing, resolved on its end. `dateOf(day)`
- * is the day as the calendar writes it. Returns the ids written.
+ * is the day as the calendar writes it. Returns `{ written, skipped }`: the ids written, and the summaries not written (the chronicle was full).
  */
 export function writeHappenings(ctx, chronicle, journal, { geo, rev, dateOf = () => '' }) {
     const written = [];
+    const skipped = [];
     for (const entry of Array.isArray(journal) ? journal : []) {
         const template = typeof entry.by === 'string' && entry.by.startsWith('template:');
         const by = template ? `event:world.template.${entry.by.slice('template:'.length)}` : `event:world.${entry.by}`;
@@ -76,10 +78,14 @@ export function writeHappenings(ctx, chronicle, journal, { geo, rev, dateOf = ()
         const old = chronicle.events[id];
         // The same happening written again (a Re-read, or a later reply's record replayed): kept as it is when nothing but the receipt differs.
         if (old && JSON.stringify({ ...old, rev: 0 }) === JSON.stringify({ ...next, rev: 0 })) continue;
+        // The chronicle keeps at most MAX_EVENTS entries: with that many and none resolved to make room, the happening is not written
+        // (it stays on the step's card, with a warning), so the step never leaves a chronicle the validator refuses.
+        if (!old) prune(chronicle);
+        if (!old && Object.keys(chronicle.events).length >= MAX_EVENTS) { skipped.push(entry.text); continue; }
         if (old && typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', `/events/${id}`);
         chronicle.events[id] = next;
         written.push(id);
     }
     if (written.length) prune(chronicle);
-    return written;
+    return { written, skipped };
 }

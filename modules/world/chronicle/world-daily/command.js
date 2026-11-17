@@ -87,7 +87,8 @@ function daily(ctx, payload = {}) {
     markLedger(chronicle, { day: today, take: true, tombKeys: out.report.tomb, reset: true });
     // What fired and ended is news (spec §4): one chronicle entry per occurrence, dated on its own day.
     const calendar = calendarFrom(query);
-    writeHappenings(ctx, chronicle, out.report.journal, { geo: buildGeo(world), rev: revOf(ctx), dateOf: day => dateText(calendar, day * DAY).replace(/,? \d{1,2}:\d{2}.*$/, '') });
+    const { skipped } = writeHappenings(ctx, chronicle, out.report.journal, { geo: buildGeo(world), rev: revOf(ctx), dateOf: day => dateText(calendar, day * DAY).replace(/,? \d{1,2}:\d{2}.*$/, '') });
+    if (skipped.length) out.report.warnings.push(`The chronicle is full of events under way: ${skipped.length} happening(s) were not written as news (${skipped.slice(0, 3).join('; ')}).`);
     // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.
     chronicle.daily = toSlot(out.daily);
     const { report } = out;

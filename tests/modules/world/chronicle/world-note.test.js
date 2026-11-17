@@ -114,7 +114,7 @@ test('replay == live: the same state and queries give the same note; a state wit
 
 test('a news item still rumour at this place is marked " (rumour)"; a fact is not; off stays empty', () => {
     const heard = [
-        { name: 'Border War', summary: 'Raiders cross the river.', arrivesAt: 300, tag: 'rumour' },
+        { name: 'Border War', summary: 'Raiders cross the river.', updated: 300, arrivesAt: 9000, tag: 'rumour' },
         { name: 'Red Plague', summary: 'It spreads east.', arrivesAt: 200, tag: 'fact' },
     ];
     const out = texts(worldNote(world({ heard }).view));
@@ -122,4 +122,14 @@ test('a news item still rumour at this place is marked " (rumour)"; a fact is no
     const pulse = texts(worldNote(world({ heard: [{ name: 'Whisper', summary: 'Strange lights.', arrivesAt: 1, rumour: 'heard in the inn' }] }).view));
     assert.match(pulse[2], /Whisper \(rumour\) — Strange lights\.$/);
     assert.deepEqual(worldNote({ ...world({ heard }).view, feature: () => false }), [], 'switch off: no note, no marker');
+});
+
+test('a rumour is placed by when it was written, not by its courier still to come: an older rumour sits below a newer fact', () => {
+    const heard = [
+        { name: 'Far Rumour', summary: 'Smoke in the north.', updated: 100, arrivesAt: 99999, tag: 'rumour' },
+        { name: 'Near Fact', summary: 'The bridge is mended.', updated: 400, arrivesAt: 500, tag: 'fact' },
+        { name: 'Old Fact', summary: 'Ancient.', updated: 10, arrivesAt: 50, tag: 'fact' },
+    ];
+    const out = texts(worldNote(world({ heard, conditions: [] }).view));
+    assert.equal(out[1], 'News that has reached here: Near Fact — The bridge is mended; Far Rumour (rumour) — Smoke in the north.');
 });

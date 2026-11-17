@@ -68,7 +68,8 @@ const isRumour = entry => entry.tag === 'rumour' || (entry.tag === undefined && 
 
 function heardLines(view, place, now) {
     const heard = ask(view, 'world.heardHere', { place, now });
-    const at = entry => (entry.news === 'ended' ? entry.endsAt : entry.arrivesAt) ?? entry.updated ?? 0;
+    // When it was heard here: a fact when its news came (its end's, once heard); a rumour when it was written (its courier is still to come).
+    const at = entry => (isRumour(entry) ? entry.updated ?? entry.since : entry.news === 'ended' ? entry.endsAt : entry.arrivesAt) ?? entry.updated ?? 0;
     return (Array.isArray(heard) ? heard : [])
         .filter(entry => entry && typeof entry.name === 'string')
         .sort((a, b) => at(b) - at(a) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))

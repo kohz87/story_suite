@@ -95,8 +95,9 @@ export function cueToday(state, { now = null, place = null } = {}, tools) {
     const scene = placeInfo(env.geo, tools, here);
     const today = Math.floor(clock / DAY);
     const events = tryQuery(queryOf(tools), 'chronicle.events', {}, []);
+    // Only a happening with a place the map knows can be "here" (one with none is no cue anywhere).
     const found = (Array.isArray(events) ? events : []).filter(event => isRecord(event) && WORLD_BY.test(text(event.by)) && isInt(event.since) && Math.floor(event.since / DAY) === today)
-        .filter(event => withinReach('regional', placeInfo(env.geo, tools, event.place), scene))
+        .filter(event => text(event.place) && scene && withinReach('regional', placeInfo(env.geo, tools, event.place), scene) && placeInfo(env.geo, tools, event.place))
         .sort((a, b) => b.since - a.since || (a.id < b.id ? -1 : 1))[0];
     return found ? { text: text(found.summary) || text(found.name), name: text(found.name) } : null;
 }
