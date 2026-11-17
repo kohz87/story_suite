@@ -64,3 +64,10 @@ test('the Today card draws the where row from today.where (the first-turn Now is
   assert.match(cards[0].textContent, /The Mill/);
   assert.match(cards[0].textContent, /6:40 am/);
 });
+
+test('the Where row is drawn only while the Today card is otherwise empty', () => {
+  const where = { title: 'The Mill', detail: '6:40 am' };
+  const full = rightNow({ needsYou: [], today: { where, focus: { title: 'Find the key', detail: null }, trip: null, dueSoon: null, torn: [] } }, makeCtx());
+  assert.doesNotMatch(full[0].textContent, /The Mill/);
+  assert.match(full[0].textContent, /Find the key/);
+});

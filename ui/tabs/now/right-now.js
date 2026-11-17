@@ -54,8 +54,6 @@ function needsRows(needsYou, ctx) {
 
 function todayRows(today, ctx) {
   const rows = [];
-  const where = asRow(today.where);
-  if (where) rows.push(row({ icon: '◉', tone: 'where', title: where.title, detail: where.detail, go: 'world' }, ctx));
   const focus = asRow(today.focus);
   if (focus) rows.push(row({ icon: '◆', tone: 'focus', title: focus.title, detail: focus.detail, go: focus.go ?? 'journal' }, ctx));
   if (today.trip) {
@@ -82,6 +80,9 @@ function todayRows(today, ctx) {
       go: 'bag',
     }, ctx));
   }
+  // The Where row is drawn only while the card is otherwise empty (before the first reply): a populated Today stays as in the mock.
+  const where = asRow(today.where);
+  if (!rows.length && where) rows.push(row({ icon: '◉', tone: 'where', title: where.title, detail: where.detail, go: 'world' }, ctx));
   return rows;
 }
 

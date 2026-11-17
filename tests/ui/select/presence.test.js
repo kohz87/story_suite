@@ -1,4 +1,4 @@
-// One presence in the new view: when Story Block's scene.present answers, it alone says who is here (chat drawer, Now, People, dossier); with no such query the store's flag and place decide.
+// One presence in the new view: here = the store's flag or place OR Story Block's scene.present (names and aliases, folded), in the chat drawer, Now, People and the dossier.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { gather } from '../../../ui/select/gather.js';
@@ -14,14 +14,29 @@ const LIST = [
 const readOf = present => (name) => ({ 'people.list': LIST, 'scene.place': { name: 'Mill' }, 'scene.present': present }[name] ?? null);
 const names = list => list.map(row => row.name);
 
-test('scene.present decides who is here, against the people store flags', () => {
-  assert.deepEqual(names(gather(readOf(['Sieke', 'Pieter']), [])['npc.present']), ['Sieke', 'Pieter']);
-  assert.deepEqual(names(selectNow(gather(readOf(['Sieke', 'Pieter']), ['scene.place'])).here), ['Sieke', 'Pieter']);
-  const people = selectPeople(peopleParts(readOf(['Sieke', 'Pieter'])));
-  assert.deepEqual(names(people.sections?.here ?? people.here), ['Sieke', 'Pieter']);
+test('scene.present adds to the store: listed people are here, and the store\'s own here people stay', () => {
+  assert.deepEqual(names(gather(readOf(['Pieter']), [])['npc.present']), ['Wiebke', 'Sieke', 'Pieter']);
+  assert.deepEqual(names(selectNow(gather(readOf(['Pieter']), ['scene.place'])).here), ['Wiebke', 'Sieke', 'Pieter']);
+  const people = selectPeople(peopleParts(readOf(['Pieter'])));
+  assert.deepEqual(names(people.here), ['Wiebke', 'Sieke', 'Pieter']);
 });
 
-test('an empty scene.present means nobody is here; no scene.present query falls back to the store', () => {
-  assert.deepEqual(gather(readOf([]), [])['npc.present'], []);
+test('no change block: scene.present frozen, NPC State records an arrival, shown Here', () => {
+  const list = [...LIST, { id: 'd', name: 'Arrival', present: true, location: 'Quay', meters: {} }];
+  const read = name => ({ 'people.list': list, 'scene.place': { name: 'Mill' }, 'scene.present': ['Sieke'] }[name] ?? null);
+  assert.ok(names(gather(read, [])['npc.present']).includes('Arrival'));
+  assert.ok(names(selectPeople(peopleParts(read)).here).includes('Arrival'));
+});
+
+test('an empty list removes nobody the store has here; a missing query is the store alone', () => {
+  assert.deepEqual(names(gather(readOf([]), [])['npc.present']), ['Wiebke', 'Sieke']);
   assert.deepEqual(names(gather(readOf(null), [])['npc.present']), ['Wiebke', 'Sieke']);
+});
+
+test('a listed short name or alias matches the stored person (folded)', () => {
+  const list = [{ id: 'n', name: 'Nelje Brandt', aliases: ['Nelje', 'The Clerk'], present: false, location: 'Quay', meters: {} }];
+  const read = present => name => ({ 'people.list': list, 'scene.place': { name: 'Mill' }, 'scene.present': present }[name] ?? null);
+  assert.deepEqual(names(gather(read([' the clerk ']), [])['npc.present']), ['Nelje Brandt']);
+  assert.deepEqual(names(gather(read(['nelje']), [])['npc.present']), ['Nelje Brandt']);
+  assert.deepEqual(gather(read(['Someone']), [])['npc.present'], []);
 });

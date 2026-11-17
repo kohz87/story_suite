@@ -10,6 +10,8 @@ const isRecord = value => value !== null && typeof value === 'object' && !Array.
 const keyOf = name => String(name ?? '').trim().toLocaleLowerCase();
 const cut = (value, max) => (value && value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value);
 
+const labelsOf = row => [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])].map(keyOf).filter(Boolean);
+
 const metersOf = found => Object.fromEntries(AXES.map(axis => [axis, Number.isFinite(Number(found?.[axis])) ? Number(found[axis]) : 0]));
 
 function cardOf(row, partyKeys) {
@@ -26,13 +28,12 @@ function tiesOf(edges) {
 }
 
 /**
- * Whether a living person is here. `present` is Story Block's `scene.present` (names): when the scene has that list, it is the one answer (the new view shows one presence everywhere).
- * With no list (null: the query is not there): named in this reply (the record's `present` flag) or last placed at the scene's place (the same name, any case) (PEOPLE-PLAN P5).
+ * Whether a living person is here: the union of the store's own answer (named in this reply: the `present` flag; or last placed at the scene's place, the same name, any case) and Story Block's
+ * `scene.present` (names; each matched against the person's name and aliases, folded). A missing or empty list removes nobody the store has here, and a reply with no change block (so a frozen list) never hides an arrival.
  */
 export const isHere = (row, place, present = null) => row.lifeState !== 'deceased'
-  && (Array.isArray(present)
-    ? present.some(name => keyOf(typeof name === 'string' ? name : name?.name) === keyOf(row.name))
-    : row.present === true || (Boolean(keyOf(place)) && keyOf(row.location) === keyOf(place)));
+  && (row.present === true || (Boolean(keyOf(place)) && keyOf(row.location) === keyOf(place))
+    || (Array.isArray(present) && labelsOf(row).some(label => present.some(name => keyOf(typeof name === 'string' ? name : name?.name) === label))));
 
 /**
  * People view-model from { list: people.list (the store's rows), keyPeople?: director.keyPeople.view (place and news of those away), party?: party.actors,
