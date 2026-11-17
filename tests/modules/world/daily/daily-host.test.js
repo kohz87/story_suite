@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { agrees, chronicle, dailyReceipts, newHost, reply, SPEC, world } from './daily-host.helpers.js';
+import { agrees, chronicle, dailyOf, dailyReceipts, newHost, reply, SPEC, world } from './daily-host.helpers.js';
 
 const minutes = host => host.head().domains.director.time.minutes;
 const advances = host => host.sdk.receipts().filter(entry => entry.receipt.type === 'director.advance' && entry.receipt.data.cause === 'world-clock');
@@ -27,10 +27,12 @@ test('test 35 and 16 (clock): a reply with no time line adds the fallback hour; 
     await host.send('Brief.', reply('A short wait.', ['! time +20m']));
     assert.equal(minutes(host), start + 60 + 3 * 1440 + 20, '20 minutes, not the fallback hour');
     assert.deepEqual(advances(host).map(entry => entry.index), [4]);
+    await host.send('Idle.', reply('Nothing moves.'));
+    assert.equal(host.sdk.query('time.lastLine', {}).index, 8, 'the fallback hour is not a time line: the gap cue still sees the last real one');
     await host.st.editMessage(4, reply('A quiet night.', ['! time +30m']));
     assert.equal((await host.sdk.reread(4)).ok, true);
-    assert.deepEqual(advances(host).map(entry => entry.index), [], 'the edited reply has a time line now: no fallback hour');
-    assert.equal(minutes(host), start + 30 + 3 * 1440 + 20);
+    assert.deepEqual(advances(host).map(entry => entry.index), [10], 'the edited reply has a time line now: no fallback hour on it');
+    assert.equal(minutes(host), start + 30 + 3 * 1440 + 20 + 60);
     await agrees(host, 'fallback Re-read');
     host.done();
 });
@@ -42,7 +44,7 @@ test('on the host: the step is recorded on the reply that crossed the day, and r
     await host.send('Day.', reply('Dawn.', ['! time +1d']));
     const crossing = host.ctx.chat.length - 1;
     assert.ok(dailyReceipts(host).some(entry => entry.index === crossing), 'the reply with "+1d" carries the step');
-    assert.equal(chronicle(host).daily.day, Math.floor(minutes(host) / 1440));
+    assert.equal(dailyOf(host).day, Math.floor(minutes(host) / 1440));
     const before = world(host);
     // Test 9: a swipe of the reply that crossed the day gives the same rolls (campaign seed + day + event id); swipe back restores it.
     await host.swipe(reply('Dawn, grey.', ['! time +1d']));
@@ -97,7 +99,7 @@ test('test 10 (the replay part): a prose edit of an earlier reply re-captures on
 test('test 11 and 16 (skip): a skip steps every day once (one step, rolls and fades per day) and over 30 days says "N world days simulated"', async () => {
     const host = await newHost();
     await play(host);
-    const day = chronicle(host).daily.day;
+    const day = dailyOf(host).day;
     await host.send('Long.', reply('Seasons turn.', ['! time +45d']));
     const step = dailyReceipts(host).at(-1).receipt;
     assert.equal(step.data.days, 45);
@@ -119,10 +121,14 @@ test('test 44 (the daily part): a step warning goes to Problems, on the reply th
     host.done();
 });
 
-test('switch off: no step, no fallback hour, no daily field, no world conditions', async () => {
+test('switch off: no step, no fallback hour, no daily field, no world conditions (through a swipe and an edited Re-read too)', async () => {
     const host = await newHost(false);
     await play(host);
     await host.send('Long.', reply('Seasons turn.', ['! time +45d']));
+    await host.swipe(reply('Seasons turn slowly.'));
+    const rest = host.ctx.chat.findIndex(message => /A quiet night\./.test(message.mes));
+    await host.st.editMessage(rest, reply('A long quiet night.', ['! time +2d']));
+    assert.equal((await host.sdk.reread(rest)).ok, true);
     assert.equal('daily' in chronicle(host), false);
     assert.equal('conditions' in chronicle(host), false);
     assert.deepEqual(dailyReceipts(host), []);

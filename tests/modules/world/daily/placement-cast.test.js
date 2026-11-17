@@ -55,6 +55,8 @@ test('test 13 and 33: off-screen death — an unmet canDieUnmet person dies (die
     assert.ok(run.journal().some(entry => entry.rumour && entry.place === 'Oakhollow' && /Old Miller died/.test(entry.text)));
     assert.equal(run.state.cast.reeve, undefined, 'canDieUnmet false: untouched');
     assert.ok(run.warnings.some(text => /reeve.*cannot die before you meet them/.test(text)));
+    const templated = runner(world({ cast, templates: [{ template: 'plague-cart', severity: 'minor', where: { kinds: ['town'] }, sets: ['unrest@place: 1 day'], cast: [{ who: 'old-miller', died: true }], chance: '100% per season', summary: 'x' }] })).to(3);
+    assert.deepEqual(templated.state.cast, {}, 'a template never kills or moves named cast');
     const met = runner(w, { met: ['reeve'] }).set('fallen', 'Highmark Capital', 1, 'place').to(1);
     assert.equal(met.state.cast.reeve.died, 1, 'met: the authored event may kill them');
 });

@@ -38,9 +38,20 @@ test('test 16 (holders): a world line on a held condition keeps the event hold; 
 test('the chronicle validator takes the daily state and refuses a damaged one', () => {
     const chronicle = must(set(start(), { name: 'unrest', ref: 'Highmark', fades: '2 days' })).state.domains.chronicle;
     const daily = { seed: 'ab', start: 3, day: 5, events: { levy: { state: 'active' } }, anchors: {}, lastMajor: {}, cast: {}, standings: {}, facts: {}, masks: {}, minors: [], cooldowns: {} };
-    assert.deepEqual(validateChronicle({ ...chronicle, daily }), []);
-    assert.ok(validateChronicle({ ...chronicle, daily: { ...daily, events: { levy: { state: 'sleeping' } } } }).length);
-    assert.ok(validateChronicle({ ...chronicle, daily: { ...daily, extra: 1 } }).length);
+    assert.deepEqual(validateChronicle({ ...chronicle, daily: [daily] }), []);
+    assert.ok(validateChronicle({ ...chronicle, daily }).length, 'kept as a slot, [state]');
+    assert.ok(validateChronicle({ ...chronicle, daily: [{ ...daily, events: { levy: { state: 'sleeping' } } }] }).length);
+    assert.ok(validateChronicle({ ...chronicle, daily: [{ ...daily, extra: 1 }] }).length);
     const bad = { ...chronicle.conditions['unrest@Highmark'], open: true };
     assert.ok(validateChronicle({ ...chronicle, conditions: { 'unrest@Highmark': bad } }).length, 'open only beside holds');
+});
+
+test('a hold whose event is not Active in the step\'s state (its reply deleted, the state lost) is released at the next step', async () => {
+    const { runDays } = await import('../../../../modules/world/daily/step.js');
+    const table = { 'unrest@Highmark': { name: 'unrest', scope: 'place', ref: 'Highmark', since: DAY, fadesAt: null, holds: ['levy'], why: '', by: 'event:levy', rev: 1 } };
+    const w = { places: [{ name: 'Highmark', region: 'The March', kind: 'town' }], conditions: [{ name: 'unrest', scope: 'place', fades: '10 days' }] };
+    const out = runDays({ state: null, table, world: w, today: 3, seed: 's' });
+    assert.equal(out.conditions['unrest@Highmark'], undefined, 'no holder left: it ends');
+    const timed = runDays({ state: null, table: { 'unrest@Highmark': { ...table['unrest@Highmark'], fadesAt: 20 * DAY } }, world: w, today: 3, seed: 's' });
+    assert.deepEqual([timed.conditions['unrest@Highmark'].fadesAt, timed.conditions['unrest@Highmark'].holds], [20 * DAY, undefined], 'its own timer runs on');
 });

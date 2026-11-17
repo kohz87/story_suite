@@ -152,3 +152,12 @@ test('test 29: world cap 4 and multi-realm slots — X in A and B counts once; V
     run.to(60);
     assert.equal(active(run).length, 5, 'the fifth set-in-motion fires over the caps');
 });
+
+test('a route condition set by an event is kept under the store\'s route name ("From-To"), as world lines and the World note read it', () => {
+    const w = world({ routes: [{ from: 'Oakhollow', to: 'Town', kind: 'road', km: 20 }], conditions: [...world().conditions, { name: 'roads-closed', scope: 'route', fades: 'until cleared' }], events: [
+        ev('landslide', { certainty: 'set-in-motion', where: ['Valegard'], window: { after: 'start', within: '1 day' }, ends_when: 'instant', effects: { set: ['roads-closed@Oakhollow-Town: 5 days'] } }),
+    ] });
+    const run = runner(w).to(1);
+    assert.deepEqual(Object.keys(run.table), ['roads-closed@Oakhollow-Town']);
+    assert.equal(run.table['roads-closed@Oakhollow-Town'].scope, 'route');
+});

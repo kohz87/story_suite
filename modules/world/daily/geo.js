@@ -50,7 +50,8 @@ export function buildGeo(world = {}) {
         const from = text(raw?.from);
         const to = text(raw?.to);
         if (!from || !to) continue;
-        const name = text(raw.name) || `${from}–${to}`;
+        // The default name is the one the conditions store keeps a route under ("From-To", conditions/known-refs.js), so both agree.
+        const name = text(raw.name) || `${from}-${to}`;
         const route = { name, from, to };
         for (const key of [name, `${from}-${to}`, `${from}–${to}`, text(raw.corridor)]) if (key) routes.set(low(key), route);
     }

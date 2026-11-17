@@ -7,6 +7,7 @@
 import { isInt } from '../domain-parts/shared-basics.js';
 import { worldEventsOn } from '../conditions/feature.js';
 import { DAILY } from './command.js';
+import { slotValue } from '../../../rpg/slot.js';
 
 const DAY = 1440;
 export const FALLBACK_MINUTES = 60;
@@ -26,7 +27,7 @@ export function dailyAfterCapture(view, info = {}) {
         commands.push({ type: 'director.advance', payload: { minutes: FALLBACK_MINUTES, cause: FALLBACK_CAUSE, reason: 'no time line in the reply' } });
         now += FALLBACK_MINUTES;
     }
-    const state = view.state.domains.chronicle?.daily ?? null;
+    const state = slotValue(view.state.domains.chronicle?.daily);
     if (!state || Math.floor(now / DAY) > state.day) commands.push({ type: DAILY, payload: {} });
     return commands.length ? { commands } : undefined;
 }

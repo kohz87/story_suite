@@ -1,10 +1,11 @@
 // World events, the daily step on the host: the `chronicle.world.daily` command (world-events switch). Run by code after a reply's
 // lines (afterCapture) when the story day has changed since the last step: it steps every day from the last stepped one to today (spec v0.10 §9) and
-// writes the results into the chronicle (`daily`, the step's state, and `conditions`). The changes are recorded in the reply that
+// writes the results into the chronicle (`daily`, the step's state as a slot written whole, and `conditions`). The changes are recorded in the reply that
 // carries the step, so replay applies them and never rolls again. Its card lists what fired, ended and lapsed, the long-skip note
 // and every warning. The first step of a chat starts at today and draws the campaign seed.
 
 import { revOf } from '../domain-parts/lookup.js';
+import { slotValue, toSlot } from '../../../rpg/slot.js';
 import { clockOf } from '../capture/text.js';
 import { pointerOf } from '../conditions/key.js';
 import { worldEventsOn } from '../capture/world-parts/switch.js';
@@ -22,15 +23,23 @@ function newSeed(ctx) {
     return out;
 }
 
-/** The conditions table becomes `next`: removed keys are marked ctx.ifThere (an older reply's entry may be gone on replay). */
+/**
+ * The conditions table becomes `next`. A key an earlier reply made that this step removes or changes is marked ctx.ifThere: on replay
+ * after that reply is deleted the change is passed over (the entry is not there to change), and the rest of the step still applies.
+ */
 function writeConditions(ctx, chronicle, next) {
     const table = chronicle.conditions ?? {};
+    const mark = key => { if (typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', pointerOf(key)); };
     for (const key of Object.keys(table).sort()) {
         if (key in next) continue;
-        if (typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', pointerOf(key));
+        mark(key);
         delete table[key];
     }
-    for (const key of Object.keys(next).sort()) if (JSON.stringify(table[key]) !== JSON.stringify(next[key])) table[key] = next[key];
+    for (const key of Object.keys(next).sort()) {
+        if (JSON.stringify(table[key]) === JSON.stringify(next[key])) continue;
+        if (key in table) mark(key);
+        table[key] = next[key];
+    }
     if (Object.keys(table).length || chronicle.conditions) chronicle.conditions = table;
 }
 
@@ -40,14 +49,15 @@ function daily(ctx) {
     const now = clockOf(ctx);
     if (now === null) return ctx.fail('NOT_YET', 'The story has no date yet; the world waits for one.');
     const chronicle = ctx.draft('chronicle');
-    const state = chronicle.daily ?? null;
+    const state = slotValue(chronicle.daily);
     const today = Math.floor(now / DAY);
     // A shrunk Re-read or a rewind can leave the last stepped day ahead of the clock: nothing is stepped again or undone.
     if (state && today <= state.day) return { summary: '', narrate: false, data: { days: 0 } };
     const out = runDays({ state, table: chronicle.conditions ?? {}, world: readWorld((name, args) => ctx.query(name, args)), today, seed: state?.seed ?? newSeed(ctx), rev: revOf(ctx) });
     if (!out) return { summary: '', narrate: false, data: { days: 0 } };
     writeConditions(ctx, chronicle, out.conditions);
-    chronicle.daily = out.daily;
+    // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.
+    chronicle.daily = toSlot(out.daily);
     const { report } = out;
     const fired = report.journal.filter(entry => entry.fired).map(entry => entry.by);
     // The warnings go to Problems, on this reply (the one sink, spec §9 Warnings), as well as on its card.

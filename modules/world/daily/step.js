@@ -7,7 +7,7 @@ import { seededDraw } from './chance.js';
 import { readDefs } from './defs.js';
 import { eventsDay } from './events-day.js';
 import { buildGeo } from './geo.js';
-import { fadeConditions } from './holds.js';
+import { fadeConditions, releaseHolds } from './holds.js';
 import { recordAnchor } from './anchors.js';
 import { releaseDisplaced } from './cast.js';
 import { templatesDay } from './templates-day.js';
@@ -61,6 +61,9 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     ws.anchor = key => recordAnchor(ws.anchors, key, ws.day);
     const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);
     if (prior !== null && first > prior + 1) ws.warnings.push(`${first - prior - 1} days before the last ${MAX_DAYS} were not simulated.`);
+    // A hold whose event is not Active here (its step's reply was deleted, or the step's state was lost) would never end: released now.
+    const orphans = new Set(Object.values(ws.table).flatMap(entry => entry.holds ?? []).filter(id => ws.events[id]?.state !== 'active'));
+    for (const id of [...orphans].sort()) releaseHolds(ws, id, first * DAY);
     for (let day = first; day <= today; day += 1) {
         ws.day = day;
         ws.tomb = new Set();
