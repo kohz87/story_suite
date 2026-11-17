@@ -7,7 +7,7 @@ import { STRINGS } from '../../core/strings.js';
 import { checkCast } from '../cast.js';
 import { isObject, records } from '../validate/core.js';
 import { checkCurrency, checkEconomy, checkWeather, checkRipples, checkEvent, linkEvents, checkSkill, checkStart } from '../validate/events-economy.js';
-import { checkCalendar, checkPlace, placeRefs, checkRoute, routeSlug, checkMarkets, checkNames } from '../validate/world.js';
+import { checkCalendar, checkPlace, placeRefs, checkRoute, routeSlug, checkMarkets, checkNames, checkCondition } from '../validate/world.js';
 import { checkItem, itemRefs, checkFoe, checkMeterPreset, checkRpg, checkYou } from '../validate/items.js';
 import { checkTheme } from '../validate/theme.js';
 import { checkRequires } from './requires.js';
@@ -52,6 +52,8 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
         const place = placeRefs(content.places ?? []);
         content.routes = records(given.routes, 'routes', { add, packId, check: (record, path) => checkRoute(record, path, add, place), named: false, autoSlug: routeSlug });
     }
+    // The declared world conditions: kept only when given (format 3 stays as it was for every pack that has none).
+    if (given.conditions !== undefined) content.conditions = records(given.conditions, 'conditions', { add, packId, check: (record, path, label) => checkCondition(record, path, label, add) });
     if (given.markets !== undefined) content.markets = checkMarkets(given.markets, packId, add);
     // Do not create this key for old packs: their normalized bytes and hashes are history.
     if (given.dataModules !== undefined) {

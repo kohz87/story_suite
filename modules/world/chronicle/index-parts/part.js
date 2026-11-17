@@ -4,6 +4,10 @@ import { threadOutcome } from '../thread-outcome.js';
 import { applyFactionLine, applyWorldLine, edit, lasting, remove, rumor } from '../capture.js';
 import { DIGEST, DIGEST_DEFAULTS, DIGEST_FEATURE, FULL_MAX, KEEP_MAX } from '../days.js';
 import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET, NOTE, digestCommand, noteCommand } from '../digest.js';
+import { conditionCommands } from '../conditions/commands.js';
+import { worldEventsFeature } from '../conditions/feature.js';
+import { conditionQueries } from '../conditions/queries.js';
+import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
 import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
@@ -20,6 +24,7 @@ export const features = Object.freeze([
         describe: 'When a story day ends, code writes what it held (places, quests, money, NPC stages, world news and the day\'s other events) from the receipts, for the Journal on the World screen and a one-line reminder after a time skip.',
         default: true,
     }),
+    worldEventsFeature,
 ]);
 
 // The command owned by the feature: a handler with `feature` (Story Block refuses it while it is off).
@@ -47,11 +52,13 @@ export const part = {
         'chronicle.lasting': lasting,
         // The World pulse's news (pulse/effects.js): a looming world event, written by code before a reply.
         'chronicle.rumor': rumor,
+        ...conditionCommands,
+        [CONDITIONS_SETTLE]: settleConditions,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,
     },
-    queries,
+    queries: { ...queries, ...conditionQueries },
     // The world and faction lines are the threads feature's (src/v2/threads.js); `chronicle.lasting` (a pack event's step) is code's and stays.
     kinds: {
         world: { grammar: GRAMMAR.world, apply: applyWorldLine, feature: THREADS_FEATURE },

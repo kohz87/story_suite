@@ -69,8 +69,10 @@ export class Rejected extends Error {
  * atlas's `atlas.routes` / `atlas.place` from `atlas` `{ routes: { place: [names] }, regions: { place: region } }`
  * when given (else those are missing, as without the atlas part).
  */
-export function queryFor({ atlas = null } = {}) {
+export function queryFor({ atlas = null, packs = null } = {}) {
     const run = (state, name, args = {}) => {
+        if (name === 'packs.content' && packs) return packs[args.kind] ?? [];
+        if (name === 'packs.list' && packs) return packs.list ?? [];
         if (name === 'director.time') return { minutes: state.domains.director?.time?.minutes ?? null, text: '' };
         if (name === 'scene.place') return { ...state.domains.scene.place };
         if (name === 'atlas.routes' || name === 'atlas.place') {
@@ -95,12 +97,12 @@ export function query(state, name, args, options = {}) {
  * `{ ok: false, code, message, state }` with the state untouched. `time`: what `ctx.time()`
  * answers (a function of the state; default: none, so the clock is read through `director.time`).
  */
-export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined } = {}) {
+export function runCommand(state, handler, payload, { seed = 7, cause = 'story', atlas = null, time = undefined, owned = ['chronicle'], caller = null, carrier = undefined, packs = null, features = null } = {}) {
     const rev = state.meta.rev + 1;
     const drafts = {};
     const random = sfc32(seed);
     const current = () => ({ ...state, domains: { ...state.domains, ...drafts } });
-    const ask = queryFor({ atlas });
+    const ask = queryFor({ atlas, packs });
     const ctx = {
         rev,
         cause,
@@ -119,6 +121,7 @@ export function runCommand(state, handler, payload, { seed = 7, cause = 'story',
         fail: (code, message) => { throw new Rejected(code, message); },
         query: (name, args) => deepFreeze(ask(current(), name, args)),
     };
+    if (features) ctx.feature = id => features[id] === true;
     if (time !== undefined) ctx.time = () => time(current());
     let result;
     try {
