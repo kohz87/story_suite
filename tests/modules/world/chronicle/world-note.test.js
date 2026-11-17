@@ -93,3 +93,16 @@ test('replay == live: the same state and queries give the same note; a state wit
     assert.notDeepEqual(worldNote(world({ conditions: [CONDITIONS[2]] }).view), a);
     assert.deepEqual(worldNote(world({ heard: [] , conditions: [CONDITIONS[2]] }).view), []);
 });
+
+test('a news item still rumour at this place is marked " (rumour)"; a fact is not; off stays empty', () => {
+    const heard = [
+        { name: 'Border War', summary: 'Raiders cross the river.', updated: 300, tag: 'rumour' },
+        { name: 'Red Plague', summary: 'It spreads east.', updated: 200, tag: 'fact' },
+    ];
+    const out = worldNote(world({ heard }).view);
+    assert.match(out[2], /^News that has reached here: Border War \(rumour\) — Raiders cross the river; Red Plague — It spreads east\.$/);
+    assert.doesNotMatch(out[2], /Red Plague \(rumour\)/);
+    const pulse = worldNote(world({ heard: [{ name: 'Whisper', summary: 'Strange lights.', updated: 1, rumour: 'heard in the inn' }] }).view);
+    assert.match(pulse[2], /Whisper \(rumour\) — Strange lights\.$/);
+    assert.deepEqual(worldNote({ ...world({ heard }).view, feature: () => false }), [], 'switch off: no note, no marker');
+});

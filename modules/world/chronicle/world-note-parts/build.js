@@ -47,13 +47,16 @@ function nearConditions(view, place, now) {
         });
 }
 
+// A news item still rumour at this place carries the tag `rumour` (the pulse's own rumour events carry a `rumour` text); a fact has none.
+const isRumour = entry => entry.tag === 'rumour' || (entry.tag === undefined && typeof entry.rumour === 'string');
+
 function heardLines(view, place, now) {
     const heard = ask(view, 'world.heardHere', { place, now });
     return (Array.isArray(heard) ? heard : [])
         .filter(entry => entry && typeof entry.name === 'string')
         .sort((a, b) => (b.updated ?? 0) - (a.updated ?? 0) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
         .slice(0, MAX_NEWS)
-        .map(entry => `${entry.name}${entry.summary ? ` — ${clip(entry.summary, MAX_PART - entry.name.length)}` : ''}`);
+        .map(entry => `${entry.name}${isRumour(entry) ? ' (rumour)' : ''}${entry.summary ? ` — ${clip(entry.summary, MAX_PART - entry.name.length - (isRumour(entry) ? 9 : 0))}` : ''}`);
 }
 
 /** `worldNote(view)` → the note's lines (`[]` while the feature is off or there is nothing to say), within about 160 tokens. */
