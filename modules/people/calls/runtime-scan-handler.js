@@ -104,7 +104,7 @@ export function createAssistantHandlerPart(rt, deps, helpers) {
             const live = getChatState(eventChatKey);
             const present = (live?.npcs || []).filter(npc => npc?.present && !npc.archived).map(npc => npc.id);
             const entry = live ? recordReadMark(live, getContext().chat || [], messageId) : null;
-            const due = noteCaptureCatchUp(eventChatKey, present);
+            const due = noteCaptureCatchUp(eventChatKey, present, messageId);
             if (due.length && entry) entry.catchUp = [...due];
             if (entry) persist();
             if (due.length) void runCaptureCatchUp(eventChatKey, due, 0, messageId);

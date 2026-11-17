@@ -139,6 +139,7 @@ test('hosted, catch-up 0: backfills still run, no Refresh', () => {
 test('hosted, catch-up 1, new admissions: each new NPC gets the Refresh and a backfill; limit 1 backfill per reply; backlog drains, none lost', () => {
     const r = runCalls('cadence-1', true, async ({ reply, settings }) => {
         settings.narrationCaptureCatchUp = 1;
+        settings.narrationCaptureCatchUpPeople = 3;   // up to 3 people may go after one reply (the default is 1)
         const mk = n => ({ name: n, present: true, role: 'adventurer', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO });
         const one = await reply('Yunyun waves.', { npcs: [mk('Yunyun')] });
         const two = await reply('Wiz and Chris arrive.', { npcs: [mk('Wiz'), mk('Chris')] });
@@ -219,14 +220,9 @@ test('an old saved state with pendingBackfills drains one per reply, the 100 cap
 });
 
 test('catch-up: every due NPC is held from the reply backfill; a newly met NPC keeps its queue entry and gets its backfill after the Refresh (established ones skipped)', async () => {
-    // The real module in a temp tree whose two imports are small stubs (the real ones need the host).
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'nsd-catchup-'));
-    try {
-        fs.writeFileSync(path.join(dir, 'runtime-catchup.js'), oldSource('runtime-catchup.js'));
-        fs.writeFileSync(path.join(dir, 'runtime-settings.js'), 'export const getSettings = () => ({ narrationCaptureCatchUp: 1 });\n');
-        fs.writeFileSync(path.join(dir, 'runtime-scan-helpers.js'), 'export const latestMessageId = () => 5;\n');
-        var { createCatchUpPart } = await import(pathToFileURL(path.join(dir, 'runtime-catchup.js')).href);
-    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+    // The real module on the synthetic host's stubs (its chat is one reply); N = 1 and K = 3 so both people are due at once.
+    globalThis.__npcMock = { extensionSettings: {}, context: { chat: [{ name: 'Narrator', mes: 'Two people arrive.', is_user: false }] }, saveSettingsCalls: 0 };
+    const { createCatchUpPart } = await import('../../modules/people/calls/runtime-catchup.js');
     const key = 'chat-x';
     const state = {
         npcs: [{ id: 'new1', overallAppearance: 'Young human woman' }, { id: 'old1' }],
@@ -238,11 +234,12 @@ test('catch-up: every due NPC is held from the reply backfill; a newly met NPC k
     const calls = { refresh: [], backfill: [], opts: {} };
     const rt = { captureCatchUp: new Map(), settings: {} };
     const part = createCatchUpPart(rt, {
+        readSettings: () => ({ narrationCaptureCatchUp: 1, narrationCaptureCatchUpPeople: 3 }),
         getChatKey: () => key, getChatState: () => state, isHostSwipeActive: () => false, isScanBusy: () => false, persist() {},
         refreshNpcFromChat: async (id, opts) => { calls.refresh.push(id); calls.opts[id] = opts; return true; },
         processPendingBackfills: async (mid, opts) => { calls.backfill.push(opts); return 0; },
     });
-    const due = part.noteCaptureCatchUp(key, ['new1', 'old1']);
+    const due = part.noteCaptureCatchUp(key, ['new1', 'old1'], 0);
     assert.deepEqual([...due].sort(), ['new1', 'old1']);
     assert.deepEqual([...rt.catchUpTaken.get(key)].sort(), ['new1', 'old1'], 'the reply backfill start skips both');
     await part.runCaptureCatchUp(key, due);

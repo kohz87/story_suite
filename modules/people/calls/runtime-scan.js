@@ -403,7 +403,7 @@ export function createScanPart(rt, deps) {
             renderDossier();
             updateInjection();
             if (capture && replayScope()) replayRefreshIds = Object.keys(savedCapture.refreshes || {});
-            else if (capture && !hostedOnePass()) catchUpIds = noteCaptureCatchUp(scanChatKey, inlineIds);
+            else if (capture && !hostedOnePass()) catchUpIds = noteCaptureCatchUp(scanChatKey, inlineIds, targetMessageId);
             notifyGenderConflicts(merged.report);
             if (manual) {
                 const { created, updated, candidates, promoted, skipped, staleArchived = [], stalePruned = [] } = merged.report;

@@ -255,6 +255,7 @@ export function createSettingsBindPart(rt, deps) {
         bindSettingsNumber('#npc_state_delta_scan_every', 'scanEvery', 1, 20, 2);
         bindSettingsNumber('#npc_state_delta_scan_depth', 'scanDepth', 2, 30, 6);
         bindSettingsNumber('#npc_state_delta_narration_capture_catch_up', 'narrationCaptureCatchUp', 0, 50, 4);
+        bindSettingsNumber('#npc_state_delta_narration_capture_catch_up_people', 'narrationCaptureCatchUpPeople', 1, 3, 1);
         $(document).on('change.npcStateDelta', '#npc_state_delta_present_cast_display', function () {
             getSettings().presentCastDisplay = normalizePresentCastDisplay(this.value); this.value = getSettings().presentCastDisplay;
             getSettings().presentCastDisplayChosen = true;

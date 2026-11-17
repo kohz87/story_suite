@@ -2,12 +2,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.__npcMock = { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };   // the host stubs read it when the catch-up part's imports load
+globalThis.__npcMock.context = { chat: [{ name: 'Narrator', mes: 'A is here.', is_user: false }] };
 const { createCatchUpPart } = await import('../../modules/people/calls/runtime-catchup.js');
 
 function part(state, calls = { refresh: [], backfills: [] }, { refreshed = true } = {}) {
     const rt = { captureCatchUp: new Map() };
     const deps = {
-        readSettings: () => ({ narrationCaptureCatchUp: 1 }), getChatKey: () => 'chat', getChatState: () => state, isHostSwipeActive: () => false, isScanBusy: () => false, persist: () => {},
+        readSettings: () => ({ narrationCaptureCatchUp: 1, narrationCaptureCatchUpPeople: 1 }), getChatKey: () => 'chat', getChatState: () => state, isHostSwipeActive: () => false, isScanBusy: () => false, persist: () => {},
         processPendingBackfills: async (id, options) => { calls.backfills.push({ id, skip: options.skipNpcIds }); },
         refreshNpcFromChat: async (id, options) => { calls.refresh.push({ id, at: options.at ?? null }); return refreshed; },
     };
@@ -17,7 +18,7 @@ const people = (...ids) => ({ npcs: ids.map(id => ({ id, archived: false })), pe
 
 test('the Refresh is bound to the reply that counted it, not to whatever reply is newest when it runs', async () => {
     const { noteCaptureCatchUp, runCaptureCatchUp, calls } = part(people('a'));
-    const due = noteCaptureCatchUp('chat', ['a']);
+    const due = noteCaptureCatchUp('chat', ['a'], 0);
     assert.deepEqual(due, ['a']);
     await runCaptureCatchUp('chat', due, 0, 7);
     assert.deepEqual(calls.refresh, [{ id: 'a', at: 7 }]);

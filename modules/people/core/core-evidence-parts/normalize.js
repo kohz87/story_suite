@@ -5,7 +5,7 @@ import { PROFILE_EVIDENCE_FIELDS } from '../../fields/registry.js';
 import { PROFILE_EVIDENCE_LIMIT, retainBehaviorEvidence } from './shared-retention.js';
 
 export function emptyProfileEvidence() {
-    return { personality: [], speech: [], appearance: [], mannerisms: [], behaviorProfile: [] };
+    return { personality: [], speech: [], appearance: [], mannerisms: [], behaviorProfile: [] };   // `background` joins a record only once a quote is kept, so a record with none reads as before
 }
 
 export function normalizeProfileEvidence(value = {}) {
@@ -21,16 +21,17 @@ export function normalizeProfileEvidence(value = {}) {
         appearance: normalize(source.appearance),
         mannerisms: normalize(source.mannerisms),
         behaviorProfile: retainBehaviorEvidence(source.behaviorProfile ?? source.behavior_profile),
+        ...(normalize(source.background).length ? { background: normalize(source.background) } : {}),
     };
 }
 
 // The evidence a scanner prompt carries: every field at its ordinary size.
 export function promptProfileEvidence(value = {}) {
-    const evidence = normalizeProfileEvidence(value);
+    const { background = [], ...evidence } = normalizeProfileEvidence(value);   // the background quotes are kept, not sent: a prompt reads what it always did
     return { ...evidence, behaviorProfile: evidence.behaviorProfile.slice(-PROFILE_EVIDENCE_LIMIT) };
 }
 
 export function profileEvidenceCount(value = {}) {
     const normalized = normalizeProfileEvidence(value);
-    return PROFILE_EVIDENCE_FIELDS.reduce((sum, field) => sum + normalized[field].length, 0);
+    return PROFILE_EVIDENCE_FIELDS.reduce((sum, field) => sum + (normalized[field] || []).length, 0);
 }

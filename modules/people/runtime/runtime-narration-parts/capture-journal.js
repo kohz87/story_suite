@@ -13,10 +13,12 @@ export function captureJournalEntry(state, chat, messageId) {
 const stamp = (at, messageId) => ({ messageId, key: at.key, ...(at.sid ? { fp: at.fp } : {}) });
 export function recordAcceptedCapture(state, chat, messageId, capture) {
     const at = journalKeyOf(chat, messageId);
+    const old = (state.captureJournal || []).find(item => item?.key === at.key);
     const entries = Array.isArray(state.captureJournal) ? state.captureJournal.filter(item => item?.key !== at.key) : [];
     // (EDITKEEP3) A capture re-applied after an edit brings the fills and refreshes its reply had accepted (no model call).
     const entry = { ...stamp(at, messageId), backgroundRule: 1, parsed: structuredClone(capture.parsed), watch: structuredClone(capture.watch || []), fills: structuredClone(capture.fills || {}) };
     if (capture.refreshes) entry.refreshes = structuredClone(capture.refreshes);
+    if (old?.roll) entry.roll = structuredClone(old.roll);   // the catch-up marks belong to the reply, not to its text: an edited Re-read keeps them
     entries.push(entry);
     state.captureJournal = entries;
 }
@@ -28,6 +30,8 @@ export function recordReadMark(state, chat, messageId) {
     const found = (state.captureJournal || []).find(item => same(item, at, messageId));
     if (found) return found;
     const entry = { ...stamp(at, messageId), backgroundRule: 1, fills: {} };
+    const old = (state.captureJournal || []).find(item => item?.key === at.key);
+    if (old?.roll) entry.roll = structuredClone(old.roll);
     // A stale entry of an edited reply (same sid, other text) is replaced, not kept beside it.
     state.captureJournal = [...(Array.isArray(state.captureJournal) ? state.captureJournal : []).filter(item => item?.key !== at.key), entry];
     return entry;

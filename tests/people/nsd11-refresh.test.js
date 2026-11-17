@@ -1,4 +1,4 @@
-// N8 (NPC State NSD11): Refresh writes the slow fields; it reads the stored tastes and ties, returns no tastes, and runs every 4 replies for 3 people.
+// N8 (NPC State NSD11): Refresh writes the slow fields; it reads the stored tastes and ties, returns no tastes, and runs rolling (each person waits 4 replies, one person per reply; tests/people/catchup-rolling.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -6,8 +6,6 @@ import { buildProfileRefreshPrompt, returnShape } from '../../modules/people/cor
 import { storedReads } from '../../modules/people/core/core-prompts-targeted-parts/stored-reads.js';
 import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { fillFailureNote } from '../../modules/people/meters/npc-lines-parts/fill-in.js';
-globalThis.__npcMock = { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };
-const { createCatchUpPart } = await import('../../modules/people/calls/runtime-catchup.js');
 const read = path => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 const target = { id: 'myla', name: 'Myla Venn', role: 'clerk' };
 const prompt = (extra = {}) => buildProfileRefreshPrompt({ transcript: '[m1] Myla sets down the ledger.', targetNpc: target, ...extra });
@@ -51,27 +49,10 @@ test('a Refresh no longer forwards tastes: the call, the file and the option are
     assert.doesNotMatch(read('modules/people/runtime/runtime-hosted-parts/target-notes.js'), /askTastes/);
 });
 
-function part(counts = { refresh: [] }, every = 4) {
-    const rt = { captureCatchUp: new Map() };
-    const deps = {
-        readSettings: () => ({ narrationCaptureCatchUp: every }), getChatKey: () => 'chat', getChatState: () => ({ npcs: [], pendingBackfills: [] }), isHostSwipeActive: () => false, isScanBusy: () => false, persist: () => {},
-        processPendingBackfills: async () => {}, refreshNpcFromChat: async id => { counts.refresh.push(id); return true; },
-    };
-    return createCatchUpPart(rt, deps);
-}
-
-test('cadence: every 4th captured reply, the 3 people most in them', () => {
-    const { noteCaptureCatchUp } = part();
-    assert.deepEqual(noteCaptureCatchUp('chat', ['a', 'b', 'c', 'd']), []);
-    assert.deepEqual(noteCaptureCatchUp('chat', ['a', 'b', 'c', 'd']), []);
-    assert.deepEqual(noteCaptureCatchUp('chat', ['a', 'b', 'c']), []);
-    assert.deepEqual(noteCaptureCatchUp('chat', ['a', 'b', 'd', 'e']), ['a', 'b', 'c'], 'the fourth reply is due: a and b (4), then c (3, seen first) of c, d (3), never a 4th person');
-    assert.deepEqual(noteCaptureCatchUp('chat', ['a']), [], 'the count restarts');
-});
-
-test('the default is every 4 replies and a failed catch-up shows the fill-in note with nothing written', () => {
+test('the defaults are every 4 replies, 1 person per reply, and a failed catch-up shows the fill-in note with nothing written', () => {
     assert.match(read('modules/people/settings/runtime-settings-parts/defaults.js'), /narrationCaptureCatchUp: 4,/);
     assert.match(read('modules/people/settings/runtime-settings-parts/get-settings.js'), /narrationCaptureCatchUp\)\)\)[^\n]*: 4\)/);
+    assert.match(read('modules/people/settings/runtime-settings-parts/defaults.js'), /narrationCaptureCatchUpPeople: 1,/);
     const source = read('modules/people/calls/runtime-targeted-refresh.js');
     assert.match(source, /if \(automatic\) \{ if \(error\?\.code !== 'NPC_SCANNER_ROUTE_CANCELLED'\) globalThis\.toastr\?\.warning\?\.\(fillFailureNote\(existing\.name\)\); \}/);
     assert.match(fillFailureNote('Myla'), /the profile for Myla could not be filled in\./);

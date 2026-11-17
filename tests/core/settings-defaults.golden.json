@@ -44,6 +44,7 @@
       "midDeleteRewind": false,
       "narrationCapture": false,
       "narrationCaptureCatchUp": 4,
+      "narrationCaptureCatchUpPeople": 1,
       "narrationCaptureCompact": false,
       "portraitComposition": "solo character portrait, upper body, centered composition, face clearly visible, portrait orientation",
       "portraitCustomPresetId": "custom-default",

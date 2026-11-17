@@ -9,11 +9,13 @@ import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-sett
 import { createTargetedScopePart } from './runtime-targeted-scope.js';
 import { fillFailureNote } from '../meters/npc-lines-parts/fill-in.js';
 import { fillAllowed, FILL_MERGE_OPTION } from '../appearance/appearance-fill.js';
+import { noteManualRefresh } from './catchup-history.js';
+import { applyBackgroundRule } from './refresh-background.js';
 
 const { profileRowBindsToTarget, rowContradictsTarget, soleRowMayBeTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 
 export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, targetedRowFor, refreshChangedFields }) {
-    const { editorIsMounted, ensureChatStateLoaded, flushStateFile, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isScanBusy, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, targetNoteOptions } = deps;
+    const { editorIsMounted, ensureChatStateLoaded, flushStateFile, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isScanBusy, persist, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, targetNoteOptions } = deps;
 
     function syncOpenNpcEditorFields(stored) {
         if (!stored || !editorIsMounted()) return;
@@ -83,7 +85,7 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
         const state = getChatState(chatKey);
         const existing = state.npcs.find(npc => npc.id === id);
         if (!existing) return false;
-        const transcript = recentTranscript(settings.scanDepth, { messageIds: true });
+        const transcript = recentTranscript(settings.scanDepth, { messageIds: true, hidden: true });
         const developmentSourceMessageIds = [...transcript.matchAll(/^\[m(\d+)\]/gm)]
             .map(match => Number(match[1])).filter(Number.isInteger);
         if (!transcript) {
@@ -146,6 +148,10 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                         || (rawProfileUpdates.length === 1 && soleRowMayBeTarget(rawProfileUpdates[0], { npcId: id, labels }, roster) ? rawProfileUpdates[0] : null);
                     parsed.profileUpdates = profile && !rowContradictsTarget(profile, existing, roster) ? [{ ...profile, id, name: existing.name }] : [];
                 }
+                // Rule 3: a background change needs a quote of the window (profileUpdates.evidence.background); without a grounded one it is left out, and the evidence is kept like the other slow fields'.
+                const ruled = applyBackgroundRule(parsed.npcs[0], parsed.profileUpdates?.[0], transcript);
+                if (ruled.row) parsed.npcs = [ruled.row];
+                if (ruled.profile) parsed.profileUpdates = [ruled.profile];
                 const edgeTouchesTarget = edge => edgeTouchesResolvedTarget(edge, existing, roster);
                 const localEdges = extractExplicitKeyRelationshipEdges(transcript, roster, currentExclusions()).filter(edgeTouchesTarget);
                 const modelEdges = (Array.isArray(parsed.keyRelationshipEdges) ? parsed.keyRelationshipEdges : []).filter(edgeTouchesTarget);
@@ -166,7 +172,7 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 developmentSourceMessageIds,
                 storyDays: storyDaysForTranscript(transcript),
                 developmentContext: transcript,
-                userDevelopmentContext: recentUserDevelopmentContext(settings.scanDepth, { messageIds: true }),
+                userDevelopmentContext: recentUserDevelopmentContext(settings.scanDepth, { messageIds: true, hidden: true }),
             },
             afterMerge: (refreshed, { liveBefore, scoped }) => {
                 // Manual history reconciliation must never pretend the NPC was just seen or change
@@ -194,6 +200,8 @@ export function createTargetedRefreshPart(rt, deps, { prepareCanonicalScanBase, 
                 if (automatic) {
                     if (changed.length) globalThis.toastr?.info?.(`NPC State Delta: caught up ${saved?.name || existing.name} from the last ${settings.scanDepth} messages (${changed.join(', ')}).`);
                 } else {
+                    // The reader's own Refresh counts as the person's last Refresh for the rolling catch-up (nothing was written if the chat moved on).
+                    if (getChatKey() === chatKey && noteManualRefresh(getChatState(chatKey), getContext().chat || [], id)) persist();
                     globalThis.toastr?.success?.(changed.length
                         ? `NPC State Delta: refreshed ${saved?.name || existing.name} from the last ${settings.scanDepth} messages (${changed.join(', ')}).`
                         : `NPC State Delta: ${saved?.name || existing.name} is already consistent with the last ${settings.scanDepth} messages.`);
