@@ -12,6 +12,7 @@ import { extrasCommand } from './extras.js';
 import { packsCommand } from './packs.js';
 import { hostCommand } from './host-settings.js';
 import { resetCommand } from './resets.js';
+import { moduleCardCommand } from './module-cards.js';
 import { ALIAS_NAMES, aliasCommand } from './aliases.js';
 import { OWN_NAMES } from './own-names.js';
 
@@ -126,6 +127,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
         try { answer = hostCommand(type, payload, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = resetCommand(type, payload, writes, () => sdk?.features?.()); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
+        try { answer = moduleCardCommand(type, payload, writes, () => sdk?.features?.()); } catch (error) { answer = failure(error); }
         if (answer) return answer;
       }
       if (typeof type === 'string' && type.startsWith('tracker.')) {

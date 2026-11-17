@@ -8,9 +8,10 @@ import { createHost } from '../../testkit/index.js';
 import { BUILTIN_MODULES } from '../../core/modules-list.js';
 import { COMMAND_NAMES } from '../../modules/people/storysuite-v2.js';
 import { createSbPort } from '../../ui/port/sb-port.js';
+import { buildSelectors } from '../../ui/select/build.js';
 
 // Not the new view's: old code, fixtures, the harness, contract text, the selectors' query names, the settings pages (keys sent through settings.set / settings.action), the port's answers to those keys and the old Fight tab (nothing mounts it).
-const SKIP = /^ui\/(legacy|fixtures|dev|contract|select|settings)(\/|$)|^ui\/port\/(people-settings|rpg|world-keys|world-settings|settings-director|money|extras|host-settings|resets)\.js$|^ui\/tabs\/fight\//;
+const SKIP = /^ui\/(legacy|fixtures|dev|contract|select|settings)(\/|$)|^ui\/port\/(people-settings|rpg|world-keys|world-settings|settings-director|money|extras|host-settings|resets|module-cards)\.js$|^ui\/tabs\/fight\//;
 // Strings of the right shape that are not commands: fold keys, a settings row key, view-model ids and the like.
 const NOT_COMMANDS = new Set(['bag.assets', 'journal.calendar', 'journal.closed', 'story.agendas.all', 'story.trackers', 'rpg.difficulty', 'now.turn.all', 'now.you', 'fight.party', 'svg.mp', 'rpg.sheet', 'models.test', 'tools.rebuild', 'tools.report', 'calls.fallback', 'calls.kinds', 'calls.queue', 'trackers.open', 'packs.import', 'packs.lorebook', 'packs.remove']);
 // Sent after the work is done locally, or only as a fallback the live mount never takes (See on map has the host's hook; the spoiler pref has port.prefs): nothing waits for the answer.
@@ -62,4 +63,29 @@ test('the three wired names reach the engine: can says yes and the Director name
   t.after(() => host.close());
   for (const name of ['pulse.quiet', 'arc.end', 'rpg.stats.spend', 'tracker.pin', 'dm.set', 'people.follow', 'settings.set', 'packs.offer']) assert.equal(port.can(name), true, name);
   assert.equal(port.can('nothing.here'), false);
+});
+
+// The Settings pages send keys, not command names, so the name scan cannot see a dead one: this sends every key the live port's own Settings view-model draws
+// (each row with its own value, each module card's switches, each page's Reset, Reset to Standard) and fails on any the engine does not know.
+test('every Settings row, module-card switch and Reset on the live port is answered (none falls through to UNKNOWN_COMMAND)', async t => {
+  t.mock.method(console, 'warn', () => {});
+  const host = await createHost({ core: true, modules: BUILTIN_MODULES });
+  t.after(() => host.close());
+  const writes = { settings: { set: (id, key, value) => host.settings.set(id, key, value) }, features: { set: (id, on) => host.features.set(id, on) } };
+  const port = createSbPort({ sdk: host.sdk, writes, selectors: buildSelectors(() => null, host.sdk), rpgValues: () => host.sdk.settings('story-block') });
+  const view = port.view('settings');
+  const sent = [];
+  const send = async (type, payload) => { const answer = await port.command(type, payload); sent.push(`${type} ${payload.key}`); assert.notEqual(answer?.code, 'UNKNOWN_COMMAND', `${type} ${payload.key}`); return answer; };
+  for (const def of view.modules.defs) {
+    const set = view.modules[view.modules.scope][def.id];
+    assert.equal((await send('settings.set', { key: `modules.chat.${def.id}`, value: set.on })).ok, true, def.id);
+    for (const sub of def.subs) assert.equal((await send('settings.set', { key: `modules.chat.${def.id}.${sub.key}`, value: set.subs[sub.key] })).ok, true, sub.key);
+  }
+  assert.ok(sent.some(k => k.includes('story-block.rpg')) && sent.some(k => k.includes('story-director')), 'the RPG switch and the Director card were sent');
+  assert.equal((await send('settings.action', { key: 'modules.reset', value: 'Reset to Standard' })).ok, true);
+  for (const section of view.sections) {
+    for (const row of section.rows) if (!['info', 'btn'].includes(row.type) && row.value !== null) await send('settings.set', { key: row.key, value: row.value });
+    if (section.rows.some(r => r.type !== 'info' && r.type !== 'btn')) await send('settings.action', { key: 'settings.reset', value: `Reset ${section.name} to defaults` });
+  }
+  assert.ok(sent.length > 30, 'the sweep sent the page keys');
 });

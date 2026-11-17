@@ -91,7 +91,7 @@ export function createPages(settings, ctx) {
   function page(section, custom) {
     const def = modules.defs.find(m => m.section === section.id);
     const isStart = section.id === 'start';
-    const applies = isStart ? null : h('p', { class: 'applies' }, def ? 'The switches below are for this chat (set new-chat defaults in Start). ' : '',
+    const applies = isStart ? null : h('p', { class: 'applies' }, def ? (Object.keys(modules.newChats ?? {}).length ? 'The switches below are for this chat (set new-chat defaults in Start). ' : 'The switches below apply to every chat. ') : '',
       'Settings apply to all chats, except those marked ', h('span', { class: 'tg2 chat' }, 'this chat'), '.');
     const content = custom == null ? body(section) : [custom].flat();
     const tail = [];
