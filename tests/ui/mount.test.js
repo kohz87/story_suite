@@ -146,3 +146,20 @@ test('fixed themes do not watch ST', () => {
     assert.equal(seen.length, 0);
   }
 });
+
+test('Settings › Tools › Developer tools › Use the old view goes to onOldView, never to the host settings', () => {
+  const doc = installFakeDom();
+  const port = createFakePort();
+  const asked = [];
+  const suite = mountSuite({ port, doc, onOldView: on => asked.push(on) });
+  suite.open('now');
+  suite.settings();
+  doc.body.querySelector('.si3[data-sec="tools"]').click();
+  assert.equal(doc.body.querySelector('[data-key="dev.oldView"]'), null, 'hidden while developer tools are off');
+  doc.body.querySelector('[data-key="dev.tools"] .sw').click();
+  doc.body.querySelector('[data-key="dev.oldView"] .sw').click();
+  assert.deepEqual(asked, [true]);
+  assert.equal(port.recorded.filter(c => c.type === 'settings.set').length, 0);
+  suite.destroy();
+  assert.equal(suite.settings(), null, 'nothing opens after destroy');
+});

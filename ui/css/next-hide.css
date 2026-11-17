@@ -1,8 +1,11 @@
-/* The new view hides the old Story Suite furniture in the chat, only while the body carries ss-ui-next; these are suite elements, never SillyTavern's. */
+/* The new view hides the old Story Suite furniture (chat, wand menu entry, drawer buttons), only while the body carries ss-ui-next; these are suite elements, never SillyTavern's. */
 body.ss-ui-next .story-suite-bar,
 body.ss-ui-next .ss-cards,
 body.ss-ui-next .ss-hud,
 body.ss-ui-next .story-suite-extras,
-body.ss-ui-next .story-suite-reply-note {
+body.ss-ui-next .story-suite-reply-note,
+body.ss-ui-next #story_suite_v2_menu,
+body.ss-ui-next .story-suite-drawer-buttons:not(#story-suite-next-drawer),
+body.ss-ui-next .story-suite-hud-toggle {
   display: none !important;
 }

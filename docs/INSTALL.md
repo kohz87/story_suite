@@ -20,14 +20,14 @@ To update later, open **Extensions → Manage extensions** and use the update bu
 
 ## First look
 
-- Model connections: in the old view (the default), open **Settings → Assist**, group **Extra calls**: the connection for quick helpers and the one for background work ("Same as chat" uses your chat connection). In the new view the same two are on **Settings → Models**, with the Story connection.
-- Try the example world: **Settings → Tabs & Packs → Import pack file**, pick `examples/packs/ersveil.zip`, then start a new chat.
-- Both views ship. The new view is a preview and is off by default in 0.1.0 (the setting `ui.next`); the old view is the one you see until it is switched on.
+- The Story Suite view is what you see (the wand menu's **Story Suite** entry opens it). The view before it is still there as a fallback until it is removed: **Settings → Tools**, switch on **Developer tools**, then **Use the old view** (this device only). To come back, untick **Story Suite: use the old view** under Extensions.
+- Model connections: open **Settings → Models** (the gear in the Story Suite view, or **Settings** in the Story Suite drawer under Extensions): the Story connection, the connection for quick helpers and the one for background work ("Same as chat" uses your chat connection).
+- Try the example world: importing a pack is not on the new view's Settings yet, so use the old view (above) for it: **Settings → Tabs & Packs → Import pack file**, pick `examples/packs/ersveil.zip`, then start a new chat.
 
 ## If something is wrong
 
 - **Nothing appears and a notice names the old extensions:** one of the old three is still on. Delete it (step 2 above) and reload.
-- **Diagnostics:** **Settings → Diagnostics** lists problems, including a module that failed to start; the rest of the suite still runs.
+- **Diagnostics:** **Settings → Tools** lists problems (Problems) and copies the report (Diagnostics), including a module that failed to start; the rest of the suite still runs.
 - Report a problem on `https://github.com/kohz87/story_suite/issues` with the Diagnostics text.
 
 ## For developers

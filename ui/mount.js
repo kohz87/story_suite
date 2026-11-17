@@ -12,7 +12,7 @@ import { createPrefs } from './runtime/prefs.js';
 import { defaultViews } from './shell/default-views.js';
 import { createSettingsOverlay } from './settings/overlay.js';
 import { renderSettingsSection } from './settings/sections/index.js';
-import { DEVELOPER_KEY } from './settings/developer.js';
+import { DEVELOPER_KEY, OLD_VIEW_KEY } from './settings/developer.js';
 
 const PORT_EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 
@@ -38,7 +38,7 @@ function readFlags(port, override) {
 /**
  * Mounts the suite. Options: `port` (required), `doc`, `host`, `flags` ({ rpg, fightOpen } overrides),
  * `theme` ('dark' | 'light' | 'follow'), `tabs` (id → (view, ctx) => node), `card` ((view, ctx) => node),
- * `schedule` (frame scheduler for tests), `initial` (first tab). Returns `{ open(tab), close(), destroy(), ... }`.
+ * `schedule` (frame scheduler for tests), `initial` (first tab), `onOldView(on)` (Settings › Tools › Developer tools › Use the old view). Returns `{ open(tab), close(), settings(), destroy(), ... }`.
  */
 export function mountSuite(options = {}) {
   const { port, doc = globalThis.document, host = doc?.body, flags: override = null, theme = 'dark' } = options;
@@ -62,7 +62,7 @@ export function mountSuite(options = {}) {
     settingsOverlay?.destroy();
     settingsOverlay = createSettingsOverlay({
       doc, host: view.root, settings: { ...settings, developer: prefs.getFold(DEVELOPER_KEY, false) }, backStack, subtitle: 'this chat', renderSection: renderSettingsSection,
-      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : port.command('settings.set', { key, value })),
+      onChange: (key, value) => (key === DEVELOPER_KEY ? prefs.setFold(key, value) : key === OLD_VIEW_KEY ? options.onOldView?.(Boolean(value)) : port.command('settings.set', { key, value })),
       onAction: (key, value) => port.command('settings.action', { key, value }), onView: (name, args) => port.view(name, args),
     });
     settingsOverlay.open();
@@ -151,6 +151,7 @@ export function mountSuite(options = {}) {
       return opened;
     },
     close: () => view.close(),
+    settings: () => (destroyed ? null : openSettings()),
     destroy() {
       if (destroyed) return;
       destroyed = true;
