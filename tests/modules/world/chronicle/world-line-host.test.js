@@ -82,3 +82,20 @@ test('on the host: a world line sets the pack\'s conditions through the real com
     assert.deepEqual(host.store.problems(), []);
     host.close();
 });
+
+test('on the host, switch off: a Re-read while the threads feature is off runs the plain world line (both lines kept, no worldLine mark)', async () => {
+    const host = await newHost(false);
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Look.', reply('The square fills.', [RIOT, SECOND]));
+    const at = host.ctx.chat.findIndex(message => /The square fills\./.test(message.mes));
+    // With the threads feature off a Re-read runs the world lines "again", where every declared feature reads on.
+    host.features.set('story-director.threads', false);
+    await host.st.editMessage(at, reply('The square fills.', [RIOT, SECOND, '+ world Third — x | state: looming | place: Highmark']));
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    const names = Object.values(host.head().domains.chronicle.events).map(event => event.name).sort();
+    assert.deepEqual(names, ['Bread Riots', 'Second Thing'], 'no one-line limit with the switch off (a new line is not used: its kind is off)');
+    assert.equal('worldLine' in host.head().domains.chronicle, false);
+    assert.equal('conditions' in host.head().domains.chronicle, false);
+    assert.doesNotMatch(host.sdk.receipts().map(entry => String(entry.receipt.summary ?? '')).join('\n'), /Not used: "unrest"/);
+    host.close();
+});
