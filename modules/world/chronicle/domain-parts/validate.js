@@ -35,12 +35,14 @@ function eventErrors(id, event) {
     if (event.rumour !== undefined && !textOk(event.rumour, MAX_NAME)) errors.push(`${at}.rumour must be the name of the event it is about.`);
     if (event.heard !== undefined && event.heard !== true) errors.push(`${at}.heard must be true when it is there.`);
     if (event.keep !== undefined && event.keep !== true) errors.push(`${at}.keep must be true when it is there.`);
+    // `reach` (switch story-director.world-events): how far a world happening's news travels (world-daily/news-entries.js).
+    if (event.reach !== undefined && !['local', 'regional', 'realm', 'world'].includes(event.reach)) errors.push(`${at}.reach must be local, regional, realm or world.`);
     if (event.fire !== undefined && !(isRecord(event.fire) && Object.keys(event.fire).length === 2 && isInt(event.fire.rev) && event.fire.rev >= 0
         && typeof event.fire.by === 'string' && LASTING_BY.test(event.fire.by))) {
         errors.push(`${at}.fire must be { rev, by }: the pack event that last changed it.`);
     }
     for (const key of Object.keys(event)) {
-        if (!['id', 'name', 'summary', 'state', 'since', 'updated', 'place', 'factions', 'aka', 'rev', 'by', 'keep', 'fire', 'rumour', 'heard'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
+        if (!['id', 'name', 'summary', 'state', 'since', 'updated', 'place', 'factions', 'aka', 'rev', 'by', 'keep', 'fire', 'rumour', 'heard', 'reach'].includes(key)) errors.push(`${at} has an unknown field "${key}".`);
     }
     return errors;
 }

@@ -46,7 +46,8 @@ export function fireEvent(ws, def, day, bind, realms) {
     applyEffects(ws, main, source, day, bind);
     if (outcome?.effects) { const { on_end: _o, ...rest } = outcome.effects; applyEffects(ws, rest, source, day, bind); }
     const summary = fill(outcome?.summary ? `${fill(def.summary, outcome, bind)} ${outcome.summary}` : def.summary, outcome, bind);
-    ws.journal.push({ day, text: summary, by: def.id, fired: true, reach: def.reach, ...(bind?.place ? { place: bind.place } : {}) });
+    // `where` and `title` let the host write the happening as news from where it happened (world-daily/news-entries.js).
+    ws.journal.push({ day, text: summary, by: def.id, fired: true, reach: def.reach, title: def.title, where: def.where?.refs ?? [], ...(bind?.place ? { place: bind.place } : {}) });
     if (def.ends?.instant) endEvent(ws, def, day);
 }
 

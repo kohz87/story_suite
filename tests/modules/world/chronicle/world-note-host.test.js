@@ -54,10 +54,11 @@ test('on the host: the note shows the place, region and route conditions and onl
     assert.match(note, /Conditions here: .*unrest at Highmark/);
     assert.match(note, /grain-dear at The March/);
     assert.match(note, /roads-closed at Highmark-Bluewatch/, 'a route condition is kept as "From-To"; the note finds the scene\'s routes by it');
-    assert.match(note, /News that has reached here: Bread Riots/);
-    assert.doesNotMatch(note, /Keep Siege/, 'ten days away by tier');
-    const heard = host.sdk.query('world.heardHere', { place: 'Highmark' }).map(entry => entry.name);
-    assert.deepEqual(heard.includes('Keep Siege'), false);
+    assert.match(note, /News that has reached here: .*Bread Riots/);
+    // A world line about a far place is heard at once as rumour; fact follows at courier time (ten days away by reach step).
+    assert.match(note, /Keep Siege \(rumour\)/);
+    const heard = host.sdk.query('world.heardHere', { place: 'Highmark' });
+    assert.equal(heard.find(entry => entry.name === 'Keep Siege').tag, 'rumour');
     host.close();
 });
 

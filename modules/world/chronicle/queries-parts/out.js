@@ -4,6 +4,7 @@ import { findIn, isLocked, isOpen, keyOf, orderedEvents } from '../domain.js';
 import { agoText } from '../days.js';
 import { isInt } from '../domain-parts/shared-basics.js';
 import { dateText } from './clock.js';
+import { WORLD_BY } from '../world-daily/news-entries.js';
 
 /** An event as the queries give it. */
 export function eventOut(event, { chronicle, calendar, now }) {
@@ -27,6 +28,8 @@ export function eventOut(event, { chronicle, calendar, now }) {
         // Only what a pack event's lasting change set, so an older entry's answer is as it was.
         ...(isLocked(event) ? { locked: true } : {}),
         ...(event.keep === true ? { keep: true } : {}),
+        // A world happening the daily step wrote (world-events switch): who wrote it and how far its news goes (world/news.js).
+        ...(WORLD_BY.test(String(event.by ?? '')) ? { by: event.by, ...(event.reach ? { reach: event.reach } : {}) } : {}),
         // A rumour of the World pulse: its own marks (known.js leaves it off the World screen until the story's own line named it).
         ...(typeof event.rumour === 'string' ? { rumour: event.rumour, ...(event.heard === true ? { heard: true } : {}) } : {}),
     };

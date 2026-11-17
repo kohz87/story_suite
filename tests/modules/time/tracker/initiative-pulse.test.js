@@ -364,3 +364,14 @@ test('pulse v2: quiet mode when the spread kind is the last kind steps down (blo
         if (b.kind !== 'CALM') assert.notEqual(b.kind, a.kind, `repeat at seed ${seed}`);
     }
 });
+
+test('pulse (seam audit E35): a world happening the daily step wrote (by event:world.<id>) is news that travels the routes, never a pulse rumour', () => {
+    const state = withScene(story([{ lines: [WORLD[0].lines, '+ agenda Courier — rides in | now: far north'].join('\n') }], makeState()), { present: ['Elula', 'Bram', 'Orsa'] });
+    const event = (id, name, extra = {}) => ({ id, name, summary: `${name} news`, state: 'ongoing', place: 'Harrow', factions: [], ...extra });
+    const used = new Set();
+    for (let seed = 1; seed <= 200; seed += 1) {
+        const events = [event('ev_3', 'Wolf Plague'), event('ev_4', 'The Levy · June 4, 1200', { by: 'event:world.levy', reach: 'regional' })];
+        pulseAt(state, seed, { queries: { 'chronicle.events': () => events, 'atlas.here': () => ({ name: 'Harrow', placeKind: 'town' }) }, call: (type, payload) => { if (type === 'chronicle.rumor' && payload.event) used.add(payload.event.name); return {}; } });
+    }
+    assert.deepEqual([...used], ['Rumour of Wolf Plague']);
+});

@@ -34,7 +34,8 @@ export const SPEC = Object.freeze({
 export async function newHost(on = true, spec = SPEC, settings = { modules: { 'story-director': { 'tracker.maxJump': 60 } } }) {
     const undo = overrideWorld(world => ({ ...world, ...spec }));
     let host = null;
-    const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
+    // `feature`: the world part's queries (world.heardHere) read the switch through the module's host.
+    const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), feature: id => host?.features.on(id) } });
     host = await createHost({ modules: [fakeFightRunner(), module], settings });
     if (on) host.features.set(FEATURE, true);
     const installed = await host.packs.packs.install(PACK, { origin: 'pack.json' });

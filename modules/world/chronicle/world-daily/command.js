@@ -16,6 +16,9 @@ import { readWorld } from './read-world.js';
 import { dailySummary } from './summary.js';
 import { isWorldSeed } from './seed.js';
 import { ledgerOf, markLedger } from '../conditions/ledger.js';
+import { writeHappenings } from './news-entries.js';
+import { buildGeo } from '../../daily/geo.js';
+import { calendarFrom, dateText } from '../queries-parts/clock.js';
 
 export const DAILY = 'chronicle.world.daily';
 const DAY = 1440;
@@ -75,11 +78,16 @@ function daily(ctx, payload = {}) {
     const longSkip = Math.min(LONG_SKIP, maxJumpMinutes(settingsFrom(ctx.settings)) / DAY);
     const seed = state?.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : newSeed(ctx));
     const marks = ledgerOf(chronicle.ledger);
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world: readWorld((name, args) => ctx.query(name, args)), today, seed, rev: revOf(ctx), longSkip, marks });
+    const query = (name, args) => ctx.query(name, args);
+    const world = readWorld(query);
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, rev: revOf(ctx), longSkip, marks });
     if (!out) return kept();
     writeConditions(ctx, chronicle, out.conditions);
     // The ledger's anchors are now the step's own; today's clears stay in its tomb (spec §2 clear beats set, also against a later world line today).
     markLedger(chronicle, { day: today, take: true, tombKeys: out.report.tomb, reset: true });
+    // What fired and ended is news (spec §4): one chronicle entry per occurrence, dated on its own day.
+    const calendar = calendarFrom(query);
+    writeHappenings(ctx, chronicle, out.report.journal, { geo: buildGeo(world), rev: revOf(ctx), dateOf: day => dateText(calendar, day * DAY).replace(/,? \d{1,2}:\d{2}.*$/, '') });
     // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.
     chronicle.daily = toSlot(out.daily);
     const { report } = out;

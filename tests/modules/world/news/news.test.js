@@ -8,7 +8,7 @@ import { chronicleTail } from '../../../../modules/world/chronicle/note.js';
 import { knownNews } from '../../../../modules/world/world/known.js';
 import { courierDays } from '../../../../modules/atlas/atlas/courier.js';
 import { heardHere, newsAt } from '../../../../modules/world/world/news.js';
-import { DAY, hostFor, viewFor, worldAt } from './helpers.js';
+import { DAY, PACK, hostFor, viewFor, worldAt } from './helpers.js';
 
 const EVENTS = [['Border War', 'Hollin'], ['Coast Fire', 'Glassdock'], ['Far Storm', 'Far Keep'], ['Local Row', 'Wolfmere'], ['Nowhere News', '']];
 const at = (state, options) => newsAt(state, { entryId: Object.values(state.domains.chronicle.events).find(e => e.name === options.name).id, place: options.place }, hostFor(state, options));
@@ -27,38 +27,44 @@ test('the courier takes the shortest way over the routes at the courier pace, a 
     assert.equal(tools.query('atlas.courier', { from: 'Bluewatch', to: 'Nowhere' }), null);
 });
 
-test('world.newsAt: route time from the entry\'s start, tiers where no route joins, null with the switch off', () => {
+test('world.newsAt (a world line\'s entries): courier time by route class from the entry\'s start, reach steps where no route joins, null with the switch off', () => {
     const state = worldAt({ events: EVENTS, day: 1 });
-    // Hollin → Wolfmere: 60 km at 60 a day = 1 day, from the entry's start (day 1, minute 1440).
+    // Hollin → Wolfmere: a road (class road, 60 km a day): 60 km = 1 day, from the entry's start (day 1, minute 1440).
     assert.deepEqual(at(state, { name: 'Border War', place: 'Wolfmere' }), { arrivesAt: DAY + DAY, via: 'route', km: 60, days: 1 });
-    assert.deepEqual(at(state, { name: 'Border War', place: 'Wolfmere', kmPerDay: 30 }), { arrivesAt: DAY + 2 * DAY, via: 'route', km: 60, days: 2 });
+    // The reader's courier pace no longer changes a classed route (spec §1: the class sets the speed).
+    assert.deepEqual(at(state, { name: 'Border War', place: 'Wolfmere', kmPerDay: 30 }), { arrivesAt: DAY + DAY, via: 'route', km: 60, days: 1 });
     assert.deepEqual(at(state, { name: 'Local Row', place: 'Wolfmere — Gate' }), { arrivesAt: DAY, via: 'tier', days: 0 });
-    // Far Keep has no road: another region than Wolfmere, so the far tier (10 days); Glassdock reaches Wolfmere by road + river (7 days).
+    // Far Keep has no road: another region than Wolfmere, so the far reach step (10 days).
     assert.deepEqual(at(state, { name: 'Far Storm', place: 'Wolfmere' }), { arrivesAt: DAY + 10 * DAY, via: 'tier', days: 10 });
-    assert.deepEqual(at(state, { name: 'Coast Fire', place: 'Wolfmere' }), { arrivesAt: DAY + 7 * DAY, via: 'route', km: 620, days: 7 });
+    // Glassdock → Wolfmere: the river is class river (60 km a day; its hours are a sea lane's field only) 440 km, then 180 km of road.
+    const coast = at(state, { name: 'Coast Fire', place: 'Wolfmere' });
+    assert.deepEqual([coast.arrivesAt, coast.via, coast.km], [DAY + Math.ceil((440 / 60 + 3) * DAY), 'route', 620]);
     assert.equal(at(state, { name: 'Nowhere News', place: 'Wolfmere' }).arrivesAt, DAY, 'an entry with no place is heard at once');
+    // A route whose kind maps to no class (a pack before route kinds) goes at the reader's courier pace.
+    const unclassed = { ...PACK, routes: PACK.routes.map(route => (route.kind === 'road' ? { ...route, kind: 'cart track' } : route)) };
+    assert.equal(at(state, { name: 'Border War', place: 'Wolfmere', kmPerDay: 30, pack: unclassed }).days, 2);
     assert.equal(at(state, { name: 'Border War', place: 'Wolfmere', on: false }), null);
     assert.equal(newsAt(state, { entryId: 'nope', place: 'Wolfmere' }, hostFor(state)), null);
 });
 
-test('world.heardHere: only entries whose news has reached the place by now; the scene and the clock are the defaults', () => {
+test('world.heardHere (a world line\'s entries): heard at once, fact at their own place, rumour elsewhere until the courier time (spec §4)', () => {
+    const tags = (state, options = {}) => Object.fromEntries(heardHere(state, options, hostFor(state)).map(entry => [entry.name, entry.tag]));
     const early = worldAt({ events: EVENTS, day: 1 });
-    assert.deepEqual(ids(heardHere(early, {}, hostFor(early)), early), ['Local Row', 'Nowhere News']);
+    assert.deepEqual(tags(early), { 'Border War': 'rumour', 'Coast Fire': 'rumour', 'Far Storm': 'rumour', 'Local Row': 'fact', 'Nowhere News': 'fact' });
     const day3 = worldAt({ events: EVENTS, day: 3 });
-    assert.deepEqual(ids(heardHere(day3, {}, hostFor(day3)), day3), ['Border War', 'Local Row', 'Nowhere News']);
-    const day8 = worldAt({ events: EVENTS, day: 8 });
-    assert.deepEqual(ids(heardHere(day8, {}, hostFor(day8)), day8), ['Border War', 'Coast Fire', 'Local Row', 'Nowhere News']);
-    const day11 = worldAt({ events: EVENTS, day: 11 });
-    assert.equal(heardHere(day11, {}, hostFor(day11)).length, 5);
-    // Asked about another place: from Far Keep everything but its own is far, Far Storm is heard at once.
-    assert.deepEqual(ids(heardHere(early, { place: 'Far Keep' }, hostFor(early)), early), ['Far Storm', 'Nowhere News']);
-    // The same minute at the arrival is heard; a minute before is not.
-    assert.equal(heardHere(early, { now: 2 * DAY - 1 }, hostFor(early)).some(entry => entry.arrivesAt === 2 * DAY), false);
-    assert.equal(heardHere(early, { now: 2 * DAY }, hostFor(early)).some(entry => entry.arrivesAt === 2 * DAY), true);
+    assert.equal(tags(day3)['Border War'], 'fact', 'the courier came on day 2');
+    assert.equal(tags(day3)['Far Storm'], 'rumour');
+    const day12 = worldAt({ events: EVENTS, day: 12 });
+    assert.deepEqual(Object.values(tags(day12)), ['fact', 'fact', 'fact', 'fact', 'fact']);
+    // Asked about another place: at Far Keep its own storm is fact at once.
+    assert.equal(tags(early, { place: 'Far Keep' })['Far Storm'], 'fact');
+    // The arrival minute is fact; a minute before is still rumour.
+    assert.equal(tags(early, { now: 2 * DAY - 1 })['Border War'], 'rumour');
+    assert.equal(tags(early, { now: 2 * DAY })['Border War'], 'fact');
     assert.equal(heardHere(early, {}, hostFor(early, { on: false })), null);
 });
 
-test('the narrator\'s tail: entries not yet heard are left out with the switch on; with it off the tail is as it was', () => {
+test('the narrator\'s tail: entries not yet heard are left out with the switch on (a world line\'s are heard at once, as rumour); with it off the tail is as it was', () => {
     const names = view => chronicleTail(view).lines.slice(1).map(text => /^- ([^(:.]+?)(?: \(|:|\.)/.exec(text)[1]);
     for (const day of [1, 3, 8, 11]) {
         const state = worldAt({ events: EVENTS, day });
@@ -68,23 +74,12 @@ test('the narrator\'s tail: entries not yet heard are left out with the switch o
         const heard = new Set(heardHere(state, {}, hostFor(state)).map(entry => entry.name));
         assert.deepEqual(names(viewFor(state)), off.filter(name => heard.has(name)), `day ${day}: the same pick, minus what has not arrived`);
     }
-    const early = worldAt({ events: EVENTS, day: 1 });
-    assert.equal(names(viewFor(early)).includes('Far Storm'), false);
-    assert.equal(names(viewFor(early)).includes('Border War'), false);
-    assert.equal(names(viewFor(worldAt({ events: EVENTS, day: 11 }))).length, 3, 'once it has all arrived the full pick is back');
 });
 
-test('the Journal\'s news holds only what has reached the scene\'s place; a rewound clock hides it again (derived, nothing stored)', () => {
+test('the Journal\'s news (a world line\'s entries): all heard at once with the switch on, as with it off; derived, nothing stored', () => {
     const early = worldAt({ events: EVENTS, day: 1 });
     const news = state => knownNews(state, hostFor(state)).map(item => item.name).sort();
-    assert.deepEqual(news(early), ['Local Row', 'Nowhere News']);
-    assert.deepEqual(knownNews(early, hostFor(early, { on: false })).map(item => item.name).sort(), ['Border War', 'Coast Fire', 'Far Storm', 'Local Row', 'Nowhere News']);
-    const later = worldAt({ events: EVENTS, day: 3 });
-    assert.deepEqual(news(later), ['Border War', 'Local Row', 'Nowhere News']);
-    // A rebuilt state (reload, replay) at the same clock gives the same answer; the clock back (rewind, swipe) gives the earlier one.
-    assert.deepEqual(news(worldAt({ events: EVENTS, day: 3 })), news(later));
-    assert.deepEqual(news(worldAt({ events: EVENTS, day: 1 })), news(early));
-    // Moving the scene moves the arrival: at Hollin the Border War is local, Wolfmere's row is a day off.
-    const hollin = worldAt({ events: EVENTS, day: 1, at: 'Hollin' });
-    assert.deepEqual(news(hollin), ['Border War', 'Nowhere News']);
+    assert.deepEqual(news(early), ['Border War', 'Coast Fire', 'Far Storm', 'Local Row', 'Nowhere News']);
+    assert.deepEqual(knownNews(early, hostFor(early, { on: false })).map(item => item.name).sort(), news(early));
+    assert.deepEqual(news(worldAt({ events: EVENTS, day: 3 })), news(early));
 });
