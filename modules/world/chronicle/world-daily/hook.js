@@ -28,6 +28,18 @@ export function dailyAfterCapture(view, info = {}) {
         now += FALLBACK_MINUTES;
     }
     const state = slotValue(view.state.domains.chronicle?.daily);
-    if (!state || Math.floor(now / DAY) > state.day) commands.push({ type: DAILY, payload: {} });
+    // A Re-read of a reply that is not the last (seam audit E21): the events its old step fired go with the step, so the step can say
+    // which of them it no longer fires; the later replies keep what they recorded (history is not rewritten), so that is a warning.
+    const before = rereadFired(view, info);
+    if (!state || Math.floor(now / DAY) > state.day || before) commands.push({ type: DAILY, payload: before ? { before } : {} });
     return commands.length ? { commands } : undefined;
+}
+
+/** In a Re-read with later messages: `{ fired }` of the reply's old step when it fired anything; else null. */
+function rereadFired(view, info) {
+    if (info?.type !== 'reread' || !Number.isInteger(info.index) || !(view?.chat?.length > info.index + 1)) return null;
+    let old = [];
+    try { old = Array.isArray(info.previous) ? info.previous : []; } catch { old = []; }
+    const fired = old.filter(receipt => receipt?.type === DAILY).flatMap(receipt => (Array.isArray(receipt.data?.fired) ? receipt.data.fired : [])).filter(id => typeof id === 'string');
+    return fired.length ? { fired: [...new Set(fired)].sort() } : null;
 }

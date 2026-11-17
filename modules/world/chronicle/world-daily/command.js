@@ -45,7 +45,17 @@ function writeConditions(ctx, chronicle, next) {
     if (Object.keys(table).length || chronicle.conditions) chronicle.conditions = table;
 }
 
-function daily(ctx) {
+/**
+ * A Re-read's warning (seam audit E21): the events the reply's old step fired (`payload.before.fired`, the hook) that this step does not
+ * fire. Later replies keep what they recorded, so a later firing that needed one keeps its record; the reader is told. '' when none.
+ */
+function lostText(payload, fired) {
+    const lost = (Array.isArray(payload?.before?.fired) ? payload.before.fired : []).filter(id => typeof id === 'string' && !fired.includes(id));
+    if (!lost.length) return '';
+    return `World: after this edit ${lost.slice(0, 6).join(', ')} no longer fired on this reply's days; the later replies keep what they recorded (a later event that needed it is not undone).`;
+}
+
+function daily(ctx, payload = {}) {
     if (ctx.cause !== 'system' || ctx.caller) return ctx.fail('REFUSED', 'The world steps its days only when code checks the clock before a reply.');
     if (!worldEventsOn(ctx)) return ctx.fail('REFUSED', 'World events are off.');
     const now = clockOf(ctx);
@@ -54,20 +64,25 @@ function daily(ctx) {
     const state = slotValue(chronicle.daily);
     const today = Math.floor(now / DAY);
     // A shrunk Re-read or a rewind can leave the last stepped day ahead of the clock: nothing is stepped again or undone.
-    if (state && today <= state.day) return { summary: '', narrate: false, data: { days: 0 } };
+    const kept = () => {
+        const lost = lostText(payload, []);
+        return { summary: lost, narrate: false, data: { days: 0 }, ...(lost ? { problem: lost } : {}) };
+    };
+    if (state && today <= state.day) return kept();
     // The long-skip note shows above 14 stepped days, or above the reader's longest jump when that is lower (seam audit E16; the time part's setting, read through `settings.reads`).
     const longSkip = Math.min(LONG_SKIP, maxJumpMinutes(settingsFrom(ctx.settings)) / DAY);
     const seed = state?.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : newSeed(ctx));
     const out = runDays({ state, table: chronicle.conditions ?? {}, world: readWorld((name, args) => ctx.query(name, args)), today, seed, rev: revOf(ctx), longSkip });
-    if (!out) return { summary: '', narrate: false, data: { days: 0 } };
+    if (!out) return kept();
     writeConditions(ctx, chronicle, out.conditions);
     // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.
     chronicle.daily = toSlot(out.daily);
     const { report } = out;
     const fired = report.journal.filter(entry => entry.fired).map(entry => entry.by);
     // The warnings go to Problems, on this reply (the one sink, spec §9 Warnings), as well as on its card.
-    const problem = report.warnings.length ? `World: ${report.warnings.slice(0, 6).join(' ')}` : undefined;
-    return { summary: dailySummary(report), narrate: false, data: { from: report.from, to: report.to, days: report.days, fired, warnings: report.warnings.slice(0, 20) }, ...(problem ? { problem } : {}) };
+    const lost = lostText(payload, fired);
+    const problem = [report.warnings.length ? `World: ${report.warnings.slice(0, 6).join(' ')}` : '', lost].filter(Boolean).join(' ') || undefined;
+    return { summary: [dailySummary(report), lost].filter(Boolean).join(' '), narrate: false, data: { from: report.from, to: report.to, days: report.days, fired, warnings: report.warnings.slice(0, 20) }, ...(problem ? { problem } : {}) };
 }
 
 /** The command, tagged with the feature (Story Block refuses it while the switch is off) and internal (never from a click or the sdk). */

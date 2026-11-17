@@ -24,7 +24,8 @@ function people(world) {
     for (const person of list(world.cast)) {
         if (typeof person?.id !== 'string') continue;
         const start = person.start && typeof person.start === 'object' ? person.start.place : person.start;
-        out.set(person.id, { id: person.id, name: person.name ?? person.id, protected: person.protected === true, canDieUnmet: person.canDieUnmet !== false, home: person.homeBase ?? start ?? null });
+        // canDieUnmet: only an explicit true lets an unmet person die (seam audit E6: absent counts as false).
+        out.set(person.id, { id: person.id, name: person.name ?? person.id, protected: person.protected === true, canDieUnmet: person.canDieUnmet === true, home: person.homeBase ?? start ?? null });
     }
     return out;
 }

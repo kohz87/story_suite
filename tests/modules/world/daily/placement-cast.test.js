@@ -119,3 +119,11 @@ test('test 53 (the daily part): a displaced record lapses when its event ends (o
     const forever = runner(world({ cast, events: [move('exile', { until: 'permanent' })] })).to(10);
     assert.deepEqual([forever.state.cast['sir-lothar'].displaced.until, forever.state.cast['sir-lothar'].home], ['permanent', 'Highmark Capital']);
 });
+
+test('test 13 (E6): a person who does not say canDieUnmet counts as false — an authored death of them unmet is skipped with a warning', () => {
+    const w = world({ cast: [{ kind: 'figure', id: 'smith', name: 'The Smith', homeBase: 'Town' }], events: [ev('fever', { effects: { cast: [{ who: 'smith', died: true }] } })] });
+    const run = runner(w).to(1);
+    assert.equal(run.state.cast.smith, undefined, 'untouched');
+    assert.ok(run.warnings.some(text => /smith.*cannot die before you meet them/.test(text)));
+    assert.equal(runner(w, { met: ['smith'] }).to(1).state.cast.smith.died, 1, 'met: the event may kill them');
+});
