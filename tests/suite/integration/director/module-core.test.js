@@ -17,7 +17,6 @@ import { part as checksPart } from '../../../../modules/rpg/checks/index.js';
 import { part as chroniclePart } from '../../../../modules/world/chronicle/index.js';
 import { part as keyPeoplePart } from '../../../../modules/cast/keypeople/index.js';
 import { DEFAULT_TOKENS as KEY_PEOPLE_TOKENS } from '../../../../modules/cast/keypeople/domain.js';
-import { STATIC_TEXT as KEY_PEOPLE_STATIC } from '../../../../modules/cast/keypeople/note.js';
 import { ARC_TAIL_BUDGET } from '../../../../modules/arc/domain.js';
 import { TAIL_BUDGET as CAST_BUDGET } from '../../../../modules/cast/cast/settings.js';
 import { PULSE_STATIC, STALE_REPLIES, pulseCommand, pulseHook } from '../../../../modules/world/pulse/effects.js';
@@ -46,10 +45,9 @@ test('statics in part order, budgets summed, kinds dispatched to their part', ()
     assert.equal(chroniclePart.context.static({ chronicle: true }), CHRONICLE_STATIC);
     assert.equal(checksPart.context.static(), '');
     assert.equal(hostStatic(def, id => plain(id) && id !== 'story-director.threads'), staticText({ threads: false }));
-    // Nobody pinned: the Key people paragraph is not taught (the prompt is what it was); with someone pinned it comes between them.
+    // The Key people paragraph is gone (B1.7): the prompt has no part of it, pinned or not.
     assert.equal(hostStatic(def, () => true, {}), `${STATIC_TEXT}\n${def.context.parts.find(part => part.feature === 'story-director.initiative').static()}\n${PULSE_STATIC}`);
-    assert.equal(keyPeoplePart.context.static({ keyPeople: true }), KEY_PEOPLE_STATIC);
-    assert.equal(keyPeoplePart.context.static({ keyPeople: false }), '');
+    assert.equal(keyPeoplePart.context.static, undefined, 'no fixed paragraph (B1.7)');
     assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + KEY_PEOPLE_TOKENS + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
     assert.deepEqual(PARTS.map(([id]) => id), ['tracker', 'time', 'atlas', 'chronicle', 'world', 'keypeople', 'cast', 'names', 'pulse', 'arc', 'checks', 'ripples', 'screens']);
     assert.match(def.capture.kinds.hook.grammar, /a quest is a job/);

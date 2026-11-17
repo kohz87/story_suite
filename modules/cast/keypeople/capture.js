@@ -4,7 +4,7 @@
 // - `away`: `+ away Ren — scouting the north road | back: Goldwane 18` (a key person leaves for a while; `~` changes what
 //   they do or when they are due back), `! away Ren — reached Wolfmere Outpost` (a step on the timeline; `back:` may move
 //   the date), `- away Ren` (they are back). Only a pinned person may be away.
-// - `key`: `- key Ren | died` (the story records a death: the pin goes, with its reason). Nothing else takes someone off
+// - `key` (replay only, no longer taught or written live by the prompt; a reply that carries it still replays): `- key Ren | died` (the story records a death: the pin goes, with its reason). Nothing else takes someone off
 //   the list from the story: the reader unpins. A person who is not pinned is recorded as dead too (a `gone` record with reason `died`, no pin
 //   to take off) when the reply carries Story Block's `diedAny` rule mark (`ctx.carrier.rules`); on a reply without it the line finds nobody, as before.
 //
