@@ -50,7 +50,7 @@ function timeLine(ctx, line, again = false, anchorable = true) {
         if (alone.set && !alone.error && sameStretch(turn.advanced, alone.minutes - from)) next = alone;
     }
     // No clock yet (no pack start): a line with no date reads from the calendar's default start and sets the clock there (clockToRead).
-    const base = clockToRead(calendar, director.time.minutes, line);
+    const base = clockToRead(calendar, director.time, line);
     const fromNow = next === null ? read(line, base.from, calendar, options) : null;
     next ??= fromNow;
     if (base.set && fromNow !== null && !fromNow.error) next = { ...fromNow, set: true, held: undefined, problem: undefined };
@@ -74,6 +74,9 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     }
     const before = director.time.minutes;
     if (next.minutes !== before) director.time.minutes = next.minutes;
+    // The marker that the clock came from the calendar's default start: set by the first date-less line, cleared by the first date.
+    if (base.set && director.time.fromDefault !== true) director.time.fromDefault = true;
+    else if (base.floating && next.set && director.time.fromDefault === true) director.time.fromDefault = false;
     // A date sets the clock: stored as a set (Story Block's ctx.absolute, SPEC §2.2), so it stays exact
     // when an earlier reply that moved the clock is deleted, and later moves add on top. An older Story
     // Block without it stores the set as a move.

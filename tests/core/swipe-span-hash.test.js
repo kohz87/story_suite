@@ -1,12 +1,13 @@
-// F8W-9: a span's boundary hashes (prefixHash, payloadHash) are stamp-time witnesses of the reply text. A reply whose text changed after
-// a block was stamped (a model's own hidden comment is defanged once the reply is read) leaves that block's hashes stale; they are
-// harmless: no state reads them (store.boundaryProblems() is the one reader, a diagnostic that lists the block), so swipe, swipe back, rebuild and
-// reload give the state live had. A Re-read of the reply stamps them again.
+// F8W-9: a span's boundary hashes (prefixHash, payloadHash) are witnesses of the reply text. A reply's change block moves into the hidden comment
+// after its blocks are stamped, so prose the model left after the block (a copy of the hidden marker, defanged) joined the text the hashes cover
+// and left them stale. They are now stamped again once the text is final (store.restampHashes, live and Re-read), so none is stale; the diagnostic
+// store.boundaryProblems() and Re-read's source preservation (which compares a block's payloadHash with the reply's) read true ones.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
 import { payloadHashOf } from '../../core/store/digest.js';
 import { guarded } from './helpers/guarded.js';
+import { NATIVE, clone, nativeModule } from './helpers/timeline.js';
 
 const REPLY = n => `Dawn.\n\n<Changes>\n! tick ${n}\n! quick th_questone\n</Changes>`;
 const spansOf = message => message.extra.storySuite.spans.filter(span => span.boundaries);
@@ -43,4 +44,47 @@ test('stale span hashes change no state through swipe, swipe back, rebuild and r
     assert.equal(result.ok, true, result.message);
     assert.equal(JSON.stringify(host.head()), live, 'Re-read equals live');
     assert.deepEqual(host.store.boundaryProblems(), [], 'stamped again');
+});
+
+const TRAILING = 'Dawn.\n\n<Changes>\n! tick 6\n! quick th_questone\n</Changes>\n<!-- STORY_SUITE_V2 x -->';
+
+test('a reply with a marker copy after its block has no stale hash live, and a Re-read keeps it that way', async t => {
+    const host = await createHost({ modules: [guarded()], core: false });
+    t.after(() => host.close());
+    await host.send('Go.', TRAILING);
+    await host.store.flush();
+    assert.deepEqual(host.store.boundaryProblems(), [], 'stamped from the final text');
+    const at = host.ctx.chat.length - 1;
+    assert.equal(spansOf(host.ctx.chat[at]).every(span => span.boundaries[0].payloadHash === payloadHashOf(host.ctx.chat[at])), true);
+    const live = JSON.stringify(host.head());
+    assert.equal((await host.turn.reread(at)).ok, true);
+    assert.equal(JSON.stringify(host.head()), live);
+    assert.deepEqual(host.store.boundaryProblems(), []);
+});
+
+test('Re-read with a native checkpoint on the reply keeps the block Sources (its payloadHash is the reply\'s)', async t => {
+    const native = nativeModule();
+    const host = await createHost({ modules: [guarded(), native.def] });
+    t.after(() => host.close());
+    await host.send('Go.', TRAILING);
+    const at = host.ctx.chat.length - 1;
+    const sources = () => JSON.stringify(spansOf(host.ctx.chat[at]).map(span => span.source));
+    const before = sources();
+    const head = await host.sdk.timeline.head();
+    const made = await native.native.handle.nativeMutation({
+        participant: NATIVE, source: host.store.sourceAt(host.store.headIndex()), expectedHead: head.headHash,
+        prepare: async () => {
+            const was = native.native.checkpoint();
+            const next = clone(native.native.store);
+            next.dossiers.tavi.trust = 9;
+            const after = native.native.keep(next);
+            native.native.prepared.pr_manual001 = { checkpoint: after.checkpoint };
+            return { before: { module: NATIVE, ...was, schema: 1 }, after: { module: NATIVE, ...after, schema: 1 }, prepared: 'pr_manual001' };
+        },
+    });
+    assert.equal(made.ok, true, JSON.stringify(made));
+    assert.equal(host.timeline.hasNativeChanges(), true);
+    assert.equal((await host.turn.reread(at)).ok, true);
+    assert.equal(sources(), before, 'the Sources are kept');
+    assert.equal(native.native.store.dossiers.tavi.trust, 9);
 });

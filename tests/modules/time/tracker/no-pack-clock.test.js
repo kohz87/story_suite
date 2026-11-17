@@ -73,3 +73,23 @@ test('no pack: swipe, swipe back, edited Re-read (grown, shrunk), middle delete,
     await host.st.loadChat(structuredClone(host.ctx.chat));
     assert.equal(JSON.stringify(host.head()), cut, 'reload equals live');
 });
+
+test('a clock that starts in year 1 by a date keeps the jump guard; one that came from the default start does not', async t => {
+    quiet(t);
+    let host = null;
+    const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text), chat: () => host?.ctx.chat ?? [] } });
+    host = await createHost({ modules: [module] });
+    t.after(() => host.close());
+    await host.send('Begin.', reply('The road.', ['~ time March 3, 0001, 08:00 am']));
+    assert.equal(host.head().domains.director.time.fromDefault ?? false, false, 'a date, not the default start: no marker');
+    const before = minutes(host);
+    await host.send('Years.', reply('Later.', ['~ time August 3, 0001, 08:00 am']));
+    assert.equal(minutes(host), before + 30 * 24 * 60, 'a five-month jump from a real year-1 date is cut to the 30-day guard');
+});
+
+test('the default-start marker is set by the first date-less line and cleared by the first date', async t => {
+    const host = await begun(t);
+    assert.equal(host.head().domains.director.time.fromDefault, true);
+    await host.send('Date.', reply('Years on.', ['~ time March 3, 1200, 08:00 am']));
+    assert.equal(host.head().domains.director.time.fromDefault, false);
+});
