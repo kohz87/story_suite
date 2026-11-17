@@ -1,5 +1,6 @@
 /* NPC State Delta dossier relationship part: the rows of the "Recent changes" lists (With {{user}} and Right now's mood). */
 import { escapeHtml } from '../../util/html.js';
+import { showSourceTag } from '../../../../ui/kit/source-tag.js';
 import { changeStamp, RELATIONSHIP_AXES } from '../dossier-ui-model.js';
 import { gateWords } from '../dossier-ui-view-model.js';
 import { impactLabel } from './shared-impact.js';
@@ -29,10 +30,10 @@ export function recentChangeRowHtml({ change = null, event = null, entry = null 
                 return `<span class="delta-chg-d" data-good="${good ? 'yes' : 'no'}">${escapeHtml(label)} ${value > 0 ? '+' : '−'}${Math.abs(value)}</span>`;
             }).join(' · ') || '<span class="delta-chg-d" data-good="muted">Progress only</span>';
         // as the mockup: how it came about and why on ONE muted line ("via help — Astra helped her cover up")
-        lines = [[hosted?.held ? `Held: ${hosted.note || 'the day\'s allowance is used'}` : gateWords(hosted?.gate, { row: true }), change.reason || NO_REASON].filter(Boolean).join(' — ')];
+        lines = [[hosted?.held ? `Held: ${hosted.note || 'the day\'s allowance is used'}` : gateWords(hosted?.gate, { row: true }), showSourceTag(change.reason) || NO_REASON].filter(Boolean).join(' — ')];
     } else {
         head = `<span class="delta-chg-d" data-good="muted">${escapeHtml((event.axes || []).length ? event.axes.join(' · ') : impactLabel(event.impact))}</span>`;
-        lines = [event.reason || NO_REASON];
+        lines = [showSourceTag(event.reason) || NO_REASON];
     }
     return changeRowHtml(whenHtml, head, lines);
 }
@@ -49,7 +50,7 @@ function meterEntryRowHtml(entry) {
     }).join(' · ');
     const asked = RELATIONSHIP_AXES.filter(([axis]) => entry.ask?.[axis]).map(([, label]) => label).join(' · ');
     const head = entry.held ? '<span class="delta-chg-d" data-good="muted">Held</span>' : moved || `<span class="delta-chg-d" data-good="muted">${escapeHtml(asked || 'Progress only')}</span>`;
-    return changeRowHtml(whenHtml, head, [[entry.held ? `Held: ${entry.note || 'the day\'s allowance is used'}` : '', entry.why || NO_REASON].filter(Boolean).join(' — ')]);
+    return changeRowHtml(whenHtml, head, [[entry.held ? `Held: ${entry.note || 'the day\'s allowance is used'}` : '', showSourceTag(entry.why) || NO_REASON].filter(Boolean).join(' — ')]);
 }
 
 // The row both Recent changes lists share (With {{user}} and Right now's mood): the date and reply on the left, the change over its muted reason on the right.

@@ -378,7 +378,9 @@ export function createSettingsBindPart(rt, deps) {
 
     function attachSettingsPanel() {
         if ($(`#${UI_ID}`).length) return true;
-        let host = $('#extensions_settings2');
+        // The one Story Suite drawer holds this panel when it is there; otherwise the plain host (the drawer moves it in later).
+        let host = $('#story_suite_v2_drawer .inline-drawer-content');
+        if (!host.length) host = $('#extensions_settings2');
         if (!host.length) host = $('#extensions_settings');
         if (!host.length) host = $('#extensionsMenu');
         if (!host.length) {

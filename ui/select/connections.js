@@ -5,7 +5,7 @@ import { ROLE_SETTING } from '../../core/model-call/connection-for.js';
 
 const CARDS = [
   { id: 'story', name: 'Story', desc: 'Follows the chat’s connection; change it in SillyTavern', usedFor: ['narration', 'change lines', 'pulse ideas (inside the reply)'] },
-  { id: 'quick', name: 'Quick helpers', desc: 'Short calls the reply waits for: keep this fast', usedFor: ['checks rolled before the reply (up to 20 s)', 'fight set-up from your attack (up to 20 s)', 'cast moves (waits up to 15 s)'] },
+  { id: 'quick', name: 'Quick helpers', desc: 'Short calls the reply waits for: keep this fast', usedFor: ['checks rolled before the reply (up to 20 s)', 'fight set-up from your attack: the pre-check (up to 20 s)', 'cast moves (waits up to 15 s)'] },
   { id: 'background', name: 'Background', desc: 'Calls nobody waits on; they run behind the others', usedFor: ['new-person fill-in (with hidden notes)', 'Refresh', 'the fallback call (only when a reply forgot its lines)', 'arc plans (never started while a reply is sent)'] },
 ];
 

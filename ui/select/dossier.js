@@ -1,4 +1,5 @@
 // Turns the recorded dossier, meters, ladder and notes query answers into one person's Dossier view-model (DOSSIER_SHAPE), leaving gaps null or empty.
+import { showSourceTag } from '../kit/source-tag.js';
 
 const AXES = ['trust', 'affection', 'desire', 'tension'];
 
@@ -48,7 +49,7 @@ function changesOf(meters) {
   return rows.flatMap(row => {
     const moved = isRecord(row.mv) ? row.mv : isRecord(row.ask) ? row.ask : {};
     return AXES.filter(axis => Number.isFinite(moved[axis]) && moved[axis] !== 0).map(axis => ({
-      date: String(row.date ?? ''), meter: axis, delta: moved[axis], why: text(row.why) ?? text(row.note) ?? '', heldBack: row.held === true && !isRecord(row.mv),
+      date: String(row.date ?? ''), meter: axis, delta: moved[axis], why: showSourceTag(text(row.why) ?? text(row.note) ?? ''), heldBack: row.held === true && !isRecord(row.mv),
     }));
   });
 }
@@ -92,7 +93,7 @@ function likesOf(dossier) {
 const pastOf = memories => (Array.isArray(memories) ? memories : [])
   .map(item => (isRecord(item) ? text(item.text) : text(item)))
   .filter(Boolean)
-  .map(line => ({ date: '', text: line, dayRef: null }));
+  .map(line => ({ date: '', text: showSourceTag(line), dayRef: null }));
 
 function profileOf(dossier) {
   const aliases = strings(dossier.aliases).join(', ');

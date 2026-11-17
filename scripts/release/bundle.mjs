@@ -3,6 +3,7 @@ import path from 'node:path';
 import { build } from 'esbuild';
 import { PACK_MODULE, PACK_SOURCE, rewriteSource } from './rewrite.mjs';
 import { assertSafeOut, claimOutDir } from './outdir.mjs';
+import { bundleStylesheet } from './css.mjs';
 
 // The place SillyTavern serves the extension from. Host specifiers are URLs: they are resolved against this, so
 // the result does not depend on where the checkout sits on disk. The folder name never changes a relative depth.
@@ -48,7 +49,7 @@ function packagePlugin(repoRoot, lazy) {
 }
 
 // Packs the extension's one bundle set into outDir (refused if that is inside the source; emptied only if the tool made it): ES modules, code splitting for the lazy parts, source maps kept, sources
-// untouched. Returns the names of the files written.
+// untouched. The manifest's stylesheet is joined into one file the same way (css.mjs). Returns the names of the files written.
 export async function buildBundleSet(set, outDir, repoRoot) {
   assertSafeOut(outDir, repoRoot);
   claimOutDir(outDir);
@@ -57,5 +58,7 @@ export async function buildBundleSet(set, outDir, repoRoot) {
     bundle: true, splitting: true, format: 'esm', target: 'es2022', sourcemap: true, legalComments: 'none',
     plugins: [packagePlugin(repoRoot, new Set([...set.lazy, ...(set.eager ?? [])]))], metafile: true, logLevel: 'silent',
   });
-  return Object.keys(result.metafile.outputs).map(file => path.basename(file)).sort();
+  const manifest = path.join(repoRoot, 'manifest.json');
+  const css = await bundleStylesheet(repoRoot, outDir, fs.existsSync(manifest) ? JSON.parse(fs.readFileSync(manifest, 'utf8')).css : null);
+  return [...Object.keys(result.metafile.outputs).map(file => path.basename(file)), ...css.map(file => path.basename(file))].sort();
 }

@@ -1,5 +1,6 @@
 /* NPC State Delta dossier relationship part: the "Last relationship change" block and the "Earlier changes" history list. */
 import { escapeHtml } from '../../util/html.js';
+import { showSourceTag } from '../../../../ui/kit/source-tag.js';
 import { changeStamp, RELATIONSHIP_AXES, stampHtml, wholeNumber } from '../dossier-ui-model.js';
 import { impactLabel } from './shared-impact.js';
 
@@ -24,7 +25,7 @@ export function lastRelationshipChangeHtml(change) {
         ${event?.held ? `<p class="delta-rel-held">Held: ${escapeHtml(event.note || 'the day\'s allowance is used')}. Nothing moved.</p>${asked ? `<p class="delta-muted delta-rel-asked">Asked: ${escapeHtml(asked)}</p>` : ''}`
         : `<div class="delta-rel-deltas">${deltas || '<span class="delta-rel-delta delta-rel-delta-progress">Progress only · no point change</span>'}</div>`}
         ${event?.gate ? `<p class="delta-rel-gate">${escapeHtml(event.gate)}</p>` : ''}
-        ${change.reason ? `<p>${escapeHtml(change.reason)}</p>` : ''}
+        ${change.reason ? `<p>${escapeHtml(showSourceTag(change.reason))}</p>` : ''}
     </div>`;
 }
 
@@ -34,5 +35,5 @@ export function relationshipHistoryHtml(history, latest) {
         .filter(event => !(latest?.hosted && wholeNumber(event.message) !== null && wholeNumber(event.message) === wholeNumber(latest.message)))   // the net change shown above is this reply's event
         .slice(0, 3);
     if (!rows.length) return '';
-    return `<div class="delta-rel-history"><h4>Earlier changes</h4><ul class="delta-list">${rows.map(event => `<li><span class="delta-rel-impact delta-rel-impact-${escapeHtml(event.impact)}">${escapeHtml(impactLabel(event.impact))}</span>${changeStamp(event).label ? ` ${stampHtml(changeStamp(event), 'small', 'delta-muted')}` : ''} ${escapeHtml(event.reason)}</li>`).join('')}</ul></div>`;
+    return `<div class="delta-rel-history"><h4>Earlier changes</h4><ul class="delta-list">${rows.map(event => `<li><span class="delta-rel-impact delta-rel-impact-${escapeHtml(event.impact)}">${escapeHtml(impactLabel(event.impact))}</span>${changeStamp(event).label ? ` ${stampHtml(changeStamp(event), 'small', 'delta-muted')}` : ''} ${escapeHtml(showSourceTag(event.reason))}</li>`).join('')}</ul></div>`;
 }
