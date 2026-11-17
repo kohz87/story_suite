@@ -1,6 +1,7 @@
 // Arc slice validator for Story Director v2.
 
 import { ARC_ROOM, isRecord } from './shared-records.js';
+import { WORLD_NOTE_POINTS } from './world-constants.js';
 
 const ARC_ID = /^arc_[0-9a-z]{8}$/;
 const REASONS = new Set(['manual', 'no-arc', 'arc-end', 'stalled', 'running-low']);
@@ -22,6 +23,8 @@ export function validateArc(slice) {
             if (!(entry.minutes === null || isInt(entry.minutes))) errors.push(`${at}.minutes must be null or whole minutes.`);
             if (!REASONS.has(entry.reason)) errors.push(`${at}.reason is unknown.`);
             if (typeof entry.note !== 'string') errors.push(`${at}.note is not text.`);
+            if (entry.world !== undefined && (typeof entry.world !== 'string' || entry.world.length > 4 * WORLD_NOTE_POINTS)) errors.push(`${at}.world is not short text.`);
+            if (entry.judge !== undefined && !(isRecord(entry.judge) && ['calls', 'accept', 'reshape', 'refuse'].every(name => isInt(entry.judge[name]) && entry.judge[name] >= 0) && typeof entry.judge.fell === 'boolean')) errors.push(`${at}.judge must be { calls, accept, reshape, refuse, fell }.`);
         }
     }
     if (!isRecord(slice.ends)) errors.push('arc.ends is not an object.');

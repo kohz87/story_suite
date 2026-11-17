@@ -8,6 +8,8 @@
 import { slotValue } from '../../../rpg/slot.js';
 import { worldEventsOn, WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
 import { ledgerOf, storeOpen } from '../conditions/ledger.js';
+import { yearOf } from '../conditions/director-calls.js';
+import { calendarFrom, nowFrom } from '../queries.js';
 import { runDays } from '../../daily/step.js';
 import { isWorldSeed } from './seed.js';
 import { readWorld } from './read-world.js';
@@ -24,7 +26,8 @@ function store(ctx, payload = {}) {
     const results = isRecord(payload.results) ? payload.results : {};
     const bad = Object.entries(results).some(([key, row]) => !key.includes('|') || !isRecord(row) || !OUTCOMES.has(row.outcome) || (row.answer !== undefined && (typeof row.answer !== 'string' || row.answer.length > 3000)) || (row.why !== undefined && typeof row.why !== 'string'));
     if (bad || !Number.isInteger(payload.calls ?? 0) || (payload.calls ?? 0) < 0) return ctx.fail('INVALID', 'The stored answers are not in the form the world reads.');
-    storeOpen(ctx.draft('chronicle'), { results, calls: payload.calls ?? 0 });
+    const query = typeof ctx.query === 'function' ? (name, args) => ctx.query(name, args) : null;
+    storeOpen(ctx.draft('chronicle'), { results, calls: payload.calls ?? 0, year: yearOf(calendarFrom(query), nowFrom(query, { domains: { director: ctx.draft('director') } })) });
     return { summary: '', narrate: false, data: { stored: Object.keys(results).length, calls: payload.calls ?? 0 } };
 }
 

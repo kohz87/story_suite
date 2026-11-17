@@ -6,6 +6,7 @@ import { ACCEPT, END, UPDATE } from '../commands.js';
 import { FEATURE, arcQuery, currentArc, threadsWithArc } from '../domain.js';
 import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, refuseResolving, trackerSummary, worldBriefText } from '../plan.js';
 import { arcSettings } from '../settings.js';
+import { judgePlan } from '../judge/run.js';
 import { fightsAmong } from '../../rpg/fights.js';
 import { MODULE_ID, NEEDS_TEXT, PLANNER_TIMEOUT_MS } from './constants.js';
 import { recentStory } from './story.js';
@@ -194,12 +195,18 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
             });
             if (controller?.signal?.aborted) return fail(id, 'Planning was cancelled.');
             if (!answer?.ok) return fail(id, `Planning failed: ${String(answer?.message || answer?.error || 'no answer came back')}`);
-            const first = readPlan(String(answer.text ?? ''), { calendar: seen.calendar, now: seen.now, fights: seen.fights, userName: substitute(api, '{{user}}') });
+            const options = { calendar: seen.calendar, now: seen.now, fights: seen.fights, userName: substitute(api, '{{user}}') };
+            const first = readPlan(String(answer.text ?? ''), options);
             // With world events on: a beat, clock or agenda that decides an Active event is left out, with the adopted note (arc card; the accept receipt).
-            const { read, refused } = refuseResolving(first, brief?.guard);
+            const guarded = refuseResolving(first, brief?.guard);
+            // Then one Quick call judges what is left (accept / reshape / refuse) and writes the arc's world note; stored with the arc, never asked again. No answer: the guard's result stands.
+            const judged = await judgePlan({ api, read: guarded.read, brief, ask: (name, args) => api.query?.(name, args), place: seen.place, options, signal: controller?.signal });
+            if (controller?.signal?.aborted) return fail(id, 'Planning was cancelled.');
+            const { read } = judged;
+            const refused = [...guarded.refused, ...judged.refused];
             const errors = read.findings.filter(entry => entry.severity === 'error');
             if (errors.length) return fail(id, `The plan could not be used: ${errors.map(entry => entry.text).join(' ')}`);
-            const draft = { text: planText(read), findings: read.findings, reason, note: mark, noteUsed, ...(refused.length ? { refused } : {}) };
+            const draft = { text: planText(read), findings: read.findings, reason, note: mark, noteUsed, ...(refused.length ? { refused } : {}), ...(judged.judge ? { judge: judged.judge } : {}), ...(judged.world ? { world: judged.world } : {}) };
             keep(id, { draft });
             // Accept planned arcs automatically: the same strict reading and the same commands as Accept.
             if (settings.autoAccept && chatId() === id) return await accept(draft.text, { auto: true });
@@ -225,7 +232,7 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
         const draft = draftOf(id);
         const given = typeof text === 'string' ? text : draft?.text ?? '';
         const settings = settingsOf(api);
-        const result = await api.command(ACCEPT, { plan: given, reason: draft?.reason ?? 'manual', note: draft?.note ?? noteMark(settings.note), ...(Array.isArray(draft?.refused) && draft.refused.length ? { refused: draft.refused } : {}) });
+        const result = await api.command(ACCEPT, { plan: given, reason: draft?.reason ?? 'manual', note: draft?.note ?? noteMark(settings.note), ...(Array.isArray(draft?.refused) && draft.refused.length ? { refused: draft.refused } : {}), ...(draft?.judge ? { judge: draft.judge } : {}), ...(draft?.world ? { world: draft.world } : {}) });
         if (!result?.ok) return fail(id, result?.message ?? 'The plan could not be accepted.');
         const { arc, pending = [] } = result.receipt?.data ?? {};
         const skipped = [];

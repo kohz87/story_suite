@@ -21,7 +21,7 @@ const MAX = 8;
 const DONE = new Set(['active', 'ended', 'lapsed', 'replaced']);
 const fill = (text, outcome, bind) => String(text ?? '').replace(/\{outcome\}/g, outcome ?? '').replace(/\{place\}/g, bind?.place ?? '').replace(/\{region\}/g, bind?.region ?? bind?.place ?? '').replace(/\{realm\}/g, bind?.realm ?? '').replace(/\s+/g, ' ').trim();
 
-/** `{ threads: [{ kind, key, now, then }], toCome: [title], conditions: [text], guard: [{ id, title, outcomes: [name] }] }` (guard: the Active events, for the planner's code guard) from the step's state, the conditions and the world. */
+/** `{ threads: [{ kind, key, now, then }], toCome: [title], conditions: [text], guard: [{ id, title, outcomes: [name] }] }` (guard: the Active events, for the planner's code guard; then `secrets`, `protectedCast` and `hidden` (lore titles) when there are any, for the planner and the Director judge) from the step's state, the conditions and the world. */
 export function arcBrief({ daily = null, table = {}, world = {}, place = '', minute = null, people = null } = {}) {
     const { events } = readDefs(world);
     const rows = daily?.events ?? {};
@@ -40,7 +40,11 @@ export function arcBrief({ daily = null, table = {}, world = {}, place = '', min
         .filter(key => entryActive(table[key], Number.isInteger(minute) ? minute : 0) && realmsOf(geo, [table[key].ref]).includes(realm))
         .slice(0, MAX).map(key => `${key}${means.get(table[key].name) ? `: ${means.get(table[key].name)}` : ''}`);
     const secrets = closedSecrets(people);
-    return { threads, toCome, conditions, guard, ...(secrets.length ? { secrets } : {}) };
+    const named = (list, test, field) => (Array.isArray(list) ? list : []).filter(item => item && test(item)).map(item => String(item[field] ?? item.title ?? item.name ?? '').trim()).filter(Boolean).slice(0, 24);
+    // For the Director judge: the protected cast (never killed or moved by a happening) and the hidden lore's titles (never its text).
+    const protectedCast = named(world.cast, item => item.protected === true, 'name');
+    const hidden = named(world.lore, item => item.hidden === true, 'title');
+    return { threads, toCome, conditions, guard, ...(secrets.length ? { secrets } : {}), ...(protectedCast.length ? { protectedCast } : {}), ...(hidden.length ? { hidden } : {}) };
 }
 
 /** The pack secrets (a dossier's gated notes) NPC State has not opened: [{ name, text }], in dossier order, at most eight. */

@@ -18,7 +18,7 @@ export function ledgerOf(stored) {
     const value = slotValue(stored);
     const anchors = isRecord(value?.anchors) ? value.anchors : {};
     const tomb = isRecord(value?.tomb) && isInt(value.tomb.day) && Array.isArray(value.tomb.keys) ? value.tomb : null;
-    const open = isRecord(value?.open) ? { results: isRecord(value.open.results) ? value.open.results : {}, calls: isInt(value.open.calls) ? value.open.calls : 0 } : null;
+    const open = isRecord(value?.open) ? { results: isRecord(value.open.results) ? value.open.results : {}, calls: isInt(value.open.calls) ? value.open.calls : 0, ...(isInt(value.open.year) && isInt(value.open.yearCalls) ? { year: value.open.year, yearCalls: value.open.yearCalls } : {}) } : null;
     return { anchors, tomb: tomb ? { day: tomb.day, keys: [...tomb.keys] } : null, open };
 }
 
@@ -41,12 +41,15 @@ export function markLedger(chronicle, { day, anchors = [], tombKeys = [], take =
  * Open templates (spec §9): the Director's stored answers by slot key (`{ outcome, answer? }`, the newest 64 kept) and the count of model calls made
  * (a retry counts as a call). Written whole into the ledger slot, so a swipe or delete of the reply after it never loses it.
  */
-export function storeOpen(chronicle, { results = {}, calls = 0 }) {
+export function storeOpen(chronicle, { results = {}, calls = 0, year = null }) {
     const old = ledgerOf(chronicle.ledger);
     const merged = { ...(old.open?.results ?? {}), ...results };
     const keys = Object.keys(merged);
     for (const key of keys.slice(0, Math.max(0, keys.length - MAX_RESULTS))) delete merged[key];
-    chronicle.ledger = toSlot({ anchors: old.anchors, ...(old.tomb ? { tomb: old.tomb } : {}), open: { results: merged, calls: (old.open?.calls ?? 0) + calls } });
+    // `yearCalls`: the calls of game year `year` (the Settings counter); a call in a later year starts it again from its own calls.
+    const same = isInt(year) && old.open?.year === year;
+    const tally = isInt(year) ? { year, yearCalls: (same ? old.open.yearCalls : 0) + calls } : {};
+    chronicle.ledger = toSlot({ anchors: old.anchors, ...(old.tomb ? { tomb: old.tomb } : {}), open: { results: merged, calls: (old.open?.calls ?? 0) + calls, ...tally } });
 }
 
 /** `validateLedger(stored) → string[]`: optional; a slot holding `{ anchors, tomb? }`. */
@@ -61,7 +64,7 @@ export function validateLedger(stored) {
     if (tomb !== undefined && !(isRecord(tomb) && isInt(tomb.day) && Array.isArray(tomb.keys) && tomb.keys.length <= MAX_KEYS && tomb.keys.every(key => typeof key === 'string' && key.includes('@')))) {
         errors.push(`chronicle.ledger.tomb must be { day, keys } with at most ${MAX_KEYS} condition keys.`);
     }
-    if (open !== undefined && !(isRecord(open) && isRecord(open.results) && Object.keys(open.results).length <= MAX_RESULTS && isInt(open.calls) && open.calls >= 0)) errors.push('chronicle.ledger.open must be { results, calls } with at most 64 results.');
+    if (open !== undefined && !(isRecord(open) && isRecord(open.results) && Object.keys(open.results).length <= MAX_RESULTS && isInt(open.calls) && open.calls >= 0 && (open.year === undefined || (isInt(open.year) && isInt(open.yearCalls) && open.yearCalls >= 0)))) errors.push('chronicle.ledger.open must be { results, calls } (and optionally year, yearCalls) with at most 64 results.');
     if (Object.keys(rest).length) errors.push(`chronicle.ledger has an unknown field "${Object.keys(rest)[0]}".`);
     return errors;
 }

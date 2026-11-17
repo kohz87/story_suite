@@ -5,6 +5,7 @@ import { ARC_ROOM, arcList } from '../domain.js';
 import { flat, itemLine, planCounts, readPlan } from '../plan.js';
 import { fail, has, planOptions, revOf } from './shared-helpers.js';
 import { applyLines, lineOf } from './shared-apply.js';
+import { judgeRecord } from './judge-record.js';
 
 const REASONS = new Set(['manual', 'no-arc', 'arc-end', 'stalled', 'running-low']);
 const ID_CHARS = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -52,6 +53,8 @@ export function acceptArc(ctx, payload = {}) {
         minutes: Number.isSafeInteger(minutes) ? minutes : null,
         reason: REASONS.has(payload?.reason) ? payload.reason : 'manual',
         note: flat(payload?.note, 16),
+        // With world events on (the controller's judge call): the Director judge's tally and the arc's world note, kept with the arc so a replay never asks again.
+        ...judgeRecord(payload),
     };
     // The oldest arcs past ARC_ROOM go, by key, with their endings.
     const list = arcList(slice);
