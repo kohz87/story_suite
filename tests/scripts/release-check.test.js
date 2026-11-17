@@ -5,6 +5,7 @@ import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
+import { stylesheetRequests } from '../../scripts/release/css.mjs';
 import { MAX_REQUESTS, RELEASE_VERSION, checkRelease } from '../../scripts/release/check.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
@@ -26,6 +27,15 @@ test('each extension loads in at most ten requests when bundled', () => {
   for (const row of result.rows) assert.ok(row.requests >= 1 && row.requests <= MAX_REQUESTS, `${row.name}: ${row.requests}`);
 });
 
+test('the stylesheet is one file with no @import left, and the fonts it names sit where its urls say', () => {
+  const dir = path.join(outRoot, 'story-suite');
+  const css = fs.readFileSync(path.join(dir, 'suite.css'), 'utf8');
+  assert.equal(stylesheetRequests(dir, 'suite.css'), 1);
+  assert.doesNotMatch(css, /@import/);
+  for (const [, url] of css.matchAll(/url\("([^"]+\.woff2)"\)/g)) assert.ok(fs.existsSync(path.join(dir, url)), url);
+  assert.ok(css.indexOf('/* ui/legacy/view/host.css */') < css.indexOf('/* modules/people/legacy/suite.css */') && css.indexOf('/* modules/people/legacy/suite.css */') < css.indexOf('/* ui/css/next-hide.css */'), 'the sheets keep their @import order');
+});
+
 test('the People part starts with the entry, so it is packed into it and is not a chunk of its own', () => {
   const files = fs.readdirSync(path.join(outRoot, 'story-suite'));
   assert.deepEqual(files.filter(file => /^bootstrap-.*\.js$/.test(file)), [], 'no People chunk to fetch at start');
@@ -37,7 +47,7 @@ test('building the real packages twice gives byte-identical files', async () => 
   try {
     await checkRelease({ repoRoot, outRoot: again });
     for (const set of BUNDLE_SETS) {
-      for (const file of fs.readdirSync(path.join(outRoot, set.name))) {
+      for (const file of fs.readdirSync(path.join(outRoot, set.name)).filter(name => fs.statSync(path.join(outRoot, set.name, name)).isFile())) {
         assert.ok(fs.readFileSync(path.join(outRoot, set.name, file)).equals(fs.readFileSync(path.join(again, set.name, file))), `${set.name}/${file}`);
       }
     }

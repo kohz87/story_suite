@@ -7,6 +7,7 @@ import { walkBundle } from './graph.mjs';
 import { strayImportMeta } from './rewrite.mjs';
 import { assertSafeOut } from './outdir.mjs';
 import { versionProblems } from './versions.mjs';
+import { stylesheetRequests } from './css.mjs';
 
 export const RELEASE_VERSION = '0.1.0';
 export const MAX_REQUESTS = 10;
@@ -15,7 +16,7 @@ export const MAX_REQUESTS = 10;
 const chunkOf = file => { const base = path.basename(file, '.js').replace(/-[A-Z0-9]{8}$/, ''); return base === 'index' ? path.basename(path.dirname(file)) : base; };
 
 // The release gate: the version is 0.1.0 and every place that carries it agrees, nothing is tagged for it, and each bundle set builds, keeps its
-// source maps, resolves every import() it contains, keeps import.meta.url pointing at the source location and loads in at most MAX_REQUESTS files. Returns
+// source maps, resolves every import() it contains, keeps import.meta.url pointing at the source location and loads in at most MAX_REQUESTS files (JS and CSS together; the stylesheet is joined into one). Returns
 // { problems, rows }, one row per bundle set (name, bytes, requests, lazy chunks).
 export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS }) {
   assertSafeOut(outRoot, repoRoot);
@@ -46,7 +47,7 @@ export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS }) {
         else fetchedLater.add(file);
       }
     }
-    const requests = loaded.size;
+    const requests = loaded.size + stylesheetRequests(outDir, fs.existsSync(path.join(repoRoot, 'manifest.json')) ? JSON.parse(fs.readFileSync(path.join(repoRoot, 'manifest.json'), 'utf8')).css : null);
     const lazy = [...fetchedLater].filter(file => !loaded.has(file)).length;
     if (requests > MAX_REQUESTS) problems.push(`${set.name}: ${requests} requests at load, the limit is ${MAX_REQUESTS}`);
     rows.push({ name: set.name, bytes, requests, lazy });
