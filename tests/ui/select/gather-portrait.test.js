@@ -21,3 +21,23 @@ test('a party hero keeps naming the portrait; the persona fallback is not used',
   const opts = optsOf(read, { 'party.pc': { name: 'Astra' } }, () => ({ name1: 'Mira' }));
   assert.equal(opts.portrait, '/img/a.png');
 });
+
+test('real ST context has no user_avatar: the file is found by name in powerUserSettings.personas', () => {
+  const c = { name1: 'Astra', powerUserSettings: { personas: { 'a b.png': 'Astra', 'z.png': 'Other' } } };
+  assert.equal(optsOf(readOf([]), {}, () => c).portrait, '/User%20Avatars/a%20b.png');
+});
+
+test('two persona files share the name: chat lock or default decides, else none', () => {
+  const personas = { 'a.png': 'Astra', 'b.png': 'Astra', 'c.png': 'Other' };
+  const at = extra => optsOf(readOf([]), {}, () => ({ name1: 'Astra', powerUserSettings: { personas, ...extra.p }, chatMetadata: extra.m })).portrait;
+  assert.equal(at({ p: {} }), null);
+  assert.equal(at({ p: {}, m: { persona: 'b.png' } }), '/User%20Avatars/b.png');
+  assert.equal(at({ p: { default_persona: 'a.png' } }), '/User%20Avatars/a.png');
+});
+
+test('a stale chat lock naming another persona is never used', () => {
+  const c = { name1: 'Astra', powerUserSettings: { personas: { 'a.png': 'Astra', 'c.png': 'Other' } }, chatMetadata: { persona: 'c.png' } };
+  assert.equal(optsOf(readOf([]), {}, () => c).portrait, '/User%20Avatars/a.png');
+  const d = { name1: 'Astra', powerUserSettings: { personas: { 'c.png': 'Other' }, default_persona: 'c.png' }, chatMetadata: { persona: 'c.png' } };
+  assert.equal(optsOf(readOf([]), {}, () => d).portrait, null);
+});

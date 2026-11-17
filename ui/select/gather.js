@@ -21,11 +21,20 @@ export function gather(read, names = SCENE) {
 
 // What the selectors need beyond the answers: the RPG is on when the party answers; portraits come one name at a time.
 // The reader's own picture when no party hero names one: the people row called by the persona's name, else the persona's avatar file.
+function personaFile(c) {
+  if (typeof c.user_avatar === 'string' && c.user_avatar.trim()) return c.user_avatar.trim();
+  const map = c.powerUserSettings?.personas;
+  if (!c.name1 || !map || typeof map !== 'object') return '';
+  const named = Object.keys(map).filter(f => map[f] === c.name1);
+  if (named.length === 1) return named[0];
+  return [c.chatMetadata?.persona, c.powerUserSettings?.default_persona].find(f => named.includes(f)) ?? '';
+}
+
 function personaPortrait(read, ctx) {
   const c = ctx() ?? {};
   const row = c.name1 ? (read('people.list', {}) ?? []).find(r => r?.name === c.name1) : null;
   if (row?.portrait) return row.portrait;
-  const file = typeof c.user_avatar === 'string' ? c.user_avatar.trim() : '';
+  const file = personaFile(c);
   return file ? `/User%20Avatars/${encodeURIComponent(file)}` : null;
 }
 
