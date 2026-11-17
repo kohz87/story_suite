@@ -47,7 +47,9 @@ export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS }) {
         else fetchedLater.add(file);
       }
     }
-    const requests = loaded.size + stylesheetRequests(outDir, fs.existsSync(path.join(repoRoot, 'manifest.json')) ? JSON.parse(fs.readFileSync(path.join(repoRoot, 'manifest.json'), 'utf8')).css : null);
+    const cssEntry = fs.existsSync(path.join(repoRoot, 'manifest.json')) ? JSON.parse(fs.readFileSync(path.join(repoRoot, 'manifest.json'), 'utf8')).css : null;
+    if (cssEntry && !fs.existsSync(path.join(outDir, cssEntry))) problems.push(`${set.name}: the manifest names the stylesheet ${cssEntry} and the build has none`);
+    const requests = loaded.size + stylesheetRequests(outDir, cssEntry);
     const lazy = [...fetchedLater].filter(file => !loaded.has(file)).length;
     if (requests > MAX_REQUESTS) problems.push(`${set.name}: ${requests} requests at load, the limit is ${MAX_REQUESTS}`);
     rows.push({ name: set.name, bytes, requests, lazy });
