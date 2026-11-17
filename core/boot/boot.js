@@ -22,6 +22,7 @@ import { registerSbMacro } from '../runtime/sb-macro.js';
 import { BUILTIN_MODULES } from '../modules-list.js';
 import { registerIsolated, startIsolated } from './register-isolated.js';
 import { packs as livePacks, part as livePacksPart, portraits as livePortraits, refreshLore, resolveItem, startState } from '../../packs/index.js';
+import { startHostParts } from './host-parts.js';
 import { createToolsHandle } from '../../ui/port/tools-handle.js';
 
 const LOG = '[Story Block v2]';
@@ -45,6 +46,7 @@ export async function boot({ late = [] } = {}) {
         return false;
     }
     let ui = null;
+    let parts = null;
     const runtime = createRuntime({
         ctx,
         packs: { part: livePacksPart, packs: livePacks, resolveItem, startState },
@@ -59,17 +61,19 @@ export async function boot({ late = [] } = {}) {
     // (An old v1 copy loaded before this one left its own object here: src/v2/v1-copy.js.)
     const before = globalThis.StoryBlock ?? null;
     // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, ui: () => ui }) });
+    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, ui: () => ui, savePoints: () => parts?.savePoints ?? null }) });
     const v1 = createV1Watch({ before, report: entry => turn.report(entry), problems: () => turn.problems() });
     const lookForV1 = () => { try { v1.check(); } catch { /* never in the way of the story */ } };
 
     turn.install({ globalName: INTERCEPTOR_NAME });
     turn.onChatChanged().catch(error => console.warn(`${LOG} the first chat could not be read`, error));
+    parts = startHostParts({ runtime, ctx });
     try {
-        ui = mountUi({ runtime, ctx, version: SUITE_VERSION });
+        ui = mountUi({ runtime, ctx, version: SUITE_VERSION, parts });
     } catch (error) {
         console.error(`${LOG} the Story Suite UI could not be shown`, error);
     }
+    parts.refreshOffer();
     // A pack installed or switched on changes the screens and the start of new chats.
     livePacks.subscribe?.(() => ui?.syncScreens());
     const types = ctx.eventTypes ?? ctx.event_types ?? {};

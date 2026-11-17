@@ -43,7 +43,7 @@ import { readCharacterLorebook, saveSettingsNow } from '../../packs/st-adapter.j
 import { createReplyCards } from './ui-host/replies.js';
 import { FLAGS, flagOn } from '../../core/runtime/flags.js';
 import { inspectorProblemsFor } from './ui-host/inspector-problems.js';
-import { createCardOfferWiring } from './ui-host/card-offer-wiring.js';
+import { createCardOfferWiring } from '../../packs/card-offer-wiring.js';
 import { createHostApi } from './ui-host/host-api.js';
 import { createNotesWiring } from './ui-host/notes-wiring.js';
 import { createDrawerUi } from './ui-host/drawer.js';
@@ -67,11 +67,11 @@ export { isGameViewKey, hasReplyRecord, hudOn } from './ui-host/shared.js';
  * setHidden(id, hidden), reset(), isDefault()), syncScreens(), destroy() }.
  * Re-read uses `sdk.reread(index)` (or `runtime.turn.reread(index)`) when the runtime has one.
  */
-export function mountUi({ runtime, ctx, doc = globalThis.document, version = '', loadLeanRpg = () => import('../../modules/rpg/view/index.js'), readLorebook = readCharacterLorebook, flushSettings = saveSettingsNow }) {
+export function mountUi({ runtime, ctx, doc = globalThis.document, version = '', loadLeanRpg = () => import('../../modules/rpg/view/index.js'), readLorebook = readCharacterLorebook, flushSettings = saveSettingsNow, parts = null }) {
     const { registry, store, sdk, settings, events } = runtime;
     const { queryAt, widgets, coreOn, blockTemplates, blockWidgets, liveCtx, savePoints, inspector, hostWidgets, renderer,
         screens, tabOrder, extraTabs, navPresent, barDeclared, setSharedTabs } = createHostSetup({
-        runtime, ctx, doc, registry, store, sdk, openSettings, inspectorProblems, getRpg: () => leanRpg.getRpg(), openScreen: id => mounts?.screen?.open?.(id) ?? false,
+        runtime, ctx, doc, registry, store, sdk, openSettings, inspectorProblems, savePoints: parts?.savePoints ?? null, getRpg: () => leanRpg.getRpg(), openScreen: id => mounts?.screen?.open?.(id) ?? false,
     });
     const { rpgOn, blockPresentation, syncScreens } = createScreenSync({ doc, registry, sdk, screens, setSharedTabs });
 
@@ -148,8 +148,10 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     const offerDot = el(doc, 'span', 'ss-screenbar-alert ss-card-offer-dot');
     offerDot.hidden = true;
     storyButton.appendChild(offerDot);
-    const cardLog = [];
-    const cardOffer = createCardOfferWiring({ runtime, ctx, sdk, store, liveCtx, readLorebook, flushSettings, cardLog });
+    // Boot's own controller when it handed one over (it also refreshes it and clears its notice); else this view builds its own.
+    const owned = Boolean(parts);
+    const cardLog = parts?.cardLog ?? [];
+    const cardOffer = owned ? parts.cardOffer : createCardOfferWiring({ runtime, ctx, sdk, store, liveCtx, readLorebook, flushSettings, cardLog });
     const showDot = () => {
         const waiting = cardOffer?.waiting() === true;
         offerDot.hidden = !waiting;
@@ -262,7 +264,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     wiring = wireRedraw({ on: () => flagOn(() => ctx?.extensionSettings, FLAGS.redrawScheduler), mounts, getPanel: () => panel, getTabHost: () => tabHost, getOverlay: () => overlay, panels: sdk?.panels });
     runtime.bindPanels?.(wiring);   // modules' sdk.panels sections draw through this page's scheduler (inert while the flag is off)
     const offs = installUiEvents({
-        replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer,
+        replyOffs, offs0, registry, store, events, ctx, runtime, mounts, screens, blockWidgets, cardOffer: owned ? null : cardOffer,
         blockPresentation, syncScreens, syncLeanRpg, refresh, clearBlocked, getPanel: () => panel,
         getTabHost: () => tabHost, getOverlay: () => overlay, getBlockedBy: () => blockedBy, redrawHold, wiring,
     });
@@ -271,7 +273,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     syncLeanRpg();
     refresh();
     mounts.card?.attachAll?.();
-    cardOffer?.refresh().catch(error => console.warn('[Story Suite] the card offer could not be read', error));
+    if (!owned) cardOffer?.refresh().catch(error => console.warn('[Story Suite] the card offer could not be read', error));
 
     return {
         refresh,
