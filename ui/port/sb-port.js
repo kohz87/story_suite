@@ -2,6 +2,7 @@
 
 import { peopleCommand } from './people-settings.js';
 import { modelsCommand } from './models.js';
+import { rpgCommand } from './rpg.js';
 import { toolsCommand } from './tools.js';
 import { trackerCommand } from './trackers.js';
 
@@ -55,8 +56,8 @@ async function offerCommand(controller, payload) {
   return { ...FAILED, message: 'The engine does not take that offer answer.' };
 }
 
-/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach. */
-export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null } = {}) {
+/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `rpgValues()` reads Story Block’s settings bucket (the RPG page’s Custom start); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach. */
+export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -90,6 +91,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       if (type === 'settings.set' || type === 'settings.action') {
         let answer = null;
         try { answer = await modelsCommand(sdk, type, payload, Date.now, writes); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
+        answer = rpgCommand(type, payload, writes, rpgValues);
         if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
