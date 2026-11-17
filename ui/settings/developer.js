@@ -19,7 +19,7 @@ export function renderDeveloper(state, ctx = {}) {
     cards.push(h('div', { class: 'sgrp template', dataset: { card: 'template' } },
       h('div', { class: 'gt' }, 'Template'),
       h('p', { class: 'fine template-note' }, TEMPLATE_NOTE),
-      h('div', { class: 'template-body' }, genericScene(sceneFixture('open'), {}))));
+      h('div', { class: 'template-body scene-tab' }, genericScene(sceneFixture('open'), {}))));
   }
   return cards;
 }

@@ -7,7 +7,7 @@ import { createTabViews } from './tab-views.js';
 import { dossierPage } from '../tabs/people/dossier/dossier.js';
 
 const TITLES = {
-  party: 'Party', bag: 'Bag', people: 'People', world: 'World', journal: 'Journal', story: 'Story', scene: 'Scene', fight: 'Fight',
+  party: 'Party', bag: 'Bag', people: 'People', world: 'World', journal: 'Journal', story: 'Story', scene: 'Activity', fight: 'Fight',
 };
 
 /** Builds the honest placeholder card for a tab that is not built yet. */

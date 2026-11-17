@@ -59,6 +59,7 @@ for (const width of [390, 1143, 1280, 1920]) {
             noteInside: box(note).right <= box(tab).right + 1 && box(note).left >= box(tab).left - 1,
             noteVisible: getComputedStyle(note).display !== 'none' && box(note).height > 0,
             sideways: tab.scrollWidth > tab.clientWidth + 1,
+            barLabelH: (document.querySelector('#hx-frame .su-bar-btn[data-tab="scene"] .su-bar-label') ?? { scrollHeight: 0 }).scrollHeight,
           };
         });
         assert.equal(m.label, 'The ferry cross…');
@@ -66,6 +67,7 @@ for (const width of [390, 1143, 1280, 1920]) {
         assert.equal(m.note, 'Basic view: this activity has no view of its own.');
         assert.ok(m.noteVisible && m.noteInside);
         assert.equal(m.sideways, false);
+        if (width === 390) assert.ok(m.barLabelH > 0 && m.barLabelH <= 15, `the bar label stays on one line: ${m.barLabelH}`);
         await page.screenshot({ path: `/tmp/scenefold-${width}-${theme}.png` });
       } finally {
         await page.close();
