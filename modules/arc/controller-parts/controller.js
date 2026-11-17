@@ -4,7 +4,7 @@ import { makeCalendar } from '../../time/calendar.js';
 import { browserStore, reveal as pageReveal, stChatId } from '../../../ui/legacy/director/screens/reveal.js';
 import { ACCEPT, END, UPDATE } from '../commands.js';
 import { FEATURE, arcQuery, currentArc, threadsWithArc } from '../domain.js';
-import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, trackerSummary } from '../plan.js';
+import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, trackerSummary, worldBriefText } from '../plan.js';
 import { arcSettings } from '../settings.js';
 import { fightsAmong } from '../../rpg/fights.js';
 import { MODULE_ID, NEEDS_TEXT, PLANNER_TIMEOUT_MS } from './constants.js';
@@ -72,6 +72,10 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
     };
 
     // ---- the story as the planner reads it -------------------------------------------------------
+    function worldBrief(api) {
+        try { return api.query?.('chronicle.world.brief', {}) ?? null; } catch { return null; }
+    }
+
     function situation(api) {
         let view = null;
         try { view = api.view?.() ?? null; } catch { view = null; }
@@ -172,7 +176,8 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
                 place: seen.place,
                 note: noteUsed ? settings.note : '',
                 previousArc: previous ? `${previous.key}${previous.desc ? ` — ${previous.desc}` : ''}` : '',
-                tracker: trackerSummary(seen.threads),
+                // With world events on, the engine's mirror follows the tracker's threads (the query is null while the switch is off).
+                tracker: [trackerSummary(seen.threads), worldBriefText(worldBrief(api))].filter(Boolean).join('\n'),
                 recent: recentStory(messages, settings.recent),
                 fights: seen.fights,
             });

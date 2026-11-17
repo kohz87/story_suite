@@ -18,7 +18,7 @@ export {
 } from './plan/shared.js';
 export {
     DEFAULT_PLANNER_PROMPT, FIGHT_RULE, NO_FIGHT_RULE, PLANNER_ASK, plannerRequest,
-    trackerSummary,
+    trackerSummary, worldBriefText,
 } from './plan/prompt.js';
 export { readPlan, itemLine, planText, planCounts, noteMark } from './plan/read.js';
 export {

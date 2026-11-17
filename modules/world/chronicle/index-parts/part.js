@@ -11,6 +11,7 @@ import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { DAILY, dailyCommand } from '../world-daily/command.js';
 import { CUE, cueCommand } from '../world-daily/cue-command.js';
 import { LEARNED, learnedCommand } from '../world-daily/learned.js';
+import { worldBriefQuery } from '../world-daily/arc-brief.js';
 import { dailyAfterCapture } from '../world-daily/hook.js';
 import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
@@ -68,7 +69,7 @@ export const part = {
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,
     },
-    queries: { ...queries, ...conditionQueries },
+    queries: { ...queries, ...conditionQueries, 'chronicle.world.brief': worldBriefQuery },
     // The world and faction lines are the threads feature's (src/v2/threads.js); `chronicle.lasting` (a pack event's step) is code's and stays.
     kinds: {
         world: { grammar: GRAMMAR.world, apply: applyWorldLine, feature: THREADS_FEATURE },
