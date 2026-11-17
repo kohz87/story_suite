@@ -12,20 +12,23 @@ import { MAX_REQUESTS, checkRelease } from '../../scripts/release/check.mjs';
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'css-gate-'));
 
-test('local @imports left in a built suite.css are each counted, and enough of them fail the gate', async () => {
+test('local @imports left in a built suite.css are each counted, and enough of them fail the real gate', async () => {
   const outRoot = tmp();
   try {
     const dir = path.join(outRoot, 'story-suite');
     await buildBundleSet(BUNDLE_SETS[0], dir, repoRoot);
     assert.equal(stylesheetRequests(dir, 'suite.css'), 1);
-    const names = Array.from({ length: 10 }, (_, i) => `extra-${i}.css`);
-    for (const name of names) fs.writeFileSync(path.join(dir, name), '.x{}');
-    const css = fs.readFileSync(path.join(dir, 'suite.css'), 'utf8');
-    fs.writeFileSync(path.join(dir, 'suite.css'), `${names.map(name => `@import "./${name}";`).join('\n')}\n${css}`);
-    assert.equal(stylesheetRequests(dir, 'suite.css'), 11);
-    assert.ok(stylesheetRequests(dir, 'suite.css') > 1);
-    // checkRelease rebuilds, so the planted copy proves only the count; the gate's own limit is the same sum.
-    assert.ok(8 + stylesheetRequests(dir, 'suite.css') > MAX_REQUESTS);
+    const plant = (outDir) => {
+      const names = Array.from({ length: 10 }, (_, i) => `extra-${i}.css`);
+      for (const name of names) fs.writeFileSync(path.join(outDir, name), '.x{}');
+      const css = fs.readFileSync(path.join(outDir, 'suite.css'), 'utf8');
+      fs.writeFileSync(path.join(outDir, 'suite.css'), `${names.map(name => `@import "./${name}";`).join('\n')}\n${css}`);
+    };
+    const clean = await checkRelease({ repoRoot, outRoot, sets: [BUNDLE_SETS[0]] });
+    assert.ok(!clean.problems.some(problem => /requests at load/.test(problem)), JSON.stringify(clean.problems));
+    const planted = await checkRelease({ repoRoot, outRoot, sets: [BUNDLE_SETS[0]], afterBuild: plant });
+    assert.ok(planted.problems.some(problem => problem.includes(`requests at load, the limit is ${MAX_REQUESTS}`)), JSON.stringify(planted.problems));
+    assert.ok(planted.rows[0].requests > clean.rows[0].requests + 9);
   } finally {
     fs.rmSync(outRoot, { recursive: true, force: true });
   }

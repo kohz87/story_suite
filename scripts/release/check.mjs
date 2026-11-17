@@ -17,8 +17,8 @@ const chunkOf = file => { const base = path.basename(file, '.js').replace(/-[A-Z
 
 // The release gate: the version is 0.1.0 and every place that carries it agrees, nothing is tagged for it, and each bundle set builds, keeps its
 // source maps, resolves every import() it contains, keeps import.meta.url pointing at the source location and loads in at most MAX_REQUESTS files (JS and CSS together; the stylesheet is joined into one). Returns
-// { problems, rows }, one row per bundle set (name, bytes, requests, lazy chunks).
-export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS }) {
+// { problems, rows }, one row per bundle set (name, bytes, requests, lazy chunks). afterBuild(outDir, set), when given, runs on each built set before it is measured (tests use it to plant a bad build).
+export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS, afterBuild = null }) {
   assertSafeOut(outRoot, repoRoot);
   const problems = [];
   const version = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8')).version;
@@ -30,6 +30,7 @@ export async function checkRelease({ repoRoot, outRoot, sets = BUNDLE_SETS }) {
   for (const set of sets) {
     const outDir = path.join(outRoot, set.name);
     const files = await buildBundleSet(set, outDir, repoRoot);
+    if (afterBuild) await afterBuild(outDir, set);
     const code = files.filter(file => file.endsWith('.js'));
     for (const file of code) if (!files.includes(`${file}.map`)) problems.push(`${set.name}: ${file} has no source map`);
     for (const file of code) if (strayImportMeta(fs.readFileSync(path.join(outDir, file), 'utf8'))) problems.push(`${set.name}: ${file} uses import.meta in a form the bundle does not rewrite`);
