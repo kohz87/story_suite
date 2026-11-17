@@ -33,7 +33,7 @@ export function buildSelectors(ctx = () => null, sdk = null) {
     },
     party: read => {
       const actors = read('party.actors', {});
-      return selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors) });
+      return selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: read('rpg.sheet', {}) });
     },
     bag: read => {
       const actors = read('party.actors', {});
