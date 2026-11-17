@@ -46,13 +46,14 @@ function writeConditions(ctx, chronicle, next) {
 }
 
 /**
- * A Re-read's warning (seam audit E21): the events the reply's old step fired (`payload.before.fired`, the hook) that this step does not
- * fire. Later replies keep what they recorded, so a later firing that needed one keeps its record; the reader is told. '' when none.
+ * A Re-read's warning (seam audit E21): the events the reply's old step fired or had lost (`payload.before.fired`, the hook) that this
+ * step does not fire, as `{ ids, text }`. Later replies keep what they recorded, so a later firing that needed one keeps its record;
+ * the reader is told. The ids stay in the receipt's `data.lost`, so a second Re-read still warns.
  */
-function lostText(payload, fired) {
-    const lost = (Array.isArray(payload?.before?.fired) ? payload.before.fired : []).filter(id => typeof id === 'string' && !fired.includes(id));
-    if (!lost.length) return '';
-    return `World: after this edit ${lost.slice(0, 6).join(', ')} no longer fired on this reply's days; the later replies keep what they recorded (a later event that needed it is not undone).`;
+function lostOf(payload, fired) {
+    const ids = (Array.isArray(payload?.before?.fired) ? payload.before.fired : []).filter(id => typeof id === 'string' && !fired.includes(id));
+    if (!ids.length) return { ids, text: '' };
+    return { ids, text: `World: after this edit ${ids.slice(0, 6).join(', ')} no longer fired on this reply's days; the later replies keep what they recorded (a later event that needed it is not undone).` };
 }
 
 function daily(ctx, payload = {}) {
@@ -65,8 +66,8 @@ function daily(ctx, payload = {}) {
     const today = Math.floor(now / DAY);
     // A shrunk Re-read or a rewind can leave the last stepped day ahead of the clock: nothing is stepped again or undone.
     const kept = () => {
-        const lost = lostText(payload, []);
-        return { summary: lost, narrate: false, data: { days: 0 }, ...(lost ? { problem: lost } : {}) };
+        const lost = lostOf(payload, []);
+        return { summary: lost.text, narrate: false, data: { days: 0, ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(lost.text ? { problem: lost.text } : {}) };
     };
     if (state && today <= state.day) return kept();
     // The long-skip note shows above 14 stepped days, or above the reader's longest jump when that is lower (seam audit E16; the time part's setting, read through `settings.reads`).
@@ -80,9 +81,9 @@ function daily(ctx, payload = {}) {
     const { report } = out;
     const fired = report.journal.filter(entry => entry.fired).map(entry => entry.by);
     // The warnings go to Problems, on this reply (the one sink, spec §9 Warnings), as well as on its card.
-    const lost = lostText(payload, fired);
-    const problem = [report.warnings.length ? `World: ${report.warnings.slice(0, 6).join(' ')}` : '', lost].filter(Boolean).join(' ') || undefined;
-    return { summary: [dailySummary(report), lost].filter(Boolean).join(' '), narrate: false, data: { from: report.from, to: report.to, days: report.days, fired, warnings: report.warnings.slice(0, 20) }, ...(problem ? { problem } : {}) };
+    const lost = lostOf(payload, fired);
+    const problem = [report.warnings.length ? `World: ${report.warnings.slice(0, 6).join(' ')}` : '', lost.text].filter(Boolean).join(' ') || undefined;
+    return { summary: [dailySummary(report), lost.text].filter(Boolean).join(' '), narrate: false, data: { from: report.from, to: report.to, days: report.days, fired, warnings: report.warnings.slice(0, 20), ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(problem ? { problem } : {}) };
 }
 
 /** The command, tagged with the feature (Story Block refuses it while the switch is off) and internal (never from a click or the sdk). */

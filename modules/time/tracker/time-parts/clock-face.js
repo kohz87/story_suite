@@ -48,8 +48,8 @@ export function clockFaceAfter(line, minutes, calendar, options = {}) {
     let target = skip ?? Math.round(parsed.abs);
     const bare = skip === null && calendar.parse(words, { reference: null }) === null;
     if (bare && line.op === '!' && target <= minutes) target += DAY_MINUTES;
-    // A fallback hour that crossed midnight: the face on the day before, inside the untold minutes, is the one the story means.
-    if (bare && line.op !== '!' && soft > 0 && target > minutes && target - DAY_MINUTES >= minutes - soft) target -= DAY_MINUTES;
+    // A fallback hour that crossed midnight: the face on the day before, inside the untold minutes and nearer than the one ahead, is the one the story means.
+    if (bare && line.op !== '!' && soft > 0 && target > minutes && target - DAY_MINUTES >= minutes - soft && minutes - (target - DAY_MINUTES) < target - minutes) target -= DAY_MINUTES;
     // After a jump into a later day (the stored `openDay` receipt) the first `~` clock face on that day may set any time on it, earlier than the landing face too.
     // After the world's fallback hour (`soft` untold minutes) a `~` clock face may go back over them: an explicit line beats the fallback.
     const open = bare && line.op !== '!' && ((openDay === dayKey(minutes) && dayKey(target) === openDay) || (soft > 0 && target >= minutes - soft));

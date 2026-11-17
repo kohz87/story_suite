@@ -3,7 +3,7 @@
 // day's value as the step holds it when the event is checked (earlier effects that day included); not latched: true only while
 // the value satisfies it. The step's state is recorded whole on the reply that crossed the day, so replay never recomputes it. Pure.
 
-const SHAPE = /^(power|score):(\S+)\s*(>=|<=|>|<|=|==)\s*(-?\d+(?:\.\d+)?)$/;
+const SHAPE = /^(power|score):([^\s<>=]+)\s*(>=|<=|==|>|<|=)\s*(-?\d+(?:\.\d+)?)$/;
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const list = value => (Array.isArray(value) ? value : []);
 

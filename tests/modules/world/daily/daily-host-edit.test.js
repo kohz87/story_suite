@@ -31,6 +31,10 @@ test('E21: a shrunk edited Re-read that drops the feast warns on that reply; the
     assert.match(dailyReceipts(host).find(entry => entry.index === crossing).receipt.summary, /feast no longer fired/, 'and its card');
     assert.equal(JSON.stringify(dailyOf(host)), later, 'the later reply keeps what it recorded');
     await agrees(host, 'shrunk Re-read');
+    await host.st.editMessage(crossing, reply('Dawn, still.', ['! time +2h']));
+    assert.equal((await host.sdk.reread(crossing)).ok, true);
+    assert.match(dailyReceipts(host).find(entry => entry.index === crossing).receipt.summary, /feast no longer fired/, 'a second Re-read still warns');
+    await agrees(host, 'second shrunk Re-read');
     await host.st.editMessage(crossing, reply('Dawn.', ['! time +1d']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
     const back = dailyReceipts(host).find(entry => entry.index === crossing).receipt;

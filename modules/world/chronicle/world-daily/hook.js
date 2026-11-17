@@ -35,11 +35,13 @@ export function dailyAfterCapture(view, info = {}) {
     return commands.length ? { commands } : undefined;
 }
 
-/** In a Re-read with later messages: `{ fired }` of the reply's old step when it fired anything; else null. */
+/** In a Re-read with later messages: `{ fired }`, what the reply's old step fired or had lost, when there is any; else null. */
 function rereadFired(view, info) {
     if (info?.type !== 'reread' || !Number.isInteger(info.index) || !(view?.chat?.length > info.index + 1)) return null;
     let old = [];
     try { old = Array.isArray(info.previous) ? info.previous : []; } catch { old = []; }
-    const fired = old.filter(receipt => receipt?.type === DAILY).flatMap(receipt => (Array.isArray(receipt.data?.fired) ? receipt.data.fired : [])).filter(id => typeof id === 'string');
+    // What the old step fired, and what an earlier Re-read of this reply had already lost (still a lost cause).
+    const ids = list => (Array.isArray(list) ? list : []);
+    const fired = old.filter(receipt => receipt?.type === DAILY).flatMap(receipt => [...ids(receipt.data?.fired), ...ids(receipt.data?.lost)]).filter(id => typeof id === 'string');
     return fired.length ? { fired: [...new Set(fired)].sort() } : null;
 }

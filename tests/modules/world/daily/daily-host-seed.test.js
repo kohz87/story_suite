@@ -35,17 +35,46 @@ test('E19: the seed is minted once before the first reply; a swipe and an edited
     host.done();
 });
 
-test('E19: a middle delete of the message that holds the seed keeps the later steps\' seed; switch off mints nothing', async () => {
-    const host = await newHost();
+test('E19: switched on mid-chat, the seed rides on the last reply before the next one; deleting that reply keeps the later steps\' seed', async () => {
+    const host = await newHost(false);
     await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
-    const seed = chronicle(host).worldSeed;
     await host.send('Day.', reply('Dawn.', ['! time +1d']));
+    host.features.set('story-director.world-events', true);
+    const carrier = host.ctx.chat.length - 1;
     await host.send('Next.', reply('Noon.', ['! time +1d']));
-    await host.st.deleteMessage(seedReceipts(host)[0].index + 1);
+    assert.deepEqual(seedReceipts(host).map(entry => entry.index), [carrier], 'minted on the last reply before the first one with the switch on');
+    const seed = chronicle(host).worldSeed;
+    assert.equal(dailyOf(host).seed, seed);
+    await host.send('Later.', reply('Days pass.', ['! time +2d']));
+    const before = JSON.stringify(dailyOf(host));
+    await host.st.deleteMessage(carrier);
     assert.deepEqual(host.store.problems(), []);
-    assert.equal(dailyOf(host).seed, seed, 'the later step keeps the seed it recorded');
-    await agrees(host, 'middle delete');
+    assert.equal(JSON.stringify(dailyOf(host)), before, 'the later steps keep their records and seed');
+    assert.equal(chronicle(host).worldSeed, undefined, 'the minted seed went with its reply');
+    await agrees(host, 'carrier deleted');
+    await host.send('Again.', reply('Another day.', ['! time +1d']));
+    assert.equal(seedReceipts(host).length, 1, 'minted again (the claim went with the reply)');
+    assert.equal(dailyOf(host).seed, seed, 'the step keeps the seed its state recorded, not the new one');
+    await agrees(host, 'after re-mint');
     host.done();
+});
+
+test('E19 (known edge, pinned): switched on mid-chat and the next generation is a swipe of the last reply → the seed rides on that reply, so each swipe mints anew', async () => {
+    const host = await newHost(false);
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Day.', reply('Dawn.', ['! time +1d']));
+    host.features.set('story-director.world-events', true);
+    const last = host.ctx.chat.length - 1;
+    await host.swipe(reply('Dawn, grey.', ['! time +1d']));
+    const first = chronicle(host).worldSeed;
+    assert.deepEqual(seedReceipts(host).map(entry => entry.index), [last]);
+    await host.swipe(reply('Dawn, red.', ['! time +1d']));
+    assert.notEqual(chronicle(host).worldSeed, first, 'a new seed with the new swipe (no world day was kept before it)');
+    await agrees(host, 'swiped after switch-on');
+    host.done();
+});
+
+test('E19: with the switch off nothing is minted', async () => {
     const off = await newHost(false);
     await off.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
     await off.send('Day.', reply('Dawn.', ['! time +1d']));

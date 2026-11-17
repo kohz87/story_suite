@@ -89,12 +89,13 @@ test('test 78: ends_when any_of power <= 10 ends the Active event the first day 
 test('test 79 (the step\'s side): a threshold it cannot read leaves the event out with a warning; a valid one is read', () => {
     const base = { powers: [{ id: 'ashen-veil', name: 'Ashen Veil', start: 20 }], scores: [{ id: 'north-readiness', name: 'North Readiness', start: 0, range: [0, 100] }] };
     const bad = {
-        unknown: { requires: ['power:old-crown >= 10'] }, name: { requires: ['power:Ashen Veil >= 40'] }, gt: { requires: ['power:ashen-veil > 40'] },
+        unknown: { requires: ['power:old-crown >= 10'] }, name: { requires: ['power:Ashen Veil >= 40'] }, gt: { requires: ['power:ashen-veil>40'] },
         eq: { requires_any: ['power:ashen-veil = 40'] }, frac: { requires: ['power:ashen-veil >= 40.5'] }, high: { requires: ['score:north-readiness >= 150'] },
         low: { ends_when: { any_of: ['score:north-readiness <= -5'] } }, likelier: { likelier_if: { 'power:ashen-veil >= 40': '×2' } }, pre: { pre_empted_by: ['power:ashen-veil >= 40'] },
     };
-    const defs = readDefs({ ...base, events: [...Object.entries(bad).map(([id, extra]) => ev(id, extra)), ev('good', { requires: ['power:ashen-veil >= -100', 'score:north-readiness <= 100'] })] });
-    assert.deepEqual(defs.events.map(def => def.id), ['good']);
+    const defs = readDefs({ ...base, events: [...Object.entries(bad).map(([id, extra]) => ev(id, extra)), ev('good', { requires: ['power:ashen-veil >= -100', 'score:north-readiness<=100'] })] });
+    assert.deepEqual(defs.events.map(def => def.id), ['good'], 'spaces around the comparison are optional');
+    assert.ok(defs.warnings.some(text => text.includes('"gt"') && /only >= and <= exist/.test(text)), 'a wrong operator is named as such');
     assert.equal(defs.warnings.length, Object.keys(bad).length);
     for (const id of Object.keys(bad)) assert.ok(defs.warnings.some(text => text.includes(`"${id}"`)), `${id} is named`);
 });
