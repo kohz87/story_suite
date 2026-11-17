@@ -1,5 +1,6 @@
 // World events, the daily step: from the last stepped day to today, one day at a time (spec v0.10 §9 Rolls, Long skips).
-// Each day: timers fade, displacements whose condition cleared lapse, the authored events, then the minor templates. The first
+// Each day: timers fade, displacements whose condition cleared lapse, deferred moves of people no longer with You apply or drop,
+// the authored events, then the minor templates. The first
 // step of a chat starts at today (nothing before it is simulated). A step over more than `longSkip` days says "N world days simulated".
 // Input is the stored state and the world; output is the new state, the new conditions table and a report. Pure.
 
@@ -10,6 +11,7 @@ import { buildGeo } from './geo.js';
 import { fadeConditions, releaseHolds } from './holds.js';
 import { recordAnchor } from './anchors.js';
 import { releaseDisplaced } from './cast.js';
+import { applyDeferred } from './cast-defer.js';
 import { templatesDay } from './templates-day.js';
 
 const DAY = 1440;
@@ -51,13 +53,15 @@ function standingsOf(world, saved, names) {
 }
 
 /**
- * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks? })` → null when there is nothing to step (today was stepped),
- * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, tomb } }`. `state` is chronicle.daily (or null),
+ * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks?, withYou?, positions? })` → null when there is nothing to step (today was stepped),
+ * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, tomb, moves, released, deaths } }`. `withYou`: the cast ids
+ * with You at the tick (party or scene); `positions`: { [cast id]: { at, base } } from the cast store (cast-where.js). `report.moves`,
+ * `released` and `deaths` are what the host mirrors into the cast store. `state` is chronicle.daily (or null),
  * `table` chronicle.conditions, `seed` the campaign seed (kept in the state from the first step), `draw` a test's own draw. `marks` is
  * the ledger (chronicle.ledger: anchors world lines made, taken into the state's anchors; the conditions cleared on `tomb.day`, which
  * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger.
  */
-export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null }) {
+export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null }) {
     if (!Number.isInteger(today)) return null;
     const prior = Number.isInteger(state?.day) ? state.day : null;
     if (prior !== null && today <= prior) return null;
@@ -72,6 +76,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
         standingNames: new Map(), facts: { ...record(state?.facts) }, minors: list(state?.minors).map(entry => ({ ...entry })),
         cooldowns: { ...record(state?.cooldowns) }, startDay: Number.isInteger(state?.start) ? state.start : today,
         draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings, ...(paced ? [] : [`Tempo ${tempo} is outside 0.25-4; tempo 1 is used.`])], log: [], journal: [], tomb: new Set(), day: today,
+        withYou: new Set(list(withYou)), pos: structuredClone(record(positions)), moves: [], released: [], deaths: [],
     };
     ws.standings = standingsOf(world, state?.standings, ws.standingNames);
     // `power:<ref>` / `score:<ref>` in a weight or an effect → the standings key (an id, or a name that is unique).
@@ -89,6 +94,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
         ws.tomb = tombOf(day);
         fadeConditions(ws, day * DAY);
         releaseDisplaced(ws, null, day * DAY);
+        applyDeferred(ws, day);
         eventsDay(ws, defs.events, day);
         templatesDay(ws, defs.templates, day);
     }
@@ -99,6 +105,9 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     };
     return {
         daily, conditions: ws.table,
-        report: { from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)], tomb: [...ws.tomb].sort() },
+        report: {
+            from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)], tomb: [...ws.tomb].sort(),
+            moves: ws.moves, released: ws.released, deaths: ws.deaths,
+        },
     };
 }

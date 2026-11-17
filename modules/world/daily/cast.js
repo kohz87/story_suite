@@ -1,55 +1,98 @@
-// World events, the daily step: named people moved, changed or killed by code on the tick (spec v0.10 §8 Event moves,
-// Off-screen deaths and moves, Protected cast; §2 placeStatus evacuation). Only authored events touch named cast: a template
-// never does. A death of an unmet person with canDieUnmet false is skipped (a warning). A move writes a `displaced` record
-// { to, by, until, routine? } and, like a death, leaves a trace: an anchor (died:/departed:), a Journal fact and a local
-// rumour at the place they left. The step keeps this in its own state (`cast`); NPC State is not written here. Pure (on `ws`).
+// World events, the daily step: named people moved, changed or killed by code on the tick (spec v0.14.9 §8 Event moves, With You,
+// Latest base wins, from, Deaths, Off-screen deaths and moves, Protected cast). Only authored events touch named cast: a template
+// never does. A move writes a `displaced` record { to, by, until, routine?, since } and, like a death, leaves a trace: an anchor
+// (died:/departed:), a Journal fact and a local rumour at the place they left. Someone with You (party or scene) is not moved: the
+// move waits as a `deferred` record (cast-defer.js); a death of someone with You is refused unless the event says even_in_party,
+// then it is a `dying` cue for the narrator (never applied off-screen here). A skip by `from` (or by the latest base, ruling 38) goes
+// to the step's log (the Inspector), not the Journal. The step keeps this in its own state (`cast`) and reports the moves, releases
+// and deaths for the host to mirror into the cast store; NPC State is not written here. Pure (on `ws`).
 
 import { recordAnchor } from './anchors.js';
 import { resolveRef } from './geo.js';
-import { groupOf } from './geo-scope.js';
-import { masked } from './placement.js';
+import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
 import { entryActive } from './holds-read.js';
 
-const DAY = 1440;
+const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
-/** Where a person is now by the step's record: displaced place, else home (permanent moves), else the pack's start/home base. */
-export function placeOf(ws, id) {
-    const row = ws.cast[id] ?? {};
-    return row.displaced?.to ?? row.home ?? ws.people.get(id)?.home ?? null;
-}
-
-function trace(ws, id, kind, text, from, day, by) {
+/** The trace of a death or a move: the anchor, a Journal line and a rumour where they were. */
+export function trace(ws, id, kind, line, from, day, by) {
     recordAnchor(ws.anchors, `${kind}:${id}`, day);
-    ws.journal.push({ day, text, by });
-    if (from) ws.journal.push({ day, text: `Rumour in ${from}: ${text}`, by, rumour: true, place: from });
+    ws.journal.push({ day, text: line, by });
+    if (from) ws.journal.push({ day, text: `Rumour in ${from}: ${line}`, by, rumour: true, place: from });
 }
 
-/** Apply an authored event's `effects.cast` entries (source = { kind, id, title }). */
+/** Displace `id` to `to` for `by` (the record, the trace, the move for the host). `move`: { until, routine?, title }. */
+export function displace(ws, person, to, move, day, by) {
+    const row = { ...(ws.cast[person.id] ?? {}) };
+    const from = placeOf(ws, person.id);
+    row.displaced = { to, by, until: move.until, since: day, ...(move.routine ? { routine: move.routine } : {}) };
+    if (move.until === 'permanent') row.home = to;
+    delete row.deferred;
+    ws.cast[person.id] = row;
+    placeAt(ws, person.id, to);
+    ws.moves.push({ id: person.id, to, by, until: move.until, routine: move.routine || `staying at ${to} because ${move.title}`, day });
+    if (to !== from) trace(ws, person.id, 'departed', move.line ?? `${person.name} left ${from ?? 'home'} for ${to} (${move.title}).`, from, day, by);
+}
+
+// Whether a move may touch them by `from` (ruling 35/38): a place id → they are in its group now; "anywhere" → always; none → only
+// while their latest base is still their pack start group (nothing moved them since), or the move is the event's own (its on_end
+// bringing home someone it displaced).
+function fromAllows(ws, person, from, by) {
+    if (from === 'anywhere') return true;
+    if (from) return inGroup(ws, placeOf(ws, person.id), from);
+    const base = baseOf(ws, person.id);
+    if (base === null || (person.home && inGroup(ws, base, person.home))) return true;
+    return ws.cast[person.id]?.displaced?.by === by;
+}
+
+function skip(ws, person, source, day, why) {
+    ws.log.push({ kind: 'cast-skipped', key: person.id, by: source.id, day, why });
+}
+
+function die(ws, person, entry, source, day) {
+    const row = ws.cast[person.id] ?? {};
+    const from = text(entry.from);
+    if (ws.withYou.has(person.id)) {
+        if (source.evenInParty !== true) { ws.warnings.push(`The event "${source.id}" would kill ${person.id}, who is with You; refused (no even_in_party).`); return; }
+        if (from && from !== 'anywhere' && !inGroup(ws, placeOf(ws, person.id), from)) return skip(ws, person, source, day, `not in ${from}`);
+        ws.cast[person.id] = { ...row, dying: { by: source.id, text: `${person.name} dies here: ${source.summary || source.title}`, day, rev: ws.rev, replies: 0 } };
+        ws.log.push({ kind: 'dying', key: person.id, by: source.id, day });
+        return;
+    }
+    if (!ws.met.has(person.id) && person.canDieUnmet === false) {
+        ws.warnings.push(`The event "${source.id}" would kill ${person.id}, who cannot die before you meet them; skipped.`);
+        return;
+    }
+    if (from && from !== 'anywhere' && !inGroup(ws, placeOf(ws, person.id), from)) return skip(ws, person, source, day, `not in ${from}`);
+    const where = placeOf(ws, person.id);
+    ws.cast[person.id] = { ...row, died: day };
+    ws.deaths.push({ id: person.id, by: source.id, day });
+    trace(ws, person.id, 'died', `${person.name} died (${source.title}).`, where, day, source.id);
+}
+
+/** Apply an authored event's `effects.cast` entries (source = { kind, id, title, summary?, evenInParty? }). */
 export function applyCast(ws, entries, source, day) {
     if (source.kind !== 'event') { ws.warnings.push(`The template "${source.id}" names people; templates never touch named cast.`); return; }
     for (const entry of entries) {
         const person = ws.people.get(entry?.who);
         if (!person) { ws.warnings.push(`The event "${source.id}" names "${entry?.who}", who is not in this world's cast.`); continue; }
-        const row = { ...(ws.cast[person.id] ?? {}) };
-        if (row.died !== undefined) continue;
-        const from = placeOf(ws, person.id);
-        if (entry.died === true) {
-            if (!ws.met.has(person.id) && person.canDieUnmet === false) {
-                ws.warnings.push(`The event "${source.id}" would kill ${person.id}, who cannot die before you meet them; skipped.`);
-            } else {
-                row.died = day;
-                ws.cast[person.id] = row;
-                trace(ws, person.id, 'died', `${person.name} died (${source.title}).`, from, day, source.id);
+        if (ws.cast[person.id]?.died !== undefined || ws.cast[person.id]?.dying) continue;
+        if (entry.died === true) { die(ws, person, entry, source, day); continue; }
+        const location = text(entry.location);
+        const from = text(entry.from);
+        if (location) {
+            if (!fromAllows(ws, person, from, source.id)) { skip(ws, person, source, day, from ? `not in ${from}` : 'moved from their start since'); continue; }
+            const to = resolveRef(ws.geo, location)?.name ?? location;
+            const move = { until: text(entry.until) || 'end', routine: text(entry.routine), title: source.title };
+            if (ws.withYou.has(person.id)) {
+                // With You: not moved; the move waits until they part from You (cast-defer.js), `from` checked again then.
+                ws.cast[person.id] = { ...(ws.cast[person.id] ?? {}), deferred: { to, by: source.id, until: move.until, title: source.title, ...(move.routine ? { routine: move.routine } : {}), ...(from ? { from } : {}) } };
+                ws.journal.push({ day, text: `${person.name} stays with You — ${source.title}`, by: source.id, withYou: true });
                 continue;
             }
+            displace(ws, person, to, move, day, source.id);
         }
-        if (typeof entry.location === 'string' && entry.location.trim()) {
-            const to = resolveRef(ws.geo, entry.location)?.name ?? entry.location.trim();
-            const until = typeof entry.until === 'string' && entry.until.trim() ? entry.until.trim() : 'end';
-            row.displaced = { to, by: source.id, until, ...(typeof entry.routine === 'string' && entry.routine.trim() ? { routine: entry.routine.trim() } : {}) };
-            if (until === 'permanent') row.home = to;
-            if (to !== from) trace(ws, person.id, 'departed', `${person.name} left ${from ?? 'home'} for ${to} (${source.title}).`, from, day, source.id);
-        }
+        const row = { ...(ws.cast[person.id] ?? {}) };
         if (typeof entry.status === 'string') row.status = entry.status.slice(0, 200);
         if (typeof entry.goal === 'string') row.goal = entry.goal.slice(0, 200);
         if (Object.keys(row).length) ws.cast[person.id] = row;
@@ -66,32 +109,6 @@ export function releaseDisplaced(ws, eventId, minute) {
         if (!byEvent && !cleared) continue;
         const { displaced, ...rest } = ws.cast[id];
         ws.cast[id] = rest;
-    }
-}
-
-/**
- * A placeStatus condition was set on `ref` (a place): it covers the place and its districts (spec §2, B12), and everyone living in
- * that group moves to the nearest suitable place outside it (not class none, not under a placeStatus itself), else the nearest place
- * of any kind outside it; ties by place id. An authored event moves protected people too; a template does not (it is not placed
- * where a protected person lives, templates-day.js; here it is a warning and they stay).
- */
-export function evacuate(ws, ref, condition, source, day) {
-    const found = resolveRef(ws.geo, ref);
-    if (found?.kind !== 'place') return;
-    const here = found.place;
-    const group = new Set(groupOf(ws.geo, here.name));
-    const residents = [...ws.people.values()].filter(person => ws.cast[person.id]?.died === undefined && group.has(placeOf(ws, person.id)));
-    if (!residents.length) return;
-    const near = list => list.map(place => ({ place, d: (place.x - here.x) ** 2 + (place.y - here.y) ** 2 })).sort((a, b) => a.d - b.d || (a.place.id < b.place.id ? -1 : 1))[0]?.place;
-    const others = ws.geo.places.filter(place => !group.has(place.name));
-    const to = near(others.filter(place => place.klass !== 'none' && !masked(ws, place, day))) ?? near(others);
-    if (!to) return;
-    for (const person of residents) {
-        const from = placeOf(ws, person.id);
-        if (person.protected && source.kind !== 'event') { ws.warnings.push(`${person.id} is protected and stays at ${from} (a template cannot move them).`); continue; }
-        const row = { ...(ws.cast[person.id] ?? {}) };
-        row.displaced = { to: to.name, by: source.id, until: `cleared:${condition}@${here.name}` };
-        ws.cast[person.id] = row;
-        trace(ws, person.id, 'departed', `${person.name} fled ${from} for ${to.name} (${condition}).`, from, day, source.id);
+        ws.released.push({ id, by: displaced.by, to: displaced.to });
     }
 }

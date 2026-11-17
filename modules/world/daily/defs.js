@@ -86,6 +86,7 @@ export function readEvent(raw) {
             where, requires, requiresAny, window, chance, likelier: [...likelier, ...less], preEmptedBy: list(raw.pre_empted_by),
             outcomes: Array.isArray(raw.outcomes) ? raw.outcomes : [], effects: isRecord(raw.effects) ? raw.effects : {},
             ends, cooldown, summary: typeof raw.summary === 'string' ? raw.summary : id, title: typeof raw.title === 'string' ? raw.title : id,
+            evenInParty: raw.even_in_party === true,
             anchorMode: raw.anchor_mode === 'each' || raw.anchor_mode === 'first' ? raw.anchor_mode : kind === 'recurring' ? 'each' : 'first',
             group: certainty === 'set-in-motion' ? GROUP['set-in-motion'] : GROUP[kind],
         },

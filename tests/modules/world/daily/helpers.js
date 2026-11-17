@@ -49,9 +49,10 @@ export function drawWith({ hits = {}, values = {} } = {}) {
  * act like a world line between replies, `row(id)` / `held(key)` read the state. Every report is kept in `reports`.
  */
 export function runner(w, { start = 1, draw = drawWith(), tempo = 1, met = [], seed = 'test' } = {}) {
-    const self = { state: null, table: {}, reports: [], warnings: [] };
+    // `withYou` (cast ids) and `positions` ({ id: { at, base } }) are what the host reads at the tick; a test sets them between steps.
+    const self = { state: null, table: {}, reports: [], warnings: [], withYou: [], positions: null };
     const step = today => {
-        const out = runDays({ state: self.state, table: self.table, world: w, today, seed, tempo, met, draw });
+        const out = runDays({ state: self.state, table: self.table, world: w, today, seed, tempo, met, draw, withYou: self.withYou, positions: self.positions });
         if (!out) return;
         self.state = out.daily;
         self.table = out.conditions;

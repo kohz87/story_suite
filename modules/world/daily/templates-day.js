@@ -10,7 +10,7 @@ import { applyEffects } from './effects.js';
 import { scaleDays, seasonDays } from './durations.js';
 import { bindOf, placesFor, weightedPick } from './placement.js';
 import { requiresHold } from './requires.js';
-import { placeOf } from './cast.js';
+import { placeOf } from './cast-where.js';
 import { groupOf } from './geo-scope.js';
 
 export const DENSITY = Object.freeze({ perRegion: 2, days: 7 });

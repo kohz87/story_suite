@@ -2,7 +2,7 @@
 // ends (on_end applied, its holds and displacements released). Lapsed or Replaced events end too, without on_end. Pure (on `ws`).
 
 import { recordAnchor } from './anchors.js';
-import { applyEffects } from './effects.js';
+import { applyEffects, runEvacuations } from './effects.js';
 import { releaseHolds } from './holds.js';
 import { releaseDisplaced } from './cast.js';
 
@@ -41,11 +41,14 @@ export function fireEvent(ws, def, day, bind, realms) {
     if (outcome) row.outcome = outcome.name; else delete row.outcome;
     if (bind?.place) { row.bind = bind; row.places = { ...(row.places ?? {}), [bind.place]: day }; } else delete row.bind;
     recordAnchor(ws.anchors, `fired:${def.id}`, day);
-    const source = { kind: 'event', id: def.id, title: def.title, held: true };
-    const { on_end: _end, ...main } = def.effects ?? {};
-    applyEffects(ws, main, source, day, bind);
-    if (outcome?.effects) { const { on_end: _o, ...rest } = outcome.effects; applyEffects(ws, rest, source, day, bind); }
     const summary = fill(outcome?.summary ? `${fill(def.summary, outcome, bind)} ${outcome.summary}` : def.summary, outcome, bind);
+    const source = { kind: 'event', id: def.id, title: def.title, held: true, summary, evenInParty: def.evenInParty === true };
+    const { on_end: _end, ...main } = def.effects ?? {};
+    // Named moves of both blocks apply before the event's evacuations (ruling 39: someone a named move placed is exempt).
+    const evac = [];
+    applyEffects(ws, main, source, day, bind, evac);
+    if (outcome?.effects) { const { on_end: _o, ...rest } = outcome.effects; applyEffects(ws, rest, source, day, bind, evac); }
+    runEvacuations(ws, evac);
     // `where` and `title` let the host write the happening as news from where it happened (world-daily/news-entries.js).
     ws.journal.push({ day, text: summary, by: def.id, fired: true, reach: def.reach, title: def.title, where: def.where?.refs ?? [], ...(bind?.place ? { place: bind.place } : {}) });
     if (def.ends?.instant) endEvent(ws, def, day);
@@ -57,9 +60,11 @@ export function endEvent(ws, def, day) {
     const bind = row.bind ?? {};
     const outcome = (def.outcomes ?? []).find(each => each.name === row.outcome);
     recordAnchor(ws.anchors, `ended:${def.id}`, day);
-    const source = { kind: 'event', id: def.id, title: def.title, held: false };
-    applyEffects(ws, def.effects?.on_end, source, day, bind);
-    applyEffects(ws, outcome?.effects?.on_end, source, day, bind);
+    const source = { kind: 'event', id: def.id, title: def.title, held: false, summary: fill(def.summary, outcome, bind), evenInParty: def.evenInParty === true };
+    const evac = [];
+    applyEffects(ws, def.effects?.on_end, source, day, bind, evac);
+    applyEffects(ws, outcome?.effects?.on_end, source, day, bind, evac);
+    runEvacuations(ws, evac);
     releaseHolds(ws, def.id, day * DAY);
     releaseDisplaced(ws, def.id, day * DAY);
     Object.assign(row, { state: def.kind === 'recurring' ? 'dormant' : 'ended', ended: day });
