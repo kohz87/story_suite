@@ -65,6 +65,9 @@ test('tests 109-110 (host): even_in_party → the must-happen line in the world 
         await host.send('End.', said('Silence.'));
         assert.equal(daily(host).cast.lothar.died, daily(host).day, 'the third reply without the death: code applies it');
         assert.deepEqual(daily(host).anchors['died:lothar'], [daily(host).day]);
+        // Final review L6 (seam F5): the cue command marks its deaths `cue: true`, so a met person's must-happen death reaches the cast store.
+        assert.ok(lothar(host).met, 'Lothar has been met');
+        assert.deepEqual([lothar(host).alive, lothar(host).doing], [false, ''], 'the cast store has him dead');
         const cue = host.sdk.receipts().filter(item => item.receipt.type === 'chronicle.world.cue').at(-1);
         assert.match(cue.receipt.summary, /Lothar died: the story did not show it within 3 replies/, 'the Journal line on the card');
         assert.ok(host.turn.problems().some(item => /Lothar died off-screen/.test(item.message)), 'and a Problems note');

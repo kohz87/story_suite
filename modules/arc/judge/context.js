@@ -1,6 +1,6 @@
 // Story Director v2, part **arc**: what the Director judge is told about the world (switch story-director.world-events): the Active events, the events still to
 // come, the conditions in the party's realm, the protected cast, hidden lore by title only, the secrets not yet learned (the same list the planner's brief carries, told to the judge as never-reveal) and the lore digest (titles, then the entries whose keys match the
-// place). Hidden lore's text is never sent, whatever the digest holds. Pure on the brief (`chronicle.world.brief`) and the query handed in.
+// place). Hidden lore's text is never sent, whatever the digest holds; the secrets' texts are, so code keeps them out of the judge's NOTE, reasons and corrected lines (scrub.js). Pure on the brief (`chronicle.world.brief`) and the query handed in.
 
 const MAX_TITLES_CHARS = 4400;
 const MAX_ENTRIES_CHARS = 2400;

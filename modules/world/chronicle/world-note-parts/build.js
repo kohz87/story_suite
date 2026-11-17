@@ -57,8 +57,11 @@ function heardLines(view, place, now) {
     const heard = ask(view, 'world.heardHere', { place, now });
     // When it was heard here: a fact when its news came (its end's, once heard); a rumour when it was written (its courier is still to come).
     const at = entry => (isRumour(entry) ? entry.updated ?? entry.since : entry.news === 'ended' ? entry.endsAt : entry.arrivesAt) ?? entry.updated ?? 0;
-    return (Array.isArray(heard) ? heard : [])
-        .filter(entry => entry && typeof entry.name === 'string')
+    const list = (Array.isArray(heard) ? heard : []).filter(entry => entry && typeof entry.name === 'string');
+    // A rumour about a happening already heard here as fact says nothing new (final review L4): it is left out, so one happening never takes both slots.
+    const facts = new Set(list.filter(entry => !isRumour(entry)).map(entry => entry.name.trim().toLowerCase()));
+    return list
+        .filter(entry => !(isRumour(entry) && typeof entry.rumour === 'string' && entry.rumour.trim().toLowerCase() !== entry.name.trim().toLowerCase() && facts.has(entry.rumour.trim().toLowerCase())))
         .sort((a, b) => at(b) - at(a) || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
         .slice(0, MAX_NEWS)
         .map(entry => `${entry.name}${isRumour(entry) ? ' (rumour)' : ''}${entry.summary ? ` — ${clip(entry.summary, MAX_PART - entry.name.length - (isRumour(entry) ? 9 : 0))}` : ''}`);

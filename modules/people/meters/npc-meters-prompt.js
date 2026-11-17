@@ -43,6 +43,10 @@ export function createNpcPrompt({
     const HIDDEN_ONCE = 'Lines marked (hidden) are secrets: never state or reveal them; let them shape how that person acts.';
     // A pack secret whose gate is open (world-events switch): the story may now bring it out. A closed one sends nothing at all.
     const READY_ONCE = 'Lines marked (may come out) are secrets the story has now earned: you may let one come out in this reply, once, only if it fits the scene; never force it.';
+    // At most one such line a person (the first open one in the pack's own order; the next shows once it has come out) and two in all
+    // (people in key order), so open gates never crowd out the other people's notes and the narrator is not offered a pile of reveals.
+    const READY_PER_NPC = 1;
+    const READY_IN_ALL = 2;
     // One short cue, with the notes feature on (whoever is in the scene): the block is written, just before <Blocks>, even when <Blocks> is empty.
     // Sent as a kept line ({ text, keep: true }): the host's tail budget (the run used 550 tokens) drops this module's optional lines first,
     // and its section is last, so as an optional line the cue never reached a prompt. The host counts kept lines in tail order against one
@@ -135,6 +139,7 @@ export function createNpcPrompt({
             const given = call(hooks.secretTexts, [], record.name, rules.map(rule => rule.id));
             const textOf = new Map((Array.isArray(given) ? given : []).map(item => [item?.id, clean(item?.text, SECRET_TEXT_MAX)]));
             let known = 0;
+            let readyHere = 0;
             const gateIn = rules.some(rule => rule.gate && !opened.has(rule.id)) ? call(hooks.gateInputs, {}, record.name) : {};
             for (const rule of rules) {
                 const text = textOf.get(rule.id);
@@ -142,7 +147,10 @@ export function createNpcPrompt({
                 if (opened.has(rule.id)) {
                     if (known < TAIL_SECRETS_PER_NPC) { notes.push(`${record.name}, ${KNOWN}: ${text}`); known += 1; }
                 } else if (rule.gate) {
-                    if (gateOpen(rule, record, byId, gateIn)) ready.push(`${record.name} (may come out): ${text}`);
+                    if (readyHere < READY_PER_NPC && ready.length < READY_IN_ALL && gateOpen(rule, record, byId, gateIn)) {
+                        ready.push(`${record.name} (may come out): ${text}`);
+                        readyHere += 1;
+                    }
                 } else {
                     hidden.push({ distance: openingDistance(rule, record, byId), order: order += 1, short: `${record.name} (hidden): ${text}` });
                 }

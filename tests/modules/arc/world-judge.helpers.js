@@ -30,8 +30,14 @@ const SPEC = {
 export const NOTE = 'NOTE: The succession is undecided; the March is uneasy and the crown passes by the lords\' vote.';
 export const ACCEPT_ALL = `1: accept\n2: accept\n3: accept\n${NOTE}`;
 
-/** `judge`: the judge's scripted answers (string, Error, { hang }, function); `plans`: the planner's. → { host, arc, store, judged (the judge's calls), planned, setChat, done }. */
-export async function setUp(on, { judge = [ACCEPT_ALL], plans = [PLAN], lore = true } = {}) {
+// The host's sdk with `extra` laid over the world brief (the controller's query), e.g. the unlearned secrets NPC State would give it.
+const withBrief = (sdk, extra) => Object.create(sdk, { query: { value: (name, args) => {
+    const out = sdk.query(name, args);
+    return name === 'chronicle.world.brief' && out ? { ...out, ...extra } : out;
+} } });
+
+/** `judge`: the judge's scripted answers (string, Error, { hang }, function); `plans`: the planner's; `brief`: laid over the world brief. → { host, arc, store, judged (the judge's calls), planned, setChat, done }. */
+export async function setUp(on, { judge = [ACCEPT_ALL], plans = [PLAN], lore = true, brief = null } = {}) {
     const undo = overrideWorld(world => ({ ...world, ...SPEC }));
     const judgeModel = createFakeModel(judge, { fallback: ACCEPT_ALL });
     const planModel = createFakeModel(plans, { fallback: PLAN });
@@ -44,6 +50,6 @@ export async function setUp(on, { judge = [ACCEPT_ALL], plans = [PLAN], lore = t
     const store = browserStore(null);
     let chatId = 'chat-1';
     const reveal = createReveal({ store, chatId: () => chatId, settings: () => host.sdk.settings('story-director') });
-    const arc = createArcController({ sdk: () => host.sdk, chat: () => host.ctx.chat, chatId: () => chatId, store, reveal, notify: () => {} });
+    const arc = createArcController({ sdk: () => (brief ? withBrief(host.sdk, brief) : host.sdk), chat: () => host.ctx.chat, chatId: () => chatId, store, reveal, notify: () => {} });
     return { host, arc, store, judged: judgeModel.calls, planned: planModel.calls, setChat: id => { chatId = id; }, done: () => { host.close(); undo(); } };
 }

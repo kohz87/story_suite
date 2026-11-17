@@ -7,6 +7,7 @@ import { applyJudge } from './apply.js';
 import { judgeContext } from './context.js';
 import { JUDGE_SYSTEM, judgePrompt } from './prompt.js';
 import { readJudge } from './read.js';
+import { scrubJudge } from './scrub.js';
 import { itemLine } from '../plan/read.js';
 
 export const JUDGE_FEATURE = 'story-director.world-events';
@@ -32,7 +33,8 @@ export async function judgePlan({ api, read, brief, ask, place = '', options = {
     let out = null;
     try { out = await api.callModel(request); } catch { out = null; }
     if (!out?.ok && NOT_A_CALL.has(out?.error)) return none;
-    const answer = out?.ok ? readJudge(out.text) : null;
+    // The secrets are kept out of the NOTE, the reasons and the reshaped lines before anything is applied or stored (scrub.js, final review H1).
+    const answer = out?.ok ? scrubJudge(readJudge(out.text), brief.secrets) : null;
     if (!answer) return { ...none, judge: { calls: 1, accept: 0, reshape: 0, refuse: 0, fell: true } };
     const applied = applyJudge(read, answer, brief.guard, options);
     return { read: applied.read, refused: applied.refused, judge: { calls: 1, ...applied.tally, fell: false }, world: answer.note };

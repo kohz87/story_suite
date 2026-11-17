@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { openAsker, scopeOf } from '../../../../modules/world/chronicle/world-daily/open-ask.js';
-import { ledgerOpen, open, openHost, reply, settle, slotRows, WORLD } from './open-host.helpers.js';
+import { dailyOf, ledgerOpen, open, openHost, reply, settle, slotRows, WORLD } from './open-host.helpers.js';
 
 const begin = host => host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
 const step = async (host, text, line) => { await host.send(text, reply(text, [line])); await settle(); };
@@ -51,4 +51,21 @@ test('a transient failure on the retry keeps the first call\'s accepted answer a
     assert.deepEqual(slotRows(host).map(row => row.outcome).sort(), ['ok', 'ok']);
     assert.equal(ledgerOpen(host).calls, 2);
     host.done();
+});
+
+test('final review L6 (seam F1): beforeGenerate hands the drain the keys the look-ahead wants, so an answer for a slot no longer coming is never stored', async () => {
+    const host = await openHost();
+    const real = openAsker.drain.bind(openAsker);
+    const wanted = [];
+    openAsker.drain = (scope, stored, keys) => { wanted.push(keys); return real(scope, stored, keys); };
+    try {
+        await begin(host);
+        await settle();
+        await step(host, 'Hours pass.', '! time +1h');
+        const key = dailyOf(host).pending[0].key;
+        assert.ok(wanted.length >= 1);
+        for (const keys of wanted) assert.deepEqual(keys instanceof Set ? [...keys] : keys, [key], 'the drain gets the wanted set: the waiting slot only');
+        await step(host, 'More hours.', '! time +1h');
+        assert.deepEqual(Object.keys(ledgerOpen(host).results), [key], 'stored before the next reply');
+    } finally { openAsker.drain = real; host.done(); }
 });

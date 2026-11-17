@@ -133,3 +133,13 @@ test('a rumour is placed by when it was written, not by its courier still to com
     const out = texts(worldNote(world({ heard, conditions: [] }).view));
     assert.equal(out[1], 'News that has reached here: Near Fact — The bridge is mended; Far Rumour (rumour) — Smoke in the north.');
 });
+
+test('final review L4: a rumour about a happening already heard here as fact is left out, so it never takes the second news slot; one whose fact is not heard stays', () => {
+    const riots = { name: 'Bread Riots', summary: 'Crowds fill the square.', arrivesAt: 400, tag: 'fact' };
+    const rumour = { name: 'Rumour of Bread Riots', summary: 'Crowds fill the square.', updated: 500, rumour: 'Bread Riots', tag: 'rumour' };
+    const plague = { name: 'Red Plague', summary: 'It spreads east.', arrivesAt: 200, tag: 'fact' };
+    const both = texts(worldNote(world({ heard: [rumour, riots, plague], conditions: [] }).view));
+    assert.equal(both[1], 'News that has reached here: Bread Riots — Crowds fill the square; Red Plague — It spreads east.');
+    const alone = texts(worldNote(world({ heard: [rumour, plague], conditions: [] }).view));
+    assert.equal(alone[1], 'News that has reached here: Rumour of Bread Riots (rumour) — Crowds fill the square; Red Plague — It spreads east.');
+});

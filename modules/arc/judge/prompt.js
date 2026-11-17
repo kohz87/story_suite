@@ -9,8 +9,10 @@ export const JUDGE_SYSTEM = [
     '<n>: accept',
     '<n>: reshape: <the corrected line, as given>',
     '<n>: refuse: event "<the exact event title>"   (the item decides how that Active event ends)',
+    '<n>: refuse: secret   (the item reveals or hints at hidden lore or a secret not yet learned; never say which)',
     '<n>: refuse: <the reason, under 20 words>   (any other refusal)',
     'Then one last line: NOTE: <at most 60 words tying the accepted plan to the world: the standing conditions and the facts the story must not contradict>.',
+    'The NOTE, the reasons and the corrected lines never name, quote or hint at hidden lore or a secret not yet learned.',
 ].join('\n');
 
 /** The judge's prompt: the arc, the items as numbered lines, then the world (`world`: context.js's text). */

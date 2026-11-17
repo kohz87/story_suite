@@ -3,7 +3,8 @@
 // Active → does it end; pre-empted → Replaced; the window (lapse at the first tick after its last
 // day); requirements (Eligible ↔ Dormant); then today's chance, the seeded roll and the caps. Pure (on `ws`).
 
-import { anchorHolds } from './anchors.js';
+import { anchorDay, anchorHolds, occurrences } from './anchors.js';
+import { anchorString } from './grammar.js';
 import { capBlock, eventRealms, takeSlots } from './caps.js';
 import { dailyChance, rollChance } from './chance.js';
 import { closeEvent, endEvent, fireEvent } from './fire.js';
@@ -16,12 +17,24 @@ import { isThreshold, thresholdHolds } from './threshold.js';
 
 const FINISHED = new Set(['ended', 'lapsed', 'replaced']);
 
+/**
+ * Whether an anchor happened after the event fired (on a day in (fired, day], its scaled offset included): a recurring anchor ends the event when it
+ * happens again (final review L2), not only one that was never true before. A season: in that season today, in a stretch that began after the firing.
+ */
+function happenedSince(ws, text, fired, day) {
+    const anchor = anchorString(text);
+    if (!anchor) return false;
+    if (anchor.kind === 'season') return anchorHolds(ws, anchor, day) && anchorDay(ws, anchor) > fired;
+    const offset = anchor.offset ? scaleDays(anchor.offset, ws.tempo) : 0;
+    return occurrences(ws, anchor).some(at => at + offset > fired && at + offset <= day);
+}
+
 function endsToday(ws, def, row, day) {
     if (day <= row.fired) return false;
     if (Number.isFinite(def.ends.for) && day >= row.fired + scaleDays(def.ends.for, ws.tempo)) return true;
     // A threshold in any_of ends the event on the first day it holds (a later fall-back does not un-end it: the event is over). An anchor
-    // ends it when it BECOMES true after the event fired (spec §3): one already true on the firing day does not end it the next day.
-    return def.ends.anyOf.some(text => (isThreshold(text) ? thresholdHolds(ws, text) : anchorHolds(ws, text, day) && !anchorHolds(ws, text, row.fired)));
+    // ends it when it happens after the event fired (spec §3): one already true on the firing day does not end it the next day, but its next occurrence does.
+    return def.ends.anyOf.some(text => (isThreshold(text) ? thresholdHolds(ws, text) : happenedSince(ws, text, row.fired, day)));
 }
 
 /** Roll and, on a hit, fire when the caps allow (set-in-motion fires over them). */

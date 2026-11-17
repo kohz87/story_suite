@@ -81,3 +81,16 @@ test('test 120: a named move without from for someone whose start is not where t
         ['at the start place', content => { where(content, 'coronation', ['highmark-capital']); event(content, 'coronation').effects.cast = [away[1]]; }],
     ]) assert.doesNotMatch(warningsOf(variant(edit)), /has no from/, label);
 });
+
+test('final review L3: a major with a kinds where and no region or realm warns (the pack loads); with a realm or region, or minor, none', () => {
+    const kinds = (extra = {}, severity = 'major') => variant(content => { const crisis = event(content, 'succession-crisis'); crisis.severity = severity; crisis.where = { kinds: ['town'], ...extra }; });
+    const warned = kinds();
+    assert.equal(warned.ok, true, errorsOf(warned));
+    assert.match(warningsOf(warned), /succession-crisis\.where: a major event with a kinds "where" and no region or realm counts against the major-event caps of every realm that has such a place/);
+    const realm = sample.content.realms[0].id;
+    for (const [label, result] of [['realm', kinds({ realm })], ['minor', kinds({}, 'minor')]]) {
+        assert.equal(result.ok, true, `${label}: ${errorsOf(result)}`);
+        assert.doesNotMatch(warningsOf(result), /kinds "where" and no region or realm/, label);
+    }
+    assert.doesNotMatch(warningsOf(variant()), /kinds "where" and no region or realm/, 'the sample as it is');
+});
