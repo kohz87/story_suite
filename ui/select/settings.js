@@ -3,6 +3,7 @@
 import { selectConnections } from './connections.js';
 import { selectCalls } from './calls.js';
 import { selectProblems, selectSent } from './tools.js';
+import { worldRows } from './settings-world.js';
 
 const LOOK = ['panelStyle', 'glassStrength', 'font', 'textSize', 'sendPending'];
 const BUDGETS = ['tailBudget', 'contextShare', 'maxChangeLines'];   // callQueue is in the Models page's Calls group
@@ -77,7 +78,7 @@ function moduleParts(features) {
 
 /**
  * `answers`: { host: settings() (SB sdk/settings.js:74, stored over defaults), defaults: HOST_SETTINGS_DEFAULTS (sdk/constants.js:10),
- * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), subtitle?, tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
+ * schema: HOST_SETTINGS_SCHEMA (:11), features: feature store list() (SB features.js:303), profiles?: listProfiles() (the Models page's dropdowns), subtitle?, director?: settings('story-director') (the World page's values), tools?: { sent: the handle's sent(), problems, blocked, nameOf } }.
  * → the settings view-model (contract/settings.js), or null when neither host settings nor a feature list was read.
  * Gaps (packs, presets, per-chat module sets) are empty or null.
  */
@@ -96,6 +97,7 @@ export function selectSettings(answers) {
   const sections = [
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
+    section('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', worldRows(a.director, hasFeatures ? a.features : [])),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];

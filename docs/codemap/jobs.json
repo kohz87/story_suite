@@ -343,5 +343,9 @@
   "ui/theme/apply.js": "Writes a token set on the suite root and refuses values that are not colour, length or font.",
   "ui/theme/follow-st.js": "Maps SillyTavern's theme variables to tokens and decides light or dark.",
   "ui/theme/sky.js": "Time-of-day backdrop gradient (pack art replaces it).",
-  "ui/theme/tokens.js": "Token names and the Glass dark and light values."
+  "ui/theme/tokens.js": "Token names and the Glass dark and light values.",
+  "ui/port/world-keys.js": "Translates the World and time page's row keys and shown words to Story Director's namespaced settings and the weather feature, and back.",
+  "ui/port/world-settings.js": "The port's World and time writes: a `world.*` settings.set stores the setting the old page stores.",
+  "ui/select/settings-world.js": "Builds the World and time page's rows from Story Director's stored settings and the feature list.",
+  "tests/ui/settings/world-live.test.js": "Tests the World and time page on a live host: values read, writes match the old page's keys, bad values refused."
 }
