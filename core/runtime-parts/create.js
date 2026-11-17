@@ -14,6 +14,7 @@ import { createRegistry } from '../registry.js';
 import { MAX_CHANGE_LINES, announceModules, createEvents, createSdk, createSettings, runQuery } from '../sdk.js';
 import { HOST_SETTINGS_DEFAULTS } from '../sdk/constants.js';
 import { loadSettings } from '../settings/load.js';
+import { createCardNotes } from '../settings/card-notes.js';
 import { displayLines } from '../../ui/legacy/extras.js';
 import { DEFAULT_HIDDEN } from '../../ui/legacy/view/screens.js';
 import { SCENE_SCREEN_ID } from '../../ui/legacy/screens/scene.js';
@@ -314,6 +315,7 @@ export function createRuntime({
     };
     const setGuardRefresh = fn => { guardRefresh = typeof fn === 'function' ? fn : null; };
     /** `writes`: the reader's own stores for the Story Suite view (the public sdk reads settings and has no setter). */
-    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value) }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
+    const notes = createCardNotes({ root: () => ctx.extensionSettings, save: () => ctx.saveSettingsDebounced?.() });
+    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value), keep: notes.keep, kept: notes.kept }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
     return { writes, registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
 }
