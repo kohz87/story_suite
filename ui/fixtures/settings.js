@@ -48,7 +48,7 @@ function buildModuleSet(rpg) {
 
 const CONNECTIONS = [
   { id: 'story', name: 'Story', desc: 'Follows the chat’s connection; change it in SillyTavern', choice: 'The chat’s own', readOnly: true, testSeconds: 2.4, usedFor: ['narration', 'change lines', 'pulse ideas (inside the reply)'] },
-  { id: 'quick', name: 'Quick helpers', desc: 'Short calls the reply waits for: keep this fast', choice: 'Fast helper', readOnly: false, testSeconds: 1.1, usedFor: ['checks rolled before the reply (up to 20 s)', 'fight set-up from your attack (up to 20 s)', 'cast moves (waits up to 15 s)', 'the fight pre-check (up to 20 s)'] },
+  { id: 'quick', name: 'Quick helpers', desc: 'Short calls the reply waits for: keep this fast', choice: 'Fast helper', readOnly: false, testSeconds: 1.1, usedFor: ['checks rolled before the reply (up to 20 s)', 'fight set-up from your attack: the pre-check (up to 20 s)', 'cast moves (waits up to 15 s)'] },
   { id: 'background', name: 'Background', desc: 'Calls nobody waits on; they run behind the others', choice: 'Background helper', readOnly: false, testSeconds: 3.0, usedFor: ['new-person fill-in (with hidden notes)', 'Refresh', 'the fallback call', 'arc plans (never started while a reply is sent)'] },
 ];
 

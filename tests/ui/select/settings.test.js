@@ -111,9 +111,11 @@ describe('selectSettings', () => {
     assert.ok(!quick.usedFor.some(u => /fallback/.test(u)));
   });
 
-  it('Models: the Quick card names the fight pre-check, not the safety net (that call runs on Background)', () => {
+  it('Models: the Quick card names the pre-check once (as the fight set-up), not the safety net (that call runs on Background)', () => {
     const [, quick, background] = selectSettings(answers({})).connections;
-    assert.ok(quick.usedFor.some(u => /fight pre-check/.test(u)));
+    assert.equal(quick.usedFor.filter(u => /pre-check/.test(u)).length, 1);
+    assert.ok(quick.usedFor.some(u => /fight set-up from your attack: the pre-check/.test(u)));
+    assert.equal(quick.usedFor.length, 3);
     assert.ok(!quick.usedFor.some(u => /safety net/.test(u)));
     assert.ok(!background.usedFor.some(u => /pre-check/.test(u)));
   });
