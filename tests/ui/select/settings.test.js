@@ -111,11 +111,11 @@ describe('selectSettings', () => {
     assert.ok(!quick.usedFor.some(u => /fallback/.test(u)));
   });
 
-  it('Models: the Quick card names the safety net and the fight pre-check', () => {
+  it('Models: the Quick card names the fight pre-check, not the safety net (that call runs on Background)', () => {
     const [, quick, background] = selectSettings(answers({})).connections;
-    assert.ok(quick.usedFor.some(u => /Assist safety net/.test(u)));
     assert.ok(quick.usedFor.some(u => /fight pre-check/.test(u)));
-    assert.ok(!background.usedFor.some(u => /safety net|pre-check/.test(u)));
+    assert.ok(!quick.usedFor.some(u => /safety net/.test(u)));
+    assert.ok(!background.usedFor.some(u => /pre-check/.test(u)));
   });
 
   it('Models without a profile list: Same as chat only, with the plain note', () => {

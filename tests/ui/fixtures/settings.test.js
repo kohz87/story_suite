@@ -56,7 +56,7 @@ describe('buildSettings', () => {
   it('three connections: Story read-only, Quick helpers and Background pick one', () => {
     const { connections } = buildSettings();
     assert.deepEqual(connections.map(c => [c.id, c.readOnly]), [['story', true], ['quick', false], ['background', false]]);
-    assert.equal(connections[1].usedFor.length, 5);
+    assert.equal(connections[1].usedFor.length, 4);
     assert.equal(connections[2].usedFor.length, 4);
   });
 
@@ -67,7 +67,7 @@ describe('buildSettings', () => {
     a.connections[1].usedFor.push('x');
     a.modules.chat.rpg.subs.fightBoard = false;
     const b = buildSettings();
-    assert.equal(b.connections[1].usedFor.length, 5);
+    assert.equal(b.connections[1].usedFor.length, 4);
     assert.equal(b.modules.chat.rpg.subs.fightBoard, true);
   });
 });
