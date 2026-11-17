@@ -3,7 +3,7 @@
 // A timeout, an error, an unreadable answer or no group gives nothing: the send goes on as it does without the pre-check.
 import { withTimeout } from '../../assist/common.js';
 import { PRECHECK_LIMIT_MS, PRECHECK_SETTING } from '../names.js';
-import { knownLines, rankScale } from './precheck-known.js';
+import { bestiaryOf, knownLines, rankScale } from './precheck-known.js';
 import { statedLevel } from './stated-level.js';
 import { looksLikeAttack, parsePrecheck, precheckPrompt, vetGroups } from './precheck.js';
 
@@ -23,6 +23,6 @@ export async function runPrecheck({ callModel, message, previous = '', sheet, va
         const v1 = sheet.characters.some(character => character.v1 === true);
         const prompt = precheckPrompt({ message, previous, sheet, ranks: rankScale(query), known: knownLines(query, message, previous), v1 });
         const answer = await withTimeout(() => callModel(prompt, { maxTokens: ANSWER_TOKENS, role: 'quick', helper: 'precheck', timeoutMs: limit }), limit, timer);
-        return vetGroups(parsePrecheck(answer), { message, previous, sheet, stated: name => statedLevel(query, name), v1 });
+        return vetGroups(parsePrecheck(answer), { message, previous, sheet, stated: name => statedLevel(query, name), bestiary: bestiaryOf(query), v1 });
     } catch { return []; }
 }

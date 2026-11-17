@@ -1,23 +1,8 @@
-// Checking the character-creation choices and the start section.
+// Checking the start section.
 
-import { CHOICE_FIELDS, RECORD_LIMITS, LIMITS, START_FIELDS } from '../../limits.js';
-import { oneLine, foldKey } from '../../../core/text.js';
+import { LIMITS, RECORD_LIMITS, START_FIELDS } from '../../limits.js';
+import { oneLine } from '../../../core/text.js';
 import { isObject, isInt } from '../core.js';
-
-// A race or talent for the character creation wizard: { id?, name, note?, stats?, tags? }.
-export function checkChoice(record, path, label, add) {
-    let ok = true;
-    const say = (field, message, code = 'BAD_RECORD') => { ok = false; add(code, `${path}.${field}`, `${label}: ${message}`); };
-    for (const key of Object.keys(record)) if (!CHOICE_FIELDS.includes(key)) say(key, `"${key}" is not a field here (expected ${CHOICE_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
-    const note = record.note ?? '';
-    if (typeof note !== 'string' || note.length > RECORD_LIMITS.note) say('note', 'note must be text of at most 500 characters.');
-    const stats = record.stats ?? {};
-    if (!isObject(stats) || Object.values(stats).some(n => !Number.isInteger(n))) say('stats', 'stats must map names to whole numbers: { "STR": 1 }.');
-    const tags = record.tags ?? [];
-    if (!Array.isArray(tags) || tags.some(tag => typeof tag !== 'string' || !tag.trim() || tag.length > RECORD_LIMITS.word)) say('tags', 'tags must be a list of short words.');
-    if (!ok) return null;
-    return { name: oneLine(record.name, LIMITS.name), note, stats: { ...stats }, tags: tags.map(tag => tag.trim()) };
-}
 
 export function checkStart(start, add, ref) {
     if (!isObject(start)) {
@@ -67,17 +52,4 @@ export function checkStart(start, add, ref) {
         else out.inventory.money = money;
     }
     return out;
-}
-
-// How a preset names a race, talent or skill of this pack: its id or slug, its name, or its
-// full id (`pack.<id>/<slug>`). Returns the full id or null.
-export function choiceRefs(list) {
-    const byKey = new Map();
-    for (const record of list) {
-        for (const key of [record.id, record.slug, foldKey(record.name)]) if (!byKey.has(key)) byKey.set(key, record.id);
-    }
-    return value => {
-        if (typeof value !== 'string' || !value.trim()) return null;
-        return byKey.get(value) ?? byKey.get(foldKey(value)) ?? null;
-    };
 }

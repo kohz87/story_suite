@@ -6,6 +6,9 @@ import { isRecord } from './shared-helpers.js';
 
 const W = RPG_STRINGS.wizard;
 
+// A pack's `uses` is sp or mp; the wizard still reads stamina and mana.
+const poolWords = skill => (skill?.uses === 'sp' ? { ...skill, uses: 'stamina' } : skill?.uses === 'mp' ? { ...skill, uses: 'mana' } : skill);
+
 /**
  * The skill sets on offer: the built-in ones, then each pack's (`packSets` = the `packs.content` records of kind rpg, each with
  * its pack id; `packNames` maps a pack id to its name). → [{ id, name, about, skills, source: 'Built in' | 'From the X pack', builtIn }]
@@ -13,7 +16,7 @@ const W = RPG_STRINGS.wizard;
 export function skillSetsOf({ packSets = [], packNames = {} } = {}) {
     const built = SKILL_SETS.map(set => ({ ...set, builtIn: true, source: W.builtIn }));
     const fromPacks = (Array.isArray(packSets) ? packSets : []).filter(set => isRecord(set) && Array.isArray(set.skills) && typeof set.name === 'string')
-        .map(set => ({ id: String(set.id ?? `${set.pack}/${set.slug}`), name: set.name, about: typeof set.about === 'string' ? set.about : '', skills: set.skills, builtIn: false,
+        .map(set => ({ id: String(set.id ?? `${set.pack}/${set.slug}`), name: set.name, about: typeof set.about === 'string' ? set.about : '', skills: set.skills.map(poolWords), builtIn: false,
             source: fill(W.fromPack, { pack: packNames[set.pack] || set.pack || '' }) }));
     return [...built, ...fromPacks];
 }

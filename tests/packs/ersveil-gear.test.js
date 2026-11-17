@@ -13,7 +13,7 @@ const EXPECTED = [
     ['Long Watch Great Axe', 'weapon', 'legendary', { STR: 2, VIT: 2 }],
     ['White-Fur Watch Cloak', 'cloak', 'rare', { VIT: 2 }],
     ['Carved Beacon-Horn', 'accessory', 'uncommon', { CHA: 1 }],
-    ['Rain-Veil Hood', 'cloak', 'epic', { AGI: 2, LUK: 1 }],
+    ['Rain-Veil Hood', 'cloak', 'epic', { AGI: 2, DEX: 1 }],
     ["Cell-Runner's Knives", 'weapon', 'epic', { DEX: 2, AGI: 1 }],
     ['Rune-Collar Hammer', 'weapon', 'rare', { STR: 1, INT: 1 }],
     ['Iron Guard Plate', 'body', 'rare', { VIT: 2 }],
@@ -24,7 +24,7 @@ const EXPECTED = [
     ['Huge Spiked Iron Maul', 'weapon', 'uncommon', { STR: 1 }],
     ['Fang Charm', 'accessory', 'common', {}],
     ['Startrace Travelling Coat', 'body', 'uncommon', { INT: 1 }],
-    ['Three Walnut Shells', 'accessory', 'uncommon', { LUK: 1 }],
+    ['Three Walnut Shells', 'accessory', 'uncommon', { DEX: 1 }],
     ['Flame-Cross Pendant', 'accessory', 'uncommon', { CHA: 1 }],
 ];
 
@@ -80,5 +80,5 @@ test('each cast member lists their signature gear by slug, every piece is an ite
     const byName = Object.fromEntries(p.content.items.map(item => [item.name, item]));
     assert.deepEqual([byName['Rune-Marked Dwarven War-Hammer'].slot, byName['Rune-Marked Dwarven War-Hammer'].rarity, byName['Rune-Marked Dwarven War-Hammer'].stats], ['weapon', 'rare', { STR: 1, VIT: 1 }]);
     assert.deepEqual([byName['Huge Spiked Iron Maul'].slot, byName['Huge Spiked Iron Maul'].rarity, byName['Huge Spiked Iron Maul'].stats], ['weapon', 'uncommon', { STR: 1 }]);
-    assert.equal(p.version, '2.9.6');
+    assert.equal(p.version, '3.0.0');
 });

@@ -1,10 +1,11 @@
 {
   "id": "riverside-starter",
-  "version": "1.0.0",
+  "format": 3,
+  "version": "3.0.0",
   "name": "Riverside Starter",
   "author": "Story Suite examples",
-  "description": "A small river village to begin in: a few goods, a weir rat, a fishmonger, a fishing-rod recipe and two village events.",
-  "requires": { "storyBlock": "^2", "capabilities": ["inventory", "scene"] },
+  "description": "A small river village to begin in: a few goods, a weir rat and two village events. A test fixture for pack format 3, not a shipped example.",
+  "requires": { "suite": "^0.1", "capabilities": ["inventory", "scene"] },
   "currency": { "name": "pennies", "short": "p" },
   "content": {
     "items": [
@@ -13,24 +14,12 @@
       { "name": "Hemp Line", "kind": "material", "value": 8, "tags": ["fibre"] },
       { "name": "Minor Healing Draught", "aliases": ["healing draught"], "kind": "consumable", "value": 60, "effect": { "heal": 20 } }
     ],
-    "creatures": [
-      { "name": "Weir Rat", "tier": "weak", "level": 1, "hp": 8, "habitat": "riverbanks and mill races", "loot": ["hemp-line"] }
-    ],
-    "shops": [
-      { "name": "Hollis the Fishmonger", "kind": "fishmonger", "place": "Bluewatch Village", "stock": ["moonveil-trout", { "item": "Hemp Line", "qty": 10 }, { "item": "willow-rod", "qty": 1, "price": 150 }] }
-    ],
-    "recipes": [
-      { "name": "Willow Rod", "makes": "willow-rod", "materials": [{ "item": "hemp-line", "qty": 2 }], "fee": 40, "minutes": 120 }
+    "foes": [
+      { "name": "Weir Rat", "aliases": ["rat"], "tier": "mob", "level": 1, "about": "A river rat of the weirs and mill races.", "tags": ["river"] }
     ],
     "events": [
       { "id": "market-day", "when": "query('director.time').minutes >= 480", "cue": "Bells ring across Bluewatch: market day has begun on the green.", "once": true },
       { "id": "rat-trouble", "after": "market-day", "when": "query('scene.place').name == 'Bluewatch Village'", "cue": "Hollis grumbles that weir rats have been at his nets again.", "once": true }
-    ],
-    "races": [
-      { "id": "riverfolk", "name": "Riverfolk", "note": "Born on the water; strong swimmers.", "stats": { "VIT": 1, "AGI": 1 }, "tags": ["swimmer"] }
-    ],
-    "talents": [
-      { "name": "Patient Angler", "note": "Fish bite a little more often.", "stats": { "LUK": 1 }, "tags": ["fishing"] }
     ]
   },
   "start": {

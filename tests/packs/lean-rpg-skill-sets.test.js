@@ -37,17 +37,18 @@ test('rpg is a content kind added after the first format, and its limits are the
     assert.deepEqual(ok(withSets([])).content.rpg, []);
     assert.deepEqual([LEAN_RPG_LIMITS.sets, LEAN_RPG_LIMITS.skills, LEAN_RPG_LIMITS.skillName, LEAN_RPG_LIMITS.skillAbout], [12, 5, CREATION.skillName, CREATION.skillAbout]);
     assert.deepEqual([...LEAN_RPG_LIMITS.stats].filter(stat => stat !== 'luk'), [...STATS], 'the same seven stats as the Skills block (and LUK, which a v1 sheet reads as WIS, so an earlier pack still loads)');
-    assert.deepEqual([...LEAN_RPG_LIMITS.uses].sort(), [...USES].sort());
+    assert.deepEqual([...LEAN_RPG_LIMITS.uses].sort(), ['mana', 'mp', 'sp', 'stamina'], 'sp and mp, with the older words stamina and mana still accepted');
+    assert.ok([...USES].every(word => LEAN_RPG_LIMITS.uses.includes(word)));
 });
 
-test('a set keeps its skills, with the stat in lower case and the resource stamina unless it says mana', () => {
+test('a set keeps its skills, with the stat in lower case, the pool sp unless it says mp (stamina and mana read the same) and the type attack unless it names one', () => {
     const made = ok(withSets([set({ name: ' Sealwarden   recruit ', skills: [skill(), skill({ name: 'Ward-reading', about: ' Reading seals. ', stat: 'INT', uses: 'Mana' }), skill({ name: 'Gatecraft', stat: ' vit ', uses: 'stamina' })] })]));
     assert.deepEqual(made.content.rpg, [{
         name: 'Sealwarden recruit', about: 'Trained at the gates.',
         skills: [
-            { name: 'Spear', about: 'Holding a line with a long spear.', stat: 'str', uses: 'stamina' },
-            { name: 'Ward-reading', about: 'Reading seals.', stat: 'int', uses: 'mana' },
-            { name: 'Gatecraft', about: 'Holding a line with a long spear.', stat: 'vit', uses: 'stamina' },
+            { name: 'Spear', about: 'Holding a line with a long spear.', stat: 'str', uses: 'sp', type: 'attack' },
+            { name: 'Ward-reading', about: 'Reading seals.', stat: 'int', uses: 'mp', type: 'attack' },
+            { name: 'Gatecraft', about: 'Holding a line with a long spear.', stat: 'vit', uses: 'sp', type: 'attack' },
         ],
         id: 'pack.mini/sealwarden-recruit', slug: 'sealwarden-recruit', pack: 'mini',
     }]);
@@ -61,7 +62,7 @@ test('the shipped test fixture pack is valid and its set comes out of the query 
     const found = contentOf([made], 'rpg');
     assert.equal(found.length, 1);
     assert.deepEqual([found[0].name, found[0].pack, found[0].skills.map(entry => [entry.name, entry.stat, entry.uses])],
-        ['Sealwarden recruit', 'ersveil-sets', [['Spear', 'str', 'stamina'], ['Ward-reading', 'int', 'mana'], ['Gatecraft', 'vit', 'stamina']]]);
+        ['Sealwarden recruit', 'ersveil-sets', [['Spear', 'str', 'sp'], ['Ward-reading', 'int', 'mp'], ['Gatecraft', 'vit', 'sp']]]);
     assert.deepEqual(contentOf([made, ok(withSets([set()]))], 'rpg').map(entry => entry.pack), ['ersveil-sets', 'mini'], 'pack order, then file order');
     assert.deepEqual(contentOf([made], 'rpg', { pack: 'other' }), []);
     assert.throws(() => { found[0].name = 'changed'; }, TypeError, 'the records are the pack\'s own and frozen');

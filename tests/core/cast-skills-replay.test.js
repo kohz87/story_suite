@@ -103,12 +103,12 @@ test('Edit first carries the signature skills: the offer records them, the card\
     const entries = [{ index: host.ctx.chat.length - 1, receipt: { data: { join: offer } } }];
     const card = joinCard(joinOffers(entries, host.ctx.chat.length - 1, []));
     const edit = card.actions.find(action => action.id === 'edit');
-    assert.deepEqual(edit.payload.skills.map(skill => skill.rank), [1, 0, 2]);
+    assert.deepEqual(edit.payload.skills.map(skill => skill.rank), [2, 0, 3]);
     const draft = joinDraft(edit.payload);
-    assert.deepEqual(draft.skills.map(skill => [skill.name, skill.rank, skill.sig]), [['Tide Step', 1, true], ['Ferry Spark', 0, true], ['Rope Haul', 2, true]]);
+    assert.deepEqual(draft.skills.map(skill => [skill.name, skill.rank, skill.sig]), [['Tide Step', 2, true], ['Ferry Spark', 0, true], ['Rope Haul', 3, true]]);
     const made = buildDefinitions(draft, {});
     assert.equal(made.skills.state.sig.default, 7);
-    assert.deepEqual([made.skills.state.rank1.default, made.skills.state.rank3.default, made.skills.state.skill2.default], [1, 2, 'Ferry Spark']);
+    assert.deepEqual([made.skills.state.rank1.default, made.skills.state.rank3.default, made.skills.state.skill2.default], [2, 3, 'Ferry Spark']);
     assert.deepEqual(readDraft(draft), draft, 'a draft read again is the same');
     // an offer with no skills has a payload as before
     assert.equal('skills' in joinCard(joinOffers([{ index: 1, receipt: { data: { join: { op: 'offer', name: 'Pip', about: '', soul: 1, best: '' } } } }], 1, [])).actions[1].payload, false);

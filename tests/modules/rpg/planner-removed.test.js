@@ -55,7 +55,7 @@ test('a pack with content.rpg.formula "classic" is refused in plain words; "stan
     assert.ok(hit, JSON.stringify(refused.errors));
     assert.equal(hit.code, 'BAD_CONTENT');
     assert.match(hit.message, /"classic" is no longer supported/);
-    assert.match(hit.message, /Use "standard" or leave the formula out/);
+    assert.match(hit.message, /Use "v1" or leave the formula out/);
     for (const formula of ['standard', undefined]) {
         const result = validatePack(JSON.stringify(pack({ content: { rpg: { formula, numbers: { foeBase: 6 } } } })));
         assert.equal(result.ok, true, JSON.stringify(result.errors));

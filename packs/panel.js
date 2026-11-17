@@ -8,7 +8,7 @@ import { button, el, plural } from '../ui/legacy/ui/dom.js';
 import { LIMITS, ZIP_LIMITS } from './limits.js';
 import { isZipFile, readPackZip } from './bundle.js';
 
-const COUNT_WORDS = { items: 'item', creatures: 'creature', shops: 'shop', recipes: 'recipe', events: 'event', quests: 'quest', races: 'race', talents: 'talent', skills: 'skill', presets: 'ready-made character', places: 'place', routes: 'route', terms: 'term set', ranks: 'rank', crafts: 'craft', meterPresets: 'meter preset', markets: 'market', rpg: 'skill set', rules: 'rules set', cast: 'cast member', names: 'name list' };
+const COUNT_WORDS = { items: 'item', foes: 'foe', events: 'event', skills: 'skill', places: 'place', routes: 'route', meterPresets: 'meter preset', markets: 'market', rpg: 'skill set', rules: 'rules set', cast: 'cast member', names: 'name list' };
 
 /** One line of what a pack holds: "3 items, 1 shop, start state". */
 export function countsLine(counts, hasStart) {
@@ -224,7 +224,7 @@ export function renderPacksPanel(root, { packs, readLorebook, notify = () => {},
         for (const line of status.errors) errors.append(make('li', '', line));
 
         root.replaceChildren(
-            make('p', 'ss-packs-hint ss-card-help', 'Packs add items, creatures, shops, recipes, events, a cast and a start state. They are data only: nothing in a pack runs as code. A pack with a cast may come with portrait images: pick pack.json and the images together, or the .zip of the pack.'),
+            make('p', 'ss-packs-hint ss-card-help', 'Packs add items, foes, events, a cast, places and a start state. They are data only: nothing in a pack runs as code. A pack with a cast may come with portrait images: pick pack.json and the images together, or the .zip of the pack.'),
             actions,
             message,
             errors,

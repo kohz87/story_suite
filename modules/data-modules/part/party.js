@@ -6,7 +6,7 @@ import { copy, refuse, atPath } from '../interpreter.js';
 import { activeDefinition, inputsOf, instanceOf } from '../adapters.js';
 import { fill } from '../../../core/strings.js';
 import { fold } from '../../rpg/read.js';
-import { SKILL_SLOTS_MAX, UTILITY_SLOTS, skillFieldSlots, isTypedSkills, skillTypeOf, signatureAt } from '../../../core/runtime/skill-slots.js';
+import { SKILL_SLOTS_MAX, UTILITY_SLOTS, skillFieldSlots, isTypedSkills, skillTypeOf, signatureAt, typeKey } from '../../../core/runtime/skill-slots.js';
 import { castGearOf, gearLine } from '../../../packs/cast-gear.js';
 import { castSkillsOf } from '../../../packs/cast-skills.js';
 import { gearOn } from '../../inventory/index.js';
@@ -16,6 +16,9 @@ import { CLASS_NAMES, PARTY_ACTIVE } from '../../rpg/names.js';
 import { packLevelsOf } from '../../rpg/levels.js';
 import { E, B, J, rpg, partyWitness, partyLimit, stateOf, draftOf, instancePath, blockCount, activeCount, hashOf, newInstance } from './shared.js';
 import { skillCapacity, skillRow } from './skills.js';
+
+// The type word a seeded skill is written with in a block whose `type` field takes `values`.
+const typeFor = (values, type, kind) => (Array.isArray(values) && values.includes(type) ? type : Array.isArray(values) && values.includes('attack') && kind === 'combat' ? 'attack' : kind);
 
 export function createParty(deps) {
     const { packs, restore, settings, isReader, guard, finish } = deps;
@@ -61,13 +64,13 @@ export function createParty(deps) {
         // attempted rows in order, so Re-read can reproduce both the placed skills and the warning. Older receipts fall back to their placed rows or marked slots.
         const recorded = (ctx.standingReceipts ?? []).filter(receipt => receipt?.data?.join?.op === 'back' && fold(receipt.data.join.name ?? '') === fold(name)).flatMap(receipt => (Array.isArray(receipt.data.sigSkillsPlanned) ? receipt.data.sigSkillsPlanned : Array.isArray(receipt.data.sigSkills) ? receipt.data.sigSkills : []))
             .filter(row => dmObject(row) && typeof row.name === 'string' && row.name);
-        if (recorded.length) return recorded.filter(row => !have.has(fold(row.name))).map(row => ({ name: row.name, about: typeof row.about === 'string' ? row.about : '', stat: row.stat, uses: row.uses ?? 'stamina', rank: Number.isSafeInteger(row.rank) ? row.rank : 0, ...(row.type === 'utility' ? { type: 'utility' } : {}) }));
+        if (recorded.length) return recorded.filter(row => !have.has(fold(row.name))).map(row => ({ name: row.name, about: typeof row.about === 'string' ? row.about : '', stat: row.stat, uses: row.uses ?? 'stamina', rank: Number.isSafeInteger(row.rank) ? row.rank : 0, ...typeKey(row.type) }));
         const rows = [];
         for (let n = 1; n <= skillFieldSlots(after.fields); n += 1) if (typeof after.fields[`skill${n}`] === 'string' && after.fields[`skill${n}`] && signatureAt(after.fields.sig, n) && !have.has(fold(after.fields[`skill${n}`]))) rows.push(skillRow(after.fields, n));
         return rows;
     }
     // The tiles of the join's receipt and its summary words.
-    const seededData = seeds => seeds.map(skill => ({ name: skill.name, about: skill.about, stat: skill.stat, uses: skill.uses, rank: skill.rank, ...(skill.type === 'utility' ? { type: 'utility' } : {}) }));
+    const seededData = seeds => seeds.map(skill => ({ name: skill.name, about: skill.about, stat: skill.stat, uses: skill.uses, rank: skill.rank, ...typeKey(skill.type) }));
     // Coming back: the seeds go into the free slots of the Skills block the person already has.
     function reseed(ctx, answer, name) {
         const prefix = stateOf(ctx), block = skillsBlockOf(prefix, name);
@@ -93,7 +96,8 @@ export function createParty(deps) {
                 continue;
             }
             Object.assign(fields, { [`skill${slot}`]: skill.name, [`about${slot}`]: skill.about, [`stat${slot}`]: skill.stat, [`uses${slot}`]: skill.uses, [`rank${slot}`]: skill.rank, [`practice${slot}`]: 0 });
-            if (typed) fields[`type${slot}`] = kind;
+            // (a v1 block's types are the eight of Combat Rules v1: the skill's own, else attack; a block of the earlier two-type list keeps combat or utility)
+            if (typed) fields[`type${slot}`] = typeFor(definition.state?.[`type${slot}`]?.values, skill.type, kind);
             if (marks) fields.sig = (Number.isSafeInteger(fields.sig) ? fields.sig : 0) + 2 ** (slot - 1);
             placed.push(skill);
         }

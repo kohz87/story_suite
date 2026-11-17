@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 export const REPO = join(here, '..', '..', '..', '..');
 const pack = (folder, origin) => ({ text: readFileSync(join(REPO, 'examples', 'packs', folder, 'pack.json'), 'utf8'), origin });
-export const RIVERSIDE = () => pack('riverside-starter', 'riverside.json');
+export const RIVERSIDE = () => ({ text: readFileSync(join(REPO, 'tests', 'packs', 'fixtures', 'riverside-starter.json'), 'utf8'), origin: 'riverside.json' });
 export const ERSVEIL = () => pack('ersveil', 'ersveil.json');
 
 /** name -> { seeds, steps, packs() } */

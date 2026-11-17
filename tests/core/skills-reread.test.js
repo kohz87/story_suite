@@ -79,7 +79,7 @@ test('F1: a Re-read of the offer reply keeps the offered skills', { skip }, asyn
     assert.deepEqual(offered().skills.map(skill => skill.name), ['Tide Step', 'Ferry Spark', 'Rope Haul']);
     assert.equal((await host.turn.reread(at)).ok, true);
     assert.deepEqual(offered().skills.map(skill => skill.name), ['Tide Step', 'Ferry Spark', 'Rope Haul'], 'still offered after the Re-read');
-    assert.deepEqual(offered().skills.map(skill => skill.rank), [1, 0, 2]);
+    assert.deepEqual(offered().skills.map(skill => skill.rank), [2, 0, 3]);
 });
 
 test('F1: Edit first keeps signature skills as written (the pencil\'s rules) and the Skills block it makes writes the join\'s tiles', { skip }, async t => {
@@ -91,7 +91,7 @@ test('F1: Edit first keeps signature skills as written (the pencil\'s rules) and
     let draft = joinDraft(card.actions.find(action => action.id === 'edit').payload);
     // stat, resource and rank cannot be changed, a skill cannot be taken out; the name and what it does can be fixed
     const changed = withSkillPatch(draft, 0, { stat: 'str', uses: 'mana', start: 1, rank: 3, name: 'Tide Dance', about: 'Better words.' });
-    assert.deepEqual([changed.skills[0].stat, changed.skills[0].uses, changed.skills[0].rank, changed.skills[0].sig], ['agi', 'stamina', 1, true]);
+    assert.deepEqual([changed.skills[0].stat, changed.skills[0].uses, changed.skills[0].rank, changed.skills[0].sig], ['agi', 'stamina', 2, true]);
     assert.deepEqual([changed.skills[0].name, changed.skills[0].about], ['Tide Dance', 'Better words.']);
     assert.equal(withoutSkill(draft, 0).skills.length, 3, 'a signature skill stays');
     assert.equal(withSet(draft, { id: 'x', skills: [{ name: 'Spark', stat: 'int', about: 'a', uses: 'mana' }] }).skills.map(skill => skill.name).join(), 'Tide Step,Ferry Spark,Rope Haul,Spark', 'a skill set goes after them');

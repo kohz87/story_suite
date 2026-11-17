@@ -3,13 +3,13 @@
 import { LIMITS } from '../limits.js';
 import { byteLength, checkPlain } from '../safety.js';
 import { dataModulesPackHash } from '../../modules/data-modules/check.js';
-import { HOST_VERSION, fail, isObject } from '../validate/core.js';
+import { HOST_VERSION, SUITE_VERSION, fail, isObject } from '../validate/core.js';
 import { normalize } from './normalize.js';
 
 /**
  * Checks and normalizes one pack. Nothing here touches settings or state.
  */
-export function validatePack(input, { hostVersion = HOST_VERSION, capabilities = null, limits = LIMITS, dataModuleDefinitions = [], readableConditions = true } = {}) {
+export function validatePack(input, { hostVersion = HOST_VERSION, suiteVersion = SUITE_VERSION, capabilities = null, limits = LIMITS, dataModuleDefinitions = [], readableConditions = true } = {}) {
     let value = input;
     if (typeof input === 'string') {
         if (byteLength(input) > limits.packBytes) return fail('TOO_LARGE', '', `The pack is larger than ${Math.round(limits.packBytes / 1024)} KB.`);
@@ -31,7 +31,7 @@ export function validatePack(input, { hostVersion = HOST_VERSION, capabilities =
     const errors = [], warnings = [];
     const add = (code, path, message) => { if (errors.length < limits.errors) errors.push({ code, path, message }); };
     const warn = (code, path, message) => { if (warnings.length < limits.errors) warnings.push({ code, path, message }); };
-    const pack = normalize(raw, { add, warn, hostVersion, capabilities, limits, dataModuleDefinitions, readableConditions });
+    const pack = normalize(raw, { add, warn, hostVersion, suiteVersion, capabilities, limits, dataModuleDefinitions, readableConditions });
     if (errors.length) return { ok: false, errors, ...(warnings.length ? { warnings } : {}) };
     const result = { ok: true, pack, raw, ...(warnings.length ? { warnings } : {}) };
     if (pack.content.dataModules !== undefined) {

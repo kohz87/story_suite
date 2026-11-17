@@ -11,13 +11,13 @@ import { readParty } from '../../modules/rpg/view/party-data.js';
 import { buildCharacterFile, parseCharacterFile } from '../../modules/rpg/charfile.js';
 import { skip, reply, SKILLS, person, withCast, refused, world, fieldsOf, receipts, joinReceipt, told, update, mine } from './cast-skills.helpers.js';
 
-test('skills: kept as written, with uses stamina and rank novice by default; nothing is added when the key is left out', () => {
+test('skills: kept as written, with uses sp (stamina and mana read as sp and mp) and rank novice by default; nothing is added when the key is left out', () => {
     const ok = validatePack(withCast([person({ skills: SKILLS })]));
     assert.equal(ok.ok, true, JSON.stringify(ok.errors));
     assert.deepEqual(ok.pack.content.cast[0].skills, [
-        { name: 'Tide Step', about: 'Light footwork on a rocking deck.', stat: 'agi', uses: 'stamina', rank: 'adept' },
-        { name: 'Ferry Spark', about: 'A small lantern-flash of magic.', stat: 'int', uses: 'mana', rank: 'novice' },
-        { name: 'Rope Haul', about: 'Hauls a line hand over hand.', stat: 'str', uses: 'stamina', rank: 'expert' },
+        { name: 'Tide Step', about: 'Light footwork on a rocking deck.', stat: 'agi', uses: 'sp', rank: 'adept' },
+        { name: 'Ferry Spark', about: 'A small lantern-flash of magic.', stat: 'int', uses: 'mp', rank: 'novice' },
+        { name: 'Rope Haul', about: 'Hauls a line hand over hand.', stat: 'str', uses: 'sp', rank: 'expert' },
     ]);
     assert.equal('skills' in validatePack(withCast([person()])).pack.content.cast[0], false);
 });
@@ -35,7 +35,7 @@ test('skills are refused: not a list, empty, too many, a repeat, an unknown key,
     refused([one({ stat: 'con' })], 'content.cast[0].skills[0].stat');
     refused([person({ skills: [{ name: 'Spark', about: 'x' }] })], 'content.cast[0].skills[0].stat');
     refused([one({ uses: 'rage' })], 'content.cast[0].skills[0].uses');
-    refused([one({ rank: 'legend' })], 'content.cast[0].skills[0].rank');
+    refused([one({ rank: 'demigod' })], 'content.cast[0].skills[0].rank');
     refused([one({ name: 'N'.repeat(41) })], 'content.cast[0].skills[0].name');
     refused([one({ about: 'a'.repeat(121) })], 'content.cast[0].skills[0].about');
     refused([person({ skills: [{ name: 'Spark', stat: 'int' }] })], 'content.cast[0].skills[0].about');
@@ -53,9 +53,9 @@ test('the pack checker\'s lists are the RPG\'s: the seven stats and the most slo
     assert.equal(CAST_LIMITS.skillAbout, 120);
 });
 
-test('castSkillsOf finds the person by name or alias and gives ranks as numbers', () => {
+test('castSkillsOf finds the person by name or alias and gives ranks as numbers (Novice 0 to Legend 6)', () => {
     const built = validatePack(withCast([person({ skills: SKILLS })])).pack;
-    assert.deepEqual(castSkillsOf([built], 'the ferrywoman').skills.map(skill => [skill.name, skill.rank, skill.uses]), [['Tide Step', 1, 'stamina'], ['Ferry Spark', 0, 'mana'], ['Rope Haul', 2, 'stamina']]);
+    assert.deepEqual(castSkillsOf([built], 'the ferrywoman').skills.map(skill => [skill.name, skill.rank, skill.uses]), [['Tide Step', 2, 'stamina'], ['Ferry Spark', 0, 'mana'], ['Rope Haul', 3, 'stamina']]);
     assert.equal(castSkillsOf([built], 'Nobody'), null);
 });
 
@@ -85,7 +85,7 @@ test('the join receipt becomes one tile per skill (signature, rank, stat and res
     assert.equal(lines.length, 3);
     assert.equal(lines[0].summary, 'Harrak joined, +2 skills');
     assert.deepEqual(lines.slice(1).map(line => [line.text, line.flag, line.note, line.icon, line.tone]), [
-        ['Long Watch Cleave', 'signature · Expert', 'STR · Stamina', 'fa-book-open', 'good'], ['Beacon Call', 'signature · Adept', 'CHA · Mana', 'fa-book-open', 'good']]);
+        ['Long Watch Cleave', 'signature · Adept', 'STR · Stamina', 'fa-book-open', 'good'], ['Beacon Call', 'signature · Apprentice', 'CHA · Mana', 'fa-book-open', 'good']]);
     assert.equal(partyLines({ receipts: [{ id: 'r2', data: { join: { op: 'added', name: 'Pip' } } }] }).length, 1, 'no skills, no tiles');
     assert.equal(partyLines(record, [{ receipts: ['r1'] }]).length, 0, 'a block the replay skipped is not told');
 });

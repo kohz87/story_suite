@@ -1,6 +1,7 @@
 // Join: the offers on a reply, read from its receipts.
 
 import { oneLine } from '../../../core/text.js';
+import { typeKey } from '../../../core/runtime/skill-slots.js';
 import { PARTY_ACTIVE, STATS_ANY as STATS } from '../names.js';
 import { fold } from '../read.js';
 import { isRecord } from './shared-record.js';
@@ -36,7 +37,7 @@ export function joinOffers(entries, index, party = []) {
         const known = seen.get(key);
         if (known) { known.recorded ||= join.full === true; known.back ||= join.back === true; known.four ||= join.four === true; continue; }
         const offer = { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '',
-            ...(Array.isArray(join.skills) && join.skills.length ? { skills: join.skills.slice(0, 8).map(skill => ({ name: oneLine(skill?.name), about: oneLine(skill?.about), stat: skill?.stat, uses: skill?.uses, rank: skill?.rank, ...(skill?.type === 'utility' ? { type: 'utility' } : {}) })) } : {}) };
+            ...(Array.isArray(join.skills) && join.skills.length ? { skills: join.skills.slice(0, 8).map(skill => ({ name: oneLine(skill?.name), about: oneLine(skill?.about), stat: skill?.stat, uses: skill?.uses, rank: skill?.rank, ...typeKey(skill?.type) })) } : {}) };
         const state = { offer, recorded: join.full === true, back: join.back === true, four: join.four === true };
         seen.set(key, state);
         out.push(state);

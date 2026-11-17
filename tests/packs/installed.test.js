@@ -20,12 +20,12 @@ test('installing keeps the pack as given, under its id, switched on', async () =
     assert.deepEqual(result, { ok: true, id: 'riverside-starter', name: 'Riverside Starter', action: 'installed' });
     assert.equal(settings.saves, 1);
     const [stored] = settings.root.packs;
-    assert.deepEqual({ ...stored, pack: undefined }, { id: 'riverside-starter', version: '1.0.0', enabled: true, source: 'file', origin: 'riverside.json', pack: undefined });
+    assert.deepEqual({ ...stored, pack: undefined }, { id: 'riverside-starter', version: '3.0.0', enabled: true, source: 'file', origin: 'riverside.json', pack: undefined });
     assert.deepEqual(stored.pack, sample(), 'the raw pack, not the normalized form');
     assert.deepEqual(installed.list(), [{
-        id: 'riverside-starter', version: '1.0.0', name: 'Riverside Starter', author: 'Story Suite examples',
+        id: 'riverside-starter', version: '3.0.0', name: 'Riverside Starter', author: 'Story Suite examples',
         description: sample().description, enabled: true, source: 'file', origin: 'riverside.json',
-        counts: { items: 4, creatures: 1, shops: 1, recipes: 1, events: 2, quests: 0, races: 1, talents: 1 }, hasStart: true, extras: ['a money word', 'a theme'], missing: [], problem: '',
+        counts: { items: 4, foes: 1, events: 2 }, hasStart: true, extras: ['a money word', 'a theme'], missing: [], problem: '',
         tag: 'Story Block pack', warnings: [],
     }]);
     assert.equal(installed.packs()[0].content.items.length, 4);
