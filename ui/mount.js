@@ -144,8 +144,11 @@ export function mountSuite(options = {}) {
     tabHost,
     backStack,
     redraw,
+    // Opening on a tab the strip does not list reads the flags first (a fight that just began has its tab); opening on a tab closes a person's page left open over the tabs.
     open(tab) {
       if (destroyed) return false;
+      if (tab && !tabHost.tabs().includes(tab)) refreshFlags();
+      if (tab) views.closePage?.();
       if (tab && tab !== tabHost.current()) tabHost.select(tab);
       const opened = view.open();
       redraw.setVisibleTab(tabHost.current());

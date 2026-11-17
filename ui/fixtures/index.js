@@ -4,7 +4,7 @@ import { MOMENT } from './moment.js';
 import { PEOPLE } from './people.js';
 import { partyFixture } from './party.js';
 import { bagFixture } from './bag.js';
-import { fightSceneAnswer } from './fight-scene.js';
+import { fightSceneAnswer, fightHoldScene } from './fight-scene.js';
 import { selectScene } from '../select/interaction.js';
 import { worldFor } from './world.js';
 import { buildJournal } from './journal.js';
@@ -264,7 +264,9 @@ export function fixture(variant = 'default') {
     people: buildPeople(opts, hereList),
     party: opts.rpg ? partyFixture() : null,
     bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),
-    fight: opts.fightOpen || (opts.scene && opts.sceneFight) ? selectScene(fightSceneAnswer(opts.fightState, { scene: opts.sceneFight ? opts.scene : null })) : null,   // the open fight, as the activity host gets it (the Fight tab)
+    // the open fight, as the activity host gets it (the Fight tab); its offer moment is the waiting fight (the pause before the message goes out)
+    fight: opts.fightOpen && opts.fightState === 'offer' && !opts.sceneFight ? fightHoldScene()
+      : opts.fightOpen || (opts.scene && opts.sceneFight) ? selectScene(fightSceneAnswer(opts.fightState, { scene: opts.sceneFight ? opts.scene : null })) : null,
     world: worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
     story: buildStory({ empty: opts.empty, planShown: opts.planShown }),

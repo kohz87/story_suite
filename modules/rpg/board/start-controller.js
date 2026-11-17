@@ -43,6 +43,7 @@ export function createStartController({ doc, chat, meta, state, preview, board, 
             }
         }
         if (pending.choice === 'board') persist();
+        error = '';
         sending = true;
         tell();
         try {
@@ -90,18 +91,35 @@ export function createStartController({ doc, chat, meta, state, preview, board, 
     doc.addEventListener?.('click', click, true);
     doc.addEventListener?.('keydown', key, true);
     const sheetState = () => (current()?.opening ? (preview?.()?.state ?? state()) : state());
+    // The pause's data and the foe groups it names (`{ name, count, level, tier }`: the pre-check's opening, or the standing foes on the sheet), for a pause with no choice yet.
+    const pauseOf = pending => {
+        if (pending.mode === 'working') return { data: pauseViewData({ working: true }), foes: [] };
+        if (pending.opening) return { data: pauseViewData({ opening: pending.result, cap: cap() }), foes: (Array.isArray(pending.result?.opened) ? pending.result.opened : []) };
+        const live = state(), standing = readSheet(live).foes.filter(foe => foe.filled && foe.hurt > 0);
+        return { data: pauseViewData({ fight: { groups: standing.map(foe => foe.slot) }, state: live, cap: cap() }), foes: standing };
+    };
     const draw = root => {
         const pending = current();
         if (!pending || pending.choice) { error = ''; pause.clear(); return false; }
-        const live = state(), sheet = readSheet(live);
-        const fight = { groups: sheet.foes.filter(foe => foe.filled && foe.hurt > 0).map(foe => foe.slot) };
-        const data = pauseViewData(pending.mode === 'working' ? { working: true } : pending.opening ? { opening: pending.result, cap: cap() } : { fight, state: live, cap: cap() });
+        const { data } = pauseOf(pending);
         if (!data) return false;
         pause.render(root, error ? { ...data, note: error } : data);
         return true;
     };
+    // What the Suite view draws for the waiting choice (board/hold-bridge.js): the pause's words and foes, or, once the board was chosen, only that (the Fight tab shows the board). Null when nothing waits.
+    const info = () => {
+        const pending = current();
+        if (!pending) return null;
+        const base = { id: String(pending.id ?? ''), kindId: String(pending.kindId ?? ''), mode: pending.mode, choice: pending.choice ?? null, sending, error };
+        if (pending.choice) return base;
+        const { data, foes } = pauseOf(pending);
+        if (!data) return null;
+        return { ...base, ...data, foes: foes.filter(foe => foe?.name).map(foe => ({ name: String(foe.name), count: Number(foe.count) || 1, level: Number(foe.level) || 1, tier: String(foe.tier ?? '') })) };
+    };
     return {
-        current, holds, openHeld, draw, state: sheetState, send, changed: tell, sending: () => sending,
+        current, holds, openHeld, draw, info, state: sheetState, send, changed: tell, sending: () => sending,
+        // The pause's three answers, as its buttons give them (the Suite view's offer card calls these through the bridge).
+        board: () => begin(false), auto: () => begin(true), plain,
         waiting: () => current()?.choice === 'board',
         // The fight is discarded (`run`): the interaction api drops the waiting choice with it, so it is put back, as it was before the board was chosen (the pause shows again).
         discard(run = () => {}) {

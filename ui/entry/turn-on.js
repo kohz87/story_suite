@@ -11,11 +11,14 @@ import { packs as livePacks, refreshLore } from '../../packs/index.js';
 import { readCharacterLorebook } from '../../packs/st-adapter.js';
 import { NEW_VIEW_CLASS } from './flag.js';
 import { addDrawerButtons, DRAWER_ROW_ID } from './drawer-buttons.js';
+import { createHold, showScreens } from '../port/hold.js';
 
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings'];
 // The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
 const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
+// The screen the RPG opens for a fight (the waiting pause, Send while it waits, a fight begun): shown here as the Fight tab, never as the old view's screen.
+const FIGHT_SCREEN = 'story-block/fight';
 
 function addStyles(doc, base) {
   return STYLES.map(name => {
@@ -33,9 +36,11 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
   const links = addStyles(doc, base);
   doc.body.classList.add(NEW_VIEW_CLASS);
   const prefs = { chat: chatPrefs(ctx) };
-  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
+  const hold = createHold(doc);
+  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', onOldView });
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
+  const offScreens = showScreens(doc, id => { if (id !== FIGHT_SCREEN) return false; suite.open(port.view('fight') ? 'fight' : 'now'); return true; });
   const drawerHost = doc.createElement('div');
   drawerHost.className = 'ss-drawer-host';
   const form = doc.querySelector('#send_form');
@@ -76,6 +81,7 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
     for (const off of offs) off();
     for (const type of [types.CHAT_CHANGED, types.MESSAGE_RECEIVED, types.MESSAGE_SENT]) if (type) ctx()?.eventSource?.removeListener?.(type, refresh);
     box?.removeEventListener?.('input', typing);
+    offScreens();
     suite.destroy();
     entry?.remove();
     doc.querySelector(`#${DRAWER_ROW_ID}`)?.remove();

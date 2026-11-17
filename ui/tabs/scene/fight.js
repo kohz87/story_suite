@@ -7,6 +7,7 @@ import { actionsCard, afterCard } from '../fight/actions.js';
 import { logCard } from '../fight/log.js';
 import { endCard } from '../fight/end.js';
 import { heldFor, holdPick, undoPick, inputsOf } from './fight-picks.js';
+import { fightOffer } from './fight-offer.js';
 
 const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const PILL = { end: v => v.end?.outcome ?? 'won', after: v => `exchange ${v.exchange} done` };
@@ -15,8 +16,9 @@ const NOTE = { sent: 'Sent. It plays out with the next reply.', invalidated: 'Th
 const joinNames = list => (list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`);
 const usable = view => isRecord(view) && Array.isArray(view.foeGroups) && view.foeGroups.length > 0 && Array.isArray(view.party);
 
-/** Builds the fight body for the scene view-model `vm` (`vm.view` is a FIGHT_SHAPE). `api` = { stage(step), auto(n), send(), discard(), note }. The renderer draws its own header and Send / Discard. */
+/** Builds the fight body for the scene view-model `vm` (`vm.view` is a FIGHT_SHAPE; a waiting fight's offer has `vm.hold`). `api` = { stage(step), auto(n), send(), discard(), choose(choice), note }. The renderer draws its own header and Send / Discard. */
 export function fightScene(vm, api = {}) {
+  if (vm.hold) return fightOffer(vm, api);
   const view = usable(vm.view) ? vm.view : null;
   const live = vm.state === 'open' || vm.state === 'staged';
   const root = h('div', { class: 'fight-tab scene-fight', dataset: { renderer: 'fight', state: vm.state } });

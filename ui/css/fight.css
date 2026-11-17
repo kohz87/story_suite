@@ -143,6 +143,9 @@
 .fight-tab .ntold{margin:0;font:500 13px/1.5 var(--su-font);color:var(--su-soft);background:var(--su-line2);border-radius:12px;padding:10px 12px}
 /* Offer and end */
 .fight-tab .offer .brow3{display:flex;flex-direction:column;gap:8px}
+/* the waiting fight's offer (mock v7 .offer: its line at 13.5px plain, its buttons 14px with 11px 14px padding) */
+.fight-tab .offer>.otext{margin:0;font:400 13.5px/1.5 var(--su-font);color:var(--su-soft)}
+.fight-tab .offer .brow3>button{padding:11px 14px;font-size:14px;text-align:center}
 .fight-tab .endb{align-items:center;text-align:center;padding:18px 14px}
 .fight-tab .endb .big2{font:900 28px var(--su-font);color:var(--fx-ok)}
 .fight-tab .endb.is-lost .big2{color:var(--fx-bad)}
