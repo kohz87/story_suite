@@ -1,5 +1,6 @@
 // Builds the Tools page's view-models from the engine handle: what is sent, the problems (with the rebuild entry) and one Inspector reply.
 import { STRINGS } from '../../core/strings.js';
+import { SAVEPOINT_LIMITS } from '../../core/timeline/rewind.js';
 import { rebuildTarget } from '../legacy/screens/rebuild-banner-parts/target.js';
 import { preview } from '../legacy/inspect.js';
 
@@ -71,5 +72,21 @@ export function selectInspector(handle, index = null) {
       ops: Array.isArray(got.ops) ? got.ops.length : 0, receipts: got.receipts.map(r => ({ id: r.id, type: r.type, module: r.module, summary: r.summary })),
       problems: got.problems, state: state.length > STATE_CUT ? `${state.slice(0, STATE_CUT)}\n…` : state,
     },
+  };
+}
+
+const when = iso => {
+  const time = Date.parse(String(iso ?? ''));
+  if (!Number.isFinite(time)) return '';
+  try { return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(time)); } catch { return new Date(time).toISOString().slice(0, 16).replace('T', ' '); }
+};
+
+/** The save points card from the handle's `savePoints()` answer: null while the feature is off (no card), else `{ here, full, rows: [{ id, name, reply, date, here }] }`. `reply` is the message the point was made at. */
+export function selectSavePoints(read) {
+  if (!read?.on) return null;
+  const points = Array.isArray(read.points) ? read.points : [];
+  return {
+    full: points.length >= SAVEPOINT_LIMITS.count, max: { name: SAVEPOINT_LIMITS.name },
+    rows: points.map(p => ({ id: text(p.id), name: text(p.name), reply: Number.isInteger(p.index) ? p.index + 1 : null, date: when(p.at), here: Boolean(read.here) && read.here === p.branch })),
   };
 }

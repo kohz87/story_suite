@@ -1,7 +1,6 @@
-// Story Block v2's page furniture: the card offer's wiring, moved out of mountUi unchanged: the offer reads the character's lorebook, remembers "not now",
+// The card offer's wiring (core/boot builds it once; the old view and the new view both read that one controller): the offer reads the character's lorebook, remembers "not now",
 // enables the data modules, and tells its problems to the turn's list and the card log (`cardLog`, shown in Diagnostics).
-import { createCardOffer, enableDataModules } from '../../../packs/card-offer.js';
-import { setLiveOffer } from '../../port/live-offer.js';
+import { createCardOffer, enableDataModules } from './card-offer.js';
 
 export function createCardOfferWiring({ runtime, ctx, sdk, store, liveCtx, readLorebook, flushSettings, cardLog }) {
     const offer = runtime.packs?.packs && runtime.cardSettings ? createCardOffer({
@@ -29,7 +28,5 @@ export function createCardOfferWiring({ runtime, ctx, sdk, store, liveCtx, readL
             runtime.turn?.report?.({ module: null, code: entry.code, message: entry.message, quiet: true });
         },
     }) : null;
-    // The new view reads the same controller (ui/port/live-offer.js).
-    setLiveOffer(offer);
     return offer;
 }
