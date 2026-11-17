@@ -20,6 +20,15 @@ export function gather(read, names = SCENE) {
 }
 
 // What the selectors need beyond the answers: the RPG is on when the party answers; portraits come one name at a time.
+// The reader's own picture when no party hero names one: the people row called by the persona's name, else the persona's avatar file.
+function personaPortrait(read, ctx) {
+  const c = ctx() ?? {};
+  const row = c.name1 ? (read('people.list', {}) ?? []).find(r => r?.name === c.name1) : null;
+  if (row?.portrait) return row.portrait;
+  const file = typeof c.user_avatar === 'string' ? c.user_avatar.trim() : '';
+  return file ? `/User%20Avatars/${encodeURIComponent(file)}` : null;
+}
+
 export function optsOf(read, answers, ctx) {
   const portraits = {};
   for (const row of answers['npc.present'] ?? []) if (row?.name) portraits[row.name] = row.portrait ?? null;
@@ -28,7 +37,7 @@ export function optsOf(read, answers, ctx) {
   return {
     rpg: Array.isArray(answers['party.actors']) && answers['party.actors'].length > 0,
     persona: ctx()?.name1 ?? '',
-    portrait: leadRow?.portrait ?? null,
+    portrait: lead ? leadRow?.portrait ?? null : personaPortrait(read, ctx),
     portraits,
     fightOpen: false,
   };

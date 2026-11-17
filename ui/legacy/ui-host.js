@@ -17,7 +17,7 @@
 //   bottom sheet on phones. Redrawn from the head on every change.
 // * The reader's tab order (src/v2/view/tab-order.js, Settings → Tabs & Packs → Tabs): one list for the panel's tabs and the game
 //   view's screens, Up/Down, Shown, Reset to default; Home is always first and shown.
-// * The Story Block drawer in Extensions: version, modules, the same buttons.
+// * The Story Suite drawer in Extensions: version, modules, the same buttons.
 // * Settings → Diagnostics (src/v2/diagnostics.js): a report to copy or save, made from the runtime's parts and each module's
 //   `hooks.diagnostics`; console errors are caught for it. And "Show the UI sample" (src/v2/screens/ui-sample.js).
 // * The look (src/v2/view/theme.js): the theme bridge writes Story Suite's tokens (light or dark from SillyTavern's theme,
@@ -205,7 +205,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
     const sendNote = createSendNote({ doc, ctx, enabled: () => settings().sendPending !== false, busy: () => runtime.turn?.replyBusy?.() === true, held: () => leanRpg.getRpg()?.sendHeld?.() === true, openHeld: () => leanRpg.getRpg()?.openHeld?.() === true });
 
     // ---- the Extensions drawer and the wand menu (ui-host/drawer.js) ------------------------
-    const { drawer, menu, drawerStatus, hudAsked, syncHud } = createDrawerUi({ doc, ctx, screens, openSettings, openPanel, setHud });
+    const { drawer, menu, drawerStatus, hudAsked, syncHud } = createDrawerUi({ doc, ctx, screens, openSettings, openPanel, setHud, version });
     drawer();
     menu();
 

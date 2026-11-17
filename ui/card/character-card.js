@@ -2,12 +2,14 @@
 import { h } from '../kit/dom.js';
 import { chip } from '../kit/controls.js';
 import { bars, expBar } from '../kit/bars.js';
+import { isSafePortraitUrl } from '../kit/safe-url.js';
 import { cardRow } from './card-row.js';
 import { paceIcon, soakIcon, statusIcon } from './card-icons.js';
 
 function portrait(you) {
   const initial = String(you.name || '?').trim().charAt(0).toUpperCase();
-  return h('div', { class: 'por', dataset: { portrait: you.portrait || null }, 'aria-hidden': 'true' }, initial);
+  const style = isSafePortraitUrl(you.portrait) ? { 'background-image': `url("${you.portrait}")` } : null;
+  return h('div', { class: 'por', style, dataset: { portrait: you.portrait || null }, 'aria-hidden': 'true' }, style ? null : initial);
 }
 
 function chipRow(card, onPace) {
