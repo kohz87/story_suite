@@ -112,7 +112,7 @@ export const HEAD_SETTLE_POLL_MS = 50;
 // timestamps, locks) and the hidden notes stay inside Delta.
 export { DOSSIER_FIELDS };
 
-// Used only if story-block-tabs.js cannot be loaded: the same empty line, without the Scan button.
+// Used only if dossier-rows.js cannot be loaded: the same empty line, without the Scan button.
 const fallbackEmptyCast = reason => `<div class="npc-state-delta-story-empty-state"><p class="npc-state-delta-story-empty">${escapeHtml(reason?.text || 'No NPC is present in the latest scene.')}</p></div>`;
 
 /**
@@ -140,7 +140,7 @@ export function createStorySuiteV2Adapter({
     castPortraitDue = null,
     doc = globalThis.document,
     timers = globalThis,
-    loadEmptyCast = () => import('./legacy/story-block-tabs.js').then(module => module.emptyCastHtml),
+    loadEmptyCast = () => import('./dossier-rows.js').then(module => module.emptyCastHtml),
     retryMs = HOST_RETRY_MS,
     attempts = HOST_RETRY_ATTEMPTS,
     aliveMs = HOST_ALIVE_MS,
@@ -152,8 +152,8 @@ export function createStorySuiteV2Adapter({
     linesMode = () => false,
     // True while the custom Level field is on (a configured field, or the host's RPG feature): a `~ npc` line may then state `level: N` (src/npc-lines-parts/level.js). Off, a `level:` label is an unknown one.
     levelOn = () => false,
-    // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
-    loadDossierList = () => Promise.all([import('./legacy/story-block-tabs.js'), import('./legacy/dossier-ui.js')])
+    // Delta's dossier list markup and projection (dossier-rows.js, dossier-ui.js), as v1's Dossiers tab.
+    loadDossierList = () => Promise.all([import('./dossier-rows.js'), import('./legacy/dossier-ui.js')])
         .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
     // How long Delta waits for the host's head-selection barrier to come down, and how often it looks (messageGate.settled).
     settleMs = HEAD_SETTLE_MS,
