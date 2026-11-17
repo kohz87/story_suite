@@ -1,6 +1,7 @@
 // Builds the fight as the Scene tab gets it: the `interaction.view` answer of the open fight, its view a FIGHT_SHAPE from the shared fight fixture.
 import { fightFixture } from './fight.js';
 import { V1_VIEWS } from './fight-v1.js';
+import { selectScene } from '../select/interaction.js';
 
 // The scene state a board moment is in: choosing is open, a resolved exchange is staged (Send is on offer).
 const STAGED = new Set(['after', 'end']);
@@ -25,4 +26,11 @@ export function fightSceneAnswer(fight = 'choose', { scene = null, wide = false 
     canDiscard: state !== 'sent',
     view,
   };
+}
+
+/** The Fight tab while the reader's message waits for the fight (ui/select/hold.js's shape): the bridge fight's offer moment with the pause's three answers. */
+export function fightHoldScene() {
+  const scene = selectScene(fightSceneAnswer('offer'));
+  const count = scene.view.foeGroups.reduce((n, group) => n + group.members.length, 0);
+  return { ...scene, steps: 0, canSend: false, canDiscard: false, hold: { working: false, count, plain: true, line: '', error: '' } };
 }

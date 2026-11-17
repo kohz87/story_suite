@@ -71,3 +71,12 @@ describe('selectNow', () => {
     assert.deepEqual(selectNow({ 'rpg.sheet': null }).needsYou, []);
   });
 });
+
+describe('selectNow where (before the first reply)', () => {
+  it('draws the place and the clock the store already has, with no reply and no other answer', () => {
+    const now = selectNow({ 'scene.place': { name: 'The Mill' }, 'director.time': { text: 'Goldwane 12, 611, 6:40 am' } });
+    assert.deepEqual(now.today.where, { title: 'The Mill', detail: 'Goldwane 12, 611 · 6:40 am' });
+    assert.deepEqual(checkShape(now, NOW_SHAPE), []);
+  });
+  it('is null when neither is known', () => assert.equal(selectNow().today.where, null));
+});

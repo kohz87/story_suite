@@ -391,5 +391,9 @@
   "tests/people/npc-secret-ready-cap.test.js": "Tests: the cap on NPC State's \"(may come out)\" lines (one a person, two in all) and a gate's \"of <id>\" naming the owner.",
   "tests/modules/arc/world-judge-scrub.test.js": "Tests: the Director judge's NOTE, refusal reasons and reshaped lines keep the unlearned secrets out (scrub, judgePlan, the host).",
   "tests/modules/world/open/open-tempo.test.js": "Tests: the open-template look-ahead at tempo 2 asks only for slots the daily step makes.",
-  "tests/modules/world/daily/wefinal-anchor.test.js": "Tests: an ends_when anchor that recurs (fired:, with an offset, a season) ends the event when it happens after the firing."
+  "tests/modules/world/daily/wefinal-anchor.test.js": "Tests: an ends_when anchor that recurs (fired:, with an offset, a season) ends the event when it happens after the firing.",
+  "scripts/b4/backup.mjs": "Copies the files of a removal to a new backup folder with a sha256 manifest, and refuses an existing folder.",
+  "scripts/b4/dead-exports.mjs": "Fails when a kept file still imports, re-exports or loads a removed path or export, and lists computed specifiers to grep by hand.",
+  "scripts/b4/shrink.mjs": "Finds entries added to, or still naming a removed path in, the shrink-only lists under docs/merge.",
+  "scripts/b4/unit.mjs": "Runs the per-unit removal recipe in order: backup, git rm, dead exports, git grep, shrink-only lists, code map, touched tests."
 }

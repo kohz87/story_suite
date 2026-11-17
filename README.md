@@ -2,7 +2,7 @@
 
 A SillyTavern extension that keeps the state of your story (items and money, the scene, the people you meet, the clock and calendar, quests, the map, fights) and puts it in front of the narrator and in front of you. It is one extension made from what used to be Story Block, Story Director and NPC State Delta. Version 0.1.0 is its first release; the old three are not kept up to date and nothing is carried over from them.
 
-**Install:** [docs/INSTALL.md](docs/INSTALL.md). **What changed:** [CHANGELOG.md](CHANGELOG.md). **Questions:** [docs/FAQ.md](docs/FAQ.md).
+**Install (one extension):** in SillyTavern 1.19 or newer, delete Story Block, Story Director and NPC State Delta in Extensions → Manage extensions (disabling is not enough), reload, then Extensions → Install extension, paste `https://github.com/kohz87/story_suite`, and reload. **Update:** Extensions → Manage extensions → the update button; nothing else. Nothing is carried over from the old three. Full steps: [docs/INSTALL.md](docs/INSTALL.md). **What changed:** [CHANGELOG.md](CHANGELOG.md). **Questions:** [docs/FAQ.md](docs/FAQ.md).
 
 ## What is in it
 

@@ -9,6 +9,7 @@ import { actorIdOf } from '../roster.js';
 import { fightInputOf, witnessOf } from '../combat/input.js';
 import { playBoard } from '../combat/play.js';
 import { fightChangesV1, fightResultV1 } from './v1-settle.js';
+import { stanceAfter, stanceHeldOff } from './v1-stance.js';
 import { gearQuery } from './gear-query.js';
 import { gearSoakRecord } from '../gear.js';
 import { dice as portDice } from '../../../core/interaction/dice.js';
@@ -42,14 +43,15 @@ function inputOf(state, setup) {
 }
 
 // One step's inputs → the engine's choices, keyed by the hero's key (an input names its hero by actor id; the board's older buttons name it in `who`).
-function choicesOf(sheet, step) {
+// The first step of a reply: a pick with no stance switch takes the one the earlier replies left (`carried`, actor id → false).
+function choicesOf(sheet, step, carried = {}) {
     const byActor = new Map(sheet.characters.filter(character => character.v1 === true).map(character => [actorIdOf(character.module), character.key]));
     const out = {};
     for (const input of step.inputs) {
         const key = byActor.get(input.actor) ?? fold(String(input.args?.who ?? ''));
         if (!key) continue;
         const { who, ...rest } = plain(input.args) ? input.args : {};
-        out[key] = { ...rest, kind: input.choice };
+        out[key] = { ...rest, kind: input.choice, ...(rest.stance === undefined && carried[input.actor] === false ? { stance: false } : {}) };
     }
     return out;
 }
@@ -57,7 +59,7 @@ function choicesOf(sheet, step) {
 function playedOf(state, setup, steps, dice) {
     const { sheet, input } = inputOf(state, setup);
     if (!input.party.length || !input.foes.length) throw new Error('There is no fight to play.');
-    const record = playBoard(input, { dice, ...(setup.start ? { start: structuredClone(setup.start) } : {}) }, steps.map(step => choicesOf(sheet, step)));
+    const record = playBoard(input, { dice, ...(setup.start ? { start: structuredClone(setup.start) } : {}) }, steps.map((step, at) => choicesOf(sheet, step, at === 0 ? setup.stance : {})));
     return { sheet, input, record };
 }
 
@@ -86,10 +88,11 @@ function settleV1(state, setup, steps, dice) {
     return { result, stop: result.stop, changes: fightChangesV1(result, played.sheet) };
 }
 
-// Auto is the engine's own policy for that hero, and a stance the hero's last exchange had switched off stays off (read from the steps before: a swipe, a Re-read, a rewind and a reload give the same input).
-function autoInput(state, setup, steps = [], actor = '') {
-    const last = steps.at(-1)?.inputs?.find(input => input?.actor === actor);
-    return { choice: 'auto', args: last?.args?.stance === false ? { stance: false } : {} };
+// Auto is the engine's own policy for that hero, and a stance switched off stays off: by the switch as the player left it for this exchange (`held`, actor id → on or off), else by the steps before and the replies before
+// (read from the stored steps and setup: a swipe, a Re-read, a rewind and a reload give the same input; the input stored holds the stance, so replaying it needs no `held`).
+function autoInput(state, setup, steps = [], actor = '', held = null) {
+    const said = held?.[actor], off = typeof said === 'boolean' ? !said : stanceHeldOff(setup, steps, actor);
+    return { choice: 'auto', args: off ? { stance: false } : said === true ? { stance: true } : {} };
 }
 
 /** Everything the kind's hooks use for a v1 fight (`isV1`/`sheet` tell whether a setup or a state is one): Auto is the engine's own automatic policy for that hero; the next setup carries the start and the foes' bars; the witness is what the engine reads. */
@@ -97,12 +100,14 @@ export const V1 = Object.freeze({
     isV1, sheet: v1Sheet, open: openV1, play: playV1, settle: settleV1,
     auto: autoInput,
     soak: soakOf,
-    next(setup, result) {
+    next(setup, result, steps = []) {
         const out = structuredClone(setup), exchanges = Number(result.exchanges);
         if (Number.isInteger(exchanges) && exchanges >= 1) {
             out.offset = exchanges;
             out.start = { offset: exchanges, order: structuredClone(result.order), rotation: Number(result.rotation) || 0 };
             out.carried = { foes: structuredClone(result.foes), order: structuredClone(result.order) };
+            const held = stanceAfter(setup, steps);
+            if (Object.keys(held).length) out.stance = held; else delete out.stance;
         }
         for (const key of ['opening', 'opened', 'approach', 'drop']) delete out[key];
         return out;

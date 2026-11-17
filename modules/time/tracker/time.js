@@ -6,7 +6,8 @@
 // it on. The calendar is the reader's (settings section 'Calendar'): by default (preset `pack`) the
 // first enabled pack's (Story Block's query `packs.calendar`), else Gregorian; a reader who picks
 // `gregorian` or `custom` keeps their own whatever the packs say. A pack that gives a start date
-// sets the clock before the first reply when the story has not (`director.seed`).
+// sets the clock before the first reply when the story has not (`director.seed`). With no start date the story's first
+// date-less time line reads from the calendar's default start (time-parts/default-start.js).
 // Public face: re-exports its parts.
 
 export { PACK_PRESET, PRESET_CHOICES, SEED_CLAIM } from './time-parts/constants.js';

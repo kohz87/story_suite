@@ -53,7 +53,7 @@ async function run(t, seed) {
         if (['reply', 'change'].includes(name)) await rig.publish(change(r, step));
         await proveHead(rig, `seed ${seed} step ${step} (${name})`);
     }
-    return { rig, tally, skips: rig.host.store.problems?.() ?? [], told: rig.host.turn.problems?.() ?? [] };
+    return { rig, tally, skips: rig.host.store.problems?.() ?? [], told: (rig.host.turn.problems?.() ?? []).filter(item => item.code !== 'NO_CHANGES') };
 }
 
 for (const seed of SEEDS) {

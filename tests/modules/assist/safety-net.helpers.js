@@ -22,7 +22,7 @@ export function heldModel(answer) {
 }
 
 export async function hostWith(model) {
-    const host = await createHost({ callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true } } } });
+    const host = await createHost({ callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false } } } });
     host.features?.set?.('story-block.extractor', true);
     return host;
 }
@@ -53,7 +53,7 @@ export async function barrierHost(answer, { waitMs = 2000 } = {}) {
     Object.assign(BARRIER, { waitMs, pollMs: 10 });
     const { announceModules } = await import('../../../core/sdk/lifecycle.js');
     const { model, release } = heldModel(answer);
-    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: '+ world, + faction' } } } });
+    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false, [SETTING.extractorKinds]: '+ world, + faction' } } } });
     host.features?.set?.('story-block.extractor', true);
     const close = host.close.bind(host);
     host.close = () => { Object.assign(BARRIER, old); close(); };

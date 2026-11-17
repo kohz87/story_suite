@@ -76,7 +76,9 @@ test('a journaled native mutation the participant has no record of is let go on 
     const third = await reload(createHost, { chat: clone(again.ctx.chat), metadata: clone(again.ctx.chatMetadata) }, [rulesModule(), native.def]);
     t.after(() => third.close());
     assert.equal(third.registry.restore().state, 'idle');
-    assert.equal(third.turn.problems().filter(item => item.code === 'NATIVE_ABORTED').length, 0);
+    // (the one row told earlier is kept with the chat, LR1-5, so it is still listed; nothing is told a second time)
+    assert.equal(third.turn.problems().filter(item => item.code === 'NATIVE_ABORTED').length, 1);
+    assert.equal(third.st.notices.filter(notice => LINE.test(notice.reason)).length, 0, 'no toast again');
 });
 
 test('a journaled native mutation the participant still has is finished forward, as before (nothing told)', async t => {

@@ -224,10 +224,11 @@ export const MOMENT = Object.freeze({
   priorReplyMenu: Object.freeze({
     at: 'Goldwane 13, 9:10 am',
     lines: Object.freeze([
-      Object.freeze({ glyph: 'heart', line: 'Sister Temiwa: Trust +1', detail: 'you came back to the office', applied: true }),
-      Object.freeze({ glyph: 'coin', line: '8 copper paid', detail: 'room at the Gull', applied: true }),
-      Object.freeze({ glyph: 'clock', line: 'Time 8:40 → 9:10 am', detail: '+30 minutes', applied: true }),
+      Object.freeze({ glyph: 'heart', line: 'Sister Temiwa: Trust +1', detail: 'you came back to the office', applied: true, assist: false }),
+      Object.freeze({ glyph: 'coin', line: '8 copper paid', detail: 'room at the Gull', applied: true, assist: false }),
+      Object.freeze({ glyph: 'clock', line: 'Time 8:40 → 9:10 am', detail: '+30 minutes', applied: true, assist: false }),
     ]),
+    repaired: false,
     counts: Object.freeze({ changes: 3, heldBack: 0, notApplied: 0 }),
     stateThen: Object.freeze({ place: 'Guild Office, Bluewatch', weather: 'cold drizzle' }),
   }),

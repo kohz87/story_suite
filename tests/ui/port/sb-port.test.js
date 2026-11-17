@@ -124,10 +124,11 @@ test('interaction.<verb> commands reach sdk.interaction with their arguments, an
   await port.command('interaction.open', { kindId: 'a/b', args: { x: 1 } });
   await port.command('interaction.stage', { id: 's1', step: { inputs: [] } });
   await port.command('interaction.auto', { id: 's1', n: 2 });
+  await port.command('interaction.auto', { id: 's1', n: 1, stance: { a: false } });
   await port.command('interaction.send', { id: 's1' });
   await port.command('interaction.discard', { id: 's1' });
-  assert.deepEqual(sdk.calls, [['open', 'a/b', { x: 1 }], ['stage', 's1', { inputs: [] }], ['auto', 's1', 2], ['send', 's1'], ['discard', 's1']]);
-  assert.deepEqual(heard, ['open', 'stage', 'auto', 'send', 'discard']);
+  assert.deepEqual(sdk.calls, [['open', 'a/b', { x: 1 }], ['stage', 's1', { inputs: [] }], ['auto', 's1', 2], ['auto', 's1', 1, { a: false }], ['send', 's1'], ['discard', 's1']]);
+  assert.deepEqual(heard, ['open', 'stage', 'auto', 'auto', 'send', 'discard']);
 });
 
 test('interaction.settle and unknown interaction names are refused and never reach the sdk', async () => {

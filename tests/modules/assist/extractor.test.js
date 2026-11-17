@@ -201,7 +201,7 @@ const available = await hostAvailable();
 
 test('on the real host: the safety net\'s place is applied on the reply, marked, stored, and Re-read uses the stored lines', { skip: available.ok ? false : available.reason }, async () => {
     const model = fakeModel('~ place Old Mill | kind: settlement\n+ item Rope | qty: 1', 'none');
-    const host = await createHost({ callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true } } } });
+    const host = await createHost({ callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false } } } });
     host.features?.set?.('story-block.extractor', true);
     const late = new Promise(resolve => host.sdk.on('turn', turn => { if (turn.type === 'late') resolve(turn); }));
     const { index } = await host.send('I walk to the mill.', `${STORY}\n<Changes>\n- present Nobody\n</Changes>`);
@@ -230,7 +230,7 @@ test('on the real host: the safety net\'s place is applied on the reply, marked,
 
 test('the extractor is off by default: a reply without a block stays without changes', { skip: available.ok ? false : available.reason }, async () => {
     let asked = 0;
-    const host = await createHost({ callModel: async () => { asked += 1; return '+ item Rope'; } });
+    const host = await createHost({ callModel: async () => { asked += 1; return '+ item Rope'; }, settings: { modules: { 'story-block': { [SETTING.repair]: false } } } });
     await host.send('I buy rope.', STORY);
     await flush();
     assert.equal(asked, 0);
@@ -245,7 +245,7 @@ test('settings default to the sdk\'s when no view is given', async () => {
         globalThis.StoryBlock = { sdk: { settings: id => { asked.push(id); return { [SETTING.extractor]: false }; } } };
         const part = createAssistPart({ callModel: fakeModel(ANSWER), grammar: () => GRAMMAR, chatId: () => 'c', warn: () => {} });
         assert.equal(await part.hooks.afterReply({ index: 1, mes: STORY }), null);
-        assert.deepEqual(asked, ['story-block']);
+        assert.deepEqual(asked, ['story-block', 'story-block'], 'the repair and the extractor each read the settings');
     } finally {
         globalThis.StoryBlock = previous;
     }

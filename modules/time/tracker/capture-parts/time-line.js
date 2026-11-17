@@ -3,6 +3,7 @@
 import { addProblem, replyDraft } from '../domain.js';
 import { calendarOf, lineStretch, maxJumpMinutes, packCalendarOf, sameStretch, settingsFrom, splitTimeLine, timeAfter } from '../time.js';
 import { clockFaceAfter, dayKey } from '../time-parts/clock-face.js';
+import { clockToRead } from '../time-parts/default-start.js';
 import { DAY_MINUTES } from '../time-parts/limits.js';
 import { KEY_CHARS } from './limits.js';
 import { beginTurn } from './reply.js';
@@ -52,8 +53,11 @@ function timeLine(ctx, line, again = false, anchorable = true) {
         const alone = read(line, from, calendar, options);
         if (alone.set && !alone.error && sameStretch(turn.advanced, alone.minutes - from)) next = alone;
     }
-    const fromNow = next === null ? read(line, director.time.minutes, calendar, options) : null;
+    // No clock yet (no pack start): a line with no date reads from the calendar's default start and sets the clock there (clockToRead).
+    const base = clockToRead(calendar, director.time, line);
+    const fromNow = next === null ? read(line, base.from, calendar, options) : null;
     next ??= fromNow;
+    if (base.set && fromNow !== null && !fromNow.error) next = { ...fromNow, set: true, held: undefined, problem: undefined };
     if (!next.error && Number.isSafeInteger(next.minutes)) {
         if (stretch !== null) turn.advanced = (turn.advanced ?? 0) + stretch;
         else if (next.set) turn.setAt = next.minutes;
@@ -76,6 +80,9 @@ function timeLine(ctx, line, again = false, anchorable = true) {
     if (next.minutes !== before) director.time.minutes = next.minutes;
     // A time line the story told ends the fallback's soft minutes (written only by the world's clock fallback).
     if (director.time.soft !== undefined) delete director.time.soft;
+    // The marker that the clock came from the calendar's default start: set by the first date-less line, cleared by the first date.
+    if (base.set && director.time.fromDefault !== true) director.time.fromDefault = true;
+    else if (base.floating && next.set && director.time.fromDefault === true) director.time.fromDefault = false;
     // A date sets the clock: stored as a set (Story Block's ctx.absolute, SPEC §2.2), so it stays exact
     // when an earlier reply that moved the clock is deleted, and later moves add on top. An older Story
     // Block without it stores the set as a move.

@@ -54,9 +54,12 @@ test('replay == live: swipe and back, edited Re-reads, middle delete, chat chang
         assert.ok(ledgerOpen(host).results, 'the stored answers came back with the chat');
         // A rewind to the start and the same day crossed again: reused from the answers kept in memory this session.
         while (host.ctx.chat.length > 2) await host.st.deleteMessage(host.ctx.chat.length - 1);
+        // The rewound chat has no clock (since 0.1.0 a date-less line would start it at the calendar's default, a day of no stored answer): the same date first.
+        await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
         for (const text of ['One.', 'Two.', 'Three.', 'Four.']) { await host.send(text, said(text, '! time +1h')); await settle(); }
         await host.send('Next day.', said('Dawn.', '! time +1d'));
         await settle();
+        assert.equal(slotRows(host).find(row => row.template === 'night-watch')?.outcome, 'ok', 'the day was crossed again, so the reuse is real');
         assert.equal(host.model.calls, calls, 'rewind and cross again: the answers are reused, not asked again');
         await agrees(host, 'rewound and crossed again');
     } finally { host.done(); }

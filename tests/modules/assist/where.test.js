@@ -206,7 +206,7 @@ async function withMap(model) {
     const settings = structuredClone(probe.ctx.extensionSettings.storySuite);
     probe.close();
     const host = await createHost({ modules: [CLOCK], callModel: model,
-        settings: { ...settings, modules: { ...(settings.modules ?? {}), 'story-block': { ...(settings.modules?.['story-block'] ?? {}), [SETTING.extractor]: true } } } });
+        settings: { ...settings, modules: { ...(settings.modules ?? {}), 'story-block': { ...(settings.modules?.['story-block'] ?? {}), [SETTING.extractor]: true, [SETTING.repair]: false } } } });
     host.features?.set?.('story-block.extractor', true);
     return host;
 }
@@ -283,7 +283,7 @@ test('on the real host: with a world or faction kind allowed the prompt names th
     for (const [kinds, told] of [['~ time, + world, ~ world, + faction, ~ faction', true], ['~ time', false]]) {
         const prompts = [];
         const host = await createHost({ modules: [CLOCK, CHRONICLE], callModel: async prompt => { prompts.push(prompt); return 'none'; },
-            settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: kinds } } } });
+            settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false, [SETTING.extractorKinds]: kinds } } } });
         try {
             host.features?.set?.('story-block.extractor', true);
             await host.send('I look around.', 'The pier is busy.');

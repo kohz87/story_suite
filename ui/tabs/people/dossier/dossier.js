@@ -74,9 +74,10 @@ export function dossierPage(d, ctx = {}) {
 
   const top = h('section', { class: 'glass dtop' });
   const menuSlot = h('div', { class: 'menu-slot' });
+  const noteSlot = h('div', { class: 'fine dnote', role: 'status', 'aria-live': 'polite' });
   const grid = h('div', { class: 'dgrid' });
   const root = h('div', { class: 'dossier dov', role: 'dialog', 'aria-label': `${d.name}’s dossier`, dataset: { personId: d.id } },
-    h('div', { class: 'dscroll' }, top, menuSlot, grid));
+    h('div', { class: 'dscroll' }, top, menuSlot, noteSlot, grid));
 
   function closeMenu() { release('menu'); state.menu = false; state.sure = false; drawMenu(); }
   function openPage(id) {
@@ -88,6 +89,14 @@ export function dossierPage(d, ctx = {}) {
   function close() { release('menu'); release('page'); release('dossier'); ctx.onClose?.(); }
   root.close = close;
 
+  // Refresh runs a model call: the line under the top bar says it is going and then what came of it (the answer's own words).
+  function refresh() {
+    noteSlot.textContent = `Re-reading the recent story for ${d.name}…`;
+    Promise.resolve(cmd('npc.refresh', { name: d.name })).then(
+      (result) => { noteSlot.textContent = result?.ok === false ? (result.message ?? 'Refresh did not run.') : (result?.message ?? `Refresh sent for ${d.name}.`); },
+      (error) => { noteSlot.textContent = String(error?.message || 'Refresh did not run.'); });
+  }
+
   function drawMenu() {
     top.querySelector('[data-act="menu"]')?.setAttribute('aria-expanded', String(state.menu));
     if (!state.menu) { menuSlot.replaceChildren(); return; }
@@ -97,7 +106,7 @@ export function dossierPage(d, ctx = {}) {
         type: 'button', role: 'menuitem', class: id === 'delete' ? 'dng' : null, dataset: { act: id },
         onClick: () => {
           if (id === 'delete' && !state.sure) { state.sure = true; drawMenu(); return; }
-          cmd(`npc.${id}`, id === 'refresh' ? { name: d.name } : {});
+          if (id === 'refresh') refresh(); else cmd(`npc.${id}`);
           closeMenu();
         },
       }, confirm ? 'Tap again to delete' : label, h('small', null, confirm ? 'this cannot be undone' : hint));
@@ -105,12 +114,13 @@ export function dossierPage(d, ctx = {}) {
   }
 
   function drawTop() {
-    top.replaceChildren(
+    // (a control nobody answers is left out, not drawn as the text "null")
+    top.replaceChildren(...[
       button({ label: ctx.origin ?? '‹ People', className: 'bk2', dataset: { act: 'close' }, onClick: close }),
       h('span', { class: 'sp' }),
       can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => cmd('npc.edit') }) : null,
       !MENU.some(([id]) => can(ctx, `npc.${id}`)) ? null : h('button', { type: 'button', class: 'ibtn', 'aria-label': 'More', 'aria-expanded': 'false', dataset: { act: 'menu' },
-        onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯'));
+        onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯')].filter(Boolean));
   }
 
   function hero() {

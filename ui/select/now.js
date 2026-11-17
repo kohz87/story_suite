@@ -1,6 +1,7 @@
 // Builds the Now-tab view-model from recorded query answers; gaps come back as null or empty lists.
 
 import { selectDrawer, replyLines } from './chat.js';
+import { selectCard } from './card.js';
 
 // answers: { [queryName]: answer } as the port read them. opts: as selectDrawer, plus `fight` (a `fight.board` answer, not a query yet),
 // `torn` (`gear.view` answer) and `pinned` ([{ id, name, view }]: each pinned block's `dataModules.view` answer, SB/data-modules/part/views.js:51).
@@ -12,7 +13,7 @@ const list = value => (Array.isArray(value) ? value : []);
 // `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. An open fight has no query (UI-PLAN §2.1); points to spend come from `rpg.sheet` (SB/lean-rpg/sheet-query.js: per member `points`).
 function needsYou(answers, opts) {
   const out = [];
-  if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: 'A fight is open', detail: null, go: 'fight' });
+  if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: opts.fight.offer ? 'Foes are standing' : 'A fight is open', detail: opts.fight.offer ? list(opts.fight.names).join(', ') || null : null, go: 'fight' });
   const owing = list(answers['rpg.sheet']).filter(row => isRec(row) && Number.isFinite(row.points) && row.points > 0);
   if (owing.length) {
     const total = owing.reduce((sum, row) => sum + row.points, 0);
@@ -64,6 +65,14 @@ function thisTurn(answers) {
   return { count: items.length, items };
 }
 
+// Where and when, from what the store already has (the place, the clock): drawn before the first reply too. null when it holds neither.
+function whereOf(answers, opts) {
+  const { scene } = selectCard(answers, opts);
+  const when = [scene.date, scene.time, scene.weather].map(text).filter(Boolean).join(' · ');
+  const title = text(scene.place) || when;
+  return title ? { title, detail: text(scene.place) && when ? when : null } : null;
+}
+
 function pinnedOf(pinned) {
   return list(pinned).filter(item => isRec(item) && isRec(item.view?.chat)).map(item => ({
     trackerId: text(item.id),
@@ -80,7 +89,7 @@ export function selectNow(answers = {}, opts = {}) {
     needsYou: needsYou(answers, opts),
     // The card's pack offers (select/offers.js rows), told next to the actions; [] when the card offers none.
     offers: list(opts.offers),
-    today: { focus: focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
+    today: { where: whereOf(answers, opts), focus: focusOf(answers['director.goal']), trip: tripOf(answers['atlas.trip']), dueSoon: dueOf(answers['director.next']), torn: tornOf(opts.torn) },
     // The scene line (doing, wearing) and the situational secrets are gaps (UI-PLAN §2.2).
     here: selectDrawer(answers, opts).map(row => ({ ...row, followed: followed.has(row.name), inParty: party.has(row.name), doing: null, wearing: null, scene: null })),
     thisTurn: thisTurn(answers),

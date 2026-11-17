@@ -30,4 +30,5 @@ export function selectFightScene(current) {
 }
 
 /** What the Now card's "fight open" row reads: the fight's board state while it is being played, 'end' once it is over or sent (nothing is left to choose). */
-export const fightNeeds = fight => ({ state: ['open', 'staged'].includes(fight.state) ? fight.view?.state ?? 'choose' : 'end' });
+// (`offer`: foes left standing wait for the reader's choice, no message is held; its names go on the Needs-you card)
+export const fightNeeds = fight => ({ state: ['open', 'staged'].includes(fight.state) ? fight.view?.state ?? 'choose' : 'end', ...(fight.hold?.offer ? { offer: true, names: (fight.view?.foeGroups ?? []).map(g => g.name) } : {}) });

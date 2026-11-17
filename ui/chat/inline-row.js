@@ -30,6 +30,16 @@ function needsChip(needs, on) {
   );
 }
 
+// The "no changes recorded" badge: the reply came with no change block and nothing was stored for it; the badge is the Re-read button when the page can.
+function unrecordedChip(row, on) {
+  if (row.unrecorded !== true) return null;
+  const title = 'The reply came with no change block, so nothing in it was kept. Add its lines to the reply, then Re-read.';
+  const inside = [h('span', { class: 'bang', 'aria-hidden': 'true' }, '!'), h('span', 'No changes recorded' + (on.onReread ? ' — Re-read' : ''))];
+  return on.onReread
+    ? h('button', { type: 'button', class: 'ssbtn need', title, dataset: { unrecorded: '1' }, onClick: () => on.onReread() }, inside)
+    : h('span', { class: 'ssbtn need', role: 'note', title, dataset: { unrecorded: '1' } }, inside);
+}
+
 function choicesPart(choices, on) {
   if (!Array.isArray(choices) || !choices.length) return { chip: null, list: null };
   const list = h(
@@ -91,5 +101,7 @@ export function inlineRow(row, handlers = {}) {
     chip,
     suiteButton(vm, on),
   );
-  return h('div', { class: ['ssrow', vm.fightOpen ? 'fo' : null], dataset: { ssRow: '1' } }, line1, line2, list);
+  // (the badge has a line of its own: its words are long, and the phone row hides its chips' labels)
+  const unrecorded = unrecordedChip(vm, on);
+  return h('div', { class: ['ssrow', vm.fightOpen ? 'fo' : null], dataset: { ssRow: '1' } }, line1, line2, unrecorded ? h('div', { class: 'ssl3' }, unrecorded) : null, list);
 }

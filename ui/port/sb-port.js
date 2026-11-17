@@ -15,6 +15,7 @@ import { resetCommand } from './resets.js';
 import { moduleCardCommand } from './module-cards.js';
 import { ALIAS_NAMES, aliasCommand } from './aliases.js';
 import { OWN_NAMES } from './own-names.js';
+import { refreshCommand } from './people-refresh.js';
 
 /** The page event `port.open` sends and the host answers (ui/legacy/ui-host/lean-rpg-sync.js). */
 export const OPEN_EVENT = 'story-suite:open';
@@ -49,7 +50,7 @@ async function guarded(sdk, method, ...args) {
 const INTERACTION = {
   open: p => [p?.kindId, p?.args],
   stage: p => [p?.id, p?.step],
-  auto: p => [p?.id, p?.n],
+  auto: p => (p?.stance ? [p.id, p.n, p.stance] : [p?.id, p?.n]),
   send: p => [p?.id],
   discard: p => [p?.id],
 };
@@ -66,8 +67,8 @@ async function offerCommand(controller, payload) {
   return { ...FAILED, message: 'The engine does not take that offer answer.' };
 }
 
-/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `rpgValues()` reads Story Block’s settings bucket (the RPG page’s Custom start); `packs` is the Packs page's handle ({ packs, readLorebook, lore }); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach. */
-export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null } = {}) {
+/** Creates the port: `writes` is `{ settings.set, features.set }`, the host's stores (the public sdk has none); `tools` is the engine's read-only Tools handle (the Tools page's report and rebuild); `selectors` maps a tab to `(read) → view-model`; `prefs` is `{ device, chat }` stores; `onError(tab, error)` hears a selector that threw (the view stays null); `reread(index)` is the sdk's; `rpgValues()` reads Story Block’s settings bucket (the RPG page’s Custom start); `packs` is the Packs page's handle ({ packs, readLorebook, lore }); `offer()` gives the card-offer controller (or null) that `packs.offer` and the `offer` event reach; `hold` is the waiting fight's handle (port/hold.js) that `interaction.choose` answers. */
+export function createSbPort({ sdk, writes = null, tools = null, selectors = {}, prefs = null, onError = null, offer = null, rpgValues = () => null, packs = null, hold = null } = {}) {
   const read = makeReader(sdk);
   const heard = new Set();
   // The engine does not announce an interaction change (it writes chat metadata only): the port does, after each call, so the view redraws.
@@ -137,6 +138,16 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       }
       if (ALIAS_NAMES.includes(type)) { const answer = await aliasCommand(sdk, type, payload).catch(failure); announce(answer); return answer; }
       if (type === 'packs.offer') return offerCommand(offer?.(), payload);
+      // The dossier's Refresh re-reads the story with NPC State's Refresh (the engine's `npc.refresh` only works the stages out again).
+      if (type === 'npc.refresh' && payload?.name !== undefined) return refreshCommand(payload);
+      // The waiting fight's answers (board, auto, plain, send, discard): the pause's own, so the old view and this one write the same; the view redraws after.
+      if (type === 'interaction.choose') {
+        let answer = hold ? null : { ...FAILED, message: 'No fight is waiting.' };
+        try { answer ??= hold.choose(String(payload?.choice ?? '')); } catch (error) { answer = failure(error); }
+        if (answer?.ok && answer.view?.error) answer = { ...FAILED, message: String(answer.view.error) };
+        announce(answer);
+        return answer;
+      }
       if (typeof type === 'string' && type.startsWith('interaction.')) {
         const verb = type.slice('interaction.'.length);
         return Object.hasOwn(INTERACTION, verb) ? interact(verb, payload) : Promise.resolve({ ...FAILED, message: `The engine does not take ${type}.` });
@@ -153,11 +164,12 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
     },
     preview: (type, payload) => guarded(sdk, 'preview', type, payload),
     commit: token => guarded(sdk, 'commit', token),
-    reread: index => guarded(sdk, 'reread', index),
+    reread: (index, options) => guarded(sdk, 'reread', index, options),
     on(event, fn) {
       if (typeof fn !== 'function') throw new TypeError('port.on listener must be a function');
       if (event === 'offer') { const off = offer?.()?.subscribe?.(fn); return typeof off === 'function' ? off : () => {}; }
-      if (event === 'interaction') { heard.add(fn); return () => heard.delete(fn); }
+      // (the waiting fight changes outside the engine too: the hold's own word redraws the view as an interaction call does)
+      if (event === 'interaction') { heard.add(fn); const off = hold?.subscribe?.(() => fn(null)); return () => { heard.delete(fn); off?.(); }; }
       let off = null;
       try {
         off = sdk?.on?.(event, fn);

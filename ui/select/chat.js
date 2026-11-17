@@ -72,8 +72,8 @@ export function selectDrawer(answers = {}, opts = {}) {
 export function replyLines(answers = {}) {
   const answer = isRec(answers['reply.changes']) ? answers['reply.changes'] : null;
   if (!answer) return null;
-  const lines = list(answer.lines).filter(isRec).map(row => ({ glyph: text(row.glyph), line: text(row.line), detail: text(row.detail) || null, applied: row.applied !== false }));
-  for (const miss of list(answer.refused)) lines.push({ glyph: 'warn', line: text(miss?.line), detail: text(miss?.reason) || null, applied: false });
+  const lines = list(answer.lines).filter(isRec).map(row => ({ glyph: text(row.glyph), line: text(row.line), detail: text(row.detail) || null, applied: row.applied !== false, assist: row.assist === true }));
+  for (const miss of list(answer.refused)) lines.push({ glyph: 'warn', line: text(miss?.line), detail: text(miss?.reason) || null, applied: false, assist: false });
   return lines;
 }
 
@@ -98,7 +98,8 @@ export function selectInlineRow(answers = {}, opts = {}) {
 }
 
 export function selectReplyMenu(answers = {}, opts = {}) {
-  const lines = replyLines(answers);
+  // A reply with a stored repair keeps its sheet even when no shown line came of it (a hook or a time line), so it can still be discarded.
+  const lines = replyLines(answers) ?? (opts.repaired === true ? [] : null);
   if (!lines) return null;
   const notApplied = lines.filter(line => !line.applied).length;
   // `stateThen` is the place and weather of the state the reply query was asked on (`{ asOf }` for an earlier reply).
@@ -108,5 +109,7 @@ export function selectReplyMenu(answers = {}, opts = {}) {
     lines,
     counts: { changes: lines.length - notApplied, heldBack: notApplied, notApplied },
     stateThen: { place: text(then.place), weather: text(then.weather) || null },
+    // The reply holds a repair the reader can discard (selectors give it from the chat's text: ui/select/unrecorded.js repairedAt).
+    repaired: opts.repaired === true,
   };
 }

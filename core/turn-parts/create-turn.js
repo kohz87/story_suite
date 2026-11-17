@@ -8,9 +8,11 @@ import { contentText, contextRoom } from '../turn/text.js';
 import { createSession } from '../turn/session.js';
 import { createCaptureFlow } from '../turn/capture-flow.js';
 import { createReread } from '../turn/reread.js';
+import { createDiscard } from '../turn/discard.js';
 import { createPromptBuild } from '../turn/prompt-build.js';
 import { createPromptHooks } from '../turn/prompt-hooks.js';
 import { createEvents } from '../turn/events.js';
+import { keepProblems } from '../turn/problem-keep.js';
 import { createInteractionWatch } from '../interaction/watch.js';
 import { createInteractionHooks } from '../interaction/hooks.js';
 import { reconcileInteraction } from '../interaction/reconcile.js';
@@ -124,7 +126,16 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
         try { changed = reconcileInteraction(metadata(), ctx?.chat, () => store.receipts?.() ?? [], { kindOf: id => registry.interaction?.(id) ?? null, stateAt: index => store.at(index) }); } catch { changed = false; }
         if (changed) { try { (ctx?.saveMetadata ?? ctx?.saveMetadataDebounced)?.call(ctx); } catch { /* saved on the next chat write */ } }
     };
-    const { markBusy, markIdle, setPrompt, setPrompts, clearPrompts, problem, trySave, ensureInitial, held, repairActions, repair, startOver, rebuild, planAgain, reconcileNow } = createSession(s, { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch, kindOf, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM });
+    // The Problems list is kept with the chat's metadata, so a reload shows the same rows (turn/problem-keep.js).
+    const keepLog = () => {
+        if (s.problemsLoading) return;   // a chat change is reading the new chat's rows (events.js onChatChanged)
+        try {
+            const live_ = liveContext();
+            if (keepProblems(live_?.chatMetadata, s.problemLog)) (live_.saveMetadata ?? live_.saveMetadataDebounced)?.call(live_);
+        } catch { /* kept on the next change */ }
+    };
+    s.keepLog = keepLog;
+    const { markBusy, markIdle, setPrompt, setPrompts, clearPrompts, problem, trySave, ensureInitial, held, repairActions, repair, startOver, rebuild, planAgain, reconcileNow } = createSession(s, { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch, kindOf, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM, keepLog });
     // One commit guard and one stop for what a reply in flight read: an interaction's (the fight board's too).
     // The state a kind's opening prelude leaves (a preview: nothing is stored), which the segment after it is checked and played on.
     const previewOpening = (payload, seed, state) => { const run = bus.run('interaction.settle', payload, { cause: 'system', state, seed }); return run?.ok ? run.state : null; };
@@ -138,6 +149,8 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     // The capture flow (turn/capture-flow.js): wired here, after the session's `problem` it is given and before the Re-read that calls it.
     const { changeHeads, readBlock, strayProblems, legacyProblem, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW } = createCaptureFlow(s, { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, PRACTICE_LINE, HOOK_TIMEOUT_MS, isolated, interactionError });
     const { reread, saveText, redraw } = createReread(s, { ctx, metadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, legacyProblem, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave });
+
+    const { discardRepair } = createDiscard({ ctx, reread, refusal });
 
     // The prompt side of a turn (turn/prompt-build.js, turn/prompt-hooks.js): wired here, after every const they are given. The interceptor asks for claimQuiet only when it runs.
     const { runCues, build, askCanGenerate, runOnBlocked, interceptor, markers, stripHistory, backgroundPrompt, foreignPrompt } = createPromptBuild(s, { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet: () => claimQuiet(), FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType });
@@ -162,7 +175,8 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
         onChatRenamed,
         onTimelineChanged,
         onGenerationEnded,
-        reread,
+        // reread(index, { discardRepair: true }): the reply sheet's "Discard repair" (turn/discard.js)
+        reread: (index, options) => (options?.discardRepair === true ? discardRepair(index) : reread(index)),
         /** What the next ordinary reply would be sent, without changing anything (no cues run). */
         preview: () => build().parts,
         /**
@@ -182,7 +196,7 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
         },
         /** The Problems list, oldest first; `moduleId` narrows it (null: the host's own). */
         problems: moduleId => s.problemLog.filter(item => moduleId === undefined || item.module === moduleId).map(item => ({ ...item })),
-        clearProblems: () => { s.problemLog.length = 0; },
+        clearProblems: () => { s.problemLog.length = 0; keepLog(); },
         /** Generations a canGenerate hook stopped: [{ moduleId, reason }], oldest first. */
         blocked: () => s.blocks.map(item => ({ ...item })),
         /**

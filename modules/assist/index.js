@@ -22,7 +22,8 @@ export {
     checkLine, claimKey, classifierPrompt, createClassifier, normalizeDc, parseClassifierAnswer, precheck,
 } from './classifier.js';
 export { EXTRACTOR_FOOT, EXTRACTOR_HEAD, MAX_LINES, WORLD_FOOT, footFor, REPLY_HEAD, REPLY_LIMIT, WHERE_HEAD, WRITTEN_HEAD, allowedGrammar, createExtractor, extractorPrompt, grammarKind, notWritten, parseExtractorAnswer } from './extractor.js';
-export { DEFAULT_KINDS, KIND_CHOICES, allowedKinds, refusedWhy, safeLines } from './safety.js';
+export { REPAIR_FOOT, REPAIR_HEAD, REPAIR_TOKENS, createRepairer, repairPrompt } from './repair.js';
+export { DEFAULT_KINDS, KIND_CHOICES, REPAIR_KINDS, allowedKinds, refusedWhy, safeLines } from './safety.js';
 export { MAX_NEAR, hasClockTime, knownPlace, mapPlaces, whereLines, whereNow, whereWhy } from './where.js';
 export { renderAssistSection, runLine } from './section.js';
 export { answerText, findProfile, stCallModel, stChat, stChatId } from './st-adapter.js';

@@ -4,7 +4,7 @@ import { MOMENT } from './moment.js';
 import { PEOPLE } from './people.js';
 import { partyFixture } from './party.js';
 import { bagFixture } from './bag.js';
-import { fightSceneAnswer } from './fight-scene.js';
+import { fightSceneAnswer, fightHoldScene } from './fight-scene.js';
 import { selectScene } from '../select/interaction.js';
 import { worldFor } from './world.js';
 import { withWorldEvents } from './world-events.js';
@@ -201,9 +201,12 @@ function buildChat(opts, hereList, changes, needsYou) {
     })),
     replyMenus: {
       0: structuredClone(MOMENT.priorReplyMenu),
+      // 1: a reply whose repair the reader can discard (the Assist mark and the Discard repair button)
+      1: { at: 'Goldwane 13, 9:20 am', lines: [{ glyph: 'item', line: '+1 Rope', detail: null, applied: true, assist: true }, { glyph: 'coin', line: '−5', detail: null, applied: true, assist: true }], repaired: true, counts: { changes: 2, heldBack: 0, notApplied: 0 }, stateThen: { place: 'Guild Office, Bluewatch', weather: 'cold drizzle' } },
       2: {
         at: `${scene.date}, ${scene.time}`,
-        lines: changes.map(c => ({ glyph: c.glyph, line: c.line, detail: c.detail, applied: c.applied })),
+        lines: changes.map(c => ({ glyph: c.glyph, line: c.line, detail: c.detail, applied: c.applied, assist: false })),
+        repaired: false,
         counts: {
           changes: changes.length,
           heldBack: changes.filter(c => c.heldBack).length,
@@ -266,7 +269,9 @@ export function fixture(variant = 'default') {
     people: buildPeople(opts, hereList),
     party: opts.rpg ? partyFixture() : null,
     bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),
-    fight: opts.fightOpen || (opts.scene && opts.sceneFight) ? selectScene(fightSceneAnswer(opts.fightState, { scene: opts.sceneFight ? opts.scene : null })) : null,   // the open fight, as the activity host gets it (the Fight tab)
+    // the open fight, as the activity host gets it (the Fight tab); its offer moment is the waiting fight (the pause before the message goes out)
+    fight: opts.fightOpen && opts.fightState === 'offer' && !opts.sceneFight ? fightHoldScene()
+      : opts.fightOpen || (opts.scene && opts.sceneFight) ? selectScene(fightSceneAnswer(opts.fightState, { scene: opts.sceneFight ? opts.scene : null })) : null,
     world: opts.worldEvents && !opts.empty ? withWorldEvents(worldFor(opts.fightOpen ? 'fightOpen' : 'default')) : worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
     story: buildStory({ empty: opts.empty, planShown: opts.planShown }),

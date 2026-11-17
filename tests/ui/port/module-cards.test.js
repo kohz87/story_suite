@@ -4,8 +4,10 @@ import { moduleCardCommand } from '../../../ui/port/module-cards.js';
 import { createSbPort } from '../../../ui/port/sb-port.js';
 import { createHost } from '../../../testkit/index.js';
 import { BUILTIN_MODULES } from '../../../core/modules-list.js';
+import { presetSwitches, selectedPreset } from '../../../core/features.js';
 
-const wiresOf = host => ({ settings: { set: (id, key, v) => host.settings.set(id, key, v) }, features: { set: (id, on) => host.features.set(id, on) } });
+import { createCardNotes } from '../../../core/settings/card-notes.js';
+const wiresOf = host => ({ settings: { set: (id, key, v) => host.settings.set(id, key, v), ...createCardNotes({ root: () => host.ctx.extensionSettings }) }, features: { set: (id, on) => host.features.set(id, on) } });
 const onMap = host => Object.fromEntries(host.sdk.features().map(f => [f.id, f.on]));
 
 test('the RPG switch and a Story Director switch are stored in the feature store, as the old view stores them', async t => {
@@ -36,16 +38,46 @@ test('a module switch turns its features off, and on again to the ones that star
   assert.ok(host.sdk.features().filter(f => f.moduleId === 'story-director').every(f => f.on === (f.default !== false)));
 });
 
-test('Reset to Standard puts every switch back to its default', async t => {
+test('Reset to Standard sets what the Standard preset sets; a switch outside the presets keeps the player\'s value', async t => {
   t.mock.method(console, 'warn', () => {});
   const host = await createHost({ core: true, modules: BUILTIN_MODULES });
   t.after(() => host.close());
   const port = createSbPort({ sdk: host.sdk, writes: wiresOf(host) });
-  const start = onMap(host);
+  const outside = host.sdk.features().filter(f => f.presets === false && f.available !== false);
+  assert.ok(outside.some(f => f.id === 'story-block.rpg'), 'RPG is outside the presets');
   for (const f of host.sdk.features()) host.features.set(f.id, !f.on);
-  assert.notDeepEqual(onMap(host), start);
+  const changed = onMap(host);
   assert.equal((await port.command('settings.action', { key: 'modules.reset', value: 'standard' })).ok, true);
-  for (const f of host.sdk.features()) assert.equal(f.on, f.default !== false, f.id);
+  const wanted = presetSwitches(host.sdk.features(), 'standard');
+  assert.ok(wanted.size > 0);
+  for (const f of host.sdk.features()) {
+    if (wanted.has(f.id)) assert.equal(f.on, wanted.get(f.id), f.id);
+    else if (f.presets === false) assert.equal(f.on, changed[f.id], `${f.id} keeps the player's value`);
+  }
+  assert.equal(selectedPreset(host.sdk.features()), 'standard');
+});
+
+test('a module switch acts only on the card\'s own switches; on again puts back what was on, not the defaults', async t => {
+  t.mock.method(console, 'warn', () => {});
+  const host = await createHost({ core: true, modules: BUILTIN_MODULES });
+  t.after(() => host.close());
+  const port = createSbPort({ sdk: host.sdk, writes: wiresOf(host) });
+  const extras = ['story-block.choices', 'story-block.chatter', 'story-block.you'];
+  const own = () => host.sdk.features().filter(f => f.moduleId === 'story-block' && !extras.includes(f.id));
+  for (const id of ['story-block.choices', 'story-block.chatter']) host.features.set(id, true);
+  const flipped = own().find(f => f.default !== false);
+  host.features.set(flipped.id, false);
+  host.features.set('story-block.rpg', true);
+  const before = onMap(host);
+  await port.command('settings.set', { key: 'modules.chat.story-block', value: false });
+  assert.ok(own().every(f => !f.on));
+  for (const id of extras) assert.equal(onMap(host)[id], before[id], `${id} (Chat extras) is untouched`);
+  await port.command('settings.set', { key: 'modules.chat.story-block', value: true });
+  assert.deepEqual(onMap(host), before, 'the player\'s own switches come back');
+  await port.command('settings.set', { key: 'modules.chat.story-block', value: false });
+  await port.command('settings.set', { key: 'modules.chat.story-block', value: false });
+  await port.command('settings.set', { key: 'modules.chat.story-block', value: true });
+  assert.deepEqual(onMap(host), before, 'off twice does not forget what was on');
 });
 
 test('NPC State\'s card (its features, a dotted id) is answered by the same handler', () => {

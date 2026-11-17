@@ -18,7 +18,7 @@ import { readRecord } from '../../core/persist.js';
 
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;
 const coin = host => host.head().domains.inventory.wallets.party?.coin ?? 0;
-const codes = host => host.turn.problems().map(problem => problem.code);
+const codes = host => host.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(problem => problem.code);
 
 async function fresh(t, options) {
     t.mock.method(console, 'warn', () => {});

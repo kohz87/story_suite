@@ -58,7 +58,7 @@ test('SD alone: an offer a line touched (read as a quest in kind) still lapses, 
     await h.send('Time passes.', '<Changes>\n! time +2d\n</Changes>');
     await h.send('Time passes.', 'Quiet.');
     assert.equal(byKey('Open job').status, 'resolved', 'three days after the touch');
-    assert.deepEqual(h.turn.problems(), []);
+    assert.deepEqual(h.turn.problems().filter(item => item.code !== 'NO_CHANGES'), []);
 });
 
 test('SD alone follows a story-told quest through progress, completion and replay', async t => {

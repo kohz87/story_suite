@@ -306,7 +306,7 @@ replaces the `story` changes stored on it the way a fresh capture would: the rea
 steps on that reply stay after them, with their claims, and later replies are checked again on top (if one
 no longer fits, nothing changes, `CONFLICT`). → `{ ok: true, receipts, problems } | { ok: false, code,
 message }`; refused for the reader's messages, system messages, messages without a record and while a reply
-is being written. It emits `turn` with `{ index, type: 'reread', problems }` and saves once. Each story
+is being written. `sdk.reread(index, { discardRepair: true })` first takes the reply's repaired lines (the `<Changes-assist>` comment whose header says `repaired`, written by the repair on a miss) out of its text and leaves a `discarded` comment, then reads the reply again: the repair is never asked again for that reply (a swipe back, a reload, a Re-read and a rewind read the same text); the text is put back when the Re-read refuses; a reply with no repair is `REFUSED`. It emits `turn` with `{ index, type: 'reread', problems }` and saves once. Each story
 receipt keeps a mark of the line that made it (`line`, a hash of its text); a line read again gets the seed
 of the receipt its unchanged text made before (in order, by kind), so what it makes keeps its IDs and the
 reader's later actions on them still fit; a changed or new line gets a fresh seed.

@@ -20,7 +20,7 @@ function el(doc, tag, className, text) {
 
 /** One line for a run: "Pre-roll: turned the message into a check (? check stealth — … | dc: hard)." */
 export function runLine(entry) {
-    const who = entry?.helper === 'extractor' ? 'Reading changes' : 'Pre-roll';
+    const who = entry?.helper === 'extractor' ? 'Reading changes' : entry?.helper === 'repair' ? 'Repairing a missing block' : 'Pre-roll';
     const what = OUTCOMES[entry?.outcome] ?? String(entry?.outcome ?? '');
     const detail = entry?.line ?? (entry?.lines ? `${entry.lines} line${entry.lines === 1 ? '' : 's'}` : entry?.message ?? '');
     return `${who}: ${what}${detail ? ` (${detail})` : ''}.`;

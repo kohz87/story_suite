@@ -247,5 +247,5 @@ test('the one manifest names the root entry and suite.css; suite.css lists the h
   assert.equal(fs.existsSync(new URL('../../ui/st-entry.js', import.meta.url)), false);
   assert.match(fs.readFileSync(new URL('../../suite.css', import.meta.url), 'utf8'), /@import url\('\.\/ui\/css\/next-hide\.css'\)/);
   const css = fs.readFileSync(new URL('../../ui/css/next-hide.css', import.meta.url), 'utf8');
-  for (const sel of ['.story-suite-bar', '.ss-cards', '.ss-hud', '.story-suite-extras', '.story-suite-reply-note', '#story_suite_v2_menu', '.story-suite-drawer-buttons:not(#story-suite-next-drawer)', '.story-suite-hud-toggle']) assert.ok(css.includes(`body.ss-ui-next ${sel}`), sel);
+  for (const sel of ['.story-suite-bar', '.ss-cards', '.ss-hud', '.story-suite-extras', '.story-suite-reply-note', '#story_suite_v2_menu', '.story-suite-drawer-buttons:not(#story-suite-next-drawer)', '.story-suite-hud-toggle', '.ss-send-note', '.rpg-fight-offer']) assert.ok(css.includes(`body.ss-ui-next ${sel}`), sel);
 });

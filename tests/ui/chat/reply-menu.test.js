@@ -55,3 +55,22 @@ test('empty lines fall back to the counts line; markup stays text', () => {
   assert.match(sheet.textContent, /State then: <i>P<\/i>/);
   assert.equal(replySheet(undefined).querySelectorAll('li').length, 1);
 });
+
+test('a repaired line is marked Assist; Discard repair shows only with the handler and a repaired reply, fires once, and the sheet stays a text sheet', () => {
+  installFakeDom();
+  const lines = [{ glyph: 'item', line: '+1 Rope', detail: null, applied: true, assist: true }, { glyph: 'coin', line: '−5', detail: null, applied: true, assist: false }];
+  const vm = { at: 'x', lines, repaired: true, counts: { changes: 2, heldBack: 0, notApplied: 0 } };
+  const seen = [];
+  const sheet = replySheet(vm, { onDiscard: () => seen.push('discard') });
+  const items = sheet.querySelectorAll('li');
+  assert.equal(items[0].querySelectorAll('small.as').length, 1, 'the repaired line is marked');
+  assert.match(items[0].textContent, /\+1 Rope\s*· Assist/);
+  assert.equal(items[1].querySelectorAll('small.as').length, 0, 'the reply\'s own line is not');
+  const buttons = sheet.querySelectorAll('button');
+  assert.deepEqual(buttons.map(b => b.textContent), ['Discard repair']);
+  assert.equal(buttons[0].className, 'ssbtn', 'the mock\'s sheet button');
+  buttons[0].click();
+  assert.deepEqual(seen, ['discard']);
+  assert.equal(replySheet({ ...vm, repaired: false }, { onDiscard: () => {} }).querySelectorAll('button').length, 0, 'no repair stored: no button');
+  assert.equal(replySheet(vm, {}).querySelectorAll('button').length, 0, 'no handler: no button');
+});
