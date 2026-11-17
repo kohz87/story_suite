@@ -300,12 +300,14 @@ test('ONEPASSMISS-1: missing hosted capture scans the same reply once, admits ne
         await emitAll('message_received', first.id);
         await sleep(100);
         return {
+            missing: globalThis.NPCStateDelta.diagnosticBundle().narrationCapture.missing,
             calls: first.all, afterDuplicate: kinds(), scanCount, scanCountAfterDuplicate: globalThis.NPCStateDelta.getState().scanCount,
             people: globalThis.NPCStateDelta.getState().npcs.map(npc => npc.name),
             lines: globalThis.NPCStateDelta.scannerReport().filter(line => line.includes('the reply had no NPC capture')),
             prompt: mockState.rawCalls.find(call => /isolated dossier scanner\./i.test(String(call?.[0]?.systemPrompt || '')))?.[0]?.prompt,
         };
     });
+    assert.equal(result.missing, 0, 'a hosted reply is no longer asked for a block, so none is counted missing');
     assert.equal(result.calls.scanner, 1);
     assert.equal(result.calls.relationship, 0, 'hosted one-pass keeps its focused-pass budget');
     assert.equal(result.calls.backfill, 2, 'every admitted dossier gets its one fill on the reply (ONEPASSCAPR2-3; the 4-per-reply admission cap still bounds it)');

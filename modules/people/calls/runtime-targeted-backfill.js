@@ -189,7 +189,7 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
         while (getChatKey() === chatKey && !isScanBusy(chatKey)) {
             const state = getChatState(chatKey);
             if (!Array.isArray(state.pendingBackfills) || !state.pendingBackfills.length) break;
-            // (ONEPASSCAPR2-3) Hosted one-pass: each new admission owns its queued fill, once (the admission cap bounds it); the per-reply cap still limits other repairs.
+            // (ONEPASSCAPR2-3) Hosted one-pass: each new admission owns its queued fill, once (the four-stubs-a-reply cap in npc-lines-parts/stub.js bounds it); the per-reply cap still limits other repairs.
             const request = state.pendingBackfills.find(item => item?.npcId && !attemptedNpcIds.has(item.npcId)
                 && (calls < limit || (admissions && fillPolicy(item).ownsCall)));
             if (!request) break;

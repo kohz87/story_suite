@@ -91,9 +91,7 @@ export function createNarrationPart(rt, deps) {
         const text = String(message.mes ?? '');
         const extracted = extractNarrationCapture(text, { lenient: armed });
         stripNarrationSwipes(message, armed);
-        if (extracted.status === 'none') {
-            if (armed) narrationCaptureStats.missing += 1;
-        } else {
+        if (extracted.status !== 'none') {
             message.mes = extracted.text;
             captureRerenderPending.add(Number(messageId));
         }
