@@ -6,6 +6,7 @@ import { REPAIR_KINDS, allowedKinds } from '../safety.js';
 import { mapPlaces, whereNow } from '../where.js';
 import { allowedGrammar, grammarKind, notWritten, parseExtractorAnswer } from '../extractor.js';
 import { repairPrompt } from './prompt.js';
+import { capStretch } from './time-cap.js';
 
 export const REPAIR_TOKENS = 600;
 
@@ -76,8 +77,9 @@ export function createRepairer({ callModel, settings, grammar, capture, chatId, 
                 return { attempted: true, repair: 'failed', message };
             }
             const parsed = parseExtractorAnswer(answer, [...new Set(lines.map(grammarKind))], allow, { places, here: around.here?.name ?? '' }, { repair: true });
-            const missing = notWritten(parsed.lines, [], { scene: [] });
-            const refused = parsed.refused.filter(item => item.problem).map(({ line, why }) => ({ line, why }));
+            const capped = capStretch(parsed.lines, story);
+            const missing = notWritten(capped.lines, [], { scene: [] });
+            const refused = [...parsed.refused.filter(item => item.problem).map(({ line, why }) => ({ line, why })), ...capped.cut];
             if (!missing.length && !refused.length) {
                 note('nothing', { ...at, dropped: parsed.dropped, tokens: estimateTokens(prompt) });
                 return { attempted: true, repair: 'nothing' };

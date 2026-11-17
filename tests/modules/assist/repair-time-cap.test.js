@@ -1,0 +1,57 @@
+// LAB-2 (live A/B): a repaired time stretch over a day needs the reply to say a day or more passed; else it is cut to +24h with a Problems note.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { REPAIR_FOOT } from '../../../modules/assist/index.js';
+import { capStretch } from '../../../modules/assist/repair-parts/time-cap.js';
+import { createModule } from '../../../ui/legacy/director/module.js';
+import { createHost } from '../../../testkit/index.js';
+import { skip, wait } from './safety-net.helpers.js';
+
+// The live reply (B, turn 6): first light to late afternoon of the second day; the repair wrote "! time +41h".
+const T6 = 'You shook stiff frost off your wool blanket at first light and walked west toward Auvoth. By midmorning, your boots hammered out a steady pace across the empty gravel, though two full days of frontier road still lay between you and Auvoth\'s outer gates.\n\nYou walked on through the second day under a pale, cloudless sky while the sun slid lower ahead of you. Late in the afternoon, three collapsed brick domes rose beside a bend in the road.';
+const DAY = 24 * 60;
+
+test('a stretch over a day is cut to +24h when the reply does not say a day or more passed; the recorded T6 reply does not', () => {
+    const cut = capStretch(['! time +41h', '+ present Haldor'], T6);
+    assert.deepEqual(cut.lines, ['! time +24h', '+ present Haldor']);
+    assert.deepEqual(cut.cut.map(item => item.line), ['! time +41h']);
+    assert.match(cut.cut[0].why, /does not say a day or more passed/);
+    assert.deepEqual(capStretch(['! time +2d'], T6).lines, ['! time +24h']);
+    assert.equal(capStretch(['! time +24h', '! time +90m', '! time +1d'], T6).cut.length, 0, 'up to a day stands');
+});
+
+test('a reply that says a day or more passed keeps its long stretch', () => {
+    for (const said of ['The next morning you woke stiff.', 'Two days later the gates came in sight.', 'You slept in the barn.', 'It rained overnight.']) {
+        assert.deepEqual(capStretch(['! time +41h'], said), { lines: ['! time +41h'], cut: [] }, said);
+    }
+});
+
+test('the repair foot tells the model to count only the narrated time and not to write a day without the reply saying so', () => {
+    assert.match(REPAIR_FOOT, /a walk from first light to late afternoon is about ! time \+10h, never a day more/);
+    assert.match(REPAIR_FOOT, /only when the reply says a day or more passed/);
+});
+
+async function directorHost(callModel) {
+    let host = null;
+    const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
+    host = await createHost({ realDefaults: true, modules: [module], callModel });
+    host.ctx.name1 = 'Astra';
+    return host;
+}
+
+test('live: the recorded T6 reply moves the clock 24 hours, not 41, with a Problems note; swipe back, Re-read and reload keep it', { skip }, async () => {
+    const host = await directorHost(async () => '<Changes>\n! time +41h\n</Changes>');
+    await host.send('Hello.', 'Dawn.\n<Changes>\n~ time June 3, 1200, 07:00 am\n</Changes>');
+    const before = host.sdk.query('time.now')?.minutes;
+    const turn = await host.send('I walk on.', T6);
+    await wait(60);
+    const after = host.sdk.query('time.now')?.minutes;
+    assert.equal(after - before, DAY);
+    assert.ok(host.turn.problems().some(item => /does not say a day or more passed/.test(item.message)));
+    await host.turn.onChatChanged();
+    assert.equal(host.sdk.query('time.now')?.minutes, after, 'reload');
+    await host.sdk.reread(turn.index);
+    await wait(60);
+    assert.equal(host.sdk.query('time.now')?.minutes, after, 'Re-read reads the stored, cut line');
+    host.close();
+});
