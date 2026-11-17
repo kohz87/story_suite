@@ -46,11 +46,11 @@ test('scanner and targeted Refresh explicitly allow one scene to contribute evid
     const sora = createNpcRecord('Sora');
     const scanner = buildScannerPrompt({ transcript: 'Sora speaks gently while joking to calm a patient.', existingNpcs: [sora] });
     const refresh = buildProfileRefreshPrompt({ transcript: '[m1] Sora speaks gently while joking to calm a patient.', targetNpc: sora });
-    for (const prompt of [scanner, refresh]) {
-        assert.match(prompt, /One scene may support multiple fields/i);
-        assert.match(prompt, /speech\+behaviorProfile allowed/i);
-        assert.match(prompt, /emit each grounded/i);
-    }
+    assert.match(scanner, /One scene may support multiple fields/i);
+    assert.match(scanner, /speech\+behaviorProfile allowed/i);
+    assert.match(scanner, /emit each grounded/i);
+    // (NSD11) Refresh asks for the moments, not the scene: a slow field needs two or more of them.
+    assert.match(refresh, /SLOW FIELDS NEED MORE THAN ONE MOMENT: .* two or more \[mN\]/);
 });
 
 test('unsupported durable meaning cannot ride through refine while directly grounded clarification still can', () => {

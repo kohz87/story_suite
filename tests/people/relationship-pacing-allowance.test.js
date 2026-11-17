@@ -258,10 +258,11 @@ test('no story clock, or the calendar kept in Delta: no limit and nothing counte
     assert.equal(blank.npc('Oren').meters.trust, 9, 'blank is no limit');
 });
 
-test('the prompt line gives each tier its meaning and the points, and the major allowance', async () => {
+test('the prompt line gives each tier its meaning, and no number or allowance', async () => {
     const s = await suite();
     const line = s.host.registry.module(MODULE_ID).context.static();
-    assert.match(line, /Add \| impact: ordinary \(a kind word, most moments\) \| meaningful \(a real favour, a shared secret\) \| major \(saved from danger, a betrayal\) \| extreme \(a life-changing turning point, very rare\)\. Most moments are ordinary; each person can have only one major a day\. The most a move can be: 1\/2\/3\/6; =N moves toward N; none given: ordinary\./);
+    assert.match(line, /impact is one word for the whole line: ordinary \(a kind word, most moments\) \| meaningful \(a real favour, a shared secret\) \| major \(saved from danger, a betrayal\) \| extreme/);
+    assert.doesNotMatch(line, /major a day|at most|each person can have/, 'the allowance is enforced by code, not taught (G2)');
 });
 
 test('swipe, regenerate and a rebuild give the same numbers and the same count; a swipe recounts instead of adding', async () => {

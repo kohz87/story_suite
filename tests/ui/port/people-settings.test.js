@@ -13,13 +13,21 @@ function host(bucket = {}) {
 const set = (h, key, value) => peopleCommand('settings.set', { key: `people.${key}`, value }, h.writes, h.read);
 
 test('number rows store the old box\'s value under the same key', () => {
-  const rows = { refreshEvery: ['scanEvery', 1, 20, 2], refreshReadsBack: ['scanDepth', 2, 30, 6], peopleTheNarratorIsToldA: ['injectLimit', 1, 12, 3], peopleBlockBudget: ['injectBudgetTokens', 512, 6000, 4000], mostPeopleKeptActive: ['maxNpcs', 1, 100, 40], dormant: ['staleArchiveAfter', 10, 999, 30] };
+  const rows = { npcsRefreshedPerReply: ['narrationCaptureCatchUpPeople', 1, 3, 1], refreshReadsBack: ['scanDepth', 2, 30, 6], peopleTheNarratorIsToldA: ['injectLimit', 1, 12, 3], peopleBlockBudget: ['injectBudgetTokens', 512, 6000, 4000], mostPeopleKeptActive: ['maxNpcs', 1, 100, 40], dormant: ['staleArchiveAfter', 10, 999, 30] };
   for (const [row, [key, min, max, fallback]] of Object.entries(rows)) {
     for (const input of [7, 0, 5000, -3, null, 'x', 12.6]) {
       const h = host({ staleDeleteAfter: 1000 });
       assert.equal(set(h, row, input).ok, true);
       assert.equal(h.stored[key], oldBox(min, max, fallback)(input), `${row} ${input}`);
     }
+  }
+});
+
+test('Refresh every stores N8\'s rolling Refresh wait; 0 is kept (it turns the Refresh off), a blank or bad box is 4', () => {
+  for (const [input, want] of [[7, 7], [0, 0], ['0', 0], [5000, 50], [-3, 0], [null, 4], ['', 4], ['x', 4], [12.6, 13]]) {
+    const h = host({ scanEvery: 2 });
+    assert.equal(set(h, 'refreshEvery', input).ok, true);
+    assert.deepEqual([h.stored.narrationCaptureCatchUp, h.stored.scanEvery], [want, 2], `refreshEvery ${input}`);
   }
 });
 
@@ -86,9 +94,9 @@ test('a host that will not store answers not saved', () => {
 });
 
 test('Reset People stores the default of every written row', () => {
-  const h = host({ scanEvery: 9, relationshipMap: { enabled: false, defaultLens: 'tension' }, customFieldNames: ['A'] });
+  const h = host({ narrationCaptureCatchUp: 9, narrationCaptureCatchUpPeople: 3, relationshipMap: { enabled: false, defaultLens: 'tension' }, customFieldNames: ['A'] });
   assert.equal(peopleCommand('settings.action', { key: 'settings.reset', value: 'Reset People to defaults' }, h.writes, h.read).ok, true);
-  assert.equal(h.stored.scanEvery, 5);
+  assert.deepEqual([h.stored.narrationCaptureCatchUp, h.stored.narrationCaptureCatchUpPeople], [4, 1]);
   assert.deepEqual(h.stored.relationshipMap, { enabled: true, defaultLens: 'warmth' });
   assert.deepEqual(h.stored.customFieldNames, []);
   assert.deepEqual(h.stored.relationshipCaps, { ordinary: 1, meaningful: 2, major: 3, extreme: 6 });
@@ -98,7 +106,7 @@ test('the port sends the page\'s change to the host store, and does not pass it 
   const h = host();
   const port = createSbPort({ sdk: { settings: () => h.stored, command: async () => { throw new Error('reached the sdk'); } }, writes: h.writes });
   assert.equal((await port.command('settings.set', { key: 'people.refreshEvery', value: 8 })).ok, true);
-  assert.equal(h.stored.scanEvery, 8);
+  assert.equal(h.stored.narrationCaptureCatchUp, 8);
 });
 
 test('over the real settings store the values land in the NPC State bucket and the host schema cuts the meter rows', async () => {
@@ -110,6 +118,7 @@ test('over the real settings store the values land in the NPC State bucket and t
   const read = () => settings('npc-state-delta');
   peopleCommand('settings.set', { key: 'people.ceiling', value: 9999 }, writes, read);
   peopleCommand('settings.set', { key: 'people.refreshEvery', value: 99 }, writes, read);
-  assert.deepEqual(tree.storySuite.modules['npc-state-delta'], { changeCap: 200, scanEvery: 20 });
+  peopleCommand('settings.set', { key: 'people.npcsRefreshedPerReply', value: 9 }, writes, read);
+  assert.deepEqual(tree.storySuite.modules['npc-state-delta'], { changeCap: 200, narrationCaptureCatchUp: 50, narrationCaptureCatchUpPeople: 3 });
   assert.equal(read().changeCap, 200);
 });

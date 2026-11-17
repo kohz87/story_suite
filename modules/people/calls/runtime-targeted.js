@@ -19,7 +19,7 @@ import { advanceCastAdmission } from '../runtime/runtime-cast-sync.js';
 import { captureJournalEntry, recordAcceptedFill } from '../runtime/runtime-narration.js';
 
 export function createTargetedPart(rt, deps) {
-    const { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, commitBranchCheckpoint, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, forwardTastesToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, partyLevelList, persist, recordInlineCardsInState, recordScanDiagnostics, removeNpcInlineCardAtMessage, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, scenePresentAt, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection } = deps;
+    const { attachGeneratedSecrets, BACKFILL_MAX_ATTEMPTS, beginScanOperation, chatHydrationStatus, commitBranchCheckpoint, editorIsMounted, endScanOperation, ensureChatStateLoaded, ensureHydratedStateFresh, findMeguminDossierSources, flushStateFile, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeterView, hostedTargetNotes, isHostSwipeActive, isScanBusy, noteScanFailure, partyLevelList, persist, recordInlineCardsInState, recordScanDiagnostics, removeNpcInlineCardAtMessage, renderDossier, requireReadyChatMutation, runTargetedDossierPass, saveNpcEditor, scanCanonicalBaseCurrent, scanOperationCurrent, targetMoved, targetFingerprint, scenePresentAt, setChatState, settleStateFileWrite, staleHostActive, targetNoteOptions, updateInjection } = deps;
     const { stateVersions, runningTargetedPasses } = rt;
     const { backfillScanMatchesTarget, rowContradictsTarget, soleRowMayBeTarget, scopeProfileUpdatesToTarget, edgeTouchesResolvedTarget } = createTargetedScopePart();
 
@@ -133,13 +133,11 @@ export function createTargetedPart(rt, deps) {
             if (targetFingerprint(chatKey, id) !== operation.targetFingerprint) return TARGET_CHANGED;
             const latest = getChatState(chatKey);
             const liveBefore = latest.npcs.find(npc => npc.id === id) || null;
-            // (v2 hidden notes) Story events the pass was told to look for, sent whatever else the answer holds, and a Refresh's tastes for this
-            // person, recorded on the head reply like a `~ taste` line: the rows as the model returned them (the scope below narrows parsed.npcs).
+            // (v2 hidden notes) Story events the pass was told to look for, sent whatever else the answer holds.
+            // (a Refresh no longer returns tastes: NSD11)
             // Sent only once the result is accepted (all or nothing): a pass discarded below tells the host nothing.
-            const returnedRows = parsed?.npcs;
             const forwardNotes = () => {
                 if (job.notes?.watch?.length) forwardSecretEventsToHost(job.notes.watch, secretEventsShown(parsed, prompt), operation.chatHead);
-                if (job.notes?.tastes && liveBefore) forwardTastesToHost(liveBefore, returnedRows, operation.chatHead);
             };
             const scoped = job.scope(parsed, { latest, liveBefore });
             if (!scoped.ok) {

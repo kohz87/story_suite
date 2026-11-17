@@ -22,6 +22,8 @@ const prompts = {
 
 test('every prompt that describes the profile fields carries the style instructions and the evidence line', () => {
     for (const [name, prompt] of Object.entries(prompts)) {
+        // (NSD11) Refresh states its forms in rule 5 and its quote rule in rule 3 instead of the shared style line.
+        if (name === 'refresh') { assert.match(prompt, /5\. FORMS: personality=the tension under the surface/); continue; }
         assert.ok(prompt.includes(PROFILE_STYLE_LINE), `${name} carries the style line`);
     }
     for (const part of ['one short line in their words', 'tension or reason under the surface', 'Label: level - what they do', 'one physical habit', 'quoted evidence', 'unsupported = leave out']) {

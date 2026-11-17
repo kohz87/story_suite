@@ -1,10 +1,14 @@
-// The People page's last groups from mock v7: Refresh and the narrator, Portraits and Map, each row tied to its NPC State setting.
+// The People page's last groups from mock v7: Refresh and the narrator, Portraits and Map, each row tied to its NPC State setting
+// (Refresh every and NPCs refreshed per reply are N8's rolling Refresh: narrationCaptureCatchUp and narrationCaptureCatchUpPeople).
 import { intRow, swRow, segRow } from './kit.js';
 import { shownRow } from './kit-more.js';
 
 const text = (b, key, dflt = '') => (typeof b[key] === 'string' ? b[key] : dflt);
 const yes = (b, key, dflt) => (b[key] === undefined ? dflt : b[key] === true);
 const LENSES = [['Warmth', 'warmth'], ['Trust', 'trust'], ['Affection', 'affection'], ['Desire', 'desire'], ['Tension', 'tension']];
+
+/** N8's rolling Refresh: each person waits this many replies between Refreshes, and 0 (as stored, not a blank) turns it off. */
+const zeroOff = r => ({ ...r, write: (v, b) => (v === 0 || v === '0' ? [[r.store, 0]] : r.write(v, b)) });
 
 const MAP = { enabled: true, defaultLens: 'warmth' };
 /** One half of the map's settings object: reads its field, and a change keeps the other half (as the old panel's patch does). */
@@ -13,7 +17,8 @@ const mapRow = (row, field, make, show) => ({ ...row, store: 'relationshipMap', 
 /** Returns the rows of Refresh and the narrator, Portraits and Map. */
 export function runRows() {
   return [
-    intRow('Refresh and the narrator', 'refreshEvery', 'Refresh every', 'scanEvery', 5, { min: 1, max: 20, fallback: 2, unit: 'replies', tags: ['replaced:D13', 'cost:model call'], hint: 'Re-reads the recent story for the people seen most; replaces the event scan and the every-5 safety scan' }),
+    zeroOff(intRow('Refresh and the narrator', 'refreshEvery', 'Refresh every', 'narrationCaptureCatchUp', 4, { min: 0, max: 50, unit: 'replies', tags: ['replaced:D13', 'cost:model call'], hint: 'Re-reads the recent story for the people seen most; replaces the event scan and the every-5 safety scan' })),
+    intRow('Refresh and the narrator', 'npcsRefreshedPerReply', 'NPCs refreshed per reply', 'narrationCaptureCatchUpPeople', 1, { min: 1, max: 3, unit: 'people', tags: ['cost:model call'], hint: 'The most people one reply may Refresh (1 to 3); nobody is taken twice inside the wait' }),
     intRow('Refresh and the narrator', 'refreshReadsBack', 'Refresh reads back', 'scanDepth', 6, { min: 2, max: 30, unit: 'messages', hint: 'How much recent story each Refresh reads' }),
     swRow('Refresh and the narrator', 'shortOnePassInstruction', 'Short one-pass instruction', 'narrationCaptureCompact', false),
     intRow('Refresh and the narrator', 'peopleTheNarratorIsToldA', 'People the narrator is told about', 'injectLimit', 3, { min: 1, max: 12, tags: ['cost:tokens'], hint: 'Most present people in the prompt each reply' }),
