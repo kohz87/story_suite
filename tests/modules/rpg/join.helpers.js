@@ -5,7 +5,7 @@ import { levelOfClass } from '../../../modules/rpg/formula.js';
 import { CORE_FEATURE } from '../../../core/features.js';
 import { PARTY_MAX } from '../../../modules/rpg/names.js';
 import { partyOf } from '../../../modules/rpg/join.js';
-import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 
 export const available = await hostAvailable();
 export const skip = available.ok ? false : available.reason;
@@ -32,7 +32,7 @@ export async function make(host, who, soul = 1) {
 }
 export const blocks = host => Object.keys(host.head().domains.dataModules?.active ?? {}).sort();
 export const fields = (host, slug) => host.sdk.query('dataModules.view', { module: `pack.chat/${slug}` })?.chat;
-export const problems = host => host.turn.problems().filter(item => !['ROLLS_SKIPPED', 'DICE_SKIPPED'].includes(item.code)).map(item => item.message);
+export const problems = host => host.turn.problems().filter(item => !['ROLLS_SKIPPED', 'DICE_SKIPPED', 'NO_CHANGES'].includes(item.code)).map(item => item.message);
 export const statics = host => host.registry.contexts().map(context => context.static ?? '').join('\n');
 export const grammar = host => host.registry.contexts().flatMap(context => context.kinds).filter(entry => entry.kind === 'party').map(entry => entry.grammar);
 export const lastReceipts = host => host.ctx.chat.at(-1).extra.storySuite.receipts;

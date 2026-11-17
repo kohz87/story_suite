@@ -12,6 +12,7 @@ import { createPublicPaths } from '../persist/public-paths.js';
 import { createCardSettings } from '../../packs/card-settings.js';
 
 import { isObject } from '../sdk/shared.js';
+import { HOST_SETTINGS_DEFAULTS, HOST_SETTINGS_SCHEMA } from '../sdk/constants.js';
 import { createEvents } from '../sdk/events.js';
 import { newId } from '../sdk/ids.js';
 import { createPanels } from '../sdk/panels.js';
@@ -158,9 +159,9 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
         /**
          * Re-read (F40): reply `index`'s <Changes> block read again from its shown swipe, replacing the
          * story changes stored on it (the reader's actions on it stay). → Promise<{ ok, receipts, problems }
-         * | { ok: false, code, message }> (turn.js reread).
+         * | { ok: false, code, message }> (turn.js reread). `{ discardRepair: true }` takes the reply's repaired lines out first (turn/discard.js).
          */
-        reread: async index => (typeof reread === 'function' ? reread(index) : { ok: false, code: 'FAILED', message: 'Re-read is not available here.' }),
+        reread: async (index, options) => (typeof reread === 'function' ? reread(index, options) : { ok: false, code: 'FAILED', message: 'Re-read is not available here.' }),
         /**
          * A module's own model call (MODULES §G): `({ profile, system, prompt, maxTokens, signal, feature?,
          * module?, timeoutMs? })` → Promise<{ ok, text, error }> (error null, or a code with `message`). Never
@@ -217,7 +218,8 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
          */
         registerCardSettings: spec => cardSettings.register(spec),
         check: check ? Object.freeze({ ...check }) : null,
-        settings: id => settings(id),
+        /** `settings(id)` reads a module's (no id: the host's) settings; `settings.defaults` and `settings.schema` are the host's frozen defaults and schema (the Settings page draws its rows from them). */
+        settings: Object.assign(id => settings(id), { defaults: HOST_SETTINGS_DEFAULTS, schema: HOST_SETTINGS_SCHEMA }),
         /** Whether the internal rollout flag `name` (e.g. `suite.isolatedApply`) is on; read at each call, false for anything unknown. Read-only, for Story Director and Delta. */
         flag: name => { try { return flag(name) === true; } catch { return false; } },
         /** Panels that are marked dirty instead of drawn (`suite.redrawScheduler`): `{ on, register(id, section) → off, changed(keys), hold() }`; inert while the flag is off (sdk/panels.js). */

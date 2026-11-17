@@ -1,21 +1,17 @@
-// The RPG's beforeGenerate hook on the real host (testkit createHost: registry, command bus, store, turn): Rolls setting default, Assist's pre-roll stepping aside,
-// merged hook limits, and the "send without the RPG" flag. The roll planner is gone; where a test needs a planned roll it uses the test-only legacy planner.
+// The RPG's beforeGenerate hook on the real host (testkit createHost: registry, command bus, store, turn): Assist's pre-roll stepping aside,
+// merged hook limits, and the "send without the RPG" flag. The roll planner is gone: the hook offers the story-check dice and the fight kind, and asks no model for a plan.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hostAvailable } from '../../../testkit/index.js';
-import { ROLLS_SETTING, createLeanRpgPart, createPrecall } from '../../../modules/rpg/index.js';
-import { PARTY, PLAN_ANSWER, setup, sheetDomain, tailOf } from './helpers.js';
+import { createLeanRpgPart, createPrecall } from '../../../modules/rpg/index.js';
+import { setup, sheetDomain, tailOf } from './helpers.js';
+import { v1Blocks } from './board/v1.helpers.js';
 import { discardBoard } from '../../core/helpers/board-port.js';
 
 const available = await hostAvailable();
 const skip = available.ok ? false : available.reason;
 const MESSAGE = 'I hit the lead rat with Iron Breath, Ren covers me with Spark.';
-const rolled = host => host.ctx.chat.flatMap(message => message.extra?.storySuite?.receipts ?? []).filter(receipt => receipt.type === 'rpg.resolve');
-
-test('Rolls is automatic until the reader turns it off', () => {
-    const part = createLeanRpgPart();
-    assert.deepEqual(part.settings.defaults, { [ROLLS_SETTING]: 'automatic', rpgPracticePerUse: 3, rpgXpRate: 100, rpgLevelCap: 99, rpgAutoCap: 3, rpgPrecheck: true, rpgChecks: true });
-});
+const rolled = host => host.ctx.chat.flatMap(message => message.extra?.storySuite?.receipts ?? []).filter(receipt => receipt.type === 'rpg.dice');
 
 test('Assist\'s pre-roll steps aside while the RPG is on and the chat has a Character block, and not otherwise', async () => {
     const { createClassifier } = await import('../../../modules/assist/classifier.js');
@@ -31,9 +27,9 @@ test('Assist\'s pre-roll steps aside while the RPG is on and the chat has a Char
         await classifier.beforeGenerate({ state: sheetState(blocks), feature: id => feature && id === 'story-block.rpg', chat: { length: 2, lastUser: '' } }, { type: 'normal' });
         return callModel.calls.length;
     };
-    assert.equal(await ask({ feature: true, blocks: PARTY() }), 0, 'on, with a Character block: no call');
-    assert.equal(await ask({ feature: false, blocks: PARTY() }), 1, 'feature off: Assist as before');
-    assert.equal(await ask({ feature: true, blocks: { foes: PARTY().foes } }), 1, 'on, but no Character block: Assist as before');
+    assert.equal(await ask({ feature: true, blocks: v1Blocks() }), 0, 'on, with a Character block: no call');
+    assert.equal(await ask({ feature: false, blocks: v1Blocks() }), 1, 'feature off: Assist as before');
+    assert.equal(await ask({ feature: true, blocks: { foes: v1Blocks().foes } }), 1, 'on, but no Character block: Assist as before');
 });
 
 test('with the feature off none of the RPG settings is read: no note, no numbers', async () => {
@@ -94,24 +90,23 @@ test('B3: merged beforeGenerate hooks each keep their own limit: a slow part is 
     assert.ok(merged.hooks.beforeGenerate.timeoutMs > 4 * 2500);
 });
 
-test('"Send without the RPG for now": the next reply is sent with no pre-call and no dice, then the flag goes and the one after is planned as usual', { skip }, async () => {
-    const { host, callModel } = await setup({ answers: [PLAN_ANSWER] });
+test('"Send without the RPG for now": the next reply is sent with no dice, then the flag goes and the one after is offered its dice as usual', { skip }, async () => {
+    const { host, callModel } = await setup({ blocks: v1Blocks(), board: true });
     host.ctx.chatMetadata = { storySuite: { rpgStart: { asked: true, skip: true } } };
-    const { request } = await host.send(MESSAGE, 'The rats scatter.');
+    await host.send(MESSAGE, 'The rats scatter.');
     assert.equal(callModel.calls.length, 0, 'no model call');
     assert.deepEqual(rolled(host), [], 'no dice');
-    assert.equal(tailOf(request).includes('[Rolls]'), false);
     assert.deepEqual(host.ctx.chatMetadata.storySuite, { rpgStart: { asked: true } }, 'the flag is let go once the reply is captured; the choice stays');
     assert.ok(host.turn.problems().some(p => p.code === 'DICE_SKIPPED' && p.quiet && /chose to send without/u.test(p.message)));
     await host.send(MESSAGE, 'The rats scatter again.');
-    assert.equal(callModel.calls.length, 1, 'planned as usual');
-    assert.equal(rolled(host).length, 1);
+    assert.equal(callModel.calls.length, 0, 'no model is ever asked for a plan');
+    assert.equal(rolled(host).length, 1, 'the next send has its story-check dice');
     host.close();
 });
 
 test('the no-dice flag is only for a normal send, and a chat that never used it gets nothing written for it, with the feature on or off', { skip }, async () => {
     for (const feature of [true, false]) {
-        const { host } = await setup({ answers: [PLAN_ANSWER], feature });
+        const { host } = await setup({ blocks: v1Blocks(), board: true, feature });
         host.ctx.chatMetadata = { storySuite: { other: 1 }, keep: true };
         const before = JSON.stringify(host.ctx.chatMetadata);
         await host.send(MESSAGE, 'The rats scatter.');
@@ -121,11 +116,12 @@ test('the no-dice flag is only for a normal send, and a chat that never used it 
         host.close();
     }
     // A swipe is planned even while the flag is still set (it is for the send that follows the choice).
-    const { host, callModel } = await setup({ answers: [PLAN_ANSWER] });
+    const { host, callModel } = await setup({ blocks: v1Blocks(), board: true });
     await host.send(MESSAGE, 'The rats scatter.');
     host.ctx.chatMetadata = { storySuite: { rpgStart: { skip: true } } };
-    const calls = callModel.calls.length;
+    const dice = rolled(host).length;
     await host.swipe('Swiped.');
-    assert.equal(callModel.calls.length, calls + 1, 'a swipe plans');
+    assert.equal(rolled(host).length > dice - 1, true, 'a swipe is offered its dice');
+    assert.equal(callModel.calls.length, 0, 'no model call');
     host.close();
 });

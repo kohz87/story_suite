@@ -3,5 +3,6 @@
    hosted one-pass test. Built by index.js once per module instance with the shared runtime state. Bodies are moved from index.js without change. Public face: re-exports its parts. */
 
 export { captureJournalEntry, recordAcceptedCapture, recordReadMark, recordAcceptedFill } from './runtime-narration-parts/capture-journal.js';
+export { convertJournal } from './runtime-narration-parts/journal-convert.js';
 export { textCapture, backgroundRuleOn } from './runtime-narration-parts/capture-text.js';
 export { createNarrationPart } from './runtime-narration-parts/narration-part.js';

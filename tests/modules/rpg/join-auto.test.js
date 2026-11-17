@@ -11,36 +11,6 @@ import { MARA, active, blocks, fields, lastAt, lastReceipts, make, packed, packe
 
 // ---- Automatically ------------------------------------------------------------------------------------------------------------------
 
-test('Automatically: a + party line makes the Character and an empty Skills block at once, as one action, listed in "Changed this reply"', { skip }, async t => {
-    const host = await world();
-    t.after(() => host.close());
-    await host.send('Mara walks in.', reply(MARA));
-    assert.deepEqual(blocks(host), ['pack.chat/mara', 'pack.chat/mara-skills', 'pack.chat/wessel', 'pack.chat/wessel-skills']);
-    const mara = fields(host, 'mara');
-    assert.deepEqual([mara.who, mara.str, mara.vit, mara.agi, mara.dex, mara.int, mara.luk, mara.cha], ['Mara', 5, 5, 5, 9, 13, 5, 5]);
-    assert.deepEqual([mara.level, mara.points, mara.xp, mara.health, mara.mana, mara.stamina, mara.alive, mara.left], [25, 0, 0, 10, 12, 10, true, false], 'class IV asked, the party\'s highest is III; bars full (the doubled sizes)');
-    const skills = fields(host, 'mara-skills');
-    assert.deepEqual([skills.who, skills.skill1, skills.rank1, skills.practice1, skills.skill5], ['Mara', '', 0, 0, '']);
-    const receipt = lastReceipts(host).find(entry => entry.type === 'capture.party');
-    assert.equal(receipt.summary, 'Mara joined the party.');
-    assert.deepEqual(receipt.data.join, { op: 'added', name: 'Mara' });
-    assert.equal(receipt.guarded, true, 'a guarded block: it replays like every other block');
-    assert.equal(host.head().domains.dataModules.perReply[Object.keys(host.head().domains.dataModules.perReply).at(-1)].roots >= 1, true);
-    assert.deepEqual(problems(host), []);
-    assert.deepEqual(partyLines(host.ctx.chat.at(-1).extra.storySuite).map(line => [line.text, line.summary]), [['Mara joined the party', 'Mara joined']]);
-    await rebuilt(host, 'after a join');
-});
-
-test('a joining class never goes above the party\'s highest, and class I is the default (it stands for level 5, as an old class-I block reads)', { skip }, async t => {
-    const host = await world();
-    t.after(() => host.close());
-    await host.send('Two arrive.', reply('+ party Pip', '+ party Dov | class: IX | best: str', '+ party Ilse | class: II | best: dex'));
-    assert.deepEqual(['pip', 'dov', 'ilse'].map(slug => fields(host, slug)?.level), [5, 25, 15]);
-    assert.equal(fields(host, 'dov').str, 13);
-    assert.equal(fields(host, 'pip').int, 5, 'no best named: nothing raised');
-    await rebuilt(host, 'three joins');
-});
-
 test('refused plainly, one Problems line each and nothing made: the name is taken, a bad class, a bad best stat, no room, a full reply', { skip }, async t => {
     const host = await world();
     t.after(() => host.close());
@@ -286,26 +256,4 @@ test('a swipe takes the companion back; a Re-read and a rebuild and a reload kee
     await host.st.deleteMessage(host.ctx.chat.length - 1);
     assert.equal(blocks(host).includes('pack.chat/mara'), false, 'deleting the reply takes it away');
     await rebuilt(host, 'after a delete');
-});
-
-test('a Re-read keeps the old pin of a first companion even when the prefix has no characters', { skip }, async t => {
-    const host = await world({ wessel: false });
-    t.after(() => { setRpgLib(leanRpg); host.close(); });
-    // Permit a historical first-join line through the current grammar gate and capture it with the old scale.
-    // The gate reads the live head; planning reads a prefix object without meta, so the first-join setup stays real.
-    setRpgLib({ ...leanRpg, joinScale: () => 1, joinRules: () => 'standard', partyOf: state => {
-        const party = leanRpg.partyOf(state);
-        return !party.length && state?.meta ? [{ name: 'Gate' }] : party;
-    } });
-    // (a historical first join: captured before the partyRoom mark, so it records no party)
-    const marker = host.store.setRuleMarks;
-    host.store.setRuleMarks = () => { throw new Error('old reply'); };
-    try { await host.send('Mara walks in.', reply(MARA)); } finally { setRpgLib(leanRpg); host.store.setRuleMarks = marker; }
-    const at = host.ctx.chat.length - 1, domain = host.head().domains.dataModules;
-    const before = structuredClone(domain.active['pack.chat/mara']);
-    assert.ok(before, 'the old first join made a character');
-    assert.equal(domain.pins[before.hash].definition.state.health.scale, undefined);
-    assert.equal((await host.turn.reread(at)).ok, true);
-    assert.deepEqual(host.head().domains.dataModules.active['pack.chat/mara'], before, 'the same pinned definition and generation remain');
-    await rebuilt(host, 'after a Re-read of the first old companion');
 });

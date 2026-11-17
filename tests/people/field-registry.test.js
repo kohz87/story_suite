@@ -15,7 +15,7 @@ import { adapterFiles } from './helpers/adapter-source.js';
 const TODAY = {
     TEXT_FIELDS: ['role', 'species', 'gender', 'homeBase', 'age', 'apparentAge', 'appearance', 'personality', 'speech', 'background',
         'relationshipSummary', 'mood', 'location', 'goal', 'status'],
-    PROFILE_EVIDENCE_FIELDS: ['personality', 'speech', 'appearance', 'mannerisms', 'behaviorProfile'],
+    PROFILE_EVIDENCE_FIELDS: ['personality', 'speech', 'appearance', 'mannerisms', 'behaviorProfile', 'background'],
     CHANGE_TRACKED_FIELDS: ['mood', 'location', 'goal', 'status', 'homeBase', 'age', 'apparentAge', 'lifeState',
         'personality', 'speech', 'behaviorProfile', 'mannerisms', 'appearance',
         'relationship', 'relationshipSummary', 'background', 'keyRelationships', 'memories', 'birthDate'],

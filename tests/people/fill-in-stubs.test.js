@@ -53,6 +53,7 @@ try {
     mockState.quietResponder = async (args = {}) => {
         if (globalThis.FAIL_FILL === 'throw') throw new Error('the model is down');
         if (globalThis.FAIL_FILL) return 'not json';
+        if (/isolated dossier scanner\\./i.test(String(args.systemPrompt || ''))) { const given = globalThis.SCAN_RESULT; globalThis.SCAN_RESULT = null; return JSON.stringify(given || { npcs: [] }); }
         const asked = (/backfill scanner/i.test(String(args.systemPrompt || '')) ? String(args.prompt || '').match(/^(?:Requested|Target) NPC: (.+?)(?: [(].*)?$/m)?.[1] : undefined);
         return asked ? JSON.stringify({ npcs: [{ name: asked, present: true, role: 'regular', relationshipImpact: 'none', relationshipDelta: ZERO }] }) : '{"npcs":[]}';
     };
@@ -75,7 +76,11 @@ try {
         mockState.context.chat.push({ is_user: true, is_system: false, name: 'Kazuma', mes: 'And then?' });
         await emitAll('message_sent', mockState.context.chat.length - 1);
         await emitAll('generation_after_commands', 'normal', {}, false);
-        const mes = \`\${text}\\n\\n<!--npc_state_delta\\n\${JSON.stringify(payload)}\\n-->\`;
+        // N7: the block is no longer asked for or applied. A reply that lists people is a reply with no <Changes> block that names them (the NSD16 fallback scan),
+        // and the scanner answers with the payload.
+        const names = (payload?.npcs || []).map(n => n.name);
+        const mes = names.length ? \`\${text} In the story, \${names.join(' and ')} stand there.\` : text;
+        globalThis.SCAN_RESULT = payload || { npcs: [] };
         mockState.context.chat.push({ is_user: false, is_system: false, name: 'Megumin', mes, swipe_id: 0, swipes: [mes] });
         const id = mockState.context.chat.length - 1;
         const before = kinds();
@@ -153,7 +158,7 @@ for (const [kind, expected, first] of [['not json', 2, { calls: 2, queued: 0 }],
             const before = mockState.rawCalls.length;
             const count = () => mockState.rawCalls.slice(before).filter(call => /backfill scanner/i.test(String(call?.[0]?.systemPrompt || ''))).length;
             const toasts = notes.length;
-            globalThis.NPCStateDelta.queueFills([{ id: wiz.id, name: wiz.name }], mockState.context.chat.length - 1);
+            globalThis.NPCStateDelta.queueFills([{ id: wiz.id, name: wiz.name }], mockState.context.chat.length - 2);   // the reply that named Wiz
             await reply('Quiet 1.', { npcs: [] });
             const afterFirst = { calls: count(), queued: st().pendingBackfills.length };
             await reply('Quiet 2.', { npcs: [] });

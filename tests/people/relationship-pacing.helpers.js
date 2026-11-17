@@ -5,7 +5,7 @@ import { FEATURE_GATE, readLeaf } from '../../modules/people/meters/npc-meters-c
 import { diff } from '../../core/ops/diff.js';
 import { DAY, dossiers, suite } from './helpers/pacing-suite.js';
 
-export const noCue = lines => lines.filter(line => !/^Whenever anything changed, write the <Changes> block/.test(line)); // the flash-rare-lines cue: pinned in npc-notes-kinds.test.js
+export const noCue = lines => lines.filter(line => !/^Whenever anything changed, write it in the <Changes> block/.test(line)); // the flash-rare-lines cue: pinned in npc-notes-kinds.test.js
 
 // [reply, story day at the start of the reply, tier, asks] for each `~ npc Sister Temiwa` line of the owner's story.
 export const TEMIWA = [

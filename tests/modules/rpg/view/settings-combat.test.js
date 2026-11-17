@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../modules/rpg/index.js';
 import { CHOOSER_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
+import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
 import { reload } from '../../data-modules/helpers.js';
 import { settle } from './page.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
@@ -119,24 +119,10 @@ test('settings-data: customOf keeps the stored numbers, else the numbers in forc
     assert.deepEqual(customOf({ [DIFFICULTY_SETTING]: 'custom' }), STANDARD);
 });
 
-test('settings-data: the odds view for a state with and without a character', () => {
-    const wessel = { definition: { ...characterDefinition('wessel', 'Wessel'), role: 'character' }, fields: { who: 'Wessel', str: 12, soul: 1 } };
-    const skills = { definition: { ...skillsDefinition('wessel-skills', 'Wessel'), role: 'skills' }, fields: { who: 'Wessel', skill1: 'Iron Breath', rank1: 1 } };
-    const view = oddsView(fakeState([wessel, skills]), 'Wessel', STANDARD);
-    assert.equal(view.label, 'Wessel (STR 12 with DEX 10, Level 1, Adept) against a Level 1 foe');
-    assert.deepEqual(view.now, { success: 69, cost: 7, fail: 25 });
-    assert.deepEqual(view.compare.map(item => item.name), ['gentle', 'harsh']);
-    assert.deepEqual(oddsView(fakeState([wessel, skills]), 'Wessel', { ...STANDARD, foeBase: 9 }).compare.map(item => item.name), ['gentle', 'standard', 'harsh'], 'Custom: all three');
-    assert.equal(oddsView(fakeState([]), 'Wessel', STANDARD), null);
-});
-
-test('the page\'s stylesheet: the odds bar is solid, three tones; the numbers wrap to two columns on a phone; theme tokens only', () => {
+test('the page\'s stylesheet: the numbers wrap to two columns on a phone; theme tokens only', () => {
     const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-set-nums \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
     assert.match(css, /@media \(max-width: 600px\) \{ \.rpg-set-nums \{ grid-template-columns: 1fr 1fr; \} \}/);
-    assert.match(css, /\.rpg-odds-success \{ background: var\(--ss-good\)/);
-    assert.match(css, /\.rpg-odds-cost \{ background: var\(--ss-warn\)/);
-    assert.match(css, /\.rpg-odds-fail \{ background: var\(--ss-bad\)/);
 });
 
 test('B17 (views): a refused save because the chat holds as many block versions as it can is said in plain words, and Reset still works', async t => {
@@ -189,32 +175,40 @@ test('F1: the page going out of sight saves what is typed, once; leaving the box
 
 // Fix round 5, B8: the Combat text's saves are serialised, and the last action the reader took is the one that is kept.
 test('B8: Reset clicked while the first Combat save is still running is saved after it, and the default wins', async t => {
-    const slow = { on: true };
+    // The host holds the first save until the test lets it go (the SDK can wait on one before it applies it), so the page does not know yet.
+    let release; let entered;
+    const held = new Promise(resolve => { release = resolve; });
+    const reached = new Promise(resolve => { entered = resolve; });
+    let first = true;
     const wrap = async (type, payload, options, run) => {
-        // the host holds a save before it answers (the SDK can wait on one before it applies it), so the page does not know yet
-        if (type === 'dm.redefine' && slow.on) await new Promise(resolve => setTimeout(resolve, 150));
+        if (type === 'dm.redefine' && first) { first = false; entered(); await held; }
         return run(type, payload, options);
     };
+    // Waits for the real outcome, not a fixed delay; a hang fails with the message below instead of passing by luck.
+    const until = async (done, what) => { for (let n = 0; n < 2000 && !done(); n += 1) await new Promise(resolve => setTimeout(resolve, 5)); assert.ok(done(), what); };
     const { host, root, card } = await open(t, { rules: true, wrap });
+    const redefines = () => host.ctx.chat[host.store.headIndex()].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length;
     const area = card('combat').querySelector('textarea');
     area.value = 'Unsaved edit';
     area.dispatch('focusout');
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await reached;
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'the first save is still waiting');
     root.querySelector('[data-act="combat-reset"]').click();
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await settle();
+    assert.equal(promptOf(host), COMBAT_DEFAULT, 'the reset waits behind the first save');
+    release();
+    await until(() => redefines() === 2, 'both saves were recorded');
     await settle();
     assert.equal(promptOf(host), COMBAT_DEFAULT, 'the default is what the story holds');
     assert.equal(root.querySelector('[data-field="combat"]').value, COMBAT_DEFAULT, 'and what the box shows');
-    const head = host.store.headIndex();
-    assert.equal(host.ctx.chat[head].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length, 2, 'two saves, one after the other');
+    assert.equal(redefines(), 2, 'two saves, one after the other');
     // and the other way round: the same text asked twice while it is being saved is saved once
     const again = root.querySelector('[data-field="combat"]');
     again.value = 'Second edit';
     again.dispatch('focusout');
     again.dispatch('change');
-    await new Promise(resolve => setTimeout(resolve, 600));
+    await until(() => promptOf(host) === 'Second edit', 'the second edit was saved');
     await settle();
     assert.equal(promptOf(host), 'Second edit');
-    assert.equal(host.ctx.chat[head].extra.storySuite.receipts.filter(receipt => receipt.type === 'dm.redefine').length, 3);
+    assert.equal(redefines(), 3);
 });

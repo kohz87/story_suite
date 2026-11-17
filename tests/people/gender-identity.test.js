@@ -232,7 +232,8 @@ test('scanner, refresh, backfill and dossier import all carry the explicit-only 
         assert.match(prompt, /gender/i);
         assert.match(prompt, /male/i);
         assert.match(prompt, /female/i);
-        assert.match(prompt, /never infer/i);
+        // (NSD11) Refresh says it as "gender male|female only if stated".
+        assert.match(prompt, prompt === prompts[1] ? /gender male\|female only if stated/ : /never infer/i);
     }
 });
 

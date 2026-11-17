@@ -18,7 +18,7 @@ export { dossierFields, safeImageUrl, portraitUrl } from './queries-dossier.js';
 
 export function createQueriesPart(session, deps) {
     const {
-        calendarOwn, delta, doc, headReply, linesMode, host, logger, MODULE_ID, panelId, PRESET_KIND, suiteApi, timeline, timers, WORLD_FEATURE,
+        calendarOwn, delta, doc, headReply, linesMode, levelOn, host, logger, MODULE_ID, panelId, PRESET_KIND, suiteApi, timeline, timers, WORLD_FEATURE,
     } = deps;
 
     // Delta's own commands on their way to the host, by type and payload: npc.adjust takes a reader's
@@ -136,6 +136,7 @@ export function createQueriesPart(session, deps) {
         feature: hostFeature,
         // The lines switch (the adapter's option; N7 wires its setting, until then it is off) and the names a stub is never made for.
         linesMode: () => (typeof linesMode === 'function' ? linesMode() === true : false),
+        levelOn: () => (typeof levelOn === 'function' ? levelOn() === true : false),
         playerNames: () => { try { return runtime()?.playerNames?.() ?? []; } catch { return []; } },
         present: () => names(presentList()),
         settings: storedSettings,

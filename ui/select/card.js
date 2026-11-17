@@ -43,12 +43,18 @@ function barsOf(lead) {
   return out.length ? out : null;
 }
 
-function levelText(answers, lead) {
+// `rpg.sheet` (SB/lean-rpg/sheet-query.js): the lead's own row, or null (no such query, the RPG off, or the lead not named).
+function sheetRow(answers, lead) {
+  const rows = Array.isArray(answers['rpg.sheet']) ? answers['rpg.sheet'] : [];
+  return lead?.id ? rows.find(row => isRec(row) && row.id === lead.id) ?? null : null;
+}
+
+function levelText(answers, lead, row) {
   const terms = isRec(answers['party.terms']) ? answers['party.terms'] : {};
   const word = text(terms.levelName) || 'Lv';
   const levels = Array.isArray(answers['party.levels']) ? answers['party.levels'] : [];
   const mine = levels.find(row => isRec(row) && lead?.id && row.id === lead.id);
-  const level = whole(lead?.level) ?? whole(mine?.level);
+  const level = whole(lead?.level) ?? whole(row?.level) ?? whole(mine?.level);
   return level === null ? null : `${word} ${level}`;
 }
 
@@ -83,16 +89,17 @@ export function selectCard(answers = {}, opts = {}) {
     statuses: statusesOf(answers),
   };
   if (!rpg) return card;
-  card.you.levelText = levelText(answers, lead);
-  card.you.className = orNull(lead?.className ?? lead?.class);
+  const row = sheetRow(answers, lead);
+  card.you.levelText = levelText(answers, lead, row);
+  card.you.className = orNull(lead?.className ?? lead?.class) ?? orNull(row?.className);
   const actors = answers['party.actors'];
-  // soak % and the exp bar have no query yet (a gap: UI-PLAN §2.1).
+  // soak % and the exp bar come from the sheet row (null while it is not answered).
   card.chips = {
-    soakPct: null,
+    soakPct: whole(row?.soakPct),
     party: Array.isArray(actors) ? { n: actors.length, max: 4 } : null,
     pace: paceOf(answers['mounts.pace']),
   };
-  card.bars = barsOf(lead);
-  card.exp = null;
+  card.bars = barsOf(lead) ?? (Array.isArray(row?.bars) && row.bars.length ? row.bars : null);
+  card.exp = whole(row?.xpPct) === null ? null : { value: whole(row.xpPct), max: 100 };
   return card;
 }

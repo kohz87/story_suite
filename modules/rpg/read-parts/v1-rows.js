@@ -1,4 +1,4 @@
-// Reads one Combat Rules v1 Character, Skills or Foes block's fields into the sheet's plain records (templates-parts/v1-*.js). The earlier blocks are read by rows.js, unchanged: a v1 block
+// Reads one Combat Rules v1 Character, Skills or Foes block's fields into the sheet's plain records (templates-parts/v1-*.js). A v1 block
 // is known by a field only it has (`hp-max` on a Character, `tier1` on Foes, a `type1` without `uses1` on Skills), never by a setting.
 import { fold } from './match.js';
 import { int, text, TEXT_KEY } from './shared-plain.js';
@@ -8,7 +8,7 @@ import { SKILL_FIELDS_MAX } from '../../../core/runtime/skill-slots.js';
 // (Kept free of combat/: the page start reaches this file, and the values a v1 block holds are already held to their bounds by the block checker. What a skill's rank is worth, and a
 // foe's tier, are the combat files' to say: combat/skills.js rankOf(practice, level) and combat/foes.js foeStats.)
 
-/** Which v1 block these fields are: 'character' (has `hp-max` and `wis`), 'skills' (a `type1` and no `uses1`), 'foes' (a `tier1`), else null: an earlier block, read by rows.js. */
+/** Which v1 block these fields are: 'character' (has `hp-max` and `wis`), 'skills' (a `type1` and no `uses1`), 'foes' (a `tier1`), else null (any other block is not read). */
 export function v1Of(fields) {
     if (fields === null || typeof fields !== 'object') return null;
     if (Object.hasOwn(fields, 'hp-max') && Object.hasOwn(fields, 'wis')) return 'character';

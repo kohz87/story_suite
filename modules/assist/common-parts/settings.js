@@ -3,17 +3,20 @@
 import { DEFAULT_KINDS } from '../safety.js';
 
 // The settings live in Story Block's own module settings (the parts' defaults share one bucket, so
-// each key carries the part's name). Both helpers are off until the reader turns them on.
+// each key carries the part's name). The two helpers are off until the reader turns them on; the repair is on by default.
 export const SETTING = Object.freeze({
     classifier: 'assistClassifier',
     extractor: 'assistExtractor',
     extractorKinds: 'assistExtractorKinds',
+    // Repair on a miss (repair.js): on by default (the owner approved the prompt's text on 18 Nov).
+    repair: 'assistRepair',
 });
 
 export const DEFAULTS = Object.freeze({
     [SETTING.classifier]: false,
     [SETTING.extractor]: false,
     [SETTING.extractorKinds]: DEFAULT_KINDS,
+    [SETTING.repair]: true,
 });
 
 // The two switches are features of Story Block (MODULES §F100, Settings → Features): their texts are
@@ -25,6 +28,10 @@ export const FEATURE_TEXT = Object.freeze({
         label: 'Roll checks before the reply',
         describe: 'One small extra model call per message: when you try something risky, the check is rolled first and the reply tells how it went.',
         needs: 'Needs a module that keeps checks, like Story Director.',
+    }),
+    repair: Object.freeze({
+        label: 'Repair a reply’s missing changes',
+        describe: 'One cheap extra model call, only when a reply came with no change block: it writes the block from the story, kept as "assist" lines. It may write coin and items. Without it, such a reply gets a warning and Re-read.',
     }),
     extractor: Object.freeze({
         label: 'Safety net: read changes the reply forgot',

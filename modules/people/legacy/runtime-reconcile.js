@@ -5,9 +5,8 @@
 
 import { getContext } from '../../../../../../extensions.js';
 import { messageGateSettled } from '../transcript/transcript.js';
-import { BRANCH_SNAPSHOT_BUDGET_BYTES, BRANCH_SNAPSHOT_MAX_BYTES, ROLLBACK_JOURNAL_BUDGET_BYTES, chatLineage, firstLineageDivergence, lineageCheckpointKeys, priorCaptureFor, onlyStorySuiteBlocksChanged, reconcileBranchState, remapLineageKeys, snapshotBranchState } from './branch.js';
+import { BRANCH_SNAPSHOT_BUDGET_BYTES, BRANCH_SNAPSHOT_MAX_BYTES, ROLLBACK_JOURNAL_BUDGET_BYTES, chatLineage, firstLineageDivergence, onlyStorySuiteBlocksChanged, reconcileBranchState, remapLineageKeys, snapshotBranchState } from './branch.js';
 import { getSettings } from '../settings/runtime-settings.js';
-import { textCapture } from '../runtime/runtime-narration.js';
 
 export function createReconcilePart(rt, deps) {
     const { storeOwnsState = () => false, branchInheritancePending, cancelScanOperation, deferUntilSettled, drainPendingAutoScan, ensureChatStateLoaded, getChatKey, getChatState, handleAssistantMessageReceived, hostChatComplete, hostedOnePass, narrationCaptureKey, isHostSwipeActive, isScanBusy, maybeInheritKnownBranch, persist, queuePendingAutoScan, renderDossier, scanNow, seedBranchTracking, setChatState, staleHostPrefix, updateInjection } = deps;
@@ -340,8 +339,6 @@ export function createReconcilePart(rt, deps) {
             return null;
         }
         // (EDITKEEP3) What NSD kept of each reply's capture, and the keys before the edit, for the rebuild below (the rollback may drop the entries).
-        const priorJournal = String(operation || '').toLowerCase() === 'edit' && Array.isArray(before.captureJournal) ? [...before.captureJournal] : [];
-        const priorKeys = priorJournal.length ? lineageCheckpointKeys(before.lineage) : [];
         const result = reconcileBranchState(before, ctx.chat || [], { explicitDivergence, operation, rewindMidDelete: getSettings().midDeleteRewind === true });
         if (getChatKey() !== key || firstLineageDivergence(lineageBefore, chatLineage(getContext().chat || [])) !== -1) return null;
         recordBranchReconciliationEvent({
@@ -383,13 +380,7 @@ export function createReconcilePart(rt, deps) {
         const shouldRescan = result.requiresRescan !== undefined ? Boolean(result.requiresRescan) : !result.exactRestored;
         if (rescan && shouldRescan && getSettings().branchRescan !== false && targetAssistant >= 0) {
             if (getChatKey() !== key) return result;
-            // (EDITKEEP) A real edit rolled the reply back: its hosted one-pass block, if the text still holds a valid one, is applied again the way the
-            // live capture did (the scan records it in the journal under the new key); the catch-up covers only what the block does not. Held only
-            // here, where the scan is certain to run.
-            if (operation === 'edit' && hostedOnePass()) {
-                const found = textCapture(ctx.chat?.[targetAssistant]) || priorCaptureFor(priorJournal, targetAssistant, priorKeys, lineageCheckpointKeys(lineageBefore));
-                if (found) rt.narrationCaptures.set(narrationCaptureKey(key, targetAssistant), found);
-            }
+            // (N7) The hosted one-pass JSON block is retired: an edited reply's stray block is not applied again (the lines are read again by Re-read).
             if (isScanBusy(key)) queueBranchRescan(targetAssistant, 0, key);
             else await scanNow({ manual: false, messageId: targetAssistant });
         }

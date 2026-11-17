@@ -1,6 +1,8 @@
 /* Settings overlay styles: frame, section nav, rows and controls, search, footer meter (decision 33; tokens renamed --g-* to --su-*). */
 .sov{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column}
 @container (min-width:601px){.sov{inset:18px}}
+/* Decision 17 (mock wins): while Settings is open the suite root drops its 820px column, so at desktop the overlay covers the window (18px in) instead of the centred panel. */
+.su-layer:has(.sov:not([hidden])) .su-root{max-width:none}
 .sov>.glass{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:22px;background:var(--su-panel2)}
 .shd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--su-line2)}
 .shd .ttl{flex:1;min-width:0}.shd .ttl b{display:block;font:800 17px var(--su-font)}.shd .ttl small{display:block;font:700 12px var(--su-font);color:var(--su-muted)}
@@ -155,3 +157,5 @@
 @container (min-width:601px){.su-root .sov .sback{display:none}}
 .su-root .sov input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .su-root .sov input[type="number"]::-webkit-inner-spin-button,.su-root .sov input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.insp-nav{display:flex;align-items:center;gap:10px}.insp-nav .lb{flex:1;min-width:0;text-align:center}.insp-nav .lb b{font:700 14px var(--su-font);display:block}.insp-nav .lb small{display:block;font-size:12px;color:var(--su-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.insp-nav .btn2{min-width:44px;min-height:44px}
+[data-sheet="inspector"] .x{width:44px;height:44px;flex:none;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}

@@ -26,14 +26,15 @@ test('the pack-hidden tracker is counted, never drawn, and the footer adds up', 
   assert.match(view.textContent, /2 here, 1 hidden by the pack, 1 shown on Now/);
 });
 
-test('Show on Now and Edit send tracker commands with the id', () => {
+test('Show on Now sends tracker.pin with the id and redraws', async () => {
   installFakeDom();
   const ctx = makeCtx();
   const view = trackersView(buildStory(), ctx);
   const second = view.querySelectorAll('[data-card="tracker"]')[1];
   second.querySelector('[role="switch"]').click();
-  second.querySelector('[data-act="edit"]').click();
-  assert.deepEqual(ctx.calls.command, [['tracker.pin', { id: 'ships-stores', on: true }], ['tracker.edit', { id: 'ships-stores' }]]);
+  await Promise.resolve();
+  assert.deepEqual(ctx.calls.command, [['tracker.pin', { id: 'ships-stores', on: true }]]);
+  assert.equal(ctx.calls.refresh.length, 1);
   assert.equal(view.querySelectorAll('[role="switch"]')[0].getAttribute('aria-checked'), 'true');
 });
 

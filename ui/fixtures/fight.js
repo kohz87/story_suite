@@ -93,7 +93,7 @@ const GROUPS = {
 };
 const ACTOR = () => ({
   id: 'brann',
-  stance: { name: 'Shield wall', on: true, soakOn: 22, soakOff: 17, paid: [11, 10] },
+  stance: { name: 'Shield wall', on: true, soakOn: 22, soakOff: 17, pool: 'Stamina', cost: 1, paid: [11, 10] },
   groups: GROUPS.brann(WHO.brann),
 });
 // Every standing member's actions, as the scene renderer reads them (no stance: the scene hides it).
@@ -126,7 +126,7 @@ function makeEnd(snap) {
   return {
     outcome: 'won', xpEach: 45, exchanges: LOG.length,
     members: Object.keys(NAMES).map(id => ({
-      id, hp: snap[id][0], hpMax: snap[id][1], practice: SKILLS[id].map(([skill, gain]) => ({ skill, gain })),
+      id, hp: snap[id][0], hpMax: snap[id][1], xp: 45, practice: SKILLS[id].map(([skill, gain]) => ({ skill, gain })),
     })),
   };
 }

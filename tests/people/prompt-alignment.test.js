@@ -145,7 +145,7 @@ test('an old replay uses the original scanner and follow-up background instructi
     assert.equal(freshScan.replace(', including background in npcs[] from established role, workplace, history or ongoing circumstances; omit if none, never invent.', ';'), oldScan);
     const npc = normalizeNpcRecord({ id: 'sieke', name: 'Sieke' });
     const oldFollow = buildProfileRefreshPrompt({ transcript, targetNpc: npc, backgroundRule: false, fillBackground: true });
-    assert.match(oldFollow, /Background is durable history, not current mood\/status\./);
+    assert.match(oldFollow, /Background is durable history, not mood\./);
     assert.doesNotMatch(oldFollow, /FILL BACKGROUND/);
 });
 
@@ -189,27 +189,23 @@ test('step 13: every state key a return shape asks for is one normalizeScanNpc r
 
 test('step 13: the targeted shapes are written from the registry and leave out what code owns', () => {
     const refresh = returnShape('refresh', { id: '"<target id>"', name: '"<target name>"' });
-    assert.ok(refresh.startsWith('Return shape (write it as JSON;'));
+    assert.ok(refresh.startsWith('Return shape (JSON; key=text, []=list, a|b=one of; only changed fields;'));
     assert.match(refresh, /"npcs":\[\{id:"<target id>",name:"<target name>",aliases:\[\],/);
-    assert.match(refresh, /"profileUpdates":\[\{id:"<target id>",evidence:\{field:\[short quotes\]\},/);
-    assert.match(refresh, /,"keyRelationshipEdges":\[\]\}$/);
+    assert.match(refresh, /"profileUpdates":\[\{id:"<target id>",evidence:\{field:\["\[mN\] short quote"\]\},/);
+    assert.doesNotMatch(refresh, /keyRelationshipEdges/, 'NSD11: ties are story lines, not edges');
     for (const kind of ['refresh', 'backfill', 'import']) {
         assert.doesNotMatch(returnShape(kind), /relationshipDelta|relationshipImpact/, `${kind}: every targeted pass zeroes the relationship numbers`);
     }
-    assert.match(refresh, /moodV:-3\.\.3,moodA:-3\.\.3,moodD:-3\.\.3/, 'Refresh asks for the mood numbers with the word');
+    assert.doesNotMatch(refresh, /moodV|moodA|moodD/, 'NSD11: code derives the mood numbers from the word');
     assert.doesNotMatch(refresh, /present|worldActive/, 'Refresh ignores presence');
     assert.match(returnShape('backfill'), /present:true\|false,worldActive:true\|false/);
     assert.ok(buildProfileRefreshPrompt({ transcript, targetNpc: rich() }).includes(refresh));
 });
 
-test('Refresh tastes: the schema line is asked only when askTastes is set; without it the prompt is byte-identical', () => {
+test('Refresh returns no tastes: the shape never asks for them, and the option no longer exists (NSD11)', () => {
     const plain = buildProfileRefreshPrompt({ transcript, targetNpc: rich() });
-    assert.equal(buildProfileRefreshPrompt({ transcript, targetNpc: rich(), askTastes: false }), plain, 'off = byte-identical');
-    assert.doesNotMatch(plain, /tastes/);
-    const asked = buildProfileRefreshPrompt({ transcript, targetNpc: rich(), askTastes: true });
-    assert.match(asked, /,memories:\[\],memoryRetention:\[\],tastes:\[\{sign:\+ likes, values or collects\|- dislikes,item,from:short source from the scenes\}\]\}\],"profileUpdates"/);
-    assert.equal(asked.length - plain.length, ',tastes:[{sign:+ likes, values or collects|- dislikes,item,from:short source from the scenes}]'.length, 'only the schema line is added');
-    assert.ok(asked.length - plain.length <= 120);
+    assert.equal(buildProfileRefreshPrompt({ transcript, targetNpc: rich(), askTastes: true }), plain, 'askTastes does nothing now');
+    assert.doesNotMatch(plain.slice(plain.indexOf('Return shape')), /tastes/);
     assert.equal(returnShape('backfill'), returnShape('backfill', {}, []), 'backfill and import shapes are untouched');
 });
 

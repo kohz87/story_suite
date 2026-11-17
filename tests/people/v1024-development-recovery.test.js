@@ -130,5 +130,5 @@ test('v1.0.24 Refresh contract requires a reason for time-compressed refine as w
         userName: 'Lucien',
         charName: 'Narrator',
     });
-    assert.match(prompt, /time-compressed development MUST include developmentReason, even when state is refine/i);
+    assert.match(prompt, /Time-compressed change needs developmentReason/i);
 });

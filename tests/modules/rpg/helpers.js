@@ -1,13 +1,8 @@
 // Stand-ins for the RPG tests: a party sheet written straight into the data-module state (the Character, Skills
-// and Foes blocks as the RPG reads them), a scripted stand-in for the retired roll planner (legacy-planner.js: tests that replay planner rolls use it to
-// make the records; `planner: false` is the real hook, which asks no model), and a host that has the RPG part on it.
+// and Foes blocks as the RPG reads them) and a host that has the RPG part on it.
 import { createHost } from '../../../testkit/index.js';
-import { LEAN_RPG_FEATURE, ROLLS_SETTING, createLeanRpgPart } from '../../../modules/rpg/index.js';
-import { CORE_FEATURE } from '../../../core/features.js';
+import { LEAN_RPG_FEATURE, createLeanRpgPart } from '../../../modules/rpg/index.js';
 import { receiptCue } from '../../../modules/rpg/cue.js';
-import { legacyPlanner } from './legacy-planner.js';
-import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
-import { FOE_LEVEL } from '../../../modules/rpg/foes.js';
 import { fightKind } from '../../../modules/rpg/board/interaction.js';
 import { createInteractionCommands, interactionGuardFor } from '../../../modules/scene/domains/core/interaction-part.js';
 
@@ -47,16 +42,6 @@ export const foeBlock = (foes = [], key = 'class', size = 4) => ({
     ...slots(key, foes.map(foe => foe[2] ?? 1), size), ...slots('hurt', foes.map(foe => foe[3] ?? 5), size),
 });
 
-/** The stock Foes block as it was before the harder-foes rule (Health up to 8, 4 + level/30 blocks, no `foesHard` flag): for tests whose premise is a fight won inside one reply. */
-export function oldFoesDefinition() {
-    const definition = structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === 'Foes').definition);
-    const swap = value => (Array.isArray(value) ? (value[0] === 'add' && value[1] === FOE_LEVEL.hardBase ? ['add', FOE_LEVEL.healthBase, ...value.slice(2).map(swap)] : value.map(swap))
-        : value === FOE_LEVEL.hardBase ? FOE_LEVEL.healthBase : (value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, inner]) => [key, swap(inner)])) : value));
-    for (const [key, field] of Object.entries(definition.state)) if (key.startsWith('hurt')) Object.assign(field, { max: 8, default: FOE_LEVEL.healthBase });
-    definition.kinds = swap(definition.kinds);
-    return definition;
-}
-
 /** The same with a `level{n}` column (a block of the Levels rules); `foeBlock` keeps the `class{n}` column of the earlier rules. */
 export const levelFoeBlock = (foes, size = 4) => foeBlock(foes, 'level', size);   // `size` 6: a block of the six-group rule (slots 5 and 6 present)
 
@@ -92,18 +77,16 @@ export const PLAN_ANSWER = [
  * part's command, hooks and replay guard, and `test.set` (sets one field of a block) for changing the sheet.
  * `options`: { blocks, answers, feature (default on), settings, timer, hold, earlier (rolls asked for with no dice version) }
  */
-export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature = true, board = false, settings = {}, timer, timeoutMs, planner = true, earlier = false, flowless = false, levelless = false, lvless = levelless, queries = {}, bare = false, precheck = false } = {}) {
+export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature = true, board = false, settings = {}, timer, timeoutMs, planner = false, queries = {}, precheck = false } = {}) {
     const callModel = fakeModel(...answers);
     const problems = [];
     let host = null;
     const part = createLeanRpgPart({ chat: () => host.ctx.chat, metadata: () => host.ctx.chatMetadata ?? null, moduleId: OWNER,
         // (`precheck`: the foe pre-check asks the scripted model, with `timeoutMs` and `timer` for its limit)
         ...(precheck ? { callModel, timeoutMs, timer, onPlanning: () => {} } : {}) });
-    // The hook the module gets: the real one, or the real one with the scripted planner behind it.
-    if (planner) part.hooks.beforeGenerate = legacyPlanner(part, { callModel, chat: () => host.ctx.chat, metadata: () => host.ctx.chatMetadata ?? null, moduleId: OWNER, timer, ...(timeoutMs !== undefined ? { timeoutMs } : {}) });
     const module = {
         id: OWNER, name: 'Story Block (RPG test)', version: '0.0.1',
-        features: [{ id: LEAN_RPG_FEATURE, label: 'RPG', describe: 'Test.', default: false }, { id: CORE_FEATURE.fightBoard, label: 'Fight board', describe: 'Test.', default: false }],
+        features: [{ id: LEAN_RPG_FEATURE, label: 'RPG', describe: 'Test.', default: false }],
         domains: { dataModules: { initial: () => sheetDomain(blocks) } },
         // The fight board is an interaction kind (I6): the module registers it, and the core's `interaction.settle` and its guard stand in for the core module this host does not have.
         interactions: { fight: fightKind },
@@ -116,24 +99,11 @@ export async function setup({ blocks = PARTY(), answers = [PLAN_ANSWER], feature
             },
         },
         queries: { ...part.queries, ...queries },
-        // `earlier`: the rolls are asked for as they were before the dice version, a payload with no `dice` (a chat made on an older build).
-        // `levelless`: the rolls are asked for as they were before the Levels rules (a payload with no `lv`: a chat made on an older build); `flowless` and `earlier` drop it too.
-        // `flowless`: the rolls are asked for as they were before stage 49's flow (a payload with no `flow`: a chat made on an older build); `earlier` strips the dice version too.
-        hooks: { ...part.hooks, ...(bare ? { beforeGenerate: Object.assign(async (view, info) => {
-            // (`bare`: what the hook answered before the no-rolls note existed: the lines, no commands, when the planner gave nothing)
-            const out = await part.hooks.beforeGenerate(view, info);
-            return out?.lines && !out.commands?.some(command => command.type === 'rpg.resolve') ? { lines: out.lines } : out;
-        }) } : {}), ...(earlier || flowless || levelless || lvless ? { beforeGenerate: Object.assign(async (view, info) => {
-            const out = await part.hooks.beforeGenerate(view, info);
-            // (every variant is a roll planned before the Levels rules: no `lv` in the payload and no `levelDivisor` in its numbers)
-            return out?.commands ? { ...out, commands: out.commands.map(({ payload: { dice, flow, lv: _lv, rules: { levelDivisor: _d, ...rules }, ...payload }, ...command }) => ({ ...command,
-                payload: earlier ? { ...payload, rules } : levelless || lvless ? { ...payload, rules, dice, flow } : { ...payload, rules, dice } })) } : out;
-        }) } : {}), replayGuard: (view, info) => (info?.guard?.predicate?.kind === 'interaction' ? interactionGuardFor(id => host.registry.interaction(id))(view, info) : part.guard(view, info)) },
+        hooks: { ...part.hooks, replayGuard: (view, info) => (info?.guard?.predicate?.kind === 'interaction' ? interactionGuardFor(id => host.registry.interaction(id))(view, info) : part.guard(view, info)) },
         settings: { defaults: { ...part.settings.defaults } },
     };
     host = await createHost({ core: false, modules: [module], settings: { modules: { [OWNER]: { ...settings } } } });
     host.features.set(LEAN_RPG_FEATURE, feature);
-    host.features.set(CORE_FEATURE.fightBoard, board);
     return { host, callModel, problems, part };
 }
 
@@ -141,6 +111,5 @@ export const tailOf = request => request.chat.filter(message => message.role ===
 export const recordOf = (host, index) => host.ctx.chat[index].extra.storySuite;
 // (a fight is an `interaction.settle` of the fight kind since I6; its opening settle is not the roll the tests look for, and a fight from before the port is a board `rpg.resolve`)
 export const rollReceipt = (host, index) => recordOf(host, index).receipts.find(receipt => receipt.type === 'interaction.settle' && receipt.replan?.payload?.kindId === 'story-block/fight' && receipt.replan.payload.opening !== true) ?? recordOf(host, index).receipts.find(receipt => receipt.type === 'rpg.resolve');
-export { ROLLS_SETTING };
 /** The cue a roll's receipt tells: stage 51 stores no copy of it on the receipt, so it is built from the record (old receipts carry the text). */
 export const cueOf = receipt => receiptCue(receipt);

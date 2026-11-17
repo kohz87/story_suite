@@ -1,7 +1,7 @@
 import { createHost } from '../../testkit/index.js';
 
 // The closing cue (turn/text.js) is the last text of a reply's prompt; the tests that read the tail's own text look before it.
-export const noCue = text => String(text).replace(/\n\nAfter the story, write the <Changes> block[^\n]*$/, '');
+export const noCue = text => String(text).replace(/\n\nEnd every reply with the <Changes> block[^\n]*$/, '');
 
 // A small inventory module: items by name, a capture kind `item`, a command for the UI.
 export function bag() {

@@ -182,6 +182,10 @@ export function createNpcQueries({
             }
             return Object.keys(npcs).sort().map(view);
         },
+        /** npc.replySid({ asOf: index }) → the record ID of the reply at `index` (its shown swipe's), or null: the key a reply's own work is kept under (it stays with the reply when an earlier message is deleted). */
+        'npc.replySid'(state, args = {}, tools = null) {
+            return typeof tools?.reply?.sid === 'string' ? tools.reply.sid : null;
+        },
         /**
          * npc.cast() → the store's people (castPeople): [{ key (the npc_ id of its meters), name, present, bars, still, rank?, next?, notesOn?, locked, opened }], present
          * first. `bars`: [{ id, label, value, min, max, stage, text, tone, ceiling?, floor?, ticks?,

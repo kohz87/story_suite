@@ -54,10 +54,11 @@ test('notes grammar: the static text is the same bytes every time and the added 
     assert.equal(JSON.stringify(noteKinds(() => {})), once);
     const bare = 88 + 107 + 54 + 70; // the four lines as they were (lie, know, taste, tie)
     const added = Object.values(noteKinds(() => {})).reduce((sum, kind) => sum + kind.grammar.length, 0) - bare;
-    assert.ok(added > 0 && added < 500, `added ${added} chars`);
+    assert.ok(added > 0 && added < 800,  // N7: the tie line lists nine tags
+         `added ${added} chars`);
 });
 
-const CUE = /^Whenever anything changed, write the <Changes> block \(just before <Blocks>, which still ends the reply\), even if <Blocks> is empty/;
+const CUE = /^Whenever anything changed, write it in the <Changes> block at the very end of the reply; a lie, secret, taste, tie or turning point gets its own line\./;
 const tailOf = s => s.host.registry.module(MODULE_ID).context.tail({ state: s.host.head(), chat: { length: s.host.ctx.chat.length } });
 const cueLines = tail => tail.lines.filter(line => CUE.test(typeof line === 'string' ? line : line?.text));
 

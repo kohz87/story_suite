@@ -7,6 +7,7 @@ import { activeReplyIds } from '../transcript/transcript.js';
 import { chatContext, inReplay } from '../calls/runtime-scan-helpers.js';
 import { normalizeAllowance } from '../legacy/relationship-pacing.js';
 import { effectiveCustomFieldNames } from '../settings/runtime-settings.js';
+import { convertJournal, recordReadMark } from './runtime-narration.js';
 
 const quietKeys = new Set(['timeline', 'catchUp']);
 
@@ -75,7 +76,7 @@ function createReplayBoundaries(deps) {
                 captureJournal: structuredClone(getChatState(key).captureJournal || []),
                 now: () => run.time ?? Date.now(),
                 replace: next => { for (const name of Object.keys(copy)) delete copy[name]; return Object.assign(copy, next); },
-                backfills: mid => processPendingBackfills(mid, { limit: hostedOnePass() ? 1 : BACKFILLS_PER_REPLY, skipNpcIds: [], admissions: hostedOnePass() }).catch(() => {}),
+                backfills: (mid, skip = []) => processPendingBackfills(mid, { limit: hostedOnePass() ? 1 : BACKFILLS_PER_REPLY, skipNpcIds: skip, admissions: hostedOnePass() }).catch(() => {}),
             };
             await inReplay(scope, () => handleAssistantMessageReceivedInner(id, { bypassSwipeGuard: true }));
             return scope.failed ? { ok: false, message: scope.failed } : undefined;
@@ -165,8 +166,23 @@ export function createPublicApiStatePart(deps) {
         const key = getChatKey();
         const state = key && key !== 'no-chat' && chatHydrationStatus(key) === 'ready' && Number.isInteger(reply) && reply >= 0 ? getChatState(key) : null;
         if (!state) return false;
-        queueFillsInState(state, stubs, reply);
+        // Asked once per reply, saved with the reply's journal entry (it survives a reload; a fill live dropped is not asked for again): only the stubs not asked yet are queued.
+        const entry = recordReadMark(state, chatContext().chat || [], reply);
+        const asked = new Set(entry?.asked || []);
+        const fresh = (stubs || []).filter(stub => stub && !asked.has(stub.id));
+        if (!fresh.length) return false;
+        if (entry) entry.asked = [...asked, ...fresh.map(stub => stub.id)];
+        queueFillsInState(state, fresh, reply);
         return true;
+    },
+    // (N7) The one-time move of the capture journal to the replies' sids, after a hydrate (journal-convert.js); saved only when it changed something.
+    convertCaptureJournal: () => {
+        const key = getChatKey();
+        const state = key && key !== 'no-chat' && chatHydrationStatus(key) === 'ready' ? getChatState(key) : null;
+        if (!state) return null;
+        const report = convertJournal(state, chatContext().chat || [], index => storySuiteV2Meters()?.replySid?.(index) ?? null);
+        if (report.converted || report.dropped) void persistCriticalDurable(key);
+        return report;
     },
     // (the one timeline) The scan marker the store holds for the head (people.scan, src/adapter/people-sync.js): `index` is the last reply read (null: none), `since`
     // the replies since that scan. In place on the state a running scan holds (pending backfills and read-ahead dropped); nothing is persisted.

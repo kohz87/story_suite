@@ -1,11 +1,10 @@
 // The pre-check's bounds and its short Assist prompt.
 import { FOE_SLOTS } from '../../names.js';
-import { OPEN_MAX_NAME } from '../../open.js';
-import { FOE_COUNT_MAX } from '../../templates.js';
+import { OPEN_MAX_NAME, OPEN_RECORD_MAX_COUNT } from '../../open.js';
 import { nameKey, oneLine } from './shared-words.js';
 
 /** The pre-check's own bounds before a caller narrows them with `limits`. */
-export const PRECHECK_LIMITS = Object.freeze({ groups: FOE_SLOTS, count: FOE_COUNT_MAX, name: OPEN_MAX_NAME });
+export const PRECHECK_LIMITS = Object.freeze({ groups: FOE_SLOTS, count: OPEN_RECORD_MAX_COUNT, name: OPEN_MAX_NAME });
 
 /** How many characters of the reply before the message the prompt keeps (its end; the foes are often described earlier in a long reply). */
 export const PREVIOUS_CHARS = 4000;

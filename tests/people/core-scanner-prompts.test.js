@@ -356,11 +356,12 @@ test('targeted Refresh from Chat prompt reconciles one dossier without replaying
     assert.match(prompt, /TARGETED REFRESH FROM CHAT/);
     assert.match(prompt, /exactly one EXISTING NPC/i);
     assert.match(prompt, /currentRelationship is READ-ONLY/i);
-    assert.match(prompt, /all four relationshipDelta values MUST be 0/i);
+    assert.match(prompt, /every relationshipDelta 0/i);
     assert.match(prompt, /present\/worldActive.*ignored/i);
     assert.match(prompt, /lockedProfileFields/);
     assert.match(prompt, /profileUpdates/);
-    assert.match(prompt, /keyRelationshipEdges/);
+    assert.match(prompt, /do not return keyRelationshipEdges/);
+    assert.doesNotMatch(prompt, /,"keyRelationshipEdges":\[\]/, 'NSD11: no edges in the return shape');
     assert.match(prompt, /Latest grounded evidence wins/i);
 });
 
@@ -378,7 +379,6 @@ test('v0.2.5 scanner and targeted refresh enforce identity firewall and developm
     assert.match(scanner, /time skip alone invents nothing/i);
 
     const refresh = buildProfileRefreshPrompt({ transcript: 'Six months pass while Falia remains active in the guard.', targetNpc: npc, userName: 'Aris' });
-    assert.match(refresh, /behavior unique to Aris must not become global/i);
-    assert.match(refresh, /generally kind NPC remains generally kind toward other people/i);
+    assert.match(refresh, /behaviour unique to Aris never becomes global/i);
     assert.match(refresh, /Mere passage of time does nothing/i);
 });

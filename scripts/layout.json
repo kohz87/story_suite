@@ -24,6 +24,7 @@
       "link": "npc_state_delta",
       "files": {
         "core.js": "modules/people/core/core.js",
+        "core-prompts-lines.js": "modules/people/core/core-prompts-lines.js",
         "src/storysuite-v2.js": "modules/people/storysuite-v2.js",
         "src/npc-notes-kinds.js": "modules/people/notes/npc-notes-kinds.js",
         "src/npc-meters-presets.js": "modules/people/meters/npc-meters-presets.js"

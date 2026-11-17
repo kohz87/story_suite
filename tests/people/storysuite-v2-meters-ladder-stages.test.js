@@ -157,7 +157,7 @@ test('custom meters: the rule line goes in the static part only while presets an
     const on = make(true).context.static();
     const off = make(false).context.static();
     assert.match(on, / Meter rules: loyalty rises when you keep promises\.$/);
-    assert.equal(off, 'NPC meters: trust, affection, desire, tension (-100..100), loyalty (0..100). When the scene changes how someone feels: ~ npc Name | meter: +N, -N or =N. Code clamps each meter, moves it at most 15 a reply and sets the stages; never write a stage. Add | why: what caused it.');
+    assert.ok(off.startsWith('Relationships: when the scene changes how someone feels about {{user}}') && !off.includes('Meter rules'), 'rules off: the paragraph alone (custom meters add no text, G2)');
     assert.equal(on.startsWith(off.slice(0, -1)), true, 'the rule line is added at the end');
     const state = { domains: { people: { v: 1, order: [], npcs: {}, bonds: { problems: [], npcs: { npc_mira: { name: 'Mira', meters: { trust: 5, affection: 0, desire: 0, tension: 0, loyalty: 61 }, stages: {}, unlocked: [], turn: { reply: 2, from: {} } } } } } } };
     assert.deepEqual(make(true).context.tail({ state, chat: { length: 3 } }).lines.filter(line => typeof line === 'string'), ['NPC meters now: Mira trust 5, affection 0, desire 0, tension 0, loyalty devoted.']);
@@ -170,7 +170,7 @@ test('custom meters: the rule line goes in the static part only while presets an
 test('the static part stays byte-identical reply to reply with presets, rules, a ladder and milestones in use', async () => {
     const s = await suite({ settings: { presets: ['rival', 'companion'], ladder: LADDER, customMeters: [{ name: 'Awe', describe: 'rises with wonders' }] } });
     const first = s.def.context.static();
-    assert.match(first, /awe \(0\.\.100\), respect \(0\.\.100\), rivalry \(0\.\.100\), loyalty \(0\.\.100\)/);
+    assert.doesNotMatch(first, /awe \(0\.\.100\)/, 'custom meters add no range text (G2)');
     assert.match(first, /Meter rules: awe rises with wonders; respect rises when you beat/);
     await s.say(['~ npc Mira | respect: +10 | trust: +15', '+ milestone Mira — saved her brother']);
     await s.say(['~ npc Oren | rivalry: +5']);

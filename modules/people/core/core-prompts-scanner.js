@@ -127,7 +127,7 @@ export function buildScannerPrompt({
             const keyRelationships = cleanWordsList(npc.keyRelationships, KEY_RELATIONSHIP_LIMIT, DURABLE_PROFILE_LIMITS.keyRelationship);
             const memories = cleanWordsList(npc.memories, IMPORTANT_MEMORY_LIMIT, DURABLE_PROFILE_LIMITS.memory);
             const profileEvidence = promptProfileEvidence(npc.profileEvidence);
-            const locked = (npc.manualProfileFields || []).filter(field => PROFILE_EVIDENCE_FIELDS.includes(field));
+            const locked = (npc.manualProfileFields || []).filter(field => field !== 'background' && PROFILE_EVIDENCE_FIELDS.includes(field));   // background quotes are kept but not part of the scan prompt (it reads as before)
             return {
                 id: npc.id,
                 name: npc.name,

@@ -71,7 +71,7 @@ test('actions: the stance switch shows what it gives now and sends its new state
   const seen = [];
   const { card } = build({ onStance: on => seen.push(on) });
   assert.equal(card.querySelector('.stance .now').textContent, 'now: soak 22%');
-  assert.match(card.querySelector('.stance small').textContent, /soak 17% \+ 5% · 1 Stamina each exchange/);
+  assert.match(card.querySelector('.stance small').textContent, /^Shield wall: soak 17% \+ 5% · 1 Stamina each exchange/);
   const sw = card.querySelector('.sw');
   assert.equal(sw.getAttribute('aria-checked'), 'true');
   sw.click();
@@ -84,7 +84,13 @@ test('actions: a stance that is off shows the off text; no stance means no row',
   vm.actor.stance.on = false;
   const off = actionsCard(vm.actor, vm.party[3], { party: vm.party });
   assert.equal(off.querySelector('.now'), null);
-  assert.match(off.querySelector('.stance small').textContent, /^Off: soak 17%/);
+  assert.equal(off.querySelector('.stance small').textContent, 'Off: soak 17%. No Stamina from this exchange on.');
+  const plain = { ...vm.actor, stance: { name: 'Calm', on: false, soakOn: null, soakOff: null, pool: 'Stamina', cost: 1, paid: null } };
+  assert.equal(actionsCard(plain, vm.party[3], { party: vm.party }).querySelector('.stance small').textContent, 'Off: no Stamina from this exchange on.');
+  const magic = { ...plain, stance: { ...plain.stance, name: 'Ward', pool: 'Mana' } };
+  assert.equal(actionsCard(magic, vm.party[3], { party: vm.party }).querySelector('.stance small').textContent, 'Off: no Mana from this exchange on.');
+  magic.stance.on = true;
+  assert.equal(actionsCard(magic, vm.party[3], { party: vm.party }).querySelector('.stance small').textContent, 'Ward: 1 Mana each exchange, paid at its start; off when Mana runs out');
   vm.actor.stance = null;
   assert.equal(actionsCard(vm.actor, vm.party[3], { party: vm.party }).querySelector('.stance'), null);
 });

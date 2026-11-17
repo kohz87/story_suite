@@ -1,9 +1,10 @@
 {
   "id": "faction-standing",
-  "version": "1.0.0",
+  "format": 3,
+  "version": "2.0.0",
   "name": "Faction standing",
   "requires": {
-    "storyBlock": "^2",
+    "suite": "^0.1",
     "capabilities": [
       "data-modules-v1"
     ]

@@ -113,8 +113,8 @@ test('v1.0.25 unchanged Behavioral Profile retains novel evidence and diagnoses 
 test('v1.0.25 provider prompts forbid unchanged refine/evolve candidates', () => {
     const npc = soraBase();
     const refresh = buildProfileRefreshPrompt({ transcript: EPISODE, targetNpc: npc, userName: 'Lucien', charName: 'Narrator' });
-    assert.match(refresh, /changed FULL CURRENT candidate/i);
-    assert.match(refresh, /never claim refine\/evolve with a copied field/i);
+    assert.match(refresh, /return the changed FULL field with the reason/i);
+    assert.match(refresh, /A field the window only repeats is left out/i);
     const routine = buildScannerPrompt({ transcript: EPISODE, existingNpcs: [npc], userName: 'Lucien', charName: 'Narrator' });
     assert.match(routine, /Time-compressed refine\/evolve\/change MUST include developmentReason \+ changed FULL candidate/i);
     assert.match(routine, /unchanged\/reinforcing=>omit\/keep/i);

@@ -1,10 +1,12 @@
 // The recent windows of the chat: the last lines, the reply ids they hold, every active reply id and the user lines.
 import { activeChat } from './gate.js';
+import { windowChat } from './hidden.js';
 import { cleanMessage } from './shared-clean.js';
 import { readContext, readScanDepth } from './source.js';
 
-export function recentTranscript(limit = null, { messageIds = false } = {}) {
-    const chat = activeChat(readContext().chat || []);
+/** `hidden`: a Refresh's window, which also reads the messages SillyTavern hid (hidden.js). */
+export function recentTranscript(limit = null, { messageIds = false, hidden = false } = {}) {
+    const chat = windowChat(hidden);
     const count = Math.max(2, Math.min(30, Number(limit ?? readScanDepth()) || 6));
     const lines = [];
     // Walk backward and stop as soon as the requested meaningful window is full.
@@ -40,8 +42,8 @@ export function activeReplyIds() {
     return ids;
 }
 
-export function recentUserDevelopmentContext(limit = null, { messageIds = true } = {}) {
-    const chat = activeChat(readContext().chat || []);
+export function recentUserDevelopmentContext(limit = null, { messageIds = true, hidden = false } = {}) {
+    const chat = windowChat(hidden);
     const count = Math.max(2, Math.min(30, Number(limit ?? readScanDepth()) || 6));
     const selected = [];
     let meaningful = 0;

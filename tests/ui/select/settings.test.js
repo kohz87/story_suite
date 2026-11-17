@@ -95,14 +95,14 @@ describe('selectSettings', () => {
   });
 
   it('Models: the Calls group has the mock\'s five rows, read from the stored values', () => {
-    const vm = selectSettings(answers({ calls: { kinds: '~ time, + world', maxOutput: 900 }, features: [{ id: 'story-block.extractor', label: 'x', on: true }] }));
+    const vm = selectSettings(answers({ calls: { kinds: '~ time, + world', maxOutput: 900, repair: true }, features: [{ id: 'story-block.extractor', label: 'x', on: true }] }));
     assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
     const rows = vm.sections.find(s => s.id === 'models').rows;
-    assert.deepEqual(rows.map(r => [r.key, r.type]), [['calls.queue', 'sw'], ['calls.priority', 'info'], ['calls.fallback', 'sw'], ['calls.maxOutput', 'info'], ['calls.kinds', 'chips']]);
-    assert.deepEqual(rows.map(r => r.value), [true, 'always on', true, '900 tokens', ['Time moves on', 'World news']]);
+    assert.deepEqual(rows.map(r => [r.key, r.type]), [['calls.queue', 'sw'], ['calls.priority', 'info'], ['calls.repair', 'sw'], ['calls.fallback', 'sw'], ['calls.maxOutput', 'info'], ['calls.kinds', 'chips']]);
+    assert.deepEqual(rows.map(r => r.value), [true, 'always on', true, true, '900 tokens', ['Time moves on', 'World news']]);
     assert.equal(rows.at(-1).options.length, 15);
     const none = selectSettings(answers({})).sections.find(s => s.id === 'models').rows;
-    assert.deepEqual([none[2].value, none[3].value, none[4].value.length], [false, 'built-in limits', 10], 'no feature list: off; no stored kinds: the ten defaults');
+    assert.deepEqual([none[2].value, none[3].value, none[4].value, none[5].value.length], [true, false, 'built-in limits', 10], 'repair is on and the fallback off with nothing stored; no stored kinds: the ten defaults');
   });
 
   it('Models: the Background card names the fallback call, the Quick card does not', () => {
@@ -115,7 +115,7 @@ describe('selectSettings', () => {
     const [, quick, background] = selectSettings(answers({})).connections;
     assert.equal(quick.usedFor.filter(u => /pre-check/.test(u)).length, 1);
     assert.ok(quick.usedFor.some(u => /fight set-up from your attack: the pre-check/.test(u)));
-    assert.equal(quick.usedFor.length, 3);
+    assert.equal(quick.usedFor.length, 4);
     assert.ok(!quick.usedFor.some(u => /safety net/.test(u)));
     assert.ok(!background.usedFor.some(u => /pre-check/.test(u)));
   });

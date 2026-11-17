@@ -11,15 +11,15 @@ test('the sample pack validates, as text and as an object', () => {
         const result = validatePack(input);
         assert.equal(result.ok, true, JSON.stringify(result.errors));
         assert.equal(result.pack.id, 'riverside-starter');
-        assert.deepEqual(Object.keys(result.pack.content), ['items', 'creatures', 'shops', 'recipes', 'events', 'quests', 'races', 'talents']);
-        assert.deepEqual(result.pack.content.races.map(race => race.id), ['pack.riverside-starter/riverfolk']);
-        assert.deepEqual(result.pack.content.talents.map(talent => talent.id), ['pack.riverside-starter/patient-angler']);
+        assert.deepEqual(Object.keys(result.pack.content), ['items', 'events', 'foes']);
+        assert.equal(result.pack.format, 3);
+        assert.deepEqual(result.pack.requires, { suite: '^0.1', capabilities: ['inventory', 'scene'] });
         assert.deepEqual(result.pack.currency, { name: 'pennies', short: 'p' });
         assert.deepEqual(result.pack.content.items.map(item => item.id), [
             'pack.riverside-starter/moonveil-trout', 'pack.riverside-starter/willow-rod',
             'pack.riverside-starter/hemp-line', 'pack.riverside-starter/minor-healing-draught',
         ]);
-        assert.equal(result.pack.content.creatures.length, 1);
+        assert.equal(result.pack.content.foes.length, 1);
         assert.equal(result.pack.content.events.length, 2);
         assert.ok(result.pack.start);
     }
@@ -29,9 +29,6 @@ test('normalizing fills defaults, writes references as full IDs and links events
     const { pack: out } = validatePack(sample());
     const rope = out.content.items.find(item => item.slug === 'hemp-line');
     assert.deepEqual({ kind: rope.kind, rarity: rope.rarity, stack: rope.stack, slot: rope.slot, stats: rope.stats, effect: rope.effect, note: rope.note }, { kind: 'material', rarity: 'common', stack: true, slot: null, stats: {}, effect: {}, note: '' });
-    assert.deepEqual(out.content.shops[0].stock.map(line => line.item), ['pack.riverside-starter/moonveil-trout', 'pack.riverside-starter/hemp-line', 'pack.riverside-starter/willow-rod'], 'by slug and by name');
-    assert.equal(out.content.recipes[0].makes, 'pack.riverside-starter/willow-rod');
-    assert.deepEqual(out.content.recipes[0].materials, [{ item: 'pack.riverside-starter/hemp-line', qty: 2 }]);
     const [first, second] = out.content.events;
     assert.deepEqual([first.id, first.once, first.after, first.then], ['pack.riverside-starter/market-day', true, null, []]);
     assert.equal(second.after, 'pack.riverside-starter/market-day');
@@ -184,9 +181,9 @@ test('content kinds and records', () => {
     refused(pack({ content: { spells: [] } }), 'UNKNOWN_KIND');
     refused(pack({ content: { items: { name: 'Rope' } } }), 'BAD_CONTENT');
     refused(pack({ content: { items: ['Rope'] } }), 'BAD_RECORD');
-    refused(pack({ content: { creatures: [{ hp: 3 }] } }), 'BAD_RECORD', 'a name is needed');
-    refused(pack({ content: { creatures: [{ name: '!!!' }] } }), 'BAD_RECORD', 'a name with no letters needs a slug');
-    refused(pack({ content: { creatures: [{ name: 'Rat', slug: 'Big Rat' }] } }), 'BAD_RECORD');
-    refused(pack({ content: { creatures: [{ name: 'Rat' }, { name: 'rat' }] } }), 'DUPLICATE');
+    refused(pack({ content: { foes: [{ tier: 'mob' }] } }), 'BAD_RECORD', 'a name is needed');
+    refused(pack({ content: { foes: [{ name: '!!!', tier: 'mob' }] } }), 'BAD_RECORD', 'a name with no letters needs a slug');
+    refused(pack({ content: { foes: [{ name: 'Rat', tier: 'mob', slug: 'Big Rat' }] } }), 'BAD_RECORD');
+    refused(pack({ content: { foes: [{ name: 'Rat', tier: 'mob' }, { name: 'rat', tier: 'mob' }] } }), 'DUPLICATE');
     refused(pack({ content: { items: [{ name: 'Rope' }, { name: 'Other', slug: 'rope' }] } }), 'DUPLICATE');
 });

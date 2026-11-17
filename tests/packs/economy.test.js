@@ -42,10 +42,8 @@ test('economy is an optional top-level field: { scale 0.001–1000 (default 1), 
 });
 
 test('numbers the pack writes stay exactly as written', () => {
-    const made = ok(pack({ economy: { scale: 0.01 }, content: { items: [{ name: 'Draught', value: 30 }], shops: [{ name: 'Shop', stock: [{ item: 'Draught', price: 45 }] }], ranks: [{ id: 'F', reward: [50, 400] }] } }));
+    const made = ok(pack({ economy: { scale: 0.01 }, content: { items: [{ name: 'Draught', value: 30 }] } }));
     assert.equal(made.content.items[0].value, 30);
-    assert.equal(made.content.shops[0].stock[0].price, 45);
-    assert.deepEqual(made.content.ranks[0].reward, [50, 400]);
 });
 
 test('packs.economy: the first enabled pack that sets one; scales are not mixed', async () => {

@@ -6,8 +6,14 @@ import { selectDossier } from './dossier.js';
 
 const isRec = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
+/** Story Block's `scene.present` as a list of names, or null while that query is not there (then the store's own flag and place decide). */
+export function presentOf(read) {
+  const answer = read('scene.present', {});
+  return Array.isArray(answer) ? answer.filter(name => typeof name === 'string') : null;
+}
+
 export function peopleParts(read) {
-  return { list: read('people.list', {}), keyPeople: read('director.keyPeople.view', {}), party: read('party.actors', {}), ties: read('people.ties', {}), place: read('scene.place', {})?.name ?? null };
+  return { list: read('people.list', {}), keyPeople: read('director.keyPeople.view', {}), party: read('party.actors', {}), ties: read('people.ties', {}), place: read('scene.place', {})?.name ?? null, present: presentOf(read) };
 }
 
 // Dossier pages keyed by person id (what a card and a tie carry), and by lowercase name for a caller that has only the name.
@@ -20,7 +26,7 @@ export function dossierMap(read) {
     const dossier = read('people.dossier', { id: row.id });
     const vm = selectDossier({
       dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
-      portrait: dossier?.portrait, keyPeople: parts.keyPeople, party: parts.party, people: parts.list, place: parts.place,
+      portrait: dossier?.portrait, keyPeople: parts.keyPeople, party: parts.party, join: read('rpg.partyAdd', { name: row.name }), people: parts.list, place: parts.place, present: parts.present,
     });
     if (!vm) continue;
     out[row.id] = vm;

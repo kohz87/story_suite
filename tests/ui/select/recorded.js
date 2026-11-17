@@ -30,9 +30,13 @@ export const ANSWERS = {
   'director.keyPeople': [{ name: 'Fenna', here: true, away: null }],
   // SD/atlas/trip-query.js:74 (tripView, trip.js:383)
   'atlas.trip': { on: true, to: 'Auvoth', phase: 'road', leg: 2, legCount: 4, fraction: 0.5, row: 'Bluewatch → Auvoth · leg 2 of 4', legs: [], you: null, movers: [], hasMovers: false },
-  // SB/screens/changes-card.js:234 changesDigest (as `reply.digest`), SB/reply-notes.js:51 refusedAt
-  'reply.digest': { gained: [{ def: 'rope', name: 'Rope', qty: 1 }], lost: [], held: [], coin: 30, coinNow: null, place: 'Auvoth', arrived: ['Fenna'], left: [], presentNow: null, other: false, loot: 0 },
-  'notes.refusedAt': [{ line: '+ item Moon Blade', reason: 'No such item.' }],
+  // SB core reply.changes (modules/scene/domains/core/reply-changes.js)
+  'reply.changes': {
+    lines: [{ glyph: 'item', line: '+1 Rope', detail: null, applied: true }, { glyph: 'coin', line: '+30', detail: null, applied: true },
+      { glyph: 'road', line: 'To Auvoth', detail: null, applied: true }, { glyph: 'people', line: 'Fenna arrived', detail: null, applied: true }],
+    refused: [{ line: '+ item Moon Blade', reason: 'No such item.' }],
+    stateThen: { place: 'Guild Office', weather: 'cold drizzle' },
+  },
 };
 
 // SB/domains/gear/views.js:156 gear.view; SB/data-modules/part/views.js:51 dataModules.view

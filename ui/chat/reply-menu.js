@@ -24,6 +24,7 @@ function lineItem(row) {
     String(row.line ?? ''),
     row.detail ? h('small', { class: 'dtl' }, ` · ${row.detail}`) : null,
     row.applied === false ? h('span', { class: 'tagx na' }, ' not applied') : null,
+    row.assist === true ? h('small', { class: 'dtl as', title: 'Written by Assist, not by the reply' }, ' · Assist') : null,
   );
 }
 
@@ -31,7 +32,7 @@ function action(label, onClick) {
   return h('button', { type: 'button', class: 'ssbtn', onClick }, label);
 }
 
-/** Builds the "This reply" sheet from a replyMenu view-model; handlers: onReread, onOpenSuite(tab), onClose (a button shows only with its handler). */
+/** Builds the "This reply" sheet from a replyMenu view-model; handlers: onReread, onOpenSuite(tab), onDiscard (shown only when the reply holds a repair: vm.repaired), onClose (a button shows only with its handler). */
 export function replySheet(menu, handlers = {}) {
   const vm = menu || {};
   const on = handlers || {};
@@ -49,6 +50,7 @@ export function replySheet(menu, handlers = {}) {
       'span',
       { class: 'tra' },
       on.onReread ? action('Re-read this reply', () => on.onReread()) : null,
+      on.onDiscard && vm.repaired === true ? action('Discard repair', () => on.onDiscard()) : null,
       on.onOpenSuite ? action('Open in Suite', () => on.onOpenSuite('now')) : null,
       on.onClose ? action('Close', () => on.onClose()) : null,
     ),

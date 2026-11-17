@@ -306,7 +306,7 @@ replaces the `story` changes stored on it the way a fresh capture would: the rea
 steps on that reply stay after them, with their claims, and later replies are checked again on top (if one
 no longer fits, nothing changes, `CONFLICT`). → `{ ok: true, receipts, problems } | { ok: false, code,
 message }`; refused for the reader's messages, system messages, messages without a record and while a reply
-is being written. It emits `turn` with `{ index, type: 'reread', problems }` and saves once. Each story
+is being written. `sdk.reread(index, { discardRepair: true })` first takes the reply's repaired lines (the `<Changes-assist>` comment whose header says `repaired`, written by the repair on a miss) out of its text and leaves a `discarded` comment, then reads the reply again: the repair is never asked again for that reply (a swipe back, a reload, a Re-read and a rewind read the same text); the text is put back when the Re-read refuses; a reply with no repair is `REFUSED`. It emits `turn` with `{ index, type: 'reread', problems }` and saves once. Each story
 receipt keeps a mark of the line that made it (`line`, a hash of its text); a line read again gets the seed
 of the receipt its unchanged text made before (in order, by kind), so what it makes keeps its IDs and the
 reader's later actions on them still fit; a changed or new line gets a fresh seed.
@@ -867,7 +867,7 @@ sdk.registerModule({
     `context.static` / `context.tail`.
 * **Tabs** render into Story Block's tab bar from the head state; they never read message text.
 * **Events**: `sdk.on('committed' | 'head' | 'turn' | 'feature' | 'modules' | 'changed', fn, { module }?)` (`module`: with the internal flag `suite.isolatedApply` on, a throw or rejection of `fn` is a Problem of that module; `sdk/listener-guard.js`); `head` fires after any rebuild; `changed` ({ keys, index, reason }) fires once per reply (or Re-read, or out-of-turn change, or system commit outside a reply such as a module set up mid-chat) with the domains touched, and again after any head move; `keys` is never empty (a change that stored nothing is not told) and `['*']` means everything; `index` is the head carrier when it is sent (`null` if the store fails); `reason` is `turn`, `command`, or the `head` event's reason (`sdk/changed.js`).
-* `sdk.query(name, args)`, `sdk.modules()`, `sdk.id(prefix)`, `sdk.check`, `sdk.settings(id)`, `sdk.feature(id)`,
+* `sdk.query(name, args)`, `sdk.modules()`, `sdk.id(prefix)`, `sdk.check`, `sdk.settings(id)` (the function also carries `sdk.settings.defaults` and `sdk.settings.schema`: the host's frozen defaults and schema, read by the Settings page), `sdk.feature(id)`,
   `sdk.features()`.
 * **Model calls** (MODULES §G): `sdk.callModel({ profile, system, prompt, maxTokens, signal, feature })` →
   `Promise<{ ok, text, error }>`, a module's own call outside the story, on a Connection Manager profile (called
@@ -923,7 +923,7 @@ stored kind, and a move to another place takes the kind a pack gives a place of 
 gives one. Only an explicit empty value (`kind:` with nothing after it) clears one. After a move only those
 named in `with:` are present. Exception: an Assist place on a reply with the `assistPlace` mark keeps the
 people present, and explicit departures take precedence over its `with:` names (MODULES §F123). Queries `scene.place`, `scene.present` and `scene.moved` (true while the head
-reply's receipts moved the place; MODULES §F119).
+reply's receipts moved the place; MODULES §F119). Query `reply.changes({ index? })` answers `{ lines: [{ glyph, line, detail, applied }], refused, stateThen: { place, weather } }` for one reply (the head by default; `{ asOf, index }` for an earlier one), built from that reply's receipts only (items, net coin, a move, who arrived or left; the reader's own `ui` edits are left out), or null when it has none. `refused` is always `[]`: a refused line is told once by the turn and is not stored.
 Capture kind `weather` (`~ weather cold drizzle, low fog`, feature `story-block.weather`, on; MODULES §F120):
 the text flattened, without markup, cut at 60 code points; `rev` the `meta.rev` of the receipt that wrote it;
 the same text again changes nothing. Descriptive only: no mechanic reads it. `weather` is a `scratch` field

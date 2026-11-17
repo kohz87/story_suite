@@ -56,8 +56,8 @@ test('scanner and reconciliation prompts define behaviorProfile as behavioral le
     });
     // (cleanup step 13) The targeted prompts use the scanner's short label list.
     const LEVER = /behaviorProfile=max6 "Label: level - effect" levers: how they generally respond\/decide \(Label=Disposition\|Care\|Expression\|Independence\|Conflict\|Threat\|Analytical\|Presentation\|Mercy\|Loyalty\|Drive\|Honesty\)\. Actions are evidence; routines, duties, house rules and habits are not levers \(habits=>mannerisms\)\./;
-    assert.match(refresh.replace(' levers (evidence items too): ', ' levers: '), LEVER);
-    assert.match(refresh, /levers \(evidence items too\): how they/);
+    // (NSD11) Refresh's approved form rule names the levers in the same label list.
+    assert.match(refresh, /behaviorProfile=max6 "Label: level - what they do" \(Label=Disposition\|Care\|Expression\|Independence\|Conflict\|Threat\|Analytical\|Presentation\|Mercy\|Loyalty\|Drive\|Honesty\); actions are evidence, routines and habits are not levers \(habits=>mannerisms\)/);
 
     const backfill = buildBackfillPrompt({
         transcript: 'Marris repeatedly favors practical help over verbal reassurance.',

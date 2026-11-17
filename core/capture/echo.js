@@ -3,6 +3,6 @@
 // block, the whole lines and the echoes. Imports capture/lines.js and capture/blocks.js.
 // Public face: re-exports its parts.
 
-export { assistSections, withAssist } from './echo-parts/assist.js';
+export { assistSections, withAssist, repairState, withoutRepair } from './echo-parts/assist.js';
 export { sameLine, sameChangeLine } from './echo-parts/same-line.js';
 export { readParts, STORY_WORD } from './echo-parts/read-parts.js';

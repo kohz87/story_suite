@@ -20,7 +20,7 @@ export function stripBlock(mes, tag = 'Changes', { heads = null } = {}) {
         if (findBlocks(body, tag).length) return true;
         const parts = commentParts(raw, pair, tag);
         return parts.story.length > 0 || parts.cut !== null || body.includes(`<${sectionTags(tag).echo}>`)
-            || parts.assist.length > 0 || parts.next.length > 0;
+            || parts.assist.length > 0 || parts.next.length > 0 || parts.head.has('discarded');
     };
     let text = replacePairs(raw, hiddenPairs(raw), pair => (ours(pair) ? '' : raw.slice(pair.start, pair.end)));
     const blocks = findBlocks(text, tag);

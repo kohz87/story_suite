@@ -43,21 +43,26 @@ const RECENT = [
   [true, null, 'Skipped', 'resting', null],
   [false, '17', 'Arrival', 'Riders reach the coast road.', 'arrival set'],
 ].map(([skipped, roll, kind, text, effect]) => ({ skipped, roll, kind, text, effect }));
+const TEMPLATES = [
+  { id: 'quest-log', name: 'Quest log', about: 'A list of quests the story adds to.' },
+  { id: 'reputation', name: 'Reputation by place', about: 'A number for each faction or town, drawn as bars.' },
+  { id: 'membership', name: 'Membership card', about: 'One record: who, rank, dues.' },
+];
 const TRACKERS = [
   {
     id: 'chapel-debt', name: 'Chapel debt', showOnNow: true,
     fields: [
-      { label: 'Owed', value: '120 silver', kind: 'bar', pct: 83, tone: 'bad' },
+      { label: 'Owed', key: 'owed', raw: '120', edit: 'number', min: 0, max: 144, value: '120 silver', kind: 'bar', pct: 83, tone: 'bad' },
       { label: 'Paid', value: '20 silver', kind: 'bar', pct: 17, tone: 'ok' },
       { label: 'Due', value: 'Goldwane 30 · in 17 days', kind: 'text' },
     ],
   },
   {
-    id: 'ships-stores', name: 'Ship’s stores', showOnNow: false,
+    id: 'ships-stores', name: 'Ship’s stores', showOnNow: false, removable: true,
     fields: [
-      { label: 'Water', value: '6 of 10 casks', kind: 'bar', pct: 60, tone: 'info' },
+      { label: 'Water', key: 'water', raw: '6', edit: 'number', min: 0, max: 10, value: '6 of 10 casks', kind: 'bar', pct: 60, tone: 'info' },
       { label: 'Rations', value: '14 days', kind: 'bar', pct: 70, tone: 'warn' },
-      { label: 'Morale', value: 'steady', kind: 'text' },
+      { label: 'Morale', key: 'morale', raw: 'steady', edit: 'choice', options: ['low', 'steady', 'high'], value: 'steady', kind: 'text' },
     ],
   },
 ];
@@ -76,7 +81,7 @@ export function buildStory(opts = {}) {
       agendas: gate([], shown),
       cast: { total: 0, met: 0, unmet: 0, lastMoved: null },
       secrets: gate([], shown), ripples: gate([], shown),
-      trackers: [], trackersHidden: 0,
+      trackers: [], trackersHidden: 0, trackerTemplates: TEMPLATES,
     };
   }
   return {
@@ -108,5 +113,6 @@ export function buildStory(opts = {}) {
     ripples: gate(RIPPLES, shown),
     trackers: TRACKERS.map(t => ({ ...t, fields: t.fields.map(f => ({ ...f })) })),
     trackersHidden: 1,
+    trackerTemplates: TEMPLATES,
   };
 }

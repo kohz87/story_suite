@@ -2,14 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { parseEntries } from '../../scripts/b4/dead-exports.mjs';
 import { recipeSteps, removedFiles } from '../../scripts/b4/unit.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' });
 function repo(t) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'b4-unit-'));
+  const root = tempDir('b4-unit-');
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   git(root, 'init', '-q', '-b', 'main');
   git(root, 'config', 'user.email', 't@example.com');

@@ -6,15 +6,24 @@
 // test.todo entries at the end, named after what should happen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validatePack } from '../../../packs/validate.js';
+import { validatePack, checkScreens } from '../../../packs/validate.js';
+import { checkPlain } from '../../../packs/safety.js';
 import { LIMITS } from '../../../packs/limits.js';
 
 const base = (extra = {}) => ({ id: 'evil', version: '1.0.0', requires: { storyBlock: '^2' }, content: {}, ...extra });
 const withNote = note => base({ content: { items: [{ name: 'Lure', note }] } });
-const withScreen = screen => base({ screens: [{ id: 'evil-board', mounts: ['tab'], template: '<div>ok</div>', ...screen }] });
+// A pack's own top-level `screens` are no longer read (pack format 3), so a screen is held to the checks that still take screens (a data module's):
+// the whole-value walls (checkPlain) and checkScreens. `run` checks a pack or a screen the same way.
+const withScreen = screen => ({ __screens: [{ id: 'evil-board', mounts: ['tab'], template: '<div>ok</div>', ...screen }] });
+function run(input) {
+    if (!input.__screens) return validatePack(input);
+    const errors = [...checkPlain(input.__screens)];
+    checkScreens(input.__screens, 'evil', (code, path, message) => errors.push({ code, path, message }));
+    return errors.length ? { ok: false, errors } : { ok: true };
+}
 
 function refused(input, why) {
-    const result = validatePack(input);
+    const result = run(input);
     assert.equal(result.ok, false, `${why}: the pack must be refused, it was accepted`);
     assert.ok(result.errors.length >= 1);
     for (const error of result.errors) {
@@ -27,7 +36,7 @@ function refused(input, why) {
 test('sanity: the base pack and a plain item note are accepted', () => {
     assert.equal(validatePack(base()).ok, true);
     assert.equal(validatePack(withNote('A violet lure, slightly <worn> & bent.')).ok, true);
-    assert.equal(validatePack(withScreen({ css: '.board { color: red; background: url(https://example.com/a.png); }' })).ok, true);
+    assert.equal(run(withScreen({ css: '.board { color: red; background: url(https://example.com/a.png); }' })).ok, true);
 });
 
 const SCRIPT_TAGS = [
@@ -225,7 +234,7 @@ test('a pack event runs only command names, never code', () => {
 
 // ---- problems found (each a failing check, kept as a todo so CI stays green) -----------------
 
-const accepted = input => validatePack(input).ok === true;
+const accepted = input => run(input).ok === true;
 
 test('packs/safety.js EVENT_ATTR: an event attribute after a quoted ">" (<img alt=">" src=x onerror=alert(1)>) is refused', () => {
     // EVENT_ATTR is /<[a-z][^>]*?[\s"'/]on[a-z]+\s*=(?!=)/: [^>] stops at the ">" inside the quoted alt

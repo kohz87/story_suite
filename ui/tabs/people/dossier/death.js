@@ -2,6 +2,7 @@
 import { h } from '../../../kit/dom.js';
 import { button } from '../../../kit/controls.js';
 import { kvList, pageSection } from '../../../kit/page.js';
+import { can } from '../../../runtime/can.js';
 
 const CERTAINTY = Object.freeze({ confirmed: 'Confirmed', presumed: 'Presumed' });
 
@@ -22,7 +23,7 @@ export function deathPage(d, ctx = {}) {
   if (!x) return h('p', { class: 'fine' }, 'No death is recorded.');
   return [
     kvList([['How', x.how], ['When', [x.when, h('small', null, ' (the reply that recorded it)')]], ['Where', x.where ? [x.where, h('small', null, ' (where they were)')] : null], ['Certainty', CERTAINTY[x.certainty] ?? x.certainty]]),
-    h('div', { class: 'brow' }, button({ label: 'Not dead? Mark alive', dataset: { act: 'mark-alive' }, onClick: () => ctx.port?.command?.('npc.markAlive', { personId: d.id }) })),
+    can(ctx, 'npc.markAlive') ? h('div', { class: 'brow' }, button({ label: 'Not dead? Mark alive', dataset: { act: 'mark-alive' }, onClick: () => ctx.port?.command?.('npc.markAlive', { personId: d.id }) })) : null,
     pageSection(`When the story mentions ${d.name}`,
       h('p', { class: 'remline' }, x.referenceLine),
       h('p', { class: 'fine' }, 'The exact line the narrator gets whenever the name or an alias comes up. Gender is frozen at death; only you can change it, in Edit. The dead get their own reference lines, so living people mentioned in the same scene never push them out.')),

@@ -6,6 +6,7 @@
 import { getContext } from '../../../../../../extensions.js';
 import { DEFAULT_ALLOWANCE, normalizeAllowance } from '../legacy/relationship-pacing.js';
 import { DEFAULT_RELATIONSHIP, DEFAULT_RELATIONSHIP_CAPS, DEFAULT_RELATIONSHIP_CRITERIA, DEFAULT_IMPACT_CRITERIA, DEFAULT_MEMORY_CRITERIA, DEFAULT_BEHAVIOR_CRITERIA, normalizeRelationshipBaseline, normalizeRelationshipCaps, normalizeNpcAdmissionMode, DEFAULT_PORTRAIT_STYLE_POSITIVE, DEFAULT_PORTRAIT_STYLE_NEGATIVE, DEFAULT_PORTRAIT_COMPOSITION, normalizeCustomFieldNames } from '../core/core.js';
+import { cutSettingNumber } from './number-cut.js';
 import { chatLineage } from '../legacy/branch.js';
 import { openSuiteOverlay } from '../legacy/suite-handshake.js';
 import { PORTRAIT_THEME_PRESETS, PORTRAIT_CUSTOM_PRESET_LIMIT, portraitCustomPreset, portraitCustomPresetLibrary, portraitCustomPresetFor, nextPortraitCustomPresetId, portraitCustomPresetNameTaken, uniquePortraitCustomPresetName, persistSettings, getSettings, normalizePresentCastDisplay } from './runtime-settings.js';
@@ -48,7 +49,7 @@ export function createSettingsBindPart(rt, deps) {
 
     function bindSettingsNumber(selector, key, min, max, fallback, after = null) {
         $(document).on('change.npcStateDelta', selector, function () {
-            const value = Math.max(min, Math.min(max, Math.round(Number(this.value) || fallback)));
+            const value = cutSettingNumber(this.value, min, max, fallback);
             getSettings()[key] = value;
             this.value = value;
             persistSettings();
@@ -254,7 +255,8 @@ export function createSettingsBindPart(rt, deps) {
         $(document).on('click.npcStateDelta', '#npc_state_delta_save_portrait_settings', () => { void savePortraitSettingsDraft(); });
         bindSettingsNumber('#npc_state_delta_scan_every', 'scanEvery', 1, 20, 2);
         bindSettingsNumber('#npc_state_delta_scan_depth', 'scanDepth', 2, 30, 6);
-        bindSettingsNumber('#npc_state_delta_narration_capture_catch_up', 'narrationCaptureCatchUp', 0, 50, 8);
+        bindSettingsNumber('#npc_state_delta_narration_capture_catch_up', 'narrationCaptureCatchUp', 0, 50, 4);
+        bindSettingsNumber('#npc_state_delta_narration_capture_catch_up_people', 'narrationCaptureCatchUpPeople', 1, 3, 1);
         $(document).on('change.npcStateDelta', '#npc_state_delta_present_cast_display', function () {
             getSettings().presentCastDisplay = normalizePresentCastDisplay(this.value); this.value = getSettings().presentCastDisplay;
             getSettings().presentCastDisplayChosen = true;

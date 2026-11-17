@@ -155,7 +155,7 @@ export const STAGES = [
 ];
 
 export const plain = lines => lines.filter(line => typeof line === 'string');
-export const noCue = lines => lines.filter(line => !/^Whenever anything changed, write the <Changes> block/.test(line));
+export const noCue = lines => lines.filter(line => !/^Whenever anything changed, write it in the <Changes> block/.test(line));
 
 export const EVENT = 'The duke is exposed as a traitor';
 export const EVENT_SECRET = 'She has known about the duke all along.';

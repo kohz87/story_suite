@@ -187,3 +187,13 @@ test('without a back-stack or port the dossier still builds and closes', () => {
   el.close();
   assert.ok(dossierPage({ id: 'x', name: 'X', life: 'alive', meters: {}, now: null, ties: [], past: [], secrets: { opened: 0, total: 0, items: [] } }, {}));
 });
+
+test('a top-bar control nobody answers is left out, never drawn as the text "null" (live: npc.edit has no handler)', () => {
+  // A browser's replaceChildren writes a null argument as the text "null" (the fake DOM drops it): every argument handed to the page is recorded.
+  const proto = installFakeDom().createElement('div').constructor.prototype, real = proto.replaceChildren, drawn = [];
+  proto.replaceChildren = function (...nodes) { drawn.push(...nodes); return real.call(this, ...nodes); };
+  let el;
+  try { ({ el } = build('temiwa', { port: { ...makeCtx().port, can: type => type !== 'npc.edit' } })); } finally { proto.replaceChildren = real; }
+  assert.equal(drawn.includes(null), false, 'no null handed to the page');
+  assert.equal(el.querySelector('[data-act="close"]').parentNode.querySelector('[data-act="edit"]'), null, 'no Edit');
+});

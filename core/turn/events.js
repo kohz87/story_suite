@@ -20,6 +20,7 @@ export function createEvents(s, deps) {
     const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
     const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate });
+    s.afterReply = afterReply;   // (Re-read asks it for a repair of a reply that still has no block: reread.js)
 
     /** MESSAGE_RECEIVED: (messageId, type). */
     async function onMessageReceived(messageId) {
@@ -87,6 +88,8 @@ export function createEvents(s, deps) {
                 if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = hidden;
                 edited = true;
             }
+            // The text is final: the blocks' boundary hashes are stamped from it (the change block moved into the hidden comment).
+            store.restampHashes?.(id);
             if (timeline?.needsRecovery()) {
                 const anchored = await timeline.recover();
                 if (!anchored.ok && !anchored.blockedBy) problem({ index: id, code: anchored.code, message: anchored.message });
@@ -101,7 +104,7 @@ export function createEvents(s, deps) {
             if (edited) redraw(id, message);
             const turn = { index: id, type: current.type, receipts: result.receipts, steps: result.steps, problems, told: current.untold };
             events?.emit('turn', turn);
-            afterReply(id, current.type, message, [...parsed.lines, ...late].map(line => line.raw));
+            afterReply(id, current.type, message, [...parsed.lines, ...late].map(line => line.raw), block === null && current.type !== 'continue');
             return turn;
         } catch (error) {
             const failure = problem({ index: id, code: 'FAILED', message: `The reply's changes could not be kept: ${error?.message ?? error}` });

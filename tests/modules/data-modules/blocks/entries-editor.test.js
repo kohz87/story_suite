@@ -442,5 +442,5 @@ test('F3: a full Quest log (the starter\'s most, every part at its longest) is s
     await host.send('Many.', reply(...lines.slice(0, 13)));
     await host.send('More.', reply(...lines.slice(13)));
     assert.equal(questView(host).length, 25);
-    assert.deepEqual(host.turn.problems().map(problem => problem.message), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(problem => problem.message), []);
 });

@@ -7,7 +7,7 @@
 // checkCast(list, packId, add) → the normalized entries `[{ id, name, aliases, about, look, … , pack }]`, or `[]` when
 // anything is wrong (the problems went to `add`). `id` stays the entry's own slug: the cast key is `pack:id`.
 
-import { CAST_BEHAVIOUR_LEVELS, CAST_BEHAVIOUR_LEVERS, CAST_BUILT_IN_METERS, CAST_FIELDS, CAST_SKILL_FIELDS, CAST_SKILL_RANK_WORDS, CAST_SKILL_STATS, CAST_SKILL_TYPES, CAST_SKILL_USES, CAST_LIMITS, CAST_SECRET_FIELDS, CAST_START_FIELDS, METER_LIMITS, METER_RESERVED, METER_STAGE_FIELDS, PORTRAIT_LIMITS, PORTRAIT_NAME, SLUG } from './limits.js';
+import { CAST_BEHAVIOUR_LEVELS, CAST_BEHAVIOUR_LEVERS, CAST_BUILT_IN_METERS, CAST_FIELDS, CAST_SKILL_FIELDS, CAST_SKILL_RANK_WORDS, CAST_SKILL_STATS, CAST_SKILL_TYPES, CAST_SKILL_USES, CAST_LIMITS, SKILL_USES_V1, SKILL_TYPE_ALIASES, CAST_SECRET_FIELDS, CAST_START_FIELDS, METER_LIMITS, METER_RESERVED, METER_STAGE_FIELDS, PORTRAIT_LIMITS, PORTRAIT_NAME, SLUG } from './limits.js';
 import { foldKey, oneLine } from '../core/text.js';
 import { slotWordOf } from '../modules/inventory/gear.js';
 
@@ -294,7 +294,7 @@ export function checkCast(list, packId, add, items = [], calendar = null) {
             }
         }
 
-        // Signature skills: 1 to CAST_LIMITS.skills of { name, about, stat, uses?, rank?, type? }; a name once for each person; any other key is refused.
+        // Signature skills: 1 to CAST_LIMITS.skills of { name, about, stat, uses? (sp or mp), rank? (Novice to Legend), type? (the eight of v1) }; a name once for each person; any other key is refused.
         let skills;
         if (record.skills !== undefined) {
             const example = '[{ "name": "Spark", "about": "A small burst of magic.", "stat": "int", "uses": "mana", "rank": "novice" }]';
@@ -308,11 +308,11 @@ export function checkCast(list, packId, add, items = [], calendar = null) {
                     const skillName = text(`${at}.name`, skill.name, CAST_LIMITS.skillName, { required: true, short: true, what: `${at}.name` });
                     const about = text(`${at}.about`, skill.about, CAST_LIMITS.skillAbout, { required: true, short: true, what: `${at}.about` });
                     if (!CAST_SKILL_STATS.includes(skill.stat)) say(`${at}.stat`, `${at}.stat must be one of ${CAST_SKILL_STATS.join(', ')}.`);
-                    if (skill.uses !== undefined && !CAST_SKILL_USES.includes(skill.uses)) say(`${at}.uses`, `${at}.uses must be ${CAST_SKILL_USES.join(' or ')}.`);
+                    if (skill.uses !== undefined && !CAST_SKILL_USES.includes(skill.uses)) say(`${at}.uses`, `${at}.uses must be sp or mp (stamina and mana are still accepted).`);
                     if (skill.rank !== undefined && !CAST_SKILL_RANK_WORDS.includes(skill.rank)) say(`${at}.rank`, `${at}.rank must be one of ${CAST_SKILL_RANK_WORDS.join(', ')}.`);
-                    if (skill.type !== undefined && !CAST_SKILL_TYPES.includes(skill.type)) say(`${at}.type`, `${at}.type must be ${CAST_SKILL_TYPES.join(' or ')} (combat when left out).`);
+                    if (skill.type !== undefined && !CAST_SKILL_TYPES.includes(skill.type)) say(`${at}.type`, `${at}.type must be one of ${CAST_SKILL_TYPES.filter(word => !SKILL_TYPE_ALIASES[word]).join(', ')} (attack when left out; combat is read as attack).`);
                     if (skillName && kept.some(other => foldKey(other.name) === foldKey(skillName))) say(`${at}.name`, `${at}.name repeats "${skillName}"; a person names each skill once.`, 'DUPLICATE');
-                    if (skillName && about && CAST_SKILL_STATS.includes(skill.stat)) kept.push({ name: skillName, about, stat: skill.stat, uses: skill.uses ?? 'stamina', rank: skill.rank ?? 'novice', ...(skill.type !== undefined ? { type: skill.type } : {}) });
+                    if (skillName && about && CAST_SKILL_STATS.includes(skill.stat)) kept.push({ name: skillName, about, stat: skill.stat === 'luk' ? 'wis' : skill.stat, uses: SKILL_USES_V1[skill.uses ?? 'sp'], rank: skill.rank ?? 'novice', ...(skill.type !== undefined ? { type: SKILL_TYPE_ALIASES[skill.type] ?? skill.type } : {}) });
                 });
                 if (kept.length === record.skills.length) skills = kept;
             }

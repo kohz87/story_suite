@@ -1,6 +1,6 @@
 // Checking skill sets and meter presets.
 
-import { SLUG, TERM_SEPARATORS, LEAN_RPG_LIMITS, SKILL_SET_FIELDS, SKILL_SET_SKILL_FIELDS, METER_PRESET_FIELDS, METER_LIMITS, METER_FIELDS, METER_RESERVED, METER_STAGE_FIELDS } from '../../limits.js';
+import { SLUG, TERM_SEPARATORS, LEAN_RPG_LIMITS, SKILL_USES_V1, SKILL_TYPE_ALIASES, SKILL_SET_FIELDS, SKILL_SET_SKILL_FIELDS, METER_PRESET_FIELDS, METER_LIMITS, METER_FIELDS, METER_RESERVED, METER_STAGE_FIELDS } from '../../limits.js';
 import { oneLine, foldKey } from '../../../core/text.js';
 import { isObject } from '../core.js';
 
@@ -23,11 +23,16 @@ export function checkSkillSet(record, path, label, add) {
         else if (skills.some(other => foldKey(other.name) === foldKey(name))) say(`${at}.name`, `${at}.name repeats "${name}"; a set names each skill once.`, 'DUPLICATE');
         const what = typeof skill.about === 'string' ? oneLine(skill.about) : '';
         if (!what || what.length > L.skillAbout) say(`${at}.about`, `${at}.about must be text of 1 to ${L.skillAbout} characters (what the skill does; the story reads it).`);
-        const stat = typeof skill.stat === 'string' ? skill.stat.trim().toLowerCase() : '';
-        if (!L.stats.includes(stat)) say(`${at}.stat`, `${at}.stat must be one of ${L.stats.join(', ')}.`);
-        const uses = skill.uses === undefined ? L.uses[0] : typeof skill.uses === 'string' ? skill.uses.trim().toLowerCase() : '';
-        if (!L.uses.includes(uses)) say(`${at}.uses`, `${at}.uses must be ${L.uses.join(' or ')}.`);
-        if (name && what && L.stats.includes(stat) && L.uses.includes(uses)) skills.push({ name, about: what, stat, uses });
+        const written = typeof skill.stat === 'string' ? skill.stat.trim().toLowerCase() : '';
+        const stat = written === 'luk' ? 'wis' : written;   // (a format 2 pack's LUK is read as WIS)
+        if (!L.stats.includes(written)) say(`${at}.stat`, `${at}.stat must be one of ${L.stats.filter(word => word !== 'luk').join(', ')}.`);
+        const usesWord = skill.uses === undefined ? 'sp' : typeof skill.uses === 'string' ? skill.uses.trim().toLowerCase() : '';
+        const uses = SKILL_USES_V1[usesWord];
+        if (!uses) say(`${at}.uses`, `${at}.uses must be sp or mp (stamina and mana are still accepted).`);
+        const typeWord = skill.type === undefined ? 'attack' : typeof skill.type === 'string' ? skill.type.trim().toLowerCase() : '';
+        const type = SKILL_TYPE_ALIASES[typeWord] ?? typeWord;
+        if (!L.types.includes(type)) say(`${at}.type`, `${at}.type must be one of ${L.types.join(', ')} (attack when left out).`);
+        if (name && what && L.stats.includes(written) && uses && L.types.includes(type)) skills.push({ name, about: what, stat, uses, type });
     });
     return ok ? { name: oneLine(record.name), about: oneLine(about), skills } : null;
 }

@@ -178,8 +178,8 @@ test('Packs: the Packs fold\'s panel in a card, as list rows; Import has the foc
     assert.ok(doc.activeElement === card.querySelector('.ss-packs-import'), 'Import has the focus');
     const rowNode = card.querySelector('.ss-packs-row');
     assert.ok(rowNode.classList.contains('ss-listcard-row'), 'an ss.listcard row');
-    assert.equal(rowNode.querySelector('.ss-packs-name').textContent, 'Riverside Starter 1.0.0');
-    assert.match(rowNode.querySelector('.ss-packs-facts').textContent, /^4 items, 1 creature, 1 shop.* · by Story Suite examples · riverside\.json$/);
+    assert.equal(rowNode.querySelector('.ss-packs-name').textContent, 'Riverside Starter 3.0.0');
+    assert.match(rowNode.querySelector('.ss-packs-facts').textContent, /^4 items, 1 foe, 2 events.* · by Story Suite examples · riverside\.json$/);
     assert.equal(rowNode.querySelector('.ss-packs-enabled').getAttribute('role'), 'switch');
     // Searched by the pack's name.
     search(win.root, 'riverside');

@@ -64,7 +64,7 @@ export function createNpcCommands({
         const settings = normalized(ctx.settings(), ctx);
         const defs = defsFrom(settings);
         const byLabel = new Map(defs.flatMap(def => [[def.id, def], [slug(def.label), def]]));
-        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx) });
+        const read = readLabels(line.labels, { byLabel, defs, gateOn: featureOn(FEATURE_GATE, ctx), levelOn: line.linesOn === true && call(hooks.levelOn, false) === true });
         const { problems, tier, via, reason, disposition, fields } = read;
         const changes = [...read.changes, ...wordChanges(read.words, tier, tierCaps())];
         // B-a1-15: the window is the reply's by its record ID, so after a middle delete a new reply at an

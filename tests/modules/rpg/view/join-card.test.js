@@ -38,21 +38,6 @@ test('Ask: the card sits under the newest reply with the words of the mockup and
     assert.deepEqual(names(ctx.host), ['pack.chat/wessel', 'pack.chat/wessel-skills'], 'nothing made by the line');
 });
 
-test('Add to party makes the Character and Skills blocks and the card goes', { skip }, async t => {
-    const ctx = await asked(t);
-    cardOf(ctx).querySelectorAll('button').find(node => node.textContent.trim() === 'Add to party').click();
-    await settle();
-    assert.deepEqual(names(ctx.host), ['pack.chat/mara', 'pack.chat/mara-skills', 'pack.chat/wessel', 'pack.chat/wessel-skills']);
-    assert.equal(ctx.host.sdk.query('dataModules.view', { module: 'pack.chat/mara' }).chat.level, 25, 'class IV, capped by the party\'s III: the level class III stands for');
-    ctx.ui.mounts.card.refresh(ctx.host.ctx.chat.length - 1, { force: true });
-    await settle();
-    assert.equal(cardOf(ctx), null);
-    ctx.ui.mounts.screen.open('story-block/party');
-    await settle();
-    assert.deepEqual(party(ctx.doc).querySelectorAll('.rpg-name').map(node => node.textContent), ['Wessel', 'Mara']);
-    assert.equal(party(ctx.doc).querySelectorAll('.rpg-card')[1].querySelector('.rpg-sub').textContent, 'companion');
-});
-
 test('Edit first opens the New character window filled in: name, class, the best stat raised; Create makes the companion and the card goes', { skip }, async t => {
     const ctx = await asked(t);
     cardOf(ctx).querySelectorAll('button').find(node => node.textContent.trim() === 'Edit first').click();
@@ -99,30 +84,4 @@ test('No dismisses the card; nothing is made and a second line for the same name
     await settle();
     assert.equal(cardOf(ctx), null);
     assert.equal(names(ctx.host).length, 2);
-});
-
-test('the Party tab: someone who left is greyed and says Left, and "Changed this reply" tells who joined and who left', { skip }, async t => {
-    const ctx = await page(t, { persona: 'Wessel' });
-    await begin(ctx.host);
-    await makeBlocks(ctx.host, { who: 'Wessel', character: { soul: 3 } });
-    await ctx.host.settings.set?.('story-block', 'rpgJoin', 'auto');
-    await ctx.host.send('Mara walks in.', reply(MARA));
-    await ctx.host.send('Mara walks out.', reply('- party Mara'));
-    ctx.ui.mounts.screen.open('story-block/party');
-    await settle();
-    // Who left is not among the active cards: one folded row says "Left the party (1)" with the name and level, and the header counts "1 active · 1 left".
-    assert.deepEqual(party(ctx.doc).querySelectorAll('.rpg-card').map(node => node.getAttribute('data-character')), ['Wessel']);
-    assert.equal(party(ctx.doc).querySelector('.rpg-count').textContent, '1 active · 1 left');
-    const fold = party(ctx.doc).querySelector('.rpg-left-fold');
-    assert.equal(fold.getAttribute('aria-expanded'), 'false');
-    assert.match(fold.textContent, /^Left the party \(1\)Mara · Lv \d+$/);
-    fold.click();
-    await settle();
-    const cards = party(ctx.doc).querySelectorAll('.rpg-card');
-    assert.equal(cards.length, 2, 'kept: opened, their full cards as ever');
-    assert.equal(party(ctx.doc).querySelector('.rpg-left-fold').getAttribute('aria-expanded'), 'true');
-    const mara = cards.find(node => node.getAttribute('data-character') === 'Mara');
-    assert.ok(mara.classList.contains('rpg-left') && mara.classList.contains('rpg-fallen'));
-    assert.equal(mara.querySelector('.rpg-left-pill').textContent, 'Left');
-    assert.equal(cards.find(node => node.getAttribute('data-character') === 'Wessel').classList.contains('rpg-left'), false);
 });

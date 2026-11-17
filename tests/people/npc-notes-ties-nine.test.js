@@ -81,8 +81,8 @@ test('tie types and tones: a label and top rank for each tag; hostile, duty and 
     assert.equal(tieTone([]), null);
 });
 
-test('the model-visible `~ tie` grammar line is unchanged (the teaching line ships later)', () => {
-    assert.equal(noteKinds(null).tie.grammar, '~ tie Name | with: Other | tag: +ally, +rival or +owes (-tag drops it; write it when two people ally, rival or owe; e.g. ~ tie Person A | with: Person B | tag: +owes)');
+test('the model-visible `~ tie` grammar line is the owner-approved nine-tag line (16 Nov, shipped in N7)', () => {
+    assert.equal(noteKinds(null).tie.grammar, '~ tie Name | with: Other | tag: +kin, +partner, +friend, +ally, +mentor, +serves, +rival, +enemy or +owes (-tag drops it; write it when a bond between two people starts or ends; mentor, serves and owes read Name to Other; e.g. ~ tie Person A | with: Person B | tag: +serves)');
 });
 
 test('host: new tags apply once and replay equals live (swipe, Re-read, edited Re-read, middle delete, reload)', async () => {
@@ -113,4 +113,14 @@ test('host: new tags apply once and replay equals live (swipe, Re-read, edited R
     assert.equal(shape(s), live, 'rebuild equals live after the delete');
     assert.deepEqual(s.host.store.problems(), []);
     assert.deepEqual(validateNpcSlice(s.host.head().domains.people.bonds), [], 'the meters (people.bonds since P4) are sound');
+});
+
+test('mixed tags on one line: adds and drops apply together, in the nine-tag order, and a re-read of the same line changes nothing', () => {
+    const first = tie({ astra: ['rival', 'owes'] }, ['+friend', '-rival', '+serves']);
+    assert.deepEqual(first.ties, { astra: ['friend', 'serves', 'owes'] });
+    assert.equal(first.changed, true);
+    assert.deepEqual(tie(first.ties, ['+friend', '-rival', '+serves']).changed, false, 'the same line again is a no-op (replay equals live)');
+    assert.deepEqual(tie({ astra: ['ally'] }, ['-ally', '+enemy', '+bogus']).ties, { astra: ['enemy'] }, 'a drop and an add, and the unknown tag is ignored');
+    assert.deepEqual(tie({ astra: ['ally'] }, ['-ally', '+enemy', '+bogus']).ignored, ['+bogus']);
+    assert.deepEqual(tie({ astra: ['ally'] }, ['+enemy', '-ally']).ties, tie({ astra: ['ally'] }, ['-ally', '+enemy']).ties, 'the order the tags are written in does not matter');
 });

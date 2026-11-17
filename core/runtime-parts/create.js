@@ -11,9 +11,11 @@ import { connectionFor } from '../model-call/connection-for.js';
 import { MODEL_CALL_ERRORS, createCallQueue, createModelCalls, createOwnCalls, profileName, stModelCall } from '../model-call.js';
 import { readRecord } from '../persist.js';
 import { createRegistry } from '../registry.js';
-import { MAX_CHANGE_LINES, announceModules, createEvents, createSdk, createSettings, runQuery } from '../sdk.js';
+import { MAX_CHANGE_LINES, announceModules, createEvents, createSdk, createSettings, makeView, runQuery } from '../sdk.js';
+import { stateLinesOf } from './state-lines.js';
 import { HOST_SETTINGS_DEFAULTS } from '../sdk/constants.js';
 import { loadSettings } from '../settings/load.js';
+import { createCardNotes } from '../settings/card-notes.js';
 import { displayLines } from '../../ui/legacy/extras.js';
 import { DEFAULT_HIDDEN } from '../../ui/legacy/view/screens.js';
 import { SCENE_SCREEN_ID } from '../../ui/legacy/screens/scene.js';
@@ -125,7 +127,7 @@ export function createRuntime({
             interaction: kindId => registry.interaction(kindId),
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
             timeline: () => timeline,
-            dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg) && registry.featureOn(CORE_FEATURE.fightBoard), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
+            dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
             // The RPG's hooks read the chat and its metadata; no model is asked for rolls.
             leanRpg: { callModel: (prompt, options = {}) => assistCall(prompt, options), chat: () => ctx.chat, metadata: () => { try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; } }, onPlanning: working => events?.emit('head', { index: store.headIndex(), reason: working ? 'fight-start' : 'fight-start-done' }) },
             packs: packPart,
@@ -162,6 +164,9 @@ export function createRuntime({
                         // The Chronicle's open world events and factions (Story Director), so the safety net reuses a name.
                         world: { events: ask('chronicle.events', { open: true }) ?? [], factions: ask('chronicle.factions', {}) ?? [] } };
                 },
+                // The story's Place, Present, Wallet and Carried lines as the narrator was given them (for the repair of a reply with no block).
+                persona: () => { try { return String((live() ?? ctx)?.name1 ?? ''); } catch { return String(ctx?.name1 ?? ''); } },
+                state: () => stateLinesOf(registry, () => makeView({ store, registry, settings, chat: ctx.chat })),
                 skip: skipOf(() => chatMetadata()),
                 chat: () => ctx.chat,
                 chatId: () => ctx.getCurrentChatId?.() ?? ctx.chatId ?? '',
@@ -230,7 +235,7 @@ export function createRuntime({
     // The assist helpers' call (assist/index.js: (prompt, { maxTokens, profile, helper }) → text, throwing
     // with a code on failure; an empty answer is '' as before).
     assistCall = async (prompt, { maxTokens, profile = '', role = '', helper = 'pre-roll', timeoutMs } = {}) => {
-        const result = await modelCalls.callModel({ prompt, maxTokens, profile, role, module: `${CORE_MODULE_ID} (${helper === 'extractor' ? 'safety net' : helper === 'precheck' ? 'fight setup' : helper === 'rolls' ? 'rolls' : 'pre-roll'})`, timeoutMs: (helper === 'rolls' || helper === 'precheck') && Number.isFinite(timeoutMs) ? timeoutMs : ASSIST_TIMEOUT_MS }, { idle: false });
+        const result = await modelCalls.callModel({ prompt, maxTokens, profile, role, module: `${CORE_MODULE_ID} (${helper === 'extractor' ? 'safety net' : helper === 'repair' ? 'repair of a missing block' : helper === 'precheck' ? 'fight setup' : helper === 'rolls' ? 'rolls' : 'pre-roll'})`, timeoutMs: (helper === 'rolls' || helper === 'precheck') && Number.isFinite(timeoutMs) ? timeoutMs : ASSIST_TIMEOUT_MS }, { idle: false });
         if (result.ok) return result.text;
         if (result.error === MODEL_CALL_ERRORS.EMPTY) return '';
         throw Object.assign(new Error(result.message), { code: result.error });
@@ -238,7 +243,7 @@ export function createRuntime({
     const publicPaths = createPublicPaths();   // the paths modules offer to the public API (sdk.registerPublicPaths)
     const made = createSdk({ publicPaths, store, bus, registry, settings, events, chat: () => ctx.chat, onRegister: def => onRegister?.(def), rewind,
         substitute: text => substituteNames(text, ctx), dialog: (screenId, opts) => dialogOpener?.(screenId, opts) ?? null,
-        dialogCurrent: () => dialogCurrent?.() ?? null, reread: index => turn?.reread(index), callModel: modelCalls.callModel, timeline, seed: () => turn?.seed(), cardSettings,
+        dialogCurrent: () => dialogCurrent?.() ?? null, reread: (index, options) => turn?.reread(index, options), callModel: modelCalls.callModel, timeline, seed: () => turn?.seed(), cardSettings,
         flag: name => flagOn(() => ctx.extensionSettings, name),
         interactionDeps: { meta: () => { try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; } }, save: () => { try { const c = live() ?? ctx; (c.saveMetadata ?? c.saveMetadataDebounced)?.call(c); } catch { /* the choice lasts this page only */ } }, // (the reader as the party roster finds them: the Character named like the persona, else the only Character, else the first one (as the rolls do), so a persona that is not a Character's name still plays its fight)
             persona: () => { let name = ''; try { name = String((live() ?? ctx)?.name1 ?? ''); } catch { name = String(ctx?.name1 ?? ''); } try { const actors = rpgLib()?.rosterOf(store.head(), name)?.actors ?? []; return (actors.find(actor => actor.pc) ?? actors[0])?.name ?? name; } catch { return name; } } } });
@@ -314,6 +319,7 @@ export function createRuntime({
     };
     const setGuardRefresh = fn => { guardRefresh = typeof fn === 'function' ? fn : null; };
     /** `writes`: the reader's own stores for the Story Suite view (the public sdk reads settings and has no setter). */
-    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value) }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
+    const notes = createCardNotes({ root: () => ctx.extensionSettings, save: () => ctx.saveSettingsDebounced?.() });
+    const writes = Object.freeze({ settings: Object.freeze({ set: (id, key, value) => settings.set(id, key, value), keep: notes.keep, kept: notes.kept }), features: Object.freeze({ set: (id, on) => features.set(id, on) }) });
     return { writes, registry, settings, features, store, bus, events, sdk, api, turn, rpgLoader, setGuardRefresh, markReady: made.markReady, bindPanels: made.bindPanels, initial, packs: packPart, cardSettings, setDialog, display, ownCalls, callQueue, timeline };
 }

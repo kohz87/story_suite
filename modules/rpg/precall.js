@@ -3,9 +3,7 @@
 // checks beside it; with no fight to carry it offers the fight kind (the pre-check's groups as an opening) or tells the narrator how to open one (noFight). canGenerate holds a send
 // for the reader's choice when a typed attack meets a known foe. Old chats keep their planner rolls and board records (resolve.js replays them); nothing here asks a model for a plan.
 import { hashText, normalizeType } from '../assist/common.js';
-import { DICE, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, ROLLS_SETTING, checksOn, practiceOf } from './names.js';
-import { OPEN_FIGHT_LINE } from './cue.js';
-import { claimKey } from './resolve.js';
+import { DICE, LEAN_RPG_FEATURE, PRACTICE, PRACTICE_SETTING, checksOn, practiceOf } from './names.js';
 import { readSheet } from './read.js';
 import { dicePayload } from './checks/dice.js';
 import { membersOf } from './practice.js';
@@ -14,15 +12,12 @@ import { readRecord } from '../../core/persist.js';
 import { priorPayload } from '../../core/interaction/send.js';
 import { pickPayload } from '../../core/interaction/pick.js';
 import { clearStart, holdStart, pendingStart } from '../../core/interaction/start-hold.js';
-import { CORE_FEATURE } from '../../core/features.js';
 import { isStandard, packRulesOf, rulesFromSettings } from './rules.js';
 import { FOES_FRESH_REPLIES } from './board/offers.js';
 import { FOES_TOUCH_QUERY } from './names.js';
 import { isNamedIn } from './open.js';
 import { runPrecheck, wantsPrecheck } from './board/precheck-run.js';
 
-// Whether the fight board is on (one literal id, read once per call).
-const boardOn = view => view?.feature?.(CORE_FEATURE.fightBoard) === true;
 // The fight kind the board offers and carries (the registry's id; the core never names it), and the choices the pause offers.
 const FIGHT_KIND = 'story-block/fight', CHOICES = ['board', 'auto', 'plain'];
 // The interaction the chat's waiting send carries, as the core's hooks pick it (a staged fight with its Send copy, a regenerate's last one, a swipe's own).
@@ -41,9 +36,6 @@ const readSettings = (view, moduleId) => {
         return values && typeof values === 'object' ? values : {};
     } catch { return {}; }
 };
-
-/** Whether `state` already holds this message's rolls (its claim). */
-export const claimed = (state, key) => state?.meta?.claims?.[claimKey(key)] === true;
 
 /**
  * The sheet as the fight-start gate sees it (stale-foes rule, under the `foesFresh` mark; an old chat keeps every foe as it was). A group is fresh when the narrator
@@ -82,8 +74,8 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
     const checked = new WeakMap();
     // No foe is filled in and nothing was rolled: if a fight starts in this reply, the narrator sets the Foes line and stops at the first clash.
     // (a block of Down groups only is a won fight: no fight is on)
-    const noFight = (sheet, board = false, stale = []) => (sheet.foes.length && !sheet.foes.some(foe => foe.filled && foe.hurt > 0)
-        ? { lines: [board ? { text: `${stale.length ? 'The Foes listed are from an earlier scene and are not in this fight.' : 'No foes are set.'} If a fight begins, set the Foes line and tell the approach only. The fight has not started: end at the moment of engagement.`, keep: true } : OPEN_FIGHT_LINE] } : null);
+    const noFight = (sheet, stale = []) => (sheet.foes.length && !sheet.foes.some(foe => foe.filled && foe.hurt > 0)
+        ? { lines: [{ text: `${stale.length ? 'The Foes listed are from an earlier scene and are not in this fight.' : 'No foes are set.'} If a fight begins, set the Foes line and tell the approach only. The fight has not started: end at the moment of engagement.`, keep: true }] } : null);
 
     // A running pre-check also holds another send; stale working states are ignored by pendingStart after a reload. A choice of `plain` releases it.
     const waiting = held => (held && held.choice !== 'plain' ? held : null);
@@ -115,7 +107,7 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
     function canGenerate(view, info = {}) {
         if (view?.feature?.(LEAN_RPG_FEATURE) !== true) return null;
         const type = normalizeType(info.type);
-        if (info.commit !== true || !['normal'].includes(type) || !boardOn(view)) return null;
+        if (info.commit !== true || !['normal'].includes(type)) return null;
         let meta;
         try { meta = metadata(); } catch { return null; }
         const messages = chat() ?? [], last = messages.at(-1);
@@ -144,7 +136,6 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         const { sheet, stale } = currentFoes(view, messages, readSheet(view.state), text, index);
         const key = `${index}-${hashText(text)}`;
         const startAnchor = readRecord(messages[index - 1])?.sid;
-        const on = boardOn(view);
         const values = readSettings(view, moduleId);
         const diceReason = () => type === 'normal' && noDice.peek() ? 'the reader chose to send without the RPG'
             : !sheet.characters.length ? 'there is no active character' : !checksOn(values) ? 'Story checks are off' : null;
@@ -153,17 +144,16 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         try { meta = metadata(); } catch { /* no fight without chat metadata */ }
         // A fight the reader staged and sent, or one an earlier try of this reply carried (a regenerate, a swipe): the core settles it as the reply's preludes (interaction/hooks.js);
         // here it only tells the narrator the fight already rolled and offers the separate story-check dice.
-        if (on && carried(meta, messages, type, last, startAnchor, index)?.kindId === FIGHT_KIND) {
+        if (carried(meta, messages, type, last, startAnchor, index)?.kindId === FIGHT_KIND) {
             const reason = diceReason();
             const answer = { ...(reason ? {} : { lines: [{ text: 'Use story-check dice only for separate non-combat attempts; the fight board already rolled every exchange, so do not roll those again.', keep: true }] }), ...(reason ? {} : { commands: [makeDice()] }) };
             return reason ? skipped(reason, answer) : answer;
         }
-        if (type !== 'normal' && claimed(view.state, key)) return null;
-        if (on && type === 'normal' && info.commit !== false && !(info.again && checked.get(last) === key) && !waiting(pendingStart(meta, messages))) {
+        if (type === 'normal' && info.commit !== false && !(info.again && checked.get(last) === key) && !waiting(pendingStart(meta, messages))) {
             const offer = await precheck(view, sheet, messages, key, text, startAnchor, stale);
             if (offer) {
                 const reason = diceReason();
-                const answer = { ...offer, ...(values[ROLLS_SETTING] !== 'off' ? noFight(sheet, on, stale) ?? {} : {}), ...(reason ? {} : { commands: [makeDice()] }) };
+                const answer = { ...offer, ...(noFight(sheet, stale) ?? {}), ...(reason ? {} : { commands: [makeDice()] }) };
                 return reason ? skipped(reason, answer) : answer;
             }
         }
@@ -173,9 +163,8 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
         // rules, difficulty numbers and practice in force now and each member's bonuses (a Re-read and a replay use these, never the settings of the day). The switch is
         // Story checks alone, as the grammar line is: Rolls (the fights' setting) does not matter, so the static prompt does not move with it.
         const dice = reason ? null : makeDice();
-        if (values[ROLLS_SETTING] === 'off') return dice ? { commands: [dice] } : skipped(reason);
         // No model is asked for a plan: with no fight to carry the reply goes out as one the planner once answered "none" to.
-        const first = noFight(sheet, on, stale);
+        const first = noFight(sheet, stale);
         return dice ? { ...(first ?? {}), commands: [dice] } : skipped(reason, first);
     }
 
@@ -190,7 +179,7 @@ export function createPrecall({ chat, metadata = () => null, moduleId = 'story-b
     async function beforeGenerate(view, info = {}) {
         const answer = await offerFor(view, info);
         const type = normalizeType(info?.type);
-        if (info?.commit === false || (type !== 'swipe' && type !== 'regenerate') || view?.feature?.(LEAN_RPG_FEATURE) !== true || !boardOn(view)) return answer;
+        if (info?.commit === false || (type !== 'swipe' && type !== 'regenerate') || view?.feature?.(LEAN_RPG_FEATURE) !== true) return answer;
         const last = (chat() ?? []).at(-1);
         if (!(type === 'swipe' ? oldFightIn(last) : fightLinked(last))) return answer;
         const note = { code: 'FIGHT_NOT_CARRIED', quiet: true, message: NOT_CARRIED[type] };

@@ -22,5 +22,5 @@ export function mergeProfileEvidence(existing = {}, incoming = {}) {
     const added = normalizeProfileEvidence(incoming);
     return Object.fromEntries(PROFILE_EVIDENCE_FIELDS.map(field => [
         field, mergeRecentProfileEvidence(before[field], added[field], field),
-    ]));
+    ]).filter(([field, list]) => field !== 'background' || list.length));   // an empty background list is left out: records without quotes read as before
 }

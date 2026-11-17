@@ -2,12 +2,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { backupFiles, manifestText } from '../../scripts/b4/backup.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 function repo() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'b4-backup-'));
+  const root = tempDir('b4-backup-');
   fs.mkdirSync(path.join(root, 'a/b'), { recursive: true });
   fs.writeFileSync(path.join(root, 'a/b/x.js'), 'one\ntwo\n');
   fs.writeFileSync(path.join(root, 'a/y.js'), 'solo');

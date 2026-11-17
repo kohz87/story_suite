@@ -11,13 +11,21 @@ function resource(label, value, max, color) {
     h('i', null, h('b', { style: { width: `${pct}%`, background: `var(${color})` } })));
 }
 
+// The lines under the switch. On: the stance's name and its cost (and the soak it adds, for a defence stance). Off: the soak without it (defence only) and that nothing is paid from this exchange on.
+// `paid` (the mock's fixture only) adds the pool's move for the exchange just paid.
+function stanceNote(stance) {
+  const soak = stance.soakOn === null || stance.soakOn === undefined ? null : { off: stance.soakOff, add: stance.soakOn - stance.soakOff };
+  if (!stance.on) return soak ? `Off: soak ${soak.off}%. No ${stance.pool} from this exchange on.` : `Off: no ${stance.pool} from this exchange on.`;
+  const price = `${stance.cost} ${stance.pool} each exchange, paid at its start${stance.paid ? ` (this one: ${stance.paid[0]} → ${stance.paid[1]})` : ''}; off when ${stance.pool} runs out`;
+  return `${stance.name}: ${soak ? `soak ${soak.off}% + ${soak.add}% · ` : ''}${price}`;
+}
+
 function stanceRow(stance, actorId, onStance) {
   if (!stance) return null;
-  const note = stance.on
-    ? `Defence stance: soak ${stance.soakOff}% + ${stance.soakOn - stance.soakOff}% · 1 Stamina each exchange, paid at its start${stance.paid ? ` (this one: ${stance.paid[0]} → ${stance.paid[1]})` : ''}; off when Stamina runs out`
-    : `Off: soak ${stance.soakOff}%. This exchange is already paid; no cost from the next one.`;
+  const note = stanceNote(stance);
+  const soak = stance.soakOn === null || stance.soakOn === undefined || !stance.on ? null : stance.soakOn; // (off, the note below names the soak)
   return h('div', { class: 'stance' },
-    h('span', { class: 't' }, stance.name, stance.on ? h('span', { class: 'now' }, `now: soak ${stance.soakOn}%`) : null, h('small', null, note)),
+    h('span', { class: 't' }, stance.name, soak === null ? null : h('span', { class: 'now' }, `now: soak ${soak}%`), h('small', null, note)),
     toggle({ checked: stance.on, label: stance.name, dataset: { stance: actorId }, onChange: on => onStance?.(on) }));
 }
 

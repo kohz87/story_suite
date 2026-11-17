@@ -37,7 +37,7 @@ export const clockModule = {
     queries: { 'director.time': state => ({ minutes: state?.domains?.director?.time?.minutes ?? null }) },
 };
 
-export async function suite({ records = dossiers(), clock = true, allowance, calendarOwn = false, features = null, settings = {}, modules = [], lines = false, players = [] } = {}) {
+export async function suite({ records = dossiers(), clock = true, allowance, calendarOwn = false, features = null, settings = {}, modules = [], lines = false, players = [], levelOn = false } = {}) {
     const host = await createHost({ settings: { modules: { [MODULE_ID]: { ...settings } }, ...(features ? { features: { ...features } } : {}) }, modules: [...(clock ? [clockModule] : []), ...modules] });
     const box = { ready: Promise.resolve(host.sdk), sdk: host.sdk };
     const delta = { records };
@@ -55,7 +55,7 @@ export async function suite({ records = dossiers(), clock = true, allowance, cal
     const adapter = createStorySuiteV2Adapter({
         suiteApi: { npcs: () => Object.values(delta.records).map(({ id, name, aliases, present }) => ({ id, name, aliases, present })) },
         delta: () => api, version: 'test', host: () => box, headReply: () => host.store.headIndex(),
-        calendarOwn: () => calendarOwn, linesMode: () => (typeof lines === 'function' ? lines() : lines),
+        calendarOwn: () => calendarOwn, linesMode: () => (typeof lines === 'function' ? lines() : lines), levelOn: () => (typeof levelOn === 'function' ? levelOn() : levelOn),
         doc: { documentElement: { dataset: {} }, getElementById: () => null, addEventListener() {}, dispatchEvent() { return true; } },
         timers: { setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {} },
         logger: { warn() {} }, loadEmptyCast: async () => null,

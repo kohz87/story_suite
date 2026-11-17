@@ -2,13 +2,15 @@
 
 import { getContext } from '../../../../../../../extensions.js';
 import { extractNarrationCapture, parseNarrationCapture } from '../../core/core.js';
-import { chatLineage, lineageCheckpointKey } from '../../legacy/branch.js';
+import { frozenLineageKey } from './journal-lineage.js';
+import { useReplySids } from './journal-keys.js';
+import { hasChangesBlock, replyNamesSomeone } from '../../core/core-parts/reply-names.js';
 import { getSettings } from '../../settings/runtime-settings.js';
 import { narrationCaptureEnabled } from '../../calls/runtime-scan-helpers.js';
 import { salvageScannerJson } from '../../calls/scanner-request.js';
 
 export function createNarrationPart(rt, deps) {
-    const { getChatKey, storySuiteV2Meters, updateInjection } = deps;
+    const { getChatKey, getChatState, storySuiteV2Meters, updateInjection } = deps;
     const { narrationCaptures, captureRerenderPending, stateVersions } = rt;
 
     const NARRATION_CAPTURE_LIMIT = 8;
@@ -24,6 +26,12 @@ export function createNarrationPart(rt, deps) {
     function hostedMeters() {
         return Boolean(storySuiteV2Meters());
     }
+    // Story Director's places (Atlas), for the capitalised-name test; [] without them.
+    function hostedPlaces() {
+        try { return storySuiteV2Meters()?.places?.() ?? []; } catch { return []; }
+    }
+    // The capture journal finds a hosted reply by its sid (journal-keys.js).
+    useReplySids(index => (hostedMeters() ? storySuiteV2Meters().replySid?.(index) ?? null : null));
     function hostedOnePass(settings = getSettings()) {
         return hostedMeters() && narrationCaptureEnabled(settings);
     }
@@ -31,8 +39,14 @@ export function createNarrationPart(rt, deps) {
     // Bound to the reply's position and the lineage before it, not to the reply's own text: other
     // extensions may rewrite a reply on arrival (wrapping their blocks, for example). Editing an earlier
     // message changes the key; editing, deleting or swiping a message drops every held capture.
+    // Hosted (N7): the key is the reply's own ID (its sid), which survives a swipe back, a middle delete and a reload; no lineage hash.
+    // Not hosted: unchanged, the lineage key (the old JSON one-pass path stays for a Delta without Story Block).
     function narrationCaptureKey(chatKey, messageId) {
-        const parent = messageId > 0 ? lineageCheckpointKey(chatLineage(getContext().chat || []), messageId - 1) : 'root';
+        if (hostedMeters()) {
+            const sid = storySuiteV2Meters().replySid?.(Number(messageId)) ?? null;
+            return sid ? `${chatKey}|${sid}` : `${chatKey}|#${messageId}`;
+        }
+        const parent = messageId > 0 ? frozenLineageKey(getContext().chat || [], messageId - 1) : 'root';
         return `${chatKey}|${messageId}|${parent}`;
     }
     function dropNarrationCaptures() {
@@ -71,7 +85,22 @@ export function createNarrationPart(rt, deps) {
         narrationCaptures.set(narrationCaptureKey(chatKey, messageId), value);
         while (narrationCaptures.size > NARRATION_CAPTURE_LIMIT) narrationCaptures.delete(narrationCaptures.keys().next().value);
     }
+    // NSD16 (hosted, N7): the JSON block is no longer asked for. A stray one is removed (leniently only from an armed reply) and nothing from it is applied or
+    // held; the fallback scan runs only when the reply has no <Changes> block at all and names someone.
+    function captureHostedBlock(chatKey, messageId, message, armed, fallbackEligible) {
+        const text = String(message.mes ?? '');
+        const extracted = extractNarrationCapture(text, { lenient: armed });
+        stripNarrationSwipes(message, armed);
+        if (extracted.status !== 'none') {
+            message.mes = extracted.text;
+            captureRerenderPending.add(Number(messageId));
+        }
+        if (!fallbackEligible || !narrationCaptureEnabled() || !extracted.text.trim() || hasChangesBlock(text)) return;
+        const ctx = getContext();
+        if (replyNamesSomeone(extracted.text, { npcs: getChatState(chatKey)?.npcs || [], userName: ctx.name1 || '', charName: ctx.name2 || '', places: hostedPlaces() })) rememberCapture(chatKey, messageId, { fallback: true });
+    }
     function captureNarrationBlock(chatKey, messageId, message, armed, fallbackEligible, watch = []) {
+        if (hostedMeters()) return captureHostedBlock(chatKey, messageId, message, armed, fallbackEligible);
         const extracted = extractNarrationCapture(message.mes, { lenient: armed });
         stripNarrationSwipes(message, armed);
         if (extracted.status === 'none') {

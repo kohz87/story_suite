@@ -16,7 +16,28 @@ export const NOW_SHAPE = {
       go: { $nullable: T.STRING },
     },
   ],
+  // The card's pack offers (select/offers.js); absent or empty when the card offers none.
+  offers: {
+    $optional: [
+      {
+        id: T.STRING,
+        packId: T.STRING,
+        name: T.STRING,
+        version: T.STRING,
+        installedVersion: { $nullable: T.STRING },
+        update: T.BOOLEAN,
+        state: { $enum: ['offer', 'working', 'done', 'failed'] },
+        result: T.STRING,
+        brings: T.STRING,
+        notes: [T.STRING],
+        blocked: T.BOOLEAN,
+        settings: [T.STRING],
+      },
+    ],
+  },
   today: {
+    // Where and when the store already knows (place, then date, time, weather); absent or null when it knows none.
+    where: { $optional: { $nullable: SUMMARY_ROW } },
     focus: { $nullable: { $oneOf: [T.STRING, SUMMARY_ROW] } },
     trip: {
       $nullable: {

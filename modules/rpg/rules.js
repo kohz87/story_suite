@@ -16,4 +16,3 @@ export { DIFFICULTIES, STANDARD_PRESETS, STANDARD_FORMULA, STANDARD } from './ru
 export { EARLIER_RULES, isStandard, normalizeRules, normalizeStandard } from './rules-parts/normalize.js';
 export { packRulesOf, difficultyOf, rulesFromSettings, packInForce } from './rules-parts/settings.js';
 export { sameRules, presetOf } from './rules-parts/compare.js';
-export { oddsFor, oddsSubject, subjectOdds } from './rules-parts/odds.js';

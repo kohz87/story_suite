@@ -45,12 +45,14 @@ test('~ time sets the clock; ! time moves it on; ctx.time() reads it', () => {
 
 test('time lines the clock cannot use are Problems and change nothing', () => {
     let state = makeState();
-    state = reply(state, '! time +2h').state;
+    // No pack, no date yet (F8W-4): a stretch or a time of day starts from the calendar's default start (year 1, day 1, 08:00); a date nobody can read is refused.
+    state = reply(state, '~ time whenever').state;
     assert.equal(minutes(state), null);
     assert.deepEqual(lastProblems(state).map(problem => problem.kind), ['time']);
-    assert.match(lastProblems(state)[0].text, /not set yet/);
-    state = reply(state, '~ time evening').state;
-    assert.equal(minutes(state), null, 'a time of day with no day to put it on');
+    state = reply(state, '! time +2h').state;
+    assert.equal(calendarOf(settingsDefaults()).format(minutes(state)), 'January 1, 1, 10:00 am', 'no pack: from the calendar default');
+    state = reply(makeState(), '~ time evening').state;
+    assert.equal(calendarOf(settingsDefaults()).format(minutes(state)), 'January 1, 1, 07:00 pm');
     state = reply(state, '~ time March 3, 2026, 08:00 am').state;
     const set = minutes(state);
     for (const line of ['- time 2h', '? time how late is it', '~ time whenever']) {

@@ -61,6 +61,18 @@ describe('selectInlineRow', () => {
   });
 });
 
+describe('selectReplyMenu repaired', () => {
+  it('carries the repaired word and each line\'s assist mark; a repaired reply with no shown line keeps its sheet so it can be discarded', () => {
+    const answers = { 'reply.changes': { lines: [{ glyph: 'item', line: '+1 Rope', detail: null, applied: true, assist: true }, { glyph: 'coin', line: '−5', applied: true }], refused: [], stateThen: { place: 'Mill' } } };
+    const menu = selectReplyMenu(answers, { repaired: true });
+    assert.equal(menu.repaired, true);
+    assert.deepEqual(menu.lines.map(line => line.assist), [true, false]);
+    assert.equal(selectReplyMenu(answers, {}).repaired, false);
+    assert.deepEqual(selectReplyMenu({}, { repaired: true }).lines, []);
+    assert.equal(selectReplyMenu({}, {}), null);
+  });
+});
+
 describe('selectReplyMenu', () => {
   it('builds the menu with counts and the state then', () => {
     const menu = selectReplyMenu(ANSWERS, { at: 'Reply 12' });

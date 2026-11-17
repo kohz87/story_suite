@@ -11,5 +11,4 @@
 export { OPEN_MAX_COUNT, OPEN_RECORD_MAX_COUNT, OPEN_MAX_NAME } from './open-parts/limits.js';
 export { distinctiveWords, isNamedIn } from './open-parts/named.js';
 export { vetOpen } from './open-parts/vet.js';
-export { openErrors } from './open-parts/errors.js';
 export { openFoes, FIX_VERSION } from './open-parts/fill.js';

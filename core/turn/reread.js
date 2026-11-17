@@ -125,6 +125,8 @@ export function createReread(s, deps) {
             if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = hidden;
             redraw(index, message);
         }
+        // The text is final: the blocks' boundary hashes are stamped from it, so none is stale.
+        store.restampHashes?.(index);
         timeline?.settle();
         if (timeline?.needsRecovery()) await timeline.recover();
         if (sceneBefore) logSceneReread(store, index, sceneBefore, receipts, late.length);
@@ -132,6 +134,8 @@ export function createReread(s, deps) {
         for (const receipt of [...receipts, ...steps.map(step => step.receipt)]) events?.emit('committed', { receipt });
         events?.emit('head', { index: store.headIndex(), reason: 'reread' });
         events?.emit('turn', { index, type: 'reread', receipts, steps: steps.map(step => step.receipt), problems, told: [] });
+        // The head reply, when it still has no block, asks for its repair (once: the hook skips a reply that already holds a stored repair), or is told as a Problem. An older reply never calls: its answer could not be used.
+        if (block === null && index === store.headIndex()) { try { s.afterReply?.(index, 'reread', message, [], true); } catch { /* each hook is already guarded */ } }
         return { ok: true, receipts, steps: steps.map(step => step.receipt), problems };
     }
 

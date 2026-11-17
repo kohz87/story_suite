@@ -122,7 +122,6 @@ export function createRuntimeState() {
         // Running targeted passes. An explicit edit or swipe of the reply a pass tolerates being rewritten in
         // place ends that tolerance: from then on any change to the history makes the result stale.
         runningTargetedPasses: new Set(),
-        captureCatchUp: new Map(),
         portraitActions: new Map(),
     };
 }

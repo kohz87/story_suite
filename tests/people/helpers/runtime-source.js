@@ -33,7 +33,7 @@ export const RUNTIME_SOURCE_PARTS = [
     { file: 'runtime-scan-handler.js', before: '    return { scanNowInner, handleAssistantMessageReceivedInner };' },
     { file: 'runtime-settings-html.js', before: 'const { eventTargetClosest' },
     { file: 'runtime-entry-ui-events.js', before: 'const { eventTargetClosest' },
-    { files: ['runtime-hosted-parts/target-notes.js', 'runtime-hosted-parts/tastes.js', 'runtime-hosted.js'], before: 'const { storyBlockV2Hosted' },
+    { files: ['runtime-hosted-parts/target-notes.js', 'runtime-hosted.js'], before: 'const { storyBlockV2Hosted' },
     { file: 'runtime-injection.js', before: 'const { liveInjectionText,' },
     { files: ['runtime-narration-parts/capture-journal.js', 'runtime-narration-parts/capture-text.js', 'runtime-narration-parts/narration-part.js'], before: 'const { narrationCaptureStats,' },
     { files: ['runtime-inline-cards-state.js', 'runtime-inline-cards-present.js', 'runtime-inline-cards-mode.js', 'runtime-inline-cards-megumin.js', 'runtime-inline-cards-mount.js'], before: 'const { recordInlineCardsInState' },

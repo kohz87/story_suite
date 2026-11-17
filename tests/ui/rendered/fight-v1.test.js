@@ -47,7 +47,7 @@ async function open(viewport, theme, query, opts = {}, step = 'choose') {
 }
 
 
-const V1 = 'tab=scene&scene=open&kind=fight&fight=real';
+const V1 = 'tab=fight&scene=open&kind=fight&fight=real';
 const hit = (page, q) => page.evaluate(s => { const e = document.querySelector(s); e.scrollIntoView({ block: 'center' }); const r = e.getBoundingClientRect(); const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return { h: Math.round(r.height), ok: e === top || e.contains(top) }; }, `#hx-frame ${q}`);
 
 for (const size of [{ width: 390, height: 844 }, { width: 360, height: 740 }]) {
@@ -83,7 +83,7 @@ for (const width of [390, 1143, 1280, 1920]) {
     test(`v1 fight screens at ${width} in ${theme}: one header, no sideways scroll, no stray text${SHOTS ? ', shots' : ''}`, async t => {
       if (ctx.skip) return t.skip(ctx.skip);
       const viewport = { width, height: 2600 };
-      for (const [name, query, step] of [['choose', V1, 'choose'], ['after', 'tab=scene&scene=staged&kind=fight&fight=realafter', 'after']]) {
+      for (const [name, query, step] of [['choose', V1, 'choose'], ['after', 'tab=fight&scene=staged&kind=fight&fight=realafter', 'after']]) {
         const page = await open(viewport, theme, query, {}, step);
         try {
           const m = await page.evaluate(() => { const tab = document.querySelector('#hx-frame .scene-tab'); return { sideways: tab.scrollWidth > tab.clientWidth + 1, heads: document.querySelectorAll('#hx-frame [data-card="fight-head"]').length, stray: [...document.querySelector('#hx-frame .fight-tab').childNodes].some(n => n.nodeType === 3) }; });

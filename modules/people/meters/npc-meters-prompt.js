@@ -1,10 +1,11 @@
 // The NPC meter prompt line, tail and redaction. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
-import { BUILT_IN_METERS, IMPACT_TIERS, FEATURE_GATE, FEATURE_PRESETS, FEATURE_MOOD_PULL, FEATURE_NOTES, RECENT_MESSAGES, SECRET_TEXT_MAX, TAIL_SECRETS_PER_NPC, isInt, clean, bandWord, readLeaf } from './npc-meters-config.js';
+import { FEATURE_GATE, FEATURE_PRESETS, FEATURE_MOOD_PULL, FEATURE_NOTES, RECENT_MESSAGES, SECRET_TEXT_MAX, TAIL_SECRETS_PER_NPC, isInt, clean, bandWord, readLeaf } from './npc-meters-config.js';
 import { meterValue } from './npc-meters-slice.js';
-import { APPROACH_KINDS, gateCue } from './npc-meters-gate.js';
+import { gateCue } from './npc-meters-gate.js';
 import { readEvent } from './npc-meters-pacing.js';
 import { moodWord, normalizeMood, storedMoodWord } from './npc-mood.js';
+import { linesMeterText } from './npc-meters-prompt-parts/lines-text.js';
 import { notesTail } from '../notes/npc-notes-kinds.js';
 
 export function createNpcPrompt({
@@ -12,25 +13,15 @@ export function createNpcPrompt({
 }, { sliceOf, presentKeys }) {
     // ---- the prompt (SPEC §5) ----
 
-    // "; each person can have only one major a day", from the reader's allowance (nothing when there is no limit on majors).
-    function majorPerDay() {
-        const room = tierAllowance()?.major;
-        if (room === null || room === undefined) return '';
-        return `; each person can have ${room === 1 ? 'only one major a day' : room === 0 ? 'no major' : `at most ${room} majors a day`}`;
-    }
     /**
      * One line: how to write an npc line and which meters there are, plus each meter's rule while the
      * presets feature is on. Changes only with the settings (and the presets in use).
      */
     function staticText() {
         const settings = storedSettings();
-        const caps = tierCaps();
-        const custom = settings.custom.map(def => `, ${def.id} (${def.min}..${def.max})`).join('');
-        const base = `NPC meters: ${BUILT_IN_METERS.map(def => def.id).join(', ')} (-100..100)${custom}. When the scene changes how someone feels: ~ npc Name | meter: +N, -N or =N. Code clamps each meter, moves it at most ${settings.changeCap} a reply and sets the stages; never write a stage. Add | why: what caused it.${caps ? ` Add | impact: ordinary (a kind word, most moments) | meaningful (a real favour, a shared secret) | major (saved from danger, a betrayal) | extreme (a life-changing turning point, very rare). Most moments are ordinary${majorPerDay()}. The most a move can be: ${IMPACT_TIERS.map(tier => caps[tier]).join('/')}; =N moves toward N; none given: ordinary.` : ''}`;
-        // Behind the anti-lever feature only (off: the line is as it was): the optional approach label.
-        const via = featureOn(FEATURE_GATE) ? ` Add | via: ${APPROACH_KINDS.join(', ')} when the move is one of those approaches; the same approach to the same person again soon gives less, then backfires.` : '';
+        // Behind the anti-lever feature only: the optional approach label (as the paragraph's `via` sentence).
         const rules = featureOn(FEATURE_PRESETS) ? settings.custom.filter(def => def.describe).map(def => `${def.id} ${def.describe}`) : [];
-        return rules.length ? `${base}${via} Meter rules: ${rules.join('; ')}.` : `${base}${via}`;
+        return linesMeterText({ via: featureOn(FEATURE_GATE), rules });
     }
 
     // How far a locked note is from opening (smaller is nearer): its meter's gap, else a story event's fixed middle.
@@ -55,13 +46,13 @@ export function createNpcPrompt({
     // shared cap (120 tokens): Story Director's pulse and Initiative lines (counted first) and its pinned hook cues ([Earlier days], [Names]) and
     // Story Block's own cues are never displaced, this section comes after them. The cue comes first, what the cap leaves goes to Pull and Mood; a kept
     // line that no longer fits is an ordinary line (the first of this section's lines dropped). Needs Story Block 2.31.1+ (older hosts drop object lines).
-    const CHANGES_CUE = 'Whenever anything changed, write the <Changes> block (just before <Blocks>, which still ends the reply), even if <Blocks> is empty; a lie, secret, taste, tie or turning point gets its own line.';
+    const CHANGES_CUE = 'Whenever anything changed, write it in the <Changes> block at the very end of the reply; a lie, secret, taste, tie or turning point gets its own line.';
     const HIDDEN_LINE = new RegExp(`^(.+?)(?:, ${HIDDEN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}| \\(hidden\\)): .*$`, 'gm');
 
     // Mood and pull for present people (feature mood-pull): "Mood: Mira alarmed, cornered; Tomas wary." and
     // "Pull: Mira wants closure (the stolen letter, 3 days)". At most PULL_PEOPLE people each; sent as kept lines (see tail()). A mood of all zeros says nothing.
     const PULL_PEOPLE = 3;
-    // What Pull and Mood may take of the shared kept cap (120) after the pulse (about 24), Initiative (about 19) and the cue (49): about 28 tokens.
+    // What Pull and Mood may take of the shared kept cap (120) after the pulse (about 24), Initiative (about 19) and the cue (about 30 since the 18 Nov wording; 49 before): about 28 tokens.
     const FELT_KEPT_TOKENS = 28;
     const PULL_WORDS = { belonging: 'belonging', closure: 'closure', awe: 'awe' };
     function moodPullLines(npcs, here) {

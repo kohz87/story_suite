@@ -25,6 +25,7 @@ reply), §4.4 (grammar, display kinds), §4.5 (free-text actions), §2.2 (spans,
   reply's own (`captureAssist`, receipt `assist: 'now'`), stored as `<Changes-assist>` in the hidden comment;
   a send waits ≤ `ASSIST_WAIT_MS`, a later answer is stored as `<Changes-assist-next>` and the next reply
   applies it after its own lines (`lateLines`, `assist: 'late'`). Re-read runs the stored lines, never the model.
+- **Repair on a miss** (`modules/assist/repair.js`, on by default): a reply with no block is repaired once; its lines are stored like the safety net's, in a `<Changes-assist>` comment whose header says `repaired` (`withAssist(..., { repair: true })`, `repairState`). The new view's reply sheet marks them as Assist's (receipt `assist`) and offers **Discard repair** (`sdk.reread(index, { discardRepair: true })`, `turn/discard.js`): the repaired comment goes, a comment headed `discarded` stays (`withoutRepair`), the reply is read again and the repair gate skips it for good. The safety net's own lines are never touched.
 - Only the head carrier is captured, for its own generation. Quiet and impersonate generations capture nothing.
   A Continue captures only its own new text (`continuation()`); a stopped reply drops an unfinished last line.
 - **Stray lines:** change lines written in the story itself (outside the block) are taken from up to

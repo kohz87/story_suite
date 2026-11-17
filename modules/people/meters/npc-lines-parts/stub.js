@@ -9,6 +9,7 @@ import { stubRecord } from './derived.js';
 
 const ROLE_MAX = 60;
 export const STUB_LOOK_MAX = 100;   // the approved length; a look is stored exactly as written up to it, never shorter
+const STUBS_PER_REPLY = 4;   // b6-soak-2: the same four a reply as the capture block's new people (CAPTURE_NEW_NPCS_PER_BLOCK); it also bounds the fill-ins the stubs own
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 
 /** → { name, role, look, problems } from a `+ npc` line (read from the line as written: its parts are the role and the look, whatever they hold). */
@@ -62,11 +63,15 @@ export function withStubs(handler, { hooks, linesMode, baseline, note }) {
             const stub = readStub(line);
             const refused = refusalOf(ctx, stub.name, hooks);
             if (refused) ctx.fail('REFUSED', refused);
+            // This reply's stubs are the people stamped with its index (the identity the fill-in finds them by).
+            const stamp = Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1;
+            const made = Object.values(ctx.read('people')?.npcs ?? {}).filter(record => record?.createdAt === stamp).length;
+            if (made >= STUBS_PER_REPLY) ctx.fail('REFUSED', `Only four new people a reply; ${stub.name} waits for a later reply that names them again.`);
             // One id for the dossier and its meter entry: free among the people and the meter entries both.
             const taken = [...Object.keys(ctx.read('people')?.npcs ?? {}), ...Object.keys(ctx.read(NPC_DOMAIN)?.npcs ?? {})];
             const id = makeNpcId(stub.name, taken);
             if (!PEOPLE_ID.test(id)) ctx.fail('INVALID', `${stub.name} cannot be given an id.`);
-            ctx.call('people.stub', { id, record: stubRecord(stub, id, baseline(), Number.isInteger(ctx.carrier?.index) ? ctx.carrier.index + 1 : 1) });
+            ctx.call('people.stub', { id, record: stubRecord(stub, id, baseline(), stamp) });
             const out = handler(ctx, { ...on, labels: {}, name: stub.name, stubKey: id });
             if (stub.problems.length) note(ctx.draft(NPC_DOMAIN), ctx.rev, stub.problems);
             return stub.problems.length ? { ...out, data: { ...out.data, problems: [...(out.data?.problems ?? []), ...stub.problems] } } : out;

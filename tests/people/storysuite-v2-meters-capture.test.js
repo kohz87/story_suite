@@ -151,7 +151,8 @@ test('custom meters: their own range and start, a bar each, kept in the static l
     assert.deepEqual(cast[0].bars.find(bar => bar.id === 'lust'), { id: 'lust', label: 'Lust', value: 3, min: 0, max: 100, stage: '', tone: 'neutral', text: '3', delta: 3 });
     assert.deepEqual(cast[0].still.find(bar => bar.id === 'lust'), { id: 'lust', label: 'Lust', value: 3, min: 0, max: 100, stage: '', tone: 'neutral', text: '3' }, 'still: the same bar without the change');
     // (The anti-lever sentence is on by default and tested in relationship-pacing.test.js; the line without it is what is pinned here.)
-    assert.equal(h.def.context.static().replace(/ Add \| via:[^.]*\./, ''), 'NPC meters: trust, affection, desire, tension (-100..100), lust (0..100), respect-level (-50..50). When the scene changes how someone feels: ~ npc Name | meter: +N, -N or =N. Code clamps each meter, moves it at most 15 a reply and sets the stages; never write a stage. Add | why: what caused it.');
+    // N7: the static line is the one NSD2 paragraph; custom meters add no text (code enforces their ranges, G2).
+    assert.ok(h.def.context.static().startsWith('Relationships: when the scene changes how someone feels about {{user}}'));
     // A row just added in the overlay (empty name, zero range) is left out; an upside-down range reads 0..100.
     const odd = normalizeMeterSettings({ customMeters: [{ name: '', min: 0, max: 0 }, { name: 'Odd', min: 50, max: -50, start: 999 }] }).custom;
     assert.deepEqual(odd.map(({ id, min, max, start }) => ({ id, min, max, start })), [{ id: 'odd', min: 0, max: 100, start: 100 }]);
@@ -167,9 +168,9 @@ test('the static part is byte-identical across replies and changes only with the
     assert.equal(h.def.context.static(), first);
     assert.doesNotMatch(first, /Mira|Oren|Friend|\d{2,} a reply.*\d/, 'no names or stage names');
     h.setSettings({ stages: STAGES, changeCap: 10, customMeters: [{ name: 'Lust' }] });
-    assert.notEqual(h.def.context.static(), first);
-    assert.match(h.def.context.static(), /lust \(0\.\.100\)/);
-    assert.match(h.def.context.static(), /at most 10 a reply/);
+    assert.equal(h.def.context.static(), first, 'settings that add no text leave the static text as it was');
+    assert.doesNotMatch(h.def.context.static(), /lust|\(0\.\.100\)/, 'a custom meter adds no text (G2)');
+    assert.doesNotMatch(h.def.context.static(), /at most 10/, 'the change cap adds no text (G2)');
     h.delta.enabled = false;
     assert.equal(h.def.context.static(), '', 'nothing while Delta is off');
 });

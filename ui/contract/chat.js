@@ -23,6 +23,8 @@ export const CHAT_SHAPE = {
       },
     },
     fightOpen: T.BOOLEAN,
+    // The latest reply came with no change block and holds nothing stored for it: the row says so, with a Re-read button.
+    unrecorded: { $optional: T.BOOLEAN },
   },
   drawer: [
     {
@@ -48,8 +50,10 @@ export const CHAT_SHAPE = {
         line: T.STRING,
         detail: { $nullable: T.STRING },
         applied: T.BOOLEAN,
+        assist: T.BOOLEAN,
       },
     ],
+    repaired: T.BOOLEAN,
     counts: {
       changes: T.NUMBER,
       heldBack: T.NUMBER,

@@ -50,7 +50,7 @@ test('targeted passes through the synthetic host: rewrite tolerance, memory limi
         // I-16: another extension rewrites the latest reply in place (no edit event) while Refresh runs.
         mockState.quietResponder = async () => {
             mockState.context.chat[last].mes = `${mockState.context.chat[last].mes}\n<!-- another extension's block -->`;
-            return JSON.stringify({ npcs: [{ id: yunyunId, name: 'Yunyun', background: 'Grew up in the Crimson Demon village.',
+            return JSON.stringify({ profileUpdates: [{ id: yunyunId, name: 'Yunyun', evidence: { background: ['Yunyun says she grew up in the Crimson Demon village'] } }], npcs: [{ id: yunyunId, name: 'Yunyun', background: 'Grew up in the Crimson Demon village.',
                 memories: ['Yunyun saved a lost lamb.', 'Yunyun chased a thief.', 'Yunyun fixed a wagon.', 'Yunyun sang at a wedding.', 'Yunyun found a silver key.'] }],
                 keyRelationshipEdges: [{ aId: yunyunId, a: 'Yunyun', b: 'Mira', aToB: 'friend', bToA: 'friend', reason: 'They wait together at the gate.' }] });
         };
@@ -131,12 +131,11 @@ test('a hosted scan scores relationship changes from the slice\'s numbers and fo
 
 // (owner, 12 Nov) "Refresh failed for Sieke: the scan was cancelled or its chat/dossier source changed; ... then it wiped out everything from Sieke".
 // A Refresh that ends cancelled or discarded changes nothing: the chat's dossier state is byte-identical to before it was asked for, and the host is
-// told nothing (its tastes and story events are sent only with an accepted result).
+// told nothing (its story events are sent only with an accepted result).
 test('a Refresh cancelled or discarded mid-flight leaves the dossier state byte-identical (all or nothing)', () => {
     const runner = index.slice(index.indexOf('async function runTargetedDossierPass'), index.indexOf('function scopeTargetedChannels'));
     const at = text => runner.indexOf(text);
-    assert.ok(at('forwardTastesToHost(') > at('const forwardNotes = () =>'), 'tastes only inside forwardNotes');
-    assert.equal(runner.split('forwardTastesToHost(').length, 2, 'one tastes forward');
+    assert.equal(runner.split('forwardTastesToHost(').length, 1, 'no tastes forward (NSD11)');
     assert.equal(runner.split('forwardSecretEventsToHost(').length, 2, 'one story-event forward');
     assert.ok(runner.lastIndexOf('forwardNotes();') > at('job.onLateStale?.();'), 'notes go to the host after the final commit check');
     assert.ok(at('forwardNotes();') > at('if (scoped.noChange) {'), 'or with an accepted no-change result');
@@ -347,7 +346,7 @@ test('a manual Refresh asks for an empty background, applies a grounded one, the
         const text = 'Guild clerk at the Guild hall; the Watch-Captain pressures her about stalled culling contracts.';
         mockState.quietResponder = async (args = {}) => {
             prompts.push(String(args.prompt || ''));
-            return JSON.stringify({ npcs: [{ id, name: 'Sieke', role: 'Guild clerk', background: text }] });
+            return JSON.stringify({ profileUpdates: [{ id, name: 'Sieke', evidence: { background: ['Sieke is a Guild clerk at the Guild hall'] } }], npcs: [{ id, name: 'Sieke', role: 'Guild clerk', background: text }] });
         };
         assert.equal(await runtime.refreshFromChat(id), true);
         await runtime.flush();

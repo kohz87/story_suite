@@ -8,6 +8,7 @@ import { extension_prompt_types, extension_prompt_roles } from '../../../../../.
 import { replyScanned } from '../calls/scan-context.js';
 import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcript.js';
 import { buildInjection, npcNamedInText, isTerminalNpcDeath, buildNarrationCaptureParts } from '../core/core.js';
+import { buildLinesParts } from '../core/core-prompts-lines.js';
 import { defersArea, storyBlockIsV2 } from '../legacy/suite-handshake.js';
 import { injectDepthOf, getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
@@ -96,11 +97,14 @@ export function createInjectionPart(rt, deps) {
         const namedNpcIds = namedByPlayerNpcIds(state);
         const prompt = settings.inject ? liveInjectionText(state, settings, { namedNpcIds, transcript }) : '';
         // (1.2.17) The capture's context leaves out what this dossier already gives word for word.
-        // (v2 hidden notes) The one-pass block is asked for layered notes (with the rules, byte-identical each reply) and for
+        // (v2 hidden notes) The one-pass lines are asked for layered notes (with the rules, byte-identical each reply) and for
         // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
         const noteOptions = armed || rulesSent ? hostedNotePromptOptions(state, settings) : {};
         const builtParts = armed || rulesSent
-            ? buildNarrationCaptureParts(scannerPromptOptions(state, settings, transcript, { dossierAbove: prompt, ...noteOptions }))
+            ? (storySuiteV2Meters()
+                // Hosted (N7): the lines builder; the JSON block is no longer asked for. Without a host the JSON one-pass prompt is unchanged.
+                ? buildLinesParts({ ...noteOptions, levelOn: effectiveCustomFieldNames(settings).some(name => name.toLowerCase() === 'level'), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
+                : buildNarrationCaptureParts(scannerPromptOptions(state, settings, transcript, { dossierAbove: prompt, ...noteOptions })))
             : { rules: '', context: '' };
         const captureParts = { rules: armed || rulesSent ? builtParts.rules : '', context: armed ? builtParts.context : '' };
         const capture = captureParts.context;

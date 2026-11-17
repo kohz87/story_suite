@@ -10,6 +10,8 @@ const isRecord = value => value !== null && typeof value === 'object' && !Array.
 const keyOf = name => String(name ?? '').trim().toLocaleLowerCase();
 const cut = (value, max) => (value && value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value);
 
+const labelsOf = row => [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])].map(keyOf).filter(Boolean);
+
 const metersOf = found => Object.fromEntries(AXES.map(axis => [axis, Number.isFinite(Number(found?.[axis])) ? Number(found[axis]) : 0]));
 
 function cardOf(row, partyKeys) {
@@ -25,9 +27,13 @@ function tiesOf(edges) {
   return (Array.isArray(edges) ? edges : []).filter(isRecord).map(edge => ({ a: edge.aId, b: edge.bId, kind: tieKind(edge.aToB, edge.bToA) })).filter(tie => tie.kind);
 }
 
-/** Whether a living person is here (PEOPLE-PLAN P5): named in this reply (the record's `present` flag) or last placed at the scene's place (the same name, any case). */
-export const isHere = (row, place) => row.lifeState !== 'deceased'
-  && (row.present === true || (Boolean(keyOf(place)) && keyOf(row.location) === keyOf(place)));
+/**
+ * Whether a living person is here: the union of the store's own answer (named in this reply: the `present` flag; or last placed at the scene's place, the same name, any case) and Story Block's
+ * `scene.present` (names; each matched against the person's name and aliases, folded). A missing or empty list removes nobody the store has here, and a reply with no change block (so a frozen list) never hides an arrival.
+ */
+export const isHere = (row, place, present = null) => row.lifeState !== 'deceased'
+  && (row.present === true || (Boolean(keyOf(place)) && keyOf(row.location) === keyOf(place))
+    || (Array.isArray(present) && labelsOf(row).some(label => present.some(name => keyOf(typeof name === 'string' ? name : name?.name) === label))));
 
 /**
  * People view-model from { list: people.list (the store's rows), keyPeople?: director.keyPeople.view (place and news of those away), party?: party.actors,
@@ -35,7 +41,7 @@ export const isHere = (row, place) => row.lifeState !== 'deceased'
  * dormant (36.12: 30 replies unseen; followed, present and party people never) leaves All and is its own list; the dead are listed with their card.
  * Gaps: `said`, and the death's when and where (the store holds neither).
  */
-export function selectPeople({ list, keyPeople, party, ties, place, filter } = {}) {
+export function selectPeople({ list, keyPeople, party, ties, place, present, filter } = {}) {
   const away = new Map((isRecord(keyPeople) && Array.isArray(keyPeople.people) ? keyPeople.people : []).filter(isRecord).map(row => [keyOf(row.name), row]));
   const partyKeys = new Set((Array.isArray(party) ? party : []).filter(isRecord).map(row => keyOf(row.name)));
   const here = [];
@@ -48,7 +54,7 @@ export function selectPeople({ list, keyPeople, party, ties, place, filter } = {
       deceased.push({ ...card, death: { how: row.lifeStateReason ?? '', when: '', where: null, presumed: row.lifeStateCertainty === 'inferred' } });
       continue;
     }
-    if (isHere(row, place)) { here.push(card); continue; }
+    if (isHere(row, place, present)) { here.push(card); continue; }
     const kp = away.get(keyOf(row.name));
     const gone = { ...card, lastPlace: cut(kp?.place ?? row.location ?? null, 80), lastSeen: kp?.newsAgo ?? null, said: null };
     (row.dormant === true && !card.inParty ? dormant : elsewhere).push(gone);

@@ -145,11 +145,14 @@ test('tiers: swipe, regenerate and a rebuild give identical numbers', async () =
     assert.equal(trust(s).trust, 5);
 });
 
-test('tiers: the prompt line names the tiers and their caps; without caps from the host it is as before', async () => {
+test('tiers: the prompt line names the tiers and their caps; without caps from the host it is the same', async () => {
     const s = await suite({ caps: { ordinary: 1, meaningful: 3, major: 6, extreme: 12 }, features: { 'npc-state-delta.anti-lever': false } });
-    assert.match(s.def.context.static(), /Add \| impact: ordinary \(a kind word, most moments\) \| meaningful \(a real favour, a shared secret\) \| major \(saved from danger, a betrayal\) \| extreme \(a life-changing turning point, very rare\)\. Most moments are ordinary\. The most a move can be: 1\/3\/6\/12; =N moves toward N; none given: ordinary\.$/);
+    // N7: one paragraph for every caps setting; code enforces the caps, the text names no number (NSD2 + G2).
+    const staticText = s.def.context.static();
+    assert.match(staticText, /impact is one word for the whole line: ordinary \(a kind word, most moments\) \| meaningful .* \| extreme \(a life-changing turning point, very rare\)\./);
+    assert.doesNotMatch(staticText, /1\/3\/6\/12|at most|moves it at most/);
     const plain = await suite({ caps: null, features: { 'npc-state-delta.anti-lever': false } });
-    assert.doesNotMatch(plain.def.context.static(), /impact/);
+    assert.equal(plain.def.context.static(), staticText, 'the same text with or without caps from the host');
     await plain.say(['~ npc Oren | trust: +9']);
     assert.equal(trust(plain).trust, 9, 'no caps from the host: held by the per-reply cap alone');
 });

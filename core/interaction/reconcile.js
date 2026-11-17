@@ -54,7 +54,7 @@ export function reconcileInteraction(meta, chat, active = null, { kindOf = () =>
             if (session.steps?.length) session.invalidated = true;
             else {
                 let setup = null;
-                try { setup = kind.next(structuredClone(settled.replan.payload.setup), structuredClone(received), stateAt(now.index)); } catch { setup = null; }
+                try { setup = kind.next(structuredClone(settled.replan.payload.setup), structuredClone(received), stateAt(now.index), structuredClone(settled.replan.payload.steps ?? [])); } catch { setup = null; }
                 if (plain(setup)) {
                     session.setup = setup;
                     session.prior = hashJson(received);

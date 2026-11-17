@@ -3,6 +3,7 @@ import { h } from '../../kit/dom.js';
 import { segmented, button } from '../../kit/controls.js';
 import { personCard } from './person-card.js';
 import { castMap } from './map.js';
+import { can } from '../../runtime/can.js';
 
 const FILTERS = Object.freeze([['all', 'All'], ['party', 'Party'], ['followed', '★ Following'], ['deceased', 'Deceased'], ['dormant', 'Not seen lately']]);
 const LEGEND = Object.freeze([['f0', 'Trust'], ['f1', 'Affection'], ['f2', 'Desire'], ['f3', 'Tension']]);
@@ -108,6 +109,6 @@ export function peopleTab(vm = {}, ctx = {}) {
         h('h3', null, 'People'),
         h('span', { class: 'cnt' }, `${counts.all ?? 0} known`),
         viewSwitch,
-        button({ label: '+ Add', onClick: () => ctx.port?.command?.('npc.add', {}) })),
+        can(ctx, 'npc.add') ? button({ label: '+ Add', onClick: () => ctx.port?.command?.('npc.add', {}) }) : null),
       search, filterBar, legend, body));
 }

@@ -13,7 +13,6 @@ import { fakeSettings } from './helpers/fake-settings.js';
 import { fakeFiles } from './helpers/portraits.js';
 import { sniffImage } from '../../packs/portraits.js';
 import { zip } from './helpers/zip.js';
-import { defaultFlags, healingSkill } from '../../modules/rpg/board/flags.js';
 
 const folder = new URL('../../examples/packs/ersveil/', import.meta.url);
 const packText = readFileSync(new URL('pack.json', folder), 'utf8');
@@ -246,30 +245,29 @@ test('every one of the twelve has its personality split: shorter than before, wi
     assert.match(nysseth.personality, /Yandere.*soft, patient and sweet.*Durvald Seamrune/s);
 });
 
-// The owner's list (10 Nov): name, stat, uses, rank, type of each member's two skills, in order.
+// The owner's list (10 Nov), moved to Combat Rules v1's words in Ersveil 3.0.0 (uses sp or mp, one of the eight types): name, stat, uses, rank, type of each member's two skills, in order.
 const SKILLS = {
-    temiwa: [['Mending Prayer', 'int', 'mana', 'novice', 'combat'], ['Gentle Word', 'cha', 'stamina', 'novice', 'utility']],
-    ysmeth: [['Lockwork', 'dex', 'stamina', 'expert', 'utility'], ['Binding Rune', 'int', 'mana', 'expert', 'combat']],
-    nysseth: [["Grinder's Knives", 'dex', 'stamina', 'expert', 'combat'], ['Chain Cell Craft', 'int', 'stamina', 'expert', 'utility']],
-    rika: [['Raw Bolt', 'int', 'mana', 'adept', 'combat'], ['Wild Surge', 'int', 'stamina', 'novice', 'combat']],
-    harrak: [['Long Watch Cleave', 'str', 'stamina', 'expert', 'combat'], ['Hold the Line', 'vit', 'stamina', 'master', 'combat']],
-    torka: [['Berserker Rush', 'str', 'stamina', 'novice', 'combat'], ['Maul Swing', 'str', 'stamina', 'novice', 'combat']],
-    lothar: [['Iron Guard Cut', 'dex', 'stamina', 'expert', 'combat'], ['Shield of the Princess', 'vit', 'stamina', 'adept', 'combat']],
-    gorm: [['Hammer Rune', 'str', 'stamina', 'adept', 'combat'], ['Toast and Tell', 'cha', 'stamina', 'adept', 'utility']],
-    nerissa: [["Pilot's Hand", 'dex', 'stamina', 'adept', 'utility'], ['Harpoon Dive', 'agi', 'stamina', 'adept', 'combat']],
-    hush: [['Silver Rain Veil', 'int', 'mana', 'expert', 'utility'], ["Mother's Hand", 'vit', 'stamina', 'adept', 'utility']],
-    asphodel: [['Flower-Speech', 'int', 'mana', 'adept', 'utility'], ['Quiet Step', 'agi', 'stamina', 'adept', 'utility']],
-    barney: [['Silver Patter', 'cha', 'stamina', 'adept', 'utility'], ['Dirty Trick', 'dex', 'stamina', 'adept', 'combat']],
+    temiwa: [['Mending Prayer', 'int', 'mp', 'novice', 'heal'], ['Gentle Word', 'cha', 'sp', 'novice', 'utility']],
+    ysmeth: [['Lockwork', 'dex', 'sp', 'expert', 'utility'], ['Binding Rune', 'int', 'mp', 'expert', 'support']],
+    nysseth: [["Grinder's Knives", 'dex', 'sp', 'expert', 'attack'], ['Chain Cell Craft', 'int', 'sp', 'expert', 'utility']],
+    rika: [['Raw Bolt', 'int', 'mp', 'adept', 'attack'], ['Wild Surge', 'int', 'mp', 'novice', 'area']],
+    harrak: [['Long Watch Cleave', 'str', 'sp', 'expert', 'area'], ['Hold the Line', 'vit', 'sp', 'master', 'defence']],
+    torka: [['Berserker Rush', 'str', 'sp', 'novice', 'attack'], ['Maul Swing', 'str', 'sp', 'novice', 'area']],
+    lothar: [['Iron Guard Cut', 'dex', 'sp', 'expert', 'attack'], ['Shield of the Princess', 'vit', 'sp', 'adept', 'defence']],
+    gorm: [['Hammer Rune', 'str', 'sp', 'adept', 'attack'], ['Toast and Tell', 'cha', 'sp', 'adept', 'utility']],
+    nerissa: [["Pilot's Hand", 'dex', 'sp', 'adept', 'utility'], ['Harpoon Dive', 'agi', 'sp', 'adept', 'attack']],
+    hush: [['Silver Rain Veil', 'int', 'mp', 'expert', 'utility'], ["Mother's Hand", 'vit', 'sp', 'adept', 'utility']],
+    asphodel: [['Flower-Speech', 'int', 'mp', 'adept', 'utility'], ['Quiet Step', 'agi', 'sp', 'adept', 'utility']],
+    barney: [['Silver Patter', 'cha', 'sp', 'adept', 'utility'], ['Dirty Trick', 'dex', 'sp', 'adept', 'attack']],
 };
 
-test('every member has exactly the two skills (type and rank too) the owner listed; Mending Prayer heals and Wild Surge hits every foe on the fight board', () => {
+test('every member has exactly the two skills (type and rank too) the owner listed, each with an explicit v1 type and a pack-valid pool word; Mending Prayer heals and Wild Surge is an area skill', () => {
     assert.deepEqual(Object.keys(SKILLS), IDS);
     for (const person of cast()) assert.deepEqual(person.skills.map(skill => [skill.name, skill.stat, skill.uses, skill.rank, skill.type]), SKILLS[person.id], person.id);
     const find = (id, name) => cast().find(person => person.id === id).skills.find(skill => skill.name === name);
-    assert.equal(healingSkill(find('temiwa', 'Mending Prayer')), true);
-    assert.equal(defaultFlags(find('rika', 'Wild Surge')).area, true);
-    for (const person of cast()) for (const skill of person.skills) {
-        if (skill.name !== 'Mending Prayer') assert.equal(healingSkill(skill) && person.id !== 'hush', false, `${person.id}: ${skill.name} is not a heal`);
-        if (skill.name !== 'Wild Surge' && !['Long Watch Cleave'].includes(skill.name)) assert.equal(defaultFlags(skill).area, false, `${person.id}: ${skill.name} is not an area skill`);
-    }
+    assert.equal(find('temiwa', 'Mending Prayer').type, 'heal');
+    assert.equal(find('rika', 'Wild Surge').type, 'area');
+    // The pack's own check reads every skill as written: the normalized type and pool are the same words.
+    const checked = validatePack(JSON.parse(packText)).pack.content.cast;
+    for (const person of checked) assert.deepEqual(person.skills.map(skill => [skill.type, skill.uses]), SKILLS[person.id].map(row => [row[4], row[2]]), person.id);
 });

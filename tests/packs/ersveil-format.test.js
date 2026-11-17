@@ -114,25 +114,12 @@ test('calendar rejections', () => {
     refused(calendar({ start: 'Goldwane 12' }), 'BAD_CALENDAR', 'calendar.start');
 });
 
-const CREATION = {
-    races: [{ id: 'human', name: 'Human' }],
-    talents: [{ id: 'shadow-bent', name: 'Shadow-bent', stats: { INT: 1 } }, { name: 'River-born', stats: { AGI: 1 } }],
-    skills: [{ name: 'Cane Draw', type: 'physical', stat: 'DEX', target: 'one', note: 'The hidden blade drawn and cut in one motion.' }, { name: 'Shadow Cut', type: 'magic', stat: 'INT', target: 'all' }],
-};
-const preset = extra => pack({ content: { ...CREATION, presets: [{ id: 'wessel', name: 'Wessel (kit)', race: 'human', talents: ['shadow-bent', 'River-born'], points: { DEX: 3 }, skills: ['cane-draw', 'Shadow Cut'], ...extra }] } });
+const SKILLS = [{ name: 'Cane Draw', type: 'physical', stat: 'DEX', target: 'one', note: 'The hidden blade drawn and cut in one motion.' }, { name: 'Shadow Cut', type: 'magic', stat: 'INT', target: 'all' }];
 
-test('skills and presets: references become full ids, skills keep only what they are', () => {
-    const normalized = ok(preset());
+test('skills: the kept templates become full ids and keep only what they are', () => {
+    const normalized = ok(pack({ content: { skills: SKILLS } }));
     assert.deepEqual(normalized.content.skills[0], { name: 'Cane Draw', type: 'physical', stat: 'DEX', target: 'one', element: null, note: 'The hidden blade drawn and cut in one motion.', tags: [], id: 'pack.mini/cane-draw', slug: 'cane-draw', pack: 'mini' });
     assert.deepEqual(ok(pack({ content: { skills: [{ name: 'Jab' }] } })).content.skills[0], { name: 'Jab', type: 'physical', stat: null, target: 'one', element: null, note: '', tags: [], id: 'pack.mini/jab', slug: 'jab', pack: 'mini' });
-    assert.deepEqual(normalized.content.presets[0], {
-        name: 'Wessel (kit)', note: '', race: 'pack.mini/human', talents: ['pack.mini/shadow-bent', 'pack.mini/river-born'], points: { DEX: 3 },
-        skills: ['pack.mini/cane-draw', 'pack.mini/shadow-cut'], id: 'pack.mini/wessel', slug: 'wessel', pack: 'mini',
-    });
-    assert.deepEqual(ok(preset({ race: 'pack.mini/human', talents: undefined, skills: undefined, points: undefined })).content.presets[0], {
-        name: 'Wessel (kit)', note: '', race: 'pack.mini/human', talents: [], points: {}, skills: [], id: 'pack.mini/wessel', slug: 'wessel', pack: 'mini',
-    });
-    assert.equal(ok(preset({ race: null })).content.presets[0].race, null, 'no race: the reader picks one');
 });
 
 test('skill rejections', () => {
@@ -146,31 +133,22 @@ test('skill rejections', () => {
     refused(skill({ note: 'x'.repeat(501) }), 'BAD_RECORD', 'content.skills[0].note');
 });
 
-test('preset rejections', () => {
-    refused(preset({ race: 'elf' }), 'UNKNOWN_REF', 'content.presets[0].race');
-    refused(preset({ talents: ['bookish'] }), 'UNKNOWN_REF', 'content.presets[0].talents[0]');
-    refused(preset({ talents: ['shadow-bent', 'Shadow-bent'] }), 'DUPLICATE', 'content.presets[0].talents[1]');
-    refused(preset({ talents: 'shadow-bent' }), 'BAD_RECORD', 'content.presets[0].talents');
-    refused(preset({ skills: ['Firebolt'] }), 'UNKNOWN_REF', 'content.presets[0].skills[0]');
-    refused(preset({ points: { DEX: -1 } }), 'BAD_RECORD', 'content.presets[0].points');
-    refused(preset({ points: { dex: 1 } }), 'BAD_RECORD', 'content.presets[0].points');
-    refused(preset({ points: { DEX: 1.5 } }), 'BAD_RECORD', 'content.presets[0].points');
-    refused(preset({ points: [3] }), 'BAD_RECORD', 'content.presets[0].points');
-    refused(preset({ stats: {} }), 'UNKNOWN_FIELD', 'content.presets[0].stats');
-    refused(preset({ id: 'Wessel Kit' }), 'BAD_RECORD', 'content.presets[0].id');
-    refused(preset({ name: '' }), 'BAD_RECORD', 'content.presets[0].name');
-    refused(pack({ content: { presets: [{ name: 'Wessel', race: 'human' }] } }), 'UNKNOWN_REF', 'content.presets[0].race');
+test('the kinds nothing reads (presets, races, talents, quests, shops, recipes, terms, ranks, crafts, creatures) are accepted with a warning and left out', () => {
+    const result = validatePack(pack({ content: { races: [{ id: 'human', name: 'Human' }], presets: [{ id: 'wessel', name: 'Wessel', race: 'elf' }], quests: [{ name: 'Q' }], shops: [{ name: 'S' }], recipes: [{ name: 'R' }], terms: [{ name: 'T' }], ranks: [{ id: 'F' }], crafts: [{ id: 'x' }], creatures: [{ name: 'C' }], talents: [{ name: 'T' }] } }));
+    assert.equal(result.ok, true, JSON.stringify(result.errors));
+    assert.deepEqual(Object.keys(result.pack.content), ['items', 'events']);
+    assert.deepEqual(result.warnings.map(warning => [warning.code, warning.path]).sort(), ['creatures', 'shops', 'recipes', 'quests', 'races', 'talents', 'presets', 'terms', 'ranks', 'crafts'].map(kind => ['IGNORED_KIND', `content.${kind}`]).sort());
 });
 
-test('an older pack normalizes as before: no new kinds, no calendar, the same counts', async () => {
+test('a small pack normalizes with no calendar and only the kinds it gives', async () => {
     const riverside = ok(sample());
-    assert.deepEqual(Object.keys(riverside.content), ['items', 'creatures', 'shops', 'recipes', 'events', 'quests', 'races', 'talents']);
+    assert.deepEqual(Object.keys(riverside.content), ['items', 'events', 'foes']);
     assert.equal(riverside.calendar, null);
     assert.deepEqual(contentOf([riverside], 'places'), []);
     assert.deepEqual(contentOf([riverside], 'routes'), []);
     assert.deepEqual(contentOf([riverside], 'presets'), []);
     assert.equal(calendarOf([riverside]), null);
-    assert.match(countsLine({ places: 2, routes: 1, presets: 1, skills: 2 }, false), /2 skills.*1 ready-made character.*2 places.*1 route/);
+    assert.match(countsLine({ places: 2, routes: 1, presets: 1, skills: 2 }, false), /^2 skills, 2 places, 1 route$/);
 });
 
 test('packs.calendar: the first enabled pack with a calendar, a copy; null with none', async () => {

@@ -16,7 +16,8 @@ fi
 
 # Raise the floor when tests are added. A lower "# tests" count means test-level results were not
 # reported or tests were lost.
-MIN_TESTS=7380
+# (6350 on 17 Nov 2026: combat C11 deleted the earlier engine's, the roll planner's and the earlier rules' tests with their code; the floor was 7380 and the suite then ran 6358.)
+MIN_TESTS=6350
 # The only TODO tests allowed, by exact test name (like the skip reasons). Any other TODO fails the job.
 ALLOWED_TODOS=(
   "C4-2 (open): no chat file is made again under the old name by a save already on its way (needs the server to refuse a save of a renamed chat, or the page to delete that copy)"

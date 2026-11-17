@@ -8,6 +8,7 @@ import { contentText, contextRoom } from '../turn/text.js';
 import { createSession } from '../turn/session.js';
 import { createCaptureFlow } from '../turn/capture-flow.js';
 import { createReread } from '../turn/reread.js';
+import { createDiscard } from '../turn/discard.js';
 import { createPromptBuild } from '../turn/prompt-build.js';
 import { createPromptHooks } from '../turn/prompt-hooks.js';
 import { createEvents } from '../turn/events.js';
@@ -139,6 +140,8 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
     const { changeHeads, readBlock, strayProblems, legacyProblem, capped, assistRoom, lateLines, nowLines, captureLines, afterCapture, stepSeeds, captureEach, storySeeds, heldInReply, withCaps, LATE, NOW } = createCaptureFlow(s, { ctx, store, bus, registry, settings, events, hostSettings, view, viewReader, lateReader, problem, isCarrier, PRACTICE_LINE, HOOK_TIMEOUT_MS, isolated, interactionError });
     const { reread, saveText, redraw } = createReread(s, { ctx, metadata, store, events, timeline, refusal, changeHeads, readBlock, strayProblems, capped, lateLines, assistRoom, nowLines, heldInReply, legacyProblem, storySeeds, afterCapture, captureEach, stepSeeds, withCaps, isPrelude, LATE, NOW, planAgain, problem, trySave });
 
+    const { discardRepair } = createDiscard({ ctx, reread, refusal });
+
     // The prompt side of a turn (turn/prompt-build.js, turn/prompt-hooks.js): wired here, after every const they are given. The interceptor asks for claimQuiet only when it runs.
     const { runCues, build, askCanGenerate, runOnBlocked, interceptor, markers, stripHistory, backgroundPrompt, foreignPrompt } = createPromptBuild(s, { ia, ctx, metadata, store, bus, registry, settings, events, timeline, onBlocked, notify, initial, prepare, hostSettings, viewReader, view, contextNow, hasCarrier, lastCarrier, isPrelude, markBusy, markIdle, setPrompts, clearPrompts, problem, trySave, held, claimQuiet: () => claimQuiet(), FOREGROUND, HOOK_TIMEOUT_MS, ASSIST_WAIT_MS, RPG_LOAD_WAIT_MS, OWN_PROMPT_PARTS, OWN_PROMPT_CHARS, STRIP_CACHE, HAS_BLOCK, HAS_LEGACY, hookTimeout, normalizeType });
     const { onGenerationStarted, claimQuiet, onPromptReady, onTextPromptReady } = createPromptHooks(s, { ctx, isOwn, markers, stripHistory, backgroundPrompt, foreignPrompt, HAS_LEGACY, LEGACY_IN_PROMPT, holdsIn, normalizeType });
@@ -162,7 +165,8 @@ export function createTurn({ ctx, live = () => ctx, store, bus, registry, settin
         onChatRenamed,
         onTimelineChanged,
         onGenerationEnded,
-        reread,
+        // reread(index, { discardRepair: true }): the reply sheet's "Discard repair" (turn/discard.js)
+        reread: (index, options) => (options?.discardRepair === true ? discardRepair(index) : reread(index)),
         /** What the next ordinary reply would be sent, without changing anything (no cues run). */
         preview: () => build().parts,
         /**

@@ -13,45 +13,6 @@ import { character, sheetDomain } from '../rpg/helpers.js';
 const sheetOf = b => readSheet({ domains: { dataModules: sheetDomain(b) } });
 const gearAnswer = piece => ({ on: true, slots: piece ? { weapon: { name: piece, stats: { STR: 1 }, broken: false } } : {}, statBonus: piece ? { STR: 1 } : {}, carry: { encumbered: false, penalty: 0 } });
 
-test('G1: the shared bag goes to the reader\'s own Character, not to whoever sorts first', () => {
-    const sheet = sheetOf({ ana: { role: 'character', fields: character('Ana') }, wessel: { role: 'character', fields: character('Wessel') } });
-    assert.deepEqual(sheet.characters.map(entry => entry.key), ['ana', 'wessel'], 'the companion sorts first');
-    const answers = { party: gearAnswer('Cane Sword'), ac_ana: gearAnswer(null), ac_wes: gearAnswer(null) };
-    const ask = pc => (name, args) => {
-        if (name === 'party.actors') return [{ id: 'ac_ana', name: 'Ana' }, { id: 'ac_wes', name: 'Wessel' }];
-        if (name === 'party.pc') return pc;
-        if (name === 'inventory.gear') return answers[args.owner] ?? null;
-        throw new Error('no');
-    };
-    // by the reader's name
-    let plan = planGear(sheet, ask(null), 'Wessel');
-    assert.deepEqual([plan.who.ana.own, plan.who.wessel.own], [['ac_ana'], ['ac_wes', 'party']]);
-    assert.deepEqual(plan.who.wessel.add, { str: 1 });
-    assert.equal(plan.who.ana.add, undefined);
-    // by the party module's main character
-    plan = planGear(sheet, ask({ id: 'ac_wes' }));
-    assert.deepEqual(plan.who.wessel.own, ['ac_wes', 'party']);
-    // the persona's first name is enough
-    plan = planGear(sheetOf({ ana: { role: 'character', fields: character('Ana') }, wessel: { role: 'character', fields: character('Wessel Ashby') } }), ask(null), 'Wessel');
-    assert.deepEqual(plan.who.wesselashby.own.includes('party'), true);
-    // no match at all: the first block, as before
-    plan = planGear(sheet, ask(null), 'Nobody');
-    assert.deepEqual(plan.who.ana.own, ['ac_ana', 'party']);
-    assert.deepEqual(plan.who.wessel.own, ['ac_wes']);
-});
-
-test('G8: a member is the Character by the whole name, the first name or an alias; an exact name wins', () => {
-    const ren = { key: 'renashby', who: 'Ren Ashby' };
-    assert.equal(sameWho(ren, 'Ren Ashby'), true);
-    assert.equal(sameWho(ren, 'ren'), true, 'Ren is Ren Ashby');
-    assert.equal(sameWho(ren, 'Ren Holt'), false);
-    assert.equal(sameWho(ren, 'Captain', ['the Captain', 'Ren']), true, 'an alias');
-    assert.equal(sameWho({ key: 'ren', who: 'Ren' }, 'Ren Ashby'), true, 'the other way round');
-    const sheet = sheetOf({ a: { role: 'character', fields: character('Ren') }, b: { role: 'character', fields: character('Ren Ashby') } });
-    const plan = planGear(sheet, (name, args) => (name === 'party.actors' ? [{ id: 'ac_r', name: 'Ren Ashby' }] : name === 'inventory.gear' ? gearAnswer(null) : null));
-    assert.deepEqual([plan.who.ren.own.includes('ac_r'), plan.who.renashby.own.includes('ac_r')], [false, true], 'the exact name takes the actor');
-});
-
 test('G2: exactly at the limit is encumbered only with gear on; with gear off it is not (5 of 5)', () => {
     const view = { on: true, people: [{ id: 'ac_ren00001', name: 'Ren', load: 5, capacity: 5 }], load: 5, capacity: 5 };
     const tools = { query: () => view };

@@ -11,7 +11,7 @@ const IDLE_WHY = Object.freeze({ down: 'Down', beaten: 'beaten', 'no-target': 'n
 
 const STOP_POINTS = 'Stop earlier at the first stop point (a foe falls, flees or yields; anyone on your side is Down or Badly wounded; new foes arrive).';
 
-// How the cue ends from the flow of stage 49 (resolve.js FLOW_VERSION): the last line says what stopped the rolls.
+// How the cue ends from the flow of stage 49: the last line says what stopped the rolls.
 // A won fight tells the narrator code gives the XP (fight.js) and the beaten groups stay on the Foes block.
 const FLOW_ENDS = Object.freeze({
     won: 'every foe is Down: the fight is won. Stop there and tell it as the end of the fight. Code gives the party its XP for it: write no XP line for this fight, and leave the beaten groups on the Foes block (Down).',
