@@ -51,7 +51,7 @@ function audit({ minTap, fightTap = 48, tapFloor = true }) {
   for (const el of frame.querySelectorAll('button, [role=tab], a, [data-tap]')) {
     if (!seen(el)) continue;
     const r = tapBox(el);
-    const need = el.closest('.su-panel[data-tab="fight"]') ? fightTap : minTap;
+    const need = el.closest('.su-panel[data-tab="fight"]') ? fightTap : el.closest('.su-strip') ? 37 : minTap; // desktop tab pills are the mock's 37 px
     if (tapFloor && (r.height < need - 0.5 || r.width < need - 0.5)) problems.push(`tap: ${label(el)} ${Math.round(r.width)}x${Math.round(r.height)}`);
   }
   const walker = document.createTreeWalker(frame, NodeFilter.SHOW_TEXT);
