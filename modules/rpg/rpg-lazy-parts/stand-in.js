@@ -61,6 +61,10 @@ export function createLazyRpgPart(deps = {}) {
             // (the roster is a pure read of the Character blocks: answered at once too, roster.js)
             ...rosterQueries({ persona: deps?.persona, on: deps?.rosterOn }),
             'party.levels': Object.assign(levelsQuery, { feature: LEAN_RPG_FEATURE }),
+            // (the sheet reads the blocks through the library's view code: [] until it is loaded, which it is whenever the feature is on)
+            'rpg.sheet': Object.assign((...args) => part()?.queries['rpg.sheet'](...args) ?? [], { feature: LEAN_RPG_FEATURE }),
+            // (the level word: the library's, null until it is loaded; the readers fall back to "Lv" by themselves)
+            'party.terms': Object.assign((...args) => part()?.queries['party.terms'](...args) ?? null, { feature: LEAN_RPG_FEATURE }),
         },
         hooks: {
             canGenerate: Object.assign((view, info) => part()?.hooks.canGenerate(view, info), { feature: LEAN_RPG_FEATURE }),

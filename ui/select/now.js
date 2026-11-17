@@ -9,10 +9,15 @@ const isRec = value => value !== null && typeof value === 'object' && !Array.isA
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const list = value => (Array.isArray(value) ? value : []);
 
-// `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. Points to spend and an open fight have no query (UI-PLAN §2.1).
+// `time.overdue` (SD/time/index.js:183): { overdue, pay, due } lists of { id, key, kind, due }. An open fight has no query (UI-PLAN §2.1); points to spend come from `rpg.sheet` (SB/lean-rpg/sheet-query.js: per member `points`).
 function needsYou(answers, opts) {
   const out = [];
   if (isRec(opts.fight) && opts.fight.state && opts.fight.state !== 'end') out.push({ kind: 'fight', title: 'A fight is open', detail: null, go: 'fight' });
+  const owing = list(answers['rpg.sheet']).filter(row => isRec(row) && Number.isFinite(row.points) && row.points > 0);
+  if (owing.length) {
+    const total = owing.reduce((sum, row) => sum + row.points, 0);
+    out.push({ kind: 'points', title: `${total} ${total === 1 ? 'point' : 'points'} to spend`, detail: owing.map(row => text(row.name)).filter(Boolean).join(', ') || null, go: 'party' });
+  }
   const overdue = list(answers['time.overdue']?.overdue);
   if (overdue.length) {
     const names = overdue.map(row => text(row.key)).filter(Boolean).join(', ');

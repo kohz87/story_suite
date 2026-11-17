@@ -15,6 +15,8 @@ import { leanRpgGuard, resolve, rollsOf } from '../resolve.js';
 import { skipOf } from '../start.js';
 import { levelsQuery, rosterQueries } from '../roster.js';
 import { createBoardPart } from '../board/overrides.js';
+import { sheetQuery } from '../sheet-query.js';
+import { termsQuery } from '../terms.js';
 
 /** The part's setting (Story Block's own bucket): when the pre-call plans the rolls. */
 export const DEFAULT_SETTINGS = Object.freeze({ [ROLLS_SETTING]: ROLLS[0], [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true });
@@ -75,7 +77,10 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
             // The party's members and the reader's own Character, from the Character blocks (roster.js; fallbacks: a module that answers them itself is asked instead).
             ...rosterQueries({ persona, on: rosterOn }),
             // Every member's sheet level, those who left too (roster.js): for a module that shows or checks levels.
-            'party.levels': Object.assign(levelsQuery, { feature: LEAN_RPG_FEATURE }) },
+            'party.levels': Object.assign(levelsQuery, { feature: LEAN_RPG_FEATURE }),
+            // Each member's sheet for the Party tab, the Card and the Now tab (sheet-query.js), and the word a level is called (terms.js).
+            'rpg.sheet': Object.assign((state, args, tools) => sheetQuery(state, { persona: args?.persona ?? persona() }, tools), { feature: LEAN_RPG_FEATURE }),
+            'party.terms': Object.assign(termsQuery, { feature: LEAN_RPG_FEATURE }) },
         hooks: {
             canGenerate: Object.assign((view, info) => precall.canGenerate(view, info), { feature: LEAN_RPG_FEATURE }),
             // The foe pre-check may call the model once (PRECHECK_LIMIT_MS, or `timeoutMs`): the hook may take that long and a little more.

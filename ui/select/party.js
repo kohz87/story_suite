@@ -23,28 +23,29 @@ function slotsOf(gearView) {
   return SLOT_KEYS.map(key => ({ key, item: worn[key] ?? null }));
 }
 
-// One member: what party.actors, party.levels and gear.view give; every sheet field is a gap unless `sheet` (a future rpg.sheet row) carries it.
+// One member: what party.actors, party.levels and gear.view give; every sheet field is a gap unless `sheet` (the member's `rpg.sheet` row) carries it.
 function memberOf(actor, level, gearView, sheet) {
   const known = Number.isSafeInteger(level) ? level : null;
   const own = isRecord(sheet) ? sheet : {};
   return {
     id: String(actor.id), name: String(actor.name), portrait: own.portrait ?? null,
     line: own.line ?? (known === null ? '' : `Lv ${known}`),
-    level: known, xpPct: own.xpPct ?? null, points: own.points ?? null, away: own.away ?? null, soakPct: own.soakPct ?? null,
+    level: known ?? (Number.isSafeInteger(own.level) ? own.level : null), xpPct: own.xpPct ?? null, points: own.points ?? null, away: own.away ?? null, soakPct: own.soakPct ?? null,
     bars: Array.isArray(own.bars) ? own.bars : [], effects: Array.isArray(own.effects) ? own.effects : [],
     stats: isRecord(own.stats) ? own.stats : null, slots: slotsOf(gearView), skills: Array.isArray(own.skills) ? own.skills : [],
   };
 }
 
 /**
- * Party view-model from { actors: party.actors, pc: party.pc, levels: party.levels, gear: { [id]: gear.view }, sheets?: { [id]: sheet row } };
+ * Party view-model from { actors: party.actors, pc: party.pc, levels: party.levels, gear: { [id]: gear.view }, sheet?: rpg.sheet rows [{ id, ... }] };
  * null while the RPG is off (party.actors answers null).
  */
-export function selectParty({ actors, pc, levels, gear, sheets } = {}) {
+export function selectParty({ actors, pc, levels, gear, sheet } = {}) {
   if (!Array.isArray(actors) || actors.length === 0) return null;
   const levelOf = new Map((Array.isArray(levels) ? levels : []).map(row => [row?.id, row?.level]));
+  const sheets = new Map((Array.isArray(sheet) ? sheet : []).filter(isRecord).map(row => [row.id, row]));
   const members = actors.filter(isRecord).slice(0, MAX_PARTY)
-    .map(actor => memberOf(actor, levelOf.get(actor.id), gear?.[actor.id], sheets?.[actor.id]));
+    .map(actor => memberOf(actor, levelOf.get(actor.id), gear?.[actor.id], sheets.get(actor.id)));
   return {
     pcId: isRecord(pc) && typeof pc.id === 'string' ? pc.id : null,
     max: MAX_PARTY, canInvite: members.length < MAX_PARTY, members,

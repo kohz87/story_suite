@@ -3,7 +3,7 @@
 import { isHere } from './people.js';
 
 const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather', 'scene.you', 'party.actors', 'party.pc', 'party.levels',
-  'party.terms', 'mounts.pace', 'director.goal', 'director.next', 'director.keyPeople', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
+  'party.terms', 'rpg.sheet', 'mounts.pace', 'director.goal', 'director.next', 'director.keyPeople', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
   'inventory.encumbrance', 'npc.cast', 'chatter.head', 'time.overdue', 'reply.changes'];
 
 // Who is here, from the store: the people of `people.list` who are here (isHere: present, or at the scene's place) as [{ id, name, meters, followed, portrait }] (the old `npc.present` answer's shape, still the

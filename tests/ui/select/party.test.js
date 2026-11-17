@@ -52,10 +52,10 @@ describe('selectParty', () => {
   });
 
   it('takes sheet rows when a future rpg.sheet answer carries them, and then matches PARTY_SHAPE except per-item soak', () => {
-    const sheets = { astra: { portrait: 'astra', line: 'Lv 14 · Shadow Blade', xpPct: 62, points: 1, soakPct: 11, away: { where: 'Stables', lastSeen: '8:00 am' },
+    const sheet = [{ id: 'astra', portrait: 'astra', line: 'Lv 14 · Shadow Blade', xpPct: 62, points: 1, soakPct: 11, away: { where: 'Stables', lastSeen: '8:00 am' },
       bars: [{ kind: 'hp', value: 12, max: 14 }], effects: [], stats: { STR: 6, DEX: 12, AGI: 12, VIT: 10, INT: 6, WIS: 6, CHA: 5 }, skills: [] },
-      brann: { portrait: null, xpPct: 15, points: 0, soakPct: 17, bars: [], stats: { STR: 11, DEX: 7, AGI: 6, VIT: 12, INT: 5, WIS: 6, CHA: 6 } } };
-    const vm = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear: GEAR, sheets });
+      { id: 'brann', portrait: null, xpPct: 15, points: 0, soakPct: 17, bars: [], stats: { STR: 11, DEX: 7, AGI: 6, VIT: 12, INT: 5, WIS: 6, CHA: 6 } }];
+    const vm = selectParty({ actors: ACTORS, pc: PC, levels: LEVELS, gear: GEAR, sheet });
     assert.equal(vm.members[0].line, 'Lv 14 · Shadow Blade');
     assert.equal(vm.members[0].away.where, 'Stables');
     assert.equal(vm.members[1].line, 'Lv 9');
