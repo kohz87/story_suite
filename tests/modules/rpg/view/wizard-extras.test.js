@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { STATS } from '../../../../modules/rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { RPG_EXTRAS, buildDefinitions, extraDefinitions, extrasPlan, missingBlocks, newDraft, problemsOf, readDraft } from '../../../../modules/rpg/view/wizard-data.js';
 import { reload } from '../../data-modules/helpers.js';
 import { begin, fillBlocks, makeBlocks, page, settle } from './page.js';
@@ -194,7 +194,7 @@ test('2.9.2: after a + or a − the Stats step still shows no "Points left" unde
     wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="agi"] .ss-w-stepper-inc').click();
     noneShown('after a +');
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 9', 'the pill still counts');
-    wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="luk"] .ss-w-stepper-dec').click();
+    wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="wis"] .ss-w-stepper-dec').click();
     noneShown('after a −');
     stats = await goTo(dialog, 'skills');
     stats = await goTo(dialog, 'stats');

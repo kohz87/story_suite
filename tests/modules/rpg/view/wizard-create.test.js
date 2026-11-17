@@ -33,10 +33,10 @@ test('Create makes the two blocks with one dm.define each, the wizard\'s values 
     const made = host.ctx.chat.flatMap(message => message.extra?.storySuite?.receipts ?? []).filter(receipt => receipt.type.startsWith('dm.'));
     assert.deepEqual(made.map(receipt => receipt.type), ['dm.define', 'dm.define', 'dm.define', 'dm.define'], 'four defines and nothing else: no dm.set');
     const character = fieldsOf(host, 'pack.chat/wessel'), skills = fieldsOf(host, 'pack.chat/wessel-skills');
-    assert.deepEqual([character.who, character.about, character.str, character.vit, character.points, character.level, character.xp, character.health, character.mana, character.stamina, character.alive],
-        ['Wessel', 'A drill-yard washout from Bluewatch.', 10, 10, 0, 1, 0, 12, 10, 10, true]);
-    assert.deepEqual([skills.who, skills.skill1, skills.stat1, skills.uses1, skills.rank1, skills.practice1, skills.skill2, skills.rank2, skills.skill4, skills.rank4],
-        ['Wessel', 'Short blade', 'agi', 'stamina', 1, 0, 'Iron Breath', 0, '', 0]);
+    assert.deepEqual([character.who, character.about, character.str, character.vit, character.points, character.level, character.xp, character.hp, character.mp, character.sp, character.alive],
+        ['Wessel', 'A drill-yard washout from Bluewatch.', 10, 10, 0, 1, 0, 10, 10, 11, true]);   // (full v1 bars: HP 5 + VIT/2, MP 8 + (INT + WIS)/4, SP 8 + (STR + AGI)/4)
+    assert.deepEqual([skills.who, skills.skill1, skills.stat1, skills.type1, skills.rank1, skills.practice1, skills.skill2, skills.rank2, skills.skill4, skills.rank4],
+        ['Wessel', 'Short blade', 'agi', 'attack', 2, 200, 'Iron Breath', 0, '', 0]);   // (a skill chosen to start at Adept has the practice of that rank)
     const domain = host.head().domains.dataModules;
     const definition = domain.pins[domain.active['pack.chat/wessel-skills'].hash].definition;
     assert.equal(definition.role, 'skills');
@@ -51,7 +51,7 @@ test('Create makes the two blocks with one dm.define each, the wizard\'s values 
     assert.match(card.textContent, /Short blade \(Adept\) · Iron Breath \(Novice\) · Shield work \(Novice\)/);
     assert.ok(!card.textContent.includes('points to spend'), 'every point was spent');
     card.querySelector('.rpg-skills-open').click();
-    assert.match(party(doc).querySelector('.rpg-skill[data-slot="1"] .rpg-skill-roll').textContent, /Rolls with it: d20 \+4 = \(AGI 5 \+ DEX 5\/2\)\/2 → \+3 · Adept \+1 · Lv 1 ÷ 5 \+0/);
+    assert.match(party(doc).querySelector('.rpg-skill[data-slot="1"] .rpg-skill-roll').textContent, /^Rolls with AGI · Adept$/);
     await reload(host);
 });
 
@@ -225,7 +225,7 @@ test('feature off: no wizard screen, no button, nothing of it loaded', async t =
 test('the stylesheet: the summary row, the template cards in three columns, rows that stack on a phone, theme tokens only', () => {
     const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-wiz-grid \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-    assert.match(css, /\.rpg-wiz-row \{[^}]*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1\.7fr\) 78px 104px 104px 104px 36px/);
+    assert.match(css, /\.rpg-wiz-row \{[^}]*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1\.7fr\) 78px 124px 104px 36px/);
     const phone = css.slice(css.indexOf('@media (max-width: 600px) {\n    .rpg-wiz-grid'));
     assert.match(phone, /\.rpg-wiz-grid \{ grid-template-columns: 1fr; \}/);
     assert.match(phone, /\.rpg-wiz-row \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\) 36px;/);

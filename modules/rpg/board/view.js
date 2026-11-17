@@ -17,6 +17,7 @@ import { FIGHT_KIND, heldFight, openFight } from './port-session.js';
 import { toStep } from './steps.js';
 import { sessionProblem } from './session-check.js';
 import { resumeMembers } from './resume.js';
+import { resumeFoesV1 } from './resume-v1.js';
 import { equipmentForBoard, playBoard } from './engine.js';
 import { labelAreaGroup, labelLine, settledNote } from './note.js';
 import { areaLineGroups } from './order.js';
@@ -114,7 +115,10 @@ export function createBoardView({ doc, headState, meta, save, store, interaction
         if (!on() || !isStandard(rules())) return false;
         const { gear, weapons } = equipment(state), sheet = readSheet(state);
         // A fight against the foes a fled or lost fight left starts from that fight's exact bars (resume.js), if the Foes block still reads what the board left.
-        const resumed = resumeMembers(store?.receipts?.() ?? [], sheet.foes.filter(isStanding).map(foe => foe.slot), sheet.foes);
+        // (a v1 sheet: the same, from the foes' HP the last lost or fled v1 fight's receipt holds, resume-v1.js)
+        const v1 = sheet.foes.some(foe => foe.v1 === true && foe.filled);   // (a sheet with any v1 foe opens through the v1 kind, which fights only the v1 groups: the old resume is not asked)
+        const resumed = v1 ? resumeFoesV1(store?.receipts?.() ?? [], sheet.foes.filter(foe => foe.v1 === true && foe.filled))
+            : resumeMembers(store?.receipts?.() ?? [], sheet.foes.filter(isStanding).map(foe => foe.slot), sheet.foes);
         // (a fight a pre-check offered opens on the sheet its opening left, and carries the opening's own approach record: interaction/start.js keeps the opening)
         const result = interaction?.open?.(FIGHT_KIND, { rules: rules(), gear, weapons, practice: practice(), rate: rate(), ...(resumed ? { resumed } : {}),
             ...(opening ? { opened: approach?.opened ?? [], approach: structuredClone(approach?.checks ?? []), drop: dropOf(approach) } : {}) });

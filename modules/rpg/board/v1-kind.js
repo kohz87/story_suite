@@ -67,7 +67,8 @@ const mapped = (state, setup, played) => fightResultV1(setup, played.record, { s
 function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     const sheet = readSheet(real(state)), groups = sheet.foes.filter(foe => foe.v1 === true && foe.filled).map(foe => foe.slot);
     if (!sheet.characters.some(standingHero) || !groups.length) return { error: 'There is no fight to open.' };
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }) };
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }),
+        ...(Array.isArray(args.resumed?.foes) && args.resumed.foes.length ? { resumed: true, carried: { foes: structuredClone(args.resumed.foes) } } : {}) };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };
 }

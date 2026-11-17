@@ -1,7 +1,7 @@
 // The New character wizard's Skills step: starting sets and the editable skill rows.
 export function createSkillsStep(ctx) {
     const { snap, skillSetsOf, safe, api, current, draft, h, doc, W, fill, draftSlots, draftCreation, button, put, drawSummary, redraw, body, withSet,
-        setLine, input, CREATION, select, STATS, USES, RANK_NAMES, START_RANKS, mayStartAdept, withSkillPatch, withoutSkill, withSkill } = ctx;
+        setLine, input, CREATION, select, STATS, SKILL_TYPES, RANK_NAMES, RANK_WORDS, START_RANKS, mayStartAdept, withSkillPatch, withoutSkill, withSkill } = ctx;
     // ---- Skills ----
     function drawSkills() {
         const now = snap(), sets = skillSetsOf({
@@ -46,7 +46,7 @@ export function createSkillsStep(ctx) {
         const rows = h(doc, 'div', 'rpg-wiz-rows');
         body.appendChild(rows);
         const head = h(doc, 'div', 'rpg-wiz-row rpg-wiz-headrow');
-        for (const label of [W.colSkill, W.colAbout, W.colStat, W.colUses, W.colType, W.colStart, '']) head.appendChild(h(doc, 'span', 'rpg-wiz-colhead', label));
+        for (const label of [W.colSkill, W.colAbout, W.colStat, W.colType, W.colStart, '']) head.appendChild(h(doc, 'span', 'rpg-wiz-colhead', label));
         rows.appendChild(head);
         draft().skills.forEach((skill, at) => {
             const label = skill.name || W.newSkill;
@@ -60,14 +60,12 @@ export function createSkillsStep(ctx) {
             about.setAttribute('data-field', 'about');
             const stat = select([...(skill.stat ? [] : [{ value: '', label: '—' }]), ...STATS.map(key => ({ value: key, label: key.toUpperCase() }))], skill.stat ?? '', fill(W.skillStat, { name: label }));
             stat.setAttribute('data-field', 'stat');
-            const uses = select(USES.map(key => ({ value: key, label: W[key] })), skill.uses, fill(W.skillUses, { name: label }));
-            uses.setAttribute('data-field', 'uses');
-            // Combat or utility (utility: for the story only, off the fight board): the pool that is full refuses the change and the row goes back.
-            const type = select(['combat', 'utility'].map(key => ({ value: key, label: key === 'utility' ? W.typeUtility : W.typeCombat })), skill.type === 'utility' ? 'utility' : 'combat', fill(W.skillType, { name: label }));
+            // The skill's type (the eight of Combat Rules v1; utility is for the story only, off the fight board): the pool that is full refuses the change and the row goes back.
+            const type = select(SKILL_TYPES.map(({ key, label: words }) => ({ value: key, label: words })), skill.type ?? 'attack', fill(W.skillType, { name: label }));
             type.setAttribute('data-field', 'type');
             // A rank the file gave is shown and cannot be changed; a new skill starts at Novice or (for one) Adept.
             const ranked = Number.isSafeInteger(skill.rank);
-            const start = ranked ? select(RANK_NAMES.map((name, rank) => ({ value: rank, label: name, disabled: true })), skill.rank, fill(W.skillStart, { name: label }))
+            const start = ranked ? select(RANK_WORDS.map((name, rank) => ({ value: rank, label: name, disabled: true })), skill.rank, fill(W.skillStart, { name: label }))
                 : select(START_RANKS.map(rank => ({ value: rank, label: RANK_NAMES[rank], disabled: rank === 1 && !mayStartAdept(draft(), at) })), skill.start, fill(W.skillStart, { name: label }));
             start.setAttribute('data-field', 'start');
             if (ranked) start.disabled = true;
@@ -75,15 +73,14 @@ export function createSkillsStep(ctx) {
             name.addEventListener('input', () => patch({ name: name.value }));
             about.addEventListener('input', () => patch({ about: about.value }));
             stat.addEventListener('change', () => patch({ stat: stat.value }));
-            uses.addEventListener('change', () => patch({ uses: uses.value }));
             type.addEventListener('change', () => { patch({ type: type.value }); redraw(); });
             start.addEventListener('change', () => { patch({ start: Number(start.value) }); redraw(); });
-            row.append(name, about, stat, uses, type, start);
+            row.append(name, about, stat, type, start);
             const remove = button(row, '', 'rpg-wiz-x', () => { put(withoutSkill(draft(), at)); drawSummary(); redraw(); });
             remove.setAttribute('aria-label', fill(W.remove, { name: label }));
             // A signature skill (a pack's cast member brought it): the pencil's rules, its name and what it does may be fixed; the stat, resource and rank stay and it cannot be taken out.
             if (skill.sig === true) {
-                for (const control of [stat, uses, type, start, remove]) control.disabled = true;
+                for (const control of [stat, type, start, remove]) control.disabled = true;
                 row.setAttribute('data-signature', 'true');
             }
             remove.appendChild(h(doc, 'span', '', '×'));
@@ -93,7 +90,7 @@ export function createSkillsStep(ctx) {
         const add = h(doc, 'div', 'rpg-wiz-add');
         const addButton = button(add, W.add, 'ss-button rpg-wiz-add-button', () => { put(withSkill(draft())); drawSummary(); redraw(); });
         addButton.disabled = left <= 0;
-        add.appendChild(h(doc, 'p', 'rpg-wiz-note', `${left <= 0 ? W.slotsFull : left === 1 ? W.slotLeft : fill(W.slotsLeft, { n: left })} ${draftCreation(now).standard ? W.skillsNoteStandard : W.skillsNote}`));
+        add.appendChild(h(doc, 'p', 'rpg-wiz-note', `${left <= 0 ? W.slotsFull : left === 1 ? W.slotLeft : fill(W.slotsLeft, { n: left })} ${W.skillsNoteStandard}`));
         body.appendChild(add);
     }
 

@@ -62,7 +62,7 @@ test('a bad file is refused in plain words and the wizard is left exactly as it 
         ['notes.txt', 'just some words', /not a saved character: the file could not be read\./],
         ['pack.json', JSON.stringify({ id: 'a-pack' }), /not a saved character file\./],
         ['future.json', JSON.stringify({ ...JSON.parse(SAVED), [CHAR_FILE]: 2 }), /newer version/],
-        ['stat.json', JSON.stringify({ ...JSON.parse(SAVED), stats: { ...JSON.parse(SAVED).stats, luk: 99 } }), /no valid LUK \(1 to 20\)/],
+        ['stat.json', JSON.stringify({ ...JSON.parse(SAVED), stats: { ...JSON.parse(SAVED).stats, wis: 99 } }), /no valid WIS \(1 to 30\)/],
         ['money.json', JSON.stringify({ ...JSON.parse(SAVED), money: -1 }), /money in the file is not a whole number/],
         ['empty.json', '', /file is empty/],
     ];
@@ -109,7 +109,7 @@ test('a file with no things or money says nothing about them; one with them says
     let review = await goTo(dialog, 'review');
     assert.equal(review.querySelector('[data-review="import-also"]'), null);
     assert.match(review.textContent, /Starts at Lv 15 \(imported\), 0 XP, full Health, Mana and Stamina\./);
-    assert.match(review.textContent, /Iron Breath · VIT · Stamina · starts at Expert/);
+    assert.match(review.textContent, /Iron Breath · VIT · Stamina · starts at Adept/);
     assert.match(review.textContent, /3 unspent points go to Spend points on the Party tab\./);
     dialog.close();
 
@@ -177,10 +177,10 @@ test('Create makes the Character and Skills blocks from the file, adds the thing
     assert.deepEqual(names(ctx.host), [...blocksBefore, 'pack.chat/combat-rules', 'pack.chat/foes', 'pack.chat/ren', 'pack.chat/ren-skills'].sort());
 
     const ren = fieldsOf(ctx.host, 'pack.chat/ren'), skills = fieldsOf(ctx.host, 'pack.chat/ren-skills');
-    assert.deepEqual([ren.who, ren.about, ren.level, ren.points, ren.xp, ren.health, ren.mana, ren.stamina, ren.alive], ['Ren', 'A ferry hand from Low Quay.', 15, 3, 0, 12, 10, 12, true],
-        'the file\'s level and points; the reader\'s name and who they are; XP 0 and full bars (they grow with VIT, INT and AGI)');
+    assert.deepEqual([ren.who, ren.about, ren.level, ren.points, ren.xp, ren.hp, ren.mp, ren.sp, ren.alive], ['Ren', 'A ferry hand from Low Quay.', 15, 3, 0, 16, 15, 17, true],
+        'the file\'s level and points; the reader\'s name and who they are; XP 0 and full bars (HP from VIT, MP from INT and WIS, SP from STR and AGI, and the level)');
     assert.deepEqual(STATS.map(stat => ren[stat]), [14, 12, 11, 10, 8, 9, 10]);
-    assert.deepEqual([skills.who, skills.skill1, skills.about1, skills.stat1, skills.uses1, skills.rank1, skills.practice1, skills.skill2, skills.rank2, skills.skill3], ['Ren', 'Iron Breath', 'Steadies the lungs in a long fight.', 'vit', 'stamina', 2, 0, 'Short blade', 0, '']);
+    assert.deepEqual([skills.who, skills.skill1, skills.about1, skills.stat1, skills.type1, skills.rank1, skills.practice1, skills.skill2, skills.rank2, skills.skill3], ['Ren', 'Iron Breath', 'Steadies the lungs in a long fight.', 'vit', 'attack', 2, 200, 'Short blade', 0, '']);
     assert.deepEqual(carried(ctx.host), ['Bedroll', 'Oilskin Coat', 'Torch ×2']);
     const coat = ctx.host.sdk.query('inventory.items', {}).find(item => item.name === 'Oilskin Coat');
     assert.deepEqual([coat.note, coat.kind, coat.rarity, coat.owner, coat.equipped], ['waxed, a little too big', 'equipment', 'uncommon', 'party', null], 'the note, kind and rarity the file kept');
@@ -188,7 +188,7 @@ test('Create makes the Character and Skills blocks from the file, adds the thing
 
     // The Party tab shows Ren with the imported sheet.
     const card = party(ctx.doc).querySelector('.rpg-card[data-character="Ren"]');
-    assert.match(card.textContent, /Iron Breath \(Expert\) · Short blade \(Novice\)/);
+    assert.match(card.textContent, /Iron Breath \(Adept\) · Short blade \(Novice\)/);
     assert.match(card.textContent, /3 points to spend/);
 
     await reload(ctx.host);

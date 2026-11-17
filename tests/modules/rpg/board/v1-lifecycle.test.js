@@ -11,9 +11,9 @@ const linesAt = (host, index) => rollReceipt(host, index)?.data?.v2?.result?.lin
 const fightIn = (host, index) => rollReceipt(host, index);
 const session = host => host.ctx.chatMetadata.storySuiteInteraction?.open ?? null;
 
-test('a v1 fight on the port replays as live across swipe, swipe back, edited Re-read, rewind, middle delete, reload and chat change', async () => {
+for (const built of [false, true]) test(`a v1 fight on the port${built ? ' (a sheet the wizard built)' : ''} replays as live across swipe, swipe back, edited Re-read, rewind, middle delete, reload and chat change`, async () => {
     const restore = seedCrypto(77);
-    const { host, callModel } = await v1Host({ count: 5, level: 8 });
+    const { host, callModel } = await v1Host({ count: 5, level: 8, built });
     // The Fight tab's view (the kind's `view`, what `interaction.view` answers) is the same live, after a rebuild and after a reload.
     const viewOf = () => (host.ctx.chatMetadata.storySuiteInteraction?.open ? JSON.stringify(boardApi(host.ctx.chatMetadata, () => host.head(), host.store.carrierSid(host.store.headIndex())).current()?.view ?? null) : null);
     const same = async label => {

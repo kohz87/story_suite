@@ -34,6 +34,7 @@ export function growthText(growth, soakVit = null) {
 
 /** The choices of a bar's edit (the pencil): every count from empty to full, "Hurt · 4/6" for a block bar, the stage word for a stage bar. */
 export function barOptions(key, schema, bar, fields, fieldKey = key) {
+    if (bar?.numbers) return Array.from({ length: bar.max + 1 }, (_, value) => ({ value, label: `${value} of ${bar.max}` }));
     if (bar?.blocks) return Array.from({ length: bar.max + 1 }, (_, value) => ({ value, label: fill(RPG_STRINGS.blocks.of, { word: spreadWord(wordsOf(barOf(schema)), value, bar.max), n: value, max: bar.max }) }));
     return Array.from({ length: bar.max + 1 }, (_, value) => ({ value, label: stageWord(key, schema, value) }));
 }

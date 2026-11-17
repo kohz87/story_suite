@@ -42,12 +42,12 @@ test('skills are refused: not a list, empty, too many, a repeat, an unknown key,
     refused([one({ about: 'a <b> tag' })], 'content.cast[0].skills[0].about');
     refused([person({ skills: [7] })], 'content.cast[0].skills[0]');
     // the cast problem prefix, like every other cast problem
-    assert.match(refused([one({ stat: 'wis' })], 'content.cast[0].skills[0].stat').message, /^Cast "Mara": /);
+    assert.match(refused([one({ stat: 'hp' })], 'content.cast[0].skills[0].stat').message, /^Cast "Mara": /);
     assert.match(dup.message, /^Cast "Mara": /);
 });
 
 test('the pack checker\'s lists are the RPG\'s: the seven stats and the most slots a character can hold', () => {
-    assert.deepEqual([...CAST_SKILL_STATS], [...STATS]);
+    assert.deepEqual([...CAST_SKILL_STATS].filter(stat => stat !== 'luk'), [...STATS], 'the seven stats (and LUK, which a v1 sheet reads as WIS, so an earlier pack still loads)');
     assert.equal(CAST_LIMITS.skills, SKILL_SLOTS_MAX);
     assert.equal(CAST_LIMITS.skillName, 40);
     assert.equal(CAST_LIMITS.skillAbout, 120);

@@ -1,8 +1,8 @@
 // The seven stats and the stat a check's skill word suggests.
 
-export const STATS = Object.freeze(['STR', 'VIT', 'AGI', 'DEX', 'INT', 'LUK', 'CHA']);
+export const STATS = Object.freeze(['STR', 'VIT', 'AGI', 'DEX', 'INT', 'WIS', 'CHA']);
 
-// Skill words -> the stat that answers them; a stat's own name works too. Anything else is luck.
+// Skill words -> the stat that answers them; a stat's own name works too. Anything else is WIS (what luck was before Combat Rules v1).
 const STAT_WORDS = [
     ['STR', /\b(?:athletic\w*|strength|str|climb\w*|lift\w*|force\w*|break\w*|smash\w*|push\w*|pull\w*|swim\w*|grapple\w*|wrestl\w*|carry\w*|bend\w*)\b/],
     ['VIT', /\b(?:endur\w*|vit|vitality|constitution|resist\w*|stamina|toughness|fortitude|surviv\w*|hold (?:out|breath)|drink\w*|march\w*)\b/],
@@ -10,15 +10,15 @@ const STAT_WORDS = [
     ['DEX', /\b(?:stealth\w*|dex|dexterity|sneak\w*|hide|hiding|lock\w*|pick\w*|sleight\w*|aim\w*|throw\w*|craft\w*|disarm\w*|pickpocket\w*|thiev\w*|ride|riding)\b/],
     ['INT', /\b(?:int|intelligence|lore|arcan\w*|knowledge|history|investigat\w*|search\w*|study\w*|recall\w*|decipher\w*|magic|medicine|heal\w*|notice\w*|percept\w*|spot\w*|track\w*|insight\w*)\b/],
     ['CHA', /\b(?:cha|charisma|persua\w*|decept\w*|deceiv\w*|lie|lying|bluff\w*|intimidat\w*|charm\w*|haggl\w*|barter\w*|perform\w*|negotiat\w*|convinc\w*|seduc\w*|command\w*|lead\w*)\b/],
-    ['LUK', /\b(?:luk|luck\w*|chance|gambl\w*|fortune|guess\w*)\b/],
+    ['WIS', /\b(?:wis|wisdom|luk|luck\w*|chance|gambl\w*|fortune|guess\w*|intuit\w*|willpower|will|sense\w*)\b/],
 ];
 
-/** The stat a check uses: a written stat name, else the one its skill word suggests, else LUK. */
+/** The stat a check uses: a written stat name, else the one its skill word suggests, else WIS. */
 export function statForCheck(skill, stat = null) {
     const written = String(stat ?? '').trim().toUpperCase();
     if (STATS.includes(written)) return written;
     const word = String(skill ?? '').trim();
     if (STATS.includes(word.toUpperCase())) return word.toUpperCase();
     const text = ` ${word.toLowerCase()} `;
-    return STAT_WORDS.find(([, pattern]) => pattern.test(text))?.[0] ?? 'LUK';
+    return STAT_WORDS.find(([, pattern]) => pattern.test(text))?.[0] ?? 'WIS';
 }

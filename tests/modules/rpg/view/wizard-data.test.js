@@ -27,10 +27,10 @@ test('the budget: a stat above 5 costs a point a step, none goes below 5, up to 
     assert.equal(pointsLeft(readDraft({ ...draft, stats: { ...draft.stats, str: 10, vit: 3, agi: 3 } })), 10 - 5, 'a stat below 5 is held at 5 and frees no point');
     const odd = readDraft({ name: `  ${'x'.repeat(60)}  `, kind: 'boss', about: 'y'.repeat(300), stats: { str: 99, vit: 1, agi: 12.5, dex: 'ten' }, skills: 'many', set: 7 });
     assert.deepEqual([odd.name.length, odd.kind, odd.about.length, odd.set], [40, 'you', 240, '']);
-    assert.deepEqual([odd.stats.str, odd.stats.vit, odd.stats.agi, odd.stats.dex, odd.stats.luk], [10, 5, 5, 5, 5], 'clamped to 5 to 10, a bad value is the start');
+    assert.deepEqual([odd.stats.str, odd.stats.vit, odd.stats.agi, odd.stats.dex, odd.stats.wis], [10, 5, 5, 5, 5], 'clamped to 5 to 10, a bad value is the start');
     assert.deepEqual(odd.skills, []);
     assert.deepEqual(readDraft(null).stats, newDraft().stats);
-    assert.equal(statsLine(newDraft()), 'STR 5 · VIT 5 · AGI 5 · DEX 5 · INT 5 · LUK 5 · CHA 5');
+    assert.equal(statsLine(newDraft()), 'STR 5 · VIT 5 · AGI 5 · DEX 5 · INT 5 · WIS 5 · CHA 5');
 });
 
 test('at most five skills and at most one at Adept, however the draft got there', () => {
@@ -94,10 +94,10 @@ test('Create\'s two definitions come from the templates with the wizard\'s value
     assert.deepEqual(blockNames('Wessel'), { character: 'Wessel', skills: 'Wessel\'s skills' });
     const state = character.state;
     assert.deepEqual([state.who.default, state.about.default, state.str.default, state.vit.default, state.agi.default, state.dex.default, state.int.default], ['Wessel', 'A drill-yard washout.', 9, 7, 6, 5, 3]);
-    assert.deepEqual([state.points.default, state.level.default, state.xp.default, state.health.default, state.mana.default, state.stamina.default, state.alive.default], [5, 1, 0, 10, 8, 10, true], 'full bars (they grow with VIT, AGI and INT), Level 1, 0 XP and the unspent points');
+    assert.deepEqual([state.points.default, state.level.default, state.xp.default, state.hp.default, state.mp.default, state.sp.default, state.alive.default], [5, 1, 0, 8, 10, 11, true], 'full bars (HP from VIT, MP from INT and WIS, SP from STR and AGI), Level 1, 0 XP and the unspent points');
     assert.deepEqual([state.cap.default, state.soul], [99, undefined], 'the cap is 99 unless the story says another; no Soul Class');
     const sk = skills.state;
-    assert.deepEqual([sk.who.default, sk.skill1.default, sk.about1.default, sk.stat1.default, sk.uses1.default, sk.rank1.default, sk.practice1.default], ['Wessel', 'Short blade', FIGHTER.skills[0].about, 'agi', 'stamina', 1, 0], 'the Adept one starts at rank 1');
+    assert.deepEqual([sk.who.default, sk.skill1.default, sk.about1.default, sk.stat1.default, sk.type1.default, sk.rank1.default, sk.practice1.default], ['Wessel', 'Short blade', FIGHTER.skills[0].about, 'agi', 'attack', 2, 200], 'the Adept one starts at rank 2 with the practice of it');
     assert.deepEqual([sk.rank2.default, sk.rank3.default, sk.skill4.default, sk.rank4.default], [0, 0, '', 0]);
     assert.equal(sk.rank1.edit, false, 'rank stays a field only play can move');
     assert.equal(sk.practice1.edit, false);

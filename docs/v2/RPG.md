@@ -42,7 +42,7 @@ reply that was rolled. **See it in the story** closes the game view and scrolls 
 
 ### The fight board
 
-The board is on by default and is offered under the Standard rules. Its switch is in
+The board is on by default; Combat Rules v1 is the only rules a chat is made with. Its switch is in
 **Settings → RPG** and **Settings → Features**. When a reply introduces foes, a line beneath it offers **Fight on the board** or
 **Auto-fight**, and a dot marks the Fight tab while the offer is open. The board remains available in the Fight tab.
 
@@ -324,7 +324,7 @@ label may carry its own `names`, which is how the story's words reach a value it
 
 ### Doubled bars (new chats)
 
-A Character made in a new chat (the chooser, the wizard, an import, a first companion) is pinned with `scale: 2` on its three bars (`templates-bars.js scaledCharacter`; the frozen old Character is `characterV1For()`). Each bar is twice as long, and the stored value counts blocks left:
+**Since Combat Rules v1 became the only rules, a Character made in a new chat (the chooser, the wizard, an import, a first companion) is the v1 one (`templates-parts/v1-character.js`: HP, MP and SP as numbers, WIS, stats to 30); what follows describes the earlier Character, which a chat made under the earlier rules still holds.** The earlier Character made in a new chat was pinned with `scale: 2` on its three bars (`templates-bars.js scaledCharacter`; the frozen old Character is `characterV1For()`). Each bar is twice as long, and the stored value counts blocks left:
 **Health 2 x (4 + VIT/5), Stamina 2 x (4 + AGI/5), Mana 2 x (4 + INT/5)**, the stat divided and rounded down (`formula.js blocksFor(stats, scale)`). A character made fresh starts at 10 / 10 / 10; the most is 16 each, at a base stat of 20. Bars read the base stats: gear never grows a bar. Pack-defined characters keep their own sizes; a pinned bar with no mark keeps the old sizes, byte for byte. Rules and prompts name stage words only, never a block count.
 
 Look: every Health, Stamina and Mana bar (old pins too) is one smooth strip, red, green and blue, with the word and the number ("Hurt · 5/10"). The strip shortens with the value and dulls at 3/4 and at 1/3 (`view/widgets/dom.js barStep`, `lean-rpg/view/bars.css`; Stamina's green is `--ss-sp`, the same token as `--ss-tick`). Old stage bars get the number too.

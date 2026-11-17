@@ -54,6 +54,18 @@ const SCENARIOS = [
         },
     },
     {
+        id: 'v1_blocks_on',
+        title: 'Lean RPG on with the four Combat Rules v1 blocks pinned (their prompts are pinned)',
+        configure: async host => {
+            host.features.set('story-block.rpg', true);
+            const { CHOOSER_TEMPLATES } = await import('../../modules/rpg/templates.js');
+            for (const { definition } of CHOOSER_TEMPLATES) {
+                const done = await host.cmd('dm.define', { definition: structuredClone(definition) });
+                assert.ok(done?.ok !== false, `defining the ${definition.name} block should work: ${JSON.stringify(done)}`);
+            }
+        },
+    },
+    {
         id: 'story_director_off',
         title: 'Story Director features off (all story-director.* features = false)',
         configure: host => {

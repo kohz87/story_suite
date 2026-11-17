@@ -1,5 +1,5 @@
 // The Skills template: the base block, the Standard one with the learn guard, the frozen earlier forms, and the additive upgrade.
-import { CREATION, STATS, USES } from '../names.js';
+import { CREATION, STATS_EARLIER as STATS, USES } from '../names.js';
 import { SIGNATURE_FIELD, SKILL_SLOTS_MAX } from '../../../core/runtime/skill-slots.js';
 import { typedSkills } from '../templates-skills.js';
 import { names } from './shared-names.js';

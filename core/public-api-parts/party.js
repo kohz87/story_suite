@@ -3,7 +3,7 @@
 import { activeDefinition } from '../../modules/data-modules/adapters.js';
 import { readSheet } from '../../modules/rpg/read.js';
 import { rosterOf } from '../../modules/rpg/roster.js';
-import { STAGES, STATS } from '../../modules/rpg/names.js';
+import { STAGES, STATS_ANY as STATS } from '../../modules/rpg/names.js';
 import { barOf, spreadWord, wordsOf } from '../../modules/rpg/blocks.js';
 import { fold } from './shared-basics.js';
 import { put } from './shared-put.js';

@@ -1,5 +1,5 @@
 // The gear mark a roll's payload carries and the check that a gear record is one this version reads.
-import { STATS } from '../names.js';
+import { STATS_ANY as STATS } from '../names.js';
 import { GEAR_VERSION } from './shared-marks.js';
 import { MEMBERS_MAX, OWN_MAX, ITEMS_MAX, NAME_MAX } from './shared-caps.js';
 import { isObject } from './shared-helpers.js';

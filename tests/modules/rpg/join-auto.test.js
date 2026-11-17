@@ -293,7 +293,7 @@ test('a Re-read keeps the old pin of a first companion even when the prefix has 
     t.after(() => { setRpgLib(leanRpg); host.close(); });
     // Permit a historical first-join line through the current grammar gate and capture it with the old scale.
     // The gate reads the live head; planning reads a prefix object without meta, so the first-join setup stays real.
-    setRpgLib({ ...leanRpg, joinScale: () => 1, partyOf: state => {
+    setRpgLib({ ...leanRpg, joinScale: () => 1, joinRules: () => 'standard', partyOf: state => {
         const party = leanRpg.partyOf(state);
         return !party.length && state?.meta ? [{ name: 'Gate' }] : party;
     } });

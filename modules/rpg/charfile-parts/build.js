@@ -1,8 +1,9 @@
 // Builds a saved character file from a character and words its text and file name.
 
-import { STATS } from '../names.js';
+import { STATS_V1 } from '../names.js';
 import { SKILL_FIELDS_MAX } from '../../../core/runtime/skill-slots.js';
 import { classOfLevel, levelOfClass } from '../formula.js';
+import { SKILL_TYPE_NAMES } from '../templates-combat.js';
 import { CHAR_FILE, CHAR_VERSION, FILE_LIMITS } from './limits.js';
 import { whole } from './shared-reading.js';
 
@@ -15,8 +16,8 @@ export function buildCharacterFile({ level, soul, points, stats, skills = [], it
     const shown = Number.isSafeInteger(level) ? level : levelOfClass(soul);
     const file = {
         [CHAR_FILE]: CHAR_VERSION, level: shown, soul: Number.isSafeInteger(soul) ? soul : classOfLevel(shown), points,
-        stats: Object.fromEntries(STATS.map(stat => [stat, stats[stat]])),
-        skills: skills.slice(0, SKILL_FIELDS_MAX).map(skill => ({ name: skill.name, about: skill.about, ...(STATS.includes(skill.stat) ? { stat: skill.stat } : {}), uses: skill.uses, rank: skill.rank, ...(skill.type === 'utility' ? { type: 'utility' } : {}) })),
+        stats: Object.fromEntries(STATS_V1.map(stat => [stat, stats[stat]])),
+        skills: skills.slice(0, SKILL_FIELDS_MAX).map(skill => ({ name: skill.name, about: skill.about, ...(STATS_V1.includes(skill.stat) ? { stat: skill.stat } : {}), uses: skill.uses, rank: skill.rank, ...(SKILL_TYPE_NAMES.includes(skill.type) && skill.type !== 'attack' ? { type: skill.type } : {}) })),
     };
     if (Array.isArray(items)) {
         file.items = items.map(item => ({ name: item.name, qty: item.qty, ...(item.note ? { note: item.note } : {}),

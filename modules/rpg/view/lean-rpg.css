@@ -151,7 +151,7 @@
 .rpg-wiz-card-src { font-size: 11px; color: var(--ss-muted); margin-top: auto; }
 .rpg-wiz-tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--ss-badge); color: var(--ss-badge-text); font-weight: 700; }
 .rpg-wiz-rows { display: grid; gap: 8px; }
-.rpg-wiz-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr) 78px 104px 104px 104px 36px; gap: 8px; align-items: center; }
+.rpg-wiz-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr) 78px 124px 104px 36px; gap: 8px; align-items: center; }
 .rpg-wiz-colhead { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ss-muted); }
 .rpg-wiz-x { width: 36px; height: 36px; border: 0; background: transparent; color: var(--ss-muted); cursor: pointer; font-size: 18px; }
 .rpg-wiz-add { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 8px; }

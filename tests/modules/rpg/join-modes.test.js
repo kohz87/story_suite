@@ -18,7 +18,10 @@ test('the party line is read: name, about (240, whole characters), class I to IX
     assert.equal(readJoin({ op: '+', name: 'Mara', labels: { class: '7' } }).soul, 7);
     assert.equal(readJoin({ op: '-', name: 'Mara' }).op, '-');
     assert.match(readJoin({ op: '+', name: 'Mara', labels: { class: 'X' } }).error, /class must be a Soul Class from I to IX/);
-    assert.match(readJoin({ op: '+', name: 'Mara', labels: { best: 'wits' } }).error, /best must be one of str, vit, agi, dex, int, luk, cha/);
+    assert.match(readJoin({ op: '+', name: 'Mara', labels: { best: 'wits' } }).error, /best must be one of str, vit, agi, dex, int, wis, cha/);
+    assert.match(readJoin({ op: '+', name: 'Mara', labels: { best: 'luk' } }).error, /best must be one of str, vit, agi, dex, int, wis, cha/, 'LUK is gone');
+    assert.equal(readJoin({ op: '+', name: 'Mara', labels: { best: 'luk' } }, null, 'standard').best, 'luk', 'a chat made under the earlier rules still reads it');
+    assert.equal(readJoin({ op: '+', name: 'Mara', labels: { best: 'WIS' } }).best, 'wis');
     assert.match(readJoin({ op: '!', name: 'Mara', labels: {} }).error, /not a party line/);
     assert.match(readJoin({ op: '+', name: '', labels: {} }).error, /needs a name/);
     assert.match(readJoin({ op: '+', name: 'M'.repeat(41), labels: {} }).error, /at most 40 characters/);
@@ -37,17 +40,17 @@ test('the setting: Ask by default, then Automatically or Off; anything else is A
     assert.equal(joinGrammar().includes('\n'), false, 'one line, as every kind\'s');
 });
 
-test('what a joining companion is made of: stats 5, the best one 9 and a point for every third level, no points left, Soul Class as given (capped by the party), an empty Skills block', () => {
-    const draft = joinDraft({ name: 'Mara', about: 'a hedge-witch', soul: 4, best: 'int' }, STANDARD);
+test('what a joining companion is made of (a chat made under the earlier rules): stats 5, the best one 9 and a point for every third level, no points left, Soul Class as given (capped by the party), an empty Skills block', () => {
+    const draft = joinDraft({ name: 'Mara', about: 'a hedge-witch', soul: 4, best: 'int' }, STANDARD, 'standard');
     assert.deepEqual([draft.kind, draft.name, draft.about, draft.level, draft.stats.int, draft.stats.str], ['companion', 'Mara', 'a hedge-witch', 35, 15, 5]);
-    assert.equal(joinDraft({ name: 'Mara', best: 'wits' }, STANDARD).stats.int, 5, 'a best that is no stat raises nothing');
-    const made = joinDefinitions({ name: 'Mara', about: 'a hedge-witch', soul: 4, best: 'int' }, { used: ['pack.chat/wessel'], soul: 3, rules: STANDARD });
+    assert.equal(joinDraft({ name: 'Mara', best: 'wits' }, STANDARD, 'standard').stats.int, 5, 'a best that is no stat raises nothing');
+    const made = joinDefinitions({ name: 'Mara', about: 'a hedge-witch', soul: 4, best: 'int' }, { used: ['pack.chat/wessel'], soul: 3, rules: STANDARD, kind: 'standard' });
     const state = made.character.state;
     assert.deepEqual([made.character.slug, made.character.role, state.int.default, state.vit.default, state.points.default, state.level.default, state.health.default, state.mana.default, state.stamina.default, state.left.default], ['mara', 'character', 13, 5, 0, 25, 10, 12, 10, false]);
     assert.equal(made.skills.role, 'skills');
     assert.equal(made.skills.state.who.default, 'Mara');
     for (let n = 1; n <= 5; n += 1) assert.equal(made.skills.state[`skill${n}`].default, '', `skill ${n} is empty`);
-    assert.equal(joinDefinitions({ name: 'Mara', about: '', soul: 1, best: '' }, { used: ['pack.chat/mara'], rules: STANDARD }).character.slug, 'mara-2', 'a free slug');
+    assert.equal(joinDefinitions({ name: 'Mara', about: '', soul: 1, best: '' }, { used: ['pack.chat/mara'], rules: STANDARD, kind: 'standard' }).character.slug, 'mara-2', 'a free slug');
 });
 
 test('checkJoin: the name is taken, the party is full (8 active; an old reply counts those who left), there is no room for two blocks, someone who left comes back, class is capped', () => {

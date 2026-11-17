@@ -1,5 +1,5 @@
 // Reads one Character, one Skills block and one Foes block's fields into the sheet's plain records.
-import { FOE_SLOTS, LEVEL, STATS, USES } from '../names.js';
+import { FOE_SLOTS, LEVEL, STATS_EARLIER as STATS, USES } from '../names.js';
 import { skillFieldSlots, skillTypeOf } from '../../../core/runtime/skill-slots.js';
 import { barOf, characterBars, scaleOf, sizeOf } from '../blocks.js';
 import { soulReading } from '../soul.js';

@@ -11,7 +11,7 @@
 // Pure: no DOM, no state. `summaryOf` (data-modules/part.js) calls it for a block with a role and cuts the result to the block's room.
 
 import { barOf, characterBars, sizeOf, spreadWord, wordsOf } from './blocks.js';
-import { STATS } from './names.js';
+import { STATS_ANY as STATS } from './names.js';
 import { skillFieldSlots, skillTypeOf } from '../../core/runtime/skill-slots.js';
 import { oneLine } from '../../core/text.js';
 

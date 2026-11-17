@@ -1,5 +1,5 @@
-// The Character, Skills and Foes definitions of Combat Rules v1 (data only), in the chooser's order. NOT offered by the chooser yet: STANDARD_TEMPLATES still holds the earlier
-// definitions, and the switch to these is one line in templates.js, made with the board wiring (the combat plan's C6). Public face: re-exports its parts.
+// The Character, Skills and Foes definitions of Combat Rules v1 (data only), in the chooser's order. Every chat and every new sheet is made from them (templates.js CHOOSER_TEMPLATES);
+// STANDARD_TEMPLATES still holds the earlier definitions, for reading earlier chats. Public face: re-exports its parts.
 import { characterV1 } from './templates-parts/v1-character.js';
 import { skillsV1 } from './templates-parts/v1-skills.js';
 import { foesV1 } from './templates-parts/v1-foes.js';

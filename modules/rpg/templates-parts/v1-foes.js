@@ -1,6 +1,6 @@
 // The Foes block of Combat Rules v1: up to six foe groups, one slot each: a name, a count (0 = empty slot, at most six: combat/numbers.js foe.groupMax), a level 1 to 99 and a
 // tier (mob, minion, standard, elite, boss, apex). The narrator only sets a slot and clears it; it never writes a hurt: each foe's own HP is the board's (combat/foes.js foeMembers).
-// A slot clears as down, fled, gone or captured (no yield). Pure data; not offered by the chooser yet.
+// A slot clears as down, fled, gone or captured (no yield). Pure data.
 import { V1 } from '../combat/numbers.js';
 import { get, int, range, text } from './shared-fields.js';
 import { TIER_NAMES } from './v1-shared.js';

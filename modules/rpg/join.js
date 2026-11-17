@@ -12,6 +12,6 @@ export { joinMode, checkJoin } from './join-parts/check.js';
 export { joinGrammar, joinGrammarOwn, soulOf, readJoin } from './join-parts/line.js';
 export { JOIN_NO, JOIN_BENCH, JOIN_ADD } from './join-parts/commands.js';
 export { soulNaming, partyOf, partyCap, benchable } from './join-parts/party.js';
-export { joinDraft, joinDefinitions, joinScale } from './join-parts/draft.js';
+export { joinDraft, joinDefinitions, joinScale, joinRules } from './join-parts/draft.js';
 export { joinOffers } from './join-parts/offers.js';
 export { joinCard } from './join-parts/card.js';

@@ -1,6 +1,6 @@
 // The lines for a reply's receipts: companions who joined or left, the XP a won fight gave, and the practice the rolls earned.
 
-import { CHECK_STEP, FIGHT, PRACTICE_STEP, RANK_NAMES, STATS, USES } from '../../index.js';
+import { CHECK_STEP, FIGHT, PRACTICE_STEP, RANK_NAMES, STATS_ANY as STATS, USES } from '../../index.js';
 import { RPG_STRINGS, fill } from '../../strings.js';
 import { isRecord, list, words, line } from './shared-line.js';
 

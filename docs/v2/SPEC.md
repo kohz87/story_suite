@@ -905,7 +905,7 @@ A module may add `interactions: { [kind]: KindDef }`; the full id is `<moduleId>
 - **Storage:** unsent scratch in `chatMetadata.storySuiteInteraction` (not game state); the seed, steps, setup, witness and recorded policy in the receipt's `replan.payload`. Swipe, middle delete, rewind, reload and Re-read all replay the stored payload (§2.2, §3.2).
 - **Policy:** `STORY_ACTION_POLICY` (`core/interaction/policy.js`): own character only, except kinds in `partyKinds` (fights: every party member, permanently).
 - **Guard mark:** `;kinds:<kindId>@<version>:<ready>` is appended for registered kinds (nothing with none).
-- **Built:** one kind, the fight board, on the old view; the Suite view's scene host and the rules chooser that offers Combat Rules v1 are not on yet. The gate `scripts/checks/core-module-refs.mjs` keeps fight and RPG words out of the core except the lines in `docs/merge/core-module-refs.txt`.
+- **Built:** one kind, the fight board, on the old view; the Suite view's scene host is not on yet. Combat Rules v1 is the only rules: nothing offers the earlier templates. The gate `scripts/checks/core-module-refs.mjs` keeps fight and RPG words out of the core except the lines in `docs/merge/core-module-refs.txt`.
 
 ## 7. Core domains (Story Block)
 

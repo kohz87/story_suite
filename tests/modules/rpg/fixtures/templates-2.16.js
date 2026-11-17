@@ -6,7 +6,7 @@
 // `names` from STAGES; Soul Class and ranks are numbers with names. The block engine adds three things these
 // use: `names` and `prompt: false` on fields, and the `replyEnd` and `cards` lists. The Skills block's rank and practice
 // are `edit: false` (they only move through play); SKILL_SETS are the New character wizard's built-in skill sets.
-import { CREATION, STATS, STAGES, USES } from '../../../../modules/rpg/names.js';
+import { CREATION, STATS_EARLIER as STATS, STAGES, USES } from '../../../../modules/rpg/names.js';
 import { STANDARD_NUMBERS } from '../../../../modules/rpg/formula.js';
 
 const names = (words, first = 0) => Object.fromEntries(words.map((word, index) => [String(index + first), word]));

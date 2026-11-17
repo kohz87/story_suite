@@ -6,7 +6,7 @@ import { CHAR_FILE, FILE_LIMITS, buildCharacterFile, fileNameOf, fileText, itemL
 import { CREATION, STATS } from '../../../modules/rpg/index.js';
 import { buildDefinitions, newDraft, pointsLeft, problemsOf, readDraft, startStats, statBounds, withImport, withoutImport, withSkillPatch, adeptCount } from '../../../modules/rpg/view/wizard-data.js';
 
-const STAT_VALUES = { str: 14, vit: 12, agi: 11, dex: 10, int: 8, luk: 9, cha: 10 };
+const STAT_VALUES = { str: 14, vit: 12, agi: 11, dex: 10, int: 8, wis: 9, cha: 10 };
 const SKILLS = [
     { name: 'Iron Breath', about: 'Steadies the lungs in a long fight.', stat: 'vit', uses: 'stamina', rank: 2 },
     { name: 'Spark', about: 'A small burst of light.', stat: 'int', uses: 'mana', rank: 0 },
@@ -59,9 +59,9 @@ test('the round trip: what is written is what is read, with the things and money
     assert.equal(write(file), write(good(file)));
 });
 
-test('the limits are the RPG\'s own: Soul Class 1 to 9, points 0 to 60, stats 1 to 20, five skills, the fields\' lengths', () => {
-    const edge = good({ soul: 9, points: 60, stats: Object.fromEntries(STATS.map(stat => [stat, 20])), skills: Array.from({ length: 5 }, (_, n) => ({ name: `S${n}`, about: 'a', stat: 'cha', uses: 'mana', rank: 3 })) });
-    assert.deepEqual([edge.soul, edge.points, edge.stats.str, edge.skills.length, edge.skills[4].rank], [9, 60, 20, 5, 3]);
+test('the limits are the RPG\'s own: Soul Class 1 to 9, points 0 to 60, stats 1 to 30, five skills, the fields\' lengths', () => {
+    const edge = good({ soul: 9, points: 60, stats: Object.fromEntries(STATS.map(stat => [stat, 30])), skills: Array.from({ length: 5 }, (_, n) => ({ name: `S${n}`, about: 'a', stat: 'cha', uses: 'mana', rank: 3 })) });
+    assert.deepEqual([edge.soul, edge.points, edge.stats.str, edge.skills.length, edge.skills[4].rank], [9, 60, 30, 5, 3]);
     const low = good({ soul: 1, points: 0, stats: Object.fromEntries(STATS.map(stat => [stat, 1])), skills: [] });
     assert.deepEqual([low.soul, low.points, low.stats.cha], [1, 0, 1]);
     // Text is one line, cut at the Skills fields' lengths (by whole characters), and control characters go.
@@ -115,7 +115,7 @@ test('a bad file is a plain error and nothing else, and reading never throws', (
     refused({ ...base(), stats: null }, /all seven stats/);
     refused({ ...base(), stats: [] }, /all seven stats/);
     for (const stat of STATS) {
-        refused({ ...base(), stats: { ...STAT_VALUES, [stat]: 21 } }, new RegExp(`no valid ${stat.toUpperCase()} \\(1 to 20\\)`));
+        refused({ ...base(), stats: { ...STAT_VALUES, [stat]: 31 } }, new RegExp(`no valid ${stat.toUpperCase()} \\(1 to 30\\)`));
         refused({ ...base(), stats: { ...STAT_VALUES, [stat]: 0 } }, new RegExp(stat.toUpperCase()));
     }
     const { dex: _dex, ...lacking } = STAT_VALUES;
@@ -123,7 +123,7 @@ test('a bad file is a plain error and nothing else, and reading never throws', (
     // (pinned change, extra skill slots: a file holds up to eleven skills (utility ones too), so the limit named is 11 and twelve are refused)
     refused({ ...base(), skills: 'many' }, /at most 11/);
     refused({ ...base(), skills: Array.from({ length: 12 }, () => SKILLS[0]) }, /at most 11/);
-    refused({ ...base(), skills: [SKILLS[0], { ...SKILLS[1], rank: 4 }] }, /Skill 2 in the file is not valid/);
+    refused({ ...base(), skills: [SKILLS[0], { ...SKILLS[1], rank: 7 }] }, /Skill 2 in the file is not valid/);
     refused({ ...base(), skills: [{ ...SKILLS[0], stat: 'hp' }] }, /Skill 1/);
     refused({ ...base(), skills: [{ ...SKILLS[0], uses: 'rage' }] }, /Skill 1/);
     refused({ ...base(), skills: [{ ...SKILLS[0], name: '   ' }] }, /Skill 1/);
@@ -195,10 +195,10 @@ test('the usual rules still hold after an import: points are spent from the file
     const file = good(sample({ stats: { ...STAT_VALUES, str: 18, cha: 3 } }));
     const { draft } = withImport(typed(), file);
     assert.deepEqual([statBounds(draft, 'str'), statBounds(draft, 'cha'), statBounds(draft, 'vit'), statBounds(newDraft(), 'vit')], [[5, 18], [3, 10], [5, 12], [5, 10]]);   // (the floor is the start, 5; a stat the file had below it stays where it came from)
-    const spent = readDraft({ ...draft, stats: { ...draft.stats, int: 10, luk: 10, dex: 8 } });
-    assert.equal(pointsLeft(spent), 3 - 3 + 2, 'INT +2, LUK +1 and DEX -2');
+    const spent = readDraft({ ...draft, stats: { ...draft.stats, int: 10, wis: 10, dex: 8 } });
+    assert.equal(pointsLeft(spent), 3 - 3 + 2, 'INT +2, WIS +1 and DEX -2');
     assert.equal(readDraft({ ...draft, stats: { ...draft.stats, vit: 15 } }).stats.vit, 12, 'a stat the file had at 12 does not go above it');
-    const clamped = readDraft({ ...draft, stats: { ...draft.stats, str: 20, cha: 1 } });
+    const clamped = readDraft({ ...draft, stats: { ...draft.stats, str: 30, cha: 1 } });
     assert.deepEqual([clamped.stats.str, clamped.stats.cha], [18, 3], 'a hand-made draft is held to the bounds');
     assert.deepEqual(startStats(draft), file.stats, 'Reset goes back to the file\'s stats');
     assert.deepEqual(startStats(newDraft()), Object.fromEntries(STATS.map(stat => [stat, 5])));
@@ -226,12 +226,12 @@ test('Create writes the file\'s ranks into the Skills block, its points and Soul
     const { draft } = withImport({ ...typed(), name: 'Ren' }, good(sample()));
     const { character, skills } = buildDefinitions(readDraft(draft), { used: [] });
     const c = character.state, s = skills.state;
-    assert.deepEqual([c.who.default, c.about.default, c.level.default, c.points.default, c.xp.default, c.health.default, c.str.default, c.int.default], ['Ren', 'A ferry hand from Low Quay.', 15, 3, 0, 12, 14, 8], 'the file\'s Soul Class II is the level it stands for (15)');
-    assert.deepEqual([s.skill1.default, s.rank1.default, s.stat1.default, s.skill2.default, s.rank2.default, s.uses2.default, s.practice1.default, s.skill3.default, s.rank3.default], ['Iron Breath', 2, 'vit', 'Spark', 0, 'mana', 0, '', 0]);
+    assert.deepEqual([c.who.default, c.about.default, c.level.default, c.points.default, c.xp.default, c.hp.default, c.str.default, c.int.default], ['Ren', 'A ferry hand from Low Quay.', 15, 3, 0, 16, 14, 8], 'the file\'s Soul Class II is the level it stands for (15)');
+    assert.deepEqual([s.skill1.default, s.rank1.default, s.stat1.default, s.skill2.default, s.rank2.default, s.type2.default, s.practice1.default, s.skill3.default, s.rank3.default], ['Iron Breath', 2, 'vit', 'Spark', 0, 'attack', 200, '', 0]);
     assert.equal(s.rank1.edit, false, 'rank is still a field only play moves');
     // Unspent points are what is left of the pool after the reader's changes.
-    const spent = readDraft({ ...draft, stats: { ...draft.stats, int: 9, luk: 10 } });
-    assert.equal(buildDefinitions(spent, { used: [] }).character.state.points.default, 1, 'INT +1 and LUK +1 out of 3');
+    const spent = readDraft({ ...draft, stats: { ...draft.stats, int: 9, wis: 10 } });
+    assert.equal(buildDefinitions(spent, { used: [] }).character.state.points.default, 1, 'INT +1 and WIS +1 out of 3');
 });
 
 test('a skill with no stat: written without the key, read from a missing key or null, refused for any other value, and never given one', () => {
@@ -273,4 +273,18 @@ test('a level above 9 survives the file: Lv 40 is written as level 40 (and the c
     refused({ ...base(), level: 100 }, /level/);
     const forty = withImport({ ...typed() }, good({ ...sample(), level: 40, soul: undefined }));
     assert.equal(forty.draft.level, 40, 'import: the wizard starts the character at the file\'s level');
+});
+
+test('a file written before Combat Rules v1 (LUK, no WIS, a skill with uses and no type) reads its LUK as WIS; a v1 file has WIS and the skill type; LUK beside WIS is ignored', () => {
+    const base = { storySuiteCharacter: 1, level: 5, soul: 1, points: 2, stats: { str: 10, vit: 9, agi: 8, dex: 7, int: 6, luk: 13, cha: 5 }, skills: [{ name: 'Cut', about: 'a', stat: 'luk', uses: 'stamina', rank: 1 }] };
+    const old = parseCharacterFile(JSON.stringify(base));
+    assert.equal(old.ok, true);
+    assert.deepEqual([old.file.stats.wis, 'luk' in old.file.stats, old.file.skills[0].stat], [13, false, 'wis']);
+    const both = parseCharacterFile(JSON.stringify({ ...base, stats: { ...base.stats, wis: 4 } }));
+    assert.equal(both.file.stats.wis, 4);
+    const written = buildCharacterFile({ level: 5, soul: 1, points: 2, stats: { ...old.file.stats }, skills: [{ name: 'Mend', about: 'heals', stat: 'wis', uses: 'mana', rank: 5, type: 'heal' }] });
+    assert.deepEqual([written.stats.wis, 'luk' in written.stats, written.skills[0].type, written.skills[0].rank], [13, false, 'heal', 5]);
+    const back = parseCharacterFile(fileText(written));
+    assert.deepEqual([back.ok, back.file.skills[0].type, back.file.skills[0].rank], [true, 'heal', 5]);
+    assert.equal(parseCharacterFile(JSON.stringify({ ...base, stats: { ...base.stats, luk: undefined } })).ok, false, 'no WIS and no LUK is refused');
 });

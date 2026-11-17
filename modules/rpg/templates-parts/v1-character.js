@@ -1,7 +1,7 @@
 // The Character block of Combat Rules v1: seven stats 1 to 30 (WIS, no LUK), HP / MP / SP as plain numbers whose largest value a rule works out from the stats and
 // the level (hidden `hp-max`, `mp-max`, `sp-max`; the formulas are combat/bars.js's), one point to spend per level, the death latch, and the recovery kinds.
 // The story sets HP, MP and SP by a stage word (a share of the largest value) and can only lower them; a rest, a full rest or a heal raises them.
-// Its fields are `hp`, `mp`, `sp`, so the stage-bar layout of the earlier Character (`health`, `mana`, `stamina`) never applies. Pure data; not offered by the chooser yet.
+// Its fields are `hp`, `mp`, `sp`, so the stage-bar layout of the earlier Character (`health`, `mana`, `stamina`) never applies. Pure data.
 import { CREATION, LEVEL, STAGES } from '../names.js';
 import { V1 } from '../combat/numbers.js';
 import { names } from './shared-names.js';

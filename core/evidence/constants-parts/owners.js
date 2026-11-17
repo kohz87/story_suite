@@ -5,4 +5,4 @@ export const OWNERS = Object.freeze({
     visit: 'story-director', acceptance: 'story-director', event: 'story-director',
 });
 export const KINDS = Object.freeze(Object.keys(OWNERS));
-export const STATS = Object.freeze(['STR', 'VIT', 'AGI', 'DEX', 'INT', 'LUK', 'CHA']);
+export const STATS = Object.freeze(['STR', 'VIT', 'AGI', 'DEX', 'INT', 'WIS', 'CHA']);

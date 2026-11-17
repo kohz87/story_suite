@@ -28,20 +28,26 @@ import { stepper } from '../../../ui/legacy/view/widgets/stepper.js';
 import { refusalText } from '../../../core/strings.js';
 import { DEFAULT_CURRENCY } from '../../inventory/money.js';
 import { FILE_LIMITS, moneyText, parseCharacterFile, skillLine, thingsWord } from '../charfile.js';
-import { LEVEL, CREATION, PARTY_ACTIVE, RANK_NAMES, STATS, USES } from '../names.js';
+import { LEVEL, CREATION, PARTY_ACTIVE, RANK_NAMES, STATS_V1 as STATS } from '../names.js';
+import { SKILL_TYPE_NAMES } from '../templates-combat.js';
+import { V1, RANKS } from '../combat/numbers.js';
 import { fold } from '../read.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { readParty } from './party-data.js';
 import { joinDraft } from '../join.js';
-import { growthOf } from '../blocks.js';
-import { growthText } from './party-data.js';
 import { rankOf as bandRank } from '../levels.js';
-import { WIZARD_STEPS, actionsFree, blockNames, buildDefinitions, draftCreation, draftSlots, extraDefinitions, extraName, extrasPlan, hasRoom, mayStartAdept, newDraft, pointsLeft, problemsOf, rankOf, readDraft, setLine, skillSetsOf,
+import { WIZARD_STEPS, actionsFree, blockNames, buildDefinitions, draftCreation, draftSlots, extraDefinitions, extraName, extrasPlan, hasRoom, mayStartAdept, barsLine, newDraft, pointsLeft, problemsOf, readDraft, setLine, skillSetsOf,
     START_RANKS, startStats, statBounds, statsLine, withImport, withoutImport, withSet, withSkill, withSkillPatch, withoutSkill } from './wizard-data.js';
 import { createWhoStep } from './wizard/who.js';
 import { createStatsStep } from './wizard/stats.js';
 import { createSkillsStep } from './wizard/skills.js';
 import { createReviewStep } from './wizard/review.js';
+
+// The eight skill types the Skills step's Type select offers, with the words Combat Rules v1 gives them.
+const SKILL_TYPES = SKILL_TYPE_NAMES.map(key => ({ key, label: V1.skill.types[key].label }));
+// A rank a file gave is one of v1's seven (Novice to Legend); a rank a new skill starts at is Novice or Adept.
+const RANK_WORDS = RANKS.map(rank => rank.name);
+const rankWord = skill => (Number.isSafeInteger(skill?.rank) ? RANK_WORDS[skill.rank] : RANK_NAMES[skill?.start ?? 0]);
 
 const W = RPG_STRINGS.wizard;
 // The word the stat notes use for the level.
@@ -192,12 +198,12 @@ export function createWizard({ headState = () => null, readerName = () => '', re
             const whoStep = createWhoStep({ api, safe, DEFAULT_CURRENCY, current, draft, put, snap, world, h, doc, W, fill, thingsWord,
                 FILE_LIMITS, RPG_STRINGS, parseCharacterFile, sameRun: run => alive && session === run, redraw, withImport, withoutImport,
                 moneyText, button, body, field, input, CREATION, drawSummary, LEVEL, levelCap, bandRank, levels, fold });
-            const statsStep = createStatsStep({ snap, pointsLeft, STATS, draftCreation, growthText, growthOf, RPG_STRINGS, fill, W, drawSummary, h,
+            const statsStep = createStatsStep({ snap, pointsLeft, STATS, draftCreation, barsLine, RPG_STRINGS, fill, W, drawSummary, h,
                 doc, stepper, put, draft, radar, button, redraw, startStats, statBounds, LEVEL_WORD, safe, packNote, body });
             const skillsStep = createSkillsStep({ snap, skillSetsOf, safe, api, current, draft, h, doc, W, fill, draftSlots, draftCreation, button, put, drawSummary,
-                redraw, body, withSet, setLine, input, CREATION, select, STATS, USES, RANK_NAMES, START_RANKS, mayStartAdept, withSkillPatch, withoutSkill, withSkill });
-            const reviewStep = createReviewStep({ DM_LIMITS, W, fill, current, snap, world, problemsOf, blockNames, kindWord, h, doc, body, RANK_NAMES,
-                rankOf, pointsLeft, statsLine, extraName, button, safe, api, refusalText, ownerFor: whoStep.ownerFor, importedAdds: whoStep.importedAdds,
+                redraw, body, withSet, setLine, input, CREATION, select, STATS, SKILL_TYPES, RANK_NAMES, RANK_WORDS, START_RANKS, mayStartAdept, withSkillPatch, withoutSkill, withSkill });
+            const reviewStep = createReviewStep({ DM_LIMITS, W, fill, current, snap, world, problemsOf, blockNames, kindWord, h, doc, body, rankWord,
+                pointsLeft, statsLine, extraName, button, safe, api, refusalText, ownerFor: whoStep.ownerFor, importedAdds: whoStep.importedAdds,
                 thingsPhrase: whoStep.thingsPhrase, moneyText, currency: whoStep.currency, buildDefinitions, levelCap, headState, extraDefinitions,
                 draftCreation, isAlive: () => alive, redraw });
             const clear = () => { statsStep.clear(); body.replaceChildren(); };
