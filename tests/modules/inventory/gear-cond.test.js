@@ -157,7 +157,7 @@ test('on the real host: a wear line without a gear module wears the piece; swipe
     await host.send('Hello.', 'The road.');
     await host.send('Gear.', reply('A coat.', ['+ item Wool Coat']));
     await host.send('Brambles.', reply('Thorns.', ['~ item Wool Coat — torn by brambles | wear: tear']));
-    assert.deepEqual(host.turn.problems(), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES'), []);
     assert.equal(host.sdk.query('inventory.items')[0].cond, 85);
     await host.swipe(reply('No thorns.', ['+ coin 1']));
     assert.equal(host.sdk.query('inventory.items')[0].cond, undefined);
@@ -279,7 +279,7 @@ test('a wear line answered by item.wear with its feature off is a quiet Problem,
     await host.send('Hello.', 'The road.');
     await host.send('Gear.', say('A coat.', ['+ item Wool Coat']));
     await host.send('Brambles.', say('Thorns.', ['~ item Wool Coat — torn by brambles | wear: tear']));
-    const problems = host.turn.problems();
+    const problems = host.turn.problems().filter(item => item.code !== 'NO_CHANGES');
     assert.deepEqual(problems.map(problem => [problem.code, problem.quiet]), [['FEATURE_OFF', true]]);
     assert.equal(host.sdk.query('inventory.items')[0].cond, undefined);
     assert.equal(host.head().domains.inventory.condLog, undefined);

@@ -1,8 +1,9 @@
 // Builds the assist part: its classifier and extractor wired to the host's hooks, settings and status query, and the default part.
 
-import { DEFAULTS, SCHEMA, SETTING, TIMEOUT_MS, createRunLog } from '../common.js';
+import { DEFAULTS, SCHEMA, SETTING, TIMEOUT_MS, createRunLog, normalizeType } from '../common.js';
 import { PRECHECK, createClassifier, precheck } from '../classifier.js';
 import { createExtractor } from '../extractor.js';
+import { createRepairer } from '../repair.js';
 import { renderAssistSection } from '../section.js';
 import { stCallModel, stChat, stChatId } from '../st-adapter.js';
 import { STATUS_QUERY, HOST_MODULE_ID, sdkHasKind } from './host.js';
@@ -16,6 +17,8 @@ import { sdk } from './shared-sdk.js';
  *   hasKind(kind) → boolean                             (default: the sdk's module list)
  *   grammar() → the kinds' one-line grammars            (default: none; the host passes the registry's)
  *   capture(text, { index, swipe })                     (default: none; the host passes it per reply)
+ *   persona() → the player character's name, for {{user}} in the repair's grammar lines (default: none)
+ *   state() → the story's state lines before a reply (Place, Present, Wallet, Carried …), for the repair (default: none)
  *   where() → { here, places, time }                    (default: none; the scene's place, the map's places, the story's date and time: where.js)
  *   skip: { peek() } — whether the next reply goes out with no dice (the lean RPG's start notes; default: never)
  *   moduleId = 'story-block', timeoutMs = 20000, timer, warn(text)
@@ -29,6 +32,8 @@ export function createAssistPart({
     grammar = () => [],
     capture = null,
     where = null,
+    state = () => [],
+    persona = () => '',
     skip = undefined,
     moduleId = HOST_MODULE_ID,
     timeoutMs = TIMEOUT_MS,
@@ -50,13 +55,15 @@ export function createAssistPart({
     const shared = { callModel, log, warn, timeoutMs, timer, chatId };
     const classifier = createClassifier({ ...shared, settings: read, chat, hasKind, ...(skip ? { skip } : {}) });
     const extractor = createExtractor({ ...shared, settings: () => read(null), grammar, capture, where });
+    const repairer = createRepairer({ ...shared, settings: () => read(null), grammar, capture, where, state, persona });
 
-    /** assist.status: { classifier: { on, last }, extractor: { on, last }, runs }. */
+    /** assist.status: { classifier: { on, last }, extractor: { on, last }, repair: { on, last }, runs }. */
     function status() {
         const values = read(null);
         return {
             classifier: { on: values[SETTING.classifier] === true, last: log.last('classifier') },
             extractor: { on: values[SETTING.extractor] === true, last: log.last('extractor') },
+            repair: { on: values[SETTING.repair] === true, last: log.last('repair') },
             runs: log.list(),
         };
     }
@@ -68,7 +75,11 @@ export function createAssistPart({
         kinds: {},
         hooks: {
             beforeGenerate: (view, info) => classifier.beforeGenerate(view, info),
-            afterReply: reply => extractor.afterReply(reply),
+            // A reply that came with no block is repaired (when that switch is on); the after-reply extractor reads the others, and a reply the repair ran on.
+            afterReply: async reply => {
+                const fixed = await repairer.afterReply(reply);
+                return fixed.attempted || normalizeType(reply?.type) === 'reread' ? fixed : extractor.afterReply(reply);
+            },
         },
         settings: {
             section: 'Assist',

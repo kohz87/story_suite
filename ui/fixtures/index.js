@@ -199,9 +199,12 @@ function buildChat(opts, hereList, changes, needsYou) {
     })),
     replyMenus: {
       0: structuredClone(MOMENT.priorReplyMenu),
+      // 1: a reply whose repair the reader can discard (the Assist mark and the Discard repair button)
+      1: { at: 'Goldwane 13, 9:20 am', lines: [{ glyph: 'item', line: '+1 Rope', detail: null, applied: true, assist: true }, { glyph: 'coin', line: '−5', detail: null, applied: true, assist: true }], repaired: true, counts: { changes: 2, heldBack: 0, notApplied: 0 }, stateThen: { place: 'Guild Office, Bluewatch', weather: 'cold drizzle' } },
       2: {
         at: `${scene.date}, ${scene.time}`,
-        lines: changes.map(c => ({ glyph: c.glyph, line: c.line, detail: c.detail, applied: c.applied })),
+        lines: changes.map(c => ({ glyph: c.glyph, line: c.line, detail: c.detail, applied: c.applied, assist: false })),
+        repaired: false,
         counts: {
           changes: changes.length,
           heldBack: changes.filter(c => c.heldBack).length,

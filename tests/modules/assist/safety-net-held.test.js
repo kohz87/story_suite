@@ -29,7 +29,7 @@ test('a restore barrier when the safety net answers refuses each held line and r
     const { announceModules } = await import('../../../core/sdk/lifecycle.js');
     const { model, release, calls: asked } = heldModel(OWNER.join('\n'));
     const calls = () => asked.length;
-    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: '~ time, + world, ~ world, + faction, ~ faction' } } } });
+    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false, [SETTING.extractorKinds]: '~ time, + world, ~ world, + faction, ~ faction' } } } });
     host.features?.set?.('story-block.extractor', true);
     try {
         const sent = await host.send('I look around.', 'Red Cords lock the pier. Wolves are pushed onto the timber track.\n<Changes>\n~ weather mist\n</Changes>');
@@ -63,7 +63,7 @@ test('a restore barrier when the safety net answers refuses each held line and r
 
 test('a dormant module held when an answer arrives during the next send reports even + lines and never applies them', { skip }, async () => {
     const { model, release } = heldModel(OWNER.join('\n'));
-    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: '+ world, + faction' } } } });
+    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false, [SETTING.extractorKinds]: '+ world, + faction' } } } });
     host.features?.set?.('story-block.extractor', true);
     try {
         const first = await host.send('I look around.', 'Red Cords lock the pier.');
@@ -87,7 +87,7 @@ test('a dormant module held when an answer arrives during the next send reports 
 
 test('the same lines with no barrier apply at once, marked as the safety net\'s', { skip }, async () => {
     const { model, release } = heldModel(OWNER.join('\n'));
-    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.extractorKinds]: '~ time, + world, + faction' } } } });
+    const host = await createHost({ modules: [WORLD_PROBE], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false, [SETTING.extractorKinds]: '~ time, + world, + faction' } } } });
     host.features?.set?.('story-block.extractor', true);
     try {
         const sent = await host.send('I look around.', 'Red Cords lock the pier.');
@@ -156,7 +156,7 @@ test('a held module with an afterCapture hook refuses the safety net\'s lines be
     const { announceModules } = await import('../../../core/sdk/lifecycle.js');
     const probe = { id: 'hook-probe', version: '1.0.0', domains: { hookProbe: { initial: () => ({ n: 0 }) } }, hooks: { afterCapture: () => ({ commands: [] }) } };
     const { model, release } = heldModel('~ weather rain');
-    const host = await createHost({ modules: [probe], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true } } } });
+    const host = await createHost({ modules: [probe], callModel: model, settings: { modules: { 'story-block': { [SETTING.extractor]: true, [SETTING.repair]: false } } } });
     host.features?.set?.('story-block.extractor', true);
     try {
         const sent = await host.send('I look around.', 'Rain begins to fall.');

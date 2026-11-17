@@ -25,7 +25,7 @@ async function run(rpg) {
         await sendOne('I look around.', 'Nothing else moves.');
         await host.swipe('Another telling of the quiet.');
         await sendOne('I rest.', 'You rest.');
-        return strip({ sends, meta: host.ctx.chatMetadata, records: host.ctx.chat.map(m => m.extra?.storySuite ?? null), text: host.ctx.chat.map(m => m.mes), problems: host.turn?.problems?.() ?? [] });
+        return strip({ sends, meta: host.ctx.chatMetadata, records: host.ctx.chat.map(m => m.extra?.storySuite ?? null), text: host.ctx.chat.map(m => m.mes), problems: (host.turn?.problems?.() ?? []).filter(item => item.code !== 'NO_CHANGES') });
     } finally { host.close(); restore(); }
 }
 

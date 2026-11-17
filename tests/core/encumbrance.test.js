@@ -41,7 +41,7 @@ test('a story + item past the limit is kept, and the party is encumbered until s
     const host = await fresh(t);
     await host.send('Loot.', reply('A pile of stones.', ['+ item Stone | qty: 4', '+ item Brick | qty: 3']));
     assert.deepEqual([qty(host, 'Stone'), qty(host, 'Brick')], [4, 3], 'nothing the story gave is lost');
-    assert.deepEqual(host.turn.problems(), []);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES'), []);
     const last = host.sdk.receipts().at(-1).receipt;
     assert.match(last.summary, /^The party gains Brick ×3\. The party now carries more than it can and is encumbered/);
     assert.equal(last.data.encumbered, true);
@@ -105,7 +105,7 @@ test('a host with Features: encumbrance off, the story\'s line past the limit is
     await host.send('Hello.', 'The road.');
     await host.send('Loot.', reply('Stones.', ['+ item Stone | qty: 4', '+ item Brick | qty: 3']));
     assert.deepEqual([qty(host, 'Stone'), qty(host, 'Brick')], [4, 0]);
-    assert.deepEqual(host.turn.problems().map(problem => problem.code), ['REFUSED']);
-    assert.match(host.turn.problems()[0].message, /The party cannot carry that: 4 of 5 carried/);
+    assert.deepEqual(host.turn.problems().filter(item => item.code !== 'NO_CHANGES').map(problem => problem.code), ['REFUSED']);
+    assert.match(host.turn.problems().filter(item => item.code !== 'NO_CHANGES')[0].message, /The party cannot carry that: 4 of 5 carried/);
     assert.equal(host.sdk.query('inventory.encumbrance'), null, 'the query answers nothing while the feature is off');
 });

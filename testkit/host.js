@@ -43,6 +43,7 @@ export async function hostAvailable() {
  * timeline calls it at every phase; a test makes it throw to stop there), lazyRpg?: true (the RPG's code is NOT handed to the host: it is
  * imported by `rpgLoad?()` (default: lean-rpg/index.js) only when the feature is on or the chat holds the RPG's records, as in the real page; by
  * default the host has it at once, so a test may switch the feature on and use the RPG without waiting) }.
+ * `realDefaults: true` keeps the real default of the repair on a miss (on); the host otherwise starts with it off.
  * Returns { st, ctx, registry, settings, features, store, bus, events, sdk, api (the public API), turn, packs, timeline (the host's side of the
  * timeline: { host, capability, … }, docs/v2/TIMELINE.md), send(text, reply, { stopped }),
  * swipe(reply), regenerate(reply), cont(reply), quiet(), head(), close() }; `st` is the fake
@@ -50,7 +51,7 @@ export async function hostAvailable() {
  * reader's feature choices (createFeatureStore: `features.set('my-module.wear', false)`). Throws when the runtime is missing and `fakes` is not set.
  */
 export async function createHost(options = {}) {
-    const { modules = [], core = true, fakes = false, st: stOptions = {}, settings: initialSettings = null, callModel = null, storeOptions = null, lazyRpg = false, rpgLoad = undefined } = options;
+    const { modules = [], core = true, fakes = false, st: stOptions = {}, settings: initialSettings = null, callModel = null, storeOptions = null, lazyRpg = false, rpgLoad = undefined, realDefaults = false } = options;
     setRpgLib(lazyRpg ? null : leanRpg);
     let createStore = createFakeStore;
     let createCommandBus = createFakeBus;
@@ -63,6 +64,13 @@ export async function createHost(options = {}) {
     const extensionSettings = stOptions.extensionSettings ?? {};
     // A partial tree is the current schema (a tree without one is an old shape, and the first load would set it aside).
     if (initialSettings) extensionSettings.storySuite = { schema: SETTINGS_SCHEMA, ...structuredClone(initialSettings) };
+    // The repair on a miss is ON by default (assist `DEFAULTS`); the tests written before that count model calls and read replies with no block, so the
+    // test host starts with it off, unless a test sets it or asks for `realDefaults`.
+    if (!realDefaults) {
+        const bucket = ((extensionSettings.storySuite ??= { schema: SETTINGS_SCHEMA }).modules ??= {});
+        const block = (bucket['story-block'] ??= {});
+        block.assistRepair ??= false;
+    }
     const st = createFakeContext({ ...stOptions, extensionSettings });
     // What the reader was told when a generation was held back (a toastr warning live).
     st.notices = [];

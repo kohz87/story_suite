@@ -22,6 +22,9 @@ function receiptsAt(tools, index) {
     return list.filter(entry => entry?.index === index && isRec(entry.receipt) && SHOWN.has(entry.receipt.type) && entry.receipt.cause !== 'ui').map(entry => entry.receipt);
 }
 
+// A line Assist wrote (the repair's or the safety net's lines; capture marks their receipts `assist`), not the reply's own.
+const fromAssist = receipt => receipt.assist === 'now' || receipt.assist === 'late';
+
 // The name an item definition shows: the state's own, else the id without its pack prefix.
 const nameOf = (state, def) => text(state?.domains?.inventory?.defs?.[def]?.name) || text(def).replace(/^[^/]*\//, '');
 
@@ -61,7 +64,7 @@ function sceneLines(receipts) {
 }
 
 /**
- * `reply.changes({ index? })` → { lines: [{ glyph, line, detail, applied }], refused: [], stateThen: { place, weather } } for reply `index`
+ * `reply.changes({ index? })` → { lines: [{ glyph, line, detail, applied, assist }], refused: [], stateThen: { place, weather } } for reply `index`
  * (the head reply by default), or null when the reply has no receipts (the card hides). `refused` is [] here: the lines a reply did not use
  * are told by the turn once and kept nowhere a reload can read. `stateThen` is the place and weather of the state the query is asked on
  * (`{ asOf: index }` gives that reply's own).
@@ -73,8 +76,12 @@ export function replyChanges(state, args, tools, headIndex) {
   if (!receipts.length) return null;
   let weather = null;
   try { weather = tools?.hasQuery?.('scene.weather') ? text(tools.query('scene.weather')?.text) || null : null; } catch { weather = null; }
+  // Own lines and Assist's are worked out apart, so a total never mixes them, and each Assist line is marked.
+  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list)];
+  const own = linesOf(receipts.filter(item => !fromAssist(item))).map(line => ({ ...line, assist: false }));
+  const assist = linesOf(receipts.filter(fromAssist)).map(line => ({ ...line, assist: true }));
   return {
-    lines: [...itemLines(receipts, state), ...coinLines(receipts), ...sceneLines(receipts)],
+    lines: [...own, ...assist],
     refused: [],
     stateThen: { place: text(state?.domains?.scene?.place?.name), weather },
   };

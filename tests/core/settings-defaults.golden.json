@@ -120,6 +120,7 @@
       "assistClassifier": false,
       "assistExtractor": false,
       "assistExtractorKinds": "! time, ~ time, ~ place, + present, - present, ~ weather, ~ quest, - quest, ~ wound, - item",
+      "assistRepair": true,
       "chatterInPrompt": false,
       "chatterMax": 3,
       "coinDisplay": "mixed",
