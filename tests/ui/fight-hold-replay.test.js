@@ -48,7 +48,7 @@ test('sent from the new view, the fight\'s reply equals the old pause\'s; swipe,
   const viaNew = await livePage(t, { next: true, seed: 4501 });
   await playNew(viaNew.doc);
   const steps = structuredClone(viaNew.host.ctx.chatMetadata.storySuiteInteraction.open.steps);
-  tab(viaNew.doc).querySelector('[data-act="send"]').click();
+  [...tab(viaNew.doc).querySelectorAll('button')].find(b => /Back to the story/.test(b.textContent)).click(); // one primary button: Back to the story sends the waiting message
   await settle();
   await viaNew.replied();
   await settle();
@@ -100,7 +100,7 @@ test('sent from the new view, the fight\'s reply equals the old pause\'s; swipe,
 test('a middle delete takes the fight sent from the new view with its pair; a chat change takes the waiting offer away', async t => {
   const { host, doc, replied } = await livePage(t, { next: true, seed: 4502 });
   await playNew(doc);
-  tab(doc).querySelector('[data-act="send"]').click();
+  [...tab(doc).querySelectorAll('button')].find(b => /Back to the story/.test(b.textContent)).click();
   await settle();
   await replied();
   await host.send('Later.', 'A later reply.');

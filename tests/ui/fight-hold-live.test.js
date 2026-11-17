@@ -51,7 +51,7 @@ test('Fight on the board opens the board in the new view; it is played to the en
   root = tab(doc);
   assert.equal(root.dataset.step, 'end', 'the fight ended on the new board');
   assert.ok(root.querySelector('.endb, [data-card="end"]'), 'the end card');
-  assert.ok(root.querySelector('[data-act="send"]'), 'Send with this');
+  assert.equal(root.querySelector('[data-act="send"]'), null, 'one primary button: no separate Send with this');
   const send = [...root.querySelectorAll('button')].find(b => /Back to the story/.test(b.textContent));
   assert.ok(send, 'the end card\'s Back to the story');
   send.click();
