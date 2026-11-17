@@ -37,8 +37,8 @@ describe('selectAddons', () => {
 describe('Add-ons in the live settings view-model', () => {
   const vm = selectSettings({ host: {}, schema: {}, defaults: {}, features: [], modules: MODULES });
 
-  it('sits after Packs and before Tools (mock v7 order; Director is left out with none of its settings) and matches the contract shape', () => {
-    assert.deepEqual(vm.sections.map(s => s.id), ['start', 'look', 'people', 'rpg', 'world', 'money', 'extras', 'models', 'packs', 'addons', 'tools']);
+  it('sits after Packs and before Tools (mock v7 order; Director sits after World and time, drawn with its defaults) and matches the contract shape', () => {
+    assert.deepEqual(vm.sections.map(s => s.id), ['start', 'look', 'people', 'rpg', 'world', 'director', 'money', 'extras', 'models', 'packs', 'addons', 'tools']);
     assert.deepEqual(checkShape(vm, SETTINGS_SHAPE), []);
   });
 

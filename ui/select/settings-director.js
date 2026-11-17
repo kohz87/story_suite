@@ -25,19 +25,20 @@ function viewRow(spec, field, value, dflt) {
 
 /**
  * `answers` = { values: { [moduleId]: settings(moduleId) }, features: the feature list }.
- * Returns the Director section ({ id: 'director', rows }), or null when the host holds none of its settings.
+ * Returns the Director section ({ id: 'director', rows }); a module the host holds no settings for shows its defaults (the mock always lists the page),
+ * and with no feature list read no row is left out for its feature.
  */
 export function selectDirector(answers) {
   const a = isObj(answers) ? answers : {};
-  const on = new Set((Array.isArray(a.features) ? a.features : []).filter(f => f?.on === true).map(f => f.id));
+  const known = Array.isArray(a.features) && a.features.length > 0;
+  const on = new Set((known ? a.features : []).filter(f => f?.on === true).map(f => f.id));
   const rows = [];
   for (const spec of DIRECTOR_ROWS) {
     const field = fieldOf(spec);
-    const values = a.values?.[spec.module];
-    if (!field || !isObj(values) || (field.feature && !on.has(field.feature))) continue;
-    const made = viewRow(spec, field, values[spec.field], DEFAULTS[spec.module]?.[spec.field]);
+    const dflt = DEFAULTS[spec.module]?.[spec.field];
+    if (!field || (known && field.feature && !on.has(field.feature))) continue;
+    const made = viewRow(spec, field, isObj(a.values?.[spec.module]) ? a.values[spec.module][spec.field] ?? dflt : dflt, dflt);
     if (made) rows.push(made);
   }
-  if (!rows.length) return null;
   return { id: 'director', group: 'Rules', name: 'Director', desc: 'Checks, spoilers, the pulse, one planner for arcs and the cast, names.', special: null, rows };
 }

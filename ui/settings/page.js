@@ -95,7 +95,7 @@ export function createPages(settings, ctx) {
       'Settings apply to all chats, except those marked ', h('span', { class: 'tg2 chat' }, 'this chat'), '.');
     const content = custom == null ? body(section) : [custom].flat();
     const tail = [];
-    if (!isStart && section.rows.length) tail.push(reset(`Reset ${section.name} to defaults`, 'settings.reset'));
+    if (!isStart && section.rows.some(r => r.type !== 'info' && r.type !== 'btn')) tail.push(reset(`Reset ${section.name} to defaults`, 'settings.reset'));
     if (isStart) {
       tail.push(reset('Reset to Standard', 'modules.reset'),
         h('div', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Gone (decided)'), h('ul', { class: 'removed' }, (settings.removed ?? []).map(r => h('li', r))), h('div', { style: { height: '8px' } })));

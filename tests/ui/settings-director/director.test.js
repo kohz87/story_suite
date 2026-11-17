@@ -60,13 +60,13 @@ test('a value the setting cannot take is refused, not shown as saved; an unknown
   assert.equal(host.sdk.settings(D)['pulse.mode'], 'lively');
 });
 
-test('a row whose feature is off is left out; with the host reporting nothing there is no section', async t => {
+test('a row whose feature is off is left out; with the host reporting nothing the page still shows its defaults', async t => {
   const { host } = await live(t);
   const features = host.sdk.features().map(f => (f.id === 'story-director.pulse' ? { ...f, on: false } : f));
   const section = selectDirector({ values: { [D]: host.sdk.settings(D) }, features });
   assert.equal(section.rows.some(r => r.key === 'director.pulse'), false);
   assert.equal(section.rows.some(r => r.key === 'director.faces'), true);
-  assert.equal(selectDirector(null), null);
+  assert.equal(selectDirector(null).rows.find(r => r.key === 'director.pulse').value, 'Lively');
 });
 
 test('NPC State rows read and write the npc-state-delta bucket when its social feature is on', async t => {
