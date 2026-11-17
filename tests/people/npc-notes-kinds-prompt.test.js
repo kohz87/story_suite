@@ -54,7 +54,8 @@ test('notes grammar: the static text is the same bytes every time and the added 
     assert.equal(JSON.stringify(noteKinds(() => {})), once);
     const bare = 88 + 107 + 54 + 70; // the four lines as they were (lie, know, taste, tie)
     const added = Object.values(noteKinds(() => {})).reduce((sum, kind) => sum + kind.grammar.length, 0) - bare;
-    assert.ok(added > 0 && added < 500, `added ${added} chars`);
+    assert.ok(added > 0 && added < 800,  // N7: the tie line lists nine tags
+         `added ${added} chars`);
 });
 
 const CUE = /^Whenever anything changed, write the <Changes> block \(just before <Blocks>, which still ends the reply\), even if <Blocks> is empty/;

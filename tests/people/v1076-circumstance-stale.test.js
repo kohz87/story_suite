@@ -37,6 +37,6 @@ test('v1.0.76 fields updated after the circumstance change are not named', () =>
 
 test('v1.0.76 scanner and Refresh prompts ask for labelled lever evidence', () => {
     const npc = elena({});
-    assert.match(buildProfileRefreshPrompt({ transcript: '[m70] x', targetNpc: npc }), /"Label: level - effect" levers \(evidence items too\)/);
+    assert.match(buildProfileRefreshPrompt({ transcript: '[m70] x', targetNpc: npc }), /behaviorProfile=max6 "Label: level - what they do"/);
     assert.match(buildScannerPrompt({ transcript: 'Elena counts coin.', existingNpcs: [npc] }), /"Label: level - effect" levers \(evidence too\)/);
 });

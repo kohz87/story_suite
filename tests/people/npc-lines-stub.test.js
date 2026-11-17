@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { suite } from './helpers/pacing-suite.js';
 import { mergeScanResult, normalizeNpcRecord } from '../../modules/people/core/core.js';
 import { stubRecord } from '../../modules/people/meters/npc-lines-parts/derived.js';
+import { newStubs } from '../../modules/people/adapter/stub-fills.js';
 import { peopleView } from '../../modules/people/view.js';
 
 // N4: `+ npc Name | role | look` makes the person first, from the stub alone (lines mode only); the refusals; the look kept whole; replay equals live.
@@ -19,12 +20,12 @@ async function warned(run) {
 }
 const LOOK = 'a grey braid pinned with a brass nib, ink-stained cuffs, and a limp from the left leg that she hides'.slice(0, 100);
 
-test('the registered npc kind carries both heads, its grammar line is unchanged and the static text never shows + npc', async () => {
+test('the registered npc kind carries both heads, its grammar line is empty and the static text never shows + npc', async () => {
     const s = await suite();
     const kinds = s.host.registry.contexts().find(item => item.moduleId === 'npc-state-delta').kinds;
     const kind = kinds.find(item => item.kind === 'npc');
     assert.deepEqual([...kind.heads].sort(), ['+ npc', '~ npc']);
-    assert.equal(kind.grammar, '~ npc Name | trust: +N | affection: -N');
+    assert.equal(kind.grammar, '', 'the grammar is empty since N7; the relationships paragraph teaches the line');
     assert.ok(!/\+ npc/.test(kinds.map(item => item.grammar).join('\n')), 'no + npc teaching text');
     assert.equal(s.host.registry.refusals().length, 0, 'registers with no definition problem');
 });
@@ -161,4 +162,21 @@ test('the stub round trip: NPC State\'s own record normaliser and the people vie
     const viewed = peopleView({ npcs: [normalised], candidates: [], dismissed: [], userDismissedGroups: [], socialGraph: {}, portraitAssets: {}, turn: 0 });
     assert.equal(viewed.npcs.npc_marta.role, role);
     assert.equal(viewed.npcs.npc_marta.appearance, look);
+});
+
+test('only four new people a reply: the fifth and sixth + npc lines are refused with the note, the four fills and a rebuild agree, a swipe is counted afresh', async () => {
+    const s = await suite({ lines: true });
+    const names = ['Ada', 'Bram', 'Cyr', 'Dee', 'Eli', 'Fay'];
+    const said = await warned(() => s.say(names.map(name => `+ npc ${name} | clerk | tall`)));
+    const mine = () => Object.values(people(s).npcs).filter(record => names.includes(record.name));
+    assert.deepEqual(mine().map(record => record.name), names.slice(0, 4), 'four stubs, the first four');
+    assert.equal((said.match(/was not used: .* waits for a later reply that names them again/g) ?? []).length, 2, said);
+    assert.match(said, /Only four new people a reply; Eli waits for a later reply that names them again\./);
+    const index = s.host.store.headIndex();
+    assert.equal(newStubs(Object.values(people(s).npcs), index).length, 4, 'exactly four fill-ins are queued for this reply');
+    same(s, 'rebuild (a Re-read, a replay) gives the same four');
+    await s.swipe(names.map(name => `+ npc ${name} | clerk | tall`));
+    assert.equal(mine().length, 4, 'the swipe: the same four, not eight');
+    await s.say(['+ npc Eli | clerk | tall']);
+    assert.ok(people(s).npcs.npc_eli, 'a later reply that names the fifth makes them');
 });

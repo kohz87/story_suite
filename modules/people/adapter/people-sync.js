@@ -18,10 +18,11 @@
  *   readState() → the cache's state | null, install(keys) → boolean (replaces the cache's people), ready() → boolean, warn(text),
  *   chatKey() → the open chat's key, rescan() (the head's reply replaced one: read it again), carry(keys, state) → keys (the cache's work the store lacks, added),
  *   mark(index | null, since?) (sets the scan marker: the last reply read, by its index in the history),
+ *   afterHydrate({ index, sid, swipeKey }) (called once the cache stands on the head's reply: the fill-in of the new people it holds),
  *   keep(built, slice) → built (a step on the view before it is written: lines mode keeps a stored empty memory container; the default is the identity) }
  * → { commit(state) → Promise<{ sent, skipped?, stale?, owed? }>, hydrate() → Promise<{ hydrated, source? }>, sync() → Promise<{ hydrated }>, source() → the cache's reply }.
  */
-export function createPeopleSync({ sdk, view, restore, hash, readState = () => null, install = () => false, ready = () => true, warn = () => {}, chatKey = () => '', rescan = () => {}, carry = keys => keys, mark = () => false, keep = built => built }) {
+export function createPeopleSync({ sdk, view, restore, hash, readState = () => null, install = () => false, ready = () => true, warn = () => {}, chatKey = () => '', rescan = () => {}, afterHydrate = () => {}, carry = keys => keys, mark = () => false, keep = built => built }) {
     let cache = null;      // { sid, swipeKey } the cache stands on, or null (no reply yet / not hydrated)
     let at = null;         // the reply's place in the story (its index in the host's history) the cache stands on
     let hydrated = false;
@@ -112,6 +113,7 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         chat = keyNow();
         known = sliceHash;
         hydrated = true;
+        if (cache) afterHydrate({ index: at, sid: cache.sid, swipeKey: cache.swipeKey });
         if (pending && owed) { owed = false; if (cache) await commitNow(readState()); }
         return { hydrated: true, source: cache };
     }

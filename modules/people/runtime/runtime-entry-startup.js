@@ -2,6 +2,8 @@
    index.js. Built by index.js with the controller closure; the DOM-ready and lifecycle registrations stay in index.js.
    The optional adapter import keeps its root-relative ./src/ path and its position in initialization. */
 
+import { effectiveCustomFieldNames } from '../settings/runtime-settings.js';
+
 export function createStartup(rt, deps) {
     const {
         getSettings, clearLegacyPromptKeys, connectStorySuite, SUITE_API, UI_ID, NPC_STATE_VERSION,
@@ -22,7 +24,7 @@ export function createStartup(rt, deps) {
         clearLegacyPromptKeys();
         connectStorySuite();
         // Story Suite v2 (Story Block 2): optional; without a v2 host the adapter does nothing.
-        import('../storysuite-v2.js').then(v2 => { rt.storySuiteV2 = v2.startStorySuiteV2({ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, calendarOwn: () => normalizeSourceOfTruth(getSettings().sourceOfTruth).calendar === 'mine', cardSettings: nsdCardSettings() }); }).catch(error => console.debug('[NPC State Delta] Story Suite v2 adapter is not available', error));
+        import('../storysuite-v2.js').then(v2 => { rt.storySuiteV2 = v2.startStorySuiteV2({ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, calendarOwn: () => normalizeSourceOfTruth(getSettings().sourceOfTruth).calendar === 'mine', cardSettings: nsdCardSettings(), linesMode: () => true, levelOn: () => effectiveCustomFieldNames().some(name => name.toLowerCase() === 'level') }); }).catch(error => console.debug('[NPC State Delta] Story Suite v2 adapter is not available', error));
         // (v2) Hosted with Story Director, the story's date follows its clock (calendar.js hostedStoryDate)
         // unless the reader keeps the calendar here (Source of truth: calendar "mine"). No host: none.
         setStoryClockSource(hostedStoryClock);

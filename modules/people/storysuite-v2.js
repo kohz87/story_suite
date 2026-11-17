@@ -46,6 +46,7 @@ import { createConnectPart } from './adapter/connect.js';
 import { createEditorPart } from './adapter/editor.js';
 import { createNativeDeath } from './adapter/native-death.js';
 import { createPeopleSync } from './adapter/people-sync.js';
+import { queueNewStubFills } from './adapter/stub-fills.js';
 import { peopleView, peopleState, peopleCarry } from './view.js';
 import { keepStampContainers } from './keep-containers.js';
 import { hashJson } from './adapter/hash.js';
@@ -147,8 +148,10 @@ export function createStorySuiteV2Adapter({
     logger = console,
     // True while the reader keeps the calendar in Delta (Source of truth: calendar "mine"): no story clock.
     calendarOwn = () => false,
-    // True while the one-pass lines switch is on (N7 wires the real setting): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
+    // True while the one-pass lines switch is on (N7: the production start-up passes true): `+ npc` stubs and the unknown-person rule (src/npc-lines-parts/stub.js). Off, nothing differs.
     linesMode = () => false,
+    // True while the custom Level field is on (a configured field, or the host's RPG feature): a `~ npc` line may then state `level: N` (src/npc-lines-parts/level.js). Off, a `level:` label is an unknown one.
+    levelOn = () => false,
     // Delta's dossier list markup and projection (story-block-tabs.js, dossier-ui.js), as v1's Dossiers tab.
     loadDossierList = () => Promise.all([import('./legacy/story-block-tabs.js'), import('./legacy/dossier-ui.js')])
         .then(([tabs, ui]) => ({ rowNodes: tabs.dossierRowNodes, project: ui.dossierIndexProjection, filter: ui.filterDossierIndex })),
@@ -177,7 +180,7 @@ export function createStorySuiteV2Adapter({
     // The parts, in the order the closure declared them: each gets the options and constants (deps) and what the parts before it return.
     const deps = {
         suiteApi, delta, panelId, version, host, headReply, castSync, castPortraitDue, doc, timers, loadEmptyCast, retryMs,
-        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, loadDossierList, settleMs,
+        attempts, aliveMs, watchMs, logger, calendarOwn, linesMode, levelOn, loadDossierList, settleMs,
         settlePollMs, cardSettings, MODULE_ID, MODULE_NAME, CAST_TAB_ID, DOSSIERS_TITLE, DOSSIERS_ICON, CAST_SCREEN_ID,
         CAST_WIDGET, CAST_SCREEN_ORDER, WORLD_FEATURE, PAGE_SLOT_CLASS, TICK_TURNS, PRESET_KIND,
         V2_HOST_EVENT,
@@ -196,6 +199,10 @@ export function createStorySuiteV2Adapter({
         ready: () => queriesPart.runtime()?.stateReady?.() !== false,
         chatKey: () => queriesPart.runtime()?.chatKey?.() ?? '',
         rescan: () => queriesPart.runtime()?.rescanLatest?.(),
+        afterHydrate: at => {
+            try { queriesPart.runtime()?.convertCaptureJournal?.(); } catch (error) { logger.warn?.('[NPC State] the capture journal could not be moved to reply IDs.', error); }   // N7: once, before anything reads it
+            if (linesMode()) queueNewStubFills(queriesPart.runtime(), queriesPart.runtime()?.chatKey?.() ?? '', at);
+        },   // the fill-in of a `+ npc` stub (NSD6)
         carry: peopleCarry,
         keep: (built, slice) => (linesMode() ? keepStampContainers(built, slice) : built),   // lines mode only: with the switch off the view is written as it is
         mark: (index, since) => queriesPart.runtime()?.setScanMarker?.(index, since),
@@ -239,10 +246,9 @@ export function createStorySuiteV2Adapter({
             : send('npc.drives', { name, texts: texts.slice(0, 12).map(text => String(text).slice(0, 200)), rule: 1, ...(after?.role ? { ignore: String(after.role).slice(0, 120) } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }))(Array.isArray(given) ? given : driveEvidence(before, after)),
         /** While hosted: Delta's scan tells the slice a person's look was first set (`lock`) or contradicted (`drift: { before, incoming }`, worded by npc-notes-look.js; or `text`, `cue`) → `npc.flag`. Only with the notes feature on and for a person who already has meters (a flag never makes an entry); else null. */
         flag: ({ name, text: said, cue: told, lock, reply, drift, guard } = {}) => ((text, cue) => (!text && lock !== true ? null : part.featureOn(FEATURE_NOTES) === true && (() => { const entries = sliceEntries(); return Boolean(entries && entryFor(entries, dossierOf(name) ?? { name })); })() ? send('npc.flag', { name, ...(text ? { text } : {}), ...(cue ? { cue } : {}), ...(lock === true ? { lock: true } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }) : null))(said || (drift ? lookDrift(drift.before, { ...drift, name }) : ''), told || (drift ? lookFlagWording(name, drift.before) : '')),
-        /** While hosted: the tastes a Refresh read (`tastes`: [{ sign, item, from }]) → `npc.taste`, recorded on `reply`. Only for a person who already has meters and with the notes feature on; else null. `asksTastes()`: whether a Refresh should ask for them. */
+        /** While hosted: the tastes a Refresh read (`tastes`: [{ sign, item, from }]) → `npc.taste`, recorded on `reply`. Only for a person who already has meters and with the notes feature on; else null. (A Refresh no longer sends tastes: it only reads them.) */
         tastes: ({ name, tastes, reply } = {}) => (part.featureOn(FEATURE_NOTES) === true && Array.isArray(tastes) && tastes.length && (() => { const entries = sliceEntries(); return Boolean(entries && entryFor(entries, dossierOf(name) ?? { name })); })()
             ? send('npc.taste', { name, tastes, ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true }) : null),
-        asksTastes: () => part.featureOn(FEATURE_NOTES) === true,
         /** While hosted: the reader's own values from the dossier editor → `npc.set` (the host's latest reply; headReply). */
         setMeters: ({ name, meters } = {}) => send('npc.set', { name, meters }),
         /** While hosted: stages and notes again for one NPC (after its notes were edited) → `npc.refresh`. */
@@ -341,6 +347,10 @@ export function createStorySuiteV2Adapter({
         dossierMeters,
         /** The story events of present people's locked notes the scan should look for (see eventWatch); [] when none. */
         eventWatch,
+        /** The record ID of the reply at message `index` (null when the host cannot say): what a reply's own work is keyed by. */
+        replySid: index => { try { return session.hosted ? session.sdkRef.query('npc.replySid', { asOf: index }) ?? null : null; } catch { return null; } },
+        /** The place names Story Director's Atlas knows (its `atlas.places` query), [] when it is not there or cannot answer: capitalised words that are places name no one (NSD16). */
+        places: () => { try { const got = session.hosted ? session.sdkRef.query('atlas.places', {}) : null; return (Array.isArray(got) ? got : []).flatMap(place => [place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : [])]).filter(name => typeof name === 'string' && name); } catch { return []; } },
         /** While hosted: a story event the scan saw opens these notes of one NPC → `npc.open` (Delta's own send). */
         openByEvent: ({ name, ids } = {}) => send('npc.open', { name, open: ids, by: 'story' }, { own: true, background: true }),
         /** The notes a scan wrote for someone new, cleaned to 2 to 5 layers (src/npc-meters.js normalizeGeneratedSecrets). */

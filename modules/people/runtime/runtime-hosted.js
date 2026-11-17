@@ -14,7 +14,6 @@ import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
 import { sheetLevelOf } from '../core/core-record.js';
 import { stage1Refresh } from '../legacy/dossier-tools-core.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
-import { createTastes } from './runtime-hosted-parts/tastes.js';
 import { pageHandles } from './handles.js';
 
 export function createHostedPart(rt, deps) {
@@ -347,7 +346,6 @@ export function createHostedPart(rt, deps) {
     }
 
     const { hostedTargetNotes, targetNoteOptions } = createTargetNotes({ storySuiteV2Meters, hostedEventWatch });
-    const { forwardTastesToHost } = createTastes({ storySuiteV2Meters, chatHeadUnchanged, latestMessageId });
 
     // A committed scan's `secretEvents` (the keys of the watched story events the current exchange showed) open those notes
     // as npc.open (cause ui, recorded on the head reply, so a swipe takes them back). Nothing is sent when the chat moved
@@ -421,5 +419,5 @@ export function createHostedPart(rt, deps) {
         return { text: 'The latest scan found no NPC in the scene.', scan: true };
     }
 
-    return { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, isKeyNpc, keyReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, keyAwayScanOptions, partyLevelList, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, forwardTastesToHost, attachGeneratedSecrets, castEmptyReason };
+    return { storyBlockV2Hosted, storySuiteV2Meters, scanAfterEveryReply, hostedStoryClock, hostedStoryDateAt, hostedStoryDayAt, hostedMeterView, isKeyNpc, keyReturnNotes, castList, scenePresenceView, scanScenePresent, dossierHostViews, viewNpcCopies, keyAwayScanOptions, partyLevelList, keyKeepIds, hostedReadsFailed, hostedScanState, chatHeadMark, chatHeadUnchanged, forwardRelationshipChangesToHost, hostedNotePromptOptions, hostedTargetNotes, targetNoteOptions, forwardSecretEventsToHost, attachGeneratedSecrets, castEmptyReason };
 }
