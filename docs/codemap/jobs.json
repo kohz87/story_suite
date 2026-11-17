@@ -362,6 +362,7 @@
   "ui/tabs/story/tracker-edit.js": "Builds the Edit tracker form: the fields that can be changed by hand, Save (only what changed), Cancel and Remove for a tracker this chat made.",
   "ui/tabs/story/tracker-templates.js": "Builds the \"Add from a template\" sheet: one row per template with an Add button; a refusal shows under the list.",
   "ui/tabs/story/trackers.js": "Builds the Trackers view: one card per tracker with bars, numbers or text, Show on Now and Edit.",
+  "ui/tabs/world/conditions.js": "Builds the Conditions here card: the world's conditions in force at the party's place, with since when, why and what they do to prices and roads.",
   "ui/tabs/world/factions.js": "Builds the Factions card: each known faction with its stance, summary, area, known members and latest event.",
   "ui/tabs/world/map.js": "Builds the map card: find, region, zoom, fit, centre and tidy tools over a pan-and-pinch SVG of places, roads and the trip line.",
   "ui/tabs/world/news.js": "Builds the News card: events the character has heard, with a state filter, heard-where-and-from lines and place and faction links.",

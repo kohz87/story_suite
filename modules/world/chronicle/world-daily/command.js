@@ -13,6 +13,7 @@ import { WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
 import { LONG_SKIP, runDays } from '../../daily/step.js';
 import { maxJumpMinutes, settingsFrom } from '../../../time/tracker/time.js';
 import { readWorld } from './read-world.js';
+import { tempoOf } from './tempo.js';
 import { dailySummary } from './summary.js';
 import { isWorldSeed } from './seed.js';
 import { ledgerOf, markLedger } from '../conditions/ledger.js';
@@ -80,7 +81,7 @@ function daily(ctx, payload = {}) {
     const marks = ledgerOf(chronicle.ledger);
     const query = (name, args) => ctx.query(name, args);
     const world = readWorld(query);
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, rev: revOf(ctx), longSkip, marks });
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks });
     if (!out) return kept();
     writeConditions(ctx, chronicle, out.conditions);
     // The ledger's anchors are now the step's own; today's clears stay in its tomb (spec §2 clear beats set, also against a later world line today).

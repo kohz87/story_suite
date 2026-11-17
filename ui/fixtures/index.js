@@ -7,6 +7,7 @@ import { bagFixture } from './bag.js';
 import { fightSceneAnswer } from './fight-scene.js';
 import { selectScene } from '../select/interaction.js';
 import { worldFor } from './world.js';
+import { withWorldEvents } from './world-events.js';
 import { buildJournal } from './journal.js';
 import { buildStory } from './story.js';
 import { buildSettings } from './settings.js';
@@ -41,6 +42,7 @@ function resolveOptions(variant) {
     scene: opts.scene || null,
     sceneLong: Boolean(opts.sceneLong),
     sceneFight: Boolean(opts.sceneFight),
+    worldEvents: Boolean(opts.worldEvents),
   };
 }
 
@@ -265,10 +267,10 @@ export function fixture(variant = 'default') {
     party: opts.rpg ? partyFixture() : null,
     bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),
     fight: opts.fightOpen || (opts.scene && opts.sceneFight) ? selectScene(fightSceneAnswer(opts.fightState, { scene: opts.sceneFight ? opts.scene : null })) : null,   // the open fight, as the activity host gets it (the Fight tab)
-    world: worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
+    world: opts.worldEvents && !opts.empty ? withWorldEvents(worldFor(opts.fightOpen ? 'fightOpen' : 'default')) : worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
     story: buildStory({ empty: opts.empty, planShown: opts.planShown }),
-    settings: buildSettings({ rpg: opts.rpg }),
+    settings: buildSettings({ rpg: opts.rpg, worldEvents: opts.worldEvents }),
     // (no join card with the RPG off: rpg.partyAdd is not answered then)
     dossier: Object.fromEntries(Object.keys(DOSSIERS).map(id => [id, opts.rpg ? dossierFor(id) : { ...dossierFor(id), partyAdd: null }])),
   };

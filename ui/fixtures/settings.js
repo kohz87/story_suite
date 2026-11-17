@@ -1,6 +1,7 @@
 // Builds the Settings overlay fixture (schema rows per section, module sets, three connections) at code defaults.
 
 import { SECTION_ROWS } from './settings-rows.js';
+import { worldEventsRows } from './world-events.js';
 import { MODULE_DEFS, PRESETS, REMOVED, PANELS } from './settings-extra.js';
 
 // row(group, key, type, label, value, extra): one schema row; default equals value unless extra.default says otherwise.
@@ -19,7 +20,7 @@ function row(group, key, type, label, value, extra = {}) {
 
 const sec = (id, group, name, desc, rows, special = null) => ({ id, group, name, desc, special, rows });
 
-function buildSections() {
+function buildSections(worldEvents = false) {
   const R = (...args) => row(...args);
   const rows = id => (SECTION_ROWS[id] ? SECTION_ROWS[id](R) : []);
   return [
@@ -27,7 +28,7 @@ function buildSections() {
     sec('look', 'Play', 'Look', 'Skin and text.', rows('look')),
     sec('people', 'Rules', 'People', 'Feelings and their pacing, stages, who gets a dossier, Refresh, portraits and the map.', rows('people')),
     sec('rpg', 'Rules', 'RPG and fights', 'Combat Rules v1, progression and fights. The checks’ numbers are in Director.', rows('rpg')),
-    sec('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', rows('world')),
+    sec('world', 'Rules', 'World and time', 'One calendar, one weather, the map and time rules.', [...rows('world'), ...(worldEvents ? worldEventsRows() : [])]),
     sec('director', 'Rules', 'Director', 'Checks, spoilers, the pulse, one planner for arcs and the cast, names.', rows('director')),
     sec('money', 'Rules', 'Money', 'Coins and prices.', rows('money')),
     sec('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', rows('extras')),
@@ -56,7 +57,7 @@ export function buildSettings(opts = {}) {
   const rpg = opts.rpg !== false;
   return {
     subtitle: 'this chat: Ersveil · Astra',
-    sections: buildSections(),
+    sections: buildSections(opts.worldEvents === true),
     modules: {
       scope: 'chat',
       chat: buildModuleSet(rpg),

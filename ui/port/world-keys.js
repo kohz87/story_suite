@@ -1,7 +1,7 @@
 // Translates the World and time page's row keys and shown words to the real settings (Story Director's namespaced keys, one feature) and back.
 
 /** The module the settings sit under and the two features the page reads. */
-export const WORLD_IDS = Object.freeze({ director: 'story-director', weather: 'story-director.weather', digest: 'story-director.digest' });
+export const WORLD_IDS = Object.freeze({ director: 'story-director', weather: 'story-director.weather', digest: 'story-director.digest', events: 'story-director.world-events' });
 
 const pair = (...list) => ({ labels: list.map(p => p[1]), values: list.map(p => p[0]) });
 const num = key => ({ key, kind: 'int' });
@@ -19,11 +19,14 @@ export const WORLD_KEYS = Object.freeze({
   'world.weekdays': text('tracker.calendar.week'),
   'world.leapYears': flag('tracker.calendar.leapYears'),
   'world.weather': { key: null, kind: 'weather', ...pair([true, 'Rolled from the calendar'], [false, 'The story only']) },
+  // The World events switch is a feature (off by default); Tempo is stored as text like the map's scales (0.25-4).
+  'world.worldEvents': { key: null, kind: 'feature', feature: WORLD_IDS.events },
   'world.northIs': choice('atlas.map.north', ['up', 'Up'], ['down', 'Down']),
   'world.eastIs': choice('atlas.map.east', ['right', 'Right'], ['left', 'Left']),
   'world.kmPerMapUnit': scale('atlas.map.kmPerUnit'),
   'world.roadsWind': scale('atlas.map.roadFactor'),
   'world.waterAndAirSpeeds': choice('atlas.map.era', ['pre-modern', 'Old world'], ['modern', 'Modern']),
+  'world.tempo': scale('chronicle.tempo'),
   'world.longestTimeJump': num('tracker.maxJump'),
   'world.whileAwayRecapAfterAJump': num('time.recapHours'),
   'world.deadlinesSlipOrLapseAsTi': flag('time.lapses'),
@@ -51,9 +54,9 @@ export function toStored(uiKey, value) {
   if (!def) return undefined;
   if (def.kind === 'choice' || def.kind === 'weather') { const i = def.labels.indexOf(value); return i < 0 ? undefined : def.values[i]; }
   if (def.kind === 'months') return parseMonths(value) ?? undefined;
-  if (def.kind === 'scale') return Number.isFinite(value) ? String(value) : undefined;
+  if (def.kind === 'scale') return Number.isFinite(value) && !(uiKey === 'world.tempo' && (value < 0.25 || value > 4)) ? String(value) : undefined;
   if (def.kind === 'int') return Number.isInteger(value) ? value : undefined;
-  if (def.kind === 'bool') return typeof value === 'boolean' ? value : undefined;
+  if (def.kind === 'bool' || def.kind === 'feature') return typeof value === 'boolean' ? value : undefined;
   return typeof value === 'string' ? value : undefined;
 }
 
