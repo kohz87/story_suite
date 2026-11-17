@@ -36,6 +36,8 @@ export const NOW_SHAPE = {
     ],
   },
   today: {
+    // Where and when the store already knows (place, then date, time, weather); absent or null when it knows none.
+    where: { $optional: { $nullable: SUMMARY_ROW } },
     focus: { $nullable: { $oneOf: [T.STRING, SUMMARY_ROW] } },
     trip: {
       $nullable: {

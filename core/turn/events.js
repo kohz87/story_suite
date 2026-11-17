@@ -88,6 +88,8 @@ export function createEvents(s, deps) {
                 if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = hidden;
                 edited = true;
             }
+            // The text is final: the blocks' boundary hashes are stamped from it (the change block moved into the hidden comment).
+            store.restampHashes?.(id);
             if (timeline?.needsRecovery()) {
                 const anchored = await timeline.recover();
                 if (!anchored.ok && !anchored.blockedBy) problem({ index: id, code: anchored.code, message: anchored.message });

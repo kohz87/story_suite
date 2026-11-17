@@ -80,7 +80,15 @@ export function createPages(settings, ctx) {
     return [];
   }
 
-  const reset = (label, key) => h('button', { type: 'button', class: 'btn2', style: { 'align-self': 'flex-start' }, onClick: () => ctx.onAction?.(key, label) }, label);
+  // "Reset to Standard" changes the switches in the store, so the open page reads them again (the host's answer) and draws at once; a button with no host answer only draws.
+  const readModules = () => { const fresh = ctx.view?.('settings')?.modules; if (fresh) { modules.chat = structuredClone(fresh.chat ?? modules.chat); modules.preset = fresh.preset ?? null; } };
+  const afterReset = answer => { readModules(); redraw(); return answer; };
+  const run = (key, label) => {
+    const answer = ctx.onAction?.(key, label);
+    if (key !== 'modules.reset') return answer;
+    return typeof answer?.then === 'function' ? answer.then(afterReset, error => afterReset({ ok: false, message: String(error?.message ?? error) })) : afterReset(answer);
+  };
+  const reset = (label, key) => h('button', { type: 'button', class: 'btn2', style: { 'align-self': 'flex-start' }, onClick: () => run(key, label) }, label);
 
   /** The section's own body: its module card, the special area (Start, Models, Packs, Tools) and the setting cards. */
   function body(section) {
@@ -97,8 +105,8 @@ export function createPages(settings, ctx) {
     const tail = [];
     if (!isStart && section.rows.some(r => r.type !== 'info' && r.type !== 'btn')) tail.push(reset(`Reset ${section.name} to defaults`, 'settings.reset'));
     if (isStart) {
-      tail.push(reset('Reset to Standard', 'modules.reset'),
-        h('div', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Gone (decided)'), h('ul', { class: 'removed' }, (settings.removed ?? []).map(r => h('li', r))), h('div', { style: { height: '8px' } })));
+      tail.push(reset('Reset to Standard', 'modules.reset'));
+      if ((settings.removed ?? []).length) tail.push(h('div', { class: 'sgrp' }, h('div', { class: 'gt' }, 'Gone (decided)'), h('ul', { class: 'removed' }, settings.removed.map(r => h('li', r))), h('div', { style: { height: '8px' } })));
     }
     return [h('div', h('h2', section.name), h('p', { class: 'sdesc' }, section.desc), applies), ...content.filter(Boolean), ...tail];
   }

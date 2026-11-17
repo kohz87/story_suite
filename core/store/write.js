@@ -6,13 +6,14 @@
 //
 // The parts: write/saving.js touch, lifecycleChanged, saveIdle, saveLate, idleSaves; write/story.js append, before; write/replace.js
 // replaceStory, reconcile; write/records.js setNarrated, setPracticeRule, setFoeCap, setRuleMarks, receipts, truncate, untold, work; write/lifecycle.js
-// rebuild, archived, archiveList, batch, renamed. This file composes them in the order the object had.
+// rebuild, archived, archiveList, batch, renamed; write/restamp.js restampHashes. This file composes them in the order the object had.
 
 import { createSavingStart, createSavingEnd } from './write/saving.js';
 import { createStory } from './write/story.js';
 import { createReplace } from './write/replace.js';
 import { createRecords } from './write/records.js';
 import { createLifecycle } from './write/lifecycle.js';
+import { createRestamp } from './write/restamp.js';
 
 export function createWrite(s, deps) {
     return {
@@ -20,6 +21,7 @@ export function createWrite(s, deps) {
         ...createStory(s, deps),
         ...createReplace(s, deps),
         ...createRecords(s, deps),
+        ...createRestamp(s, deps),
         ...createLifecycle(s, deps),
         ...createSavingEnd(s, deps),
     };

@@ -20,7 +20,7 @@ export function selectMoneyRows(money) {
   const m = money && typeof money === 'object' ? money : {};
   const get = key => (Object.hasOwn(m, key) ? m[key] : D[key]);
   const text = key => String(get(key) ?? '');
-  const coinsHint = 'Blank: the pack’s coins (Ersveil: copper, silver, gold)';
+  const coinsHint = 'Blank: the pack’s coins, if it has any';
   return [
     row('money.coins', 'txt', 'Coins, smallest first', coinsText(get('coins')), '', { hint: coinsHint }),
     row('money.show', 'seg', 'Show money as', wordOf(get('coinDisplay')), wordOf(D.coinDisplay), { options: Object.keys(SHOW) }),
