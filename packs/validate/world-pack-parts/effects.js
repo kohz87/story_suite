@@ -21,6 +21,8 @@ function castEffects(entries, ctx, field) {
         if (entry.until !== undefined && (typeof entry.until !== 'string' || !UNTIL.test(entry.until))) ctx.say(`${at}.until`, 'until is "end", "permanent" or "cleared:<condition>@<ref>".');
         else if (typeof entry.until === 'string' && entry.until.startsWith('cleared:')) checkConditionText(entry.until.slice(8), ctx, `${at}.until`, { duration: 'forbid' });
         if (entry.died !== undefined && typeof entry.died !== 'boolean') ctx.say(`${at}.died`, 'died must be true or false.');
+        // `from` (v0.14.6-v0.14.9): a place id the person must be in (its group) at the tick, or "anywhere".
+        if (entry.from !== undefined && entry.from !== 'anywhere' && !(typeof entry.from === 'string' && ctx.index.ref(entry.from).has('place'))) ctx.say(`${at}.from`, `"${String(entry.from)}" is not a place of this pack (from is a place id or "anywhere").`, 'UNKNOWN_REF');
         for (const text of ['status', 'goal', 'routine']) if (entry[text] !== undefined && (!isText(entry[text], 300) || !entry[text].trim())) ctx.say(`${at}.${text}`, `${text} must be text of at most 300 characters.`);
     });
 }

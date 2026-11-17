@@ -1,11 +1,12 @@
-// The job: checking a world-pack person's secrets: the spec form { id, gate, text } or the old form { title, text, meter + at, when }, never both.
+// The job: checking a world-pack person's secrets: the spec form { id, gate, text, writes_fact? } or the old form { title, text, meter + at, when }, never both
+// (writes_fact only on the spec form).
 
 import { CAST_SECRET_FIELDS, SLUG, WORLD_CAST_LIMITS } from '../../limits.js';
 import { oneLine } from '../../../core/text.js';
 import { isObject } from '../core.js';
 import { plain } from './cast-fields.js';
 
-const SPEC = ['id', 'gate', 'text'];
+const SPEC = ['id', 'gate', 'text', 'writes_fact'];
 const OLD = CAST_SECRET_FIELDS;
 
 /** Shape only (the gate text is read once every person is known: see cast-pass.js). Returns the kept secrets. */
@@ -26,6 +27,7 @@ export function secrets(value, say) {
         if (ids.has(secret.id)) return say(`${at}.id`, `two secrets share the id "${secret.id}".`, 'DUPLICATE'), [];
         ids.add(secret.id);
         if (typeof secret.gate !== 'string' || !secret.gate.trim()) return say(`${at}.gate`, `${at}.gate is one string (no object form).`), [];
-        return [{ id: secret.id, gate: secret.gate.trim(), text: oneLine(secret.text) }];
+        if (secret.writes_fact !== undefined && (typeof secret.writes_fact !== 'string' || !SLUG.test(secret.writes_fact))) return say(`${at}.writes_fact`, `${at}.writes_fact is a fact id (lower-case-with-hyphens).`), [];
+        return [{ id: secret.id, gate: secret.gate.trim(), text: oneLine(secret.text), ...(secret.writes_fact ? { writes_fact: secret.writes_fact } : {}) }];
     });
 }

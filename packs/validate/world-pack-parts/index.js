@@ -11,7 +11,7 @@ export const routeNameOf = route => route.name ?? `${route.from}–${route.to}`;
  * Builds the index from the normalized content kinds. `ref(text)` → the set of scopes a place, route, region or realm reference can mean
  * (by id first, then by display name or alias); an empty set means it names nothing in this pack.
  */
-export function buildIndex({ refused = new Set(), places = [], routes = [], realms = [], conditions = [], cast = [], powers = [], scores = [], worldEvents = [], legacyEvents = [], items = [], markets = [], weather = null, placeKinds = null }) {
+export function buildIndex({ lore = [], refused = new Set(), places = [], routes = [], realms = [], conditions = [], cast = [], regions = [], templates = [], calendar = null, powers = [], scores = [], worldEvents = [], legacyEvents = [], items = [], markets = [], weather = null, placeKinds = null }) {
     const byId = new Map();
     const byName = new Map();
     const note = (map, key, scope) => { if (!map.has(key)) map.set(key, new Set()); map.get(key).add(scope); };
@@ -19,6 +19,10 @@ export function buildIndex({ refused = new Set(), places = [], routes = [], real
         note(byId, place.slug, 'place');
         for (const name of [place.name, ...(place.aliases ?? [])]) note(byName, foldKey(name), 'place');
         if (place.region) { note(byName, foldKey(place.region), 'region'); if (SLUGGY.test(place.region)) note(byId, place.region, 'region'); }
+    }
+    for (const region of regions) {
+        note(byId, region.id, 'region');
+        for (const name of [region.name, ...(region.aliases ?? [])]) note(byName, foldKey(name), 'region');
     }
     for (const realm of realms) {
         note(byId, realm.id, 'realm');
@@ -60,5 +64,13 @@ export function buildIndex({ refused = new Set(), places = [], routes = [], real
         knowsSeason: name => SLUGGY.test(name) && (['spring', 'summer', 'autumn', 'winter'].includes(name) || seasons.has(foldKey(name))),
         placeKindKnown: kind => typeof kind === 'string' && (PLACE_CLASSES.includes(kind) || Object.hasOwn(placeKinds ?? {}, kind)),
         cast,
+        calendar,
+        templateIds: new Set(templates.map(entry => entry.template)),
+        // The declared region ids (empty when the pack declares none).
+        regionIds: new Set(regions.map(region => region.id)),
+        // Whether the realm `ref` (id or name) holds the region `region`.
+        realmHolds: (ref, region) => realms.some(realm => (realm.id === ref || foldKey(realm.name ?? '') === foldKey(String(ref))) && (realm.regions ?? []).some(name => foldKey(name) === foldKey(String(region)))),
+        // Lore entries with an id: id → whether the entry is hidden (`learned:lore/<id>` names a hidden one).
+        lore: new Map((Array.isArray(lore) ? lore : []).filter(entry => typeof entry?.id === 'string').map(entry => [entry.id, entry.hidden === true])),
     };
 }

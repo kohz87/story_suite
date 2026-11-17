@@ -10,6 +10,8 @@ import { nowFrom } from '../queries.js';
 import { scenePlaceOf } from '../pick.js';
 import { hereConditions } from './here.js';
 import { WORLD_NOTE_BUDGET, worldEventsOn } from './feature.js';
+import { slotValue } from '../../../rpg/slot.js';
+import { pendingCues } from '../../daily/cues.js';
 
 export const WORLD_NOTE_HEADER = '[World now]';
 const MAX_CHARS = WORLD_NOTE_BUDGET * 4;
@@ -74,7 +76,10 @@ export function worldNote(view) {
     const heard = place ? heardLines(view, place, now) : [];
     const cue = ask(view, 'world.cueToday', { now, ...(place ? { place } : {}) });
     const cueText = clip(typeof cue === 'string' ? cue : cue?.text, 140);
+    // A must-happen death (ruling 34, daily/cues.js) leads the pinned head, in the spec's words: "<name> dies here: <summary>".
+    const dying = pendingCues(slotValue(view.state.domains.chronicle.daily)).map(item => `${clip(item.text, 140)}.`);
     const here = [
+        ...dying,
         status.length ? `Status here: ${status.map(entry => `${entry.ref} is ${entry.name}${entry.declared.means ? ` (${clip(entry.declared.means, 60)})` : ''}`).join('; ')}.` : '',
         others.length ? `Conditions here: ${others.map(conditionItem).join('; ')}.` : '',
     ].filter(Boolean);

@@ -68,8 +68,10 @@ export function acceptArc(ctx, payload = {}) {
     const results = applyLines(ctx, director, id, fresh.map((item, index) => lineOf(item, id, index)));
     const added = results.map(result => result?.data?.thread).filter(thread => typeof thread === 'string');
     const counts = countsText(plan);
+    // Plan items the world-event guard refused (kept in the payload, so a replay says the same): their notes follow the summary (a UI command has no Problems sink).
+    const refused = Array.isArray(payload?.refused) ? payload.refused.slice(0, 6).map(note => flat(note, 240)).filter(Boolean) : [];
     return {
-        summary: `New arc: ${plan.arc.key}${counts ? ` (${counts})` : ''}.`,
+        summary: `New arc: ${plan.arc.key}${counts ? ` (${counts})` : ''}.${refused.length ? ` ${refused.join(' ')}` : ''}`,
         // The Director note carries the arc and its threads from the next reply on.
         narrate: false,
         data: { arc: id, added, pending },

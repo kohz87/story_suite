@@ -3,6 +3,7 @@
 
 import { parseAnchor, parseCondition, parseEntry, parseThreshold } from './grammar.js';
 import { STANDING } from '../../limits.js';
+import { arcEndedKnown, checkDate } from './date-anchor.js';
 
 /** A condition string: its name is declared, its ref names a place, route, region or realm of the condition's scope (or a placeholder of that scope). */
 export function checkConditionText(text, ctx, field, { duration = 'allow' } = {}) {
@@ -47,12 +48,33 @@ function checkAnchorRecord(anchor, text, ctx, field) {
     } else if (kind === 'died' || kind === 'departed') {
         if (ctx.index.refused.has(id)) ctx.collect.warnings.push([field, `"${text}": "${id}" was refused (see the cast Problems); the step skips what names them.`]);
         else if (!ctx.index.person(id)) return ctx.say(field, `"${text}": "${id}" is not a cast id; a person pointed at by id must be a cast entry.`, 'UNKNOWN_REF'), null;
+    } else if (kind === 'date') { if (!checkDate(id, text, ctx, field)) return null;
+    } else if (kind === 'arc-ended') { if (!arcEndedKnown(id, text, ctx, field)) return null;
+    } else if (kind === 'learned') {
+        if (!learnedKnown(id, text, ctx, field)) return null;
     } else if (kind === 'fact') ctx.collect.factRefs.add(id);
     else if (kind === 'season' && !ctx.index.knowsSeason(id)) ctx.collect.warnings.push([field, `"${text}": "${id}" is not a season the built-in calendar or this pack's weather knows.`]);
     else if (kind === 'set' || kind === 'cleared') {
         if (!ctx.index.condition(id)) return ctx.say(field, `"${text}": "${id}" is not a condition this pack declares.`, 'UNKNOWN_REF'), null;
     }
     return anchor;
+}
+
+// `learned:<cast id>/<secret id>` (a spec secret of that person) or `learned:lore/<entry id>` (a hidden lore entry): spec v0.14.4 §3.
+function learnedKnown(id, text, ctx, field) {
+    const cut = id.indexOf('/');
+    const [who, what] = cut < 0 ? [id, ''] : [id.slice(0, cut), id.slice(cut + 1)];
+    if (!what) return ctx.say(field, `"${text}": write learned:<cast id>/<secret id> or learned:lore/<entry id>.`), false;
+    if (who === 'lore') {
+        if (!ctx.index.lore.has(what)) return ctx.say(field, `"${text}": "${what}" is not the id of a lore entry of this pack.`, 'UNKNOWN_REF'), false;
+        if (ctx.index.lore.get(what) !== true) return ctx.say(field, `"${text}": "${what}" is not hidden; only a hidden lore entry is learned.`), false;
+        return true;
+    }
+    if (ctx.index.refused.has(who)) return ctx.collect.warnings.push([field, `"${text}": "${who}" was refused (see the cast Problems).`]), true;
+    const person = ctx.index.person(who);
+    if (!person) return ctx.say(field, `"${text}": "${who}" is not a cast id.`, 'UNKNOWN_REF'), false;
+    if (!(person.secrets ?? []).some(secret => secret.id === what)) return ctx.say(field, `"${text}": ${who} has no secret with the id "${what}".`, 'UNKNOWN_REF'), false;
+    return true;
 }
 
 /** One requires / requires_any / any_of entry. `allow`: which of 'threshold', 'anchor', 'condition' this place takes. */

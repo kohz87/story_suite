@@ -3,12 +3,14 @@
 
 import { EVENT_CERTAINTY, EVENT_KINDS, EVENT_REACH, SLUG, WORLD_EVENT_FIELDS, WORLD_LIMITS } from '../../limits.js';
 import { durationDays } from '../../../modules/world/daily/durations.js';
+import { foldKey } from '../../../core/text.js';
 import { isObject, isText } from '../core.js';
 import { checkAnchorText, checkEntry } from './entries.js';
 import { checkEffects } from './effects.js';
+import { checkModifiers } from './modifiers.js';
+import { checkWeight } from './weight-check.js';
 
 const CHANCE = /^(\d{1,3}(?:\.\d+)?)% (over the window|per season)$/;
-const MODIFIER = /^×(\d+(?:\.\d+)?)$/;
 const SENTENCE = (value, max) => isText(value, max) && value.trim().length > 0;
 
 function whereOf(record, ctx, say, kind) {
@@ -29,14 +31,6 @@ function whereOf(record, ctx, say, kind) {
     }
 }
 
-function modifiers(map, ctx, field) {
-    if (!isObject(map)) return ctx.say(field, `${field} must be { "<condition>@<ref>": "×2" }.`);
-    for (const [key, value] of Object.entries(map)) {
-        checkEntry(key, ctx, `${field}.${key}`, ['anchor', 'condition']);
-        if (typeof value !== 'string' || !MODIFIER.test(value.trim())) ctx.say(`${field}.${key}`, `"${String(value)}" is not a modifier; write ×N (×2, ×0.5; ×0 blocks), not a percentage.`);
-    }
-}
-
 function outcomes(list, ctx) {
     if (!Array.isArray(list) || list.length > WORLD_LIMITS.outcomes) return ctx.say('outcomes', `outcomes must be a list of at most ${WORLD_LIMITS.outcomes} variants.`);
     const names = new Set();
@@ -47,13 +41,7 @@ function outcomes(list, ctx) {
         if (!SENTENCE(outcome.name, 80)) ctx.say(`${at}.name`, `${at}.name must be text of 1 to 80 characters.`);
         else if (names.has(outcome.name)) ctx.say(`${at}.name`, `two outcomes are named "${outcome.name}".`, 'DUPLICATE');
         else names.add(outcome.name);
-        const weight = outcome.weight;
-        if (typeof weight === 'number') { if (!Number.isFinite(weight) || weight < 0) ctx.say(`${at}.weight`, `${at}.weight is ${weight}; a literal weight must be 0 or more.`); }
-        else if (typeof weight === 'string' && /^(power|score):/.test(weight)) {
-            const kind = weight.slice(0, weight.indexOf(':'));
-            const id = weight.slice(weight.indexOf(':') + 1).trim();
-            if (!ctx.index.standing(kind, id)) ctx.say(`${at}.weight`, `${at}.weight "${weight}": there is no ${kind} with that id (or unique name) in this pack.`, 'UNKNOWN_REF');
-        } else ctx.say(`${at}.weight`, `${at}.weight must be a number of 0 or more, power:<id> or score:<id>.`);
+        checkWeight(outcome.weight, ctx, `${at}.weight`);
         if (outcome.effects !== undefined) checkEffects(outcome.effects, ctx, `${at}.effects`, { top: false });
         if (outcome.summary !== undefined && !SENTENCE(outcome.summary, 300)) ctx.say(`${at}.summary`, `${at}.summary must be text of at most 300 characters.`);
     });
@@ -68,6 +56,22 @@ function endsWhen(value, ctx) {
     if (value.any_of !== undefined) {
         if (!Array.isArray(value.any_of) || !value.any_of.length) ctx.say('ends_when.any_of', 'any_of must be a non-empty list of anchors or thresholds.');
         else value.any_of.forEach((entry, n) => checkEntry(entry, ctx, `ends_when.any_of[${n}]`, ['threshold', 'anchor']));
+    }
+}
+
+// Ruling 38 (v0.14.7): a named move without `from` applies only while the person is still at their start group, so one whose start is
+// not within the event's `where` (the place, its region or its realm) gets a warning; with `from` (a place or "anywhere") it gets none.
+function fromWarnings(record, ctx) {
+    const where = Array.isArray(record.where) ? record.where : [];
+    const entries = [record.effects?.cast, ...(Array.isArray(record.outcomes) ? record.outcomes.map(outcome => outcome?.effects?.cast) : [])].flatMap(list => (Array.isArray(list) ? list : []));
+    for (const entry of entries) {
+        if (!isObject(entry) || entry.location === undefined || entry.from !== undefined || entry.died === true) continue;
+        const person = ctx.index.person(entry.who);
+        const start = person ? person.start?.place ?? person.homeBase : null;
+        const home = typeof start === 'string' ? ctx.index.placeByRef(start) : null;
+        if (!home) continue;
+        const near = where.some(ref => ctx.index.placeByRef(ref) === home || (home.region && (foldKey(String(ref)) === foldKey(home.region) || ctx.index.realmHolds(ref, home.region))));
+        if (!near) ctx.collect.warnings.push([`${record.id}.effects.cast`, `the move of "${entry.who}" has no from and their start (${start}) is not where the event happens; it applies only while they are still at their start. Add "from": "<place id>" or "anywhere".`]);
     }
 }
 
@@ -94,6 +98,14 @@ export function checkWorldEvent(record, ctx) {
     }
     const stages = [...(record.requires ?? []), ...(record.requires_any ?? [])].filter(entry => typeof entry === 'string' && entry.startsWith('stage:'));
     if (kind === 'chain-stage' && !stages.length) say('requires', 'a chain stage requires "stage:<previous event id>" (in requires, or among the paths of requires_any).');
+    // `on` (v0.14.3): a one-off that fires on one fixed day; it is its own window, so a window, a chance or a lower certainty beside it is a mistake.
+    if (record.on !== undefined) {
+        if (typeof record.on !== 'string' || !record.on.startsWith('date:')) say('on', '"on" is a fixed date, like "date:612-07-30".');
+        else checkAnchorText(record.on, ctx, 'on');
+        if (kind !== 'one-off') say('on', '"on" is for a one-off (a recurring event or a chain stage has no fixed day).');
+        for (const other of ['window', 'chance']) if (record[other] !== undefined) say('on', `"on" already is the window (the day itself); remove "${other}".`);
+        if (record.certainty !== undefined && record.certainty !== 'set-in-motion') say('on', '"on" fires with certainty set-in-motion; remove "certainty" or write "set-in-motion".');
+    }
     if (record.window !== undefined) {
         if (kind === 'recurring') say('window', 'a recurring event has no window; it is rolled again and again (use cooldown and a per-season chance).');
         else if (!isObject(record.window) || Object.keys(record.window).some(key => key !== 'after' && key !== 'within')) say('window', 'window must be { "after"?: <anchor> [+ duration], "within": <duration> }.');
@@ -107,7 +119,7 @@ export function checkWorldEvent(record, ctx) {
     else if (chance && (chance[2] === 'per season') !== (kind === 'recurring')) say('chance', kind === 'recurring' ? 'a recurring event\'s chance is per season ("30% per season").' : '"per season" is for a recurring event; write "over the window".');
     if (record.cooldown !== undefined && !(durationDays(String(record.cooldown).replace(/ per place$/, '')) > 0)) say('cooldown', `"${String(record.cooldown)}" is not a duration, such as "1 season per place".`);
     if (kind === 'recurring' && record.cooldown === undefined) say('cooldown', 'a recurring event needs a cooldown such as "1 season per place".');
-    for (const field of ['likelier_if', 'less_if']) if (record[field] !== undefined) modifiers(record[field], ctx, field);
+    for (const field of ['likelier_if', 'less_if']) if (record[field] !== undefined) checkModifiers(record[field], ctx, field);
     if (record.pre_empted_by !== undefined) {
         if (!Array.isArray(record.pre_empted_by)) say('pre_empted_by', 'pre_empted_by must be a list of anchors.');
         else record.pre_empted_by.forEach((entry, n) => checkEntry(entry, ctx, `pre_empted_by[${n}]`, ['anchor']));
@@ -115,6 +127,8 @@ export function checkWorldEvent(record, ctx) {
     if (record.anchor_mode !== undefined && record.anchor_mode !== 'first' && record.anchor_mode !== 'each') say('anchor_mode', 'anchor_mode must be "first" or "each".');
     if (record.outcomes !== undefined) outcomes(record.outcomes, ctx);
     if (record.effects !== undefined) checkEffects(record.effects, ctx, 'effects');
+    if (record.even_in_party !== undefined && typeof record.even_in_party !== 'boolean') say('even_in_party', 'even_in_party must be true or false.');
+    fromWarnings(record, ctx);
     endsWhen(record.ends_when, ctx);
     return JSON.parse(JSON.stringify(record));
 }

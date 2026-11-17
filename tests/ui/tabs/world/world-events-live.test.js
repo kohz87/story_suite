@@ -30,7 +30,7 @@ test('on: the card names the condition at the party\'s place with its date and w
   assert.equal(card.querySelector('.ev .eh b').textContent, 'unrest');
   assert.match(card.querySelector('.meta2').textContent, /since June \d, 1200/);
   assert.equal(card.querySelector('.ev p').textContent, 'Crowds in the streets.');
-  assert.match(card.querySelector('.meta2').textContent, /because levy/);
+  assert.match(card.querySelector('.meta2').textContent, /because The lord calls a levy/);
   host.features.set(FEATURE, false);
   assert.equal(cardOf(host), null);
   assert.equal('conditions' in portOf(host).view('world'), false, 'the view-model is the one it was before');

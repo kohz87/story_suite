@@ -11,6 +11,9 @@ import { conditionsHereQuery } from '../conditions/here-query.js';
 import { directorCallsQuery } from '../conditions/director-calls.js';
 import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { DAILY, dailyCommand } from '../world-daily/command.js';
+import { CUE, cueCommand } from '../world-daily/cue-command.js';
+import { LEARNED, learnedCommand } from '../world-daily/learned.js';
+import { worldBriefQuery } from '../world-daily/arc-brief.js';
 import { dailyAfterCapture } from '../world-daily/hook.js';
 import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
@@ -61,12 +64,14 @@ export const part = {
         ...conditionCommands,
         [CONDITIONS_SETTLE]: settleConditions,
         [DAILY]: dailyCommand,
+        [CUE]: cueCommand,
+        [LEARNED]: learnedCommand,
         [WORLD_SEED]: worldSeedCommand,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,
     },
-    queries: { ...queries, ...conditionQueries, 'chronicle.directorCalls': directorCallsQuery, 'chronicle.conditionsHere': conditionsHereQuery },
+    queries: { ...queries, ...conditionQueries, 'chronicle.directorCalls': directorCallsQuery, 'chronicle.conditionsHere': conditionsHereQuery, 'chronicle.world.brief': worldBriefQuery },
     // The world and faction lines are the threads feature's (src/v2/threads.js); `chronicle.lasting` (a pack event's step) is code's and stays.
     kinds: {
         world: { grammar: GRAMMAR.world, apply: applyWorldLine, feature: THREADS_FEATURE },

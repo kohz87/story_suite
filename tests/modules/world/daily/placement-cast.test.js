@@ -67,7 +67,7 @@ test('test 21 and 34: protected cast — an authored event naming them moves the
         ev('after-summons', { certainty: 'likely', requires: ['departed:sir-lothar'], window: { after: 'start', within: '30 days' }, ends_when: 'instant' }),
     ] });
     const run = runner(w).to(1);
-    assert.deepEqual(run.state.cast['sir-lothar'].displaced, { to: 'Highmark Capital', by: 'summons', until: 'end', routine: 'attends the regent' });
+    assert.deepEqual(run.state.cast['sir-lothar'].displaced, { to: 'Highmark Capital', by: 'summons', until: 'end', since: 1, routine: 'attends the regent' });
     assert.deepEqual(run.state.anchors['departed:sir-lothar'], [1]);
     assert.ok(run.journal().some(entry => entry.rumour && entry.place === 'Oakhollow'));
     assert.equal(run.row('after-summons').state, 'eligible', 'a requires departed:<id> becomes Eligible that day');
@@ -111,7 +111,9 @@ test('test 52: explicit kinds beat the none class — generic placement skips du
 test('test 53 (the daily part): a displaced record lapses when its event ends (on_end.cast moves them home), with its condition, or never (permanent)', () => {
     const move = (id, entry, extra = {}) => ev(id, { effects: { cast: [{ who: 'sir-lothar', location: 'Highmark Capital', ...entry }] }, ends_when: { for: '2 days' }, ...extra });
     const home = runner(world({ cast, events: [move('summons', { until: 'end', routine: 'attends the regent' }, { effects: { cast: [{ who: 'sir-lothar', location: 'Highmark Capital', until: 'end' }], on_end: { cast: [{ who: 'sir-lothar', location: 'Oakhollow', until: 'permanent' }] } } })] })).to(3);
-    assert.deepEqual(home.state.cast['sir-lothar'].displaced, { to: 'Oakhollow', by: 'summons', until: 'permanent' }, 'case A: on_end.cast moves him home on the tick it ends');
+    const { since, ...shown } = home.state.cast['sir-lothar'].displaced;
+    assert.deepEqual(shown, { to: 'Oakhollow', by: 'summons', until: 'permanent' }, 'case A: on_end.cast moves him home on the tick it ends');
+    assert.equal(since, home.row('summons').ended, 'the move is dated on the tick it ends');
     const cleared = runner(world({ cast, events: [move('siege', { until: 'cleared:unrest@Town' }, { effects: { set: ['unrest@Town: 3 days'], cast: [{ who: 'sir-lothar', location: 'Highmark Capital', until: 'cleared:unrest@Town' }] } })] })).to(3);
     assert.equal(cleared.state.cast['sir-lothar'].displaced.until, 'cleared:unrest@Town', 'held while the condition holds, past the event');
     cleared.to(4);

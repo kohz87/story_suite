@@ -1,13 +1,15 @@
 // World events, the daily step: applying an effects block on the tick (spec v0.10 §3 effects, §2 holders, §6 authored effects).
 // Order inside a block: clears, then sets, then powers and scores (clamped to −100..100, outside the per-deed limits), facts,
-// then cast moves and deaths (cast.js). A set with no duration: on an event it is held while the event is Active; on a template,
+// then cast moves and deaths (cast.js), then the evacuations of the placeStatus sets (evacuate.js: named moves first, ruling 39;
+// an event's caller may collect them over its main and outcome blocks and run them once both are applied). A set with no duration: on an event it is held while the event is Active; on a template,
 // an on_end block or a world line it lasts the condition's `fades`. "until cleared" overrides. Pure (on `ws`).
 
 import { conditionString } from './grammar.js';
 import { scaledDays } from './durations.js';
 import { clearCondition, setCondition } from './holds.js';
 import { boundRef } from './requires.js';
-import { applyCast, evacuate } from './cast.js';
+import { applyCast } from './cast.js';
+import { evacuate } from './evacuate.js';
 import { recordAnchor } from './anchors.js';
 
 const DAY = 1440;
@@ -46,11 +48,13 @@ function standing(ws, kind, name, delta, label) {
 /**
  * Apply `block` ({ set, clear, powers, scores, facts, cast }) for `source` = { kind: 'event' | 'template', id, title, held }
  * on `day` with the placeholder binding `bind`. `held`: sets with no duration are held by the event (its main effects).
+ * `evac`: a list the placeStatus evacuations are added to (the caller runs them with runEvacuations); none → run at the end here.
  */
-export function applyEffects(ws, block, source, day, bind = {}) {
+export function applyEffects(ws, block, source, day, bind = {}, evac = null) {
     if (!block || typeof block !== 'object') return;
     const minute = day * DAY;
     const label = `${source.kind === 'template' ? 'The template' : 'The event'} "${source.id}"`;
+    const own = [];
     for (const text of list(block.clear)) {
         const parsed = condition(ws, text, bind, label);
         if (parsed) clearCondition(ws, parsed.name, parsed.ref, minute);
@@ -61,7 +65,7 @@ export function applyEffects(ws, block, source, day, bind = {}) {
         const days = lifetime(ws, parsed, source.held === true);
         if (days === 'bad') { ws.warnings.push(`${label}: "${text}" has a duration that cannot be read.`); continue; }
         const set = setCondition(ws, { name: parsed.name, ref: parsed.ref, days, holder: source.id, by: source.kind === 'template' ? 'code' : `event:${source.id}`, why: source.title ?? source.id }, minute);
-        if (set && parsed.declared.placeStatus === true) evacuate(ws, parsed.ref, parsed.name, source, day);
+        if (set && parsed.declared.placeStatus === true) (evac ?? own).push({ ref: parsed.ref, name: parsed.name, source, day });
     }
     for (const [name, delta] of Object.entries(block.powers ?? {})) standing(ws, 'power', name, delta, label);
     for (const [name, delta] of Object.entries(block.scores ?? {})) standing(ws, 'score', name, delta, label);
@@ -71,5 +75,12 @@ export function applyEffects(ws, block, source, day, bind = {}) {
         recordAnchor(ws.anchors, `fact:${fact.id}`, day);
         ws.journal.push({ day, text: String(fact.text ?? fact.id).slice(0, 200), by: source.id });
     }
-    if (list(block.cast).length) applyCast(ws, list(block.cast), source, day);
+    // The event's place statuses so far (this block's and, for an event, its other block's): a move into one's group with no until lasts while it holds.
+    if (list(block.cast).length) applyCast(ws, list(block.cast), { ...source, statuses: evac ?? own }, day);
+    runEvacuations(ws, own);
+}
+
+/** Run collected evacuations ({ ref, name, source, day }) in order. */
+export function runEvacuations(ws, list) {
+    for (const item of list) evacuate(ws, item.ref, item.name, item.source, item.day);
 }

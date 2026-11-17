@@ -5,13 +5,16 @@ import { sha256 } from '../../../world/hash.js';
 import { personaName } from '../../../time/tracker/initiative.js';
 import { cueLines, pinned } from '../note.js';
 import { cutPoints, isInt, slotOf } from '../domain.js';
-import { castOf, fightOn, foesLeftover, linksOf, packName, pulseResults, presentKeys, roadsOf, seenKeys } from '../entries.js';
+import { ask, castOf, fightOn, foesLeftover, linksOf, packName, partyPlace, pulseResults, presentKeys, roadsOf, seenKeys } from '../entries.js';
 import { MAX_PEOPLE_ASKED, MAX_SOUGHT, MAX_TOKENS, castRequest, readCast, touches } from '../plan.js';
 import { kindWords } from '../sought.js';
 import { CALL_MS, FEATURE, HOLD_MS, castOn } from '../settings.js';
 import { askedAbout, batchKey, chooseMeetings, chooseRumor, dueMove, fingerprint, judgeKey, metInTheStory, moveReach, movable, paceOf, placedOf, refsOf, seekable, sortComes, unshown } from '../world.js';
 import { copyOf, frameOf, placesOf, queryOf } from './frame.js';
 import { recentStory, shownText, soughtTexts } from './text.js';
+import { basedView, keepsBase, pullsFree } from '../world-parts/bases.js';
+import { storyBases } from '../world-parts/story-bases.js';
+import { worldEventsOn } from '../../../world/chronicle/conditions/feature.js';
 
 const REPLY_TYPES = new Set(['normal', 'regenerate', 'swipe']);
 const normalizeType = type => String(type ?? 'normal').toLowerCase();
@@ -85,7 +88,8 @@ export function createCastHooks({ plans }) {
             die: new Set(mode === 'batch' ? asked.filter(item => item.mayDie).map(item => item.key) : []),
         };
         const request = castRequest({
-            mode, people: asked.map(askedAbout),
+            // With world events on, someone held at a base is told as there, with its routine (world-parts/bases.js).
+            mode, people: asked.map(item => basedView(askedAbout(item), item.person, worldEventsOn(view))),
             now: frame.calendar?.text ?? '', elapsed: due ? elapsedText(due.from, due.to) : '',
             place: [frame.party.place, frame.party.region].filter(Boolean).join(', '),
             places: placesOf(frame.query), recent: recentStory(view?.model?.chat?.()),
@@ -231,7 +235,8 @@ export function createCastHooks({ plans }) {
                     // as is one with no road towards the party's place, town or region (the town by the atlas's ids and parent links); one with no road elsewhere keeps that last known place (`from`).
                     // Someone on a journey towards the party is not moved (their landing time is the trip's from where they set out).
                     const reach = { party: frame.party, to: due.to, travel: roadsOf(frame.query), placed: placedOf(world) };
-                    const moves = result.moves.map(move => ({ ...move, where: frame.cast.places.match(move.where) ?? move.where })).flatMap(move => {
+                    // With world events on, a move away from someone's base (an event's, the story's, a stays record) is dropped by code.
+                    const moves = result.moves.map(move => ({ ...move, where: frame.cast.places.match(move.where) ?? move.where })).filter(move => keepsBase(world.people[move.key], move, worldEventsOn(view))).flatMap(move => {
                         const person = world.people[move.key];
                         if (!person) return [move];
                         const fit = slotOf(person.coming) ? null : moveReach(person, move.where, reach);
@@ -240,13 +245,13 @@ export function createCastHooks({ plans }) {
                     const payload = { from: due.from, to: due.to, ...(at !== null ? { at } : {}), ...(moves.length ? { moves } : {}), ...(died.length ? { died } : {}) };
                     commands.push({ type: 'cast.advance', payload });
                     applyAdvance(world, payload, { rev });
-                    comes = result.comes ?? [];
+                    comes = pullsFree(result.comes ?? [], world.people, worldEventsOn(view));
                 }
             }
         } else if (frame.now !== null) {
             let entry = plans.peek(judgeKey(print, frame.now));
             if (entry?.status === 'pending') entry = await plans.settled(judgeKey(print, frame.now), HOLD_MS);
-            if (entry?.status === 'done' && entry.result?.ok) comes = entry.result.comes ?? [];
+            if (entry?.status === 'done' && entry.result?.ok) comes = pullsFree(entry.result.comes ?? [], world.people, worldEventsOn(view));
             planFailed = toldHere(entry, at);
         }
 
@@ -297,12 +302,23 @@ export function createCastHooks({ plans }) {
     function afterCapture(view, info = {}) {
         if (!castOn(view)) return undefined;
         const slice = view?.state?.domains?.cast;
-        if (!slice?.meeting || !isInt(info?.index)) return undefined;
+        // With world events on: the story's own moves and stays records (world-parts/story-bases.js), after this reply's lines.
+        const moved = worldEventsOn(view) ? storyStep(view, slice) : [];
+        if (!slice?.meeting || !isInt(info?.index)) return moved.length ? { commands: moved } : undefined;
         const chat = typeof view?.story?.chat === 'function' ? view.story.chat() : null;
         const message = Array.isArray(chat) ? chat[info.index] : null;
-        if (!message || typeof message.mes !== 'string') return undefined;
+        if (!message || typeof message.mes !== 'string') return moved.length ? { commands: moved } : undefined;
         const keys = unshown(slice, { index: info.index, text: shownText(message.mes), present: presentKeys(queryOf(view), view?.state), seen: seenKeys(info.receipts) });
-        return keys.length ? { commands: [{ type: 'cast.withdraw', payload: { at: info.index, keys } }] } : undefined;
+        const commands = [...(keys.length ? [{ type: 'cast.withdraw', payload: { at: info.index, keys } }] : []), ...moved];
+        return commands.length ? { commands } : undefined;
+    }
+
+    // The `cast.story` step for this reply ([] when nothing changed): dossier places from NPC State, the party from `party.levels`.
+    function storyStep(view, slice) {
+        const query = queryOf(view);
+        const party = ask(query, 'party.levels', {}, null);
+        const payload = storyBases(slice, { npcs: view?.state?.domains?.people?.npcs, party: Array.isArray(party) ? party : [], place: partyPlace(query, view?.state)?.place ?? '' });
+        return payload ? [{ type: 'cast.story', payload }] : [];
     }
 
     return { afterReceive, afterCapture, beforeGenerate };
