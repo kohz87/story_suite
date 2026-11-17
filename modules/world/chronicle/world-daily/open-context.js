@@ -30,7 +30,7 @@ export function slotView(ws, def, slot, world) {
             .filter(person => resolveRef(ws.geo, placeOf(ws, person.id))?.place?.region === slot.region)
             .slice(0, MAX_FIGURES).map(person => `${person.id} (${person.name}, at ${placeOf(ws, person.id)})`)
         : [];
-    return { name: def.id, summary: def.summary, menu: def.open.menu, facts: def.open.facts, conditions: conditionsAt(ws, slot, means), figures };
+    return { name: def.id, summary: def.summary, menu: def.open.menu, facts: def.open.facts, ...(def.open.arc ? { arc: def.open.arc } : {}), conditions: conditionsAt(ws, slot, means), figures };
 }
 
 /** The lore text for a batch: the digest's titles, then the matching entries for each slot, cut to a size. `ask(name, args)` is the view's query. */

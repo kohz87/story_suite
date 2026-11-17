@@ -8,7 +8,8 @@
 import { applyEffects } from './effects.js';
 import { scaleDays } from './durations.js';
 import { bindOf } from './placement.js';
-import { checkOpen } from './open-check.js';
+import { checkAnswer } from './arc-plan.js';
+import { startArc } from './arc-day.js';
 import { BATCH, PENDING_DAYS, slotKey } from './open-slot.js';
 import { textPlace } from './shown-place.js';
 
@@ -45,8 +46,11 @@ function resolveSlot(ws, def, slot, result, day, why = 'the Director did not ans
     try { answer = typeof result?.answer === 'string' ? JSON.parse(result.answer) : null; } catch { answer = null; }
     if (!result || result.outcome === 'fallback' || !answer) return fixed(ws, def, slot, day, 'fallback', result?.why ?? why);
     const bind = { place: slot.place, region: slot.region || null, realm: slot.realm };
-    const checked = checkOpen(ws, def, bind, answer, day);
+    const checked = checkAnswer(ws, def, bind, answer, day);
     if (checked.errors.length) return fixed(ws, def, slot, day, 'fallback', `its answer no longer holds (${checked.errors[0]})`);
+    // A planned arc starts with its opening happening; the caps may refuse it (a major step), and then the fallback applies.
+    const blocked = checked.plan ? startArc(ws, def, slot, checked.plan, day) : '';
+    if (blocked) return fixed(ws, def, slot, day, 'fallback', `its arc could not start (${blocked})`);
     applyEffects(ws, checked.block, { kind: 'template', id: def.id, title: checked.name, held: false, open: true }, day, bind);
     ws.journal.push({ day, text: checked.summary, title: checked.name, by: `template:${def.id}`, place: slot.place, reach: def.reach });
     record(ws, slot, { resolved: day, outcome: result.outcome === 'retry' ? 'retry' : 'ok', name: checked.name, summary: checked.summary, people: checked.people });

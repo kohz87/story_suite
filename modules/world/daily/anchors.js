@@ -32,7 +32,8 @@ export function occurrences(ws, anchor) {
     if (anchor.kind === 'season') return [];
     if (anchor.kind === 'date') { const at = ws.cal?.dateDay(anchor.id) ?? null; return at === null ? [] : [at]; }
     const kind = anchor.kind === 'stage' ? 'fired' : anchor.kind;
-    const days = [...(ws.anchors[`${kind}:${anchor.id}`] ?? [])];
+    // `arc-ended:<template>@<ref>`: kept with the ref in lower case (arc-day.js writes it so).
+    const days = [...(ws.anchors[`${kind}:${kind === 'arc-ended' ? anchor.id.toLowerCase() : anchor.id}`] ?? [])];
     if (kind === 'set') {
         const [name, ref] = anchor.id.split('@');
         for (const entry of Object.values(ws.table)) {

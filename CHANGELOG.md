@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (0.1.2)
+
+- **Generated arcs (WEGENARCS).** Behind `story-director.world-events`; with it off nothing here runs, and a world with no open template that carries `arc` steps exactly as before (checked on a flag-on scenario with open templates against the world/engine tip: the same bytes). An open template with `"arc": { "steps": [2, 4] }` may start an arc: the Director's answer for the slot carries `arc: { steps, ending }` (later steps with `after` and `within` days, optional `severity: "major"`), the whole plan is checked once against the menu and guards, stored with the slot's answer in the ledger and copied into `chronicle.daily.arcs`; code fires each step on its window (a seeded day, no Director call) and records `arc-ended:<template>@<ref>` when the ending fires. A major step holds one realm slot while the arc runs; a minor step counts against density but is not blocked. Steps are checked again when they fire (a step that no longer holds is skipped, never rewritten). New: `daily/arc-plan.js`, `daily/arc-day.js`, `arc-ended` in the anchor grammar, the arc wording in the Director's system text (only when a slot may start an arc), and stored answers with a plan may be up to 7000 characters (others stay 3000).
+
 ## 0.1.1
 
 Released 18 Nov 2026.

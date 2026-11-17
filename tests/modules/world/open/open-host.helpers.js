@@ -45,7 +45,7 @@ export const answerFor = (key, over = {}) => ({ slot: key, name: 'Border scuffle
 /** The fake model: `calls` counts every request; `mode` is 'good', 'bad' (always refused), 'bad-first', 'half' (the second slot refused, every later call busy), 'fail' or 'busy'; `prompts` keeps the text sent. */
 export function fakeModel() {
     const model = {
-        calls: 0, mode: 'good', prompts: [], requests: [], gate: null,
+        calls: 0, mode: 'good', prompts: [], requests: [], gate: null, extra: {},
         async callModel(request) {
             model.calls += 1;
             model.prompts.push(request.prompt);
@@ -56,7 +56,7 @@ export function fakeModel() {
             const keys = [...request.prompt.matchAll(/^Slot (\S+)$/gm)].map(match => match[1]);
             if (model.mode === 'half' && model.calls > 1) return { ok: false, text: '', error: 'BUSY', message: 'busy' };
             const bad = model.mode === 'bad' || (model.mode === 'bad-first' && model.calls === 1);
-            const rows = keys.map((key, index) => answerFor(key, bad || (model.mode === 'half' && index === 1) ? { effects: { powers: { crown: 99 } } } : {}));
+            const rows = keys.map((key, index) => answerFor(key, bad || (model.mode === 'half' && index === 1) ? { effects: { powers: { crown: 99 } } } : model.extra));
             return { ok: true, text: JSON.stringify({ results: rows }), error: null };
         },
     };
