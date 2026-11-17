@@ -14,6 +14,7 @@ import { LEARNED, learnedCommand } from '../world-daily/learned.js';
 import { worldBriefQuery } from '../world-daily/arc-brief.js';
 import { dailyAfterCapture } from '../world-daily/hook.js';
 import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
+import { OPEN, openCommand } from '../world-daily/open-store.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
 import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
@@ -65,6 +66,7 @@ export const part = {
         [CUE]: cueCommand,
         [LEARNED]: learnedCommand,
         [WORLD_SEED]: worldSeedCommand,
+        [OPEN]: openCommand,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,

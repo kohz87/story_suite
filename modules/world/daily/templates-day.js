@@ -10,8 +10,8 @@ import { applyEffects } from './effects.js';
 import { scaleDays, seasonDays } from './durations.js';
 import { bindOf, placesFor, weightedPick } from './placement.js';
 import { requiresHold } from './requires.js';
-import { placeOf } from './cast-where.js';
-import { groupOf } from './geo-scope.js';
+import { protectedHere } from './protected-here.js';
+import { perHolds, rollOpen, settleOpen } from './open-day.js';
 
 export const DENSITY = Object.freeze({ perRegion: 2, days: 7 });
 const DEFAULT_CHANCE = Object.freeze({ percent: 70, per: 'season' });
@@ -22,15 +22,10 @@ function cooled(ws, def, place, day) {
     return !Number.isInteger(last) || day - last >= scaleDays(def.cooldown.days, ws.tempo);
 }
 
-// Whether a protected, living person lives at the place or a district under it.
-function protectedHere(ws, place) {
-    const group = new Set(groupOf(ws.geo, place.name));
-    return [...ws.people.values()].some(person => person.protected && ws.cast[person.id]?.died === undefined && group.has(placeOf(ws, person.id)));
-}
-
 /** The minor templates for one day. */
 export function templatesDay(ws, templates, day) {
     ws.minors = ws.minors.filter(entry => day - entry.day < DENSITY.days);
+    if (ws.pending.length) settleOpen(ws, day);
     for (const def of templates) {
         if (def.severity !== 'minor') continue;
         // A template that needs a placeStatus condition at its place (reconstruction) is its clearing path, not an ordinary one.
@@ -48,7 +43,18 @@ export function templatesDay(ws, templates, day) {
             ws.log.push({ kind: 'density', key: def.id, day, why: `${region} already had ${DENSITY.perRegion} minor happenings this week` });
             continue;
         }
+        if (def.open && !perHolds(ws, def, place, day)) {
+            ws.log.push({ kind: 'budget', key: def.id, day, why: `${region} has had its open slot for this template` });
+            continue;
+        }
         const bind = bindOf(place);
+        if (def.open) {
+            ws.minors.push({ region, day });
+            ws.cooldowns[def.cooldown?.perPlace ? `${def.id}@${place.name}` : def.id] = day;
+            rollOpen(ws, def, place, day);
+            ws.log.push({ kind: 'minor', key: def.id, day, place: place.name });
+            continue;
+        }
         applyEffects(ws, { clear: def.clears, set: def.sets }, { kind: 'template', id: def.id, title: def.id, held: false }, day, bind);
         ws.minors.push({ region, day });
         ws.cooldowns[def.cooldown?.perPlace ? `${def.id}@${place.name}` : def.id] = day;
