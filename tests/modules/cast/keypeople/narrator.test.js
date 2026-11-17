@@ -28,13 +28,15 @@ const slice = {
     notes: {},
 };
 
-test('the grammar: one line each for away and key; the paragraph names no one and no number', () => {
+test('the grammar: one line for away; the key line is gone, the fixed paragraph stays without its death sentence (B1.7)', () => {
     assert.match(GRAMMAR.away, /^\+ away Name — what they are doing \| back: date/);
     assert.match(GRAMMAR.away, /! away Name/);
     assert.match(GRAMMAR.away, /- away Name when they are back/);
-    assert.equal(GRAMMAR.key, '- key Name | died (anyone who dies)');
+    assert.deepEqual(Object.keys(GRAMMAR), ['away']);
     assert.doesNotMatch(STATIC_TEXT, /\d/, 'no counts, dates or numbers in the fixed prompt');
-    assert.match(STATIC_TEXT, /- key Name \| died/);
+    assert.doesNotMatch(STATIC_TEXT, /- key|died|death/, 'no key line, no death sentence');
+    assert.ok(STATIC_TEXT.startsWith('Key people are the people {{user}} follows.'));
+    assert.ok(STATIC_TEXT.endsWith('bring them back.'));
     assert.ok(STATIC_TEXT.length < 600, 'a short paragraph');
 });
 
@@ -105,7 +107,7 @@ test('on the host: the tail tells each away key person once a reply, and nobody 
     }
 });
 
-test('the prompt: nobody pinned, the prompt is what it was without the feature; once someone is pinned the paragraph and the two lines are taught, the same bytes while they move; off it is gone', async () => {
+test('the prompt: nobody pinned, the prompt is what it was without the feature; once someone is pinned the paragraph and the away line are taught (no key line, no death sentence), the same bytes while they move; off it is gone', async () => {
     const host = await keyHost();
     const plain = await keyHost({ features: { [FEATURE]: false } });
     try {
@@ -117,16 +119,21 @@ test('the prompt: nobody pinned, the prompt is what it was without the feature; 
         const without = sent(plain, STATIC_KEY).at(-1);
         assert.equal(sent(host, STATIC_KEY).at(-1), without, 'nobody pinned: byte-identical to the prompt with the feature off');
         assert.equal(without.includes(paragraph), false);
-        assert.equal(host.registry.contexts().find(entry => entry.moduleId === 'story-director').kinds.some(entry => ['away', 'key'].includes(entry.kind)), false);
+        const kinds = () => host.registry.contexts().find(entry => entry.moduleId === 'story-director').kinds.map(entry => entry.kind);
+        assert.equal(kinds().includes('away'), false);
+        assert.equal(kinds().includes('key'), true, 'key stays registered (its head) so old replies replay, but teaches nothing');
         await pin(host, 'Ren');
         await host.send('Go.', said('Ren leaves.', ['+ away Ren — scouting | back: June 9, 1200']));
         await host.send('Go.', said('A step.', ['! away Ren — reached the ridge']));
         await host.send('Go.', 'Quiet.');
+        assert.equal(kinds().includes('away'), true);
         const taught = sent(host, STATIC_KEY).slice(-3);
         assert.equal(new Set(taught).size, 1, 'byte-identical reply to reply, with key people away and moving');
-        assert.ok(taught[0].includes(paragraph));
+        assert.ok(taught[0].includes(paragraph), 'the fixed paragraph is taught');
+        assert.equal(taught[0].includes('died only for a death'), false, 'no death sentence');
+        assert.equal(taught[0].includes('- key Name'), false, 'the key line is not taught');
         for (const line of Object.values(GRAMMAR)) assert.ok(taught[0].includes(line), line);
-        assert.equal(taught[0].replace(`${paragraph}\n`, '').split('\n').filter(line => !Object.values(GRAMMAR).includes(line)).join('\n'), without, 'only those three lines more');
+        assert.equal(taught[0].replace(`${paragraph}\n`, '').split('\n').filter(line => !Object.values(GRAMMAR).includes(line)).join('\n'), without, 'only the paragraph and the away line more');
         // The last one unpinned: back to what it was.
         await host.sdk.command('keypeople.unpin', { name: 'Ren' });
         await host.send('Go.', 'Again.');

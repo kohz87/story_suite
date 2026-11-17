@@ -48,7 +48,7 @@ export function pin(ctx, payload = {}) {
 
 /** `keypeople.unpin { name }` (cause `ui`): the reader takes someone off the list. */
 export function unpin(ctx, payload = {}) {
-    if (ctx.cause !== 'ui') return ctx.fail('REFUSED', 'Only you unpin a key person; the story cannot (a death is a "- key Name | died" line).');
+    if (ctx.cause !== 'ui') return ctx.fail('REFUSED', 'Only you unpin a key person; the story cannot (a death comes from NPC State).');
     if (!isRecord(payload) || Object.keys(payload).some(field => field !== 'name') || typeof payload.name !== 'string') return ctx.fail('INVALID', 'keypeople.unpin takes { name }.');
     const kp = ctx.draft('keypeople');
     const found = findPin(kp, payload.name);
