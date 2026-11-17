@@ -4,7 +4,8 @@ import { MOMENT } from './moment.js';
 import { PEOPLE } from './people.js';
 import { partyFixture } from './party.js';
 import { bagFixture } from './bag.js';
-import { fightFixture } from './fight.js';
+import { fightSceneAnswer } from './fight-scene.js';
+import { selectScene } from '../select/interaction.js';
 import { worldFor } from './world.js';
 import { buildJournal } from './journal.js';
 import { buildStory } from './story.js';
@@ -255,15 +256,15 @@ export function fixture(variant = 'default') {
   const needsYou = buildNeedsYou(opts);
 
   return {
-    // The open interaction (the Scene tab): present only when asked for, so every other fixture is as it was.
-    ...(opts.scene ? { scene: sceneFixture(opts.scene, { long: opts.sceneLong, fight: opts.sceneFight ? opts.fightState : null }) } : {}),
+    // The open interaction (the activity tab): present only when asked for, so every other fixture is as it was.
+    ...(opts.scene && !opts.sceneFight ? { scene: sceneFixture(opts.scene, { long: opts.sceneLong }) } : {}),
     card: buildCard(opts),
     now: buildNow(opts, hereList, changes, needsYou),
     chat: buildChat(opts, hereList, changes, needsYou),
     people: buildPeople(opts, hereList),
     party: opts.rpg ? partyFixture() : null,
     bag: bagFixture({ rpg: opts.rpg, load: opts.bagLoad }),
-    fight: opts.fightOpen ? fightFixture(['real', 'realafter'].includes(opts.fightState) ? 'choose' : opts.fightState) : null,   // (the captured v1 moments are the scene's only)
+    fight: opts.fightOpen || (opts.scene && opts.sceneFight) ? selectScene(fightSceneAnswer(opts.fightState, { scene: opts.sceneFight ? opts.scene : null })) : null,   // the open fight, as the activity host gets it (the Fight tab)
     world: worldFor(opts.empty ? 'empty' : opts.fightOpen ? 'fightOpen' : 'default'),
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
     story: buildStory({ empty: opts.empty, planShown: opts.planShown }),

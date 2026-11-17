@@ -11,7 +11,7 @@ import { selectJournal } from './journal.js';
 import { selectStory } from './story.js';
 import { listProfiles } from '../../core/model-call.js';
 import { selectSettings } from './settings.js';
-import { selectScene } from './interaction.js';
+import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 
@@ -22,7 +22,9 @@ const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.m
 export function buildSelectors(ctx = () => null, sdk = null) {
   const scene = read => {
     const answers = gather(read);
-    return { answers, opts: optsOf(read, answers, ctx) };
+    const opts = optsOf(read, answers, ctx);
+    const fight = selectFightScene(read('interaction.view', {})); // the open fight, if one is: the inline chip and the Now card read it
+    return { answers, opts: fight ? { ...opts, fightOpen: true, fight: needsOf(fight) } : opts };
   };
   return {
     card: read => { const s = scene(read); return selectCard(s.answers, s.opts); },
@@ -48,10 +50,10 @@ export function buildSelectors(ctx = () => null, sdk = null) {
     world: read => selectWorld({ atlasView: read('atlas.view', {}), selected: read('atlas.selected', {}), worldView: read('director.world', {}), tiers: null }),
     journal: read => selectJournal(read),
     story: read => selectStory(read),
-    // The open interaction (a fight too: its renderer is on the scene host): `interaction.view`, null when none is open.
-    scene: read => selectScene(read('interaction.view', {})),
-    // The fight board is not a query yet (UI-PLAN §2.3): no view, so the Fight tab stays hidden.
-    fight: () => null,
+    // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
+    scene: read => { const view = selectScene(read('interaction.view', {})); return view && view.kindId !== FIGHT_KIND ? view : null; },
+    // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE); null when no fight is open.
+    fight: read => selectFightScene(read('interaction.view', {})),
     settings: () => selectSettings({
       host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], profiles: listProfiles(), calls: callsOf(ctx),
       subtitle: 'this chat',

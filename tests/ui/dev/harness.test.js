@@ -48,12 +48,12 @@ test('the Story plan switch rebuilds the Story view-model', async () => {
 
 test('the fight step and bag load switches reach the fixtures', () => {
   const { h } = setup('?tab=fight&fight=after&bag=heavy&plan=on');
-  assert.equal(h.port.view('fight').state, 'after');
+  assert.equal(h.port.view('fight').view.state, 'after');
   assert.equal(h.port.view('bag').load.level, 'heavy');
   assert.equal(h.port.view('story').plan.shown, true);
   h.apply({ bag: 'over', fight: 'end' });
   assert.equal(h.port.view('bag').load.level, 'over');
-  assert.equal(h.port.view('fight').state, 'end');
+  assert.equal(h.port.view('fight').view.state, 'end');
 });
 
 test('the public face exposes the mount, contract and fake port', () => {
@@ -72,10 +72,12 @@ test('the fight switch turns off: variant buttons decide again, a fight button s
   assert.equal(setup('?fight=end&variant=empty').h.state.variant, 'empty');
 });
 
-test('kind=fight puts the open fight on the Scene tab; the kind switch remounts it', () => {
-  const { h, frame, controls } = setup('?tab=scene&scene=open&kind=fight&fight=choose');
+test('kind=fight puts the open fight on the Fight tab; the kind switch moves it to the activity tab', () => {
+  const { h, frame, controls } = setup('?tab=fight&scene=open&kind=fight&fight=choose');
   assert.equal(h.state.kind, 'fight');
   assert.ok(frame.querySelector('[data-renderer="fight"]'));
+  assert.equal(h.suite().tabHost.tabs().includes('scene'), false);
   controls.querySelector('[data-key="kind"][data-value="ferry"]').click();
+  h.apply({ tab: 'scene' });
   assert.ok(frame.querySelector('[data-renderer="generic"]'));
 });
