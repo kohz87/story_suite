@@ -19,5 +19,15 @@ export function stateLinesOf(registry, viewOf) {
             if (typeof text === 'string' && FACT.test(text.trim())) out.push(text.trim());
         }
     }
-    return out;
+    // The Wallet line names the chat's coins, so a repair writes `- coin 8 copper`, not a bare number (which would read as the base coin).
+    const names = coinNames(view);
+    return names ? out.map(line => (/^Wallet\b/.test(line) ? `${line} (coins: ${names})` : line)) : out;
+}
+
+function coinNames(view) {
+    let currency = null;
+    try { currency = view.query('inventory.currency'); } catch { currency = null; }
+    const coins = Array.isArray(currency?.coins) ? currency.coins : [];
+    const names = [...new Set((coins.length ? coins : [currency]).map(coin => String(coin?.name || coin?.plural || '').trim()).filter(Boolean))];
+    return names.join(', ');
 }

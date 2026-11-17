@@ -1,6 +1,6 @@
 // The repair runner: when a captured reply came with no <Changes> block, one call on the Quick profile writes the block it should have had.
 
-import { extractBlock, parseChanges, stripBlock, withoutReasoning, assistSections } from '../../../core/capture.js';
+import { extractBlock, parseChanges, stripBlock, withoutReasoning, assistSections, repairState } from '../../../core/capture.js';
 import { BACKGROUND, SETTING, TIMEOUT_MS, estimateTokens, normalizeType, withTimeout } from '../common.js';
 import { REPAIR_KINDS, allowedKinds } from '../safety.js';
 import { mapPlaces, whereNow } from '../where.js';
@@ -44,6 +44,7 @@ export function createRepairer({ callModel, settings, grammar, capture, chatId, 
             if (!story || extractBlock(mes) !== null) return skip;
             const stored = assistSections(mes);
             if (stored.now.length || stored.next.length) return skip;
+            if (repairState(mes) === 'discarded') return skip;   // the reader discarded this reply's repair: it is never asked again (the mark is in the reply's text, so a reload or a swipe back keeps it)
             key = `${chatId() ?? ''}|${index}|${swipe}|${reply.sid ?? ''}`;
             if (done.has(key)) return skip;
             done.add(key);

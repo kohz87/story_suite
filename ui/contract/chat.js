@@ -50,8 +50,10 @@ export const CHAT_SHAPE = {
         line: T.STRING,
         detail: { $nullable: T.STRING },
         applied: T.BOOLEAN,
+        assist: T.BOOLEAN,
       },
     ],
+    repaired: T.BOOLEAN,
     counts: {
       changes: T.NUMBER,
       heldBack: T.NUMBER,

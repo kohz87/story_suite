@@ -243,7 +243,7 @@ export function createRuntime({
     const publicPaths = createPublicPaths();   // the paths modules offer to the public API (sdk.registerPublicPaths)
     const made = createSdk({ publicPaths, store, bus, registry, settings, events, chat: () => ctx.chat, onRegister: def => onRegister?.(def), rewind,
         substitute: text => substituteNames(text, ctx), dialog: (screenId, opts) => dialogOpener?.(screenId, opts) ?? null,
-        dialogCurrent: () => dialogCurrent?.() ?? null, reread: index => turn?.reread(index), callModel: modelCalls.callModel, timeline, seed: () => turn?.seed(), cardSettings,
+        dialogCurrent: () => dialogCurrent?.() ?? null, reread: (index, options) => turn?.reread(index, options), callModel: modelCalls.callModel, timeline, seed: () => turn?.seed(), cardSettings,
         flag: name => flagOn(() => ctx.extensionSettings, name),
         interactionDeps: { meta: () => { try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; } }, save: () => { try { const c = live() ?? ctx; (c.saveMetadata ?? c.saveMetadataDebounced)?.call(c); } catch { /* the choice lasts this page only */ } }, // (the reader as the party roster finds them: the Character named like the persona, else the only Character, else the first one (as the rolls do), so a persona that is not a Character's name still plays its fight)
             persona: () => { let name = ''; try { name = String((live() ?? ctx)?.name1 ?? ''); } catch { name = String(ctx?.name1 ?? ''); } try { const actors = rpgLib()?.rosterOf(store.head(), name)?.actors ?? []; return (actors.find(actor => actor.pc) ?? actors[0])?.name ?? name; } catch { return name; } } } });

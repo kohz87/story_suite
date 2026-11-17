@@ -16,7 +16,7 @@ import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
-import { unrecordedAt } from './unrecorded.js';
+import { repairedAt, unrecordedAt } from './unrecorded.js';
 import { liveOffer } from '../port/live-offer.js';
 import { peopleParts, dossierMap } from './people-parts.js';
 
@@ -49,7 +49,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     chat: (read, args) => {
       const at = Number.isInteger(args?.index) && args.index >= 0 ? args.index : null;
       const s = scene(at === null ? read : (name, a) => read(name, name === 'reply.changes' ? { asOf: at, index: at } : a));
-      return { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, s.opts) };
+      return { inlineRow: { ...selectInlineRow(s.answers, s.opts), unrecorded: unrecordedAt(ctx()?.chat, at) }, drawer: selectDrawer(s.answers, s.opts), replyMenu: selectReplyMenu(s.answers, { ...s.opts, repaired: repairedAt(ctx()?.chat, at) }) };
     },
     party: read => {
       const actors = read('party.actors', {});

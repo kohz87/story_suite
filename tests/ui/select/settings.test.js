@@ -102,7 +102,7 @@ describe('selectSettings', () => {
     assert.deepEqual(rows.map(r => r.value), [true, 'always on', true, true, '900 tokens', ['Time moves on', 'World news']]);
     assert.equal(rows.at(-1).options.length, 15);
     const none = selectSettings(answers({})).sections.find(s => s.id === 'models').rows;
-    assert.deepEqual([none[2].value, none[3].value, none[4].value, none[5].value.length], [false, false, 'built-in limits', 10], 'repair and the fallback are off with nothing stored; no stored kinds: the ten defaults');
+    assert.deepEqual([none[2].value, none[3].value, none[4].value, none[5].value.length], [true, false, 'built-in limits', 10], 'repair is on and the fallback off with nothing stored; no stored kinds: the ten defaults');
   });
 
   it('Models: the Background card names the fallback call, the Quick card does not', () => {

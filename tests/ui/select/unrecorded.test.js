@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { withAssist } from '../../../core/capture.js';
-import { unrecordedAt } from '../../../ui/select/unrecorded.js';
+import { withAssist, withoutRepair } from '../../../core/capture.js';
+import { repairedAt, unrecordedAt } from '../../../ui/select/unrecorded.js';
 
 const record = { extra: { storySuite: { v: 2, sid: 's', ops: [], receipts: [], narrated: [] } } };
 const reply = (mes, extra = {}) => ({ is_user: false, name: 'N', mes, ...record, ...extra });
@@ -18,5 +18,20 @@ describe('unrecordedAt', () => {
     assert.equal(unrecordedAt([greeting, user, reply('A.'), user, reply('B.\n<Changes>\n</Changes>')]), false, 'the last one decides');
     assert.equal(unrecordedAt([greeting, user, reply('A.'), user, reply('B.\n<Changes>\n</Changes>')], 2), true, 'reply 2 asked for');
     assert.equal(unrecordedAt(null), false);
+  });
+});
+
+describe('repairedAt', () => {
+  it('is true only for a reply with no block that holds the repair\'s stored lines: not for the safety net\'s, a discarded repair, a block or the user\'s own message', () => {
+    const greeting = reply('Hello.');
+    const repaired = withAssist('He nods.', ['+ item Rope | qty: 1'], { repair: true });
+    assert.equal(repairedAt([greeting, user, reply(repaired)]), true);
+    assert.equal(repairedAt([greeting, user, reply(withAssist('He nods.', ['+ item Rope | qty: 1']))]), false, 'the safety net\'s lines are not the repair\'s');
+    assert.equal(repairedAt([greeting, user, reply(withoutRepair(repaired))]), false, 'discarded');
+    assert.equal(repairedAt([greeting, user, reply(`${repaired}\n<Changes>\n</Changes>`)]), false, 'a block of its own');
+    assert.equal(repairedAt([greeting, user, reply(repaired), user, reply('B.')]), false, 'the last one decides');
+    assert.equal(repairedAt([greeting, user, reply(repaired), user, reply('B.')], 2), true, 'reply 2 asked for');
+    assert.equal(repairedAt([user]), false);
+    assert.equal(repairedAt(null), false);
   });
 });

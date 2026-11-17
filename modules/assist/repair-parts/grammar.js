@@ -4,7 +4,7 @@
 import { grammarKind } from '../extractor.js';
 
 const LINES = Object.freeze({
-    coin: '+ coin 30 | from: who (- coin 5 | to: who): only coin that changes hands in this reply, with the amount the reply gives; never a price that is only talked about',
+    coin: '+ coin 30 gold | from: who (- coin 8 copper | to: who): write the coin name the reply uses; only coin that changes hands in this reply, with the amount the reply gives; never a price that is only talked about',
     item: '+ item Name | qty: 1 (- item Name | qty: 1 when used up, lost or given away): never + item for something already under Carried unless the reply gives a second one',
     hook: '+ hook|quest Name — summary (hook: a lead or job offered; quest: a job {{user}} accepted); - quest Name — outcome or - hook Name when the reply plainly shows it finished or closed; accept or close only what the reply plainly shows',
     time: '~ time 9:30 am (a clock time today, only when the reply gives one) or ! time +2h / ! time +1d (time passes; hours or days, never a date)',

@@ -25,7 +25,7 @@ export function refusedWhy(line, allow, { late = false, repair = false } = {}) {
     if (!own && NEVER.has(kind)) return 'the safety net never writes coin, loot or XP';
     if (!own && op === '+' && ADDS.has(kind)) return 'the safety net never adds items, coin or rewards';
     if (op === '?') return 'the safety net never asks for rolls or loot';
-    if (labels.some(label => VALUE_LABELS.includes(label) && !(own && kind === 'coin' && label !== 'reward'))) return 'the safety net never heals or pays';
+    if (labels.some(label => VALUE_LABELS.includes(label) && !(own && kind === 'coin' && !['reward', 'heal', 'xp'].includes(label)))) return 'the safety net never heals or pays';
     if (late) {
         if (op === '+' && kind !== 'present') return 'a line read after you sent never adds anything';
         if (kind === 'quest' && op === '-') return 'a turn-in read after you sent is left to the next reply';

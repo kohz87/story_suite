@@ -87,7 +87,7 @@ export function createLateEvents(s, deps) {
         const main = block === null ? [] : readBlock(index, block).lines;   // the cap counts block + previous late lines first, as a Re-read does
         const used = main.length + lateLines(index, main.map(line => line.raw)).length;
         const result = await captureLines(index, [], mes, 'late', { assist: kept, used });
-        store1(withCaps(markOff(withAssist(mes, kept.map(line => line.raw)), result.off, mes.trimEnd().length), mes.trimEnd().length));
+        store1(withCaps(markOff(withAssist(mes, kept.map(line => line.raw), { repair }), result.off, mes.trimEnd().length), mes.trimEnd().length));
         if (store.dirty()) {
             if (store.saveIdle?.() !== true) await trySave('after the safety net\'s lines');
         } else await saveText();

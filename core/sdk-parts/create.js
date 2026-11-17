@@ -159,9 +159,9 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
         /**
          * Re-read (F40): reply `index`'s <Changes> block read again from its shown swipe, replacing the
          * story changes stored on it (the reader's actions on it stay). → Promise<{ ok, receipts, problems }
-         * | { ok: false, code, message }> (turn.js reread).
+         * | { ok: false, code, message }> (turn.js reread). `{ discardRepair: true }` takes the reply's repaired lines out first (turn/discard.js).
          */
-        reread: async index => (typeof reread === 'function' ? reread(index) : { ok: false, code: 'FAILED', message: 'Re-read is not available here.' }),
+        reread: async (index, options) => (typeof reread === 'function' ? reread(index, options) : { ok: false, code: 'FAILED', message: 'Re-read is not available here.' }),
         /**
          * A module's own model call (MODULES §G): `({ profile, system, prompt, maxTokens, signal, feature?,
          * module?, timeoutMs? })` → Promise<{ ok, text, error }> (error null, or a code with `message`). Never

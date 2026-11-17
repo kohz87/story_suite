@@ -31,6 +31,7 @@ test('a failed repair is asked again by Re-read and the second answer is stored;
     await host.sdk.reread(turn.index);
     await wait(50);
     assert.equal(n, 3, 'stored lines: no more calls');
+    assert.deepEqual(noChanges(host), [], 'the repair stored lines: the warning row of the earlier miss is gone');
     host.close();
 });
 

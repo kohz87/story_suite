@@ -3,12 +3,12 @@
 import { DEFAULT_KINDS } from '../safety.js';
 
 // The settings live in Story Block's own module settings (the parts' defaults share one bucket, so
-// each key carries the part's name). Both helpers are off until the reader turns them on.
+// each key carries the part's name). The two helpers are off until the reader turns them on; the repair is on by default.
 export const SETTING = Object.freeze({
     classifier: 'assistClassifier',
     extractor: 'assistExtractor',
     extractorKinds: 'assistExtractorKinds',
-    // Repair on a miss (repair.js): off until the owner approves the repair prompt's text, then on by default.
+    // Repair on a miss (repair.js): on by default (the owner approved the prompt's text on 18 Nov).
     repair: 'assistRepair',
 });
 
@@ -16,7 +16,7 @@ export const DEFAULTS = Object.freeze({
     [SETTING.classifier]: false,
     [SETTING.extractor]: false,
     [SETTING.extractorKinds]: DEFAULT_KINDS,
-    [SETTING.repair]: false,
+    [SETTING.repair]: true,
 });
 
 // The two switches are features of Story Block (MODULES §F100, Settings → Features): their texts are

@@ -161,7 +161,7 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
     },
     preview: (type, payload) => guarded(sdk, 'preview', type, payload),
     commit: token => guarded(sdk, 'commit', token),
-    reread: index => guarded(sdk, 'reread', index),
+    reread: (index, options) => guarded(sdk, 'reread', index, options),
     on(event, fn) {
       if (typeof fn !== 'function') throw new TypeError('port.on listener must be a function');
       if (event === 'offer') { const off = offer?.()?.subscribe?.(fn); return typeof off === 'function' ? off : () => {}; }

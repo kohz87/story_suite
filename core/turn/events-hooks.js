@@ -29,11 +29,11 @@ export function createReplyHooks(s, deps) {
             if (missing === true && ctxSame(index, message, sid)) {
                 const item = missingProblem(index, message.mes, repairOutcome(results));
                 // (one row per reply: a Re-read that asked again makes the row's text the latest outcome; one that did not ask leaves it)
+                const old = s.problemLog.find(row => row.code === 'NO_CHANGES' && row.index === index && row.sid === sid);
                 if (item) {
-                    const old = s.problemLog.find(row => row.code === item.code && row.index === index && row.sid === sid);
                     if (old) { if (repairOutcome(results) !== 'off') old.message = item.message; }
                     else problem({ ...item, sid, quiet: true });
-                }
+                } else if (old) s.problemLog.splice(s.problemLog.indexOf(old), 1);   // (a Re-read's repair stored lines: the warning of the earlier miss is out of date)
             }
         });
         if (!runs.length && missing !== true) return;
