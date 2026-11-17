@@ -20,9 +20,9 @@ const METER_KIND = /^(set-[a-z]+(-\d+)?|clear-\d+)$/;
 /** Whether a receipt is the code's own bookkeeping: by type, by a block result's kind, a clock line "(not used)" or an empty summary (never by other text). */
 export function isBookkeeping(receipt) {
     if (BOOKKEEPING_TYPES.has(receipt.type)) return true;
-    // Who is or is not in the scene (state, not an event: "Met" has the arrivals) and the key people's "noted" tick.
+    // Who is or is not in the scene (state, not an event: "Met" has the arrivals) and the NPC State ticks that say nothing happened ("Key people: noted", "NPC meters: the reply was counted").
     if (PRESENT_TYPES.has(receipt.type) && PRESENCE_TEXT.test(text(receipt.summary).trim())) return true;
-    if (receipt.type === 'npc.tick' && /^Key people: noted/.test(text(receipt.summary).trim())) return true;
+    if (receipt.type === 'npc.tick' && /^(Key people: noted|NPC meters: the reply was counted)/.test(text(receipt.summary).trim())) return true;
     if (typeof receipt.summary !== 'string' || !receipt.summary.trim()) return true;
     if (DM_TYPES.has(receipt.type)) return METER_KIND.test(receipt.data?.v2?.result?.kind ?? '');
     return receipt.type === 'capture.time' && /\(not used\)\.?\s*$/.test(receipt.summary);

@@ -263,6 +263,12 @@ test('3: "is here / not here" and "Key people: noted" are bookkeeping: not a hap
     assert.deepEqual(bucketDay({ happened: ['Marrit is not here.', 'Key people: noted'], tags: ['capture.present', 'npc.tick'] }), {});
 });
 
+test('3b: the NPC State "the reply was counted" tick is bookkeeping: a day of only that has no events line', () => {
+    const entry = entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'NPC meters: the reply was counted' }), r('capture.item', { module: 'story-block', summary: 'The party gains Rope.' })], D);
+    assert.deepEqual(entry.happened.map(item => item.text), ['The party gains Rope.']);
+    assert.deepEqual(entryOf([r('npc.tick', { module: 'npc-state-delta', summary: 'NPC meters: the reply was counted' })], D).happened, []);
+});
+
 test('5: the fight board\'s "Fight won: …" counts as a fight of the day', () => {
     const facts = factsOf([clock(D * DAY + 60), r('rpg.fight', { module: 'story-block', summary: 'Fight won: Astra +60 XP.' }), r('rpg.fight', { module: 'story-block', summary: 'Fight lost: the party flees.' })]);
     assert.deepEqual(facts.fights, { count: 2, won: 1, lost: 1, fled: 0 });
