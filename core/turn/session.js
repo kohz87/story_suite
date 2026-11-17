@@ -4,7 +4,7 @@
 // `createSession(s, deps)` is given the turn's state holder `s` and the few turn parts it uses; it never imports turn.js.
 
 export function createSession(s, deps) {
-    const { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch = () => {}, kindOf = () => null, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM } = deps;
+    const { ctx, store, bus, events, notify, initial, position, roles, hasCarrier, refusal, reconcileScratch = () => {}, kindOf = () => null, STATIC_KEY, TAIL_KEY, REPLY_BUSY_MAX_MS, MAX_PROBLEMS, ROLE_SYSTEM, keepLog = () => {} } = deps;
 
     function markBusy() {
         s.replyBusy = true;
@@ -41,6 +41,7 @@ export function createSession(s, deps) {
         }
         s.problemLog.push(item);
         if (s.problemLog.length > MAX_PROBLEMS) s.problemLog.splice(0, s.problemLog.length - MAX_PROBLEMS);
+        keepLog();
         // A quiet one (a line of a feature the reader turned off) is listed, not warned about.
         if (item.quiet !== true) console.warn(`[Story Suite] ${item.module ? `${item.module}: ` : ''}${item.message}`);
         return item;

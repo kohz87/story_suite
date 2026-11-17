@@ -375,5 +375,9 @@
   "ui/port/world-keys.js": "Translates the World and time page's row keys and shown words to Story Director's namespaced settings and the weather feature, and back.",
   "ui/port/world-settings.js": "The port's World and time writes: a `world.*` settings.set stores the setting the old page stores.",
   "ui/select/settings-world.js": "Builds the World and time page's rows from Story Director's stored settings and the feature list.",
-  "tests/ui/settings/world-live.test.js": "Tests the World and time page on a live host: values read, writes match the old page's keys, bad values refused."
+  "tests/ui/settings/world-live.test.js": "Tests the World and time page on a live host: values read, writes match the old page's keys, bad values refused.",
+  "scripts/b4/backup.mjs": "Copies the files of a removal to a new backup folder with a sha256 manifest, and refuses an existing folder.",
+  "scripts/b4/dead-exports.mjs": "Fails when a kept file still imports, re-exports or loads a removed path or export, and lists computed specifiers to grep by hand.",
+  "scripts/b4/shrink.mjs": "Finds entries added to, or still naming a removed path in, the shrink-only lists under docs/merge.",
+  "scripts/b4/unit.mjs": "Runs the per-unit removal recipe in order: backup, git rm, dead exports, git grep, shrink-only lists, code map, touched tests."
 }

@@ -4,7 +4,7 @@
 import { missingProblem, repairOutcome } from './events-missing.js';
 
 export function createReplyHooks(s, deps) {
-    const { ia, store, problem, events, registry, view, captureLate } = deps;
+    const { ia, store, problem, events, registry, view, captureLate, keepLog = () => {} } = deps;
 
     // afterReply (the assist extractor, run after every reply; `lines` are the change lines its capture read): not awaited, a failure is
     // logged. `capture(text, { index, swipe })` runs lines as story captures on that reply while it is the head on the same swipe.
@@ -34,6 +34,7 @@ export function createReplyHooks(s, deps) {
                     if (old) { if (repairOutcome(results) !== 'off') old.message = item.message; }
                     else problem({ ...item, sid, quiet: true });
                 } else if (old) s.problemLog.splice(s.problemLog.indexOf(old), 1);   // (a Re-read's repair stored lines: the warning of the earlier miss is out of date)
+                keepLog();
             }
         });
         if (!runs.length && missing !== true) return;
