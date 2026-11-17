@@ -3,6 +3,7 @@
 import { slotValue } from '../../../rpg/slot.js';
 import { validateDays } from '../days.js';
 import { validateConditions } from '../conditions/validate.js';
+import { validateLedger } from '../conditions/ledger.js';
 import { validateDaily } from '../world-daily/validate.js';
 import { isWorldSeed } from '../world-daily/seed.js';
 import { MAX_EVENTS, MAX_FACTIONS, MAX_RESOLVED } from './limits-caps.js';
@@ -133,8 +134,10 @@ export function validateChronicle(slice) {
     if (slice.worldLine !== undefined && (!isRecord(slice.worldLine) || Object.keys(slice.worldLine).length > 64 || Object.values(slice.worldLine).some(v => v !== true))) {
         errors.push('chronicle.worldLine must be { [reply]: true }, at most 64.');
     }
+    // `ledger` (same switch): same-day clears and the anchors world lines made, until the daily step takes them (conditions/ledger.js).
+    errors.push(...validateLedger(slice.ledger));
     for (const key of Object.keys(slice)) {
-        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog', 'conditions', 'worldLine', 'daily', 'worldSeed'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
+        if (!['events', 'factions', 'seen', 'seenAt', 'round', 'surfaced', 'days', 'written', 'dayFacts', 'noted', 'questLog', 'conditions', 'worldLine', 'daily', 'worldSeed', 'ledger'].includes(key)) errors.push(`chronicle has an unknown field "${key}".`);
     }
     return errors;
 }

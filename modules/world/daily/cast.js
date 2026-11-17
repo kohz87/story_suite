@@ -6,6 +6,8 @@
 
 import { recordAnchor } from './anchors.js';
 import { resolveRef } from './geo.js';
+import { groupOf } from './geo-scope.js';
+import { masked } from './placement.js';
 import { entryActive } from './holds-read.js';
 
 const DAY = 1440;
@@ -68,26 +70,28 @@ export function releaseDisplaced(ws, eventId, minute) {
 }
 
 /**
- * A placeStatus condition was set on `ref` (a place): everyone living there moves to the nearest suitable place (not class none,
- * not under a placeStatus itself), else the nearest place of any kind; ties by place id. An authored event moves protected
- * people too; a template does not (it is refused at load; here it is a warning and they stay).
+ * A placeStatus condition was set on `ref` (a place): it covers the place and its districts (spec §2, B12), and everyone living in
+ * that group moves to the nearest suitable place outside it (not class none, not under a placeStatus itself), else the nearest place
+ * of any kind outside it; ties by place id. An authored event moves protected people too; a template does not (it is not placed
+ * where a protected person lives, templates-day.js; here it is a warning and they stay).
  */
 export function evacuate(ws, ref, condition, source, day) {
     const found = resolveRef(ws.geo, ref);
     if (found?.kind !== 'place') return;
     const here = found.place;
-    const residents = [...ws.people.values()].filter(person => ws.cast[person.id]?.died === undefined && placeOf(ws, person.id) === here.name);
+    const group = new Set(groupOf(ws.geo, here.name));
+    const residents = [...ws.people.values()].filter(person => ws.cast[person.id]?.died === undefined && group.has(placeOf(ws, person.id)));
     if (!residents.length) return;
-    const masked = place => [...ws.declared.values()].some(entry => entry.placeStatus === true && entryActive(ws.table[`${entry.name}@${place.name}`], day * DAY));
     const near = list => list.map(place => ({ place, d: (place.x - here.x) ** 2 + (place.y - here.y) ** 2 })).sort((a, b) => a.d - b.d || (a.place.id < b.place.id ? -1 : 1))[0]?.place;
-    const others = ws.geo.places.filter(place => place !== here);
-    const to = near(others.filter(place => place.klass !== 'none' && !masked(place))) ?? near(others);
+    const others = ws.geo.places.filter(place => !group.has(place.name));
+    const to = near(others.filter(place => place.klass !== 'none' && !masked(ws, place, day))) ?? near(others);
     if (!to) return;
     for (const person of residents) {
-        if (person.protected && source.kind !== 'event') { ws.warnings.push(`${person.id} is protected and stays at ${here.name} (a template cannot move them).`); continue; }
+        const from = placeOf(ws, person.id);
+        if (person.protected && source.kind !== 'event') { ws.warnings.push(`${person.id} is protected and stays at ${from} (a template cannot move them).`); continue; }
         const row = { ...(ws.cast[person.id] ?? {}) };
         row.displaced = { to: to.name, by: source.id, until: `cleared:${condition}@${here.name}` };
         ws.cast[person.id] = row;
-        trace(ws, person.id, 'departed', `${person.name} fled ${here.name} for ${to.name} (${condition}).`, here.name, day, source.id);
+        trace(ws, person.id, 'departed', `${person.name} fled ${from} for ${to.name} (${condition}).`, from, day, source.id);
     }
 }

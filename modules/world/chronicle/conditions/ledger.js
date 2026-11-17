@@ -1,0 +1,52 @@
+// The world's ledger of marks made outside the daily step (switch story-director.world-events): `chronicle.ledger`, a slot
+// `[{ anchors, tomb }]` written whole (rpg/slot.js), so replay after a delete never breaks a later reply.
+//   anchors  `set:`/`cleared:` anchors a world line (or the Director) made: `{ "<anchor>": [days] }`. The daily step takes them into
+//            its own anchors (the permanent ledger, seam audit E24) at its next step.
+//   tomb     the conditions cleared today, `{ day, keys }`: a clear at a ref on day T is not undone by a set there on day T (spec §2
+//            Same-day order, "clear beats set"), whoever clears and whoever sets (world line or daily step). Pure.
+
+import { isInt, isRecord } from '../domain-parts/shared-basics.js';
+import { slotValue, toSlot } from '../../../rpg/slot.js';
+import { recordAnchor } from '../../daily/anchors.js';
+
+const MAX_KEYS = 64;
+const MAX_ANCHORS = 256;
+
+/** `{ anchors, tomb: { day, keys } }` from the stored slot (empty when there is none). */
+export function ledgerOf(stored) {
+    const value = slotValue(stored);
+    const anchors = isRecord(value?.anchors) ? value.anchors : {};
+    const tomb = isRecord(value?.tomb) && isInt(value.tomb.day) && Array.isArray(value.tomb.keys) ? value.tomb : null;
+    return { anchors, tomb: tomb ? { day: tomb.day, keys: [...tomb.keys] } : null };
+}
+
+/**
+ * Writes the slot whole on the `chronicle` draft: `anchors` recorded on `day`, and `tomb` keys cleared on `day` (a tomb of an
+ * earlier day is dropped). `take`: the daily step took the anchors into its own (they are dropped here); `reset`: the tomb starts again.
+ */
+export function markLedger(chronicle, { day, anchors = [], tombKeys = [], take = false, reset = false }) {
+    const old = ledgerOf(chronicle.ledger);
+    const kept = take ? {} : structuredClone(old.anchors);
+    for (const key of anchors) recordAnchor(kept, key, day);
+    const sameDay = old.tomb && old.tomb.day === day && !reset;
+    const keys = [...new Set([...(sameDay ? old.tomb.keys : []), ...tombKeys])].sort().slice(-MAX_KEYS);
+    const value = { anchors: kept, ...(keys.length ? { tomb: { day, keys } } : {}) };
+    if (Object.keys(kept).length || keys.length) chronicle.ledger = toSlot(value);
+    else if (chronicle.ledger !== undefined) chronicle.ledger = null;
+}
+
+/** `validateLedger(stored) → string[]`: optional; a slot holding `{ anchors, tomb? }`. */
+export function validateLedger(stored) {
+    if (stored === undefined || stored === null) return [];
+    if (!Array.isArray(stored) || stored.length !== 1 || !isRecord(stored[0])) return ['chronicle.ledger must be null or a one-entry list (a slot).'];
+    const { anchors, tomb, ...rest } = stored[0];
+    const errors = [];
+    if (!isRecord(anchors) || Object.keys(anchors).length > MAX_ANCHORS || Object.values(anchors).some(days => !Array.isArray(days) || !days.length || days.length > 8 || !days.every(isInt))) {
+        errors.push(`chronicle.ledger.anchors must be at most ${MAX_ANCHORS} anchors, each a list of 1 to 8 days.`);
+    }
+    if (tomb !== undefined && !(isRecord(tomb) && isInt(tomb.day) && Array.isArray(tomb.keys) && tomb.keys.length <= MAX_KEYS && tomb.keys.every(key => typeof key === 'string' && key.includes('@')))) {
+        errors.push(`chronicle.ledger.tomb must be { day, keys } with at most ${MAX_KEYS} condition keys.`);
+    }
+    if (Object.keys(rest).length) errors.push(`chronicle.ledger has an unknown field "${Object.keys(rest)[0]}".`);
+    return errors;
+}

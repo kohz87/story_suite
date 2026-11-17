@@ -13,7 +13,7 @@ test('set writes name@ref with the clock, the declared fade and who set it; the 
     const entry = state.domains.chronicle.conditions['grain-dear@The March'];
     assert.deepEqual(entry, { name: 'grain-dear', scope: 'region', ref: 'The March', since: DAY, fadesAt: DAY + 10 * DAY, why: 'test', by: 'event:ev1', rev: 1 });
     assert.deepEqual(validateChronicle(state.domains.chronicle), []);
-    assert.equal(set(start(), { name: 'roads-closed', ref: 'Highmark-Bluewatch road' }).state.domains.chronicle.conditions['roads-closed@Highmark-Bluewatch'].fadesAt, null);
+    assert.equal(set(start(), { name: 'roads-closed', ref: 'Highmark-Bluewatch' }).state.domains.chronicle.conditions['roads-closed@Highmark-Bluewatch'].fadesAt, null);
     assert.equal(must(set(start(), { name: 'unrest', ref: 'The Capital', fades: '3 days' })).state.domains.chronicle.conditions['unrest@Highmark'].fadesAt, 4 * DAY);
 });
 
@@ -22,8 +22,8 @@ test('set is refused with a note: undeclared name, wrong scope, unknown ref, bad
     for (const [payload, code, text] of [
         [{ name: 'plague', ref: 'Highmark' }, 'REFUSED', /not one of this world's conditions/],
         [{ name: 'unrest', scope: 'region', ref: 'Highmark' }, 'REFUSED', /place condition/],
-        [{ name: 'unrest', ref: 'Atlantis' }, 'REFUSED', /not a place, route, region or realm/],
-        [{ name: 'grain-dear', ref: 'Highmark' }, 'REFUSED', /region wanted/],
+        [{ name: 'unrest', ref: 'Atlantis' }, 'REFUSED', /not a place of this world/],
+        [{ name: 'grain-dear', ref: 'Highmark' }, 'REFUSED', /a region condition takes a region/],
         [{ name: 'unrest', ref: 'Highmark', fades: 'soonish' }, 'INVALID', /duration/],
         [{ name: 'unrest', ref: 'Highmark', by: 'nobody' }, 'INVALID', /by/],
     ]) {
@@ -93,9 +93,9 @@ test('queries answer active ones only (a lapsed one not yet settled is not activ
     assert.deepEqual(ask(s, 'chronicle.conditionNames').map(c => [c.name, c.scope, c.fades]), PACKS.conditions.map(c => [c.name, c.scope, c.fades]));
 });
 
-test('fadeMinutes: durations, seasons, until cleared, nonsense', () => {
-    assert.deepEqual([fadeMinutes('10 days'), fadeMinutes('1 season'), fadeMinutes('2 months'), fadeMinutes('until cleared'), fadeMinutes(null), fadeMinutes('6 hours')], [10 * DAY, 90 * DAY, 60 * DAY, null, null, 360]);
-    assert.deepEqual([fadeMinutes('soon'), fadeMinutes(''), fadeMinutes(5), fadeMinutes('0 days')], [undefined, undefined, undefined, undefined]);
+test('fadeMinutes: whole days, at least one (test 43: "0 days" is raised to 1 day, a few hours too), seasons, until cleared, nonsense', () => {
+    assert.deepEqual([fadeMinutes('10 days'), fadeMinutes('1 season'), fadeMinutes('2 months'), fadeMinutes('until cleared'), fadeMinutes(null), fadeMinutes('6 hours'), fadeMinutes('0 days'), fadeMinutes('36 hours')], [10 * DAY, 90 * DAY, 60 * DAY, null, null, DAY, DAY, 2 * DAY]);
+    assert.deepEqual([fadeMinutes('soon'), fadeMinutes(''), fadeMinutes(5)], [undefined, undefined, undefined]);
 });
 
 test('a chronicle with no conditions is exactly as before: no field, still valid', () => {

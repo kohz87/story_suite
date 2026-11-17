@@ -23,7 +23,7 @@ const PACK = JSON.stringify({
             { name: 'roads-closed', scope: 'route', fades: 'until cleared', means: 'Nobody passes.' },
         ],
         // A world line names a place or region, not a route: a route condition comes from a pack event (job A's command).
-        events: [{ id: 'closure', once: true, when: 'time() != null', cue: 'The road closes.', then: [{ command: 'chronicle.condition.set', payload: { name: 'roads-closed', ref: 'Highmark Bluewatch', why: 'a landslide', by: 'event:pack.world-note/closure' } }] }],
+        events: [{ id: 'closure', once: true, when: 'time() != null', cue: 'The road closes.', then: [{ command: 'chronicle.condition.set', payload: { name: 'roads-closed', ref: 'Highmark-Bluewatch', why: 'a landslide', by: 'event:pack.world-note/closure' } }] }],
     },
 });
 

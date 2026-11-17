@@ -1,6 +1,7 @@
 // World events, the daily step: the pack's map as the step reads it (spec v0.10 §1): places with their region, class and
 // weight; regions with their realm (a region in no realm is wild: the Wilds, one virtual realm for caps); routes by name.
-// Names and ids compare without case; the canonical name is the one the pack wrote. Pure.
+// Names and ids compare without case; the canonical name is the one the pack wrote. A place named "City / Part" sits under the
+// place "City" when the pack has it (`parent`: a district; spec §2 a placeStatus on a city covers its districts). Pure.
 
 export const WILDS = 'the Wilds';
 const CLASSES = Object.freeze(['capital', 'city', 'town', 'village', 'outpost', 'site', 'none']);
@@ -39,12 +40,18 @@ export function buildGeo(world = {}) {
             realm: region ? regionRealm.get(low(region)) ?? WILDS : WILDS,
             weight: Number.isFinite(raw.weight) && raw.weight >= 0 ? raw.weight : null,
             x: Number.isFinite(raw.x) ? raw.x : 0, y: Number.isFinite(raw.y) ? raw.y : 0,
+            parent: null, hidden: raw.hidden === true || raw.secret === true,
         };
         places.push(place);
         for (const key of [name, place.id, ...(Array.isArray(raw.aliases) ? raw.aliases : [])]) if (text(key)) byName.set(low(key), place);
         if (region && !regions.has(low(region))) regions.set(low(region), region);
     }
     places.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    for (const place of places) {
+        const slash = /^(.+?) \/ (.+)$/.exec(place.name);
+        const parent = slash ? byName.get(low(slash[1])) : null;
+        if (parent && parent !== place) place.parent = parent.name;
+    }
     const routes = new Map();
     for (const raw of Array.isArray(world.routes) ? world.routes : []) {
         const from = text(raw?.from);

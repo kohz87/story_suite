@@ -8,11 +8,15 @@ import { scaleDays } from './durations.js';
 const DAY = 1440;
 const KEEP = 8;
 
-/** Record that `key` happened on `day` (once a day; the last KEEP occurrences are kept). */
+/**
+ * Record that `key` happened on `day` (once a day). The first occurrence is kept for good (anchor_mode first, seam audit E24: the
+ * ledger never loses it), and the last KEEP - 1 after it (anchor_mode each reads the latest).
+ */
 export function recordAnchor(anchors, key, day) {
     const list = anchors[key] ?? [];
-    if (list[list.length - 1] === day) return;
-    anchors[key] = [...list, day].slice(-KEEP);
+    if (list.includes(day)) return;
+    const next = [...list, day].sort((a, b) => a - b);
+    anchors[key] = next.length > KEEP ? [next[0], ...next.slice(-(KEEP - 1))] : next;
 }
 
 /** The days an anchor happened, oldest first. `stage:<id>` is `fired:<id>`; `start` is the step's first day; a season is not kept (none). */

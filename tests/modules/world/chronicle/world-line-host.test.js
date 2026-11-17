@@ -45,7 +45,9 @@ async function agrees(host, label) {
 }
 
 const RIOT = '+ world Bread Riots — crowds fill the square | state: ongoing | place: Highmark | conditions: +unrest, +grain-dear';
-const SECOND = '+ world Second Thing — another line | state: looming | place: Bluewatch';
+// A second line WITH conditions in the same reply is refused (seam audit E38: the cap counts only lines with `conditions:`).
+const SECOND = '+ world Second Thing — another line | state: looming | place: Bluewatch | conditions: +unrest';
+const PLAIN = '+ world Third Thing — a plain line | state: looming | place: Bluewatch';
 
 test('on the host: a world line sets the pack\'s conditions through the real commands; a second line in the reply is refused', async () => {
     const host = await newHost(true);
@@ -59,6 +61,10 @@ test('on the host: a world line sets the pack\'s conditions through the real com
     assert.equal('Second Thing' in Object.fromEntries(Object.values(host.head().domains.chronicle.events).map(e => [e.name, 1])), false, 'the second world line is refused');
     assert.match(summaries(host), /Conditions: \+unrest \(Highmark\)/);
     await agrees(host, 'live');
+    // A world line without conditions is not capped: it stands beside the one with conditions.
+    await host.send('Listen.', reply('Talk of the gate.', ['+ world Gate Talk — the gate | state: looming | place: Highmark | conditions: +unrest', PLAIN]));
+    assert.ok(Object.values(host.head().domains.chronicle.events).some(event => event.name === 'Third Thing'), 'a plain second line stands');
+    await host.st.deleteMessage(host.ctx.chat.length - 1);
     // Lift one in a later reply.
     await host.send('Calm.', reply('The crowds go home.', ['+ world Bread Riots — the crowds go home | state: over | place: Highmark | conditions: -unrest']));
     assert.deepEqual(keys(host), ['grain-dear@The March']);

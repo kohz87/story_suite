@@ -9,14 +9,19 @@ const MAX_TOKENS = 6;
 const MAX_CLAIMS = 32;
 const SPLIT = /\s*[,;]\s*/;
 
-/** A `conditions:` label (`+gate-closed, -plague`): `[{ name, clear }]`, at most MAX_TOKENS; a name with no sign sets. */
+/**
+ * A `conditions:` label (`+gate-closed, -plague, +roads-closed@Ledgerford-Northledger`): `[{ name, clear, ref? }]`, at most MAX_TOKENS;
+ * a name with no sign sets; `name@ref` names the ref itself (a route, or a ref other than the line's place, seam audit E38).
+ */
 export function readConditions(value) {
     const out = [];
     for (const token of asText(value).split(SPLIT)) {
         const clear = /^[-−–]\s*/.test(token.trim());
-        const name = cleanName(token.trim().replace(/^[+\-−–]\s*/, ''));
-        if (!keyOf(name) || out.some(item => keyOf(item.name) === keyOf(name) && item.clear === clear)) continue;
-        out.push({ name, clear });
+        const [head, ...rest] = token.trim().replace(/^[+\-−–]\s*/, '').split('@');
+        const name = cleanName(head);
+        const ref = cleanName(rest.join('@'));
+        if (!keyOf(name) || out.some(item => keyOf(item.name) === keyOf(name) && item.clear === clear && keyOf(item.ref ?? '') === keyOf(ref))) continue;
+        out.push({ name, clear, ...(keyOf(ref) ? { ref } : {}) });
         if (out.length >= MAX_TOKENS) break;
     }
     return out;
@@ -44,19 +49,19 @@ function attempt(ctx, type, payload) {
 }
 
 /**
- * Sets and lifts `items` ([{ name, clear }]). `place` / `region` is where the line says it holds; a declared scope of region or realm
- * takes the region (else the place's region, else the place), place and route take the place. Returns { done: ['+gate at X'], notes: ['...refused...'] }.
+ * Sets and lifts `items` ([{ name, clear, ref? }]). `place` / `region` / `realm` is where the line says it holds; each condition takes the
+ * ref of its declared scope (condition-check.js). Returns { done: ['+gate (X)'], notes: ['...refused...'] }.
  */
-export function applyConditions(ctx, items, { place, region, why }) {
+export function applyConditions(ctx, items, { place, region, realm = '', why }) {
     const done = [];
     const notes = [];
     let declared;
     try { declared = ctx.query('chronicle.conditionNames', {}); } catch { declared = null; }
-    for (const { name, clear } of items) {
+    for (const { name, clear, ref: explicit = '' } of items) {
         const known = Array.isArray(declared) ? declared.find(entry => keyOf(entry?.name) === keyOf(name)) : null;
         if (!known) { notes.push(`"${name}" is not a condition the world lists`); continue; }
         // Asked first (condition-check.js): a refused sub-command would fail the whole line on the host.
-        const { ref, refusal } = conditionTarget(ctx, known, { place, region }, clear);
+        const { ref, refusal } = conditionTarget(ctx, known, { place, region, realm, explicit }, clear);
         if (refusal) { notes.push(refusal); continue; }
         const failed = clear
             ? attempt(ctx, 'chronicle.condition.clear', { name: known.name, ref, why, by: 'narrator' })

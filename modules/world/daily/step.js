@@ -51,11 +51,13 @@ function standingsOf(world, saved, names) {
 }
 
 /**
- * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip? })` → null when there is nothing to step (today was stepped),
- * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings } }`. `state` is chronicle.daily (or null),
- * `table` chronicle.conditions, `seed` the campaign seed (kept in the state from the first step), `draw` a test's own draw.
+ * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks? })` → null when there is nothing to step (today was stepped),
+ * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, tomb } }`. `state` is chronicle.daily (or null),
+ * `table` chronicle.conditions, `seed` the campaign seed (kept in the state from the first step), `draw` a test's own draw. `marks` is
+ * the ledger (chronicle.ledger: anchors world lines made, taken into the state's anchors; the conditions cleared on `tomb.day`, which
+ * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger.
  */
-export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP }) {
+export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null }) {
     if (!Number.isInteger(today)) return null;
     const prior = Number.isInteger(state?.day) ? state.day : null;
     if (prior !== null && today <= prior) return null;
@@ -75,6 +77,8 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     // `power:<ref>` / `score:<ref>` in a weight or an effect → the standings key (an id, or a name that is unique).
     ws.standingKey = (kind, ref) => (`${kind}:${ref}` in ws.standings ? `${kind}:${ref}` : ws.standingNames.get(`${kind}:${ref}`) ?? `${kind}:${ref}`);
     ws.anchor = key => recordAnchor(ws.anchors, key, ws.day);
+    for (const [key, days] of Object.entries(record(marks?.anchors)).sort(([a], [b]) => (a < b ? -1 : 1))) for (const day of list(days)) if (Number.isInteger(day)) recordAnchor(ws.anchors, key, day);
+    const tombOf = day => new Set(marks?.tomb?.day === day ? list(marks.tomb.keys) : []);
     const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);
     if (prior !== null && first > prior + 1) ws.warnings.push(`${first - prior - 1} days before the last ${MAX_DAYS} were not simulated.`);
     // A hold whose event is not Active here (its step's reply was deleted, or the step's state was lost) would never end: released now.
@@ -82,7 +86,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     for (const id of [...orphans].sort()) releaseHolds(ws, id, first * DAY);
     for (let day = first; day <= today; day += 1) {
         ws.day = day;
-        ws.tomb = new Set();
+        ws.tomb = tombOf(day);
         fadeConditions(ws, day * DAY);
         releaseDisplaced(ws, null, day * DAY);
         eventsDay(ws, defs.events, day);
@@ -95,6 +99,6 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     };
     return {
         daily, conditions: ws.table,
-        report: { from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)] },
+        report: { from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)], tomb: [...ws.tomb].sort() },
     };
 }

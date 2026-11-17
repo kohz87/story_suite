@@ -1,5 +1,5 @@
 // Story Director v2, chronicle part: `apply` for `world` lines. With the switch `story-director.world-events` off it is the plain line
-// (apply-line.js, untouched); on, a reply may carry one world line, and its `conditions:` label sets and lifts the world's conditions.
+// (apply-line.js, untouched); on, a world line's `conditions:` label sets and lifts the world's conditions, one such line per reply.
 
 import { cleanName, findIn } from '../../domain.js';
 import { CLEAR, asText, labelOf } from '../text.js';
@@ -19,8 +19,9 @@ export function applyWorldLine(ctx, line) {
     const wanted = labelOf(labels, ['conditions', 'condition']);
     const items = wanted === undefined ? [] : readConditions(wanted);
     const name = cleanName(line?.name);
-    if (name && !claimReply(ctx, ctx.draft('chronicle'))) {
-        return ctx.fail('REFUSED', `A reply may carry one world line; "${name}" was not used.`);
+    // One world line with conditions per reply (seam audit E38: the cap is only for lines that carry `conditions:`).
+    if (items.length && name && !claimReply(ctx, ctx.draft('chronicle'))) {
+        return ctx.fail('REFUSED', `A reply may carry one world line with conditions; "${name}" was not used.`);
     }
     const result = applyPlainWorldLine(ctx, line);
     if (!items.length) return result;
@@ -28,7 +29,7 @@ export function applyWorldLine(ctx, line) {
     const event = found ? ctx.draft('chronicle').events[found.id] : null;
     const place = placeOf(labels, ['place', 'where', 'at', 'near']) || event?.place || '';
     const why = asText(line?.text).trim().slice(0, 160) || name;
-    const { done, notes } = applyConditions(ctx, items, { place, region: placeOf(labels, ['region', 'realm']), why });
+    const { done, notes } = applyConditions(ctx, items, { place, region: placeOf(labels, ['region']), realm: placeOf(labels, ['realm']), why });
     const text = [done.length ? `Conditions: ${done.join(', ')}.` : '', notes.length ? `Not used: ${notes.join('; ')}.` : ''].filter(Boolean).join(' ');
     return text ? { ...result, summary: `${result.summary} ${text}`, data: { ...result.data, ...(done.length ? { conditions: done } : {}) } } : result;
 }

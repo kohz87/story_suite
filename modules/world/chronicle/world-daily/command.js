@@ -15,6 +15,7 @@ import { maxJumpMinutes, settingsFrom } from '../../../time/tracker/time.js';
 import { readWorld } from './read-world.js';
 import { dailySummary } from './summary.js';
 import { isWorldSeed } from './seed.js';
+import { ledgerOf, markLedger } from '../conditions/ledger.js';
 
 export const DAILY = 'chronicle.world.daily';
 const DAY = 1440;
@@ -73,9 +74,12 @@ function daily(ctx, payload = {}) {
     // The long-skip note shows above 14 stepped days, or above the reader's longest jump when that is lower (seam audit E16; the time part's setting, read through `settings.reads`).
     const longSkip = Math.min(LONG_SKIP, maxJumpMinutes(settingsFrom(ctx.settings)) / DAY);
     const seed = state?.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : newSeed(ctx));
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world: readWorld((name, args) => ctx.query(name, args)), today, seed, rev: revOf(ctx), longSkip });
+    const marks = ledgerOf(chronicle.ledger);
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world: readWorld((name, args) => ctx.query(name, args)), today, seed, rev: revOf(ctx), longSkip, marks });
     if (!out) return kept();
     writeConditions(ctx, chronicle, out.conditions);
+    // The ledger's anchors are now the step's own; today's clears stay in its tomb (spec §2 clear beats set, also against a later world line today).
+    markLedger(chronicle, { day: today, take: true, tombKeys: out.report.tomb, reset: true });
     // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.
     chronicle.daily = toSlot(out.daily);
     const { report } = out;

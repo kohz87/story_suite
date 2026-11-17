@@ -4,7 +4,7 @@
 // A place under a placeStatus condition gets no templates. Ties break by place id; all weights 0 → equal. Pure.
 
 import { CLASS_WEIGHT, resolveRef } from './geo.js';
-import { entryActive } from './holds-read.js';
+import { conditionHolds } from './holds-read.js';
 
 const DAY = 1440;
 const low = text => String(text ?? '').trim().toLowerCase();
@@ -12,9 +12,9 @@ const low = text => String(text ?? '').trim().toLowerCase();
 /** The binding of a picked place: `{ place, region, realm }` (names), for @place, @region and @realm. */
 export const bindOf = place => ({ place: place.name, region: place.region || null, realm: place.realm });
 
-/** Whether a placeStatus condition (fallen, evacuated, abandoned) holds on the place today. */
+/** Whether a placeStatus condition (fallen, evacuated, abandoned) holds on the place today: on it, or on the place it sits under (B12). */
 export function masked(ws, place, day) {
-    for (const entry of ws.declared.values()) if (entry.placeStatus === true && entryActive(ws.table[`${entry.name}@${place.name}`], day * DAY)) return true;
+    for (const entry of ws.declared.values()) if (entry.placeStatus === true && conditionHolds(ws, entry.name, place.name, day * DAY)) return true;
     return false;
 }
 

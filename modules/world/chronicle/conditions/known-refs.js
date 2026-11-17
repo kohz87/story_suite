@@ -1,36 +1,33 @@
-// Which places, routes, regions and realms the story knows by name, for a condition's `ref`. Pure.
+// Which place, route, region or realm a condition's `ref` names, read as the condition's scope (spec §1 ids and names, §2 Clearing
+// scope). One reading for the store, the world line and the daily step: the packs' map as the step builds it (daily/geo.js: ids,
+// names, aliases, realms, the Wilds, routes by name), so a key the store writes is the key the step reads. A place or region only the
+// atlas knows (the story made it) is still a place or region. Pure.
 
 import { foldKey } from '../../../../core/text.js';
 import { ask } from '../queries-parts/shared-ask.js';
+import { buildGeo } from '../../daily/geo.js';
+import { resolveAs } from '../../daily/geo-scope.js';
+import { readWorld } from '../world-daily/read-world.js';
 
 const rows = (query, name, args) => { const out = ask(query, name, args); return Array.isArray(out) ? out : []; };
 const fold = text => foldKey(text).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
-// Every name the scope knows, each as { key, name }: the name is what the condition is kept under.
-function names(query, scope) {
-    const out = [];
-    const add = (first, ...others) => { for (const each of [first, ...others]) if (text(each)) out.push({ key: fold(each), name: text(first) }); };
-    const places = [...rows(query, 'atlas.places', {}), ...rows(query, 'packs.content', { kind: 'places' })];
-    if (scope === 'place') for (const place of places) add(place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : []));
-    if (scope === 'region' || scope === 'realm') for (const place of places) add(place?.region);
-    if (scope === 'realm') for (const pack of rows(query, 'packs.list', {})) add(pack?.name);
-    if (scope === 'route') {
-        for (const route of rows(query, 'packs.content', { kind: 'routes' })) {
-            const ends = [route?.from, route?.to].filter(text);
-            if (ends.length !== 2) continue;
-            const named = [`${ends[0]} ${ends[1]}`, `${ends[1]} ${ends[0]}`];
-            const display = `${ends[0]}-${ends[1]}`;
-            for (const each of [route.corridor, ...named, ...named.map(pair => `${pair} ${text(route.kind)}`), route.slug]) {
-                if (text(each)) out.push({ key: fold(each), name: each === route.corridor ? text(each) : display });
-            }
-        }
+/** The packs' map as the daily step reads it. */
+export const hostGeo = query => buildGeo(readWorld(query));
+
+// A place or region of the atlas alone (a place the story made): its own name.
+function atlasName(query, scope, ref) {
+    const key = fold(ref);
+    for (const place of rows(query, 'atlas.places', {})) {
+        if (scope === 'place' && [place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : [])].some(each => text(each) && fold(each) === key)) return text(place.name);
+        if (scope === 'region' && text(place?.region) && fold(place.region) === key) return text(place.region);
     }
-    return out;
+    return null;
 }
 
-/** The name the story keeps `ref` under for `scope` (a place, route, region or realm it knows), or null. */
-export function knownRef(query, scope, ref) {
-    const key = fold(ref);
-    return key ? names(query, scope).find(entry => entry.key === key)?.name ?? null : null;
+/** The name the story keeps `ref` under for `scope` (the pack's place, region, realm or route of that scope, else the atlas's), or null. */
+export function knownRef(query, scope, ref, geo = hostGeo(query)) {
+    if (!fold(ref)) return null;
+    return resolveAs(geo, text(ref), scope)?.name ?? (scope === 'place' || scope === 'region' ? atlasName(query, scope, ref) : null);
 }

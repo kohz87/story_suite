@@ -8,11 +8,14 @@ import { clockOf } from '../capture/text.js';
 import { declaredConditions } from './declared.js';
 import { fadeMinutes } from './fade.js';
 import { conditionKey, pointerOf } from './key.js';
-import { knownRef } from './known-refs.js';
-import { MAX_CONDITIONS, MAX_PER_REF, SCOPES } from './limits.js';
+import { hostGeo, knownRef } from './known-refs.js';
+import { markLedger } from './ledger.js';
+import { setRefusal } from './refusal.js';
+import { SCOPES } from './limits.js';
 import { WORLD_EVENTS_FEATURE } from './feature.js';
 
 const BY = /^(?:narrator|director|code)$/;
+const DAY = 1440;
 
 /**
  * The end of a condition set again (spec §2 Holders): the longer remaining time is kept ("until cleared" is longest), and the
@@ -42,9 +45,11 @@ function declaredOf(ctx, name) {
 
 /**
  * `chronicle.condition.set { name, scope?, ref, fades?, why, by }`: the condition is active on `ref`. `fades` is how long it lasts
- * ("10 days", "1 season", "until cleared", null = until cleared); left out, the pack's own. Refused with a note when the name is
- * not declared by the pack, the scope is not the declared one, the ref is not a known place, route, region or realm, or a cap is full.
- * Setting one that is active again keeps when it began and the longer end.
+ * ("10 days", "1 season", "until cleared", null = until cleared; whole days, at least one); left out, the pack's own. `ref` is read as
+ * the condition's declared scope (an id, a name or an alias; spec §2 Clearing scope: a place ref on a region condition is refused).
+ * Refused with a note when the name is not declared by the pack, the scope is not the declared one, the ref is not a place, route,
+ * region or realm of that scope, or setRefusal says so (no date, cleared there today, a full cap, a placeStatus where a protected
+ * person lives). Setting one that is active again keeps when it began and the longer end. The `set:` anchors go to the ledger.
  */
 function condition(ctx, payload) {
     if (ctx.cause === 'ui') return ctx.fail('REFUSED', 'Conditions are set by the story, not by a click.');
@@ -54,43 +59,54 @@ function condition(ctx, payload) {
     const declared = declaredOf(ctx, name);
     if (payload.scope !== undefined && !SCOPES.includes(payload.scope)) return ctx.fail('INVALID', `scope is one of ${SCOPES.join(', ')}.`);
     if (payload.scope !== undefined && payload.scope !== declared.scope) return ctx.fail('REFUSED', `"${name}" is a ${declared.scope} condition, not a ${payload.scope} one.`);
-    const ref = knownRef((query, args) => ctx.query(query, args), declared.scope, cleanName(payload.ref));
-    if (!ref) return ctx.fail('REFUSED', `"${cleanName(payload.ref)}" is not a place, route, region or realm of this world (${declared.scope} wanted).`);
+    const query = (type, args) => ctx.query(type, args);
+    const geo = hostGeo(query);
+    const ref = knownRef(query, declared.scope, cleanName(payload.ref), geo);
+    if (!ref) return ctx.fail('REFUSED', `"${cleanName(payload.ref)}" is not a ${declared.scope} of this world (a ${declared.scope} condition takes a ${declared.scope}).`);
     const fades = payload.fades === undefined ? declared.fades : payload.fades;
     const minutes = fadeMinutes(fades);
     if (minutes === undefined) return ctx.fail('INVALID', `fades must be a duration like "10 days" or "1 season", or "until cleared".`);
     const now = clockOf(ctx);
     if (now === null) return ctx.fail('NOT_YET', 'The story has no date yet; a condition waits for one.');
     const chronicle = ctx.draft('chronicle');
+    const refusal = setRefusal({ query, chronicle, geo, declared, ref, now, by });
+    if (refusal) return ctx.fail('REFUSED', `${refusal[0].toUpperCase()}${refusal.slice(1)}.`);
     const table = chronicle.conditions ?? {};
     const key = conditionKey(name, ref);
     const old = table[key];
-    if (!old && Object.keys(table).length >= MAX_CONDITIONS) return ctx.fail('REFUSED', `The world already carries ${MAX_CONDITIONS} conditions; one must end first.`);
-    if (!old && Object.values(table).filter(entry => entry.ref === ref).length >= MAX_PER_REF) return ctx.fail('REFUSED', `${ref} already carries ${MAX_PER_REF} conditions.`);
     const why = cleanSummary(typeof payload.why === 'string' ? payload.why : '').slice(0, 200);
     chronicle.conditions = table;
     chronicle.conditions[key] = { name, scope: declared.scope, ref, since: old?.since ?? now, ...lifetime(old, minutes, now), why, by, rev: revOf(ctx) };
+    if (!old) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`set:${name}`, `set:${key}`] });
     return { summary: `${old ? 'Still' : 'Now'}: ${name} on ${ref}${why ? ` (${why})` : ''}.`, narrate: false, data: { key, created: !old } };
 }
 
 /**
- * `chronicle.condition.clear { name, ref, why, by }`: the condition ends on `ref`. A condition that is not active is left as it is (a note, not a failure);
- * a name the pack does not declare is refused.
+ * `chronicle.condition.clear { name, ref, why, by }`: the condition ends on `ref`, read as its declared scope (spec §2 Clearing scope:
+ * a clear acts at the scope it is held, so a region condition cleared on its region is gone for every place in it). It is not set
+ * there again today (the ledger's tomb), and the `cleared:` anchors go to the ledger. One that is not active is left as it is (a
+ * note, not a failure); a name the pack does not declare, or a ref of another scope, is refused.
  */
 function clear(ctx, payload) {
     if (ctx.cause === 'ui') return ctx.fail('REFUSED', 'Conditions are ended by the story, not by a click.');
     if (!isRecord(payload)) return ctx.fail('INVALID', 'chronicle.condition.clear takes { name, ref, why, by }.');
     readBy(ctx, payload, 'chronicle.condition.clear');
     const name = typeof payload.name === 'string' ? payload.name.trim() : '';
-    declaredOf(ctx, name);
-    const ref = cleanName(payload.ref);
+    const declared = declaredOf(ctx, name);
+    const given = cleanName(payload.ref);
     const chronicle = ctx.draft('chronicle');
-    const found = Object.values(chronicle.conditions ?? {}).find(entry => entry.name === name && entry.ref.toLowerCase() === ref.toLowerCase());
+    const table = chronicle.conditions ?? {};
+    // A ref read as the scope; an entry kept under a name the map no longer has is still found by its own name.
+    const ref = knownRef((type, args) => ctx.query(type, args), declared.scope, given) ?? Object.values(table).find(entry => entry.name === name && entry.ref.toLowerCase() === given.toLowerCase())?.ref;
+    if (!ref) return ctx.fail('REFUSED', `"${given}" is not a ${declared.scope} of this world (a ${declared.scope} condition is cleared on a ${declared.scope}).`);
+    const found = table[conditionKey(name, ref)];
     if (!found) return { summary: `${name} is not active on ${ref || 'that place'}.`, narrate: false, data: { key: null } };
     const key = conditionKey(found.name, found.ref);
     // An older reply's condition may be gone when this replays after a delete: the removal is marked ctx.ifThere (SPEC §2.2).
     if (typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', pointerOf(key));
     delete chronicle.conditions[key];
+    const now = clockOf(ctx);
+    if (now !== null) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`cleared:${name}`, `cleared:${key}`], tombKeys: [key] });
     return { summary: `Ended: ${name} on ${found.ref}.`, narrate: false, data: { key } };
 }
 

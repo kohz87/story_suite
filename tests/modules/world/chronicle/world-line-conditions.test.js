@@ -64,31 +64,33 @@ test('what the command would refuse is a note on the card and is never called (a
     assert.equal(calls.length, 0);
     const undated = line(makeState(), '+ world Gate Siege — shut | place: Northgate | conditions: +gate-closed', options);
     assert.equal(undated.ok, true);
-    assert.match(undated.result.summary, /waits for the story to have a date/);
+    assert.match(undated.result.summary, /the story has no date yet; a condition waits for one/);
     assert.equal(calls.length, 0);
     const noPlace = line(base(), '+ world Gate Siege — shut | conditions: +gate-closed', options);
     assert.match(noPlace.result.summary, /needs a place on the line/);
 });
 
-test('a second world line in one reply is refused; another reply may write its own; a plain command has no limit', () => {
+test('a second world line with conditions in one reply is refused (seam audit E38: only lines with conditions count); another reply may write its own; a plain command has no limit', () => {
     const { options } = stub();
-    const first = line(base(), '+ world One — a', options);
+    const first = line(base(), '+ world One — a | place: Northgate | conditions: +gate-closed', options);
     assert.equal(first.ok, true);
-    const second = line(first.state, '+ world Two — b', options);
+    const second = line(first.state, '+ world Two — b | place: Northgate | conditions: -gate-closed', options);
     assert.equal(second.ok, false);
     assert.equal(second.code, 'REFUSED');
-    assert.match(second.message, /one world line/);
+    assert.match(second.message, /one world line with conditions/);
     assert.equal(eventNamed(second.state, 'Two'), undefined);
-    const other = line(first.state, '+ world Two — b', { ...options, carrier: { sid: 'sid_b' } });
+    const plain = line(first.state, '+ world Three — c', options);
+    assert.equal(plain.ok, true, 'a world line without conditions is not capped');
+    const other = line(first.state, '+ world Two — b | place: Northgate | conditions: -gate-closed', { ...options, carrier: { sid: 'sid_b' } });
     assert.equal(other.ok, true);
-    const ui = line(first.state, '~ world One — c', { ...options, cause: 'ui', carrier: undefined });
+    const ui = line(first.state, '~ world One — c | place: Northgate | conditions: +gate-closed', { ...options, cause: 'ui', carrier: undefined });
     assert.equal(ui.ok, true);
 });
 
 test('replay of the ops equals the live state (the reply mark is part of it)', () => {
     const { options } = stub();
-    const a = line(base(), '+ world One — a', options);
-    const b = line(a.state, '+ world Two — b', { ...options, carrier: { sid: 'sid_b' } });
+    const a = line(base(), '+ world One — a | place: Northgate | conditions: +gate-closed', options);
+    const b = line(a.state, '+ world Two — b | place: Northgate | conditions: -gate-closed', { ...options, carrier: { sid: 'sid_b' } });
     assert.deepEqual(replay(base(), [a, b]), b.state);
     assert.deepEqual(b.state.domains.chronicle.worldLine, { sid_a: true, sid_b: true });
 });
