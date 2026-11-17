@@ -24,6 +24,18 @@ test('the draft in front of a second copy of the first paragraph is dropped; oth
     assert.equal(dropDoubledDraft(short), short, 'a short repeated line is no draft');
 });
 
+test('a refrain or a flashback that reopens on the opening paragraph keeps everything between (LABFIX2)', () => {
+    const MIDDLE = 'Years before, the river had taken the ferryman\'s boat and his only son, and the town had never rebuilt the old landing; the watchmen still spat into the water whenever they walked past it, and nobody on the quay would speak of it to a stranger.';
+    const refrain = `${P1}\n\n${MIDDLE}\n\n${P1}\n\nShe smiled.\n\n${BLOCK}`;
+    assert.equal(dropDoubledDraft(refrain), refrain, 'a refrain with an end line');
+    const bare = `${P1}\n\n${MIDDLE}\n\n${P1}\n\n${BLOCK}`;
+    assert.equal(dropDoubledDraft(bare), bare, 'a flashback that ends on the opening paragraph');
+    const glued = `${P1}\n\n${MIDDLE} ${P1} And then the horn sounded across the water and everyone ran.\n\n${BLOCK}`;
+    assert.equal(dropDoubledDraft(glued), glued, 'the opening words inside a longer paragraph');
+    const recorded = `${P1}\n\n${P2}\n\n${LEAK}${P1}\n\n${P2}\n\n${BLOCK}`;
+    assert.equal(dropDoubledDraft(recorded), clean(BLOCK), 'the recorded draft, its second copy glued to the review line, is still cut');
+});
+
 test('live: the shown reply has no draft and no second copy; swipe, swipe back, reread, delete and reload agree', async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await createHost();

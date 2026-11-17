@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REPAIR_FOOT } from '../../../modules/assist/index.js';
-import { capStretch } from '../../../modules/assist/repair-parts/time-cap.js';
+import { capStretch, statesLongStretch } from '../../../modules/assist/repair-parts/time-cap.js';
 import { createModule } from '../../../ui/legacy/director/module.js';
 import { createHost } from '../../../testkit/index.js';
 import { skip, wait } from './safety-net.helpers.js';
@@ -23,6 +23,18 @@ test('a stretch over a day is cut to +24h when the reply does not say a day or m
 test('a reply that says a day or more passed keeps its long stretch', () => {
     for (const said of ['The next morning you woke stiff.', 'Two days later the gates came in sight.', 'You slept in the barn.', 'It rained overnight.']) {
         assert.deepEqual(capStretch(['! time +41h'], said), { lines: ['! time +41h'], cut: [] }, said);
+    }
+});
+
+test('a long trip the reply states in days, weeks or a fortnight is never cut (LABFIX2); a distance still to cover or the second day is', () => {
+    for (const said of ['After three days of hard riding they reached the gate.', 'They rode for a week and arrived.', 'On the third day they arrived at dusk.',
+        'Three days on the road, and finally the gate.', 'Days later, the gate.', 'Two days passed.', 'After a fortnight the walls came in sight.', 'By the next evening they had crossed.', 'They walked for days.']) {
+        assert.equal(statesLongStretch(said), true, said);
+        assert.deepEqual(capStretch(['! time +72h'], said), { lines: ['! time +72h'], cut: [] }, said);
+    }
+    for (const unsaid of [T6, 'You walked on through the second day.', 'Two full days of road still lay ahead of you.', 'It took a day and a night to reach the pass, a day at most.']) {
+        assert.equal(statesLongStretch(unsaid), false, unsaid);
+        assert.deepEqual(capStretch(['! time +72h'], unsaid).lines, ['! time +24h'], unsaid);
     }
 });
 
