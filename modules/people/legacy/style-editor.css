@@ -1,5 +1,5 @@
 .npc-state-delta-extension { --npc-paper: rgba(245, 238, 220, .08); --npc-line: rgba(216, 190, 145, .22); --npc-gold: #d8bc78; --npc-ink: var(--SmartThemeBodyColor, #ddd); }
-.npc-state-delta-version { opacity: .65; font-size: .75em; font-weight: 500; }
+.npc-state-delta-heading { margin: 8px 4px 0; font-size: 1em; font-weight: 700; }
 .npc-state-delta-drawer { padding: 10px 4px 4px; }
 .npc-state-delta-setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 8px; border-bottom: 1px solid rgba(255,255,255,.06); }
 .npc-state-delta-setting-row > span:first-child { display: flex; flex-direction: column; gap: 2px; }

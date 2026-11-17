@@ -129,3 +129,13 @@ test('a Story-only card still shows a good timed condition', () => {
   const buff = [...el.querySelectorAll('.fx2 .f')].find((f) => /Well rested/.test(f.textContent));
   assert.ok(buff && buff.className.includes('buff'));
 });
+
+test('a safe portrait path is drawn as the card picture, with no letter; an unsafe one stays the letter', () => {
+  installFakeDom();
+  const base = { rpg: false, scene: {}, chips: {}, statuses: [] };
+  const shown = characterCard({ ...base, you: { portrait: '/User%20Avatars/me.png', name: 'Ann' } }).querySelector('.por');
+  assert.equal(shown.style.getPropertyValue('background-image'), 'url("/User%20Avatars/me.png")');
+  assert.equal(shown.textContent, '');
+  const bad = characterCard({ ...base, you: { portrait: 'x") y', name: 'Ann' } }).querySelector('.por');
+  assert.equal(bad.textContent, 'A');
+});

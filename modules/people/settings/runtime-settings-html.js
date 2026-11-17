@@ -2,7 +2,7 @@
    and the controls' sync from the stored settings. Built by index.js once per module instance with the shared runtime
    state and the controller functions it calls. Bodies are moved from index.js without change. */
 
-import { NPC_STATE_VERSION, PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core/core.js';
+import { PORTRAIT_STYLE_PROMPT_LIMIT, PORTRAIT_COMPOSITION_PROMPT_LIMIT } from '../core/core.js';
 import { SUITE_AREAS } from '../legacy/suite-handshake.js';
 import { escapeHtml } from '../util/html.js';
 import { PORTRAIT_THEME_PRESETS, getSettings } from './runtime-settings.js';
@@ -176,12 +176,8 @@ export function createSettingsHtmlPart(rt, deps) {
         ${settingsGroup('advanced', 'Advanced', 'Scan context, output and injection limits, branch handling', advanced)}`;
         return `
     <div id="${UI_ID}" class="extension_container npc-state-delta-extension">
-      <div class="inline-drawer">
-        <div class="inline-drawer-toggle inline-drawer-header">
-          <b>NPC State Delta <span class="npc-state-delta-version">v${NPC_STATE_VERSION}</span></b>
-          <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
-        </div>
-        <div class="inline-drawer-content npc-state-delta-drawer story-suite-panel">
+      <h4 class="npc-state-delta-heading">NPC State</h4>
+        <div class="npc-state-delta-drawer story-suite-panel">
           <div id="npc_state_delta_suite_manage" class="npc-state-delta-suite-manage story-suite-manage" data-story-suite-link hidden>
             <button type="button" class="menu_button" data-delta-open-suite><i class="fa-solid fa-layer-group"></i> Manage all in Story Suite</button>
           </div>
@@ -205,7 +201,6 @@ export function createSettingsHtmlPart(rt, deps) {
             ${settingsGroup('expert', 'Expert', "Source of truth, calendar, scanner rules, what's sent, advanced", expert)}
           </div>
         </div>
-      </div>
     </div>`;
     }
 

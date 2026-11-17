@@ -1,5 +1,6 @@
 /* NPC State Delta dossier surface: the Board tiles, in mockup order, from the board model. */
 import { gateWords } from '../dossier-ui-view-model.js';
+import { showSourceTag } from '../../../../ui/kit/source-tag.js';
 import { NO_REASON } from '../dossier-ui-relationship.js';
 import { signed } from './shared-markup.js';
 import { moodRowsHtml, pullRowHtml } from './meter-rows.js';
@@ -24,7 +25,7 @@ export function boardTiles(model = {}, { userName = 'you', facesHtml = '' } = {}
             tone: moved.some(item => (item.axis === 'tension' ? item.value > 0 : item.value < 0)) ? 'bad' : (moved.length ? 'good' : ''),
             lead: moved.length ? moved.map(item => `${item.label} ${signed(item.value)}`).join(' · ') : '',
             big: moved.length ? '' : (last.hasChange ? '' : 'No change yet'),
-            lines: [gateWords(last.gate), last.reason || (last.hasChange && !gateWords(last.gate) ? NO_REASON : '')],
+            lines: [gateWords(last.gate), showSourceTag(last.reason) || (last.hasChange && !gateWords(last.gate) ? NO_REASON : '')],
         },
         {
             // The Mood tile opens the Mood section and carries the Pull as its one footer line (no separate Pull card).

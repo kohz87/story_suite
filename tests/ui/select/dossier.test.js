@@ -171,3 +171,14 @@ describe('selectDossier', () => {
     assert.equal('likes' in vm.profile, false);
   });
 });
+
+describe('evidence message tags', () => {
+  it('shows a stored quote\'s leading [mN] as #N in changes and memories', () => {
+    const view = selectDossier({
+      dossier: { name: 'Mara', memories: ['[m12] she laughed'] },
+      meters: { recent: [{ date: 'Day 1', mv: { trust: 1 }, why: '[m9] she shared the map' }] },
+    });
+    assert.equal(view.changes[0].why, '#9 — she shared the map');
+    assert.equal(view.past[0].text, '#12 — she laughed');
+  });
+});
