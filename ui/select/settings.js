@@ -97,7 +97,7 @@ export function selectSettings(answers) {
     section('start', 'Play', 'Start', 'How much the suite tracks, and the modules with their features.', [], 'start'),
     section('look', 'Play', 'Look', 'Skin and text.', rowsOf('Skin', LOOK, host, schema, defaults)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
-    section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows),
+    section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
   return {
     subtitle: typeof a.subtitle === 'string' ? a.subtitle : null,
