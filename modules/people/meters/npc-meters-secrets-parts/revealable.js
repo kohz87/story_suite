@@ -15,6 +15,12 @@ export function stageReached(record, stages, byId) {
     return reached;
 }
 
+/** The owner's ids a gate's `of <id>` may name (cast id and name, lower case and slugged); none known → undefined (such terms are read as before). */
+function ownersOf(record) {
+    const ids = [record?.castFrom?.id, record?.name].filter(text => typeof text === 'string' && text.trim()).flatMap(text => [text.toLowerCase(), text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '')]);
+    return ids.length ? new Set(ids) : undefined;
+}
+
 /**
  * `{ gate }` (a rule) against `record`. `inputs`: { stages, anchors: string[], place, quote(text) → bool } as the host's hook gives them;
  * `byId`: the meter definitions by id. Reading the record as it stood before the reply keeps a reveal the same on replay.
@@ -26,6 +32,7 @@ export function gateOpen(rule, record, byId, inputs = {}) {
         stage: stageReached(record, stages, byId),
         stageOf: name => rungsOf(stages).findIndex(step => step?.name === name) + 1,
         meter: id => (byId.has(id) ? meterValue(record, byId.get(id)) : null),
+        owners: ownersOf(record),
         anchors: new Set(Array.isArray(inputs.anchors) ? inputs.anchors : []),
         place: inputs.place ?? '',
         quote: inputs.quote ?? (() => true),   // a quote term is open until the reveal line (its quote is checked there)

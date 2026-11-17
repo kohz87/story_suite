@@ -42,7 +42,7 @@ export const WORLD = Object.freeze({
 
 export const answerFor = (key, over = {}) => ({ slot: key, name: 'Border scuffle', summary: 'Soldiers scuffle at the gate.', people: ['warden'], effects: { powers: { crown: -3 }, set: [{ condition: 'unrest', for: '3 days' }], cast: [{ id: 'warden', to: 'Bluewatch' }], fact: 'incident-noted' }, ...over });
 
-/** The fake model: `calls` counts every request; `mode` is 'good', 'bad' (always refused), 'bad-first', 'fail' or 'busy'; `prompts` keeps the text sent. */
+/** The fake model: `calls` counts every request; `mode` is 'good', 'bad' (always refused), 'bad-first', 'half' (the second slot refused, every later call busy), 'fail' or 'busy'; `prompts` keeps the text sent. */
 export function fakeModel() {
     const model = {
         calls: 0, mode: 'good', prompts: [], requests: [], gate: null,
@@ -54,8 +54,9 @@ export function fakeModel() {
             if (model.mode === 'fail') return { ok: false, text: '', error: 'FAILED', message: 'no' };
             if (model.mode === 'busy') return { ok: false, text: '', error: 'BUSY', message: 'busy' };
             const keys = [...request.prompt.matchAll(/^Slot (\S+)$/gm)].map(match => match[1]);
+            if (model.mode === 'half' && model.calls > 1) return { ok: false, text: '', error: 'BUSY', message: 'busy' };
             const bad = model.mode === 'bad' || (model.mode === 'bad-first' && model.calls === 1);
-            const rows = keys.map(key => answerFor(key, bad ? { effects: { powers: { crown: 99 } } } : {}));
+            const rows = keys.map((key, index) => answerFor(key, bad || (model.mode === 'half' && index === 1) ? { effects: { powers: { crown: 99 } } } : {}));
             return { ok: true, text: JSON.stringify({ results: rows }), error: null };
         },
     };

@@ -1,5 +1,5 @@
 // Story Director v2, part **arc**: what the Director judge is told about the world (switch story-director.world-events): the Active events, the events still to
-// come, the conditions in the party's realm, the protected cast, hidden lore by title only, and the lore digest (titles, then the entries whose keys match the
+// come, the conditions in the party's realm, the protected cast, hidden lore by title only, the secrets not yet learned (the same list the planner's brief carries, told to the judge as never-reveal) and the lore digest (titles, then the entries whose keys match the
 // place). Hidden lore's text is never sent, whatever the digest holds. Pure on the brief (`chronicle.world.brief`) and the query handed in.
 
 const MAX_TITLES_CHARS = 4400;
@@ -33,6 +33,8 @@ export function judgeContext({ brief, ask, place = '' } = {}) {
     if (cast.length) parts.push(`Protected cast (never killed, moved or changed by a plan): ${cast.map(norm).join('; ')}`);
     const hiddenTitles = list(brief.hidden).filter(title => typeof title === 'string' && title.trim());
     if (hiddenTitles.length) parts.push(`Hidden lore, titles only (never reveal or hint): ${hiddenTitles.map(norm).join('; ')}`);
+    const secrets = list(brief.secrets).filter(item => item && typeof item.name === 'string' && typeof item.text === 'string' && item.text.trim());
+    if (secrets.length) parts.push('Secrets not yet learned (never reveal or hint at them in any item):', ...secrets.map(item => `- ${norm(item.name)}: ${norm(item.text)}`));
     if (typeof ask === 'function') parts.push(...lore(ask, hidden, place));
     return parts.join('\n');
 }

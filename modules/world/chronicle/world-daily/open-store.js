@@ -13,7 +13,7 @@ import { calendarFrom, nowFrom } from '../queries.js';
 import { runDays } from '../../daily/step.js';
 import { isWorldSeed } from './seed.js';
 import { readWorld } from './read-world.js';
-import { openAsker } from './open-ask.js';
+import { openAsker, scopeOf } from './open-ask.js';
 
 export const OPEN = 'chronicle.world.open';
 const DAY = 1440;
@@ -48,11 +48,12 @@ function inputOf(view) {
     return { state, table: chronicle.conditions ?? {}, world, seed, marks, opens: marks.open, minutes };
 }
 
-/** Starts the asking for the slots waiting and the ones tomorrow's roll makes (a dry run: nothing is written). Never awaits. */
+/** Starts the asking for the slots waiting and the ones tomorrow's roll makes (a dry run: nothing is written). Never awaits. Returns the keys of those slots. */
 function ask(view, input) {
     const dry = runDays({ state: input.state, table: input.table, world: input.world, today: Math.floor(input.minutes / DAY) + 1, seed: input.seed, marks: input.marks, opens: input.opens });
     const slots = dry?.daily.pending ?? input.state.pending ?? [];
     if (slots.length) openAsker.kick(view, input, slots);
+    return new Set(slots.map(slot => slot.key));
 }
 
 /** beforeGenerate: ask ahead, then the store command for the answers that are ready (none when nothing is ready). */
@@ -60,8 +61,8 @@ export function openBeforeGenerate(view) {
     if (!worldEventsOn(view)) return [];
     const input = inputOf(view);
     if (!input) return [];
-    ask(view, input);
-    const ready = openAsker.drain(input.opens?.results ?? {});
+    const wanted = ask(view, input);
+    const ready = openAsker.drain(scopeOf(view, input.seed), input.opens?.results ?? {}, wanted);
     return ready ? [{ type: OPEN, payload: ready }] : [];
 }
 

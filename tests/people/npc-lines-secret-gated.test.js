@@ -116,3 +116,12 @@ test('the gate is read as of the reply: an anchor recorded later does not open a
     assert.deepEqual(opened(s), [], 'a rewind past the reveal closes it again');
     same(s, 'rewind equals live');
 });
+
+test('an `of <id>` term that names someone other than the secret\'s owner is false; the owner\'s own id reads as before', () => {
+    const known = { stage: 2, stageOf: () => 0, meter: () => 50, anchors: new Set(), place: '', owners: new Set(['mira', 'mira-vale']) };
+    assert.equal(gateHolds('meter trust of mira >= 3', known), true);
+    assert.equal(gateHolds('meter trust of oren >= 3', known), false, 'another person\'s meter never opens this secret');
+    assert.equal(gateHolds('stage of oren >= 1', known), false);
+    assert.equal(gateHolds('stage of mira >= 1', known), true);
+    assert.equal(gateHolds('meter trust of oren >= 3', { ...known, owners: undefined }), true, 'no owner known: read as before');
+});

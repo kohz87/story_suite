@@ -3,7 +3,7 @@
 
 export const JUDGE_SYSTEM = [
     'You judge a story arc plan before it is accepted. Each numbered item is a beat, clock or agenda a planner proposed; judge each against the world below.',
-    'Refuse an item that decides, ends or shows the outcome of an Active world event (the world settles those by its own rolls; a plan may only react to them), contradicts the lore, reveals or hints at hidden lore, kills, moves or changes a protected person, or invents a place, faction or fact the lore does not give.',
+    'Refuse an item that decides, ends or shows the outcome of an Active world event (the world settles those by its own rolls; a plan may only react to them), contradicts the lore, reveals or hints at hidden lore or a secret not yet learned, kills, moves or changes a protected person, or invents a place, faction or fact the lore does not give.',
     'Reshape an item that is close and needs one fix: give the corrected line in the same form. Accept every other item. When unsure, accept.',
     'Answer with one line per item and nothing else:',
     '<n>: accept',
