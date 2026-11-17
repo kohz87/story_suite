@@ -1,7 +1,7 @@
 // Settings -> Blocks: the page's list, Show as controls, row menu and template chooser (extracted from
 // screens/blocks.js; createBlockWidgets returns this page). The card view and editor stay shared.
 
-import { h } from '../../../../ui/legacy/view/widgets/dom.js';
+import { h } from '../../../../packs/widgets/dom.js';
 import { selectField } from '../../../../ui/legacy/view/form/fields.js';
 import { editableBlockDraft } from '../../block-builder.js';
 import { exportBlockPack } from '../../block-templates.js';

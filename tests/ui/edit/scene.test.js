@@ -44,7 +44,7 @@ test('scene edits rebuild, reload and disappear on a swipe', async t => {
 });
 
 test('scene pencils send a place, the weather and a list of people', async () => {
-    const { sceneScreen } = await import('../../../ui/legacy/screens/scene.js');
+    const { sceneScreen } = await import('../../../packs/screens/defaults/scene.js');
     const { queries, sceneState, show, settle } = await import('../screens/helpers.js');
     const module = core();
     const state = sceneState(module);

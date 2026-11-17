@@ -1,7 +1,7 @@
 // The shared view for a block's tab or Home card, and the Blocks page of Settings (the page lives in
 // screens/blocks/page.js; view/settings/blocks.js puts it in the settings window). The game view has no Blocks tab.
-import { h, shell } from '../../../ui/legacy/view/widgets/dom.js';
-import { editable } from '../../../ui/legacy/view/widgets/editable.js';
+import { h, shell } from '../../../packs/widgets/dom.js';
+import { editable } from '../../../packs/widgets/editable.js';
 import { editableBlockDraft, uniqueBlockSlug } from '../block-builder.js';
 import { hasRestButtons } from '../recovery.js';
 import { dmNameOf } from '../schema.js';

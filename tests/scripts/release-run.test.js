@@ -33,8 +33,8 @@ before(async () => {
   const kit = path.join(out, 'kit.js');
   fs.writeFileSync(kit, KIT);
   // One bundle set for the one extension; the three entries stand for the suite's parts the harness starts one by one.
-  await buildBundleSet({ name: 'suite', entries: [kit, path.join(repoRoot, 'ui/legacy/director/module.js'), path.join(repoRoot, 'modules/people/storysuite-v2.js')], lazy: SB_LAZY }, path.join(out, 'suite'), repoRoot);
-  fromSource = run(kit, path.join(repoRoot, 'ui/legacy/director/module.js'), path.join(repoRoot, 'modules/people/storysuite-v2.js'));
+  await buildBundleSet({ name: 'suite', entries: [kit, path.join(repoRoot, 'modules/director/module.js'), path.join(repoRoot, 'modules/people/storysuite-v2.js')], lazy: SB_LAZY }, path.join(out, 'suite'), repoRoot);
+  fromSource = run(kit, path.join(repoRoot, 'modules/director/module.js'), path.join(repoRoot, 'modules/people/storysuite-v2.js'));
   fromBundle = run(path.join(out, 'suite/kit.js'), path.join(out, 'suite/module.js'), path.join(out, 'suite/storysuite-v2.js'));
 });
 after(() => fs.rmSync(out, { recursive: true, force: true }));

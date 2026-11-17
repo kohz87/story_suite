@@ -343,7 +343,7 @@ test('pulse v2: the invents switch is a setting, default on; the hook marks new 
 });
 
 test('pulse v2: an invent entry shows a display text (no narrator brief) on the Director card and the under-reply row; the note carries the brief', async () => {
-    const { createScreensPart } = await import('../../../../ui/legacy/director/screens/index.js');
+    const { createScreensPart } = await import('../../../../modules/director/screens/index.js');
     const state = clocked();
     const stepped = pulseAt(state, 11, { settings: { mode: 'lively' }, payload: V2 });
     const entry = resultsOf(stepped.state.domains.director).find(item => item.invent) ?? pulseChain(state, 12).find(item => item.invent);

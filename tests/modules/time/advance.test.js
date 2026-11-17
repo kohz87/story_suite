@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../testkit/index.js';
-import { createModule } from '../../../ui/legacy/director/module.js';
+import { createModule } from '../../../modules/director/module.js';
 import { fakeFightRunner } from '../../suite/integration/director/helpers/fake-fight-runner.js';
 import { fakeCraft } from './helpers/fake-craft.js';
 import { ADVANCE, MAX_ADVANCE, advanceClaim, spanText } from '../../../modules/time/advance.js';

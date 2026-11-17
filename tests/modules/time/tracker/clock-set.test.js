@@ -11,7 +11,7 @@ import { part } from '../../../../modules/time/tracker/index.js';
 import { CLOCK, clockCommand, clockProblem, heroDate, partsOf } from '../../../../modules/time/tracker/clock-set.js';
 import { calendarOf, settingsDefaults } from '../../../../modules/time/tracker/time.js';
 import { makeState, reply, runCommand } from './helpers/fake-ctx.js';
-import { statusExtras } from '../../../../ui/legacy/director/screens/queries.js';
+import { statusExtras } from '../../../../modules/director/screens/queries.js';
 import { formatStoryTime } from '../../../../ui/legacy/view/clock.js';
 
 const MONTHS = ['Dawnwane', 'Rainmoot', 'Greengale', 'Highsun', 'Goldwane', 'Haywane', 'Emberwane', 'Nightfall', 'Frostfall', 'Deepwinter', 'Icewane', 'Yearsend']

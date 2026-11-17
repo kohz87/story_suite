@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { DIGEST_FEATURE } from '../../../../modules/world/chronicle/days.js';
 import { needsDigest } from '../../../../modules/world/chronicle/digest.js';
 import { timeAfter } from '../../../../modules/time/tracker/time.js';

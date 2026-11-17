@@ -7,7 +7,7 @@ import { createHost } from '../../../testkit/index.js';
 import { createHarness, line } from './helpers/fake-ctx.js';
 import { core, def, stack, stocked } from './fixtures.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
-import { editFields, editPlan } from '../../../ui/legacy/view/gear-form.js';
+import { editFields, editPlan } from '../../../packs/widgets/gear-form.js';
 
 const ON = { extra: { feature: id => id === 'story-block.gear' || id === 'story-block.rpg' } };
 const reply = (text, lines) => `${text}\n\n<Changes>\n${lines.join('\n')}\n</Changes>`;

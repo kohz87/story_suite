@@ -2,7 +2,7 @@
 // no Drop; its Edit locks everything but the note; its slot tile carries a lock. Off: today's screens (the fixture test in gear-ui.test.js).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { inventoryScreen } from '../../../packs/screens/defaults/index.js';
 import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { createHarness } from './helpers/fake-ctx.js';
 import { stocked } from './fixtures.js';

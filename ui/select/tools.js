@@ -1,8 +1,8 @@
 // Builds the Tools page's view-models from the engine handle: what is sent, the problems (with the rebuild entry) and one Inspector reply.
 import { STRINGS } from '../../core/strings.js';
 import { SAVEPOINT_LIMITS } from '../../core/timeline/rewind.js';
-import { rebuildTarget } from '../legacy/screens/rebuild-banner-parts/target.js';
-import { preview } from '../legacy/inspect.js';
+import { rebuildTarget } from '../../packs/screens/defaults/rebuild-banner-parts/target.js';
+import { preview } from '../../packs/screens/inspect.js';
 
 const INSPECTOR_HINT = 'Every change of a reply: lines, what code did, the state after; older and newer replies';
 const STATE_CUT = 4000;

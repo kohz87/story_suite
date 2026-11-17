@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { equipmentView } from '../../../modules/inventory/index.js';
-import { inventoryScreen } from '../../../ui/legacy/screens/index.js';
+import { inventoryScreen } from '../../../packs/screens/defaults/index.js';
 import { core, foldOf, openFold, queries, renderSkip, settle, show, stocked, text } from './helpers.js';
 
 const REN = 'ac_ren00001';

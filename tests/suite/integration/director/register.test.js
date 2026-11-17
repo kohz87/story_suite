@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
 import { fakeFightRunner } from './helpers/fake-fight-runner.js';
 import { registerIsolated } from '../../../../core/boot/register-isolated.js';
-import { storyDirectorModule } from '../../../../ui/legacy/director/module.js';
-import { startDirector } from '../../../../ui/legacy/director/module/start.js';
+import { storyDirectorModule } from '../../../../modules/director/module.js';
+import { startDirector } from '../../../../modules/director/module/start.js';
 import { personaName } from '../../../../modules/time/tracker/initiative.js';
 
 const runtimeOf = host => ({ sdk: host.sdk, turn: host.turn, registry: host.registry });

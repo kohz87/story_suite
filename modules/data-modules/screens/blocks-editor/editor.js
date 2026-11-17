@@ -3,7 +3,7 @@
 // the layout/preview and the form's sections live in layout.js and draw.js.
 
 import { textField, numberField, selectField } from '../../../../ui/legacy/view/form/fields.js';
-import { h } from '../../../../ui/legacy/view/widgets/dom.js';
+import { h } from '../../../../packs/widgets/dom.js';
 import { buildBlock, partKey } from '../../block-builder.js';
 import { BLOCK_STARTERS } from '../../block-starters.js';
 import { cardRoles, layoutShape } from '../../block-layout.js';

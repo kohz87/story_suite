@@ -1,7 +1,7 @@
 // The Money page's body: the form and its search and focus handles.
 
 import { renderSettingsForm } from '../../form/form.js';
-import { showAndFocus } from '../../scroll.js';
+import { showAndFocus } from '../../../../../packs/widgets/scroll.js';
 import { MONEY_MODULE, MONEY_FOLD } from './names.js';
 import { moneySchema } from './schema.js';
 

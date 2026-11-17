@@ -6,7 +6,7 @@ import { setupDom } from '../ui/view/mounts/helpers.js';
 import { world, pin, success } from '../modules/data-modules/helpers.js';
 import { mergeTabs } from '../../ui/legacy/view/tab-merge.js';
 import { grammarFor, summaryOf } from '../../modules/data-modules/part.js';
-import { renderLayout } from '../../ui/legacy/layout/render.js';
+import { renderLayout } from '../../packs/layout/render.js';
 import { editableLayout } from '../../modules/data-modules/editable-layout.js';
 import { createFieldsWidgets } from '../../modules/data-modules/screens/block-fields.js';
 import { FIELDS_WIDGET } from '../../modules/data-modules/fields-widget.js';

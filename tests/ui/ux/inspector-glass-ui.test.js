@@ -4,8 +4,8 @@
 // clicks. The keys, the clicks and the focus are the same as before.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createInspectorWidget } from '../../../ui/legacy/screens/inspector.js';
-import { fakeApi, host, installDom } from '../view/widgets/fake-dom.js';
+import { createInspectorWidget } from '../../../packs/screens/defaults/inspector.js';
+import { fakeApi, host, installDom } from '../../packs/widgets/fake-dom.js';
 
 // ---- the inspector over a fake source (three replies, the newest first) ------------------------------
 

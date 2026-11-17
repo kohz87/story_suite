@@ -33,9 +33,9 @@
 // Every text is set with textContent; nothing a module or a pack wrote becomes markup here. The texts are
 // in src/v2/strings.js.
 
-import { HOME_SCREEN_ID } from './screens/index.js';
+import { HOME_SCREEN_ID } from '../../packs/screens/defaults/index.js';
 import { createReplyExtras } from './extras-ui.js';
-import { displayLines } from './extras.js';
+import { displayLines } from '../../modules/scene/extras.js';
 import { fill } from '../../core/strings.js';
 import { CORE_FEATURE } from '../../core/features.js';
 import { renderCardOffers } from '../../packs/card-offer-ui.js';

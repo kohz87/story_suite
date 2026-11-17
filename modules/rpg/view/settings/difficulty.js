@@ -1,6 +1,6 @@
 // Draws the RPG settings Difficulty card: the chosen difficulty and the Custom numbers of the formula in force.
 
-import { h } from '../../../../ui/legacy/view/widgets/dom.js';
+import { h } from '../../../../packs/widgets/dom.js';
 import { LEVEL } from '../../names.js';
 import { DIFFICULTIES, DIFFICULTY_SETTING, STANDARD_RANGES, STANDARD_SETTING, difficultyOf, normalizeStandard } from '../../rules.js';
 import { fill } from '../../strings.js';

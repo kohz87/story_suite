@@ -13,7 +13,7 @@
 // textContent; nothing the story wrote becomes markup. The texts are in strings.js.
 
 import { readRecord, swipeOf } from '../../core/persist.js';
-import { CHOICES_FEATURE } from './extras.js';
+import { CHOICES_FEATURE } from '../../modules/scene/extras.js';
 import { STRINGS } from '../../core/strings.js';
 
 const X = STRINGS.extras;

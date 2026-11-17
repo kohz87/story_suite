@@ -5,8 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { PALETTES } from '../../../ui/legacy/view/theme.js';
-import { changesCardScreen } from '../../../ui/legacy/screens/index.js';
-import { inventoryScreen } from '../../../ui/legacy/screens/inventory.js';
+import { changesCardScreen } from '../../../packs/screens/defaults/index.js';
+import { inventoryScreen } from '../../../packs/screens/defaults/inventory.js';
 import { cssOf } from '../../core/helpers/css-parts.js';
 
 const mountsCss = cssOf('mounts');

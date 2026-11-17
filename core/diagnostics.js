@@ -15,13 +15,13 @@
 // Pure apart from `captureConsole` (wraps console.error once) and `noteSaveError`: the report is built
 // from a `source` the settings host gives (ui-host.js).
 // Public face: re-exports its parts.
-export { PROBLEMS_SHOWN, ERRORS_KEPT, HOOK_TIMEOUT_MS } from '../ui/legacy/diagnostics-parts/limits.js';
-export { isSecretKey, REMOVED, scrubSecrets, scrubLine } from '../ui/legacy/diagnostics-parts/secrets.js';
-export { scrubSettings } from '../ui/legacy/diagnostics-parts/scrub-settings.js';
-export { noteError, noteSaveError } from '../ui/legacy/diagnostics-parts/notes.js';
-export { captureConsole } from '../ui/legacy/diagnostics-parts/console-capture.js';
-export { caughtSoFar, resetCaught } from '../ui/legacy/diagnostics-parts/caught-view.js';
-export { chatCounts } from '../ui/legacy/diagnostics-parts/chat-counts.js';
-export { callsLine } from '../ui/legacy/diagnostics-parts/calls-line.js';
-export { buildReport } from '../ui/legacy/diagnostics-parts/build-report.js';
-export { reportFileName } from '../ui/legacy/diagnostics-parts/report-file-name.js';
+export { PROBLEMS_SHOWN, ERRORS_KEPT, HOOK_TIMEOUT_MS } from './diagnostics-parts/limits.js';
+export { isSecretKey, REMOVED, scrubSecrets, scrubLine } from './diagnostics-parts/secrets.js';
+export { scrubSettings } from './diagnostics-parts/scrub-settings.js';
+export { noteError, noteSaveError } from './diagnostics-parts/notes.js';
+export { captureConsole } from './diagnostics-parts/console-capture.js';
+export { caughtSoFar, resetCaught } from './diagnostics-parts/caught-view.js';
+export { chatCounts } from './diagnostics-parts/chat-counts.js';
+export { callsLine } from './diagnostics-parts/calls-line.js';
+export { buildReport } from './diagnostics-parts/build-report.js';
+export { reportFileName } from './diagnostics-parts/report-file-name.js';

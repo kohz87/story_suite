@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createScreenMount } from '../../../../ui/legacy/view/mounts/screen.js';
-import { createScreens } from '../../../../ui/legacy/view/screens.js';
+import { createScreens } from '../../../../packs/screens/registry.js';
 import { fakeRenderer, setupDom, stateWith } from './helpers.js';
 
 const screen = (id, title) => ({ id, title, icon: 'fa-star', mounts: ['screen'], template: `<p>${title}</p>` });

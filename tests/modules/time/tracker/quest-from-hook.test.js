@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/host.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { part } from '../../../../modules/time/tracker/index.js';
 
 const HOOK = '+ hook Missing boatman — Person A says he vanished | giver: Person A | goal: ask at the docks';

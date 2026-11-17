@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { meter } from '../../../ui/legacy/view/widgets/meter.js';
-import { fmt } from '../../../ui/legacy/view/widgets/dom.js';
+import { meter } from '../../../packs/widgets/meter.js';
+import { fmt } from '../../../packs/widgets/dom.js';
 
 test('fmt never turns a finite number into "Infinity"', () => {
     for (const n of [1e307, 1e308, -1e308, Number.MAX_VALUE]) assert.doesNotMatch(fmt(n), /Infinity/, `fmt(${n}) = ${fmt(n)}`);

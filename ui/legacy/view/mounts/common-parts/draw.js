@@ -1,7 +1,7 @@
 // Mounts: resolving a screen and its data against a state and drawing it into an element.
 
-import { themeVars } from '../../css.js';
-import { resolveData } from '../../screens.js';
+import { themeVars } from '../../../../../packs/template/css.js';
+import { resolveData } from '../../../../../packs/screens/registry.js';
 import { documentOf } from './head-state.js';
 import { disposers, dispose } from './dispose.js';
 import { make } from './dom.js';

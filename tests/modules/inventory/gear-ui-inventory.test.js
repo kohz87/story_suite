@@ -9,7 +9,7 @@ import { createHarness } from './helpers/fake-ctx.js';
 import { settle, text } from '../../ui/screens/helpers.js';
 import { page } from '../rpg/view/page.js';
 import { FIGHT, dump, gearHost } from '../../core/helpers/gear-ui-state.js';
-import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../ui/legacy/screens/inventory-add.js';
+import { createWornFoldWidget, WORN_FOLD_WIDGET } from '../../../packs/screens/defaults/inventory-add.js';
 import { BAG, buttonsOf, crewState, draw, foldWidgets, groupRows, headings, memory, names, rowOf } from './gear-ui.helpers.js';
 
 test('Inventory, gear on: Carry first, then Equipment (in the bag), the wearer\'s Worn list, Consumables, Goods; the Carry card is a row-style card with the load, a bar and the breakdown', async t => {

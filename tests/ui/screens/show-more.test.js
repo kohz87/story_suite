@@ -4,8 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
-import { capToggle, createQuestsLinkWidget, createShowMoreWidget, CAP_CLASS, QUESTS_LINK_WIDGET, QUESTS_SCREEN } from '../../../ui/legacy/screens/show-more.js';
-import { homeScreen } from '../../../ui/legacy/screens/home.js';
+import { capToggle, createQuestsLinkWidget, createShowMoreWidget, CAP_CLASS, QUESTS_LINK_WIDGET, QUESTS_SCREEN } from '../../../packs/screens/defaults/show-more.js';
+import { homeScreen } from '../../../packs/screens/defaults/home.js';
 import { STRINGS } from '../../../core/strings.js';
 
 test('the toggle: hidden while the list fits, shown when it is taller than the cap, open and shut with aria-expanded', () => {

@@ -5,15 +5,15 @@ import { existsSync } from 'node:fs';
 import { part } from '../../../modules/atlas/atlas/index.js';
 import { MAP_SCREEN_ID, mapScreen } from '../../../modules/atlas/atlas/screen.js';
 import { MAP_WIDGET, atlasMapWidget, forgetViews } from '../../../modules/atlas/atlas/widget.js';
-import { validateScreen } from '../../../ui/legacy/view/screens.js';
+import { validateScreen } from '../../../packs/screens/registry.js';
 import { installFakeDom } from '../../helpers/director/ui-fake-dom.js';
 import { command, makeState, query } from './helpers/fake-ctx.js';
 
 // Story Block's template renderer (SPEC §13.2), used from a Story Block checkout when there is one.
 const ROOT = new URL('../../../', import.meta.url).pathname;
-const TEMPLATE_FILES = ['ui/legacy/view/template/index.js', 'ui/legacy/view/bind.js', 'modules/world/events/index.js'];
+const TEMPLATE_FILES = ['packs/template/index.js', 'packs/template/bind.js', 'modules/world/events/index.js'];
 const HAVE_TEMPLATES = TEMPLATE_FILES.every(file => existsSync(`${ROOT}${file}`));
-const NO_TEMPLATES = HAVE_TEMPLATES ? false : `the template renderer is not at ${ROOT}ui/legacy/view/template/`;
+const NO_TEMPLATES = HAVE_TEMPLATES ? false : `the template renderer is not at ${ROOT}packs/template/`;
 
 const PACK = {
     places: [
@@ -45,8 +45,8 @@ test('the Map screen is a valid screen definition holding the atlas Map widget b
 });
 
 test('Story Block\'s template renderer draws the real Map widget from atlas.view; a pick shows the trip and writes nothing', { skip: NO_TEMPLATES }, async () => {
-    const { compileTemplate, renderTemplate } = await import(`${ROOT}ui/legacy/view/template/index.js`);
-    const { conditionEvaluator } = await import(`${ROOT}ui/legacy/view/bind.js`);
+    const { compileTemplate, renderTemplate } = await import(`${ROOT}packs/template/index.js`);
+    const { conditionEvaluator } = await import(`${ROOT}packs/template/bind.js`);
     const { compile, evaluate } = await import(`${ROOT}modules/world/events/index.js`);
     forgetViews();
     const compiled = compileTemplate(mapScreen.template);

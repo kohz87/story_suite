@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../testkit/index.js';
-import { createModule } from '../../ui/legacy/director/module.js';
+import { createModule } from '../../modules/director/module.js';
 import { withD1 } from '../helpers/director/d1.js';
 import { checkPort } from '../../ui/port/contract.js';
 import { createSbPort } from '../../ui/port/sb-port.js';

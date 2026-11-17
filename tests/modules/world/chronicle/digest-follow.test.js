@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { fakeFightRunner } from '../../../suite/integration/director/helpers/fake-fight-runner.js';
 import { DIGEST, FOLLOW_MAX, daysOf, entriesByDay, makeDigest, orderedDays, validateDays, writtenOf } from '../../../../modules/world/chronicle/days.js';
 import { YESTERDAY_TAG, digestTailLine } from '../../../../modules/world/chronicle/digest.js';

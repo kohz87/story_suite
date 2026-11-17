@@ -16,3 +16,13 @@ export function suiteAt(suite, rel) {
   const found = atEitherLayout(root, old);
   return found === old ? suite.at(rel) : import(pathToFileURL(path.join(root, found)).href);
 }
+
+/** Like `suiteAt`, for a file that moved after the layout move: `rel` as the old layout names it, else `now`, its repo path today. */
+export async function suiteAtAny(suite, rel, now) {
+  try { return await suiteAt(suite, rel); } catch (error) {
+    const sb = suite.roots?.sb;
+    if (!sb) throw error;
+    const root = path.basename(sb) === 'story-block' && path.basename(path.dirname(sb)) === 'packages' ? path.resolve(sb, '../..') : sb;
+    return import(pathToFileURL(path.join(root, now)).href);
+  }
+}

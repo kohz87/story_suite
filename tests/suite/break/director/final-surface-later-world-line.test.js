@@ -12,7 +12,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../../testkit/index.js';
-import { createModule } from '../../../../ui/legacy/director/module.js';
+import { createModule } from '../../../../modules/director/module.js';
 import { surface } from '../../../../modules/world/chronicle/pick.js';
 import { seenOf, validateChronicle } from '../../../../modules/world/chronicle/domain.js';
 import { lines, makeState, runCommand } from '../../../modules/world/chronicle/helpers/fake-ctx.js';

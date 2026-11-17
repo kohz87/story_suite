@@ -2,7 +2,7 @@
 // `packs` (installed.js) and says what happened in words: `{ text, errors }`. No DOM: the old Packs panel and the new view's
 // Settings › Packs and trackers both call these, so a pack goes in the same way and is told the same way from either.
 
-import { plural } from '../ui/legacy/ui/dom.js';
+import { plural } from './dom.js';
 import { LIMITS, ZIP_LIMITS } from './limits.js';
 import { isZipFile, readPackZip } from './bundle.js';
 

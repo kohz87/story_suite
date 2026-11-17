@@ -4,13 +4,13 @@ Story Block ships eighteen widgets (SPEC §13.5) under the `ss.` namespace (MODU
 `ss.meter`, `ss.radar`, `ss.map`, `ss.skill-tree`, `ss.portrait`, `ss.badge`, `ss.timeline`,
 `ss.stepper`, and the building blocks of Story Suite's look (the UI stage, `view/widgets/glass.js`):
 `ss.tile`, `ss.bar`, `ss.status`, `ss.pill`, and the blocks built from them: `ss.hero`, `ss.tiers`, `ss.listcard`,
-`ss.tabs`, `ss.navbar`, `ss.dialog`. They live in `src/v2/view/widgets/`; `index.js` exports them as `standardWidgets`
+`ss.tabs`, `ss.navbar`, `ss.dialog`. They live in `packs/widgets/` (was `src/v2/view/widgets/`); `index.js` exports them as `standardWidgets`
 (name → widget).
 
 ## The widget contract
 
 ```js
-import { standardWidgets } from './src/v2/view/widgets/index.js';
+import { standardWidgets } from './packs/widgets/index.js';
 
 const widget = standardWidgets['ss.meter'];
 widget.props;            // { name: { type, required, default } }

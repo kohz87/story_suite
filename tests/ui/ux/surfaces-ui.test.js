@@ -9,7 +9,7 @@ import { makeMessage } from '../../helpers/ui-fake-dom.js';
 import { setupDom } from '../view/mounts/helpers.js';
 import { mountUi } from '../../../ui/legacy/ui-host.js';
 import { createTabHost } from '../../../ui/legacy/host-ui.js';
-import { CHOICES_FEATURE } from '../../../ui/legacy/extras.js';
+import { CHOICES_FEATURE } from '../../../modules/scene/extras.js';
 import { installFakeDom } from '../../helpers/ui-fake-dom.js';
 
 const key = (node, name, init = {}) => node.dispatch('keydown', { key: name, ...init });

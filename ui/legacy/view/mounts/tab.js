@@ -7,7 +7,7 @@
 // → { mount(el, screenId, opts) → handle, register() → ids, unregister() }
 
 import { activeNow, headStateSafe, mountHead, screensFor } from './common.js';
-import { iconFor } from '../icons/index.js';
+import { iconFor } from '../../../../packs/icons/index.js';
 
 export function createTabMount(deps) {
     if (typeof deps?.render !== 'function') throw new TypeError('The tab mount needs a render(el, screen, scope) function.');

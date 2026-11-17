@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compileTemplate } from '../../ui/legacy/view/template/index.js';
-import { validateScreen } from '../../ui/legacy/view/screens.js';
+import { compileTemplate } from '../../packs/template/index.js';
+import { validateScreen } from '../../packs/screens/registry.js';
 import { MODULE_ID, meterBarNode } from '../../modules/people/storysuite-v2.js';
 import { DEFAULT_CHANGE_CAP, FEATURE_DRIFT, FEATURE_PRESETS, FEATURE_STAGES, createNpcPart, normalizeMeterSettings, parseNeeds, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { metersCardScreen } from '../../modules/people/meters/npc-meters-screen.js';

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createModule, PARTS } from '../../../../ui/legacy/director/module.js';
+import { createModule, PARTS } from '../../../../modules/director/module.js';
 import { presetValue } from '../../../../core/features.js';
 import { cueOf, tail, meetingFresh } from '../../../../modules/cast/cast/note.js';
 import { FEATURE } from '../../../../modules/cast/cast/domain.js';

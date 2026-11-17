@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCommandBus } from '../../../core/commands.js';
-import { changesDigest, changesSummary } from '../../../ui/legacy/screens/index.js';
+import { changesDigest, changesSummary } from '../../../packs/screens/defaults/index.js';
 import { counterIds, fakeRegistry, fakeStore } from '../../core/helpers/bus-fakes.js';
 import { core, sceneState } from './helpers.js';
 

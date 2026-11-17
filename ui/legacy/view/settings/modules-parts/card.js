@@ -8,7 +8,7 @@ import { newId, sectionBlock } from '../../form/fields.js';
 import { renderModuleForm } from '../../form/form.js';
 import { matchesSearch } from '../../form/schema.js';
 import { routeOf } from '../sections.js';
-import { showAndFocus } from '../../scroll.js';
+import { showAndFocus } from '../../../../../packs/widgets/scroll.js';
 import { FOLD_ABOVE, MODULES_TEXT, KNOWN_DESCRIPTIONS } from './text.js';
 import { h, clean, CUT, clip } from './shared-draw.js';
 import { moduleSchema, parseGroup } from './schema.js';

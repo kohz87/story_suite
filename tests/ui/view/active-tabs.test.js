@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { activeNow } from '../../../ui/legacy/view/mounts/common.js';
 import { createScreenMount } from '../../../ui/legacy/view/mounts/screen.js';
 import { barItems } from '../../../ui/legacy/view/screen-bar.js';
-import { validateScreen } from '../../../ui/legacy/view/screens.js';
+import { validateScreen } from '../../../packs/screens/registry.js';
 import { fakeApi, fakeChat, fakeQuery, fakeRenderer, screen, screensWith, setupDom } from './mounts/helpers.js';
 
 test('activeNow: no active is always on; the answer is read; a failing answer is off; a badge is an alert', () => {

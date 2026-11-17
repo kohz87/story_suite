@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCommandBus } from '../../../core/commands.js';
-import { homeScreen, inventoryScreen, sceneScreen, changesCardScreen } from '../../../ui/legacy/screens/index.js';
+import { homeScreen, inventoryScreen, sceneScreen, changesCardScreen } from '../../../packs/screens/defaults/index.js';
 import { counterIds, fakeRegistry, fakeStore } from '../../core/helpers/bus-fakes.js';
 import { core, foldOf, openFold, queries, recordingWidgets, renderSkip, sceneState, settle, show, stocked, text } from './helpers.js';
 
