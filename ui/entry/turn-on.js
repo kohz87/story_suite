@@ -33,7 +33,7 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
   const links = addStyles(doc, base);
   doc.body.classList.add(NEW_VIEW_CLASS);
   const prefs = { chat: chatPrefs(ctx) };
-  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools), rpgValues: () => ctx()?.extensionSettings?.storySuite?.modules?.['story-block'], prefs, offer: liveOffer, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
+  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', onOldView });
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
   const drawerHost = doc.createElement('div');

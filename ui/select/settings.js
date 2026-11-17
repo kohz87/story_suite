@@ -11,11 +11,10 @@ import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
 import { selectPacks } from './packs.js';
 import { selectAddons } from './addons.js';
+import { BUDGETS, LOOK } from './host-keys.js';
 
 // The Settings page a module's feature switches belong to, when it is not the module's own id.
 const SECTION_OF = { 'npc-state-delta': 'people', 'story-director': 'director' };
-const LOOK = ['panelStyle', 'glassStrength', 'font', 'textSize', 'sendPending'];
-const BUDGETS = ['tailBudget', 'contextShare', 'maxChangeLines'];   // callQueue is in the Models page's Calls group
 // Skin "Solid" is dropped (decision 36.15), so it is never offered.
 const DROPPED = new Set(['solid']);
 const SEG_MAX = 3;
