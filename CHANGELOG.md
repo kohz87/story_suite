@@ -2,7 +2,85 @@
 
 ## 0.1.0
 
+Released 18 Nov 2026.
+
 First release of Story Suite as one extension. It brings together what was Story Block, Story Director and NPC State Delta (now called NPC State). Their own changelogs, with every earlier version, are kept in `docs/history/packages/`.
+
+This part is for players: what is new, what is different, what is gone. The notes for developers are under "For developers" below. It starts fresh: nothing from the three old extensions is carried over (no settings, chats or sidecar files), so read the install steps in `docs/INSTALL.md` before you update.
+
+### One extension
+
+- Story Block, Story Director and NPC State Delta are now one extension, Story Suite. You install one thing, there is one drawer in Extensions (headed `Story Suite 0.1.0`), and NPC State's settings are a section of it. Updating later is the Update button in Extensions → Manage extensions.
+- Delete the old three first (disabling is not enough). The new extension does not start while the old Story Block is still on, and it says so.
+- Settings are in one place, with a Models page that lists every model call (the story, quick helpers the reply waits for, background work, the safety net that reads changes a reply forgot) and the connection each one uses. One thing moved: the safety net now runs on the Background connection; it used to run on Quick helpers, so check the two if you set them differently.
+- If one part fails to start, the rest still runs; Settings → Diagnostics lists it.
+
+### The new view
+
+- The new view is the one you see. It has the tabs Now, Story, People, Party, Bag, World and Fight, one Settings overlay, and the same look in dark and light. The old view stays only as a hidden fallback (Settings → Tools → Developer tools) until it is removed.
+- Each reply's menu and the line under it list what that reply changed (items, coin, a move, who came or left).
+- Settings has a page for each part: Start, Models, Director, RPG, World and time, Money, Chat extras, People, Packs and trackers (install, switch off or remove a pack; read one from the character's lorebook), Add-ons and Tools. The switches on the module cards work, and "Reset to Standard" redraws the open page.
+- Story → Trackers works: pin a tracker to Now, change its values by hand, remove one this chat made, or add one of three starters.
+- Before the first reply the Now tab shows the place and the time the chat already has. The story clock also runs without a pack: a time line in a reply (a clock time, a part of the day, "next morning", "+2h") sets it while it is not set yet.
+- Foes left standing (an ambush or a standoff) show a "Foes are standing" card on Now, with the offer to fight.
+- A character card that ships a pack offers it on the Now tab (Install or Update, Not now).
+- Now shows a trip card before the trip starts ("leaves …"), and the Story tab marks an agenda step that was told in this reply.
+- Gone from the old view, on purpose: save points (to go back, restart from a message), the layout editor (Customize) and the strip across the top of the screen.
+
+### Combat Rules v1
+
+- There is one set of combat rules and one way to fight. Every fight is played by code on the fight board: you choose for each party member, the dice are rolled by code, and the story is told afterwards. The older rules, the roll planner and narrated fights are removed, and so are the Rolls and Fight board switches.
+- A character has seven stats from 1 to 30 (STR, VIT, AGI, DEX, INT, WIS, CHA), and HP, MP and SP worked out from the stats and the level. Luck is gone: WIS covers luck, will and senses, and a character file or pack that still says LUK is read as WIS. Skills have a type (attack, area, defence, evasion, movement, heal, support, utility) and practice from 0 to 600.
+- The New character wizard makes you (the name is your persona's) and has no "Who they are" field. A companion joins only through the join card: Add to party, or Edit first.
+- A foe group a lost or fled fight left starts the next fight from the same HP, if the story sets the same group again. Foes are set with a tier from mob to apex; the fight set-up asks for it and follows a size rule (an even fight is at most 4 standard foes).
+- Story checks (`? roll`) are success or fail, with a natural 20 decisive when it meets the DC.
+- The built-in skill sets (Guild fighter, River scout, Hedge mage, Field medic, Silver tongue) carry typed skills.
+- A chat that already holds a character made under the earlier rules is not converted; start a new chat. (Fresh start applies here too.)
+
+### NPC State: lines and Refresh
+
+- NPC State no longer asks the narrator for a hidden block of JSON. Changes to people are short lines in the reply: `+ npc` for a new person (at most four a reply, and one fill-in after the reply writes the rest), `~ npc` for a change, `~ tie` for a relationship (kin, partner, friend, ally, mentor, serves, rival, enemy, owes), `level:` when the story states a level. This makes replies shorter and the changes visible on the reply card.
+- A death is now recorded by NPC State, and the narrator is no longer taught `- key Name | died`.
+- The people list the narrator sees names active people only; archived, dead and long-unseen people appear only when your message names them.
+- Switched on by default: the one-pass way and the rolling Refresh are on. A profile saved before this release is switched on once; after that your own choice stands.
+- Refresh (the quiet catch-up that fills in slow fields: personality, speech, background, mannerisms and the rest) is rolling. Each person waits N replies after their last Refresh (setting "One-pass catch-up", default 4, 0 = off), and each reply refreshes up to K people (new setting "NPCs refreshed per reply", 1 to 3, default 1), longest-waiting first, most-seen next. Your own Refresh button counts. It can read messages SillyTavern has hidden (for example by a memory extension), but not swiped-away or deleted replies.
+- A person's ⋯ → Refresh in the dossier now runs a catch-up for that person (before, it did nothing).
+- Quotes in the dossier show as `#12`, the message number SillyTavern shows.
+
+### Replies that forget their change block
+
+- Every reply is asked to end with a `<Changes>` block, empty when nothing changed, so a missing block means something was forgotten.
+- Repair is on by default (Settings → Models → Calls, "Repair a reply's missing changes"). When a reply has no block, one quick call reads the reply and writes the changes it plainly shows: items, coin, a move, a quest or lead, the time. It never writes experience, loot, rewards, heals or rolls.
+- The repaired lines are marked "Assist" on the reply's sheet. **Discard repair** on the sheet takes the repair out and the reply is not repaired again. Swipes, going back, deleting a reply in the middle, rewinding, reloading and Re-read all keep what was stored or discarded.
+- The repair does not list a lead it already sees as open; it moves the clock when the reply's actions take time, even with no clock time in the text; and a `<Changes>` tag that is only mentioned in the text, inside code marks, is not read as a block.
+- If a reply ends up with no recorded changes, the Problems list says so and the new view shows "No changes recorded — Re-read" under the latest reply. The Problems list is kept with the chat and comes back after a reload.
+
+### Known limits
+
+- How often the narrator writes the change block depends on the model; the repair fills the gaps but is a guess from the reply, so check the changes card when it matters.
+- Discard repair works only on the latest reply.
+- The "No changes recorded" badge is on the latest reply only.
+
+### Activities
+
+- An open interaction (a fight, a mini-game or any module's activity) gets a tab named after it, shown only while it is open. There is no general "Scene" tab any more; the word Scene stays for the Here card and the Scene sheet.
+
+### Packs, format 3
+
+- World packs use format 3. A pack names the Suite version it needs with `requires.suite`; a pack whose format is newer than 3 is refused.
+- A pack can list its foes by tier (name, tier from mob to apex, optional level and notes); a foe it does not list takes the tier the fight set-up gives it.
+- A pack can no longer tune combat numbers: the numbers are fixed by Combat Rules v1 (a pack that sets them loads, with a warning, and the numbers are ignored).
+- The example world Ersveil is converted to Combat Rules v1 only as far as needed to play (skills have explicit types; its two luck items use WIS). Its story is not rewritten. The small Riverside starter is no longer shipped as an example; it lives on as a test file.
+
+### Removed
+
+- The older combat rules, the roll planner, narrated and manual fights, the Rolls and Fight board settings.
+- The hidden JSON block of NPC State, and `- key Name | died` for the narrator.
+- Save points, the layout editor and the top strip in the new view.
+- The separate NPC State Delta drawer, and any migration from the three old extensions.
+- The Riverside starter pack as a shipped example.
+
+### For developers
 
 - **Repair fixes from live round 1 (CHGFIX5).** (LR1-1) The repair's state lines now list the open hooks and quests by name (`Open hooks: …`, `Open quests: …`, from the Director's active threads, `core/runtime-parts/open-threads.js`; the newest 20 of each, at most 600 characters a line, placed before Carried; the state limit is 2500 characters and the open lines are never cut by it, the other lines give way, `modules/assist/repair-parts/state-fit.js`) and its foot says a lead already listed is never added again, whatever words the reply uses: write ~ or - for it only when the reply changes or closes it. (LR1-2) A `<Changes>` tag named inside inline code (backticks) or a closed fenced code block is a mention, never a block: the block finder looks for tags in the reply with those spans blanked (`core/capture/blocks-parts/code.js`; bodies are read from the real text), so such a reply with no real block is repaired, and the "cut off" mark (`open`) is written only when the reply ends inside a really opened block. A real block that a model wraps in a code fence is still read (CHGFIX6): a fence is blanked only when its body has no line starting with the `<Changes>` tag (open or close), so a fence-wrapped block, one cut off inside a fence and then continued, and one after a stray odd fence are all one block, as before. The stored T10 text of live round 1 reads as main did (no block) with or without this; what made the suite store its empty "open" block could not be reproduced from the stored text, so only the code-span cases are pinned. (LR1-3) The repair can move the clock by minutes: its time line is "! time +Nm", "+Nh" or "+Nd", and its foot asks for an estimate whenever the reply's actions take time even with no clock time (walking across the village and buying bread is about ! time +20m); never a date, and no time line when no time passed. The wall already accepted `+Nm`. (LR1-5) The Problems list is kept in the chat's metadata (`storySuiteProblems`, last 100 rows, `core/turn/problem-keep.js`) and comes back after a reload; each chat has its own list (CHGFIX6: a chat change clears the list at once and writes nothing to the new chat's metadata until its own rows are read, so the old chat's rows never reach it). The flag-off identity test no longer compares that key, and the native-heal test expects the earlier row to be listed again, not told again.
 - **A reply's changes are never lost silently: the block is always asked for, a repair on a miss, and a visible warning (CHGDROP).** (1) The three prompt texts the owner approved on 18 Nov: the static rules say "leave out what did not change; when nothing changed, still write the block, empty: <Changes></Changes>." (the old "and the whole block when nothing did" is gone); the closing cue reads "End every reply with the <Changes> block, after the story and outside your thinking; when nothing changed, write <Changes></Changes>." (the npc_state_delta clause is dropped; `closingCue()` takes no argument); NPC State's people cue (`npc-meters-prompt.js`) reads "Whenever anything changed, write it in the <Changes> block at the very end of the reply; a lie, secret, taste, tie or turning point gets its own line." The static prompt golden and the flag-off fixtures (and the two `off-*.json` prompt hashes) were regenerated for these texts only. (2) **Repair on a miss** (`modules/assist/repair.js`, new setting `assistRepair`, "Repair a reply's missing changes" in Settings › Models › Calls, **on by default** (the owner approved the prompt on 18 Nov)): when a captured reply (live, swipe, or a Re-read of the latest reply when it still has none) has no `<Changes>` block, one call on the Quick connection, with a prompt of its own (`repair-parts/heads.js`: the reply, the state lines Place, Present, Equipped, Wallet, Carried, the story date and time, and the kinds' grammar), writes the block. It runs whatever the safety net's switch says, with the same 20 s time-out and the 600-token answer limit. The lines are stored in the reply's `<Changes-assist>` section, applied as Assist lines (marked as Assist lines on the changes card; a reply's whole repair can be discarded from its sheet, see (4); there is no per-line undo: edit the reply's hidden section and Re-read, rewind, or delete the reply) and replay the same on swipe, swipe back, middle delete, rewind, reload, Re-read and an edited Re-read, with no second call. Unlike the safety net it may write `+ coin`, `- coin`, `+ item` and `- item` (the wall's `repair` option; never XP, loot, rewards, heals or rolls; after send the strict wall stays) and the quest, hook and milestone lines (the people's `~ npc` lines have no grammar line, so NPC State's own scan of a reply with no block still covers people). The three texts use the bare tags (<Changes></Changes>), not code-formatted ones: a model that copies backticks writes a block the reader cannot find. (2b) Review fixes: a repair that failed or timed out is asked again by Re-read (an answer, lines or nothing, is not); the Problems row is one per reply and its text is the latest outcome; the repair prompt has its own short lines for coin (only coin that changes hands in this reply, not prices talked about), items (never + item for what is already under Carried), hook and quest (accept or close only what the reply plainly shows) and time ("~ time 9:30 am" for a clock time today, "! time +Nh" / "! time +Nd" for a stretch it estimates from the story time given, never a date), weather is not one of its kinds, {{user}} in its grammar lines is the persona's name, and the story time shows as "Story time now: 08:00 am, day June 3". (3) **A miss is never silent:** a reply with no block and nothing stored for it (the repair is off, failed, timed out or found nothing) gets a Problems row (`NO_CHANGES`, once per reply) and, in the new view, a "No changes recorded — Re-read" badge on a line of its own under the latest reply's row (the old view's note already showed one; it now also stays away when a repair stored lines). (4) **Discard repair (CHGFIX3):** the new view's reply sheet marks the lines Assist wrote (the repair's and the safety net's) with an "Assist" tag, and a reply that holds a repair has one **Discard repair** button: the repaired `<Changes-assist>` comment (its header says `repaired`) is taken out of the reply's text, a comment headed `discarded` stays so the repair is never asked again for that reply, and the reply is read again (when the Re-read refuses, the text is put back). The mark is in the text, so a swipe back, a reload, a Re-read (also an edited one), a middle delete and a rewind keep it discarded. The safety net's lines are never touched. The Models row now shows ON when nothing is stored (it read OFF while the repair ran), and its hint says repaired lines can be discarded per reply. Also the two prompt tweaks the owner approved on 18 Nov: the coin line reads "+ coin 30 copper | from: who (- coin 8 copper | to: who): only coin that changes hands in this reply, with the amount AND the coin name the reply uses; never a price that is only talked about" and the Wallet state line lists the chat's coins, and the time example is fixed and generic ("e.g. morning to dusk is about ! time +10h"). A repair coin line with a heal, XP or reward label is refused. The reply sheet and the ✦ button now have their own CSS in `ui/css/chat.css` (the mock's `.trsheet`, `.tra`, `.xbt` rules; there was none, so the sheet drew unstyled). A Re-read whose repair stores lines drops the earlier "nothing was recorded" row. Known limits: the new view's badge is on the latest reply only, it shows for the seconds a repair call is still running, and a reply the repair judged to have nothing to record still shows it after a reload; the sheet is the latest reply's, so only the latest reply's repair can be discarded there; a repair that ran after the reader had sent (stored as `<Changes-assist-next>`) is not marked.
