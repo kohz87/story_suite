@@ -27,7 +27,7 @@ test('on: the conditions (named ones only) and `how` for the world\'s own stamps
 });
 
 test('heardLine says rumour or confirmed first when the stamp has `how`; without it the line is as before', () => {
-  assert.equal(heardLine([{ where: 'in Highmark', when: 'June 5', from: 'rumour', how: 'rumour' }]), 'rumour · heard in Highmark, June 5 · from rumour');
+  assert.equal(heardLine([{ where: 'in Highmark', when: 'June 5', from: 'rumour', how: 'rumour' }]), 'rumour · heard in Highmark, June 5');
   assert.equal(heardLine([{ where: 'a', when: 'b', from: 'x' }, { where: 'in Highmark', when: 'June 4', from: 'a courier', how: 'confirmed' }]), 'confirmed · last news: heard in Highmark, June 4 · from a courier');
   assert.equal(heardLine([{ where: 'in Highmark', when: 'June 4', from: 'a courier' }]), 'heard in Highmark, June 4 · from a courier');
 });

@@ -106,7 +106,9 @@ test('a swipe of the day-crossing reply after the tempo changed steps those days
     const recorded = JSON.stringify(host.head().domains.chronicle);
     host.settings.set('story-director', 'chronicle.tempo', '1');
     await host.swipe(reply('Later, again.', ['! time +4d']));
-    assert.deepEqual(levy(host), ['resolved'], 'stepped again at tempo 1');
+    // At tempo 1 the levy's window and life are half as long: it has ended, or (when the recorded early days had not fired it) the window has lapsed; either way no unrest holds.
+    assert.deepEqual(unrest(host), [], 'stepped again at tempo 1');
+    assert.ok(!levy(host).includes('ongoing'));
     await host.st.swipeTo(crossing, 0);
     assert.equal(JSON.stringify(host.head().domains.chronicle), recorded, 'swipe back: the days as first recorded');
     host.store.rebuild();

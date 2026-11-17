@@ -8,7 +8,9 @@ const FILTERS = Object.freeze([['all', 'All'], ['looming', 'Looming'], ['ongoing
 export function heardLine(heard = []) {
   if (!heard.length) return '';
   const last = heard[heard.length - 1];
-  return `${last.how ? `${last.how} · ` : ''}${heard.length > 1 ? 'last news: ' : ''}heard ${last.where}, ${last.when} · ${last.from ? `from ${last.from}` : 'you were there'}`;
+  // A world rumour says "rumour" first; its source word would say it twice.
+  const source = last.how === 'rumour' && last.from === 'rumour' ? '' : ` · ${last.from ? `from ${last.from}` : 'you were there'}`;
+  return `${last.how ? `${last.how} · ` : ''}${heard.length > 1 ? 'last news: ' : ''}heard ${last.where}, ${last.when}${source}`;
 }
 
 function link(text, onClick, extra) {

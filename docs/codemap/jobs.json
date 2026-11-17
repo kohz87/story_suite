@@ -376,5 +376,10 @@
   "ui/port/world-keys.js": "Translates the World and time page's row keys and shown words to Story Director's namespaced settings and the weather feature, and back.",
   "ui/port/world-settings.js": "The port's World and time writes: a `world.*` settings.set stores the setting the old page stores.",
   "ui/select/settings-world.js": "Builds the World and time page's rows from Story Director's stored settings and the feature list.",
-  "tests/ui/settings/world-live.test.js": "Tests the World and time page on a live host: values read, writes match the old page's keys, bad values refused."
+  "tests/ui/settings/world-live.test.js": "Tests the World and time page on a live host: values read, writes match the old page's keys, bad values refused.",
+  "modules/world/chronicle/conditions/director-calls.js": "The chronicle.directorCalls query: how many Director calls this game year the world ledger holds (0 until the Director part writes it), for Settings.",
+  "modules/world/chronicle/conditions/here-query.js": "The chronicle.conditionsHere query: the world conditions in force where the party is, with date, reason, meaning and told effects, for the World tab.",
+  "modules/world/chronicle/world-daily/tempo.js": "Reads the world tempo setting (chronicle.tempo, text) as the number the daily step runs at.",
+  "modules/world/chronicle/world-note-parts/here.js": "Reads the world conditions that hold where the scene is (place, routes from it, region, realm) with what the pack declares for each; the note's and the World tab's one reading.",
+  "ui/fixtures/world-events.js": "Harness fixture for World events on: the World tab's conditions and how the news came, and the World events rows of the World and time page."
 }
