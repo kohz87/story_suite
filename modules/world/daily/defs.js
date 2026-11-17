@@ -4,6 +4,7 @@
 import { anchorString, conditionString, isConditionEntry } from './grammar.js';
 import { durationDays } from './durations.js';
 import { isThreshold, thresholdProblem, thresholdString } from './threshold.js';
+import { readOpen } from './open-read.js';
 
 const KINDS = ['one-off', 'chain-stage', 'recurring'];
 const CERTAINTY = ['set-in-motion', 'likely', 'possible'];
@@ -102,8 +103,11 @@ export function readTemplate(raw) {
     const match = raw.cooldown === undefined ? null : /^(.+?)( per place)?$/.exec(String(raw.cooldown).trim());
     const days = match ? durationDays(match[1]) : null;
     if (raw.cooldown !== undefined && !days) return { why: `The template "${id}" is not run: its cooldown is not a duration.` };
+    const open = readOpen(raw);
+    if (open.why) return { why: `The template "${id}" is not run: ${open.why}.` };
     return {
         def: {
+            ...(open.none ? {} : { open: open.open, fallback: open.fallback, per: open.per }),
             id, template: true, severity: raw.severity === 'major' ? 'major' : 'minor', scope: raw.scope ?? 'place', reach: raw.reach ?? 'local',
             needs, sets: list(raw.sets), clears: list(raw.clears), chance: raw.chance === undefined ? null : chanceOf(raw.chance),
             cooldown: days ? { days, perPlace: Boolean(match[2]) } : null, summary: typeof raw.summary === 'string' ? raw.summary : id,

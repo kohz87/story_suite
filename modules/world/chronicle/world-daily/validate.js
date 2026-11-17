@@ -19,10 +19,12 @@ export function validateDaily(stored) {
     if (!isInt(slice.day) || !isInt(slice.start) || slice.start > slice.day) errors.push('chronicle.daily.day and .start must be story days, start first.');
     for (const key of RECORDS) if (!isRecord(slice[key])) errors.push(`chronicle.daily.${key} must be an object.`);
     if (!Array.isArray(slice.minors) || slice.minors.some(entry => !isRecord(entry) || !isInt(entry.day) || typeof entry.region !== 'string')) errors.push('chronicle.daily.minors must be a list of { region, day }.');
+    if (slice.slots !== undefined && !isRecord(slice.slots)) errors.push('chronicle.daily.slots must be an object.');
+    if (slice.pending !== undefined && (!Array.isArray(slice.pending) || slice.pending.some(row => !isRecord(row) || typeof row.key !== 'string'))) errors.push('chronicle.daily.pending must be a list of slots.');
     for (const [id, row] of Object.entries(isRecord(slice.events) ? slice.events : {})) {
         if (!isRecord(row) || !['dormant', 'eligible', 'active', 'ended', 'lapsed', 'replaced'].includes(row.state)) errors.push(`chronicle.daily.events["${id}"] has no known state.`);
     }
-    for (const key of Object.keys(slice)) if (![...RECORDS, 'seed', 'day', 'start', 'minors'].includes(key)) errors.push(`chronicle.daily has an unknown field "${key}".`);
+    for (const key of Object.keys(slice)) if (![...RECORDS, 'seed', 'day', 'start', 'minors', 'slots', 'pending'].includes(key)) errors.push(`chronicle.daily has an unknown field "${key}".`);
     if (JSON.stringify(slice).length > MAX_JSON) errors.push(`chronicle.daily is larger than ${MAX_JSON / 1024} KB.`);
     return errors.slice(0, 8);
 }

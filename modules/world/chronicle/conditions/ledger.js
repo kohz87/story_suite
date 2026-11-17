@@ -11,13 +11,15 @@ import { recordAnchor } from '../../daily/anchors.js';
 
 const MAX_KEYS = 64;
 const MAX_ANCHORS = 256;
+const MAX_RESULTS = 64;
 
 /** `{ anchors, tomb: { day, keys } }` from the stored slot (empty when there is none). */
 export function ledgerOf(stored) {
     const value = slotValue(stored);
     const anchors = isRecord(value?.anchors) ? value.anchors : {};
     const tomb = isRecord(value?.tomb) && isInt(value.tomb.day) && Array.isArray(value.tomb.keys) ? value.tomb : null;
-    return { anchors, tomb: tomb ? { day: tomb.day, keys: [...tomb.keys] } : null };
+    const open = isRecord(value?.open) ? { results: isRecord(value.open.results) ? value.open.results : {}, calls: isInt(value.open.calls) ? value.open.calls : 0 } : null;
+    return { anchors, tomb: tomb ? { day: tomb.day, keys: [...tomb.keys] } : null, open };
 }
 
 /**
@@ -30,16 +32,28 @@ export function markLedger(chronicle, { day, anchors = [], tombKeys = [], take =
     for (const key of anchors) recordAnchor(kept, key, day);
     const sameDay = old.tomb && old.tomb.day === day && !reset;
     const keys = [...new Set([...(sameDay ? old.tomb.keys : []), ...tombKeys])].sort().slice(-MAX_KEYS);
-    const value = { anchors: kept, ...(keys.length ? { tomb: { day, keys } } : {}) };
-    if (Object.keys(kept).length || keys.length) chronicle.ledger = toSlot(value);
+    const value = { anchors: kept, ...(keys.length ? { tomb: { day, keys } } : {}), ...(old.open ? { open: old.open } : {}) };
+    if (Object.keys(kept).length || keys.length || old.open) chronicle.ledger = toSlot(value);
     else if (chronicle.ledger !== undefined) chronicle.ledger = null;
+}
+
+/**
+ * Open templates (spec §9): the Director's stored answers by slot key (`{ outcome, answer? }`, the newest 64 kept) and the count of model calls made
+ * (a retry counts as a call). Written whole into the ledger slot, so a swipe or delete of the reply after it never loses it.
+ */
+export function storeOpen(chronicle, { results = {}, calls = 0 }) {
+    const old = ledgerOf(chronicle.ledger);
+    const merged = { ...(old.open?.results ?? {}), ...results };
+    const keys = Object.keys(merged);
+    for (const key of keys.slice(0, Math.max(0, keys.length - MAX_RESULTS))) delete merged[key];
+    chronicle.ledger = toSlot({ anchors: old.anchors, ...(old.tomb ? { tomb: old.tomb } : {}), open: { results: merged, calls: (old.open?.calls ?? 0) + calls } });
 }
 
 /** `validateLedger(stored) → string[]`: optional; a slot holding `{ anchors, tomb? }`. */
 export function validateLedger(stored) {
     if (stored === undefined || stored === null) return [];
     if (!Array.isArray(stored) || stored.length !== 1 || !isRecord(stored[0])) return ['chronicle.ledger must be null or a one-entry list (a slot).'];
-    const { anchors, tomb, ...rest } = stored[0];
+    const { anchors, tomb, open, ...rest } = stored[0];
     const errors = [];
     if (!isRecord(anchors) || Object.keys(anchors).length > MAX_ANCHORS || Object.values(anchors).some(days => !Array.isArray(days) || !days.length || days.length > 8 || !days.every(isInt))) {
         errors.push(`chronicle.ledger.anchors must be at most ${MAX_ANCHORS} anchors, each a list of 1 to 8 days.`);
@@ -47,6 +61,7 @@ export function validateLedger(stored) {
     if (tomb !== undefined && !(isRecord(tomb) && isInt(tomb.day) && Array.isArray(tomb.keys) && tomb.keys.length <= MAX_KEYS && tomb.keys.every(key => typeof key === 'string' && key.includes('@')))) {
         errors.push(`chronicle.ledger.tomb must be { day, keys } with at most ${MAX_KEYS} condition keys.`);
     }
+    if (open !== undefined && !(isRecord(open) && isRecord(open.results) && Object.keys(open.results).length <= MAX_RESULTS && isInt(open.calls) && open.calls >= 0)) errors.push('chronicle.ledger.open must be { results, calls } with at most 64 results.');
     if (Object.keys(rest).length) errors.push(`chronicle.ledger has an unknown field "${Object.keys(rest)[0]}".`);
     return errors;
 }

@@ -8,7 +8,7 @@
 
 import { nowFrom } from '../queries.js';
 import { scenePlaceOf } from '../pick.js';
-import { hostGeo } from '../conditions/known-refs.js';
+import { hereConditions } from './here.js';
 import { WORLD_NOTE_BUDGET, worldEventsOn } from './feature.js';
 import { slotValue } from '../../../rpg/slot.js';
 import { pendingCues } from '../../daily/cues.js';
@@ -44,21 +44,6 @@ export function effectsText(effects) {
     return parts.join(', ');
 }
 
-// The conditions that hold at the scene, narrowest first: its place (and city), the routes from it, its region, its realm.
-function hereConditions(view, scene) {
-    const declared = new Map((ask(view, 'chronicle.conditionNames', {}) ?? []).map(entry => [entry.name, entry]));
-    const known = ask(view, 'atlas.place', { name: scene });
-    const place = typeof known?.name === 'string' && known.name.trim() ? known.name.trim() : scene;
-    const region = known?.region;
-    const at = ask(view, 'chronicle.conditions', { at: place, ...(region ? { region } : {}) }) ?? [];
-    const geo = hostGeo((name, args) => ask(view, name, args));
-    const routes = [...new Set([...geo.routes.values()].filter(route => low(route.from) === low(place) || low(route.to) === low(place)).map(route => route.name))].sort();
-    const onRoutes = routes.flatMap(route => ask(view, 'chronicle.conditions', { at: route }) ?? []).map(entry => ({ ...entry, level: 0.5 }));
-    const seen = new Set();
-    return [...at, ...onRoutes].sort((a, b) => a.level - b.level).filter(entry => !seen.has(entry.key) && seen.add(entry.key))
-        .map(entry => ({ ...entry, declared: declared.get(entry.name) ?? {} }));
-}
-
 function conditionItem(entry) {
     const means = entry.declared.means ? `: ${clip(entry.declared.means, 70)}` : '';
     const told = effectsText(entry.declared.effects);
@@ -85,7 +70,7 @@ export function worldNote(view) {
     const query = typeof view.query === 'function' ? (name, args) => view.query(name, args) : null;
     const place = scenePlaceOf(query, view.state);
     const now = nowFrom(query, view.state);
-    const conditions = place ? hereConditions(view, place) : [];
+    const conditions = place ? hereConditions(query, place) : [];
     const status = conditions.filter(entry => entry.declared.placeStatus === true && entry.scope === 'place');
     const others = conditions.filter(entry => !status.includes(entry)).slice(0, MAX_CONDITIONS);
     const heard = place ? heardLines(view, place, now) : [];

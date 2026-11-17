@@ -75,11 +75,16 @@ function factionsOf(world, places) {
 }
 
 // The heard stamps a news item lists (where the party was, when, who told them or null); an empty one is dropped.
-const heardOf = raw => list(raw).map(h => ({ where: text(h?.where), when: text(h?.when), from: text(h?.from) || null })).filter(h => h.where || h.when);
+// With World events on, a stamp the world's own courier wrote (from rumour, a courier or travellers) also says how the news came: rumour or confirmed.
+const ARRIVALS = ['rumour', 'a courier', 'travellers'];
+const heardOf = (raw, worldEvents) => list(raw).map(h => ({
+  where: text(h?.where), when: text(h?.when), from: text(h?.from) || null,
+  ...(worldEvents && ARRIVALS.includes(text(h?.from)) ? { how: h.from === 'rumour' ? 'rumour' : 'confirmed' } : {}),
+})).filter(h => h.where || h.when);
 
 // director.world news (known-parts/news.js): '' state is an open event thread (ongoing); place and faction ids and the heard stamp come
 // from the answer (an older answer falls back to name matching).
-function newsOf(world, places, factions) {
+function newsOf(world, places, factions, worldEvents) {
   return list(world?.news).filter(n => text(n?.id)).map(n => {
     const place = places.find(p => p.id === n.placeId) ?? places.find(p => key(p.name) === key(n.place));
     const factionText = key(n.factions);
@@ -87,13 +92,22 @@ function newsOf(world, places, factions) {
     const state = ['looming', 'ongoing', 'resolved'].includes(n.state) ? n.state : n.open === false ? 'resolved' : 'ongoing';
     return {
       id: n.id, title: text(n.name), state, summary: text(n.summary),
-      placeId: place?.id ?? null, factionId: faction?.id ?? null, heard: heardOf(n.heard),
+      placeId: place?.id ?? null, factionId: faction?.id ?? null, heard: heardOf(n.heard, worldEvents),
     };
   });
 }
 
-/** selectWorld({ atlasView, tiers, selected, worldView }) → the world view-model; a missing answer leaves that part empty or null. */
-export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null } = {}) {
+// chronicle.conditionsHere (world events on): the conditions in scope at the party's place, narrowest first; null when the answer is missing.
+function conditionsOf(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const rows = list(raw.conditions).filter(c => text(c?.name)).map(c => ({
+    key: text(c.key), name: text(c.name), ref: text(c.ref), since: text(c.sinceText), why: text(c.why), means: text(c.means), told: text(c.told),
+  }));
+  return { place: text(raw.place), rows };
+}
+
+/** selectWorld({ atlasView, tiers, selected, worldView, worldEvents, conditionsHere }) → the world view-model; a missing answer leaves that part empty or null; `conditions` only with `worldEvents` on. */
+export function selectWorld({ atlasView = null, tiers = null, selected = null, worldView = null, worldEvents = false, conditionsHere = null } = {}) {
   const places = withQuests(placesOf(atlasView, tiers), worldView);
   const ids = new Set(places.map(p => p.id));
   const factions = factionsOf(worldView, places);
@@ -101,7 +115,8 @@ export function selectWorld({ atlasView = null, tiers = null, selected = null, w
     places,
     routes: routesOf(atlasView, ids),
     trip: tripOf(selected),
-    news: newsOf(worldView, places, factions),
+    news: newsOf(worldView, places, factions, worldEvents === true),
     factions,
+    ...(worldEvents === true ? { conditions: conditionsOf(conditionsHere) } : {}),
   };
 }

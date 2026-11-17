@@ -13,6 +13,7 @@ import { WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
 import { LONG_SKIP, runDays } from '../../daily/step.js';
 import { maxJumpMinutes, settingsFrom } from '../../../time/tracker/time.js';
 import { readWorld } from './read-world.js';
+import { tempoOf } from './tempo.js';
 import { dailySummary } from './summary.js';
 import { isWorldSeed } from './seed.js';
 import { ledgerOf, markLedger } from '../conditions/ledger.js';
@@ -79,17 +80,20 @@ function daily(ctx, payload = {}) {
         const lost = lostOf(payload, []);
         return { summary: lost.text, narrate: false, data: { days: 0, ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(lost.text ? { problem: lost.text } : {}) };
     };
-    if (state && today <= state.day) return kept();
+    // A settle (open templates): the slots waiting for an answer that is stored now are applied, with no new day.
+    const settling = payload?.settle === true && Array.isArray(state?.pending) && state.pending.length > 0;
+    if (state && today <= state.day && !settling) return kept();
     // The long-skip note shows above 14 stepped days, or above the reader's longest jump when that is lower (seam audit E16; the time part's setting, read through `settings.reads`).
     const longSkip = Math.min(LONG_SKIP, maxJumpMinutes(settingsFrom(ctx.settings)) / DAY);
     const seed = state?.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : newSeed(ctx));
     const marks = ledgerOf(chronicle.ledger);
+    const opens = marks.open;
     const query = (name, args) => ctx.query(name, args);
     const world = readWorld(query);
     // Who is with You, where each pack person is and who has been met, from the cast store, the party and the scene (cast-tie.js).
     const cast = draftCast(ctx);
     const tie = tickInputs(ctx, cast, world.cast);
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions });
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions, opens, settle: settling });
     if (!out) return kept();
     if (cast) mirrorCast(ctx, cast, out.report, tie.keys, now);
     writeConditions(ctx, chronicle, out.conditions);

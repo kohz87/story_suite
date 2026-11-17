@@ -362,6 +362,7 @@
   "ui/tabs/story/tracker-edit.js": "Builds the Edit tracker form: the fields that can be changed by hand, Save (only what changed), Cancel and Remove for a tracker this chat made.",
   "ui/tabs/story/tracker-templates.js": "Builds the \"Add from a template\" sheet: one row per template with an Add button; a refusal shows under the list.",
   "ui/tabs/story/trackers.js": "Builds the Trackers view: one card per tracker with bars, numbers or text, Show on Now and Edit.",
+  "ui/tabs/world/conditions.js": "Builds the Conditions here card: the world's conditions in force at the party's place, with since when, why and what they do to prices and roads.",
   "ui/tabs/world/factions.js": "Builds the Factions card: each known faction with its stance, summary, area, known members and latest event.",
   "ui/tabs/world/map.js": "Builds the map card: find, region, zoom, fit, centre and tidy tools over a pan-and-pinch SVG of places, roads and the trip line.",
   "ui/tabs/world/news.js": "Builds the News card: events the character has heard, with a state filter, heard-where-and-from lines and place and faction links.",
@@ -381,5 +382,10 @@
   "modules/people/meters/npc-meters-secrets-parts/revealable.js": "Whether a pack secret's gate is open for one person, from their record, pack stages, recorded anchors and place.",
   "modules/world/chronicle/world-daily/anchors-query.js": "The query chronicle.world.anchors: the anchors the world has recorded, for NPC State's secret gates (world-events switch).",
   "tests/people/npc-lines-secret-gated.test.js": "Tests: a pack's gated secret is refused while its gate is closed and revealed by a quoted ~ reveal line once open, with replay equal to live.",
-  "tests/people/npc-secret-gated-tail.test.js": "Tests: a pack's gated secret in the prompt tail, the seeding, the learned match and the Director's never-hint block."
+  "tests/people/npc-secret-gated-tail.test.js": "Tests: a pack's gated secret in the prompt tail, the seeding, the learned match and the Director's never-hint block.",
+  "modules/world/chronicle/conditions/director-calls.js": "The chronicle.directorCalls query: how many Director calls this game year the world ledger holds (0 until the Director part writes it), for Settings.",
+  "modules/world/chronicle/conditions/here-query.js": "The chronicle.conditionsHere query: the world conditions in force where the party is, with date, reason, meaning and told effects, for the World tab.",
+  "modules/world/chronicle/world-daily/tempo.js": "Reads the world tempo setting (chronicle.tempo, text) as the number the daily step runs at.",
+  "modules/world/chronicle/world-note-parts/here.js": "Reads the world conditions that hold where the scene is (place, routes from it, region, realm) with what the pack declares for each; the note's and the World tab's one reading.",
+  "ui/fixtures/world-events.js": "Harness fixture for World events on: the World tab's conditions and how the news came, and the World events rows of the World and time page."
 }

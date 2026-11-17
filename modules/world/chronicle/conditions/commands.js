@@ -7,6 +7,7 @@ import { LASTING_BY } from '../domain-parts/limits-lasting.js';
 import { clockOf } from '../capture/text.js';
 import { declaredConditions } from './declared.js';
 import { fadeMinutes } from './fade.js';
+import { tempoOf } from '../world-daily/tempo.js';
 import { conditionKey, pointerOf } from './key.js';
 import { hostGeo, knownRef } from './known-refs.js';
 import { markLedger } from './ledger.js';
@@ -64,7 +65,7 @@ function condition(ctx, payload) {
     const ref = knownRef(query, declared.scope, cleanName(payload.ref), geo);
     if (!ref) return ctx.fail('REFUSED', `"${cleanName(payload.ref)}" is not a ${declared.scope} of this world (a ${declared.scope} condition takes a ${declared.scope}).`);
     const fades = payload.fades === undefined ? declared.fades : payload.fades;
-    const minutes = fadeMinutes(fades);
+    const minutes = fadeMinutes(fades, tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings));
     if (minutes === undefined) return ctx.fail('INVALID', `fades must be a duration like "10 days" or "1 season", or "until cleared".`);
     const now = clockOf(ctx);
     if (now === null) return ctx.fail('NOT_YET', 'The story has no date yet; a condition waits for one.');

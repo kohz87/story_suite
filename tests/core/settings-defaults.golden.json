@@ -158,6 +158,7 @@
       "chronicle.digestDays": 14,
       "chronicle.digestKeep": 120,
       "chronicle.digestTail": true,
+      "chronicle.tempo": "1",
       "keypeople.cap": 10,
       "keypeople.tokens": 300,
       "names.banned": "",
@@ -243,6 +244,7 @@
       "tracker.elsewhere": 2,
       "tracker.initiativeCooldown": 2,
       "tracker.maxJump": 30,
+      "world.courierKmPerDay": 60,
       "world.upcomingDays": 30
     }
   },

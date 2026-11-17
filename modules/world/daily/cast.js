@@ -82,7 +82,7 @@ function die(ws, person, entry, source, day) {
 
 /** Apply an authored event's `effects.cast` entries (source = { kind, id, title, summary?, evenInParty? }). */
 export function applyCast(ws, entries, source, day) {
-    if (source.kind !== 'event') { ws.warnings.push(`The template "${source.id}" names people; templates never touch named cast.`); return; }
+    if (source.kind !== 'event' && source.open !== true) { ws.warnings.push(`The template "${source.id}" names people; templates never touch named cast.`); return; }
     for (const entry of entries) {
         const person = ws.people.get(entry?.who);
         if (!person) { ws.warnings.push(`The event "${source.id}" names "${entry?.who}", who is not in this world's cast.`); continue; }

@@ -18,14 +18,14 @@ export function overrideWorld(fn) {
     return () => { override = null; };
 }
 
-/** `readWorld(query)` → `{ places, routes, realms, placeKinds, routeKinds, conditions, events, templates, powers, scores, cast }`. */
+/** `readWorld(query)` → `{ places, routes, realms, placeKinds, routeKinds, conditions, events, templates, powers, scores, cast, lore }`. */
 export function readWorld(query) {
     const events = [...rows(query, 'worldEvents'), ...rows(query, 'events').filter(specShaped)];
     const world = {
         places: rows(query, 'places'), routes: rows(query, 'routes'), realms: rows(query, 'realms'),
         placeKinds: merged(rows(query, 'placeKinds')), routeKinds: merged(rows(query, 'routeKinds')),
         conditions: rows(query, 'conditions'), events, templates: rows(query, 'templates'),
-        powers: rows(query, 'powers'), scores: rows(query, 'scores'), cast: rows(query, 'cast'),
+        powers: rows(query, 'powers'), scores: rows(query, 'scores'), cast: rows(query, 'cast'), lore: rows(query, 'lore'),
     };
     return override ? override(world) : world;
 }

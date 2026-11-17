@@ -14,6 +14,7 @@ import { pendingCues } from '../../daily/cues.js';
 import { LEARNED, knownAnchors, learnedAnchors } from './learned.js';
 import { readWorld } from './read-world.js';
 import { slotValue } from '../../../rpg/slot.js';
+import { openAfterCapture } from './open-store.js';
 
 const DAY = 1440;
 export const FALLBACK_MINUTES = 60;
@@ -43,7 +44,8 @@ function afterCapture(view, info = {}) {
     // A Re-read of a reply that is not the last (seam audit E21): the events its old step fired go with the step, so the step can say
     // which of them it no longer fires; the later replies keep what they recorded (history is not rewritten), so that is a warning.
     const before = rereadFired(view, info);
-    if (!state || Math.floor(now / DAY) > state.day || before) commands.push({ type: DAILY, payload: before ? { before } : {} });
+    const settle = openAfterCapture(view);
+    if (!state || Math.floor(now / DAY) > state.day || before || settle) commands.push({ type: DAILY, payload: { ...(before ? { before } : {}), ...(settle ? { settle: true } : {}) } });
     if (state && pendingCues(state).length) commands.push({ type: CUE, payload: {} });
     if (opened(view)) commands.push({ type: LEARNED, payload: {} });
     return commands.length ? { commands } : undefined;

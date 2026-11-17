@@ -7,6 +7,8 @@ import { BACKLOG_BUDGET, DIGEST_TAIL_BUDGET, NOTE, digestCommand, noteCommand } 
 import { conditionCommands } from '../conditions/commands.js';
 import { worldEventsFeature } from '../conditions/feature.js';
 import { conditionQueries } from '../conditions/queries.js';
+import { conditionsHereQuery } from '../conditions/here-query.js';
+import { directorCallsQuery } from '../conditions/director-calls.js';
 import { CONDITIONS_SETTLE, settleConditions } from '../conditions/settle.js';
 import { DAILY, dailyCommand } from '../world-daily/command.js';
 import { CUE, cueCommand } from '../world-daily/cue-command.js';
@@ -15,6 +17,7 @@ import { worldBriefQuery } from '../world-daily/arc-brief.js';
 import { anchorsQuery } from '../world-daily/anchors-query.js';
 import { dailyAfterCapture } from '../world-daily/hook.js';
 import { WORLD_SEED, worldSeedCommand } from '../world-daily/seed.js';
+import { OPEN, openCommand } from '../world-daily/open-store.js';
 import { initialChronicle, validateChronicle } from '../domain.js';
 import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET } from '../note.js';
 import { SURFACE, surface } from '../pick.js';
@@ -66,11 +69,12 @@ export const part = {
         [CUE]: cueCommand,
         [LEARNED]: learnedCommand,
         [WORLD_SEED]: worldSeedCommand,
+        [OPEN]: openCommand,
         [SURFACE]: surfaceHandler,
         [DIGEST]: digestHandler,
         [NOTE]: noteHandler,
     },
-    queries: { ...queries, ...conditionQueries, 'chronicle.world.brief': worldBriefQuery, 'chronicle.world.anchors': anchorsQuery },
+    queries: { ...queries, ...conditionQueries, 'chronicle.directorCalls': directorCallsQuery, 'chronicle.conditionsHere': conditionsHereQuery, 'chronicle.world.brief': worldBriefQuery, 'chronicle.world.anchors': anchorsQuery },
     // The world and faction lines are the threads feature's (src/v2/threads.js); `chronicle.lasting` (a pack event's step) is code's and stays.
     kinds: {
         world: { grammar: GRAMMAR.world, apply: applyWorldLine, feature: THREADS_FEATURE },
@@ -89,7 +93,7 @@ export const part = {
     hooks: { beforeGenerate, afterCapture: dailyAfterCapture },
     settings: {
         section: 'Chronicle',
-        defaults: { ...DIGEST_DEFAULTS },
+        defaults: { ...DIGEST_DEFAULTS, tempo: '1' },
         // The While away threshold is the time part's: a jump that long is a time skip.
         // The longest jump is the tracker's: the world's long-skip note shows above it when it is under 14 days (world-daily/command.js).
         reads: { recapHours: 'time.recapHours', maxJump: 'tracker.maxJump' },
@@ -97,6 +101,8 @@ export const part = {
             // Shown only while the feature is on (Story Block 2 settings fields' `feature`, B-rxui-3).
             digestDays: { type: 'int', label: 'Day digest: whole days kept', min: 1, max: FULL_MAX, feature: DIGEST_FEATURE },
             digestKeep: { type: 'int', label: 'Day digest: days kept in all (older ones are dropped)', min: 1, max: KEEP_MAX, feature: DIGEST_FEATURE },
+            // How fast the world moves (0.25-4, default 1; stored as text like the map's scales). Read by the daily step.
+            tempo: { type: 'text', label: 'World tempo (0.25-4)', feature: WORLD_EVENTS },
             digestTail: { type: 'bool', label: 'Day digest: remind the story of the last day after a time skip', feature: DIGEST_FEATURE },
         },
     },

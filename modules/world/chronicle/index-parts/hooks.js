@@ -7,13 +7,14 @@ import { worldEventsOn, worldNote } from '../world-note.js';
 import { beforeGenerate as surfaceHook } from '../pick.js';
 import { threadsOn } from '../../../time/tracker/threads.js';
 import { worldSeedCommands } from '../world-daily/seed.js';
+import { openBeforeGenerate } from '../world-daily/open-store.js';
 
 /**
  * `beforeGenerate(view)`: the last reply's day facts, the digest when a day ended, then the world events' pick (while the threads feature is on);
  * and the [Earlier days] block as a pinned cue (it is kept whatever the tail budget says, and its sentence goes with it).
  */
 export function beforeGenerate(view) {
-    const commands = [...worldSeedCommands(view), ...noteCommands(view), ...digestCommands(view), ...conditionsSettleCommands(view), ...(threadsOn(view) ? surfaceHook(view)?.commands ?? [] : [])];
+    const commands = [...worldSeedCommands(view), ...openBeforeGenerate(view), ...noteCommands(view), ...digestCommands(view), ...conditionsSettleCommands(view), ...(threadsOn(view) ? surfaceHook(view)?.commands ?? [] : [])];
     const lines = backlogCue(view);
     return commands.length || lines.length ? { ...(commands.length ? { commands } : {}), ...(lines.length ? { lines } : {}) } : undefined;
 }
