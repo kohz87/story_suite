@@ -21,7 +21,7 @@ Node 24. Run `npm ci` first (dev dependencies: `acorn`, `acorn-walk`, `esbuild`,
 - `npm test` — every test folder, then the cross-module suite.
 - `npm run check` — size, codemap and syntax checks.
 - `npm run codemap` — regenerate [docs/codemap.md](docs/codemap.md) and the per-area maps in `docs/codemap/`.
-- `npm run release:check` — builds the release bundles into a temporary folder and runs the release gate (one version everywhere, no tag, every import resolves, at most ten requests at load).
+- `npm run release:check` — builds the release bundles into a temporary folder and runs the release gate (one version everywhere, no tag, every import resolves, at most ten requests at load, JS and CSS together).
 - `node scripts/release.mjs <version>` — writes a version into every place that carries it. A release is a version bump merged to main; releases are not tagged.
 
 ## Code rules

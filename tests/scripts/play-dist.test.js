@@ -35,7 +35,7 @@ test('the dist is one extension folder: the repo manifest named as the play buil
   assert.equal(manifest.css, 'suite.css');
   assert.equal(manifest.generate_interceptor, 'storyBlockGenerationInterceptor');
   assert.ok(fs.existsSync(path.join(out, 'index.js')));
-  assert.equal(fs.readFileSync(path.join(out, 'suite.css'), 'utf8'), "@import url('./ui/look.css');\n");
+  assert.equal(fs.readFileSync(path.join(out, 'suite.css'), 'utf8'), '/* ui/look.css */\n.ui {\n  color: blue;\n}\n\n/* suite.css */\n');
   assert.match(fs.readFileSync(path.join(out, 'BUILD.txt'), 'utf8'), new RegExp(`source commit: ${'a'.repeat(40)}`));
   assert.equal(fs.readFileSync(path.join(out, 'core', 'look.css'), 'utf8'), '.look { color: red; }\n');
   assert.equal(fs.readFileSync(path.join(out, 'assets', 'font.woff2'), 'utf8'), 'font');
