@@ -66,3 +66,21 @@ test('test 9 on the host with rolls that matter: swiping the reply that crosses 
     }
     assert.ok([...seen].every(name => name === 'east' || name === 'west'));
 });
+
+test('a step that changes a condition an earlier step made: deleting the earlier reply passes the change over (marked), and the rest of the step applies', async () => {
+    const at = (id, days, text) => ({ id, kind: 'one-off', certainty: 'set-in-motion', where: ['Bluewatch'], window: { after: `start + ${days} day${days > 1 ? 's' : ''}`, within: '1 day' }, ends_when: 'instant', effects: { set: [text] }, summary: id });
+    const host = await newHost(true, { ...SPEC, events: [at('dry-spell', 1, 'grain-dear@The March: 2 days'), at('blight', 2, 'grain-dear@The March: 10 days')] });
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Day.', reply('Dawn.', ['! time +1d']));
+    await host.send('Day two.', reply('Dawn again.', ['! time +1d']));
+    const entry = chronicle(host).conditions['grain-dear@The March'];
+    assert.deepEqual([entry.by, entry.fadesAt - entry.since], ['event:dry-spell', 11 * 1440], 'blight kept the longer end on the entry dry-spell made');
+    const step = host.ctx.chat.findIndex(message => /^Dawn\./.test(message.mes));
+    await host.st.deleteMessage(step);
+    // The later step only moved the entry's end (a patch inside it); with the entry gone that patch is passed over, the step's state still applies.
+    assert.deepEqual(host.store.problems(), []);
+    assert.equal(chronicle(host).conditions?.['grain-dear@The March'], undefined, 'known gap: the condition only the deleted step made is gone');
+    assert.equal(dailyOf(host).events.blight.fired, dailyOf(host).day, 'while the later state still says blight fired');
+    await agrees(host, 'delete under a changed condition');
+    host.done();
+});
