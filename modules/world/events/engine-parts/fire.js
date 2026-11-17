@@ -5,6 +5,8 @@ import { claimKey, repeatKey } from './shared-keys.js';
 import { checkId } from './shared-check.js';
 import { normalizeEvents } from './normalize.js';
 import { inspect } from './inspect.js';
+import { worldEnv } from './world-env.js';
+import { worldOn } from '../world-calls.js';
 
 /**
  * The `events.fire` handler (SPEC §3.2), for the event definitions `events(view)` gives (the enabled
@@ -29,10 +31,11 @@ export function createFireEvent(events = () => []) {
             },
             has: (_, name) => typeof name === 'string' && ctx.read(name) !== null,
         });
-        const view = { state: { domains }, query: (name, args) => ctx.query(name, args) };
+        const view = { state: { domains }, query: (name, args) => ctx.query(name, args), feature: id => ctx.feature?.(id) };
         let list;
         try { list = events(view); } catch { list = []; }
-        const defs = normalizeEvents(Array.isArray(list) ? list : []).defs;
+        const world = worldOn(view);
+        const defs = normalizeEvents(Array.isArray(list) ? list : [], { world }).defs;
         let def = defs.find(entry => entry.id === payload.id);
         if (!def) ctx.fail('REFUSED', `No enabled pack has an event "${payload.id}".`);
         if (def.decision) {
@@ -46,7 +49,7 @@ export function createFireEvent(events = () => []) {
             const predicate = { kind: 'events.decision', pack: def.pack, decision: def.decision };
             ctx.replayGuard({ owner: 'story-block', version: 2, epoch: ctx.epoch, rulesHash: null, inputHash: snapshot.hash, predicate });
         }
-        const met = evaluateCondition(def.when, view);
+        const met = evaluateCondition(def.when, world ? worldEnv(view, def, defs) : view);
         if (met.error || !met.met) ctx.fail('REFUSED', `The event "${def.id}" is not due: its condition is not met.`);
         const at = Number.isSafeInteger(payload.at) && payload.at >= 0 ? payload.at : null;
         if (def.once && !ctx.claim(claimKey(def.id))) ctx.fail('CLAIMED', `The event "${def.id}" has already happened on this line of the story.`);

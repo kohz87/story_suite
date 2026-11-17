@@ -28,7 +28,8 @@ export function compile(source, options = {}) {
  * and comes out exactly true. A condition that errors is not met and says why.
  */
 export function evaluateCondition(source, env = {}) {
-    const parsed = compile(source);
+    // `env.parseCalls`: the extra calls the caller wires in through `env.calls` (the world-events calls); none by default.
+    const parsed = compile(source, env?.parseCalls ? { calls: env.parseCalls } : {});
     if (!parsed.ok) return { met: false, error: parsed.error };
     const result = evaluate(parsed.ast, env);
     if (!result.ok) return { met: false, error: result.error };

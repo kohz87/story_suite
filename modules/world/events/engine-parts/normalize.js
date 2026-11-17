@@ -3,6 +3,8 @@
 import { compile } from '../condition.js';
 import { FIRE, EVENT_LIMITS } from './shared-keys.js';
 import { checkId, isRecord } from './shared-check.js';
+import { WORLD_ARITY } from '../world-calls.js';
+import { worldFields } from './world-fields.js';
 
 /** Plain JSON data only (SPEC §2.1): objects, arrays, strings, finite numbers, booleans, null. */
 function isPlain(value, depth = 0) {
@@ -52,8 +54,11 @@ function normalizeFire(raw) {
  * Check a list of event definitions. `{ defs, invalid }`: defs sorted by id, each
  * `{ id, pack, when, cue, once, after, then }`; invalid `[{ id, pack, why }]` in list order.
  * A condition that does not parse makes its event invalid (it could never be met).
+ * `options.world` (the world-events switch is on): the extra calls are known to the parser and the spec's
+ * event fields (world-fields.js) are checked and kept on the def; off, they are ignored as before.
  */
-export function normalizeEvents(list) {
+export function normalizeEvents(list, options = {}) {
+    const world = options?.world === true;
     const defs = [];
     const invalid = [];
     const seen = new Set();
@@ -69,7 +74,7 @@ export function normalizeEvents(list) {
         if (raw.decision !== undefined && (checkId(raw.decision, 'A decision') || fire.value.once === false)) { reject('A decision needs an id and a once event.'); continue; }
         if (seen.has(id)) { reject(`Two events share the id "${id}"; the first one is kept.`); continue; }
         if (typeof raw.when !== 'string' || !raw.when.trim()) { reject(`The event "${id}" has no condition ("when").`); continue; }
-        const parsed = compile(raw.when);
+        const parsed = compile(raw.when, world ? { calls: WORLD_ARITY } : {});
         if (!parsed.ok) { reject(`The condition of "${id}" can't be read: ${parsed.error.message}`); continue; }
         let after = raw.after === undefined || raw.after === null || raw.after === '' ? null : raw.after;
         if (after !== null) {
@@ -77,8 +82,10 @@ export function normalizeEvents(list) {
             if (problem) { reject(problem); continue; }
             if (after === id) { reject(`The event "${id}" waits for itself.`); continue; }
         }
+        const extra = world ? worldFields(raw, id) : { value: {} };
+        if (extra.why) { reject(extra.why); continue; }
         seen.add(id);
-        defs.push({ id, pack, when: raw.when, ...fire.value, after, ...(raw.decision === undefined ? {} : { decision: raw.decision }) });
+        defs.push({ id, pack, when: raw.when, ...fire.value, after, ...(raw.decision === undefined ? {} : { decision: raw.decision }), ...extra.value });
     }
     // `after` must name a once event (only those leave a claim), and chains must not loop.
     const byId = new Map(defs.map(def => [def.id, def]));

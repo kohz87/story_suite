@@ -15,6 +15,8 @@ Once events may share a `decision` slug within a pack: the due alternative is se
 
 Event conditions can use `region(name, ...)` (Story Block 2.31.1): true when the scene's place is in any of the 1 to 16 named regions (exact names, as `query('scene.place').region == name`; false with no place). It replaces a chain of `||` over regions, so one event can cover several regions and fire once. Each name is at most 200 characters; the whole condition keeps its 1000-character limit.
 
+With the Settings feature **World events** on (off by default), an event's `when` can also call `condition('name')` or `condition('name', 'ref')` (a world condition is active there), `active('event-id')` (that event happened and has not ended) and `fact('text')` (a Journal record mentions the text), and an event may carry the spec fields `kind`, `certainty`, `window`, `deadline`, `where`, `requires`, `likelier_if`, `less_if`, `pre_empted_by`, `outcomes`, `effects`, `ends_when`, `cooldown` and `summary`. They are checked and kept; nothing acts on them yet. With the feature off they are not read and the calls are unknown.
+
 Rules packs for RPG Battle cannot be imported. Keep existing RPG Battle chats on the previous versions.
 
 ## Pack format 3

@@ -4,6 +4,7 @@ import { FIRE, createEngine, createFireEvent } from '../engine.js';
 import { EVENTS_NOTE, renderEventsSection } from '../section.js';
 import { stateHash } from '../../../../core/timeline/host-block.js';
 import { packEvents } from './pack-events.js';
+import { WORLD_FEATURE } from '../world-calls.js';
 
 const sdk = () => globalThis.StoryBlock?.sdk ?? null;
 
@@ -23,8 +24,10 @@ export function createEventsPart({
     const engine = createEngine({ events, command, query });
     // A query is called (state, args, tools) with tools.query over the same state (MODULES §F.3);
     // without tools it asks through the injected query.
-    const status = (state, args, tools) => engine.status(state, typeof tools?.query === 'function' ? { state, query: tools.query } : null);
+    const status = (state, args, tools) => engine.status(state, typeof tools?.query === 'function' ? { state, query: tools.query, feature: tools.feature } : null);
     return {
+        // The world-events work (condition calls, event fields): off until the owner's A/B (world-engine contract).
+        features: [{ id: WORLD_FEATURE, label: 'World events', describe: 'Pack events read and write named world conditions: the condition calls condition(), active() and fact(), and the spec\'s event fields (certainty, window, requires and the rest). Off: pack events work exactly as before.', default: false }],
         domains: {},
         commands: { [FIRE]: createFireEvent(events) },
         queries: { 'events.status': status, 'events.replayState': state => ({ hash: stateHash(state), claims: state?.meta?.claims ?? {} }) },
