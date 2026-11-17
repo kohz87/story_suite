@@ -145,7 +145,7 @@ const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \
 function runInHost(scenario, { settings = { scanEvery: 1 } } = {}) {
     let source = fs.readFileSync(new URL('./runtime-smoke.mjs', import.meta.url), 'utf8');
     source = source.replace('const here = path.dirname(fileURLToPath(import.meta.url));', `const here = ${JSON.stringify(fileURLToPath(new URL('.', import.meta.url)))};`);
-    source = source.replace("extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': { scanEvery: 1 } } } },", `extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': ${JSON.stringify(settings)} } } },`);
+    source = source.replace("extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': { scanEvery: 1, narrationCapture: false } } } },", `extensionSettings: { storySuite: { schema: 1, modules: { 'npc-state-delta': ${JSON.stringify(settings)} } } },`);
     const cut = source.indexOf(TRY_MARKER);
     if (cut < 0) throw new Error('Runtime smoke import marker changed');
     const script = `${source.slice(0, cut)}

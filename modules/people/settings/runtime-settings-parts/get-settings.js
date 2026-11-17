@@ -68,7 +68,7 @@ export function getSettings() {
     assign('injectDepthTailUpgraded', true);
     assign('layeredSecrets', settings.layeredSecrets !== false);
     assign('fullScanEveryTurn', settings.fullScanEveryTurn === true);
-    assign('narrationCapture', settings.narrationCapture === true);
+    assign('narrationCapture', settings.narrationCapture !== false);
     assign('narrationCaptureCompact', settings.narrationCaptureCompact === true);
     assign('narrationCaptureCatchUp', Number.isFinite(Number(settings.narrationCaptureCatchUp)) ? Math.max(0, Math.min(50, Math.round(Number(settings.narrationCaptureCatchUp)))) : 4);
     assign('narrationCaptureCatchUpPeople', Number.isFinite(Number(settings.narrationCaptureCatchUpPeople)) ? Math.max(1, Math.min(3, Math.round(Number(settings.narrationCaptureCatchUpPeople)))) : 1);

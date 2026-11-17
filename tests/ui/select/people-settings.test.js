@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { checkShape } from '../../../ui/contract/shapes.js';
 import { SETTINGS_SHAPE } from '../../../ui/contract/settings.js';
 import { selectSettings } from '../../../ui/select/settings.js';
-import { peopleRows } from '../../../ui/select/people-settings/index.js';
+import { peopleRows, peopleSpec } from '../../../ui/select/people-settings/index.js';
 import { buildSettings } from '../../../ui/fixtures/settings.js';
 import { mountSettings } from '../settings/sections/mount.js';
 
@@ -12,13 +12,14 @@ const live = peopleRows({});
 const byKey = rows => Object.fromEntries(rows.map(r => [r.key, r]));
 
 // N8 (main #130) added one row the mock has not got: NPCs refreshed per reply, right after Refresh every.
-const added = new Set(['people.npcsRefreshedPerReply']);
+// The one-pass switch is a row the mock has not got either (owner 17 Nov), first in Refresh and the narrator; Refresh every's hint now says it applies when it is on.
+const added = new Set(['people.npcsRefreshedPerReply', 'people.onePassCapture']);
 
 test('the live People rows keep the mock\'s groups, order, labels, hints, units and tags', () => {
   assert.deepEqual(live.filter(r => !added.has(r.key)).map(r => [r.group, r.key, r.label]), mock.map(r => [r.group, r.key, r.label]));
   assert.deepEqual(live.map(r => r.key).slice(live.findIndex(r => r.key === 'people.refreshEvery'), live.findIndex(r => r.key === 'people.refreshEvery') + 2), ['people.refreshEvery', 'people.npcsRefreshedPerReply']);
   const m = byKey(mock);
-  const moved = new Set(['people.dossier', 'people.customFields', 'people.savedPortraitPresets']);   // deviations, see the report
+  const moved = new Set(['people.dossier', 'people.customFields', 'people.savedPortraitPresets', 'people.refreshEvery']);   // deviations, see the report
   for (const r of live) {
     if (moved.has(r.key) || added.has(r.key)) continue;
     assert.deepEqual([r.hint, r.unit, r.tags, r.wide], [m[r.key].hint, m[r.key].unit, m[r.key].tags, m[r.key].wide], r.key);
@@ -62,4 +63,13 @@ test('the People page draws every row without errors', () => {
   const el = page('people');
   assert.equal(el.querySelectorAll('.sgrp .srow').length, settings.sections.find(s => s.id === 'people').rows.length);
   assert.equal(calls.length, 0);
+});
+
+test('the one-pass row is on by default, writes narrationCapture, and the Refresh rows say they apply when it is on', () => {
+  const r = byKey(live);
+  assert.deepEqual([r['people.onePassCapture'].type, r['people.onePassCapture'].value, r['people.onePassCapture'].group], ['sw', true, 'Refresh and the narrator']);
+  assert.deepEqual(peopleRows({ narrationCapture: false }).find(x => x.key === 'people.onePassCapture').value, false);
+  assert.deepEqual(peopleSpec('people.onePassCapture').write(false, {}), [['narrationCapture', false]]);
+  assert.match(r['people.refreshEvery'].hint, /when one-pass capture is on/);
+  assert.match(r['people.npcsRefreshedPerReply'].hint, /when one-pass capture is on/);
 });
