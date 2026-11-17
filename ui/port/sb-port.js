@@ -3,6 +3,7 @@
 import { modelsCommand } from './models.js';
 import { toolsCommand } from './tools.js';
 import { trackerCommand } from './trackers.js';
+import { directorCommand } from './settings-director.js';
 
 /** The page event `port.open` sends and the host answers (ui/legacy/ui-host/lean-rpg-sync.js). */
 export const OPEN_EVENT = 'story-suite:open';
@@ -89,6 +90,8 @@ export function createSbPort({ sdk, writes = null, tools = null, selectors = {},
       if (type === 'settings.set' || type === 'settings.action') {
         let answer = null;
         try { answer = await modelsCommand(sdk, type, payload, Date.now, writes); } catch (error) { answer = failure(error); }
+        if (answer) return answer;
+        try { answer = directorCommand(type, payload, writes); } catch (error) { answer = failure(error); }
         if (answer) return answer;
         try { answer = await toolsCommand(tools, type, payload); } catch (error) { answer = failure(error); }
         if (answer) return answer;
