@@ -3,6 +3,7 @@
 import { oneLine } from '../../../core/text.js';
 import { DM_LIMITS } from '../../data-modules/schema.js';
 import { castSkillsOf } from '../../../packs/cast-skills.js';
+import { typeKey } from '../../../core/runtime/skill-slots.js';
 import { PARTY_ACTIVE } from '../names.js';
 import { checkJoin } from './check.js';
 import { joinCard } from './card.js';
@@ -22,7 +23,7 @@ export function partyAdd(state, name, isMe = () => false, cast = []) {
     // (a cast member's signature skills, as the pack has them, go with Edit first exactly as on a reply's card: offers.js)
     let found = null;
     try { found = castSkillsOf([{ content: { cast: Array.isArray(cast) ? cast : [] } }], read.name); } catch { found = null; }
-    const skills = (found?.skills ?? []).slice(0, 8).map(skill => ({ name: oneLine(skill?.name), about: oneLine(skill?.about), stat: skill?.stat, uses: skill?.uses, rank: skill?.rank, ...(skill?.type === 'utility' ? { type: 'utility' } : {}) }));
+    const skills = (found?.skills ?? []).slice(0, 8).map(skill => ({ name: oneLine(skill?.name), about: oneLine(skill?.about), stat: skill?.stat, uses: skill?.uses, rank: skill?.rank, ...typeKey(skill?.type) }));
     const offer = { name: read.name, soul: 1, best: read.best, ...(skills.length ? { skills } : {}) };
     return { ...offer, card: joinCard([offer], state, isMe) };
 }

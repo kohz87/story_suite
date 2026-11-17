@@ -4,5 +4,5 @@ import { v1View } from './fight-view-v1.js';
 
 /** `preview` = what the kind's `play` answered. */
 export function fightView(state, setup, steps, preview) {
-    return { ...v1View(state, setup, steps, preview.view.result), result: preview.result };
+    return { ...v1View(state, setup, steps, preview.view.result, preview.result?.paid), result: preview.result };
 }

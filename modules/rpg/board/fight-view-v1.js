@@ -3,6 +3,9 @@
 import { actorIdOf } from '../roster.js';
 import { readSheet } from '../read.js';
 import { skillCost } from '../combat/skills.js';
+import { profileOf } from '../combat/profile.js';
+import { soakOf } from '../combat/damage.js';
+import { V1 } from './v1-kind.js';
 import { logOfV1 } from './fight-view-v1-log.js';
 
 const TIER = { mob: 'Mob', minion: 'Minion', standard: 'Standard', elite: 'Elite', boss: 'Boss', apex: 'Apex' };
@@ -42,20 +45,36 @@ function actionsOf(hero, anyFoe, wounded) {
     return groups;
 }
 
-/** The FIGHT_SHAPE view of a v1 fight: `record` is the engine's record after `steps` (the play's `view.result`); `place` is not known here, so the title is plain. */
-export function v1View(state, setup, steps, record) {
+// The hero's stance as the switch shows it, or null when the hero owns none. `on` is what the hero's last exchange did (the first counts as on: the engine turns the stance on by default); `soakOn` / `soakOff`
+// are the soak with and without a Defence stance (null for the other stance types). Nothing here says what the switch costs: that line waits for the owner's wording.
+function stanceOf(hero, record, gear) {
+    const owned = profileOf(hero).stance;
+    if (!owned) return null;
+    const line = (record.rounds.at(-1) ?? []).find(row => row[0] === 'stance' && row[1] === String(hero.label));
+    const defence = owned.type === 'defence', soak = mastery => soakOf(hero.stats?.vit, mastery, Number(gear[hero.id]) || 0);
+    const name = (hero.skills ?? []).find(skill => skillCost(skill).type === owned.type)?.name || skillCost({ type: owned.type }).type;
+    return { name: String(name), on: line ? line[2].length > 0 : true, soakOn: defence ? soak(hero.mastery) : null, soakOff: defence ? soak(0) : null, paid: null };
+}
+
+// What the end card says each hero was paid: the practice (by name) and, when every hero got the same, the XP (`paid` = the settle's receipt, `{ xp: [{ who, xp }], practice: [{ who, skill, amount }] }`).
+const practiceOfHero = (paid, who) => (paid?.practice ?? []).filter(entry => entry.who === who).map(({ skill, amount }) => ({ skill: String(skill), gain: amount }));
+const sameXp = paid => (paid?.xp?.length && paid.xp.every(entry => entry.xp === paid.xp[0].xp) ? paid.xp[0].xp : null);
+
+/** The FIGHT_SHAPE view of a v1 fight: `record` is the engine's record after `steps` (the play's `view.result`); `paid` is the play's `result.paid` (what the ended fight pays); `place` is not known here, so the title is plain. */
+export function v1View(state, setup, steps, record, paid = null) {
     const sheet = readSheet({ domains: { dataModules: state.domains.dataModules, inventory: state.domains.inventory, scene: state.domains.scene } });
     const modules = new Map(sheet.characters.filter(character => character.v1 === true).map(character => [character.key, character.module]));
     const ended = record.result !== 'unfinished', foeGroups = foeGroupsOf(record, sheet), anyFoe = record.foes.some(standing), wounded = record.party.some(hero => standing(hero) && whole(hero.hp) < whole(hero.maxHp));
     const party = record.party.map(hero => ({ id: String(hero.id), arg: { target: String(hero.id) }, actorId: actorIdOf(modules.get(hero.id)), name: String(hero.label), portrait: null,
         hp: whole(hero.hp), hpMax: whole(hero.maxHp), mp: whole(hero.mp), mpMax: whole(hero.maxMp), sp: whole(hero.sp), spMax: whole(hero.maxSp), chosen: null }));
-    const actors = ended ? [] : record.party.filter(standing).map(hero => ({ id: actorIdOf(modules.get(hero.id)), groups: actionsOf(hero, anyFoe, wounded) }));
+    const gear = ended ? {} : V1.soak(state, sheet);
+    const actors = ended ? [] : record.party.filter(standing).map(hero => ({ id: actorIdOf(modules.get(hero.id)), stance: stanceOf(hero, record, gear), groups: actionsOf(hero, anyFoe, wounded) }));
     const played = whole(record.exchanges), played0 = whole(setup.offset) + steps.length, label = hero => String(hero.label);
     const sides = { party: record.party.map(label), foes: foeGroups.map(group => group.name) }, first = record.order?.first === 'foes' ? 'foes' : 'party';
     return {
         state: ended ? 'end' : steps.length ? 'after' : 'choose', title: 'Fight', subtitle: null, exchange: Math.max(1, ended || steps.length ? played || played0 : played + 1),
-        foeGroups, party, actor: actors[0] ? { id: actors[0].id, stance: null, groups: actors[0].groups } : null, actors,
+        foeGroups, party, actor: actors[0] ? { id: actors[0].id, stance: actors[0].stance, groups: actors[0].groups } : null, actors,
         order: [...sides[first], ...sides[first === 'party' ? 'foes' : 'party']], bonuses: null, log: logOfV1(record), narratorTold: null,
-        end: ended ? { outcome: END[record.result] ?? 'won', xpEach: null, exchanges: whole(steps.length || record.rounds.length), members: party.map(hero => ({ id: hero.id, hp: hero.hp, hpMax: hero.hpMax, practice: [] })) } : null,
+        end: ended ? { outcome: END[record.result] ?? 'won', xpEach: sameXp(paid), exchanges: whole(steps.length || record.rounds.length), members: party.map(hero => ({ id: hero.id, hp: hero.hp, hpMax: hero.hpMax, practice: practiceOfHero(paid, hero.name) })) } : null,
     };
 }

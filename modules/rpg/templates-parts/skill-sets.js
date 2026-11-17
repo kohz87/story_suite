@@ -21,7 +21,7 @@ export const SKILL_SETS = Object.freeze([
         skill('Ward', 'int', 'A shimmer of force that turns a blow aside for a moment.', 'defence', 'mana'),
         skill('Lore', 'int', 'What the old books say about creatures, places and odd magic.', 'utility')] },
     { id: 'field-medic', name: 'Field medic', about: 'Keeps the party alive: bandages, herbs, a steady voice.', skills: [
-        skill('Mending', 'dex', 'Bandaging, splinting and stitching a wound fast and clean.', 'heal'),
+        skill('Mending', 'dex', 'Bandaging, splinting and stitching a wound fast and clean.', 'heal', 'mana'),
         skill('Herbs', 'int', 'Knowing which plants heal, which poison and where they grow.', 'utility'),
         skill('Calm', 'cha', 'A steady voice that settles the frightened and the hurt.', 'support')] },
     { id: 'silver-tongue', name: 'Silver tongue', about: 'Talks the party in and out of things, and pays less for it.', skills: [
