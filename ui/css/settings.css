@@ -1,6 +1,8 @@
 /* Settings overlay styles: frame, section nav, rows and controls, search, footer meter (decision 33; tokens renamed --g-* to --su-*). */
 .sov{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column}
 @container (min-width:601px){.sov{inset:18px}}
+/* Decision 17 (mock wins): while Settings is open the suite root drops its 820px column, so at desktop the overlay covers the window (18px in) instead of the centred panel. */
+.su-layer:has(.sov:not([hidden])) .su-root{max-width:none}
 .sov>.glass{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:22px;background:var(--su-panel2)}
 .shd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--su-line2)}
 .shd .ttl{flex:1;min-width:0}.shd .ttl b{display:block;font:800 17px var(--su-font)}.shd .ttl small{display:block;font:700 12px var(--su-font);color:var(--su-muted)}
