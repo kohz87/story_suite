@@ -99,3 +99,70 @@ test('on the host, switch off: a Re-read while the threads feature is off runs t
     assert.doesNotMatch(host.sdk.receipts().map(entry => String(entry.receipt.summary ?? '')).join('\n'), /Not used: "unrest"/);
     host.close();
 });
+
+test('on the host: swipe and swipe back with a world line on both swipes, then a rewind and a chat change', async () => {
+    const host = await newHost(true);
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Look.', reply('The square fills.', [RIOT, SECOND]));
+    const first = keys(host);
+    // The other swipe has its own world line (and the second line is refused there too): only grain-dear.
+    await host.swipe(reply('Quiet square.', ['+ world Bread Prices — dearer bread | state: ongoing | place: Highmark | conditions: +grain-dear', SECOND]));
+    assert.deepEqual(keys(host), ['grain-dear@The March']);
+    assert.equal(Object.values(host.head().domains.chronicle.events).some(event => event.name === 'Second Thing'), false);
+    await agrees(host, 'other swipe');
+    // Back to the first swipe: its line is taken again (the reply's mark is per record), its conditions are back.
+    await host.st.swipeTo(host.ctx.chat.length - 1, 0);
+    assert.deepEqual(keys(host), first);
+    await agrees(host, 'swipe back');
+    // Rewind: delete back to the first reply, nothing the deleted replies set is left.
+    while (host.ctx.chat.length > 2) await host.st.deleteMessage(host.ctx.chat.length - 1);
+    assert.deepEqual(keys(host), []);
+    assert.equal(Object.keys(host.head().domains.chronicle.worldLine ?? {}).length, 0);
+    await agrees(host, 'rewind');
+    // A chat change and back: the store follows the chat.
+    const saved = structuredClone(host.ctx.chat);
+    await host.st.loadChat([], 'other-chat');
+    await host.st.loadChat(saved, 'first-chat');
+    assert.deepEqual(keys(host), []);
+    host.close();
+});
+
+test('on the host: a ninth condition on one place is a note on the card and the world line stands (the cap is asked before the call)', async () => {
+    const names = Array.from({ length: 9 }, (_, i) => `woe-${i + 1}`);
+    const pack = JSON.parse(PACK);
+    pack.id = 'world-line-cap';
+    pack.content.conditions = names.map(name => ({ name, scope: 'place', fades: 'until cleared', means: 'Trouble.' }));
+    let host = null;
+    const module = createModule({ host: { settings: id => host?.sdk.settings(id) ?? null, substitute: text => host?.sdk.substitute(text) } });
+    host = await createHost({ modules: [fakeFightRunner(), module] });
+    host.features.set(FEATURE, true);
+    assert.equal((await host.packs.packs.install(JSON.stringify(pack), { origin: 'pack.json' })).ok, true);
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Woe.', reply('Everything goes wrong.', [`+ world Woes — all at once | state: ongoing | place: Highmark | conditions: ${names.slice(0, 5).map(n => `+${n}`).join(', ')}`]));
+    // Five already there; one line asks four more: the cap is counted with what the same line set a moment before.
+    await host.send('More.', reply('And more.', [`+ world More Woes — again | state: ongoing | place: Highmark | conditions: ${names.slice(5).map(n => `+${n}`).join(', ')}`]));
+    assert.equal(keys(host).length, 8);
+    assert.ok(Object.values(host.head().domains.chronicle.events).some(event => event.name === 'More Woes'), 'the line stands');
+    assert.match(summaries(host), /Not used: "woe-9": Highmark already carries 8 conditions/);
+    host.close();
+});
+
+test('on the host: a chat that had the switch on, then off: a Re-read with threads off runs the plain line, so the conditions it had set are gone', async () => {
+    const host = await newHost(true);
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Look.', reply('The square fills.', [RIOT, SECOND]));
+    assert.deepEqual(keys(host), ['grain-dear@The March', 'unrest@Highmark']);
+    host.features.set(FEATURE, false);
+    host.features.set('story-director.threads', false);
+    const at = host.ctx.chat.findIndex(message => /The square fills\./.test(message.mes));
+    await host.st.editMessage(at, reply('The square fills, edited.', [RIOT, SECOND]));
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    // Off now: the line runs plain (it sets no conditions), so the conditions it had set are gone (the switch, not the Re-read, decides).
+    // The second line was refused when first read, so it made no change and is not run again while its kind is off.
+    assert.deepEqual(keys(host), []);
+    assert.deepEqual(Object.values(host.head().domains.chronicle.events).map(event => event.name).sort(), ['Bread Riots']);
+    const live = JSON.stringify(host.head().domains);
+    host.store.rebuild();
+    assert.equal(JSON.stringify(host.head().domains), live);
+    host.close();
+});

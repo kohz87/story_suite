@@ -33,7 +33,8 @@ export function conditionTarget(ctx, known, { place, region }, clear) {
     const ref = knownRef(ask(ctx), known.scope, asked);
     if (!ref) return { refusal: `"${known.name}": "${asked}" is not a ${known.scope} of this world` };
     if (clockOf(ctx) === null) return { refusal: `"${known.name}" waits for the story to have a date` };
-    const table = ctx.read('chronicle')?.conditions ?? {};
+    // The draft: it holds what this same line set a moment ago (the commands run on the reply's drafts).
+    const table = ctx.draft('chronicle')?.conditions ?? {};
     if (Object.hasOwn(table, `${known.name}@${ref}`)) return { ref };
     if (Object.keys(table).length >= MAX_CONDITIONS) return { refusal: `"${known.name}": the world already carries ${MAX_CONDITIONS} conditions` };
     if (Object.values(table).filter(entry => entry?.ref === ref).length >= MAX_PER_REF) return { refusal: `"${known.name}": ${ref} already carries ${MAX_PER_REF} conditions` };
