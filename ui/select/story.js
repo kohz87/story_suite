@@ -55,11 +55,11 @@ const clockOf = row => ({
   shown: ['sign', 'warning'].includes(row.fields?.shown) ? row.fields.shown : 'none',
 });
 const hookOf = row => ({ title: text(row.key), text: text(row.summary), when: text(row.fields?.on) });
-// who, whoId and toldThisReply are GAPs (the plan row names no owner); the step line reads "step 2 of 3 · since Goldwane 12".
+// who and whoId are GAPs (the plan row names no owner); toldThisReply is the plan row's `told`; the step line reads "step 2 of 3 · since Goldwane 12".
 const agendaOf = row => ({
   title: text(row.key), who: '', whoId: null, text: text(row.summary), step: number(row.steps?.at), of: number(row.steps?.of),
   since: text(String(row.steps?.line ?? '').split('· since ')[1]), place: text(row.steps?.place) || text(row.fields?.where),
-  next: text(row.fields?.then), why: '', toldThisReply: false,
+  next: text(row.fields?.then), why: '', toldThisReply: row.told === true,
 });
 // An open secret is told by its name alone (behindThread, queries.js:269); the person is whose stored dossier holds a secret of that title (people.secretOwners), else null.
 const secretOf = owners => row => {

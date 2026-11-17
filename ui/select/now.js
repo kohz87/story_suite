@@ -26,10 +26,11 @@ function needsYou(answers, opts) {
   return out;
 }
 
-// `atlas.trip` (SD/atlas/trip-query.js:74 over tripView trip.js:363): phase road | arrived, `to`, `row`, `leg`, `legCount`, `fraction` (of the leg).
-// "planned" is a gap (UI-PLAN §2.2), so a trip not yet started is not shown.
+// `atlas.trip` (SD/atlas/trip-query.js:74 over tripView trip.js:363): phase planned | road | arrived, `to`, `row`, `leg`, `legCount`, `fraction` (of the leg).
+// phase `planned` (before the first leg starts) is a trip not begun: 0 percent, the detail says when it leaves.
 function tripOf(trip) {
-  if (!isRec(trip) || trip.on !== true || !['road', 'arrived'].includes(trip.phase)) return null;
+  if (!isRec(trip) || trip.on !== true || !['planned', 'road', 'arrived'].includes(trip.phase)) return null;
+  if (trip.phase === 'planned') return { state: 'planned', title: text(trip.to), detail: [text(trip.row), text(trip.departs) && `leaves ${text(trip.departs)}`].filter(Boolean).join(' · '), progressPct: 0 };
   const done = trip.phase === 'arrived' ? 1 : ((trip.leg - 1) + (trip.fraction || 0)) / trip.legCount;
   return { state: trip.phase, title: text(trip.to), detail: text(trip.row), progressPct: Number.isFinite(done) ? Math.round(done * 100) : null };
 }
