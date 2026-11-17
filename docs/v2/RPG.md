@@ -82,7 +82,10 @@ Weir-drake d20 9 + 3 + Lv 7 ÷ 5 = 1 = 13 · Weir-drake loses 1 block (5 of 6)")
 1. **Who.** The name, which is your persona's (the window makes **You** only: there is no choice between You and a companion, and no
    "Who they are" box). A story has one You: the party shows you as the character named like your persona, so the **+ New
    character** button is there only while the story has no You. Companions are made only through the join card
-   (**Add to party**, or **Edit first**, which opens this window filled in from the join). The **Starting level** (1 to 99,
+   (**Add to party**, or **Edit first**, which opens this window filled in from the join). The same card opens from a person's page
+   in People: **Add to party** there (RPG on; the person is alive, not You, not in the party and not one who left, and the party has
+   fewer than 4 active) offers the card with the class and best stat unset (the dossier holds neither), **Not now** only closes it,
+   and Add sends the same `dm.join` a reply's card sends, so it replays with its reply. The **Starting level** (1 to 99,
    held to the story's level cap) is set here too.
 2. **Stats.** The same steppers and radar as Spend points. On the **Standard** formula (the default) every stat starts at 5 and you have
    10 points to spend; 5 is the minimum (a stat can go up to 10; only a lower Custom minimum adds going down to free a point), and a line under the steppers says what the next points

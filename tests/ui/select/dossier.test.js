@@ -182,3 +182,23 @@ describe('evidence message tags', () => {
     assert.equal(view.past[0].text, '#12 — she laughed');
   });
 });
+
+describe('selectDossier: Add to party', () => {
+  const JOIN = { name: 'Sister Temiwa', soul: 1, best: '', card: { tone: 'accent', icon: 'x', title: 'Sister Temiwa joins the party', rows: [{ icon: 'i', text: 'Level 5' }], actions: [
+    { id: 'add', label: 'Add to party', primary: true, command: 'dm.join', payload: { name: 'Sister Temiwa', soul: 1, best: '' } },
+    { id: 'edit', label: 'Edit first', open: 'story-block/new-character', payload: { name: 'Sister Temiwa', soul: 1, best: '' } },
+    { id: 'no', label: 'No', command: 'rpg.joinNo', payload: { name: 'Sister Temiwa' } }] } };
+  it('carries the engine card (title, rows, buttons with their payloads) and matches the shape', () => {
+    const vm = selectDossier({ ...ALL, join: JOIN });
+    assert.deepEqual(checkShape(vm, DOSSIER_SHAPE), []);
+    assert.equal(vm.partyAdd.title, 'Sister Temiwa joins the party');
+    assert.deepEqual(vm.partyAdd.rows, [{ text: 'Level 5' }]);
+    assert.deepEqual(vm.partyAdd.actions.map(a => [a.id, a.command ?? a.open]), [['add', 'dm.join'], ['edit', 'story-block/new-character'], ['no', 'rpg.joinNo']]);
+  });
+  it('is null without an engine card (RPG off, You, no room), for someone in the party and for the dead', () => {
+    assert.equal(selectDossier(ALL).partyAdd, null);
+    assert.equal(selectDossier({ ...ALL, join: null }).partyAdd, null);
+    assert.equal(selectDossier({ ...ALL, join: JOIN, party: [{ id: 'x', name: 'Sister Temiwa' }] }).partyAdd, null);
+    assert.equal(selectDossier({ ...ALL, join: JOIN, dossier: { ...DOSSIER, lifeState: 'deceased' } }).partyAdd, null);
+  });
+});

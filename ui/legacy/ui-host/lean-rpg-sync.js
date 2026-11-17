@@ -33,7 +33,13 @@ export function createLeanRpgSync(deps) {
         }).catch(error => { rpgLoading = false; console.warn('[Story Suite] the RPG screens could not load', error?.message ?? error); });
     }
     const getRpg = () => rpg;
-    const destroy = () => { rpgGone = true; rpg?.destroy(); rpg = null; };
+    // The new view's port opens the New character window, filled in, through this page event (a person's "Add to party → Edit first").
+    const onOpen = event => {
+        const detail = event?.detail;
+        if (detail?.id === 'story-block/new-character' && rpg?.wizard?.open(detail.payload && typeof detail.payload === 'object' ? detail.payload : null)) detail.handled = true;
+    };
+    doc?.addEventListener?.('story-suite:open', onOpen);
+    const destroy = () => { rpgGone = true; doc?.removeEventListener?.('story-suite:open', onOpen); rpg?.destroy(); rpg = null; };
 
     return { syncLeanRpg, getRpg, destroy };
 }

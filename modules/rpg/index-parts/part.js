@@ -5,7 +5,7 @@ import { fightHook, fightXp } from '../fight.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { checkStep, checksHook, practiceHook, practiceStep } from '../practice.js';
 import { diceRecord } from '../checks/dice.js';
-import { JOIN_NO, joinCard, joinOffers, partyOf } from '../join.js';
+import { JOIN_NO, joinCard, joinOffers, partyAdd, partyOf } from '../join.js';
 import { fold } from '../read.js';
 import { createPrecall } from '../precall.js';
 import { FOES_TOUCH_QUERY } from '../names.js';
@@ -21,6 +21,7 @@ export const DEFAULT_SETTINGS = Object.freeze({ [PRACTICE_SETTING]: PRACTICE.per
 
 /** The offers a reply's `+ party` lines made under Ask (the card under the reply reads them): `rpg.joins { index? }` → [{ name, soul, best }] on the head reply (or the reply `index`). */
 export const JOINS_QUERY = 'rpg.joins';
+export const PARTY_ADD_QUERY = 'rpg.partyAdd';
 
 /**
  * The part merged into Story Block's core module (domains/index.js). `deps` (all optional):
@@ -62,6 +63,8 @@ export function createLeanRpgPart({ chat = stChat, metadata = () => null, module
         queries: {
             ...board.queries,
             [JOINS_QUERY]: Object.assign((state, args, tools) => joinOffers(tools?.receipts?.() ?? [], Number.isInteger(args?.index) ? args.index : tools?.reply?.index, partyOf(state)), { feature: LEAN_RPG_FEATURE }),
+            // "Add to party" on a person's People page: { name } → the join card for them, or null when they may not join (join-parts/add.js).
+            [PARTY_ADD_QUERY]: Object.assign((state, args) => partyAdd(state, args?.name, isMe), { feature: LEAN_RPG_FEATURE }),
             // The rank a level falls in, by the story's pack (levels.js): { level } → { name } | null.
             [RANK_QUERY]: Object.assign(rankQuery, { feature: LEAN_RPG_FEATURE }),
             // The chat index of the latest reply that touched the Foes block, -1 when none (board/offers.js lastFoeTouch): the stale-foes rule reads it.

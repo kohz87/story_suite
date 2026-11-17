@@ -19,7 +19,7 @@ export { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, bandsOf, clampLe
 export { FIGHT_XP_HELD, fightOf, memberXp, standingSlots } from './fight.js';
 export { PRACTICE_HELD, practiceStep, usesOf } from './practice.js';
 export { NO_ROLLS_LINE, OPEN_FIGHT_LINE, OUTCOME_WORD, cueOfResult, cueText, fitCue, lineText, receiptCue } from './cue.js';
-export { JOIN_ADD, JOIN_BENCH, JOIN_NO, benchable, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinGrammarOwn, joinMode, joinOffers, partyCap, partyOf, readJoin, soulNaming, soulOf } from './join.js';
+export { JOIN_ADD, JOIN_BENCH, JOIN_NO, benchable, checkJoin, joinCard, joinDefinitions, joinDraft, joinGrammar, joinGrammarOwn, joinMode, joinOffers, partyAdd, partyCap, partyOf, readJoin, soulNaming, soulOf } from './join.js';
 // What the data modules' companion steps (data-modules/part.js) reach through the loaded library (rpg-lazy.js).
 export { RPG_EXTRAS, extraDefinitions, extraName, extrasPlan } from './view/wizard-data.js';
 export { RPG_STRINGS } from './strings.js';

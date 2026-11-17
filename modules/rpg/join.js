@@ -15,3 +15,4 @@ export { soulNaming, partyOf, partyCap, benchable } from './join-parts/party.js'
 export { joinDraft, joinDefinitions } from './join-parts/draft.js';
 export { joinOffers } from './join-parts/offers.js';
 export { joinCard } from './join-parts/card.js';
+export { partyAdd } from './join-parts/add.js';

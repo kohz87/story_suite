@@ -99,3 +99,7 @@ button.tie{cursor:pointer}
 .mood3 i::before{content:"";position:absolute;left:50%;top:-2px;width:1px;height:9px;background:var(--su-muted)}
 .mood3 i b{position:absolute;top:0;height:100%;border-radius:3px;background:var(--su-accent)}
 .mood3 .mv{text-align:right;color:var(--su-text)}
+.pa-row{margin:0;font:600 13px var(--su-font);color:var(--su-muted)}
+.pa-note{margin:0;min-height:0;font:700 12px var(--su-font);color:var(--pk-gold)}.pa-note:empty{display:none}
+.pa-acts{display:flex;flex-wrap:wrap;gap:8px}.pa-acts .btn2{min-height:44px}
+.su-root [data-sheet="party-add"] .sh-x{width:44px;height:44px;flex:none;padding:0;border-radius:12px;border:1px solid var(--su-line2);background:var(--su-line2);color:var(--su-text);font:800 20px var(--su-font);cursor:pointer}

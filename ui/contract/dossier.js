@@ -14,6 +14,16 @@ export const DOSSIER_SHAPE = {
   genderUnknown: T.BOOLEAN,
   following: T.BOOLEAN,
   inParty: T.BOOLEAN,
+  // The "Add to party" join card (the engine's rpg.partyAdd), or null when this person may not join (not RPG, You, dead, in the party, no room).
+  partyAdd: {
+    $optional: {
+      $nullable: {
+        title: T.STRING,
+        rows: [{ text: T.STRING }],
+        actions: [{ id: T.STRING, label: T.STRING, primary: { $optional: T.BOOLEAN }, command: { $optional: T.STRING }, open: { $optional: T.STRING }, payload: T.ANY }],
+      },
+    },
+  },
   meters: { trust: T.NUMBER, affection: T.NUMBER, desire: T.NUMBER, tension: T.NUMBER },
   stage: { $nullable: { now: T.STRING, next: NULL_STR, needs: NULL_STR } },
   changes: [{ date: T.STRING, meter: T.STRING, delta: T.NUMBER, why: T.STRING, heldBack: T.BOOLEAN }],

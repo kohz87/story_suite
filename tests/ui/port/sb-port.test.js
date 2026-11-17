@@ -148,3 +148,20 @@ test('an interaction call that throws or has no sdk answers a refusal, and other
   assert.equal((await createSbPort({ sdk: {} }).command('interaction.send', {})).ok, false);
   assert.deepEqual(await port.command('journal.x', {}), { ok: true, plain: true });
 });
+
+test('port.open sends the page event the host answers and says whether it was handled', async () => {
+  const seen = [];
+  const listeners = [];
+  const prior = [globalThis.document, globalThis.CustomEvent];
+  globalThis.CustomEvent = class { constructor(type, init) { this.type = type; this.detail = init?.detail; } };
+  globalThis.document = { dispatchEvent: event => { seen.push([event.type, event.detail.id, event.detail.payload]); listeners.forEach(fn => fn(event)); return true; } };
+  try {
+    const port = createSbPort({ sdk: fakeSdk() });
+    assert.equal((await port.open('story-block/new-character', { name: 'Mara' })).ok, false, 'nobody answered');
+    listeners.push(event => { event.detail.handled = true; });
+    assert.deepEqual(await port.open('story-block/new-character', { name: 'Mara' }), { ok: true });
+    assert.deepEqual(seen[1], ['story-suite:open', 'story-block/new-character', { name: 'Mara' }]);
+  } finally {
+    [globalThis.document, globalThis.CustomEvent] = prior;
+  }
+});
