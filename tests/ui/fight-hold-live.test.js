@@ -25,7 +25,7 @@ test('the pause shows only as the new view\'s Fight tab offer (foes, party, its 
   assert.match(root.querySelector('[data-card="offer"]').textContent, /One foe stands in your way/);
 });
 
-test('Fight on the board opens the board in the new view; it is played to the end there and Send with this sends the waiting message', async t => {
+test('Fight on the board opens the board in the new view; it is played to the end there and Back to the story sends the waiting message', async t => {
   const { doc, host, ui } = await livePage(t);
   const sent = [];
   host.ctx.generate = type => { sent.push(type); return Promise.resolve(); };
@@ -51,8 +51,9 @@ test('Fight on the board opens the board in the new view; it is played to the en
   root = tab(doc);
   assert.equal(root.dataset.step, 'end', 'the fight ended on the new board');
   assert.ok(root.querySelector('.endb, [data-card="end"]'), 'the end card');
-  const send = root.querySelector('[data-act="send"]');
-  assert.ok(send, 'Send with this');
+  assert.ok(root.querySelector('[data-act="send"]'), 'Send with this');
+  const send = [...root.querySelectorAll('button')].find(b => /Back to the story/.test(b.textContent));
+  assert.ok(send, 'the end card\'s Back to the story');
   send.click();
   await settle();
   assert.deepEqual(sent, ['regenerate'], 'the waiting message went out (the pause\'s own send)');
