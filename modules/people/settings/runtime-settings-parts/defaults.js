@@ -14,6 +14,8 @@ export const DEFAULTS = Object.freeze({
     autoScan: true,
     fullScanEveryTurn: false,
     narrationCapture: true,
+    // Settings-version marker: a profile saved before 0.1.0 has none, and getSettings turns one-pass on once for it.
+    npcStateSettingsVersion: 1,
     // (1.2.11) With one-pass capture: a quiet Refresh of the NPCs most in the last N captured
     // replies (0 = never), for the slow fields a block beside the story tends to leave thin.
     narrationCaptureCatchUp: 4,

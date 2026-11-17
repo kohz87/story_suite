@@ -34,6 +34,12 @@ export function getSettings() {
         catch { return false; }
     };
 
+    // One-time switch: an older build saved narrationCapture:false on every read, so a profile with no
+    // marker (or a lower one) is moved to on once; after the marker is written a player's own 'off' stays.
+    if (!(Number(settings.npcStateSettingsVersion) >= DEFAULTS.npcStateSettingsVersion)) {
+        assign('narrationCapture', true);
+        assign('npcStateSettingsVersion', DEFAULTS.npcStateSettingsVersion);
+    }
     for (const [key, value] of Object.entries(DEFAULTS)) {
         if (settings[key] === undefined) assign(key, value);
     }
