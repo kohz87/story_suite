@@ -19,6 +19,7 @@ import { ledgerOf, markLedger } from '../conditions/ledger.js';
 import { writeHappenings } from './news-entries.js';
 import { buildGeo } from '../../daily/geo.js';
 import { calendarFrom, dateText } from '../queries-parts/clock.js';
+import { mirrorCast, tickInputs } from './cast-tie.js';
 
 export const DAILY = 'chronicle.world.daily';
 const DAY = 1440;
@@ -60,6 +61,11 @@ function lostOf(payload, fired) {
     return { ids, text: `World: after this edit ${ids.slice(0, 6).join(', ')} no longer fired on this reply's days; the later replies keep what they recorded (a later event that needed it is not undone).` };
 }
 
+// The cast store's draft (Story Director's own domain), or null when the cast part is not there.
+function draftCast(ctx) {
+    try { return ctx.draft('cast'); } catch { return null; }
+}
+
 function daily(ctx, payload = {}) {
     if (ctx.cause !== 'system' || ctx.caller) return ctx.fail('REFUSED', 'The world steps its days only when code checks the clock before a reply.');
     if (!worldEventsOn(ctx)) return ctx.fail('REFUSED', 'World events are off.');
@@ -80,8 +86,12 @@ function daily(ctx, payload = {}) {
     const marks = ledgerOf(chronicle.ledger);
     const query = (name, args) => ctx.query(name, args);
     const world = readWorld(query);
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, rev: revOf(ctx), longSkip, marks });
+    // Who is with You, where each pack person is and who has been met, from the cast store, the party and the scene (cast-tie.js).
+    const cast = draftCast(ctx);
+    const tie = tickInputs(ctx, cast, world.cast);
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions });
     if (!out) return kept();
+    if (cast) mirrorCast(ctx, cast, out.report, tie.keys, now);
     writeConditions(ctx, chronicle, out.conditions);
     // The ledger's anchors are now the step's own; today's clears stay in its tomb (spec §2 clear beats set, also against a later world line today).
     markLedger(chronicle, { day: today, take: true, tombKeys: out.report.tomb, reset: true });

@@ -57,7 +57,8 @@ export function applyWithdraw(cast, payload, env) {
         const person = Object.hasOwn(cast.people, key) && isRecord(cast.people[key]) ? cast.people[key] : null;
         if (!person || !isMet(person) || person.met.why === 'story') continue;
         touch(key);
-        if (typeof person.met.was === 'string') person.where = person.met.was;
+        // Back where they were, unless something moved them after the meeting (a world event's move, seam audit E1): then they stay put.
+        if (typeof person.met.was === 'string' && person.where === person.met.where) person.where = person.met.was;
         person.met = null;
         for (const [id, note] of Object.entries(cast.notes ?? {})) {
             if (isRecord(note) && note.kind === 'met' && note.at === payload.at && note.head === `Paths crossed: ${person.name}`) {

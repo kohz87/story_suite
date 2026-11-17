@@ -3,10 +3,13 @@
 // runs them again on the new lines, and later replies keep what they recorded (never rolled again).
 //   the clock fallback (spec v0.10 §9 Clock): the reply moved no clock (no time line) → `director.advance` by an hour
 //   the daily step: the story day is now past the last stepped one → `chronicle.world.daily` (the reply that crossed the day)
+//   the death cue: an earlier reply left a must-happen death pending → `chronicle.world.cue` (written now, counted, or applied)
 
 import { isInt } from '../domain-parts/shared-basics.js';
 import { worldEventsOn } from '../conditions/feature.js';
 import { DAILY } from './command.js';
+import { CUE } from './cue-command.js';
+import { pendingCues } from '../../daily/cues.js';
 import { slotValue } from '../../../rpg/slot.js';
 
 const DAY = 1440;
@@ -15,9 +18,15 @@ export const FALLBACK_CAUSE = 'world-clock';
 // The receipts that move the clock by a reply's own line (capture.time) or a rule (director.advance, the fallback included).
 const MOVES = new Set(['capture.time', 'director.advance']);
 
-/** `dailyAfterCapture(view, info)` → `{ commands }` (none while the switch is off, before the clock is set, or when nothing is due). */
-export function dailyAfterCapture(view, info = {}) {
+/** `dailyAfterCapture(view, info)` (`always`: it also runs for a reply with no story lines, for the cue only) → `{ commands }` (none while the switch is off, before the clock is set, or when nothing is due). */
+function afterCapture(view, info = {}) {
     if (!worldEventsOn(view)) return undefined;
+    // A reply with no story lines (`info.always`, the hook opted in for the cue) counts towards a pending death cue and nothing else:
+    // the clock fallback and the daily step run as before, only on replies with lines.
+    if (info?.always === true) {
+        const held = slotValue(view?.state?.domains?.chronicle?.daily);
+        return held && pendingCues(held).length ? { commands: [{ type: CUE, payload: {} }] } : undefined;
+    }
     let now = view?.state?.domains?.director?.time?.minutes;
     if (!isInt(now)) return undefined;
     const commands = [];
@@ -32,6 +41,7 @@ export function dailyAfterCapture(view, info = {}) {
     // which of them it no longer fires; the later replies keep what they recorded (history is not rewritten), so that is a warning.
     const before = rereadFired(view, info);
     if (!state || Math.floor(now / DAY) > state.day || before) commands.push({ type: DAILY, payload: before ? { before } : {} });
+    if (state && pendingCues(state).length) commands.push({ type: CUE, payload: {} });
     return commands.length ? { commands } : undefined;
 }
 
@@ -45,3 +55,6 @@ function rereadFired(view, info) {
     const fired = old.filter(receipt => receipt?.type === DAILY).flatMap(receipt => [...ids(receipt.data?.fired), ...ids(receipt.data?.lost)]).filter(id => typeof id === 'string');
     return fired.length ? { fired: [...new Set(fired)].sort() } : null;
 }
+
+/** The hook, opted in to run for a reply with no story lines too (`always`; Story Block skips the others there). */
+export const dailyAfterCapture = Object.assign(afterCapture, { always: true });
