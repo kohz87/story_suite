@@ -22,6 +22,8 @@ import { peopleParts, dossierMap } from './people-parts.js';
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
 
 const directorAnswers = sdk => ({ values: Object.fromEntries(['story-director', 'npc-state-delta'].map(id => [id, sdk?.settings?.(id) ?? null])), features: sdk?.features?.() ?? [] });
+// One engine query for the Packs page; a build without it (or a query that throws) gives an empty page.
+const ask = (sdk, name) => { try { return sdk?.query?.(name, {}); } catch { return null; } };
 
 /** Builds the per-tab selector map for the Story Block port: each is `(read) → view-model`, built from sdk queries (UI-PLAN §2). */
 export function buildSelectors(ctx = () => null, sdk = null, tools = null) {
@@ -65,7 +67,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null) {
     // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE); null when no fight is open.
     fight: read => selectFightScene(read('interaction.view', {})),
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: ctx()?.extensionSettings?.storySuite?.modules?.['story-block'],
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: ctx()?.extensionSettings?.storySuite?.modules?.['story-block'], packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null,
     }),
     // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).

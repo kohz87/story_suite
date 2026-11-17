@@ -20,6 +20,7 @@ export function createPages(settings, ctx) {
   const tested = new Set();
   const failed = new Map();
   let confirming = false;
+  let status = null;
   let developer = settings.developer === true;
   const redraw = () => ctx.repaint();
   const toolsBody = createToolsPage(settings, ctx, { on: () => developer, own: { onChange: (key, value) => { developer = Boolean(value); ctx.onChange?.(key, value); }, repaint: redraw } });
@@ -55,16 +56,25 @@ export function createPages(settings, ctx) {
     answer.then(settle, error => { failed.set(id, String(error?.message ?? error)); redraw(); });
   }
 
+  // A change or an action on the Packs page: the engine answers, then the page reads the packs again (the host's answer, or the snapshot when there is none) and draws.
+  const readPacks = () => { const fresh = ctx.view?.('settings')?.packs; if (fresh) { packs.packs = fresh.packs; packs.modules = fresh.modules; packs.trackers = fresh.trackers; } };
+  const settle = answer => {
+    if (typeof answer?.text === 'string') status = { text: answer.text, errors: answer.errors ?? [] };
+    else if (answer?.ok === false) status = { text: String(answer.message ?? 'That did not work.'), errors: [] };
+    readPacks();
+    redraw();
+  };
+  const afterPacks = answer => (typeof answer?.then === 'function' ? answer.then(settle, error => settle({ ok: false, message: String(error?.message ?? error) })) : settle(answer));
+  const packChange = (key, on) => afterPacks(ctx.onChange?.(key, on));
+  const packAct = (key, value) => { status = null; return afterPacks(ctx.onAction?.(key, value)); };
+
   function special(section) {
     if (section.special === 'start') return renderStart(cardState());
     if (section.special === 'models') {
       return renderConnections({ connections, tested, failed, test: testConnection, pick: (id, value) => { tested.delete(id); failed.delete(id); const c = connections.find(x => x.id === id); if (c) c.value = value; ctx.onChange?.(`models.${id}`, value); redraw(); } });
     }
     if (section.special === 'packs') {
-      return renderPacks({
-        packs, confirming, setConfirm(on) { confirming = on; redraw(); },
-        change: (name, on) => ctx.onChange?.(`packs.${name}`, on), act: (key, name) => ctx.onAction?.(key, name),
-      });
+      return renderPacks({ packs, status, confirming, setConfirm(on) { confirming = on; redraw(); }, change: packChange, act: packAct });
     }
     if (section.special === 'tools') return toolsBody();
     return [];

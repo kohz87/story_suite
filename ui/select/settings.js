@@ -9,6 +9,7 @@ import { peopleRows } from './people-settings/index.js';
 import { selectRpgRows } from './rpg-rows.js';
 import { worldRows } from './settings-world.js';
 import { extrasRows, withExtras } from './settings-extras.js';
+import { selectPacks } from './packs.js';
 
 // The Settings page a module's feature switches belong to, when it is not the module's own id.
 const SECTION_OF = { 'npc-state-delta': 'people', 'story-director': 'director' };
@@ -111,13 +112,14 @@ export function selectSettings(answers) {
     section('money', 'Rules', 'Money', 'Coins and prices.', selectMoneyRows(a.money)),
     section('extras', 'Rules', 'Chat extras', 'Choices, inner chatter, your look and trackers.', extrasRows(a.extras)),
     section('models', 'Setup', 'Models', 'Three connections instead of five pickers, and the one fallback call.', selectCalls({ queue: host.callQueue, ...(isObj(a.calls) ? a.calls : {}) }, a.features), 'models'),
+    section('packs', 'Setup', 'Packs and trackers', 'Content packs, data modules and your trackers.', [], 'packs'),
     section('tools', 'Tools', 'Tools', 'What is sent, the budgets, prompts, Inspector, problems, diagnostics and chat data.', sent ? [] : budgetRows, 'tools'),
   ];
   return {
     subtitle: typeof a.subtitle === 'string' ? a.subtitle : null,
     sent,
     removed: [],
-    packs: { packs: [], modules: [], trackers: { cap: 0, items: [] } },
+    packs: selectPacks(a.packsAnswers),
     sections,
     modules: { scope: 'chat', chat: set, newChats: {}, preset: hasFeatures ? presetOf(a.features) : null, presets: [], defs: defList },
     connections: selectConnections(host, isObj(a.profiles) ? a.profiles : null),

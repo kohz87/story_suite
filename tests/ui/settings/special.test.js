@@ -41,11 +41,12 @@ test('pack switches, import buttons and tracker buttons emit their keys', () => 
   const el = page('packs');
   el.querySelector('.sgrp .sw').click();
   assert.match(calls.at(-1)[1], /^packs\./);
-  press(page('packs'), 'Import a pack file'); assert.equal(calls.at(-1)[1], 'packs.import');
+  const file = page('packs').querySelectorAll('input').find(i => i.getAttribute('type') === 'file');
+  assert.ok(file && file.getAttribute('multiple') !== null, 'Import opens the same picker the old panel has: pack.json with images, or a .zip');
   press(page('packs'), 'Read from the character’s lorebook'); assert.equal(calls.at(-1)[1], 'packs.lorebook');
-  press(page('packs'), 'New tracker'); assert.equal(calls.at(-1)[1], 'trackers.new');
-  press(page('packs'), 'From a template'); assert.equal(calls.at(-1)[1], 'trackers.template');
-  press(page('packs'), 'Build it in the chat'); assert.equal(calls.at(-1)[1], 'trackers.chat');
+  press(page('packs'), 'New tracker'); assert.equal(calls.at(-1)[1], 'trackers.open');
+  press(page('packs'), 'From a template'); assert.equal(calls.at(-1)[1], 'trackers.open');
+  press(page('packs'), 'Build it in the chat'); assert.equal(calls.at(-1)[1], 'trackers.open');
 });
 
 test('Tools shows the sent bars and text, then Problems opens its card and Inspector opens the sheet', () => {

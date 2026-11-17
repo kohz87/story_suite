@@ -7,10 +7,14 @@ import { createChatSurfaces } from '../chat/chat-surfaces.js';
 import { replyMenuButton, replySheet } from '../chat/reply-menu.js';
 import { buildSelectors } from '../select/build.js';
 import { liveOffer } from '../port/live-offer.js';
+import { packs as livePacks, refreshLore } from '../../packs/index.js';
+import { readCharacterLorebook } from '../../packs/st-adapter.js';
 import { NEW_VIEW_CLASS } from './flag.js';
 import { addDrawerButtons, DRAWER_ROW_ID } from './drawer-buttons.js';
 
 const STYLES = ['base', 'shell', 'kit', 'card', 'now', 'chat', 'party', 'bag', 'fight', 'scene', 'people', 'dossier', 'world', 'journal', 'story', 'settings'];
+// The Packs page's handle: the same installed-packs store and lorebook reader the old Packs panel uses.
+const PACKS_HANDLE = Object.freeze({ packs: livePacks, readLorebook: readCharacterLorebook, lore: { read: refreshLore } });
 const EVENTS = ['head', 'committed', 'turn', 'feature', 'offer'];
 
 function addStyles(doc, base) {
@@ -29,7 +33,7 @@ export function turnOn({ doc, base, ctx, StoryBlock, onOldView = null }) {
   const links = addStyles(doc, base);
   doc.body.classList.add(NEW_VIEW_CLASS);
   const prefs = { chat: chatPrefs(ctx) };
-  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools), rpgValues: () => ctx()?.extensionSettings?.storySuite?.modules?.['story-block'], prefs, offer: liveOffer, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
+  const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools), rpgValues: () => ctx()?.extensionSettings?.storySuite?.modules?.['story-block'], prefs, offer: liveOffer, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, theme: 'follow', onOldView });
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
   const drawerHost = doc.createElement('div');
