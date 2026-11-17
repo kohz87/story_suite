@@ -34,7 +34,7 @@ export function sceneTab(vm, ctx = {}) {
   // A send that went out (with the fight or without one) closes the view, so the reply is seen being written. On such a fight, Back to the story sends the waiting message too
   // (closing alone would leave it waiting, and the chat's Send would open the Fight tab again).
   const choose = async choice => { const answer = await run('choose', { choice }); if (answer?.ok && (choice === 'send' || choice === 'plain')) ctx.go?.('chat'); return answer; };
-  const api = { stage: step => run('stage', { step }), auto: n => run('auto', { n }), send: () => (vm.held ? choose('send') : run('send', {})), discard: () => (vm.held ? choose('discard') : run('discard', {})), choose, back: () => (vm.held ? choose('send') : ctx.go?.('chat')), note, prefs: ctx.prefs };
+  const api = { stage: step => run('stage', { step }), auto: (n, stance) => run('auto', { n, ...(stance ? { stance } : {}) }), send: () => (vm.held ? choose('send') : run('send', {})), discard: () => (vm.held ? choose('discard') : run('discard', {})), choose, back: async () => { if (vm.held) return choose('send'); if (vm.canSend) { const answer = await run('send', {}); if (!answer || answer.ok === false) return answer; } return ctx.go?.('chat'); }, note, prefs: ctx.prefs };
   const head = h('section', { class: 'glass fhead scene-head', dataset: { card: 'scene-head' } },
     h('span', { class: 't' }, h('b', null, vm.title)),
     h('span', { class: 'fpill scene-pill' }, PILL[vm.state] ?? vm.state));

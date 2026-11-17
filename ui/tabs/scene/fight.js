@@ -48,10 +48,13 @@ export function fightScene(vm, api = {}) {
 
   const stanceOn = who => (who.stance ? stanceSwitch.get(who.id) ?? who.stance.on : null);
 
+  const stanceArg = who => (stanceOn(who) === false ? { stance: false } : stanceSwitch.get(who.id) === true && who.stance?.on === false ? { stance: true } : {}); // (on, over a switch the view says is off: written, or the carried off would stay)
+  const autoOne = () => { const held = Object.fromEntries(actors.filter(who => who.stance && stanceSwitch.has(who.id)).map(who => [who.id, stanceSwitch.get(who.id)])); return api.auto?.(1, Object.keys(held).length ? held : undefined); }; // (Auto keeps the switch as left for this exchange)
+
   function commit(action, target) {
     const list = heldFor(vm, actors), who = actors[list.length];
     if (!who) return;
-    const args = { ...action.pick.args, ...(target?.arg ?? {}), ...(stanceOn(who) === false ? { stance: false } : {}) }; // the view says how a tapped target is written (`arg`)
+    const args = { ...action.pick.args, ...(target?.arg ?? {}), ...stanceArg(who) }; // the view says how a tapped target is written (`arg`)
     const input = { actor: who.id, choice: action.pick.choice, args };
     if (action.pick.alone === true) { sel = null; return stageAlone(input); } // Flee is the whole exchange: staged at once, the other picks ignored
     holdPick(vm, { actor: who.id, input, text: `${action.label}${target ? ` → ${targetName(target)}` : ''}` });
@@ -78,8 +81,8 @@ export function fightScene(vm, api = {}) {
     const foes = foesCard(view.foeGroups, { pick: phase === 'target' ? sel.kind : null, onPick: target => commit(sel.action, target) });
     const strip = partyCard(party, { step: phase, exchange: view.exchange, actorId: member?.id, open, onToggle: toggle, onAlly: id => commit(sel.action, { kind: 'ally', id, arg: view.party.find(p => p.id === id)?.arg }) });
     let panel = null;
-    if (phase === 'after') panel = afterCard({ exchange: view.exchange, note: view.log.at(-1)?.summary ? `${view.log.at(-1).summary}.` : '', onNext: actors.length ? () => { moved = true; draw(); } : null, onAuto: live ? () => api.auto?.(1) : null });
-    else if (asked && member) panel = actionsCard({ id: member.id, stance: asked.stance ? { ...asked.stance, on: stanceOn(asked) } : null, groups: asked.groups }, member, { sel: sel?.action.id, party, onPick: pick, onStance: on => { stanceSwitch.set(asked.id, on); draw(); }, onBack: back, onAuto: () => api.auto?.(1), onDiscard: discard });
+    if (phase === 'after') panel = afterCard({ exchange: view.exchange, note: view.log.at(-1)?.summary ? `${view.log.at(-1).summary}.` : '', onNext: actors.length ? () => { moved = true; draw(); } : null, onAuto: live ? autoOne : null });
+    else if (asked && member) panel = actionsCard({ id: member.id, stance: asked.stance ? { ...asked.stance, on: stanceOn(asked) } : null, groups: asked.groups }, member, { sel: sel?.action.id, party, onPick: pick, onStance: on => { stanceSwitch.set(asked.id, on); draw(); }, onBack: back, onAuto: autoOne, onDiscard: discard });
     else if (live && phase === 'choose' && actors.length) panel = h('section', { class: 'card glass actp', dataset: { card: 'ready' } }, h('p', { class: 'anote' }, 'Everyone has chosen.'), h('div', { class: 'fbtns' }, button({ label: 'Stage again', tone: 'primary', dataset: { stage: '1' }, onClick: stageAll }), button({ label: 'Back', dataset: { back: '1' }, onClick: back }), discard ? h('span', { style: { flex: '1' } }) : null, discard ? button({ label: 'Discard fight', tone: 'danger', dataset: { discard: '1' }, onClick: discard }) : null));
     carried = phase === 'after' ? actors.length > 0 : Boolean(panel && discard); // the live after card has "Choose exchange N+1" and no Discard (mock v7)
     const text = sel?.kind === 'ally' ? `${sel.label}: tap who gets it.` : sel?.kind === 'group' ? `${sel.label}: one roll for each member of a group. Tap a group.` : sel ? `${sel.label}: tap a foe. Each shows your chance against it.` : '';
@@ -108,10 +111,10 @@ export function fightScene(vm, api = {}) {
       carried = Boolean(discard);
       body = [endCard(view.end, { party: view.party, down: { down: all.filter(m => m.hp <= 0).length, total: all.length }, onBack: api.back, onDiscard: discard }), logCard(view, api)];
     } else body = board(phase === 'offer' ? 'offer' : phase, list);
-    const footDiscard = vm.canDiscard && !carried;
-    const foot = vm.canSend || footDiscard
+    const footDiscard = vm.canDiscard && !carried, footSend = vm.canSend && phase !== 'end'; // an ended fight draws one primary action: "Back to the story" sends first when a send is still owed
+    const foot = footSend || footDiscard
       ? h('div', { class: 'brow3 scene-actions', dataset: { card: 'scene-actions' } },
-        vm.canSend ? button({ label: 'Send with this', tone: 'primary', dataset: { act: 'send' }, onClick: () => api.send?.() }) : null,
+        footSend ? button({ label: 'Send with this', tone: 'primary', dataset: { act: 'send' }, onClick: () => api.send?.() }) : null,
         footDiscard ? button({ label: 'Discard fight', tone: 'danger', dataset: { discard: '1' }, onClick: discard }) : null) : null;
     root.replaceChildren(...[head, NOTE[vm.state] ? h('p', { class: 'fine scene-state' }, NOTE[vm.state]) : null, ...[].concat(body), api.note, foot].filter(Boolean)); // (a null child would be drawn as the text "null")
   }

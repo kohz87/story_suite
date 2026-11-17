@@ -48,7 +48,7 @@ async function guarded(sdk, method, ...args) {
 const INTERACTION = {
   open: p => [p?.kindId, p?.args],
   stage: p => [p?.id, p?.step],
-  auto: p => [p?.id, p?.n],
+  auto: p => (p?.stance ? [p.id, p.n, p.stance] : [p?.id, p?.n]),
   send: p => [p?.id],
   discard: p => [p?.id],
 };
