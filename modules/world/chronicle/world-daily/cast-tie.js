@@ -58,7 +58,7 @@ export function tickInputs(ctx, cast, worldCast) {
     return { withYou: [...withYou].sort(), positions, met: met.sort(), keys };
 }
 
-/** Writes the step's `moves`, `released` and `deaths` (report) into the cast draft at minute `now`. */
+/** Writes the step's `moves`, `released` and `deaths` (report; a death with `cue: true` is the world's must-happen death, which happens to someone with You, so it is written even when they are met) into the cast draft at minute `now`. */
 export function mirrorCast(ctx, cast, report, keys, now) {
     const people = isRecord(cast?.people) ? cast.people : null;
     if (!people) return;
@@ -84,7 +84,7 @@ export function mirrorCast(ctx, cast, report, keys, now) {
     }
     for (const death of report.deaths ?? []) {
         const key = keys.get(death.id);
-        if (!key || !isRecord(people[key]) || isRecord(people[key].met)) continue;
+        if (!key || !isRecord(people[key]) || (isRecord(people[key].met) && !death.cue)) continue;
         touch(key);
         people[key].alive = false;
         people[key].doing = '';

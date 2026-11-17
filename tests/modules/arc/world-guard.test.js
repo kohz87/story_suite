@@ -99,3 +99,11 @@ test('switch off: the planner\'s answer is kept as it is', async () => {
         assert.doesNotMatch(accepted.receipt.summary, /Refused/);
     } finally { host.done(); }
 });
+
+test('a reaction beat that names the event and a plain-word outcome is kept; an id-like outcome is matched as whole words only', () => {
+    const events = [{ id: 'succession', title: 'The succession', outcomes: ['regency', 'a1'] }];
+    const reaction = readPlan('<plan>\nARC: A — b\nBEAT: Refugees — families flee the regency talk over the succession\nBEAT: Cloth — a1b2 bolts of cloth arrive\n</plan>');
+    assert.deepEqual(refuseResolving(reaction, events).read.items.map(item => item.key), ['Refugees', 'Cloth'], 'a plain-word outcome beside the event is left to the judge; "a1" inside "a1b2" is not the outcome');
+    const decided = readPlan('<plan>\nARC: A — b\nBEAT: Crown — the lords settle on a1 today\n</plan>');
+    assert.equal(refuseResolving(decided, events).read.items.length, 0, 'the id as a whole word is refused');
+});

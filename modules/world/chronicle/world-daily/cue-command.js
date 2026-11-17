@@ -40,7 +40,7 @@ function cue(ctx) {
     try { cast = ctx.draft('cast'); } catch { cast = null; }
     if (cast && out.applied.length) {
         const tie = tickInputs(ctx, cast, world.cast);
-        mirrorCast(ctx, cast, { deaths: out.applied.map(item => ({ id: item.id })) }, tie.keys, null);
+        mirrorCast(ctx, cast, { deaths: out.applied.map(item => ({ id: item.id, cue: true })) }, tie.keys, null);
     }
     // A death code applies to someone with a dossier goes to NPC State as its death (seam audit E5: people.died, under this module).
     const npcs = people?.npcs && typeof people.npcs === 'object' ? people.npcs : {};

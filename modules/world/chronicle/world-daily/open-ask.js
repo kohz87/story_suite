@@ -54,7 +54,8 @@ async function runBatch({ view, input, slots }) {
     if (Object.keys(refused).length) {
         const again = slots.filter(slot => refused[slot.key]);
         const second = await ask(again, refused);
-        if (second.error && TRANSIENT.has(second.error)) return null;
+        // The first call's accepted answers and its call are kept (the call that could not be made is not counted); the refused slots are asked again on a later reply.
+        if (second.error && TRANSIENT.has(second.error)) return { results, calls: calls - 1 };
         for (const slot of again) {
             const judged = second.error ? { errors: [] } : judge(slot, second.answers);
             results[slot.key] = judged.answer ? { outcome: 'retry', answer: keep(judged.answer) } : { outcome: 'fallback', why: 'its answer was refused twice' };
@@ -63,39 +64,65 @@ async function runBatch({ view, input, slots }) {
     return { results, calls };
 }
 
-/** The asker: `kick(view, input, slots)` starts a batch for the slots not yet asked; `drain(stored)` the finished answers not stored yet. */
+/** The chat a hook is in: the host's chat id (when it has one) and the campaign seed, so one chat's answers never reach another's ledger. */
+export function scopeOf(view, seed = '') {
+    let id = '';
+    try { id = view?.chatId?.() ?? globalThis.SillyTavern?.getContext?.()?.getCurrentChatId?.() ?? ''; } catch { id = ''; }
+    return `${typeof id === 'string' ? id : ''}|${seed ?? ''}`;
+}
+
+const SCOPES = 3;
+
+/** The asker: `kick(view, input, slots)` starts a batch for the slots not yet asked; `drain(scope, stored, wanted)` the finished answers of that chat not stored yet.
+ * What is kept is per chat scope (`scopeOf`): a chat's answers and calls are only ever handed to that chat, and only the last few scopes are kept. */
 export function createOpenAsker() {
-    const held = new Map();
-    let owed = 0;
+    const scopes = new Map();
+    const scopeState = scope => {
+        let found = scopes.get(scope);
+        if (!found) {
+            found = { held: new Map(), owed: 0 };
+            scopes.set(scope, found);
+        }
+        scopes.delete(scope);
+        scopes.set(scope, found);
+        while (scopes.size > SCOPES) scopes.delete(scopes.keys().next().value);
+        return found;
+    };
     return {
         /** `input`: { state, table, world, seed, marks }; `slots`: [{ key, day, template, place, region, realm }]. Never awaits the call. */
         kick(view, input, slots) {
             if (typeof view?.model?.callModel !== 'function') return 0;
+            const mine = scopeState(scopeOf(view, input.seed));
+            const { held } = mine;
             const fresh = slots.filter(slot => !held.has(slot.key) && !(slot.key in (input.opens?.results ?? {}))).slice(0, BATCH);
             if (!fresh.length) return 0;
             for (const slot of fresh) held.set(slot.key, { status: 'pending' });
             Promise.resolve().then(() => runBatch({ view, input, slots: fresh })).then(done => {
                 for (const slot of fresh) {
-                    if (done) held.set(slot.key, { status: 'done', result: done.results[slot.key] });
+                    const result = done?.results[slot.key];
+                    if (result) held.set(slot.key, { status: 'done', result });
                     else held.delete(slot.key);
                 }
-                if (done) owed += done.calls;
+                if (done) mine.owed += done.calls;
             }, () => { for (const slot of fresh) held.delete(slot.key); });
             while (held.size > KEEP) held.delete(held.keys().next().value);
             return fresh.length;
         },
-        /** `{ results, calls }` of the answers done and not in `stored` (the ledger's results); the calls made are counted once; null when none. */
-        drain(stored = {}) {
+        /** `{ results, calls }` of this scope's answers done, not in `stored` (the ledger's results) and, when `wanted` (a set of keys) is given, among the slots wanted;
+         * the calls made are counted once; null when none. */
+        drain(scope, stored = {}, wanted = null) {
+            const mine = scopes.get(scope);
+            if (!mine) return null;
             const results = {};
-            for (const [key, entry] of held) if (entry.status === 'done' && entry.result && !(key in stored)) results[key] = entry.result;
+            for (const [key, entry] of mine.held) if (entry.status === 'done' && entry.result && !(key in stored) && (!wanted || wanted.has(key))) results[key] = entry.result;
             if (!Object.keys(results).length) return null;
-            const calls = owed;
-            owed = 0;
+            const calls = mine.owed;
+            mine.owed = 0;
             return { results, calls };
         },
         /** Whether any slot is being asked (tests). */
-        pending: () => [...held.values()].some(entry => entry.status === 'pending'),
-        clear() { held.clear(); owed = 0; },
+        pending: () => [...scopes.values()].some(mine => [...mine.held.values()].some(entry => entry.status === 'pending')),
+        clear() { scopes.clear(); },
     };
 }
 

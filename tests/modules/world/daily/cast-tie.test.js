@@ -44,3 +44,11 @@ test('mirrorCast: a move sets where, doing, base and since and clears a journey;
     assert.equal(cast.people['ersveil:lothar'].base, null, 'the event\'s own base is released');
     assert.equal(cast.people['ersveil:oren'].base[0].by, 'story', 'a story base is not the event\'s to release');
 });
+
+test('mirrorCast: the world\'s must-happen death (cue: true) is written even for someone met, who is with You', () => {
+    const cast = { people: { 'ersveil:mira': person('mira', { met: { on: 0 } }), 'ersveil:oren': person('oren', { met: { on: 0 } }) } };
+    const keys = new Map(Object.keys(cast.people).map(key => [key.split(':')[1], key]));
+    mirrorCast(ctxWith({}), cast, { deaths: [{ id: 'mira', cue: true }, { id: 'oren' }] }, keys, 1440);
+    assert.equal(cast.people['ersveil:mira'].alive, false, 'a cue death reaches the cast store');
+    assert.equal(cast.people['ersveil:oren'].alive, true, 'any other met death stays NPC State\'s');
+});
