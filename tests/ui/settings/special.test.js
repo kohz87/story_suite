@@ -48,13 +48,15 @@ test('pack switches, import buttons and tracker buttons emit their keys', () => 
   press(page('packs'), 'Build it in the chat'); assert.equal(calls.at(-1)[1], 'trackers.chat');
 });
 
-test('Tools shows the sent bars and text, then the Inspector and Problems buttons emit actions', () => {
+test('Tools shows the sent bars and text, then Problems opens its card and Inspector opens the sheet', () => {
   const { page, calls } = mountSettings();
   const el = page('tools');
   assert.equal(el.querySelectorAll('.brow2').length, 5);
   assert.ok(el.querySelector('pre.sent').textContent.includes('Quest in focus'));
-  press(el, 'Open'); assert.equal(calls.at(-1)[1], 'tools.inspector');
-  press(page('tools'), 'Show'); assert.equal(calls.at(-1)[1], 'tools.problems');
+  assert.equal(el.querySelectorAll('[data-card="problems"]').length, 0);
+  press(el, 'Show');
+  assert.equal(page('tools').querySelectorAll('[data-card="problems"]').length, 1);
+  assert.equal(calls.some(c => c[1] === 'tools.problems'), false, 'the page opens its own card; it does not ask the host');
   press(page('tools'), 'Reset Tools to defaults'); assert.deepEqual(calls.at(-1), ['a', 'settings.reset', 'Reset Tools to defaults']);
 });
 

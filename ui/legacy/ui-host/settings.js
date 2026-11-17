@@ -81,5 +81,5 @@ export function createUiSettings({ runtime, doc, registry, store, sdk, settings,
         return overlay;
     }
 
-    return { theme, openSettings };
+    return { theme, openSettings, diagnostics };
 }

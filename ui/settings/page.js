@@ -4,8 +4,7 @@ import { renderGroups } from './fields.js';
 import { renderStart, renderModuleCard } from './modules.js';
 import { renderConnections } from './connections.js';
 import { renderPacks } from './packs.js';
-import { renderSent } from './sent.js';
-import { renderDeveloper } from './developer.js';
+import { createToolsPage } from './tools-page.js';
 
 /**
  * Creates the page builder over a settings view-model. ctx = { onChange, onAction, go(id), repaint() }.
@@ -23,6 +22,7 @@ export function createPages(settings, ctx) {
   let confirming = false;
   let developer = settings.developer === true;
   const redraw = () => ctx.repaint();
+  const toolsBody = createToolsPage(settings, ctx, { on: () => developer, own: { onChange: (key, value) => { developer = Boolean(value); ctx.onChange?.(key, value); }, repaint: redraw } });
 
   const cardState = () => ({
     modules, chat, defs: modules.defs, set: modules[modules.scope], scope: modules.scope, openMods, go: ctx.go,
@@ -66,10 +66,7 @@ export function createPages(settings, ctx) {
         change: (name, on) => ctx.onChange?.(`packs.${name}`, on), act: (key, name) => ctx.onAction?.(key, name),
       });
     }
-    if (section.special === 'tools') {
-      const own = { onChange: (key, value) => { developer = Boolean(value); ctx.onChange?.(key, value); }, repaint: redraw };
-      return [...(settings.sent?.budget ? renderSent(settings.sent, settings.sent.limits ?? [], ctx) : []), ...renderDeveloper({ on: developer }, own)];
-    }
+    if (section.special === 'tools') return toolsBody();
     return [];
   }
 

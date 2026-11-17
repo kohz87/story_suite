@@ -155,3 +155,5 @@
 @container (min-width:601px){.su-root .sov .sback{display:none}}
 .su-root .sov input[type="number"]{-moz-appearance:textfield;appearance:textfield}
 .su-root .sov input[type="number"]::-webkit-inner-spin-button,.su-root .sov input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.insp-nav{display:flex;align-items:center;gap:10px}.insp-nav .lb{flex:1;min-width:0;text-align:center}.insp-nav .lb b{font:700 14px var(--su-font);display:block}.insp-nav .lb small{display:block;font-size:12px;color:var(--su-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.insp-nav .btn2{min-width:44px;min-height:44px}
+[data-sheet="inspector"] .x{width:44px;height:44px;flex:none;background:var(--su-line2);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}

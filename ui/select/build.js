@@ -11,6 +11,7 @@ import { selectJournal } from './journal.js';
 import { selectStory } from './story.js';
 import { listProfiles } from '../../core/model-call.js';
 import { selectSettings } from './settings.js';
+import { selectProblems, selectSent, selectInspector } from './tools.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { peopleParts, dossierMap } from './people-parts.js';
@@ -19,7 +20,8 @@ import { peopleParts, dossierMap } from './people-parts.js';
 const callsOf = ctx => { const modules = ctx()?.extensionSettings?.storySuite?.modules; return { kinds: modules?.['story-block']?.assistExtractorKinds, maxOutput: modules?.['npc-state-delta']?.scannerMaxOutputTokens }; };
 
 /** Builds the per-tab selector map for the Story Block port: each is `(read) → view-model`, built from sdk queries (UI-PLAN §2). */
-export function buildSelectors(ctx = () => null, sdk = null) {
+export function buildSelectors(ctx = () => null, sdk = null, tools = null) {
+  const problemsNow = () => ({ problems: tools?.problems?.() ?? [], blocked: tools?.blocked?.() ?? null, nameOf: tools?.nameOf });
   const scene = read => {
     const answers = gather(read);
     const opts = optsOf(read, answers, ctx);
@@ -56,7 +58,11 @@ export function buildSelectors(ctx = () => null, sdk = null) {
     fight: read => selectFightScene(read('interaction.view', {})),
     settings: () => selectSettings({
       host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], profiles: listProfiles(), calls: callsOf(ctx),
-      subtitle: 'this chat',
+      subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null,
     }),
+    // Read again each time the Tools page draws or the Inspector moves (never the overlay's open-time snapshot).
+    problems: () => (tools ? selectProblems(problemsNow()) : null),
+    sent: () => (tools ? selectSent(tools.sent(), selectProblems(problemsNow())) : null),
+    inspector: (_read, args) => (tools ? selectInspector({ replies: tools.replies(), reply: i => tools.reply(i) }, args?.index) : null),
   };
 }

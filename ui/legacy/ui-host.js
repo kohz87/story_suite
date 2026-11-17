@@ -292,6 +292,7 @@ export function mountUi({ runtime, ctx, doc = globalThis.document, version = '',
         extras,
         savePoints,
         inspector,
+        diagnostics: settingsUi.diagnostics,
         theme,
         cardOffer,
         destroy() {

@@ -22,6 +22,7 @@ import { registerSbMacro } from '../runtime/sb-macro.js';
 import { BUILTIN_MODULES } from '../modules-list.js';
 import { registerIsolated, startIsolated } from './register-isolated.js';
 import { packs as livePacks, part as livePacksPart, portraits as livePortraits, refreshLore, resolveItem, startState } from '../../packs/index.js';
+import { createToolsHandle } from '../../ui/port/tools-handle.js';
 
 const LOG = '[Story Block v2]';
 export const OLD_COPY = 'Disable the old Story Block, Story Director and NPC State Delta: Story Suite replaces all three.';
@@ -58,7 +59,7 @@ export async function boot({ late = [] } = {}) {
     // (An old v1 copy loaded before this one left its own object here: src/v2/v1-copy.js.)
     const before = globalThis.StoryBlock ?? null;
     // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes });
+    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, ui: () => ui }) });
     const v1 = createV1Watch({ before, report: entry => turn.report(entry), problems: () => turn.problems() });
     const lookForV1 = () => { try { v1.check(); } catch { /* never in the way of the story */ } };
 
