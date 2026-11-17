@@ -25,7 +25,7 @@ export function agendaSteps(fields, { calendar = null, now = null, query = null 
 }
 
 /**
- * `director.plan` → `{ hooks, clocks, beats, agendas, secrets, problems, any }`: what the Director screen's cards show (the plan; spoilers):
+ * `director.plan` → `{ hooks, clocks, beats, agendas (each with `told: true` when written in this reply), secrets, problems, any }`: what the Director screen's cards show (the plan; spoilers):
  * the open hooks with their Next, and, while the feature `story-director.threads` is on, the open clocks (with Due), beats, agendas (off-screen) and
  * secrets (name only), then every problem, newest first (the ones about the visible threads, then those behind the scenes). Each thread is
  * `{ id, key, summary, fields }` as `director.behind` gives it.
@@ -37,7 +37,11 @@ export function planView(state, args, tools, { settings = null } = {}) {
     const open = kind => behind.kinds.find(group => group.kind === kind)?.open ?? [];
     const calendar = calendarFrom(settings, query);
     const now = state?.domains?.director?.time?.minutes;
-    const agendas = open('agenda').map(agenda => ({ ...agenda, steps: agendaSteps(agenda.fields, { calendar, now, query }) }));
+    // Told this reply: the agenda's line was written in the reply the Director is on (its thread's `changed` turn is the current turn).
+    const turn = state?.domains?.director?.turn?.n;
+    // (the query leaves a thread's `track` out, so it is read from the state)
+    const told = new Set(Object.values(isRecord(state?.domains?.director?.threads) ? state.domains.director.threads : {}).filter(thread => isRecord(thread) && thread.kind === 'agenda' && Number.isSafeInteger(turn) && thread.track?.changed?.turn === turn).map(thread => thread.id));
+    const agendas = open('agenda').map(agenda => ({ ...agenda, steps: agendaSteps(agenda.fields, { calendar, now, query }), ...(told.has(agenda.id) ? { told: true } : {}) }));
     // Newest first (the lists are kept oldest first), so a card's first rows are the latest reply's problems.
     const problems = [...problemsList(state, { behind: false }, tools).reverse(), ...[...behind.problems].reverse()];
     const view = { hooks, clocks: open('clock'), beats: open('beat'), agendas, secrets: open('secret'), problems };

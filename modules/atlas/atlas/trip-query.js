@@ -6,7 +6,7 @@
 import { lineKey } from '../../world/changes.js';
 import { parseLeg } from '../routes.js';
 import { scenePlace } from './note.js';
-import { calendarOf, dateText, tripView } from './trip.js';
+import { calendarOf, dateText, tripOf, tripView } from './trip.js';
 import { packWorld, worldOf } from './world.js';
 
 export const MOVERS_SHOWN = 8;
@@ -68,7 +68,7 @@ export function moversOf(state, world, { now, calendar }) {
 }
 
 /**
- * `atlas.trip`: `{ on, ...tripView, legs: [… with fromId, toId], you: { fromId, toId, t } | null, movers, hasMovers }` or null.
+ * `atlas.trip`: `{ on, ...tripView (phase `planned` before the first leg starts, with `departs`), legs: [… with fromId, toId], you: { fromId, toId, t } | null, movers, hasMovers }` or null.
  * `on`: there is a trip (else only movers). Tagged with the feature (index.js), so Story Block answers null while it is off.
  */
 export function tripQuery(state, _args, tools) {
@@ -91,5 +91,9 @@ export function tripQuery(state, _args, tools) {
         legs: view.legs.map(leg => ({ ...leg, fromId: idOf(leg.from), toId: idOf(leg.to) })),
         you: view.phase === 'road' ? { fromId: idOf(view.from), toId: idOf(view.next), t: view.of > 0 ? Math.round((view.along / view.of) * 1000) / 1000 : 0, along: view.along, of: view.of } : null,
     } : { phase: '', legs: [], you: null, row: '' };
-    return { on: Boolean(view), ...base, movers, hasMovers: movers.length > 0 };
+    // A trip asked at a story minute before its first leg starts (a card of an earlier reply, a swipe back, a rewind) is `planned`: the screens
+    // read the phase, while `you` and the road keep the state they had (the map and the narrator's lines read tripView, which is unchanged).
+    const first = view ? tripOf(atlas)?.legs[0] : null;
+    const planned = Boolean(view && view.phase === 'road' && first && now < first.start);
+    return { on: Boolean(view), ...base, ...(planned ? { phase: 'planned', departs: dateText(calendar, first.start, now) } : {}), movers, hasMovers: movers.length > 0 };
 }

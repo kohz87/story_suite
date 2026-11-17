@@ -92,10 +92,16 @@ describe('selectStory', () => {
     assert.deepEqual(vm.hooks.items[0], { title: 'A buyer for the crate', text: 'A clerk offers coin.', when: 'after the letter' });
   });
 
-  it('maps an agenda with its step line and leaves the owner and told flag empty', () => {
+  it('maps an agenda with its step line and leaves the owner empty and the told flag off', () => {
     const [a] = selectStory(recorded(), { planShown: true }).agendas.items;
     assert.deepEqual([a.step, a.of, a.since, a.place, a.next], [1, 3, 'Goldwane 12', 'coast road, 30 km out', 'reach Bluewatch Goldwane 15']);
     assert.deepEqual([a.who, a.whoId, a.toldThisReply], ['', null, false]);
+  });
+
+  it('marks an agenda told this reply from the plan row, and only then', () => {
+    const told = recorded({ 'director.plan': { ...PLAN, agendas: [{ ...PLAN.agendas[0], told: true }] } });
+    assert.equal(selectStory(told, { planShown: true }).agendas.items[0].toldThisReply, true);
+    assert.equal(selectStory(recorded(), { planShown: true }).agendas.items[0].toldThisReply, false);
   });
 
   it('names a secret and nothing more', () => {
