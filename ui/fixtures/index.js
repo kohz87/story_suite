@@ -268,6 +268,7 @@ export function fixture(variant = 'default') {
     journal: buildJournal({ rpg: opts.rpg, empty: opts.empty }),
     story: buildStory({ empty: opts.empty, planShown: opts.planShown }),
     settings: buildSettings({ rpg: opts.rpg }),
-    dossier: Object.fromEntries(Object.keys(DOSSIERS).map(id => [id, dossierFor(id)])),
+    // (no join card with the RPG off: rpg.partyAdd is not answered then)
+    dossier: Object.fromEntries(Object.keys(DOSSIERS).map(id => [id, opts.rpg ? dossierFor(id) : { ...dossierFor(id), partyAdd: null }])),
   };
 }

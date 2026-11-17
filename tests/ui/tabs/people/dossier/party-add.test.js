@@ -55,3 +55,17 @@ test('a refused add keeps the card open and says why', async () => {
   assert.ok(sheetOf());
   assert.equal(sheetOf().querySelector('.pa-note').textContent, 'the party is full');
 });
+
+test('a taken add redraws the page (no button, "in your party") and a double tap sends one command', async () => {
+  installFakeDom();
+  const ctx = makeCtx();
+  const root = dossierPage(dossier('temiwa'), ctx);
+  act(root, 'party-add').click();
+  const add = act(sheetOf(), 'add');
+  add.click();
+  add.click();
+  await new Promise(r => setTimeout(r, 0));
+  assert.equal(ctx.port.recorded.filter(e => e.type === 'dm.join').length, 1, 'one command for a double tap');
+  assert.equal(act(root, 'party-add'), null, 'the button is gone');
+  assert.match(root.querySelector('.dhero').textContent, /in your party/);
+});
