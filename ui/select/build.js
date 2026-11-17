@@ -13,6 +13,7 @@ import { listProfiles } from '../../core/model-call.js';
 import { selectSettings } from './settings.js';
 import { selectProblems, selectSent, selectInspector } from './tools.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
+import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf } from './gather.js';
 import { offerRows } from './offers.js';
 import { liveOffer } from '../port/live-offer.js';
@@ -25,13 +26,19 @@ const directorAnswers = sdk => ({ values: Object.fromEntries(['story-director', 
 // One engine query for the Packs page; a build without it (or a query that throws) gives an empty page.
 const ask = (sdk, name) => { try { return sdk?.query?.(name, {}); } catch { return null; } };
 
-/** Builds the per-tab selector map for the Story Block port: each is `(read) → view-model`, built from sdk queries (UI-PLAN §2). */
-export function buildSelectors(ctx = () => null, sdk = null, tools = null) {
+/** Builds the per-tab selector map for the Story Block port: each is `(read) → view-model`, built from sdk queries (UI-PLAN §2). `hold` is the waiting fight's handle (port/hold.js). */
+export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold = null) {
+  // The open fight, or the waiting one (the pause before the reader's message goes out: its offer); an open fight the waiting message goes with is `held` (its Send and Discard answer the pause).
+  const fightOf = read => {
+    const open = selectFightScene(read('interaction.view', {})), info = hold?.view?.() ?? null;
+    if (open) return info?.choice === 'board' ? { ...open, held: true } : open;
+    return selectHold(info, { sheet: read('rpg.sheet', {}), place: read('scene.place', {})?.name ?? null });
+  };
   const problemsNow = () => ({ problems: tools?.problems?.() ?? [], blocked: tools?.blocked?.() ?? null, nameOf: tools?.nameOf });
   const scene = read => {
     const answers = gather(read);
     const opts = { ...optsOf(read, answers, ctx), offers: offerRows(liveOffer()) };
-    const fight = selectFightScene(read('interaction.view', {})); // the open fight, if one is: the inline chip and the Now card read it
+    const fight = fightOf(read); // the open or waiting fight, if one is: the inline chip and the Now card read it
     return { answers, opts: fight ? { ...opts, fightOpen: true, fight: needsOf(fight) } : opts };
   };
   return {
@@ -64,8 +71,8 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null) {
     story: read => selectStory(read),
     // The open interaction: `interaction.view`, null when none is open. A fight is shown on the Fight tab, not here.
     scene: read => { const view = selectScene(read('interaction.view', {})); return view && view.kindId !== FIGHT_KIND ? view : null; },
-    // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE); null when no fight is open.
-    fight: read => selectFightScene(read('interaction.view', {})),
+    // The open fight: the same answer, drawn by the fight renderer on the activity host (the kind's own view is the FIGHT_SHAPE), or the waiting fight's offer; null when neither.
+    fight: fightOf,
     settings: () => selectSettings({
       host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorPage: directorAnswers(sdk), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup') },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null,

@@ -17,7 +17,7 @@ export function pendingCard(tab) {
     h('p', { class: 'su-pending-note' }, 'This tab is not built yet.'));
 }
 
-/** Returns the default `{ card, tab }` renderers wired to a port, back-stack and prefs. */
+/** Returns the default `{ card, tab, closePage }` renderers wired to a port, back-stack and prefs. */
 export function defaultViews({ port, tabHost = () => null, prefs = null, backStack = null, doc, onChat = null, onSettings = null, width = null, refresh = null }) {
   let dossier = null;
   let peopleStart = null;
@@ -55,6 +55,8 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
   const ctx = { port, prefs, go };
   const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, peopleStart: takeStart });
   return {
+    // A person's page left open: closed when the suite is opened on a tab (it would cover the tab asked for).
+    closePage: () => dossier?.close(),
     card: vm => (vm ? characterCard(vm, {
       onBack: () => onChat?.(),
       onScene: () => openSceneSheet({ port, doc, backStack, refresh }, vm.scene, (port.view('now')?.here ?? []).map(p => p.name)),

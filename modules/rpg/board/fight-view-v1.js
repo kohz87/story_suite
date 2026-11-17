@@ -45,15 +45,15 @@ function actionsOf(hero, anyFoe, wounded) {
     return groups;
 }
 
-// The hero's stance as the switch shows it, or null when the hero owns none. `on` is what the hero's last exchange did (the first counts as on: the engine turns the stance on by default); `soakOn` / `soakOff`
+// The hero's stance as the switch shows it, or null when the hero owns none. `on` is what the hero's last exchange did (before the first of this reply: what the earlier replies left; at the very first, on: the engine turns the stance on by default); `soakOn` / `soakOff`
 // are the soak with and without a Defence stance (null for the other stance types); `pool` / `cost` what it takes each exchange.
-function stanceOf(hero, record, gear) {
+function stanceOf(hero, record, gear, carried = {}, actor = '') {
     const owned = profileOf(hero).stance;
     if (!owned) return null;
     const line = (record.rounds.at(-1) ?? []).find(row => row[0] === 'stance' && row[1] === String(hero.label));
     const defence = owned.type === 'defence', soak = mastery => soakOf(hero.stats?.vit, mastery, Number(gear[hero.id]) || 0);
     const skill = (hero.skills ?? []).find(item => skillCost(item).type === owned.type), price = skillCost(skill ?? { type: owned.type });
-    return { name: String(skill?.name || price.type), pool: price.pool === 'mp' ? 'Mana' : 'Stamina', cost: price.cost, on: line ? line[2].length > 0 : true, soakOn: defence ? soak(hero.mastery) : null, soakOff: defence ? soak(0) : null, paid: null };
+    return { name: String(skill?.name || price.type), pool: price.pool === 'mp' ? 'Mana' : 'Stamina', cost: price.cost, on: line ? line[2].length > 0 : carried[actor] !== false, soakOn: defence ? soak(hero.mastery) : null, soakOff: defence ? soak(0) : null, paid: null };
 }
 
 // What the end card says each hero was paid: the practice (by name), each hero's own XP and, when every hero got the same, that XP once (`paid` = the settle's receipt, `{ xp: [{ who, xp }], practice: [{ who, skill, amount }] }`).
@@ -69,7 +69,7 @@ export function v1View(state, setup, steps, record, paid = null) {
     const party = record.party.map(hero => ({ id: String(hero.id), arg: { target: String(hero.id) }, actorId: actorIdOf(modules.get(hero.id)), name: String(hero.label), portrait: null,
         hp: whole(hero.hp), hpMax: whole(hero.maxHp), mp: whole(hero.mp), mpMax: whole(hero.maxMp), sp: whole(hero.sp), spMax: whole(hero.maxSp), chosen: null }));
     const gear = ended ? {} : V1.soak(state, sheet);
-    const actors = ended ? [] : record.party.filter(standing).map(hero => ({ id: actorIdOf(modules.get(hero.id)), stance: stanceOf(hero, record, gear), groups: actionsOf(hero, anyFoe, wounded) }));
+    const actors = ended ? [] : record.party.filter(standing).map(hero => ({ id: actorIdOf(modules.get(hero.id)), stance: stanceOf(hero, record, gear, setup.stance ?? {}, actorIdOf(modules.get(hero.id))), groups: actionsOf(hero, anyFoe, wounded) }));
     const played = whole(record.exchanges), played0 = whole(setup.offset) + steps.length, label = hero => String(hero.label);
     const sides = { party: record.party.map(label), foes: foeGroups.map(group => group.name) }, first = record.order?.first === 'foes' ? 'foes' : 'party';
     return {

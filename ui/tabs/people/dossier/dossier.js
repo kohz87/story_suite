@@ -105,12 +105,13 @@ export function dossierPage(d, ctx = {}) {
   }
 
   function drawTop() {
-    top.replaceChildren(
+    // (a control nobody answers is left out, not drawn as the text "null")
+    top.replaceChildren(...[
       button({ label: ctx.origin ?? '‹ People', className: 'bk2', dataset: { act: 'close' }, onClick: close }),
       h('span', { class: 'sp' }),
       can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => cmd('npc.edit') }) : null,
       !MENU.some(([id]) => can(ctx, `npc.${id}`)) ? null : h('button', { type: 'button', class: 'ibtn', 'aria-label': 'More', 'aria-expanded': 'false', dataset: { act: 'menu' },
-        onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯'));
+        onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯')].filter(Boolean));
   }
 
   function hero() {

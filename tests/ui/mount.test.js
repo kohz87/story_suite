@@ -163,3 +163,22 @@ test('Settings › Tools › Developer tools › Use the old view goes to onOldV
   suite.destroy();
   assert.equal(suite.settings(), null, 'nothing opens after destroy');
 });
+
+test('open(tab) closes a person\'s page left open over the tabs and reads the flags first (a fight that just began has its tab)', () => {
+  const doc = installFakeDom();
+  let fight = null;
+  const base = createFakePort();
+  const port = { ...base, view: (tab, args) => (tab === 'fight' ? fight : base.view(tab, args)) };
+  const suite = mountSuite({ port, doc });
+  suite.open('people');
+  const card = doc.body.querySelector('.su-panel .pc');
+  assert.ok(card, 'a person card');
+  card.click();
+  assert.ok(doc.body.querySelector('.dossier'), 'the person page is open');
+  suite.close();
+  fight = { id: 'f', kindId: 'story-block/fight', title: 'Fight', state: 'open', steps: 0, canSend: false, canDiscard: false, view: null };
+  suite.open('fight');
+  assert.equal(doc.body.querySelector('.dossier'), null, 'the page closed');
+  assert.equal(doc.body.querySelector('.su-panel').getAttribute('data-tab'), 'fight', 'on the Fight tab, though no port event told of the fight yet');
+  suite.destroy();
+});

@@ -31,8 +31,8 @@ export const fightKind = Object.freeze({
     validate: (state, setup, steps, step) => V1.validate(state, setup, steps, step),
     play: (state, setup, steps, dice) => V1.play(state, setup, steps, dice),
     settle: (state, setup, steps, dice) => V1.settle(state, setup, steps, dice),
-    auto: (state, setup, steps, actor) => V1.auto(state, setup, steps, actor),
-    next: (setup, result) => V1.next(setup, result),
+    auto: (state, setup, steps, actor, _dice, held) => V1.auto(state, setup, steps, actor, held),
+    next: (setup, result, _state, steps) => V1.next(setup, result, steps),
     view: (state, setup, steps, preview) => fightView(state, setup, steps, preview),
     note: (result, setup, context) => (context?.opening ? openingNote(result) : settledNoteV1(result).split(' | ')),
 });

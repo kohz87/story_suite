@@ -20,6 +20,7 @@ import { boardFlags } from '../../board/overrides.js';
 import { createOfferLineView } from '../../board/offer-line.js';
 import { createFightOffers } from '../../board/offers.js';
 import { createStartController } from '../../board/start-controller.js';
+import { attachHoldBridge, claimScreen } from '../../board/hold-bridge.js';
 
 export const PACK = 'rpg';
 const STYLE_ATTR = 'data-ss-rpg';
@@ -53,8 +54,10 @@ function addStyle(doc, file) {
  * commands (the settings page saves the Combat rules text through `dm.redefine`); `closeView()` closes the game view
  * ("See it in the story" on the Fight tab); `refresh()` redraws the tabs.
  */
-export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets, headState, readerName = () => '', meta = () => null, save = () => {}, roleOf, featureOn = () => true, currentScreen = null, gear = null, openDialog = null, openScreen = () => false, closeView = () => {}, refresh = () => {}, command = null, values = () => ({}), query = null, previewStart = () => null, generateHeld = () => {}, interaction = null }) {
+export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets, headState, readerName = () => '', meta = () => null, save = () => {}, roleOf, featureOn = () => true, currentScreen = null, gear = null, openDialog = null, openScreen: openOwnScreen = () => false, closeView = () => {}, refresh = () => {}, command = null, values = () => ({}), query = null, previewStart = () => null, generateHeld = () => {}, interaction = null }) {
     const links = STYLE_FILES.map(file => addStyle(doc, file)).filter(Boolean);
+    // A screen the Suite view shows itself (its Fight tab) is not opened here: only the view on the page draws it (board/hold-bridge.js).
+    const openScreen = id => claimScreen(doc, id) || openOwnScreen(id);
     // The numbers a roll would be made with now (Settings → RPG): the roll line on a skill and a class-up note state them.
     // What the story's pack asks for (its formula and numbers), with the pack's name: the default of a reader who has chosen nothing.
     const pack = () => {
@@ -99,6 +102,7 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
     const fightStart = createStartController({ doc, chat: () => ctx?.chat ?? [], meta, state: headState, preview: previewStart, interaction,
         board: () => board, on: () => featureOn(), save, refresh, generate: generateHeld, cap: () => autoCapFrom(values()), show: () => openScreen(FIGHT_SCREEN_ID), close: () => closeView?.() });
     board = createBoardView({ doc, headState: () => fightStart.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rate: () => xpRateFrom(values()), rules, query, readerName, roleOf, levels, on: featureOn, start: fightStart, cap: () => autoCapFrom(values()) });
+    const offHold = attachHoldBridge({ doc, start: fightStart, discard: () => { if (interaction?.current?.()) interaction.discard(interaction.current().id); } });
     let offers;
     const offerView = createOfferLineView({ doc, onFight: data => offers.choose(data, 'board'), onAuto: data => offers.choose(data, 'auto') });
     offers = createFightOffers({ ctx, doc, store, meta, on: () => featureOn() && isStandard(rulesFromSettings(values(), packOnce())), view: offerView,
@@ -139,6 +143,7 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
             battleLog.destroy();
             offerView.destroy();
             offFightStart?.();
+            offHold();
             fightStart.destroy();
             start.detach();
             wizard.destroy();

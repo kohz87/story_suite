@@ -203,13 +203,26 @@ test('an edited Re-read that shrinks or grows the foes or the party drops the he
   assert.match(build({ ...vm, view: more }).tab.querySelector('.actions-card .ah b').textContent, /^Astra/);
 });
 
-test('an ended fight draws "Back to the story ›", and pressing it goes to the chat', () => {
+test('an ended fight draws one primary action: with a send still owed "Back to the story ›" sends first, then goes to the chat; with none it only goes', async () => {
   installFakeDom();
+  const owed = open('end');
+  assert.equal(owed.canSend, true);
   const went = [];
-  const { tab } = build(open('end'), createFakePort(), (...where) => went.push(where));
-  assert.equal(tab.querySelectorAll('[data-finish]').length, 1);
-  tap(tab, '[data-finish]');
+  const first = build(owed, createFakePort(), (...where) => went.push(where));
+  assert.equal(first.tab.querySelectorAll('[data-finish]').length, 1);
+  assert.equal(first.tab.querySelector('[data-act="send"]'), null, 'no second primary button');
+  tap(first.tab, '[data-finish]');
+  await flush();
+  assert.deepEqual(sent(first.port), [['interaction.send', { id: owed.id }]]);
   assert.deepEqual(went, [['chat']]);
+  const done = open('end');
+  done.canSend = false;
+  const goneTo = [];
+  const second = build(done, createFakePort(), (...where) => goneTo.push(where));
+  tap(second.tab, '[data-finish]');
+  await flush();
+  assert.deepEqual(sent(second.port), []);
+  assert.deepEqual(goneTo, [['chat']]);
 });
 
 // A stance in the view (as the v1 engine writes it): the switch is drawn, and turning it off stages an input that says so.
@@ -252,4 +265,23 @@ test('a stance the last exchange had off starts off, and the next pick carries i
   tap(tab, '[data-act="flee"]');
   await flush();
   assert.equal(port.recorded[0].payload.step.inputs[0].args.stance, false);
+});
+
+test('Auto after the switch was turned off in this exchange says so; Auto with the switch untouched sends nothing extra', async () => {
+  installFakeDom();
+  const vm = withStance();
+  const { tab, port } = build(vm);
+  tap(tab, '[data-stance]');
+  tap(tab, '[data-auto]');
+  await flush();
+  assert.deepEqual(sent(port), [['interaction.auto', { id: vm.id, n: 1, stance: { [vm.view.actors[0].id]: false } }]]);
+});
+
+test('a switch the view says is off and the player turns on writes stance true into the pick (the carried off would stay otherwise)', async () => {
+  installFakeDom();
+  const { tab, port } = build(withStance({ name: 'Shield work', on: false, soakOn: 22, soakOff: 12, pool: 'Stamina', cost: 1, paid: null }));
+  tap(tab, '[data-stance]');
+  tap(tab, '[data-act="flee"]');
+  await flush();
+  assert.equal(port.recorded[0].payload.step.inputs[0].args.stance, true);
 });

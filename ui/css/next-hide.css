@@ -6,6 +6,9 @@ body.ss-ui-next .story-suite-extras,
 body.ss-ui-next .story-suite-reply-note,
 body.ss-ui-next #story_suite_v2_menu,
 body.ss-ui-next .story-suite-drawer-buttons:not(#story-suite-next-drawer),
-body.ss-ui-next .story-suite-hud-toggle {
+body.ss-ui-next .story-suite-hud-toggle,
+/* the old view's fight surfaces in the chat (the "fight not sent yet" note and the offer line for standing foes): the new view's Fight tab and Needs you show the fight */
+body.ss-ui-next .ss-send-note,
+body.ss-ui-next .rpg-fight-offer {
   display: none !important;
 }
