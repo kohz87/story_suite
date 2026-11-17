@@ -4,6 +4,8 @@ import { REALM_FIELDS, SLUG, WORLD_LIMITS } from '../../limits.js';
 import { foldKey, oneLine } from '../../../core/text.js';
 import { isObject } from '../core.js';
 
+/** The words a placeholder uses: never an id of a place, region, route or realm (ruling 41). */
+export const RESERVED_IDS = Object.freeze(['place', 'region', 'route', 'realm']);
 const BAD_NAME = /@|: /;
 /** A place, route, region or realm name may not hold "@" or ": " (they break the <condition>@<ref>: <duration> line). */
 export const nameProblem = name => (typeof name === 'string' && BAD_NAME.test(name) ? 'may not contain "@" or ": " (they would break the <condition>@<ref>: <duration> syntax)' : null);
@@ -39,21 +41,23 @@ export function checkRealms(list, add) {
 }
 
 /** B9 names, and ids unique across realms, regions and places. `places`, `routes` are the normalized lists, `realms` the kept ones. */
-export function checkMapNames({ places, routes, realms }, add) {
+export function checkMapNames({ places, routes, realms, regions = [] }, add) {
     places.forEach((place, index) => {
         if (nameProblem(place.name)) add('BAD_RECORD', `content.places[${index}].name`, `Place "${place.name}": the name ${nameProblem(place.name)}.`);
         if (place.region && nameProblem(place.region)) add('BAD_RECORD', `content.places[${index}].region`, `Place "${place.name}": the region "${place.region}" ${nameProblem(place.region)}.`);
     });
     routes.forEach((route, index) => {
+        if (route.name && RESERVED_IDS.includes(route.name.trim().toLowerCase())) add('BAD_RECORD', `content.routes[${index}].name`, `Route "${route.name}": "${route.name}" is a reserved word (a placeholder, @${route.name.trim().toLowerCase()}); a route may not use it as its id.`);
         if (route.name && nameProblem(route.name)) add('BAD_RECORD', `content.routes[${index}].name`, `Route "${route.name}": the name ${nameProblem(route.name)}.`);
     });
     const owner = new Map();
     const claim = (id, what, path) => {
+        if (RESERVED_IDS.includes(id)) add('BAD_RECORD', path, `The ${what} id "${id}" is a reserved word (a placeholder, @${id}); no place, region, route or realm may use it as an id.`);
         if (owner.has(id)) add('DUPLICATE', path, `The id "${id}" names a ${owner.get(id)} and a ${what}; ids are unique across realms, regions and places (repeat only the display name and add aliases).`);
         else owner.set(id, what);
     };
     realms.forEach((realm, index) => claim(realm.id, 'realm', `content.realms[${index}].id`));
-    const regions = new Set([...realms.flatMap(realm => realm.regions), ...places.map(place => place.region).filter(Boolean)]);
-    for (const region of regions) if (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(region)) claim(region, 'region', 'content.places');
+    const regionIds = new Set([...regions.map(region => region.id), ...realms.flatMap(realm => realm.regions), ...places.map(place => place.region).filter(Boolean)]);
+    for (const region of regionIds) if (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(region)) claim(region, 'region', 'content.places');
     places.forEach((place, index) => claim(place.slug, 'place', `content.places[${index}]`));
 }

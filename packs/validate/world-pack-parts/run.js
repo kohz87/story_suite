@@ -7,6 +7,8 @@ import { isObject } from '../core.js';
 import { buildIndex, routeNameOf } from './index.js';
 import { checkKindsUsed, classOfKind, placeKindMap, routeKindMap } from './kinds.js';
 import { checkMapNames, checkRealms } from './realms.js';
+import { checkRegions, checkRegionUse } from './regions.js';
+import { checkStartWorld } from './start-world.js';
 import { checkPowers, checkScores } from './standings.js';
 import { checkWorldEvent } from './world-event.js';
 import { checkTemplate } from './template.js';
@@ -14,7 +16,7 @@ import { checkLore } from './lore.js';
 import { crossCast } from './cast-pass.js';
 
 /** The kinds that make a pack a world pack (the full structural check applies). */
-export const WORLD_KINDS = Object.freeze(['lore', 'placeKinds', 'routeKinds', 'realms', 'powers', 'scores', 'worldEvents', 'templates']);
+export const WORLD_KINDS = Object.freeze(['lore', 'placeKinds', 'routeKinds', 'regions', 'realms', 'powers', 'scores', 'worldEvents', 'templates']);
 
 // Two routes between the same two places must each carry a name, and route names are unique (B13).
 function checkRouteNames(routes, add) {
@@ -51,7 +53,7 @@ function contextFactory(index, add, collect) {
  * `given`: the raw content; `content`: the kinds already normalized (places, routes, conditions, items, markets, cast, events).
  * `{ world: true }` runs the full set; otherwise only the checks a conditions-only pack needs. Returns the kept parts for `content`.
  */
-export function checkWorldPack({ given, content, packId, weather, ripples, add, warn, world, worldCast }) {
+export function checkWorldPack({ given, content, packId, weather, calendar = null, rawStart = null, ripples, add, warn, world, worldCast }) {
     const kept = {};
     const placeKinds = given.placeKinds === undefined ? null : placeKindMap(given.placeKinds, add);
     const routeKinds = given.routeKinds === undefined ? null : routeKindMap(given.routeKinds, add);
@@ -61,13 +63,15 @@ export function checkWorldPack({ given, content, packId, weather, ripples, add, 
     const routes = content.routes ?? [];
     const realms = given.realms === undefined ? [] : checkRealms(given.realms, add);
     if (given.realms !== undefined) kept.realms = realms;
+    const regions = given.regions === undefined ? [] : checkRegions(given.regions, add);
+    if (given.regions !== undefined) kept.regions = regions;
     if (world) {
         checkKindsUsed(places, routes, { placeKinds, routeKinds }, add);
-        checkMapNames({ places, routes, realms }, add);
+        checkMapNames({ places, routes, realms, regions }, add);
         checkRouteNames(routes, add);
         checkHours(routes, routeKinds, warn);
     }
-    const base = { places, routes, realms, conditions: content.conditions ?? [], items: content.items ?? [], markets: content.markets ?? [], weather, placeKinds,
+    const base = { places, routes, realms, regions, calendar, templates: Array.isArray(given.templates) ? given.templates.filter(record => isObject(record) && typeof record.template === 'string') : [], conditions: content.conditions ?? [], items: content.items ?? [], markets: content.markets ?? [], weather, placeKinds,
         worldEvents: Array.isArray(given.worldEvents) ? given.worldEvents.filter(record => isObject(record) && typeof record.id === 'string') : [], legacyEvents: content.events ?? [],
         lore: Array.isArray(given.lore) ? given.lore.filter(isObject) : [] };
     const resolvePlace = text => buildIndex(base).placeByRef(text);
@@ -123,6 +127,9 @@ export function checkWorldPack({ given, content, packId, weather, ripples, add, 
     }
     if (given.lore !== undefined) kept.lore = checkLore(given.lore, makeCtx, add, warn);
 
+    // `start.world` (v0.14.10): the beginning world state; its facts count as written. Kept apart from `content` (it belongs to `start`).
+    if (rawStart?.world !== undefined) kept.startWorld = checkStartWorld(rawStart.world, makeCtx('start', 'The start', { placeholders: false }));
+    if (world) checkRegionUse({ regions, declared: given.regions !== undefined, places, realms, startPlace: rawStart?.scene?.place, add, warn });
     postChecks({ content, index, collect, add, warn, world });
     return kept;
 }

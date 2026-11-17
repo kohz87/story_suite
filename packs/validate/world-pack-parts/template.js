@@ -5,6 +5,8 @@ import { SCOPES } from '../../../modules/world/chronicle/conditions/limits.js';
 import { durationDays } from '../../../modules/world/daily/durations.js';
 import { isObject, isText } from '../core.js';
 import { checkConditionText, checkEntry } from './entries.js';
+import { checkModifiers } from './modifiers.js';
+import { checkArc, checkFallback, checkOpen, checkPer } from './template-open.js';
 
 const CHANCE = /^(\d{1,3}(?:\.\d+)?)% (over the window|per season)$/;
 
@@ -29,6 +31,14 @@ export function checkTemplate(record, ctx) {
         if (!Array.isArray(record[field]) || !record[field].length) return say(field, `${field} must be a non-empty list.`);
         record[field].forEach((text, n) => make(text, `${field}[${n}]`));
     };
+    // v0.14.3: requires / requires_any / likelier_if / less_if, as an event has them (placeholders bind to the picked place).
+    for (const field of ['requires', 'requires_any']) lines(field, (text, at) => checkEntry(text, ctx, at));
+    for (const field of ['likelier_if', 'less_if']) if (record[field] !== undefined) checkModifiers(record[field], ctx, field);
+    // v0.14: an open template (the Director fills the details from the menu), its slots, its arc and the fallback.
+    if (record.per !== undefined) checkPer(record.per, ctx, 'per');
+    if (record.open !== undefined) checkOpen(record.open, ctx, 'open');
+    if (record.arc !== undefined) { if (record.open === undefined) say('arc', 'a template with no "open" cannot start an arc; add open (a menu) first.'); else checkArc(record.arc, ctx, 'arc'); }
+    if (record.fallback !== undefined) checkFallback(record.fallback, ctx, 'fallback');
     lines('needs', (text, at) => checkEntry(text, ctx, at, ['anchor', 'condition']));
     lines('sets', (text, at) => {
         const parsed = checkConditionText(text, ctx, at);

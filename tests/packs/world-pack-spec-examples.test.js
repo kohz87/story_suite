@@ -75,7 +75,7 @@ test('the spec examples install as written (names where unique, ids in threshold
     assert.equal(result.ok, true, JSON.stringify(result.errors, null, 1));
     assert.equal(result.pack.content.worldEvents.length, events.length);
     assert.equal(result.pack.content.cast.length, 3);
-    const unexpected = (result.warnings ?? []).filter(warning => !/vault-opened|letter-found/.test(warning.message));
+    const unexpected = (result.warnings ?? []).filter(warning => warning.code !== 'REGIONS_UNDECLARED' && !/vault-opened|letter-found/.test(warning.message));
     assert.deepEqual(unexpected, [], 'only the two facts nothing writes are said');
 });
 

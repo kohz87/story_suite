@@ -6,7 +6,7 @@ import { fadeMinutes } from '../../../modules/world/chronicle/conditions/fade.js
 import { CONDITION_EFFECT_FIELDS } from '../../limits.js';
 import { isObject, isText } from '../core.js';
 
-const CONDITION_FIELDS = ['name', 'slug', 'scope', 'fades', 'means', 'effects', 'placeStatus'];
+const CONDITION_FIELDS = ['name', 'slug', 'scope', 'fades', 'means', 'effects', 'placeStatus', 'open'];
 
 export function checkCondition(record, path, label, add) {
     let ok = true;
@@ -18,9 +18,10 @@ export function checkCondition(record, path, label, add) {
     if (fadeMinutes(fades) === undefined) say('fades', 'fades must be a duration like "10 days" or "1 season", or "until cleared".');
     if (!isText(record.means, 300) || !record.means.trim()) say('means', 'means must be one plain sentence of at most 300 characters.');
     if (record.placeStatus !== undefined && record.placeStatus !== true) say('placeStatus', 'placeStatus must be true (the condition shows as the place\'s status).');
+    if (record.open !== undefined && record.open !== true) say('open', 'open must be true (the Director may set or clear the condition through an open template\'s menu).');
     const effects = record.effects === undefined ? null : checkEffects(record.effects, say);
     if (!ok) return null;
-    return { name: record.name, scope: record.scope, fades: oneLine(fades, 40), means: oneLine(record.means, 300), ...(effects ? { effects } : {}), ...(record.placeStatus === true ? { placeStatus: true } : {}) };
+    return { name: record.name, scope: record.scope, fades: oneLine(fades, 40), means: oneLine(record.means, 300), ...(effects ? { effects } : {}), ...(record.placeStatus === true ? { placeStatus: true } : {}), ...(record.open === true ? { open: true } : {}) };
 }
 
 // `effects: { prices?: { <category | "all">: "×N" }, routes?: null | "blocked" | "×N speed" }`: price multipliers above 0; route effects applied by code.
