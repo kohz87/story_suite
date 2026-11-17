@@ -3,7 +3,6 @@
    Moved from runtime-scan.js without change. */
 import { rememberCastAdmissions, seedCastAdmission } from '../../runtime/runtime-cast-sync.js';
 import { dossierFor, metWithEntry } from '../../dossier/cast-dossier.js';
-import { normalizeSourceOfTruth } from '../../legacy/suite-handshake.js';
 import { notify } from '../runtime-scan-helpers.js';
 
 /** Remembers the new dossiers' cast admissions and seeds each one that matches exactly one met cast person (hosted scans only). */
@@ -15,7 +14,7 @@ export function seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId
         const matches = people.filter(person => dossierFor([npc], person));
         if (matches.length !== 1 || nextState.npcs.filter(other => dossierFor([other], matches[0])).length !== 1) continue;
         const person = matches[0];
-        const seeded = seedCastAdmission(nextState, npc, person, { packName: names[person.pack] ?? '', calendarOwn: normalizeSourceOfTruth(settings.sourceOfTruth).calendar === 'mine' });
+        const seeded = seedCastAdmission(nextState, npc, person, { packName: names[person.pack] ?? '' });
         if (seeded) nextState.npcs = nextState.npcs.map(item => item.id === npc.id ? seeded : item);
     }
 }

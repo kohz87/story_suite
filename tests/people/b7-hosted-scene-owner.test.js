@@ -1,25 +1,13 @@
-// B-b7-combos-11: while hosted by Story Block v2 there are two authorities for who is in the scene:
-// Story Block's `scene.present` (from `+ present` / `- present` lines, in its tail as "Present: …")
-// and NSD's own presence (scanner / one-pass capture), injected as "NPC STATE DELTA DOSSIER. Only
-// confirmed-present NPCs are included". NSD's v1 source-of-truth switch ("scene: theirs" = Story
-// Block keeps the scene) only works through the v1 suite registry, which a v2 host never fills, so
-// the reader's choice is silently ignored. Live: after `- present Fenna` Story Block's tail drops her
-// while NSD's dossier injection still presents her as in the scene, in the same prompt.
-
+// While hosted by Story Block v2 the scene belongs to the host: NPC State follows `scene.present`. The host probe says whether a v2 host is on the page.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { defersArea } from '../../modules/people/legacy/suite-handshake.js';
+import { storyBlockIsV2 } from '../../modules/people/npc-api/host-probe.js';
 
-test('with a Story Block v2 host, "scene: theirs" defers the scene to Story Block', () => {
-    const before = globalThis.StoryBlock;
-    const sdk = { apiVersion: 2, registerModule: async () => sdk, query: name => (name === 'scene.present' ? ['Hollis'] : null) };
-    globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: '2.0.0-alpha.1', ready: Promise.resolve(sdk), sdk });
-    try {
-        assert.equal(defersArea('scene', { scene: 'theirs' }), true, 'the reader chose Story Block for the scene, and a v2 Story Block keeps one');
-    } finally {
-        if (before === undefined) delete globalThis.StoryBlock;
-        else globalThis.StoryBlock = before;
-    }
+test('a Story Block v2 host is detected, and nothing else is', () => {
+    assert.equal(storyBlockIsV2({ apiVersion: 2 }), true);
+    assert.equal(storyBlockIsV2({ apiVersion: 1 }), false);
+    assert.equal(storyBlockIsV2(null), false);
+    assert.equal(storyBlockIsV2({ get apiVersion() { throw new Error('boom'); } }), false);
 });

@@ -1,6 +1,6 @@
 // Reading NPC Inner Chatter text into speaker lines.
 import { normalizeName } from '../../core/core-mechanics.js';
-import { trimAtWord } from '../suite-handshake.js';
+import { trimAtWord } from '../../npc-api/text.js';
 import { PLACEHOLDER, RULE } from './shared-patterns.js';
 import { QUOTES_AT_ENDS, cleanLine, plain } from './shared-text.js';
 

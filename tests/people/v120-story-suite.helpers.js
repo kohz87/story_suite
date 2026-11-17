@@ -1,14 +1,9 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { storySuite } from '../../modules/people/legacy/suite.js';
 
-export const fresh = () => {
-    delete globalThis.StorySuite;
-    return storySuite();
-};
-export const provider = (id, owns, extra = {}) => ({ id, name: id, version: '1.0.0', owns, ...extra });
 
+const HANDLES_URL = new URL('../../modules/people/runtime/handles.js', import.meta.url).href;
 const TRY_MARKER = '\ntry {\n    await import(pathToFileURL(path.join(extRoot, \'index.js\'))';
 
 export function runHostScenario(name, scenario) {
@@ -24,7 +19,7 @@ try {
     eventSource.emit('app_ready');
     eventSource.emit('extension_settings_loaded');
     await sleep(30);
-    await (${scenario.toString()})();
+    await (${scenario.toString().replaceAll('__HANDLES__', HANDLES_URL)})();
     console.log('story suite scenario ${name} passed');
 } finally {
     for (const handle of pendingHostTimers) nativeClearTimeout(handle);

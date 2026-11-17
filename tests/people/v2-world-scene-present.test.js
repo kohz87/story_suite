@@ -110,7 +110,7 @@ test('index.js: the scan passes the scene list only for the head reply while Sto
     assert.match(index, /buildScannerPrompt\(scannerPromptOptions\(state, settings, transcript, \{\n            currentTranscript, earlierOnly, fullScanMode: fullWindowScan, sceneNames: scanScenePresent\(messageId\), \.\.\.noteOptions,\n        \}\)\)/);
     const fn = index.slice(index.indexOf('function scanScenePresent'), index.indexOf('// The chat state a scan works from'));
     assert.match(fn, /storySuiteV2Meters\(\)/);
-    assert.match(fn, /defersArea\('scene', getSettings\(\)\.sourceOfTruth\)/);
+    assert.match(fn, /!storyBlockIsV2\(\)\) return null/);
     assert.match(fn, /messageId !== latestMessageId\(true\)/);
     assert.match(fn, /adapter\.presentNow/);
 });

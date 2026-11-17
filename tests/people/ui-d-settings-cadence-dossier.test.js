@@ -68,15 +68,15 @@ test('features: scan-every-reply is on by default; Lean turns off it, stages and
     }
 });
 
-test('settings panel: Meter presets fold; Expert holds the five rarely needed groups, last; every group keeps its key', () => {
+test('settings panel: Meter presets fold; Expert holds the four rarely needed groups, last; every group keeps its key', () => {
     const index = runtimeSource();
     const html = index.slice(index.indexOf('<div class="delta-settings-experience story-suite-folds">'), index.indexOf('const SETTINGS_OPEN_GROUPS_KEY'));
     const top = [...html.matchAll(/\$\{settingsGroup\('(\w+)'/g)].map(match => match[1]);
     assert.deepEqual(top, ['scanning', 'roster', 'presets', 'portrait', 'maintenance', 'expert'], 'everyday groups, then Expert last');
     assert.match(html, /settingsGroup\('presets', 'Meter presets', .*settingsSlot\('meter-presets'\), \{ hidden: true \}\)/, 'the preset block has its own closed fold, hidden until it holds the block');
-    assert.match(html, /settingsGroup\('expert', 'Expert', "Source of truth, calendar, scanner rules, what's sent, advanced", expert\)/);
+    assert.match(html, /settingsGroup\('expert', 'Expert', "Calendar, scanner rules, what's sent, advanced", expert\)/);
     const expert = index.slice(index.indexOf('const expert = `'), index.indexOf('return `\n    <div id="${UI_ID}"'));
-    assert.deepEqual([...expert.matchAll(/settingsGroup\('(\w+)'/g)].map(match => match[1]), ['suite', 'calendar', 'rules', 'sent', 'advanced']);
+    assert.deepEqual([...expert.matchAll(/settingsGroup\('(\w+)'/g)].map(match => match[1]), ['calendar', 'rules', 'sent', 'advanced']);
     assert.match(expert, /data-delta-expert-note/);
     // The groups the reader had open before keep working: one memory key, the What's sent refresh still follows its group.
     assert.match(index, /data-delta-settings-group="sent"/);

@@ -61,7 +61,6 @@ try {
     eventSource.emit('app_ready');
     eventSource.emit('extension_settings_loaded');
     await sleep(30);
-    await import(pathToFileURL(path.join(extRoot, 'story-block-tabs.js')).href);
     await sleep(30);
     await (${scenario.toString()})();
     console.log('story suite v2 meters scenario ${name} passed');

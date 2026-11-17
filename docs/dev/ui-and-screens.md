@@ -387,8 +387,7 @@ its data attributes, its keys and its commands; what changed is how it is drawn 
   (`.ss-tabs-list`). The sheet's glass background is unchanged (`--ss-sheet-*`).
 - **The bar above the message box and its notice** (`ui-host.js`, `host.css`). Story, Game view and Suite are glass pills (the
   SillyTavern `menu_button` class is kept, the look is on top); the held-back notice is a glass card with the accent hairline and
-  the dismiss pill. The bar and the notice are theme roots (`.story-suite-bar`). The notice's class is shared with NPC State Delta's
-  own warning (`#npc_state_delta_custom_fields_stats_warning` carries `story-suite-notice`); the look follows the class.
+  the dismiss pill. The bar and the notice are theme roots (`.story-suite-bar`). The notice's class is shared with the pack card offer; the look follows the class.
 - **The notes under a reply** (`reply-notes.js`, `host.css`). One glass row: the note's icon in a 28px tile, the line in the muted
   colour, Re-read as a pill, the error line in the accent. A note is not folded and was not folded before; it stays one row.
 - **The card under a reply: "This reply"** (`view/mounts/card.js`, `reply-cards.js`, `screens/changes-card.js`, `mounts.css` `.ss-card`).

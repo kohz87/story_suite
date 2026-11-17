@@ -1,4 +1,4 @@
-// Text helpers shared by the NPC profile and dossier-target parts.
+// Text helpers the NPC profile and dossier-target files share.
 
 export function plainText(value) {
     return typeof value === 'string' || typeof value === 'number' ? String(value).replace(/\s+/g, ' ').trim() : '';

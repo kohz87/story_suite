@@ -10,8 +10,7 @@ import {
     createStorySuiteV2Adapter,
     isV2Host,
 } from '../../modules/people/storysuite-v2.js';
-import { announceNpcStateDelta, openSuiteOverlay, storyBlockIsV2, suiteManageAvailable } from '../../modules/people/legacy/suite-handshake.js';
-import { fakeDocument, fakeRegistry, fakeSdk, fakeTimers, hosted, setup, v2Host } from './storysuite-v2.helpers.js';
+import { fakeDocument, fakeSdk, fakeTimers, hosted, setup, v2Host } from './storysuite-v2.helpers.js';
 import { pageHandles } from '../../modules/people/runtime/handles.js';
 
 // ---- without a host ----
@@ -167,56 +166,12 @@ test('the hosted state (pageHandles.hosted) is set while hosted, before the even
     assert.equal(pageHandles.hosted, false, 'a refused registration is not hosting');
 });
 
-test('storyBlockIsV2 is true only for apiVersion 2', () => {
-    assert.equal(storyBlockIsV2({ apiVersion: 2, ready: Promise.resolve({}) }), true);
-    assert.equal(storyBlockIsV2({ apiVersion: 1, registerTab() {} }), false);
-    assert.equal(storyBlockIsV2({ apiVersion: '2' }), false);
-    assert.equal(storyBlockIsV2({}), false);
-    assert.equal(storyBlockIsV2(undefined), false);
-    assert.equal(storyBlockIsV2(null), false);
-    const throwing = { get apiVersion() { throw new Error('no'); } };
-    assert.equal(storyBlockIsV2(throwing), false);
-});
-
-test('with a v2 Story Block, Delta withdraws from v1\'s Story Suite registry and offers no v1 overlay; v1 hosts are unchanged', () => {
-    const registry = fakeRegistry();
-    registry.announce({ id: 'story-block', api: { openSuite: id => registry.opened.push(id) } });
-    const v1 = { apiVersion: 1, registerTab() {} };
-    const v2 = { apiVersion: 2, ready: Promise.resolve({}) };
-
-    assert.equal(announceNpcStateDelta({ enabled: true, version: '1.3.0', settings: '#npc_state_delta_settings', storyBlock: v1 }, registry), true);
-    assert.equal(registry.has('npc-state-delta'), true, 'v1: announced as before');
-    assert.equal(suiteManageAvailable(registry, v1), true);
-    assert.equal(openSuiteOverlay(registry, v1), true);
-    assert.deepEqual(registry.opened, ['npc-state-delta']);
-
-    assert.equal(announceNpcStateDelta({ enabled: true, version: '1.3.0', settings: '#npc_state_delta_settings', storyBlock: v2 }, registry), false);
-    assert.equal(registry.has('npc-state-delta'), false, 'v2: withdrawn, so v1\'s overlay cannot carry the panel too');
-    registry.announce({ id: 'npc-state-delta' });
-    assert.equal(suiteManageAvailable(registry, v2), false, 'no "Open Story Suite" button');
-    assert.equal(openSuiteOverlay(registry, v2), false);
-    assert.deepEqual(registry.opened, ['npc-state-delta'], 'nothing more opened');
-
-    // The default reads the page's Story Block.
-    const saved = globalThis.StoryBlock;
-    try {
-        globalThis.StoryBlock = v2;
-        assert.equal(suiteManageAvailable(registry), false);
-        assert.equal(announceNpcStateDelta({ enabled: true }, registry), false);
-        globalThis.StoryBlock = v1;
-        assert.equal(announceNpcStateDelta({ enabled: true }, registry), true);
-        assert.equal(suiteManageAvailable(registry), true);
-    } finally {
-        if (saved === undefined) delete globalThis.StoryBlock; else globalThis.StoryBlock = saved;
-    }
-});
-
 // ---- the hook in index.js ----
 
 test('index.js starts the adapter once at startup through an optional import', () => {
     const index = runtimeSource();
     const calls = index.match(/import\('\.\/src\/storysuite-v2\.js'\)/g) || [];
     assert.equal(calls.length, 1);
-    assert.match(index, /startStorySuiteV2\(\{ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, calendarOwn: \(\) => normalizeSourceOfTruth\(getSettings\(\)\.sourceOfTruth\)\.calendar === 'mine', cardSettings: nsdCardSettings\(\), linesMode: \(\) => true, levelOn: \(\) => effectiveCustomFieldNames\(\)\.some\(name => name\.toLowerCase\(\) === 'level'\) \}\)/);
+    assert.match(index, /startStorySuiteV2\(\{ suiteApi: SUITE_API, panelId: UI_ID, version: NPC_STATE_VERSION, headReply: latestReplyIndex, castSync, castPortraitDue, cardSettings: nsdCardSettings\(\), linesMode: \(\) => true, levelOn: \(\) => effectiveCustomFieldNames\(\)\.some\(name => name\.toLowerCase\(\) === 'level'\) \}\)/);
     assert.equal(/from '\.\/src\/storysuite-v2\.js'/.test(index), false, 'no static import: a copy without src/ still loads');
 });
