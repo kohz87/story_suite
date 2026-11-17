@@ -49,6 +49,8 @@ fi
 repo_root="$(git rev-parse --show-toplevel)"
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM HUP
 
 # The sibling folders some tests look in (Story_block, Story_director, npc_state_delta under STORY_SUITE_ROOT) come
 # from scripts/layout.json (suiteFarm), built by scripts/ci/farm.mjs.

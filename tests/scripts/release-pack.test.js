@@ -1,10 +1,10 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // The release step packs an eager import('./x.js') into the entry. This runs a fixture package on the source and
 // on its bundle and compares what the code can see: what the promise gives (the namespace's keys, values, default),
@@ -15,7 +15,7 @@ let bundled;
 const write = (file, text) => { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); };
 
 before(async () => {
-  root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-pack-'));
+  root = tempDir('release-pack-');
   write('pkg/boot.js', [
     "import { counter, bump } from './shared.js';",
     "(globalThis.order ??= []).push('boot');",

@@ -2,11 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CASES, ROWS, discoverRoots, formatDetails, formatTable, loadModules, runMatrix, summaryLine } from '../../testkit/matrix/index.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixture = name => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
@@ -42,7 +42,7 @@ test('a row whose module is not checked out is skipped with the reason; the othe
 });
 
 test('missing modules are skipped and broken modules fail their rows', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'sb-matrix-'));
+    const dir = tempDir('sb-matrix-');
     try {
         const loaded = await loadModules({ sd: join(dir, 'nowhere') });
         assert.match(loaded.missing.sd, /is not there/);
@@ -59,7 +59,7 @@ test('missing modules are skipped and broken modules fail their rows', async () 
 
 test('scripts/matrix.mjs: a table and exit 0; --json; unknown option exits 2; --strict', () => {
     const run = (...args) => spawnSync(process.execPath, [join(root, 'scripts', 'core', 'matrix.mjs'), ...args], { encoding: 'utf8', env: { ...process.env, STORY_SUITE_ROOT: '', MATRIX_SD: '', MATRIX_NSD: '' } });
-    const empty = mkdtempSync(join(tmpdir(), 'sb-matrix-empty-'));
+    const empty = tempDir('sb-matrix-empty-');
     try {
         const plain = run('--root', empty, '--rows', 'SB,SB+SD');
         assert.equal(plain.status, 0, plain.stderr);

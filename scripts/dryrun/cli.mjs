@@ -1,5 +1,4 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import os from 'node:os';
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { atEitherLayout } from '../release/layout-paths.mjs';
 import { pathToFileURL } from 'node:url';
@@ -12,6 +11,7 @@ import { parseFlagList } from './flags.mjs';
 import { compareCards } from './compare-cards.mjs';
 import { compareRecords } from './compare-records.mjs';
 import { prepareOutDir, writeManifest } from './out-guard.mjs';
+import { tempDir } from '../temp-dir.mjs';
 
 function parseFlags(args) {
   const flags = {};
@@ -41,7 +41,7 @@ async function runRecord(args) {
   prepareOutDir({ outDir, repoRoot, fresh: flags.fresh === true });
 
   mkdirSync(outDir, { recursive: true });
-  const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'story-suite-dryrun-'));
+  const tmpRoot = tempDir('story-suite-dryrun-');
   try {
     makeFarm(repoRoot, tmpRoot);
     for (const name of ['SUITE_SB', 'SUITE_SD', 'SUITE_NSD']) delete process.env[name];

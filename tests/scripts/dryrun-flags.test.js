@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
@@ -11,6 +11,7 @@ import { compareCards } from '../../scripts/dryrun/compare-cards.mjs';
 import { compareRecords } from '../../scripts/dryrun/compare-records.mjs';
 import { recordChat } from '../../scripts/dryrun/record-chat.mjs';
 import { pageSuiteHost } from '../../scripts/dryrun/suite-host.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const CLI = path.join(REPO_ROOT, 'scripts/dryrun/cli.mjs');
@@ -52,7 +53,7 @@ test('compareRecords ignores the card text: records from code with and without t
 let suiteLoad = null;
 function loadedSuite() {
   suiteLoad ??= (async () => {
-    const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'dryrun-flags-suite-'));
+    const tmpRoot = tempDir('dryrun-flags-suite-');
     process.on('exit', () => rmSync(tmpRoot, { recursive: true, force: true }));
     const linked = await import('node:fs');
     for (const [link, dir] of [['Story_block', 'story-block'], ['Story_director', 'story-director'], ['npc_state_delta', 'npc-state-delta']]) {
@@ -105,7 +106,7 @@ test('recordChat records each reply card as text, deterministically; flags reach
 });
 
 test('record --flags and compare --cards work from the command line', t => {
-  const dir = mkdtempSync(path.join(os.tmpdir(), 'dryrun-flags-cli-'));
+  const dir = tempDir('dryrun-flags-cli-');
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const chats = path.join(dir, 'chats');
   mkdirSync(chats);

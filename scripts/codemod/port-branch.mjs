@@ -1,9 +1,9 @@
 // Ports a lane branch to the new layout in a temp worktree and then merges main, so only real conflicts are left.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { applyLayout } from './apply.mjs';
+import { tempDir } from '../temp-dir.mjs';
 
 function git(cwd, args, options = {}) {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options });
@@ -15,7 +15,7 @@ function git(cwd, args, options = {}) {
  * clean and kept (so the conflicts can be fixed in it) otherwise. Throws if the plan is refused.
  */
 export function portBranch(repo, branch, ruleSets, { mainRef = 'origin/main', backupDir = null, allowNonLiteral = [], area = null } = {}) {
-  const worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'port-branch-'));
+  const worktree = tempDir('port-branch-');
   fs.rmSync(worktree, { recursive: true });
   git(repo, ['worktree', 'add', '-q', worktree, branch]);
   let report;

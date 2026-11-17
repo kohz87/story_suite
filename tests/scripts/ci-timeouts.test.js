@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const ci = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
@@ -109,7 +109,7 @@ test('no CI file uses --test-force-exit', () => {
 });
 
 test('a hung test is named and fails the run at the timeout', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-timeouts-'));
+  const dir = tempDir('ci-timeouts-');
   try {
     fs.writeFileSync(path.join(dir, 'hang.test.js'), "import { test } from 'node:test';\ntest('hangs forever', async () => { await new Promise(() => {}); });\n");
     fs.writeFileSync(path.join(dir, 'ok.test.js'), "import { test } from 'node:test';\ntest('healthy', () => {});\n");

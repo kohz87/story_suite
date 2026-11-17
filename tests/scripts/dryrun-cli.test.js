@@ -1,16 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const CLI = path.join(REPO_ROOT, 'scripts/dryrun/cli.mjs');
 
 function sandbox(t) {
-  const dir = mkdtempSync(path.join(os.tmpdir(), 'dryrun-cli-'));
+  const dir = tempDir('dryrun-cli-');
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   return dir;
 }

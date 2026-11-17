@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { isCodeFile, isTestFile, listCodeFiles } from '../../scripts/checks/code-files.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 test('every text file is checked: source, styles, scripts, html and unknown languages', () => {
   for (const p of ['core/a.js', 'x/b.mjs', 'c.cjs', 'ui/s.css', 'a/b.ts', 'scripts/ci/x.sh', 'tests/probe.py', 'x/y.pl', 'x/z.rb', 'ui/i.html', 'a/b.jsx', 'a/c.cts', 'scripts/x.bash']) assert.equal(isCodeFile(p), true, p);
@@ -53,7 +53,7 @@ test('test files: under a tests/ or test/ folder, or named *.test.*', () => {
 });
 
 test('symlinks and data-extension binaries are skipped when listing; a NUL in any other file keeps it listed', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'cf-'));
+  const root = tempDir('cf-');
   try {
     execFileSync('git', ['init', '-q'], { cwd: root });
     fs.writeFileSync(path.join(root, 'img.png'), Buffer.from([1, 2, 0, 3]));

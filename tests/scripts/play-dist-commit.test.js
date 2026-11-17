@@ -1,16 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { execFileSync } from 'node:child_process';
 import { commitFolder } from '../../scripts/play/dist-git.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const put = (root, file, text) => { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); };
 
 function makeRepo() {
-  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'play-commit-'));
+  const repo = tempDir('play-commit-');
   execFileSync('git', ['init', '-q', '-b', 'trunk', repo]);
   put(repo, 'work/manifest.json', '{"display_name":"Story Suite (play build)"}\n');
   put(repo, 'work/js/entry.js', 'export const x = 1;\n');

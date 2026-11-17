@@ -1,10 +1,10 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { walkBundle } from '../../scripts/release/graph.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 // A file of any source root of the repo is bundled into the package's bundle; only what leaves the repo (or is a host file) stays external.
 let root;
@@ -13,7 +13,7 @@ const read = (out, file) => fs.readFileSync(path.join(out, file), 'utf8');
 const SET = { name: 'suite', entries: ['boot.js'], lazy: ['core/store.js'] };
 
 before(() => {
-  root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-bundle-repo-'));
+  root = tempDir('release-bundle-repo-');
   write('boot.js', [
     "import { helper } from './core/helper.js';",
     "import { host } from '../../../extensions.js';",

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { loadLayout } from '../../scripts/layout.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repo = path.resolve(import.meta.dirname, '../..');
 const node = (script, args = [], env = {}) => {
@@ -52,7 +53,7 @@ test('on today\'s tree the scripts give the same output as before (committed map
 });
 
 function demoRepo(files) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'layout-'));
+  const dir = tempDir('layout-');
   execFileSync('git', ['init', '-q'], { cwd: dir });
   for (const [rel, text] of Object.entries(files)) {
     fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });

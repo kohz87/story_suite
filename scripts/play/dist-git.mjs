@@ -5,11 +5,11 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { git } from './git.mjs';
 import { SOURCES } from './dist-sets.mjs';
+import { tempDir } from '../temp-dir.mjs';
 
 const IDENTITY = { name: process.env.GIT_AUTHOR_NAME || 'play-build', email: process.env.GIT_AUTHOR_EMAIL || 'play-build@localhost' };
 
@@ -20,7 +20,7 @@ export function fullCommit(repo, ref) {
 
 /** Extracts the source folders and root files of `commit` into a new temporary folder (caller removes it). */
 export function extractSource(repo, commit) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'play-src-'));
+  const dir = tempDir('play-src-');
   const tarFile = path.join(dir, 'source.tar');
   git(repo, ['archive', '--format=tar', '--output', tarFile, commit, '--', ...SOURCES]);
   execFileSync('tar', ['-xf', tarFile, '-C', dir], { stdio: 'ignore' });

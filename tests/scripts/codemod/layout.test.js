@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { listTracked, loadLayoutRules, main, planLayout } from '../../../scripts/codemod/cli.mjs';
 import { buildPlan, planProblems } from '../../../scripts/codemod/plan.mjs';
 import { matchPath, ruleKey } from '../../../scripts/codemod/rules.mjs';
+import { tempDir } from '../../../scripts/temp-dir.mjs';
 
 const root = path.resolve(import.meta.dirname, '../../..');
 const AREAS = ['core', 'director', 'legacy-ui', 'packs', 'people', 'rpg', 'scene-inventory', 'shared'];
@@ -135,7 +135,7 @@ test('a URL read of a deleted file fails the plan and a non-literal URL is a war
 });
 
 test('the plan CLI lists non-literal URL references as warnings without hiding a literal URL problem', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'b3p2-plan-'));
+  const dir = tempDir('b3p2-plan-');
   try {
     const rulesDir = path.join(dir, 'rules');
     fs.mkdirSync(rulesDir);

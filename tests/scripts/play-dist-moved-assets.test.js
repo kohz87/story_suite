@@ -1,16 +1,16 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDist } from '../../scripts/play/dist.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 let out;
 
 before(async () => {
-  out = fs.mkdtempSync(path.join(os.tmpdir(), 'play-dist-real-'));
+  out = tempDir('play-dist-real-');
   await buildDist({ repo, commit: 'c'.repeat(40), source: repo, out: path.join(out, 'x'), write: false });
 });
 after(() => fs.rmSync(out, { recursive: true, force: true }));

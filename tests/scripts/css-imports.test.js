@@ -2,9 +2,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { cssImportProblems } from '../../scripts/checks/css-imports.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 
@@ -13,7 +13,7 @@ test('the shipped stylesheet tree has no missing @import', () => {
 });
 
 test('a wrong relative path, at any depth, is named; a comment and a remote url are not imports', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'css-imports-'));
+  const dir = tempDir('css-imports-');
   try {
     fs.mkdirSync(path.join(dir, 'a/b'), { recursive: true });
     fs.writeFileSync(path.join(dir, 'suite.css'), "@import url('./a/one.css');\n/* @import './gone.css'; */\n@import url('https://fonts.example/x.css');\n");

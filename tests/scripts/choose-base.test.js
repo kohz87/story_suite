@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const script = path.resolve(import.meta.dirname, '../../scripts/ci/choose-base.sh');
 const IMPORT = 'c340e6533a3eb63abfa0623870dbc8d6f9bf5927';
@@ -14,7 +14,7 @@ const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.name=t', '-c', 'u
 
 // A bare "origin" and a working clone; `withList` decides whether origin's main already has the list.
 function setup(withList) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  const dir = tempDir('cb-');
   const origin = path.join(dir, 'origin.git');
   const work = path.join(dir, 'work');
   git(dir, 'init', '-q', '--bare', '-b', 'main', origin);
@@ -135,7 +135,7 @@ test('the genuine first push: HEAD creates the list, so no ancestor has it (HEAD
 });
 
 test('a single root commit with no parent falls back to the empty tree', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  const dir = tempDir('cb-');
   try {
     git(dir, 'init', '-q', '-b', 'main');
     git(dir, 'commit', '-q', '--allow-empty', '-m', 'root');
@@ -154,7 +154,7 @@ test('the import commit is the fallback base when it is in history', () => {
 
 // A merge commit whose first parent predates the list and whose second parent has it.
 function mergeSetup(firstHasList, secondHasList) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  const dir = tempDir('cb-');
   git(dir, 'init', '-q', '-b', 'main');
   const addList = () => {
     fs.mkdirSync(path.join(dir, 'docs/merge'), { recursive: true });
@@ -190,7 +190,7 @@ test('a merge where both parents have the list: both are bases', () => {
 });
 
 test('a merge where no parent has it but an older ancestor does: that ancestor; where none has it: bootstrap', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  const dir = tempDir('cb-');
   try {
     git(dir, 'init', '-q', '-b', 'main');
     fs.mkdirSync(path.join(dir, 'docs/merge'), { recursive: true });

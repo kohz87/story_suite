@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const CLI = path.resolve(import.meta.dirname, '../../scripts/codemap/cli.mjs');
 const FILES = {
@@ -15,7 +15,7 @@ const FILES = {
 };
 
 function makeRepo() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codemap-cli-'));
+  const dir = tempDir('codemap-cli-');
   execFileSync('git', ['init', '-q'], { cwd: dir });
   for (const [rel, text] of Object.entries(FILES)) put(dir, rel, text);
   return dir;

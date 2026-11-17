@@ -1,8 +1,8 @@
 // Test helper: builds a throwaway git repo from a { path: text } map and runs git in it.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 export function git(root, ...args) {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -16,7 +16,7 @@ export function writeFiles(root, files) {
 }
 
 export function toyRepo(files) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'codemod-toy-'));
+  const root = tempDir('codemod-toy-');
   git(root, 'init', '-q', '-b', 'main');
   git(root, 'config', 'user.email', 'toy@example.com');
   git(root, 'config', 'user.name', 'Toy');

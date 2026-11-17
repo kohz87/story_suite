@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const ci = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
@@ -57,7 +57,7 @@ test('verify needs every job that is not informational and always runs', () => {
 });
 
 test('node --test-shard runs every test file once across the shards', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-shards-'));
+  const dir = tempDir('ci-shards-');
   try {
     const files = Array.from({ length: 8 }, (_, i) => `f${i}.test.js`);
     for (const f of files) fs.writeFileSync(path.join(dir, f), `import { test } from 'node:test';\ntest('${f}', () => {});\n`);
@@ -87,7 +87,7 @@ test('a suite shard with no count file fails instead of skipping the floor', () 
 test('suite-floor.sh sums the shards against the floor in suite-tests.sh', () => {
   const min = Number(fs.readFileSync(path.join(root, 'scripts/ci/suite-tests.sh'), 'utf8').match(/^MIN_TESTS=(\d+)/m)[1]);
   const run = (counts, shards) => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-floor-'));
+    const dir = tempDir('ci-floor-');
     try {
       counts.forEach((c, i) => fs.writeFileSync(path.join(dir, `c${i}.txt`), `${c}\n`));
       return spawnSync('bash', [path.join(root, 'scripts/ci/suite-floor.sh'), String(shards), dir], { encoding: 'utf8' });

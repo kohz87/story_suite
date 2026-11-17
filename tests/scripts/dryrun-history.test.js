@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
-import os from 'node:os';
+import { rmSync, symlinkSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -9,13 +8,14 @@ import { compareRecords } from '../../scripts/dryrun/compare-records.mjs';
 import { historyErrors } from '../../scripts/dryrun/compare-history.mjs';
 import { runHistoryOps } from '../../scripts/dryrun/history-ops.mjs';
 import { pageSuiteHost } from '../../scripts/dryrun/suite-host.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 let suiteLoad = null;
 function loadedSuite() {
   suiteLoad ??= (async () => {
-    const tmpRoot = mkdtempSync(path.join(os.tmpdir(), 'dryrun-history-'));
+    const tmpRoot = tempDir('dryrun-history-');
     process.on('exit', () => rmSync(tmpRoot, { recursive: true, force: true }));
     symlinkSync(path.join(REPO_ROOT, 'packages', 'story-block'), path.join(tmpRoot, 'Story_block'));
     symlinkSync(path.join(REPO_ROOT, 'packages', 'story-director'), path.join(tmpRoot, 'Story_director'));

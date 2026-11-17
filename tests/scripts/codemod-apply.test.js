@@ -1,12 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { applyLayout } from '../../scripts/codemod/apply.mjs';
 import { verifyDiff, verifyTree } from '../../scripts/codemod/verify.mjs';
 import { parseRules } from '../../scripts/codemod/rules.mjs';
 import { TOY, TOY_RULES, git, toyRepo } from './codemod-toy.js';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const rules = parseRules(TOY_RULES);
 
@@ -37,7 +37,7 @@ test('running the layout a second time changes nothing', () => {
 
 test('deleted files are backed up with a manifest before they go', () => {
   const root = toyRepo({ ...TOY, 'pkg/src/old/x.js': 'export const x = 1;\n' });
-  const backup = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bk-')), 'b3-toy');
+  const backup = path.join(tempDir('bk-'), 'b3-toy');
   const withDelete = parseRules({ ...TOY_RULES, rules: [...TOY_RULES.rules, { from: 'pkg/src/old', to: null }] });
   applyLayout(root, [withDelete], { backupDir: backup });
   assert.equal(fs.readFileSync(path.join(backup, 'pkg/src/old/x.js'), 'utf8'), 'export const x = 1;\n');

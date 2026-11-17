@@ -1,7 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as acorn from 'acorn';
@@ -9,6 +8,7 @@ import * as walk from 'acorn-walk';
 import { buildBundleSet } from '../../scripts/release/bundle.mjs';
 import { BUNDLE_SETS } from '../../scripts/release/entries.mjs';
 import { rewriteSource, strayImportMeta } from '../../scripts/release/rewrite.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const packAll = spec => `src/${spec.slice(2)}`;
@@ -42,7 +42,7 @@ test('the gate helper counts import.meta uses that are not the rewritten form', 
 });
 
 let root;
-before(() => { root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-rewrite-')); });
+before(() => { root = tempDir('release-rewrite-'); });
 after(() => fs.rmSync(root, { recursive: true, force: true }));
 
 test('a stylesheet named from import.meta.url resolves to the same file in the bundle as in the source', async () => {

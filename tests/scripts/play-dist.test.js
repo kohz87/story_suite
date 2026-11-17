@@ -1,17 +1,17 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { buildDist, parseArgs } from '../../scripts/play/dist.mjs';
 import { DIST_SET } from '../../scripts/play/dist-sets.mjs';
+import { tempDir } from '../../scripts/temp-dir.mjs';
 
 let source;
 let out;
 const put = (root, file, text) => { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); };
 
 before(() => {
-  source = fs.mkdtempSync(path.join(os.tmpdir(), 'play-dist-src-'));
+  source = tempDir('play-dist-src-');
   put(source, 'manifest.json', JSON.stringify({ display_name: 'Story Suite', js: 'index.js', css: 'suite.css', generate_interceptor: 'storyBlockGenerationInterceptor', version: '0.1.0' }));
   put(source, 'suite.css', "@import url('./ui/look.css');\n");
   put(source, 'index.js', "import { asset } from './core/asset.js';\nglobalThis.suite = asset;\nimport('./modules/people/legacy/bootstrap.js');\n");
