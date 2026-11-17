@@ -3,6 +3,7 @@
 import { conditionsSettleCommands } from '../conditions/settle.js';
 import { backlogCue, backlogOlder, digestCommands, digestTailLine, noteCommands } from '../digest.js';
 import { chronicleTail } from '../note.js';
+import { worldNote } from '../world-note.js';
 import { beforeGenerate as surfaceHook } from '../pick.js';
 import { threadsOn } from '../../../time/tracker/threads.js';
 
@@ -18,7 +19,10 @@ export function beforeGenerate(view) {
 
 /** `context.tail(view)`: the [World] lines (while the threads feature is on) and the last day's line after a time skip (optional). The [Earlier days] cue is pinned (beforeGenerate); its older day lines are optional. */
 export function tail(view) {
-    const out = threadsOn(view) ? chronicleTail(view) : { lines: [], optional: [] };
+    const base = threadsOn(view) ? chronicleTail(view) : { lines: [], optional: [] };
+    // The world note (feature `story-director.world-events`, default off) sits beside the [World] lines; off adds nothing.
+    const note = worldNote(view);
+    const out = note.length ? { ...base, lines: [...base.lines, ...note] } : base;
     const optional = [...out.optional, digestTailLine(view), ...backlogOlder(view)].filter(Boolean);
     return optional.length ? { lines: out.lines, optional } : out;
 }
