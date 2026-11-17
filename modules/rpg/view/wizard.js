@@ -1,9 +1,9 @@
 // The New character wizard (mockup section 4): Story Block's own dialog (`width: 'wide'`) with four steps, Who · Stats · Skills ·
-// Review, and a summary row of the character so far on top of each. It is opened from the Party tab ("+ New character", and
+// Review, and a summary row of the character so far on top of each. It is opened from the Party tab ("+ New character" only while the story has no You, and
 // "Create your character" when there is none, and the Home card and the first-send dialog, start.js). `open(prefill, { onEnd })` opens it with a
-// companion's name, about, Soul Class and best stat filled in (the card under a reply that asks to add someone, join.js), and `onEnd(created)`
+// companion's name, Soul Class and best stat filled in (the card under a reply that asks to add someone, join.js), and `onEnd(created)`
 // hears whether Create made the character or the dialog was closed without.
-//   Who     the name and who they are (the persona's name and description by default, for You), You or A companion (one You to a story)
+//   Who     the name (the persona's, for You: the window makes a You only; a companion is made from a join card's Edit first) and the starting level
 //   Stats   the Spend points view's steppers and radar, under the creation budget (names.js CREATION)
 //   Skills  skill sets (built in, and a pack's `content.rpg.skillSets`) and up to five rows: name, what it does, Stat, Uses,
 //           Starts at (Novice; Adept for at most one skill). Rank and practice are never typed.
@@ -15,7 +15,7 @@
 //           fit (the block limit, the reply's actions) or one is refused, the character stays and the dialog says which block was not added.
 //   Import  the Who step starts with "Start from a saved character … Import file…" (charfile.js): a good file fills the stats, the unspent points,
 //           the Soul Class and the skills with their ranks (the Stats and Skills steps show them and keep the usual rules; the ranks stay the
-//           file's), and never the name, You or a companion, or who they are. Undo import puts back what was there. Create then also adds, as more
+//           file's), and never the name. Undo import puts back what was there. Create then also adds, as more
 //           changes of the same reply, the things the file had (`inventory.add`, one for each, to the character's owner) and its money
 //           (`wallet.set`, the purse plus the file's); whatever cannot be added is named in the window and the character is still made.
 // The draft lives here, in the wizard's session (the dialog's own draft is not used); each step is a widget of this file drawing from
@@ -28,20 +28,26 @@ import { stepper } from '../../../ui/legacy/view/widgets/stepper.js';
 import { refusalText } from '../../../core/strings.js';
 import { DEFAULT_CURRENCY } from '../../inventory/money.js';
 import { FILE_LIMITS, moneyText, parseCharacterFile, skillLine, thingsWord } from '../charfile.js';
-import { LEVEL, CREATION, PARTY_ACTIVE, RANK_NAMES, STATS, USES } from '../names.js';
+import { LEVEL, CREATION, PARTY_ACTIVE, RANK_NAMES, STATS_V1 as STATS } from '../names.js';
+import { SKILL_TYPE_NAMES } from '../templates-combat.js';
+import { V1, RANKS } from '../combat/numbers.js';
 import { fold } from '../read.js';
 import { RPG_STRINGS, fill } from '../strings.js';
 import { readParty } from './party-data.js';
 import { joinDraft } from '../join.js';
-import { growthOf } from '../blocks.js';
-import { growthText } from './party-data.js';
 import { rankOf as bandRank } from '../levels.js';
-import { WIZARD_STEPS, actionsFree, blockNames, buildDefinitions, draftCreation, draftSlots, extraDefinitions, extraName, extrasPlan, hasRoom, mayStartAdept, newDraft, pointsLeft, problemsOf, rankOf, readDraft, setLine, skillSetsOf,
+import { WIZARD_STEPS, actionsFree, blockNames, buildDefinitions, draftCreation, draftSlots, extraDefinitions, extraName, extrasPlan, hasRoom, mayStartAdept, barsLine, newDraft, pointsLeft, problemsOf, readDraft, setLine, skillSetsOf,
     START_RANKS, startStats, statBounds, statsLine, withImport, withoutImport, withSet, withSkill, withSkillPatch, withoutSkill } from './wizard-data.js';
 import { createWhoStep } from './wizard/who.js';
 import { createStatsStep } from './wizard/stats.js';
 import { createSkillsStep } from './wizard/skills.js';
 import { createReviewStep } from './wizard/review.js';
+
+// The eight skill types the Skills step's Type select offers, with the words Combat Rules v1 gives them.
+const SKILL_TYPES = SKILL_TYPE_NAMES.map(key => ({ key, label: V1.skill.types[key].label }));
+// A rank a file gave is one of v1's seven (Novice to Legend); a rank a new skill starts at is Novice or Adept.
+const RANK_WORDS = RANKS.map(rank => rank.name);
+const rankWord = skill => (Number.isSafeInteger(skill?.rank) ? RANK_WORDS[skill.rank] : RANK_NAMES[skill?.start ?? 0]);
 
 const W = RPG_STRINGS.wizard;
 // The word the stat notes use for the level.
@@ -74,24 +80,19 @@ const safe = (fn, fallback) => { try { return fn() ?? fallback; } catch { return
 /**
  * The wizard. `deps`: `headState()` (the head state or null), `readerName()` (the persona's name), `roleOf(definition)`, `openDialog(id,
  * { draft, onClose })` (the host's dialog mount; without it there is no way to open), `replyKey()` (the head reply's key in the blocks' per-reply
- * count, `${sid}/${swipeKey}`: Create asks the reply for three block actions before it starts), `readerAbout()` (the active persona's description,
- * which a You starts with as Who they are). → { screen, widget, open(prefill?, { onEnd }?), session(), destroy() }.
- * `open()` opens the dialog on a fresh draft; the session is dropped when the dialog closes. `prefill` is { name, about, soul, best }: a companion
+ * count, `${sid}/${swipeKey}`: Create asks the reply for three block actions before it starts), → { screen, widget, open(prefill?, { onEnd }?), session(), destroy() }.
+ * `open()` opens the dialog on a fresh draft; the session is dropped when the dialog closes. `prefill` is { name, soul, best }: a companion
  * the story brought in (join.js joinDraft); `onEnd(created)` is told once when the dialog closes, `created` true when Create made the character.
  */
-export function createWizard({ headState = () => null, readerName = () => '', readerAbout = () => '', roleOf, openDialog = null, replyKey = () => '', rules = () => null, packNote = () => '', levels = () => ({}), levelCap = () => null } = {}) {
+export function createWizard({ headState = () => null, readerName = () => '', roleOf, openDialog = null, replyKey = () => '', rules = () => null, packNote = () => '', levels = () => ({}), levelCap = () => null } = {}) {
     let session = null;
     const world = () => worldOf(headState(), String(readerName() ?? '').replace(/\s+/g, ' ').trim(), roleOf, safe(replyKey, ''));
-    // The persona's description as Who they are starts: one line, the first 240 characters (whole characters), '' when there is none.
-    const personaAbout = () => [...String(safe(readerAbout, '') ?? '').replace(/\s+/g, ' ').trim()].slice(0, CREATION.about).join('');
     const fresh = (prefill = null) => {
-        const now = world(), about = personaAbout();
+        const now = world();
         // (`rules`: the numbers in force now; a Standard chat starts every stat low and has more to spend, joins use formula.js companionStats.)
         const numbers = safe(rules, null);
-        const draft = prefill ? joinDraft(prefill, numbers) : { ...newDraft({ persona: now.persona, hasYou: now.hasYou, rules: numbers }) };
-        // Only a You starts with the persona's description, and only into an empty box: a companion starts empty.
-        if (!prefill && draft.kind === 'you' && about) draft.about = about;
-        return { draft, handle: null, busy: false, message: '', created: false, finished: '', about: prefill ? '' : about, onEnd: null, imported: null, importError: '', pendingSet: null };
+        const draft = prefill ? joinDraft(prefill, numbers) : { ...newDraft({ persona: now.persona, rules: numbers }) };
+        return { draft, handle: null, busy: false, message: '', created: false, finished: '', onEnd: null, imported: null, importError: '', pendingSet: null };
     };
     const current = () => { session ??= fresh(); return session; };
 
@@ -192,12 +193,12 @@ export function createWizard({ headState = () => null, readerName = () => '', re
             const whoStep = createWhoStep({ api, safe, DEFAULT_CURRENCY, current, draft, put, snap, world, h, doc, W, fill, thingsWord,
                 FILE_LIMITS, RPG_STRINGS, parseCharacterFile, sameRun: run => alive && session === run, redraw, withImport, withoutImport,
                 moneyText, button, body, field, input, CREATION, drawSummary, LEVEL, levelCap, bandRank, levels, fold });
-            const statsStep = createStatsStep({ snap, pointsLeft, STATS, draftCreation, growthText, growthOf, RPG_STRINGS, fill, W, drawSummary, h,
+            const statsStep = createStatsStep({ snap, pointsLeft, STATS, draftCreation, barsLine, RPG_STRINGS, fill, W, drawSummary, h,
                 doc, stepper, put, draft, radar, button, redraw, startStats, statBounds, LEVEL_WORD, safe, packNote, body });
             const skillsStep = createSkillsStep({ snap, skillSetsOf, safe, api, current, draft, h, doc, W, fill, draftSlots, draftCreation, button, put, drawSummary,
-                redraw, body, withSet, setLine, input, CREATION, select, STATS, USES, RANK_NAMES, START_RANKS, mayStartAdept, withSkillPatch, withoutSkill, withSkill });
-            const reviewStep = createReviewStep({ DM_LIMITS, W, fill, current, snap, world, problemsOf, blockNames, kindWord, h, doc, body, RANK_NAMES,
-                rankOf, pointsLeft, statsLine, extraName, button, safe, api, refusalText, ownerFor: whoStep.ownerFor, importedAdds: whoStep.importedAdds,
+                redraw, body, withSet, setLine, input, CREATION, select, STATS, SKILL_TYPES, RANK_NAMES, RANK_WORDS, START_RANKS, mayStartAdept, withSkillPatch, withoutSkill, withSkill });
+            const reviewStep = createReviewStep({ DM_LIMITS, W, fill, current, snap, world, problemsOf, blockNames, kindWord, h, doc, body, rankWord,
+                pointsLeft, statsLine, extraName, button, safe, api, refusalText, ownerFor: whoStep.ownerFor, importedAdds: whoStep.importedAdds,
                 thingsPhrase: whoStep.thingsPhrase, moneyText, currency: whoStep.currency, buildDefinitions, levelCap, headState, extraDefinitions,
                 draftCreation, isAlive: () => alive, redraw });
             const clear = () => { statsStep.clear(); body.replaceChildren(); };

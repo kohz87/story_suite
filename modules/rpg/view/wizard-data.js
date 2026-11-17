@@ -18,6 +18,7 @@ export { creationOf, draftCreation, draftLevel } from './wizard-data-parts/creat
 export { draftSlots, combatSlots, utilityCount } from './wizard-data-parts/slots.js';
 export { newDraft, readDraft, startStats } from './wizard-data-parts/draft.js';
 export { pointsLeft, statsLine, statBounds } from './wizard-data-parts/stats.js';
+export { barsLine } from './wizard-data-parts/bars-line.js';
 export { adeptCount, mayStartAdept } from './wizard-data-parts/adept.js';
 export { withSet, withSkill, withSkillPatch, withoutSkill } from './wizard-data-parts/skill-edits.js';
 export { withImport, withoutImport } from './wizard-data-parts/import.js';

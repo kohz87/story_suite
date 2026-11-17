@@ -7,4 +7,4 @@ export const LEAN_RPG_FIELDS = Object.freeze(['skillSets', 'formula', 'numbers',
 export const SKILL_SET_FIELDS = Object.freeze(['name', 'slug', 'about', 'skills']);
 export const SKILL_SET_SKILL_FIELDS = Object.freeze(['name', 'about', 'stat', 'uses']);
 export const LEAN_RPG_LIMITS = Object.freeze({ sets: 12, skills: 5, name: 40, about: 160, skillName: 40, skillAbout: 120,
-    stats: Object.freeze(['str', 'vit', 'agi', 'dex', 'int', 'luk', 'cha']), uses: Object.freeze(['stamina', 'mana']) });
+    stats: Object.freeze(['str', 'vit', 'agi', 'dex', 'int', 'luk', 'wis', 'cha']), uses: Object.freeze(['stamina', 'mana']) });

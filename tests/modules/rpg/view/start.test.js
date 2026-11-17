@@ -138,7 +138,7 @@ test('Home: the card is gone as soon as a You exists, shown again while only com
     assert.ok(cardOf(off.doc), 'switched on: the card comes');
 });
 
-// ---- the persona's description -----------------------------------------------------------------------------------------------------------
+// ---- the persona ---------------------------------------------------------------------------------------------------------------------------
 
 async function whoStep(ctx, { empty = true } = {}) {
     ctx.ui.mounts.screen.open('story-block/party');
@@ -148,74 +148,29 @@ async function whoStep(ctx, { empty = true } = {}) {
     return ctx.ui.mounts.dialog.current();
 }
 
-test('Who: a You starts with the persona\'s description (the first 240 characters, whole characters) and a note saying where it came from', { skip }, async t => {
+test('Who: the wizard makes a You only: the name is the persona\'s, there is no You or companion choice and no "Who they are" box, and the persona\'s description is never read', { skip }, async t => {
     const ctx = await page(t, { persona: 'Wessel' });
-    ctx.host.ctx.powerUserSettings = { persona_description: `${PERSONA} ${'x'.repeat(300)}` };
+    const seen = [];
+    ctx.host.ctx.powerUserSettings = new Proxy({ persona_description: PERSONA }, { get: (target, key) => { seen.push(String(key)); return target[key]; } });
     await begin(ctx.host);
     const dialog = await whoStep(ctx);
     const who = wizardOf(dialog);
-    const about = who.querySelector('[data-wiz="about"]');
-    assert.equal(about.value, `${PERSONA} ${'x'.repeat(300)}`.slice(0, 240));
-    assert.equal([...about.value].length, 240);
-    assert.equal(who.querySelector('.rpg-wiz-count').textContent, '240 / 240');
-    const note = who.querySelector('[data-wiz="persona-note"]');
-    assert.equal(note.textContent, 'From your persona\'s description (the first 240 characters). Change it freely: this is what the AI reads.');
-    assert.equal(note.hidden, false);
-    // Typing over it is the reader's: the note goes.
-    about.value = 'Mine.'; about.dispatch('input');
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="persona-note"]').hidden, true);
+    assert.equal(who.querySelector('[data-wiz="name"]').value, 'Wessel');
+    assert.equal(who.querySelector('.rpg-wiz-seg'), null, 'no You or companion choice');
+    assert.equal(who.querySelector('[data-wiz="about"]'), null, 'no Who they are');
+    assert.equal(who.querySelector('[data-wiz="persona-note"]'), null);
+    assert.deepEqual([...new Set(seen)], [], 'the persona\'s description was not read');
     dialog.close();
-});
-
-test('Who: never splits a character, takes the lines of the description as one, and reads nothing else of the settings', { skip }, async t => {
-    const ctx = await page(t, { persona: 'Wessel' });
-    const seen = [];
-    ctx.host.ctx.powerUserSettings = new Proxy({ persona_description: `${'a'.repeat(239)}\u{1F600}\u{1F600}\nline two` }, { get: (target, key) => { seen.push(String(key)); return target[key]; } });
-    await begin(ctx.host);
-    const dialog = await whoStep(ctx);
-    const about = wizardOf(dialog).querySelector('[data-wiz="about"]').value;
-    assert.equal(about, `${'a'.repeat(239)}\u{1F600}`, 'the 240th character is whole');
-    assert.equal(about.includes('\n'), false);
-    assert.deepEqual([...new Set(seen)], ['persona_description'], 'only the active persona\'s description was read');
-    dialog.close();
-});
-
-test('Who: only for You and only while untouched: a companion starts empty, You again fills it, what the reader wrote is kept', { skip }, async t => {
-    const ctx = await page(t, { persona: 'Wessel' });
-    ctx.host.ctx.powerUserSettings = { persona_description: PERSONA };
-    await begin(ctx.host);
-    const dialog = await whoStep(ctx);
-    const field = () => wizardOf(dialog).querySelector('[data-wiz="about"]');
-    assert.equal(field().value, PERSONA);
-    click(wizardOf(dialog), 'A companion');
-    assert.equal(field().value, '', 'a companion starts empty');
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="persona-note"]').hidden, true);
-    click(wizardOf(dialog), 'You');
-    assert.equal(field().value, PERSONA, 'You again: the persona\'s');
-    field().value = 'Quick with a rope.'; field().dispatch('input');
-    click(wizardOf(dialog), 'A companion');
-    assert.equal(field().value, 'Quick with a rope.', 'what the reader wrote stays');
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="persona-note"]').hidden, true);
-    click(wizardOf(dialog), 'You');
-    assert.equal(field().value, 'Quick with a rope.', 'and is not overwritten');
-    dialog.close();
-
-    // A story with a You already: the wizard starts as a companion with nothing in it.
+    // A story with a You already: the Party tab has no New character button.
     await makeBlocks(ctx.host, { who: 'Wessel' });
     await ctx.host.send('On.', 'Reply.');
-    const again = await whoStep(ctx, { empty: false });
-    assert.equal(wizardOf(again).querySelector('[data-wiz="about"]').value, '');
-    again.close();
-    // No description: nothing filled and no note.
-    const bare = await page(t, { persona: 'Wessel' });
-    await begin(bare.host);
-    const third = await whoStep(bare);
-    assert.equal(wizardOf(third).querySelector('[data-wiz="about"]').value, '');
-    assert.equal(wizardOf(third).querySelector('[data-wiz="persona-note"]').hidden, true);
-    third.close();
+    ctx.ui.mounts.screen.open('story-block/party');
+    await settle();
+    assert.equal(party(ctx.doc).querySelector('.rpg-new'), null);
+    assert.equal(party(ctx.doc).querySelector('.rpg-create'), null);
 });
 
-test('Who: the description reaches the character\'s About field when Create is pressed', { skip }, async t => {
+test('Who: Create makes the character with no About field, whatever the persona describes', { skip }, async t => {
     const ctx = await page(t, { persona: 'Wessel' });
     ctx.host.ctx.powerUserSettings = { persona_description: PERSONA };
     await begin(ctx.host);
@@ -224,7 +179,9 @@ test('Who: the description reaches the character\'s About field when Create is p
     await settle();
     wizardOf(dialog).querySelector('.rpg-wiz-create').click();
     await settle();
-    assert.equal(ctx.host.sdk.query('dataModules.view', { module: 'pack.chat/wessel' }).chat.about, PERSONA);
+    const made = ctx.host.sdk.query('dataModules.view', { module: 'pack.chat/wessel' }).chat;
+    assert.equal(made.who, 'Wessel');
+    assert.equal(Object.hasOwn(made, 'about'), false);
 });
 
 // ---- the first send ---------------------------------------------------------------------------------------------------------------------

@@ -187,7 +187,7 @@ test('F1: Edit first keeps signature skills as written (the pencil\'s rules) and
 
 test('F2: a character file keeps up to eight skills when its level has dropped below the slots they fill', () => {
     const eight = Array.from({ length: 8 }, (_, n) => ({ name: `Skill ${n + 1}`, about: 'x', stat: 'str', uses: 'stamina', rank: n % 4 }));
-    const file = parseCharacterFile(JSON.stringify(buildCharacterFile({ level: 30, soul: 4, points: 0, stats: { str: 10, vit: 10, agi: 10, dex: 10, int: 10, luk: 10, cha: 10 }, skills: eight })));
+    const file = parseCharacterFile(JSON.stringify(buildCharacterFile({ level: 30, soul: 4, points: 0, stats: { str: 10, vit: 10, agi: 10, dex: 10, int: 10, wis: 10, cha: 10 }, skills: eight })));
     assert.equal(file.ok, true, JSON.stringify(file));
     assert.equal(file.file.skills.length, 8);
     assert.equal(skillSlots(30), 6, 'the level opens six');

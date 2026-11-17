@@ -4,7 +4,7 @@ import { parseCheckLine, validateCheck } from '../../../../modules/rpg/checks/li
 import { bonusTable, resolveCheck, workChecks } from '../../../../modules/rpg/checks/result.js';
 import { rulesOf } from '../../../../modules/rpg/checks/dice-parts/shared-checks.js';
 
-const member = { name: 'Astra', aliases: [], stats: { str: 10, vit: 8, agi: 12, dex: 6, int: 14, luk: 9, cha: 10 },
+const member = { name: 'Astra', aliases: [], stats: { str: 10, vit: 8, agi: 12, dex: 6, int: 14, wis: 9, cha: 10 },
     skills: [{ name: 'Obscure', stat: 'dex', rank: 1, type: 'utility' }, { name: 'Iron Breath', stat: 'str', rank: 3, type: 'combat' }] };
 member.level = 10;
 const party = [member];
@@ -45,7 +45,7 @@ test('decisive is a natural 20 that succeeds, or a success whose lead reaches th
 
 test('the bonus the narrator is told for each stat and skill is exactly the bonus the result adds', () => {
     const [row] = bonusTable(party);
-    const stats = ['str', 'vit', 'agi', 'dex', 'int', 'luk', 'cha'];
+    const stats = ['str', 'vit', 'agi', 'dex', 'int', 'wis', 'cha'];
     assert.deepEqual(row.stats, [7, 6, 8, 5, 9, 6, 7]);
     assert.deepEqual(row.skills, [['Obscure', 6], ['Iron Breath', 7]]);
     stats.forEach((stat, at) => assert.equal(resolveCheck(check(stat.toUpperCase(), 'normal', 9), 9).bonus, row.stats[at], stat));

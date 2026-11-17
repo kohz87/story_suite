@@ -2,7 +2,8 @@
 
 import { KINDS, RARITIES } from '../../inventory/index.js';
 import { GEAR, slotWordOf } from '../../inventory/gear.js';
-import { CREATION, STATS, USES } from '../names.js';
+import { CREATION, STATS_V1, USES } from '../names.js';
+import { SKILL_TYPE_NAMES } from '../templates-combat.js';
 import { FILE_LIMITS } from './limits.js';
 import { isRecord, line, whole } from './shared-reading.js';
 
@@ -11,8 +12,10 @@ export function readSkill(entry) {
     const name = line(entry.name, CREATION.skillName);
     // A skill with no stat (an old Skills block had none) is read without one: both a missing key and null mean "none"; any other value is not valid.
     const hasStat = entry.stat !== undefined && entry.stat !== null;
-    if (!name || (hasStat && !STATS.includes(entry.stat)) || !USES.includes(entry.uses) || !whole(entry.rank, 0, FILE_LIMITS.rank)) return null;
-    return { name, about: line(entry.about, CREATION.skillAbout), ...(hasStat ? { stat: entry.stat } : {}), uses: entry.uses, rank: entry.rank, ...(entry.type === 'utility' ? { type: 'utility' } : {}) };
+    // (a skill of a file written before Combat Rules v1 has `uses` and may name LUK, which is read as WIS; a v1 skill has a `type` and no `uses`)
+    const stat = entry.stat === 'luk' ? 'wis' : entry.stat;
+    if (!name || (hasStat && !STATS_V1.includes(stat)) || (entry.uses !== undefined && !USES.includes(entry.uses)) || !whole(entry.rank, 0, FILE_LIMITS.rank)) return null;
+    return { name, about: line(entry.about, CREATION.skillAbout), ...(hasStat ? { stat } : {}), uses: entry.uses ?? USES[0], rank: entry.rank, ...(SKILL_TYPE_NAMES.includes(entry.type) && entry.type !== 'attack' ? { type: entry.type } : {}) };
 }
 
 export function readItem(entry) {

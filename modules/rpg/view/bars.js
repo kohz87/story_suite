@@ -24,7 +24,7 @@ export function drawStageBars(doc, parent, character, { api, handles }) {
     const box = h(doc, 'div', 'rpg-bars');
     parent.appendChild(box);
     for (const key of BARS) {
-        const bar = character.bars[key], schema = character.definition.state?.[key], label = schema?.label ?? RPG_STRINGS.bars[key];
+        const bar = character.bars[key], field = bar.field ?? key, schema = character.definition.state?.[field], label = schema?.label ?? RPG_STRINGS.bars[key];
         const row = h(doc, 'div', 'rpg-bar'), slot = h(doc, 'div', 'rpg-bar-meter'), edit = h(doc, 'div', 'rpg-bar-edit');
         row.setAttribute('data-bar', key);
         row.append(slot, edit);
@@ -33,7 +33,7 @@ export function drawStageBars(doc, parent, character, { api, handles }) {
         handles.push(meter.render(slot, { label, value: bar.value, max: bar.max, tone: bar.tone, text, bar: key, icon: ICONS[key] }, {}));
         if (typeof api?.command !== 'function' || schema?.edit === false) continue;
         const options = barOptions(key, schema, bar);
-        handles.push(editable.render(edit, { value: bar.value, kind: 'choice', options, label, displayValue: false, command: 'dm.set', payload: fieldPayload(character, key) }, { command: api.command }));
+        handles.push(editable.render(edit, { value: bar.value, kind: 'choice', options, label, displayValue: false, command: 'dm.set', payload: fieldPayload(character, field) }, { command: api.command }));
         const pencil = edit.querySelector('.ss-w-editable-pencil');
         pencil?.setAttribute('data-bar-edit', key);
         pencil?.setAttribute('title', fill(RPG_STRINGS.party.editBar, { label }));

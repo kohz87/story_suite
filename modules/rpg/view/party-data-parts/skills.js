@@ -1,6 +1,6 @@
 // The skills a Skills block holds, as plain records.
 
-import { STATS } from '../../index.js';
+import { STATS_ANY as STATS } from '../../names.js';
 import { skillFieldSlots, isTypedSkills, signatureAt, skillTypeOf } from '../../../../core/runtime/skill-slots.js';
 import { textOf, whole } from './shared-basics.js';
 import { rankName } from './words.js';

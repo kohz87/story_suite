@@ -1,5 +1,5 @@
 // The Character template: the base definition, the Standard one with its blocks, and the two exported forms (before and after the doubled bars).
-import { CREATION, LEVEL, STATS, STAGES } from '../names.js';
+import { CREATION, LEVEL, STATS_EARLIER as STATS, STAGES } from '../names.js';
 import { STANDARD_NUMBERS } from '../formula.js';
 import { scaledCharacter } from '../templates-bars.js';
 import { withRecovery } from '../templates-recovery.js';

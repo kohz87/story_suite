@@ -5,7 +5,7 @@ An interaction is a scene a module shows (today only the fight board) where the 
 ## What is built
 
 - **One kind today:** the fight board, `story-block/fight` (`modules/rpg/board/interaction.js`). No other module declares `interactions`. Fishing is a concept only; nothing of it is built.
-- **The Combat Rules v1 engine** runs inside the same kind (setup `v1: 1`, docs/dev/fight-board.md). The rules chooser that would offer v1 templates is still off, so a new fight plays on today's Standard engine until the owner approves the v1 wording.
+- **The Combat Rules v1 engine** runs inside the same kind (setup `v1: 1`, docs/dev/fight-board.md). Every chat and every new sheet is Combat Rules v1 (there is no rules chooser: the block chooser, the New character wizard and a joining companion build v1 blocks), so a new fight plays on this engine; a setup made before it, or a chat that already holds an earlier Character, keeps the earlier engine until that engine is removed.
 - **Old view only.** The fight is chosen on the Fight tab and in the waiting choice. The Suite view has an activity host (`ui/tabs/scene/host.js`) that does not choose for any kind but the fight kind yet; until it does, the core accepts `interactionStart` from `story-block/fight` only (`START_KINDS` in `core/interaction/start.js`); another kind's answer is dropped with a quiet Problem.
 
 ## How the Suite view shows an activity

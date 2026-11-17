@@ -6,6 +6,7 @@ import { classTerm, hasLevels, isStandard } from '../../rules.js';
 import { levelBonus, statPart } from '../../formula.js';
 import { effOf } from '../gear-stats.js';
 import { RANK_TONES } from './shared-ranks.js';
+import { RANKS } from '../../combat/numbers.js';
 
 const K = RPG_STRINGS.skills;
 
@@ -16,6 +17,14 @@ export function masteryOf(skill) {
     const next = RANK_NAMES[skill.rank + 1];
     return { value, max: RANK_NAMES.length, tone: RANK_TONES[skill.rank] ?? 'neutral',
         text: master ? K.meterMaster : fill(K.meter, { rank: skill.rankName, practice: skill.practice, next }) };
+}
+
+/** The mastery bar of a Combat Rules v1 skill: seven cells (Novice to Legend), the rank's cells lit and the next one filling with the practice toward it (`practice` counts 0 to 600, a hundred a rank). */
+export function masteryOfV1(skill) {
+    const top = RANKS.length - 1, rank = Math.min(top, Math.max(0, skill.rank)), next = RANKS[rank + 1];
+    const toward = Math.min(100, Math.max(0, skill.practice - RANKS[rank].practice));
+    return { value: rank === top ? RANKS.length : rank + 1 + toward / 100, max: RANKS.length, tone: RANK_TONES[Math.min(rank, RANK_TONES.length - 1)],
+        text: next ? fill(K.meter, { rank: RANKS[rank].name, practice: toward, next: next.name }) : RANKS[top].name };
 }
 
 /**

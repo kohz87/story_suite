@@ -1,6 +1,6 @@
 // The New character wizard's Review step and Create: definitions, best-effort extra blocks and imported things.
 export function createReviewStep(ctx) {
-    const { DM_LIMITS, W, fill, current, snap, world, problemsOf, blockNames, kindWord, h, doc, body, RANK_NAMES, rankOf, pointsLeft, statsLine,
+    const { DM_LIMITS, W, fill, current, snap, world, problemsOf, blockNames, kindWord, h, doc, body, rankWord, pointsLeft, statsLine,
         extraName, button, safe, api, refusalText, ownerFor, importedAdds, thingsPhrase, moneyText, currency, buildDefinitions, levelCap,
         headState, extraDefinitions, draftCreation, isAlive, redraw } = ctx;
     // ---- Review ----
@@ -14,12 +14,9 @@ export function createReviewStep(ctx) {
         body.appendChild(list);
         list.appendChild(h(doc, 'h3', 'rpg-wiz-h', W.reviewHead));
         list.appendChild(h(doc, 'p', 'rpg-wiz-p rpg-wiz-review-who', fill(W.reviewWho, { name: now.name || '—', kind: kindWord(now.kind) })));
-        const about = h(doc, 'p', 'rpg-wiz-p', now.about || W.reviewNoAbout);
-        about.setAttribute('data-review', 'about');
-        list.appendChild(about);
         list.appendChild(h(doc, 'p', 'rpg-wiz-p', `${W.statsHead}: ${statsLine(now)}`));
         const skills = h(doc, 'ul', 'rpg-wiz-review-skills');
-        for (const skill of now.skills) skills.appendChild(h(doc, 'li', '', `${skill.name || '—'} · ${skill.stat ? skill.stat.toUpperCase() : '—'} · ${W[skill.uses]} · ${W.startsAt} ${RANK_NAMES[rankOf(skill)]}`));
+        for (const skill of now.skills) skills.appendChild(h(doc, 'li', '', `${skill.name || '—'} · ${skill.stat ? skill.stat.toUpperCase() : '—'} · ${W[skill.uses]} · ${W.startsAt} ${rankWord(skill)}`));
         if (!now.skills.length) skills.appendChild(h(doc, 'li', '', W.noSkills));
         list.appendChild(skills);
         list.appendChild(h(doc, 'p', 'rpg-wiz-note', current().imported ? fill(W.reviewStartImported, { level: now.level ?? 1 })

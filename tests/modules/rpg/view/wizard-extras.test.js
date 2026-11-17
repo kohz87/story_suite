@@ -3,11 +3,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { STATS } from '../../../../modules/rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { RPG_EXTRAS, buildDefinitions, extraDefinitions, extrasPlan, missingBlocks, newDraft, problemsOf, readDraft } from '../../../../modules/rpg/view/wizard-data.js';
 import { reload } from '../../data-modules/helpers.js';
 import { begin, fillBlocks, makeBlocks, page, settle } from './page.js';
-import { click, companion, createFrom, ctxDialog, goTo, names, openFrom, rolesOf, type, usedReply, wizardOf } from './wizard.helpers.js';
+import { asCompanion, click, companion, createFrom, ctxDialog, goTo, names, openFrom, rolesOf, type, usedReply, wizardOf } from './wizard.helpers.js';
 
 // ---- fix round 4, B9: Create asks the reply for room first -------------------------------------------------------------------------
 
@@ -91,8 +91,7 @@ test('2.9.1: only the missing ones: with a Combat rules block already there the 
     assert.equal(domain.pins[domain.active['pack.chat/combat-rules'].hash].definition.prompt, 'My own combat text.', 'the reader\'s block is left alone');
     // A second character: both blocks exist, nothing is added and the Review has no "Also adds".
     dialog = await openFrom(ctx);
-    click(wizardOf(dialog), 'A companion');
-    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), 'Ren');
+    await asCompanion(dialog, 'Ren');
     review = await goTo(dialog, 'review');
     assert.equal(review.querySelector('[data-review="also"]'), null);
     review.querySelector('.rpg-wiz-create').click();
@@ -107,8 +106,7 @@ test('2.9.1: no room for the extras: the character is still made, the Review and
     await fillBlocks(ctx.host, 12);
     // Eighteen own blocks: two more fit (the character and its skills) and no more.
     const dialog = await openFrom(ctx);
-    click(wizardOf(dialog), 'A companion');
-    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), 'Olwen');
+    await asCompanion(dialog, 'Olwen');
     const review = await goTo(dialog, 'review');
     assert.equal(review.querySelector('[data-review="also"]'), null);
     assert.match(review.querySelector('[data-review="not-added"]').textContent, /^Cannot add: Combat rules, Foes\. This story has no room for more blocks \(at most 20\)\./);
@@ -194,7 +192,7 @@ test('2.9.2: after a + or a − the Stats step still shows no "Points left" unde
     wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="agi"] .ss-w-stepper-inc').click();
     noneShown('after a +');
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 9', 'the pill still counts');
-    wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="luk"] .ss-w-stepper-dec').click();
+    wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="wis"] .ss-w-stepper-dec').click();
     noneShown('after a −');
     stats = await goTo(dialog, 'skills');
     stats = await goTo(dialog, 'stats');

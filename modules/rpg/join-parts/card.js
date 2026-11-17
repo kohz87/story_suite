@@ -24,7 +24,7 @@ export function joinCard(offers, state = null, isMe = () => false) {
     if (offer.done) return { tone: 'good', icon: 'fa-user-check', title: J.benchDoneTitle, text: fill(J.benchDone, { left: offer.benched, name: offer.name }), rows: [], actions: [] };
     // (a full party, 4 active: one button per member who may step out, and Not now; the offer's request stays in the reply's receipt)
     if (offer.full) {
-        const payload = { name: offer.name, about: offer.about, soul: offer.soul, best: offer.best, ...(offer.skills ? { skills: offer.skills } : {}) };
+        const payload = { name: offer.name, soul: offer.soul, best: offer.best, ...(offer.skills ? { skills: offer.skills } : {}) };
         // (room for Not now: a card keeps 4 buttons, so a chat with more than 4 active shows 3 members until Not now is used)
         const actions = benchable(state, isMe).slice(0, offer.declined ? 4 : 3).map(member => ({ id: `bench-${member.module}`.slice(0, 40), label: benchLabel(member), icon: 'fa-person-walking-arrow-right', command: JOIN_BENCH, payload: { ...payload, bench: member.name } }));
         if (!offer.declined) actions.push({ id: 'no', label: J.benchNot, icon: 'fa-xmark', command: JOIN_NO, payload: { name: offer.name } });
@@ -32,12 +32,12 @@ export function joinCard(offers, state = null, isMe = () => false) {
             text: fill(offer.declined ? J.benchDeclined : J.benchWho, { name: offer.name }), actions };
     }
     // (a cast member's signature skills, as the pack had them when the line came, go with Edit first: the wizard's draft keeps them marked)
-    const payload = { name: offer.name, about: offer.about, soul: offer.soul, best: offer.best, ...(offer.skills ? { skills: offer.skills } : {}) };
+    const payload = { name: offer.name, soul: offer.soul, best: offer.best, ...(offer.skills ? { skills: offer.skills } : {}) };
     // (the class a line writes stands for a level, 10n - 5: the card says the level the companion will start at)
     const rows = [{ icon: 'fa-star', text: fill(J.rowLevel, { level: levelOfClass(CLASS_NAMES[offer.soul - 1] ? offer.soul : 1) }) }];
     if (offer.best) rows.push({ icon: 'fa-arrow-up', text: fill(J.rowBest, { stat: offer.best.toUpperCase() }) });
     return {
-        tone: 'accent', icon: 'fa-user-plus', title: fill(J.title, { name: offer.name }), text: offer.about, rows,
+        tone: 'accent', icon: 'fa-user-plus', title: fill(J.title, { name: offer.name }), rows,
         actions: [
             { id: 'add', label: J.add, icon: 'fa-check', primary: true, command: JOIN_ADD, payload: offer.four ? { ...payload, four: true } : payload },
             { id: 'edit', label: J.edit, icon: 'fa-pencil', open: 'story-block/new-character', payload },

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { combatBlock } from '../../../../modules/rpg/view/settings-data.js';
 import { begin, makeBlocks, page, settle } from './page.js';
 
 export const MOD = 'story-block';
 export const rail = doc => doc.querySelectorAll('.ss-settings .ss-tabs-label').map(node => node.textContent);
-export const combat = () => structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === 'Combat rules').definition);
+export const combat = () => structuredClone(CHOOSER_TEMPLATES.find(entry => entry.name === 'Combat rules').definition);
 export const promptOf = host => combatBlock(host.head(), {})?.prompt;
 
 // The page, opened on its section, with Wessel (STR 12, Soul Class I, Adept) made from the real templates.

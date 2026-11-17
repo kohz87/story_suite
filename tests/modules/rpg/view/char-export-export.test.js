@@ -35,11 +35,11 @@ test('the dialog says what is saved: the character always, the things and the mo
     const ctx = await story(t);
     const dialog = await exportDialog(ctx);
     const root = exportOf(dialog);
-    assert.match(root.textContent, /Saves a file you can import when you make a character in another chat\. The name and who they are stay in this chat\./);
+    assert.match(root.textContent, /Saves a file you can import when you make a character in another chat\. The name stays in this chat\./);
     const option = key => root.querySelector(`[data-option="${key}"]`);
     assert.match(option('character').textContent, /Character/);
     assert.match(option('character').textContent, /Lv 15 · 3 points to spend/);
-    assert.match(option('character').textContent, /STR 14 · VIT 12 · AGI 11 · DEX 10 · INT 8 · LUK 9 · CHA 10/);
+    assert.match(option('character').textContent, /STR 14 · VIT 12 · AGI 11 · DEX 10 · INT 8 · WIS 9 · CHA 10/);
     assert.match(option('character').textContent, /Skills: Iron Breath \(Expert\) · Short blade \(Novice\)/);
     const always = option('character').querySelector('input');
     assert.deepEqual([always.checked, always.disabled], [true, true], 'the character is always saved');
@@ -49,7 +49,7 @@ test('the dialog says what is saved: the character always, the things and the mo
     assert.match(option('money').textContent, /Money · 50 gold/);
     assert.match(option('money').textContent, /Kept as its value, so another game's coins show it in their own words\./);
     assert.equal(option('money').querySelector('input').checked, true, 'on');
-    assert.equal(root.querySelector('.rpg-exp-notsaved').textContent, 'Not saved: the name, who they are, XP, Health, Mana and Stamina (a new character starts full), skill practice, and anything about the story.');
+    assert.equal(root.querySelector('.rpg-exp-notsaved').textContent, 'Not saved: the name, XP, Health, Mana and Stamina (a new character starts full), skill practice, and anything about the story.');
     assert.equal(root.querySelector('.rpg-exp-save .rpg-exp-file').textContent, 'wessel.character.json');
     assert.deepEqual(root.querySelectorAll('.rpg-exp-actions button').map(node => node.textContent), ['Cancel', 'Save' + 'wessel.character.json']);
     click(root, 'Cancel');
@@ -65,7 +65,7 @@ test('Save writes <name>.character.json with the character, the things and the m
     const data = JSON.parse(saved.text);
     assert.deepEqual(Object.keys(data), [CHAR_FILE, 'level', 'soul', 'points', 'stats', 'skills', 'items', 'money']);
     assert.deepEqual([data[CHAR_FILE], data.soul, data.points, data.money], [1, 2, 3, 50]);
-    assert.deepEqual(data.stats, { str: 14, vit: 12, agi: 11, dex: 10, int: 8, luk: 9, cha: 10 });
+    assert.deepEqual(data.stats, { str: 14, vit: 12, agi: 11, dex: 10, int: 8, wis: 9, cha: 10 }, 'a card of the earlier rules: its LUK goes into the file as WIS');
     assert.deepEqual(data.skills, [
         { name: 'Iron Breath', about: 'Steadies the lungs in a long fight.', stat: 'vit', uses: 'stamina', rank: 2 },
         { name: 'Short blade', about: 'Quick cuts at close range.', stat: 'agi', uses: 'stamina', rank: 0 },
@@ -195,21 +195,22 @@ test('the Who step starts with "Start from a saved character" and an Import file
     dialog.close();
 });
 
-test('a good file fills the stats, the unspent points, the level and the skills; the name, You or a companion and who they are stay', async t => {
+test('a good file fills the stats, the unspent points, the level and the skills; the name stays', async t => {
     const ctx = await newcomer(t);
     const dialog = await wizardWith(ctx);
     await companion(dialog);
     await importInto(dialog, SAVED);
     const who = wizardOf(dialog);
-    assert.deepEqual([who.querySelector('[data-wiz="name"]').value, who.querySelector('[data-wiz="about"]').value], ['Ren', 'A ferry hand from Low Quay.'], 'name and who they are are not touched');
-    assert.deepEqual(who.querySelectorAll('.rpg-wiz-seg button').map(node => node.getAttribute('aria-pressed')), ['false', 'true'], 'still a companion');
+    assert.deepEqual([who.querySelector('[data-wiz="name"]').value, who.querySelector('[data-wiz="about"]')], ['Ren', null], 'the name is not touched, and there is no who-they-are box');
+    assert.equal(who.querySelector('.rpg-wiz-seg'), null, 'no You or companion choice');
+    assert.equal(ctx.rpg().wizard.session().draft.kind, 'companion', 'still a companion');
     assert.equal(who.querySelector('.rpg-import'), null, 'the row gives way to the note');
     const done = who.querySelector('[data-wiz="import-done"]');
-    assert.equal(done.textContent, 'Imported from wessel.character.json: stats, 3 unspent points, Lv 15 and 2 skills. When you press Create it also adds 3 things to the party\'s bag and 50 gold to the purse. Give the character a name and who they are below.Undo import');
+    assert.equal(done.textContent, 'Imported from wessel.character.json: stats, 3 unspent points, Lv 15 and 2 skills. When you press Create it also adds 3 things to the party\'s bag and 50 gold to the purse. Give the character a name below.Undo import');
     assert.equal(done.getAttribute('role'), 'status');
     assert.equal(who.querySelector('.rpg-wiz-sum .rpg-wiz-sub').textContent, 'Companion · Lv 15');
     assert.equal(who.querySelector('.rpg-wiz-push').textContent, 'Points left: 3');
-    assert.match(who.querySelector('.rpg-wiz-sum').textContent, /STR 14 · VIT 12 · AGI 11 · DEX 10 · INT 8 · LUK 9 · CHA 10/);
+    assert.match(who.querySelector('.rpg-wiz-sum').textContent, /STR 14 · VIT 12 · AGI 11 · DEX 10 · INT 8 · WIS 9 · CHA 10/);
     assert.match(who.querySelector('.rpg-wiz-sum').textContent, /Iron Breath \(Expert\), Short blade \(Novice\)/);
     assert.match(who.textContent, /Starts at Lv 15 \(imported\) with 0 XP\. Health, Mana and Stamina start full\./);
 
@@ -223,9 +224,9 @@ test('a good file fills the stats, the unspent points, the level and the skills;
     inc('int', 3);
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 1', 'INT stops at 10, the most a new character gets');
     assert.equal(wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="int"] .ss-w-stepper-inc').disabled, true);
-    inc('luk');
+    inc('wis');
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 0');
-    assert.equal(wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="luk"] .ss-w-stepper-inc').disabled, true, 'no points left');
+    assert.equal(wizardOf(dialog).querySelector('.rpg-stat-step[data-stat="wis"] .ss-w-stepper-inc').disabled, true, 'no points left');
     click(wizardOf(dialog), 'Reset');
     assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-push').textContent, 'Points left: 3', 'Reset goes back to the file\'s stats');
     assert.deepEqual(STATS.map(stat => Number(wizardOf(dialog).querySelector(`.rpg-stat-step[data-stat="${stat}"] input`).value)), [14, 12, 11, 10, 8, 9, 10]);
@@ -237,7 +238,7 @@ test('a good file fills the stats, the unspent points, the level and the skills;
     assert.deepEqual(rows.map(row => row.querySelector('[data-field="stat"]').value), ['vit', 'agi']);
     const rank = row => row.querySelector('[data-field="start"]');
     assert.deepEqual(rows.map(row => [rank(row).value, rank(row).disabled]), [['2', true], ['0', true]]);
-    assert.deepEqual(rank(rows[0]).querySelectorAll('option').map(node => node.textContent), ['Novice', 'Adept', 'Expert', 'Master']);
+    assert.deepEqual(rank(rows[0]).querySelectorAll('option').map(node => node.textContent), ['Novice', 'Apprentice', 'Adept', 'Expert', 'Master', 'Grandmaster', 'Legend']);
     assert.match(skills.textContent, /Ranks come from the saved file/);
     type(rows[0].querySelector('[data-field="name"]'), 'Iron Lung');
     assert.match(wizardOf(dialog).querySelector('.rpg-wiz-sum').textContent, /Iron Lung \(Expert\), Short blade \(Novice\)/, 'a skill can be renamed, its rank stays');

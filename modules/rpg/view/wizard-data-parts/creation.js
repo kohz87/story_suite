@@ -3,15 +3,16 @@
 import { LEVEL, CREATION } from '../../names.js';
 import { STANDARD_FORMULA, isStandard } from '../../rules.js';
 import { levelOfClass } from '../../formula.js';
+import { V1 } from '../../combat/numbers.js';
 import { isRecord, clamp } from './shared-helpers.js';
 
 /**
- * The numbers creation runs on under `rules`: `{ ...CREATION, start, budget, min, max, statMax, perSoul, standard: true }` from the rules' startStat,
+ * The numbers creation runs on under `rules` (the stat maximum is Combat Rules v1's 30, whatever the earlier rules' statMax says): `{ ...CREATION, start, budget, min, max, statMax, perSoul, standard: true }` from the rules' startStat,
  * createPoints, createMin, createMax, statMax and pointsPerSoul (the Standard preset's when `rules` are not Standard).
  */
 export function creationOf(rules) {
     if (!isStandard(rules)) rules = STANDARD_FORMULA;
-    return { ...CREATION, start: rules.startStat, budget: rules.createPoints, min: rules.createMin, max: rules.createMax, statMax: rules.statMax, perSoul: rules.pointsPerSoul, standard: true };
+    return { ...CREATION, start: rules.startStat, budget: rules.createPoints, min: rules.createMin, max: rules.createMax, statMax: V1.stat.max, perSoul: rules.pointsPerSoul, standard: true };
 }
 
 /** The numbers a draft runs on: its own `creation`, else the Standard preset's. */
@@ -21,7 +22,7 @@ export const draftCreation = draft => (draft?.creation?.standard === true ? draf
 export function readCreation(raw) {
     if (!isRecord(raw) || raw.standard !== true) return null;
     const whole = (value, low, high) => (Number.isSafeInteger(value) && value >= low && value <= high ? value : null);
-    const start = whole(raw.start, 1, 10), budget = whole(raw.budget, 0, 400), min = whole(raw.min, 1, 10), max = whole(raw.max, 3, 20), statMax = whole(raw.statMax, 10, 20), perSoul = whole(raw.perSoul, 0, 10);
+    const start = whole(raw.start, 1, 10), budget = whole(raw.budget, 0, 400), min = whole(raw.min, 1, 10), max = whole(raw.max, 3, V1.stat.max), statMax = whole(raw.statMax, 10, V1.stat.max), perSoul = whole(raw.perSoul, 0, 10);
     if ([start, budget, min, max, statMax, perSoul].includes(null) || !(min <= start && start <= max && max <= statMax)) return null;
     return { ...CREATION, start, budget, min, max, statMax, perSoul, standard: true };
 }

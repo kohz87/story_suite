@@ -4,7 +4,7 @@
 //   Inventory  a checkbox, on: the things that character carries, as the Inventory tab shows them for that owner (the party's bag for a You,
 //              plus the party actor of the same name when a party module lists one; a companion's own actor only)
 //   Money      a checkbox, on, and only on the reader's own card: the purse as its value in the currency's smallest unit
-// Not saved: the name, who they are, XP, Health, Mana and Stamina, skill practice, anything about the story. The window reads the story
+// Not saved: the name, XP, Health, Mana and Stamina, skill practice, anything about the story. The window reads the story
 // again every time it is drawn, so it shows what is true now. Every node is built with createElement and textContent.
 // Public face: re-exports its parts.
 

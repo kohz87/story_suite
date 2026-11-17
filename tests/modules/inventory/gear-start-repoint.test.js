@@ -22,7 +22,7 @@ test('a saved character keeps a hand-set piece exactly: the file carries its slo
     await add(host, { name: 'Wolfskin Cap', kind: 'equipment', slot: 'head', rarity: 'rare', stats: { VIT: 1, AGI: 1 } });
     await add(host, { name: 'Lucky Bone', kind: 'equipment', slot: 'accessory-2', rarity: 'common' });
     const items = itemsForFile(host.sdk.query('inventory.items'));
-    const stats = { str: 10, vit: 10, agi: 10, dex: 10, int: 10, luk: 10, cha: 10 };
+    const stats = { str: 10, vit: 10, agi: 10, dex: 10, int: 10, wis: 10, cha: 10 };
     const parsed = parseCharacterFile(fileText(buildCharacterFile({ level: 1, points: 0, stats, items })));
     assert.equal(parsed.ok, true, parsed.message);
     assert.deepEqual(parsed.file.items.find(item => item.name === 'Wolfskin Cap'), { name: 'Wolfskin Cap', qty: 1, kind: 'equipment', rarity: 'rare', slot: 'head', stats: { VIT: 1, AGI: 1 } });

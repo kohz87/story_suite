@@ -36,7 +36,7 @@ test('rpg is a content kind added after the first format, and its limits are the
     assert.equal('rpg' in ok(pack()).content, false, 'an older pack normalizes as it always did');
     assert.deepEqual(ok(withSets([])).content.rpg, []);
     assert.deepEqual([LEAN_RPG_LIMITS.sets, LEAN_RPG_LIMITS.skills, LEAN_RPG_LIMITS.skillName, LEAN_RPG_LIMITS.skillAbout], [12, 5, CREATION.skillName, CREATION.skillAbout]);
-    assert.deepEqual([...LEAN_RPG_LIMITS.stats], [...STATS], 'the same seven stats as the Skills block');
+    assert.deepEqual([...LEAN_RPG_LIMITS.stats].filter(stat => stat !== 'luk'), [...STATS], 'the same seven stats as the Skills block (and LUK, which a v1 sheet reads as WIS, so an earlier pack still loads)');
     assert.deepEqual([...LEAN_RPG_LIMITS.uses].sort(), [...USES].sort());
 });
 
@@ -98,7 +98,7 @@ test('a skill is refused for a bad name, description, stat, resource or field, a
     refused(withSets([set({ skills: [skill({ name: 7 })] })]), 'BAD_RECORD', at('name'));
     refused(withSets([set({ skills: [skill({ about: '' })] })]), 'BAD_RECORD', at('about'));
     refused(withSets([set({ skills: [skill({ about: 'x'.repeat(121) })] })]), 'BAD_RECORD', at('about'));
-    refused(withSets([set({ skills: [skill({ stat: 'wis' })] })]), 'BAD_RECORD', at('stat'));
+    refused(withSets([set({ skills: [skill({ stat: 'hp' })] })]), 'BAD_RECORD', at('stat'));
     refused(withSets([set({ skills: [skill({ stat: undefined })] })]), 'BAD_RECORD', at('stat'));
     refused(withSets([set({ skills: [skill({ uses: 'rage' })] })]), 'BAD_RECORD', at('uses'));
     refused(withSets([set({ skills: [skill({ rank: 2 })] })]), 'UNKNOWN_FIELD', at('rank'));

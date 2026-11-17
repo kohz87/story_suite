@@ -4,7 +4,7 @@
 // commands. Nothing in src/ calls it. The reader of the answer is the old plan.js parser, kept here word for word.
 import { matchCharacter, matchFoe, matchSkill, readSheet } from '../../../modules/rpg/read.js';
 import { planIsEmpty, validatePlan } from '../../../modules/rpg/plan.js';
-import { FOE_SLOTS, FORMULA, LIMITS, STATS, USES, ROLLS_SETTING, LV_VERSION, PRACTICE, PRACTICE_SETTING, practiceOf } from '../../../modules/rpg/names.js';
+import { FOE_SLOTS, FORMULA, LIMITS, STATS_EARLIER as STATS, USES, ROLLS_SETTING, LV_VERSION, PRACTICE, PRACTICE_SETTING, practiceOf } from '../../../modules/rpg/names.js';
 import { ROLL_TYPES } from '../../../modules/rpg/formula.js';
 import { hashText, normalizeType, withTimeout } from '../../../modules/assist/common.js';
 import { stripBlock } from '../../../core/capture.js';

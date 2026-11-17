@@ -26,5 +26,5 @@ export function fightWitness(sheet, domain, source, decision) {
     // (`level` joins an entry only when the sheet has one of its own (a Foes block of the Levels rules), so the witness of an older Foes block, and the guard hash of its receipt, are what they were)
     const foes = sheet.foes.filter(foe => foe.filled).map(({ slot, name, count, class: soul, hurt, level, levelled }) => ({ slot, name, count, class: soul, hurt, ...(levelled && whole(level) ? { level } : {}) }));
     return { foes, was: slotsOf(decision?.was), ...(given ? { groups: given } : {}), ...(decision?.outnumbered === 1 ? { partyCount: sheet.characters.length } : {}), from: fromOf(domain, source),
-        members: paidOf(sheet).map(character => ({ module: character.module, who: character.who, xp: character.xp, soul: character.soul, ...(character.levelled ? { level: character.level } : {}), points: character.points })) };
+        members: paidOf(sheet).map(character => ({ module: character.module, who: character.who, xp: character.xp, ...(character.soul !== undefined ? { soul: character.soul } : {}), ...(character.levelled ? { level: character.level } : {}), points: character.points })) };
 }

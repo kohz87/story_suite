@@ -9,7 +9,7 @@ import { RPG_STRINGS, fill } from '../../strings.js';
 import { skillFlags, skillKey } from '../../board/flags.js';
 import { drawSkillFlags } from '../../board/skill-editor.js';
 import { RANK_TONES } from './shared-ranks.js';
-import { masteryOf, rollOf } from './roll.js';
+import { masteryOf, masteryOfV1, rollOf } from './roll.js';
 import { hasTypes, isUtility, poolsOf, slotsShown } from './slots.js';
 
 const K = RPG_STRINGS.skills;
@@ -175,7 +175,7 @@ export function renderSkills(parent, { character, session = null, api = {}, onBa
     }
 
     function skillRow(list, skill) {
-        const roll = rollOf(skill, character, rules()), mastery = masteryOf(skill);
+        const roll = rollOf(skill, character, rules()), mastery = character.v1 ? masteryOfV1(skill) : masteryOf(skill);
         const row = h(doc, 'article', `rpg-skill${isUtility(skill) ? ' rpg-skill-util' : ''}`);
         row.setAttribute('data-slot', String(skill.slot));
         const top = h(doc, 'div', 'rpg-skill-top');
@@ -186,7 +186,7 @@ export function renderSkills(parent, { character, session = null, api = {}, onBa
             const lock = iconNode(doc, 'ph-lock-simple:fill', 'rpg-skill-lock');
             if (lock) { lock.setAttribute('title', K.signatureTitle); lock.setAttribute('aria-label', K.signatureTitle); lock.removeAttribute('aria-hidden'); lock.setAttribute('role', 'img'); top.appendChild(lock); }
         }
-        const uses = skill.stat ? fill(K.usesStat, { stat: roll.stat ?? skill.stat.toUpperCase(), uses: cap(skill.uses ?? 'stamina') }) : '';
+        const uses = character.v1 ? (skill.stat ? skill.stat.toUpperCase() : '') : skill.stat ? fill(K.usesStat, { stat: roll.stat ?? skill.stat.toUpperCase(), uses: cap(skill.uses ?? 'stamina') }) : '';
         if (uses) top.appendChild(h(doc, 'span', 'rpg-skill-uses', uses));
         if (typeof api.command === 'function' && block) pencil(top, skill);
         row.appendChild(top);
@@ -197,7 +197,8 @@ export function renderSkills(parent, { character, session = null, api = {}, onBa
         handles.push(meter.render(bar, { label: K.mastery, value: mastery.value, max: mastery.max, segments: mastery.max, tone: mastery.tone, text: mastery.text, icon: 'fa-book-open' }, {}));
         const line = h(doc, 'p', 'rpg-skill-roll');
         const rank = { rank: skill.rankName, n: skill.rank, level: character.level, divisor: rules().levelDivisor ?? LEVEL.divisor, bonus: roll.bonus };
-        if (roll.stat) {
+        if (character.v1) line.appendChild(h(doc, 'span', '', skill.stat ? fill(K.rollsV1, { stat: skill.stat.toUpperCase(), rank: skill.rankName }) : K.rollsV1NoStat));
+        else if (roll.stat) {
             line.appendChild(h(doc, 'b', '', fill(K.rolls, { total: roll.total })));
             line.appendChild(doc.createTextNode(' '));
             line.appendChild(h(doc, 'span', '', fill(roll.second ? K.rollsPartsStandard : K.rollsParts, { ...rank, stat: roll.stat, value: roll.value, half: roll.half, second: roll.second, secondValue: roll.secondValue })));

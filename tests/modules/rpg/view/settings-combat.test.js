@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../modules/rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
 import { reload } from '../../data-modules/helpers.js';
 import { settle } from './page.js';
@@ -34,7 +34,7 @@ test('Combat: the chat\'s Combat rules text is edited here and saved as an edit 
     // The narrator reads it in the prompt of a reply with a fight (lean prompt, 3 Nov: a quiet reply leaves the combat text out; lean-rpg/read.js isQuiet).
     const { request: quiet } = await host.send('I draw.', 'Steel rings.');
     assert.ok(!quiet.chat.some(message => message.content?.includes('Fights are short and cruel.')), 'a quiet reply does not carry it');
-    assert.equal((await host.sdk.command('dm.define', { definition: structuredClone(STANDARD_TEMPLATES.find(entry => entry.name === 'Foes').definition) })).ok, true);
+    assert.equal((await host.sdk.command('dm.define', { definition: structuredClone(CHOOSER_TEMPLATES.find(entry => entry.name === 'Foes').definition) })).ok, true);
     await host.send('A hound leaps.', `The hound leaps.\n<Changes>\n+ dm foes — it attacks | kind: set-slot-1 | name: Silt Hound | count: 1 | level: 5\n</Changes>`);
     const { request } = await host.send('I strike.', 'Steel rings.');
     assert.ok(request.chat.some(message => message.content?.includes('Fights are short and cruel.')), 'in the prompt');
@@ -109,7 +109,7 @@ test('settings-data: the Combat block is the first block with the role rules; wi
     const { prompt: _a, ...rest } = next, { prompt: _b, id: _i, pack: _p, ...kept } = block.definition;
     assert.deepEqual(rest, kept);
     assert.equal(combatBlock(fakeState([]), { roleOf }), null);
-    assert.equal(combatTemplate(STANDARD_TEMPLATES).role, 'rules');
+    assert.equal(combatTemplate(CHOOSER_TEMPLATES).role, 'rules');
 });
 
 test('settings-data: customOf keeps the stored numbers, else the numbers in force', () => {

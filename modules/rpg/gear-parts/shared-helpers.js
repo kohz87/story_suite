@@ -1,5 +1,5 @@
 // Small readers the gear parts share: an object test, a guarded query, and a stat bonus map held to the known stats.
-import { STATS } from '../names.js';
+import { STATS_ANY as STATS } from '../names.js';
 
 export const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 

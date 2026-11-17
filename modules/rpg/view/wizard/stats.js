@@ -1,17 +1,18 @@
-// The New character wizard's Stats step: the steppers, radar and Standard growth note.
+// The New character wizard's Stats step: the steppers, radar and the HP, MP and SP line.
+import { V1 } from '../../combat/numbers.js';
 export function createStatsStep(ctx) {
-    const { snap, pointsLeft, STATS, draftCreation, growthText, growthOf, RPG_STRINGS, fill, W, drawSummary, h, doc, stepper, put,
+    const { snap, pointsLeft, STATS, draftCreation, barsLine, RPG_STRINGS, fill, W, drawSummary, h, doc, stepper, put,
         draft, radar, button, redraw, startStats, statBounds, LEVEL_WORD, safe, packNote, body } = ctx;
     let handles = [], steppers = [], radarHandle = null;
     // ---- Stats ----
-    const axes = now => STATS.map(stat => ({ label: stat.toUpperCase(), value: now.stats[stat], max: 20, before: now.from ? now.from.stats[stat] : draftCreation(now).start }));
+    const axes = now => STATS.map(stat => ({ label: stat.toUpperCase(), value: now.stats[stat], max: V1.stat.max, before: now.from ? now.from.stats[stat] : draftCreation(now).start }));
     // One line of what the next points buy (the bars grow with stats).
-    const growth = now => (draftCreation(now).standard ? growthText(growthOf(now.stats, { statMax: draftCreation(now).statMax, scale: 2 })) : '');
+    const growth = now => (draftCreation(now).standard ? barsLine(now) : '');
     let growthNode = null;
     function refreshStats() {
         const now = snap(), left = pointsLeft(now);
         STATS.forEach((stat, at) => steppers[at]?.update({ name: stat, value: now.stats[stat], min: statBounds(now, stat)[0], max: statBounds(now, stat)[1], budget: left, label: stat.toUpperCase(), budgetLabel: RPG_STRINGS.sheet.budgetLabel, showBudget: false }));
-        radarHandle?.update({ axes: axes(now), max: 20, label: fill(W.radar, { name: now.name || W.title }), tone: 'accent' });
+        radarHandle?.update({ axes: axes(now), max: V1.stat.max, label: fill(W.radar, { name: now.name || W.title }), tone: 'accent' });
         if (growthNode) growthNode.textContent = growth(now);
         drawSummary();
     }
@@ -33,7 +34,7 @@ export function createStatsStep(ctx) {
             steppers.push(handle);
         }
         const chart = h(doc, 'div', 'rpg-radar');
-        radarHandle = radar.render(chart, { axes: axes(now), max: 20, label: fill(W.radar, { name: now.name || W.title }), tone: 'accent' }, {});
+        radarHandle = radar.render(chart, { axes: axes(now), max: V1.stat.max, label: fill(W.radar, { name: now.name || W.title }), tone: 'accent' }, {});
         handles.push(radarHandle);
         sheet.appendChild(chart);
         card.appendChild(sheet);
@@ -47,7 +48,7 @@ export function createStatsStep(ctx) {
         const fromPack = standard ? safe(packNote, '') : '';
         if (fromPack) actions.appendChild(h(doc, 'p', 'rpg-sheet-note rpg-wiz-pack', fill(RPG_STRINGS.settings.fromPack, { name: fromPack })));
         card.appendChild(actions);
-        // Standard: Health, Stamina and Mana grow with VIT, AGI and INT, and luck with LUK; the line follows the steppers.
+        // HP, MP and SP grow with the stats (VIT; INT and WIS; STR and AGI); the line follows the steppers.
         growthNode = standard ? h(doc, 'p', 'rpg-wiz-growth', growth(now)) : null;
         if (growthNode) { growthNode.setAttribute('data-wiz', 'growth'); card.appendChild(growthNode); }
         body.appendChild(card);

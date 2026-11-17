@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { STANDARD_TEMPLATES, SKILL_SETS, characterV1For, skillsV2For } from '../../../modules/rpg/templates.js';
-import { CREATION, ROLES, STATS, USES } from '../../../modules/rpg/index.js';
+import { CREATION, ROLES, STATS_EARLIER as STATS, USES } from '../../../modules/rpg/index.js';
 import { validateDataModules, DM_LIMITS as L } from '../../../modules/data-modules/check.js';
 
 const party = JSON.parse(readFileSync(new URL('fixtures/party.json', import.meta.url), 'utf8'));
