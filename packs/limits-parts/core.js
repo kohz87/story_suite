@@ -1,7 +1,7 @@
 // Pack size limits, record bounds and the content kinds a pack may carry.
 
 export const LIMITS = Object.freeze({
-    packBytes: 512 * 1024,          // one pack.json, as UTF-8
+    packBytes: 1024 * 1024,         // one pack.json, as UTF-8 (1 MB: a full world pack such as Ersveil 3 is ~620 KB)
     installedBytes: 2 * 1024 * 1024, // every installed pack together
     installed: 32,                   // packs in the installed list
     depth: 16,                       // nesting of objects and arrays
