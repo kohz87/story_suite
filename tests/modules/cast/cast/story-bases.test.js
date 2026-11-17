@@ -69,3 +69,14 @@ test('the cast hook writes cast.story after the reply only with world events on'
     assert.deepEqual(out?.commands?.map(command => command.type), ['cast.story']);
     assert.equal(hooks.afterCapture(view(false), { index: 4 }), undefined, 'switch off: nothing');
 });
+
+test('E1: a withdrawn meeting puts the person back, unless (world events on) an event moved them after it', async () => {
+    const { applyWithdraw } = await import('../../../../modules/cast/cast/apply.js');
+    const make = where => ({ people: { 'ersveil:sera': person('sera', { where, met: { on: 0, where: 'Harrow', why: 'goal', reason: 'r', rev: 0, was: 'Gwenmar' } }) }, notes: {} });
+    for (const [where, keepMoved, back] of [['Harrow', true, 'Gwenmar'], ['Shorn', true, 'Shorn'], ['Shorn', false, 'Gwenmar']]) {
+        const cast = make(where);
+        applyWithdraw(cast, { at: 3, keys: ['ersveil:sera'] }, { keepMoved });
+        assert.equal(cast.people['ersveil:sera'].where, back, `${where}, keepMoved ${keepMoved}`);
+        assert.equal(cast.people['ersveil:sera'].met, null);
+    }
+});

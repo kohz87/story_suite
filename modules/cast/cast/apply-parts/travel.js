@@ -51,14 +51,14 @@ export function applyJourney(cast, payload, env) {
  * Someone met in the story (`why: 'story'`) is never withdrawn. Returns the keys withdrawn. `env.touchNote(id)` marks a note's removal.
  */
 export function applyWithdraw(cast, payload, env) {
-    const { touch = noop, touchNote = noop } = env;
+    const { touch = noop, touchNote = noop, keepMoved = false } = env;
     const out = [];
     for (const key of payload.keys ?? []) {
         const person = Object.hasOwn(cast.people, key) && isRecord(cast.people[key]) ? cast.people[key] : null;
         if (!person || !isMet(person) || person.met.why === 'story') continue;
         touch(key);
-        // Back where they were, unless something moved them after the meeting (a world event's move, seam audit E1): then they stay put.
-        if (typeof person.met.was === 'string' && person.where === person.met.where) person.where = person.met.was;
+        // Back where they were; with `keepMoved` (world events on) not when something moved them after the meeting (an event's move, seam audit E1).
+        if (typeof person.met.was === 'string' && (!keepMoved || person.where === person.met.where)) person.where = person.met.was;
         person.met = null;
         for (const [id, note] of Object.entries(cast.notes ?? {})) {
             if (isRecord(note) && note.kind === 'met' && note.at === payload.at && note.head === `Paths crossed: ${person.name}`) {
