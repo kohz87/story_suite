@@ -32,7 +32,8 @@ function envOf(state, tools, now) {
     const chronicle = state?.domains?.chronicle ?? {};
     const declared = tryQuery(query, 'chronicle.conditionNames', {}, []);
     const factorOf = routeFactors({ table: chronicle.conditions ?? {}, declared, geo, masks: slotValue(chronicle.daily)?.masks ?? {}, now });
-    return { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf };
+    const env = { tools, geo, routes: world.routes, routeKinds: world.routeKinds, pace: courierSpeed(tools), factorOf, cache: new Map() };
+    return env;
 }
 
 // The news of one entry at `place` by `clock`: null when it never comes (beyond its reach), else its arrival and how it is heard.

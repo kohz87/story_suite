@@ -198,3 +198,25 @@ test('on the host (test 7, the world line\'s side): a clear on a day is not undo
     assert.ok(later > clearing);
     host.close();
 });
+
+test('on the host (E24): a world line\'s anchors go to the ledger, the next day\'s step takes them; deleting the world line\'s reply, a chat change and a reload agree', async () => {
+    const host = await newHost(true);
+    await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
+    await host.send('Look.', reply('The square fills.', [RIOT]));
+    const lined = host.ctx.chat.length - 1;
+    assert.deepEqual(Object.keys(host.head().domains.chronicle.ledger[0].anchors).sort(), ['set:grain-dear', 'set:grain-dear@The March', 'set:unrest', 'set:unrest@Highmark']);
+    await host.send('Sleep.', reply('Morning.', ['! time +1d']));
+    const daily = host.head().domains.chronicle.daily[0];
+    assert.equal(host.head().domains.chronicle.ledger, null, 'the step took them');
+    assert.ok(Array.isArray(daily.anchors['set:unrest@Highmark']), 'into its own, permanent anchors');
+    await agrees(host, 'taken');
+    await host.st.deleteMessage(lined);
+    assert.deepEqual(host.store.problems(), []);
+    assert.ok(Array.isArray(host.head().domains.chronicle.daily[0].anchors['set:unrest@Highmark']), 'the later step keeps what it recorded');
+    await agrees(host, 'world line deleted');
+    const saved = structuredClone(host.ctx.chat);
+    await host.st.loadChat([], 'other-chat');
+    await host.st.loadChat(saved, 'first-chat');
+    await agrees(host, 'chat change and back');
+    host.close();
+});

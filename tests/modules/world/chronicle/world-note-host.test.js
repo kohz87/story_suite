@@ -66,6 +66,8 @@ test('on the host: the note takes the [World] lines\' place and shows the place,
 test('on the host (E23): with the tightest tail budget the note\'s first lines are kept (pinned), not cut first', async () => {
     const host = await newHost(true);
     host.settings.set(null, 'tailBudget', 100);
+    // The world pulse's line is kept too and shares the kept room at random lengths: off here, so the room is the note's to use.
+    host.features.set('story-director.pulse', false);
     await play(host);
     const note = told(host);
     assert.match(note, /\[World now\]\nConditions here: unrest at Highmark/);

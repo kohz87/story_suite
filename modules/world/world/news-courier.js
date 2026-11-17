@@ -29,12 +29,8 @@ function routeDays(route, klass, { pace, factor }) {
     return days === null ? null : days * factor;
 }
 
-/**
- * `{ days, km, hops }` for news from place `from` to place `to` (canonical place names of `geo`), or null when no chain of usable
- * routes joins them. `routes` the packs' routes, `routeKinds` their map, `pace` the courier km a day for an unclassed route,
- * `factorOf(route name)` the time multiplier conditions put on a route. A district with no road of its own goes by its city's.
- */
-export function courierDays({ geo, routes = [], routeKinds = {}, pace = CLASS_SPEED.road, factorOf = () => 1 }, from, to) {
+// The graph of usable routes: place name → [{ to, days, km }], each route both ways.
+function edgesOf({ geo, routes = [], routeKinds = {}, pace = CLASS_SPEED.road, factorOf = () => 1 }) {
     const edges = new Map();
     for (const route of routes) {
         const a = geo.byName.get(low(route?.from))?.name;
@@ -46,23 +42,35 @@ export function courierDays({ geo, routes = [], routeKinds = {}, pace = CLASS_SP
         const km = Number.isFinite(route.km) && route.km > 0 ? route.km : 0;
         for (const [x, y] of [[a, b], [b, a]]) edges.set(x, [...(edges.get(x) ?? []), { to: y, days, km }]);
     }
-    const node = name => {
-        const place = geo.byName.get(low(name));
-        if (!place) return null;
-        return edges.has(place.name) || !place.parent ? place.name : place.parent;
-    };
-    const [start, goal] = [node(from), node(to)];
-    if (!start || !goal) return null;
-    if (start === goal) return { days: 0, km: 0, hops: 0 };
-    const best = new Map([[start, { days: 0, km: 0, hops: 0 }]]);
-    const open = new Set([start]);
+    return edges;
+}
+
+// A district with no road of its own goes by its city's.
+function nodeOf(geo, edges, name) {
+    const place = geo.byName.get(low(name));
+    if (!place) return null;
+    return edges.has(place.name) || !place.parent ? place.name : place.parent;
+}
+
+/**
+ * Every place's courier `{ days, km, hops }` from place `from` (one shortest-path run; routes go both ways, so it is also the time
+ * to `from`): a Map by place name, empty for a place the map does not know. `env`: `{ geo, routes, routeKinds, pace, factorOf }`.
+ */
+export function courierMap(env, from) {
+    // The graph is built once per question (kept on `env`, which news.js makes fresh for each one).
+    const edges = env.edges ?? (env.edges = edgesOf(env));
+    const start = nodeOf(env.geo, edges, from);
+    const best = new Map(start ? [[start, { days: 0, km: 0, hops: 0 }]] : []);
+    const open = new Set(start ? [start] : []);
+    const done = new Set();
     while (open.size) {
         // The nearest open place; ties by name, so the answer never depends on route order.
         const at = [...open].sort((x, y) => best.get(x).days - best.get(y).days || (x < y ? -1 : 1))[0];
         open.delete(at);
-        if (at === goal) break;
+        done.add(at);
         const here = best.get(at);
         for (const edge of edges.get(at) ?? []) {
+            if (done.has(edge.to)) continue;
             const days = tidy(here.days + edge.days);
             if (days < (best.get(edge.to)?.days ?? Infinity)) {
                 best.set(edge.to, { days, km: tidy(here.km + edge.km), hops: here.hops + 1 });
@@ -70,5 +78,16 @@ export function courierDays({ geo, routes = [], routeKinds = {}, pace = CLASS_SP
             }
         }
     }
-    return best.get(goal) ?? null;
+    return { best, node: name => nodeOf(env.geo, edges, name) };
+}
+
+/**
+ * `{ days, km, hops }` for news from place `from` to place `to` (names of `geo`), or null when no chain of usable routes joins them.
+ * `env.cache` (a Map), when given, keeps one run per `to` for every entry asked about in the same question.
+ */
+export function courierDays(env, from, to) {
+    const run = env.cache?.get(to) ?? courierMap(env, to);
+    env.cache?.set(to, run);
+    const node = run.node(from);
+    return node ? run.best.get(node) ?? null : null;
 }
