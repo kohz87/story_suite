@@ -45,9 +45,9 @@ describe('selectScene', () => {
     assert.equal(selectScene({ ...sceneAnswer('open'), kindId: 'story-block/fight' }).kindId, 'story-block/fight');
   });
 
-  it('falls back on the kind name for a title, on open for an unknown state, and drops nothing else', () => {
+  it('falls back on Activity for a title, on open for an unknown state, and drops nothing else', () => {
     const vm = selectScene({ ...sceneAnswer('open'), title: ' ', state: 'weird', canDiscard: undefined });
-    assert.equal(vm.title, 'ferry');
+    assert.equal(vm.title, 'Activity');
     assert.equal(vm.state, 'open');
     assert.equal(vm.canDiscard, true);
   });

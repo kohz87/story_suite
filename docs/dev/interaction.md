@@ -6,7 +6,15 @@ An interaction is a scene a module shows (today only the fight board) where the 
 
 - **One kind today:** the fight board, `story-block/fight` (`modules/rpg/board/interaction.js`). No other module declares `interactions`. Fishing is a concept only; nothing of it is built.
 - **The Combat Rules v1 engine** runs inside the same kind (setup `v1: 1`, docs/dev/fight-board.md). The rules chooser that would offer v1 templates is still off, so a new fight plays on today's Standard engine until the owner approves the v1 wording.
-- **Old view only.** The fight is chosen on the Fight tab and in the waiting choice. The Suite view has a generic scene host that does not choose for any kind but the fight kind yet; until it does, the core accepts `interactionStart` from `story-block/fight` only (`START_KINDS` in `core/interaction/start.js`); another kind's answer is dropped with a quiet Problem.
+- **Old view only.** The fight is chosen on the Fight tab and in the waiting choice. The Suite view has an activity host (`ui/tabs/scene/host.js`) that does not choose for any kind but the fight kind yet; until it does, the core accepts `interactionStart` from `story-block/fight` only (`START_KINDS` in `core/interaction/start.js`); another kind's answer is dropped with a quiet Problem.
+
+## How the Suite view shows an activity
+
+There is no "Scene" tab for this (the word Scene stays for the world-state Here card and the Scene sheet). An open interaction is shown in a tab named after the activity: the interaction's `title`, or "Activity" when it has none (cut to 16 characters on the tab). The tab is there only while the interaction is open, like the Fight tab; only one interaction is open at a time, so the tab bar never grows past what a fight shows. Its frame (header, Send, Discard) is the host's; Send and Discard are the `interaction.send` and `interaction.discard` commands.
+
+- **Your own view.** Register a renderer for your kind in `RENDERERS` in `ui/tabs/scene/host.js`, as Combat did for `story-block/fight`: `'your-module/kind': (vm, api) => node`. `vm` = { id, kindId, title, state, steps, canSend, canDiscard, view }, where `view` is whatever your kind's `view` returned. `api` = { stage(step), auto(n), send(), discard(), note, prefs }. Set `renderer.ownFrame = true` to draw your own header and Send / Discard (the fight does).
+- **No renderer.** The generic renderer (`ui/tabs/scene/generic.js`) draws `view.lines` (text, at most 40) and `view.choices` (`{ id, label, actor }`, at most 12; a press stages one input for that actor) under a small "Basic view" note. It is a fallback so an activity is never invisible, not a design to ship.
+- **Template page.** For module authors: Settings → Tools → Developer tools (a per-device switch, off by default) shows the generic renderer on a sample activity with the note "Template renderer: for module authors. Ship your own view for your activity." Nothing on it is sent. Players never see the sample.
 
 ## Pieces (`core/interaction/`)
 
