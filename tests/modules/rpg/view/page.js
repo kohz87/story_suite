@@ -13,7 +13,7 @@ export const settle = async () => { for (let n = 0; n < 8; n += 1) await new Pro
 export const PARTY = 'story-block/party';
 export const party = doc => doc.querySelector(`.ss-gameview [data-ss-screen="${PARTY}"]`);
 
-/** { doc, host, ui, loads, draw }; `formula` is the stat formula the chat is on ('classic' unless a test asks for 'standard': most of these pin Classic's screens); `feature` turns the RPG on first, `persona` is the reader's name, `wrap` stands between the page and the host's commands, `modules` are modules the host runs (a stand-in for a party module, say), `spy(name)` hears each sdk query the page asks. */
+/** { doc, host, ui, loads, draw, rpg }; `formula` is the stat formula the chat is on ('classic' unless a test asks for 'standard': most of these pin Classic's screens); `feature` turns the RPG on first, `persona` is the reader's name, `wrap` stands between the page and the host's commands, `modules` are modules the host runs (a stand-in for a party module, say), `spy(name)` hears each sdk query the page asks. */
 export async function page(t, { feature = true, persona = null, wrap = null, modules = [], formula = 'classic', callModel = null, spy = null } = {}) {
     const doc = setupDom();
     const form = doc.createElement('div'); form.id = 'send_form'; doc.body.appendChild(form);
@@ -22,7 +22,9 @@ export async function page(t, { feature = true, persona = null, wrap = null, mod
     if (persona !== null) host.ctx.name1 = persona;
     if (feature) host.features.set(CORE_FEATURE.leanRpg, true);
     const loads = [];
-    const loadLeanRpg = () => { loads.push(1); return import('../../../../modules/rpg/view/index.js'); };
+    // (the mounted RPG view is kept, so a test can open the wizard on its own, as a join card's Edit first does: `rpg()`)
+    let mounted = null;
+    const loadLeanRpg = async () => { loads.push(1); const view = await import('../../../../modules/rpg/view/index.js'); return { ...view, mountLeanRpg: (...args) => { mounted = view.mountLeanRpg(...args); return mounted; } }; };
     // The testkit host has no dialog opener (runtime.setDialog is the page's to plug in): the same plug, over the host's own sdk.
     let opener = null, topmost = null;
     // `wrap(type, payload, options, run)` may answer a command itself (a test makes one fail); `run` is the real one.
@@ -34,7 +36,7 @@ export async function page(t, { feature = true, persona = null, wrap = null, mod
     t.after(() => { ui.destroy(); host.close(); });
     const draw = () => { for (const old of doc.querySelectorAll('.mes')) old.remove(); host.ctx.chat.forEach((message, index) => makeMessage(doc, index)); };
     await settle();
-    return { doc, host, ui, loads, draw };
+    return { doc, host, ui, loads, draw, rpg: () => mounted };
 }
 
 /** A chat with its first reply, so blocks can be made (a block is made by an action on a reply). */

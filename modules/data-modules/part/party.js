@@ -237,7 +237,9 @@ export function createParty(deps) {
     function party(ctx, line, call = {}) {
         if (ctx.cause !== 'story' || ctx.caller !== null) refuse('REFUSED', '', J.storyOnly);
         const prefix = stateOf(ctx);
-        const read = rpg().readJoin(line, rpg().soulNaming(prefix), rpg().joinRules(prefix));
+        // (the rules are the ones the join's own pinned character was built under on a Re-read, as in makeParty: an earlier-rules join keeps its line's about, so it builds the same block)
+        const priorJoin = (ctx.standingReceipts ?? []).find(receipt => receipt?.data?.join?.op === 'added' && fold(receipt.data.join.name) === fold(line?.name ?? ''));
+        const read = rpg().readJoin(line, rpg().soulNaming(prefix), rpg().joinRules(prefix, ctx.standing, priorJoin?.data?.v2?.result?.module));
         call.label = 'Party';
         if (read.error) refuse('DM_LABEL', '', read.error);
         if (read.op === '-') {
@@ -258,7 +260,7 @@ export function createParty(deps) {
             // Ask: nothing is made. The line is kept in this reply's own receipt, and the card under the reply (rpg.joins) is read from it.
             // (the pack as it is when the line is read, also on a Re-read: an offer changes nothing in the story's state, so there is no block to read it from)
             const seeds = packSeeds(ctx, read.name);
-            const offer = { op: 'offer', name: read.name, about: read.about, soul: read.soul, best: read.best, ...(limit === PARTY_ACTIVE ? { four: true } : {}), ...(seeds.length ? { skills: seeds } : {}) };
+            const offer = { op: 'offer', name: read.name, ...(read.about !== undefined ? { about: read.about } : {}), soul: read.soul, best: read.best, ...(limit === PARTY_ACTIVE ? { four: true } : {}), ...(seeds.length ? { skills: seeds } : {}) };
             return { summary: fill(J.offerNote, { name: read.name }), narrate: false, data: { join: offer } };
         }
         return makeParty(ctx, read, check.soul, call);
@@ -312,7 +314,7 @@ export function createParty(deps) {
     }
     // A join or return that met a full party (4 active): the request, kept in the reply's own receipt (the card under the reply, rpg.joins, reads it).
     function fullOffer(request, check) {
-        const offer = { op: 'offer', name: request.name, about: request.about ?? '', soul: request.soul ?? 1, best: request.best ?? '', full: true, four: true, ...(check.back ? { back: true } : {}) };
+        const offer = { op: 'offer', name: request.name, ...(request.about !== undefined ? { about: request.about } : {}), soul: request.soul ?? 1, best: request.best ?? '', full: true, four: true, ...(check.back ? { back: true } : {}) };
         return { summary: fill(J.benchAsked, { name: request.name, max: PARTY_ACTIVE }), narrate: false, data: { join: offer } };
     }
     // A full party's card, a member picked: they step out (marked left, bound gear stowed, as `- party` does) and the newcomer joins or returns, as one reader action.

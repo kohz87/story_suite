@@ -8,7 +8,7 @@ import { oneLine } from './shared-helpers.js';
 
 /**
  * A saved character put into the draft (a good file, ../charfile.js parseCharacterFile): its stats, unspent points (the pool the stats are spent
- * from), Soul Class and skills with their ranks. The name, You or a companion, who they are and the skill set choice are left alone (a set is
+ * from), Soul Class and skills with their ranks. The name, You or a companion and the skill set choice are left alone (a set is
  * cleared: the skills now come from the file). → { draft, before }, `before` being what `withoutImport` puts back.
  */
 export function withImport(draft, file) {

@@ -11,10 +11,10 @@ import { statBounds } from './stats.js';
 import { statsOf } from './stat-list.js';
 import { isRecord, oneLine, clamp } from './shared-helpers.js';
 
-/** The draft a wizard opens with: the persona's name and You, every stat at its start. When the story already has a You it starts as a companion with no name (the persona's is taken). */
-export function newDraft({ persona = '', hasYou = false, rules = null } = {}) {
+/** The draft a wizard opens with: the persona's name and You, every stat at its start (a companion is only made from a join card: joinDraft). */
+export function newDraft({ persona = '', rules = null } = {}) {
     const creation = creationOf(rules);
-    return { name: hasYou ? '' : oneLine(persona, CREATION.name), kind: hasYou ? 'companion' : 'you', about: '', stats: startStats(creation ? { creation } : null), skills: [], set: '', ...(creation ? { creation } : {}) };
+    return { name: oneLine(persona, CREATION.name), kind: 'you', stats: startStats(creation ? { creation } : null), skills: [], set: '', ...(creation ? { creation } : {}) };
 }
 
 /** What an import brought: the file's stats and unspent points, or null (anything else is not an import). */
@@ -63,7 +63,7 @@ export function readDraft(raw) {
         };
     });
     return { name: oneLine(given.name, CREATION.name), kind: given.kind === 'companion' ? 'companion' : 'you',
-        about: oneLine(given.about, CREATION.about), stats, skills, set: typeof given.set === 'string' ? given.set : '',
+        ...(standard ? { about: oneLine(given.about, CREATION.about) } : {}), stats, skills, set: typeof given.set === 'string' ? given.set : '',
         ...(startLevel > 1 ? { level: startLevel } : {}), ...(from ? { from } : {}), ...(creation ? { creation } : {}), ...(standard ? { standard: true } : {}) };
 }
 

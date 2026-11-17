@@ -8,7 +8,7 @@ import { WIZARD_SCREEN_ID } from '../../../../modules/rpg/view/wizard.js';
 import { hasRoom, newDraft, problemsOf } from '../../../../modules/rpg/view/wizard-data.js';
 import { reload } from '../../data-modules/helpers.js';
 import { begin, fieldsOf, fillBlocks, makeBlocks, page, party, settle } from './page.js';
-import { PACK, click, goTo, names, openFrom, type, wizardOf } from './wizard.helpers.js';
+import { PACK, asCompanion, click, goTo, names, openFrom, type, wizardOf } from './wizard.helpers.js';
 
 test('Create makes the two blocks with one dm.define each, the wizard\'s values as defaults, and no dm.set; rank only moves through play', async t => {
     const ctx = await page(t, { persona: 'Wessel' });
@@ -17,7 +17,6 @@ test('Create makes the two blocks with one dm.define each, the wizard\'s values 
     await begin(host);
     const before = names(host);
     const dialog = await openFrom(ctx, { empty: true });
-    type(wizardOf(dialog).querySelector('[data-wiz="about"]'), 'A drill-yard washout from Bluewatch.');
     await goTo(dialog, 'stats');
     for (const [stat, times] of [['str', 5], ['vit', 5]]) for (let n = 0; n < times; n += 1) wizardOf(dialog).querySelector(`.rpg-stat-step[data-stat="${stat}"] .ss-w-stepper-inc`).click();
     await goTo(dialog, 'skills');
@@ -33,8 +32,8 @@ test('Create makes the two blocks with one dm.define each, the wizard\'s values 
     const made = host.ctx.chat.flatMap(message => message.extra?.storySuite?.receipts ?? []).filter(receipt => receipt.type.startsWith('dm.'));
     assert.deepEqual(made.map(receipt => receipt.type), ['dm.define', 'dm.define', 'dm.define', 'dm.define'], 'four defines and nothing else: no dm.set');
     const character = fieldsOf(host, 'pack.chat/wessel'), skills = fieldsOf(host, 'pack.chat/wessel-skills');
-    assert.deepEqual([character.who, character.about, character.str, character.vit, character.points, character.level, character.xp, character.hp, character.mp, character.sp, character.alive],
-        ['Wessel', 'A drill-yard washout from Bluewatch.', 10, 10, 0, 1, 0, 10, 10, 11, true]);   // (full v1 bars: HP 5 + VIT/2, MP 8 + (INT + WIS)/4, SP 8 + (STR + AGI)/4)
+    assert.deepEqual([character.who, character.str, character.vit, character.points, character.level, character.xp, character.hp, character.mp, character.sp, character.alive],
+        ['Wessel', 10, 10, 0, 1, 0, 10, 10, 11, true]);   // (full v1 bars: HP 5 + VIT/2, MP 8 + (INT + WIS)/4, SP 8 + (STR + AGI)/4)
     assert.deepEqual([skills.who, skills.skill1, skills.stat1, skills.type1, skills.rank1, skills.practice1, skills.skill2, skills.rank2, skills.skill4, skills.rank4],
         ['Wessel', 'Short blade', 'agi', 'attack', 2, 200, 'Iron Breath', 0, '', 0]);   // (a skill chosen to start at Adept has the practice of that rank)
     const domain = host.head().domains.dataModules;
@@ -60,7 +59,7 @@ test('Create costs the reply\'s budget twice: two roots, and a second character 
     await begin(ctx.host);
     for (const [who, persona] of [['Wessel', true], ['Ren', false]]) {
         const dialog = await openFrom(ctx, { empty: who === 'Wessel' });
-        if (!persona) { click(wizardOf(dialog), 'A companion'); type(wizardOf(dialog).querySelector('[data-wiz="name"]'), who); }
+        if (!persona) await asCompanion(dialog, who);
         await goTo(dialog, 'review');
         wizardOf(dialog).querySelector('.rpg-wiz-create').click();
         await settle();
@@ -119,25 +118,23 @@ test('nothing half made: if the second define fails the first block is taken bac
     ctx.ui.mounts.dialog.closeAll();
 });
 
-test('one You to a story: with a character named like the persona already there, You is off and the wizard starts as a companion', async t => {
+test('one You to a story: with a character named like the persona already there, the Party tab has no New character button, and the wizard (a You only) refuses a second', async t => {
     const ctx = await page(t, { persona: 'Wessel' });
     await begin(ctx.host);
     await makeBlocks(ctx.host, { who: 'Wessel' });
     await ctx.host.send('Go.', 'The quay.');
+    ctx.ui.mounts.screen.open('story-block/party');
+    await settle();
+    assert.equal(party(ctx.doc).querySelector('.rpg-new'), null, 'no New character button while the story has a You');
     const dialog = await openFrom(ctx);
     const who = wizardOf(dialog);
-    const you = who.querySelector('.rpg-wiz-seg button[data-kind="you"]');
-    assert.equal(you.disabled, true);
-    assert.equal(who.querySelector('.rpg-wiz-seg button[data-kind="companion"]').getAttribute('aria-pressed'), 'true');
-    assert.equal(who.querySelector('[data-wiz="name"]').value, '', 'the persona\'s name is not a companion\'s');
-    assert.match(who.textContent, /You already have a character in this story\./);
-    you.click();
-    assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-seg button[data-kind="companion"]').getAttribute('aria-pressed'), 'true', 'a disabled You does nothing');
-    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), 'Wessel');
+    assert.equal(who.querySelector('.rpg-wiz-seg'), null, 'no You or companion choice');
+    assert.equal(who.querySelector('[data-wiz="name"]').value, 'Wessel', 'the persona\'s name');
     const review = await goTo(dialog, 'review');
     assert.ok(review.querySelector('.rpg-wiz-create').disabled);
     const problems = review.querySelectorAll('.rpg-wiz-problems li').map(node => node.textContent).join(' ');
     assert.match(problems, /A character called Wessel is already in this story\./);
+    assert.match(problems, /You already have a character in this story\./);
     dialog.close();
 });
 
@@ -145,8 +142,7 @@ test('a companion cannot take the persona\'s name, and You must have it; no pers
     const ctx = await page(t, { persona: 'Wessel' });
     await begin(ctx.host);
     const dialog = await openFrom(ctx, { empty: true });
-    click(wizardOf(dialog), 'A companion');
-    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), 'Wessel');
+    await asCompanion(dialog, 'Wessel');
     let review = await goTo(dialog, 'review');
     assert.match(review.querySelectorAll('.rpg-wiz-problems li').map(node => node.textContent).join(' '), /A companion cannot have your persona's name \(Wessel\)/);
     assert.ok(review.querySelector('.rpg-wiz-create').disabled);
@@ -187,8 +183,7 @@ test('a full party (4 active): the Review refuses another character with the joi
     for (const who of ['Ren', 'Tamsin', 'Mira', 'Ilse']) await makeBlocks(ctx.host, { who });
     await ctx.host.send('Go.', 'The quay.');
     const dialog = await openFrom(ctx);
-    click(wizardOf(dialog), 'A companion');
-    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), 'Olwen');
+    await asCompanion(dialog, 'Olwen');
     const review = await goTo(dialog, 'review');
     assert.match(review.textContent, /the party is full \(4 active\); someone must leave first/);
     assert.ok(review.querySelector('.rpg-wiz-create').disabled, 'Create stays off');
@@ -201,10 +196,10 @@ test('closing the dialog drops the draft: the next one starts fresh', async t =>
     const ctx = await page(t, { persona: 'Wessel' });
     await begin(ctx.host);
     let dialog = await openFrom(ctx, { empty: true });
-    type(wizardOf(dialog).querySelector('[data-wiz="about"]'), 'Something.');
+    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), 'Something');
     dialog.close();
     dialog = await openFrom(ctx, { empty: true });
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="about"]').value, '');
+    assert.equal(wizardOf(dialog).querySelector('[data-wiz="name"]').value, 'Wessel');
     assert.equal(ctx.ui.mounts.dialog.current(), dialog);
     dialog.close();
 });

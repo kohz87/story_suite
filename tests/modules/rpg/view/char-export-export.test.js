@@ -35,7 +35,7 @@ test('the dialog says what is saved: the character always, the things and the mo
     const ctx = await story(t);
     const dialog = await exportDialog(ctx);
     const root = exportOf(dialog);
-    assert.match(root.textContent, /Saves a file you can import when you make a character in another chat\. The name and who they are stay in this chat\./);
+    assert.match(root.textContent, /Saves a file you can import when you make a character in another chat\. The name stays in this chat\./);
     const option = key => root.querySelector(`[data-option="${key}"]`);
     assert.match(option('character').textContent, /Character/);
     assert.match(option('character').textContent, /Lv 15 · 3 points to spend/);
@@ -49,7 +49,7 @@ test('the dialog says what is saved: the character always, the things and the mo
     assert.match(option('money').textContent, /Money · 50 gold/);
     assert.match(option('money').textContent, /Kept as its value, so another game's coins show it in their own words\./);
     assert.equal(option('money').querySelector('input').checked, true, 'on');
-    assert.equal(root.querySelector('.rpg-exp-notsaved').textContent, 'Not saved: the name, who they are, XP, Health, Mana and Stamina (a new character starts full), skill practice, and anything about the story.');
+    assert.equal(root.querySelector('.rpg-exp-notsaved').textContent, 'Not saved: the name, XP, Health, Mana and Stamina (a new character starts full), skill practice, and anything about the story.');
     assert.equal(root.querySelector('.rpg-exp-save .rpg-exp-file').textContent, 'wessel.character.json');
     assert.deepEqual(root.querySelectorAll('.rpg-exp-actions button').map(node => node.textContent), ['Cancel', 'Save' + 'wessel.character.json']);
     click(root, 'Cancel');
@@ -195,17 +195,18 @@ test('the Who step starts with "Start from a saved character" and an Import file
     dialog.close();
 });
 
-test('a good file fills the stats, the unspent points, the level and the skills; the name, You or a companion and who they are stay', async t => {
+test('a good file fills the stats, the unspent points, the level and the skills; the name stays', async t => {
     const ctx = await newcomer(t);
     const dialog = await wizardWith(ctx);
     await companion(dialog);
     await importInto(dialog, SAVED);
     const who = wizardOf(dialog);
-    assert.deepEqual([who.querySelector('[data-wiz="name"]').value, who.querySelector('[data-wiz="about"]').value], ['Ren', 'A ferry hand from Low Quay.'], 'name and who they are are not touched');
-    assert.deepEqual(who.querySelectorAll('.rpg-wiz-seg button').map(node => node.getAttribute('aria-pressed')), ['false', 'true'], 'still a companion');
+    assert.deepEqual([who.querySelector('[data-wiz="name"]').value, who.querySelector('[data-wiz="about"]')], ['Ren', null], 'the name is not touched, and there is no who-they-are box');
+    assert.equal(who.querySelector('.rpg-wiz-seg'), null, 'no You or companion choice');
+    assert.equal(ctx.rpg().wizard.session().draft.kind, 'companion', 'still a companion');
     assert.equal(who.querySelector('.rpg-import'), null, 'the row gives way to the note');
     const done = who.querySelector('[data-wiz="import-done"]');
-    assert.equal(done.textContent, 'Imported from wessel.character.json: stats, 3 unspent points, Lv 15 and 2 skills. When you press Create it also adds 3 things to the party\'s bag and 50 gold to the purse. Give the character a name and who they are below.Undo import');
+    assert.equal(done.textContent, 'Imported from wessel.character.json: stats, 3 unspent points, Lv 15 and 2 skills. When you press Create it also adds 3 things to the party\'s bag and 50 gold to the purse. Give the character a name below.Undo import');
     assert.equal(done.getAttribute('role'), 'status');
     assert.equal(who.querySelector('.rpg-wiz-sum .rpg-wiz-sub').textContent, 'Companion · Lv 15');
     assert.equal(who.querySelector('.rpg-wiz-push').textContent, 'Points left: 3');

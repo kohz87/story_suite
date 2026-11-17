@@ -76,7 +76,7 @@ export function createWhoStep(ctx) {
     // ---- Who ----
     function drawWho() {
         drawImport();
-        const now = world(), form = h(doc, 'div', 'rpg-wiz-form');
+        const form = h(doc, 'div', 'rpg-wiz-form');
         body.appendChild(form);
         const name = field(form, W.name, input(draft().name, CREATION.name), h(doc, 'span', 'rpg-wiz-note', draft().kind === 'you' ? W.nameHint : W.nameHintOther));
         name.setAttribute('data-wiz', 'name');
@@ -110,45 +110,6 @@ export function createWhoStep(ctx) {
         level.addEventListener('input', () => setLevel(level.value, false));
         level.addEventListener('change', () => { setLevel(level.value, true); redraw(); });
         field(form, W.startingLevel, level, levelHelp);
-        const kind = h(doc, 'div', 'rpg-wiz-kind');
-        kind.appendChild(h(doc, 'div', 'rpg-wiz-field-label', W.is));
-        const seg = h(doc, 'div', 'rpg-wiz-seg');
-        kind.appendChild(seg);
-        form.appendChild(kind);
-        const choose = to => {
-            const was = draft();
-            let next = { ...was, kind: to };
-            if (to === 'you' && now.persona) next = { ...next, name: now.persona };
-            else if (to === 'companion' && now.persona && fold(was.name) === fold(now.persona)) next = { ...next, name: '' };
-            // The persona's description goes with You: into an empty box on You, and out again on a companion while it is still untouched.
-            const from = current().about;
-            if (to === 'you' && from && !was.about) next = { ...next, about: from };
-            else if (to === 'companion' && from && fold(was.about) === fold(from)) next = { ...next, about: '' };
-            put(next);
-            drawSummary();
-            redraw();
-        };
-        for (const [value, label] of [['you', W.isYou], ['companion', W.isCompanion]]) {
-            const node = button(seg, label, `ss-button rpg-wiz-kind-${value}${draft().kind === value ? ' ss-button-primary' : ''}`, () => { if (!node.disabled) choose(value); });
-            node.setAttribute('aria-pressed', String(draft().kind === value));
-            node.setAttribute('data-kind', value);
-            if (value === 'you' && now.hasYou) { node.disabled = true; node.setAttribute('title', W.youTaken); }
-        }
-        if (now.hasYou) kind.appendChild(h(doc, 'span', 'rpg-wiz-note', W.youTaken));
-        const about = h(doc, 'textarea', 'rpg-wiz-input');
-        about.setAttribute('rows', '4');
-        about.setAttribute('maxlength', String(CREATION.about));
-        about.setAttribute('data-wiz', 'about');
-        about.value = draft().about;
-        const count = h(doc, 'span', 'rpg-wiz-count', fill(W.aboutCount, { n: [...draft().about].length, max: CREATION.about }));
-        field(form, W.about, about, count);
-        // Where the text came from, while it is still the persona's (a note under the box; typing over it takes the note away).
-        const fromPersona = h(doc, 'p', 'rpg-wiz-note rpg-wiz-persona', W.aboutPersona);
-        fromPersona.setAttribute('data-wiz', 'persona-note');
-        const showPersona = () => { fromPersona.hidden = !(draft().kind === 'you' && current().about && fold(draft().about) === fold(current().about)); };
-        showPersona();
-        about.addEventListener('input', () => { put({ ...draft(), about: about.value }); count.textContent = fill(W.aboutCount, { n: [...about.value].length, max: CREATION.about }); showPersona(); });
-        form.appendChild(fromPersona);
         startNote = h(doc, 'p', 'rpg-wiz-note', startText());
         form.appendChild(startNote);
     }

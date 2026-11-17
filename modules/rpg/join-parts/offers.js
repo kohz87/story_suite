@@ -8,7 +8,7 @@ import { isRecord } from './shared-record.js';
 /**
  * The offers on a reply: the `+ party` lines that asked (Ask) or met a full party, read from the reply's receipts (`entries`: store.receipts() as a
  * query's tools give them, `{ index, receipt }`), minus the ones the reader answered (a `rpg.joinNo` receipt for the name, a `dm.join` for it, a return)
- * and the ones whose name is in the party now. → [{ name, about, soul, best }] in the order written. An offer that met a full party (`full`, a bench
+ * and the ones whose name is in the party now. → [{ name, soul, best }] in the order written. An offer that met a full party (`full`, a bench
  * choice) is asked again only while 4 are active, and "Not now" (`declined`) keeps it; a bench choice already made ends the list with
  * `{ name, done: true, benched }` (who stepped out), for the card to say so.
  */
@@ -35,7 +35,7 @@ export function joinOffers(entries, index, party = []) {
         if (!key || answered.has(key)) continue;
         const known = seen.get(key);
         if (known) { known.recorded ||= join.full === true; known.back ||= join.back === true; known.four ||= join.four === true; continue; }
-        const offer = { name: oneLine(join.name), about: oneLine(join.about), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '',
+        const offer = { name: oneLine(join.name), soul: Number.isSafeInteger(join.soul) ? join.soul : 1, best: STATS.includes(join.best) ? join.best : '',
             ...(Array.isArray(join.skills) && join.skills.length ? { skills: join.skills.slice(0, 8).map(skill => ({ name: oneLine(skill?.name), about: oneLine(skill?.about), stat: skill?.stat, uses: skill?.uses, rank: skill?.rank, ...(skill?.type === 'utility' ? { type: 'utility' } : {}) })) } : {}) };
         const state = { offer, recorded: join.full === true, back: join.back === true, four: join.four === true };
         seen.set(key, state);

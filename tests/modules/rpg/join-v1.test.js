@@ -44,7 +44,7 @@ test('a story join in a v1 chat makes v1 blocks, and replays as live (swipe, swi
     await rebuilt(host, 'Re-read back');
 });
 
-test('best: luk is refused in a v1 chat, and best: wis in a chat that holds an earlier Character', { skip }, async t => {
+test('best: luk is refused in a v1 chat; a chat that holds an earlier Character still builds the earlier block for it', { skip }, async t => {
     const host = await v1World();
     t.after(() => host.close());
     await host.send('Mara comes.', reply('+ party Mara | best: luk'));
@@ -73,5 +73,4 @@ test('a second companion in a v1 chat is v1 too (a chat that holds only v1 Chara
     const definitions = Object.values(empty.head().domains.dataModules.pins).map(pin => pin.definition);
     assert.equal(definitions.find(definition => definition.role === 'foes')?.state.tier1?.type, 'enum', 'the Foes block it brings is v1\'s (a tier on every slot)');
     assert.equal(definitions.find(definition => definition.role === 'character')?.state.wis?.type, 'int', 'and the Character is v1\'s');
-}
-);
+});

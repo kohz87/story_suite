@@ -30,7 +30,6 @@ export function buildV1Definitions(draft, { used = [], points = null, cap = null
     character.name = names.character;
     const state = character.state, { level, cap: top } = startLevelOf(draft, cap);
     state.who.default = draft.name;
-    state.about.default = draft.about;
     for (const stat of STATS_V1) state[stat].default = draft.stats[stat];
     state.points.default = Number.isSafeInteger(points) ? Math.max(0, points) : Math.max(0, pointsLeft(draft));
     state.level.default = level;

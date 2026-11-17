@@ -175,18 +175,18 @@ test('the things a character carries as the file keeps them: counts added up per
 
 // ---- what the draft takes from a good file -------------------------------------------------------------------------------------------
 
-const typed = () => ({ ...newDraft({ persona: 'Wessel' }), name: 'Ren', kind: 'companion', about: 'A ferry hand from Low Quay.', stats: { ...newDraft().stats, str: 12 } });
+const typed = () => ({ ...newDraft({ persona: 'Wessel' }), name: 'Ren', kind: 'companion', stats: { ...newDraft().stats, str: 12 } });
 
 test('an import fills the stats, the unspent points, the Soul Class and the skills with their ranks, and touches nothing else', () => {
     const before = typed();
     const { draft } = withImport(before, good(sample()));
-    assert.deepEqual([draft.name, draft.kind, draft.about], ['Ren', 'companion', 'A ferry hand from Low Quay.'], 'name, You or companion and who they are stay');
+    assert.deepEqual([draft.name, draft.kind], ['Ren', 'companion'], 'name, You or companion and who they are stay');
     assert.deepEqual(draft.stats, STAT_VALUES);
     assert.equal(draft.level, 15, 'Soul Class II stands for level 15');
     assert.deepEqual(draft.from, { stats: STAT_VALUES, points: 3 });
     assert.deepEqual(draft.skills.map(skill => [skill.name, skill.stat, skill.uses, skill.rank]), [['Iron Breath', 'vit', 'stamina', 2], ['Spark', 'int', 'mana', 0]]);
     assert.equal(pointsLeft(draft), 3, 'the file\'s unspent points are what is left to spend');
-    assert.deepEqual(Object.keys(draft).sort(), ['about', 'creation', 'from', 'kind', 'level', 'name', 'set', 'skills', 'stats'], 'no XP, health or anything else appears');
+    assert.deepEqual(Object.keys(draft).sort(), ['creation', 'from', 'kind', 'level', 'name', 'set', 'skills', 'stats'], 'no XP, health or anything else appears');
     assert.equal(withImport({ ...before, level: 35 }, good(sample({ soul: 1 }))).draft.level, 5, 'Soul Class I stands for level 5');
     assert.deepEqual(before, typed(), 'the draft that was given is not changed');
 });
@@ -215,10 +215,10 @@ test('the usual rules still hold after an import: points are spent from the file
 test('Undo import puts back what was there before, and keeps what was typed since', () => {
     const before = typed();
     const made = withImport({ ...before, soul: 3, set: 'guild-fighter' }, good(sample()));
-    const typedAfter = { ...made.draft, name: 'Ren Marsh', about: 'Changed.' };
+    const typedAfter = { ...made.draft, name: 'Ren Marsh' };
     const back = withoutImport(typedAfter, made.before);
     assert.deepEqual([back.stats, back.soul, back.set, back.from, back.skills], [before.stats, 3, 'guild-fighter', undefined, []]);
-    assert.deepEqual([back.name, back.about, back.kind], ['Ren Marsh', 'Changed.', 'companion']);
+    assert.deepEqual([back.name, back.kind], ['Ren Marsh', 'companion']);
     assert.equal(withoutImport(withImport(before, good(sample())).draft, withImport(before, good(sample())).before).soul, undefined);
 });
 
@@ -226,7 +226,7 @@ test('Create writes the file\'s ranks into the Skills block, its points and Soul
     const { draft } = withImport({ ...typed(), name: 'Ren' }, good(sample()));
     const { character, skills } = buildDefinitions(readDraft(draft), { used: [] });
     const c = character.state, s = skills.state;
-    assert.deepEqual([c.who.default, c.about.default, c.level.default, c.points.default, c.xp.default, c.hp.default, c.str.default, c.int.default], ['Ren', 'A ferry hand from Low Quay.', 15, 3, 0, 16, 14, 8], 'the file\'s Soul Class II is the level it stands for (15)');
+    assert.deepEqual([c.who.default, c.level.default, c.points.default, c.xp.default, c.hp.default, c.str.default, c.int.default], ['Ren', 15, 3, 0, 16, 14, 8], 'the file\'s Soul Class II is the level it stands for (15)');
     assert.deepEqual([s.skill1.default, s.rank1.default, s.stat1.default, s.skill2.default, s.rank2.default, s.type2.default, s.practice1.default, s.skill3.default, s.rank3.default], ['Iron Breath', 2, 'vit', 'Spark', 0, 'attack', 200, '', 0]);
     assert.equal(s.rank1.edit, false, 'rank is still a field only play moves');
     // Unspent points are what is left of the pool after the reader's changes.

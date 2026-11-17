@@ -121,12 +121,16 @@ export function createAct(deps) {
         // Practice comes only from rolled skill uses: on a reply captured under that rule (turn.js marks it, `ctx.carrier.practiceRule`; an older reply has no mark
         // and keeps its practice lines on a Re-read, an edit, a rebuild and a reload) the narrator's practice line changes nothing.
         if (ctx.cause === 'story' && definition.role === 'skills' && PRACTICE_KIND.test(labels.kind) && ctx.carrier?.practiceRule === 'rolls') refuse('REFUSED', '', 'Practice comes from rolled skill uses.');
-        const args = parseLabels(definition, kind, labels, { text: Boolean(line) });
-        // (a learn line of a block with types that leaves its `type` out gets the block's default type: a Combat Rules v1 block's is `attack`, an earlier typed block's is `combat`)
-        if (definition.role === 'skills' && isTypedSkills(definition.state) && LEARN_KIND.test(labels.kind) && kind.labels?.type && args.type === undefined) {
+        // (a learn line of a block with types that leaves its `type` out gets the block's default type: a Combat Rules v1 block's is `attack`, an earlier typed block's is `combat`;
+        // a required type label (v1: shown to the narrator without brackets) is filled before the labels are read, an optional one (earlier) after, so that path's bytes do not move)
+        const learnsTyped = definition.role === 'skills' && isTypedSkills(definition.state) && LEARN_KIND.test(labels.kind) && kind.labels?.type;
+        const defaultType = () => {
             const values = Array.isArray(kind.labels.type.values) ? kind.labels.type.values : [];
-            args.type = values.includes('combat') || !values.length ? 'combat' : values.includes('attack') ? 'attack' : values[0];
-        }
+            return values.includes('combat') || !values.length ? 'combat' : values.includes('attack') ? 'attack' : values[0];
+        };
+        const required = learnsTyped && kind.labels.type.optional !== true && !dmOwn(labels, 'type');
+        const args = parseLabels(definition, kind, required ? { ...labels, type: defaultType() } : labels, { text: Boolean(line) });
+        if (learnsTyped && args.type === undefined) args.type = defaultType();
         // The XP rate (lean-rpg/levels.js): the narrator's XP line for a character is multiplied by the rate in force (the RPG on), which the line's record keeps
         // (`xpRate`, only when it is not 100) so a later change of the setting never moves it; a line recorded without it is 100.
         let xpRate = XP_RATE.default, xpKept = null;

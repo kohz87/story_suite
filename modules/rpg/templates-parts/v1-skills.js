@@ -38,7 +38,7 @@ export const skillsV1 = {
     },
     kinds: Object.fromEntries(SLOTS.flatMap(n => [
         [`learn-${n}`, { op: '~', when: ['eq', get(`skill${n}`), ''], refusal: 'That slot holds a skill; use a free slot.',
-            labels: { name: { type: 'text', max: CREATION.skillName }, about: { type: 'text', max: CREATION.skillAbout }, stat: { type: 'enum', values: [...STATS_V1] }, type: { type: 'enum', values: [...TYPES], optional: true } },
+            labels: { name: { type: 'text', max: CREATION.skillName }, about: { type: 'text', max: CREATION.skillAbout }, stat: { type: 'enum', values: [...STATS_V1] }, type: { type: 'enum', values: [...TYPES] } },
             effects: [{ op: 'set', path: [`skill${n}`], value: ['arg', 'name'] }, { op: 'set', path: [`about${n}`], value: ['arg', 'about'] },
                 { op: 'set', path: [`stat${n}`], value: ['arg', 'stat'] }, { op: 'set', path: [`type${n}`], value: ['arg', 'type'] }] }],
         [`practice-${n}`, { op: '+', labels: { amount: range(1, 20) }, when: ['ne', get(`skill${n}`), ''], refusal: 'Name the skill before it can be practised.',

@@ -11,12 +11,23 @@ export const ctxDialog = ctx => ctx.ui.mounts.dialog.current();
 export const wizardOf = dialog => dialog.root.querySelector('.ss-w-rpg-wizard');
 export const click = (root, text) => root.querySelectorAll('button').find(node => node.textContent === text)?.click();
 export const type = (node, value) => { node.value = value; node.dispatch('input'); };
+let lastCtx = null;
+// The New character dialog on a fresh draft (a You): from the Party tab's button, or, where the story has a You and the tab has no such button, the wizard itself.
 export async function openFrom(ctx, { empty = false } = {}) {
+    lastCtx = ctx;
     ctx.ui.mounts.screen.open('story-block/party');
     await settle();
-    party(ctx.doc).querySelector(empty ? '.rpg-create' : '.rpg-new').click();
+    const button = party(ctx.doc).querySelector(empty ? '.rpg-create' : '.rpg-new');
+    if (button) button.click(); else ctx.rpg().wizard.open();
     await settle();
     return ctx.ui.mounts.dialog.current();
+}
+// The wizard makes a You only; a companion is made from a join card (the draft the card brings). These tests need a blank companion draft, so the draft is turned into one here.
+export async function asCompanion(dialog, name = '') {
+    const run = lastCtx.rpg().wizard.session();
+    run.draft = { ...run.draft, kind: 'companion', name };
+    await goTo(dialog, 'stats');
+    await goTo(dialog, 'who');
 }
 export const goTo = async (dialog, step) => { dialog.goTo(['who', 'stats', 'skills', 'review'].indexOf(step)); await settle(); return wizardOf(dialog); };
 export const names = host => Object.keys(host.head().domains.dataModules?.active ?? {}).sort();
@@ -35,8 +46,7 @@ export async function usedReply(t, used) {
 }
 export async function companion(ctx, name) {
     const dialog = await openFrom(ctx);
-    click(wizardOf(dialog), 'A companion');
-    type(wizardOf(dialog).querySelector('[data-wiz="name"]'), name);
+    await asCompanion(dialog, name);
     await goTo(dialog, 'review');
     return dialog;
 }

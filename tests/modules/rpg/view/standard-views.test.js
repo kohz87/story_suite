@@ -210,8 +210,6 @@ test('Create under Standard writes the stats and full bars as the new blocks\' d
     await settle();
     const dialog = ctx.ui.mounts.dialog.current();
     const root = () => dialog.root.querySelector('.ss-w-rpg-wizard');
-    root().querySelector('[data-wiz="about"]').value = 'A ferry hand.';
-    root().querySelector('[data-wiz="about"]').dispatch('input');
     dialog.goTo(1);
     await settle();
     for (let n = 0; n < 5; n += 1) root().querySelector('.rpg-stat-step[data-stat="vit"] .ss-w-stepper-inc').click();

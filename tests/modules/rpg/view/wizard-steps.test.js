@@ -32,33 +32,24 @@ test('"Create your character" in the empty state and "+ New character" in the he
     assert.equal(some.ui.mounts.dialog.current(), null);
 });
 
-test('Who: the persona\'s name, You or A companion, who they are with its count; Back and Next keep what was typed', async t => {
+test('Who: the persona\'s name for a You (no You or companion choice, no Who they are); Back and Next keep what was typed', async t => {
     const ctx = await page(t, { persona: 'Wessel' });
     await begin(ctx.host);
     const dialog = await openFrom(ctx, { empty: true });
     const who = wizardOf(dialog);
     assert.equal(who.querySelector('[data-wiz="name"]').value, 'Wessel');
     assert.match(who.textContent, /From your persona\. You can change it here\./);
-    assert.deepEqual(who.querySelectorAll('.rpg-wiz-seg button').map(node => [node.textContent, node.getAttribute('aria-pressed')]), [['You', 'true'], ['A companion', 'false']]);
+    assert.equal(who.querySelector('.rpg-wiz-seg'), null, 'no You or companion choice');
+    assert.equal(who.querySelector('[data-wiz="about"]'), null, 'no Who they are');
     assert.equal(who.querySelector('.rpg-wiz-sum .rpg-wiz-name').textContent, 'Wessel');
     assert.match(who.querySelector('.rpg-wiz-sub').textContent, /^You · Lv 1$/);
     assert.equal(who.querySelector('.rpg-wiz-push').textContent, 'Points left: 10');
-    const about = who.querySelector('[data-wiz="about"]');
-    assert.equal(about.getAttribute('maxlength'), '240');
-    type(about, 'A drill-yard washout from Bluewatch.');
-    assert.equal(who.querySelector('.rpg-wiz-count').textContent, '36 / 240');
     type(who.querySelector('[data-wiz="name"]'), 'Wess');
     assert.equal(who.querySelector('.rpg-wiz-sum .rpg-wiz-name').textContent, 'Wess', 'the summary row follows');
     const stats = await goTo(dialog, 'stats');
     assert.ok(stats);
     const again = await goTo(dialog, 'who');
     assert.equal(again.querySelector('[data-wiz="name"]').value, 'Wess');
-    assert.equal(again.querySelector('[data-wiz="about"]').value, 'A drill-yard washout from Bluewatch.');
-    click(again, 'A companion');
-    assert.equal(wizardOf(dialog).querySelector('.rpg-wiz-sub').textContent, 'Companion · Lv 1');
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="name"]').value, 'Wess');
-    click(wizardOf(dialog), 'You');
-    assert.equal(wizardOf(dialog).querySelector('[data-wiz="name"]').value, 'Wessel', 'You takes the persona\'s name');
     dialog.close();
 });
 

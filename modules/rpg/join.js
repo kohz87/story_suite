@@ -1,5 +1,5 @@
 // Companions who join (mockup section 8): the narrator's one-line form for someone joining or leaving the party,
-//   + party Mara | about: a hedge-witch from Kvildal | class: I | best: int
+//   + party Mara | class: I | best: int
 //   - party Mara
 // and what code makes of it. Pure: no DOM, no commands. This file reads the line, checks it against the story's blocks, works out the
 // character (stats 10, the named best stat 14, Soul Class as written but never above the party's highest, bars full) and the two

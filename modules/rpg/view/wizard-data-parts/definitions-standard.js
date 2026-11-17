@@ -23,7 +23,7 @@ export function buildStandardDefinitions(draft, { used = [], points = null, cap 
     character.name = names.character;
     const state = character.state;
     state.who.default = draft.name;
-    state.about.default = draft.about;
+    state.about.default = draft.about ?? '';
     for (const stat of STATS) state[stat].default = draft.stats[stat];
     state.points.default = Number.isSafeInteger(points) ? Math.max(0, points) : Math.max(0, pointsLeft(draft));
     // The Standard formula's bars are rows of blocks that grow with VIT, AGI and INT: a new character starts with them full, and the hidden fields
