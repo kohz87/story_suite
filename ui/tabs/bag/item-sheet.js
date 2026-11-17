@@ -3,6 +3,7 @@ import { h } from '../../kit/dom.js';
 import { button } from '../../kit/controls.js';
 import { itemTile, memberName, KIND_LABEL } from './item-grid.js';
 import { itemEditForm } from './item-edit.js';
+import { can } from '../../runtime/can.js';
 
 const RARITY_LABEL = { uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic' };
 const RARITY_CLASS = { uncommon: 'rar-unc', rare: 'rar-rare', epic: 'rar-epic' };
@@ -63,7 +64,7 @@ export function itemSheet(item, ctx = {}) {
   } else if (gear) {
     actions.push(button({ label: 'Wear on…', tone: 'primary', onClick: () => pick('Wear on', 'item.equip') }));
   }
-  if (item.kind === 'use') actions.push(button({ label: 'Use on…', tone: 'primary', onClick: () => pick('Use on', 'item.use') }));
+  if (item.kind === 'use' && can(ctx, 'item.use')) actions.push(button({ label: 'Use on…', tone: 'primary', onClick: () => pick('Use on', 'item.use') }));
   const kindLabel = KIND_LABEL[item.kind] + (gear && item.glyph ? ` · ${item.glyph === 'bagslot' ? 'Bag' : item.glyph[0].toUpperCase() + item.glyph.slice(1)}` : '');
   const head = withEdit => h('div', { class: 'dh' }, itemTile(item, rpg, 'sm'), h('div', null,
     h('div', { class: 'dn' }, item.name),

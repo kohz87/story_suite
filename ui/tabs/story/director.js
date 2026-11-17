@@ -1,6 +1,7 @@
 // Builds the Director cards (plan bar, pulse, cast, arc, beats, clocks, hooks, news on its way) and the shared plan-gated card.
 import { h } from '../../kit/dom.js';
 import { button, toggle } from '../../kit/controls.js';
+import { can } from '../../runtime/can.js';
 
 const CLOCK_SHOWN = Object.freeze({ none: 'not yet', sign: 'a sign', warning: 'a warning' });
 
@@ -69,7 +70,7 @@ function arcCard(arc, shown, ctx) {
   return h('section', { class: 'card glass dc wide', dataset: { card: 'arc' } },
     h('div', { class: 'ch' }, h('h3', null, 'Arc'), h('span', { class: 'cnt' }, arc?.accepted ? `accepted ${arc.accepted}` : 'none accepted')), body,
     h('div', { class: 'prow' },
-      button({ label: 'Plan the next arc', dataset: { act: 'arc-plan' }, onClick: () => ctx.command?.('arc.plan', { note: note.value ?? '' }) }),
+      can(ctx, 'arc.plan') ? button({ label: 'Plan the next arc', dataset: { act: 'arc-plan' }, onClick: () => ctx.command?.('arc.plan', { note: note.value ?? '' }) }) : null,
       button({ label: 'End this arc', dataset: { act: 'arc-end' }, onClick: () => ctx.command?.('arc.end', {}) })), note);
 }
 

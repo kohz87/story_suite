@@ -31,7 +31,7 @@ export function questPatch(quest, values) {
 }
 
 /** Builds the form; `onSave(patch)`, `onGiveUp()`, `onDelete()` and `onClose()` are called by its buttons. Reward and difficulty show only when rpg. */
-export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onClose } = {}) {
+export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onClose, allow = {} } = {}) {
   const kind = rpg ? 'quest' : 'task';
   const title = h('input', { type: 'text', value: quest.title });
   const summary = h('textarea', { rows: 3, value: quest.summary });
@@ -41,7 +41,9 @@ export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onCl
   const reward = rpg ? h('input', { type: 'text', value: quest.reward ?? '', placeholder: 'None' }) : null;
   const difficulty = rpg ? h('select', null, DIFFICULTIES.map(v => h('option', { value: v, selected: v === quest.difficulty }, v))) : null;
   if (difficulty) difficulty.value = quest.difficulty ?? 'normal';
-  const menu = h('div', { class: 'qmore', hidden: true }, button({ label: `Give up this ${kind}`, className: 'giveup', onClick: () => onGiveUp?.() }), button({ label: 'Delete', tone: 'danger', className: 'delete', onClick: () => onDelete?.() }));
+  const menu = h('div', { class: 'qmore', hidden: true },
+    allow.giveUp === false ? null : button({ label: `Give up this ${kind}`, className: 'giveup', onClick: () => onGiveUp?.() }),
+    allow.del === false ? null : button({ label: 'Delete', tone: 'danger', className: 'delete', onClick: () => onDelete?.() }));
   const more = button({ label: '⋯', icon: h('span', null, '⋯'), tone: 'icon', ariaLabel: 'More: give up or delete', className: 'x qmore-btn' });
   more.setAttribute('aria-expanded', 'false');
   more.addEventListener('click', () => {
@@ -61,7 +63,7 @@ export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onCl
   return h(
     'div',
     { class: 'qsheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Edit ${kind}`, dataset: { quest: quest.id } },
-    h('div', { class: 'qeh' }, h('div', { class: 'dn' }, `Edit ${kind}`), more, button({ label: '×', icon: h('span', null, '×'), tone: 'icon', ariaLabel: 'Close', className: 'x qclose', onClick: () => onClose?.() })),
+    h('div', { class: 'qeh' }, h('div', { class: 'dn' }, `Edit ${kind}`), allow.giveUp === false && allow.del === false ? null : more, button({ label: '×', icon: h('span', null, '×'), tone: 'icon', ariaLabel: 'Close', className: 'x qclose', onClick: () => onClose?.() })),
     menu,
     field('Title', title),
     field('What it is', summary),
@@ -70,6 +72,6 @@ export function questSheet(quest, { rpg = true, onSave, onGiveUp, onDelete, onCl
     reward ? field('Reward', reward) : null,
     difficulty ? field('Difficulty', difficulty) : null,
     h('p', { class: 'fine' }, 'Changes are kept as written by you. The narrator is told the quest as it now stands.'),
-    h('div', { class: 'brow' }, button({ label: 'Save', tone: 'primary', className: 'save', onClick: () => onSave?.(questPatch(quest, collect())) }), button({ label: 'Cancel', className: 'cancel', onClick: () => onClose?.() })),
+    h('div', { class: 'brow' }, allow.edit === false ? null : button({ label: 'Save', tone: 'primary', className: 'save', onClick: () => onSave?.(questPatch(quest, collect())) }), button({ label: 'Cancel', className: 'cancel', onClick: () => onClose?.() })),
   );
 }

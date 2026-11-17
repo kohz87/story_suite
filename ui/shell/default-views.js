@@ -56,7 +56,7 @@ export function defaultViews({ port, tabHost = () => null, prefs = null, backSta
   const built = createTabViews({ port, prefs, go, backStack, doc, width, refresh, peopleStart: takeStart });
   return {
     card: vm => (vm ? characterCard(vm, {
-      onBack: () => port.command('suite.close', {}),
+      onBack: () => onChat?.(),
       onScene: () => openSceneSheet({ port, doc, backStack, refresh }, vm.scene, (port.view('now')?.here ?? []).map(p => p.name)),
       onSettings: () => (onSettings ? onSettings() : port.command('suite.settings', {})),
       onPace: () => go('bag'),

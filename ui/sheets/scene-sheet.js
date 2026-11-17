@@ -2,6 +2,7 @@
 import { h } from '../kit/dom.js';
 import { button } from '../kit/controls.js';
 import { openSheet } from '../kit/sheet.js';
+import { can } from '../runtime/can.js';
 
 const FIELDS = ['date', 'time', 'place', 'weather'];
 
@@ -31,7 +32,7 @@ function field(label, control) {
 }
 
 /** Builds the form; `here` is the list of names; `onSave(patch)` and `onClose()` are called by its buttons. */
-export function sceneSheet(scene = {}, here = [], { onSave, onClose } = {}) {
+export function sceneSheet(scene = {}, here = [], { onSave, onClose, canSave = true } = {}) {
   const inputs = {
     date: h('input', { type: 'text', value: dateLine(scene) }),
     time: h('input', { type: 'text', value: scene.time ?? '' }),
@@ -76,7 +77,7 @@ export function sceneSheet(scene = {}, here = [], { onSave, onClose } = {}) {
     h('p', { class: 'fine' }, 'A correction by hand applies from this reply on and shows in This reply as yours.'),
     h('div', { class: 'brow' }, h('span', { class: 'grow' }),
       button({ label: 'Cancel', className: 'cancel', onClick: () => onClose?.() }),
-      button({ label: 'Save', tone: 'primary', className: 'save', onClick: () => onSave?.(scenePatch(scene, collect(), here)) })),
+      canSave ? button({ label: 'Save', tone: 'primary', className: 'save', onClick: () => onSave?.(scenePatch(scene, collect(), here)) }) : null),
   );
 }
 
@@ -92,6 +93,7 @@ export function openSceneSheet(ctx = {}, scene = {}, here = []) {
       ctx.refresh?.();
     },
     onClose: () => sheet.close(),
+    canSave: can(ctx, 'scene.correct'),
   }));
   sheet.body.querySelector('input')?.focus?.();
   return sheet;

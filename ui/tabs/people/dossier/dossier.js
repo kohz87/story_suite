@@ -11,6 +11,7 @@ import { tieDisc } from './tie-disc.js';
 import { profilePage } from './profile.js';
 import { deathPage, deathCard } from './death.js';
 import { partyAddButton } from './party-add.js';
+import { can } from '../../../runtime/can.js';
 
 const MENU = Object.freeze([
   ['refresh', 'Refresh', 're-read the recent story for them'], ['portrait', 'Portrait', 'view, upload or generate'],
@@ -90,13 +91,13 @@ export function dossierPage(d, ctx = {}) {
   function drawMenu() {
     top.querySelector('[data-act="menu"]')?.setAttribute('aria-expanded', String(state.menu));
     if (!state.menu) { menuSlot.replaceChildren(); return; }
-    menuSlot.replaceChildren(h('div', { class: 'menu glass', role: 'menu' }, MENU.map(([id, label, hint]) => {
+    menuSlot.replaceChildren(h('div', { class: 'menu glass', role: 'menu' }, MENU.filter(([id]) => can(ctx, `npc.${id}`)).map(([id, label, hint]) => {
       const confirm = id === 'delete' && state.sure;
       return h('button', {
         type: 'button', role: 'menuitem', class: id === 'delete' ? 'dng' : null, dataset: { act: id },
         onClick: () => {
           if (id === 'delete' && !state.sure) { state.sure = true; drawMenu(); return; }
-          cmd(`npc.${id}`);
+          cmd(`npc.${id}`, id === 'refresh' ? { name: d.name } : {});
           closeMenu();
         },
       }, confirm ? 'Tap again to delete' : label, h('small', null, confirm ? 'this cannot be undone' : hint));
@@ -107,8 +108,8 @@ export function dossierPage(d, ctx = {}) {
     top.replaceChildren(
       button({ label: ctx.origin ?? '‹ People', className: 'bk2', dataset: { act: 'close' }, onClick: close }),
       h('span', { class: 'sp' }),
-      button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => cmd('npc.edit') }),
-      h('button', { type: 'button', class: 'ibtn', 'aria-label': 'More', 'aria-expanded': 'false', dataset: { act: 'menu' },
+      can(ctx, 'npc.edit') ? button({ label: 'Edit', dataset: { act: 'edit' }, onClick: () => cmd('npc.edit') }) : null,
+      !MENU.some(([id]) => can(ctx, `npc.${id}`)) ? null : h('button', { type: 'button', class: 'ibtn', 'aria-label': 'More', 'aria-expanded': 'false', dataset: { act: 'menu' },
         onClick: () => { if (state.menu) { closeMenu(); return; } state.menu = true; hold('menu', 'menu', () => { state.menu = false; state.sure = false; drawMenu(); }); drawMenu(); } }, '⋯'));
   }
 
