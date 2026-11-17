@@ -24,7 +24,7 @@ export function dailyAfterCapture(view, info = {}) {
     let receipts = [];
     try { receipts = Array.isArray(info?.receipts) ? info.receipts : []; } catch { receipts = []; }
     if (!receipts.some(receipt => MOVES.has(receipt?.type))) {
-        commands.push({ type: 'director.advance', payload: { minutes: FALLBACK_MINUTES, cause: FALLBACK_CAUSE, reason: 'no time line in the reply' } });
+        commands.push({ type: 'director.advance', payload: { minutes: FALLBACK_MINUTES, cause: FALLBACK_CAUSE, reason: 'no time line in the reply', soft: true } });
         now += FALLBACK_MINUTES;
     }
     const state = slotValue(view.state.domains.chronicle?.daily);

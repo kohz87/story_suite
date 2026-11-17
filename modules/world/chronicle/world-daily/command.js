@@ -2,7 +2,7 @@
 // lines (afterCapture) when the story day has changed since the last step: it steps every day from the last stepped one to today (spec v0.10 §9) and
 // writes the results into the chronicle (`daily`, the step's state as a slot written whole, and `conditions`). The changes are recorded in the reply that
 // carries the step, so replay applies them and never rolls again. Its card lists what fired, ended and lapsed, the long-skip note
-// and every warning. The first step of a chat starts at today and draws the campaign seed.
+// and every warning. The first step of a chat starts at today with the campaign seed minted before the first reply (seed.js; drawn here only when there is none) and keeps it in its state.
 
 import { revOf } from '../domain-parts/lookup.js';
 import { slotValue, toSlot } from '../../../rpg/slot.js';
@@ -10,9 +10,11 @@ import { clockOf } from '../capture/text.js';
 import { pointerOf } from '../conditions/key.js';
 import { worldEventsOn } from '../capture/world-parts/switch.js';
 import { WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
-import { runDays } from '../../daily/step.js';
+import { LONG_SKIP, runDays } from '../../daily/step.js';
+import { maxJumpMinutes, settingsFrom } from '../../../time/tracker/time.js';
 import { readWorld } from './read-world.js';
 import { dailySummary } from './summary.js';
+import { isWorldSeed } from './seed.js';
 
 export const DAILY = 'chronicle.world.daily';
 const DAY = 1440;
@@ -53,7 +55,10 @@ function daily(ctx) {
     const today = Math.floor(now / DAY);
     // A shrunk Re-read or a rewind can leave the last stepped day ahead of the clock: nothing is stepped again or undone.
     if (state && today <= state.day) return { summary: '', narrate: false, data: { days: 0 } };
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world: readWorld((name, args) => ctx.query(name, args)), today, seed: state?.seed ?? newSeed(ctx), rev: revOf(ctx) });
+    // The long-skip note shows above 14 stepped days, or above the reader's longest jump when that is lower (seam audit E16; the time part's setting, read through `settings.reads`).
+    const longSkip = Math.min(LONG_SKIP, maxJumpMinutes(settingsFrom(ctx.settings)) / DAY);
+    const seed = state?.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : newSeed(ctx));
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world: readWorld((name, args) => ctx.query(name, args)), today, seed, rev: revOf(ctx), longSkip });
     if (!out) return { summary: '', narrate: false, data: { days: 0 } };
     writeConditions(ctx, chronicle, out.conditions);
     // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.

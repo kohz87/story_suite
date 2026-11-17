@@ -31,11 +31,12 @@ export function skipTarget(words, minutes, calendar) {
  * What a `time` line does to the story time `minutes` when its reply carries the `clockFace` mark: `{ minutes, set, roll? }` (`roll`: 'same' | 'after' for a bare clock face, a skip, a bare `!` time), or
  * `{ error, face? }` in plain words (`face`: the minute a refused `~` clock face asked for). Durations, and any line while the clock is not set yet, are read as timeAfter reads them.
  * `~`/`+` with a clock face: today's time, never earlier than now. `!`: the next such time after now, or `tomorrow …` / `next morning`.
- * A date is accepted when it is not before now. `options.openDay`: the day a jump landed on, when no time line has read since; a `~` clock face on that day may go earlier than the landing face. A refused line leaves the clock where it was.
+ * A date is accepted when it is not before now. `options.openDay`: the day a jump landed on, when no time line has read since; a `~` clock face on that day may go earlier than the landing face.
+ * `options.soft`: the world's fallback minutes the clock stands on; a `~` clock face may go back over them. A refused line leaves the clock where it was.
  */
 export function clockFaceAfter(line, minutes, calendar, options = {}) {
     const words = wordsOf(line);
-    const { maxJump = MAX_JUMP_DAYS * DAY_MINUTES, from = null, openDay = null } = options;
+    const { maxJump = MAX_JUMP_DAYS * DAY_MINUTES, from = null, openDay = null, soft = 0 } = options;
     if (line?.op === '-' || line?.op === '?' || !words || !Number.isInteger(minutes) || durationMinutes(words) !== null) return timeAfter(line, minutes, calendar, options);
     const shown = clip(words);
     const bad = badClock(words);
@@ -47,8 +48,11 @@ export function clockFaceAfter(line, minutes, calendar, options = {}) {
     let target = skip ?? Math.round(parsed.abs);
     const bare = skip === null && calendar.parse(words, { reference: null }) === null;
     if (bare && line.op === '!' && target <= minutes) target += DAY_MINUTES;
+    // A fallback hour that crossed midnight: the face on the day before, inside the untold minutes, is the one the story means.
+    if (bare && line.op !== '!' && soft > 0 && target > minutes && target - DAY_MINUTES >= minutes - soft) target -= DAY_MINUTES;
     // After a jump into a later day (the stored `openDay` receipt) the first `~` clock face on that day may set any time on it, earlier than the landing face too.
-    const open = bare && line.op !== '!' && openDay === dayKey(minutes) && dayKey(target) === openDay;
+    // After the world's fallback hour (`soft` untold minutes) a `~` clock face may go back over them: an explicit line beats the fallback.
+    const open = bare && line.op !== '!' && ((openDay === dayKey(minutes) && dayKey(target) === openDay) || (soft > 0 && target >= minutes - soft));
     if (target < minutes && !open) {
         const now = calendar.format(minutes);
         // `face`: what the refused `~` face asked for, so the caller can keep it anchored (a replay that moves the day reads it again).

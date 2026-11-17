@@ -37,7 +37,7 @@ function lifetime(ws, parsed, held) {
 }
 
 function standing(ws, kind, name, delta, label) {
-    const key = `${kind}:${name}`;
+    const key = ws.standingKey(kind, name);
     if (!(key in ws.standings)) { ws.warnings.push(`${label}: the ${kind} "${name}" is not in this world.`); return; }
     if (!Number.isFinite(delta)) return;
     ws.standings[key] = clamp(ws.standings[key] + delta);

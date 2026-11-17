@@ -96,7 +96,7 @@ test('test 10 (the replay part): a prose edit of an earlier reply re-captures on
     host.done();
 });
 
-test('test 11 and 16 (skip): a skip steps every day once (one step, rolls and fades per day) and over 30 days says "N world days simulated"', async () => {
+test('test 11 and 16 (skip): a skip steps every day once (one step, rolls and fades per day) and over 14 days says "N world days simulated"', async () => {
     const host = await newHost();
     await play(host);
     const day = dailyOf(host).day;

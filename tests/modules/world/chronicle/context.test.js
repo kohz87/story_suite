@@ -252,7 +252,9 @@ test('9: the sentence and the block are one pinned cue (never a static line), un
     assert.deepEqual(part.context.tail(view).optional, all.slice(2), 'the older day lines are optional tail lines');
     assert.equal(part.hooks.beforeGenerate(view).lines[0].text, cue.text, 'the hook hands it to the host');
     assert.deepEqual(backlogCue({ ...view, query: () => null }), []);
-    assert.equal(part.hooks.beforeGenerate({ ...view, query: () => null }), undefined);
+    // With every switch on, World events mints the campaign seed before the first reply (world-daily/seed.js); with that switch off the hook has nothing.
+    assert.deepEqual(part.hooks.beforeGenerate({ ...view, query: () => null }), { commands: [{ type: 'chronicle.world.seed', payload: {} }] });
+    assert.equal(part.hooks.beforeGenerate({ ...view, query: () => null, feature: id => id !== 'story-director.world-events' }), undefined);
     assert.equal(part.context.tail(view).optional.some(line => line.includes(BACKLOG_TAG)), false, 'the tag rides only in the pinned cue');
     assert.equal(part.context.inline, undefined, 'and no static sentence: the cached prefix never changes mid-chat');
     assert.doesNotMatch(BACKLOG_STATIC, /\d/);
