@@ -19,3 +19,15 @@ export function selectScene(current) {
     view: current.view === undefined ? null : current.view,
   };
 }
+
+/** The fight kind's id: its interaction is shown on the Fight tab, any other on the activity tab. */
+export const FIGHT_KIND = 'story-block/fight';
+
+/** The activity view-model when the open interaction is a fight, else null. */
+export function selectFightScene(current) {
+  const view = selectScene(current);
+  return view?.kindId === FIGHT_KIND ? view : null;
+}
+
+/** What the Now card's "fight open" row reads: the fight's board state while it is being played, 'end' once it is over or sent (nothing is left to choose). */
+export const fightNeeds = fight => ({ state: ['open', 'staged'].includes(fight.state) ? fight.view?.state ?? 'choose' : 'end' });

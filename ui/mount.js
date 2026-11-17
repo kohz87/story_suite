@@ -27,10 +27,9 @@ function resolveTheme(theme, doc) {
 
 function readFlags(port, override) {
   const card = port.view('card');
-  const chat = port.view('chat');
   return {
     rpg: override?.rpg ?? card?.rpg !== false,
-    fightOpen: override?.fightOpen ?? Boolean(chat?.inlineRow?.fightOpen),
+    fightOpen: override?.fightOpen ?? Boolean(port.view('fight')),
     sceneOpen: override?.sceneOpen ?? Boolean(port.view('scene')),
     sceneTitle: override?.sceneTitle ?? port.view('scene')?.title ?? '',
   };
