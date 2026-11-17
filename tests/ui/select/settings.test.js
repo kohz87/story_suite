@@ -111,6 +111,13 @@ describe('selectSettings', () => {
     assert.ok(!quick.usedFor.some(u => /fallback/.test(u)));
   });
 
+  it('Models: the Quick card names the safety net and the fight pre-check', () => {
+    const [, quick, background] = selectSettings(answers({})).connections;
+    assert.ok(quick.usedFor.some(u => /Assist safety net/.test(u)));
+    assert.ok(quick.usedFor.some(u => /fight pre-check/.test(u)));
+    assert.ok(!background.usedFor.some(u => /safety net|pre-check/.test(u)));
+  });
+
   it('Models without a profile list: Same as chat only, with the plain note', () => {
     const vm = selectSettings(answers({ profiles: { usable: false, why: 'The Connection Manager is off.', profiles: [] } }));
     assert.deepEqual(vm.connections[1].options.map(o => o.label), ['Same as chat']);
