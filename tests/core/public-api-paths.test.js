@@ -138,56 +138,6 @@ test('items, items.<name>.qty: the party\'s bag; names with dots and any case wo
     assert.ok(host.api.paths().includes("items.Mr. Fox's Pie.note"));
 });
 
-test('party and party.<name>.<field>, party.me.<field>: the Characters while the RPG is on', { skip }, async t => {
-    t.mock.method(console, 'warn', () => {});
-    const host = await createHost({ core: false, modules: [blocksModule(PARTY(), { feature: true })], st: { user: 'Ren' } });
-    t.after(() => host.close());
-    host.features.set('story-block.rpg', true);
-    await host.send('Go.', 'Opening.');
-    const { api } = host;
-    assert.deepEqual(api.get('party').map(member => member.name), ['Ren', 'Wessel'], 'in block-id order');
-    assert.deepEqual(api.get('party.Wessel'), { name: 'Wessel', level: 4, xp: 30, health: 'Unhurt', mana: 'Fresh', stamina: 'Fresh', stats: { str: 14, vit: 12, agi: 12, dex: 10, int: 8, luk: 9, cha: 10 } });
-    assert.equal(api.get('party.wessel.level'), 4);
-    assert.equal(api.get('party.Ren.health'), 'Hurt');
-    assert.equal(api.get('party.Ren.stats.int'), 16);
-    assert.deepEqual(api.get('party.Ren.stats').int, 16);
-    assert.equal(api.get('party.me.name'), 'Ren');
-    assert.equal(api.get('party.me.level'), 2);
-    assert.equal(api.get('party.me.xp'), 10);
-    assert.equal(api.get('party.me.health'), 'Hurt');
-    assert.equal(api.get('party.me.stats.str'), 8);
-    assert.equal(api.get('party.Nobody.level'), undefined);
-    assert.ok(api.paths().includes('party.me.mana'));
-    assert.ok(api.paths().includes('party.Wessel.stamina'));
-    // The reader is nobody in particular: party.me reads nothing (the first block is not guessed).
-    host.ctx.name1 = 'Somebody Else';
-    assert.equal(api.get('party.me.level'), undefined);
-    assert.equal(api.get('party.me'), undefined);
-    assert.equal(api.get('party.Ren.level'), 2);
-    // A stage the pack names reads as its name.
-    const named = blocksModule({ ren: { definition: { role: 'character', state: { health: { type: 'int', min: 0, max: 5, default: 5, names: { 5: 'Hale', 3: 'Bruised' } } } }, fields: character('Ren', { health: 3 }) } }, { feature: true });
-    const second = await createHost({ core: false, modules: [named], st: { user: 'Ren' } });
-    t.after(() => second.close());
-    second.features.set('story-block.rpg', true);
-    await second.send('Go.', 'Opening.');
-    assert.equal(second.api.get('party.me.health'), 'Bruised');
-});
-
-test('party: undefined while the RPG is off, whatever the chat holds', { skip }, async t => {
-    t.mock.method(console, 'warn', () => {});
-    const host = await createHost({ core: false, modules: [blocksModule(PARTY(), { feature: true })], st: { user: 'Ren' } });
-    t.after(() => host.close());
-    await host.send('Go.', 'Opening.');
-    assert.equal(host.api.get('party'), undefined);
-    assert.equal(host.api.get('party.me.level'), undefined);
-    assert.equal(host.api.get('blocks.pack.chat/wessel.who'), undefined, 'a role block is part of the RPG');
-    assert.deepEqual(host.api.paths().filter(path => path.startsWith('party') || path.startsWith('blocks.')), []);
-    host.features.set('story-block.rpg', true);
-    assert.equal(host.api.get('party.me.level'), 2);
-    host.features.set('story-block.rpg', false);
-    assert.equal(host.api.get('party.me.level'), undefined);
-});
-
 test('blocks.<blockId>.<field>: any pinned block, the id with its dots and slash; a map reads by key', { skip }, async t => {
     t.mock.method(console, 'warn', () => {});
     const host = await createHost({ core: false, modules: [blocksModule({ tracker: TRACKER })] });
@@ -238,31 +188,4 @@ test('hidden: a field the pack hides from the story (prompt: false) reads as und
     assert.ok(!listed.includes('dread') && !listed.includes('secret'), listed);
     // Nothing of a hidden value is in the leaves the events compare either.
     assert.ok(![...api.paths()].some(path => /dread|secret/.test(path)));
-});
-
-test('hidden: a member\'s hidden level, xp, bar and stat are left out; a hidden Who is the block\'s name', { skip }, async t => {
-    t.mock.method(console, 'warn', () => {});
-    const hidden = {
-        definition: { role: 'character', name: 'Stranger', state: {
-            who: { type: 'text', max: 40, default: '', prompt: false }, level: { type: 'int', min: 1, max: 99, default: 1, prompt: false }, xp: { type: 'int', min: 0, max: 100, default: 0, prompt: false },
-            mana: { type: 'int', min: 0, max: 4, default: 4, prompt: false }, luk: { type: 'int', min: 1, max: 20, default: 9, prompt: false },
-        } },
-        fields: character('Ysolde', { level: 9, xp: 55, mana: 1, luk: 17 }),
-    };
-    const host = await createHost({ core: false, modules: [blocksModule({ ysolde: hidden }, { feature: true })], st: { user: 'Stranger' } });
-    t.after(() => host.close());
-    host.features.set('story-block.rpg', true);
-    await host.send('Go.', 'Opening.');
-    const member = host.api.get('party.Stranger');
-    assert.equal(member.name, 'Stranger', 'the hidden name is not given');
-    assert.equal(member.level, undefined);
-    assert.equal(member.xp, undefined);
-    assert.equal(member.mana, undefined);
-    assert.equal(member.stats.luk, undefined);
-    assert.equal(member.health, 'Unhurt');
-    assert.equal(member.stats.str, 14);
-    assert.equal(host.api.get('party.me.level'), undefined);
-    assert.equal(host.api.get('party.Ysolde.level'), undefined);
-    assert.ok(!JSON.stringify(host.api.paths()).includes('Ysolde'));
-    assert.ok(!JSON.stringify(host.api.get('party')).includes('Ysolde'));
 });

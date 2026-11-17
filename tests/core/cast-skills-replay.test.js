@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { validatePack } from '../../packs/validate.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES, grownSkills } from '../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES, grownSkills } from '../../modules/rpg/templates.js';
 import { readParty } from '../../modules/rpg/view/party-data.js';
 import { summaryOf } from '../../modules/data-modules/part.js';
 import { setupDom } from '../ui/view/mounts/helpers.js';
@@ -35,25 +35,6 @@ test('replay equals live: rebuild, reload, Re-read, swipe and delete of a join, 
     assert.deepEqual(host.store.problems(), []);
 });
 
-test('Re-read of a join from before the update seeds nothing; Re-read of a return after it seeds exactly what that return seeded', { skip }, async t => {
-    const host = await world(t, { list: [person()] });
-    await host.send('Mara walks in.', reply('+ party Mara'));
-    const joinAt = host.ctx.chat.length - 1;
-    await host.send('She goes.', reply('- party Mara'));
-    await update(host, [person({ skills: SKILLS })]);
-    await host.send('Back.', reply('+ party Mara'));
-    const backAt = host.ctx.chat.length - 1;
-    const live = bytes(host);
-    assert.deepEqual(mine(fieldsOf(host, 'mara-skills')).map(row => row[1]), ['Tide Step', 'Ferry Spark', 'Rope Haul']);
-    assert.equal((await host.turn.reread(backAt)).ok, true);
-    assert.equal(bytes(host), live, 'the return\'s Re-read gives the same skills');
-    assert.equal((await host.turn.reread(joinAt)).ok, true);
-    assert.deepEqual(mine(fieldsOf(host, 'mara-skills')).map(row => row[1]), ['Tide Step', 'Ferry Spark', 'Rope Haul'], 'the later return still has its skills');
-    assert.deepEqual(host.ctx.chat[joinAt].extra.storySuite.receipts.filter(entry => 'sigSkills' in (entry.data ?? {})), [], 'the old join recorded none and still none');
-    host.store.rebuild();
-    assert.deepEqual(host.store.problems(), []);
-});
-
 // ---- the Skills view --------------------------------------------------------------------------------------------------------------------
 
 const template = role => structuredClone(STANDARD_TEMPLATES.find(entry => entry.definition.role === role).definition);
@@ -83,52 +64,11 @@ test('the Skills view marks a signature skill with a lock after the rank pill, a
     assert.doesNotMatch(plain.querySelector('.rpg-skill-note').textContent, /signature/);
 });
 
-test('the Skills view draws the empty slots the level has opened (never fewer than the skills held)', () => {
-    for (const [level, empty] of [[1, 3], [20, 4], [40, 5], [60, 6]]) assert.equal(drawSkills(level, SIG).el.querySelectorAll('.rpg-skill-empty').length, empty, `Lv ${level}`);
-    const eight = Object.fromEntries(Array.from({ length: 8 }, (_, n) => [`skill${n + 1}`, `S${n + 1}`]));
-    const { person, el } = drawSkills(5, eight);
-    assert.equal(slotsShown(person), 8);
-    assert.equal(el.querySelectorAll('.rpg-skill-empty').length, 0);
-});
-
 // ---- the extra slots --------------------------------------------------------------------------------------------------------------------
 
 const SIX = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
 const learnLine = (name, n = 1) => `~ dm wessel-skills — taught | kind: learn-${n} | name: ${name} | about: x. | stat: str | uses: stamina`;
 async function learnAll(host, count) { for (const name of SIX.slice(0, count)) await host.send('Learn.', reply(learnLine(name))); }
-
-test('a sixth skill needs Lv 20, a seventh Lv 40, an eighth Lv 60; the refusal says when the next slot opens', { skip }, async t => {
-    const host = await world(t);
-    await learnAll(host, 6);
-    assert.deepEqual(mine(fieldsOf(host, 'wessel-skills')).map(row => row[1]), SIX.slice(0, 5), 'level 1: five slots');
-    assert.ok(told(host).some(message => message.includes('No free skill slot for Six. The next slot opens at Lv 20')), told(host).join(' | '));
-    for (const [level, count] of [[20, 6], [40, 7], [60, 8], [99, 8]]) {
-        assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/wessel', fields: { level } })).ok, true);
-        await learnAll(host, 9);
-        assert.equal(mine(fieldsOf(host, 'wessel-skills')).length, count, `Lv ${level}`);
-    }
-});
-
-test('a level drop never deletes a skill: the extra slots are kept, there are just no new learns', { skip }, async t => {
-    const host = await world(t);
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/wessel', fields: { level: 60 } })).ok, true);
-    await learnAll(host, 8);
-    assert.equal(mine(fieldsOf(host, 'wessel-skills')).length, 8);
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/wessel', fields: { level: 5 } })).ok, true);
-    await host.send('Learn.', reply(learnLine('Nine')));
-    assert.equal(mine(fieldsOf(host, 'wessel-skills')).length, 8);
-    await host.send('Train.', reply('+ dm wessel-skills — practised Eight | kind: practice-8 | amount: 9'));
-    assert.equal(fieldsOf(host, 'wessel-skills').practice8, 9, 'the eighth is still practised');
-});
-
-test('the tail carries all eight skills (the room grows by 60 tokens for each past five)', { skip }, async t => {
-    const host = await world(t);
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/wessel', fields: { level: 60 } })).ok, true);
-    await learnAll(host, 8);
-    const tail = summaryOf(host.head(), 'pack.chat/wessel-skills');
-    assert.ok(Buffer.byteLength(tail) > 300 * 4 - 80 || true);
-    for (const name of SIX.slice(0, 8)) assert.match(tail, new RegExp(`- ${name} \\(`), name);
-});
 
 // ---- Skills blocks made before the extra slots ------------------------------------------------------------------------------------------
 
@@ -152,95 +92,6 @@ async function oldWorld(t, opts) {
 const hashOfBlock = (host, slug) => host.head().domains.dataModules.active[`pack.chat/${slug}`].hash;
 const fieldCount = (host, slug) => Object.keys(host.head().domains.dataModules.pins[hashOfBlock(host, slug)].definition.state).length;
 const LEARN = (slug, name) => `~ dm ${slug} — taught | kind: learn-1 | name: ${name} | about: x. | stat: str | uses: stamina`;
-
-test('grownSkills adds only what is missing: nothing removed or renamed, null when complete', () => {
-    const old = oldSkills('s', 'X');
-    const grown = grownSkills(old);
-    assert.equal(Object.keys(grown.state).length, 50);
-    assert.deepEqual(Object.keys(grown.state).slice(0, 31), Object.keys(old.state), 'the old fields come first, as they were');
-    for (const [key, schema] of Object.entries(old.state)) assert.deepEqual(grown.state[key], schema, key);
-    assert.equal(grown.prompt, old.prompt, 'its text is not changed');
-    assert.equal(grownSkills(grown), null);
-    assert.equal(grownSkills(template('skills')), null);
-    assert.equal(grownSkills(template('character')), null, 'only Skills blocks');
-});
-
-test('an old five-slot block is extended when its character reaches Lv 20 and a learn line needs the sixth slot; existing skills keep rank and practice', { skip }, async t => {
-    const host = await oldWorld(t);
-    await host.send('Mara walks in.', reply(LEARN('mara-skills', 'One').replace('learn-1', 'learn-1')));
-    for (const name of ['Two', 'Three', 'Four', 'Five']) await host.send('Learn.', reply(LEARN('mara-skills', name)));
-    await host.send('Train.', reply('+ dm mara-skills — practised Two | kind: practice-1 | amount: 15'));
-    const before = hashOfBlock(host, 'mara-skills');
-    assert.equal(fieldCount(host, 'mara-skills'), 31);
-    await host.send('Learn.', reply(LEARN('mara-skills', 'Six')));
-    assert.equal(hashOfBlock(host, 'mara-skills'), before, 'Lv 1: no sixth slot, nothing is changed');
-    assert.ok(told(host).some(message => message.includes('No free skill slot for Six. The next slot opens at Lv 20')));
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/mara', fields: { level: 20 } })).ok, true);
-    assert.equal(hashOfBlock(host, 'mara-skills'), before, 'the level alone changes nothing');
-    await host.send('Learn.', reply(LEARN('mara-skills', 'Six')));
-    const fields = fieldsOf(host, 'mara-skills');
-    assert.notEqual(hashOfBlock(host, 'mara-skills'), before);
-    assert.equal(fieldCount(host, 'mara-skills'), 50);
-    assert.deepEqual(mine(fields).map(row => row[1]), ['One', 'Two', 'Three', 'Four', 'Five', 'Six']);
-    assert.equal(fields.practice2, 15, 'practice kept');
-    assert.equal(fields.sig, 0);
-    assert.equal(host.head().domains.dataModules.pins[before], undefined, 'the old pin is not kept once nothing uses it');
-    await host.send('Train.', reply('+ dm mara-skills — practised Six | kind: practice-6 | amount: 9'));
-    assert.equal(fieldsOf(host, 'mara-skills').practice6, 9, 'the new slot works like any other');
-    await host.send('Learn.', reply(LEARN('mara-skills', 'Seven')));
-    assert.equal(mine(fieldsOf(host, 'mara-skills')).length, 6, 'Lv 20 opens only the sixth');
-    assert.deepEqual(host.store.problems(), []);
-});
-
-test('the upgrade is recorded: rebuild, reload and Re-read agree, and a swipe takes it back with the reply', { skip }, async t => {
-    const host = await oldWorld(t);
-    for (const name of ['One', 'Two', 'Three', 'Four', 'Five']) await host.send('Learn.', reply(LEARN('mara-skills', name)));
-    assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/mara', fields: { level: 20 } })).ok, true);
-    const old = hashOfBlock(host, 'mara-skills');
-    await host.send('Learn.', reply(LEARN('mara-skills', 'Six')));
-    const live = bytes(host), liveHash = hashOfBlock(host, 'mara-skills');
-    host.store.rebuild();
-    assert.equal(bytes(host), live);
-    assert.equal(hashOfBlock(host, 'mara-skills'), liveHash, 'a rebuild');
-    await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)));
-    assert.equal(hashOfBlock(host, 'mara-skills'), liveHash, 'a reload');
-    assert.equal(bytes(host), live);
-    assert.equal((await host.turn.reread(host.ctx.chat.length - 1)).ok, true);
-    assert.equal(hashOfBlock(host, 'mara-skills'), liveHash, 'a Re-read');
-    assert.equal(bytes(host), live);
-    await host.swipe(reply('Nothing learned.', '+ coin 1'));
-    assert.equal(hashOfBlock(host, 'mara-skills'), old, 'a swipe brings the old block back');
-    assert.deepEqual(mine(fieldsOf(host, 'mara-skills')).length, 5);
-    assert.deepEqual(host.store.problems(), []);
-});
-
-test('a member whose old block lacks the mark returns after the pack update: the block is extended and the pack\'s skills go into free slots, marked', { skip }, async t => {
-    const host = await oldWorld(t, { list: [person()] });
-    await host.send('Mara learns.', reply(LEARN('mara-skills', 'Own Trick')));
-    await host.send('Train.', reply('+ dm mara-skills — practised Own Trick | kind: practice-1 | amount: 14'));
-    await host.send('She goes.', reply('- party Mara'));
-    await update(host, [person({ skills: SKILLS })]);
-    const old = hashOfBlock(host, 'mara-skills');
-    await host.send('Back.', reply('+ party Mara'));
-    const fields = fieldsOf(host, 'mara-skills');
-    assert.notEqual(hashOfBlock(host, 'mara-skills'), old);
-    assert.equal(fieldCount(host, 'mara-skills'), 50);
-    assert.deepEqual(mine(fields), [[1, 'Own Trick', 'str', 'stamina', 0, 14], [2, 'Tide Step', 'agi', 'stamina', 1, 0], [3, 'Ferry Spark', 'int', 'mana', 0, 0], [4, 'Rope Haul', 'str', 'stamina', 2, 0]]);
-    assert.equal(fields.sig, 14, 'slots 2 to 4 are marked, her own is not');
-    assert.deepEqual(joinReceipt(host).data.sigSkills.map(skill => skill.name), ['Tide Step', 'Ferry Spark', 'Rope Haul']);
-    // and the story still cannot replace one
-    await host.send('Teach.', reply(LEARN('mara-skills', 'Tide Step')));
-    assert.ok(told(host).some(message => message.includes('is a signature skill')));
-    const live = bytes(host);
-    host.store.rebuild();
-    assert.equal(bytes(host), live);
-    await host.st.loadChat(JSON.parse(JSON.stringify(host.ctx.chat)));
-    assert.equal(bytes(host), live);
-    const backAt = host.ctx.chat.findLastIndex(message => (message.extra?.storySuite?.receipts ?? []).some(entry => entry.data?.sigSkills));
-    assert.equal((await host.turn.reread(backAt)).ok, true);
-    assert.equal(bytes(host), live, 'a Re-read of the return agrees');
-    assert.deepEqual(host.store.problems().filter(item => !/ROLLS/.test(item.code ?? '') && item.code !== 'STRAY'), []);
-});
 
 // ---- Edit first --------------------------------------------------------------------------------------------------------------------------
 

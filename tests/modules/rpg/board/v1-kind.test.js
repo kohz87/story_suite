@@ -83,18 +83,15 @@ test('the witness follows what the engine reads: a stat edit changes it, the HP 
     } finally { host.close(); }
 });
 
-test('the kind\'s note is the owner-approved note golden, byte for byte, for a v1 setup; an unmarked setup still tells the old board note', async () => {
+test('the kind\'s note is the owner-approved note golden, byte for byte, for a v1 setup', async () => {
     const { readFileSync } = await import('node:fs'), { hard, played, quiet, skirmish, skirmishChoices } = await import('../combat/note.helper.js');
     const { settledNoteV1 } = await import('../../../../modules/rpg/combat/note.js');
-    const { settledNote } = await import('../../../../modules/rpg/board/note-parts/settled-note.js');
     const healing = [{}, {}, { Cy: { kind: 'heal', target: 'Kira' } }, {}, {}, {}];
     for (const envelope of [played(quiet(), 'a', healing), played(hard(), 'a', 12), played(skirmish(), 'a', skirmishChoices)]) {
         const told = fightKind.note({ v: 1, ...envelope }, { v1: 1 }).join(' | ');
         assert.equal(told, settledNoteV1(envelope));
         assert.ok(readFileSync(new URL('../combat/note.golden.txt', import.meta.url), 'utf8').includes(told.split(' | ').join('\n')), 'it is a paragraph of the approved golden');
     }
-    const old = { stop: 'won', rounds: [] };
-    assert.equal(fightKind.note(old, { fightLen: 1 }).join(' | '), settledNote(old, { fightLen: 1 }), 'no v1 mark: the old note, untouched');
 });
 
 test('a pre-check opening on a v1 sheet fills a free Foes slot with its tier (no tier reads as standard) and the fight then opens on it', async () => {

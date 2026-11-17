@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { CORE_FEATURE } from '../../../../core/features.js';
 import { DIFFICULTY_SETTING, STANDARD, STANDARD_PRESETS, STANDARD_SETTING } from '../../../../modules/rpg/index.js';
 import { CHOOSER_TEMPLATES } from '../../../../modules/rpg/templates.js';
-import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, oddsView, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
+import { COMBAT_DEFAULT, COMBAT_MAX, combatBlock, combatTemplate, customOf, withPrompt } from '../../../../modules/rpg/view/settings-data.js';
 import { reload } from '../../data-modules/helpers.js';
 import { settle } from './page.js';
 import { characterDefinition, fakeState, roleOf, skillsDefinition } from './helpers.js';
@@ -119,24 +119,10 @@ test('settings-data: customOf keeps the stored numbers, else the numbers in forc
     assert.deepEqual(customOf({ [DIFFICULTY_SETTING]: 'custom' }), STANDARD);
 });
 
-test('settings-data: the odds view for a state with and without a character', () => {
-    const wessel = { definition: { ...characterDefinition('wessel', 'Wessel'), role: 'character' }, fields: { who: 'Wessel', str: 12, soul: 1 } };
-    const skills = { definition: { ...skillsDefinition('wessel-skills', 'Wessel'), role: 'skills' }, fields: { who: 'Wessel', skill1: 'Iron Breath', rank1: 1 } };
-    const view = oddsView(fakeState([wessel, skills]), 'Wessel', STANDARD);
-    assert.equal(view.label, 'Wessel (STR 12 with DEX 10, Level 1, Adept) against a Level 1 foe');
-    assert.deepEqual(view.now, { success: 69, cost: 7, fail: 25 });
-    assert.deepEqual(view.compare.map(item => item.name), ['gentle', 'harsh']);
-    assert.deepEqual(oddsView(fakeState([wessel, skills]), 'Wessel', { ...STANDARD, foeBase: 9 }).compare.map(item => item.name), ['gentle', 'standard', 'harsh'], 'Custom: all three');
-    assert.equal(oddsView(fakeState([]), 'Wessel', STANDARD), null);
-});
-
-test('the page\'s stylesheet: the odds bar is solid, three tones; the numbers wrap to two columns on a phone; theme tokens only', () => {
+test('the page\'s stylesheet: the numbers wrap to two columns on a phone; theme tokens only', () => {
     const css = readFileSync(new URL('../../../../modules/rpg/view/lean-rpg.css', import.meta.url), 'utf8');
     assert.match(css, /\.rpg-set-nums \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
     assert.match(css, /@media \(max-width: 600px\) \{ \.rpg-set-nums \{ grid-template-columns: 1fr 1fr; \} \}/);
-    assert.match(css, /\.rpg-odds-success \{ background: var\(--ss-good\)/);
-    assert.match(css, /\.rpg-odds-cost \{ background: var\(--ss-warn\)/);
-    assert.match(css, /\.rpg-odds-fail \{ background: var\(--ss-bad\)/);
 });
 
 test('B17 (views): a refused save because the chat holds as many block versions as it can is said in plain words, and Reset still works', async t => {

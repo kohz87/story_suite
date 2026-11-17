@@ -2,7 +2,7 @@
 // Each pick set is staged by the interaction api like a reader's own choice, so replay, the log and XP see nothing special.
 // It stops at the cap, a won or lost fight, or a hero badly hurt, and says why in one plain line.
 
-import { autoStop, hurtHeroes } from './auto.js';
+import { autoStop, hurtHeroes } from './auto-stop.js';
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 

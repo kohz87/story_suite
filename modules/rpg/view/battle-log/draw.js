@@ -178,23 +178,3 @@ export function buildPanel(doc, model, { folded = false, onFold = () => {}, vari
     if (receipt) body.appendChild(receipt);
     return root;
 }
-
-/**
- * The note for a reply whose live fight got no rolls (noroll.js; approved mockup rpg-no-rolls.html): "No rolls this reply:" and the reason. It stands where the
- * battle log would have stood (the same slot, so placeAtMarker / placeCard take it), and is drawn from the reply's own receipt like the log is.
- */
-export function noteText(note) {
-    const reason = RPG_STRINGS.noRolls[note?.reason] ?? RPG_STRINGS.noRolls.failed;
-    return fill(reason, { s: note?.limit ?? '' });
-}
-export function buildNote(doc, note, { variant = 'inline', index = -1 } = {}) {
-    const root = el(doc, 'div', `${BATTLE_ROOT} rpg-norolls rpg-battle-${variant}`);
-    root.setAttribute('data-ss-screen', BATTLE_ID);
-    root.setAttribute('data-variant', variant);
-    root.setAttribute('data-ss-index', String(index));
-    root.setAttribute('role', 'note');
-    const text = el(doc, 'span', 'rpg-norolls-text');
-    text.append(el(doc, 'b', '', RPG_STRINGS.noRolls.lead), doc.createTextNode(` ${noteText(note)}`));
-    root.append(el(doc, 'span', 'rpg-norolls-dot'), text);
-    return root;
-}

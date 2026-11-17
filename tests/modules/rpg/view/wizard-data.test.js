@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { DM_OLD_ROOM } from '../../../../modules/data-modules/schema.js';
 import { validateDataModules } from '../../../../modules/data-modules/check.js';
 import { STATS } from '../../../../modules/rpg/index.js';
-import { STANDARD_TEMPLATES, SKILL_SETS } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES, SKILL_SETS } from '../../../../modules/rpg/templates.js';
 import { createWizardScreen, WIZARD_SCREEN_ID, WIZARD_WIDGET } from '../../../../modules/rpg/view/wizard.js';
 import { adeptCount, blockNames, buildDefinitions, hasRoom, mayStartAdept, newDraft, pointsLeft, problemsOf, readDraft, setLine, skillSetsOf, statsLine, withSet, withSkill,
     withSkillPatch, withoutSkill } from '../../../../modules/rpg/view/wizard-data.js';

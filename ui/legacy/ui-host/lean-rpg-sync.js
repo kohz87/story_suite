@@ -1,6 +1,6 @@
 // Story Block v2's page furniture: the Lean RPG's screens, moved out of mountUi unchanged: loaded by import() only while its feature is on, mounted with
 // the host's parts, and taken away when the feature goes off. `createLeanRpgSync(deps)` holds the mounted view; mountUi reads it through `getRpg()`.
-import { CORE_FEATURE, GEAR_FEATURE } from '../../../core/features.js';
+import { GEAR_FEATURE } from '../../../core/features.js';
 
 export function createLeanRpgSync(deps) {
     const { loadLeanRpg, doc, ctx, store, events, screens, hostWidgets, registry, runtime, liveCtx, settings, sdk, api, rpgOn, getHeadState, getMounts, getOverlay, refresh, openSettings } = deps;
@@ -14,10 +14,9 @@ export function createLeanRpgSync(deps) {
             rpgLoading = false;
             if (rpgGone || rpg || !rpgOn()) return;
             const mounts = getMounts();
-            rpg = view.mountLeanRpg({ doc, ctx, store, events, screens, widgets: hostWidgets, headState: getHeadState(), featureOn: rpgOn, boardOn: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true,
+            rpg = view.mountLeanRpg({ doc, ctx, store, events, screens, widgets: hostWidgets, headState: getHeadState(), featureOn: rpgOn,
                 // Settings → RPG holds the gear switch (the feature stays out of the Features list).
                 gear: { on: () => registry.featureOn?.(GEAR_FEATURE) === true, set: value => runtime.features?.set?.(GEAR_FEATURE, Boolean(value)) },
-                boardFeature: { on: () => registry.featureOn?.(CORE_FEATURE.fightBoard) === true, set: value => runtime.features?.set?.(CORE_FEATURE.fightBoard, Boolean(value)) },
                 readerName: () => String(liveCtx()?.name1 ?? ctx.name1 ?? ''),
                 // What the chat remembers about the first send (lean-rpg/start.js): in its own metadata, written with the chat.
                 meta: () => { try { return (liveCtx() ?? ctx)?.chatMetadata ?? null; } catch { return null; } },

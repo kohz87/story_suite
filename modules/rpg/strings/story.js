@@ -134,13 +134,6 @@ export const STORY_STRINGS = Object.freeze({
         changed: 'Your points changed while this was open. Close it and open it again.',
         failed: 'Could not save these stats.',
     }),
-    // The note on a reply whose live fight got no rolls (noroll.js; approved mockup rpg-no-rolls.html): the lead in bold, then the reason.
-    noRolls: Object.freeze({
-        lead: 'No rolls this reply:',
-        timeout: 'the roll planner did not answer within {s} s. Swipe to try again, or pick a faster connection in Settings → Assist.',
-        failed: 'the roll planner’s call failed. Swipe to try again; Settings → Diagnostics has the error.',
-        unreadable: 'the roll planner’s answer could not be read. Swipe to try again.',
-    }),
     battle: Object.freeze({
         header: 'Combat · Exchange {n}',
         headerMany: 'Combat · Exchanges {from}–{to}',

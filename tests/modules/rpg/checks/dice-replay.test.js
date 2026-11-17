@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { checksOf } from '../../../../modules/rpg/practice.js';
 import { reply, success } from '../../data-modules/helpers.js';
 import { tailOf } from '../helpers.js';

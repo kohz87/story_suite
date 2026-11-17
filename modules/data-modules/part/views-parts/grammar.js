@@ -6,8 +6,8 @@ import { boardGrammar, boardXpGuide } from '../../board-static.js';
 import { isMarkedCharacter, restLine } from '../../recovery.js';
 
 /**
- * The static lines for the pinned modules (empty without a pin); they change only when a pin does, and (the RPG on) with a quiet reply
- * (`quiet`, the RPG's QUIET_GRAMMAR table, lean-rpg/quiet.js: no combat text and only the opening Foes line). A long list of values (the health words) is told once.
+ * The static lines for the pinned modules (empty without a pin); they change only when a pin does. `quiet` is an optional table by role ({ skip, keep } or the kinds to offer); the fight board's own
+ * pieces come from board-static.js. A long list of values (the health words) is told once.
  */
 export function grammarFor(state, quiet = null, { rolled = false, board = false } = {}) {
     // `rolled` (the RPG on, Rolls automatic): skill practice comes only from rolled uses, so the narrator is not offered `practice-N` and the texts

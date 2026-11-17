@@ -6,7 +6,7 @@ import { createHost } from '../../../testkit/index.js';
 import { STATS_V1 } from '../../../modules/rpg/names.js';
 import { barsOf } from '../../../modules/rpg/combat/bars.js';
 import { buildDefinitions, newDraft, readDraft, pointsLeft } from '../../../modules/rpg/view/wizard-data.js';
-import { joinDefinitions, joinRules } from '../../../modules/rpg/join.js';
+import { joinDefinitions } from '../../../modules/rpg/join.js';
 import { validateDataModules } from '../../../modules/data-modules/check.js';
 import { reply, success, view, rebuilt, reload } from '../data-modules/helpers.js';
 const problems = host => host.turn.problems().filter(item => !['ROLLS_SKIPPED', 'DICE_SKIPPED'].includes(item.code)).map(item => item.message);
@@ -50,18 +50,13 @@ test('a character made by the wizard keeps its sheet through a reply, a rebuild 
     assert.equal(sheet(host, character.slug)['hp-max'], before['hp-max']);
 });
 
-test('a joining companion is built under v1, except in a chat that already holds an earlier Character', () => {
+test('a joining companion is built under v1', () => {
     const request = { name: 'Mara', about: 'a hedge-witch', soul: 1, best: 'wis' };
     const made = joinDefinitions(request, { used: [] });
     assert.deepEqual([made.character.state.wis.default, made.character.state.dex.default, made.character.state.str.default], [11, 7, 5]);   // (level 5: four points, the best stat and DEX in turn)
     assert.equal(Object.hasOwn(made.character.state, 'luk'), false);
     assert.equal(made.character.state.points.default, 0);
     assert.equal(made.character.state.hp.default, made.character.state['hp-max'].default);
-    const older = joinDefinitions({ ...request, best: 'luk' }, { used: [], kind: 'standard' });
-    assert.ok(older.character.state.luk.default >= 9);
-    assert.equal(Object.hasOwn(older.character.state, 'hp'), false);
-    const state = { domains: { dataModules: { active: {} } } };
-    assert.equal(joinRules(state), 'v1');
 });
 
 test('a learn line with no type is an attack skill under v1 (the default learn type), and a typed one keeps its type', async t => {
@@ -108,10 +103,8 @@ test('the prompt of a v1 chat made by the wizard never says LUK, Health blocks, 
     assert.deepEqual(problems(host).filter(message => /hash|not run/.test(message)), [], 'no step failed');
 });
 
-test('a pack skill set or cast skill that names LUK is built with WIS (the earlier pack still loads), and an earlier chat keeps LUK', () => {
+test('a pack skill set or cast skill that names LUK is built with WIS (the earlier pack still loads)', () => {
     const draft = readDraft({ ...newDraft({ persona: 'Wessel' }), skills: [{ name: 'Gamble', about: 'x', stat: 'luk' }] });
     assert.equal(draft.skills[0].stat, 'wis');
     assert.equal(buildDefinitions(draft, { used: [] }).skills.state.stat1.default, 'wis');
-    const earlier = readDraft({ standard: true, skills: [{ name: 'Gamble', about: 'x', stat: 'luk' }] });
-    assert.equal(earlier.skills[0].stat, 'luk');
 });

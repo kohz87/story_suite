@@ -194,18 +194,12 @@ export function createParty(deps) {
         try { pack = rpg().packRulesOf(rpgRecords); } catch { pack = null; }
         const rules = rpg().rulesFromSettings(settings(), pack);
         // (a companion starts under the story's level cap: the pack's ranks record names one, else the reader's setting, else 99)
-        // (a Re-read of a join made before the signature skills: the block that reply made had five slots and no mark, so it is built that way and seeds nothing)
-        const earlier = standingBlock(ctx, request.name), legacy = Boolean(earlier) && !Object.hasOwn(earlier.definition.state ?? {}, 'sig');
-        // (and one made before the skill types has eight slots and no `type` field: built that way again; a first read of a join makes the typed block)
-        const typed = !earlier || Object.hasOwn(earlier.definition.state ?? {}, 'type1');
-        const seeds = legacy ? [] : castSeeds(ctx, request.name, 'join');
+        const seeds = castSeeds(ctx, request.name, 'join');
         // Re-reading an existing join uses its own pinned character, even if the prefix had no characters at all.
-        const prior = (ctx.standingReceipts ?? []).find(receipt => receipt?.data?.join?.op === 'added' && fold(receipt.data.join.name) === fold(request.name));
-        const scale = rpg().joinScale(prefix, ctx.standing, prior?.data?.v2?.result?.module), kind = rpg().joinRules(prefix, ctx.standing, prior?.data?.v2?.result?.module);
-        const made = rpg().joinDefinitions({ ...request, skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul, rules, cap: rpg().levelCapFor(settings(), packLevelsOf(rpgRecords)?.levelCap), legacy, typed, scale: kind === 'standard' ? scale : 2, kind });
+                const made = rpg().joinDefinitions({ ...request, skills: seeds }, { used: Object.keys(domain?.active ?? {}), soul, rules, cap: rpg().levelCapFor(settings(), packLevelsOf(rpgRecords)?.levelCap) });
         // The story's first character also brings the Combat rules and Foes blocks it lacks, as far as they fit (nothing is refused for them).
         const first = rpg().partyOf(prefix).length === 0, plan = first ? rpg().extrasPlan(prefix) : { add: [], skipped: [] };
-        const extras = rpg().extraDefinitions(plan.add, { rules: kind, used: [...Object.keys(domain?.active ?? {}), made.character.slug, made.skills.slug] });
+        const extras = rpg().extraDefinitions(plan.add, { used: [...Object.keys(domain?.active ?? {}), made.character.slug, made.skills.slug] });
         const catalog = Object.keys(domain?.active ?? {}).map(id => activeDefinition(prefix, id)).filter(Boolean);
         const checked = validateDataModules([made.character, made.skills, ...extras], { packId: 'chat', capabilities: ['data-modules-v1', 'story-director'], definitions: catalog });
         if (!checked.ok) refuse(checked.errors[0].code, checked.errors[0].path, checked.errors[0].message);
@@ -239,7 +233,7 @@ export function createParty(deps) {
         const prefix = stateOf(ctx);
         // (the rules are the ones the join's own pinned character was built under on a Re-read, as in makeParty: an earlier-rules join keeps its line's about, so it builds the same block)
         const priorJoin = (ctx.standingReceipts ?? []).find(receipt => receipt?.data?.join?.op === 'added' && fold(receipt.data.join.name) === fold(line?.name ?? ''));
-        const read = rpg().readJoin(line, rpg().soulNaming(prefix), rpg().joinRules(prefix, ctx.standing, priorJoin?.data?.v2?.result?.module));
+        const read = rpg().readJoin(line, rpg().soulNaming(prefix));
         call.label = 'Party';
         if (read.error) refuse('DM_LABEL', '', read.error);
         if (read.op === '-') {
@@ -301,7 +295,7 @@ export function createParty(deps) {
     function addParty(ctx, payload, call = {}) {
         if (ctx.cause !== 'ui' || ctx.caller !== null) refuse('REFUSED', '', J.cardOnly);
         const soul = payload?.soul === undefined ? 1 : payload.soul;
-        const request = rpg().readJoin({ op: '+', name: payload?.name, labels: { about: payload?.about, class: Number.isSafeInteger(soul) ? CLASS_NAMES[soul - 1] ?? 'X' : 'X', best: payload?.best ?? '' } }, rpg().soulNaming(stateOf(ctx)), rpg().joinRules(stateOf(ctx)));
+        const request = rpg().readJoin({ op: '+', name: payload?.name, labels: { about: payload?.about, class: Number.isSafeInteger(soul) ? CLASS_NAMES[soul - 1] ?? 'X' : 'X', best: payload?.best ?? '' } }, rpg().soulNaming(stateOf(ctx)));
         call.label = 'Party';
         if (request.error) refuse('DM_LABEL', '', request.error);
         // (the reader's own action keeps the limit of 4; an offer made on a reply with the `partyFour` mark meets a full party as a bench card, any other card is refused)
@@ -322,7 +316,7 @@ export function createParty(deps) {
     function benchParty(ctx, payload, call = {}) {
         if (ctx.cause !== 'ui' || ctx.caller !== null) refuse('REFUSED', '', J.cardOnly);
         const prefix = stateOf(ctx), soul = payload?.soul === undefined ? 1 : payload.soul;
-        const request = rpg().readJoin({ op: '+', name: payload?.name, labels: { about: payload?.about, class: Number.isSafeInteger(soul) ? CLASS_NAMES[soul - 1] ?? 'X' : 'X', best: payload?.best ?? '' } }, rpg().soulNaming(prefix), rpg().joinRules(prefix));
+        const request = rpg().readJoin({ op: '+', name: payload?.name, labels: { about: payload?.about, class: Number.isSafeInteger(soul) ? CLASS_NAMES[soul - 1] ?? 'X' : 'X', best: payload?.best ?? '' } }, rpg().soulNaming(prefix));
         call.label = 'Party';
         if (request.error) refuse('DM_LABEL', '', request.error);
         const named = fold(typeof payload?.bench === 'string' ? payload.bench : '');

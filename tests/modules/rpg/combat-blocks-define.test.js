@@ -3,7 +3,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHost } from '../../../testkit/index.js';
 import { COMBAT_V1_TEMPLATES, STATS_V1 } from '../../../modules/rpg/templates-combat.js';
-import { STANDARD_TEMPLATES } from '../../../modules/rpg/templates.js';
 import { barsOf } from '../../../modules/rpg/combat/bars.js';
 import { success } from '../data-modules/helpers.js';
 
@@ -22,15 +21,6 @@ test('the block prompts fit the checker prompt cap and say what the v1 rules cha
     assert.match(character, /1 to 30/u); assert.match(character, /WIS/u); assert.doesNotMatch(character, /LUK|1 to 20/u);
     assert.match(skills, /Legend/u); assert.match(skills, /one stance/iu);
     assert.match(foes, /tier/u); assert.doesNotMatch(foes, /yield/iu);
-});
-
-test('the chooser still offers the earlier templates: nothing v1 reaches a chat until the switch', () => {
-    const slugs = STANDARD_TEMPLATES.map(entry => entry.definition.slug);
-    assert.ok(slugs.includes('character'));
-    assert.notEqual(STANDARD_TEMPLATES[0].definition, characterV1);
-    assert.ok(STANDARD_TEMPLATES[0].definition.state.luk, 'still the LUK character');
-    assert.equal(STATS_V1.includes('luk'), false);
-    assert.equal(STATS_V1.includes('wis'), true);
 });
 
 test('a stat sweep (each stat its own value): the largest HP, MP and SP the Character rules work out are combat/bars.js barsOf at every level', async t => {

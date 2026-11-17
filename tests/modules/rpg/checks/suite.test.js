@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHost, hostAvailable } from '../../../../testkit/index.js';
 import { LEAN_RPG_FEATURE } from '../../../../modules/rpg/index.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { checksOf } from '../../../../modules/rpg/practice.js';
 import { success } from '../../data-modules/helpers.js';
 import { tailOf } from '../helpers.js';

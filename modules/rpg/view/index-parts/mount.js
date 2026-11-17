@@ -53,7 +53,7 @@ function addStyle(doc, file) {
  * commands (the settings page saves the Combat rules text through `dm.redefine`); `closeView()` closes the game view
  * ("See it in the story" on the Fight tab); `refresh()` redraws the tabs.
  */
-export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets, headState, readerName = () => '', meta = () => null, save = () => {}, roleOf, featureOn = () => true, currentScreen = null, boardOn = () => false, boardFeature = null, gear = null, openDialog = null, openScreen = () => false, closeView = () => {}, refresh = () => {}, command = null, values = () => ({}), query = null, previewStart = () => null, generateHeld = () => {}, interaction = null }) {
+export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets, headState, readerName = () => '', meta = () => null, save = () => {}, roleOf, featureOn = () => true, currentScreen = null, gear = null, openDialog = null, openScreen = () => false, closeView = () => {}, refresh = () => {}, command = null, values = () => ({}), query = null, previewStart = () => null, generateHeld = () => {}, interaction = null }) {
     const links = STYLE_FILES.map(file => addStyle(doc, file)).filter(Boolean);
     // The numbers a roll would be made with now (Settings → RPG): the roll line on a skill and a class-up note state them.
     // What the story's pack asks for (its formula and numbers), with the pack's name: the default of a reader who has chosen nothing.
@@ -89,7 +89,7 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
     const wizard = createWizard({ headState, readerName, roleOf, openDialog, replyKey, rules, packNote, levels, levelCap });
     const exporter = createExporter({ headState, readerName, roleOf, openDialog });
     const start = createStart({ doc, headState, readerName, featureOn, roleOf, openDialog, wizard, meta, save, redraw: () => refresh() });
-    widgets[PARTY_WIDGET] = createPartyWidget({ chatKey: () => String(ctx?.getCurrentChatId?.() ?? ctx?.chatId ?? ''), headState, readerName, roleOf, openWizard: openDialog ? wizard.open : null, exportCharacter: openDialog ? exporter.open : null, rules, rolled: () => practiceFromRollsOnly(true, values()), levels, board: { on: boardOn, flags: () => boardFlags(headState()) },
+    widgets[PARTY_WIDGET] = createPartyWidget({ chatKey: () => String(ctx?.getCurrentChatId?.() ?? ctx?.chatId ?? ''), headState, readerName, roleOf, openWizard: openDialog ? wizard.open : null, exportCharacter: openDialog ? exporter.open : null, rules, rolled: () => practiceFromRollsOnly(true), levels, board: { on: featureOn, flags: () => boardFlags(headState()) },
         // The slot card behind a card's Inventory button: the switch and the `gear.view` answer (null while off).
         gear: gear ? { on: () => gear.on(), plan: () => planGear(readSheet(headState()), (name, args) => query?.(name, args), readerName()), view: args => { try { return query?.('gear.view', args) ?? null; } catch { return null; } } } : null });
     widgets[WIZARD_WIDGET] = wizard.widget;
@@ -97,11 +97,11 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
     widgets[HOLD_WIDGET] = start.holdWidget;
     let board;
     const fightStart = createStartController({ doc, chat: () => ctx?.chat ?? [], meta, state: headState, preview: previewStart, interaction,
-        board: () => board, on: () => featureOn() && boardOn(), save, refresh, generate: generateHeld, cap: () => autoCapFrom(values()), show: () => openScreen(FIGHT_SCREEN_ID), close: () => closeView?.() });
-    board = createBoardView({ doc, headState: () => fightStart.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rate: () => xpRateFrom(values()), rules, query, readerName, roleOf, levels, on: boardOn, start: fightStart, cap: () => autoCapFrom(values()) });
+        board: () => board, on: () => featureOn(), save, refresh, generate: generateHeld, cap: () => autoCapFrom(values()), show: () => openScreen(FIGHT_SCREEN_ID), close: () => closeView?.() });
+    board = createBoardView({ doc, headState: () => fightStart.state(), meta, save, store, interaction, practice: () => practiceOf(values()[PRACTICE_SETTING]) ?? undefined, rate: () => xpRateFrom(values()), rules, query, readerName, roleOf, levels, on: featureOn, start: fightStart, cap: () => autoCapFrom(values()) });
     let offers;
     const offerView = createOfferLineView({ doc, onFight: data => offers.choose(data, 'board'), onAuto: data => offers.choose(data, 'auto') });
-    offers = createFightOffers({ ctx, doc, store, meta, on: () => featureOn() && boardOn() && isStandard(rulesFromSettings(values(), packOnce())), view: offerView,
+    offers = createFightOffers({ ctx, doc, store, meta, on: () => featureOn() && isStandard(rulesFromSettings(values(), packOnce())), view: offerView,
         open: ({ auto = false } = {}) => { if (!board.open()) return false; if (auto) board.auto(); openScreen(FIGHT_SCREEN_ID); return true; }, save, refresh });
     const battleLog = createBattleLog({ ctx, doc, store, events, featureOn, roleOf, readerName, levels, offer: offers });
     widgets[FIGHT_WIDGET] = createFightWidget({ headState, readerName, roleOf, battleLog, closeView, levels, board, start: fightStart });
@@ -133,7 +133,7 @@ export function mountLeanRpg({ doc, ctx, store, events = null, screens, widgets,
         exporter,
         start,
         cardLines: info => { try { return rpgReplyLines({ ...info, roleOf, rules: rules() }); } catch { return []; } },
-        settingsSections: () => [rpgSection({ featureOn, headState, readerName, roleOf, command, pack, gear, boardFeature, gearOf: () => { try { return planGear(readSheet(headState()), (name, args) => query?.(name, args), readerName()); } catch { return null; } } })],
+        settingsSections: () => [rpgSection({ featureOn, headState, readerName, roleOf, command, pack, gear })],
         heroLead: state => { try { return heroLead(state, { own: readerName(), roleOf, ...levels() }); } catch { return null; } },
         destroy() {
             battleLog.destroy();

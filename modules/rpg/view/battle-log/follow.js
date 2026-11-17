@@ -4,14 +4,13 @@
 import { readRecord } from '../../../../core/persist.js';
 import { fold } from '../../read.js';
 import { characterReading, soulShortOf } from '../../soul.js';
-import { noRollOf } from '../../noroll.js';
 import { checksOf } from '../../practice.js';
 import { buildCheckCard } from '../check-card.js';
 import { readParty } from '../party-data.js';
 import { BATTLE_ROOT, FOLD_KEY, RECENT_MESSAGES } from './constants.js';
 import { resolveOf } from './read.js';
 import { panelModel } from './model.js';
-import { buildPanel, buildNote } from './draw.js';
+import { buildPanel } from './draw.js';
 import { CONSUMED, isHiddenMarker, markerNodes, hideMarkers, releasePanel, placeAtMarker, nodesOf } from './marker.js';
 
 const storage = doc => {
@@ -71,15 +70,6 @@ export function createBattleLog({ ctx, doc = globalThis.document, store, events 
         return { key: `${chatKey()}|${record.sid ?? index}`, model: panelModel({ resolve, state, before: beforeOf(index), roleOf, ranks: levels().ranks ?? [] }) };
     }
 
-    /** The no-rolls note reply `index` shows: { key, model: note } or null (it has rolls, no note, a message of the reader's, the feature off). */
-    function noteAt(index) {
-        const message = chat()[index];
-        if (!featureOn() || !message || message.is_user || message.is_system) return null;
-        const record = readRecord(message);
-        const note = record ? noRollOf(record.receipts) : null;
-        return note ? { key: `${chatKey()}|${record.sid ?? index}|noroll`, model: note } : null;
-    }
-
     /** The Check card reply `index` shows: { key, model: results } or null (no story check, a message of the reader's, the feature off). */
     function checkAt(index) {
         const message = chat()[index];
@@ -123,7 +113,7 @@ export function createBattleLog({ ctx, doc = globalThis.document, store, events 
         if (!message) return null;
         const old = panelsIn(message);
         const log = modelAt(index);
-        const shown = log ?? noteAt(index) ?? checkAt(index);
+        const shown = log ?? checkAt(index);
         if (!shown) {
             for (const node of old) releasePanel(doc, node);
             const text = message.querySelector('.mes_text');
@@ -142,7 +132,7 @@ export function createBattleLog({ ctx, doc = globalThis.document, store, events 
             if (variant === 'card') placeCard(message, kept);
             return kept;
         }
-        const node = log ? buildPanel(doc, shown.model, { folded: folds.has(shown.key), variant, index, onFold: on => folds.set(shown.key, on) }) : Array.isArray(shown.model) ? checkNode(shown.model, variant, index, shown.key) : buildNote(doc, shown.model, { variant, index });
+        const node = log ? buildPanel(doc, shown.model, { folded: folds.has(shown.key), variant, index, onFold: on => folds.set(shown.key, on) }) : checkNode(shown.model, variant, index, shown.key);
         node.setAttribute('data-ss-sign', sign);
         if (marked) {
             for (const item of old) item.remove();
@@ -226,7 +216,7 @@ export function createBattleLog({ ctx, doc = globalThis.document, store, events 
     }
 
     return {
-        refresh, refreshAll, modelAt, noteAt, latest,
+        refresh, refreshAll, modelAt, latest,
         destroy() {
             offs.splice(0).forEach(off => off());
             for (const node of doc.querySelectorAll(`.${BATTLE_ROOT}`)) {

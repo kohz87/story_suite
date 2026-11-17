@@ -5,7 +5,7 @@ import { castSkillsOf } from '../../packs/cast-skills.js';
 import { CAST_LIMITS, CAST_SKILL_STATS } from '../../packs/limits.js';
 import { STATS } from '../../modules/rpg/names.js';
 import { SKILL_SLOTS_MAX, skillSlots, signatureAt } from '../../core/runtime/skill-slots.js';
-import { STANDARD_TEMPLATES_EIGHT as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../modules/rpg/templates.js';
 import { partyLines } from '../../modules/rpg/view/changes-lines.js';
 import { readParty } from '../../modules/rpg/view/party-data.js';
 import { buildCharacterFile, parseCharacterFile } from '../../modules/rpg/charfile.js';
@@ -67,14 +67,6 @@ test('skill slots by level: 5, a sixth at Lv 20, a seventh at 40, an eighth at 6
     assert.equal(signatureAt(0, 1) || signatureAt(undefined, 1) || signatureAt(1, 9), false);
 });
 
-test('the Skills template has eight slots, the signature mark (hidden, not typed) and 16 kinds', () => {
-    const { state, kinds, rules } = STANDARD_TEMPLATES.find(entry => entry.name === 'Skills').definition;
-    assert.equal(Object.keys(state).length, 50);
-    assert.equal(Object.keys(kinds).length, 16);
-    assert.equal(rules.length, 8);
-    assert.deepEqual([state.sig.edit, state.sig.prompt, state.sig.min, state.sig.max, state.sig.default], [false, false, 0, 255, 0]);
-});
-
 test('a character file holds up to eleven skills (eight combat, three utility) and refuses twelve', () => {
     const skill = n => ({ name: `S${n}`, about: 'x', stat: 'str', uses: 'stamina', rank: 0, ...(n >= 8 ? { type: 'utility' } : {}) });
     const stats = Object.fromEntries(STATS.map(stat => [stat, 10]));
@@ -86,24 +78,6 @@ test('a character file holds up to eleven skills (eight combat, three utility) a
     assert.equal(parseCharacterFile(JSON.stringify({ ...file, skills: Array.from({ length: 4 }, (_, n) => ({ ...skill(n), type: 'utility' })) })).ok, false);
 });
 
-
-test('a join fills the first free slots as written, marks them signature, and tells them in its one receipt', { skip }, async t => {
-    const host = await world(t);
-    await host.send('Mara walks in.', reply('+ party Mara | about: a ferrywoman'));
-    const fields = fieldsOf(host, 'mara-skills');
-    assert.deepEqual(mine(fields), [[1, 'Tide Step', 'agi', 'stamina', 1, 0], [2, 'Ferry Spark', 'int', 'mana', 0, 0], [3, 'Rope Haul', 'str', 'stamina', 2, 0]]);
-    assert.equal(fields.about1, 'Light footwork on a rocking deck.');
-    assert.equal(fields.sig, 7);
-    assert.equal(fields.skill4, '', 'free slots stay for the narrator');
-    const joined = joinReceipt(host);
-    assert.equal(joined.summary, 'Mara joined the party. Signature skills: 3.');
-    assert.deepEqual(joined.data.sigSkills, [{ name: 'Tide Step', about: 'Light footwork on a rocking deck.', stat: 'agi', uses: 'stamina', rank: 1 }, { name: 'Ferry Spark', about: 'A small lantern-flash of magic.', stat: 'int', uses: 'mana', rank: 0 }, { name: 'Rope Haul', about: 'Hauls a line hand over hand.', stat: 'str', uses: 'stamina', rank: 2 }]);
-    assert.deepEqual(receipts(host).map(entry => entry.type).filter(type => type !== 'dm.settle'), ['capture.party'], 'no receipt of its own');
-    assert.deepEqual(told(host).filter(message => !/ROLLS/.test(message)), []);
-    const party = readParty(host.head(), {});
-    const skills = party.find(person => person.name === 'Mara').skills;
-    assert.deepEqual(skills.map(skill => [skill.name, skill.signature === true]), [['Tide Step', true], ['Ferry Spark', true], ['Rope Haul', true]]);
-});
 
 test('the join receipt becomes one tile per skill (signature, rank, stat and resource) and the summary counts them', () => {
     const record = { receipts: [{ id: 'r1', data: { join: { op: 'added', name: 'Harrak' }, sigSkills: [{ name: 'Long Watch Cleave', stat: 'str', uses: 'stamina', rank: 2 }, { name: 'Beacon Call', stat: 'cha', uses: 'mana', rank: 1 }] } }] };
@@ -132,21 +106,6 @@ test('a person without skills in the pack, or not in the cast, joins exactly as 
 
 // ---- what the story and the reader may do ------------------------------------------------------------------------------------------------
 
-test('the story cannot rename or replace a signature skill: its learn line is refused with a Problems line; a new skill takes a free slot; practice works', { skip }, async t => {
-    const host = await world(t);
-    await host.send('Mara walks in.', reply('+ party Mara'));
-    await host.send('Teach.', reply('~ dm mara-skills — taught | kind: learn-1 | name: tide STEP | about: Changed. | stat: str | uses: mana'));
-    assert.deepEqual(mine(fieldsOf(host, 'mara-skills')).map(row => row[1]), ['Tide Step', 'Ferry Spark', 'Rope Haul']);
-    assert.equal(fieldsOf(host, 'mara-skills').about1, 'Light footwork on a rocking deck.');
-    assert.ok(told(host).some(message => message.includes('Mara\'s Tide Step is a signature skill: it keeps its name and slot')), told(host).join(' | '));
-    await host.send('Teach.', reply('~ dm mara-skills — taught | kind: learn-1 | name: Net Throw | about: Casts a net. | stat: dex | uses: stamina'));
-    const fields = fieldsOf(host, 'mara-skills');
-    assert.equal(fields.skill1, 'Tide Step', 'a different name never replaces slot 1');
-    assert.deepEqual([fields.skill4, fields.sig], ['Net Throw', 7], 'it takes the first free slot and is not signature');
-    await host.send('Train.', reply('+ dm mara-skills — practised Rope Haul on the quay | kind: practice-1 | amount: 12'));
-    assert.equal(fieldsOf(host, 'mara-skills').practice3, 12);
-});
-
 test('the reader\'s pencil still fixes a signature skill\'s wording, and it stays signature', { skip }, async t => {
     const host = await world(t);
     await host.send('Mara walks in.', reply('+ party Mara'));
@@ -158,51 +117,4 @@ test('the reader\'s pencil still fixes a signature skill\'s wording, and it stay
     assert.equal((await host.sdk.command('dm.set', { module: 'pack.chat/mara-skills', fields: { rank1: 3 } })).ok, false, 'nor a rank');
 });
 
-test('leave and return keep rank and practice, and fill nothing again', { skip }, async t => {
-    const host = await world(t);
-    await host.send('Mara walks in.', reply('+ party Mara'));
-    await host.send('Train.', reply('+ dm mara-skills — practised Tide Step | kind: practice-1 | amount: 20'));
-    await host.send('She goes.', reply('- party Mara'));
-    await host.send('Back.', reply('+ party Mara'));
-    const fields = fieldsOf(host, 'mara-skills');
-    assert.deepEqual(mine(fields), [[1, 'Tide Step', 'agi', 'stamina', 1, 20], [2, 'Ferry Spark', 'int', 'mana', 0, 0], [3, 'Rope Haul', 'str', 'stamina', 2, 0]]);
-    assert.equal(fields.sig, 7);
-    assert.equal(joinReceipt(host).summary, 'Mara is back in the party.');
-    assert.equal('sigSkills' in joinReceipt(host).data, false);
-});
-
 // ---- a pack updated while the chat is running -----------------------------------------------------------------------------------------
-
-test('members who joined before the pack had skills keep exactly what they have; an update never changes them', { skip }, async t => {
-    const host = await world(t, { list: [person(), person({ id: 'tam', name: 'Tam', aliases: [] })] });
-    await host.send('Mara walks in.', reply('+ party Mara'));
-    await host.send('Mara learns.', reply('~ dm mara-skills — taught | kind: learn-1 | name: Tide Step | about: My own take. | stat: dex | uses: stamina'));
-    const before = JSON.stringify(fieldsOf(host, 'mara-skills'));
-    await update(host, [person({ skills: SKILLS }), person({ id: 'tam', name: 'Tam', aliases: [], skills: [{ name: 'Cold Hands', about: 'Numbs a wound.', stat: 'vit', rank: 'master' }] })]);
-    assert.equal(JSON.stringify(fieldsOf(host, 'mara-skills')), before, 'no overwrite, no duplicate, no mark on her story-made skill');
-    assert.equal(fieldsOf(host, 'mara-skills').sig, 0);
-    await host.send('Quiet.', reply('+ coin 1'));
-    assert.equal(JSON.stringify(fieldsOf(host, 'mara-skills')), before);
-    // a member who has not joined yet gets theirs on joining, under the pack as it is then
-    await host.send('Tam walks in.', reply('+ party Tam'));
-    assert.deepEqual(mine(fieldsOf(host, 'tam-skills')), [[1, 'Cold Hands', 'vit', 'stamina', 3, 0]]);
-    assert.equal(fieldsOf(host, 'tam-skills').sig, 1);
-});
-
-test('leave and rejoin after the update: the pack\'s skills go into free slots only, those she does not hold by name; rank and practice kept', { skip }, async t => {
-    const host = await world(t, { list: [person()] });
-    await host.send('Mara walks in.', reply('+ party Mara'));
-    await host.send('Mara learns.', reply('~ dm mara-skills — taught | kind: learn-1 | name: Rope Haul | about: Her own haul. | stat: str | uses: stamina'));
-    await host.send('Mara trains.', reply('+ dm mara-skills — practised Rope Haul | kind: practice-1 | amount: 20'));
-    await host.send('She goes.', reply('- party Mara'));
-    await update(host, [person({ skills: SKILLS })]);
-    await host.send('Back.', reply('+ party Mara'));
-    const fields = fieldsOf(host, 'mara-skills');
-    assert.deepEqual(mine(fields), [[1, 'Rope Haul', 'str', 'stamina', 0, 20], [2, 'Tide Step', 'agi', 'stamina', 1, 0], [3, 'Ferry Spark', 'int', 'mana', 0, 0]], 'Rope Haul is hers already: not duplicated, rank and practice kept');
-    assert.equal(fields.sig, 6, 'only the two seeded slots are marked, not her own slot 1');
-    assert.equal(joinReceipt(host).summary, 'Mara is back in the party. Signature skills: 2.');
-    assert.deepEqual(joinReceipt(host).data.sigSkills.map(skill => skill.name), ['Tide Step', 'Ferry Spark']);
-    await host.send('She goes.', reply('- party Mara'));
-    await host.send('Back.', reply('+ party Mara'));
-    assert.deepEqual(mine(fieldsOf(host, 'mara-skills')).map(row => row[1]), ['Rope Haul', 'Tide Step', 'Ferry Spark'], 'a second return fills nothing');
-});

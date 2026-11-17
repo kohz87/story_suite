@@ -1,8 +1,6 @@
 // The RPG part's stand-in: the same commands, cards, queries, hooks, settings and guard, handed to the real part once the library is there.
 
-import { CORE_FEATURE } from '../../../core/features.js';
-import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_AWARD, BOARD_CLEAR_FOES, BOARD_HURTS, BOARD_OPEN_FOES, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, NOROLL, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, RESOLVE, ROLLS, ROLLS_SETTING, USE_ITEM } from '../names.js';
-import { noRoll } from '../noroll.js';
+import { AUTO_CAP, AUTO_CAP_SETTING, BOARD_AWARD, BOARD_CLEAR_FOES, BOARD_HURTS, BOARD_OPEN_FOES, BOARD_SKILL, BOARD_SKILL_CARRY, CHECKS_SETTING, CHECK_STEP, DICE, FIGHT, FOES_TOUCH_QUERY, LEAN_RPG_FEATURE, LEVEL, LEVEL_CAP_SETTING, PRACTICE, PRACTICE_SETTING, PRACTICE_STEP, PRECHECK_LIMIT_MS, PRECHECK_SETTING, USE_ITEM } from '../names.js';
 import { RANK_QUERY, SETTINGS_SCHEMA, XP_RATE, XP_RATE_SETTING, rankQuery } from '../levels.js';
 import { levelsQuery, rosterQueries } from '../roster.js';
 import { rpgLib } from './library.js';
@@ -27,8 +25,8 @@ export function createLazyRpgPart(deps = {}) {
     const run = (name, fallback) => (...args) => { const made = part(); return made ? made.commands[name](...args) : fallback(...args); };
     return {
         commands: {
-            [BOARD_SKILL]: Object.assign(run(BOARD_SKILL, ctx => waiting(ctx)), { feature: CORE_FEATURE.fightBoard }),
-            // (no feature: a rename carries the reader's explicit flags even with the board off)
+            [BOARD_SKILL]: Object.assign(run(BOARD_SKILL, ctx => waiting(ctx)), { feature: LEAN_RPG_FEATURE }),
+            // (no feature: a rename carries the reader's explicit flags even with the RPG off)
             [BOARD_SKILL_CARRY]: run(BOARD_SKILL_CARRY, ctx => waiting(ctx)),
             // (a consumable's effect, owner 14 Nov: the inventory's Use on… and the story's used line; only while the RPG is on)
             [USE_ITEM]: Object.assign(run(USE_ITEM, ctx => waiting(ctx)), { feature: LEAN_RPG_FEATURE }),
@@ -37,9 +35,6 @@ export function createLazyRpgPart(deps = {}) {
             [BOARD_CLEAR_FOES]: Object.assign(run(BOARD_CLEAR_FOES, ctx => waiting(ctx)), { internal: true }),
             [BOARD_OPEN_FOES]: Object.assign(run(BOARD_OPEN_FOES, ctx => waiting(ctx)), { internal: true }),
             [BOARD_AWARD]: Object.assign(run(BOARD_AWARD, ctx => waiting(ctx)), { internal: true }),
-            [RESOLVE]: Object.assign(run(RESOLVE, ctx => waiting(ctx)), { prelude: true, internal: true }),
-            // (a tiny record with no state, answered at once, the library or not: a stored note replays whatever is loaded)
-            [NOROLL]: Object.assign((ctx, payload) => noRoll(ctx, payload), { prelude: true, internal: true }),
             // (the story-check dice are asked for by the loaded part's hook only; a chat that holds them loads the library first: GUARD_KINDS)
             [DICE]: Object.assign(run(DICE, ctx => waiting(ctx)), { prelude: true, internal: true }),
             [CHECK_STEP]: Object.assign(run(CHECK_STEP, ctx => waiting(ctx)), { internal: true }),
@@ -68,7 +63,7 @@ export function createLazyRpgPart(deps = {}) {
             afterCapture: (view, info) => part()?.hooks.afterCapture(view, info),
             afterReceive: (view, info) => { part()?.hooks.afterReceive(view, info); },
         },
-        settings: { defaults: { [ROLLS_SETTING]: ROLLS[0], [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true }, schema: SETTINGS_SCHEMA },
+        settings: { defaults: { [PRACTICE_SETTING]: PRACTICE.perUse, [XP_RATE_SETTING]: XP_RATE.default, [LEVEL_CAP_SETTING]: LEVEL.max, [AUTO_CAP_SETTING]: AUTO_CAP.default, [PRECHECK_SETTING]: true, [CHECKS_SETTING]: true }, schema: SETTINGS_SCHEMA },
         guard: (view, info) => { const made = part(); return made ? made.guard(view, info) : { ok: false, reason: 'The RPG is not loaded.' }; },
     };
 }

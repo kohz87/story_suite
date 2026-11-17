@@ -7,8 +7,8 @@ story goes on. It is off by default, and with it off Story Block works exactly a
 ## Turning it on
 
 Open **Settings → Features** and switch on **RPG**. A page of its own, **Settings → RPG**, appears under Features
-(see [Settings → RPG](#settings--rpg)). With **Rolls: automatic** (the default) the dice are rolled for you; with
-rolls **off**, the narrator still tells the story, but no dice are rolled and no battle log is drawn.
+(see [Settings → RPG](#settings--rpg)). The dice are rolled for you: code plays every fight on the fight board, and there is no
+Rolls setting, no Fight board switch and no narrated fight.
 
 Make your characters with **New character** on the Party tab (see [Making a character](#making-a-character)); in a new
 chat Home and the first Send ask you to make yours (see [A new chat](#a-new-chat)). To build
@@ -381,15 +381,13 @@ The page shows only while the RPG is on.
 
 - **Stat formula.** The roll table of the Standard formula (see [The stat formulas](#the-stat-formulas)) and four numbers: where stats start, the points at creation, the stat points each level-up gives (1 every 3 levels) and the foe's base (`+ floor(level ÷ 5)`; Health `4 + floor(level ÷ 30)` blocks). On a Foes block of the harder-foes rule the foe adds `floor(level ÷ 4)` whatever the divisor says, and its Health is `12 + floor(level ÷ 30)` blocks, 12 to 15 (see [Harder foes](#harder-foes-new-chats)).
   Rolls already made keep the numbers they were made with.
-- **Fight board.** Turn the board on or off here; this is the same switch as the one on Features. Under it, **Auto-fight cap** (`rpgAutoCap`, a slider from 1 to 8 or **Until the end**, default 3): the most exchanges **Auto** plays in one press.
-- **Rolls.** **Automatic** or **Off**, as above.
+- **Fight board.** The board is on whenever the RPG is: there is no switch for it. This card holds **Auto-fight cap** (`rpgAutoCap`, a slider from 1 to 8 or **Until the end**, default 3): the most exchanges **Auto** plays in one press.
+- **Rolls.** Only **Story checks** (the switch for rolls outside a fight); there is no Rolls setting.
 - **Difficulty.** **Gentle**, **Standard**, **Harsh** or **Custom**. The presets move only the foe's base (2, 4 and 6) and how far short
   a roll may fall and still be "success at a cost"; **Custom** shows its thirteen numbers: **Foe's base** (0 to 15), **Level divisor** (3 to 8, 5 unset),
   **Stat adds** (half the stat, a third of the stat, or full above 10), **"At a cost" when short by** (0 to 5; 0 turns it off), **Decisive at a margin
   of** (4 to 15, or a natural 1 or 20) and **Most exchanges per reply** (1 to 8). A number outside its range is held to
-  it, and a roll already made keeps its own. Under the numbers a bar shows the exact chances of success, success at a cost and fail for your own character (the
-  persona's name, else the first Character block) with their best skill, against a foe of the same level, and it
-  changes as you type.
+  it, and a roll already made keeps its own.
 - **Levels and practice.** **Level cap** (1 to 99, default 99; the pack's cap wins when it names one), **Practice per skill use** (1 to 5, default 3) and **XP rate** (50 to 300 %, in steps of 25, default 100), as in [Levels, XP and skill ranks](#levels-xp-and-skill-ranks).
 - **What the narrator is told about combat.** The text of this chat's Combat rules block (up to 1200 characters, counted
   as you type). It is saved when you leave the box (or close the settings window with text still in it), as an edit of that

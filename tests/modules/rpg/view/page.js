@@ -6,7 +6,7 @@ import { makeMessage } from '../../../helpers/ui-fake-dom.js';
 import { setupDom } from '../../../ui/view/mounts/helpers.js';
 import { mountUi } from '../../../../ui/legacy/ui-host.js';
 import { CORE_FEATURE } from '../../../../core/features.js';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { STANDARD_TEMPLATES as EARLIER_TEMPLATES } from '../fixtures/templates-2.16.js';
 
 export const settle = async () => { for (let n = 0; n < 8; n += 1) await new Promise(resolve => setImmediate(resolve)); };

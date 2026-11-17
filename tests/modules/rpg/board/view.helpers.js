@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
+import { CHOOSER_TEMPLATES as STANDARD_TEMPLATES } from '../../../../modules/rpg/templates.js';
 import { STANDARD_FORMULA } from '../../../../modules/rpg/rules.js';
 import { createBoardView } from '../../../../modules/rpg/board/view.js';
 import { boardSession, discardBoard, openBoard, stageExchange, boardApi } from '../../../core/helpers/board-port.js';

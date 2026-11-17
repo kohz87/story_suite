@@ -2,9 +2,10 @@
 // (`id`, `anchor`, `setup`, `exchanges`, `groups`), made from the open interaction's steps. Reading only: every change goes through `sdk.interaction`.
 import { heldForSid } from '../../../core/interaction/held.js';
 import { settleStep } from '../../../core/interaction/watch.js';
-import { toExchanges } from './interaction.js';
 
 export const FIGHT_KIND = 'story-block/fight';
+// The steps as the board's view reads them: one `{ actions }` per exchange, each input's `args` with its `choice` as the action's `kind`.
+const toExchanges = steps => steps.map(step => ({ actions: step.inputs.map(input => ({ ...input.args, kind: input.choice })) }));
 const plain = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 /** A session-shaped view of an open interaction or a settle payload of the fight kind (null for another kind). `id` is the fight's setup id (what its results name as `board.id`). */

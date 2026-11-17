@@ -6,12 +6,11 @@ import { readFileSync } from 'node:fs';
 
 const WHERE = '(Fight tab, Discard fight)';
 // The held-board helpers are gone; the fight's own notices live in these files now.
-const FILES = ['modules/rpg/precall.js', 'modules/rpg/board/view.js', 'modules/rpg/board/commit.js', 'modules/rpg/board/port-session.js',
-    'modules/rpg/board/start-controller.js', 'modules/rpg/board/engine.js', 'modules/rpg/board/engine-parts/play.js'];
+const FILES = ['modules/rpg/precall.js', 'modules/rpg/board/view.js', 'modules/rpg/board/port-session.js', 'modules/rpg/board/start-controller.js'];
 
 test('the fight notices that tell the reader to discard name the Fight tab button', () => {
-    const text = readFileSync(new URL('../../../modules/rpg/board/commit.js', import.meta.url), 'utf8');
-    assert.ok(text.includes(`discard the fight ${WHERE}.`));
+    const text = readFileSync(new URL('../../../modules/rpg/board/view.js', import.meta.url), 'utf8');
+    assert.ok(text.includes(`discard the fight ${WHERE}`));
 });
 
 test('no shipped string tells the reader to discard without saying where', () => {

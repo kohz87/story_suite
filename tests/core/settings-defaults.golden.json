@@ -131,7 +131,6 @@
       "rpgLevelCap": 99,
       "rpgPracticePerUse": 3,
       "rpgPrecheck": true,
-      "rpgRolls": "automatic",
       "rpgXpRate": 100
     },
     "story-director": {
