@@ -22,7 +22,7 @@ test('the switch is declared, off by default, and its teaching text is a gated c
     assert.equal(feature.default, false);
     assert.equal(part.context.parts.length, 1);
     assert.equal(part.context.parts[0].feature, WORLD_EVENTS);
-    assert.match(part.context.parts[0].static(), /conditions: \+name, -name/);
+    assert.equal(part.context.parts[0].static(), 'A world line may also change the standing conditions where it happens: add `| conditions: +name, -name` (+ sets one, - lifts it), using only names from the pack\'s list of world conditions; the place or region on the line says where it holds. Only for what happens in this scene; write at most one world line in a reply.');
 });
 
 test('on: conditions set through chronicle.condition.set by the narrator, scope from the declared list, ref from the place', () => {
