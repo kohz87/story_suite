@@ -3,13 +3,14 @@
 // as a thread of kind world-event (now, then "outcome decided by the world"), "Still to come" (pending backbone stages, titles only),
 // and the conditions in the party's realm. No brief (the switch off): nothing, and the tracker text is as before.
 
+import { WORLD_EVENT_RULE } from './world-rule.js';
 import { DESC_POINTS, KEY_POINTS, PART_POINTS, flat } from '../shared.js';
 
-/** The block's text, or '' when there is no brief or nothing in it. */
+/** The block's text (the react-not-resolve rule first), or '' when there is no brief (the switch is off). */
 export function worldBriefText(brief) {
     if (!brief || typeof brief !== 'object') return '';
     const list = value => (Array.isArray(value) ? value : []);
-    const lines = [];
+    const lines = [WORLD_EVENT_RULE];
     const threads = list(brief.threads).filter(thread => thread && typeof thread.key === 'string');
     if (threads.length) {
         lines.push('World events:');

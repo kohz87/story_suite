@@ -1,7 +1,7 @@
 // The arc planner and world events (switch story-director.world-events; spec §9, ruling 9; acceptance test 54, the brief's part): with an
 // event Active the planner's brief carries it as a world-event thread (now, then "outcome decided by the world"), "Still to come" (pending
 // backbone stages, titles only) and the conditions in the party's realm; after the event ends its thread is gone. Switch off: the brief
-// is the tracker's alone, as before. (The react-not-resolve rule and its judge wait for the owner's wording: not built here.)
+// is the tracker's alone, as before. (The react-not-resolve rule and its code guard: world-guard.test.js.)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -55,6 +55,7 @@ test('test 54 (the brief): an Active event as a world-event thread, Still to com
             threads: [{ kind: 'world-event', key: 'The levy', now: 'The lord calls a levy.', then: 'outcome decided by the world' }],
             toCome: ['The crowning'],
             conditions: ['unrest@Highmark: Crowds in the streets.'],
+            guard: [{ id: 'levy', title: 'The levy', outcomes: [] }],
         }, 'unrest at Farcliff is in another realm: not in the brief');
         assert.equal((await arc.plan()).ok, true);
         assert.match(model.calls[0].system, /World events:\n- The levy — The lord calls a levy\. → outcome decided by the world\nStill to come:\n- The crowning\nConditions in this realm:\n- unrest@Highmark: Crowds in the streets\./);

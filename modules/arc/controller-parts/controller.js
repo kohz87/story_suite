@@ -4,7 +4,7 @@ import { makeCalendar } from '../../time/calendar.js';
 import { browserStore, reveal as pageReveal, stChatId } from '../../../ui/legacy/director/screens/reveal.js';
 import { ACCEPT, END, UPDATE } from '../commands.js';
 import { FEATURE, arcQuery, currentArc, threadsWithArc } from '../domain.js';
-import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, trackerSummary, worldBriefText } from '../plan.js';
+import { REASON_TEXT, autoPlanReason, noteMark, planText, plannerRequest, readPlan, refuseResolving, trackerSummary, worldBriefText } from '../plan.js';
 import { arcSettings } from '../settings.js';
 import { fightsAmong } from '../../rpg/fights.js';
 import { MODULE_ID, NEEDS_TEXT, PLANNER_TIMEOUT_MS } from './constants.js';
@@ -169,6 +169,7 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
             // reader keeps the note for every plan.
             const noteUsed = Boolean(mark) && (settings.keepNote || seen.current?.note !== mark);
             const previous = seen.current ?? null;
+            const brief = worldBrief(api);
             const request = plannerRequest({
                 template: settings.prompt,
                 genre: settings.genre,
@@ -177,7 +178,7 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
                 note: noteUsed ? settings.note : '',
                 previousArc: previous ? `${previous.key}${previous.desc ? ` — ${previous.desc}` : ''}` : '',
                 // With world events on, the engine's mirror follows the tracker's threads (the query is null while the switch is off).
-                tracker: [trackerSummary(seen.threads), worldBriefText(worldBrief(api))].filter(Boolean).join('\n'),
+                tracker: [trackerSummary(seen.threads), worldBriefText(brief)].filter(Boolean).join('\n'),
                 recent: recentStory(messages, settings.recent),
                 fights: seen.fights,
             });
@@ -193,10 +194,12 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
             });
             if (controller?.signal?.aborted) return fail(id, 'Planning was cancelled.');
             if (!answer?.ok) return fail(id, `Planning failed: ${String(answer?.message || answer?.error || 'no answer came back')}`);
-            const read = readPlan(String(answer.text ?? ''), { calendar: seen.calendar, now: seen.now, fights: seen.fights, userName: substitute(api, '{{user}}') });
+            const first = readPlan(String(answer.text ?? ''), { calendar: seen.calendar, now: seen.now, fights: seen.fights, userName: substitute(api, '{{user}}') });
+            // With world events on: a beat, clock or agenda that decides an Active event is left out, with the adopted note (arc card; the accept receipt).
+            const { read, refused } = refuseResolving(first, brief?.guard);
             const errors = read.findings.filter(entry => entry.severity === 'error');
             if (errors.length) return fail(id, `The plan could not be used: ${errors.map(entry => entry.text).join(' ')}`);
-            const draft = { text: planText(read), findings: read.findings, reason, note: mark, noteUsed };
+            const draft = { text: planText(read), findings: read.findings, reason, note: mark, noteUsed, ...(refused.length ? { refused } : {}) };
             keep(id, { draft });
             // Accept planned arcs automatically: the same strict reading and the same commands as Accept.
             if (settings.autoAccept && chatId() === id) return await accept(draft.text, { auto: true });
@@ -222,7 +225,7 @@ export function createArcController({ sdk = liveSdk, chat = stChat, chatId = stC
         const draft = draftOf(id);
         const given = typeof text === 'string' ? text : draft?.text ?? '';
         const settings = settingsOf(api);
-        const result = await api.command(ACCEPT, { plan: given, reason: draft?.reason ?? 'manual', note: draft?.note ?? noteMark(settings.note) });
+        const result = await api.command(ACCEPT, { plan: given, reason: draft?.reason ?? 'manual', note: draft?.note ?? noteMark(settings.note), ...(Array.isArray(draft?.refused) && draft.refused.length ? { refused: draft.refused } : {}) });
         if (!result?.ok) return fail(id, result?.message ?? 'The plan could not be accepted.');
         const { arc, pending = [] } = result.receipt?.data ?? {};
         const skipped = [];

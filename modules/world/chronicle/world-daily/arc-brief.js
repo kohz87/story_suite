@@ -21,7 +21,7 @@ const MAX = 8;
 const DONE = new Set(['active', 'ended', 'lapsed', 'replaced']);
 const fill = (text, outcome, bind) => String(text ?? '').replace(/\{outcome\}/g, outcome ?? '').replace(/\{place\}/g, bind?.place ?? '').replace(/\{region\}/g, bind?.region ?? bind?.place ?? '').replace(/\{realm\}/g, bind?.realm ?? '').replace(/\s+/g, ' ').trim();
 
-/** `{ threads: [{ kind, key, now, then }], toCome: [title], conditions: [text] }` from the step's state, the conditions and the world. */
+/** `{ threads: [{ kind, key, now, then }], toCome: [title], conditions: [text], guard: [{ id, title, outcomes: [name] }] }` (guard: the Active events, for the planner's code guard) from the step's state, the conditions and the world. */
 export function arcBrief({ daily = null, table = {}, world = {}, place = '', minute = null } = {}) {
     const { events } = readDefs(world);
     const rows = daily?.events ?? {};
@@ -30,6 +30,7 @@ export function arcBrief({ daily = null, table = {}, world = {}, place = '', min
         const summary = fill(def.summary, row.outcome, row.bind);
         return { kind: 'world-event', key: def.title, now: row.outcome ? `${summary} (outcome: ${row.outcome})` : summary, then: WORLD_EVENT_THEN };
     });
+    const guard = events.filter(def => rows[def.id]?.state === 'active').slice(0, MAX).map(def => ({ id: def.id, title: def.title, outcomes: def.outcomes.map(each => each?.name).filter(name => typeof name === 'string') }));
     const toCome = events.filter(def => (def.kind === 'chain-stage' || def.certainty === 'set-in-motion') && !DONE.has(rows[def.id]?.state) && rows[def.id]?.fired === undefined).slice(0, MAX).map(def => def.title);
     const geo = buildGeo(world);
     const found = place ? resolveRef(geo, place) : null;
@@ -38,7 +39,7 @@ export function arcBrief({ daily = null, table = {}, world = {}, place = '', min
     const conditions = realm === null ? [] : Object.keys(table ?? {}).sort()
         .filter(key => entryActive(table[key], Number.isInteger(minute) ? minute : 0) && realmsOf(geo, [table[key].ref]).includes(realm))
         .slice(0, MAX).map(key => `${key}${means.get(table[key].name) ? `: ${means.get(table[key].name)}` : ''}`);
-    return { threads, toCome, conditions };
+    return { threads, toCome, conditions, guard };
 }
 
 /** The query (feature-tagged: null while the switch is off). */
