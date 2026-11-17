@@ -15,11 +15,12 @@ import { rememberHeld as rememberInteractionHeld } from '../interaction/held.js'
 import { settleStep } from '../interaction/watch.js';
 import { createLateEvents } from './events-late.js';
 import { createReplyHooks } from './events-hooks.js';
+import { keptProblems } from './problem-keep.js';
 export function createEvents(s, deps) {
     const { ia, markIdle, clearPrompts, ctx, metadata = () => ctx?.chatMetadata, isCarrier, store, ensureInitial, problem, notify, stopChangedBoard, interactionError, reconcileScratch = () => {}, changeHeads, readBlock, strayProblems, legacyProblem, lateLines, captureLines, withCaps, timeline, trySave, saveText, redraw, events, registry, view, prepare, RPG_LOAD_WAIT_MS, rebuild, bus, hasCarrier, reconcileNow, REBUILD_REASONS, INTERCEPTOR_NAME, V1_KEYS, setPrompt, interceptor, onGenerationStarted, onPromptReady, onTextPromptReady, getApi, isolated = () => false } = deps;
     const { resumeHeldBoard, restoreHeldBoard } = createHeldEvents(s, { ctx, metadata, store, problem, interactionError, getOnMessageReceived: () => onMessageReceived });
     const { captureLate } = createLateEvents(s, { ctx, isCarrier, store, problem, changeHeads, readBlock, lateLines, captureLines, withCaps, trySave, saveText, redraw, events, registry, bus });
-    const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate });
+    const { afterReply, receivedHooks } = createReplyHooks(s, { ia, store, problem, events, registry, view, captureLate, keepLog: () => s.keepLog?.() });
     s.afterReply = afterReply;   // (Re-read asks it for a repair of a reply that still has no block: reread.js)
 
     /** MESSAGE_RECEIVED: (messageId, type). */
@@ -134,14 +135,21 @@ export function createEvents(s, deps) {
         // The old chat's session and prompts go at once, before anything is awaited: a generation started while the RPG's code loads is the new chat's.
         s.session = null;
         s.heldBoard = null;
+        // The old chat's Problems rows go with it, and none is written to the new chat's metadata until its own rows are read (a late problem of the old chat meets an empty list).
+        s.problemLog.length = 0;
+        s.problemsLoading = true;
         s.quiets = [];
         markIdle();
         clearPrompts();
         // The RPG's code, when this chat needs it (the feature is on, or it holds the RPG's records), before anything is replayed (rpg-lazy.js); a stalled
         // import is waited for only RPG_LOAD_WAIT_MS (the guard mark then says the code is missing, so a later load makes the chat look again).
         if (typeof prepare === 'function') { try { await within(prepare(), RPG_LOAD_WAIT_MS); } catch { /* the loader reports its own failure */ } }
-        rebuild({ publish: false });
+        try { rebuild({ publish: false }); } catch (error) { s.problemsLoading = false; throw error; }
         const meta = metadata();
+        // The chat's own Problems list comes back with it (a reload keeps it; another chat has its own).
+        s.problemLog.unshift(...keptProblems(meta));
+        s.problemsLoading = false;
+        s.keepLog?.();
         // A fight left open by a build from before the port is closed (turn/pre-port-fight.js); the interaction scratch follows the head by itself (reconcileScratch).
         const closed = dropPrePortFight(meta);
         if (closed !== null) {

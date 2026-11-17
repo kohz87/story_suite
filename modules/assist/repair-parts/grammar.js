@@ -7,7 +7,7 @@ const LINES = Object.freeze({
     coin: '+ coin 30 copper | from: who (- coin 8 copper | to: who): only coin that changes hands in this reply, with the amount AND the coin name the reply uses; never a price that is only talked about',
     item: '+ item Name | qty: 1 (- item Name | qty: 1 when used up, lost or given away): never + item for something already under Carried unless the reply gives a second one',
     hook: '+ hook|quest Name — summary (hook: a lead or job offered; quest: a job {{user}} accepted); - quest Name — outcome or - hook Name when the reply plainly shows it finished or closed; accept or close only what the reply plainly shows',
-    time: '~ time 9:30 am (a clock time today, only when the reply gives one) or ! time +2h / ! time +1d (time passes; hours or days, never a date)',
+    time: '~ time 9:30 am (a clock time today, only when the reply gives one) or ! time +20m / ! time +2h / ! time +1d (time passes; minutes, hours or days, never a date)',
 });
 
 /** The shared grammar `lines` with the repair's own line in place of the coin, item, hook and time lines (other lines as they are). */
