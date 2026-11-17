@@ -38,7 +38,7 @@ test('the global host and the manifest agree: v2, the interceptor, the CSS; the 
     assert.equal(typeof globalThis[manifest.generate_interceptor], 'function');
     assert.equal(globalThis.StoryBlock.apiVersion, 2);
     assert.equal(globalThis.StoryBlock.sdk, sdk);
-    assert.deepEqual(sdk.modules().map(module => module.id), ['story-block', 'story-director']);
+    assert.deepEqual(sdk.modules().map(module => module.id), ['people', 'story-block', 'story-director']);
     assert.ok(!/import[^;]*index\.v1\.js|from '\.\/src\/(?!v2\/)/.test(readFileSync(new URL('../../core/boot/boot.js', import.meta.url), 'utf8')), 'v1 is not loaded');
 });
 

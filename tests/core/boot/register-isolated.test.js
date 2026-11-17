@@ -50,7 +50,7 @@ test('an injected throw in each built-in module in turn leaves the others regist
   }
 });
 
-test('the list is one fixed order: the Story Director module, ids unique', () => {
-  assert.deepEqual(BUILTIN_MODULES.map(one => one.id), ['story-director']);
+test('the list is one fixed order: the Story Director module, then the people module, ids unique', () => {
+  assert.deepEqual(BUILTIN_MODULES.map(one => one.id), ['story-director', 'people']);
   assert.equal(Object.isFrozen(BUILTIN_MODULES), true);
 });
