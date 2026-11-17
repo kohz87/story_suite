@@ -2,7 +2,7 @@
 
 import { pin, sync, tell, unpin, applyAwayLine, applyKeyLine } from '../capture.js';
 import { DEFAULT_CAP, DEFAULT_TOKENS, FEATURE, MAX_CAP, initialKeyPeople, validateKeyPeople } from '../domain.js';
-import { GRAMMAR, tail, tokensOf } from '../note.js';
+import { GRAMMAR, STATIC_TEXT, tail, tokensOf } from '../note.js';
 import { queries } from '../queries.js';
 import { KEY_PEOPLE_WIDGET, keyPeopleWidget } from '../widget.js';
 import { afterCapture, beforeGenerate } from './hooks.js';
@@ -35,6 +35,8 @@ export const part = {
         key: { grammar: () => '', heads: ['- key'], apply: applyKeyLine, feature: FEATURE },
     },
     context: {
+        static: env => (env?.keyPeople ? STATIC_TEXT : ''),
+        staticFeature: FEATURE,
         tail: view => tail(view),
         // The tokens the tail may spend: the setting (module.js follows it, so a larger budget is not cut by the module's).
         budget: DEFAULT_TOKENS,

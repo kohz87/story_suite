@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../../ui/legacy/director/module.js';
 import { STATIC_TEXT, staticText } from '../../../../modules/time/tracker/note.js';
 import { STATIC_TEXT as ATLAS_STATIC, TAIL_BUDGET as ATLAS_BUDGET, TRIP_TAIL_BUDGET } from '../../../../modules/atlas/atlas/note.js';
+import { STATIC_TEXT as KEY_PEOPLE_STATIC } from '../../../../modules/cast/keypeople/note.js';
 import { RECAP_BUDGET } from '../../../../modules/time/recap.js';
 import { screens as SCREENS } from '../../../../ui/legacy/director/screens/index.js';
 import { mapScreen } from '../../../../modules/atlas/atlas/screen.js';
@@ -45,9 +46,11 @@ test('statics in part order, budgets summed, kinds dispatched to their part', ()
     assert.equal(chroniclePart.context.static({ chronicle: true }), CHRONICLE_STATIC);
     assert.equal(checksPart.context.static(), '');
     assert.equal(hostStatic(def, id => plain(id) && id !== 'story-director.threads'), staticText({ threads: false }));
-    // The Key people paragraph is gone (B1.7): the prompt has no part of it, pinned or not.
+    // Nobody pinned: the Key people paragraph is not taught (the prompt is what it was); with someone pinned it comes between them (B1.7: without its death sentence).
     assert.equal(hostStatic(def, () => true, {}), `${STATIC_TEXT}\n${def.context.parts.find(part => part.feature === 'story-director.initiative').static()}\n${PULSE_STATIC}`);
-    assert.equal(keyPeoplePart.context.static, undefined, 'no fixed paragraph (B1.7)');
+    assert.equal(keyPeoplePart.context.static({ keyPeople: true }), KEY_PEOPLE_STATIC);
+    assert.equal(keyPeoplePart.context.static({ keyPeople: false }), '');
+    assert.equal(KEY_PEOPLE_STATIC.includes('died'), false, 'no death sentence (B1.7)');
     assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + KEY_PEOPLE_TOKENS + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
     assert.deepEqual(PARTS.map(([id]) => id), ['tracker', 'time', 'atlas', 'chronicle', 'world', 'keypeople', 'cast', 'names', 'pulse', 'arc', 'checks', 'ripples', 'screens']);
     assert.match(def.capture.kinds.hook.grammar, /a quest is a job/);
