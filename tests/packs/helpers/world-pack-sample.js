@@ -6,6 +6,7 @@ export const sample = {
   content: {
     placeKinds: { fort: 'outpost', 'lock town': 'town', district: 'site', sea: 'none', capital: 'capital', town: 'town', dungeon: 'none' },
     routeKinds: { 'bastion road': 'relay-road', 'sea lane': 'sea', road: 'road', river: 'river', 'mountain road': 'pass' },
+    regions: [{ id: 'the-marches', name: 'The Marches', aliases: ['the March'] }, { id: 'highmark-core', name: 'Highmark Core' }],
     realms: [{ id: 'highmark-empire', name: 'Highmark Empire', regions: ['the-marches', 'highmark-core'] }],
     items: [{ name: 'Rye bread', tags: ['grain'] }],
     places: [

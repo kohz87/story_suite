@@ -34,6 +34,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
     bag: pick(query.get('bag'), BAG_LOADS, 'light'),
     scene: pick(query.get('scene'), SCENES, 'off'),
     long: query.get('long') === '1',
+    events: query.get('events') === '1', // World events on: the World tab's Conditions here card and the World events settings rows
     kind: pick(query.get('kind'), ['ferry', 'fight'], 'ferry'), // the scene's kind: the made-up ferry choice or the fight
   };
   let port = null;
@@ -51,6 +52,7 @@ export function startHarness({ doc = globalThis.document, search = '', controls,
       bagLoad: BAG_LOADS.indexOf(state.bag),
       scene: state.scene === 'off' ? null : state.scene,
       sceneLong: state.long,
+      worldEvents: state.events,
       sceneFight: state.kind === 'fight',
     };
   }

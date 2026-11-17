@@ -86,9 +86,15 @@ export function normalize(raw, { add, warn, hostVersion, suiteVersion, capabilit
 
     // The world pack (spec v0.13): realms, kind maps, powers, scores, events, templates, lore; and the cross checks over the places, conditions and cast.
     const world = WORLD_KINDS.some(kind => given[kind] !== undefined);
-    if (world || worldCast || given.conditions !== undefined) Object.assign(content, checkWorldPack({ given, content, packId, weather, ripples, add, warn, world, worldCast }));
+    let startWorld;
+    if (world || worldCast || given.conditions !== undefined) {
+        const { startWorld: checked, ...kept } = checkWorldPack({ given, content, packId, weather, calendar, rawStart: isObject(raw.start) ? raw.start : null, ripples, add, warn, world, worldCast });
+        Object.assign(content, kept);
+        startWorld = checked;
+    }
 
     const start = raw.start === undefined ? null : checkStart(raw.start, add, ref);
+    if (start && startWorld) start.world = startWorld;
     for (const field of IGNORED_TOP_FIELDS) if (raw[field] !== undefined) warn('IGNORED_FIELD', field, `${field} is not read any more (pack format ${PACK_FORMAT}); it was left out.`);
     const theme = raw.theme === undefined ? {} : checkTheme(raw.theme, add, 'theme');
 

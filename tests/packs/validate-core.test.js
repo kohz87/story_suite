@@ -67,7 +67,7 @@ test('size and JSON', () => {
     refused('{ "id": ', 'NOT_JSON');
     refused('   ', 'NOT_JSON');
     refused('x'.repeat(LIMITS.packBytes + 1), 'TOO_LARGE');
-    const big = pack({ content: { quests: Array.from({ length: 200 }, (_, i) => ({ name: `Q${i}`, text: 'y'.repeat(3000) })) } });
+    const big = pack({ content: { quests: Array.from({ length: 400 }, (_, i) => ({ name: `Q${i}`, text: 'y'.repeat(3000) })) } });
     refused(big, 'TOO_LARGE');
     refused('[1, 2]', 'NOT_OBJECT');
     refused(null, 'NOT_OBJECT');

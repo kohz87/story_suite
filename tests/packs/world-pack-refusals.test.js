@@ -36,7 +36,7 @@ refuses([
     ['a threshold number outside the range', w => { event(w, 'war-of-faiths').requires[1] = 'power:ashen-veil >= 140'; }, /outside the range/],
     ['a threshold written with a display name', w => { event(w, 'war-of-faiths').requires[1] = 'power:Ashen Veil >= 40'; }, /id .*not its display name/],
     ['a threshold with ">"', w => { event(w, 'war-of-faiths').requires[1] = 'power:ashen-veil > 40'; }, /only >= and <= exist/],
-    ['a threshold in likelier_if', w => { event(w, 'succession-crisis').likelier_if['power:ashen-veil >= 40'] = '×2'; }, /threshold is not allowed here/],
+    ['a threshold in pre_empted_by (likelier_if and less_if take one, spec v0.14.2)', w => { event(w, 'succession-crisis').pre_empted_by.push('power:ashen-veil >= 40'); }, /threshold is not allowed here/],
     ['a threshold in pre_empted_by', w => { event(w, 'succession-crisis').pre_empted_by.push('score:highmark-stability <= 5'); }, /threshold is not allowed here/],
     ['a negative outcome weight', w => { event(w, 'succession-crisis').outcomes[0].weight = -1; }, /must be 0 or more/],
     ['an outcome weight naming a power that does not exist', w => { event(w, 'succession-crisis').outcomes[0].weight = 'power:Nobody'; }, /no power with that id/],
